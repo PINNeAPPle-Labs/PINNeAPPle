@@ -115,6 +115,91 @@ airfoil — falta o passo LLM→script e o reparo de topologia).
 Ver também §7, `pinneapple_llm.cad_draft` (usado pelo produto `Text2Part`
 em `pinneapple-apps`) como ponto de partida real já validado.
 
+### Reproduzir o comportamento do Astra em CAD com modelos 100% open-source
+**Projeto novo, trazido por Yan em 2026-09-13 — e um contraste de design
+explícito com o que já existe, não apenas uma extensão.** A pergunta
+original: como reproduzir o comportamento positivo de agentes tipo Astra
+(citado também em §7, `OpenV`) para geração de CAD, usando só modelos
+abertos? Receita levantada na sessão, em três camadas:
+
+1. **Backbone open-source** — um modelo especializado em código para
+   gerar o script (`DeepSeek-Coder-V2` ou `Qwen2.5-Coder`), com um
+   modelo generalista maior (`Llama 3.3`) como orquestrador de alto
+   nível que decompõe o pedido em subtarefas.
+2. **CAD programático como alvo de geração** — `CadQuery`/`Build123D`
+   (Python, o mesmo par que a entrada "Spec-to-Solid" acima já usa) ou
+   `FreeCAD` via API Python para geometria+restrições mais ricas;
+   `OpenSCAD` como alternativa CSG mais simples.
+3. **Harness com loop de auto-correção** — decompor o pedido → gerar o
+   script → executar em sandbox → se falhar, devolver o log de erro real
+   do interpretador ao LLM para correção → repetir → montar as peças via
+   coordenadas/transformações relativas no fim.
+
+**Isto é genuinamente diferente do que `pinneapple_llm.cad_draft` faz
+hoje, não uma generalização direta dele — e essa diferença precisa ficar
+explícita antes de qualquer implementação.** `cad_draft.py` deliberadamente
+NUNCA deixa o LLM escrever código CAD livre: ele monta um *recipe* JSON
+(nome de builder + parâmetros + operação booleana, recursivo) validado
+contra o registro real de `pinneapple_design.geometry.gen.primitives`/
+`cadquery_gen` ANTES de qualquer geometria ser executada — um nome de
+builder alucinado é rejeitado, nunca chega a rodar. A receita "Astra-com-
+modelo-aberto" acima é o oposto: o LLM escreve o script Python inteiro,
+que só é validado DEPOIS de rodar (sucesso/erro de execução), com
+correção via replay do log de erro. Isto é uma superfície de risco maior
+(código arbitrário gerado por um modelo pequeno local, precisa de sandbox
+de verdade — não apenas `subprocess`, isolamento real de processo/
+filesystem) em troca de expressividade maior (features CAD que a receita
+JSON de `cad_draft.py` não modela, ex.: fillets/chamfers paramétricos
+encadeados, padrões/arrays de features, sketches 2D->3D complexos).
+
+**Como isto se conecta ao `OpenV`/Astra já mapeado em §7**: o princípio
+"o LLM nunca avalia seu próprio trabalho" do `OpenV` (Astra propõe,
+ferramenta externa de CAD/cálculo produz evidência, comparação
+determinística decide PASS/FAIL) é exatamente o guardrail que esta
+receita precisa para ser segura com um modelo pequeno local — o loop de
+auto-correção por log de erro do interpretador (Python: falha ou não
+falha) já é uma forma primitiva disso, mas "código Python roda sem
+exceção" é um teste muito mais fraco que "a peça satisfaz os requisitos
+físicos/dimensionais reais" — o mesmo gap de rigor que o `veriphysics` já
+resolve para simulação PINN (trust score + Decision Record, não só
+"o código rodou") precisaria ser replicado aqui: um sólido gerado que
+compila e exporta STL/STEP mas tem topologia errada ou dimensão fora de
+especificação passaria no loop de auto-correção acima sem ser pego.
+
+**Como construir isto de verdade, concretamente, sem duplicar
+`cad_draft.py`**: um segundo modo, explicitamente opt-in e claramente
+rotulado como maior risco, dentro de `pinneapple_llm` — não uma
+substituição do modo checked-menu existente:
+1. Novo módulo `pinneapple_llm.cad_script_agent` (nome provisório):
+   aceita um backbone de código (`DeepSeek-Coder-V2`/`Qwen2.5-Coder` via
+   Ollama, mesma camada `_dispatch.call_llm` já usada por `cad_draft.py`)
+   e gera um script CadQuery/Build123D real, não um recipe JSON.
+2. Sandbox de execução real (processo isolado, sem acesso a rede/
+   filesystem fora de um diretório temporário) — este é o item que
+   `cad_draft.py` nunca precisou construir, porque nunca executa código
+   arbitrário; aqui é obrigatório antes de qualquer uso além de
+   experimentação local.
+3. Loop de correção: script falha → captura stderr real → devolve ao
+   LLM com o script original + erro → nova tentativa, com um limite
+   máximo de tentativas (o histórico deste org com modelos locais
+   pequenos — ver `Helm`'s `code_agent.propose_code_change`, que já
+   documentou um modelo `llama3.2:3b` reescrevendo um arquivo inteiro e
+   apagando imports por engano — é um sinal real de que um modelo pequeno
+   não segura um script CAD inteiro na cabeça de forma confiável; vale
+   considerar edição incremental de um script existente em vez de
+   reescrita completa a cada tentativa, mesmo padrão que o `Helm` adotou
+   depois de ver o problema na prática).
+4. Verificação pós-execução real, não só "rodou sem exceção": geometria
+   fechada (watertight), dimensões dentro de tolerância da especificação
+   original — reaproveitando `pinneapple_analysis.verification` (o mesmo
+   pacote de guardrails que `veriphysics` já usa para PINN), não
+   inventando um verificador novo.
+5. Só depois de (1)-(4) existirem de verdade, comparar lado a lado contra
+   `cad_draft.py` no mesmo conjunto de pedidos — decidir com números reais
+   se o modo script-livre realmente resolve algo que o modo checked-menu
+   não resolve, em vez de assumir que "mais expressivo" significa
+   "melhor" sem medir.
+
 ---
 
 ## 3. Infraestrutura de Physics AI / Scientific ML
@@ -237,7 +322,26 @@ LBM é o solver certo para isso porque opera sobre grid fixo sem malha.
 **Projeto novo.** Usar o dataset físico de 15 TB da Polymathic AI ("The
 Well") como pretraining/benchmark externo para testar se os surrogates do
 ChordIQ generalizam fora do domínio de mistura/cloramina. Fonte:
-[PolymathicAI/the_well](https://github.com/PolymathicAI/the_well).
+[PolymathicAI/the_well](https://github.com/PolymathicAI/the_well)
+(verificado nesta sessão: 16 datasets, 6.9 GB–5.1 TB cada, cobrindo
+fluidos, MHD, supernovas, convecção, espalhamento acústico e sistemas
+biológicos; instalável via PyPI/HuggingFace Hub, interface
+`WellDataset` compatível com `torch.utils.data.DataLoader`). Vários
+desses domínios já têm um preset equivalente no PINNeAPPle (Navier-
+Stokes, onda/acústica, reação-difusão) — o adaptador concreto é
+`pinneapple_data.adapters.well_adapter` (novo módulo, mesmo formato de
+saída que `load_dense_volumes`, já usado por `pinneapple_splash`),
+convertendo um `WellDataset` em tensores de campo no formato interno do
+PINNeAPPle. Três usos concretos, em ordem de esforço: (1) benchmark de
+generalização OOD para o FNO3d já treinado em
+`PINNeAPPle-SplashCFD` (treinar em canal turbulento próprio, avaliar
+contra o subconjunto de fluidos do Well, sem re-treinar); (2) nova
+categoria "dataset" no catálogo externo do `PINNeAPPle-arena` (§1) — o
+catálogo hoje só tipa *modelos* (`ok`/`not_installed`/...), Well é o
+primeiro caso real de "dataset externo" e expõe esse gap de schema; (3)
+corpus de pretraining para o `pinneapple_worldmodel` (Physics Foundation
+Model generalista), o uso mais caro e mais alinhado à visão de longo
+prazo desse módulo.
 
 ---
 
@@ -590,6 +694,212 @@ nesta sessão:
    matemática a priori, decidir sozinho qual das perguntas acima se
    aplica — e produzir uma explicação, não só uma previsão.
 
+### AGI Evaluation Engine — generaliza a "Bateria de validação" em produto próprio
+**Projeto novo, trazido por Yan em 2026-09-13.** Não é uma ideia nova
+para este roadmap — é uma formalização do item "Bateria de validação"
+acima como um produto/framework com identidade própria, em vez de um
+apêndice do `PINNeAPPle-arena`. A tese central trazida na sessão: para
+medir se um sistema tem capacidades de tipo-AGI (generalização,
+descoberta de estrutura, planejamento, adaptação), **nenhuma parte do
+pipeline de avaliação em si precisa de LLM** — só o candidato avaliado
+pode, opcionalmente, ser um LLM. Isso separa "como construo um teste de
+inteligência" de "qual modelo uso para tentar resolvê-lo", e é
+literalmente o mesmo princípio anti-fabricação que `PINNeAPPle-Research`
+já aplica a matemática (pontua contra problema JÁ resolvido, nunca
+LLM-julgando-LLM) — aqui generalizado para PDEs, dinâmica e causalidade.
+
+Arquitetura proposta (todas as peças reaproveitam módulos reais já
+existentes, nenhuma reimplementação do zero):
+
+```
+Task Generator ──► World Generator ──► Environment ──► Agent Interface
+                                                              │
+                                                        Evaluator (sem LLM)
+                                                              │
+                                                    Capability Vector / AGI Profile
+```
+
+| Peça | O que faz | Módulo real a reaproveitar |
+|---|---|---|
+| **World Generator** | Gera mundos paramétricos com verdade-base conhecida (porque foi gerado) | `pinneapple_physics.pde_environment` (presets/BCs/ICs), `pinneapple_design.geometry` (SDF/CSG para geometria procedural), sistemas caóticos já usados em `inverse_sindy` (Lorenz, e por extensão Rössler/logistic map) |
+| **Task Generator** | Famílias paramétricas de problema (causal, dinâmico, geométrico, compositivo), não perguntas de linguagem natural | Reaproveita a "Bateria de validação" acima como conjunto inicial de famílias — não recomeça do zero |
+| **Environment** | Loop observação → ação → novo estado, para tarefas com intervenção (não só previsão passiva) | Candidato natural: `pinneapple_worldmodel` (ambientes/agentes já existentes na visão desse módulo) |
+| **Agent Interface** | Qualquer candidato plugável — PINN, RL, busca, ou um LLM — nunca privilegiado na avaliação | `pinnaitor` (framework de agentes de propósito geral do próprio org) é um substrato candidato para construir agentes-candidato, não para julgar resultado |
+| **Evaluator** | Escora contra verdade-base conhecida (a mesma que gerou o mundo), nunca um segundo LLM julgando o primeiro | Mesmo padrão determinístico de `PINNeAPPle-Research/research/benchmark.py` (overlap de conjunto real, sem chamada de LLM na pontuação) |
+| **Capability Vector / AGI Profile** | Perfil multi-eixo (causal inference, generalização, adaptação, descoberta de invariante, ...) em vez de um único score de acurácia | Nova dimensão de leaderboard para `PINNeAPPle-arena` (§1) — nem toda tarefa vira um número de "quem ganhou", vira um radar de capacidades |
+
+Eixos de tarefa que a bateria acima já cobre parcialmente e este produto
+formaliza: descoberta de lei física (SINDy/Koopman, já real), geometria/
+manifold escondido (gap, já mapeado acima), causalidade estrutural (gap,
+já mapeado acima), transição ordem↔caos (gap, já mapeado acima),
+generalização estrutural entre sistemas com a mesma lei mas superfície
+diferente (ex.: treinar em oscilador mecânico, testar em circuito LC —
+mesma EDO, objetos diferentes; nenhuma infraestrutura disso existe hoje,
+gap novo), e inteligência composicional (compor duas leis físicas
+aprendidas separadamente sem tê-las visto compostas antes; gap novo,
+nenhuma implementação encontrada).
+
+**Por que isto é maior que "mais um item da bateria"**: dar a isso uma
+identidade própria (candidato a nome: `PINNeAPPle-AGI-Lab`, seguindo a
+convenção `PINNeAPPle-Research`/`PINNeAPPle-arena` de repo-satélite thin
+wrapper) permite medir explicitamente a diferença entre
+`memorization ≠ pattern matching ≠ generalization ≠ world-model
+discovery` — hoje nenhum repo do org faz essa distinção de forma
+explícita; `PINNeAPPle-arena` mede acurácia/tempo/memória por
+arquitetura, não "esse modelo descobriu a lei ou só decorou o regime
+treinado". **Pré-requisito antes de qualquer código**: os gaps de
+geometria/manifold, causalidade estrutural e transição ordem↔caos
+listados acima nesta mesma seção §8 precisam existir primeiro — este
+item é o produto que consome esses três pilares, não um substituto para
+construí-los.
+
+---
+
+## 9. Referências externas trazidas por Yan em 2026-09-13 — LBM em GPU, geometria pública de aeronave elétrica, depth estimation, geotecnia
+
+Quatro referências novas (a quinta, The Well, já existia em §4 e foi
+expandida lá em vez de duplicada aqui). Mesma disciplina de §7: cada
+uma só entra se tiver uma conexão explícita com um módulo real do
+PINNeAPPle ou de um repo satélite — nunca "porque é uma tecnologia
+interessante".
+
+### FluidX3D — LBM em GPU/OpenCL como backend de CFD de altíssima performance
+**Projeto novo.** Solver de Lattice Boltzmann Method (LBM) em C++17,
+OpenCL cross-vendor (NVIDIA/AMD/Intel/Apple/ARM, não só CUDA), com
+D2Q9/D3Q15/D3Q19/D3Q27, 55 bytes/célula (vs. ~344 bytes de abordagens
+tradicionais — ~19 milhões de células por GB de VRAM), multi-GPU,
+free-surface LBM (volume-of-fluid), simulação térmica, tracking de
+partículas via immersed-boundary, e voxelização de malha STL acelerada
+por GPU. Fonte: [ProjectPhysX/FluidX3D](https://github.com/ProjectPhysX/FluidX3D)
+(verificado nesta sessão). Licença: **gratuita apenas para uso
+não-comercial** — qualquer uso deste solver para gerar dados de treino
+ou rodar inferência dentro de um produto pago (`PINNeAPPle-apps`,
+`veriphysics`) precisa de revisão de licença própria antes, não pode
+ser assumido compatível.
+
+Conexão direta: `pinneapple_simulation.numerical_solvers` já implementa
+LBM em Python/Numba puro — FluidX3D é uma implementação de referência
+madura, multiplataforma, que resolve o mesmo problema em escala muito
+maior. Módulo relacionado mais natural:
+`pinneapple_simulation.external_solvers` (já faz bridge para
+OpenFOAM/MATLAB/FMU/FEniCS via subprocesso/arquivo) — um
+`fluidx3d_bridge` seguiria o mesmo padrão: escreve `.stl` de entrada,
+invoca o binário FluidX3D compilado localmente, lê `.vtk`/`.png` de
+saída e converte para os tensores de campo internos do PINNeAPPle.
+Conecta também diretamente com o item já existente "Autonomous DOE-CFD"
+(§4): o blueprint nTop/CoreWeave citado ali usa exatamente esta mesma
+ideia (LBM sobre grid cartesiano fixo, sem malha, para rodar milhares de
+geometrias sem falha topológica) — FluidX3D é o substrato open-source
+concreto para validar essa tese antes de construir algo próprio.
+Conecta ainda com `PINNeAPPle-arena` (§1): entraria no catálogo externo
+como `manual_install` (não é `pip install`-ável — C++/OpenCL, precisa
+compilar), mesmo contrato de honestidade já usado para outros repositórios
+só-git do catálogo. E com `PINNeAPPle-SplashCFD`: hoje depende
+inteiramente de dados OpenFOAM (`.splash`); FluidX3D roda um canal
+turbulento em minutos numa única GPU em vez de horas de solver CFD
+tradicional, um candidato real e muito mais barato para o item 4 do
+próprio `ROADMAP.md` desse repo ("um catálogo de modelos populado com
+múltiplos datasets").
+
+### NASA X-57 Maxwell — geometria pública real de aeronave elétrica
+**Projeto novo.** Recursos 3D públicos do X-57 Maxwell, avião
+experimental 100% elétrico da NASA (missão Electrified Aircraft
+Propulsion): `X-57.glb` (visualização/glTF) e `X-57.vsp3` (formato do
+OpenVSP, ferramenta de projeto conceitual de aeronaves). Fonte:
+[science.nasa.gov/3d-resources/x-57-maxwell](https://science.nasa.gov/3d-resources/x-57-maxwell/)
+(verificado nesta sessão).
+
+Conexão direta: `pinneapple_design.geometry` já tem SDF/CSG/mesh/NACA
+airfoil mas nenhum importador de `.vsp3` (OpenVSP tem API Python própria
+— `openvsp`/`degen_geom` — capaz de exportar STL/IGES a partir de um
+`.vsp3`). Um `pinneapple_design.geometry.io.openvsp_bridge` traria uma
+geometria pública, real, bem documentada (NASA publicou dados reais de
+voo e túnel de vento do X-57) para o pipeline de geometria — exatamente
+o tipo de ground truth externo que a disciplina anti-fabricação deste
+ecossistema exige antes de publicar qualquer número de validação.
+Estende diretamente o flagship demo já existente em §6, "Airfoil /
+Engineering Design Optimization" (`missile_aero`, Cp R² 0.99 +
+`01_automotive_aero`) — de um único aerofólio/míssil para uma aeronave
+completa com propulsão elétrica distribuída (múltiplas nacelles ao
+longo da asa), um caso multi-físico (aero + elétrico + térmico) que os
+flagships atuais não cobrem. Conecta também com `PINNeAPPle-apps`: um
+12º produto candidato, "ElectricAeroScreen", seguindo a mesma receita já
+validada de `NozzleScreen`/`RoverMobility` (preset PINN +
+cross-check analítico independente), usando o X-57 como caso de
+validação público em vez de dados proprietários — mas só depois que o
+importador `.vsp3` e um preset de referência existirem; não é um
+produto que se constrói antes da geometria estar disponível no
+pipeline.
+
+### Marigold V2 — depth estimation monocular (encaixe direto num gap já mapeado)
+**Projeto novo, mas não é uma ideia nova — fecha um item que já estava
+no roadmap do `reality2physics`.** Marigold V2
+(`huawei-bayerlab/marigold-v2`) é um Diffusion Transformer quantizado
+(base Qwen-Image-Edit-2509) com adaptadores LoRA, reaproveitado como
+"single-step dense predictor": estima profundidade, normais de
+superfície e albedo a partir de uma única imagem RGB (até 2048²),
+saída em `.npy` + PNG de visualização. Licença Apache 2.0, pesos no
+Hugging Face (`huawei-bayerlab/marigold-v2-0`). Fonte:
+[huawei-bayerlab/marigold-v2](https://github.com/huawei-bayerlab/marigold-v2)
+(verificado nesta sessão).
+
+Conexão direta e já documentada: o próprio README de `reality2physics`,
+seção Roadmap, já lista "Adicionar modalidades: profundidade, térmico
+real (câmera FLIR), áudio" e "Multi-task real (depth, segmentação,
+reconstrução de superfície) via backbones tipo Depth Anything / SAM como
+professores (distillation)" como itens em aberto. Marigold V2 é um
+candidato concreto, aberto (Apache 2.0) e mais rico que um Depth-Anything
+puro para esse papel de "professor": por ser baseado em difusão, permite
+estimar incerteza via múltiplas amostras, e já produz normais de
+superfície junto com profundidade — o que dá um termo de consistência
+físico adicional (normal-de-superfície) para o encoder-decoder do
+`reality2physics`, além do campo de profundidade em si. Módulo
+relacionado no monorepo: `pinneapple_perception` (já extrai observações
+físicas — campos de velocidade, geometria de contorno, frequências
+modais — de imagem/vídeo/áudio, mas nada de profundidade hoje) — um novo
+submódulo `pinneapple_perception.depth` seguiria o mesmo padrão "a
+capacidade genérica vive no PINNeAPPle, a fiação específica do problema
+vive no repo satélite" já usado por `physcurator`/`pinneapple_splash`.
+Uso concreto mais barato: adicionar uma flag `--depth_teacher
+marigold-v2` a `reality2physics/scripts/extract_frames_from_video.py`,
+gravando um canal de profundidade junto ao optical flow (Farnebäck) já
+usado como pseudo-rótulo no fine-tuning em vídeo real (cenário
+`navier_stokes`).
+
+### Geotecnia / Soil-Structure PINN — domínio físico não coberto (sinal de literatura, não uma implementação)
+**Peça em aberto, tratada com o mesmo cuidado anti-fabricação do resto
+deste roadmap.** Artigo em
+`sciencedirect.com/science/article/pii/S0266352X26007251` — **não foi
+possível ler o conteúdo real** (paywall, HTTP 403; o DOI ainda não está
+indexado no Crossref nesta sessão, ou seja, é um artigo muito recente ou
+"in press" de 2026). O que É verificado, e é a base real desta entrada:
+o prefixo do PII (`S0266352X`) corresponde ao ISSN 0266-352X, da revista
+*Computers and Geotechnics* (Elsevier), cujo "Guide for authors" hoje
+convida explicitamente "innovative applications of physics-informed
+AI/ML techniques" para problemas de engenharia geotécnica, e a mesma
+revista já publicou, no mesmo volume 2026, pelo menos um artigo
+próximo confirmado por busca (`S0266352X26000327`, "Utilizing
+physics-informed neural network and geotechnical distance field for
+solving three-dimensional nonlinear consolidation"). Tratar isto como
+**sinal de uma linha de pesquisa ativa** (PINNs para consolidação de
+solo, problemas inversos geotécnicos, encoding de geometria via distance
+field para domínios solo-estrutura irregulares) — não como uma
+afirmação sobre o que o artigo específico contém, o que seria fabricar.
+
+Conexão: nenhum repo do PINNeAPPle-Labs cobre hoje geomecânica/solo —
+o item mais próximo em §6, "Drilling Hydraulics Digital Twin", é
+hidráulica de fluido (lama de perfuração), não mecânica de solo/rocha.
+Candidato a novo domínio flagship: "Geotechnical / Soil-Structure PINN"
+— consolidação não-linear (Terzaghi/Biot), estimação inversa de
+parâmetros (permeabilidade, compressibilidade) a partir de dados de
+campo/laboratório, e encoding de geometria irregular solo-estrutura via
+distance field — este último item reaproveitaria diretamente a
+biblioteca SDF que `pinneapple_design.geometry` já tem para outros
+domínios, em vez de reimplementar. **Pré-requisito explícito antes de
+qualquer código**: ler de fato o artigo (acesso institucional ou
+preprint) para confirmar a contribuição real, em vez de comprometer
+arquitetura com base só no sinal de journal/ISSN.
+
 ---
 
 ## Como este roadmap se conecta ao resto do ecossistema
@@ -615,3 +925,19 @@ nesta sessão:
   aplicação onde a "camada de descoberta de PDE" do seu próprio roadmap
   (`README.md`, seção Roadmap) deveria consumir este pilar em vez de
   reimplementá-lo.
+- §9 é o bucket de referências externas trazidas em 2026-09-13 — mesma
+  disciplina de §7 (conexão explícita com módulo real, nunca "porque é
+  legal"), com um cuidado extra na última entrada (geotecnia): quando a
+  fonte primária não pôde ser lida de verdade (paywall), o item registra
+  isso explicitamente e trata o achado como sinal de literatura, não como
+  fato sobre o conteúdo do artigo. A entrada de The Well foi expandida
+  dentro de §4 (onde já existia) em vez de duplicada aqui.
+- Além das cinco referências de §9, a mesma sessão de 2026-09-13 trouxe
+  dois PROJETOS (não apenas links de terceiros) que também foram
+  mapeados no lugar certo em vez de virarem uma seção à parte: o
+  **AGI Evaluation Engine**, adicionado ao final de §8 (generaliza a
+  "Bateria de validação" que já vivia lá em produto próprio), e o
+  **harness de CAD com modelos open-source estilo Astra**, adicionado ao
+  final de §2 (contrastado explicitamente com o `cad_draft.py` real que
+  já existe, não tratado como extensão direta dele — os dois resolvem
+  problemas diferentes com trade-offs de risco/expressividade opostos).

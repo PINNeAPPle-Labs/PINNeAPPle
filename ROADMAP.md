@@ -1141,3 +1141,143 @@ arquitetura com base só no sinal de journal/ISSN.
   final de §2 (contrastado explicitamente com o `cad_draft.py` real que
   já existe, não tratado como extensão direta dele — os dois resolvem
   problemas diferentes com trade-offs de risco/expressividade opostos).
+
+---
+
+## 10. Estado da arte / para onde o campo está indo (Physical AI, Physics AI, Scientific ML) — mapeado em 2026-09-13
+
+Diferente das seções anteriores, isto não é um catálogo de "projeto para
+construir" — é um mapa de posicionamento: onde a indústria e a pesquisa
+estão indo agora, verificado por pesquisa real (fetch direto quando
+indicado; busca com trecho real citado quando não), e onde cada
+tendência toca (ou não) algo real já existente no PINNeAPPle-Labs. Sem
+isto, o roadmap corre o risco de otimizar peças que o campo já
+resolveu em outro lugar, ou de não perceber uma peça que ficou
+estrategicamente mais importante do que parecia há um ano.
+
+### "Physical AI" (o termo, cunhado pela NVIDIA) — world models + robótica + simulação, não é sinônimo de "Physics AI"
+**Verificado via fetch direto** da NVIDIA Newsroom: em 2026 a NVIDIA
+declarou "Physical AI has arrived — every industrial company will become
+a robotics company" (Jensen Huang), lançando **Cosmos Predict 2.5** e
+**Cosmos Transfer 2.5** (world models abertos para geração de dados
+sintéticos fisicamente plausíveis e avaliação de política de robô em
+simulação), **Cosmos Reason 2** (VLA — vision-language-action — aberto),
+**Isaac Lab-Arena** (benchmarking de política de robô em escala,
+conectado a benchmarks de indústria como Libero/Robocasa) e **OSMO**
+(orquestração cloud-native para geração de dados sintéticos/treino/
+software-in-the-loop). Tudo integrado ao Hugging Face e ao framework
+aberto LeRobot.
+
+**Por que isto importa para o PINNeAPPle-Labs, especificamente**: "Physical
+AI" (robótica + world models + ação) e "Physics AI" (PINNs/neural
+operators/scientific ML, o que este org faz) são campos vizinhos, não o
+mesmo campo — mas já se tocam em pontos reais do próprio roadmap: o
+`pinneapple_worldmodel` (Physics Foundation Model) e o item "Cosmos
+Synthetic Perception Pretrainer" (§5) já usam a família Cosmos
+(`nvidia/Cosmos-Reason2-2B`, já em produção real no `physcurator`); o
+"Multi-Physics Sandbox" (§3, Genesis) e o "LatticePT" (§7) já apontavam
+para a mesma direção de simuladores GPU-nativos multiplataforma que a
+NVIDIA está consolidando com Isaac Sim 6.0/Isaac Lab 3.0. Não é
+recomendação para o org virar uma empresa de robótica — é sinal de que a
+infraestrutura de simulação/world-model que a indústria está investindo
+bilhões para construir (Isaac, Cosmos, Omniverse) é reaproveitável como
+backend por baixo do que este org já faz (superfície física/científica,
+não humanoides).
+
+### Physics AI como categoria de mercado com capital real — mais de US$1B levantado por poucas empresas
+**Verificado via fetch direto** da PhysicsX Newsroom e via busca (dados
+adicionais não fetchados diretamente, tratados como achado de busca, não
+verificação de primeira mão): **PhysicsX** levantou US$300M em Series C
+em junho de 2026 (avaliação ~US$2,4B, liderada por Temasek, com NVIDIA e
+Siemens entre os investidores) — o CEO descreve a tese como "model
+architectures and GPU economics now mature enough to support physics AI
+at production scale" e fala em construir "Large Physics Models" (modelos
+físicos pré-treinados maiores, análogo direto ao `pinneapple_worldmodel`
+deste org, em escala comercial). Concorrentes diretos, todos levantando
+capital relevante no mesmo período (achado via busca): **Neural Concept**
+(US$100M Series C, 2025), **Rescale** (US$115M Series D, 2025), e
+**Luminary Cloud** (US$72M Series B, 2025 — já é a entrada "referência
+competitiva" existente em §7 deste roadmap; esta pesquisa confirma que
+não é um caso isolado, é uma categoria de mercado inteira em movimento).
+Somados a `nTop`, `Monolith AI`, `BeyondMath` e `DIVE Solutions`, a
+categoria "engineering simulation + physics AI" levantou quase US$1B
+combinado.
+
+**Conexão direta**: isto valida e generaliza a nota já existente em §7
+sobre Luminary Cloud ("uso recomendado: benchmark de posicionamento para
+`pinneapple-apps`... e para o `PINNeAPPle-arena`") — o mesmo tratamento
+deveria se aplicar a PhysicsX/Neural Concept/Rescale: claims de
+performance de terceiros (ex.: "segundos em vez de semanas") são claims
+a verificar de forma independente, nunca absorvidas como fato, no mesmo
+espírito anti-fabricação de `tool_recommendation.py`. Para
+`VerifiedPhysics` e `PhysicsCopilot` especificamente, isto confirma que o
+mercado já reconhece o mesmo diferencial que a tese destes produtos
+aposta ("Physics AI + LLM sozinho não é moat, execução mecanicamente
+verificada é") — PhysicsX, com capital 1000x maior, ainda não resolveu a
+parte de verificação/trust do jeito que `veriphysics` já implementa
+(Decision Record, trust score com coverage explícito); isto é uma janela
+de diferenciação real, não apenas otimismo.
+
+### Neural operators e scientific ML — a pesquisa está migrando de arquitetura única para "self-driving research loops"
+**Achado via busca, trechos reais citados, não fetch completo do paper
+primário**: surveys recentes (ex. "Physics-Informed Neural Networks and
+Neural Operators for Parametric PDEs", submetido ao ICAIS 2025)
+descrevem a área migrando de tuning manual de hiperparâmetro para loops
+de pesquisa que iteram sozinhos sobre arquitetura e restrições físicas.
+Avanços pontuais recentes incluem Spectral-boosted FNO (redução de 40%
+no viés de frequência em modelagem sísmica 3D) e Sensitivity-Constrained
+FNO (SC-FNO, ICLR 2025, integra análise de sensibilidade na inversão de
+parâmetro). Conecta diretamente com `pinneapple_neural.architectures`
+(FNO já implementado) e com o item "PDE Foundation Models" já adicionado
+em §4 desta sessão (PDE-FM) — a direção "self-driving research loop" é
+também, em espírito, o mesmo padrão do "Agentic PDE Debugger" (§3) e do
+"PINNeAPPle Auto-PINN" (§1) já catalogados aqui, agora confirmados como
+tendência de campo, não ideia isolada deste org.
+
+### Differentiable simulation — NVIDIA Warp consolidando como padrão de interoperabilidade
+**Achado via busca**: NVIDIA Warp (Python, diferenciável, interopera
+nativamente com PyTorch, JAX, PhysicsNeMo e Omniverse) está se
+consolidando como uma camada comum entre simulação física e treino de
+ML — junto com o ecossistema JAX mais amplo (JAX-MD, já catalogado no
+`PINNeAPPle-arena`'s external catalog) e um benchmark dedicado real,
+"Mosaic: A Benchmark Suite for Differentiable Physics Solvers"
+(arXiv:2606.27895). Conexão direta: `pinneapple_simulation.particle_dynamics`
+hoje é PyTorch puro para MPM/SPH/rigid-body (o próprio `ROADMAP.md`
+principal já nota isto ao discutir Genesis, §3) — Warp é um segundo
+candidato real e mais leve que Genesis para o mesmo papel de backend
+diferenciável GPU-nativo, e já conecta nativamente com o backend JAX que
+`pinneapple_tools.compute_backends` já expõe, sem precisar de uma ponte
+nova.
+
+### AI for Science — descoberta autônoma já produz resultado real e verificável, não só promessa
+**Achado via busca com trechos reais**: o GNoME da DeepMind já descobriu
+2,2 milhões de estruturas cristalinas novas (52 mil condutores de
+lítio-íon), com 736 dessas predições já sintetizadas por pesquisadores
+externos — um resultado real, não um benchmark interno. O modelo de
+clima da DeepMind previu a Furacão Melissa como categoria 5 com dias de
+antecedência e estendeu a janela de aviso em ~3 dias sem perder acurácia
+— ganho comparável a uma década de progresso meteorológico tradicional,
+segundo a cobertura. Do lado de agentes autônomos de pesquisa: o "AI
+Scientist" da Sakana AI (v2, busca em árvore agêntica) já produz papers
+de ponta a ponta (ideia → experimento → escrita → revisão por pares),
+existe desde 2026 uma revista dedicada a papers gerados por IA (JAIGP) e
+uma conferência dedicada a avaliar contribuição científica de IA
+(Agents4Science) — mas avaliações independentes (arXiv:2502.14297)
+já documentaram falhas reais e específicas (revisão de literatura por
+busca de palavra-chave simplista, avaliação de novidade pobre), não
+apenas hype.
+
+**Conexão direta e dupla**: (1) isto é validação externa forte do item
+"Autonomous Scientific Experimentation" (§1, hoje "sobreposição
+parcial") e do "Paper-to-Repro Benchmark Suite" (§3) já catalogados
+aqui — a categoria inteira "agente autônomo de pesquisa científica" está
+madura o suficiente para ter revista e conferência próprias em 2026, não
+é mais especulativo; (2) as falhas documentadas do AI Scientist (revisão
+de literatura rasa, avaliação de novidade fraca) são exatamente o tipo
+de falha que a disciplina anti-fabricação deste ecossistema (scoring
+determinístico contra ground truth conhecida, nunca LLM-julgando-LLM) foi
+desenhada para evitar — o "AGI Evaluation Engine" (§8) e o
+`PINNeAPPle-Research` (scoring contra problema já resolvido) já são,
+por construção, mais rigorosos neste eixo específico do que o estado da
+arte público em agentes de pesquisa autônomos, o que vale documentar
+como diferencial real, não apenas coincidência de design.

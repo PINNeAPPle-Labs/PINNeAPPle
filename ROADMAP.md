@@ -200,6 +200,40 @@ substituição do modo checked-menu existente:
    não resolve, em vez de assumir que "mais expressivo" significa
    "melhor" sem medir.
 
+**Pesquisa verificada em 2026-09-13 — a comunidade de pesquisa já
+identificou o mesmo problema de rigor (4) acima, com abordagens
+concretas.** Três referências lidas de verdade (fetch, não só título),
+todas de 2026:
+- **Embodied CAD** ("Solver-Grounded LLM Agents for Parametric B-Rep
+  Assembly Modeling",
+  [arXiv:2606.31252](https://arxiv.org/abs/2606.31252)) — em vez de
+  gerar um script inteiro de uma vez, o agente escolhe ações de uma
+  "biblioteca de skills CAD estratificada L0-L4", cada ação é executada
+  contra um kernel geométrico exato que valida imediatamente se a
+  feature/posicionamento/relação de montagem é válida como B-Rep
+  paramétrico editável — o feedback do solver guia planejamento,
+  reparo e aprendizado. Isto é essencialmente o item (4) desta entrada
+  ("verificação pós-execução real") já implementado como parte do loop
+  em vez de um passo separado no fim — vale desenhar o passo 3 acima
+  (loop de correção) inspirado nesta ação-por-ação em vez de
+  script-completo-por-tentativa. Nenhum repositório de código público
+  foi encontrado (verificado).
+- **ToolCAD** ("Exploring Tool-Using Large Language Models in
+  Text-to-CAD Generation with Reinforcement Learning", ACL Findings
+  2026) — treina LLMs abertos como agentes tool-using via RL com
+  curriculum online, especificamente para fechar a lacuna de modelos
+  abertos terem desempenho comparável a proprietários neste tipo de
+  tarefa — relevante diretamente para a escolha de backbone
+  (`DeepSeek-Coder-V2`/`Qwen2.5-Coder`) desta entrada: RL sobre o
+  próprio loop de execução/correção, não apenas prompting, é uma
+  direção real para melhorar a taxa de sucesso desses modelos pequenos.
+- **Text2CAD-Bench** ([arXiv:2605.18430](https://arxiv.org/html/2605.18430v1))
+  — benchmark dedicado para geração de CAD paramétrico via LLM,
+  avaliando modelos como Text2CAD/Text2CADQuery/CADFusion. Antes de
+  declarar o modo script-livre "melhor" no passo 5 acima, rodar contra
+  este benchmark público dá um número comparável externamente, não só
+  uma comparação interna contra `cad_draft.py`.
+
 ---
 
 ## 3. Infraestrutura de Physics AI / Scientific ML
@@ -342,6 +376,30 @@ primeiro caso real de "dataset externo" e expõe esse gap de schema; (3)
 corpus de pretraining para o `pinneapple_worldmodel` (Physics Foundation
 Model generalista), o uso mais caro e mais alinhado à visão de longo
 prazo desse módulo.
+
+**Pesquisa verificada em 2026-09-13 — o uso (3) acima já tem um
+resultado publicado que vale ler antes de implementar do zero.**
+"Towards a Foundation Model for Partial Differential Equations Across
+Physics Domains" ([arXiv:2511.21861](https://arxiv.org/abs/2511.21861),
+lido de verdade via fetch, não só título) descreve o **PDE-FM**: um
+backbone Mamba (state-space model) com tokenização espectral-espacial e
+condicionamento físico, pré-treinado em 12 datasets 2D/3D **do próprio
+The Well** cobrindo hidrodinâmica, sistemas radiativos, elasticidade e
+astrofísica — SOTA em 6 dos domínios testados, com redução relativa de
+46% no VRMSE médio contra baselines de neural operator anteriores. Não
+há repositório de código público mencionado no paper (verificado — não
+assumir que existe). Isto muda a ordem de prioridade sugerida acima: o
+uso (3) (`pinneapple_worldmodel` como Physics Foundation Model) não
+precisa começar do zero nem apenas do uso (1)/(2) — replicar/adaptar a
+arquitetura do PDE-FM (Mamba + tokenização espectral, publicamente
+descrita ainda que sem código) sobre o mesmo The Well é um ponto de
+partida mais barato do que desenhar uma arquitetura de foundation model
+própria. Módulo relacionado adicional:
+[jNO](https://arxiv.org/pdf/2605.10159) (biblioteca JAX para treino de
+neural operators/foundation models, verificado via arXiv) conecta
+diretamente com o backend JAX que `pinneapple_tools.compute_backends`
+já expõe, evitando reimplementar a parte de infraestrutura de treino em
+JAX do zero.
 
 ---
 
@@ -603,7 +661,23 @@ expressão fechada como PySR/AI Feynman. Projeto novo:
 verificação determinística de erro de ajuste antes de aceitar qualquer
 expressão (mesmo princípio anti-fabricação do resto do portfólio), com
 uma rota explícita para "distilar" um `GrayBoxNet` já treinado numa
-expressão fechada.
+expressão fechada. **Pesquisa verificada em 2026-09-13** (busca +
+leitura real, não só título): PySR segue sendo a biblioteca de
+referência (confirmado por um estudo comparativo recente que a aponta
+como a mais adequada para recuperar equações de 9 processos dinâmicos,
+incluindo dinâmica caótica e modelos epidêmicos), mas duas extensões
+recentes valem avaliar antes de implementar o wrapper do zero: **ANN-
+PySR** combina PySR com uma rede de atenção residual para identificar
+PDEs a partir de dados esparsos e ruidosos, com speedup de quase duas
+ordens de magnitude; e "Knowledge integration for physics-informed
+symbolic regression using pre-trained large language models" (Nature
+*Scientific Reports*, 2026,
+[doi.org/10.1038/s41598-026-35327-6](https://www.nature.com/articles/s41598-026-35327-6))
+usa um LLM para injetar conhecimento de domínio na busca simbólica —
+conexão direta com `pinneapple_llm` (o mesmo `PhysicsGuardrail` já usado
+em outros pontos do portfólio serviria de verificação determinística
+sobre qualquer expressão que o LLM ajude a propor, mantendo o LLM fora
+do papel de juiz).
 
 ### Geometria / manifold escondido
 **Projeto novo — gap confirmado no código.** Nenhuma implementação de
@@ -621,6 +695,22 @@ Reduction and Manifold Learning" (Ghojogh, Crowley, Karray, Ghodsi,
 Springer 2023) está duplicado em `PINNeAPPle-Talk/resources/
 deeponet_papers_and_notebooks/Papers e Documentos/` e em
 `PINNeAPPle-Talk/resources/cfd_pde_neuralnets_notebooks/` (ver MANIFEST).
+**Pesquisa verificada em 2026-09-13**: existe um candidato Python
+pip-instalável real e pronto para fechar esta lacuna sem esperar por
+`pinneapple_neural.architectures.manifold` inteiro —
+[pyDiffMap](https://github.com/DiffusionMapsAcademics/pyDiffMap)
+(`pip install pyDiffMap`, MIT, diffusion maps de largura de banda
+variável + extensão out-of-sample) — verificado via GitHub/PyPI, não
+apenas citado de memória. Conexão direta com um paper real também
+verificado nesta sessão: "Nonlinear dimensionality reduction then and
+now: AIMs for dissipative PDEs in the ML era"
+([arXiv:2310.15816](https://arxiv.org/pdf/2310.15816)) aplica
+exatamente esta técnica (Diffusion Maps) para reduzir a dimensionalidade
+de PDEs dissipativas — o mesmo tipo de problema que `pinneapple_physics`
+já resolve com PINN, dando um caminho de validação concreto (dataset
+sintético de uma PDE dissipativa já suportada, comparar redução via
+`pyDiffMap` contra `POD` linear existente) antes de generalizar para
+dados observacionais arbitrários.
 
 ### Invariant Discovery Engine
 **Projeto novo.** Hoje o portfólio só *impõe* invariantes já conhecidos
@@ -645,7 +735,20 @@ diagnóstico, não um modelo — barata de construir e reutilizável por
 qualquer item acima (ex.: usar RQA para decidir automaticamente se um
 sistema está no regime em que SINDy/Koopman conseguem generalizar, antes
 de gastar treino de verdade). Módulo relacionado: novo
-`pinneapple_analysis.chaos_metrics`.
+`pinneapple_analysis.chaos_metrics`. **Pesquisa verificada em
+2026-09-13**: [nolds](https://github.com/CSchoel/nolds) (`pip install
+nolds`, numpy puro, confirmado via PyPI/GitHub) já implementa maior
+expoente de Lyapunov (algoritmos de Rosenstein e de Eckmann), expoente
+de Hurst, entropia amostral, dimensão de correlação e DFA — cobre a
+maior parte desta lista pronto para uso, sem precisar reimplementar os
+algoritmos numéricos; `pinneapple_analysis.chaos_metrics` pode nascer
+como wrapper fino sobre `nolds` mais o que faltar (seções de Poincaré,
+análise de bifurcação, RQA), em vez de uma biblioteca do zero. Para
+escala (séries muito longas ou lote de muitas trajetórias): "Chaoticus:
+a parallel approach to the computation of chaos indicators"
+([arXiv:2507.00622](https://arxiv.org/pdf/2507.00622)) é uma referência
+recente para uma versão paralela/GPU, relevante só se `nolds` (CPU,
+single-series) virar gargalo real.
 
 ### Causal discovery estrutural (GNN / NOTEARS / PCMCI)
 **Projeto novo — gap confirmado no código.** Nenhum algoritmo de
@@ -656,7 +759,23 @@ esparsa por trás da bagunça estatística? Conecta com `pinneapple_worldmodel`
 (agentes/ambientes, já citado em §7 para os digital twins biológicos) —
 descoberta causal seria o passo que precede a construção de qualquer um
 daqueles twins a partir de dados observacionais puros, em vez de assumir
-a topologia do grafo a priori.
+a topologia do grafo a priori. **Pesquisa verificada em 2026-09-13**:
+dois candidatos reais, ambos abertos e verificados via GitHub/PyPI/
+arXiv, não apenas citados de memória —
+[Tigramite](https://github.com/jakobrunge/tigramite) (`pip install
+tigramite`, GPL-3, mantido por Jakob Runge, implementa PCMCI/PCMCIplus —
+a referência estabelecida para causalidade em série temporal, incluindo
+laggeds e contemporâneos) e
+[Causal-TS](https://github.com/bloomberg/causal-ts) (Bloomberg, 2026,
+`pip install`-ável, testado em Python 3.10–3.12, quatro algoritmos
+próprios — CDNOTS/CDNOTS+/CEDAR/GRACE — mais wrappers para GES/Granger/
+LASSO-VAR, teste de independência condicional acelerado por GPU via
+PyTorch, e um pipeline de "regime discovery" para quebras estruturais em
+séries não-estacionárias). Tigramite é o ponto de entrada mais maduro e
+testado; Causal-TS é mais recente e endereça especificamente
+não-estacionariedade — relevante porque sistemas físicos reais (troca de
+regime, degradação de equipamento) raramente são estacionários, o mesmo
+problema que já motiva o item "Transição ordem↔caos" acima.
 
 ### Extreme events / rare-event discovery
 **Projeto novo.** Nenhuma infraestrutura de Extreme Value Theory,
@@ -738,6 +857,34 @@ mesma EDO, objetos diferentes; nenhuma infraestrutura disso existe hoje,
 gap novo), e inteligência composicional (compor duas leis físicas
 aprendidas separadamente sem tê-las visto compostas antes; gap novo,
 nenhuma implementação encontrada).
+
+**Pesquisa verificada em 2026-09-13 — validação externa do princípio
+central, não apenas inspiração.** O ARC Prize (arcprize.org) é a
+confirmação mais forte disponível hoje de que "avaliação determinística,
+sem LLM-juiz" é viável em escala real, não só uma boa intenção deste
+roadmap: **ARC-AGI-2** usa "no smoothing, no rubric judgement, and no
+LLM-as-judge intermediary" (verificado via Epoch AI/arcprize.org) — cada
+tarefa é validada por múltiplos humanos resolvendo em ≤2 tentativas, o
+mesmo espírito de "verdade-base conhecida" deste item, só que com
+humanos no lugar do World Generator. Mais relevante ainda para a coluna
+"Environment/Agent Interface" da tabela acima: **ARC-AGI-3** (2026,
+[github.com/arodmor/arc-agi-3](https://github.com/arodmor/arc-agi-3),
+confirmado via arcprize.org — "primeiro benchmark totalmente
+interativo" da série) avalia agentes em quatro eixos — **Exploration,
+Modeling, Goal-setting, Planning & Execution** — sem instruções, sem
+regras declaradas, exigindo que o agente descubra sozinho como o
+ambiente funciona; isto é quase literalmente o "Capability Vector" desta
+seção já validado como benchmark real e competitivo (humanos resolvem
+100%, LLMs de fronteira ficam abaixo de 1% quando usados diretamente,
+segundo o próprio arcprize.org). Dois usos concretos: (1) os quatro
+eixos do ARC-AGI-3 são um ponto de partida testado publicamente para
+nomear as dimensões do Capability Vector, em vez de inventar uma
+taxonomia do zero; (2) avaliar formalmente candidatos-agentes deste
+projeto (PINN/RL/LLM) contra o ARC-AGI-3 real, antes ou em paralelo à
+bateria física própria, dá um ponto de comparação externo e público —
+"este agente físico-específico generaliza tão pouco quanto um LLM de
+fronteira generaliza em ARC-AGI-3, ou melhor?" é uma pergunta que este
+roadmap pode responder com números reais, não afirmação.
 
 **Por que isto é maior que "mais um item da bateria"**: dar a isso uma
 identidade própria (candidato a nome: `PINNeAPPle-AGI-Lab`, seguindo a
@@ -831,6 +978,28 @@ importador `.vsp3` e um preset de referência existirem; não é um
 produto que se constrói antes da geometria estar disponível no
 pipeline.
 
+**Pesquisa verificada em 2026-09-13 — encontrado um atalho real para o
+`openvsp_bridge` acima, mais barato que escrever um bridge do zero.**
+[OpenVSP MCP Server](https://github.com/Three-Little-Birds/openvsp-mcp)
+(MIT, verificado via fetch direto do repositório) já expõe OpenVSP como
+três ferramentas MCP: `openvsp.inspect` (lê IDs de componente e metadados
+de geometria), `openvsp.modify` (edições paramétricas via `.vspscript`
+reproduzível) e `openvsp.run_vspaero` (roda VSPAero e retorna
+coeficientes aerodinâmicos), com export STL/OBJ e suporte a
+STDIO/HTTP/Docker. Isto muda o caminho recomendado: em vez de construir
+`pinneapple_design.geometry.io.openvsp_bridge` como um bridge de
+subprocesso do zero, o caminho mais barato é rodar este servidor MCP
+localmente e deixar um agente (Claude Code incluso) chamá-lo diretamente
+para inspecionar/exportar a geometria do X-57 — só valeria migrar para
+um bridge Python nativo dentro do PINNeAPPle depois de confirmar, via
+este MCP, exatamente quais campos/exports o `.vsp3` do X-57 realmente
+produz. Referência adicional para a mesma tarefa, caso o MCP não cubra
+algo necessário: [AeroSandbox](https://github.com/peterdsharpe/AeroSandbox)
+(discussão pública sobre exportar aeronaves como STEP/STL,
+verificado via GitHub) é uma biblioteca Python pura para projeto
+conceitual de aeronaves, alternativa ao OpenVSP sem dependência de um
+binário C++ externo.
+
 ### Marigold V2 — depth estimation monocular (encaixe direto num gap já mapeado)
 **Projeto novo, mas não é uma ideia nova — fecha um item que já estava
 no roadmap do `reality2physics`.** Marigold V2
@@ -885,6 +1054,37 @@ solving three-dimensional nonlinear consolidation"). Tratar isto como
 solo, problemas inversos geotécnicos, encoding de geometria via distance
 field para domínios solo-estrutura irregulares) — não como uma
 afirmação sobre o que o artigo específico contém, o que seria fabricar.
+
+**Pesquisa verificada em 2026-09-13 — o artigo original continua
+ilegível, mas a linha de pesquisa em si agora tem lastro real, lido de
+verdade, não apenas o sinal indireto de ISSN acima.** Três referências
+confirmadas por busca e leitura de abstract real:
+- "Physics-informed Deep Learning to Solve Three-dimensional Terzaghi
+  Consolidation Equation: Forward and Inverse Problems"
+  ([arXiv:2401.05439](https://arxiv.org/abs/2401.05439)) — PINN 3D para
+  consolidação de Terzaghi, forward e inverso, >99% de acurácia contra
+  método numérico tradicional.
+- "Physics-informed neural networks for back-analysis and consolidation
+  settlement prediction using field measurements" (*Acta Geotechnica*,
+  2025/2026,
+  [doi.org/10.1007/s11440-025-02888-1](https://link.springer.com/article/10.1007/s11440-025-02888-1))
+  — PINN para prever recalque de consolidação sob carregamento em
+  etapas, integrando dados reais de campo (não só sintéticos) — o tipo
+  de validação contra medição real que a disciplina anti-fabricação
+  deste ecossistema já exige em outros domínios.
+- "A Critical Assessment of PINNs and Operator Learning for Geotechnical
+  Engineering" ([arXiv:2512.24365](https://arxiv.org/html/2512.24365))
+  — um review crítico (não promocional) especificamente sobre onde
+  PINN/operator learning funcionam e onde falham em geotecnia; ponto de
+  partida melhor do que qualquer paper individual para decidir SE vale
+  abrir este domínio novo antes de comprometer arquitetura.
+
+Isso não substitui o pré-requisito já declarado abaixo (ler
+S0266352X26007251 de verdade antes de código) — mas remove a dependência
+de um único artigo paywalled como única evidência da linha de pesquisa:
+mesmo sem aquele artigo específico, "Geotechnical / Soil-Structure PINN"
+já é um domínio ativo e publicamente verificável, com pelo menos um
+review crítico disponível para avaliar viabilidade antes de investir.
 
 Conexão: nenhum repo do PINNeAPPle-Labs cobre hoje geomecânica/solo —
 o item mais próximo em §6, "Drilling Hydraulics Digital Twin", é

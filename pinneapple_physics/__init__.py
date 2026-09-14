@@ -15,6 +15,12 @@ symbolic_pde     (was pinneapple_symbolic)
     SymPy-to-autograd compiler: define PDE residuals as SymPy expressions,
     get a PyTorch-differentiable residual function. HardBC / SoftBC support.
 
+closed_form
+    Real, closed-form (non-PDE) engineering physics: fin-array
+    conduction, cantilever bending/fatigue, membrane diffusion,
+    Helmholtz resonance. Fast, dependency-free ground truth / training
+    data for problems that don't need a full PDE solve.
+
 Integration helpers
 ------------------
 ``define_problem(pde_type, ...)``   — quick ProblemSpec builder
@@ -32,6 +38,7 @@ Usage
 from __future__ import annotations
 
 # ── sub-modules (new descriptive names) ───────────────────────────────────────
+from . import closed_form
 from . import pde_environment
 from . import pinn_solver
 from . import symbolic_pde
@@ -410,7 +417,7 @@ def pipeline(
 
 __all__ = [
     # Sub-modules (new names)
-    "pde_environment", "pinn_solver", "symbolic_pde",
+    "pde_environment", "pinn_solver", "symbolic_pde", "closed_form",
     # Sub-modules (old aliases — backward compat)
     "environment", "pinn", "symbolic",
     # Integration helpers

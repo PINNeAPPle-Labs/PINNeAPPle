@@ -1281,3 +1281,71 @@ desenhada para evitar — o "AGI Evaluation Engine" (§8) e o
 por construção, mais rigorosos neste eixo específico do que o estado da
 arte público em agentes de pesquisa autônomos, o que vale documentar
 como diferencial real, não apenas coincidência de design.
+
+### A economia de surrogates de IA para simulação física — um framework de decisão, não só uma tecnologia
+**Trazido por Yan em 2026-09-13**, a partir de um post técnico externo
+("The Economics of AI Surrogate Models for Physics Simulation", Javier
+Jiménez, jun/2026) cujas duas referências acadêmicas centrais foram
+verificadas nesta sessão (busca real, resumo confirmado, não só
+título): "Breakeven complexity: A new perspective on neural partial
+differential equation solvers" ([arXiv:2605.15399](https://arxiv.org/abs/2605.15399),
+Zhang/Roberts/Marwah/Khodak, 2026) e "Fluid Intelligence: A Forward
+Look on AI Foundation Models in Computational Fluid Dynamics"
+([arXiv:2511.20455](https://arxiv.org/abs/2511.20455), Ashton/NVIDIA,
+Brandstetter, Mishra, 2025).
+
+O argumento central, resumido: um surrogate de IA (PINN/FNO/DeepONet/
+GNN) só compensa financeiramente depois de aproximadamente **N**
+consultas, onde **N é aproximadamente o próprio tamanho do dataset de
+treino** (mais uma sobrecarga pequena de GPU medida em
+"simulações-equivalentes") — abaixo disso, rodar o solver de verdade é
+mais barato. O verdadeiro vilão econômico não é o custo de inferência
+nem o de treino: é a **acurácia-alvo**, porque o tamanho de dataset
+necessário escala como uma poder-lei íngreme (expoente tipicamente
+entre 2 e 5) — reduzir o erro-alvo pela metade pode multiplicar o
+dataset necessário por 4–32×. Fine-tuning a partir de um modelo
+pré-treinado desloca o break-even de milhares de consultas para dezenas/
+centenas — o mecanismo econômico exato por trás de qualquer estratégia
+de "Physics Foundation Model" (ver PDE-FM, §4 acima). O paper
+"Fluid Intelligence" (Ashton et al.) generaliza exatamente esse ponto
+para CFD industrial: propõe a primeira lei de escala que incorpora
+geração de dados E treino simultaneamente, distinguindo os regimes onde
+cada um domina o custo total, e conclui que dados transientes de alta
+fidelidade são a rota ótima para um foundation model de CFD — a mesma
+conclusão prática, com lastro acadêmico independente do post original.
+
+**Por que isto muda como o resto deste roadmap deveria ser lido, não só
+mais um dado**: vários itens já catalogados aqui pressupõem implicitamente
+que "surrogate mais rápido" é sempre desejável — este framework mostra
+que a pergunta certa não é "o surrogate é mais rápido?" (quase sempre é),
+mas "eu vou consultar este surrogate vezes suficientes para pagar o
+dataset que o treinou?". Conexões diretas e concretas:
+- **`PINNeAPPle-SplashCFD`, item 1 do seu próprio `ROADMAP.md`** (a
+  trilha paramétrica/multi-caso ainda não construída) — antes de
+  justificar o esforço de generalizar o FNO3d para uma família de
+  parâmetros, este framework dá a pergunta certa a responder primeiro:
+  quantas consultas reais este surrogate paramétrico vai receber ao
+  longo da vida útil, comparado ao número de casos OpenFOAM necessários
+  para treiná-lo bem?
+- **`veriphysics`, `pinneapple_analysis.verification.solver_orchestration`**
+  (decide PINN interno vs. solver clássico vs. ferramenta externa) —
+  hoje a decisão é por adequação física/documentada, não por custo; um
+  termo de break-even explícito (dataset já existente / consultas
+  esperadas) seria uma dimensão real e nova de recomendação, não
+  substituindo a lógica atual, complementando.
+- **"PINNeAPPle Surrogate Factory" (§1)** — o pipeline CAD→DOE→solver→
+  dataset→surrogate proposto lá deveria nascer com este cálculo de
+  break-even como gate de decisão explícito (vale a pena rodar o DOE
+  completo?), não como reflexão posterior.
+- **`PINNeAPPle-apps` (`VerifiedPhysics`/`PhysicsCopilot`)** — o "Business
+  case" que ambos os produtos já documentam poderia literalmente expor
+  este cálculo como uma feature de venda real: um calculador de
+  break-even embutido no produto ("baseado no seu volume esperado de
+  consultas, um surrogate paga-se em X execuções") em vez de apenas
+  alegar velocidade.
+- **§10 acima (PDE-FM)** — este framework é o argumento econômico formal
+  por trás da recomendação já feita de reaproveitar PDE-FM/Warp em vez
+  de treinar do zero: fine-tuning desloca o break-even em 1–2 ordens de
+  magnitude, o que é precisamente o que torna qualquer investimento em
+  foundation model físico (deste org ou de terceiros) economicamente
+  justificável mesmo para equipes sem campanhas massivas de design.

@@ -36,8 +36,24 @@ from .registry import SolverRegistry
 
 def _dfsph_alpha(pos: torch.Tensor, rho: torch.Tensor, mass: float, h: float, nl) -> torch.Tensor:
     """
-    Per-particle DFSPH factor α_i = ρ_i / (∑_j m_j ∇W_ij)²  + ε.
+    Per-particle DFSPH factor
+        alpha_i = rho_i / ( ||sum_j m_j grad(W_ij)||^2
+                             + sum_j ||m_j grad(W_ij)||^2 )  + eps.
+
     Used to scale the pressure correction from density/divergence error.
+
+    Both terms of Bender & Koschier's denominator matter: the first
+    (squared norm of the summed gradient) is the only term a naive
+    "SPH pressure-Poisson" derivation would produce, but it can vanish or
+    become ill-conditioned for near-symmetric or sparse neighborhoods
+    (e.g. a particle with neighbors placed symmetrically around it, whose
+    kernel gradients cancel in the sum). The second term (sum of the
+    per-neighbor squared gradient norms, always >= 0 and only zero when
+    there are no neighbors at all) is exactly the stabilizer that keeps
+    alpha_i well-behaved in that regime -- omitting it (as a previous
+    version of this function did) changes the effective relaxation factor
+    everywhere, not just at those edge cases, since it's a real summand of
+    the correct denominator, not a rare-case-only correction.
     """
     N, D = pos.shape
     device = pos.device
@@ -51,9 +67,13 @@ def _dfsph_alpha(pos: torch.Tensor, rho: torch.Tensor, mass: float, h: float, nl
         rij    = pos[i].unsqueeze(0) - pos[js]
         r      = torch.norm(rij, dim=1)
         grad_w = _spiky_grad(rij, r, h)               # (E, D)
-        # ∑_j m_j ∇W_ij  (D-vector)
-        sum_grad = (mass * grad_w).sum(0)              # (D,)
-        denom = (sum_grad ** 2).sum() + 1e-20
+        m_grad_w = mass * grad_w                        # (E, D)
+        # ||sum_j m_j grad(W_ij)||^2
+        sum_grad = m_grad_w.sum(0)                       # (D,)
+        term1 = (sum_grad ** 2).sum()
+        # sum_j ||m_j grad(W_ij)||^2  (the stabilizing term)
+        term2 = (m_grad_w ** 2).sum()
+        denom = term1 + term2 + 1e-20
         alpha[i] = rho[i] / denom
     return alpha
 

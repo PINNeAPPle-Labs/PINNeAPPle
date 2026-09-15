@@ -15,26 +15,30 @@ arXiv:2107.07511.
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Callable, Optional, Tuple
 
 import torch
 from torch import Tensor
 
-# Scipy is used for exact quantiles; pure-PyTorch fallback is provided.
-try:
-    import numpy as np  # type: ignore
-    from scipy.stats import rankdata as _rankdata  # type: ignore
-
-    _HAS_SCIPY = True
-except ImportError:  # pragma: no cover
-    _HAS_SCIPY = False
-
 
 def _conformal_quantile(scores: Tensor, alpha: float) -> float:
-    """Compute the (1 - alpha) * (1 + 1/n) quantile of *scores*.
+    """Compute the exact finite-sample conformal quantile of *scores*.
 
-    This is the finite-sample corrected conformal quantile recommended by
-    Angelopoulos & Bates (2022), Eq. (3).
+    This is the k-th order statistic of the ``n`` calibration scores, with
+    ``k = ceil((n + 1) * (1 - alpha))`` clipped to ``n`` -- the finite-sample
+    corrected conformal quantile of Angelopoulos & Bates (2022), Eq. (3).
+
+    This is deliberately NOT the same as calling ``np.quantile``/
+    ``torch.quantile`` at level ``(1-alpha)*(1+1/n)`` with default linear
+    interpolation: that interpolates *between* order statistics, which for
+    small ``n`` (exactly where a finite-sample correction matters most)
+    silently returns a value *below* the correct order statistic and
+    understates the interval -- breaking the distribution-free coverage
+    guarantee that is conformal prediction's entire point. E.g. n=15,
+    alpha=0.1: the correct k = ceil(16*0.9) = 15 = n, i.e. the quantile must
+    be the *maximum* calibration score; linear interpolation at level 0.96
+    instead returns a value strictly below the maximum.
 
     Parameters
     ----------
@@ -49,15 +53,11 @@ def _conformal_quantile(scores: Tensor, alpha: float) -> float:
         Calibrated quantile value (the prediction interval half-width).
     """
     n = scores.numel()
-    # Level with finite-sample correction.
-    level = min((1.0 - alpha) * (1.0 + 1.0 / n), 1.0)
-
-    if _HAS_SCIPY:
-        q = float(np.quantile(scores.cpu().numpy(), level))
-    else:
-        # Pure-PyTorch: use torch.quantile (available since 1.7).
-        q = float(torch.quantile(scores.float(), level))
-    return q
+    if n == 0:
+        raise ValueError("scores must contain at least one calibration point")
+    k = min(math.ceil((n + 1) * (1.0 - alpha)), n)
+    sorted_scores, _ = torch.sort(scores.float())
+    return float(sorted_scores[k - 1])
 
 
 class ConformalPredictor:

@@ -44,7 +44,7 @@ Quick start
 -----------
 >>> from pinneapple_analysis.uncertainty import uq_predict, AleatoricHead, decompose_uncertainty
 >>> # Aleatoric-only
->>> head = AleatoricHead(base_model, out_dim=1)
+>>> head = AleatoricHead(base_model, out_dim=1, in_dim=2)
 >>> result = uq_predict(head, x_test, method="aleatoric")
 >>> print(result.aleatoric_std)
 >>>

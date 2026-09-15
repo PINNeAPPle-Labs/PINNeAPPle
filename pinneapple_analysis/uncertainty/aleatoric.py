@@ -11,7 +11,7 @@ Quick start::
     from pinneapple_analysis.uncertainty import AleatoricHead, aleatoric_nll_loss
 
     base = MyModel()
-    model = AleatoricHead(base, out_dim=1)
+    model = AleatoricHead(base, out_dim=1, in_dim=2)
     # model(x) → (mean, log_var), both shape (N, out_dim)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -74,9 +74,13 @@ def aleatoric_nll_loss(
 class AleatoricHead(nn.Module):
     """Wrap a deterministic model with a learned aleatoric variance head.
 
-    The base model is unchanged; a small MLP projects its output to a
-    log-variance estimate. During training, optimize with
-    :func:`aleatoric_nll_loss`.
+    The base model is unchanged; a small MLP projects the ORIGINAL INPUT
+    ``x`` (not the base model's output) to a log-variance estimate, so the
+    predicted noise level is a genuine function of the input features --
+    "heteroscedastic" means input-conditioned noise, and a head fed only the
+    point prediction would force every input mapping to the same predicted
+    mean to also get the same predicted variance, which defeats that. During
+    training, optimize with :func:`aleatoric_nll_loss`.
 
     Parameters
     ----------
@@ -84,6 +88,9 @@ class AleatoricHead(nn.Module):
         Pre-existing model returning ``(N, out_dim)`` tensors.
     out_dim : int
         Dimensionality of the model output (= number of predicted fields).
+    in_dim : int
+        Dimensionality of the model's input ``x`` (the log-variance head's
+        own input).
     hidden : int
         Width of the log-variance MLP (default 64).
 
@@ -96,14 +103,16 @@ class AleatoricHead(nn.Module):
         self,
         base: nn.Module,
         out_dim: int,
+        in_dim: int,
         *,
         hidden: int = 64,
     ) -> None:
         super().__init__()
         self.base = base
         self.out_dim = out_dim
+        self.in_dim = in_dim
         self.log_var_head = nn.Sequential(
-            nn.Linear(out_dim, hidden),
+            nn.Linear(in_dim, hidden),
             nn.SiLU(),
             nn.Linear(hidden, out_dim),
         )
@@ -119,7 +128,8 @@ class AleatoricHead(nn.Module):
         if raw.ndim == 1:
             raw = raw.unsqueeze(-1)
         mean = raw
-        log_var = self.log_var_head(raw)
+        x_flat = x if x.ndim > 1 else x.unsqueeze(-1)
+        log_var = self.log_var_head(x_flat)
         return mean, log_var
 
     def predict_with_uncertainty(

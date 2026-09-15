@@ -18,7 +18,7 @@ Quick start::
     from pinneapple_analysis.uncertainty import decompose_uncertainty
 
     # 1) Build a model that outputs (mean, log_var)
-    aleatoric_model = AleatoricHead(my_base_model, out_dim=1)
+    aleatoric_model = AleatoricHead(my_base_model, out_dim=1, in_dim=2)
 
     # 2) Wrap with MC Dropout to activate stochasticity
     mcd = MCDropoutWrapper(aleatoric_model, MCDropoutConfig(n_samples=50))
@@ -33,9 +33,11 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 
 import torch
+import torch.nn as nn
 from torch import Tensor
 
 from .core import UQResult
+from .mc_dropout import _set_dropout_training
 
 
 def decompose_uncertainty(
@@ -48,8 +50,10 @@ def decompose_uncertainty(
 ) -> UQResult:
     """Decompose predictive uncertainty into aleatoric and epistemic parts.
 
-    The *model* is called ``n_samples`` times in **training mode** (so dropout
-    layers remain active). Each call should return either:
+    The *model* is called ``n_samples`` times with only its Dropout-family
+    submodules switched to stochastic mode (the rest of the model, including
+    any BatchNorm/LayerNorm, stays in eval mode throughout -- see
+    ``mc_dropout._set_dropout_training``). Each call should return either:
 
     * ``Tensor`` of shape ``(N, D)`` — point prediction (epistemic only).
     * ``(Tensor, Tensor)`` — ``(mean, log_var)`` (aleatoric + epistemic).
@@ -83,7 +87,14 @@ def decompose_uncertainty(
     means_list: list[Tensor] = []
     vars_list: list[Tensor] = []
 
-    model.train()  # keep dropout/stochastic layers active
+    # Keep the model in eval mode (BatchNorm/etc. stay deterministic and
+    # unmutated -- see `_set_dropout_training`'s docstring) and activate
+    # only its Dropout-family submodules, rather than blindly calling
+    # `model.train()` on the whole thing.
+    is_module = isinstance(model, nn.Module)
+    if is_module:
+        model.eval()
+        _set_dropout_training(model, True)
     with torch.no_grad():
         for _ in range(n_samples):
             out = model(x)
@@ -100,6 +111,10 @@ def decompose_uncertainty(
                 if isinstance(out, (tuple, list)):
                     out = out[0]
                 means_list.append(out)
+
+    if is_module:
+        _set_dropout_training(model, False)
+        model.eval()
 
     means = torch.stack(means_list, dim=0)          # (S, N, D)
     mu = means.mean(dim=0)                          # (N, D)

@@ -38,7 +38,7 @@ def test_aleatoric_head_forward_with_siren_model_output_wrapper():
     """SIREN's forward() returns a ModelOutput wrapper; AleatoricHead must unwrap it."""
     torch.manual_seed(0)
     base = ModelRegistry.build("siren", in_dim=2, out_dim=1)
-    head = AleatoricHead(base, out_dim=1)
+    head = AleatoricHead(base, out_dim=1, in_dim=2)
     x = torch.randn(10, 2)
 
     mean, log_var = head(x)
@@ -53,7 +53,7 @@ def test_aleatoric_head_forward_with_vanilla_pinn_pinn_output_wrapper():
     """VanillaPINN's forward() returns a PINNOutput wrapper; must also be unwrapped."""
     torch.manual_seed(0)
     base = ModelRegistry.build("vanilla_pinn", in_dim=2, out_dim=1)
-    head = AleatoricHead(base, out_dim=1)
+    head = AleatoricHead(base, out_dim=1, in_dim=2)
     x = torch.randn(10, 2)
 
     mean, log_var = head(x)
@@ -68,7 +68,7 @@ def test_aleatoric_head_predict_with_uncertainty_with_siren():
     """End-to-end predict_with_uncertainty must also work through the wrapper."""
     torch.manual_seed(0)
     base = ModelRegistry.build("siren", in_dim=2, out_dim=1)
-    head = AleatoricHead(base, out_dim=1)
+    head = AleatoricHead(base, out_dim=1, in_dim=2)
     x = torch.randn(10, 2)
 
     result = head.predict_with_uncertainty(x)
@@ -127,7 +127,7 @@ def test_decompose_uncertainty_via_aleatoric_head_and_mc_dropout_wrapper():
 
     torch.manual_seed(0)
     base = ModelRegistry.build("siren", in_dim=2, out_dim=1)
-    head = AleatoricHead(base, out_dim=1)
+    head = AleatoricHead(base, out_dim=1, in_dim=2)
     mcd = MCDropoutWrapper(head, MCDropoutConfig(n_samples=5))
     x = torch.randn(10, 2)
 

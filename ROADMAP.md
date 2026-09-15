@@ -474,6 +474,25 @@ interpolação tradicional.
 climática (25 km → 1 km) para temperatura, precipitação, vento e
 umidade, comparado contra interpolação e ML puro.
 
+### Ocean Physics AI Explorer
+**Sobreposição parcial — peça real já existe.** Reconstrução de campos
+oceânicos (temperatura/salinidade como traçador 2D) a partir de
+observações esparsas, com um wrapper real (opcional) para a rede Argo de
+boias reais via `argopy`, comparando interpolação determinística contra
+um PINN físico e dois neural operators (FNO, DeepONet) contra uma
+verdade-terreno numérica exata (solver FDM próprio, validado contra a
+solução analítica fechada de difusão gaussiana), mais seleção ativa do
+próximo ponto de observação via incerteza epistêmica
+(`x* = argmax_x U(x)`, usando `pinneapple_analysis.uncertainty.
+uq_predict` real). Implementado em `PINNeAPPle-Research/ocean/` (pacote
+irmão do `research/` já existente nesse repo, ambos como camadas finas
+sobre PINNeAPPle) — ver seu próprio `README.md`/`ROADMAP.md` para o que
+já funciona (reconstrução sintética de ponta a ponta, testada) versus o
+que falta (3D real, digital twin contínuo, ingestão Argo em streaming,
+integração com AUV real ou simulado — a peça que fecharia o loop
+"hipótese → explorar → observar → atualizar hipótese" descrito na
+motivação original deste projeto).
+
 ### Materials Inverse Design
 **Projeto novo.** Dado um requisito de propriedade alvo (ex.:
 condutividade térmica), buscar composição/microestrutura candidata via

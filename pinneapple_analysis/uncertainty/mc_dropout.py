@@ -16,6 +16,33 @@ from torch import Tensor
 
 from pinneapple_analysis.uncertainty.core import UQResult
 
+_DROPOUT_TYPES = (
+    nn.Dropout,
+    nn.Dropout1d,
+    nn.Dropout2d,
+    nn.Dropout3d,
+    nn.AlphaDropout,
+    nn.FeatureAlphaDropout,
+)
+
+
+def _set_dropout_training(model: nn.Module, mode: bool) -> None:
+    """Set only Dropout-family submodules to train/eval mode, leaving every
+    other module -- especially BatchNorm/LayerNorm/InstanceNorm, whose
+    behavior and running statistics must not change during inference-time MC
+    sampling -- exactly as it already is.
+
+    Calling ``model.train()`` on the *whole* model (the previous approach)
+    was a real bug: it also switches BatchNorm to batch-statistics mode, and
+    since buffer updates are not blocked by ``torch.no_grad()``, repeatedly
+    calling a wrapped model's forward pass for MC sampling would silently
+    and permanently mutate that model's ``running_mean``/``running_var`` as
+    a side effect of merely asking for an uncertainty estimate.
+    """
+    for module in model.modules():
+        if isinstance(module, _DROPOUT_TYPES):
+            module.train(mode)
+
 
 @dataclass
 class MCDropoutConfig:
@@ -170,9 +197,12 @@ class MCDropoutWrapper(nn.Module):
     ) -> UQResult:
         """Run *n_samples* stochastic forward passes and aggregate statistics.
 
-        The wrapped model is set to ``train()`` mode only for the duration of
-        sampling so that ``BatchNorm`` layers (if any) still track running
-        statistics correctly.  Dropout is enabled via the registered hooks.
+        The wrapped model is kept in ``eval()`` mode for the whole call --
+        so BatchNorm/LayerNorm/etc. use their frozen running statistics and
+        are never mutated by this sampling loop -- while only Dropout-family
+        submodules (both the hook-injected ones and any the original
+        architecture already had) are individually switched to stochastic
+        mode.
 
         Parameters
         ----------
@@ -202,8 +232,11 @@ class MCDropoutWrapper(nn.Module):
         if self.config.seed is not None:
             torch.manual_seed(self.config.seed)
 
-        # Collect samples with dropout active.
-        self.model.train()   # needed so nn.Dropout works at module level too
+        # Collect samples with dropout active. Keep the whole model in eval
+        # mode (BatchNorm etc. stay deterministic and unmutated) and only
+        # flip Dropout-family submodules to train mode.
+        self.model.eval()
+        _set_dropout_training(self.model, True)
         self.enable_dropout()
 
         preds: List[Tensor] = []
@@ -216,6 +249,7 @@ class MCDropoutWrapper(nn.Module):
             preds.append(out.detach())
 
         self.disable_dropout()
+        _set_dropout_training(self.model, False)
         self.model.eval()
 
         # Stack → (n_samples, N, ...)
@@ -325,9 +359,14 @@ class MCDropout:
         if self.config.seed is not None:
             torch.manual_seed(self.config.seed)
 
-        # Enable train mode if the callable is an nn.Module.
+        # If the callable is an nn.Module, keep it in eval mode (so
+        # BatchNorm/etc. stay deterministic and unmutated) and activate only
+        # its Dropout-family submodules -- see `_set_dropout_training`'s
+        # docstring for why blindly calling `.train()` on the whole model is
+        # wrong here.
         if isinstance(self.model, nn.Module):
-            self.model.train()
+            self.model.eval()
+            _set_dropout_training(self.model, True)
             self.model.to(device)
 
         preds: List[Tensor] = []
@@ -339,6 +378,7 @@ class MCDropout:
             preds.append(out.detach())
 
         if isinstance(self.model, nn.Module):
+            _set_dropout_training(self.model, False)
             self.model.eval()
 
         samples = torch.stack(preds, dim=0)

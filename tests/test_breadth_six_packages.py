@@ -1729,7 +1729,7 @@ def test_breadth_aleatoric_head():
     from pinneapple_analysis.uncertainty.aleatoric import AleatoricHead
 
     base = _tiny_mlp(2, 3)
-    head = AleatoricHead(base, out_dim=3, hidden=16)
+    head = AleatoricHead(base, out_dim=3, in_dim=2, hidden=16)
     x = torch.randn(6, 2)
     mean, log_var = head(x)
     _assert_finite(mean, "AleatoricHead.forward mean is non-finite")

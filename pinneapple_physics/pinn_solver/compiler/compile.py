@@ -575,12 +575,22 @@ def compile_problem(
                 raise ValueError("Darcy mixed mode not implemented in this patch.")
 
         elif pde_kind == "euler_bernoulli_beam":
-            # EI d^4w/dz^4 - F_axial d^2w/dz^2 - q(z) = 0.
-            # F_axial is a fixed (non-learned) compressive axial load producing
-            # a linear P-Delta amplification term; this branch does NOT cover
-            # geometrically-nonlinear (Von Karman) beams, which need a second,
-            # coupled axial-displacement field and a quadratic strain term —
-            # tracked separately, not handled here.
+            # EI d^4w/dz^4 + F_axial d^2w/dz^2 - q(z) = 0 (Timoshenko & Gere,
+            # *Theory of Elastic Stability*, beam-column / P-Delta equation).
+            # F_axial > 0 is a fixed (non-learned) COMPRESSIVE axial load
+            # producing a linear P-Delta amplification term that destabilizes
+            # the beam (the correct sign for compressive buckling: this is the
+            # same equation the classical Euler-buckling eigenvalue problem
+            # comes from). Was previously coded as "- F_axial * w2", which
+            # instead stiffens the beam under a compressive load and can never
+            # represent real Euler buckling; fixed to "+ F_axial * w2", now
+            # consistent with the tension-positive N convention used by the
+            # sibling `euler_bernoulli_beam_von_karman` branch below (that
+            # branch's "-(N*w')'" is algebraically the same term once
+            # P = -N). This branch does NOT cover geometrically-nonlinear
+            # (Von Karman) beams, which need a second, coupled
+            # axial-displacement field and a quadratic strain term — tracked
+            # separately, not handled here.
             if len(field_names) != 1:
                 raise ValueError("Euler-Bernoulli beam expects 1 scalar field (deflection).")
             defl = fields[field_names[0]]  # NOTE: intentionally not named "w" — that name is
@@ -615,7 +625,7 @@ def compile_problem(
                 create_graph=True, retain_graph=True, allow_unused=False,
             )[0][:, z_idx:z_idx + 1]
 
-            res_list.append(EI * w4 - F_axial * w2 - q)
+            res_list.append(EI * w4 + F_axial * w2 - q)
 
         elif pde_kind == "hyperelasticity_neo_hookean":
             # Compressible Neo-Hookean, plane-strain assumption (F_33=1) —

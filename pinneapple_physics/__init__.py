@@ -139,6 +139,28 @@ from .symbolic_pde import (
 
 # ── Integration helpers ────────────────────────────────────────────────────────
 
+class TagConditionsUnresolved(ValueError):
+    """Raised by :func:`solve_pde` when *spec* has one or more
+    ``selector_type="tag"`` conditions that are not covered by explicit
+    caller-supplied input (``x_bc``/``x_ic``/``x_data`` plus a matching
+    ``mask_<condition_name>``).
+
+    ``selector_type="tag"`` is not a bug or a placeholder -- it is a real
+    contract: it means "these points come from real geometry" (an STL/mesh
+    processed through
+    ``pinneapple_design.geometry.builders.STLDomainBatchBuilder``, or an
+    equivalent hand-built batch, e.g.
+    ``examples/pde_environment/03_ns2d_channel_tags.py``). ``solve_pde``
+    cannot invent an "inlet"/"outlet"/"wall"-shaped region from
+    ``spec.domain_bounds`` alone without guessing at physical geometry it
+    has no way to verify, so instead of silently dropping these conditions
+    (which used to train the model with zero boundary conditions enforced
+    for them -- a physically invalid result indistinguishable, by loss
+    curve alone, from a correctly-constrained run) it fails loudly here,
+    before spending any compute on training.
+    """
+
+
 def compile_physics(spec: "ProblemSpec", **kwargs):
     """Compile a ProblemSpec into weighted PINN loss functions."""
     return compile_problem(spec, **kwargs)
@@ -210,18 +232,37 @@ def solve_pde(
     points belong to it, e.g. "the left wall" via
     ``selector=lambda X, ctx: X[:, 0] <= bounds["x"][0] + eps``): each such
     condition draws its own domain-wide sample every step and keeps
-    whatever ``cond.mask()`` selects. A ``selector_type="tag"`` condition
-    needs an externally supplied ``ctx["tag_masks"]`` this function cannot
-    derive from the spec alone (there is no PDE-agnostic way to know how
-    to build the tags), so those conditions are skipped automatically --
-    pass ``x_bc``/``y_bc``/``ctx`` (with ``ctx["tag_masks"]`` populated)
-    and matching ``mask_<condition_name>=...`` boolean tensors via
-    ``**cond_masks`` yourself for a spec that uses tag selectors, the same
-    way ``examples/pde_environment/03_ns2d_channel_tags.py`` builds its
-    batch by hand. Any of ``x_bc``/``x_ic``/``x_data`` passed in explicitly
-    disables auto-sampling for that condition kind entirely (all-or-
-    nothing per kind, to avoid silently mixing an auto-sampled batch with
-    a hand-built one that used a different point layout).
+    whatever ``cond.mask()`` selects.
+
+    ``selector_type="tag"`` conditions are a different, deliberate
+    contract, not a lesser version of ``"callable"``: a tag (``"inlet"``,
+    ``"outlet"``, ``"wall"``, ``"fixed"``, ...) names a region of *real
+    geometry* that only exists once an actual mesh has been sampled --
+    there is no PDE-agnostic way to derive "the inlet plane" from
+    ``spec.domain_bounds`` alone, so this function never guesses at one.
+    Build tag masks from real geometry (typically via
+    ``pinneapple_design.geometry.builders.STLDomainBatchBuilder``, or a
+    hand-built batch like
+    ``examples/pde_environment/03_ns2d_channel_tags.py``), then pass
+    ``x_bc``/``y_bc``/``ctx`` (with ``ctx["tag_masks"]`` populated) and a
+    matching ``mask_<condition_name>=...`` boolean tensor per tag
+    condition via ``**cond_masks``. Any of ``x_bc``/``x_ic``/``x_data``
+    passed in explicitly disables auto-sampling for that condition kind
+    entirely (all-or-nothing per kind, to avoid silently mixing an
+    auto-sampled batch with a hand-built one that used a different point
+    layout).
+
+    If *spec* has ``selector_type="tag"`` conditions that are NOT covered
+    this way, this function raises :class:`TagConditionsUnresolved`
+    immediately, before training starts, naming exactly which
+    condition(s)/tag(s) are missing. It used to silently drop those
+    conditions and train anyway -- with zero boundary condition enforced
+    for them, a physically invalid result whose loss curve looks exactly
+    like a correctly-constrained run. Use ``list_presets()`` plus
+    ``get_preset(name).conditions`` (or see ``ROADMAP.md``) to check
+    whether a given preset is tag-based (needs real geometry) or
+    callable/all-based (works standalone from ``domain_bounds``) before
+    calling ``solve_pde`` on it directly.
 
     Returns ``{"model": model, "history": {"loss": [...]}}``.
     """
@@ -258,6 +299,48 @@ def solve_pde(
     }
     n_bc_t = n_bc.to(device_t) if n_bc is not None else None
     explicit_masks = {k: v.to(device_t) for k, v in cond_masks.items() if k.startswith("mask_")}
+
+    # Fail loudly, before spending any compute, if this spec has
+    # selector_type="tag" conditions that the caller hasn't actually
+    # covered. "Covered" means: the relevant x_bc/x_ic/x_data was passed
+    # explicitly (auto-sampling can't produce tag-shaped batches -- see
+    # docstring) AND a matching mask_<name> boolean tensor was passed
+    # alongside it. Anything else used to be silently dropped -- trained
+    # with zero boundary condition enforced for that tag, indistinguishable
+    # from a correctly-constrained run by loss curve alone.
+    unresolved = []
+    for cond in spec.conditions:
+        if cond.selector_type != "tag":
+            continue
+        suffix = kind_to_suffix.get(cond.kind, "data")
+        mask_key = f"mask_{cond.name}"
+        if not explicit[suffix] or mask_key not in explicit_masks:
+            tag = cond.selector.get("tag") if isinstance(cond.selector, dict) else None
+            unresolved.append((cond.name, cond.kind, tag, suffix, mask_key))
+
+    if unresolved:
+        detail = "\n".join(
+            f"  - condition {name!r} (kind={kind!r}, tag={tag!r}): "
+            f"needs x_{suffix} passed explicitly AND {mask_key}=<bool tensor> passed via **cond_masks"
+            for name, kind, tag, suffix, mask_key in unresolved
+        )
+        raise TagConditionsUnresolved(
+            f"solve_pde(): ProblemSpec {spec.name!r} has {len(unresolved)} "
+            f"selector_type='tag' condition(s) not covered by explicit input:\n"
+            f"{detail}\n\n"
+            "This preset needs REAL geometry, not just domain_bounds: tag "
+            "selectors ('inlet'/'outlet'/'wall'/'fixed'/...) name regions of "
+            "an actual mesh. Build them via "
+            "pinneapple_design.geometry.builders.STLDomainBatchBuilder (or a "
+            "hand-built batch, see "
+            "examples/pde_environment/03_ns2d_channel_tags.py and "
+            "examples/pde_environment/04_heat3d_stl_box.py), then call "
+            "solve_pde(spec, model, x_bc=..., y_bc=..., ctx={'tag_masks': "
+            "...}, mask_<condition_name>=..., ...) with all of the above "
+            "supplied. Do not fabricate tag masks from domain_bounds alone -- "
+            "that would silently produce a physically invalid boundary "
+            "condition instead of an honest failure."
+        )
 
     auto_conditions = [
         c for c in spec.conditions
@@ -422,7 +505,7 @@ __all__ = [
     "environment", "pinn", "symbolic",
     # Integration helpers
     "compile_physics", "identify", "define_problem", "solve_pde",
-    "pipeline", "PhysicsPipeline",
+    "pipeline", "PhysicsPipeline", "TagConditionsUnresolved",
     # pde_environment
     "ConditionSpec", "DirichletBC", "NeumannBC", "RobinBC",
     "InitialCondition", "DataConstraint",

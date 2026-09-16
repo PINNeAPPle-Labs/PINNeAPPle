@@ -68,6 +68,29 @@ def _looks_like_incompatible_calling_convention(e: Exception) -> bool:
     return isinstance(e, TypeError) and "missing" in str(e).lower() and "argument" in str(e).lower()
 
 
+def _needs_real_geometry_for_tags(e: Exception) -> bool:
+    """``solve_pde`` now raises ``pinneapple_physics.TagConditionsUnresolved``
+    (see ``pinneapple_physics/__init__.py``) instead of silently dropping
+    ``selector_type="tag"`` boundary/initial/data conditions it has no way
+    to auto-sample. A preset hitting this needs REAL geometry (an STL/mesh
+    processed through
+    ``pinneapple_design.geometry.builders.STLDomainBatchBuilder``, or an
+    equivalent hand-built batch -- see
+    ``examples/pde_environment/03_ns2d_channel_tags.py`` and
+    ``04_heat3d_stl_box.py``, both of which confirm the tag_masks mechanism
+    genuinely works once given real geometry) -- not a smoke-test artifact,
+    and not something this generic breadth harness (which only has
+    ``spec.domain_bounds`` to sample from) can supply. Confirmed by hand
+    this session: every ``list_presets()`` entry whose conditions are
+    ``selector_type="tag"`` (or a mix of ``"tag"`` and ``"callable"``)
+    raises this -- see ``docs/dev/AUDIT_REPORT.md`` for the full tally."""
+    try:
+        from pinneapple_physics import TagConditionsUnresolved
+    except ImportError:
+        return False
+    return isinstance(e, TagConditionsUnresolved)
+
+
 def _looks_like_unfitted_model(e: Exception) -> bool:
     """Heuristic: some registered architectures (DMD, POD, HAVOK-style
     reduced-order/reservoir models, hybrid RBF surrogates) are fit via a
@@ -172,6 +195,13 @@ def test_audit_breadth_preset_trains_a_few_steps(name):
     except Exception as e:
         if _is_missing_optional_dep(e):
             pytest.skip(f"preset '{name}' needs an optional dependency not installed: {e}")
+        if _needs_real_geometry_for_tags(e):
+            pytest.skip(
+                f"preset '{name}' has selector_type='tag' condition(s) that need real "
+                f"geometry (STL/mesh via STLDomainBatchBuilder) this generic smoke test, "
+                f"which only samples from spec.domain_bounds, cannot supply -- not a bug, "
+                f"see TagConditionsUnresolved's docstring: {e}"
+            )
         # A "Unsupported PDE kind: ..." or "... expects time coord 't'"
         # ValueError here means this preset is registered/discoverable via
         # list_presets() but literally cannot be compiled by

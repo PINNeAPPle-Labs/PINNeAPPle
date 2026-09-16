@@ -238,6 +238,33 @@ todas de 2026:
 
 ## 3. Infraestrutura de Physics AI / Scientific ML
 
+### Correção: `solve_pde()` treinava sem nenhuma condição de contorno real para presets `tag`-based (2026-09-16)
+**Já corrigido.** `solve_pde()` (`pinneapple_physics/__init__.py`) só
+auto-amostrava condições `selector_type in ("all", "callable")`; condições
+`selector_type="tag"` (32/65 presets registrados são 100% tag-based, mais
+8/65 mistos — `pipe_flow_3d`, `industrial_furnace_thermal`,
+`aircraft_wing_aerodynamics`, `lid_driven_cavity_3d`, `laplace_2d`,
+`poisson_2d`, etc.) eram puladas **silenciosamente**, sem erro — o
+resíduo de PDE ainda caía, o treino "funcionava", mas nenhuma condição de
+contorno real era imposta. Qualquer produto do portfólio que chame
+`solve_pde()` num desses presets sem montar `ctx["tag_masks"]`/`x_bc`/
+`mask_<nome>` à mão (ex.: `veriphysics/orchestrator/pipeline.py`'s
+`analyze()`, que não passa nenhum desses hoje) treinaria e devolveria um
+resultado fisicamente inválido com aparência de sucesso — o oposto do
+princípio anti-fabricação do produto.
+
+Antes de tratar como bug, o mecanismo `tag_masks` em si foi verificado
+rodando `examples/pde_environment/04_heat3d_stl_box.py` (STL real via
+`STLDomainBatchBuilder`) e `03_ns2d_channel_tags.py` de ponta a ponta:
+funciona corretamente com geometria real — `selector_type="tag"` é um
+contrato real (exige mesh/STL), não um recurso quebrado. A correção:
+`solve_pde()` agora levanta `TagConditionsUnresolved` (erro claro,
+nomeando exatamente quais condições/tags faltam) em vez de treinar
+silenciosamente sem elas. Detalhes completos (classificação programática
+dos 65 presets, números de antes/depois da suite de testes, todos os
+`solve_pde()` callers do repo auditados) em `docs/dev/AUDIT_REPORT.md` e
+`docs/dev/ROADMAP_PHYSICS_AI_HUB.md`.
+
 ### PhysicsNeMo Backbone Swap
 **Projeto novo.** Avaliar/trocar o NVIDIA PhysicsNeMo como backbone dos
 surrogates CFD do ChordIQ (mixing-tank, cloramina), comparando contra a

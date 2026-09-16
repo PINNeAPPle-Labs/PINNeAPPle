@@ -171,6 +171,48 @@ raises the same
 aten::_scaled_dot_product_flash_attention_for_cpu_backward is not
 implemented`` from ``pinnsformer``, regardless of which preset).
 
+Update (2026-09-16) -- 5 of the 7 presets now skip instead of train
+---------------------------------------------------------------------
+Everything above was measured against ``solve_pde()`` as it existed at
+the time: ``selector_type="tag"`` conditions were silently dropped from
+auto-sampling with no error. That's exactly what let ``laplace_2d``,
+``poisson_2d``, ``lid_driven_cavity_3d``, and ``plane_stress_2d`` "train"
+here in the first place -- all four are 100% ``selector_type="tag"``
+(confirmed by inspecting ``get_preset(name).conditions`` for each), so
+every one of their combinations above was training the PDE residual
+alone, with **zero boundary conditions actually enforced**. Re-inspecting
+``drug_diffusion_tissue`` the same way found a fifth case that this file's
+original claim above (only its callable IC+BC were highlighted) missed:
+alongside its genuinely-callable ``ic_C``/``bc_source`` conditions it also
+has one ``selector_type="tag"`` condition (``bc_no_flux``, a Neumann
+no-flux condition), which was just as silently dropped as the other four
+presets' conditions -- this is a real `AUDIT_REPORT.md` finding (see the
+``solve_pde()``/``TagConditionsUnresolved`` section there), not specific
+to this file.
+
+``solve_pde()`` now raises ``pinneapple_physics.TagConditionsUnresolved``
+instead of dropping these silently, and this file (via the shared
+``_needs_real_geometry_for_tags()`` heuristic imported from
+``test_full_library_matrix.py``) skips the now-blocked combinations with a
+message naming the real reason, rather than either fabricating tag masks
+to force a pass or leaving them as confusing hard failures. Only
+``burgers_1d`` and ``space_debris_cw_relative_motion`` remain genuinely
+trainable through this generic harness (which only ever supplied
+``spec.domain_bounds``, never real geometry, to begin with -- their actual
+loss numbers are unchanged by this update).
+
+Re-measured, real, actual re-run of this file alone after the fix: **14
+passed, 56 skipped, 0 failed** (was 49 passed, 21 skipped, 0 failed). The
+ratios/thresholds quoted above still hold for the 14 combinations that
+still run: 7 valid architectures each for ``burgers_1d`` and
+``space_debris_cw_relative_motion`` (7 x 2 = 14). The other 35
+combinations moved from "passed" to "skipped, needs real geometry": 5
+presets (``laplace_2d``, ``poisson_2d``, ``lid_driven_cavity_3d``,
+``plane_stress_2d``, ``drug_diffusion_tissue``) x 7 previously-passing
+architectures each = 35 -- the other 3 architectures per preset
+(``pinnsformer``/``deeponet``/``fno``) were already skipping for
+architecture-specific reasons either way, unaffected by this change.
+
 Run: ``pytest tests/test_cartesian_breadth.py -q``
 """
 from __future__ import annotations
@@ -185,6 +227,7 @@ from test_full_library_matrix import (
     _looks_like_wrong_input_shape,
     _looks_like_incompatible_calling_convention,
     _looks_like_unfitted_model,
+    _needs_real_geometry_for_tags,
 )
 
 
@@ -294,6 +337,13 @@ def test_cartesian_architecture_preset_trains_meaningfully(architecture, preset)
     except Exception as e:
         if _is_missing_optional_dep(e):
             pytest.skip(f"'{architecture}' x '{preset}' needs an optional dependency not installed: {e}")
+        if _needs_real_geometry_for_tags(e):
+            pytest.skip(
+                f"preset '{preset}' has selector_type='tag' condition(s) that need real "
+                f"geometry (STL/mesh via STLDomainBatchBuilder) this generic cartesian-"
+                f"product harness, which only samples from spec.domain_bounds, cannot "
+                f"supply -- not a bug in '{architecture}' or '{preset}': {e}"
+            )
         if _looks_like_unfitted_model(e):
             pytest.skip(
                 f"'{architecture}' is a closed-form/fit-based model that must be fit on real "

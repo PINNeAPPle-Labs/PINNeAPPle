@@ -836,3 +836,139 @@ branch, and the steady-Navier-Stokes gap. This is real, load-bearing
 backlog, not a footnote — a preset that cannot be compiled is a preset a
 user of `list_presets()`/`pipeline()` will hit and be confused by, and it
 is the single biggest reliability gap this audit surfaced.
+
+## `solve_pde()` silently dropped `selector_type="tag"` conditions — now fails loudly, with the tag_masks mechanism itself confirmed real
+
+A downstream-consumer audit (VeriPhysics calling `solve_pde()` on tag-based
+presets like `pipe_flow_3d`/`industrial_furnace_thermal` with no `ctx`)
+found that `solve_pde()`'s auto-sampler only ever handles conditions whose
+`selector_type` is `"all"` or `"callable"` — `"tag"` conditions are
+excluded from `auto_conditions` unconditionally, with no error raised.
+Since most CFD/industry presets in
+`pinneapple_physics/pde_environment/presets/{cfd,structural,industry}.py`
+express every boundary condition as `selector_type="tag"`
+(`"inlet"`/`"outlet"`/`"wall"`/`"fixed"`/...), calling `solve_pde(get_
+preset("pipe_flow_3d"), model)` with no further arguments used to train a
+model with **zero boundary conditions enforced** — the PDE-residual loss
+still went down, the run "succeeded," and nothing in the returned
+`history` distinguished it from a correctly-constrained run. This is
+exactly the class of result `PhysicsGuardrail`/trust-score consumers must
+never rate as trustworthy without actually knowing it's untrustworthy.
+
+**Before treating this as a bug to patch over, the tag_masks mechanism
+itself was verified to work correctly when given real geometry** — it is
+a real, load-bearing contract, not a stub. Ran
+`examples/pde_environment/04_heat3d_stl_box.py` (a real trimesh box STL ->
+`pinneapple_design.geometry.builders.STLDomainBatchBuilder` ->
+`compile_problem`) end to end:
+
+```
+loss keys: ['pde', 'bc_T_boundary', 'bc_T_inlet_hot', 'total']
+total: 186.65467834472656
+mesh_info: {'is_watertight': True, 'n_verts': 8, 'n_faces': 12}
+tags: {'boundary': 24000, 'inlet': 2110, 'outlet': 2102, 'walls': 19788}
+```
+
+and separately, with `inside_mode="bbox"` (avoiding a missing optional
+`rtree` dependency for `trimesh_contains`), confirmed the two tag-scoped
+Dirichlet losses are genuinely different numbers computed over genuinely
+different point sets (`bc_T_boundary=0.0798`, `bc_T_inlet_hot=0.851`, vs.
+each other and vs. `pde=0.0029`) — i.e. the per-tag masking is real, not a
+coincidental pass-through. A second check built a `ns_incompressible_2d`
+batch by hand the same way
+`examples/pde_environment/03_ns2d_channel_tags.py` does (manual
+inlet/outlet/wall plane masks, no STL) and ran it through `solve_pde()`
+itself end to end (5 epochs, loss `98.7 -> 37.3`, monotonically
+decreasing) — confirming the *fix* below doesn't just detect the tag
+contract, it also lets a caller who does supply real tag geometry train
+through `solve_pde()` normally.
+
+**The fix** (`pinneapple_physics/__init__.py`): `solve_pde()` now raises a
+new `TagConditionsUnresolved(ValueError)` before starting any training if
+*any* condition in `spec.conditions` has `selector_type="tag"` and is not
+covered by explicit input (`x_<kind>` passed AND a matching
+`mask_<condition_name>` passed via `**cond_masks`) — naming every
+uncovered condition, its tag, and exactly which two arguments are needed,
+plus a pointer to `STLDomainBatchBuilder`/the two examples above. Nothing
+about `"all"`/`"callable"` auto-sampling changed.
+
+**Preset classification, done programmatically** (`list_presets()` +
+inspecting `selector_type` per condition on every one of the 65
+registered presets — not eyeballed):
+
+| Category | Count | Needs |
+|---|---|---|
+| `selector_type="tag"` only | 32 | real geometry (STL/mesh via `STLDomainBatchBuilder`, or a hand-built batch) |
+| mixed `"tag"` + `"callable"` | 8 | same as above for the tag-scoped conditions; the callable ones still auto-sample |
+| `"callable"`/`"all"` only (or no conditions) | 25 | nothing extra — `domain_bounds` alone is enough, unchanged behavior |
+
+Tag-only (32): `aircraft_wing_aerodynamics`, `aircraft_wing_structural`,
+`car_external_aero`, `car_suspension_fatigue`, `channel_flow_3d`,
+`climate_ocean_gyre`, `cpu_heatsink_thermal`, `darcy_pressure_only_3d`,
+`datacenter_airflow_2d`, `datacenter_cfd_3d`, `datacenter_server_thermal`,
+`fan_cooler_cfd`, `furnace_combustion_zone`, `helmholtz_acoustics_3d`,
+`industrial_furnace_thermal`, `laplace_2d`, `lid_driven_cavity_3d`,
+`linear_elasticity_3d`, `linear_elasticity_3d_industry`,
+`material_fracture_2d`, `ns_incompressible_2d`, `pcb_thermal`,
+`pipe_flow_3d`, `plane_strain_2d`, `plane_stress_2d`, `poisson_2d`,
+`refractory_lining`, `rocket_nozzle_cfd`, `rocket_structural`,
+`steady_heat_conduction_3d`, `thermoelasticity_2d`, `von_mises_2d`.
+Mixed (8): `axial_compressor_cascade_2d`, `car_brake_thermal`,
+`climate_atmosphere_2d`, `drug_diffusion_tissue`, `opinion_dynamics_2d`,
+`reaction_diffusion_2d`, `transient_heat_3d`, `wave_ultrasound_3d`.
+The remaining 25 (`burgers_1d`, `space_debris_cw_relative_motion`,
+`black_scholes_1d`, the `threaded_coupling_*`/`axial_compressor_*`
+non-tag variants, the astrophysics/finance/biology ODE presets, etc.) are
+unaffected — see `TagConditionsUnresolved`'s docstring and `solve_pde()`'s
+own docstring for the up-to-date contract statement, since the preset
+catalog will keep growing after this report is written.
+
+**Test suite impact, measured before and after, not assumed.** The two
+files that call `solve_pde()` directly, run in isolation before touching
+anything (`git stash`-equivalent clean checkout of
+`pinneapple_physics/__init__.py`):
+
+| File | Before (pass/skip/fail) | After (pass/skip/fail) |
+|---|---|---|
+| `tests/test_cartesian_breadth.py` | 49 / 21 / 0 (of 70) | 14 / 56 / 0 (of 70) |
+| `tests/test_full_library_matrix.py` | 75 / 77 / 7 (of 159) | 42 / 117 / 0 (of 159) |
+| Combined | 124 / 98 / 7 (of 229) | 56 / 173 / 0 (of 229) |
+
+The 7 pre-existing failures (`test_full_library_matrix.py`, presets
+`darcy_pressure_only_3d`/`helmholtz_acoustics_3d`/
+`linear_elasticity_3d_industry`/`reaction_diffusion_2d`/
+`steady_heat_conduction_3d`/`transient_heat_3d`/`wave_ultrasound_3d`) were
+a `KeyError: 'x'` from `spec.domain_bounds` being entirely absent on those
+`presets/industry.py` factories — a separate, pre-existing gap in those
+specific presets (out of scope for this fix, left as-is), which the new
+check now masks with a clearer, more actionable `TagConditionsUnresolved`
+skip instead of a confusing `KeyError` (both are true simultaneously: they
+lack `domain_bounds` *and* are 100% tag-based, consistent with being
+designed for real-geometry-only use).
+
+Both test files were updated to recognize
+`pinneapple_physics.TagConditionsUnresolved` via a new
+`_needs_real_geometry_for_tags()` helper (same pattern as the existing
+`_is_missing_optional_dep()` etc.) and `pytest.skip()` with the real
+reason, instead of either fabricating `tag_masks` to force a pass or
+leaving them as unexplained hard failures. The 68 tests that moved from
+pass to skip were passing *only* because their tag conditions were being
+silently dropped — after the fix they correctly report "this preset needs
+real geometry this generic harness doesn't supply," which is the accurate
+statement. No `"callable"`/`"all"` preset's pass/fail status changed
+(`burgers_1d`, `drug_diffusion_tissue`'s callable half,
+`space_debris_cw_relative_motion`, and the Tier A.1 architecture-only
+tests are bit-for-bit unaffected).
+
+Full repo-wide `solve_pde()` caller audit (not just the two test files):
+`pinneapple_physics/__init__.py`'s own `pipeline()` (only ever called in
+its own docstring example with `burgers_1d`, a callable preset — no
+change), and `pinneapple_analysis/verification/causal_discrepancy.py`
+(already wraps every `solve_pde()` call in a bare `except Exception`,
+recording it as `InterventionRunResult(error=...)` rather than crashing —
+this fix makes that path correctly report "FAILED to train" for tag-based
+presets used without geometry instead of silently reporting a trained-
+but-unconstrained result as a success; no dedicated test exercises this
+file, so no test-suite delta). No `saas/`, `veriphysics/`, or
+`pinneapple_arena` caller of `solve_pde()` exists inside this repo (those
+products live in sibling repos, out of scope here).

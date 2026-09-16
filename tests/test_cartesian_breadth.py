@@ -332,8 +332,24 @@ def test_cartesian_architecture_preset_trains_meaningfully(architecture, preset)
         pytest.skip(f"'{architecture}' could not be built with generic in_dim/out_dim/hidden_dim/n_layers kwargs: {e}")
 
     lr = LR_OVERRIDE.get(architecture, 1e-3)
+
+    # 4 of the 5 originally-tag-based presets in PRESETS above now have a
+    # real-geometry fixture (see tag_geometry.py's module docstring for the
+    # per-preset face-mapping justification) -- build it and pass it
+    # through so these combinations train for real instead of skipping.
+    # `plane_stress_2d` deliberately has no fixture ('fixed'/'load' are two
+    # different, unlocated tags -- see NOT_FIXABLE_WITHOUT_REAL_GEOMETRY)
+    # and keeps skipping via _needs_real_geometry_for_tags below.
+    from pinneapple_physics.pde_environment.presets.tag_geometry import (
+        TAG_GEOMETRY_FIXTURES, build_tag_batch, solve_pde_kwargs_from_batch,
+    )
+    extra_kwargs = {}
+    if preset in TAG_GEOMETRY_FIXTURES:
+        batch = build_tag_batch(preset, spec, n_col=N_COLLOCATION, n_bc_per_face=1500, seed=SEED)
+        extra_kwargs = solve_pde_kwargs_from_batch(batch)
+
     try:
-        result = pp.solve_pde(spec, model, epochs=EPOCHS, n_collocation=N_COLLOCATION, seed=SEED, lr=lr)
+        result = pp.solve_pde(spec, model, epochs=EPOCHS, n_collocation=N_COLLOCATION, seed=SEED, lr=lr, **extra_kwargs)
     except Exception as e:
         if _is_missing_optional_dep(e):
             pytest.skip(f"'{architecture}' x '{preset}' needs an optional dependency not installed: {e}")

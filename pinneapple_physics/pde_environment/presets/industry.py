@@ -52,6 +52,15 @@ def steady_heat_conduction_3d_default() -> ProblemSpec:
         scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0),
         field_ranges={"T": (0.0, 1.0)},
         references=("Industrial steady heat conduction (electronics, furnaces, heat sinks).",),
+        # Matches ScaleSpec(L=1.0): a unit cube centred on the origin, so it
+        # lines up exactly with a trimesh.creation.box(extents=(1,1,1))
+        # mesh's own (forced) re-centering -- see
+        # pinneapple_physics/pde_environment/presets/tag_geometry.py.
+        # domain_bounds was entirely missing before this fix (a separate,
+        # pre-existing bug: solve_pde()'s own collocation sampler needs it
+        # regardless of the selector_type="tag" fix -- see
+        # docs/dev/AUDIT_REPORT.md).
+        domain_bounds={"x": (-0.5, 0.5), "y": (-0.5, 0.5), "z": (-0.5, 0.5)},
     )
 
 
@@ -98,6 +107,12 @@ def transient_heat_3d_default() -> ProblemSpec:
         scales=ScaleSpec(L=1.0, U=1.0, alpha=float(alpha)),
         field_ranges={"T": (0.0, 1.0)},
         references=("Industrial transient heat (quenching, heating cycles, thermal shock).",),
+        # See steady_heat_conduction_3d_default above: domain_bounds was
+        # missing entirely; unit cube centred at the origin, matching
+        # ScaleSpec(L=1.0). t in (0,1) is an arbitrary but consistent
+        # nondimensional time window (alpha=1e-3 makes 1 time unit a
+        # meaningful diffusion timescale over this unit-length domain).
+        domain_bounds={"x": (-0.5, 0.5), "y": (-0.5, 0.5), "z": (-0.5, 0.5), "t": (0.0, 1.0)},
     )
 
 
@@ -136,6 +151,10 @@ def linear_elasticity_3d_default() -> ProblemSpec:
         scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0),
         field_ranges={"ux": (-0.05, 0.05), "uy": (-0.05, 0.05), "uz": (-0.05, 0.05)},
         references=("Industrial linear elasticity (brackets, frames, stress analysis).",),
+        # domain_bounds was missing entirely; unit cube centred at the
+        # origin, matching ScaleSpec(L=1.0) -- see
+        # steady_heat_conduction_3d_default above for the same fix.
+        domain_bounds={"x": (-0.5, 0.5), "y": (-0.5, 0.5), "z": (-0.5, 0.5)},
     )
 
 
@@ -182,6 +201,9 @@ def darcy_pressure_only_3d_default() -> ProblemSpec:
         scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0),
         field_ranges={"p": (-1.0, 2.0)},
         references=("Darcy flow (reservoir simulation, groundwater).",),
+        # domain_bounds was missing entirely; unit cube centred at the
+        # origin, matching ScaleSpec(L=1.0).
+        domain_bounds={"x": (-0.5, 0.5), "y": (-0.5, 0.5), "z": (-0.5, 0.5)},
     )
 
 
@@ -219,6 +241,9 @@ def helmholtz_acoustics_3d_default() -> ProblemSpec:
         scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0),
         field_ranges={"u": (-1.0, 1.0)},
         references=("Helmholtz (acoustic cavities, resonators).",),
+        # domain_bounds was missing entirely; unit cube centred at the
+        # origin, matching ScaleSpec(L=1.0).
+        domain_bounds={"x": (-0.5, 0.5), "y": (-0.5, 0.5), "z": (-0.5, 0.5)},
     )
 
 
@@ -265,6 +290,10 @@ def wave_ultrasound_3d_default() -> ProblemSpec:
         scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0),
         field_ranges={"u": (-1.0, 1.0)},
         references=("Wave equation (ultrasound testing, vibration).",),
+        # domain_bounds was missing entirely; unit cube centred at the
+        # origin, matching ScaleSpec(L=1.0). t in (0,1) is a consistent
+        # nondimensional window given wave speed c=1.
+        domain_bounds={"x": (-0.5, 0.5), "y": (-0.5, 0.5), "z": (-0.5, 0.5), "t": (0.0, 1.0)},
     )
 
 
@@ -311,4 +340,8 @@ def reaction_diffusion_2d_default() -> ProblemSpec:
         scales=ScaleSpec(L=1.0, U=1.0, alpha=float(D)),
         field_ranges={"c": (0.0, 1.0)},
         references=("Reaction–diffusion template for industrial chemistry / materials.",),
+        # domain_bounds was missing entirely; unit square [0,1]^2 (this
+        # preset has no coordinate-dependent value_fn, so it need not be
+        # centred like the 3D box presets above), t in (0,1).
+        domain_bounds={"x": (0.0, 1.0), "y": (0.0, 1.0), "t": (0.0, 1.0)},
     )

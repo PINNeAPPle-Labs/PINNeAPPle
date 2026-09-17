@@ -60,7 +60,65 @@ class ConditionSpec:
       row selected by each entry's mapped axis) against this condition's
       own ``value_fn`` target -- a real traction-from-stress evaluation,
       not a copy of the declared name. See ``compile.py``'s
-      ``_elasticity_traction_from_stress`` for the implementation.
+      ``_elasticity_traction_from_stress`` for the implementation. This is
+      a per-COMPONENT derivation (one vector component of n . sigma along
+      a named axis) -- for the full scalar double contraction n . sigma . n
+      (e.g. an internal-pressure boundary), see ``normal_stress_field``
+      below instead; that is a genuinely different derivation, not a
+      special case of this one.
+
+    normal_stress_field (only meaningful for kind="neumann", order<=1):
+      Some elasticity presets declare a Neumann target that is a PRESSURE
+      MAGNITUDE acting normal to the boundary (e.g. the internal pressure
+      of a pressure-vessel wall), not a single traction vector component.
+      Physically this is the standard pressure-vessel boundary condition
+      n^T . sigma . n = -p_internal (the normal-normal stress contraction,
+      NOT one axis-aligned component of n . sigma) -- the minus sign is the
+      standard convention that positive internal pressure produces
+      COMPRESSIVE normal stress at the wall.
+
+      ``normal_stress_field`` names the single field in ``fields`` that
+      carries the pressure MAGNITUDE (e.g. ``"p_normal"``). When set,
+      ``compile_problem`` builds sigma exactly as for ``traction_map``
+      (same helper, same constitutive relation), then computes the full
+      scalar contraction ``n . sigma . n`` and compares it against
+      ``-value_fn(...)`` (the value_fn's own output is the pressure
+      magnitude; the sign flip is applied by the compiler, not by the
+      preset). Mutually exclusive with ``traction_map`` on the same
+      condition. See ``compile.py``'s
+      ``_elasticity_normal_stress_from_stress`` for the implementation.
+
+    thermal_bc (only meaningful for kind="neumann", order<=1):
+      Some thermal presets declare their Neumann/Robin boundary targets as
+      a prescribed heat FLUX or a convection law, neither of which is a
+      literal model output field (the model only ever outputs the
+      temperature field itself, e.g. "T") -- physically:
+
+        prescribed flux (Neumann):        -k * dT/dn = q_heat
+        convection (Robin/Newton cooling): -k * dT/dn = h * (T - T_ref)
+
+      where ``dT/dn`` is the boundary-normal derivative of the model's own
+      temperature field (via autograd, the same ``norm_dot_grad`` machinery
+      the plain Neumann branch already uses) and ``k`` is the PDE's own
+      thermal conductivity (``params["k_eff"]`` if present, else
+      ``params["k"]``, else 1.0 -- the same lookup order the
+      ``heat_equation_steady*``/``heat_equation_transient`` residuals
+      already use, so a thermal BC can never silently disagree with the
+      interior residual's own conductivity).
+
+      ``thermal_bc = {"kind": "flux", "T_field": "T"}`` for the prescribed-
+      flux case (``fields=("q_heat",)``), or
+      ``thermal_bc = {"kind": "convection", "T_field": "T"}`` for the
+      convection case (``fields=("h", "T_ref")``, order not significant --
+      resolved by name). ``T_field`` defaults to ``"T"`` if omitted. This
+      mechanism is deliberately generic: it does not hardcode any one
+      preset, and applies to any preset declaring this same
+      ``q_heat``/``h``+``T_ref`` convention (e.g. ``car_brake_thermal``,
+      ``cpu_heatsink_thermal``, ``pcb_thermal``,
+      ``industrial_furnace_thermal``, the ``datacenter_*`` thermal
+      presets), independent of whether that preset also has real geometry
+      wired up yet. See ``compile.py``'s condition-loop
+      ``thermal_bc`` branch for the implementation.
 
     selector:
       - "all": applies to all points of corresponding set
@@ -87,6 +145,8 @@ class ConditionSpec:
     deriv_coord: Optional[str] = None
     interface_coeffs: Optional[Dict[str, float]] = None
     traction_map: Optional[Dict[str, str]] = None
+    normal_stress_field: Optional[str] = None
+    thermal_bc: Optional[Dict[str, str]] = None
 
     def mask(self, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
         if self.selector_type == "all":
@@ -203,6 +263,8 @@ def NeumannBC(
     order: int = 1,
     deriv_coord: Optional[str] = None,
     traction_map: Optional[Dict[str, str]] = None,
+    normal_stress_field: Optional[str] = None,
+    thermal_bc: Optional[Dict[str, str]] = None,
 ) -> ConditionSpec:
     """Construct a Neumann boundary condition.
 
@@ -219,6 +281,16 @@ def NeumannBC(
     traction_map: for elasticity presets whose Neumann targets are
     traction components (e.g. "tx"/"ty") rather than literal model
     output fields — see ConditionSpec's docstring for the exact mechanism.
+
+    normal_stress_field: for elasticity presets whose Neumann target is a
+    pressure MAGNITUDE (e.g. "p_normal", a pressure-vessel internal
+    pressure) rather than a single traction component — see
+    ConditionSpec's docstring for the n^T.sigma.n mechanism.
+
+    thermal_bc: for thermal presets whose Neumann/Robin target is a
+    prescribed heat flux or a convection law (e.g. fields=("q_heat",) or
+    fields=("h","T_ref")) rather than a literal model output field — see
+    ConditionSpec's docstring for the exact mechanism.
     """
     if isinstance(name, dict):
         values = name
@@ -234,6 +306,8 @@ def NeumannBC(
             order=order,
             deriv_coord=deriv_coord,
             traction_map=traction_map,
+            normal_stress_field=normal_stress_field,
+            thermal_bc=thermal_bc,
         )
     return ConditionSpec(
         name=name,
@@ -246,6 +320,8 @@ def NeumannBC(
         order=order,
         deriv_coord=deriv_coord,
         traction_map=traction_map,
+        normal_stress_field=normal_stress_field,
+        thermal_bc=thermal_bc,
     )
 
 

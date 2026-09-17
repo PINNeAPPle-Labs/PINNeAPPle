@@ -147,6 +147,26 @@ def _elasticity_traction_from_stress(
     return torch.cat(parts, dim=1)
 
 
+def _elasticity_normal_stress_from_stress(
+    sigma: torch.Tensor,
+    n_full: torch.Tensor,
+    coords: Sequence[str],
+    spatial_coord_names: Sequence[str],
+) -> torch.Tensor:
+    """The full scalar double contraction n^T . sigma . n (N, 1) -- used for
+    ``ConditionSpec.normal_stress_field`` (a pressure-magnitude Neumann
+    target, e.g. a pressure-vessel wall), which is a genuinely different
+    derivation from ``_elasticity_traction_from_stress`` above (that one
+    returns ONE vector component of n . sigma along a named axis; this one
+    is the full scalar normal-normal contraction, needed when the
+    boundary's own target is a pressure MAGNITUDE with no preferred axis)."""
+    sp_idx = [coords.index(n) for n in spatial_coord_names]
+    n_sp = n_full[:, sp_idx]  # (N, spatial_dim)
+    sigma_n = torch.einsum("nij,nj->ni", sigma, n_sp)  # sigma . n, (N, spatial_dim)
+    nnsn = torch.sum(n_sp * sigma_n, dim=1, keepdim=True)  # n . (sigma . n), (N, 1)
+    return nnsn
+
+
 def compile_problem(
     spec: ProblemSpec,
     *,
@@ -2262,13 +2282,17 @@ def compile_problem(
                 fvals = eval_fields(Xc)
                 pred = torch.cat([fvals[f] for f in cond.fields], dim=1)
             else:
-                if not (cond.kind == "neumann" and cond.order <= 1 and cond.traction_map):
+                is_special_neumann = cond.kind == "neumann" and cond.order <= 1 and (
+                    cond.traction_map or cond.normal_stress_field or cond.thermal_bc
+                )
+                if not is_special_neumann:
                     raise KeyError(
                         f"Condition '{cond.name}' declares fields {cond.fields} that are not "
                         f"among the model's own fields {field_names}, and is not a "
-                        "kind='neumann', order<=1 condition with a `traction_map` set to "
-                        "resolve them against the stress tensor -- see ConditionSpec.traction_map's "
-                        "docstring for how to declare a traction boundary condition."
+                        "kind='neumann', order<=1 condition with `traction_map`, "
+                        "`normal_stress_field`, or `thermal_bc` set to resolve them -- see "
+                        "ConditionSpec's docstring for how to declare a traction, pressure, or "
+                        "thermal-flux/convection boundary condition."
                     )
                 fvals = None
                 pred = None
@@ -2313,6 +2337,92 @@ def compile_problem(
                     sigma, n, coords, spatial_coord_names, cond.fields, cond.traction_map,
                 )
                 l = mse(flux_pred, Yc)
+                out[f"bc_{cond.name}"] = l.detach()
+                total = total + (w.w_bc * float(cond.weight)) * l
+
+            elif cond.kind == "neumann" and cond.order <= 1 and cond.normal_stress_field:
+                # Pressure-vessel-style Neumann BC (see
+                # ConditionSpec.normal_stress_field's docstring): the target
+                # is a pressure MAGNITUDE, and the physical condition is the
+                # full scalar contraction n^T.sigma.n = -p_internal -- a
+                # genuinely different derivation than traction_map's
+                # per-component n.sigma (that one selects ONE row of n.sigma
+                # along a named axis; this one double-contracts with n on
+                # both sides, with no preferred axis at all).
+                n = batch.get("n_bc")
+                if n is None:
+                    raise KeyError("NeumannBC requires batch['n_bc']")
+                n = n.to(device)
+                if mask_key in batch:
+                    n = n[batch[mask_key].to(device).bool()]
+                disp_fields = _elasticity_displacement_fields(pde_kind, spatial_dim)
+                Xr = Xc.clone().detach().requires_grad_(True)
+                disp_vals = eval_fields(Xr)
+                sigma = _elasticity_stress_tensor(disp_vals, disp_fields, Xr, coords, spatial_coord_names, pde_kind, p)
+                nnsn_pred = _elasticity_normal_stress_from_stress(sigma, n, coords, spatial_coord_names)
+                # Yc holds the pressure MAGNITUDE (this condition's own
+                # value_fn, e.g. +p_internal) -- the compiler applies the
+                # standard pressure-vessel sign convention (compressive
+                # normal stress under positive internal pressure) here, not
+                # the preset.
+                l = mse(nnsn_pred, -Yc)
+                out[f"bc_{cond.name}"] = l.detach()
+                total = total + (w.w_bc * float(cond.weight)) * l
+
+            elif cond.kind == "neumann" and cond.order <= 1 and cond.thermal_bc:
+                # Heat-flux / convection Neumann-Robin BC (see
+                # ConditionSpec.thermal_bc's docstring): -k*dT/dn = q_heat
+                # (prescribed flux) or -k*dT/dn = h*(T - T_ref) (convection,
+                # Newton cooling). dT/dn is the model's own temperature
+                # field's boundary-normal derivative (same norm_dot_grad
+                # machinery as the plain Neumann branch below); k is read
+                # from the PDE's own params with the exact same fallback
+                # order (k_eff, then k, then 1.0) the heat_equation_steady*/
+                # heat_equation_transient interior residuals already use, so
+                # this can never silently disagree with the PDE's own
+                # conductivity. Generic across every preset declaring this
+                # q_heat / h+T_ref convention, not hardcoded to any one of
+                # them.
+                n = batch.get("n_bc")
+                if n is None:
+                    raise KeyError("NeumannBC requires batch['n_bc']")
+                n = n.to(device)
+                if mask_key in batch:
+                    n = n[batch[mask_key].to(device).bool()]
+                T_field = cond.thermal_bc.get("T_field", "T")
+                tb_kind = cond.thermal_bc.get("kind")
+                if T_field not in field_names:
+                    raise KeyError(
+                        f"Condition '{cond.name}' thermal_bc T_field={T_field!r} is not among "
+                        f"the model's own fields {field_names}."
+                    )
+                k_therm = float(p.get("k_eff", p.get("k", 1.0)))
+                Xr = Xc.clone().detach().requires_grad_(True)
+                Tr = eval_fields(Xr)[T_field]
+                dT_dn = norm_dot_grad(Tr, Xr, n)
+                if tb_kind == "flux":
+                    if Yc.shape[1] != 1:
+                        raise ValueError(
+                            f"Condition '{cond.name}' thermal_bc kind='flux' expects a single "
+                            f"field (q_heat); got fields={cond.fields}"
+                        )
+                    q_heat = Yc[:, 0:1]
+                    residual = -k_therm * dT_dn - q_heat
+                elif tb_kind == "convection":
+                    if "h" not in cond.fields or "T_ref" not in cond.fields:
+                        raise ValueError(
+                            f"Condition '{cond.name}' thermal_bc kind='convection' expects "
+                            f"fields ('h', 'T_ref'); got fields={cond.fields}"
+                        )
+                    h_coef = Yc[:, cond.fields.index("h"):cond.fields.index("h") + 1]
+                    T_ref = Yc[:, cond.fields.index("T_ref"):cond.fields.index("T_ref") + 1]
+                    residual = -k_therm * dT_dn - h_coef * (Tr - T_ref)
+                else:
+                    raise ValueError(
+                        f"Condition '{cond.name}' has unknown thermal_bc kind {tb_kind!r} "
+                        "(expected 'flux' or 'convection')."
+                    )
+                l = torch.mean(residual ** 2)
                 out[f"bc_{cond.name}"] = l.detach()
                 total = total + (w.w_bc * float(cond.weight)) * l
 

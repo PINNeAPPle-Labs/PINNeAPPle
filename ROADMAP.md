@@ -265,6 +265,48 @@ dos 65 presets, números de antes/depois da suite de testes, todos os
 `solve_pde()` callers do repo auditados) em `docs/dev/AUDIT_REPORT.md` e
 `docs/dev/ROADMAP_PHYSICS_AI_HUB.md`.
 
+### Follow-up (2026-09-17): geometria analítica real para 23 dos 40 presets tag-based
+**Já corrigido, parcialmente por natureza (não por falta de esforço).**
+Dos 40 presets que o fix acima deixou inutilizáveis sem geometria real, 23
+tinham domínio canônico (caixa/retângulo/cilindro) totalmente descrito
+pelos próprios parâmetros do preset, com mapeamento tag→face inequívoco
+(citado literalmente do docstring/comentário de cada preset em
+`pinneapple_physics/pde_environment/presets/tag_geometry.py`). Para esses
+23, um novo builder mesh-free (`pinneapple_design/geometry/builders/
+analytic_domain_batch_builder.py`) amostra o domínio analiticamente (sem
+precisar de STL, e sem o recentragem forçada do `STLDomainBatchBuilder`
+que quebraria `value_fn`s que assumem coordenadas literais) e treina de
+ponta a ponta via `solve_pde()` de verdade — confirmado com resíduo/loss
+por tag real, distinto e não-degenerado para os 23 (ex.: `pipe_flow_3d`
+convergiu de loss agregado 299.6 → 2.55 em 200 epochs, com os 3 tags
+inlet/outlet/wall caindo individualmente e para valores distintos).
+
+Os outros 17/40 permanecem documentados (não "consertados") porque a
+geometria real é específica de cliente/domínio e não dedutível dos
+parâmetros do preset (perfil de asa real, silhueta de carro, geometria
+interna de forno/datacenter, zonas de componente numa PCB dadas só como
+dict de potência sem coordenada, etc.) — inventar uma geometria genérica
+pra esses seria fabricar confiança sobre um resultado fisicamente
+inválido, exatamente o que o fix original existe para prevenir.
+`TagConditionsUnresolved` continua disparando para os 17, sem alteração.
+
+Um bug real e independente foi encontrado e corrigido no processo:
+`STLDomainBatchBuilder._targets_from_conditions` só preenchia `y_bc` para
+condições `kind="dirichlet"`, deixando alvos Neumann/Robin como NaN
+silenciosamente (o `compile.py`'s `loss_fn` usa `y_bc` como alvo pra
+QUALQUER tipo de condição uma vez que ele é fornecido, não só Dirichlet).
+Corrigido nos dois builders.
+
+Suite completa (`pytest tests/`, 1667 testes, antes vs. depois, mesmo
+ambiente, mesmo commit-base `bfa19dbd`): passed 1289→1340 (+51), skipped
+263→212 (-51), failed 75→75 e error 39→39 (conjunto de IDs
+bit-a-bit idêntico antes/depois — zero regressão, zero teste
+pré-existente consertado por acidente). Os 51 que viraram pass são
+exatamente as combinações arquitetura×preset dos 23 presets consertados
+em `test_cartesian_breadth.py`/`test_full_library_matrix.py`. Detalhes
+completos, lista dos 23 consertados e dos 17 documentados como não
+consertáveis sem fabricar geometria, em `docs/dev/AUDIT_REPORT.md`.
+
 ### PhysicsNeMo Backbone Swap
 **Projeto novo.** Avaliar/trocar o NVIDIA PhysicsNeMo como backbone dos
 surrogates CFD do ChordIQ (mixing-tank, cloramina), comparando contra a

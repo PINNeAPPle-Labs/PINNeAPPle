@@ -972,3 +972,184 @@ but-unconstrained result as a success; no dedicated test exercises this
 file, so no test-suite delta). No `saas/`, `veriphysics/`, or
 `pinneapple_arena` caller of `solve_pde()` exists inside this repo (those
 products live in sibling repos, out of scope here).
+
+## Follow-up pass: real analytic geometry for 23 of the 40 tag-based presets (2026-09-17)
+
+The fix above correctly makes 40 of the 65 registered presets (32
+tag-only + 8 mixed) unusable via `solve_pde()` until they are given real
+geometry. This pass closes that gap for real, for as many of the 40 as
+can be done **without fabricating geometry the preset itself doesn't
+already specify**: a new preset-by-preset engineering-judgment table,
+`pinneapple_physics/pde_environment/presets/tag_geometry.py`
+(`TAG_GEOMETRY_FIXTURES`), classifies every one of the 40 as either
+
+- fixable: the preset's own domain is a canonical box/rectangle or
+  circular-cross-section cylinder fully described by the preset's own
+  `domain_bounds`/params, AND every tag name maps to one specific face of
+  that shape without guessing at anything the preset's docstring/comments
+  don't already state (every entry in the table cites the exact text the
+  mapping is read from) — **23 of 40**, or
+- not fixable without fabricating geometry: a real airfoil/car-body/
+  furnace-refractory/turbine-blade profile, an internal (non-face) object
+  location never given coordinates, an unlocated ambiguous tag (e.g. two
+  differently-named-but-otherwise-identical "fixed"/"load" faces with no
+  disambiguating text), a domain whose own stated `domain_bounds` don't
+  even encode the real shape (`rocket_structural`'s annulus), or a
+  separate, unrelated compiler defect that geometry alone can't fix
+  (`aircraft_wing_structural` — see below) — **17 of 40**, each with a
+  one-line reason in `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY`. For these,
+  `TagConditionsUnresolved` continues to fire, correctly.
+
+**Fixed (23)**: `channel_flow_3d`, `climate_atmosphere_2d`,
+`climate_ocean_gyre`, `darcy_pressure_only_3d`, `drug_diffusion_tissue`,
+`furnace_combustion_zone`, `helmholtz_acoustics_3d`, `laplace_2d`,
+`lid_driven_cavity_3d`, `linear_elasticity_3d_industry`,
+`material_fracture_2d`, `ns_incompressible_2d`, `opinion_dynamics_2d`,
+`pipe_flow_3d`, `plane_strain_2d`, `poisson_2d`, `reaction_diffusion_2d`,
+`refractory_lining`, `steady_heat_conduction_3d`, `thermoelasticity_2d`,
+`transient_heat_3d`, `von_mises_2d`, `wave_ultrasound_3d`.
+
+**Not fixable without fabricating geometry (17)**, with the specific
+reason in each case: `aircraft_wing_aerodynamics` (real airfoil profile),
+`aircraft_wing_structural` (geometry IS unambiguous, but the preset's own
+Neumann conditions use traction fields `tx`/`ty` that `compile.py`'s
+generic Neumann handling can't resolve against the model's actual fields
+`ux`/`uy` — confirmed by hand: `KeyError: 'ty'` even with correct geometry
+supplied — a separate compiler defect, out of scope for a geometry-only
+fix), `axial_compressor_cascade_2d` (curved blade cascade profile),
+`car_brake_thermal` (ambiguous friction/cooling-surface assignment to the
+disc's faces), `car_external_aero` (bluff-body silhouette),
+`car_suspension_fatigue` (wishbone-arm geometry, tags not tied to
+specific faces), `cpu_heatsink_thermal` (fin geometry),
+`datacenter_airflow_2d`/`datacenter_cfd_3d` (internal rack/CRAC objects,
+not box faces), `datacenter_server_thermal` (hotspot zones never given
+coordinates), `fan_cooler_cfd` (blade/hub geometry),
+`industrial_furnace_thermal` (internal material-layer boundary, needs a
+real furnace CAD/mesh), `linear_elasticity_3d`/`plane_stress_2d`
+(`"fixed"`/`"load"` are two different, unlocated tags with nothing to
+disambiguate which face is which), `pcb_thermal` (component hotspots
+given as a power dict, never coordinates), `rocket_nozzle_cfd` (curved
+convergent-divergent nozzle contour), `rocket_structural` (the physical
+part is an annulus but the preset's own `domain_bounds` is a solid
+square that doesn't even encode the hole).
+
+**Verified, not just asserted**: every one of the 17 "not fixable" claims
+above was independently confirmed this session by direct inspection of
+the preset's source (e.g. `pcb_thermal`'s `q_components` really is a
+`{name: watts}` dict with no coordinates anywhere;
+`aircraft_wing_structural`'s Neumann conditions really do use `fields=
+("ty",)`/`("tx","ty")` while the model's own fields are `(ux, uy)`, and
+calling `compile_problem`'s `loss_fn` directly with correct geometry
+supplied by hand does raise `KeyError: 'ty'`, confirming the second,
+independent defect). Every one of the 23 "fixed" presets was run
+end-to-end through `solve_pde()` for real this session (not just
+Tier-A "compiles" checked) — see next section.
+
+### New builder: `analytic_domain_batch_builder.py` (mesh-free, exact-coordinate)
+
+The existing `STLDomainBatchBuilder` needs an actual mesh file and always
+re-centers the loaded mesh on its bounding-box centroid, which silently
+breaks any preset `value_fn` that assumes literal, un-shifted coordinates
+(e.g. `channel_flow_3d`'s inlet profile computes `y*(H-y)` assuming
+`y in [0, H]`, not a re-centered `[-H/2, H/2]`). For the 23 presets above
+— genuinely representable by `spec.domain_bounds` alone — a new
+`pinneapple_design/geometry/builders/analytic_domain_batch_builder.py`
+samples the literal box/cylinder analytically instead: `sample_box_tag_
+batch()` and `sample_cylinder_tag_batch()`. This is still real geometry,
+not a mock — the sampled points are genuine interior/boundary points of
+the exact solid the preset's own docstring describes, and every
+condition's own `mask()`/`values()` is called exactly as
+`STLDomainBatchBuilder` does, so nothing about the preset's declared
+physics is bypassed.
+`pinneapple_physics/pde_environment/presets/tag_geometry.py`'s
+`build_tag_batch(name, spec)` is the single entry point that dispatches
+each of the 23 fixed presets to the right shape/face mapping; see
+`examples/pde_environment/07_tagged_presets_real_geometry.py` for
+end-to-end usage through `solve_pde()`.
+
+**A real, independent bug found and fixed while building this**:
+`compile.py`'s `loss_fn` uses whatever is in `batch["y_bc"]` (sliced to
+each condition's own mask) as the target for **every** condition kind
+once `y_bc` is supplied at all — it only calls `cond.values()` itself
+when `y_bc` is absent entirely (the `solve_pde()` auto-sampling path).
+`STLDomainBatchBuilder._targets_from_conditions` only ever filled `y_bc`
+for `kind == "dirichlet"`, silently leaving Neumann/Robin targets as NaN
+— a latent gap that happened to never surface in the two existing STL
+examples (`04_heat3d_stl_box.py` has no Neumann tag condition;
+`03_ns2d_channel_tags.py`'s one Neumann target is genuinely zero, so the
+NaN gap was invisible). Confirmed directly (no `trimesh` needed, since
+this only touches the post-mask targeting helper): before the fix,
+`pipe_flow_3d`'s Neumann `outlet_dp_dn` tag's own field (`p`) stayed NaN
+in `y_bc`; after, it correctly reads `0.0` (the real `dp/dn=0` target).
+Fixed in both builders (the new analytic one shipped with the fix
+already applied; `STLDomainBatchBuilder` patched to match).
+
+**Per-tag residual/loss evidence, not just "it ran"**: every one of the
+23 fixed presets was run through `compile_problem`'s `loss_fn` directly
+(random-init model, real sampled geometry) and confirmed to produce
+**distinct, non-degenerate per-tag losses** — e.g.
+`pipe_flow_3d`: `{pde: 3.45, bc_inlet: 0.49, bc_outlet_dp_dn: 1.75,
+bc_wall: 0.065}`; `steady_heat_conduction_3d`: `{pde: 1431.0,
+bc_T_boundary: 0.22, bc_T_inlet_hot: 1.14}` — never two identical or
+all-zero values, which would indicate a tag not actually being applied.
+Two representative presets (one box, `laplace_2d`; one cylinder,
+`pipe_flow_3d`) were then trained for 200 epochs through `solve_pde()`
+end-to-end and confirmed to actually converge, not just run:
+`laplace_2d` aggregate loss `670.8 -> 0.256` (ratio `3.8e-4`),
+`pipe_flow_3d` `299.6 -> 2.55` (ratio `8.5e-3`), with every per-tag loss
+shrinking individually (`pipe_flow_3d`'s three tags: `0.49/1.75/0.065 ->
+0.001/0.0005/0.004`) — the per-tag masking is doing real, physically
+meaningful work, not a coincidental pass-through. All 17 "not fixable"
+presets were independently re-confirmed to still raise
+`TagConditionsUnresolved` exactly as before (unaffected, as intended).
+
+### Test suite impact, measured before and after (full `pytest tests/`, not just the two `solve_pde` files)
+
+One pre-existing, unrelated environment issue was found and worked around
+to get a clean before/after full-suite comparison at all: **`tests/
+test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]`
+segfaults the Python interpreter outright** (confirmed in isolation,
+identically on both the pre-fix and post-fix commit — a native `xgboost`/
+OpenMP crash on this machine, unrelated to anything in this session's
+change) — `pytest` cannot even catch a segfault, so the whole process
+dies mid-run. Both full-suite runs below use `--deselect
+"tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"`
+to work around it; this is a pre-existing environment gap, not something
+this session introduced or fixed, and is unrelated to the tag-geometry
+work either way.
+
+Full `pytest tests/` (1667 of 1668 collected, 1 deselected), run at the
+pre-fix commit (`bfa19dbd`, clean checkout) and again at this session's
+final commit, both in this exact environment:
+
+| | Before (`bfa19dbd`) | After (this session) |
+|---|---|---|
+| Passed | 1289 | **1340** |
+| Failed | 75 | 75 |
+| Error (setup/collection) | 39 | 39 |
+| Skipped | 263 | **212** |
+| xfail | 1 | 1 |
+| **Total** | 1667 | 1667 |
+
+**The set of 114 failing/erroring test IDs (75 `FAILED` + 39 `ERROR`) is
+bit-for-bit identical before and after** (`diff` of the two sorted ID
+lists is empty) — every one of them is a pre-existing, unrelated failure
+(e.g. `test_app_backend.py`'s `RuntimeError`s, `test_admin_router.py`,
+`test_preset_authoring.py`'s Ollama-dependent tests, ...), confirmed
+untouched by this change. **The entire net effect of this pass on the
+full suite is exactly 51 tests moving from `skip` to `pass`** (1289 ->
+1340), and zero tests moving the other way — those 51 are precisely the
+`test_cartesian_breadth.py`/`test_full_library_matrix.py` combinations
+for the 23 newly-fixed presets that previously skipped with "needs real
+geometry" and now train for real (confirmed directly: those two files
+alone went from 56 passed/173 skipped to 107 passed/122 skipped, a
++51/-51 delta that accounts for the entire suite-wide delta with nothing
+left over). No `"callable"`/`"all"` preset and no unrelated test file
+changed status in either direction.
+
+**Net tally against the original 40**: 23/40 (57.5%) fixed with real,
+verified, non-degenerate per-tag training; 17/40 (42.5%) correctly
+documented as needing real external geometry (or, in
+`aircraft_wing_structural`'s one case, a separate compiler fix) that this
+pass does not fabricate. `TagConditionsUnresolved` is unchanged and still
+fires for all 17 plus every non-tag-based failure mode it always covered.

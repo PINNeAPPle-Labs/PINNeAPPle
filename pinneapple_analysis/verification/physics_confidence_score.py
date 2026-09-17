@@ -17,7 +17,7 @@ a **deliberate** choice, not a gap, for exactly that reason: collapsing
 several independent, differently-scoped signals into one opaque number
 invites exactly the false confidence this repo's whole verification stack
 (``PhysicsGuardrail``, Richardson/GCI convergence, calibration metrics,
-benchmark comparison) exists to prevent.
+benchmark comparison, geometric OOD detection) exists to prevent.
 
 This module honors that principle rather than overriding it. It is a
 **transparent aggregator over real checks a caller already ran** -- never
@@ -27,9 +27,10 @@ Concretely:
 * :func:`compute_physics_confidence` never runs a check itself. It only
   accepts the real result *objects* that ``PhysicsGuardrail.check()``,
   ``richardson_extrapolate``/``mesh_independence_study``,
-  ``CalibrationMetrics``'s static methods, and
-  ``PhysicsCase.validate_against_benchmark()`` already produced, and turns
-  each one that was actually supplied into one auditable
+  ``CalibrationMetrics``'s static methods,
+  ``PhysicsCase.validate_against_benchmark()``, and
+  ``GeometryOODGuardrail.score()`` already produced, and turns each one
+  that was actually supplied into one auditable
   :class:`ConfidenceComponent` via a plain, documented arithmetic formula
   (never a fitted/learned/opaque function -- see each component's
   docstring below for its exact derivation).

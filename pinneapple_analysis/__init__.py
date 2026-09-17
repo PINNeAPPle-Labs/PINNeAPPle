@@ -19,10 +19,12 @@ inverse_problems  (was pinneapple_inverse)
 
 trust
     Pre-consumption trust scoring of a trained model's own predictions
-    (OOD + residual + ensemble-variance), distinct from
-    ``pinneapple_llm.guardrail.PhysicsGuardrail`` (verifies LLM-proposed
-    specs) and ``pinneapple_systems.digital_twin``'s live sensor anomaly
-    detection. See ``trust.TrustGate``.
+    (coordinate OOD + residual + ensemble-variance + geometric OOD of the
+    INPUT shape itself, via
+    ``verification.geometry_ood_guardrail.GeometryOODGuardrail``),
+    distinct from ``pinneapple_llm.guardrail.PhysicsGuardrail`` (verifies
+    LLM-proposed specs) and ``pinneapple_systems.digital_twin``'s live
+    sensor anomaly detection. See ``trust.TrustGate``.
 
 Integration helpers
 -------------------

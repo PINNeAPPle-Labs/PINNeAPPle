@@ -38,13 +38,13 @@ Concretely:
   :attr:`PhysicsConfidenceScore.components`, exactly like
   ``GuardrailReport.checked_names``/``skipped`` never fakes a skipped
   check as a pass.
-* :attr:`PhysicsConfidenceScore.coverage` (``components_used / 4``) is the
+* :attr:`PhysicsConfidenceScore.coverage` (``components_used / 5``) is the
   load-bearing honesty mechanism of the whole module and MUST always be
   read alongside :attr:`PhysicsConfidenceScore.overall_score`. A score of
-  1.0 built from ``coverage=0.25`` (one real check, e.g. only the
+  1.0 built from ``coverage=0.2`` (one real check, e.g. only the
   benchmark comparison happened to be very close) is emphatically **not**
   the same claim as a score of 1.0 built from ``coverage=1.0`` (every one
-  of the four checks this module knows how to aggregate actually ran and
+  of the five checks this module knows how to aggregate actually ran and
   agreed). Callers and UIs displaying ``overall_score`` in isolation,
   without ``coverage`` right next to it, are misrepresenting what the
   number means -- this is precisely the failure mode ``UncertaintyReport``
@@ -58,7 +58,7 @@ Concretely:
   treat "not evaluated" as "passed", and ``UncertaintyReport``'s
   ``aleatoric_std=None`` when that method genuinely cannot report one).
 
-The four checks this module knows how to aggregate
+The five checks this module knows how to aggregate
 ---------------------------------------------------
 1. ``physics_guardrail`` -- from a real
    ``pinneapple_llm.guardrail.GuardrailReport`` (``PhysicsGuardrail.check()``'s
@@ -82,6 +82,16 @@ The four checks this module knows how to aggregate
    ``pinneapple_data.physics_case.BenchmarkComparison``
    (``PhysicsCase.validate_against_benchmark()``'s return value): relative
    L2 error against a named, independently-verified reference dataset.
+5. ``geometry_ood`` -- from a real
+   ``pinneapple_analysis.verification.geometry_ood_guardrail.GeometryOODResult``
+   (``GeometryOODGuardrail.score()``'s return value): whether the INPUT
+   geometry itself resembles the shape family the model/preset was
+   actually designed around, via a shrunk-covariance Mahalanobis distance
+   over real geometric features fit on a reference shape set -- a scoped
+   reimplementation of the concept behind NVIDIA PhysicsNeMo's
+   ``experimental/guardrails/geometry`` guardrail (density-based
+   geometric OOD detection; see that module's docstring for the full
+   technique and the explicit choices made differently here).
 
 Every derivation is a plain, inspectable, documented formula (see each
 component's docstring immediately below), never a fitted or learned
@@ -105,7 +115,7 @@ __all__ = [
 # The fixed set of checks this module knows how to aggregate. Used only to
 # compute `coverage = len(components) / N_POSSIBLE_COMPONENTS` -- never to
 # fabricate a placeholder entry for one that wasn't run.
-N_POSSIBLE_COMPONENTS = 4
+N_POSSIBLE_COMPONENTS = 5
 
 
 def _clamp01(x: float) -> float:
@@ -219,7 +229,7 @@ class ConfidenceComponent:
 
 @dataclass
 class PhysicsConfidenceScore:
-    """A transparent aggregate over whichever of the four real checks a
+    """A transparent aggregate over whichever of the five real checks a
     caller actually ran. See this module's docstring for the full design
     rationale -- in short: ``overall_score`` is a plain arithmetic mean of
     ``components``' scores (never a hidden weighting), ``components``
@@ -237,15 +247,16 @@ class PhysicsConfidenceScore:
     components : List[ConfidenceComponent]
         Only the components that were actually computed, in the fixed
         order ``physics_guardrail``, ``numerical_convergence``,
-        ``uq_calibration``, ``benchmark_agreement`` (whichever subset was
-        supplied), never a placeholder entry for a check that wasn't run.
+        ``uq_calibration``, ``benchmark_agreement``, ``geometry_ood``
+        (whichever subset was supplied), never a placeholder entry for a
+        check that wasn't run.
     coverage : float
-        ``len(components) / 4`` -- what fraction of the four checks this
+        ``len(components) / 5`` -- what fraction of the five checks this
         module knows how to aggregate actually contributed to
         ``overall_score``. This is the honesty mechanism of the whole
         module: it must be shown prominently alongside ``overall_score``,
         never as an afterthought, and never conflated with it (a
-        ``coverage=0.25`` score and a ``coverage=1.0`` score of the same
+        ``coverage=0.2`` score and a ``coverage=1.0`` score of the same
         numeric value are not equivalent claims).
     """
 
@@ -268,7 +279,7 @@ class PhysicsConfidenceScore:
             lines.append(f"  [{c.name}] score={c.score:.4g} -- {c.source_summary}")
         if not self.components:
             lines.append("  (no components: guardrail_report, convergence_result, calibration_metrics, "
-                          "and benchmark_comparison were all None)")
+                          "benchmark_comparison, and geometry_ood_result were all None)")
         return "\n".join(lines)
 
 
@@ -436,6 +447,33 @@ def _component_from_benchmark(comparison) -> ConfidenceComponent:
     return ConfidenceComponent(name="benchmark_agreement", score=score, source_summary=summary)
 
 
+def _component_from_geometry_ood(result) -> ConfidenceComponent:
+    """``geometry_ood`` component.
+
+    Derivation: ``GeometryOODResult.p_value`` (see
+    ``geometry_ood_guardrail.py``) is
+    ``scipy.stats.chi2.sf(mahalanobis_sq, df=n_features)`` -- already a
+    real probability in ``[0, 1]`` by construction (1.0 = the input
+    geometry's shape features sit exactly at the reference shape family's
+    mean, values near 0 = far out in the tail of what that reference set
+    looked like). Exactly like ``uq_calibration``'s ECE and
+    ``benchmark_agreement``'s relative L2 error above, a quantity already
+    naturally bounded to ``[0, 1]`` needs no extra reference threshold to
+    invent -- the score IS the p-value, clamped only as a defensive
+    measure against floating-point drift at the exact boundaries::
+
+        score = clamp(p_value, 0.0, 1.0)
+    """
+    p_value = _require_finite(result.p_value, "geometry_ood_result.p_value")
+    score = _clamp01(p_value)
+    summary = (
+        f"status={result.status}, p_value={p_value:.4g}, percentile={result.percentile:.1f}, "
+        f"mahalanobis_sq={result.mahalanobis_sq:.4g}, n_reference_shapes={result.n_reference_shapes}, "
+        f"most_anomalous_feature={result.most_anomalous_feature} (z={result.most_anomalous_feature_z:+.2f})"
+    )
+    return ConfidenceComponent(name="geometry_ood", score=score, source_summary=summary)
+
+
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
@@ -446,6 +484,7 @@ def compute_physics_confidence(
     convergence_result=None,
     calibration_metrics: Optional[CalibrationSummary] = None,
     benchmark_comparison=None,
+    geometry_ood_result=None,
 ) -> PhysicsConfidenceScore:
     """Aggregate whichever real, already-executed checks a caller supplies
     into one transparent :class:`PhysicsConfidenceScore`.
@@ -473,6 +512,11 @@ def compute_physics_confidence(
         result object).
     benchmark_comparison : Optional[pinneapple_data.physics_case.BenchmarkComparison]
         A real result from ``PhysicsCase.validate_against_benchmark()``.
+    geometry_ood_result : Optional[pinneapple_analysis.verification
+        .geometry_ood_guardrail.GeometryOODResult]
+        A real result from ``GeometryOODGuardrail.score(mesh)`` -- whether
+        the INPUT geometry resembles the reference shape family the
+        guardrail was fit on.
 
     Returns
     -------
@@ -480,13 +524,13 @@ def compute_physics_confidence(
         ``components`` contains exactly one :class:`ConfidenceComponent`
         per non-``None`` argument (in the fixed order
         ``physics_guardrail``, ``numerical_convergence``,
-        ``uq_calibration``, ``benchmark_agreement``), ``coverage`` is
-        ``len(components) / 4``, and ``overall_score`` is the plain
-        arithmetic mean of ``components``' scores (documented, unweighted
-        -- see :class:`PhysicsConfidenceScore`'s docstring) when
-        ``coverage > 0``, else ``None``.
+        ``uq_calibration``, ``benchmark_agreement``, ``geometry_ood``),
+        ``coverage`` is ``len(components) / 5``, and ``overall_score`` is
+        the plain arithmetic mean of ``components``' scores (documented,
+        unweighted -- see :class:`PhysicsConfidenceScore`'s docstring)
+        when ``coverage > 0``, else ``None``.
 
-    This function never raises for "nothing was supplied": if all four
+    This function never raises for "nothing was supplied": if all five
     arguments are ``None``, it returns
     ``PhysicsConfidenceScore(overall_score=None, components=[], coverage=0.0)``
     rather than fabricating a result or raising.
@@ -501,6 +545,8 @@ def compute_physics_confidence(
         components.append(_component_from_calibration(calibration_metrics))
     if benchmark_comparison is not None:
         components.append(_component_from_benchmark(benchmark_comparison))
+    if geometry_ood_result is not None:
+        components.append(_component_from_geometry_ood(geometry_ood_result))
 
     coverage = len(components) / N_POSSIBLE_COMPONENTS
     overall_score = (

@@ -51,12 +51,12 @@ physics_confidence_score
     A transparent, componentized aggregate confidence score built ONLY
     from real, already-executed checks a caller supplies (a
     ``PhysicsGuardrail`` report, a convergence-study ``ConvergenceResult``,
-    real UQ calibration numbers, a benchmark comparison) -- never a
-    check-running black box, never a fabricated number, and always paired
-    with an explicit ``coverage`` fraction so a score built from a subset
-    of the four possible checks can never be mistaken for one built from
-    all of them. See that module's own docstring for the full
-    anti-fabrication design rationale.
+    real UQ calibration numbers, a benchmark comparison, a geometric OOD
+    result) -- never a check-running black box, never a fabricated
+    number, and always paired with an explicit ``coverage`` fraction so a
+    score built from a subset of the five possible checks can never be
+    mistaken for one built from all of them. See that module's own
+    docstring for the full anti-fabrication design rationale.
 
 geometry_intelligence
     CAD/mesh -> semantic boundary regions -> boundary conditions. Two
@@ -65,7 +65,25 @@ geometry_intelligence
     heuristics (wall/opening/symmetry_plane candidates), then optional
     LLM semantic disambiguation ONLY for genuinely-ambiguous opening
     regions (a fixed, checked label/BC-type vocabulary -- hallucinated
-    region ids/labels are rejected, never guessed at).
+    region ids/labels are rejected, never guessed at). Distinct from
+    ``geometry_ood_guardrail`` below: this module classifies WHAT a
+    geometry's surfaces mean (wall/inlet/outlet/...), never whether the
+    geometry itself is unusual.
+
+geometry_ood_guardrail
+    Out-of-distribution detection for the INPUT geometry itself: real
+    geometric feature extraction (position, size, proportions,
+    area-weighted principal shape spread, surface-complexity ratio, a
+    discrete mean-curvature proxy) plus a shrunk-covariance Mahalanobis
+    distance density model fit on a reference shape family, converted to
+    an empirical percentile and an OK/WARN/REJECT verdict. A scoped
+    reimplementation of the concept behind NVIDIA PhysicsNeMo's
+    ``experimental/guardrails/geometry`` guardrail (Apache-2.0; concept
+    only, no code copied) -- see that module's own docstring for the
+    explicit GMM-vs-single-Gaussian scope decision. Feeds both
+    ``TrustGate.score(geometry_guardrail=..., mesh=...)`` and
+    ``compute_physics_confidence(geometry_ood_result=...)`` as one more
+    real signal, never a standalone disconnected check.
 
 solver_orchestration
     Live introspection of which solver families (PINN, the classical
@@ -182,6 +200,12 @@ from pinneapple_analysis.verification.geometry_intelligence import (
     GeometryClassification,
     classify_geometry,
 )
+from pinneapple_analysis.verification.geometry_ood_guardrail import (
+    FEATURE_NAMES as GEOMETRY_OOD_FEATURE_NAMES,
+    GeometryOODResult,
+    GeometryOODGuardrail,
+    extract_geometry_features,
+)
 from pinneapple_analysis.verification.solver_orchestration import (
     list_available_solver_families,
     SolverRecommendation,
@@ -267,6 +291,11 @@ __all__ = [
     "SurfaceRegion",
     "GeometryClassification",
     "classify_geometry",
+    # geometry_ood_guardrail
+    "GEOMETRY_OOD_FEATURE_NAMES",
+    "GeometryOODResult",
+    "GeometryOODGuardrail",
+    "extract_geometry_features",
     # solver_orchestration
     "list_available_solver_families",
     "SolverRecommendation",

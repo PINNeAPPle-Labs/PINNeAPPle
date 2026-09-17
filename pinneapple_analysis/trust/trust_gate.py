@@ -13,7 +13,7 @@ Distinct from two existing, adjacent mechanisms — this is neither of them:
   running.
 
 ``TrustGate`` scores one specific prediction from an already-trained
-model, combining up to three independent [0, 1] sub-scores:
+model, combining up to four independent [0, 1] sub-scores:
 
 - an out-of-distribution (OOD) score: Mahalanobis distance of the query
   coordinates to the model's training-coordinate distribution, squashed
@@ -28,7 +28,22 @@ model, combining up to three independent [0, 1] sub-scores:
   Tensor`` function, or a ``pinneapple_systems.component_library.Physics``
   instance);
 - an optional ensemble-variance score, if a ``DeepEnsemble`` (or anything
-  exposing ``.predict(x) -> (mean, std)``) is supplied.
+  exposing ``.predict(x) -> (mean, std)``) is supplied;
+- an optional geometry score: whether the INPUT geometry itself (the CAD
+  shape/mesh the model is being asked to predict on, not the query
+  coordinates) resembles the shapes the model was actually designed/
+  trained around, via a real
+  ``pinneapple_analysis.verification.geometry_ood_guardrail
+  .GeometryOODGuardrail`` fitted on a reference shape family. This is a
+  DIFFERENT question from the coordinate OOD score above: coordinate OOD
+  asks "is this query point inside the domain I trained on", geometry OOD
+  asks "does the domain/part itself look like what I trained on at all"
+  (e.g. a heat-sink model trained only on straight-fin geometries being
+  handed a wildly different pin-fin or organic/lattice geometry, even at
+  in-bounds coordinates). See that module's docstring for the technique
+  (shrunk-covariance Mahalanobis distance over real geometric features,
+  a scoped-down reimplementation of the concept behind NVIDIA
+  PhysicsNeMo's ``experimental/guardrails/geometry`` guardrail).
 """
 from __future__ import annotations
 
@@ -50,14 +65,23 @@ class TrustScore:
     ood_score: Optional[float] = None
     residual_score: Optional[float] = None
     ensemble_score: Optional[float] = None
+    geometry_score: Optional[float] = None
     details: Dict[str, Any] = field(default_factory=dict)
 
 
 class TrustGate:
-    def __init__(self, *, ood_weight: float = 0.4, residual_weight: float = 0.4, ensemble_weight: float = 0.2):
+    def __init__(
+        self,
+        *,
+        ood_weight: float = 0.4,
+        residual_weight: float = 0.4,
+        ensemble_weight: float = 0.2,
+        geometry_weight: float = 0.2,
+    ):
         self.ood_weight = ood_weight
         self.residual_weight = residual_weight
         self.ensemble_weight = ensemble_weight
+        self.geometry_weight = geometry_weight
         self._mean: Optional[np.ndarray] = None
         self._cov_inv: Optional[np.ndarray] = None
         self._dim: Optional[int] = None
@@ -126,6 +150,19 @@ class TrustGate:
         rel_std = float((std.abs() / mean_t.abs().clamp_min(1e-6)).mean().item())
         return 1.0 / (1.0 + rel_std)
 
+    def _geometry_score(self, geometry_guardrail: Any, mesh: Any) -> Tuple[float, Any]:
+        """Score the INPUT geometry against a fitted
+        ``GeometryOODGuardrail``. Returns ``(p_value, GeometryOODResult)``
+        — ``p_value`` is already in ``[0, 1]`` (1.0 = geometry sits at the
+        reference distribution's mean, low = far out in the tail), the
+        same convention :meth:`_ood_score` uses for coordinates, so both
+        can be combined identically below. The full result object is
+        returned too (and placed in ``TrustScore.details``) so a caller
+        never has to trust a bare float — see
+        ``GeometryOODResult.summary()``."""
+        result = geometry_guardrail.score(mesh)
+        return float(result.p_value), result
+
     # -- combined score ------------------------------------------------
 
     def score(
@@ -136,11 +173,31 @@ class TrustGate:
         residual_fn: Optional[Callable[..., torch.Tensor]] = None,
         residual_kwargs: Optional[Dict[str, Any]] = None,
         ensemble: Optional[Any] = None,
+        geometry_guardrail: Optional[Any] = None,
+        mesh: Optional[Any] = None,
     ) -> TrustScore:
         """Combines whichever sub-scores are available into one [0, 1]
         weighted average (renormalized over only the parts actually
-        computed). Raises if none of {fitted OOD, residual_fn, ensemble}
-        were provided — a trust score with no evidence is not a score."""
+        computed). Raises if none of {fitted OOD, residual_fn, ensemble,
+        (geometry_guardrail + mesh)} were provided — a trust score with no
+        evidence is not a score.
+
+        Parameters
+        ----------
+        geometry_guardrail : Optional[pinneapple_analysis.verification
+            .geometry_ood_guardrail.GeometryOODGuardrail]
+            A real, already-fitted geometry guardrail (see that module).
+            Must be supplied together with ``mesh`` — both or neither.
+        mesh : Optional[pinneapple_design.geometry.core.mesh.MeshData]
+            The real input geometry this prediction was made on.
+        """
+        if (geometry_guardrail is None) != (mesh is None):
+            raise ValueError(
+                "TrustGate.score(): geometry_guardrail and mesh must be supplied together "
+                "(a guardrail with no mesh to score, or a mesh with no fitted guardrail to "
+                "score it against, is not evidence)."
+            )
+
         details: Dict[str, Any] = {}
         parts, weights = [], []
 
@@ -165,12 +222,23 @@ class TrustGate:
             parts.append(ens)
             weights.append(self.ensemble_weight)
 
+        geom = None
+        if geometry_guardrail is not None:
+            geom, geom_result = self._geometry_score(geometry_guardrail, mesh)
+            details["geometry_score"] = geom
+            details["geometry_ood_result"] = geom_result
+            parts.append(geom)
+            weights.append(self.geometry_weight)
+
         if not parts:
             raise ValueError(
                 "TrustGate.score() has no evidence to combine — call fit()/fit_from_bounds() first, "
-                "and/or pass residual_fn and/or ensemble."
+                "and/or pass residual_fn, ensemble, and/or geometry_guardrail+mesh."
             )
 
         wsum = sum(weights)
         combined = sum(p * w for p, w in zip(parts, weights)) / wsum
-        return TrustScore(combined=combined, ood_score=ood, residual_score=residual, ensemble_score=ens, details=details)
+        return TrustScore(
+            combined=combined, ood_score=ood, residual_score=residual, ensemble_score=ens,
+            geometry_score=geom, details=details,
+        )

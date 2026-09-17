@@ -30,10 +30,16 @@ from typing import List, Literal, Sequence
 
 import torch
 
-from pinneapple_neural.architectures.neural_operators.pino import (
-    fd_derivative,
-    spectral_derivative,
-)
+# NOTE: pino.py's fd_derivative/spectral_derivative are imported lazily,
+# inside grid_derivative() below, rather than at module level. Importing
+# `pinneapple_neural.architectures.neural_operators.pino` transitively
+# triggers `pinneapple_neural`'s architecture registry (~25 model families
+# registered on import, see architectures/register_all.py) -- a real but
+# heavy cost that every SymbolicPDE user would otherwise pay just for
+# importing pinneapple_physics.symbolic_pde, even those using the default
+# grad_method="autograd" that never touches grid-based derivatives. The
+# lazy import defers that cost to the (rarer) call site that actually needs
+# finite-difference/spectral derivatives.
 
 GradMethod = Literal["autograd", "finite_difference", "spectral"]
 GridGradMethod = Literal["finite_difference", "spectral"]
@@ -93,6 +99,11 @@ def grid_derivative(
     standard way to build higher-dimensional finite-difference stencils out
     of 1D ones for the FD case.
     """
+    from pinneapple_neural.architectures.neural_operators.pino import (
+        fd_derivative,
+        spectral_derivative,
+    )
+
     counts = Counter(wrt)
     result = field
     for coord_name, order in counts.items():

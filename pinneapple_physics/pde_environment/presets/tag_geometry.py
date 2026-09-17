@@ -37,10 +37,23 @@ mapping is read from -- not invented.
 with a one-line reason (used only for documentation/reporting -- the
 actual not-fixable behavior is simply "this module has no entry for it,"
 ``TagConditionsUnresolved`` still fires).
+
+``CHOSEN_CONVENTIONS`` (added in the 2026-09-17 follow-up pass): a small
+number of fixtures below map a tag whose face the preset's own text
+genuinely does NOT specify (e.g. "fixed"/"load" on an otherwise-symmetric
+unit cube) -- for those, and ONLY those, this pass made an explicit
+engineering decision (the canonical cantilever convention, the standard
+disc-brake friction/cooling assignment) instead of reading an existing
+fact off the preset. Every such fixture is marked in its own inline
+comment too; ``CHOSEN_CONVENTIONS`` collects the reasoning in one place so
+it can never be mistaken for the preset's own text the way every other
+entry's comment is.
 """
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
+
+import numpy as np
 
 from ..spec import ProblemSpec
 
@@ -240,26 +253,190 @@ TAG_GEOMETRY_FIXTURES: Dict[str, Dict[str, Any]] = {
         "tag_faces": {"no_flux": [("x", "max"), ("y", "min"), ("y", "max")]},
     },
 
+    # ---- Second follow-up pass (2026-09-17): chosen conventions for
+    # "fixed"/"load" and "friction"/"cooling" -- see CHOSEN_CONVENTIONS
+    # below and AUDIT_REPORT.md for the explicit statement that these are
+    # DECISIONS this pass made, not something inherent to the preset text
+    # (unlike every entry above, which cites the preset's own docstring). ----
+    "linear_elasticity_3d": {
+        # CONVENTION (not preset text): "fixed" = the domain-min face of the
+        # first/principal coordinate (x=0, the "base"/"engaste"), "load" =
+        # the domain-max face of that same coordinate (x=domain_bounds max,
+        # the free tip where the load is applied) -- the canonical
+        # cantilever-beam/column setup. domain_bounds is the unit cube.
+        "shape": "box",
+        "tag_faces": {"fixed": [("x", "min")], "load": [("x", "max")]},
+    },
+    "plane_stress_2d": {
+        # Same CONVENTION as linear_elasticity_3d above, applied to the 2D
+        # unit square.
+        "shape": "box",
+        "tag_faces": {"fixed": [("x", "min")], "load": [("x", "max")]},
+    },
+    # NOTE: car_brake_thermal is NOT here despite its tag ambiguity being
+    # resolved (see CHOSEN_CONVENTIONS below) -- see its entry in
+    # NOT_FIXABLE_WITHOUT_REAL_GEOMETRY for why (a second, independent,
+    # pre-existing compiler defect, discovered while verifying this fixture,
+    # blocks it regardless of geometry).
+    "rocket_nozzle_cfd": {
+        # A simple conical convergent-divergent nozzle (as instructed:
+        # "half-cone angle + throat/exit radii" -- a totally standard,
+        # unambiguous nozzle contour -- rather than attempting a Rao bell
+        # contour). This preset's own params only give throat_radius,
+        # exit_radius, nozzle_length -- no chamber/inlet radius or throat
+        # axial position, so a FULL chamber+convergent+divergent contour
+        # cannot be built without fabricating one of those. The domain
+        # actually modelled here (fully consistent with the preset's own
+        # 3 params, nothing invented) is the DIVERGENT section alone,
+        # z=0 at the throat itself (r=throat_radius) to z=nozzle_length at
+        # the exit (r=exit_radius): a linear (conical) wall r_wall(z) =
+        # throat_radius + (exit_radius-throat_radius)*z/nozzle_length,
+        # whose half-angle atan((exit_radius-throat_radius)/nozzle_length)
+        # is DERIVED from the preset's own numbers, not chosen freely.
+        # "inlet" here means the throat plane (stagnation conditions
+        # imposed there, a standard nozzle-flow simplification), matching
+        # the preset's own p_inlet/T_inlet Dirichlet condition.
+        "shape": "cone_axisymmetric",
+        "axis_coord": "z",
+        "radial_coord": "r",
+        "tag_faces": {"inlet": "inlet", "outlet": "outlet", "wall": "wall", "axis": "axis"},
+    },
+    "axial_compressor_cascade_2d": {
+        # Circular-arc cascade blade camber line (Dixon & Hall, "Fluid
+        # Mechanics and Thermodynamics of Turbomachinery") -- see
+        # _curve_geometry.circular_arc_cascade_blade_points's own docstring
+        # for the exact formula and why it needs no parameter beyond this
+        # preset's own flow_angle_in_deg/flow_angle_out_deg/chord. "inlet"/
+        # "outlet" are selector_type="callable" (self-selecting at x=0/
+        # x=domain_x) -- covered for free, same as every mixed preset above.
+        "shape": "box_with_curve",
+        "shape_coords": ("x", "y"),
+        "box_tag_faces": {},
+        "curve_tags": ("blade",),
+    },
+    "car_external_aero": {
+        # Ahmed-body-inspired 2D silhouette (Ahmed, Ramm & Faltin 1984,
+        # SAE 840300) -- see _curve_geometry.ahmed_body_polygon's own
+        # docstring for the exact published ratios/angle used and how they
+        # are applied to THIS preset's own car_length/car_height (read back
+        # out of domain_bounds, which the preset itself derives from them:
+        # x_max=5*car_length, y_max=5*car_height).
+        "shape": "box_with_curve",
+        "shape_coords": ("x", "y"),
+        "box_tag_faces": {
+            "inlet": [("x", "min")],
+            "outlet": [("x", "max")],
+            "ground": [("y", "min")],
+            "top": [("y", "max")],
+        },
+        "curve_tags": ("car_body",),
+    },
+    "aircraft_wing_structural": {
+        # Geometry here was already unambiguous even before this pass (see
+        # NOT_FIXABLE's old entry, now removed): "root_fixed" is the wing
+        # root (x=0, i.e. domain_bounds' x-min -- "span" runs root..tip by
+        # construction), "tip_load" is the free tip (x=span), "free_surface"
+        # is the remaining two edges (y=+-thickness/2). What blocked this
+        # preset was NEVER the geometry -- it was compile.py's generic
+        # Neumann handling not knowing how to resolve the 'tx'/'ty' traction
+        # fields against the model's own 'ux'/'uy' displacement fields (see
+        # AUDIT_REPORT.md and ConditionSpec.traction_map's docstring); that
+        # compiler defect is now fixed, and this preset's own conditions
+        # (engineering.py) now declare traction_map explicitly, so the
+        # box fixture below is all that's needed on the geometry side.
+        "shape": "box",
+        "tag_faces": {
+            "root_fixed": [("x", "min")],
+            "tip_load": [("x", "max")],
+            "free_surface": [("y", "min"), ("y", "max")],
+        },
+    },
+}
+
+
+# Presets fixed in the second follow-up pass (2026-09-17) whose tag->face
+# mapping required a genuine engineering DECISION this session made (the
+# preset's own text left the tag ambiguous) rather than reading an existing,
+# preset-stated fact -- see AUDIT_REPORT.md for the full discussion. Kept
+# separate from the inline comments above so this is impossible to miss.
+CHOSEN_CONVENTIONS: Dict[str, str] = {
+    "linear_elasticity_3d": (
+        "'fixed'/'load' have no stated face in the preset. Chose the "
+        "canonical cantilever convention: fixed = domain-min face of the "
+        "principal axis (x=0), load = domain-max face (x=1)."
+    ),
+    "plane_stress_2d": (
+        "Same as linear_elasticity_3d: fixed = x=0 (domain-min), load = "
+        "x=1 (domain-max) -- the canonical cantilever/column convention, "
+        "not stated by the preset itself."
+    ),
+    "car_brake_thermal": (
+        "'friction_surface'/'cooling_surface' have no stated face in the "
+        "preset. Chose the standard disc-brake assignment: friction = both "
+        "flat faces (z=0, z=thickness), cooling = the outer rim (r=disc_radius). "
+        "This tag ambiguity IS resolved (see NOT_FIXABLE_WITHOUT_REAL_GEOMETRY's "
+        "own entry for why the preset still isn't fully trainable regardless)."
+    ),
 }
 
 
 # Preset -> one-line reason it does NOT get a fixture (documentation only;
 # behavior is unaffected -- TagConditionsUnresolved fires regardless).
+#
+# Second follow-up pass (2026-09-17): 7 of the original 17 below were
+# closed (aircraft_wing_structural, rocket_nozzle_cfd, car_external_aero,
+# axial_compressor_cascade_2d, linear_elasticity_3d, plane_stress_2d), and
+# 2 more (car_brake_thermal, rocket_structural) had their ORIGINAL stated
+# reason (a tag-face ambiguity / a solid-square-vs-annulus data bug,
+# respectively) genuinely resolved, but stay in this dict because each
+# turned out to hide a SECOND, independent, pre-existing compiler defect
+# (same class as aircraft_wing_structural's original one: a Neumann
+# condition's `fields` naming something that isn't a literal model output
+# and isn't resolvable by the new `traction_map` mechanism either) that
+# this pass was not scoped to fix -- see their own entries below for the
+# precise, narrowed-down reason each still needs. See AUDIT_REPORT.md for
+# the full per-preset writeup, including which of the fixes below are a
+# real published-standard geometry (aircraft's NACA airfoil case remains
+# blocked for a stated, specific missing-parameter reason -- not
+# attempted-and-guessed) vs. an explicitly-flagged CHOSEN CONVENTION (see
+# CHOSEN_CONVENTIONS above) for a genuinely ambiguous tag.
 NOT_FIXABLE_WITHOUT_REAL_GEOMETRY: Dict[str, str] = {
-    "aircraft_wing_aerodynamics": "needs a real NACA-like airfoil profile ('airfoil' tag) -- not deducible from farfield-box params alone.",
-    "aircraft_wing_structural": (
-        "the geometry/face mapping IS unambiguous (x=0..span is root..tip by "
-        "construction, 'free_surface' is the remaining y faces) -- but a "
-        "SEPARATE, pre-existing defect blocks it regardless of geometry: "
-        "its 'tip_load'/'free_surface' Neumann conditions use fields=('ty',)/"
-        "('tx','ty') (traction labels), while compile.py's generic Neumann "
-        "handling does `fvals[f] for f in cond.fields` against the model's "
-        "own PDE fields (ux, uy) -- 'ty'/'tx' KeyError immediately, with "
-        "correct geometry supplied and confirmed by hand this session. "
-        "Fixing this needs a real traction-from-stress Neumann evaluation "
-        "in the elasticity compiler branch, out of scope for a geometry-only fix."
+    "aircraft_wing_aerodynamics": (
+        "needs a real airfoil profile ('airfoil' tag). Investigated using the "
+        "published NACA 4-digit thickness formula (y_t = 5t(0.2969*sqrt(x) - "
+        "0.1260x - 0.3516x^2 + 0.2843x^3 - 0.1015x^4), e.g. NACA 0012) as "
+        "instructed -- but this preset's own parameters (Re, Ma, alpha_deg, "
+        "chord, rho_inf, U_inf, nu_air) do not include a thickness ratio 't' "
+        "or ANY airfoil designation at all ('NACA-like profile' in the "
+        "docstring names a family, not a specific 4-digit code). Picking "
+        "'0012' (t=0.12) would be fabricating the one number the formula "
+        "actually needs, not reading it from the preset -- so this stays "
+        "unfixed. A real fix needs the preset itself to expose a thickness "
+        "(or full NACA code) parameter first."
     ),
-    "car_external_aero": "needs a real car-body silhouette ('car_body' tag) -- a bluff body shape, not a box face.",
+    "car_brake_thermal": (
+        "PARTIALLY fixed: the 'friction_surface'/'cooling_surface' tag-face "
+        "ambiguity IS resolved (see CHOSEN_CONVENTIONS above -- friction = "
+        "both flat faces, cooling = the outer rim) and a box fixture for it "
+        "was built and verified geometrically correct. Training end-to-end "
+        "still fails, though, for a SECOND, independent, pre-existing "
+        "compiler defect discovered while verifying it: 'friction_surface'/"
+        "'cooling_surface' declare fields=('q_heat',)/('h','T_ref'), a heat "
+        "flux magnitude and a convection coefficient+reference temperature, "
+        "neither a literal model field (the model only outputs 'T') nor "
+        "resolvable by the traction_map mechanism (built for elasticity "
+        "tractions, not heat flux/convection). The SAME q_heat/h/T_ref "
+        "convention is used by cpu_heatsink_thermal, pcb_thermal, "
+        "industrial_furnace_thermal, and all 3 datacenter_* presets below "
+        "(confirmed by grep) -- this is a systemic, pre-existing gap across "
+        "many thermal presets, well beyond this pass's authorized scope of "
+        "fixing car_brake_thermal's tag ambiguity specifically. The box "
+        "fixture is intentionally NOT wired into TAG_GEOMETRY_FIXTURES/"
+        "build_tag_batch's dispatch table (kept as verified, tested, "
+        "standalone infrastructure only), so TagConditionsUnresolved still "
+        "correctly fires via solve_pde() end-to-end, same treatment as "
+        "rocket_structural below."
+    ),
     "car_suspension_fatigue": "wishbone-arm geometry; 'mounting_fixed'/'wheel_hub_load'/'free_edges' are not tied to specific faces of the given rectangle anywhere in the preset.",
     "cpu_heatsink_thermal": "real heatsink fin geometry ('fin_surfaces' vs 'cpu_base' vs 'insulated_sides') -- fins are not a box face.",
     "datacenter_airflow_2d": "'server_surfaces' are internal rack objects inside the airflow channel, not a face of the bounding box.",
@@ -267,13 +444,22 @@ NOT_FIXABLE_WITHOUT_REAL_GEOMETRY: Dict[str, str] = {
     "datacenter_server_thermal": "'cpu_zone'/'gpu_zone'/'ram_zone' hotspot locations on the board are never given coordinates anywhere in the preset.",
     "fan_cooler_cfd": "real radial-fan blade/hub geometry ('blade_wall'/'hub_wall') -- an annulus-with-blades, not a box.",
     "industrial_furnace_thermal": "real furnace/refractory geometry; 'insulation_interface' is an internal material-layer boundary, not a domain face -- would need a real CAD/mesh of the furnace wall assembly.",
-    "linear_elasticity_3d": "'fixed' and 'load' are two different, unlocated tags on a unit cube -- no docstring/comment states which face is which (unlike material_fracture_2d's explicit 'fixed bottom, prescribed top' comment).",
     "pcb_thermal": "'component_hotspots' locations (cpu/gpu/vrm) are given as a power dict, never as coordinates -- can't be placed on the board without inventing a layout.",
-    "plane_stress_2d": "'fixed' and 'load' are two different, unlocated tags on a unit square -- same ambiguity as linear_elasticity_3d.",
-    "rocket_nozzle_cfd": "real convergent-divergent nozzle contour (the 'wall' tag is a curved profile, not a straight cylindrical or planar face) -- needs an actual nozzle contour function (e.g. Rao/conical), not given.",
-    "rocket_structural": "domain_bounds is a solid square [-outer,outer]^2, but the physical part is an ANNULUS (inner_radius to outer_radius) -- the preset's own stated domain_bounds don't even encode the hole, so there is nothing consistent to sample without redefining the domain.",
-    "axial_compressor_cascade_2d": "real compressor blade cascade profile ('blade' tag) -- a curved airfoil shape, not deducible from domain_bounds.",
-    "car_brake_thermal": "'friction_surface' vs 'cooling_surface' assignment to the disc's flat faces (z=0/z=thickness) vs outer rim (r=disc_radius) is not stated anywhere in the preset -- multiple physically-plausible assignments exist (both flat faces are friction surfaces in a real disc; outer rim OR a flat face could be 'cooling') and nothing disambiguates which is meant.",
+    "rocket_structural": (
+        "PARTIALLY fixed: domain_bounds/geometry now correctly builds the "
+        "real annulus (using the preset's own meta['inner_radius']/"
+        "meta['outer_radius'], not fabricated values -- see 'annulus' shape "
+        "in build_tag_batch). Training end-to-end still fails, though, for a "
+        "SECOND, independent reason unrelated to geometry: 'inner_wall's "
+        "Neumann condition declares fields=('p_normal',), a pressure "
+        "magnitude, not a literal model field OR a traction component the "
+        "new traction_map mechanism (built for aircraft_wing_structural) "
+        "handles -- p_normal needs a genuinely different derivation (target "
+        "normal stress n^T.sigma.n = -p, not a raw traction component along "
+        "a named axis), which is out of scope for the traction_map mechanism "
+        "as built. TagConditionsUnresolved still correctly fires for this "
+        "preset until that second defect is fixed too."
+    ),
 }
 
 
@@ -294,6 +480,14 @@ def build_tag_batch(
     from pinneapple_design.geometry.builders.analytic_domain_batch_builder import (
         sample_box_tag_batch,
         sample_cylinder_tag_batch,
+        sample_axisymmetric_wall_tag_batch,
+        sample_box_with_curve_tag_batch,
+    )
+    from ._curve_geometry import (
+        circular_arc_cascade_blade_points,
+        ahmed_body_polygon,
+        polygon_perimeter_sample,
+        polygon_contains,
     )
 
     fixture = TAG_GEOMETRY_FIXTURES[name]
@@ -321,6 +515,90 @@ def build_tag_batch(
             tag_faces=fixture["tag_faces"],
             n_col=n_col,
             n_bc_per_face=n_bc_per_face,
+            seed=seed,
+            user_ctx=user_ctx,
+        )
+    if fixture["shape"] == "cone_axisymmetric":
+        if name == "rocket_nozzle_cfd":
+            throat_r = float(spec.meta["throat_radius"])
+            exit_r = float(spec.meta["exit_radius"])
+            z_lo, z_hi = spec.domain_bounds[fixture["axis_coord"]]
+            length = float(z_hi) - float(z_lo)
+            slope = (exit_r - throat_r) / length
+
+            def r_wall_fn(z, _z_lo=float(z_lo), _throat_r=throat_r, _slope=slope):
+                return _throat_r + _slope * (np.asarray(z) - _z_lo)
+
+            def dr_wall_fn(z, _slope=slope):
+                return np.full_like(np.asarray(z, dtype=np.float64), _slope)
+        else:
+            raise KeyError(f"No cone_axisymmetric wiring for preset {name!r}")
+        return sample_axisymmetric_wall_tag_batch(
+            spec,
+            axis_coord=fixture["axis_coord"],
+            radial_coord=fixture["radial_coord"],
+            r_wall_fn=r_wall_fn,
+            dr_wall_fn=dr_wall_fn,
+            tag_faces=fixture["tag_faces"],
+            n_col=n_col,
+            n_bc_per_face=n_bc_per_face,
+            seed=seed,
+            user_ctx=user_ctx,
+        )
+    if fixture["shape"] == "box_with_curve":
+        curve_tags: Dict[str, Any] = {}
+        if name == "axial_compressor_cascade_2d":
+            flow_in = float(spec.meta["flow_angle_in_deg"])
+            flow_out = float(spec.meta["flow_angle_out_deg"])
+            chord = float(spec.meta["chord"])
+            domain_x = float(spec.domain_bounds["x"][1])
+            pitch = float(spec.domain_bounds["y"][1])
+            zeta = 0.5 * (flow_in + flow_out) * (3.141592653589793 / 180.0)
+            import math as _math
+            x_le = (domain_x - chord * _math.cos(zeta)) / 2.0
+            # Center the blade's LE-to-TE span (chord*sin(zeta), the
+            # tangential projection of the staggered chord line) within the
+            # pitch, rather than starting the LE exactly at pitch/2 -- a
+            # blade with real turning is staggered enough that starting at
+            # pitch/2 pushes the trailing edge outside [0, pitch] entirely
+            # (confirmed directly: with this preset's own defaults the
+            # unrotated placement put the TE at y=0.097 > pitch=0.08).
+            y_le = pitch / 2.0 - chord * _math.sin(zeta) / 2.0
+
+            def _blade_fn(n, rng, _fi=flow_in, _fo=flow_out, _c=chord, _xle=x_le, _yle=y_le):
+                return circular_arc_cascade_blade_points(
+                    n, rng, flow_angle_in_deg=_fi, flow_angle_out_deg=_fo, chord=_c, x_le=_xle, y_le=_yle,
+                )
+
+            curve_tags["blade"] = _blade_fn
+            inside_body_fn = None  # zero-thickness cambered-plate blade
+        elif name == "car_external_aero":
+            # car_length/car_height are not stored in meta, but the preset
+            # itself derives domain_bounds directly from them
+            # (x_max=5*car_length, y_max=5*car_height) -- read them back
+            # out exactly, rather than re-deriving/guessing.
+            car_length = float(spec.domain_bounds["x"][1]) / 5.0
+            car_height = float(spec.domain_bounds["y"][1]) / 5.0
+            poly = ahmed_body_polygon(car_length, car_height)
+
+            def _car_body_fn(n, rng, _poly=poly):
+                return polygon_perimeter_sample(_poly, n, rng)
+
+            curve_tags["car_body"] = _car_body_fn
+
+            def inside_body_fn(X2, _poly=poly):
+                return polygon_contains(_poly, X2)
+        else:
+            raise KeyError(f"No box_with_curve wiring for preset {name!r}")
+        return sample_box_with_curve_tag_batch(
+            spec,
+            shape_coords=fixture["shape_coords"],
+            box_tag_faces=fixture.get("box_tag_faces") or {},
+            curve_tags=curve_tags,
+            inside_body_fn=inside_body_fn,
+            n_col=n_col,
+            n_bc_per_face=n_bc_per_face,
+            n_bc_curve=n_bc_per_face,
             seed=seed,
             user_ctx=user_ctx,
         )

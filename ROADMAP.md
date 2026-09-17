@@ -307,6 +307,96 @@ em `test_cartesian_breadth.py`/`test_full_library_matrix.py`. Detalhes
 completos, lista dos 23 consertados e dos 17 documentados como não
 consertáveis sem fabricar geometria, em `docs/dev/AUDIT_REPORT.md`.
 
+### Segundo follow-up (2026-09-17): 9 presets específicos dos 17 "não consertáveis", 3 estratégias pré-decididas
+**6 de 9 fechados de verdade; 1 confirmado bloqueado por parâmetro
+ausente (não chutado); 2 parciais.** Esta passada não escolheu a
+abordagem — recebeu uma pronta pra cada caso e mediu se dava pra cumprir
+sem fabricar dado que o preset não fornece:
+
+- **Grupo 1 (geometria pública/padrão real)**: `rocket_nozzle_cfd`
+  (bocal cônico convergente-divergente — ângulo de meio-cone DERIVADO de
+  `throat_radius`/`exit_radius`/`nozzle_length`, já existentes no preset),
+  `car_external_aero` (silhueta inspirada no Ahmed body — Ahmed, Ramm &
+  Faltin 1984, SAE 840300 — usando as RAZÕES publicadas de folga/raio de
+  nariz/rampa traseira aplicadas ao `car_length`/`car_height` já do
+  preset) e `axial_compressor_cascade_2d` (pá em arco circular — Dixon &
+  Hall, fórmula de raio de câmber `R=chord/(2 sin(θc/2))` a partir dos
+  ângulos de escoamento já do preset) foram fechados de verdade — geometria
+  real amostrada analiticamente, treino de ponta a ponta via `solve_pde()`,
+  perdas por tag reais e distintas confirmadas (cascade converge de
+  verdade: `387.4 → 3.43` em 30 epochs). `aircraft_wing_aerodynamics`
+  **ficou bloqueado por investigação de verdade, não suposição**: o
+  preset não expõe NENHUM parâmetro de espessura/código NACA — usar
+  "NACA 0012" seria inventar o único número que falta.
+- **Grupo 2 (bug de compilador)**: `aircraft_wing_structural` fechado.
+  A causa real não era geometria (já inequívoca) — era `compile.py`
+  avaliar `fvals[f]` pros campos de tração `tx`/`ty` antes mesmo de saber
+  que eles não são campos de saída do modelo (`ux`/`uy`), gerando
+  `KeyError`. Generalizado via novo `ConditionSpec.traction_map`
+  (mapeamento explícito tração→campo de deslocamento), que deriva a
+  tração do tensor de tensão (mesma fórmula usada pelo resíduo interno,
+  incluindo o lambda* reduzido de plane stress) em vez de copiar o nome
+  literalmente — verificado com um caso de cisalhamento puro fechado
+  analiticamente (erro relativo ~7e-8) e rodando o preset real de ponta a
+  ponta (perdas por tag distintas e não-degeneradas). Nenhuma condição
+  pré-existente no repo é afetada (`traction_map=None` por padrão,
+  36/36 de `test_manufactured_solutions.py` inalterado).
+- **Grupo 3 (convenção física, decisão já tomada)**: `linear_elasticity_3d`
+  e `plane_stress_2d` fechados — `"fixed"` = face mínima do eixo principal,
+  `"load"` = face máxima (viga em balanço canônica), documentado
+  explicitamente como **convenção escolhida por esta sessão**, não texto
+  do preset (`CHOSEN_CONVENTIONS` em `tag_geometry.py`, mesmo padrão de
+  transparência dos 23+1 anteriores). `car_brake_thermal` e
+  `rocket_structural` são os 2 parciais: pra `car_brake_thermal`, a
+  convenção `"friction"` = as duas faces planas do disco, `"cooling"` =
+  raio externo, foi implementada e a geometria verificada de forma
+  isolada (`sample_box_tag_batch` dá exatamente 1000/500 pontos nas tags
+  certas) — mas treinar de ponta a ponta esbarra num SEGUNDO defeito,
+  independente, de compilador: `"friction_surface"`/`"cooling_surface"`
+  declaram campos `q_heat`/`h`/`T_ref` que não são campos de saída do
+  modelo (só `T`) nem resolvíveis pelo mecanismo `traction_map` (feito
+  pra tração elástica, não fluxo de calor/convecção) — o mesmo padrão
+  aparece em `cpu_heatsink_thermal`, `pcb_thermal`,
+  `industrial_furnace_thermal` e nos 3 presets `datacenter_*` (confirmado
+  via grep), um gap sistêmico bem além do escopo autorizado aqui. Pra
+  `rocket_structural`: o `domain_bounds` quadrado sólido foi
+  corrigido para o anular real usando `inner_radius`/`outer_radius` —
+  parâmetros que **já existiam** em `spec.meta` — geometria verificada
+  (pontos interiores caem exatamente em `r∈[0.2,0.22]`) e 3 das 4
+  condições treinam com perdas reais e distintas. Mas a 4ª
+  (`inner_wall`, campo `p_normal`) esbarra num SEGUNDO defeito de
+  compilador, independente e fora do escopo autorizado (pressão escalar
+  precisa de `n^T·σ·n`, não de um componente de tração nomeado). Nos dois
+  parciais, o fixture de geometria foi propositalmente NÃO conectado em
+  `TAG_GEOMETRY_FIXTURES`/`build_tag_batch` (fica como infraestrutura
+  testada e verificada, só isso) — `test_full_library_matrix.py` continua
+  pulando os dois exatamente como antes (confirmado rodando de novo), zero
+  mudança de status de teste por causa deles. Ambos ficam parcialmente
+  fechados, com o motivo exato documentado pra cada um, e
+  `TagConditionsUnresolved` continua disparando pros dois.
+
+Suite completa (`pytest tests/`, 1667 testes, `571b66ba` limpo vs. este
+commit, ambiente idêntico): passed 1341→1353 (+12), failed 74→75 (+1),
+error 39→39, skipped 212→199 (-13), xfail 1→1. **Diff exato, não só
+contagem** (o pytest desse ambiente não escreve a linha final de tally
+em nenhuma das duas rodadas — confirmado não ser trava/concorrência,
+`--collect-only` confirma os mesmos 1667 IDs na mesma ordem nos dois
+commits, então o stream de caracteres `.FEsx` por teste foi mapeado
+posição-a-posição de volta aos IDs reais): **14 mudaram de status, 13 são
+skip→pass exatamente as combinações dos 6 presets consertados** (7
+arquiteturas × `plane_stress_2d` em `test_cartesian_breadth.py` + 1 teste
+por preset para os 6 em `test_full_library_matrix.py`) — bate certinho,
+nada sobrando. **A 14ª é pass→fail e não tem nada a ver com este
+trabalho**: `test_architecture_critique.py::test_real_llm_produces_a_valid_complete_response`
+chama um Ollama real (`provider="ollama"`) e falhou porque o LLM
+alucinou uma categoria fora do checklist fixo — reproduzido isoladamente,
+causa raiz confirmada e desligada de tudo que essa sessão tocou. **Zero
+regressão real** deste trabalho.
+Tally atualizado contra os 40 originais: **29/40 (23+6) agora treinam de
+ponta a ponta com geometria real**; 11/40 seguem documentados como não
+consertáveis, cada um com motivo específico verificado (não suposto).
+Detalhes completos em `docs/dev/AUDIT_REPORT.md`.
+
 ### PhysicsNeMo Backbone Swap
 **Projeto novo.** Avaliar/trocar o NVIDIA PhysicsNeMo como backbone dos
 surrogates CFD do ChordIQ (mixing-tank, cloramina), comparando contra a

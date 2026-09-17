@@ -87,8 +87,13 @@ def _tagged_dirichlet(tag: str, values: Dict[str, float], weight: float = 10.0):
     )
 
 
-def _tagged_neumann(tag: str, values: Dict[str, float], weight: float = 5.0):
-    """Neumann condition applied to points carrying ``tag`` in ctx["tag_masks"]."""
+def _tagged_neumann(tag: str, values: Dict[str, float], weight: float = 5.0, traction_map: Optional[Dict[str, str]] = None):
+    """Neumann condition applied to points carrying ``tag`` in ctx["tag_masks"].
+
+    ``traction_map``: for elasticity traction targets (e.g. ``{"ty": ...}``
+    with ``traction_map={"ty": "uy"}``) -- see ``ConditionSpec.traction_map``'s
+    docstring in ``pinneapple_physics/pde_environment/conditions.py``.
+    """
     return NeumannBC(
         name=tag,
         fields=tuple(values.keys()),
@@ -96,6 +101,7 @@ def _tagged_neumann(tag: str, values: Dict[str, float], weight: float = 5.0):
         selector={"tag": tag},
         value_fn=_const_value_fn(values),
         weight=weight,
+        traction_map=traction_map,
     )
 
 
@@ -325,8 +331,8 @@ def aircraft_wing_structural(
 
     conditions = (
         _tagged_dirichlet("root_fixed", {"ux": 0.0, "uy": 0.0}, weight=20.0),
-        _tagged_neumann("tip_load", {"ty": -lift_load}, weight=10.0),
-        _tagged_neumann("free_surface", {"tx": 0.0, "ty": 0.0}, weight=5.0),
+        _tagged_neumann("tip_load", {"ty": -lift_load}, weight=10.0, traction_map={"ty": "uy"}),
+        _tagged_neumann("free_surface", {"tx": 0.0, "ty": 0.0}, weight=5.0, traction_map={"tx": "ux", "ty": "uy"}),
     )
 
     return ProblemSpec(

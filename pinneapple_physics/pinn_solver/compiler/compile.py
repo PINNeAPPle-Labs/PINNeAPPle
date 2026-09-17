@@ -47,6 +47,106 @@ def _gather_condition_points(batch: Dict[str, Any], cond: ConditionSpec):
     return batch.get("x_data"), batch.get("y_data")
 
 
+# ---------------------------------------------------------------------------
+# Elasticity traction-from-stress helpers (used by NeumannBC's traction_map,
+# see ConditionSpec's docstring). These deliberately mirror the interior
+# residual's own stress construction (the "linear_elasticity*" branch above)
+# so a traction-BC prediction is computed from the SAME sigma the PDE
+# residual itself enforces, not a separately re-derived formula that could
+# silently disagree with it.
+# ---------------------------------------------------------------------------
+
+_ELASTICITY_KINDS = ("linear_elasticity", "linear_elasticity_plane_strain", "linear_elasticity_plane_stress")
+
+
+def _elasticity_displacement_fields(pde_kind: str, spatial_dim: int) -> List[str]:
+    """The ordered displacement field names ("ux","uy",["uz"]) an elasticity
+    pde_kind's own fields must contain -- the same convention the interior
+    residual branch already hardcodes (fields literally named "u" + the
+    matching coordinate name)."""
+    if pde_kind not in _ELASTICITY_KINDS:
+        raise ValueError(
+            f"traction_map is only supported for elasticity pde_kinds {_ELASTICITY_KINDS}, got {pde_kind!r}"
+        )
+    if spatial_dim not in (2, 3):
+        raise ValueError("Elasticity traction expects 2D or 3D spatial dims.")
+    return ["ux", "uy"] + (["uz"] if spatial_dim == 3 else [])
+
+
+def _axis_of_displacement_field(fname: str) -> str:
+    """"ux" -> "x", "uy" -> "y", "uz" -> "z" (the same naming convention the
+    interior elasticity residual branch already assumes)."""
+    if not fname.startswith("u") or len(fname) < 2:
+        raise ValueError(f"Expected a displacement field named 'u<axis>' (e.g. 'ux'), got {fname!r}")
+    return fname[1:]
+
+
+def _elasticity_stress_tensor(
+    disp_vals: Dict[str, torch.Tensor],
+    disp_fields: Sequence[str],
+    Xr: torch.Tensor,
+    coords: Sequence[str],
+    spatial_coord_names: Sequence[str],
+    pde_kind: str,
+    p: Dict[str, Any],
+) -> torch.Tensor:
+    """Build the Cauchy stress tensor sigma (N, spatial_dim, spatial_dim)
+    from the displacement fields, identically to the interior residual's
+    own construction (including the plane-stress reduced lambda*)."""
+    spatial_dim = len(spatial_coord_names)
+    lam = float(p.get("lambda", 1.0))
+    mu = float(p.get("mu", 1.0))
+    if pde_kind == "linear_elasticity_plane_stress":
+        lam = 2.0 * lam * mu / (lam + 2.0 * mu)
+
+    U = torch.cat([disp_vals[f] for f in disp_fields], dim=1)
+    JU = jacobian(U, Xr)
+    sp_idx = [coords.index(n) for n in spatial_coord_names]
+    Gu = JU[:, :, sp_idx]
+
+    eps = 0.5 * (Gu + torch.transpose(Gu, 1, 2))
+    tr = torch.zeros((Xr.shape[0], 1), device=Xr.device, dtype=Xr.dtype)
+    for i in range(spatial_dim):
+        tr = tr + eps[:, i:i + 1, i:i + 1].reshape(-1, 1)
+
+    sigma = torch.zeros_like(eps)
+    for i in range(spatial_dim):
+        sigma[:, i, i] = sigma[:, i, i] + lam * tr[:, 0]
+    sigma = sigma + 2.0 * mu * eps
+    return sigma
+
+
+def _elasticity_traction_from_stress(
+    sigma: torch.Tensor,
+    n_full: torch.Tensor,
+    coords: Sequence[str],
+    spatial_coord_names: Sequence[str],
+    traction_fields: Sequence[str],
+    traction_map: Dict[str, str],
+) -> torch.Tensor:
+    """traction_i = sum_j sigma_ij * n_j for each requested traction
+    component, where component i's spatial axis is looked up via
+    ``traction_map[component] -> displacement field -> axis name``."""
+    sp_idx = [coords.index(n) for n in spatial_coord_names]
+    n_sp = n_full[:, sp_idx]
+    parts = []
+    for f in traction_fields:
+        if f not in traction_map:
+            raise KeyError(
+                f"traction_map is missing an entry for traction field {f!r} "
+                f"(has: {sorted(traction_map.keys())})"
+            )
+        disp_field = traction_map[f]
+        axis = _axis_of_displacement_field(disp_field)
+        if axis not in spatial_coord_names:
+            raise ValueError(f"traction_map[{f!r}]={disp_field!r} axis {axis!r} not in coords {spatial_coord_names}")
+        i = spatial_coord_names.index(axis)
+        row = sigma[:, i, :]  # (N, spatial_dim)
+        t_i = torch.sum(row * n_sp, dim=1, keepdim=True)
+        parts.append(t_i)
+    return torch.cat(parts, dim=1)
+
+
 def compile_problem(
     spec: ProblemSpec,
     *,
@@ -2147,10 +2247,36 @@ def compile_problem(
             if Xc.numel() == 0:
                 continue
 
-            fvals = eval_fields(Xc)
-            pred = torch.cat([fvals[f] for f in cond.fields], dim=1)
+            # Most conditions' `fields` are literal model outputs (e.g.
+            # "u", "T") and `pred` below is simply the model evaluated at
+            # those fields. Elasticity traction conditions (see
+            # ConditionSpec.traction_map's docstring) instead declare
+            # traction component names ("tx"/"ty") the model never outputs
+            # directly -- those are resolved from the stress tensor further
+            # down, not by indexing the model's own fields here, and the
+            # batch's `y_bc` (sized to len(field_names)) has no column for
+            # them either, so their target is always read straight from
+            # `cond.values()` rather than sliced out of `y_bc`.
+            uses_model_fields = all(f in field_names for f in cond.fields)
+            if uses_model_fields:
+                fvals = eval_fields(Xc)
+                pred = torch.cat([fvals[f] for f in cond.fields], dim=1)
+            else:
+                if not (cond.kind == "neumann" and cond.order <= 1 and cond.traction_map):
+                    raise KeyError(
+                        f"Condition '{cond.name}' declares fields {cond.fields} that are not "
+                        f"among the model's own fields {field_names}, and is not a "
+                        "kind='neumann', order<=1 condition with a `traction_map` set to "
+                        "resolve them against the stress tensor -- see ConditionSpec.traction_map's "
+                        "docstring for how to declare a traction boundary condition."
+                    )
+                fvals = None
+                pred = None
 
-            if Yc is None:
+            if not uses_model_fields:
+                Y_np = cond.values(Xc.detach().cpu().numpy(), ctx)
+                Yc = torch.as_tensor(Y_np, device=device, dtype=Xc.dtype)
+            elif Yc is None:
                 Y_np = cond.values(Xc.detach().cpu().numpy(), ctx)
                 Yc = torch.as_tensor(Y_np, device=device, dtype=Xc.dtype)
             else:
@@ -2164,6 +2290,29 @@ def compile_problem(
 
             if cond.kind == "dirichlet":
                 l = mse(pred, Yc)
+                out[f"bc_{cond.name}"] = l.detach()
+                total = total + (w.w_bc * float(cond.weight)) * l
+
+            elif cond.kind == "neumann" and cond.order <= 1 and cond.traction_map:
+                # Traction Neumann BC (see ConditionSpec.traction_map's
+                # docstring): predicted value is n . sigma, sigma built from
+                # ALL of the PDE's own displacement fields (not just the
+                # ones named in cond.fields), evaluated identically to the
+                # interior elasticity residual's own stress construction.
+                n = batch.get("n_bc")
+                if n is None:
+                    raise KeyError("NeumannBC requires batch['n_bc']")
+                n = n.to(device)
+                if mask_key in batch:
+                    n = n[batch[mask_key].to(device).bool()]
+                disp_fields = _elasticity_displacement_fields(pde_kind, spatial_dim)
+                Xr = Xc.clone().detach().requires_grad_(True)
+                disp_vals = eval_fields(Xr)
+                sigma = _elasticity_stress_tensor(disp_vals, disp_fields, Xr, coords, spatial_coord_names, pde_kind, p)
+                flux_pred = _elasticity_traction_from_stress(
+                    sigma, n, coords, spatial_coord_names, cond.fields, cond.traction_map,
+                )
+                l = mse(flux_pred, Yc)
                 out[f"bc_{cond.name}"] = l.detach()
                 total = total + (w.w_bc * float(cond.weight)) * l
 

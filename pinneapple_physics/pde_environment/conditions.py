@@ -38,6 +38,30 @@ class ConditionSpec:
       - "initial"   -> u(x,t0)=g(x)
       - "data"      -> supervised constraint at points
 
+    traction_map (only meaningful for kind="neumann", order<=1):
+      Some elasticity presets declare their Neumann targets as TRACTION
+      components (e.g. "tx", "ty") rather than a model output field's own
+      normal derivative -- physically, traction is n . sigma (the stress
+      tensor dotted with the boundary normal), not n . grad(field), and
+      "tx"/"ty" are not fields the network ever predicts directly (the
+      network predicts displacements ux/uy/uz). Without this mapping the
+      compiler has no way to resolve "tx" against the model's own fields
+      and raises a plain KeyError.
+
+      ``traction_map`` names, for each traction component in ``fields``,
+      which of the PDE's own displacement fields shares its spatial axis,
+      e.g. ``{"tx": "ux", "ty": "uy"}``. When set on a "neumann" condition
+      whose ``fields`` are not literal model outputs, ``compile_problem``
+      builds the full elasticity stress tensor sigma from ALL of the PDE's
+      displacement fields (not just the ones named here -- sigma_xy needs
+      both ux and uy regardless of which single traction component is
+      being matched) via the same lambda/mu constitutive relation the
+      interior residual uses, then compares n . sigma (restricted to the
+      row selected by each entry's mapped axis) against this condition's
+      own ``value_fn`` target -- a real traction-from-stress evaluation,
+      not a copy of the declared name. See ``compile.py``'s
+      ``_elasticity_traction_from_stress`` for the implementation.
+
     selector:
       - "all": applies to all points of corresponding set
       - "tag": applies to points with ctx["tag_masks"][tag]==True
@@ -62,6 +86,7 @@ class ConditionSpec:
     order: int = 1
     deriv_coord: Optional[str] = None
     interface_coeffs: Optional[Dict[str, float]] = None
+    traction_map: Optional[Dict[str, str]] = None
 
     def mask(self, X: np.ndarray, ctx: Dict[str, Any]) -> np.ndarray:
         if self.selector_type == "all":
@@ -177,6 +202,7 @@ def NeumannBC(
     weight: float = 1.0,
     order: int = 1,
     deriv_coord: Optional[str] = None,
+    traction_map: Optional[Dict[str, str]] = None,
 ) -> ConditionSpec:
     """Construct a Neumann boundary condition.
 
@@ -189,6 +215,10 @@ def NeumannBC(
     deriv_coord (e.g. "z") and computes d^order(u)/d(deriv_coord)^order
     directly — see ConditionSpec's docstring for the exact scope (single-
     coordinate repeated derivative, added for 1D beam moment/shear BCs).
+
+    traction_map: for elasticity presets whose Neumann targets are
+    traction components (e.g. "tx"/"ty") rather than literal model
+    output fields — see ConditionSpec's docstring for the exact mechanism.
     """
     if isinstance(name, dict):
         values = name
@@ -203,6 +233,7 @@ def NeumannBC(
             weight=weight,
             order=order,
             deriv_coord=deriv_coord,
+            traction_map=traction_map,
         )
     return ConditionSpec(
         name=name,
@@ -214,6 +245,7 @@ def NeumannBC(
         weight=weight,
         order=order,
         deriv_coord=deriv_coord,
+        traction_map=traction_map,
     )
 
 

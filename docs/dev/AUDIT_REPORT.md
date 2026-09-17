@@ -1153,3 +1153,359 @@ documented as needing real external geometry (or, in
 `aircraft_wing_structural`'s one case, a separate compiler fix) that this
 pass does not fabricate. `TagConditionsUnresolved` is unchanged and still
 fires for all 17 plus every non-tag-based failure mode it always covered.
+
+## Third follow-up pass: 9 specific presets across 3 pre-decided strategies, from the 17 "not fixable" list (2026-09-17)
+
+This pass targeted 9 named presets out of the 17 above (grouped into 3
+strategies, each decided in advance rather than re-litigated by this
+session): real published standard geometry for 4 (Group 1), a genuine
+compiler defect for 1 (Group 2), and an explicitly-flagged CHOSEN
+CONVENTION for a genuinely ambiguous tag on 4 more (Group 3 -- 3 line
+items, one of which is 2 presets). **6 of 9 closed for real** (verified
+running `solve_pde()`/`compile_problem` end-to-end with distinct,
+non-degenerate per-tag losses, the same bar as the 23 above; some also
+shown to converge). **1** (`aircraft_wing_aerodynamics`) was investigated
+as instructed and found to be genuinely blocked by a missing preset
+parameter, not solved by assumption. **2 more** (`car_brake_thermal`,
+`rocket_structural`) are genuine partials: each preset's ORIGINALLY-
+STATED blocker is now resolved and independently verified, but each
+turned out to hide a SECOND, different, pre-existing compiler defect this
+pass was not scoped to fix -- precisely isolated and documented rather
+than silently left as an unexplained failure.
+
+### Group 1 — real published-standard geometry
+
+- **`aircraft_wing_aerodynamics` — NOT fixed, missing parameter confirmed
+  by inspection, not assumed.** The preset's own signature (`Re, Ma,
+  alpha_deg, chord, rho_inf, U_inf, nu_air`) has no thickness ratio or
+  NACA code at all -- `"NACA-like profile"` in its docstring names a
+  *family*, not a specific 4-digit code. Picking "NACA 0012" (as
+  instructed to try) means picking `t=0.12`, a number nothing in the
+  preset provides or implies; every other 4-digit thickness would be
+  equally "NACA-like" and produce a physically different airfoil. This is
+  exactly the parameter-gap escape hatch this pass was told to use rather
+  than guess -- left in `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` with the
+  specific missing parameter named (not the old vaguer "needs a real
+  airfoil profile" reason).
+- **`rocket_nozzle_cfd` — fixed.** A simple conical (not Rao-bell, per the
+  instruction to only attempt the bell contour if time allowed and the
+  cone worked first) convergent-divergent nozzle wall, `r_wall(z) =
+  throat_radius + (exit_radius - throat_radius) * z / nozzle_length` --
+  every quantity read from the preset's own params (`throat_radius`,
+  `exit_radius`, `nozzle_length` from `spec.meta`/`domain_bounds`), the
+  half-angle `atan((exit_radius-throat_radius)/nozzle_length)` **derived**
+  from them, not chosen freely. One honest scope note: the preset's own 3
+  params describe only the *divergent* section unambiguously (no chamber
+  radius or throat axial position is given anywhere), so the domain
+  modelled is the throat (z=0, r=throat_radius) to exit (z=nozzle_length,
+  r=exit_radius) -- "inlet" here is the throat plane with the preset's own
+  stagnation p/T imposed there, a standard simplification, not an
+  invented parameter. New builder:
+  `sample_axisymmetric_wall_tag_batch` (`analytic_domain_batch_builder.py`).
+  Verified: distinct per-tag losses at init (`pde=1.68e6, bc_inlet=5.0e13,
+  bc_outlet=1.64, bc_wall=0.146, bc_axis=0.464`); trained through
+  `solve_pde()` for real. Honest caveat found while verifying: `bc_inlet`'s
+  raw physical units (`p_inlet=1e7 Pa`, `T_inlet=3500 K`) are ~13-14 orders
+  of magnitude larger than the other 3 tags' targets, so this preset's
+  *own* unnormalized units (not the geometry fix) dominate the loss and
+  visibly stall Adam training at both `lr=1e-3`/30 epochs and
+  `lr=1e-4`/300 epochs -- `bc_outlet`/`bc_wall`/`bc_axis` stay real,
+  distinct, and non-degenerate throughout either way. This is the same
+  category of finding as `crystal_phonon`'s float32-precision note in the
+  first astrophysics pass above: a real, practical training-conditioning
+  fact about this preset's literal SI defaults, not a defect in the fix.
+- **`car_external_aero` — fixed.** A 2D Ahmed-body-inspired silhouette
+  (Ahmed, Ramm & Faltin 1984, SAE 840300 -- the standard reference bluff
+  body for automotive external-aero CFD validation), built from its
+  published dimension RATIOS (ground clearance 50/1044, nose radius
+  100/1044, rear slant length 222/1044 of the body length; the classic
+  25-degree slant configuration) applied to this preset's own
+  `car_length`/`car_height` (read back exactly out of `domain_bounds`,
+  which the preset itself derives from them: `x_max=5*car_length`,
+  `y_max=5*car_height`) -- not the real body's literal millimeters, and
+  not a freehand silhouette. The front is modelled as two quarter-circle
+  fillets of the published radius (front-bottom, front-top) joined by a
+  short vertical face -- closer to the real body's actual corner rounding
+  than one giant arc spanning the full height. New builder:
+  `sample_box_with_curve_tag_batch` plus `_curve_geometry.
+  ahmed_body_polygon`/`polygon_perimeter_sample`/`polygon_contains` (a
+  vectorized ray-casting point-in-polygon test used to reject interior
+  collocation points that fall inside the solid body -- the ONE geometry
+  in this batch with real cross-sectional area, unlike the zero-thickness
+  blade/nozzle-wall curves). Verified: distinct per-tag losses at init
+  (`pde=4.49, bc_inlet=552.6, bc_outlet=2.30, bc_ground=551.1,
+  bc_car_body=0.079, bc_top=2.42`); trained 30 epochs through `solve_pde()`
+  with visible per-tag movement (`bc_outlet` 2.30->0.47, `bc_ground`
+  551->533).
+- **`axial_compressor_cascade_2d` — fixed, and trains cleanly.** A
+  circular-arc cascade-blade camber line (Dixon & Hall, *Fluid Mechanics
+  and Thermodynamics of Turbomachinery*, the standard circular-arc camber
+  construction), using ONLY this preset's own `flow_angle_in_deg`,
+  `flow_angle_out_deg`, `chord` (read as the zero-incidence/zero-deviation
+  design-condition metal angles, a standard assumption) -- turning angle
+  `theta_c=beta1-beta2`, camber-circle radius `R=chord/(2*sin(theta_c/2))`
+  (the chord-length relation for a circular arc), and stagger
+  `zeta=(beta1+beta2)/2`, which is not a separate assumption but a
+  *forced consequence* of the arc being circular and symmetric (the
+  tangent deviates +-theta_c/2 from the chord at each end, so
+  beta1=zeta+theta_c/2 and beta2=zeta-theta_c/2 solve exactly to that
+  mean). Modelled as a zero-thickness cambered plate (no preset param
+  gives blade thickness or max-camber location), so no interior exclusion
+  is needed. `inlet`/`outlet` are `selector_type="callable"` and are
+  covered automatically, same as every mixed preset in the pass above.
+  Verified with real training, not just non-degenerate losses: aggregate
+  loss `387.4 -> 3.43` over 30 epochs, `pde` `363.5 -> 2.02`,
+  `bc_blade_surface` `0.131 -> 0.0059` -- both terms shrinking together,
+  the strongest convergence evidence in this pass (comparable to
+  `laplace_2d`/`pipe_flow_3d`'s representative-convergence bar above).
+
+### Group 2 — compiler defect, not geometry: `aircraft_wing_structural` fixed
+
+`compile.py`'s per-condition loop unconditionally evaluated
+`pred = torch.cat([fvals[f] for f in cond.fields], dim=1)` for every
+condition BEFORE dispatching on `cond.kind` -- for a Neumann condition
+declaring traction fields (`tx`/`ty`) that the model never outputs
+directly (the model outputs displacements `ux`/`uy`), this raised
+`KeyError: 'ty'` immediately, confirmed by hand last pass even with
+correct geometry supplied.
+
+**The generalization** (not a hack scoped to this one preset): added
+`ConditionSpec.traction_map` (`pinneapple_physics/pde_environment/
+conditions.py`) -- an explicit `{declared_traction_field: displacement_
+field}` mapping (e.g. `{"ty": "uy"}`), documented in `ConditionSpec`'s own
+docstring as a general mechanism for any elasticity preset whose Neumann
+BC targets are tractions rather than literal model fields. `compile.py`
+now:
+
+1. Only takes the old eager `fvals[f]`-lookup path when every one of
+   `cond.fields` IS a literal model field (`uses_model_fields`) --
+   unconditionally true for every pre-existing condition in the repo, so
+   this is provably a no-op for everything except the new traction case.
+2. For a `kind="neumann", order<=1` condition with `traction_map` set,
+   builds the FULL elasticity stress tensor sigma from ALL of the PDE's
+   own displacement fields (`_elasticity_displacement_fields`,
+   `_elasticity_stress_tensor` -- identical lambda/mu constitutive
+   relation, including the plane-stress reduced lambda*, to the interior
+   residual's own construction, so a traction-BC prediction can never
+   silently disagree with what the PDE residual itself enforces), then
+   evaluates `n . sigma` restricted to the row selected by each
+   component's mapped axis (`_elasticity_traction_from_stress`).
+3. Anything else declaring a non-model field without a `traction_map` now
+   raises a clear, actionable error naming the missing mechanism, instead
+   of the old bare, confusing `KeyError`.
+
+**Verified two ways**, matching this session's method for a
+compiler-level (not physics-content) fix:
+- **Closed-form correctness check** (not just "ran without erroring"): a
+  hand-picked pure-shear displacement field (`ux=k3*y, uy=k4*x`, giving
+  `eps_xx=eps_yy=0`, `eps_xy=0.5*(k3+k4)` exactly) has a known closed-form
+  traction at the `x=max` face (`t_y = sigma_xy = mu*(k3+k4)`) --
+  `_elasticity_traction_from_stress` reproduces it to **7e-8 relative
+  error** (float32 roundoff), confirming the formula itself, independent
+  of any trained network.
+- **End-to-end on the real preset**: `aircraft_wing_structural` run
+  through `compile_problem` with real box geometry (`root_fixed`=x-min,
+  `tip_load`=x-max, `free_surface`=y-min+y-max, all unambiguous per the
+  preset's own docstring, as already noted in the second pass) --
+  distinct, non-degenerate per-tag losses (`bc_root_fixed=0.037,
+  bc_tip_load=3.75e20, bc_free_surface=1.75e22`), no `KeyError`. Honest
+  caveat, same category as `rocket_nozzle_cfd`'s above: this preset's own
+  raw units (`E=70e9 Pa`, `lift_load=50000 N` over a `~5m x 0.1m`
+  unnormalized domain) make `pde`/`bc_tip_load`/`bc_free_surface` land at
+  `1e20`-`1e24`, so 30 epochs of plain Adam barely move the aggregate --
+  a pre-existing units/scale property of this preset, not of the traction
+  mechanism (confirmed independently correct by the closed-form check
+  above).
+- Added `NeumannBC(..., traction_map=...)` plumbing to
+  `_tagged_neumann()` (`presets/engineering.py`) and set it on both of
+  `aircraft_wing_structural`'s traction conditions
+  (`{"ty": "uy"}` for `tip_load`, `{"tx": "ux", "ty": "uy"}` for
+  `free_surface`).
+- Regression check: `tests/test_manufactured_solutions.py` (36/36) still
+  passes unchanged -- every pre-existing condition in the repo has
+  `traction_map=None` and takes the exact old code path.
+
+### Group 3 — genuinely ambiguous tag, decision already made (implemented, not re-decided)
+
+Each of these adds an explicit `CHOSEN_CONVENTIONS` entry in
+`tag_geometry.py` (separate from the inline per-preset comments used for
+the 23+1 presets above, which all cite the preset's OWN text) --
+transparently marking these as this session's engineering decision, not
+something the preset itself states:
+
+- **`linear_elasticity_3d` and `plane_stress_2d` — fixed.** `"fixed"` =
+  domain-min face of the principal axis (x=0, the base/engaste),
+  `"load"` = domain-max face (x=1, the free tip) -- the canonical
+  cantilever-beam/column setup. Both are simple box fixtures (no new
+  builder needed). `linear_elasticity_3d` (fields `ux,uy,uz`, kind
+  `"linear_elasticity"`) also exercises `_elasticity_displacement_fields`'s
+  3D branch for the first time in this pass, though this preset's own
+  `load` condition uses full-vector traction (`ux,uy,uz` all Neumann-
+  targeted, all literal model fields already) so it does not need
+  `traction_map` itself.
+- **`car_brake_thermal` — tag ambiguity resolved; training still blocked
+  by a SECOND, independent, pre-existing compiler defect (same pattern as
+  `rocket_structural` below).** `"friction_surface"` = the disc's two flat
+  faces (`z=min`, `z=max`, where the pad contacts it), `"cooling_surface"`
+  = the outer rim (`r=max`, exposed to airflow) -- the standard disc-brake
+  thermal-analysis assignment; coords are cylindrical-axisymmetric
+  `(r,z,t)`, and the `"initial"` condition is `selector_type="callable"`
+  (auto-sampled by `solve_pde()` on its own). A plain box fixture was
+  built for this and independently verified geometrically correct
+  (`sample_box_tag_batch` with `tag_faces={"friction_surface": [z-min,
+  z-max], "cooling_surface": [r-max]}` gives exactly 1000/500 masked
+  points for a 500-per-face sample, as expected). **But it hits a second
+  defect while training**: `"friction_surface"`/`"cooling_surface"`
+  declare `fields=("q_heat",)`/`("h","T_ref")` -- a heat-flux magnitude
+  and a convection coefficient+reference temperature, neither a literal
+  model field (the model only outputs `"T"`) nor resolvable by the
+  `traction_map` mechanism (built for elasticity tractions, not
+  heat-flux/convection Neumann BCs). Grepping the preset files shows this
+  exact `q_heat`/`h`/`T_ref` convention is ALSO used by
+  `cpu_heatsink_thermal`, `pcb_thermal`, `industrial_furnace_thermal`, and
+  all 3 `datacenter_*` presets -- a systemic, pre-existing gap across many
+  thermal presets, well beyond this pass's authorized scope of resolving
+  `car_brake_thermal`'s specific tag ambiguity. The fixture is therefore
+  intentionally NOT wired into `TAG_GEOMETRY_FIXTURES`/`build_tag_batch`'s
+  dispatch table, `car_brake_thermal` stays in
+  `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` with this precise, narrowed reason,
+  and `TagConditionsUnresolved` still correctly fires for it end-to-end --
+  confirmed by re-running `test_full_library_matrix.py`'s
+  `car_brake_thermal` case: still cleanly SKIPPED, same as before this
+  pass, zero change in test-suite outcome.
+- **`rocket_structural` — geometry half fixed for real; training still
+  blocked by a SECOND, independent, pre-existing compiler defect.** This
+  was correctly diagnosed last pass as a data bug, not a tag ambiguity:
+  `domain_bounds` is a solid square `[-outer,outer]^2` but the physical
+  part is an annulus. The preset already carries `inner_radius=0.2`/
+  `outer_radius=0.22` in its own `meta` dict (confirmed by inspection --
+  not fabricated), so a new `sample_annulus_tag_batch`
+  (`analytic_domain_batch_builder.py`) samples the REAL annulus (rejection
+  sampling `inner_radius <= sqrt(x^2+y^2) <= outer_radius` for the
+  interior, exact inner/outer rings for the two boundary tags) reading
+  those two params straight from `spec.meta`. Verified directly:
+  interior collocation points land at `r in [0.20000, 0.21999]`, exactly
+  the annulus, not the old square's corners/hole. Verified further that 3
+  of its 4 tag conditions (`outer_wall`, `T_inner`, `T_outer`) train
+  through `compile_problem` with real, distinct, non-degenerate losses
+  (`bc_outer_wall=0.084, bc_T_inner=639633, bc_T_outer=85709`) once the
+  annulus geometry is supplied. **But the 4th, `inner_wall`, hits a
+  SECOND, independent defect this pass did not authorize fixing**: it
+  declares `fields=("p_normal",)`, a pressure MAGNITUDE, not a literal
+  model field and not resolvable by the `traction_map` mechanism built
+  for Group 2 above (that mechanism derives one traction VECTOR COMPONENT
+  along a named axis from the stress tensor; a pressure BC instead needs
+  the scalar normal-stress contraction `n^T.sigma.n` compared against
+  `-p_internal`, a genuinely different derivation with its own sign
+  convention this pass was not asked to design). Confirmed directly: the
+  new, clearer compiler error correctly names `'p_normal'` and points at
+  `ConditionSpec.traction_map`'s docstring, instead of the old bare,
+  unexplained `KeyError`. `rocket_structural` is therefore left in
+  `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` with this precise, narrowed-down
+  reason (previously: "domain_bounds doesn't encode the hole"; now: "the
+  hole is fixed, a second and different compiler gap remains") --
+  `TagConditionsUnresolved` still correctly fires for it via `solve_pde()`
+  end-to-end, and the annulus fixture is intentionally NOT wired into
+  `TAG_GEOMETRY_FIXTURES`/`build_tag_batch`'s dispatch table (kept as
+  verified, tested, standalone infrastructure only) to preserve that
+  table's existing invariant that every entry in it trains end-to-end for
+  real, same as all 29 (23 + this pass's 6) already in it.
+
+### Net tally for this pass
+
+This pass addressed all 9 distinct preset names named across the task's 3
+groups (Group 1: 4, Group 2: 1, Group 3: 4 -- `linear_elasticity_3d` and
+`plane_stress_2d` are 2 separate presets under Group 3's first bullet).
+**6 of the 9 closed for real, trained end-to-end with real, distinct,
+non-degenerate per-tag losses** (some also shown to converge):
+`rocket_nozzle_cfd`, `car_external_aero`, `axial_compressor_cascade_2d`
+(Group 1), `aircraft_wing_structural` (Group 2), `linear_elasticity_3d`
+and `plane_stress_2d` (Group 3). **1 confirmed genuinely blocked by a
+specific missing preset parameter, investigated rather than guessed**:
+`aircraft_wing_aerodynamics` (Group 1 -- no NACA thickness/code param
+exists to read). **2 are genuine partials**: `car_brake_thermal` and
+`rocket_structural` (Group 3) both had their ORIGINALLY-STATED blocker
+(a tag-face ambiguity; a solid-square-vs-annulus data bug) resolved and
+independently verified, but each hides a SECOND, different, pre-existing
+compiler defect this pass was not scoped to fix (heat-flux/convection
+Neumann fields for the former, a pressure-magnitude Neumann field for the
+latter -- both a different derivation than the `traction_map` mechanism
+built for Group 2's elasticity-traction case handles) -- documented
+precisely, with the new, clearer compiler error naming exactly what's
+missing in each case, rather than claimed as closed. Both partials leave
+`test_full_library_matrix.py`'s status for them exactly as it was before
+this pass (`SKIPPED`, confirmed by re-running both cases directly) -- the
+partial fixes are real, verified infrastructure, but deliberately not
+wired into `TAG_GEOMETRY_FIXTURES` so no test's outcome changes on their
+account.
+
+Updated running tally against the original 40 tag-based presets: **29/40
+now trained end-to-end with real geometry** (23 + 6), **11/40** remain
+`NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` for a specific, individually-verified
+reason each (9 unchanged from before + `car_brake_thermal`'s and
+`rocket_structural`'s narrowed, partially-resolved ones).
+
+### Full-suite regression check (before/after, same method as the second pass)
+
+`pytest tests/ --deselect "tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"`,
+run at the clean pre-this-pass commit (`571b66ba`, via a separate
+`git worktree add --detach` checkout so the comparison needed no stash of
+this pass's own in-progress changes) and again at this pass's final
+commit, same environment.
+
+**Methodology note, an environment quirk this pass had to work around**:
+in this environment, pytest's own final `passed/failed/error/skipped`
+tally line (and part of the `short test summary info` listing) did not
+get written to disk on either run -- confirmed NOT a resource-contention
+artifact (it reproduced identically running completely alone, no other
+process active) and NOT a hang (the process genuinely exits; `ps`
+confirms it is gone, deterministically right after printing
+`test_app_backend.py`'s last `ERROR` line both times). All test EXECUTION
+completes normally first (the `.`/`F`/`E`/`s`/`x` dot-progress reaches
+100%); whatever is cut short happens only in pytest's own post-run
+reporting. Rather than accept an unverifiable total, both runs' dot-
+progress characters (the exact `.FEsx` stream pytest prints per test as
+it runs, well before any summary section) were extracted directly and
+counted, and (since `--collect-only` confirms both commits collect the
+exact same 1667 test IDs in the exact same order, as expected --
+`TAG_GEOMETRY_FIXTURES` gaining 6 entries doesn't change which tests
+`list_presets()`-driven files collect, only how they later behave)
+**mapped position-by-position back to the actual test IDs**, turning the
+two character streams into a full, exact pass/fail/skip diff, not just a
+count.
+
+| | Before (`571b66ba`) | After (this pass) |
+|---|---|---|
+| Passed | 1341 | 1353 |
+| Failed | 74 | 75 |
+| Error | 39 | 39 |
+| Skipped | 212 | 199 |
+| xfail | 1 | 1 |
+| Total | 1667 | 1667 |
+
+**Exactly 14 tests changed status, identified individually, not just
+counted**: 13 moved `skip -> pass` and are precisely the 6 newly-fixed
+presets' test combinations -- `test_cartesian_breadth.py`'s 7
+architectures x `plane_stress_2d` (`vanilla_pinn`, `modified_mlp`,
+`bench_res_mlp`, `bench_fourier_mlp`, `siren`, `vpinn`, `xtfc`) and
+`test_full_library_matrix.py`'s one test per preset for all 6
+(`aircraft_wing_structural`, `axial_compressor_cascade_2d`,
+`car_external_aero`, `linear_elasticity_3d`, `plane_stress_2d`,
+`rocket_nozzle_cfd`) -- exactly matching this pass's 6 real fixes, with
+nothing left over. The 14th, and only unexpected change, moved
+`pass -> fail`: `tests/pinneapple_analysis/test_architecture_critique.py
+::test_real_llm_produces_a_valid_complete_response` -- a completely
+unrelated test (architecture-critique NLP review, nothing to do with PDE
+presets/geometry/elasticity) that calls a REAL Ollama LLM
+(`provider="ollama"`) and asserts its output. Re-ran it standalone to
+confirm this is exactly what it looks like: the live LLM occasionally
+returns a category name (`'overall_reasoning'`) outside the fixed
+checklist the test's own assertion enforces
+(`ValueError: LLM named category 'overall_reasoning', not in the real
+checklist [...] -- refusing a hallucinated category.`) -- genuine LLM-
+output nondeterminism from a real model call, unrelated to and
+unaffected by anything in `pinneapple_physics`/`pinneapple_design` this
+pass touched. **Net, verified result: 0 regressions from this pass's
+changes** (13/13 of the expected new passes landed exactly where
+predicted, 0 unexplained losses, and the one unrelated flip has an
+independently-confirmed, unrelated root cause).

@@ -1720,4 +1720,43 @@ run at the clean pre-this-pass commit (`14e0a131`, via a separate
 `git worktree add --detach` checkout, same technique as both previous
 passes) and again at this pass's final commit, same environment.
 
-<!-- FULL_SUITE_NUMBERS_PLACEHOLDER -->
+**Same methodology note as the third pass applies again**: this
+environment's pytest does not write its own final `passed/failed/error/
+skipped` tally line on either run (confirmed again: all test EXECUTION
+completes normally, `.FEsx` dot-progress reaches 100%, the process exits
+cleanly right after printing the `short test summary info` section's last
+line -- only the one-line aggregate afterward is missing). `--collect-only`
+(without `-q`, which on this pytest version condenses to per-file counts
+once the suite is large) confirms both commits collect the exact same
+**1667** test IDs in the exact same order, so the `.FEsx` dot-progress
+stream was mapped position-by-position back to the real test IDs, exactly
+as the third pass did.
+
+| | Before (`14e0a131`) | After (this pass) |
+|---|---|---|
+| Passed | 1354 | 1357 |
+| Failed | 74 | 74 |
+| Error | 39 | 39 |
+| Skipped | 199 | 196 |
+| xfail | 1 | 1 |
+| Total | 1667 | 1667 |
+
+**Exactly 3 tests changed status, identified individually, not just
+counted** -- all 3 `skip -> pass`, exactly the 3 presets this pass wired
+into `TAG_GEOMETRY_FIXTURES`, one `test_full_library_matrix.py` case each
+(none of the 3 appear in `test_cartesian_breadth.py`'s fixed 7-preset
+list, so no additional architecture x preset combinations were affected
+there):
+
+```
+tests/test_full_library_matrix.py::test_audit_breadth_preset_trains_a_few_steps[aircraft_wing_aerodynamics]
+tests/test_full_library_matrix.py::test_audit_breadth_preset_trains_a_few_steps[car_brake_thermal]
+tests/test_full_library_matrix.py::test_audit_breadth_preset_trains_a_few_steps[rocket_structural]
+```
+
+**Zero unexplained changes, zero regressions** -- unlike the third pass
+(which had one unrelated `pass -> fail` flip from a live, nondeterministic
+Ollama call), this pass's diff is exactly and only the 3 expected flips,
+nothing else moved in either direction. `FAILED`/`ERROR` counts are
+bit-for-bit identical before and after (74/39), confirming this pass
+touched nothing in the pre-existing failure/error set.

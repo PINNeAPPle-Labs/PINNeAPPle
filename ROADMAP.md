@@ -454,7 +454,15 @@ específicas da passada anterior. **As 3 fecharam de verdade.**
    virou um número real em vez de erro).
 
 Suite completa (`pytest tests/`, `14e0a131` limpo vs. este commit, mesmo
-ambiente): <!-- FULL_SUITE_NUMBERS_PLACEHOLDER_PT -->
+ambiente, mesmos 1667 IDs coletados nos dois, mapeados posição-a-posição
+como nas passadas anteriores): passed 1354→1357 (+3), failed 74→74,
+error 39→39, skipped 199→196 (-3), xfail 1→1. **Exatamente 3 mudaram de
+status, todos skip→pass, exatamente os 3 presets desta passada**
+(`test_full_library_matrix.py::test_audit_breadth_preset_trains_a_few_steps`
+pra `aircraft_wing_aerodynamics`, `car_brake_thermal`, `rocket_structural`)
+— **zero mudança inesperada, zero regressão** (diferente da passada
+anterior, que teve 1 flip não-relacionado de uma chamada real ao Ollama;
+desta vez `FAILED`/`ERROR` ficaram idênticos bit-a-bit, 74/39 nos dois).
 
 Tally atualizado contra os 40 originais: **32/40 (23+6+3) agora treinam
 de ponta a ponta com geometria real**; 8/40 seguem documentados como não

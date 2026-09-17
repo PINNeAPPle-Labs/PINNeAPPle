@@ -87,12 +87,29 @@ def _tagged_dirichlet(tag: str, values: Dict[str, float], weight: float = 10.0):
     )
 
 
-def _tagged_neumann(tag: str, values: Dict[str, float], weight: float = 5.0, traction_map: Optional[Dict[str, str]] = None):
+def _tagged_neumann(
+    tag: str,
+    values: Dict[str, float],
+    weight: float = 5.0,
+    traction_map: Optional[Dict[str, str]] = None,
+    normal_stress_field: Optional[str] = None,
+    thermal_bc: Optional[Dict[str, str]] = None,
+):
     """Neumann condition applied to points carrying ``tag`` in ctx["tag_masks"].
 
     ``traction_map``: for elasticity traction targets (e.g. ``{"ty": ...}``
     with ``traction_map={"ty": "uy"}``) -- see ``ConditionSpec.traction_map``'s
     docstring in ``pinneapple_physics/pde_environment/conditions.py``.
+
+    ``normal_stress_field``: for a pressure-magnitude target (e.g.
+    ``{"p_normal": p_internal}`` with ``normal_stress_field="p_normal"``) --
+    see ``ConditionSpec.normal_stress_field``'s docstring.
+
+    ``thermal_bc``: for a heat-flux or convection target (e.g.
+    ``{"q_heat": q}`` with ``thermal_bc={"kind": "flux", "T_field": "T"}``,
+    or ``{"h": h, "T_ref": t_ref}`` with
+    ``thermal_bc={"kind": "convection", "T_field": "T"}``) -- see
+    ``ConditionSpec.thermal_bc``'s docstring.
     """
     return NeumannBC(
         name=tag,
@@ -102,6 +119,8 @@ def _tagged_neumann(tag: str, values: Dict[str, float], weight: float = 5.0, tra
         value_fn=_const_value_fn(values),
         weight=weight,
         traction_map=traction_map,
+        normal_stress_field=normal_stress_field,
+        thermal_bc=thermal_bc,
     )
 
 
@@ -218,7 +237,13 @@ def rocket_structural(
     )
 
     conditions = (
-        _tagged_neumann("inner_wall", {"p_normal": p_internal}, weight=10.0),
+        # n^T.sigma.n = -p_internal at the inner wall (standard pressure-
+        # vessel sign convention: positive internal pressure produces
+        # compressive normal stress) -- see
+        # ConditionSpec.normal_stress_field's docstring for the mechanism;
+        # this preset's own value_fn supplies the pressure MAGNITUDE
+        # (+p_internal), the compiler applies the sign.
+        _tagged_neumann("inner_wall", {"p_normal": p_internal}, weight=10.0, normal_stress_field="p_normal"),
         _tagged_dirichlet("outer_wall", {"ux": 0.0, "uy": 0.0}, weight=20.0),
         _tagged_dirichlet("T_inner", {"T": T_inner}, weight=20.0),
         _tagged_dirichlet("T_outer", {"T": T_outer}, weight=20.0),
@@ -253,6 +278,7 @@ def aircraft_wing_aerodynamics(
     rho_inf: float = 1.225,
     U_inf: float = 102.0,
     nu_air: float = 1.5e-5,
+    naca_thickness: float = 0.12,
 ) -> ProblemSpec:
     """
     2D incompressible/low-Ma airfoil aerodynamics (NACA-like profile).
@@ -262,6 +288,31 @@ def aircraft_wing_aerodynamics(
 
     Fields: u, v, p
     Regions: farfield, airfoil_surface, wake_outlet
+
+    naca_thickness : LITERATURE DEFAULT, not something inherent to this
+        preset's original parameters (Re, Ma, alpha_deg, chord, rho_inf,
+        U_inf, nu_air never included a thickness ratio or NACA code --
+        the original docstring's "NACA-like profile" names a whole family,
+        not one specific airfoil; see the (now-superseded) explanation
+        this preset carried in tag_geometry.py's
+        NOT_FIXABLE_WITHOUT_REAL_GEOMETRY entry and AUDIT_REPORT.md's
+        Third follow-up pass for the full history). Default 0.12 is
+        **NACA 0012**: a symmetric 12%-thick profile, and specifically the
+        single most-used reference/benchmark/validation airfoil in the
+        public aerodynamics and CFD literature (e.g. AGARD/NASA turbulence
+        model validation cases) -- a defensible, literature-grounded
+        default, not an arbitrary number, but still exposed here as an
+        explicit, overridable keyword (not hidden as an internal constant)
+        for anyone who wants to supply a real, specific profile's thickness
+        later. The public NACA 4-digit symmetric thickness distribution
+        (Abbott & Von Doenhoff, "Theory of Wing Sections", 1959) is:
+
+            y_t(x) = 5*t*(0.2969*sqrt(x/c) - 0.1260*(x/c) - 0.3516*(x/c)^2
+                           + 0.2843*(x/c)^3 - 0.1015*(x/c)^4)
+
+        used by ``tag_geometry.py``'s ``_curve_geometry.
+        naca4_symmetric_polygon`` to build the actual airfoil geometry for
+        this preset's "airfoil" curve tag.
     """
     coords: CoordNames = ("x", "y")
     fields = ("u", "v", "p")
@@ -299,6 +350,8 @@ def aircraft_wing_aerodynamics(
             "alpha_deg": alpha_deg,
             "Ma": Ma,
             "Re": Re,
+            "chord": chord,
+            "naca_thickness": naca_thickness,
             "digital_twin_fields": ["u", "v", "p"],
         },
     )
@@ -461,8 +514,14 @@ def car_brake_thermal(
     )
 
     conditions = (
-        _tagged_neumann("friction_surface", {"q_heat": q_friction}, weight=10.0),
-        _tagged_neumann("cooling_surface", {"h": h_conv, "T_ref": T_ambient}, weight=5.0),
+        # -k*dT/dn = q_heat at the friction surface (prescribed flux) and
+        # -k*dT/dn = h*(T-T_ref) at the cooling surface (convection) --
+        # see ConditionSpec.thermal_bc's docstring for the mechanism; k is
+        # read from this preset's own PDE params ("k": k_disc above).
+        _tagged_neumann("friction_surface", {"q_heat": q_friction}, weight=10.0,
+                         thermal_bc={"kind": "flux", "T_field": "T"}),
+        _tagged_neumann("cooling_surface", {"h": h_conv, "T_ref": T_ambient}, weight=5.0,
+                         thermal_bc={"kind": "convection", "T_field": "T"}),
         initial,
     )
 

@@ -331,6 +331,48 @@ TAG_GEOMETRY_FIXTURES: Dict[str, Dict[str, Any]] = {
         },
         "curve_tags": ("car_body",),
     },
+    # ---- Fourth follow-up pass (2026-09-17): NACA 0012 literature default
+    # (aircraft_wing_aerodynamics) and generalized thermal-BC/pressure-BC
+    # compiler mechanisms (car_brake_thermal, rocket_structural). See
+    # CHOSEN_CONVENTIONS below and AUDIT_REPORT.md's Fourth follow-up pass
+    # section for the full discussion. ----
+    "aircraft_wing_aerodynamics": {
+        # "airfoil" is a real NACA 0012 (t=0.12, this preset's own new
+        # naca_thickness default -- see aircraft_wing_aerodynamics's own
+        # docstring for why 0.12 is a literature default, not an inherent
+        # preset parameter) built by
+        # _curve_geometry.naca4_symmetric_polygon from this preset's own
+        # chord/naca_thickness (read back from spec.meta). Leading edge
+        # placed at the coordinate origin (x=0, y=0): consistent with this
+        # preset's own asymmetric domain_bounds (-5*chord upstream,
+        # 15*chord downstream of x=0) and symmetric y-range (+-5*chord),
+        # i.e. the airfoil sits on the domain's y=0 centerline, matching
+        # the same "read the preset's own numbers back, place at the
+        # implied reference point" approach used for car_external_aero's
+        # Ahmed body above. The airfoil itself is NOT rotated by
+        # alpha_deg -- angle of attack is already encoded in the
+        # farfield_inlet velocity direction (u=U_inf*cos(alpha),
+        # v=U_inf*sin(alpha), an existing, unchanged part of this preset),
+        # the standard "rotate the flow, not the body" CFD convention.
+        #
+        # CONVENTION (not preset text): "wake_outlet" has no stated face
+        # anywhere in the preset (only listed by name in the docstring's
+        # "Regions" list) -- mapped to the same x=max outlet plane as
+        # "farfield_outlet" (both are Neumann/zero-gradient outflow
+        # conditions on different fields -- pressure vs. velocity -- at
+        # the same physical exit plane), reusing this file's own
+        # already-established pattern of mapping more than one physically
+        # distinct tag to the same face along the same flow axis (see this
+        # file's top-of-file comment on "inlet"/"outlet" reuse).
+        "shape": "box_with_curve",
+        "shape_coords": ("x", "y"),
+        "box_tag_faces": {
+            "farfield_inlet": [("x", "min")],
+            "farfield_outlet": [("x", "max")],
+            "wake_outlet": [("x", "max")],
+        },
+        "curve_tags": ("airfoil",),
+    },
     "aircraft_wing_structural": {
         # Geometry here was already unambiguous even before this pass (see
         # NOT_FIXABLE's old entry, now removed): "root_fixed" is the wing
@@ -349,6 +391,62 @@ TAG_GEOMETRY_FIXTURES: Dict[str, Dict[str, Any]] = {
             "root_fixed": [("x", "min")],
             "tip_load": [("x", "max")],
             "free_surface": [("y", "min"), ("y", "max")],
+        },
+    },
+    "car_brake_thermal": {
+        # CONVENTION (not preset text): "friction_surface" = the disc's two
+        # flat faces (z=min, z=max, where the pad contacts it),
+        # "cooling_surface" = the outer rim (r=max, exposed to airflow) --
+        # the standard disc-brake thermal-analysis assignment (same
+        # convention this fixture used when it was first built and
+        # independently geometry-verified in the second follow-up pass;
+        # see CHOSEN_CONVENTIONS below). Coords are cylindrical-
+        # axisymmetric (r, z, t); "initial" is selector_type="callable"
+        # and is auto-sampled by solve_pde() on its own, same as every
+        # mixed preset above.
+        #
+        # This preset stayed in NOT_FIXABLE_WITHOUT_REAL_GEOMETRY through
+        # the third follow-up pass ONLY because of a second, independent
+        # compiler gap: "friction_surface"/"cooling_surface" declare
+        # fields=("q_heat",)/("h","T_ref") -- a heat flux and a convection
+        # coefficient+reference temperature, neither a literal model field
+        # nor resolvable by traction_map (built only for elasticity). That
+        # gap is now closed by ConditionSpec.thermal_bc (see
+        # AUDIT_REPORT.md's Fourth follow-up pass and this preset's own
+        # conditions in engineering.py, which now declare thermal_bc
+        # explicitly) -- the tag-face geometry below was already correct
+        # and unchanged.
+        "shape": "box",
+        "tag_faces": {
+            "friction_surface": [("z", "min"), ("z", "max")],
+            "cooling_surface": [("r", "max")],
+        },
+    },
+    "rocket_structural": {
+        # Real annulus (not the solid square domain_bounds implies): this
+        # preset's own meta carries inner_radius/outer_radius (confirmed by
+        # inspection, not fabricated) -- sample_annulus_tag_batch samples
+        # the actual annulus and reads those two params straight from
+        # spec.meta (see build_tag_batch's "annulus" branch below). This
+        # geometry fix was already correct and independently verified in
+        # the third follow-up pass; what blocked training end-to-end back
+        # then was a second, independent compiler gap: "inner_wall"
+        # declares fields=("p_normal",), a pressure MAGNITUDE, not
+        # resolvable by traction_map's per-axis-component mechanism. That
+        # gap is now closed by ConditionSpec.normal_stress_field (the full
+        # n^T.sigma.n double contraction -- see AUDIT_REPORT.md's Fourth
+        # follow-up pass and this preset's own inner_wall condition in
+        # engineering.py, which now declares normal_stress_field
+        # explicitly). "T_inner"/"outer_wall" and "T_outer" share the same
+        # inner/outer rings as "inner_wall" (all four conditions act on the
+        # same two physical circles, just different fields).
+        "shape": "annulus",
+        "cross_coords": ("x", "y"),
+        "tag_faces": {
+            "inner_wall": "inner",
+            "T_inner": "inner",
+            "outer_wall": "outer",
+            "T_outer": "outer",
         },
     },
 }
@@ -374,8 +472,22 @@ CHOSEN_CONVENTIONS: Dict[str, str] = {
         "'friction_surface'/'cooling_surface' have no stated face in the "
         "preset. Chose the standard disc-brake assignment: friction = both "
         "flat faces (z=0, z=thickness), cooling = the outer rim (r=disc_radius). "
-        "This tag ambiguity IS resolved (see NOT_FIXABLE_WITHOUT_REAL_GEOMETRY's "
-        "own entry for why the preset still isn't fully trainable regardless)."
+        "As of the Fourth follow-up pass this preset trains end-to-end for "
+        "real: the second, independent blocker (q_heat/h/T_ref not "
+        "resolvable against the model's own fields) is now closed by "
+        "ConditionSpec.thermal_bc."
+    ),
+    "aircraft_wing_aerodynamics": (
+        "Fourth follow-up pass: naca_thickness (default 0.12, NACA 0012) was "
+        "added to this preset as an explicit, overridable LITERATURE default "
+        "(product-owner decision -- see the preset's own docstring and "
+        "AUDIT_REPORT.md) since NO thickness/NACA-code parameter existed "
+        "before. Not a 'this preset's own fact' entry like every other "
+        "TAG_GEOMETRY_FIXTURES comment -- it is a chosen default value, "
+        "exactly like linear_elasticity_3d/plane_stress_2d's 'fixed'/'load' "
+        "convention above. 'wake_outlet' -> the same x=max face as "
+        "'farfield_outlet' is also a chosen convention, not preset text --\n"
+        "see this preset's own TAG_GEOMETRY_FIXTURES entry for the reasoning."
     ),
 }
 
@@ -396,70 +508,28 @@ CHOSEN_CONVENTIONS: Dict[str, str] = {
 # this pass was not scoped to fix -- see their own entries below for the
 # precise, narrowed-down reason each still needs. See AUDIT_REPORT.md for
 # the full per-preset writeup, including which of the fixes below are a
-# real published-standard geometry (aircraft's NACA airfoil case remains
-# blocked for a stated, specific missing-parameter reason -- not
-# attempted-and-guessed) vs. an explicitly-flagged CHOSEN CONVENTION (see
-# CHOSEN_CONVENTIONS above) for a genuinely ambiguous tag.
+# real published-standard geometry vs. an explicitly-flagged CHOSEN
+# CONVENTION (see CHOSEN_CONVENTIONS above) for a genuinely ambiguous tag.
+#
+# Fourth follow-up pass (2026-09-17): 3 more of the entries this dict used
+# to carry are now fully closed and REMOVED from this dict --
+# `aircraft_wing_aerodynamics` (NACA 0012 literature default added, see
+# CHOSEN_CONVENTIONS and the preset's own docstring),
+# `car_brake_thermal` and `rocket_structural` (each preset's SECOND,
+# independent compiler gap -- q_heat/h/T_ref and p_normal, respectively --
+# is now closed by ConditionSpec.thermal_bc / ConditionSpec.
+# normal_stress_field; see AUDIT_REPORT.md's Fourth follow-up pass). All
+# three now have real TAG_GEOMETRY_FIXTURES entries above and train
+# end-to-end for real.
 NOT_FIXABLE_WITHOUT_REAL_GEOMETRY: Dict[str, str] = {
-    "aircraft_wing_aerodynamics": (
-        "needs a real airfoil profile ('airfoil' tag). Investigated using the "
-        "published NACA 4-digit thickness formula (y_t = 5t(0.2969*sqrt(x) - "
-        "0.1260x - 0.3516x^2 + 0.2843x^3 - 0.1015x^4), e.g. NACA 0012) as "
-        "instructed -- but this preset's own parameters (Re, Ma, alpha_deg, "
-        "chord, rho_inf, U_inf, nu_air) do not include a thickness ratio 't' "
-        "or ANY airfoil designation at all ('NACA-like profile' in the "
-        "docstring names a family, not a specific 4-digit code). Picking "
-        "'0012' (t=0.12) would be fabricating the one number the formula "
-        "actually needs, not reading it from the preset -- so this stays "
-        "unfixed. A real fix needs the preset itself to expose a thickness "
-        "(or full NACA code) parameter first."
-    ),
-    "car_brake_thermal": (
-        "PARTIALLY fixed: the 'friction_surface'/'cooling_surface' tag-face "
-        "ambiguity IS resolved (see CHOSEN_CONVENTIONS above -- friction = "
-        "both flat faces, cooling = the outer rim) and a box fixture for it "
-        "was built and verified geometrically correct. Training end-to-end "
-        "still fails, though, for a SECOND, independent, pre-existing "
-        "compiler defect discovered while verifying it: 'friction_surface'/"
-        "'cooling_surface' declare fields=('q_heat',)/('h','T_ref'), a heat "
-        "flux magnitude and a convection coefficient+reference temperature, "
-        "neither a literal model field (the model only outputs 'T') nor "
-        "resolvable by the traction_map mechanism (built for elasticity "
-        "tractions, not heat flux/convection). The SAME q_heat/h/T_ref "
-        "convention is used by cpu_heatsink_thermal, pcb_thermal, "
-        "industrial_furnace_thermal, and all 3 datacenter_* presets below "
-        "(confirmed by grep) -- this is a systemic, pre-existing gap across "
-        "many thermal presets, well beyond this pass's authorized scope of "
-        "fixing car_brake_thermal's tag ambiguity specifically. The box "
-        "fixture is intentionally NOT wired into TAG_GEOMETRY_FIXTURES/"
-        "build_tag_batch's dispatch table (kept as verified, tested, "
-        "standalone infrastructure only), so TagConditionsUnresolved still "
-        "correctly fires via solve_pde() end-to-end, same treatment as "
-        "rocket_structural below."
-    ),
     "car_suspension_fatigue": "wishbone-arm geometry; 'mounting_fixed'/'wheel_hub_load'/'free_edges' are not tied to specific faces of the given rectangle anywhere in the preset.",
-    "cpu_heatsink_thermal": "real heatsink fin geometry ('fin_surfaces' vs 'cpu_base' vs 'insulated_sides') -- fins are not a box face.",
+    "cpu_heatsink_thermal": "real heatsink fin geometry ('fin_surfaces' vs 'cpu_base' vs 'insulated_sides') -- fins are not a box face. NOTE: the q_heat/h/T_ref fields ARE now resolvable via ConditionSpec.thermal_bc (Fourth follow-up pass) -- this preset's remaining blocker is geometry only, not the compiler.",
     "datacenter_airflow_2d": "'server_surfaces' are internal rack objects inside the airflow channel, not a face of the bounding box.",
-    "datacenter_cfd_3d": "'rack_surfaces'/'crac_supply'/'return_air' are internal-object/unlocated surfaces inside the room, not box faces.",
-    "datacenter_server_thermal": "'cpu_zone'/'gpu_zone'/'ram_zone' hotspot locations on the board are never given coordinates anywhere in the preset.",
+    "datacenter_cfd_3d": "'rack_surfaces'/'crac_supply'/'return_air' are internal-object/unlocated surfaces inside the room, not box faces. NOTE: 'rack_surfaces' own q_heat field IS now resolvable via ConditionSpec.thermal_bc (Fourth follow-up pass) -- this preset's remaining blocker is geometry only, not the compiler.",
+    "datacenter_server_thermal": "'cpu_zone'/'gpu_zone'/'ram_zone' hotspot locations on the board are never given coordinates anywhere in the preset. NOTE: the q_heat/h/T_ref fields ARE now resolvable via ConditionSpec.thermal_bc (Fourth follow-up pass) -- this preset's remaining blocker is geometry only, not the compiler.",
     "fan_cooler_cfd": "real radial-fan blade/hub geometry ('blade_wall'/'hub_wall') -- an annulus-with-blades, not a box.",
-    "industrial_furnace_thermal": "real furnace/refractory geometry; 'insulation_interface' is an internal material-layer boundary, not a domain face -- would need a real CAD/mesh of the furnace wall assembly.",
-    "pcb_thermal": "'component_hotspots' locations (cpu/gpu/vrm) are given as a power dict, never as coordinates -- can't be placed on the board without inventing a layout.",
-    "rocket_structural": (
-        "PARTIALLY fixed: domain_bounds/geometry now correctly builds the "
-        "real annulus (using the preset's own meta['inner_radius']/"
-        "meta['outer_radius'], not fabricated values -- see 'annulus' shape "
-        "in build_tag_batch). Training end-to-end still fails, though, for a "
-        "SECOND, independent reason unrelated to geometry: 'inner_wall's "
-        "Neumann condition declares fields=('p_normal',), a pressure "
-        "magnitude, not a literal model field OR a traction component the "
-        "new traction_map mechanism (built for aircraft_wing_structural) "
-        "handles -- p_normal needs a genuinely different derivation (target "
-        "normal stress n^T.sigma.n = -p, not a raw traction component along "
-        "a named axis), which is out of scope for the traction_map mechanism "
-        "as built. TagConditionsUnresolved still correctly fires for this "
-        "preset until that second defect is fixed too."
-    ),
+    "industrial_furnace_thermal": "real furnace/refractory geometry; 'insulation_interface' is an internal material-layer boundary, not a domain face -- would need a real CAD/mesh of the furnace wall assembly. NOTE: the q_heat/h/T_ref fields ARE now resolvable via ConditionSpec.thermal_bc (Fourth follow-up pass) -- this preset's remaining blocker is geometry only, not the compiler.",
+    "pcb_thermal": "'component_hotspots' locations (cpu/gpu/vrm) are given as a power dict, never as coordinates -- can't be placed on the board without inventing a layout. NOTE: the q_heat/h/T_ref fields ARE now resolvable via ConditionSpec.thermal_bc (Fourth follow-up pass) -- this preset's remaining blocker is geometry only, not the compiler.",
 }
 
 
@@ -482,10 +552,12 @@ def build_tag_batch(
         sample_cylinder_tag_batch,
         sample_axisymmetric_wall_tag_batch,
         sample_box_with_curve_tag_batch,
+        sample_annulus_tag_batch,
     )
     from ._curve_geometry import (
         circular_arc_cascade_blade_points,
         ahmed_body_polygon,
+        naca4_symmetric_polygon,
         polygon_perimeter_sample,
         polygon_contains,
     )
@@ -545,9 +617,35 @@ def build_tag_batch(
             seed=seed,
             user_ctx=user_ctx,
         )
+    if fixture["shape"] == "annulus":
+        inner_r = float(spec.meta["inner_radius"])
+        outer_r = float(spec.meta["outer_radius"])
+        return sample_annulus_tag_batch(
+            spec,
+            fixture["tag_faces"],
+            cross_coords=fixture["cross_coords"],
+            inner_radius=inner_r,
+            outer_radius=outer_r,
+            n_col=n_col,
+            n_bc_per_face=n_bc_per_face,
+            seed=seed,
+            user_ctx=user_ctx,
+        )
     if fixture["shape"] == "box_with_curve":
         curve_tags: Dict[str, Any] = {}
-        if name == "axial_compressor_cascade_2d":
+        if name == "aircraft_wing_aerodynamics":
+            chord = float(spec.meta["chord"])
+            naca_t = float(spec.meta.get("naca_thickness", 0.12))
+            poly = naca4_symmetric_polygon(chord, naca_t)
+
+            def _airfoil_fn(n, rng, _poly=poly):
+                return polygon_perimeter_sample(_poly, n, rng)
+
+            curve_tags["airfoil"] = _airfoil_fn
+
+            def inside_body_fn(X2, _poly=poly):
+                return polygon_contains(_poly, X2)
+        elif name == "axial_compressor_cascade_2d":
             flow_in = float(spec.meta["flow_angle_in_deg"])
             flow_out = float(spec.meta["flow_angle_out_deg"])
             chord = float(spec.meta["chord"])

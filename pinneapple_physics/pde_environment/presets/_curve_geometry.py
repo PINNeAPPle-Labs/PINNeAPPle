@@ -132,6 +132,64 @@ def ahmed_body_polygon(
     return (outline + np.array([x0, 0.0]))[:, :]
 
 
+# ---------------------------------------------------------------------------
+# aircraft_wing_aerodynamics: symmetric NACA 4-digit airfoil outline.
+#
+# Source: Abbott, I.H. & Von Doenhoff, A.E., "Theory of Wing Sections"
+# (1959), the standard public NACA 4-digit thickness distribution for a
+# ZERO-CAMBER (symmetric) profile, e.g. NACA 0012 for thickness_ratio=0.12
+# (this preset's own literature-chosen default -- see
+# aircraft_wing_aerodynamics's own docstring and AUDIT_REPORT.md's Third
+# follow-up pass for why 0.12/NACA 0012 was picked and why it is a
+# LITERATURE default, not something this preset's original parameters
+# ever specified):
+#
+#   y_t(x) = 5*t*(0.2969*sqrt(x/c) - 0.1260*(x/c) - 0.3516*(x/c)^2
+#                  + 0.2843*(x/c)^3 - 0.1015*(x/c)^4),  x/c in [0, 1]
+#
+# This is the CLASSIC coefficient set (-0.1015): the resulting profile has
+# a small, finite trailing-edge thickness (the well-known ~0.0021*c NACA
+# 4-digit trailing-edge gap), exactly as this public formula predicts --
+# not an approximation error (a different, "-0.1036" coefficient variant
+# exists specifically to force a zero-thickness trailing edge, but was not
+# substituted in since the cited formula uses -0.1015). Cosine spacing in
+# x/c is standard practice for resolving the leading-edge curvature, not a
+# physics choice.
+# ---------------------------------------------------------------------------
+
+def naca4_symmetric_polygon(
+    chord: float,
+    thickness_ratio: float,
+    *,
+    n: int = 80,
+    x0: float = 0.0,
+    y0: float = 0.0,
+) -> np.ndarray:
+    """Closed polygon (M, 2) tracing a symmetric (zero-camber) NACA 4-digit
+    airfoil of the given ``chord`` and ``thickness_ratio`` t (e.g. t=0.12
+    for NACA 0012), leading edge at (x0, y0), trailing edge at
+    (x0+chord, y0). Vertices run leading edge -> upper surface -> trailing
+    edge -> lower surface -> back toward the leading edge (the closing edge
+    back to vertex 0 is implicit, same convention as
+    :func:`ahmed_body_polygon`)."""
+    t = float(thickness_ratio)
+    c = float(chord)
+    beta = np.linspace(0.0, np.pi, n)
+    xc = 0.5 * (1.0 - np.cos(beta))  # cosine spacing, 0..1
+    yt = 5.0 * t * (
+        0.2969 * np.sqrt(xc) - 0.1260 * xc - 0.3516 * xc ** 2 + 0.2843 * xc ** 3 - 0.1015 * xc ** 4
+    )
+    x = xc * c
+    y = yt * c
+    upper = np.column_stack([x, y])
+    lower = np.column_stack([x[::-1], -y[::-1]])
+    # upper[0] == lower[-1] == (0, 0) (leading edge, exact per the formula:
+    # yt(0)=0) -- drop lower's final point to avoid a duplicate vertex; the
+    # implicit closing edge (last vertex -> vertex 0) reconnects them.
+    outline = np.concatenate([upper, lower[:-1]], axis=0).astype(np.float64)
+    return outline + np.array([x0, y0])
+
+
 def polygon_perimeter_sample(vertices: np.ndarray, n: int, rng: np.random.Generator) -> np.ndarray:
     """Sample n points uniformly (by arc length) along the CLOSED polygon
     whose vertices are given in order (the closing edge back to vertices[0]

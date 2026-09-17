@@ -57,17 +57,30 @@ def _gather_condition_points(batch: Dict[str, Any], cond: ConditionSpec):
 # ---------------------------------------------------------------------------
 
 _ELASTICITY_KINDS = ("linear_elasticity", "linear_elasticity_plane_strain", "linear_elasticity_plane_stress")
+# thermoelasticity_2d couples the SAME plane-stress elasticity construction
+# to an isotropic thermal strain eps_th = alpha_T*T*I (see the interior
+# "thermoelasticity_2d" residual branch above) -- a traction/pressure BC on
+# a thermoelastic preset (e.g. rocket_structural's inner_wall) must include
+# that same thermal correction or it would silently disagree with the
+# interior residual's own stress, exactly the failure mode these helpers
+# exist to avoid.
+_THERMOELASTIC_KINDS = ("thermoelasticity_2d",)
+_STRESS_CAPABLE_KINDS = _ELASTICITY_KINDS + _THERMOELASTIC_KINDS
 
 
 def _elasticity_displacement_fields(pde_kind: str, spatial_dim: int) -> List[str]:
     """The ordered displacement field names ("ux","uy",["uz"]) an elasticity
-    pde_kind's own fields must contain -- the same convention the interior
-    residual branch already hardcodes (fields literally named "u" + the
-    matching coordinate name)."""
-    if pde_kind not in _ELASTICITY_KINDS:
+    (or thermoelastic) pde_kind's own fields must contain -- the same
+    convention the interior residual branch already hardcodes (fields
+    literally named "u" + the matching coordinate name)."""
+    if pde_kind not in _STRESS_CAPABLE_KINDS:
         raise ValueError(
-            f"traction_map is only supported for elasticity pde_kinds {_ELASTICITY_KINDS}, got {pde_kind!r}"
+            f"traction_map/normal_stress_field is only supported for pde_kinds {_STRESS_CAPABLE_KINDS}, got {pde_kind!r}"
         )
+    if pde_kind in _THERMOELASTIC_KINDS:
+        if spatial_dim != 2:
+            raise ValueError(f"{pde_kind} traction/pressure BCs expect 2 spatial dims.")
+        return ["ux", "uy"]
     if spatial_dim not in (2, 3):
         raise ValueError("Elasticity traction expects 2D or 3D spatial dims.")
     return ["ux", "uy"] + (["uz"] if spatial_dim == 3 else [])
@@ -89,14 +102,23 @@ def _elasticity_stress_tensor(
     spatial_coord_names: Sequence[str],
     pde_kind: str,
     p: Dict[str, Any],
+    T_val: Optional[torch.Tensor] = None,
 ) -> torch.Tensor:
     """Build the Cauchy stress tensor sigma (N, spatial_dim, spatial_dim)
     from the displacement fields, identically to the interior residual's
-    own construction (including the plane-stress reduced lambda*)."""
+    own construction (including the plane-stress reduced lambda*).
+
+    ``T_val``: only used when ``pde_kind`` is a thermoelastic kind (e.g.
+    "thermoelasticity_2d") -- the model's own temperature field evaluated
+    at the same points as ``disp_vals``, subtracting the same isotropic
+    thermal strain ``eps_th = alpha_T*T*I`` the interior
+    "thermoelasticity_2d" residual branch already applies (see there for
+    the derivation). Ignored (and unused) for the plain elasticity kinds,
+    exactly reproducing the previous behavior for them."""
     spatial_dim = len(spatial_coord_names)
     lam = float(p.get("lambda", 1.0))
     mu = float(p.get("mu", 1.0))
-    if pde_kind == "linear_elasticity_plane_stress":
+    if pde_kind in ("linear_elasticity_plane_stress",) + _THERMOELASTIC_KINDS:
         lam = 2.0 * lam * mu / (lam + 2.0 * mu)
 
     U = torch.cat([disp_vals[f] for f in disp_fields], dim=1)
@@ -113,6 +135,12 @@ def _elasticity_stress_tensor(
     for i in range(spatial_dim):
         sigma[:, i, i] = sigma[:, i, i] + lam * tr[:, 0]
     sigma = sigma + 2.0 * mu * eps
+
+    if pde_kind in _THERMOELASTIC_KINDS and T_val is not None:
+        alpha_T = float(p.get("alpha_T", 0.0))
+        tr_th = 2.0 * alpha_T * T_val  # trace of the 2D isotropic thermal-strain tensor
+        for i in range(spatial_dim):
+            sigma[:, i, i] = sigma[:, i, i] - lam * tr_th[:, 0] - 2.0 * mu * alpha_T * T_val[:, 0]
     return sigma
 
 
@@ -2358,7 +2386,10 @@ def compile_problem(
                 disp_fields = _elasticity_displacement_fields(pde_kind, spatial_dim)
                 Xr = Xc.clone().detach().requires_grad_(True)
                 disp_vals = eval_fields(Xr)
-                sigma = _elasticity_stress_tensor(disp_vals, disp_fields, Xr, coords, spatial_coord_names, pde_kind, p)
+                T_val = disp_vals.get("T") if pde_kind in _THERMOELASTIC_KINDS else None
+                sigma = _elasticity_stress_tensor(
+                    disp_vals, disp_fields, Xr, coords, spatial_coord_names, pde_kind, p, T_val=T_val,
+                )
                 nnsn_pred = _elasticity_normal_stress_from_stress(sigma, n, coords, spatial_coord_names)
                 # Yc holds the pressure MAGNITUDE (this condition's own
                 # value_fn, e.g. +p_internal) -- the compiler applies the

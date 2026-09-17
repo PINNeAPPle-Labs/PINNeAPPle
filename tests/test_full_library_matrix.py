@@ -191,16 +191,17 @@ def test_audit_breadth_preset_trains_a_few_steps(name):
         "modified_mlp", in_dim=len(spec.coords), out_dim=len(spec.fields), hidden_dim=16, n_layers=3,
     )
 
-    # 23 (of 40) selector_type="tag" presets have a real-geometry fixture
-    # (an analytic box/cylinder batch whose faces are a mechanical
-    # translation of each preset's own docstring/comments -- see
+    # 32 (of 40) selector_type="tag" presets have a real-geometry fixture
+    # (an analytic box/cylinder/annulus/box-with-curve batch whose faces
+    # are a mechanical translation of each preset's own docstring/comments,
+    # or an explicitly-flagged chosen convention/literature default -- see
     # tag_geometry.py's module docstring for the full per-preset
     # justification and docs/dev/AUDIT_REPORT.md for the tally). Build it
     # and pass it through so these presets train for real instead of
-    # skipping via _needs_real_geometry_for_tags below. The remaining 17
-    # (real airfoil/car-body/furnace/blade/... geometry, or an
-    # unlocated-face ambiguity like "fixed"/"load") have no fixture and
-    # correctly keep raising TagConditionsUnresolved -> skip.
+    # skipping via _needs_real_geometry_for_tags below. The remaining 8
+    # (real fin/rack/hotspot/blade geometry, or an unlocated-face
+    # ambiguity) have no fixture and correctly keep raising
+    # TagConditionsUnresolved -> skip.
     from pinneapple_physics.pde_environment.presets.tag_geometry import (
         TAG_GEOMETRY_FIXTURES, build_tag_batch, solve_pde_kwargs_from_batch,
     )

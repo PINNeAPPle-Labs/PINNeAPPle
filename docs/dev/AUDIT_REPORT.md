@@ -1509,3 +1509,215 @@ pass touched. **Net, verified result: 0 regressions from this pass's
 changes** (13/13 of the expected new passes landed exactly where
 predicted, 0 unexplained losses, and the one unrelated flip has an
 independently-confirmed, unrelated root cause).
+
+## Fourth follow-up pass: NACA 0012 literature default, and 2 new Neumann-BC compiler mechanisms (2026-09-17)
+
+Product-owner decision (Yan), not this pass's own choice: 3 named,
+pre-decided items from the Third follow-up pass's leftover list above --
+(1) `aircraft_wing_aerodynamics` gets a literature-standard NACA 0012
+thickness default (the previous pass correctly left this unfixed because
+NO thickness parameter existed at all; the decision here is to ADD one,
+not to guess a value the preset never had), (2) generalize the compiler
+for heat-flux/convection Neumann BCs (`car_brake_thermal`'s second,
+independent blocker from last pass), (3) generalize the compiler for a
+pressure-magnitude Neumann BC (`rocket_structural`'s second, independent
+blocker from last pass). **All 3 closed for real**, verified end-to-end.
+
+### Item 1 -- `aircraft_wing_aerodynamics`: NACA 0012 literature default
+
+Added `naca_thickness: float = 0.12` as an explicit, overridable keyword
+parameter (not a hidden internal constant) to the preset's own signature.
+0.12 (NACA 0012, a symmetric 12%-thick profile) is documented in the
+preset's own docstring, `_curve_geometry.py`, and `tag_geometry.py` as a
+**literature default the product owner chose**, not something inherent
+to the preset's original parameters (which never included a thickness or
+NACA-code field at all, exactly as the Third follow-up pass found) --
+the single most common reference/benchmark airfoil in the public
+aerodynamics/CFD literature, and readable/overridable by anyone who wants
+to supply a real specific profile's thickness later. Uses the same public
+NACA 4-digit thickness formula already cited (and investigated) in the
+previous pass's `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` entry for this
+preset:
+
+```
+y_t(x) = 5*t*(0.2969*sqrt(x/c) - 0.1260*(x/c) - 0.3516*(x/c)^2
+               + 0.2843*(x/c)^3 - 0.1015*(x/c)^4)
+```
+
+implemented fresh as `_curve_geometry.naca4_symmetric_polygon` (a closed
+polygon via cosine-spaced sample points, upper+lower surface, same
+construction style as `ahmed_body_polygon`), reusing the already-existing
+`polygon_perimeter_sample`/`polygon_contains` helpers unchanged (both are
+fully generic, not car-body-specific). Sanity-checked directly: the
+polygon's peak half-thickness is 0.06003*chord (i.e. thickness 0.1201*c,
+matching the nominal 12% to within cosine-sampling resolution), and
+`polygon_contains` correctly classifies a point at the airfoil's midchord
+as inside and points ahead of/behind/outside it as outside.
+
+Wired as a `box_with_curve` `TAG_GEOMETRY_FIXTURES` entry: airfoil
+leading edge at the coordinate origin (chord along +x, unrotated -- angle
+of attack is already encoded in the existing `farfield_inlet` velocity
+direction, the standard "rotate the flow, not the body" CFD convention,
+unchanged by this pass), consistent with this preset's own asymmetric
+domain_bounds (`-5*chord` upstream, `15*chord` downstream of x=0) and
+symmetric y-range. One additional, explicitly-flagged **chosen
+convention** (added to `CHOSEN_CONVENTIONS`, same transparency bar as
+every other genuinely-ambiguous-tag entry in this file): `"wake_outlet"`
+has no stated face anywhere in the preset (only named in the docstring's
+"Regions" list) -- mapped to the same `x=max` outlet plane as
+`"farfield_outlet"` (both are Neumann/zero-gradient conditions on
+different fields -- pressure vs. velocity -- at the same physical exit
+plane), reusing this file's own already-established pattern of two
+distinct tags sharing one face along the same flow axis.
+
+**Verified end-to-end**: `build_tag_batch("aircraft_wing_aerodynamics",
+...)` produces all 4 non-degenerate tag masks (400 points each at
+`n_bc_per_face=400`: `farfield_inlet`, `farfield_outlet`, `wake_outlet`,
+`airfoil`); `compile_problem` gives real, finite, distinct per-tag losses
+at init (`pde=4.65, bc_farfield_inlet=5189.5, bc_farfield_outlet=2.12,
+bc_airfoil=0.088, bc_wake_outlet=3.81`); trained 20 epochs through
+`solve_pde()` with visible per-tag movement on 2 of 4 tags
+(`bc_farfield_outlet` 2.12->0.68, `bc_wake_outlet` 3.81->2.78) --
+`bc_farfield_inlet` dominates and barely moves because `U_inf=102 m/s`
+is unnormalized (same category of finding as `rocket_nozzle_cfd`'s and
+`aircraft_wing_structural`'s raw-SI-units notes above, not a defect in
+this fix). Moved from `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` to
+`TAG_GEOMETRY_FIXTURES`.
+
+### Items 2 & 3 -- generalizing the compiler for 2 more Neumann-BC families
+
+The Third follow-up pass's `ConditionSpec.traction_map` only covers ONE
+vector traction component derived from `n . sigma` along a named axis. It
+does not cover (a) a Neumann/Robin condition whose target is a heat flux
+or convection law (fields not literal model outputs, and not a traction
+at all), or (b) a Neumann condition whose target is a pressure MAGNITUDE
+needing the full scalar contraction `n^T . sigma . n` (not one axis-aligned
+component). Both are now real, separate mechanisms in
+`pinneapple_physics/pde_environment/conditions.py`
+(`ConditionSpec.thermal_bc`, `ConditionSpec.normal_stress_field`) and
+`compile.py` (two new branches in the per-condition loop, gated the same
+way `traction_map` already is: `uses_model_fields=False` +
+`kind="neumann"` + `order<=1` + the new field set).
+
+**`ConditionSpec.thermal_bc`** (`{"kind": "flux"|"convection", "T_field":
+"T"}`): implements the standard physics directly --
+
+```
+flux:       -k * dT/dn = q_heat
+convection: -k * dT/dn = h * (T - T_ref)
+```
+
+`dT/dn` via the same `norm_dot_grad` autograd machinery the plain Neumann
+branch already uses; `k` read with the exact same fallback order
+(`k_eff`, then `k`, then 1.0) the `heat_equation_steady*`/
+`heat_equation_transient` interior residuals already use, so this can
+never silently disagree with the PDE's own conductivity. Generic: any
+preset declaring this `q_heat`/`h`+`T_ref` convention gets the mechanism
+automatically, not just `car_brake_thermal` -- confirmed by grep this is
+the SAME convention used by `cpu_heatsink_thermal`, `pcb_thermal`,
+`industrial_furnace_thermal`, and all 3 `datacenter_*` thermal presets
+(their `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` entries in `tag_geometry.py`
+now note explicitly that their remaining blocker is geometry only, not
+this compiler gap).
+
+**`ConditionSpec.normal_stress_field`** (a single field name, e.g.
+`"p_normal"`): implements the pressure-vessel convention
+`n^T . sigma . n = -p_internal` via a new
+`_elasticity_normal_stress_from_stress` helper (full double contraction,
+genuinely different math from `_elasticity_traction_from_stress`'s single
+selected row -- not a special case of it). `sigma` is built by the SAME
+`_elasticity_stress_tensor` helper `traction_map` already uses, so a
+pressure-BC prediction can never silently disagree with the interior
+residual's own stress. `rocket_structural`'s actual `pde_kind` is
+`"thermoelasticity_2d"`, not one of the 3 plain elasticity kinds
+`traction_map`/`_elasticity_stress_tensor` originally supported --
+extended `_elasticity_stress_tensor` (and
+`_elasticity_displacement_fields`) with a `thermoelasticity_2d` branch
+that additionally subtracts the SAME isotropic thermal-strain correction
+(`eps_th = alpha_T*T*I`) the interior `"thermoelasticity_2d"` residual
+already applies, verified below to be load-bearing (not a silent no-op).
+
+**Closed-form verification** (matching the `traction_map` pure-shear
+check's rigor -- exact solution in, ~0 residual out; wrong solution in,
+clearly nonzero residual out -- via `compile_problem` directly, no
+training involved), 4 independent checks:
+
+| Mechanism | Trial field | Result |
+|---|---|---|
+| `thermal_bc="flux"` | `T=a*x+0.5*b*x^2+0.5*c*y^2` (quadratic in every direction to avoid this codebase's known autograd second-derivative-of-a-zero-dependence limitation, same reason `test_manufactured_solutions.py`'s own exact solutions are never purely linear); target `q_heat=-k*dT/dn` at `x=1` | exact: loss `0.000e+00`; wrong (`q_heat=999`): loss `1.01e+06` |
+| `thermal_bc="convection"` | same T field, position-dependent `h` solved exactly per-point so `h*(T-T_ref)=-k*dT/dn` | exact: loss `0.000e+00`; wrong (`h`x5): loss `1.64e+08` |
+| `normal_stress_field` (`linear_elasticity_plane_stress`) | `ux,uy` quadratic-in-both-directions displacement field; target `p_internal=-sigma_xx(X)` computed exactly per-point from the closed-form stress (using the SAME plane-stress reduced `lambda*`) | exact: loss `0.000e+00`; wrong (`p=999`): loss `9.93e+05` |
+| `normal_stress_field` (`thermoelasticity_2d`, rocket_structural's real `pde_kind`) | same displacement field plus `T=T0+0.5*d*(x^2+y^2)`; target includes the thermal-strain correction | exact: loss `7.1e-14`; **target missing the thermal term**: loss `44.75` (proves the thermal branch is load-bearing, not a no-op) |
+
+### `car_brake_thermal` -- wired end-to-end
+
+`friction_surface`/`cooling_surface` now declare `thermal_bc` explicitly
+in `engineering.py` (`{"kind": "flux", ...}` / `{"kind": "convection",
+...}`); the box `TAG_GEOMETRY_FIXTURES` entry built and geometrically
+verified last pass (unchanged) is now wired into the dispatch table.
+Verified via `build_tag_batch`+`compile_problem`+`solve_pde()`: all 3
+non-`callable` conditions get non-degenerate masks
+(`friction_surface`=800 pts [both z-faces], `cooling_surface`=400 pts);
+real, finite, distinct per-tag losses at init (`pde=2.35,
+bc_friction_surface=4.00e12, bc_cooling_surface=5.51e8`) -- the huge
+`bc_friction_surface` value is exactly consistent with the untrained
+network's near-zero `dT/dn`, so the residual is dominated by
+`q_friction=2e6 W/m^2` squared (`(2e6)^2=4e12`, matching to 3 significant
+figures); `bc_cooling_surface` similarly consistent with
+`h_conv=80`/`T_ref=293` at a near-zero initial `T`. `test_full_library_
+matrix.py::test_audit_breadth_preset_trains_a_few_steps[car_brake_thermal]`
+now genuinely trains 3 real epochs through `solve_pde()` (previously
+skipped via `TagConditionsUnresolved`) -- **passes**. Moved from
+`NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` to `TAG_GEOMETRY_FIXTURES`.
+
+### `rocket_structural` -- wired end-to-end
+
+`inner_wall` now declares `normal_stress_field="p_normal"` explicitly in
+`engineering.py`; the annulus `TAG_GEOMETRY_FIXTURES` entry built and
+geometrically verified last pass (unchanged: real annulus from this
+preset's own `meta["inner_radius"]`/`meta["outer_radius"]`) is now wired
+into the dispatch table via a new `"annulus"` shape branch in
+`build_tag_batch` (reusing `sample_annulus_tag_batch`, already present
+and tested as standalone infrastructure since last pass).
+`T_inner`/`outer_wall`/`T_outer` share the same inner/outer rings as
+`inner_wall` (same 2 physical circles, different fields). Verified via
+`build_tag_batch`+`compile_problem`+`solve_pde()`: all 4 tags get 400
+non-degenerate points each; real, finite, distinct per-tag losses at init
+(`pde=2.16e25, bc_inner_wall=1.32e23, bc_outer_wall=0.056,
+bc_T_inner=639568, bc_T_outer=85690`) -- `bc_T_inner`/`bc_T_outer` land
+almost exactly on last pass's already-verified values for the SAME 3
+non-`inner_wall` tags (`639633`/`85709` then vs. `639568`/`85690` now,
+the tiny difference being random model-init noise only), confirming this
+pass's annulus wiring reproduces the prior, independently-verified
+geometry exactly, with `bc_inner_wall` now a real number instead of a
+`KeyError`. The `bc_inner_wall`/`pde` scale (`~1e23`/`~1e25`) is the same
+raw-SI-units category of finding as `aircraft_wing_structural`'s
+`E=70e9 Pa` note above (`rocket_structural`'s own `E=200e9 Pa`,
+`p_internal=10e6 Pa` are similarly unnormalized), not a defect in this
+fix. `test_full_library_matrix.py::test_audit_breadth_preset_trains_a_
+few_steps[rocket_structural]` now genuinely trains 3 real epochs through
+`solve_pde()` (previously skipped) -- **passes**. Moved from
+`NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` to `TAG_GEOMETRY_FIXTURES`.
+
+### Net tally for this pass
+
+All 3 items closed for real, each verified with either a closed-form
+proof (both new compiler mechanisms, 4/4 checks) or real non-degenerate
+per-tag losses confirmed running end-to-end through `solve_pde()`/
+`compile_problem` (all 3 presets), matching this line of work's
+established bar throughout. Updated running tally against the original
+40 tag-based presets: **32/40 now trained end-to-end with real geometry**
+(23 + 6 + 3), **8/40** remain `NOT_FIXABLE_WITHOUT_REAL_GEOMETRY` for a
+specific, individually-verified reason each (real fin/rack/hotspot/blade
+geometry this pass was not asked to fabricate; 4 of those 8's
+`thermal_bc`-related fields are now noted as compiler-ready, blocked on
+geometry alone).
+
+### Full-suite regression check (before/after, same method as the second and third passes)
+
+`pytest tests/ --deselect "tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"`,
+run at the clean pre-this-pass commit (`14e0a131`, via a separate
+`git worktree add --detach` checkout, same technique as both previous
+passes) and again at this pass's final commit, same environment.
+
+<!-- FULL_SUITE_NUMBERS_PLACEHOLDER -->

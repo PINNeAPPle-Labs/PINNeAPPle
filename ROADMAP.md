@@ -397,6 +397,72 @@ ponta a ponta com geometria real**; 11/40 seguem documentados como não
 consertáveis, cada um com motivo específico verificado (não suposto).
 Detalhes completos em `docs/dev/AUDIT_REPORT.md`.
 
+### Terceiro follow-up (2026-09-17): NACA 0012 padrão de literatura + 2 mecanismos novos de Neumann no compilador
+
+Decisão do dono do produto (Yan), não escolha desta passada: 3 pendências
+específicas da passada anterior. **As 3 fecharam de verdade.**
+
+1. **`aircraft_wing_aerodynamics`**: adicionado `naca_thickness: float =
+   0.12` (NACA 0012, perfil simétrico de 12% de espessura) como parâmetro
+   explícito e sobrescrevível do preset — documentado em toda parte
+   (docstring, `_curve_geometry.py`, `tag_geometry.py`) como **default de
+   literatura escolhido pelo dono do produto**, não algo inerente ao
+   preset original (que nunca teve parâmetro de espessura/código NACA,
+   exatamente como a passada anterior confirmou por inspeção). Geometria
+   real construída pela fórmula pública NACA 4 dígitos (`y_t =
+   5t(0.2969√x − 0.1260x − 0.3516x² + 0.2843x³ − 0.1015x⁴)`), nova função
+   `naca4_symmetric_polygon` reaproveitando os helpers genéricos
+   `polygon_perimeter_sample`/`polygon_contains` já existentes (sem
+   mudança neles). Verificado de ponta a ponta via `solve_pde()`: 4 tags
+   com pontos reais e não-degenerados (`farfield_inlet`, `farfield_outlet`,
+   `wake_outlet`, `airfoil`), perdas por tag reais e distintas no início
+   (`pde=4.65, bc_farfield_inlet=5189.5, bc_farfield_outlet=2.12,
+   bc_airfoil=0.088, bc_wake_outlet=3.81`), 2 das 4 tags convergem
+   visivelmente em 20 epochs.
+2. **`car_brake_thermal` (fluxo de calor/convecção)**: generalizado
+   `compile.py` com `ConditionSpec.thermal_bc` (`kind="flux"` →
+   `-k·dT/dn=q_heat`; `kind="convection"` → `-k·dT/dn=h·(T-T_ref)`),
+   mecanismo genérico (não hardcoded pro brake) que também resolve o
+   mesmo padrão `q_heat`/`h`/`T_ref` de `cpu_heatsink_thermal`,
+   `pcb_thermal`, `industrial_furnace_thermal` e os 3 `datacenter_*` — só
+   `car_brake_thermal` tinha geometria pronta pra usar (fixture da
+   passada anterior, só não estava no dispatch table). Verificado com
+   forma fechada (resíduo `~0` pro alvo exato, `~1e6`-`~1e8` pro errado,
+   em 2 casos) e de ponta a ponta: `friction_surface`/`cooling_surface`
+   com 800/400 pontos reais, perdas `bc_friction_surface=4.00e12`
+   (consistente com `q_friction=2e6` ao quadrado, rede não-treinada),
+   `bc_cooling_surface=5.51e8`. `test_full_library_matrix.py` agora treina
+   3 epochs reais pra esse preset (antes pulava via
+   `TagConditionsUnresolved`).
+3. **`rocket_structural` (pressão normal)**: generalizado `compile.py`
+   com `ConditionSpec.normal_stress_field` (contração escalar completa
+   `n^T·σ·n = -p_internal`, caminho novo, diferente do `traction_map`
+   componente-a-componente já existente) — precisou também estender
+   `_elasticity_stress_tensor` pro `pde_kind` real do preset
+   (`thermoelasticity_2d`, não uma das 3 elasticidades puras que
+   `traction_map` já cobria), incluindo a correção de deformação térmica
+   isotrópica (`eps_th=alpha_T·T·I`) que o resíduo interno já usa —
+   verificado que essa correção é realmente usada (alvo sem ela dá perda
+   `44.75` em vez de `~0`). Fixture anular da passada anterior
+   (`inner_radius`/`outer_radius` reais de `spec.meta`) agora conectada
+   via novo branch `"annulus"` em `build_tag_batch`. Verificado de ponta a
+   ponta: 4 tags com 400 pontos cada, perdas reais
+   (`bc_inner_wall=1.32e23`, `bc_outer_wall=0.056`, `bc_T_inner=639568`,
+   `bc_T_outer=85690` — os 2 últimos batem quase exatamente com os
+   valores já verificados na passada anterior pras mesmas 3 condições sem
+   `inner_wall`, confirmando que a geometria não mudou, só o `inner_wall`
+   virou um número real em vez de erro).
+
+Suite completa (`pytest tests/`, `14e0a131` limpo vs. este commit, mesmo
+ambiente): <!-- FULL_SUITE_NUMBERS_PLACEHOLDER_PT -->
+
+Tally atualizado contra os 40 originais: **32/40 (23+6+3) agora treinam
+de ponta a ponta com geometria real**; 8/40 seguem documentados como não
+consertáveis (geometria real de aleta/rack/hotspot/pá que esta passada
+não foi autorizada a fabricar — 4 deles já têm o campo `thermal_bc`
+pronto pro compilador, só falta geometria). Detalhes completos em
+`docs/dev/AUDIT_REPORT.md`.
+
 ### PhysicsNeMo Backbone Swap
 **Projeto novo.** Avaliar/trocar o NVIDIA PhysicsNeMo como backbone dos
 surrogates CFD do ChordIQ (mixing-tank, cloramina), comparando contra a

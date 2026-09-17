@@ -486,7 +486,7 @@ CHOSEN_CONVENTIONS: Dict[str, str] = {
         "TAG_GEOMETRY_FIXTURES comment -- it is a chosen default value, "
         "exactly like linear_elasticity_3d/plane_stress_2d's 'fixed'/'load' "
         "convention above. 'wake_outlet' -> the same x=max face as "
-        "'farfield_outlet' is also a chosen convention, not preset text --\n"
+        "'farfield_outlet' is also a chosen convention, not preset text -- "
         "see this preset's own TAG_GEOMETRY_FIXTURES entry for the reasoning."
     ),
 }

@@ -76,11 +76,23 @@ def _grid_coords(shape_lengths):
 
 
 @pytest.fixture(autouse=True)
-def _float64():
-    prev = torch.get_default_dtype()
+def _float64_cpu():
+    """float64 (for tight truncation-error comparisons) is not supported by
+    the MPS backend -- explicitly pin the default device to CPU for the
+    duration of these tests, in addition to the dtype, so they're immune to
+    whatever ambient `torch.set_default_device(...)` state an earlier test
+    in the full suite may have left behind (observed in practice: some
+    earlier test in a full `pytest tests/` run leaves the global default
+    device set to "mps", which breaks any later bare `torch.arange(...,
+    dtype=torch.float64)` call -- a pre-existing, unrelated test-isolation
+    gap this fixture works around rather than relying on suite-wide state)."""
+    prev_dtype = torch.get_default_dtype()
+    prev_device = torch.get_default_device()
     torch.set_default_dtype(torch.float64)
+    torch.set_default_device("cpu")
     yield
-    torch.set_default_dtype(prev)
+    torch.set_default_device(prev_device)
+    torch.set_default_dtype(prev_dtype)
 
 
 def test_gradient_backends_agree_laplace_2d():

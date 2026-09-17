@@ -361,20 +361,32 @@ class STLDomainBatchBuilder:
 
             masks[f"mask_{cond.name}"] = m
 
-            if cond.kind == "dirichlet":
-                if np.any(m):
-                    X_sel = Xb[m]
-                    vals = cond.values(X_sel, ctx_local)
-                    vals = np.asarray(vals, dtype=np.float32)
-                    if vals.ndim == 1:
-                        vals = vals[:, None]
+            # Fill y_bc for every condition kind that carries a target value
+            # (dirichlet, neumann, robin), not just dirichlet. compile.py's
+            # loss_fn (pinneapple_physics/pinn_solver/compiler/compile.py)
+            # uses whatever is in batch["y_bc"] as the target for ANY
+            # condition kind once y_bc is supplied at all -- it only calls
+            # cond.values() itself when y_bc is entirely absent (the
+            # solve_pde() auto-sampling path). Leaving Neumann/Robin targets
+            # as NaN here would silently feed NaN targets into their loss
+            # once a caller supplies y_bc for other (e.g. dirichlet) tags in
+            # the same batch. See
+            # pinneapple_design/geometry/builders/analytic_domain_batch_builder.py's
+            # `_apply_conditions` docstring for the same finding, made while
+            # building this repo's real-geometry preset fixtures.
+            if np.any(m):
+                X_sel = Xb[m]
+                vals = cond.values(X_sel, ctx_local)
+                vals = np.asarray(vals, dtype=np.float32)
+                if vals.ndim == 1:
+                    vals = vals[:, None]
 
-                    for j, fname in enumerate(cond.fields):
-                        if fname not in spec.fields:
-                            ctx_local.setdefault("warnings", []).append(f"Condition '{cond.name}' refers to unknown field '{fname}'.")
-                            continue
-                        idx = list(spec.fields).index(fname)
-                        y_bc[m, idx] = vals[:, j]
+                for j, fname in enumerate(cond.fields):
+                    if fname not in spec.fields:
+                        ctx_local.setdefault("warnings", []).append(f"Condition '{cond.name}' refers to unknown field '{fname}'.")
+                        continue
+                    idx = list(spec.fields).index(fname)
+                    y_bc[m, idx] = vals[:, j]
 
         ctx.update(ctx_local)
         return y_bc, masks

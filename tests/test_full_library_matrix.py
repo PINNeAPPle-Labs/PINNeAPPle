@@ -191,13 +191,13 @@ def test_audit_breadth_preset_trains_a_few_steps(name):
         "modified_mlp", in_dim=len(spec.coords), out_dim=len(spec.fields), hidden_dim=16, n_layers=3,
     )
 
-    # 24 (of 40) selector_type="tag" presets have a real-geometry fixture
+    # 23 (of 40) selector_type="tag" presets have a real-geometry fixture
     # (an analytic box/cylinder batch whose faces are a mechanical
     # translation of each preset's own docstring/comments -- see
     # tag_geometry.py's module docstring for the full per-preset
     # justification and docs/dev/AUDIT_REPORT.md for the tally). Build it
     # and pass it through so these presets train for real instead of
-    # skipping via _needs_real_geometry_for_tags below. The remaining 16
+    # skipping via _needs_real_geometry_for_tags below. The remaining 17
     # (real airfoil/car-body/furnace/blade/... geometry, or an
     # unlocated-face ambiguity like "fixed"/"load") have no fixture and
     # correctly keep raising TagConditionsUnresolved -> skip.

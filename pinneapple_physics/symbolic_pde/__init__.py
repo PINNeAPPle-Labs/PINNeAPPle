@@ -31,12 +31,17 @@ Quick start::
 
 from .compiler import SymbolicPDE, auto_residual, pde_from_sympy
 from .bc import DirichletBC, HardBC, MultiPeriodicBC, NeumannBC, PeriodicBC
+from .gradient_backends import GradMethod, GridAxisSpec, grid_derivative
 
 __all__ = [
     # Compiler
     "SymbolicPDE",
     "pde_from_sympy",
     "auto_residual",
+    # Pluggable gradient backends (grad_method="autograd" | "finite_difference" | "spectral")
+    "GradMethod",
+    "GridAxisSpec",
+    "grid_derivative",
     # Boundary conditions
     "HardBC",
     "PeriodicBC",

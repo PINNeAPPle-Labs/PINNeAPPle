@@ -27,11 +27,19 @@ jobs:
       - name: Tier B — manufactured-solution physics-correctness tests (must pass)
         run: pytest tests/test_manufactured_solutions.py -q
 
+      # `continue-on-error: true` (not `|| true` in the shell command) is
+      # deliberate: it keeps the workflow from blocking on pre-existing,
+      # untriaged failures (see AUDIT_REPORT.md) while still reporting
+      # this step's real pass/fail status in the GitHub UI (a yellow
+      # warning, not a false green checkmark) -- `|| true` was hiding
+      # regressions by always exiting 0, this doesn't.
       - name: Tier A — full-library breadth audit (informational; see AUDIT_REPORT.md)
-        run: pytest tests/test_full_library_matrix.py -q --tb=line || true
+        run: pytest tests/test_full_library_matrix.py -q --tb=line
+        continue-on-error: true
 
-      - name: Rest of the test suite
-        run: pytest tests/ -q --ignore=tests/test_full_library_matrix.py --ignore=tests/test_manufactured_solutions.py || true
+      - name: Rest of the test suite (pre-existing failures not yet triaged — see AUDIT_REPORT.md)
+        run: pytest tests/ -q --ignore=tests/test_full_library_matrix.py --ignore=tests/test_manufactured_solutions.py
+        continue-on-error: true
 
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py

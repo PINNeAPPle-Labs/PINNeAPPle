@@ -1,0 +1,14 @@
+# Enforces the ruff config already declared in pyproject.toml
+# ([tool.ruff]) -- those settings existed as an unenforced dependency
+# before this file; this is what actually runs them before a commit.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.8
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+# Install with: pip install pre-commit && pre-commit install
+# Run on the whole repo once (existing debt won't block new commits
+# unless you also run this manually): pre-commit run --all-files

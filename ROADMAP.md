@@ -566,6 +566,30 @@ natural dessa mesma descoberta. Módulo relacionado:
 `pinneapple_neural.trainer` + `pinneapple_tools.compute_backends` (já tem
 backend JAX, onde o Optimistix vive nativamente).
 
+### `grad_method` pluggável em `SymbolicPDE` (autograd/finite_difference/spectral) (2026-09-17)
+**Já corrigido/implementado.** Insight importado do PhysicsNeMo
+(`physicsnemo-notes/insights-to-import-into-pinneapple.md`, seções 2-3):
+separar "o que é a PDE" (SymPy, já existia) de "como calcular a derivada
+dado o formato do dado" (autograd vs. grade). `pinneapple_physics/
+symbolic_pde/compiler.py::SymbolicPDE` ganhou `grad_method` (default
+`"autograd"`, comportamento 100% preservado — não alterei uma linha do
+código antigo, só adicionei um `to_grid_residual_fn` irmão) reaproveitando
+de verdade a lógica de FD/espectral já real em `pinneapple_neural/
+architectures/neural_operators/pino.py` (import lazy, sem custo pra quem
+usa o default). **Correção de premissa relevante**: o doc de insights
+afirmava que `SymbolicPDE` alimenta o catálogo de 65 presets — não
+alimenta; o catálogo real passa por `pinn_solver/compiler/compile.py`
+(dispatch por string `kind`, engine totalmente separada, não tocada aqui).
+Validado comparando os 3 backends nos mesmos kinds reais (`laplace`,
+`burgers`, `reaction_diffusion_2d`) — spectral bate com autograd a ~1e-13,
+FD a ~1e-3..1e-4 (O(dx²), como esperado). Suite completa antes/depois:
+1732→1737 testes (5 novos, todos passando), **zero mudança nos 75
+failed/163 skipped/1 xfail pré-existentes** (nomes dos testes que falham
+conferidos byte a byte, não só a contagem). Detalhes completos, incluindo
+um bug real e não-relacionado de vazamento de `torch` default device
+("mps") encontrado (e contornado, não corrigido — fora do escopo) durante
+a rodada de testes, em `docs/dev/AUDIT_REPORT.md`.
+
 ---
 
 ## 4. Simulação em escala / CFD industrial

@@ -1760,3 +1760,177 @@ Ollama call), this pass's diff is exactly and only the 3 expected flips,
 nothing else moved in either direction. `FAILED`/`ERROR` counts are
 bit-for-bit identical before and after (74/39), confirming this pass
 touched nothing in the pre-existing failure/error set.
+
+## Fifth pass: pluggable gradient backend for `SymbolicPDE` (2026-09-17)
+
+**New feature, not a bugfix** -- imported from a PhysicsNeMo insights note
+(`physicsnemo-notes/insights-to-import-into-pinneapple.md`, sections 2-3):
+PhysicsNeMo separates "what is the PDE" (`PDE`, a symbolic dict) from "how
+is a derivative computed given the data's shape" (`PhysicsInformer(
+grad_method=...)`, pluggable autodiff/finite-difference/spectral/mesh
+backends). The insights note claimed PINNeAPPle's `pinneapple_physics/
+symbolic_pde/compiler.py::SymbolicPDE` (hardcoded to autograd) is what
+feeds the ~65-preset catalog, with `pinneapple_neural/architectures/
+neural_operators/pino.py` holding an isolated, disconnected FD/spectral
+implementation.
+
+**Premise correction, found by reading the real code before writing
+anything**: `SymbolicPDE` does **not** feed the registered preset catalog.
+The catalog (`pde_environment/presets/registry.py` -> `PDETermSpec(kind=
+"...", ...)`) is compiled by a completely different, string-`kind`-
+dispatched engine, `pinneapple_physics/pinn_solver/compiler/compile.py::
+compile_problem` (2569 lines, hand-written per-PDE-kind residuals over
+`autograd_ops.py`'s `grad`/`laplacian`/`divergence`/`time_derivative`
+primitives) -- confirmed by tracing `laplace_2d_default()` and
+`burgers_1d_default()` in `academics.py` through to their `compile.py`
+branches, and by grepping every `SymbolicPDE` call site in the repo
+(`preset_authoring.py`, `worldmodel/{generate_datasets,dataset_factory}.py`,
+`examples/pinn_solver/03_symbolic_pde_hard_bc.py`, `templates/
+02_symbolic_pde.py`) -- none of them is the registered-preset path.
+`SymbolicPDE` is a separate, parallel SymPy-authoring bridge. The
+underlying architectural point from the insights note still holds (autograd
+is hardcoded on one side, FD/spectral sits isolated on the other), just not
+via the specific file the note named as the catalog's engine.
+
+Given that, the pluggable interface was built where the note said to build
+it (`SymbolicPDE`, since that actually is a real, reused SymPy-based
+compiler with its own derivative-op extractor already in place) rather than
+retrofitting the unrelated 2569-line `compile_problem` engine, which was
+explicitly out of scope ("não quebre nada que já funciona" -- touching the
+32/40-tag-preset engine from the prior 4 passes was not worth the risk for
+a docs-note premise that didn't hold up).
+
+### What was built
+
+- **Reused, not rewritten**: `_extract_derivative_ops`/`_DerivativeOp`
+  (compiler.py's existing SymPy `Derivative`-tree walker) is unchanged and
+  now shared across all three backends. `pino.py`'s `fd_derivative`/
+  `spectral_derivative` (already real, already used by the `PhysicsInformedNeuralOperator`
+  wrapper) are called directly, not reimplemented.
+- **New**: `pinneapple_physics/symbolic_pde/gradient_backends.py` --
+  `GridAxisSpec` (maps SymPy coordinate names to grid tensor axes/extents)
+  and `grid_derivative()` (composes `pino.py`'s single-axis primitives into
+  arbitrary-order/mixed partial derivatives, e.g. `u_xx`, `u_xy`).
+- **`SymbolicPDE.__init__`** gained `grad_method: Literal["autograd",
+  "finite_difference", "spectral"] = "autograd"` and `grid:
+  Optional[GridAxisSpec] = None`. Default unchanged, verified two ways: (a)
+  the original `to_residual_fn`/`_eval_expr_torch` code was not edited at
+  all -- a new sibling function, `_eval_expr_torch_grid`, handles the grid
+  case instead of parameterizing the existing one, specifically so the
+  autograd path has zero lines touched; (b) a direct regression test
+  (`test_default_grad_method_autograd_unchanged_manufactured_solution`)
+  reproduces the module's own Laplace manufactured-solution check through
+  `SymbolicPDE` and confirms residual `< 1e-8` for the exact harmonic
+  solution, same as before this change existed.
+- **New**: `SymbolicPDE.to_grid_residual_fn()` -- the finite-difference/
+  spectral sibling of `to_residual_fn(model)`: takes pre-computed
+  grid-shaped field tensors (the natural output shape of a neural operator
+  like an FNO) instead of a `model` callable differentiated via autograd.
+- **Lazy import**: `pino.py`'s import (which transitively triggers
+  `pinneapple_neural`'s ~25-model-family architecture registry via
+  `register_all()`) is deferred to inside `grid_derivative()`, not at
+  module load time -- confirmed `import pinneapple_physics.symbolic_pde`
+  does not put `pinneapple_neural` in `sys.modules` unless a grid-based
+  backend is actually invoked, so the default (autograd) path pays zero
+  extra import cost.
+- Both misuse paths raise clear errors instead of silently misbehaving:
+  building a grid-mode instance without a `grid`, or calling
+  `to_residual_fn`/`to_grid_residual_fn` with the wrong `grad_method`
+  (`test_grad_method_validation_errors`).
+
+### Cross-backend consistency, real numbers (not fabricated)
+
+`tests/test_gradient_backend_consistency.py` runs the SAME symbolic
+residual for 3 real preset PDE *kinds* -- matched line-for-line against
+`compile.py`'s own residual formulas and, for 2 of the 3, against
+`test_manufactured_solutions.py`'s own parameter choices (`laplace_2d`:
+u_xx+u_yy; `reaction_diffusion_2d`: C_t - D*(C_xx+C_yy) + lambda*C, D=0.5,
+lambda=0.3; `burgers_1d`: u_t + u*u_x - nu*u_xx, nu=0.01, matching
+`burgers_1d_default`'s own default) -- through all 3 backends on a shared
+smooth, periodic-compatible probe field (deliberately chosen so the
+FFT-based spectral backend's implicit periodicity assumption holds; these
+probe fields generally do NOT solve the PDE -- that is not the point of
+this check, see the test file's module docstring for why a probe-field
+derivative-agreement check is a different, complementary thing to a
+manufactured-solution check).
+
+Actual measured agreement (float64, 64x64 grid for the 2D cases, 32^3 for
+the 3D case), autograd (differentiating the closed-form analytic function)
+taken as ground truth:
+
+| Case | spectral vs. autograd (mean abs diff) | finite_difference vs. autograd (mean abs diff) | residual magnitude (mean abs) |
+|---|---|---|---|
+| laplace_2d | 5.4e-13 | 7.8e-3 | ~9.6 |
+| burgers_1d | 1.1e-15 | 2.5e-4 | ~0.15 |
+| reaction_diffusion_2d | 1.0e-13 | 3.8e-3 | ~1.2 |
+
+Matches theory exactly: spectral differentiation of a periodic sinusoid on
+a matching-period domain is exact to floating-point roundoff; finite
+difference is 2nd-order accurate, so its error scales with `dx^2` (here
+`dx=1/64` -> `dx^2~2.4e-4`, consistent with the observed `1e-4..1e-2`
+range against residual magnitudes of order 1). Test tolerances were set
+with margin above these measured values, not guessed in advance.
+
+### A real, pre-existing, unrelated bug found and worked around (not fixed, out of scope)
+
+The first full-suite run with the 5 new tests showed all 5 failing --
+despite passing standalone -- with `TypeError: Cannot convert a MPS Tensor
+to float64 dtype`. Root cause: some earlier test in the full suite leaves
+`torch`'s global default device set to `"mps"` (confirmed by reproducing
+directly: `torch.set_default_device("mps")` then running the new test file
+alone reproduces the identical failure), and this repo's Mac test
+environment has MPS available, which does not support `float64` at all.
+Grepped the entire repository (excluding `.venv`) for
+`set_default_device`/`with torch.device(` and found zero call sites in
+this codebase's own source -- the leak originates outside this session's
+diff and outside this task's scope (some other test or a dependency, not
+identified further; fixing it would be a separate, unrelated audit item).
+The new tests were made immune instead: the autouse fixture now also pins
+`torch.set_default_device("cpu")` for its duration (restoring whatever was
+there before) in addition to `float64`, which is the correct thing to do
+regardless of the leak's cause.
+
+### Full-suite regression check (before/after, same method as prior passes)
+
+`pytest tests/ -q --no-header -rN` (no deselect needed this pass), baseline
+at the clean pre-this-pass commit `69117744` via a separate `git worktree
+add --detach` checkout (removed after use), and again at this pass's final
+commit, same `.venv`.
+
+**Same methodology note as prior passes applies again, with one addition**:
+this pytest configuration prints no final `passed/failed/error/skipped`
+tally line, so status counts were reconstructed from the dot-progress
+stream; this session additionally found that the *last* progress line
+(whichever one is short, e.g. `"...."`) is right-padded with enough spaces
+to align the `[100%]` column, which silently dropped up to 3 trailing
+result characters from a naive single-space regex -- fixed with a
+variable-whitespace regex and cross-checked against `--collect-only`'s
+authoritative total test-ID count (`grep -c "::"` on the full, non-`-q`
+listing) until they matched exactly for both runs.
+
+| | Before (`69117744`) | After (this pass) |
+|---|---|---|
+| Passed | 1493 | 1498 |
+| Failed | 75 | 75 |
+| Error | 0 | 0 |
+| Skipped | 163 | 163 |
+| xfail | 1 | 1 |
+| Total | 1732 | 1737 |
+
+**Exactly 5 tests added, all passing, zero pre-existing tests changed
+status** -- the `FAILED` test-name set was diffed (not just counted) between
+both runs and is byte-for-byte identical (75 names, `diff` exit code 0).
+The 5 new passes are exactly the 5 tests in the new file:
+
+```
+tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d
+tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_burgers_1d
+tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_reaction_diffusion_2d
+tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution
+tests/test_gradient_backend_consistency.py::test_grad_method_validation_errors
+```
+
+**Zero regressions, zero unexplained changes** -- the pre-existing 75
+failed / 163 skipped / 1 xfail / 0 error counts are bit-for-bit identical
+before and after, and the actual failing test names match exactly, not
+just the counts.

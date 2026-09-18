@@ -530,6 +530,49 @@ cloramina. Fonte: arXiv — ATHENA. Módulo relacionado:
 `pinneapple_llm.guardrail.PhysicsGuardrail` já fazem parte disso — este
 projeto fecha o ciclo com correção automática, não só detecção.
 
+### Geometry OOD guardrail no trust_gate -- CONCLUÍDO (2026-09-18)
+**Item fechado**, originado de uma investigação cruzada real com o
+PhysicsNeMo (`physicsnemo-notes/insights-to-import-into-pinneapple.md`,
+seção 7a): o PhysicsNeMo tem um guardrail real de OOD geométrico
+(`physicsnemo/experimental/guardrails/geometry/`, ~3561 linhas) que
+sinaliza quando uma geometria de entrada foge da distribuição de formas
+vista no treino -- extração de features de forma + modelo de densidade
+(GMM/PCE) + classificação OK/WARN/REJECT. O sistema de confiança do
+PINNeAPPle (`trust_gate.py`/`physics_confidence_score.py`/
+`evidence_graph.py`) não tinha esse sinal especificamente --
+`geometry_intelligence.py` resolve um problema adjacente mas diferente
+(classificação semântica de região/BC, não detecção de anomalia de
+forma). Implementado em
+`pinneapple_analysis/verification/geometry_ood_guardrail.py`: 13
+features geométricas reais (centróide, extensão de bbox, autovalores
+PCA, área de superfície, volume de bbox, aspect ratio, proxy de
+curvatura), reaproveitando `MeshData`/`compute_curvature_proxy` já
+existentes, mais uma distância de Mahalanobis diagonal (não uma GMM/PCE
+completa -- decisão de escopo explícita, documentada no docstring do
+módulo: o catálogo de geometria atual do PINNeAPPle ainda não tem dados
+suficientes por preset para justificar uma covariância completa) +
+`scipy.stats.chi2.sf`, o mesmo recurso estatístico que
+`TrustGate._ood_score` já usa para OOD no espaço de coordenadas.
+Integrado como 5º componente de `PhysicsConfidenceScore`
+(`N_POSSIBLE_COMPONENTS` 4→5); `evidence_graph.py` passou a consumir o
+novo componente sem nenhuma mudança de código (itera genericamente sobre
+`confidence.components`). Verificado de verdade: uma caixa
+`(1.5, 1.2, 0.9)` dentro do catálogo de referência (48 malhas reais de
+caixa/cilindro/canal via `build_mesh()`) pontua p=0.998 (OK); uma caixa
+extrema `(500, 0.001, 0.001)` pontua p≈0 (REJECT), com
+`aspect_ratio`/`pca_eigenvalue_1` corretamente apontados como os
+motivos. Suite completa (`pytest tests/`, `69117744` limpo vs. este
+commit, mesmo ambiente, extra opcional `trimesh`/`geom` instalado para os
+dois lados): collected 1691→1711, passed 1375→1394, failed 78→79 (o
+único delta: um teste que dependia de "4 componentes = cobertura total"
+foi dividido em 2, ambos falhando pelo MESMO bug de ambiente
+pré-existente, não relacionado — PyTorch deixando o device default em
+"mps" a partir de um teste anterior da suite, o que já quebrava 2 outros
+testes de calibração antes desta sessão também), error 40→40 idêntico,
+skipped 197→197 idêntico. Diff completo dos IDs FAILED/ERROR mostra
+exatamente essa 1 mudança esperada, nada mais. Ver `docs/dev/
+AUDIT_REPORT.md` para a análise completa.
+
 ### Paper-to-Repro Benchmark Suite
 **Projeto novo.** Pipeline que extrai método e resultados numéricos de
 papers do arXiv e usa um agente tipo ATHENA para reproduzi-los, virando um

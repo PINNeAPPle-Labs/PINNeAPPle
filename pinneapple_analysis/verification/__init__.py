@@ -134,6 +134,20 @@ evidence_graph
     PINNeAPPle's general physics knowledge; this one builds a DIFFERENT
     graph per run, grounded only in that run's own already-computed
     evidence, never re-deriving or fabricating a new verdict.
+
+geometry_ood_guardrail
+    Is the input geometry itself the kind of shape a model/preset was ever
+    trained or validated on? Real shape-feature extraction (centroid, bbox
+    extent, PCA eigenvalues, surface area, aspect ratio, curvature proxy)
+    plus a diagonal-Mahalanobis-distance density check
+    (``GeometryOODGuardrail.fit()``/``.query()``) against a real reference
+    set of geometries, feeding a fifth ``PhysicsConfidenceScore`` component
+    (``geometry_ood``). Distinct from ``geometry_intelligence`` -- that
+    module does semantic region/BC classification of a mesh's surfaces;
+    this one asks whether the whole shape is anomalous. Concept adapted
+    (not copied) from NVIDIA PhysicsNeMo's experimental geometry guardrail
+    -- see the module's own docstring for the full design and its
+    documented scope decision (diagonal Mahalanobis, not a full GMM/PCE).
 """
 from __future__ import annotations
 
@@ -227,6 +241,13 @@ from pinneapple_analysis.verification.evidence_graph import (
     evidence_summary,
     explain_trust,
 )
+from pinneapple_analysis.verification.geometry_ood_guardrail import (
+    FEATURE_NAMES as GEOMETRY_OOD_FEATURE_NAMES,
+    extract_geometry_features,
+    GeometryOODResult,
+    GeometryOODGuardrail,
+    default_reference_meshes,
+)
 
 __all__ = [
     # dimensional_analysis
@@ -307,4 +328,10 @@ __all__ = [
     "build_evidence_graph",
     "evidence_summary",
     "explain_trust",
+    # geometry_ood_guardrail
+    "GEOMETRY_OOD_FEATURE_NAMES",
+    "extract_geometry_features",
+    "GeometryOODResult",
+    "GeometryOODGuardrail",
+    "default_reference_meshes",
 ]

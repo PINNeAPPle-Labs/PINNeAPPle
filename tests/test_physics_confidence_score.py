@@ -40,6 +40,10 @@ from pinneapple_analysis.uncertainty.calibration import CalibrationMetrics
 from pinneapple_llm.guardrail import CheckResult, GuardrailReport
 from pinneapple_data.physics_case import PhysicsCase
 from pinneapple_pdb.benchmarks import get_benchmark
+from pinneapple_analysis.verification.geometry_ood_guardrail import (
+    GeometryOODGuardrail,
+    default_reference_meshes,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -119,6 +123,27 @@ def _real_benchmark_comparison_wrong():
     }
     case = PhysicsCase(reference_benchmark="lane_emden_n1.5", results=results)
     return case.validate_against_benchmark()
+
+
+def _real_geometry_ood_result_in_distribution():
+    """Real GeometryOODGuardrail fit on the module's own real default
+    reference catalog (48 real box/cylinder/channel meshes), queried with a
+    box similar in size/shape to that reference distribution."""
+    from pinneapple_design.geometry.gen.primitives import build_mesh
+
+    guardrail = GeometryOODGuardrail().fit(default_reference_meshes())
+    return guardrail.query(build_mesh("box", extents=(1.5, 1.2, 0.9)))
+
+
+def _real_geometry_ood_result_far_out():
+    """Same real reference catalog, queried with a genuinely anomalous
+    shape (extreme 500:0.001:0.001 aspect ratio, several orders of
+    magnitude outside every reference box/cylinder/channel's own extent
+    range)."""
+    from pinneapple_design.geometry.gen.primitives import build_mesh
+
+    guardrail = GeometryOODGuardrail().fit(default_reference_meshes())
+    return guardrail.query(build_mesh("box", extents=(500.0, 0.001, 0.001)))
 
 
 # ---------------------------------------------------------------------------
@@ -300,6 +325,46 @@ def test_benchmark_component_nan_relative_error_raises_instead_of_fabricating():
 
 
 # ---------------------------------------------------------------------------
+# 1 component: geometry_ood alone
+# ---------------------------------------------------------------------------
+
+def test_geometry_ood_component_in_distribution_scores_high():
+    pytest.importorskip("trimesh")
+    result = _real_geometry_ood_result_in_distribution()
+    assert result.status == "OK"
+    confidence = compute_physics_confidence(geometry_ood_result=result)
+    comp = confidence.components[0]
+    assert comp.name == "geometry_ood"
+    assert comp.score == pytest.approx(result.score)
+    assert comp.score > 0.5
+    assert confidence.coverage == pytest.approx(1 / N_POSSIBLE_COMPONENTS)
+    assert "status=OK" in comp.source_summary
+
+
+def test_geometry_ood_component_far_out_scores_low():
+    pytest.importorskip("trimesh")
+    result = _real_geometry_ood_result_far_out()
+    assert result.status == "REJECT"
+    confidence = compute_physics_confidence(geometry_ood_result=result)
+    comp = confidence.components[0]
+    assert comp.score == pytest.approx(result.score)
+    assert comp.score < 0.5
+    assert "status=REJECT" in comp.source_summary
+
+
+def test_geometry_ood_component_genuinely_differentiates_normal_from_anomalous():
+    """The load-bearing check for this component: a real in-distribution
+    geometry and a real, genuinely different geometry against the SAME
+    fitted reference set must not produce the same score."""
+    pytest.importorskip("trimesh")
+    in_dist = _real_geometry_ood_result_in_distribution()
+    far_out = _real_geometry_ood_result_far_out()
+    assert in_dist.score > far_out.score
+    assert in_dist.score > 0.9
+    assert far_out.score < 0.01
+
+
+# ---------------------------------------------------------------------------
 # 2 components
 # ---------------------------------------------------------------------------
 
@@ -325,10 +390,15 @@ def test_two_components_ordering_is_fixed_regardless_of_kwarg_order():
 
 
 # ---------------------------------------------------------------------------
-# All 4 components
+# All 4 original components (now partial), and all 5 (full coverage)
 # ---------------------------------------------------------------------------
 
-def test_all_four_components_full_coverage():
+def test_all_four_original_components_is_partial_coverage_now():
+    """Regression guard for the geometry_ood component's addition: the
+    four checks that used to constitute "full coverage" (before this
+    session added a fifth) now correctly report 4/5, never silently
+    still claiming 1.0 -- coverage must track N_POSSIBLE_COMPONENTS
+    exactly, not a stale assumption baked into a test."""
     report = _real_guardrail_report_all_pass()
     convergence = _real_convergence_result_asymptotic()
     calibration = _real_calibration_summary_well_calibrated()
@@ -341,12 +411,36 @@ def test_all_four_components_full_coverage():
         benchmark_comparison=comparison,
     )
 
-    assert result.coverage == pytest.approx(1.0)
     assert len(result.components) == 4
     assert [c.name for c in result.components] == [
         "physics_guardrail", "numerical_convergence", "uq_calibration", "benchmark_agreement",
     ]
-    expected_mean = sum(c.score for c in result.components) / 4
+    assert result.coverage == pytest.approx(4 / N_POSSIBLE_COMPONENTS)
+    assert result.coverage < 1.0
+
+
+def test_all_five_components_full_coverage():
+    pytest.importorskip("trimesh")
+    report = _real_guardrail_report_all_pass()
+    convergence = _real_convergence_result_asymptotic()
+    calibration = _real_calibration_summary_well_calibrated()
+    comparison = _real_benchmark_comparison_close()
+    geometry_ood = _real_geometry_ood_result_in_distribution()
+
+    result = compute_physics_confidence(
+        guardrail_report=report,
+        convergence_result=convergence,
+        calibration_metrics=calibration,
+        benchmark_comparison=comparison,
+        geometry_ood_result=geometry_ood,
+    )
+
+    assert result.coverage == pytest.approx(1.0)
+    assert len(result.components) == 5
+    assert [c.name for c in result.components] == [
+        "physics_guardrail", "numerical_convergence", "uq_calibration", "benchmark_agreement", "geometry_ood",
+    ]
+    expected_mean = sum(c.score for c in result.components) / N_POSSIBLE_COMPONENTS
     assert result.overall_score == pytest.approx(expected_mean)
     assert 0.0 <= result.overall_score <= 1.0
 
@@ -357,23 +451,26 @@ def test_all_four_components_full_coverage():
 
 
 def test_coverage_reflects_partial_availability_distinctly_from_full():
-    """The load-bearing honesty check: a score built from 1/4 checks must
+    """The load-bearing honesty check: a score built from 1/5 checks must
     report a different (lower) coverage than the same-valued score built
-    from 4/4 checks -- coverage must never be silently dropped or
+    from 5/5 checks -- coverage must never be silently dropped or
     conflated with overall_score."""
+    pytest.importorskip("trimesh")
     report_all_pass = _real_guardrail_report_all_pass()
     partial = compute_physics_confidence(guardrail_report=report_all_pass)
     assert partial.overall_score == pytest.approx(1.0)
-    assert partial.coverage == pytest.approx(0.25)
+    assert partial.coverage == pytest.approx(1 / N_POSSIBLE_COMPONENTS)
 
     convergence = _real_convergence_result_asymptotic()
     calibration = CalibrationSummary(ece=0.0)
     comparison = _real_benchmark_comparison_close()
+    geometry_ood = _real_geometry_ood_result_in_distribution()
     full = compute_physics_confidence(
         guardrail_report=report_all_pass,
         convergence_result=convergence,
         calibration_metrics=calibration,
         benchmark_comparison=comparison,
+        geometry_ood_result=geometry_ood,
     )
     assert full.coverage == pytest.approx(1.0)
     # Both scores are near 1.0 here, but coverage tells them apart -- that is

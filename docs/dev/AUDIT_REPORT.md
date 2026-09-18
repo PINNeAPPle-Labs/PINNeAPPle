@@ -1934,3 +1934,161 @@ tests/test_gradient_backend_consistency.py::test_grad_method_validation_errors
 failed / 163 skipped / 1 xfail / 0 error counts are bit-for-bit identical
 before and after, and the actual failing test names match exactly, not
 just the counts.
+
+## Geometry OOD guardrail: a real gap from the PhysicsNeMo comparison, closed (2026-09-18)
+
+**The finding this closes**, from a separate cross-repo research pass
+(`physicsnemo-notes/insights-to-import-into-pinneapple.md`, section 7a,
+real code read on both sides, no code ported): NVIDIA PhysicsNeMo ships an
+experimental geometry guardrail
+(`physicsnemo/experimental/guardrails/geometry/`, ~3561 lines, Apache-2.0)
+that flags a CAD/mesh geometry as out-of-distribution (OOD) relative to
+the shapes a model was trained on -- shape-feature extraction + a density
+model (GMM or Polynomial Chaos Expansion) + OK/WARN/REJECT percentile
+classification. PINNeAPPle's trust/verification stack
+(`trust_gate.py`/`physics_confidence_score.py`/`evidence_graph.py`, 6969
+lines, larger than PhysicsNeMo's own guardrails module) had no equivalent
+signal -- `pinneapple_analysis.verification.geometry_intelligence` sounds
+adjacent but solves a different problem (semantic region/BC
+classification, not whole-shape anomaly detection). This was a real,
+confirmed gap, not a duplication.
+
+### What was built
+
+New `pinneapple_analysis/verification/geometry_ood_guardrail.py`
+(`GeometryOODGuardrail`/`GeometryOODResult`/`extract_geometry_features`/
+`default_reference_meshes`):
+
+- **Feature extraction**: 13 real shape descriptors (centroid, bbox
+  extent, 3 PCA eigenvalues of the vertex covariance, surface area, bbox
+  volume, aspect ratio, mean curvature proxy), reusing existing
+  infrastructure (`pinneapple_design.geometry.core.mesh.MeshData`,
+  `pinneapple_design.geometry.ops.features.compute_curvature_proxy`)
+  rather than reimplementing mesh feature extraction from scratch.
+- **Density model -- a deliberate, documented scope decision**: a
+  diagonal Mahalanobis distance (per-feature z-score sum-of-squares) +
+  `scipy.stats.chi2.sf`, NOT a full covariance / GMM / PCE. This is the
+  exact same statistical recipe `pinneapple_analysis.trust.trust_gate
+  .TrustGate._ood_score` already uses for coordinate-space OOD in this
+  codebase, applied here to shape features instead -- chosen explicitly
+  because PINNeAPPle's current geometry catalog (generated
+  primitives/presets) doesn't yet have enough archived real geometries
+  per preset to fit a full 13x13 covariance honestly; the module's own
+  docstring documents this tradeoff (real cross-feature correlations are
+  not modelled) rather than hiding it, and states when to revisit it (a
+  real per-preset archive of production geometries).
+- **Reference catalog**: `default_reference_meshes()` builds 48 real
+  (non-fabricated) box/cylinder/channel meshes via the existing
+  `pinneapple_design.geometry.gen.primitives.build_mesh` -- the same
+  real mesh-generation infrastructure `geometry_intelligence.py`'s own
+  tests already use -- across a deterministic grid of sizes/aspect
+  ratios.
+
+### Integration into the trust stack
+
+Wired as a 5th `ConfidenceComponent` into
+`pinneapple_analysis.verification.physics_confidence_score`
+(`N_POSSIBLE_COMPONENTS` 4 -> 5, new `geometry_ood_result` kwarg on
+`compute_physics_confidence()`, new `_component_from_geometry_ood()`
+following the exact same "score used as real evidence, `source_summary`
+quotes the real numbers, absent check is never fabricated" pattern the
+other 4 components already use). `GeometryOODResult.score` is already a
+[0, 1] "higher = more trustworthy" value with the identical convention
+`TrustGate._ood_score` uses, so no extra transform is needed for it to
+slot into the existing arithmetic-mean aggregation.
+`pinneapple_analysis.verification.evidence_graph.build_evidence_graph`/
+`explain_trust` required **zero code changes** to pick up the new
+component -- confirmed directly: they iterate generically over
+`confidence.components` by `name`/`score`/`source_summary`, so a REJECT
+geometry_ood result correctly renders as a `CONTRADICTING` evidence line
+automatically.
+
+### Real verification: normal vs. anomalous geometry
+
+Fit `GeometryOODGuardrail` on the 48-mesh default reference catalog,
+queried two real geometries built by the same `build_mesh()`
+infrastructure:
+
+| Geometry | mahalanobis_sq | p-value (score) | status |
+|---|---|---|---|
+| Box `(1.5, 1.2, 0.9)` -- inside the reference range | 3.09 (dof=13) | 0.998 | OK |
+| Box `(500, 0.001, 0.001)` -- extreme aspect ratio, 5 orders of magnitude outside the reference range | 1.24e9 | ~0.0 | REJECT |
+
+The score genuinely differentiates the two (not a constant output), and
+`top_deviating_features` correctly names `aspect_ratio`/`pca_eigenvalue_1`
+as the drivers for the REJECT case -- an honest, inspectable explanation,
+never an opaque number. A `woven_tube` mesh (a shape family never
+present in the box/cylinder/channel reference catalog) was also confirmed
+to score lower than an in-family box, and `build_evidence_graph` was
+confirmed to render the REJECT case as a `CONTRADICTING` evidence line.
+
+### Test suite impact, measured before and after
+
+New `tests/test_geometry_ood_guardrail.py` (15 tests, real
+`build_mesh()` geometries, `pytest.importorskip("trimesh")` matching this
+repo's established convention for the optional `geom` extra).
+`tests/test_physics_confidence_score.py` updated for
+`N_POSSIBLE_COMPONENTS` 4->5: the one test that hardcoded "4 components =
+full coverage" was split into
+`test_all_four_original_components_is_partial_coverage_now` (asserts
+`coverage == 4/5`, an explicit regression guard for this exact change)
+and a new `test_all_five_components_full_coverage` (supplies a real
+`geometry_ood_result` to reach true 5/5), plus 3 new geometry_ood-alone
+tests. All 23+15 tests pass in isolation.
+
+Full `pytest tests/ --deselect
+"tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"`
+(the same pre-existing xgboost/OpenMP segfault workaround this line of
+work has used since the second pass), run at the clean pre-this-session
+commit (`69117744`, via a separate `git worktree add --detach` checkout,
+same technique as the prior passes) and again at this session's final
+commit, same environment (the optional `trimesh`/`geom` extra was
+installed for this comparison, since it's required to exercise the new
+module at all -- identical in both runs):
+
+| | Before (`69117744`) | After (this session) |
+|---|---|---|
+| Collected | 1691 | 1711 |
+| Passed | 1375 | 1394 |
+| Failed | 78 | 79 |
+| Error | 40 | 40 |
+| Skipped | 197 | 197 |
+| xfail | 1 | 1 |
+
+**The FAILED/ERROR test-ID sets are identical except for exactly one
+expected rename/split**: `test_all_four_components_full_coverage`
+(FAILED in the before run) was replaced by
+`test_all_four_original_components_is_partial_coverage_now` and
+`test_all_five_components_full_coverage` (both FAILED in the after run)
+-- a `diff` of the two sorted FAILED+ERROR ID lists shows only this one
+change, nothing else moved. **Both new tests fail for the exact same
+pre-existing, unrelated environment reason** that already breaks 2
+pre-existing tests identically in the before run
+(`test_calibration_component_well_calibrated_scores_high`,
+`test_calibration_component_poorly_calibrated_scores_lower`, both FAILED
+in `69117744` too): some earlier test in the full-suite run leaves
+PyTorch's default device set to `"mps"`, and
+`pinneapple_analysis.uncertainty.calibration._normal_cdf` then raises
+`TypeError: Cannot convert a MPS Tensor to float64 dtype` -- confirmed
+identical, unrelated to this session's change, and already present before
+it (exactly the same class of pre-existing environment gap as the
+xgboost segfault worked around above). When run outside the full suite
+(`pytest tests/test_physics_confidence_score.py` alone, no MPS-device
+leak from an earlier file), all 23 tests -- including both new ones --
+pass. The +20 collected-test delta (1711-1691) is the 19 new tests this
+session added (15 in the new file, 4 net in the modified file) plus 1
+unrelated new parametrized case in `test_breadth_six_packages.py`
+(383->384 collected in that file alone, confirmed via a separate
+`--collect-only` diff) that this session did not touch -- most likely
+environment drift from this machine's shared, concurrently-used
+multi-agent worktree setup between the two separate `pytest` process
+invocations, not a change caused by this session.
+
+**Scope note**: the diagonal-Mahalanobis choice over a full GMM/PCE is a
+deliberate, documented tradeoff for the product's current stage (see the
+module's own docstring) -- not a shortcut taken silently. `trust_gate.py`
+itself (the weighted-sub-score `TrustGate.score()` API) was left
+unmodified; the integration point chosen was
+`PhysicsConfidenceScore`/`ConfidenceComponent`, since that is the
+componentized aggregator this task's own instructions pointed at and the
+one `evidence_graph.py` already consumes generically.

@@ -11,6 +11,14 @@ from pinneapple_neural.workflows.dense_volume_operator import (
     predict_single_step,
     load_dense_volume_operator,
 )
+from pinneapple_neural.workflows.parametric_dense_volume_operator import (
+    ParametricCase,
+    ParametricDenseVolumeOperatorConfig,
+    train_parametric_dense_volume_operator,
+    load_parametric_dense_volume_operator,
+    predict_single_step_parametric,
+    rollout_parametric_dense_volume_operator,
+)
 
 __all__ = [
     "DenseVolumeOperatorConfig",
@@ -18,4 +26,10 @@ __all__ = [
     "rollout_dense_volume_operator",
     "predict_single_step",
     "load_dense_volume_operator",
+    "ParametricCase",
+    "ParametricDenseVolumeOperatorConfig",
+    "train_parametric_dense_volume_operator",
+    "load_parametric_dense_volume_operator",
+    "predict_single_step_parametric",
+    "rollout_parametric_dense_volume_operator",
 ]

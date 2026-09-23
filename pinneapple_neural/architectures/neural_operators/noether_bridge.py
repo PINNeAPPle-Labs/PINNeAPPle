@@ -1,5 +1,10 @@
 """Noether (Emmi AI) architecture bridge for PINNeAPPle.
 
+**RESEARCH ONLY.** The Noether framework's license prohibits production use and the
+AB-UPT weights are CC BY-NC 4.0. Instantiating anything here emits a
+``ResearchOnlyWarning`` and is refused with ``PINNEAPPLE_COMMERCIAL_MODE=1``
+(see ``pinneapple_neural._licencas``).
+
 Wraps the transformer-based neural surrogate architectures from
 ``emmiai-noether`` (UPT, AB-UPT, Transolver, Transformer, and their
 aerodynamics variants) as ``NeuralOperatorBase`` subclasses so that they
@@ -22,6 +27,8 @@ NoetherAeroTransformer — Transformer for CFD aerodynamics
 NoetherAeroTransolver  — Transolver for CFD aerodynamics
 """
 from __future__ import annotations
+
+from ..._licencas import require_research_use
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
@@ -139,6 +146,7 @@ class _NoetherWrapper(NeuralOperatorBase):
     """
 
     def __init__(self, noether_model_name: str, **config_kwargs) -> None:
+        require_research_use(f"Noether model {noether_model_name}")
         super().__init__()
         self._model_name = noether_model_name
         self._config_kwargs = config_kwargs

@@ -271,8 +271,10 @@ class Arena:
                 ref_i = Y_eval[:, i] if Y_eval.ndim > 1 else Y_eval.ravel()
                 node_targets[:, i] = NearestNDInterpolator(xy_eval, ref_i)(*node_args)
 
-        node_feats = np.concatenate([node_xy,
-            node_targets + rng.normal(0, 0.01, node_targets.shape)], axis=1)
+        # Node features are the node coordinates only. The targets must never be
+        # part of the model input: with them, training and evaluation (which reuse
+        # these same node features) would just read back the answer.
+        node_feats = node_xy.copy()
 
         try:
             edge_index, edge_attr = _build_delaunay_graph(node_xy[:, :2])
@@ -324,8 +326,8 @@ class Arena:
         node_xy = X_train[idx, :2] if in_dim >= 2 else np.stack(
             [X_train[idx, 0], np.zeros(n_nodes)], axis=1)
         node_targets = Y_train[idx]
-        node_feats = np.concatenate([X_train[idx],
-            node_targets + rng.normal(0, 0.01, node_targets.shape)], axis=1)
+        # Node features are the input fields only; targets never enter the input.
+        node_feats = X_train[idx].copy()
         try:
             edge_index, edge_attr = _build_delaunay_graph(node_xy)
         except Exception:

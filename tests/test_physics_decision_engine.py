@@ -321,5 +321,20 @@ def test_model_registry_keys_exist():
     names = set(ModelRegistry.list()) if hasattr(ModelRegistry, "list") else None
     if names is None:
         pytest.skip("ModelRegistry has no list()")
+    import importlib.util
+
     for opt, info in ModelSelector.choice().option_info.items():
-        assert info.implementation.split(":")[1] in names, opt
+        if info.implementation and ":" in info.implementation:            # ModelRegistry network
+            assert info.implementation.split(":")[1] in names, opt
+        elif info.implementation:                                          # EXTRA_CATALOG: real module/symbol
+            mod, found = info.implementation, None
+            while mod and found is None:
+                try:
+                    found = importlib.util.find_spec(mod)
+                except (ModuleNotFoundError, ValueError):   # attribute path below a module
+                    found = None
+                if found is None:
+                    mod = mod.rpartition(".")[0]
+            assert mod, f"{opt}: {info.implementation} not importable"
+        else:                                                              # declared as not implemented
+            assert info.notes, f"{opt}: no implementation and no note saying why"

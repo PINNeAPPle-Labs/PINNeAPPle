@@ -71,6 +71,11 @@ class ArchitectureCandidate:
     strengths: List[str] = field(default_factory=list)
     weaknesses: List[str] = field(default_factory=list)
     source: str = ""
+    # Families that are not a ModelRegistry network (EXTRA_CATALOG): dotted path of the real symbol that
+    # runs them ("" = no ready implementation) and a license note ("research_only" blocks commercial use).
+    implementation: str = ""
+    license: str = ""
+    notes: str = ""
 
 
 ARCHITECTURE_CATALOG: Dict[str, ArchitectureCandidate] = {
@@ -192,6 +197,73 @@ class ArchitectureRecommendation:
 _DEFAULT_DATA_THRESHOLD = 50
 
 
+# Surrogate families that are not ModelRegistry networks. Kept apart from ARCHITECTURE_CATALOG so the
+# registry-key contract of that catalog (every key is a real ModelRegistry entry) stays true. They are
+# only ever recommended when the caller passes the axes that justify them (target_kind, fixed_topology,
+# has_physics_postprocessor); with those left at their defaults the recommendation is unchanged.
+EXTRA_CATALOG: Dict[str, ArchitectureCandidate] = {
+    "kpi_regressor": ArchitectureCandidate(
+        name="KPI regressor (Gaussian process / small MLP on the parameters)", registry_key="",
+        category="kpi_surrogate",
+        when_to_use="The quantities of interest are a few SCALAR KPIs (e.g. pressure drop, peak wear rate) "
+                    "over a parameter family, with tens of simulations. Geometry changes are fine as long as "
+                    "they are described by the input parameters (e.g. bend radius R/D).",
+        strengths=["Works with tens of samples; a GP gives native predictive uncertainty.",
+                   "Can learn a correction over a closed-form correlation (log-ratio target) instead of the "
+                   "raw value."],
+        weaknesses=["Predicts only the scalars it was trained on -- no spatial field, no peak location map.",
+                    "Cost of exact GP grows as O(n^3); beyond a few thousand samples use sparse GP or an MLP."],
+        source="Rasmussen & Williams (2006), 'Gaussian Processes for Machine Learning'; Forrester, Sobester & "
+               "Keane (2008), 'Engineering Design via Surrogate Modelling'.",
+        implementation="sklearn.gaussian_process.GaussianProcessRegressor",
+        notes="external (scikit-learn); PINNeAPPle uses it in pinneapple_design.design_optimizer "
+              "(BayesianDesignOptimizer, with a numpy GP fallback) and PINNeAPPle-CFD E9 trains it on KPIs",
+    ),
+    "pod_rom": ArchitectureCandidate(
+        name="POD reduced-order model (POD / POD-NN)", registry_key="", category="rom",
+        when_to_use="Full fields on the SAME mesh for every sample (fixed topology), parameters vary, a "
+                    "few dozen to hundreds of snapshots: compress the fields with POD and regress the modal "
+                    "coefficients on the parameters.",
+        strengths=["Very cheap to train and evaluate; the modes are interpretable.",
+                   "Works with fewer snapshots than neural operators for smooth parametric dependence."],
+        weaknesses=["Needs one fixed mesh across all samples -- not applicable when the topology changes.",
+                    "Linear subspace: struggles with moving shocks/transport-dominated fields."],
+        source="Berkooz, Holmes & Lumley (1993), Annu. Rev. Fluid Mech. 25; Hesthaven & Ubbiali (2018), "
+               "J. Comput. Phys. 363 (POD-NN).",
+        implementation="pinneapple_neural.architectures.rom.pod.POD",
+    ),
+    "point_cloud_operator": ArchitectureCandidate(
+        name="Point-cloud / mesh transformer operator (Transolver, GINO)", registry_key="",
+        category="neural_operator",
+        when_to_use="Many simulations with VARYING geometry and unstructured meshes or point clouds (large "
+                    "industrial meshes), when a graph network's message passing is too expensive per sample.",
+        strengths=["Geometry-agnostic: consumes point clouds directly, scales to large meshes."],
+        weaknesses=["Data-hungry (hundreds of samples or more).",
+                    "In PINNeAPPle it is only available through the Noether bridge, which is research-only."],
+        source="Wu et al. (2024), 'Transolver', ICML; Li et al. (2023), 'Geometry-Informed Neural Operator "
+               "(GINO)', NeurIPS.",
+        implementation="pinneapple_neural.architectures.neural_operators.noether_bridge",
+        license="research_only",
+        notes="Noether/Emmi AI integration: blocked with PINNEAPPLE_COMMERCIAL_MODE=1 (pinneapple_neural._licencas)",
+    ),
+    "hybrid_surrogate_physics": ArchitectureCandidate(
+        name="Hybrid: field surrogate + physics post-model", registry_key="", category="hybrid",
+        when_to_use="The quantity of interest is DERIVED from the flow by an established physics model (e.g. "
+                    "erosion from particle impacts, fatigue from loads): learn the flow, keep the physics "
+                    "post-model explicit instead of learning the derived quantity end-to-end.",
+        strengths=["The physics post-model stays auditable and swappable (e.g. change the erosion "
+                   "correlation without retraining)."],
+        weaknesses=["Needs a field surrogate good enough near the wall, which usually means more data than a "
+                    "direct KPI regressor.", "No ready-made composition in the library."],
+        source="Common practice in erosion CFD surrogates (flow surrogate + erosion model); see e.g. the "
+               "PINNeAPPle-CFD erosion annex.",
+        implementation="",
+        notes="composition of a library field surrogate with a user physics post-model; no packaged "
+              "implementation in PINNeAPPle",
+    ),
+}
+
+
 def recommend_architecture(
     *,
     n_high_fidelity_simulations: int = 0,
@@ -201,6 +273,9 @@ def recommend_architecture(
     geometry_varies: bool = False,
     is_inverse_problem: bool = False,
     catalog: Optional[Dict[str, ArchitectureCandidate]] = None,
+    target_kind: Optional[str] = None,
+    fixed_topology: Optional[bool] = None,
+    has_physics_postprocessor: bool = False,
 ) -> ArchitectureRecommendation:
     """Recommend which PINNeAPPle neural architecture family to reach for
     first, from the problem's own real characteristics -- see the module
@@ -241,6 +316,7 @@ def recommend_architecture(
         immediately, not at some later, harder-to-trace call site.
     """
     catalog = catalog if catalog is not None else ARCHITECTURE_CATALOG
+    lookup = {**EXTRA_CATALOG, **catalog}
     if has_lots_of_data is None:
         has_lots_of_data = n_high_fidelity_simulations >= _DEFAULT_DATA_THRESHOLD
 
@@ -323,17 +399,44 @@ def recommend_architecture(
         if "inverse_pinn" not in matches:
             matches.append("inverse_pinn")
 
+    # Extra families (EXTRA_CATALOG), only when the caller supplies the axis that justifies them.
+    field_target = target_kind in ("field", "mixed")
+    if target_kind == "kpi":
+        decision_path.append(
+            "target_kind='kpi': the quantities of interest are scalar KPIs -> a KPI regressor over the "
+            "parameters is the first model to try (works with tens of samples); field models stay as "
+            "alternatives if spatial maps are needed later."
+        )
+        matches.insert(0, "kpi_regressor")
+    elif target_kind == "mixed":
+        decision_path.append("target_kind='mixed': KPIs are also wanted -> add a KPI regressor as baseline.")
+        matches.append("kpi_regressor")
+    if (field_target and fixed_topology and has_lots_of_data and needs_parameter_generalization
+            and not geometry_varies):
+        decision_path.append("fixed mesh topology across samples + parametric fields -> POD ROM is a cheap "
+                             "alternative to neural operators.")
+        matches.insert(1, "pod_rom")
+    if field_target and geometry_varies and has_lots_of_data:
+        decision_path.append("varying geometry with many samples -> point-cloud/mesh transformer operators are "
+                             "an alternative to MeshGraphNet on large meshes.")
+        matches.append("point_cloud_operator")
+    if has_physics_postprocessor:
+        decision_path.append("the target is derived from the flow by an established physics model -> keep "
+                             "that model explicit (hybrid: field surrogate + physics post-model).")
+        matches.append("hybrid_surrogate_physics")
+    matches = list(dict.fromkeys(matches))
+
     primary = matches[0]
     reasoning = (
-        f"{catalog[primary].name} ({catalog[primary].category}): {catalog[primary].when_to_use} "
-        f"[{catalog[primary].source}]"
+        f"{lookup[primary].name} ({lookup[primary].category}): {lookup[primary].when_to_use} "
+        f"[{lookup[primary].source}]"
     )
     alternatives = [
         {
             "architecture": key,
-            "name": catalog[key].name,
-            "registry_key": catalog[key].registry_key,
-            "why_also_listed": catalog[key].when_to_use,
+            "name": lookup[key].name,
+            "registry_key": lookup[key].registry_key,
+            "why_also_listed": lookup[key].when_to_use,
         }
         for key in matches[1:]
     ]

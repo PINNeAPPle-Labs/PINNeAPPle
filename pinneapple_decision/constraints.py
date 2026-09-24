@@ -64,6 +64,15 @@ def _within_budget(info: OptionInfo, state: DecisionState, choice: PhysicsChoice
     return None
 
 
+def _commercial_use_allowed(info: OptionInfo, state: DecisionState, choice: PhysicsChoice) -> Optional[str]:
+    import os
+
+    if info.license == "research_only" and os.environ.get("PINNEAPPLE_COMMERCIAL_MODE") == "1":
+        extra = f" ({info.notes})" if info.notes else ""
+        return f"commercial_use_allowed: {info.name} is research-only and PINNEAPPLE_COMMERCIAL_MODE=1{extra}"
+    return None
+
+
 def _not_failed_before(info: OptionInfo, state: DecisionState, choice: PhysicsChoice) -> Optional[str]:
     if info.name in state.failed_options(choice.name):
         return f"not_failed_before: {info.name} was already executed for {choice.name!r} and failed verification"
@@ -75,6 +84,7 @@ NAMED_CONSTRAINTS: Dict[str, Constraint] = {
     "requires_implementation": Constraint("requires_implementation", _requires_implementation),
     "within_budget": Constraint("within_budget", _within_budget),
     "not_failed_before": Constraint("not_failed_before", _not_failed_before),
+    "commercial_use_allowed": Constraint("commercial_use_allowed", _commercial_use_allowed),
 }
 
 

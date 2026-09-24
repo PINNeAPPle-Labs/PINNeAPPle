@@ -374,3 +374,18 @@ a `calibrated_confidence` at any other level.
   calibration); Zhou et al. (2024) *Batch Calibration*; Zheng et al. (2024)
   *Large Language Models Are Not Robust Multiple Choice Selectors* (permutation
   debiasing).
+
+## Extra model families (surrogates that are not ModelRegistry networks)
+
+`pinneapple_analysis.verification.architecture_recommendation.EXTRA_CATALOG` adds four families that the
+`ModelSelector` can now score. They are only recommended when the problem supplies the fact that justifies
+them; with those facts absent the recommendation is exactly the previous one.
+
+| Family | Recommended when | Implementation | Notes |
+|---|---|---|---|
+| `kpi_regressor` | `target_kind="kpi"` (scalar KPIs over a parameter family; works with tens of samples) | `sklearn.gaussian_process.GaussianProcessRegressor` | external (scikit-learn); geometry variation must be described by the parameters |
+| `pod_rom` | field target + `fixed_topology=True` + many samples + parametric, geometry fixed | `pinneapple_neural.architectures.rom.pod.POD` | excluded by `must_support_geometry` when the geometry varies |
+| `point_cloud_operator` | field target + varying geometry + many samples | Noether bridge (Transolver) | `license="research_only"`: excluded by the new `commercial_use_allowed` constraint when `PINNEAPPLE_COMMERCIAL_MODE=1` |
+| `hybrid_surrogate_physics` | `has_physics_postprocessor=True` (target derived from the flow by an established physics model, e.g. erosion) | none packaged | composition of a field surrogate with the user's physics post-model; declared, not faked |
+
+New adapter facts: `fixed_topology` (synonyms `same_mesh`, `fixed_mesh`) and `has_physics_postprocessor`.

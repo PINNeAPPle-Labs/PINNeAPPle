@@ -52,6 +52,7 @@ class OptionInfo:
     relative_cost: int = 1  # 1 cheap .. 3 expensive (coarse, order-of-magnitude)
     source: str = ""
     notes: str = ""
+    license: str = ""  # "research_only" -> excluded by commercial_use_allowed in commercial mode
 
 
 @dataclass

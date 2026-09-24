@@ -112,15 +112,20 @@ class DecisionLoop:
             raise ConstraintViolationError("decision was not issued by this loop; refusing to execute it")
         choice, state = self._issued[decision.id]
         if problem is not None:
-            state = DecisionState(problem=dict(problem), previous_result=state.previous_result,
-                                  verification=state.verification, history=state.history)
+            state = DecisionState.from_problem(problem, previous_result=state.previous_result,
+                                               verification=state.verification, history=state.history)
         feasible, excluded = apply_constraints(choice, state)
         if decision.selected not in feasible:
             raise ConstraintViolationError(
                 f"{decision.selected!r} no longer satisfies the constraints: {excluded.get(decision.selected)}")
         result = self.executor.execute(decision, dict(state.problem))
         result.decision_id = decision.id
-        self.store.add(Evidence(decision=decision, result=result))
+        ev = self.store.find(decision.id)
+        if ev is not None and ev.result is None:  # decision already logged (e.g. a tree step)
+            ev.result = result
+            self.store.save()
+        else:
+            self.store.add(Evidence(decision=decision, result=result))
         return result
 
     # -- VALIDATE / LEARN ---------------------------------------------------
@@ -137,8 +142,8 @@ class DecisionLoop:
     def step(self, problem: Dict[str, Any], choice: PhysicsChoice) -> Evidence:
         """One full cycle; the last verified evidence feeds this decision."""
         last = self.store.last()
-        state = DecisionState(
-            problem=dict(problem),
+        state = DecisionState.from_problem(
+            problem,
             previous_result=last.result if last else None,
             verification=last.verification if last else None,
             history=self.store.history(),
@@ -157,6 +162,13 @@ class DecisionLoop:
             if stop_when_passed and ev.verification is not None and ev.verification.passed:
                 break
         return out
+
+    def run_tree(self, problem: Any, tree: Any = None, *, max_experiments: int = 3):
+        """Walk a declarative decision tree (default: ``tree.physics_ai_tree()``).
+        Factual nodes are answered by problem facts when known; see ``tree.py``."""
+        from .tree import run_tree
+
+        return run_tree(self, problem, tree, max_experiments=max_experiments)
 
 
 _OBJECTIVES = (

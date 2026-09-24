@@ -97,6 +97,8 @@ class PhysicsDecider:
                 "note": "single feasible option after constraints"}
         else:
             dist, level, diag = self.distribution(state, choice, feasible)
+        if state.facts:
+            diag["problem_facts"] = state.facts
         # Ties (up to float noise) break alphabetically, so the listed order never matters.
         selected = max(sorted(feasible), key=lambda o: round(dist[o], 12))
         return Decision(

@@ -24,11 +24,15 @@ class DecisionLevel(str, Enum):
              (position bias) + prior correction (label prior). See ``debias.py``.
     ``L1``   L0 + calibration fit on labelled outcomes. **Not implemented yet**;
              the level exists so ``calibrated_confidence`` has a contract.
+    ``FACT`` no scoring at all: the answer was read from a fact of the problem
+             (e.g. "is there an analytical solution?" when the problem says so).
+             Used by the decision tree; the 1.0 is the fact, not a model output.
     """
 
     RAW = "raw"
     L0 = "L0"
     L1 = "L1"
+    FACT = "fact"
 
 
 @dataclass(frozen=True)
@@ -178,27 +182,42 @@ class DecisionState:
     previous_result: Optional[ExecutionResult] = None
     verification: Optional[Verification] = None
     history: Tuple[Evidence, ...] = ()
+    #: provenance of the problem facts (``adapter.AdaptedProblem.report()``): given / inferred / unknown.
+    facts: Dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_problem(cls, problem: Any, **kwargs: Any) -> "DecisionState":
+        """Adapt ``problem`` (``ProblemSpec``, free-form dict, or ``None``) and keep its provenance."""
+        from .adapter import adapt_problem
+
+        ad = adapt_problem(problem)
+        return cls(problem=ad.problem, facts=ad.report(), **kwargs)
 
     @classmethod
     def coerce(cls, obj: Any) -> "DecisionState":
         """Accept a ``DecisionState``, a ``{"problem": ..., "previous_result": ...,
         "verification": ...}`` dict, a bare problem dict, or a
-        ``pinneapple_problemdesign.ProblemSpec`` (duck-typed)."""
+        ``pinneapple_problemdesign.ProblemSpec`` (duck-typed).
+
+        Problems go through :func:`pinneapple_decision.adapter.adapt_problem`:
+        synonyms (``Re``, ``steady``, a named geometry, ...) become the canonical
+        keys the rules and constraints read, and facts that cannot be determined
+        are listed as unknown in ``facts`` instead of being filled in."""
         if isinstance(obj, cls):
             return obj
         if obj is None:
-            return cls()
+            return cls.from_problem(None)
         if hasattr(obj, "physics") and hasattr(obj, "geometry") and hasattr(obj, "task_type"):
-            return cls(problem=problem_from_spec(obj))
+            return cls.from_problem(obj)
         if isinstance(obj, Mapping):
             if "problem" in obj:
-                return cls(
-                    problem=_as_problem(obj["problem"]),
+                return cls.from_problem(
+                    obj["problem"],
                     previous_result=obj.get("previous_result"),
                     verification=obj.get("verification"),
                     history=tuple(obj.get("history", ())),
                 )
-            return cls(problem=dict(obj))
+            return cls.from_problem(obj)
         raise TypeError(f"cannot build a DecisionState from {type(obj).__name__}")
 
     def tags(self) -> List[str]:
@@ -222,6 +241,7 @@ class DecisionState:
         """JSON-able view used in LLM prompts."""
         return {
             "problem": self.problem,
+            "unknown_facts": sorted(self.facts.get("unknown", {})),
             "previous_result": asdict(self.previous_result) if self.previous_result else None,
             "verification": asdict(self.verification) if self.verification else None,
             "tried": [
@@ -232,33 +252,17 @@ class DecisionState:
         }
 
 
-def _as_problem(obj: Any) -> Dict[str, Any]:
-    if hasattr(obj, "physics") and hasattr(obj, "geometry") and hasattr(obj, "task_type"):
-        return problem_from_spec(obj)
-    return dict(obj or {})
-
-
 def problem_from_spec(spec: Any) -> Dict[str, Any]:
     """Map a ``pinneapple_problemdesign.ProblemSpec`` to this module's problem dict.
 
-    Only fields the spec actually carries are mapped; nothing numeric is guessed
-    (same non-invention policy as ``method_selection.recommend_method_from_spec``).
+    Delegates to :func:`pinneapple_decision.adapter.adapt_problem`. Only fields
+    the spec actually carries are mapped; nothing numeric is guessed (same
+    non-invention policy as ``method_selection.recommend_method_from_spec``).
+    Use ``adapt_problem(spec).report()`` to see what stayed unknown.
     """
-    p: Dict[str, Any] = {
-        "description": spec.goal or spec.title,
-        "task_type": spec.task_type,
-        "is_inverse": spec.task_type == "inverse_problem",
-        "needs_parameter_generalization": spec.task_type == "neural_operator",
-    }
-    if spec.geometry.domain:
-        p["geometry"] = spec.geometry.domain
-    if spec.geometry.representation:
-        p["representation"] = spec.geometry.representation
-    if spec.physics.governing_equations:
-        p["governing_equations"] = list(spec.physics.governing_equations)
-    if spec.domain_context:
-        p["domain_context"] = spec.domain_context
-    return p
+    from .adapter import adapt_problem
+
+    return adapt_problem(spec).problem
 
 
 def dumps(obj: Any) -> str:

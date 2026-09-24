@@ -76,6 +76,11 @@ Several of the names above are also reachable lazily as
 ``pinneapple.<name>``, e.g. ``pp.models``, ``pp.train``, ``pp.solvers``,
 ``pp.data``, ``pp.arena``, ``pp.quantum``, ``pp.worldmodel``.
 
+The decision layer (``pinneapple_decision``: which experiment to run next,
+never the physical result) is reachable lazily as ``pp.decide``,
+``pp.execute``, ``pp.verify``, ``pp.run_tree`` and ``pp.decision_engine``;
+the first access imports it, ``import pinneapple`` does not.
+
 Examples
 --------
 See examples/benchmark_suite/ for ready-to-run benchmark & pipeline scripts:
@@ -533,15 +538,33 @@ _SUBMODULES = {
     "backend":    "pinneapple_backend",
     "dynamics":   "pinneapple_dynamics",
     "worldmodel": "pinneapple_worldmodel",
+    # decision layer (which experiment to run next)
+    "decision":   "pinneapple_decision",
+}
+
+# Lazy functions: resolved on first access, so ``import pinneapple`` does not
+# import their package. ``pinneapple_decision`` itself does not import torch.
+_LAZY_ATTRS = {
+    "decide":          ("pinneapple_decision.api", "decide"),
+    "execute":         ("pinneapple_decision.api", "execute"),
+    "verify":          ("pinneapple_decision.api", "verify"),
+    "run_tree":        ("pinneapple_decision.api", "run_tree"),
+    "decision_engine": ("pinneapple_decision.api", "decision_engine"),
 }
 
 
 def __getattr__(name: str):
-    """Enable lazy access: ``pinneapple.train`` → pinneapple_train."""
+    """Enable lazy access: ``pinneapple.train`` → pinneapple_train,
+    ``pinneapple.decide`` → pinneapple_decision.api.decide."""
     if name in _SUBMODULES:
         mod = _importlib.import_module(_SUBMODULES[name])
         globals()[name] = mod
         return mod
+    if name in _LAZY_ATTRS:
+        module_name, attr = _LAZY_ATTRS[name]
+        obj = getattr(_importlib.import_module(module_name), attr)
+        globals()[name] = obj
+        return obj
     raise AttributeError(f"module 'pinneapple' has no attribute '{name}'")
 
 
@@ -654,4 +677,6 @@ __all__ = [
     "CFDMesh", "NSFlowSolver", "CADToCFDPipeline",
     # Lazy submodule aliases (v0.5)
     "symbolic", "backend", "dynamics", "worldmodel",
+    # Decision layer (lazy): which physics-AI experiment to run next
+    "decision", "decide", "execute", "verify", "run_tree", "decision_engine",
 ]

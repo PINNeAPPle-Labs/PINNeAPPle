@@ -60,6 +60,13 @@ models:
 #   n_iters: 2000
 #   lambda_reg: 1.0e-3
 
+# Optional: decision mode -- the decision engine picks which models to train
+# decision:
+#   enabled: true
+#   budget: 2                 # at most 2 models are trained
+#   thresholds: {rel_l2: 0.05, residual: 1.0e-3}
+#   evidence_path: outputs/decision_evidence.json
+
 # Optional: uncertainty quantification
 # uq:
 #   enabled: true
@@ -256,6 +263,29 @@ class DatasetConfig:
 
 
 @dataclass
+class DecisionConfig:
+    """Decision mode: the decision engine chooses which configured models to train.
+
+    Instead of training every model in ``models``, the Arena asks
+    ``pinneapple_decision`` which one to run first, trains and evaluates it,
+    verifies the result (``thresholds`` on ``rel_l2`` = mean relative L2 over the
+    fields and, for PINN-family models, ``residual`` = final PDE residual), records
+    the evidence, and asks again, until a result passes or ``budget`` models ran.
+    """
+    enabled: bool                     = False
+    budget: int                       = 3       # max number of models trained
+    stop_when_passed: bool            = True
+    thresholds: Dict[str, float]      = field(default_factory=dict)  # {} -> ThresholdVerifier defaults
+    evidence_path: Optional[str]      = None    # JSON evidence log (EvidenceStore)
+    problem: Dict[str, Any]           = field(default_factory=dict)  # extra problem facts for the engine
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "DecisionConfig":
+        known = {f.name for f in cls.__dataclass_fields__.values()}
+        return cls(**{k: v for k, v in d.items() if k in known})
+
+
+@dataclass
 class ArenaConfig:
     """Top-level Arena configuration."""
     problem: ProblemConfig
@@ -264,6 +294,7 @@ class ArenaConfig:
     inverse: InverseConfig            = field(default_factory=InverseConfig)
     uq: UQConfig                      = field(default_factory=UQConfig)
     dataset: Optional[DatasetConfig]  = None
+    decision: DecisionConfig          = field(default_factory=DecisionConfig)
 
     @classmethod
     def from_dict(cls, d: dict) -> "ArenaConfig":
@@ -273,8 +304,9 @@ class ArenaConfig:
         inverse  = InverseConfig.from_dict(d.get("inverse", {}))
         uq       = UQConfig.from_dict(d.get("uq", {}))
         dataset  = DatasetConfig.from_dict(d["dataset"]) if "dataset" in d else None
+        decision = DecisionConfig.from_dict(d.get("decision", {}))
         return cls(problem=problem, models=models, output=output,
-                   inverse=inverse, uq=uq, dataset=dataset)
+                   inverse=inverse, uq=uq, dataset=dataset, decision=decision)
 
     @classmethod
     def from_yaml(cls, path: str) -> "ArenaConfig":

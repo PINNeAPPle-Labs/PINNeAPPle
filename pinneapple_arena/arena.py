@@ -186,6 +186,7 @@ class Arena:
         self._train_results: List[TrainResult] = []
         self._eval_results: List[Dict[str, Any]] = []
         self._data: Optional[Dict] = None
+        self._decision_report = None
 
     # ── construction helpers ──────────────────────────────────────────────────
 
@@ -215,8 +216,13 @@ class Arena:
             default pure-accuracy behaviour for callers who leave this off.
         """
         self._prepare_data()
-        self._train_all()
-        self._evaluate_all()
+        if self.cfg.decision.enabled:
+            # Decision mode: the decision engine picks which models to train, one at a
+            # time, within cfg.decision.budget (see decision_mode.py).
+            self._decision_report = self._run_decision_loop()
+        else:
+            self._train_all()
+            self._evaluate_all()
         if self.cfg.uq.enabled:
             self._run_uq_all()
         if self.cfg.inverse.enabled:
@@ -227,6 +233,36 @@ class Arena:
         if physics_aware:
             self._print_physics_aware_summary()
         return self
+
+    # ── decision mode (the Arena as a decision laboratory) ───────────────────
+
+    def run_decision(self, budget: Optional[int] = None, **kwargs) -> "ArenaDecisionReport":
+        """Ask the decision engine which configured model to train first, train and
+        evaluate it, verify the result, record the evidence, and let the engine pick
+        the next one, until a result passes verification or ``budget`` experiments
+        ran. Only the chosen models are trained. Keyword arguments are forwarded to
+        :func:`pinneapple_arena.decision_mode.run_decision_mode` (``decider``,
+        ``verifier``, ``store``, ``problem``, ``stop_when_passed``, ``thresholds``,
+        ``evidence_path``). Returns an :class:`ArenaDecisionReport`.
+        """
+        if self._data is None:
+            self._prepare_data()
+        self._decision_report = self._run_decision_loop(budget=budget, **kwargs)
+        return self._decision_report
+
+    def _run_decision_loop(self, **kwargs) -> "ArenaDecisionReport":
+        from .decision_mode import run_decision_mode
+
+        dc = self.cfg.decision
+        opts = dict(budget=dc.budget, stop_when_passed=dc.stop_when_passed,
+                    thresholds=dc.thresholds or None, evidence_path=dc.evidence_path,
+                    problem=dc.problem or None)
+        opts.update({k: v for k, v in kwargs.items() if v is not None})
+        return run_decision_mode(self, **opts)
+
+    @property
+    def decision_report(self) -> Optional["ArenaDecisionReport"]:
+        return self._decision_report
 
     # ── data preparation ──────────────────────────────────────────────────────
 
@@ -397,22 +433,23 @@ class Arena:
     # ── evaluation ────────────────────────────────────────────────────────────
 
     def _evaluate_all(self):
-        self._eval_results = []
+        self._eval_results = [self._evaluate_one(res) for res in self._train_results]
+
+    def _evaluate_one(self, res: TrainResult) -> Dict[str, Any]:
         d = self._data
-        for res in self._train_results:
-            mcfg = self._mcfg_by_name(res.name)
-            eval_out = evaluate_model(
-                res, mcfg,
-                xy_eval=d["xy_eval"],
-                Y_ref=d["Y_eval"],
-                field_names=d["field_names"],
-                device=self.device,
-                node_positions=d["node_feats"] if is_graph_model(mcfg) else None,
-                edge_index=d["edge_index"] if is_graph_model(mcfg) else None,
-                edge_attr=d["edge_attr"] if is_graph_model(mcfg) else None,
-            )
-            eval_out["name"] = res.name
-            self._eval_results.append(eval_out)
+        mcfg = self._mcfg_by_name(res.name)
+        eval_out = evaluate_model(
+            res, mcfg,
+            xy_eval=d["xy_eval"],
+            Y_ref=d["Y_eval"],
+            field_names=d["field_names"],
+            device=self.device,
+            node_positions=d["node_feats"] if is_graph_model(mcfg) else None,
+            edge_index=d["edge_index"] if is_graph_model(mcfg) else None,
+            edge_attr=d["edge_attr"] if is_graph_model(mcfg) else None,
+        )
+        eval_out["name"] = res.name
+        return eval_out
 
     # ── UQ ────────────────────────────────────────────────────────────────────
 

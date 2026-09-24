@@ -42,6 +42,41 @@ _MODEL_EXTRA = {
 
 _FAILED_PENALTY = -2.0
 
+_ARCH_MODULE = "pinneapple_analysis.verification.architecture_recommendation"
+
+
+def _arch():
+    """``architecture_recommendation`` without importing ``pinneapple_analysis/__init__``.
+
+    That module is pure stdlib, but its package ``__init__`` imports torch (UQ,
+    validation). To keep the decision layer torch-free (``pp.decide`` must not
+    load torch), the file is loaded on its own when the package is not already
+    imported. If that fails for any reason, the normal import is used.
+    """
+    import sys
+
+    if _ARCH_MODULE in sys.modules:
+        return sys.modules[_ARCH_MODULE]
+    private = "pinneapple_decision._architecture_recommendation"
+    if private in sys.modules:
+        return sys.modules[private]
+    try:
+        import importlib.util
+        from pathlib import Path
+
+        pkg = importlib.util.find_spec("pinneapple_analysis")
+        path = Path(list(pkg.submodule_search_locations)[0]) / "verification" / "architecture_recommendation.py"
+        spec = importlib.util.spec_from_file_location(private, path)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[private] = mod
+        spec.loader.exec_module(mod)
+        return mod
+    except Exception:
+        sys.modules.pop(private, None)
+        import importlib
+
+        return importlib.import_module(_ARCH_MODULE)
+
 
 def _penalize_failed(state: DecisionState, choice: str, scores: Dict[str, float], why: List[str]) -> None:
     for opt in state.failed_options(choice):
@@ -59,8 +94,7 @@ class ModelSelector:
 
     @staticmethod
     def option_info() -> Dict[str, OptionInfo]:
-        from pinneapple_analysis.verification.architecture_recommendation import ARCHITECTURE_CATALOG
-
+        ARCHITECTURE_CATALOG = _arch().ARCHITECTURE_CATALOG
         out = {}
         for key, c in ARCHITECTURE_CATALOG.items():
             extra = _MODEL_EXTRA.get(key, {})
@@ -83,8 +117,7 @@ class ModelSelector:
 
     @staticmethod
     def rules(state: DecisionState, options: Sequence[str]) -> Tuple[Dict[str, float], List[str]]:
-        from pinneapple_analysis.verification.architecture_recommendation import recommend_architecture
-
+        recommend_architecture = _arch().recommend_architecture
         p = state.problem
         rec = recommend_architecture(
             n_high_fidelity_simulations=int(p.get("n_simulations", 0)),
@@ -96,6 +129,12 @@ class ModelSelector:
         )
         scores = {o: 0.0 for o in options}
         why = [f"recommend_architecture: {step}" for step in rec.decision_path]
+        defaulted = [k for k in ("n_simulations", "has_solver", "needs_parameter_generalization",
+                                 "geometry_varies", "is_inverse") if k not in p]
+        if defaulted:
+            why.append(f"not known for this problem: {defaulted}; recommend_architecture was called with its "
+                       "defaults for them (0 simulations / False). That is the rule's default, not a fact "
+                       "about the problem: provide them to change the recommendation")
         for rank, key in enumerate(rec.recommended):
             if key in scores:
                 scores[key] += 3.0 if rank == 0 else max(2.0 - 0.25 * (rank - 1), 1.0)
@@ -248,6 +287,57 @@ class ValidationStrategySelector:
         return scores, why
 
 
-SELECTORS = {s.name: s for s in (ModelSelector, TrainingStrategySelector, ValidationStrategySelector)}
+# --------------------------------------------------------------------------- factual questions
 
-__all__ = ["ModelSelector", "SELECTORS", "TrainingStrategySelector", "ValidationStrategySelector"]
+class FactQuestion:
+    """A yes/no question whose answer is a *fact* about the problem (decision tree).
+
+    The tree reads the answer from the problem when the fact is known
+    (``DecisionLevel.FACT``). These rules only run when it is **not** known: the
+    decider then has to choose under uncertainty, and the tree marks the step as
+    ``resolved_by="decider"``. With no evidence either way the scores are equal
+    (probability 0.5 each, ties broken alphabetically); ``hints`` add small,
+    stated preferences. A rule answer is never written back as a fact.
+    """
+
+    options = ("yes", "no")
+
+    def __init__(self, name: str, question: str, fact: str,
+                 hints: Optional[Callable[[DecisionState], List[Tuple[str, float, str]]]] = None):
+        self.name, self.question, self.fact, self.hints = name, question, fact, hints
+
+    def choice(self, options: Optional[Sequence[str]] = None, constraints: Optional[Sequence] = None) -> PhysicsChoice:
+        return PhysicsChoice(self.name, self.question, list(options or self.options), list(constraints or ()))
+
+    def rules(self, state: DecisionState, options: Sequence[str]) -> Tuple[Dict[str, float], List[str]]:
+        scores = {o: 0.0 for o in options}
+        why = [f"fact {self.fact!r} is unknown for this problem: this is a decision under uncertainty, "
+               "not a fact"]
+        for opt, v, reason in (self.hints(state) if self.hints else []):
+            if opt in scores:
+                scores[opt] += v
+                why.append(f"{reason} -> {opt} {v:+}")
+        if len(why) == 1:
+            why.append("no rule evidence either way: equal scores (tie broken alphabetically)")
+        return scores, why
+
+
+def _analytical_hints(state: DecisionState) -> List[Tuple[str, float, str]]:
+    if state.problem.get("geometry_complexity") == "complex":
+        return [("no", 1.0, "closed-form solutions are known for canonical domains, not for body-fitted "
+                             "geometries (airfoil, vehicle, CAD)")]
+    return []
+
+
+ANALYTICAL_SOLUTION = FactQuestion(
+    "has_analytical_solution", "Is there an analytical (closed-form) solution for this problem?",
+    "has_analytical_solution", _analytical_hints)
+REFERENCE_DATA = FactQuestion(
+    "has_reference_data", "Is there a reference simulation (or measured data) to train a surrogate on?",
+    "has_reference_data")
+
+SELECTORS = {s.name: s for s in (ModelSelector, TrainingStrategySelector, ValidationStrategySelector,
+                                 ANALYTICAL_SOLUTION, REFERENCE_DATA)}
+
+__all__ = ["ANALYTICAL_SOLUTION", "FactQuestion", "ModelSelector", "REFERENCE_DATA", "SELECTORS",
+           "TrainingStrategySelector", "ValidationStrategySelector"]

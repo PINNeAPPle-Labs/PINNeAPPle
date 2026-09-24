@@ -9,6 +9,8 @@ Decisions are read as distributions over a closed option set (no text
 generation), debiased without labels at level L0 (AnyJev-like; see README).
 See ``README.md`` in this package.
 """
+from .adapter import FACTS, UNKNOWN, AdaptedProblem, adapt_problem
+from .api import decide, decision_engine, execute, run_tree, verify
 from .backends import LogProbLLMBackend, RuleBasedBackend, ScoringBackend
 from .constraints import (
     NAMED_CONSTRAINTS,
@@ -38,11 +40,48 @@ from .schema import (
     Verification,
     problem_from_spec,
 )
-from .selectors import ModelSelector, TrainingStrategySelector, ValidationStrategySelector
+from .selectors import (
+    ANALYTICAL_SOLUTION,
+    REFERENCE_DATA,
+    FactQuestion,
+    ModelSelector,
+    TrainingStrategySelector,
+    ValidationStrategySelector,
+)
+from .tree import (
+    ChoiceNode,
+    DecisionTree,
+    ExecuteNode,
+    TerminalNode,
+    TreeRun,
+    TreeStep,
+    ValidateNode,
+    physics_ai_tree,
+)
 from .verifiers import ThresholdVerifier, VeriPhysicsVerifier, Verifier
 
 __all__ = [
+    "ANALYTICAL_SOLUTION",
+    "AdaptedProblem",
     "CallableExecutor",
+    "ChoiceNode",
+    "DecisionTree",
+    "ExecuteNode",
+    "FACTS",
+    "FactQuestion",
+    "REFERENCE_DATA",
+    "TerminalNode",
+    "TreeRun",
+    "TreeStep",
+    "UNKNOWN",
+    "ValidateNode",
+    "adapt_problem",
+    "decide",
+    "decision_engine",
+    "execute",
+    "physics_ai_tree",
+    "run_tree",
+    "verify",
     "Constraint",
     "ConstraintViolationError",
     "Decision",

@@ -52,7 +52,11 @@ def test_hybrid_needs_the_physics_postprocessor_fact():
     rec = recommend_architecture(n_high_fidelity_simulations=32, target_kind="kpi", has_physics_postprocessor=True)
     assert "hybrid_surrogate_physics" in rec.recommended
     info = ModelSelector.option_info()["hybrid_surrogate_physics"]
-    assert info.implementation is None and "no packaged implementation" in info.notes
+    assert info.implementation == "pinneapple_neural.workflows.hybrid_surrogate_physics.HybridSurrogatePhysics"
+    import importlib
+
+    mod, _, sym = info.implementation.rpartition(".")
+    assert hasattr(importlib.import_module(mod), sym)
 
 
 def test_adapter_reads_the_new_facts():

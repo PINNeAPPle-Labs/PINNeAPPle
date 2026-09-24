@@ -247,19 +247,24 @@ EXTRA_CATALOG: Dict[str, ArchitectureCandidate] = {
         notes="Noether/Emmi AI integration: blocked with PINNEAPPLE_COMMERCIAL_MODE=1 (pinneapple_neural._licencas)",
     ),
     "hybrid_surrogate_physics": ArchitectureCandidate(
-        name="Hybrid: field surrogate + physics post-model", registry_key="", category="hybrid",
+        name="Hybrid: surrogate of intermediate quantities + explicit physics post-model", registry_key="",
+        category="hybrid",
         when_to_use="The quantity of interest is DERIVED from the flow by an established physics model (e.g. "
-                    "erosion from particle impacts, fatigue from loads): learn the flow, keep the physics "
-                    "post-model explicit instead of learning the derived quantity end-to-end.",
+                    "erosion from particle impacts, fatigue from loads): learn the intermediate quantities the "
+                    "physics model consumes (wall impact statistics, loads, ...), keep the physics post-model "
+                    "explicit instead of learning the derived quantity end-to-end.",
         strengths=["The physics post-model stays auditable and swappable (e.g. change the erosion "
-                   "correlation without retraining)."],
-        weaknesses=["Needs a field surrogate good enough near the wall, which usually means more data than a "
-                    "direct KPI regressor.", "No ready-made composition in the library."],
-        source="Common practice in erosion CFD surrogates (flow surrogate + erosion model); see e.g. the "
-               "PINNeAPPle-CFD erosion annex.",
-        implementation="",
-        notes="composition of a library field surrogate with a user physics post-model; no packaged "
-              "implementation in PINNeAPPle",
+                   "correlation without retraining).",
+                   "The surrogate's predictive uncertainty is propagated through the physics by Monte Carlo."],
+        weaknesses=["The intermediate quantities are usually higher-dimensional and noisier than the derived "
+                    "KPI: with few samples a direct KPI regressor can be more accurate.",
+                    "The band only carries the surrogate's uncertainty, not the physics model's."],
+        source="Common practice in erosion CFD surrogates (flow surrogate + erosion model); Monte Carlo "
+               "propagation of GP predictive uncertainty: Rasmussen & Williams (2006).",
+        implementation="pinneapple_neural.workflows.hybrid_surrogate_physics.HybridSurrogatePhysics",
+        notes="generic composition (numpy; GP via scikit-learn when installed, numpy fallback); the user "
+              "supplies the physics post-model (a PhysicsPostModel with name and source) and chooses the "
+              "intermediate quantities",
     ),
 }
 

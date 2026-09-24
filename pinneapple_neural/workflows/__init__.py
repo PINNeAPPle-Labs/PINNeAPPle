@@ -19,6 +19,17 @@ from pinneapple_neural.workflows.parametric_dense_volume_operator import (
     predict_single_step_parametric,
     rollout_parametric_dense_volume_operator,
 )
+from pinneapple_neural.workflows.hybrid_surrogate_physics import (
+    CallablePostModel,
+    GaussianProcessSurrogate,
+    HybridPrediction,
+    HybridSurrogatePhysics,
+    PCASurrogate,
+    PerQuantitySurrogate,
+    PhysicsPostModel,
+    SurrogatePrediction,
+    TransformedSurrogate,
+)
 
 __all__ = [
     "DenseVolumeOperatorConfig",
@@ -32,4 +43,13 @@ __all__ = [
     "load_parametric_dense_volume_operator",
     "predict_single_step_parametric",
     "rollout_parametric_dense_volume_operator",
+    "CallablePostModel",
+    "GaussianProcessSurrogate",
+    "HybridPrediction",
+    "HybridSurrogatePhysics",
+    "PCASurrogate",
+    "PerQuantitySurrogate",
+    "PhysicsPostModel",
+    "SurrogatePrediction",
+    "TransformedSurrogate",
 ]

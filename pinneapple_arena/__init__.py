@@ -52,6 +52,12 @@ With UQ
         "uq": {"enabled": True, "method": "mc_dropout", "n_samples": 50},
     })
 
+Decision mode (the decision engine picks which models to train)
+---------------------------------------------------------------
+    report = Arena(cfg).run_decision(budget=2)   # at most 2 models trained
+    # or in the config: "decision": {"enabled": True, "budget": 2}
+    # see pinneapple_arena/decision_mode.py and pinneapple_decision/README.md
+
 With inverse problem
 --------------------
     cfg = ArenaConfig.from_dict({
@@ -69,6 +75,7 @@ from .config import (
     InverseConfig,
     UQConfig,
     DatasetConfig,
+    DecisionConfig,
 )
 from .arena import Arena, rank_by_accuracy, physics_aware_rank
 from .problems import get_problem, list_problems, list_problems_by_domain, ArenaProblem, register_problem
@@ -104,6 +111,7 @@ from .dataset_bench import (
     list_benchmarks,
     get_benchmark_preset,
 )
+from .decision_mode import ArenaDecisionReport, ArenaExecutor, run_decision_mode
 from .nas import (
     ArchitectureCandidate,
     ArchitectureSearchSpace,
@@ -118,9 +126,11 @@ __all__ = [
     # config
     "ArenaConfig", "ProblemConfig", "ModelConfig",
     "NetworkConfig", "TrainingConfig", "OutputConfig",
-    "InverseConfig", "UQConfig", "DatasetConfig",
+    "InverseConfig", "UQConfig", "DatasetConfig", "DecisionConfig",
     # main class
     "Arena",
+    # decision mode (the decision engine picks which models to train)
+    "ArenaDecisionReport", "ArenaExecutor", "run_decision_mode",
     # comparison / ranking
     "rank_by_accuracy", "physics_aware_rank",
     # problems

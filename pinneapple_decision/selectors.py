@@ -38,6 +38,13 @@ _MODEL_EXTRA = {
     "mesh_graph_net": dict(representations=("unstructured_mesh", "point_cloud"),
                            supports_varying_geometry=True, relative_cost=3),
     "inverse_pinn": dict(representations=MESH_FREE, relative_cost=2),
+    # EXTRA_CATALOG families (not ModelRegistry networks)
+    "kpi_regressor": dict(representations=MESH_FREE, supports_varying_geometry=True, relative_cost=1),
+    "pod_rom": dict(representations=("structured_grid", "unstructured_mesh"), relative_cost=1),
+    "point_cloud_operator": dict(representations=("point_cloud", "unstructured_mesh"),
+                                 supports_varying_geometry=True, relative_cost=3),
+    "hybrid_surrogate_physics": dict(representations=("point_cloud", "structured_grid", "unstructured_mesh"),
+                                     supports_varying_geometry=True, relative_cost=3),
 }
 
 _FAILED_PENALTY = -2.0
@@ -90,19 +97,23 @@ def _penalize_failed(state: DecisionState, choice: str, scores: Dict[str, float]
 class ModelSelector:
     name = "model"
     question = "Which physics-AI model family should be trained next for this problem?"
-    default_constraints = ("must_support_geometry", "within_budget")
+    default_constraints = ("must_support_geometry", "within_budget", "commercial_use_allowed")
 
     @staticmethod
     def option_info() -> Dict[str, OptionInfo]:
-        ARCHITECTURE_CATALOG = _arch().ARCHITECTURE_CATALOG
+        arch = _arch()
         out = {}
-        for key, c in ARCHITECTURE_CATALOG.items():
+        for key, c in {**arch.ARCHITECTURE_CATALOG, **arch.EXTRA_CATALOG}.items():
             extra = _MODEL_EXTRA.get(key, {})
+            impl = (f"pinneapple_neural.architectures.registry.ModelRegistry:{c.registry_key}" if c.registry_key
+                    else (c.implementation or None))
             out[key] = OptionInfo(
                 name=key,
                 description=f"{c.name}: {c.when_to_use}",
-                implementation=f"pinneapple_neural.architectures.registry.ModelRegistry:{c.registry_key}",
+                implementation=impl,
                 source=c.source,
+                notes=c.notes,
+                license=c.license,
                 **extra,
             )
         return out
@@ -126,6 +137,9 @@ class ModelSelector:
             needs_parameter_generalization=bool(p.get("needs_parameter_generalization", False)),
             geometry_varies=bool(p.get("geometry_varies", False)),
             is_inverse_problem=bool(p.get("is_inverse", False)),
+            target_kind=p.get("target_kind"),
+            fixed_topology=p.get("fixed_topology"),
+            has_physics_postprocessor=bool(p.get("has_physics_postprocessor", False)),
         )
         scores = {o: 0.0 for o in options}
         why = [f"recommend_architecture: {step}" for step in rec.decision_path]

@@ -50,6 +50,9 @@ FACTS: Dict[str, str] = {
     "needs_parameter_generalization": "the model must generalize over a parameter family (model rules)",
     "geometry_varies": "the geometry itself varies across cases (constraint + model rules)",
     "is_inverse": "unknown physical parameters must be identified (model rules)",
+    "fixed_topology": "every sample uses the same mesh (POD/ROM rules)",
+    "has_physics_postprocessor": "the target is derived from the flow by an established physics model "
+                                 "(hybrid surrogate rules)",
 }
 
 #: Canonical keys copied as-is when present (not facts with provenance, but used by rules).
@@ -73,6 +76,8 @@ _SYNONYMS: Dict[str, Tuple[str, ...]] = {
                                        "sweep", "varying_parameters", "aoa_sweep", "aoa_sweep_deg"),
     "geometry_varies": ("geometry_varies", "varying_geometry", "geometries"),
     "is_inverse": ("is_inverse", "inverse", "inverse_problem"),
+    "fixed_topology": ("fixed_topology", "same_mesh", "fixed_mesh"),
+    "has_physics_postprocessor": ("has_physics_postprocessor", "physics_postprocessor", "derived_by_physics_model"),
     "target_kind": ("target_kind", "target", "targets", "output", "outputs", "quantity_of_interest", "qoi"),
     "description": ("description", "name", "title", "goal"),
     "geometry": ("geometry", "geom", "shape", "body"),
@@ -336,7 +341,8 @@ def _adapt_mapping(raw: Mapping[str, Any], b: _Builder) -> None:
 
     for canon, reader in (("has_reference_data", _presence_bool), ("has_analytical_solution", _presence_bool),
                           ("has_solver", _presence_bool), ("is_inverse", _as_bool),
-                          ("needs_parameter_generalization", _as_bool)):
+                          ("needs_parameter_generalization", _as_bool), ("fixed_topology", _as_bool),
+                          ("has_physics_postprocessor", _as_bool)):
         hit = lookup(canon)
         if hit:
             bv = reader(hit[1])

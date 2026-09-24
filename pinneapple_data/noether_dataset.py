@@ -67,6 +67,8 @@ class NoetherDatasetBridge(TorchDataset):
         transform=None,
         device: Optional[str] = None,
     ) -> None:
+        from pinneapple_neural._licencas import require_research_use
+        require_research_use("NoetherDatasetBridge")
         self._ds = noether_dataset
         self.input_fields = input_fields
         self.target_fields = target_fields or []

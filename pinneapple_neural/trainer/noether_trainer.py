@@ -127,6 +127,8 @@ class NoetherSurrogateTrainer:
         val_loader: Optional["torch.utils.data.DataLoader"] = None,
         config: Optional[NoetherTrainConfig] = None,
     ) -> None:
+        from .._licencas import require_research_use
+        require_research_use("NoetherSurrogateTrainer")
         self.model = model
         self.train_loader = train_loader
         self.val_loader = val_loader

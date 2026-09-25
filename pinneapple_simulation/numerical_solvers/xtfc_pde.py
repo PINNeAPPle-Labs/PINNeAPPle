@@ -24,7 +24,7 @@ References
   function; this module follows that extension.
 - Leake & Mortari, "Deep Theory of Functional Connections: A New Method for
   Estimating the Solutions of Partial Differential Equations" (arXiv:
-  2005.01219) -- the general multivariate/"Coons patch" transfinite-
+  1812.08625) -- the general multivariate/"Coons patch" transfinite-
   interpolation constrained-expression construction for a rectangle with
   conditions on 3 (not necessarily 4) of its edges, which is exactly the
   IC + 2 BC configuration here (t=tf is left free -- there is no terminal
@@ -43,7 +43,7 @@ Method summary
    "extreme learning machine" idea as `xtfc_ivp.py`, now with 2 fixed random
    input weights per feature instead of 1).
 3. Constrained expression (Coons-patch / transfinite interpolation over a
-   rectangle with 3 constrained edges -- Leake & Mortari arXiv:2005.01219):
+   rectangle with 3 constrained edges -- Leake & Mortari arXiv:1812.08625):
 
        u(x,t) = g(x,t) + [u0(x) - g(x,t0)]
                        + s1(x)*[uL(t) - g(x0,t)] + s2(x)*[uR(t) - g(x1,t)]

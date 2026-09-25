@@ -1668,3 +1668,24 @@ dataset que o treinou?". Conexões diretas e concretas:
   magnitude, o que é precisamente o que torna qualquer investimento em
   foundation model físico (deste org ou de terceiros) economicamente
   justificável mesmo para equipes sem campanhas massivas de design.
+
+## 11. Referências trazidas por Yan em 2026-09-24 — o que era novo e o que virou código
+
+Registro completo da sessão (pedidos, links, decisões D1–D5): `docs/dev/PEDIDOS_2026-09-24.md`. Aqui ficam só os links que ainda não estavam neste roadmap e o que foi feito com eles.
+
+### Já implementado nesta sessão
+- **SSBFGS / SSBroyden** ([CrunchOptimizer/PINNs](https://github.com/CrunchOptimizer/PINNs), MIT): `pinneapple_neural.trainer.SelfScaledQuasiNewton`, reimplementação independente das eqs. (7)–(23) e do Apêndice B de Urban, Stefanou & Pons, *J. Comput. Phys.* 523 (2025), [arXiv:2405.04230](https://arxiv.org/abs/2405.04230). Benchmarks do paper de Jnini et al. ([arXiv:2604.05230](https://arxiv.org/abs/2604.05230)): o Helmholtz 2D (a1=1, a2=4, k=1) está em `benchmarks/ssqn_helmholtz.py`. Faltam Euler/HLLC, Burgers invíscida, Stokes e PK-PD rígido.
+- **Catálogo de recursos públicos com checagem de licença** (listas de datasets de geometria, de Physics AI e de modelos pré-treinados; [PressNet](https://github.com/AnK-Accelerated-Komputing/PressNet); [PLAID competitions](https://huggingface.co/PLAIDcompetitions); AB-UPT; [GeoPT](https://github.com/Physics-Scaling/GeoPT)): `pinneapple_catalog.resources`. A avaliação detalhada está em `PINNeAPPle-CFD/docs/7.Recursos-publicos.md`.
+- **Catálogo de métodos com referências e estado de validação**: `pinneapple_catalog.methods` + `docs/dev/CATALOGO_METODOS.md`.
+- **Visualizador 3D de gêmeo digital**: `pinneapple_twin3d` (cena em glTF + campos transientes + sensores com envelope de alarme + WebSocket ao vivo).
+- **`PINNFactory` com sinais externos**: equações como `Derivative(T(t), t) - a*S(t) + b*(T(t) - Tamb(t))` agora compilam. `S(t)` e `Tamb(t)` são detectados como entradas conhecidas; `T0` vira constante de execução. Também foi corrigido um bug silencioso: `S(t)` compilava para `t` (`sympy.S`). Exemplo de ponta a ponta com Open-Meteo: `examples/pinn_solver/06_open_meteo_climate_twin.py`.
+
+### Registrado, ainda não implementado
+- **[karpathy/autoresearch](https://github.com/karpathy/autoresearch)** (MIT): laço autônomo em que um agente edita um único `train.py`, com orçamento fixo de tempo e uma única métrica (aqui seria rel-L2 ou resíduo de EDP). Encaixe natural: um modo "autoresearch" no `pinneapple_arena`, com `program.md` levando o conhecimento físico do problema.
+- **[LiteReality-Agent](https://github.com/LiteReality/LiteReality-Agent)** (Apache-2.0): escaneamento RGBD/RoomPlan → cena MuJoCo pronta para física, refinada por agente contra o scan. Referência para gerar geometria de gêmeo a partir de scan (entrada do `pinneapple_twin3d`).
+- **[HamLeT](https://github.com/GretaLupi/hamlet-toolkit)** (GPL-3, **não copiar código**): simular → medir → inferir para Hamiltonianos de spin a partir de STM. Vale a ideia: contrato de modelo, UQ por discordância de ensemble e checagem de compatibilidade dado↔modelo antes da inferência.
+- **Rayane Belbachir (LinkedIn, pipeline industrial de IA, parte 1)**: condicionamento de telemetria em tempo real (outliers, lacunas, filtro por tipo de sinal) e visão SCADA de entrada de controle × resposta. Encaixe: `pinneapple_systems.digital_twin` (pré-processamento de stream) e o painel de sensores do `pinneapple_twin3d`.
+- **Ian McGann (LinkedIn)**: agente operando Simcenter AmeSim/PreScan de ponta a ponta. O engenheiro fica com a pergunta e a decisão. Confirma a direção do `pinneapple_llm`.
+- **Ashutosh Sharma / NVIDIA GTC 2026 (LinkedIn)**: Onshape → Isaac Sim via OpenUSD, com o argumento de "continuidade semântica" (proveniência, montagens, materiais) entre CAD, simulação e twin. Próximo formato de exportação do `pinneapple_twin3d` (hoje glTF).
+- **[Vídeo: esteira de Kármán atrás de um NACA 4412](https://www.youtube.com/watch?v=k9FPxuhFlTo)** (Sarwesh Parbat): candidato a benchmark de LBM (número de Strouhal) para o `numerical_solvers.lbm`.
+- **[Wolfram Community: construção de singularidade de Navier-Stokes da OpenAI](https://community.wolfram.com/t/an-intuitive-exploration-of-openais-navier-stokes-singularity-construction-for-the-1m-millennium-prize-problem/28013)**: só o fio de comentários abriu (o notebook não). Nada a implementar.

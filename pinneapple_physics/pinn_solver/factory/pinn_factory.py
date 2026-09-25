@@ -141,6 +141,17 @@ class PINNProblemSpec:
     dependent_vars: e.g. ["u"] or ["T","U","V"]
     inverse_params: optional list of trainable scalars used in equations
     loss_weights: weights for loss buckets: {"pde":1.0,"conditions":1.0,"data":1.0}
+    constants: named numbers used in equations, e.g. {"T0": 0.25}. A condition dict may
+      also carry its own "constants" (they override these for that condition). A bare name
+      that is declared nowhere (e.g. "T(t) - T0" with no T0 anywhere) is accepted as a
+      *runtime constant*: listed in ``PINNFactory.runtime_constants`` and read at loss time
+      from the condition entry's "constants", then ``batch["constants"]``.
+    exogenous: providers for known input signals written as functions of the independent
+      variables, e.g. "a*S(t) - b*(T(t) - Tamb(t))" with {"S": ..., "Tamb": ...}. A provider
+      is a callable f(*inputs) -> Tensor (see ``signals.TabulatedSignal``) or a Tensor with one
+      row per collocation point. Undeclared functions are detected automatically from the
+      equations; ``PINNFactory.exogenous_vars`` lists them. Providers can also be passed per
+      batch (``batch["exogenous"]``) and per condition.
     """
     pde_residuals: List[str]
     independent_vars: List[str]
@@ -154,6 +165,8 @@ class PINNProblemSpec:
     # coefficients. Empty (default) means no correction, i.e. residuals are evaluated
     # directly in whatever units `independent_vars` are sampled in.
     coord_scales: Dict[str, float] = field(default_factory=dict)
+    constants: Dict[str, float] = field(default_factory=dict)
+    exogenous: Dict[str, Any] = field(default_factory=dict)
     verbose: bool = False
 
 
@@ -167,6 +180,12 @@ class PINNFactory:
         - "collocation": Tuple[Tensor,...]  # for PDE residuals
         - "conditions": List[Tuple[Tensor,...]]  # one per condition equation (same length as spec.conditions)
         - "data": (Tuple[Tensor,...], Tensor)  # supervised data pairs
+        - "exogenous": {name: Tensor | callable}  # optional; known signals such as S(t), Tamb(t)
+        - "constants": {name: float | Tensor}  # optional; values of runtime constants (e.g. T0)
+      A condition entry may also be a dict {"inputs": (Tensor, ...), "exogenous": {...}}.
+      Exogenous providers are looked up in: the condition entry, then batch["exogenous"],
+      then spec.exogenous. Tensors must have one row per point of that bucket; callables
+      are evaluated on the bucket's inputs, so one TabulatedSignal serves every bucket.
     """
 
     def __init__(self, spec: PINNProblemSpec):
@@ -181,8 +200,22 @@ class PINNFactory:
             inverse_params=spec.inverse_params,
         )
 
-        self.compiled_pdes: List[CompiledEquation] = [self.compiler.compile(s) for s in spec.pde_residuals]
-        self.compiled_conditions: List[CompiledEquation] = [self.compiler.compile(c["equation"]) for c in spec.conditions]
+        consts = dict(spec.constants)
+        self.compiled_pdes: List[CompiledEquation] = [
+            self.compiler.compile(eq, constants=consts, strict=False) for eq in spec.pde_residuals
+        ]
+        self.compiled_conditions: List[CompiledEquation] = [
+            self.compiler.compile(c["equation"], constants={**consts, **c.get("constants", {})}, strict=False)
+            for c in spec.conditions
+        ]
+        # Known input signals the equations need (S(t), Tamb(t), ...), detected from the equations.
+        self.exogenous_vars: List[str] = sorted(
+            {n for ce in self.compiled_pdes + self.compiled_conditions for n in ce.exogenous}
+        )
+        # Undeclared bare names (e.g. T0): values are read at loss time from batch["constants"].
+        self.runtime_constants: List[str] = sorted(
+            {n for ce in self.compiled_pdes + self.compiled_conditions for n in ce.runtime_constants}
+        )
 
         # Union of all derivatives needed across PDEs and conditions
         self.all_derivatives: set[sp.Derivative] = set()
@@ -199,6 +232,12 @@ class PINNFactory:
         print("  Dependent Vars:", self.spec.dependent_vars)
         if self.spec.inverse_params:
             print("  Inverse Params:", self.spec.inverse_params)
+        if self.exogenous_vars:
+            print("  Exogenous Signals (known inputs):", self.exogenous_vars)
+        if self.spec.constants:
+            print("  Constants:", self.spec.constants)
+        if self.runtime_constants:
+            print("  Runtime constants (give values in batch['constants']):", self.runtime_constants)
         if self.all_derivatives:
             print("  Required Derivatives:", {str(d) for d in sorted(self.all_derivatives, key=str)})
         else:
@@ -217,6 +256,52 @@ class PINNFactory:
         dep_vars = self.spec.dependent_vars
         inv_vars = self.spec.inverse_params
         dep_symbols = self.compiler.dep_symbols
+        spec_exo = dict(self.spec.exogenous)
+
+        def exo_args(ce: CompiledEquation, inputs, local: Optional[Dict[str, Any]], shared: Optional[Dict[str, Any]],
+                     bucket: str, device, dtype) -> List[Tensor]:
+            out: List[Tensor] = []
+            n = inputs[0].shape[0] if inputs else None
+            for name in ce.exogenous:
+                src = None
+                for pool in (local, shared, spec_exo):
+                    if pool and name in pool:
+                        src = pool[name]
+                        break
+                if src is None:
+                    raise KeyError(
+                        f"Exogenous signal '{name}' is used in '{ce.expr}' but no provider was given for the "
+                        f"{bucket} points. Pass PINNProblemSpec(exogenous={{'{name}': ...}}) or "
+                        f"batch['exogenous']['{name}'] as a Tensor (one row per point) or a callable "
+                        f"f(*inputs), e.g. TabulatedSignal(t_samples, values)."
+                    )
+                val = src(*inputs) if callable(src) and not torch.is_tensor(src) else src
+                val = torch.as_tensor(val).to(device=device, dtype=dtype)
+                if val.ndim == 1:
+                    val = val.reshape(-1, 1)
+                if n is not None and val.shape[0] not in (1, n):
+                    raise ValueError(
+                        f"Exogenous signal '{name}' has {val.shape[0]} rows but the {bucket} batch has {n} "
+                        f"points; use a callable provider (TabulatedSignal) to evaluate it at any point."
+                    )
+                out.append(val)
+            return out
+
+        def const_args(ce: CompiledEquation, local: Optional[Dict[str, Any]], shared: Optional[Dict[str, Any]],
+                       where: str, device, dtype) -> List[Tensor]:
+            out: List[Tensor] = []
+            for name in ce.runtime_constants:
+                for pool in (local, shared):
+                    if pool and name in pool:
+                        out.append(torch.as_tensor(pool[name]).to(device=device, dtype=dtype))
+                        break
+                else:
+                    raise KeyError(
+                        f"'{name}' in '{ce.expr}' ({where}) is not declared anywhere, so its value is expected "
+                        f"at loss time: pass batch['constants']={{'{name}': value}} (or the condition's "
+                        f"'constants'), or declare it in PINNProblemSpec.constants / inverse_params."
+                    )
+            return out
 
         def loss_fn(model: PINN, batch: Dict[str, Any]) -> Tuple[Tensor, Dict[str, float]]:
             try:
@@ -266,11 +351,14 @@ class PINNFactory:
             if "collocation" in batch and batch["collocation"] is not None:
                 inputs = tuple(t.to(device=device, dtype=dtype) for t in batch["collocation"])
                 computed = deriv_comp.compute(model=model, inputs=inputs, required_derivatives=self.all_derivatives, dep_symbols=dep_symbols)
+                shared_exo = batch.get("exogenous")
 
                 for ce in self.compiled_pdes:
                     dep_args = [computed[dep_symbols[v]] for v in dep_vars]
                     deriv_args = [computed[d] for d in sorted(list(ce.derivatives), key=str)]
-                    args = [*inputs, *dep_args, *inv_vals, *deriv_args]
+                    ex = exo_args(ce, inputs, None, shared_exo, "collocation", device, dtype)
+                    cs = const_args(ce, None, batch.get("constants"), "collocation", device, dtype)
+                    args = [*inputs, *dep_args, *inv_vals, *ex, *cs, *deriv_args]
                     r = ce.call(*args)
                     losses["pde"] = losses["pde"] + torch.mean(r**2)
 
@@ -282,13 +370,23 @@ class PINNFactory:
                         f"Expected {len(self.compiled_conditions)} condition batches, got {len(cond_batches)}"
                     )
 
+                shared_exo = {k: v for k, v in (batch.get("exogenous") or {}).items() if callable(v) and not torch.is_tensor(v)}
                 for i, ce in enumerate(self.compiled_conditions):
-                    inputs = tuple(t.to(device=device, dtype=dtype) for t in cond_batches[i])
+                    entry = cond_batches[i]
+                    local_exo = local_const = None
+                    if isinstance(entry, dict):
+                        local_exo = entry.get("exogenous")
+                        local_const = entry.get("constants")
+                        entry = entry["inputs"]
+                    inputs = tuple(t.to(device=device, dtype=dtype) for t in entry)
                     computed = deriv_comp.compute(model=model, inputs=inputs, required_derivatives=self.all_derivatives, dep_symbols=dep_symbols)
 
                     dep_args = [computed[dep_symbols[v]] for v in dep_vars]
                     deriv_args = [computed[d] for d in sorted(list(ce.derivatives), key=str)]
-                    args = [*inputs, *dep_args, *inv_vals, *deriv_args]
+                    where = f"condition '{self.spec.conditions[i].get('name', i)}'"
+                    ex = exo_args(ce, inputs, local_exo, shared_exo, where, device, dtype)
+                    cs = const_args(ce, local_const, batch.get("constants"), where, device, dtype)
+                    args = [*inputs, *dep_args, *inv_vals, *ex, *cs, *deriv_args]
                     r = ce.call(*args)
 
                     w = float(self.spec.conditions[i].get("weight", 1.0))

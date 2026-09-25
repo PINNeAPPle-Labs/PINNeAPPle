@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pinneapple"
-version = "0.5.0"
+version = "0.6.0"
 description = "PINNeAPPle: Physics-Informed Neural Networks platform — PDE problem design, PINN/operator/GNN models, UQ, digital twins, meta-learning, active learning, validation, and REST serving."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -315,6 +315,8 @@ packages = [
   "pinneapple_registry",     # local artifact registry: models, datasets, experiments
   "pinneapple_orchestration", # optional Prefect-based pipeline layer (data gen, training, benchmark, publish, twin prep)
   "pinneapple_hub",          # push_to_hub/from_pretrained model hub
+  "pinneapple_catalog",      # public datasets/models catalog with license gate + method references
+  "pinneapple_twin3d",       # 3D digital-twin scene export (glTF + fields + sensors) and web viewer
   "pinneapple_llm",          # LLM-assisted pipeline drafting + physics guardrail
   "pinneapple_decision",     # probabilistic decision layer (which experiment next; L0-debiased)
   "pinneapple_blender",      # Blender export/render bridge
@@ -359,6 +361,8 @@ include = [
   "pinneapple_registry/**",
   "pinneapple_orchestration/**",
   "pinneapple_hub/**",
+  "pinneapple_catalog/**",
+  "pinneapple_twin3d/**",
   "pinneapple_llm/**",
   "pinneapple_blender/**",
   "pinneapple_perception/**",

@@ -79,8 +79,11 @@ from .parallel import (
 )
 from .adaptive_sweep import AdaptiveSweepConfig, run_adaptive_sweep
 from .lbfgs_finetune import LBFGSFinetuneResult, multi_round_lbfgs
+from .self_scaled_qn import SelfScaledQuasiNewton
 
 __all__ = [
+    # Self-scaled quasi-Newton (BFGS / SSBFGS / SSBroyden, Urban et al. JCP 2025)
+    "SelfScaledQuasiNewton",
     # Training advisor
     "TrainingAdvisor",
     "Suggestion",

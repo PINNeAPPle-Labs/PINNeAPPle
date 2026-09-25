@@ -15,10 +15,22 @@ Design note — two SymPy→PyTorch compilation paths exist in this codebase:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import re
+from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional, Set
 
 import sympy as sp
+from sympy.core.function import AppliedUndef
+
+# Names the equation strings may use as math, not as user variables. Everything else that
+# is not declared is created fresh (Symbol, or Function when called), so user names such as
+# S, E, I, N, O, Q, beta or gamma never resolve to SymPy built-ins: before this, "S(t)"
+# silently compiled to "t" (sympy.S is SymPy's singleton registry).
+_MATH_NAMES = {
+    "Derivative", "sin", "cos", "tan", "exp", "log", "sqrt", "Abs", "pi", "tanh", "sinh", "cosh",
+    "asin", "acos", "atan", "atan2", "sign", "Heaviside", "Max", "Min", "Rational", "Integer", "Float",
+}
+_IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
 # -----------------------------
@@ -38,6 +50,10 @@ class CompiledEquation:
     derivatives: Set[sp.Derivative]
     call: Callable[..., Any]
     args_order: List[sp.Basic]
+    # Known input signals used by the equation (e.g. S(t), Tamb(t)), in call order.
+    exogenous: List[str] = field(default_factory=list)
+    # Undeclared bare symbols (e.g. T0) whose value is given at call time, in call order.
+    runtime_constants: List[str] = field(default_factory=list)
 
 
 # -----------------------------
@@ -93,9 +109,41 @@ class SympyTorchCompiler:
             return list(syms)
         return [syms]
 
-    def compile(self, eq_str: str) -> CompiledEquation:
-        """Compile equation string to CompiledEquation with torch-callable residual."""
-        expr = sp.sympify(eq_str, locals=self.namespace, evaluate=False)
+    def _locals_for(self, eq_str: str) -> Dict[str, Any]:
+        """Namespace for one equation: declared names + fresh objects for every other identifier."""
+        ns = dict(self.namespace)
+        ns["Derivative"] = sp.Derivative
+        for m in _IDENT.finditer(eq_str):
+            name = m.group(0)
+            if name in ns or name in _MATH_NAMES:
+                continue
+            called = eq_str[m.end():].lstrip().startswith("(")
+            ns[name] = sp.Function(name) if called else sp.Symbol(name)
+        for name in ("tan", "tanh", "sinh", "cosh", "asin", "acos", "atan", "atan2", "sign",
+                     "Heaviside", "Max", "Min"):
+            ns.setdefault(name, getattr(sp, name))
+        return ns
+
+    def compile(self, eq_str: str, *, constants: Optional[Dict[str, float]] = None,
+                strict: bool = True) -> CompiledEquation:
+        """Compile an equation string into a torch-callable residual.
+
+        Besides the declared independent/dependent variables and inverse parameters, an
+        equation may use:
+
+        - **exogenous signals**: any undeclared function of the independent variables, e.g.
+          ``S(t)`` or ``Tamb(t)``: a known input (sensor data, forcing), not a network output.
+          Its values are passed at call time, after the inverse parameters.
+        - **constants**: undeclared bare symbols (e.g. ``T0``) given in ``constants``; they
+          are substituted by their numeric value.
+
+        Any other undeclared bare symbol raises a ``ValueError`` that names it when
+        ``strict`` (default); with ``strict=False`` it becomes a *runtime constant*: an extra
+        call argument (after the exogenous signals) whose value is supplied when the residual
+        is evaluated.
+        """
+        constants = dict(constants or {})
+        expr = sp.sympify(eq_str, locals=self._locals_for(eq_str), evaluate=False)
         def _expand_numeric_pow(e):
             if isinstance(e, sp.Pow) and e.base.is_Number and e.exp.is_Integer and int(e.exp) >= 0:
                 n = int(e.exp)
@@ -106,23 +154,64 @@ class SympyTorchCompiler:
 
         expr = expr.replace(lambda e: isinstance(e, sp.Pow) and e.base.is_Number and e.exp.is_Integer, _expand_numeric_pow)
 
+        # Exogenous signals: applied functions that are not dependent variables.
+        exo_apps = [a for a in expr.atoms(AppliedUndef) if a.func.__name__ not in self.dep_func_classes]
+        exo_names = sorted({a.func.__name__ for a in exo_apps})
+        ind_set = set(self.ind_symbols)
+        for a in exo_apps:
+            if not a.args or not set(a.args) <= ind_set or len(set(a.args)) != len(a.args):
+                raise ValueError(
+                    f"'{a}' in '{eq_str}': an exogenous signal must be a function of independent "
+                    f"variables {self.ind_vars_str} only (e.g. {a.func.__name__}({', '.join(self.ind_vars_str)}))."
+                )
+        for d in expr.atoms(sp.Derivative):
+            if isinstance(d.expr, AppliedUndef) and d.expr.func.__name__ in exo_names:
+                raise ValueError(
+                    f"'{d}' in '{eq_str}': derivatives of exogenous signals are not supported; "
+                    f"pass the derivative as its own signal (e.g. d{d.expr.func.__name__}(t))."
+                )
+        exo_symbols = {n: sp.Symbol(f"__exo_{n}") for n in exo_names}
+        if exo_apps:
+            expr = expr.xreplace({a: exo_symbols[a.func.__name__] for a in exo_apps})
+
+        if constants:
+            expr = expr.xreplace({sp.Symbol(k): sp.Float(v) for k, v in constants.items()})
+
+        known = ind_set | set(self.inv_symbols) | set(exo_symbols.values())
+        unknown = sorted(str(s_) for s_ in expr.free_symbols - known)
+        if unknown and strict:
+            raise ValueError(
+                f"Undeclared name(s) {unknown} in '{eq_str}'. Declare each one as a constant "
+                f"(PINNProblemSpec.constants={{'{unknown[0]}': value}} or the condition's 'constants'), "
+                f"as an inverse parameter (inverse_params=[...]), or write it as a function of the "
+                f"independent variables to feed it as an exogenous signal (e.g. {unknown[0]}"
+                f"({', '.join(self.ind_vars_str)}))."
+            )
+
+        runtime_symbols = [sp.Symbol(n) for n in unknown] if not strict else []
+
         derivatives = set(expr.atoms(sp.Derivative))
 
         # Stable ordering:
         # 1) indep symbols
         # 2) dependent symbols (u(t,x), v(t,x), ...)
         # 3) inverse params
-        # 4) derivatives (sorted)
+        # 4) exogenous signals (sorted by name)
+        # 5) runtime constants (sorted by name; only with strict=False)
+        # 6) derivatives (sorted)
         deriv_sorted = sorted(list(derivatives), key=str)
         args_order: List[sp.Basic] = [
             *self.ind_symbols,
             *self.dep_symbols.values(),
             *self.inv_symbols,
+            *[exo_symbols[n] for n in exo_names],
+            *runtime_symbols,
             *deriv_sorted,
         ]
 
         call = sp.lambdify(args_order, expr, "torch")
-        return CompiledEquation(expr=expr, derivatives=derivatives, call=call, args_order=args_order)
+        return CompiledEquation(expr=expr, derivatives=derivatives, call=call, args_order=args_order,
+                                exogenous=exo_names, runtime_constants=[str(r) for r in runtime_symbols])
 
 
 class SympyBackend:

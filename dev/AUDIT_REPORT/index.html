@@ -1,0 +1,4009 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Evidenced audit report - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#evidenced-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Evidenced audit report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/barrosyan/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    barrosyan/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/barrosyan/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    barrosyan/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#astrophysicsspace-specialization-7-new-pdeode-kinds-all-verified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Astrophysics/space specialization: 7 new PDE/ODE kinds, all verified
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#zero-the-pre-existing-test-suite-tests-excluding-the-two-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zero — the pre-existing test suite (tests/, excluding the two new
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-a-tier-b-this-sessions-own-new-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier A / Tier B (this session's own new tests)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#category-1-real-defect-presets-registered-but-not-compilable-at-all" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Category 1 — real defect: presets registered but not compilable at all
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#all-7-originally-identified-category-1-gaps-are-now-closed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All 7 originally-identified Category 1 gaps are now closed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finalized-every-remaining-tier-a-failure-individually-confirmed-and-closed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finalized: every remaining Tier A failure individually confirmed and closed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tier-b-physics-correctness-passed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier B (physics correctness) — passed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#follow-up-pass-3d-komegasstresiduals-turbulence-closure-p24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow-up pass: 3D KOmegaSSTResiduals turbulence closure (P2.4)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-session-fixed-vs-what-it-found-but-did-not-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this session fixed vs. what it found but did not fix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solve_pde-silently-dropped-selector_typetag-conditions-now-fails-loudly-with-the-tag_masks-mechanism-itself-confirmed-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        solve_pde() silently dropped selector_type="tag" conditions — now fails loudly, with the tag_masks mechanism itself confirmed real
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#follow-up-pass-real-analytic-geometry-for-23-of-the-40-tag-based-presets-2026-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow-up pass: real analytic geometry for 23 of the 40 tag-based presets (2026-09-17)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#third-follow-up-pass-9-specific-presets-across-3-pre-decided-strategies-from-the-17-not-fixable-list-2026-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Third follow-up pass: 9 specific presets across 3 pre-decided strategies, from the 17 "not fixable" list (2026-09-17)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fourth-follow-up-pass-naca-0012-literature-default-and-2-new-neumann-bc-compiler-mechanisms-2026-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fourth follow-up pass: NACA 0012 literature default, and 2 new Neumann-BC compiler mechanisms (2026-09-17)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fifth-pass-pluggable-gradient-backend-for-symbolicpde-2026-09-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fifth pass: pluggable gradient backend for SymbolicPDE (2026-09-17)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geometry-ood-guardrail-a-real-gap-from-the-physicsnemo-comparison-closed-2026-09-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Geometry OOD guardrail: a real gap from the PhysicsNeMo comparison, closed (2026-09-18)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/barrosyan/PINNeAPPle/edit/main/docs/dev/AUDIT_REPORT.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/barrosyan/PINNeAPPle/raw/main/docs/dev/AUDIT_REPORT.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="evidenced-audit-report">Evidenced audit report<a class="headerlink" href="#evidenced-audit-report" title="Permanent link">&para;</a></h1>
+<p>Generated 2026-09-04 by actually running the test suites named below (not
+estimated or guessed — every number here is a real test result). See
+<code>ROADMAP_PHYSICS_AI_HUB.md</code> section 1.1 for the two-tier audit design this
+implements (Tier A = breadth/"does it run", Tier B =
+<code>tests/test_manufactured_solutions.py</code>, physics correctness).</p>
+<h2 id="astrophysicsspace-specialization-7-new-pdeode-kinds-all-verified">Astrophysics/space specialization: 7 new PDE/ODE kinds, all verified<a class="headerlink" href="#astrophysicsspace-specialization-7-new-pdeode-kinds-all-verified" title="Permanent link">&para;</a></h2>
+<p>PINNeAPPle's chosen initial domain specialization (see
+<code>ROADMAP_PHYSICS_AI_HUB.md</code> section "Domain specialization"): 7 new,
+literature-grounded benchmark presets in
+<code>pinneapple_physics/pde_environment/presets/astrophysics.py</code>, spanning
+industrial space engineering (satellite orbit propagation, space-debris
+conjunction assessment, spacecraft attitude control) and research
+astrophysics (stellar structure, dark-matter halo potentials, compressible
+hydrodynamics). Each needed a new PDE/ODE residual kind in the compiler
+(<code>pinneapple_physics/pinn_solver/compiler/compile.py</code>), except
+<code>nfw_dark_matter_potential</code>, which reuses the existing "poisson" kind.</p>
+<p><strong>Every closed-form solution used for validation was derived or verified
+with <code>sympy</code> this session before being written into code</strong> (substituted
+into its governing ODE/PDE, confirmed exact zero residual) — not
+recalled from memory and trusted. This caught one real error: the first
+version of the J2 perturbation acceleration (from memory) had the wrong
+overall sign; the version actually shipped was derived as -grad(V) of the
+cited geopotential and is correct by construction.</p>
+<p><code>tests/test_astrophysics_validation.py</code> (Tier B, same method as
+<code>test_manufactured_solutions.py</code>): plug the exact solution into the
+compiled residual with no training, assert ~0; plug a deliberately wrong
+solution in, assert clearly nonzero. <strong>16/16 pass</strong> (8 presets/kinds x
+exact+wrong, except <code>satellite_j2_perturbation</code>, which has no closed-form
+trajectory — see below):</p>
+<table>
+<thead>
+<tr>
+<th>Preset</th>
+<th>Kind</th>
+<th>Exact solution used</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>kepler_two_body_orbit</code></td>
+<td><code>kepler_two_body_orbit</code></td>
+<td>Kepler's equation (Newton-Raphson, differentiable)</td>
+<td>✅ residual ~1e-19</td>
+</tr>
+<tr>
+<td><code>space_debris_cw_relative_motion</code></td>
+<td><code>space_debris_cw_relative_motion</code></td>
+<td>Clohessy-Wiltshire closed form</td>
+<td>✅ residual ~0</td>
+</tr>
+<tr>
+<td><code>satellite_j2_perturbation</code></td>
+<td><code>satellite_j2_perturbation</code></td>
+<td>no closed form; checked instead: J2=0 reduces exactly to two-body (res ~1e-19), J2=Earth's value measurably perturbs it (res ~3e-11)</td>
+<td>✅ both directions confirmed</td>
+</tr>
+<tr>
+<td><code>spacecraft_attitude_euler_rotation</code></td>
+<td><code>spacecraft_attitude_euler_rotation</code></td>
+<td>axisymmetric torque-free precession</td>
+<td>✅ residual ~0 (&lt;1e-8)</td>
+</tr>
+<tr>
+<td><code>lane_emden_polytrope</code></td>
+<td><code>lane_emden_polytrope</code></td>
+<td>n=0 and n=1 closed forms</td>
+<td>✅ both ~0 (n=0 caught a real bug, see below)</td>
+</tr>
+<tr>
+<td><code>nfw_dark_matter_potential</code></td>
+<td><code>poisson</code> (existing kind)</td>
+<td>NFW closed-form potential</td>
+<td>✅ residual ~0</td>
+</tr>
+<tr>
+<td><code>sod_shock_tube_astro</code></td>
+<td><code>euler_compressible_1d</code></td>
+<td>smooth advected-pulse MMS (the real Sod solution is discontinuous, not usable for pointwise autograd MMS)</td>
+<td>✅ residual ~0 (&lt;1e-8)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Real bug caught by this process</strong>: the Lane-Emden branch's
+<code>theta_pow_n = sign(theta) * abs(theta)**n</code> "safe negative-base power"
+trick is mathematically wrong for even integer n (it returns -1 instead
+of the correct +1 for <code>theta**0</code> when theta&lt;0) — the n=0 exact-solution
+test failed with residual 0.234 instead of ~0 before the fix. Corrected
+to use <code>theta ** int(n)</code> directly whenever n is an integer (0, 1, 5 all
+are), falling back to the sign-preserving regularization only for
+genuinely non-integer n. This is exactly the kind of defect Tier B is
+for: the code ran without error before the fix (Tier A would have missed
+it entirely) but computed the wrong physics.</p>
+<p><strong>Also fixed as a byproduct</strong>: two pre-existing Category-1 "Unsupported
+PDE kind" gaps from the Tier A audit below, <code>sir_ode</code> and
+<code>pk_two_compartment_ode</code>, were fixed using the same
+compiler-branch pattern built for the new astrophysics ODE kinds (both
+now compile and run; Tier A failure count went from 62/137 to 60/137 as a
+direct result, confirmed by re-running the full suite).</p>
+<p><strong>Known gaps from the first pass, closed in a follow-up pass</strong> (below):
+<code>satellite_j2_perturbation</code>'s secular drift-rate formulas and
+<code>lane_emden_polytrope</code>'s astrophysically-standard n=1.5/n=3 both lacked
+any check beyond the instantaneous-residual level. Both are now
+independently validated (see "Follow-up pass" below). The CGNS/Exodus/
+Fluent/Abaqus readers' "not validated against a real writer's file"
+caveat is now closed for three of the four formats (see
+"Real-writer validation of the CGNS/Exodus/Fluent/Abaqus readers" below);
+unrelated to this specialization either way.</p>
+<h3 id="real-writer-validation-of-the-cgnsexodusfluentabaqus-readers">Real-writer validation of the CGNS/Exodus/Fluent/Abaqus readers<a class="headerlink" href="#real-writer-validation-of-the-cgnsexodusfluentabaqus-readers" title="Permanent link">&para;</a></h3>
+<p>Follow-up to the caveat above: each reader was run against a file from an
+independent, real writer (a different program than the one being tested),
+not just the self-consistent synthetic files used originally. Full
+provenance for every fixture is in <code>tests/fixtures/cfd_formats/README.md</code>;
+tests are <code>tests/test_cfd_format_readers.py</code> (5/5 pass).</p>
+<ul>
+<li><strong>CGNS: validated for real.</strong> <code>h5py</code> was already available, but there is
+  no real CGNS-writing tool installable in this sandbox via <code>pip</code> (<code>pycgns</code>
+  needs a C build toolchain this environment doesn't have --
+  <code>ninja</code>/<code>hdf5</code>-dev via <code>pkg-config</code> weren't resolvable through pip's
+  build isolation). <code>brew install cgns</code> <em>did</em> work, though (bottled, no
+  compilation needed) -- it installs the real CGNS 4.5.2 reference
+  library/headers <strong>and</strong> the CGNS project's own CLI tools (<code>cgnscheck</code>,
+  <code>cgnslist</code>, ...). A small C program was written against the real CGNS
+  Mid-Level Library API (<code>cg_open</code>/<code>cg_zone_write</code>/<code>cg_field_write</code>/...) to
+  produce a file, which <code>cgnscheck</code> (the CGNS project's own reference
+  validator) confirmed was spec-valid (0 errors, only benign warnings)
+  before <code>cgns_reader.py</code> was pointed at it. <strong>Result: read correctly on
+  the first attempt</strong> -- coordinates and both vertex fields
+  (<code>Temperature</code>, <code>Pressure</code>) matched their known-exact values exactly. No
+  reader bug found. Note in passing: meshio's own built-in <code>.cgns</code> writer
+  was tried first and rejected as invalid evidence -- it omits the
+  CGNS-mandated <code>label</code>/<code>type</code> HDF5 attributes entirely (its own source has
+  a literal <code># TODO something is missing here</code>), so it does not produce a
+  spec-compliant CGNS file; see the README for the full finding.</li>
+<li><strong>Exodus II: validated for real, one real bug found and fixed.</strong>
+  <code>meshio</code> (already a dependency elsewhere in this repo) writes genuine
+  Exodus via the real <code>netCDF4</code> package. Its default output is
+  NetCDF-4/HDF5-based; forcing <code>netCDF4.Dataset(..., format="NETCDF3_CLASSIC")</code>
+  produced the classic-NetCDF variant <code>exodus_reader.py</code> targets. <strong>Read
+  correctly</strong> (coordinates + both fields matched exactly) once written.
+  The real bug: pointing the reader at the <em>other</em> real, valid Exodus file
+  meshio produces (NetCDF-4/HDF5-based, no format override) raised a raw,
+  confusing <code>scipy</code> <code>TypeError</code> ("not a valid NetCDF 3 file") instead of
+  the clear, documented-as-intentional failure the module's own docstring
+  promised ("out of scope... raise on that failure rather than silently
+  returning nothing"). Fixed: <code>read_exodus</code> now detects the HDF5 magic
+  header and the classic-format-only <code>TypeError</code> and raises a
+  <code>NotImplementedError</code> naming the actual problem and the <code>netCDF4</code>/
+  <code>h5netcdf</code> fallback, instead of letting scipy's internal message leak
+  through unexplained.</li>
+<li><strong>Fluent/Gambit mesh: validated for real.</strong> <code>meshio</code>'s <code>ansys</code> writer
+  targets the same TGrid <code>.msh</code> format <code>fluent_mesh_reader.py</code> implements
+  (both cite the same TGrid user-guide appendix); written in ASCII mode
+  (<code>binary=False</code>) since that's the only encoding the reader supports.
+  <strong>Read correctly</strong>, node coordinates matched exactly. No reader bug
+  found.</li>
+<li><strong>Abaqus: partially validated, and the <code>.odb</code> half plainly is not
+  possible here.</strong> The <code>.inp</code> mesh-reading half
+  (<code>read_abaqus_inp_mesh</code>) was validated against a real <code>meshio</code>-written
+  <code>.inp</code> deck (<code>*NODE</code>/<code>*ELEMENT, TYPE=C3D4</code>) -- read correctly, node
+  coordinates and connectivity matched exactly, no bug found. The <code>.odb</code>
+  results bridge (<code>export_odb_fields</code>, which shells out to a real Abaqus's
+  own <code>abaqus python</code> interpreter) genuinely cannot be exercised here:
+  <code>which abaqus</code> and a filesystem search both confirm no Abaqus
+  installation exists on this machine (expensive licensed commercial FEA
+  software, as expected) -- and faking an <code>.odb</code> file by hand would defeat
+  the entire point of validating against a real writer, so no attempt was
+  made. This half of the caveat remains genuinely open and needs a machine
+  with a licensed Abaqus install to close.</li>
+</ul>
+<h3 id="follow-up-pass-end-to-end-training-independent-numerical-validation">Follow-up pass: end-to-end training + independent numerical validation<a class="headerlink" href="#follow-up-pass-end-to-end-training-independent-numerical-validation" title="Permanent link">&para;</a></h3>
+<p>Two things the first pass explicitly flagged as missing, both addressed:</p>
+<p><strong>1. Actually training networks end-to-end</strong> (the first pass only proved
+the residual/physics implementation is correct, never trained a network
+and checked its own output against the truth):</p>
+<ul>
+<li><code>examples/pde_environment/05_kepler_orbit_validation.py</code>: first attempt
+  (physics residual + IC only) converged PDE+IC loss to ~0.001 — looking
+  done — while position RMSE was <strong>~104% of the semi-major axis</strong>
+  (completely wrong trajectory shape). This is a real, reproduced PINN
+  pure-IVP failure mode, not a footnote: an IC pins the solution at one
+  point only, so small residual+IC loss does not imply the network found
+  the correct global trajectory among the many that locally satisfy it.
+  Fixed by adding 15 sparse "tracking-data" points from the exact
+  solution as a <code>DataConstraint</code> (which is also an honest reframing of
+  the preset's real industrial use case: orbit determination genuinely
+  is fitting dynamics to sparse tracking observations). Final result
+  (Adam + cosine LR decay + grad clipping, 3000 epochs, ~45s CPU):
+  <strong>1.85% position RMSE, 2.65% velocity RMSE</strong>; conserved quantities not
+  directly supervised (specific energy, angular momentum) matched exact
+  values to ~1.9%/~0.7%.</li>
+<li><code>examples/pde_environment/06_space_debris_cw_validation.py</code>: repeated
+  the same experiment for <code>space_debris_cw_relative_motion</code> (a <em>linear</em>
+  ODE, unlike Kepler's nonlinear one) — the same pure-IVP collapse
+  reproduced again (loss ~1e-12, RMSE ~360%), confirming the failure mode
+  is about IVP structure, not nonlinearity. A second, independent
+  pitfall was found while fixing it: Hill's along-track coordinate y(t)
+  has a genuine secular (linearly-growing) term reaching ~-12 km over one
+  period while x/z stay within ±1.5 km — the single shared
+  position-scale that worked for Kepler badly under-scales y here and
+  stalls convergence at ~17% RMSE; per-axis scaling matched to each
+  coordinate's actual range fixed it. Final result: <strong>3.00% position
+  RMSE</strong>.</li>
+</ul>
+<p><strong>2. Independent numerical validation of the two previously-open gaps</strong>
+(both via <code>scipy.integrate.solve_ivp</code>, reimplemented independently of
+<code>compile.py</code> — checking the physics, not the compiler code against
+itself):</p>
+<ul>
+<li><code>tests/test_j2_secular_validation.py</code>: integrates the J2-perturbed
+  equations of motion over 800/400 orbits, fits the osculating
+  RAAN/argument-of-perigee secular trend, compares to Vallado's
+  literature formulas. <strong>Nodal regression: 0.45% agreement. Apsidal
+  precession: 0.53% agreement.</strong> (Caveat documented in the test itself:
+  naively checking apsidal precession near the ~63.435° critical
+  inclination gives a spurious "45% error" from the literature formula's
+  own near-zero denominator there, not a real discrepancy — the test
+  deliberately uses 30° instead.)</li>
+<li><code>tests/test_lane_emden_numerical_validation.py</code>: integrates the
+  Lane-Emden equation for n=1.5 (white dwarf) and n=3 (Eddington standard
+  model), finds the first zero crossing ξ₁, compares to published
+  textbook tables (Chandrasekhar 1939). <strong>n=1.5: 0.0001% agreement. n=3:
+  0.00002% agreement.</strong> (The integrator is first sanity-checked against
+  the n=0/n=1 closed forms, matching to &lt;1e-6, before being trusted for
+  the no-closed-form cases.)</li>
+</ul>
+<p>Both test files pass (2/2 and 4/4 respectively), run in a few seconds
+each, and are part of the regular suite going forward.</p>
+<hr />
+<h2 id="zero-the-pre-existing-test-suite-tests-excluding-the-two-new">Zero — the pre-existing test suite (<code>tests/</code>, excluding the two new<a class="headerlink" href="#zero-the-pre-existing-test-suite-tests-excluding-the-two-new" title="Permanent link">&para;</a></h2>
+<p>Tier A/B files below): 4 collection-blocking bugs found and fixed, then
+<strong>0 failures across the entire suite</strong></p>
+<p>Running <code>pytest tests/</code> at the start of this pass didn't run a single
+test — it aborted immediately with 4 <code>ModuleNotFoundError</code>s at collection
+time (pytest aborts collecting the <em>whole</em> directory tree on any
+module-level import error, so these 4 broken files were silently blocking
+every other pre-existing test in the repository, tested or not, from ever
+running). All four turned out to be the same underlying pattern —
+compatibility shim packages (<code>pinneapple_train</code>, <code>pinneapple_solvers</code>,
+<code>pinneapple_models</code>) whose <code>__init__.py</code> only re-exports symbols at the
+flat top level, while a large number of call sites across the repo
+(examples, the library's own internal NLP-to-PDE agent knowledge base,
+<code>pinneapple_tools.benchmark_suite</code>, and these tests) import from them as
+genuine <em>submodules</em> (<code>pinneapple_train.trainer</code>, <code>.losses</code>, <code>.metrics</code>;
+<code>pinneapple_solvers.fft</code>; <code>pinneapple_models.registry</code>) that never
+existed as real files:</p>
+<table>
+<thead>
+<tr>
+<th>Broken import</th>
+<th>Real location</th>
+<th>Blast radius found</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pinneapple_pinn.factory.pinn_factory</code> (package doesn't exist at all)</td>
+<td><code>pinneapple_physics.pinn_solver.factory.pinn_factory</code></td>
+<td>1 test file (fixed the import directly — no established shim convention to extend for this one)</td>
+</tr>
+<tr>
+<td><code>pinneapple_train.trainer</code> / <code>.losses</code> / <code>.metrics</code></td>
+<td><code>pinneapple_neural.trainer.{trainer,losses,metrics}</code></td>
+<td>7 example scripts, <code>pinneapple_tools/benchmark_suite/{timeseries_pipeline,physics_pipeline}.py</code>, and <strong>the library's own <code>pinneapple_problemdesign</code> NLP-to-PDE agent knowledge base</strong> (<code>knowledge/{pinneapple_capabilities,mapping}.py</code>) documented this exact broken API — added real <code>pinneapple_train/{trainer,losses,metrics}.py</code> submodules</td>
+</tr>
+<tr>
+<td><code>pinneapple_solvers.fft.FFTSolver</code></td>
+<td><code>pinneapple_simulation.numerical_solvers.fft.FFTSolver</code></td>
+<td>plus a second, independent bug in the same file: <code>pinneapple_solvers/__init__.py</code>'s own top-level re-export imported a nonexistent <code>FFTProcessor</code> name inside a bare <code>try/except</code>, silently leaving it <code>None</code> forever with no error ever surfacing — fixed both</td>
+</tr>
+<tr>
+<td><code>pinneapple_models.registry.ModelRegistry</code></td>
+<td><code>pinneapple_neural.architectures.registry.ModelRegistry</code></td>
+<td>added <code>pinneapple_models/registry.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>Once collection was unblocked, running the full suite surfaced these
+further real, independent bugs (all fixed, not just documented):</p>
+<ul>
+<li><strong><code>pinneapple_systems/process_components/real_gas_eos.py</code></strong>: <code>CP.PT_INPUTS</code>/<code>CP.HmassP_INPUTS</code>/<code>CP.PSmass_INPUTS</code>
+  are evaluated as plain function <em>arguments</em> at each <code>state_from_*</code> call
+  site, i.e. before the function's own internal <code>_COOLPROP_AVAILABLE</code>
+  check ever runs — so on any machine without CoolProp installed, all 12
+  <code>test_process_components.py</code> tests failed with a bare, confusing
+  <code>NameError: name 'CP' is not defined</code> instead of the clear
+  <code>ImportError</code> the code was already set up to raise internally. Added a
+  <code>_require_coolprop()</code> guard at the top of all three entry points, added
+  <code>pytest.importorskip("CoolProp")</code> to the test module (so it skips
+  cleanly rather than fails on an environment without it, the same fix
+  applied to <code>tests/pinneapple_geom/test_mesh_ops.py</code>'s bare <code>import
+  trimesh</code>), and added <code>CoolProp</code> to <code>pyproject.toml</code>'s new <code>process</code>
+  extra (it wasn't listed anywhere before).</li>
+<li><strong><code>pinneapple_neural/trainer/trainer.py</code></strong>: <code>Trainer.fit()</code> never
+  returned per-epoch history at all (only the final <code>best_val</code>/
+  <code>best_path</code>), despite <code>RunLogger</code> already computing exactly that data
+  every epoch and simply not passing it back to the caller. Added a
+  <code>"history"</code> key (list of per-epoch <code>{"epoch", "train_total",
+  "val_total", ...metrics}</code> dicts) to the returned dict.</li>
+<li><strong><code>pinneapple_app/backend/routers/experiments.py</code></strong>: the experiment
+  progress callback unconditionally read <code>ev["epoch"]</code>/<code>ev["total_epochs"]</code>/
+  <code>ev["model"]</code>, but <code>ExperimentRunner</code> sends two other, structurally
+  different event shapes through the <em>same</em> callback for its auto-fix
+  advisor loop (<code>type="advisor"</code>/<code>type="retrain"</code> events, which carry no
+  <code>epoch</code>/<code>total_epochs</code> key at all) — so <strong>any experiment run whose
+  auto-fix advisor loop fired at all crashed the entire experiment</strong> with
+  <code>KeyError('epoch')</code>, reported to the user only as a bare <code>"failed"</code>
+  status with message <code>"'epoch'"</code>. This is arguably the most
+  user-visible bug found this session (a core, advertised feature of the
+  app silently ate every experiment that used it) and was <strong>not caught by
+  any existing test</strong> — <code>tests/test_app_backend.py</code>'s
+  <code>TestExperiments</code> class existed and exercises exactly this path, but
+  had never been run successfully before (it couldn't get past the
+  collection-blocking bugs above to even execute). Fixed by branching on
+  <code>ev.get("type")</code> before assuming the training-event shape.</li>
+</ul>
+<p><strong>Net result</strong>: <code>pytest tests/ --ignore=tests/test_full_library_matrix.py
+--ignore=tests/test_manufactured_solutions.py</code> went from <em>4 collection
+errors, 0 tests run</em> to <strong>0 failures</strong>, running the entire pre-existing
+suite (all of it that doesn't need an unavailable optional dependency,
+which now skip cleanly instead of erroring).</p>
+<p><strong>Later re-run note</strong>: in a later re-run this session (while validating
+the astrophysics additions above), <code>tests/test_app_backend.py</code>'s 34
+tests could not be re-verified in this particular environment because
+<code>httpx</code> (required by <code>starlette.testclient.TestClient</code>) was not
+installed and this session's sandbox blocked a global <code>pip install</code>.
+This is an environment gap, not a code regression -- <code>httpx</code> was missing
+from <code>pyproject.toml</code>'s <code>dev</code> extra entirely (now added) despite being a
+hard requirement for this test file, so <code>pip install -e .[dev]</code> would
+not have caught it either. The rest of the suite (everything except this
+one file) was re-run in full and showed zero regressions from this
+session's compile.py changes (60/137 Tier-A failures, down from 62, the
+2-failure improvement being the <code>sir_ode</code>/<code>pk_two_compartment_ode</code> fixes
+documented in the astrophysics section above -- not a new problem).</p>
+<hr />
+<h2 id="tier-a-tier-b-this-sessions-own-new-tests">Tier A / Tier B (this session's own new tests)<a class="headerlink" href="#tier-a-tier-b-this-sessions-own-new-tests" title="Permanent link">&para;</a></h2>
+<p><strong>Totals</strong>: 90 registered architectures (<code>ModelRegistry.list()</code>) + 47
+registered PDE presets (<code>list_presets()</code>) = 137 Tier-A checks. <strong>62
+failed</strong> (45%), the rest passed or were skipped as not applicable to this
+generic smoke test's assumptions (see categories below).</p>
+<p>This is not a claim that 45% of the library is "broken" -- most of the 62
+failures fall into two large, distinct categories, only one of which is a
+real defect. Read the categories, not just the count.</p>
+<h2 id="category-1-real-defect-presets-registered-but-not-compilable-at-all">Category 1 — real defect: presets registered but not compilable at all<a class="headerlink" href="#category-1-real-defect-presets-registered-but-not-compilable-at-all" title="Permanent link">&para;</a></h2>
+<p><strong>~35 of the 62 failures.</strong> These presets are discoverable via
+<code>list_presets()</code> and <code>get_preset(name)</code> succeeds, but
+<code>compile_problem(spec)</code>'s <code>pde_kind</code> dispatch (<code>pinneapple_physics
+.pinn_solver.compiler.compile.py</code>) has no branch for their <code>spec.pde.kind</code>
+at all — <code>solve_pde</code> (and therefore <code>pipeline()</code>, and therefore any normal
+usage) raises <code>ValueError: Unsupported PDE kind: &lt;kind&gt;</code> immediately.
+<strong>This is the single largest real gap this audit found.</strong> Preset names
+observed with this exact failure (<code>pde.kind</code> values in parentheses; the
+underlying kind, not always identical to the preset name):</p>
+<div class="highlight"><pre><span></span><code>aircraft_wing_aerodynamics, aircraft_wing_structural,
+axial_compressor_cascade_2d, axial_compressor_meanline,
+axial_compressor_stage_3d, bekker_wong_surrogate_2d, black_scholes_1d,
+car_brake_thermal, car_external_aero, car_suspension_fatigue,
+climate_atmosphere_2d, climate_ocean_gyre (stommel_gyre_2d),
+cpu_heatsink_thermal (heat_equation_steady), crystal_phonon
+(phonon_bte_1d_gray), datacenter_airflow_2d, datacenter_cfd_3d,
+datacenter_server_thermal, drug_diffusion_tissue, fan_cooler_cfd,
+furnace_combustion_zone, heston_pde_2d, industrial_furnace_thermal
+(heat_equation_steady), material_fracture_2d (phase_field_fracture_2d),
+opinion_dynamics_2d, pcb_thermal (heat_equation_steady), pk_two_compartment
+(pk_two_compartment_ode), plane_strain_2d, plane_stress_2d
+(linear_elasticity_plane_stress), refractory_lining
+(heat_equation_steady), rocket_nozzle_cfd, rocket_structural, sir_epidemic
+(sir_ode), thermoelasticity_2d, threaded_coupling_tc50_rotating,
+von_mises_2d (linear_elasticity_plane_stress)
+</code></pre></div>
+<p>A second, smaller variant of the same defect: <code>channel_flow_3d</code>,
+<code>lid_driven_cavity_3d</code>, <code>pipe_flow_3d</code> are <strong>steady</strong> presets (no <code>t</code>
+coordinate by design — see the architecture report this project's
+<code>splash-pinneapple</code> pipeline was built from), but
+<code>navier_stokes_incompressible</code>'s branch in <code>compile.py</code> unconditionally
+raises <code>ValueError: Navier–Stokes expects time coord 't'.</code> for any spec
+without one. These three are registered, physically sensible, steady
+Navier-Stokes presets that <code>solve_pde</code> cannot run at all.</p>
+<p><strong>Recommendation</strong> (as originally written): tackle in the order real
+users would hit them: thermal (<code>heat_equation_steady</code> covers several
+presets in one fix), structural
+(<code>linear_elasticity_plane_stress</code>/<code>plane_strain</code> covers several), then
+the rest.</p>
+<p><strong>Follow-up pass acted on that recommendation.</strong> Added real residual
+implementations (<code>pinneapple_physics/pinn_solver/compiler/compile.py</code>),
+each derived and independently sanity-checked before being written
+(details and the exact <code>sympy</code>/manufactured-solution verification are in
+<code>tests/test_manufactured_solutions.py</code>, extended this pass):</p>
+<table>
+<thead>
+<tr>
+<th>New/fixed <code>pde_kind</code></th>
+<th>Presets closed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>navier_stokes_incompressible</code> (removed the unconditional "must have coord 't'" check — steady presets simply drop the du/dt term)</td>
+<td><code>channel_flow_3d</code>, <code>lid_driven_cavity_3d</code>, <code>pipe_flow_3d</code></td>
+</tr>
+<tr>
+<td><code>heat_equation_steady</code> (new) — <code>k*laplacian(T) = -q</code>, isotropic</td>
+<td><code>cpu_heatsink_thermal</code>, <code>industrial_furnace_thermal</code>, <code>datacenter_server_thermal</code></td>
+</tr>
+<tr>
+<td><code>heat_equation_steady_anisotropic</code> (new) — <code>sum_i k_i*d^2T/dx_i^2 = -q</code></td>
+<td><code>pcb_thermal</code></td>
+</tr>
+<tr>
+<td><code>heat_equation_steady_multilayer</code> (new) — same as <code>heat_equation_steady</code>, reading the preset's own precomputed <code>k_eff</code></td>
+<td><code>refractory_lining</code></td>
+</tr>
+<tr>
+<td><code>linear_elasticity_plane_strain</code> (new alias — mathematically identical to the existing <code>linear_elasticity</code> branch at 2 spatial dims: plane strain literally IS "zero out-of-plane strain, full 3D constitutive relation restricted to 2D")</td>
+<td><code>plane_strain_2d</code></td>
+</tr>
+<tr>
+<td><code>linear_elasticity_plane_stress</code> (new) — same branch, with the standard reduced Lamé parameter <code>lambda* = 2*lambda*mu/(lambda+2*mu)</code> (Timoshenko &amp; Goodier) in place of the raw 3D lambda, derived and <code>sympy</code>-verified this session by eliminating <code>eps_zz</code> from the full 3D relation under the <code>sigma_zz=0</code> plane-stress constraint</td>
+<td><code>plane_stress_2d</code>, <code>von_mises_2d</code>, and — found as a bonus while re-running Tier A, not originally on this list — <code>aircraft_wing_structural</code>, <code>car_suspension_fatigue</code>, <code>rocket_structural</code> (all three reuse the same kind)</td>
+</tr>
+<tr>
+<td><code>thermoelasticity_2d</code> (new) — steady heat (<code>laplacian(T)=0</code>) coupled to plane-stress elasticity with an isotropic thermal strain <code>eps_th = alpha_T*T*I</code> subtracted from the constitutive relation</td>
+<td><code>thermoelasticity_2d</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Net result</strong>: Tier A failures went from 60/137 (after the earlier
+<code>sir_ode</code>/<code>pk_two_compartment_ode</code> fix) to <strong>45/137</strong> — 15 more closed in
+this pass (12 targeted + 3 bonus), confirmed by re-running the full Tier
+A matrix. All new kinds have <code>test_manufactured_solutions.py</code> MMS
+coverage (exact-solution-gives-~0 / wrong-solution-gives-nonzero, same
+method as the original Laplace test) except <code>thermoelasticity_2d</code>'s
+coupled term specifically, which this codebase's <code>laplacian()</code> helper
+can't cleanly MMS-test with a spatially-constant temperature field (a
+second-derivative-of-a-constant autograd-graph-connectivity limitation,
+not a defect in the new code) — tracked as a known gap, not silently
+skipped.</p>
+<p><strong>Third batch, same pass</strong>: while triaging <code>drug_diffusion_tissue</code>
+(kind <code>"reaction_diffusion_2d"</code>), found this was never actually a
+missing-physics gap at all — a naming collision. An existing
+<code>"reaction_diffusion"</code> kind already existed in <code>compile.py</code>, but it
+implements two-species nonlinear Gray-Scott kinetics (fields <code>u</code>, <code>v</code>);
+<code>drug_diffusion_tissue</code> needs a completely different, much simpler
+single-species linear model (<code>dC/dt = D*laplacian(C) - lambda*C</code>, field
+<code>C</code>). Added <code>reaction_diffusion_2d</code> as its own kind rather than
+overloading the existing one. Also added <code>black_scholes_1d</code> (the real
+Black, Scholes 1973 PDE) and <code>heston_pde_2d</code> (Heston 1993, with the
+correlated mixed derivative term). Both finance presets use <code>tau</code>
+(time-to-expiry), not <code>t</code>, as their time-like coordinate — same
+<code>has_t</code>/<code>t_index</code>-independent pattern as <code>lane_emden_polytrope</code>'s <code>xi</code>.</p>
+<p><code>black_scholes_1d</code>'s MMS test uses the REAL closed-form Black-Scholes
+European call price (not an arbitrary manufactured function) — verified
+with <code>sympy</code> to solve the PDE exactly — which is a stronger check than
+usual: it proves the residual is correct against the actual textbook
+solution practitioners would compare it to, not just some function that
+happens to satisfy the equation. <code>heston_pde_2d</code> has no simple closed
+form (real Heston pricing needs the Fourier/characteristic-function
+method), so it has Tier A coverage (runs, finite loss) but no Tier B MMS
+test this session — a known, stated gap, not a defect.</p>
+<p><strong>Net result of this third batch</strong>: Tier A failures <strong>45/137 → 42/137</strong>.
+Tests: <code>test_manufactured_solutions.py</code> now 14/14 passing (4 new: 2 for
+<code>reaction_diffusion_2d</code>, 2 for <code>black_scholes_1d</code>).</p>
+<p><strong>Fourth batch</strong>: two more naming collisions found the same way (a
+preset's <code>pde.kind</code> string pointing at physics that already existed
+under a <em>different</em> kind string) plus one genuinely new coupled-physics
+kind:</p>
+<ul>
+<li><code>incompressible_navier_stokes_2d</code> (<code>aircraft_wing_aerodynamics</code>,
+  <code>car_external_aero</code>) — identical physics to the already-implemented
+  <code>navier_stokes_incompressible</code> at 2 spatial dims (same fields <code>u,v,p</code>,
+  same params <code>{nu, Re}</code>). Aliased into the existing branch.</li>
+<li><code>heat_equation_transient</code> (<code>car_brake_thermal</code>) — NOT a pure alias:
+  this preset's coords are cylindrical <code>(r, z, t)</code> (a brake disc is
+  genuinely axisymmetric), so the plain Cartesian <code>laplacian()</code> used by
+  <code>heat_equation</code> would silently give the wrong answer (missing the
+  standard <code>(1/r)*dT/dr</code> term) — confirmed with <code>sympy</code>: <code>T=ln(r)</code> is
+  exactly harmonic in the axisymmetric sense but has a nonzero Cartesian
+  Laplacian (<code>-1/r²</code>). Implemented as its own kind with the correct
+  axisymmetric term.</li>
+<li><code>incompressible_navier_stokes_energy_2d</code> / <code>_3d</code> /
+  <code>navier_stokes_energy_2d</code> (<code>datacenter_airflow_2d</code>, <code>datacenter_cfd_3d</code>,
+  <code>furnace_combustion_zone</code>) — three more distinct kind strings that all
+  collapsed onto ONE new implementation: steady incompressible NS coupled
+  one-way to a steady advection-diffusion energy equation, with thermal
+  diffusivity assumed from a fixed air Prandtl number (Pr=0.71, since none
+  of the three presets supply thermal conductivity directly) and an
+  optional volumetric heat source term (<code>furnace_combustion_zone</code>'s
+  combustion heat release).</li>
+</ul>
+<p>MMS coverage added for the two new formulations (the NS-2D alias reuses
+the existing, already-tested <code>navier_stokes_incompressible</code> coverage, so
+needed no new test): <code>heat_equation_transient</code> verified against
+<code>T=ln(r)</code> (axisymmetric-harmonic, <code>sympy</code>-confirmed); the NS+energy
+coupling verified against a genuine potential-flow field
+(<code>u=x²-y², v=-2xy</code>, velocity potential <code>x³/3-xy²</code>) whose stream function
+(<code>x²y-y³/3</code>) is by construction both the exact energy-equation solution
+(constant along streamlines) and independently harmonic — momentum,
+continuity, AND energy all satisfied by one <code>sympy</code>-verified manufactured
+solution simultaneously.</p>
+<p><strong>Net result of this fourth batch</strong>: Tier A failures <strong>42/137 → 36/137</strong>.
+<code>test_manufactured_solutions.py</code>: 18/18 passing.</p>
+<p><strong>Fifth batch</strong>: climate and social-dynamics presets.</p>
+<ul>
+<li><code>shallow_water_2d</code> (<code>climate_atmosphere_2d</code>) — genuinely NOT the same
+  as the existing <code>shallow_water</code> kind (which uses conservative
+  variables <code>h,hu,hv</code> and has no rotation term): this is the rotating
+  shallow-water system in PRIMITIVE variables <code>h,u,v</code> with an explicit
+  Coriolis term (f-plane approximation), a real, different physics
+  formulation, not a naming collision. Verified with <code>sympy</code> against a
+  steady geostrophic-balance exact solution (<code>u=U0</code> constant, <code>v=0</code>,
+  <code>h</code> linear in <code>y</code> with slope <code>-f*U0/g</code>) — the textbook balance between
+  Coriolis deflection and pressure-gradient force, satisfying continuity
+  and both momentum components exactly.</li>
+<li><code>stommel_gyre_2d</code> (<code>climate_ocean_gyre</code>) — Stommel's (1948) wind-driven
+  barotropic streamfunction model. The preset's own docstring documents a
+  default wind-stress-curl forcing formula, but doesn't pass the basin
+  width <code>W</code> it depends on as a PDE param — implemented reading the
+  forcing from <code>ctx["source_fn"]</code> (same convention as <code>poisson</code>/
+  <code>heat_equation</code> elsewhere in this compiler), defaulting to zero
+  (unforced decay) when not supplied. Verified with <code>sympy</code> against
+  <code>psi = exp(m*x)*sin(k*y)</code>, <code>m</code> the positive root of a quadratic derived
+  directly from the PDE — an honest closed-form solution, not a
+  simplification.</li>
+<li><code>opinion_dynamics_2d</code> — a genuinely nonlinear (cubic reaction term)
+  2D PDE; a real closed-form manufactured solution was not derived this
+  session (attempts using constant, purely-1D, or quadratic-in-space
+  ansätze either hit this codebase's <code>laplacian()</code>-helper limitation
+  with spatially-constant fields, or couldn't satisfy the cubic term
+  in more than one point) — Tier A (compiles and runs) only, a stated
+  gap not a silent one.</li>
+</ul>
+<p><strong>Net result of this fifth batch</strong>: Tier A failures <strong>36/137 → 33/137</strong>.
+<code>test_manufactured_solutions.py</code>: 22/22 passing (4 new, for
+<code>shallow_water_2d</code> and <code>stommel_gyre_2d</code>; <code>opinion_dynamics_2d</code> has no
+MMS test, per the gap noted above).</p>
+<p><strong>Sixth batch</strong>: <code>axisymmetric_linear_elasticity_torsion</code>
+(<code>threaded_coupling_tc50_rotating</code>) — an axisymmetric threaded-coupling
+problem where the meridional displacements (<code>u_r</code>, <code>u_z</code>) are IDENTICAL
+physics to the existing <code>axisymmetric_linear_elasticity</code> kind, but the
+preset also needs a torsional displacement <code>u_θ</code>, which decouples from
+the meridional problem in linear elasticity (a standard result, and the
+preset's own docstring/meta already state the exact torsional Navier
+equation to use). Implemented as its own kind combining both. Verified
+with <code>sympy</code> against <code>u_θ = B/r</code> (the axisymmetric analog of a 2D
+irrotational-vortex 1/r falloff, genuinely curved unlike the also-valid
+but trivial rigid-rotation solution <code>u_θ = A*r</code>).</p>
+<p><strong>Net result of this sixth batch</strong>: Tier A failures <strong>33/137 → 32/137</strong>.
+<code>test_manufactured_solutions.py</code>: 24/24 passing.</p>
+<p><strong>Seventh batch</strong>: <code>incompressible_navier_stokes_rotating_frame</code>
+(<code>fan_cooler_cfd</code>) — steady incompressible NS in a frame rotating at
+angular velocity omega about the z-axis, adding the standard Coriolis
+(<code>2*Omega x u</code>) and centrifugal (<code>-omega^2*r</code>) terms to the existing
+<code>navier_stokes_incompressible</code> momentum equation. Verified with <code>sympy</code>
+against the textbook solid-body-rotation solution: zero relative velocity
+(<code>u=v=0</code>) balanced entirely by a hydrostatic-style pressure field
+<code>p=0.5*omega^2*(x^2+y^2)</code>.</p>
+<p><strong>Net result of this seventh batch</strong>: Tier A failures <strong>32/137 → 31/137</strong>.
+<code>test_manufactured_solutions.py</code>: 26/26 passing.</p>
+<p><strong>Eighth batch</strong>: two of the axial-compressor presets, tackled with the
+turbomachinery preset's own documented equations doing most of the work:</p>
+<ul>
+<li><code>compressor_meanline_1d</code> (<code>axial_compressor_meanline</code>) — the preset's
+  own docstring states the exact 3 governing equations (stage-averaged
+  energy, continuity, ideal-gas state) for 4 of its 5 fields
+  (<code>T_t, p_t, rho, u</code>); implemented exactly as documented. The 5th field,
+  <code>c_theta</code> (tangential velocity), has NO governing equation or boundary
+  condition anywhere in the preset itself — rather than invent an
+  unstated Euler-turbine-work/swirl equation for it, it was left with no
+  PDE residual, matching exactly what the preset specifies rather than
+  adding unstated physics. Verified with a real (non-trivial, <code>sympy</code>-
+  checkable by hand) manufactured solution: <code>T_t</code> linear in <code>s</code>, <code>u</code> and
+  <code>rho</code> constant, <code>p_t</code> from the ideal-gas relation — satisfies all
+  3 documented equations simultaneously.</li>
+<li><code>compressible_euler_2d</code> (<code>axial_compressor_cascade_2d</code>) — genuinely
+  different from the existing <code>euler_compressible</code> kind (primitive
+  variables <code>rho,u,v,p,T</code> here vs. conservative <code>rho,rho_u,rho_v,E</code>
+  there, and steady here vs. unsteady there). Implemented by building
+  the conservative fluxes algebraically from the primitive fields and
+  reusing the EXACT SAME flux-divergence formulas as the already-Tier-B-
+  verified <code>euler_compressible</code> branch (steady, so its time-derivative
+  terms are simply dropped), plus the ideal-gas state equation (needed
+  since <code>p</code> is here an independent field, not derived from <code>E</code>).
+  <strong>Honest confidence note</strong>: unlike the other new kinds this session,
+  this one does NOT have an independent nonlinear closed-form MMS test —
+  genuine 2D nonlinear compressible-Euler exact solutions are hard to
+  construct quickly (verified by hand: forcing spatially-constant
+  velocity/density/pressure via momentum+energy also forces temperature
+  constant, i.e. uniform flow is the only 1D-reducible self-consistent
+  case without a driving mechanism like an area change — too weak a
+  check to claim as verification, since a flux formula with a sign error
+  would still trivially satisfy it). Correctness here is inherited from
+  the reused, already-verified flux formulas, not independently
+  re-derived — Tier A (compiles, runs) confirmed; treat with
+  correspondingly moderate confidence.</li>
+</ul>
+<p><strong>Net result of this eighth batch</strong>: Tier A failures <strong>31/137 → 29/137</strong>.
+<code>test_manufactured_solutions.py</code>: 28/28 passing (2 new, for
+<code>compressor_meanline_1d</code>; <code>compressible_euler_2d</code> intentionally has none,
+per the honesty note above).</p>
+<p><strong>Ninth batch</strong>: <code>phonon_bte_1d_gray</code> (<code>crystal_phonon</code>) — the preset's
+own docstring gives the exact gray-medium (Callaway model) phonon
+Boltzmann transport equation, a genuinely tractable linear PDE
+(advection + relaxation + diffusion). Two parameters the equation needs
+(<code>Cv</code>, <code>T_eq</code>) weren't in the preset's own PDE params — <code>Cv</code> defaults to
+1 (consistent with the preset's own <code>ScaleSpec(alpha=k)</code>, which already
+treats <code>k</code> as if it were the diffusivity directly), and <code>T_eq</code> was
+<strong>added to the preset itself</strong> (a small, well-justified fix, not a
+compiler-side guess) to match the preset's own initial-condition value
+<code>0.5*(T_hot+T_cold)</code>, which it was already using without exposing to the
+PDE params. Verified with a genuine, nontrivial closed-form solution
+derived (not recalled) this session: a decaying traveling wave
+<code>T = T_eq + A*exp(-t/tau_d)*sin(k_wave*x - omega_r*t)</code> solves the
+equation exactly when <code>omega_r = k_wave*vg</code> (propagates at the group
+velocity) and <code>tau_d = tau/(1+alpha*k_wave^2*tau)</code> (a wavenumber-
+dependent decay time) — both relations solved for and confirmed with
+<code>sympy</code>.</p>
+<p><strong>Real numerical-conditioning finding surfaced while building this
+test</strong>: at <code>crystal_phonon</code>'s own literal SI-unit default parameters
+(<code>vg~3000 m/s</code>, <code>tau~1e-12 s</code>), the wavenumber/decay-time relation spans
+10+ orders of magnitude, and the compiled residual (like any autograd
+second-derivative PDE) loses enough float32 precision purely from that
+scale disparity that a naive test at those exact defaults gave a
+misleadingly large "residual" for the EXACT solution (~7e13) that looked
+like a bug at first. Switching to float64 confirmed it wasn't: residual
+~3e-4 against terms of order ~1e16 (relatively ~1e-20, clean). This is a
+real, practical finding for anyone training this preset at its literal
+default values (expect to need nondimensionalization or float64), not a
+defect in the new code — documented in the test itself so it isn't
+mistaken for one later.</p>
+<p><strong>Net result of this ninth batch</strong>: Tier A failures <strong>29/137 → 28/137</strong>.
+<code>test_manufactured_solutions.py</code>: 30/30 passing.</p>
+<p><strong>Tenth batch</strong>: the two remaining gaps that fit this compiler's
+stateless-equality-residual design (<code>bekker_wong_terramechanics</code>
+genuinely doesn't, see below).</p>
+<ul>
+<li><code>phase_field_fracture_2d</code> (<code>material_fracture_2d</code>) — the ORIGINAL
+  Bourdin, Francfort &amp; Marigo (2000) AT-2 phase-field fracture model
+  (exactly what this preset's own meta cites — NOT the later Miehe 2010
+  tension/compression spectral split, which postdates that citation):
+  degraded elasticity <code>div[(1-phi)^2 * C:eps(u)] = 0</code> coupled to a
+  phase-field equation driven by the (undegraded) elastic strain-energy
+  density. One deliberate, documented simplification versus a full
+  quasi-static solver: the crack-driving-force <code>H</code> is the
+  <strong>instantaneous</strong> strain energy, not history-max(energy) over the
+  loading path — this compiler's residual is a stateless function of
+  current field values with nothing to track a running maximum against
+  across training/load steps. Exact for monotonic loading (this
+  preset's own boundary conditions describe exactly that: fixed bottom,
+  prescribed top displacement, no unloading), documented in the code so
+  it isn't mistaken for an oversight. No independent nonlinear MMS this
+  session (constructing one requires solving a fully-coupled nonlinear
+  system for a matching displacement+damage field pair, more derivation
+  time than available) — Tier A confirmed, moderate confidence,
+  consistent with <code>compressible_euler_2d</code>'s treatment above.</li>
+<li><code>compressible_euler_axisymmetric</code> (<code>rocket_nozzle_cfd</code>) — steady
+  axisymmetric (no swirl) compressible Euler, cylindrical <code>(r,z)</code>.
+  Derived directly this session (not recalled) from the general 3D
+  cylindrical Euler equations with <code>v_theta=0</code>: continuity and energy
+  use the plain axisymmetric divergence <code>(1/r)*d(r*F_r)/dr + d(F_z)/dz</code>,
+  but the r-momentum component needs an extra <code>-p/r</code> correction term —
+  verified algebraically: writing its r-flux as <code>r*(rho*v^2+p)</code> and
+  dividing by <code>r</code> (matching the scalar pattern) adds a spurious extra
+  <code>p/r</code>, since <code>(1/r)*d(r*p)/dr = dp/dr + p/r</code>, not just <code>dp/dr</code>;
+  subtracting <code>p/r</code> back off recovers the correct non-conservative
+  cylindrical momentum equation exactly. Passes a real (if weak) sanity
+  check: uniform axial flow (<code>v=0</code>, <code>rho,u,p,T</code> all constant) gives
+  exactly zero residual, as it must. No independent nonlinear MMS this
+  session (same difficulty as the 2D cascade case) — Tier A confirmed,
+  moderate confidence.</li>
+</ul>
+<p><strong>Net result of this tenth batch</strong>: Tier A failures <strong>28/137 → 26/137</strong>.</p>
+<p><strong>Eleventh batch</strong>: <code>compressible_euler_rotating_3d</code>
+(<code>axial_compressor_stage_3d</code>) — the highest-complexity kind added this
+session: full 3D compressible Euler WITH swirl, cylindrical <code>(r,theta,z)</code>,
+in a frame rotating at omega about the z-axis. Rather than hand-derive
+simplified Coriolis/centrifugal source terms for all 5 coupled equations
+(a real risk of a sign/algebra error), this substitutes the absolute
+tangential velocity <code>u_theta_abs = w + omega*r</code> (<code>w</code> = the model's
+relative <code>u_theta</code> field, matching the convention already used by
+<code>incompressible_navier_stokes_rotating_frame</code>) directly into the
+STANDARD inertial-frame cylindrical Euler equations and replaces the
+time derivative with <code>d/dt -&gt; -omega*d/dtheta</code> (the exact rule for a
+flow field steady in rotating coordinates), letting autograd
+differentiate the substituted expression rather than working from a
+pre-simplified closed form.</p>
+<p>This substitution rule was independently verified this session (derived
+with <code>sympy</code>, not recalled) against continuity and r-momentum: continuity
+has NO omega-dependence at all after simplification (correct — rigid
+rotation can't create or destroy mass), and r-momentum produces exactly
+the expected explicit <code>-omega^2*r*rho</code> (centrifugal) and <code>-2*omega*rho*w</code>
+(Coriolis) terms. The implementation was then cross-checked NUMERICALLY
+(differential testing) against these two independently-derived closed
+forms for a generic smooth field: agreement to machine precision in
+float64 (~1e-13 relative; a larger, ~1e-3 gap seen at float32 was
+confirmed to be precision noise, not a formula difference, by re-running
+in float64 and watching it vanish). Since continuity, r-momentum,
+theta-momentum, z-momentum, and energy all use the exact same
+substitution mechanism, this is real evidence for the shared mechanism,
+not just the two hand-checked equations — a genuinely different (not
+weaker) style of verification than a closed-form MMS, appropriate for a
+system this coupled.</p>
+<p><strong>Net result of this eleventh batch</strong>: Tier A failures <strong>26/137 → 25/137</strong>.
+<code>test_manufactured_solutions.py</code>: 31/31 passing.</p>
+<p><strong>Session total for this line of work: Tier A failures 62/137 → 25/137
+(37 closed)</strong>, spanning eleven batches, every fix backed by either a
+<code>sympy</code>-verified closed-form solution (the large majority), a numerical
+cross-implementation check (the rotating 3D case, appropriate given its
+coupled complexity), or an honestly-flagged lower-confidence Tier-A-only
+treatment where neither was achievable in the time available (both
+<code>compressible_euler_2d</code> variants, explicitly marked as such rather than
+overclaiming).</p>
+<p><strong>Twelfth (final) batch</strong>: <code>bekker_wong_terramechanics</code>
+(<code>bekker_wong_surrogate_2d</code>) — the one kind that genuinely isn't a
+differential-equation residual: the preset's own meta describes three
+INEQUALITY/monotonicity constraints on a semi-empirical surrogate
+mapping <code>(slip, sinkage) -&gt; (Fx, Fz, My)</code>, not an equality PDE. Rather
+than force it into the equality-residual mold every other kind in this
+file uses, this implements the standard soft-constraint technique
+(squared-hinge penalties, <code>relu(violation)</code>, appended UNSQUARED since
+the shared aggregation code downstream already squares every <code>res_list</code>
+entry — a real, easy-to-miss double-squaring bug avoided by checking the
+aggregation code first):</p>
+<ul>
+<li>R2 (<code>Fx &lt;= c*A + Fz*tan(phi)</code>): needed a contact-patch area <code>A</code>, which
+  needed sinkage-to-entry-angle geometry the preset doesn't provide
+  directly — used the standard rigid-wheel terramechanics relation
+  (Wong, "Theory of Ground Vehicles"): <code>theta1 = arccos(1 - sinkage/R)</code>
+  (from <code>sinkage = R*(1-cos(theta1))</code>, the geometric relation between
+  how far a wheel of radius <code>R</code> sinks and the angle to its first ground
+  contact point), <code>A = b*R*theta1</code>. Uses only this preset's own <code>R_m</code>/
+  <code>b_m</code> params and the sinkage coordinate directly — no fabricated
+  Bekker pressure-sinkage moduli (<code>kc</code>, <code>kphi</code>, <code>n</code>) or Janosi-Hanamoto
+  shear modulus (<code>K</code>) that a fuller classical Bekker-Wong force
+  integration would need but this preset's params don't supply.</li>
+<li>R3 (<code>dFx/ds &gt;= 0</code> for <code>slip&lt;=0.4</code>): a first-derivative monotonicity
+  penalty, masked to the stated slip range.</li>
+<li>R4 (<code>My &gt;= R*Fx</code>): a plain algebraic inequality penalty.</li>
+<li>R1 (<code>Fx(slip=0)=0</code>) was a genuine point/initial condition, not an
+  interior-residual term — <strong>the preset itself was missing it entirely</strong>
+  despite listing it in its own meta (<code>conditions=()</code>, empty, before this
+  fix); added as a real <code>InitialCondition</code> using this compiler's
+  existing machinery, verified to select exactly the <code>slip=0</code> points and
+  target <code>Fx=0</code> there.</li>
+</ul>
+<p>Verified with a genuinely constraint-respecting solution (small,
+monotonically increasing <code>Fx</code>, comfortably-large <code>My</code>) giving exactly
+zero penalty, and a deliberately constraint-violating one (<code>Fx</code> far
+exceeding the shear-strength bound, <code>My=0</code> violating the moment
+constraint) giving a clearly large one.</p>
+<p><strong>Net result of this twelfth batch</strong>: Tier A failures <strong>25/137 → 24/137</strong>.
+<code>test_manufactured_solutions.py</code>: 34/34 passing.</p>
+<h2 id="all-7-originally-identified-category-1-gaps-are-now-closed">All 7 originally-identified Category 1 gaps are now closed<a class="headerlink" href="#all-7-originally-identified-category-1-gaps-are-now-closed" title="Permanent link">&para;</a></h2>
+<p><strong>Session total for this line of work: Tier A failures 62/137 → 24/137
+(38 closed) across twelve batches.</strong> Every fix is backed by one of: a
+<code>sympy</code>-verified closed-form solution (the large majority), a numerical
+cross-implementation check (the rotating-3D compressible Euler case,
+appropriate given its coupled complexity), a satisfying/violating pair
+for the one genuinely non-equality kind (Bekker-Wong), or an honestly-
+flagged lower-confidence Tier-A-only treatment where none of the above
+was achievable in the time available (both <code>compressible_euler_2d</code>
+variants) — every one of those confidence levels stated explicitly in
+this report and in the code itself, not overclaimed.</p>
+<p>No Category 1 gaps remain from the original list this audit identified.
+The broader Tier A number (24/137) still included Category 2
+(shape-mismatch and calling-convention false positives) and Category 3
+(missing optional dependencies) entries.</p>
+<h2 id="finalized-every-remaining-tier-a-failure-individually-confirmed-and-closed">Finalized: every remaining Tier A failure individually confirmed and closed<a class="headerlink" href="#finalized-every-remaining-tier-a-failure-individually-confirmed-and-closed" title="Permanent link">&para;</a></h2>
+<p>The earlier version of this section estimated "~20" Category 2 failures
+and left a "handful" unverified with a caveat to "treat them as probably
+Category 2, not independently confirmed." That caveat is now resolved:
+every one of the 24 remaining Tier A failures was individually run,
+its exact error message read, and its architecture's source code
+checked where the reason wasn't obvious from the error alone (<code>elm</code>
+specifically — see below). None turned out to be Category 1 (a real,
+previously-hidden defect); all 24 fall into one of four precise,
+verified reasons:</p>
+<table>
+<thead>
+<tr>
+<th>Reason</th>
+<th>Architectures</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Missing optional dependency (<code>emmiai-noether</code> not installed)</td>
+<td><code>noether_abupt</code>, <code>noether_aero_abupt</code>, <code>noether_aero_transformer</code>, <code>noether_aero_transolver</code>, <code>noether_aero_upt</code>, <code>noether_transformer</code>, <code>noether_transolver</code>, <code>noether_upt</code> (8)</td>
+<td><code>ModuleNotFoundError: No module named 'noether'</code>, raised at forward() time, not build time — the test's skip check for this only covered the build step before this fix, so these were genuinely showing as <code>FAILED</code> until now, not already-handled as the original report implied</td>
+</tr>
+<tr>
+<td>Sequence/image/minimum-length input shape, not a flat <code>(N,4)</code> point cloud</td>
+<td><code>afno</code>, <code>arima</code>, <code>conv2d</code>, <code>conv3d</code>, <code>esn</code>, <code>esn_rc</code>, <code>koopman</code>, <code>transformer</code>, <code>havok</code> (9)</td>
+<td>Shape assertions (<code>conv2d</code>/<code>conv3d</code>: "Expected 4D... input of size: [8,4]"), tuple-unpacking errors from code expecting <code>(B,T,F) = x.shape</code> (<code>arima</code>/<code>esn</code>/<code>esn_rc</code>/<code>koopman</code>/<code>transformer</code>), or a minimum-sequence-length requirement exceeding the test's tiny batch (<code>havok</code>: "Need T&gt;=delays. Got T=8, delays=50")</td>
+</tr>
+<tr>
+<td>Requires extra arguments beyond <code>forward(x)</code> (a different, legitimate calling convention, not a bug)</td>
+<td><code>gno</code>, <code>neural_cde</code>, <code>ode_rnn</code> (3)</td>
+<td><code>TypeError</code>s naming a genuinely missing argument: <code>GalerkinNeuralOperator.forward() missing 1 required keyword-only argument: 'coords'</code>; <code>NeuralCDE</code>/<code>ODERNN.forward() missing 1 required positional argument: 't'</code> — these architecture families need explicit coordinates/time points by design</td>
+</tr>
+<tr>
+<td>Closed-form/fit-based model, not gradient-trained (must call <code>.fit()</code> on real data first)</td>
+<td><code>dmd</code>, <code>pod</code>, <code>hybrid_rbf</code>, <code>elm</code> (4)</td>
+<td><code>dmd</code>/<code>pod</code>/<code>hybrid_rbf</code> raise directly ("DMD not fitted", "POD not fitted", "HybridRBFNetwork.forward() called before fit()"); <code>elm</code> is subtler — its forward pass succeeds, but reading <code>pinneapple_neural/architectures/reservoir_computing/elm.py</code> shows <code>self.W_out = nn.Parameter(torch.zeros(...), requires_grad=False)</code> with the comment <code># trained by closed form</code> and a real <code>.fit()</code> method doing ridge regression — genuinely zero trainable parameters until <code>.fit()</code> is called, the correct textbook Extreme Learning Machine design, not a bug</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>tests/test_full_library_matrix.py</code> was updated to recognize all four
+reasons precisely</strong> (previously it only recognized the "sequence/image
+shape" and "missing dependency at build time" cases) — each of the 24
+now gets a specific, honest skip message naming which of the four
+reasons applies and why, instead of either an unexplained <code>FAILED</code> or a
+generic catch-all skip. Confirmed by re-running the full Tier A suite:
+<strong>71 passed, 75 skipped, 0 failed</strong> out of 146 total (137 at the start
+of this session's audit — the registry has grown since, mainly the 7
+new astrophysics presets — with 62 originally-unexplained failures at
+that time).</p>
+<h2 id="tier-b-physics-correctness-passed">Tier B (physics correctness) — passed<a class="headerlink" href="#tier-b-physics-correctness-passed" title="Permanent link">&para;</a></h2>
+<p><code>tests/test_manufactured_solutions.py</code>'s two tests both pass: the
+compiled <code>"laplace"</code> residual is ~0 (&lt; 1e-8) for the exact harmonic
+solution <code>u = x²-y²</code>, and clearly nonzero (&gt; 1, in fact ≈16 as the exact
+Laplacian predicts) for the non-harmonic <code>u = x²+y²</code>. This confirms the
+<code>"laplace"</code> <code>pde_kind</code>'s residual implementation is genuinely correct, not
+just "runs" — the one PDE kind this session had time to verify at Tier B
+depth. Extending Tier B coverage to more <code>pde_kind</code>s (Poisson with a
+manufactured source term, Burgers via Cole-Hopf, ...) is listed in
+<code>ROADMAP_PHYSICS_AI_HUB.md</code> section 1.1 as follow-up work.</p>
+<h2 id="follow-up-pass-3d-komegasstresiduals-turbulence-closure-p24">Follow-up pass: 3D <code>KOmegaSSTResiduals</code> turbulence closure (P2.4)<a class="headerlink" href="#follow-up-pass-3d-komegasstresiduals-turbulence-closure-p24" title="Permanent link">&para;</a></h2>
+<p><code>turbulence_presets.py</code>'s <code>KOmegaSSTResiduals.__call__</code> was 2D-only
+(<code>(x,y)-&gt;(u,v,p,k,omega)</code>); <code>ROADMAP_PHYSICS_AI_HUB.md</code> section 2.4
+called for a genuine 3D generalization, the same shape of upgrade
+<code>WALEResiduals</code> in the same file already got (2D-helper-style -&gt;
+real 3D closure). Done as a dispatch on <code>x_col.shape[1]</code>: 2 columns
+routes to <code>_call_2d</code> (the original code, refactored but numerically
+untouched — confirmed by diff: only docstring lines changed inside
+it), 3 columns routes to a new <code>_call_3d</code> mapping
+<code>(x,y,z)-&gt;(u,v,w,p,k,omega)</code>. The new 3D viscous-stress divergence
+(<code>_viscous_stress_divergence_3d</code>) is built from full Hessians of
+u/v/w via a new <code>_hessian_components_3d</code> helper — the same
+no-incompressibility-shortcut construction <code>_viscous_stress_
+divergence_2d</code> already uses, extended with the z-direction cross
+terms, since mu_eff varies spatially in both cases. The k-/omega-
+equations reuse the existing <code>_laplacian</code> unchanged (it already sums
+over every column of <code>x</code>, so a 3-column <code>x</code> "just works") and gain the
+3D cross-diffusion <code>k_x w_x + k_y w_y + k_z w_z</code>.</p>
+<p><strong>Verification</strong>: the full nonlinear coupled k-omega SST system has no
+simple closed-form exact solution, so — same fallback used above for
+<code>compressible_euler_rotating_3d</code> — this is a cross-implementation
+check, not an exact-solution MMS check. A concrete trial field
+(trigonometric/polynomial in x, y, z, chosen so every term being
+checked is genuinely non-zero, including the cross-diffusion dot
+product) was differentiated two independent ways: by <code>sympy</code>, working
+directly from the equations restated for 3D, and by running the real
+<code>_call_3d</code> torch/autograd code on an <code>nn.Module</code> evaluating the
+identical formulas. <code>F2=0</code> keeps the eddy-viscosity Bradshaw limiter
+on its smooth branch (<code>nu_t</code> reduces exactly to <code>k/omega</code>, avoiding a
+<code>max()</code> kink autograd and <code>sympy</code> could disagree across); the
+realizability and cross-diffusion clips were confirmed numerically
+inactive at every sample point before being treated as absent in the
+closed form (not assumed). All six residuals (momentum_x/y/z,
+continuity, k_eq, omega_eq) agreed to <strong>machine precision in float64</strong>
+— max abs diff 4.6e-13 (omega_eq), 3.1e-13 (k_eq), &lt;7e-16 for the
+other four — against residual magnitudes of order 1-40. Also checked
+in float32 during development: ~8e-6 max abs diff, ordinary float32
+roundoff rather than a genuine precision problem (unlike this
+session's <code>phonon_bte_1d_gray</code> finding, nothing here spans more than
+~2 orders of magnitude). A second test supplies a field satisfying
+none of the six equations and confirms a clearly nonzero aggregate
+residual, matching this file's exact/wrong pair convention.</p>
+<p>New tests: <code>test_audit_physics_k_omega_sst_3d_matches_independent_
+closed_form</code>, <code>test_audit_physics_k_omega_sst_3d_wrong_solution_gives_
+nonzero_residual</code> in <code>tests/test_manufactured_solutions.py</code>
+(36/36 passing). <code>tests/test_full_library_matrix.py</code> re-run
+unaffected: 71 passed, 75 skipped, 0 failed — identical to the count
+recorded elsewhere in this report, confirming no regression (this
+module isn't part of the <code>compile_problem</code>/<code>pde_kind</code> registry that
+suite audits, so no change there was expected either way).</p>
+<h2 id="what-this-session-fixed-vs-what-it-found-but-did-not-fix">What this session fixed vs. what it found but did not fix<a class="headerlink" href="#what-this-session-fixed-vs-what-it-found-but-did-not-fix" title="Permanent link">&para;</a></h2>
+<p>Fixed this session (see <code>ROADMAP_PHYSICS_AI_HUB.md</code>'s P0 table for the
+full list with file locations): <code>solve_pde()</code>, <code>UPDDataset.save(zarr)</code>,
+<code>Trainer.fit</code>'s no-grad validation, the <code>33_rans_turbulence.py</code> template,
+<code>PeriodicBC</code> multi-axis chaining, plus new capability additions (WALE LES,
+NS body-force hook, <code>AdaptiveWeights</code>, stochastic/latent PINN utilities,
+binary OpenFOAM + CGNS/Exodus/Fluent/Abaqus readers, model hub,
+<code>pipeline()</code>, adaptive hyperparameter search, Blender bridge, <code>pinneapple
+_llm</code>).</p>
+<p><strong>Found but not fixed this session</strong> (Category 1 above): ~20 distinct
+<code>pde_kind</code>s referenced by registered presets with no <code>compile_problem</code>
+branch, and the steady-Navier-Stokes gap. This is real, load-bearing
+backlog, not a footnote — a preset that cannot be compiled is a preset a
+user of <code>list_presets()</code>/<code>pipeline()</code> will hit and be confused by, and it
+is the single biggest reliability gap this audit surfaced.</p>
+<h2 id="solve_pde-silently-dropped-selector_typetag-conditions-now-fails-loudly-with-the-tag_masks-mechanism-itself-confirmed-real"><code>solve_pde()</code> silently dropped <code>selector_type="tag"</code> conditions — now fails loudly, with the tag_masks mechanism itself confirmed real<a class="headerlink" href="#solve_pde-silently-dropped-selector_typetag-conditions-now-fails-loudly-with-the-tag_masks-mechanism-itself-confirmed-real" title="Permanent link">&para;</a></h2>
+<p>A downstream-consumer audit (VeriPhysics calling <code>solve_pde()</code> on tag-based
+presets like <code>pipe_flow_3d</code>/<code>industrial_furnace_thermal</code> with no <code>ctx</code>)
+found that <code>solve_pde()</code>'s auto-sampler only ever handles conditions whose
+<code>selector_type</code> is <code>"all"</code> or <code>"callable"</code> — <code>"tag"</code> conditions are
+excluded from <code>auto_conditions</code> unconditionally, with no error raised.
+Since most CFD/industry presets in
+<code>pinneapple_physics/pde_environment/presets/{cfd,structural,industry}.py</code>
+express every boundary condition as <code>selector_type="tag"</code>
+(<code>"inlet"</code>/<code>"outlet"</code>/<code>"wall"</code>/<code>"fixed"</code>/...), calling <code>solve_pde(get_
+preset("pipe_flow_3d"), model)</code> with no further arguments used to train a
+model with <strong>zero boundary conditions enforced</strong> — the PDE-residual loss
+still went down, the run "succeeded," and nothing in the returned
+<code>history</code> distinguished it from a correctly-constrained run. This is
+exactly the class of result <code>PhysicsGuardrail</code>/trust-score consumers must
+never rate as trustworthy without actually knowing it's untrustworthy.</p>
+<p><strong>Before treating this as a bug to patch over, the tag_masks mechanism
+itself was verified to work correctly when given real geometry</strong> — it is
+a real, load-bearing contract, not a stub. Ran
+<code>examples/pde_environment/04_heat3d_stl_box.py</code> (a real trimesh box STL -&gt;
+<code>pinneapple_design.geometry.builders.STLDomainBatchBuilder</code> -&gt;
+<code>compile_problem</code>) end to end:</p>
+<div class="highlight"><pre><span></span><code>loss keys: ['pde', 'bc_T_boundary', 'bc_T_inlet_hot', 'total']
+total: 186.65467834472656
+mesh_info: {'is_watertight': True, 'n_verts': 8, 'n_faces': 12}
+tags: {'boundary': 24000, 'inlet': 2110, 'outlet': 2102, 'walls': 19788}
+</code></pre></div>
+<p>and separately, with <code>inside_mode="bbox"</code> (avoiding a missing optional
+<code>rtree</code> dependency for <code>trimesh_contains</code>), confirmed the two tag-scoped
+Dirichlet losses are genuinely different numbers computed over genuinely
+different point sets (<code>bc_T_boundary=0.0798</code>, <code>bc_T_inlet_hot=0.851</code>, vs.
+each other and vs. <code>pde=0.0029</code>) — i.e. the per-tag masking is real, not a
+coincidental pass-through. A second check built a <code>ns_incompressible_2d</code>
+batch by hand the same way
+<code>examples/pde_environment/03_ns2d_channel_tags.py</code> does (manual
+inlet/outlet/wall plane masks, no STL) and ran it through <code>solve_pde()</code>
+itself end to end (5 epochs, loss <code>98.7 -&gt; 37.3</code>, monotonically
+decreasing) — confirming the <em>fix</em> below doesn't just detect the tag
+contract, it also lets a caller who does supply real tag geometry train
+through <code>solve_pde()</code> normally.</p>
+<p><strong>The fix</strong> (<code>pinneapple_physics/__init__.py</code>): <code>solve_pde()</code> now raises a
+new <code>TagConditionsUnresolved(ValueError)</code> before starting any training if
+<em>any</em> condition in <code>spec.conditions</code> has <code>selector_type="tag"</code> and is not
+covered by explicit input (<code>x_&lt;kind&gt;</code> passed AND a matching
+<code>mask_&lt;condition_name&gt;</code> passed via <code>**cond_masks</code>) — naming every
+uncovered condition, its tag, and exactly which two arguments are needed,
+plus a pointer to <code>STLDomainBatchBuilder</code>/the two examples above. Nothing
+about <code>"all"</code>/<code>"callable"</code> auto-sampling changed.</p>
+<p><strong>Preset classification, done programmatically</strong> (<code>list_presets()</code> +
+inspecting <code>selector_type</code> per condition on every one of the 65
+registered presets — not eyeballed):</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Needs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>selector_type="tag"</code> only</td>
+<td>32</td>
+<td>real geometry (STL/mesh via <code>STLDomainBatchBuilder</code>, or a hand-built batch)</td>
+</tr>
+<tr>
+<td>mixed <code>"tag"</code> + <code>"callable"</code></td>
+<td>8</td>
+<td>same as above for the tag-scoped conditions; the callable ones still auto-sample</td>
+</tr>
+<tr>
+<td><code>"callable"</code>/<code>"all"</code> only (or no conditions)</td>
+<td>25</td>
+<td>nothing extra — <code>domain_bounds</code> alone is enough, unchanged behavior</td>
+</tr>
+</tbody>
+</table>
+<p>Tag-only (32): <code>aircraft_wing_aerodynamics</code>, <code>aircraft_wing_structural</code>,
+<code>car_external_aero</code>, <code>car_suspension_fatigue</code>, <code>channel_flow_3d</code>,
+<code>climate_ocean_gyre</code>, <code>cpu_heatsink_thermal</code>, <code>darcy_pressure_only_3d</code>,
+<code>datacenter_airflow_2d</code>, <code>datacenter_cfd_3d</code>, <code>datacenter_server_thermal</code>,
+<code>fan_cooler_cfd</code>, <code>furnace_combustion_zone</code>, <code>helmholtz_acoustics_3d</code>,
+<code>industrial_furnace_thermal</code>, <code>laplace_2d</code>, <code>lid_driven_cavity_3d</code>,
+<code>linear_elasticity_3d</code>, <code>linear_elasticity_3d_industry</code>,
+<code>material_fracture_2d</code>, <code>ns_incompressible_2d</code>, <code>pcb_thermal</code>,
+<code>pipe_flow_3d</code>, <code>plane_strain_2d</code>, <code>plane_stress_2d</code>, <code>poisson_2d</code>,
+<code>refractory_lining</code>, <code>rocket_nozzle_cfd</code>, <code>rocket_structural</code>,
+<code>steady_heat_conduction_3d</code>, <code>thermoelasticity_2d</code>, <code>von_mises_2d</code>.
+Mixed (8): <code>axial_compressor_cascade_2d</code>, <code>car_brake_thermal</code>,
+<code>climate_atmosphere_2d</code>, <code>drug_diffusion_tissue</code>, <code>opinion_dynamics_2d</code>,
+<code>reaction_diffusion_2d</code>, <code>transient_heat_3d</code>, <code>wave_ultrasound_3d</code>.
+The remaining 25 (<code>burgers_1d</code>, <code>space_debris_cw_relative_motion</code>,
+<code>black_scholes_1d</code>, the <code>threaded_coupling_*</code>/<code>axial_compressor_*</code>
+non-tag variants, the astrophysics/finance/biology ODE presets, etc.) are
+unaffected — see <code>TagConditionsUnresolved</code>'s docstring and <code>solve_pde()</code>'s
+own docstring for the up-to-date contract statement, since the preset
+catalog will keep growing after this report is written.</p>
+<p><strong>Test suite impact, measured before and after, not assumed.</strong> The two
+files that call <code>solve_pde()</code> directly, run in isolation before touching
+anything (<code>git stash</code>-equivalent clean checkout of
+<code>pinneapple_physics/__init__.py</code>):</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Before (pass/skip/fail)</th>
+<th>After (pass/skip/fail)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/test_cartesian_breadth.py</code></td>
+<td>49 / 21 / 0 (of 70)</td>
+<td>14 / 56 / 0 (of 70)</td>
+</tr>
+<tr>
+<td><code>tests/test_full_library_matrix.py</code></td>
+<td>75 / 77 / 7 (of 159)</td>
+<td>42 / 117 / 0 (of 159)</td>
+</tr>
+<tr>
+<td>Combined</td>
+<td>124 / 98 / 7 (of 229)</td>
+<td>56 / 173 / 0 (of 229)</td>
+</tr>
+</tbody>
+</table>
+<p>The 7 pre-existing failures (<code>test_full_library_matrix.py</code>, presets
+<code>darcy_pressure_only_3d</code>/<code>helmholtz_acoustics_3d</code>/
+<code>linear_elasticity_3d_industry</code>/<code>reaction_diffusion_2d</code>/
+<code>steady_heat_conduction_3d</code>/<code>transient_heat_3d</code>/<code>wave_ultrasound_3d</code>) were
+a <code>KeyError: 'x'</code> from <code>spec.domain_bounds</code> being entirely absent on those
+<code>presets/industry.py</code> factories — a separate, pre-existing gap in those
+specific presets (out of scope for this fix, left as-is), which the new
+check now masks with a clearer, more actionable <code>TagConditionsUnresolved</code>
+skip instead of a confusing <code>KeyError</code> (both are true simultaneously: they
+lack <code>domain_bounds</code> <em>and</em> are 100% tag-based, consistent with being
+designed for real-geometry-only use).</p>
+<p>Both test files were updated to recognize
+<code>pinneapple_physics.TagConditionsUnresolved</code> via a new
+<code>_needs_real_geometry_for_tags()</code> helper (same pattern as the existing
+<code>_is_missing_optional_dep()</code> etc.) and <code>pytest.skip()</code> with the real
+reason, instead of either fabricating <code>tag_masks</code> to force a pass or
+leaving them as unexplained hard failures. The 68 tests that moved from
+pass to skip were passing <em>only</em> because their tag conditions were being
+silently dropped — after the fix they correctly report "this preset needs
+real geometry this generic harness doesn't supply," which is the accurate
+statement. No <code>"callable"</code>/<code>"all"</code> preset's pass/fail status changed
+(<code>burgers_1d</code>, <code>drug_diffusion_tissue</code>'s callable half,
+<code>space_debris_cw_relative_motion</code>, and the Tier A.1 architecture-only
+tests are bit-for-bit unaffected).</p>
+<p>Full repo-wide <code>solve_pde()</code> caller audit (not just the two test files):
+<code>pinneapple_physics/__init__.py</code>'s own <code>pipeline()</code> (only ever called in
+its own docstring example with <code>burgers_1d</code>, a callable preset — no
+change), and <code>pinneapple_analysis/verification/causal_discrepancy.py</code>
+(already wraps every <code>solve_pde()</code> call in a bare <code>except Exception</code>,
+recording it as <code>InterventionRunResult(error=...)</code> rather than crashing —
+this fix makes that path correctly report "FAILED to train" for tag-based
+presets used without geometry instead of silently reporting a trained-
+but-unconstrained result as a success; no dedicated test exercises this
+file, so no test-suite delta). No <code>saas/</code>, <code>veriphysics/</code>, or
+<code>pinneapple_arena</code> caller of <code>solve_pde()</code> exists inside this repo (those
+products live in sibling repos, out of scope here).</p>
+<h2 id="follow-up-pass-real-analytic-geometry-for-23-of-the-40-tag-based-presets-2026-09-17">Follow-up pass: real analytic geometry for 23 of the 40 tag-based presets (2026-09-17)<a class="headerlink" href="#follow-up-pass-real-analytic-geometry-for-23-of-the-40-tag-based-presets-2026-09-17" title="Permanent link">&para;</a></h2>
+<p>The fix above correctly makes 40 of the 65 registered presets (32
+tag-only + 8 mixed) unusable via <code>solve_pde()</code> until they are given real
+geometry. This pass closes that gap for real, for as many of the 40 as
+can be done <strong>without fabricating geometry the preset itself doesn't
+already specify</strong>: a new preset-by-preset engineering-judgment table,
+<code>pinneapple_physics/pde_environment/presets/tag_geometry.py</code>
+(<code>TAG_GEOMETRY_FIXTURES</code>), classifies every one of the 40 as either</p>
+<ul>
+<li>fixable: the preset's own domain is a canonical box/rectangle or
+  circular-cross-section cylinder fully described by the preset's own
+  <code>domain_bounds</code>/params, AND every tag name maps to one specific face of
+  that shape without guessing at anything the preset's docstring/comments
+  don't already state (every entry in the table cites the exact text the
+  mapping is read from) — <strong>23 of 40</strong>, or</li>
+<li>not fixable without fabricating geometry: a real airfoil/car-body/
+  furnace-refractory/turbine-blade profile, an internal (non-face) object
+  location never given coordinates, an unlocated ambiguous tag (e.g. two
+  differently-named-but-otherwise-identical "fixed"/"load" faces with no
+  disambiguating text), a domain whose own stated <code>domain_bounds</code> don't
+  even encode the real shape (<code>rocket_structural</code>'s annulus), or a
+  separate, unrelated compiler defect that geometry alone can't fix
+  (<code>aircraft_wing_structural</code> — see below) — <strong>17 of 40</strong>, each with a
+  one-line reason in <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code>. For these,
+  <code>TagConditionsUnresolved</code> continues to fire, correctly.</li>
+</ul>
+<p><strong>Fixed (23)</strong>: <code>channel_flow_3d</code>, <code>climate_atmosphere_2d</code>,
+<code>climate_ocean_gyre</code>, <code>darcy_pressure_only_3d</code>, <code>drug_diffusion_tissue</code>,
+<code>furnace_combustion_zone</code>, <code>helmholtz_acoustics_3d</code>, <code>laplace_2d</code>,
+<code>lid_driven_cavity_3d</code>, <code>linear_elasticity_3d_industry</code>,
+<code>material_fracture_2d</code>, <code>ns_incompressible_2d</code>, <code>opinion_dynamics_2d</code>,
+<code>pipe_flow_3d</code>, <code>plane_strain_2d</code>, <code>poisson_2d</code>, <code>reaction_diffusion_2d</code>,
+<code>refractory_lining</code>, <code>steady_heat_conduction_3d</code>, <code>thermoelasticity_2d</code>,
+<code>transient_heat_3d</code>, <code>von_mises_2d</code>, <code>wave_ultrasound_3d</code>.</p>
+<p><strong>Not fixable without fabricating geometry (17)</strong>, with the specific
+reason in each case: <code>aircraft_wing_aerodynamics</code> (real airfoil profile),
+<code>aircraft_wing_structural</code> (geometry IS unambiguous, but the preset's own
+Neumann conditions use traction fields <code>tx</code>/<code>ty</code> that <code>compile.py</code>'s
+generic Neumann handling can't resolve against the model's actual fields
+<code>ux</code>/<code>uy</code> — confirmed by hand: <code>KeyError: 'ty'</code> even with correct geometry
+supplied — a separate compiler defect, out of scope for a geometry-only
+fix), <code>axial_compressor_cascade_2d</code> (curved blade cascade profile),
+<code>car_brake_thermal</code> (ambiguous friction/cooling-surface assignment to the
+disc's faces), <code>car_external_aero</code> (bluff-body silhouette),
+<code>car_suspension_fatigue</code> (wishbone-arm geometry, tags not tied to
+specific faces), <code>cpu_heatsink_thermal</code> (fin geometry),
+<code>datacenter_airflow_2d</code>/<code>datacenter_cfd_3d</code> (internal rack/CRAC objects,
+not box faces), <code>datacenter_server_thermal</code> (hotspot zones never given
+coordinates), <code>fan_cooler_cfd</code> (blade/hub geometry),
+<code>industrial_furnace_thermal</code> (internal material-layer boundary, needs a
+real furnace CAD/mesh), <code>linear_elasticity_3d</code>/<code>plane_stress_2d</code>
+(<code>"fixed"</code>/<code>"load"</code> are two different, unlocated tags with nothing to
+disambiguate which face is which), <code>pcb_thermal</code> (component hotspots
+given as a power dict, never coordinates), <code>rocket_nozzle_cfd</code> (curved
+convergent-divergent nozzle contour), <code>rocket_structural</code> (the physical
+part is an annulus but the preset's own <code>domain_bounds</code> is a solid
+square that doesn't even encode the hole).</p>
+<p><strong>Verified, not just asserted</strong>: every one of the 17 "not fixable" claims
+above was independently confirmed this session by direct inspection of
+the preset's source (e.g. <code>pcb_thermal</code>'s <code>q_components</code> really is a
+<code>{name: watts}</code> dict with no coordinates anywhere;
+<code>aircraft_wing_structural</code>'s Neumann conditions really do use <code>fields=
+("ty",)</code>/<code>("tx","ty")</code> while the model's own fields are <code>(ux, uy)</code>, and
+calling <code>compile_problem</code>'s <code>loss_fn</code> directly with correct geometry
+supplied by hand does raise <code>KeyError: 'ty'</code>, confirming the second,
+independent defect). Every one of the 23 "fixed" presets was run
+end-to-end through <code>solve_pde()</code> for real this session (not just
+Tier-A "compiles" checked) — see next section.</p>
+<h3 id="new-builder-analytic_domain_batch_builderpy-mesh-free-exact-coordinate">New builder: <code>analytic_domain_batch_builder.py</code> (mesh-free, exact-coordinate)<a class="headerlink" href="#new-builder-analytic_domain_batch_builderpy-mesh-free-exact-coordinate" title="Permanent link">&para;</a></h3>
+<p>The existing <code>STLDomainBatchBuilder</code> needs an actual mesh file and always
+re-centers the loaded mesh on its bounding-box centroid, which silently
+breaks any preset <code>value_fn</code> that assumes literal, un-shifted coordinates
+(e.g. <code>channel_flow_3d</code>'s inlet profile computes <code>y*(H-y)</code> assuming
+<code>y in [0, H]</code>, not a re-centered <code>[-H/2, H/2]</code>). For the 23 presets above
+— genuinely representable by <code>spec.domain_bounds</code> alone — a new
+<code>pinneapple_design/geometry/builders/analytic_domain_batch_builder.py</code>
+samples the literal box/cylinder analytically instead: <code>sample_box_tag_
+batch()</code> and <code>sample_cylinder_tag_batch()</code>. This is still real geometry,
+not a mock — the sampled points are genuine interior/boundary points of
+the exact solid the preset's own docstring describes, and every
+condition's own <code>mask()</code>/<code>values()</code> is called exactly as
+<code>STLDomainBatchBuilder</code> does, so nothing about the preset's declared
+physics is bypassed.
+<code>pinneapple_physics/pde_environment/presets/tag_geometry.py</code>'s
+<code>build_tag_batch(name, spec)</code> is the single entry point that dispatches
+each of the 23 fixed presets to the right shape/face mapping; see
+<code>examples/pde_environment/07_tagged_presets_real_geometry.py</code> for
+end-to-end usage through <code>solve_pde()</code>.</p>
+<p><strong>A real, independent bug found and fixed while building this</strong>:
+<code>compile.py</code>'s <code>loss_fn</code> uses whatever is in <code>batch["y_bc"]</code> (sliced to
+each condition's own mask) as the target for <strong>every</strong> condition kind
+once <code>y_bc</code> is supplied at all — it only calls <code>cond.values()</code> itself
+when <code>y_bc</code> is absent entirely (the <code>solve_pde()</code> auto-sampling path).
+<code>STLDomainBatchBuilder._targets_from_conditions</code> only ever filled <code>y_bc</code>
+for <code>kind == "dirichlet"</code>, silently leaving Neumann/Robin targets as NaN
+— a latent gap that happened to never surface in the two existing STL
+examples (<code>04_heat3d_stl_box.py</code> has no Neumann tag condition;
+<code>03_ns2d_channel_tags.py</code>'s one Neumann target is genuinely zero, so the
+NaN gap was invisible). Confirmed directly (no <code>trimesh</code> needed, since
+this only touches the post-mask targeting helper): before the fix,
+<code>pipe_flow_3d</code>'s Neumann <code>outlet_dp_dn</code> tag's own field (<code>p</code>) stayed NaN
+in <code>y_bc</code>; after, it correctly reads <code>0.0</code> (the real <code>dp/dn=0</code> target).
+Fixed in both builders (the new analytic one shipped with the fix
+already applied; <code>STLDomainBatchBuilder</code> patched to match).</p>
+<p><strong>Per-tag residual/loss evidence, not just "it ran"</strong>: every one of the
+23 fixed presets was run through <code>compile_problem</code>'s <code>loss_fn</code> directly
+(random-init model, real sampled geometry) and confirmed to produce
+<strong>distinct, non-degenerate per-tag losses</strong> — e.g.
+<code>pipe_flow_3d</code>: <code>{pde: 3.45, bc_inlet: 0.49, bc_outlet_dp_dn: 1.75,
+bc_wall: 0.065}</code>; <code>steady_heat_conduction_3d</code>: <code>{pde: 1431.0,
+bc_T_boundary: 0.22, bc_T_inlet_hot: 1.14}</code> — never two identical or
+all-zero values, which would indicate a tag not actually being applied.
+Two representative presets (one box, <code>laplace_2d</code>; one cylinder,
+<code>pipe_flow_3d</code>) were then trained for 200 epochs through <code>solve_pde()</code>
+end-to-end and confirmed to actually converge, not just run:
+<code>laplace_2d</code> aggregate loss <code>670.8 -&gt; 0.256</code> (ratio <code>3.8e-4</code>),
+<code>pipe_flow_3d</code> <code>299.6 -&gt; 2.55</code> (ratio <code>8.5e-3</code>), with every per-tag loss
+shrinking individually (<code>pipe_flow_3d</code>'s three tags: <code>0.49/1.75/0.065 -&gt;
+0.001/0.0005/0.004</code>) — the per-tag masking is doing real, physically
+meaningful work, not a coincidental pass-through. All 17 "not fixable"
+presets were independently re-confirmed to still raise
+<code>TagConditionsUnresolved</code> exactly as before (unaffected, as intended).</p>
+<h3 id="test-suite-impact-measured-before-and-after-full-pytest-tests-not-just-the-two-solve_pde-files">Test suite impact, measured before and after (full <code>pytest tests/</code>, not just the two <code>solve_pde</code> files)<a class="headerlink" href="#test-suite-impact-measured-before-and-after-full-pytest-tests-not-just-the-two-solve_pde-files" title="Permanent link">&para;</a></h3>
+<p>One pre-existing, unrelated environment issue was found and worked around
+to get a clean before/after full-suite comparison at all: <strong><code>tests/
+test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]</code>
+segfaults the Python interpreter outright</strong> (confirmed in isolation,
+identically on both the pre-fix and post-fix commit — a native <code>xgboost</code>/
+OpenMP crash on this machine, unrelated to anything in this session's
+change) — <code>pytest</code> cannot even catch a segfault, so the whole process
+dies mid-run. Both full-suite runs below use <code>--deselect
+"tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"</code>
+to work around it; this is a pre-existing environment gap, not something
+this session introduced or fixed, and is unrelated to the tag-geometry
+work either way.</p>
+<p>Full <code>pytest tests/</code> (1667 of 1668 collected, 1 deselected), run at the
+pre-fix commit (<code>bfa19dbd</code>, clean checkout) and again at this session's
+final commit, both in this exact environment:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Before (<code>bfa19dbd</code>)</th>
+<th>After (this session)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Passed</td>
+<td>1289</td>
+<td><strong>1340</strong></td>
+</tr>
+<tr>
+<td>Failed</td>
+<td>75</td>
+<td>75</td>
+</tr>
+<tr>
+<td>Error (setup/collection)</td>
+<td>39</td>
+<td>39</td>
+</tr>
+<tr>
+<td>Skipped</td>
+<td>263</td>
+<td><strong>212</strong></td>
+</tr>
+<tr>
+<td>xfail</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td>1667</td>
+<td>1667</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The set of 114 failing/erroring test IDs (75 <code>FAILED</code> + 39 <code>ERROR</code>) is
+bit-for-bit identical before and after</strong> (<code>diff</code> of the two sorted ID
+lists is empty) — every one of them is a pre-existing, unrelated failure
+(e.g. <code>test_app_backend.py</code>'s <code>RuntimeError</code>s, <code>test_admin_router.py</code>,
+<code>test_preset_authoring.py</code>'s Ollama-dependent tests, ...), confirmed
+untouched by this change. <strong>The entire net effect of this pass on the
+full suite is exactly 51 tests moving from <code>skip</code> to <code>pass</code></strong> (1289 -&gt;
+1340), and zero tests moving the other way — those 51 are precisely the
+<code>test_cartesian_breadth.py</code>/<code>test_full_library_matrix.py</code> combinations
+for the 23 newly-fixed presets that previously skipped with "needs real
+geometry" and now train for real (confirmed directly: those two files
+alone went from 56 passed/173 skipped to 107 passed/122 skipped, a
++51/-51 delta that accounts for the entire suite-wide delta with nothing
+left over). No <code>"callable"</code>/<code>"all"</code> preset and no unrelated test file
+changed status in either direction.</p>
+<p><strong>Net tally against the original 40</strong>: 23/40 (57.5%) fixed with real,
+verified, non-degenerate per-tag training; 17/40 (42.5%) correctly
+documented as needing real external geometry (or, in
+<code>aircraft_wing_structural</code>'s one case, a separate compiler fix) that this
+pass does not fabricate. <code>TagConditionsUnresolved</code> is unchanged and still
+fires for all 17 plus every non-tag-based failure mode it always covered.</p>
+<h2 id="third-follow-up-pass-9-specific-presets-across-3-pre-decided-strategies-from-the-17-not-fixable-list-2026-09-17">Third follow-up pass: 9 specific presets across 3 pre-decided strategies, from the 17 "not fixable" list (2026-09-17)<a class="headerlink" href="#third-follow-up-pass-9-specific-presets-across-3-pre-decided-strategies-from-the-17-not-fixable-list-2026-09-17" title="Permanent link">&para;</a></h2>
+<p>This pass targeted 9 named presets out of the 17 above (grouped into 3
+strategies, each decided in advance rather than re-litigated by this
+session): real published standard geometry for 4 (Group 1), a genuine
+compiler defect for 1 (Group 2), and an explicitly-flagged CHOSEN
+CONVENTION for a genuinely ambiguous tag on 4 more (Group 3 -- 3 line
+items, one of which is 2 presets). <strong>6 of 9 closed for real</strong> (verified
+running <code>solve_pde()</code>/<code>compile_problem</code> end-to-end with distinct,
+non-degenerate per-tag losses, the same bar as the 23 above; some also
+shown to converge). <strong>1</strong> (<code>aircraft_wing_aerodynamics</code>) was investigated
+as instructed and found to be genuinely blocked by a missing preset
+parameter, not solved by assumption. <strong>2 more</strong> (<code>car_brake_thermal</code>,
+<code>rocket_structural</code>) are genuine partials: each preset's ORIGINALLY-
+STATED blocker is now resolved and independently verified, but each
+turned out to hide a SECOND, different, pre-existing compiler defect this
+pass was not scoped to fix -- precisely isolated and documented rather
+than silently left as an unexplained failure.</p>
+<h3 id="group-1-real-published-standard-geometry">Group 1 — real published-standard geometry<a class="headerlink" href="#group-1-real-published-standard-geometry" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>aircraft_wing_aerodynamics</code> — NOT fixed, missing parameter confirmed
+  by inspection, not assumed.</strong> The preset's own signature (<code>Re, Ma,
+  alpha_deg, chord, rho_inf, U_inf, nu_air</code>) has no thickness ratio or
+  NACA code at all -- <code>"NACA-like profile"</code> in its docstring names a
+  <em>family</em>, not a specific 4-digit code. Picking "NACA 0012" (as
+  instructed to try) means picking <code>t=0.12</code>, a number nothing in the
+  preset provides or implies; every other 4-digit thickness would be
+  equally "NACA-like" and produce a physically different airfoil. This is
+  exactly the parameter-gap escape hatch this pass was told to use rather
+  than guess -- left in <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> with the
+  specific missing parameter named (not the old vaguer "needs a real
+  airfoil profile" reason).</li>
+<li><strong><code>rocket_nozzle_cfd</code> — fixed.</strong> A simple conical (not Rao-bell, per the
+  instruction to only attempt the bell contour if time allowed and the
+  cone worked first) convergent-divergent nozzle wall, <code>r_wall(z) =
+  throat_radius + (exit_radius - throat_radius) * z / nozzle_length</code> --
+  every quantity read from the preset's own params (<code>throat_radius</code>,
+  <code>exit_radius</code>, <code>nozzle_length</code> from <code>spec.meta</code>/<code>domain_bounds</code>), the
+  half-angle <code>atan((exit_radius-throat_radius)/nozzle_length)</code> <strong>derived</strong>
+  from them, not chosen freely. One honest scope note: the preset's own 3
+  params describe only the <em>divergent</em> section unambiguously (no chamber
+  radius or throat axial position is given anywhere), so the domain
+  modelled is the throat (z=0, r=throat_radius) to exit (z=nozzle_length,
+  r=exit_radius) -- "inlet" here is the throat plane with the preset's own
+  stagnation p/T imposed there, a standard simplification, not an
+  invented parameter. New builder:
+  <code>sample_axisymmetric_wall_tag_batch</code> (<code>analytic_domain_batch_builder.py</code>).
+  Verified: distinct per-tag losses at init (<code>pde=1.68e6, bc_inlet=5.0e13,
+  bc_outlet=1.64, bc_wall=0.146, bc_axis=0.464</code>); trained through
+  <code>solve_pde()</code> for real. Honest caveat found while verifying: <code>bc_inlet</code>'s
+  raw physical units (<code>p_inlet=1e7 Pa</code>, <code>T_inlet=3500 K</code>) are ~13-14 orders
+  of magnitude larger than the other 3 tags' targets, so this preset's
+  <em>own</em> unnormalized units (not the geometry fix) dominate the loss and
+  visibly stall Adam training at both <code>lr=1e-3</code>/30 epochs and
+  <code>lr=1e-4</code>/300 epochs -- <code>bc_outlet</code>/<code>bc_wall</code>/<code>bc_axis</code> stay real,
+  distinct, and non-degenerate throughout either way. This is the same
+  category of finding as <code>crystal_phonon</code>'s float32-precision note in the
+  first astrophysics pass above: a real, practical training-conditioning
+  fact about this preset's literal SI defaults, not a defect in the fix.</li>
+<li><strong><code>car_external_aero</code> — fixed.</strong> A 2D Ahmed-body-inspired silhouette
+  (Ahmed, Ramm &amp; Faltin 1984, SAE 840300 -- the standard reference bluff
+  body for automotive external-aero CFD validation), built from its
+  published dimension RATIOS (ground clearance 50/1044, nose radius
+  100/1044, rear slant length 222/1044 of the body length; the classic
+  25-degree slant configuration) applied to this preset's own
+  <code>car_length</code>/<code>car_height</code> (read back exactly out of <code>domain_bounds</code>,
+  which the preset itself derives from them: <code>x_max=5*car_length</code>,
+  <code>y_max=5*car_height</code>) -- not the real body's literal millimeters, and
+  not a freehand silhouette. The front is modelled as two quarter-circle
+  fillets of the published radius (front-bottom, front-top) joined by a
+  short vertical face -- closer to the real body's actual corner rounding
+  than one giant arc spanning the full height. New builder:
+  <code>sample_box_with_curve_tag_batch</code> plus <code>_curve_geometry.
+  ahmed_body_polygon</code>/<code>polygon_perimeter_sample</code>/<code>polygon_contains</code> (a
+  vectorized ray-casting point-in-polygon test used to reject interior
+  collocation points that fall inside the solid body -- the ONE geometry
+  in this batch with real cross-sectional area, unlike the zero-thickness
+  blade/nozzle-wall curves). Verified: distinct per-tag losses at init
+  (<code>pde=4.49, bc_inlet=552.6, bc_outlet=2.30, bc_ground=551.1,
+  bc_car_body=0.079, bc_top=2.42</code>); trained 30 epochs through <code>solve_pde()</code>
+  with visible per-tag movement (<code>bc_outlet</code> 2.30-&gt;0.47, <code>bc_ground</code>
+  551-&gt;533).</li>
+<li><strong><code>axial_compressor_cascade_2d</code> — fixed, and trains cleanly.</strong> A
+  circular-arc cascade-blade camber line (Dixon &amp; Hall, <em>Fluid Mechanics
+  and Thermodynamics of Turbomachinery</em>, the standard circular-arc camber
+  construction), using ONLY this preset's own <code>flow_angle_in_deg</code>,
+  <code>flow_angle_out_deg</code>, <code>chord</code> (read as the zero-incidence/zero-deviation
+  design-condition metal angles, a standard assumption) -- turning angle
+  <code>theta_c=beta1-beta2</code>, camber-circle radius <code>R=chord/(2*sin(theta_c/2))</code>
+  (the chord-length relation for a circular arc), and stagger
+  <code>zeta=(beta1+beta2)/2</code>, which is not a separate assumption but a
+  <em>forced consequence</em> of the arc being circular and symmetric (the
+  tangent deviates +-theta_c/2 from the chord at each end, so
+  beta1=zeta+theta_c/2 and beta2=zeta-theta_c/2 solve exactly to that
+  mean). Modelled as a zero-thickness cambered plate (no preset param
+  gives blade thickness or max-camber location), so no interior exclusion
+  is needed. <code>inlet</code>/<code>outlet</code> are <code>selector_type="callable"</code> and are
+  covered automatically, same as every mixed preset in the pass above.
+  Verified with real training, not just non-degenerate losses: aggregate
+  loss <code>387.4 -&gt; 3.43</code> over 30 epochs, <code>pde</code> <code>363.5 -&gt; 2.02</code>,
+  <code>bc_blade_surface</code> <code>0.131 -&gt; 0.0059</code> -- both terms shrinking together,
+  the strongest convergence evidence in this pass (comparable to
+  <code>laplace_2d</code>/<code>pipe_flow_3d</code>'s representative-convergence bar above).</li>
+</ul>
+<h3 id="group-2-compiler-defect-not-geometry-aircraft_wing_structural-fixed">Group 2 — compiler defect, not geometry: <code>aircraft_wing_structural</code> fixed<a class="headerlink" href="#group-2-compiler-defect-not-geometry-aircraft_wing_structural-fixed" title="Permanent link">&para;</a></h3>
+<p><code>compile.py</code>'s per-condition loop unconditionally evaluated
+<code>pred = torch.cat([fvals[f] for f in cond.fields], dim=1)</code> for every
+condition BEFORE dispatching on <code>cond.kind</code> -- for a Neumann condition
+declaring traction fields (<code>tx</code>/<code>ty</code>) that the model never outputs
+directly (the model outputs displacements <code>ux</code>/<code>uy</code>), this raised
+<code>KeyError: 'ty'</code> immediately, confirmed by hand last pass even with
+correct geometry supplied.</p>
+<p><strong>The generalization</strong> (not a hack scoped to this one preset): added
+<code>ConditionSpec.traction_map</code> (<code>pinneapple_physics/pde_environment/
+conditions.py</code>) -- an explicit <code>{declared_traction_field: displacement_
+field}</code> mapping (e.g. <code>{"ty": "uy"}</code>), documented in <code>ConditionSpec</code>'s own
+docstring as a general mechanism for any elasticity preset whose Neumann
+BC targets are tractions rather than literal model fields. <code>compile.py</code>
+now:</p>
+<ol>
+<li>Only takes the old eager <code>fvals[f]</code>-lookup path when every one of
+   <code>cond.fields</code> IS a literal model field (<code>uses_model_fields</code>) --
+   unconditionally true for every pre-existing condition in the repo, so
+   this is provably a no-op for everything except the new traction case.</li>
+<li>For a <code>kind="neumann", order&lt;=1</code> condition with <code>traction_map</code> set,
+   builds the FULL elasticity stress tensor sigma from ALL of the PDE's
+   own displacement fields (<code>_elasticity_displacement_fields</code>,
+   <code>_elasticity_stress_tensor</code> -- identical lambda/mu constitutive
+   relation, including the plane-stress reduced lambda*, to the interior
+   residual's own construction, so a traction-BC prediction can never
+   silently disagree with what the PDE residual itself enforces), then
+   evaluates <code>n . sigma</code> restricted to the row selected by each
+   component's mapped axis (<code>_elasticity_traction_from_stress</code>).</li>
+<li>Anything else declaring a non-model field without a <code>traction_map</code> now
+   raises a clear, actionable error naming the missing mechanism, instead
+   of the old bare, confusing <code>KeyError</code>.</li>
+</ol>
+<p><strong>Verified two ways</strong>, matching this session's method for a
+compiler-level (not physics-content) fix:
+- <strong>Closed-form correctness check</strong> (not just "ran without erroring"): a
+  hand-picked pure-shear displacement field (<code>ux=k3*y, uy=k4*x</code>, giving
+  <code>eps_xx=eps_yy=0</code>, <code>eps_xy=0.5*(k3+k4)</code> exactly) has a known closed-form
+  traction at the <code>x=max</code> face (<code>t_y = sigma_xy = mu*(k3+k4)</code>) --
+  <code>_elasticity_traction_from_stress</code> reproduces it to <strong>7e-8 relative
+  error</strong> (float32 roundoff), confirming the formula itself, independent
+  of any trained network.
+- <strong>End-to-end on the real preset</strong>: <code>aircraft_wing_structural</code> run
+  through <code>compile_problem</code> with real box geometry (<code>root_fixed</code>=x-min,
+  <code>tip_load</code>=x-max, <code>free_surface</code>=y-min+y-max, all unambiguous per the
+  preset's own docstring, as already noted in the second pass) --
+  distinct, non-degenerate per-tag losses (<code>bc_root_fixed=0.037,
+  bc_tip_load=3.75e20, bc_free_surface=1.75e22</code>), no <code>KeyError</code>. Honest
+  caveat, same category as <code>rocket_nozzle_cfd</code>'s above: this preset's own
+  raw units (<code>E=70e9 Pa</code>, <code>lift_load=50000 N</code> over a <code>~5m x 0.1m</code>
+  unnormalized domain) make <code>pde</code>/<code>bc_tip_load</code>/<code>bc_free_surface</code> land at
+  <code>1e20</code>-<code>1e24</code>, so 30 epochs of plain Adam barely move the aggregate --
+  a pre-existing units/scale property of this preset, not of the traction
+  mechanism (confirmed independently correct by the closed-form check
+  above).
+- Added <code>NeumannBC(..., traction_map=...)</code> plumbing to
+  <code>_tagged_neumann()</code> (<code>presets/engineering.py</code>) and set it on both of
+  <code>aircraft_wing_structural</code>'s traction conditions
+  (<code>{"ty": "uy"}</code> for <code>tip_load</code>, <code>{"tx": "ux", "ty": "uy"}</code> for
+  <code>free_surface</code>).
+- Regression check: <code>tests/test_manufactured_solutions.py</code> (36/36) still
+  passes unchanged -- every pre-existing condition in the repo has
+  <code>traction_map=None</code> and takes the exact old code path.</p>
+<h3 id="group-3-genuinely-ambiguous-tag-decision-already-made-implemented-not-re-decided">Group 3 — genuinely ambiguous tag, decision already made (implemented, not re-decided)<a class="headerlink" href="#group-3-genuinely-ambiguous-tag-decision-already-made-implemented-not-re-decided" title="Permanent link">&para;</a></h3>
+<p>Each of these adds an explicit <code>CHOSEN_CONVENTIONS</code> entry in
+<code>tag_geometry.py</code> (separate from the inline per-preset comments used for
+the 23+1 presets above, which all cite the preset's OWN text) --
+transparently marking these as this session's engineering decision, not
+something the preset itself states:</p>
+<ul>
+<li><strong><code>linear_elasticity_3d</code> and <code>plane_stress_2d</code> — fixed.</strong> <code>"fixed"</code> =
+  domain-min face of the principal axis (x=0, the base/engaste),
+  <code>"load"</code> = domain-max face (x=1, the free tip) -- the canonical
+  cantilever-beam/column setup. Both are simple box fixtures (no new
+  builder needed). <code>linear_elasticity_3d</code> (fields <code>ux,uy,uz</code>, kind
+  <code>"linear_elasticity"</code>) also exercises <code>_elasticity_displacement_fields</code>'s
+  3D branch for the first time in this pass, though this preset's own
+  <code>load</code> condition uses full-vector traction (<code>ux,uy,uz</code> all Neumann-
+  targeted, all literal model fields already) so it does not need
+  <code>traction_map</code> itself.</li>
+<li><strong><code>car_brake_thermal</code> — tag ambiguity resolved; training still blocked
+  by a SECOND, independent, pre-existing compiler defect (same pattern as
+  <code>rocket_structural</code> below).</strong> <code>"friction_surface"</code> = the disc's two flat
+  faces (<code>z=min</code>, <code>z=max</code>, where the pad contacts it), <code>"cooling_surface"</code>
+  = the outer rim (<code>r=max</code>, exposed to airflow) -- the standard disc-brake
+  thermal-analysis assignment; coords are cylindrical-axisymmetric
+  <code>(r,z,t)</code>, and the <code>"initial"</code> condition is <code>selector_type="callable"</code>
+  (auto-sampled by <code>solve_pde()</code> on its own). A plain box fixture was
+  built for this and independently verified geometrically correct
+  (<code>sample_box_tag_batch</code> with <code>tag_faces={"friction_surface": [z-min,
+  z-max], "cooling_surface": [r-max]}</code> gives exactly 1000/500 masked
+  points for a 500-per-face sample, as expected). <strong>But it hits a second
+  defect while training</strong>: <code>"friction_surface"</code>/<code>"cooling_surface"</code>
+  declare <code>fields=("q_heat",)</code>/<code>("h","T_ref")</code> -- a heat-flux magnitude
+  and a convection coefficient+reference temperature, neither a literal
+  model field (the model only outputs <code>"T"</code>) nor resolvable by the
+  <code>traction_map</code> mechanism (built for elasticity tractions, not
+  heat-flux/convection Neumann BCs). Grepping the preset files shows this
+  exact <code>q_heat</code>/<code>h</code>/<code>T_ref</code> convention is ALSO used by
+  <code>cpu_heatsink_thermal</code>, <code>pcb_thermal</code>, <code>industrial_furnace_thermal</code>, and
+  all 3 <code>datacenter_*</code> presets -- a systemic, pre-existing gap across many
+  thermal presets, well beyond this pass's authorized scope of resolving
+  <code>car_brake_thermal</code>'s specific tag ambiguity. The fixture is therefore
+  intentionally NOT wired into <code>TAG_GEOMETRY_FIXTURES</code>/<code>build_tag_batch</code>'s
+  dispatch table, <code>car_brake_thermal</code> stays in
+  <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> with this precise, narrowed reason,
+  and <code>TagConditionsUnresolved</code> still correctly fires for it end-to-end --
+  confirmed by re-running <code>test_full_library_matrix.py</code>'s
+  <code>car_brake_thermal</code> case: still cleanly SKIPPED, same as before this
+  pass, zero change in test-suite outcome.</li>
+<li><strong><code>rocket_structural</code> — geometry half fixed for real; training still
+  blocked by a SECOND, independent, pre-existing compiler defect.</strong> This
+  was correctly diagnosed last pass as a data bug, not a tag ambiguity:
+  <code>domain_bounds</code> is a solid square <code>[-outer,outer]^2</code> but the physical
+  part is an annulus. The preset already carries <code>inner_radius=0.2</code>/
+  <code>outer_radius=0.22</code> in its own <code>meta</code> dict (confirmed by inspection --
+  not fabricated), so a new <code>sample_annulus_tag_batch</code>
+  (<code>analytic_domain_batch_builder.py</code>) samples the REAL annulus (rejection
+  sampling <code>inner_radius &lt;= sqrt(x^2+y^2) &lt;= outer_radius</code> for the
+  interior, exact inner/outer rings for the two boundary tags) reading
+  those two params straight from <code>spec.meta</code>. Verified directly:
+  interior collocation points land at <code>r in [0.20000, 0.21999]</code>, exactly
+  the annulus, not the old square's corners/hole. Verified further that 3
+  of its 4 tag conditions (<code>outer_wall</code>, <code>T_inner</code>, <code>T_outer</code>) train
+  through <code>compile_problem</code> with real, distinct, non-degenerate losses
+  (<code>bc_outer_wall=0.084, bc_T_inner=639633, bc_T_outer=85709</code>) once the
+  annulus geometry is supplied. <strong>But the 4th, <code>inner_wall</code>, hits a
+  SECOND, independent defect this pass did not authorize fixing</strong>: it
+  declares <code>fields=("p_normal",)</code>, a pressure MAGNITUDE, not a literal
+  model field and not resolvable by the <code>traction_map</code> mechanism built
+  for Group 2 above (that mechanism derives one traction VECTOR COMPONENT
+  along a named axis from the stress tensor; a pressure BC instead needs
+  the scalar normal-stress contraction <code>n^T.sigma.n</code> compared against
+  <code>-p_internal</code>, a genuinely different derivation with its own sign
+  convention this pass was not asked to design). Confirmed directly: the
+  new, clearer compiler error correctly names <code>'p_normal'</code> and points at
+  <code>ConditionSpec.traction_map</code>'s docstring, instead of the old bare,
+  unexplained <code>KeyError</code>. <code>rocket_structural</code> is therefore left in
+  <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> with this precise, narrowed-down
+  reason (previously: "domain_bounds doesn't encode the hole"; now: "the
+  hole is fixed, a second and different compiler gap remains") --
+  <code>TagConditionsUnresolved</code> still correctly fires for it via <code>solve_pde()</code>
+  end-to-end, and the annulus fixture is intentionally NOT wired into
+  <code>TAG_GEOMETRY_FIXTURES</code>/<code>build_tag_batch</code>'s dispatch table (kept as
+  verified, tested, standalone infrastructure only) to preserve that
+  table's existing invariant that every entry in it trains end-to-end for
+  real, same as all 29 (23 + this pass's 6) already in it.</li>
+</ul>
+<h3 id="net-tally-for-this-pass">Net tally for this pass<a class="headerlink" href="#net-tally-for-this-pass" title="Permanent link">&para;</a></h3>
+<p>This pass addressed all 9 distinct preset names named across the task's 3
+groups (Group 1: 4, Group 2: 1, Group 3: 4 -- <code>linear_elasticity_3d</code> and
+<code>plane_stress_2d</code> are 2 separate presets under Group 3's first bullet).
+<strong>6 of the 9 closed for real, trained end-to-end with real, distinct,
+non-degenerate per-tag losses</strong> (some also shown to converge):
+<code>rocket_nozzle_cfd</code>, <code>car_external_aero</code>, <code>axial_compressor_cascade_2d</code>
+(Group 1), <code>aircraft_wing_structural</code> (Group 2), <code>linear_elasticity_3d</code>
+and <code>plane_stress_2d</code> (Group 3). <strong>1 confirmed genuinely blocked by a
+specific missing preset parameter, investigated rather than guessed</strong>:
+<code>aircraft_wing_aerodynamics</code> (Group 1 -- no NACA thickness/code param
+exists to read). <strong>2 are genuine partials</strong>: <code>car_brake_thermal</code> and
+<code>rocket_structural</code> (Group 3) both had their ORIGINALLY-STATED blocker
+(a tag-face ambiguity; a solid-square-vs-annulus data bug) resolved and
+independently verified, but each hides a SECOND, different, pre-existing
+compiler defect this pass was not scoped to fix (heat-flux/convection
+Neumann fields for the former, a pressure-magnitude Neumann field for the
+latter -- both a different derivation than the <code>traction_map</code> mechanism
+built for Group 2's elasticity-traction case handles) -- documented
+precisely, with the new, clearer compiler error naming exactly what's
+missing in each case, rather than claimed as closed. Both partials leave
+<code>test_full_library_matrix.py</code>'s status for them exactly as it was before
+this pass (<code>SKIPPED</code>, confirmed by re-running both cases directly) -- the
+partial fixes are real, verified infrastructure, but deliberately not
+wired into <code>TAG_GEOMETRY_FIXTURES</code> so no test's outcome changes on their
+account.</p>
+<p>Updated running tally against the original 40 tag-based presets: <strong>29/40
+now trained end-to-end with real geometry</strong> (23 + 6), <strong>11/40</strong> remain
+<code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> for a specific, individually-verified
+reason each (9 unchanged from before + <code>car_brake_thermal</code>'s and
+<code>rocket_structural</code>'s narrowed, partially-resolved ones).</p>
+<h3 id="full-suite-regression-check-beforeafter-same-method-as-the-second-pass">Full-suite regression check (before/after, same method as the second pass)<a class="headerlink" href="#full-suite-regression-check-beforeafter-same-method-as-the-second-pass" title="Permanent link">&para;</a></h3>
+<p><code>pytest tests/ --deselect "tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"</code>,
+run at the clean pre-this-pass commit (<code>571b66ba</code>, via a separate
+<code>git worktree add --detach</code> checkout so the comparison needed no stash of
+this pass's own in-progress changes) and again at this pass's final
+commit, same environment.</p>
+<p><strong>Methodology note, an environment quirk this pass had to work around</strong>:
+in this environment, pytest's own final <code>passed/failed/error/skipped</code>
+tally line (and part of the <code>short test summary info</code> listing) did not
+get written to disk on either run -- confirmed NOT a resource-contention
+artifact (it reproduced identically running completely alone, no other
+process active) and NOT a hang (the process genuinely exits; <code>ps</code>
+confirms it is gone, deterministically right after printing
+<code>test_app_backend.py</code>'s last <code>ERROR</code> line both times). All test EXECUTION
+completes normally first (the <code>.</code>/<code>F</code>/<code>E</code>/<code>s</code>/<code>x</code> dot-progress reaches
+100%); whatever is cut short happens only in pytest's own post-run
+reporting. Rather than accept an unverifiable total, both runs' dot-
+progress characters (the exact <code>.FEsx</code> stream pytest prints per test as
+it runs, well before any summary section) were extracted directly and
+counted, and (since <code>--collect-only</code> confirms both commits collect the
+exact same 1667 test IDs in the exact same order, as expected --
+<code>TAG_GEOMETRY_FIXTURES</code> gaining 6 entries doesn't change which tests
+<code>list_presets()</code>-driven files collect, only how they later behave)
+<strong>mapped position-by-position back to the actual test IDs</strong>, turning the
+two character streams into a full, exact pass/fail/skip diff, not just a
+count.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Before (<code>571b66ba</code>)</th>
+<th>After (this pass)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Passed</td>
+<td>1341</td>
+<td>1353</td>
+</tr>
+<tr>
+<td>Failed</td>
+<td>74</td>
+<td>75</td>
+</tr>
+<tr>
+<td>Error</td>
+<td>39</td>
+<td>39</td>
+</tr>
+<tr>
+<td>Skipped</td>
+<td>212</td>
+<td>199</td>
+</tr>
+<tr>
+<td>xfail</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Total</td>
+<td>1667</td>
+<td>1667</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exactly 14 tests changed status, identified individually, not just
+counted</strong>: 13 moved <code>skip -&gt; pass</code> and are precisely the 6 newly-fixed
+presets' test combinations -- <code>test_cartesian_breadth.py</code>'s 7
+architectures x <code>plane_stress_2d</code> (<code>vanilla_pinn</code>, <code>modified_mlp</code>,
+<code>bench_res_mlp</code>, <code>bench_fourier_mlp</code>, <code>siren</code>, <code>vpinn</code>, <code>xtfc</code>) and
+<code>test_full_library_matrix.py</code>'s one test per preset for all 6
+(<code>aircraft_wing_structural</code>, <code>axial_compressor_cascade_2d</code>,
+<code>car_external_aero</code>, <code>linear_elasticity_3d</code>, <code>plane_stress_2d</code>,
+<code>rocket_nozzle_cfd</code>) -- exactly matching this pass's 6 real fixes, with
+nothing left over. The 14th, and only unexpected change, moved
+<code>pass -&gt; fail</code>: <code>tests/pinneapple_analysis/test_architecture_critique.py
+::test_real_llm_produces_a_valid_complete_response</code> -- a completely
+unrelated test (architecture-critique NLP review, nothing to do with PDE
+presets/geometry/elasticity) that calls a REAL Ollama LLM
+(<code>provider="ollama"</code>) and asserts its output. Re-ran it standalone to
+confirm this is exactly what it looks like: the live LLM occasionally
+returns a category name (<code>'overall_reasoning'</code>) outside the fixed
+checklist the test's own assertion enforces
+(<code>ValueError: LLM named category 'overall_reasoning', not in the real
+checklist [...] -- refusing a hallucinated category.</code>) -- genuine LLM-
+output nondeterminism from a real model call, unrelated to and
+unaffected by anything in <code>pinneapple_physics</code>/<code>pinneapple_design</code> this
+pass touched. <strong>Net, verified result: 0 regressions from this pass's
+changes</strong> (13/13 of the expected new passes landed exactly where
+predicted, 0 unexplained losses, and the one unrelated flip has an
+independently-confirmed, unrelated root cause).</p>
+<h2 id="fourth-follow-up-pass-naca-0012-literature-default-and-2-new-neumann-bc-compiler-mechanisms-2026-09-17">Fourth follow-up pass: NACA 0012 literature default, and 2 new Neumann-BC compiler mechanisms (2026-09-17)<a class="headerlink" href="#fourth-follow-up-pass-naca-0012-literature-default-and-2-new-neumann-bc-compiler-mechanisms-2026-09-17" title="Permanent link">&para;</a></h2>
+<p>Product-owner decision (Yan), not this pass's own choice: 3 named,
+pre-decided items from the Third follow-up pass's leftover list above --
+(1) <code>aircraft_wing_aerodynamics</code> gets a literature-standard NACA 0012
+thickness default (the previous pass correctly left this unfixed because
+NO thickness parameter existed at all; the decision here is to ADD one,
+not to guess a value the preset never had), (2) generalize the compiler
+for heat-flux/convection Neumann BCs (<code>car_brake_thermal</code>'s second,
+independent blocker from last pass), (3) generalize the compiler for a
+pressure-magnitude Neumann BC (<code>rocket_structural</code>'s second, independent
+blocker from last pass). <strong>All 3 closed for real</strong>, verified end-to-end.</p>
+<h3 id="item-1-aircraft_wing_aerodynamics-naca-0012-literature-default">Item 1 -- <code>aircraft_wing_aerodynamics</code>: NACA 0012 literature default<a class="headerlink" href="#item-1-aircraft_wing_aerodynamics-naca-0012-literature-default" title="Permanent link">&para;</a></h3>
+<p>Added <code>naca_thickness: float = 0.12</code> as an explicit, overridable keyword
+parameter (not a hidden internal constant) to the preset's own signature.
+0.12 (NACA 0012, a symmetric 12%-thick profile) is documented in the
+preset's own docstring, <code>_curve_geometry.py</code>, and <code>tag_geometry.py</code> as a
+<strong>literature default the product owner chose</strong>, not something inherent
+to the preset's original parameters (which never included a thickness or
+NACA-code field at all, exactly as the Third follow-up pass found) --
+the single most common reference/benchmark airfoil in the public
+aerodynamics/CFD literature, and readable/overridable by anyone who wants
+to supply a real specific profile's thickness later. Uses the same public
+NACA 4-digit thickness formula already cited (and investigated) in the
+previous pass's <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> entry for this
+preset:</p>
+<div class="highlight"><pre><span></span><code>y_t(x) = 5*t*(0.2969*sqrt(x/c) - 0.1260*(x/c) - 0.3516*(x/c)^2
+               + 0.2843*(x/c)^3 - 0.1015*(x/c)^4)
+</code></pre></div>
+<p>implemented fresh as <code>_curve_geometry.naca4_symmetric_polygon</code> (a closed
+polygon via cosine-spaced sample points, upper+lower surface, same
+construction style as <code>ahmed_body_polygon</code>), reusing the already-existing
+<code>polygon_perimeter_sample</code>/<code>polygon_contains</code> helpers unchanged (both are
+fully generic, not car-body-specific). Sanity-checked directly: the
+polygon's peak half-thickness is 0.06003<em>chord (i.e. thickness 0.1201</em>c,
+matching the nominal 12% to within cosine-sampling resolution), and
+<code>polygon_contains</code> correctly classifies a point at the airfoil's midchord
+as inside and points ahead of/behind/outside it as outside.</p>
+<p>Wired as a <code>box_with_curve</code> <code>TAG_GEOMETRY_FIXTURES</code> entry: airfoil
+leading edge at the coordinate origin (chord along +x, unrotated -- angle
+of attack is already encoded in the existing <code>farfield_inlet</code> velocity
+direction, the standard "rotate the flow, not the body" CFD convention,
+unchanged by this pass), consistent with this preset's own asymmetric
+domain_bounds (<code>-5*chord</code> upstream, <code>15*chord</code> downstream of x=0) and
+symmetric y-range. One additional, explicitly-flagged <strong>chosen
+convention</strong> (added to <code>CHOSEN_CONVENTIONS</code>, same transparency bar as
+every other genuinely-ambiguous-tag entry in this file): <code>"wake_outlet"</code>
+has no stated face anywhere in the preset (only named in the docstring's
+"Regions" list) -- mapped to the same <code>x=max</code> outlet plane as
+<code>"farfield_outlet"</code> (both are Neumann/zero-gradient conditions on
+different fields -- pressure vs. velocity -- at the same physical exit
+plane), reusing this file's own already-established pattern of two
+distinct tags sharing one face along the same flow axis.</p>
+<p><strong>Verified end-to-end</strong>: <code>build_tag_batch("aircraft_wing_aerodynamics",
+...)</code> produces all 4 non-degenerate tag masks (400 points each at
+<code>n_bc_per_face=400</code>: <code>farfield_inlet</code>, <code>farfield_outlet</code>, <code>wake_outlet</code>,
+<code>airfoil</code>); <code>compile_problem</code> gives real, finite, distinct per-tag losses
+at init (<code>pde=4.65, bc_farfield_inlet=5189.5, bc_farfield_outlet=2.12,
+bc_airfoil=0.088, bc_wake_outlet=3.81</code>); trained 20 epochs through
+<code>solve_pde()</code> with visible per-tag movement on 2 of 4 tags
+(<code>bc_farfield_outlet</code> 2.12-&gt;0.68, <code>bc_wake_outlet</code> 3.81-&gt;2.78) --
+<code>bc_farfield_inlet</code> dominates and barely moves because <code>U_inf=102 m/s</code>
+is unnormalized (same category of finding as <code>rocket_nozzle_cfd</code>'s and
+<code>aircraft_wing_structural</code>'s raw-SI-units notes above, not a defect in
+this fix). Moved from <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> to
+<code>TAG_GEOMETRY_FIXTURES</code>.</p>
+<h3 id="items-2-3-generalizing-the-compiler-for-2-more-neumann-bc-families">Items 2 &amp; 3 -- generalizing the compiler for 2 more Neumann-BC families<a class="headerlink" href="#items-2-3-generalizing-the-compiler-for-2-more-neumann-bc-families" title="Permanent link">&para;</a></h3>
+<p>The Third follow-up pass's <code>ConditionSpec.traction_map</code> only covers ONE
+vector traction component derived from <code>n . sigma</code> along a named axis. It
+does not cover (a) a Neumann/Robin condition whose target is a heat flux
+or convection law (fields not literal model outputs, and not a traction
+at all), or (b) a Neumann condition whose target is a pressure MAGNITUDE
+needing the full scalar contraction <code>n^T . sigma . n</code> (not one axis-aligned
+component). Both are now real, separate mechanisms in
+<code>pinneapple_physics/pde_environment/conditions.py</code>
+(<code>ConditionSpec.thermal_bc</code>, <code>ConditionSpec.normal_stress_field</code>) and
+<code>compile.py</code> (two new branches in the per-condition loop, gated the same
+way <code>traction_map</code> already is: <code>uses_model_fields=False</code> +
+<code>kind="neumann"</code> + <code>order&lt;=1</code> + the new field set).</p>
+<p><strong><code>ConditionSpec.thermal_bc</code></strong> (<code>{"kind": "flux"|"convection", "T_field":
+"T"}</code>): implements the standard physics directly --</p>
+<div class="highlight"><pre><span></span><code>flux:       -k * dT/dn = q_heat
+convection: -k * dT/dn = h * (T - T_ref)
+</code></pre></div>
+<p><code>dT/dn</code> via the same <code>norm_dot_grad</code> autograd machinery the plain Neumann
+branch already uses; <code>k</code> read with the exact same fallback order
+(<code>k_eff</code>, then <code>k</code>, then 1.0) the <code>heat_equation_steady*</code>/
+<code>heat_equation_transient</code> interior residuals already use, so this can
+never silently disagree with the PDE's own conductivity. Generic: any
+preset declaring this <code>q_heat</code>/<code>h</code>+<code>T_ref</code> convention gets the mechanism
+automatically, not just <code>car_brake_thermal</code> -- confirmed by grep this is
+the SAME convention used by <code>cpu_heatsink_thermal</code>, <code>pcb_thermal</code>,
+<code>industrial_furnace_thermal</code>, and all 3 <code>datacenter_*</code> thermal presets
+(their <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> entries in <code>tag_geometry.py</code>
+now note explicitly that their remaining blocker is geometry only, not
+this compiler gap).</p>
+<p><strong><code>ConditionSpec.normal_stress_field</code></strong> (a single field name, e.g.
+<code>"p_normal"</code>): implements the pressure-vessel convention
+<code>n^T . sigma . n = -p_internal</code> via a new
+<code>_elasticity_normal_stress_from_stress</code> helper (full double contraction,
+genuinely different math from <code>_elasticity_traction_from_stress</code>'s single
+selected row -- not a special case of it). <code>sigma</code> is built by the SAME
+<code>_elasticity_stress_tensor</code> helper <code>traction_map</code> already uses, so a
+pressure-BC prediction can never silently disagree with the interior
+residual's own stress. <code>rocket_structural</code>'s actual <code>pde_kind</code> is
+<code>"thermoelasticity_2d"</code>, not one of the 3 plain elasticity kinds
+<code>traction_map</code>/<code>_elasticity_stress_tensor</code> originally supported --
+extended <code>_elasticity_stress_tensor</code> (and
+<code>_elasticity_displacement_fields</code>) with a <code>thermoelasticity_2d</code> branch
+that additionally subtracts the SAME isotropic thermal-strain correction
+(<code>eps_th = alpha_T*T*I</code>) the interior <code>"thermoelasticity_2d"</code> residual
+already applies, verified below to be load-bearing (not a silent no-op).</p>
+<p><strong>Closed-form verification</strong> (matching the <code>traction_map</code> pure-shear
+check's rigor -- exact solution in, ~0 residual out; wrong solution in,
+clearly nonzero residual out -- via <code>compile_problem</code> directly, no
+training involved), 4 independent checks:</p>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Trial field</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>thermal_bc="flux"</code></td>
+<td><code>T=a*x+0.5*b*x^2+0.5*c*y^2</code> (quadratic in every direction to avoid this codebase's known autograd second-derivative-of-a-zero-dependence limitation, same reason <code>test_manufactured_solutions.py</code>'s own exact solutions are never purely linear); target <code>q_heat=-k*dT/dn</code> at <code>x=1</code></td>
+<td>exact: loss <code>0.000e+00</code>; wrong (<code>q_heat=999</code>): loss <code>1.01e+06</code></td>
+</tr>
+<tr>
+<td><code>thermal_bc="convection"</code></td>
+<td>same T field, position-dependent <code>h</code> solved exactly per-point so <code>h*(T-T_ref)=-k*dT/dn</code></td>
+<td>exact: loss <code>0.000e+00</code>; wrong (<code>h</code>x5): loss <code>1.64e+08</code></td>
+</tr>
+<tr>
+<td><code>normal_stress_field</code> (<code>linear_elasticity_plane_stress</code>)</td>
+<td><code>ux,uy</code> quadratic-in-both-directions displacement field; target <code>p_internal=-sigma_xx(X)</code> computed exactly per-point from the closed-form stress (using the SAME plane-stress reduced <code>lambda*</code>)</td>
+<td>exact: loss <code>0.000e+00</code>; wrong (<code>p=999</code>): loss <code>9.93e+05</code></td>
+</tr>
+<tr>
+<td><code>normal_stress_field</code> (<code>thermoelasticity_2d</code>, rocket_structural's real <code>pde_kind</code>)</td>
+<td>same displacement field plus <code>T=T0+0.5*d*(x^2+y^2)</code>; target includes the thermal-strain correction</td>
+<td>exact: loss <code>7.1e-14</code>; <strong>target missing the thermal term</strong>: loss <code>44.75</code> (proves the thermal branch is load-bearing, not a no-op)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="car_brake_thermal-wired-end-to-end"><code>car_brake_thermal</code> -- wired end-to-end<a class="headerlink" href="#car_brake_thermal-wired-end-to-end" title="Permanent link">&para;</a></h3>
+<p><code>friction_surface</code>/<code>cooling_surface</code> now declare <code>thermal_bc</code> explicitly
+in <code>engineering.py</code> (<code>{"kind": "flux", ...}</code> / <code>{"kind": "convection",
+...}</code>); the box <code>TAG_GEOMETRY_FIXTURES</code> entry built and geometrically
+verified last pass (unchanged) is now wired into the dispatch table.
+Verified via <code>build_tag_batch</code>+<code>compile_problem</code>+<code>solve_pde()</code>: all 3
+non-<code>callable</code> conditions get non-degenerate masks
+(<code>friction_surface</code>=800 pts [both z-faces], <code>cooling_surface</code>=400 pts);
+real, finite, distinct per-tag losses at init (<code>pde=2.35,
+bc_friction_surface=4.00e12, bc_cooling_surface=5.51e8</code>) -- the huge
+<code>bc_friction_surface</code> value is exactly consistent with the untrained
+network's near-zero <code>dT/dn</code>, so the residual is dominated by
+<code>q_friction=2e6 W/m^2</code> squared (<code>(2e6)^2=4e12</code>, matching to 3 significant
+figures); <code>bc_cooling_surface</code> similarly consistent with
+<code>h_conv=80</code>/<code>T_ref=293</code> at a near-zero initial <code>T</code>. <code>test_full_library_
+matrix.py::test_audit_breadth_preset_trains_a_few_steps[car_brake_thermal]</code>
+now genuinely trains 3 real epochs through <code>solve_pde()</code> (previously
+skipped via <code>TagConditionsUnresolved</code>) -- <strong>passes</strong>. Moved from
+<code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> to <code>TAG_GEOMETRY_FIXTURES</code>.</p>
+<h3 id="rocket_structural-wired-end-to-end"><code>rocket_structural</code> -- wired end-to-end<a class="headerlink" href="#rocket_structural-wired-end-to-end" title="Permanent link">&para;</a></h3>
+<p><code>inner_wall</code> now declares <code>normal_stress_field="p_normal"</code> explicitly in
+<code>engineering.py</code>; the annulus <code>TAG_GEOMETRY_FIXTURES</code> entry built and
+geometrically verified last pass (unchanged: real annulus from this
+preset's own <code>meta["inner_radius"]</code>/<code>meta["outer_radius"]</code>) is now wired
+into the dispatch table via a new <code>"annulus"</code> shape branch in
+<code>build_tag_batch</code> (reusing <code>sample_annulus_tag_batch</code>, already present
+and tested as standalone infrastructure since last pass).
+<code>T_inner</code>/<code>outer_wall</code>/<code>T_outer</code> share the same inner/outer rings as
+<code>inner_wall</code> (same 2 physical circles, different fields). Verified via
+<code>build_tag_batch</code>+<code>compile_problem</code>+<code>solve_pde()</code>: all 4 tags get 400
+non-degenerate points each; real, finite, distinct per-tag losses at init
+(<code>pde=2.16e25, bc_inner_wall=1.32e23, bc_outer_wall=0.056,
+bc_T_inner=639568, bc_T_outer=85690</code>) -- <code>bc_T_inner</code>/<code>bc_T_outer</code> land
+almost exactly on last pass's already-verified values for the SAME 3
+non-<code>inner_wall</code> tags (<code>639633</code>/<code>85709</code> then vs. <code>639568</code>/<code>85690</code> now,
+the tiny difference being random model-init noise only), confirming this
+pass's annulus wiring reproduces the prior, independently-verified
+geometry exactly, with <code>bc_inner_wall</code> now a real number instead of a
+<code>KeyError</code>. The <code>bc_inner_wall</code>/<code>pde</code> scale (<code>~1e23</code>/<code>~1e25</code>) is the same
+raw-SI-units category of finding as <code>aircraft_wing_structural</code>'s
+<code>E=70e9 Pa</code> note above (<code>rocket_structural</code>'s own <code>E=200e9 Pa</code>,
+<code>p_internal=10e6 Pa</code> are similarly unnormalized), not a defect in this
+fix. <code>test_full_library_matrix.py::test_audit_breadth_preset_trains_a_
+few_steps[rocket_structural]</code> now genuinely trains 3 real epochs through
+<code>solve_pde()</code> (previously skipped) -- <strong>passes</strong>. Moved from
+<code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> to <code>TAG_GEOMETRY_FIXTURES</code>.</p>
+<h3 id="net-tally-for-this-pass_1">Net tally for this pass<a class="headerlink" href="#net-tally-for-this-pass_1" title="Permanent link">&para;</a></h3>
+<p>All 3 items closed for real, each verified with either a closed-form
+proof (both new compiler mechanisms, 4/4 checks) or real non-degenerate
+per-tag losses confirmed running end-to-end through <code>solve_pde()</code>/
+<code>compile_problem</code> (all 3 presets), matching this line of work's
+established bar throughout. Updated running tally against the original
+40 tag-based presets: <strong>32/40 now trained end-to-end with real geometry</strong>
+(23 + 6 + 3), <strong>8/40</strong> remain <code>NOT_FIXABLE_WITHOUT_REAL_GEOMETRY</code> for a
+specific, individually-verified reason each (real fin/rack/hotspot/blade
+geometry this pass was not asked to fabricate; 4 of those 8's
+<code>thermal_bc</code>-related fields are now noted as compiler-ready, blocked on
+geometry alone).</p>
+<h3 id="full-suite-regression-check-beforeafter-same-method-as-the-second-and-third-passes">Full-suite regression check (before/after, same method as the second and third passes)<a class="headerlink" href="#full-suite-regression-check-beforeafter-same-method-as-the-second-and-third-passes" title="Permanent link">&para;</a></h3>
+<p><code>pytest tests/ --deselect "tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"</code>,
+run at the clean pre-this-pass commit (<code>14e0a131</code>, via a separate
+<code>git worktree add --detach</code> checkout, same technique as both previous
+passes) and again at this pass's final commit, same environment.</p>
+<p><strong>Same methodology note as the third pass applies again</strong>: this
+environment's pytest does not write its own final <code>passed/failed/error/
+skipped</code> tally line on either run (confirmed again: all test EXECUTION
+completes normally, <code>.FEsx</code> dot-progress reaches 100%, the process exits
+cleanly right after printing the <code>short test summary info</code> section's last
+line -- only the one-line aggregate afterward is missing). <code>--collect-only</code>
+(without <code>-q</code>, which on this pytest version condenses to per-file counts
+once the suite is large) confirms both commits collect the exact same
+<strong>1667</strong> test IDs in the exact same order, so the <code>.FEsx</code> dot-progress
+stream was mapped position-by-position back to the real test IDs, exactly
+as the third pass did.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Before (<code>14e0a131</code>)</th>
+<th>After (this pass)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Passed</td>
+<td>1354</td>
+<td>1357</td>
+</tr>
+<tr>
+<td>Failed</td>
+<td>74</td>
+<td>74</td>
+</tr>
+<tr>
+<td>Error</td>
+<td>39</td>
+<td>39</td>
+</tr>
+<tr>
+<td>Skipped</td>
+<td>199</td>
+<td>196</td>
+</tr>
+<tr>
+<td>xfail</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Total</td>
+<td>1667</td>
+<td>1667</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exactly 3 tests changed status, identified individually, not just
+counted</strong> -- all 3 <code>skip -&gt; pass</code>, exactly the 3 presets this pass wired
+into <code>TAG_GEOMETRY_FIXTURES</code>, one <code>test_full_library_matrix.py</code> case each
+(none of the 3 appear in <code>test_cartesian_breadth.py</code>'s fixed 7-preset
+list, so no additional architecture x preset combinations were affected
+there):</p>
+<div class="highlight"><pre><span></span><code>tests/test_full_library_matrix.py::test_audit_breadth_preset_trains_a_few_steps[aircraft_wing_aerodynamics]
+tests/test_full_library_matrix.py::test_audit_breadth_preset_trains_a_few_steps[car_brake_thermal]
+tests/test_full_library_matrix.py::test_audit_breadth_preset_trains_a_few_steps[rocket_structural]
+</code></pre></div>
+<p><strong>Zero unexplained changes, zero regressions</strong> -- unlike the third pass
+(which had one unrelated <code>pass -&gt; fail</code> flip from a live, nondeterministic
+Ollama call), this pass's diff is exactly and only the 3 expected flips,
+nothing else moved in either direction. <code>FAILED</code>/<code>ERROR</code> counts are
+bit-for-bit identical before and after (74/39), confirming this pass
+touched nothing in the pre-existing failure/error set.</p>
+<h2 id="fifth-pass-pluggable-gradient-backend-for-symbolicpde-2026-09-17">Fifth pass: pluggable gradient backend for <code>SymbolicPDE</code> (2026-09-17)<a class="headerlink" href="#fifth-pass-pluggable-gradient-backend-for-symbolicpde-2026-09-17" title="Permanent link">&para;</a></h2>
+<p><strong>New feature, not a bugfix</strong> -- imported from a PhysicsNeMo insights note
+(<code>physicsnemo-notes/insights-to-import-into-pinneapple.md</code>, sections 2-3):
+PhysicsNeMo separates "what is the PDE" (<code>PDE</code>, a symbolic dict) from "how
+is a derivative computed given the data's shape" (<code>PhysicsInformer(
+grad_method=...)</code>, pluggable autodiff/finite-difference/spectral/mesh
+backends). The insights note claimed PINNeAPPle's <code>pinneapple_physics/
+symbolic_pde/compiler.py::SymbolicPDE</code> (hardcoded to autograd) is what
+feeds the ~65-preset catalog, with <code>pinneapple_neural/architectures/
+neural_operators/pino.py</code> holding an isolated, disconnected FD/spectral
+implementation.</p>
+<p><strong>Premise correction, found by reading the real code before writing
+anything</strong>: <code>SymbolicPDE</code> does <strong>not</strong> feed the registered preset catalog.
+The catalog (<code>pde_environment/presets/registry.py</code> -&gt; <code>PDETermSpec(kind=
+"...", ...)</code>) is compiled by a completely different, string-<code>kind</code>-
+dispatched engine, <code>pinneapple_physics/pinn_solver/compiler/compile.py::
+compile_problem</code> (2569 lines, hand-written per-PDE-kind residuals over
+<code>autograd_ops.py</code>'s <code>grad</code>/<code>laplacian</code>/<code>divergence</code>/<code>time_derivative</code>
+primitives) -- confirmed by tracing <code>laplace_2d_default()</code> and
+<code>burgers_1d_default()</code> in <code>academics.py</code> through to their <code>compile.py</code>
+branches, and by grepping every <code>SymbolicPDE</code> call site in the repo
+(<code>preset_authoring.py</code>, <code>worldmodel/{generate_datasets,dataset_factory}.py</code>,
+<code>examples/pinn_solver/03_symbolic_pde_hard_bc.py</code>, <code>templates/
+02_symbolic_pde.py</code>) -- none of them is the registered-preset path.
+<code>SymbolicPDE</code> is a separate, parallel SymPy-authoring bridge. The
+underlying architectural point from the insights note still holds (autograd
+is hardcoded on one side, FD/spectral sits isolated on the other), just not
+via the specific file the note named as the catalog's engine.</p>
+<p>Given that, the pluggable interface was built where the note said to build
+it (<code>SymbolicPDE</code>, since that actually is a real, reused SymPy-based
+compiler with its own derivative-op extractor already in place) rather than
+retrofitting the unrelated 2569-line <code>compile_problem</code> engine, which was
+explicitly out of scope ("não quebre nada que já funciona" -- touching the
+32/40-tag-preset engine from the prior 4 passes was not worth the risk for
+a docs-note premise that didn't hold up).</p>
+<h3 id="what-was-built">What was built<a class="headerlink" href="#what-was-built" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Reused, not rewritten</strong>: <code>_extract_derivative_ops</code>/<code>_DerivativeOp</code>
+  (compiler.py's existing SymPy <code>Derivative</code>-tree walker) is unchanged and
+  now shared across all three backends. <code>pino.py</code>'s <code>fd_derivative</code>/
+  <code>spectral_derivative</code> (already real, already used by the <code>PhysicsInformedNeuralOperator</code>
+  wrapper) are called directly, not reimplemented.</li>
+<li><strong>New</strong>: <code>pinneapple_physics/symbolic_pde/gradient_backends.py</code> --
+  <code>GridAxisSpec</code> (maps SymPy coordinate names to grid tensor axes/extents)
+  and <code>grid_derivative()</code> (composes <code>pino.py</code>'s single-axis primitives into
+  arbitrary-order/mixed partial derivatives, e.g. <code>u_xx</code>, <code>u_xy</code>).</li>
+<li><strong><code>SymbolicPDE.__init__</code></strong> gained <code>grad_method: Literal["autograd",
+  "finite_difference", "spectral"] = "autograd"</code> and <code>grid:
+  Optional[GridAxisSpec] = None</code>. Default unchanged, verified two ways: (a)
+  the original <code>to_residual_fn</code>/<code>_eval_expr_torch</code> code was not edited at
+  all -- a new sibling function, <code>_eval_expr_torch_grid</code>, handles the grid
+  case instead of parameterizing the existing one, specifically so the
+  autograd path has zero lines touched; (b) a direct regression test
+  (<code>test_default_grad_method_autograd_unchanged_manufactured_solution</code>)
+  reproduces the module's own Laplace manufactured-solution check through
+  <code>SymbolicPDE</code> and confirms residual <code>&lt; 1e-8</code> for the exact harmonic
+  solution, same as before this change existed.</li>
+<li><strong>New</strong>: <code>SymbolicPDE.to_grid_residual_fn()</code> -- the finite-difference/
+  spectral sibling of <code>to_residual_fn(model)</code>: takes pre-computed
+  grid-shaped field tensors (the natural output shape of a neural operator
+  like an FNO) instead of a <code>model</code> callable differentiated via autograd.</li>
+<li><strong>Lazy import</strong>: <code>pino.py</code>'s import (which transitively triggers
+  <code>pinneapple_neural</code>'s ~25-model-family architecture registry via
+  <code>register_all()</code>) is deferred to inside <code>grid_derivative()</code>, not at
+  module load time -- confirmed <code>import pinneapple_physics.symbolic_pde</code>
+  does not put <code>pinneapple_neural</code> in <code>sys.modules</code> unless a grid-based
+  backend is actually invoked, so the default (autograd) path pays zero
+  extra import cost.</li>
+<li>Both misuse paths raise clear errors instead of silently misbehaving:
+  building a grid-mode instance without a <code>grid</code>, or calling
+  <code>to_residual_fn</code>/<code>to_grid_residual_fn</code> with the wrong <code>grad_method</code>
+  (<code>test_grad_method_validation_errors</code>).</li>
+</ul>
+<h3 id="cross-backend-consistency-real-numbers-not-fabricated">Cross-backend consistency, real numbers (not fabricated)<a class="headerlink" href="#cross-backend-consistency-real-numbers-not-fabricated" title="Permanent link">&para;</a></h3>
+<p><code>tests/test_gradient_backend_consistency.py</code> runs the SAME symbolic
+residual for 3 real preset PDE <em>kinds</em> -- matched line-for-line against
+<code>compile.py</code>'s own residual formulas and, for 2 of the 3, against
+<code>test_manufactured_solutions.py</code>'s own parameter choices (<code>laplace_2d</code>:
+u_xx+u_yy; <code>reaction_diffusion_2d</code>: C_t - D<em>(C_xx+C_yy) + lambda</em>C, D=0.5,
+lambda=0.3; <code>burgers_1d</code>: u_t + u<em>u_x - nu</em>u_xx, nu=0.01, matching
+<code>burgers_1d_default</code>'s own default) -- through all 3 backends on a shared
+smooth, periodic-compatible probe field (deliberately chosen so the
+FFT-based spectral backend's implicit periodicity assumption holds; these
+probe fields generally do NOT solve the PDE -- that is not the point of
+this check, see the test file's module docstring for why a probe-field
+derivative-agreement check is a different, complementary thing to a
+manufactured-solution check).</p>
+<p>Actual measured agreement (float64, 64x64 grid for the 2D cases, 32^3 for
+the 3D case), autograd (differentiating the closed-form analytic function)
+taken as ground truth:</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>spectral vs. autograd (mean abs diff)</th>
+<th>finite_difference vs. autograd (mean abs diff)</th>
+<th>residual magnitude (mean abs)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>laplace_2d</td>
+<td>5.4e-13</td>
+<td>7.8e-3</td>
+<td>~9.6</td>
+</tr>
+<tr>
+<td>burgers_1d</td>
+<td>1.1e-15</td>
+<td>2.5e-4</td>
+<td>~0.15</td>
+</tr>
+<tr>
+<td>reaction_diffusion_2d</td>
+<td>1.0e-13</td>
+<td>3.8e-3</td>
+<td>~1.2</td>
+</tr>
+</tbody>
+</table>
+<p>Matches theory exactly: spectral differentiation of a periodic sinusoid on
+a matching-period domain is exact to floating-point roundoff; finite
+difference is 2nd-order accurate, so its error scales with <code>dx^2</code> (here
+<code>dx=1/64</code> -&gt; <code>dx^2~2.4e-4</code>, consistent with the observed <code>1e-4..1e-2</code>
+range against residual magnitudes of order 1). Test tolerances were set
+with margin above these measured values, not guessed in advance.</p>
+<h3 id="a-real-pre-existing-unrelated-bug-found-and-worked-around-not-fixed-out-of-scope">A real, pre-existing, unrelated bug found and worked around (not fixed, out of scope)<a class="headerlink" href="#a-real-pre-existing-unrelated-bug-found-and-worked-around-not-fixed-out-of-scope" title="Permanent link">&para;</a></h3>
+<p>The first full-suite run with the 5 new tests showed all 5 failing --
+despite passing standalone -- with <code>TypeError: Cannot convert a MPS Tensor
+to float64 dtype</code>. Root cause: some earlier test in the full suite leaves
+<code>torch</code>'s global default device set to <code>"mps"</code> (confirmed by reproducing
+directly: <code>torch.set_default_device("mps")</code> then running the new test file
+alone reproduces the identical failure), and this repo's Mac test
+environment has MPS available, which does not support <code>float64</code> at all.
+Grepped the entire repository (excluding <code>.venv</code>) for
+<code>set_default_device</code>/<code>with torch.device(</code> and found zero call sites in
+this codebase's own source -- the leak originates outside this session's
+diff and outside this task's scope (some other test or a dependency, not
+identified further; fixing it would be a separate, unrelated audit item).
+The new tests were made immune instead: the autouse fixture now also pins
+<code>torch.set_default_device("cpu")</code> for its duration (restoring whatever was
+there before) in addition to <code>float64</code>, which is the correct thing to do
+regardless of the leak's cause.</p>
+<h3 id="full-suite-regression-check-beforeafter-same-method-as-prior-passes">Full-suite regression check (before/after, same method as prior passes)<a class="headerlink" href="#full-suite-regression-check-beforeafter-same-method-as-prior-passes" title="Permanent link">&para;</a></h3>
+<p><code>pytest tests/ -q --no-header -rN</code> (no deselect needed this pass), baseline
+at the clean pre-this-pass commit <code>69117744</code> via a separate <code>git worktree
+add --detach</code> checkout (removed after use), and again at this pass's final
+commit, same <code>.venv</code>.</p>
+<p><strong>Same methodology note as prior passes applies again, with one addition</strong>:
+this pytest configuration prints no final <code>passed/failed/error/skipped</code>
+tally line, so status counts were reconstructed from the dot-progress
+stream; this session additionally found that the <em>last</em> progress line
+(whichever one is short, e.g. <code>"...."</code>) is right-padded with enough spaces
+to align the <code>[100%]</code> column, which silently dropped up to 3 trailing
+result characters from a naive single-space regex -- fixed with a
+variable-whitespace regex and cross-checked against <code>--collect-only</code>'s
+authoritative total test-ID count (<code>grep -c "::"</code> on the full, non-<code>-q</code>
+listing) until they matched exactly for both runs.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Before (<code>69117744</code>)</th>
+<th>After (this pass)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Passed</td>
+<td>1493</td>
+<td>1498</td>
+</tr>
+<tr>
+<td>Failed</td>
+<td>75</td>
+<td>75</td>
+</tr>
+<tr>
+<td>Error</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Skipped</td>
+<td>163</td>
+<td>163</td>
+</tr>
+<tr>
+<td>xfail</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Total</td>
+<td>1732</td>
+<td>1737</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exactly 5 tests added, all passing, zero pre-existing tests changed
+status</strong> -- the <code>FAILED</code> test-name set was diffed (not just counted) between
+both runs and is byte-for-byte identical (75 names, <code>diff</code> exit code 0).
+The 5 new passes are exactly the 5 tests in the new file:</p>
+<div class="highlight"><pre><span></span><code>tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d
+tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_burgers_1d
+tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_reaction_diffusion_2d
+tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution
+tests/test_gradient_backend_consistency.py::test_grad_method_validation_errors
+</code></pre></div>
+<p><strong>Zero regressions, zero unexplained changes</strong> -- the pre-existing 75
+failed / 163 skipped / 1 xfail / 0 error counts are bit-for-bit identical
+before and after, and the actual failing test names match exactly, not
+just the counts.</p>
+<h2 id="geometry-ood-guardrail-a-real-gap-from-the-physicsnemo-comparison-closed-2026-09-18">Geometry OOD guardrail: a real gap from the PhysicsNeMo comparison, closed (2026-09-18)<a class="headerlink" href="#geometry-ood-guardrail-a-real-gap-from-the-physicsnemo-comparison-closed-2026-09-18" title="Permanent link">&para;</a></h2>
+<p><strong>The finding this closes</strong>, from a separate cross-repo research pass
+(<code>physicsnemo-notes/insights-to-import-into-pinneapple.md</code>, section 7a,
+real code read on both sides, no code ported): NVIDIA PhysicsNeMo ships an
+experimental geometry guardrail
+(<code>physicsnemo/experimental/guardrails/geometry/</code>, ~3561 lines, Apache-2.0)
+that flags a CAD/mesh geometry as out-of-distribution (OOD) relative to
+the shapes a model was trained on -- shape-feature extraction + a density
+model (GMM or Polynomial Chaos Expansion) + OK/WARN/REJECT percentile
+classification. PINNeAPPle's trust/verification stack
+(<code>trust_gate.py</code>/<code>physics_confidence_score.py</code>/<code>evidence_graph.py</code>, 6969
+lines, larger than PhysicsNeMo's own guardrails module) had no equivalent
+signal -- <code>pinneapple_analysis.verification.geometry_intelligence</code> sounds
+adjacent but solves a different problem (semantic region/BC
+classification, not whole-shape anomaly detection). This was a real,
+confirmed gap, not a duplication.</p>
+<h3 id="what-was-built_1">What was built<a class="headerlink" href="#what-was-built_1" title="Permanent link">&para;</a></h3>
+<p>New <code>pinneapple_analysis/verification/geometry_ood_guardrail.py</code>
+(<code>GeometryOODGuardrail</code>/<code>GeometryOODResult</code>/<code>extract_geometry_features</code>/
+<code>default_reference_meshes</code>):</p>
+<ul>
+<li><strong>Feature extraction</strong>: 13 real shape descriptors (centroid, bbox
+  extent, 3 PCA eigenvalues of the vertex covariance, surface area, bbox
+  volume, aspect ratio, mean curvature proxy), reusing existing
+  infrastructure (<code>pinneapple_design.geometry.core.mesh.MeshData</code>,
+  <code>pinneapple_design.geometry.ops.features.compute_curvature_proxy</code>)
+  rather than reimplementing mesh feature extraction from scratch.</li>
+<li><strong>Density model -- a deliberate, documented scope decision</strong>: a
+  diagonal Mahalanobis distance (per-feature z-score sum-of-squares) +
+  <code>scipy.stats.chi2.sf</code>, NOT a full covariance / GMM / PCE. This is the
+  exact same statistical recipe <code>pinneapple_analysis.trust.trust_gate
+  .TrustGate._ood_score</code> already uses for coordinate-space OOD in this
+  codebase, applied here to shape features instead -- chosen explicitly
+  because PINNeAPPle's current geometry catalog (generated
+  primitives/presets) doesn't yet have enough archived real geometries
+  per preset to fit a full 13x13 covariance honestly; the module's own
+  docstring documents this tradeoff (real cross-feature correlations are
+  not modelled) rather than hiding it, and states when to revisit it (a
+  real per-preset archive of production geometries).</li>
+<li><strong>Reference catalog</strong>: <code>default_reference_meshes()</code> builds 48 real
+  (non-fabricated) box/cylinder/channel meshes via the existing
+  <code>pinneapple_design.geometry.gen.primitives.build_mesh</code> -- the same
+  real mesh-generation infrastructure <code>geometry_intelligence.py</code>'s own
+  tests already use -- across a deterministic grid of sizes/aspect
+  ratios.</li>
+</ul>
+<h3 id="integration-into-the-trust-stack">Integration into the trust stack<a class="headerlink" href="#integration-into-the-trust-stack" title="Permanent link">&para;</a></h3>
+<p>Wired as a 5th <code>ConfidenceComponent</code> into
+<code>pinneapple_analysis.verification.physics_confidence_score</code>
+(<code>N_POSSIBLE_COMPONENTS</code> 4 -&gt; 5, new <code>geometry_ood_result</code> kwarg on
+<code>compute_physics_confidence()</code>, new <code>_component_from_geometry_ood()</code>
+following the exact same "score used as real evidence, <code>source_summary</code>
+quotes the real numbers, absent check is never fabricated" pattern the
+other 4 components already use). <code>GeometryOODResult.score</code> is already a
+[0, 1] "higher = more trustworthy" value with the identical convention
+<code>TrustGate._ood_score</code> uses, so no extra transform is needed for it to
+slot into the existing arithmetic-mean aggregation.
+<code>pinneapple_analysis.verification.evidence_graph.build_evidence_graph</code>/
+<code>explain_trust</code> required <strong>zero code changes</strong> to pick up the new
+component -- confirmed directly: they iterate generically over
+<code>confidence.components</code> by <code>name</code>/<code>score</code>/<code>source_summary</code>, so a REJECT
+geometry_ood result correctly renders as a <code>CONTRADICTING</code> evidence line
+automatically.</p>
+<h3 id="real-verification-normal-vs-anomalous-geometry">Real verification: normal vs. anomalous geometry<a class="headerlink" href="#real-verification-normal-vs-anomalous-geometry" title="Permanent link">&para;</a></h3>
+<p>Fit <code>GeometryOODGuardrail</code> on the 48-mesh default reference catalog,
+queried two real geometries built by the same <code>build_mesh()</code>
+infrastructure:</p>
+<table>
+<thead>
+<tr>
+<th>Geometry</th>
+<th>mahalanobis_sq</th>
+<th>p-value (score)</th>
+<th>status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Box <code>(1.5, 1.2, 0.9)</code> -- inside the reference range</td>
+<td>3.09 (dof=13)</td>
+<td>0.998</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>Box <code>(500, 0.001, 0.001)</code> -- extreme aspect ratio, 5 orders of magnitude outside the reference range</td>
+<td>1.24e9</td>
+<td>~0.0</td>
+<td>REJECT</td>
+</tr>
+</tbody>
+</table>
+<p>The score genuinely differentiates the two (not a constant output), and
+<code>top_deviating_features</code> correctly names <code>aspect_ratio</code>/<code>pca_eigenvalue_1</code>
+as the drivers for the REJECT case -- an honest, inspectable explanation,
+never an opaque number. A <code>woven_tube</code> mesh (a shape family never
+present in the box/cylinder/channel reference catalog) was also confirmed
+to score lower than an in-family box, and <code>build_evidence_graph</code> was
+confirmed to render the REJECT case as a <code>CONTRADICTING</code> evidence line.</p>
+<h3 id="test-suite-impact-measured-before-and-after">Test suite impact, measured before and after<a class="headerlink" href="#test-suite-impact-measured-before-and-after" title="Permanent link">&para;</a></h3>
+<p>New <code>tests/test_geometry_ood_guardrail.py</code> (15 tests, real
+<code>build_mesh()</code> geometries, <code>pytest.importorskip("trimesh")</code> matching this
+repo's established convention for the optional <code>geom</code> extra).
+<code>tests/test_physics_confidence_score.py</code> updated for
+<code>N_POSSIBLE_COMPONENTS</code> 4-&gt;5: the one test that hardcoded "4 components =
+full coverage" was split into
+<code>test_all_four_original_components_is_partial_coverage_now</code> (asserts
+<code>coverage == 4/5</code>, an explicit regression guard for this exact change)
+and a new <code>test_all_five_components_full_coverage</code> (supplies a real
+<code>geometry_ood_result</code> to reach true 5/5), plus 3 new geometry_ood-alone
+tests. All 23+15 tests pass in isolation.</p>
+<p>Full <code>pytest tests/ --deselect
+"tests/test_breadth_six_packages.py::test_breadth_classical_forecasters[xgboost]"</code>
+(the same pre-existing xgboost/OpenMP segfault workaround this line of
+work has used since the second pass), run at the clean pre-this-session
+commit (<code>69117744</code>, via a separate <code>git worktree add --detach</code> checkout,
+same technique as the prior passes) and again at this session's final
+commit, same environment (the optional <code>trimesh</code>/<code>geom</code> extra was
+installed for this comparison, since it's required to exercise the new
+module at all -- identical in both runs):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Before (<code>69117744</code>)</th>
+<th>After (this session)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Collected</td>
+<td>1691</td>
+<td>1711</td>
+</tr>
+<tr>
+<td>Passed</td>
+<td>1375</td>
+<td>1394</td>
+</tr>
+<tr>
+<td>Failed</td>
+<td>78</td>
+<td>79</td>
+</tr>
+<tr>
+<td>Error</td>
+<td>40</td>
+<td>40</td>
+</tr>
+<tr>
+<td>Skipped</td>
+<td>197</td>
+<td>197</td>
+</tr>
+<tr>
+<td>xfail</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The FAILED/ERROR test-ID sets are identical except for exactly one
+expected rename/split</strong>: <code>test_all_four_components_full_coverage</code>
+(FAILED in the before run) was replaced by
+<code>test_all_four_original_components_is_partial_coverage_now</code> and
+<code>test_all_five_components_full_coverage</code> (both FAILED in the after run)
+-- a <code>diff</code> of the two sorted FAILED+ERROR ID lists shows only this one
+change, nothing else moved. <strong>Both new tests fail for the exact same
+pre-existing, unrelated environment reason</strong> that already breaks 2
+pre-existing tests identically in the before run
+(<code>test_calibration_component_well_calibrated_scores_high</code>,
+<code>test_calibration_component_poorly_calibrated_scores_lower</code>, both FAILED
+in <code>69117744</code> too): some earlier test in the full-suite run leaves
+PyTorch's default device set to <code>"mps"</code>, and
+<code>pinneapple_analysis.uncertainty.calibration._normal_cdf</code> then raises
+<code>TypeError: Cannot convert a MPS Tensor to float64 dtype</code> -- confirmed
+identical, unrelated to this session's change, and already present before
+it (exactly the same class of pre-existing environment gap as the
+xgboost segfault worked around above). When run outside the full suite
+(<code>pytest tests/test_physics_confidence_score.py</code> alone, no MPS-device
+leak from an earlier file), all 23 tests -- including both new ones --
+pass. The +20 collected-test delta (1711-1691) is the 19 new tests this
+session added (15 in the new file, 4 net in the modified file) plus 1
+unrelated new parametrized case in <code>test_breadth_six_packages.py</code>
+(383-&gt;384 collected in that file alone, confirmed via a separate
+<code>--collect-only</code> diff) that this session did not touch -- most likely
+environment drift from this machine's shared, concurrently-used
+multi-agent worktree setup between the two separate <code>pytest</code> process
+invocations, not a change caused by this session.</p>
+<p><strong>Scope note</strong>: the diagonal-Mahalanobis choice over a full GMM/PCE is a
+deliberate, documented tradeoff for the product's current stage (see the
+module's own docstring) -- not a shortcut taken silently. <code>trust_gate.py</code>
+itself (the weighted-sub-score <code>TrustGate.score()</code> API) was left
+unmodified; the integration point chosen was
+<code>PhysicsConfidenceScore</code>/<code>ConfidenceComponent</code>, since that is the
+componentized aggregator this task's own instructions pointed at and the
+one <code>evidence_graph.py</code> already consumes generically.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

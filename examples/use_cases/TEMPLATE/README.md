@@ -1105,6 +1105,6 @@ examples/use_cases/{{ USE_CASE_NAME }}/
 - Raissi, M. et al. (2019). "Physics-informed neural networks." *Journal of Computational Physics.*
 - Lu, L. et al. (2021). "Learning nonlinear operators via DeepONet." *Nature Machine Intelligence.*
 - Li, Z. et al. (2021). "Fourier Neural Operator for Parametric PDEs." *ICLR 2021.*
-- Leake, C. & Mortari, D. (2020). "Deep Theory of Functional Connections." arXiv:2005.01219.
+- Leake, C. & Mortari, D. (2020). "Deep Theory of Functional Connections." arXiv:1812.08625.
 - pinneapple docs: `QUICKSTART.md`
 - pinneapple examples: `examples/pinneapple_arena/`

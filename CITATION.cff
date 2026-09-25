@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: "Barros"
     given-names: "Yan"
-version: "0.1.0"
-date-released: "2026-01-23"
+version: "0.6.0"
+date-released: "2026-09-24"
 repository-code: "https://github.com/barrosyan/PINNeAPPle"
 license: "Apache-2.0"

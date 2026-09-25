@@ -520,5 +520,5 @@ python -m pinneapple_arena.runner.run_pipeline --config configs/coupling_config.
 
 - Archard, J.F. (1953). "Contact and Rubbing of Flat Surfaces." Journal of Applied Physics.
 - Timoshenko & Goodier (1970). *Theory of Elasticity*, 3rd ed. McGraw-Hill.
-- Leake & Mortari (2020). "Deep Theory of Functional Connections." arXiv:2005.01219
+- Leake & Mortari (2020). "Deep Theory of Functional Connections." arXiv:1812.08625
 - pinneapple docs: `QUICKSTART.md`

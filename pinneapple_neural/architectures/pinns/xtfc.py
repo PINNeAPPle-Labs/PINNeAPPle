@@ -9,7 +9,7 @@ installed, so the module is always importable.
 
 References
 ----------
-- Leake & Mortari (2020) "Deep Theory of Functional Connections" arXiv:2005.01219
+- Leake & Mortari (2020) "Deep Theory of Functional Connections" arXiv:1812.08625
 - Johnston & Mortari (2021) "Least-Squares Solutions of BVPs" arXiv:2011.04700
 - TFC library: https://github.com/leakec/tfc
 """

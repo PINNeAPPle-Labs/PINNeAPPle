@@ -42,6 +42,18 @@
    "rel_l2": 0.3035291180339272,
    "seconds": 23379.0,
    "n_params": 5081
+  },
+  {
+   "problem": "burgers",
+   "variant": "ssbroyden",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "fraction_tau_below_1": 1.0,
+   "loss": 2.7596514483703047e-06,
+   "rel_l2": 0.30005083132004173,
+   "seconds": 543.1,
+   "n_params": 5081
   }
  ]
 }

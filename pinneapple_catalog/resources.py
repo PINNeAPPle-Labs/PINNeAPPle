@@ -172,6 +172,14 @@ _RESOURCES: List[Resource] = [
        paper="PosteriorBench: From Point Estimates to Posterior Matching in Evaluating Generative Inverse "
              "Solvers, NeurIPS 2026, arXiv:2609.20794",
        hf_repo=("anonymousmay/PosteriorBench", "dataset"), rating="use_now", tags=("uq", "inverse")),
+    _r(id="finalrev_abc_embeddings", name="ABC 1M: preview images, captions and text embeddings (finalrev)",
+       kind="geometry", domain="cad",
+       summary="~1M ABC parts, each with a rendered preview, a VLM caption and a text embedding (100 parquet "
+               "shards, 42 GB); no geometry, only abc_id/URIs. Embedding model not published. Indexed by "
+               "pinneapple_design.geometry.retrieval.load_caption_index.",
+       license="none declared (ABC/Onshape origin)", commercial="unverified",
+       url="https://www.finalrev.com/blog/embedding-one-million-3d-models",
+       hf_repo=("daveferbear/3d-model-images-embeddings", "dataset"), size="42 GB", rating="reference"),
     # ── Structural / manufacturing ───────────────────────────────────────
     _r(id="pressnet", name="PressNet", kind="dataset", domain="structural",
        summary="Press forming of a plate between two dies: 15 die shapes x 10 variations = 150 simulations, "

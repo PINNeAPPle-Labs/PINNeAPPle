@@ -163,6 +163,15 @@ _RESOURCES: List[Resource] = [
        license="ODbL-1.0", commercial="yes", url="https://huggingface.co/datasets/PLAID-datasets/AirfRANS_original",
        paper="Bonnet et al., AirfRANS, arXiv:2212.07564",
        hf_repo=("PLAID-datasets/AirfRANS_original", "dataset"), rating="use_now", tags=("plaid",)),
+    _r(id="posteriorbench", name="PosteriorBench", kind="benchmark", domain="inverse_problems",
+       summary="Four inverse tasks (Poisson, Darcy, light transport, CCS) with high-fidelity reference "
+               "posteriors; judges whether generative solvers recover the whole posterior, not only the mean. "
+               "Metrics ported to pinneapple_analysis.uncertainty.posterior_metrics.",
+       license="CC-BY-4.0 (data), MIT (code)", commercial="yes",
+       url="https://github.com/neuraloperator/PosteriorBench",
+       paper="PosteriorBench: From Point Estimates to Posterior Matching in Evaluating Generative Inverse "
+             "Solvers, NeurIPS 2026, arXiv:2609.20794",
+       hf_repo=("anonymousmay/PosteriorBench", "dataset"), rating="use_now", tags=("uq", "inverse")),
     # ── Structural / manufacturing ───────────────────────────────────────
     _r(id="pressnet", name="PressNet", kind="dataset", domain="structural",
        summary="Press forming of a plate between two dies: 15 die shapes x 10 variations = 150 simulations, "

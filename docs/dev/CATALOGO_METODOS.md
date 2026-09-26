@@ -9,7 +9,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
 | A. Solvers (S) | 6 | 13 | 6 |
-| B. Métodos de treino (T) | 1 | 11 | 9 |
+| B. Métodos de treino (T) | 1 | 12 | 9 |
 | C. Equações físicas (E) | 35 | 22 | 8 |
 | D. Problemas físicos (P) | 27 | 8 | 31 |
 
@@ -159,7 +159,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S24 — External solvers: OpenFOAM, FEniCS, ANSYS/CFD formats, MATLAB, Modelica/FMI, MuJoCo, Genesis, TurboDesigner
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_caso_exportado_le_no_foamdictionary_e_roda_simplefoam`; `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_exportacao_todos_os_patches_em_todos_os_campos_e_reprodutivel`; `PINNeAPPle-CFD/tests/test_e03_geometria_cliente.py::test_api_upload_confirmar_previa_e_malha_cliente` (+62)
+- **Evidência:** `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_caso_exportado_le_no_foamdictionary_e_roda_simplefoam`; `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_exportacao_todos_os_patches_em_todos_os_campos_e_reprodutivel`; `PINNeAPPle-CFD/tests/test_e03_geometria_cliente.py::test_api_upload_confirmar_previa_e_malha_cliente` (+63)
 - **Código:** `pinneapple_simulation/external_solvers/`
 - **Referências adicionadas:** Weller, Tabor, Jasak & Fureby, A tensorial approach to CFD, Comput. Phys. 12(6) (1998) 620-631 (OpenFOAM) · Baratta et al., DOLFINx: the next generation FEniCS problem solving environment, 2023 · Blochwitz et al., The Functional Mockup Interface, Modelica Conference 2011 · Todorov, Erez & Tassa, MuJoCo, IROS 2012
 
@@ -292,6 +292,13 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Evidência:** `PINNeAPPle/tests/test_arena_autoresearch.py::test_loop_keeps_improvements_reverts_the_rest_and_logs`; `PINNeAPPle/tests/test_arena_autoresearch.py::test_real_pinn_template_runs_and_reports_the_metric`
 - **Código:** `pinneapple_arena/autoresearch.py`
 - **Referências adicionadas:** karpathy/autoresearch (MIT), https://github.com/karpathy/autoresearch
+
+### T22 — Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, ensemble UQ, OOD score, fine-tuning)
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/test_lpm.py::test_fourier_encoding_shape`; `PINNeAPPle/tests/test_lpm.py::test_neighbourhood_features_do_not_depend_on_surface_point_order`; `PINNeAPPle/tests/test_lpm.py::test_query_independence_permutation_and_subsets`
+- **Código:** `pinneapple_neural/lpm.py`
+- **Referências no código:** Luminary, Vocabulary of Physics AI / How Large Physics Models gain spatial context (2026) · Tancik et al., Fourier features let networks learn high frequency functions, NeurIPS 2020, arXiv:2006.10739 · Zaheer et al., Deep Sets, NeurIPS 2017, arXiv:1703.06114 · Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474
+- **Referências adicionadas:** Milne-Thomson, Theoretical Hydrodynamics, §9.61 (ellipse potential flow, benchmark reference)
 
 
 ## C. Equações físicas (E)

@@ -1,5 +1,5 @@
 {
- "generated_on": "2026-09-25",
+ "generated_on": "2026-09-26",
  "methods": {
   "E1": {
    "other_tests": [
@@ -1513,6 +1513,7 @@
     "PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_fenics_workflow_solve_and_package_bug",
     "PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_matlab_engine_missing_dependency",
     "PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_openfoam_bridge_graceful_degradation",
+    "PINNeAPPle/tests/test_calculix_bridge.py::test_virtual_ccx_cli_refuses_without_predictor_and_logs",
     "PINNeAPPle/tests/test_cfd_format_readers.py::test_exodus_reader_against_real_classic_netcdf_file",
     "PINNeAPPle/tests/test_cfd_format_readers.py::test_exodus_reader_rejects_netcdf4_variant_cleanly",
     "PINNeAPPle/tests/test_codegen.py::test_fenics_diffusion_script_is_valid_and_has_expected_api",
@@ -1745,6 +1746,15 @@
    "reference_tests": [],
    "status": "tested"
   },
+  "T22": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_lpm.py::test_fourier_encoding_shape",
+    "PINNeAPPle/tests/test_lpm.py::test_neighbourhood_features_do_not_depend_on_surface_point_order",
+    "PINNeAPPle/tests/test_lpm.py::test_query_independence_permutation_and_subsets"
+   ],
+   "reference_tests": [],
+   "status": "tested"
+  },
   "T3": {
    "other_tests": [],
    "reference_tests": [],
@@ -1792,6 +1802,6 @@
   }
  },
  "rule": "validated = a test exercising the item compares against an independent reference (closed form, manufactured solution, published/tabulated value)",
- "test_files_scanned": 159,
- "test_functions_scanned": 1633
+ "test_files_scanned": 164,
+ "test_functions_scanned": 1650
 }

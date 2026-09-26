@@ -257,6 +257,15 @@ METHODS: List[Method] = [
     _m("T21", "Autoresearch loop (fixed-budget trials, keep/revert, random or LLM proposer)",
        ["pinneapple_arena/autoresearch.py"], ["AutoResearch", "autoresearch"],
        refs_added=["karpathy/autoresearch (MIT), https://github.com/karpathy/autoresearch"]),
+    _m("T22", "Large Physics Model blocks (Fourier encoding, multi-scale neighbourhoods, geometry code, "
+              "ensemble UQ, OOD score, fine-tuning)", ["pinneapple_neural/lpm.py"],
+       ["LargePhysicsModel", "pinneapple_neural.lpm"],
+       refs_in_code=["Luminary, Vocabulary of Physics AI / How Large Physics Models gain spatial context (2026)",
+                     "Tancik et al., Fourier features let networks learn high frequency functions, NeurIPS 2020, "
+                     "arXiv:2006.10739",
+                     "Zaheer et al., Deep Sets, NeurIPS 2017, arXiv:1703.06114",
+                     "Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474"],
+       refs_added=["Milne-Thomson, Theoretical Hydrodynamics, §9.61 (ellipse potential flow, benchmark reference)"]),
     # ── C. Equations (PINN compiler kinds + closed forms) ────────────────
     _m("E1", "Laplace", [COMPILE], ['"laplace"', "laplace_2d"], refs_added=[EVANS]),
     _m("E2", "Poisson", [COMPILE], ['"poisson"', "poisson_2d"], refs_added=[EVANS]),

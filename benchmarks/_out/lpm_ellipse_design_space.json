@@ -1,0 +1,10 @@
+{
+ "note": "run of 2026-09-26 (30 train / 10 held-out designs, 128 points, 1500 epochs, 4 heads, width 96)",
+ "train_rel_l2_mean": 0.01435,
+ "heldout_rel_l2": [0.0878, 0.0322, 0.0173, 0.0261, 0.0342, 0.0153, 0.0177, 0.0164, 0.0149, 0.0527],
+ "heldout_rel_l2_mean": 0.0315,
+ "heldout_ood_scores": [1.23, 0.92, 1.13, 0.47, 1.36, 0.02, 0.42, 0.3, 0.82, 0.38],
+ "square": {"ood": true, "ood_score": 1.54},
+ "circle_r3": {"ood": true, "ood_score": 12.43},
+ "seconds": 1738.4
+}

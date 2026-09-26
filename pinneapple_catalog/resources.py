@@ -180,6 +180,19 @@ _RESOURCES: List[Resource] = [
        license="none declared (ABC/Onshape origin)", commercial="unverified",
        url="https://www.finalrev.com/blog/embedding-one-million-3d-models",
        hf_repo=("daveferbear/3d-model-images-embeddings", "dataset"), size="42 GB", rating="reference"),
+    _r(id="vista_ssa", name="VISTA-SSA", kind="model", domain="space",
+       summary="Attention-based multi-agent RL for space-situational-awareness sensor tasking (1 to 48 sensors, "
+               "up to 20k tracked objects); native C environments on PufferLib, frozen checkpoints, classical "
+               "scheduling baselines. Fits PINNeAPPle-apps satellite_conjunction_screening.",
+       license="MIT", commercial="yes", url="https://github.com/RocketNeurons/VISTA-SSA", rating="reference",
+       notes="Linux x86_64 / WSL2 only (compiled environments)."),
+    _r(id="prism_reachability", name="PRISM (reachability-intercept set model)", kind="benchmark", domain="space",
+       summary="Set-based finite-time encounter feasibility under uncertainty, latency and bounded acceleration. "
+               "Only the generic, civilian core (collision screening / rendezvous) is implemented, research only: "
+               "pinneapple_analysis.uncertainty.reachability. No targeting or guidance.",
+       license="CC-BY-4.0", commercial="yes", url="https://zenodo.org/records/22979350",
+       paper="Enayati, PRISM: Predictive Reachability-Intercept Set Model for Relative Motion and Intercept "
+             "Kinematics in Defensive Aerospace Engineering, Zenodo 22979350", rating="reference"),
     # ── Structural / manufacturing ───────────────────────────────────────
     _r(id="pressnet", name="PressNet", kind="dataset", domain="structural",
        summary="Press forming of a plate between two dies: 15 die shapes x 10 variations = 150 simulations, "

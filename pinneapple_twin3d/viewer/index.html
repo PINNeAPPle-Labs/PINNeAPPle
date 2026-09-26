@@ -20,7 +20,7 @@
     --accent: #6b9cff; --alarm: #ff6b62; --ok: #4cc983; --viewport: #0e1116;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+  html, body { margin: 0; height: 100%; overflow-x: hidden; background: var(--bg); color: var(--text);
     font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
   #app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: auto 1fr auto; height: 100%; }
   header { grid-column: 1 / 3; display: flex; align-items: center; gap: 12px; padding: 8px 16px;
@@ -41,7 +41,8 @@
     border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
   button { cursor: pointer; }
   button:hover { border-color: var(--accent); }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
+  .grid2 > * { min-width: 0; width: 100%; }
   .part-actions button { padding: 0 6px; font-size: 11px; margin-left: auto; }
   #legend { position: absolute; right: 16px; top: 16px; background: var(--panel); border: 1px solid var(--line);
     border-radius: 8px; padding: 8px 10px; min-width: 150px; }
@@ -54,15 +55,24 @@
   .sensor.alarm .dot { background: var(--alarm); }
   .sensor.alarm .val { color: var(--alarm); font-weight: 600; }
   .val { font-variant-numeric: tabular-nums; }
-  .tag { position: absolute; transform: translate(-50%, -130%); background: var(--panel); border: 1px solid var(--line);
+  .tag { max-width: 45vw; overflow: hidden; text-overflow: ellipsis; position: absolute; transform: translate(-50%, -130%); background: var(--panel); border: 1px solid var(--line);
     border-radius: 4px; padding: 1px 5px; font-size: 11px; white-space: nowrap; pointer-events: none; }
   .tag.alarm { border-color: var(--alarm); color: var(--alarm); }
   #status { color: var(--muted); }
   #error { position: absolute; inset: 0; display: none; place-items: center; padding: 24px; text-align: center; }
   @media (max-width: 760px) {
-    #app { grid-template-columns: 1fr; grid-template-rows: auto 45vh 1fr auto; }
+    #app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 45vh auto auto; height: auto; min-height: 100%; }
     header, footer { grid-column: 1; }
-    aside { order: 3; border-right: 0; border-top: 1px solid var(--line); }
+    header { flex-wrap: wrap; gap: 6px 10px; }
+    header h1 { font-size: 14px; flex: 1 1 auto; min-width: 0; }
+    header .meta { order: 3; flex-basis: 100%; }
+    header .spacer { display: none; }
+    #viewport { order: 2; }
+    footer { order: 3; flex-wrap: wrap; }
+    footer input[type=range] { flex: 1 1 60%; }
+    #timeLabel { flex-basis: 100%; }
+    aside { order: 4; border-right: 0; border-top: 1px solid var(--line); }
+    #legend { right: 8px; top: 8px; min-width: 0; max-width: calc(100% - 16px); padding: 6px 8px; }
   }
 </style>
 <script type="importmap">

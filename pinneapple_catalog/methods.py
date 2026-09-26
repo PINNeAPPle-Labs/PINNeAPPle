@@ -177,6 +177,11 @@ METHODS: List[Method] = [
                    "Baratta et al., DOLFINx: the next generation FEniCS problem solving environment, 2023",
                    "Blochwitz et al., The Functional Mockup Interface, Modelica Conference 2011",
                    "Todorov, Erez & Tassa, MuJoCo, IROS 2012"]),
+    _m("S25", "Causal telemetry conditioning (Hampel one-step, rate limit, first-order filter, gaps)",
+       ["pinneapple_systems/digital_twin/conditioning.py"], ["StreamingConditioner", "TelemetryConditioner"],
+       refs_in_code=["Hampel, The influence curve and its role in robust estimation, J. Am. Stat. Assoc. 69 (1974) 383-393",
+                     "Pearson, Outliers in process modeling and identification, IEEE Trans. Control Syst. Technol. "
+                     "10(1) (2002) 55-63"]),
     # ── B. Training ──────────────────────────────────────────────────────
     _m("T1", "Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler",
        [TR + "trainer.py", TR + "hpc.py"], ["trainer.trainer", "from pinneapple_neural.trainer import", "Trainer("],
@@ -249,6 +254,9 @@ METHODS: List[Method] = [
                      "arXiv:2604.05230 (benchmarks: Euler/HLLC, Helmholtz, inviscid Burgers, Stokes, PK-PD)",
                      "Wang, Teng & Perdikaris, gradient pathologies in PINNs, SIAM J. Sci. Comput. 43(5) (2021), "
                      "arXiv:2001.04536 -- Helmholtz benchmark"]),
+    _m("T21", "Autoresearch loop (fixed-budget trials, keep/revert, random or LLM proposer)",
+       ["pinneapple_arena/autoresearch.py"], ["AutoResearch", "autoresearch"],
+       refs_added=["karpathy/autoresearch (MIT), https://github.com/karpathy/autoresearch"]),
     # ── C. Equations (PINN compiler kinds + closed forms) ────────────────
     _m("E1", "Laplace", [COMPILE], ['"laplace"', "laplace_2d"], refs_added=[EVANS]),
     _m("E2", "Poisson", [COMPILE], ['"poisson"', "poisson_2d"], refs_added=[EVANS]),

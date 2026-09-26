@@ -114,8 +114,11 @@ class Scene:
         raise KeyError(f"unknown part '{name}'")
 
     # -- export --------------------------------------------------------
-    def export(self, folder: str, *, with_viewer: bool = True) -> str:
-        """Write scene.json + geometry.glb + fields.bin (+ viewer). Returns the scene.json path."""
+    def export(self, folder: str, *, with_viewer: bool = True, usd: bool = False) -> str:
+        """Write scene.json + geometry.glb + fields.bin (+ viewer, + scene.usda with ``usd=True``).
+
+        Returns the scene.json path.
+        """
         if not self.parts:
             raise ValueError("scene has no parts")
         os.makedirs(folder, exist_ok=True)
@@ -161,6 +164,9 @@ class Scene:
         path = os.path.join(folder, "scene.json")
         with open(path, "w") as f:
             json.dump(manifest, f, indent=1)
+        if usd:
+            from .usd import export_usd
+            export_usd(self, os.path.join(folder, "scene.usda"))
         if with_viewer:
             for name in os.listdir(VIEWER_DIR):
                 shutil.copy(os.path.join(VIEWER_DIR, name), os.path.join(folder, name))

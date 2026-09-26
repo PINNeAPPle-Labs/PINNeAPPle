@@ -8,9 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Union
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # no matplotlib.use("Agg"): headless machines already default to Agg,
+# and forcing it at import time silently disabled plt.show() in Jupyter/Colab for anyone importing pinneapple
 import numpy as np
 
 

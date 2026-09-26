@@ -34,6 +34,9 @@ Quick start
 
 from .twin import DigitalTwin, DigitalTwinConfig, build_digital_twin
 from .state import SystemState, Observation
+from .conditioning import (
+    ConditionedSample, PROFILES, SignalProfile, StreamingConditioner, TelemetryConditioner,
+)
 from .io import (
     Sensor, SensorRegistry,
     BaseStream, FileWatchStream, MQTTStream,
@@ -67,6 +70,8 @@ from .prognostics import (
 )
 
 __all__ = [
+    # causal telemetry conditioning
+    "ConditionedSample", "PROFILES", "SignalProfile", "StreamingConditioner", "TelemetryConditioner",
     # Core
     "DigitalTwin",
     "DigitalTwinConfig",

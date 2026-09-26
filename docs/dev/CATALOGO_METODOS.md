@@ -8,9 +8,9 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
-| A. Solvers (S) | 6 | 13 | 6 |
+| A. Solvers (S) | 7 | 13 | 6 |
 | B. Métodos de treino (T) | 1 | 12 | 9 |
-| C. Equações físicas (E) | 35 | 22 | 8 |
+| C. Equações físicas (E) | 36 | 21 | 8 |
 | D. Problemas físicos (P) | 27 | 8 | 31 |
 
 ## A. Solvers (S)
@@ -168,6 +168,12 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Evidência:** `PINNeAPPle/tests/test_telemetry_conditioning.py::test_first_order_filter_matches_closed_form_step_response_with_irregular_sampling`
 - **Código:** `pinneapple_systems/digital_twin/conditioning.py`
 - **Referências no código:** Hampel, The influence curve and its role in robust estimation, J. Am. Stat. Assoc. 69 (1974) 383-393 · Pearson, Outliers in process modeling and identification, IEEE Trans. Control Syst. Technol. 10(1) (2002) 55-63
+
+### S26 — 2D shallow-water finite volumes (MUSCL + HLL, wet/dry, walls, gates, virtual sensors, health checks)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_shallow_water_fv.py::test_ritter_dry_bed_dam_break`
+- **Código:** `pinneapple_simulation/numerical_solvers/shallow_water_fv.py`
+- **Referências adicionadas:** Toro, Shock-Capturing Methods for Free-Surface Shallow Flows, Wiley, 2001 · Ritter, Die Fortpflanzung der Wasserwellen, Z. Vereines Deutscher Ingenieure 36 (1892) 947-954 · Stoker, Water Waves, Interscience, 1957 (wet-bed dam break)
 
 
 ## B. Métodos de treino (T)
@@ -399,8 +405,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Referências adicionadas:** Toro, Riemann Solvers and Numerical Methods for Fluid Dynamics, 3rd ed., Springer, 2009 · Sod, J. Comput. Phys. 27 (1978) 1-31 -- shock tube
 
 ### E17 — Shallow water 1D/2D
-- **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_shallow_water_2d_geostrophic_balance_gives_zero_residual`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_shallow_water_2d_wrong_solution_gives_nonzero_residual`
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_shallow_water_fv.py::test_ritter_dry_bed_dam_break`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Toro, Shock-Capturing Methods for Free-Surface Shallow Flows, Wiley, 2001
 

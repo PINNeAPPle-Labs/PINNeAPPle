@@ -182,6 +182,11 @@ METHODS: List[Method] = [
        refs_in_code=["Hampel, The influence curve and its role in robust estimation, J. Am. Stat. Assoc. 69 (1974) 383-393",
                      "Pearson, Outliers in process modeling and identification, IEEE Trans. Control Syst. Technol. "
                      "10(1) (2002) 55-63"]),
+    _m("S26", "2D shallow-water finite volumes (MUSCL + HLL, wet/dry, walls, gates, virtual sensors, health checks)",
+       [NS + "shallow_water_fv.py"], ["ShallowWater2D", "shallow_water_fv"],
+       refs_added=["Toro, Shock-Capturing Methods for Free-Surface Shallow Flows, Wiley, 2001",
+                   "Ritter, Die Fortpflanzung der Wasserwellen, Z. Vereines Deutscher Ingenieure 36 (1892) 947-954",
+                   "Stoker, Water Waves, Interscience, 1957 (wet-bed dam break)"]),
     # ── B. Training ──────────────────────────────────────────────────────
     _m("T1", "Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler",
        [TR + "trainer.py", TR + "hpc.py"], ["trainer.trainer", "from pinneapple_neural.trainer import", "Trainer("],

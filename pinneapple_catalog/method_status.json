@@ -99,10 +99,15 @@
   "E17": {
    "other_tests": [
     "PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_shallow_water_2d_geostrophic_balance_gives_zero_residual",
-    "PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_shallow_water_2d_wrong_solution_gives_nonzero_residual"
+    "PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_shallow_water_2d_wrong_solution_gives_nonzero_residual",
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_gate_release_volume_conservation_sensors_csv_and_compare",
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_still_water_is_exactly_at_rest_and_wall_force_is_hydrostatic",
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_stoker_wet_bed_dam_break"
    ],
-   "reference_tests": [],
-   "status": "tested"
+   "reference_tests": [
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_ritter_dry_bed_dam_break"
+   ],
+   "status": "validated"
   },
   "E18": {
    "other_tests": [],
@@ -1543,6 +1548,17 @@
    ],
    "status": "validated"
   },
+  "S26": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_gate_release_volume_conservation_sensors_csv_and_compare",
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_still_water_is_exactly_at_rest_and_wall_force_is_hydrostatic",
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_stoker_wet_bed_dam_break"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_shallow_water_fv.py::test_ritter_dry_bed_dam_break"
+   ],
+   "status": "validated"
+  },
   "S3": {
    "other_tests": [],
    "reference_tests": [],
@@ -1802,6 +1818,6 @@
   }
  },
  "rule": "validated = a test exercising the item compares against an independent reference (closed form, manufactured solution, published/tabulated value)",
- "test_files_scanned": 164,
- "test_functions_scanned": 1650
+ "test_files_scanned": 166,
+ "test_functions_scanned": 1663
 }

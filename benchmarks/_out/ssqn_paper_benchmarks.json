@@ -18,6 +18,30 @@
    "rel_l2": 0.2773613877552594,
    "seconds": 36.4,
    "n_params": 5081
+  },
+  {
+   "problem": "burgers",
+   "variant": "bfgs",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "fraction_tau_below_1": 0.0,
+   "loss": 4.2518707620408505e-05,
+   "rel_l2": 0.30335546509908745,
+   "seconds": 22621.9,
+   "n_params": 5081
+  },
+  {
+   "problem": "burgers",
+   "variant": "ssbfgs",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "fraction_tau_below_1": 0.018,
+   "loss": 2.4841870409934783e-05,
+   "rel_l2": 0.3035291180339272,
+   "seconds": 23379.0,
+   "n_params": 5081
   }
  ]
 }

@@ -1,0 +1,23 @@
+{
+ "budget": "reduced (see module docstring)",
+ "args": {
+  "problems": "burgers,sod,helmholtz",
+  "variants": "adam,bfgs,ssbfgs,ssbroyden",
+  "adam_iters": 2000,
+  "qn_iters": 1000,
+  "seed": 0
+ },
+ "results": [
+  {
+   "problem": "burgers",
+   "variant": "adam",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "loss": 0.1680584479492486,
+   "rel_l2": 0.2773613877552594,
+   "seconds": 36.4,
+   "n_params": 5081
+  }
+ ]
+}

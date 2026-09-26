@@ -28,9 +28,15 @@ class TabulatedSignal:
     """
 
     def __init__(self, x: ArrayLike, values: ArrayLike, *, input_index: int = 0, extrapolate: str = "clamp"):
-        # np.array copies: pandas `.values` can be read-only, which torch warns about
-        xs = torch.as_tensor(np.array(x, dtype=np.float64)).reshape(-1)
-        ys = torch.as_tensor(np.array(values, dtype=np.float64)).reshape(-1)
+        # copy to a writable float64 array: pandas `.values` can be read-only (torch warns), and
+        # tensors go through .numpy() (np.array(tensor) is deprecated under NumPy 2)
+        def _arr(a):
+            if torch.is_tensor(a):
+                a = a.detach().cpu().numpy()
+            return np.array(a, dtype=np.float64)
+
+        xs = torch.from_numpy(_arr(x)).reshape(-1)
+        ys = torch.from_numpy(_arr(values)).reshape(-1)
         if xs.numel() != ys.numel() or xs.numel() < 2:
             raise ValueError("x and values must have the same length (>= 2)")
         if not bool(torch.all(xs[1:] > xs[:-1])):

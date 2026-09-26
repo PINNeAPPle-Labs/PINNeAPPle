@@ -11,9 +11,7 @@ from .infer import InferenceResult
 
 def _get_mpl():
     try:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt  # no matplotlib.use(): it would break plots in notebooks
         return plt
     except ImportError as e:
         raise ImportError("matplotlib is required for visualization. Install with: pip install matplotlib") from e

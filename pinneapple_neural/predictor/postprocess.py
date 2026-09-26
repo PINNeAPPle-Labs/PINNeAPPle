@@ -32,9 +32,7 @@ except ImportError:
 
 def _get_mpl():
     try:
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt  # no matplotlib.use(): it would break plots in notebooks
         return plt
     except ImportError as e:
         raise ImportError(

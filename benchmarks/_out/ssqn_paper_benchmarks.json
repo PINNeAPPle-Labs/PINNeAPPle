@@ -1,0 +1,70 @@
+{
+ "budget": "reduced (see module docstring)",
+ "args": {
+  "problems": "burgers,sod,helmholtz",
+  "variants": "adam,bfgs,ssbfgs,ssbroyden",
+  "adam_iters": 2000,
+  "qn_iters": 1000,
+  "seed": 0
+ },
+ "results": [
+  {
+   "problem": "burgers",
+   "variant": "adam",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "loss": 0.1680584479492486,
+   "rel_l2": 0.2773613877552594,
+   "seconds": 36.4,
+   "n_params": 5081
+  },
+  {
+   "problem": "burgers",
+   "variant": "bfgs",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "fraction_tau_below_1": 0.0,
+   "loss": 4.2518707620408505e-05,
+   "rel_l2": 0.30335546509908745,
+   "seconds": 22621.9,
+   "n_params": 5081
+  },
+  {
+   "problem": "burgers",
+   "variant": "ssbfgs",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "fraction_tau_below_1": 0.018,
+   "loss": 2.4841870409934783e-05,
+   "rel_l2": 0.3035291180339272,
+   "seconds": 23379.0,
+   "n_params": 5081
+  },
+  {
+   "problem": "burgers",
+   "variant": "ssbroyden",
+   "adam_iters": 2000,
+   "error_after_adam": 0.2804449685155786,
+   "iters": 1000,
+   "fraction_tau_below_1": 1.0,
+   "loss": 2.7596514483703047e-06,
+   "rel_l2": 0.30005083132004173,
+   "seconds": 543.1,
+   "n_params": 5081
+  },
+  {
+   "problem": "sod",
+   "variant": "adam",
+   "adam_iters": 2000,
+   "error_after_adam": 0.1002076533508865,
+   "iters": 1000,
+   "loss": 0.03394166700199909,
+   "rel_l2": 0.10628896893815307,
+   "seconds": 2098.4,
+   "n_params": 5163
+  }
+ ]
+}

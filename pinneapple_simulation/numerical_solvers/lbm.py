@@ -430,6 +430,12 @@ def airfoil_naca_mask(nx: int, ny: int, chord: int, aoa_deg: float = 0.0,
     """
     Approximate NACA 4-digit airfoil mask centred in the domain.
     chord: chord length in lattice units.
+
+    Limits (kept for compatibility with ``pinneapple_design.geometry.ops.lbm_bridge``, which
+    mirrors this exact convention): only the thickness distribution is used (the camber digits
+    are ignored, so "4412" is drawn as a symmetric 12 % section), and a positive ``aoa_deg``
+    rotates the trailing edge *up* (nose down). For cambered sections and the aerodynamic sign
+    convention use :func:`naca4_mask`.
     """
     import math
     t   = int(naca[-2:]) / 100.0  # max thickness as fraction of chord
@@ -447,6 +453,45 @@ def airfoil_naca_mask(nx: int, ny: int, chord: int, aoa_deg: float = 0.0,
     yt_grid = yt * chord
     mask = (xn >= 0) & (xn <= 1) & (torch.abs(yr) <= yt_grid)
     return mask
+
+
+def naca4_mask(nx: int, ny: int, naca: str = "4412", chord: float = 80.0, aoa_deg: float = 0.0,
+               x_le: Optional[float] = None, y_le: Optional[float] = None, n_pts: int = 400) -> torch.Tensor:
+    """NACA 4-digit airfoil mask with camber (True = solid), aerodynamic convention.
+
+    Standard NACA 4-digit geometry (Abbott & von Doenhoff, Theory of Wing Sections, 1959, §6.4):
+    thickness normal to the mean camber line, closed trailing edge (-0.1036 x^4 term). Flow is
+    along +x; positive ``aoa_deg`` lifts the nose (trailing edge goes down). The section is
+    rotated about the leading edge at (``x_le``, ``y_le``), default (nx/4, ny/2).
+    """
+    import math
+    import numpy as np
+    from matplotlib.path import Path
+
+    m, p, t = int(naca[0]) / 100.0, int(naca[1]) / 10.0, int(naca[2:]) / 100.0
+    beta = np.linspace(0.0, math.pi, n_pts)
+    x = 0.5 * (1 - np.cos(beta))  # cosine spacing: dense at the nose and the tail
+    yt = 5 * t * (0.2969 * np.sqrt(x) - 0.1260 * x - 0.3516 * x**2 + 0.2843 * x**3 - 0.1036 * x**4)
+    if m > 0 and p > 0:
+        yc = np.where(x < p, m / p**2 * (2 * p * x - x**2), m / (1 - p)**2 * (1 - 2 * p + 2 * p * x - x**2))
+        dyc = np.where(x < p, 2 * m / p**2 * (p - x), 2 * m / (1 - p)**2 * (p - x))
+    else:
+        yc = np.zeros_like(x)
+        dyc = np.zeros_like(x)
+    th = np.arctan(dyc)
+    xu, yu = x - yt * np.sin(th), yc + yt * np.cos(th)
+    xl, yl = x + yt * np.sin(th), yc - yt * np.cos(th)
+    px = np.concatenate([xu[::-1], xl[1:]]) * chord
+    py = np.concatenate([yu[::-1], yl[1:]]) * chord
+    a = math.radians(aoa_deg)
+    xr = px * math.cos(a) + py * math.sin(a)  # nose up: TE (x = chord) goes to y < 0
+    yr = -px * math.sin(a) + py * math.cos(a)
+    x0 = nx / 4 if x_le is None else x_le
+    y0 = ny / 2 if y_le is None else y_le
+    poly = Path(np.stack([xr + x0, yr + y0], 1))
+    X, Y = np.meshgrid(np.arange(nx), np.arange(ny), indexing="ij")
+    inside = poly.contains_points(np.stack([X.ravel(), Y.ravel()], 1)).reshape(nx, ny)
+    return torch.from_numpy(inside)
 
 
 # ===========================================================================

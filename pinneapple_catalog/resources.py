@@ -163,6 +163,36 @@ _RESOURCES: List[Resource] = [
        license="ODbL-1.0", commercial="yes", url="https://huggingface.co/datasets/PLAID-datasets/AirfRANS_original",
        paper="Bonnet et al., AirfRANS, arXiv:2212.07564",
        hf_repo=("PLAID-datasets/AirfRANS_original", "dataset"), rating="use_now", tags=("plaid",)),
+    _r(id="posteriorbench", name="PosteriorBench", kind="benchmark", domain="inverse_problems",
+       summary="Four inverse tasks (Poisson, Darcy, light transport, CCS) with high-fidelity reference "
+               "posteriors; judges whether generative solvers recover the whole posterior, not only the mean. "
+               "Metrics ported to pinneapple_analysis.uncertainty.posterior_metrics.",
+       license="CC-BY-4.0 (data), MIT (code)", commercial="yes",
+       url="https://github.com/neuraloperator/PosteriorBench",
+       paper="PosteriorBench: From Point Estimates to Posterior Matching in Evaluating Generative Inverse "
+             "Solvers, NeurIPS 2026, arXiv:2609.20794",
+       hf_repo=("anonymousmay/PosteriorBench", "dataset"), rating="use_now", tags=("uq", "inverse")),
+    _r(id="finalrev_abc_embeddings", name="ABC 1M: preview images, captions and text embeddings (finalrev)",
+       kind="geometry", domain="cad",
+       summary="~1M ABC parts, each with a rendered preview, a VLM caption and a text embedding (100 parquet "
+               "shards, 42 GB); no geometry, only abc_id/URIs. Embedding model not published. Indexed by "
+               "pinneapple_design.geometry.retrieval.load_caption_index.",
+       license="none declared (ABC/Onshape origin)", commercial="unverified",
+       url="https://www.finalrev.com/blog/embedding-one-million-3d-models",
+       hf_repo=("daveferbear/3d-model-images-embeddings", "dataset"), size="42 GB", rating="reference"),
+    _r(id="vista_ssa", name="VISTA-SSA", kind="model", domain="space",
+       summary="Attention-based multi-agent RL for space-situational-awareness sensor tasking (1 to 48 sensors, "
+               "up to 20k tracked objects); native C environments on PufferLib, frozen checkpoints, classical "
+               "scheduling baselines. Fits PINNeAPPle-apps satellite_conjunction_screening.",
+       license="MIT", commercial="yes", url="https://github.com/RocketNeurons/VISTA-SSA", rating="reference",
+       notes="Linux x86_64 / WSL2 only (compiled environments)."),
+    _r(id="prism_reachability", name="PRISM (reachability-intercept set model)", kind="benchmark", domain="space",
+       summary="Set-based finite-time encounter feasibility under uncertainty, latency and bounded acceleration. "
+               "Only the generic, civilian core (collision screening / rendezvous) is implemented, research only: "
+               "pinneapple_analysis.uncertainty.reachability. No targeting or guidance.",
+       license="CC-BY-4.0", commercial="yes", url="https://zenodo.org/records/22979350",
+       paper="Enayati, PRISM: Predictive Reachability-Intercept Set Model for Relative Motion and Intercept "
+             "Kinematics in Defensive Aerospace Engineering, Zenodo 22979350", rating="reference"),
     # ── Structural / manufacturing ───────────────────────────────────────
     _r(id="pressnet", name="PressNet", kind="dataset", domain="structural",
        summary="Press forming of a plate between two dies: 15 die shapes x 10 variations = 150 simulations, "

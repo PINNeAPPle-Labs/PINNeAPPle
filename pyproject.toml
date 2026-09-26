@@ -45,6 +45,10 @@ dependencies = [
   "zarr"
 ]
 
+[project.scripts]
+# Drop-in CalculiX executable backed by a PINN/surrogate (falls back to ccx outside its envelope)
+pinneapple-ccx = "pinneapple_simulation.external_solvers.calculix.virtual_ccx:main"
+
 [project.optional-dependencies]
 # Geometry backends
 geom = [

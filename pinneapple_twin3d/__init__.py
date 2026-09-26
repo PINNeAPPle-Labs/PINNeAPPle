@@ -5,8 +5,12 @@
     sc.add_trimesh("bend", trimesh.load("bend.stl"), group="pipe")
     sc.add_field("bend", "wear_depth", wear_TxV, unit="mm")
     sc.add_sensor("PT-101", (0.1, 0.0, 0.2), unit="bar", series=[4.1, 4.0, 3.8], envelope=(3.5, 5.0))
-    sc.export("out/twin")          # scene.json + geometry.glb + fields.bin + viewer
+    sc.export("out/twin", usd=True)  # scene.json + geometry.glb + fields.bin + viewer (+ scene.usda)
     serve("out/twin")              # http://localhost:8765/  (add ?live=ws://... for live sensors)
+
+Also: ``pinneapple_twin3d.openfoam.scene_from_case`` (OpenFOAM wall patches + per-face values over
+time, e.g. erosion maps), ``pinneapple_twin3d.usd.export_usd`` (OpenUSD with time-sampled fields)
+and ``pinneapple_twin3d.demo.pipe_bend_scene`` (try the viewer without data).
 
 Decision D1 in docs/dev/PEDIDOS_2026-09-24.md: the viewer lives in the library so that
 PINNeAPPle-CFD (3D wear over time), PINNeAPPle-apps and pinneapple_systems.digital_twin all

@@ -1,0 +1,18 @@
+{
+ "case": "cylinder",
+ "St": 0.19154586176873234,
+ "reference_St": 0.1647,
+ "rel_diff_vs_reference": 0.1629985535442157,
+ "length_scale_lattice": 16,
+ "u_in": 0.1,
+ "Re": 100.0,
+ "omega": 1.824817518248175,
+ "grid": [
+  352,
+  160
+ ],
+ "steps": 20000,
+ "periods_analysed": 11.971616360545772,
+ "probe_uy_amplitude": 0.0650390925501737,
+ "seconds": 3530.0
+}

@@ -32,7 +32,7 @@ CFD_TESTS = os.environ.get("PINNEAPPLE_CFD_TESTS", os.path.join(os.path.dirname(
 TEST_DIRS = [os.path.join(ROOT, "tests"), CFD_TESTS]
 REFERENCE = re.compile(
     r"analytic(?:al)?[ _](?:solution|profile|value|result|reference|formula|limit)|closed[- _]form|"
-    r"exact[ _](?:solution|value|profile|traveling|travelling)|\bexact\s*=|u_exact|_exact\b|manufactured|\bMMS\b|"
+    r"exact[ _](?:solution|value|profile|traveling|travelling)|\bexact\s*=|\bdef exact\b|u_exact|_exact\b|manufactured|\bMMS\b|"
     r"published (?:value|result|table|number|figure)|tabulated|Ghia|Hansen|Incropera|Schlichting|"
     r"Howarth|reference solution|literature value",
     re.IGNORECASE,

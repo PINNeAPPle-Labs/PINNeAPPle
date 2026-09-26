@@ -29,9 +29,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 try:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt  # no matplotlib.use(): it would break plots in notebooks
     import matplotlib.colors as mcolors
     from matplotlib.animation import FFMpegWriter, PillowWriter
     _MPL = True

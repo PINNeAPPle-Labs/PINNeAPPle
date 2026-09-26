@@ -5,6 +5,8 @@
 //   ?scene=path/to/scene.json   (default: ./scene.json)
 //   &live=ws://host:port/path   live sensor values: messages {"id": "...", "value": 1.23}
 //                               or a list of them; alarm when outside the sensor envelope.
+//   &step=N | &step=last        open at a given time step
+//   &field=name                 open showing a given field
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -172,6 +174,13 @@ function buildUi() {
   $("time").max = Math.max(nt - 1, 0);
   $("time").oninput = (e) => { state.step = +e.target.value; update(); };
   $("play").disabled = nt < 2;
+  const s0 = params.get("step");
+  if (s0 !== null && nt) {
+    state.step = s0 === "last" ? nt - 1 : Math.min(Math.max(parseInt(s0, 10) || 0, 0), nt - 1);
+    $("time").value = state.step;
+  }
+  const f0 = params.get("field");
+  if (f0 && fieldNames().includes(f0)) { state.field = f0; sel.value = f0; syncRangeInputs(); }
   $("play").onclick = () => {
     if (state.playing) { clearInterval(state.playing); state.playing = null; $("play").textContent = "▶"; return; }
     $("play").textContent = "⏸";
@@ -223,7 +232,7 @@ function buildUi() {
 function syncRangeInputs() {
   if (!state.field) return;
   const [a, b] = fieldRange(state.field);
-  if ($("autorange").checked) { $("vmin").value = a; $("vmax").value = b; }
+  if ($("autorange").checked) { $("vmin").value = +a.toPrecision(6); $("vmax").value = +b.toPrecision(6); }
 }
 
 function fitCamera() {
@@ -247,9 +256,13 @@ function valuesAt(part, name, step) {
   return arr.subarray(s * count, (s + 1) * count);
 }
 
+// Colormaps are defined in sRGB; three.js vertex colors are linear, so convert once per sample.
+const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+
 function update() {
   const m = state.manifest;
-  const cmap = CMAPS[state.cmap];
+  const cmapSrgb = CMAPS[state.cmap];
+  const cmap = (t) => cmapSrgb(t).map(srgbToLinear);
   const [vmin, vmax] = state.field ? fieldRange(state.field) : [0, 1];
   const span = vmax - vmin || 1;
   for (const p of state.parts.values()) {

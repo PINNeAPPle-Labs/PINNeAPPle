@@ -27,9 +27,7 @@ def marching_squares_boundary(
     dtype: torch.dtype = torch.float32,
 ) -> torch.Tensor:
     """Return boundary polyline vertices as (M,2) tensor."""
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt  # no matplotlib.use(): it would break plots in notebooks
 
     bmin = torch.tensor(bounds_min, device=device, dtype=dtype)
     bmax = torch.tensor(bounds_max, device=device, dtype=dtype)

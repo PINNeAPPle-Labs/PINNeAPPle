@@ -1038,17 +1038,14 @@ def test_audit_physics_bekker_wong_terramechanics_violating_solution_gives_nonze
     assert float(res.item()) > 1.0, f"bekker_wong_terramechanics residual should be clearly nonzero for a violating solution, got {float(res.item())}"
 
 
-def test_audit_physics_bekker_wong_r1_initial_condition_targets_zero_fx_at_zero_slip():
-    """R1 (Fx(slip=0)=0) is implemented as a genuine InitialCondition on
-    the preset (not folded into the inequality residual above) -- verify
-    it selects exactly the slip=0 points and targets Fx=0 there."""
+def test_audit_physics_bekker_wong_preset_does_not_impose_zero_fx_at_zero_slip():
+    """The former R1 condition (Fx(slip=0)=0) contradicted the Bekker-Wong model: at zero
+    slip the shear displacement is non-zero and the solver itself returns Fx != 0. The
+    preset must not impose it."""
     from pinneapple_physics.pde_environment.presets.registry import get_preset
+    from pinneapple_simulation.numerical_solvers.bekker_wong import BekkerWongSolver
 
     spec = get_preset("bekker_wong_surrogate_2d")
-    assert len(spec.conditions) == 1
-    cond = spec.conditions[0]
-    X = np.array([[0.0, 0.03], [0.5, 0.03]])
-    mask = cond.mask(X, {})
-    assert mask.tolist() == [True, False]
-    vals = cond.values(X[mask], {})
-    assert np.allclose(vals, 0.0)
+    assert len(spec.conditions) == 0
+    fx0 = [BekkerWongSolver().forces(0.0, z)[0] for z in (0.005, 0.03, 0.055)]
+    assert max(abs(f) for f in fx0) > 1.0

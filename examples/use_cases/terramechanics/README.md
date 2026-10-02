@@ -88,13 +88,13 @@ Step 4 — PINN architecture (TerraMechanicsPINN)
       Output: (Fx_norm, Fz_norm, My_norm)  — 3D
 
 Step 5 — Physics residuals (PINN constraints)
-      R1  Zero-slip BC:       F_x(s=0, z) = 0          (no drawbar without slip)
-      R2  Mohr-Coulomb limit: F_x ≤ c·A + F_z·tan(φ)   (shear strength cap)
+      R2  Mohr-Coulomb limit: F_x ≤ c·A + F_z·tan(φ)   (shear strength cap, A = b·R·θ₁)
       R3  Monotonicity:       ∂F_x/∂s ≥ 0  for s ∈ [0, 0.4]  (autograd constraint)
       R4  Torque coupling:    M_y ≥ R · F_x              (thermodynamic consistency)
+      R5  Load monotonicity:  ∂F_z/∂z ≥ 0                 (deeper sinkage, more support)
 
 Step 6 — Multi-loss training (Adam + CosineAnnealingLR)
-      L_total = w_data·L_data + w_R1·L_R1 + w_R2·L_R2 + w_R3·L_R3 + w_R4·L_R4
+      L_total = w_data·L_data + w_R2·L_R2 + w_R3·L_R3 + w_R4·L_R4 + w_R5·L_R5
       4 000 epochs, batch size 512, lr = 5×10⁻⁴
       Gradient clipping ||∇||₂ ≤ 1.0
 
@@ -114,25 +114,33 @@ Step 8 — Export for LunCoSim integration
 
 ## Physics constraints detail
 
-### R1 — Zero-drawbar at zero slip
-At s = 0 (perfect rolling), there is no relative motion between wheel and soil.
-The Mohr-Coulomb shear stress τ = (c + σ tan φ)(1 − exp(−j/K)) vanishes when
-j(θ) = 0, which happens at s = 0. Therefore F_x = 0.
-This is a Dirichlet BC in slip space.
+### Removed: "R1 — F_x(s = 0) = 0"
+Earlier versions imposed zero drawbar pull at zero slip. The Bekker–Wong model
+does not satisfy it: at s = 0 the shear displacement
+j(θ) = R[(θ_f − θ) − (sin θ_f − sin θ)] is not zero, and the solver returns
+F_x(0, z) between about −4.2 N and +5.0 N on the preset domain (compaction
+resistance versus rear-region shear). Imposing it biased the surrogate against
+its own training data, so it was removed and replaced by R5.
 
 ### R2 — Mohr-Coulomb traction limit
 The maximum traction the soil can provide is bounded by its shear strength:
-F_x_max = c·A_contact + F_z·tan(φ)
+F_x_max = c·A_contact + F_z·tan(φ),  with A_contact = b·R·θ₁
 This is enforced as a one-sided soft penalty (ReLU²).
 
 ### R3 — Monotonicity in slip (pre-peak regime)
 For small slip ratios (s < 0.4), traction increases with slip before reaching the
 peak. This is enforced via ∂F_x/∂s ≥ 0 using autograd (second-order gradients).
+It was checked on the preset domain (z ≤ 0.058 m) and is violated for sinkages
+beyond about 0.06 m, so re-check it before widening the domain.
 
 ### R4 — Torque-force thermodynamic constraint
 The driving torque M_y must be at least R times the drawbar pull F_x, because:
 M_y = R·(F_x + F_rolling)  and  F_rolling ≥ 0
 In normalized space: My_norm ≥ R_factor · Fx_norm
+
+### R5 — Load monotonicity in sinkage
+Normal load grows with sinkage: ∂F_z/∂z ≥ 0 (autograd, one-sided ReLU² penalty).
+Checked numerically against the solver on the preset domain.
 
 ---
 

@@ -26,12 +26,23 @@ from ..conditions import InitialCondition
 
 
 class TerramechanicsResiduals:
-    """Four physics residuals for the Bekker-Wong PINN surrogate.
+    """Physics residuals for the Bekker-Wong PINN surrogate.
 
-    R1 — Zero-drawbar at zero slip: F_x(s=0, z) = 0
-    R2 — Mohr-Coulomb traction limit: F_x ≤ c·A + F_z·tan(phi)  (soft, ReLU²)
-    R3 — Monotonicity: dF_x/ds ≥ 0 for s ∈ [0, 0.4]            (autograd)
-    R4 — Torque coupling: M_y ≥ R · F_x                         (thermodynamic)
+    Only constraints that were checked numerically against the Bekker-Wong solver
+    (``pinneapple_simulation.numerical_solvers.bekker_wong``) on the preset domain
+    s in [0, 0.75], z in [0.002, 0.058] m (GRC-1 defaults) are imposed:
+
+    R2 -- Mohr-Coulomb traction limit: F_x <= c*A + F_z*tan(phi), A = b*R*theta_1   (ReLU^2)
+    R3 -- Pre-peak monotonicity: dF_x/ds >= 0 for s in [0, 0.4]                      (autograd)
+    R4 -- Torque coupling: M_y >= R * F_x
+    R5 -- Load monotonicity: dF_z/dz >= 0
+
+    Removed: the former "R1: F_x(s=0) = 0". It is not a property of the Bekker-Wong model:
+    at zero slip the shear displacement j(theta) = R[(theta_f-theta) - (sin theta_f - sin theta)]
+    is non-zero, and the solver returns F_x(0, z) between about -4.2 N and +5.0 N on the
+    preset domain (compaction resistance vs. rear-region shear). Imposing it biased the
+    surrogate against its own training data. R3 is only valid on the domain above -- it is
+    violated for sinkages beyond ~0.06 m, so re-check it before widening the domain.
 
     Parameters
     ----------
@@ -41,6 +52,7 @@ class TerramechanicsResiduals:
     b_m : wheel width [m]
     n_phys : number of collocation points per residual
     R_factor : scale factor converting normalised M_y vs F_x for R4
+    slip_range, sink_range : collocation domain (must stay inside the verified domain)
     """
 
     def __init__(
@@ -51,6 +63,8 @@ class TerramechanicsResiduals:
         b_m: float = 0.060,
         n_phys: int = 256,
         R_factor: float = 0.06,
+        slip_range: Tuple[float, float] = (0.0, 0.75),
+        sink_range: Tuple[float, float] = (0.002, 0.058),
     ):
         self.c = c_Pa
         self.tan_phi = math.tan(math.radians(phi_deg))
@@ -58,6 +72,8 @@ class TerramechanicsResiduals:
         self.b = b_m
         self.n_phys = n_phys
         self.R_factor = R_factor
+        self.slip_range = slip_range
+        self.sink_range = sink_range
 
     # ------------------------------------------------------------------
     # Main entry point
@@ -70,7 +86,7 @@ class TerramechanicsResiduals:
         norm_y: Any,
         device: Optional[torch.device] = None,
     ) -> Dict[str, torch.Tensor]:
-        """Compute all four physics residuals.
+        """Compute all physics residuals.
 
         Parameters
         ----------
@@ -81,7 +97,7 @@ class TerramechanicsResiduals:
 
         Returns
         -------
-        dict with keys "r1", "r2", "r3", "r4" — each a scalar loss tensor
+        dict with keys "r2", "r3", "r4", "r5" -- each a scalar loss tensor
         """
         if device is None:
             try:
@@ -90,67 +106,43 @@ class TerramechanicsResiduals:
                 device = torch.device("cpu")
 
         n = self.n_phys
+        s_lo, s_hi = self.slip_range
+        z_lo, z_hi = self.sink_range
 
-        # ------------------------------------------------------------------
-        # R1: F_x(s=0) = 0
-        # ------------------------------------------------------------------
-        z_r1 = torch.rand(n, 1, device=device) * 0.056 + 0.002
-        s_r1 = torch.zeros(n, 1, device=device)
-        x_r1_raw = torch.cat([s_r1, z_r1], dim=1)
-        x_r1_n = norm_x.transform_torch(x_r1_raw)
-        pred_r1 = model(x_r1_n)
-        fx_r1 = norm_y.inverse_torch(pred_r1)[:, 0:1]
-        r1 = (fx_r1 ** 2).mean()
+        def sample(k=n, s_max=None):
+            sm = s_hi if s_max is None else min(s_max, s_hi)
+            s_ = torch.rand(k, 1, device=device) * (sm - s_lo) + s_lo
+            z_ = torch.rand(k, 1, device=device) * (z_hi - z_lo) + z_lo
+            return s_, z_
 
-        # ------------------------------------------------------------------
-        # R2: Mohr-Coulomb traction limit (soft, one-sided)
-        # ------------------------------------------------------------------
-        s_r2 = torch.rand(n, 1, device=device) * 0.75
-        z_r2 = torch.rand(n, 1, device=device) * 0.056 + 0.002
-        x_r2_raw = torch.cat([s_r2, z_r2], dim=1)
-        x_r2_n = norm_x.transform_torch(x_r2_raw)
-        pred_r2 = model(x_r2_n)
-        phy_r2 = norm_y.inverse_torch(pred_r2)
-        fx_r2 = phy_r2[:, 0:1]
-        fz_r2 = phy_r2[:, 1:2]
-        A = self.b * self.R * math.pi
-        limit = self.c * A + fz_r2.detach() * self.tan_phi
-        violation = torch.nn.functional.relu(fx_r2 - limit)
-        r2 = (violation ** 2).mean()
+        # R2: Mohr-Coulomb traction limit (soft, one-sided), A = b*R*theta_1
+        s_r2, z_r2 = sample()
+        phy_r2 = norm_y.inverse_torch(model(norm_x.transform_torch(torch.cat([s_r2, z_r2], dim=1))))
+        theta1 = torch.acos(torch.clamp(1.0 - z_r2 / self.R, -1.0 + 1e-6, 1.0 - 1e-6))
+        limit = self.c * self.b * self.R * theta1 + phy_r2[:, 1:2].detach() * self.tan_phi
+        r2 = (torch.nn.functional.relu(phy_r2[:, 0:1] - limit) ** 2).mean()
 
-        # ------------------------------------------------------------------
         # R3: dF_x/ds >= 0 for s in [0, 0.4]
-        # ------------------------------------------------------------------
-        s_r3_raw = torch.rand(n, 1, device=device) * 0.4
-        s_r3 = s_r3_raw.detach().requires_grad_(True)
-        z_r3 = torch.rand(n, 1, device=device) * 0.056 + 0.002
-        x_r3_raw = torch.cat([s_r3, z_r3], dim=1)
-        x_r3_n = norm_x.transform_torch(x_r3_raw)
-        pred_r3 = model(x_r3_n)
-        fx_r3_n = pred_r3[:, 0:1]
-        dfx_ds = torch.autograd.grad(
-            fx_r3_n, s_r3,
-            grad_outputs=torch.ones_like(fx_r3_n),
-            create_graph=True,
-            retain_graph=True,
-        )[0]
-        violation_r3 = torch.nn.functional.relu(-dfx_ds)
-        r3 = (violation_r3 ** 2).mean()
+        s_r3, z_r3 = sample(s_max=0.4)
+        s_r3 = s_r3.detach().requires_grad_(True)
+        fx_r3_n = model(norm_x.transform_torch(torch.cat([s_r3, z_r3], dim=1)))[:, 0:1]
+        dfx_ds = torch.autograd.grad(fx_r3_n, s_r3, grad_outputs=torch.ones_like(fx_r3_n),
+                                     create_graph=True, retain_graph=True)[0]
+        r3 = (torch.nn.functional.relu(-dfx_ds) ** 2).mean()
 
-        # ------------------------------------------------------------------
-        # R4: M_y >= R * F_x (torque coupling)
-        # ------------------------------------------------------------------
-        s_r4 = torch.rand(n, 1, device=device) * 0.75
-        z_r4 = torch.rand(n, 1, device=device) * 0.056 + 0.002
-        x_r4_raw = torch.cat([s_r4, z_r4], dim=1)
-        x_r4_n = norm_x.transform_torch(x_r4_raw)
-        pred_r4 = model(x_r4_n)
-        fx_r4 = pred_r4[:, 0:1]
-        my_r4 = pred_r4[:, 2:3]
-        violation_r4 = torch.nn.functional.relu(self.R_factor * fx_r4 - my_r4)
-        r4 = (violation_r4 ** 2).mean()
+        # R4: M_y >= R * F_x (in normalised units via R_factor)
+        s_r4, z_r4 = sample()
+        pred_r4 = model(norm_x.transform_torch(torch.cat([s_r4, z_r4], dim=1)))
+        r4 = (torch.nn.functional.relu(self.R_factor * pred_r4[:, 0:1] - pred_r4[:, 2:3]) ** 2).mean()
 
-        return {"r1": r1, "r2": r2, "r3": r3, "r4": r4}
+        # R5: dF_z/dz >= 0
+        s_r5, z_r5 = sample()
+        z_r5 = z_r5.detach().requires_grad_(True)
+        fz_n = model(norm_x.transform_torch(torch.cat([s_r5, z_r5], dim=1)))[:, 1:2]
+        dfz_dz = torch.autograd.grad(fz_n, z_r5, grad_outputs=torch.ones_like(fz_n), create_graph=True)[0]
+        r5 = (torch.nn.functional.relu(-dfz_dz) ** 2).mean()
+
+        return {"r2": r2, "r3": r3, "r4": r4, "r5": r5}
 
 
 # ---------------------------------------------------------------------------
@@ -182,35 +174,23 @@ def bekker_wong_surrogate_2d(
         meta={
             "description": "Bekker-Wong rigid-wheel / deformable-soil surrogate",
             "physics_constraints": [
-                "R1: Fx(s=0) = 0",
                 "R2: Fx <= c*A + Fz*tan(phi)",
                 "R3: dFx/ds >= 0 for s in [0, 0.4]",
                 "R4: My >= R*Fx",
+                "R5: dFz/dz >= 0",
             ],
+            "removed_constraints": {"R1: Fx(s=0) = 0": "false for Bekker-Wong (Fx(0,z) ranges -4.2..+5.0 N)"},
         },
     )
-    # R1: Fx(slip=0) = 0 -- a genuine point/initial condition (zero slip
-    # means no relative wheel-soil sliding, hence no traction/drawbar
-    # force), not an interior-residual inequality like R2-R4 -- belongs
-    # here via the existing InitialCondition machinery, not folded into
-    # the pde_kind's own residual. Previously missing from this preset
-    # entirely despite being explicitly listed in its own meta.
-    r1_zero_fx_at_zero_slip = InitialCondition(
-        name="r1_fx_zero_at_zero_slip",
-        fields=("Fx",),
-        selector_type="callable",
-        selector=lambda X, ctx: np.isclose(X[:, 0], 0.0),
-        value_fn=lambda X, ctx: np.zeros((X.shape[0], 1), dtype=np.float32),
-        weight=20.0,
-    )
-
+    # No F_x(slip=0) = 0 condition: it contradicts the Bekker-Wong model itself (see
+    # TerramechanicsResiduals' docstring for the numerical evidence).
     return ProblemSpec(
         name="bekker_wong_surrogate_2d",
         dim=2,
         coords=("slip", "sinkage"),
         fields=("Fx", "Fz", "My"),
         pde=pde,
-        conditions=(r1_zero_fx_at_zero_slip,),
+        conditions=(),
         domain_bounds={"slip": (0.0, 0.75), "sinkage": (0.002, 0.058)},
         meta={"description": "Bekker-Wong rigid-wheel terramechanics surrogate for rover simulation"},
     )

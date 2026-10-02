@@ -1949,11 +1949,9 @@ def compile_problem(
             #   R2: Fx <= c*A + Fz*tan(phi)   (Mohr-Coulomb shear-strength bound)
             #   R3: dFx/ds >= 0 for slip in [0, 0.4]   (monotonic traction buildup)
             #   R4: My >= R*Fx   (moment must cover the drawbar-pull torque)
-            # R1 (Fx(slip=0)=0) is a genuine point/initial condition, not
-            # an interior-residual term -- it belongs in (and was added
-            # to) the preset's own `conditions` tuple, using this
-            # compiler's existing InitialCondition machinery, not
-            # reimplemented here.
+            #   R5: dFz/dz >= 0   (normal load grows with sinkage)
+            # The former R1 (Fx(slip=0)=0) was removed from the preset: the
+            # Bekker-Wong model itself gives Fx(0, z) != 0.
             #
             # Contact-patch area A uses the standard rigid-wheel
             # terramechanics geometry (Wong, "Theory of Ground
@@ -1999,6 +1997,11 @@ def compile_problem(
             # R4: My >= R*Fx
             r4_violation = torch.relu(R_m * Fx - My)
             res_list.append(r4_violation)
+
+            # R5: dFz/dz >= 0 (normal load grows with sinkage; verified against
+            # the Bekker-Wong solver on the preset domain)
+            dFz_dz = grad(Fz, xcol)[:, sink_idx:sink_idx + 1]
+            res_list.append(torch.relu(-dFz_dz))
 
         elif pde_kind == "kepler_two_body_orbit":
             # Restricted two-body problem, planar Cartesian formulation

@@ -1,6 +1,7 @@
 from .base import NeuralOperatorBase, OperatorOutput
 from .registry import NeuralOperatorCatalog
 from .fno import FourierNeuralOperator, FNO2d, MLPFNOSurrogate
+from .transolver import Transolver, TransolverLite, PhysicsAttention
 
 # Noether (Emmi AI) — optional; None if emmiai-noether is not installed
 try:
@@ -33,6 +34,9 @@ __all__ = [
     "FourierNeuralOperator",
     "FNO2d",
     "MLPFNOSurrogate",
+    "Transolver",
+    "TransolverLite",
+    "PhysicsAttention",
     # Noether
     "NoetherUPT",
     "NoetherABUPT",

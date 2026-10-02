@@ -7,8 +7,8 @@ Pipeline
   1. Bekker-Wong numerical solver (scipy.quad) — reference data generation
   2. Dataset sweep over (slip ratio, sinkage) space — grid + LHS
   3. Physics-Informed Neural Network (PINN) surrogate training
-  4. Multi-loss: data MSE + 4 physics constraints (zero-slip, Mohr-Coulomb,
-     monotonicity, torque coupling)
+  4. Multi-loss: data MSE + 4 verified physics constraints (Mohr-Coulomb,
+     dFx/ds >= 0, torque coupling, dFz/dz >= 0)
   5. Surrogate evaluation vs. numerical solution + traction curves
   6. TorchScript export for real-time LunCoSim / OmniLRS integration
 
@@ -303,19 +303,19 @@ if _LIB_AVAILABLE:
             n_phys=n_phys, R_factor=R_factor,
         )
         r = _res(model, norm_x, norm_y, device)
-        return {"r1_zero_slip": r["r1"], "r2_mohr_coulomb": r["r2"],
+        return {"r5_fz_monotone": r["r5"], "r2_mohr_coulomb": r["r2"],
                 "r3_monotonicity": r["r3"], "r4_coupling": r["r4"]}
 else:
     def physics_residuals(model, norm_x, norm_y, device, n_phys=256):
         """Fallback inline physics constraints (used without pinneapple library)."""
         gen = torch.Generator(device=device).manual_seed(0)
         n1 = max(n_phys // 4, 32)
-        z_r1 = torch.rand(n1, 1, device=device, generator=gen) * 0.056 + 0.002
-        s_r1 = torch.zeros(n1, 1, device=device)
-        x_r1 = norm_x.transform_torch(torch.cat([s_r1, z_r1], dim=-1))
-        pred_r1 = model(x_r1)
-        fx_r1 = norm_y.inverse_torch(pred_r1)[:, 0:1]
-        r1 = fx_r1.pow(2).mean()
+        # R5: dFz/dz >= 0 (replaces the former "Fx(s=0)=0", which Bekker-Wong itself violates)
+        s_r5 = torch.rand(n1, 1, device=device, generator=gen) * 0.75
+        z_r5 = (torch.rand(n1, 1, device=device, generator=gen) * 0.056 + 0.002).requires_grad_(True)
+        fz_r5 = model(norm_x.transform_torch(torch.cat([s_r5, z_r5], dim=-1)))[:, 1:2]
+        dfz = torch.autograd.grad(fz_r5.sum(), z_r5, create_graph=True)[0]
+        r5 = torch.relu(-dfz).pow(2).mean()
 
         n2 = max(n_phys // 2, 64)
         s_r2 = torch.rand(n2, 1, device=device, generator=gen) * 0.75
@@ -323,7 +323,7 @@ else:
         x_r2 = norm_x.transform_torch(torch.cat([s_r2, z_r2], dim=-1))
         pred_r2 = model(x_r2)
         phy_r2 = norm_y.inverse_torch(pred_r2)
-        A_contact = WHEEL.b * WHEEL.R * math.pi
+        A_contact = WHEEL.b * WHEEL.R * torch.acos(1.0 - z_r2 / WHEEL.R)  # b*R*theta_1 (contact arc)
         limit = SOIL.c * A_contact + phy_r2[:, 1:2].detach() * SOIL.tan_phi
         r2 = torch.relu(phy_r2[:, 0:1] - limit).pow(2).mean()
 
@@ -348,7 +348,7 @@ else:
         R_factor = WHEEL.R * Fx_range / My_range
         r4 = torch.relu(R_factor * pred_r4[:, 0] - pred_r4[:, 2]).pow(2).mean()
 
-        return {"r1_zero_slip": r1, "r2_mohr_coulomb": r2, "r3_monotonicity": r3, "r4_coupling": r4}
+        return {"r5_fz_monotone": r5, "r2_mohr_coulomb": r2, "r3_monotonicity": r3, "r4_coupling": r4}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -360,7 +360,7 @@ def train(
     lr: float = 5e-4,
     batch_size: int = 512,
     w_data: float = 1.0,
-    w_r1: float = 2.0,
+    w_r5: float = 1.0,
     w_r2: float = 0.5,
     w_r3: float = 1.0,
     w_r4: float = 0.3,
@@ -402,7 +402,7 @@ def train(
 
     # ── Training loop ─────────────────────────────────────────────────────────
     print(f"\nStep 3/4 — Training {epochs} epochs ...")
-    history: dict[str, list] = {k: [] for k in ["total", "data", "val", "r1", "r2", "r3", "r4"]}
+    history: dict[str, list] = {k: [] for k in ["total", "data", "val", "r5", "r2", "r3", "r4"]}
     best_val = float("inf")
     best_state = None
     n = len(X_tr_t)
@@ -417,7 +417,7 @@ def train(
 
         l_data = nn.functional.mse_loss(model(xb), yb)
         phys = physics_residuals(model, norm_x, norm_y, device, n_phys=256)
-        l_phys = (w_r1 * phys["r1_zero_slip"]
+        l_phys = (w_r5 * phys["r5_fz_monotone"]
                   + w_r2 * phys["r2_mohr_coulomb"]
                   + w_r3 * phys["r3_monotonicity"]
                   + w_r4 * phys["r4_coupling"])
@@ -436,9 +436,9 @@ def train(
             history["total"].append(loss.item())
             history["data"].append(l_data.item())
             history["val"].append(l_val)
-            for k in ["r1", "r2", "r3", "r4"]:
+            for k in ["r5", "r2", "r3", "r4"]:
                 history[k].append(phys[f"r{k[1]}_" + {
-                    "1": "zero_slip", "2": "mohr_coulomb",
+                    "5": "fz_monotone", "2": "mohr_coulomb",
                     "3": "monotonicity", "4": "coupling",
                 }[k[1]]].item())
 
@@ -449,7 +449,7 @@ def train(
             if ep % 500 == 0:
                 print(f"    ep={ep:5d} | total={loss.item():.3e} "
                       f"| data={l_data.item():.3e} | val={l_val:.3e} "
-                      f"| r1={phys['r1_zero_slip'].item():.3e}")
+                      f"| r5={phys['r5_fz_monotone'].item():.3e}")
 
     model.load_state_dict(best_state)
     print(f"\n    Best val MSE: {best_val:.4e}")
@@ -587,7 +587,7 @@ def evaluate_and_plot(
     ax_l.grid(True, alpha=0.3)
 
     ax_r = axes3[1]
-    ax_r.semilogy(steps, history["r1"], color="#79c0ff", lw=1.3, label="R1: zero-slip BC")
+    ax_r.semilogy(steps, history["r5"], color="#79c0ff", lw=1.3, label="R5: dFz/dz >= 0")
     ax_r.semilogy(steps, history["r2"], color="#56d364", lw=1.3, label="R2: Mohr-Coulomb")
     ax_r.semilogy(steps, history["r3"], color="#e3b341", lw=1.3, label="R3: monotonicity ∂F_x/∂s")
     ax_r.semilogy(steps, history["r4"], color="#f85149", lw=1.3, label="R4: torque coupling")
@@ -687,7 +687,7 @@ if __name__ == "__main__":
         lr=5e-4,
         batch_size=512,
         w_data=1.0,
-        w_r1=2.0,
+        w_r5=1.0,
         w_r2=0.5,
         w_r3=1.0,
         w_r4=0.3,

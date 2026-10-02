@@ -11,6 +11,7 @@ from .gno import GalerkinNeuralOperator
 from .ms_deeponet import MultiScaleDeepONet
 from .pino import PhysicsInformedNeuralOperator
 from .uno import UniversalUNO
+from .transolver import Transolver, TransolverLite
 
 
 _REGISTRY: Dict[str, Type[NeuralOperatorBase]] = {
@@ -30,6 +31,11 @@ _REGISTRY: Dict[str, Type[NeuralOperatorBase]] = {
 
     "uno": UniversalUNO,
     "universal_operator_network": UniversalUNO,
+
+    # native (pure PyTorch) Transolver; "transolver" itself stays reserved for the Noether bridge
+    "transolver_native": Transolver,
+    "physics_attention_transolver": Transolver,
+    "transolver_lite": TransolverLite,
 }
 
 # Noether (Emmi AI) models — registered lazily so emmiai-noether is optional
@@ -78,6 +84,10 @@ def register_into_global() -> None:
 
         if key in ("pino", "physics_informed_neural_operator"):
             caps.update({"input_kind": "operator_branch_trunk", "expects": ["u", "physics_fn", "physics_data"]})
+            return caps
+
+        if key in ("transolver_native", "physics_attention_transolver", "transolver_lite"):
+            caps.update({"input_kind": "point_cloud", "expects": ["point_features"]})
             return caps
 
         if key.startswith("noether") or key in _NOETHER_KEYS:

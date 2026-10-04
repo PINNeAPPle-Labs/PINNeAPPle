@@ -1,0 +1,45 @@
+name: Release to PyPI
+
+# Publishes only from a version tag, so the git tag and the files on PyPI always match.
+# One-time setup (maintainers): on PyPI add a Trusted Publisher for this repository, workflow
+# "release.yml", environment "pypi"; create a GitHub environment named "pypi". No API token is stored.
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Tag, pyproject, CITATION and CHANGELOG must agree
+        run: python scripts/check_release_version.py "${GITHUB_REF_NAME}"
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+          twine check dist/*
+      - name: Every wheel package must import from the built wheel
+        run: |
+          python -m venv /tmp/venv && /tmp/venv/bin/pip install dist/*.whl
+          /tmp/venv/bin/python -c "import pinneapple as pp; print(pp.__version__)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write   # PyPI Trusted Publishing (OIDC), no stored token
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

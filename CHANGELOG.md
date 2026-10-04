@@ -13,6 +13,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- U-DR-1 Compiler (`apps/design_requirements`, library `pinneapple_data.udr1`): reads process and mechanical datasheets
+  and client specifications, compiles the 129 items of ASME Section VIII Div. 1 Form U-DR-1 with the document, page and
+  text each value came from, reports conflicts between documents and missing required items, and fills the user's copy of
+  the fillable form. Optional Claude extraction keeps a value only when its quoted source is found in the document.
 - Front door for using the library: `pp.solve(problem, method)` and `pp.compare(problem, methods, reference=...)` over
   `PhysicalProblem`, preset names or PDE specs, with methods `pinn`, `analytic`, `exact`, `reference` and
   `@pp.register_method` for your own. `compare` scores every method on the same points and reports a failing method

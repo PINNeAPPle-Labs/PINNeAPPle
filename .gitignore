@@ -30,3 +30,5 @@ examples/_runs*/
 examples/results_chassis/
 examples/use_cases/*/outputs/
 examples/geometry/outputs/
+# ASME forms are copyrighted: keep users' copies out of the repository
+apps/deploy/forms/*.pdf

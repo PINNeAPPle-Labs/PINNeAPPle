@@ -65,3 +65,15 @@
 		}
 	}
 }
+
+{$UDR_DOMAIN} {
+	import common
+	request_body {
+		max_size 50MB
+	}
+	reverse_proxy udr:8085 {
+		transport http {
+			read_timeout 600s
+		}
+	}
+}

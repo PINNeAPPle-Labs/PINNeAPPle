@@ -77,6 +77,25 @@ services:
     expose: ["8084"]
     mem_limit: ${SMD_MEM_LIMIT:-2g}
 
+  udr:
+    build:
+      context: ../..
+      dockerfile: apps/design_requirements/Dockerfile
+    image: pinneapple/design-requirements:latest
+    restart: unless-stopped
+    environment:
+      UDR_USER: ${UDR_USER:-}
+      UDR_PASSWORD: ${UDR_PASSWORD:-}
+      UDR_MAX_HEAVY: ${UDR_MAX_HEAVY:-2}
+      UDR_MAX_MB: ${UDR_MAX_MB:-40}
+      UDR_FORM_PDF: ${UDR_FORM_PDF:-}          # e.g. /forms/u-dr-1.pdf (your copy, mounted below)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}  # optional Claude extraction
+      UDR_CLAUDE_MODEL: ${UDR_CLAUDE_MODEL:-}    # Claude model ID for it
+    volumes:
+      - ./forms:/forms:ro
+    expose: ["8085"]
+    mem_limit: ${UDR_MEM_LIMIT:-2g}
+
   caddy:
     image: caddy:2
     restart: unless-stopped
@@ -87,12 +106,13 @@ services:
       EDH_DOMAIN: ${EDH_DOMAIN:-datahealth.localhost}
       EDS_DOMAIN: ${EDS_DOMAIN:-standardizer.localhost}
       SMD_DOMAIN: ${SMD_DOMAIN:-simmeta.localhost}
+      UDR_DOMAIN: ${UDR_DOMAIN:-udr.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr]
 
 volumes:
   caddy_data:

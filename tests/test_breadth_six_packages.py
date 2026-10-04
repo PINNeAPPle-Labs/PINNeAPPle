@@ -2814,12 +2814,17 @@ def test_breadth_solver_base_is_abstract():
 def test_breadth_openfoam_bridge_graceful_degradation():
     from pinneapple_simulation.numerical_solvers.openfoam_bridge import OpenFOAMBridge
 
+    from unittest import mock
+
     bridge = OpenFOAMBridge(n_iterations=5)
     spec = SimpleNamespace(nu=1e-3, conditions={})
     with tempfile.TemporaryDirectory() as case_dir:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")  # expected "OpenFOAM not found on PATH" warning
-            out = bridge.forward(spec, case_dir)
+            # Simulate a machine without OpenFOAM so the test passes whether or not it is installed.
+            with mock.patch("pinneapple_simulation.numerical_solvers.openfoam_bridge._which_openfoam",
+                            return_value=None):
+                out = bridge.forward(spec, case_dir)
     # OpenFOAM's own binaries (blockMesh/simpleFoam/...) are not on PATH in
     # this environment (confirmed via `shutil.which`) -- OpenFOAMBridge is
     # explicitly designed to detect that and return an empty SolverOutput

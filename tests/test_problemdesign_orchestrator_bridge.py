@@ -17,6 +17,8 @@ Covers:
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import builtins
 import copy
 import importlib
@@ -253,19 +255,24 @@ def test_no_relevant_tools_means_no_placeholder_step():
 # ---------------------------------------------------------------------------
 
 def test_worldmodel_does_not_import_problemdesign():
-    """Grep pinneapple_worldmodel's source for any reference to
-    pinneapple_problemdesign -- the dependency direction must stay strictly
-    one-way (problemdesign -> optionally worldmodel, never the reverse)."""
-    result = subprocess.run(
-        ["grep", "-rl", "pinneapple_problemdesign", "pinneapple_worldmodel/"],
-        cwd="/Users/yanbarros/Documents/GitHub/PINNeAPPle",
-        capture_output=True,
-        text=True,
-    )
-    # grep exit code 1 == no matches found (what we want); 0 == found matches (fail).
-    assert result.returncode != 0, (
-        f"pinneapple_worldmodel references pinneapple_problemdesign in: {result.stdout}"
-    )
+    """No module of pinneapple_worldmodel may import pinneapple_problemdesign -- the dependency direction
+    must stay strictly one-way (problemdesign -> optionally worldmodel, never the reverse).
+
+    Checked on the AST, so a mention in a docstring or comment (or a stale .pyc) is not a false alarm."""
+    import ast
+
+    root = Path(__file__).resolve().parents[1] / "pinneapple_worldmodel"
+    offenders = []
+    for path in sorted(root.rglob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            names = []
+            if isinstance(node, ast.Import):
+                names = [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+                names = [node.module]
+            if any(n.split(".")[0] == "pinneapple_problemdesign" for n in names):
+                offenders.append(f"{path.relative_to(root.parent)}:{node.lineno}")
+    assert not offenders, f"pinneapple_worldmodel imports pinneapple_problemdesign in: {offenders}"
 
 
 def test_worldmodel_importable_without_problemdesign_loaded():
@@ -282,7 +289,7 @@ def test_worldmodel_importable_without_problemdesign_loaded():
     )
     result = subprocess.run(
         [sys.executable, "-c", code],
-        cwd="/Users/yanbarros/Documents/GitHub/PINNeAPPle",
+        cwd=str(Path(__file__).resolve().parents[1]),
         capture_output=True,
         text=True,
     )

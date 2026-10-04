@@ -39,6 +39,13 @@ Merged after the 0.6.2 release (not on PyPI yet).
 - GitHub issue forms (bug report, feature request) and a pull request template; CI runs a blocking tier for the public
   API, cost module and the PyVista and CalculiX bridges.
 - Example `examples/calculix_pyvista_cantilever.py`.
+- Release automation: `.github/workflows/release.yml` publishes to PyPI only from a `vX.Y.Z` tag, through Trusted Publishing
+  (no stored token), after `scripts/check_release_version.py` confirms that the tag, `pyproject.toml`, `CITATION.cff`,
+  `pinneapple.__version__` and a dated `CHANGELOG.md` heading agree, and after the built wheel imports in a clean environment.
+- `.github/workflows/extras.yml`: each optional extra installs in a clean environment and `pp.info()` reports no broken package.
+- `scripts/check_example_imports.py` and `tests/test_example_imports.py`: every `pinneapple*` import in `examples/` and `templates/`
+  must resolve. 156 imports in 57 files were already broken (they predate the refactor into the mega-modules); they are listed in
+  `scripts/example_imports_baseline.txt`, new breakage fails CI and a fixed file must leave the list.
 
 ### Changed
 - **Behavior:** `bekker_wong` terramechanics rewritten: input validation, break points at the stress kinks,
@@ -55,6 +62,13 @@ Merged after the 0.6.2 release (not on PyPI yet).
   `plot_streamlines_2d_model` is `plot_streamlines_2d_from_model`; the world-model names `CosmosAdapter`,
   `PhysicsVideoDataset`, `SimToRealAdapter`, `PhysicalScene` and `SceneObject` never existed and are replaced by
   `PhysicsWorldModel`, `WorldModelDataset`, `WorldModelTrainer` and `PhysicsScenario`. A test now resolves every name.
+- `templates/08_csg_geometry.py` and `templates/09_flow_visualization.py` imported names from the wrong module or a name that does not exist.
+- `run_custom_solver` (`pinneapple_tools.sandbox`) could not run on Linux with the default memory limit: the child was started with
+  `-m`, which imports the whole `pinneapple_tools` package (and torch) before the script, and under `RLIMIT_AS` of 1 GB the loader
+  failed to map `libtorch_cuda.so`, so every call returned `ProcessTerminated`. The child now runs the runner file by path and loads only the stdlib.
+- Test suite: the OpenFOAM graceful-degradation test passes whether or not OpenFOAM is installed; the Triton export test skips when `onnx`
+  is missing; two problem-design bridge tests no longer use a hard-coded macOS path and the import check reads the AST instead of grepping
+  (a docstring mention and stale `.pyc` files were false alarms).
 - `pp.info()` reported "optional deps missing" for modules that do not exist; it now imports the real packages and lists
   optional third-party dependencies with the extra that installs each.
 - `LICENSE` was a truncated Apache-2.0 text (end of section 4 and the appendix were missing); replaced with the canonical text.

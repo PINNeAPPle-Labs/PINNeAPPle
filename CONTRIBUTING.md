@@ -39,8 +39,11 @@ entries under a dated version heading when they cut a release (see below). Purel
 
 ## Releasing (maintainers)
 1. Move the `[Unreleased]` entries under `## [x.y.z] - YYYY-MM-DD` and update the compare links at the bottom.
-2. Bump `version` in `pyproject.toml` and `CITATION.cff`.
-3. Tag the release commit `vx.y.z` and publish to PyPI **from that tag**, so the tag and the PyPI files match.
+2. Bump the version in `pyproject.toml`, `CITATION.cff` and `pinneapple/__init__.py` (`__version__`, a separate copy).
+3. Tag the release commit `vx.y.z` and push the tag. The `Release to PyPI` workflow checks that the tag, `pyproject.toml`,
+   `CITATION.cff`, `pinneapple.__version__` and the changelog agree (`python scripts/check_release_version.py vx.y.z` runs the
+   same check locally), builds, and publishes through PyPI Trusted Publishing. One-time setup: add the publisher on PyPI
+   (workflow `release.yml`, environment `pypi`) and create the `pypi` environment on GitHub. Never upload by hand.
 
 ## Commit style
 We recommend Conventional Commits (optional), e.g.:

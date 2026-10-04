@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pinneapple"
-version = "0.6.2"
+version = "0.6.3"
 description = "PINNeAPPle: Physics-Informed Neural Networks platform — PDE problem design, PINN/operator/GNN models, UQ, digital twins, meta-learning, active learning, validation, and REST serving."
 readme = "README.md"
 requires-python = ">=3.10"

@@ -12,7 +12,7 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
-Merged after the 0.6.2 release (not on PyPI yet).
+## [0.6.3] - 2026-10-04
 
 ### Added
 - `LRAnnealing` loss balancer (Wang, Teng & Perdikaris 2021), wired into `WeightScheduler` as
@@ -39,6 +39,7 @@ Merged after the 0.6.2 release (not on PyPI yet).
 - GitHub issue forms (bug report, feature request) and a pull request template; CI runs a blocking tier for the public
   API, cost module and the PyVista and CalculiX bridges.
 - Example `examples/calculix_pyvista_cantilever.py`.
+- Example `examples/calculix_cantilever/`: a real CalculiX cantilever reference run (input deck, results and README) (#143).
 - Release automation: `.github/workflows/release.yml` publishes to PyPI only from a `vX.Y.Z` tag, through Trusted Publishing
   (no stored token), after `scripts/check_release_version.py` confirms that the tag, `pyproject.toml`, `CITATION.cff`,
   `pinneapple.__version__` and a dated `CHANGELOG.md` heading agree, and after the built wheel imports in a clean environment.
@@ -48,6 +49,10 @@ Merged after the 0.6.2 release (not on PyPI yet).
   `scripts/example_imports_baseline.txt`, new breakage fails CI and a fixed file must leave the list.
 
 ### Changed
+- **Behavior:** the `numerical_convergence` component of `PhysicsConfidenceScore` is now multiplied by an order-plausibility factor: an
+  observed order outside [0.5, 4.0] (the convention already used by the CFD grid-convergence check) is not a believable asymptotic rate, even
+  when the GCI arithmetic is self-consistent, so scores for such studies drop. The same change touches the parametric dense-volume
+  operator workflow (#130).
 - **Behavior:** `bekker_wong` terramechanics rewritten: input validation, break points at the stress kinks,
   sign-aware shear for braking, Brent's method for sinkage, no fabricated values when the solver fails, and a
   vectorised, autograd-differentiable batched Gauss–Legendre quadrature (#24).
@@ -251,7 +256,8 @@ Development before the first PyPI release is not itemized. In short: the initial
 PINN Arena and benchmark suite, the refactor into the current mega-modules (2026-05-06), the rename from `pinneaple` to
 `pinneapple` (2026-05-18), and the Physics Synthetic Data Factory and the 9-stage pipeline (2026-06-04).
 
-[Unreleased]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.3...HEAD
+[0.6.3]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.5.0...v0.6.0

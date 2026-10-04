@@ -244,6 +244,44 @@ def test_convergence_component_far_outside_asymptotic_range_clamps_to_zero():
     assert result.components[0].score == pytest.approx(0.0)
 
 
+def test_convergence_component_implausible_low_order_scores_low_even_when_self_consistent():
+    """Regression test for a real bug: a wildly implausible observed_order
+    (e.g. 0.19, nowhere near any standard discretization scheme's expected
+    order of accuracy) could still score a perfect 1.0 confidence, because
+    ``asymptotic_ratio`` (the only thing the pre-fix formula looked at) is
+    a near-tautology when the three raw solution values are large relative
+    to their pairwise differences -- it checks GCI self-consistency AT
+    whatever order was fit from the data, not whether that order is itself
+    sane. This fabricates a real (not hand-picked) ``ConvergenceResult`` via
+    ``richardson_extrapolate`` with f_coarse/f_medium/f_fine chosen so the
+    data-fit order is ~0.19 while the GCI ratio is still ``is_asymptotic``
+    (exactly the previously-buggy combination), and asserts the resulting
+    component score is low, not 1.0."""
+    from pinneapple_analysis.verification.convergence import richardson_extrapolate
+
+    r = 2.0
+    p_target = 0.19
+    ratio = r ** p_target
+    f_fine = 100.0
+    diff_21 = 1.0
+    f_medium = f_fine + diff_21
+    diff_32 = diff_21 * ratio
+    f_coarse = f_medium + diff_32
+
+    convergence = richardson_extrapolate(f_coarse, f_medium, f_fine, r)
+    assert convergence.observed_order == pytest.approx(0.19, abs=1e-6)
+    assert convergence.is_asymptotic  # sanity: reproduces the tautological self-consistency pass
+
+    result = compute_physics_confidence(convergence_result=convergence)
+    comp = result.components[0]
+    assert comp.name == "numerical_convergence"
+    assert comp.score < 0.5, (
+        f"observed_order={convergence.observed_order:.3g} is nowhere near a plausible "
+        f"convergence rate, so the component score must be low, not {comp.score!r}"
+    )
+    assert result.overall_score < 0.5
+
+
 # ---------------------------------------------------------------------------
 # 1 component: uq_calibration alone
 # ---------------------------------------------------------------------------

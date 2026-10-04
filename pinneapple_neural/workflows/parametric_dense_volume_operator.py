@@ -44,14 +44,34 @@ Design decisions worth stating explicitly:
   the same (normalized) theta channel(s) after every autoregressive step
   before feeding the prediction back in, rather than asking the network
   to also predict/carry it forward.
-- **One case per gradient step.** Each training step samples a batch's
-  start indices from a single, randomly chosen (weighted by that case's
-  number of real training pairs) case -- simpler and more general than
-  requiring every case to share the exact same grid shape to be mixed
-  within one physical batch tensor (this module does require a shared
-  ``(D, H, W)`` across cases today via a plain ``torch.stack`` inside a
-  batch, but keeps cases logically separate so that requirement is the
-  only one, not "same everything").
+- **One case per gradient step, UNIFORM across cases.** Each training
+  step samples a batch's start indices from a single, randomly chosen
+  case -- simpler and more general than requiring every case to share
+  the exact same grid shape to be mixed within one physical batch tensor
+  (this module does require a shared ``(D, H, W)`` across cases today
+  via a plain ``torch.stack`` inside a batch, but keeps cases logically
+  separate so that requirement is the only one, not "same everything").
+  The case is chosen with EQUAL probability regardless of how many real
+  training pairs it has -- NOT weighted by ``n_train``. A real dataset
+  built from real solver runs is rarely balanced (here: one dense
+  201-frame baseline case alongside five sparse ~24-frame Re_tau sweep
+  cases); weighting by pair count would let the data-rich case dominate
+  gradient steps and implicitly teach the network "when in doubt, look
+  like the baseline case", exactly the failure this sweep exists to
+  avoid -- the whole point is learning the Re_tau sweep's cases well
+  enough to interpolate across them, not fitting the one case that
+  happens to have the most frames.
+- **Per-case-averaged (not frame-count-pooled) normalization**, for the
+  identical reason: pooling every frame from every case together before
+  computing mean/std lets a data-rich case's own statistics dominate the
+  GLOBAL normalization too (measured on this project's real Re_tau
+  sweep: u's std ranges from 3.49 at Re_tau=5200 to 6.16 at Re_tau=150,
+  nearly 2x; p's std ranges from 0.37 to 1.29, nearly 3.5x -- a
+  frame-count-weighted pool over-represents whichever case has the most
+  snapshots). Each case's own mean/std is computed first, then those are
+  averaged with EQUAL weight per case -- so a 24-frame case's physical
+  scale counts exactly as much toward the shared normalization as a
+  201-frame case's does.
 """
 from __future__ import annotations
 
@@ -167,9 +187,13 @@ def train_parametric_dense_volume_operator(
         if len(c.theta) != cfg.theta_dim:
             raise ValueError(f"case '{c.name}' has theta_dim {len(c.theta)}, cfg says {cfg.theta_dim}")
 
-    all_frames = np.concatenate([c.frames for c in cases], axis=0)
-    mean = all_frames.mean(axis=(0, 2, 3, 4), keepdims=True)
-    std = all_frames.std(axis=(0, 2, 3, 4), keepdims=True).clip(min=1e-8)
+    # Per-case mean/std, THEN averaged with equal weight per case (not pooled by frame
+    # count) -- see module docstring "Per-case-averaged (not frame-count-pooled)
+    # normalization" for why a data-rich case must not dominate this.
+    per_case_means = np.stack([c.frames.mean(axis=(0, 2, 3, 4)) for c in cases], axis=0)  # (n_cases, state_c)
+    per_case_stds = np.stack([c.frames.std(axis=(0, 2, 3, 4)) for c in cases], axis=0)
+    mean = per_case_means.mean(axis=0).reshape(1, -1, 1, 1, 1)
+    std = per_case_stds.mean(axis=0).clip(min=1e-8).reshape(1, -1, 1, 1, 1)
 
     theta_min, theta_span = _theta_stats(cases, cfg.theta_log_scale)
 
@@ -215,8 +239,10 @@ def train_parametric_dense_volume_operator(
         Yv = cd["X"][s + 1:e + 1].to(device)
         val_batches.append((cd["name"], Xv, Yv, cd["theta_field"]))
 
-    weights = np.asarray([cd["n_train"] for cd in case_data], dtype=np.float64)
-    weights /= weights.sum()
+    # Uniform per case, NOT weighted by n_train -- see module docstring "One case per
+    # gradient step, UNIFORM across cases" for why a data-rich case must not dominate
+    # gradient steps either.
+    weights = np.full(len(case_data), 1.0 / len(case_data))
 
     history: List[Dict[str, Any]] = []
     t_start = time.time()

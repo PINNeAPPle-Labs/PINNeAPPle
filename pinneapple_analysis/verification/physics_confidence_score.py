@@ -335,17 +335,53 @@ def _component_from_guardrail(report) -> ConfidenceComponent:
     )
 
 
+# Plausible observed-order band for a believable discretization/
+# convergence study. This is NOT a new threshold invented for this
+# module -- it is the same convention this codebase already codifies
+# elsewhere for exactly this situation (``ORDEM_FAIXA``/``ERR-E3-06`` in
+# ``pinneapple_cfd/etapas/e03_geometria_malha/gci.py``): an observed
+# order well outside [0.5, 4.0] is not a legitimate asymptotic
+# convergence rate for any standard discretization scheme, no matter how
+# internally self-consistent the GCI/asymptotic-ratio arithmetic is (see
+# the bugfix note below for why that self-consistency check alone is not
+# sufficient).
+_ORDER_PLAUSIBLE_LOW = 0.5
+_ORDER_PLAUSIBLE_HIGH = 4.0
+
+
+def _order_plausibility_score(observed_order: float) -> float:
+    """How plausible ``observed_order`` itself is as a genuine
+    discretization convergence rate -- 1.0 inside [0.5, 4.0] (this
+    codebase's own ERR-E3-06 convention; see ``_ORDER_PLAUSIBLE_LOW``/
+    ``_ORDER_PLAUSIBLE_HIGH`` above), decaying linearly to 0.0 at
+    ``observed_order<=0`` (no convergence at all -- the discretization
+    error is not shrinking with resolution) when below the low edge, and
+    symmetrically decaying to 0.0 by twice the high edge when above it
+    (mirroring ``_component_from_convergence``'s own penalty-band
+    convention). Clamped to [0, 1], never a negative or fabricated
+    number."""
+    lo, hi = _ORDER_PLAUSIBLE_LOW, _ORDER_PLAUSIBLE_HIGH
+    if observed_order < lo:
+        return _clamp01(observed_order / lo)
+    if observed_order > hi:
+        return _clamp01(1.0 - (observed_order - hi) / hi)
+    return 1.0
+
+
 def _component_from_convergence(result) -> ConfidenceComponent:
     """``numerical_convergence`` component.
 
     Derivation, per this module's design (``1.0 if is_asymptotic else a
-    value derived from how far asymptotic_ratio is from 1``)::
+    value derived from how far asymptotic_ratio is from 1``), MULTIPLIED
+    by a separate order-plausibility factor (see bugfix note below)::
 
         deviation = |asymptotic_ratio - 1.0|
         if is_asymptotic:                      # i.e. deviation <= asymptotic_tolerance
-            score = 1.0
+            consistency_score = 1.0
         else:
-            score = clamp(1.0 - (deviation - asymptotic_tolerance) / asymptotic_tolerance, 0, 1)
+            consistency_score = clamp(1.0 - (deviation - asymptotic_tolerance) / asymptotic_tolerance, 0, 1)
+        order_score = _order_plausibility_score(observed_order)
+        score = consistency_score * order_score
 
     Rationale: ``is_asymptotic`` is itself defined (in
     ``richardson_extrapolate``) as ``deviation <= asymptotic_tolerance``,
@@ -359,24 +395,43 @@ def _component_from_convergence(result) -> ConfidenceComponent:
     rule rather than a tuned decay curve. Deviations beyond that are
     clamped at 0.0, never a negative or fabricated number.
 
+    Bugfix note: ``consistency_score`` alone (the entire formula prior to
+    this fix) is NOT sufficient, because ``asymptotic_ratio`` is a
+    near-tautology whenever the three raw solution values are large
+    relative to their pairwise differences (a common case for any
+    physical quantity not near zero) -- ``asymptotic_ratio`` compares
+    ``GCI_coarse`` against ``GCI_fine`` using the SAME ``observed_order``
+    that was fit from those same three values, so it can read as
+    perfectly self-consistent (``is_asymptotic=True``, ``score=1.0``)
+    even when ``observed_order`` itself is a nonsense rate (e.g. 0.19,
+    nowhere near any scheme's expected order of accuracy) -- this was
+    observed to score a confidence of 1.00 for an ``observed_order`` of
+    0.19. ``order_score`` closes that gap by checking the plausibility of
+    ``observed_order`` itself, independent of the self-consistency check,
+    so a wildly-implausible order can no longer be masked by a
+    tautologically-passing ratio.
+
     Edge case: if ``asymptotic_tolerance <= 0`` (degenerate; the default
     is 0.10), the ratio-based formula above is undefined (division by
-    zero) -- this falls back to the strict boundary itself: score is 1.0
-    only if ``deviation == 0`` exactly, else 0.0, and ``source_summary``
+    zero) -- this falls back to the strict boundary itself: ``consistency_score``
+    is 1.0 only if ``deviation == 0`` exactly, else 0.0, and ``source_summary``
     states this explicitly.
     """
     deviation = abs(result.asymptotic_ratio - 1.0)
     tol = result.asymptotic_tolerance
     if result.is_asymptotic:
-        score = 1.0
+        consistency_score = 1.0
     elif tol > 0.0:
-        score = _clamp01(1.0 - (deviation - tol) / tol)
+        consistency_score = _clamp01(1.0 - (deviation - tol) / tol)
     else:
-        score = 1.0 if deviation == 0.0 else 0.0
+        consistency_score = 1.0 if deviation == 0.0 else 0.0
+    order_score = _order_plausibility_score(result.observed_order)
+    score = consistency_score * order_score
     summary = (
         f"observed_order={result.observed_order:.4g}, GCI_fine={result.gci_fine:.4g}, "
         f"GCI_coarse={result.gci_coarse:.4g}, asymptotic_ratio={result.asymptotic_ratio:.4g}, "
-        f"asymptotic_tolerance={tol:.4g}, is_asymptotic={result.is_asymptotic}"
+        f"asymptotic_tolerance={tol:.4g}, is_asymptotic={result.is_asymptotic}, "
+        f"consistency_score={consistency_score:.4g}, order_plausibility_score={order_score:.4g}"
     )
     return ConfidenceComponent(name="numerical_convergence", score=score, source_summary=summary)
 

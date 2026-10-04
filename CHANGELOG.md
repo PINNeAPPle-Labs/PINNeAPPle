@@ -12,6 +12,27 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Added
+- `PhysicalProblem` (`pp.PhysicalProblem`, with `pp.Parameter` and `pp.Quantity`): one description of a physics problem
+  (coordinates, fields, PDE, conditions, domain or geometry, units, quantities of interest, solver choice, task and intent).
+  Parameters carry a unit and a role (`fixed`, `design`, `uncertain`, `unknown`), so the same object can drive a forward
+  solve, design optimization, uncertainty quantification or parameter discovery. `validate()` lists inconsistencies before a
+  solver sees them, `to_dict()`/`from_dict()` round-trip through JSON (a condition callable that is not serialized comes back
+  as a placeholder that fails loudly), and `fingerprint()` gives a stable hash for provenance. The three existing classes are
+  adapters, unchanged: `from_pde_spec`/`to_pde_spec` round-trip all 65 presets exactly, and `from_physics_case`/
+  `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
+
+### Fixed
+- Six presets could not be compiled: `pcb_thermal`, `cpu_heatsink_thermal`, `datacenter_airflow_2d`, `datacenter_cfd_3d`,
+  `datacenter_server_thermal` and `car_suspension_fatigue` declared heat-flux, convection or traction boundary targets
+  (`q_heat`, `h`/`T_ref`, `tx`/`ty`) without the `thermal_bc` or `traction_map` that tells the compiler how to resolve them, so
+  building the loss raised `KeyError` (the notes in `tag_geometry.py` said they were already resolvable). They now declare it,
+  and a test evaluates each loss. Found by `PhysicalProblem.validate()`.
+
+### Known issues
+- `industrial_furnace_thermal` still does not compile: its hot-face condition combines convection and radiation, which
+  `thermal_bc` does not support, and `insulation_interface` needs a two-region interface model. Documented in the preset notes.
+
 ## [0.6.3] - 2026-10-04
 
 ### Added

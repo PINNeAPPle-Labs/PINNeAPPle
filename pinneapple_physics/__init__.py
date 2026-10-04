@@ -42,6 +42,7 @@ from . import closed_form
 from . import pde_environment
 from . import pinn_solver
 from . import symbolic_pde
+from .physical_problem import PARAMETER_ROLES, Parameter, PhysicalProblem, Quantity
 
 # backward-compat aliases (old names still work)
 environment = pde_environment
@@ -499,6 +500,7 @@ def pipeline(
 
 
 __all__ = [
+    "PhysicalProblem", "Parameter", "Quantity", "PARAMETER_ROLES",
     # Sub-modules (new names)
     "pde_environment", "pinn_solver", "symbolic_pde", "closed_form",
     # Sub-modules (old aliases — backward compat)

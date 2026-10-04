@@ -309,6 +309,12 @@ try:
 except Exception:  # pragma: no cover
     pass
 
+# Unified problem description (geometry, physics, conditions, parameters with units and roles)
+try:
+    from pinneapple_physics.physical_problem import Parameter, PhysicalProblem, Quantity
+except Exception:  # pragma: no cover
+    pass
+
 # Streamline / isosurface post-processing (Feature 17)
 try:
     from pinneapple_neural.predictor import (
@@ -585,6 +591,7 @@ __all__ = [
     "__version__",
     # Problem
     "get_preset", "list_presets", "register_preset",
+    "PhysicalProblem", "Parameter", "Quantity",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # Models

@@ -312,6 +312,10 @@ except Exception:  # pragma: no cover
 # Unified problem description (geometry, physics, conditions, parameters with units and roles)
 try:
     from pinneapple_physics.physical_problem import Parameter, PhysicalProblem, Quantity
+    from pinneapple_physics.solving import (
+        Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
+    )
+    from pinneapple_physics.experiment import Experiment, ExperimentResult
 except Exception:  # pragma: no cover
     pass
 
@@ -559,6 +563,8 @@ _SUBMODULES = {
     "worldmodel": "pinneapple_worldmodel",
     # decision layer (which experiment to run next)
     "decision":   "pinneapple_decision",
+    # one error-metric convention for the whole library
+    "metrics":    "pinneapple_physics.metrics",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not
@@ -592,6 +598,9 @@ __all__ = [
     # Problem
     "get_preset", "list_presets", "register_preset",
     "PhysicalProblem", "Parameter", "Quantity",
+    # Front door: solve, compare, run reproducible experiments, score with one metrics convention
+    "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method", "list_methods",
+    "Experiment", "ExperimentResult", "metrics",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # Models

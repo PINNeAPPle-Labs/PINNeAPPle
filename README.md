@@ -220,6 +220,28 @@ twin.start()
 
 ## Quick Examples
 
+### Solve, compare and reproduce in a few lines
+
+```python
+import pinneapple as pp
+
+prob = pp.PhysicalProblem.from_preset("burgers_1d", nu=0.01 / 3.141592653589793)
+print(prob.summary())
+
+exact = pp.solve(prob, "analytic")                      # Cole-Hopf closed form
+pinn = pp.solve(prob, "pinn", epochs=4000)              # physics-informed network
+print(pp.compare(prob, ["pinn"], reference="analytic", options={"pinn": {"epochs": 4000}}))
+
+result = pp.Experiment(prob, method="pinn", options={"epochs": 4000}, reference="analytic", seed=0).run()
+print(result.metrics["relative_l2"]["u"])               # about 2e-2 on CPU in a few minutes
+result.save("runs/burgers_pinn")                        # JSON record + weights, with the problem fingerprint
+```
+
+`pp.metrics` holds the error metrics with one convention (per field; relative errors are `nan` when the
+reference is zero). Add your own method with `@pp.register_method("name")`.
+
+### Lower-level building blocks
+
 ```python
 import torch
 

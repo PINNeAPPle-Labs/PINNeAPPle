@@ -43,6 +43,7 @@ from . import pde_environment
 from . import pinn_solver
 from . import symbolic_pde
 from .physical_problem import PARAMETER_ROLES, Parameter, PhysicalProblem, Quantity
+from . import metrics
 
 # backward-compat aliases (old names still work)
 environment = pde_environment
@@ -348,6 +349,10 @@ def solve_pde(
         if c.selector_type in ("all", "callable") and not explicit[kind_to_suffix.get(c.kind, "data")]
     ]
 
+    from .pde_environment.condition_sampling import sample_condition_points
+
+    cond_rng = np.random.default_rng(seed)
+    n_condition_points = max(64, n_collocation // 4)
     history = {"loss": []}
     for _epoch in range(epochs):
         opt.zero_grad(set_to_none=True)
@@ -361,10 +366,16 @@ def solve_pde(
         spans = {"bc": [], "ic": [], "data": []}
         for cond in auto_conditions:
             suffix = kind_to_suffix.get(cond.kind, "data")
-            x_np = _sample_domain_np(n_collocation)
-            m = np.asarray(cond.mask(x_np, ctx), dtype=bool)
-            x_sel = x_np[m]
+            # Boundary/initial selectors pick a face (t == 0, x == x_min); interior-only sampling never hits it
+            # and the condition was silently dropped. Candidates include every face of the box.
+            x_sel = sample_condition_points(lambda X, _c=cond: _c.mask(X, ctx), bounds, coords,
+                                            n_condition_points, cond_rng)
             if x_sel.shape[0] == 0:
+                if _epoch == 0:
+                    raise ValueError(
+                        f"solve_pde(): condition {cond.name!r} ({cond.kind}) selects no points on the box "
+                        f"{dict(bounds)} or its faces; check its selector or pass x_{suffix} explicitly"
+                    )
                 continue
             y_np = (
                 np.asarray(cond.value_fn(x_sel, ctx), dtype=np.float32)
@@ -500,6 +511,8 @@ def pipeline(
 
 
 __all__ = [
+    "metrics", "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method",
+    "list_methods", "Experiment", "ExperimentResult",
     "PhysicalProblem", "Parameter", "Quantity", "PARAMETER_ROLES",
     # Sub-modules (new names)
     "pde_environment", "pinn_solver", "symbolic_pde", "closed_form",
@@ -530,3 +543,10 @@ __all__ = [
     "SymbolicPDE", "pde_from_sympy", "auto_residual",
     "HardBC", "PeriodicBC", "MultiPeriodicBC", "SymbolicDirichletBC", "SymbolicNeumannBC",
 ]
+
+
+# Entry points defined after solve_pde, which they use.
+from .solving import (  # noqa: E402
+    Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
+)
+from .experiment import Experiment, ExperimentResult  # noqa: E402

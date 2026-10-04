@@ -13,6 +13,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Front door for using the library: `pp.solve(problem, method)` and `pp.compare(problem, methods, reference=...)` over
+  `PhysicalProblem`, preset names or PDE specs, with methods `pinn`, `analytic`, `exact`, `reference` and
+  `@pp.register_method` for your own. `compare` scores every method on the same points and reports a failing method
+  instead of stopping. The `reference` method refuses solver output that does not cover every coordinate and field (#28).
+- `pp.Experiment`: one reproducible run (seeds Python, NumPy and PyTorch, deterministic algorithms while it runs),
+  scored against a reference, with the problem fingerprint, environment and versions; `ExperimentResult.save()` writes a
+  JSON record and the model weights. Two runs with the same seed give bit-identical predictions on CPU (#29).
+- `pp.metrics`: `relative_l2`, `rmse`, `mae`, `max_abs`, `relative_linf`, `r2`, `per_field` and `summary`, one convention
+  for the whole library: per field, float64, relative errors `nan` where the reference norm is zero (#32).
+- `pinneapple_physics.closed_form.burgers.burgers_sine_exact`: the Cole-Hopf solution of the `burgers_1d` preset
+  (Gauss-Hermite quadrature with a shifted exponent, so no overflow at small viscosity), used by the `analytic` method.
 - `PhysicalProblem` (`pp.PhysicalProblem`, with `pp.Parameter` and `pp.Quantity`): one description of a physics problem
   (coordinates, fields, PDE, conditions, domain or geometry, units, quantities of interest, solver choice, task and intent).
   Parameters carry a unit and a role (`fixed`, `design`, `uncertain`, `unknown`), so the same object can drive a forward
@@ -23,6 +34,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- **Behavior:** `solve_pde` (and so `pp.pipeline`) silently dropped every boundary and initial condition defined by a
+  selector function, which is most presets. It drew points inside the box and kept those the selector accepted, but a
+  boundary (`t == 0`, `x == -1`) has zero volume, so no point was ever kept and the network learned the trivial solution.
+  On `burgers_1d` (nu = 0.01/pi) the relative L2 error of a 4000-epoch PINN goes from 1.02 to 0.023. Conditions are now
+  sampled inside the box and on each of its faces, and a condition that still selects no point raises an error. The
+  same flaw in the dataset generator (`_sample_callable_condition`) returned the origin repeated `n` times, and a selector
+  that raised was treated as "select everything"; both fixed.
 - Six presets could not be compiled: `pcb_thermal`, `cpu_heatsink_thermal`, `datacenter_airflow_2d`, `datacenter_cfd_3d`,
   `datacenter_server_thermal` and `car_suspension_fatigue` declared heat-flux, convection or traction boundary targets
   (`q_heat`, `h`/`T_ref`, `tx`/`ty`) without the `thermal_bc` or `traction_map` that tells the compiler how to resolve them, so
@@ -30,6 +48,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   and a test evaluates each loss. Found by `PhysicalProblem.validate()`.
 
 ### Known issues
+- The classical reference path for `burgers_1d` (`fdm` solver) overflows and returns a grid over `x` only, without the time
+  axis; `pp.solve(..., "reference")` refuses it. Use `"analytic"` for this preset.
 - `industrial_furnace_thermal` still does not compile: its hot-face condition combines convection and radiation, which
   `thermal_bc` does not support, and `insulation_interface` needs a two-region interface model. Documented in the preset notes.
 

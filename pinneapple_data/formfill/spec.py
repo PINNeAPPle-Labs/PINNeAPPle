@@ -41,6 +41,8 @@ class Field:
     match: str = "unique"                    # choice: "unique" (exactly one option named) | "first" (first in order)
     other: Optional[str] = None              # choice answer used for any other non-empty text
     description: str = ""                    # extra context for the LLM
+    column: Optional[str] = None             # side in a multi-column table (e.g. "shell" / "tube"), see FormSpec.columns
+    row_patterns: Tuple[str, ...] = ()       # the row label in such a table (without the side words)
 
     def __post_init__(self):
         if self.kind not in KINDS:
@@ -53,6 +55,7 @@ class Field:
         d = asdict(self)
         d["states"] = {k: list(v) for k, v in self.states.items()}
         d["patterns"] = list(self.patterns)
+        d["row_patterns"] = list(self.row_patterns)
         d["options"] = list(self.options)
         return {k: v for k, v in d.items() if v not in (None, "", (), [], {}) or k in ("key", "label")} | {"kind": self.kind}
 
@@ -61,6 +64,7 @@ class Field:
         d = dict(d)
         d["states"] = {k: tuple(v) for k, v in (d.get("states") or {}).items()}
         d["patterns"] = tuple(d.get("patterns") or ())
+        d["row_patterns"] = tuple(d.get("row_patterns") or ())
         d["options"] = tuple(d.get("options") or ())
         return cls(**d)
 
@@ -110,6 +114,11 @@ class FormSpec:
     left_blank: Tuple[str, ...] = ()         # keys never filled automatically (date, signature...)
     filename_key: Optional[str] = None       # item used to name the filled PDF (e.g. the tag number)
     aliases: Dict[str, str] = field(default_factory=dict)   # option -> regex, shared by every choice field
+    columns: Dict[str, str] = field(default_factory=dict)   # side -> regex of its column header ("shell": r"shell")
+    standard: str = ""                       # the standard(s) whose data the form follows
+    summary: str = ""                        # one line for pickers
+    inputs: Tuple[str, ...] = ()             # the documents that usually hold the data (also the role choices)
+    output: str = "datasheet"                # "official form" (fills a fillable PDF) | "datasheet" (generated PDF)
 
     def __post_init__(self):
         keys = [f.key for f in self.fields]
@@ -135,8 +144,10 @@ class FormSpec:
 
     # ------------------------------------------------------------------ JSON
     def to_dict(self) -> Dict[str, Any]:
-        return {"id": self.id, "title": self.title, "description": self.description, "sections": self.sections,
-                "notes_field": self.notes_field, "left_blank": list(self.left_blank), "filename_key": self.filename_key,
+        return {"id": self.id, "title": self.title, "standard": self.standard, "summary": self.summary,
+                "description": self.description, "inputs": list(self.inputs), "output": self.output,
+                "sections": self.sections, "notes_field": self.notes_field, "left_blank": list(self.left_blank),
+                "filename_key": self.filename_key, "columns": self.columns,
                 "fields": [f.to_dict() for f in self.fields], "tables": [t.to_dict() for t in self.tables]}
 
     @classmethod
@@ -148,7 +159,9 @@ class FormSpec:
                    tables=[TableSpec.from_dict(t) for t in d.get("tables") or []],
                    description=d.get("description") or "", notes_field=d.get("notes_field"),
                    left_blank=tuple(d.get("left_blank") or ()), filename_key=d.get("filename_key"),
-                   aliases=dict(d.get("aliases") or {}))
+                   aliases=dict(d.get("aliases") or {}), columns=dict(d.get("columns") or {}),
+                   standard=d.get("standard") or "", summary=d.get("summary") or "",
+                   inputs=tuple(d.get("inputs") or ()), output=d.get("output") or "datasheet")
 
     def dumps(self) -> str:
         return json.dumps(self.to_dict(), indent=1, ensure_ascii=False)

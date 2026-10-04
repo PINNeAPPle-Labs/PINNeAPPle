@@ -13,14 +13,16 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
-- Form Compiler (`apps/design_requirements`, library `pinneapple_data.formfill`): reads process and mechanical
-  datasheets and client specifications, compiles every item a form asks for with the document, page and text each value
-  came from, reports conflicts between documents and missing required items, fills the fillable PDF and exports the data
-  as a JSON record for other forms and calculations. Forms are described by a `FormSpec`: ASME Section VIII Div. 1 Form
-  U-DR-1 is built in (129 items, nozzle schedule; `pinneapple_data.udr1` keeps the shortcuts), any fillable PDF becomes a
-  spec through `FormSpec.from_pdf`, and specs round-trip through JSON. Optional extraction with a local LLM served by
-  Ollama (standard library HTTP, documents stay on your network) keeps a value only when its quoted source is in the
-  document and the value is in the quote.
+- Form Compiler (`apps/design_requirements`, library `pinneapple_data.formfill`): pick a document format, drop the
+  datasheets and specifications, and get every item the format asks for with the document, page and text each value
+  came from, the conflicts between documents and the missing required items. Supported formats: ASME Section VIII
+  Div. 1 Form U-DR-1 (fills the official fillable form; `pinneapple_data.udr1` keeps the shortcuts) and compiled
+  datasheets with the data of API 520/526 (relief valves), TEMA/API 660 (shell-and-tube exchangers, shell and tube
+  side columns), API 650 (storage tanks) and API 610 (centrifugal pumps), rendered as PDF (`render_datasheet`). Formats
+  are `FormSpec` data and round-trip through JSON; `Compilation.record()` exports values, units, SI values and sources
+  for other forms and calculations. Optional extraction with a local LLM served by Ollama (standard-library HTTP,
+  documents stay on your network) keeps a value only when its quoted source is in the document and the value is in
+  the quote.
 - Front door for using the library: `pp.solve(problem, method)` and `pp.compare(problem, methods, reference=...)` over
   `PhysicalProblem`, preset names or PDE specs, with methods `pinn`, `analytic`, `exact`, `reference` and
   `@pp.register_method` for your own. `compare` scores every method on the same points and reports a failing method
@@ -42,6 +44,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- `physical_units`: `mPa` (and `mPa·s`, `mW`) was read as `MPa` (`MW`), a factor of 10⁹, through the case-insensitive
+  fallback; milli and mega prefixes are no longer interchanged.
 - **Behavior:** `solve_pde` (and so `pp.pipeline`) silently dropped every boundary and initial condition defined by a
   selector function, which is most presets. It drew points inside the box and kept those the selector accepted, but a
   boundary (`t == 0`, `x == -1`) has zero volume, so no point was ever kept and the network learned the trivial solution.

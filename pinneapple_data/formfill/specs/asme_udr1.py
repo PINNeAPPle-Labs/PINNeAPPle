@@ -302,7 +302,10 @@ ALIASES = {"asce 7": r"asce\s*7", "ibc": r"\bibc\b", "ubc": r"\bubc\b", "none": 
            "manufacturer": r"manufacturer|fabricator|vendor", "others": r"\bothers?\b|by client|by owner"}
 
 SPEC = FormSpec(
-    id="asme_u-dr-1", title="ASME BPVC VIII-1 Form U-DR-1 (07/25)", fields=FIELDS, sections=SECTIONS,
+    id="asme_u-dr-1", title="Pressure vessel: ASME Form U-DR-1", standard="ASME BPVC VIII-1 Form U-DR-1 (07/25)",
+    summary="User's design requirements for a single-chamber pressure vessel; fills the official fillable form.",
+    inputs=("client specification", "process datasheet", "mechanical datasheet", "project specification",
+            "vendor datasheet", "other"), output="official form", fields=FIELDS, sections=SECTIONS,
     tables=[NOZZLES], notes_field="GENERAL NOTESRow1", left_blank=("date", "user", "registration_id"),
     filename_key="item_no", aliases=ALIASES,
     description="ASME BPVC Section VIII Division 1 Form U-DR-1, User's Design Requirements for Single-Chamber "

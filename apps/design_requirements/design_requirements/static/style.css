@@ -38,3 +38,9 @@ a.btnlink { display: inline-flex; align-items: center; justify-content: center; 
 #template { width: 100%; }
 [hidden] { display: none !important; }
 .alts label b { white-space: nowrap; }
+.fmtcard { border: 1px solid var(--line, #d0d7de); border-radius: 10px; padding: 10px 12px; margin-top: 8px; background: #fffaf6; font-size: 12.5px; display: grid; gap: 5px; }
+.fmtcard .fmt-std { font-weight: 700; color: #a14a12; }
+.fmtcard .fmt-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fmtcard .fmt-in { color: var(--muted, #57606a); }
+table.fmts { margin: 6px 0 10px; font-size: 13px; }
+table.fmts td { padding: 4px 8px 4px 0; border: 0; vertical-align: top; }

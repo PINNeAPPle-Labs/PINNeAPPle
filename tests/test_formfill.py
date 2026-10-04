@@ -19,7 +19,8 @@ from pinneapple_data import formfill as ff  # noqa: E402
 from pinneapple_data import udr1  # noqa: E402
 from pinneapple_data.udr1 import FIELD_BY_KEY  # noqa: E402
 
-EX = os.path.join(os.path.dirname(__file__), "..", "apps", "design_requirements", "examples")
+EXAMPLES = os.path.join(os.path.dirname(__file__), "..", "apps", "design_requirements", "examples")
+EX = os.path.join(EXAMPLES, "asme_u-dr-1")
 ORDER = [("owner_specification_V-101.pdf", "client specification"), ("process_datasheet_V-101.pdf", "process datasheet"),
          ("mechanical_datasheet_V-101.pdf", "mechanical datasheet")]
 FORM = os.environ.get("UDR_FORM_PDF")
@@ -117,6 +118,82 @@ def test_a_heading_with_a_label_word_is_not_an_answer():
     doc = udr1.read_document(b"Owner Project Specification - Pressure Vessels\nOwner: ACME", name="t.txt")
     owners = [c.display() for c in udr1.extract_rules(doc) if c.key == "owner"]
     assert owners == ["ACME"]
+
+
+# --------------------------------------------------------------------------- the other supported formats
+FORMAT_SETS = {   # template: (documents in priority order, planted conflict, planted gap, values checked)
+    "psv": (["relief_load_summary_PSV-101.pdf", "psv_sizing_PSV-101.pdf", "valve_specification_PSV-101.pdf"],
+            ("set_pressure", ["15 barg", "14.5 barg"]), "valve_type",
+            {"tag": "PSV-101", "governing_case": "fire", "fluid_state": "gas", "relieving_rate": "18500 kg/h",
+             "k_ratio": "1.27", "z_factor": "0.92", "relieving_temp": "160 °C", "overpressure": "21 % (fire case)",
+             "bp_built_up": "0.7 barg", "area_required": "2650 mm2", "orifice": "P", "inlet": "4 in CL300 RF",
+             "trim_material": "SS 316", "lifting_lever": "yes", "test_gag": "no",
+             "protected_equipment": "V-101 HP Gas/Condensate Separator"}),
+    "shell_tube": (["process_datasheet_E-101.pdf", "mechanical_datasheet_E-101.pdf"],
+                   ("tube_p_design", ["15 barg", "16 barg"]), "tema_class",
+                   {"tema_type": "AES", "duty": "1.45 MW", "shell_fluid": "Cooling water", "tube_fluid": "Natural gas",
+                    "shell_flow": "125000 kg/h", "tube_t_in": "85 °C", "shell_t_out": "40 °C",
+                    "tube_fouling": "0.00018 m2K/W", "shell_p_design": "7 barg", "tube_mdmt": "-10 °C",
+                    "tube_passes": "2", "shell_inlet_nozzle": "8 in CL150 RF", "tube_layout": "30",
+                    "tube_material": "SA-179", "baffle_cut": "25 %", "weight_empty": "7800 kg"}),
+    "tank": (["tank_specification.pdf", "process_datasheet_T-201.pdf", "mechanical_datasheet_T-201.pdf"],
+             ("ca_shell", ["3 mm", "2 mm"]), "empty_rate",
+             {"product": "Diesel oil", "sg": "0.85", "nominal_capacity": "10000 m3", "design_p": "20 mbarg",
+              "design_vac": "2.5 mbarg", "dmt": "5 °C", "roof_type": "fixed cone", "bottom_type": "cone up",
+              "annular_plate": "yes", "wind_speed": "38 m/s", "roof_live_load": "1 kPa", "heating": "no"}),
+    "pump": (["process_datasheet_P-101.pdf", "pump_specification.pdf", "hydraulic_calculation_P-101.pdf"],
+             ("npsha", ["4.2 m", "3.8 m"]), "viscosity",
+             {"tag": "P-101 A/B", "flow_rated": "55 m3/h", "head": "225 m", "vapor_pressure": "11.5 bar(a)",
+              "p_suction": "12.3 barg", "material_class": "S-6", "driver": "electric motor",
+              "area_class": "Zone 2, IIA T3", "seal": "API 682 Category 2, Arrangement 2"}),
+}
+
+
+@pytest.mark.parametrize("template", list(FORMAT_SETS))
+def test_supported_format_finds_its_values_the_planted_conflict_and_gap(template):
+    names, (ckey, cvals), gap, values = FORMAT_SETS[template]
+    spec = ff.get_spec(template)
+    docs = [ff.read_document(os.path.join(EXAMPLES, template, n), name=n) for n in names]
+    comp = ff.compile(docs, [c for d in docs for c in ff.extract_rules(d, spec)], spec)
+    assert [d.key for d in comp.conflicts()] == [ckey]
+    assert [c.display() for c in comp.decisions[ckey].candidates] == cvals       # first document wins
+    assert [d.key for d in comp.gaps()] == [gap]
+    for k, v in values.items():
+        assert comp.decisions[k].display == v, k
+    assert ff.FormSpec.loads(spec.dumps()).to_dict() == spec.to_dict()
+    pdf = ff.render_datasheet(comp)
+    assert pdf.startswith(b"%PDF")
+
+
+def test_vapour_pressure_in_bar_absolute_is_compared_as_gauge():
+    p = udr1.parse_value(ff.get_spec("pump")["vapor_pressure"], "11.5 bar(a)")
+    assert p["si"] == pytest.approx(11.5e5 - 101325.0) and p["gauge"] is True
+    assert udr1.parse_value(ff.get_spec("tank")["design_p"], "20 mbarg")["si"] == pytest.approx(2000.0)
+
+
+def test_numbers_with_thousands_separators_and_decimal_commas():
+    q = ff.get_spec("psv")["relieving_rate"]
+    assert ff.parse_value(q, "18,500 kg/h")["value"] == 18500.0
+    assert ff.parse_value(q, "1,250,000.5 kg/h")["value"] == 1250000.5
+    assert ff.parse_value(FIELD_BY_KEY["specific_gravity"], "0,72")["value"] == 0.72
+
+
+def test_milli_and_mega_prefixes_are_not_confused():
+    from pinneapple_data.physical_units import try_parse_unit
+    assert try_parse_unit("mPa.s").to_si(1.0) == pytest.approx(1e-3)
+    assert try_parse_unit("MPa").to_si(1.0) == pytest.approx(1e6)
+    assert try_parse_unit("mW").to_si(1.0) == pytest.approx(1e-3) and try_parse_unit("MW").to_si(1.0) == 1e6
+    assert ff.parse_value(ff.get_spec("pump")["viscosity"], "0.45 mPa.s")["si"] == pytest.approx(4.5e-4)
+
+
+def test_side_by_side_columns_need_a_header_naming_two_sides():
+    spec = ff.get_spec("shell_tube")
+    doc = ff.Document("x", [""], [(1, [["Item", "Shell side", "Tube side"], ["Design pressure (barg)", "7", "15"],
+                                       ["Design temperature", "65 °C", "120 °C"]]),
+                                  (1, [["Design pressure", "99 barg"]])])
+    got = {c.key: c.display() for c in ff.extract_rules(doc, spec)}
+    assert got == {"shell_p_design": "7 barg", "tube_p_design": "15 barg", "shell_t_design": "65 °C",
+                   "tube_t_design": "120 °C"}      # a plain "Design pressure" row names no side: not guessed
 
 
 # --------------------------------------------------------------------------- local LLM (fake Ollama server)
@@ -315,7 +392,8 @@ def _uploads(order):
 def test_api_example_compile_and_overrides(client):
     meta = client.get("/api/meta").json()
     assert len(meta["spec"]["fields"]) == 129 and meta["llm_available"] is False
-    assert [t["id"] for t in meta["templates"]] == ["asme_u-dr-1", "auto", "custom"]
+    assert [t["id"] for t in meta["formats"]] == ["asme_u-dr-1", "psv", "shell_tube", "tank", "pump"]
+    assert all(f["example"] for f in meta["formats"])
     r = client.get("/api/example/compile").json()
     assert r["summary"]["required_filled"] == 27 and r["gaps"] == ["cyclic_service"] and len(r["tables"]["nozzle"]) == 6
     assert r["record"]["design_p_int"]["si"] == pytest.approx(15e5)
@@ -334,6 +412,23 @@ def test_api_compile_uploaded_files_in_priority_order(client):
                     data={"roles": json.dumps([r for _, r in reversed(ORDER)])}).json()
     ca = r["decisions"]["ca_shell_int"]
     assert ca["display"] == "3 mm" and ca["status"] == "conflict"
+
+
+def test_api_datasheet_for_every_format(client):
+    for t in ("asme_u-dr-1", "psv", "shell_tube", "tank", "pump"):
+        r = client.post("/api/example/datasheet", data={"template": t})
+        assert r.status_code == 200 and r.content.startswith(b"%PDF"), t
+    r = client.get("/api/example/compile", params={"template": "psv",
+                                                   "overrides": json.dumps({"valve_type": "conventional"})}).json()
+    assert r["gaps"] == [] and r["decisions"]["valve_type"]["note"] == "entered by engineer"
+    files = [("files", (n, open(os.path.join(EXAMPLES, "pump", n), "rb").read(), "application/pdf"))
+             for n in FORMAT_SETS["pump"][0]]
+    r = client.post("/api/datasheet", files=files, data={"template": "pump"})
+    assert r.status_code == 200 and "pump_P-101_A_B" in r.headers["content-disposition"]
+    r = client.post("/api/fill", files=files, data={"template": "pump"})
+    assert r.status_code == 422 and "no fillable official form" in r.json()["detail"]
+    assert client.get("/api/example/files/tank/tank_specification.pdf").status_code == 200
+    assert client.get("/api/example/files/tank/../asme_u-dr-1/x.pdf").status_code == 404
 
 
 def test_api_fill_rejects_a_pdf_that_is_not_the_form(client):

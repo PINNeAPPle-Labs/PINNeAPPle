@@ -14,11 +14,12 @@ PDF works through ``FormSpec.from_pdf`` (or a JSON spec), and a local Ollama mod
 from .extract import (Candidate, Compilation, Decision, Document, check_answer, compile, extract_rules, parse_value,
                       read_document)
 from .fill import fill_pdf, form_values, pdf_widgets, read_filled
+from .report import render_datasheet
 from .llm import OllamaClient, OllamaError, extract_with_llm, verify_quote
 from .spec import Field, FormSpec, TableSpec
 from .specs import get_spec, list_specs
 
 __all__ = ["Field", "FormSpec", "TableSpec", "get_spec", "list_specs", "Candidate", "Compilation", "Decision",
            "Document", "check_answer", "compile", "extract_rules", "parse_value", "read_document", "fill_pdf",
-           "form_values", "pdf_widgets", "read_filled", "OllamaClient", "OllamaError", "extract_with_llm",
+           "form_values", "pdf_widgets", "read_filled", "render_datasheet", "OllamaClient", "OllamaError", "extract_with_llm",
            "verify_quote"]

@@ -1,7 +1,8 @@
 """Form Compiler web API + single-page UI: datasheets and specifications in, filled engineering forms out.
 
-Built-in template: ASME Form U-DR-1. Any other fillable PDF works too: its fields become the items (template "auto"),
-or upload a JSON spec (template "custom"; download a template's spec from /api/spec to start one).
+Supported formats (template ids): asme_u-dr-1 (fills the official ASME Form U-DR-1), psv, shell_tube, tank, pump
+(compiled datasheets generated as PDF). Advanced, API only: template "auto" (fields of any fillable PDF) and "custom"
+(a JSON spec; download a template's spec from /api/spec to start one).
 
 Run:  uvicorn design_requirements.api:app --port 8085   (from apps/design_requirements)
 
@@ -31,28 +32,42 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from pinneapple_data.formfill import (FormSpec, OllamaClient, check_answer, compile, extract_rules, extract_with_llm,
-                                      fill_pdf, form_values, get_spec, list_specs, parse_value, read_document)
+                                      fill_pdf, form_values, get_spec, list_specs, parse_value, read_document,
+                                      render_datasheet)
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import BusyLimiter, install  # noqa: E402
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 STATIC = os.path.join(os.path.dirname(__file__), "static")
 EXAMPLES = os.path.join(os.path.dirname(__file__), "..", "examples")
-EXAMPLE_FILES = [("owner_specification_V-101.pdf", "client specification"),
-                 ("process_datasheet_V-101.pdf", "process datasheet"),
-                 ("mechanical_datasheet_V-101.pdf", "mechanical datasheet")]
+# Fictitious example documents per format (priority order, role). Each set plants one conflict and one gap.
+EXAMPLE_SETS: Dict[str, Dict[str, Any]] = {
+    "asme_u-dr-1": {"label": "separator V-101", "files": [
+        ("owner_specification_V-101.pdf", "client specification"), ("process_datasheet_V-101.pdf", "process datasheet"),
+        ("mechanical_datasheet_V-101.pdf", "mechanical datasheet")]},
+    "psv": {"label": "relief valve PSV-101", "files": [
+        ("relief_load_summary_PSV-101.pdf", "relief load summary"), ("psv_sizing_PSV-101.pdf", "PSV sizing calculation"),
+        ("valve_specification_PSV-101.pdf", "valve specification")]},
+    "shell_tube": {"label": "gas cooler E-101", "files": [
+        ("process_datasheet_E-101.pdf", "process datasheet"), ("mechanical_datasheet_E-101.pdf", "mechanical datasheet")]},
+    "tank": {"label": "diesel tank T-201", "files": [
+        ("tank_specification.pdf", "tank specification"), ("process_datasheet_T-201.pdf", "process datasheet"),
+        ("mechanical_datasheet_T-201.pdf", "mechanical datasheet")]},
+    "pump": {"label": "condensate pumps P-101 A/B", "files": [
+        ("process_datasheet_P-101.pdf", "process datasheet"), ("pump_specification.pdf", "pump specification"),
+        ("hydraulic_calculation_P-101.pdf", "hydraulic calculation")]},
+}
 MAX_MB = float(os.environ.get("UDR_MAX_MB", "40"))
 MAX_FILES = int(os.environ.get("UDR_MAX_FILES", "8"))
-ROLES = ["client specification", "process datasheet", "mechanical datasheet", "project specification",
-         "vendor datasheet", "other"]
 
 DEFAULT_TEMPLATE = "asme_u-dr-1"
 
 app = FastAPI(title="Form Compiler", version=VERSION,
               description="Reads process datasheets, mechanical datasheets and client specifications, finds every "
-                          "item a form asks for with its source, reports conflicts and gaps, and fills the fillable "
-                          "PDF. Built in: ASME Form U-DR-1; any other fillable PDF or a JSON spec works too.")
+                          "item a form asks for with its source, reports conflicts and gaps, and fills the form: ASME "
+                          "Form U-DR-1, or a compiled datasheet for relief valves, shell-and-tube exchangers, storage "
+                          "tanks and centrifugal pumps.")
 install(app, prefix="UDR")
 _HEAVY = BusyLimiter("UDR_MAX_HEAVY")
 
@@ -66,8 +81,10 @@ VALIDATION = [
     "filled PDF is read back field by field in the tests",
     "Values from the local LLM (Ollama) are accepted only when the quoted text is found in the document and the "
     "value is in that quote; tested with a fabricated quote and a value missing from its quote, both rejected",
-    "Any fillable PDF: its fields become the items (label from the tooltip or the field name), filled and read back "
-    "in the tests on a form the tool has never seen",
+    "Relief valve PSV-101, gas cooler E-101 (shell side | tube side tables), diesel tank T-201 and condensate pumps "
+    "P-101 A/B, each described by two or three fictitious documents: every value found is checked in the tests, and "
+    "exactly the planted conflict and the planted gap of each set are reported (e.g. set pressure 15 vs 14.5 barg, "
+    "NPSH available 4.2 vs 3.8 m)",
 ]
 
 
@@ -88,12 +105,12 @@ def scope() -> dict:
                            "Specifications often state minimums (\"6 mm minimum\") that should win over a datasheet.",
                  "today": "Order documents by authority (owner specification first) and resolve every flagged conflict.",
                  "planned": "Recognise \"minimum\"/\"maximum\" wording and apply the governing value."},
-                {"topic": "Forms other than U-DR-1", "effect": "optimistic",
-                 "detail": "An uploaded fillable PDF is read field by field: items are named after the field's tooltip "
-                           "or name, so fields called \"Text7\" have no usable label, radio options are named after "
-                           "their export values, and nothing is marked required.",
-                 "today": "Download the generated spec, add labels, options and required items, and upload it back.",
-                 "planned": "More built-in templates (datasheets, other Code forms)."},
+                {"topic": "Datasheets are the tool's layout", "effect": "check",
+                 "detail": "For relief valves, exchangers, tanks and pumps the output is a compiled datasheet with the "
+                           "data those standards ask for, not the standard's own form (those are copyrighted) nor "
+                           "your company's template.",
+                 "today": "Copy the values into your template, or use the JSON record / CSV checklist.",
+                 "planned": "Fill company datasheet templates (Excel / fillable PDF) mapped once per template."},
                 {"topic": "Scanned PDFs", "effect": "conservative",
                  "detail": "A PDF without a text layer is reported as unreadable; nothing is guessed from it.",
                  "today": "Run OCR first, or type the missing values in the review table.",
@@ -116,8 +133,11 @@ async def _read(files: List[UploadFile]) -> List[Tuple[str, bytes]]:
     return out
 
 
-def _example_docs() -> List[Tuple[str, bytes, str]]:
-    return [(n, open(os.path.join(EXAMPLES, n), "rb").read(), role) for n, role in EXAMPLE_FILES]
+def _example_docs(template: str = DEFAULT_TEMPLATE) -> List[Tuple[str, bytes, str]]:
+    if template not in EXAMPLE_SETS:
+        raise HTTPException(404, f"no example for '{template}'")
+    return [(n, open(os.path.join(EXAMPLES, template, n), "rb").read(), role)
+            for n, role in EXAMPLE_SETS[template]["files"]]
 
 
 _LLM_CACHE: Dict[str, Any] = {"t": 0.0, "ok": False}
@@ -198,11 +218,12 @@ def _compile(docs_in: List[Tuple[str, bytes, str]], spec: FormSpec, use_llm: boo
 
 
 def _spec_meta(spec: FormSpec) -> Dict[str, Any]:
-    return {"id": spec.id, "title": spec.title, "sections": spec.sections, "left_blank": list(spec.left_blank),
-            "notes_field": bool(spec.notes_field),
+    return {"id": spec.id, "title": spec.title, "standard": spec.standard, "output": spec.output,
+            "sections": spec.sections, "left_blank": list(spec.left_blank), "notes_field": bool(spec.notes_field),
+            "columns": list(spec.columns),
             "fields": [{"key": f.key, "label": f.label, "section": f.section, "kind": f.kind,
                         "options": list(f.options), "required": f.required, "hint": f.source_hint,
-                        "readable": bool(f.patterns)} for f in spec.fields],
+                        "readable": bool(f.patterns), "column": f.column} for f in spec.fields],
             "tables": [{"key": t.key, "label": t.label, "columns": list(t.output_columns), "rows": len(t.pdf_rows)}
                        for t in spec.tables]}
 
@@ -227,6 +248,10 @@ def _filename(comp) -> str:
     return f"{base}_{date.today():%Y%m%d}.pdf"
 
 
+def _pdf(data: bytes, name: str) -> Response:
+    return Response(data, media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+
 def _form_bytes(form: Optional[bytes], spec: FormSpec) -> bytes:
     if form:
         return form
@@ -245,14 +270,15 @@ def health():
 
 @app.get("/api/meta")
 def meta():
-    spec = get_spec(DEFAULT_TEMPLATE)
-    return {"version": VERSION, "roles": ROLES, "max_files": MAX_FILES, "max_mb": MAX_MB,
-            "templates": list_specs() + [{"id": "auto", "title": "Any fillable PDF (fields read from the form)"},
-                                         {"id": "custom", "title": "Custom spec (JSON)"}],
+    formats = list_specs()
+    for f in formats:
+        ex = EXAMPLE_SETS.get(f["id"])
+        f["example"] = {"label": ex["label"], "files": [{"name": n, "role": r} for n, r in ex["files"]]} if ex else None
+    return {"version": VERSION, "max_files": MAX_FILES, "max_mb": MAX_MB, "formats": formats,
             "default_template": DEFAULT_TEMPLATE, "llm_available": _llm_available(),
             "llm_model": os.environ.get("UDR_OLLAMA_MODEL") or None,
             "form_on_server": bool(os.environ.get("UDR_FORM_PDF") and os.path.exists(os.environ["UDR_FORM_PDF"])),
-            "spec": _spec_meta(spec), "examples": [n for n, _ in EXAMPLE_FILES], "scope": scope()}
+            "spec": _spec_meta(get_spec(DEFAULT_TEMPLATE)), "scope": scope()}
 
 
 @app.get("/api/spec")
@@ -300,8 +326,10 @@ async def api_compile(files: List[UploadFile] = File(...), roles: str = Form("[]
 async def api_fill(files: List[UploadFile] = File(...), form: Optional[UploadFile] = File(None),
                    roles: str = Form("[]"), template: str = Form(DEFAULT_TEMPLATE),
                    spec: Optional[UploadFile] = File(None), use_llm: bool = Form(False), overrides: str = Form("")):
-    """Same inputs as /api/compile plus the blank fillable form -> the filled PDF."""
+    """Same inputs as /api/compile plus the blank fillable form -> the filled PDF (formats with an official form)."""
     docs, form_spec, form_bytes = await _inputs(files, roles, template, spec, form)
+    if form_spec.output != "official form" and template not in ("auto", "custom"):
+        raise HTTPException(422, f"'{form_spec.title}' has no fillable official form: use /api/datasheet")
     blank = _form_bytes(form_bytes, form_spec)
     if use_llm and not _llm_available():
         raise HTTPException(503, "the local LLM is not available on this server (UDR_OLLAMA_MODEL / Ollama)")
@@ -311,14 +339,29 @@ async def api_fill(files: List[UploadFile] = File(...), form: Optional[UploadFil
             pdf = fill_pdf(blank, comp)
         except ValueError as exc:
             raise HTTPException(422, str(exc))
-    return Response(pdf, media_type="application/pdf",
-                    headers={"Content-Disposition": f'attachment; filename="{_filename(comp)}"'})
+    return _pdf(pdf, _filename(comp))
+
+
+@app.post("/api/datasheet")
+async def api_datasheet(files: List[UploadFile] = File(...), roles: str = Form("[]"),
+                        template: str = Form(DEFAULT_TEMPLATE), spec: Optional[UploadFile] = File(None),
+                        form: Optional[UploadFile] = File(None), use_llm: bool = Form(False),
+                        overrides: str = Form("")):
+    """Same inputs as /api/compile -> the compiled datasheet (PDF): every item, its source, open items first."""
+    docs, form_spec, _ = await _inputs(files, roles, template, spec, form)
+    if use_llm and not _llm_available():
+        raise HTTPException(503, "the local LLM is not available on this server (UDR_OLLAMA_MODEL / Ollama)")
+    with _HEAVY:
+        comp, _ = _compile(docs, form_spec, use_llm, _parse_overrides(overrides, form_spec))
+        pdf = render_datasheet(comp)
+    return _pdf(pdf, "datasheet_" + _filename(comp))
 
 
 @app.get("/api/example/compile")
-def api_example_compile():
+def api_example_compile(template: str = DEFAULT_TEMPLATE, overrides: str = ""):
+    spec = _spec(template, None, None)
     with _HEAVY:
-        comp, rejected = _compile(_example_docs(), get_spec(DEFAULT_TEMPLATE), False, {})
+        comp, rejected = _compile(_example_docs(template), spec, False, _parse_overrides(overrides, spec))
     return _payload(comp, rejected)
 
 
@@ -332,15 +375,23 @@ async def api_example_fill(form: Optional[UploadFile] = File(None), overrides: s
             pdf = fill_pdf(blank, comp)
         except ValueError as exc:
             raise HTTPException(422, str(exc))
-    return Response(pdf, media_type="application/pdf",
-                    headers={"Content-Disposition": 'attachment; filename="U-DR-1_V-101_example.pdf"'})
+    return _pdf(pdf, "U-DR-1_V-101_example.pdf")
 
 
-@app.get("/api/example/files/{name}")
-def api_example_file(name: str):
-    if name not in [n for n, _ in EXAMPLE_FILES]:
+@app.post("/api/example/datasheet")
+async def api_example_datasheet(template: str = Form(DEFAULT_TEMPLATE), overrides: str = Form("")):
+    spec = _spec(template, None, None)
+    with _HEAVY:
+        comp, _ = _compile(_example_docs(template), spec, False, _parse_overrides(overrides, spec))
+        pdf = render_datasheet(comp)
+    return _pdf(pdf, "datasheet_" + _filename(comp))
+
+
+@app.get("/api/example/files/{template}/{name}")
+def api_example_file(template: str, name: str):
+    if template not in EXAMPLE_SETS or name not in [n for n, _ in EXAMPLE_SETS[template]["files"]]:
         raise HTTPException(404, "unknown example file")
-    return FileResponse(os.path.join(EXAMPLES, name), media_type="application/pdf", filename=name)
+    return FileResponse(os.path.join(EXAMPLES, template, name), media_type="application/pdf", filename=name)
 
 
 @app.get("/api/parse")

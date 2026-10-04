@@ -9,12 +9,18 @@ from ..spec import FormSpec
 __all__ = ["get_spec", "list_specs"]
 
 
-def _udr1() -> FormSpec:
-    from .asme_udr1 import SPEC
-    return SPEC
+def _load(module: str) -> Callable[[], FormSpec]:
+    def get() -> FormSpec:
+        import importlib
+        return importlib.import_module(f"{__name__}.{module}").SPEC
+    return get
 
 
-_REGISTRY: Dict[str, Callable[[], FormSpec]] = {"asme_u-dr-1": _udr1}
+# order = order in pickers
+_REGISTRY: Dict[str, Callable[[], FormSpec]] = {
+    "asme_u-dr-1": _load("asme_udr1"), "psv": _load("psv"), "shell_tube": _load("shell_tube"),
+    "tank": _load("tank"), "pump": _load("pump"),
+}
 
 
 def get_spec(spec_id: str) -> FormSpec:
@@ -24,5 +30,11 @@ def get_spec(spec_id: str) -> FormSpec:
         raise KeyError(f"unknown form template {spec_id!r}; built-in: {sorted(_REGISTRY)}") from None
 
 
-def list_specs() -> List[Dict[str, str]]:
-    return [{"id": k, "title": f().title} for k, f in _REGISTRY.items()]
+def list_specs() -> List[Dict[str, object]]:
+    out = []
+    for k, f in _REGISTRY.items():
+        s = f()
+        out.append({"id": k, "title": s.title, "standard": s.standard, "summary": s.summary, "inputs": list(s.inputs),
+                    "output": s.output, "items": len(s.fields), "required": sum(x.required for x in s.fields),
+                    "tables": [t.label for t in s.tables]})
+    return out

@@ -88,7 +88,7 @@ class Candidate:
         return str(self.value)
 
 
-_NUM = r"[-+−–]?\d+(?:[.,]\d+)?(?:\s?[eE][-+]?\d+)?"
+_NUM = r"[-+−–]?(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?)(?:\s?[eE][-+]?\d+)?"
 _YES = re.compile(r"^\s*(yes|y|required|true|applicable|x)\b", re.I)
 _NO = re.compile(r"^\s*(no|n|not required|none|false|n/?a|not applicable|-)\s*\.?$|^\s*(no|not required)\b", re.I)
 
@@ -98,8 +98,10 @@ def _number(s: str) -> Optional[float]:
     if not m:
         return None
     t = m.group(0).replace("−", "-").replace("–", "-").replace(" ", "")
-    if t.count(",") == 1 and "." not in t:
-        t = t.replace(",", ".")
+    if re.fullmatch(r"[-+]?\d{1,3}(?:,\d{3})+(?:\.\d+)?(?:[eE][-+]?\d+)?", t):
+        t = t.replace(",", "")                    # thousands separators: 18,500 or 1,250,000.5
+    elif t.count(",") == 1 and "." not in t:
+        t = t.replace(",", ".")                   # decimal comma: 0,72
     try:
         return float(t)
     except ValueError:
@@ -115,13 +117,14 @@ def _unit_after(s: str, start: int) -> Tuple[Optional[str], Optional[bool], Opti
     tok = m.group(1).replace(" ", "").replace("²", "2").replace("³", "3").rstrip(".,;")
     gauge = None
     low = tok.lower()
-    gm = re.match(r"^(bar|psi|kpa|mpa|kg/cm2|kgf/cm2)(\(g\)|g|ga)$", low)
-    am = re.match(r"^(bar|psi|kpa|mpa)(\(a\)|a)$", low)
+    gm = re.match(r"^(mbar|bar|psi|kpa|mpa|kg/cm2|kgf/cm2)(\(g\)|g|ga)$", low)
+    am = re.match(r"^(mbar|bar|psi|kpa|mpa)(\(a\)|a)$", low)
+    names = {"mbar": "mbar", "bar": "bar", "psi": "psi", "kpa": "kPa", "mpa": "MPa", "kg/cm2": "kgf/cm2",
+             "kgf/cm2": "kgf/cm2"}
     if gm:
-        tok, gauge = {"bar": "bar", "psi": "psi", "kpa": "kPa", "mpa": "MPa", "kg/cm2": "kgf/cm2",
-                      "kgf/cm2": "kgf/cm2"}[gm.group(1)], True
+        tok, gauge = names[gm.group(1)], True
     elif am:
-        tok, gauge = {"bar": "bar", "psi": "psi", "kpa": "kPa", "mpa": "MPa"}[am.group(1)], False
+        tok, gauge = names[am.group(1)], False
     if low in ("mph",):
         return "mph", None, 0.44704
     u = try_parse_unit(tok)
@@ -169,7 +172,7 @@ def parse_value(f: Field, text: str) -> Optional[Dict[str, Any]]:
     if f.kind in ("choice", "multi"):
         low = t.lower()
         found = [o for o in f.options
-                 if re.search(f.aliases.get(o) or (r"\b" + re.escape(o.lower()) + r"s?\b"), low)]
+                 if re.search(f.aliases.get(o) or (r"\b" + re.escape(o.lower()) + r"s?\b"), low, re.I)]
         if f.kind == "multi":
             return {"value": found, "raw": t} if found else None
         if f.match == "first" and found:
@@ -237,6 +240,15 @@ def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
                              si=parsed.get("si"), gauge=parsed.get("gauge")))
 
     row_tables = {id(rows) for t in spec.tables for _, rows in _find_tables(doc, t)}
+    # 0. multi-column tables (one column per side, e.g. shell side | tube side): row label + column header -> item
+    if spec.columns:
+        for page, rows in doc.tables:
+            if id(rows) in row_tables:
+                continue
+            for cand in _column_table(rows, spec, page, doc):
+                add(cand[0], cand[1], page, cand[2], 0.9)
+            if _column_header(rows, spec) is not None:
+                row_tables.add(id(rows))
     norm = lambda x: re.sub(r"\s+", " ", x).strip().lower()  # noqa: E731
     table_lines = {(page, norm(" ".join(c for c in row if c))) for page, rows in doc.tables for row in rows}
     # 1. tables: label cell followed by value cell (several pairs per row allowed)
@@ -248,6 +260,8 @@ def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
             i = 0
             while i < len(cells) - 1:
                 hits = _label_hits(cells[i], rules)
+                if len({id(h[2]) for h in hits}) == 1 and len(hits) > 1:     # one item named twice: "k (Cp/Cv)"
+                    hits = [(hits[0][0], hits[-1][1], hits[0][2])]
                 if len(hits) == 1 and _label_is_whole_cell(cells[i], hits[0][0], hits[0][1]):
                     unit_hint = re.search(r"\(([^)]+)\)", cells[i])
                     value = cells[i + 1]
@@ -282,6 +296,58 @@ def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
                 add(f, value, page_no, line, 0.8)
     for t in spec.tables:
         out.extend(_table_rows(doc, t))
+    return out
+
+
+def _column_header(rows: List[List[str]], spec: FormSpec):
+    """(row index, {cell index: side}, unit column or None) of the first row naming at least two sides."""
+    for i, row in enumerate(rows[:3]):
+        sides = {}
+        for j, cell in enumerate(row[1:], start=1):
+            for side, rx in spec.columns.items():
+                if cell and side not in sides.values() and re.search(rx, cell, re.I):
+                    sides[j] = side
+                    break
+        if len(sides) >= 2:
+            unit = next((j for j, c in enumerate(row) if re.fullmatch(r"\s*units?\s*", c or "", re.I)), None)
+            return i, sides, unit
+    return None
+
+
+def _column_table(rows: List[List[str]], spec: FormSpec, page: int, doc: Document):
+    """(field, value text, snippet) for every cell of a multi-column table whose row label and side match a field."""
+    head = _column_header(rows, spec)
+    if head is None:
+        return []
+    start, sides, unit_col = head
+    out = []
+    by_side: Dict[str, List[Tuple[Field, re.Pattern]]] = {}
+    for f in spec.fields:
+        if f.column and f.row_patterns:
+            rx = re.compile(r"(?<![A-Za-z0-9])(?:" + "|".join(f.row_patterns) + r")(?![A-Za-z0-9])", re.I)
+            by_side.setdefault(f.column, []).append((f, rx))
+    for row in rows[start + 1:]:
+        if not row or not row[0]:
+            continue
+        label = row[0]
+        unit = row[unit_col] if unit_col is not None and unit_col < len(row) else ""
+        hint = re.search(r"\(([^)]+)\)", label)
+        for j, side in sides.items():
+            if j >= len(row) or not row[j]:
+                continue
+            best = None
+            for f, rx in by_side.get(side, []):
+                m = rx.search(label)
+                if m and _label_is_whole_cell(label, m.start(), m.end()) and (best is None or m.end() - m.start() > best[1]):
+                    best = (f, m.end() - m.start())
+            if best is None:
+                continue
+            f, value = best[0], row[j]
+            u = unit or (hint.group(1) if hint else "")
+            if u and u.strip() not in ("-", "—") and f.kind in ("quantity", "text") \
+                    and not re.search(r"[A-Za-z°]", value):
+                value = f"{value} {u}"
+            out.append((f, value, " | ".join(c for c in row if c)))
     return out
 
 

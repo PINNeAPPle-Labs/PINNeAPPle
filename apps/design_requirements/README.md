@@ -1,38 +1,35 @@
 # Form Compiler
 
-**Drop the datasheets and specifications, get the engineering form filled in, with the source of every value and a list
-of what is missing or contradictory.** ASME Form U-DR-1 is built in; any other fillable PDF works too.
+**Pick the document format, drop the datasheets and specifications, get the form or datasheet compiled, with the source
+of every value and a list of what is missing or contradictory.**
 
-Day 6 of the PINNeAPPle 30-app program. Engineering forms collect data that lives in other documents. Before a
-manufacturer designs a pressure vessel under ASME BPVC Section VIII Division 1, for example, the user's design
-requirements go on Form U-DR-1: service, operating and design conditions, MDMT, corrosion allowances, loadings,
-materials, nozzles, joint types, examination and testing. Those answers are spread over three or four documents (process
-datasheet, mechanical datasheet, owner's specifications), and compiling them by hand takes an engineer hours and misses
-things. This service:
+Day 6 of the PINNeAPPle 30-app program. Engineering forms and datasheets collect data that lives in other documents
+(process datasheet, mechanical datasheet, owner's specifications, calculations). Compiling them by hand takes hours,
+and conflicts between documents or missing data surface late, as questions from the vendor. This service:
 
-1. **Reads** every document: PDF tables and "label: value" lines (plain text too), with their units.
-2. **Compiles** every item of the form. Each value keeps its document, page and the exact text it was read from.
-   Quantities are compared in SI, with gauge and absolute pressure told apart (`barg`, `bar(a)`, `psig`, `MPa(g)`, ...).
+1. **Reads** every document: PDF tables and "label: value" lines (plain text too), with their units; tables with one
+   column per side (shell side | tube side) are read cell by cell.
+2. **Compiles** every item of the chosen format. Each value keeps its document, page and the exact text it was read
+   from. Quantities are compared in SI, with gauge and absolute pressure told apart (`barg`, `bar(a)`, `mbarg`, `psig`).
 3. **Flags** conflicts between documents (the document higher in the list wins, the others are shown) and the required
    items no document states, so you know whom to ask. Your answers in the Review tab override everything.
-4. **Fills** the fillable PDF: text fields, check boxes, radio groups and table rows (the U-DR-1 nozzle schedule);
-   text too long for its box goes to the notes field. Date, user and registration ID are left for the engineer.
-5. **Exports** the compiled data as a JSON record (value, unit, SI value, source per item), for other forms and
-   calculations.
+4. **Outputs** the filled official form (U-DR-1) or a compiled datasheet PDF (open items first, every value with its
+   source), a CSV checklist, and a JSON data record (value, unit, SI value, source) for other forms and calculations.
 
-## Any form, not only U-DR-1
+## Supported formats
 
-The engine (`pinneapple_data.formfill`) is generic; a `FormSpec` describes what one form asks for: items (label, kind,
-units, options, required), how documents phrase them (label patterns), table rows, and the PDF field each answer goes
-to. Three ways to get one:
+| Format (template id) | Data of | Items (required) | Output | Example set |
+|---|---|---|---|---|
+| Pressure vessel (`asme_u-dr-1`) | ASME BPVC VIII-1 Form U-DR-1 | 129 (28) + nozzle schedule | fills the official fillable form | separator V-101 |
+| Relief valve (`psv`) | API 520 Part I / API 526 | 42 (13) | datasheet PDF | PSV-101 |
+| Shell-and-tube exchanger (`shell_tube`) | TEMA / API 660, per side | 62 (29) | datasheet PDF | gas cooler E-101 |
+| Storage tank (`tank`) | API 650 (Annex L) | 41 (21) + nozzle schedule | datasheet PDF | diesel tank T-201 |
+| Centrifugal pump (`pump`) | API 610 | 42 (17) | datasheet PDF | condensate pumps P-101 A/B |
 
-| Template | What you provide | Items |
-|---|---|---|
-| `asme_u-dr-1` (built in) | the documents (and your copy of the form to fill) | 129 items with their usual phrasings, required items, nozzle schedule, check boxes |
-| `auto` | the documents and **any fillable PDF** | one item per form field, labelled from its tooltip or name; fields with a readable label are found by the rules, the local LLM can find the rest |
-| `custom` | the documents and a **JSON spec** | whatever you write: start from `/api/spec` (U-DR-1) or `/api/spec/from-pdf` (any PDF), add labels, patterns, options and required items |
-
-Adding a built-in template is a module that builds a `FormSpec` (see `pinneapple_data/formfill/specs/asme_udr1.py`).
+The datasheets are the tool's own layout with the data those standards ask for; the standards' forms are copyrighted
+and are not reproduced. Each format is a `FormSpec` in `pinneapple_data/formfill/specs/` (items, the phrasings documents
+use for them, units, options, required items, tables); adding one is a module and a line in the registry. The library
+also reads any fillable PDF (`FormSpec.from_pdf`) or a JSON spec, for scripted use.
 
 ## Local LLM (optional, Ollama)
 
@@ -49,34 +46,31 @@ tab or point `UDR_FORM_PDF` to it. `apps/deploy/forms/*.pdf` is git-ignored.
 
 ## Validation (`tests/test_formfill.py`)
 
-The three documents in [`examples/`](examples) describe a fictitious separator V-101
-(`python examples/make_samples.py` regenerates them). With the U-DR-1 template the compiler finds:
+Every format has a set of fictitious documents in [`examples/`](examples) (`python examples/make_samples.py`
+regenerates them), with one conflict and one missing required item planted on purpose. The tests check the values found
+and that exactly the planted conflict and gap are reported:
 
-- 72 of 129 items, 27 of the 28 required ones, and the 6 nozzles, including a row the table continues on the next page.
-- Exactly the planted conflict: the internal shell corrosion allowance is 6 mm in the owner specification and 3 mm in the
-  mechanical datasheet.
-- Exactly the planted gap: no document says whether the service is cyclic.
-- Reversing the document order flips the conflict's winner. Engineer overrides close the gap and the conflict.
-- Filled values read back from the PDF; a PDF that is not the form is refused.
+| Format | Found | Planted conflict | Planted gap |
+|---|---|---|---|
+| U-DR-1, separator V-101 | 72 of 129 items, 27 of 28 required, 6 nozzles (one row continued on the next page) | shell corrosion allowance 6 mm (owner) vs 3 mm (mechanical DS) | cyclic service |
+| PSV-101 | 32 of 42, 12 of 13 | set pressure 15 barg (relief load summary) vs 14.5 barg (sizing calc) | valve type |
+| Gas cooler E-101 | 56 of 62, 28 of 29 | tube-side design pressure 15 vs 16 barg | TEMA class |
+| Diesel tank T-201 | 37 of 41, 20 of 21, 5 nozzles | shell corrosion allowance 3 mm (tank spec) vs 2 mm (mechanical DS) | maximum emptying rate |
+| Pumps P-101 A/B | 27 of 42, 16 of 17 | NPSH available 4.2 m (process DS) vs 3.8 m (hydraulic calc) | viscosity |
 
-Generic engine and LLM:
-
-- A fillable form the tool has never seen (built in the test with reportlab) becomes a spec, is filled from a datasheet
-  and read back; its JSON spec round-trips, and edited patterns, kinds and required flags take effect.
-- The local-LLM path runs against a fake Ollama HTTP server: a fabricated quote, a value missing from its quote, an
-  invalid answer and an invented table row are rejected; long documents are sent in page chunks; an unreachable server
-  or missing model is reported.
-
-The U-DR-1 fill test runs when `UDR_FORM_PDF` is set and is skipped otherwise.
+Also tested: reversing the document order flips a conflict's winner; engineer overrides close gaps and conflicts; the
+filled U-DR-1 is read back field by field (when `UDR_FORM_PDF` is set); numbers with thousands separators and decimal
+commas; `mPa·s` vs `MPa`; the local-LLM path against a fake Ollama server (a fabricated quote, a value missing from its
+quote, an invalid answer and an invented table row are rejected).
 
 ## Run it
 
 ```bash
 pip install -e . -r apps/design_requirements/requirements.txt
 cd apps/design_requirements && UDR_FORM_PDF=/path/to/u-dr-1.pdf uvicorn design_requirements.api:app --port 8085
-curl -F files=@process_datasheet.pdf -F files=@mechanical_datasheet.pdf localhost:8085/api/compile
+curl -F template=psv -F files=@relief_load_summary.pdf -F files=@psv_sizing.pdf localhost:8085/api/compile
+curl -F template=shell_tube -F files=@process_ds.pdf -F files=@mech_ds.pdf localhost:8085/api/datasheet -o E-101.pdf
 curl -F files=@process_datasheet.pdf -F form=@u-dr-1.pdf localhost:8085/api/fill -o U-DR-1_filled.pdf
-curl -F template=auto -F form=@any_fillable_form.pdf -F files=@datasheet.pdf localhost:8085/api/fill -o filled.pdf
 ```
 
 Local LLM: `ollama serve`, `ollama pull <model>`, then start the app with `UDR_OLLAMA_MODEL=<model>` (and

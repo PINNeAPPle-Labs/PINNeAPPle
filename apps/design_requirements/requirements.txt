@@ -4,4 +4,4 @@ uvicorn[standard]>=0.29
 python-multipart>=0.0.9   # file uploads
 pypdf>=5.0                # read and fill the AcroForm
 pdfplumber>=0.11          # text and tables from datasheets
-anthropic>=0.40           # optional Claude extraction (needs ANTHROPIC_API_KEY)
+# the optional local-LLM extraction talks to an Ollama server over HTTP: no extra package

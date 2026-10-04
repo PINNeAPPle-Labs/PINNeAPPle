@@ -1,8 +1,8 @@
-"""Write a compilation into the user's copy of the fillable Form U-DR-1 PDF.
+"""Write a compilation into the user's copy of a fillable PDF form.
 
 Text fields get the value as written in the source (number and unit, e.g. ``15 barg``); check boxes and radio
-groups get the export state from the catalog. Date, User and the signature are left for the engineer: a form that
-certifies the user's requirements must be reviewed and signed by a person.
+groups get the export state from the spec. Items in ``spec.left_blank`` (date, signature...) are never filled: a
+form that certifies requirements must be reviewed and signed by a person.
 """
 from __future__ import annotations
 
@@ -12,13 +12,11 @@ from typing import Any, Dict, List, Mapping, Optional, Tuple
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import NameObject, TextStringObject
 
-from .catalog import FIELD_BY_KEY, NOZZLE_PDF_ROWS
 from .extract import Compilation
+from .spec import FormSpec
 
-__all__ = ["form_values", "fill_form", "read_filled", "LEFT_FOR_ENGINEER"]
+__all__ = ["form_values", "fill_pdf", "read_filled", "pdf_widgets"]
 
-LEFT_FOR_ENGINEER = ("date", "user", "registration_id")
-NOTES_FIELD = "GENERAL NOTESRow1"
 MIN_FONT = 5.0
 
 
@@ -50,13 +48,43 @@ def _font_size(widget, field_obj, text: str, max_size: float = 9.0) -> Optional[
     return round(min(max_size, height * 0.75, width / max(1, 0.52 * len(text))), 1)
 
 
-def form_values(comp: Compilation) -> Tuple[Dict[str, str], Dict[str, str]]:
-    """``(text fields, button states)`` for the PDF, from the decisions and the nozzle schedule."""
+def pdf_widgets(pdf: bytes) -> List[Dict[str, Any]]:
+    """Every form widget of a PDF: qualified name, type (``/Tx``, ``/Btn``...), page, tooltip, button states and
+    whether it belongs to a radio group."""
+    reader = PdfReader(io.BytesIO(pdf))
+    out = []
+    for page_no, page in enumerate(reader.pages, start=1):
+        for annot in page.get("/Annots") or []:
+            a = annot.get_object()
+            if a.get("/Subtype") != "/Widget":
+                continue
+            parent = a.get("/Parent")
+            fo = parent.get_object() if (parent is not None and a.get("/T") is None) else a
+            ftype = fo.get("/FT") or (fo.get("/Parent").get_object().get("/FT") if fo.get("/Parent") is not None else None)
+            ap = a.get("/AP")
+            states = [str(k) for k in ap["/N"].keys()] if ap is not None and "/N" in ap else []
+            flags = int(fo.get("/Ff", 0) or 0)
+            tip = fo.get("/TU")
+            out.append({"name": _qualified_name(fo), "type": str(ftype) if ftype else None, "page": page_no,
+                        "tooltip": str(tip) if tip else "", "states": states, "radio": bool(flags & 32768)})
+    # a radio group's widgets share one name: merge their states
+    merged: Dict[str, Dict[str, Any]] = {}
+    for w in out:
+        if w["name"] in merged:
+            merged[w["name"]]["states"] = list(dict.fromkeys(merged[w["name"]]["states"] + w["states"]))
+        else:
+            merged[w["name"]] = dict(w)
+    return list(merged.values())
+
+
+def form_values(comp: Compilation, spec: Optional[FormSpec] = None) -> Tuple[Dict[str, str], Dict[str, str]]:
+    """``(text fields, button states)`` for the PDF, from the decisions and the table rows."""
+    spec = spec or comp.spec
     texts: Dict[str, str] = {}
     buttons: Dict[str, str] = {}
     for key, d in comp.decisions.items():
-        f = FIELD_BY_KEY[key]
-        if d.value is None or key in LEFT_FOR_ENGINEER:
+        f = spec[key]
+        if d.value is None or key in spec.left_blank:
             continue
         if f.kind in ("bool", "choice"):
             state = f.states.get(str(d.value))
@@ -66,25 +94,31 @@ def form_values(comp: Compilation) -> Tuple[Dict[str, str], Dict[str, str]]:
             for v in d.value if isinstance(d.value, list) else [d.value]:
                 if v in f.states:
                     buttons[f.states[v][0]] = f.states[v][1]
-        elif f.pdf:
+        if f.pdf and f.kind not in ("bool", "choice", "multi"):
             texts[f.pdf] = d.display if d.chosen is not None or d.display else _text(d.value)
-    for row, cand in zip(NOZZLE_PDF_ROWS, comp.nozzles):
-        for col, pdf_name in row.items():
-            v = cand.value.get(col, "")
-            if v:
-                texts[pdf_name] = str(v)
+        elif f.pdf and not f.states:          # a choice written as text (no check boxes for it)
+            texts[f.pdf] = d.display or _text(d.value)
+    for t in spec.tables:
+        for row, cand in zip(t.pdf_rows, comp.tables.get(t.key, [])):
+            for col, pdf_name in row.items():
+                v = cand.value.get(col, "")
+                if v:
+                    texts[pdf_name] = str(v)
     return texts, buttons
 
 
-def fill_form(blank_pdf: bytes, comp: Compilation, extra_text: Optional[Mapping[str, str]] = None) -> bytes:
-    """The filled form as PDF bytes. ``blank_pdf`` is the user's copy of the fillable Form U-DR-1."""
-    texts, buttons = form_values(comp)
+def fill_pdf(blank_pdf: bytes, comp: Compilation, spec: Optional[FormSpec] = None,
+             extra_text: Optional[Mapping[str, str]] = None) -> bytes:
+    """The filled form as PDF bytes. ``blank_pdf`` is the user's copy of the fillable form ``spec`` describes."""
+    spec = spec or comp.spec
+    texts, buttons = form_values(comp, spec)
     texts.update(extra_text or {})
     reader = PdfReader(io.BytesIO(blank_pdf))
     known = set(reader.get_fields() or {})
     missing = sorted((set(texts) | set(buttons)) - known)
     if missing:
-        raise ValueError(f"this PDF is not the fillable Form U-DR-1 this tool maps (missing fields: {missing[:5]}...)")
+        raise ValueError(f"this PDF is not the fillable form '{spec.title}' (missing fields: {missing[:5]}...)")
+    notes_field = spec.notes_field
     writer = PdfWriter(clone_from=reader)
     widgets = []                                   # (page, widget, field object, qualified name)
     for page in writer.pages:
@@ -96,21 +130,21 @@ def fill_form(blank_pdf: bytes, comp: Compilation, extra_text: Optional[Mapping[
             field_obj = parent.get_object() if (parent is not None and a.get("/T") is None) else a
             widgets.append((page, a, field_obj, _qualified_name(field_obj)))
     # Values too long for their box even at MIN_FONT go to the general notes, with "see notes" in the box.
-    label_by_pdf = {f.pdf: f.label for f in FIELD_BY_KEY.values() if f.pdf}
+    label_by_pdf = {f.pdf: f.label for f in spec.fields if f.pdf}
     overflow = []
     sizes: Dict[str, float] = {}
     for _, a, fo, name in widgets:
-        if name in texts and name != NOTES_FIELD:
+        if name in texts and name != notes_field:
             size = _font_size(a, fo, texts[name])
-            if size is not None and size < MIN_FONT:
+            if size is not None and size < MIN_FONT and notes_field:
                 overflow.append(f"{label_by_pdf.get(name, name)}: {texts[name]}")
                 texts[name] = "see notes" if _font_size(a, fo, "see notes") >= MIN_FONT else "*"
                 size = _font_size(a, fo, texts[name])
             if size is not None:
                 sizes[name] = max(MIN_FONT, size)
     if overflow:
-        notes = [texts[NOTES_FIELD]] if texts.get(NOTES_FIELD) else []
-        texts[NOTES_FIELD] = "; ".join(notes + overflow)
+        notes = [texts[notes_field]] if texts.get(notes_field) else []
+        texts[notes_field] = "; ".join(notes + overflow)
     for page in writer.pages:
         page_texts = {}
         for pg, a, fo, name in widgets:

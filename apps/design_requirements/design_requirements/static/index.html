@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>U-DR-1 Compiler</title>
+  <title>Form Compiler</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%23a14a12%22/%3E%3Cpath d=%22M4 3h6l2 2v8H4z M6 7h4M6 9.5h4%22 stroke=%22white%22 stroke-width=%221.2%22 fill=%22none%22/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/shared/app.css">
   <link rel="stylesheet" href="/static/style.css">
@@ -13,8 +13,8 @@
   <div class="brand">
     <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M4 2.5h6l2.2 2.2V13.5H4z M6 7h4.2M6 9.5h4.2M6 12h2.5" stroke="white" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg></div>
     <div>
-      <div class="title">U-DR-1 Compiler</div>
-      <div class="subtitle">Datasheets and specifications in, ASME Form U-DR-1 out, every value with its source</div>
+      <div class="title">Form Compiler</div>
+      <div class="subtitle">Datasheets and specifications in, filled engineering forms out, every value with its source</div>
     </div>
   </div>
   <nav class="tabs" id="tabs">
@@ -38,8 +38,15 @@
         <div id="filelist" class="filelist"></div>
         <p class="hint">Order = authority. When two documents disagree, the one higher in the list wins and the conflict is flagged.</p>
         <fieldset>
+          <legend>Target form</legend>
+          <select id="template"></select>
+          <label class="drop small" id="tplform" hidden><input type="file" id="tplformfile" accept=".pdf"><b>Blank fillable PDF</b> <span id="tplformname">not chosen</span></label>
+          <label class="drop small" id="tplspec" hidden><input type="file" id="tplspecfile" accept=".json"><b>Spec (JSON)</b> <span id="tplspecname">not chosen</span></label>
+          <p class="hint" id="tplhint"></p>
+        </fieldset>
+        <fieldset>
           <legend>Reading</legend>
-          <div class="checks"><label><input type="checkbox" id="claude"> Also read with Claude <span class="u" id="claude-note"></span></label></div>
+          <div class="checks"><label><input type="checkbox" id="llm"> Also read with the local LLM <span class="u" id="llm-note"></span></label></div>
         </fieldset>
         <button class="primary" type="button" id="compile" disabled>Compile requirements</button>
         <button class="secondary" type="button" id="example">Try the example: separator V-101, three documents</button>
@@ -50,16 +57,19 @@
       <div class="panel" id="docs-view">
         <div class="empty">
           <h3>One form, data from four places</h3>
-          <p>Before a manufacturer can design a pressure vessel under ASME Section VIII Division 1, the user's design
-            requirements go on Form U-DR-1: service, operating and design conditions, MDMT, corrosion allowances, loadings,
-            materials, nozzles, joint types and examination. Those answers are spread over the process datasheet, the
-            mechanical datasheet and the owner's specifications, and compiling them by hand takes hours and misses things.</p>
+          <p>Engineering forms collect data that lives in other documents. Before a manufacturer can design a pressure
+            vessel under ASME Section VIII Division 1, for example, the user's design requirements go on Form U-DR-1:
+            service, design conditions, MDMT, corrosion allowances, loadings, materials, nozzles, joints and examination.
+            Those answers are spread over the process datasheet, the mechanical datasheet and the owner's specifications,
+            and compiling them by hand takes hours and misses things.</p>
           <ol class="list-plain">
             <li><b>Read</b> every document: tables and "label: value" lines, with units.</li>
-            <li><b>Compile</b> the 129 items of the form. Each value keeps its document, page and the exact text it came from.</li>
+            <li><b>Compile</b> every item of the form. Each value keeps its document, page and the exact text it came from.</li>
             <li><b>Flag</b> conflicts between documents and the required items nobody states, so you know whom to ask.</li>
-            <li><b>Fill</b> the official fillable PDF. Date, user and signature stay for the engineer.</li>
+            <li><b>Fill</b> the fillable PDF. Date, user and signature stay for the engineer.</li>
           </ol>
+          <p class="hint">ASME Form U-DR-1 is built in. Any other fillable PDF works too: its fields become the items.
+            Optionally, a local LLM served by Ollama reads what the label rules miss; documents stay on your network.</p>
         </div>
       </div>
     </div>
@@ -71,14 +81,16 @@
 
   <section id="tab-form" class="tab">
     <div class="panel" id="formview">
-      <h2 style="margin-top:0">Fill Form U-DR-1</h2>
-      <p>The form is ASME's document, so it is not bundled: upload your copy of the fillable
-        <b>Form U-DR-1 (User's Design Requirements for Single-Chamber Pressure Vessels)</b>, 07/25 revision, from asme.org.
-        <span id="form-server"></span></p>
-      <label class="drop small" id="formdrop"><input type="file" id="formfile" accept=".pdf"><b>Blank U-DR-1 PDF</b> <span id="formname">not chosen</span></label>
+      <h2 style="margin-top:0" id="formtitle">Fill the form</h2>
+      <p id="formintro"></p>
+      <label class="drop small" id="formdrop"><input type="file" id="formfile" accept=".pdf"><b>Blank fillable PDF</b> <span id="formname">not chosen</span></label>
       <div class="row2" style="margin-top:12px">
         <button class="primary" type="button" id="fill" disabled>Fill and download the form</button>
         <button class="ghost wide" type="button" id="checklist" disabled>Download the data checklist (CSV)</button>
+      </div>
+      <div class="row2" style="margin-top:8px">
+        <button class="ghost wide" type="button" id="record" disabled>Download the data record (JSON, for other forms and calculations)</button>
+        <a class="ghost wide btnlink" id="specdl" href="/api/spec">Download this form's spec (JSON) to customize</a>
       </div>
       <div class="status-line" id="fillstatus"></div>
       <div id="formsummary" style="margin-top:14px"></div>
@@ -89,19 +101,23 @@
     <div class="panel">
       <h2 style="margin-top:0">Automate it</h2>
       <p>Same pipeline from a script. Interactive documentation: <a class="link" href="/docs" target="_blank">/docs</a>.</p>
-      <h3>Compile (JSON with every value, its sources, conflicts and gaps)</h3>
+      <h3>Compile for ASME U-DR-1 (JSON with every value, its sources, conflicts and gaps)</h3>
       <pre class="code"><code id="c1"></code></pre>
       <h3>Fill the form</h3>
       <pre class="code"><code id="c2"></code></pre>
+      <h3>Any other fillable PDF</h3>
+      <pre class="code"><code id="c4"></code></pre>
       <h3>Python</h3>
       <pre class="code"><code id="c3"></code></pre>
       <h3>Endpoints</h3>
       <table>
         <thead><tr><th>Method</th><th>Path</th><th>What it does</th></tr></thead>
         <tbody>
-          <tr><td>POST</td><td><code>/api/compile</code></td><td><code>files</code> (repeat, priority order), <code>roles</code> (JSON list), <code>use_claude</code>, <code>overrides</code> (JSON {item: value}) → decisions, sources, conflicts, gaps, nozzle schedule</td></tr>
-          <tr><td>POST</td><td><code>/api/fill</code></td><td>same + <code>form</code> (blank fillable U-DR-1) → filled PDF</td></tr>
-          <tr><td>GET</td><td><code>/api/meta</code></td><td>the 129 items (key, label, section, kind, options, required), limits, whether Claude is enabled</td></tr>
+          <tr><td>POST</td><td><code>/api/compile</code></td><td><code>files</code> (repeat, priority order), <code>roles</code> (JSON list), <code>template</code> (<code>asme_u-dr-1</code>, <code>auto</code> with <code>form</code>, or <code>custom</code> with <code>spec</code>), <code>use_llm</code>, <code>overrides</code> (JSON {item: value}) → decisions, sources, conflicts, gaps, tables, data record</td></tr>
+          <tr><td>POST</td><td><code>/api/fill</code></td><td>same + <code>form</code> (the blank fillable PDF) → filled PDF</td></tr>
+          <tr><td>GET</td><td><code>/api/spec?template=…</code></td><td>a built-in template as a JSON spec, to start a custom one</td></tr>
+          <tr><td>POST</td><td><code>/api/spec/from-pdf</code></td><td><code>form</code> → the spec generated from its fields, to review and complete</td></tr>
+          <tr><td>GET</td><td><code>/api/meta</code></td><td>templates, the U-DR-1 items, limits, whether the local LLM is available</td></tr>
           <tr><td>GET</td><td><code>/api/parse?key=…&amp;text=…</code></td><td>how a typed answer is interpreted</td></tr>
         </tbody>
       </table>
@@ -110,7 +126,7 @@
 </main>
 
 <footer class="foot">
-  Built on <b>PINNeAPPle</b> · item map for ASME BPVC Section VIII Div. 1 Form U-DR-1 (07/25) · exact unit definitions (NIST SP 811).
+  Built on <b>PINNeAPPle</b> · built-in item map for ASME BPVC Section VIII Div. 1 Form U-DR-1 (07/25) · exact unit definitions (NIST SP 811).
   ASME and BPVC are trademarks of ASME; this tool is not affiliated with or endorsed by ASME.
 </footer>
 <script src="/shared/charts.js"></script>

@@ -1,4 +1,4 @@
-# U-DR-1 Compiler -- build from the repository root:
+# Form Compiler (ASME U-DR-1 built in) -- build from the repository root:
 #   docker build -f apps/design_requirements/Dockerfile -t design-requirements .
 #   docker run -p 8085:8085 design-requirements
 FROM python:3.11-slim

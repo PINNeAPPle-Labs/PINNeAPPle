@@ -59,8 +59,9 @@ nano .env        # domains, ACME e-mail, logins (use long passwords)
 | `HSS_MAX_SIZING`, `PCB_MAX_HEAVY`, `EDH/EDS/SMD/UDR_MAX_HEAVY` | Concurrent heavy runs per app. Any excess gets HTTP 429. |
 | `HSS_MEM_LIMIT`, `PCB_MEM_LIMIT` | Container memory caps |
 | `UDR_FORM_PDF` | Path inside the `udr` container to your copy of the fillable Form U-DR-1 (put the file in `apps/deploy/forms/`). Optional: users can upload it instead. |
-| `ANTHROPIC_API_KEY` | Optional. With `UDR_CLAUDE_MODEL`, enables Claude extraction in the U-DR-1 Compiler; every value it returns is checked against the document text. |
-| `UDR_CLAUDE_MODEL` | Claude model ID used by that extraction (e.g. the current Opus model from the Anthropic docs). |
+| `UDR_OLLAMA_MODEL` | Optional. Enables local-LLM extraction in the Form Compiler with this Ollama model (pull it first). Every value it returns is checked against the document text; documents never leave your network. |
+| `UDR_OLLAMA_URL` | Ollama server: `http://ollama:11434` (the optional `ollama` service, `--profile llm`) or `http://host.docker.internal:11434` (Ollama on the host). |
+| `UDR_OLLAMA_TIMEOUT` | Seconds per LLM request (default 600; local models on CPU are slow). |
 
 ## 5. Start
 
@@ -71,6 +72,15 @@ docker compose logs -f caddy     # wait for "certificate obtained successfully"
 ```
 
 Open `https://heatsink.example.org` and `https://pcb.example.org`.
+
+Optional local LLM for the Form Compiler (documents stay on the server; a GPU helps, CPU works but is slow):
+
+```bash
+docker compose --profile llm up -d ollama
+docker compose exec ollama ollama pull <model>   # any instruction model with structured-output support
+# set UDR_OLLAMA_MODEL=<model> in .env, then
+docker compose up -d udr
+```
 
 ## Server that already has a reverse proxy
 

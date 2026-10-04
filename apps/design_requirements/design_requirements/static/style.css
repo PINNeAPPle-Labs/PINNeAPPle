@@ -34,3 +34,7 @@ tr.st-missing td { background: #fff4f2; }
 .gaps ul { margin: 6px 0 0 18px; padding: 0; }
 button.ghost.wide { width: 100%; margin-top: 16px; padding: 10px; }
 .ok { color: var(--ok); font-weight: 600; }
+a.btnlink { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; text-align: center; }
+#template { width: 100%; }
+[hidden] { display: none !important; }
+.alts label b { white-space: nowrap; }

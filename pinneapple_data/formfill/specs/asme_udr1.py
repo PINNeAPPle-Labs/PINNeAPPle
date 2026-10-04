@@ -1,10 +1,10 @@
-"""What ASME Form U-DR-1 asks for, and where each answer goes in the fillable PDF.
+"""Built-in template: ASME BPVC Section VIII Division 1 Form U-DR-1, and where each answer goes in its fillable PDF.
 
 Each ``Field`` is one answer on the form (User's Design Requirements for Single-Chamber Pressure Vessels, ASME BPVC
 Section VIII, Division 1, Nonmandatory Appendix KK). ``pdf`` names the AcroForm field it is written to; for check
 boxes and radio groups ``states`` maps an answer to the ``(field, export state)`` pair that represents it. The PDF
 field names come from the 07/25 revision of the form; many are generic (``Group10``, ``Text7``), so the mapping was
-made by overlaying each widget's rectangle on the rendered page (see ``tests/test_udr1.py``).
+made by overlaying each widget's rectangle on the rendered page (see ``tests/test_formfill.py``).
 
 ``patterns`` are the phrasings used in process datasheets, mechanical datasheets and client specifications for the
 same item (case-insensitive regular expressions, matched at a label position). ``quantity`` names the physical
@@ -15,27 +15,16 @@ The blank form itself is ASME's copyrighted document and is not shipped here: us
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
-__all__ = ["Field", "FIELDS", "FIELD_BY_KEY", "SECTIONS", "NOZZLE_COLUMNS", "NOZZLE_PDF_ROWS", "fields_in"]
+from ..spec import Field, FormSpec, TableSpec
 
-
-@dataclass(frozen=True)
-class Field:
-    key: str
-    label: str
-    section: str
-    kind: str = "text"                       # text | quantity | number | choice | bool | multi
-    pdf: Optional[str] = None                # text field name
-    states: Dict[str, Tuple[str, str]] = field(default_factory=dict)   # answer -> (pdf field, export state)
-    patterns: Tuple[str, ...] = ()
-    quantity: Optional[str] = None           # pressure | temperature | length | speed | density | time
-    required: bool = False
-    source_hint: str = ""                    # which document usually holds it
+__all__ = ["SPEC", "FIELDS", "FIELD_BY_KEY", "SECTIONS", "NOZZLE_COLUMNS", "NOZZLE_PDF_ROWS"]
 
 
 _SIDE = {"int": r"(?:internal|int\.?)", "ext": r"(?:external|ext\.?)"}
+_BASIS = {"calculated by manufacturer": r"calculat|by (?:the )?manufacturer|fabricator",
+          "same as design pressure": r"same as design|equal to design|= ?design"}
 YES_NO = lambda group: {"yes": (group, "/Choice1"), "no": (group, "/Choice2")}  # noqa: E731
 
 
@@ -123,11 +112,13 @@ FIELDS: List[Field] = [
        patterns=(r"mawp(?:,? internal)?", r"maximum allowable working pressure(?:,? internal)?")),
     _f("mawp_int_basis", "MAWP internal basis", "Design conditions", kind="choice",
        states={"same as design pressure": ("group66", "/Choice1"), "calculated by manufacturer": ("group66", "/Choice2")},
+       options=("calculated by manufacturer", "same as design pressure"), match="first", aliases=_BASIS,
        patterns=(r"mawp(?:,? internal)? basis", r"mawp(?:,? internal)?")),
     _f("mawp_ext", "MAWP external", "Design conditions", kind="quantity", quantity="pressure", pdf="M A WP External",
        patterns=(r"mawp,? external", r"maximum allowable (?:working )?(?:external|vacuum) pressure")),
     _f("mawp_ext_basis", "MAWP external basis", "Design conditions", kind="choice",
        states={"same as design pressure": ("group67", "/Choice1"), "calculated by manufacturer": ("group67", "/Choice2")},
+       options=("calculated by manufacturer", "same as design pressure"), match="first", aliases=_BASIS,
        patterns=(r"mawp,? external basis", r"mawp,? external")),
     *[_f(f"mdmt{c}_temp", f"MDMT case {c}: temperature", "Design conditions", kind="quantity", quantity="temperature",
          pdf=f"Same as Design PressureMinimum Design Metal  T emperature MDMT  Case {c}",
@@ -169,7 +160,7 @@ FIELDS: List[Field] = [
     # ---------------------------------------------------------------- loadings
     _f("wind_code", "Wind loading code", "Loadings", kind="choice",
        states={"ubc": ("group69", "/Choice1"), "other": ("group69", "/Choice2"), "asce 7": ("group69", "/Choice3"),
-               "ibc": ("group69", "/Choice4"), "none": ("group69", "/Choice5")},
+               "ibc": ("group69", "/Choice4"), "none": ("group69", "/Choice5")}, other="other",
        patterns=(r"wind (?:load(?:ing)? )?(?:code|standard|design code|loading)",), required=True,
        source_hint="client specification"),
     _f("wind_speed", "Wind speed", "Loadings", kind="quantity", quantity="speed", pdf="Wind Speed",
@@ -183,7 +174,7 @@ FIELDS: List[Field] = [
        patterns=(r"(?:site |ground )?elevation",)),
     _f("seismic_code", "Seismic loading code", "Loadings", kind="choice",
        states={"ubc": ("group70", "/Choice1"), "other": ("group70", "/Choice2"), "asce 7": ("group70", "/Choice3"),
-               "ibc": ("group70", "/Choice4"), "none": ("group70", "/Choice5")},
+               "ibc": ("group70", "/Choice4"), "none": ("group70", "/Choice5")}, other="other",
        patterns=(r"seismic (?:load(?:ing)? )?(?:code|standard|design code|loading)",), required=True,
        source_hint="client specification"),
     _f("soil_profile", "Soil profile classification", "Loadings", pdf="Soil Profile Classification",
@@ -197,6 +188,9 @@ FIELDS: List[Field] = [
     # ---------------------------------------------------------------- PWHT, insulation, support
     _f("pwht", "PWHT", "Heat treatment, insulation and support", kind="choice",
        states={"per code": ("Check Box1", "/Yes"), "process required": ("Process Required", "/On")},
+       options=("none", "process required", "per code"), match="first",
+       aliases={"none": r"\bnot required\b|^\s*no\b|^\s*none\b", "process required": r"process|service",
+                "per code": r"code|required|yes"},
        patterns=(r"pwht", r"post[- ]weld heat treatment"), required=True),
     _f("insulated", "Insulated", "Heat treatment, insulation and support", kind="bool", states=YES_NO("Group30"),
        patterns=(r"insulat(?:ed|ion)(?: required)?",)),
@@ -284,8 +278,6 @@ FIELDS: List[Field] = [
     _f("registration_id", "Registration identification", "Certification", pdf="Registration Identification"),
 ]
 
-FIELD_BY_KEY: Dict[str, Field] = {f.key: f for f in FIELDS}
-
 # Nozzle schedule: 12 rows (6 in the left half of the table, 6 in the right half).
 NOZZLE_COLUMNS = ("description", "number", "size", "flange_type", "class")
 NOZZLE_PDF_ROWS: List[Dict[str, str]] = [
@@ -294,6 +286,27 @@ NOZZLE_PDF_ROWS: List[Dict[str, str]] = [
     for s in ("", "_2") for r in range(1, 7)
 ]
 
+NOZZLES = TableSpec(
+    "nozzle", "Nozzle schedule",
+    columns={"mark": r"mark|nozzle\s*(?:no|id)|^no\.?$|^tag", "description": r"description|service|purpose",
+             "number": r"qty|quantity|number|no\.? req", "size": r"size", "flange_type": r"flange|type|facing",
+             "class": r"class|rating"},
+    header=(r"size", r"nozzle|mark|service|description"),
+    combine={"description": ("mark", "description")}, defaults={"number": "1"}, pdf_rows=tuple(NOZZLE_PDF_ROWS),
+    description="One row per nozzle: mark and service, number required, size, flange type, pressure class.")
 
-def fields_in(section: str) -> List[Field]:
-    return [f for f in FIELDS if f.section == section]
+# Option names as documents write them, shared by the choice items.
+ALIASES = {"asce 7": r"asce\s*7", "ibc": r"\bibc\b", "ubc": r"\bubc\b", "none": r"\bnone\b|not applicable|n/a",
+           "rupture disk": r"rupture dis[ck]|bursting dis[ck]", "valve": r"\bvalves?\b|\bpsv\b|\bprv\b|\bsrv\b",
+           "system design": r"system design", "ambient temperature": r"ambient",
+           "manufacturer": r"manufacturer|fabricator|vendor", "others": r"\bothers?\b|by client|by owner"}
+
+SPEC = FormSpec(
+    id="asme_u-dr-1", title="ASME BPVC VIII-1 Form U-DR-1 (07/25)", fields=FIELDS, sections=SECTIONS,
+    tables=[NOZZLES], notes_field="GENERAL NOTESRow1", left_blank=("date", "user", "registration_id"),
+    filename_key="item_no", aliases=ALIASES,
+    description="ASME BPVC Section VIII Division 1 Form U-DR-1, User's Design Requirements for Single-Chamber "
+                "Pressure Vessels: service, operating and design conditions, MDMT, corrosion allowances, loadings, "
+                "materials, nozzles, joint types and examination.")
+FIELDS = SPEC.fields
+FIELD_BY_KEY: Dict[str, Field] = SPEC.by_key

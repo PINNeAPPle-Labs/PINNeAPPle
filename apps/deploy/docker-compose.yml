@@ -89,12 +89,24 @@ services:
       UDR_MAX_HEAVY: ${UDR_MAX_HEAVY:-2}
       UDR_MAX_MB: ${UDR_MAX_MB:-40}
       UDR_FORM_PDF: ${UDR_FORM_PDF:-}          # e.g. /forms/u-dr-1.pdf (your copy, mounted below)
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}  # optional Claude extraction
-      UDR_CLAUDE_MODEL: ${UDR_CLAUDE_MODEL:-}    # Claude model ID for it
+      UDR_OLLAMA_URL: ${UDR_OLLAMA_URL:-http://ollama:11434}   # local LLM (optional, see the ollama service)
+      UDR_OLLAMA_MODEL: ${UDR_OLLAMA_MODEL:-}  # empty = rule-based reading only
+      UDR_OLLAMA_TIMEOUT: ${UDR_OLLAMA_TIMEOUT:-600}
+    extra_hosts: ["host.docker.internal:host-gateway"]   # for an Ollama already running on the host
     volumes:
       - ./forms:/forms:ro
     expose: ["8085"]
     mem_limit: ${UDR_MEM_LIMIT:-2g}
+
+  # Optional local LLM for the Form Compiler: `docker compose --profile llm up -d ollama`, then
+  # `docker compose exec ollama ollama pull <model>` and set UDR_OLLAMA_MODEL. Not published outside the network.
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["llm"]
+    restart: unless-stopped
+    volumes:
+      - ollama_models:/root/.ollama
+    expose: ["11434"]
 
   caddy:
     image: caddy:2
@@ -117,3 +129,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  ollama_models:

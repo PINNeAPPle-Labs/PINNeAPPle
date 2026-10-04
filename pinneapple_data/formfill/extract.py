@@ -1,8 +1,8 @@
-"""Read datasheets and specifications, find each U-DR-1 answer, and keep where every value came from.
+"""Read datasheets and specifications, find each answer a form asks for, and keep where every value came from.
 
-Pipeline: ``read_document`` (text per page plus the tables pdfplumber finds) -> ``extract_rules`` (label patterns
-from the catalog, applied to table cells and to text lines) -> optional ``llm.extract_with_claude`` -> ``compile``
-(one decision per field: value from the highest-priority document, conflicts and gaps reported).
+Pipeline: ``read_document`` (text per page plus the tables pdfplumber finds) -> ``extract_rules`` (the spec's label
+patterns, applied to table cells and to text lines) -> optional ``llm.extract_with_llm`` (a local Ollama model) ->
+``compile`` (one decision per item: value from the highest-priority document, conflicts and gaps reported).
 
 Every candidate keeps the document, page and the exact text it was read from, so an engineer can check any value
 in one click instead of trusting the tool.
@@ -15,10 +15,10 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 from ..physical_units import try_parse_unit
-from .catalog import FIELD_BY_KEY, FIELDS, NOZZLE_COLUMNS, Field
+from .spec import Field, FormSpec, TableSpec
 
 __all__ = ["Document", "Candidate", "Decision", "Compilation", "read_document", "extract_rules", "parse_value",
-           "compile_requirements"]
+           "compile", "check_answer"]
 
 ATM_PA = 101325.0
 
@@ -71,7 +71,7 @@ class Candidate:
     doc: str
     page: int
     snippet: str                   # the line or table row it came from
-    method: str = "rule"           # rule | claude
+    method: str = "rule"           # rule | llm
     confidence: float = 0.7
     unit: Optional[str] = None
     si: Optional[float] = None     # SI value for quantities (pressures gauge, Pa)
@@ -168,52 +168,39 @@ def parse_value(f: Field, text: str) -> Optional[Dict[str, Any]]:
         return None
     if f.kind in ("choice", "multi"):
         low = t.lower()
-        if f.key == "pwht":
-            if re.search(r"\bnot required\b|^\s*no\b|^\s*none\b", low):
-                return {"value": "none", "raw": t}
-            if re.search(r"process|service", low):
-                return {"value": "process required", "raw": t}
-            if re.search(r"code|required|yes", low):
-                return {"value": "per code", "raw": t}
-            return None
-        if f.key.endswith("_basis") and f.key.startswith("mawp"):
-            if re.search(r"calculat|by (?:the )?manufacturer|fabricator", low):
-                return {"value": "calculated by manufacturer", "raw": t}
-            if re.search(r"same as design|equal to design|= ?design", low):
-                return {"value": "same as design pressure", "raw": t}
-            return None
-        aliases = {"asce 7": r"asce\s*7", "ibc": r"\bibc\b", "ubc": r"\bubc\b", "none": r"\bnone\b|not applicable|n/a",
-                   "rupture disk": r"rupture dis[ck]|bursting dis[ck]", "valve": r"\bvalves?\b|\bpsv\b|\bprv\b|\bsrv\b",
-                   "system design": r"system design", "ambient temperature": r"ambient",
-                   "manufacturer": r"manufacturer|fabricator|vendor", "others": r"\bothers?\b|by client|by owner"}
-        found = []
-        for answer in f.states:
-            pat = aliases.get(answer, r"\b" + re.escape(answer) + r"s?\b")
-            if re.search(pat, low):
-                found.append(answer)
-        if f.kind == "choice":
-            if len(found) != 1:
-                if "other" in f.states and not found and len(low) > 1 and f.key in ("wind_code", "seismic_code"):
-                    return {"value": "other", "raw": t}
-                return None
+        found = [o for o in f.options
+                 if re.search(f.aliases.get(o) or (r"\b" + re.escape(o.lower()) + r"s?\b"), low)]
+        if f.kind == "multi":
+            return {"value": found, "raw": t} if found else None
+        if f.match == "first" and found:
             return {"value": found[0], "raw": t}
-        return {"value": found, "raw": t} if found else None
+        if len(found) == 1:
+            return {"value": found[0], "raw": t}
+        if not found and f.other and len(low) > 1:
+            return {"value": f.other, "raw": t}
+        return None
     # text
     t = re.sub(r"\s+", " ", t)
     return {"value": t, "raw": t} if len(t) <= 300 else None
 
 
 # --------------------------------------------------------------------------- rules
-_COMPILED: List[Tuple[Field, re.Pattern]] = [
-    (f, re.compile(r"(?<![A-Za-z0-9])(?:" + "|".join(f.patterns) + r")(?![A-Za-z0-9])", re.I))
-    for f in FIELDS if f.patterns
-]
+_RULES: Dict[int, Tuple[FormSpec, List[Tuple[Field, "re.Pattern"]]]] = {}
 
 
-def _label_hits(line: str) -> List[Tuple[int, int, Field]]:
+def _compiled(spec: FormSpec) -> List[Tuple[Field, "re.Pattern"]]:
+    hit = _RULES.get(id(spec))
+    if hit is None or hit[0] is not spec:
+        rules = [(f, re.compile(r"(?<![A-Za-z0-9])(?:" + "|".join(f.patterns) + r")(?![A-Za-z0-9])", re.I))
+                 for f in spec.fields if f.patterns]
+        hit = _RULES[id(spec)] = (spec, rules)
+    return hit[1]
+
+
+def _label_hits(line: str, rules) -> List[Tuple[int, int, Field]]:
     """Non-overlapping label matches in a line, longest first."""
     hits = []
-    for f, rx in _COMPILED:
+    for f, rx in rules:
         for m in rx.finditer(line):
             hits.append((m.start(), m.end(), f))
     hits.sort(key=lambda h: (-(h[1] - h[0]), h[0]))
@@ -230,7 +217,10 @@ def _label_is_whole_cell(cell: str, start: int, end: int) -> bool:
     return len(rest) <= 12           # allow a unit hint such as "(barg)" or "case 1"
 
 
-def extract_rules(doc: Document) -> List[Candidate]:
+def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
+    """Candidates for every item of ``spec`` whose label appears in ``doc`` (tables first, then text lines), plus
+    the rows of the spec's tables."""
+    rules = _compiled(spec)
     out: List[Candidate] = []
     seen = set()
 
@@ -246,18 +236,18 @@ def extract_rules(doc: Document) -> List[Candidate]:
                              snippet=snippet.strip()[:240], confidence=conf, unit=parsed.get("unit"),
                              si=parsed.get("si"), gauge=parsed.get("gauge")))
 
-    nozzle_tables = {id(rows) for _, rows in _nozzle_tables(doc)}
+    row_tables = {id(rows) for t in spec.tables for _, rows in _find_tables(doc, t)}
     norm = lambda x: re.sub(r"\s+", " ", x).strip().lower()  # noqa: E731
     table_lines = {(page, norm(" ".join(c for c in row if c))) for page, rows in doc.tables for row in rows}
     # 1. tables: label cell followed by value cell (several pairs per row allowed)
     for page, rows in doc.tables:
-        if id(rows) in nozzle_tables:
+        if id(rows) in row_tables:
             continue
         for row in rows:
             cells = [c for c in row if c]
             i = 0
             while i < len(cells) - 1:
-                hits = _label_hits(cells[i])
+                hits = _label_hits(cells[i], rules)
                 if len(hits) == 1 and _label_is_whole_cell(cells[i], hits[0][0], hits[0][1]):
                     unit_hint = re.search(r"\(([^)]+)\)", cells[i])
                     value = cells[i + 1]
@@ -273,7 +263,7 @@ def extract_rules(doc: Document) -> List[Candidate]:
         for line in text.splitlines():
             if (page_no, norm(line)) in table_lines:
                 continue
-            hits = _label_hits(line)
+            hits = _label_hits(line, rules)
             # the same field named twice in a row ("overpressure protection: pressure relief valve") is one label
             hits = [h for j, h in enumerate(hits) if j == 0 or h[2] is not hits[j - 1][2]
                     or line[hits[j - 1][1]:h[0]].strip(" :=")]
@@ -290,53 +280,47 @@ def extract_rules(doc: Document) -> List[Candidate]:
                 if not value.strip() and j + 1 < len(hits) and hits[j + 1][2] is f:
                     value = line[hits[j + 1][0]:(hits[j + 2][0] if j + 2 < len(hits) else len(line))]
                 add(f, value, page_no, line, 0.8)
-    out.extend(_nozzles(doc))
+    for t in spec.tables:
+        out.extend(_table_rows(doc, t))
     return out
 
 
-def _is_nozzle_header(row: List[str]) -> bool:
+def _is_header(row: List[str], t: TableSpec) -> bool:
     head = [c.lower() for c in row]
-    return any("size" in h for h in head) and any(re.search(r"nozzle|mark|service|description", h) for h in head)
+    return bool(t.header) and all(any(re.search(rx, h) for h in head) for rx in t.header)
 
 
-def _nozzle_tables(doc: Document) -> List[Tuple[int, List[List[str]]]]:
-    """Nozzle schedule tables, including a header-less continuation on the next page (same column count)."""
+def _find_tables(doc: Document, t: TableSpec) -> List[Tuple[int, List[List[str]]]]:
+    """Tables whose header matches ``t``, including a header-less continuation on the next page (same columns)."""
     found, prev = [], None
     for page, rows in doc.tables:
-        if rows and _is_nozzle_header(rows[0]):
+        if rows and _is_header(rows[0], t):
             found.append((page, rows))
             prev = (page, rows[0])
-        elif prev and page == prev[0] + 1 and rows and len(rows[0]) == len(prev[1]) and not _is_nozzle_header(rows[0]):
+        elif prev and page == prev[0] + 1 and rows and len(rows[0]) == len(prev[1]) and not _is_header(rows[0], t):
             found.append((page, [prev[1]] + rows))
             prev = None
     return found
 
 
-def _nozzles(doc: Document) -> List[Candidate]:
-    """Rows of a nozzle schedule table (header with 'size' and a description/service/mark column)."""
+def _table_rows(doc: Document, t: TableSpec) -> List[Candidate]:
     out = []
-    for page, rows in _nozzle_tables(doc):
+    for page, rows in _find_tables(doc, t):
         head = [c.lower() for c in rows[0]]
-
-        def col(*names):
-            for i, h in enumerate(head):
-                if any(re.search(n, h) for n in names):
-                    return i
-            return None
-
-        idx = {"mark": col(r"mark|nozzle\s*(?:no|id)|^no\.?$|^tag"), "description": col(r"description|service|purpose"),
-               "number": col(r"qty|quantity|number|no\.? req"), "size": col(r"size"),
-               "flange_type": col(r"flange|type|facing"), "class": col(r"class|rating")}
+        idx = {}
+        for col, rx in t.columns.items():
+            idx[col] = next((i for i, h in enumerate(head) if i not in idx.values() and re.search(rx, h)), None)
         for r in rows[1:]:
             if not any(r):
                 continue
-            get = lambda k: (r[idx[k]] if idx[k] is not None and idx[k] < len(r) else "").strip()  # noqa: E731
-            desc = " ".join(x for x in (get("mark"), get("description")) if x)
-            if not desc and not get("size"):
+            get = lambda k: (r[idx[k]] if idx.get(k) is not None and idx[k] < len(r) else "").strip()  # noqa: E731
+            value = {c: get(c) for c in t.columns}
+            for dst, srcs in t.combine.items():
+                value[dst] = " ".join(x for x in (get(s) for s in srcs) if x)
+            value = {c: value.get(c, "") or t.defaults.get(c, "") for c in t.output_columns}
+            if sum(bool(get(c)) for c in t.columns) < 2:
                 continue
-            value = {"description": desc, "number": get("number") or "1", "size": get("size"),
-                     "flange_type": get("flange_type"), "class": get("class")}
-            out.append(Candidate(key="nozzle", value=value, raw=" | ".join(r), doc=doc.name, page=page,
+            out.append(Candidate(key=t.key, value=value, raw=" | ".join(r), doc=doc.name, page=page,
                                  snippet=" | ".join(r)[:240], confidence=0.85))
     return out
 
@@ -363,8 +347,13 @@ class Decision:
 @dataclass
 class Compilation:
     decisions: Dict[str, Decision]
-    nozzles: List[Candidate]
+    tables: Dict[str, List[Candidate]]
     documents: List[Dict[str, Any]]
+    spec: Optional[FormSpec] = None
+
+    @property
+    def nozzles(self) -> List[Candidate]:            # the U-DR-1 nozzle schedule
+        return self.tables.get("nozzle", [])
 
     def gaps(self) -> List[Decision]:
         return [d for d in self.decisions.values() if d.status == "missing" and d.required]
@@ -379,11 +368,26 @@ class Compilation:
         req = [d for d in self.decisions.values() if d.required]
         return {"fields": len(self.decisions), "filled": sum(d.value is not None for d in self.decisions.values()),
                 "required": len(req), "required_filled": sum(d.value is not None for d in req),
-                "conflicts": len(self.conflicts()), "gaps": len(self.gaps()), "nozzles": len(self.nozzles)}
+                "conflicts": len(self.conflicts()), "gaps": len(self.gaps()),
+                "table_rows": sum(len(v) for v in self.tables.values()), "nozzles": len(self.nozzles)}
+
+    def record(self) -> Dict[str, Any]:
+        """The compiled data for other forms and calculations: item -> value, unit, SI value and source."""
+        out = {}
+        for k, d in self.decisions.items():
+            if d.value is None:
+                continue
+            c = d.chosen
+            out[k] = {"value": d.value, "display": d.display, "unit": c.unit if c else None,
+                      "si": c.si if c else None, "source": f"{c.doc} p.{c.page}" if c else d.note}
+        for k, rows in self.tables.items():
+            out[k] = [r.value for r in rows]
+        return out
 
     def to_dict(self) -> Dict[str, Any]:
         return {"summary": self.summary(), "documents": self.documents,
                 "decisions": {k: d.to_dict() for k, d in self.decisions.items()},
+                "tables": {k: [asdict(n) for n in v] for k, v in self.tables.items()},
                 "nozzles": [asdict(n) for n in self.nozzles]}
 
 
@@ -397,20 +401,34 @@ def _same(a: Candidate, b: Candidate) -> bool:
     return norm(va) == norm(vb)
 
 
-def compile_requirements(docs: Sequence[Document], candidates: Iterable[Candidate],
-                         overrides: Optional[Dict[str, Any]] = None) -> Compilation:
-    """One decision per field. Documents earlier in ``docs`` win conflicts (order = priority); the conflict is still
+def check_answer(f: Field, value: Any) -> Any:
+    """An engineer's answer for ``f``, validated (``ValueError`` names the accepted options)."""
+    if f.kind in ("bool", "choice") and value not in f.options:
+        raise ValueError(f"'{f.key}' must be one of {list(f.options)}")
+    if f.kind == "multi":
+        vals = value if isinstance(value, list) else [v.strip() for v in str(value).split(",") if v.strip()]
+        bad = [v for v in vals if v not in f.options]
+        if bad:
+            raise ValueError(f"'{f.key}' accepts {list(f.options)}, not {bad}")
+        return vals
+    return value
+
+
+def compile(docs: Sequence[Document], candidates: Iterable[Candidate], spec: FormSpec,
+            overrides: Optional[Dict[str, Any]] = None) -> Compilation:
+    """One decision per item of ``spec``. Documents earlier in ``docs`` win conflicts (order = priority); the conflict is still
     reported with every source. ``overrides`` (an engineer's answers) win over everything and are marked as such."""
     rank = {d.name: i for i, d in enumerate(docs)}
+    table_keys = {t.key for t in spec.tables}
     by_key: Dict[str, List[Candidate]] = {}
-    nozzles: List[Candidate] = []
+    rows: Dict[str, List[Candidate]] = {k: [] for k in table_keys}
     for c in candidates:
-        if c.key == "nozzle":
-            nozzles.append(c)
-        else:
+        if c.key in table_keys:
+            rows[c.key].append(c)
+        elif c.key in spec.by_key:
             by_key.setdefault(c.key, []).append(c)
     decisions: Dict[str, Decision] = {}
-    for f in FIELDS:
+    for f in spec.fields:
         cands = sorted(by_key.get(f.key, []), key=lambda c: (rank.get(c.doc, 99), -c.confidence, c.page))
         d = Decision(f.key, f.label, f.section, "missing", required=f.required, candidates=cands)
         if overrides and f.key in overrides and overrides[f.key] not in (None, ""):
@@ -426,10 +444,11 @@ def compile_requirements(docs: Sequence[Document], candidates: Iterable[Candidat
         elif not f.required:
             d.status = "optional"
         decisions[f.key] = d
-    # Nozzles: keep rows from the highest-priority document that has a schedule (no merging across documents).
-    if nozzles:
-        top = min(rank.get(n.doc, 99) for n in nozzles)
-        nozzles = [n for n in nozzles if rank.get(n.doc, 99) == top]
+    # Tables: keep the rows of the highest-priority document that has one (no merging across documents).
+    for k, rs in rows.items():
+        if rs:
+            top = min(rank.get(n.doc, 99) for n in rs)
+            rows[k] = [n for n in rs if rank.get(n.doc, 99) == top]
     docs_info = [{"name": d.name, "role": d.role, "pages": d.n_pages, "has_text": d.has_text, "priority": i + 1}
                  for i, d in enumerate(docs)]
-    return Compilation(decisions, nozzles, docs_info)
+    return Compilation(decisions, rows, docs_info, spec)

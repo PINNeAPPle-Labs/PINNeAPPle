@@ -8,7 +8,7 @@ and edge-type selectors find points, while interior selectors (data regions, sub
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Mapping, Sequence, Tuple
+from typing import Callable, Mapping, Sequence, Tuple
 
 import numpy as np
 

@@ -63,6 +63,12 @@ Merged after the 0.6.2 release (not on PyPI yet).
   `PhysicsVideoDataset`, `SimToRealAdapter`, `PhysicalScene` and `SceneObject` never existed and are replaced by
   `PhysicsWorldModel`, `WorldModelDataset`, `WorldModelTrainer` and `PhysicsScenario`. A test now resolves every name.
 - `templates/08_csg_geometry.py` and `templates/09_flow_visualization.py` imported names from the wrong module or a name that does not exist.
+- `run_custom_solver` (`pinneapple_tools.sandbox`) could not run on Linux with the default memory limit: the child was started with
+  `-m`, which imports the whole `pinneapple_tools` package (and torch) before the script, and under `RLIMIT_AS` of 1 GB the loader
+  failed to map `libtorch_cuda.so`, so every call returned `ProcessTerminated`. The child now runs the runner file by path and loads only the stdlib.
+- Test suite: the OpenFOAM graceful-degradation test passes whether or not OpenFOAM is installed; the Triton export test skips when `onnx`
+  is missing; two problem-design bridge tests no longer use a hard-coded macOS path and the import check reads the AST instead of grepping
+  (a docstring mention and stale `.pyc` files were false alarms).
 - `pp.info()` reported "optional deps missing" for modules that do not exist; it now imports the real packages and lists
   optional third-party dependencies with the extra that installs each.
 - `LICENSE` was a truncated Apache-2.0 text (end of section 4 and the appendix were missing); replaced with the canonical text.

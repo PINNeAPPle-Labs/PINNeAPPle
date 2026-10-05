@@ -59,6 +59,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   sampled inside the box and on each of its faces, and a condition that still selects no point raises an error. The
   same flaw in the dataset generator (`_sample_callable_condition`) returned the origin repeated `n` times, and a selector
   that raised was treated as "select everything"; both fixed.
+  Once these conditions had points, three more gaps they had hidden came up and are fixed: first-order Neumann/Robin
+  conditions now get the outward normal of the box face their points lie on (`batch["n_bc"]` was never built; points on a
+  curved boundary inside the box are skipped with a warning, since a selector cannot give their normal), conditions on
+  different fields are laid out over all model fields instead of failing to stack, and the plane `t = 0` (or `x = 0`)
+  is sampled when it lies inside the range, as for an initial condition at `t = 0` on `[-T, T]`.
 - Six presets could not be compiled: `pcb_thermal`, `cpu_heatsink_thermal`, `datacenter_airflow_2d`, `datacenter_cfd_3d`,
   `datacenter_server_thermal` and `car_suspension_fatigue` declared heat-flux, convection or traction boundary targets
   (`q_heat`, `h`/`T_ref`, `tx`/`ty`) without the `thermal_bc` or `traction_map` that tells the compiler how to resolve them, so

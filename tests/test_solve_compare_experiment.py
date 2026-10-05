@@ -5,7 +5,7 @@ import pytest
 import pinneapple as pp
 from pinneapple_physics import metrics
 from pinneapple_physics.closed_form.burgers import burgers_sine_exact
-from pinneapple_physics.pde_environment.condition_sampling import sample_condition_points
+from pinneapple_physics.pde_environment.condition_sampling import box_face_normals, sample_condition_points
 from pinneapple_physics.solving import MethodNotAvailable, Solution
 
 NU = 0.01 / np.pi
@@ -113,6 +113,31 @@ def test_condition_sampling_finds_points_on_faces():
     ic = spec.conditions[0]
     pts = _sample_callable_condition(ic.selector, spec.domain_bounds, spec.coords, 64, rng, {})
     assert np.all(pts[:, 1] == 0.0) and pts[:, 0].std() > 0.3    # on t = 0, spread in x (not the origin)
+
+
+def test_box_face_normals_are_outward_and_unknown_inside():
+    bounds = {"x": (0.0, 2.0), "y": (-1.0, 1.0), "t": (0.0, 5.0)}
+    pts = np.array([[0.0, 0.3, 1.0], [2.0, 0.3, 1.0], [1.0, -1.0, 4.0], [2.0, 1.0, 0.0], [1.0, 0.2, 0.0]], np.float32)
+    n, on = box_face_normals(pts, bounds, ("x", "y", "t"))
+    assert on.tolist() == [True, True, True, True, False]       # t = 0 is not a spatial boundary
+    assert n[:3].tolist() == [[-1, 0, 0], [1, 0, 0], [0, -1, 0]]
+    assert n[3] == pytest.approx([2 ** -0.5, 2 ** -0.5, 0])     # corner: normalised sum of the two faces
+    assert n[4].tolist() == [0, 0, 0]
+
+
+def test_selectors_on_the_zero_plane_inside_the_range_find_points():
+    """An initial condition at t = 0 on t in [-T, T] is neither a face nor reachable by uniform sampling."""
+    rng = np.random.default_rng(0)
+    pts = sample_condition_points(lambda X: np.isclose(X[:, 0], 0.0), {"t": (-1.5, 1.5)}, ["t"], 16, rng)
+    assert len(pts) == 16 and np.all(pts[:, 0] == 0.0)
+
+
+def test_solve_pde_trains_neumann_presets_with_box_normals():
+    """Neumann conditions used to be dropped with every selector condition; once they had points they needed
+    batch['n_bc'], which solve_pde never built. The normals now come from the box faces."""
+    sol = pp.solve("black_scholes_1d", "pinn", epochs=3, n_collocation=128)
+    losses = sol.history.get("loss", [])
+    assert losses and np.isfinite(losses[-1])
 
 
 def test_solve_pde_now_enforces_the_initial_condition():

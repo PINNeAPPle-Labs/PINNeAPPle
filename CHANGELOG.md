@@ -13,6 +13,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Example `examples/use_cases/fin_convection_inverse`: the convection coefficient of a pin fin identified from five
+  noisy thermocouples with an inverse PINN (`PINNFactory`, h trainable and used in the tip condition too). Over 10
+  noise draws h = 24.8 ± 0.4 W/m²K (true 25), the dissipated heat within 0.2 %, as accurate as a least-squares fit of
+  the analytic profile without needing it; results and figures in `results/`.
 - Form Compiler (`apps/design_requirements`, library `pinneapple_data.formfill`): pick a document format, drop the
   datasheets and specifications, and get every item the format asks for with the document, page and text each value
   came from, the conflicts between documents and the missing required items. Supported formats: ASME Section VIII

@@ -17,6 +17,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   noisy thermocouples with an inverse PINN (`PINNFactory`, h trainable and used in the tip condition too). Over 10
   noise draws h = 24.8 ± 0.4 W/m²K (true 25), the dissipated heat within 0.2 %, as accurate as a least-squares fit of
   the analytic profile without needing it; results and figures in `results/`.
+  The same inverse problem in 2D (a heat-spreader plate with an 8 W device: h = 14.8 ± 0.3 for a true 15,
+  hot spot 79.2 °C vs 79.1) and 3D (a 10 W chip under a steel block, thermocouples only on top:
+  chip temperature 74.6 °C vs 74.5, h 149 from the energy balance on the learned field, the
+  trainable h -7 %), checked against an independent finite-volume solver (`fv_reference.py`).
 - Form Compiler (`apps/design_requirements`, library `pinneapple_data.formfill`): pick a document format, drop the
   datasheets and specifications, and get every item the format asks for with the document, page and text each value
   came from, the conflicts between documents and the missing required items. Supported formats: ASME Section VIII

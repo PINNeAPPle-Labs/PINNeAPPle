@@ -22,7 +22,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   are `FormSpec` data and round-trip through JSON; `Compilation.record()` exports values, units, SI values and sources
   for other forms and calculations. Optional extraction with a local LLM served by Ollama (standard-library HTTP,
   documents stay on your network) keeps a value only when its quoted source is in the document and the value is in
-  the quote.
+  the quote. Scanned pages are read with OCR (Tesseract, `pinneapple_data.formfill.ocr`): pages are deskewed, table
+  grid lines are erased before recognition and used to rebuild the cells, borderless tables are split at wide gaps,
+  and every OCR value carries Tesseract's confidence (under 85 % it is flagged for checking against the scan).
 - Front door for using the library: `pp.solve(problem, method)` and `pp.compare(problem, methods, reference=...)` over
   `PhysicalProblem`, preset names or PDE specs, with methods `pinn`, `analytic`, `exact`, `reference` and
   `@pp.register_method` for your own. `compare` scores every method on the same points and reports a failing method

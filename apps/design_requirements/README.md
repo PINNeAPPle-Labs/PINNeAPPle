@@ -8,7 +8,7 @@ Day 6 of the PINNeAPPle 30-app program. Engineering forms and datasheets collect
 and conflicts between documents or missing data surface late, as questions from the vendor. This service:
 
 1. **Reads** every document: PDF tables and "label: value" lines (plain text too), with their units; tables with one
-   column per side (shell side | tube side) are read cell by cell.
+   column per side (shell side | tube side) are read cell by cell. **Scanned pages** (no text layer) go through OCR.
 2. **Compiles** every item of the chosen format. Each value keeps its document, page and the exact text it was read
    from. Quantities are compared in SI, with gauge and absolute pressure told apart (`barg`, `bar(a)`, `mbarg`, `psig`).
 3. **Flags** conflicts between documents (the document higher in the list wins, the others are shown) and the required
@@ -30,6 +30,16 @@ The datasheets are the tool's own layout with the data those standards ask for; 
 and are not reproduced. Each format is a `FormSpec` in `pinneapple_data/formfill/specs/` (items, the phrasings documents
 use for them, units, options, required items, tables); adding one is a module and a line in the registry. The library
 also reads any fillable PDF (`FormSpec.from_pdf`) or a JSON spec, for scripted use.
+
+## Scanned PDFs (OCR)
+
+Pages without a text layer are read with [Tesseract](https://github.com/tesseract-ocr/tesseract)
+(`apt install tesseract-ocr`; included in the Docker image). Table grid lines are what OCR gets wrong (a border next to
+"1.27" reads as "427"), so each page is rendered at 300 dpi, deskewed, its grid lines are detected and erased before
+Tesseract reads it, and the lines are then used to put every word back in its table cell; tables without borders are
+split at wide gaps. Every OCR value shows Tesseract's confidence, and values under 85 % carry a "check it against the
+scan" note. Without Tesseract, scanned pages are listed as not read; nothing is guessed. The PSV example's relief load
+summary is a scan (rotated 0.7°, speckled, JPEG): it gives the same values as the native PDF.
 
 ## Local LLM (optional, Ollama)
 
@@ -58,7 +68,8 @@ and that exactly the planted conflict and gap are reported:
 | Diesel tank T-201 | 37 of 41, 20 of 21, 5 nozzles | shell corrosion allowance 3 mm (tank spec) vs 2 mm (mechanical DS) | maximum emptying rate |
 | Pumps P-101 A/B | 27 of 42, 16 of 17 | NPSH available 4.2 m (process DS) vs 3.8 m (hydraulic calc) | viscosity |
 
-Also tested: reversing the document order flips a conflict's winner; engineer overrides close gaps and conflicts; the
+Also tested: the scanned relief load summary gives the native values with an OCR confidence each, and its one real OCR
+slip ("HP." for "HP", 78 %) is flagged; a scanned borderless table is split into cells; reversing the document order flips a conflict's winner; engineer overrides close gaps and conflicts; the
 filled U-DR-1 is read back field by field (when `UDR_FORM_PDF` is set); numbers with thousands separators and decimal
 commas; `mPa·s` vs `MPa`; the local-LLM path against a fake Ollama server (a fabricated quote, a value missing from its
 quote, an invalid answer and an invented table row are rejected).
@@ -77,7 +88,7 @@ Local LLM: `ollama serve`, `ollama pull <model>`, then start the app with `UDR_O
 `UDR_OLLAMA_URL` if Ollama is not on `localhost:11434`).
 
 Environment: `UDR_USER` / `UDR_PASSWORD`, `UDR_FORM_PDF`, `UDR_MAX_MB` (40), `UDR_MAX_FILES` (8), `UDR_MAX_HEAVY` (2),
-`UDR_OLLAMA_URL`, `UDR_OLLAMA_MODEL`, `UDR_OLLAMA_TIMEOUT` (600 s).
+`UDR_OLLAMA_URL`, `UDR_OLLAMA_MODEL`, `UDR_OLLAMA_TIMEOUT` (600 s), `UDR_OCR_MAX_PAGES` (30).
 Deploy with the other apps: [`apps/deploy`](../deploy/README.md) (an optional `ollama` service is included).
 
 The result is a draft for the engineer to check and sign. ASME and BPVC are trademarks of ASME; this tool is not

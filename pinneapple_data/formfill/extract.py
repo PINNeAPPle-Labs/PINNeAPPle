@@ -21,6 +21,7 @@ __all__ = ["Document", "Candidate", "Decision", "Compilation", "read_document", 
            "compile", "check_answer"]
 
 ATM_PA = 101325.0
+OCR_CHECK = 85.0            # OCR values below this word confidence get a "check against the scan" note
 
 
 # --------------------------------------------------------------------------- documents
@@ -31,14 +32,21 @@ class Document:
     tables: List[Tuple[int, List[List[str]]]] = field(default_factory=list)   # (page, rows of cells)
     role: str = ""                                       # e.g. "process datasheet", "client specification"
     has_text: bool = True
+    ocr_pages: Dict[int, float] = field(default_factory=dict)   # page read by OCR -> mean word confidence (0-100)
+    ocr_conf: Dict[Tuple[int, str], float] = field(default_factory=dict)  # (page, cell or line) -> lowest word conf
+    unread_pages: List[int] = field(default_factory=list)       # scanned pages that could not be read (no OCR)
 
     @property
     def n_pages(self) -> int:
         return len(self.pages)
 
 
-def read_document(source: Union[str, bytes], name: str = "", role: str = "") -> Document:
-    """A PDF (path or bytes) or plain text (``.txt``/``.md`` path, or bytes that are not a PDF)."""
+def read_document(source: Union[str, bytes], name: str = "", role: str = "", ocr: str = "auto",
+                  max_ocr_pages: int = 30) -> Document:
+    """A PDF (path or bytes) or plain text (``.txt``/``.md`` path, or bytes that are not a PDF).
+
+    ``ocr``: "auto" reads the pages without a text layer (scans) with Tesseract when it is installed; "always" reads
+    every page with OCR; "never" leaves scanned pages unread (listed in ``unread_pages``)."""
     data = open(source, "rb").read() if isinstance(source, str) else bytes(source)
     name = name or (source if isinstance(source, str) else "document")
     if not data.startswith(b"%PDF"):
@@ -58,8 +66,26 @@ def read_document(source: Union[str, bytes], name: str = "", role: str = "") -> 
     except ImportError:  # pragma: no cover - pypdf fallback, text only
         from pypdf import PdfReader
         pages = [p.extract_text() or "" for p in PdfReader(io.BytesIO(data)).pages]
-    has_text = any(p.strip() for p in pages)
-    return Document(name, pages, tables, role, has_text)
+    doc = Document(name, pages, tables, role)
+    scanned = [i for i, t in enumerate(pages, start=1) if len(re.sub(r"\s", "", t)) < 20]
+    want = list(range(1, len(pages) + 1)) if ocr == "always" else scanned if ocr == "auto" else []
+    if want:
+        from .ocr import ocr_available, ocr_pdf_page
+        if ocr_available():
+            for p in want[:max_ocr_pages]:
+                res = ocr_pdf_page(data, p - 1)
+                doc.tables = [t for t in doc.tables if t[0] != p] + [(p, rows) for rows in res.tables]
+                doc.pages[p - 1] = "\n".join(res.lines + [" ".join(c for c in row if c)
+                                                         for rows in res.tables for row in rows])
+                doc.ocr_pages[p] = round(res.confidence, 1)
+                doc.ocr_conf.update({(p, k): v for k, v in res.word_conf.items()})
+            doc.unread_pages = [p for p in scanned if p not in doc.ocr_pages]
+        else:
+            doc.unread_pages = scanned
+    else:
+        doc.unread_pages = scanned
+    doc.has_text = any(p.strip() for p in doc.pages)
+    return doc
 
 
 # --------------------------------------------------------------------------- values
@@ -76,6 +102,7 @@ class Candidate:
     unit: Optional[str] = None
     si: Optional[float] = None     # SI value for quantities (pressures gauge, Pa)
     gauge: Optional[bool] = None
+    ocr: Optional[float] = None    # read by OCR: Tesseract's lowest word confidence for the value (0-100)
 
     def display(self) -> str:
         if isinstance(self.value, list):
@@ -235,9 +262,15 @@ def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
         if key in seen:
             return
         seen.add(key)
+        ocr = None
+        if page in doc.ocr_pages:      # OCR: the value cell's (or line's) confidence; lower trust than a text layer
+            ocr = doc.ocr_conf.get((page, text.strip()), doc.ocr_conf.get((page, snippet.strip()),
+                                                                          doc.ocr_pages[page]))
+            ocr = round(float(ocr), 1)
+            conf *= 0.8
         out.append(Candidate(key=f.key, value=parsed["value"], raw=parsed["raw"], doc=doc.name, page=page,
                              snippet=snippet.strip()[:240], confidence=conf, unit=parsed.get("unit"),
-                             si=parsed.get("si"), gauge=parsed.get("gauge")))
+                             si=parsed.get("si"), gauge=parsed.get("gauge"), ocr=ocr))
 
     row_tables = {id(rows) for t in spec.tables for _, rows in _find_tables(doc, t)}
     # 0. multi-column tables (one column per side, e.g. shell side | tube side): row label + column header -> item
@@ -507,6 +540,9 @@ def compile(docs: Sequence[Document], candidates: Iterable[Candidate], spec: For
             if distinct:
                 d.note = (f"{len(distinct)} other value(s) disagree; using {best.doc} (higher priority). "
                           "Confirm with the owner.")
+            if best.ocr is not None and best.ocr < OCR_CHECK:
+                d.note = (d.note + " " if d.note else "") + (f"Read by OCR with {best.ocr:.0f}% confidence: "
+                                                             "check it against the scan.")
         elif not f.required:
             d.status = "optional"
         decisions[f.key] = d
@@ -515,6 +551,7 @@ def compile(docs: Sequence[Document], candidates: Iterable[Candidate], spec: For
         if rs:
             top = min(rank.get(n.doc, 99) for n in rs)
             rows[k] = [n for n in rs if rank.get(n.doc, 99) == top]
-    docs_info = [{"name": d.name, "role": d.role, "pages": d.n_pages, "has_text": d.has_text, "priority": i + 1}
+    docs_info = [{"name": d.name, "role": d.role, "pages": d.n_pages, "has_text": d.has_text, "priority": i + 1,
+                  "ocr_pages": {str(p): c for p, c in d.ocr_pages.items()}, "unread_pages": d.unread_pages}
                  for i, d in enumerate(docs)]
     return Compilation(decisions, rows, docs_info, spec)

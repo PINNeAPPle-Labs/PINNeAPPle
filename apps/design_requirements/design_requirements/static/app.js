@@ -131,9 +131,20 @@ async function recompile() {
 }
 
 // ── documents panel ──────────────────────────────────────────────────────────
+function textBadge(d) {
+  const ocr = Object.entries(d.ocr_pages || {}), unread = d.unread_pages || [];
+  const out = [];
+  if (d.has_text && ocr.length < d.pages) out.push('<span class="badge pass">text layer</span>');
+  if (ocr.length) {
+    const mean = ocr.reduce((a, [, c]) => a + c, 0) / ocr.length;
+    out.push(`<span class="badge ${mean >= 85 ? "warn" : "fail"}" title="pages ${ocr.map(([p]) => p).join(", ")}">scanned · OCR ${mean.toFixed(0)}%</span>`);
+  }
+  if (unread.length) out.push(`<span class="badge fail" title="no OCR on this server">scanned, not read: p.${unread.join(", ")}</span>`);
+  return out.join(" ") || '<span class="badge fail">no text</span>';
+}
 function renderDocsView() {
   const docs = RESULT.documents.map((d) => `<tr><td class="num">${d.priority}</td><td><b>${esc(d.name)}</b></td><td>${esc(d.role || "—")}</td>
-    <td class="num">${d.pages}</td><td>${d.has_text ? '<span class="badge pass">text layer</span>' : '<span class="badge fail">scanned: no text</span>'}</td></tr>`).join("");
+    <td class="num">${d.pages}</td><td>${textBadge(d)}</td></tr>`).join("");
   $("#docs-view").innerHTML = `<h2 style="margin-top:0">Documents read</h2>
     <table><thead><tr><th class="num">Priority</th><th>Document</th><th>Role</th><th class="num">Pages</th><th>Text</th></tr></thead><tbody>${docs}</tbody></table>
     <p class="hint" style="margin-top:8px">Format: <b>${esc(RESULT.spec.title)}</b> (${esc(RESULT.spec.standard)}) · ${RESULT.spec.fields.length} items</p>
@@ -147,7 +158,7 @@ const STATUS = { filled: ["pass", "found"], conflict: ["warn", "conflict"], miss
 
 function sourceCell(c) {
   if (!c) return "";
-  return `<div class="src"><span class="docp">${esc(c.doc)} · p.${c.page}${c.method === "llm" ? " · local LLM" : ""}</span><span class="snip">${esc(c.snippet)}</span></div>`;
+  return `<div class="src"><span class="docp">${esc(c.doc)} · p.${c.page}${c.method === "llm" ? " · local LLM" : ""}${c.ocr != null ? ` · <span class="${c.ocr < 85 ? "ocrlow" : "ocr"}">OCR ${c.ocr.toFixed(0)}%</span>` : ""}</span><span class="snip">${esc(c.snippet)}</span></div>`;
 }
 function inputFor(f, d) {
   const cur = OVERRIDES[f.key] ?? "";
@@ -290,6 +301,9 @@ function snippets() {
   META = await (await call("/api/meta")).json();
   $("#maxfiles").textContent = META.max_files;
   $("#llm").disabled = !META.llm_available;
+  $("#ocr-note").textContent = META.ocr_available
+    ? "Scanned pages are read with OCR (Tesseract); OCR values show their confidence."
+    : "Scanned pages cannot be read on this server (Tesseract is not installed).";
   $("#llm-note").textContent = META.llm_available ? `(Ollama, ${META.llm_model}; every value is checked against the document text)` : "(no Ollama model configured on this server)";
   $("#template").innerHTML = META.formats.map((t) => `<option value="${esc(t.id)}">${esc(t.title)}</option>`).join("");
   $("#template").value = META.default_template;

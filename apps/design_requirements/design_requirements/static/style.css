@@ -44,3 +44,5 @@ a.btnlink { display: inline-flex; align-items: center; justify-content: center; 
 .fmtcard .fmt-in { color: var(--muted, #57606a); }
 table.fmts { margin: 6px 0 10px; font-size: 13px; }
 table.fmts td { padding: 4px 8px 4px 0; border: 0; vertical-align: top; }
+.ocr { color: #9a6700; font-weight: 600; }
+.ocrlow { color: #cf222e; font-weight: 700; }

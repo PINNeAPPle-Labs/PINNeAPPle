@@ -43,6 +43,7 @@
         <fieldset>
           <legend>Reading</legend>
           <div class="checks"><label><input type="checkbox" id="llm"> Also read with the local LLM <span class="u" id="llm-note"></span></label></div>
+          <p class="hint" id="ocr-note" style="margin:6px 0 0"></p>
         </fieldset>
         <button class="primary" type="button" id="compile" disabled>Compile</button>
         <button class="secondary" type="button" id="example">Try the example</button>
@@ -64,7 +65,7 @@
             <tr><td><b>Pump</b></td><td>Centrifugal pump datasheet with the data of API 610</td></tr>
           </table>
           <ol class="list-plain">
-            <li><b>Read</b> every document: tables and "label: value" lines, with units.</li>
+            <li><b>Read</b> every document: tables and "label: value" lines, with units. Scanned pages go through OCR.</li>
             <li><b>Compile</b> every item of the format. Each value keeps its document, page and the exact text it came from.</li>
             <li><b>Flag</b> conflicts between documents and the required items nobody states, so you know whom to ask.</li>
             <li><b>Output</b> the filled form or the compiled datasheet (PDF), a CSV checklist and a JSON data record for

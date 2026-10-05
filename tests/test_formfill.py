@@ -122,13 +122,12 @@ def test_a_heading_with_a_label_word_is_not_an_answer():
 
 # --------------------------------------------------------------------------- the other supported formats
 FORMAT_SETS = {   # template: (documents in priority order, planted conflict, planted gap, values checked)
-    "psv": (["relief_load_summary_PSV-101.pdf", "psv_sizing_PSV-101.pdf", "valve_specification_PSV-101.pdf"],
+    "psv": (["relief_load_summary_PSV-101_scanned.pdf", "psv_sizing_PSV-101.pdf", "valve_specification_PSV-101.pdf"],
             ("set_pressure", ["15 barg", "14.5 barg"]), "valve_type",
             {"tag": "PSV-101", "governing_case": "fire", "fluid_state": "gas", "relieving_rate": "18500 kg/h",
              "k_ratio": "1.27", "z_factor": "0.92", "relieving_temp": "160 °C", "overpressure": "21 % (fire case)",
              "bp_built_up": "0.7 barg", "area_required": "2650 mm2", "orifice": "P", "inlet": "4 in CL300 RF",
-             "trim_material": "SS 316", "lifting_lever": "yes", "test_gag": "no",
-             "protected_equipment": "V-101 HP Gas/Condensate Separator"}),
+             "trim_material": "SS 316", "lifting_lever": "yes", "test_gag": "no"}),
     "shell_tube": (["process_datasheet_E-101.pdf", "mechanical_datasheet_E-101.pdf"],
                    ("tube_p_design", ["15 barg", "16 barg"]), "tema_class",
                    {"tema_type": "AES", "duty": "1.45 MW", "shell_fluid": "Cooling water", "tube_fluid": "Natural gas",
@@ -149,7 +148,10 @@ FORMAT_SETS = {   # template: (documents in priority order, planted conflict, pl
 }
 
 
-@pytest.mark.parametrize("template", list(FORMAT_SETS))
+needs_ocr = pytest.mark.skipif(not ff.ocr_available(), reason="needs the tesseract program (OCR)")
+
+
+@pytest.mark.parametrize("template", [pytest.param("psv", marks=needs_ocr), "shell_tube", "tank", "pump"])
 def test_supported_format_finds_its_values_the_planted_conflict_and_gap(template):
     names, (ckey, cvals), gap, values = FORMAT_SETS[template]
     spec = ff.get_spec(template)
@@ -163,6 +165,86 @@ def test_supported_format_finds_its_values_the_planted_conflict_and_gap(template
     assert ff.FormSpec.loads(spec.dumps()).to_dict() == spec.to_dict()
     pdf = ff.render_datasheet(comp)
     assert pdf.startswith(b"%PDF")
+
+
+# --------------------------------------------------------------------------- scanned PDFs (OCR)
+def _scan(pdf_bytes, angle=0.7, seed=0):
+    """Image-only copy of a PDF that looks scanned (rotated, speckled, blurred, JPEG)."""
+    import io
+    import random
+
+    import pypdfium2 as pdfium
+    from PIL import Image, ImageFilter
+    rnd, pages = random.Random(seed), []
+    for page in pdfium.PdfDocument(pdf_bytes):
+        im = page.render(scale=200 / 72).to_pil().convert("L").rotate(angle, expand=True, fillcolor=255)
+        px = im.load()
+        for _ in range(im.width * im.height // 400):
+            px[rnd.randrange(im.width), rnd.randrange(im.height)] = rnd.choice((0, 180, 255))
+        buf = io.BytesIO()
+        im.filter(ImageFilter.GaussianBlur(0.6)).save(buf, "JPEG", quality=60)
+        pages.append(Image.open(buf))
+    out = io.BytesIO()
+    pages[0].save(out, "PDF", resolution=200, save_all=True, append_images=pages[1:])
+    return out.getvalue()
+
+
+@needs_ocr
+def test_scanned_table_is_read_like_the_native_pdf():
+    """The scanned relief load summary gives the values the native one has, each with an OCR confidence."""
+    scan = os.path.join(EXAMPLES, "psv", "relief_load_summary_PSV-101_scanned.pdf")
+    doc = ff.read_document(scan)
+    assert list(doc.ocr_pages) == [1] and doc.ocr_pages[1] > 85 and doc.unread_pages == []
+    got = {c.key: c for c in ff.extract_rules(doc, ff.get_spec("psv"))}
+    want = {"tag": "PSV-101", "pid": "PID-100-002", "governing_case": "fire", "fluid": "Hydrocarbon vapour",
+            "relieving_rate": "18500 kg/h", "molecular_weight": "19.6", "k_ratio": "1.27", "z_factor": "0.92",
+            "operating_temp": "85 °C", "relieving_temp": "160 °C", "operating_pressure": "12 barg",
+            "set_pressure": "15 barg", "overpressure": "21 % (fire case)", "bp_superimposed": "0.5 barg",
+            "bp_built_up": "0.7 barg"}
+    assert {k: got[k].display() for k in want} == want
+    assert all(0 < got[k].ocr <= 100 for k in want)
+    # a real OCR slip on this scan ("HP." for "HP"): low confidence, so the compiled item asks for a check
+    pe = got["protected_equipment"]
+    assert pe.display() in ("V-101 HP Gas/Condensate Separator", "V-101 HP. Gas/Condensate Separator")
+    if pe.display().endswith("HP. Gas/Condensate Separator"):
+        d = ff.compile([doc], [pe], ff.get_spec("psv")).decisions["protected_equipment"]
+        assert pe.ocr < 85 and "check it against the scan" in d.note
+
+
+@needs_ocr
+def test_scanned_borderless_table_is_split_at_wide_gaps():
+    pytest.importorskip("reportlab")
+    import io
+
+    from reportlab.pdfgen import canvas
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf)
+    c.setFont("Helvetica", 10)
+    c.drawString(50, 800, "Pump data (no grid)")
+    for i, (k, v) in enumerate((("Rated flow", "55 m3/h"), ("Differential head", "225 m"), ("NPSH available", "4.2 m"),
+                                ("Viscosity", "0.45 cP"))):
+        c.drawString(50, 780 - 18 * i, k)
+        c.drawString(260, 780 - 18 * i, v)
+    c.drawString(50, 690, "Note: the pump shall be suitable for continuous duty.")
+    c.save()
+    doc = ff.read_document(_scan(buf.getvalue(), angle=-0.5))
+    got = {c.key: c.display() for c in ff.extract_rules(doc, ff.get_spec("pump"))}
+    assert got == {"flow_rated": "55 m3/h", "head": "225 m", "npsha": "4.2 m", "viscosity": "0.45 cP"}
+
+
+def test_scanned_pages_without_ocr_are_listed_not_guessed():
+    scan = os.path.join(EXAMPLES, "psv", "relief_load_summary_PSV-101_scanned.pdf")
+    doc = ff.read_document(scan, ocr="never")
+    assert doc.unread_pages == [1] and not doc.has_text and doc.ocr_pages == {}
+    assert ff.extract_rules(doc, ff.get_spec("psv")) == []
+
+
+def test_low_ocr_confidence_is_flagged_for_checking():
+    spec = ff.get_spec("pump")
+    doc = ff.Document("scan.pdf", ["x"])
+    cand = ff.Candidate("npsha", 4.2, "4.2 m", "scan.pdf", 1, "NPSH available | 4.2 m", unit="m", si=4.2, ocr=61.0)
+    d = ff.compile([doc], [cand], spec).decisions["npsha"]
+    assert d.status == "filled" and "OCR with 61% confidence" in d.note
 
 
 def test_vapour_pressure_in_bar_absolute_is_compared_as_gauge():
@@ -393,7 +475,7 @@ def test_api_example_compile_and_overrides(client):
     meta = client.get("/api/meta").json()
     assert len(meta["spec"]["fields"]) == 129 and meta["llm_available"] is False
     assert [t["id"] for t in meta["formats"]] == ["asme_u-dr-1", "psv", "shell_tube", "tank", "pump"]
-    assert all(f["example"] for f in meta["formats"])
+    assert all(f["example"] for f in meta["formats"]) and meta["ocr_available"] == ff.ocr_available()
     r = client.get("/api/example/compile").json()
     assert r["summary"]["required_filled"] == 27 and r["gaps"] == ["cyclic_service"] and len(r["tables"]["nozzle"]) == 6
     assert r["record"]["design_p_int"]["si"] == pytest.approx(15e5)
@@ -418,9 +500,9 @@ def test_api_datasheet_for_every_format(client):
     for t in ("asme_u-dr-1", "psv", "shell_tube", "tank", "pump"):
         r = client.post("/api/example/datasheet", data={"template": t})
         assert r.status_code == 200 and r.content.startswith(b"%PDF"), t
-    r = client.get("/api/example/compile", params={"template": "psv",
-                                                   "overrides": json.dumps({"valve_type": "conventional"})}).json()
-    assert r["gaps"] == [] and r["decisions"]["valve_type"]["note"] == "entered by engineer"
+    r = client.get("/api/example/compile", params={"template": "pump",
+                                                   "overrides": json.dumps({"viscosity": "0.45 cP"})}).json()
+    assert r["gaps"] == [] and r["decisions"]["viscosity"]["note"] == "entered by engineer"
     files = [("files", (n, open(os.path.join(EXAMPLES, "pump", n), "rb").read(), "application/pdf"))
              for n in FORMAT_SETS["pump"][0]]
     r = client.post("/api/datasheet", files=files, data={"template": "pump"})

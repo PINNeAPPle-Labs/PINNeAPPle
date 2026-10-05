@@ -16,6 +16,7 @@ Environment (all optional):
                             http://localhost:11434); documents never leave your network
   UDR_OLLAMA_MODEL          model to use (pulled with `ollama pull`); the LLM option is off until this is set
   UDR_OLLAMA_TIMEOUT        seconds per request (default 600)
+  UDR_OCR_MAX_PAGES         scanned pages read with OCR per document (default 30; needs the tesseract program)
 """
 from __future__ import annotations
 
@@ -32,8 +33,8 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from pinneapple_data.formfill import (FormSpec, OllamaClient, check_answer, compile, extract_rules, extract_with_llm,
-                                      fill_pdf, form_values, get_spec, list_specs, parse_value, read_document,
-                                      render_datasheet)
+                                      fill_pdf, form_values, get_spec, list_specs, ocr_available, parse_value,
+                                      read_document, render_datasheet)
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import BusyLimiter, install  # noqa: E402
@@ -47,7 +48,7 @@ EXAMPLE_SETS: Dict[str, Dict[str, Any]] = {
         ("owner_specification_V-101.pdf", "client specification"), ("process_datasheet_V-101.pdf", "process datasheet"),
         ("mechanical_datasheet_V-101.pdf", "mechanical datasheet")]},
     "psv": {"label": "relief valve PSV-101", "files": [
-        ("relief_load_summary_PSV-101.pdf", "relief load summary"), ("psv_sizing_PSV-101.pdf", "PSV sizing calculation"),
+        ("relief_load_summary_PSV-101_scanned.pdf", "relief load summary"), ("psv_sizing_PSV-101.pdf", "PSV sizing calculation"),
         ("valve_specification_PSV-101.pdf", "valve specification")]},
     "shell_tube": {"label": "gas cooler E-101", "files": [
         ("process_datasheet_E-101.pdf", "process datasheet"), ("mechanical_datasheet_E-101.pdf", "mechanical datasheet")]},
@@ -60,6 +61,7 @@ EXAMPLE_SETS: Dict[str, Dict[str, Any]] = {
 }
 MAX_MB = float(os.environ.get("UDR_MAX_MB", "40"))
 MAX_FILES = int(os.environ.get("UDR_MAX_FILES", "8"))
+OCR_MAX_PAGES = int(os.environ.get("UDR_OCR_MAX_PAGES", "30"))
 
 DEFAULT_TEMPLATE = "asme_u-dr-1"
 
@@ -81,6 +83,8 @@ VALIDATION = [
     "filled PDF is read back field by field in the tests",
     "Values from the local LLM (Ollama) are accepted only when the quoted text is found in the document and the "
     "value is in that quote; tested with a fabricated quote and a value missing from its quote, both rejected",
+    "Scanned relief load summary of PSV-101 (image only, rotated 0.7°, speckled, JPEG): read with OCR, every value "
+    "equal to the native PDF's, with Tesseract's confidence per value",
     "Relief valve PSV-101, gas cooler E-101 (shell side | tube side tables), diesel tank T-201 and condensate pumps "
     "P-101 A/B, each described by two or three fictitious documents: every value found is checked in the tests, and "
     "exactly the planted conflict and the planted gap of each set are reported (e.g. set pressure 15 vs 14.5 barg, "
@@ -111,10 +115,12 @@ def scope() -> dict:
                            "your company's template.",
                  "today": "Copy the values into your template, or use the JSON record / CSV checklist.",
                  "planned": "Fill company datasheet templates (Excel / fillable PDF) mapped once per template."},
-                {"topic": "Scanned PDFs", "effect": "conservative",
-                 "detail": "A PDF without a text layer is reported as unreadable; nothing is guessed from it.",
-                 "today": "Run OCR first, or type the missing values in the review table.",
-                 "planned": "Built-in OCR."},
+                {"topic": "Scanned PDFs (OCR)", "effect": "check",
+                 "detail": "Pages without a text layer are read with Tesseract: the page is deskewed, table grid lines "
+                           "are removed and used to rebuild the cells. OCR can still misread a character (1 and 7, "
+                           "0 and O); every OCR value shows its confidence, and values below 85 % are flagged.",
+                 "today": "Check OCR values against the scan (the source shows the page); prefer native PDFs.",
+                 "planned": "Handwritten mark-ups and stamps are not read."},
                 {"topic": "No engineering judgement", "effect": "conservative",
                  "detail": "The tool copies stated requirements; it does not compute MAWP, choose joint types or "
                            "decide impact testing, and it leaves date, user and signature blank.",
@@ -204,7 +210,7 @@ def _compile(docs_in: List[Tuple[str, bytes, str]], spec: FormSpec, use_llm: boo
     docs, cands, rejected = [], [], []
     client = _llm() if use_llm else None
     for name, data, role in docs_in:
-        d = read_document(data, name=name, role=role)
+        d = read_document(data, name=name, role=role, max_ocr_pages=OCR_MAX_PAGES)
         docs.append(d)
         cands.extend(extract_rules(d, spec))
         if client is not None:
@@ -275,7 +281,7 @@ def meta():
         ex = EXAMPLE_SETS.get(f["id"])
         f["example"] = {"label": ex["label"], "files": [{"name": n, "role": r} for n, r in ex["files"]]} if ex else None
     return {"version": VERSION, "max_files": MAX_FILES, "max_mb": MAX_MB, "formats": formats,
-            "default_template": DEFAULT_TEMPLATE, "llm_available": _llm_available(),
+            "default_template": DEFAULT_TEMPLATE, "llm_available": _llm_available(), "ocr_available": ocr_available(),
             "llm_model": os.environ.get("UDR_OLLAMA_MODEL") or None,
             "form_on_server": bool(os.environ.get("UDR_FORM_PDF") and os.path.exists(os.environ["UDR_FORM_PDF"])),
             "spec": _spec_meta(get_spec(DEFAULT_TEMPLATE)), "scope": scope()}

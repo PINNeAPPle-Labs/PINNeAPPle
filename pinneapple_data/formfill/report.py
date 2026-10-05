@@ -22,7 +22,9 @@ WARN_BG, MISS_BG, HEAD_BG = "#fff4d6", "#fde7e7", "#f3f4f6"
 
 def _source(d: Decision) -> str:
     if d.chosen is not None:
-        return f"{d.chosen.doc} p.{d.chosen.page}" + (" (local LLM)" if d.chosen.method == "llm" else "")
+        c = d.chosen
+        return (f"{c.doc} p.{c.page}" + (" (local LLM)" if c.method == "llm" else "")
+                + (f" (OCR {c.ocr:.0f}%)" if c.ocr is not None else ""))
     return d.note or ""
 
 

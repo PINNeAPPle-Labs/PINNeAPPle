@@ -6,6 +6,10 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
 WORKDIR /srv
 
+# Tesseract reads scanned pages (OCR)
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng \
+    && rm -rf /var/lib/apt/lists/*
+
 # PINNeAPPle depends on PyTorch; the CPU wheel keeps the image small.
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 

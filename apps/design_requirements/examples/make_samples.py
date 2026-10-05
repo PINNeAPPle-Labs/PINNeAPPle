@@ -15,7 +15,10 @@ and one missing required item are planted in every set:
   pump         condensate pump P-101 conflict: NPSH available 4.2 m (process DS) vs 3.8 m (hydraulic calc)
                                      gap: viscosity
 
-Run: python make_samples.py  (writes the PDFs into the folders next to this file)
+The PSV set's relief load summary is a scanned copy (image only, slightly rotated, noisy, JPEG), so the example
+exercises the OCR path.
+
+Run: python make_samples.py  (writes the PDFs into the folders next to this file; needs reportlab, pypdfium2, Pillow)
 """
 import os
 
@@ -117,7 +120,7 @@ def sides(rows):
 
 
 # ---------------------------------------------------------------- PSV-101
-build("psv/relief_load_summary_PSV-101.pdf", "Relief Load Summary - PSV-101", [
+build("psv/_relief_load_summary_PSV-101_clean.pdf", "Relief Load Summary - PSV-101", [
     "Process document RLS-101 Rev A. Relief study for separator V-101 (fictitious).",
     table([["Tag No.", "PSV-101"], ["Protected equipment", "V-101 HP Gas/Condensate Separator"],
            ["P&ID", "PID-100-002"], ["Governing relief case", "External fire"], ["Fluid", "Hydrocarbon vapour"],
@@ -229,5 +232,29 @@ build("pump/pump_specification.pdf", "Owner Specification - Centrifugal Pumps (e
            ["Hazardous area classification", "Zone 2, IIA T3"], ["Ambient temperature range", "15 to 40 °C"],
            ["Location", "Outdoor, under roof"]]),
 ])
+def scanned(src, dst, angle=0.7, dpi=200, seed=0):
+    """An image-only copy of ``src`` that looks scanned: rotated, speckled, blurred, JPEG-compressed."""
+    import io
+    import random
+
+    import pypdfium2 as pdfium
+    from PIL import Image, ImageFilter
+    rnd, pages = random.Random(seed), []
+    for page in pdfium.PdfDocument(os.path.join(HERE, src)):
+        im = page.render(scale=dpi / 72).to_pil().convert("L")
+        im = im.rotate(angle, expand=True, fillcolor=255, resample=Image.BICUBIC)
+        px = im.load()
+        w, h = im.size
+        for _ in range(w * h // 400):
+            px[rnd.randrange(w), rnd.randrange(h)] = rnd.choice((0, 180, 255))
+        im = im.filter(ImageFilter.GaussianBlur(0.6))
+        buf = io.BytesIO()
+        im.save(buf, "JPEG", quality=60)
+        pages.append(Image.open(buf))
+    pages[0].save(os.path.join(HERE, dst), "PDF", resolution=dpi, save_all=True, append_images=pages[1:])
+    os.remove(os.path.join(HERE, src))
+
+
+scanned("psv/_relief_load_summary_PSV-101_clean.pdf", "psv/relief_load_summary_PSV-101_scanned.pdf")
 print("wrote", sorted(os.path.relpath(os.path.join(d, f), HERE) for d, _, fs in os.walk(HERE) for f in fs
                       if f.endswith(".pdf")))

@@ -39,3 +39,10 @@ button.small { padding: 4px 10px; font-size: 12.5px; }
 .slice-row select { width: auto; margin: 0; }
 .figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 14px; }
 .figs img { width: 100%; border: 1px solid var(--line); border-radius: 8px; }
+details.codebox { margin-top: 16px; }
+details.codebox > summary { cursor: pointer; list-style: none; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+details.codebox > summary::-webkit-details-marker { display: none; }
+details.codebox > summary::before { content: "▾"; color: var(--muted); }
+details.codebox:not([open]) > summary::before { content: "▸"; }
+details.codebox .snippet { margin-top: 10px; }
+.snippet pre.code + pre.code { margin-top: 8px; }

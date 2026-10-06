@@ -14,7 +14,17 @@ and the network learns the field and h together from the physics and the reading
 | **1D · fin** | Pin fin on a hot wall, thermocouples along it. Demo readings, or **your own** (material, size, positions, readings). | yes, 20–40 s | least-squares fit of the analytic fin solution to the same readings |
 | **2D · plate** | Aluminium heat spreader, a device in one corner, eight thermocouples. Change power, true h, noise, starting guess and train. | yes, about 2 min | independent finite-volume solution, cell by cell |
 | **3D · block** | 10 W chip under a steel block, thermocouples only on top: how hot is the chip? | full run, computed offline (30 min on a CPU) | finite volumes; interactive 3D field and layer slices |
-| **Code** | How to reproduce each case with `pip install pinneapple`; the 1D script runs as is. | | |
+| **Code** | The three complete scripts. | | |
+
+## The code is in the app
+
+Every case's tab ends with **Code for this case**: the complete script (`pip install pinneapple`, save, run), filled with
+the inputs on the page and, after a run, with that run's readings, so it reproduces exactly what the page showed. Copy
+or download it as a .py; `GET /api/code/{fin|plate|block}` serves the same files. They live in
+[`inverse_heat/scripts/`](inverse_heat/scripts), depend only on the library (the finite-volume check is inside each
+script), and `tests/test_inverse_heat.py` runs all three. Run as published: 1D h = 24.9 (true 25, 30 s);
+2D h = 14.8 (true 15), hot spot 79.3 °C vs 79.1 (3 min); 3D chip 74.5 °C vs 74.5, h from the energy balance 149.5
+for a true 150, network parameter 141.5 (30 min on a CPU).
 
 ## Results of the full runs ([`examples/use_cases/fin_convection_inverse`](../../examples/use_cases/fin_convection_inverse))
 
@@ -51,4 +61,4 @@ Steady state, one h over the convective surface (an average if it varies), no ra
 coefficient including it), good thermocouple contact. The 1D fin needs a small cross-section Biot number hD/2k; the
 page shows it for your case.
 
-Tests: `tests/test_inverse_heat.py` (engine, input checks, job API, and the published 1D script run end to end).
+Tests: `tests/test_inverse_heat.py` (engine, input checks, job API, and the three published scripts run end to end, the 1D one also with user readings).

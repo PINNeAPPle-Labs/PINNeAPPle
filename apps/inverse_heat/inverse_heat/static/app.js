@@ -97,6 +97,7 @@ $("#f-run").onclick = async () => {
     const { job, hist } = await poll(id, (j, h) => tickLive(j, h, body.h_true));
     if (job.status === "error") throw new Error(job.error);
     renderFin(job.result, hist, job.seconds, body);
+    refreshCode("fin", job.result.readings, "with the readings of this run");
   } catch (e) {
     st.innerHTML = `<span class="err">${esc(e.message)}</span>`;
   } finally { btn.disabled = false; }
@@ -138,6 +139,9 @@ function renderFin(r, hist, secs, req) {
       <div class="kpi"><div class="l">heat removed by the fin</div><div class="v">${f1(r.q_pinn_W, 3)} <small>W</small></div><div class="s">least squares ${f1(r.q_least_squares_W, 3)}${hasTrue ? ` · true ${f1(r.q_true_W, 3)}` : ""}</div></div>
       <div class="kpi"><div class="l">Biot number hD/2k</div><div class="v">${r.biot_cross_section.toExponential(1)}</div><div class="s">${biotBad ? "above 0.1: 1D model doubtful" : "below 0.1: 1D model holds"}</div></div>
     </div>
+    ${Math.abs(r.h_pinn - r.h_least_squares) > 0.1 * r.h_least_squares ? `<div class="banner warn">The network and the least-squares fit disagree by
+      ${f1((100 * Math.abs(r.h_pinn - r.h_least_squares)) / r.h_least_squares, 0)} %: the readings do not fit a fin with these properties well.
+      Check the conductivity, the positions, the wall temperature and the thermocouple contact; a reading off the curve below is the usual suspect.</div>` : ""}
     ${biotBad ? `<div class="banner warn">The fin is thick for its conductivity (Biot ${f1(r.biot_cross_section, 2)}): temperature varies across it and the 1D model is an approximation.</div>` : ""}
     <div class="grid2" style="margin-top:14px">
       <div class="fig"><div class="cap">Temperature along the fin</div>${profileSvg(r)}</div>
@@ -283,6 +287,7 @@ $("#p-run").onclick = async () => {
       note: "A shorter training than the full run (1500 steps instead of 3000): the temperature map converges first, h keeps creeping toward its value for longer, so expect h within a few percent here and about 1 % in the full run. The finite-volume map is computed independently with your true h; the network never sees it.",
     });
     $("#p-reset").hidden = false;
+    refreshCode("plate", r.readings, "with the readings of this run");
   } catch (e) { st.innerHTML = `<span class="err">${esc(e.message)}</span>`; }
   finally { btn.disabled = false; }
 };
@@ -336,15 +341,65 @@ async function loadBlock() {
   if (window.IHL_BlockViewer) mount(); else window.addEventListener("ihl-viewer-ready", mount, { once: true });
 }
 
-// ------------------------------------------------------------------ code + API
+// ------------------------------------------------------------------ code (complete scripts, filled with the inputs)
+const py = (v) => (v === null || v === undefined ? "None" : Array.isArray(v) ? `[${v.map(py).join(", ")}]` : typeof v === "number" ? String(+v.toPrecision(6)) : String(v));
+function fillScript(code, params) {
+  // replaces the value of `NAME = value  # comment` lines in the script's parameter block, keeping the comment
+  for (const [k, v] of Object.entries(params)) {
+    code = code.replace(new RegExp(`^(${k} = ).*?(\\s{2,}#.*)?$`, "m"), (_, a, c) => {
+      const val = a + py(v);
+      return c ? val + " ".repeat(Math.max(2, 39 - val.length)) + c.trim() : val;
+    });
+  }
+  return code;
+}
+const CODE_PARAMS = { fin: null, plate: null, block: {} };
+function codeBox(caseId, el, params, note) {
+  const sn = META.snippets[caseId], code = fillScript(sn.code, params || {});
+  el.innerHTML = `<div class="snippet"><div class="hd"><span class="meta">${esc(sn.file)} · ${esc(sn.runtime)}${note ? " · " + esc(note) : ""}</span>
+      <span><button class="copy" data-a="copy">Copy</button> <button class="copy" data-a="dl">Download .py</button></span></div>
+    <pre class="code"><code>pip install pinneapple\npython ${esc(sn.file)}</code></pre>
+    <pre class="code"><code>${esc(code)}</code></pre></div>`;
+  el.querySelector("[data-a=copy]").onclick = async (e) => {
+    try { await navigator.clipboard.writeText(code); e.target.textContent = "Copied"; } catch { e.target.textContent = "Select and copy"; }
+    setTimeout(() => (e.target.textContent = "Copy"), 1500);
+  };
+  el.querySelector("[data-a=dl]").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([code], { type: "text/x-python" })); a.download = sn.file; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+}
+function finParams(readings) {
+  const rows = $$("#f-tc tr").map((tr) => [tr.querySelector(".tc-x").value, tr.querySelector(".tc-t").value]);
+  const mine = finMode === "mine" && rows.every((r) => r[1] !== "");
+  return {
+    K: +$("#f-k").value, D_MM: +$("#f-d").value, L_MM: +$("#f-l").value, T_WALL: +$("#f-tb").value, T_AIR: +$("#f-ta").value,
+    X_MM: rows.map((r) => +r[0]), T_READ: readings || (mine ? rows.map((r) => +r[1]) : null),
+    H_TRUE: +$("#f-htrue").value, NOISE: +$("#f-noise").value, H_GUESS: +$("#f-hg").value,
+  };
+}
+function plateParams(readings) {
+  return { POWER: +$("#p-power").value, H_TRUE: +$("#p-htrue").value, NOISE: +$("#p-noise").value, H_GUESS: +$("#p-hg").value,
+           T_READ: readings || null };
+}
+function refreshCode(caseId, readings, note) {
+  if (!META) return;
+  const el = $(`#code-${caseId} .code-host`);
+  if (caseId === "fin") codeBox("fin", el, finParams(readings), note);
+  else if (caseId === "plate") codeBox("plate", el, plateParams(readings), note);
+  else codeBox("block", el, {}, note);
+}
+let finCodeT = null;
+$("#fin-form").addEventListener("input", () => { clearTimeout(finCodeT); finCodeT = setTimeout(() => refreshCode("fin"), 250); });
+$("#fin-form").addEventListener("click", () => setTimeout(() => refreshCode("fin"), 50));
+$("#tab-plate form").addEventListener("input", () => refreshCode("plate"));
+
 function renderCode() {
   $("#snippets").innerHTML = Object.entries(META.snippets).map(([k, s]) => `
-    <div class="snippet"><div class="hd"><h3>${esc(s.title)}</h3><span><span class="meta">${esc(s.file)}</span>
-      <button class="copy" data-k="${k}">Copy</button></span></div><pre class="code"><code>${esc(s.code)}</code></pre></div>`).join("");
-  $$("#snippets .copy").forEach((b) => (b.onclick = async () => {
-    try { await navigator.clipboard.writeText(META.snippets[b.dataset.k].code); b.textContent = "Copied"; } catch { b.textContent = "Select and copy"; }
-    setTimeout(() => (b.textContent = "Copy"), 1500);
-  }));
+    <div class="snippet"><h3>${esc(s.title)}</h3><div id="all-${k}"></div></div>`).join("");
+  for (const k of Object.keys(META.snippets)) codeBox(k, $(`#all-${k}`), {}, "demo values");
+  ["fin", "plate", "block"].forEach((c) => refreshCode(c));
   const host = location.origin;
   $("#api-example").textContent = `# start a training with your readings (add -u user:password if the page asks for a login)
 curl -s ${host}/api/fin/run -H 'Content-Type: application/json' -d '{
@@ -352,7 +407,8 @@ curl -s ${host}/api/fin/run -H 'Content-Type: application/json' -d '{
   "sensors_mm": [10, 20, 30, 40, 50], "readings": [65.1, 54.9, 47.7, 43.3, 42.9]
 }'
 # -> {"id": "3f9c..."}; poll until "status" is "done"
-curl -s ${host}/api/jobs/3f9c... | python -m json.tool     # result.h_pinn, result.h_least_squares, result.q_pinn_W`;
+curl -s ${host}/api/jobs/3f9c... | python -m json.tool     # result.h_pinn, result.h_least_squares, result.q_pinn_W
+# the complete script of a case: ${host}/api/code/fin  (also plate, block)`;
 }
 
 (async function init() {

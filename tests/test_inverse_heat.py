@@ -71,13 +71,42 @@ def test_api_job_flow_and_precomputed():
         assert c.get("/api/jobs/nope").status_code == 404
 
 
-def test_fin_snippet_runs_as_published(tmp_path):
-    """The 1D script on the Code tab is complete: run it and check the h it prints."""
+def _run_script(tmp_path, case, **overrides):
+    import re
     from inverse_heat.snippets import SNIPPETS
-    script = tmp_path / "fin.py"
-    script.write_text(SNIPPETS["fin"]["code"])
+    code = SNIPPETS[case]["code"]
+    for k, v in overrides.items():                       # the same substitution the page does
+        code, n = re.subn(rf"^{k} = [^#\n]*", f"{k} = {v!r}  ", code, flags=re.M)
+        assert n == 1, k
+    script = tmp_path / SNIPPETS[case]["file"]
+    script.write_text(code)
     root = os.path.abspath(os.path.join(APP, "..", ".."))
-    out = subprocess.run([sys.executable, str(script)], capture_output=True, text=True, timeout=600,
-                         env={**os.environ, "PYTHONPATH": root}).stdout
-    h = float(out.strip().splitlines()[-1].split("h = ")[1].split()[0])
-    assert h == pytest.approx(25.0, rel=0.05)
+    run = subprocess.run([sys.executable, str(script)], capture_output=True, text=True, timeout=900,
+                         env={**os.environ, "PYTHONPATH": root}, cwd=tmp_path)
+    assert run.returncode == 0, run.stderr[-2000:]
+    return run.stdout
+
+
+def _last_h(out):
+    return float(out.strip().splitlines()[-1].split("h = ")[1].split()[0])
+
+
+def test_fin_script_runs_as_published(tmp_path):
+    """The 1D script shown in the app is complete: run it unchanged and check the h it prints."""
+    assert _last_h(_run_script(tmp_path, "fin")) == pytest.approx(25.0, rel=0.05)
+
+
+def test_fin_script_with_your_readings(tmp_path):
+    """The page fills T_READ etc. with the user's data; demo readings of an aluminium fin with h = 120."""
+    kw = dict(k=200.0, d_mm=10.0, length_mm=100.0, t_base=90.0, t_air=20.0, sensors_mm=[20, 40, 60, 80, 100])
+    readings = engine.fin_synthetic_readings(**kw, h_true=120.0, noise=0.0)
+    out = _run_script(tmp_path, "fin", K=200.0, D_MM=10.0, L_MM=100.0, T_WALL=90.0, T_AIR=20.0,
+                      X_MM=[20, 40, 60, 80, 100], T_READ=readings)
+    assert _last_h(out) == pytest.approx(120.0, rel=0.05)
+
+
+@pytest.mark.parametrize("case,short", [("plate", dict(STEPS=60)), ("block", dict(STEPS=20, LBFGS_ITERS=3))])
+def test_2d_3d_scripts_run(tmp_path, case, short):
+    """The 2D and 3D scripts run end to end (shortened; the full runs are recorded in the example's results)."""
+    out = _run_script(tmp_path, case, **short)
+    assert "demo check" in out and _last_h(out) > 0

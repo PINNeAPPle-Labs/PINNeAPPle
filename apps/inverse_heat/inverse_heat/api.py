@@ -17,7 +17,7 @@ import uuid
 from typing import Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -174,6 +174,16 @@ def job(jid: str, history_from: int = 0):
     if j is None:
         raise HTTPException(404, "unknown job (results are kept for an hour)")
     return {k: v for k, v in j.items() if k != "history"} | {"history": j["history"][history_from:]}
+
+
+@app.get("/api/code/{case}")
+def code(case: str):
+    """The complete script of a case (fin, plate, block), as a .py download."""
+    if case not in SNIPPETS:
+        raise HTTPException(404, "case is fin, plate or block")
+    sn = SNIPPETS[case]
+    return PlainTextResponse(sn["code"], media_type="text/x-python",
+                             headers={"Content-Disposition": f'attachment; filename="{sn["file"]}"'})
 
 
 @app.get("/api/plate/precomputed")

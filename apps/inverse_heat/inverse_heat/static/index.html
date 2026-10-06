@@ -80,6 +80,10 @@
         </div>
       </div>
     </div>
+    <details class="panel codebox" id="code-fin" open>
+      <summary><b>Code for this case</b> <span class="meta">complete script with the inputs on the left; after a run, with that run's readings</span></summary>
+      <div class="code-host"></div>
+    </details>
   </section>
 
   <!-- ─────────────────────────────── 2D -->
@@ -107,23 +111,32 @@
       </form>
       <div class="panel" id="plate-out"><div class="empty"><h3>Loading…</h3></div></div>
     </div>
+    <details class="panel codebox" id="code-plate" open>
+      <summary><b>Code for this case</b> <span class="meta">complete script with the inputs on the left; after a run, with that run's readings</span></summary>
+      <div class="code-host"></div>
+    </details>
   </section>
 
   <!-- ─────────────────────────────── 3D -->
   <section id="tab-block" class="tab">
     <div class="panel" id="block-out"><div class="empty"><h3>Loading…</h3></div></div>
+    <details class="panel codebox" id="code-block" open>
+      <summary><b>Code for this case</b> <span class="meta">complete script of the run shown above</span></summary>
+      <div class="code-host"></div>
+    </details>
   </section>
 
   <!-- ─────────────────────────────── code -->
   <section id="tab-code" class="tab">
     <div class="panel">
       <h2 style="margin-top:0">Reproduce it with PINNeAPPle</h2>
-      <p>Everything on this page runs on the open-source library. Install it with <code>pip install pinneapple</code>, or clone
-        the repository to get the complete examples with their checks and figures:</p>
-      <pre class="code"><code>git clone https://github.com/PINNeAPPle-Labs/PINNeAPPle.git && cd PINNeAPPle && pip install -e .
-python examples/use_cases/fin_convection_inverse/fin_convection_inverse.py   # 1D, ~5 min (10 noise draws)
-python examples/use_cases/fin_convection_inverse/plate_2d.py                 # 2D, ~20 min
-python examples/use_cases/fin_convection_inverse/block_3d.py                 # 3D, ~30 min on a CPU</code></pre>
+      <p>Everything on this page runs on the open-source library. Each script below is complete: install the library, save the
+        file, run it. It prints h as it trains, then the results and the check against an independent solution. Put your own
+        data in the block at the top (<code>T_READ = [...]</code> for your readings).</p>
+      <pre class="code"><code>pip install pinneapple
+python fin_h_from_thermocouples.py</code></pre>
+      <p class="hint">The same cases with their figures and noise studies are in the repository:
+        <a class="link" href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/tree/main/examples/use_cases/fin_convection_inverse" target="_blank">examples/use_cases/fin_convection_inverse</a>.</p>
       <div id="snippets"></div>
     </div>
   </section>

@@ -54,11 +54,16 @@ def _mlp(
     n_layers: int,
     dropout: float,
     layernorm: bool,
+    activation: str = "gelu",
 ) -> nn.Sequential:
-    """Stack of Linear→GELU blocks with optional Dropout and final LayerNorm."""
-    layers: list[nn.Module] = [nn.Linear(in_dim, hidden_dim), nn.GELU()]
+    """Stack of Linear→act blocks with optional Dropout and final LayerNorm.
+
+    ``activation`` is ``"gelu"`` (default) or ``"relu"`` (as in Pfaff et al.).
+    """
+    act = {"gelu": nn.GELU, "relu": nn.ReLU}[activation]
+    layers: list[nn.Module] = [nn.Linear(in_dim, hidden_dim), act()]
     for _ in range(n_layers - 1):
-        layers += [nn.Linear(hidden_dim, hidden_dim), nn.GELU()]
+        layers += [nn.Linear(hidden_dim, hidden_dim), act()]
         if dropout > 0.0:
             layers.append(nn.Dropout(dropout))
     layers.append(nn.Linear(hidden_dim, out_dim))
@@ -74,12 +79,13 @@ class _ProcessorBlock(nn.Module):
     Node update : h'_i  = MLP_v([h_i, Σ_j e'_ij])  + h_i
     """
 
-    def __init__(self, hidden_dim: int, n_layers: int, dropout: float) -> None:
+    def __init__(self, hidden_dim: int, n_layers: int, dropout: float,
+                 activation: str = "gelu") -> None:
         super().__init__()
         self.edge_mlp = _mlp(3 * hidden_dim, hidden_dim, hidden_dim,
-                             n_layers, dropout, layernorm=True)
+                             n_layers, dropout, layernorm=True, activation=activation)
         self.node_mlp = _mlp(2 * hidden_dim, hidden_dim, hidden_dim,
-                             n_layers, dropout, layernorm=True)
+                             n_layers, dropout, layernorm=True, activation=activation)
 
     def forward(
         self,
@@ -141,6 +147,8 @@ class MeshGraphNet(GraphModelBase):
         ``pos_dim`` must be > 0 in this case.
     dropout:
         Dropout probability inside MLP hidden layers (0 = disabled).
+    activation:
+        ``"gelu"`` (default) or ``"relu"`` (the choice in the original paper).
 
     Examples
     --------
@@ -167,6 +175,7 @@ class MeshGraphNet(GraphModelBase):
         n_message_passing: int = 6,
         use_pos: bool = False,
         dropout: float = 0.0,
+        activation: str = "gelu",
     ) -> None:
         super().__init__()
 
@@ -187,7 +196,8 @@ class MeshGraphNet(GraphModelBase):
         # Input: raw node features [+ positions when use_pos]
         node_enc_in = node_in_dim + (pos_dim if use_pos else 0)
         self.node_encoder = _mlp(
-            node_enc_in, hidden_dim, hidden_dim, n_layers, dropout, layernorm=True
+            node_enc_in, hidden_dim, hidden_dim, n_layers, dropout, layernorm=True,
+            activation=activation,
         )
 
         # ── Edge encoder ─────────────────────────────────────────────────
@@ -198,7 +208,8 @@ class MeshGraphNet(GraphModelBase):
 
         if edge_enc_in > 0:
             self.edge_encoder: Optional[nn.Module] = _mlp(
-                edge_enc_in, hidden_dim, hidden_dim, n_layers, dropout, layernorm=True
+                edge_enc_in, hidden_dim, hidden_dim, n_layers, dropout, layernorm=True,
+                activation=activation,
             )
         else:
             # No edge information at all: edges initialised to zero at hidden_dim.
@@ -207,7 +218,7 @@ class MeshGraphNet(GraphModelBase):
 
         # ── Processor ────────────────────────────────────────────────────
         self.processor = nn.ModuleList([
-            _ProcessorBlock(hidden_dim, n_layers, dropout)
+            _ProcessorBlock(hidden_dim, n_layers, dropout, activation)
             for _ in range(n_message_passing)
         ])
 

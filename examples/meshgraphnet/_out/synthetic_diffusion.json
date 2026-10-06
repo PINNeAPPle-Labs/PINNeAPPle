@@ -1,0 +1,6 @@
+{
+  "rollout_rmse": 0.029681417159736156,
+  "one_step_rmse": 0.00910506482856969,
+  "n_steps": 20,
+  "frozen_ic_baseline_rmse": 0.1103672298292319
+}

@@ -9,3 +9,7 @@ from __future__ import annotations
 from .trust_gate import TrustGate, TrustScore
 
 __all__ = ["TrustGate", "TrustScore"]
+
+from .trust_report import Check, TrustReport  # noqa: E402  (relatório de confiança para deploy)
+
+__all__ += ["Check", "TrustReport"]

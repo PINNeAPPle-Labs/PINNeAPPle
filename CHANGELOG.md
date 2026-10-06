@@ -13,6 +13,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Inverse Heat Lab (`apps/inverse_heat`): the convection coefficient h from a few thermocouples with an inverse PINN,
+  in 1D (a pin fin, trained live on demo readings or your own, cross-checked by a least-squares fit of the analytic
+  solution), 2D (a heat-spreader plate, trained live and compared with a finite-volume solution cell by cell) and 3D
+  (a chip under a block, the full offline run in an interactive 3D view with layer slices). A Code tab shows how to
+  reproduce each case with `pip install pinneapple`; the 1D script runs as is and is tested. Deployed as the `inverse`
+  service in `apps/deploy`.
 - Example `examples/use_cases/fin_convection_inverse`: the convection coefficient of a pin fin identified from five
   noisy thermocouples with an inverse PINN (`PINNFactory`, h trainable and used in the tip condition too). Over 10
   noise draws h = 24.8 ± 0.4 W/m²K (true 25), the dissipated heat within 0.2 %, as accurate as a least-squares fit of

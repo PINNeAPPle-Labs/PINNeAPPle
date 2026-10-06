@@ -98,6 +98,20 @@ services:
     expose: ["8085"]
     mem_limit: ${UDR_MEM_LIMIT:-2g}
 
+  inverse:
+    build:
+      context: ../..
+      dockerfile: apps/inverse_heat/Dockerfile
+    image: pinneapple/inverse-heat:latest
+    restart: unless-stopped
+    environment:
+      IHL_USER: ${IHL_USER:-}
+      IHL_PASSWORD: ${IHL_PASSWORD:-}
+      IHL_MAX_JOBS: ${IHL_MAX_JOBS:-2}
+      IHL_THREADS: ${IHL_THREADS:-1}
+    expose: ["8086"]
+    mem_limit: ${IHL_MEM_LIMIT:-2g}
+
   # Optional local LLM for the Form Compiler: `docker compose --profile llm up -d ollama`, then
   # `docker compose exec ollama ollama pull <model>` and set UDR_OLLAMA_MODEL. Not published outside the network.
   ollama:
@@ -119,12 +133,13 @@ services:
       EDS_DOMAIN: ${EDS_DOMAIN:-standardizer.localhost}
       SMD_DOMAIN: ${SMD_DOMAIN:-simmeta.localhost}
       UDR_DOMAIN: ${UDR_DOMAIN:-udr.localhost}
+      IHL_DOMAIN: ${IHL_DOMAIN:-inverse.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse]
 
 volumes:
   caddy_data:

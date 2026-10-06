@@ -77,3 +77,12 @@
 		}
 	}
 }
+
+{$IHL_DOMAIN} {
+	import common
+	reverse_proxy inverse:8086 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}

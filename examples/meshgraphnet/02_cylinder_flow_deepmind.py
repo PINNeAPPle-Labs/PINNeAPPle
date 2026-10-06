@@ -34,6 +34,9 @@ ap.add_argument("--steps", type=int, default=20000)
 ap.add_argument("--hidden", type=int, default=128)
 ap.add_argument("--mp", type=int, default=15)
 ap.add_argument("--rollout", type=int, default=100)
+ap.add_argument("--lr", type=float, default=1e-3, help="paper: 1e-4 over ~1e6 steps")
+ap.add_argument("--lr-final", type=float, default=1e-5)
+ap.add_argument("--noise", type=float, default=0.003, help="paper/PhysicsNeMo: 0.02 over ~1e6 steps")
 ap.add_argument("--seed", type=int, default=0)
 a = ap.parse_args()
 
@@ -54,7 +57,8 @@ model = MeshDynamicsMGN(vel_dim=2, num_node_types=4, edge_dim=3, hidden_dim=a.hi
 model.fit_stats([v for _, v, _ in tr], [p for _, _, p in tr], [g for g, _, _ in tr])
 print(f"params={sum(p.numel() for p in model.parameters()):,}")
 
-hist = train_dynamics(model, tr, steps=a.steps, device=dev, noise_std=0.02, seed=a.seed)
+hist = train_dynamics(model, tr, steps=a.steps, lr=a.lr, lr_final=a.lr_final,
+                     device=dev, noise_std=a.noise, seed=a.seed)
 metrics = eval_rollout(model, va, n_steps=a.rollout, device=dev)
 
 # baseline: "velocity stays at its t=0 value" over the same horizon
@@ -64,7 +68,7 @@ for g, v, _ in va:
     n = min(a.rollout, v.shape[0] - 1)
     base.append(((v[0:1] - v[1 : n + 1])[:, free] ** 2).mean().sqrt().item())
 metrics["frozen_ic_baseline_rmse"] = sum(base) / len(base)
-metrics.update(train_traj=len(tr), valid_traj=len(va), steps=a.steps, hidden=a.hidden, mp=a.mp,
+metrics.update(train_traj=len(tr), valid_traj=len(va), steps=a.steps, lr=a.lr, noise=a.noise, hidden=a.hidden, mp=a.mp,
                final_train_loss=hist[-1] if hist else None)
 (out / "metrics.json").write_text(json.dumps(metrics, indent=2))
 print(json.dumps(metrics, indent=2))

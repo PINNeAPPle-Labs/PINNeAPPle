@@ -63,7 +63,7 @@ def read_trajectories(data_dir: Path, split: str, max_traj: int) -> List[Dict[st
             break
         traj = {}
         for name, spec in meta["features"].items():
-            arr = np.frombuffer(rec[name].tobytes(), dtype=np.dtype(spec["dtype"]))
+            arr = np.frombuffer(bytes(rec[name]),dtype=np.dtype(spec["dtype"])).copy()
             arr = arr.reshape(spec["shape"][0], -1, spec["shape"][-1])
             traj[name] = arr[0] if spec["type"] == "static" else arr
         out.append(traj)

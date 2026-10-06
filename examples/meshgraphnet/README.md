@@ -11,8 +11,18 @@ normalização, ruído de treino, alvo Δv, rollout autoregressivo com nós de c
 | `01_synthetic_diffusion.py` | MGN aprende difusão de calor em malhas Delaunay aleatórias e supera o baseline "estado congelado" em rollout em malhas inéditas | gerado na hora |
 | `02_cylinder_flow_deepmind.py` | Escoamento transiente em torno de cilindro (DeepMind `cylinder_flow`, Pfaff et al. 2021), orçamento reduzido | download de um prefixo do TFRecord |
 
-Resultados medidos: ver `_out/*.json` e a seção "Resultados" da PR/issue — não são os números do paper
-(que usam 1000 trajetórias, 15 camadas, ~10⁶ passos).
+### Resultados medidos (CPU, máquina carregada)
+
+| Experimento | Configuração | RMSE rollout | Baseline "estado inicial congelado" |
+|---|---|---|---|
+| 01 difusão sintética | 24 malhas de treino, 150 nós, 4 camadas MP, 2500 passos, rollout 20, 6 malhas de teste | 0,0297 | 0,1104 |
+| 02 cylinder_flow | 11 trajetórias de treino, 64 ocultos, 6 camadas MP, 3000 passos, lr 1e-3→1e-5, ruído 0,003, rollout 50, **2** trajetórias de validação | 0,0711 (1 passo: 0,0265) | 0,0962 |
+
+O sintético valida a implementação. O cylinder_flow é **só** uma prova de que o pipeline aprende com dados reais
+(~26% melhor que o baseline, com poucos dados e 3000 passos); **não** reproduz o paper
+(1000 trajetórias, 15 camadas, 128 ocultos, ~10⁶ passos, ruído 0,02). Hiperparâmetros foram escolhidos
+para o orçamento reduzido: uma primeira tentativa com lr 1e-4→1e-6 e ruído 0,02 não convergiu em 1000 passos
+(loss normalizada ~5) e foi interrompida.
 
 ## Literatura usada como referência de experimentos que funcionam
 

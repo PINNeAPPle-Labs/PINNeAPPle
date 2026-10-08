@@ -565,6 +565,8 @@ _SUBMODULES = {
     "decision":   "pinneapple_decision",
     # one error-metric convention for the whole library
     "metrics":    "pinneapple_physics.metrics",
+    # Field, Mesh, Domain, Geometry primitives
+    "core":       "pinneapple_core",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

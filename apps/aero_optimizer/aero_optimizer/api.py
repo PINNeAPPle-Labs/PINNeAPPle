@@ -539,9 +539,39 @@ def aircraft(body: AircraftDesignIn):
     v = _verified(x)
     if v:
         out["openfoam"] = {k: v[k] for k in ("id", "label", "alpha", "speed", "cells", "CL", "CD", "CD_pressure",
-                                             "CD_friction", "model", "render") if k in v}
-        out["lines_cfd"] = v.get("lines", [])
+                                             "CD_friction", "patches", "model", "ranges") if k in v}
+        out["openfoam"]["fields"] = os.path.exists(_cfd_path(v["id"]))
     return _clean(out)
+
+
+def _cfd_path(did: str) -> str:
+    return os.path.join(MODEL_DIR, "cfd3d", f"{did}.npz")
+
+
+def _grid(a, nd=3):
+    a = np.round(np.asarray(a, float), nd)
+    return [[None if not np.isfinite(t) else float(t) for t in row] for row in a]
+
+
+@app.get("/api/cfd3d/{did}")
+def cfd3d(did: str):
+    """The OpenFOAM 3D fields of a verified design: streamlines with their speed (|U|/U∞), the wake slice behind the
+    wing (speed and streamwise vorticity) and the symmetry plane (Cp and speed). NaN (inside the body) -> null."""
+    if not did.isalnum() or not os.path.exists(_cfd_path(did)):
+        raise HTTPException(404, "no OpenFOAM fields for this design")
+    z = np.load(_cfd_path(did))
+    v = next((d for d in VERIFY3D.get("designs", []) if d["id"] == did), {})
+    wb, sb = z["wake_box"].tolist(), z["sym_box"].tolist()
+    rng = lambda a: [float(np.nanpercentile(a, 2)), float(np.nanpercentile(a, 98))]  # noqa: E731
+    return _clean({
+        "id": did, "label": v.get("label"), "alpha": v.get("alpha"), "speed": v.get("speed"),
+        "lines": np.round(z["lines"][:, ::2], 3).tolist(), "line_speed": np.round(z["line_speed"][:, ::2], 3).tolist(),
+        "wake": {"x": wb[0], "y": wb[1:3], "z": wb[3:5], "speed": _grid(z["wake_speed"]), "vorticity": _grid(z["wake_vort"], 2)},
+        "sym": {"y": sb[0], "x": sb[1:3], "z": sb[3:5], "cp": _grid(z["sym_cp"]), "speed": _grid(z["sym_speed"])},
+        "ranges": {"cp": (v.get("ranges") or {}).get("cp", rng(z["cp"])), "cf": (v.get("ranges") or {}).get("cf", rng(z["cf"])),
+                   "speed": rng(z["line_speed"]), "wake_speed": rng(z["wake_speed"]),
+                   "vorticity": [-float(np.nanpercentile(np.abs(z["wake_vort"]), 98)), float(np.nanpercentile(np.abs(z["wake_vort"]), 98))],
+                   "sym_cp": rng(z["sym_cp"]), "sym_speed": rng(z["sym_speed"])}})
 
 
 def _parts_for(x: np.ndarray, detail="high"):
@@ -549,15 +579,17 @@ def _parts_for(x: np.ndarray, detail="high"):
 
 
 @app.get("/api/aircraft.glb")
-def aircraft_glb(x: str, cp: bool = False):
+def aircraft_glb(x: str, field: str = Query("", pattern="^(|cp|cf)$")):
+    """The airliner as glTF. field=cp|cf adds the OpenFOAM skin field as a vertex attribute (_CP) when this design
+    was run in OpenFOAM."""
     v = _x13([float(s) for s in x.split(",")])
     parts = _parts_for(v)
     scalars = None
     ver = _verified(v)
-    if cp and ver and os.path.exists(os.path.join(MODEL_DIR, "cfd3d", f"{ver['id']}_cp.npz")):
-        z = np.load(os.path.join(MODEL_DIR, "cfd3d", f"{ver['id']}_cp.npz"))
+    if field and ver and os.path.exists(_cfd_path(ver["id"])):
+        z = np.load(_cfd_path(ver["id"]))
         from pinneapple_design.aero.case3d import surface_scalars
-        scalars = surface_scalars(airliner_from(v), parts, {"xyz": z["xyz"], "cp": z["cp"].astype(np.float32)})
+        scalars = surface_scalars(airliner_from(v), parts, {"xyz": z["xyz"], field: z[field]}, key=field)
     return Response(to_glb(parts, scalars), media_type="model/gltf-binary",
                     headers={"Content-Disposition": 'inline; filename="airliner.glb"', "Cache-Control": "max-age=3600"})
 

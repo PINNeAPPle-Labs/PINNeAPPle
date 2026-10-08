@@ -44,7 +44,7 @@ def _bodies(af: Airframe) -> Dict[str, List[Part]]:
 
 
 def write_case3d(case: str, af: Airframe, alpha_deg: float = 2.0, speed: float = 55.0, nu: float = 1.5e-5,
-                 iterations: int = 800, level_wing=(5, 6), procs: int = 4) -> Dict[str, Any]:
+                 iterations: int = 800, level_wing=(5, 6), procs: int = 4, level_fus=(4, 5)) -> Dict[str, Any]:
     if os.path.isdir(case):
         shutil.rmtree(case)
     tri = os.path.join(case, "constant", "triSurface")
@@ -55,8 +55,10 @@ def write_case3d(case: str, af: Airframe, alpha_deg: float = 2.0, speed: float =
         with open(os.path.join(tri, f"{b}.stl"), "wb") as f:
             f.write(data)
     L, b2 = af.length, af.span / 2
-    xmin, xmax, ymax, zmin, zmax = -12.0, 32.0, 18.0, -14.0, 14.0
-    h = 1.0
+    # domain and background cells scale with the fuselage (light aircraft: 8.2 m -> 1 m cells)
+    sL = L / 8.2
+    xmin, xmax, ymax, zmin, zmax = -12.0 * sL, 32.0 * sL, max(18.0 * sL, b2 * 2.6), -14.0 * sL, 14.0 * sL
+    h = 1.0 * sL
     nx, ny, nz = int((xmax - xmin) / h), int(ymax / h), int((zmax - zmin) / h)
     _w(case, "system/blockMeshDict", "dictionary", f"""convertToMeters 1;
 vertices ( ({xmin} 0 {zmin}) ({xmax} 0 {zmin}) ({xmax} {ymax} {zmin}) ({xmin} {ymax} {zmin})
@@ -74,7 +76,7 @@ mergePatchPairs ();
         f"{b}.stl {{ extractionMethod extractFromSurface; extractFromSurfaceCoeffs {{ includedAngle 150; }} "
         f"subsetFeatures {{ nonManifoldEdges no; openEdges yes; }} writeObj no; }}" for b in BODIES) + "\n")
     lw = level_wing
-    levels = {"fuselage": (4, 5), "wing": lw, "htail": lw, "vtail": (lw[0], lw[0])}
+    levels = {"fuselage": level_fus, "wing": lw, "htail": lw, "vtail": (lw[0], lw[0])}
     geom = "\n".join(f"    {b}.stl {{ type triSurfaceMesh; name {b}; }}" for b in BODIES)
     feats = "\n".join(f"        {{ file \"{b}.eMesh\"; level {levels[b][1]}; }}" for b in BODIES)
     surf = "\n".join(f"        {b} {{ level ({levels[b][0]} {levels[b][1]}); patchInfo {{ type wall; inGroups (aircraft); }} }}" for b in BODIES)
@@ -84,8 +86,8 @@ addLayers false;
 geometry
 {{
 {geom}
-    near {{ type searchableBox; min (-1.5 0 -3.0); max ({L + 3.0} {b2 + 1.5} 3.5); }}
-    wake {{ type searchableBox; min ({L - 1} 0 -3.0); max ({L + 12} {b2 + 2.5} 3.0); }}
+    near {{ type searchableBox; min ({-1.5 * sL} 0 {-3.0 * sL}); max ({L + 3.0 * sL} {b2 + 1.5 * sL} {3.5 * sL}); }}
+    wake {{ type searchableBox; min ({L - 1 * sL} 0 {-3.0 * sL}); max ({L + 12 * sL} {b2 + 2.5 * sL} {3.0 * sL}); }}
 }}
 castellatedMeshControls
 {{
@@ -108,7 +110,7 @@ castellatedMeshControls
         near {{ mode inside; levels ((1E15 3)); }}
         wake {{ mode inside; levels ((1E15 2)); }}
     }}
-    locationInMesh (-7.53 6.27 5.31);                  // not on a background-cell face
+    locationInMesh ({-7.53 * sL} {6.27 * sL} {5.31 * sL});                  // not on a background-cell face
     allowFreeStandingZoneFaces true;
 }}
 snapControls
@@ -286,7 +288,6 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     nc = mesh.poly.n_cells
     p, _, _ = read_field(fs[f"{t}/p"], nc)
     U, _, _ = read_field(fs[f"{t}/U"], nc)
-    nut_b = read_boundary_values(fs[f"{t}/nut"], mesh, 1)
     V, nu = info["speed"], info["nu"]
     a = math.radians(info["alpha"])
     drag_dir, lift_dir = np.array([math.cos(a), 0, math.sin(a)]), np.array([-math.sin(a), 0, math.cos(a)])
@@ -296,7 +297,7 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     out: Dict[str, Any] = {"time": t, "cells": int(nc), "patches": {}}
     Ftot, Fp, Fv = np.zeros(3), np.zeros(3), np.zeros(3)
     faces_xyz, faces_cp = [], []
-    for b in mesh.poly.boundary:
+    for b in mesh.poly.patches:
         if b["name"] not in BODIES:
             continue
         s, n = int(b["startFace"]), int(b["nFaces"])
@@ -309,10 +310,15 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
         up = U[own]
         ut = up - (up * nhat).sum(1, keepdims=True) * nhat
         d = np.abs(((cg["centres"][own] - fg["centres"][idx]) * nhat).sum(1)) + 1e-9
-        nutw = nut_b[idx - ni, 0] if nut_b is not None else np.zeros(n)
-        nutw = np.nan_to_num(nutw)
+        # wall shear from the log law at the first cell (what the wall function imposes): U+ = ln(E y+)/kappa
+        Ut = np.linalg.norm(ut, axis=1) + 1e-12
+        utau = np.sqrt(nu * Ut / d)                                 # laminar start
+        for _ in range(30):
+            yp = np.maximum(d * utau / nu, 1e-6)
+            utau = np.where(yp > 11.25, Ut * 0.41 / np.log(9.8 * yp), np.sqrt(nu * Ut / d))
+        tau = utau ** 2
         fpress = pw[:, None] * sf
-        fvisc = ((nu + nutw) / d)[:, None] * ut * A[:, None]
+        fvisc = (tau / Ut)[:, None] * ut * A[:, None]
         Fp += fpress.sum(0)
         Fv += fvisc.sum(0)
         out["patches"][b["name"]] = {"faces": int(n), "CL": float((fpress + fvisc).sum(0) @ lift_dir / (q * S)),

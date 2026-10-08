@@ -97,7 +97,8 @@ def build_lattice(af, nc: int = 5, ns_wing: int = 14, ns_tail: int = 6, tail: bo
         return Lattice(np.array(P1), np.array(P2), np.array(C), np.array(N), np.array(S), np.array(ST),
                        np.array(chords), np.array(ycs), np.array(dys), np.array(ssurf), np.array(TR))
     ht = af.htail()
-    surface(1, ht["x_le"], ht["z"], ht["span"] / 2, ht["root_chord"], ht["taper"], 8.0, 0.0, 0.0, 0.0, None, ns_tail)
+    surface(1, ht["x_le"], ht["z"], ht["span"] / 2, ht["root_chord"], ht["taper"], ht.get("sweep_le", 8.0),
+            ht.get("dihedral", 0.0), 0.0, 0.0, None, ns_tail)
     return Lattice(np.array(P1), np.array(P2), np.array(C), np.array(N), np.array(S), np.array(ST),
                    np.array(chords), np.array(ycs), np.array(dys), np.array(ssurf), np.array(TR))
 

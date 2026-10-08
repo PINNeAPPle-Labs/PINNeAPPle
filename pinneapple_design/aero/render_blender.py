@@ -13,18 +13,22 @@ import math
 import os
 import sys
 
-VIEWS = {   # camera position relative to the aircraft centre (glTF axes after import: x right... see below), lens mm
+VIEWS = {   # camera offset from the aircraft centre (Blender axes after the glTF import), lens mm
     "hero": ((-11.0, -8.0, 1.6), 60),
     "hero_front": ((-10.5, 8.5, 1.2), 55),
     "front": ((-15.0, 0.0, 0.8), 70),
     "top": ((0.0, 0.01, 18.0), 45),
     "side": ((0.0, -18.0, 0.6), 60),
     "rear": ((9.0, -8.5, 3.2), 55),
+    "flight": ((-9.0, -11.0, -1.2), 55),          # from slightly below, sky behind
+    "flight_high": ((-6.0, -12.0, 4.5), 50),
+    "flight_rear": ((10.0, -9.0, 2.0), 55),
 }
 
 
 def render(glb: str, out: str, view: str = "hero", samples: int = 96, size=(1600, 900), cp: bool = False,
-           lines_npz: str = None, sun_elevation: float = 38.0, ground: bool = True, transparent: bool = False) -> str:
+           lines_npz: str = None, sun_elevation: float = 38.0, ground: bool = True, transparent: bool = False,
+           distance: float = 1.0) -> str:
     import bpy
     import numpy as np
     from mathutils import Vector
@@ -103,7 +107,7 @@ def render(glb: str, out: str, view: str = "hero", samples: int = 96, size=(1600
     sky.sky_type = "NISHITA"
     sky.sun_elevation = math.radians(sun_elevation)
     sky.sun_rotation = math.radians(215)
-    sky.altitude = 400
+    sky.altitude = 400 if ground else 9000
     sky.air_density, sky.dust_density = 1.0, 1.5
     bg = wn.nodes["Background"]
     bg.inputs["Strength"].default_value = 0.12
@@ -127,7 +131,7 @@ def render(glb: str, out: str, view: str = "hero", samples: int = 96, size=(1600
 
     # camera
     (dx, dy, dz), lens = VIEWS[view]
-    k = size_l / 13.0
+    k = size_l / 13.0 * distance
     cam_data = bpy.data.cameras.new("cam")
     cam_data.lens = lens
     cam = bpy.data.objects.new("cam", cam_data)
@@ -159,8 +163,10 @@ def main(argv=None):
     ap.add_argument("--cp", action="store_true")
     ap.add_argument("--lines", default=None)
     ap.add_argument("--no-ground", action="store_true")
+    ap.add_argument("--distance", type=float, default=1.0)
     a = ap.parse_args(argv)
-    render(a.glb, a.out, a.view, a.samples, (a.width, a.height), a.cp, a.lines, ground=not a.no_ground)
+    render(a.glb, a.out, a.view, a.samples, (a.width, a.height), a.cp, a.lines, ground=not a.no_ground,
+           distance=a.distance)
 
 
 if __name__ == "__main__":

@@ -106,6 +106,21 @@ class AircraftViewer {
     this.scene.add(this.groundGroup);
   }
 
+  _cloudDeck() {
+    const tex = canvasTex(1024, 1024, (g, w, h) => {
+      g.fillStyle = "#7d97b3"; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 2600; i++) {
+        const x = Math.random() * w, y = Math.random() * h, r = 8 + Math.random() * 46, a = 0.05 + Math.random() * 0.12;
+        const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(255,255,255,${a * 2})`); gr.addColorStop(1, "rgba(255,255,255,0)");
+        g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+      }
+    }, [6, 6]);
+    tex.wrapS = tex.wrapT = THREE.MirroredRepeatWrapping;
+    const deck = this.clouds = new THREE.Mesh(new THREE.PlaneGeometry(20000, 20000), new THREE.MeshStandardMaterial({ map: tex, roughness: 1, color: 0xffffff }));
+    deck.rotation.x = -Math.PI / 2; deck.position.y = -650;
+    this.scene.add(deck);
+  }
+
   async load(d) {
     // d: {glb, ground_z, span, length, loading: {eta, ratio}, lines_vlm, lines_cfd, cp_available, title}
     this.d = d;
@@ -122,6 +137,10 @@ class AircraftViewer {
       }
     });
     this.groundGroup.position.y = d.ground_z;
+    this.groundGroup.visible = !d.flight;
+    if (d.flight && !this.clouds) this._cloudDeck();
+    if (this.clouds) this.clouds.visible = !!d.flight;
+    this.scene.fog = d.flight ? new THREE.Fog(0xb9cde0, 900, 6000) : new THREE.Fog(0xc9d6e2, 160, 1100);
     this.scene.add(m);
     // propeller pivot at the spinner centre
     const prop = m.getObjectByName("propeller");
@@ -136,6 +155,9 @@ class AircraftViewer {
     }
     const b = new THREE.Box3().setFromObject(m);
     this.centre = b.getCenter(new THREE.Vector3()); this.size = b.getSize(new THREE.Vector3()).length();
+    this.controls.minDistance = this.size * 0.25; this.controls.maxDistance = this.size * 5;
+    this.controls.maxPolarAngle = d.flight ? Math.PI : Math.PI * 0.495;
+    const sc = this.sun.shadow.camera, e = this.size * 0.75; sc.left = -e; sc.right = e; sc.top = e; sc.bottom = -e; sc.far = this.size * 6; sc.updateProjectionMatrix();
     this._buildLines();
     this.host.querySelector("[data-m=cp]").disabled = !d.cp_available;
     this.host.querySelector("[data-m=cp]").title = d.cp_available ? "" : "only for designs run in 3D OpenFOAM";
@@ -152,11 +174,11 @@ class AircraftViewer {
     this.particles = [];
     const mat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0ea5e9, emissiveIntensity: 0.9, roughness: 0.4, transparent: true, opacity: 0.85 });
     const pmat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const pg = new THREE.SphereGeometry(0.045, 8, 6);
+    const sz = this.size || 12, pg = new THREE.SphereGeometry(0.0045 * sz, 8, 6);
     for (const L of src) {
       const pts = L.map(A2T);
       const curve = new THREE.CatmullRomCurve3(pts);
-      g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, Math.min(400, pts.length * 2), 0.018, 6, false), mat));
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, Math.min(400, pts.length * 2), 0.0016 * sz, 6, false), mat));
       for (let k = 0; k < 3; k++) { const s = new THREE.Mesh(pg, pmat); s.userData = { curve, t: k / 3 }; g.add(s); this.particles.push(s); }
     }
     g.visible = false;
@@ -204,7 +226,9 @@ class AircraftViewer {
   view(name) {
     if (!this.centre) return;
     const c = this.centre, k = this.size / 13;
-    const P = { hero: [-8.5, 1.7, -11.5], front: [0, 1.0, -17], side: [-17, 1.2, 0], top: [0.01, 19, 0], rear: [7.5, 3.2, 12.5] }[name];
+    const P = this.d && this.d.flight
+      ? { hero: [-8.5, -1.6, -11.0], front: [0, 0.6, -16.5], side: [-17, -0.5, 0], top: [0.01, 18, 0], rear: [8.0, 3.5, 12.0] }[name]
+      : { hero: [-8.5, 1.7, -11.5], front: [0, 1.0, -17], side: [-17, 1.2, 0], top: [0.01, 19, 0], rear: [7.5, 3.2, 12.5] }[name];
     this.camera.position.set(c.x + P[0] * k, c.y + P[1] * k, c.z + P[2] * k);
     this.controls.target.copy(c);
     this.controls.update();
@@ -220,9 +244,9 @@ class AircraftViewer {
     const dt = Math.min(0.05, this.clock.getDelta());
     if (this.prop && this.spin) this.prop.rotation.z += dt * 38;
     if (this.lines && this.lines.visible) for (const s of this.particles) {
-      s.userData.t = (s.userData.t + dt * 0.12) % 1; s.position.copy(s.userData.curve.getPointAt(s.userData.t));
+      s.userData.t = (s.userData.t + dt * 0.08) % 1; s.position.copy(s.userData.curve.getPointAt(s.userData.t));
     }
-    if (this.centre) { this.sun.target.position.copy(this.centre); this.sun.position.copy(this.centre).add(this.scene.children[0].material.uniforms.sunPosition.value.clone().multiplyScalar(60)); }
+    if (this.centre) { this.sun.target.position.copy(this.centre); this.sun.position.copy(this.centre).add(this.scene.children[0].material.uniforms.sunPosition.value.clone().multiplyScalar(this.size * 2)); }
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
   }

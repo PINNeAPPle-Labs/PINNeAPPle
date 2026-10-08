@@ -508,7 +508,8 @@ def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None) -
     materials = []
     for m in mats:
         s = MATERIALS[m]
-        mat = {"name": m, "pbrMetallicRoughness": {"baseColorFactor": s["color"] + [s.get("alpha", 1.0)],
+        lin = [round(c ** 2.2, 5) for c in s["color"]]                 # glTF colours are linear; the table is sRGB
+        mat = {"name": m, "pbrMetallicRoughness": {"baseColorFactor": lin + [s.get("alpha", 1.0)],
                                                    "metallicFactor": s["metallic"], "roughnessFactor": s["roughness"]}}
         ext = {}
         if s.get("clearcoat"):
@@ -517,7 +518,7 @@ def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None) -
             ext["KHR_materials_transmission"] = {"transmissionFactor": s["transmission"]}
             mat["alphaMode"] = "BLEND"
         if s.get("emissive"):
-            mat["emissiveFactor"] = s["emissive"]
+            mat["emissiveFactor"] = [round(c ** 2.2, 5) for c in s["emissive"]]
             ext["KHR_materials_emissive_strength"] = {"emissiveStrength": 4.0}
         if ext:
             mat["extensions"] = ext
@@ -545,7 +546,7 @@ def to_usda(parts: List[Part], title: str = "aircraft") -> str:
          '    defaultPrim = "Aircraft"', ')', '', 'def Xform "Aircraft"', '{', '    def Scope "Looks"', '    {']
     for m in dict.fromkeys(p.material for p in parts):
         s = MATERIALS[m]
-        c = s["color"]
+        c = [round(v ** 2.2, 5) for v in s["color"]]                  # UsdPreviewSurface colours are linear
         L += [f'        def Material "{m}"', '        {',
               f'            token outputs:surface.connect = </Aircraft/Looks/{m}/Surface.outputs:surface>',
               '            def Shader "Surface"', '            {', '                uniform token info:id = "UsdPreviewSurface"',

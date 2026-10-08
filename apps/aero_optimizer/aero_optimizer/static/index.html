@@ -14,7 +14,7 @@
     <div class="logo"><svg width="24" height="24" viewBox="0 0 16 16"><path d="M1.5 9.2c3.2-3.4 8.4-4.2 13-1.6-4.4.2-8.6.6-13 1.6z" fill="white"/><path d="M2 12.5c2-.8 4-1.2 6-1.2" stroke="#bae6fd" stroke-width="1" fill="none" stroke-dasharray="1.4 1"/></svg></div>
     <div>
       <div class="title">Aircraft Design Optimizer</div>
-      <div class="subtitle">OpenFOAM → graph neural network → thousands of aircraft → the ones that fly faster, burn less and land slower</div>
+      <div class="subtitle">OpenFOAM → graph neural network → thousands of airliners → the ones that burn less, fly faster and land slower</div>
     </div>
   </div>
   <nav class="tabs" id="tabs">
@@ -29,49 +29,36 @@
   <section id="tab-input" class="tab active">
     <div class="layout">
       <form class="panel form" onsubmit="return false">
-        <h2>The aircraft</h2>
+        <h2>The mission</h2>
         <div class="row2">
-          <label>Mass (kg) <input id="mass" type="number" step="any"></label>
-          <label>Engine power (kW) <input id="power_kw" type="number" step="any"></label>
+          <label>Passengers <input id="passengers" type="number" step="1"></label>
+          <label>Design range (km) <input id="range_km" type="number" step="any"></label>
         </div>
         <div class="row2">
-          <label>Cruise speed (kt) <input id="cruise_kt" type="number" step="any"></label>
           <label>Cruise altitude (m) <input id="cruise_altitude" type="number" step="any"></label>
+          <label>Engine TSFC at M 0.78 (g/kN·s) <input id="tsfc" type="number" step="any"></label>
+        </div>
+        <h2 style="margin-top:14px">Requirements <span class="meta">(a design that misses one is not certifiable)</span></h2>
+        <div class="row2">
+          <label>Max span (m) <span class="meta">36 = ICAO gate code C</span><input id="max_span" type="number" step="any"></label>
+          <label>Max approach speed Vref (kt) <input id="max_vref_kt" type="number" step="any"></label>
         </div>
         <div class="row2">
-          <label>Reference wing area (m²) <input id="wing_area" type="number" step="any"></label>
-          <label>Aspect ratio <input id="aspect_ratio" type="number" step="any"></label>
+          <label>Buffet margin (g) <input id="buffet_margin" type="number" step="any"></label>
+          <label>Fuel volume margin (×) <input id="fuel_volume_margin" type="number" step="any"></label>
         </div>
-        <details class="adv"><summary>Drag, propeller, engine</summary>
+        <details class="adv"><summary>Stability, stall, trim, structure</summary>
           <div class="row2">
-            <label>CD0 rest of aircraft <input id="cd0_rest" type="number" step="any"></label>
-            <label>Oswald factor <input id="oswald" type="number" step="any"></label>
+            <label>Static margin from (% MAC) <input id="sm_min" type="number" step="any"></label>
+            <label>to (% MAC) <input id="sm_max" type="number" step="any"></label>
           </div>
           <div class="row2">
-            <label>Propeller efficiency <input id="prop_efficiency" type="number" step="any"></label>
-            <label>BSFC (kg/kWh) <input id="bsfc" type="number" step="any"></label>
-          </div>
-        </details>
-        <h2 style="margin-top:14px">Requirements <span class="meta">(a design that misses one is not flyable)</span></h2>
-        <div class="row2">
-          <label>Max stall speed (kt) <input id="max_stall_speed_kt" type="number" step="any"></label>
-          <label>Min thickness (% chord) <input id="min_thickness_pct" type="number" step="any"></label>
-        </div>
-        <div class="row2">
-          <label>Static margin from (% MAC) <input id="sm_min" type="number" step="any"></label>
-          <label>to (% MAC) <input id="sm_max" type="number" step="any"></label>
-        </div>
-        <div class="row2">
-          <label>Stall must start inboard of (% semi-span) <input id="stall_station" type="number" step="any"></label>
-          <label>Max span (m) <input id="max_span" type="number" step="any"></label>
-        </div>
-        <details class="adv"><summary>Trim and margins</summary>
-          <div class="row2">
+            <label>Stall inboard of (% semi-span) <input id="stall_station" type="number" step="any"></label>
             <label>Max tail incidence to trim (°) <input id="max_tail_incidence" type="number" step="any"></label>
-            <label>Max cruise cl / cl<sub>max</sub> <input id="max_cruise_cl_ratio" type="number" step="any"></label>
           </div>
+          <label>Min thickness (% chord) <input id="min_thickness_pct" type="number" step="any"></label>
         </details>
-        <h2 style="margin-top:14px">Search <span class="meta">12 variables: airfoil (6), wing area, aspect ratio, taper, sweep, twist, wing position</span></h2>
+        <h2 style="margin-top:14px">Search <span class="meta">13 variables: wing section (6), area, aspect ratio, taper, sweep, twist, cruise Mach, wing position</span></h2>
         <div class="row3">
           <label>Population <input id="population" type="number" value="48"></label>
           <label>Generations <input id="generations" type="number" value="40"></label>
@@ -83,19 +70,19 @@
       </form>
       <div class="panel">
         <div class="empty">
-          <h3>Design an aircraft the way an aircraft company does</h3>
-          <p>Every design is a whole light aircraft: the wing's airfoil (6 shape parameters, from OpenFOAM through the
-            graph network), its area, aspect ratio, taper, sweep, twist and position, with tails sized to match.
-            Each one is flown in 3D (vortex lattice, trimmed) and checked like a real design review:</p>
+          <h3>Design an airliner the way Airbus and Boeing start one</h3>
+          <p>Every design is a whole single-aisle airliner (A320 / 737 class): the wing's airfoil (6 shape parameters,
+            learned from OpenFOAM by a graph network), its area, aspect ratio, taper, sweep, twist and position, and the
+            cruise Mach. Each one flies its mission (cruise at Mach 0.70–0.82, approach and landing) and goes through a
+            design review:</p>
           <div class="pipeline" id="pipe-small"></div>
           <div class="checkgrid">
-            <div><b>Faster</b><span>top speed at full power at cruise altitude</span></div>
-            <div><b>Less impact</b><span>kg of CO₂ per 100 km at cruise speed (fuel burnt × 3.1)</span></div>
-            <div><b>Lands slower</b><span>stall speed of the clean wing: shorter runways, gentler landings (and the CS-23 limit, 61 kt)</span></div>
-            <div><b>Must fly</b><span>static margin, stall starting inboard (not at the tips), trim, spar depth, span; a design that misses one is out</span></div>
-            <div><b>Can be trusted</b><span>five networks vote; the graph network gives the flow field as a second opinion; OpenFOAM verifies</span></div>
+            <div><b>Less impact</b><span>g of CO₂ per passenger-km over the design mission (Breguet, turbofan fuel burn)</span></div>
+            <div><b>Faster</b><span>cruise Mach, with the wave drag of the shocks that come with it (Korn equation)</span></div>
+            <div><b>Lands slower</b><span>approach speed with slats and flaps: shorter runways, less noise</span></div>
+            <div><b>Certifiable</b><span>36 m gate span, 1.3 g buffet margin, fuel in the wing, static margin, stall at the root, trim</span></div>
           </div>
-          <p class="hint">The reference is the Cessna 172's own airfoil, the NACA 2412, on the reference wing.</p>
+          <p class="hint">The reference is an A320ceo-class airliner (wing 122.6 m², span 34.1 m, 25° sweep, Mach 0.78) with a conventional NACA 2412 section.</p>
         </div>
       </div>
     </div>

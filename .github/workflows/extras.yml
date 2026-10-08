@@ -1,0 +1,39 @@
+name: Install extras
+
+# Each optional extra must install in a clean environment and pp.info() must report it.
+on:
+  push:
+    branches: ["main"]
+    paths: ["pyproject.toml", "pinneapple/__init__.py", ".github/workflows/extras.yml"]
+  pull_request:
+    paths: ["pyproject.toml", "pinneapple/__init__.py", ".github/workflows/extras.yml"]
+  workflow_dispatch:
+
+jobs:
+  extras:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        extra: [viz, pyvista, cost, uq, export, serve, geom, timeseries]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install the extra in a clean environment
+        run: |
+          python -m pip install --upgrade pip
+          pip install ".[${{ matrix.extra }}]"
+      - name: pp.info() runs and reports no broken package
+        run: |
+          python - <<'PY'
+          import io, contextlib
+          import pinneapple as pp
+          buf = io.StringIO()
+          with contextlib.redirect_stdout(buf):
+              pp.info()
+          out = buf.getvalue()
+          print(out)
+          assert "import failed" not in out, "pp.info() reports a package that does not import"
+          PY

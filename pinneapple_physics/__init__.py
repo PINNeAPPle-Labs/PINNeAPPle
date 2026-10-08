@@ -42,6 +42,8 @@ from . import closed_form
 from . import pde_environment
 from . import pinn_solver
 from . import symbolic_pde
+from .physical_problem import PARAMETER_ROLES, Parameter, PhysicalProblem, Quantity
+from . import metrics
 
 # backward-compat aliases (old names still work)
 environment = pde_environment
@@ -347,12 +349,19 @@ def solve_pde(
         if c.selector_type in ("all", "callable") and not explicit[kind_to_suffix.get(c.kind, "data")]
     ]
 
+    import warnings
+
+    from .pde_environment.condition_sampling import box_face_normals, sample_condition_points
+
+    cond_rng = np.random.default_rng(seed)
+    n_condition_points = max(64, n_collocation // 4)
     history = {"loss": []}
     for _epoch in range(epochs):
         opt.zero_grad(set_to_none=True)
         x_col = _sample_domain(n_collocation).requires_grad_(True)
 
         buckets = {"bc": ([], []), "ic": ([], []), "data": ([], [])}
+        bc_normals = []                       # one row per auto-sampled bc point, aligned with buckets["bc"]
         # per-suffix list of (condition_name, n_points_this_condition), in
         # the same order points are appended to `buckets`, so the absolute
         # offsets to build each condition's boolean mask can be recovered
@@ -360,11 +369,33 @@ def solve_pde(
         spans = {"bc": [], "ic": [], "data": []}
         for cond in auto_conditions:
             suffix = kind_to_suffix.get(cond.kind, "data")
-            x_np = _sample_domain_np(n_collocation)
-            m = np.asarray(cond.mask(x_np, ctx), dtype=bool)
-            x_sel = x_np[m]
+            # Boundary/initial selectors pick a face (t == 0, x == x_min); interior-only sampling never hits it
+            # and the condition was silently dropped. Candidates include every face of the box.
+            x_sel = sample_condition_points(lambda X, _c=cond: _c.mask(X, ctx), bounds, coords,
+                                            n_condition_points, cond_rng)
             if x_sel.shape[0] == 0:
+                if _epoch == 0:
+                    raise ValueError(
+                        f"solve_pde(): condition {cond.name!r} ({cond.kind}) selects no points on the box "
+                        f"{dict(bounds)} or its faces; check its selector or pass x_{suffix} explicitly"
+                    )
                 continue
+            if suffix == "bc":
+                normals, on_face = box_face_normals(x_sel, bounds, coords)
+                # A first-order Neumann/Robin condition needs the boundary normal (batch["n_bc"]). It is exact on the
+                # faces of the box; on a curved boundary inside the box it cannot be known from a selector, so
+                # those points are left out (with a warning) rather than trained against a wrong normal.
+                needs_normal = cond.kind in ("neumann", "robin") and int(getattr(cond, "order", 1) or 1) <= 1
+                if needs_normal and not on_face.all():
+                    if _epoch == 0:
+                        warnings.warn(
+                            f"solve_pde(): condition {cond.name!r} ({cond.kind}) has "
+                            f"{int((~on_face).sum())}/{len(on_face)} points off the faces of the box, where the "
+                            "boundary normal is unknown; they are skipped. Pass x_bc/y_bc/n_bc to train them.",
+                            stacklevel=2)
+                    x_sel, normals = x_sel[on_face], normals[on_face]
+                    if x_sel.shape[0] == 0:
+                        continue
             y_np = (
                 np.asarray(cond.value_fn(x_sel, ctx), dtype=np.float32)
                 if cond.value_fn is not None
@@ -372,9 +403,20 @@ def solve_pde(
             )
             if y_np.ndim == 1:
                 y_np = y_np[:, None]
+            if y_np.shape[1] != n_fields:
+                # Conditions on different fields (or traction components) are stacked in one y array: lay every
+                # condition out over all model fields, which the compiler slices back by cond.fields. Values of
+                # names that are not model fields are recomputed by the compiler from cond.values.
+                full = np.zeros((y_np.shape[0], n_fields), dtype=np.float32)
+                cols = [list(spec.fields).index(f) for f in cond.fields if f in spec.fields]
+                if len(cols) == len(cond.fields) == y_np.shape[1]:
+                    full[:, cols] = y_np
+                y_np = full
             spans[suffix].append((cond.name, x_sel.shape[0]))
             buckets[suffix][0].append(x_sel)
             buckets[suffix][1].append(y_np)
+            if suffix == "bc":
+                bc_normals.append(normals)
 
         auto_xy, mask_tensors = {}, {}
         for suffix in ("bc", "ic", "data"):
@@ -399,9 +441,13 @@ def solve_pde(
         x_ic_t, y_ic_t = explicit_xy["ic"] if explicit["ic"] else auto_xy["ic"]
         x_data_t, y_data_t = explicit_xy["data"] if explicit["data"] else auto_xy["data"]
 
+        if not explicit["bc"] and n_bc_t is None and bc_normals:
+            n_bc_epoch = torch.as_tensor(np.concatenate(bc_normals, axis=0), device=device_t)
+        else:
+            n_bc_epoch = n_bc_t
         batch = {
             "x_col": x_col, "ctx": ctx,
-            "x_bc": x_bc_t, "y_bc": y_bc_t, "n_bc": n_bc_t,
+            "x_bc": x_bc_t, "y_bc": y_bc_t, "n_bc": n_bc_epoch,
             "x_ic": x_ic_t, "y_ic": y_ic_t,
             "x_data": x_data_t, "y_data": y_data_t,
             **mask_tensors,
@@ -499,6 +545,9 @@ def pipeline(
 
 
 __all__ = [
+    "metrics", "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method",
+    "list_methods", "Experiment", "ExperimentResult",
+    "PhysicalProblem", "Parameter", "Quantity", "PARAMETER_ROLES",
     # Sub-modules (new names)
     "pde_environment", "pinn_solver", "symbolic_pde", "closed_form",
     # Sub-modules (old aliases — backward compat)
@@ -528,3 +577,10 @@ __all__ = [
     "SymbolicPDE", "pde_from_sympy", "auto_residual",
     "HardBC", "PeriodicBC", "MultiPeriodicBC", "SymbolicDirichletBC", "SymbolicNeumannBC",
 ]
+
+
+# Entry points defined after solve_pde, which they use.
+from .solving import (  # noqa: E402
+    Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
+)
+from .experiment import Experiment, ExperimentResult  # noqa: E402

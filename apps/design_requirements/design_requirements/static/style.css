@@ -1,0 +1,48 @@
+/* U-DR-1 Compiler (base styles in /shared/app.css) */
+:root { --brand: #a14a12; }
+.logo { background: var(--brand); }
+input:focus, select:focus { outline: 2px solid #a14a1233; }
+.layout { grid-template-columns: 380px 1fr; }
+.drop.small { padding: 12px; margin-top: 10px; }
+.filelist { margin-top: 8px; display: grid; gap: 5px; }
+.docrow { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; align-items: center; border: 1px solid var(--line);
+          border-radius: 8px; padding: 6px 8px; font-size: 12.5px; }
+.docrow .prio { width: 20px; height: 20px; border-radius: 50%; background: var(--brand); color: #fff; display: grid;
+                place-items: center; font-weight: 700; font-size: 11px; }
+.docrow .dn b { display: block; overflow-wrap: anywhere; }
+.docrow select { margin: 3px 0 0; padding: 3px 6px; font-size: 12px; }
+.docrow .ops button { border: 1px solid var(--line); background: #fff; border-radius: 6px; cursor: pointer; margin-left: 3px;
+                      width: 24px; height: 24px; }
+.docrow .ops button:disabled { opacity: .35; cursor: default; }
+.seg.small { margin: 0; }
+.seg.small button { padding: 5px 12px; font-size: 12.5px; }
+table.rev { table-layout: fixed; }
+table.rev td { overflow-wrap: anywhere; }
+table.rev input, table.rev select { margin: 0; padding: 4px 6px; font-size: 12px; }
+tr.st-conflict td { background: #fff8eb; }
+tr.st-missing td { background: #fff4f2; }
+.req { font-size: 10.5px; font-weight: 700; color: var(--brand); border: 1px solid #a14a1255; border-radius: 99px; padding: 0 6px; }
+.src .docp { display: block; }
+.docp { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.snip { display: block; font-size: 11.5px; color: var(--ink); background: #f6f7f9; border-radius: 5px; padding: 2px 6px; margin-top: 2px;
+        font-family: var(--mono); }
+.note { font-size: 11.5px; color: #8a5a00; margin-top: 3px; }
+.alts { margin-top: 5px; display: grid; gap: 2px; }
+.alts label { display: flex; gap: 6px; align-items: baseline; margin: 0; color: var(--ink); font-size: 12px; }
+.alts input { width: auto; margin: 0; }
+.gaps { background: var(--bad-bg); color: #7a1d12; border-radius: 9px; padding: 10px 14px; margin-top: 12px; font-size: 13px; }
+.gaps ul { margin: 6px 0 0 18px; padding: 0; }
+button.ghost.wide { width: 100%; margin-top: 16px; padding: 10px; }
+.ok { color: var(--ok); font-weight: 600; }
+a.btnlink { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; text-align: center; }
+#template { width: 100%; }
+[hidden] { display: none !important; }
+.alts label b { white-space: nowrap; }
+.fmtcard { border: 1px solid var(--line, #d0d7de); border-radius: 10px; padding: 10px 12px; margin-top: 8px; background: #fffaf6; font-size: 12.5px; display: grid; gap: 5px; }
+.fmtcard .fmt-std { font-weight: 700; color: #a14a12; }
+.fmtcard .fmt-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.fmtcard .fmt-in { color: var(--muted, #57606a); }
+table.fmts { margin: 6px 0 10px; font-size: 13px; }
+table.fmts td { padding: 4px 8px 4px 0; border: 0; vertical-align: top; }
+.ocr { color: #9a6700; font-weight: 600; }
+.ocrlow { color: #cf222e; font-weight: 700; }

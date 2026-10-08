@@ -12,7 +12,75 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
-Merged after the 0.6.2 release (not on PyPI yet).
+### Added
+- Example `examples/use_cases/fin_convection_inverse`: the convection coefficient of a pin fin identified from five
+  noisy thermocouples with an inverse PINN (`PINNFactory`, h trainable and used in the tip condition too). Over 10
+  noise draws h = 24.8 ± 0.4 W/m²K (true 25), the dissipated heat within 0.2 %, as accurate as a least-squares fit of
+  the analytic profile without needing it; results and figures in `results/`.
+  The same inverse problem in 2D (a heat-spreader plate with an 8 W device: h = 14.8 ± 0.3 for a true 15,
+  hot spot 79.2 °C vs 79.1) and 3D (a 10 W chip under a steel block, thermocouples only on top:
+  chip temperature 74.6 °C vs 74.5, h 149 from the energy balance on the learned field, the
+  trainable h -7 %), checked against an independent finite-volume solver (`fv_reference.py`).
+- Form Compiler (`apps/design_requirements`, library `pinneapple_data.formfill`): pick a document format, drop the
+  datasheets and specifications, and get every item the format asks for with the document, page and text each value
+  came from, the conflicts between documents and the missing required items. Supported formats: ASME Section VIII
+  Div. 1 Form U-DR-1 (fills the official fillable form; `pinneapple_data.udr1` keeps the shortcuts) and compiled
+  datasheets with the data of API 520/526 (relief valves), TEMA/API 660 (shell-and-tube exchangers, shell and tube
+  side columns), API 650 (storage tanks) and API 610 (centrifugal pumps), rendered as PDF (`render_datasheet`). Formats
+  are `FormSpec` data and round-trip through JSON; `Compilation.record()` exports values, units, SI values and sources
+  for other forms and calculations. Optional extraction with a local LLM served by Ollama (standard-library HTTP,
+  documents stay on your network) keeps a value only when its quoted source is in the document and the value is in
+  the quote. Scanned pages are read with OCR (Tesseract, `pinneapple_data.formfill.ocr`): pages are deskewed, table
+  grid lines are erased before recognition and used to rebuild the cells, borderless tables are split at wide gaps,
+  and every OCR value carries Tesseract's confidence (under 85 % it is flagged for checking against the scan).
+- Front door for using the library: `pp.solve(problem, method)` and `pp.compare(problem, methods, reference=...)` over
+  `PhysicalProblem`, preset names or PDE specs, with methods `pinn`, `analytic`, `exact`, `reference` and
+  `@pp.register_method` for your own. `compare` scores every method on the same points and reports a failing method
+  instead of stopping. The `reference` method refuses solver output that does not cover every coordinate and field (#28).
+- `pp.Experiment`: one reproducible run (seeds Python, NumPy and PyTorch, deterministic algorithms while it runs),
+  scored against a reference, with the problem fingerprint, environment and versions; `ExperimentResult.save()` writes a
+  JSON record and the model weights. Two runs with the same seed give bit-identical predictions on CPU (#29).
+- `pp.metrics`: `relative_l2`, `rmse`, `mae`, `max_abs`, `relative_linf`, `r2`, `per_field` and `summary`, one convention
+  for the whole library: per field, float64, relative errors `nan` where the reference norm is zero (#32).
+- `pinneapple_physics.closed_form.burgers.burgers_sine_exact`: the Cole-Hopf solution of the `burgers_1d` preset
+  (Gauss-Hermite quadrature with a shifted exponent, so no overflow at small viscosity), used by the `analytic` method.
+- `PhysicalProblem` (`pp.PhysicalProblem`, with `pp.Parameter` and `pp.Quantity`): one description of a physics problem
+  (coordinates, fields, PDE, conditions, domain or geometry, units, quantities of interest, solver choice, task and intent).
+  Parameters carry a unit and a role (`fixed`, `design`, `uncertain`, `unknown`), so the same object can drive a forward
+  solve, design optimization, uncertainty quantification or parameter discovery. `validate()` lists inconsistencies before a
+  solver sees them, `to_dict()`/`from_dict()` round-trip through JSON (a condition callable that is not serialized comes back
+  as a placeholder that fails loudly), and `fingerprint()` gives a stable hash for provenance. The three existing classes are
+  adapters, unchanged: `from_pde_spec`/`to_pde_spec` round-trip all 65 presets exactly, and `from_physics_case`/
+  `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
+
+### Fixed
+- `physical_units`: `mPa` (and `mPa·s`, `mW`) was read as `MPa` (`MW`), a factor of 10⁹, through the case-insensitive
+  fallback; milli and mega prefixes are no longer interchanged.
+- **Behavior:** `solve_pde` (and so `pp.pipeline`) silently dropped every boundary and initial condition defined by a
+  selector function, which is most presets. It drew points inside the box and kept those the selector accepted, but a
+  boundary (`t == 0`, `x == -1`) has zero volume, so no point was ever kept and the network learned the trivial solution.
+  On `burgers_1d` (nu = 0.01/pi) the relative L2 error of a 4000-epoch PINN goes from 1.02 to 0.023. Conditions are now
+  sampled inside the box and on each of its faces, and a condition that still selects no point raises an error. The
+  same flaw in the dataset generator (`_sample_callable_condition`) returned the origin repeated `n` times, and a selector
+  that raised was treated as "select everything"; both fixed.
+  Once these conditions had points, three more gaps they had hidden came up and are fixed: first-order Neumann/Robin
+  conditions now get the outward normal of the box face their points lie on (`batch["n_bc"]` was never built; points on a
+  curved boundary inside the box are skipped with a warning, since a selector cannot give their normal), conditions on
+  different fields are laid out over all model fields instead of failing to stack, and the plane `t = 0` (or `x = 0`)
+  is sampled when it lies inside the range, as for an initial condition at `t = 0` on `[-T, T]`.
+- Six presets could not be compiled: `pcb_thermal`, `cpu_heatsink_thermal`, `datacenter_airflow_2d`, `datacenter_cfd_3d`,
+  `datacenter_server_thermal` and `car_suspension_fatigue` declared heat-flux, convection or traction boundary targets
+  (`q_heat`, `h`/`T_ref`, `tx`/`ty`) without the `thermal_bc` or `traction_map` that tells the compiler how to resolve them, so
+  building the loss raised `KeyError` (the notes in `tag_geometry.py` said they were already resolvable). They now declare it,
+  and a test evaluates each loss. Found by `PhysicalProblem.validate()`.
+
+### Known issues
+- The classical reference path for `burgers_1d` (`fdm` solver) overflows and returns a grid over `x` only, without the time
+  axis; `pp.solve(..., "reference")` refuses it. Use `"analytic"` for this preset.
+- `industrial_furnace_thermal` still does not compile: its hot-face condition combines convection and radiation, which
+  `thermal_bc` does not support, and `insulation_interface` needs a two-region interface model. Documented in the preset notes.
+
+## [0.6.3] - 2026-10-04
 
 ### Added
 - `LRAnnealing` loss balancer (Wang, Teng & Perdikaris 2021), wired into `WeightScheduler` as
@@ -39,8 +107,20 @@ Merged after the 0.6.2 release (not on PyPI yet).
 - GitHub issue forms (bug report, feature request) and a pull request template; CI runs a blocking tier for the public
   API, cost module and the PyVista and CalculiX bridges.
 - Example `examples/calculix_pyvista_cantilever.py`.
+- Example `examples/calculix_cantilever/`: a real CalculiX cantilever reference run (input deck, results and README) (#143).
+- Release automation: `.github/workflows/release.yml` publishes to PyPI only from a `vX.Y.Z` tag, through Trusted Publishing
+  (no stored token), after `scripts/check_release_version.py` confirms that the tag, `pyproject.toml`, `CITATION.cff`,
+  `pinneapple.__version__` and a dated `CHANGELOG.md` heading agree, and after the built wheel imports in a clean environment.
+- `.github/workflows/extras.yml`: each optional extra installs in a clean environment and `pp.info()` reports no broken package.
+- `scripts/check_example_imports.py` and `tests/test_example_imports.py`: every `pinneapple*` import in `examples/` and `templates/`
+  must resolve. 156 imports in 57 files were already broken (they predate the refactor into the mega-modules); they are listed in
+  `scripts/example_imports_baseline.txt`, new breakage fails CI and a fixed file must leave the list.
 
 ### Changed
+- **Behavior:** the `numerical_convergence` component of `PhysicsConfidenceScore` is now multiplied by an order-plausibility factor: an
+  observed order outside [0.5, 4.0] (the convention already used by the CFD grid-convergence check) is not a believable asymptotic rate, even
+  when the GCI arithmetic is self-consistent, so scores for such studies drop. The same change touches the parametric dense-volume
+  operator workflow (#130).
 - **Behavior:** `bekker_wong` terramechanics rewritten: input validation, break points at the stress kinks,
   sign-aware shear for braking, Brent's method for sinkage, no fabricated values when the solver fails, and a
   vectorised, autograd-differentiable batched Gauss–Legendre quadrature (#24).
@@ -55,6 +135,13 @@ Merged after the 0.6.2 release (not on PyPI yet).
   `plot_streamlines_2d_model` is `plot_streamlines_2d_from_model`; the world-model names `CosmosAdapter`,
   `PhysicsVideoDataset`, `SimToRealAdapter`, `PhysicalScene` and `SceneObject` never existed and are replaced by
   `PhysicsWorldModel`, `WorldModelDataset`, `WorldModelTrainer` and `PhysicsScenario`. A test now resolves every name.
+- `templates/08_csg_geometry.py` and `templates/09_flow_visualization.py` imported names from the wrong module or a name that does not exist.
+- `run_custom_solver` (`pinneapple_tools.sandbox`) could not run on Linux with the default memory limit: the child was started with
+  `-m`, which imports the whole `pinneapple_tools` package (and torch) before the script, and under `RLIMIT_AS` of 1 GB the loader
+  failed to map `libtorch_cuda.so`, so every call returned `ProcessTerminated`. The child now runs the runner file by path and loads only the stdlib.
+- Test suite: the OpenFOAM graceful-degradation test passes whether or not OpenFOAM is installed; the Triton export test skips when `onnx`
+  is missing; two problem-design bridge tests no longer use a hard-coded macOS path and the import check reads the AST instead of grepping
+  (a docstring mention and stale `.pyc` files were false alarms).
 - `pp.info()` reported "optional deps missing" for modules that do not exist; it now imports the real packages and lists
   optional third-party dependencies with the extra that installs each.
 - `LICENSE` was a truncated Apache-2.0 text (end of section 4 and the appendix were missing); replaced with the canonical text.
@@ -237,7 +324,8 @@ Development before the first PyPI release is not itemized. In short: the initial
 PINN Arena and benchmark suite, the refactor into the current mega-modules (2026-05-06), the rename from `pinneaple` to
 `pinneapple` (2026-05-18), and the Physics Synthetic Data Factory and the 9-stage pipeline (2026-06-04).
 
-[Unreleased]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.3...HEAD
+[0.6.3]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/PINNeAPPle-Labs/PINNeAPPle/compare/v0.5.0...v0.6.0

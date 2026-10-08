@@ -2,10 +2,10 @@
 # Starts only the two apps and attaches them to that proxy's Docker network:
 #
 #   PROXY_NETWORK=<network of the existing proxy> \
-#   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta
+#   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta udr
 #
 # Then point the proxy at pinneapple-heatsink:8080, pinneapple-pcb:8081, pinneapple-datahealth:8082,
-# pinneapple-standardizer:8083 and pinneapple-simmeta:8084 (see README.md).
+# pinneapple-standardizer:8083, pinneapple-simmeta:8084 and pinneapple-udr:8085 (see README.md).
 services:
   heatsink:
     networks:
@@ -33,6 +33,11 @@ services:
       default: {}
       proxy:
         aliases: [pinneapple-simmeta]
+  udr:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-udr]
 
 networks:
   proxy:

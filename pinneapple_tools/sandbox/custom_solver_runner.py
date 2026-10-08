@@ -119,8 +119,8 @@ def _unflatten_from_npz(npz: Any) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Child-process driver (invoked as `python -m pinneapple_tools.sandbox
-# .custom_solver_runner`, i.e. this module's own __main__ block below)
+# Child-process driver (this file is run by path, see run_custom_solver; its own
+# __main__ block is at the bottom)
 # ---------------------------------------------------------------------------
 
 def _child_main(argv: Optional[list] = None) -> None:
@@ -245,7 +245,10 @@ def run_custom_solver(
         out_npz = os.path.join(tmp_dir, "result.npz")
         status_json = os.path.join(tmp_dir, "status.json")
         cmd = [
-            sys.executable, "-m", "pinneapple_tools.sandbox.custom_solver_runner",
+            # Run this file by path, not with ``-m``: ``-m`` imports the ``pinneapple_tools`` package first,
+            # which pulls in torch, and under a ``RLIMIT_AS`` cap of ~1 GB the dynamic loader cannot even map
+            # ``libtorch_cuda.so`` (the child died before writing a status file). Only the stdlib is needed here.
+            sys.executable, os.path.abspath(__file__),
             "--script", os.path.abspath(script_path),
             "--params-json", json.dumps(params),
             "--out-npz", out_npz,

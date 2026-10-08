@@ -576,8 +576,8 @@ def car_suspension_fatigue(
 
     conditions = (
         _tagged_dirichlet("mounting_fixed", {"ux": 0.0, "uy": 0.0}, weight=20.0),
-        _tagged_neumann("wheel_hub_load", {"ty": -F_vertical, "tx": F_lateral}, weight=10.0),
-        _tagged_neumann("free_edges", {"tx": 0.0, "ty": 0.0}, weight=5.0),
+        _tagged_neumann("wheel_hub_load", {"ty": -F_vertical, "tx": F_lateral}, weight=10.0, traction_map={"tx": "ux", "ty": "uy"}),
+        _tagged_neumann("free_edges", {"tx": 0.0, "ty": 0.0}, weight=5.0, traction_map={"tx": "ux", "ty": "uy"}),
     )
 
     return ProblemSpec(
@@ -637,9 +637,9 @@ def cpu_heatsink_thermal(
     )
 
     conditions = (
-        _tagged_neumann("cpu_base", {"q_heat": q_flux}, weight=10.0),
-        _tagged_neumann("fin_surfaces", {"h": h_fin, "T_ref": T_ambient}, weight=5.0),
-        _tagged_neumann("insulated_sides", {"q_heat": 0.0}, weight=5.0),
+        _tagged_neumann("cpu_base", {"q_heat": q_flux}, weight=10.0, thermal_bc={"kind": "flux", "T_field": "T"}),
+        _tagged_neumann("fin_surfaces", {"h": h_fin, "T_ref": T_ambient}, weight=5.0, thermal_bc={"kind": "convection", "T_field": "T"}),
+        _tagged_neumann("insulated_sides", {"q_heat": 0.0}, weight=5.0, thermal_bc={"kind": "flux", "T_field": "T"}),
     )
 
     return ProblemSpec(
@@ -700,9 +700,9 @@ def pcb_thermal(
     )
 
     conditions = (
-        _tagged_neumann("component_hotspots", {"q_heat": q_flux_avg}, weight=10.0),
-        _tagged_neumann("board_surface", {"h": h_natural, "T_ref": T_ambient}, weight=5.0),
-        _tagged_neumann("board_edges", {"q_heat": 0.0}, weight=5.0),
+        _tagged_neumann("component_hotspots", {"q_heat": q_flux_avg}, weight=10.0, thermal_bc={"kind": "flux", "T_field": "T"}),
+        _tagged_neumann("board_surface", {"h": h_natural, "T_ref": T_ambient}, weight=5.0, thermal_bc={"kind": "convection", "T_field": "T"}),
+        _tagged_neumann("board_edges", {"q_heat": 0.0}, weight=5.0, thermal_bc={"kind": "flux", "T_field": "T"}),
     )
 
     return ProblemSpec(
@@ -827,7 +827,7 @@ def industrial_furnace_thermal(
             "radiation_eps": eps_wall,
             "radiation_sigma": sigma_SB,
         }, weight=10.0),
-        _tagged_neumann("outer_surface", {"h": h_ambient, "T_ref": T_ambient}, weight=5.0),
+        _tagged_neumann("outer_surface", {"h": h_ambient, "T_ref": T_ambient}, weight=5.0, thermal_bc={"kind": "convection", "T_field": "T"}),
         _tagged_neumann("insulation_interface", {"k": k_insulation}, weight=5.0),
     )
 
@@ -1018,7 +1018,7 @@ def datacenter_airflow_2d(
     conditions = (
         _tagged_dirichlet("cold_aisle_inlet", {"u": U_cold_aisle, "v": 0.0, "T": T_cold_air}, weight=20.0),
         _tagged_neumann("hot_aisle_outlet", {"p": 0.0}, weight=5.0),
-        _tagged_neumann("server_surfaces", {"q_heat": q_flux}, weight=10.0),
+        _tagged_neumann("server_surfaces", {"q_heat": q_flux}, weight=10.0, thermal_bc={"kind": "flux", "T_field": "T"}),
         _tagged_neumann("floor_ceiling", {"u": 0.0, "v": 0.0}, weight=5.0),
     )
 
@@ -1076,11 +1076,11 @@ def datacenter_server_thermal(
     )
 
     conditions = (
-        _tagged_neumann("cpu_zone", {"q_heat": Q_cpu / (0.04 * 0.04)}, weight=10.0),   # ~4cm die
-        _tagged_neumann("gpu_zone", {"q_heat": Q_gpu / (0.06 * 0.06)}, weight=10.0),
-        _tagged_neumann("ram_zone", {"q_heat": Q_ram / (0.1 * 0.01)}, weight=10.0),
-        _tagged_neumann("board_surface", {"h": h_forced, "T_ref": T_inlet_air}, weight=5.0),
-        _tagged_neumann("board_edges", {"q_heat": 0.0}, weight=5.0),
+        _tagged_neumann("cpu_zone", {"q_heat": Q_cpu / (0.04 * 0.04)}, weight=10.0, thermal_bc={"kind": "flux", "T_field": "T"}),   # ~4cm die
+        _tagged_neumann("gpu_zone", {"q_heat": Q_gpu / (0.06 * 0.06)}, weight=10.0, thermal_bc={"kind": "flux", "T_field": "T"}),
+        _tagged_neumann("ram_zone", {"q_heat": Q_ram / (0.1 * 0.01)}, weight=10.0, thermal_bc={"kind": "flux", "T_field": "T"}),
+        _tagged_neumann("board_surface", {"h": h_forced, "T_ref": T_inlet_air}, weight=5.0, thermal_bc={"kind": "convection", "T_field": "T"}),
+        _tagged_neumann("board_edges", {"q_heat": 0.0}, weight=5.0, thermal_bc={"kind": "flux", "T_field": "T"}),
     )
 
     return ProblemSpec(
@@ -1139,7 +1139,7 @@ def datacenter_cfd_3d(
     conditions = (
         _tagged_dirichlet("crac_supply", {"u": 0.0, "v": U_supply, "w": 0.0, "T": T_supply}, weight=20.0),
         _tagged_neumann("return_air", {"p": 0.0}, weight=5.0),
-        _tagged_neumann("rack_surfaces", {"q_heat": Q_per_rack / (2.0 * 0.6 * 2.0)}, weight=10.0),
+        _tagged_neumann("rack_surfaces", {"q_heat": Q_per_rack / (2.0 * 0.6 * 2.0)}, weight=10.0, thermal_bc={"kind": "flux", "T_field": "T"}),
         _tagged_dirichlet("room_walls", {"u": 0.0, "v": 0.0, "w": 0.0}, weight=20.0),
     )
 

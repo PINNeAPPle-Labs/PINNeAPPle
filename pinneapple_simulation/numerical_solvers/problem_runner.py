@@ -154,34 +154,19 @@ def _sample_callable_condition(
     ctx: Dict[str, Any],
     oversample: int = 10,
 ) -> np.ndarray:
-    """Sample points that satisfy a callable selector by rejection sampling."""
-    dims = len(coord_names)
-    collected = []
-    total_needed = n
-    attempts = 0
-    max_attempts = 20
+    """Points accepted by a callable selector, drawn inside the box and on its faces.
 
-    while len(collected) < total_needed and attempts < max_attempts:
-        candidates = _sample_collocation(domain_bounds, coord_names, total_needed * oversample, rng)
-        try:
-            mask = selector_fn(candidates, ctx)
-        except Exception:
-            mask = np.ones(len(candidates), dtype=bool)
-        selected = candidates[mask]
-        if len(selected) > 0:
-            collected.append(selected)
-        attempts += 1
+    Previously this rejection-sampled the interior only, so face selectors (``np.isclose(t, 0)``) found nothing and
+    the function returned ``n`` copies of the origin -- a boundary condition imposed at a single interior point.
+    A selector that raised was treated as "select everything". Both are gone: an error propagates, and when no
+    point qualifies an empty array is returned (callers skip the condition).
+    """
+    from pinneapple_physics.pde_environment.condition_sampling import sample_condition_points
 
-    if not collected:
-        return np.zeros((n, dims), dtype=np.float32)
-
-    all_pts = np.concatenate(collected, axis=0)
-    if len(all_pts) >= n:
-        idx = rng.choice(len(all_pts), n, replace=False)
-        return all_pts[idx]
-    # pad by repeating
-    idx = rng.choice(len(all_pts), n, replace=True)
-    return all_pts[idx]
+    pts = sample_condition_points(lambda X: selector_fn(X, ctx), domain_bounds, coord_names, n, rng)
+    if 0 < len(pts) < n:
+        pts = pts[rng.choice(len(pts), n, replace=True)]
+    return pts
 
 
 def generate_pinn_dataset(

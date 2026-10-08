@@ -1,6 +1,8 @@
 """Tests for pinneapple_registry."""
 from __future__ import annotations
 
+import pytest
+
 import tempfile
 
 import numpy as np
@@ -102,6 +104,7 @@ def test_problem_store_snapshot_is_not_reconstructable():
 
 
 def test_triton_export_produces_config_and_onnx():
+    pytest.importorskip("onnx", reason="torch.onnx export needs the 'onnx' package (pip install \"pinneapple[export]\")")
     reg = _registry()
     model = ComponentRegistry.build("HeatExchangerVanillaPINN", in_dim=2, out_dim=1, hidden=(8, 8))
     reg.models.save("hx_triton_demo", model)

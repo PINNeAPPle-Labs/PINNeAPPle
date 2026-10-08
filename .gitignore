@@ -33,3 +33,6 @@ examples/geometry/outputs/
 # MeshGraphNet examples: downloaded data and run outputs
 examples/meshgraphnet/_data/
 examples/meshgraphnet/_out/*.log
+
+# ASME forms are copyrighted: keep users' copies out of the repository
+apps/deploy/forms/*.pdf

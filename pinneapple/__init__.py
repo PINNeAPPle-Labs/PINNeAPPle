@@ -106,7 +106,7 @@ Feature examples:
 
 from __future__ import annotations
 
-__version__ = "0.6.2"
+__version__ = "0.6.3"
 __author__  = "pinneapple contributors"
 
 # ---------------------------------------------------------------------------
@@ -306,6 +306,16 @@ try:
         CSGUnion, CSGIntersection, CSGDifference,
         lshape, csg_annulus, channel_with_hole, t_junction,
     )
+except Exception:  # pragma: no cover
+    pass
+
+# Unified problem description (geometry, physics, conditions, parameters with units and roles)
+try:
+    from pinneapple_physics.physical_problem import Parameter, PhysicalProblem, Quantity
+    from pinneapple_physics.solving import (
+        Comparison, MethodNotAvailable, Solution, compare, list_methods, register_method, solve,
+    )
+    from pinneapple_physics.experiment import Experiment, ExperimentResult
 except Exception:  # pragma: no cover
     pass
 
@@ -553,6 +563,8 @@ _SUBMODULES = {
     "worldmodel": "pinneapple_worldmodel",
     # decision layer (which experiment to run next)
     "decision":   "pinneapple_decision",
+    # one error-metric convention for the whole library
+    "metrics":    "pinneapple_physics.metrics",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not
@@ -585,6 +597,10 @@ __all__ = [
     "__version__",
     # Problem
     "get_preset", "list_presets", "register_preset",
+    "PhysicalProblem", "Parameter", "Quantity",
+    # Front door: solve, compare, run reproducible experiments, score with one metrics convention
+    "solve", "compare", "Solution", "Comparison", "MethodNotAvailable", "register_method", "list_methods",
+    "Experiment", "ExperimentResult", "metrics",
     # PDE knowledge base
     "list_pde_families", "get_pde_family", "identify_pde", "suggest_problem_spec",
     # Models

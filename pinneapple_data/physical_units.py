@@ -83,7 +83,7 @@ _BASE: Dict[str, Tuple[float, Dim, float]] = {
     # amount, current
     "mol": (1, _N, 0), "kmol": (1e3, _N, 0), "A": (1, _A, 0), "mA": (1e-3, _A, 0), "kA": (1e3, _A, 0),
     # pressure / stress
-    "Pa": (1, _PA, 0), "hPa": (1e2, _PA, 0), "kPa": (1e3, _PA, 0), "MPa": (1e6, _PA, 0), "GPa": (1e9, _PA, 0),
+    "Pa": (1, _PA, 0), "mPa": (1e-3, _PA, 0), "hPa": (1e2, _PA, 0), "kPa": (1e3, _PA, 0), "MPa": (1e6, _PA, 0), "GPa": (1e9, _PA, 0),
     "bar": (1e5, _PA, 0), "mbar": (1e2, _PA, 0), "psi": (_LBF / _INCH ** 2, _PA, 0), "ksi": (1e3 * _LBF / _INCH ** 2, _PA, 0),
     "atm": (101325, _PA, 0), "torr": (101325 / 760, _PA, 0), "mmHg": (133.322387415, _PA, 0),
     "inH2O": (249.08891, _PA, 0), "mmH2O": (9.80665, _PA, 0), "inHg": (3386.389, _PA, 0),
@@ -157,7 +157,8 @@ def _lookup(tok: str) -> Optional[Tuple[float, Dim, float]]:
         if k in _ALIASES:
             return _lookup(_ALIASES[k])
     for k, v in _BASE.items():
-        if k.lower() == low and k not in ("mm", "Mm"):
+        # case-insensitive fallback, but never across the milli/mega prefixes (mPa is not MPa, mW is not MW)
+        if k.lower() == low and k not in ("mm", "Mm") and not (tok[:1] in "mM" and k[:1] != tok[:1] and len(tok) > 1):
             return v
     return None
 

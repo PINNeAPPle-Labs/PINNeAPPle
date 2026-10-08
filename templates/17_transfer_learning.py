@@ -1,13 +1,12 @@
 """17_transfer_learning.py — Transfer learning for parametric PDEs.
 
 Demonstrates:
-- FineTuner: fine-tune a pre-trained PINN on a new physical regime
-- ParametricFreezer: freeze backbone layers, train only the head
-- LayerWiseLRScheduler: different learning rates per layer group
+- TransferTrainer: fine-tune a pre-trained PINN on a new physical regime
+- partial_freeze strategy: freeze backbone layers, train only the head
+- layer_lr_scale: different learning rates per layer group
 - Comparison of fine-tuned vs. from-scratch training speed
 """
 
-import copy
 import torch
 import torch.nn as nn
 import numpy as np
@@ -15,9 +14,11 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from pinneapple_adaptation.transfer_learning.finetuner import FineTuner, FineTunerConfig
-from pinneapple_adaptation.transfer_learning.freezer import ParametricFreezer
-from pinneapple_adaptation.transfer_learning.lr_scheduler import LayerWiseLRScheduler
+from pinneapple_adaptation.transfer_learning import (
+    TransferConfig,
+    TransferTrainer,
+    count_trainable,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -93,45 +94,45 @@ def main():
     scratch_model = build_pinn().to(device)
     scratch_hist = train_from_scratch(scratch_model, ALPHA_TARGET, device, n_epochs=2000)
 
-    # --- Step 3: ParametricFreezer — freeze first 2 layers -------------------
-    frozen_model = copy.deepcopy(source_model)
-    freezer = ParametricFreezer(model=frozen_model)
-    freezer.freeze_layers(layer_indices=[0, 1])      # freeze layers 0,1 (input + 1st hidden)
-    n_frozen = freezer.n_frozen_params()
+    # --- Step 3: TransferTrainer — freeze the input layer --------------------
+    # The partial_freeze strategy freezes the parameters whose names start
+    # with one of the freeze_prefix entries. In this nn.Sequential those
+    # names are "0.weight"/"0.bias" for the input layer (index 1 is its
+    # Tanh, which has no parameters). The trainer deep-copies the source
+    # model, so source_model itself is never modified.
+    #
+    # layer_lr_scale replaces the old per-layer LR scheduler: each entry
+    # scales finetune_lr for the parameters under that prefix, reproducing
+    # the old absolute rates — layer 0: 1e-5, layer 2: 1e-4, layers 4 and
+    # 6: 5e-4. (Layer 0 is frozen, so its group is empty; the scale entry
+    # documents the intent and applies if the freeze is lifted.)
+    config = TransferConfig(
+        strategy="partial_freeze",
+        freeze_prefix=["0"],
+        epochs=2000,
+        finetune_lr=5e-4,
+        layer_lr_scale={"0": 0.02, "2": 0.2, "4": 1.0, "6": 1.0},
+        device=str(device),
+        seed=7,
+    )
+    trainer = TransferTrainer(source_model, config)
+    frozen_model = trainer.prepare()
+    n_frozen = count_trainable(frozen_model)["frozen"]
     print(f"\nFreezer: {n_frozen} parameters frozen.")
 
-    # --- Step 4: FineTuner with LayerWiseLR ----------------------------------
-    ft_config = FineTunerConfig(
-        n_epochs=2000,
-        base_lr=5e-4,
-        weight_decay=1e-5,
-        patience=200,
-        device=str(device),
-    )
-
-    # Build LayerWiseLRScheduler: lower lr for frozen-adjacent layers
-    layer_lrs = {
-        "0": 1e-5,   # layer 0 (nearly frozen)
-        "2": 1e-4,   # layer 2
-        "4": 5e-4,   # layer 4 (output region)
-        "6": 5e-4,   # output layer
-    }
-    lw_scheduler = LayerWiseLRScheduler(model=frozen_model, layer_lrs=layer_lrs)
-
+    # --- Step 4: fine-tune on α_target ---------------------------------------
     x_col = torch.linspace(0, 1, 300, device=device).unsqueeze(1)
 
-    def ft_loss_fn(model, epoch):
+    def ft_physics_fn(model, batch):
+        # The trainer calls this with a batch dict; this template builds
+        # its collocation points itself, so the batch goes unused.
         res = heat_residual(model, x_col.clone(), ALPHA_TARGET)
         return res.pow(2).mean() + 10 * bc_loss(model, device)
 
-    finetuner = FineTuner(
-        model=frozen_model,
-        config=ft_config,
-        loss_fn=ft_loss_fn,
-        lr_scheduler=lw_scheduler,
-    )
     print(f"Fine-tuning to α_target={ALPHA_TARGET} ...")
-    ft_hist = finetuner.train()
+    result = trainer.finetune(target_physics_fn=ft_physics_fn)
+    frozen_model = result["model"]
+    ft_hist = [entry["loss_total"] for entry in result["history"]]
     print("Fine-tuning complete.")
 
     # --- Evaluation -----------------------------------------------------------
@@ -148,8 +149,7 @@ def main():
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
     axes[0].semilogy(scratch_hist, label=f"From scratch (α={ALPHA_TARGET})", alpha=0.8)
-    ft_loss_series = ft_hist.get("total", ft_hist.get("loss", []))
-    axes[0].semilogy(ft_loss_series, label="Fine-tuned (frozen backbone)", alpha=0.8)
+    axes[0].semilogy(ft_hist, label="Fine-tuned (frozen backbone)", alpha=0.8)
     axes[0].set_xlabel("Epoch")
     axes[0].set_ylabel("Loss")
     axes[0].set_title("Transfer vs. from-scratch convergence")

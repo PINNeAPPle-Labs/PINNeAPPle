@@ -13,6 +13,10 @@ pp.viz.render(scene, "stress.jpg", field="STRESS")    # Blender Cycles, jet scal
 pp.viz.web_viewer(scene, "viewer/")                   # interactive page (python -m http.server -d viewer)
 ```
 
+![Ahmed body, skin pressure](../assets/studio/ahmed-cp.jpg)
+![Ahmed body, wake vortices](../assets/studio/ahmed-wake-vorticity.jpg)
+![CalculiX cantilever, von Mises stress](../assets/studio/cantilever-von-mises.jpg)
+
 ## Scene
 
 A `Scene` holds surfaces (vertices, triangles, a material and per-vertex fields), polylines with values

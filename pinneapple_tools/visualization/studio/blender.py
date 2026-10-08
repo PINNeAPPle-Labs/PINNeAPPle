@@ -281,6 +281,9 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
         if len(co) > 4000:
             co = co[:: len(co) // 4000]
         pts.append(co @ mw[:3, :3].T + mw[:3, 3])
+    if slice and sc is not None:                         # frame the whole slice plane, not only the body
+        sl = next(x for x in sc.slices if x.name == slice)
+        pts.append(_to_blender(np.array([sl.origin, sl.origin + sl.u, sl.origin + sl.u + sl.v, sl.origin + sl.v]), axes))
     k = np.concatenate(pts) - c0
     # aim at the middle of the projected extent, then back off until every vertex is in frame (perspective)
     shift = right * 0.5 * (np.max(k @ right) + np.min(k @ right)) + up * 0.5 * (np.max(k @ up) + np.min(k @ up))

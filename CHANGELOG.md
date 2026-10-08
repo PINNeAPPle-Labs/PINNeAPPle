@@ -13,6 +13,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- 3D studio (`pp.viz`, `pinneapple_tools.visualization.studio`): a `Scene` for any geometry (STL/OBJ, any result
+  `pinneapple_data.cae` reads, arrays) with per-vertex fields, streamlines and slice planes; export to glTF (fields as
+  vertex attributes), OpenUSD and STL; Blender Cycles renders on the jet colour scale with a colour bar; a browser
+  viewer that ships its own three.js. Vectors show as magnitude, stress tensors as von Mises.
+- External flow in OpenFOAM for any body (`pp.cfd.ExternalFlow`): snappyHexMesh, simpleFoam k-ω SST with wall
+  functions, half model, moving road; forces, skin Cp/Cf, streamlines, mid-plane and wake slices, `to_scene()`.
+  Ahmed body at 25°: CD 0.321 (coarse) and 0.298 (medium) against about 0.285 measured. Closed bodies in
+  `pp.bodies` (Ahmed body, sphere, cylinder, box); `pp.cae` reaches `pinneapple_data.cae`.
 - Aircraft Design Optimizer (`apps/aero_optimizer`, service `aero`, library `pinneapple_design.aero`): airfoil
   (CST) and wing-area design for a light aircraft. 436 OpenFOAM runs (simpleFoam, k-ω SST, y⁺ < 1) on an O-grid with
   the same topology for every design train a MeshGraphNet (flow field + Cl, Cd, Cm; drag within 1.5 % on unseen

@@ -9,6 +9,9 @@ common vocabulary the solvers, models and datasets can build on:
 - :class:`Field`      values on a grid, mesh or point cloud
 - :class:`FunctionField`  the same interface for a torch callable (PINN), by autograd
 
+Operators (:mod:`pinneapple_core.operators`) give one function per derivative on every
+representation: ``grad, div, curl, laplacian, jacobian, hessian, integrate, flux``.
+
 Every field answers ``gradient()``, ``divergence()``, ``interpolate(x)`` and
 ``integrate()``, whatever it is discretised on.
 """
@@ -16,5 +19,7 @@ from .domain import Domain
 from .field import Field, FunctionField, Grid, PointCloud
 from .geometry import Geometry
 from .mesh import Mesh
+from .operators import curl, div, flux, grad, hessian, integrate, jacobian, laplacian
 
-__all__ = ["Domain", "Geometry", "Mesh", "Field", "FunctionField", "Grid", "PointCloud"]
+__all__ = ["Domain", "Geometry", "Mesh", "Field", "FunctionField", "Grid", "PointCloud",
+           "grad", "div", "curl", "laplacian", "jacobian", "hessian", "integrate", "flux"]

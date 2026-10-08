@@ -87,6 +87,22 @@ class Domain:
                 self._volume = box_vol * float(np.mean(self.contains(pts)))
         return self._volume
 
+    def boundary_measure(self) -> float:
+        """Length / area of the boundary (point count in 1D). Exact for boxes; for
+        SDF domains estimated from the volume of a thin shell around the boundary."""
+        if self.is_box:
+            span = self.hi - self.lo
+            if self.dim == 1:
+                return 2.0
+            return float(sum(2.0 * np.prod(np.delete(span, a)) for a in range(self.dim)))
+        if self.dim != 2:
+            raise NotImplementedError("boundary measure of non-box domains is only supported in 2D")
+        rng = np.random.default_rng(0)
+        span = self.hi - self.lo
+        eps = 1e-3 * float(span.min())
+        pts = self.lo + rng.random((400_000, 2)) * span
+        return float(np.prod(span) * np.mean(np.abs(self.sdf(pts)) < eps) / (2 * eps))
+
     # -- queries ------------------------------------------------------------
     def sdf(self, x: np.ndarray) -> np.ndarray:
         """Signed distance, negative inside. Exact for boxes."""

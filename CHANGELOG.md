@@ -21,6 +21,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- Physics operators (roadmap X4, #188): `pp.grad`, `div`, `curl`, `laplacian`, `jacobian`, `hessian`, `integrate` and
+  `flux` (module `pinneapple_core.operators`) with one call on a continuous field (torch callable, autograd), a grid,
+  a mesh or a point cloud, checked against manufactured solutions on each. `flux` obeys the divergence theorem
+  (exact for P1 fields on a mesh, trapezoid on a grid, Monte Carlo on a cloud or continuous field). Point-cloud
+  gradients now use a local quadratic fit (second order; 0.25% against 3.5% before on the test field).
+  New helpers: `Mesh.boundary_geometry()` (outward normals and facet measures), `Domain.boundary_measure()`.
 - Example `examples/use_cases/fin_convection_inverse`: the convection coefficient of a pin fin identified from five
   noisy thermocouples with an inverse PINN (`PINNFactory`, h trainable and used in the tip condition too). Over 10
   noise draws h = 24.8 ± 0.4 W/m²K (true 25), the dissipated heat within 0.2 %, as accurate as a least-squares fit of

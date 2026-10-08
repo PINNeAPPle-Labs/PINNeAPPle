@@ -56,3 +56,33 @@ It has no notion of models, losses, or training loops — only of how tensor
 operations for a given backend name are dispatched and accelerated. Which
 loss to compute is [PINN / Physics](pinn.md)'s job; when to step the
 optimizer is [Solver](solver.md)'s.
+
+
+## PhysicsBackend: one array, derivative and solve API
+
+`pinneapple_core.backend` defines `PhysicsBackend`, the interface the library's kernel code is written against, with
+torch and jax implementations. `pp.set_backend("jax")` (or `with pp.use_backend("jax"):`) selects the engine and
+`pp.get_physics_backend()` returns its object.
+
+| Group | Operations |
+|---|---|
+| arrays | `asarray`, `to_numpy`, `linspace`, `zeros`, `ones`, `eye`, `diag`; elementwise math on `bk.xp` |
+| algebra | `matmul`, `solve`, `integrate` (trapezoid) |
+| transforms | `grad`, `jacobian`, `vmap`, `jit` (no-op on torch) |
+
+```python
+def objective(bk, L):                       # no engine named here
+    x = bk.linspace(0.0, L, 101)
+    return bk.integrate(bk.xp.sin(x) ** 2, x)
+
+for name in ("torch", "jax"):
+    bk = pp.get_physics_backend(name)
+    print(name, bk.grad(lambda L: objective(bk, L))(bk.asarray(2.0)))
+```
+
+Float64 is the default dtype on both, so the same code gives the same numbers: `tests/pinneapple_core/test_backend.py`
+solves a finite-difference Poisson problem and differentiates its objective with respect to the domain length on both
+engines (values agree to 1e-10 relative, gradients to 1e-8). Add an engine (CUDA kernels, an FEM or FVM code, an external
+solver) with `register_backend("name", MyBackend)`, where `MyBackend` subclasses `PhysicsBackend` and implements the
+operations it supports; the rest raise `NotImplementedError`. `jax` is optional and enabled with x64 when first used.
+Existing PINN code paths are not yet ported to this interface: today it is the contract new kernel code uses.

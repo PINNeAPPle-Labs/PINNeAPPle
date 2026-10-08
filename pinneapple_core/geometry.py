@@ -107,17 +107,7 @@ class Geometry:
         axes = [np.arange(lo + h / 2, hi, h) for lo, hi in zip(dom.lo, dom.hi)]
         lattice = np.stack([g.ravel() for g in np.meshgrid(*axes, indexing="ij")], axis=1)
         lattice = lattice[dom.sdf(lattice) < -0.5 * h]
-        n_bnd = int(_estimate_perimeter(dom) / h)
+        n_bnd = int(dom.boundary_measure() / h)
         bnd = dom.sample_boundary(max(n_bnd, 8), seed=0)
         pts = np.concatenate([lattice, bnd])
         return Mesh.from_points(pts, keep=lambda c: dom.sdf(c) <= 0.0)
-
-
-def _estimate_perimeter(domain: Domain) -> float:
-    """Boundary length of a 2D SDF domain from the area of a thin shell."""
-    rng = np.random.default_rng(0)
-    span = domain.hi - domain.lo
-    eps = 1e-3 * float(span.min())
-    pts = domain.lo + rng.random((400_000, 2)) * span
-    in_shell = np.abs(domain.sdf(pts)) < eps
-    return float(np.prod(span) * in_shell.mean() / (2 * eps))

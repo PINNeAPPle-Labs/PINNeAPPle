@@ -80,6 +80,28 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `PhysicsBackend` (roadmap X7, #191): `pinneapple_core.backend` gives torch and jax one API (`asarray`, `matmul`, `solve`,
+  `integrate`, `grad`, `jacobian`, `vmap`, `jit`, array constructors, `xp` for elementwise math), a registry
+  (`register_backend`) for further engines, `pp.use_backend(...)` as a context manager and `pp.get_physics_backend()`.
+  `set_backend` now accepts any registered name. A finite-difference Poisson problem and the gradient of its objective
+  with respect to the domain length run unchanged on torch and jax with the same results.
+- One `solve(problem)` contract across solver kinds (roadmap X6, #190): every method has a `kind` (`classical`, `neural`,
+  `analytic`, `external`, ...), every `Solution` has `metadata()` with the same keys, and `compare` reports the kind.
+  New methods: `fem` (P1 finite elements for steady Poisson/Laplace on a box, on `pinneapple_core.fem`) and `external`
+  (any code that returns grid fields). On a manufactured Poisson problem FEM and PINN solve the identical
+  `PhysicalProblem` through the same call (relative L2 4.2e-3 and 1.3e-3). `register_method(name, kind=...)`,
+  `list_methods(kind=)`, `list_kinds()`.
+- `pp.func` (roadmap X5, #189): `grad`, `jacobian`, `jacrev`, `jacfwd`, `hessian`, `vmap` over `torch.func` with
+  `wrt=` by argument name (`jacobian(model, wrt="geometry")`); `implicit_solve` differentiates through a nonlinear
+  solve by the implicit function theorem (one adjoint solve, any external forward solver); `pinneapple_core.fem`
+  is a differentiable P1 Poisson solver giving gradients with respect to mesh vertices, checked against finite
+  differences.
+- Physics operators (roadmap X4, #188): `pp.grad`, `div`, `curl`, `laplacian`, `jacobian`, `hessian`, `integrate` and
+  `flux` (module `pinneapple_core.operators`) with one call on a continuous field (torch callable, autograd), a grid,
+  a mesh or a point cloud, checked against manufactured solutions on each. `flux` obeys the divergence theorem
+  (exact for P1 fields on a mesh, trapezoid on a grid, Monte Carlo on a cloud or continuous field). Point-cloud
+  gradients now use a local quadratic fit (second order; 0.25% against 3.5% before on the test field).
+  New helpers: `Mesh.boundary_geometry()` (outward normals and facet measures), `Domain.boundary_measure()`.
 - Example `examples/use_cases/fin_convection_inverse`: the convection coefficient of a pin fin identified from five
   noisy thermocouples with an inverse PINN (`PINNFactory`, h trainable and used in the tip condition too). Over 10
   noise draws h = 24.8 ± 0.4 W/m²K (true 25), the dissipated heat within 0.2 %, as accurate as a least-squares fit of
@@ -123,6 +145,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ### Fixed
 - `serialization.load_zarr` called `UPDZarrStore.iter_samples`, which did not exist, so every call failed; the store
   now has it.
+- `pp.solve(..., "pinn", ctx=...)` ignored `ctx`, so a Poisson source term never reached the network (the solve returned
+  the zero field); it is now passed to `solve_pde`.
 - Fixed `templates/30_zarr_data_pipeline.py` to use the current UPD and Zarr APIs.
 - `physical_units`: `mPa` (and `mPa·s`, `mW`) was read as `MPa` (`MW`), a factor of 10⁹, through the case-insensitive
   fallback; milli and mega prefixes are no longer interchanged.

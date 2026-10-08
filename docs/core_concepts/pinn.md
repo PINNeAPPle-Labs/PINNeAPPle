@@ -69,3 +69,34 @@ function ansatz (`wrap_model`) instead of penalizing it in the loss;
 It does not train anything — it only produces loss values/tensors from a
 model's predictions. Turning that loss into weight updates is the job of
 [Solver](solver.md).
+
+
+## `pp.loss`: loss terms and balancing by name
+
+`pinneapple_core.loss` (`pp.loss`) has the loss terms as plain functions and a `Balancer` that selects the weighting
+strategy by name.
+
+| Term | Meaning |
+|---|---|
+| `pde(residual)` | mean squared residual; `weights=` for a weighted mean, `t=` with `causal_epsilon=` for causal training |
+| `boundary(pred, target)` | boundary or initial condition mismatch |
+| `conservation(quantity, target, scale)` | conserved quantity or divergence-free constraint |
+| `energy(e, mode)` | `conserve`, `nonincrease`, `nondecrease` along time |
+| `symmetry(model, x, transform, output_transform)` | invariance or equivariance penalty |
+| `supervised(pred, target, kind)` | `mse`, `mae`, `huber`, `relative_l2` |
+| `inverse(pred, observed, params, prior, reg)` | misfit plus a prior on the unknown parameters |
+| `combine(terms, weights)` | weighted sum; weights for absent terms raise instead of being dropped |
+
+```python
+from pinneapple_core import loss
+bal = loss.Balancer("gradnorm", names=["pde", "bc"], model=net)       # or "ntk", "relobralo", "curriculum", ...
+total = bal({"pde": loss.pde(residual), "bc": loss.boundary(u_b, g)}, step=i)
+total.backward()
+```
+
+`Balancer.strategies()` lists: `fixed`, `self_adaptive`, `gradnorm`, `loss_ratio`, `ntk`, `relobralo`, `softadapt`,
+`augmented_lagrangian`, `inverse_dirichlet`, `lr_annealing`, `pcgrad`, `joint_adaptive`, `auto` (these are the existing
+`WeightScheduler` methods behind one name) and `curriculum` (`schedule={"bc": (0, 10)}` ramped over `steps`, linear or
+cosine). Strategies that read gradients need `model=`. `self_adaptive` exposes `weight_parameters()` to optimise by
+gradient ascent. `examples/vs_physicsnemo/03_pinneapple_active_weight_sched/example.py` now runs on `pp.loss`: with the
+same seed its loss and error histories are identical (difference 0.0) to the version with hand-written weights.

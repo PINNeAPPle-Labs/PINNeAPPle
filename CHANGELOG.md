@@ -21,6 +21,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `pp.loss` (roadmap X10, #194): `pde` (optionally causal), `boundary`, `conservation`, `energy`, `symmetry`, `supervised`,
+  `inverse`, `combine`, and `Balancer(strategy, names, model=)` choosing the weighting by name: the 13 existing
+  `WeightScheduler` methods (fixed, self_adaptive, gradnorm, loss_ratio, ntk, relobralo, softadapt, augmented_lagrangian,
+  inverse_dirichlet, lr_annealing, pcgrad, joint_adaptive, auto) plus `curriculum`. The SA-PINN example
+  (`examples/vs_physicsnemo/03_pinneapple_active_weight_sched`) now uses it and reproduces its loss and error histories exactly.
 - `pp.compile` (roadmap X9, #193): `pp.compile(problem, optimize="physics")` returns a `CompiledProblem` (`solve`, `loss_fn`,
   `benchmark`). The optimisation is derivative reuse: first derivatives of the same field are built once per loss
   evaluation (`solve_pde` and `compile_problem` take `cache_derivatives=True`). Measured speedup of PINN training 1.05x to

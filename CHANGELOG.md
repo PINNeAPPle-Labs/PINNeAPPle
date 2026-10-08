@@ -21,6 +21,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `PhysicsOptimizer` (roadmap X11, #195): `PhysicsOptimizer(parameters, objective, constraints)` in `pinneapple_core.optim`
+  with six methods behind `minimize(method)` and `compare()`: `slsqp`, `adjoint` (supplied gradient), `penalty`,
+  `augmented_lagrangian`, `differential_evolution` and `bayesian` (constrained expected improvement). The same
+  constrained problem (maximum torsional rigidity of a rectangle at fixed area, with the differentiable FEM) is solved by
+  all six and gives the square. `Result.feasible` reports infeasible problems instead of hiding them.
 - `pp.loss` (roadmap X10, #194): `pde` (optionally causal), `boundary`, `conservation`, `energy`, `symmetry`, `supervised`,
   `inverse`, `combine`, and `Balancer(strategy, names, model=)` choosing the weighting by name: the 13 existing
   `WeightScheduler` methods (fixed, self_adaptive, gradnorm, loss_ratio, ntk, relobralo, softadapt, augmented_lagrangian,

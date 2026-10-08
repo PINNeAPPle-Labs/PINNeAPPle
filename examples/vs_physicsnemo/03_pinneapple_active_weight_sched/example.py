@@ -36,6 +36,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from pinneapple_core import loss as ppl      # pp.loss: loss terms and the SA-PINN balancer
+
 
 # ---------------------------------------------------------------------------
 # Modelo e física
@@ -123,42 +125,6 @@ def sample_rad(model: nn.Module, n: int, n_candidates: int,
 
 
 # ---------------------------------------------------------------------------
-# SA-PINN: Self-Adaptive Weights (PINNeAPPle exclusivo)
-# ---------------------------------------------------------------------------
-
-class SelfAdaptiveWeights(nn.Module):
-    """
-    Pesos λ_i = exp(log_λ_i) aprendíveis via gradiente ascendente.
-    Referência: McClenny & Braga-Neto (2020), arXiv:2009.04544.
-    """
-    def __init__(self, names: list, init_weights: dict = None):
-        super().__init__()
-        init = init_weights or {}
-        self.log_w = nn.ParameterDict({
-            n: nn.Parameter(torch.log(torch.tensor(float(init.get(n, 1.0)))))
-            for n in names
-        })
-        self.history = {n: [] for n in names}
-
-    @property
-    def weights(self):
-        return {k: torch.exp(v) for k, v in self.log_w.items()}
-
-    def forward(self, losses: dict) -> torch.Tensor:
-        total = None
-        for k, w in self.weights.items():
-            if k not in losses:
-                continue
-            term = w.clamp(0.01, 1000.0) * losses[k]
-            total = term if total is None else total + term
-            self.history[k].append(float(w.item()))
-        return total if total is not None else torch.zeros(1)
-
-    def weight_dict(self):
-        return {k: float(torch.exp(v).item()) for k, v in self.log_w.items()}
-
-
-# ---------------------------------------------------------------------------
 # Treinar PINN com estratégia configurável
 # ---------------------------------------------------------------------------
 
@@ -173,15 +139,15 @@ def train_pinn(n_col: int, n_epochs: int, strategy: str,
 
     x_bc, u_bc = make_bc_batch(device=device)
 
-    # Inicializar SA-PINN se solicitado
+    # SA-PINN (pesos aprendíveis, gradiente ascendente) ou pesos fixos: mesma interface, escolhida pelo nome
+    balancer = ppl.Balancer("self_adaptive" if use_sa_weights else "fixed", names=["pde", "bc"],
+                            weights={"pde": 1.0, "bc": 10.0})
+    model_opt = optim.Adam(model.parameters(), lr=1e-3)
     if use_sa_weights:
-        sa = SelfAdaptiveWeights(["pde", "bc"], {"pde": 1.0, "bc": 10.0}).to(device)
-        model_opt  = optim.Adam(model.parameters(), lr=1e-3)
-        weight_opt = optim.Adam(sa.parameters(),    lr=1e-2)
-    else:
-        sa        = None
-        w_pde, w_bc = 1.0, 10.0
-        model_opt = optim.Adam(model.parameters(), lr=1e-3)
+        weight_params = balancer.weight_parameters()
+        for p in weight_params:
+            p.data = p.data.to(device)
+        weight_opt = optim.Adam(weight_params, lr=1e-2)
 
     # Collocation inicial
     x_col_np = sample_uniform(n_col, rng)
@@ -214,25 +180,23 @@ def train_pinn(n_col: int, n_epochs: int, strategy: str,
 
         # PDE residual
         res = laplace_residual(model, x_col)
-        l_pde = torch.mean(res ** 2)
+        l_pde = ppl.pde(res)
 
         # BC
         u_pred_bc = model(x_bc)
-        l_bc = torch.mean((u_pred_bc - u_bc) ** 2)
+        l_bc = ppl.boundary(u_pred_bc, u_bc)
 
         # Combinar
-        losses = {"pde": l_pde, "bc": l_bc}
+        total = balancer({"pde": l_pde, "bc": l_bc}, step=epoch)
         if use_sa_weights:
-            total = sa(losses)
             # Gradiente ascendente nos pesos
             (-total).backward()
-            for p in sa.parameters():
+            for p in weight_params:
                 if p.grad is not None:
                     p.grad.neg_()
             model_opt.step()
             weight_opt.step()
         else:
-            total = w_pde * l_pde + w_bc * l_bc
             total.backward()
             model_opt.step()
 
@@ -250,7 +214,7 @@ def train_pinn(n_col: int, n_epochs: int, strategy: str,
         "losses": loss_history,
         "errors": error_history,
         "col_snapshots": col_snapshots,
-        "sa_weights": sa.history if sa else None,
+        "sa_weights": balancer.history() if use_sa_weights else None,
     }
 
 

@@ -1,0 +1,135 @@
+
+************************************************************
+
+CalculiX Version 2.21, Copyright(C) 1998-2023 Guido Dhondt
+CalculiX comes with ABSOLUTELY NO WARRANTY. This is free
+software, and you are welcome to redistribute it under
+certain conditions, see gpl.htm
+
+************************************************************
+
+You are using an executable made on Sat Jul 29 10:52:01 CEST 2023
+
+  The numbers below are estimated upper bounds
+
+  number of:
+
+   nodes:         2945
+   elements:          640
+   one-dimensional elements:            0
+   two-dimensional elements:            0
+   integration points per element:            8
+   degrees of freedom per node:            3
+   layers per element:            1
+
+   distributed facial loads:            0
+   distributed volumetric loads:            0
+   concentrated loads:           25
+   single point constraints:           75
+   multiple point constraints:            1
+   terms in all multiple point constraints:            1
+   tie constraints:            0
+   dependent nodes tied by cyclic constraints:            0
+   dependent nodes in pre-tension constraints:            0
+
+   sets:            6
+   terms in all sets:         2746
+
+   materials:            1
+   constants per material and temperature:            2
+   temperature points per material:            1
+   plastic data points per material:            0
+
+   orientations:            0
+   amplitudes:            2
+   data points in all amplitudes:            2
+   print requests:            1
+   transformations:            0
+   property cards:            0
+
+
+ STEP            1
+
+ *INFO reading *STEP: nonlinear geometric
+       effects are turned on
+
+ *ERROR in calinput: no material was assigned
+        to element          601
+ *ERROR in calinput: no material was assigned
+        to element          602
+ *ERROR in calinput: no material was assigned
+        to element          603
+ *ERROR in calinput: no material was assigned
+        to element          604
+ *ERROR in calinput: no material was assigned
+        to element          605
+ *ERROR in calinput: no material was assigned
+        to element          606
+ *ERROR in calinput: no material was assigned
+        to element          607
+ *ERROR in calinput: no material was assigned
+        to element          608
+ *ERROR in calinput: no material was assigned
+        to element          609
+ *ERROR in calinput: no material was assigned
+        to element          610
+ *ERROR in calinput: no material was assigned
+        to element          611
+ *ERROR in calinput: no material was assigned
+        to element          612
+ *ERROR in calinput: no material was assigned
+        to element          613
+ *ERROR in calinput: no material was assigned
+        to element          614
+ *ERROR in calinput: no material was assigned
+        to element          615
+ *ERROR in calinput: no material was assigned
+        to element          616
+ *ERROR in calinput: no material was assigned
+        to element          617
+ *ERROR in calinput: no material was assigned
+        to element          618
+ *ERROR in calinput: no material was assigned
+        to element          619
+ *ERROR in calinput: no material was assigned
+        to element          620
+ *ERROR in calinput: no material was assigned
+        to element          621
+ *ERROR in calinput: no material was assigned
+        to element          622
+ *ERROR in calinput: no material was assigned
+        to element          623
+ *ERROR in calinput: no material was assigned
+        to element          624
+ *ERROR in calinput: no material was assigned
+        to element          625
+ *ERROR in calinput: no material was assigned
+        to element          626
+ *ERROR in calinput: no material was assigned
+        to element          627
+ *ERROR in calinput: no material was assigned
+        to element          628
+ *ERROR in calinput: no material was assigned
+        to element          629
+ *ERROR in calinput: no material was assigned
+        to element          630
+ *ERROR in calinput: no material was assigned
+        to element          631
+ *ERROR in calinput: no material was assigned
+        to element          632
+ *ERROR in calinput: no material was assigned
+        to element          633
+ *ERROR in calinput: no material was assigned
+        to element          634
+ *ERROR in calinput: no material was assigned
+        to element          635
+ *ERROR in calinput: no material was assigned
+        to element          636
+ *ERROR in calinput: no material was assigned
+        to element          637
+ *ERROR in calinput: no material was assigned
+        to element          638
+ *ERROR in calinput: no material was assigned
+        to element          639
+ *ERROR in calinput: no material was assigned
+        to element          640

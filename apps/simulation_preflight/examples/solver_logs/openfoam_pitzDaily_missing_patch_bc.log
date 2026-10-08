@@ -1,0 +1,53 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:                                        |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build : (removed)
+Arch : (removed)
+Exec : (removed)
+Date : (removed)
+Time : (removed)
+Host : (removed)
+PID : (removed)
+I/O    : uncollated
+Case   : /home/user/run/missing_bc
+nProcs : (removed)
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : (removed)
+allowSystemOperations : (removed)
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 0.01
+    field U	 tolerance 0.001
+    field "(k|epsilon|omega|f|v2)"	 tolerance 0.001
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kEpsilon
+
+
+--> FOAM FATAL IO ERROR: 
+Cannot find patchField entry for outlet
+
+file: /home/user/run/missing_bc/0/k.boundaryField from line 26 to line 42.
+
+    From function void Foam::GeometricField<Type, PatchField, GeoMesh>::Boundary::readField(const Foam::DimensionedField<TypeR, GeoMesh>&, const Foam::dictionary&) [with Type = double; PatchField = Foam::fvPatchField; GeoMesh = Foam::volMesh]
+    in file /build/openfoam-f52DVo/openfoam-1912.200626/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 173.
+
+FOAM exiting
+

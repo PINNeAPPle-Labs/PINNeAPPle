@@ -21,6 +21,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `PhysicsModule` (roadmap X8, #192): `pinneapple_core.module` with `PhysicsModule`, `Sequential`, `SolverModule` (a
+  differentiable function with optional trainable parameters, or any `pp.solve` method via `from_method`) and `Hybrid`
+  (solver plus neural correction, `residual` / `multiplicative` / `replace`). A coarse finite-element solve with a
+  convolutional correction trains end to end through the solver (held-out relative error 0.31 coarse alone, 0.10 hybrid).
 - `PhysicsBackend` (roadmap X7, #191): `pinneapple_core.backend` gives torch and jax one API (`asarray`, `matmul`, `solve`,
   `integrate`, `grad`, `jacobian`, `vmap`, `jit`, array constructors, `xp` for elementwise math), a registry
   (`register_backend`) for further engines, `pp.use_backend(...)` as a context manager and `pp.get_physics_backend()`.

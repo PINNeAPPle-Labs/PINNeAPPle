@@ -58,3 +58,29 @@ optimizers. Those responsibilities belong to
 [ProblemDefinition](problem_definition.md), [PINN / Physics](pinn.md), and
 [Solver](solver.md) respectively. The only contract a `Model` has to satisfy
 is: given a batch of coordinates, return a batch of predicted field values.
+
+
+## PhysicsModule: composing models and solvers
+
+`pinneapple_core.module` (also `pp.PhysicsModule`, `pp.Sequential`, `pp.SolverModule`, `pp.Hybrid`) treats a neural
+network, a numerical solver and a mix of the two as the same kind of component. Everything is a torch module.
+
+| Class | Use |
+|---|---|
+| `PhysicsModule` | base class: subclass it and write `forward`; gives `describe()`, `num_parameters()`, a small `fit(x, y)` |
+| `Sequential` | chain modules, solvers and plain functions; `(name, module)` pairs name them |
+| `SolverModule(fn, params, trainable)` | a differentiable function as a component, e.g. a finite-element solve; autograd flows through it, and the names in `trainable` become parameters (calibration, identification) |
+| `SolverModule.from_method(problem, "fem")` | any `pp.solve` method (FEM, external code, ...) as a component; not differentiable, so only what follows it trains |
+| `Hybrid(solver, corrector, mode)` | `residual` (`u0 + c`), `multiplicative` (`u0 (1 + c)`) or `replace` (`c`); `corrector_input` chooses what the corrector sees; `return_parts=True` returns solver output and correction separately |
+
+```python
+model = Hybrid(SolverModule(coarse_fem_solve), corrector, corrector_input=lambda args, u0: torch.stack([u0, k(args[0]), x], 1))
+model.fit(theta, fine_solution, epochs=600, lr=1e-2, batch_size=32)
+print(model.describe())
+```
+
+`examples/physics_module/01_coarse_fem_plus_neural_correction.py` builds a coarse 6-cell finite-element solve of
+`-(k(x) u')' = 1` with oscillating `k` plus a dilated convolutional corrector, trained end to end through the solver:
+held-out relative error 0.31 for the coarse solve alone and 0.10 for the hybrid.
+`Hybrid(..., detach_solver=True)` stops gradients into the solver. Model discrepancy decomposition and neural-closure
+workflows are separate roadmap items (X27, X28).

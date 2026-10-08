@@ -47,7 +47,7 @@ from pinneapple_design.aero.optimize_airliner import EngineAL, summarize_al
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import BusyLimiter, install  # noqa: E402
 
-torch.set_num_threads(int(os.environ.get("ADO_THREADS", "1")))
+torch.set_num_threads(int(os.environ.get("ADO_THREADS") or "1"))
 VERSION = "1.0.0"
 HERE = os.path.dirname(__file__)
 STATIC = os.path.join(HERE, "static")
@@ -487,9 +487,9 @@ def optimize3d(body: Optimize3DIn):
     rnd = lambda d: {k: (rnd(v) if isinstance(v, dict) else round(v, 12) if isinstance(v, float) else v) for k, v in d.items()}  # noqa: E731
     if DEFAULT3D and rnd(body.model_dump()) == rnd(Optimize3DIn().model_dump()):
         return {"job": "default", "status": "done", "result": DEFAULT3D}
-    if sum(1 for j in JOBS.values() if j["status"] == "running") >= int(os.environ.get("ADO_MAX_HEAVY", "2")):
+    if sum(1 for j in JOBS.values() if j["status"] == "running") >= int(os.environ.get("ADO_MAX_HEAVY") or "2"):
         raise HTTPException(429, "Server busy with other searches -- please retry in a minute.")
-    _POOL = _POOL or concurrent.futures.ThreadPoolExecutor(int(os.environ.get("ADO_MAX_HEAVY", "2")))
+    _POOL = _POOL or concurrent.futures.ThreadPoolExecutor(int(os.environ.get("ADO_MAX_HEAVY") or "2"))
     jid = uuid.uuid4().hex[:12]
     JOBS[jid] = {"status": "running", "done": 0, "total": body.generations}
 

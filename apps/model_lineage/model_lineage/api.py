@@ -32,7 +32,7 @@ VERSION = "1.0.0"
 HERE = os.path.dirname(__file__)
 STATIC = os.path.join(HERE, "static")
 EXAMPLES = os.path.join(HERE, "..", "examples")
-MAX_MB = float(os.environ.get("LIN_MAX_MB", "300"))
+MAX_MB = float(os.environ.get("LIN_MAX_MB") or "300")
 
 EXAMPLE_INFO = {
     "openfoam_pitzDaily_study.zip": ("Auto-detected: a pitzDaily study folder (3 OpenFOAM runs, a dataset exported by "

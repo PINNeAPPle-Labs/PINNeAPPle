@@ -31,8 +31,8 @@ VERSION = "1.0.0"
 HERE = os.path.dirname(__file__)
 STATIC = os.path.join(HERE, "static")
 EXAMPLES = os.path.join(HERE, "..", "examples")
-MAX_MB = float(os.environ.get("MQA_MAX_MB", "200"))
-MAX_CELLS = int(os.environ.get("MQA_MAX_CELLS", "3000000"))
+MAX_MB = float(os.environ.get("MQA_MAX_MB") or "200")
+MAX_CELLS = int(os.environ.get("MQA_MAX_CELLS") or "3000000")
 
 EXAMPLE_INFO = {
     "openfoam_pitzDaily.zip": ("OpenFOAM polyMesh · backward-facing step (pitzDaily), 12,225 hexahedra · the "

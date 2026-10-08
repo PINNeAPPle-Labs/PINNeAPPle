@@ -29,8 +29,8 @@ from appkit import install  # noqa: E402
 
 VERSION = "1.0.0"
 STATIC = os.path.join(os.path.dirname(__file__), "static")
-MAX_JOBS = int(os.environ.get("IHL_MAX_JOBS", "2"))
-THREADS = int(os.environ.get("IHL_THREADS", "1"))
+MAX_JOBS = int(os.environ.get("IHL_MAX_JOBS") or "2")
+THREADS = int(os.environ.get("IHL_THREADS") or "1")
 
 app = FastAPI(title="Inverse Heat Lab", version=VERSION,
               description="Find the convection coefficient h from a few thermocouples with a physics-informed neural "

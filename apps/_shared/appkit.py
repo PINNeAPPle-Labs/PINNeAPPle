@@ -54,7 +54,7 @@ class BusyLimiter:
     """Caps concurrent heavy requests per worker; the excess gets 429 instead of queueing."""
 
     def __init__(self, env_var: str, default: int = 2):
-        self.slots = threading.BoundedSemaphore(int(os.environ.get(env_var, str(default))))
+        self.slots = threading.BoundedSemaphore(int(os.environ.get(env_var) or default))
 
     def __enter__(self):
         if not self.slots.acquire(blocking=False):

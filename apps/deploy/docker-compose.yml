@@ -137,7 +137,7 @@ services:
       MQA_PASSWORD: ${MQA_PASSWORD:-}
       MQA_MAX_HEAVY: ${MQA_MAX_HEAVY:-2}
       MQA_MAX_MB: ${MQA_MAX_MB:-200}
-      MQA_MAX_CELLS: ${MQA_MAX_CELLS:-}
+      MQA_MAX_CELLS: ${MQA_MAX_CELLS:-3000000}
     expose: ["8088"]
     mem_limit: ${MQA_MEM_LIMIT:-3g}
 
@@ -152,7 +152,7 @@ services:
       CMP_PASSWORD: ${CMP_PASSWORD:-}
       CMP_MAX_HEAVY: ${CMP_MAX_HEAVY:-2}
       CMP_MAX_MB: ${CMP_MAX_MB:-300}
-      CMP_MAX_POINTS: ${CMP_MAX_POINTS:-}
+      CMP_MAX_POINTS: ${CMP_MAX_POINTS:-2000000}
     expose: ["8089"]
     mem_limit: ${CMP_MEM_LIMIT:-3g}
 
@@ -181,7 +181,7 @@ services:
       IOP_PASSWORD: ${IOP_PASSWORD:-}
       IOP_MAX_HEAVY: ${IOP_MAX_HEAVY:-2}
       IOP_MAX_MB: ${IOP_MAX_MB:-500}
-      IOP_CACHE_MIN: ${IOP_CACHE_MIN:-}
+      IOP_CACHE_MIN: ${IOP_CACHE_MIN:-30}
     expose: ["8091"]
     mem_limit: ${IOP_MEM_LIMIT:-3g}
 

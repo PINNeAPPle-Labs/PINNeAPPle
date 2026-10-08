@@ -29,7 +29,7 @@ VERSION = "1.0.0"
 HERE = os.path.dirname(__file__)
 STATIC = os.path.join(HERE, "static")
 EXAMPLES = os.path.join(HERE, "..", "examples")
-MAX_MB = float(os.environ.get("PFL_MAX_MB", "200"))
+MAX_MB = float(os.environ.get("PFL_MAX_MB") or "200")
 
 # name: (what it is, what the real solver did with it)
 EXAMPLE_INFO = {

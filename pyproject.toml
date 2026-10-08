@@ -314,6 +314,7 @@ packages = [
   "pinneapple_data",
   "pinneapple_pdb",
   "pinneapple_problemdesign",
+  "pinneapple_core",         # Field, Mesh, Domain, Geometry primitives (gradient/divergence/interpolate/integrate)
 
   # ── mega-modules ──────────────────────────────────────────────────────────
   # Each includes its nested sub-modules automatically.
@@ -365,6 +366,7 @@ include = [
   "pinneapple_data/**",
   "pinneapple_pdb/**",
   "pinneapple_problemdesign/**",
+  "pinneapple_core/**",
   "pinneapple_physics/**",
   "pinneapple_neural/**",
   "pinneapple_analysis/**",

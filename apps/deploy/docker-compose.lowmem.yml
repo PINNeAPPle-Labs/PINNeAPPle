@@ -44,4 +44,4 @@ services:
     mem_limit: 1200m
   aero:
     command: ["uvicorn", "aero_optimizer.api:app", "--host", "0.0.0.0", "--port", "8092", "--workers", "1"]
-    mem_limit: 1200m
+    mem_limit: 1800m    # torch + the graph network + the stored search: ~700 MB idle, more while searching

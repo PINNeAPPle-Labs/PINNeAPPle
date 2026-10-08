@@ -35,6 +35,11 @@ from pinneapple_design.aero.case import write_case
 from pinneapple_design.aero.geometry import BOUNDS, LABELS, PARAMS, REFERENCE, outline, properties
 from pinneapple_design.aero.mesh import GridSpec
 from pinneapple_design.aero.optimize import AREA_BOUNDS, Engine, baseline, summarize
+from pinneapple_design.aero import vlm as _vlm
+from pinneapple_design.aero.aircraft3d import (BOUNDS3D, LABELS3D, PLAN, Requirements3D, airframe_from,
+                                               baseline_x)
+from pinneapple_design.aero.airframe import to_glb, to_stl, to_usda
+from pinneapple_design.aero.optimize3d import Engine3D, summarize3d
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import BusyLimiter, install  # noqa: E402
@@ -45,6 +50,7 @@ HERE = os.path.dirname(__file__)
 STATIC = os.path.join(HERE, "static")
 MODEL_DIR = os.path.join(HERE, "..", "model")
 ENGINE = Engine.load(os.environ.get("ADO_MODEL", os.path.join(MODEL_DIR, "surrogate.pt")))
+ENGINE3D = Engine3D(ENGINE)
 
 
 def _json(name: str, default=None):
@@ -54,6 +60,8 @@ def _json(name: str, default=None):
 
 METRICS = _json("surrogate.metrics.json", {})
 VERIFY = _json("verification.json", {"rounds": []})
+VERIFY3D = _json("verification3d.json", {"designs": []})
+DEFAULT3D = _json("default_search3d.json", None)
 DATASET = _json("dataset.json", {})
 
 app = FastAPI(title="Aircraft Design Optimizer", version=VERSION,
@@ -117,7 +125,7 @@ def _clean(o):
         return {k: _clean(v) for k, v in o.items()}
     if isinstance(o, (list, tuple)):
         return [_clean(v) for v in o]
-    if isinstance(o, (np.floating, np.integer)):
+    if isinstance(o, (np.floating, np.integer, np.bool_)):
         return _clean(o.item())
     if isinstance(o, np.ndarray):
         return _clean(o.tolist())
@@ -352,6 +360,213 @@ def openfoam_case(x: str = Query(..., description="7 comma-separated numbers: T0
     return Response(buf.getvalue(), media_type="application/zip",
                     headers={"Content-Disposition": f'attachment; filename="airfoil_a{alpha:g}_openfoam.zip"'})
 
+
+
+
+# ====================================================================== whole aircraft (3D)
+class Requirements3DIn(BaseModel):
+    max_stall_speed_kt: float = Field(61, ge=35, le=120)
+    min_thickness: float = Field(0.11, ge=0.04, le=0.2)
+    min_static_margin: float = Field(0.05, ge=-0.1, le=0.4)
+    max_static_margin: float = Field(0.30, ge=0.05, le=0.6)
+    max_tail_incidence: float = Field(4.0, ge=0.5, le=15)
+    max_stall_station: float = Field(0.60, ge=0.1, le=1.0)
+    max_span: float = Field(13.5, ge=6, le=30)
+    max_cruise_cl_ratio: float = Field(0.70, ge=0.3, le=0.95)
+
+
+class Optimize3DIn(BaseModel):
+    aircraft: AircraftIn = AircraftIn()
+    requirements: Requirements3DIn = Requirements3DIn()
+    population: int = Field(48, ge=16, le=96)
+    generations: int = Field(40, ge=5, le=80)
+    seed: int = 0
+
+
+class AircraftDesignIn(BaseModel):
+    x: List[float]
+    aircraft: AircraftIn = AircraftIn()
+    requirements: Requirements3DIn = Requirements3DIn()
+
+
+def _req3(r: Requirements3DIn) -> Requirements3D:
+    d = r.model_dump()
+    d["max_stall_speed"] = d.pop("max_stall_speed_kt") * KT
+    return Requirements3D(**d)
+
+
+def _x12(x) -> np.ndarray:
+    v = np.asarray(x, float)
+    if v.shape != (12,):
+        raise HTTPException(422, "x needs 12 numbers: T0 T1 T2 M0 M1 M2 wing_area aspect_ratio taper sweep_le twist wing_x")
+    if (v < BOUNDS3D[:, 0] - 1e-6).any() or (v > BOUNDS3D[:, 1] + 1e-6).any():
+        raise HTTPException(422, "x outside the design space " + json.dumps(BOUNDS3D.tolist()))
+    return v
+
+
+def _verified(x: np.ndarray):
+    for d in VERIFY3D.get("designs", []):
+        if np.allclose(np.asarray(d["x"]), x, atol=1e-4):
+            return d
+    return None
+
+
+def _detail3d(r: Dict[str, Any]) -> Dict[str, Any]:
+    keys = ("x", "props", "plan", "feasible", "valid", "violations", "trust", "unc", "vmax_kt", "co2_100km",
+            "fuel_l_100km", "v_stall_kt", "clmax_wing", "stall_station", "static_margin", "x_cg", "x_np", "cruise_cl",
+            "cruise_ld", "cruise_alpha", "tail_incidence", "oswald", "drag_breakdown", "mass", "weights", "span",
+            "checks", "loading", "polar", "penalty")
+    d = {k: r.get(k) for k in keys}
+    if r.get("valid"):
+        d["outline"] = outline(np.array(r["x"][:6]))
+        d["summary"] = airframe_from(np.array(r["x"])).summary()
+    return d
+
+
+def _picks3d(D, front):
+    if not front:
+        return {}
+    v = np.array([D[i]["vmax_kt"] for i in front])
+    c = np.array([D[i]["co2_100km"] for i in front])
+    s = np.array([D[i]["v_stall_kt"] for i in front])
+    n = lambda a, up: (a - a.min()) / (np.ptp(a) or 1) if up else (a.max() - a) / (np.ptp(a) or 1)  # noqa: E731
+    return {"fastest": front[int(np.argmax(v))], "greenest": front[int(np.argmin(c))], "safest": front[int(np.argmin(s))],
+            "balanced": front[int(np.argmin((1 - n(v, True)) ** 2 + (1 - n(s, False)) ** 2))]}
+
+
+def run_search3d(body: Optimize3DIn, progress=None) -> Dict[str, Any]:
+    ac, req = _ac(body.aircraft), _req3(body.requirements)
+    res = ENGINE3D.search(ac, req, population=body.population, generations=body.generations, seed=body.seed,
+                          progress=progress)
+    D, front = res["designs"], res["pareto"]
+    picks = _picks3d(D, front)
+    keep = set(picks.values())
+    fine = {i: ENGINE3D.evaluate(np.array(D[i]["x"])[None], ac, req, fine=True, base_w=res["base_weights"])[0] for i in keep}
+    base = ENGINE3D.evaluate(baseline_x()[None], ac, req, fine=True, base_w=res["base_weights"])[0]
+    reasons: Dict[str, int] = {}
+    for r in D:
+        if not r.get("feasible"):
+            for v in r.get("violations") or ["no solution"]:
+                reasons[v] = reasons.get(v, 0) + 1
+        elif r.get("trust") == "low":
+            reasons["low surrogate trust"] = reasons.get("low surrogate trust", 0) + 1
+    return _clean({"designs": [summarize3d(r) for r in D], "pareto": front, "picks": picks,
+                   "details": {str(i): _detail3d(fine[i]) for i in keep}, "baseline": _detail3d(base),
+                   "evaluations": res["evaluations"], "seconds": res["seconds"],
+                   "feasible": sum(1 for r in D if r.get("feasible")), "reasons": reasons,
+                   "aircraft": dataclasses.asdict(ac), "requirements": req.as_dict()})
+
+
+JOBS: Dict[str, Dict[str, Any]] = {}
+_POOL = None
+
+
+@app.post("/api/optimize3d")
+def optimize3d(body: Optimize3DIn):
+    """Start a whole-aircraft search; poll /api/job/{id}. The default inputs return the stored result at once."""
+    import concurrent.futures
+    import uuid
+    global _POOL
+    if DEFAULT3D and body == Optimize3DIn():
+        return {"job": "default", "status": "done", "result": DEFAULT3D}
+    if sum(1 for j in JOBS.values() if j["status"] == "running") >= int(os.environ.get("ADO_MAX_HEAVY", "2")):
+        raise HTTPException(429, "Server busy with other searches -- please retry in a minute.")
+    _POOL = _POOL or concurrent.futures.ThreadPoolExecutor(int(os.environ.get("ADO_MAX_HEAVY", "2")))
+    jid = uuid.uuid4().hex[:12]
+    JOBS[jid] = {"status": "running", "done": 0, "total": body.generations}
+
+    def prog(k, n):
+        JOBS[jid].update(done=k, total=n)
+
+    def work():
+        try:
+            JOBS[jid].update(status="done", result=run_search3d(body, prog))
+        except Exception as e:                                          # noqa: BLE001
+            JOBS[jid].update(status="error", error=str(e))
+    _POOL.submit(work)
+    for k in [k for k, j in JOBS.items() if j["status"] != "running"][:-20]:
+        JOBS.pop(k, None)                                               # keep the last results only
+    return {"job": jid, "status": "running"}
+
+
+@app.get("/api/job/{jid}")
+def job(jid: str):
+    j = JOBS.get(jid)
+    if not j:
+        raise HTTPException(404, "unknown job")
+    return j
+
+
+@app.post("/api/aircraft")
+def aircraft(body: AircraftDesignIn):
+    """One whole aircraft: fine-lattice performance, checks, span loading, potential-flow streamlines at cruise,
+    and the OpenFOAM 3D result when this design was verified."""
+    x = _x12(body.x)
+    ac, req = _ac(body.aircraft), _req3(body.requirements)
+    r = ENGINE3D.evaluate(x[None], ac, req, fine=True)[0]
+    out = _detail3d(r)
+    if not r.get("valid"):
+        return _clean(out)
+    af = airframe_from(x)
+    out["ground_z"] = af.ground_z()
+    # streamlines at cruise trim (body axes): seeds ahead of the wing, dense near the tip
+    sol = _vlm.solve(af, r["x_cg"], nc=4, ns_wing=12, ns_tail=5)
+    a, it = math.radians(r["cruise_alpha"]), math.radians(r["tail_incidence"])
+    b2, zw = af.span / 2, af.wing_z_root()
+    ys = np.r_[np.linspace(0.8, b2 - 0.6, 8), np.linspace(b2 - 0.45, b2 + 0.35, 8)]
+    seeds = np.c_[np.full(len(ys), af.wing_x - 1.6), ys, np.full(len(ys), zw - 0.12)]
+    S = _vlm.streamlines(sol, a, it, seeds, steps=200, h=0.08)
+    lines = [L[::2].round(3).tolist() for L in S]
+    out["lines_vlm"] = lines + [[[p[0], -p[1], p[2]] for p in L] for L in lines]
+    v = _verified(x)
+    if v:
+        out["openfoam"] = {k: v[k] for k in ("id", "label", "alpha", "cells", "CL", "CD", "model", "render") if k in v}
+        out["lines_cfd"] = v.get("lines", [])
+    return _clean(out)
+
+
+def _parts_for(x: np.ndarray, detail="high"):
+    return airframe_from(x).build(detail)
+
+
+@app.get("/api/aircraft.glb")
+def aircraft_glb(x: str, cp: bool = False):
+    v = _x12([float(s) for s in x.split(",")])
+    parts = _parts_for(v)
+    scalars = None
+    ver = _verified(v)
+    if cp and ver and os.path.exists(os.path.join(MODEL_DIR, "cfd3d", f"{ver['id']}_cp.npz")):
+        z = np.load(os.path.join(MODEL_DIR, "cfd3d", f"{ver['id']}_cp.npz"))
+        from pinneapple_design.aero.case3d import surface_scalars
+        scalars = surface_scalars(airframe_from(v), parts, {"xyz": z["xyz"], "cp": z["cp"]})
+    return Response(to_glb(parts, scalars), media_type="model/gltf-binary",
+                    headers={"Content-Disposition": 'inline; filename="aircraft.glb"', "Cache-Control": "max-age=3600"})
+
+
+@app.get("/api/aircraft.usda")
+def aircraft_usda(x: str):
+    v = _x12([float(s) for s in x.split(",")])
+    return Response(to_usda(_parts_for(v)), media_type="text/plain",
+                    headers={"Content-Disposition": 'attachment; filename="aircraft.usda"'})
+
+
+@app.get("/api/aircraft.stl")
+def aircraft_stl(x: str):
+    v = _x12([float(s) for s in x.split(",")])
+    parts = [p for p in _parts_for(v, "cfd") if p.aero]
+    return Response(to_stl(parts), media_type="model/stl",
+                    headers={"Content-Disposition": 'attachment; filename="aircraft_clean.stl"'})
+
+
+@app.get("/api/meta3d")
+def meta3d():
+    return _clean({"plan": [{"name": p, "label": LABELS3D[p], "lo": b[0], "hi": b[1]} for p, b in zip(PLAN, BOUNDS3D[6:])],
+                   "requirements": Requirements3DIn().model_dump(), "baseline_x": baseline_x(),
+                   "verification": VERIFY3D, "renders": sorted(os.listdir(os.path.join(MODEL_DIR, "renders")))
+                   if os.path.isdir(os.path.join(MODEL_DIR, "renders")) else []})
+
+
+app.mount("/renders", StaticFiles(directory=os.path.join(MODEL_DIR, "renders"), check_dir=False), name="renders")
 
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 

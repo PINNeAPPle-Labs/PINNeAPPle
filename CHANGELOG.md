@@ -21,6 +21,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- One `solve(problem)` contract across solver kinds (roadmap X6, #190): every method has a `kind` (`classical`, `neural`,
+  `analytic`, `external`, ...), every `Solution` has `metadata()` with the same keys, and `compare` reports the kind.
+  New methods: `fem` (P1 finite elements for steady Poisson/Laplace on a box, on `pinneapple_core.fem`) and `external`
+  (any code that returns grid fields). On a manufactured Poisson problem FEM and PINN solve the identical
+  `PhysicalProblem` through the same call (relative L2 4.2e-3 and 1.3e-3). `register_method(name, kind=...)`,
+  `list_methods(kind=)`, `list_kinds()`.
 - `pp.func` (roadmap X5, #189): `grad`, `jacobian`, `jacrev`, `jacfwd`, `hessian`, `vmap` over `torch.func` with
   `wrt=` by argument name (`jacobian(model, wrt="geometry")`); `implicit_solve` differentiates through a nonlinear
   solve by the implicit function theorem (one adjoint solve, any external forward solver); `pinneapple_core.fem`
@@ -73,6 +79,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- `pp.solve(..., "pinn", ctx=...)` ignored `ctx`, so a Poisson source term never reached the network (the solve returned
+  the zero field); it is now passed to `solve_pde`.
 - Fixed `templates/30_zarr_data_pipeline.py` to use the current UPD and Zarr APIs.
 - `physical_units`: `mPa` (and `mPa·s`, `mW`) was read as `MPa` (`MW`), a factor of 10⁹, through the case-insensitive
   fallback; milli and mega prefixes are no longer interchanged.

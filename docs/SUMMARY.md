@@ -19,6 +19,7 @@
   * [Backend](core_concepts/backend.md)
   * [Training Pipeline](core_concepts/training_pipeline.md)
   * [Researcher & Benchmarking](core_concepts/researcher_benchmarking.md)
+  * [3D Studio & External Flow](core_concepts/studio.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)
   * [pinneapple_physics](api/pinneapple_physics/index.md)

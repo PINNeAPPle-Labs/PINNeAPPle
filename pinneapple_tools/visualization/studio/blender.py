@@ -255,15 +255,39 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
         bg.inputs["Strength"].default_value = 0.12
         wn.links.new(sky.outputs["Color"], bg.inputs["Color"])
 
-    d = np.asarray(VIEWS[view] if isinstance(view, str) else view, float)
+    d = _to_blender(np.asarray(VIEWS[view] if isinstance(view, str) else view, float)[None], axes)[0]
     d = d / np.linalg.norm(d)
     cam_data = bpy.data.cameras.new("cam")
     cam_data.lens = lens
     cam = bpy.data.objects.new("cam", cam_data)
     bs.collection.objects.link(cam)
     cam_data.sensor_fit = "AUTO"                         # the lens angle spans the longer side of the image
-    ang = 2 * math.atan(math.tan(0.5 * cam_data.angle) * min(size) / max(size))     # angle across the shorter side
-    fit = 0.5 * size_l / math.tan(0.5 * ang) * 1.02 * distance                      # whole bounding sphere in frame
+    t_long = math.tan(0.5 * cam_data.angle)
+    t_short = t_long * min(size) / max(size)
+    tx, ty = (t_long, t_short) if size[0] >= size[1] else (t_short, t_long)
+    # distance at which every corner of the bounding box is inside the frame
+    fwd = -d
+    upw = np.array([0.0, 0.0, 1.0]) if abs(fwd[2]) < 0.99 else np.array([0.0, 1.0, 0.0])
+    right = np.cross(fwd, upw)
+    right /= np.linalg.norm(right)
+    up = np.cross(right, fwd)
+    c0 = np.array(centre)
+    pts = []                                             # the visible geometry, not its bounding box
+    for o in objs:
+        mw = np.array(o.matrix_world)
+        co = np.empty(len(o.data.vertices) * 3)
+        o.data.vertices.foreach_get("co", co)
+        co = co.reshape(-1, 3)
+        if len(co) > 4000:
+            co = co[:: len(co) // 4000]
+        pts.append(co @ mw[:3, :3].T + mw[:3, 3])
+    k = np.concatenate(pts) - c0
+    # aim at the middle of the projected extent, then back off until every vertex is in frame (perspective)
+    shift = right * 0.5 * (np.max(k @ right) + np.min(k @ right)) + up * 0.5 * (np.max(k @ up) + np.min(k @ up))
+    centre = centre + Vector(tuple(shift))
+    k = k - shift
+    lat = np.maximum(np.abs(k @ right) / tx, np.abs(k @ up) / ty)
+    fit = float(np.max(k @ d + lat)) * 1.15 * distance
     cam.location = centre + Vector(tuple(d * fit))
     look = centre - cam.location
     cam.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()

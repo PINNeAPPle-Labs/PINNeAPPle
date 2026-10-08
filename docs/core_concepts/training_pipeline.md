@@ -74,3 +74,34 @@ domain, train a model, or produce a visualization by itself.
 - **Metrics / Researcher**: run the trained model through `Arena`/
   `PINNArenaBenchmark` instead of inspecting it standalone — see
   [Researcher & Benchmarking](researcher_benchmarking.md).
+
+
+## Physics-native data: `PhysicsDataset`, `DataLoader` and samplers
+
+`pinneapple_core.data` serves a PINN, a neural operator and an inverse problem through one loader. A `DataLoader` takes
+sources, each a `PhysicsDataset` (labelled arrays, shuffled and batched) or a sampler (points drawn on demand), and yields a
+`Batch` with one group per source.
+
+```python
+from pinneapple_core.data import BoundarySampler, CollocationSampler, DataLoader, PhysicsDataset
+
+loader = DataLoader({"col": CollocationSampler(geom, "lhs"), "bc": BoundarySampler(geom), "obs": PhysicsDataset(x_obs, u_obs)},
+                    batch_size={"col": 1024, "bc": 128, "obs": 16}, steps=2000)
+for batch in loader:
+    x = batch["col"]["x"]            # requires_grad is already set
+```
+
+| Sampler | Draws |
+|---|---|
+| `CollocationSampler(domain, "uniform" / "lhs" / "sobol")` | interior points of a `Domain`, `Geometry` or `{coord: (lo, hi)}` box |
+| `BoundarySampler(geometry, part=None)` | boundary points with outward normals; `part="x_max"` for a named boundary |
+| `MeshSampler(mesh, "nodes" / "cells" / "random")` | nodes, cell centres, or uniform random points inside cells |
+| `TrajectorySampler(states, n_in, n_out, stride)` | windows of time series, `x` the past and `y` the future |
+| `AdaptiveSampler(base, residual_fn)` | a pool resampled with probability proportional to the PDE residual (mixed with some uniform) after `loader.update(model)` |
+| `ActiveSampler(base, score_fn)` | the top-scoring candidates of an acquisition function, for choosing the next expensive run |
+
+With a dataset as the first source and no `steps`, one iteration is one epoch. `physics_aware=True` (default) sets
+`requires_grad` on the points of collocation, boundary and adaptive sources, converts to `dtype`/`device`, and adds the
+coordinate names to `batch.meta`. Seeds make every stream reproducible. `examples/data_api/01_pinn_operator_inverse.py` trains
+a Poisson PINN (relative L2 error 1.6e-3), an operator for `-u'' = f` (5.3e-2) and an inverse problem for the diffusivity
+(kappa = 1.992, true 2) from this one API. The older `pinneapple_data` loaders and `pinneapple_neural.trainer` samplers are unchanged.

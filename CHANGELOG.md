@@ -21,6 +21,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- Physics data API (roadmap X12, #196): `pinneapple_core.data` with `PhysicsDataset`, `DataLoader` (datasets and samplers as
+  sources, one `Batch` with a group per source, `physics_aware` sets `requires_grad` on differentiated points) and the samplers
+  `CollocationSampler` (uniform, lhs, sobol, any `Domain`), `BoundarySampler` (normals, named parts), `MeshSampler`,
+  `TrajectorySampler`, `AdaptiveSampler` (residual-proportional) and `ActiveSampler` (top acquisition score). A Poisson PINN, an
+  operator and an inverse problem for the diffusivity train from the same loader API.
 - `PhysicsOptimizer` (roadmap X11, #195): `PhysicsOptimizer(parameters, objective, constraints)` in `pinneapple_core.optim`
   with six methods behind `minimize(method)` and `compare()`: `slsqp`, `adjoint` (supplied gradient), `penalty`,
   `augmented_lagrangian`, `differential_evolution` and `bayesian` (constrained expected improvement). The same

@@ -1,0 +1,20 @@
+"""pinneapple_core: Field, Mesh, Domain and Geometry as shared primitives.
+
+Physics AI needs tensors, geometry and topology in one object. These four are the
+common vocabulary the solvers, models and datasets can build on:
+
+- :class:`Domain`     the region (box or CSG shape): contains, sample interior/boundary
+- :class:`Geometry`   a Domain with named boundaries and a mesher
+- :class:`Mesh`       simplex mesh (1D/2D/3D) with exact P1 gradient/integral/interpolation
+- :class:`Field`      values on a grid, mesh or point cloud
+- :class:`FunctionField`  the same interface for a torch callable (PINN), by autograd
+
+Every field answers ``gradient()``, ``divergence()``, ``interpolate(x)`` and
+``integrate()``, whatever it is discretised on.
+"""
+from .domain import Domain
+from .field import Field, FunctionField, Grid, PointCloud
+from .geometry import Geometry
+from .mesh import Mesh
+
+__all__ = ["Domain", "Geometry", "Mesh", "Field", "FunctionField", "Grid", "PointCloud"]

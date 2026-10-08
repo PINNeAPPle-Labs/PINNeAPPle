@@ -573,6 +573,8 @@ _SUBMODULES = {
     "cae":        "pinneapple_data.cae",
     # closed bodies for flow studies (Ahmed body, sphere, cylinder, box)
     "bodies":     "pinneapple_design.geometry.bodies",
+    # Field, Mesh, Domain, Geometry primitives
+    "core":       "pinneapple_core",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

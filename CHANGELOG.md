@@ -66,6 +66,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   script (`pip install pinneapple`, then run), filled with the page's inputs and readings, to copy or download; the
   three scripts are run by the tests. Deployed as the `inverse`
   service in `apps/deploy`.
+- `pinneapple_core` (roadmap X3, #187), reachable as `pp.core`: `Domain`, `Geometry`, `Mesh` and `Field` as shared
+  primitives. A `Field` holds values on a tensor grid, a simplex mesh (1D/2D/3D) or a point cloud and answers
+  `gradient()`, `divergence()`, `interpolate(x)` and `integrate()` the same way on each (trapezoid on a grid, exact
+  P1 on a mesh, local least squares and Monte Carlo/quadrature on a cloud). `FunctionField` offers the same calls for a
+  torch callable with autograd derivatives that keep the graph, including `laplacian`. `Domain` covers boxes in any
+  dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
+  `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
+  (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
 - Example `examples/use_cases/fin_convection_inverse`: the convection coefficient of a pin fin identified from five
   noisy thermocouples with an inverse PINN (`PINNFactory`, h trainable and used in the tip condition too). Over 10
   noise draws h = 24.8 ± 0.4 W/m²K (true 25), the dissipated heat within 0.2 %, as accurate as a least-squares fit of

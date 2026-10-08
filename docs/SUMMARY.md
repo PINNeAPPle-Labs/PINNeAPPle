@@ -13,6 +13,7 @@
   * [PhysicalSample](core_concepts/physical_sample.md)
   * [ProblemDefinition](core_concepts/problem_definition.md)
   * [Geometry & Domain](core_concepts/geometry_domain.md)
+  * [Core primitives](core_concepts/core_primitives.md)
   * [Model](core_concepts/model.md)
   * [PINN / Physics](core_concepts/pinn.md)
   * [Solver](core_concepts/solver.md)

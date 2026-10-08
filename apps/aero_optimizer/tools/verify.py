@@ -36,8 +36,21 @@ def pick(front, designs, n):
     return [front[i] for i in idx]
 
 
+def steady_values(runs, max_osc=0.1):
+    """Same treatment as training: oscillating runs averaged over the kept snapshots, deep stall dropped."""
+    out = []
+    for r in runs:
+        if r.get("status") == "unsteady":
+            if r.get("Cl_osc", 9) > max_osc:
+                continue
+            H = np.array(r["history"])[-5:]
+            r = {**r, "Cl": float(H[:, 1].mean()), "Cd": float(H[:, 2].mean()), "Cm": float(H[:, 3].mean())}
+        out.append(r)
+    return out
+
+
 def cfd_eval(runs, shape, area, ac, req):
-    runs = sorted(runs, key=lambda r: r["alpha"])
+    runs = sorted(steady_values(runs), key=lambda r: r["alpha"])
     a = np.array([r["alpha"] for r in runs])
     cl, cd, cm = (np.array([r[k] for r in runs]) for k in ("Cl", "Cd", "Cm"))
     acx = dataclasses.replace(ac, wing_area=area, mass=ac.mass + WING_MASS_PER_M2 * (area - ac.wing_area))

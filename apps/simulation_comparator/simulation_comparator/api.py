@@ -114,6 +114,8 @@ def scope() -> dict:
 def _load(files: List[Tuple[str, bytes]], time: Optional[str]) -> object:
     fs = expand(files)
     m = read_any(fs, fields=True, time=time or None)
+    if not m.source.get("file") or m.source.get("kind", "").startswith("openfoam"):
+        m.source["file"] = files[0][0] if len(files) == 1 else (m.source.get("root") or files[0][0])
     n = max(m.n_cells, m.n_points)
     if n > MAX_POINTS:
         raise HTTPException(413, f"{n:,} cells/points: this server compares up to {MAX_POINTS:,}.")

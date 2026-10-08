@@ -13,6 +13,31 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Five CAE apps, each deployed as a service in `apps/deploy`:
+  - Simulation Preflight (`apps/simulation_preflight`, service `preflight`, library `pinneapple_data.preflight`):
+    checks an OpenFOAM case or a CalculiX deck before it runs. Each finding has a PASS/WARNING/FAIL verdict, where it
+    is (file and line), its severity, an explanation, the fix and an exportable checklist. Rules were validated on
+    real solver runs, including two failures the solver never reports: a model with no supports (ccx reports "Job
+    finished" with a 1.8e11 mm displacement) and inconsistent units (first frequency 0.16 Hz instead of 209 Hz).
+  - Mesh Quality (`apps/mesh_quality`, service `mesh`, library `pinneapple_data.cae`): checkMesh-equivalent
+    finite-volume metrics (identical to OpenFOAM v1912 on pitzDaily, a Gmsh tetrahedral mesh and a sheared channel).
+    Also element metrics (scaled Jacobian, skewness, edge ratio) for Gmsh/VTK/Abaqus/CalculiX meshes, histograms, a 3D
+    heatmap, the worst elements, problem regions and recommended actions. Reads OpenFOAM, `.inp`, `.frd`, STL and
+    anything meshio reads.
+  - Simulation Comparator (`apps/simulation_comparator`, service `compare`, `pinneapple_data.cae.compare`): reference
+    vs candidate, in four modes: simulation/simulation, simulation/experiment, simulation/AI and AI/experiment. Gives
+    global and per-field error (relative L2, MAE, RMSE, max, p99, bias, NRMSE, R²) and an error map. Fields are matched
+    by name and component and interpolated between different meshes. Checks: Ghia lid-driven cavity 1.26 % → 0.19 %
+    with mesh refinement; a PINN vs finite volumes 0.39 %.
+  - Engineering Model Lineage (`apps/model_lineage`, service `lineage`, library `pinneapple_data.lineage`): the
+    digital thread as a graph of artifacts, each with file, version, software, parameters, timestamp, sha256, owner
+    and origin. Auto-detected from OpenFOAM/Gmsh/CalculiX folders and PINNeAPPle exports, or declared in a
+    `lineage.json` whose hashes are verified. Checks: hash mismatch, stale outputs, missing inputs, cycles, mixed
+    revisions. Answers upstream/downstream questions and exports W3C PROV-JSON and Markdown.
+  - Simulation Interoperability Hub (`apps/interop_hub`, service `interop`, `pinneapple_data.cae.dataset`): any
+    result becomes the neutral `pinneapple.physical_dataset/1` (geometry, mesh, coordinates, fields with quantity and
+    unit, metadata). It exports to VTK `.vtu` (OpenFOAM polyhedra rebuilt as standard cells or VTK polyhedra), HDF5,
+    Parquet, CSV, NPZ, JSON and a PINNeAPPle dataset (UPD Zarr).
 - Inverse Heat Lab (`apps/inverse_heat`): the convection coefficient h from a few thermocouples with an inverse PINN,
   in 1D (a pin fin, trained live on demo readings or your own, cross-checked by a least-squares fit of the analytic
   solution), 2D (a heat-spreader plate, trained live and compared with a finite-volume solution cell by cell) and 3D
@@ -61,6 +86,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- `serialization.load_zarr` called `UPDZarrStore.iter_samples`, which did not exist, so every call failed; the store
+  now has it.
 - `physical_units`: `mPa` (and `mPa·s`, `mW`) was read as `MPa` (`MW`), a factor of 10⁹, through the case-insensitive
   fallback; milli and mega prefixes are no longer interchanged.
 - **Behavior:** `solve_pde` (and so `pp.pipeline`) silently dropped every boundary and initial condition defined by a

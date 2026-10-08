@@ -1,0 +1,10 @@
+{
+ "project": "Simple chain (the minimal input)",
+ "geometry": "CAD-001",
+ "mesh": "MESH-014",
+ "solver": "OpenFOAM v2312",
+ "simulation": "SIM-382",
+ "dataset": "DATA-19",
+ "model": "MODEL-07",
+ "result": "PRED-883"
+}

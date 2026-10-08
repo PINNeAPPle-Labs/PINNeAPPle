@@ -1,0 +1,129 @@
+{
+ "project": "Illustrative digital thread (fictitious IDs): bracket CFD to FNO surrogate",
+ "artifacts": [
+  {
+   "id": "CAD-001",
+   "kind": "geometry",
+   "name": "bracket, revision A",
+   "item": "bracket CAD",
+   "version": "A",
+   "file": "bracket_revA.step",
+   "software": "CAD",
+   "timestamp": "2026-03-02T10:00:00Z",
+   "owner": "design",
+   "hash": "5e8c2f0a91b3d4c7"
+  },
+  {
+   "id": "CAD-002",
+   "kind": "geometry",
+   "name": "bracket, revision B",
+   "item": "bracket CAD",
+   "version": "B",
+   "file": "bracket_revB.step",
+   "software": "CAD",
+   "timestamp": "2026-04-15T09:30:00Z",
+   "owner": "design",
+   "hash": "a17d903be2c45f18"
+  },
+  {
+   "id": "MESH-014",
+   "kind": "mesh",
+   "inputs": [
+    "CAD-001"
+   ],
+   "item": "bracket mesh",
+   "software": "snappyHexMesh",
+   "version": "v2312",
+   "timestamp": "2026-03-03T14:00:00Z",
+   "owner": "CFD",
+   "parameters": {
+    "cells": "1.2M"
+   }
+  },
+  {
+   "id": "MESH-021",
+   "kind": "mesh",
+   "inputs": [
+    "CAD-002"
+   ],
+   "item": "bracket mesh",
+   "software": "snappyHexMesh",
+   "version": "v2312",
+   "timestamp": "2026-04-16T11:00:00Z",
+   "owner": "CFD",
+   "parameters": {
+    "cells": "1.3M"
+   }
+  },
+  {
+   "id": "SIM-182",
+   "kind": "simulation",
+   "inputs": [
+    "MESH-014"
+   ],
+   "software": "OpenFOAM simpleFoam",
+   "version": "v2312",
+   "timestamp": "2026-03-05T08:00:00Z",
+   "owner": "CFD",
+   "parameters": {
+    "case": "183"
+   }
+  },
+  {
+   "id": "SIM-382",
+   "kind": "simulation",
+   "inputs": [
+    "MESH-021"
+   ],
+   "software": "OpenFOAM simpleFoam",
+   "version": "v2312",
+   "timestamp": "2026-04-18T08:00:00Z",
+   "owner": "CFD"
+  },
+  {
+   "id": "POST-051",
+   "kind": "post-processing",
+   "inputs": [
+    "SIM-182",
+    "SIM-382"
+   ],
+   "software": "ParaView",
+   "version": "5.12",
+   "timestamp": "2026-04-20T10:00:00Z",
+   "owner": "CFD"
+  },
+  {
+   "id": "DATA-19",
+   "kind": "dataset",
+   "inputs": [
+    "POST-051"
+   ],
+   "software": "PINNeAPPle interop",
+   "timestamp": "2026-04-21T09:00:00Z",
+   "owner": "ML"
+  },
+  {
+   "id": "MODEL-07",
+   "kind": "model",
+   "name": "FNO surrogate",
+   "inputs": [
+    "DATA-19"
+   ],
+   "software": "PINNeAPPle FNO",
+   "version": "0.7",
+   "timestamp": "2026-05-10T16:00:00Z",
+   "owner": "ML"
+  },
+  {
+   "id": "PRED-883",
+   "kind": "prediction",
+   "inputs": [
+    "MODEL-07"
+   ],
+   "software": "PINNeAPPle FNO",
+   "timestamp": "2026-05-02T12:00:00Z",
+   "owner": "ML",
+   "notes": "made with the model before its retraining on May 10"
+  }
+ ]
+}

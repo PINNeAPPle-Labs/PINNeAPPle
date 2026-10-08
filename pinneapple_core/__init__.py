@@ -23,3 +23,14 @@ from .operators import curl, div, flux, grad, hessian, integrate, jacobian, lapl
 
 __all__ = ["Domain", "Geometry", "Mesh", "Field", "FunctionField", "Grid", "PointCloud",
            "grad", "div", "curl", "laplacian", "jacobian", "hessian", "integrate", "flux"]
+
+
+def __getattr__(name):
+    # torch-based submodules load on first use: ``pinneapple_core.func`` / ``.fem``
+    if name in ("func", "fem"):
+        import importlib
+
+        mod = importlib.import_module(f"{__name__}.{name}")
+        globals()[name] = mod
+        return mod
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

@@ -567,6 +567,7 @@ _SUBMODULES = {
     "metrics":    "pinneapple_physics.metrics",
     # Field, Mesh, Domain, Geometry primitives
     "core":       "pinneapple_core",
+    "func":       "pinneapple_core.func",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

@@ -565,6 +565,14 @@ _SUBMODULES = {
     "decision":   "pinneapple_decision",
     # one error-metric convention for the whole library
     "metrics":    "pinneapple_physics.metrics",
+    # 3D studio: any geometry and its fields -> glTF/USD/STL, Blender renders, browser viewer
+    "viz":        "pinneapple_tools.visualization.studio",
+    # external flow around any body in OpenFOAM (STL -> mesh -> forces, skin fields, streamlines, slices)
+    "cfd":        "pinneapple_simulation.numerical_solvers.external_flow",
+    # CAE files: OpenFOAM, CalculiX/Abaqus, Gmsh, VTK readers, mesh quality, comparison, neutral dataset
+    "cae":        "pinneapple_data.cae",
+    # closed bodies for flow studies (Ahmed body, sphere, cylinder, box)
+    "bodies":     "pinneapple_design.geometry.bodies",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

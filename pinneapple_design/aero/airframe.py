@@ -470,116 +470,41 @@ def vertex_normals(V, F) -> np.ndarray:
 
 
 # ---------------------------------------------------------------------- exports
+# The writers are the library's generic ones (pinneapple_tools.visualization.studio); these keep the aircraft axes
+# (x aft, y right, z up), the aircraft materials and the spinning propeller group.
+def _surfaces(parts: List[Part], fields: Dict[str, Dict[str, np.ndarray]]):
+    from pinneapple_tools.visualization.studio.scene import Surface
+    out = []
+    for p in parts:
+        s = Surface(p.name, p.vertices, p.faces, p.material, group=p.group)
+        for an, per_part in fields.items():
+            if p.name in per_part:
+                s.fields[an.lstrip("_")] = np.asarray(per_part[p.name], np.float32)
+        out.append(s)
+    return out
+
+
 def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None,
            fields: Optional[Dict[str, Dict[str, np.ndarray]]] = None) -> bytes:
     """glTF 2.0 binary with PBR materials (clearcoat, transmission). Axes converted to glTF's y-up.
     ``scalars``: optional per-part vertex values stored as _CP attribute (e.g. surface pressure).
     ``fields``: more per-vertex values, {attribute name (e.g. "_CF"): {part name: values}}."""
+    from pinneapple_tools.visualization.studio.scene import AXES, write_glb
     fields = dict(fields or {})
     if scalars:
         fields["_CP"] = scalars
-    T = np.array([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]])   # (x aft, y right, z up) -> glTF y up
-    mats = list(dict.fromkeys(p.material for p in parts))
-    buf = bytearray()
-    views, accessors, meshes, nodes = [], [], [], []
-
-    def add(arr: np.ndarray, target: int, comp: int, typ: str, minmax=False):
-        nonlocal buf
-        while len(buf) % 4:
-            buf += b"\0"
-        off = len(buf)
-        data = arr.tobytes()
-        buf += data
-        views.append({"buffer": 0, "byteOffset": off, "byteLength": len(data), "target": target})
-        acc = {"bufferView": len(views) - 1, "componentType": comp, "count": int(arr.shape[0]), "type": typ}
-        if minmax:
-            acc["min"] = arr.min(0).tolist()
-            acc["max"] = arr.max(0).tolist()
-        accessors.append(acc)
-        return len(accessors) - 1
-
-    prop_children = []
-    for p in parts:
-        V = (p.vertices @ T.T).astype(np.float32)
-        N = (vertex_normals(p.vertices, p.faces) @ T.T).astype(np.float32)
-        attrs = {"POSITION": add(V, 34962, 5126, "VEC3", True), "NORMAL": add(N, 34962, 5126, "VEC3")}
-        for an, per_part in fields.items():
-            if p.name in per_part:
-                attrs[an] = add(np.asarray(per_part[p.name], np.float32), 34962, 5126, "SCALAR")
-        idx = add(p.faces.astype(np.uint32).ravel(), 34963, 5125, "SCALAR")
-        meshes.append({"name": p.name, "primitives": [{"attributes": attrs, "indices": idx, "material": mats.index(p.material)}]})
-        nodes.append({"name": p.name, "mesh": len(meshes) - 1})
-        if p.group == "propeller":
-            prop_children.append(len(nodes) - 1)
-    materials = []
-    for m in mats:
-        s = MATERIALS[m]
-        lin = [round(c ** 2.2, 5) for c in s["color"]]                 # glTF colours are linear; the table is sRGB
-        mat = {"name": m, "pbrMetallicRoughness": {"baseColorFactor": lin + [s.get("alpha", 1.0)],
-                                                   "metallicFactor": s["metallic"], "roughnessFactor": s["roughness"]}}
-        ext = {}
-        if s.get("clearcoat"):
-            ext["KHR_materials_clearcoat"] = {"clearcoatFactor": s["clearcoat"], "clearcoatRoughnessFactor": 0.05}
-        if s.get("transmission"):
-            ext["KHR_materials_transmission"] = {"transmissionFactor": s["transmission"]}
-            mat["alphaMode"] = "BLEND"
-        if s.get("emissive"):
-            mat["emissiveFactor"] = [round(c ** 2.2, 5) for c in s["emissive"]]
-            ext["KHR_materials_emissive_strength"] = {"emissiveStrength": 4.0}
-        if ext:
-            mat["extensions"] = ext
-        materials.append(mat)
-    top = [i for i in range(len(nodes)) if i not in prop_children]
-    if prop_children:
-        nodes.append({"name": "propeller", "children": prop_children})
-        top.append(len(nodes) - 1)
-    gltf = {"asset": {"version": "2.0", "generator": "PINNeAPPle pinneapple_design.aero.airframe"},
-            "scene": 0, "scenes": [{"nodes": top}], "nodes": nodes, "meshes": meshes, "materials": materials,
-            "accessors": accessors, "bufferViews": views, "buffers": [{"byteLength": len(buf)}],
-            "extensionsUsed": ["KHR_materials_clearcoat", "KHR_materials_transmission", "KHR_materials_emissive_strength"]}
-    js = json.dumps(gltf, separators=(",", ":")).encode()
-    js += b" " * ((4 - len(js) % 4) % 4)
-    while len(buf) % 4:
-        buf += b"\0"
-    out = struct.pack("<III", 0x46546C67, 2, 12 + 8 + len(js) + 8 + len(buf))
-    out += struct.pack("<II", len(js), 0x4E4F534A) + js + struct.pack("<II", len(buf), 0x004E4942) + bytes(buf)
-    return out
+    prop = [i for i, p in enumerate(parts) if p.group == "propeller"]
+    return write_glb(_surfaces(parts, fields), AXES["aircraft"], MATERIALS,
+                     generator="PINNeAPPle pinneapple_design.aero.airframe", groups={"propeller": prop} if prop else None)
 
 
 def to_usda(parts: List[Part], title: str = "aircraft") -> str:
     """OpenUSD text: one Mesh per part, UsdPreviewSurface materials; z up, metres (Omniverse, usdview)."""
-    L = ['#usda 1.0', '(', f'    doc = "{title}: PINNeAPPle aircraft design"', '    metersPerUnit = 1', '    upAxis = "Z"',
-         '    defaultPrim = "Aircraft"', ')', '', 'def Xform "Aircraft"', '{', '    def Scope "Looks"', '    {']
-    for m in dict.fromkeys(p.material for p in parts):
-        s = MATERIALS[m]
-        c = [round(v ** 2.2, 5) for v in s["color"]]                  # UsdPreviewSurface colours are linear
-        L += [f'        def Material "{m}"', '        {',
-              f'            token outputs:surface.connect = </Aircraft/Looks/{m}/Surface.outputs:surface>',
-              '            def Shader "Surface"', '            {', '                uniform token info:id = "UsdPreviewSurface"',
-              f'                color3f inputs:diffuseColor = ({c[0]}, {c[1]}, {c[2]})',
-              f'                float inputs:metallic = {s["metallic"]}', f'                float inputs:roughness = {s["roughness"]}',
-              f'                float inputs:clearcoat = {s.get("clearcoat", 0.0)}', f'                float inputs:opacity = {s.get("alpha", 1.0)}',
-              '                token outputs:surface', '            }', '        }']
-    L += ['    }']
-    for p in parts:
-        nm = p.name.replace("-", "_")
-        pts = ", ".join(f"({x:.5f}, {y:.5f}, {z:.5f})" for x, y, z in p.vertices)
-        N = vertex_normals(p.vertices, p.faces)
-        nrm = ", ".join(f"({x:.4f}, {y:.4f}, {z:.4f})" for x, y, z in N)
-        L += [f'    def Mesh "{nm}"', '    {', f'        int[] faceVertexCounts = [{", ".join(["3"] * len(p.faces))}]',
-              f'        int[] faceVertexIndices = [{", ".join(map(str, p.faces.ravel()))}]',
-              f'        point3f[] points = [{pts}]', f'        normal3f[] normals = [{nrm}] (', '            interpolation = "vertex"', '        )',
-              '        uniform token subdivisionScheme = "none"',
-              f'        rel material:binding = </Aircraft/Looks/{p.material}>', '    }']
-    L += ['}', '']
-    return "\n".join(L)
+    from pinneapple_tools.visualization.studio.scene import write_usda
+    return write_usda(_surfaces(parts, {}), MATERIALS, f"{title}: aircraft design", root="Aircraft")
 
 
 def to_stl(parts: List[Part], solid: str = "aircraft") -> bytes:
     """Binary STL of the given parts (one closed surface per part)."""
-    tris = np.concatenate([p.vertices[p.faces] for p in parts]).astype(np.float32)
-    n = np.cross(tris[:, 1] - tris[:, 0], tris[:, 2] - tris[:, 0])
-    n /= np.linalg.norm(n, axis=1, keepdims=True) + 1e-12
-    rec = np.zeros(len(tris), dtype=[("n", "<f4", 3), ("v", "<f4", (3, 3)), ("a", "<u2")])
-    rec["n"], rec["v"] = n, tris
-    return solid.encode().ljust(80, b" ")[:80] + struct.pack("<I", len(tris)) + rec.tobytes()
+    from pinneapple_tools.visualization.studio.scene import write_stl
+    return write_stl(parts, solid)

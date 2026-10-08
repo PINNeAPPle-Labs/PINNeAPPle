@@ -27,7 +27,7 @@ __all__ = ["Domain", "Geometry", "Mesh", "Field", "FunctionField", "Grid", "Poin
 
 def __getattr__(name):
     # torch-based submodules load on first use: ``pinneapple_core.func`` / ``.fem``
-    if name in ("func", "fem", "backend", "module", "loss"):
+    if name in ("func", "fem", "backend", "module", "loss", "optim"):
         import importlib
 
         mod = importlib.import_module(f"{__name__}.{name}")
@@ -37,7 +37,12 @@ def __getattr__(name):
         from . import module
 
         return getattr(module, name)
+    if name in _OPTIM_EXPORTS:
+        from . import optim
+
+        return getattr(optim, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 _MODULE_EXPORTS = ("PhysicsModule", "Sequential", "SolverModule", "Hybrid")
+_OPTIM_EXPORTS = ("PhysicsOptimizer",)

@@ -149,7 +149,8 @@ def _convert(files: List[Tuple[str, bytes]], time_: str, unit_system: str, to_si
 
 
 def _preview(ds: dict) -> dict:
-    """Boundary surface coloured by each cell field (first 6 fields), for the 3D preview."""
+    """Boundary surface (always, so a bare mesh shows too) coloured by the first 6 fields: magnitude of vectors,
+    von Mises of stresses."""
     import numpy as np
     from pinneapple_data.cae.compare import _round
     m = ds["_mesh"]
@@ -165,11 +166,17 @@ def _preview(ds: dict) -> dict:
     k = 0
     for name, f in ds["fields"].items():
         v = f["values"]
-        mag = np.linalg.norm(v, axis=1) if v.ndim == 2 else v
+        if v.ndim == 2 and v.shape[1] == 6:                             # stress: von Mises
+            xx, yy, zz, xy, yz, zx = v.T
+            mag = np.sqrt(0.5 * ((xx - yy) ** 2 + (yy - zz) ** 2 + (zz - xx) ** 2) + 3 * (xy ** 2 + yz ** 2 + zx ** 2))
+        else:
+            mag = np.linalg.norm(v, axis=1) if v.ndim == 2 else v
         if f["location"] == "cell" and len(mag) == m.n_cells:
             out["fields"][name] = {"where": "cell", "values": _round(mag[s["cells"]])}
         elif f["location"] == "point" and len(mag) == m.n_points:
             out["fields"][name] = {"where": "point", "values": _round(mag[s["vertex_index"]])}
+        if name in out["fields"]:
+            out["fields"][name]["kind"] = "von Mises" if v.ndim == 2 and v.shape[1] == 6 else "magnitude" if v.ndim == 2 else "value"
         else:
             continue
         k += 1

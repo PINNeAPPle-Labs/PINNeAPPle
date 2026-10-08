@@ -70,27 +70,36 @@ function jsonView(d) {
 
 function render() {
   const d = R.dataset, md = d.metadata;
-  const rows = Object.entries(d.fields).map(([k, f]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(f.quantity || "—")}</td><td>${esc(f.unit || "—")}</td><td>${esc(f.location)}</td><td>${f.component_names ? esc(f.component_names.join(", ")) : f.components}</td><td class="num">${fmt(f.min)}</td><td class="num">${fmt(f.mean)}</td><td class="num">${fmt(f.max)}</td></tr>`).join("");
+  const rows = Object.entries(d.fields).map(([k, f]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(f.quantity || "—")}</td><td>${esc(f.unit || "—")}</td><td>${esc(f.location)}</td><td>${f.component_names ? esc(f.component_names.join(", ")) : f.components}</td>${statCells(f)}</tr>`).join("");
   const exp = Object.entries(R.formats).map(([k, v]) => `<div class="exp"><b>${esc(v.split(":")[0])}</b><span>${esc(v.split(":").slice(1).join(":"))}</span><a class="link" href="/api/export/${R.id}/${k}" download>Download</a></div>`).join("");
-  const fieldOpts = Object.keys(R.preview.fields || {}).map((k) => `<option>${esc(k)}</option>`).join("");
+  const PF = (R.preview && R.preview.fields) || {};
+  const fieldOpts = Object.keys(PF).map((k) => `<option value="${esc(k)}">${esc(k)}${PF[k].kind && PF[k].kind !== "value" ? ` (${esc(PF[k].kind)})` : ""}</option>`).join("");
+  const hasMesh = !!(R.preview && R.preview.points && R.preview.points.length);
   $("#dataset").innerHTML = `
     <div class="panel">
       <div class="toolbar"><h2 style="margin:0">${esc(R.example ? R.example.description : md.case || "Dataset")}</h2><div class="noprint"><button class="ghost" onclick="print()">Print / PDF</button></div></div>
       <p class="meta">${esc(md.solver || md.source_format)} → <b>${esc(d.schema)}</b> · ${d.mesh.cells.toLocaleString("en-US")} cells · ${d.mesh.points.toLocaleString("en-US")} points${md.time !== null && md.time !== undefined ? ` · t = ${fmt(md.time)}` : ""} · ${Object.keys(d.fields).length} fields · units: ${esc(md.unit_system)}${md.converted_to_si ? " → SI" : ""}</p>
       ${md.notes && md.notes.length ? `<div class="notes">${md.notes.map(esc).join("<br>")}</div>` : ""}
       <div class="grid2b"><div class="json">${jsonView(d)}</div>
-        <div>${fieldOpts ? `<div class="mapbar"><b>Preview</b><select id="pfield">${fieldOpts}</select><span class="meta">magnitude, on the boundary</span></div><div id="viewer"></div>` : `<div class="banner">No cell or point field to preview.</div>`}</div></div>
+        <div>${hasMesh ? `<div class="mapbar"><b>Preview</b>${fieldOpts ? `<select id="pfield">${fieldOpts}</select><span class="meta">on the boundary surface</span>` : `<span class="meta">mesh only (no fields): the boundary surface with its edges</span>`}</div><div id="viewer"></div>` : `<div class="banner">No surface to preview.</div>`}</div></div>
     </div>
     <div class="panel"><h3 style="margin-top:0">Fields</h3>
-      <div style="overflow-x:auto"><table><thead><tr><th>Field</th><th>Quantity</th><th>Unit</th><th>Location</th><th>Components</th><th class="num">Min</th><th class="num">Mean</th><th class="num">Max</th></tr></thead><tbody>${rows || `<tr><td colspan="8" class="meta">No fields: geometry and mesh only.</td></tr>`}</tbody></table></div></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Field</th><th>Quantity</th><th>Unit</th><th>Location</th><th>Components</th><th class="num">Min</th><th class="num">Mean</th><th class="num">Max</th><th>Of</th></tr></thead><tbody>${rows || `<tr><td colspan="9" class="meta">No fields: geometry and mesh only.</td></tr>`}</tbody></table></div></div>
     <div class="panel"><h3 style="margin-top:0">Export</h3><div class="exports">${exp}</div>
       ${md.files ? `<p class="meta" style="margin-top:12px">Source files (sha256 prefix): ${md.files.slice(0, 8).map((f) => `${esc(f.name)} ${esc(f.sha256)}`).join(" · ")}${md.files.length > 8 ? ` · +${md.files.length - 8}` : ""}</p>` : ""}
       ${window.renderScope ? renderScope(R.scope) : ""}</div>`;
-  if (fieldOpts) {
-    const mount = () => { window.IOP_VIEW = new window.PreviewViewer($("#viewer"), R.preview, $("#pfield").value); };
+  if (hasMesh) {
+    const mount = () => { window.IOP_VIEW = new window.PreviewViewer($("#viewer"), R.preview, fieldOpts ? $("#pfield").value : null); };
     if (window.PreviewViewer) mount(); else window.addEventListener("iop-viewer-ready", mount, { once: true });
-    $("#pfield").onchange = () => { window.IOP_VIEW && window.IOP_VIEW.paint($("#pfield").value); };
+    if (fieldOpts) $("#pfield").onchange = () => { window.IOP_VIEW && window.IOP_VIEW.paint($("#pfield").value); };
   }
+}
+// min / mean / max: of the magnitude for vectors, of von Mises for stresses (component ranges in the tooltip)
+function statCells(f) {
+  const s = f.scalar;
+  if (!s) return `<td class="num">${fmt(f.min)}</td><td class="num">${fmt(f.mean)}</td><td class="num">${fmt(f.max)}</td><td class="meta">value</td>`;
+  const tip = `components range from ${fmt(f.min)} to ${fmt(f.max)}`;
+  return `<td class="num" title="${tip}">${fmt(s.min)}</td><td class="num" title="${tip}">${fmt(s.mean)}</td><td class="num" title="${tip}">${fmt(s.max)}</td><td class="meta" title="${tip}">${esc(s.kind)}</td>`;
 }
 
 (async function init() {

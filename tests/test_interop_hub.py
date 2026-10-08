@@ -127,7 +127,12 @@ def test_api_inspect_and_exports():
     from interop_hub.api import app
     with TestClient(app) as c:
         j = c.get("/api/example/calculix_cantilever.frd").json()
-        assert j["dataset"]["fields"]["STRESS"]["unit"] == "MPa"
+        F = j["dataset"]["fields"]
+        assert F["STRESS"]["unit"] == "MPa" and F["STRESS"]["scalar"]["kind"] == "von Mises"
+        assert F["DISP"]["scalar"]["min"] >= 0 and abs(F["DISP"]["scalar"]["max"] - 7.58) < 0.01   # tip deflection
+        assert F["ERROR"]["quantity"] == "stress error estimate" and F["ERROR"]["unit"] == "%"
+        g = c.get("/api/example/gmsh_bracket_mesh.msh").json()
+        assert not g["dataset"]["fields"] and len(g["preview"]["tris"]) > 0      # a bare mesh still previews
         for fmt in ("vtu", "hdf5", "parquet", "csv", "npz", "json", "pinneapple"):
             assert c.get(f"/api/export/{j['id']}/{fmt}").status_code == 200
         with open(os.path.join(EX, "openfoam_cavity_Re100_result.zip"), "rb") as f:

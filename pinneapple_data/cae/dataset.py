@@ -33,13 +33,14 @@ QUANTITIES = [  # (name pattern, quantity, SI unit)
     (r"^(nut|nutilda|alphat)$", "turbulent viscosity", "m2/s"), (r"^(disp|displacement|u_fea)$", "displacement", "m"),
     (r"^(stress|s|sigma)$", "stress", "Pa"), (r"^(tostrain|strain|pe)$", "strain", "1"),
     (r"^(flux|hfl)$", "heat flux", "W/m2"), (r"^(forc|force|rf)$", "force", "N"), (r"^(rho|density)$", "density", "kg/m3"),
+    (r"^(error)$", "stress error estimate", "%"),
 ]
 # CalculiX/Abaqus result units per consistent unit system
 UNIT_SYSTEMS = {
     "SI": {"length": "m", "DISP": "m", "STRESS": "Pa", "FORC": "N", "NDTEMP": "K", "FLUX": "W/m2", "TOSTRAIN": "1",
-           "PE": "1", "to_si": {"length": 1.0, "DISP": 1.0, "STRESS": 1.0, "FORC": 1.0, "FLUX": 1.0}},
+           "PE": "1", "ERROR": "%", "to_si": {"length": 1.0, "DISP": 1.0, "STRESS": 1.0, "FORC": 1.0, "FLUX": 1.0}},
     "N-mm-t-s": {"length": "mm", "DISP": "mm", "STRESS": "MPa", "FORC": "N", "NDTEMP": "K", "FLUX": "mW/mm2",
-                 "TOSTRAIN": "1", "PE": "1", "to_si": {"length": 1e-3, "DISP": 1e-3, "STRESS": 1e6, "FORC": 1.0, "FLUX": 1e3}},
+                 "TOSTRAIN": "1", "PE": "1", "ERROR": "%", "to_si": {"length": 1e-3, "DISP": 1e-3, "STRESS": 1e6, "FORC": 1.0, "FLUX": 1e3}},
 }
 
 
@@ -165,6 +166,18 @@ def build_dataset(m: Mesh, *, unit_system: str = "auto", to_si: bool = False, rh
                             "unit": unit, "quantity": q, "values": a,
                             "min": float(np.nanmin(a)) if a.size else None, "max": float(np.nanmax(a)) if a.size else None,
                             "mean": float(np.nanmean(a)) if a.size else None}
+            if a.ndim == 2 and a.size:                          # one scalar per point/cell for vectors and stresses
+                if a.shape[1] <= 3:
+                    sc, how = np.linalg.norm(a, axis=1), "magnitude"
+                elif a.shape[1] == 6:                           # xx yy zz xy yz zx
+                    xx, yy, zz, xy, yz, zx = a.T
+                    sc = np.sqrt(0.5 * ((xx - yy) ** 2 + (yy - zz) ** 2 + (zz - xx) ** 2) + 3 * (xy ** 2 + yz ** 2 + zx ** 2))
+                    how = "von Mises"
+                else:
+                    sc = None
+                if sc is not None:
+                    fields[name]["scalar"] = {"kind": how, "min": float(np.nanmin(sc)), "max": float(np.nanmax(sc)),
+                                              "mean": float(np.nanmean(sc))}
     cells_info = {"kind": m.kind, "cells": int(m.n_cells), "points": int(m.n_points), "element_types": m.element_counts()}
     centres = None
     if m.n_cells and (m.poly is not None or m.blocks):

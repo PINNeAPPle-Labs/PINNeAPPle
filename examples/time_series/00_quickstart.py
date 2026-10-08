@@ -19,15 +19,15 @@ import math
 import numpy as np
 import torch
 
-from pinneapple_timeseries import (
+from pinneapple_systems.time_series import (
     TimeSeriesSpec,
     TSDataModule,
     NaiveForecaster,
     SeasonalNaiveForecaster,
     DriftForecaster,
 )
-from pinneapple_timeseries.metrics_ext.point import mae, rmse, smape
 
+from pinneapple_systems.time_series.metrics_ext.point import mae, rmse, smape
 
 def make_synthetic(T: int = 3000, F: int = 1, seed: int = 7) -> torch.Tensor:
     """Seasonal + trend + noise (multivariate supported via F)."""
@@ -65,9 +65,20 @@ def main() -> None:
     y_true = Yv[..., 0].numpy()   # (N, H)
 
     preds = {}
-    preds["naive"] = NaiveForecaster().predict(x_hist, horizon=spec.horizon)
-    preds["seasonal_naive_24"] = SeasonalNaiveForecaster(season_length=24).predict(x_hist, horizon=spec.horizon)
-    preds["drift"] = DriftForecaster().predict(x_hist, horizon=spec.horizon)
+    preds["naive"] = np.stack([
+        NaiveForecaster().fit(hist).predict(horizon=spec.horizon)
+        for hist in x_hist
+    ])
+
+    preds["seasonal_naive_24"] = np.stack([
+        SeasonalNaiveForecaster(season_length=24).fit(hist).predict(horizon=spec.horizon)
+        for hist in x_hist
+    ])
+
+    preds["drift"] = np.stack([
+        DriftForecaster().fit(hist).predict(horizon=spec.horizon)
+        for hist in x_hist
+    ])
 
     print("Validation metrics (lower is better):\n")
     for name, yhat in preds.items():

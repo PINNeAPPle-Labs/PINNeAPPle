@@ -26,7 +26,6 @@ examples/numerical_solvers/09_solver_lmb_demo.py
 examples/numerical_solvers/10_solver_spectral_demo.py
 examples/numerical_solvers/11_cad_cfd_pipeline_demo.py
 examples/pinneapple_cosim/01_spring_mass_pinn.py
-examples/time_series/00_quickstart.py
 examples/time_series/01_FNO.py
 examples/time_series/02_full_pipeline.py
 examples/time_series/03_audit_and_features.py
@@ -41,7 +40,6 @@ examples/trainer/05_ddp_torchrun.py
 examples/use_cases/physics_data_factory/ultrarealistic_digital_twin.py
 templates/13_world_model.py
 templates/16_uncertainty_quantification.py
-templates/17_transfer_learning.py
 templates/18_inverse_problem.py
 templates/20_deeponet_surrogate.py
 templates/21_active_learning.py
@@ -52,7 +50,6 @@ templates/26_rom_pod_dmd.py
 templates/27_timeseries_models.py
 templates/28_arena_benchmark.py
 templates/29_koopman_autoencoder.py
-templates/30_zarr_data_pipeline.py
 templates/31_problem_design_llm.py
 templates/32_physics_validation.py
 templates/35_jax_backend.py

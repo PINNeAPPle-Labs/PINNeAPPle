@@ -101,6 +101,7 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ### Fixed
 - `serialization.load_zarr` called `UPDZarrStore.iter_samples`, which did not exist, so every call failed; the store
   now has it.
+- Fixed `templates/30_zarr_data_pipeline.py` to use the current UPD and Zarr APIs.
 - `physical_units`: `mPa` (and `mPa·s`, `mW`) was read as `MPa` (`MW`), a factor of 10⁹, through the case-insensitive
   fallback; milli and mega prefixes are no longer interchanged.
 - **Behavior:** `solve_pde` (and so `pp.pipeline`) silently dropped every boundary and initial condition defined by a

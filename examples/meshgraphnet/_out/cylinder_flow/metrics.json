@@ -1,0 +1,14 @@
+{
+  "rollout_rmse": 0.07109754905104637,
+  "one_step_rmse": 0.02651675883680582,
+  "n_steps": 50,
+  "frozen_ic_baseline_rmse": 0.09619166702032089,
+  "train_traj": 11,
+  "valid_traj": 2,
+  "steps": 3000,
+  "lr": 0.001,
+  "noise": 0.003,
+  "hidden": 64,
+  "mp": 6,
+  "final_train_loss": 0.46018816649913785
+}

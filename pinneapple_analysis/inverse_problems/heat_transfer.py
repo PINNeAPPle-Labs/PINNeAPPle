@@ -10,7 +10,6 @@ from __future__ import annotations
 import json
 import math
 import os
-import sys
 from typing import Callable, Dict, List, Optional, Sequence
 
 import numpy as np
@@ -18,12 +17,12 @@ import torch
 
 from pinneapple_physics.pinn_solver.factory.pinn_factory import PINN, NeuralNetwork, PINNFactory, PINNProblemSpec
 
-_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-EXAMPLE = os.path.join(_ROOT, "examples", "use_cases", "fin_convection_inverse")
-if EXAMPLE not in sys.path:
-    sys.path.insert(0, EXAMPLE)
+from pinneapple_simulation.numerical_solvers.heat_fv_reference import _footprint_area, interp_grid, plate_2d
 
-from fv_reference import _footprint_area, interp_grid, plate_2d  # noqa: E402
+# stored results of the long runs (the 3D block); the Inverse Heat Lab app points here explicitly
+_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+EXAMPLE = os.environ.get("PINNEAPPLE_INVERSE_HEAT_RESULTS") or os.path.join(_ROOT, "examples", "use_cases",
+                                                                            "fin_convection_inverse")
 
 __all__ = ["FinInput", "run_fin", "run_plate", "plate_precomputed", "block_precomputed", "fin_exact", "fin_q_exact"]
 

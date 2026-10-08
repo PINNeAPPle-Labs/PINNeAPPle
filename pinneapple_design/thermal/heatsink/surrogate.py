@@ -30,7 +30,9 @@ import torch
 
 from .engine import DesignInput, OperatingInput, physics_resistance
 
-ARTIFACTS = os.path.join(os.path.dirname(os.path.dirname(__file__)), "artifacts")
+# trained surrogates and datasets; the HeatSink Sizer app points this at apps/heatsink_sizer/artifacts
+ARTIFACTS = os.environ.get("PINNEAPPLE_HEATSINK_ARTIFACTS") or os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "heatsink_sizer", "artifacts"))
 
 # Design space the surrogates are trained (and therefore valid) on. mm, W, C, m/s.
 COMMON_RANGES: Dict[str, Tuple[float, float]] = {

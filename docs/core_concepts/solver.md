@@ -81,3 +81,35 @@ same problem. Example: `examples/solver_api/01_classical_vs_pinn.py` (FEM relati
 30 s on the manufactured Poisson problem).
 
 Not yet behind this contract: FNO, SPH, LBM and FVM backends, and time-dependent classical solves of arbitrary presets.
+
+
+## `pp.compile`: solve the same problem with less work
+
+```python
+compiled = pp.compile("burgers_1d", optimize="physics")
+sol = compiled.solve("pinn", epochs=2000)
+print(compiled.benchmark(epochs=100))      # baseline vs compiled CPU time and how far the weights differ
+```
+
+`optimize="physics"` memoizes first derivatives within one loss evaluation. The PDE residual is built from several
+derivative calls on the same field (the time derivative and the convective term of Burgers both differentiate `u`), and
+each call builds an autograd graph; the compiled problem builds it once. The losses are the same, and the trained
+weights agree to floating-point summation order. Measured with `benchmark` (80 epochs, 2048 collocation points,
+`modified_mlp` 64x4, one CPU thread, best of 3 alternating runs):
+
+| Problem | First-derivative graphs built | Baseline | Compiled | Speedup | Max weight difference |
+|---|---|---|---|---|---|
+| burgers_1d | 1 of 2 | 3.33 s | 2.84 s | 1.18x | 3e-8 |
+| crystal_phonon | 1 of 3 | 3.26 s | 2.52 s | 1.29x | 6e-8 |
+| heston_pde_2d | 4 of 6 | 7.49 s | 6.31 s | 1.19x | 5e-8 |
+| sod_shock_tube_astro | 5 of 6 | 4.21 s | 3.57 s | 1.18x | 0 |
+| threaded_coupling_tc50_rotating | 10 of 11 | 9.58 s | 9.11 s | 1.05x | 2e-8 |
+
+The gain is modest and depends on how many derivatives the PDE repeats. Where the time goes: about half of a PINN
+step is the backward pass through the second-order graph, which caching does not touch. Two other ideas were measured
+on CPU and rejected: forward-mode (nested `jvp`) derivatives for the Burgers residual were slower (59 ms against 35 ms
+per step), and a batched evaluation of the diagonal second derivatives changed the time by less than 10% (41.4 to
+41.8 ms in 2D, 57.3 to 51.6 ms in 3D). Not done: kernel-level operator fusion, batching of the boundary and initial
+forward passes, memory planning, and compiling a bare model (`pp.compile(model)` raises `TypeError`, since the
+optimisations act on the PDE residual a model alone does not define). `solve_pde(..., cache_derivatives=True)` and
+`compile_problem(spec, cache_derivatives=True)` expose the same switch.

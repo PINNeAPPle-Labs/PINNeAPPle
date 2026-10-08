@@ -203,6 +203,7 @@ def solve_pde(
     x_ic=None, y_ic=None,
     x_data=None, y_data=None,
     ctx=None,
+    cache_derivatives: bool = False,
     **cond_masks,
 ):
     """One-shot: compile physics losses and train *model* on a ProblemSpec.
@@ -281,7 +282,7 @@ def solve_pde(
     ctx = dict(ctx or {})
     kind_to_suffix = {"dirichlet": "bc", "neumann": "bc", "robin": "bc", "initial": "ic"}
 
-    loss_fn = compile_problem(spec, weights=weights)
+    loss_fn = compile_problem(spec, weights=weights, cache_derivatives=cache_derivatives)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
 
     def _sample_domain_np(n: int) -> "np.ndarray":

@@ -10,6 +10,7 @@ from pinneapple_physics.pde_environment.spec import ProblemSpec
 from pinneapple_physics.pde_environment.conditions import ConditionSpec
 
 from .autograd_ops import (
+    derivative_cache,
     ensure_tensor,
     grad,
     jacobian,
@@ -199,7 +200,14 @@ def compile_problem(
     spec: ProblemSpec,
     *,
     weights: Optional[LossWeights] = None,
+    cache_derivatives: bool = False,
 ) -> Callable[[torch.nn.Module, Any, Dict[str, Any]], Dict[str, torch.Tensor]]:
+    """Compile ``spec`` into ``loss_fn(model, y_hat, batch) -> {name: loss}``.
+
+    ``cache_derivatives=True`` memoizes ``grad`` / ``jacobian`` of the same field within one evaluation, so terms that
+    differentiate the same field (the time derivative and the convective term of Burgers, the several derivatives
+    of Navier-Stokes) share one autograd graph. The losses are the same up to floating-point summation order.
+    """
     w = weights or LossWeights()
     coords = spec.coords
     field_names = list(spec.fields)
@@ -211,7 +219,7 @@ def compile_problem(
     spatial_dim = len(spatial_coord_names)
     spatial_indices = [list(coords).index(c) for c in spatial_coord_names]
 
-    def loss_fn(model: torch.nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+    def _loss_fn(model: torch.nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
         device = next(model.parameters()).device
         ctx = batch.get("ctx", {})
 
@@ -2566,5 +2574,12 @@ def compile_problem(
 
         out["total"] = total
         return out
+
+    if not cache_derivatives:
+        return _loss_fn
+
+    def loss_fn(model: torch.nn.Module, y_hat: Any, batch: Dict[str, Any]) -> Dict[str, torch.Tensor]:
+        with derivative_cache():
+            return _loss_fn(model, y_hat, batch)
 
     return loss_fn

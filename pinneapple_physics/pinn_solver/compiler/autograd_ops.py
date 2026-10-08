@@ -1,6 +1,43 @@
 from __future__ import annotations
 
+import contextlib
+import contextvars
+from typing import Dict, Iterator, Optional, Tuple
+
 import torch
+
+# Derivative cache. Inside ``derivative_cache()`` a repeated ``grad(y, x)`` / ``jacobian(Y, x)`` on the same
+# tensors returns the first result instead of building another autograd graph. The cache keeps references to
+# ``y`` and ``x`` so their ids cannot be reused while it is alive, and it is dropped on exit.
+_CACHE: contextvars.ContextVar[Optional[Dict[Tuple[str, int, int], tuple]]] = contextvars.ContextVar(
+    "pinneapple_derivative_cache", default=None)
+_STATS = {"hits": 0, "misses": 0}
+
+
+@contextlib.contextmanager
+def derivative_cache() -> Iterator[Dict[str, int]]:
+    """Memoize first derivatives within the block (one loss evaluation). Yields hit/miss counters."""
+    token = _CACHE.set({})
+    _STATS["hits"] = _STATS["misses"] = 0
+    try:
+        yield _STATS
+    finally:
+        _CACHE.reset(token)
+
+
+def _cached(kind: str, y: torch.Tensor, x: torch.Tensor, compute):
+    cache = _CACHE.get()
+    if cache is None:
+        return compute()
+    key = (kind, id(y), id(x))
+    hit = cache.get(key)
+    if hit is not None:
+        _STATS["hits"] += 1
+        return hit[2]
+    _STATS["misses"] += 1
+    out = compute()
+    cache[key] = (y, x, out)
+    return out
 
 
 def ensure_tensor(y):
@@ -10,18 +47,22 @@ def ensure_tensor(y):
 
 
 def grad(y: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
-    return torch.autograd.grad(
+    return _cached("grad", y, x, lambda: torch.autograd.grad(
         outputs=y,
         inputs=x,
         grad_outputs=torch.ones_like(y),
         create_graph=True,
         retain_graph=True,
         allow_unused=False,
-    )[0]
+    )[0])
 
 
 def jacobian(Y: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
     assert Y.ndim == 2
+    return _cached("jac", Y, x, lambda: _jacobian(Y, x))
+
+
+def _jacobian(Y: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
     outs = []
     for j in range(Y.shape[1]):
         g = torch.autograd.grad(

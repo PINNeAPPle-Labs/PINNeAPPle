@@ -21,6 +21,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `pp.compile` (roadmap X9, #193): `pp.compile(problem, optimize="physics")` returns a `CompiledProblem` (`solve`, `loss_fn`,
+  `benchmark`). The optimisation is derivative reuse: first derivatives of the same field are built once per loss
+  evaluation (`solve_pde` and `compile_problem` take `cache_derivatives=True`). Measured speedup of PINN training 1.05x to
+  1.29x on five presets with trained weights equal to 6e-8; forward-mode and batched second derivatives were tried and are
+  not faster on CPU. Details and the full table in `docs/core_concepts/solver.md`.
 - `PhysicsModule` (roadmap X8, #192): `pinneapple_core.module` with `PhysicsModule`, `Sequential`, `SolverModule` (a
   differentiable function with optional trainable parameters, or any `pp.solve` method via `from_method`) and `Hybrid`
   (solver plus neural correction, `residual` / `multiplicative` / `replace`). A coarse finite-element solve with a

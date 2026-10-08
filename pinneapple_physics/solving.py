@@ -238,7 +238,8 @@ def _grid_solution(problem: PhysicalProblem, ref: Mapping[str, Any], solver_name
 @register_method("pinn", kind="neural")
 def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidden_dim: int = 64, n_layers: int = 4,
           epochs: int = 2000, lr: float = 1e-3, n_collocation: int = 2048, seed: int = 0, device: str = "cpu",
-          weights=None, ctx: Optional[Mapping[str, Any]] = None, **_: Any) -> Solution:
+          weights=None, ctx: Optional[Mapping[str, Any]] = None, cache_derivatives: bool = False,
+          **_: Any) -> Solution:
     import torch
     import pinneapple_neural.architectures  # noqa: F401  (registers the model zoo)
     from pinneapple_neural.architectures.registry import ModelRegistry
@@ -250,7 +251,7 @@ def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidde
                                 hidden_dim=hidden_dim, n_layers=n_layers)
     t0 = time.perf_counter()
     out = solve_pde(spec, model, epochs=epochs, device=device, lr=lr, n_collocation=n_collocation, seed=seed,
-                    weights=weights, ctx=dict(ctx) if ctx else None)
+                    weights=weights, ctx=dict(ctx) if ctx else None, cache_derivatives=cache_derivatives)
     elapsed = time.perf_counter() - t0
     trained = out["model"]
     trained.eval()

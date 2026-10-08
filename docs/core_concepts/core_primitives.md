@@ -79,4 +79,24 @@ interior and degrade at the boundary; a point cloud uses a local quadratic fit. 
 mesh for P1 fields, trapezoid on a grid, and Monte Carlo (error ~ 1/sqrt(n)) on a point cloud or a
 continuous field.
 
+## Derivatives through solvers: `pp.func`
+
+`pinneapple_core.func` (`pp.func`) wraps `torch.func` (`grad`, `jacobian`, `jacrev`, `jacfwd`, `hessian`, `vmap`)
+and adds `wrt`, the argument to differentiate by name or position:
+
+```python
+from pinneapple_core import func
+func.jacobian(model, wrt="geometry")(geometry, mu)     # d model / d geometry
+```
+
+- `func.implicit_solve(residual, x0, *params, solver=None)` solves `residual(x, *params) = 0` and differentiates
+  the solution with the implicit function theorem, `dx/dp = -(dF/dx)^-1 dF/dp`. The backward pass is one adjoint
+  solve, independent of the forward iterations, and `solver=` accepts any external code (never differentiated).
+  The Jacobian `dF/dx` is dense; second derivatives through the solve ignore its dependence on `params`.
+- `pinneapple_core.fem` is a differentiable P1 finite-element Poisson solver (dense matrices, up to a few
+  thousand nodes). Because the vertex coordinates are torch tensors, `loss.backward()` returns the gradient with
+  respect to the geometry: write `points = f(design_parameters)` and differentiate. Tested against central
+  finite differences of the same pipeline (relative agreement 1e-6 or better for a 1D length and for 2D
+  width, height and bump parameters).
+
 Examples: `examples/core_primitives/01_poisson_pinn.py` (PINN) and `02_operator_poisson_1d.py` (neural operator).

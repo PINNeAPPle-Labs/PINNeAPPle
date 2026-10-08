@@ -21,6 +21,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `pp.func` (roadmap X5, #189): `grad`, `jacobian`, `jacrev`, `jacfwd`, `hessian`, `vmap` over `torch.func` with
+  `wrt=` by argument name (`jacobian(model, wrt="geometry")`); `implicit_solve` differentiates through a nonlinear
+  solve by the implicit function theorem (one adjoint solve, any external forward solver); `pinneapple_core.fem`
+  is a differentiable P1 Poisson solver giving gradients with respect to mesh vertices, checked against finite
+  differences.
 - Physics operators (roadmap X4, #188): `pp.grad`, `div`, `curl`, `laplacian`, `jacobian`, `hessian`, `integrate` and
   `flux` (module `pinneapple_core.operators`) with one call on a continuous field (torch callable, autograd), a grid,
   a mesh or a point cloud, checked against manufactured solutions on each. `flux` obeys the divergence theorem

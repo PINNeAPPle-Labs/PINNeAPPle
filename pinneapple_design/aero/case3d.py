@@ -296,7 +296,7 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     ni = mesh.poly.n_internal
     out: Dict[str, Any] = {"time": t, "cells": int(nc), "patches": {}}
     Ftot, Fp, Fv = np.zeros(3), np.zeros(3), np.zeros(3)
-    faces_xyz, faces_cp = [], []
+    faces_xyz, faces_cp, faces_cf = [], [], []
     for b in mesh.poly.patches:
         if b["name"] not in BODIES:
             continue
@@ -325,10 +325,11 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
                                      "CD": float((fpress + fvisc).sum(0) @ drag_dir / (q * S))}
         faces_xyz.append(fg["centres"][idx])
         faces_cp.append(pw / q)
+        faces_cf.append(tau / q)
     Ftot = Fp + Fv
     out.update(CL=float(Ftot @ lift_dir / (q * S)), CD=float(Ftot @ drag_dir / (q * S)),
                CD_pressure=float(Fp @ drag_dir / (q * S)), CD_friction=float(Fv @ drag_dir / (q * S)))
-    out["surface"] = {"xyz": np.concatenate(faces_xyz), "cp": np.concatenate(faces_cp)}
+    out["surface"] = {"xyz": np.concatenate(faces_xyz), "cp": np.concatenate(faces_cp), "cf": np.concatenate(faces_cf)}
     # streamlines in the near field: inverse-distance velocity from the 8 nearest cells, RK2
     C = cg["centres"]
     box = (C[:, 0] > -2) & (C[:, 0] < af.length + 14) & (C[:, 1] < af.span / 2 + 3) & (C[:, 2] > -4) & (C[:, 2] < 5)
@@ -358,19 +359,62 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     for k in range(len(seeds)):
         lines.append(P[k, ::2])
     out["streamlines"] = lines
+    out["streamline_speed"] = [np.linalg.norm(vel(L), axis=1) / V for L in lines]
+
+    # slice planes (what ParaView would show): a cross-flow plane behind the wing (speed, streamwise vorticity)
+    # and the symmetry plane (pressure coefficient, speed). Points farther than ~1.5 cells from any cell centre
+    # (inside the aircraft) are NaN.
+    tree_all = cKDTree(C)
+    cell = np.cbrt(np.median(cg["volumes"])) if "volumes" in cg else 0.1
+
+    def sample(P3):
+        dd, ii = tree_all.query(P3, k=6)
+        w = 1 / (dd + 1e-6) ** 2
+        Uv = (U[ii] * w[..., None]).sum(-2) / w.sum(-1, keepdims=True)
+        pv = (p[ii].reshape(ii.shape) * w).sum(-1) / w.sum(-1)
+        return Uv, pv, dd[:, 0]
+
+    tip_te = af._wing_point(1.0, 1.0)
+    xs_ = tip_te[0] + 0.6 * af.mac
+    ny_, nz_ = 220, 110
+    yy = np.linspace(0.0, 1.35 * b2, ny_)
+    zz = np.linspace(zw - 0.32 * b2, zw + 0.32 * b2, nz_)
+    Yg, Zg = np.meshgrid(yy, zz)
+    Uv, pv, dmin = sample(np.c_[np.full(Yg.size, xs_), Yg.ravel(), Zg.ravel()])
+    Uv = Uv.reshape(nz_, ny_, 3)
+    dy, dz = yy[1] - yy[0], zz[1] - zz[0]
+    wx = np.gradient(Uv[..., 2], dy, axis=1) - np.gradient(Uv[..., 1], dz, axis=0)
+    spd = np.linalg.norm(Uv, axis=-1) / V
+    out["slice_wake"] = {"x": float(xs_), "y": [float(yy[0]), float(yy[-1])], "z": [float(zz[0]), float(zz[-1])],
+                         "shape": [nz_, ny_], "speed": spd, "vorticity": wx * af.mac / V}
+    nx2, nz2 = 300, 120
+    xx = np.linspace(-0.15 * af.length, 1.25 * af.length, nx2)
+    zz2 = np.linspace(-0.22 * af.length, 0.28 * af.length, nz2)
+    Xg, Zg2 = np.meshgrid(xx, zz2)
+    Uv2, pv2, d2 = sample(np.c_[Xg.ravel(), np.full(Xg.size, 0.02 * af.width), Zg2.ravel()])
+    inside = (d2 > 2.5 * cell).reshape(nz2, nx2)
+    cp2 = (pv2 / q).reshape(nz2, nx2)
+    sp2 = (np.linalg.norm(Uv2, axis=1) / V).reshape(nz2, nx2)
+    cp2[inside] = np.nan
+    sp2[inside] = np.nan
+    out["slice_sym"] = {"y": 0.0, "x": [float(xx[0]), float(xx[-1])], "z": [float(zz2[0]), float(zz2[-1])],
+                        "shape": [nz2, nx2], "cp": cp2, "speed": sp2}
     return out
 
 
-def surface_scalars(af: Airframe, parts, surface: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
-    """Cp from the CFD faces onto the visual mesh vertices (nearest face, mirrored for the left side)."""
+def surface_scalars(af: Airframe, parts, surface: Dict[str, np.ndarray], key: str = "cp") -> Dict[str, np.ndarray]:
+    """A surface field from the CFD faces onto the visual mesh vertices (nearest faces, inverse-distance, mirrored
+    for the left side). key: "cp" (pressure coefficient) or "cf" (skin friction coefficient)."""
     from scipy.spatial import cKDTree
     tree = cKDTree(surface["xyz"])
+    vals = np.asarray(surface[key], np.float32)
     out = {}
     for p in parts:
         if not p.aero:
             continue
         v = p.vertices * [1, 1, 1]
         v[:, 1] = np.abs(v[:, 1])
-        d, i = tree.query(v)
-        out[p.name] = surface["cp"][i].astype(np.float32)
+        d, i = tree.query(v, k=4)
+        w = 1 / (d + 1e-4) ** 2
+        out[p.name] = ((vals[i] * w).sum(1) / w.sum(1)).astype(np.float32)
     return out

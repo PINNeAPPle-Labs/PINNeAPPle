@@ -54,6 +54,7 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- Fixed `templates/30_zarr_data_pipeline.py` to use the current UPD and Zarr APIs.
 - `physical_units`: `mPa` (and `mPa·s`, `mW`) was read as `MPa` (`MW`), a factor of 10⁹, through the case-insensitive
   fallback; milli and mega prefixes are no longer interchanged.
 - **Behavior:** `solve_pde` (and so `pp.pipeline`) silently dropped every boundary and initial condition defined by a

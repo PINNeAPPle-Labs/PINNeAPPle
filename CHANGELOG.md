@@ -21,6 +21,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `PhysicsBackend` (roadmap X7, #191): `pinneapple_core.backend` gives torch and jax one API (`asarray`, `matmul`, `solve`,
+  `integrate`, `grad`, `jacobian`, `vmap`, `jit`, array constructors, `xp` for elementwise math), a registry
+  (`register_backend`) for further engines, `pp.use_backend(...)` as a context manager and `pp.get_physics_backend()`.
+  `set_backend` now accepts any registered name. A finite-difference Poisson problem and the gradient of its objective
+  with respect to the domain length run unchanged on torch and jax with the same results.
 - One `solve(problem)` contract across solver kinds (roadmap X6, #190): every method has a `kind` (`classical`, `neural`,
   `analytic`, `external`, ...), every `Solution` has `metadata()` with the same keys, and `compare` reports the kind.
   New methods: `fem` (P1 finite elements for steady Poisson/Laplace on a box, on `pinneapple_core.fem`) and `external`

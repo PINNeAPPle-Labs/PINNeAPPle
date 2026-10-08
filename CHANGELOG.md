@@ -21,6 +21,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   dimension and the 2D CSG shapes (interior and boundary sampling with normals, `contains`, signed distance);
   `Geometry` adds named boundaries and a mesher. Examples in `examples/core_primitives/`: a Poisson PINN
   (relative L2 error 5e-3) and a Fourier neural operator on grid fields.
+- `pp.transforms` (roadmap X13, #197): `Scale`, `Nondimensionalize`, `Coordinate` (polar, cylindrical, spherical, log), `Symmetry`
+  (reflect, rotate, with vector fields), `Periodic` and `FourierFeatures`, composable with `>>`, invertible where applicable, applied to
+  tables, `PhysicsDataset` and (the scaling ones) `PhysicalProblem`, with a provenance record per step (`problem.metadata["transforms"]`,
+  `dataset.provenance`) holding the fingerprints before and after. Nondimensionalising Burgers gives `nu' = nu T / L^2`, checked against the
+  exact solution. `PhysicsDataset` gained a `provenance` list.
 - Physics data API (roadmap X12, #196): `pinneapple_core.data` with `PhysicsDataset`, `DataLoader` (datasets and samplers as
   sources, one `Batch` with a group per source, `physics_aware` sets `requires_grad` on differentiated points) and the samplers
   `CollocationSampler` (uniform, lhs, sobol, any `Domain`), `BoundarySampler` (normals, named parts), `MeshSampler`,

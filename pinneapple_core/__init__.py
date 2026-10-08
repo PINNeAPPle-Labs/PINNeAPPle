@@ -27,7 +27,7 @@ __all__ = ["Domain", "Geometry", "Mesh", "Field", "FunctionField", "Grid", "Poin
 
 def __getattr__(name):
     # torch-based submodules load on first use: ``pinneapple_core.func`` / ``.fem``
-    if name in ("func", "fem", "backend", "module", "loss", "optim", "data"):
+    if name in ("func", "fem", "backend", "module", "loss", "optim", "data", "transforms"):
         import importlib
 
         mod = importlib.import_module(f"{__name__}.{name}")

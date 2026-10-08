@@ -19,7 +19,16 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 
-VENDOR = os.path.join(os.path.dirname(__file__), "static", "vendor")
+def _vendor_dir() -> str:
+    """three.js ships once, inside the library (pinneapple_tools/visualization/studio/web/vendor), so the apps and
+    pp.viz's browser viewer serve the same copy. Located without importing the package."""
+    import importlib.util
+    spec = importlib.util.find_spec("pinneapple_tools")
+    root = list(spec.submodule_search_locations)[0]
+    return os.path.join(root, "visualization", "studio", "web", "vendor")
+
+
+VENDOR = _vendor_dir()
 SHARED = os.path.join(os.path.dirname(__file__), "static", "shared")
 
 

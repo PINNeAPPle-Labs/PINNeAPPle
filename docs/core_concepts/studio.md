@@ -25,6 +25,8 @@ A `Scene` holds surfaces (vertices, triangles, a material and per-vertex fields)
 | Build it from | Call |
 |---|---|
 | STL (binary/ASCII, one surface per solid), OBJ | `Scene.from_file("part.stl")` |
+| glTF/GLB (node transforms applied; float attributes `_NAME` become fields) | `Scene.from_file("model.glb")`, `axes="aircraft"` for files written in aircraft axes |
+| VTK PolyData `.vtp` (needs `pip install vtk`) | `Scene.from_file("surface.vtp")`: point and cell data |
 | OpenFOAM case or zip, CalculiX `.frd`, Abaqus `.inp`, Gmsh, VTK | `Scene.from_file(path)`: boundary surface with the cell or point fields; vectors become magnitudes, stress tensors von Mises |
 | A `pinneapple_data.cae` mesh you already have | `Scene.from_mesh(mesh)` |
 | Arrays | `Scene.from_arrays(vertices, faces)` |

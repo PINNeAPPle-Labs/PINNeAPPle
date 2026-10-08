@@ -37,6 +37,7 @@ MATERIALS: Dict[str, Dict[str, Any]] = {
 }
 
 AXES = {   # engineering axes -> glTF (y up); Blender's importer maps glTF back to z up
+    "as_is": np.eye(3),                                                          # coordinates written unchanged
     "z_up": np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]]),        # (x, y, z) -> (x, z, -y)
     "aircraft": np.array([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]]),     # (x aft, y right, z up) -> (y, z, x)
 }
@@ -94,9 +95,14 @@ class Scene:
 
     @classmethod
     def from_file(cls, path: str, material: str = "grey", **kw) -> "Scene":
-        """STL (binary or ASCII, one surface per solid), OBJ, or any mesh/result ``pinneapple_data.cae`` reads
-        (OpenFOAM case directory or zip, Gmsh, VTK, CalculiX .frd, Abaqus .inp ...)."""
+        """STL (binary or ASCII, one surface per solid), OBJ, glTF/GLB (fields from float vertex attributes ``_NAME``),
+        VTK PolyData .vtp (needs the ``vtk`` package), or any mesh/result ``pinneapple_data.cae`` reads (OpenFOAM
+        case directory or zip, Gmsh, VTK .vtk/.vtu, CalculiX .frd, Abaqus .inp ...)."""
         ext = os.path.splitext(path)[1].lower()
+        if ext in (".glb", ".gltf"):
+            return cls(read_gltf(path, kw.get("axes", "z_up")), **kw)
+        if ext == ".vtp":
+            return cls([read_vtp(path, material)], **kw)
         if ext == ".stl":
             return cls([Surface(n, V, F, material) for n, V, F in read_stl(path)], **kw)
         if ext == ".obj":
@@ -307,6 +313,141 @@ def read_obj(path: str) -> Tuple[np.ndarray, np.ndarray]:
     return np.array(V, float), np.array(F, np.int64)
 
 
+_GL_DTYPE = {5120: np.int8, 5121: np.uint8, 5122: np.int16, 5123: np.uint16, 5125: np.uint32, 5126: np.float32}
+_GL_NCOMP = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
+
+
+def read_gltf(path: str, axes: str = "z_up") -> List[Surface]:
+    """Triangle meshes of a .glb/.gltf (embedded, data-URI or external buffers), node transforms applied, converted
+    from glTF's y-up to the scene ``axes``. Float vertex attributes starting with ``_`` become fields (their original
+    names when the file was written by this module)."""
+    import base64
+    raw = open(path, "rb").read()
+    if raw[:4] == b"glTF":
+        jl = struct.unpack("<I", raw[12:16])[0]
+        gl = json.loads(raw[20:20 + jl])
+        rest = raw[20 + jl:]
+        glb_bin = rest[8:8 + struct.unpack("<I", rest[:4])[0]] if len(rest) >= 8 else b""
+    else:
+        gl, glb_bin = json.loads(raw), b""
+    buffers = []
+    for b in gl.get("buffers", []):
+        uri = b.get("uri")
+        if uri is None:
+            buffers.append(glb_bin)
+        elif uri.startswith("data:"):
+            buffers.append(base64.b64decode(uri.split(",", 1)[1]))
+        else:
+            buffers.append(open(os.path.join(os.path.dirname(path), uri), "rb").read())
+
+    def accessor(i):
+        a = gl["accessors"][i]
+        v = gl["bufferViews"][a["bufferView"]]
+        dt, nc = np.dtype(_GL_DTYPE[a["componentType"]]), _GL_NCOMP[a["type"]]
+        off = v.get("byteOffset", 0) + a.get("byteOffset", 0)
+        stride = v.get("byteStride", 0)
+        buf = buffers[v["buffer"]]
+        if stride and stride != dt.itemsize * nc:
+            out = np.empty((a["count"], nc), dt)
+            for k in range(a["count"]):
+                out[k] = np.frombuffer(buf, dt, nc, off + k * stride)
+            return out
+        return np.frombuffer(buf, dt, a["count"] * nc, off).reshape(a["count"], nc)
+
+    def local(node):
+        if "matrix" in node:
+            return np.array(node["matrix"], float).reshape(4, 4).T
+        M = np.eye(4)
+        if "scale" in node:
+            M = np.diag(list(node["scale"]) + [1.0]) @ M
+        if "rotation" in node:
+            x, y, z, w = node["rotation"]
+            R = np.array([[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+                          [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+                          [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]])
+            Rm = np.eye(4)
+            Rm[:3, :3] = R
+            M = Rm @ M
+        if "translation" in node:
+            T = np.eye(4)
+            T[:3, 3] = node["translation"]
+            M = T @ M
+        return M
+
+    to_scene = AXES[axes].T                                     # inverse of the (orthogonal) export mapping
+    mats = gl.get("materials", [])
+    out: List[Surface] = []
+
+    def walk(ni, parent):
+        node = gl["nodes"][ni]
+        M = parent @ local(node)
+        if "mesh" in node:
+            mesh = gl["meshes"][node["mesh"]]
+            for pi, prim in enumerate(mesh["primitives"]):
+                if prim.get("mode", 4) != 4:
+                    continue                                    # triangles only
+                P = accessor(prim["attributes"]["POSITION"]).astype(float)
+                P = (np.c_[P, np.ones(len(P))] @ M.T)[:, :3] @ to_scene.T
+                F = (accessor(prim["indices"]).ravel() if "indices" in prim else np.arange(len(P))).reshape(-1, 3)
+                mname = mats[prim["material"]].get("name", "grey") if "material" in prim and mats else "grey"
+                nm = mesh.get("name") or node.get("name") or f"mesh{len(out)}"
+                srf = Surface(nm if len(mesh["primitives"]) == 1 else f"{nm}_{pi}", P, F.astype(np.int64),
+                              mname if mname in MATERIALS else "grey")
+                names = prim.get("extras", {}).get("fields", {})
+                for k, ai in prim["attributes"].items():
+                    if k.startswith("_"):
+                        a = accessor(ai)
+                        if a.shape[1] == 1 and a.dtype.kind == "f":
+                            srf.fields[names.get(k, k[1:].lower())] = a[:, 0].astype(float)
+                out.append(srf)
+        for c in node.get("children", []):
+            walk(c, M)
+
+    sc = gl.get("scenes", [{"nodes": list(range(len(gl.get("nodes", []))))}])[gl.get("scene", 0)]
+    for ni in sc.get("nodes", []):
+        walk(ni, np.eye(4))
+    if not out:
+        raise ValueError(f"no triangle meshes in {path}")
+    return out
+
+
+def read_vtp(path: str, material: str = "grey") -> Surface:
+    """VTK PolyData (.vtp) with its point and cell data (vectors as magnitude). Needs ``pip install vtk``."""
+    try:
+        from vtkmodules.util.numpy_support import vtk_to_numpy
+        from vtkmodules.vtkFiltersCore import vtkTriangleFilter
+        from vtkmodules.vtkIOXML import vtkXMLPolyDataReader
+    except ImportError as e:
+        raise ImportError("reading .vtp needs the vtk package: pip install vtk") from e
+    r = vtkXMLPolyDataReader()
+    r.SetFileName(path)
+    r.Update()
+    t = vtkTriangleFilter()
+    t.SetInputConnection(r.GetOutputPort())
+    t.Update()
+    pd = t.GetOutput()
+    V = vtk_to_numpy(pd.GetPoints().GetData()).astype(float)
+    F = vtk_to_numpy(pd.GetPolys().GetConnectivityArray()).reshape(-1, 3).astype(np.int64)
+    srf = Surface(os.path.splitext(os.path.basename(path))[0], V, F, material)
+    pdata = pd.GetPointData()
+    for i in range(pdata.GetNumberOfArrays()):
+        a = pdata.GetArray(i)
+        if a is not None and a.GetName():
+            srf.fields[a.GetName()] = scalar_of(vtk_to_numpy(a))
+    cdata = pd.GetCellData()
+    for i in range(cdata.GetNumberOfArrays()):
+        a = cdata.GetArray(i)
+        if a is None or not a.GetName() or a.GetName() in srf.fields:
+            continue
+        per_tri = scalar_of(vtk_to_numpy(a))
+        acc, cnt = np.zeros(len(V)), np.zeros(len(V))
+        for j in range(3):
+            np.add.at(acc, F[:, j], per_tri)
+            np.add.at(cnt, F[:, j], 1)
+        srf.fields[a.GetName()] = acc / np.maximum(cnt, 1)
+    return srf
+
+
 def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], generator: str = "PINNeAPPle",
               groups: Optional[Dict[str, List[int]]] = None) -> bytes:
     """glTF 2.0 binary with PBR materials (clearcoat, transmission, emissive). Every per-vertex field becomes a
@@ -335,15 +476,22 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
         V = (s.vertices @ T.T).astype(np.float32)
         N = (vertex_normals(s.vertices, s.faces) @ T.T).astype(np.float32)
         attrs = {"POSITION": add(V, 34962, 5126, "VEC3", True), "NORMAL": add(N, 34962, 5126, "VEC3")}
+        names = {}
         for an, vals in getattr(s, "fields", {}).items():
-            attrs["_" + an.upper().lstrip("_")] = add(np.asarray(vals, np.float32), 34962, 5126, "SCALAR")
+            key = "_" + an.upper().lstrip("_")
+            attrs[key] = add(np.asarray(vals, np.float32), 34962, 5126, "SCALAR")
+            names[key] = an
         idx = add(s.faces.astype(np.uint32).ravel(), 34963, 5125, "SCALAR")
-        meshes.append({"name": s.name, "primitives": [{"attributes": attrs, "indices": idx, "material": mats.index(s.material)}]})
+        prim = {"attributes": attrs, "indices": idx, "material": mats.index(s.material)}
+        if names:
+            prim["extras"] = {"fields": names}                  # original field names (attributes are upper case)
+        meshes.append({"name": s.name, "primitives": [prim]})
         nodes.append({"name": s.name, "mesh": len(meshes) - 1})
     materials_out = []
     for m in mats:
         st = materials.get(m, MATERIALS["grey"])
-        lin = [round(c ** 2.2, 5) for c in st["color"]]                  # glTF colours are linear; the tables are sRGB
+        # glTF colours are linear; the tables are sRGB unless a material says "linear": True
+        lin = [round(c if st.get("linear") else c ** 2.2, 5) for c in st["color"]]
         mat = {"name": m, "pbrMetallicRoughness": {"baseColorFactor": lin + [st.get("alpha", 1.0)],
                                                    "metallicFactor": st.get("metallic", 0.0),
                                                    "roughnessFactor": st.get("roughness", 0.5)}}
@@ -358,6 +506,8 @@ def write_glb(surfaces, T: np.ndarray, materials: Dict[str, Dict[str, Any]], gen
             ext["KHR_materials_emissive_strength"] = {"emissiveStrength": 4.0}
         if ext:
             mat["extensions"] = ext
+        if st.get("double_sided"):
+            mat["doubleSided"] = True
         materials_out.append(mat)
     children = {i for ix in (groups or {}).values() for i in ix}
     top = [i for i in range(len(nodes)) if i not in children]

@@ -108,3 +108,50 @@ def test_blender_render(tmp_path):
     sc.map_field("z", V, V[:, 2])
     out = render(sc, str(tmp_path / "s.png"), field="z", samples=1, size=(96, 54))
     assert os.path.getsize(out) > 1000
+
+
+def test_gltf_round_trip_keeps_fields_and_transforms(tmp_path):
+    V, F = sphere(1.0, n=24)
+    sc = Scene.from_arrays(V, F, name="ball")
+    sc.surfaces[0].fields["Cp_wall"] = V[:, 2].copy()
+    p = tmp_path / "b.glb"
+    sc.save(str(p))
+    s2 = Scene.from_file(str(p)).surfaces[0]
+    assert s2.name == "ball" and np.allclose(s2.vertices, V, atol=1e-6) and len(s2.faces) == len(F)
+    assert np.allclose(s2.fields["Cp_wall"], V[:, 2], atol=1e-6)                 # original name, not "_CP_WALL"
+    gl = _glb_json(p.read_bytes())                                              # a node translation is applied
+    gl["nodes"][0]["translation"] = [1.0, 2.0, 3.0]
+    js = json.dumps(gl).encode()
+    js += b" " * (-len(js) % 4)
+    raw = p.read_bytes()
+    rest = raw[20 + struct.unpack("<I", raw[12:16])[0]:]
+    q = tmp_path / "moved.glb"
+    q.write_bytes(b"glTF" + struct.pack("<II", 2, 20 + len(js) + len(rest)) + struct.pack("<I", len(js)) + b"JSON"
+                  + js + rest)
+    s3 = Scene.from_file(str(q)).surfaces[0]
+    assert np.allclose(s3.vertices - V, [1.0, -3.0, 2.0], atol=1e-6)            # glTF y-up -> scene z-up
+
+
+def test_vtp_input(tmp_path):
+    pytest.importorskip("vtk")
+    from vtkmodules.util.numpy_support import numpy_to_vtk, numpy_to_vtkIdTypeArray
+    from vtkmodules.vtkCommonCore import vtkPoints
+    from vtkmodules.vtkCommonDataModel import vtkCellArray, vtkPolyData
+    from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
+    V, F = box((1, 2, 3))
+    pd = vtkPolyData()
+    pts = vtkPoints()
+    pts.SetData(numpy_to_vtk(V))
+    pd.SetPoints(pts)
+    cells = vtkCellArray()
+    cells.SetData(numpy_to_vtkIdTypeArray(np.arange(0, 3 * len(F) + 1, 3)), numpy_to_vtkIdTypeArray(F.ravel()))
+    pd.SetPolys(cells)
+    u = numpy_to_vtk(np.c_[V[:, 0], np.zeros(len(V)), np.zeros(len(V))])
+    u.SetName("U")
+    pd.GetPointData().AddArray(u)
+    w = vtkXMLPolyDataWriter()
+    w.SetFileName(str(tmp_path / "b.vtp"))
+    w.SetInputData(pd)
+    w.Write()
+    s = Scene.from_file(str(tmp_path / "b.vtp")).surfaces[0]
+    assert len(s.faces) == len(F) and np.allclose(s.fields["U"], np.abs(V[:, 0]))    # vectors -> magnitude

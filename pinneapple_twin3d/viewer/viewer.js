@@ -1,5 +1,5 @@
 // PINNeAPPle Twin3D viewer: loads scene.json + geometry.glb + fields.bin written by
-// pinneapple_twin3d.Scene.export(). Static files only; three.js from jsdelivr.
+// pinneapple_twin3d.Scene.export(). Static files only; three.js is copied next to it (vendor/, the library's copy).
 //
 // URL parameters:
 //   ?scene=path/to/scene.json   (default: ./scene.json)

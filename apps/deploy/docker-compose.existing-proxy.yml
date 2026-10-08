@@ -10,6 +10,8 @@
 # pinneapple-preflight:8087, pinneapple-mesh:8088, pinneapple-compare:8089, pinneapple-lineage:8090 and
 # pinneapple-interop:8091 and pinneapple-aero:8092 (see README.md).
 services:
+  caddy:                       # the server already has a proxy on 80/443: never start this project's own
+    profiles: [own-proxy]
   heatsink:
     networks:
       default: {}

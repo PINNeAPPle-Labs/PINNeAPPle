@@ -146,3 +146,15 @@
 		}
 	}
 }
+
+{$ADO_DOMAIN} {
+	import common
+	request_body {
+		max_size 10MB
+	}
+	reverse_proxy aero:8092 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}

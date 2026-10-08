@@ -3,12 +3,12 @@
 #
 #   PROXY_NETWORK=<network of the existing proxy> \
 #   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta udr inverse \
-#       preflight mesh compare lineage interop
+#       preflight mesh compare lineage interop aero
 #
 # Then point the proxy at pinneapple-heatsink:8080, pinneapple-pcb:8081, pinneapple-datahealth:8082,
 # pinneapple-standardizer:8083, pinneapple-simmeta:8084 pinneapple-udr:8085, pinneapple-inverse:8086,
 # pinneapple-preflight:8087, pinneapple-mesh:8088, pinneapple-compare:8089, pinneapple-lineage:8090 and
-# pinneapple-interop:8091 (see README.md).
+# pinneapple-interop:8091 and pinneapple-aero:8092 (see README.md).
 services:
   heatsink:
     networks:
@@ -71,6 +71,11 @@ services:
       default: {}
       proxy:
         aliases: [pinneapple-interop]
+  aero:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-aero]
 
 networks:
   proxy:

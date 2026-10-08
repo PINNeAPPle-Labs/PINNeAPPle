@@ -185,6 +185,19 @@ services:
     expose: ["8091"]
     mem_limit: ${IOP_MEM_LIMIT:-3g}
 
+  aero:
+    build:
+      context: ../..
+      dockerfile: apps/aero_optimizer/Dockerfile
+    image: pinneapple/aero-optimizer:latest
+    restart: unless-stopped
+    environment:
+      ADO_USER: ${ADO_USER:-}
+      ADO_PASSWORD: ${ADO_PASSWORD:-}
+      ADO_MAX_HEAVY: ${ADO_MAX_HEAVY:-2}
+    expose: ["8092"]
+    mem_limit: ${ADO_MEM_LIMIT:-2g}
+
   # Optional local LLM for the Form Compiler: `docker compose --profile llm up -d ollama`, then
   # `docker compose exec ollama ollama pull <model>` and set UDR_OLLAMA_MODEL. Not published outside the network.
   ollama:
@@ -212,12 +225,13 @@ services:
       CMP_DOMAIN: ${CMP_DOMAIN:-compare.localhost}
       LIN_DOMAIN: ${LIN_DOMAIN:-lineage.localhost}
       IOP_DOMAIN: ${IOP_DOMAIN:-interop.localhost}
+      ADO_DOMAIN: ${ADO_DOMAIN:-aero.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero]
 
 volumes:
   caddy_data:

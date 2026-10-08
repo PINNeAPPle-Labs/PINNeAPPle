@@ -402,10 +402,12 @@ async function renderEngine() {
 }
 function render3dEngine() {
   const m3 = META.m3 || {}, V = m3.verification || {}, el = $("#eng3d");
-  const rows = (V.designs || []).map((d) => `<tr><td>${esc(d.label)}</td><td class="num">${(d.cells / 1e3).toFixed(0)}k</td><td class="num">${f(d.alpha, 1)}°</td>
-    <td class="num">${f(d.model.CL, 3)} / <b>${f(d.CL, 3)}</b></td><td class="num">${f(d.model.CD, 4)} / <b>${f(d.CD, 4)}</b></td><td class="num">${f(d.CD_pressure, 4)} + ${f(d.CD_friction, 4)}</td></tr>`).join("");
-  const renders = (m3.renders || []).filter((r) => r.endsWith(".jpg") || r.endsWith(".png"));
-  const cap = (r) => (V.captions || {})[r] || r.replace(/[_-]/g, " ").replace(/\.(png|jpg)$/, "");
+  const rows = (V.designs || []).map((d) => `<tr><td>${esc(d.label)}</td><td class="num">${(d.cells / 1e6).toFixed(2)} M</td><td class="num">${f(d.speed, 0)} m/s · ${f(d.alpha, 1)}°</td>
+    <td class="num">${f(d.model.CL, 3)}</td><td class="num"><b>${f(d.patches && d.patches.wing ? d.patches.wing.CL : NaN, 3)}</b> · ${f(d.CL, 3)}</td><td class="num">${f(d.CD, 4)} = ${f(d.CD_pressure, 4)} + ${f(d.CD_friction, 4)}</td>
+    <td class="num">${f(d.ranges.cp[0], 2)} … ${f(d.ranges.cp[1], 2)}</td></tr>`).join("");
+  const renders = (m3.renders || []).filter((r) => r.endsWith(".jpg") || r.endsWith(".png")).sort((a, b) => kindOrder(a) - kindOrder(b) || a.localeCompare(b));
+  const KIND = { flight: "in flight", cp: "skin pressure Cp", cf: "skin friction Cf", lines: "streamlines coloured by speed" };
+  const cap = (r) => { const m = r.match(/^(.*)_(flight|cp|cf|lines)\.(jpg|png)$/); return m ? `${m[1].replace(/_/g, " ").replace(/^a320/, "A320")}: ${KIND[m[2]]}` : r.replace(/[_-]/g, " ").replace(/\.(png|jpg)$/, ""); };
   el.innerHTML = `<h2 style="margin-top:0">The whole airliner in 3D</h2>
     <div class="grid2"><div><h3>Aerodynamics, checked against theory</h3><table class="t"><tr><th>Check</th><th>here</th><th>reference</th></tr>
       <tr><td>Elliptic loading, Trefftz-plane drag</td><td class="num">e = 1.0000</td><td class="num">1</td></tr>
@@ -422,17 +424,18 @@ function render3dEngine() {
       <tr><td>Fuel, 180 passengers × 4800 km</td><td class="num">14.2 t</td><td class="num">≈14–15 t trip fuel</td></tr></table>
       <p class="hint">Calibrated once on this aircraft (miscellaneous drag, wing mass factor) and kept for every design.</p></div></div>
     <h3>Checked with OpenFOAM in 3D</h3>
-    ${rows ? `<table class="t"><tr><th>Aircraft</th><th>cells</th><th>α</th><th>CL: model / OpenFOAM</th><th>CD: model / OpenFOAM</th><th>OpenFOAM CD: pressure + friction</th></tr>${rows}</table>
+    ${rows ? `<table class="t"><tr><th>Aircraft</th><th>cells</th><th>approach</th><th>CL vortex lattice (wing + tail)</th><th>CL OpenFOAM: <b>wing</b> · whole aircraft</th><th>CD OpenFOAM = pressure + friction</th><th>skin Cp (1–99 %)</th></tr>${rows}</table>
       <p class="hint">${esc(V.note || "")}</p>` : "<p class='meta'>No 3D run stored.</p>"}
     ${renders.length ? `<h3>Rendered in Blender (Cycles)</h3><div class="renders">${renders.map((r) => `<figure><a href="/renders/${r}" target="_blank"><img src="/renders/${r}" loading="lazy"></a><figcaption>${esc(cap(r))}</figcaption></figure>`).join("")}</div>` : ""}`;
 }
+function kindOrder(r) { return ["flight", "cp", "lines", "cf"].findIndex((k) => r.includes(`_${k}.`)); }
 function pipeline(el) {
   const ds = (META.dataset || {}), m = META.metrics || {};
-  const st = [["Aircraft", "airfoil (6) + area, AR, taper, sweep, twist, position", "12"], ["Mesh", "same 20k-cell O-grid for every section", "20k"],
+  const st = [["Airliner", "wing section (6) + area, AR, taper, sweep, twist, position, cruise Mach", "13"], ["Mesh", "same 20k-cell O-grid for every section", "20k"],
     ["OpenFOAM", `simpleFoam, k-ω SST, y⁺<1, Re 4·10⁶`, ds.runs ? String(ds.runs) : "—"],
     ["Graph network", "MeshGraphNet on the grid: flow field + cl, cd, cm", "GNN"], ["Ensemble", "5 MLPs vote: section polars + uncertainty", "×5"],
-    ["3D aircraft", "vortex lattice, trimmed; drag build-up; weights; stability", "3D"],
-    ["NSGA-II", "faster, less CO₂, slower stall, under 8 requirements", "∞"], ["Verify", "OpenFOAM 2D polars and 3D aircraft runs", "✓"]];
+    ["3D airliner", "compressible vortex lattice, trimmed; wave drag; weights; mission; stability", "3D"],
+    ["NSGA-II", "less CO₂ per passenger-km, faster cruise, slower approach, under gate, buffet, fuel, stability and stall limits", "∞"], ["Verify", "OpenFOAM 2D polars and 3D aircraft runs", "✓"]];
   el.innerHTML = st.map(([b, s, n], k) => `${k ? '<div class="ar">→</div>' : ""}<div class="st"><span class="n">${esc(n)}</span><b>${esc(b)}</b>${esc(s)}</div>`).join("");
 }
 

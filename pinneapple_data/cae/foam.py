@@ -196,6 +196,63 @@ def dims_unit(dims: str) -> Optional[str]:
     return (".".join(num) or "1") + ("/" + ".".join(den) if den else "")
 
 
+def read_boundary_values(b: bytes, mesh: "Mesh", width: int) -> Optional[np.ndarray]:
+    """Value on every boundary face (NaN for empty patches), from the boundaryField of a field file: the written
+    'value' (uniform or a list), zero for noSlip, the owner-cell value where nothing is written (zeroGradient)."""
+    t = _text(b)
+    h = header(t)
+    _, sca = _arch(h)
+    binary = h.get("format", "ascii") == "binary"
+    p = mesh.poly
+    nb = p.n_faces - p.n_internal
+    out = np.full((nb, width), np.nan)
+    bf = re.search(r"boundaryField\s*\{", t)
+    if not bf:
+        return None
+    pos = bf.end()
+    for pt in p.patches:
+        a = pt["startFace"] - p.n_internal
+        n = pt["nFaces"]
+        if pt["type"] == "empty" or n == 0:
+            continue
+        m = re.compile(r'(?:^|\s)"?' + re.escape(pt["name"]) + r'"?\s*\{', re.M).search(t, pos)
+        own = mesh.cell_data_tmp[p.owner[p.n_internal + a: p.n_internal + a + n]] if hasattr(mesh, "cell_data_tmp") else None
+        if not m:
+            if own is not None:
+                out[a:a + n] = own.reshape(n, width)
+            continue
+        # the patch block (braces nest only for coded entries; take up to the matching brace)
+        depth, j = 1, m.end()
+        while depth and j < len(t):
+            c = t[j]
+            depth += (c == "{") - (c == "}")
+            j += 1
+        blk = t[m.end():j - 1]
+        typ = re.search(r"\btype\s+(\w+)\s*;", blk)
+        typ = typ.group(1) if typ else ""
+        vm = re.search(r"\bvalue\s+(uniform|nonuniform)\s*", blk)
+        if typ == "noSlip":
+            out[a:a + n] = 0.0
+        elif vm and vm.group(1) == "uniform":
+            end = blk.index(";", vm.end())
+            v = np.array(blk[vm.end():end].replace("(", " ").replace(")", " ").split(), float)
+            if v.size == width:
+                out[a:a + n] = v
+        elif vm:
+            lm = re.compile(r"List<\w+>\s*").match(blk, vm.end())
+            try:
+                arr, _ = _list_at(blk, lm.end() if lm else vm.end(), binary, sca, width)
+                arr = np.asarray(arr, float).reshape(-1, width)
+                if len(arr) == n:
+                    out[a:a + n] = arr
+            except Exception:                                         # unreadable list: fall back to the cell value
+                if own is not None:
+                    out[a:a + n] = own.reshape(n, width)
+        elif own is not None:                                        # zeroGradient & co: face value = cell value
+            out[a:a + n] = own.reshape(n, width)
+    return out
+
+
 def read_field(b: bytes, n_cells: int) -> Tuple[np.ndarray, Optional[str], str]:
     """internalField of a vol*Field: (values per cell, unit, class)."""
     t = _text(b)
@@ -263,6 +320,16 @@ def read_time(fs: Dict[str, bytes], mesh: Mesh, root: str = "", time: Optional[s
         mesh.cell_data[name] = arr
         if unit:
             mesh.units[name] = unit
+        try:
+            mesh.cell_data_tmp = arr
+            bv = read_boundary_values(fs[k], mesh, 1 if arr.ndim == 1 else arr.shape[1])
+            if bv is not None:
+                mesh.boundary_values[name] = bv[:, 0] if arr.ndim == 1 else bv
+        except Exception:                                             # boundary values are a refinement, never fatal
+            pass
+        finally:
+            if hasattr(mesh, "cell_data_tmp"):
+                del mesh.cell_data_tmp
         loaded.append(name)
     mesh.source.update(time=float(t), times=[float(x) for x in times])
     return {"time": float(t), "fields": loaded, "skipped": skipped}

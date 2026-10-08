@@ -86,6 +86,7 @@ class Mesh:
     point_data: Dict[str, np.ndarray] = field(default_factory=dict)
     cell_data: Dict[str, np.ndarray] = field(default_factory=dict)    # one value (row) per cell, global order
     units: Dict[str, str] = field(default_factory=dict)              # field name -> unit
+    boundary_values: Dict[str, np.ndarray] = field(default_factory=dict)  # OpenFOAM: value on each boundary face
     source: Dict[str, Any] = field(default_factory=dict)             # format, files, solver, time, notes
     _cache: Dict[str, Any] = field(default_factory=dict, repr=False)
 

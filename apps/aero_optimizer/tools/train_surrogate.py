@@ -22,6 +22,7 @@ from pinneapple_design.aero.surrogate import (FIELDS, AeroGNN, Layout, MLPEnsemb
                                               coef_targets, edge_features, node_features)
 
 USABLE = ("converged", "steady-ish", "unsteady")
+MAX_CL_OSC = 0.1                                                   # Cl swing over the last 500 iterations
 
 
 def load_runs(dirs):
@@ -31,6 +32,8 @@ def load_runs(dirs):
             r = json.load(open(f))
             if r.get("status") not in USABLE or "Cl" not in r:
                 continue
+            if r["status"] == "unsteady" and r.get("Cl_osc", 9) > MAX_CL_OSC:
+                continue                                          # deep stall: no meaningful steady value
             if r["status"] == "unsteady":                        # oscillating: use the mean of the kept snapshots
                 H = np.array(r["history"])[-5:]
                 r["Cl"], r["Cd"], r["Cm"] = (float(H[:, k].mean()) for k in (1, 2, 3))
@@ -40,7 +43,7 @@ def load_runs(dirs):
 
 
 def split(recs, frac=0.15, seed=3):
-    shapes = sorted({r["shape_id"] for r in recs if r["set"] != "reference"})
+    shapes = sorted({r["shape_id"] for r in recs if r["set"] == "lhs"})   # verification runs always train
     rng = np.random.default_rng(seed)
     test = set(rng.choice(shapes, max(1, int(round(frac * len(shapes)))), replace=False))
     tr = [r for r in recs if r["set"] != "reference" and r["shape_id"] not in test]
@@ -146,7 +149,7 @@ def train_gnn(tr, te, minutes, seed=0, batch=4, log=print):
             opt.zero_grad()
             loss.backward()
             opt.step()
-            tot += float(loss) * len(idx)
+            tot += float(loss.detach()) * len(idx)
         ep += 1
         if ep % 5 == 0 or time.time() - t0 >= budget:
             model.eval()
@@ -185,6 +188,7 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--extra", nargs="*", default=[])
     ap.add_argument("--gnn-minutes", type=float, default=60)
+    ap.add_argument("--gnn-from", default=None, help="reuse the graph network (and its metrics) of an earlier bundle")
     a = ap.parse_args()
     recs = load_runs([a.data] + a.extra)
     tr, te, ref = split(recs)
@@ -193,7 +197,7 @@ def main():
     t = time.time()
     mlp, mnorm = train_mlp(tr)
     print(f"MLP ensemble trained in {time.time() - t:.0f} s", flush=True)
-    res = {"counts": {"train": len(tr), "test": len(te), "reference": len(ref),
+    res = {"extra_runs": len([r for r in tr if r["set"] == "verify"]), "counts": {"train": len(tr), "test": len(te), "reference": len(ref),
                       "train_shapes": len({r['shape_id'] for r in tr}), "test_shapes": len({r['shape_id'] for r in te})}}
     for name, rs in (("test", te), ("reference", ref)):
         p, sd = predict_mlp(mlp, mnorm, rs)
@@ -204,7 +208,12 @@ def main():
     bundle = {"mlp_state": mlp.state_dict(), "mlp_k": 5, "mlp_width": 96, "mlp_norm": mnorm, "gnn_state": None,
               "meta": {"reynolds": recs[0]["reynolds"], "trained": time.strftime("%Y-%m-%d"),
                        "runs": len(recs), "test_shapes": sorted({r["shape_id"] for r in te})}}
-    if a.gnn_minutes > 0:
+    if a.gnn_from:
+        old = torch.load(a.gnn_from, map_location="cpu", weights_only=False)
+        bundle.update({k: old[k] for k in ("gnn_state", "gnn_norm", "gnn_node_in", "gnn_hidden", "gnn_mp")})
+        om = json.load(open(a.gnn_from.replace(".pt", ".metrics.json")))
+        res.update({k: v for k, v in om.items() if k.startswith("gnn")})
+    elif a.gnn_minutes > 0:
         gnn, gnorm, hist, lay = train_gnn(tr, te, a.gnn_minutes)
         bundle.update(gnn_state=gnn.state_dict(), gnn_norm=gnorm, gnn_node_in=gnn.gnn.node_in_dim, gnn_hidden=48, gnn_mp=8)
         res["gnn_history"] = hist

@@ -1,0 +1,7 @@
+# on top of `pip install .` (PINNeAPPle core)
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+meshio>=5.3
+h5py>=3.8
+pyarrow>=14

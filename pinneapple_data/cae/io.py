@@ -58,6 +58,12 @@ def read_any(fs: Dict[str, bytes], fields: bool = True, time: Optional[str] = No
     if k == "openfoam":
         m = foam.read_polymesh(fs, main)
         m.source["root"] = main
+        cd = fs.get(main + "system/controlDict")
+        if cd:
+            import re as _re
+            mm = _re.search(rb"^\s*application\s+(\w+)\s*;", cd, _re.M)
+            if mm:
+                m.source["application"] = mm.group(1).decode()
         if fields:
             info = foam.read_time(fs, m, main, time)
             m.source["fields_skipped"] = info["skipped"]

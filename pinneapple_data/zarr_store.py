@@ -287,6 +287,11 @@ class UPDZarrStore:
         _atomic_replace_dir(tmp_root, root)
         return root
 
+    def iter_samples(self, **kw):
+        """Yield every sample (``read_sample(i)`` for i in order); used by serialization.load_zarr."""
+        for i in range(self.num_samples()):
+            yield self.read_sample(i, **kw)
+
     def num_samples(self) -> int:
         """
         Return the number of samples in the store.

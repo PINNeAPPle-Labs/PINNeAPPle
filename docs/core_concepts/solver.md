@@ -57,3 +57,27 @@ It has no opinion on which physics or architecture it's optimizing — it
 receives a model and a loss function and drives weight updates. It also
 doesn't decide *where* those updates run (CPU/GPU, PyTorch/JAX); that's
 [Backend](backend.md).
+
+
+## One `solve(problem)` for every kind of solver
+
+`pp.solve(problem, method)` takes a `PhysicalProblem`, a `ProblemSpec` or a preset name and returns a `Solution` with
+`predict(X)`, `wall_time_s` and `metadata()` (the same keys for every backend: problem fingerprint, method, kind,
+fields, coordinates, and the backend's own details). `pp.compare` scores several methods against a reference at the
+same points and reports each method's kind.
+
+| Method | Kind | What it is |
+|---|---|---|
+| `pinn` | neural | physics-informed network trained with `solve_pde` |
+| `fem` | classical | P1 finite elements for steady `poisson` / `laplace` on a box with Dirichlet conditions (1D-3D) |
+| `reference` | classical | the solver named in the problem's `reference_solver` |
+| `external` | external | any code returning grid fields, `runner=callable(problem)` |
+| `analytic`, `exact` | analytic | closed form known to the library, or a function you pass |
+
+Register more with `@register_method("name", kind="classical")`; `list_methods(kind=...)` and `list_kinds()` show what is
+available. A method that cannot handle a problem raises `MethodNotAvailable` with the reason, never a partial answer.
+The source term of `poisson` is passed as `ctx={"source_fn": fn}` and read by both `pinn` and `fem`, so the two solve the
+same problem. Example: `examples/solver_api/01_classical_vs_pinn.py` (FEM relative L2 4.2e-3 in 0.02 s, PINN 1.3e-3 in
+30 s on the manufactured Poisson problem).
+
+Not yet behind this contract: FNO, SPH, LBM and FVM backends, and time-dependent classical solves of arbitrary presets.

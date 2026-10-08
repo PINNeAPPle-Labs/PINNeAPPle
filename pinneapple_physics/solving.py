@@ -16,7 +16,15 @@
   Cole-Hopf solution of the ``burgers_1d`` preset. Raises ``MethodNotAvailable`` when none is registered.
 * ``"exact"`` -- a closed-form or manufactured solution passed as ``fn=lambda X: ...``.
 
-Add your own with ``@register_method("name")``; the function receives ``(problem, **options)`` and returns a
+* ``"fem"`` -- a classical P1 finite-element solve of steady ``poisson`` / ``laplace`` problems on a box with
+  Dirichlet conditions (1D, 2D or 3D). The source ``f`` of ``laplace(u) = f`` comes from ``ctx={"source_fn": fn}``,
+  the same ``ctx`` the PINN reads, so both backends solve the same problem through the same call.
+* ``"external"`` -- any code that returns a field on a grid: ``runner=callable(problem) -> {"coords": {...}, field: array}``.
+
+Every method has a ``kind`` (``classical``, ``neural``, ``analytic``, ``external``, ``reference`` or ``custom``) and every
+``Solution`` has ``metadata()``, one dictionary with the same keys for all of them.
+
+Add your own with ``@register_method("name", kind="classical")``; the function receives ``(problem, **options)`` and returns a
 ``Solution``. Every ``Solution`` has ``predict(X)`` with ``X`` of shape ``(N, len(problem.coords))`` returning
 ``(N, len(problem.fields))``, plus the wall time of the solve.
 """
@@ -32,7 +40,7 @@ from . import metrics as _metrics
 from .physical_problem import PhysicalProblem
 
 __all__ = ["Solution", "Comparison", "MethodNotAvailable", "solve", "compare", "register_method", "list_methods",
-           "register_analytic", "list_analytic", "as_problem"]
+           "register_analytic", "list_analytic", "as_problem", "list_kinds"]
 
 
 class MethodNotAvailable(RuntimeError):
@@ -49,6 +57,14 @@ class Solution:
     info: Dict[str, Any] = field(default_factory=dict)
     model: Any = None
     grid: Optional[Dict[str, np.ndarray]] = None  # coordinate axes of a grid solution, in problem.coords order
+    kind: str = "custom"  # classical | neural | analytic | external | reference | custom
+
+    def metadata(self) -> Dict[str, Any]:
+        """The same keys for every backend: what was solved, by which method, how long it took, and the
+        backend's own details under ``info``."""
+        return {"problem": self.problem.name, "fingerprint": self.problem.fingerprint(), "method": self.method,
+                "kind": self.kind, "wall_time_s": self.wall_time_s, "fields": list(self.problem.fields),
+                "coords": list(self.problem.coords), "on_grid": self.grid is not None, "info": dict(self.info)}
 
     def predict(self, x) -> np.ndarray:
         x = np.asarray(x, dtype=np.float64)
@@ -74,7 +90,8 @@ class Solution:
         return np.stack([m.ravel() for m in mesh], axis=1)
 
     def __repr__(self) -> str:
-        return f"Solution(problem={self.problem.name!r}, method={self.method!r}, wall_time_s={self.wall_time_s:.3g})"
+        return (f"Solution(problem={self.problem.name!r}, method={self.method!r}, kind={self.kind!r}, "
+                f"wall_time_s={self.wall_time_s:.3g})")
 
 
 # --------------------------------------------------------------------------- problems
@@ -94,23 +111,35 @@ def as_problem(problem: Union[PhysicalProblem, Any, str], **preset_kwargs: Any) 
 
 # --------------------------------------------------------------------------- methods
 _METHODS: Dict[str, Callable[..., Solution]] = {}
+_KINDS: Dict[str, str] = {}
 
 
-def register_method(name: str):
-    """Decorator registering ``fn(problem, **options) -> Solution`` under ``name`` for ``solve``/``compare``."""
+def register_method(name: str, kind: str = "custom"):
+    """Decorator registering ``fn(problem, **options) -> Solution`` under ``name`` for ``solve``/``compare``.
+    ``kind`` labels the family of the method (``classical``, ``neural``, ...) in every Solution it returns."""
     def deco(fn):
         if name in _METHODS:
             raise ValueError(f"method '{name}' is already registered")
         _METHODS[name] = fn
+        _KINDS[name] = kind
         return fn
     return deco
 
 
-def list_methods() -> List[str]:
-    return sorted(_METHODS)
+def list_methods(kind: Optional[str] = None) -> List[str]:
+    """Registered method names, optionally only those of one ``kind``."""
+    return sorted(n for n in _METHODS if kind is None or _KINDS[n] == kind)
 
 
-@register_method("exact")
+def list_kinds() -> Dict[str, List[str]]:
+    """Methods grouped by kind."""
+    out: Dict[str, List[str]] = {}
+    for n in sorted(_METHODS):
+        out.setdefault(_KINDS[n], []).append(n)
+    return out
+
+
+@register_method("exact", kind="analytic")
 def _exact(problem: PhysicalProblem, *, fn: Optional[Callable[[np.ndarray], np.ndarray]] = None, **_: Any) -> Solution:
     if fn is None:
         raise MethodNotAvailable("method 'exact' needs fn=callable(X) -> values of shape (N, n_fields)")
@@ -147,7 +176,7 @@ def _burgers_exact(p: PhysicalProblem):
     return lambda X: burgers_sine_exact(X[:, 0], X[:, 1], nu)[:, None]
 
 
-@register_method("analytic")
+@register_method("analytic", kind="analytic")
 def _analytic(problem: PhysicalProblem, **_: Any) -> Solution:
     for name, matcher, factory in _ANALYTIC:
         if matcher(problem):
@@ -156,10 +185,9 @@ def _analytic(problem: PhysicalProblem, **_: Any) -> Solution:
                              f"(known: {list_analytic()})")
 
 
-@register_method("reference")
+@register_method("reference", kind="classical")
 def _reference(problem: PhysicalProblem, *, solver_config: Optional[Mapping[str, Any]] = None, seed: int = 0,
                **_: Any) -> Solution:
-    from scipy.interpolate import RegularGridInterpolator
     from pinneapple_simulation.numerical_solvers.problem_runner import _run_reference_solver
 
     if not problem.reference_solver:
@@ -171,6 +199,15 @@ def _reference(problem: PhysicalProblem, *, solver_config: Optional[Mapping[str,
     name = problem.reference_solver.get("name", "?")
     if ref is None:
         raise MethodNotAvailable(f"reference solver '{name}' returned nothing for problem '{problem.name}'")
+    return _grid_solution(problem, ref, name, "reference", elapsed, {"solver": name}, "classical")
+
+
+def _grid_solution(problem: PhysicalProblem, ref: Mapping[str, Any], solver_name: str, method: str, elapsed: float,
+                   info: Dict[str, Any], kind: str) -> Solution:
+    """``Solution`` from a dict ``{"coords": {name: axis}, field: array}`` of a solver that returns grid fields."""
+    from scipy.interpolate import RegularGridInterpolator
+
+    name = solver_name
     coords = {k: np.asarray(v, dtype=np.float64) for k, v in ref.get("coords", {}).items()}
     if set(coords) != set(problem.coords):
         raise MethodNotAvailable(f"reference solver '{name}' returned a grid over {tuple(coords)}, but the problem "
@@ -193,14 +230,15 @@ def _reference(problem: PhysicalProblem, *, solver_config: Optional[Mapping[str,
     def predict(x: np.ndarray) -> np.ndarray:
         return np.stack([ip(x) for ip in interps], axis=1)
 
-    return Solution(problem, "reference", predict, elapsed, info={"solver": name},
-                    grid={c: coords[c] for c in problem.coords})
+    return Solution(problem, method, predict, elapsed, info=info, grid={c: coords[c] for c in problem.coords}, kind=kind)
 
 
-@register_method("pinn")
+
+
+@register_method("pinn", kind="neural")
 def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidden_dim: int = 64, n_layers: int = 4,
           epochs: int = 2000, lr: float = 1e-3, n_collocation: int = 2048, seed: int = 0, device: str = "cpu",
-          weights=None, **_: Any) -> Solution:
+          weights=None, ctx: Optional[Mapping[str, Any]] = None, **_: Any) -> Solution:
     import torch
     import pinneapple_neural.architectures  # noqa: F401  (registers the model zoo)
     from pinneapple_neural.architectures.registry import ModelRegistry
@@ -212,7 +250,7 @@ def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidde
                                 hidden_dim=hidden_dim, n_layers=n_layers)
     t0 = time.perf_counter()
     out = solve_pde(spec, model, epochs=epochs, device=device, lr=lr, n_collocation=n_collocation, seed=seed,
-                    weights=weights)
+                    weights=weights, ctx=dict(ctx) if ctx else None)
     elapsed = time.perf_counter() - t0
     trained = out["model"]
     trained.eval()
@@ -224,8 +262,96 @@ def _pinn(problem: PhysicalProblem, *, architecture: str = "modified_mlp", hidde
             y = getattr(y, "y", y)
             return y.detach().cpu().numpy()
 
+    n_par = int(sum(p.numel() for p in trained.parameters()))
     return Solution(problem, "pinn", predict, elapsed, history=out.get("history", {}), model=trained,
-                    info={"architecture": architecture, "epochs": epochs, "n_collocation": n_collocation, "seed": seed})
+                    info={"backend": "pinneapple.pinn", "architecture": architecture, "epochs": epochs,
+                          "n_collocation": n_collocation, "seed": seed, "n_parameters": n_par}, kind="neural")
+
+
+@register_method("fem", kind="classical")
+def _fem(problem: PhysicalProblem, *, n: Union[int, Sequence[int], None] = None, ctx: Optional[Mapping[str, Any]] = None,
+         max_dofs: int = 6000, **_: Any) -> Solution:
+    """P1 finite elements for ``laplace(u) = f`` on a box with Dirichlet conditions (``poisson`` / ``laplace``).
+
+    ``n`` is the number of cells per axis (default 32 in 1D/2D, 12 in 3D). Dense linear algebra: refuses more than
+    ``max_dofs`` unknowns. Conditions must be ``dirichlet`` with callable selectors (``on="x_min"``, ``("x", "max")``,
+    a function of the points, ...); ``tag`` selectors name regions of a real mesh and are refused, as in the PINN.
+    """
+    import torch
+    from pinneapple_core import Mesh
+    from pinneapple_core.fem import solve_poisson
+
+    if problem.pde is None or problem.pde.kind not in ("poisson", "laplace"):
+        raise MethodNotAvailable(f"method 'fem' handles steady poisson/laplace problems, not "
+                                 f"{getattr(problem.pde, 'kind', None)!r}")
+    if len(problem.fields) != 1:
+        raise MethodNotAvailable("method 'fem' solves one scalar field")
+    d = len(problem.coords)
+    if d not in (1, 2, 3) or set(problem.domain_bounds) != set(problem.coords):
+        raise MethodNotAvailable("method 'fem' needs a box: domain_bounds for every coordinate, in 1, 2 or 3 dimensions")
+    ctx_d = dict(ctx or {})
+    lo = np.array([problem.domain_bounds[c][0] for c in problem.coords], dtype=np.float64)
+    hi = np.array([problem.domain_bounds[c][1] for c in problem.coords], dtype=np.float64)
+    cells = np.full(d, 12 if d == 3 else 32) if n is None else np.broadcast_to(np.asarray(n, dtype=int), (d,)).copy()
+    if int(np.prod(cells + 1)) > max_dofs:
+        raise MethodNotAvailable(f"method 'fem' uses dense matrices: {int(np.prod(cells + 1))} unknowns exceed "
+                                 f"max_dofs={max_dofs}; lower n or raise max_dofs")
+    dirichlet = [c for c in problem.conditions if c.kind == "dirichlet"]
+    others = [c.name for c in problem.conditions if c.kind != "dirichlet"]
+    if others:
+        raise MethodNotAvailable(f"method 'fem' supports Dirichlet conditions only; got {others}")
+    bad = [c.name for c in dirichlet if c.selector_type not in ("callable", "all")]
+    if bad:
+        raise MethodNotAvailable(f"conditions {bad} use tag selectors, which need a real mesh; select the faces "
+                                 f"with on='x_min', ('x', 'max'), or a function of the points")
+    if not dirichlet:
+        raise MethodNotAvailable("method 'fem' needs at least one Dirichlet condition")
+
+    mesh = Mesh.structured(lo, hi, tuple(int(c) for c in cells))
+    pts = mesh.points
+    vals = np.full(mesh.n_points, np.nan)
+    for c in dirichlet:
+        mask = np.ones(len(pts), dtype=bool) if c.selector_type == "all" else np.asarray(c.selector(pts, ctx_d), dtype=bool)
+        if mask.any():
+            v = np.asarray(c.value_fn(pts[mask], ctx_d), dtype=np.float64)
+            vals[mask] = v.reshape(v.shape[0], -1)[:, 0]
+    nodes = np.flatnonzero(~np.isnan(vals))
+    if nodes.size == 0:
+        raise MethodNotAvailable("no mesh node lies on any Dirichlet selector; check the selectors and domain_bounds")
+
+    f_fn = ctx_d.get("source_fn") or ctx_d.get("f_fn")
+    f = np.zeros(mesh.n_points) if f_fn is None else np.asarray(f_fn(pts, ctx_d), dtype=np.float64).reshape(-1)
+    t0 = time.perf_counter()
+    # the problem convention is laplace(u) = f, the FEM form is -laplace(u) = -f
+    u = solve_poisson(torch.as_tensor(pts), mesh.cells, torch.as_tensor(-f), nodes,
+                      torch.as_tensor(vals[nodes])).numpy()
+    elapsed = time.perf_counter() - t0
+    axes = [np.linspace(lo[i], hi[i], cells[i] + 1) for i in range(d)]
+
+    def predict(x: np.ndarray) -> np.ndarray:
+        return mesh.interpolate(u, x, fill="nearest")
+
+    return Solution(problem, "fem", predict, elapsed, kind="classical",
+                    grid={c: axes[i] for i, c in enumerate(problem.coords)},
+                    info={"backend": "pinneapple_core.fem", "discretization": "P1 finite elements",
+                          "n_cells_per_axis": [int(c) for c in cells], "n_dof": int(mesh.n_points),
+                          "n_dirichlet_nodes": int(nodes.size), "source": "ctx" if f_fn else "none"})
+
+
+@register_method("external", kind="external")
+def _external(problem: PhysicalProblem, *, runner: Optional[Callable[[PhysicalProblem], Mapping[str, Any]]] = None,
+              name: str = "external", **_: Any) -> Solution:
+    """Any code that solves the problem and returns grid fields: ``runner(problem) -> {"coords": {coord: axis},
+    field: array}``, arrays indexed in the order of ``coords``. Use it to put OpenFOAM, FEniCS, a legacy code or a
+    script behind the same ``solve``/``compare`` calls."""
+    if runner is None:
+        raise MethodNotAvailable("method 'external' needs runner=callable(problem) -> {'coords': {...}, field: array}")
+    t0 = time.perf_counter()
+    ref = runner(problem)
+    elapsed = time.perf_counter() - t0
+    if ref is None:
+        raise MethodNotAvailable(f"external solver '{name}' returned nothing for problem '{problem.name}'")
+    return _grid_solution(problem, ref, name, "external", elapsed, {"backend": name}, "external")
 
 
 # --------------------------------------------------------------------------- solve
@@ -249,6 +375,8 @@ def solve(problem: Union[PhysicalProblem, Any, str], method: Union[str, Callable
     sol = fn(prob, **options)
     if not isinstance(sol, Solution):
         raise TypeError(f"method '{name}' returned {type(sol).__name__}, expected a Solution")
+    if sol.kind == "custom":
+        sol.kind = _KINDS.get(name, "custom")
     return sol
 
 
@@ -273,15 +401,15 @@ class Comparison:
 
     def __str__(self) -> str:
         fields = self.problem.fields
-        head = f"{'method':<16}{'status':<10}{'time [s]':>10}  " + "  ".join(f"relL2({f})" for f in fields)
+        head = f"{'method':<16}{'kind':<11}{'status':<10}{'time [s]':>10}  " + "  ".join(f"relL2({f})" for f in fields)
         lines = [f"Comparison on '{self.problem.name}' against '{self.reference}' at {self.n_points} points", head]
         for r in self.rows:
             if r["status"] == "ok":
                 rel = r["metrics"]["relative_l2"]
                 cells = "  ".join(f"{rel[f]:>{len('relL2()') + len(f)}.3e}" for f in fields)
-                lines.append(f"{r['method']:<16}{'ok':<10}{r['wall_time_s']:>10.3g}  {cells}")
+                lines.append(f"{r['method']:<16}{r['kind']:<11}{'ok':<10}{r['wall_time_s']:>10.3g}  {cells}")
             else:
-                lines.append(f"{r['method']:<16}{'failed':<10}{'':>10}  {r['error']}")
+                lines.append(f"{r['method']:<16}{'':<11}{'failed':<10}{'':>10}  {r['error']}")
         return "\n".join(lines)
 
 
@@ -319,7 +447,7 @@ def compare(problem: Union[PhysicalProblem, Any, str], methods: Sequence[Union[s
         try:
             sol = solve(prob, m, **opts.get(name, {}))
             pred = sol.predict(points)
-            rows.append({"method": name, "status": "ok", "wall_time_s": sol.wall_time_s,
+            rows.append({"method": name, "status": "ok", "kind": sol.kind, "wall_time_s": sol.wall_time_s,
                          "metrics": _metrics.summary(pred, truth, prob.fields, metric_names), "info": sol.info})
         except Exception as exc:  # noqa: BLE001 - one failing method must not hide the others
             rows.append({"method": name, "status": "failed", "error": f"{type(exc).__name__}: {exc}"})

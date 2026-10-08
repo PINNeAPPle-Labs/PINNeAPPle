@@ -251,6 +251,69 @@
      0.005181540669337275
     ]
    }
+  },
+  {
+   "id": "99f23fd498",
+   "label": "Short-field pick",
+   "x": [
+    0.17996,
+    0.157573,
+    0.106057,
+    -0.025263,
+    0.106892,
+    0.05896,
+    146.390625,
+    8.332041,
+    0.250761,
+    16.572601,
+    -3.028127,
+    0.746244,
+    13.079874
+   ],
+   "alpha": 4.0,
+   "speed": 70.0,
+   "cells": 435123,
+   "CL": 0.6133970108072814,
+   "CD": 0.04817458490927162,
+   "CD_pressure": 0.03456836376633334,
+   "CD_friction": 0.013606221142938277,
+   "patches": {
+    "fuselage": {
+     "faces": 4179,
+     "CL": 0.07576499107984289,
+     "CD": 0.015534144178246874
+    },
+    "wing": {
+     "faces": 17986,
+     "CL": 0.5244554665365541,
+     "CD": 0.026336309841103366
+    },
+    "htail": {
+     "faces": 6688,
+     "CL": 0.012869830358414736,
+     "CD": 0.0034932541534040407
+    },
+    "vtail": {
+     "faces": 1193,
+     "CL": 0.0003067228324691724,
+     "CD": 0.0028108767365172815
+    }
+   },
+   "model": {
+    "CL": 0.5858473129543698,
+    "CDi": 0.013643165869967817
+   },
+   "date": "2026-10-08",
+   "ranges": {
+    "cp": [
+     -1.166773915962841,
+     0.7059172838475531
+    ],
+    "cf": [
+     0.000595021622364479,
+     0.004753693167566107
+    ]
+   }
   }
  ],
  "note": "Half model with a symmetry plane, snappyHexMesh (~0.4 M cells), simpleFoam k-\u03c9 SST with wall functions, approach at 70 m/s and \u03b1 4\u00b0, sea level, clean wing, tail at zero incidence, no nacelles or sharklets. The vortex lattice models wing and tail only; the CFD adds the fuselage's lift."

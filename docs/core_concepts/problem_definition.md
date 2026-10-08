@@ -91,3 +91,36 @@ first step before picking or writing a preset.
 A `ProblemSpec` is pure data: it has no model, no sampled points, and no
 loss function yet. Sampling comes from [Geometry & Domain](geometry_domain.md);
 turning it into a trainable loss is the job of [PINN / Physics](pinn.md).
+
+
+## Transforms: `pp.transforms`
+
+`pinneapple_core.transforms` (`pp.transforms`) holds composable transforms that work on tables (`{name: array or tensor}`),
+on `PhysicsDataset` objects and, for the scaling ones, on a `PhysicalProblem`.
+
+```python
+from pinneapple_core.transforms import Nondimensionalize, Scale, Coordinate, Periodic, FourierFeatures
+
+nd = Nondimensionalize(problem)              # coordinates to [0, 1], fields to O(1), PDE parameters rescaled
+small = nd.apply(problem)                    # a new problem; small.metadata["transforms"] records the step
+predict = nd.pull_back(solution.predict, problem.coords, problem.fields)    # answers in the original units
+
+t = Scale({"x": 2.0}) >> Coordinate("log", ("t",), ("logt",)) >> FourierFeatures(("x",), 8)
+out = t.forward(table); back = t.inverse(out)      # back == table (inverse runs in reverse order)
+```
+
+| Transform | What it does | Invertible | Problem-level |
+|---|---|---|---|
+| `Scale(scale, shift)` | `y = (x - shift) / scale` on named columns | yes | yes |
+| `Nondimensionalize(problem)` | `Scale` with scales taken from the problem (extents, field ranges, `U = L/T` for Burgers) | yes | yes |
+| `Coordinate(kind, inputs, outputs)` | polar, cylindrical, spherical, log | yes | no |
+| `Symmetry.reflect / rotate` | mirror or rotate positions and the vector fields | yes | no |
+| `Periodic(coord, period, harmonics)` | `cos`/`sin` embedding, periodic by construction | yes | no |
+| `FourierFeatures(coords, n, scale, seed)` | random Fourier features added as columns (`.module()` for a torch layer) | drops the features | no |
+
+On a problem the scaling transforms rewrite the domain, the conditions (selectors and values, with Neumann values scaled by `L/U`) and the PDE
+parameters. The rules are in `list_pde_rules()` (`laplace`, `poisson`, `heat_equation`, `wave_equation`, `burgers`); a PDE without a rule, anisotropic
+space scaling, or Burgers with `U T != L` raises instead of leaving inconsistent coefficients. `Scale.source(fn, problem)` rescales a source term. Each
+`apply` appends `{name, params, invertible, input_fingerprint, output_fingerprint}` to `metadata["transforms"]` (problems) or `provenance` (datasets);
+the transformed problem drops its `reference_solver`, which solves the original problem. Example, Burgers with `nu = 0.01` on `x in [-1, 1]`, `t in [0, 1]`:
+`L = 2`, `T = 1`, `U = 2`, so `nu' = nu T / L^2 = 0.0025`; the tests check that the rescaled exact solution has a vanishing residual with `nu'` and not with `nu`.

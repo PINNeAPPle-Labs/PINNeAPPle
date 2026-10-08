@@ -82,7 +82,7 @@ class PhysicsDataset(torch.utils.data.Dataset):
     needs_grad = False
 
     def __init__(self, inputs, targets=None, *, coords: Optional[Sequence[str]] = None, fields: Optional[Sequence[str]] = None,
-                 domain: Optional[Domain] = None, name: str = "") -> None:
+                 domain: Optional[Domain] = None, name: str = "", provenance: Optional[Sequence[Mapping[str, Any]]] = None) -> None:
         self.inputs = torch.as_tensor(np.asarray(inputs) if not isinstance(inputs, Tensor) else inputs)
         self.targets = None if targets is None else torch.as_tensor(np.asarray(targets) if not isinstance(targets, Tensor) else targets)
         if self.targets is not None and self.targets.shape[0] != self.inputs.shape[0]:
@@ -91,6 +91,7 @@ class PhysicsDataset(torch.utils.data.Dataset):
         self.fields = tuple(fields) if fields else None
         self.domain = domain
         self.name = name
+        self.provenance: List[Dict[str, Any]] = [dict(r) for r in (provenance or [])]   # transforms applied, in order
 
     def __len__(self) -> int:
         return int(self.inputs.shape[0])
@@ -115,7 +116,7 @@ class PhysicsDataset(torch.utils.data.Dataset):
             idx = perm[lo:hi]
             t = None if self.targets is None else self.targets[idx]
             parts.append(PhysicsDataset(self.inputs[idx], t, coords=self.coords, fields=self.fields, domain=self.domain,
-                                        name=self.name))
+                                        name=self.name, provenance=self.provenance))
             lo = hi
         return parts
 

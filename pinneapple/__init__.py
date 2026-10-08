@@ -568,6 +568,7 @@ _SUBMODULES = {
     # Field, Mesh, Domain, Geometry primitives
     "core":       "pinneapple_core",
     "loss":       "pinneapple_core.loss",
+    "transforms": "pinneapple_core.transforms",
     "func":       "pinneapple_core.func",
 }
 

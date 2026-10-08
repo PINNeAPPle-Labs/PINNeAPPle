@@ -1,7 +1,8 @@
 """The CFD colour scale (jet: blue = low, red = high) and a colour bar burnt into an image."""
 from __future__ import annotations
 
-from typing import Optional, Tuple
+import math
+from typing import List, Optional, Tuple
 
 JET = [(0.0, (0, 0, 143)), (0.125, (0, 0, 255)), (0.375, (0, 255, 255)), (0.625, (255, 255, 0)), (0.875, (255, 0, 0)),
        (1.0, (128, 0, 0))]
@@ -17,6 +18,28 @@ def jet(t: float) -> Tuple[float, float, float]:
     return tuple(c / 255 for c in JET[-1][1])
 
 
+def decimals(lo: float, hi: float) -> int:
+    """Decimals that tell five ticks over [lo, hi] apart (same rule as studio-core.js)."""
+    span = abs(hi - lo) or abs(hi) or 1.0
+    return max(0, min(6, 2 - math.floor(math.log10(span))))
+
+
+def fmt(v: float, nd: int) -> str:
+    """A tick label: fixed with ``nd`` decimals, exponent form beyond 1e4 or below 1e-3 (as JavaScript prints it)."""
+    if v == 0:
+        return f"{0:.{nd}f}"
+    if abs(v) >= 1e4 or abs(v) < 1e-3:
+        m, e = f"{v:.2e}".split("e")
+        return f"{m}e{int(e):+d}"
+    return f"{v:.{nd}f}"
+
+
+def ticks(lo: float, hi: float, n: int = 5, nd: Optional[int] = None) -> List[str]:
+    """Evenly spaced tick labels from lo to hi, identical to the browser viewer's."""
+    d = decimals(lo, hi) if nd is None else nd
+    return [fmt(lo + (hi - lo) * k / (n - 1), d) for k in range(n)]
+
+
 def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = None, lo_txt: str = "",
              hi_txt: str = "", corner: str = "bottom-right") -> str:
     """Draw a jet colour bar with 5 ticks and a title in a corner of the image at ``path`` (overwritten)."""
@@ -29,9 +52,6 @@ def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = No
         fb = ImageFont.truetype("DejaVuSans-Bold.ttf", max(11, int(24 * s)))
     except OSError:
         f = fb = ImageFont.load_default()
-    if nd is None:
-        span = abs(hi - lo) or abs(hi) or 1.0
-        nd = max(0, min(6, 2 - int(__import__("math").floor(__import__("math").log10(span)))))
     d = ImageDraw.Draw(im, "RGBA")
     bw, bh, pad = int(520 * s), int(22 * s), int(22 * s)
     box_w = max(bw, int(d.textlength(title, font=fb)))
@@ -44,8 +64,7 @@ def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = No
     for i in range(bw):
         c = jet(i / (bw - 1))
         d.line([(x0 + i, yb), (x0 + i, yb + bh)], fill=tuple(int(255 * v) for v in c))
-    for k in range(5):
-        t = f"{lo + (hi - lo) * k / 4:.{nd}f}"
+    for k, t in enumerate(ticks(lo, hi, 5, nd)):
         tw = d.textlength(t, font=f)
         d.text((x0 + bw * k / 4 - tw * k / 4, yb + bh + int(6 * s)), t, fill=(15, 23, 42), font=f)
     if lo_txt:

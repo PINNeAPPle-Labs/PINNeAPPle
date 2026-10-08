@@ -29,12 +29,13 @@ def _vendor_dir() -> str:
 
 
 VENDOR = _vendor_dir()
+STUDIO = os.path.dirname(VENDOR)                      # studio-core.js: colour scales, tubes, slices, edges
 SHARED = os.path.join(os.path.dirname(__file__), "static", "shared")
 
 
 def install(app: FastAPI, prefix: str) -> None:
-    """Optional HTTP Basic login + the shared static files: ``/vendor`` (three.js)
-    and ``/shared`` (UI pieces common to every app)."""
+    """Optional HTTP Basic login + the shared static files: ``/vendor`` (three.js), ``/studio`` (the studio viewer
+    core) and ``/shared`` (UI pieces common to every app)."""
     app.state.auth_user = os.environ.get(f"{prefix}_USER")
     app.state.auth_password = os.environ.get(f"{prefix}_PASSWORD")
 
@@ -56,6 +57,7 @@ def install(app: FastAPI, prefix: str) -> None:
         return await call_next(request)
 
     app.mount("/vendor", StaticFiles(directory=VENDOR), name="vendor")
+    app.mount("/studio", StaticFiles(directory=STUDIO), name="studio")
     app.mount("/shared", StaticFiles(directory=SHARED), name="shared")
 
 

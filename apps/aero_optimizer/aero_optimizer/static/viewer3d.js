@@ -2,23 +2,16 @@
 // soft shadows, a runway on grass or a cloud deck in flight; modes: realistic, OpenFOAM skin fields (Cp, Cf), streamlines
 // coloured by speed, OpenFOAM slices (symmetry plane, wake), stall map from the vortex lattice. CFD colours use the
 // usual jet scale: blue = low, red = high. Axes: the API speaks aircraft axes (x aft, y right, z up); glTF/three
-// is y-up with x = aircraft y, y = aircraft z, z = aircraft x.
+// is y-up with x = aircraft y, y = aircraft z, z = aircraft x. Colour scales, colour bars, tubes, slice textures and
+// edges come from the PINNeAPPle studio core (/studio/studio-core.js), shared with pp.viz.web_viewer.
 import * as THREE from "three";
 import { OrbitControls } from "/vendor/three/OrbitControls.js";
 import { GLTFLoader } from "/vendor/three/loaders/GLTFLoader.js";
 import { Sky } from "/vendor/three/objects/Sky.js";
+import * as core from "/studio/studio-core.js";
 
 const A2T = (p) => new THREE.Vector3(p[1], p[2], p[0]);
-const JET = [[0, [0, 0, 143]], [0.125, [0, 0, 255]], [0.375, [0, 255, 255]], [0.625, [255, 255, 0]], [0.875, [255, 0, 0]], [1, [128, 0, 0]]];
 const STALL = [[0, [26, 152, 80]], [0.55, [166, 217, 106]], [0.75, [254, 224, 139]], [0.9, [244, 109, 67]], [1, [165, 0, 38]]];
-function ramp(stops, t) {
-  t = Math.min(1, Math.max(0, t));
-  for (let i = 1; i < stops.length; i++) if (t <= stops[i][0]) {
-    const [a, ca] = stops[i - 1], [b, cb] = stops[i], f = (t - a) / (b - a);
-    return ca.map((c, k) => (c + f * (cb[k] - c)) / 255);
-  }
-  return stops[stops.length - 1][1].map((c) => c / 255);
-}
 
 function canvasTex(w, h, draw, repeat) {
   const c = document.createElement("canvas"); c.width = w; c.height = h;
@@ -36,6 +29,7 @@ function noise(g, w, h, base, amp, n) {
 class AircraftViewer {
   constructor(host) {
     this.host = host; this.mode = "real"; this.spin = true; this.flowOn = false;
+    this.range = {}; this.density = 1; this.edges = "off";       // viewer controls: colour range per field, lines, edges
     host.innerHTML = `<div class="av"><div class="av-bar">
         <div class="seg av-modes"><button data-m="real" class="on">Realistic</button><button data-m="cp">Surface (CFD)</button><button data-m="flow">Streamlines</button><button data-m="slice">Slices (CFD)</button><button data-m="stall">Stall map</button></div>
         <div class="av-right"><button data-c="hero">3/4</button><button data-c="front">Front</button><button data-c="side">Side</button><button data-c="top">Top</button><button data-c="rear">Rear</button>
@@ -171,6 +165,8 @@ class AircraftViewer {
       const b = this.host.querySelector(`[data-m=${m}]`);
       b.disabled = !this.cfd; b.title = this.cfd ? "" : "only for designs run in OpenFOAM 3D (the A320 class and the balanced pick)";
     }
+    this.range = {};                                            // a new design starts on the app's scales
+    this._applyEdges();
     this.host.querySelector(".av-load").style.display = "none";
     if (!this.viewed) { this.view("hero"); this.viewed = true; }
     this.setMode(["cp", "slice"].includes(this.mode) && !this.cfd ? "real" : this.mode);
@@ -179,44 +175,38 @@ class AircraftViewer {
   _buildLines() {
     // OpenFOAM streamlines (approach, both sides) coloured by |U|/U∞; otherwise the vortex-lattice ones at cruise
     if (this.lines) this.scene.remove(this.lines);
-    const g = this.lines = new THREE.Group();
     const cfd = this.cfd && this.cfd.lines && this.cfd.lines.length;
     let src = this.d.lines_vlm || [], spd = null;
     if (cfd) {
-      src = [], spd = [];
-      this.cfd.lines.forEach((L0, i) => {
-        // traced lines stop behind the tail by repeating their last point: drop the repeats
-        const keep = L0.map((p, k) => k === 0 || Math.hypot(p[0] - L0[k - 1][0], p[1] - L0[k - 1][1], p[2] - L0[k - 1][2]) > 1e-3);
-        const L = L0.filter((_, k) => keep[k]), s = this.cfd.line_speed[i].filter((_, k) => keep[k]);
-        if (L.length < 4) return;
-        src.push(L, L.map((p) => [p[0], -p[1], p[2]])); spd.push(s, s);
-      });
+      // each traced line and its mirror image (half model) sit side by side: 2i and 2i + 1
+      src = []; spd = [];
+      this.cfd.lines.forEach((L, i) => { src.push(L, L.map((p) => [p[0], -p[1], p[2]])); spd.push(this.cfd.line_speed[i], this.cfd.line_speed[i]); });
     }
+    this.mirrored = !!cfd;
     this.lineSource = cfd ? `OpenFOAM, approach at ${this.cfd.speed} m/s, α ${this.cfd.alpha}°` : "vortex lattice (potential flow) at cruise";
-    this.particles = [];
     const [lo, hi] = cfd ? this.cfd.ranges.speed : [0, 1];
     this.lineRange = [lo, hi];
-    const plain = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0ea5e9, emissiveIntensity: 0.9, roughness: 0.4, transparent: true, opacity: 0.85 });
-    const vc = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
-    const pmat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const sz = this.size || 12, pg = new THREE.SphereGeometry(0.0045 * sz, 8, 6);
-    src.forEach((L, li) => {
-      const pts = L.map(A2T), seg = Math.min(400, pts.length * 2), rad = 6;
-      const curve = new THREE.CatmullRomCurve3(pts);
-      const geo = new THREE.TubeGeometry(curve, seg, 0.0018 * sz, rad, false);
-      if (spd) {
-        const s = spd[li], vals = new Float32Array(geo.attributes.position.count);
-        for (let i = 0; i <= seg; i++) {
-          const f = (i / seg) * (s.length - 1), k = Math.min(s.length - 2, Math.floor(f)), v = s[k] + (s[k + 1] - s[k]) * (f - k);
-          for (let j = 0; j <= rad; j++) vals[i * (rad + 1) + j] = v;
-        }
-        geo.setAttribute("color", this._colors(vals, (v) => ramp(JET, (v - lo) / (hi - lo))));
-      }
-      g.add(new THREE.Mesh(geo, spd ? vc : plain));
-      for (let k = 0; k < 3; k++) { const p = new THREE.Mesh(pg, pmat); p.userData = { curve, t: k / 3 }; g.add(p); this.particles.push(p); }
-    });
+    this.lineVals = spd ? spd.flat() : [];
+    const sz = this.size || 12;
+    const g = this.lines = core.tubeLines(THREE, src, spd, { lo, hi, radius: 0.0018 * sz, toV3: A2T, eps: 1e-3 });
+    g.userData.n = src.length;
+    this.particles = [];
+    const pmat = new THREE.MeshBasicMaterial({ color: 0xffffff }), pg = new THREE.SphereGeometry(0.0045 * sz, 8, 6);
+    for (const tube of [...g.children]) for (let k = 0; k < 3; k++) {
+      const p = new THREE.Mesh(pg, pmat); p.userData = { curve: tube.userData.curve, t: k / 3, index: tube.userData.index };
+      g.add(p); this.particles.push(p);
+    }
     g.visible = false;
     this.scene.add(g);
+  }
+
+  _lineDensity() {
+    // thin the lines evenly; mirrored pairs stay together
+    const n = this.lines.userData.n, pairs = this.mirrored ? n / 2 : n;
+    const keep = core.thin(pairs, this.density);
+    const on = new Set(keep.flatMap((i) => (this.mirrored ? [2 * i, 2 * i + 1] : [i])));
+    this.lines.children.forEach((c) => (c.visible = on.has(c.userData.index)));
+    return [keep.length, pairs];
   }
 
   _buildSlices() {
@@ -239,34 +229,63 @@ class AircraftViewer {
     this.scene.add(this.slices);
   }
 
-  _sliceTexture(grid, lo, hi, mirror) {
-    // grid rows go up in z; mirror = "even" or "odd" to build the left half of a half-model slice
-    const nz = grid.length, ny = grid[0].length, w = mirror ? 2 * ny : ny;
-    const c = document.createElement("canvas"); c.width = w; c.height = nz;
-    const g = c.getContext("2d"), img = g.createImageData(w, nz);
-    const put = (col, row, v) => {
-      const o = 4 * ((nz - 1 - row) * w + col);
-      if (v === null || v === undefined) { img.data[o + 3] = 0; return; }
-      const rgb = ramp(JET, (v - lo) / (hi - lo));
-      img.data[o] = rgb[0] * 255; img.data[o + 1] = rgb[1] * 255; img.data[o + 2] = rgb[2] * 255; img.data[o + 3] = 235;
-    };
-    for (let r = 0; r < nz; r++) for (let k = 0; k < ny; k++) {
-      const v = grid[r][k];
-      if (mirror) { put(ny + k, r, v); put(ny - 1 - k, r, v === null ? null : mirror === "odd" ? -v : v); } else put(k, r, v);
-    }
-    g.putImageData(img, 0, 0);
-    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearFilter;
-    return t;
-  }
-
   _fieldButtons(mode) {
     const opts = mode === "cp" ? [["cp", "Pressure Cp"], ["cf", "Skin friction Cf"]]
       : mode === "slice" ? [["sym_cp", "Symmetry plane: Cp"], ["sym_speed", "Symmetry plane: speed"], ["wake_vort", "Wake: vorticity"], ["wake_speed", "Wake: speed"]] : [];
-    this.fieldBox.innerHTML = opts.length ? `<div class="seg">${opts.map(([k, l]) => `<button data-f="${k}" class="${this.field[mode] === k ? "on" : ""}">${l}</button>`).join("")}</div>` : "";
+    this.fieldBox.innerHTML = (opts.length ? `<div class="seg">${opts.map(([k, l]) => `<button data-f="${k}" class="${this.field[mode] === k ? "on" : ""}">${l}</button>`).join("")}</div>` : "")
+      + `<div class="av-ctl"></div>`;
     this.fieldBox.querySelectorAll("[data-f]").forEach((b) => (b.onclick = () => {
       const was = this.field[mode]; this.field[mode] = b.dataset.f; this.setMode(mode);
       if (mode === "slice" && was.slice(0, 3) !== b.dataset.f.slice(0, 3)) this.view(b.dataset.f.startsWith("sym") ? "side" : "rear");
     }));
+  }
+
+  // the values and the default (server) colour range shown in the current mode, for the range control
+  _scale() {
+    const R = (this.cfd && this.cfd.ranges) || {};
+    if (this.mode === "cp" && this.cfd && this.model) {
+      const fk = this.field.cp, vals = [];
+      this.model.traverse((o) => { const a = o.isMesh && o.geometry.getAttribute("_" + fk); if (a) for (const v of a.array) vals.push(v); });
+      return { key: "cp:" + fk, vals, def: R[fk] || [0, 1] };
+    }
+    if (this.mode === "slice" && this.cfd) {
+      const sk = this.field.slice, S = this.cfd.sym, W = this.cfd.wake;
+      const grid = { sym_cp: S.cp, sym_speed: S.speed, wake_vort: W.vorticity, wake_speed: W.speed }[sk];
+      const def = { sym_cp: R.sym_cp, sym_speed: R.sym_speed, wake_vort: R.vorticity, wake_speed: R.wake_speed }[sk];
+      return { key: "slice:" + sk, vals: grid.flat(), def };
+    }
+    if (this.mode === "flow" && this.lineVals && this.lineVals.length) return { key: "flow", vals: this.lineVals, def: this.lineRange };
+    return null;
+  }
+  _range() { const sc = this._scale(); return sc ? this.range[sc.key] || sc.def : null; }
+
+  _controls() {
+    const box = this.fieldBox.querySelector(".av-ctl"), sc = this._scale(), rows = [];
+    if (sc) {
+      const [lo, hi] = this._range(), d = core.decimals(lo, hi) + 1;
+      rows.push(`<label>Colour range <input data-r="lo" type="number" step="any" value="${+lo.toFixed(d)}"> to <input data-r="hi" type="number" step="any" value="${+hi.toFixed(d)}"></label>`
+        + `<button data-r="auto" title="1st to 99th percentile">Auto</button><button data-r="full" title="minimum to maximum">Full</button><button data-r="reset" title="the app's scale">Reset</button>`);
+    }
+    if (this.mode === "flow" && this.lines) {
+      const [k, n] = this._lineDensity();
+      rows.push(`<label>Line density <input data-r="dens" type="range" min="0.05" max="1" step="0.05" value="${this.density}"></label><span data-r="count">${k} / ${n}</span>`);
+    }
+    rows.push(`<label>Edges <select data-r="edges">${[["off", "Off"], ["feature", "Feature edges"], ["wire", "Wireframe"]].map(([v, t]) => `<option value="${v}" ${this.edges === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>`);
+    box.innerHTML = rows.map((r) => `<div>${r}</div>`).join("");
+    const q = (r) => box.querySelector(`[data-r=${r}]`);
+    if (sc) {
+      const set = () => { const lo = parseFloat(q("lo").value), hi = parseFloat(q("hi").value); if (hi > lo) { this.range[sc.key] = [lo, hi]; this.setMode(this.mode); } };
+      q("lo").onchange = set; q("hi").onchange = set;
+      q("auto").onclick = () => { this.range[sc.key] = core.autoRange(sc.vals, "auto"); this.setMode(this.mode); };
+      q("full").onclick = () => { this.range[sc.key] = core.autoRange(sc.vals, "full"); this.setMode(this.mode); };
+      q("reset").onclick = () => { delete this.range[sc.key]; this.setMode(this.mode); };
+    }
+    if (q("dens")) q("dens").oninput = (e) => { this.density = +e.target.value; const [k, n] = this._lineDensity(); q("count").textContent = `${k} / ${n}`; };
+    q("edges").onchange = (e) => { this.edges = e.target.value; this._applyEdges(); };
+  }
+
+  _applyEdges() {
+    this.model && this.model.traverse((o) => { if (o.isMesh) core.setEdges(THREE, o, this.edges); });
   }
 
   setMode(mode) {
@@ -280,8 +299,7 @@ class AircraftViewer {
     const d = this.d || {};
     const grey = new THREE.MeshStandardMaterial({ color: 0x9aa3ad, roughness: 0.6, metalness: 0.0, envMapIntensity: 0.3 });
     const ghost = new THREE.MeshStandardMaterial({ color: 0xb8c0c8, roughness: 0.6, transparent: true, opacity: 0.35, depthWrite: false });
-    const R = (this.cfd && this.cfd.ranges) || {};
-    const fk = this.field.cp, [flo, fhi] = R[fk] || [0, 1];
+    const fk = this.field.cp, [flo, fhi] = (mode === "cp" && this._range()) || [0, 1];
     this.model && this.model.traverse((o) => {
       if (!o.isMesh) return;
       const name = o.name || "";
@@ -290,13 +308,13 @@ class AircraftViewer {
       if (mode === "cp") {
         const a = o.geometry.getAttribute("_" + fk);
         if (!a) { o.material = grey; return; }
-        o.geometry.setAttribute("color", this._colors(a.array, (v) => ramp(JET, (v - flo) / (fhi - flo))));
+        o.geometry.setAttribute("color", core.colorAttribute(THREE, a.array, flo, fhi));
       } else if (mode === "stall") {
         if (!/^wing_(left|right)/.test(name) || !d.loading) { o.material = grey; return; }
         const pos = o.geometry.getAttribute("position"), half = d.span / 2, L = d.loading;
         const vals = new Float32Array(pos.count);
         for (let i = 0; i < pos.count; i++) { const eta = Math.min(1, Math.abs(pos.getX(i)) / half); vals[i] = interp(L.eta, L.ratio, eta); }
-        o.geometry.setAttribute("color", this._colors(vals, (v) => ramp(STALL, v)));
+        o.geometry.setAttribute("color", core.colorAttribute(THREE, vals, 0, 1, STALL));
       }
       o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0.0, envMapIntensity: 0.3 });
     });
@@ -304,16 +322,17 @@ class AircraftViewer {
     if (this.slices) this.slices.visible = mode === "slice";
     const lg = this.legend;
     this._fieldButtons(mode);
+    if (this.lines && mode === "flow" && this.lineVals.length) { const [a, b] = this._range(); core.recolourLines(THREE, this.lines, a, b); }
     if (mode === "cp") lg.innerHTML = fk === "cp" ? colorbar("Pressure coefficient Cp (OpenFOAM)", flo, fhi, 2, "suction", "stagnation")
       : colorbar("Skin friction coefficient Cf (OpenFOAM)", flo, fhi, 4, "low shear", "high shear");
     else if (mode === "slice" && this.cfd) {
       const sk = this.field.slice, S = this.cfd.sym, W = this.cfd.wake;
       const on = sk.startsWith("sym") ? "sym" : "wake";
       const grid = { sym_cp: S.cp, sym_speed: S.speed, wake_vort: W.vorticity, wake_speed: W.speed }[sk];
-      const [lo, hi] = { sym_cp: R.sym_cp, sym_speed: R.sym_speed, wake_vort: R.vorticity, wake_speed: R.wake_speed }[sk];
-      const key = `${this.cfd.id}:${sk}`;
+      const [lo, hi] = this._range();
+      const key = `${this.cfd.id}:${sk}:${lo}:${hi}`;
       if (this.sliceKey !== key) {
-        const tex = this._sliceTexture(grid, lo, hi, on === "wake" ? (sk === "wake_vort" ? "odd" : "even") : null);
+        const tex = core.sliceTexture(THREE, grid, lo, hi, on === "wake" ? (sk === "wake_vort" ? "odd" : "even") : null);
         const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, toneMapped: false, depthWrite: false });
         const m = this.slicePlanes[on]; if (m.material.map) m.material.map.dispose(); m.material = mat;
         this.sliceKey = key;
@@ -325,18 +344,12 @@ class AircraftViewer {
         wake_vort: colorbar(`Streamwise vorticity ωx·c/U∞, ${(W.x).toFixed(1)} m behind the nose`, lo, hi, 2, "clockwise", "anticlockwise"),
         wake_speed: colorbar("Speed |U|/U∞ in the wake plane", lo, hi, 3, "wake deficit", "faster"),
       }[sk];
-    } else if (mode === "stall") lg.innerHTML = legendHTML(STALL, "local cl / cl max at stall onset", "0.0", "1.0 stalls first");
-    else if (mode === "flow") lg.innerHTML = this.cfd ? colorbar("Speed along the streamlines |U|/U∞", this.lineRange[0], this.lineRange[1], 2, "slower", "faster") + `<div class="meta" style="color:#334">${this.lineSource}</div>`
+    } else if (mode === "stall") lg.innerHTML = core.colorbarHTML({ title: "local cl / cl max at stall onset", lo: 0, hi: 1, nd: 2, hiTxt: "stalls first", stops: STALL, width: 220 });
+    else if (mode === "flow") lg.innerHTML = this.cfd ? colorbar("Speed along the streamlines |U|/U∞", ...this._range(), 2, "slower", "faster") + `<div class="meta" style="color:#334">${this.lineSource}</div>`
       : `<div class="av-lt">Streamlines</div><div class="meta" style="color:#334">${this.lineSource}</div>`;
     else lg.innerHTML = "";
+    this._controls();
     this.info.innerHTML = d.title ? `<b>${d.title}</b>` + (d.subtitle ? `<br>${d.subtitle}` : "") : "";
-  }
-
-  _colors(vals, fn) {
-    const c = new Float32Array(vals.length * 3);
-    const lin = (v) => Math.pow(v, 2.2);                       // vertex colours are linear in three.js
-    for (let i = 0; i < vals.length; i++) { const rgb = fn(vals[i]); c[3 * i] = lin(rgb[0]); c[3 * i + 1] = lin(rgb[1]); c[3 * i + 2] = lin(rgb[2]); }
-    return new THREE.BufferAttribute(c, 3);
   }
 
   view(name) {
@@ -373,16 +386,7 @@ function interp(xs, ys, x) {
   for (let i = 1; i < xs.length; i++) if (x <= xs[i]) return ys[i - 1] + (ys[i] - ys[i - 1]) * (x - xs[i - 1]) / (xs[i] - xs[i - 1]);
   return ys[ys.length - 1];
 }
-function colorbar(title, lo, hi, nd, loTxt, hiTxt) {
-  const g = Array.from({ length: 21 }, (_, k) => `rgb(${ramp(JET, k / 20).map((v) => Math.round(v * 255))}) ${k * 5}%`).join(",");
-  const ticks = Array.from({ length: 5 }, (_, k) => `<span>${(lo + ((hi - lo) * k) / 4).toFixed(nd)}</span>`).join("");
-  return `<div class="av-lt">${title}</div><div style="height:12px;width:240px;border-radius:3px;background:linear-gradient(90deg,${g})"></div>`
-    + `<div class="av-ll">${ticks}</div><div class="av-ll" style="opacity:.75"><span>${loTxt}</span><span>${hiTxt}</span></div>`;
-}
-function legendHTML(stops, title, lo, hi) {
-  const g = Array.from({ length: 11 }, (_, k) => `rgb(${ramp(stops, k / 10).map((v) => Math.round(v * 255))}) ${k * 10}%`).join(",");
-  return `<div class="av-lt">${title}</div><div style="height:10px;width:200px;border-radius:3px;background:linear-gradient(90deg,${g})"></div><div class="av-ll"><span>${lo}</span><span>${hi}</span></div>`;
-}
+const colorbar = (title, lo, hi, nd, loTxt, hiTxt) => core.colorbarHTML({ title, lo, hi, nd, loTxt, hiTxt });
 
 window.ADO_AircraftViewer = AircraftViewer;
 window.dispatchEvent(new Event("ado-viewer-ready"));

@@ -412,7 +412,8 @@ class FlowResult:
                     G = np.concatenate([sign * G[:, ::-1], G], axis=1)
                     O = O - u
                     u = 2 * u
-                scene.add_slice(f"{s['name']}: {k}", O, u, v, G, label=s["labels"].get(k, k))
+                scene.add_slice(f"{s['name']}: {k}", O, u, v, G, label=s["labels"].get(k, k),
+                                group=f"{s.get('group', s['name'])}: {k}")
         return scene
 
     def save(self, path: str) -> str:
@@ -449,6 +450,7 @@ class ExternalFlow:
     surface_level: Optional[Tuple[int, int]] = None
     iterations: int = 600
     n_lines: int = 40
+    wake_planes: Tuple[float, ...] = (0.25, 0.5, 1.0, 1.5)   # cross-flow slices, body lengths behind the bodies
     title: str = "External flow"
 
     def __post_init__(self):
@@ -606,23 +608,26 @@ mergePatchPairs ();
         slices.append({"name": "mid plane", "origin": [xx[0], ymid, zz[0]], "u": [xx[-1] - xx[0], 0, 0],
                        "v": [0, 0, zz[-1] - zz[0]], "grids": {"Cp": g_cp, "speed": g_sp}, "mirror": False,
                        "labels": {"Cp": "Pressure coefficient Cp, mid plane", "speed": "Speed |U|/U∞, mid plane"}})
-        xw = hi[0] + 0.25 * L
+        # cross-flow planes behind the bodies; the first (0.25 L) keeps the name "wake", the others form its stack
         nyw, nzw = 220, 110
         half_w = 0.5 * (hi[1] - lo[1]) + 0.35 * L
         yw = np.linspace(0.0, (hi[1] if half else 0) + half_w, nyw) if half else np.linspace(0.5 * (lo[1] + hi[1]) - half_w, 0.5 * (lo[1] + hi[1]) + half_w, nyw)
         zw = np.linspace(z_lo if info["ground"] is not None else lo[2] - 0.35 * L, hi[2] + 0.35 * L, nzw)
         Yg, Zg = np.meshgrid(yw, zw)
-        Uw, _, dw = cf.sample(np.c_[np.full(Yg.size, xw), Yg.ravel(), Zg.ravel()])
-        Uw = Uw.reshape(nzw, nyw, 3)
-        wx = (np.gradient(Uw[..., 2], yw[1] - yw[0], axis=1) - np.gradient(Uw[..., 1], zw[1] - zw[0], axis=0)) * L / V
-        spw = np.linalg.norm(Uw, axis=-1) / V
-        inw = (dw > 1.0).reshape(nzw, nyw)
-        wx[inw] = np.nan
-        spw[inw] = np.nan
-        slices.append({"name": "wake", "origin": [xw, yw[0], zw[0]], "u": [0, yw[-1] - yw[0], 0], "v": [0, 0, zw[-1] - zw[0]],
-                       "grids": {"speed": spw, "vorticity": wx}, "mirror": half, "odd": ("vorticity",),
-                       "labels": {"speed": f"Speed |U|/U∞, {0.25:g} L behind the body",
-                                  "vorticity": "Streamwise vorticity ωx·L/U∞"}})
+        for k, f in enumerate(self.wake_planes):
+            xw = hi[0] + f * L
+            Uw, _, dw = cf.sample(np.c_[np.full(Yg.size, xw), Yg.ravel(), Zg.ravel()])
+            Uw = Uw.reshape(nzw, nyw, 3)
+            wx = (np.gradient(Uw[..., 2], yw[1] - yw[0], axis=1) - np.gradient(Uw[..., 1], zw[1] - zw[0], axis=0)) * L / V
+            spw = np.linalg.norm(Uw, axis=-1) / V
+            inw = (dw > 1.0).reshape(nzw, nyw)
+            wx[inw] = np.nan
+            spw[inw] = np.nan
+            slices.append({"name": "wake" if k == 0 else f"wake {f:g} L", "group": "wake",
+                           "origin": [xw, yw[0], zw[0]], "u": [0, yw[-1] - yw[0], 0], "v": [0, 0, zw[-1] - zw[0]],
+                           "grids": {"speed": spw, "vorticity": wx}, "mirror": half, "odd": ("vorticity",),
+                           "labels": {"speed": f"Speed |U|/U∞, {f:g} L behind the body",
+                                      "vorticity": f"Streamwise vorticity ωx·L/U∞, {f:g} L behind the body"}})
         info = {**info, "time": cf.time}
         return FlowResult(out, {"xyz": np.concatenate(xyz), "cp": np.concatenate(cpl), "cf": np.concatenate(cfl),
                                 "body": np.concatenate(bid)}, names, lines, speeds, slices, info, self.geometry)

@@ -77,6 +77,7 @@ class Slice:
     v: np.ndarray
     grid: np.ndarray
     label: str = ""
+    group: str = ""                     # slices sharing a group are positions of one stack (viewer slider)
 
 
 @dataclass
@@ -193,9 +194,25 @@ class Scene:
                                 None if values is None else [np.asarray(v, float) for v in values], name, label))
         return self
 
-    def add_slice(self, name, origin, u, v, grid, label: str = "") -> "Scene":
+    def add_slice(self, name, origin, u, v, grid, label: str = "", group: str = "") -> "Scene":
+        """``group``: slices with the same group form a stack the browser viewer steps through with a slider."""
         self.slices.append(Slice(name, np.asarray(origin, float), np.asarray(u, float), np.asarray(v, float),
-                                 np.asarray(grid, float), label))
+                                 np.asarray(grid, float), label, group))
+        return self
+
+    def n_faces(self) -> int:
+        return int(sum(len(s.faces) for s in self.surfaces))
+
+    def decimate(self, max_faces: int) -> "Scene":
+        """Reduce the surfaces (in place) to about ``max_faces`` triangles in total, each in proportion to its size,
+        by vertex clustering; fields are averaged over the merged vertices. Small parts are left alone."""
+        total = self.n_faces()
+        if total <= max_faces:
+            return self
+        for i, srf in enumerate(self.surfaces):
+            target = max(200, int(len(srf.faces) * max_faces / total))
+            if len(srf.faces) > target:
+                self.surfaces[i] = decimate_surface(srf, target)
         return self
 
     def bounds(self) -> Tuple[np.ndarray, np.ndarray]:
@@ -228,12 +245,54 @@ class Scene:
         return {"axes": self.axes, "title": self.title, "labels": self.labels, "fields": self.field_names(),
                 "lines": [{"name": L.name, "label": L.label, "points": [r(p) for p in L.points],
                            "values": None if L.values is None else [r(v) for v in L.values]} for L in self.lines],
-                "slices": [{"name": s.name, "label": s.label, "origin": r(s.origin), "u": r(s.u), "v": r(s.v),
+                "slices": [{"name": s.name, "label": s.label, "group": s.group or s.name, "origin": r(s.origin), "u": r(s.u), "v": r(s.v),
                             "grid": [[None if not np.isfinite(t) else round(float(t), 5) for t in row] for row in s.grid]}
                            for s in self.slices]}
 
 
 # ---------------------------------------------------------------------- helpers
+def _cluster(V: np.ndarray, F: np.ndarray, h: float):
+    lo = V.min(0)
+    key = np.floor((V - lo) / h).astype(np.int64)
+    _, cid = np.unique(key, axis=0, return_inverse=True)
+    cid = cid.ravel()
+    G = cid[F]
+    ok = (G[:, 0] != G[:, 1]) & (G[:, 1] != G[:, 2]) & (G[:, 0] != G[:, 2])
+    G = G[ok]
+    if len(G):
+        G = G[np.unique(np.sort(G, axis=1), axis=0, return_index=True)[1]]   # drop duplicate triangles
+    return cid, G
+
+
+def decimate_surface(srf: "Surface", target_faces: int) -> "Surface":
+    """Vertex clustering on a uniform grid whose cell size is searched (bisection) to land near ``target_faces``.
+    Fast and robust for display; thin features below the cell size may close up."""
+    V, F = srf.vertices, srf.faces
+    ext = float(np.max(V.max(0) - V.min(0))) or 1.0
+    a, b = ext * 1e-6, ext                                       # cell size bracket: many faces .. few faces
+    best = None
+    for _ in range(30):
+        h = np.sqrt(a * b)
+        cid, G = _cluster(V, F, h)
+        if best is None or abs(len(G) - target_faces) < abs(len(best[1]) - target_faces):
+            best = (cid, G)
+        if len(G) > target_faces:
+            a = h
+        else:
+            b = h
+        if abs(len(G) - target_faces) <= 0.05 * target_faces or b / a < 1.001:
+            break
+    cid, G = best
+    used, inv = np.unique(G, return_inverse=True)
+    n = cid.max() + 1
+    cnt = np.bincount(cid, minlength=n).astype(float)
+    mean = lambda x: (np.stack([np.bincount(cid, x[:, k], n) for k in range(x.shape[1])], 1) / cnt[:, None])  # noqa: E731
+    out = Surface(srf.name, mean(V)[used], inv.reshape(-1, 3), srf.material, group=srf.group)
+    for k, f in srf.fields.items():
+        out.fields[k] = mean(np.asarray(f, float)[:, None])[used, 0]
+    return out
+
+
 def scalar_of(a: np.ndarray) -> np.ndarray:
     """One value per entry: itself, the magnitude of a vector, the von Mises stress of a 6-component tensor
     (xx, yy, zz, xy, yz, zx)."""

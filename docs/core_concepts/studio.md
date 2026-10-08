@@ -50,13 +50,47 @@ handles half models. `scene.labels["cp"] = "Pressure coefficient Cp"` sets the c
 
 ## Browser viewer
 
-`pp.viz.web_viewer(scene, folder)` writes `index.html`, `viewer.js`, `scene.glb`, `scene.json` and a copy of
-three.js, so no internet is needed. `pp.viz.serve(scene)` does the same in a temporary folder and serves it. The page
-has these modes:
+`pp.viz.web_viewer(scene, folder)` writes `index.html`, `viewer.js`, `studio-core.js`, `scene.glb`, `scene.json` and
+a copy of three.js, so no internet is needed. `pp.viz.serve(scene)` does the same in a temporary folder and serves it.
+The page has these modes:
 - **Realistic:** the materials;
 - **one mode per field:** jet scale with a colour bar;
 - **Streamlines:** coloured by their values;
-- **one mode per slice plane.**
+- **one mode per slice group:** slices added with the same `group` form a stack.
+
+![Aircraft app viewer on the shared core: Cp with a typed colour range and feature edges](../assets/studio/viewer-controls.jpg)
+
+Controls under the modes:
+- **Colour range:** type the ends, or press *Auto* (1st to 99th percentile, the default) or *Full* (minimum to
+  maximum). Each field, the lines and each slice group keep their own range.
+- **Slice position:** a slider through the slices of a stack, for example the wake planes of `ExternalFlow`.
+- **Line density:** shows an evenly spread share of the streamlines.
+- **Edges:** off, feature edges (creases above 30°) or wireframe.
+
+`studio-core.js` holds the colour scale, colour bar, tubes, slice textures and edges. The apps load it from
+`/studio/studio-core.js` (the aircraft app's viewer is built on it), and its tick labels match the Python colour bar
+of the renders. Its tests run with `node --test tests/js/studio_core.test.mjs`.
+
+**How big a mesh?** Measured with a closed surface carrying two fields, in headless Chromium with software WebGL on 4
+CPU cores. That is a worst case: a laptop GPU draws frames much faster, while loading and recolouring run on the CPU
+anyway.
+
+| Triangles | scene.glb | Export | Page load | First frame | Field switch |
+|---|---|---|---|---|---|
+| 25 k | 0.7 MB | < 0.1 s | 2.4 s | 0.5 s | 0.1 s |
+| 130 k | 3.6 MB | 0.1 s | 1.9 s | 0.8 s | 0.3 s |
+| 260 k | 7.3 MB | 0.1 s | 2.5 s | 0.9 s | 0.5 s |
+| 520 k | 14.5 MB | 0.2 s | 2.3 s | 1.4 s | 0.8 s |
+| 1.04 M | 29.1 MB | 0.5 s | 2.8 s | 2.0 s | 1.7 s |
+
+The file grows by about 28 bytes per triangle, plus about 2 bytes per triangle for each extra field.
+- **Up to about 500 k triangles:** stays interactive.
+- **Above 1 M triangles** (`web_viewer(..., max_faces=1_000_000)`, the default): the page gets a decimated copy.
+  The scene itself is not changed, and `max_faces=None` keeps every triangle.
+- **For a smaller file:** call `scene.decimate(n)` yourself. It uses vertex clustering and averages the fields, so
+  thin features below the cluster size can close up.
+
+Slices are stored as JSON grids, about 7 bytes per value. Keep them to a few hundred cells a side.
 
 ## External flow: `pp.cfd.ExternalFlow`
 
@@ -75,6 +109,8 @@ scene = res.to_scene()                        # skin Cp and Cf, streamlines by |
   `coarse`, `medium` or `fine`.
 - `alpha` and `beta` tilt the flow.
 - `half_model` adds a symmetry plane at y = 0.
+- `wake_planes` (default `(0.25, 0.5, 1.0, 1.5)` body lengths behind the bodies): the cross-flow slices, one stack
+  per field in the viewer.
 - `ground` adds a road (`True`: at the lowest point of the bodies; a number: its height), moving with the flow unless
   `ground_moving=False`.
 

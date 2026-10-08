@@ -17,6 +17,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `pinneapple_data.cae` reads, arrays) with per-vertex fields, streamlines and slice planes; export to glTF (fields as
   vertex attributes), OpenUSD and STL; Blender Cycles renders on the jet colour scale with a colour bar; a browser
   viewer that ships its own three.js. Vectors show as magnitude, stress tensors as von Mises.
+- Studio input and viewer: `Scene.from_file` reads glTF/GLB (node transforms, fields from `_NAME` attributes) and
+  VTK `.vtp` (with `vtk`). The browser viewer has colour-range, slice-position, line-density and edge controls on a
+  shared core (`studio-core.js`, also used by the aircraft app and tested with node). Slices can be grouped into
+  stacks, and `ExternalFlow` samples four wake planes. `Scene.decimate` and `web_viewer(max_faces=...)` keep large
+  meshes usable; the docs give measured sizes and load times. The digital twin writes its GLB with the studio writer
+  and gains `to_studio()`. three.js ships once, in the library, and the apps serve that copy.
 - External flow in OpenFOAM for any body (`pp.cfd.ExternalFlow`): snappyHexMesh, simpleFoam k-ω SST with wall
   functions, half model, moving road; forces, skin Cp/Cf, streamlines, mid-plane and wake slices, `to_scene()`.
   Ahmed body at 25°: CD 0.321 (coarse) and 0.298 (medium) against about 0.285 measured. Closed bodies in

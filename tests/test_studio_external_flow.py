@@ -155,3 +155,63 @@ def test_vtp_input(tmp_path):
     w.Write()
     s = Scene.from_file(str(tmp_path / "b.vtp")).surfaces[0]
     assert len(s.faces) == len(F) and np.allclose(s.fields["U"], np.abs(V[:, 0]))    # vectors -> magnitude
+
+
+def test_colorbar_ticks_and_pixels(tmp_path):
+    from PIL import Image
+    from pinneapple_tools.visualization.studio.colormap import colorbar, decimals, jet, ticks
+    assert ticks(-0.5, 0.597) == ["-0.50", "-0.23", "0.05", "0.32", "0.60"]
+    assert ticks(0, 2e5) == ["0", "5.00e+4", "1.00e+5", "1.50e+5", "2.00e+5"]
+    assert decimals(0, 1) == 2 and decimals(0, 1000) == 0 and ticks(0, 1, nd=1)[2] == "0.5"
+    assert [round(255 * c) for c in jet(0)] == [0, 0, 143] and [round(255 * c) for c in jet(2)] == [128, 0, 0]
+    p = tmp_path / "white.png"
+    Image.new("RGB", (1920, 1080), "white").save(p)
+    colorbar(str(p), "Cp", -1, 1, lo_txt="suction", hi_txt="stagnation")
+    im = np.asarray(Image.open(p).convert("RGB")).astype(int)
+    row = im[1080 - 150 - 22 + 40 + 11]                            # middle of the bar (layout of colorbar at s = 1)
+    lit = np.where(np.abs(row - 255).sum(1) > 60)[0]
+    assert len(lit) > 500                                            # a 520 px bar in the bottom-right corner
+    assert lit.min() > 1920 / 2 and abs(row[lit.min()] - [0, 0, 143]).max() < 12 and abs(row[lit.max()] - [128, 0, 0]).max() < 12
+
+
+def test_studio_core_js_matches_python(tmp_path):
+    """Runs the node tests of studio-core.js and checks its ticks against the Python colour bar's."""
+    import shutil
+    import subprocess
+    from pinneapple_tools.visualization.studio.colormap import ticks
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node not installed")
+    core = os.path.join(ROOT, "pinneapple_tools", "visualization", "studio", "web", "studio-core.js")
+    shutil.copy(core, tmp_path / "studio-core.mjs")                 # .mjs: ES module on every node version
+    src = open(os.path.join(ROOT, "tests", "js", "studio_core.test.mjs")).read()
+    (tmp_path / "t.test.mjs").write_text(src.replace("../../pinneapple_tools/visualization/studio/web/studio-core.js", "./studio-core.mjs"))
+    r = subprocess.run([node, "--test", str(tmp_path / "t.test.mjs")], capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
+    cases = [(-0.5, 0.597), (0, 2e5), (0, 1e-4), (-3.2, 41.0), (101325, 101400), (0.001, 0.0042)]
+    js = "import * as c from './studio-core.mjs'; console.log(JSON.stringify(%s.map(([a, b]) => c.ticks(a, b))))" % json.dumps(cases)
+    (tmp_path / "t.mjs").write_text(js)
+    out = subprocess.run([node, str(tmp_path / "t.mjs")], capture_output=True, text=True, timeout=60, cwd=tmp_path)
+    assert json.loads(out.stdout) == [ticks(a, b) for a, b in cases]
+
+
+def test_decimate_keeps_shape_and_fields(tmp_path):
+    V, F = sphere(1.0, n=200)
+    sc = Scene.from_arrays(V, F, name="ball")
+    sc.surfaces[0].fields["z"] = V[:, 2].copy()
+    web_viewer(sc, str(tmp_path / "v"), max_faces=5000)
+    assert len(sc.surfaces[0].faces) == len(F)                         # the scene itself is untouched
+    s2 = Scene.from_file(str(tmp_path / "v" / "scene.glb")).surfaces[0]
+    assert 4000 < len(s2.faces) <= 5500
+    assert abs(_signed_volume(s2.vertices, s2.faces) - 4 / 3 * math.pi) < 0.1
+    assert np.allclose(s2.fields["z"], s2.vertices[:, 2], atol=1e-5)  # linear fields survive averaging exactly
+    sc.decimate(2000)
+    assert sc.n_faces() <= 2200
+
+
+def test_slice_groups_in_viewer_json():
+    sc = Scene.from_arrays(*box((1, 1, 1)))
+    for x in (1.0, 2.0):
+        sc.add_slice(f"wake {x}: speed", [x, 0, 0], [0, 1, 0], [0, 0, 1], np.ones((2, 2)), group="wake: speed")
+    sc.add_slice("mid", [0, 0, 0], [1, 0, 0], [0, 0, 1], np.ones((2, 2)))
+    assert [s["group"] for s in sc.extras()["slices"]] == ["wake: speed", "wake: speed", "mid"]

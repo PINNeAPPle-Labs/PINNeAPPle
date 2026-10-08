@@ -1,25 +1,14 @@
 // PINNeAPPle studio viewer: any scene exported by pinneapple_tools.visualization.studio.web_viewer.
 // scene.glb carries the surfaces (fields as vertex attributes _NAME), scene.json the lines, slices and labels.
-// CFD colours: jet scale, blue = low, red = high, with a colour bar.
+// CFD colours: jet scale, blue = low, red = high, with a colour bar. Controls: colour range (auto, full or typed),
+// slice position (slices of one group), streamline density, edges (feature or wireframe).
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/three/OrbitControls.js";
 import { GLTFLoader } from "./vendor/three/loaders/GLTFLoader.js";
 import { RoomEnvironment } from "./vendor/three/environments/RoomEnvironment.js";
+import * as core from "./studio-core.js";
 
-const JET = [[0, [0, 0, 143]], [0.125, [0, 0, 255]], [0.375, [0, 255, 255]], [0.625, [255, 255, 0]], [0.875, [255, 0, 0]], [1, [128, 0, 0]]];
-function jet(t) {
-  t = Math.min(1, Math.max(0, t));
-  for (let i = 1; i < JET.length; i++) if (t <= JET[i][0]) {
-    const [a, ca] = JET[i - 1], [b, cb] = JET[i], f = (t - a) / (b - a);
-    return ca.map((c, k) => (c + f * (cb[k] - c)) / 255);
-  }
-  return JET[JET.length - 1][1].map((c) => c / 255);
-}
-const lin = (c) => Math.pow(c, 2.2);                     // vertex colours are linear in three.js
-const AX = { z_up: (p) => new THREE.Vector3(p[0], p[2], -p[1]), aircraft: (p) => new THREE.Vector3(p[1], p[2], p[0]) };
-const fmt = (v, d) => (Math.abs(v) >= 1e4 || (Math.abs(v) < 1e-3 && v !== 0) ? v.toExponential(2) : v.toFixed(d));
-function pct(vals, q) { const a = Array.from(vals).filter(Number.isFinite).sort((x, y) => x - y); return a.length ? a[Math.min(a.length - 1, Math.max(0, Math.round(q * (a.length - 1))))] : 0; }
-function decimals(lo, hi) { const s = Math.abs(hi - lo) || Math.abs(hi) || 1; return Math.max(0, Math.min(6, 2 - Math.floor(Math.log10(s)))); }
+const AX = { z_up: (p) => new THREE.Vector3(p[0], p[2], -p[1]), aircraft: (p) => new THREE.Vector3(p[1], p[2], p[0]), as_is: (p) => new THREE.Vector3(p[0], p[1], p[2]) };
 
 const $ = (s) => document.querySelector(s);
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -35,18 +24,14 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.6));
 const camera = new THREE.PerspectiveCamera(35, 1, 0.001, 1e6);
 const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
 
-let META = {}, label = (f) => f, model = null, centre = new THREE.Vector3(), radius = 1, mode = "real", fieldName = null;
+// state: mode real | field | lines | slice; arg = field name or slice group
+const S = { mode: "real", arg: null, range: {}, data: {}, stackPos: {}, density: 1, edges: "off" };
+let META = {}, label = (f) => f, model = null, centre = new THREE.Vector3(), radius = 1, ax = AX.z_up, stacks = {};
 const lineGroup = new THREE.Group(), sliceGroup = new THREE.Group(); scene.add(lineGroup, sliceGroup);
 const meshes = [];
-
-function colorbar(title, lo, hi, loTxt = "", hiTxt = "") {
-  const g = Array.from({ length: 21 }, (_, k) => `rgb(${jet(k / 20).map((v) => Math.round(v * 255))}) ${k * 5}%`).join(",");
-  const d = decimals(lo, hi);
-  $("#legend").innerHTML = `<b>${title}</b><div class="bar" style="background:linear-gradient(90deg,${g})"></div>`
-    + `<div class="ticks">${[0, 1, 2, 3, 4].map((k) => `<span>${fmt(lo + (hi - lo) * k / 4, d)}</span>`).join("")}</div>`
-    + (loTxt || hiTxt ? `<div class="ticks dim"><span>${loTxt}</span><span>${hiTxt}</span></div>` : "");
-  $("#legend").style.display = "block";
-}
+const grey = new THREE.MeshStandardMaterial({ color: 0x9aa3ad, roughness: 0.6 });
+const ghost = new THREE.MeshStandardMaterial({ color: 0xb8c0c8, transparent: true, opacity: 0.3, depthWrite: false });
+const fieldMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0, envMapIntensity: 0.4 });
 
 function fit(view = "iso") {
   // scene axes x (length / flow), y, z up -> three.js (x, z, -y); the aircraft convention is handled by AX
@@ -60,76 +45,113 @@ function fit(view = "iso") {
   sun.position.copy(centre).add(new THREE.Vector3(-1, 2, 1.2).multiplyScalar(radius * 3));
 }
 
-function setMode(m, arg) {
-  mode = m; if (m === "field") fieldName = arg;
-  document.querySelectorAll("#modes button").forEach((b) => b.classList.toggle("on", b.dataset.m === m && (m !== "field" || b.dataset.f === arg)));
-  $("#legend").style.display = "none";
-  lineGroup.visible = m === "lines"; sliceGroup.visible = m === "slice";
-  sliceGroup.children.forEach((c) => (c.visible = m === "slice" && c.name === arg));
+// ---------------------------------------------------------------- colour range per field / lines / slice group
+const key = () => (S.mode === "field" ? "f:" + S.arg : S.mode === "lines" ? "lines" : S.mode === "slice" ? "s:" + S.arg : null);
+const hasScale = () => key() && !(S.mode === "lines" && !S.data.lines.length);
+function currentSlice() { const st = stacks[S.arg] || []; return st[Math.min(st.length - 1, S.stackPos[S.arg] || 0)]; }
+function values() {
+  if (S.mode === "field") return S.data["f:" + S.arg];
+  if (S.mode === "lines") return S.data.lines;
+  if (S.mode === "slice") return (stacks[S.arg] || []).flatMap((s) => s.grid.flat());   // one scale for the stack
+  return [];
+}
+function range() { const k = key(); if (!S.range[k]) S.range[k] = core.autoRange(values() || [], "auto"); return S.range[k]; }
+
+function legend() {
+  const L = $("#legend");
+  if (!hasScale()) { L.style.display = "none"; return; }
+  const [lo, hi] = range();
+  let title = "";
+  if (S.mode === "field") title = (META.labels || {})[S.arg] || label(S.arg);
+  if (S.mode === "lines") title = META.lineLabel || "value along the lines";
+  if (S.mode === "slice") { const s = currentSlice(); title = s.label || s.name; }
+  L.innerHTML = core.colorbarHTML({ title, lo, hi, width: 260 });
+  L.style.display = "block";
+}
+
+function paint() {
+  const [lo, hi] = hasScale() ? range() : [0, 1];
+  lineGroup.visible = S.mode === "lines"; sliceGroup.visible = S.mode === "slice";
   for (const o of meshes) {
-    if (m === "real" || m === "lines") { o.material = o.userData.mat; continue; }
-    if (m === "slice") { o.material = new THREE.MeshStandardMaterial({ color: 0xb8c0c8, transparent: true, opacity: 0.3, depthWrite: false }); continue; }
-    const a = o.geometry.getAttribute("_" + arg.toLowerCase());
-    if (!a) { o.material = new THREE.MeshStandardMaterial({ color: 0x9aa3ad, roughness: 0.6 }); continue; }
-    const [lo, hi] = META.ranges[arg];
-    const c = new Float32Array(a.count * 3);
-    for (let i = 0; i < a.count; i++) { const rgb = jet((a.array[i] - lo) / ((hi - lo) || 1)); c[3 * i] = lin(rgb[0]); c[3 * i + 1] = lin(rgb[1]); c[3 * i + 2] = lin(rgb[2]); }
-    o.geometry.setAttribute("color", new THREE.BufferAttribute(c, 3));
-    o.material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0, envMapIntensity: 0.4 });
-  }
-  if (m === "field") { const [lo, hi] = META.ranges[arg]; colorbar((META.labels || {})[arg] || label(arg), lo, hi); }
-  if (m === "lines" && META.lineRange) colorbar(META.lineLabel || "value along the lines", META.lineRange[0], META.lineRange[1]);
-  if (m === "slice") { const s = META.slices.find((x) => x.name === arg); colorbar(s.label || s.name, s.range[0], s.range[1]); }
-}
-
-function buildLines(ax) {
-  const sets = META.lines || []; if (!sets.length) return;
-  const all = sets.flatMap((L) => (L.values || []).flat());
-  const lo = all.length ? pct(all, 0.02) : 0, hi = all.length ? pct(all, 0.98) : 1;
-  META.lineRange = all.length ? [lo, hi] : null; META.lineLabel = (sets.find((L) => L.label) || {}).label;
-  const rad = radius * 0.0035;
-  const plain = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0ea5e9, emissiveIntensity: 0.8 });
-  const vc = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
-  for (const L of sets) L.points.forEach((P0, li) => {
-    const keep = P0.map((p, k) => k === 0 || Math.hypot(p[0] - P0[k - 1][0], p[1] - P0[k - 1][1], p[2] - P0[k - 1][2]) > 1e-9);
-    const P = P0.filter((_, k) => keep[k]); if (P.length < 4) return;
-    const S = L.values ? L.values[li].filter((_, k) => keep[k]) : null;
-    const curve = new THREE.CatmullRomCurve3(P.map(ax)), seg = Math.min(500, P.length * 2), rs = 6;
-    const geo = new THREE.TubeGeometry(curve, seg, rad, rs, false);
-    if (S) {
-      const col = new Float32Array(geo.attributes.position.count * 3);
-      for (let i = 0; i <= seg; i++) {
-        const f = (i / seg) * (S.length - 1), k = Math.min(S.length - 2, Math.floor(f)), v = S[k] + (S[k + 1] - S[k]) * (f - k);
-        const rgb = jet((v - lo) / ((hi - lo) || 1));
-        for (let j = 0; j <= rs; j++) { const o = 3 * (i * (rs + 1) + j); col[o] = lin(rgb[0]); col[o + 1] = lin(rgb[1]); col[o + 2] = lin(rgb[2]); }
-      }
-      geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    if (S.mode === "real" || S.mode === "lines") o.material = o.userData.mat;
+    else if (S.mode === "slice") o.material = ghost;
+    else {
+      const a = o.geometry.getAttribute("_" + S.arg.toLowerCase());
+      if (!a) { o.material = grey; continue; }
+      o.geometry.setAttribute("color", core.colorAttribute(THREE, a.array, lo, hi)); o.material = fieldMat;
     }
-    lineGroup.add(new THREE.Mesh(geo, S ? vc : plain));
-  });
+  }
+  if (S.mode === "lines") {
+    core.recolourLines(THREE, lineGroup, lo, hi);
+    const on = new Set(core.thin(lineGroup.userData.n || 0, S.density));
+    lineGroup.children.forEach((m) => (m.visible = on.has(m.userData.index)));
+  }
+  if (S.mode === "slice") {
+    const cur = currentSlice();
+    sliceGroup.children.forEach((m) => (m.visible = m.userData.slice === cur));
+    const tk = `${lo}:${hi}`;
+    if (cur.mesh.userData.tk !== tk) {                    // texture for the current range
+      const old = cur.mesh.material.map; cur.mesh.material.map = core.sliceTexture(THREE, cur.grid, lo, hi);
+      cur.mesh.material.needsUpdate = true; if (old) old.dispose(); cur.mesh.userData.tk = tk;
+    }
+  }
+  legend(); panel();
 }
 
-function buildSlices(ax) {
+// ---------------------------------------------------------------- control panel
+function panel() {
+  const P = $("#ctl"), k = key(), parts = [];
+  if (hasScale()) {
+    const [lo, hi] = range(), d = core.decimals(lo, hi) + 1;
+    parts.push(`<div class="row"><span>Colour range</span><input id="lo" type="number" step="any" value="${+lo.toFixed(d)}"><span>to</span>`
+      + `<input id="hi" type="number" step="any" value="${+hi.toFixed(d)}"><button id="auto" title="1st to 99th percentile">Auto</button><button id="full" title="minimum to maximum">Full</button></div>`);
+  }
+  if (S.mode === "slice" && (stacks[S.arg] || []).length > 1) {
+    const st = stacks[S.arg], i = Math.min(st.length - 1, S.stackPos[S.arg] || 0);
+    parts.push(`<div class="row"><span>Slice position</span><input id="pos" type="range" min="0" max="${st.length - 1}" step="1" value="${i}"><span>${st[i].name}</span></div>`);
+  }
+  if (S.mode === "lines") {
+    const n = lineGroup.userData.n || 0;
+    parts.push(`<div class="row"><span>Line density</span><input id="dens" type="range" min="0.05" max="1" step="0.05" value="${S.density}"><span>${core.thin(n, S.density).length} / ${n}</span></div>`);
+  }
+  parts.push(`<div class="row"><span>Edges</span><select id="edges">${[["off", "Off"], ["feature", "Feature edges"], ["wire", "Wireframe"]].map(([v, t]) => `<option value="${v}" ${S.edges === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>`);
+  P.innerHTML = parts.join("");
+  const num = (id) => parseFloat($(id).value);
+  if ($("#lo")) {
+    const set = () => { const lo = num("#lo"), hi = num("#hi"); if (Number.isFinite(lo) && Number.isFinite(hi) && hi > lo) { S.range[k] = [lo, hi]; paint(); } };
+    $("#lo").onchange = set; $("#hi").onchange = set;
+    $("#auto").onclick = () => { S.range[k] = core.autoRange(values(), "auto"); paint(); };
+    $("#full").onclick = () => { S.range[k] = core.autoRange(values(), "full"); paint(); };
+  }
+  if ($("#pos")) $("#pos").oninput = (e) => { S.stackPos[S.arg] = +e.target.value; paint(); };
+  if ($("#dens")) $("#dens").oninput = (e) => { S.density = +e.target.value; paint(); };
+  $("#edges").onchange = (e) => { S.edges = e.target.value; meshes.forEach((o) => core.setEdges(THREE, o, S.edges)); };
+}
+
+function setMode(m, arg) {
+  S.mode = m; S.arg = arg || null;
+  document.querySelectorAll("#modes button").forEach((b) => b.classList.toggle("on", b.dataset.m === m && (!b.dataset.f || b.dataset.f === arg)));
+  paint();
+}
+
+// ---------------------------------------------------------------- scene parts
+function buildLines() {
+  const all = (META.lines || []).flatMap((L) => L.points.map((P, i) => [P, L.values ? L.values[i] : null]));
+  S.data.lines = all.flatMap(([, v]) => v || []);
+  META.lineLabel = ((META.lines || []).find((L) => L.label) || {}).label;
+  const [lo, hi] = S.data.lines.length ? core.autoRange(S.data.lines) : [0, 1];
+  const g = core.tubeLines(THREE, all.map(([P]) => P), all.some(([, v]) => v) ? all.map(([, v]) => v) : null,
+    { lo, hi, radius: radius * 0.0035, toV3: ax });
+  if (g.children.length) lineGroup.add(...g.children);
+  lineGroup.userData.n = all.length;
+}
+
+function buildSlices() {
   for (const s of META.slices || []) {
-    const g = s.grid, nv = g.length, nu = g[0].length, vals = g.flat().filter((v) => v !== null);
-    s.range = [pct(vals, 0.02), pct(vals, 0.98)];
-    const cv = document.createElement("canvas"); cv.width = nu; cv.height = nv;
-    const ctx = cv.getContext("2d"), img = ctx.createImageData(nu, nv);
-    for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) {
-      const v = g[j][i], o = 4 * ((nv - 1 - j) * nu + i);
-      if (v === null) { img.data[o + 3] = 0; continue; }
-      const rgb = jet((v - s.range[0]) / ((s.range[1] - s.range[0]) || 1));
-      img.data[o] = rgb[0] * 255; img.data[o + 1] = rgb[1] * 255; img.data[o + 2] = rgb[2] * 255; img.data[o + 3] = 235;
-    }
-    ctx.putImageData(img, 0, 0);
-    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
-    const O = s.origin, U = s.u, V = s.v, P = [O, O.map((x, k) => x + U[k]), O.map((x, k) => x + U[k] + V[k]), O.map((x, k) => x + V[k])].map(ax);
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(P.flatMap((p) => p.toArray()), 3));
-    geo.setAttribute("uv", new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2)); geo.setIndex([0, 1, 2, 0, 2, 3]);
-    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, toneMapped: false, depthWrite: false }));
-    m.name = s.name; m.renderOrder = 2; sliceGroup.add(m);
+    s.mesh = core.sliceMesh(THREE, s.origin, s.u, s.v, null, ax);
+    s.mesh.userData.slice = s; s.mesh.name = s.name; sliceGroup.add(s.mesh);
   }
+  stacks = core.sliceStacks(META.slices || []);
 }
 
 async function main() {
@@ -137,30 +159,27 @@ async function main() {
   document.title = META.title || "PINNeAPPle"; $("#title").textContent = META.title || "";
   const gltf = await new GLTFLoader().loadAsync("scene.glb");
   model = gltf.scene; scene.add(model);
-  const fields = new Set(); META.ranges = {};
+  const fields = new Set();
   model.traverse((o) => { if (o.isMesh) { o.userData.mat = o.material; meshes.push(o); Object.keys(o.geometry.attributes).filter((k) => k.startsWith("_")).forEach((k) => fields.add(k.slice(1))); } });
-  for (const f of fields) {
-    const all = meshes.flatMap((o) => { const a = o.geometry.getAttribute("_" + f); return a ? Array.from(a.array) : []; });
-    META.ranges[f] = [pct(all, 0.01), pct(all, 0.99)];
-  }
+  for (const f of fields) S.data["f:" + f] = meshes.flatMap((o) => { const a = o.geometry.getAttribute("_" + f); return a ? Array.from(a.array) : []; });
   // three.js lowercases attribute names: show the original field name, and its label in the colour bar
   label = (f) => {
     const k = Object.keys(META.labels || {}).find((x) => x.toLowerCase() === f); if (k) META.labels[f] = META.labels[k];
     return (META.fields || []).find((x) => x.toLowerCase() === f) || k || f;
   };
   const box = new THREE.Box3().setFromObject(model); box.getCenter(centre); radius = box.getSize(new THREE.Vector3()).length() / 2;
-  const ax = AX[META.axes] || AX.z_up;
-  buildLines(ax); buildSlices(ax);
-  if (META.lines && META.lines.length) box.expandByObject(lineGroup);
+  ax = AX[META.axes] || AX.z_up;
+  buildLines(); buildSlices();
   const btn = (m, f, t) => `<button data-m="${m}" ${f ? `data-f="${f}"` : ""}>${t}</button>`;
   $("#modes").innerHTML = btn("real", "", "Realistic") + [...fields].map((f) => btn("field", f, label(f))).join("")
-    + (META.lines && META.lines.length ? btn("lines", "", "Streamlines") : "") + (META.slices || []).map((s) => btn("slice", s.name, s.name)).join("");
+    + (lineGroup.userData.n ? btn("lines", "", "Streamlines") : "") + Object.keys(stacks).map((g) => btn("slice", g, g)).join("");
   document.querySelectorAll("#modes button").forEach((b) => (b.onclick = () => setMode(b.dataset.m, b.dataset.f)));
   document.querySelectorAll("[data-v]").forEach((b) => (b.onclick = () => fit(b.dataset.v)));
   $("#shot").onclick = () => { const a = document.createElement("a"); a.href = renderer.domElement.toDataURL("image/png"); a.download = "view.png"; a.click(); };
   fit("iso"); const first = [...fields][0];
   setMode(first ? "field" : "real", first);
   $("#load").style.display = "none";
+  window.studio = { S, setMode, fit, paint };              // for scripted screenshots and tests
 }
 
 function resize() { const w = $("#stage").clientWidth, h = $("#stage").clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }

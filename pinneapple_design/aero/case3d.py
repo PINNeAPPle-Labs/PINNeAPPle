@@ -341,38 +341,52 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
         w = 1 / (dd + 1e-6) ** 2
         return (Ub[ii] * w[..., None]).sum(-2) / w.sum(-1, keepdims=True)
 
+    # seeds: a row just above each wing section's leading edge (suction side), a few under it, a ring around the
+    # nose and a cluster at the tip (vortex roll-up); traced until well behind the tail
     b2 = af.span / 2
     zw = af.wing_z_root()
-    ys = np.r_[np.linspace(0.6, b2 - 0.6, n_lines // 2), np.linspace(b2 - 0.5, b2 + 0.35, n_lines - n_lines // 2)]
-    seeds = np.c_[np.full(len(ys), af.wing_x - 1.5), ys, zw - 0.15 + 0.0 * ys]
-    lines = []
+    seeds = []
+    for eta in np.r_[np.linspace(0.12, 0.92, 9), 0.97, 1.0]:
+        le = np.asarray(af._wing_point(eta, 0.0), float)
+        seeds += [le + [-3.0, 0.0, 0.22], le + [-3.0, 0.0, -0.35]]
+    for eta, dz in ((1.0, -0.15), (1.0, 0.45), (1.02, 0.1)):
+        le = np.asarray(af._wing_point(min(eta, 1.0), 0.0), float)
+        seeds.append(le + [-3.0, 0.25 if eta > 1 else 0.05, dz])
+    r = 0.5 * af.width
+    for ang in np.radians([20, 60, 100, 140]):
+        seeds.append([-1.5, 0.15 + 1.1 * r * np.sin(ang), zw + 1.0 + 1.1 * r * np.cos(ang)])
+    seeds = np.array(seeds)
+    seeds[:, 1] = np.clip(seeds[:, 1], 0.15, b2 + 3)
+    h = 0.12
     X = seeds.copy()
     path = [X.copy()]
-    h = 0.06
-    for _ in range(330):
+    x_end = af.length + 10
+    for _ in range(int((x_end + 6 - seeds[:, 0].min()) / h)):
         v1 = vel(X)
         Xm = X + 0.5 * h * v1 / (np.linalg.norm(v1, axis=1, keepdims=True) + 1e-9)
         v2 = vel(Xm)
-        X = X + h * v2 / (np.linalg.norm(v2, axis=1, keepdims=True) + 1e-9)
+        Xn = X + h * v2 / (np.linalg.norm(v2, axis=1, keepdims=True) + 1e-9)
+        Xn[:, 1] = np.maximum(Xn[:, 1], 0.02)                            # symmetry plane
+        X = np.where((X[:, 0] < x_end)[:, None], Xn, X)                  # lines stop x_end (repeated points after)
         path.append(X.copy())
     P = np.stack(path, 1)
-    for k in range(len(seeds)):
-        lines.append(P[k, ::2])
+    lines = [P[k, ::3] for k in range(len(seeds))]
     out["streamlines"] = lines
     out["streamline_speed"] = [np.linalg.norm(vel(L), axis=1) / V for L in lines]
 
     # slice planes (what ParaView would show): a cross-flow plane behind the wing (speed, streamwise vorticity)
-    # and the symmetry plane (pressure coefficient, speed). Points farther than ~1.5 cells from any cell centre
+    # and the symmetry plane (pressure coefficient, speed). Points with no mesh cell around them
     # (inside the aircraft) are NaN.
     tree_all = cKDTree(C)
-    cell = np.cbrt(np.median(cg["volumes"])) if "volumes" in cg else 0.1
+    vols = cg["volumes"]
 
     def sample(P3):
         dd, ii = tree_all.query(P3, k=6)
         w = 1 / (dd + 1e-6) ** 2
         Uv = (U[ii] * w[..., None]).sum(-2) / w.sum(-1, keepdims=True)
         pv = (p[ii].reshape(ii.shape) * w).sum(-1) / w.sum(-1)
-        return Uv, pv, dd[:, 0]
+        # distance to the nearest cell centre in units of that cell's size: > 1 means no cell here (inside the body)
+        return Uv, pv, dd[:, 0] / np.cbrt(np.abs(vols[ii[:, 0]]))
 
     tip_te = af._wing_point(1.0, 1.0)
     xs_ = tip_te[0] + 0.6 * af.mac
@@ -385,6 +399,9 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     dy, dz = yy[1] - yy[0], zz[1] - zz[0]
     wx = np.gradient(Uv[..., 2], dy, axis=1) - np.gradient(Uv[..., 1], dz, axis=0)
     spd = np.linalg.norm(Uv, axis=-1) / V
+    in_w = (dmin > 1.0).reshape(nz_, ny_)
+    spd[in_w] = np.nan
+    wx[in_w] = np.nan
     out["slice_wake"] = {"x": float(xs_), "y": [float(yy[0]), float(yy[-1])], "z": [float(zz[0]), float(zz[-1])],
                          "shape": [nz_, ny_], "speed": spd, "vorticity": wx * af.mac / V}
     nx2, nz2 = 300, 120
@@ -392,7 +409,7 @@ def read_result3d(case: str, info: Dict[str, Any], af: Airframe, n_lines: int = 
     zz2 = np.linspace(-0.22 * af.length, 0.28 * af.length, nz2)
     Xg, Zg2 = np.meshgrid(xx, zz2)
     Uv2, pv2, d2 = sample(np.c_[Xg.ravel(), np.full(Xg.size, 0.02 * af.width), Zg2.ravel()])
-    inside = (d2 > 2.5 * cell).reshape(nz2, nx2)
+    inside = (d2 > 1.0).reshape(nz2, nx2)
     cp2 = (pv2 / q).reshape(nz2, nx2)
     sp2 = (np.linalg.norm(Uv2, axis=1) / V).reshape(nz2, nx2)
     cp2[inside] = np.nan

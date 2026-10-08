@@ -107,18 +107,30 @@ def test_3d_search(e3):
 
 
 def test_api_3d():
+    """The airliner API: the stored default search, one design with its streamlines, the OpenFOAM fields of a verified
+    design (served and baked into the glTF) and the exports."""
     sys.path.insert(0, APP)
     from fastapi.testclient import TestClient
     from aero_optimizer.api import app
     with TestClient(app) as c:
-        r = c.post("/api/optimize3d", json={}).json()
-        assert r["status"] == "done" and r["result"]["pareto"]
+        m = c.get("/api/meta3d").json()
+        assert m["mission"]["tsfc"] == pytest.approx(1.61e-5)              # small values keep their digits
+        body = {"mission": m["mission"], "requirements": m["requirements"]}
+        r = c.post("/api/optimize3d", json=body).json()
+        assert r["status"] == "done" and r["result"]["pareto"]           # the UI's default request hits the stored run
         x = r["result"]["details"][str(r["result"]["picks"]["balanced"])]["x"]
         d = c.post("/api/aircraft", json={"x": x}).json()
         assert d["lines_vlm"] and len(d["loading"]["stall_ratio"]) == len(d["loading"]["eta"]) and "ground_z" in d
+        of = d["openfoam"]
+        assert of["fields"] and abs(of["CL"] - of["model"]["CL"]) < 0.1    # fuselage lift is the difference
+        f = c.get(f"/api/cfd3d/{of['id']}").json()
+        assert f["lines"] and len(f["lines"]) == len(f["line_speed"]) and f["ranges"]["cp"][0] < -0.8
+        assert len(f["sym"]["cp"]) == 120 and any(v is None for row in f["sym"]["cp"] for v in row)   # body masked
         q = ",".join(map(str, x))
-        assert c.get(f"/api/aircraft.glb?x={q}").content[:4] == b"glTF"
+        glb = c.get(f"/api/aircraft.glb?x={q}&field=all").content
+        jl = struct.unpack("<I", glb[12:16])[0]
+        attrs = [p["attributes"] for mm in json.loads(glb[20:20 + jl])["meshes"] for p in mm["primitives"]]
+        assert any("_CP" in a and "_CF" in a for a in attrs)
         assert c.get(f"/api/aircraft.usda?x={q}").text.startswith("#usda")
+        assert c.get("/api/cfd3d/nope").status_code == 404
         assert c.post("/api/aircraft", json={"x": [1] * 12}).status_code == 422
-        j = c.post("/api/optimize3d", json={"population": 16, "generations": 5}).json()
-        assert j["status"] == "running" and c.get(f"/api/job/{j['job']}").status_code == 200

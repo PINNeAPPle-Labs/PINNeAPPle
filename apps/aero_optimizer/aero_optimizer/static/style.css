@@ -70,6 +70,10 @@ table.t td.num { text-align: right; }
 .av-info { position: absolute; left: 12px; top: 10px; font-size: 12.5px; color: #0f172a; background: #ffffffd9; border-radius: 7px; padding: 6px 10px; max-width: 60%; }
 .av-legend { position: absolute; right: 12px; bottom: 12px; font-size: 12px; color: #0f172a; background: #ffffffe0; border-radius: 7px; padding: 6px 10px; }
 .av-legend:empty { display: none; }
+.av-field { position: absolute; left: 12px; bottom: 12px; }
+.av-field:empty { display: none; }
+.av-field .seg button { font-size: 12px; padding: 5px 9px; background: #ffffffe6; }
+.av-field .seg button.on { background: #0369a1; color: #fff; }
 .av-lt { font-weight: 700; margin-bottom: 4px; }
 .av-ll { display: flex; justify-content: space-between; gap: 12px; margin-top: 2px; }
 .av-load { position: absolute; inset: 0; display: none; place-items: center; color: #e2e8f0; font-weight: 600; background: #0b122080; }

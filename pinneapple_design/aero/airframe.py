@@ -470,9 +470,14 @@ def vertex_normals(V, F) -> np.ndarray:
 
 
 # ---------------------------------------------------------------------- exports
-def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None) -> bytes:
+def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None,
+           fields: Optional[Dict[str, Dict[str, np.ndarray]]] = None) -> bytes:
     """glTF 2.0 binary with PBR materials (clearcoat, transmission). Axes converted to glTF's y-up.
-    ``scalars``: optional per-part vertex values stored as _CP attribute (e.g. surface pressure)."""
+    ``scalars``: optional per-part vertex values stored as _CP attribute (e.g. surface pressure).
+    ``fields``: more per-vertex values, {attribute name (e.g. "_CF"): {part name: values}}."""
+    fields = dict(fields or {})
+    if scalars:
+        fields["_CP"] = scalars
     T = np.array([[0.0, 1.0, 0.0], [0.0, 0.0, 1.0], [1.0, 0.0, 0.0]])   # (x aft, y right, z up) -> glTF y up
     mats = list(dict.fromkeys(p.material for p in parts))
     buf = bytearray()
@@ -498,8 +503,9 @@ def to_glb(parts: List[Part], scalars: Optional[Dict[str, np.ndarray]] = None) -
         V = (p.vertices @ T.T).astype(np.float32)
         N = (vertex_normals(p.vertices, p.faces) @ T.T).astype(np.float32)
         attrs = {"POSITION": add(V, 34962, 5126, "VEC3", True), "NORMAL": add(N, 34962, 5126, "VEC3")}
-        if scalars and p.name in scalars:
-            attrs["_CP"] = add(np.asarray(scalars[p.name], np.float32), 34962, 5126, "SCALAR")
+        for an, per_part in fields.items():
+            if p.name in per_part:
+                attrs[an] = add(np.asarray(per_part[p.name], np.float32), 34962, 5126, "SCALAR")
         idx = add(p.faces.astype(np.uint32).ravel(), 34963, 5125, "SCALAR")
         meshes.append({"name": p.name, "primitives": [{"attributes": attrs, "indices": idx, "material": mats.index(p.material)}]})
         nodes.append({"name": p.name, "mesh": len(meshes) - 1})

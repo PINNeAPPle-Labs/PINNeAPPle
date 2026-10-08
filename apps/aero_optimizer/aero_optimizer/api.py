@@ -124,7 +124,9 @@ def _req(r: RequirementsIn) -> Requirements:
 
 def _clean(o):
     if isinstance(o, float):
-        return None if not math.isfinite(o) else round(o, 6)
+        if not math.isfinite(o):
+            return None
+        return round(o, 6) if abs(o) >= 1e-3 else float(f"{o:.6g}")   # keep small values (TSFC, Cf) exact
     if isinstance(o, dict):
         return {k: _clean(v) for k, v in o.items()}
     if isinstance(o, (list, tuple)):
@@ -579,18 +581,20 @@ def _parts_for(x: np.ndarray, detail="high"):
 
 
 @app.get("/api/aircraft.glb")
-def aircraft_glb(x: str, field: str = Query("", pattern="^(|cp|cf)$")):
-    """The airliner as glTF. field=cp|cf adds the OpenFOAM skin field as a vertex attribute (_CP) when this design
-    was run in OpenFOAM."""
+def aircraft_glb(x: str, field: str = Query("", pattern="^(|cp|cf|all)$")):
+    """The airliner as glTF. When this design was run in OpenFOAM, field=cp|cf|all adds the skin pressure (_CP) and/or
+    skin friction (_CF) coefficients as vertex attributes."""
     v = _x13([float(s) for s in x.split(",")])
     parts = _parts_for(v)
-    scalars = None
+    fields = {}
     ver = _verified(v)
     if field and ver and os.path.exists(_cfd_path(ver["id"])):
         z = np.load(_cfd_path(ver["id"]))
         from pinneapple_design.aero.case3d import surface_scalars
-        scalars = surface_scalars(airliner_from(v), parts, {"xyz": z["xyz"], field: z[field]}, key=field)
-    return Response(to_glb(parts, scalars), media_type="model/gltf-binary",
+        af = airliner_from(v)
+        for k in (("cp", "cf") if field == "all" else (field,)):
+            fields["_" + k.upper()] = surface_scalars(af, parts, {"xyz": z["xyz"], k: z[k]}, key=k)
+    return Response(to_glb(parts, fields=fields), media_type="model/gltf-binary",
                     headers={"Content-Disposition": 'inline; filename="airliner.glb"', "Cache-Control": "max-age=3600"})
 
 

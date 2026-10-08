@@ -239,9 +239,9 @@ function renderDetail() {
   const ver = d.openfoam;
   el.innerHTML = `
     <div class="toolbar"><h2 style="margin:0">Airliner ${SEL} ${d.feasible ? `<span class="badge pass">certifiable</span>` : `<span class="badge fail">not certifiable</span>`} <span class="trust ${d.trust}">${d.trust} trust</span> ${ver ? `<span class="badge pass">run in OpenFOAM 3D</span>` : ""}</h2>
-      <div class="dl"><a href="/api/aircraft.glb?x=${xs}${ver ? "&cp=1" : ""}" download="airliner.glb">.glb <small>Blender · Unreal · Unity</small></a><a href="/api/aircraft.usda?x=${xs}">.usda <small>Omniverse</small></a><a href="/api/aircraft.stl?x=${xs}">.stl <small>CFD</small></a><a href="#" id="dl-json">.json</a></div></div>
+      <div class="dl"><a href="/api/aircraft.glb?x=${xs}${ver && ver.fields ? "&field=all" : ""}" download="airliner.glb" title="${ver && ver.fields ? "includes the OpenFOAM skin Cp and Cf as vertex attributes _CP, _CF" : ""}">.glb <small>Blender · Unreal · Unity</small></a><a href="/api/aircraft.usda?x=${xs}">.usda <small>Omniverse</small></a><a href="/api/aircraft.stl?x=${xs}">.stl <small>CFD</small></a><a href="#" id="dl-json">.json</a></div></div>
     <div id="viewer"></div>
-    ${ver ? `<div class="banner ok" style="margin-top:10px">OpenFOAM 3D (${(ver.cells / 1e6).toFixed(2)} M cells, k-ω SST, ${f(ver.speed, 0)} m/s, α ${f(ver.alpha, 1)}°): CL ${f(ver.CL, 3)} vs ${f(ver.model.CL, 3)} from the vortex lattice. The pressure on the skin and the streamlines in “Pressure” and “Flow” come from that run.</div>` : ""}
+    ${ver ? `<div class="banner ok" style="margin-top:10px">OpenFOAM 3D (${(ver.cells / 1e6).toFixed(2)} M cells, k-ω SST, ${f(ver.speed, 0)} m/s, α ${f(ver.alpha, 1)}°): CL ${f(ver.CL, 3)} (wing ${f(ver.patches && ver.patches.wing ? ver.patches.wing.CL : NaN, 3)}) vs ${f(ver.model.CL, 3)} from the vortex lattice, which leaves out the fuselage's lift. “Surface”, “Streamlines” and “Slices” show that run, coloured blue (low) to red (high).</div>` : ""}
     <div class="dpanel" style="margin-top:14px">
       <div>
         <table class="t"><tr><th></th><th>this airliner</th><th>vs A320 class</th></tr>${kv.map(([k, v, dd]) => `<tr><td>${k}</td><td class="num"><b>${v}</b></td><td class="num">${dd}</td></tr>`).join("")}</table>
@@ -273,13 +273,13 @@ function renderDetail() {
   PChart.mount($("#ch-load"), { height: 160, x: etas, yLabel: "cl / cl max  vs  η (0 root → 1 tip)", yMin: 0, yMax: 1.05,
     hlines: [{ y: 1, color: "#b42318", label: "stall", dash: "4 3" }],
     series: [{ name: "this wing", y: hd.map((q) => q[1]), color: "#0369a1" }, { name: "A320 class", y: etas.map((e) => interp1(hb.map((q) => q[0]), hb.map((q) => q[1]), e)), color: "#111", dash: "4 3" }] });
-  $("#dl-json").onclick = (ev) => { ev.preventDefault(); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify({ ...d, lines_vlm: undefined, lines_cfd: undefined, mission: RES.form.mission, requirements: RES.form.requirements }, null, 1)], { type: "application/json" })); a.download = `airliner_${SEL}.json`; a.click(); };
+  $("#dl-json").onclick = (ev) => { ev.preventDefault(); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify({ ...d, lines_vlm: undefined, mission: RES.form.mission, requirements: RES.form.requirements }, null, 1)], { type: "application/json" })); a.download = `airliner_${SEL}.json`; a.click(); };
   $("#secbox").addEventListener("toggle", async (ev) => { if (ev.target.open && !SECTION) loadSection(d); });
   const mk = () => {
     if (!VIEWER || !$("#viewer .av")) VIEWER = new window.ADO_AircraftViewer($("#viewer"));
-    VIEWER.load({ glb: `/api/aircraft.glb?x=${xs}${ver ? "&cp=1" : ""}`, flight: true, ground_z: d.ground_z, span: d.span,
-      loading: { eta: hd.map((q) => q[0]), ratio: hd.map((q) => q[1]) }, lines_vlm: d.lines_vlm, lines_cfd: d.lines_cfd || [],
-      cp_available: !!ver, title: `${f(d.co2_pkm, 1)} g CO₂/pkm · Mach ${f(d.mach, 3)} · Vref ${f(d.vref_kt, 0)} kt`,
+    const cfd = ver && ver.fields ? ver.id : null;
+    VIEWER.load({ glb: `/api/aircraft.glb?x=${xs}${cfd ? "&field=all" : ""}`, flight: true, ground_z: d.ground_z, span: d.span,
+      loading: { eta: hd.map((q) => q[0]), ratio: hd.map((q) => q[1]) }, lines_vlm: d.lines_vlm, cfd, title: `${f(d.co2_pkm, 1)} g CO₂/pkm · Mach ${f(d.mach, 3)} · Vref ${f(d.vref_kt, 0)} kt`,
       subtitle: `span ${f(d.span, 1)} m · AR ${f(p.aspect_ratio, 1)} · sweep ${f(p.sweep_qc, 0)}° · ${d.feasible ? "certifiable" : "not certifiable: " + esc(d.violations.join(", "))}` });
   };
   VIEWER = null; SECTION = null;

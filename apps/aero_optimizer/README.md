@@ -28,7 +28,37 @@ airfoil (6 CST weights) + wing area
 
 ## Validation
 
-RESULTS_PLACEHOLDER
+**CFD, before it is used** (this grid: O-grid 228 × 88 cells, far field at 200 chords, k-ω SST, y⁺ < 1):
+
+| Case | OpenFOAM here | Reference |
+|---|---|---|
+| NACA 0012, Re 6·10⁶, α 0°: drag | Cd 0.00812 | ≈ 0.0081 (NASA Turbulence Modeling Resource, SST) |
+| NACA 0012, α 10°: lift / drag | Cl 1.086 / Cd 0.0140 | ≈ 1.09 / ≈ 0.0123 |
+| NACA 2412, Re 4·10⁶: zero-lift angle, lift slope | −2.0°, 0.110 /° | −2.1°, ~0.105 /° (NACA wind tunnel) |
+
+Drag at high lift reads ~14 % high on this grid (the far field at 25 chords gave +48 %, so it is at 200); the same grid
+serves every design, so rankings hold. Aircraft model on the NACA 2412 polar (the Cessna 172's airfoil): 126 kt top
+speed, 14 L/100 km at 107 kt (the real aircraft: ~124 kt, ~15 L/100 km).
+
+**Training set**: 436 OpenFOAM runs (100 Latin-hypercube airfoils × 4 angles + 4 NACA polars × 9), ~58 s each on
+one core, 0 failures; 32 runs oscillate near stall (averaged), 8 in deep stall are dropped (Cl swing > 0.1).
+
+**Surrogates on airfoils they never saw** (15 held-out airfoils at all their angles, and the NACA airfoils):
+
+| Model | Cl MAE | Cd error, mean / 90 % | Cm MAE |
+|---|---|---|---|
+| MLP ensemble (5), held-out airfoils | 0.003 | 0.5 % / 1.0 % | 0.0005 |
+| MLP ensemble, NACA 2412 / 4412 / 0012 / 4415 | 0.003 | 0.6 % / 1.1 % | 0.0002 |
+| MeshGraphNet, held-out airfoils | 0.011 | 1.5 % / 3.9 % | 0.0008 |
+| MeshGraphNet, NACA airfoils | 0.010 | 2.0 % / 5.1 % | 0.0011 |
+
+MeshGraphNet fields on the held-out airfoils: RMSE 0.036 in p (range 5.4), 0.035 / 0.022 in Ux / Uy (U∞ = 1).
+
+**Optimizer picks run in OpenFOAM** (6 designs along the Pareto front, 9 angles each, default aircraft): top speed
+within 0.1 kt, CO₂ within 0.1 %, stall speed within 0.3 kt of the surrogate, 6/6 with the same flyable verdict. The 54
+runs went back into the training set. Against the NACA 2412 on the reference wing (126.4 kt, 31.4 kg CO₂/100 km,
+stall 53.7 kt), the fastest flyable design is +11 kt and −11 % CO₂, with a 12 m² wing and a stall speed at the
+61 kt limit; the balanced pick is +4.5 kt and −6 % CO₂ at 56 kt stall.
 
 ## Reproduce (OpenFOAM v1912+, ~1 min per run on one core)
 

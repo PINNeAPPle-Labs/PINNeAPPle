@@ -139,7 +139,8 @@ def _picks(designs, front):
     c = np.array([designs[i]["co2_100km"] for i in front])
     s = np.array([designs[i]["v_stall_kt"] for i in front])
     n = lambda a, up: (a - a.min()) / (np.ptp(a) or 1) if up else (a.max() - a) / (np.ptp(a) or 1)  # noqa: E731
-    knee = front[int(np.argmax(n(v, True) + n(c, False) + n(s, False)))]
+    # balanced: closest to the ideal point (fastest and lowest stall at once), CO2 follows speed
+    knee = front[int(np.argmin((1 - n(v, True)) ** 2 + (1 - n(s, False)) ** 2))]
     return {"fastest": front[int(np.argmax(v))], "greenest": front[int(np.argmin(c))],
             "safest": front[int(np.argmin(s))], "balanced": knee}
 
@@ -201,7 +202,7 @@ def meta():
                    "requirements": {"max_stall_speed_kt": 61, "min_thickness": 0.11, "max_abs_cm": 0.10,
                                     "max_cruise_cl_ratio": 0.70},
                    "references": refs, "metrics": {k: v for k, v in METRICS.items() if not k.endswith(("points", "history"))},
-                   "dataset": {k: v for k, v in DATASET.items() if k != "runs"}, "verification": VERIFY,
+                   "dataset": {k: v for k, v in DATASET.items() if k != "points"}, "verification": VERIFY,
                    "scope": scope(), "gnn": ENGINE.gnn is not None, "meta": ENGINE.meta})
 
 

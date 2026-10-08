@@ -128,10 +128,16 @@ function drawScatter() {
     g += `<polyline fill="none" stroke="#111" stroke-width="1.6" stroke-opacity=".6" points="${line.map((d) => `${sx(d.v_stall_kt)},${sy(d.vmax_kt)}`).join(" ")}"/>`;
     for (const i of R.pareto) { const d = R.designs[i]; g += `<circle cx="${sx(d.v_stall_kt)}" cy="${sy(d.vmax_kt)}" r="4.2" fill="${co2col((d.co2_100km - c0) / (c1 - c0 || 1))}" stroke="#111" stroke-width="1.4" data-i="${i}"/>`; }
   }
-  for (const [k, lab] of [["fastest", "fastest"], ["balanced", "balanced"], ["greenest", "lowest CO₂"], ["safest", "lowest stall"]]) {
-    const i = R.picks[k]; if (i === undefined) continue; const d = R.designs[i];
-    g += `<text x="${sx(d.v_stall_kt) + 7}" y="${sy(d.vmax_kt) - 7}" style="font-weight:700;fill:#111">${lab}</text>`;
+  const labs = {};
+  for (const [k, lab] of [["fastest", "fastest"], ["greenest", "lowest CO₂"], ["balanced", "balanced"], ["safest", "lowest stall"]]) {
+    const i = R.picks[k]; if (i !== undefined) (labs[i] = labs[i] || []).push(lab);
   }
+  const placed = [];
+  for (const [i, ls] of Object.entries(labs)) { const d = R.designs[i];
+    let x = sx(d.v_stall_kt) - 8, y = sy(d.vmax_kt) - 9;
+    while (placed.some(([px, py]) => Math.abs(px - x) < 110 && Math.abs(py - y) < 14)) y -= 15;
+    placed.push([x, y]);
+    g += `<text x="${x}" y="${y}" text-anchor="end" style="font-weight:700;fill:#111;paint-order:stroke;stroke:#fff;stroke-width:3px">${ls.join(" · ")}</text>`; }
   const bx = sx(base.v_stall_kt), by = sy(base.vmax_kt);
   g += `<text x="${bx}" y="${by + 6}" text-anchor="middle" style="font-size:18px;fill:#111">★</text><text x="${bx + 10}" y="${by + 16}" style="font-weight:700;fill:#111">NACA 2412</text>`;
   if (SEL !== null && R.designs[SEL] && isFinite(R.designs[SEL].vmax_kt)) { const d = R.designs[SEL]; g += `<circle cx="${sx(d.v_stall_kt)}" cy="${sy(d.vmax_kt)}" r="9" fill="none" stroke="#0369a1" stroke-width="2.5"/>`; }

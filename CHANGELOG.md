@@ -13,6 +13,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Aircraft Design Optimizer (`apps/aero_optimizer`, service `aero`, library `pinneapple_design.aero`): airfoil
+  (CST) and wing-area design for a light aircraft. 436 OpenFOAM runs (simpleFoam, k-ω SST, y⁺ < 1) on an O-grid with
+  the same topology for every design train a MeshGraphNet (flow field + Cl, Cd, Cm; drag within 1.5 % on unseen
+  airfoils) and an MLP ensemble (0.5 %, with uncertainty). NSGA-II with constraint domination searches top speed,
+  CO₂ per 100 km and stall speed under stall (CS-23), thickness, trim and stall-margin requirements; designs that miss
+  one, and designs the surrogates disagree on, are shown with the reason. Pareto designs verified in OpenFOAM agree
+  within 0.1 kt / 0.1 % / 0.3 kt and are added back to training. Every design downloads as a ready OpenFOAM case.
 - Five CAE apps, each deployed as a service in `apps/deploy`:
   - Simulation Preflight (`apps/simulation_preflight`, service `preflight`, library `pinneapple_data.preflight`):
     checks an OpenFOAM case or a CalculiX deck before it runs. Each finding has a PASS/WARNING/FAIL verdict, where it

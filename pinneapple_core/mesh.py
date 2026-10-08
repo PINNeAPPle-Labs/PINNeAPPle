@@ -149,8 +149,36 @@ class Mesh:
             uniq, inv, counts = np.unique(key, axis=0, return_inverse=True, return_counts=True)
             first = np.zeros(uniq.shape[0], dtype=np.int64)
             first[inv.ravel()[::-1]] = np.arange(facets.shape[0])[::-1]
-            self._cache["bf"] = facets[first[counts == 1]]
+            pick = first[counts == 1]
+            self._cache["bf"] = facets[pick]
+            # facet j came from cell pick % M with local vertex pick // M removed
+            m = self.n_cells
+            self._cache["bf_owner"] = (pick % m, self.cells[pick % m, pick // m])
         return self._cache["bf"]
+
+    def boundary_geometry(self) -> dict:
+        """Boundary facets with their centroid, outward unit normal and measure
+        (length in 2D, area in 3D, 1 in 1D): keys ``facets, centroids, normals, measures``."""
+        facets = self.boundary_facets()
+        cell, opposite = self._cache["bf_owner"]
+        fp = self.points[facets]  # (K, d, d)
+        d = self.dim
+        if d == 1:
+            normal = np.ones((facets.shape[0], 1))
+            measure = np.ones(facets.shape[0])
+        elif d == 2:
+            e = fp[:, 1, :] - fp[:, 0, :]
+            measure = np.linalg.norm(e, axis=1)
+            normal = np.stack([e[:, 1], -e[:, 0]], axis=1) / measure[:, None]
+        else:
+            c = np.cross(fp[:, 1, :] - fp[:, 0, :], fp[:, 2, :] - fp[:, 0, :])
+            norm = np.linalg.norm(c, axis=1)
+            measure = 0.5 * norm
+            normal = c / norm[:, None]
+        centroids = fp.mean(axis=1)
+        away = centroids - self.points[opposite]
+        flip = np.where((normal * away).sum(axis=1) < 0, -1.0, 1.0)
+        return {"facets": facets, "centroids": centroids, "normals": normal * flip[:, None], "measures": measure}
 
     def boundary_nodes(self) -> np.ndarray:
         """Sorted indices of the points on the boundary."""

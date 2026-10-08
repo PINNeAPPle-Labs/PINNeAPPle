@@ -125,7 +125,12 @@ class PointCloud:
         return self._tree
 
     def gradient(self, values: np.ndarray) -> np.ndarray:
-        """Local least-squares plane through the k nearest neighbours (exact for linear data)."""
+        """Gradient from a local quadratic least-squares fit over the nearest neighbours
+        (second-order accurate, exact for quadratic data); tiny clouds fall back to a
+        local plane."""
+        d = self.dim
+        if self.n_points >= max(3 * (d + (d * (d + 1)) // 2), 12):
+            return self._quadratic_fit(values)[0]
         k = min(self.k_neighbors, self.n_points)
         if k < self.dim + 1:
             raise ValueError(f"need at least {self.dim + 1} points to estimate a gradient")
@@ -139,6 +144,40 @@ class PointCloud:
         b = np.einsum("nk,nki,nkc->nic", w, dx, dv)
         sol = np.linalg.solve(a, b)  # (N, d, c)
         return np.transpose(sol, (0, 2, 1))
+
+    def hessian(self, values: np.ndarray) -> np.ndarray:
+        """Second derivatives ``(N, k, d, d)`` from a local quadratic least-squares fit
+        over the nearest neighbours (exact for quadratic data)."""
+        return self._quadratic_fit(values)[1]
+
+    def _quadratic_fit(self, values: np.ndarray):
+        """Gradient ``(N, k, d)`` and Hessian ``(N, k, d, d)`` of the local quadratic fit."""
+        d = self.dim
+        pairs = [(i, j) for i in range(d) for j in range(i, d)]
+        n_unknown = d + len(pairs)
+        k = min(max(3 * n_unknown, 12), self.n_points)
+        if k < n_unknown + 1:
+            raise ValueError(f"need at least {n_unknown + 1} points to estimate second derivatives")
+        _, nb = self.tree.query(self.points, k=k)
+        dx = self.points[nb[:, 1:]] - self.points[:, None, :]  # (N, k-1, d)
+        h = np.maximum(np.linalg.norm(dx, axis=2).max(axis=1), 1e-300)[:, None, None]
+        s = dx / h  # scaled to the local radius for conditioning
+        cols = [s[:, :, i] for i in range(d)]
+        for i, j in pairs:
+            cols.append(s[:, :, i] * s[:, :, j] * (0.5 if i == j else 1.0))
+        a = np.stack(cols, axis=2)  # (N, k-1, n_unknown)
+        dv = values[nb[:, 1:]] - values[:, None, :]  # (N, k-1, c)
+        ata = np.einsum("nki,nkj->nij", a, a)
+        ata += 1e-12 * np.trace(ata, axis1=1, axis2=2)[:, None, None] * np.eye(n_unknown)
+        coef = np.linalg.solve(ata, np.einsum("nki,nkc->nic", a, dv))  # (N, n_unknown, c)
+        hess = np.zeros((self.n_points, values.shape[1], d, d))
+        hs = h[:, :, 0]  # (N, 1)
+        grad = np.transpose(coef[:, :d, :], (0, 2, 1)) / hs[:, :, None]
+        for q, (i, j) in enumerate(pairs):
+            c = coef[:, d + q, :] / hs**2
+            hess[:, :, i, j] = c
+            hess[:, :, j, i] = c
+        return grad, hess
 
     def interpolate(self, values: np.ndarray, x: np.ndarray, fill: str = "nan") -> np.ndarray:
         x = _as_points(x, self.dim)

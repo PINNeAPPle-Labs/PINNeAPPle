@@ -573,6 +573,8 @@ _SUBMODULES = {
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not
 # import their package. ``pinneapple_decision`` itself does not import torch.
 _LAZY_ATTRS = {
+    "get_physics_backend": ("pinneapple_core.backend", "get_physics_backend"),
+    "use_backend": ("pinneapple_core.backend", "use_backend"),
     "grad": ("pinneapple_core.operators", "grad"),
     "div": ("pinneapple_core.operators", "div"),
     "curl": ("pinneapple_core.operators", "curl"),

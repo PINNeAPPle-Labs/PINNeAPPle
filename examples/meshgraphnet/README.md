@@ -1,52 +1,87 @@
-# MeshGraphNet no PINNeAPPle
+# MeshGraphNet in PINNeAPPle
 
-Implementação: `pinneapple_neural/architectures/graphnn/mesh_graph_net.py` (rede encoder–processor–decoder,
-registrada como `mgn` / `meshgraphnet`) e `mgn_dynamics.py` (receita de treino transiente de Pfaff et al.:
-normalização, ruído de treino, alvo Δv, rollout autoregressivo com nós de contorno fixados).
+Implementation:
+- `pinneapple_neural/architectures/graphnn/mesh_graph_net.py`: the encoder, processor and decoder network,
+  registered as `mgn` / `meshgraphnet`.
+- `mgn_dynamics.py`: the transient training recipe of Pfaff et al. It covers normalization, training noise, the Δv
+  target, and autoregressive rollout with boundary nodes held fixed.
 
-## Experimentos que rodam (`examples/meshgraphnet/`)
+## Experiments that run (`examples/meshgraphnet/`)
 
-| Script | O que valida | Dados |
+| Script | What it checks | Data |
 |---|---|---|
-| `01_synthetic_diffusion.py` | MGN aprende difusão de calor em malhas Delaunay aleatórias e supera o baseline "estado congelado" em rollout em malhas inéditas | gerado na hora |
-| `02_cylinder_flow_deepmind.py` | Escoamento transiente em torno de cilindro (DeepMind `cylinder_flow`, Pfaff et al. 2021), orçamento reduzido | download de um prefixo do TFRecord |
+| `01_synthetic_diffusion.py` | MGN learns heat diffusion on random Delaunay meshes and beats the "frozen state" baseline in rollout on unseen meshes | generated on the fly |
+| `02_cylinder_flow_deepmind.py` | Transient flow around a cylinder (DeepMind `cylinder_flow`, Pfaff et al. 2021), on a reduced budget | download of a TFRecord prefix |
 
-### Resultados medidos (CPU, máquina carregada)
+`tests/test_mesh_dynamics_mgn.py` runs a reduced `01_synthetic_diffusion.run(...)`, which takes about 12 s and
+checks that MGN beats the baseline. It also tests the TFRecord reader of `_common.py` on a file the test writes.
 
-| Experimento | Configuração | RMSE rollout | Baseline "estado inicial congelado" |
+### Measured results (CPU, loaded machine)
+
+| Experiment | Configuration | Rollout RMSE | "Frozen initial state" baseline |
 |---|---|---|---|
-| 01 difusão sintética | 24 malhas de treino, 150 nós, 4 camadas MP, 2500 passos, rollout 20, 6 malhas de teste | 0,0297 | 0,1104 |
-| 02 cylinder_flow | 11 trajetórias de treino, 64 ocultos, 6 camadas MP, 3000 passos, lr 1e-3→1e-5, ruído 0,003, rollout 50, **2** trajetórias de validação | 0,0711 (1 passo: 0,0265) | 0,0962 |
+| 01 synthetic diffusion | 24 training meshes, 150 nodes, 4 MP layers, 2500 steps, rollout 20, 6 test meshes | 0.0297 | 0.1104 |
+| 02 cylinder_flow | 11 training trajectories, 64 hidden, 6 MP layers, 3000 steps, lr 1e-3→1e-5, noise 0.003, rollout 50, **2** validation trajectories | 0.0711 (1 step: 0.0265) | 0.0962 |
 
-O sintético valida a implementação. O cylinder_flow é **só** uma prova de que o pipeline aprende com dados reais
-(~26% melhor que o baseline, com poucos dados e 3000 passos); **não** reproduz o paper
-(1000 trajetórias, 15 camadas, 128 ocultos, ~10⁶ passos, ruído 0,02). Hiperparâmetros foram escolhidos
-para o orçamento reduzido: uma primeira tentativa com lr 1e-4→1e-6 e ruído 0,02 não convergiu em 1000 passos
-(loss normalizada ~5) e foi interrompida.
+The synthetic case validates the implementation. The cylinder_flow run **only** shows that the pipeline learns from
+real data: it is about 26% better than the baseline, with little data and 3000 steps. It does **not** reproduce the
+paper, which used:
+- 1000 trajectories;
+- 15 layers and 128 hidden units;
+- about 10⁶ steps;
+- noise 0.02.
 
-## Literatura usada como referência de experimentos que funcionam
+The hyperparameters were chosen for the reduced budget. A first attempt with lr 1e-4→1e-6 and noise 0.02 did not
+converge in 1000 steps (normalized loss about 5) and was stopped.
+
+## Optional dependencies
+
+| Package | Needed by |
+|---|---|
+| `tfrecord` (`pip install tfrecord`) | `02_cylinder_flow_deepmind.py`, `physicsnemo_parity/vortex_shedding_mgn.py`, `physicsnemo_parity/lagrangian_mgn.py` (DeepMind TFRecords) |
+| `pyvista` (`pip install "pinneapple[pyvista]"`) | `physicsnemo_parity/stokes_mgn.py` (`.vtp` meshes) |
+| `scipy` | `01_synthetic_diffusion.py` (Delaunay meshes) |
+
+## Outputs
+
+These small results stay versioned in `_out/`, so the numbers above can be checked without rerunning:
+- `synthetic_diffusion.json`
+- `cylinder_flow/metrics.json`
+- `cylinder_flow/rollout.png`, about 280 KB
+
+Downloads (`_data/`) and logs (`_out/*.log`) are in `.gitignore`.
+
+## Literature used as reference for experiments that work
 
 - Pfaff et al., ICLR 2021, *Learning Mesh-Based Simulation with Graph Networks* (arXiv 2010.03409): cylinder_flow,
-  airfoil, flag, deforming_plate. Código/dados: github.com/google-deepmind/deepmind-research/tree/master/meshgraphnets
+  airfoil, flag, deforming_plate. Code and data: github.com/google-deepmind/deepmind-research/tree/master/meshgraphnets
 - Sanchez-Gonzalez et al., ICML 2020, *Learning to Simulate Complex Physics with Graph Networks* (arXiv 2002.09405):
-  Water/Sand/Goop (base do `lagrangian_mgn`).
-- Exemplos do PhysicsNeMo (`examples/cfd/{vortex_shedding_mgn,stokes_mgn,lagrangian_mgn}`).
+  Water/Sand/Goop (the basis of `lagrangian_mgn`).
+- PhysicsNeMo examples (`examples/cfd/{vortex_shedding_mgn,stokes_mgn,lagrangian_mgn}`).
 
-## Scripts de paridade com o PhysicsNeMo (criados, **não executados**) — `physicsnemo_parity/`
+## Parity scripts with PhysicsNeMo (written, **not run**): `physicsnemo_parity/`
 
 | PhysicsNeMo | PINNeAPPle | Dataset |
 |---|---|---|
-| `vortex_shedding_mgn` | `vortex_shedding_mgn.py` | DeepMind cylinder_flow completo (13,6 GB) |
+| `vortex_shedding_mgn` | `vortex_shedding_mgn.py` | full DeepMind cylinder_flow (13.6 GB) |
 | `stokes_mgn` | `stokes_mgn.py` | NGC `physicsnemo_datasets_stokes_flow` (FEniCS, .vtp) |
 | `lagrangian_mgn` | `lagrangian_mgn.py` | DeepMind Learning-to-Simulate (Water etc.) |
 
-Fora do escopo desta entrega: `vortex_shedding_mesh_reduced` (modelo reduzido + transformer) e
-`stokes_mgn/pi_fine_tuning*.py` (fine-tuning por resíduo de PDE).
+Out of scope:
+- `vortex_shedding_mesh_reduced`: the reduced model with a transformer;
+- `stokes_mgn/pi_fine_tuning*.py`: fine-tuning on the PDE residual.
+
+`examples/vs_physicsnemo/06_combined_meshgraphnet_valid` also trains PINNeAPPle's `MeshGraphNet`. The example runs
+the whole chain: MGN on an airfoil mesh, then physical checks, then TorchScript/ONNX export.
 
 ## CANTO (NVIDIA, arXiv 2609.36806)
 
-Operador transformer *CAD-native*: tokeniza patches NURBS (pontos de controle, pesos, knots) e prediz
-campos de superfície/volume em pontos de consulta arbitrários (AhmedML, WindsorML, DrivAerML, HiLiftAeroML).
-Não é um GNN e não depende de malha; a página não cita código público. Relação com MGN: é a alternativa
-sem malha para aerodinâmica externa. Integração sugerida: backbone em `neural_operators`/ponte opcional
-(padrão `noether_bridge`), com o MGN como baseline de malha na mesma suíte de benchmark.
+CANTO is a *CAD-native* transformer operator:
+- **Input:** it tokenizes NURBS patches (control points, weights, knots).
+- **Output:** it predicts surface and volume fields at arbitrary query points.
+- **Datasets:** AhmedML, WindsorML, DrivAerML, HiLiftAeroML.
+- **Code:** the page cites no public code.
+
+It is not a GNN and does not depend on a mesh. Relation to MGN: it is the mesh-free alternative for external
+aerodynamics. Suggested integration: a backbone in `neural_operators` or an optional bridge (the `noether_bridge`
+pattern), with MGN as the mesh baseline in the same benchmark suite.

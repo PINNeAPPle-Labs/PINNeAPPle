@@ -19,6 +19,11 @@ file (don't append a second snapshot) as state changes.
 
 ## What's actually verified (confirmed, not just expected)
 
+**MeshGraphNet (PR #232, follow-ups #234/#237, 2026-10-09):** every test that uses `MeshGraphNet` passes (Arena graph
+leak, GNN adapter, decision tree, architecture recommendation, mesh dynamics); ruff is clean on the MGN modules,
+examples and tests; a reduced `examples/meshgraphnet/01_synthetic_diffusion.run()` beats the frozen-state baseline
+in a 12 s test; `examples/vs_physicsnemo/06_combined_meshgraphnet_valid` trains PINNeAPPle's own MGN.
+
 **Isolated run:** the 16 new batch-4 tests pass cleanly alone, and (reconfirmed 2026-10-02 with a
 fresh deliberately-leaked-MPS-device probe test run first) stay green even under a contaminated
 default device — 17/17 passed in that check.

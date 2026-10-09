@@ -2,6 +2,9 @@
 
 ## O que este exemplo demonstra
 
+O modelo é o `MeshGraphNet` do próprio PINNeAPPle (`pinneapple_neural.architectures.graphnn`), a mesma arquitetura
+encoder–processador–decoder do PhysicsNeMo; o PhysicsNeMo não é necessário para rodar o exemplo.
+
 O pipeline mais próximo de um sistema CFD de produção real:
 
 ```
@@ -136,7 +139,7 @@ python example.py
 
 **Output esperado:**
 ```
-[INFO] PhysicsNeMo não instalado — usando implementação de referência
+[INFO] PhysicsNeMo não instalado: não é necessário, o MeshGraphNet vem do PINNeAPPle
 
 [1/4] Gerando malha não-estruturada (aerofólio NACA 0012)...
   Nós: 734  |  Arestas: 5,630

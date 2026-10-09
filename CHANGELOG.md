@@ -13,6 +13,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- MeshGraphNet (`pinneapple_neural.architectures.graphnn`, registered as `mgn`/`meshgraphnet`) and the transient
+  recipe `MeshDynamicsMGN` (Pfaff et al. 2021), with examples in `examples/meshgraphnet/` (synthetic diffusion,
+  DeepMind cylinder_flow, PhysicsNeMo parity scripts); `examples/vs_physicsnemo/06` now trains this MGN
+  (#232, #234, #237).
 - 3D studio (`pp.viz`, `pinneapple_tools.visualization.studio`): a `Scene` for any geometry (STL/OBJ, any result
   `pinneapple_data.cae` reads, arrays) with per-vertex fields, streamlines and slice planes; export to glTF (fields as
   vertex attributes), OpenUSD and STL; Blender Cycles renders on the jet colour scale with a colour bar; a browser

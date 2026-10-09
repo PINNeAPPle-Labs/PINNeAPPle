@@ -30,7 +30,10 @@ RULES: dict[str, re.Pattern] = {
 }
 _PLACEHOLDER = re.compile(r"(?i)(x{4,}|\*{4,}|changeme|example|placeholder|your[_-]|<[^>]+>|\$\{|\{\{|dummy|redacted|test)")
 _TOKEN = re.compile(r"[A-Za-z0-9+/=_-]{32,}")
-SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", ".mypy_cache", ".pytest_cache", "dist", "build"}
+SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", ".mypy_cache", ".pytest_cache", "dist", "build", "vendor"}
+SKIP_FILES = {"package-lock.json", "yarn.lock", "pnpm-lock.yaml", "poetry.lock", "uv.lock", "Pipfile.lock", "Cargo.lock",
+              "composer.lock", "go.sum"}
+_SRI = re.compile(r"sha(?:1|256|384|512)-$")
 TEXT_EXT = {".py", ".ipynb", ".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".env", ".txt", ".md", ".sh", ".js",
             ".ts", ".tsx", ".sql", ".csv", ".xml", ".properties", ".conf", ""}
 
@@ -71,6 +74,10 @@ def scan_text(text: str, path: str = "<text>", entropy_threshold: float = 4.5) -
             tok = m.group()
             if re.fullmatch(r"[0-9a-f]+", tok):          # hex digests (sha256, commit ids) are not secrets by themselves
                 continue
+            if len(tok) > 200 or _SRI.search(line[:m.start()]) or tok.count("/") >= 2:
+                continue                                 # embedded data (images), integrity hashes, paths and URLs
+            if not any(c.isdigit() for c in tok) and re.fullmatch(r"[A-Za-z_-]+", tok):
+                continue                                 # identifiers (long names); random keys almost always hold digits
             if shannon_entropy(tok) >= entropy_threshold:
                 out.append(SecretFinding("high_entropy_string", path, i, _mask(tok)))
     return out
@@ -84,6 +91,8 @@ def _files(root: str, exts: Iterable[str] | None) -> Iterator[str]:
     for dirpath, dirnames, names in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
         for n in names:
+            if n in SKIP_FILES or n.endswith((".min.js", ".min.css", ".map")):
+                continue
             if os.path.splitext(n)[1].lower() in exts or n.startswith(".env"):
                 yield os.path.join(dirpath, n)
 

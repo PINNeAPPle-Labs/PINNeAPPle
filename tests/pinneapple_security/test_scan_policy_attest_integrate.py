@@ -24,6 +24,18 @@ def test_secret_scan_finds_tokens_and_ignores_placeholders(tmp_path):
     assert all("S3cr3tPw" not in f.excerpt and "hunter2hunter2" not in f.excerpt for f in found)
 
 
+def test_secret_scan_ignores_lockfiles_integrity_hashes_blobs_and_paths(tmp_path):
+    import base64
+    import os as _os
+    (tmp_path / "package-lock.json").write_text('"integrity": "sha512-' + base64.b64encode(_os.urandom(64)).decode() + '"')
+    (tmp_path / "page.html").write_text('<img src="data:image/png;base64,' + base64.b64encode(_os.urandom(600)).decode() + '">')
+    (tmp_path / "x.md").write_text("see https://example.org/Ab3dEf/Gh5iJk/LmNoPq7RsTuVwXyZ012345 for details")
+    (tmp_path / "deps.txt").write_text('"integrity": "sha384-' + base64.b64encode(_os.urandom(48)).decode() + '"')
+    assert secrets_scan.scan_path(str(tmp_path), exts={".json", ".html", ".md", ".txt"}) == []
+    live = base64.b64encode(_os.urandom(30)).decode().replace("/", "x").replace("+", "y")
+    assert [f.rule for f in secrets_scan.scan_text(f"token: {live}")] == ["high_entropy_string"]
+
+
 def test_handling_policy_and_label_inheritance():
     pol = classification.HandlingPolicy()
     plant = classification.DataLabel(level="confidential", owner="client A", personal_data=False)

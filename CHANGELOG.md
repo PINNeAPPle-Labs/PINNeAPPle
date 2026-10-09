@@ -14,6 +14,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Qualitative preview of geometries and geometry changes (`pinneapple_design.qualitative`, `pp.qualitative`): for
+  an objective written in plain Portuguese or English, each variant (or each change to a part of an `Assembly`) gets
+  the expected direction and strength of the change, the mechanisms behind it, the parts that drove it, side effects,
+  a confidence level with reasons and a surface map, from cheap face-by-face models (`ExternalFlow`,
+  `ConvectiveCooling`, `Cantilever`, `ScalingModel`); `part_sensitivity` ranks where to act first and `quantify`
+  compares the expectations with an accurate computation. Includes a 3-D voxel FEM with incompatible-mode bricks
+  (`voxel_fem_cantilever`) and three worked examples (heat-sink fins, beam stiffness per mass, Ahmed body slant).
+
 - Animated view of adaptive physics ensembles (`pinneapple_physics.ensemble_viz.animate_ensemble`): GIF of the
   prediction against the reference field, the chosen model and the weights, case by case
   (`PhysicsEnsemble.run(..., keep_predictions=True)`). Example with five families (FNO, multiscale MeshGraphNet,

@@ -25,6 +25,7 @@
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)
   * [Adaptive ensembles of physics models](core_concepts/physics_ensembles.md)
+  * [Qualitative preview of geometry changes](core_concepts/qualitative_preview.md)
 * [Validation status](validation_status.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)

@@ -579,6 +579,8 @@ _SUBMODULES = {
     "geophysics": "pinneapple_simulation.geophysics",
     # adaptive ensembles of physics models (FNO, PINN, GNN, solvers): online selection / combination
     "ensemble":   "pinneapple_physics.ensemble",
+    # qualitative preview: physical impact of geometry / part changes before the quantitative analysis
+    "qualitative": "pinneapple_design.qualitative",
     # data assimilation: 4D-Var through autograd, Lorenz-96/63
     "assimilation": "pinneapple_analysis.data_assimilation",
     # Field, Mesh, Domain, Geometry primitives

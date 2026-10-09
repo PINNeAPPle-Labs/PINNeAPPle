@@ -39,7 +39,6 @@ examples/trainer/04_resume_infer_and_plot.py
 examples/trainer/05_ddp_torchrun.py
 examples/use_cases/physics_data_factory/ultrarealistic_digital_twin.py
 templates/13_world_model.py
-templates/18_inverse_problem.py
 templates/20_deeponet_surrogate.py
 templates/21_active_learning.py
 templates/22_model_serving.py

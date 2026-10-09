@@ -1,8 +1,8 @@
 """18_inverse_problem.py — Inverse problem with Ensemble Kalman Inversion.
 
 Demonstrates:
-- EKISolver (Ensemble Kalman Inversion) for parameter estimation
-- SensitivityAnalyser for parameter importance ranking
+- EnsembleKalmanInversion (derivative-free parameter estimation) with a PINN as the forward model
+- LocalSensitivity (finite-difference Jacobian) for parameter importance
 - Recovery of unknown diffusivity α from noisy PDE observations
 - Posterior uncertainty visualisation
 """
@@ -14,8 +14,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from pinneapple_analysis.inverse_problems.eki import EKISolver, EKIConfig
-from pinneapple_analysis.inverse_problems.sensitivity import SensitivityAnalyser
+from pinneapple_analysis.inverse_problems.ensemble_kalman import EKIConfig, EnsembleKalmanInversion
+from pinneapple_analysis.inverse_problems.sensitivity import LocalSensitivity
 
 
 # ---------------------------------------------------------------------------
@@ -73,17 +73,24 @@ def observations(alpha: float, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
     return x_s, y_s
 
 
+PINN_EPOCHS = 400   # per forward evaluation; EKI needs n_ensemble x n_iterations of them
+
+
 def build_forward_callable(x_sensors: np.ndarray):
-    """Return F(params) for EKI — params = [log_alpha]."""
+    """Return F(params) -> sensor readings, params = [log_alpha]; one PINN solve per call."""
     def F(params: np.ndarray) -> np.ndarray:
-        log_alpha = float(params[0])
-        alpha = math.exp(log_alpha)
-        pinn = forward_model_pinn(alpha, n_epochs=600)
+        alpha = math.exp(float(np.ravel(params)[0]))
+        pinn = forward_model_pinn(alpha, n_epochs=PINN_EPOCHS)
         x_t  = torch.tensor(x_sensors[:, None], dtype=torch.float32)
         with torch.no_grad():
             u_pred = pinn(x_t).numpy().ravel()
         return u_pred
     return F
+
+
+def batched(F):
+    """EKI evaluates the whole ensemble at once: (J, p) -> (J, n_sensors)."""
+    return lambda theta: np.stack([F(t) for t in np.atleast_2d(theta)])
 
 
 def main():
@@ -96,34 +103,28 @@ def main():
 
     # --- Sensitivity analysis (first-order finite difference) ----------------
     print("\nRunning sensitivity analysis ...")
-    analyser = SensitivityAnalyser(
-        param_names=["log_alpha"],
-        forward_fn=build_forward_callable(x_sensors),
-        base_params=np.array([math.log(0.4)]),
-        eps=0.05,
-    )
-    sensitivities = analyser.compute()
+    F = build_forward_callable(x_sensors)
+    F_torch = lambda th: torch.as_tensor(F(th.detach().numpy()))   # LocalSensitivity works on tensors
+    analyser = LocalSensitivity(forward_fn=F_torch, noise_std=OBS_NOISE, param_names=["log_alpha"])
+    sensitivities = analyser.finite_difference_jacobian(np.array([math.log(0.4)]), eps=0.05)  # (sensors, 1)
     print(f"  ∂F/∂(log_α) mean|abs| = {np.abs(sensitivities).mean():.4f}")
 
     # --- EKI solver ----------------------------------------------------------
     print("\nRunning EKI for α recovery ...")
     eki_config = EKIConfig(
-        n_ensemble=20,
-        n_iterations=8,
-        obs_noise_std=OBS_NOISE,
-        prior_mean=np.array([math.log(0.5)]),
-        prior_std=np.array([0.8]),
-        device="cpu",
+        n_ensemble=10,
+        n_iterations=4,
+        noise_std=OBS_NOISE,
+        init_spread=0.6,          # prior spread of log(alpha) around the initial guess
+        seed=0,
+        verbose=True,
+        print_every=1,
     )
-    eki_solver = EKISolver(
-        config=eki_config,
-        forward_fn=build_forward_callable(x_sensors),
-        observations=y_obs,
-    )
-    eki_result = eki_solver.run()
+    eki_solver = EnsembleKalmanInversion(batched(F), eki_config)
+    eki_solver.run(y_obs, theta_init=np.array([math.log(0.5)]))
 
     # Posterior ensemble of log_alpha
-    log_alpha_posterior = eki_result["ensemble_final"][:, 0]   # (n_ensemble,)
+    log_alpha_posterior = eki_solver.theta[:, 0]               # (n_ensemble,)
     alpha_posterior = np.exp(log_alpha_posterior)
     alpha_mean = float(alpha_posterior.mean())
     alpha_std  = float(alpha_posterior.std())

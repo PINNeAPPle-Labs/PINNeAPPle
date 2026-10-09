@@ -12,6 +12,7 @@ from pinneapple_physics.ensemble import (  # noqa: E402
     from_callable,
     from_solution,
     from_torch,
+    residual_baseline,
 )
 
 AD = AdvectionDiffusion1D()
@@ -128,8 +129,18 @@ def test_residual_lookahead_switches_on_the_first_case_of_the_new_regime(fno, st
     across = PhysicsEnsemble(experts(fno), mode="select", residual_fn=AD.residual, residual_lookahead=100.0,
                              lookahead_reference="experts").run(cases, refs)
     assert across.active[50] == "lax_wendroff_coarse" and across.active[5:50].count("fno") < 10
+    # reference = the residual level of the FNO in its own (low-diffusion) regime, known before operation
+    rng = np.random.default_rng(9)
+    base = residual_baseline(experts(fno), {"fno": [AD.random_case(rng, rng.uniform(0.005, 0.02)) for _ in range(5)]},
+                             AD.residual)
+    assert set(base) == {"fno"}
+    calib = PhysicsEnsemble(experts(fno), mode="select", residual_fn=AD.residual, residual_lookahead=2.0,
+                            residual_baseline=base).run(cases, refs)
+    assert calib.active[50] == "lax_wendroff_coarse" and calib.active[5:50].count("fno") >= 40
     with pytest.raises(ValueError):
         PhysicsEnsemble(experts(fno), residual_lookahead=1.0)
+    with pytest.raises(ValueError):
+        PhysicsEnsemble(experts(fno), residual_fn=AD.residual, residual_lookahead=1.0, residual_baseline={"x": 1.0})
 
 
 def test_no_look_ahead(fno, stream):

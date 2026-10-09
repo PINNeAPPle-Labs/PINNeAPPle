@@ -24,7 +24,6 @@ Losses are scale-free: absolute (or squared) error divided by the mean absolute 
 from __future__ import annotations
 
 import copy
-import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -235,81 +234,11 @@ def default_experts(season_length: int = 1) -> dict[str, Any]:
 
 
 # ============================================================================================== aggregation
-class FixedShare:
-    """Exponentially weighted average with fixed share (one per horizon)."""
-
-    def __init__(self, n: int, eta: float, alpha: float):
-        self.w = np.full(n, 1.0 / n)
-        self.eta, self.alpha = float(eta), float(alpha)
-
-    def predict(self, forecasts: np.ndarray) -> float:
-        ok = np.isfinite(forecasts)                                # experts that failed this step are left out
-        w = self.w * ok
-        return float(w[ok] @ forecasts[ok] / w.sum()) if w.sum() > 0 else float(np.nanmean(forecasts))
-
-    def update(self, losses: np.ndarray) -> None:
-        v = self.w * np.exp(-self.eta * (losses - losses.min()))
-        v /= v.sum()
-        self.w = (1 - self.alpha) * v + self.alpha / len(v)
-
-
-class AdaHedge:
-    """Parameter-free Hedge: follow the leader while it works, hedge with eta = ln K / Delta otherwise."""
-
-    def __init__(self, k: int):
-        self.L = np.zeros(k)
-        self.delta = 0.0
-        self.k = k
-
-    @property
-    def eta(self) -> float:
-        return math.inf if self.delta <= 0 else math.log(self.k) / self.delta
-
-    def weights(self) -> np.ndarray:
-        if math.isinf(self.eta):
-            best = self.L == self.L.min()
-            return best / best.sum()
-        z = np.exp(-self.eta * (self.L - self.L.min()))
-        return z / z.sum()
-
-    def update(self, losses: np.ndarray) -> None:
-        w, eta = self.weights(), self.eta
-        h = float(w @ losses)
-        if math.isinf(eta):
-            mix = float(losses[w > 0].min())
-        else:
-            lo = losses.min()
-            mix = lo - math.log(float(w @ np.exp(-eta * (losses - lo)))) / eta
-        self.delta += max(h - mix, 0.0)
-        self.L += losses
-
-
-class AdaptiveConformal:
-    """Adaptive conformal inference on absolute residuals: alpha_{t+1} = alpha_t + gamma (alpha - err_t)."""
-
-    def __init__(self, level: float = 0.9, gamma: float = 0.01, window: int = 500):
-        self.target = 1 - level
-        self.alpha_t = self.target
-        self.gamma, self.window = gamma, window
-        self.resid: list[float] = []
-        self.hits: list[int] = []
-
-    def halfwidth(self) -> float:
-        if len(self.resid) < 10:
-            return float("nan")
-        r = np.asarray(self.resid[-self.window:])
-        if self.alpha_t <= 0:
-            return float(r.max() * 1.5)
-        if self.alpha_t >= 1:
-            return 0.0
-        return float(np.quantile(r, 1 - self.alpha_t, method="higher"))
-
-    def update(self, y: float, yhat: float, halfwidth: float) -> None:
-        if np.isfinite(halfwidth):
-            miss = int(abs(y - yhat) > halfwidth)
-            self.hits.append(1 - miss)
-            self.alpha_t += self.gamma * (self.target - miss)
-        self.resid.append(abs(y - yhat))
+from pinneapple_physics.online_learning import (  # noqa: E402,F401  (re-exported)
+    AdaHedge,
+    AdaptiveConformal,
+    FixedShare,
+)
 
 
 # ============================================================================================== forecaster

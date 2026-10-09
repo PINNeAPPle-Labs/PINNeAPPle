@@ -1,5 +1,8 @@
 # Adaptive forecasting: switching and combining models online
 
+The same online-learning core (`pinneapple_physics.online_learning`) drives the
+[adaptive ensembles of physics models](physics_ensembles.md) (FNO, PINN, GNN, numerical solvers).
+
 `pinneapple_systems.time_series.AdaptiveForecaster` keeps a pool of forecasting models (experts) and decides, at
 every step, how much to trust each one, using **only the errors they made on data they had not seen**. When the
 series changes regime (seasonal, then trending, then a random walk), the weights move to the model that fits the new

@@ -14,6 +14,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Adaptive ensembles of physics models (`pinneapple_physics.ensemble.PhysicsEnsemble`, `pp.ensemble`): online
+  selection or combination of neural operators, graph networks, PINNs, numerical solvers and closed forms, learning
+  from reference fields, from the physics residual alone (no ground truth) and from cost (adaptive fidelity), with
+  lazy evaluation of the leading model, spread-based conformal intervals, an optional conservation projection,
+  adapters for `pp.solve` solutions and torch modules, and `fit_static_weights` (convex weights with cross-validated
+  error). Exactly solvable benchmark `pinneapple_physics.advection_diffusion_1d`. The online-learning core
+  (Fixed-Share, AdaHedge, adaptive conformal) moved to `pinneapple_physics.online_learning` and is shared with the
+  adaptive forecaster; AdaHedge's mixability gap is now computed with log-sum-exp (no underflow at large learning rates).
+
 - Adaptive forecasting (`pinneapple_systems.time_series.AdaptiveForecaster`): online switching and combination of
   forecasting models from their past out-of-sample errors only (Fixed-Share exponential weights per horizon, AdaHedge
   over the learning and switching rates, adaptive conformal intervals), a pool of fast experts (naive, drift, SES,

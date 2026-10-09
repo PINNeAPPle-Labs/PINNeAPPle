@@ -41,7 +41,6 @@ examples/use_cases/physics_data_factory/ultrarealistic_digital_twin.py
 templates/13_world_model.py
 templates/22_model_serving.py
 templates/24_digital_twin.py
-templates/26_rom_pod_dmd.py
 templates/27_timeseries_models.py
 templates/28_arena_benchmark.py
 templates/29_koopman_autoencoder.py

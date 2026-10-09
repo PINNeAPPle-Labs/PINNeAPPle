@@ -1,9 +1,14 @@
 """26_rom_pod_dmd.py — Reduced Order Models: POD and DMD.
 
 Demonstrates:
-- PODReducedModel: Proper Orthogonal Decomposition via SVD
-- DMDModel: Dynamic Mode Decomposition for linear system identification
-- HAVOKModel: Hankel Alternative View of Koopman (delay embedding)
+- POD: Proper Orthogonal Decomposition via SVD (reconstruction error vs. rank)
+- DynamicModeDecomposition: linear system identification and forecasting (rollout)
+- HAVOK: Hankel Alternative View of Koopman (delay embedding). The current class fits the linear model on the
+  delay coordinates and replays the training window from its first state; it has no forecast past the data, so
+  the template reports that replay error instead of a forecast. Without HAVOK's forcing term the linear core
+  drifts over the 140-step window, so expect a large replay error (about 1.0 here).
+
+All three live in ``pinneapple_neural.architectures.rom``; they take snapshots as rows, (time, space).
 - ROM reconstruction error and future-state prediction
 """
 
@@ -13,11 +18,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from pinneapple_neural.architectures.rom.pod import PODReducedModel
-from pinneapple_neural.architectures.rom.dmd import DMDModel
+from pinneapple_neural.architectures.rom import POD, DynamicModeDecomposition
 
 try:
-    from pinneapple_neural.architectures.rom.havok import HAVOKModel
+    from pinneapple_neural.architectures.rom import HAVOK
     _HAVOK = True
 except ImportError:
     _HAVOK = False
@@ -26,7 +30,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Synthetic dataset: 2D wave equation snapshots
 # u(x,t) = Σₙ aₙ(t) φₙ(x)   where  aₙ(t) = cos(ωₙ t + ψₙ)
-# This produces a low-rank spatiotemporal field (ideal for POD/DMD).
+# This produces a low-rank spatiotemporal field of travelling waves (ideal for POD/DMD).
 # ---------------------------------------------------------------------------
 
 NX       = 100
@@ -44,10 +48,12 @@ def generate_snapshots(nx: int = NX, n_modes: int = N_MODES,
     X = np.zeros((nx, n_snaps), dtype=np.float32)
     for n in range(1, n_modes + 1):
         omega = 0.5 * n
-        psi_n = np.sin(n * x / 2)
         amp   = 1.0 / n
         phase = n * 0.3
-        X    += amp * np.outer(psi_n, np.cos(omega * t + phase))
+        # travelling wave sin(n x / 2 - omega t + phase): two POD modes per n, and an exactly linear,
+        # oscillating dynamics that DMD can identify (a standing wave with only cos(omega t) cannot be:
+        # its snapshots do not contain the sin(omega t) partner a first-order linear model needs)
+        X    += amp * np.sin(n * x[:, None] / 2 - omega * t[None, :] + phase)
     return x, X.astype(np.float32)
 
 
@@ -68,32 +74,35 @@ def main():
     # 1) POD reconstruction
     # =========================================================================
     print("\n[1] POD reconstruction ...")
+    snaps = torch.tensor(X_train.T)                     # (time, space): one snapshot per row
     for n_comp in [2, 4, 8]:
-        pod = PODReducedModel(n_components=n_comp)
-        pod.fit(X_train)
-        X_recon = pod.reconstruct(X_train)
-        rel_err = np.sqrt(((X_recon - X_train)**2).sum()) / \
-                  np.sqrt((X_train**2).sum())
-        ev_ratio = pod.explained_variance_ratio()
-        print(f"  r={n_comp:2d}  recon error={rel_err:.4e}  "
-              f"explained variance={ev_ratio:.4f}")
+        pod = POD(r=n_comp, center=True).fit(snaps)
+        err = pod.reconstruction_error(snaps)["relative_l2"]
+        sv2 = pod.sv_ ** 2
+        ev_ratio = float(sv2.sum() / (torch.linalg.svdvals(snaps - snaps.mean(0)) ** 2).sum())
+        print(f"  r={n_comp:2d}  recon error={err:.4e}  explained variance={ev_ratio:.4f}")
 
     # Full POD for visualisation (r=4)
-    pod4 = PODReducedModel(n_components=4)
-    pod4.fit(X_train)
-    X_pod_recon = pod4.reconstruct(X_train)
+    pod4 = POD(r=4, center=True).fit(snaps)
+    X_pod_recon = pod4.decode(pod4.encode(snaps)).numpy().T   # back to (space, time)
 
     # =========================================================================
     # 2) DMD for future prediction
     # =========================================================================
     print("\n[2] DMD forecasting ...")
-    dmd = DMDModel(n_modes=10, dt=DT_SIM)
-    dmd.fit(X_train)
+    dmd = DynamicModeDecomposition(r=2 * N_MODES, center=False).fit(snaps)
 
-    # Predict future states
-    X_dmd_pred = dmd.predict(n_steps=N_PRED, x0=X_train[:, -1])
+    # Predict future states: roll out N_PRED steps from the last training snapshot
+    roll = dmd.rollout(snaps[-1:], N_PRED)              # (1, N_PRED + 1, space), starts with x0
+    X_dmd_pred = roll[0, 1:].numpy().T                  # (space, N_PRED)
     dmd_err = np.sqrt(((X_dmd_pred - X_test)**2).mean())
-    print(f"  DMD forecast RMSE = {dmd_err:.4e}")
+    print(f"  DMD forecast RMSE = {dmd_err:.4e}  (fitted on the noisy snapshots)")
+    # Same fit on the clean snapshots: exact up to round-off. Noise biases the DMD eigenvalues (damping),
+    # a known weakness of plain DMD; total-least-squares or forward-backward DMD reduce it.
+    clean = torch.tensor(X[:, :n_train].T)
+    roll_c = DynamicModeDecomposition(r=2 * N_MODES, center=False).fit(clean).rollout(clean[-1:], N_PRED)
+    print(f"  DMD forecast RMSE = {np.sqrt(((roll_c[0, 1:].numpy().T - X_test) ** 2).mean()):.4e}  "
+          f"(fitted on the clean snapshots)")
 
     # =========================================================================
     # 3) HAVOK (Hankel-based Koopman, if available)
@@ -102,12 +111,13 @@ def main():
         print("\n[3] HAVOK (Hankel-DMD) ...")
         # Use a single sensor time series
         sensor_signal = X_train[NX // 2, :]    # single sensor at x = π
-        havok = HAVOKModel(n_delay=20, n_modes=5, dt=DT_SIM)
-        havok.fit(sensor_signal)
-        signal_pred = havok.predict(n_steps=N_PRED)
-        truth_sensor = X_test[NX // 2, :]
-        h_err = np.sqrt(((signal_pred[:len(truth_sensor)] - truth_sensor)**2).mean())
-        print(f"  HAVOK forecast RMSE = {h_err:.4e}")
+        sig = torch.tensor(sensor_signal[:, None])          # (time, 1)
+        havok = HAVOK(delays=20, r=5).fit(sig)
+        out = havok(sig)                                    # replay of the training window in delay space
+        xhat = out.extras["xhat"].reshape(-1).numpy()       # last delay coordinate = the signal
+        truth = sensor_signal[-len(xhat):]
+        h_err = np.sqrt(((xhat - truth) ** 2).mean())
+        print(f"  HAVOK replay RMSE over the training window = {h_err:.4e}  ({len(xhat)} steps)")
 
     # =========================================================================
     # Visualisation
@@ -145,7 +155,7 @@ def main():
     axes[1, 0].grid(True, alpha=0.3)
 
     # Panel 4: POD singular values
-    sv = pod4.singular_values()
+    sv = pod4.sv_.numpy()
     axes[1, 1].bar(range(1, len(sv) + 1), sv, color="steelblue")
     axes[1, 1].set_title("POD singular values")
     axes[1, 1].set_xlabel("Mode index")

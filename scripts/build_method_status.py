@@ -25,7 +25,18 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from pinneapple_catalog.methods import METHODS  # noqa: E402
+def _load_methods():
+    """pinneapple_catalog/methods.py on its own: the package __init__ pulls in torch, the catalog needs nothing."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_catalog_methods", os.path.join(ROOT, "pinneapple_catalog", "methods.py"))
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod                       # dataclasses resolve the module by name
+    spec.loader.exec_module(mod)
+    return mod
+
+
+_methods = _load_methods()
+METHODS = _methods.METHODS
 
 # PINNeAPPle-CFD's tests cover the pipe-flow equations (E45-E50) and P9; the sibling checkout is
 # the default, PINNEAPPLE_CFD_TESTS points elsewhere (e.g. when running from a separate worktree).
@@ -134,7 +145,7 @@ if __name__ == "__main__" and "--check-public" not in sys.argv:
 
 def write_markdown(status_path: str | None = None) -> str:
     """Render docs/dev/CATALOGO_METODOS.md (Portuguese, for the team) from the catalog + status JSON."""
-    from pinneapple_catalog.methods import list_methods, method_status
+    list_methods, method_status = _methods.list_methods, _methods.method_status
 
     status = method_status()
     label = {"validated": "✅ validado", "tested": "🟡 testado, sem referência", "untested": "⚪ sem teste"}
@@ -199,7 +210,7 @@ PUBLIC_PAGE = os.path.join(ROOT, "docs", "validation_status.md")
 def render_public_page() -> str:
     """The public validation-status page (English), from the catalog and ``method_status.json`` only, so it can be
     rebuilt and checked without the test suites (``tests/test_validation_status_page.py`` keeps it in sync)."""
-    from pinneapple_catalog.methods import _STATUS_PATH, list_methods, method_status
+    _STATUS_PATH, list_methods, method_status = _methods._STATUS_PATH, _methods.list_methods, _methods.method_status
 
     with open(_STATUS_PATH) as f:
         generated_on = json.load(f).get("generated_on", "")

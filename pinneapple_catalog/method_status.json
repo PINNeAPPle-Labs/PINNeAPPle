@@ -2012,6 +2012,6 @@
   }
  },
  "rule": "validated = a test exercising the item compares against an independent reference (closed form, manufactured solution, published/tabulated value)",
- "test_files_scanned": 229,
- "test_functions_scanned": 2279
+ "test_files_scanned": 230,
+ "test_functions_scanned": 2281
 }

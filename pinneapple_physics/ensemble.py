@@ -97,6 +97,7 @@ class EnsembleRun:
     active: list[str]
     coverage: np.ndarray                     # fraction of points inside the interval, per case
     costs: np.ndarray                        # (n_cases, n_experts)
+    predictions: list[dict[str, Any]] | None = None   # run(keep_predictions=True): field, interval, experts per case
 
     def summary(self) -> dict[str, Any]:
         ok = np.isfinite(self.ensemble_errors)
@@ -290,13 +291,17 @@ class PhysicsEnsemble:
         info["loss"] = loss
         return info
 
-    def run(self, queries: Sequence[Any], references: Sequence[np.ndarray | None] | None = None) -> EnsembleRun:
+    def run(self, queries: Sequence[Any], references: Sequence[np.ndarray | None] | None = None,
+            keep_predictions: bool = False) -> EnsembleRun:
         """Sequential evaluation: predict each case with the weights learned so far, then update with its reference
-        (if any) and residual."""
+        (if any) and residual. ``keep_predictions`` stores each case's fields (ensemble, interval, every expert) in
+        ``EnsembleRun.predictions``, e.g. for ``pinneapple_physics.ensemble_viz.animate_ensemble``."""
         n = len(self.experts)
-        errs, ens, ws, act, cov, costs = [], [], [], [], [], []
+        errs, ens, ws, act, cov, costs, kept = [], [], [], [], [], [], []
         for k, q in enumerate(queries):
             p = self.predict(q)
+            if keep_predictions:
+                kept.append({key: p[key] for key in ("prediction", "lower", "upper", "expert_predictions", "active")})
             ref = None if references is None else references[k]
             ws.append([p["weights"][m] for m in self.names])
             act.append(p["active"])
@@ -311,7 +316,7 @@ class PhysicsEnsemble:
             else:
                 cov.append(np.nan)
         return EnsembleRun(self.names, np.array(errs, dtype=float), np.array(ens, dtype=float), np.array(ws),
-                           act, np.array(cov), np.array(costs))
+                           act, np.array(cov), np.array(costs), kept if keep_predictions else None)
 
 
 def fit_static_weights(predictions: np.ndarray, references: np.ndarray, n_folds: int = 5,

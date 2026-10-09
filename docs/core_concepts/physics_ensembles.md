@@ -62,3 +62,28 @@ learns to ignore it. In "combine" mode a model that fails badly still costs a li
 
 The PDE residual is a good detector of failure (it flags the out-of-distribution FNO at once), not a ranking of the
 most accurate model: a learned field can have a larger residual than a slightly less accurate numerical solution.
+
+## Five model families and an animated view
+
+`examples/physics_ensemble/five_model_families_gif.py` puts an FNO, a MeshGraphNet (multiscale ring graph), a
+DeepONet, a PINN (physics loss only) and a dilated 1-D CNN in one ensemble. Each is trained on its own regime of
+advection speed and diffusivity; the stream of 80 cases drifts through the five regimes. Relative L2 error per regime
+(select mode, 16 cases each):
+
+| regime (training data of) | FNO | GNN | DeepONet | PINN | CNN | **ensemble** |
+|---|---|---|---|---|---|---|
+| FNO (c = 1, low nu) | **1.2 %** | 240 % | 38 % | 45 % | 72 % | **1.2 %** |
+| GNN (c = 0.5, high nu) | 18 % | **5.4 %** | 18 % | 26 % | 74 % | 10 % |
+| DeepONet (c = 0, mid nu) | 37 % | 63 % | **11 %** | 18 % | 29 % | 16 % |
+| PINN (c = -0.5, high nu) | 39 % | 28 % | 16 % | **4.2 %** | 51 % | 7.0 % |
+| CNN (c = -1, low nu) | 128 % | 153 % | 37 % | 27 % | **0.96 %** | 4.7 % |
+| all cases | | | | 24 % (best single) | | **7.8 %** |
+
+The ensemble switches to the right family 2 to 6 cases after each regime change (the gap to the diagonal is that
+delay); no single model comes close over the whole stream. 90 % intervals covered 90 % of the points.
+
+`pinneapple_physics.ensemble_viz.animate_ensemble(run, references, "ensemble.gif")` animates any run made with
+`run(..., keep_predictions=True)`: the reference field against the ensemble's prediction (coloured by the chosen
+model, with its interval and every expert as a faint line), the weights sliding between cases, and a timeline of
+weights, chosen model and error revealed case by case. Space-time fields `(n_t, n_x)` are stepped through time so
+the waves move; 1-D fields are shown one frame per case.

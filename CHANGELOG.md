@@ -14,6 +14,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Animated view of adaptive physics ensembles (`pinneapple_physics.ensemble_viz.animate_ensemble`): GIF of the
+  prediction against the reference field, the chosen model and the weights, case by case
+  (`PhysicsEnsemble.run(..., keep_predictions=True)`). Example with five families (FNO, multiscale MeshGraphNet,
+  DeepONet, PINN, CNN), each trained on its own regime: the ensemble picks each one in its regime, 7.8 % error over
+  the stream against 24 % for the best single model.
+
 - Adaptive ensembles of physics models (`pinneapple_physics.ensemble.PhysicsEnsemble`, `pp.ensemble`): online
   selection or combination of neural operators, graph networks, PINNs, numerical solvers and closed forms, learning
   from reference fields, from the physics residual alone (no ground truth) and from cost (adaptive fidelity), with

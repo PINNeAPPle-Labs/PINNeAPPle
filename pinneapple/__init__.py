@@ -652,6 +652,7 @@ _SUBMODULES = {
     "core":       "pinneapple_core",
     "loss":       "pinneapple_core.loss",
     "transforms": "pinneapple_core.transforms",
+    "distributed": "pinneapple_core.distributed",
     "func":       "pinneapple_core.func",
     # positional astronomy, satellites, small bodies, space weather, stellar ML, orbit PINNs (validated vs JPL/USNO)
     "astro":      "pinneapple_physics.astro",

@@ -14,6 +14,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Adaptive forecasting (`pinneapple_systems.time_series.AdaptiveForecaster`): online switching and combination of
+  forecasting models from their past out-of-sample errors only (Fixed-Share exponential weights per horizon, AdaHedge
+  over the learning and switching rates, adaptive conformal intervals), a pool of fast experts (naive, drift, SES,
+  damped Holt, Holt-Winters, Theta, moving average, ridge AR) and `LagRegressorExpert` for any tabular ML model.
+  No look-ahead is tested explicitly. On a seasonal -> trend -> random-walk series the 1-step MAE is 21 % below the
+  best single model in hindsight.
+
 - Earth-system building blocks (`pinneapple_simulation.geophysics`, `pp.geophysics`): spectral-transform shallow-water
   model on the sphere with Williamson et al. (1992) test cases 2, 5 and 6 and mass / energy / potential-enstrophy
   diagnostics (#258); 1-D Richards equation in mixed form (Celia et al. 1990) with van Genuchten-Mualem, Brooks-Corey,

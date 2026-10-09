@@ -23,6 +23,7 @@
   * [3D Studio & External Flow](core_concepts/studio.md)
   * [Security (pinneapple_security)](core_concepts/security.md)
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
+  * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)
 * [Validation status](validation_status.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)

@@ -13,6 +13,9 @@ from .features.engineering import TSFeatureEngineer, rate_of_change, window_feat
 
 from .baselines.naive import NaiveForecaster, SeasonalNaiveForecaster, DriftForecaster
 
+# --- Adaptive selection / combination of forecasters (online, no look-ahead) ---
+from .adaptive import AdaptiveForecaster, LagRegressorExpert, default_experts
+
 # --- Classical statistical forecasters (statsmodels / pmdarima wrappers) ---
 from .classical_wrappers import StatsmodelsARIMAForecaster, AutoARIMAForecaster
 
@@ -65,6 +68,8 @@ from .viz import (
 __all__ = [
     # Core
     "TimeSeriesSpec", "ForecastProblemSpec", "TSDataModule", "TSModelCatalog",
+    # Adaptive forecasting
+    "AdaptiveForecaster", "LagRegressorExpert", "default_experts",
     # Validation
     "Split", "ExpandingWindowSplitter", "RollingWindowSplitter",
     "BacktestRunner", "BacktestConfig", "BacktestResult",

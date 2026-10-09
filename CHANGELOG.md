@@ -13,6 +13,18 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_twin3d.wear`: a generator of 3D wear (refractory / liner) digital twins from a spec. `ZoneSpec` /
+  `VesselSpec` describe a part as surfaces of revolution cut into cells; `WearDataset` holds wear depth per cell and
+  reading (validation, CSV and JSON contract shared with the web suite); `forecast` (repair-aware linear remaining-life
+  fit with a confidence grade), `backtest`; `optimize` (simulates run-to-limit, fixed-calendar and predictive grouped
+  maintenance policies and recommends the cheapest one without breach); `synthetic_campaign` (clearly labelled synthetic
+  data); four presets (steel ladle, pig-iron ladle, BOF converter, RH degasser) and `export_wear_twin`
+  (viewer scene + `wear_dataset.json` + `report.json`). Guide: `docs/guides/recreate_a_wear_twin.md`; example:
+  `examples/use_cases/refractory_wear_twin/`; tests: `tests/test_twin3d_wear.py` (Python checked against the JavaScript core).
+  Also: a fifth preset (`oxyred_reactor`), a 90 % interval on the remaining life (`remaining_lo/hi`), `calibrate` (optimizer
+  assumptions from a stop log and the repair history, each parameter tagged calibrated / default / business input),
+  `pinneapple_twin3d.primitives` (revolve, sweep, loft, wing, box, cylinder) and `pinneapple_twin3d.gallery` (runner channel,
+  mixing tank, oil pipeline, airliner, launch vehicle, drone, lunar rover, wind turbine, satellite; illustrative fields).
 - `pinneapple_core` (roadmap X3, #187), reachable as `pp.core`: `Domain`, `Geometry`, `Mesh` and `Field` as shared
   primitives. A `Field` holds values on a tensor grid, a simplex mesh (1D/2D/3D) or a point cloud and answers
   `gradient()`, `divergence()`, `interpolate(x)` and `integrate()` the same way on each (trapezoid on a grid, exact

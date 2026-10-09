@@ -21,6 +21,8 @@
   * [Backend](core_concepts/backend.md)
   * [Training Pipeline](core_concepts/training_pipeline.md)
   * [Researcher & Benchmarking](core_concepts/researcher_benchmarking.md)
+* Guides
+  * [Recreate a 3D wear twin](guides/recreate_a_wear_twin.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)
   * [pinneapple_physics](api/pinneapple_physics/index.md)

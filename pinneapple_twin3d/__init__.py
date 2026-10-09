@@ -12,6 +12,9 @@ Also: ``pinneapple_twin3d.openfoam.scene_from_case`` (OpenFOAM wall patches + pe
 time, e.g. erosion maps), ``pinneapple_twin3d.usd.export_usd`` (OpenUSD with time-sampled fields)
 and ``pinneapple_twin3d.demo.pipe_bend_scene`` (try the viewer without data).
 
+Wear twins (refractory / liner): ``pinneapple_twin3d.wear`` builds a twin from a spec (see
+``docs/guides/recreate_a_wear_twin.md``).
+
 Decision D1 in docs/dev/PEDIDOS_2026-09-24.md: the viewer lives in the library so that
 PINNeAPPle-CFD (3D wear over time), PINNeAPPle-apps and pinneapple_systems.digital_twin all
 reuse it.

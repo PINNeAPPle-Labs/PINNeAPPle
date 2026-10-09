@@ -8,6 +8,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import time
 from dataclasses import dataclass
 from typing import Optional
 
@@ -30,11 +31,19 @@ def docker_available() -> bool:
         return False
 
 
-def ensure_image(image: str = IMAGE) -> str:
+def ensure_image(image: str = IMAGE, attempts: int = 3) -> str:
+    """Build the image if it is missing. The build downloads the base image and the Debian package, so a failed
+    attempt is retried (registry or mirror hiccups); the last failure is raised with Docker's own output."""
     env = _docker_env()
-    if subprocess.run(["docker", "image", "inspect", image], capture_output=True, env=env).returncode != 0:
-        subprocess.run(["docker", "build", "-q", "-t", image, _HERE], check=True, capture_output=True, env=env)
-    return image
+    if subprocess.run(["docker", "image", "inspect", image], capture_output=True, env=env).returncode == 0:
+        return image
+    for k in range(max(1, attempts)):
+        p = subprocess.run(["docker", "build", "-q", "-t", image, _HERE], capture_output=True, text=True, env=env)
+        if p.returncode == 0:
+            return image
+        if k + 1 < attempts:
+            time.sleep(10 * (k + 1))
+    raise RuntimeError(f"docker build of {image} failed {attempts} time(s); last output:\n{(p.stdout + p.stderr)[-4000:]}")
 
 
 def ccx_backend() -> Optional[str]:

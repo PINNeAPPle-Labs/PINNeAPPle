@@ -399,6 +399,7 @@ include = [
   "pinneapple_decision/**",
   "pinneapple_blender/**",
   "pinneapple_perception/**",
+  "pinneapple_security/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

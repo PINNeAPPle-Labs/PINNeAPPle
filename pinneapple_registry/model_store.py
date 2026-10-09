@@ -19,6 +19,25 @@ from typing import Any, Dict, List, Optional
 VALID_STAGES = ("development", "staging", "production", "archived")
 
 
+PUBLISHED_STAGES = ("staging", "production")
+
+
+def _report_dict(report: Any) -> Dict[str, Any]:
+    return report.to_dict() if hasattr(report, "to_dict") else dict(report)
+
+
+def _check_publishable(meta: Dict[str, Any], problem_id: str, stage: str, override_reason: Optional[str]) -> None:
+    """A REJECT TrustReport blocks publication unless overridden with a recorded reason (mutates ``meta``)."""
+    report = meta.get("trust_report") or {}
+    if stage not in PUBLISHED_STAGES or report.get("decisao") != "REJECT":
+        return
+    if not (override_reason and override_reason.strip()):
+        reasons = "; ".join(report.get("motivos", [])) or "no reasons recorded"
+        raise PermissionError(f"'{problem_id}' has a REJECT trust report ({reasons}); publishing to '{stage}' "
+                              "needs override_reason")
+    meta["trust_override"] = {"reason": override_reason.strip(), "stage": stage, "at": datetime.now().isoformat()}
+
+
 class ModelStore:
     def __init__(self, root: str):
         self.root = root
@@ -45,6 +64,7 @@ class ModelStore:
         metadata: Optional[Dict[str, Any]] = None,
         stage: str = "development",
         sample_input: Optional[Any] = None,
+        trust_report: Optional[Any] = None,
     ) -> str:
         """Save a trained model as a new timestamped version. If ``model``
         has a ``save_checkpoint`` (any ``BaseModel``, including
@@ -52,6 +72,9 @@ class ModelStore:
         reconstructable the same way ``BaseModel.load_checkpoint``/
         ``ComponentModel.load_checkpoint`` already expect; otherwise falls
         back to a bare ``state_dict``.
+
+        ``trust_report`` (a ``TrustReport`` or its ``to_dict()``) is stored in the metadata; saving straight into
+        a published stage follows the same REJECT rule as :meth:`promote`.
 
         Returns the new version string (e.g. ``"v20260908_101530"``).
         """
@@ -70,6 +93,9 @@ class ModelStore:
             raise ValueError(f"stage must be one of {VALID_STAGES}, got '{stage}'")
 
         meta = dict(metadata or {})
+        if trust_report is not None:
+            meta["trust_report"] = _report_dict(trust_report)
+        _check_publishable(meta, problem_id, stage, None)
         meta.update({"problem_id": problem_id, "version": version, "stage": stage,
                      "created_at": datetime.now().isoformat()})
         with open(os.path.join(vdir, "metadata.json"), "w") as f:
@@ -126,12 +152,30 @@ class ModelStore:
 
     # -- stage promotion ---------------------------------------------------
 
-    def promote(self, problem_id: str, version: str, stage: str) -> None:
+    def promote(self, problem_id: str, version: str, stage: str, *, override_reason: Optional[str] = None) -> None:
+        """Move a version to ``stage``. Publishing (staging/production) a version whose latest TrustReport is
+        REJECT raises ``PermissionError`` unless ``override_reason`` is given; the override is recorded."""
         if stage not in VALID_STAGES:
             raise ValueError(f"stage must be one of {VALID_STAGES}, got '{stage}'")
         meta = self.metadata(problem_id, version)
+        _check_publishable(meta, problem_id, stage, override_reason)
         meta["stage"] = stage
         meta["promoted_at"] = datetime.now().isoformat()
+        self._write_metadata(problem_id, version, meta)
+
+    # -- trust report (decision D2) -------------------------------------------
+
+    def set_trust_report(self, problem_id: str, version: str, report: Any) -> None:
+        """Attach (or replace) the latest TrustReport of a version; a new report clears an old override."""
+        meta = self.metadata(problem_id, version)
+        meta["trust_report"] = _report_dict(report)
+        meta.pop("trust_override", None)
+        self._write_metadata(problem_id, version, meta)
+
+    def trust_report(self, problem_id: str, version: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        return self.metadata(problem_id, version).get("trust_report")
+
+    def _write_metadata(self, problem_id: str, version: str, meta: Dict[str, Any]) -> None:
         with open(os.path.join(self._version_dir(problem_id, version), "metadata.json"), "w") as f:
             json.dump(meta, f, indent=2)
 

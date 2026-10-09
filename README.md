@@ -105,6 +105,7 @@ Additional packages:
 - `pinneapple_models` — compatibility shim re-exporting `pinneapple_neural.architectures` (not a separate package)
 - `pinneapple_perception` — extracts physics observations (velocity fields, boundary geometry, modal frequencies) from images, video, and audio
 - `pinneapple_registry` — local, self-hosted artifact registry: versioned model/dataset storage, experiment tracking, and problem-spec history
+- `pinneapple_security` — data and process security for scientific and industrial Physics AI: dataset/model manifests, Ed25519 signatures, in-toto/SLSA provenance and CycloneDX SBOM, tamper-evident audit trail, AES-GCM at rest, PII detection and log sanitising, differential privacy (DP-SGD), checkpoint scanning, physics-residual detection of manipulated sensor data, and a control map to NIST CSF, IEC 62443, ISO 27001, 21 CFR Part 11 and LGPD/GDPR
 - `pinneapple_solvers` — compatibility shim re-exporting `pinneapple_simulation.numerical_solvers` (not a separate package)
 - `pinneapple_train` — compatibility shim re-exporting `pinneapple_neural.trainer` (not a separate package)
 - `pinneapple_worldmodel` — generalist Physics Foundation Model trained across many physics domains
@@ -219,6 +220,13 @@ twin.start()
 ---
 
 ## Quick Examples
+
+### First result in about a minute
+
+[`examples/first_example/first_example.py`](examples/first_example/first_example.py) solves Burgers' equation with a
+PINN, checks it against the exact solution and plots both, in about a minute on a laptop CPU (relative L2 about 0.08 at
+the steep front). CI runs it from a clean `pip install` of the wheel.
+
 
 ### Solve, compare and reproduce in a few lines
 

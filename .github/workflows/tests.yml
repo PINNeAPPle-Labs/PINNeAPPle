@@ -28,6 +28,12 @@ jobs:
       - name: Tier C — public API, cost validation, PyVista and CalculiX bridges (must pass)
         run: xvfb-run -a pytest tests/test_public_api.py tests/test_cost_validation.py tests/test_pyvista_bridge.py tests/test_calculix_bridge.py tests/test_example_imports.py tests/test_release_version.py -q
 
+      - name: Distributions — sdist and wheel contain every package, the sdist installs and imports (must pass)
+        run: |
+          pip install build
+          python -m build --outdir /tmp/dist
+          python scripts/check_dist.py /tmp/dist --install --no-deps
+
       - name: Tier B — manufactured-solution physics-correctness tests (must pass)
         run: pytest tests/test_manufactured_solutions.py -q
 
@@ -47,3 +53,26 @@ jobs:
 
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py
+
+  first-example:
+    # A clean `pip install` of the built wheel runs the first example end to end (#44): no repo on the path,
+    # CPU only. The job prints the wall time; the example is sized for about a minute on a laptop.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build the wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --wheel --outdir /tmp/dist
+      - name: Clean venv, install the wheel (CPU torch), run the example outside the repo
+        run: |
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          /tmp/clean/bin/pip install -q /tmp/dist/*.whl
+          cp examples/first_example/first_example.py /tmp/run_first_example.py
+          cd /tmp && time MPLBACKEND=Agg /tmp/clean/bin/python run_first_example.py
+          test -s /tmp/first_example.png

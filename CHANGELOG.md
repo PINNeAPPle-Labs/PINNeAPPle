@@ -13,6 +13,136 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+
+- Qualitative preview of geometries and geometry changes (`pinneapple_design.qualitative`, `pp.qualitative`): for
+  an objective written in plain Portuguese or English, each variant (or each change to a part of an `Assembly`) gets
+  the expected direction and strength of the change, the mechanisms behind it, the parts that drove it, side effects,
+  a confidence level with reasons and a surface map, from cheap face-by-face models (`ExternalFlow`,
+  `ConvectiveCooling`, `Cantilever`, `ScalingModel`); `part_sensitivity` ranks where to act first and `quantify`
+  compares the expectations with an accurate computation. Includes a 3-D voxel FEM with incompatible-mode bricks
+  (`voxel_fem_cantilever`) and three worked examples (heat-sink fins, beam stiffness per mass, Ahmed body slant).
+
+- Animated view of adaptive physics ensembles (`pinneapple_physics.ensemble_viz.animate_ensemble`): GIF of the
+  prediction against the reference field, the chosen model and the weights, case by case
+  (`PhysicsEnsemble.run(..., keep_predictions=True)`). Example with five families (FNO, multiscale MeshGraphNet,
+  DeepONet, PINN, CNN), each trained on its own regime: the ensemble picks each one in its regime, 7.8 % error over
+  the stream against 24 % for the best single model.
+
+- Adaptive ensembles of physics models (`pinneapple_physics.ensemble.PhysicsEnsemble`, `pp.ensemble`): online
+  selection or combination of neural operators, graph networks, PINNs, numerical solvers and closed forms, learning
+  from reference fields, from the physics residual alone (no ground truth) and from cost (adaptive fidelity), with
+  lazy evaluation of the leading model, spread-based conformal intervals, an optional conservation projection,
+  adapters for `pp.solve` solutions and torch modules, and `fit_static_weights` (convex weights with cross-validated
+  error). Exactly solvable benchmark `pinneapple_physics.advection_diffusion_1d`. The online-learning core
+  (Fixed-Share, AdaHedge, adaptive conformal) moved to `pinneapple_physics.online_learning` and is shared with the
+  adaptive forecaster; AdaHedge's mixability gap is now computed with log-sum-exp (no underflow at large learning rates).
+
+- Adaptive forecasting (`pinneapple_systems.time_series.AdaptiveForecaster`): online switching and combination of
+  forecasting models from their past out-of-sample errors only (Fixed-Share exponential weights per horizon, AdaHedge
+  over the learning and switching rates, adaptive conformal intervals), a pool of fast experts (naive, drift, SES,
+  damped Holt, Holt-Winters, Theta, moving average, ridge AR) and `LagRegressorExpert` for any tabular ML model.
+  No look-ahead is tested explicitly. On a seasonal -> trend -> random-walk series the 1-step MAE is 21 % below the
+  best single model in hindsight.
+
+- Earth-system building blocks (`pinneapple_simulation.geophysics`, `pp.geophysics`): spectral-transform shallow-water
+  model on the sphere with Williamson et al. (1992) test cases 2, 5 and 6 and mass / energy / potential-enstrophy
+  diagnostics (#258); 1-D Richards equation in mixed form (Celia et al. 1990) with van Genuchten-Mualem, Brooks-Corey,
+  Clapp-Hornberger/Campbell and Gardner soils, verified against the exact Gardner infiltration profile (#260);
+  two-layer energy-balance climate model (Held et al. 2010; Geoffroy et al. 2013) with exact integration, step
+  response, ECS/TCR and parameter fitting (#259).
+- 4D-Var through autograd for any differentiable PyTorch model, with Lorenz-96/63, an adjoint gradient check and an
+  identical-twin experiment (`pinneapple_analysis.data_assimilation`, `pp.assimilation`).
+- Exact conservation for surrogates: `pinneapple_physics.conservation.project_integral` and `ConservationProjection`
+  (additive, multiplicative and positive global fixers, differentiable).
+
+- `pinneapple_security` (also `pp.security`): data and process security for scientific and industrial Physics AI.
+  Merkle manifests of datasets and model folders; Ed25519/HMAC signatures in DSSE envelopes; in-toto + SLSA provenance
+  of experiments and a CycloneDX SBOM; a hash-chained, tamper-evident audit trail; AES-256-GCM encryption at rest; PII
+  detection (CPF/CNPJ, cards and IBANs checksum-validated), keyed pseudonymisation, k-anonymity and solver-log
+  sanitising; differential privacy (Laplace/Gaussian mechanisms, RDP accountant of the sampled Gaussian, DP-SGD with
+  `torch.func`); checkpoint scanning and `safe_load`; adversarial sensitivity of surrogates; physics-residual CUSUM and
+  replay detection of manipulated sensor data; secret scanning; data labels and a handling policy (personal data,
+  export control); an evidence map to NIST CSF 2.0, IEC 62443-3-3, ISO/IEC 27001:2022, 21 CFR Part 11, LGPD/GDPR, SSDF
+  and SLSA; signed `ModelStore` versions and model cards; `python -m pinneapple_security` command line. Extra:
+  `pip install pinneapple[security]`. Example: `examples/security/01_secure_physics_ai_pipeline.py`.
+
+- Public validation status page `docs/validation_status.md` (#97): per catalog item, validated / tested / no test with the number of reference and other tests, generated by `scripts/build_method_status.py --public` from the test scan (85 validated, 53 tested, 41 without a test on 2026-10-09). A test and the release workflow check it matches `method_status.json`.
+
+- Process optimizer (Data Health app, Optimize tab): forward-chaining time-series cross-validation on the training period chooses the L2 regularisation of the KPI model; the fold errors, their mean and spread and the chosen strength are in the report (`model.cv`) and on the page (#81).
+
+- Experiment tracking adapter (#113): `pp.Experiment(..., tracker="mlflow" | "wandb" | callable)` sends the flat config, every metric as `<metric>/<field>`, the wall time, the problem fingerprint and the saved record (`result.json`, `model.pt`) to the tracker; `pinneapple_physics.tracking.log_result` does the same for an existing result. Extra: `pip install pinneapple[tracking]`.
+
+- TrustReport persisted with the model (#157, decision D2): `ModelCard.attach_trust_report` / `override_trust` and `ModelStore.save(trust_report=...)` / `set_trust_report` / `promote(override_reason=...)`. A REJECT blocks publication (card validation, hub push, promotion to staging/production) unless overridden with a recorded reason. `TrustReport.from_dict` restores a stored report.
+
+- Cost columns of the benchmark protocol (#55): `pp.compare` tables and the benchmark suite leaderboards report training time, inference cost per point (µs, best of three) and the number of reference simulations the method consumed (`n_reference_sims`; from `Solution.info['n_reference_simulations']` or the task's `n_reference_simulations`, 0 for physics-only training).
+- `examples/first_example/first_example.py`: solve, check against the exact solution and plot in 11 lines, about a
+  minute on CPU; a CI job runs it from a clean install of the wheel (#44).
+- `scripts/check_dist.py`: the built sdist and wheel must contain every package and the viewer assets, and the
+  sdist must install in a clean venv and import every package. It runs in the test workflow and before a release
+  (#92).
+- MeshGraphNet (`pinneapple_neural.architectures.graphnn`, registered as `mgn`/`meshgraphnet`) and the transient
+  recipe `MeshDynamicsMGN` (Pfaff et al. 2021), with examples in `examples/meshgraphnet/` (synthetic diffusion,
+  DeepMind cylinder_flow, PhysicsNeMo parity scripts); `examples/vs_physicsnemo/06` now trains this MGN
+  (#232, #234, #237).
+- 3D studio (`pp.viz`, `pinneapple_tools.visualization.studio`): a `Scene` for any geometry (STL/OBJ, any result
+  `pinneapple_data.cae` reads, arrays) with per-vertex fields, streamlines and slice planes; export to glTF (fields as
+  vertex attributes), OpenUSD and STL; Blender Cycles renders on the jet colour scale with a colour bar; a browser
+  viewer that ships its own three.js. Vectors show as magnitude, stress tensors as von Mises.
+- Studio input and viewer: `Scene.from_file` reads glTF/GLB (node transforms, fields from `_NAME` attributes) and
+  VTK `.vtp` (with `vtk`). The browser viewer has colour-range, slice-position, line-density and edge controls on a
+  shared core (`studio-core.js`, also used by the aircraft app and tested with node). Slices can be grouped into
+  stacks, and `ExternalFlow` samples four wake planes. `Scene.decimate` and `web_viewer(max_faces=...)` keep large
+  meshes usable; the docs give measured sizes and load times. The digital twin writes its GLB with the studio writer
+  and gains `to_studio()`. three.js ships once, in the library, and the apps serve that copy.
+- External flow in OpenFOAM for any body (`pp.cfd.ExternalFlow`): snappyHexMesh, simpleFoam k-ω SST with wall
+  functions, half model, moving road; forces, skin Cp/Cf, streamlines, mid-plane and wake slices, `to_scene()`.
+  Ahmed body at 25°: CD 0.321 (coarse) and 0.298 (medium) against about 0.285 measured. Closed bodies in
+  `pp.bodies` (Ahmed body, sphere, cylinder, box); `pp.cae` reaches `pinneapple_data.cae`.
+- Aircraft Design Optimizer (`apps/aero_optimizer`, service `aero`, library `pinneapple_design.aero`): airfoil
+  (CST) and wing-area design for a light aircraft. 436 OpenFOAM runs (simpleFoam, k-ω SST, y⁺ < 1) on an O-grid with
+  the same topology for every design train a MeshGraphNet (flow field + Cl, Cd, Cm; drag within 1.5 % on unseen
+  airfoils) and an MLP ensemble (0.5 %, with uncertainty). NSGA-II with constraint domination searches top speed,
+  CO₂ per 100 km and stall speed under stall (CS-23), thickness, trim and stall-margin requirements; designs that miss
+  one, and designs the surrogates disagree on, are shown with the reason. Pareto designs verified in OpenFOAM agree
+  within 0.1 kt / 0.1 % / 0.3 kt and are added back to training. Every design downloads as a ready OpenFOAM case.
+- Aircraft Design Optimizer, airliner: parametric single-aisle airliner (`pinneapple_design.aero.airliner`: fuselage
+  with windows and livery, swept wing with sharklets, turbofans, tails; glTF with PBR, USD, STL); compressible vortex
+  lattice, Korn wave drag, transport weights and Breguet mission calibrated on the A320ceo (`airliner3d`); NSGA-II
+  over 13 variables for CO₂ per passenger-km, cruise Mach and Vref (`optimize_airliner`); OpenFOAM 3D half-model runs
+  (`case3d`) with skin Cp/Cf, streamlines and slices, shown in a three.js viewer and Blender Cycles renders on the
+  jet colour scale.
+- Five CAE apps, each deployed as a service in `apps/deploy`:
+  - Simulation Preflight (`apps/simulation_preflight`, service `preflight`, library `pinneapple_data.preflight`):
+    checks an OpenFOAM case or a CalculiX deck before it runs. Each finding has a PASS/WARNING/FAIL verdict, where it
+    is (file and line), its severity, an explanation, the fix and an exportable checklist. Rules were validated on
+    real solver runs, including two failures the solver never reports: a model with no supports (ccx reports "Job
+    finished" with a 1.8e11 mm displacement) and inconsistent units (first frequency 0.16 Hz instead of 209 Hz).
+  - Mesh Quality (`apps/mesh_quality`, service `mesh`, library `pinneapple_data.cae`): checkMesh-equivalent
+    finite-volume metrics (identical to OpenFOAM v1912 on pitzDaily, a Gmsh tetrahedral mesh and a sheared channel).
+    Also element metrics (scaled Jacobian, skewness, edge ratio) for Gmsh/VTK/Abaqus/CalculiX meshes, histograms, a 3D
+    heatmap, the worst elements, problem regions and recommended actions. Reads OpenFOAM, `.inp`, `.frd`, STL and
+    anything meshio reads.
+  - Simulation Comparator (`apps/simulation_comparator`, service `compare`, `pinneapple_data.cae.compare`): reference
+    vs candidate, in four modes: simulation/simulation, simulation/experiment, simulation/AI and AI/experiment. Gives
+    global and per-field error (relative L2, MAE, RMSE, max, p99, bias, NRMSE, R²) and an error map. Fields are matched
+    by name and component and interpolated between different meshes. Checks: Ghia lid-driven cavity 1.26 % → 0.19 %
+    with mesh refinement; a PINN vs finite volumes 0.39 %.
+  - Engineering Model Lineage (`apps/model_lineage`, service `lineage`, library `pinneapple_data.lineage`): the
+    digital thread as a graph of artifacts, each with file, version, software, parameters, timestamp, sha256, owner
+    and origin. Auto-detected from OpenFOAM/Gmsh/CalculiX folders and PINNeAPPle exports, or declared in a
+    `lineage.json` whose hashes are verified. Checks: hash mismatch, stale outputs, missing inputs, cycles, mixed
+    revisions. Answers upstream/downstream questions and exports W3C PROV-JSON and Markdown.
+  - Simulation Interoperability Hub (`apps/interop_hub`, service `interop`, `pinneapple_data.cae.dataset`): any
+    result becomes the neutral `pinneapple.physical_dataset/1` (geometry, mesh, coordinates, fields with quantity and
+    unit, metadata). It exports to VTK `.vtu` (OpenFOAM polyhedra rebuilt as standard cells or VTK polyhedra), HDF5,
+    Parquet, CSV, NPZ, JSON and a PINNeAPPle dataset (UPD Zarr).
+- Inverse Heat Lab (`apps/inverse_heat`): the convection coefficient h from a few thermocouples with an inverse PINN,
+  in 1D (a pin fin, trained live on demo readings or your own, cross-checked by a least-squares fit of the analytic
+  solution), 2D (a heat-spreader plate, trained live and compared with a finite-volume solution cell by cell) and 3D
+  (a chip under a block, the full offline run in an interactive 3D view with layer slices). Every case shows its complete
+  script (`pip install pinneapple`, then run), filled with the page's inputs and readings, to copy or download; the
+  three scripts are run by the tests. Deployed as the `inverse`
+  service in `apps/deploy`.
 - `pinneapple_core` (roadmap X3, #187), reachable as `pp.core`: `Domain`, `Geometry`, `Mesh` and `Field` as shared
   primitives. A `Field` holds values on a tensor grid, a simplex mesh (1D/2D/3D) or a point cloud and answers
   `gradient()`, `divergence()`, `interpolate(x)` and `integrate()` the same way on each (trapezoid on a grid, exact
@@ -113,6 +243,16 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- The digital twin viewer (`pinneapple_twin3d`) is in English: labels, tooltips, status and error messages;
+  numbers use the browser's locale (#306).
+- The benchmark suite computes every error through `pp.metrics` (new `metrics.pooled` for the single leaderboard
+  number, same values as before); its inline formulas are gone (#32).
+- `ExternalFlow` without bodies and `trust_report.Check` with an unknown status raise a clear `ValueError` in
+  English instead of a `TypeError` or a Portuguese message.
+- `UPDZarrStore` writes with `Group.create_array` on Zarr 3 (it used the deprecated `create_dataset`), and a test covers the
+  write/read round trip on Zarr 2 and 3 (#239).
+- `serialization.load_zarr` called `UPDZarrStore.iter_samples`, which did not exist, so every call failed; the store
+  now has it.
 - `pp.solve(..., "pinn", ctx=...)` ignored `ctx`, so a Poisson source term never reached the network (the solve returned
   the zero field); it is now passed to `solve_pde`.
 - Fixed `templates/30_zarr_data_pipeline.py` to use the current UPD and Zarr APIs.

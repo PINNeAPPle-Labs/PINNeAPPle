@@ -2,14 +2,15 @@
 Exemplo 06 — Pipeline Combinado: PhysicsNeMo MeshGraphNet + PINNeAPPle Validação + Export
 
 Pipeline:
-  1. PhysicsNeMo MeshGraphNet: prediz campos CFD em malha não-estruturada
-     (ou referência simulada se PhysicsNeMo não instalado)
+  1. MeshGraphNet do PINNeAPPle (a mesma arquitetura do PhysicsNeMo): prediz campos CFD em malha não-estruturada
   2. PINNeAPPle PhysicsValidator: valida conservação de massa, BCs, no-slip
   3. PINNeAPPle Export: exporta para ONNX + TorchScript (deploy C++/produção)
 
 Geometry: perfil NACA 0012 simplificado (círculo + esteira)
 Fields: u (velocidade x), v (velocidade y), p (pressão)
 """
+
+import importlib.util
 
 import numpy as np
 import torch
@@ -20,20 +21,15 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 from pathlib import Path
 import time
-import io
 import warnings
 
 warnings.filterwarnings("ignore")
 
 # ── detecta PhysicsNeMo ────────────────────────────────────────────────────────
-try:
-    from physicsnemo.models.meshgraphnet import MeshGraphNet as PhysicsNeMoMGN
-    PHYSICSNEMO_AVAILABLE = True
-    print("[INFO] PhysicsNeMo detectado — usando MeshGraphNet nativo")
-except ImportError:
-    PHYSICSNEMO_AVAILABLE = False
-    print("[INFO] PhysicsNeMo não instalado — usando implementação de referência")
-    print("       Para usar PhysicsNeMo: pip install nvidia-physicsnemo\n")
+if importlib.util.find_spec("physicsnemo") is not None:
+    print("[INFO] PhysicsNeMo detectado (este exemplo treina o MeshGraphNet do PINNeAPPle)")
+else:
+    print("[INFO] PhysicsNeMo não instalado: não é necessário, o MeshGraphNet vem do PINNeAPPle\n")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PARTE 1 — MALHA NÃO-ESTRUTURADA (airfoil simplificado)
@@ -158,91 +154,35 @@ def analytical_flow(nodes, Re=100.0):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PARTE 2 — MODELO (PhysicsNeMo MGN ou referência)
+# PARTE 2 — MODELO (MeshGraphNet do PINNeAPPle)
 # ══════════════════════════════════════════════════════════════════════════════
 
-class ReferenceMGN(nn.Module):
+class PinneappleMGN(nn.Module):
     """
-    Implementação de referência de Message Passing GNN (tipo MeshGraphNet).
+    MeshGraphNet do PINNeAPPle (``pinneapple_neural.architectures.graphnn.MeshGraphNet``, Pfaff et al. 2021:
+    encoder, processador de troca de mensagens com resíduos, decoder) com a assinatura plana usada neste exemplo:
+    ``forward(node_feats (N, F), edge_index (2, E), edge_feats (E, D)) -> (N, campos)``.
 
-    Arquitetura:
-      - Encoder: node features → latent (MLP)
-      - Message Passing: L rounds de edge messages + node updates
-      - Decoder: latent → output fields
-
-    PhysicsNeMo oferece:
-      - Arquitetura idêntica porém com CUDA kernels otimizados
-      - Suporte a malhas com 1M+ nós via mini-batching distribuído
-      - XLA/TensorRT compilation
-      - Integrado ao NVIDIA Modulus workflow
+    O PhysicsNeMo oferece a mesma arquitetura com kernels CUDA, mini-batching distribuído para malhas com
+    milhões de nós e compilação XLA/TensorRT.
     """
 
     def __init__(self, node_in: int, edge_in: int, hidden: int = 64,
                  out_fields: int = 3, n_mp_layers: int = 6):
         super().__init__()
-        self.n_mp = n_mp_layers
-
-        # Encoders
-        self.node_enc = nn.Sequential(
-            nn.Linear(node_in, hidden), nn.SiLU(),
-            nn.Linear(hidden, hidden), nn.LayerNorm(hidden),
-        )
-        self.edge_enc = nn.Sequential(
-            nn.Linear(edge_in, hidden), nn.SiLU(),
-            nn.Linear(hidden, hidden), nn.LayerNorm(hidden),
-        )
-
-        # Message passing layers
-        self.edge_mlps = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(3 * hidden, hidden), nn.SiLU(),
-                nn.Linear(hidden, hidden), nn.LayerNorm(hidden),
-            ) for _ in range(n_mp_layers)
-        ])
-        self.node_mlps = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(2 * hidden, hidden), nn.SiLU(),
-                nn.Linear(hidden, hidden), nn.LayerNorm(hidden),
-            ) for _ in range(n_mp_layers)
-        ])
-
-        # Decoder
-        self.decoder = nn.Sequential(
-            nn.Linear(hidden, hidden), nn.SiLU(),
-            nn.Linear(hidden, out_fields),
-        )
+        from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet
+        self.net = MeshGraphNet(node_in, out_fields, edge_in_dim=edge_in, hidden_dim=hidden,
+                                n_message_passing=n_mp_layers, activation="gelu")
 
     def forward(self, node_feats, edge_index, edge_feats):
-        """
-        node_feats: (N, node_in)
-        edge_index: (2, E) — [src, dst]
-        edge_feats: (E, edge_in)
-        """
-        src, dst = edge_index[0], edge_index[1]
-        N = node_feats.shape[0]
-
-        h_n = self.node_enc(node_feats)
-        h_e = self.edge_enc(edge_feats)
-
-        for i in range(self.n_mp):
-            # Edge update: concat(h_src, h_dst, h_edge)
-            msg_in = torch.cat([h_n[src], h_n[dst], h_e], dim=-1)
-            h_e = h_e + self.edge_mlps[i](msg_in)
-
-            # Node aggregation: sum incoming messages
-            agg = torch.zeros(N, h_e.shape[-1], device=h_n.device)
-            agg.scatter_add_(0, dst.unsqueeze(-1).expand_as(h_e), h_e)
-
-            # Node update
-            h_n = h_n + self.node_mlps[i](torch.cat([h_n, agg], dim=-1))
-
-        return self.decoder(h_n)
+        from pinneapple_neural.architectures.graphnn.base import GraphBatch
+        g = GraphBatch(x=node_feats.unsqueeze(0), edge_index=edge_index, edge_attr=edge_feats.unsqueeze(0))
+        return self.net(g).y[0]
 
 
 def build_graph_tensors(nodes, edges, node_types, u_true, v_true, p_true):
     """Constrói tensores de features para o GNN."""
     N = len(nodes)
-    E = len(edges)
 
     # Node features: [x, y, type_onehot(4), Re_norm]
     type_onehot = np.zeros((N, 4), dtype=np.float32)
@@ -291,6 +231,7 @@ def train_mgn(model, node_t, edge_t, edge_idx_t, target_t, epochs=300):
             print(f"    epoch {ep:4d}  loss={loss.item():.4e}  {elapsed:.1f}s")
 
     return model
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -434,40 +375,15 @@ def print_validation_report(results):
 # ══════════════════════════════════════════════════════════════════════════════
 
 class ExportableGNN(nn.Module):
-    """
-    Wrapper que deixa o GNN exportável para TorchScript.
+    """Wrapper do modelo treinado para ``torch.jit.trace`` e ONNX: entradas e saída são só tensores."""
 
-    O GNN original usa listas de módulos indexadas dinamicamente —
-    TorchScript precisa de tipos estáticos. Este wrapper materializa
-    o forward pass de forma compatível.
-    """
-
-    def __init__(self, mgn: ReferenceMGN):
+    def __init__(self, mgn: PinneappleMGN):
         super().__init__()
-        self.node_enc = mgn.node_enc
-        self.edge_enc = mgn.edge_enc
-        self.edge_mlps = mgn.edge_mlps
-        self.node_mlps = mgn.node_mlps
-        self.decoder = mgn.decoder
-        self.n_mp = mgn.n_mp
+        self.mgn = mgn
 
     def forward(self, node_feats: torch.Tensor, edge_index: torch.Tensor,
                 edge_feats: torch.Tensor) -> torch.Tensor:
-        src = edge_index[0]
-        dst = edge_index[1]
-        N = node_feats.shape[0]
-
-        h_n = self.node_enc(node_feats)
-        h_e = self.edge_enc(edge_feats)
-
-        for i in range(self.n_mp):
-            msg_in = torch.cat([h_n[src], h_n[dst], h_e], dim=-1)
-            h_e = h_e + self.edge_mlps[i](msg_in)
-            agg = torch.zeros(N, h_e.shape[-1])
-            agg.scatter_add_(0, dst.unsqueeze(-1).expand_as(h_e), h_e)
-            h_n = h_n + self.node_mlps[i](torch.cat([h_n, agg], dim=-1))
-
-        return self.decoder(h_n)
+        return self.mgn(node_feats, edge_index, edge_feats)
 
 
 def export_model(model, node_t, edge_t, edge_idx_t, output_dir: Path):
@@ -602,7 +518,6 @@ def plot_results(nodes, node_types, u_true, v_true, p_true,
     # Divergência
     ax9 = fig.add_subplot(4, 4, 9)
     # Aproximação de divergência por nó
-    src_idx = np.array([])
     triplot_or_scatter(ax9, np.zeros(len(nodes)), "∇·u (divergência)", cmap="RdYlGn_r", vmin=0, vmax=0.1)
 
     # Tipo de nó
@@ -731,13 +646,8 @@ def main():
 
     # ── Fase 2: MeshGraphNet ──────────────────────────────────────────────────
     print("\n[2/4] Treinando MeshGraphNet...")
-    if PHYSICSNEMO_AVAILABLE:
-        print("  Usando PhysicsNeMo MeshGraphNet nativo")
-        # Em produção usaria PhysicsNeMoMGN com DDP + cuDNN kernels
-        model = ReferenceMGN(node_in=7, edge_in=4, hidden=64, out_fields=3, n_mp_layers=6)
-    else:
-        print("  Usando implementação de referência (idêntica em arquitetura)")
-        model = ReferenceMGN(node_in=7, edge_in=4, hidden=64, out_fields=3, n_mp_layers=6)
+    print("  Usando o MeshGraphNet do PINNeAPPle (pinneapple_neural.architectures.graphnn)")
+    model = PinneappleMGN(node_in=7, edge_in=4, hidden=64, out_fields=3, n_mp_layers=6)
 
     model = train_mgn(model, node_t, edge_t, edge_idx_t, target_t, epochs=300)
 

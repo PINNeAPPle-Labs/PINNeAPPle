@@ -1,10 +1,12 @@
 """32_physics_validation.py — Physics consistency validation.
 
 Demonstrates:
-- PhysicsValidator: check that a trained PINN satisfies its governing equations
-- ConservationLawChecker: verify energy / mass conservation integrals
-- BoundaryConsistencyChecker: confirm BC satisfaction at sampled boundary points
-- ValidationReport: structured per-check pass/fail with tolerance bands
+- PhysicsValidator with custom checks: mean PDE residual and the Dirichlet energy against its analytic value
+- ConservationCheck.check_integral_quantity: a domain integral (∫∫ u² = 1/4) against its exact value
+- BoundaryCheck.check_dirichlet: the boundary condition at sampled boundary points
+- ValidationReport: per-check pass/fail with thresholds, as a table
+
+All from ``pinneapple_analysis.validation``.
 """
 
 import math
@@ -15,10 +17,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from pinneapple_analysis.validation.physics_validator import PhysicsValidator, PhysicsValidatorConfig
-from pinneapple_analysis.validation.conservation import ConservationLawChecker
-from pinneapple_analysis.validation.boundary import BoundaryConsistencyChecker
-from pinneapple_analysis.validation.report import ValidationReport
+from pinneapple_analysis.validation import BoundaryCheck, ConservationCheck, PhysicsValidator
 
 
 # ---------------------------------------------------------------------------
@@ -65,87 +64,52 @@ def main():
     model = build_and_train(device, n_epochs=4000)
     print("Training complete.\n")
 
-    # --- PhysicsValidator (PDE residual check) --------------------------------
+    # --- PDE residual (also used for the residual map below) ---------------
     def pde_residual_fn(m, xy):
-        xy = xy.requires_grad_(True)
+        xy = xy.detach().requires_grad_(True)
         u  = m(xy)
         g  = torch.autograd.grad(u.sum(), xy, create_graph=True)[0]
         u_xx = torch.autograd.grad(g[:, 0:1].sum(), xy, create_graph=True)[0][:, 0:1]
         u_yy = torch.autograd.grad(g[:, 1:2].sum(), xy, create_graph=True)[0][:, 1:2]
         return u_xx + u_yy - f_source(xy)
 
-    pv_config = PhysicsValidatorConfig(
-        n_check_points=4096,
-        residual_tol=1e-2,         # pass if mean |residual| < tol
-        percentile_tol=99,         # also check 99th percentile
-        percentile_val=0.05,
-        device=str(device),
-    )
-    pv = PhysicsValidator(
-        model=model,
-        residual_fn=pde_residual_fn,
-        config=pv_config,
-    )
-    pv_result = pv.check()
-    print("PDE residual check:")
-    print(f"  mean |res| = {pv_result.mean_residual:.4e}  "
-          f"({'PASS' if pv_result.passed else 'FAIL'})")
-    print(f"  99th pct   = {pv_result.percentile_residual:.4e}")
+    coords = ["x", "y"]
+    bounds = {"x": (0.0, 1.0), "y": (0.0, 1.0)}
 
-    # --- ConservationLawChecker (∫ f dx dy = 0 for homogeneous Dirichlet) -----
-    def energy_integral(m) -> float:
-        """∫∫ |∇u|² dx dy  (Dirichlet energy)."""
-        n = 50
+    def mean_residual(m, coord_names, domain_bounds, n=4096):
+        """Custom check: mean |Δu - f| over random interior points (pass below the threshold)."""
+        xy = torch.rand(n, 2, device=device)
+        return float(pde_residual_fn(m, xy).abs().mean())
+
+    expected_energy = math.pi ** 2 / 2       # ∫∫ |∇u|² for u = sin(πx) sin(πy)
+
+    def energy_rel_error(m, coord_names, domain_bounds, n=50):
+        """Custom check: relative error of the Dirichlet energy ∫∫ |∇u|² dx dy."""
         x = np.linspace(0, 1, n, dtype=np.float32)
         xx, yy = np.meshgrid(x, x)
-        xy = torch.tensor(np.stack([xx.ravel(), yy.ravel()], axis=1), device=device,
-                          requires_grad=True)
-        u  = m(xy)
-        g  = torch.autograd.grad(u.sum(), xy)[0]
-        energy = (g ** 2).sum(dim=1).mean().item()
-        return energy
+        xy = torch.tensor(np.stack([xx.ravel(), yy.ravel()], axis=1), device=device, requires_grad=True)
+        g = torch.autograd.grad(m(xy).sum(), xy)[0]
+        return abs(float((g ** 2).sum(dim=1).mean()) - expected_energy) / expected_energy
 
-    expected_energy = (math.pi**2 / 2)  # analytic Dirichlet energy for sin(πx)sin(πy)
-    cons_checker = ConservationLawChecker(
-        model=model,
-        law_fn=energy_integral,
-        expected_value=expected_energy,
-        relative_tol=0.05,
-        name="Dirichlet energy",
-    )
-    cons_result = cons_checker.check()
-    print(f"\nConservation check — Dirichlet energy:")
-    print(f"  computed  = {cons_result.computed:.4f}")
-    print(f"  expected  ≈ {expected_energy:.4f}")
-    print(f"  rel error = {cons_result.relative_error:.4e}  "
-          f"({'PASS' if cons_result.passed else 'FAIL'})")
+    validator = PhysicsValidator(model, coords, bounds, device=str(device))
+    validator.add_custom_check(mean_residual, name="pde_residual_mean", threshold=5e-2)
+    validator.add_custom_check(energy_rel_error, name="dirichlet_energy_rel_error", threshold=0.05)
+    report = validator.validate(model_name="poisson_pinn")
 
-    # --- BoundaryConsistencyChecker ------------------------------------------
+    # --- Integral of u² against its exact value 1/4 ---------------------------
+    cons = ConservationCheck(device=str(device)).check_integral_quantity(
+        model, coords, bounds, integrand_fn=lambda u: u.pow(2).ravel(), expected_value=0.25,
+        tolerance=0.0125, name="integral_u_squared", n_points=20_000)
+
+    # --- Boundary condition u = 0 ---------------------------------------------
     from pinneapple_design.geometry.csg import CSGRectangle
-    rect = CSGRectangle(0, 0, 1, 1)
-    xy_bnd_np = rect.sample_boundary(n=512, seed=7)
-    xy_bnd = torch.tensor(xy_bnd_np, dtype=torch.float32, device=device)
+    xy_bnd = CSGRectangle(0, 0, 1, 1).sample_boundary(n=512, seed=7)
+    bc = BoundaryCheck(device=str(device)).check_dirichlet(
+        model, xy_bnd, np.zeros(len(xy_bnd)), tolerance=1e-2, name="dirichlet_u_zero")
 
-    bc_checker = BoundaryConsistencyChecker(
-        model=model,
-        bc_fn=lambda m, x: m(x),           # u should be 0 at boundary
-        bc_value=torch.zeros(len(xy_bnd), 1, device=device),
-        tol=1e-2,
-    )
-    bc_result = bc_checker.check(xy_bnd)
-    print(f"\nBoundary consistency check (Dirichlet u=0):")
-    print(f"  max |u_bc| = {bc_result.max_error:.4e}  "
-          f"({'PASS' if bc_result.passed else 'FAIL'})")
-    print(f"  mean|u_bc| = {bc_result.mean_error:.4e}")
-
-    # --- Compile full report -------------------------------------------------
-    report = ValidationReport(checks=[pv_result, cons_result, bc_result])
-    print(f"\n{'='*50}")
-    print("VALIDATION SUMMARY")
-    print(f"{'='*50}")
+    report.checks += [cons, bc]
     print(report.summary())
-
-    passed_all = report.all_passed()
+    passed_all = all(c.passed for c in report.checks)
     print(f"\nOverall: {'ALL CHECKS PASSED' if passed_all else 'SOME CHECKS FAILED'}")
 
     # --- Visualisation -------------------------------------------------------
@@ -157,8 +121,8 @@ def main():
     )
     with torch.no_grad():
         u_pred = model(xy_vis).cpu().numpy().reshape(n_vis, n_vis)
-        xy_pde = torch.rand(1024, 2, device=device, requires_grad=True)
-        res    = pde_residual_fn(model, xy_pde).abs().detach().cpu().numpy().ravel()
+    xy_pde = torch.rand(1024, 2, device=device)
+    res    = pde_residual_fn(model, xy_pde).abs().detach().cpu().numpy().ravel()   # needs autograd
 
     xy_pde_np = xy_pde.detach().cpu().numpy()
 

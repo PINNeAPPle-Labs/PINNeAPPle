@@ -1,0 +1,106 @@
+
+************************************************************
+
+CalculiX Version 2.21, Copyright(C) 1998-2023 Guido Dhondt
+CalculiX comes with ABSOLUTELY NO WARRANTY. This is free
+software, and you are welcome to redistribute it under
+certain conditions, see gpl.htm
+
+************************************************************
+
+You are using an executable made on Sat Jul 29 10:52:01 CEST 2023
+ Decascading the MPC's
+
+ Determining the structure of the matrix:
+ Using up to 1 cpu(s) for setting up the structure of the matrix.
+ number of equations
+ 8760
+ number of nonzero lower triangular matrix elements
+ 247791
+
+ increment 1 attempt 1 
+ increment size= 1.000000e-01
+ sum of previous increments=0.000000e+00
+ actual step time=1.000000e-01
+ actual total time=1.000000e-01
+
+ iteration 1
+
+ Using up to 1 cpu(s) for the stress calculation.
+
+ Using up to 1 cpu(s) for the symmetric stiffness/mass contributions.
+
+
+  The numbers below are estimated upper bounds
+
+  number of:
+
+   nodes:         2945
+   elements:          640
+   one-dimensional elements:            0
+   two-dimensional elements:            0
+   integration points per element:            8
+   degrees of freedom per node:            3
+   layers per element:            1
+
+   distributed facial loads:            0
+   distributed volumetric loads:            0
+   concentrated loads:           25
+   single point constraints:           75
+   multiple point constraints:            1
+   terms in all multiple point constraints:            1
+   tie constraints:            0
+   dependent nodes tied by cyclic constraints:            0
+   dependent nodes in pre-tension constraints:            0
+
+   sets:            4
+   terms in all sets:         2740
+
+   materials:            1
+   constants per material and temperature:            2
+   temperature points per material:            1
+   plastic data points per material:            0
+
+   orientations:            0
+   amplitudes:            2
+   data points in all amplitudes:            2
+   print requests:            1
+   transformations:            0
+   property cards:            0
+
+
+ STEP            1
+
+ *INFO reading *STEP: nonlinear geometric
+       effects are turned on
+
+ Static analysis was selected
+
+ Newton-Raphson iterative procedure is active
+
+ Nonlinear geometric effects are taken into account
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+
+ *ERROR in e_c3d: nonpositive jacobian
+        determinant in element           1
+

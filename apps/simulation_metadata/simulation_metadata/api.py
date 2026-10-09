@@ -26,7 +26,7 @@ VERSION = "1.0.0"
 HERE = os.path.dirname(__file__)
 STATIC = os.path.join(HERE, "static")
 EXAMPLES = os.path.join(HERE, "..", "examples")
-MAX_MB = float(os.environ.get("SMD_MAX_MB", "100"))
+MAX_MB = float(os.environ.get("SMD_MAX_MB") or "100")
 
 EXAMPLE_INFO = {
     "openfoam_pitzDaily_converged": "OpenFOAM simpleFoam · backward-facing step, k-ε RANS · converged",

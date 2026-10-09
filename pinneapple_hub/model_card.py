@@ -51,6 +51,29 @@ class ModelCard:
     tags: List[str] = field(default_factory=list)
     pinneapple_version: str = ""
 
+    # -- trust (decision D2) ----------------------------------------------------
+    # latest TrustReport (``TrustReport.to_dict()``) and, if a REJECT is published anyway, the recorded override
+    trust_report: Dict[str, Any] = field(default_factory=dict)
+    trust_override: Dict[str, Any] = field(default_factory=dict)
+
+    def attach_trust_report(self, report: Any) -> None:
+        """Store the latest TrustReport (a ``TrustReport`` or its ``to_dict()``); a new report clears an old override."""
+        self.trust_report = report.to_dict() if hasattr(report, "to_dict") else dict(report)
+        self.trust_override = {}
+
+    def override_trust(self, reason: str, by: str = "") -> None:
+        """Allow publication despite a REJECT; the reason is recorded in the card."""
+        if not reason or not reason.strip():
+            raise ValueError("an override needs a reason")
+        from datetime import datetime, timezone
+        self.trust_override = {"reason": reason.strip(), "by": by,
+                               "decision": self.trust_report.get("decisao", ""),
+                               "at": datetime.now(timezone.utc).isoformat()}
+
+    @property
+    def trust_decision(self) -> str:
+        return self.trust_report.get("decisao", "")
+
     def validate(self) -> List[str]:
         """Return a list of schema problems (empty = passes). Does not
         raise -- callers (e.g. a CI governance check, see
@@ -68,6 +91,10 @@ class ModelCard:
             )
         if self.validation_metrics and not self.reference_source:
             problems.append("validation_metrics is set but reference_source (what it was computed against) is empty")
+        if self.trust_decision == "REJECT" and not self.trust_override.get("reason"):
+            reasons = "; ".join(self.trust_report.get("motivos", [])) or "no reasons recorded"
+            problems.append(f"trust report decision is REJECT ({reasons}) -- publication is blocked unless "
+                            "overridden with a recorded reason (ModelCard.override_trust)")
         return problems
 
     def to_dict(self) -> Dict[str, Any]:
@@ -83,6 +110,18 @@ class ModelCard:
         with open(path, "r") as f:
             data = json.load(f)
         return ModelCard(**data)
+
+    def _trust_markdown(self) -> List[str]:
+        if not self.trust_report:
+            return []
+        r = self.trust_report
+        score = r.get("score")
+        out = ["## Trust", f"Decision: **{r.get('decisao', '')}** · score {'—' if score is None else f'{score:.2f}'}"
+               f" · coverage {r.get('cobertura', 0):.0%}", ""]
+        out += [f"- {m}" for m in r.get("motivos", [])]
+        if self.trust_override.get("reason"):
+            out += ["", f"Published despite {self.trust_override.get('decision')}: {self.trust_override['reason']}"]
+        return out + [""]
 
     def to_markdown(self) -> str:
         """A human-readable card, in the same spirit as a Hugging Face
@@ -106,6 +145,7 @@ class ModelCard:
             "|---|---|",
             *(f"| {k} | {v} |" for k, v in self.validation_metrics.items()),
             "",
+            *self._trust_markdown(),
             "## Citation",
             f"```\n{self.citation}\n```" if self.citation else "(none provided)",
         ]

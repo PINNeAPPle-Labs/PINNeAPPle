@@ -21,6 +21,12 @@ Ordered by dependency, not importance — do them roughly top to bottom. Updated
 - [ ] `uvx twine check dist/*`, then `uvx twine upload dist/*`.
 - [ ] Confirm on pypi.org/project/pinneapple/0.6.2/, tag `v0.6.2`, push the tag.
 
+## MeshGraphNet follow-ups (PR #232)
+
+- [x] #234: full test sweep, ruff, reduced-example test, TFRecord reader test.
+- [x] #237: example 06 on PINNeAPPle's MGN, English README with optional deps and `_out/` policy, CHANGELOG,
+  link from `examples/README.md`.
+
 ## Other work from this session, not yet wrapped up
 
 - [ ] **PK-PD rerun** (worktree `pp-pkpd-rerun`, branch `chore/pkpd-benchmark-rerun`): commit the

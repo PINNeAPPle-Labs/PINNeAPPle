@@ -565,6 +565,24 @@ _SUBMODULES = {
     "decision":   "pinneapple_decision",
     # one error-metric convention for the whole library
     "metrics":    "pinneapple_physics.metrics",
+    # 3D studio: any geometry and its fields -> glTF/USD/STL, Blender renders, browser viewer
+    "viz":        "pinneapple_tools.visualization.studio",
+    # external flow around any body in OpenFOAM (STL -> mesh -> forces, skin fields, streamlines, slices)
+    "cfd":        "pinneapple_simulation.numerical_solvers.external_flow",
+    # CAE files: OpenFOAM, CalculiX/Abaqus, Gmsh, VTK readers, mesh quality, comparison, neutral dataset
+    "cae":        "pinneapple_data.cae",
+    # closed bodies for flow studies (Ahmed body, sphere, cylinder, box)
+    "bodies":     "pinneapple_design.geometry.bodies",
+    # data and process security: manifests, signatures, provenance, audit trail, privacy/DP, model scanning
+    "security":   "pinneapple_security",
+    # Earth-system blocks: shallow water on the sphere (Williamson cases), Richards equation, two-layer climate EBM
+    "geophysics": "pinneapple_simulation.geophysics",
+    # adaptive ensembles of physics models (FNO, PINN, GNN, solvers): online selection / combination
+    "ensemble":   "pinneapple_physics.ensemble",
+    # qualitative preview: physical impact of geometry / part changes before the quantitative analysis
+    "qualitative": "pinneapple_design.qualitative",
+    # data assimilation: 4D-Var through autograd, Lorenz-96/63
+    "assimilation": "pinneapple_analysis.data_assimilation",
     # Field, Mesh, Domain, Geometry primitives
     "core":       "pinneapple_core",
     "loss":       "pinneapple_core.loss",

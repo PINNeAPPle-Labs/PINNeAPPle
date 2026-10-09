@@ -59,9 +59,9 @@ EXAMPLE_SETS: Dict[str, Dict[str, Any]] = {
         ("process_datasheet_P-101.pdf", "process datasheet"), ("pump_specification.pdf", "pump specification"),
         ("hydraulic_calculation_P-101.pdf", "hydraulic calculation")]},
 }
-MAX_MB = float(os.environ.get("UDR_MAX_MB", "40"))
-MAX_FILES = int(os.environ.get("UDR_MAX_FILES", "8"))
-OCR_MAX_PAGES = int(os.environ.get("UDR_OCR_MAX_PAGES", "30"))
+MAX_MB = float(os.environ.get("UDR_MAX_MB") or "40")
+MAX_FILES = int(os.environ.get("UDR_MAX_FILES") or "8")
+OCR_MAX_PAGES = int(os.environ.get("UDR_OCR_MAX_PAGES") or "30")
 
 DEFAULT_TEMPLATE = "asme_u-dr-1"
 
@@ -151,7 +151,7 @@ _LLM_CACHE: Dict[str, Any] = {"t": 0.0, "ok": False}
 
 def _llm() -> OllamaClient:
     return OllamaClient(url=os.environ.get("UDR_OLLAMA_URL") or None, model=os.environ.get("UDR_OLLAMA_MODEL") or None,
-                        timeout=float(os.environ.get("UDR_OLLAMA_TIMEOUT", "600")))
+                        timeout=float(os.environ.get("UDR_OLLAMA_TIMEOUT") or "600"))
 
 
 def _llm_available() -> bool:

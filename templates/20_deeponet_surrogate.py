@@ -1,10 +1,11 @@
 """20_deeponet_surrogate.py — DeepONet surrogate for parametric ODEs.
 
 Demonstrates:
-- DeepONet architecture (branch + trunk networks) from pinneapple_models
+- DeepONet (branch + trunk networks) from pinneapple_neural.architectures.neural_operators; the current
+  class has one hidden layer per network, so expect a test relative L2 around 0.1 at this size
 - Operator learning: map forcing function f → solution u
 - Query-point evaluation: trunk inputs are the spatial coordinates
-- Mean/std normalisation of branch inputs via InputNormaliser
+- Mean/std normalisation of branch inputs via pinneapple_data.transforms.StandardScaler
 """
 
 import torch
@@ -15,7 +16,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
-from pinneapple_neural.architectures.utils import InputNormaliser
+from pinneapple_data.transforms import StandardScaler
+
+_trapezoid = getattr(np, "trapezoid", None) or np.trapz   # NumPy 2 renamed trapz
 
 
 # ---------------------------------------------------------------------------
@@ -43,7 +46,7 @@ def double_integral(f_vals: np.ndarray, x_query: np.ndarray,
             continue
         # Interpolate f to s_pts
         f_interp = np.interp(s_pts, x_sensors, f_vals)
-        inner = np.trapz(f_interp, s_pts)           # ∫₀ˣ f dt  (single value)
+        inner = _trapezoid(f_interp, s_pts)           # ∫₀ˣ f dt  (single value)
         # Actually we need ∫₀ˣ ∫₀ˢ ... ds; build running integral
         inner_arr = []
         for s in s_pts:
@@ -52,8 +55,8 @@ def double_integral(f_vals: np.ndarray, x_query: np.ndarray,
                 inner_arr.append(0.0)
             else:
                 f_t = np.interp(t_pts, x_sensors, f_vals)
-                inner_arr.append(np.trapz(f_t, t_pts))
-        results.append(np.trapz(np.array(inner_arr), s_pts))
+                inner_arr.append(_trapezoid(f_t, t_pts))
+        results.append(_trapezoid(np.array(inner_arr), s_pts))
     return np.array(results, dtype=np.float32)
 
 
@@ -107,20 +110,15 @@ def main():
     Y_te = torch.tensor(y_te, device=device)
 
     # --- Normalise branch inputs ---------------------------------------------
-    normaliser = InputNormaliser()
-    normaliser.fit(B_tr)
+    normaliser = StandardScaler().fit(B_tr)
     B_tr_n = normaliser.transform(B_tr)
     B_te_n = normaliser.transform(B_te)
 
     # --- DeepONet ------------------------------------------------------------
-    model = DeepONet(
-        branch_input_dim=M_BRANCH,
-        trunk_input_dim=1,
-        hidden_dim=64,
-        n_basis=32,
-        branch_layers=4,
-        trunk_layers=4,
-    ).to(device)
+    # Every function is sampled on the same query grid, so the trunk sees the grid once and the
+    # branch-trunk contraction gives (batch, N_QUERY, 1) in one call.
+    model = DeepONet(branch_dim=M_BRANCH, trunk_dim=1, out_dim=1, hidden=64, modes=32).to(device)
+    x_grid = T_tr[0]                                   # (N_QUERY, 1)
 
     n_params = sum(p.numel() for p in model.parameters())
     print(f"DeepONet parameters: {n_params:,}")
@@ -141,15 +139,10 @@ def main():
         for i in range(0, N_TR, batch_size):
             bi = idx[i: i + batch_size]
             b  = B_tr_n[bi]                       # (bs, M)
-            t  = T_tr[bi].reshape(-1, 1)           # (bs*Q, 1)
-            y  = Y_tr[bi].reshape(-1)              # (bs*Q,)
-
-            # Repeat branch for each query point
-            bs_actual = b.shape[0]
-            b_rep = b.unsqueeze(1).expand(-1, N_QUERY, -1).reshape(-1, M_BRANCH)
+            y  = Y_tr[bi]                          # (bs, Q)
 
             optimizer.zero_grad()
-            y_hat = model(b_rep, t).squeeze(-1)    # (bs*Q,)
+            y_hat = model(b, x_grid).y.squeeze(-1)   # (bs, Q)
             loss  = (y_hat - y).pow(2).mean()
             loss.backward()
             optimizer.step()
@@ -164,9 +157,7 @@ def main():
     # --- Evaluation ----------------------------------------------------------
     model.eval()
     with torch.no_grad():
-        b_rep_te = B_te_n.unsqueeze(1).expand(-1, N_QUERY, -1).reshape(-1, M_BRANCH)
-        t_flat   = T_te.reshape(-1, 1)
-        y_hat_te = model(b_rep_te, t_flat).squeeze(-1).reshape(N_TE, N_QUERY).cpu().numpy()
+        y_hat_te = model(B_te_n, T_te[0]).y.squeeze(-1).cpu().numpy()   # (N_TE, Q)
     y_true_te = Y_te.cpu().numpy()
 
     rel_l2 = np.sqrt(((y_hat_te - y_true_te) ** 2).sum(1)) / \

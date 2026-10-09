@@ -1,0 +1,47 @@
+# Low-memory profile: one uvicorn worker per app (each worker holds its own copy of the libraries, so this
+# roughly halves the idle memory). Use on servers with 8 GB or less:
+#
+#   docker compose -p pinneapple-apps -f docker-compose.yml -f docker-compose.existing-proxy.yml \
+#     -f docker-compose.lowmem.yml up -d
+#
+# Each app still runs one heavy job at a time per worker (<APP>_MAX_HEAVY); extra requests get HTTP 429.
+services:
+  heatsink:
+    command: ["uvicorn", "heatsink_sizer.api:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
+    mem_limit: 1200m
+  pcb:
+    command: ["uvicorn", "pcb_hotspot.api:app", "--host", "0.0.0.0", "--port", "8081", "--workers", "1"]
+    mem_limit: 1200m
+  datahealth:
+    command: ["uvicorn", "data_health.api:app", "--host", "0.0.0.0", "--port", "8082", "--workers", "1"]
+    mem_limit: 1200m
+  standardizer:
+    command: ["uvicorn", "data_standardizer.api:app", "--host", "0.0.0.0", "--port", "8083", "--workers", "1"]
+    mem_limit: 1200m
+  simmeta:
+    command: ["uvicorn", "simulation_metadata.api:app", "--host", "0.0.0.0", "--port", "8084", "--workers", "1"]
+    mem_limit: 1200m
+  udr:
+    command: ["uvicorn", "design_requirements.api:app", "--host", "0.0.0.0", "--port", "8085", "--workers", "1"]
+    mem_limit: 1200m
+  inverse:
+    command: ["uvicorn", "inverse_heat.api:app", "--host", "0.0.0.0", "--port", "8086", "--workers", "1"]
+    mem_limit: 1200m
+  preflight:
+    command: ["uvicorn", "simulation_preflight.api:app", "--host", "0.0.0.0", "--port", "8087", "--workers", "1"]
+    mem_limit: 1200m
+  mesh:
+    command: ["uvicorn", "mesh_quality.api:app", "--host", "0.0.0.0", "--port", "8088", "--workers", "1"]
+    mem_limit: 1200m
+  compare:
+    command: ["uvicorn", "simulation_comparator.api:app", "--host", "0.0.0.0", "--port", "8089", "--workers", "1"]
+    mem_limit: 1200m
+  lineage:
+    command: ["uvicorn", "model_lineage.api:app", "--host", "0.0.0.0", "--port", "8090", "--workers", "1"]
+    mem_limit: 1200m
+  interop:
+    command: ["uvicorn", "interop_hub.api:app", "--host", "0.0.0.0", "--port", "8091", "--workers", "1"]
+    mem_limit: 1200m
+  aero:
+    command: ["uvicorn", "aero_optimizer.api:app", "--host", "0.0.0.0", "--port", "8092", "--workers", "1"]
+    mem_limit: 1800m    # torch + the graph network + the stored search: ~700 MB idle, more while searching

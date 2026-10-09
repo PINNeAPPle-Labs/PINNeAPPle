@@ -9,7 +9,6 @@ import json
 import subprocess
 import time
 from pathlib import Path
-from typing import Dict, Iterator, List, Tuple
 
 import numpy as np
 import torch
@@ -47,12 +46,12 @@ def download_prefix(dataset: str, split: str, dest: Path, nbytes: int) -> Path:
     return rec
 
 
-def read_trajectories(data_dir: Path, split: str, max_traj: int) -> List[Dict[str, np.ndarray]]:
+def read_trajectories(data_dir: Path, split: str, max_traj: int) -> list[dict[str, np.ndarray]]:
     from tfrecord.reader import tfrecord_loader
 
     meta = json.loads((data_dir / "meta.json").read_text())
     desc = {k: "byte" for k in meta["field_names"]}
-    out: List[Dict[str, np.ndarray]] = []
+    out: list[dict[str, np.ndarray]] = []
     it = tfrecord_loader(str(data_dir / f"{split}.tfrecord"), None, description=desc)
     while len(out) < max_traj:
         try:
@@ -70,7 +69,7 @@ def read_trajectories(data_dir: Path, split: str, max_traj: int) -> List[Dict[st
     return out
 
 
-def cylinder_flow_to_tensors(traj: Dict[str, np.ndarray], node_type_map: Dict[int, int]):
+def cylinder_flow_to_tensors(traj: dict[str, np.ndarray], node_type_map: dict[int, int]):
     """DeepMind trajectory → (MeshGraph, velocity (T,N,2), pressure (T,N,1)).
 
     ``node_type_map`` collapses raw ids to contiguous classes, e.g. the four
@@ -92,10 +91,10 @@ CYLINDER_TYPE_MAP = {0: 0, 4: 1, 5: 2, 6: 3}
 # Generic training / evaluation for MeshDynamicsMGN
 # ---------------------------------------------------------------------------
 
-def train_dynamics(model: MeshDynamicsMGN, data: List[Tuple[MeshGraph, torch.Tensor, torch.Tensor]],
+def train_dynamics(model: MeshDynamicsMGN, data: list[tuple[MeshGraph, torch.Tensor, torch.Tensor]],
                    *, steps: int, lr: float = 1e-4, lr_final: float = 1e-6,
                    noise_std: float = 0.02, device: torch.device, log_every: int = 200,
-                   seed: int = 0) -> List[float]:
+                   seed: int = 0) -> list[float]:
     """Random-(trajectory, time) one-step training with exponential LR decay."""
     rng = np.random.default_rng(seed)
     model.to(device).train()
@@ -122,11 +121,11 @@ def train_dynamics(model: MeshDynamicsMGN, data: List[Tuple[MeshGraph, torch.Ten
 
 
 @torch.no_grad()
-def eval_rollout(model: MeshDynamicsMGN, data, *, n_steps: int, device: torch.device) -> Dict[str, float]:
+def eval_rollout(model: MeshDynamicsMGN, data, *, n_steps: int, device: torch.device) -> dict[str, float]:
     """Mean rollout RMSE of velocity over ``n_steps`` plus 1-step RMSE."""
     model.to(device).eval()
     roll, one = [], []
-    for g, v, p in data:
+    for g, v, _p in data:
         g, v = g.to(device), v.to(device)
         n = min(n_steps, v.shape[0] - 1)
         pred, _ = model.rollout(v, g, n)

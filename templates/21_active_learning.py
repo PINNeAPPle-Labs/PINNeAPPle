@@ -1,9 +1,13 @@
 """21_active_learning.py — Residual-based active learning for PINNs.
 
 Demonstrates:
-- ResidualActiveSampler: adaptively adds collocation points where PDE residual is largest
-- VarianceActiveSampler: uses MC-Dropout uncertainty to guide sampling
-- CombinedActiveSampler: hybrid residual + variance strategy
+- ResidualBasedAL: adds collocation points where the PDE residual is largest (RAD, sampling ∝ |residual|)
+- VarianceBasedAL-style scores: MC-Dropout spread of the prediction as the uncertainty signal
+- CombinedAL: residual + variance + diversity score (all from pinneapple_data.active_learning)
+
+At this small budget (8 rounds, 1280 points, about 70 s on CPU) the three strategies end close together; one run
+gave L2 = 0.34 (uniform), 0.35 (residual) and 0.31 (combined). Active learning pays off on solutions with sharp
+local features and longer training, so treat this as a how-to, not a benchmark.
 - Comparison of active vs. uniform sampling convergence
 """
 
@@ -15,9 +19,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from pinneapple_data.active_learning import (
-    ResidualActiveSampler,
-    VarianceActiveSampler,
-    CombinedActiveSampler,
+    ActiveLearningConfig,
+    CombinedAL,
+    ResidualBasedAL,
 )
 
 
@@ -42,6 +46,30 @@ def poisson_residual(model: nn.Module, xy: torch.Tensor) -> torch.Tensor:
     u_xx = torch.autograd.grad(g[:, 0:1].sum(), xy, create_graph=True)[0][:, 0:1]
     u_yy = torch.autograd.grad(g[:, 1:2].sum(), xy, create_graph=True)[0][:, 1:2]
     return u_xx + u_yy - f_source(xy)
+
+
+def residual_numpy(model: nn.Module, device):
+    """(N, 2) numpy points -> |PDE residual| (N,): the callable the active-learning selectors expect."""
+    def fn(xy: np.ndarray) -> np.ndarray:
+        model.eval()                                   # deterministic residual (dropout off)
+        out = []
+        for i in range(0, len(xy), 4096):
+            t = torch.tensor(xy[i:i + 4096], dtype=torch.float32, device=device)
+            out.append(poisson_residual(model, t).abs().detach().cpu().numpy().ravel())
+        model.train()
+        return np.concatenate(out)
+    return fn
+
+
+def variance_numpy(model: nn.Module, device, n_mc: int = 30):
+    """(N, 2) numpy points -> MC-Dropout variance of the prediction (N,)."""
+    def fn(xy: np.ndarray) -> np.ndarray:
+        model.train()                                  # dropout on
+        t = torch.tensor(xy, dtype=torch.float32, device=device)
+        with torch.no_grad():
+            s = torch.stack([model(t) for _ in range(n_mc)])
+        return s.var(0).cpu().numpy().ravel()
+    return fn
 
 
 def build_pinn(dropout_p: float = 0.1) -> nn.Module:
@@ -100,9 +128,7 @@ def main():
     xy_bc = torch.tensor(xy_bc_np, dtype=torch.float32, device=device)
     u_bc  = torch.zeros(len(xy_bc), 1, device=device)
 
-    # Candidate pool
-    xy_cand_np = np.random.rand(CAND, 2).astype(np.float32)
-    xy_cand    = torch.tensor(xy_cand_np, device=device)
+    # The selectors draw their own candidate pool of CAND points inside `bounds`.
 
     results = {}
 
@@ -131,15 +157,14 @@ def main():
     model_r  = build_pinn().to(device)
     opt_r    = torch.optim.Adam(model_r.parameters(), lr=1e-3)
 
-    res_sampler = ResidualActiveSampler(
-        residual_fn=poisson_residual,
-        n_add=N_ADD,
-        temperature=1.0,
-    )
+    al_cfg = ActiveLearningConfig(n_candidates=CAND, n_select=N_ADD, seed=0)
+    bounds = {"x": (0.0, 1.0), "y": (0.0, 1.0)}
+    res_sampler = ResidualBasedAL(al_cfg, bounds)
     err_r = []
     for r in range(N_ROUNDS):
         train_step(model_r, opt_r, xy_col_r, xy_bc, u_bc, STEPS)
-        new_pts = res_sampler.sample(model_r, xy_cand, device=device)
+        new_np = res_sampler.select(residual_numpy(model_r, device), mode="weighted")
+        new_pts = torch.tensor(new_np, device=device)
         xy_col_r = torch.cat([xy_col_r, new_pts], dim=0)
         err_r.append(l2_error(model_r, device))
         print(f"  round {r+1}: n_col={xy_col_r.shape[0]}  L2={err_r[-1]:.4e}")
@@ -153,17 +178,12 @@ def main():
     model_c  = build_pinn(dropout_p=0.1).to(device)
     opt_c    = torch.optim.Adam(model_c.parameters(), lr=1e-3)
 
-    var_sampler = VarianceActiveSampler(n_mc=30, n_add=N_ADD // 2)
-    comb_sampler = CombinedActiveSampler(
-        residual_sampler=ResidualActiveSampler(
-            residual_fn=poisson_residual, n_add=N_ADD // 2
-        ),
-        variance_sampler=var_sampler,
-    )
+    comb_sampler = CombinedAL(al_cfg, bounds, residual_weight=0.6, variance_weight=0.3, diversity_weight=0.1)
     err_c = []
     for r in range(N_ROUNDS):
         train_step(model_c, opt_c, xy_col_c, xy_bc, u_bc, STEPS)
-        new_pts = comb_sampler.sample(model_c, xy_cand, device=device)
+        new_np = comb_sampler.select(residual_numpy(model_c, device), variance_numpy(model_c, device, n_mc=30))
+        new_pts = torch.tensor(new_np, device=device)
         xy_col_c = torch.cat([xy_col_c, new_pts], dim=0)
         err_c.append(l2_error(model_c, device))
         print(f"  round {r+1}: n_col={xy_col_c.shape[0]}  L2={err_c[-1]:.4e}")

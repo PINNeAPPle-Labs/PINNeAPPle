@@ -31,8 +31,8 @@ from appkit import BusyLimiter, install  # noqa: E402
 
 VERSION = "1.0.0"
 STATIC = os.path.join(os.path.dirname(__file__), "static")
-MAX_MB = float(os.environ.get("EDS_MAX_MB", "80"))
-MAX_FILES = int(os.environ.get("EDS_MAX_FILES", "8"))
+MAX_MB = float(os.environ.get("EDS_MAX_MB") or "80")
+MAX_FILES = int(os.environ.get("EDS_MAX_FILES") or "8")
 FORMATS = ["csv", "parquet", "hdf5", "json", "zip", "manifest", "recipe"]
 TIMEZONES = ["UTC", "America/Sao_Paulo", "America/New_York", "America/Chicago", "America/Denver",
              "America/Los_Angeles", "America/Mexico_City", "America/Bogota", "America/Santiago",

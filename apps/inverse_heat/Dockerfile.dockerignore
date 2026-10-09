@@ -1,0 +1,14 @@
+.git
+**/__pycache__
+**/*.pyc
+data
+!data/bundles
+examples
+!examples/use_cases/fin_convection_inverse
+notebooks
+benchmarks
+docs
+tests
+projects
+pinneapple_app/frontend
+apps/*/artifacts/dataset_*

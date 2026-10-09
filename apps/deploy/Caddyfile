@@ -77,3 +77,84 @@
 		}
 	}
 }
+
+{$IHL_DOMAIN} {
+	import common
+	reverse_proxy inverse:8086 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$PFL_DOMAIN} {
+	import common
+	request_body {
+		max_size 220MB
+	}
+	reverse_proxy preflight:8087 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$MQA_DOMAIN} {
+	import common
+	request_body {
+		max_size 220MB
+	}
+	reverse_proxy mesh:8088 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
+{$CMP_DOMAIN} {
+	import common
+	request_body {
+		max_size 320MB
+	}
+	reverse_proxy compare:8089 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
+{$LIN_DOMAIN} {
+	import common
+	request_body {
+		max_size 320MB
+	}
+	reverse_proxy lineage:8090 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$IOP_DOMAIN} {
+	import common
+	request_body {
+		max_size 520MB
+	}
+	reverse_proxy interop:8091 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
+{$ADO_DOMAIN} {
+	import common
+	request_body {
+		max_size 10MB
+	}
+	reverse_proxy aero:8092 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}

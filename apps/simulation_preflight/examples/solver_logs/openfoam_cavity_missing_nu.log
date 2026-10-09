@@ -1,0 +1,43 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:                                        |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build : (removed)
+Arch : (removed)
+Exec : (removed)
+Date : (removed)
+Time : (removed)
+Host : (removed)
+PID : (removed)
+I/O    : uncollated
+Case   : /home/user/run/no_nu
+nProcs : (removed)
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : (removed)
+allowSystemOperations : (removed)
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+PISO: Operating solver in PISO mode
+
+Reading transportProperties
+
+
+
+--> FOAM FATAL IO ERROR: 
+Entry 'nu' not found in dictionary "/home/user/run/no_nu/constant/transportProperties"
+
+file: /home/user/run/no_nu/constant/transportProperties
+
+    From function bool Foam::dimensioned<Type>::readEntry(const Foam::word&, const Foam::dictionary&, bool, bool, Foam::keyType::option) [with Type = double]
+    in file /build/openfoam-f52DVo/openfoam-1912.200626/src/OpenFOAM/lnInclude/dimensionedType.C at line 100.
+
+FOAM exiting
+

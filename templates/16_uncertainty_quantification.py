@@ -1,10 +1,12 @@
 """16_uncertainty_quantification.py — Uncertainty Quantification for PINNs.
 
 Demonstrates:
-- MCDropoutEstimator for epistemic uncertainty via Monte-Carlo Dropout
-- DeepEnsemble for variance estimation across independently trained models
-- ConformalPredictor for distribution-free prediction intervals
-- Uncertainty-aware loss plotting
+- MCDropoutWrapper for epistemic uncertainty via Monte-Carlo Dropout
+- EnsembleUQ for variance estimation across independently trained models
+- ConformalPredictor for distribution-free prediction intervals, with the measured coverage
+- A three-panel plot of the bands
+
+All from ``pinneapple_analysis.uncertainty``.
 """
 
 import torch
@@ -14,9 +16,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from pinneapple_analysis.uncertainty.mc_dropout import MCDropoutEstimator
-from pinneapple_analysis.uncertainty.ensemble import DeepEnsemble
-from pinneapple_analysis.uncertainty.conformal import ConformalPredictor
+from pinneapple_analysis.uncertainty import (
+    ConformalPredictor,
+    EnsembleUQ,
+    MCDropoutConfig,
+    MCDropoutWrapper,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -88,8 +93,9 @@ def main():
     base_model = build_mlp(dropout_p=0.15).to(device)
     train_model(base_model, x_tr, y_tr, n_epochs=3000)
 
-    mc_estimator = MCDropoutEstimator(model=base_model, n_samples=200)
-    mc_mean, mc_std = mc_estimator.predict(x_test)        # both (N,) numpy arrays
+    mc = MCDropoutWrapper(base_model, MCDropoutConfig(n_samples=200, seed=0))
+    res = mc.predict_with_uncertainty(x_test)             # UQResult: mean, std (N, 1)
+    mc_mean, mc_std = res.mean.cpu().numpy().ravel(), res.std.cpu().numpy().ravel()
 
     # =========================================================================
     # 2) Deep Ensemble
@@ -102,19 +108,15 @@ def main():
         train_model(m, x_tr, y_tr, n_epochs=3000)
         ensemble_members.append(m)
 
-    deep_ens = DeepEnsemble(models=ensemble_members)
-    ens_mean, ens_std = deep_ens.predict(x_test)          # both (N,) numpy arrays
+    deep_ens = EnsembleUQ(ensemble_members)
+    res = deep_ens.predict_with_uncertainty(x_test)       # UQResult over the 5 members
+    ens_mean, ens_std = res.mean.cpu().numpy().ravel(), res.std.cpu().numpy().ravel()
 
     # =========================================================================
     # 3) Conformal Prediction
     # =========================================================================
     print("[3] Conformal prediction (coverage = 90%) ...")
     # Use the first ensemble member as the base predictor
-    cal_preds = ensemble_members[0](
-        torch.tensor(x_cal_np, device=device)
-    ).detach().cpu().numpy().ravel()
-    cal_targets = y_cal_np.ravel()
-
     conformal = ConformalPredictor(
         model=ensemble_members[0],
         alpha=0.10,                # 90 % coverage
@@ -123,7 +125,11 @@ def main():
         x_cal=torch.tensor(x_cal_np, device=device),
         y_cal=torch.tensor(y_cal_np, device=device),
     )
-    conf_lower, conf_upper = conformal.predict_interval(x_test)  # (N,) each
+    _, conf_lower, conf_upper = conformal.predict(x_test)        # (N, 1) each
+    conf_lower, conf_upper = conf_lower.cpu().numpy().ravel(), conf_upper.cpu().numpy().ravel()
+    x_new, y_new = make_noisy_data(500, seed=2)                  # fresh points: coverage should be ≈ 90 %
+    cov = conformal.coverage(torch.tensor(x_new, device=device), torch.tensor(y_new, device=device))
+    print(f"    empirical coverage on 500 new points: {cov:.1%}")
 
     # =========================================================================
     # Visualisation

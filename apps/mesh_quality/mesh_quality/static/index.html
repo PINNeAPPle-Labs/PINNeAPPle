@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mesh Quality</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%230f766e%22/%3E%3Cpath d=%22M3 13L8 3l5 10zM5.5 8h5M8 3v10%22 stroke=%22white%22 stroke-width=%221.2%22 fill=%22none%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M2.5 13.5L8 2.5l5.5 11zM5.2 8h5.6M8 2.5v11M5.2 8L8 13.5 10.8 8" stroke="white" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg></div>
+    <div>
+      <div class="title">Mesh Quality</div>
+      <div class="subtitle">Where your mesh is bad, how bad, and what to do about it, before the solver finds out</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="check" class="active">Check</button>
+    <button data-tab="report">Mesh health</button>
+    <button data-tab="api">API</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-check" class="tab active">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>Mesh</h2>
+        <label class="drop" id="drop">
+          <input type="file" id="files" multiple>
+          <b>Drop a mesh file, a case zip or a polyMesh folder</b>
+          .msh (Gmsh) · .vtk / .vtu · .stl · .inp (Abaqus, CalculiX) · .frd · OpenFOAM case or polyMesh
+        </label>
+        <div class="filelist" id="filelist"></div>
+        <label>Check it for
+          <select id="target">
+            <option value="auto">Automatic (from the format)</option>
+            <option value="cfd">CFD, finite volume (checkMesh thresholds)</option>
+            <option value="fea">FEA, finite element (element shape)</option>
+            <option value="surface">Surface for meshing (STL)</option>
+          </select></label>
+        <button class="primary" type="button" id="run" disabled>Check mesh</button>
+        <div class="status-line" id="status"></div>
+        <fieldset>
+          <legend>Or open a real mesh</legend>
+          <div id="examples" class="examples"></div>
+        </fieldset>
+        <p class="privacy">Files are processed in memory for this request and are not stored.</p>
+      </form>
+      <div class="panel">
+        <div class="empty">
+          <h3>A bad mesh costs a solver run to find out. This finds out in seconds.</h3>
+          <p>Upload a mesh and get its health report:</p>
+          <div class="checkgrid">
+            <div><b>Finite-volume metrics</b><span>non-orthogonality, skewness, aspect ratio and volumes, computed exactly as OpenFOAM's checkMesh does, for any volume mesh</span></div>
+            <div><b>Element shape</b><span>scaled Jacobian, skewness and edge ratio for FEA, inverted elements</span></div>
+            <div><b>Connectivity</b><span>disconnected regions, parts touching only at a node or edge</span></div>
+            <div><b>Surfaces (STL)</b><span>holes, non-manifold edges, flipped normals, zero-area and duplicate faces, loose shells</span></div>
+            <div><b>Where</b><span>the bad cells grouped into problem regions, shown on the 3D model, with the nearest boundary</span></div>
+            <div><b>What to do</b><span>a fix for every issue, and an exportable checklist</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-report" class="tab">
+    <div id="report"><div class="panel empty"><h3>No mesh yet</h3><p>Upload a mesh or open an example.</p></div></div>
+  </section>
+
+  <section id="tab-api" class="tab">
+    <div class="panel">
+      <h2 style="margin-top:0">API</h2>
+      <p>Check every mesh your pipeline produces before it reaches the solver. Interactive documentation:
+        <a class="link" href="/docs" target="_blank">/docs</a>.</p>
+      <pre class="code"><code id="c1"></code></pre>
+      <h3>Python (PINNeAPPle)</h3>
+      <pre class="code"><code id="c2"></code></pre>
+      <table>
+        <thead><tr><th>Key</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td><code>status</code></td><td>PASS, WARNING or FAIL</td></tr>
+          <tr><td><code>checks</code></td><td>each check: status, message, why it matters, what to do</td></tr>
+          <tr><td><code>metrics</code></td><td>per metric: worst, mean, p50, p99, count beyond the threshold, histogram</td></tr>
+          <tr><td><code>regions</code></td><td>problem regions: cells, centre, bounding box, worst values and where, nearest patch</td></tr>
+          <tr><td><code>worst_cells</code></td><td>the worst cells per metric with their element number and position</td></tr>
+          <tr><td><code>summary</code> / <code>usage</code></td><td>mesh size, element types, patches, volume; elements analysed</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  Built on <b>PINNeAPPle</b> (pinneapple_data.cae: OpenFOAM, Gmsh, VTK, STL, Abaqus/CalculiX readers; checkMesh-equivalent
+  finite-volume metrics; element shape metrics).
+</footer>
+<script src="/shared/charts.js"></script>
+<script src="/shared/scope.js"></script>
+<script src="/shared/author.js"></script>
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script src="/static/app.js"></script>
+<script type="module" src="/static/viewer3d.js"></script>
+</body>
+</html>

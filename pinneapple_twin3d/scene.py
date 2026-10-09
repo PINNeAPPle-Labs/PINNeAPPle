@@ -113,6 +113,20 @@ class Scene:
                 return p
         raise KeyError(f"unknown part '{name}'")
 
+    def to_studio(self, step: int = -1):
+        """This twin as a ``pp.viz`` Scene (fields at time step ``step``) for Blender renders, glTF/USD export or
+        the studio viewer; sensors are left out."""
+        from pinneapple_tools.visualization.studio.scene import Scene as StudioScene, Surface
+        sc = StudioScene(title=self.title, axes="z_up")
+        for p in self.parts:
+            s = Surface(p.name, p.vertices, p.faces.astype(np.int64), material="grey")
+            for name, arr in p.fields.items():
+                s.fields[name] = np.asarray(arr[step if arr.shape[0] > 1 else 0], float)
+            sc.surfaces.append(s)
+        for name, unit in self.field_units.items():
+            sc.labels[name] = f"{name} ({unit})" if unit else name
+        return sc
+
     # -- export --------------------------------------------------------
     def export(self, folder: str, *, with_viewer: bool = True, usd: bool = False) -> str:
         """Write scene.json + geometry.glb + fields.bin (+ viewer, + scene.usda with ``usd=True``).
@@ -170,52 +184,25 @@ class Scene:
         if with_viewer:
             for name in os.listdir(VIEWER_DIR):
                 shutil.copy(os.path.join(VIEWER_DIR, name), os.path.join(folder, name))
+            # three.js from the library (the copy pp.viz and the apps use), so the viewer works offline
+            from pinneapple_tools.visualization.studio.web import HERE as _studio_web
+            vend = os.path.join(_studio_web, "vendor")
+            dst = os.path.join(folder, "vendor")
+            if os.path.isdir(dst):
+                shutil.rmtree(dst)
+            shutil.copytree(vend, dst)
         return path
 
 
 def _write_glb(path: str, parts: List[Part]) -> None:
-    """Minimal glTF 2.0 binary writer: one mesh + node per part (POSITION, NORMAL, indices)."""
-    bin_chunks, views, accessors, meshes, nodes, materials = [], [], [], [], [], []
-    offset = 0
-
-    def add_view(data: bytes, target: int) -> int:
-        nonlocal offset
-        pad = (-len(data)) % 4
-        bin_chunks.append(data + b"\x00" * pad)
-        views.append({"buffer": 0, "byteOffset": offset, "byteLength": len(data), "target": target})
-        offset += len(data) + pad
-        return len(views) - 1
-
-    for i, p in enumerate(parts):
-        v = np.ascontiguousarray(p.vertices, dtype="<f4")
-        idx = np.ascontiguousarray(p.faces.reshape(-1), dtype="<u4")
-        n = _vertex_normals(v, p.faces)
-        pv = add_view(v.tobytes(), 34962)
-        nv = add_view(n.tobytes(), 34962)
-        iv = add_view(idx.tobytes(), 34963)
-        accessors.append({"bufferView": pv, "componentType": 5126, "count": len(v), "type": "VEC3",
-                          "min": v.min(0).tolist(), "max": v.max(0).tolist()})
-        accessors.append({"bufferView": nv, "componentType": 5126, "count": len(v), "type": "VEC3"})
-        accessors.append({"bufferView": iv, "componentType": 5125, "count": int(idx.size), "type": "SCALAR"})
-        materials.append({"name": p.name, "pbrMetallicRoughness": {
-            "baseColorFactor": list(p.color) + [1.0], "metallicFactor": 0.1, "roughnessFactor": 0.7},
-            "doubleSided": True})
-        meshes.append({"name": p.name, "primitives": [{
-            "attributes": {"POSITION": 3 * i, "NORMAL": 3 * i + 1}, "indices": 3 * i + 2, "material": i}]})
-        nodes.append({"name": p.name, "mesh": i})
-
-    blob = b"".join(bin_chunks)
-    gltf = {"asset": {"version": "2.0", "generator": "pinneapple_twin3d"}, "scene": 0,
-            "scenes": [{"nodes": list(range(len(nodes)))}], "nodes": nodes, "meshes": meshes,
-            "materials": materials, "accessors": accessors, "bufferViews": views,
-            "buffers": [{"byteLength": len(blob)}]}
-    js = json.dumps(gltf, separators=(",", ":")).encode()
-    js += b" " * ((-len(js)) % 4)
-    total = 12 + 8 + len(js) + 8 + len(blob)
+    """One mesh + node per part (POSITION, NORMAL, indices), coordinates as given; the library's glTF writer
+    (``pinneapple_tools.visualization.studio``), shared with ``pp.viz`` and the apps."""
+    from pinneapple_tools.visualization.studio.scene import AXES, Surface, write_glb
+    surfaces = [Surface(p.name, p.vertices, p.faces, material=f"part{i}") for i, p in enumerate(parts)]
+    mats = {f"part{i}": {"color": list(p.color), "linear": True, "metallic": 0.1, "roughness": 0.7,
+                         "double_sided": True} for i, p in enumerate(parts)}
     with open(path, "wb") as f:
-        f.write(struct.pack("<III", 0x46546C67, 2, total))
-        f.write(struct.pack("<II", len(js), 0x4E4F534A) + js)
-        f.write(struct.pack("<II", len(blob), 0x004E4942) + blob)
+        f.write(write_glb(surfaces, AXES["as_is"], mats, generator="pinneapple_twin3d"))
 
 
 def _vertex_normals(v: np.ndarray, faces: np.ndarray) -> np.ndarray:

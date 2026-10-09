@@ -1,4 +1,3 @@
-from __future__ import annotations
 """MeshGraphNet — Encoder-Process-Decoder GNN for mesh-based simulation.
 
 Reference: Pfaff et al., ICLR 2021
@@ -33,15 +32,15 @@ All tensors carry an explicit batch dimension:
   positions     : (B, N, pos_dim)        — optional, used when use_pos=True
   edge_index    : (2, E)                 — shared topology across the batch
 """
+from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import torch
 import torch.nn as nn
 
-from .base import GraphModelBase, GraphBatch, GraphOutput
+from .base import GraphBatch, GraphModelBase, GraphOutput
 from .utils import scatter_add
-
 
 # ---------------------------------------------------------------------------
 # Building blocks
@@ -207,7 +206,7 @@ class MeshGraphNet(GraphModelBase):
         edge_enc_in  = edge_in_dim + pos_edge_dim
 
         if edge_enc_in > 0:
-            self.edge_encoder: Optional[nn.Module] = _mlp(
+            self.edge_encoder: nn.Module | None = _mlp(
                 edge_enc_in, hidden_dim, hidden_dim, n_layers, dropout, layernorm=True,
                 activation=activation,
             )
@@ -249,7 +248,7 @@ class MeshGraphNet(GraphModelBase):
         self,
         g: GraphBatch,
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> GraphOutput:
         """Forward pass over a batched graph.
@@ -278,7 +277,7 @@ class MeshGraphNet(GraphModelBase):
             * ``extras`` — ``{"h": node_embeddings, "e": edge_embeddings}``
         """
         src, dst = g.edge_index[0], g.edge_index[1]  # (E,)
-        B, N = g.x.size(0), g.x.size(1)
+        B = g.x.size(0)
 
         # ── Node encoding ─────────────────────────────────────────────
         x_input = g.x                                      # (B, N, node_in_dim)
@@ -318,7 +317,7 @@ class MeshGraphNet(GraphModelBase):
         y = self.decoder(h)                                # (B, N, out_dim)
 
         # ── Loss ─────────────────────────────────────────────────────
-        losses: Dict[str, torch.Tensor] = {
+        losses: dict[str, torch.Tensor] = {
             "total": torch.zeros((), device=y.device, dtype=y.dtype)
         }
         if return_loss and y_true is not None:
@@ -331,7 +330,7 @@ class MeshGraphNet(GraphModelBase):
 
         return GraphOutput(y=y, losses=losses, extras={"h": h, "e": e})
 
-    def forward_batch(self, batch: Dict[str, Any]) -> GraphOutput:
+    def forward_batch(self, batch: dict[str, Any]) -> GraphOutput:
         """Dict-based interface used by the Arena / GNNAdapter.
 
         Accepted keys

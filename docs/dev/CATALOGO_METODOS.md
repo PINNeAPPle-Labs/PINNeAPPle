@@ -9,7 +9,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
 | A. Solvers (S) | 14 | 10 | 2 |
-| B. Métodos de treino (T) | 1 | 12 | 9 |
+| B. Métodos de treino (T) | 2 | 12 | 8 |
 | C. Equações físicas (E) | 42 | 21 | 2 |
 | D. Problemas físicos (P) | 27 | 10 | 29 |
 
@@ -122,7 +122,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S18 — Particle dynamics: rigid body, MPM, molecular dynamics
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_mpm_simulator`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_mpm_state`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_particle_system_is_abstract` (+5)
+- **Evidência:** `PINNeAPPle/tests/test_bekker_wong_robust.py::test_invalid_inputs_raise`; `PINNeAPPle/tests/test_bekker_wong_robust.py::test_non_integer_sinkage_exponent_converges`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_mpm_simulator` (+7)
 - **Código:** `pinneapple_simulation/particle_dynamics/`
 - **Referências no código:** Stomakhin et al., A material point method for snow simulation, ACM TOG 32(4) (2013) · Hu et al., A moving least squares material point method, ACM TOG 37(4) (2018) · Swope, Andersen, Berens & Wilson, J. Chem. Phys. 76 (1982) 637 -- velocity Verlet
 - **Referências adicionadas:** Featherstone, Rigid Body Dynamics Algorithms, Springer, 2008
@@ -162,7 +162,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### S24 — External solvers: OpenFOAM, FEniCS, ANSYS/CFD formats, MATLAB, Modelica/FMI, MuJoCo, Genesis, TurboDesigner
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_caso_exportado_le_no_foamdictionary_e_roda_simplefoam`; `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_exportacao_todos_os_patches_em_todos_os_campos_e_reprodutivel`; `PINNeAPPle-CFD/tests/test_e03_geometria_cliente.py::test_api_upload_confirmar_previa_e_malha_cliente` (+63)
+- **Evidência:** `PINNeAPPle-CFD/tests/test_backends.py::test_api_diagnostico`; `PINNeAPPle-CFD/tests/test_backends.py::test_comando_docker_sem_cpus_e_identico_ao_de_sempre`; `PINNeAPPle-CFD/tests/test_backends.py::test_diagnostico_lista_todos_com_motivo` (+113)
 - **Código:** `pinneapple_simulation/external_solvers/`
 - **Referências adicionadas:** Weller, Tabor, Jasak & Fureby, A tensorial approach to CFD, Comput. Phys. 12(6) (1998) 620-631 (OpenFOAM) · Baratta et al., DOLFINx: the next generation FEniCS problem solving environment, 2023 · Blochwitz et al., The Functional Mockup Interface, Modelica Conference 2011 · Todorov, Erez & Tassa, MuJoCo, IROS 2012
 
@@ -183,7 +183,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### T1 — Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/pinneapple_train/test_trainer_minimal.py::test_trainer_runs_one_epoch`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_backtest_runner`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_cosim_trainer_fits` (+4)
+- **Evidência:** `PINNeAPPle-CFD/tests/test_pinn.py::test_annealing_usa_a_lib_quando_ela_tem_a_classe`; `PINNeAPPle/tests/pinneapple_train/test_trainer_minimal.py::test_trainer_runs_one_epoch`; `PINNeAPPle/tests/test_breadth_six_packages.py::test_breadth_backtest_runner` (+5)
 - **Código:** `pinneapple_neural/trainer/trainer.py`, `pinneapple_neural/trainer/hpc.py`
 - **Referências adicionadas:** Micikevicius et al., Mixed Precision Training, ICLR 2018, arXiv:1710.03740 · Kingma & Ba, Adam, ICLR 2015, arXiv:1412.6980
 
@@ -219,15 +219,16 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Código:** `pinneapple_neural/trainer/collocation.py`
 - **Referências no código:** Lu et al., DeepXDE, SIAM Rev. 63(1) (2021), arXiv:1907.04502 · Wu et al., non-adaptive and residual-based adaptive sampling for PINNs, CMAME 2023, arXiv:2207.10289
 
-### T8 — Loss balancing: ReLoBRaLo, SoftAdapt, PCGrad, Augmented Lagrangian, Inverse Dirichlet, AutoBalancer
-- **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle-CFD/tests/test_e08_funcao_perda.py::test_balanceador_inexistente_e_existente`; `PINNeAPPle-CFD/tests/test_e08_funcao_perda.py::test_perda_combinada_nomeada_com_balanceador_e_nan`
+### T8 — Loss balancing: ReLoBRaLo, SoftAdapt, PCGrad, Augmented Lagrangian, Inverse Dirichlet, LR Annealing, AutoBalancer
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_lr_annealing.py::test_one_update_matches_the_closed_form`
 - **Código:** `pinneapple_neural/trainer/loss_balancer.py`
 - **Referências no código:** Bischof & Kraus, Multi-objective loss balancing for PINNs, arXiv:2110.09813 · Heydari et al., SoftAdapt, arXiv:1912.12355 · van der Meer, Oosterlee & Borovykh, Optimally weighted loss functions for PDEs, 2022
-- **Referências adicionadas:** Yu et al., Gradient Surgery for Multi-Task Learning (PCGrad), NeurIPS 2020, arXiv:2001.06782 · Lu et al., PINNs with hard constraints for inverse design (augmented Lagrangian), arXiv:2102.04626 · Maddu et al., Inverse-Dirichlet weighting, arXiv:2107.00940
+- **Referências adicionadas:** Yu et al., Gradient Surgery for Multi-Task Learning (PCGrad), NeurIPS 2020, arXiv:2001.06782 · Lu et al., PINNs with hard constraints for inverse design (augmented Lagrangian), arXiv:2102.04626 · Maddu et al., Inverse-Dirichlet weighting, arXiv:2107.00940 · Wang, Teng & Perdikaris, Understanding and mitigating gradient flow pathologies in physics-informed neural networks, SIAM J. Sci. Comput. 43(5):A3055 (2021), doi:10.1137/20M1318043 (LR annealing, Algorithm 1)
 
 ### T9 — Weight schedulers: SA-PINN, GradNorm, LossRatio, NTK
-- **Estado:** ⚪ sem teste
+- **Estado:** 🟡 testado, sem referência
+- **Evidência:** `PINNeAPPle/tests/pinneapple_neural/test_lr_annealing.py::test_unknown_method_message_mentions_lr_annealing`; `PINNeAPPle/tests/pinneapple_neural/test_lr_annealing.py::test_weight_scheduler_dispatches_lr_annealing`
 - **Código:** `pinneapple_neural/trainer/weight_scheduler.py`
 - **Referências no código:** McClenny & Braga-Neto, Self-Adaptive PINNs, arXiv:2009.04544 · Chen et al., GradNorm, ICML 2018, arXiv:1711.02257 · Wang, Yu & Perdikaris, When and why PINNs fail to train: an NTK perspective, arXiv:2007.14527
 
@@ -314,13 +315,13 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E1 — Laplace
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_laplace_2d_exact_solution_gives_zero_residual` (+3)
+- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_laplace_2d_exact_solution_gives_zero_residual` (+4)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Evans, Partial Differential Equations, 2nd ed., AMS, 2010
 
 ### E2 — Poisson
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/pinneapple_solvers/test_fdm_robin.py::test_robin_poisson_matches_analytical_linear_profile`; `PINNeAPPle/tests/test_codegen.py::test_fdm_poisson_2d_matches_manufactured_solution`; `PINNeAPPle/tests/test_solver_exact_solutions_batch4.py::test_fem_q1_reproduces_quadratic_and_converges_second_order_on_harmonic` (+1)
+- **Evidência:** `PINNeAPPle/tests/pinneapple_solvers/test_fdm_robin.py::test_robin_poisson_matches_analytical_linear_profile`; `PINNeAPPle/tests/test_app_experiment_report.py::test_custom_problem_trains_on_real_equation_and_reports_held_out_error`; `PINNeAPPle/tests/test_codegen.py::test_fdm_poisson_2d_matches_manufactured_solution` (+2)
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Evans, Partial Differential Equations, 2nd ed., AMS, 2010
 
@@ -350,7 +351,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E7 — Burgers (viscous / inviscid)
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_fdm_burgers_1d_matches_traveling_front`
+- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_fdm_burgers_1d_matches_traveling_front`; `PINNeAPPle/tests/test_solve_compare_experiment.py::test_compare_scores_methods_on_the_same_points_and_reports_failures`; `PINNeAPPle/tests/test_solve_compare_experiment.py::test_solve_analytic_exact_and_custom_methods`
 - **Código:** `pinneapple_physics/pinn_solver/compiler/compile.py`
 - **Referências adicionadas:** Burgers, A mathematical model illustrating the theory of turbulence, Adv. Appl. Mech. 1 (1948) 171-199
 
@@ -589,7 +590,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E47 — Colebrook-White
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_correlacoes_de_referencia`; `PINNeAPPle-CFD/tests/test_e04_execucao.py::test_correlacoes_classicas`; `PINNeAPPle-CFD/tests/test_e09_treino.py::test_tubo_reto_atinge_meta_mvp_e_sinaliza_ood` (+5)
+- **Evidência:** `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_correlacoes_de_referencia`; `PINNeAPPle-CFD/tests/test_e04_execucao.py::test_correlacoes_classicas`; `PINNeAPPle-CFD/tests/test_e09_treino.py::test_tubo_reto_atinge_meta_mvp_e_sinaliza_ood` (+6)
 - **Código:** `PINNeAPPle-CFD/.../correlacoes.py`, `pinneapple_systems/process_components/pipe_network_1d.py`
 - **Referências adicionadas:** Colebrook, Turbulent flow in pipes, J. Inst. Civ. Eng. 11 (1939) 133-156
 
@@ -606,7 +607,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E50 — DNV-RP-O501 erosion (straight pipe and bend)
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle-CFD/tests/test_e01_descricao_problema.py::test_dureza_brinell_entra_na_ficha_e_libera_o_ecrc`; `PINNeAPPle-CFD/tests/test_e01_descricao_problema.py::test_ficha_aceita_pelo_e2`; `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_ca_e2_03_sem_velocidade_nem_vazao_nao_gera_caso` (+43)
+- **Evidência:** `PINNeAPPle-CFD/tests/test_e01_descricao_problema.py::test_dureza_brinell_entra_na_ficha_e_libera_o_ecrc`; `PINNeAPPle-CFD/tests/test_e01_descricao_problema.py::test_ficha_aceita_pelo_e2`; `PINNeAPPle-CFD/tests/test_e02_modelo_matematico.py::test_ca_e2_03_sem_velocidade_nem_vazao_nao_gera_caso` (+55)
 - **Código:** `PINNeAPPle-CFD/pinneapple_cfd/etapas/e02_modelo_matematico/erosao.py`
 - **Referências adicionadas:** DNV-RP-O501 rev. 4.2, Managing Sand Production and Erosion, 2007/2011
 
@@ -618,7 +619,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### E52 — von Mises equivalent stress
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle/tests/test_beam_statics.py::test_von_mises_stress_matches_pure_bending_limit_when_shear_is_zero`; `PINNeAPPle/tests/test_pipe_stress_mechanics.py::test_von_mises_pure_uniaxial_tension_equals_the_applied_stress`; `PINNeAPPle/tests/test_pipe_stress_mechanics.py::test_von_mises_triaxial_is_zero_under_a_purely_hydrostatic_stress_state` (+1)
+- **Evidência:** `PINNeAPPle-CFD/tests/test_posproc_rotas_analises.py::test_rotas_conducao_calor_e_tensao`; `PINNeAPPle-CFD/tests/test_tensao.py::test_deformacao_plana_tem_szz_de_poisson`; `PINNeAPPle-CFD/tests/test_tensao.py::test_tracao_uniaxial_bate_com_F_sobre_A` (+7)
 - **Código:** `pinneapple_systems/process_components/pipe_stress_mechanics.py`, `pinneapple_systems/process_components/beam_statics.py`
 - **Referências adicionadas:** von Mises, Goettinger Nachrichten, Math.-Phys. Kl. (1913) 582-592 · Budynas & Nisbett, Shigley's Mechanical Engineering Design, 10th ed., McGraw-Hill, 2015
 
@@ -707,7 +708,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### P1.1 — Academic: burgers_1d
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_fdm_burgers_1d_matches_traveling_front`
+- **Evidência:** `PINNeAPPle/tests/test_codegen.py::test_fdm_burgers_1d_matches_traveling_front`; `PINNeAPPle/tests/test_solve_compare_experiment.py::test_compare_scores_methods_on_the_same_points_and_reports_failures`; `PINNeAPPle/tests/test_solve_compare_experiment.py::test_solve_analytic_exact_and_custom_methods`
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E7
 
@@ -729,7 +730,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### P1.5 — Academic: laplace_2d
 - **Estado:** ✅ validado
-- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_laplace_2d_exact_solution_gives_zero_residual` (+2)
+- **Evidência:** `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_default_grad_method_autograd_unchanged_manufactured_solution`; `PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d`; `PINNeAPPle/tests/test_manufactured_solutions.py::test_audit_physics_laplace_2d_exact_solution_gives_zero_residual` (+3)
 - **Código:** `pinneapple_physics/pde_environment/presets/`
 - **Equações:** E1
 
@@ -1070,6 +1071,6 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 ### P9 — PINNeAPPle-CFD v1: pipes + particle erosion (CFD-04 pilot)
 - **Estado:** 🟡 testado, sem referência
-- **Evidência:** `PINNeAPPle-CFD/tests/test_e11_relatorio_pdf.py::test_api_rota_pdf_e_pdf_disponivel`; `PINNeAPPle-CFD/tests/test_e11_relatorio_pdf.py::test_carregador_por_arquivo_nao_deixa_modulo_meio_carregado`; `PINNeAPPle-CFD/tests/test_jornada.py::test_campanha_so_cobre_o_cfd04`
+- **Evidência:** `PINNeAPPle-CFD/tests/test_e11_relatorio_pdf.py::test_api_rota_pdf_e_pdf_disponivel`; `PINNeAPPle-CFD/tests/test_e11_relatorio_pdf.py::test_carregador_por_arquivo_nao_deixa_modulo_meio_carregado`; `PINNeAPPle-CFD/tests/test_estudos.py::test_plano_sem_discretos_mantem_hash_antigo` (+1)
 - **Código:** `PINNeAPPle-CFD/pinneapple_cfd/`
 - **Equações:** E10, E45, E46, E47, E48, E50

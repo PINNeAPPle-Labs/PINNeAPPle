@@ -1,0 +1,50 @@
+/* Simulation Preflight (base styles in /shared/app.css) */
+:root { --brand: #4338ca; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+input:focus, select:focus { outline: 2px solid #4338ca33; }
+.layout { grid-template-columns: 390px 1fr; }
+.checkgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 12px 0; }
+.checkgrid div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.checkgrid b { display: block; margin-bottom: 3px; }
+.checkgrid span { color: var(--muted); font-size: 13px; }
+.filelist { display: grid; gap: 4px; margin: 6px 0; }
+.filelist div { display: flex; justify-content: space-between; font-size: 12.5px; border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+.filelist button { border: 0; background: none; cursor: pointer; color: var(--muted); }
+.examples { display: grid; gap: 6px; }
+.examples h4 { margin: 6px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.examples button { text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 12.5px; }
+.examples button:hover { border-color: var(--brand); }
+.examples b { display: block; font-size: 12.5px; }
+.preflight { font-family: var(--mono); background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 16px 20px; font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; }
+.preflight .ok { color: #4ade80; } .preflight .warn { color: #fbbf24; } .preflight .bad { color: #f87171; } .preflight .dim { color: #94a3b8; }
+.preflight .head { color: #fff; font-weight: 700; }
+.verdict { display: flex; align-items: center; gap: 14px; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; }
+.verdict.PASS { background: var(--ok-bg); color: var(--ok); }
+.verdict.WARNING { background: var(--warn-bg); color: var(--warn); }
+.verdict.FAIL { background: var(--bad-bg); color: var(--bad); }
+.verdict .big { font-size: 22px; font-weight: 800; }
+.grid2b { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px; }
+@media (max-width: 1100px) { .grid2b { grid-template-columns: 1fr; } }
+.secs { display: grid; gap: 6px; }
+.sec { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+.sec.fail { border-color: #f3b7b2; background: #fff8f7; } .sec.warn { border-color: #f1d49b; background: #fffaf0; }
+.find { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+.find.fail { border-left: 4px solid var(--bad); } .find.warn { border-left: 4px solid #d97706; } .find.info { border-left: 4px solid #64748b; } .find.pass { border-left: 4px solid var(--ok); }
+.find .hd { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.find .t { font-weight: 700; }
+.find .loc { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.find .why { font-size: 13px; margin-top: 4px; }
+.find .fix { font-size: 13px; background: #f5f6fe; border-left: 3px solid var(--brand); padding: 6px 9px; border-radius: 0 6px 6px 0; margin-top: 6px; }
+.find .ev { font-size: 12.5px; margin-top: 6px; color: #7a2e0e; background: #fff4ed; border-radius: 6px; padding: 5px 9px; }
+.snip { font-family: var(--mono); font-size: 12px; background: #0f172a; color: #cbd5e1; border-radius: 8px; padding: 8px 0; margin-top: 8px; overflow-x: auto; }
+.snip div { padding: 0 10px; white-space: pre; }
+.snip div.at { background: #4338ca55; color: #fff; }
+.snip span.n { display: inline-block; width: 42px; color: #64748b; text-align: right; margin-right: 10px; }
+.pill.fail { background: var(--bad-bg); color: var(--bad); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.pass { background: var(--ok-bg); color: var(--ok); } .pill.info { background: #eef2f7; color: #475569; } .pill.na { background: #f1f5f9; color: #94a3b8; }
+.solverres { border: 1px dashed #c7c9f3; background: #f8f8ff; border-radius: 8px; padding: 9px 12px; font-size: 13px; margin-bottom: 12px; }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+.filters button { border: 1px solid var(--line); background: #fff; border-radius: 99px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+.filters button.on { border-color: var(--brand); color: var(--brand); font-weight: 700; }
+.toolbar .ghost { white-space: nowrap; }

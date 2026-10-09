@@ -402,16 +402,30 @@ class Comparison:
 
     def __str__(self) -> str:
         fields = self.problem.fields
-        head = f"{'method':<16}{'kind':<11}{'status':<10}{'time [s]':>10}  " + "  ".join(f"relL2({f})" for f in fields)
+        # cost columns of the benchmark protocol (D4): training (solve) time, inference per point, reference sims
+        head = (f"{'method':<16}{'kind':<11}{'status':<10}{'train [s]':>10}{'infer [us/pt]':>15}{'ref sims':>10}  "
+                + "  ".join(f"relL2({f})" for f in fields))
         lines = [f"Comparison on '{self.problem.name}' against '{self.reference}' at {self.n_points} points", head]
         for r in self.rows:
             if r["status"] == "ok":
                 rel = r["metrics"]["relative_l2"]
                 cells = "  ".join(f"{rel[f]:>{len('relL2()') + len(f)}.3e}" for f in fields)
-                lines.append(f"{r['method']:<16}{r['kind']:<11}{'ok':<10}{r['wall_time_s']:>10.3g}  {cells}")
+                lines.append(f"{r['method']:<16}{r['kind']:<11}{'ok':<10}{r['wall_time_s']:>10.3g}"
+                             f"{r.get('infer_us_per_point', float('nan')):>15.3g}{r.get('n_reference_sims', 0):>10d}  {cells}")
             else:
-                lines.append(f"{r['method']:<16}{'':<11}{'failed':<10}{'':>10}  {r['error']}")
+                lines.append(f"{r['method']:<16}{'':<11}{'failed':<10}{'':>35}  {r['error']}")
         return "\n".join(lines)
+
+
+def _timed_predict(sol: "Solution", points: np.ndarray):
+    """Prediction at ``points`` and the best-of-3 wall time of one predict call (s)."""
+    import time as _time
+    pred, best = None, float("inf")
+    for _ in range(3):
+        t0 = _time.perf_counter()
+        pred = sol.predict(points)
+        best = min(best, _time.perf_counter() - t0)
+    return pred, best
 
 
 def compare(problem: Union[PhysicalProblem, Any, str], methods: Sequence[Union[str, Callable[..., Solution]]], *,
@@ -447,8 +461,10 @@ def compare(problem: Union[PhysicalProblem, Any, str], methods: Sequence[Union[s
         name = m if isinstance(m, str) else getattr(m, "__name__", "custom")
         try:
             sol = solve(prob, m, **opts.get(name, {}))
-            pred = sol.predict(points)
+            pred, infer_s = _timed_predict(sol, points)
             rows.append({"method": name, "status": "ok", "kind": sol.kind, "wall_time_s": sol.wall_time_s,
+                         "infer_us_per_point": infer_s / max(len(points), 1) * 1e6,
+                         "n_reference_sims": int((sol.info or {}).get("n_reference_simulations", 0)),
                          "metrics": _metrics.summary(pred, truth, prob.fields, metric_names), "info": sol.info})
         except Exception as exc:  # noqa: BLE001 - one failing method must not hide the others
             rows.append({"method": name, "status": "failed", "error": f"{type(exc).__name__}: {exc}"})

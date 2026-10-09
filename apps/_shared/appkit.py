@@ -19,13 +19,23 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 
-VENDOR = os.path.join(os.path.dirname(__file__), "static", "vendor")
+def _vendor_dir() -> str:
+    """three.js ships once, inside the library (pinneapple_tools/visualization/studio/web/vendor), so the apps and
+    pp.viz's browser viewer serve the same copy. Located without importing the package."""
+    import importlib.util
+    spec = importlib.util.find_spec("pinneapple_tools")
+    root = list(spec.submodule_search_locations)[0]
+    return os.path.join(root, "visualization", "studio", "web", "vendor")
+
+
+VENDOR = _vendor_dir()
+STUDIO = os.path.dirname(VENDOR)                      # studio-core.js: colour scales, tubes, slices, edges
 SHARED = os.path.join(os.path.dirname(__file__), "static", "shared")
 
 
 def install(app: FastAPI, prefix: str) -> None:
-    """Optional HTTP Basic login + the shared static files: ``/vendor`` (three.js)
-    and ``/shared`` (UI pieces common to every app)."""
+    """Optional HTTP Basic login + the shared static files: ``/vendor`` (three.js), ``/studio`` (the studio viewer
+    core) and ``/shared`` (UI pieces common to every app)."""
     app.state.auth_user = os.environ.get(f"{prefix}_USER")
     app.state.auth_password = os.environ.get(f"{prefix}_PASSWORD")
 
@@ -47,6 +57,7 @@ def install(app: FastAPI, prefix: str) -> None:
         return await call_next(request)
 
     app.mount("/vendor", StaticFiles(directory=VENDOR), name="vendor")
+    app.mount("/studio", StaticFiles(directory=STUDIO), name="studio")
     app.mount("/shared", StaticFiles(directory=SHARED), name="shared")
 
 
@@ -54,7 +65,7 @@ class BusyLimiter:
     """Caps concurrent heavy requests per worker; the excess gets 429 instead of queueing."""
 
     def __init__(self, env_var: str, default: int = 2):
-        self.slots = threading.BoundedSemaphore(int(os.environ.get(env_var, str(default))))
+        self.slots = threading.BoundedSemaphore(int(os.environ.get(env_var) or default))
 
     def __enter__(self):
         if not self.slots.acquire(blocking=False):

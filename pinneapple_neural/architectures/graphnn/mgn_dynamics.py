@@ -1,4 +1,3 @@
-from __future__ import annotations
 """Transient mesh dynamics on top of :class:`MeshGraphNet`.
 
 Reproduces the training/inference recipe of Pfaff et al. (ICLR 2021) and of
@@ -15,16 +14,16 @@ the PhysicsNeMo ``vortex_shedding_mgn`` example:
 Meshes may differ per sample; each call processes one graph (B = 1), which is
 what the reference examples do as well.
 """
+from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional, Sequence
 
 import torch
 import torch.nn as nn
 
 from .base import GraphBatch
 from .mesh_graph_net import MeshGraphNet
-
 
 # ---------------------------------------------------------------------------
 # Graph construction
@@ -54,11 +53,11 @@ class MeshGraph:
 
     @classmethod
     def from_mesh(cls, pos: torch.Tensor, cells: torch.Tensor,
-                  node_type: torch.Tensor) -> "MeshGraph":
+                  node_type: torch.Tensor) -> MeshGraph:
         ei = triangles_to_edges(cells)
         return cls(ei, edge_features(pos, ei), node_type.long().view(-1))
 
-    def to(self, device) -> "MeshGraph":
+    def to(self, device) -> MeshGraph:
         return MeshGraph(self.edge_index.to(device), self.edge_attr.to(device),
                          self.node_type.to(device))
 
@@ -77,7 +76,7 @@ class Normalizer(nn.Module):
         self.register_buffer("std", torch.ones(dim))
 
     @torch.no_grad()
-    def fit(self, tensors: Iterable[torch.Tensor]) -> "Normalizer":
+    def fit(self, tensors: Iterable[torch.Tensor]) -> Normalizer:
         n, s, s2 = 0, 0.0, 0.0
         for t in tensors:
             t = t.reshape(-1, t.shape[-1]).double()
@@ -129,7 +128,7 @@ class MeshDynamicsMGN(nn.Module):
     # -- statistics ---------------------------------------------------------
     @torch.no_grad()
     def fit_stats(self, velocities: Sequence[torch.Tensor],
-                  pressures: Optional[Sequence[torch.Tensor]],
+                  pressures: Sequence[torch.Tensor] | None,
                   graphs: Sequence[MeshGraph]) -> None:
         """``velocities``: list of (T, N, vel_dim); ``pressures``: (T, N, 1)."""
         self.vel_norm.fit(v[:-1] for v in velocities)
@@ -154,7 +153,7 @@ class MeshDynamicsMGN(nn.Module):
 
     # -- training loss -------------------------------------------------------
     def loss(self, vel_t: torch.Tensor, vel_t1: torch.Tensor,
-             p_t1: Optional[torch.Tensor], g: MeshGraph,
+             p_t1: torch.Tensor | None, g: MeshGraph,
              noise_std: float = 0.02, normal_type: int = 0) -> torch.Tensor:
         """One-step MSE in normalised space, with PhysicsNeMo-style noise.
 

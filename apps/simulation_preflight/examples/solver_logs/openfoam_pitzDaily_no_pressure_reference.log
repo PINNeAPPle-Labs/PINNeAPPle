@@ -1,0 +1,52 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:                                        |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build : (removed)
+Arch : (removed)
+Exec : (removed)
+Date : (removed)
+Time : (removed)
+Host : (removed)
+PID : (removed)
+I/O    : uncollated
+Case   : /home/user/run/no_pref
+nProcs : (removed)
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : (removed)
+allowSystemOperations : (removed)
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 0.01
+    field U	 tolerance 0.001
+    field "(k|epsilon|omega|f|v2)"	 tolerance 0.001
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+
+
+--> FOAM FATAL IO ERROR: 
+Unable to set reference cell for field p
+    Please supply either pRefCell or pRefPoint
+
+
+file: /home/user/run/no_pref/system/fvSolution.SIMPLE from line 39 to line 46.
+
+    From function bool Foam::setRefCell(const volScalarField&, const volScalarField&, const dictionary&, label&, scalar&, bool)
+    in file cfdTools/general/findRefCell/findRefCell.C at line 100.
+
+FOAM exiting
+

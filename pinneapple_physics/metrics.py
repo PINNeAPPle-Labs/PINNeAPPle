@@ -22,7 +22,8 @@ from typing import Callable, Dict, Sequence
 
 import numpy as np
 
-__all__ = ["l2", "relative_l2", "rmse", "mae", "max_abs", "relative_linf", "r2", "per_field", "summary", "METRICS"]
+__all__ = ["l2", "relative_l2", "rmse", "mae", "max_abs", "relative_linf", "r2", "per_field", "summary", "pooled",
+           "METRICS"]
 
 
 def _as2d(pred, true):
@@ -123,3 +124,30 @@ def summary(pred, true, fields: Sequence[str], names: Sequence[str] = ("relative
     if unknown:
         raise KeyError(f"unknown metric(s) {unknown}; available: {sorted(METRICS)}")
     return {n: per_field(METRICS[n], pred, true, fields) for n in names}
+
+
+def pooled(pred, true) -> Dict[str, float]:
+    """One number per metric over every entry, all fields together: ``relative_l2``, ``rmse``, ``mse``, ``max_abs``,
+    ``r2``. For leaderboards that rank models by a single value; use the per-field functions for anything reported
+    per quantity. When the shapes differ, a 1-D side gets a trailing axis and the two are broadcast, as the benchmark
+    suite always did."""
+    p, t = _np(pred), _np(true)
+    if p.shape != t.shape:
+        p = p[:, None] if p.ndim == 1 else p
+        t = t[:, None] if t.ndim == 1 else t
+        p, t = np.broadcast_arrays(p, t)
+    p, t = p.ravel(), t.ravel()
+    m = {k: float(f(p, t)) for k, f in (("relative_l2", relative_l2), ("rmse", rmse), ("max_abs", max_abs),
+                                         ("r2", r2))}
+    m["mse"] = m["rmse"] ** 2
+    return m
+
+
+def _np(a) -> np.ndarray:
+    try:
+        import torch
+        if isinstance(a, torch.Tensor):
+            return a.detach().cpu().numpy().astype(np.float64)
+    except ImportError:  # pragma: no cover
+        pass
+    return np.asarray(a, dtype=np.float64)

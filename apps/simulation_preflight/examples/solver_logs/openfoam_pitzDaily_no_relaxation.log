@@ -1,0 +1,83 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:                                        |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build : (removed)
+Arch : (removed)
+Exec : (removed)
+Date : (removed)
+Time : (removed)
+Host : (removed)
+PID : (removed)
+I/O    : uncollated
+Case   : /home/user/run/no_relax
+nProcs : (removed)
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : (removed)
+allowSystemOperations : (removed)
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+    field p	 tolerance 0.01
+    field U	 tolerance 0.001
+    field "(k|epsilon|omega|f|v2)"	 tolerance 0.001
+
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kEpsilon
+RAS
+{
+    RASModel        kEpsilon;
+    turbulence      on;
+    printCoeffs     on;
+    Cmu             0.09;
+    C1              1.44;
+    C2              1.92;
+    C3              0;
+    sigmak          1;
+    sigmaEps        1.3;
+}
+
+No MRF models present
+
+No finite volume options present
+
+Starting time loop
+
+Time = 1
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 0.0767884, No Iterations 1
+smoothSolver:  Solving for Uy, Initial residual = 1, Final residual = 0.0613675, No Iterations 2
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.06819, No Iterations 17
+time step continuity errors : sum local = 1.19318, global = 0.177638, cumulative = 0.177638
+#0  Foam::error::printStack(Foam::Ostream&) at ??:?
+#1  Foam::sigFpe::sigHandler(int) at ??:?
+#2  ? in /lib/x86_64-linux-gnu/libc.so.6
+#3  Foam::symGaussSeidelSmoother::smooth(Foam::word const&, Foam::Field<double>&, Foam::lduMatrix const&, Foam::Field<double> const&, Foam::FieldField<Foam::Field, double> const&, Foam::UPtrList<Foam::lduInterfaceField const> const&, unsigned char, int) at ??:?
+#4  Foam::symGaussSeidelSmoother::smooth(Foam::Field<double>&, Foam::Field<double> const&, unsigned char, int) const at ??:?
+#5  Foam::smoothSolver::solve(Foam::Field<double>&, Foam::Field<double> const&, unsigned char) const at ??:?
+#6  Foam::fvMatrix<double>::solveSegregated(Foam::dictionary const&) at ??:?
+#7  ? at ??:?
+#8  Foam::fvMesh::solve(Foam::fvMatrix<double>&, Foam::dictionary const&) const at ??:?
+#9  ? at ??:?
+#10  ? at ??:?
+#11  ? at ??:?
+#12  ? in /usr/bin/simpleFoam
+#13  ? in /lib/x86_64-linux-gnu/libc.so.6
+#14  __libc_start_main in /lib/x86_64-linux-gnu/libc.so.6
+#15  ? in /usr/bin/simpleFoam
+Floating point exception (core dumped)

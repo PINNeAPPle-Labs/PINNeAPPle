@@ -27,8 +27,8 @@ from appkit import BusyLimiter, install  # noqa: E402
 
 VERSION = "1.0.0"
 STATIC = os.path.join(os.path.dirname(__file__), "static")
-MAX_MB = float(os.environ.get("EDH_MAX_MB", "50"))
-MAX_ROWS = int(os.environ.get("EDH_MAX_ROWS", "1000000"))
+MAX_MB = float(os.environ.get("EDH_MAX_MB") or "50")
+MAX_ROWS = int(os.environ.get("EDH_MAX_ROWS") or "1000000")
 FORMATS = [".csv", ".tsv", ".txt", ".xlsx", ".xls", ".parquet", ".json", ".jsonl", ".h5", ".hdf5"]
 
 app = FastAPI(title="Engineering Data Health", version=VERSION,

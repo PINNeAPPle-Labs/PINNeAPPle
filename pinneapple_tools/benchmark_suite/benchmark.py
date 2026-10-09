@@ -22,6 +22,8 @@ import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
+from pinneapple_physics import metrics as pm      # one definition of every error metric (pp.metrics)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Config & result dataclasses
@@ -145,10 +147,8 @@ class BenchmarkTaskBase:
             if U_ref.ndim == 1:
                 U_ref = U_ref.unsqueeze(-1)
 
-        diff = U_pred - U_ref
-        rel_l2 = float((diff.pow(2).sum() / (U_ref.pow(2).sum() + 1e-10)).sqrt().item())
-        l_inf = float(diff.abs().max().item())
-        mse = float(diff.pow(2).mean().item())
+        m = pm.pooled(U_pred, U_ref)
+        rel_l2, l_inf, mse = m["relative_l2"], m["max_abs"], m["mse"]
 
         # PDE residual on eval grid
         X_req = X_t.detach().requires_grad_(True)
@@ -779,6 +779,42 @@ def _train_benchmark_batch(
     return history, convergence_epoch
 
 
+def _inference_us_per_point(task, model: nn.Module, device: torch.device, spec: "ModelSpec", n: int = 4096) -> float:
+    """Inference cost: best-of-3 wall time of one forward pass, in microseconds per evaluated point (protocol D4).
+    Pointwise models get ``n`` random inputs; other kinds go through their adapter on the task's eval batch."""
+    import time as _time
+    try:
+        model.eval()
+        if spec.input_kind == "pointwise_coords":
+            x = torch.rand(n, task.in_dim, device=device)
+
+            def fwd():
+                return model(x)
+            n_pts = n
+        else:
+            from pinneapple_neural.architectures.adapters.base import select_adapter
+            batch = task.build_batch(spec.input_kind, getattr(task, "n_eval", 2000), 0, device, split="eval")
+            if batch is None or batch.get("y_true") is None:
+                return float("nan")
+            adapter = select_adapter(spec)
+
+            def fwd():
+                return adapter.forward_batch(model, batch)
+            n_pts = int(batch["y_true"].shape[0])
+        best = float("inf")
+        with torch.no_grad():
+            fwd()                                            # warm-up
+            for _ in range(3):
+                t0 = _time.perf_counter()
+                fwd()
+                if device.type == "cuda":
+                    torch.cuda.synchronize()
+                best = min(best, _time.perf_counter() - t0)
+        return best / max(n_pts, 1) * 1e6
+    except Exception:
+        return float("nan")
+
+
 def _evaluate_batch(
     task: BenchmarkTaskBase, model: nn.Module, device: torch.device, spec: "ModelSpec"
 ) -> Dict[str, float]:
@@ -807,10 +843,8 @@ def _evaluate_batch(
         if y_true.ndim == 1:
             y_true = y_true.unsqueeze(-1)
 
-    diff = pred - y_true
-    rel_l2 = float((diff.pow(2).sum() / (y_true.pow(2).sum() + 1e-10)).sqrt().item())
-    l_inf = float(diff.abs().max().item())
-    mse = float(diff.pow(2).mean().item())
+    m = pm.pooled(pred, y_true)
+    rel_l2, l_inf, mse = m["relative_l2"], m["max_abs"], m["mse"]
 
     # Mirrors BenchmarkTaskBase.evaluate()'s capture point for pointwise
     # models — lets tasks that want a real-vs-predicted sample for plots
@@ -923,9 +957,14 @@ class PINNArenaBenchmark:
                                     "mse": float("nan"), "pde_residual": float("nan")}
 
                 elapsed = time.time() - t0
+                infer_us = _inference_us_per_point(task, model, device, spec) if n_params else float("nan")
                 metrics = {
                     **eval_metrics,
                     "train_time_s": elapsed,
+                    # cost columns of the benchmark protocol (D4): training time above, inference per point, and
+                    # the reference simulations the method consumed (0 for physics-only training)
+                    "infer_us_per_point": infer_us,
+                    "n_reference_sims": float(getattr(task, "n_reference_simulations", 0)),
                     "n_params": float(n_params),
                     "convergence_epoch": float(conv_ep),
                 }
@@ -989,15 +1028,18 @@ class PINNArenaBenchmark:
             for pid, runs in by_prob.items():
                 sorted_runs = sorted(runs, key=lambda r: r.metrics.get(metric, 1e9))
                 lines.append(f"\n  Problem: {pid}")
-                hdr = f"    {'Rank':<5} {'Model':<22} {metric:>10}  {'l_inf':>10}  {'time':>8}  {'params':>10}"
+                hdr = (f"    {'Rank':<5} {'Model':<22} {metric:>10}  {'l_inf':>10}  {'train [s]':>9}  "
+                       f"{'infer [us/pt]':>13}  {'ref sims':>8}  {'params':>10}")
                 lines.append(hdr)
                 lines.append("    " + "-" * (len(hdr) - 4))
                 for r in sorted_runs:
                     val = r.metrics.get(metric, float("nan"))
                     li = r.metrics.get("l_inf", float("nan"))
+                    inf = r.metrics.get("infer_us_per_point", float("nan"))
+                    refs = r.metrics.get("n_reference_sims", float("nan"))
                     lines.append(
                         f"    #{r.rank:<4} {r.model_id:<22} {val:>10.3e}  {li:>10.3e}"
-                        f"  {r.elapsed_s:>7.1f}s  {r.n_params:>10,}"
+                        f"  {r.elapsed_s:>9.1f}  {inf:>13.3g}  {refs:>8.0f}  {r.n_params:>10,}"
                     )
             return "\n".join(lines)
 
@@ -1016,14 +1058,22 @@ class PINNArenaBenchmark:
             vals = [v for v in vals if not math.isnan(v)]
             avg_metric_by_model[mid] = float(np.mean(vals)) if vals else float("nan")
 
+        def _mean(mid, key):
+            v = [r.metrics.get(key, float("nan")) for r in self.results if r.model_id == mid]
+            v = [x for x in v if not math.isnan(x)]
+            return float(np.mean(v)) if v else float("nan")
+
         ranked = sorted(avg_rank_by_model.items(), key=lambda x: x[1])
         lines = [
             "\n  Global Leaderboard (avg rank across all problems)",
-            f"  {'Rank':<5} {'Model':<22} {'avg rank':>10}  {'avg ' + metric:>12}",
-            "  " + "-" * 56,
+            f"  {'Rank':<5} {'Model':<22} {'avg rank':>10}  {'avg ' + metric:>12}  {'train [s]':>9}  "
+            f"{'infer [us/pt]':>13}  {'ref sims':>8}",
+            "  " + "-" * 92,
         ]
         for i, (mid, rk) in enumerate(ranked, start=1):
-            lines.append(f"  #{i:<4} {mid:<22} {rk:>10.2f}  {avg_metric_by_model[mid]:>12.4e}")
+            lines.append(f"  #{i:<4} {mid:<22} {rk:>10.2f}  {avg_metric_by_model[mid]:>12.4e}  "
+                         f"{_mean(mid, 'train_time_s'):>9.1f}  {_mean(mid, 'infer_us_per_point'):>13.3g}  "
+                         f"{_mean(mid, 'n_reference_sims'):>8.0f}")
         return "\n".join(lines)
 
     def best_per_problem(self, metric: str = "rel_l2") -> Dict[str, str]:

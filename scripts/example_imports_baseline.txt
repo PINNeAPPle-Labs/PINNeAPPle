@@ -46,7 +46,6 @@ templates/21_active_learning.py
 templates/22_model_serving.py
 templates/23_model_export.py
 templates/24_digital_twin.py
-templates/26_rom_pod_dmd.py
 templates/27_timeseries_models.py
 templates/28_arena_benchmark.py
 templates/29_koopman_autoencoder.py

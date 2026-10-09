@@ -14,6 +14,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Process optimizer (Data Health app, Optimize tab): forward-chaining time-series cross-validation on the training period chooses the L2 regularisation of the KPI model; the fold errors, their mean and spread and the chosen strength are in the report (`model.cv`) and on the page (#81).
+
 - Experiment tracking adapter (#113): `pp.Experiment(..., tracker="mlflow" | "wandb" | callable)` sends the flat config, every metric as `<metric>/<field>`, the wall time, the problem fingerprint and the saved record (`result.json`, `model.pt`) to the tracker; `pinneapple_physics.tracking.log_result` does the same for an existing result. Extra: `pip install pinneapple[tracking]`.
 
 - TrustReport persisted with the model (#157, decision D2): `ModelCard.attach_trust_report` / `override_trust` and `ModelStore.save(trust_report=...)` / `set_trust_report` / `promote(override_reason=...)`. A REJECT blocks publication (card validation, hub push, promotion to staging/production) unless overridden with a recorded reason. `TrustReport.from_dict` restores a stored report.

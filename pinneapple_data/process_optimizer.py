@@ -7,7 +7,8 @@ From historical operating data:
 2. **Learn** the plant: a gradient-boosting model (scikit-learn ``HistGradientBoostingRegressor``) predicts
    the KPI (e.g. plant power) from the *levers* the operator controls (setpoints, speeds) and the *context*
    the operator does not (weather, load). It is scored on the most recent 20-30 % of the record, which it
-   never saw (time split, no shuffling).
+   never saw (time split, no shuffling). Its L2 regularisation is chosen by forward-chaining time-series
+   cross-validation inside the training part, and the per-fold errors are reported.
 3. **Optimize** each test-period hour: try lever combinations and keep the one with the best predicted
    KPI that also
    * stays inside the operating envelope: the lever + context combination must resemble situations in
@@ -105,10 +106,44 @@ def clean_for_modeling(df: pd.DataFrame, report: Dict[str, Any]) -> Tuple[pd.Dat
 
 
 # ── model ───────────────────────────────────────────────────────────────────
-def _model(seed: int = 0, quick: bool = False):
+L2_GRID = (1e-3, 0.1, 1.0, 10.0)
+
+
+def _model(seed: int = 0, quick: bool = False, l2: float = 1e-3):
     from sklearn.ensemble import HistGradientBoostingRegressor
     return HistGradientBoostingRegressor(max_iter=150 if quick else 300, learning_rate=0.08, max_leaf_nodes=31,
-                                         min_samples_leaf=20, l2_regularization=1e-3, random_state=seed)
+                                         min_samples_leaf=20, l2_regularization=l2, random_state=seed)
+
+
+def time_series_cv(X: np.ndarray, y: np.ndarray, n_folds: int = 4, l2_grid: Sequence[float] = L2_GRID,
+                   seed: int = 0) -> Dict[str, Any]:
+    """Forward-chaining cross-validation on the training period: fold k trains on the first k blocks and is scored
+    on the next one (never on the past), for every L2 regularisation strength in ``l2_grid``. Picks the strength
+    with the lowest mean validation MAE; the per-fold errors show how stable the model is over time."""
+    n = len(y)
+    edges = np.linspace(0, n, n_folds + 2).astype(int)        # block 0 is only ever used for training
+    grid = []
+    for l2 in l2_grid:
+        folds = []
+        for k in range(1, n_folds + 1):
+            a, b = edges[k], edges[k + 1]
+            if a < 50 or b - a < 20:
+                continue
+            m = _model(seed, quick=True, l2=l2).fit(X[:a], y[:a])
+            mt = _metrics(y[a:b], m.predict(X[a:b]), float(y[:a].mean()))
+            folds.append({"train_rows": int(a), "val_rows": int(b - a), "mae": mt["mae"], "r2": mt["r2"]})
+        maes = [f["mae"] for f in folds]
+        grid.append({"l2": float(l2), "folds": folds, "mean_mae": float(np.mean(maes)) if maes else float("nan"),
+                     "std_mae": float(np.std(maes)) if maes else float("nan")})
+    usable = [g for g in grid if g["folds"]]
+    if not usable:
+        return {"n_folds": 0, "grid": grid, "chosen_l2": 1e-3, "folds": [], "mean_mae": None, "std_mae": None,
+                "mean_r2": None, "note": "too few rows for time-series cross-validation"}
+    best = min(usable, key=lambda g: g["mean_mae"])
+    return {"n_folds": len(best["folds"]), "scheme": "forward chaining (expanding window, no shuffling)",
+            "chosen_l2": best["l2"], "folds": best["folds"], "mean_mae": best["mean_mae"], "std_mae": best["std_mae"],
+            "mean_r2": float(np.mean([f["r2"] for f in best["folds"]])),
+            "grid": [{"l2": g["l2"], "mean_mae": g["mean_mae"], "std_mae": g["std_mae"]} for g in grid]}
 
 
 def _metrics(y: np.ndarray, p: np.ndarray, y_train_mean: float) -> Dict[str, float]:
@@ -134,8 +169,10 @@ def fit_and_optimize(data: pd.DataFrame, target: str, levers: Sequence[str], con
                      goal: str = "minimize", constraints: Sequence[Dict[str, Any]] = (),
                      bounds: Optional[Dict[str, Tuple[float, float]]] = None, max_move: float = 0.5,
                      test_fraction: float = 0.25, grid: int = 7, n_ensemble: int = 5, max_rows: int = 600,
-                     seed: int = 0) -> Dict[str, Any]:
-    """Train on the older part of the record, evaluate and optimize on the newest part."""
+                     seed: int = 0, cv_folds: int = 4) -> Dict[str, Any]:
+    """Train on the older part of the record, evaluate and optimize on the newest part. The L2 regularisation
+    of the KPI model is chosen by forward-chaining cross-validation inside the training part (``cv_folds``;
+    0 keeps the default) and the fold errors go in the report under ``model.cv``."""
     if not target or target not in data:
         raise ValueError("Choose the KPI column to optimize.")
     levers = [c for c in levers if c in data and c != target]
@@ -155,8 +192,12 @@ def fit_and_optimize(data: pd.DataFrame, target: str, levers: Sequence[str], con
     ytr, yte = tr[target].to_numpy(float), te[target].to_numpy(float)
     rng = np.random.default_rng(seed)
 
+    # time-series cross-validation on the training period picks the regularisation
+    ts_cv = time_series_cv(Xtr, ytr, cv_folds, seed=seed) if cv_folds else None
+    l2 = ts_cv["chosen_l2"] if ts_cv else 1e-3
+
     # main model + bootstrap ensemble (block bootstrap by day-sized chunks keeps autocorrelation)
-    main = _model(seed).fit(Xtr, ytr)
+    main = _model(seed, l2=l2).fit(Xtr, ytr)
     pte = main.predict(Xte)
     metrics = _metrics(yte, pte, float(ytr.mean()))
     block = max(24, len(tr) // 40)
@@ -165,7 +206,7 @@ def fit_and_optimize(data: pd.DataFrame, target: str, levers: Sequence[str], con
     for k in range(n_ensemble):
         pick = rng.choice(starts, len(starts), replace=True)
         idx = np.concatenate([np.arange(s, min(s + block, len(tr))) for s in pick])
-        ens.append(_model(seed + 1 + k, quick=True).fit(Xtr[idx], ytr[idx]))
+        ens.append(_model(seed + 1 + k, quick=True, l2=l2).fit(Xtr[idx], ytr[idx]))
     cmodels = {}
     for c in cons:
         dc = d.dropna(subset=[c["column"]])
@@ -276,7 +317,8 @@ def fit_and_optimize(data: pd.DataFrame, target: str, levers: Sequence[str], con
         "rows": {"train": int(len(tr)), "test": int(len(te)), "optimized": int(len(rows)),
                  "train_period": [str(tr["time"].iloc[0]), str(tr["time"].iloc[-1])],
                  "test_period": [str(te["time"].iloc[0]), str(te["time"].iloc[-1])]},
-        "model": {"type": "HistGradientBoostingRegressor (scikit-learn)", "features": feats, **metrics},
+        "model": {"type": "HistGradientBoostingRegressor (scikit-learn)", "features": feats, **metrics,
+                  "l2_regularization": l2, "cv": ts_cv},
         "importance": importance, "bounds": lo_hi, "max_move": max_move,
         "saving": {"pct": total_pct, "range_pct": [min(ens_pct), max(ens_pct)], "ensemble_pct": ens_pct,
                    "per_hour_units": float(np.mean(gain)), "rows_improved_pct": float(np.mean(rel > 0.5) * 100),

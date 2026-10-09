@@ -257,6 +257,10 @@ def test_process_optimizer_saving_matches_true_physics():
     assert any("error-code" in x for x in log)
     r = po.fit_and_optimize(clean, info["target"], info["levers"], info["context"], constraints=info["constraints"])
     assert r["model"]["r2"] > 0.95 and r["model"]["mae"] < 0.15 * r["model"]["baseline_mae"]
+    cv = r["model"]["cv"]                                             # time-series CV picks the regularisation (#81)
+    assert cv["n_folds"] >= 3 and all(f["train_rows"] < r["rows"]["train"] for f in cv["folds"])
+    assert [f["train_rows"] for f in cv["folds"]] == sorted(f["train_rows"] for f in cv["folds"])
+    assert r["model"]["l2_regularization"] == cv["chosen_l2"] and cv["mean_r2"] > 0.8
     truth = po.true_saving(r)
     assert 4 < r["saving"]["pct"] < 15 and abs(r["saving"]["pct"] - truth["true_saving_pct"]) < 2.5
     assert truth["true_constraint_violations_pct"] < truth["true_constraint_violations_before_pct"]

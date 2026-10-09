@@ -364,6 +364,9 @@ function renderOpt() {
       <div class="kpi"><div class="l">Naive baseline error</div><div class="v">${fmt(m.baseline_mae, 1)}</div><div class="s">predicting the average</div></div>
       <div class="kpi"><div class="l">Data</div><div class="v" style="font-size:16px">${r.rows.train.toLocaleString()} / ${r.rows.test.toLocaleString()}</div><div class="s">train / test samples (time split)</div></div>
     </div>
+    ${m.cv && m.cv.n_folds ? `<p class="meta">Time-series cross-validation on the training period (${m.cv.n_folds} forward-chaining folds, each trained only on earlier data):
+      error ${fmt(m.cv.mean_mae, 2)} ± ${fmt(m.cv.std_mae, 2)} ${esc(unit)}, R² ${fmt(m.cv.mean_r2, 3)};
+      fold errors ${m.cv.folds.map((f) => fmt(f.mae, 2)).join(" · ")}. Regularisation chosen by it: L2 = ${m.cv.chosen_l2}.</p>` : ""}
     ${r.cleaning.length ? `<div class="warnings">${r.cleaning.map((x) => `<div>Cleaning: ${esc(x)}</div>`).join("")}</div>` : ""}
     ${sched ? `<h3>Recommended setpoint schedule by ${esc(sched.context)}</h3>
       <div style="overflow-x:auto"><table class="sched"><thead><tr><th>${esc(sched.context)}</th>${r.levers.map((l) => `<th class="num">${esc(l)}<br><span class="meta">now → recommended</span></th>`).join("")}<th class="num">Saving</th></tr></thead><tbody>

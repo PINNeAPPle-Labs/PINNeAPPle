@@ -28,6 +28,12 @@ jobs:
       - name: Tier C — public API, cost validation, PyVista and CalculiX bridges (must pass)
         run: xvfb-run -a pytest tests/test_public_api.py tests/test_cost_validation.py tests/test_pyvista_bridge.py tests/test_calculix_bridge.py tests/test_example_imports.py tests/test_release_version.py -q
 
+      - name: Distributions — sdist and wheel contain every package, the sdist installs and imports (must pass)
+        run: |
+          pip install build
+          python -m build --outdir /tmp/dist
+          python scripts/check_dist.py /tmp/dist --install --no-deps
+
       - name: Tier B — manufactured-solution physics-correctness tests (must pass)
         run: pytest tests/test_manufactured_solutions.py -q
 

@@ -26,6 +26,8 @@ jobs:
         run: |
           python -m venv /tmp/venv && /tmp/venv/bin/pip install dist/*.whl
           /tmp/venv/bin/python -c "import pinneapple as pp; print(pp.__version__)"
+      - name: The sdist installs in a clean venv and every package imports from it
+        run: python scripts/check_dist.py dist --install
       - uses: actions/upload-artifact@v4
         with:
           name: dist

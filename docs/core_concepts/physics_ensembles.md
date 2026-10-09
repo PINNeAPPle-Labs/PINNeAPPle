@@ -107,7 +107,15 @@ away from it). The self-referenced version only reads jumps, so it has no such b
 informative: a model can be wrong in a way the PDE residual does not see (a wrong boundary condition, a wrong
 parameter that is consistent with the equation), and then only the reference errors catch it.
 
-`examples/physics_ensemble/five_model_families_gif.py` takes `main(lookahead=3.0)` to run this version.
+`examples/physics_ensemble/five_model_families_gif.py` takes `main(lookahead=3.0)` to run this version, and
+`examples/physics_ensemble/compare_lookahead_gif.py` runs both on the same cases and writes the comparison below.
+
+![Model chosen on every case, with and without the current-case residual](../assets/physics_ensemble/lookahead_timeline.png)
+
+![Both ensembles side by side on the same stream](../assets/physics_ensemble/lookahead_comparison.gif)
+
+The residual version still makes visible mistakes: on the first case of the GNN regime it picks the PINN (whose
+residual dropped the most) before the GNN, and on the last case of the GNN regime it already moves to the DeepONet.
 
 `pinneapple_physics.ensemble_viz.animate_ensemble(run, references, "ensemble.gif")` animates any run made with
 `run(..., keep_predictions=True)`: the reference field against the ensemble's prediction (coloured by the chosen

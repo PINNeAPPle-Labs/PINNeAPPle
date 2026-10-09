@@ -86,3 +86,17 @@ def test_serve_exposes_the_scene(tmp_path):
         assert b"viewer.js" in urllib.request.urlopen(httpd.url, timeout=5).read()
     finally:
         httpd.shutdown()
+
+
+def test_exported_viewer_is_in_english(tmp_path):
+    """The viewer that ships with every exported twin has no Portuguese left (#306)."""
+    import re
+    sc, *_ = _scene()
+    sc.export(str(tmp_path))
+    text = (tmp_path / "index.html").read_text(encoding="utf-8") + (tmp_path / "viewer.js").read_text(encoding="utf-8")
+    assert 'lang="en"' in text and "pt-BR" not in text
+    words = ["Peças", "Sensores", "Campo", "Enquadrar", "isolar", "ao vivo", "conectado", "nenhum", "regime",
+             "Não foi", "Envelope válido", "Faixa", "Corte", "Inverter", "triângulos", "unidade"]
+    left = [w for w in words if w in text]
+    assert not left, left
+    assert not re.search(r"[ãõçÃÕÇ]", text)

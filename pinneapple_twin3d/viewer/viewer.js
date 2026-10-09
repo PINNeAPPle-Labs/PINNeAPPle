@@ -77,13 +77,13 @@ function showError(msg) {
 // ── loading ────────────────────────────────────────────────────────────
 async function load() {
   const res = await fetch(sceneUrl);
-  if (!res.ok) throw new Error(`Não foi possível abrir ${sceneUrl} (HTTP ${res.status}).`);
+  if (!res.ok) throw new Error(`Could not open ${sceneUrl} (HTTP ${res.status}).`);
   const m = await res.json();
-  if (m.format !== "pinneapple-twin3d/1") throw new Error(`Formato desconhecido: ${m.format}`);
+  if (m.format !== "pinneapple-twin3d/1") throw new Error(`Unknown format: ${m.format}`);
   state.manifest = m;
   $("title").textContent = m.title;
   const nTri = m.parts.reduce((a, p) => a + p.triangles, 0);
-  $("meta").textContent = `${m.parts.length} peças · ${nTri.toLocaleString("pt-BR")} triângulos · unidade ${m.length_unit}` +
+  $("meta").textContent = `${m.parts.length} parts · ${nTri.toLocaleString()} triangles · unit ${m.length_unit}` +
     (m.source ? ` · fonte: ${m.source}` : "");
 
   const base = new URL(".", sceneUrl);
@@ -128,7 +128,7 @@ const fmt = (v) => (Math.abs(v) >= 1e4 || (Math.abs(v) < 1e-3 && v !== 0)) ? v.t
 function buildUi() {
   const m = state.manifest;
   const sel = $("field");
-  sel.innerHTML = `<option value="">(sem campo — cor da peça)</option>` +
+  sel.innerHTML = `<option value="">(no field: part colour)</option>` +
     fieldNames().map((n) => `<option value="${n}">${n}${fieldUnit(n) ? ` [${fieldUnit(n)}]` : ""}</option>`).join("");
   state.field = fieldNames()[0] || "";
   sel.value = state.field;
@@ -141,7 +141,7 @@ function buildUi() {
   // parts, grouped
   const groups = new Map();
   for (const [name, p] of state.parts) {
-    const g = p.meta.group || "Peças";
+    const g = p.meta.group || "Parts";
     if (!groups.has(g)) groups.set(g, []);
     groups.get(g).push(name);
   }
@@ -152,7 +152,7 @@ function buildUi() {
     for (const name of names) {
       const row = document.createElement("label");
       row.className = "row part-actions";
-      row.innerHTML = `<input type="checkbox" checked><span></span><button title="Mostrar só esta">isolar</button>`;
+      row.innerHTML = `<input type="checkbox" checked><span></span><button title="Show only this part">isolate</button>`;
       row.querySelector("span").textContent = name;
       const cb = row.querySelector("input");
       cb.onchange = () => { state.parts.get(name).mesh.visible = cb.checked; };
@@ -203,7 +203,7 @@ function buildUi() {
   // sensors
   const diag = new THREE.Vector3(...hi).sub(new THREE.Vector3(...lo)).length();
   const geo = new THREE.SphereGeometry(diag * 0.008, 16, 12);
-  $("sensors").innerHTML = m.sensors.length ? "" : `<span class="meta">nenhum sensor</span>`;
+  $("sensors").innerHTML = m.sensors.length ? "" : `<span class="meta">no sensors</span>`;
   for (const s of m.sensors) {
     const mat = new THREE.MeshBasicMaterial({ color: 0x1f9d55 });
     const ball = new THREE.Mesh(geo, mat);
@@ -278,7 +278,7 @@ function update() {
     if (!mat.vertexColors) { mat.vertexColors = true; mat.color.set(0xffffff); mat.needsUpdate = true; }
   }
   const t = m.times.length ? m.times[state.step] : null;
-  $("timeLabel").textContent = t === null ? "regime permanente" : `t = ${fmt(t)} ${m.time_unit} (${state.step + 1}/${m.times.length})`;
+  $("timeLabel").textContent = t === null ? "steady state" : `t = ${fmt(t)} ${m.time_unit} (${state.step + 1}/${m.times.length})`;
   updateSensors();
   updateLegend();
 }
@@ -310,7 +310,7 @@ function updateSensors() {
     const txt = v === null ? "—" : `${fmt(v)} ${s.meta.unit}`;
     s.row.classList.toggle("alarm", !!alarm);
     s.row.children[2].textContent = txt;
-    s.row.title = env ? `Envelope válido: ${env[0]} … ${env[1]} ${s.meta.unit}` : "";
+    s.row.title = env ? `Valid envelope: ${env[0]} … ${env[1]} ${s.meta.unit}` : "";
     s.tag.textContent = `${s.meta.label}: ${txt}`;
     s.tag.classList.toggle("alarm", !!alarm);
     s.ball.material.color.set(alarm ? 0xd6453d : 0x1f9d55);
@@ -321,10 +321,10 @@ function connectLive() {
   const url = params.get("live");
   if (!url) return;
   const ws = new WebSocket(url);
-  $("live").textContent = "ao vivo: conectando…";
-  ws.onopen = () => { $("live").textContent = "ao vivo: conectado"; };
-  ws.onclose = () => { $("live").textContent = "ao vivo: desconectado"; };
-  ws.onerror = () => { $("live").textContent = "ao vivo: erro de conexão"; };
+  $("live").textContent = "live: connecting…";
+  ws.onopen = () => { $("live").textContent = "live: connected"; };
+  ws.onclose = () => { $("live").textContent = "live: disconnected"; };
+  ws.onerror = () => { $("live").textContent = "live: connection error"; };
   ws.onmessage = (ev) => {
     let msg;
     try { msg = JSON.parse(ev.data); } catch { return; }
@@ -392,4 +392,4 @@ function frame() {
 applyTheme();
 resize();
 frame();
-load().catch((e) => { console.error(e); showError(e.message); $("status").textContent = "erro ao carregar"; });
+load().catch((e) => { console.error(e); showError(e.message); $("status").textContent = "failed to load"; });

@@ -143,6 +143,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- The digital twin viewer (`pinneapple_twin3d`) is in English: labels, tooltips, status and error messages;
+  numbers use the browser's locale (#306).
 - The benchmark suite computes every error through `pp.metrics` (new `metrics.pooled` for the single leaderboard
   number, same values as before); its inline formulas are gone (#32).
 - `ExternalFlow` without bodies and `trust_report.Check` with an unknown status raise a clear `ValueError` in

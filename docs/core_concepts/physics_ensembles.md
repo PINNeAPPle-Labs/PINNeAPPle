@@ -65,6 +65,8 @@ most accurate model: a learned field can have a larger residual than a slightly 
 
 ## Five model families and an animated view
 
+![Adaptive ensemble of FNO, GNN, DeepONet, PINN and CNN: reference field (black) against the prediction coloured by the chosen model, weights and timeline](../assets/physics_ensemble/five_model_families.gif)
+
 `examples/physics_ensemble/five_model_families_gif.py` puts an FNO, a MeshGraphNet (multiscale ring graph), a
 DeepONet, a PINN (physics loss only) and a dilated 1-D CNN in one ensemble. Each is trained on its own regime of
 advection speed and diffusivity; the stream of 80 cases drifts through the five regimes. Relative L2 error per regime

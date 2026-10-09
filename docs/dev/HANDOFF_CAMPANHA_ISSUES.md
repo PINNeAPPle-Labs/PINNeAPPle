@@ -82,3 +82,7 @@ O que falta:
 
 - "Termine o X14: reduza os workers dos testes de `test_distributed.py`, valide, documente e abra o PR."
 - "Continue a série X a partir da #199, uma por vez, seguindo `docs/dev/HANDOFF_CAMPANHA_ISSUES.md`."
+
+## Campanha paralela: contribuições em código aberto de terceiros
+
+Tudo (catálogo, ferramentas, dados, estado dos PRs, regras, memória do assistente) está em `docs/dev/oss_contribuicoes/` (comece por `README.md` e `OSS_CAMPAIGN.md`).

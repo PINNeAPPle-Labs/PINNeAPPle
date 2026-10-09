@@ -1,6 +1,6 @@
 # Campanha de contribuições em código aberto de terceiros
 
-Documento de retomada, escrito em 2026-10-09. Complementa o catálogo `OSS_REPOS.md` / `oss_repos.csv` desta pasta.
+Documento de retomada, escrito em 2026-10-09 (cópia versionada em `PINNeAPPle/docs/dev/HANDOFF_CONTRIBUICOES_EXTERNAS.md`, branch `feat/x14-distributed`). Complementa o catálogo `OSS_REPOS.md` / `oss_repos.csv` desta pasta.
 
 ## O que foi pedido
 

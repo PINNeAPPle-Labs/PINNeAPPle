@@ -569,6 +569,7 @@ _SUBMODULES = {
     "core":       "pinneapple_core",
     "loss":       "pinneapple_core.loss",
     "transforms": "pinneapple_core.transforms",
+    "distributed": "pinneapple_core.distributed",
     "func":       "pinneapple_core.func",
 }
 

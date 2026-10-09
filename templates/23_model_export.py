@@ -1,10 +1,13 @@
-"""23_model_export.py — ONNX and TorchScript export with pinneapple_export.
+"""23_model_export.py — ONNX and TorchScript export with pinneapple_tools.model_export.
 
 Demonstrates:
-- ONNXExporter: export a trained PINN to ONNX with shape verification
-- TorchScriptExporter: trace/script a model to TorchScript (.pt)
-- ExportValidator: run an inference sanity-check post-export
+- export_onnx: export a trained PINN to ONNX with a dynamic batch axis
+- export_torchscript: trace a model to TorchScript (.pt)
+- A post-export check: the exported model must reproduce the PyTorch outputs (max abs difference)
 - Latency comparison: Python torch vs. ONNX Runtime vs. TorchScript
+
+ONNX needs ``pip install onnx`` (and ``onnxruntime`` for the check and the latency); without them those steps are
+skipped with a message. Files go to a temporary folder.
 """
 
 import time
@@ -13,9 +16,10 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-from pinneapple_tools.model_export.onnx_exporter import ONNXExporter, ONNXExportConfig
-from pinneapple_tools.model_export.torchscript import TorchScriptExporter, TorchScriptConfig
-from pinneapple_tools.model_export.validator import ExportValidator
+import tempfile
+from pathlib import Path
+
+from pinneapple_tools.model_export import export_onnx, export_torchscript
 
 
 # ---------------------------------------------------------------------------
@@ -76,45 +80,43 @@ def main():
 
     x_dummy = torch.rand(64, 2, device=device)
 
+    out_dir = Path(tempfile.mkdtemp(prefix="pinneapple_export_"))
+    onnx_path = str(out_dir / "23_poisson.onnx")
+    ts_path = str(out_dir / "23_poisson_scripted.pt")
+    with torch.no_grad():
+        y_ref = model(x_dummy)
+
     # --- ONNX export ---------------------------------------------------------
-    onnx_config = ONNXExportConfig(
-        output_path="23_poisson.onnx",
-        opset_version=17,
-        dynamic_axes={"input": {0: "batch"}, "output": {0: "batch"}},
-        input_names=["input"],
-        output_names=["output"],
-        simplify=True,
-    )
     print("\nExporting to ONNX ...")
-    onnx_exporter = ONNXExporter(model=model, config=onnx_config)
-    onnx_exporter.export(example_input=x_dummy)
-    print(f"  Saved: {onnx_config.output_path}")
+    try:
+        export_onnx(model, onnx_path, x_dummy, input_names=["input"], output_names=["output"], opset_version=17,
+                    dynamic_axes={"input": {0: "batch"}, "output": {0: "batch"}})
+        print(f"  Saved: {onnx_path}")
+    except Exception as e:                       # onnx / onnxscript not installed
+        onnx_path = None
+        print(f"  ONNX export skipped ({type(e).__name__}: {e})")
 
     # --- TorchScript export --------------------------------------------------
-    ts_config = TorchScriptConfig(
-        output_path="23_poisson_scripted.pt",
-        method="trace",     # "trace" | "script"
-        strict=True,
-    )
     print("Exporting to TorchScript ...")
-    ts_exporter = TorchScriptExporter(model=model, config=ts_config)
-    ts_exporter.export(example_input=x_dummy)
-    print(f"  Saved: {ts_config.output_path}")
+    export_torchscript(model, ts_path, example_input=x_dummy)       # traced with the example input
+    print(f"  Saved: {ts_path}")
 
-    # --- Validation ----------------------------------------------------------
+    # --- Validation: the exported models reproduce the PyTorch outputs -------
     print("\nValidating exports ...")
-    validator = ExportValidator(original_model=model, atol=1e-5)
-
-    onnx_ok = validator.validate_onnx(
-        onnx_path=onnx_config.output_path,
-        test_input=x_dummy,
-    )
-    ts_ok = validator.validate_torchscript(
-        ts_path=ts_config.output_path,
-        test_input=x_dummy,
-    )
-    print(f"  ONNX valid:        {onnx_ok}")
-    print(f"  TorchScript valid: {ts_ok}")
+    ts_model = torch.jit.load(ts_path)
+    ts_model.eval()
+    with torch.no_grad():
+        ts_err = float((ts_model(x_dummy) - y_ref).abs().max())
+    print(f"  TorchScript max |diff| = {ts_err:.2e}  ({'ok' if ts_err < 1e-5 else 'MISMATCH'})")
+    sess = None
+    if onnx_path:
+        try:
+            import onnxruntime as ort
+            sess = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+            onnx_err = float(abs(sess.run(None, {"input": x_dummy.numpy()})[0] - y_ref.numpy()).max())
+            print(f"  ONNX max |diff|        = {onnx_err:.2e}  ({'ok' if onnx_err < 1e-4 else 'MISMATCH'})")
+        except ImportError:
+            print("  onnxruntime not installed — skipping the ONNX check.")
 
     # --- Latency benchmark ---------------------------------------------------
     print("\nBenchmarking inference latency (batch=64) ...")
@@ -124,23 +126,13 @@ def main():
     lat_torch = benchmark_inference(lambda x: model(x), x_bench)
 
     # TorchScript
-    ts_model = torch.jit.load(ts_config.output_path)
-    ts_model.eval()
     lat_ts = benchmark_inference(lambda x: ts_model(x), x_bench)
 
     # ONNX Runtime
-    try:
-        import onnxruntime as ort
-        sess = ort.InferenceSession(onnx_config.output_path,
-                                    providers=["CPUExecutionProvider"])
-        x_np = x_bench.numpy()
-        lat_onnx = benchmark_inference(
-            lambda x: sess.run(None, {"input": x.numpy()}),
-            x_bench,
-        )
-    except ImportError:
+    if sess is not None:
+        lat_onnx = benchmark_inference(lambda x: sess.run(None, {"input": x.numpy()}), x_bench)
+    else:
         lat_onnx = float("nan")
-        print("  onnxruntime not installed — skipping ONNX latency.")
 
     print(f"\n  PyTorch:      {lat_torch:.3f} ms")
     print(f"  TorchScript:  {lat_ts:.3f} ms")

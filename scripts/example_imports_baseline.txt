@@ -40,7 +40,6 @@ examples/trainer/05_ddp_torchrun.py
 examples/use_cases/physics_data_factory/ultrarealistic_digital_twin.py
 templates/13_world_model.py
 templates/22_model_serving.py
-templates/23_model_export.py
 templates/24_digital_twin.py
 templates/26_rom_pod_dmd.py
 templates/27_timeseries_models.py

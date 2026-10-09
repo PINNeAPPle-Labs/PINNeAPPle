@@ -112,6 +112,26 @@ def test_cost_aware_lazy_selection_saves_cost_and_keeps_accuracy(fno, stream):
     assert np.mean(errs[5:50]) < 0.02 and np.mean(errs[60:]) < 0.05
 
 
+def test_residual_lookahead_switches_on_the_first_case_of_the_new_regime(fno, stream):
+    """The residual of each expert on the current case (no reference needed) tilts the weights before predicting:
+    the switch happens on the first case of the new regime instead of after the errors of earlier cases pile up."""
+    cases, refs = stream
+    base = PhysicsEnsemble(experts(fno), mode="select").run(cases, refs)
+    ahead = PhysicsEnsemble(experts(fno), mode="select", residual_fn=AD.residual, residual_lookahead=2.0).run(cases, refs)
+    assert base.active[50] != "lax_wendroff_coarse"                  # reacting to past errors lags
+    assert ahead.active[50] == "lax_wendroff_coarse"                 # the FNO residual jumps on the first new case
+    assert np.nanmean(ahead.ensemble_errors[50:55]) < 0.1 * np.nanmean(base.ensemble_errors[50:55])
+    assert ahead.summary()["ensemble"] < 0.7 * base.summary()["ensemble"]
+    assert ahead.active[5:50].count("fno") >= 40                     # FNO keeps its own regime
+    # comparing residual levels across experts also switches at once, but ranks the schemes (that satisfy their
+    # discrete equation) above the more accurate FNO in its own regime
+    across = PhysicsEnsemble(experts(fno), mode="select", residual_fn=AD.residual, residual_lookahead=100.0,
+                             lookahead_reference="experts").run(cases, refs)
+    assert across.active[50] == "lax_wendroff_coarse" and across.active[5:50].count("fno") < 10
+    with pytest.raises(ValueError):
+        PhysicsEnsemble(experts(fno), residual_lookahead=1.0)
+
+
 def test_no_look_ahead(fno, stream):
     cases, refs = stream
     refs2 = [r if i < 30 else r * 0 + 100.0 for i, r in enumerate(refs)]

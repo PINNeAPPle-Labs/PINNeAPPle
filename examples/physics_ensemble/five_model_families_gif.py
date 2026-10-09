@@ -181,14 +181,18 @@ def train_experts(scale=1.0):
 
 
 def main(out="physics_ensemble.gif", scale=1.0, cases_per_regime=16, frames_per_case=3, mode="select", seed=7,
-         dpi=64):
+         dpi=64, lookahead=0.0):
+    """``lookahead`` > 0 also scores every model on the current case by its PDE residual, against its own recent
+    residuals, before choosing (``PhysicsEnsemble(residual_lookahead=...)``); 0 reproduces the GIF in the docs,
+    which reacts only to the errors of earlier cases."""
     t0 = time.time()
     experts = train_experts(scale)
     print(f"trained FNO, GNN, DeepONet, PINN and CNN in {time.time() - t0:.0f} s")
     rng = np.random.default_rng(seed)
     cases = [random_case(rng, r) for r in REGIMES for _ in range(cases_per_regime)]
     refs = [AD.exact(c) for c in cases]
-    run = PhysicsEnsemble(experts, mode=mode).run(cases, refs, keep_predictions=True)
+    kw = dict(residual_fn=AD.residual, residual_lookahead=lookahead) if lookahead > 0 else {}
+    run = PhysicsEnsemble(experts, mode=mode, **kw).run(cases, refs, keep_predictions=True)
     s = run.summary()
     print(f"{mode}: ensemble {s['ensemble']:.4f} | best single in hindsight {s['best_single_in_hindsight']['name']} "
           f"{s['best_single_in_hindsight']['error']:.4f} | coverage {s['coverage']:.2f}")

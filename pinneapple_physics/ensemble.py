@@ -126,7 +126,16 @@ class PhysicsEnsemble:
     "combine" mode experts below this weight are left out of the average (still scored, so they can come back): a
     model that has failed badly does not contaminate the combination through the fixed-share floor.
     ``residual_fn(prediction, query) -> float`` (>= 0): physics residual used as a label-free loss with
-    ``residual_weight``; ``cost_weight`` penalises expensive experts. ``conserve``: optional
+    ``residual_weight``; ``cost_weight`` penalises expensive experts. ``residual_lookahead`` (> 0, needs
+    ``residual_fn``): before predicting, every expert's residual on the *current* query tilts the learned weights.
+    The residual needs no reference, so this reacts to a regime change on its first case instead of after the errors
+    of earlier cases pile up. ``lookahead_reference="self"`` (default) compares each expert's residual with its own
+    median over the last ``lookahead_window`` cases, ``w_i * (r_i / median_i) ** -residual_lookahead``: a jump means
+    the case left that expert's domain, while experts with different discretisations are never ranked by their
+    residual levels (a numerical scheme that satisfies its discrete equation can have a small residual and a larger
+    error than a neural operator). ``"experts"`` compares the residual levels across experts,
+    ``w_i * exp(-residual_lookahead * r_i / scale)``; with large values it picks the smallest residual.
+    ``conserve``: optional
     ``(weights, target_fn(query))`` to project the combined field onto the conserved total."""
 
     def __init__(self, experts: Sequence[Expert] | Mapping[str, Callable], mode: str = "combine",
@@ -135,7 +144,8 @@ class PhysicsEnsemble:
                  residual_weight: float = 0.0, cost_weight: float = 0.0, clip: float = 5.0,
                  interval_level: float | None = 0.9, conformal_gamma: float = 0.02,
                  conserve: tuple | None = None, on_error: str = "skip", explore_every: int = 10,
-                 min_weight: float = 0.05):
+                 min_weight: float = 0.05, residual_lookahead: float = 0.0, lookahead_reference: str = "self",
+                 lookahead_window: int = 10):
         if isinstance(experts, Mapping):
             experts = [from_callable(n, f) for n, f in experts.items()]
         if len(experts) < 2:
@@ -160,6 +170,13 @@ class PhysicsEnsemble:
         self._last_loss = np.full(len(self.experts), np.nan)      # most recent observed loss of each expert
         self._cost_est = np.array([e.cost if e.cost is not None else np.nan for e in self.experts], dtype=float)
         self.min_weight = float(min_weight)
+        self.residual_lookahead = float(residual_lookahead)
+        if self.residual_lookahead > 0 and residual_fn is None:
+            raise ValueError("residual_lookahead needs residual_fn")
+        if lookahead_reference not in ("self", "experts"):
+            raise ValueError("lookahead_reference must be 'self' or 'experts'")
+        self.lookahead_reference, self.lookahead_window = lookahead_reference, max(1, int(lookahead_window))
+        self._res_hist: list[list[float]] = [[] for _ in self.experts]   # residuals seen, per expert
 
     # ------------------------------------------------------------------------------------------ prediction
     def weights(self) -> dict[str, float]:
@@ -197,13 +214,32 @@ class PhysicsEnsemble:
         w = self.grid.expert_weights()
         explore = self._n_predict % self.explore_every == 0
         self._n_predict += 1
-        lazy = self.mode == "select" and select_only_leader and not explore
+        lazy = self.mode == "select" and select_only_leader and not explore and self.residual_lookahead == 0
         which = [int(np.argmax(w))] if lazy else range(len(self.experts))
         preds, costs = self._evaluate(query, which)
         ok = [i for i in range(len(preds)) if preds[i] is not None]
         if not ok:
             raise RuntimeError("every expert failed on this query")
         stack = np.stack([preds[i] for i in ok])
+        res_now = None
+        if self.residual_lookahead > 0:                            # label-free score of the current case
+            res_now = np.array([self.residual_fn(p, query) if p is not None else np.inf for p in preds], dtype=float)
+            if self.lookahead_reference == "experts":                  # residual levels compared across experts
+                fin = res_now[np.isfinite(res_now)]
+                sc = float(np.median(self._res_scale[-50:])) if self._res_scale else (float(np.median(fin)) if fin.size else 1.0)
+                tilt = np.minimum(res_now / (sc or 1.0), self.clip)
+            else:                                                      # each expert against its own recent residuals
+                tilt = np.zeros(len(preds))
+                for i in ok:
+                    h = self._res_hist[i][-self.lookahead_window:]
+                    if h and np.isfinite(res_now[i]):
+                        ref_i = max(float(np.median(h)), 1e-300)
+                        tilt[i] = np.clip(np.log(max(res_now[i], 1e-300) / ref_i), -self.clip, self.clip)
+            logw = np.log(np.maximum(w, 1e-300)) - self.residual_lookahead * tilt
+            w = np.exp(logw - logw[ok].max())
+            for i in ok:
+                if np.isfinite(res_now[i]):
+                    self._res_hist[i].append(float(res_now[i]))
         wk = w[ok] / w[ok].sum()
         if self.mode == "combine" and self.min_weight > 0:          # drop near-zero weights from the average only
             keep = wk >= min(self.min_weight, wk.max())
@@ -223,8 +259,10 @@ class PhysicsEnsemble:
         out = {"prediction": y, "lower": y - width, "upper": y + width, "spread": spread,
                "expert_predictions": {self.names[i]: preds[i] for i in ok}, "weights": dict(zip(self.names, w.tolist(), strict=True)),
                "active": self.names[lead], "costs": dict(zip(self.names, costs.tolist(), strict=True))}
+        if res_now is not None:
+            out["residuals"] = dict(zip(self.names, res_now.tolist(), strict=True))
         self._last = {"query": query, "preds": preds, "y": y, "spread": spread, "scale": scale, "costs": costs, "w": w,
-                      "evaluated": set(which)}
+                      "evaluated": set(which), "res_now": res_now}
         return out
 
     # ------------------------------------------------------------------------------------------ learning
@@ -253,7 +291,8 @@ class PhysicsEnsemble:
                     self.alpha_t += self.gamma * ((1 - self.level) - miss)
                     info["miss_fraction"] = miss
         if self.residual_fn is not None and self.residual_weight > 0:
-            res = np.array([self.residual_fn(p, query) if p is not None else np.inf for p in preds], dtype=float)
+            res = last["res_now"] if last.get("res_now") is not None else \
+                np.array([self.residual_fn(p, query) if p is not None else np.inf for p in preds], dtype=float)
             fin = res[np.isfinite(res)]
             if fin.size:
                 self._res_scale.append(float(np.median(fin)) or 1.0)

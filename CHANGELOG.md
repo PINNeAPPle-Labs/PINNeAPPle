@@ -14,6 +14,20 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Adaptive physics ensembles tell regime changes from sensor noise (`PhysicsEnsemble`):
+  `residual_lookahead` scores every model on the current case by its PDE residual before choosing, against the
+  level it has in its own domain (`residual_baseline`, helper `residual_baseline()`), so a regime change is seen on
+  its first case; `measurement_check(query)` blocks physically implausible readings from switching the model and
+  from updating the weights (`EnsembleRun.suspect`); `lookahead_persistence=N` makes a model's residual count only
+  when its last N readings agree. Examples `compare_lookahead_gif.py` and `sensor_noise_gif.py` with side-by-side GIFs.
+
+- Global weather forecasting on ERA5 (`pinneapple_physics.weather`, first part): WeatherBench2 data (public bucket,
+  64 x 32 grid) as a normalised local store, a U-Net whose convolutions are periodic in longitude and cross the
+  poles, training on rollouts of growing length, area-weighted RMSE and ACC by lead with useful and no-skill
+  horizons against persistence, climatology and the published IFS HRES, Pangu-Weather, Keisler and NeuralGCM
+  forecasts, seven extreme-weather case studies (later ones read from ARCO ERA5 and averaged onto the grid) and
+  forecast-versus-ERA5 globes and regional maps with a skill strip. Trained results and docs follow.
+
 - Qualitative preview of geometries and geometry changes (`pinneapple_design.qualitative`, `pp.qualitative`): for
   an objective written in plain Portuguese or English, each variant (or each change to a part of an `Assembly`) gets
   the expected direction and strength of the change, the mechanisms behind it, the parts that drove it, side effects,

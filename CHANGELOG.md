@@ -13,6 +13,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+
+- Cost columns of the benchmark protocol (#55): `pp.compare` tables and the benchmark suite leaderboards report training time, inference cost per point (µs, best of three) and the number of reference simulations the method consumed (`n_reference_sims`; from `Solution.info['n_reference_simulations']` or the task's `n_reference_simulations`, 0 for physics-only training).
 - `examples/first_example/first_example.py`: solve, check against the exact solution and plot in 11 lines, about a
   minute on CPU; a CI job runs it from a clean install of the wheel (#44).
 - `scripts/check_dist.py`: the built sdist and wheel must contain every package and the viewer assets, and the

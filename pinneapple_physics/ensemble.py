@@ -98,6 +98,7 @@ class EnsembleRun:
     coverage: np.ndarray                     # fraction of points inside the interval, per case
     costs: np.ndarray                        # (n_cases, n_experts)
     predictions: list[dict[str, Any]] | None = None   # run(keep_predictions=True): field, interval, experts per case
+    suspect: np.ndarray | None = None        # (n_cases,) readings flagged by ``measurement_check`` (not learned from)
 
     def summary(self) -> dict[str, Any]:
         ok = np.isfinite(self.ensemble_errors)
@@ -138,6 +139,13 @@ class PhysicsEnsemble:
     ``residual_baseline`` ({expert: residual level in its own domain}, see :func:`residual_baseline`) replaces the
     recent median as the reference of those experts: a model's recent history is out of domain right after a regime
     change, so two models whose residuals both drop cannot be told apart by it, while their in-domain levels can.
+    ``lookahead_persistence`` (N > 1): the tilt counts only when the last N residuals of an expert agree (all above
+    or all below its reference), and then by the smallest departure: a single noisy reading does not switch the
+    model, while a real regime change (which persists) still does, N - 1 readings later.
+    ``measurement_check(query) -> bool``: True when the reading itself is physically suspect (a failed balance between
+    redundant sensors, an impossible jump, energy where a physical state has none). A suspect reading is predicted
+    with the learned weights only (no residual tilt) and teaches nothing: it does not update the weights, the
+    interval calibration or the residual history.
     ``conserve``: optional
     ``(weights, target_fn(query))`` to project the combined field onto the conserved total."""
 
@@ -148,7 +156,8 @@ class PhysicsEnsemble:
                  interval_level: float | None = 0.9, conformal_gamma: float = 0.02,
                  conserve: tuple | None = None, on_error: str = "skip", explore_every: int = 10,
                  min_weight: float = 0.05, residual_lookahead: float = 0.0, lookahead_reference: str = "self",
-                 lookahead_window: int = 10, residual_baseline: Mapping[str, float] | None = None):
+                 lookahead_window: int = 10, residual_baseline: Mapping[str, float] | None = None,
+                 lookahead_persistence: int = 1, measurement_check: Callable[[Any], bool] | None = None):
         if isinstance(experts, Mapping):
             experts = [from_callable(n, f) for n, f in experts.items()]
         if len(experts) < 2:
@@ -184,6 +193,8 @@ class PhysicsEnsemble:
         if unknown:
             raise ValueError(f"residual_baseline for unknown experts: {unknown}")
         self.residual_baseline = dict(residual_baseline or {})
+        self.lookahead_persistence = max(1, int(lookahead_persistence))
+        self.measurement_check = measurement_check
 
     # ------------------------------------------------------------------------------------------ prediction
     def weights(self) -> dict[str, float]:
@@ -229,7 +240,8 @@ class PhysicsEnsemble:
             raise RuntimeError("every expert failed on this query")
         stack = np.stack([preds[i] for i in ok])
         res_now = None
-        if self.residual_lookahead > 0:                            # label-free score of the current case
+        suspect = bool(self.measurement_check(query)) if self.measurement_check is not None else False
+        if self.residual_lookahead > 0 and not suspect:            # label-free score of the current case
             res_now = np.array([self.residual_fn(p, query) if p is not None else np.inf for p in preds], dtype=float)
             if self.lookahead_reference == "experts":                  # residual levels compared across experts
                 fin = res_now[np.isfinite(res_now)]
@@ -242,7 +254,13 @@ class PhysicsEnsemble:
                     base = self.residual_baseline.get(self.names[i])
                     if (h or base) and np.isfinite(res_now[i]):
                         ref_i = max(float(base) if base else float(np.median(h)), 1e-300)
-                        tilt[i] = np.clip(np.log(max(res_now[i], 1e-300) / ref_i), -self.clip, self.clip)
+                        recent = self._res_hist[i][-(self.lookahead_persistence - 1):] if self.lookahead_persistence > 1 else []
+                        logs = np.log(np.maximum([res_now[i], *recent], 1e-300) / ref_i)
+                        # the last N readings must agree (all above or all below the reference): then the smallest
+                        # departure counts; a single reading out of line counts for nothing
+                        agree = len(logs) == self.lookahead_persistence and (np.all(logs > 0) or np.all(logs < 0))
+                        t_i = float(np.sign(logs[0]) * np.min(np.abs(logs))) if (agree or len(logs) == 1) else 0.0
+                        tilt[i] = np.clip(t_i, -self.clip, self.clip)
             logw = np.log(np.maximum(w, 1e-300)) - self.residual_lookahead * tilt
             w = np.exp(logw - logw[ok].max())
             for i in ok:
@@ -266,11 +284,13 @@ class PhysicsEnsemble:
         width = (spread + 1e-3 * scale) * self._interval_factor()
         out = {"prediction": y, "lower": y - width, "upper": y + width, "spread": spread,
                "expert_predictions": {self.names[i]: preds[i] for i in ok}, "weights": dict(zip(self.names, w.tolist(), strict=True)),
-               "active": self.names[lead], "costs": dict(zip(self.names, costs.tolist(), strict=True))}
+               "active": self.names[lead], "costs": dict(zip(self.names, costs.tolist(), strict=True)),
+               "suspect": suspect}
         if res_now is not None:
             out["residuals"] = dict(zip(self.names, res_now.tolist(), strict=True))
         self._last = {"query": query, "preds": preds, "y": y, "spread": spread, "scale": scale, "costs": costs, "w": w,
-                      "evaluated": set(which), "res_now": res_now}
+                      "evaluated": set(which), "res_now": res_now,
+                      "suspect": suspect}
         return out
 
     # ------------------------------------------------------------------------------------------ learning
@@ -284,6 +304,14 @@ class PhysicsEnsemble:
         preds, n = last["preds"], len(self.experts)
         loss = np.zeros(n)
         info: dict[str, Any] = {}
+        if last.get("suspect"):                                      # a suspect reading is scored, never learned from
+            info["suspect"] = True
+            if reference is not None:
+                ref = np.asarray(reference, dtype=float)
+                info["errors"] = np.array([relative_l2(p, ref, self.point_weights) if p is not None else np.inf
+                                           for p in preds])
+                info["ensemble_error"] = relative_l2(last["y"], ref, self.point_weights)
+            return info
         if reference is not None:
             ref = np.asarray(reference, dtype=float)
             err = np.array([relative_l2(p, ref, self.point_weights) if p is not None else np.inf for p in preds])
@@ -344,7 +372,7 @@ class PhysicsEnsemble:
         (if any) and residual. ``keep_predictions`` stores each case's fields (ensemble, interval, every expert) in
         ``EnsembleRun.predictions``, e.g. for ``pinneapple_physics.ensemble_viz.animate_ensemble``."""
         n = len(self.experts)
-        errs, ens, ws, act, cov, costs, kept = [], [], [], [], [], [], []
+        errs, ens, ws, act, cov, costs, kept, sus = [], [], [], [], [], [], [], []
         for k, q in enumerate(queries):
             p = self.predict(q)
             if keep_predictions:
@@ -352,6 +380,7 @@ class PhysicsEnsemble:
             ref = None if references is None else references[k]
             ws.append([p["weights"][m] for m in self.names])
             act.append(p["active"])
+            sus.append(bool(p.get("suspect", False)))
             costs.append([p["costs"][m] for m in self.names])
             info = self.update(q, ref)
             e = np.asarray(info.get("errors", np.full(n, np.nan)), dtype=float)
@@ -363,7 +392,7 @@ class PhysicsEnsemble:
             else:
                 cov.append(np.nan)
         return EnsembleRun(self.names, np.array(errs, dtype=float), np.array(ens, dtype=float), np.array(ws),
-                           act, np.array(cov), np.array(costs), kept if keep_predictions else None)
+                           act, np.array(cov), np.array(costs), kept if keep_predictions else None, np.array(sus))
 
 
 def residual_baseline(experts: Sequence[Expert], domain_queries: Mapping[str, Sequence[Any]],

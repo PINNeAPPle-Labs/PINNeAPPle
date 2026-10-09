@@ -127,6 +127,36 @@ then lags two cases), because the GNN's residual on low-diffusion cases does not
 And a model can be wrong in a way the PDE residual does not see (a wrong boundary condition, a wrong parameter that
 is consistent with the equation); then only the reference errors catch it.
 
+### Regime change or sensor noise?
+
+A noisy reading raises the residual too, and the residual of each model by a different amount, so the current-case
+residual alone also switches the model on noise. Two options keep the early switch at real regime changes and drop
+the false ones:
+
+- `measurement_check(query) -> bool`: physics on the **reading**, before any model is involved. True means the
+  measurement itself is implausible (a failed mass or energy balance across redundant sensors, an impossible jump,
+  energy where a physical state has none). A flagged reading is predicted with the learned weights only and
+  teaches nothing: no weight update, no interval calibration, no residual history. `EnsembleRun.suspect` lists them.
+- `lookahead_persistence=N`: the residual of a model counts only when its last N readings agree (all above or all
+  below its reference). A real regime change persists; a noise spike does not. The cost is N - 1 readings of delay.
+
+Five-family stream with 15 % noisy readings (the measured input and the measured response), one run of
+`examples/physics_ensemble/sensor_noise_gif.py`, errors measured against the true field:
+
+| choice of model | wrong model on noisy readings | flagged readings | mean error |
+|---|---|---|---|
+| current-case residual only | 8 of 12 | 0 | 0.083 |
+| + physics check of the reading (`measurement_check`) | **0 of 12** | 12 (all noisy, no false alarm) | **0.067** |
+
+![Model chosen on every case with noisy readings marked](../assets/physics_ensemble/sensor_noise_timeline.png)
+
+![Residual only (left) and with the physics check of the reading (right); the measured field is drawn, so the noisy readings show](../assets/physics_ensemble/sensor_noise_comparison.gif)
+
+Over five seeds the same comparison gave 6.2 and 2.0 wrong models on 12 noisy readings (0.079 and 0.059 mean error);
+`lookahead_persistence=2` alone gave 1.4 and 0.072. The check here is easy, because white noise on a smooth state is
+easy to see; in a plant the equivalent is a balance across redundant sensors, and slow sensor drift, which looks like
+a real process drift, is the hard case that only real process data can settle.
+
 `pinneapple_physics.ensemble_viz.animate_ensemble(run, references, "ensemble.gif")` animates any run made with
 `run(..., keep_predictions=True)`: the reference field against the ensemble's prediction (coloured by the chosen
 model, with its interval and every expert as a faint line), the weights sliding between cases, and a timeline of

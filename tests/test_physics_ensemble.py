@@ -143,6 +143,40 @@ def test_residual_lookahead_switches_on_the_first_case_of_the_new_regime(fno, st
         PhysicsEnsemble(experts(fno), residual_fn=AD.residual, residual_lookahead=1.0, residual_baseline={"x": 1.0})
 
 
+def test_noisy_readings_do_not_switch_the_model_with_a_measurement_check_or_persistence(fno, stream):
+    """Sensor noise on some readings (input and measured response) makes the current-case residual switch the model
+    for nothing. A physics check of the reading itself (a smooth state has no energy at high wavenumbers) blocks
+    those readings from switching and from teaching; requiring the residual to agree over two readings filters
+    them too, at the cost of one reading of delay at a real regime change."""
+    cases, refs = stream
+    rng = np.random.default_rng(3)
+    noisy = [12, 19, 26, 33, 40, 47, 62, 70, 78, 86, 94]
+    cases, refs = list(cases), list(refs)
+    for i in noisy:
+        cases[i] = dict(cases[i], u0=cases[i]["u0"] + rng.normal(0, 0.5 * np.std(cases[i]["u0"]), AD.nx))
+        refs[i] = refs[i] + rng.normal(0, 0.5 * np.std(refs[i]), refs[i].shape)
+
+    def rough(q):                                      # physics of the measurement: energy beyond the physical modes
+        f = np.abs(np.fft.rfft(q["u0"])) ** 2
+        return f[8:].sum() / f.sum() > 1e-4
+
+    base = residual_baseline(experts(fno), {"fno": [AD.random_case(np.random.default_rng(9), 0.01) for _ in range(5)]},
+                             AD.residual)
+    owner = ["fno"] * 50 + ["lax_wendroff_coarse"] * 50
+    kw = dict(mode="select", residual_fn=AD.residual, residual_lookahead=2.0, residual_baseline=base)
+    plain = PhysicsEnsemble(experts(fno), **kw).run(cases, refs)
+    checked = PhysicsEnsemble(experts(fno), measurement_check=rough, **kw).run(cases, refs)
+    persistent = PhysicsEnsemble(experts(fno), lookahead_persistence=2, **kw).run(cases, refs)
+    wrong = lambda r: sum(r.active[i] != owner[i] for i in noisy)  # noqa: E731
+    assert wrong(plain) >= 3                                         # the residual alone switches on noise
+    assert wrong(checked) == 0 and wrong(persistent) == 0
+    assert checked.suspect.sum() == len(noisy) and set(np.nonzero(checked.suspect)[0]) == set(noisy)
+    assert checked.active[50] == "lax_wendroff_coarse"              # the real regime change: still no delay
+    assert "lax_wendroff_coarse" in persistent.active[50:52]          # one reading later at most
+    with pytest.raises(AssertionError):
+        np.testing.assert_array_equal(plain.weights, checked.weights)
+
+
 def test_no_look_ahead(fno, stream):
     cases, refs = stream
     refs2 = [r if i < 30 else r * 0 + 100.0 for i, r in enumerate(refs)]

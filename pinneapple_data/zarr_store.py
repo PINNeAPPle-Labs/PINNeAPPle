@@ -22,6 +22,7 @@ from .physical_sample import PhysicalSample
 
 
 ArrayLike = Union[np.ndarray, "torch.Tensor"]
+_ZARR_MAJOR = int(str(getattr(zarr, "__version__", "2")).split(".")[0] or 2)
 
 
 def _is_torch(x: Any) -> bool:
@@ -105,35 +106,26 @@ def _atomic_replace_dir(tmp_dir: str, final_dir: str) -> None:
 
 
 def _create_array(group: Any, name: str, data: np.ndarray, chunks: Optional[Tuple[int, ...]] = None) -> Any:
-    """
-    Zarr v2/v3 compatibility wrapper.
-    IMPORTANT: do NOT pass chunks=None to Zarr v3.
-    """
-    kwargs = dict(
-        data=data,
-        shape=data.shape,
-        dtype=data.dtype,
-        overwrite=True,
-    )
-    if chunks is not None:
-        kwargs["chunks"] = chunks  # must be int or tuple[int,...]
+    """Write ``data`` as array ``name`` of ``group`` with Zarr 2 or Zarr 3.
 
-    # Prefer create_dataset (v2-compatible)
+    Zarr 3: ``Group.create_array(name, data=...)`` (shape and dtype come from the data; ``create_dataset`` is
+    deprecated there). Zarr 2: ``create_dataset``. Never pass ``chunks=None`` to Zarr 3.
+    """
+    if _ZARR_MAJOR >= 3 and hasattr(group, "create_array"):
+        kwargs: Dict[str, Any] = dict(data=data, overwrite=True)
+        if chunks is not None:
+            kwargs["chunks"] = tuple(chunks)
+        return group.create_array(name, **kwargs)
+    kwargs = dict(data=data, shape=data.shape, dtype=data.dtype, overwrite=True)
+    if chunks is not None:
+        kwargs["chunks"] = chunks
     if hasattr(group, "create_dataset"):
         return group.create_dataset(name, **kwargs)
-
-    # Zarr v3 create_array
-    if hasattr(group, "create_array"):
-        # create_array signature uses 'name=' explicitly in some versions
-        return group.create_array(name=name, **kwargs)
-
-    # Fallback
     if hasattr(group, "array"):
         arr_kwargs = dict(data=data, overwrite=True)
         if chunks is not None:
             arr_kwargs["chunks"] = chunks
         return group.array(name=name, **arr_kwargs)
-
     raise RuntimeError("Unsupported Zarr Group API: cannot create array")
 
 

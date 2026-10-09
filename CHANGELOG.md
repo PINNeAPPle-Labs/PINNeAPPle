@@ -143,6 +143,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- `UPDZarrStore` writes with `Group.create_array` on Zarr 3 (it used the deprecated `create_dataset`), and a test covers the
+  write/read round trip on Zarr 2 and 3 (#239).
 - `serialization.load_zarr` called `UPDZarrStore.iter_samples`, which did not exist, so every call failed; the store
   now has it.
 - `pp.solve(..., "pinn", ctx=...)` ignored `ctx`, so a Poisson source term never reached the network (the solve returned

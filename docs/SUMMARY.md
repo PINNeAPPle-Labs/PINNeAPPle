@@ -21,6 +21,7 @@
   * [Training Pipeline](core_concepts/training_pipeline.md)
   * [Researcher & Benchmarking](core_concepts/researcher_benchmarking.md)
   * [3D Studio & External Flow](core_concepts/studio.md)
+  * [Security (pinneapple_security)](core_concepts/security.md)
 * [Validation status](validation_status.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)

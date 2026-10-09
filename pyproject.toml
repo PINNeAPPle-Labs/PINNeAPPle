@@ -50,6 +50,11 @@ dependencies = [
 pinneapple-ccx = "pinneapple_simulation.external_solvers.calculix.virtual_ccx:main"
 
 [project.optional-dependencies]
+# Ed25519 signatures and AES-GCM encryption in pinneapple_security (the rest of the module needs only NumPy)
+security = [
+  "cryptography>=41",
+]
+
 # Experiment trackers for pp.Experiment(tracker="mlflow" | "wandb")
 tracking = [
   "mlflow>=2.9",
@@ -235,6 +240,7 @@ retrieval = [
 
 # Everything (convenience install)
 all = [
+  "cryptography>=41",
   "trimesh>=4.0.0",
   "meshio>=5.3.0",
   "gmsh>=4.11",
@@ -345,6 +351,7 @@ packages = [
   "pinneapple_decision",     # probabilistic decision layer (which experiment next; L0-debiased)
   "pinneapple_blender",      # Blender export/render bridge
   "pinneapple_perception",   # extract physics from images/video/audio
+  "pinneapple_security",     # integrity, signatures, provenance, audit trail, privacy/DP, model scanning, OT anomaly detection
 
   # ── arena + compatibility shims ───────────────────────────────────────────
   "pinneapple_arena",     # YAML/JSON-driven multi-model benchmark runner

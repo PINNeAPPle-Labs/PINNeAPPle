@@ -573,6 +573,8 @@ _SUBMODULES = {
     "cae":        "pinneapple_data.cae",
     # closed bodies for flow studies (Ahmed body, sphere, cylinder, box)
     "bodies":     "pinneapple_design.geometry.bodies",
+    # data and process security: manifests, signatures, provenance, audit trail, privacy/DP, model scanning
+    "security":   "pinneapple_security",
     # Field, Mesh, Domain, Geometry primitives
     "core":       "pinneapple_core",
     "func":       "pinneapple_core.func",

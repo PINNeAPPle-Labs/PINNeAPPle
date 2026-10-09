@@ -32,7 +32,7 @@ from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet
 from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
 from pinneapple_neural.architectures.neural_operators.fno import FourierNeuralOperator
 from pinneapple_physics.advection_diffusion_1d import AdvectionDiffusion1D
-from pinneapple_physics.ensemble import PhysicsEnsemble, from_callable
+from pinneapple_physics.ensemble import PhysicsEnsemble, from_callable, residual_baseline
 from pinneapple_physics.ensemble_viz import animate_ensemble
 
 AD = AdvectionDiffusion1D()
@@ -180,18 +180,26 @@ def train_experts(scale=1.0):
             from_callable("CNN", run_torch(cnn), kind="cnn")]
 
 
+def training_baseline(experts, n=10, seed=999):
+    """Residual level of each model in its own training regime (fresh cases from it), known before operation."""
+    rng = np.random.default_rng(seed)
+    return residual_baseline(experts, {e.name: [random_case(rng, e.name) for _ in range(n)] for e in experts},
+                             AD.residual)
+
+
 def main(out="physics_ensemble.gif", scale=1.0, cases_per_regime=16, frames_per_case=3, mode="select", seed=7,
          dpi=64, lookahead=0.0):
-    """``lookahead`` > 0 also scores every model on the current case by its PDE residual, against its own recent
-    residuals, before choosing (``PhysicsEnsemble(residual_lookahead=...)``); 0 reproduces the GIF in the docs,
-    which reacts only to the errors of earlier cases."""
+    """``lookahead`` > 0 also scores every model on the current case by its PDE residual, against the residual level
+    it has in its own training regime, before choosing (``PhysicsEnsemble(residual_lookahead=...,
+    residual_baseline=...)``); 0 reproduces the GIF in the docs, which reacts only to the errors of earlier cases."""
     t0 = time.time()
     experts = train_experts(scale)
     print(f"trained FNO, GNN, DeepONet, PINN and CNN in {time.time() - t0:.0f} s")
     rng = np.random.default_rng(seed)
     cases = [random_case(rng, r) for r in REGIMES for _ in range(cases_per_regime)]
     refs = [AD.exact(c) for c in cases]
-    kw = dict(residual_fn=AD.residual, residual_lookahead=lookahead) if lookahead > 0 else {}
+    kw = dict(residual_fn=AD.residual, residual_lookahead=lookahead,
+              residual_baseline=training_baseline(experts)) if lookahead > 0 else {}
     run = PhysicsEnsemble(experts, mode=mode, **kw).run(cases, refs, keep_predictions=True)
     s = run.summary()
     print(f"{mode}: ensemble {s['ensemble']:.4f} | best single in hindsight {s['best_single_in_hindsight']['name']} "

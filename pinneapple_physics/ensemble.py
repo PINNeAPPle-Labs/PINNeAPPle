@@ -135,6 +135,9 @@ class PhysicsEnsemble:
     residual levels (a numerical scheme that satisfies its discrete equation can have a small residual and a larger
     error than a neural operator). ``"experts"`` compares the residual levels across experts,
     ``w_i * exp(-residual_lookahead * r_i / scale)``; with large values it picks the smallest residual.
+    ``residual_baseline`` ({expert: residual level in its own domain}, see :func:`residual_baseline`) replaces the
+    recent median as the reference of those experts: a model's recent history is out of domain right after a regime
+    change, so two models whose residuals both drop cannot be told apart by it, while their in-domain levels can.
     ``conserve``: optional
     ``(weights, target_fn(query))`` to project the combined field onto the conserved total."""
 
@@ -145,7 +148,7 @@ class PhysicsEnsemble:
                  interval_level: float | None = 0.9, conformal_gamma: float = 0.02,
                  conserve: tuple | None = None, on_error: str = "skip", explore_every: int = 10,
                  min_weight: float = 0.05, residual_lookahead: float = 0.0, lookahead_reference: str = "self",
-                 lookahead_window: int = 10):
+                 lookahead_window: int = 10, residual_baseline: Mapping[str, float] | None = None):
         if isinstance(experts, Mapping):
             experts = [from_callable(n, f) for n, f in experts.items()]
         if len(experts) < 2:
@@ -177,6 +180,10 @@ class PhysicsEnsemble:
             raise ValueError("lookahead_reference must be 'self' or 'experts'")
         self.lookahead_reference, self.lookahead_window = lookahead_reference, max(1, int(lookahead_window))
         self._res_hist: list[list[float]] = [[] for _ in self.experts]   # residuals seen, per expert
+        unknown = sorted(set(residual_baseline or {}) - set(self.names))
+        if unknown:
+            raise ValueError(f"residual_baseline for unknown experts: {unknown}")
+        self.residual_baseline = dict(residual_baseline or {})
 
     # ------------------------------------------------------------------------------------------ prediction
     def weights(self) -> dict[str, float]:
@@ -232,8 +239,9 @@ class PhysicsEnsemble:
                 tilt = np.zeros(len(preds))
                 for i in ok:
                     h = self._res_hist[i][-self.lookahead_window:]
-                    if h and np.isfinite(res_now[i]):
-                        ref_i = max(float(np.median(h)), 1e-300)
+                    base = self.residual_baseline.get(self.names[i])
+                    if (h or base) and np.isfinite(res_now[i]):
+                        ref_i = max(float(base) if base else float(np.median(h)), 1e-300)
                         tilt[i] = np.clip(np.log(max(res_now[i], 1e-300) / ref_i), -self.clip, self.clip)
             logw = np.log(np.maximum(w, 1e-300)) - self.residual_lookahead * tilt
             w = np.exp(logw - logw[ok].max())
@@ -356,6 +364,19 @@ class PhysicsEnsemble:
                 cov.append(np.nan)
         return EnsembleRun(self.names, np.array(errs, dtype=float), np.array(ens, dtype=float), np.array(ws),
                            act, np.array(cov), np.array(costs), kept if keep_predictions else None)
+
+
+def residual_baseline(experts: Sequence[Expert], domain_queries: Mapping[str, Sequence[Any]],
+                      residual_fn: Callable[[np.ndarray, Any], float]) -> dict[str, float]:
+    """Median physics residual of each expert on queries from its own domain (its training or validation cases),
+    known before operation: the reference for ``PhysicsEnsemble(residual_baseline=...)``. Experts missing from
+    ``domain_queries`` are left out (they fall back to their recent history)."""
+    out = {}
+    for e in experts:
+        qs = domain_queries.get(e.name)
+        if qs:
+            out[e.name] = float(np.median([residual_fn(_to_numpy(e.predict(q)), q) for q in qs]))
+    return out
 
 
 def fit_static_weights(predictions: np.ndarray, references: np.ndarray, n_folds: int = 5,

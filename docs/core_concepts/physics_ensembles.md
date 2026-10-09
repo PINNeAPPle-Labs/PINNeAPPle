@@ -88,34 +88,44 @@ delay); no single model comes close over the whole stream. 90 % intervals covere
 ### Detecting the regime change before the errors pile up
 
 The weights above learn only from cases already seen, so every switch lags. `residual_lookahead` adds a signal that
-exists at prediction time: before choosing, each model's PDE residual on the current case is compared with **its own**
-median over the last `lookahead_window` cases, and the weights are tilted by `(r / median) ** -residual_lookahead`. A
-model whose residual jumps has just left its domain; the learned weights still decide between models whose residuals
-did not move. Same five models and stream, three seeds:
+exists at prediction time: before choosing, each model's PDE residual on the current case is compared with a
+reference level for that model, and the weights are tilted by `(r / reference) ** -residual_lookahead`. A model whose
+residual is far above its reference has left its domain; the learned weights still decide between models whose
+residuals look normal. The reference is, in order of preference:
 
-| choice of model | mean error | cases with the wrong model (of 80) | cases until the right model, per regime change |
-|---|---|---|---|
-| oracle (best model of each case, in hindsight) | 0.046 | 0 | 0 |
-| past errors only (the GIF) | 0.080 | 13-19 | 5-6, 2-3, 3, 2-3 |
-| + residual against each model's own history, `residual_lookahead=3` | **0.051** | 4-6 | 1-2, 0, 0-1, 0 |
-| + residual levels compared across models (`lookahead_reference="experts"`) | 0.064 | 12-14 | 0, 3-4, 0, 0 |
+- `residual_baseline`: the level each model has in its own domain, measured before operation on a few of its
+  training or validation cases (`residual_baseline(experts, {name: domain_cases}, residual_fn)`);
+- otherwise the model's median over the last `lookahead_window` cases.
 
-Comparing residual levels across models switches instantly too, but it ranks models by how well they satisfy the
-PDE, which is not how accurate they are: a numerical scheme that solves its own discrete equation has a tiny residual
-and a larger discretisation error than a well-trained neural operator (in the test suite it takes the FNO's own regime
-away from it). The self-referenced version only reads jumps, so it has no such bias. The residual still needs to be
-informative: a model can be wrong in a way the PDE residual does not see (a wrong boundary condition, a wrong
-parameter that is consistent with the equation), and then only the reference errors catch it.
+Same five models and stream, five seeds:
 
-`examples/physics_ensemble/five_model_families_gif.py` takes `main(lookahead=3.0)` to run this version, and
-`examples/physics_ensemble/compare_lookahead_gif.py` runs both on the same cases and writes the comparison below.
+| choice of model | mean error | cases with the wrong model (of 80) | cases taken by a model outside its regime | cases until the right model, per regime change |
+|---|---|---|---|---|
+| oracle (best model of each case, in hindsight) | 0.045 | 0 | 0 | 0 |
+| past errors only (the GIF) | 0.081 | 13-19 | 12-15 | 4-6, 2-3, 3-4, 2-3 |
+| + residual against each model's recent history, `residual_lookahead=3` | 0.051 | 4-9 | 2-6 | 1-2, 0-1, 0-1, 0 |
+| + residual against its training-regime level, `residual_lookahead=10`, `residual_baseline` | **0.049** | 3-5 | 0-3 | 0, 0-2, 0, 0 |
+
+The recent history is out of domain right after a regime change, so it cannot tell apart two models whose residuals
+drop together: the GNN and the PINN were both trained at high diffusivity, and on the first case of the GNN regime
+the history version hands it to the PINN. The in-domain level separates them. Comparing raw residual levels across
+models (`lookahead_reference="experts"`) also switches at once, but it ranks models by how well they satisfy the PDE,
+which is not how accurate they are: a numerical scheme that solves its own discrete equation has a tiny residual and
+a larger discretisation error than a well-trained neural operator (in the test suite it takes the FNO's own regime
+away from it).
+
+`examples/physics_ensemble/five_model_families_gif.py` takes `main(lookahead=10.0)` to run the calibrated version,
+and `examples/physics_ensemble/compare_lookahead_gif.py` runs the three on the same cases and writes the figures
+below (one run; every run retrains the models, so the numbers move a little).
 
 ![Model chosen on every case, with and without the current-case residual](../assets/physics_ensemble/lookahead_timeline.png)
 
-![Both ensembles side by side on the same stream](../assets/physics_ensemble/lookahead_comparison.gif)
+![Past errors only (left) and the calibrated residual (right) on the same stream](../assets/physics_ensemble/lookahead_comparison.gif)
 
-The residual version still makes visible mistakes: on the first case of the GNN regime it picks the PINN (whose
-residual dropped the most) before the GNN, and on the last case of the GNN regime it already moves to the DeepONet.
+What is still wrong: the GNN-to-DeepONet change is the weak one (in this run the choice moves one case early and
+then lags two cases), because the GNN's residual on low-diffusion cases does not rise clearly above its own level.
+And a model can be wrong in a way the PDE residual does not see (a wrong boundary condition, a wrong parameter that
+is consistent with the equation); then only the reference errors catch it.
 
 `pinneapple_physics.ensemble_viz.animate_ensemble(run, references, "ensemble.gif")` animates any run made with
 `run(..., keep_predictions=True)`: the reference field against the ensemble's prediction (coloured by the chosen

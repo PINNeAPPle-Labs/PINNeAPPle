@@ -1,9 +1,11 @@
 """Side by side: the five-family ensemble reacting only to past errors (left) and with the current-case physics
-residual against each model's own history (right, ``residual_lookahead``), on the same stream of cases.
+residual against the level each model has in its own training regime (right, ``residual_lookahead`` +
+``residual_baseline``), on the same stream of cases.
 
 Writes ``lookahead_comparison.gif`` (both animations stitched frame by frame) and ``lookahead_timeline.png`` (the
-model chosen on every case by each version against the best model in hindsight). Trains the five models once
-(about 3 minutes on a laptop CPU).
+model chosen on every case against the best model in hindsight, also for the residual against each model's recent
+history, which cannot tell apart two models whose residuals drop together). Trains the five models once (about 3
+minutes on a laptop CPU).
 """
 from __future__ import annotations
 
@@ -11,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-from five_model_families_gif import AD, REGIMES, random_case, train_experts
+from five_model_families_gif import AD, REGIMES, random_case, train_experts, training_baseline
 
 from pinneapple_physics.ensemble import PhysicsEnsemble
 from pinneapple_physics.ensemble_viz import animate_ensemble
@@ -61,23 +63,25 @@ def timeline(runs: dict, oracle: np.ndarray, names: list, cases_per_regime: int,
     return path
 
 
-def main(out_dir=".", scale=1.0, cases_per_regime=16, frames_per_case=2, seed=7, lookahead=3.0, dpi=56):
+def main(out_dir=".", scale=1.0, cases_per_regime=16, frames_per_case=2, seed=7, lookahead=10.0, dpi=56):
     out_dir = Path(out_dir)
     experts = train_experts(scale)
     names = [e.name for e in experts]
     rng = np.random.default_rng(seed)
     cases = [random_case(rng, r) for r in REGIMES for _ in range(cases_per_regime)]
     refs = [AD.exact(c) for c in cases]
+    base = dict(mode="select", residual_fn=AD.residual)
     runs = {"past errors only": PhysicsEnsemble(experts, mode="select").run(cases, refs, keep_predictions=True),
-            "+ current-case residual": PhysicsEnsemble(experts, mode="select", residual_fn=AD.residual,
-                                                       residual_lookahead=lookahead).run(cases, refs,
-                                                                                         keep_predictions=True)}
+            "+ residual vs recent history": PhysicsEnsemble(experts, residual_lookahead=3.0, **base).run(cases, refs),
+            "+ residual vs training-regime level": PhysicsEnsemble(
+                experts, residual_lookahead=lookahead, residual_baseline=training_baseline(experts), **base
+            ).run(cases, refs, keep_predictions=True)}
     oracle = np.nanargmin(runs["past errors only"].errors, axis=1)
     regimes = [(k * cases_per_regime, f"{r} regime") for k, r in enumerate(REGIMES)]
     with tempfile.TemporaryDirectory() as tmp:
         gifs = [animate_ensemble(run, refs, Path(tmp) / f"{i}.gif", x=AD.x, times=AD.t, frames_per_case=frames_per_case,
                                  regimes=regimes, title=f"{label} (error {np.nanmean(run.ensemble_errors):.3f})", dpi=dpi)
-                for i, (label, run) in enumerate(runs.items())]
+                for i, (label, run) in enumerate(runs.items()) if run.predictions is not None]
         gif = stitch(gifs[0], gifs[1], out_dir / "lookahead_comparison.gif")
     png = timeline(runs, oracle, names, cases_per_regime, out_dir / "lookahead_timeline.png")
     for label, run in runs.items():

@@ -45,5 +45,4 @@ templates/27_timeseries_models.py
 templates/28_arena_benchmark.py
 templates/29_koopman_autoencoder.py
 templates/31_problem_design_llm.py
-templates/32_physics_validation.py
 templates/35_jax_backend.py

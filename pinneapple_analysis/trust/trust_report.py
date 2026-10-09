@@ -111,7 +111,15 @@ class TrustReport:
             "cobertura": self.cobertura,
             "motivos": self.motivos,
             "checagens": [c.__dict__ for c in self.checks],
+            "min_coverage": self.min_coverage,
+            "min_score": self.min_score,
         }
+
+    @classmethod
+    def from_dict(cls, d: Dict[str, Any]) -> "TrustReport":
+        """Inverse of ``to_dict`` (the decision is recomputed from the checks, not copied)."""
+        return cls(checks=[Check(**c) for c in d.get("checagens", [])], min_coverage=d.get("min_coverage", 0.6),
+                   min_score=d.get("min_score", 0.8), model=d.get("modelo", ""))
 
     def to_markdown(self) -> str:
         s = self.score

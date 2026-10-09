@@ -14,6 +14,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- TrustReport persisted with the model (#157, decision D2): `ModelCard.attach_trust_report` / `override_trust` and `ModelStore.save(trust_report=...)` / `set_trust_report` / `promote(override_reason=...)`. A REJECT blocks publication (card validation, hub push, promotion to staging/production) unless overridden with a recorded reason. `TrustReport.from_dict` restores a stored report.
+
 - Cost columns of the benchmark protocol (#55): `pp.compare` tables and the benchmark suite leaderboards report training time, inference cost per point (µs, best of three) and the number of reference simulations the method consumed (`n_reference_sims`; from `Solution.info['n_reference_simulations']` or the task's `n_reference_simulations`, 0 for physics-only training).
 - `examples/first_example/first_example.py`: solve, check against the exact solution and plot in 11 lines, about a
   minute on CPU; a CI job runs it from a clean install of the wheel (#44).

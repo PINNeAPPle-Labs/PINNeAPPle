@@ -13,6 +13,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `examples/first_example/first_example.py`: solve, check against the exact solution and plot in 11 lines, about a
+  minute on CPU; a CI job runs it from a clean install of the wheel (#44).
 - `scripts/check_dist.py`: the built sdist and wheel must contain every package and the viewer assets, and the
   sdist must install in a clean venv and import every package. It runs in the test workflow and before a release
   (#92).

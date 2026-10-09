@@ -220,6 +220,13 @@ twin.start()
 
 ## Quick Examples
 
+### First result in about a minute
+
+[`examples/first_example/first_example.py`](examples/first_example/first_example.py) solves Burgers' equation with a
+PINN, checks it against the exact solution and plots both, in about a minute on a laptop CPU (relative L2 about 0.08 at
+the steep front). CI runs it from a clean `pip install` of the wheel.
+
+
 ### Solve, compare and reproduce in a few lines
 
 ```python

@@ -1,7 +1,8 @@
 """Run CalculiX (``ccx``): native binary if on PATH, else the bundled Docker image.
 
 The image is built from ``Dockerfile`` next to this module (Debian's official ``calculix-ccx``
-package), tag ``pinneapple/calculix:local``: no third-party container is pulled.
+package on the official Debian image, pulled from the AWS mirror of the Docker library to avoid Docker Hub's
+anonymous rate limit), tag ``pinneapple/calculix:local``: no third-party container is pulled.
 """
 from __future__ import annotations
 

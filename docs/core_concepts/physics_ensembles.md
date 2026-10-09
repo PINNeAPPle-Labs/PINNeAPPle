@@ -29,6 +29,7 @@ for case in stream:
 | Reference field (sensor, experiment, high-fidelity run) | `update(case, reference)` | relative L2 error; validation campaigns, digital twins with sensors |
 | Physics residual, no reference | `residual_fn`, `residual_weight` | operation without ground truth: models that violate the PDE lose weight |
 | Cost | `cost_weight`, `Expert(cost=...)` | adaptive fidelity: the cheap surrogate while it is good enough, the solver when it is not |
+| Physics residual of the **current** case, before predicting | `residual_fn`, `residual_lookahead` | regime changes: the choice reacts on the first new case instead of after past errors pile up |
 
 With `mode="select"` and `predict(case, select_only_leader=True)` only the leading model runs, except every
 `explore_every` cases, when all run so their errors stay current. Experts that raise or return non-finite values are
@@ -83,6 +84,30 @@ advection speed and diffusivity; the stream of 80 cases drifts through the five 
 
 The ensemble switches to the right family 2 to 6 cases after each regime change (the gap to the diagonal is that
 delay); no single model comes close over the whole stream. 90 % intervals covered 90 % of the points.
+
+### Detecting the regime change before the errors pile up
+
+The weights above learn only from cases already seen, so every switch lags. `residual_lookahead` adds a signal that
+exists at prediction time: before choosing, each model's PDE residual on the current case is compared with **its own**
+median over the last `lookahead_window` cases, and the weights are tilted by `(r / median) ** -residual_lookahead`. A
+model whose residual jumps has just left its domain; the learned weights still decide between models whose residuals
+did not move. Same five models and stream, three seeds:
+
+| choice of model | mean error | cases with the wrong model (of 80) | cases until the right model, per regime change |
+|---|---|---|---|
+| oracle (best model of each case, in hindsight) | 0.046 | 0 | 0 |
+| past errors only (the GIF) | 0.080 | 13-19 | 5-6, 2-3, 3, 2-3 |
+| + residual against each model's own history, `residual_lookahead=3` | **0.051** | 4-6 | 1-2, 0, 0-1, 0 |
+| + residual levels compared across models (`lookahead_reference="experts"`) | 0.064 | 12-14 | 0, 3-4, 0, 0 |
+
+Comparing residual levels across models switches instantly too, but it ranks models by how well they satisfy the
+PDE, which is not how accurate they are: a numerical scheme that solves its own discrete equation has a tiny residual
+and a larger discretisation error than a well-trained neural operator (in the test suite it takes the FNO's own regime
+away from it). The self-referenced version only reads jumps, so it has no such bias. The residual still needs to be
+informative: a model can be wrong in a way the PDE residual does not see (a wrong boundary condition, a wrong
+parameter that is consistent with the equation), and then only the reference errors catch it.
+
+`examples/physics_ensemble/five_model_families_gif.py` takes `main(lookahead=3.0)` to run this version.
 
 `pinneapple_physics.ensemble_viz.animate_ensemble(run, references, "ensemble.gif")` animates any run made with
 `run(..., keep_predictions=True)`: the reference field against the ensemble's prediction (coloured by the chosen

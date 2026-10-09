@@ -14,6 +14,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Earth-system building blocks (`pinneapple_simulation.geophysics`, `pp.geophysics`): spectral-transform shallow-water
+  model on the sphere with Williamson et al. (1992) test cases 2, 5 and 6 and mass / energy / potential-enstrophy
+  diagnostics (#258); 1-D Richards equation in mixed form (Celia et al. 1990) with van Genuchten-Mualem, Brooks-Corey,
+  Clapp-Hornberger/Campbell and Gardner soils, verified against the exact Gardner infiltration profile (#260);
+  two-layer energy-balance climate model (Held et al. 2010; Geoffroy et al. 2013) with exact integration, step
+  response, ECS/TCR and parameter fitting (#259).
+- 4D-Var through autograd for any differentiable PyTorch model, with Lorenz-96/63, an adjoint gradient check and an
+  identical-twin experiment (`pinneapple_analysis.data_assimilation`, `pp.assimilation`).
+- Exact conservation for surrogates: `pinneapple_physics.conservation.project_integral` and `ConservationProjection`
+  (additive, multiplicative and positive global fixers, differentiable).
+
 - `pinneapple_security` (also `pp.security`): data and process security for scientific and industrial Physics AI.
   Merkle manifests of datasets and model folders; Ed25519/HMAC signatures in DSSE envelopes; in-toto + SLSA provenance
   of experiments and a CycloneDX SBOM; a hash-chained, tamper-evident audit trail; AES-256-GCM encryption at rest; PII

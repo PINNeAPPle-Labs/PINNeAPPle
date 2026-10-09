@@ -575,6 +575,10 @@ _SUBMODULES = {
     "bodies":     "pinneapple_design.geometry.bodies",
     # data and process security: manifests, signatures, provenance, audit trail, privacy/DP, model scanning
     "security":   "pinneapple_security",
+    # Earth-system blocks: shallow water on the sphere (Williamson cases), Richards equation, two-layer climate EBM
+    "geophysics": "pinneapple_simulation.geophysics",
+    # data assimilation: 4D-Var through autograd, Lorenz-96/63
+    "assimilation": "pinneapple_analysis.data_assimilation",
     # Field, Mesh, Domain, Geometry primitives
     "core":       "pinneapple_core",
     "func":       "pinneapple_core.func",

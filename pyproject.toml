@@ -50,6 +50,12 @@ dependencies = [
 pinneapple-ccx = "pinneapple_simulation.external_solvers.calculix.virtual_ccx:main"
 
 [project.optional-dependencies]
+# Experiment trackers for pp.Experiment(tracker="mlflow" | "wandb")
+tracking = [
+  "mlflow>=2.9",
+  "wandb>=0.16",
+]
+
 # Geometry backends
 geom = [
   "trimesh>=4.0.0",

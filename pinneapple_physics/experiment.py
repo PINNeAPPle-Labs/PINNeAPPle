@@ -77,6 +77,7 @@ class ExperimentResult:
     started_at: str
     environment: Dict[str, Any]
     n_eval_points: int = 0
+    tracker_run_id: Optional[Any] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {"config": self.config, "problem_fingerprint": self.problem_fingerprint, "metrics": self.metrics,
@@ -115,6 +116,9 @@ class Experiment:
     n_eval: int = 4096
     metric_names: Sequence[str] = ("relative_l2", "rmse", "max_abs")
     name: str = ""
+    # experiment tracker: "mlflow", "wandb" or a callable f(result) (see pinneapple_physics.tracking)
+    tracker: Optional[Any] = None
+    tracker_options: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         self.problem = as_problem(self.problem)
@@ -155,9 +159,13 @@ class Experiment:
                                  "problem has no box bounds for every coordinate")
             scores = _metrics.summary(sol.predict(pts), ref.predict(pts), self.problem.fields, self.metric_names)
             n_pts = len(pts)
-        return ExperimentResult(config=self.config(), problem_fingerprint=self.problem.fingerprint(), solution=sol,
-                                metrics=scores, wall_time_s=elapsed, started_at=started, environment=_environment(),
-                                n_eval_points=n_pts)
+        result = ExperimentResult(config=self.config(), problem_fingerprint=self.problem.fingerprint(), solution=sol,
+                                  metrics=scores, wall_time_s=elapsed, started_at=started, environment=_environment(),
+                                  n_eval_points=n_pts)
+        if self.tracker is not None:
+            from .tracking import log_result
+            result.tracker_run_id = log_result(result, self.tracker, **self.tracker_options)
+        return result
 
 
 def run_all(experiments: Sequence[Experiment]) -> Dict[str, ExperimentResult]:

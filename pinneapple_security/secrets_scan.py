@@ -74,10 +74,10 @@ def scan_text(text: str, path: str = "<text>", entropy_threshold: float = 4.5) -
             tok = m.group()
             if re.fullmatch(r"[0-9a-f]+", tok):          # hex digests (sha256, commit ids) are not secrets by themselves
                 continue
-            if len(tok) > 200 or _SRI.search(line[:m.start()]) or tok.count("/") >= 2:
+            if len(tok) > 200 or _SRI.search(line[:m.start()]) or re.match(r"sha(?:1|256|384|512)-", tok) or tok.count("/") >= 2:
                 continue                                 # embedded data (images), integrity hashes, paths and URLs
-            if not any(c.isdigit() for c in tok) and re.fullmatch(r"[A-Za-z_-]+", tok):
-                continue                                 # identifiers (long names); random keys almost always hold digits
+            if not any(c.isdigit() for c in tok) and "+" not in tok:
+                continue                                 # identifiers, repo ids, names: random keys almost always hold digits
             if shannon_entropy(tok) >= entropy_threshold:
                 out.append(SecretFinding("high_entropy_string", path, i, _mask(tok)))
     return out

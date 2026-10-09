@@ -29,8 +29,15 @@ import numpy as np
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from _common import (CYLINDER_TYPE_MAP, cylinder_flow_to_tensors, download_prefix, eval_rollout,  # noqa: E402
-                      pick_device, read_trajectories)
+from _common import (  # noqa: E402
+    CYLINDER_TYPE_MAP,
+    cylinder_flow_to_tensors,
+    download_prefix,
+    eval_rollout,
+    pick_device,
+    read_trajectories,
+)
+
 from pinneapple_neural.architectures.graphnn.mgn_dynamics import MeshDynamicsMGN  # noqa: E402
 
 ap = argparse.ArgumentParser()

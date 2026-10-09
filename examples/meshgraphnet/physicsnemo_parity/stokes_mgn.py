@@ -30,9 +30,14 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from _common import pick_device  # noqa: E402
+
 from pinneapple_neural.architectures.graphnn.base import GraphBatch  # noqa: E402
 from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet  # noqa: E402
-from pinneapple_neural.architectures.graphnn.mgn_dynamics import Normalizer, edge_features, triangles_to_edges  # noqa: E402
+from pinneapple_neural.architectures.graphnn.mgn_dynamics import (  # noqa: E402
+    Normalizer,
+    edge_features,
+    triangles_to_edges,
+)
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--data", default="results")
@@ -71,8 +76,11 @@ print(f"device={dev} train={len(tr)} valid={len(va)} test={len(te)}")
 
 xn, en, yn = Normalizer(7), Normalizer(3), Normalizer(3)
 # PhysicsNeMo normalises only pos/u/v/p (not the one-hot marker): keep one-hot raw.
-xn.fit(t[0] for t in tr); xn.mean[2:] = 0; xn.std[2:] = 1
-en.fit(t[2] for t in tr); yn.fit(t[3] for t in tr)
+xn.fit(t[0] for t in tr)
+xn.mean[2:] = 0
+xn.std[2:] = 1
+en.fit(t[2] for t in tr)
+yn.fit(t[3] for t in tr)
 net = MeshGraphNet(7, 3, edge_in_dim=3, hidden_dim=256, n_layers=2, n_message_passing=15, activation="relu").to(dev)
 xn, en, yn = xn.to(dev), en.to(dev), yn.to(dev)
 opt = torch.optim.Adam(net.parameters(), lr=a.lr)

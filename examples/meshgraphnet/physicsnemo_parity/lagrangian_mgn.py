@@ -33,6 +33,7 @@ import torch.nn.functional as F
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from _common import pick_device  # noqa: E402
+
 from pinneapple_neural.architectures.graphnn.base import GraphBatch  # noqa: E402
 from pinneapple_neural.architectures.graphnn.mesh_graph_net import MeshGraphNet  # noqa: E402
 

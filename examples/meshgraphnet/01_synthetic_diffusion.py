@@ -12,16 +12,13 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from _common import eval_rollout, pick_device, train_dynamics
 from scipy.spatial import Delaunay
 
-from _common import eval_rollout, pick_device, train_dynamics
 from pinneapple_neural.architectures.graphnn.mgn_dynamics import MeshDynamicsMGN, MeshGraph
 
-rng = np.random.default_rng(0)
-torch.manual_seed(0)
 
-
-def make_sample(n_pts=150, T=30, alpha=0.2):
+def make_sample(rng, n_pts=150, T=30, alpha=0.2):
     pts = rng.random((n_pts, 2))
     cells = Delaunay(pts).simplices
     pos = torch.from_numpy(pts).float()
@@ -45,17 +42,29 @@ def make_sample(n_pts=150, T=30, alpha=0.2):
     return g, v, torch.zeros_like(v)  # (graph, state, dummy pressure)
 
 
-train = [make_sample() for _ in range(24)]
-test = [make_sample() for _ in range(6)]
-dev = pick_device()
-model = MeshDynamicsMGN(vel_dim=1, num_node_types=4, edge_dim=3, out_p=False, hidden_dim=32,
-                        n_layers=2, n_message_passing=4, activation="relu")
-model.fit_stats([v for _, v, _ in train], None, [g for g, _, _ in train])
-train_dynamics(model, train, steps=2500, lr=2e-3, lr_final=1e-5, noise_std=0.0, device=dev, log_every=250)
-m = eval_rollout(model, test, n_steps=20, device=dev)
-base = np.mean([((v[0:1] - v[1:21])[:, g.node_type == 0] ** 2).mean().sqrt().item() for g, v, _ in test])
-m["frozen_ic_baseline_rmse"] = float(base)
-print(json.dumps(m, indent=2))
-Path("examples/meshgraphnet/_out").mkdir(parents=True, exist_ok=True)
-Path("examples/meshgraphnet/_out/synthetic_diffusion.json").write_text(json.dumps(m, indent=2))
-assert m["rollout_rmse"] < m["frozen_ic_baseline_rmse"], "MGN failed to beat the frozen baseline"
+def run(n_train=24, n_test=6, n_pts=150, steps=2500, rollout=20, log_every=250, seed=0):
+    """Train on ``n_train`` random meshes, roll out ``rollout`` steps on ``n_test`` unseen ones; returns the
+    rollout RMSE next to the frozen-initial-state baseline. tests/test_mesh_dynamics_mgn.py runs a reduced size."""
+    rng = np.random.default_rng(seed)
+    torch.manual_seed(seed)
+    train = [make_sample(rng, n_pts) for _ in range(n_train)]
+    test = [make_sample(rng, n_pts) for _ in range(n_test)]
+    dev = pick_device()
+    model = MeshDynamicsMGN(vel_dim=1, num_node_types=4, edge_dim=3, out_p=False, hidden_dim=32,
+                            n_layers=2, n_message_passing=4, activation="relu")
+    model.fit_stats([v for _, v, _ in train], None, [g for g, _, _ in train])
+    train_dynamics(model, train, steps=steps, lr=2e-3, lr_final=1e-5, noise_std=0.0, device=dev,
+                   log_every=log_every)
+    m = eval_rollout(model, test, n_steps=rollout, device=dev)
+    base = np.mean([((v[0:1] - v[1:rollout + 1])[:, g.node_type == 0] ** 2).mean().sqrt().item()
+                    for g, v, _ in test])
+    m["frozen_ic_baseline_rmse"] = float(base)
+    return m
+
+
+if __name__ == "__main__":
+    m = run()
+    print(json.dumps(m, indent=2))
+    Path("examples/meshgraphnet/_out").mkdir(parents=True, exist_ok=True)
+    Path("examples/meshgraphnet/_out/synthetic_diffusion.json").write_text(json.dumps(m, indent=2))
+    assert m["rollout_rmse"] < m["frozen_ic_baseline_rmse"], "MGN failed to beat the frozen baseline"

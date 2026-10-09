@@ -16,13 +16,21 @@ import json
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import torch
+from _common import (
+    CYLINDER_TYPE_MAP,
+    cylinder_flow_to_tensors,
+    download_prefix,
+    eval_rollout,
+    pick_device,
+    read_trajectories,
+    train_dynamics,
+)
 
-from _common import (CYLINDER_TYPE_MAP, cylinder_flow_to_tensors, download_prefix,
-                     eval_rollout, pick_device, read_trajectories, train_dynamics)
 from pinneapple_neural.architectures.graphnn.mgn_dynamics import MeshDynamicsMGN
 
 ap = argparse.ArgumentParser()
@@ -84,6 +92,9 @@ fig, ax = plt.subplots(3, 1, figsize=(8, 7))
 for k, (title, f) in enumerate([("ground truth |v|", v[n].norm(dim=-1)),
                                 ("MeshGraphNet |v|", pred[n].cpu().norm(dim=-1)),
                                 ("abs. error", (pred[n].cpu() - v[n]).norm(dim=-1))]):
-    c = ax[k].tripcolor(tri, f, shading="gouraud"); ax[k].set_title(f"{title} (step {n})")
-    ax[k].set_aspect("equal"); fig.colorbar(c, ax=ax[k])
-fig.tight_layout(); fig.savefig(out / "rollout.png", dpi=120)
+    c = ax[k].tripcolor(tri, f, shading="gouraud")
+    ax[k].set_title(f"{title} (step {n})")
+    ax[k].set_aspect("equal")
+    fig.colorbar(c, ax=ax[k])
+fig.tight_layout()
+fig.savefig(out / "rollout.png", dpi=120)

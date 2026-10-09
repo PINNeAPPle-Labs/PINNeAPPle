@@ -22,6 +22,8 @@ import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import CosineAnnealingLR
 
+from pinneapple_physics import metrics as pm      # one definition of every error metric (pp.metrics)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Config & result dataclasses
@@ -145,10 +147,8 @@ class BenchmarkTaskBase:
             if U_ref.ndim == 1:
                 U_ref = U_ref.unsqueeze(-1)
 
-        diff = U_pred - U_ref
-        rel_l2 = float((diff.pow(2).sum() / (U_ref.pow(2).sum() + 1e-10)).sqrt().item())
-        l_inf = float(diff.abs().max().item())
-        mse = float(diff.pow(2).mean().item())
+        m = pm.pooled(U_pred, U_ref)
+        rel_l2, l_inf, mse = m["relative_l2"], m["max_abs"], m["mse"]
 
         # PDE residual on eval grid
         X_req = X_t.detach().requires_grad_(True)
@@ -807,10 +807,8 @@ def _evaluate_batch(
         if y_true.ndim == 1:
             y_true = y_true.unsqueeze(-1)
 
-    diff = pred - y_true
-    rel_l2 = float((diff.pow(2).sum() / (y_true.pow(2).sum() + 1e-10)).sqrt().item())
-    l_inf = float(diff.abs().max().item())
-    mse = float(diff.pow(2).mean().item())
+    m = pm.pooled(pred, y_true)
+    rel_l2, l_inf, mse = m["relative_l2"], m["max_abs"], m["mse"]
 
     # Mirrors BenchmarkTaskBase.evaluate()'s capture point for pointwise
     # models — lets tasks that want a real-vs-predicted sample for plots

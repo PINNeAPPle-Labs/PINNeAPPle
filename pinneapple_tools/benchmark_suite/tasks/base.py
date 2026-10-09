@@ -48,8 +48,6 @@ class ArenaTask:
         if y_true is None:
             return {"l2_rel": float("nan"), "linf": float("nan")}
 
-        diff = y_pred - y_true
-        norm_true = np.linalg.norm(y_true.ravel())
-        l2_rel = float(np.linalg.norm(diff.ravel()) / norm_true) if norm_true != 0.0 else float("nan")
-        linf = float(np.max(np.abs(diff)))
-        return {"l2_rel": l2_rel, "linf": linf}
+        from pinneapple_physics import metrics as pm      # one definition of every error metric (pp.metrics)
+        m = pm.pooled(y_pred, y_true)
+        return {"l2_rel": m["relative_l2"], "linf": m["max_abs"]}

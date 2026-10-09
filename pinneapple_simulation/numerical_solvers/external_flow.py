@@ -454,6 +454,8 @@ class ExternalFlow:
     title: str = "External flow"
 
     def __post_init__(self):
+        if not self.bodies:
+            raise ValueError("ExternalFlow: bodies is required (dict name -> (vertices, faces), an STL path or a Scene)")
         self.geometry = _bodies_from(self.bodies)
         V = np.concatenate([v for v, _ in self.geometry.values()])
         self.lo, self.hi = V.min(0), V.max(0)

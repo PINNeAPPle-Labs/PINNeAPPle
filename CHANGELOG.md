@@ -143,6 +143,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- The benchmark suite computes every error through `pp.metrics` (new `metrics.pooled` for the single leaderboard
+  number, same values as before); its inline formulas are gone (#32).
+- `ExternalFlow` without bodies and `trust_report.Check` with an unknown status raise a clear `ValueError` in
+  English instead of a `TypeError` or a Portuguese message.
 - `UPDZarrStore` writes with `Group.create_array` on Zarr 3 (it used the deprecated `create_dataset`), and a test covers the
   write/read round trip on Zarr 2 and 3 (#239).
 - `serialization.load_zarr` called `UPDZarrStore.iter_samples`, which did not exist, so every call failed; the store

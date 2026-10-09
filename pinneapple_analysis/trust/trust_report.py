@@ -46,7 +46,7 @@ class Check:
 
     def __post_init__(self) -> None:
         if self.status not in _STATUS:
-            raise ValueError(f"status inválido: {self.status!r} (use {_STATUS})")
+            raise ValueError(f"invalid status: {self.status!r} (use {_STATUS})")
         if self.weight < 0:
             raise ValueError("weight não pode ser negativo")
 

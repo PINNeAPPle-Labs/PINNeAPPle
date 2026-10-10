@@ -1,0 +1,29 @@
+{
+ "stages": [
+  {
+   "name": "cfd",
+   "started": 1791671140.7268677,
+   "status": "done",
+   "seconds": 569.222
+  },
+  {
+   "name": "cfd_empty_pipe",
+   "started": 1791671709.9492922,
+   "status": "done",
+   "seconds": 69.094
+  },
+  {
+   "name": "datasets",
+   "started": 1791671780.2811847,
+   "status": "done",
+   "seconds": 0.006
+  },
+  {
+   "name": "render",
+   "started": 1791671780.292643,
+   "status": "done",
+   "seconds": 447.244
+  }
+ ],
+ "updated": 1791672227.5370328
+}

@@ -1,0 +1,93 @@
+{
+ "name": "sections",
+ "description": "Section averages along the pipe: arc length, pressure (kinematic), bulk velocity; coefficient of variation and mean of the scalar (mixer)",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "s": {
+   "kind": "array",
+   "shape": [
+    89
+   ],
+   "dtype": "float32",
+   "min": 0.005000011529773474,
+   "max": 0.8949999809265137
+  },
+  "p": {
+   "kind": "array",
+   "shape": [
+    89
+   ],
+   "dtype": "float32",
+   "min": 6.478242653429334e-08,
+   "max": 4.516087210504338e-05
+  },
+  "u_mean": {
+   "kind": "array",
+   "shape": [
+    89
+   ],
+   "dtype": "float32",
+   "min": 0.0009893493261188269,
+   "max": 0.0011345940874889493
+  },
+  "c_mean": {
+   "kind": "array",
+   "shape": [
+    89
+   ],
+   "dtype": "float32",
+   "min": 0.49426478147506714,
+   "max": 0.5059775114059448
+  },
+  "cov": {
+   "kind": "array",
+   "shape": [
+    89
+   ],
+   "dtype": "float32",
+   "min": 0.16103731095790863,
+   "max": 0.9999999403953552
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "kenics_mixer"
+   ]
+  },
+  "Re": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 50.0,
+   "max": 50.0
+  },
+  "D": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.05,
+   "max": 0.05
+  }
+ },
+ "units": {
+  "s": "m",
+  "p": "m2/s2",
+  "u_mean": "m/s"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "pipe_flow",
+  "run_id": "pipe_flow-07a353a549b9",
+  "params": {
+   "case": "kenics_mixer",
+   "D": 0.05,
+   "elements": 6,
+   "iterations": 1500,
+   "procs": 2,
+   "samples": 64,
+   "render": true,
+   "keep_case": false
+  }
+ },
+ "sha1": "b3276219e1865521a53734b58398ed4ef7bc86d8"
+}

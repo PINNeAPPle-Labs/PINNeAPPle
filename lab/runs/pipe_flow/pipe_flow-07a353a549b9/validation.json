@@ -1,0 +1,50 @@
+[
+ {
+  "name": "bulk_velocity_constant_along_pipe",
+  "passed": true,
+  "value": 0.00733739959342139,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.03,
+  "min": null,
+  "detail": "volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservation and section averaging on the O-grid)",
+  "kind": "physics"
+ },
+ {
+  "name": "scalar_flux_conserved",
+  "passed": true,
+  "value": 0.5008296805672833,
+  "reference": 0.5,
+  "rtol": 0.02,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1)",
+  "kind": "physics"
+ },
+ {
+  "name": "mixer_beats_empty_pipe",
+  "passed": true,
+  "value": 6.193930171134452,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 5.0,
+  "detail": "coefficient of variation at the outlet, empty pipe / mixer",
+  "kind": "baseline"
+ },
+ {
+  "name": "mixing_decays_through_elements",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "CoV after each element smaller than after the previous one",
+  "kind": "physics"
+ }
+]

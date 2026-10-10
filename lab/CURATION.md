@@ -1,6 +1,6 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-10-10 23:00 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-10-10 23:02 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|
@@ -11,7 +11,7 @@ Generated 2026-10-10 23:00 UTC. Tiers: **A flagship** (product / paper / marketi
 | `calculix_case` | **A** flagship | 95.7 | 2/3/0/0 | 100 % | - | - | - | ready | no |
 | `repo_results` | **A** flagship | 92.9 | 1/9/0/0 | 100 % | - | - | - | ready | no |
 | `benchmark_case` | **B** solid | 100.0 | 0/7/0/0 | 100 % | - | - | - | - | no |
-| `rom_study` | **B** solid | 95.4 | 0/1/0/1 | 50 % | - | - | - | ready | no |
+| `rom_study` | **B** solid | 95.4 | 0/1/0/0 | 100 % | - | - | - | ready | no |
 | `car_lbm` | **B** solid | 94.3 | 0/40/0/1 | 98 % | - | - | - | ready | no |
 | `pendulum_video` | **B** solid | 92.9 | 0/1/0/0 | 100 % | - | - | - | ready | no |
 | `bar_wear_ranking` | **B** solid | 92.0 | 0/1/0/0 | 100 % | - | - | - | ready | no |
@@ -90,7 +90,6 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `example_script/examples/getting_started/03_heat_diffusion_1d.py` | D | ✗ | ? | ? | ? | ~ | ✗ |
 | `example_script/examples/getting_started/04_wave_equation_1d.py` | D | ✗ | ? | ? | ? | ? | ✗ |
 | `example_script/examples/getting_started/08_van_der_pol.py` | D | ✗ | ? | ? | ? | ~ | ✗ |
-| `rom_study/cylinder_wake` | D | ✗ | ✓ | ✓ | ✓ | ~ | ✗ |
 | `vehicle_cfd/rocket` | D | ~ | ✗ | ✓ | ✗ | ~ | ✗ |
 
 ## What each experiment needs next

@@ -1,0 +1,105 @@
+{
+ "run_id": "pipe_flow-07a353a549b9",
+ "experiment": "pipe_flow",
+ "version": "1",
+ "params": {
+  "case": "kenics_mixer",
+  "D": 0.05,
+  "elements": 6,
+  "iterations": 1500,
+  "procs": 2,
+  "samples": 64,
+  "render": true,
+  "keep_case": false
+ },
+ "status": "completed",
+ "started": 1791671138.2506824,
+ "tags": [
+  "cfd",
+  "openfoam",
+  "internal-flow",
+  "pipes",
+  "mixing",
+  "3d",
+  "dataset"
+ ],
+ "git": "f7aacc83",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Internal flow in OpenFOAM on a structured O-grid swept along the pipe: laminar pipe against Hagen-Poiseuille, a turbulent 90 degree bend against Colebrook and Ito, a Kenics static mixer against an empty pipe (mixing of a passive scalar, pressure-drop ratio).",
+ "code": {
+  "files": [
+   "code/pipes.py"
+  ],
+  "sha1": "0e2f2b4422937b877a36a43e8dedb39d17532dcb"
+ },
+ "finished": 1791672227.9221263,
+ "error": null,
+ "stages": [
+  {
+   "name": "cfd",
+   "started": 1791671140.7268677,
+   "status": "done",
+   "seconds": 569.222
+  },
+  {
+   "name": "cfd_empty_pipe",
+   "started": 1791671709.9492922,
+   "status": "done",
+   "seconds": 69.094
+  },
+  {
+   "name": "datasets",
+   "started": 1791671780.2811847,
+   "status": "done",
+   "seconds": 0.006
+  },
+  {
+   "name": "render",
+   "started": 1791671780.292643,
+   "status": "done",
+   "seconds": 447.244
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/route.json"
+  ],
+  "outputs": [
+   "outputs/cov_after_each_element.json"
+  ],
+  "figures": [
+   "figures/mixing_and_pressure.png",
+   "figures/striations.png",
+   "figures/streamlines.jpg",
+   "figures/section_2p9.jpg",
+   "figures/section_4p5.jpg",
+   "figures/section_6.jpg",
+   "figures/section_7p5.jpg"
+  ]
+ },
+ "validation": {
+  "total": 4,
+  "failed": 0
+ },
+ "seconds": 1089.671,
+ "datasets": {
+  "sections": {
+   "n_samples": 1,
+   "path": "runs/pipe_flow/pipe_flow-07a353a549b9/datasets/sections"
+  },
+  "cross_sections": {
+   "n_samples": 8,
+   "path": "runs/pipe_flow/pipe_flow-07a353a549b9/datasets/cross_sections"
+  },
+  "wall": {
+   "n_samples": 1,
+   "path": "runs/pipe_flow/pipe_flow-07a353a549b9/datasets/wall"
+  }
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "D": 0.05,
+ "segments": [
+  [
+   "straight",
+   18.0,
+   0.0,
+   0.0
+  ]
+ ],
+ "Re": 50,
+ "turbulent": false,
+ "mixer_elements": 6
+}

@@ -338,6 +338,7 @@ class InternalFlow:
     diffusivity: float = 0.0
     title: str = ""
     turbulence_intensity: float = 0.05
+    scalar_iterations: int = 400
 
     def __post_init__(self):
         if self.turbulent is None:
@@ -499,7 +500,7 @@ wallDist { method meshWave; }
 {
     p { solver GAMG; smoother GaussSeidel; tolerance 1e-8; relTol 0.01; }
     "(U|k|omega)" { solver smoothSolver; smoother symGaussSeidel; tolerance 1e-9; relTol 0.05; }
-    T { solver PBiCGStab; preconditioner DILU; tolerance 1e-10; relTol 0; }
+    T { solver PBiCGStab; preconditioner DILU; tolerance 1e-12; relTol 0.01; }
 }
 SIMPLE
 {
@@ -598,7 +599,7 @@ runTimeModifiable false;
             # remove the processor dirs, carry T over to the converged time, solve the transport (linear: a few sweeps)
             sh("rm -rf processor*", "clean")
             shutil.copy(os.path.join(case, "0", "T"), os.path.join(case, str(t_end), "T"))
-            self._control(case, "scalarTransportFoam", t_end, t_end + 3)
+            self._control(case, "scalarTransportFoam", t_end, t_end + self.scalar_iterations)
             sh("scalarTransportFoam", "scalarTransportFoam")
             # keep one solution time: move the transported scalar back into the flow solution
             later = sorted((float(d), d) for d in os.listdir(case) if _isnum(d) and float(d) > t_end)

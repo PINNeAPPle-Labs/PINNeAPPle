@@ -109,11 +109,14 @@ class PipeFlow(Experiment):
         ctx.metric("U_mean_m_s", res.U)
         ctx.metric("Re", flow.Re)
         # mass: the bulk velocity is the same on every section
-        um = sec["u_mean"][(sD > 1) & (sD < L - 1)]
+        clear = (sD > 1) & (sD < L - 1)
+        if case == "kenics_mixer":                      # the plates take part of the section inside the mixer
+            clear &= (sD < 2.9) | (sD > 3.0 + 1.5 * p["elements"] + 0.1)
+        um = sec["u_mean"][clear]
         area_err = float(np.abs(um / res.U - 1).max())
         ctx.check("bulk_velocity_constant_along_pipe", value=area_err, max=0.03,
-                  detail="volume-averaged axial velocity on every section / inlet bulk velocity (mass conservation "
-                         "and section averaging on the O-grid)", kind="physics")
+                  detail="volume-averaged axial velocity on every open section / inlet bulk velocity (mass "
+                         "conservation and section averaging on the O-grid)", kind="physics")
         plt = _plt()
         if case == "laminar_pipe":
             f = res.friction_factor(3, 17)

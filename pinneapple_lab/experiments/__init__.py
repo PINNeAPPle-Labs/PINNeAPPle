@@ -24,6 +24,7 @@ from . import (  # noqa: F401
     examples,
     landing,
     ode,
+    particles,
     pde,
     pipes,
     repo_results,

@@ -61,6 +61,26 @@ python -m pinneapple_lab serve                       # the catalogue as a web ap
 
 ---
 
+## Experiment gallery
+
+Every picture below is a lab run with its checks against a reference. The whole set, with tiers and trust cards, is
+in the **[experiment catalogue](https://pinneapple-labs.github.io/PINNeAPPle/lab/)** (`python -m pinneapple_lab site`).
+
+| | |
+|---|---|
+| ![Stirred tank: 12 000 DEM particles suspended as the impeller speeds up](docs/assets/lab/stirred_tank.gif) | ![Cantilever under load, von Mises in post-processor bands](docs/assets/lab/cantilever_loading.gif) |
+| **Solids suspension in a stirred tank** ([MP4](docs/assets/lab/stirred_tank.mp4)): 90 % off the bottom at 288 rpm, inside Zwietering's 237-474 rpm (`particle_suspension`) | **3-D FEA, C3D8I hexahedra**: tip deflection within 0.6 % of Timoshenko, CalculiX on the same mesh within 3e-6 (`solid_fem`) |
+| ![L bracket in CalculiX, von Mises](docs/assets/lab/bracket_calculix_render.jpg) | ![Bar in torsion, von Mises](docs/assets/lab/torsion_von_mises.png) |
+| **CalculiX from Python** (`pp.fea`): gmsh C3D10 bracket, bending stress vs M c / I, fillet peak converged (`calculix_case`) | **Square bar in torsion**: twist rate and shear within 1 % of Saint-Venant |
+| ![Turbulent flow through a 90 degree bend](docs/assets/lab/pipe_bend_streamlines.jpg) | ![Kenics static mixer, concentration on cross-sections](docs/assets/lab/kenics_striations.png) |
+| **90° pipe bend, k-omega SST**: friction within 3.6 % of Colebrook, Dean vortices (`pipe_flow`) | **Kenics static mixer**: striations double at each element, 6x better mixing than the empty pipe |
+| ![Worn bar end coloured by wear depth](docs/assets/lab/bar_wear_render.jpg) | ![Running-in of a crowned bar end](docs/assets/lab/bar_wear_running_in.gif) |
+| **Sliding wear of eight materials**: worn volume = K F s exactly, steady rate vs flat punch (`bar_wear`) | **Running-in**: contact pressure from a Hertz-like peak to a flat punch |
+| ![Road car in OpenFOAM](docs/assets/lab/car_cfd_beauty.jpg) | ![Black-hole accretion forecast, Interstellar style](docs/assets/lab/interstellar_forecast.gif) |
+| **Road car, OpenFOAM 3-D**: CD 0.288 (`vehicle_cfd`) | **Black-hole weather**: forecast vs simulation (`repo_results`) |
+| ![Parametric ROM errors on unseen designs](docs/assets/lab/rom_errors.png) | ![Kenics mixer streamlines](docs/assets/lab/kenics_streamlines.jpg) |
+| **Reduced-order models**: POD-GPR of a 3-D FEM beam, 0.4 % median error on unseen designs, 16 000x faster (`rom_study`) | **Static mixer streamlines** through six Kenics elements |
+
 ## Install
 
 ```bash

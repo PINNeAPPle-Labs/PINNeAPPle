@@ -63,6 +63,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   decoder_layers=2)` for the translation-invariant, MLP-decoder form of Pfaff et al.
   `pinneapple_lab.uq`: coverage check of predictive intervals and grid convergence index (two or three meshes)
   as `kind="uncertainty"` checks.
+  `python -m pinneapple_lab site docs/lab`: the self-contained public catalogue, published with the docs site under
+  `/lab/`; README experiment gallery (`docs/assets/lab`).
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

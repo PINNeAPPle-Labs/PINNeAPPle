@@ -180,3 +180,16 @@ def render_page(data: dict[str, Any], *, standalone: bool = True) -> str:
                 '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n'
                 + html + "\n</body>\n</html>\n")
     return html
+
+
+def write_site(store, out_dir: str) -> str:
+    """A self-contained public catalogue for a static host (GitHub Pages): ``out_dir/index.html`` with embedded
+    thumbnails and animated gallery, absolute local paths stripped (tracebacks of failed runs mention them)."""
+    os.makedirs(out_dir, exist_ok=True)
+    page = render_page(collect(store), standalone=True)
+    repo = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    page = page.replace(repo + os.sep, "").replace(repo, "")
+    path = os.path.join(out_dir, "index.html")
+    with open(path, "w") as f:
+        f.write(page)
+    return path

@@ -93,12 +93,18 @@ def main(argv=None) -> int:
     ex.add_argument("--run", action="store_true", help="run them (one at a time: scripts write into the checkout)")
     ex.add_argument("--timeout", type=float, default=900)
     ex.add_argument("--force", action="store_true")
+    st = sub.add_parser("site", help="write the self-contained public catalogue for a static host (GitHub Pages)")
+    st.add_argument("out", nargs="?", default="docs/lab")
     e = sub.add_parser("export")
     e.add_argument("name")
     e.add_argument("dataset")
     e.add_argument("out")
     a = ap.parse_args(argv)
 
+    if a.cmd == "site":
+        from .html import write_site
+        print(write_site(LabStore(a.root), a.out))
+        return 0
     if a.cmd == "list":
         for n in available():
             cls = get(n)

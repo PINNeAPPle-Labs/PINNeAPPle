@@ -5,7 +5,7 @@
     python -m pinneapple_lab sweep cylinder_lbm -g Re=40,80,120,160 -j 4
     python -m pinneapple_lab sweep oscillator -n 50                     # Latin hypercube over the experiment's space
     python -m pinneapple_lab status
-    python -m pinneapple_lab report                                     # writes lab/CATALOG.md
+    python -m pinneapple_lab report --html                              # lab/CATALOG.md and lab/index.html
     python -m pinneapple_lab export cylinder_lbm vorticity out/cylinder_vorticity.npz
 Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
 """
@@ -54,6 +54,7 @@ def main(argv=None) -> int:
     sub.add_parser("reindex")
     rep = sub.add_parser("report")
     rep.add_argument("--out", default=None)
+    rep.add_argument("--html", action="store_true", help="also write the browsable index.html")
     e = sub.add_parser("export")
     e.add_argument("name")
     e.add_argument("dataset")
@@ -88,6 +89,8 @@ def main(argv=None) -> int:
         print(store.reindex(), "runs indexed")
     elif a.cmd == "report":
         print(store.catalog(a.out))
+        if a.html:
+            print(store.catalog_html())
     elif a.cmd == "export":
         print(json.dumps(store.export_dataset(a.name, a.dataset, a.out), indent=1))
     return 0

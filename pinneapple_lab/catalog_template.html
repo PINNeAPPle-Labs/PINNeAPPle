@@ -1,0 +1,217 @@
+<title>PINNeAPPle Lab Catalogue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a lab-notebook index. Summary ledger on top, filter bar, then one section per experiment with a grid of
+   run cards; a side sheet opens the full record of a run (parameters, metrics, checks, stages, code). */
+:root {
+  --paper: #eef2f3; --sheet: #fbfcfc; --ink: #142127; --muted: #5a6b72; --line: #cfd9dc;
+  --accent: #0b6e69; --accent-soft: #d5ecea; --ok: #2e7d4f; --warn: #b26b00; --bad: #b3261e; --chip: #e2e9eb;
+  --shadow: 0 1px 2px rgb(20 33 39 / .08), 0 6px 20px rgb(20 33 39 / .06);
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f171a; --sheet: #162126; --ink: #e3ecee; --muted: #93a5ab; --line: #2a3a40;
+    --accent: #4fc2b9; --accent-soft: #173a38; --ok: #5cc48a; --warn: #e3a447; --bad: #f07a70; --chip: #1f2d32;
+    --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 6px 20px rgb(0 0 0 / .25); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f171a; --sheet: #162126; --ink: #e3ecee; --muted: #93a5ab; --line: #2a3a40;
+  --accent: #4fc2b9; --accent-soft: #173a38; --ok: #5cc48a; --warn: #e3a447; --bad: #f07a70; --chip: #1f2d32;
+  --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 6px 20px rgb(0 0 0 / .25); color-scheme: dark;
+}
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { background: var(--paper); color: var(--ink); font: 15px/1.5 var(--body); margin: 0 }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: grid; gap: 28px }
+header.top { display: grid; gap: 14px }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent) }
+h1 { font: 700 clamp(28px, 4.6vw, 44px)/1.05 var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em }
+.lede { color: var(--muted); max-width: 68ch; margin: 0 }
+.ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden }
+.ledger div { background: var(--sheet); padding: 12px 14px; display: grid; gap: 2px }
+.ledger b { font: 600 24px/1.1 var(--mono); font-variant-numeric: tabular-nums }
+.ledger span { font: 500 11px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.statusbar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--chip) }
+.statusbar i { display: block }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; position: sticky;
+  top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); padding-block: 10px; border-bottom: 1px solid var(--line) }
+.filters input[type=search] { flex: 1 1 240px; min-width: 0; font: 15px var(--body); padding: 9px 12px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--sheet); color: var(--ink) }
+.seg { display: flex; flex-wrap: wrap; gap: 6px }
+.seg button, .tag { font: 500 12px/1 var(--mono); padding: 7px 10px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--sheet); color: var(--ink); cursor: pointer }
+.seg button[aria-pressed=true] { background: var(--ink); color: var(--sheet); border-color: var(--ink) }
+button:focus-visible, input:focus-visible, .card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+section.exp { display: grid; gap: 14px; padding-top: 6px }
+.exp-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 20px; align-items: end }
+.exp-head h2 { font: 600 24px/1.15 var(--display); margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap }
+.exp-head h2 small { font: 400 12px var(--mono); color: var(--muted) }
+.exp-head p { margin: 4px 0 0; color: var(--muted); max-width: 90ch; grid-column: 1 / -1 }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.chip { font: 500 11px/1 var(--mono); padding: 5px 8px; border-radius: 6px; background: var(--chip); color: var(--muted) }
+.chip.ok { color: var(--ok) } .chip.warn { color: var(--warn) } .chip.bad { color: var(--bad) } .chip.ds { color: var(--accent) }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px }
+.card { background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid;
+  grid-template-rows: auto 1fr; cursor: pointer; text-align: left; padding: 0; color: inherit; font: inherit;
+  border-top: 3px solid var(--st, var(--line)); transition: transform .12s ease, box-shadow .12s ease }
+.card:hover { transform: translateY(-1px); box-shadow: var(--shadow) }
+.thumb { aspect-ratio: 16 / 9; width: 100%; max-width: 100%; object-fit: cover; background: var(--chip); display: block }
+.noimg { aspect-ratio: 16 / 9; display: grid; place-items: center; color: var(--muted); font: 12px var(--mono); background: var(--chip) }
+.card .body { padding: 10px 12px 12px; display: grid; gap: 6px; min-width: 0 }
+.card .rid { font: 500 12px var(--mono); color: var(--muted); display: flex; justify-content: space-between; gap: 6px }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; font: 12.5px/1.35 var(--mono) }
+.kv dt { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.kv dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right }
+.more { justify-self: start; font: 500 12px var(--mono); color: var(--accent); background: none; border: 0; padding: 4px 0; cursor: pointer }
+.empty { color: var(--muted); padding: 30px; text-align: center; border: 1px dashed var(--line); border-radius: 10px }
+/* side sheet */
+.sheet { position: fixed; inset: 0 0 0 auto; width: min(640px, 100%); background: var(--sheet); border-left: 1px solid var(--line);
+  box-shadow: var(--shadow); z-index: 20; display: grid; grid-template-rows: auto 1fr; padding-top: env(safe-area-inset-top, 0px) }
+.sheet header { display: flex; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line) }
+.sheet header h3 { margin: 0; font: 600 20px/1.2 var(--display) }
+.sheet header .x { font: 500 13px var(--mono); border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 8px; padding: 6px 10px; cursor: pointer }
+.sheet .content { overflow: auto; padding: 16px 18px 40px; display: grid; gap: 18px; align-content: start }
+.sheet h4 { margin: 0 0 6px; font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.sheet img { width: 100%; border-radius: 8px; border: 1px solid var(--line); background: var(--chip) }
+.tbl { width: 100%; border-collapse: collapse; font: 13px/1.4 var(--mono) }
+.tbl td { border-bottom: 1px solid var(--line); padding: 5px 4px; vertical-align: top; overflow-wrap: anywhere }
+.tbl td:last-child { text-align: right; font-variant-numeric: tabular-nums }
+.check { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; font: 13px/1.4 var(--mono) }
+.check b { color: var(--ok) } .check b.f { color: var(--bad) }
+pre.err { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font: 12px/1.4 var(--mono); max-height: 260px }
+.scrim { position: fixed; inset: 0; background: rgb(0 0 0 / .25); z-index: 15 }
+footer { color: var(--muted); font: 12px var(--mono) }
+@media (max-width: 640px) { .exp-head { grid-template-columns: 1fr } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">PINNeAPPle Lab · experiment database</div>
+    <h1>Every run, its checks, its data</h1>
+    <p class="lede" id="lede"></p>
+    <div class="ledger" id="ledger"></div>
+    <div class="statusbar" id="statusbar" aria-hidden="true"></div>
+  </header>
+  <div class="filters">
+    <input type="search" id="q" placeholder="Search experiments, parameters, metrics (e.g. Re, kepler, shedding)" aria-label="Search">
+    <div class="seg" id="statusSeg" role="group" aria-label="Status"></div>
+    <div class="seg" id="tagSeg" role="group" aria-label="Tags"></div>
+  </div>
+  <main id="main"></main>
+  <footer id="foot"></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" hidden aria-modal="true" role="dialog" aria-labelledby="sheetTitle">
+  <header><div><div class="eyebrow" id="sheetExp"></div><h3 id="sheetTitle"></h3></div><button class="x" id="close">Close</button></header>
+  <div class="content" id="sheetBody"></div>
+</aside>
+
+<script>
+const DATA = /*__DATA__*/null;
+const STATUS = { completed: ["Completed", "var(--ok)", "ok"], failed_validation: ["Failed validation", "var(--warn)", "warn"],
+                 failed: ["Crashed", "var(--bad)", "bad"], running: ["Running", "var(--accent)", ""] };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (v) => {
+  if (typeof v !== "number") return esc(v);
+  if (v === 0) return "0";
+  const a = Math.abs(v);
+  if (a >= 1e5 || a < 1e-3) return v.toExponential(2);
+  return Number.isInteger(v) ? String(v) : v.toPrecision(4);
+};
+let state = { q: "", status: "all", tag: "all" };
+try { const s = JSON.parse(localStorage.getItem("lab-filters") || "null"); if (s) state = { ...state, ...s }; } catch (e) {}
+
+function summary() {
+  const exps = DATA.experiments; let runs = 0, samples = 0; const st = {};
+  exps.forEach((e) => { e.runs.forEach((r) => { runs++; st[r.status] = (st[r.status] || 0) + 1; });
+    Object.values(e.datasets).forEach((n) => samples += n); });
+  const checks = exps.reduce((a, e) => a + e.runs.reduce((b, r) => b + r.checks.length, 0), 0);
+  $("lede").textContent = `${exps.length} experiments, from verification against exact solutions to laws discovered from real data and video. Each run keeps its parameters, the code that ran, its metrics, its validation checks and the datasets it produced. Generated ${DATA.generated}.`;
+  $("ledger").innerHTML = [[exps.length, "experiments"], [runs, "runs"], [st.completed || 0, "completed"],
+    [(st.failed_validation || 0) + (st.failed || 0), "failed checks or crashed"], [checks, "validation checks"], [samples.toLocaleString("en"), "dataset samples"]]
+    .map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join("");
+  $("statusbar").innerHTML = Object.entries(st).map(([k, n]) => `<i style="flex:${n};background:${(STATUS[k] || STATUS.running)[1]}"></i>`).join("");
+  const tags = [...new Set(exps.flatMap((e) => e.tags))].sort();
+  $("statusSeg").innerHTML = [["all", "All"], ["completed", "Completed"], ["failed_validation", "Failed validation"], ["failed", "Crashed"]]
+    .map(([k, l]) => `<button data-s="${k}" aria-pressed="${state.status === k}">${l}</button>`).join("");
+  $("tagSeg").innerHTML = ["all", ...tags].map((t) => `<button data-t="${esc(t)}" aria-pressed="${state.tag === t}">${t === "all" ? "Any tag" : esc(t)}</button>`).join("");
+}
+
+function keyMetrics(r, n = 3) {
+  return Object.entries(r.metrics).filter(([, v]) => typeof v === "number").slice(0, n);
+}
+
+function matches(e, r) {
+  if (state.status !== "all" && r.status !== state.status) return false;
+  if (state.tag !== "all" && !e.tags.includes(state.tag)) return false;
+  if (!state.q) return true;
+  const hay = (e.name + " " + e.description + " " + JSON.stringify(r.params) + " " + JSON.stringify(r.metrics) + " " + r.id).toLowerCase();
+  return state.q.toLowerCase().split(/\s+/).every((w) => hay.includes(w));
+}
+
+function render() {
+  const out = [];
+  DATA.experiments.forEach((e, ei) => {
+    const runs = e.runs.map((r, ri) => [r, ri]).filter(([r]) => matches(e, r));
+    if (!runs.length) return;
+    const chips = Object.entries(e.status).map(([k, n]) => `<span class="chip ${(STATUS[k] || [])[2] || ""}">${n} ${(STATUS[k] || [k])[0].toLowerCase()}</span>`).join("")
+      + Object.entries(e.datasets).map(([k, n]) => `<span class="chip ds">dataset ${esc(k)} · ${n.toLocaleString("en")} samples</span>`).join("");
+    const shown = runs.slice(-24).reverse();
+    out.push(`<section class="exp" id="exp-${esc(e.name)}"><div class="exp-head"><h2>${esc(e.name)} <small>v${esc(e.version)} · ${runs.length} run${runs.length > 1 ? "s" : ""}</small></h2>
+      <div class="chips">${chips}</div><p>${esc(e.description)}</p></div><div class="grid">${shown.map(([r, ri]) => card(e, r, ei, ri)).join("")}</div>
+      ${runs.length > shown.length ? `<p class="lede">Showing the latest ${shown.length} of ${runs.length}; refine the search to see others.</p>` : ""}</section>`);
+  });
+  $("main").innerHTML = out.join("") || `<div class="empty">No run matches these filters. Clear the search or pick another status.</div>`;
+  try { localStorage.setItem("lab-filters", JSON.stringify(state)); } catch (e) {}
+}
+
+function card(e, r, ei, ri) {
+  const st = STATUS[r.status] || STATUS.running;
+  const params = Object.entries(r.params).filter(([k]) => k !== "seed").slice(0, 2);
+  const img = r.thumbs[0] ? `<img class="thumb" alt="${esc(e.name)} figure" loading="lazy" src="${r.thumbs[0]}">` : `<div class="noimg">no figure</div>`;
+  return `<button class="card" style="--st:${st[1]}" data-e="${ei}" data-r="${ri}" aria-label="Open run ${esc(r.id)}">${img}
+    <div class="body"><div class="rid"><span>${esc(r.id.slice(-12))}</span><span style="color:${st[1]}">${st[0]}</span></div>
+    <dl class="kv">${params.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join("")}
+    ${keyMetrics(r).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join("")}</dl></div></button>`;
+}
+
+function open(ei, ri) {
+  const e = DATA.experiments[ei], r = e.runs[ri], st = STATUS[r.status] || STATUS.running;
+  $("sheetExp").textContent = `${e.name} · ${st[0]}`;
+  $("sheetTitle").textContent = r.id;
+  const table = (o) => `<table class="tbl">${Object.entries(o).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${fmt(v)}</td></tr>`).join("")}</table>`;
+  const parts = [];
+  r.thumbs.forEach((t) => parts.push(`<img alt="figure" src="${t}">`));
+  parts.push(`<div><h4>Parameters</h4>${table(r.params)}</div>`);
+  parts.push(`<div><h4>Metrics</h4>${Object.keys(r.metrics).length ? table(r.metrics) : "<p class='lede'>No metrics recorded.</p>"}</div>`);
+  parts.push(`<div><h4>Validation</h4>${r.checks.length ? r.checks.map((c) => `<div class="check"><b class="${c.passed ? "" : "f"}">${c.passed ? "PASS" : "FAIL"}</b><span>${esc(c.name)}${c.value !== null && c.value !== undefined ? " · " + fmt(c.value) : ""}${c.max !== null && c.max !== undefined ? " ≤ " + fmt(c.max) : ""}${c.min !== null && c.min !== undefined ? " ≥ " + fmt(c.min) : ""}${c.reference !== null && c.reference !== undefined ? " ref " + fmt(c.reference) : ""}${c.detail ? " — " + esc(c.detail) : ""}</span></div>`).join("") : "<p class='lede'>No checks.</p>"}</div>`);
+  if (r.stages.length) parts.push(`<div><h4>Stages</h4>${table(Object.fromEntries(r.stages.map((s) => [s.name + " (" + s.status + ")", (s.seconds ?? 0) + " s"])))}</div>`);
+  parts.push(`<div><h4>Code that ran</h4>${r.code.length ? table(Object.fromEntries(r.code.map((c) => [c, "saved"]))) : "<p class='lede'>Run predates code snapshots.</p>"}<p class="lede">git ${esc(r.git || "unknown")} · ${fmt(r.seconds)} s</p></div>`);
+  if (Object.keys(r.datasets).length) parts.push(`<div><h4>Datasets</h4>${table(Object.fromEntries(Object.entries(r.datasets).map(([k, v]) => [k, v.n_samples + " samples"])))}</div>`);
+  if (r.figures.length) parts.push(`<div><h4>Files</h4>${table(Object.fromEntries(r.figures.map((f) => [f, ""])))}</div>`);
+  if (r.error) parts.push(`<div><h4>Error</h4><pre class="err">${esc(r.error)}</pre></div>`);
+  $("sheetBody").innerHTML = parts.join("");
+  $("sheet").hidden = false; $("scrim").hidden = false; $("close").focus();
+}
+function close() { $("sheet").hidden = true; $("scrim").hidden = true; }
+
+document.addEventListener("click", (ev) => {
+  const c = ev.target.closest(".card"); if (c) return open(+c.dataset.e, +c.dataset.r);
+  const s = ev.target.closest("[data-s]"); if (s) { state.status = s.dataset.s; summary(); render(); return; }
+  const t = ev.target.closest("[data-t]"); if (t) { state.tag = t.dataset.t; summary(); render(); return; }
+});
+$("close").onclick = close; $("scrim").onclick = close;
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
+$("q").value = state.q;
+$("q").addEventListener("input", (ev) => { state.q = ev.target.value.trim(); render(); });
+summary(); render();
+$("foot").textContent = "Built with python -m pinneapple_lab report --html. Arrays and dataset shards stay in the lab folder; this page carries the record of every run.";
+</script>

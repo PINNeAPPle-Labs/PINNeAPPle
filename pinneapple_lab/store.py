@@ -186,6 +186,11 @@ class LabStore:
         return card
 
     # -- catalogue -----------------------------------------------------------
+    def catalog_html(self, path: str | None = None, **kw) -> str:
+        """Self-contained HTML catalogue (filters, run cards, a sheet with each run's full record)."""
+        from .html import write_html
+        return write_html(self, path, **kw)
+
     def catalog(self, path: str | None = None, *, max_rows: int = 30, thumbs: int = 2) -> str:
         """Write a Markdown catalogue: per experiment, a status summary, a table of runs (parameters, key
         metrics, checks) and thumbnails of the first figures."""

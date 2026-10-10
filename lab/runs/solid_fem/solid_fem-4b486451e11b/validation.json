@@ -1,0 +1,50 @@
+[
+ {
+  "name": "reactions_balance_loads",
+  "passed": true,
+  "value": 6.167877974835389e-11,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1e-08,
+  "min": null,
+  "detail": "|sum of reactions + sum of applied forces| / sum of |nodal forces|",
+  "kind": "physics"
+ },
+ {
+  "name": "deflection_vs_beam_theory",
+  "passed": true,
+  "value": 0.0019077991765698125,
+  "reference": 0.0019196190476190472,
+  "rtol": 0.03,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Timoshenko beam (bending + shear, k = 5/6)",
+  "kind": "reference"
+ },
+ {
+  "name": "bending_stress_vs_Mc_over_I",
+  "passed": true,
+  "value": 22500000.01194554,
+  "reference": 22499999.999999993,
+  "rtol": 0.03,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "axial stress on the outer fibre at x = 0.5 m",
+  "kind": "reference"
+ },
+ {
+  "name": "matches_calculix_same_mesh",
+  "passed": true,
+  "value": 2.6173785577127903e-06,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.001,
+  "min": null,
+  "detail": "largest nodal displacement difference / largest displacement, CalculiX C3D8I",
+  "kind": "baseline"
+ }
+]

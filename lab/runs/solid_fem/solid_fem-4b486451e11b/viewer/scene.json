@@ -1,0 +1,1 @@
+{"axes": "z_up", "title": "Steel cantilever 2 m x 0.1 m x 0.2 m, clamped root, 10 kN on the tip face.", "labels": {"von_mises": "von Mises stress (MPa)", "displacement": "Displacement (mm)"}, "fields": ["von_mises", "displacement"], "lines": [], "slices": []}

@@ -1,0 +1,9 @@
+{
+ "elements": 5760,
+ "dofs": 20787,
+ "max_displacement_mm": 0.6283219090123655,
+ "max_von_mises_MPa": 97.99184950032082,
+ "twist_rate_deg_per_m": 0.5015754978631604,
+ "max_shear_MPa": 47.555146689422536,
+ "calculix_max_rel_difference": 1.1207548900833434e-06
+}

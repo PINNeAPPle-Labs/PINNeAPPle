@@ -43,6 +43,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `pinneapple_simulation.numerical_solvers.internal_flow`: pipes, bends and Kenics static mixers in OpenFOAM
   (structured O-grid swept along a centreline, mixer elements cut by snappyHexMesh, passive scalar by
   scalarTransportFoam), Colebrook and Ito bend-loss references; lab experiment `pipe_flow`.
+  `pinneapple_simulation.numerical_solvers.solid_fem`: 3-D linear elasticity with C3D8I hexahedra (incompatible
+  modes), structured box meshes, CalculiX cross-check, post-processor style figures; lab experiment `solid_fem`.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

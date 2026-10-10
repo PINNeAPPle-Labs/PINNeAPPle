@@ -1,0 +1,29 @@
+{
+ "stages": [
+  {
+   "name": "solve",
+   "started": 1791664623.8523133,
+   "status": "done",
+   "seconds": 3.87
+  },
+  {
+   "name": "calculix",
+   "started": 1791664627.728164,
+   "status": "done",
+   "seconds": 0.844
+  },
+  {
+   "name": "dataset",
+   "started": 1791664628.5742633,
+   "status": "done",
+   "seconds": 0.011
+  },
+  {
+   "name": "render",
+   "started": 1791664635.1602788,
+   "status": "done",
+   "seconds": 58.408
+  }
+ ],
+ "updated": 1791664693.572496
+}

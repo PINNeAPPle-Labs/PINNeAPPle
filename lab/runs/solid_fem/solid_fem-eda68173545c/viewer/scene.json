@@ -1,0 +1,1 @@
+{"axes": "z_up", "title": "Steel beam 2 m x 0.3 m x 0.2 m on two line supports, 2 MPa on the top face.", "labels": {"von_mises": "von Mises stress (MPa)", "displacement": "Displacement (mm)"}, "fields": ["von_mises", "displacement"], "lines": [], "slices": []}

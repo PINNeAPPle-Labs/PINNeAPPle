@@ -344,3 +344,20 @@ def test_internal_flow_geometry_and_references():
     assert (cnt == 2).all()                                             # closed surface for snappyHexMesh
     assert abs(colebrook(1e5) - 0.0180) < 3e-4                          # Moody chart, smooth pipe
     assert 0.15 < ito_bend_loss(5e4, 4.0) < 0.3
+
+
+def test_solid_fem_cantilever_vs_beam_theory():
+    from pinneapple_simulation.numerical_solvers.solid_fem import SolidFEM, box_mesh, von_mises
+    L, W, H, P, E, nu = 2.0, 0.1, 0.2, 1e4, 210e9, 0.3
+    m = box_mesh(L, W, H, 20, 2, 4)
+    f = SolidFEM(m, E, nu)
+    f.fix(m.nodes_on(x=0.0))
+    f.load_face(m.face_nodes("x+"), (0.0, 0.0, -P))
+    r = f.solve()
+    Iy, G = W * H ** 3 / 12, E / (2 * (1 + nu))
+    ref = P * L ** 3 / (3 * E * Iy) + P * L / (5 / 6 * G * W * H)
+    assert abs(-r.u[m.face_nodes("x+"), 2].mean() / ref - 1) < 0.03          # no shear locking with C3D8I
+    assert np.allclose(r.reactions.sum(0), [0, 0, P], rtol=1e-8)
+    s = np.zeros((1, 6))
+    s[0, 0] = 100.0
+    assert abs(von_mises(s)[0] - 100.0) < 1e-12

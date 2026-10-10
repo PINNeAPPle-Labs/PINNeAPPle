@@ -47,3 +47,11 @@ it uses mixed precision (about 27 samples/s on 4 cores); a GPU is not needed but
   well forecast, next to IFS HRES and Pangu-Weather).
 - `data/rs_floods_2024_40.npy`: ERA5 states of the 2024 Rio Grande do Sul floods (ARCO, 0.25 degree averaged onto
   the grid; float16), so the slow download is not repeated.
+
+## Data and attribution
+
+ERA5 reanalysis (Hersbach et al., 2020) from the Copernicus Climate Change Service (C3S), read through WeatherBench2
+(Rasp et al., 2024) and the ARCO-ERA5 bucket of Google Research. Contains modified Copernicus Climate Change Service
+information; neither the European Commission nor ECMWF is responsible for any use of it. The published forecasts
+(IFS HRES, Pangu-Weather, Keisler, NeuralGCM) are read from WeatherBench2; only their scores are stored here.
+Coastlines: Natural Earth (public domain).

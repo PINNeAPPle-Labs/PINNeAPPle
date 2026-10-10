@@ -27,6 +27,7 @@ from . import (  # noqa: F401
     pde,
     pipes,
     repo_results,
+    rom,
     structures,
     vehicles3d,
     wear,

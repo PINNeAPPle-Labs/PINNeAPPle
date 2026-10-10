@@ -45,6 +45,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   scalarTransportFoam), Colebrook and Ito bend-loss references; lab experiment `pipe_flow`.
   `pinneapple_simulation.numerical_solvers.solid_fem`: 3-D linear elasticity with C3D8I hexahedra (incompatible
   modes), structured box meshes, CalculiX cross-check, post-processor style figures; lab experiment `solid_fem`.
+  `ParametricPOD` (POD + RBF / per-coefficient Gaussian process / linear / nearest regression, amplitude-shape split,
+  predictive standard deviation) and `latin_hypercube` in `pinneapple_neural.architectures.rom`; lab experiment
+  `rom_study`; docs page on reduced-order models; tests for POD, DMD, Operator Inference and the parametric ROM.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

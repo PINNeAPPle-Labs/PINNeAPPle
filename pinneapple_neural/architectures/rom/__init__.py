@@ -8,6 +8,7 @@ from .deep_uq_rom import DeepUQROM
 from .sindy import SINDy
 from .koopman import KoopmanAutoencoder
 from .neural_rom import NeuralROM
+from .parametric import ParametricPOD, latin_hypercube
 from .registry import ROMCatalog
 
 __all__ = [
@@ -23,4 +24,6 @@ __all__ = [
     "KoopmanAutoencoder",
     "NeuralROM",
     "ROMCatalog",
+    "ParametricPOD",
+    "latin_hypercube",
 ]

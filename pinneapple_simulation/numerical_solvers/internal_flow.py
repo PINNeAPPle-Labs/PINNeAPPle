@@ -600,9 +600,15 @@ runTimeModifiable false;
             shutil.copy(os.path.join(case, "0", "T"), os.path.join(case, str(t_end), "T"))
             self._control(case, "scalarTransportFoam", t_end, t_end + 3)
             sh("scalarTransportFoam", "scalarTransportFoam")
+            # keep one solution time: move the transported scalar back into the flow solution
+            later = sorted((float(d), d) for d in os.listdir(case) if _isnum(d) and float(d) > t_end)
+            if later:
+                shutil.copy(os.path.join(case, later[-1][1], "T"), os.path.join(case, str(t_end), "T"))
+                for _, d in later:
+                    shutil.rmtree(os.path.join(case, d), ignore_errors=True)
         return t
 
-    def solve(self, case: str, procs: int = 2, log: Callable[[str], None] = print, n_sections: int = 120,
+    def solve(self, case: str, procs: int = 2, log: Callable[[str], None] = print, n_sections: int | None = None,
               n_lines: int = 40, slice_at_D: Sequence[float] = ()) -> InternalResult:
         self.write(case, procs)
         t = self.run(case, procs, log)
@@ -611,7 +617,7 @@ runTimeModifiable false;
         return res
 
     # -- reading
-    def read(self, case: str, n_sections: int = 120, n_lines: int = 40, slice_at_D: Sequence[float] = ()) -> InternalResult:
+    def read(self, case: str, n_sections: int | None = None, n_lines: int = 40, slice_at_D: Sequence[float] = ()) -> InternalResult:
         from pinneapple_data.cae.foam import read_field
 
         from .external_flow import CaseFields, latest_time
@@ -628,12 +634,17 @@ runTimeModifiable false;
         # project every cell on the centreline: nearest station interval, then arc length
         s_cell, rad_cell, uax = _project(C, st, cf.U)
         D, r = self.route.D, self.route.D / 2
+        if n_sections is None:                      # sections at least two axial cells long: none is empty
+            n_sections = int(min(200, max(10, st["s"][-1] / (2 * self.axial_cell_D * D))))
         edges = np.linspace(0, st["s"][-1], n_sections + 1)
         sid = np.clip(np.searchsorted(edges, s_cell) - 1, 0, n_sections - 1)
-        cnt = np.bincount(sid, vol, n_sections) + 1e-30
+        cnt = np.bincount(sid, vol, n_sections)
+        keep = cnt > 0
+        cnt = np.maximum(cnt, 1e-300)
         p = np.bincount(sid, vol * cf.p, n_sections) / cnt
         um = np.bincount(sid, vol * uax, n_sections) / cnt
-        sec = {"s": 0.5 * (edges[1:] + edges[:-1]), "p": p, "u_mean": um}
+        sm = np.bincount(sid, vol * s_cell, n_sections) / cnt
+        sec = {"s": sm, "p": p, "u_mean": um}
         if Tc is not None:
             w = vol * np.maximum(uax, 0)
             W = np.bincount(sid, w, n_sections) + 1e-30
@@ -641,6 +652,7 @@ runTimeModifiable false;
             var = np.bincount(sid, w * (Tc - cm[sid]) ** 2, n_sections) / W
             sec["c_mean"] = cm
             sec["cov"] = np.sqrt(var) / np.maximum(cm, 1e-12)
+        sec = {k: v[keep] for k, v in sec.items()}
         # wall shear on the wall patch
         wall = {}
         for pat in cf.patches():

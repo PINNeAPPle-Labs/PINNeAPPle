@@ -80,8 +80,8 @@ class OperatorInference(ROMBase):
         else:
             std = torch.ones(self.r, device=a0.device, dtype=a0.dtype)
 
-        self.a_mean.copy_(mean)
-        self.a_std.copy_(std)
+        self.a_mean = mean.detach().clone()
+        self.a_std = std.detach().clone()
 
     def _normalize(self, a: torch.Tensor) -> torch.Tensor:
         return (a - self.a_mean) / self.a_std
@@ -206,7 +206,7 @@ class OperatorInference(ROMBase):
         lam = self._lambda_diag(device=X.device, dtype=X.dtype)
 
         W = self._solve_ridge(X, a1n, lam)  # (F, r)
-        self.W.copy_(W)
+        self.W = W.detach().clone()
         self._fitted = True
         return self
 
@@ -307,7 +307,7 @@ class OperatorInference(ROMBase):
         lam = self._lambda_diag(device=X.device, dtype=X.dtype)
 
         W = self._solve_ridge(X, yn, lam)  # (F, r) mapping features -> d(a_norm)/dt
-        self.W.copy_(W)
+        self.W = W.detach().clone()
         self._fitted = True
         return self
 

@@ -29,7 +29,7 @@ from pinneapple_physics.weather.evaluate import (
 )
 from pinneapple_physics.weather.events import EVENTS, event_states, region_mask
 from pinneapple_physics.weather.train import Forecaster
-from pinneapple_physics.weather.viz import forecast_gif, skill_figure
+from pinneapple_physics.weather.viz import earth2_gif, skill_figure
 
 STEPS = 40                      # 10 days of 6-hour steps
 LEADS_H = np.arange(STEPS + 1) * 6
@@ -165,10 +165,11 @@ def run_event(ev, fc, store, clim, out, skill, horizon_by_var, pub, log=print):
     extra = {n: (LEADS_H, skill[n][ev.var]["acc"]) for n in ("IFS HRES", "Pangu-Weather")
              if n in skill and ev.var in skill[n] and np.isfinite(skill[n][ev.var]["acc"][1:]).any()}
     n_frames = min(STEPS, k_peak + 8)
-    gif = forecast_gif(out / f"{ev.key}.gif", ev.var, phys[1:n_frames + 2, c], r[:n_frames + 1, c], store.lat,
-                       store.lon, times[1:n_frames + 2], skill_leads_h=LEADS_H, skill_acc=acc_curve, horizon=hz,
-                       region=ev.region, title=ev.title, model_name=MODEL, vmin=ev.vmin, vmax=ev.vmax,
-                       extra_series=extra)
+    gif = earth2_gif(out / f"{ev.key}.gif", ev.var, phys[1:n_frames + 2, c], r[:n_frames + 1, c], store.lat,
+                     store.lon, times[1:n_frames + 2], lead_hours=LEADS_H[:n_frames + 1], horizon=hz,
+                     title=ev.title, center=ev.center, rotate_deg_per_frame=0.12, model_name=MODEL,
+                     vmin=ev.vmin, vmax=ev.vmax)
+    _ = (acc_curve, extra)
     return {"event": ev.key, "title": ev.title, "what": ev.what, "variable": ev.var, "score": ev.score,
             "tolerance": tol, "ahead": ahead, "well_forecast_days_ahead": well_ahead, "gif": gif.name}
 

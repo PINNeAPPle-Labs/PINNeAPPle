@@ -15,6 +15,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- PINNeAPPle Lab (`pinneapple_lab`): experiment runner and database. Runs keyed by
+  experiment, version and parameters (cached), statuses with validation checks, inputs/outputs/metrics/figures,
+  sharded datasets with cards, SQLite index, sweeps (grid / Latin hypercube, parallel), dataset export and a Markdown
+  catalogue; CLI `python -m pinneapple_lab`. Built-in experiments: oscillator, heat_xtfc, bondi_accretion,
+  accretion_flow, cylinder_lbm, bh_forecast. Black-hole hydro: numba backend (`RIAFConfig(backend="numba")`).
+
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).
   A torch port of the Duarte, Nemmen & Navarro (2022) U-Net, plus a residual variant.
@@ -24,6 +30,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Twin3D: Blender renders (`Scene.render_blender`), and viewer URL parameters `cmap`, `view`, `zoom`, `theme`,
   `range`, plus the inferno colormap.
 
+- `pinneapple_veriphysics` (also `pp.veriphysics`): the verification and evidence layer of Veriphysics, now part of PINNeAPPle under
+  Apache-2.0. `DecisionRecord` (recommendation, trust score and coverage, per-check evidence, alternatives), the Evidence Report PDF
+  (`render_evidence_report_pdf`, optional `reportlab`: `pip install pinneapple[veriphysics]`), the applicability map (evidence chain,
+  8-item checklist, tested variable envelope), measured robustness studies, `formulate_and_recommend` and the execution log. The job
+  queue, HTTP API, billing and web app stay in the Veriphysics product, which imports this package.
 - Adaptive physics ensembles tell regime changes from sensor noise (`PhysicsEnsemble`):
   `residual_lookahead` scores every model on the current case by its PDE residual before choosing, against the
   level it has in its own domain (`residual_baseline`, helper `residual_baseline()`), so a regime change is seen on

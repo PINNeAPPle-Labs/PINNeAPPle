@@ -38,7 +38,8 @@ from typing import Any
 from .store import LabStore
 
 _FILE_TYPES = {".png", ".gif", ".jpg", ".jpeg", ".svg", ".mp4", ".webm", ".json", ".jsonl", ".csv", ".txt", ".log",
-               ".md", ".py", ".diff", ".npy", ".npz", ".html", ".yaml", ".yml"}
+               ".md", ".py", ".diff", ".npy", ".npz", ".html", ".yaml", ".yml", ".js", ".mjs", ".css",
+               ".glb", ".bin", ".wasm"}
 
 
 class LabServer:
@@ -175,8 +176,14 @@ class LabServer:
 
             def _file(self, path: str, *, download: str | None = None):
                 ctype = mimetypes.guess_type(path)[0] or "application/octet-stream"
-                if ctype.startswith("text/") or path.endswith((".py", ".diff", ".jsonl", ".md", ".log")):
-                    ctype = "text/plain; charset=utf-8"                # never render a run's file as a page
+                if path.endswith((".js", ".mjs")):
+                    ctype = "text/javascript; charset=utf-8"
+                elif path.endswith(".glb"):
+                    ctype = "model/gltf-binary"
+                elif os.path.basename(path) == "index.html" and os.sep + "viewer" + os.sep in path:
+                    ctype = "text/html; charset=utf-8"                 # a run's 3-D viewer page
+                elif ctype.startswith("text/") or path.endswith((".py", ".diff", ".jsonl", ".md", ".log", ".html")):
+                    ctype = "text/plain; charset=utf-8"                # never render any other run file as a page
                 with open(path, "rb") as f:
                     body = f.read()
                 extra = {"Content-Disposition": f'attachment; filename="{download}"'} if download else None

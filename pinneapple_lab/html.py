@@ -62,7 +62,7 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
         for r in store.runs(exp)[-max_runs_per_experiment:]:
             d = store.run_dir(exp, r["run_id"])
             rec = _load(os.path.join(d, "run.json"), {})
-            figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")))
+            figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")) + glob.glob(os.path.join(d, "figures", "*.jpg")))
             gifs = sorted(glob.glob(os.path.join(d, "figures", "*.gif")))
             shown = (figs + gifs)[:thumbs_per_run]
             if thumbs == "url":

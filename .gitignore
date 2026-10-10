@@ -51,6 +51,8 @@ examples/studio/_out/**/case_*/
 lab/index.sqlite
 lab/_worktree/
 lab/_exports/
+lab/_cases/
+lab/_external/
 lab/**/*.npy
 lab/**/*.npz
 lab/**/samples.jsonl

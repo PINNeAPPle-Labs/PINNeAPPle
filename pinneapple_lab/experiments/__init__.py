@@ -11,6 +11,7 @@
 | ``repo_results`` | results already produced by repository scripts, re-validated and stored as datasets | per source |
 | ``example_script`` | any script of ``examples/`` (examples and use cases): figures, JSON metrics, arrays, console, code | artifacts |
 | ``car_lbm`` / ``car_surrogate`` | parametric 2-D car body in an LBM wind tunnel; FNO + MLP surrogates, design search verified by LBM | flow, vorticity, predictions |
+| ``vehicle_cfd`` | 3-D road car / launch vehicle in OpenFOAM: coefficients, skin Cp, streamlines, Blender renders, 3-D viewer | surface, streamlines |
 | ``benchmark_case`` | landing-page cases from PINNeAPPle-Benchmark and PINNeAPPle-Climate, headline claim re-checked | arrays, sweep, lead skill |
 """
 from . import (  # noqa: F401
@@ -24,4 +25,5 @@ from . import (  # noqa: F401
     ode,
     pde,
     repo_results,
+    vehicles3d,
 )

@@ -10,13 +10,6 @@
 [![PyPI](https://img.shields.io/pypi/v/pinneapple.svg)](https://pypi.org/project/pinneapple/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-<img src="docs/assets/weather/pnw_heat_dome_2021_preview.gif" width="100%" alt="ERA5 against a PINNeAPPle global forecast of the 2021 heat dome, on lit globes"/>
-
-<sub>A global forecast model trained with <code>pinneapple_physics.weather</code> on public ERA5, against what happened (2021 Pacific Northwest heat dome). The lead bar turns amber when the forecast stops being trustworthy. Preview weights, training in progress (<a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/322">#322</a>).</sub>
-
-</div>
-
-<div align="center">
 <img src="docs/assets/readme/mosaic.jpg" width="100%" alt="Highlights: global weather forecast, OpenFOAM airliner and Ahmed body, physics ensembles, MeshGraphNet, LBM, qualitative preview, PINNs for electrodynamics and heat, design apps"/>
 </div>
 

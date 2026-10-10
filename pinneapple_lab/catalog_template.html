@@ -105,6 +105,38 @@ h2 .tier { font-size: 12px; margin-right: 4px }
 .qbar { height: 7px; border-radius: 4px; background: var(--chip); overflow: hidden }
 .qbar b { display: block; height: 100%; background: var(--ok) } .qbar b.f { background: var(--bad) }
 .tbl.rd td:last-child { text-align: left }
+.portfolio { display: grid; gap: 14px; min-width: 0 }
+.pf-head h2, .rm-title { font: 600 26px/1.15 var(--display); margin: 0 }
+.rm-title { font-size: 20px; margin-top: 12px }
+.pf-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px }
+.pf-col { background: var(--sheet); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0 }
+.pf-col h4 { margin: 0; font: 600 16px var(--display); display: flex; justify-content: space-between; gap: 8px }
+.pf-col h4 span { font: 500 12px var(--mono); color: var(--muted) }
+.pf-col .note { color: var(--muted); font-size: 12.5px; margin: 4px 0 8px }
+.pf-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px }
+.pf-col small { display: block; color: var(--muted); font-size: 11.5px; padding-left: 4px; overflow-wrap: anywhere }
+.pf-item { width: 100%; display: flex; gap: 6px; align-items: center; text-align: left; background: none; border: 0;
+  padding: 4px; border-radius: 6px; color: var(--ink); font: 13.5px var(--body); cursor: pointer }
+.pf-item:hover { background: var(--chip) }
+.pf-item .ttl { flex: 1; min-width: 0; overflow-wrap: anywhere }
+.rm-body a { color: var(--accent) }
+.pf-item em { font: 500 11px var(--mono); color: var(--muted); font-style: normal; white-space: nowrap }
+.pf-item em.ready { color: var(--ok) } .pf-item em.approved { color: var(--sheet); background: var(--ok); padding: 2px 5px; border-radius: 4px }
+.pf-col .near { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 10px 0 4px }
+.pf-col .none { color: var(--muted); font-size: 13px; margin: 0 0 4px }
+.roadmap { display: grid; gap: 6px }
+.rm { background: var(--sheet); border: 1px solid var(--line); border-radius: 8px; min-width: 0 }
+.rm summary { cursor: pointer; padding: 10px 12px; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center }
+.rm summary b { font-weight: 600 }
+.rm-meta { color: var(--muted); font: 12px var(--mono) }
+.rm-body { padding: 0 14px 14px; display: grid; gap: 10px }
+.rm-body h5 { margin: 0 0 4px; font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.rm-body ul, .rm-body ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 13.5px }
+.rm-body .unl { color: var(--muted); font: 11.5px var(--mono) }
+.rm-body .story { font-style: italic; margin: 0 }
+.eff { display: inline-block; font: 600 10.5px/1 var(--mono); padding: 3px 5px; border-radius: 4px; color: var(--sheet) }
+.eff.eS { background: var(--ok) } .eff.eM { background: var(--warn) } .eff.eL { background: var(--bad) }
+code { font: 12px var(--mono); overflow-wrap: anywhere }
 ul.files { margin: 0; padding: 0; list-style: none; columns: 2 220px; font: 13px/1.6 var(--mono) }
 ul.files li { overflow-wrap: anywhere }
 footer { color: var(--muted); font: 12px var(--mono) }
@@ -120,6 +152,17 @@ footer { color: var(--muted); font: 12px var(--mono) }
     <div class="ledger" id="ledger"></div>
     <div class="statusbar" id="statusbar" aria-hidden="true"></div>
   </header>
+  <section class="portfolio" aria-labelledby="pfTitle">
+    <div class="pf-head"><h2 id="pfTitle">What can we present?</h2>
+      <p class="lede">Each card is an experiment (or one case of it), graded by <code>pinneapple_lab.curation</code>.
+      <b>Ready</b> or <b>approved</b> means the evidence for that use is complete; otherwise the card shows the closest
+      candidates, how far they are (effort points: S = 1, M = 3, L = 8) and what is missing.</p></div>
+    <div class="pf-cols" id="pfCols"></div>
+    <h3 class="rm-title">Roadmap: limitations and the path forward</h3>
+    <p class="lede">Sorted by how close each item is to a use. Open a row for its limitations and every action, with
+      the effort and what it unlocks.</p>
+    <div class="roadmap" id="roadmap"></div>
+  </section>
   <div class="filters">
     <input type="search" id="q" placeholder="Search experiments, parameters, metrics (e.g. Re, kepler, shedding)" aria-label="Search">
     <div class="seg" id="statusSeg" role="group" aria-label="Status"></div>
@@ -246,6 +289,50 @@ function open(ei, ri) {
   $("sheetBody").innerHTML = parts.join("");
   $("sheet").hidden = false; $("scrim").hidden = false; $("close").focus();
 }
+const USE_LABEL = { product: "Product", paper: "Publication", marketing: "Marketing", training_data: "Training data" };
+const USE_NOTE = { product: "generalization, uncertainty, reference or physics, reproducible",
+  paper: "reference, baseline or physics, reproducible, novelty reviewed",
+  marketing: "strong visuals, a validated headline number, a story",
+  training_data: "documented datasets of validated runs" };
+const effortChip = (e) => `<span class="eff e${e}" title="${{ S: "hours", M: "a day or two", L: "a week or more" }[e]}">${e}</span>`;
+function portfolio() {
+  const P = (DATA.portfolio || []).filter((it) => !it.experiment.startsWith("example_script") || it.tier !== "D");
+  const PC = P.filter((it) => it.experiment !== "example_script");          // examples: roadmap only
+  const cols = Object.keys(USE_LABEL).map((u) => {
+    const ready = PC.filter((it) => it.plan.uses[u].status !== "gap")
+      .sort((a, b) => (a.plan.uses[u].status === "approved" ? -1 : 1) - (b.plan.uses[u].status === "approved" ? -1 : 1) || (b.score || 0) - (a.score || 0));
+    const near = PC.filter((it) => it.plan.uses[u].status === "gap" && it.tier !== "D")
+      .sort((a, b) => a.plan.uses[u].distance - b.plan.uses[u].distance || (b.score || 0) - (a.score || 0)).slice(0, 5);
+    const li = (it, st) => `<li><button class="pf-item" data-k="${esc(it.key)}">${tierBadge(it)} <span class="ttl">${esc(it.title)}</span>
+      ${st ? `<em class="${st}">${st}</em>` : `<em>${it.plan.uses[u].distance} pts</em>`}</button>
+      ${st ? "" : `<small>${it.plan.uses[u].missing.map(esc).join(" · ")}</small>`}</li>`;
+    return `<div class="pf-col"><h4>${USE_LABEL[u]} <span>${ready.length} ready</span></h4><p class="note">Needs: ${USE_NOTE[u]}</p>
+      ${ready.length ? `<ul>${ready.slice(0, 6).map((it) => li(it, it.plan.uses[u].status)).join("")}</ul>` : `<p class="none">Nothing ready yet.</p>`}
+      ${near.length ? `<div class="near">Closest</div><ul>${near.map((it) => li(it, "")).join("")}</ul>` : ""}</div>`;
+  });
+  $("pfCols").innerHTML = cols.join("");
+  const order = { A: 0, B: 1, C: 2, D: 3 };
+  const rows = P.slice().sort((a, b) => order[a.tier] - order[b.tier] ||
+    Math.min(...Object.values(a.plan.uses).map((x) => x.distance)) - Math.min(...Object.values(b.plan.uses).map((x) => x.distance)));
+  $("roadmap").innerHTML = rows.map((it) => {
+    const pl = it.plan, cu = pl.closest_use;
+    const acts = pl.actions.map((a) => `<li>${effortChip(a.effort)} ${esc(a.action)} <span class="unl">unlocks ${a.unlocks.map((x) => esc(USE_LABEL[x] || x)).join(", ")}</span></li>`).join("");
+    return `<details class="rm" id="rm-${esc(it.key)}"><summary>${tierBadge(it)} <b>${esc(it.title)}</b>
+      <span class="rm-meta">${esc(it.experiment)}${it.case ? "" : ""} · ${cu ? `closest: ${USE_LABEL[cu]} (${pl.uses[cu].distance} pts)` : "ready for every use"}
+      ${pl.limitations.length ? ` · ${pl.limitations.length} limitation${pl.limitations.length > 1 ? "s" : ""}` : ""}</span></summary>
+      <div class="rm-body">${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}
+      <div><h5>Limitations</h5>${pl.limitations.length ? `<ul>${pl.limitations.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "<p class='lede'>None declared or detected.</p>"}</div>
+      <div><h5>Path forward</h5>${acts ? `<ol>${acts}</ol>` : "<p class='lede'>Nothing missing.</p>"}</div>
+      <p class="lede">Best run <code>${esc(it.best_run)}</code> · ${it.runs} run${it.runs > 1 ? "s" : ""}, ${Math.round(100 * it.usable)} % usable ·
+      <a href="#exp-${esc(it.experiment)}" data-goto="${esc(it.best_run)}">open its record</a></p></div></details>`;
+  }).join("");
+}
+document.addEventListener("click", (ev) => {
+  const it = ev.target.closest(".pf-item");
+  if (it) { const d = document.getElementById("rm-" + it.dataset.k); if (d) { d.open = true; d.scrollIntoView({ behavior: "smooth", block: "center" }); } return; }
+  const g = ev.target.closest("[data-goto]");
+  if (g) { ev.preventDefault(); DATA.experiments.forEach((e, ei) => e.runs.forEach((r, ri) => { if (r.id === g.dataset.goto) open(ei, ri); })); }
+});
 function close() { $("sheet").hidden = true; $("scrim").hidden = true; }
 
 document.addEventListener("click", (ev) => {
@@ -258,6 +345,7 @@ $("close").onclick = close; $("scrim").onclick = close;
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
 $("q").value = state.q;
 $("q").addEventListener("input", (ev) => { state.q = ev.target.value.trim(); render(); });
+portfolio();
 summary(); render();
 $("foot").textContent = SERVED
   ? "Served by python -m pinneapple_lab serve. Live from the lab database: new runs appear on reload; datasets download as one .npz over all validated runs; JSON API under api/."

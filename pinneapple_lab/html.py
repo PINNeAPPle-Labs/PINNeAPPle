@@ -94,7 +94,14 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
                                                                                  "best_score", "tier_counts",
                                                                                  "usable_fraction", "readiness", "gaps",
                                                                                  "reviewed")}})
-    return {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": experiments}
+    items = []
+    for key, it in cur.get("items", {}).items():
+        items.append({"key": key, "experiment": it["experiment"], "case": it["case"], "title": it["title"],
+                      "tier": it["tier"], "tier_name": it["tier_name"], "score": it["best_score"],
+                      "best_run": it["best_run"], "story": it.get("story", ""), "runs": it["runs"],
+                      "usable": it["usable_fraction"], "plan": it["plan"]})
+    return {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": experiments,
+            "portfolio": items}
 
 
 def _quality(a):

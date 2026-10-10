@@ -38,7 +38,7 @@ try:
     import bpy  # noqa: F401
     beauty = pp.viz.Scene.from_parts(car.parts() + [road()], axes="z_up")
     pp.viz.render(beauty, os.path.join(out, "beauty.jpg"), view=(-1.0, -1.25, 0.28), background="sky",
-                  distance=0.85, sun_elevation=24, colorbar_on=False)
+                  distance=0.62, sun_elevation=24, colorbar_on=False)
     pp.viz.render(scene, os.path.join(out, "cp.jpg"), field="cp", samples=64)
     pp.viz.render(scene, os.path.join(out, "streamlines.jpg"), lines=True, samples=64)
     pp.viz.render(scene, os.path.join(out, "wake_vorticity.jpg"), slice="wake: vorticity", view="back", samples=48)

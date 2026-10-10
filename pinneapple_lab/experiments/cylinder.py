@@ -15,6 +15,7 @@ class CylinderLBM(Experiment):
                    "shedding) and the Strouhal number; saves vorticity snapshots labelled by regime and Re, a "
                    "dataset for vision (classification / clustering of flow regimes, #415).")
     tags = ["cfd", "lbm", "dataset", "vision"]
+    limitations = ["without the Smagorinsky model the solver is unstable from Re 140 (failed runs kept)"]
     params = {"Re": 100.0, "D": 20, "height": 5, "length": 12, "u_in": 0.1, "Cs": 0.0, "steps": 16000,
               "save_every": 100, "seed": 0}
     space = {"Re": ("log", 10.0, 200.0)}

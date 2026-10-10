@@ -13,6 +13,7 @@ class HeatXTFC(Experiment):
     description = ("1D heat equation u_t = alpha u_xx on [0,1] x [0,1], u0 = sin(pi x), solved by X-TFC "
                    "(pinneapple_simulation.numerical_solvers.xtfc_pde) vs exp(-alpha pi^2 t) sin(pi x).")
     tags = ["pde", "xtfc", "verification"]
+    limitations = ["at alpha = 1 the smaller bases miss the accuracy target (failed runs kept)"]
     params = {"alpha": 0.1, "n_basis": 60, "n_collocation": 25, "activation": "tanh", "seed": 0}
     space = {"alpha": ("log", 0.01, 1.0), "n_basis": [20, 40, 60, 100], "n_collocation": [10, 20, 30],
              "activation": ["tanh", "sigmoid", "sin"]}

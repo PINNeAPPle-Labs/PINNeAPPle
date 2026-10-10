@@ -216,6 +216,20 @@ class BenchmarkCase(Experiment):
                    "PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the "
                    "arrays behind the paper's figures and the source that produced them.")
     tags = ["landing", "benchmark", "surrogate", "digital-twin", "dataset"]
+    case_param = "case"
+    limitations = {
+        "soil_twin": ["one site (Natal, RN)", "at 6 h the PINN does not beat persistence (published negative result); "
+                      "the identified physics ODE and the ML baselines do"],
+        "bumper_crash": ["one bumper deck (licensed example, CC BY-NC); the 11 GB of raw simulations are not in git"],
+        "terramechanics": ["every model fails when extrapolating in sinkage (rel. L2 ~0.8)",
+                           "with 150 training points no model is usable"],
+        "heated_channel": ["pressure is poorly predicted by every surrogate (rel. L2 ~0.6-1.5)",
+                           "the linear POD + DMDc model diverges"],
+        "pdr": ["one public dataset; phone placement and devices are those of the thesis"],
+        "shock_train": ["the shock position is not grid-converged (5.5, 3.0, 1.7 m from coarse to fine)",
+                        "2-D and a coarse 3-D duct"],
+        "sst": ["one region (Brazil-Malvinas Confluence); 13 % better than persistence at 7 days"],
+    }
     params = {"case": "heated_channel"}
     space = {"case": list(CASES)}
 

@@ -163,6 +163,7 @@ class KeplerLaw(Experiment):
                    "sparse regression over power laws finds P ∝ a^n, n is compared with 3/2, the central masses "
                    "come out as GM, and all three systems collapse onto P = 2π sqrt(a^3 / GM).")
     tags = ["discovery", "real-data", "astronomy", "symbolic-regression"]
+    limitations = ["point-mass two-body law; the eccentricities and perturbations are ignored"]
     params = {"exponent_grid": 0.25, "seed": 0}
 
     def run(self, ctx):
@@ -286,6 +287,7 @@ class PendulumVideo(Experiment):
                    "discovered law is re-simulated and re-rendered, and the predicted video is compared with the "
                    "observed one, including after the observation window.")
     tags = ["discovery", "video", "inverse", "symbolic-regression"]
+    limitations = ["the video is rendered (with noise and blur), not filmed by a camera"]
     params = {"g": 9.81, "L": 0.8, "damping": 0.15, "theta0": 2.4, "fps": 60, "seconds": 10.0, "noise": 0.04,
               "size": 160, "test_width": 2.0, "n_test": 120, "predict_seconds": 6.0, "seed": 0}
     space = {"theta0": (0.3, 2.9), "damping": (0.0, 0.5), "noise": (0.0, 0.1)}

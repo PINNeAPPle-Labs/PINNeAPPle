@@ -19,6 +19,7 @@
   "atol": null,
   "max": 0.5,
   "min": null,
-  "detail": "low-fidelity cross-check vs the Polhamus slender-wing theory, not test data"
+  "detail": "low-fidelity cross-check vs the Polhamus slender-wing theory, not test data",
+  "kind": "physics"
  }
 ]

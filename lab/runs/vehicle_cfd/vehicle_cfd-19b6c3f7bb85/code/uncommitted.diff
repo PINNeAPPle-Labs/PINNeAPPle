@@ -1,0 +1,106 @@
+diff --git a/.gitignore b/.gitignore
+index 19ab9d30..c07e8787 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -51,6 +51,8 @@ examples/studio/_out/**/case_*/
+ lab/index.sqlite
+ lab/_worktree/
+ lab/_exports/
++lab/_cases/
++lab/_external/
+ lab/**/*.npy
+ lab/**/*.npz
+ lab/**/samples.jsonl
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index 39afa97b..c13132a6 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -11,6 +11,7 @@
+ | ``repo_results`` | results already produced by repository scripts, re-validated and stored as datasets | per source |
+ | ``example_script`` | any script of ``examples/`` (examples and use cases): figures, JSON metrics, arrays, console, code | artifacts |
+ | ``car_lbm`` / ``car_surrogate`` | parametric 2-D car body in an LBM wind tunnel; FNO + MLP surrogates, design search verified by LBM | flow, vorticity, predictions |
++| ``vehicle_cfd`` | 3-D road car / launch vehicle in OpenFOAM: coefficients, skin Cp, streamlines, Blender renders, 3-D viewer | surface, streamlines |
+ | ``benchmark_case`` | landing-page cases from PINNeAPPle-Benchmark and PINNeAPPle-Climate, headline claim re-checked | arrays, sweep, lead skill |
+ """
+ from . import (  # noqa: F401
+@@ -24,4 +25,5 @@ from . import (  # noqa: F401
+     ode,
+     pde,
+     repo_results,
++    vehicles3d,
+ )
+diff --git a/pinneapple_lab/html.py b/pinneapple_lab/html.py
+index d54a4791..a65763b9 100644
+--- a/pinneapple_lab/html.py
++++ b/pinneapple_lab/html.py
+@@ -62,7 +62,7 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+         for r in store.runs(exp)[-max_runs_per_experiment:]:
+             d = store.run_dir(exp, r["run_id"])
+             rec = _load(os.path.join(d, "run.json"), {})
+-            figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")))
++            figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")) + glob.glob(os.path.join(d, "figures", "*.jpg")))
+             gifs = sorted(glob.glob(os.path.join(d, "figures", "*.gif")))
+             shown = (figs + gifs)[:thumbs_per_run]
+             if thumbs == "url":
+diff --git a/pinneapple_lab/server.py b/pinneapple_lab/server.py
+index fb2472a6..be4cbc25 100644
+--- a/pinneapple_lab/server.py
++++ b/pinneapple_lab/server.py
+@@ -38,7 +38,8 @@ from typing import Any
+ from .store import LabStore
+ 
+ _FILE_TYPES = {".png", ".gif", ".jpg", ".jpeg", ".svg", ".mp4", ".webm", ".json", ".jsonl", ".csv", ".txt", ".log",
+-               ".md", ".py", ".diff", ".npy", ".npz", ".html", ".yaml", ".yml"}
++               ".md", ".py", ".diff", ".npy", ".npz", ".html", ".yaml", ".yml", ".js", ".mjs", ".css",
++               ".glb", ".bin", ".wasm"}
+ 
+ 
+ class LabServer:
+@@ -175,8 +176,14 @@ class LabServer:
+ 
+             def _file(self, path: str, *, download: str | None = None):
+                 ctype = mimetypes.guess_type(path)[0] or "application/octet-stream"
+-                if ctype.startswith("text/") or path.endswith((".py", ".diff", ".jsonl", ".md", ".log")):
+-                    ctype = "text/plain; charset=utf-8"                # never render a run's file as a page
++                if path.endswith((".js", ".mjs")):
++                    ctype = "text/javascript; charset=utf-8"
++                elif path.endswith(".glb"):
++                    ctype = "model/gltf-binary"
++                elif os.path.basename(path) == "index.html" and os.sep + "viewer" + os.sep in path:
++                    ctype = "text/html; charset=utf-8"                 # a run's 3-D viewer page
++                elif ctype.startswith("text/") or path.endswith((".py", ".diff", ".jsonl", ".md", ".log", ".html")):
++                    ctype = "text/plain; charset=utf-8"                # never render any other run file as a page
+                 with open(path, "rb") as f:
+                     body = f.read()
+                 extra = {"Content-Disposition": f'attachment; filename="{download}"'} if download else None
+diff --git a/pinneapple_simulation/numerical_solvers/external_flow.py b/pinneapple_simulation/numerical_solvers/external_flow.py
+index 762120a2..142070a7 100644
+--- a/pinneapple_simulation/numerical_solvers/external_flow.py
++++ b/pinneapple_simulation/numerical_solvers/external_flow.py
+@@ -556,7 +556,7 @@ mergePatchPairs ();
+         dd, ll, ss = flow_directions(info["alpha"], info["beta"])
+         out: Dict[str, Any] = {"bodies": {}}
+         Fp, Fv = np.zeros(3), np.zeros(3)
+-        xyz, cpl, cfl, bid = [], [], [], []
++        xyz, cpl, cfl, bid, frc = [], [], [], [], []
+         names = info["bodies"]
+         half_m = info["half_model"]
+         for patch in cf.patches():
+@@ -573,6 +573,7 @@ mergePatchPairs ();
+             cpl.append(w["cp"])
+             cfl.append(w["cf"])
+             bid.append(np.full(len(w["cp"]), names.index(patch["name"])))
++            frc.append(w["f_pressure"] + w["f_viscous"])
+         F = Fp + Fv
+         out.update(CD=float(F @ dd / (q * S)), CL=float(F @ ll / (q * S)),
+                    CS=0.0 if half_m else float(F @ ss / (q * S)),              # a half model is symmetric
+@@ -632,7 +633,8 @@ mergePatchPairs ();
+                                       "vorticity": f"Streamwise vorticity ωx·L/U∞, {f:g} L behind the body"}})
+         info = {**info, "time": cf.time}
+         return FlowResult(out, {"xyz": np.concatenate(xyz), "cp": np.concatenate(cpl), "cf": np.concatenate(cfl),
+-                                "body": np.concatenate(bid)}, names, lines, speeds, slices, info, self.geometry)
++                                "body": np.concatenate(bid), "force": np.concatenate(frc)},   # force per face / rho
++                          names, lines, speeds, slices, info, self.geometry)
+ 
+ 
+ def openfoam_available() -> bool:

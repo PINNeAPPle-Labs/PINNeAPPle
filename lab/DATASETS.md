@@ -1,6 +1,6 @@
 # PINNeAPPle Lab datasets
 
-22 datasets, 1642 samples from completed (validated) runs. Arrays are not in git: rebuild a dataset with its sweep command (cached runs are skipped), then export it as one file.
+24 datasets, 2075 samples from completed (validated) runs. Arrays are not in git: rebuild a dataset with its sweep command (cached runs are skipped), then export it as one file.
 
 ## `accretion_flow` / `frames`
 
@@ -111,28 +111,28 @@ python -m pinneapple_lab export bondi_accretion profiles bondi_accretion_profile
 
 Car geometry (mask, signed distance) and the time-mean flow it produces (velocity / U, pressure coefficient), with drag and lift
 
-11 samples from 11 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
+19 samples from 19 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
 
 | field | kind | shape / type | range | units |
 |---|---|---|---|---|
 | mask | array | [320, 160] uint8 | 0 .. 1 |  |
-| sdf | array | [320, 160] float32 | -0.1562 .. 3.631 | car lengths |
-| mean_ux | array | [320, 160] float32 | -0.228 .. 1.429 | U |
-| mean_uy | array | [320, 160] float32 | -0.3972 .. 1.077 | U |
-| mean_cp | array | [320, 160] float32 | -1.321 .. 1.819 | - |
-| Cd | scalar | float  | 1.627 .. 1.627 |  |
-| Cl | scalar | float  | 0.9533 .. 0.9533 |  |
-| slant_deg | scalar | float  | 31.68 .. 31.68 |  |
-| windshield_deg | scalar | float  | 26.78 .. 26.78 |  |
-| hood | scalar | float  | 0.7497 .. 0.7497 |  |
-| clearance | scalar | float  | 0.0693 .. 0.0693 |  |
-| diffuser_deg | scalar | float  | 0.9394 .. 0.9394 |  |
-| nose | scalar | float  | 0.00283 .. 0.00283 |  |
+| sdf | array | [320, 160] float32 | -0.1562 .. 3.582 | car lengths |
+| mean_ux | array | [320, 160] float32 | -0.1728 .. 1.401 | U |
+| mean_uy | array | [320, 160] float32 | -0.3832 .. 1.002 | U |
+| mean_cp | array | [320, 160] float32 | -1.057 .. 1.735 | - |
+| Cd | scalar | float  | 1.429 .. 1.429 |  |
+| Cl | scalar | float  | 0.8153 .. 0.8153 |  |
+| slant_deg | scalar | float  | 7.859 .. 7.859 |  |
+| windshield_deg | scalar | float  | 23.8 .. 23.8 |  |
+| hood | scalar | float  | 0.5333 .. 0.5333 |  |
+| clearance | scalar | float  | 0.06627 .. 0.06627 |  |
+| diffuser_deg | scalar | float  | 4.68 .. 4.68 |  |
+| nose | scalar | float  | 0.2579 .. 0.2579 |  |
 
-Schema ranges are those of one run (`car_lbm-f4e94996017f`).
+Schema ranges are those of one run (`car_lbm-ddba6505f43d`).
 
 ```bash
-python -m pinneapple_lab sweep car_lbm -g clearance=0.040053404700172573,0.042758639248505134,0.05573454677514471,0.06312741944853413,0.06442935254548753,0.06930161488684446,0.07832302465389399,0.09378589551638157,0.09450554910076861,0.09788960905961368,0.10491302009992373 -g diffuser_deg=0.4103072776524538,0.9394226661295972,1.9398736163202015,3.546111410611645,5.461080029102873,6.008334808777811,6.598754803801609,6.8445450821977065,8.68032380340868,8.854942733092486,9.611199756106695 -g hood=0.47558637617623484,0.4910939737116722,0.49729994618166656,0.551960136528662,0.604944562549568,0.6163791704738226,0.6647107564114868,0.6722641963792478,0.6784938002629585,0.7354639906361728,0.7497101313355234 -g nose=0.0028297910195510673,0.07353978257139795,0.0801954416780851,0.21977034496926323,0.23766190040470328,0.2784077181204508,0.42183593622864207,0.44948991826120793,0.6057666795575275,0.7544842815922052,0.9992476893395542 -g slant_deg=13.050530883488621,13.966575556773915,15.510319772349693,17.573344271776932,22.23052810577161,22.949852940774573,30.050572972679632,31.684764255969316,33.16835187598714,5.802521801543746,8.907930272159629 -g windshield_deg=22.51669145709561,25.221254705972697,25.2765565075861,26.782409304873063,29.9068928960577,30.97918079931202,33.7005406387837,38.78426393971233,42.85753058942939,48.022047261951535,51.82566211349456
+python -m pinneapple_lab sweep car_lbm -n 19
 python -m pinneapple_lab export car_lbm flow car_lbm_flow.npz
 ```
 
@@ -140,24 +140,24 @@ python -m pinneapple_lab export car_lbm flow car_lbm_flow.npz
 
 Wake vorticity snapshots (normalised by U / car length)
 
-528 samples from 11 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
+912 samples from 19 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
 
 | field | kind | shape / type | range | units |
 |---|---|---|---|---|
-| vorticity | array | [320, 160] float16 | -52.81 .. 68.44 |  |
+| vorticity | array | [320, 160] float16 | -50.47 .. 56.25 |  |
 | frame | scalar | int  | 0 .. 47 |  |
-| Cd | scalar | float  | 1.627 .. 1.627 |  |
-| slant_deg | scalar | float  | 31.68 .. 31.68 |  |
-| windshield_deg | scalar | float  | 26.78 .. 26.78 |  |
-| hood | scalar | float  | 0.7497 .. 0.7497 |  |
-| clearance | scalar | float  | 0.0693 .. 0.0693 |  |
-| diffuser_deg | scalar | float  | 0.9394 .. 0.9394 |  |
-| nose | scalar | float  | 0.00283 .. 0.00283 |  |
+| Cd | scalar | float  | 1.429 .. 1.429 |  |
+| slant_deg | scalar | float  | 7.859 .. 7.859 |  |
+| windshield_deg | scalar | float  | 23.8 .. 23.8 |  |
+| hood | scalar | float  | 0.5333 .. 0.5333 |  |
+| clearance | scalar | float  | 0.06627 .. 0.06627 |  |
+| diffuser_deg | scalar | float  | 4.68 .. 4.68 |  |
+| nose | scalar | float  | 0.2579 .. 0.2579 |  |
 
-Schema ranges are those of one run (`car_lbm-f4e94996017f`).
+Schema ranges are those of one run (`car_lbm-ddba6505f43d`).
 
 ```bash
-python -m pinneapple_lab sweep car_lbm -g clearance=0.040053404700172573,0.042758639248505134,0.05573454677514471,0.06312741944853413,0.06442935254548753,0.06930161488684446,0.07832302465389399,0.09378589551638157,0.09450554910076861,0.09788960905961368,0.10491302009992373 -g diffuser_deg=0.4103072776524538,0.9394226661295972,1.9398736163202015,3.546111410611645,5.461080029102873,6.008334808777811,6.598754803801609,6.8445450821977065,8.68032380340868,8.854942733092486,9.611199756106695 -g hood=0.47558637617623484,0.4910939737116722,0.49729994618166656,0.551960136528662,0.604944562549568,0.6163791704738226,0.6647107564114868,0.6722641963792478,0.6784938002629585,0.7354639906361728,0.7497101313355234 -g nose=0.0028297910195510673,0.07353978257139795,0.0801954416780851,0.21977034496926323,0.23766190040470328,0.2784077181204508,0.42183593622864207,0.44948991826120793,0.6057666795575275,0.7544842815922052,0.9992476893395542 -g slant_deg=13.050530883488621,13.966575556773915,15.510319772349693,17.573344271776932,22.23052810577161,22.949852940774573,30.050572972679632,31.684764255969316,33.16835187598714,5.802521801543746,8.907930272159629 -g windshield_deg=22.51669145709561,25.221254705972697,25.2765565075861,26.782409304873063,29.9068928960577,30.97918079931202,33.7005406387837,38.78426393971233,42.85753058942939,48.022047261951535,51.82566211349456
+python -m pinneapple_lab sweep car_lbm -n 19
 python -m pinneapple_lab export car_lbm vorticity car_lbm_vorticity.npz
 ```
 
@@ -493,4 +493,45 @@ Schema ranges are those of one run (`repo_results-d8795900891a`).
 ```bash
 python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
 python -m pinneapple_lab export repo_results test_points repo_results_test_points.npz
+```
+
+## `vehicle_cfd` / `streamlines`
+
+Streamlines (points) and the speed along them, |U|/U
+
+40 samples from 1 runs; every sample also carries the run parameters (alpha, iterations, keep_case, procs, resolution, samples, slant_deg, speed, style, surface_level, vehicle).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| points | array | [103, 3] float32 | -1.38 .. 10.16 |  |
+| speed | array | [103] float32 | 0.1634 .. 1.332 |  |
+
+Schema ranges are those of one run (`vehicle_cfd-19b6c3f7bb85`).
+
+```bash
+python -m pinneapple_lab sweep vehicle_cfd
+python -m pinneapple_lab export vehicle_cfd streamlines vehicle_cfd_streamlines.npz
+```
+
+## `vehicle_cfd` / `surface`
+
+Skin pressure and friction coefficients on the wall faces (half model, y >= 0) with the force per face
+
+1 samples from 1 runs; every sample also carries the run parameters (alpha, iterations, keep_case, procs, resolution, samples, slant_deg, speed, style, surface_level, vehicle).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| xyz | array | [5130, 3] float32 | 0 .. 4.6 | m |
+| cp | array | [5130] float32 | -4.151 .. 0.9996 |  |
+| cf | array | [5130] float32 | 1.561e-06 .. 0.01143 |  |
+| force | array | [5130, 3] float32 | -1.743 .. 3.826 |  |
+| vehicle | scalar | str  | car |  |
+| CD | scalar | float  | 0.2883 .. 0.2883 |  |
+| CL | scalar | float  | 0.01798 .. 0.01798 |  |
+
+Schema ranges are those of one run (`vehicle_cfd-19b6c3f7bb85`).
+
+```bash
+python -m pinneapple_lab sweep vehicle_cfd
+python -m pinneapple_lab export vehicle_cfd surface vehicle_cfd_surface.npz
 ```

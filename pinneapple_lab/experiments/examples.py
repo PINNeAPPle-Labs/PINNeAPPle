@@ -184,6 +184,7 @@ class ExampleScript(Experiment):
                    "outputs and their numbers as metrics, arrays as the 'artifacts' dataset, the console output and "
                    "the code. The catalogue of these runs is also the health report of the examples.")
     tags = ["examples", "use-case", "dataset"]
+    case_param = "script"
     params = {"script": "examples/getting_started/01_harmonic_oscillator.py", "timeout": 900, "args": "",
               "isolated": True}
 

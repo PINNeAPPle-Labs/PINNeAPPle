@@ -53,6 +53,7 @@ lab/_worktree/
 lab/_exports/
 lab/_cases/
 lab/_external/
+lab/**/outputs/scene.glb
 lab/**/*.npy
 lab/**/*.npz
 lab/**/samples.jsonl

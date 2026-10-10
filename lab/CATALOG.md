@@ -1,13 +1,13 @@
 # PINNeAPPle Lab catalogue
 
-139 runs, generated 2026-10-10 19:10.
+148 runs, generated 2026-10-10 19:24.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
 | [accretion_flow](#accretion_flow) | 6 | 6 | 0 | 0 | frames (186) |
 | [benchmark_case](#benchmark_case) | 7 | 7 | 0 | 0 | arrays (84), sweep (8), lead_skill (5) |
 | [bondi_accretion](#bondi_accretion) | 6 | 6 | 0 | 0 | profiles (6) |
-| [car_lbm](#car_lbm) | 13 | 11 | 1 | 0 | flow (12), vorticity (576) |
+| [car_lbm](#car_lbm) | 21 | 19 | 1 | 0 | flow (20), vorticity (960) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
 | [example_script](#example_script) | 12 | 6 | 0 | 3 | - |
 | [heat_xtfc](#heat_xtfc) | 12 | 8 | 4 | 0 | fields (12) |
@@ -17,7 +17,7 @@
 | [oscillator_discovery](#oscillator_discovery) | 1 | 1 | 0 | 0 | discovered_laws (20) |
 | [pendulum_video](#pendulum_video) | 1 | 1 | 0 | 0 | pendulum (1) |
 | [repo_results](#repo_results) | 9 | 9 | 0 | 0 | strouhal (3), test_points (120), polar (5), temperature_fields_2d (5), rollout_scores (2), temperature_fields_3d (3), lead_time_skill (4), fields (1), held_out_error (3) |
-| [vehicle_cfd](#vehicle_cfd) | 1 | 0 | 0 | 0 | - |
+| [vehicle_cfd](#vehicle_cfd) | 2 | 1 | 0 | 0 | streamlines (40), surface (1) |
 
 ## accretion_flow
 
@@ -89,11 +89,19 @@ Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parame
 | [acc42d8937fe](runs/car_lbm/car_lbm-acc42d8937fe) | completed | 0.1 | 500.0 | 0.042758639248505134 | 8.854942733092486 | 0.6163791704738226 | 64 | 0.9992476893395542 | 22.23052810577161 | 8000 | 2.5 | 0.08 | 42.85753058942939 | 1.345 | 0.1256 | 0.8395 | 0.12 | 0.0003259 | 3/3 |
 | [70e89034afb0](runs/car_lbm/car_lbm-70e89034afb0) | completed | 0.1 | 500.0 | 0.09450554910076861 | 6.008334808777811 | 0.7354639906361728 | 64 | 0.0801954416780851 | 13.050530883488621 | 8000 | 2.5 | 0.08 | 25.221254705972697 | 1.651 | 0.1654 | 0.7129 | 0.12 | 0.0003364 | 3/3 |
 | [01d0849fcd6b](runs/car_lbm/car_lbm-01d0849fcd6b) | completed | 0.1 | 500.0 | 0.10491302009992373 | 5.461080029102873 | 0.47558637617623484 | 64 | 0.23766190040470328 | 17.573344271776932 | 8000 | 2.5 | 0.08 | 33.7005406387837 | 1.652 | 0.1415 | 0.6574 | 0.12 | 0.0003255 | 3/3 |
-| [4d9a736b17f6](runs/car_lbm/car_lbm-4d9a736b17f6) | running | 0.1 | 500.0 | 0.11331448782654147 | 7.385592469388693 | 0.5832302256632885 | 64 | 0.38743462610548784 | 24.253267461795566 | 8000 | 2.5 | 0.08 | 44.8746927155908 |  |  |  |  |  | 0/0 |
+| [4d9a736b17f6](runs/car_lbm/car_lbm-4d9a736b17f6) | completed | 0.1 | 500.0 | 0.11331448782654147 | 7.385592469388693 | 0.5832302256632885 | 64 | 0.38743462610548784 | 24.253267461795566 | 8000 | 2.5 | 0.08 | 44.8746927155908 | 1.726 | 0.1511 | 0.623 | 0.12 | 0.0003555 | 3/3 |
+| [45dc6edd8075](runs/car_lbm/car_lbm-45dc6edd8075) | completed | 0.1 | 500.0 | 0.04420219793570932 | 3.096879659750433 | 0.7036141634121883 | 64 | 0.172873897568471 | 29.351291763576526 | 8000 | 2.5 | 0.08 | 27.458272594421672 | 1.419 | 0.1327 | 0.9005 | 0.12 | 0.0003347 | 3/3 |
+| [e53e2fb92ce4](runs/car_lbm/car_lbm-e53e2fb92ce4) | completed | 0.1 | 500.0 | 0.08876116952700108 | 1.6370071920665097 | 0.6579749193675155 | 64 | 0.9010132214973694 | 38.385153445928765 | 8000 | 2.5 | 0.08 | 46.13870805749418 | 1.583 | 0.1485 | 0.7771 | 0.12 | 0.0003397 | 3/3 |
+| [ddba6505f43d](runs/car_lbm/car_lbm-ddba6505f43d) | completed | 0.1 | 500.0 | 0.06626744237767704 | 4.680410054629916 | 0.5333490371439392 | 64 | 0.2578837703608595 | 7.859149391493312 | 8000 | 2.5 | 0.08 | 23.80118433362152 | 1.429 | 0.1304 | 0.8153 | 0.54 | 0.0003337 | 3/3 |
+| [2cb049a4733a](runs/car_lbm/car_lbm-2cb049a4733a) | completed | 0.1 | 500.0 | 0.10732489244322849 | 9.845365217349599 | 0.7118501614614828 | 64 | 0.3149993674616432 | 26.77029063473322 | 8000 | 2.5 | 0.08 | 31.8915046095035 | 1.724 | 0.1554 | 0.6273 | 0.12 | 0.0003441 | 3/3 |
+| [000726cc8ec0](runs/car_lbm/car_lbm-000726cc8ec0) | completed | 0.1 | 500.0 | 0.061661105064526364 | 0.20766016835299797 | 0.7260152743349797 | 64 | 0.6766599554625821 | 39.571066958634866 | 8000 | 2.5 | 0.08 | 52.973223826672104 | 1.516 | 0.1416 | 0.9295 | 0.12 | 0.0003317 | 3/3 |
+| [500798921b1a](runs/car_lbm/car_lbm-500798921b1a) | completed | 0.1 | 500.0 | 0.11475370756281755 | 5.729865836576346 | 0.7190826852498715 | 64 | 0.8559137644101507 | 28.49125646557014 | 8000 | 2.5 | 0.08 | 20.310987054895573 | 1.712 | 0.1539 | 0.6115 | 0.12 | 0.0003417 | 3/3 |
+| [cb2e9c63cc61](runs/car_lbm/car_lbm-cb2e9c63cc61) | completed | 0.1 | 500.0 | 0.07274344790554883 | 8.346858074327661 | 0.5964247811473138 | 64 | 0.9366265863524385 | 16.93475252107471 | 8000 | 2.5 | 0.08 | 34.454211175683994 | 1.498 | 0.1385 | 0.7661 | 0.84 | 0.0003373 | 3/3 |
+| [e255b8b0b291](runs/car_lbm/car_lbm-e255b8b0b291) | running | 0.1 | 500.0 | 0.057079043317894866 | 5.034454038587483 | 0.4718672657632555 | 64 | 0.12202142567173069 | 20.524049578941625 | 8000 | 2.5 | 0.08 | 36.41959146036871 |  |  |  |  |  | 0/0 |
 
-![car_lbm](runs/car_lbm/car_lbm-01d0849fcd6b/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-cb2e9c63cc61/figures/forces.png)
 
-![car_lbm](runs/car_lbm/car_lbm-70e89034afb0/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-500798921b1a/figures/forces.png)
 
 ## cylinder_lbm
 
@@ -266,6 +274,7 @@ Results already produced by repository scripts (PINNs, inverse problems, LBM, Me
 
 A parametric 3-D road car or launch vehicle in OpenFOAM (snappyHexMesh + simpleFoam, half model): drag, lift, skin pressure, streamlines and wake, checked against reference ranges (car) or Barrowman's stability equations (rocket); Blender Cycles renders and a 3-D viewer.
 
-| run | status | alpha | iterations | keep_case | procs | resolution | samples | slant_deg | speed | style | surface_level | vehicle | checks |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| [19b6c3f7bb85](runs/vehicle_cfd/vehicle_cfd-19b6c3f7bb85) | running | 4.0 | 600 | False | 2 | coarse | 96 | 22.0 | 30.0 | fastback | None | car | 0/0 |
+| run | status | alpha | iterations | keep_case | procs | resolution | samples | slant_deg | speed | style | surface_level | vehicle | CD | CD_friction | CD_pressure | CL | Re | cells | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [19b6c3f7bb85](runs/vehicle_cfd/vehicle_cfd-19b6c3f7bb85) | completed | 4.0 | 600 | False | 2 | coarse | 96 | 22.0 | 30.0 | fastback | None | car | 0.2883 | 0.03308 | 0.2552 | 0.01798 | 9.2e+06 | 1.518e+05 | 2/2 |
+| [61b9a6cd026a](runs/vehicle_cfd/vehicle_cfd-61b9a6cd026a) | running | 4.0 | 600 | False | 2 | coarse | 96 | 22.0 | 30.0 | fastback | None | rocket |  |  |  |  |  |  | 0/0 |

@@ -149,7 +149,7 @@ def _split_by(V, F, mats, name, group="", aero=True) -> list[Part]:
     return out
 
 
-def road(length: float = 60.0, width: float = 30.0, x0: float = -20.0) -> Part:
+def road(length: float = 9.0, width: float = 6.5, x0: float = -2.2) -> Part:
     """A flat asphalt plane at z = 0 (drawn only)."""
     V = np.array([[x0, -width / 2, 0], [x0 + length, -width / 2, 0], [x0 + length, width / 2, 0], [x0, width / 2, 0]],
                  float)

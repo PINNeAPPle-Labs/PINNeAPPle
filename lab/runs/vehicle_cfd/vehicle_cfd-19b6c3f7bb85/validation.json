@@ -1,0 +1,24 @@
+[
+ {
+  "name": "drag_in_passenger_car_range",
+  "passed": true,
+  "value": 0.2882577987315919,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.6,
+  "min": 0.22,
+  "detail": "0.25-0.40 for production cars; exposed, non-rotating wheels and no underbody detail add drag"
+ },
+ {
+  "name": "pressure_drag_dominates",
+  "passed": true,
+  "value": 0.8852322584753038,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.7,
+  "detail": ""
+ }
+]

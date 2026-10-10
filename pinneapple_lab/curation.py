@@ -279,7 +279,7 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
         tier = "D"
         gaps.append("fix the failing checks or the crash" if row["status"] == "failed_validation" else "the run crashed")
     else:
-        independent = ok("reference") or ok("baseline") or ok("physics")
+        independent = ok("reference") or ok("baseline") or ok("physics") or ok("generalization")
         solid = ok("validation") and independent and dims["reproducibility"].score >= 0.6
         flagship = (solid and ok("reference") and (ok("baseline") or ok("physics")) and
                     dims["reproducibility"].score >= 0.75 and (dims["assets"].score or 0) >= 0.6 and
@@ -336,6 +336,130 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
                       round(coverage, 2), dims, readiness, gaps, reviewed=bool(rv))
 
 
+# ---------------------------------------------------------------------- strategy: limitations and the path forward
+EFFORT = {"S": 1, "M": 3, "L": 8}          # relative cost: S hours, M a day or two, L a week or more
+USES = ("product", "paper", "marketing", "training_data")
+
+
+def _action(gap: str, tags: set[str], detail: str = "") -> tuple[str, str]:
+    """(action, effort) for a missing piece of evidence, specific to the kind of experiment."""
+    cfd = tags & {"cfd", "lbm", "openfoam", "hydro"}
+    ml = tags & ML_TAGS
+    disc = tags & {"discovery", "symbolic-regression"}
+    fc = tags & {"forecasting", "forecast", "weather"}
+    if gap == "reference":
+        if disc:
+            return ("Recover the law from a second, independent dataset and compare the coefficients with the textbook "
+                    "values", "M")
+        if cfd:
+            return ("Validate against a published experiment or benchmark value (drag, Strouhal, Nusselt) and run a "
+                    "grid-convergence study (coarse / medium / fine)", "M")
+        if ml:
+            return "Score against the high-fidelity solver on designs the model never saw", "M"
+        if tags & {"astrophysics", "astronomy"}:
+            return "Compare with an analytic solution (Bondi, equilibrium torus) or a published simulation", "M"
+        return "Add a check against an exact solution, a measurement or a published value", "M"
+    if gap == "baseline":
+        if fc:
+            return "Compare with persistence and climatology at every lead time", "S"
+        if disc:
+            return ("Compare with a naive model (a linear or polynomial fit, the textbook law without the discovered "
+                    "terms)", "S")
+        if ml:
+            return "Compare with simple surrogates (nearest design, linear regression, POD + Gaussian process)", "S"
+        if tags & {"pinn", "xtfc", "pde"}:
+            return "Compare with a classical solver at equal cost (finite differences, spectral)", "S"
+        return "Compare with the simplest method that could do the job", "S"
+    if gap == "physics":
+        return ("Check a law the model was not trained on: conservation of mass / momentum / energy, symmetry, a "
+                "physical bound", "S")
+    if gap == "generalization":
+        if fc:
+            return "Score unseen years / regimes (out-of-distribution) and report the skill horizon", "M"
+        return "Hold out designs or an out-of-distribution regime and report the error there", "M"
+    if gap == "uncertainty":
+        return ("Report an ensemble spread or intervals and check their calibration "
+                "(pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)", "M")
+    if gap == "reproducibility":
+        return "Rerun from a committed tree (the code snapshot is automatic) and repeat with three seeds", "S"
+    if gap == "assets":
+        return ("Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key "
+                "result", "S")
+    if gap == "documentation":
+        return "Write a docs page and cite the reference papers (Experiment.references)", "S"
+    if gap == "review":
+        return ("Human review: novelty, clarity, the one-line story "
+                "(python -m pinneapple_lab review <experiment> --story ... --novelty ...)", "S")
+    if gap == "data":
+        return "Save the fields as a dataset with a card (ctx.dataset)", "S"
+    if gap == "fix":
+        return f"Fix the failing checks or the crash{': ' + detail if detail else ''}", "M"
+    return gap, "M"
+
+
+_MISSING_TO_GAP = {   # readiness "missing" text -> gap key
+    "generalization evidence": "generalization", "uncertainty estimate": "uncertainty",
+    "reference or physics check": "reference", "reproducibility": "reproducibility",
+    "comparison with a reference": "reference", "baseline or physics check": "baseline",
+    "novelty review >= 3/5": "review", "strong visuals (movie, render or 3-D view)": "assets",
+    "a validated headline number": "reference", "a one-line story (review)": "review",
+    "a documented dataset": "data", "validated runs": "fix", "not usable until it validates": "fix",
+}
+
+
+def plan_experiment(runs: list[Assessment], meta: dict[str, Any], review: dict[str, Any] | None) -> dict[str, Any]:
+    """Limitations, the actions that would close the gaps (with effort and what each unlocks) and, per use, the
+    closest run and its distance (sum of effort) to being ready."""
+    tags = set(meta.get("tags", []))
+    order = {"A": 0, "B": 1, "C": 2, "D": 3}
+    per_use: dict[str, Any] = {}
+    actions: dict[str, dict[str, Any]] = {}
+    for use in USES:
+        best = None
+        for a in runs:
+            r = a.readiness[use]
+            gaps = list(dict.fromkeys(_MISSING_TO_GAP.get(m, m) for m in r["missing"]))
+            cost = sum(EFFORT[_action(g, tags)[1]] for g in gaps)
+            key = (not r["approved"], not r["ready"], cost, order[a.tier], -(a.score or 0))
+            if best is None or key < best[0]:
+                best = (key, a, gaps, cost, r)
+        _, a, gaps, cost, r = best
+        per_use[use] = {"status": "approved" if r["approved"] else "ready" if r["ready"] else "gap",
+                        "run": a.run_id, "distance": cost, "missing": r["missing"]}
+        for g in gaps:
+            text, effort = _action(g, tags)
+            act = actions.setdefault(g, {"gap": g, "action": text, "effort": effort, "unlocks": []})
+            act["unlocks"].append(use)
+    # the tier step: what the best run lacks for the next tier
+    best = sorted(runs, key=lambda a: (order[a.tier], -(a.score or 0)))[0]
+    tier_gap_keys = {"compare with an independent": "reference", "show it beats": "baseline", "test on unseen": "generalization",
+                     "add figures": "assets", "document it": "documentation", "rerun from": "reproducibility",
+                     "record validation": "reference", "fix the failing": "fix", "the run crashed": "fix"}
+    next_tier = {"D": "C", "C": "B", "B": "A", "A": None}[best.tier]
+    for g in best.gaps:
+        key = next((v for k, v in tier_gap_keys.items() if g.startswith(k)), None)
+        if key:
+            text, effort = _action(key, tags)
+            act = actions.setdefault(key, {"gap": key, "action": text, "effort": effort, "unlocks": []})
+            if next_tier and f"tier {next_tier}" not in act["unlocks"]:
+                act["unlocks"].append(f"tier {next_tier}")
+    plan = sorted(actions.values(), key=lambda x: (-len(x["unlocks"]), EFFORT[x["effort"]]))
+    # limitations: declared by the experiment, by the reviewer, and detected
+    lim = [f"declared: {x}" for x in meta.get("limitations", [])]
+    if review and review.get("limitations"):
+        lim.append(f"review: {review['limitations']}")
+    failed = [a for a in runs if a.tier == "D"]
+    if failed:
+        lim.append(f"detected: {len(failed)} of {len(runs)} runs fail validation or crash (outside the validated range)")
+    inferred = [k for k, d in best.dimensions.items() if d.tier == INFERRED and d.score is not None]
+    if inferred:
+        lim.append(f"detected: evidence only inferred (not measured by a check) for {', '.join(inferred)}")
+    if best.coverage < 0.6:
+        lim.append(f"detected: only {int(100 * best.coverage)} % of the evidence dimensions have data")
+    closest = min((u for u in USES if per_use[u]["status"] == "gap"), key=lambda u: per_use[u]["distance"], default=None)
+    return {"limitations": lim, "actions": plan, "uses": per_use, "closest_use": closest, "next_tier": next_tier}
+
+
 def assess_experiment(runs: list[Assessment]) -> dict[str, Any]:
     """Best run, tier counts and the consistency of an experiment's runs."""
     order = {"A": 0, "B": 1, "C": 2, "D": 3}
@@ -354,13 +478,16 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
     """Assess every run and experiment; write ``curation.json`` and ``CURATION.md`` in the lab folder."""
     from .spec import get
     reviews = load_reviews(store.root)
-    out = {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": {}, "runs": {}}
+    out = {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": {}, "items": {},
+           "runs": {}}
     for exp in sorted(store.status()):
         try:
             cls = get(exp)
             meta = {"description": cls.description, "tags": list(cls.tags),
-                    "references": list(getattr(cls, "references", []) or [])}
+                    "references": list(getattr(cls, "references", []) or []),
+                    "limitations": getattr(cls, "limitations", []) or []}
         except KeyError:
+            cls = None
             meta = {"description": "", "tags": []}
         meta["docs"] = _docs_mentions(exp)
         rows = [r for r in store.runs(exp) if r["status"] != "running"]          # in progress: not graded yet
@@ -376,7 +503,28 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
             assessed.append(a)
             out["runs"][a.run_id] = a.to_dict()
         if assessed:
-            out["experiments"][exp] = assess_experiment(assessed)
+            lim_all = meta.get("limitations", [])
+            m0 = {**meta, "limitations": lim_all if isinstance(lim_all, list) else []}
+            e = assess_experiment(assessed)
+            e["plan"] = plan_experiment(assessed, m0, reviews.get(exp))
+            e["description"] = meta.get("description", "")
+            e["story"] = (reviews.get(exp) or {}).get("story", "")
+            out["experiments"][exp] = e
+            # portfolio items: one per case for experiments that bundle distinct cases, else the experiment
+            cp = getattr(cls, "case_param", "") if cls is not None else ""
+            groups: dict[str, list] = {}
+            for a_, r in zip(assessed, rows, strict=True):
+                groups.setdefault(str(r["params"].get(cp)) if cp else "", []).append(a_)
+            for case, runs_c in groups.items():
+                key = f"{exp}/{case}" if case else exp
+                lim_c = (lim_all.get(case, []) if isinstance(lim_all, dict) else lim_all)
+                rv = reviews.get(key) or (reviews.get(exp) if not case else None)
+                item = assess_experiment(runs_c)
+                item["plan"] = plan_experiment(runs_c, {**meta, "limitations": lim_c}, rv)
+                item.update(experiment=exp, case=case, story=(rv or {}).get("story", ""),
+                            title=(rv or {}).get("title") or (os.path.splitext(os.path.basename(case))[0].replace("_", " ")
+                                                               if case else exp))
+                out["items"][key] = item
     path_json = path_json or os.path.join(store.root, "curation.json")
     with open(path_json, "w") as f:
         json.dump(out, f, indent=1, default=str)

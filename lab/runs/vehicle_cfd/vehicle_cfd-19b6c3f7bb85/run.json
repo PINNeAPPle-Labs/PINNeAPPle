@@ -1,0 +1,97 @@
+{
+ "run_id": "vehicle_cfd-19b6c3f7bb85",
+ "experiment": "vehicle_cfd",
+ "version": "1",
+ "params": {
+  "vehicle": "car",
+  "style": "fastback",
+  "slant_deg": 22.0,
+  "speed": 30.0,
+  "alpha": 4.0,
+  "resolution": "coarse",
+  "surface_level": null,
+  "iterations": 600,
+  "procs": 2,
+  "samples": 96,
+  "keep_case": false
+ },
+ "status": "completed",
+ "started": 1791657834.6194923,
+ "tags": [
+  "automotive",
+  "aerospace",
+  "cfd",
+  "openfoam",
+  "3d",
+  "render"
+ ],
+ "git": "3209543a",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "A parametric 3-D road car or launch vehicle in OpenFOAM (snappyHexMesh + simpleFoam, half model): drag, lift, skin pressure, streamlines and wake, checked against reference ranges (car) or Barrowman's stability equations (rocket); Blender Cycles renders and a 3-D viewer.",
+ "code": {
+  "files": [
+   "code/vehicles3d.py"
+  ],
+  "sha1": "e06062922034459a598e1e54397b718d5ae066ed",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791659574.7956836,
+ "error": null,
+ "stages": [
+  {
+   "name": "cfd",
+   "started": 1791657847.4266222,
+   "status": "done",
+   "seconds": 824.05
+  },
+  {
+   "name": "datasets",
+   "started": 1791658671.4792838,
+   "status": "done",
+   "seconds": 0.004
+  },
+  {
+   "name": "render",
+   "started": 1791658671.491793,
+   "status": "done",
+   "seconds": 902.821
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/vehicle.json"
+  ],
+  "outputs": [
+   "outputs/coefficients.json"
+  ],
+  "figures": [
+   "figures/beauty.jpg",
+   "figures/beauty_rear.jpg",
+   "figures/cp.jpg",
+   "figures/streamlines.jpg",
+   "figures/wake_vorticity.jpg",
+   "figures/mid_plane_speed.jpg"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 1740.176,
+ "datasets": {
+  "surface": {
+   "n_samples": 1,
+   "path": "runs/vehicle_cfd/vehicle_cfd-19b6c3f7bb85/datasets/surface"
+  },
+  "streamlines": {
+   "n_samples": 40,
+   "path": "runs/vehicle_cfd/vehicle_cfd-19b6c3f7bb85/datasets/streamlines"
+  }
+ }
+}

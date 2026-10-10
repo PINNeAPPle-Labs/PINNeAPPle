@@ -162,7 +162,7 @@ def _concorde(ctx):
     ctx.metric("CL_rms_vs_polhamus", float(np.sqrt(np.mean((cl - ref) ** 2))))
     ctx.check("lift_increases_with_aoa", passed=bool(np.all(np.diff(cl) > -0.02)))
     ctx.check("CL_within_polhamus_band", value=float(np.sqrt(np.mean((cl - ref) ** 2))), max=0.5,
-              detail="low-fidelity cross-check vs the Polhamus slender-wing theory, not test data")
+              detail="low-fidelity cross-check vs the Polhamus slender-wing theory, not test data", kind="physics")
     ds = ctx.dataset("polar", description="LBM-LES aerodynamic coefficients vs angle of attack (Re 300, coarse)")
     for r, rcl in zip(sweep, ref, strict=True):
         ds.add(aoa_deg=r["aoa_deg"], CL=r["CL"], CD=r["CD"], CM=r["CM"], CY=r["CY"], Cp_min=r["Cp_min"],
@@ -258,6 +258,16 @@ class RepoResults(Experiment):
     description = ("Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, "
                    "black-hole forecasts), re-validated against their references and stored as datasets.")
     tags = ["import", "benchmark", "dataset"]
+    case_param = "source"
+    limitations = {
+        "burgers_pinn": ["5.9 % relative L2 against the exact solution (a well-tuned PINN reaches < 1 %)"],
+        "fin_inverse_3d": ["the network's own h is 7 % low (weak flux constraint); the finite-volume refit is exact"],
+        "lbm_strouhal": ["Strouhal 16 % high with 16 cells per diameter; 6 % with the finer grid"],
+        "meshgraphnet": ["small training set (11 trajectories)"],
+        "concorde_aoa": ["a parametric stand-in, not Concorde CAD; Re 300 coarse LES; checked against theory, "
+                         "not wind-tunnel data"],
+        "bh_forecast": ["pseudo-Newtonian 2.5-D hydro, not GRMHD"],
+    }
     params = {"source": "burgers_pinn"}
     space = {"source": list(SOURCES)}
     code_files = [_p(s) for v in _SCRIPTS.values() for s in v]

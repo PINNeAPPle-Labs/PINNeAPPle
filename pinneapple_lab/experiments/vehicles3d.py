@@ -51,6 +51,13 @@ class VehicleCFD(Experiment):
                    "drag, lift, skin pressure, streamlines and wake, checked against reference ranges (car) or "
                    "Barrowman's stability equations (rocket); Blender Cycles renders and a 3-D viewer.")
     tags = ["automotive", "aerospace", "cfd", "openfoam", "3d", "render"]
+    case_param = "vehicle"
+    limitations = {
+        "car": ["steady RANS on a coarse mesh (no grid study yet)", "non-rotating wheels, no underbody or cooling-flow "
+                "detail", "a parametric body, not a production car"],
+        "rocket": ["incompressible at 50 m/s: no Mach effects (transonic / supersonic flight)",
+                   "the plume is only drawn, not simulated"],
+    }
     params = {"vehicle": "car", "style": "fastback", "slant_deg": 22.0, "speed": 30.0, "alpha": 4.0,
               "resolution": "coarse", "surface_level": None, "iterations": 600, "procs": 2, "samples": 96,
               "keep_case": False}
@@ -125,10 +132,10 @@ class VehicleCFD(Experiment):
             renders = []
             if p["vehicle"] == "car":
                 beauty = pp.viz.Scene.from_parts(parts + [road()], axes="z_up", title=flow.title)
-                renders.append(("beauty", dict(scene=beauty, view=(-1.0, -1.25, 0.28), background="sky", distance=0.85,
+                renders.append(("beauty", dict(scene=beauty, view=(-1.0, -1.25, 0.28), background="sky", distance=0.62,
                                                sun_elevation=24.0, colorbar_on=False)))
                 renders.append(("beauty_rear", dict(scene=beauty, view=(1.0, -1.1, 0.3), background="sky",
-                                                    distance=0.9, sun_elevation=24.0, colorbar_on=False)))
+                                                    distance=0.66, sun_elevation=24.0, colorbar_on=False)))
             else:
                 up = veh.upright(veh.parts())
                 beauty = pp.viz.Scene.from_parts(up, axes="z_up", title=flow.title)

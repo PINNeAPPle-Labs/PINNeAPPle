@@ -150,6 +150,8 @@ class CarLBM(Experiment):
                    "lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake "
                    "vorticity movie. The training data of car_surrogate.")
     tags = ["automotive", "cfd", "lbm", "geometry", "dataset"]
+    limitations = ["2-D side profile (no 3-D vortices, no wheels)", "Re 500 (a real car is ~10^6)",
+                   "tunnel blockage ~15 %"]
     params = {"slant_deg": 25.0, "windshield_deg": 35.0, "hood": 0.62, "clearance": 0.08, "diffuser_deg": 4.0,
               "nose": 0.5, "length_cells": 64, "Re": 500.0, "u_in": 0.08, "Cs": 0.1, "steps": 8000, "tunnel_height": 2.5}
     space = {"slant_deg": (5.0, 40.0), "windshield_deg": (20.0, 55.0), "hood": (0.45, 0.75),
@@ -233,6 +235,7 @@ class CarSurrogate(Experiment):
                    "and lift; scored on unseen designs against baselines, then used to find a low-drag shape that "
                    "a new LBM run verifies.")
     tags = ["automotive", "physics-ai", "surrogate", "fno", "optimization"]
+    limitations = ["trained on 2-D LBM at Re 500; inherits every limit of car_lbm"]
     params = {"holdout": 0.2, "epochs": 300, "width": 24, "modes": 16, "physics_weight": 0.5, "ensemble": 5,
               "search_samples": 4000, "verify": True, "seed": 0}
 

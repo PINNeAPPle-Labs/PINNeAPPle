@@ -63,6 +63,7 @@ class AccretionFlowRun(Experiment):
     description = ("A hot torus accreting onto a Schwarzschild black hole (viscous 2.5-D hydro): density movie, "
                    "accretion rate and mass / angular-momentum budgets. Frames form a dataset for forecasting.")
     tags = ["astrophysics", "hydro", "dataset"]
+    limitations = ["Paczynski-Wiita pseudo-Newtonian gravity, 2.5-D, no magnetic fields", "coarse grid"]
     params = {"alpha": 0.1, "viscosity": "SS", "torus_a": 0.0, "nr": 64, "ntheta": 32, "t_end": 600.0,
               "every": 20.0, "backend": "numba", "seed": 0}
     space = {"alpha": (0.02, 0.3), "viscosity": ["SS", "ST"], "torus_a": (0.0, 0.25)}

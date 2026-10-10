@@ -1,6 +1,6 @@
 # PINNeAPPle Lab datasets
 
-14 datasets, 883 samples from completed (validated) runs. Arrays are not in git: rebuild a dataset with its sweep command (cached runs are skipped), then export it as one file.
+22 datasets, 1348 samples from completed (validated) runs. Arrays are not in git: rebuild a dataset with its sweep command (cached runs are skipped), then export it as one file.
 
 ## `accretion_flow` / `frames`
 
@@ -22,6 +22,65 @@ Schema ranges are those of one run (`accretion_flow-4a0c1426e768`).
 ```bash
 python -m pinneapple_lab sweep accretion_flow -g alpha=0.05,0.1,0.2 -g viscosity=SS,ST
 python -m pinneapple_lab export accretion_flow frames accretion_flow_frames.npz
+```
+
+## `benchmark_case` / `arrays`
+
+Arrays behind the figures of PINNeAPPle-Benchmark/experiments/08_supersonic_shock_train
+
+84 samples from 5 runs; every sample also carries the run parameters (case).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| array | array | variable float32 | -0.7762 .. 11.99 |  |
+| file | scalar | str  | field3d_3d_pb2.50.npz, field3d_3d_pb3.00.npz, field_grid_pb3.00_240x20.npz, field_grid_pb3.00_360x30.npz, field_grid_pb3.00_540x45.npz, field_sweep_pb2.00_480x40.npz |  |
+| key | scalar | str  | Mach_top, Mach_side, p_center, x, W, Mach |  |
+| case | scalar | str  | shock_train |  |
+
+Schema ranges are those of one run (`benchmark_case-9cf13dffb830`).
+
+```bash
+python -m pinneapple_lab sweep benchmark_case -g case=bumper_crash,heated_channel,pdr,shock_train,soil_twin,sst,terramechanics
+python -m pinneapple_lab export benchmark_case arrays benchmark_case_arrays.npz
+```
+
+## `benchmark_case` / `lead_skill`
+
+Test RMSE (degC) per forecast lead for every model
+
+5 samples from 1 runs; every sample also carries the run parameters (case).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| model | scalar | str  | Persistence, Climatology, Damped persistence (AR1), FNO2d (PINNeAPPle) ensemble, ResNet-CNN (PINNeAPPle Conv2DModel) ensemble |  |
+| rmse | array | [7] float64 | 0.291 .. 1.574 |  |
+| mae | array | [7] float64 | 0.1931 .. 1.195 |  |
+
+Schema ranges are those of one run (`benchmark_case-3074f671a9d8`).
+
+```bash
+python -m pinneapple_lab sweep benchmark_case -g case=bumper_crash,heated_channel,pdr,shock_train,soil_twin,sst,terramechanics
+python -m pinneapple_lab export benchmark_case lead_skill benchmark_case_lead_skill.npz
+```
+
+## `benchmark_case` / `sweep`
+
+Shock-train leading-edge position against back-pressure ratio
+
+8 samples from 1 runs; every sample also carries the run parameters (case).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| pb_ratio | scalar | float  | 2 .. 4.25 |  |
+| x_shock | scalar | float  | 0.0125 .. 2.487 |  |
+| unstarted | scalar | bool  | False, True |  |
+| no_train | scalar | bool  | True, False |  |
+
+Schema ranges are those of one run (`benchmark_case-9cf13dffb830`).
+
+```bash
+python -m pinneapple_lab sweep benchmark_case -g case=bumper_crash,heated_channel,pdr,shock_train,soil_twin,sst,terramechanics
+python -m pinneapple_lab export benchmark_case sweep benchmark_case_sweep.npz
 ```
 
 ## `bondi_accretion` / `profiles`
@@ -46,6 +105,60 @@ Schema ranges are those of one run (`bondi_accretion-3a8c3789e109`).
 ```bash
 python -m pinneapple_lab sweep bondi_accretion -g cs_inf=0.08,0.1,0.14 -g gamma=1.3,1.4
 python -m pinneapple_lab export bondi_accretion profiles bondi_accretion_profiles.npz
+```
+
+## `car_lbm` / `flow`
+
+Car geometry (mask, signed distance) and the time-mean flow it produces (velocity / U, pressure coefficient), with drag and lift
+
+5 samples from 5 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| mask | array | [320, 160] uint8 | 0 .. 1 |  |
+| sdf | array | [320, 160] float32 | -0.1562 .. 3.631 | car lengths |
+| mean_ux | array | [320, 160] float32 | -0.228 .. 1.429 | U |
+| mean_uy | array | [320, 160] float32 | -0.3972 .. 1.077 | U |
+| mean_cp | array | [320, 160] float32 | -1.321 .. 1.819 | - |
+| Cd | scalar | float  | 1.627 .. 1.627 |  |
+| Cl | scalar | float  | 0.9533 .. 0.9533 |  |
+| slant_deg | scalar | float  | 31.68 .. 31.68 |  |
+| windshield_deg | scalar | float  | 26.78 .. 26.78 |  |
+| hood | scalar | float  | 0.7497 .. 0.7497 |  |
+| clearance | scalar | float  | 0.0693 .. 0.0693 |  |
+| diffuser_deg | scalar | float  | 0.9394 .. 0.9394 |  |
+| nose | scalar | float  | 0.00283 .. 0.00283 |  |
+
+Schema ranges are those of one run (`car_lbm-f4e94996017f`).
+
+```bash
+python -m pinneapple_lab sweep car_lbm -g clearance=0.040053404700172573,0.05573454677514471,0.06930161488684446,0.07832302465389399,0.09378589551638157 -g diffuser_deg=0.4103072776524538,0.9394226661295972,1.9398736163202015,3.546111410611645,6.598754803801609 -g hood=0.4910939737116722,0.49729994618166656,0.551960136528662,0.604944562549568,0.7497101313355234 -g nose=0.0028297910195510673,0.21977034496926323,0.2784077181204508,0.42183593622864207,0.7544842815922052 -g slant_deg=22.949852940774573,30.050572972679632,31.684764255969316,5.802521801543746,8.907930272159629 -g windshield_deg=22.51669145709561,26.782409304873063,29.9068928960577,30.97918079931202,38.78426393971233
+python -m pinneapple_lab export car_lbm flow car_lbm_flow.npz
+```
+
+## `car_lbm` / `vorticity`
+
+Wake vorticity snapshots (normalised by U / car length)
+
+240 samples from 5 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| vorticity | array | [320, 160] float16 | -52.81 .. 68.44 |  |
+| frame | scalar | int  | 0 .. 47 |  |
+| Cd | scalar | float  | 1.627 .. 1.627 |  |
+| slant_deg | scalar | float  | 31.68 .. 31.68 |  |
+| windshield_deg | scalar | float  | 26.78 .. 26.78 |  |
+| hood | scalar | float  | 0.7497 .. 0.7497 |  |
+| clearance | scalar | float  | 0.0693 .. 0.0693 |  |
+| diffuser_deg | scalar | float  | 0.9394 .. 0.9394 |  |
+| nose | scalar | float  | 0.00283 .. 0.00283 |  |
+
+Schema ranges are those of one run (`car_lbm-f4e94996017f`).
+
+```bash
+python -m pinneapple_lab sweep car_lbm -g clearance=0.040053404700172573,0.05573454677514471,0.06930161488684446,0.07832302465389399,0.09378589551638157 -g diffuser_deg=0.4103072776524538,0.9394226661295972,1.9398736163202015,3.546111410611645,6.598754803801609 -g hood=0.4910939737116722,0.49729994618166656,0.551960136528662,0.604944562549568,0.7497101313355234 -g nose=0.0028297910195510673,0.21977034496926323,0.2784077181204508,0.42183593622864207,0.7544842815922052 -g slant_deg=22.949852940774573,30.050572972679632,31.684764255969316,5.802521801543746,8.907930272159629 -g windshield_deg=22.51669145709561,26.782409304873063,29.9068928960577,30.97918079931202,38.78426393971233
+python -m pinneapple_lab export car_lbm vorticity car_lbm_vorticity.npz
 ```
 
 ## `cylinder_lbm` / `vorticity`
@@ -194,8 +307,31 @@ Burgers u(t, x): PINN prediction and exact solution
 Schema ranges are those of one run (`repo_results-96e87a293dea`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
 python -m pinneapple_lab export repo_results fields repo_results_fields.npz
+```
+
+## `repo_results` / `held_out_error`
+
+Surrogate error on held-out heat-sink designs, per output
+
+3 samples from 1 runs; every sample also carries the run parameters (source).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| mode | scalar | str  | forced, natural |  |
+| output | scalar | str  | thermal resistance (base to air), pressure drop |  |
+| n_test | scalar | int  | 750 .. 900 |  |
+| mean_abs_pct | scalar | float  | 0.7115 .. 1.041 |  |
+| p95_abs_pct | scalar | float  | 2.086 .. 2.696 |  |
+| max_abs_pct | scalar | float  | 5.88 .. 10 |  |
+| pct_within_5pct | scalar | float  | 99.22 .. 99.89 |  |
+
+Schema ranges are those of one run (`repo_results-33073ba61b6c`).
+
+```bash
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab export repo_results held_out_error repo_results_held_out_error.npz
 ```
 
 ## `repo_results` / `lead_time_skill`
@@ -218,7 +354,7 @@ Mean absolute error vs lead time of the black-hole flow forecasters and of persi
 Schema ranges are those of one run (`repo_results-269f1207b6f2`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
 python -m pinneapple_lab export repo_results lead_time_skill repo_results_lead_time_skill.npz
 ```
 
@@ -243,7 +379,7 @@ LBM-LES aerodynamic coefficients vs angle of attack (Re 300, coarse)
 Schema ranges are those of one run (`repo_results-ae7814d939d6`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
 python -m pinneapple_lab export repo_results polar repo_results_polar.npz
 ```
 
@@ -264,7 +400,7 @@ MeshGraphNet rollout and one-step RMSE vs the frozen-initial-condition baseline
 Schema ranges are those of one run (`repo_results-cbac6f31f681`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
 python -m pinneapple_lab export repo_results rollout_scores repo_results_rollout_scores.npz
 ```
 
@@ -290,15 +426,15 @@ LBM vortex-shedding runs: Strouhal number, set-up and probe amplitude
 Schema ranges are those of one run (`repo_results-fa808c1e7a31`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
 python -m pinneapple_lab export repo_results strouhal repo_results_strouhal.npz
 ```
 
-## `repo_results` / `temperature_fields`
+## `repo_results` / `temperature_fields_2d`
 
 2d temperature field: finite-volume reference and PINN reconstructions from noisy sensors (one per noise draw)
 
-8 samples from 2 runs; every sample also carries the run parameters (source).
+5 samples from 1 runs; every sample also carries the run parameters (source).
 
 | field | kind | shape / type | range | units |
 |---|---|---|---|---|
@@ -312,6 +448,49 @@ python -m pinneapple_lab export repo_results strouhal repo_results_strouhal.npz
 Schema ranges are those of one run (`repo_results-8f10f262c734`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,lbm_strouhal,meshgraphnet
-python -m pinneapple_lab export repo_results temperature_fields repo_results_temperature_fields.npz
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab export repo_results temperature_fields_2d repo_results_temperature_fields_2d.npz
+```
+
+## `repo_results` / `temperature_fields_3d`
+
+3d temperature field: finite-volume reference and PINN reconstructions from noisy sensors (one per noise draw)
+
+3 samples from 1 runs; every sample also carries the run parameters (source).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| T_pinn | array | [12, 40, 40] float32 | 65.96 .. 74.56 |  |
+| T_reference | array | [12, 40, 40] float32 | 65.91 .. 74.48 |  |
+| draw | scalar | int  | 0 .. 2 |  |
+| h_pinn | scalar | float  | 137.9 .. 141 |  |
+| h_true | scalar | float  | 150 .. 150 |  |
+| case | scalar | str  | 3d_block |  |
+
+Schema ranges are those of one run (`repo_results-e9574ff86021`).
+
+```bash
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab export repo_results temperature_fields_3d repo_results_temperature_fields_3d.npz
+```
+
+## `repo_results` / `test_points`
+
+Held-out airfoil cases: OpenFOAM coefficients and surrogate predictions
+
+120 samples from 1 runs; every sample also carries the run parameters (source).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| model | scalar | str  | mlp, gnn |  |
+| case | scalar | str  | s003_a0, s003_a1, s003_a2, s003_a3, s007_a0, s007_a1 |  |
+| alpha | scalar | float  | -1.494 .. 13.19 | deg |
+| true | array | [3] float64 | -0.08594 .. 1.493 |  |
+| pred | array | [3] float64 | -0.08529 .. 1.493 |  |
+
+Schema ranges are those of one run (`repo_results-d8795900891a`).
+
+```bash
+python -m pinneapple_lab sweep repo_results -g source=airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab export repo_results test_points repo_results_test_points.npz
 ```

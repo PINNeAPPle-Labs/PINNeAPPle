@@ -1,19 +1,23 @@
 # PINNeAPPle Lab catalogue
 
-104 runs, generated 2026-10-10 17:19.
+133 runs, generated 2026-10-10 18:59.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
 | [accretion_flow](#accretion_flow) | 6 | 6 | 0 | 0 | frames (186) |
+| [benchmark_case](#benchmark_case) | 7 | 7 | 0 | 0 | arrays (84), sweep (8), lead_skill (5) |
 | [bondi_accretion](#bondi_accretion) | 6 | 6 | 0 | 0 | profiles (6) |
+| [car_lbm](#car_lbm) | 7 | 5 | 1 | 0 | flow (6), vorticity (288) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
+| [example_script](#example_script) | 12 | 6 | 0 | 3 | - |
 | [heat_xtfc](#heat_xtfc) | 12 | 8 | 4 | 0 | fields (12) |
 | [kepler_law](#kepler_law) | 1 | 1 | 0 | 0 | orbits (19) |
 | [lorenz_discovery](#lorenz_discovery) | 1 | 1 | 0 | 0 | - |
 | [oscillator](#oscillator) | 60 | 60 | 0 | 0 | trajectories (60) |
 | [oscillator_discovery](#oscillator_discovery) | 1 | 1 | 0 | 0 | discovered_laws (20) |
 | [pendulum_video](#pendulum_video) | 1 | 1 | 0 | 0 | pendulum (1) |
-| [repo_results](#repo_results) | 7 | 7 | 0 | 0 | fields (1), temperature_fields (8), strouhal (3), rollout_scores (2), polar (5), lead_time_skill (4) |
+| [repo_results](#repo_results) | 9 | 9 | 0 | 0 | strouhal (3), test_points (120), polar (5), temperature_fields_2d (5), rollout_scores (2), temperature_fields_3d (3), lead_time_skill (4), fields (1), held_out_error (3) |
+| [vehicle_cfd](#vehicle_cfd) | 1 | 0 | 0 | 0 | - |
 
 ## accretion_flow
 
@@ -32,6 +36,24 @@ A hot torus accreting onto a Schwarzschild black hole (viscous 2.5-D hydro): den
 
 ![accretion_flow](runs/accretion_flow/accretion_flow-4a0c1426e768/figures/density.png)
 
+## benchmark_case
+
+Cases from the PINNeAPPle Labs landing page that live in the public PINNeAPPle-Benchmark and PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the arrays behind the paper's figures and the source that produced them.
+
+| run | status | case | Climatology|rmse_lead7_degC | Conv autoencoder + latent MLP|test_same_family|T_rel_l2 | Conv autoencoder + latent MLP|test_unseen_sinusoid|T_rel_l2 | Damped persistence (AR1)|rmse_lead7_degC | DeepONet (PINNeAPPle)|test_same_family|T_rel_l2 | DeepONet (PINNeAPPle)|test_unseen_sinusoid|T_rel_l2 | checks |
+|---|---|---|---|---|---|---|---|---|---|
+| [2814207947c8](runs/benchmark_case/benchmark_case-2814207947c8) | completed | soil_twin |  |  |  |  |  |  | 2/2 |
+| [2a494685fed3](runs/benchmark_case/benchmark_case-2a494685fed3) | completed | bumper_crash |  |  |  |  |  |  | 2/2 |
+| [e5981ba8bbc9](runs/benchmark_case/benchmark_case-e5981ba8bbc9) | completed | terramechanics |  |  |  |  |  |  | 2/2 |
+| [b5fa8d70f3f9](runs/benchmark_case/benchmark_case-b5fa8d70f3f9) | completed | heated_channel |  | 0.09345 | 0.1409 |  | 0.8398 | 0.8314 | 2/2 |
+| [b8f46b4fe34f](runs/benchmark_case/benchmark_case-b8f46b4fe34f) | completed | pdr |  |  |  |  |  |  | 2/2 |
+| [3074f671a9d8](runs/benchmark_case/benchmark_case-3074f671a9d8) | completed | sst | 1.574 |  |  | 1.018 |  |  | 1/1 |
+| [9cf13dffb830](runs/benchmark_case/benchmark_case-9cf13dffb830) | completed | shock_train |  |  |  |  |  |  | 2/2 |
+
+![benchmark_case](runs/benchmark_case/benchmark_case-9cf13dffb830/figures/fig_duct3d.png)
+
+![benchmark_case](runs/benchmark_case/benchmark_case-3074f671a9d8/figures/fig1_region.png)
+
 ## bondi_accretion
 
 Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential): the hydro solver started from the exact transonic Bondi solution must keep it steady.
@@ -48,6 +70,24 @@ Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential):
 ![bondi_accretion](runs/bondi_accretion/bondi_accretion-42fdab9aa232/figures/bondi_profile.png)
 
 ![bondi_accretion](runs/bondi_accretion/bondi_accretion-24fd3dba0cb6/figures/bondi_profile.png)
+
+## car_lbm
+
+Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parameters): lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake vorticity movie. The training data of car_surrogate.
+
+| run | status | Cs | Re | clearance | diffuser_deg | hood | length_cells | nose | slant_deg | steps | tunnel_height | u_in | windshield_deg | Cd | Cd_rms_fluctuation | Cl | Strouhal_frontal_height | mean_flow_divergence | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [db344e5feeb6](runs/car_lbm/car_lbm-db344e5feeb6) | failed_validation | 0.1 | 500.0 | 0.08 | 4.0 | 0.62 | 64 | 0.5 | 25.0 | 8000 |  | 0.08 | 35.0 | 3.585 | 0.2213 | 1.648 | 0.12 | 0.0002995 | 2/3 |
+| [354a5d7f3472](runs/car_lbm/car_lbm-354a5d7f3472) | completed | 0.1 | 500.0 | 0.05573454677514471 | 6.598754803801609 | 0.4910939737116722 | 64 | 0.21977034496926323 | 8.907930272159629 | 8000 | 2.5 | 0.08 | 22.51669145709561 | 1.392 | 0.1255 | 0.8275 | 0.54 | 0.0003275 | 3/3 |
+| [d173020195fa](runs/car_lbm/car_lbm-d173020195fa) | completed | 0.1 | 500.0 | 0.09378589551638157 | 0.4103072776524538 | 0.551960136528662 | 64 | 0.42183593622864207 | 5.802521801543746 | 8000 | 2.5 | 0.08 | 38.78426393971233 | 1.615 | 0.1674 | 0.7673 | 0.12 | 0.0003307 | 3/3 |
+| [79a74998d572](runs/car_lbm/car_lbm-79a74998d572) | completed | 0.1 | 500.0 | 0.07832302465389399 | 3.546111410611645 | 0.604944562549568 | 64 | 0.7544842815922052 | 30.050572972679632 | 8000 | 2.5 | 0.08 | 30.97918079931202 | 1.523 | 0.1351 | 0.8128 | 0.84 | 0.0003389 | 3/3 |
+| [8b26bf074009](runs/car_lbm/car_lbm-8b26bf074009) | completed | 0.1 | 500.0 | 0.040053404700172573 | 1.9398736163202015 | 0.49729994618166656 | 64 | 0.2784077181204508 | 22.949852940774573 | 8000 | 2.5 | 0.08 | 29.9068928960577 | 1.326 | 0.1188 | 0.8745 | 0.12 | 0.0003287 | 3/3 |
+| [f4e94996017f](runs/car_lbm/car_lbm-f4e94996017f) | completed | 0.1 | 500.0 | 0.06930161488684446 | 0.9394226661295972 | 0.7497101313355234 | 64 | 0.0028297910195510673 | 31.684764255969316 | 8000 | 2.5 | 0.08 | 26.782409304873063 | 1.627 | 0.1447 | 0.9533 | 0.12 | 0.0003419 | 3/3 |
+| [7c9493675b34](runs/car_lbm/car_lbm-7c9493675b34) | running | 0.1 | 500.0 | 0.06442935254548753 | 8.68032380340868 | 0.6784938002629585 | 64 | 0.44948991826120793 | 13.966575556773915 | 8000 | 2.5 | 0.08 | 48.022047261951535 |  |  |  |  |  | 0/0 |
+
+![car_lbm](runs/car_lbm/car_lbm-f4e94996017f/figures/forces.png)
+
+![car_lbm](runs/car_lbm/car_lbm-8b26bf074009/figures/forces.png)
 
 ## cylinder_lbm
 
@@ -68,6 +108,29 @@ Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential):
 ![cylinder_lbm](runs/cylinder_lbm/cylinder_lbm-ea9cf6215d98/figures/vorticity.png)
 
 ![cylinder_lbm](runs/cylinder_lbm/cylinder_lbm-d79b20689d8c/figures/vorticity.png)
+
+## example_script
+
+Runs an example or use case of the repository and stores what it produced: figures, JSON outputs and their numbers as metrics, arrays as the 'artifacts' dataset, the console output and the code. The catalogue of these runs is also the health report of the examples.
+
+| run | status | args | isolated | script | timeout | exit_code | files_produced | script_seconds | stdout.relative_l2 | stdout.relative_l2_error | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| [ea7a7580e8be](runs/example_script/example_script-ea7a7580e8be) | running |  |  | examples/getting_started/03_heat_diffusion_1d.py | 600.0 |  |  |  |  |  | 0/0 |
+| [d2cb43a85c44](runs/example_script/example_script-d2cb43a85c44) | completed |  |  | examples/getting_started/01_harmonic_oscillator.py | 600.0 | 0 | 7 | 96.21 |  | 0.915 | 1/1 |
+| [76ba471d54ae](runs/example_script/example_script-76ba471d54ae) | running |  |  | examples/getting_started/02_damped_oscillator.py | 600.0 |  |  |  |  |  | 0/0 |
+| [5a77c5897b1d](runs/example_script/example_script-5a77c5897b1d) | completed |  | True | examples/getting_started/01_harmonic_oscillator.py | 600.0 | 0 | 1 | 94.8 |  | 0.915 | 1/1 |
+| [0ba6838478e4](runs/example_script/example_script-0ba6838478e4) | completed |  | True | examples/getting_started/02_damped_oscillator.py | 600.0 | 0 | 1 | 137 | 0.5001 |  | 1/1 |
+| [f151824795db](runs/example_script/example_script-f151824795db) | failed |  | True | examples/getting_started/03_heat_diffusion_1d.py | 600.0 | -1 | 0 | 600.1 | 0.0006818 |  | 0/1 |
+| [511688b89ce8](runs/example_script/example_script-511688b89ce8) | failed |  | True | examples/getting_started/04_wave_equation_1d.py | 600.0 | -1 | 0 | 600.2 |  |  | 0/1 |
+| [57ffa2145319](runs/example_script/example_script-57ffa2145319) | completed |  | True | examples/getting_started/05_logistic_growth.py | 600.0 | 0 | 1 | 52.72 | 0.007669 |  | 1/1 |
+| [2ab998651866](runs/example_script/example_script-2ab998651866) | completed |  | True | examples/getting_started/06_lotka_volterra.py | 600.0 | 0 | 1 | 163.6 |  |  | 1/1 |
+| [3c41e93eed63](runs/example_script/example_script-3c41e93eed63) | completed |  | True | examples/getting_started/07_nonlinear_pendulum.py | 600.0 | 0 | 1 | 219.4 | 1.03 |  | 1/1 |
+| [3bdda3a8019a](runs/example_script/example_script-3bdda3a8019a) | failed |  | True | examples/getting_started/08_van_der_pol.py | 600.0 | -1 | 0 | 600.2 | 1.04 |  | 0/1 |
+| [a6b9305a6b2f](runs/example_script/example_script-a6b9305a6b2f) | running |  | True | examples/getting_started/09_lorenz_system.py | 600.0 |  |  |  |  |  | 0/0 |
+
+![example_script](runs/example_script/example_script-3c41e93eed63/figures/07_nonlinear_pendulum.png)
+
+![example_script](runs/example_script/example_script-2ab998651866/figures/06_lotka_volterra.png)
 
 ## heat_xtfc
 
@@ -180,13 +243,23 @@ Results already produced by repository scripts (PINNs, inverse problems, LBM, Me
 | run | status | source | CL_max | CL_rms_vs_polhamus | CL_slope_per_rad | St_cylinder_h10 | St_cylinder_h20 | St_naca4412 | checks |
 |---|---|---|---|---|---|---|---|---|---|
 | [96e87a293dea](runs/repo_results/repo_results-96e87a293dea) | completed | burgers_pinn |  |  |  |  |  |  | 1/1 |
-| [8f10f262c734](runs/repo_results/repo_results-8f10f262c734) | completed | fin_inverse_2d |  |  |  |  |  |  | 3/3 |
-| [e9574ff86021](runs/repo_results/repo_results-e9574ff86021) | completed | fin_inverse_3d |  |  |  |  |  |  | 3/3 |
 | [fa808c1e7a31](runs/repo_results/repo_results-fa808c1e7a31) | completed | lbm_strouhal |  |  |  | 0.1915 | 0.1742 | 0.2068 | 3/3 |
 | [cbac6f31f681](runs/repo_results/repo_results-cbac6f31f681) | completed | meshgraphnet |  |  |  |  |  |  | 2/2 |
 | [ae7814d939d6](runs/repo_results/repo_results-ae7814d939d6) | completed | concorde_aoa | 0.5881 | 0.2409 | 1.728 |  |  |  | 2/2 |
 | [269f1207b6f2](runs/repo_results/repo_results-269f1207b6f2) | completed | bh_forecast |  |  |  |  |  |  | 2/2 |
+| [8f10f262c734](runs/repo_results/repo_results-8f10f262c734) | completed | fin_inverse_2d |  |  |  |  |  |  | 3/3 |
+| [e9574ff86021](runs/repo_results/repo_results-e9574ff86021) | completed | fin_inverse_3d |  |  |  |  |  |  | 3/3 |
+| [33073ba61b6c](runs/repo_results/repo_results-33073ba61b6c) | completed | heatsink_surrogate |  |  |  |  |  |  | 3/3 |
+| [d8795900891a](runs/repo_results/repo_results-d8795900891a) | completed | airfoil_surrogate |  |  |  |  |  |  | 2/2 |
 
-![repo_results](runs/repo_results/repo_results-269f1207b6f2/figures/skill_faithful.png)
+![repo_results](runs/repo_results/repo_results-e9574ff86021/figures/block_h_convergence.png)
 
-![repo_results](runs/repo_results/repo_results-ae7814d939d6/figures/01_geometry.png)
+![repo_results](runs/repo_results/repo_results-8f10f262c734/figures/plate_h_convergence.png)
+
+## vehicle_cfd
+
+A parametric 3-D road car or launch vehicle in OpenFOAM (snappyHexMesh + simpleFoam, half model): drag, lift, skin pressure, streamlines and wake, checked against reference ranges (car) or Barrowman's stability equations (rocket); Blender Cycles renders and a 3-D viewer.
+
+| run | status | alpha | iterations | keep_case | procs | resolution | samples | slant_deg | speed | style | surface_level | vehicle | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [19b6c3f7bb85](runs/vehicle_cfd/vehicle_cfd-19b6c3f7bb85) | running | 4.0 | 600 | False | 2 | coarse | 96 | 22.0 | 30.0 | fastback | None | car | 0/0 |

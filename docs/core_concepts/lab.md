@@ -132,6 +132,14 @@ Readiness lists what each use still needs: *product* (generalization, uncertaint
 reproducibility), *paper* (reference, baseline or physics, reproducibility, novelty review), *marketing* (strong
 visuals, a validated headline number, a story), *training data* (a documented dataset of validated runs).
 
+The catalogue opens on **What can we present?**: for each use (product, publication, marketing, training data) the
+items that are ready or approved, and the closest candidates with their distance in effort points (S = 1, M = 3,
+L = 8) and what they miss. Below it, the **roadmap** lists every item (an experiment, or one case of it when the
+experiment declares `case_param`) with its limitations — declared by the experiment (`Experiment.limitations`, a list
+or a dict per case), by the reviewer, or detected (failed runs, inferred-only evidence, low coverage) — and the path
+forward: the actions that close each gap, specific to the kind of experiment (a persistence baseline for a forecast,
+a grid-convergence study for CFD, held-out designs for a surrogate, ...), with their effort and what each unlocks.
+
 Human review is the qualitative half and is never filled in automatically:
 
 ```bash

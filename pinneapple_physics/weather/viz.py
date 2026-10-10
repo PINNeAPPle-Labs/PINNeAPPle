@@ -238,3 +238,161 @@ def skill_figure(path, leads_h, curves: dict, horizons_by_model: dict, var: str,
     fig.savefig(path, dpi=dpi, facecolor=BG)
     plt.close(fig)
     return Path(path)
+
+
+# ------------------------------------------------------------------ Earth-2 style globes
+
+def upsample_sphere(field: np.ndarray, lat: np.ndarray, lon: np.ndarray, factor: int = 4):
+    """Cubic upsampling of a (lat, lon) field, periodic in longitude, for display only."""
+    from scipy.ndimage import zoom
+
+    p = 3
+    padded = np.concatenate([field[:, -p:], field, field[:, :p]], axis=1)
+    padded = np.concatenate([padded[:1].repeat(p, 0), padded, padded[-1:].repeat(p, 0)], axis=0)
+    z = zoom(padded, factor, order=3, mode="nearest")
+    z = z[p * factor:-p * factor, p * factor:-p * factor]
+    dlat, dlon = lat[1] - lat[0], lon[1] - lon[0]
+    new_lat = lat[0] - dlat / 2 + (np.arange(z.shape[0]) + 0.5) * dlat / factor
+    new_lon = lon[0] - dlon / 2 + (np.arange(z.shape[1]) + 0.5) * dlon / factor
+    return z, new_lat, np.mod(new_lon, 360.0)
+
+
+def _globe_rgb(field, lat, lon, center, size, cmap, norm, lines):
+    """RGBA image of a lit globe: field colours, day-side shading, coastlines and graticule."""
+    la0, lo0 = np.deg2rad(center[0]), np.deg2rad(center[1])
+    u = np.linspace(-1.12, 1.12, size)
+    X, Y = np.meshgrid(u, -u)
+    r2 = X ** 2 + Y ** 2
+    inside = r2 <= 1
+    z = np.sqrt(np.clip(1 - r2, 0, None))
+    qlat = np.arcsin(np.clip(Y * np.cos(la0) + z * np.sin(la0), -1, 1))
+    qlon = lo0 + np.arctan2(X, z * np.cos(la0) - Y * np.sin(la0))
+    f = _sample(field, lat, lon, np.rad2deg(qlat), np.rad2deg(qlon))
+    rgb = cmap(norm(np.where(inside, f, np.nan)))[..., :3]
+    light = np.array([-0.45, 0.55, 0.70])
+    light /= np.linalg.norm(light)
+    shade = np.clip(X * light[0] + Y * light[1] + z * light[2], 0, 1)
+    rgb = rgb * (0.38 + 0.72 * shade[..., None]) + 0.10 * shade[..., None] ** 12      # diffuse + soft highlight
+    # graticule every 30 degrees
+    glat, glon = np.rad2deg(qlat), np.mod(np.rad2deg(qlon), 360)
+    grid = ((np.abs(((glat + 15) % 30) - 15) < 0.3) |
+            ((np.abs(((glon + 15) % 30) - 15) < 0.3 / np.maximum(np.cos(qlat), 0.2)) & (np.abs(glat) < 80)))
+    rgb = np.where((grid & inside)[..., None], rgb * 0.85 + 0.15 * 0.85, rgb)
+    out = np.zeros((size, size, 4))
+    out[..., :3] = np.clip(rgb, 0, 1)
+    out[..., 3] = inside.astype(float)
+    # atmosphere: a thin blue glow just outside the limb
+    rr = np.sqrt(r2)
+    glow = np.clip(1 - (rr - 1) / 0.09, 0, 1) * (rr > 1)
+    out[..., :3] = np.where((rr > 1)[..., None], np.array([0.30, 0.55, 1.0]) * glow[..., None], out[..., :3])
+    out[..., 3] = np.where(rr > 1, 0.55 * glow ** 2, out[..., 3])
+    # coastlines (drawn into the image so the frame is a single bitmap)
+    for ln in lines:
+        lo_, la_ = np.deg2rad(ln[:, 0]), np.deg2rad(ln[:, 1])
+        cosc = np.sin(la0) * np.sin(la_) + np.cos(la0) * np.cos(la_) * np.cos(lo_ - lo0)
+        px = np.cos(la_) * np.sin(lo_ - lo0)
+        py = np.cos(la0) * np.sin(la_) - np.sin(la0) * np.cos(la_) * np.cos(lo_ - lo0)
+        ix = np.round((px / 1.12 + 1) / 2 * (size - 1)).astype(int)
+        iy = np.round((1 - py / 1.12) / 2 * (size - 1)).astype(int)
+        ok = (cosc > 0.02) & (ix >= 0) & (ix < size) & (iy >= 0) & (iy < size)
+        for a, b in ((ix, iy),):
+            # densify segments so the line is continuous
+            for k in range(len(a) - 1):
+                if ok[k] and ok[k + 1]:
+                    n = int(max(abs(a[k + 1] - a[k]), abs(b[k + 1] - b[k]))) + 1
+                    xs = np.linspace(a[k], a[k + 1], n).round().astype(int)
+                    ys = np.linspace(b[k], b[k + 1], n).round().astype(int)
+                    out[ys, xs, :3] = out[ys, xs, :3] * 0.5 + 0.5 * np.array([0.93, 0.95, 0.98])
+    return out
+
+
+def earth2_gif(path, var, truth, forecast, lat, lon, times, *, lead_hours, horizon, title, center=(20.0, -30.0),
+               rotate_deg_per_frame=0.0, region=None, model_name="PINNeAPPle", vmin=None, vmax=None,
+               substeps=3, size=420, fps=12, dpi=80, cmap=None):
+    """NVIDIA Earth-2 style animation: ERA5 (left) and the forecast (right) on lit globes over black, smooth fields
+    (cubic upsampling on the sphere, ``substeps`` interpolated frames between 6-hour states), the globe slowly
+    rotating, the lead in large type and a thin lead bar coloured by the horizon (good, fading, no skill).
+    ``truth``/``forecast``: (n, lat, lon) in physical units at ``lead_hours``."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.animation import FuncAnimation, PillowWriter
+    from matplotlib.colors import Normalize
+
+    T = display_units(var, np.asarray(truth, float))
+    F = display_units(var, np.asarray(forecast, float))
+    lo = np.nanpercentile(T, 1) if vmin is None else vmin
+    hi = np.nanpercentile(T, 99) if vmax is None else vmax
+    cm = plt.get_cmap(cmap or {"t2m": "turbo", "t850": "turbo", "wind10": "magma", "msl": "viridis",
+                               "z500": "viridis", "tp6": "Blues"}.get(var, "turbo"))
+    norm = Normalize(lo, hi)
+    lines = coastlines()
+    up = [upsample_sphere(x, lat, lon) for x in T], [upsample_sphere(x, lat, lon) for x in F]
+    flat, flon = up[0][0][1], up[0][0][2]
+    TU = np.stack([u[0] for u in up[0]])
+    FU = np.stack([u[0] for u in up[1]])
+    n = len(T)
+    frames = [(k, s) for k in range(n - 1) for s in range(substeps)] + [(n - 1, 0)]
+
+    fig = plt.figure(figsize=(12.8, 6.6), facecolor="black")
+    axL = fig.add_axes([0.02, 0.17, 0.47, 0.72])
+    axR = fig.add_axes([0.51, 0.17, 0.47, 0.72])
+    ims = []
+    for ax in (axL, axR):
+        ax.set_facecolor("black")
+        ax.axis("off")
+        ims.append(ax.imshow(np.zeros((size, size, 4)), interpolation="bilinear"))
+    fig.text(0.255, 0.15, "ERA5 · what happened", color="#c9d3df", ha="center", fontsize=13)
+    fig.text(0.745, 0.15, f"{model_name} · forecast", color="#ffffff", ha="center", fontsize=13, weight="bold")
+    fig.text(0.03, 0.94, title, color="white", fontsize=16, weight="bold")
+    stamp = fig.text(0.03, 0.895, "", color="#8f9bab", fontsize=11)
+    big = fig.text(0.97, 0.915, "", color="white", fontsize=26, weight="bold", ha="right")
+    state = fig.text(0.97, 0.875, "", color=GOOD, fontsize=11, ha="right")
+    # thin colour bar and lead bar
+    cax = fig.add_axes([0.33, 0.095, 0.34, 0.016])
+    cb = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cm), cax=cax, orientation="horizontal")
+    cb.outline.set_visible(False)
+    cb.ax.tick_params(colors="#8f9bab", labelsize=8, length=0)
+    fig.text(0.32, 0.098, LABEL.get(var, var), color="#8f9bab", fontsize=9, ha="right")
+    bar = fig.add_axes([0.03, 0.018, 0.94, 0.012])
+    bar.set_xlim(0, lead_hours[-1])
+    bar.set_ylim(0, 1)
+    bar.axis("off")
+    U, N, L = horizon["useful_hours"], horizon["no_skill_hours"], lead_hours[-1]
+    bar.axvspan(0, min(U, L), color=GOOD, alpha=0.25)
+    if U < L:
+        bar.axvspan(U, min(N, L), color=FADING, alpha=0.25)
+    if N < L:
+        bar.axvspan(N, L, color=POOR, alpha=0.25)
+    from matplotlib.patches import Rectangle
+
+    prog = bar.add_patch(Rectangle((0, 0.15), 0, 0.7, color="white", alpha=0.9))
+    fig.text(0.03, 0.04, f"lead bar: green while the forecast is good on average (ACC ≥ 0.6, {U / 24:.1f} days), "
+             f"amber until it is no better than climatology" + (f" ({N / 24:.1f} days)" if np.isfinite(N) else ""),
+             color="#5f6b7a", fontsize=8)
+
+    def frame(i):
+        k, s = frames[i]
+        a = s / substeps
+        t_f = TU[k] if k == n - 1 else (1 - a) * TU[k] + a * TU[k + 1]
+        f_f = FU[k] if k == n - 1 else (1 - a) * FU[k] + a * FU[k + 1]
+        c = (center[0], center[1] + rotate_deg_per_frame * i)
+        ims[0].set_data(_globe_rgb(t_f, flat, flon, c, size, cm, norm, lines))
+        ims[1].set_data(_globe_rgb(f_f, flat, flon, c, size, cm, norm, lines))
+        lead = lead_hours[k] + a * (lead_hours[min(k + 1, n - 1)] - lead_hours[k])
+        st, col = _status(lead, horizon)
+        big.set_text(f"+{lead:.0f} h")
+        state.set_text(st)
+        state.set_color(col)
+        tv = times[k] + np.timedelta64(int(a * 6 * 60), "m")
+        stamp.set_text(f"valid {np.datetime_as_string(tv, unit='h').replace('T', ' ')} UTC")
+        prog.set_width(lead)
+        return ims + [big, state, stamp]
+
+    anim = FuncAnimation(fig, frame, frames=len(frames), blit=False)
+    path = Path(path)
+    anim.save(path, writer=PillowWriter(fps=fps), dpi=dpi, savefig_kwargs={"facecolor": "black"})
+    plt.close(fig)
+    _ = region
+    return path

@@ -90,3 +90,22 @@ def test_forecast_gif_and_skill_figure(tmp_path):
     assert g.stat().st_size > 1000
     s = skill_figure(tmp_path / "s.png", leads, {"PINNeAPPle": acc_curve}, {"PINNeAPPle": hz["useful_hours"]}, "z500")
     assert s.stat().st_size > 1000
+
+
+def test_earth2_style_globes(tmp_path):
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import Normalize
+
+    from pinneapple_physics.weather.viz import _globe_rgb, coastlines, earth2_gif, upsample_sphere
+
+    f = np.cos(np.deg2rad(LAT))[:, None] * np.ones((32, 64))
+    up, la, lo = upsample_sphere(f, LAT, LON, factor=2)
+    assert up.shape == (64, 128) and abs(up.max() - f.max()) < 0.05
+    img = _globe_rgb(up, la, lo, (0.0, 0.0), 64, plt.get_cmap("turbo"), Normalize(0, 1), coastlines())
+    assert img.shape == (64, 64, 4) and img[32, 32, 3] == 1 and img[0, 0, 3] == 0
+    truth = 280 + np.random.default_rng(2).normal(size=(2, 32, 64))
+    times = np.array(["2021-06-28T00", "2021-06-28T06"], dtype="datetime64[ns]")
+    g = earth2_gif(tmp_path / "g.gif", "t2m", truth, truth + 0.3, LAT, LON, times, lead_hours=np.array([0.0, 6.0]),
+                   horizon={"useful_hours": 90.0, "no_skill_hours": 100.0}, title="test", substeps=2, size=48, dpi=30)
+    assert g.stat().st_size > 1000
+

@@ -7,6 +7,10 @@
 //                               or a list of them; alarm when outside the sensor envelope.
 //   &step=N | &step=last        open at a given time step
 //   &field=name                 open showing a given field
+//   &cmap=turbo|viridis|coolwarm|inferno   colormap
+//   &view=x,y,z                 camera direction from the scene centre (default 0.6,0.45,0.66)
+//   &zoom=1.0                   camera distance factor (< 1 closer)
+//   &theme=dark|light           colour theme
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -28,6 +32,7 @@ const VIRIDIS = [[0.267, 0.005, 0.329], [0.283, 0.141, 0.458], [0.254, 0.265, 0.
   [0.164, 0.471, 0.558], [0.128, 0.567, 0.551], [0.135, 0.659, 0.518], [0.267, 0.749, 0.441],
   [0.478, 0.821, 0.318], [0.741, 0.873, 0.150], [0.993, 0.906, 0.144]];
 const COOLWARM = [[0.230, 0.299, 0.754], [0.552, 0.690, 0.996], [0.865, 0.865, 0.865], [0.958, 0.604, 0.482], [0.706, 0.016, 0.150]];
+const INFERNO = [[0.001, 0.000, 0.014], [0.087, 0.045, 0.225], [0.258, 0.039, 0.406], [0.416, 0.090, 0.433], [0.578, 0.148, 0.404], [0.736, 0.216, 0.330], [0.865, 0.317, 0.226], [0.955, 0.469, 0.100], [0.988, 0.645, 0.040], [0.964, 0.844, 0.273], [0.988, 0.998, 0.645]];
 function lut(table) {
   return (t) => {
     t = clamp01(t) * (table.length - 1);
@@ -35,7 +40,7 @@ function lut(table) {
     return [0, 1, 2].map((k) => table[i][k] * (1 - f) + table[i + 1][k] * f);
   };
 }
-const CMAPS = { turbo, viridis: lut(VIRIDIS), coolwarm: lut(COOLWARM) };
+const CMAPS = { turbo, viridis: lut(VIRIDIS), coolwarm: lut(COOLWARM), inferno: lut(INFERNO) };
 
 // ── state ──────────────────────────────────────────────────────────────
 const state = { manifest: null, fields: null, parts: new Map(), sensors: [], step: 0, playing: null,
@@ -179,6 +184,8 @@ function buildUi() {
     state.step = s0 === "last" ? nt - 1 : Math.min(Math.max(parseInt(s0, 10) || 0, 0), nt - 1);
     $("time").value = state.step;
   }
+  const c0 = params.get("cmap");
+  if (c0 && CMAPS[c0]) { state.cmap = c0; $("cmap").value = c0; }
   const f0 = params.get("field");
   if (f0 && fieldNames().includes(f0)) { state.field = f0; sel.value = f0; syncRangeInputs(); }
   $("play").onclick = () => {
@@ -240,7 +247,9 @@ function fitCamera() {
   const c = new THREE.Vector3(...lo).add(new THREE.Vector3(...hi)).multiplyScalar(0.5);
   const r = Math.max(new THREE.Vector3(...hi).sub(new THREE.Vector3(...lo)).length() / 2, 1e-6);
   const dist = r / Math.sin((camera.fov * Math.PI) / 360);
-  camera.position.copy(c).add(new THREE.Vector3(0.6, 0.45, 0.66).normalize().multiplyScalar(dist));
+  const view = (params.get("view") || "0.6,0.45,0.66").split(",").map(Number);
+  const zoom = +(params.get("zoom") || 1);
+  camera.position.copy(c).add(new THREE.Vector3(...view).normalize().multiplyScalar(dist * zoom));
   camera.near = dist / 1000; camera.far = dist * 100; camera.updateProjectionMatrix();
   controls.target.copy(c); controls.update();
   sun.position.copy(camera.position);
@@ -389,6 +398,7 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
+if (params.get("theme")) document.documentElement.setAttribute("data-theme", params.get("theme"));
 applyTheme();
 resize();
 frame();

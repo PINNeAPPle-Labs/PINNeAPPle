@@ -179,7 +179,13 @@ def main(store_path, model_path, out_dir, inits_every_days=3, members=8):
     fc = Forecaster.load(model_path, store)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    base = json.loads((Path(store_path) / "baselines_2020.json").read_text())
+    here = Path(__file__).parent / "data"
+    bfile = Path(store_path) / "baselines_2020.json"
+    base = json.loads((bfile if bfile.exists() else here / "baselines_2020.json").read_text())
+    for f in here.glob("*_40.npy"):                      # event states shipped with the example (ARCO, slow)
+        (out / "_event_cache").mkdir(parents=True, exist_ok=True)
+        if not (out / "_event_cache" / f.name).exists():
+            (out / "_event_cache" / f.name).write_bytes(f.read_bytes())
     inits = [store.index(t) for t in base["_meta"]["inits"]]
     res = score_forecasts(store, clim, {MODEL: model_forecast(fc, store)}, inits, STEPS)
     skill = {MODEL: {v: {k: np.nanmean(a, 0) for k, a in d.items()} for v, d in res[MODEL].items()}}

@@ -54,6 +54,9 @@ def first_crossing(leads_h: np.ndarray, values: np.ndarray, threshold: float, be
 
 
 def horizons(leads_h, acc_curve, rmse_curve, clim_rmse) -> dict:
+    from .viz import fill_gaps
+
+    acc_curve, rmse_curve = fill_gaps(leads_h, acc_curve), fill_gaps(leads_h, rmse_curve)
     return {"useful_hours": first_crossing(leads_h, acc_curve, 0.6, below=True),
             "no_skill_hours": first_crossing(leads_h, np.asarray(rmse_curve) / np.asarray(clim_rmse), 1.0,
                                              below=False)}

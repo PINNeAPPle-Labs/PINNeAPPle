@@ -70,6 +70,27 @@ The axisymmetric flow is revolved into a 3/4 cutaway (two meridional planes and 
 sphere at the event horizon. The viewer accepts `?field=log10_density&cmap=inferno&view=1,0.75,-1&range=-6,0` to open
 on that view.
 
+## Interstellar view (general-relativistic ray tracing)
+
+`raytrace.Camera.trace` integrates the null geodesics of the Schwarzschild metric once per camera: each ray stays in
+a plane through the hole, and u = 1/r obeys u'' = 3u² − u, solved by RK4 with arc-length-limited steps.
+`raytrace.render` then integrates the emission of any (r, θ) density / temperature / velocity frame along those rays.
+It includes:
+
+- the gravitational and Doppler redshift (I ∝ g⁴);
+- optional grey absorption;
+- a colour temperature that follows g;
+- a procedural star field that is lensed with the flow;
+- a film-like bloom.
+
+The tests check that the shadow edge sits at the critical impact parameter b = 3√3 M and that a thin disc shows its
+far side lensed above the shadow, as in *Interstellar* (James et al. 2015).
+
+The twin also renders in Blender: `Scene.render_blender` / `render_blender_frames` (Cycles, `pip install bpy`).
+
 ## Results
 
-See `examples/black_hole_weather/README.md` for the numbers, figures and the 3D GIF.
+The port of the paper's U-Net does not beat persistence at the 20 GM/c³ frame spacing used here. It loses or gains
+4-6 % of the gas per frame, which the mass check flags at the first frame. The residual variant (predicting the
+change) beats persistence over the whole 1200 GM/c³ test rollout: 45 % lower error in distribution and 21 % lower
+for an unseen α. Numbers, figures and GIFs are in `examples/black_hole_weather/README.md`.

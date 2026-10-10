@@ -10,6 +10,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog). The entries for
 0.5.0 and later were reconstructed from the git history and checked against the files published on PyPI.
 
+
+## Unreleased: black-hole weather (#399)
+
+- `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
+  validated against conservation, torus equilibrium and exact Bondi accretion).
+- A torch port of the Duarte, Nemmen & Navarro (2022) U-Net, plus a residual variant.
+- Lead-time and tendency scores, the mass check and mass projection.
+- `twin.accretion_scene` (Twin3D cutaway) and `raytrace` (Schwarzschild ray tracing with lensed star field, the
+  "Interstellar" view).
+- Twin3D: Blender renders (`Scene.render_blender`), and viewer URL parameters `cmap`, `view`, `zoom`, `theme`,
+  `range`, plus the inferno colormap.
+
 ## [Unreleased]
 
 ### Added

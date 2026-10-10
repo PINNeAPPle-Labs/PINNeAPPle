@@ -25,8 +25,8 @@ import torch
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from simulate import load_run  # noqa: E402
 
-from pinneapple_physics.blackhole.forecast import (MassEnvelope, lead_time_scores, load_forecaster, rollout,  # noqa: E402
-                                                   trust_horizon, window_mass)
+from pinneapple_physics.blackhole.forecast import (MassEnvelope, MassProjection, lead_time_scores,  # noqa: E402
+                                                   load_forecaster, rollout, trust_horizon, window_mass)
 
 
 def cell_volumes(grid, codec):
@@ -43,11 +43,13 @@ def main(argv=None):
     ap.add_argument("--test", required=True)
     ap.add_argument("--split", default="test", choices=["test", "all"])
     ap.add_argument("--out", required=True)
-    ap.add_argument("--blocks", type=int, default=20, help="rollout length in blocks of 5 frames")
+    ap.add_argument("--blocks", type=int, default=12, help="rollout length in blocks of 5 frames")
     ap.add_argument("--starts", type=int, default=8)
     ap.add_argument("--twin", action="store_true")
     ap.add_argument("--twin-blocks", type=int, default=12)
     ap.add_argument("--interstellar", action="store_true", help="general-relativistic ray-traced GIF")
+    ap.add_argument("--mass-projection", action="store_true",
+                    help="also score rollouts projected onto the training mass envelope (used for the visuals)")
     a = ap.parse_args(argv)
     torch.set_num_threads(4)
     os.makedirs(a.out, exist_ok=True)
@@ -77,23 +79,30 @@ def main(argv=None):
     env = MassEnvelope.fit(masses, dt)
 
     # rollouts from several start times
-    L = a.blocks * k
-    starts = np.linspace(seg0, n - L - k, a.starts).astype(int) if n - L - k > seg0 else np.array([seg0])
-    sc_all, viol, rolls = [], [], {}
-    w = vol / vol.mean()
+    blocks = max(1, min(a.blocks, (n - seg0 - k) // k - 1))       # the rollout must fit in the test segment
+    L = blocks * k
+    starts = np.unique(np.linspace(seg0, n - L - k, a.starts).astype(int))
+    sc_all, viol, rolls, sc_proj = [], [], {}, []
+    proj = MassProjection(codec, vol, env, dt) if a.mass_projection else None
     for s0 in starts:
         x0 = x[s0:s0 + k]
         truth = x[s0 + k:s0 + k + L]
-        pred = rollout(model, x0, a.blocks)[:len(truth)]
+        pred = rollout(model, x0, blocks)[:len(truth)]
         sc_all.append(lead_time_scores(pred, truth, x0[-1], mean_state))
         m_pred = window_mass(codec.decode(pred), vol)
         m0 = window_mass(codec.decode(x0[-1:]), vol)[0]
         viol.append(env.first_violation(m_pred, dt, m0=m0))
-        rolls[int(s0)] = (pred, truth)
-    keys = ["mae", "persistence", "climatology", "acc"]
+        if proj is not None:
+            pp_ = rollout(model, x0, blocks, mass_projection=proj)[:len(truth)]
+            sc_proj.append(lead_time_scores(pp_, truth, x0[-1], mean_state))
+            rolls[int(s0)] = (pp_, truth)
+        else:
+            rolls[int(s0)] = (pred, truth)
+    keys = ["mae", "persistence", "climatology", "acc", "tendency"]
     mean_sc = {kk: np.mean([s[kk] for s in sc_all], 0) for kk in keys}
-    hz = trust_horizon(mean_sc, dt)
-    per_start = [trust_horizon(s, dt) for s in sc_all]
+    mean_proj = {kk: np.mean([s[kk] for s in sc_proj], 0) for kk in keys} if sc_proj else None
+    hz = trust_horizon(mean_sc, dt, block=k)
+    per_start = [trust_horizon(s, dt, block=k) for s in sc_all]
     lead = dt * (1 + np.arange(L))
     mass_lead = [None if v is None else float(lead[v]) for v in viol]
     summary = {"test": a.test, "frame_dt": dt, "block_dt": dt * k, "starts": [int(s) for s in starts],
@@ -101,12 +110,20 @@ def main(argv=None):
                "mass_rate_max": env.rate_max, "one_block_mae": float(mean_sc["mae"][:k].mean()),
                "one_block_persistence": float(mean_sc["persistence"][:k].mean()),
                "scores": {kk: v.tolist() for kk, v in mean_sc.items()}, "lead": lead.tolist()}
+    if mean_proj is not None:
+        summary["projected"] = {"horizon_mean": trust_horizon(mean_proj, dt, block=k),
+                                "one_block_mae": float(mean_proj["mae"][:k].mean()),
+                                "scores": {kk: v.tolist() for kk, v in mean_proj.items()}}
     with open(os.path.join(a.out, "summary.json"), "w") as f:
         json.dump(summary, f, indent=1)
-    print(json.dumps({kk: summary[kk] for kk in ("horizon_mean", "mass_check_first_violation", "one_block_mae",
-                                                 "one_block_persistence")}, indent=1))
+    print(json.dumps({kk: summary.get(kk) for kk in ("horizon_mean", "mass_check_first_violation", "one_block_mae",
+                                                     "one_block_persistence")} |
+                     ({"projected": {k2: v2 for k2, v2 in summary["projected"].items() if k2 != "scores"}}
+                      if "projected" in summary else {}), indent=1))
 
-    skill_figure(lead, mean_sc, sc_all, hz, mass_lead, dt * k, os.path.join(a.out, "skill.png"), a.test)
+    skill_figure(lead, mean_sc, sc_all, hz, mass_lead, dt * k, os.path.join(a.out, "skill.png"), a.test, mean_proj)
+    if mean_proj is not None:
+        mean_sc = mean_proj
     s_first = int(starts[0])
     pred, truth = rolls[s_first]
     slices_figure(run["grid"], codec, pred, truth, dt, k, os.path.join(a.out, "slices.png"))
@@ -116,34 +133,36 @@ def main(argv=None):
         make_interstellar(run, codec, pred, truth, x[s_first:s_first + k], dt, k, a, mean_sc, stride, seg0)
 
 
-def skill_figure(lead, mean_sc, sc_all, hz, mass_lead, block_dt, path, name):
+def skill_figure(lead, mean_sc, sc_all, hz, mass_lead, block_dt, path, name, proj=None):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots(1, 2, figsize=(12, 4.2))
     for s in sc_all:
         ax[0].plot(lead, s["mae"], color="#d95f02", alpha=0.15, lw=1)
-        ax[1].plot(lead, s["acc"], color="#d95f02", alpha=0.15, lw=1)
+        ax[1].plot(lead, s["tendency"], color="#d95f02", alpha=0.15, lw=1)
     ax[0].plot(lead, mean_sc["mae"], color="#d95f02", lw=2.4, label="U-Net forecast")
     ax[0].plot(lead, mean_sc["persistence"], color="#555", lw=1.6, ls="--", label="persistence")
     ax[0].plot(lead, mean_sc["climatology"], color="#1b9e77", lw=1.6, ls=":", label="time-mean flow")
     ax[0].set_ylabel("MAE of normalised log density")
-    ax[1].plot(lead, mean_sc["acc"], color="#d95f02", lw=2.4)
+    ax[1].plot(lead, mean_sc["tendency"], color="#d95f02", lw=2.4, label="U-Net")
+    if proj is not None:
+        ax[0].plot(lead, proj["mae"], color="#7570b3", lw=2.2, label="U-Net + mass projection")
+        ax[1].plot(lead, proj["tendency"], color="#7570b3", lw=2.2, label="+ mass projection")
     ax[1].axhline(0.6, color="#555", lw=1, ls="--")
-    ax[1].set_ylabel("anomaly correlation")
-    ax[1].set_ylim(-0.2, 1.02)
+    ax[1].axhline(0.0, color="#999", lw=0.8)
+    ax[1].set_ylabel("tendency correlation (forecast vs true change)")
+    ax[1].set_ylim(-1.02, 1.02)
     for a_ in ax:
-        a_.axvline(hz["acc"], color="#7570b3", lw=1.4)
         a_.set_xlabel("lead time [GM/c$^3$]")
         a_.grid(alpha=0.25)
         for b in np.arange(block_dt, lead[-1] + 1e-9, block_dt):
             a_.axvline(b, color="#ddd", lw=0.5, zorder=0)
     ml = [m for m in mass_lead if m is not None]
     if ml:
-        ax[1].scatter(ml, [0.0] * len(ml), marker="v", color="#e7298a", zorder=5, label="mass check fires")
-        ax[1].legend(loc="lower left", frameon=False)
+        ax[1].scatter(ml, [-0.9] * len(ml), marker="v", color="#e7298a", zorder=5, label="mass check fires (raw)")
     ax[0].legend(frameon=False)
-    ax[1].text(hz["acc"], 1.0, f"  trust horizon {hz['acc']:.0f} M", color="#7570b3", va="top")
+    ax[1].legend(loc="lower left", frameon=False)
     fig.suptitle(f"Black-hole weather forecast skill ({name}, {len(sc_all)} start times)")
     fig.tight_layout()
     fig.savefig(path, dpi=110)
@@ -191,7 +210,8 @@ def make_twin(run, codec, pred, truth, x0, env, dt, k, a, vol, mean_sc):
     full = lambda z: _uncrop(np.log10(codec.decode(z)), codec, run["grid"])
     times = dt * (np.arange(len(sim)) - (k - 1))
     err = np.concatenate([np.zeros(k), np.abs(pred[:nb] - truth[:nb]).mean((1, 2))])
-    hz_err = float(np.interp(0.6, mean_sc["acc"][::-1], mean_sc["mae"][::-1]))     # MAE where ACC = 0.6
+    pers = np.concatenate([np.full(k, 1e-9), np.abs(x0[-1][None] - truth[:nb]).mean((1, 2))])
+    hz_err = float(pers[-1])
     m = window_mass(codec.decode(fc), vol)
     rate = np.concatenate([[0.0], np.abs(np.diff(np.log(m))) / dt])
     sensors = [
@@ -206,7 +226,7 @@ def make_twin(run, codec, pred, truth, x0, env, dt, k, a, vol, mean_sc):
     sc.export(folder)
     frames = capture_twin(folder, range(len(times)), field="log10_density", cmap="inferno", view="1,0.75,-1",
                           zoom=0.78, size=(1280, 640), vrange=(round(codec.log_min, 2), round(codec.log_max, 2)))
-    _gif(frames, times, err, hz_err, rate, env, os.path.join(a.out, "twin_forecast.gif"), k)
+    _gif(frames, times, err, pers, rate, env, os.path.join(a.out, "twin_forecast.gif"), k)
 
 
 def make_interstellar(run, codec, pred, truth, x0, dt, k, a, mean_sc, stride, seg0, every=2):
@@ -220,8 +240,8 @@ def make_interstellar(run, codec, pred, truth, x0, dt, k, a, mean_sc, stride, se
     frames = run["frames"][::stride]
     mean = frames[:max(seg0, 1)].mean(0)
     temp, vel = mean[4] / mean[0], mean[1:4]
-    cam = Camera(width=480, height=270, r_cam=260.0, inclination_deg=80.0, fov_deg=30.0)
-    paths = cam.trace(run["grid"], r_max=70.0)
+    cam = Camera(width=448, height=252, r_cam=260.0, inclination_deg=80.0, fov_deg=30.0, ds_in=1.5)
+    paths = cam.trace(run["grid"], r_max=65.0)
     sky = star_field()
     nb = min(a.twin_blocks * k, len(pred))
     sim = np.concatenate([x0, truth[:nb]])[::every]
@@ -229,8 +249,8 @@ def make_interstellar(run, codec, pred, truth, x0, dt, k, a, mean_sc, stride, se
     times = (dt * (np.arange(len(x0) + nb) - (k - 1)))[::every]
     full = lambda z: 10.0 ** _uncrop(np.log10(codec.decode(z[None])), codec, run["grid"])[0]
     scale = np.percentile(render(paths, full(sim[0]), temp, vel, return_intensity=True), 99.7)
-    hz_err = float(np.interp(0.6, mean_sc["acc"][::-1], mean_sc["mae"][::-1]))
     err = np.concatenate([np.zeros(len(x0)), np.abs(pred[:nb] - truth[:nb]).mean((1, 2))])[::every]
+    pers = np.concatenate([np.full(len(x0), 1e-9), np.abs(x0[-1][None] - truth[:nb]).mean((1, 2))])[::every]
     try:
         font = ImageFont.truetype("DejaVuSans.ttf", 18)
         small = ImageFont.truetype("DejaVuSans.ttf", 14)
@@ -250,10 +270,10 @@ def make_interstellar(run, codec, pred, truth, x0, dt, k, a, mean_sc, stride, se
         lab = "input frames" if times[i] <= 0 else f"lead +{times[i]:.0f} GM/c^3"
         H = canvas.size[1]
         d.text((14, H - 40), lab, fill=(230, 225, 215), font=small)
-        trust = err[i] <= hz_err
-        d.text((W - 14, H - 40), "trusted" if trust else "beyond trust horizon",
+        trust = err[i] <= pers[i] or times[i] <= 0
+        d.text((W - 14, H - 40), "beats persistence" if trust else "worse than persistence",
                fill=(46, 160, 67) if trust else (215, 58, 73), font=small, anchor="ra")
-        bw = int((W - 28) * min(1.0, err[i] / (2 * hz_err)))
+        bw = int((W - 28) * min(1.0, err[i] / (2 * max(pers[i], 1e-9))))
         d.rectangle([14, H - 18, W - 14, H - 10], outline=(110, 110, 110))
         d.rectangle([14, H - 18, 14 + bw, H - 10], fill=(46, 160, 67) if trust else (215, 58, 73))
         out.append(canvas.convert("P", palette=Image.ADAPTIVE, colors=220))
@@ -275,7 +295,7 @@ def _uncrop(z, codec, grid):
     return out
 
 
-def _gif(frames, times, err, hz_err, rate, env, path, k):
+def _gif(frames, times, err, pers, rate, env, path, k):
     from PIL import Image, ImageDraw, ImageFont
     try:
         font = ImageFont.truetype("DejaVuSans.ttf", 22)
@@ -291,12 +311,12 @@ def _gif(frames, times, err, hz_err, rate, env, path, k):
         d.text((W * 0.72, 18), "U-NET FORECAST", fill=(235, 235, 235), font=font, anchor="ma")
         lab = "input frames" if times[i] <= 0 else f"lead +{times[i]:.0f} GM/c^3"
         d.text((24, H - 70), lab, fill=(235, 235, 235), font=font)
-        trust = err[i] <= hz_err
+        trust = err[i] <= pers[i] or times[i] <= 0
         mass_ok = rate[i] <= env.margin * env.rate_max
-        bar_w = int((W - 48) * min(1.0, err[i] / (2 * hz_err)))
+        bar_w = int((W - 48) * min(1.0, err[i] / (2 * max(pers[i], 1e-9))))
         d.rectangle([24, H - 34, W - 24, H - 22], outline=(120, 120, 120))
         d.rectangle([24, H - 34, 24 + bar_w, H - 22], fill=(46, 160, 67) if trust else (215, 58, 73))
-        d.text((W - 24, H - 70), ("trusted" if trust else "beyond trust horizon") +
+        d.text((W - 24, H - 70), ("beats persistence" if trust else "worse than persistence") +
                ("  |  mass check ok" if mass_ok else "  |  mass check: VIOLATED"),
                fill=(46, 160, 67) if trust and mass_ok else (215, 58, 73), font=small, anchor="ra")
         out.append(im.convert("P", palette=Image.ADAPTIVE, colors=200))

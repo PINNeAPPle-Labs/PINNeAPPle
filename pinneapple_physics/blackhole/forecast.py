@@ -37,7 +37,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 __all__ = ["DuarteUNet", "DensityCodec", "make_blocks", "train_forecaster", "rollout", "lead_time_scores",
-           "trust_horizon", "MassEnvelope", "load_forecaster"]
+           "trust_horizon", "MassEnvelope", "MassProjection", "load_forecaster", "window_mass"]
 
 
 # ---------------------------------------------------------------------- data
@@ -86,10 +86,15 @@ def _block(cin, cout):
 
 
 class DuarteUNet(nn.Module):
-    """The U-Net of Duarte et al. (2022) (``create_auto_encoder`` in the original ``src/models.py``)."""
+    """The U-Net of Duarte et al. (2022) (``create_auto_encoder`` in the original ``src/models.py``).
 
-    def __init__(self, filters: int = 32, frames: int = 5):
+    ``residual=True`` (not in the paper) predicts the change from the last input frame instead of the frames
+    themselves: the output is ``x[:, -1:] + net(x)``. When the flow changes little between frames, the absolute
+    prediction spends its accuracy on reproducing the state; the residual one starts from persistence."""
+
+    def __init__(self, filters: int = 32, frames: int = 5, residual: bool = False):
         super().__init__()
+        self.residual = residual
         m = filters
         c = [2 * m, 4 * m, 8 * m, 16 * m]
         self.e1, self.e2, self.e3, self.e4 = _block(frames, c[0]), _block(c[0], c[1]), _block(c[1], c[2]), _block(c[2], c[3])
@@ -115,7 +120,8 @@ class DuarteUNet(nn.Module):
         d = self.d3(torch.cat([up(d), e3], 1))
         d = self.d2(torch.cat([up(d), e2], 1))
         d = self.d1(torch.cat([up(d), e1], 1))
-        return self.out(d)
+        y = self.out(d)
+        return x[:, -1:] + y if self.residual else y
 
 
 def duarte_loss(pred, target, alpha: float = 8.0):
@@ -131,6 +137,7 @@ def duarte_loss(pred, target, alpha: float = 8.0):
 class TrainConfig:
     filters: int = 32
     frames: int = 5
+    residual: bool = False
     epochs: int = 40
     batch_size: int = 16
     lr: float = 2e-4                   # the paper uses 5e-4 with batch 64; at batch 16 that diverges here
@@ -146,7 +153,7 @@ def train_forecaster(X: np.ndarray, Y: np.ndarray, Xv: np.ndarray, Yv: np.ndarra
     """Adam + the Duarte loss; keeps the weights with the best validation loss in ``out_dir/forecaster.pt``."""
     torch.manual_seed(cfg.seed)
     os.makedirs(out_dir, exist_ok=True)
-    model = DuarteUNet(cfg.filters, cfg.frames)
+    model = DuarteUNet(cfg.filters, cfg.frames, cfg.residual)
     opt = torch.optim.Adam(model.parameters(), lr=cfg.lr)
     Xt, Yt = torch.from_numpy(X), torch.from_numpy(Y)
     Xvt, Yvt = torch.from_numpy(Xv), torch.from_numpy(Yv)
@@ -202,7 +209,7 @@ def save_forecaster(path, model, cfg: TrainConfig, codec: DensityCodec, meta: di
 def load_forecaster(path) -> Tuple[DuarteUNet, DensityCodec, dict]:
     ck = torch.load(path, map_location="cpu", weights_only=False)
     tc = ck["train"]
-    model = DuarteUNet(tc["filters"], tc["frames"])
+    model = DuarteUNet(tc["filters"], tc["frames"], tc.get("residual", False))
     model.load_state_dict({k: v.float() for k, v in ck["state_dict"].items()})
     model.eval()
     return model, DensityCodec(**ck["codec"]), ck
@@ -210,15 +217,23 @@ def load_forecaster(path) -> Tuple[DuarteUNet, DensityCodec, dict]:
 
 # ---------------------------------------------------------------------- forecasting and scores
 @torch.no_grad()
-def rollout(model: nn.Module, x0: np.ndarray, n_blocks: int, *, clip: bool = False) -> np.ndarray:
-    """Iterative forecast: feed each predicted block back in. x0 (k, H, W) -> (n_blocks * k, H, W)."""
+def rollout(model: nn.Module, x0: np.ndarray, n_blocks: int, *, clip: bool = False,
+            mass_projection: Optional["MassProjection"] = None) -> np.ndarray:
+    """Iterative forecast: feed each predicted block back in. x0 (k, H, W) -> (n_blocks * k, H, W).
+
+    ``mass_projection``: after each block, rescale every frame so that the window mass changes no faster than
+    the training simulations allow (see :class:`MassProjection`)."""
     model.eval()
     x = torch.from_numpy(np.asarray(x0, np.float32))[None]
     out = []
+    m_last = None if mass_projection is None else mass_projection.mass(x0[-1:])[0]
     for _ in range(n_blocks):
         x = model(x)
         if clip:
             x = x.clamp(0, 1)
+        if mass_projection is not None:
+            xb, m_last = mass_projection(x[0].numpy(), m_last)
+            x = torch.from_numpy(xb)[None]
         out.append(x[0].numpy())
     return np.concatenate(out, 0)
 
@@ -232,29 +247,41 @@ def _corr(a, b):
 def lead_time_scores(pred: np.ndarray, truth: np.ndarray, last_input: np.ndarray, mean_state: np.ndarray,
                      weights: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
     """Per lead (frame) on normalised log-density: MAE of the forecast, of persistence (the last input frame)
-    and of the time-mean flow, and the anomaly correlation of the forecast with the truth, where anomalies
-    are departures from the time-mean flow (the ACC of weather forecasting)."""
+    and of the time-mean flow; the anomaly correlation with the truth, anomalies taken from the time-mean flow
+    (the ACC of weather forecasting); and the **tendency correlation**, between the forecast change and the true
+    change since the last input frame -- the stricter test when the flow drifts away from its time mean, where
+    the ACC is high for any forecast that follows the drift."""
     w = np.ones_like(truth[0]) if weights is None else weights / weights.mean()
     T = len(truth)
     mae = np.array([float((np.abs(pred[t] - truth[t]) * w).mean()) for t in range(T)])
     pers = np.array([float((np.abs(last_input - truth[t]) * w).mean()) for t in range(T)])
     clim = np.array([float((np.abs(mean_state - truth[t]) * w).mean()) for t in range(T)])
     acc = np.array([_corr((pred[t] - mean_state) * np.sqrt(w), (truth[t] - mean_state) * np.sqrt(w)) for t in range(T)])
-    return {"mae": mae, "persistence": pers, "climatology": clim, "acc": acc}
+    tend = np.array([_corr((pred[t] - last_input) * np.sqrt(w), (truth[t] - last_input) * np.sqrt(w)) for t in range(T)])
+    return {"mae": mae, "persistence": pers, "climatology": clim, "acc": acc, "tendency": tend}
 
 
-def trust_horizon(scores: Dict[str, np.ndarray], frame_dt: float, acc_min: float = 0.6) -> Dict[str, float]:
+def trust_horizon(scores: Dict[str, np.ndarray], frame_dt: float, acc_min: float = 0.6, block: int = 1) -> Dict[str, float]:
     """Lead time up to which the forecast stays useful: before its anomaly correlation first drops below
-    ``acc_min`` (the weather convention), and before its error first exceeds persistence / the time mean."""
+    ``acc_min`` (the weather convention), and before its error first exceeds persistence / the time mean.
+
+    ``block``: judge whole predicted blocks (the forecaster emits ``block`` frames at a time) by their mean."""
+    if block > 1:
+        nb = len(scores["mae"]) // block
+        scores = {k: np.asarray(v[:nb * block]).reshape(nb, block).mean(1) for k, v in scores.items()}
+        frame_dt = frame_dt * block
     lead = frame_dt * (1 + np.arange(len(scores["mae"])))
 
     def first(mask):
         k = np.nonzero(mask)[0]
         return float(lead[k[0] - 1]) if len(k) and k[0] > 0 else (0.0 if len(k) else float(lead[-1]))
 
-    return {"acc": first(scores["acc"] < acc_min),
-            "beats_persistence": first(scores["mae"] > scores["persistence"]),
-            "beats_climatology": first(scores["mae"] > scores["climatology"])}
+    out = {"acc": first(scores["acc"] < acc_min),
+           "beats_persistence": first(scores["mae"] > scores["persistence"]),
+           "beats_climatology": first(scores["mae"] > scores["climatology"])}
+    if "tendency" in scores:
+        out["tendency"] = first(scores["tendency"] < acc_min)
+    return out
 
 
 @dataclass
@@ -282,6 +309,34 @@ class MassEnvelope:
     def first_violation(self, masses, frame_dt, m0=None) -> Optional[int]:
         v = np.nonzero(self.violations(masses, frame_dt, m0))[0]
         return int(v[0]) if len(v) else None
+
+
+@dataclass
+class MassProjection:
+    """Project forecast frames onto the mass budget seen in training: the window mass may change between frames
+    by at most ``envelope.rate_max`` (relative, per unit time), so a frame that gains or loses more is rescaled
+    (uniformly in density, i.e. a shift in normalised log density) to the nearest allowed mass. The rate is
+    bounded, not prescribed, so real accretion and outflow still pass."""
+    codec: DensityCodec
+    cell_volume: np.ndarray
+    envelope: MassEnvelope
+    frame_dt: float
+
+    def mass(self, x: np.ndarray) -> np.ndarray:
+        return window_mass(self.codec.decode(x), self.cell_volume)
+
+    def __call__(self, frames: np.ndarray, m_prev: float):
+        out = np.array(frames, np.float32, copy=True)
+        span = self.codec.log_max - self.codec.log_min
+        lim = self.envelope.rate_max * self.frame_dt
+        for i in range(len(out)):
+            m = float(self.mass(out[i:i + 1])[0])
+            lo, hi = m_prev * math.exp(-lim), m_prev * math.exp(lim)
+            target = min(max(m, lo), hi)
+            if target != m:
+                out[i] += np.float32(math.log10(target / m) / span)
+            m_prev = target
+        return out, m_prev
 
 
 def window_mass(rho: np.ndarray, cell_volume: np.ndarray) -> np.ndarray:

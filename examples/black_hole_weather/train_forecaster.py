@@ -44,6 +44,7 @@ def main(argv=None):
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--alpha", type=float, default=8.0)
     ap.add_argument("--lr", type=float, default=2e-4)
+    ap.add_argument("--residual", action="store_true", help="predict the change from the last frame")
     ap.add_argument("--max-minutes", type=float, default=1e9)
     ap.add_argument("--threads", type=int, default=4)
     a = ap.parse_args(argv)
@@ -64,7 +65,7 @@ def main(argv=None):
     Xv, Yv = zip(*[make_blocks(codec.encode(v)) for v in val_frames.values()])
     X, Y, Xv, Yv = (np.concatenate(z) for z in (X, Y, Xv, Yv))
     print(f"train {X.shape}  val {Xv.shape}  codec {codec}", flush=True)
-    cfg = TrainConfig(filters=a.filters, epochs=a.epochs, batch_size=a.batch_size, alpha=a.alpha, lr=a.lr,
+    cfg = TrainConfig(filters=a.filters, epochs=a.epochs, batch_size=a.batch_size, alpha=a.alpha, lr=a.lr, residual=a.residual,
                       max_minutes=a.max_minutes)
     os.makedirs(a.out, exist_ok=True)
     with open(os.path.join(a.out, "setup.json"), "w") as f:

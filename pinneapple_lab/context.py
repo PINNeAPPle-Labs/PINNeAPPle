@@ -126,6 +126,13 @@ class RunContext:
         self.files["figures"].append(os.path.relpath(dst, self.dir))
         return dst
 
+    def figure_file(self, path: str, name: str | None = None) -> str:
+        """Copy an existing image / GIF / video file into figures/."""
+        dst = self.path("figures", name or os.path.basename(path))
+        shutil.copy(path, dst)
+        self.files["figures"].append(os.path.relpath(dst, self.dir))
+        return dst
+
     def image(self, name: str, array: np.ndarray) -> str:
         """Save an (H, W) or (H, W, 3) array in [0, 1] or uint8 as figures/NAME.png."""
         from PIL import Image

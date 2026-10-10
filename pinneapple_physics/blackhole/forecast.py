@@ -135,6 +135,30 @@ def duarte_loss(pred, target, alpha: float = 8.0):
     return total + alpha * high
 
 
+# The one-simulation loss of the paper (``CustomLoss`` in the original ``src/losses.py``): MSE over the window plus
+# weighted MAE over four regions given as pixel boxes of its 256 x 192 (r, theta) crop. Here the boxes are kept as
+# fractions of the crop, so they map onto any grid with the same layout (radius first, log-spaced, the crop
+# removing the outer atmosphere and the polar cells).
+PAPER_REGIONS = {                      # (r0, r1, th0, th1) as fractions of (256, 192); weights of Table 1
+    "high_density": ((56 / 256, 186 / 256, 35 / 192, 156 / 192), 8.0),
+    "inner_disk": ((0.0, 22 / 256, 0.0, 1.0), 5.0),
+    "torus": ((45 / 256, 1.0, 25 / 192, 166 / 192), 10.0),
+    "atmosphere": ((22 / 256, 1.0, 5 / 192, 186 / 192), 4.0),
+}
+
+
+def duarte_regional_loss(pred, target, regions=None):
+    """MSE over the window + sum of weight * MAE over the paper's four regions (fractions of the crop)."""
+    regions = regions or PAPER_REGIONS
+    H, W = target.shape[-2], target.shape[-1]
+    loss = ((pred - target) ** 2).mean()
+    for (r0, r1, t0, t1), w in regions.values():
+        i0, i1 = int(round(r0 * H)), max(int(round(r1 * H)), int(round(r0 * H)) + 1)
+        j0, j1 = int(round(t0 * W)), max(int(round(t1 * W)), int(round(t0 * W)) + 1)
+        loss = loss + w * (pred[..., i0:i1, j0:j1] - target[..., i0:i1, j0:j1]).abs().mean()
+    return loss
+
+
 # ---------------------------------------------------------------------- training
 @dataclass
 class TrainConfig:
@@ -146,6 +170,7 @@ class TrainConfig:
     lr: float = 2e-4                   # the paper uses 5e-4 with batch 64; at batch 16 that diverges here
     alpha: float = 8.0
     clip: float = 1.0                  # gradient-norm clipping (not in the paper; keeps the deep U-Net stable)
+    loss: str = "multi"                # "multi": MAE + alpha MAE(y > 0.5) (paper, multi-sim); "regional": paper one-sim
     bf16: bool = False                 # CPU autocast (helps only on CPUs with AMX)
     seed: int = 0
     max_minutes: float = 1e9
@@ -171,7 +196,7 @@ def train_forecaster(X: np.ndarray, Y: np.ndarray, Xv: np.ndarray, Yv: np.ndarra
             b = perm[i:i + cfg.batch_size]
             with torch.autocast("cpu", dtype=torch.bfloat16, enabled=cfg.bf16):
                 pred = model(Xt[b])
-            loss = duarte_loss(pred.float(), Yt[b], cfg.alpha)
+            loss = _loss(pred.float(), Yt[b], cfg)
             opt.zero_grad()
             loss.backward()
             if cfg.clip:
@@ -194,6 +219,10 @@ def train_forecaster(X: np.ndarray, Y: np.ndarray, Xv: np.ndarray, Yv: np.ndarra
     return hist
 
 
+def _loss(pred, target, cfg):
+    return duarte_regional_loss(pred, target) if cfg.loss == "regional" else duarte_loss(pred, target, cfg.alpha)
+
+
 @torch.no_grad()
 def evaluate_loss(model, X, Y, cfg, batch=32) -> float:
     model.eval()
@@ -201,7 +230,7 @@ def evaluate_loss(model, X, Y, cfg, batch=32) -> float:
     for i in range(0, len(X), batch):
         with torch.autocast("cpu", dtype=torch.bfloat16, enabled=cfg.bf16):
             pred = model(X[i:i + batch])
-        tot += float(duarte_loss(pred.float(), Y[i:i + batch], cfg.alpha)) * len(X[i:i + batch])
+        tot += float(_loss(pred.float(), Y[i:i + batch], cfg)) * len(X[i:i + batch])
     return tot / len(X)
 
 

@@ -147,7 +147,13 @@ def _sample(space: dict[str, Any], n: int, seed: int, method: str = "lhs") -> li
 
 
 def _run_one(args):
-    name, params, root, force = args
+    name, params, root, force = args[:4]
+    if len(args) > 4 and args[4]:                     # parallel worker: one thread each, no oversubscription
+        try:
+            import torch
+            torch.set_num_threads(1)
+        except ImportError:
+            pass
     r = run(name, params, root=root, force=force)
     return r
 
@@ -167,7 +173,7 @@ def sweep(experiment: str, *, grid: dict[str, list[Any]] | None = None, samples:
     if not plist:
         plist = [{}]
     plist = [{**p, **(fixed or {})} for p in plist]
-    jobs = [(cls.name, p, root, force) for p in plist]
+    jobs = [(cls.name, p, root, force, n_jobs > 1) for p in plist]
     if n_jobs <= 1:
         return [_run_one(j) for j in jobs]
     with ProcessPoolExecutor(max_workers=n_jobs) as ex:

@@ -37,6 +37,26 @@ Most Physics AI libraries stop at the prediction. PINNeAPPle adds a **trust laye
 
 </div>
 
+## Discovering physical laws from data
+
+The same library that solves equations also finds them. Each discovery is an experiment in the [PINNeAPPle Lab](docs/core_concepts/lab.md), with its data, code, checks and figures in the database:
+
+<div align="center">
+
+| | |
+|:---:|:---:|
+| <img src="docs/assets/discovery/pendulum_video.gif" width="100%"/> | <img src="docs/assets/discovery/kepler.png" width="100%"/> |
+| **Law from video, video from the law.** The angle is measured from the frames (left). Weak-form sparse regression finds θ'' = −0.152 θ' − 12.23 sin θ, so g = 9.787 m/s² (0.24 % off). The discovered law is re-rendered (right) and keeps predicting after the camera stops. | **Kepler's third law from real orbits.** Nineteen bodies around the Sun, Jupiter and Saturn (NASA fact sheets) give P ∝ a^1.4999 and the masses of the three centres within 0.1 %. All of them collapse onto P = 2π√(a³/GM). |
+| <img src="docs/assets/discovery/lorenz.png" width="100%"/> | <img src="docs/assets/blackhole/interstellar_frame.png" width="100%"/> |
+| **Chaos, AI-Lorenz style.** From noisy, subsampled data, extreme-learning-machine smoothing (the free function of X-TFC) plus sparse selection recovers σ, ρ, β within 2 %. | **Black-hole weather.** A U-Net forecast of the gas around a black hole (Duarte, Nemmen & Navarro 2022), ray-traced through curved spacetime, with the mass check that flags drift without the truth. |
+
+</div>
+
+```bash
+python -m pinneapple_lab run pendulum_video          # or kepler_law, lorenz_discovery, ...
+python -m pinneapple_lab report --html               # lab/index.html: every run, its checks, its code, its data
+```
+
 ---
 
 ## Install
@@ -164,7 +184,8 @@ PINNeAPPle
 ├── Problems and physics
 │   ├── pinneapple_core           Field, Mesh, Domain, Geometry: shared primitives
 │   ├── pinneapple_physics        PDE specs and presets, PINN compiler, SymPy → autograd, closed forms,
-│   │                             adaptive physics ensembles, global weather forecasting (ERA5)
+│   │                             adaptive physics ensembles, global weather forecasting (ERA5),
+│   │                             black-hole accretion and its forecasting, GR ray tracing (blackhole)
 │   └── pinneapple_problemdesign  plain-language problem → PDE spec (elicitation, knowledge base, codegen)
 │
 ├── Models and training
@@ -199,12 +220,14 @@ PINNeAPPle
 │                                 adjoint, Bayesian and evolutionary optimisation
 │
 ├── Visualisation and experience
-│   ├── pinneapple_twin3d         3D digital twins in the browser (glTF/USD), OpenFOAM scenes, scans
+│   ├── pinneapple_twin3d         3D digital twins in the browser (glTF/USD), OpenFOAM scenes, scans, Blender renders
 │   ├── pinneapple_blender        fields and trajectories to Blender, Cycles renders
 │   ├── pinneapple_tools          plots, model export (ONNX, TorchScript), HPO, benchmark suite, sandboxes
 │   └── pinneapple_app            web app for benchmarking models on physics problems
 │
 └── Operations
+    ├── pinneapple_lab            experiment runner and database: runs, checks, code, datasets, HTML catalogue,
+    │                             law-discovery experiments
     ├── pinneapple_arena          YAML-driven multi-model benchmarks (80+ architectures)
     ├── pinneapple_registry       self-hosted model and dataset registry, experiment tracking
     ├── pinneapple_hub            push_to_hub / from_pretrained with model cards
@@ -243,6 +266,15 @@ The Engineering Apps in [`apps/`](apps) (heat-sink sizer, PCB hot spots, mesh qu
 
 ---
 
+## Releases
+
+| release | theme | tracking issue |
+|---|---|---|
+| **v0.7.0** | Foundations you can trust: one front door, the Experiment record with provenance (PINNeAPPle Lab), benchmark protocol, units, plugins, CI tiers | [#420](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/420) |
+| **v0.8.0** | Surrogates with evidence: validation cards, V&V reports, FMU export, measured cost, active learning, multi-fidelity, law discovery, vision | [#421](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/421) |
+| **v0.9.0** | Twins and discovery at scale: digital twins with real sensors and OpenUSD, equation discovery in the Experiment flow, reproducibility, weather horizons | [#422](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/422) |
+| **v1.0.0** | Stable API: freeze, governance, security and supply chain, agent tool registry | [#423](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/423) |
+
 ## Roadmap
 
 - **Core** ([#343](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/343)):
@@ -269,8 +301,13 @@ The Engineering Apps in [`apps/`](apps) (heat-sink sizer, PCB hot spots, mesh qu
   - power grids;
   - maritime;
   - additive manufacturing.
+- **Law discovery** ([#428](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/428)):
+  - from real data: Hubble-Lemaître, gyrochronology, galaxy rotation, exoplanet relations, tides, drag laws;
+  - from images and video: smartphone mechanics, vortex streets, jet breakup, crack growth, droplets;
+  - the inverse: law to labelled video at scale, and video to parameters with a trust flag.
 - **Showcases** ([#344](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/344)):
   - flagships: a hurricane from satellite to street, the drone that knows it is broken, a phone video to river discharge, an aircraft designed in an afternoon, a battle of the models;
+  - moonshots from first principles ([#427](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/427)): a Starship-style heat shield, full-flow engines, Mars propellant plants, battery runaway, humanoids, low-pressure tubes, rapid hardware iteration;
   - science fiction with real physics: terraforming Mars, a tidally locked exoplanet, a warp bubble that shows where it breaks physics, a space elevator, a fusion tokamak, weather inside an O'Neill cylinder, flying on Mars and Titan, planetary defence, listening to black holes.
 
 ---

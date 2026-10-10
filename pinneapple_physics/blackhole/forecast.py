@@ -28,8 +28,8 @@ import json
 import math
 import os
 import time
-from dataclasses import asdict, dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
+from dataclasses import asdict, dataclass
 
 import numpy as np
 import torch
@@ -50,7 +50,7 @@ class DensityCodec:
     theta_trim: int                    # drop this many cells at each pole
 
     @classmethod
-    def fit(cls, rho: np.ndarray, r_cells: int, theta_trim: int) -> "DensityCodec":
+    def fit(cls, rho: np.ndarray, r_cells: int, theta_trim: int) -> DensityCodec:
         crop = rho[..., :r_cells, theta_trim:rho.shape[-1] - theta_trim]
         lg = np.log10(np.clip(crop, 1e-30, None))
         return cls(float(lg.min()), float(lg.max()), int(r_cells), int(theta_trim))
@@ -67,7 +67,7 @@ class DensityCodec:
         return 10.0 ** (np.asarray(x, np.float64) * (self.log_max - self.log_min) + self.log_min)
 
 
-def make_blocks(x: np.ndarray, k: int = 5, stride: int = 1) -> Tuple[np.ndarray, np.ndarray]:
+def make_blocks(x: np.ndarray, k: int = 5, stride: int = 1) -> tuple[np.ndarray, np.ndarray]:
     """Frames (T, H, W) -> inputs (N, k, H, W) = frames i..i+k-1 and targets = frames i+k..i+2k-1."""
     idx = np.arange(0, len(x) - 2 * k + 1, stride)
     X = np.stack([x[i:i + k] for i in idx])
@@ -76,6 +76,10 @@ def make_blocks(x: np.ndarray, k: int = 5, stride: int = 1) -> Tuple[np.ndarray,
 
 
 # ---------------------------------------------------------------------- model
+def _up(a):
+    return F.interpolate(a, scale_factor=2, mode="nearest")
+
+
 class _Conv(nn.Sequential):
     def __init__(self, cin, cout):
         super().__init__(nn.Conv2d(cin, cout, 5, padding=2), nn.LeakyReLU(0.3))
@@ -115,11 +119,10 @@ class DuarteUNet(nn.Module):
         e3 = self.e3(F.max_pool2d(e2, 2))
         e4 = self.e4(F.max_pool2d(e3, 2))
         b = self.mid(F.max_pool2d(e4, 2))
-        up = lambda a: F.interpolate(a, scale_factor=2, mode="nearest")
-        d = self.d4(torch.cat([up(b), e4], 1))
-        d = self.d3(torch.cat([up(d), e3], 1))
-        d = self.d2(torch.cat([up(d), e2], 1))
-        d = self.d1(torch.cat([up(d), e1], 1))
+        d = self.d4(torch.cat([_up(b), e4], 1))
+        d = self.d3(torch.cat([_up(d), e3], 1))
+        d = self.d2(torch.cat([_up(d), e2], 1))
+        d = self.d1(torch.cat([_up(d), e1], 1))
         y = self.out(d)
         return x[:, -1:] + y if self.residual else y
 
@@ -149,7 +152,7 @@ class TrainConfig:
 
 
 def train_forecaster(X: np.ndarray, Y: np.ndarray, Xv: np.ndarray, Yv: np.ndarray, cfg: TrainConfig,
-                     codec: DensityCodec, out_dir: str, *, log=print) -> Dict[str, list]:
+                     codec: DensityCodec, out_dir: str, *, log=print) -> dict[str, list]:
     """Adam + the Duarte loss; keeps the weights with the best validation loss in ``out_dir/forecaster.pt``."""
     torch.manual_seed(cfg.seed)
     os.makedirs(out_dir, exist_ok=True)
@@ -206,7 +209,7 @@ def save_forecaster(path, model, cfg: TrainConfig, codec: DensityCodec, meta: di
     torch.save({"state_dict": model.state_dict(), "train": asdict(cfg), "codec": asdict(codec), "meta": meta}, path)
 
 
-def load_forecaster(path) -> Tuple[DuarteUNet, DensityCodec, dict]:
+def load_forecaster(path) -> tuple[DuarteUNet, DensityCodec, dict]:
     ck = torch.load(path, map_location="cpu", weights_only=False)
     tc = ck["train"]
     model = DuarteUNet(tc["filters"], tc["frames"], tc.get("residual", False))
@@ -218,7 +221,7 @@ def load_forecaster(path) -> Tuple[DuarteUNet, DensityCodec, dict]:
 # ---------------------------------------------------------------------- forecasting and scores
 @torch.no_grad()
 def rollout(model: nn.Module, x0: np.ndarray, n_blocks: int, *, clip: bool = False,
-            mass_projection: Optional["MassProjection"] = None) -> np.ndarray:
+            mass_projection: MassProjection | None = None) -> np.ndarray:
     """Iterative forecast: feed each predicted block back in. x0 (k, H, W) -> (n_blocks * k, H, W).
 
     ``mass_projection``: after each block, rescale every frame so that the window mass changes no faster than
@@ -245,7 +248,7 @@ def _corr(a, b):
 
 
 def lead_time_scores(pred: np.ndarray, truth: np.ndarray, last_input: np.ndarray, mean_state: np.ndarray,
-                     weights: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
+                     weights: np.ndarray | None = None) -> dict[str, np.ndarray]:
     """Per lead (frame) on normalised log-density: MAE of the forecast, of persistence (the last input frame)
     and of the time-mean flow; the anomaly correlation with the truth, anomalies taken from the time-mean flow
     (the ACC of weather forecasting); and the **tendency correlation**, between the forecast change and the true
@@ -261,7 +264,7 @@ def lead_time_scores(pred: np.ndarray, truth: np.ndarray, last_input: np.ndarray
     return {"mae": mae, "persistence": pers, "climatology": clim, "acc": acc, "tendency": tend}
 
 
-def trust_horizon(scores: Dict[str, np.ndarray], frame_dt: float, acc_min: float = 0.6, block: int = 1) -> Dict[str, float]:
+def trust_horizon(scores: dict[str, np.ndarray], frame_dt: float, acc_min: float = 0.6, block: int = 1) -> dict[str, float]:
     """Lead time up to which the forecast stays useful: before its anomaly correlation first drops below
     ``acc_min`` (the weather convention), and before its error first exceeds persistence / the time mean.
 
@@ -296,17 +299,17 @@ class MassEnvelope:
     margin: float = 1.5
 
     @classmethod
-    def fit(cls, masses: Sequence[np.ndarray], frame_dt: float, margin: float = 1.5) -> "MassEnvelope":
+    def fit(cls, masses: Sequence[np.ndarray], frame_dt: float, margin: float = 1.5) -> MassEnvelope:
         rates = [np.abs(np.diff(np.log(m))) / frame_dt for m in masses]
         return cls(float(max(r.max() for r in rates)), margin)
 
-    def violations(self, masses: np.ndarray, frame_dt: float, m0: Optional[float] = None) -> np.ndarray:
+    def violations(self, masses: np.ndarray, frame_dt: float, m0: float | None = None) -> np.ndarray:
         m = np.asarray(masses, float) if m0 is None else np.concatenate([[m0], masses])
         rate = np.abs(np.diff(np.log(m))) / frame_dt
         out = rate > self.margin * self.rate_max
         return out if m0 is not None else np.concatenate([[False], out])
 
-    def first_violation(self, masses, frame_dt, m0=None) -> Optional[int]:
+    def first_violation(self, masses, frame_dt, m0=None) -> int | None:
         v = np.nonzero(self.violations(masses, frame_dt, m0))[0]
         return int(v[0]) if len(v) else None
 

@@ -18,9 +18,8 @@ from __future__ import annotations
 import json
 import os
 import shutil
-import struct
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence
 
 import numpy as np
 
@@ -34,7 +33,7 @@ class Part:
     faces: np.ndarray  # (F, 3) int
     group: str = ""
     color: Sequence[float] = (0.75, 0.77, 0.8)
-    fields: Dict[str, np.ndarray] = field(default_factory=dict)  # name -> (V,) or (T, V)
+    fields: dict[str, np.ndarray] = field(default_factory=dict)  # name -> (V,) or (T, V)
 
 
 @dataclass
@@ -44,23 +43,23 @@ class Sensor:
     label: str = ""
     unit: str = ""
     quantity: str = ""
-    series: Optional[np.ndarray] = None  # (T,) values aligned with the scene time steps
-    envelope: Optional[Sequence[float]] = None  # (min, max) validity / alarm range
+    series: np.ndarray | None = None  # (T,) values aligned with the scene time steps
+    envelope: Sequence[float] | None = None  # (min, max) validity / alarm range
 
 
 class Scene:
     """A digital-twin scene. Add parts, fields and sensors, then ``export`` to a folder."""
 
-    def __init__(self, title: str, *, length_unit: str = "m", times: Optional[Sequence[float]] = None,
+    def __init__(self, title: str, *, length_unit: str = "m", times: Sequence[float] | None = None,
                  time_unit: str = "s", source: str = ""):
         self.title = title
         self.length_unit = length_unit
         self.times = None if times is None else np.asarray(times, dtype=float)
         self.time_unit = time_unit
         self.source = source
-        self.parts: List[Part] = []
-        self.sensors: List[Sensor] = []
-        self.field_units: Dict[str, str] = {}
+        self.parts: list[Part] = []
+        self.sensors: list[Sensor] = []
+        self.field_units: dict[str, str] = {}
 
     # -- building ------------------------------------------------------
     def add_part(self, name: str, vertices, faces, *, group: str = "", color=(0.75, 0.77, 0.8)) -> Part:
@@ -117,7 +116,8 @@ class Scene:
         """This twin as a ``pp.viz`` Scene (fields at time step ``step``) for Blender renders, glTF/USD export or
         the studio viewer; sensors are left out. ``up``: the twin's up axis ("z", engineering, or "y", e.g. a scene
         built for the web viewer), mapped to the studio's z-up."""
-        from pinneapple_tools.visualization.studio.scene import Scene as StudioScene, Surface
+        from pinneapple_tools.visualization.studio.scene import Scene as StudioScene
+        from pinneapple_tools.visualization.studio.scene import Surface
         sc = StudioScene(title=self.title, axes="z_up")
         for p in self.parts:
             v = p.vertices if up == "z" else np.stack([p.vertices[:, 0], -p.vertices[:, 2], p.vertices[:, 1]], 1)
@@ -130,7 +130,7 @@ class Scene:
         return sc
 
     # -- Blender -------------------------------------------------------
-    def render_blender(self, out: str, *, step: int = -1, field: Optional[str] = None, up: str = "z",
+    def render_blender(self, out: str, *, step: int = -1, field: str | None = None, up: str = "z",
                        field_range=None, **kw) -> str:
         """Blender Cycles render of the twin at time step ``step`` (``pip install bpy``), coloured by ``field``.
 
@@ -144,7 +144,7 @@ class Scene:
         title = kw.pop("title", f"{field} [{self.field_units[field]}]" if field in self.field_units else field)
         return render(self.to_studio(step, up), out, field=field, field_range=field_range, title=title, **kw)
 
-    def render_blender_frames(self, folder: str, steps: Optional[Sequence[int]] = None, **kw) -> List[str]:
+    def render_blender_frames(self, folder: str, steps: Sequence[int] | None = None, **kw) -> list[str]:
         """One Blender render per time step (default: all) into ``folder``; returns the image paths."""
         os.makedirs(folder, exist_ok=True)
         steps = range(len(self.times) if self.times is not None else 1) if steps is None else steps
@@ -218,7 +218,7 @@ class Scene:
         return path
 
 
-def _write_glb(path: str, parts: List[Part]) -> None:
+def _write_glb(path: str, parts: list[Part]) -> None:
     """One mesh + node per part (POSITION, NORMAL, indices), coordinates as given; the library's glTF writer
     (``pinneapple_tools.visualization.studio``), shared with ``pp.viz`` and the apps."""
     from pinneapple_tools.visualization.studio.scene import AXES, Surface, write_glb

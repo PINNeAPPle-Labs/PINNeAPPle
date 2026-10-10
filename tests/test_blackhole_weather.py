@@ -6,8 +6,15 @@ import pytest
 import torch
 
 from pinneapple_physics.blackhole import AccretionFlow, RIAFConfig, bondi_pw, torus_state
-from pinneapple_physics.blackhole.forecast import (DensityCodec, DuarteUNet, MassEnvelope, lead_time_scores,
-                                                   make_blocks, rollout, trust_horizon)
+from pinneapple_physics.blackhole.forecast import (
+    DensityCodec,
+    DuarteUNet,
+    MassEnvelope,
+    lead_time_scores,
+    make_blocks,
+    rollout,
+    trust_horizon,
+)
 from pinneapple_physics.blackhole.twin import CutawayMesh, accretion_scene
 
 
@@ -144,8 +151,8 @@ def test_ray_tracer_renders_a_lensed_thin_disc():
     r, th = g["r"], g["theta"]
     rho = np.where((np.abs(th - np.pi / 2)[None] < 0.03) & (r[:, None] > 6) & (r[:, None] < 30), 1.0, 0.0)
     cam = Camera(width=96, height=54, r_cam=150.0, inclination_deg=86.0, fov_deg=24.0)
-    I = render(cam.trace(g, r_max=35.0), rho, np.ones_like(rho), None, doppler=False, return_intensity=True)
-    col = I[:, 48]                                    # vertical line through the hole
+    inten = render(cam.trace(g, r_max=35.0), rho, np.ones_like(rho), None, doppler=False, return_intensity=True)
+    col = inten[:, 48]                                    # vertical line through the hole
     top = col[:20].max()                              # lensed image of the far side, above the shadow
     assert top > 0.05 * col.max()
-    assert I[18, 48] < 0.02 * col.max()               # the shadow, between the arc and the disc, is dark
+    assert inten[18, 48] < 0.02 * col.max()               # the shadow, between the arc and the disc, is dark

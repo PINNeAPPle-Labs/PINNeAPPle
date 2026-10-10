@@ -25,8 +25,15 @@ import torch
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from simulate import load_run  # noqa: E402
 
-from pinneapple_physics.blackhole.forecast import (MassEnvelope, MassProjection, lead_time_scores,  # noqa: E402
-                                                   load_forecaster, rollout, trust_horizon, window_mass)
+from pinneapple_physics.blackhole.forecast import (  # noqa: E402
+    MassEnvelope,
+    MassProjection,
+    lead_time_scores,
+    load_forecaster,
+    rollout,
+    trust_horizon,
+    window_mass,
+)
 
 
 def cell_volumes(grid, codec):
@@ -207,7 +214,8 @@ def make_twin(run, codec, pred, truth, x0, env, dt, k, a, vol, mean_sc):
     # frames: the k input frames (both panels equal), then the forecast
     sim = np.concatenate([x0, truth[:nb]])
     fc = np.concatenate([x0, pred[:nb]])
-    full = lambda z: _uncrop(np.log10(codec.decode(z)), codec, run["grid"])
+    def full(z):
+        return _uncrop(np.log10(codec.decode(z)), codec, run["grid"])
     times = dt * (np.arange(len(sim)) - (k - 1))
     err = np.concatenate([np.zeros(k), np.abs(pred[:nb] - truth[:nb]).mean((1, 2))])
     pers = np.concatenate([np.full(k, 1e-9), np.abs(x0[-1][None] - truth[:nb]).mean((1, 2))])
@@ -235,6 +243,7 @@ def make_interstellar(run, codec, pred, truth, x0, dt, k, a, mean_sc, stride, se
     The forecaster predicts density only, so both panels use the same time-mean temperature and velocity of the
     simulation's training segment; the difference between the panels is the forecast density."""
     from PIL import Image, ImageDraw, ImageFont
+
     from pinneapple_physics.blackhole.raytrace import Camera, bloom, render, star_field
 
     frames = run["frames"][::stride]
@@ -247,7 +256,8 @@ def make_interstellar(run, codec, pred, truth, x0, dt, k, a, mean_sc, stride, se
     sim = np.concatenate([x0, truth[:nb]])[::every]
     fc = np.concatenate([x0, pred[:nb]])[::every]
     times = (dt * (np.arange(len(x0) + nb) - (k - 1)))[::every]
-    full = lambda z: 10.0 ** _uncrop(np.log10(codec.decode(z[None])), codec, run["grid"])[0]
+    def full(z):
+        return 10.0 ** _uncrop(np.log10(codec.decode(z[None])), codec, run["grid"])[0]
     scale = np.percentile(render(paths, full(sim[0]), temp, vel, return_intensity=True), 99.7)
     err = np.concatenate([np.zeros(len(x0)), np.abs(pred[:nb] - truth[:nb]).mean((1, 2))])[::every]
     pers = np.concatenate([np.full(len(x0), 1e-9), np.abs(x0[-1][None] - truth[:nb]).mean((1, 2))])[::every]

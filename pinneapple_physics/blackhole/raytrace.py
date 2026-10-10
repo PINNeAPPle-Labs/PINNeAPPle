@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
 
 import numpy as np
 
@@ -46,7 +45,7 @@ class RayPaths:
     lapse: np.ndarray          # (S,) float32 sqrt(1 - 2/r)
     captured: np.ndarray       # (H*W,) bool
     escape_dir: np.ndarray     # (H*W, 3) float32 final direction of escaped rays
-    shape: Tuple[int, int]     # (H, W)
+    shape: tuple[int, int]     # (H, W)
 
 
 @dataclass
@@ -86,7 +85,7 @@ class Camera:
         d = fwd[None] + X.reshape(-1, 1) * right[None] + Y.reshape(-1, 1) * up[None]
         return d / np.linalg.norm(d, axis=1, keepdims=True)
 
-    def trace(self, grid: Dict[str, np.ndarray], r_max: float, *, stride: int = 1) -> RayPaths:
+    def trace(self, grid: dict[str, np.ndarray], r_max: float, *, stride: int = 1) -> RayPaths:
         """Integrate every pixel's geodesic; keep the samples with r_in < r < r_max (every ``stride`` steps)."""
         pos, _, _, _ = self.basis()
         d = self.directions()
@@ -186,7 +185,8 @@ class Camera:
                 idx, uu, ww, pp, a1, a2 = idx[keep], u_new[keep], w_new[keep], pp[keep], a1[keep], a2[keep]
             else:
                 uu, ww = u_new, w_new
-        cat = lambda k, dt_: np.concatenate(out[k]).astype(dt_) if out[k] else np.zeros((0,) + ((3,) if k == "k" else ()), dt_)
+        def cat(k, dt_):
+            return np.concatenate(out[k]).astype(dt_) if out[k] else np.zeros((0,) + ((3,) if k == "k" else ()), dt_)
         ray = cat("ray", np.int32)
         order = np.argsort(ray, kind="stable")                       # ray-major, camera-to-far within a ray
         return RayPaths(ray[order], cat("ir", np.float32)[order], cat("ith", np.float32)[order], cat("ds", np.float32)[order],
@@ -262,10 +262,10 @@ def bloom(img: np.ndarray, strength: float = 0.35, sigma: float = 6.0) -> np.nda
     return np.clip(img + strength * gaussian_filter(bright, (sigma, sigma, 0)) / 0.45, 0, 1)
 
 
-def render(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: Optional[np.ndarray] = None, *,
-           doppler: bool = True, kappa: float = 0.0, exposure: float = 1.0, scale: Optional[float] = None,
+def render(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: np.ndarray | None = None, *,
+           doppler: bool = True, kappa: float = 0.0, exposure: float = 1.0, scale: float | None = None,
            emissivity_power: float = 2.0, tone: str = "film", r_min: float = 0.0,
-           t_color: float = 6500.0, gamma: float = 1.0, sky: Optional[np.ndarray] = None, sky_gain: float = 1.0,
+           t_color: float = 6500.0, gamma: float = 1.0, sky: np.ndarray | None = None, sky_gain: float = 1.0,
            return_intensity: bool = False):
     """Render one frame.
 
@@ -291,7 +291,6 @@ def render(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: 
     if kappa > 0:                                              # absorption, accumulated from the camera side
         dtau = kappa * rr * paths.ds
         cs = np.cumsum(dtau)
-        start = np.zeros(n, np.int64)
         first = np.r_[0, np.nonzero(np.diff(paths.ray))[0] + 1] if len(paths.ray) else np.zeros(0, np.int64)
         start_cs = np.zeros(len(paths.ray))
         if len(paths.ray):
@@ -299,14 +298,14 @@ def render(paths: RayPaths, rho: np.ndarray, temperature: np.ndarray, velocity: 
             start_cs = np.where(seg_start > 0, cs[seg_start - 1], 0.0)
         tau = cs - dtau - start_cs
         contrib = contrib * np.exp(-tau)
-    I = np.bincount(paths.ray, weights=contrib, minlength=n)
-    gw = np.bincount(paths.ray, weights=contrib * g, minlength=n) / np.maximum(I, 1e-300)
+    inten = np.bincount(paths.ray, weights=contrib, minlength=n)
+    gw = np.bincount(paths.ray, weights=contrib * g, minlength=n) / np.maximum(inten, 1e-300)
     if return_intensity:
-        return I.reshape(H, W)
-    s = scale if scale is not None else (np.percentile(I[I > 0], 99.7) if (I > 0).any() else 1.0)
-    x = exposure * (I / max(s, 1e-300)) ** gamma
+        return inten.reshape(H, W)
+    s = scale if scale is not None else (np.percentile(inten[inten > 0], 99.7) if (inten > 0).any() else 1.0)
+    x = exposure * (inten / max(s, 1e-300)) ** gamma
     lum = 1 - np.exp(-x) if tone == "film" else np.log1p(30 * x) / np.log1p(30)   # "log": shows faint structure
-    col = blackbody_rgb(t_color * np.where(I > 0, gw, 1.0))
+    col = blackbody_rgb(t_color * np.where(inten > 0, gw, 1.0))
     img = lum[:, None] * col
     if sky is not None:
         escaped = (~paths.captured) & (np.linalg.norm(paths.escape_dir, axis=1) > 0)

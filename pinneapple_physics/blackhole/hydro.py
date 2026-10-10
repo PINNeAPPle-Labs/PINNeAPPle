@@ -32,8 +32,7 @@ budgets close (``budget()``), which the tests check.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from dataclasses import dataclass
 
 import numpy as np
 import torch
@@ -54,7 +53,7 @@ class RIAFConfig:
     rho_floor: float = 1e-7
     p_floor: float = 1e-11
     v_max: float = 0.9                # speed cap (units of c) for near-empty cells
-    t_cap: Optional[float] = 2.0      # temperature ceiling c_s^2 <= t_cap |Phi| (None: off)
+    t_cap: float | None = 2.0      # temperature ceiling c_s^2 <= t_cap |Phi| (None: off)
     outer_bc: str = "outflow"         # "outflow" (no inflow) | "fixed" (ghosts keep their initial state, e.g. Bondi)
     # torus (pressure maximum at R_c on the equator, inner edge at R_edge, l = l_c (R / R_c)**a)
     torus_rc: float = 20.0
@@ -193,11 +192,11 @@ class AccretionFlow:
         def phys(W):
             rho, vr, vth, vph, p = W
             vn = vr if d == 0 else vth
-            l = vph * Rf
+            ell = vph * Rf
             E = p / (gam - 1) + 0.5 * rho * (vr ** 2 + vth ** 2 + vph ** 2)
-            U = torch.stack([rho, rho * vr, rho * vth, rho * l, E])
+            U = torch.stack([rho, rho * vr, rho * vth, rho * ell, E])
             F = torch.stack([rho * vn, rho * vr * vn + (p if d == 0 else 0 * p),
-                             rho * vth * vn + (p if d == 1 else 0 * p), rho * l * vn, (E + p) * vn])
+                             rho * vth * vn + (p if d == 1 else 0 * p), rho * ell * vn, (E + p) * vn])
             return U, F, vn, torch.sqrt(gam * p / rho)
 
         UL, FL, vL, cL = phys(WL)
@@ -221,7 +220,6 @@ class AccretionFlow:
     def rhs(self, W):
         """dU/dt on the interior cells, plus the mass / angular-momentum fluxes through r_in and r_out."""
         c, g = self.cfg, self.NG
-        gam = c.gamma
         rho, vr, vth, vph, p = W
         # ---- r direction: faces g .. n+g (the n+1 faces bounding the interior), theta interior
         nr, nt = c.nr, c.ntheta
@@ -295,7 +293,7 @@ class AccretionFlow:
             return float(torch.minimum(c.cfl * dt_h, dt_v))
         return float(c.cfl * dt_h)
 
-    def step(self, dt: Optional[float] = None) -> float:
+    def step(self, dt: float | None = None) -> float:
         dt = self.dt() if dt is None else dt
         g = self.NG
         U0 = self.prim_to_cons(self.W[self.ii], self.R[g:-g, g:-g])
@@ -337,13 +335,13 @@ class AccretionFlow:
         return torch.stack([rho, vr, vth, vph, p])
 
     # ------------------------------------------------------------------ diagnostics
-    def totals(self) -> Dict[str, float]:
+    def totals(self) -> dict[str, float]:
         g = self.NG
         U = self.prim_to_cons(self.W)[:, g:-g, g:-g]
         vol = self.vol[g:-g, g:-g] * 2 * math.pi
         return {"mass": float((U[0] * vol).sum()), "angmom": float((U[3] * vol).sum())}
 
-    def budget(self) -> Dict[str, float]:
+    def budget(self) -> dict[str, float]:
         """Totals plus everything that crossed the radial boundaries (in - out), for conservation checks."""
         tot = self.totals()
         b = self.boundary
@@ -354,12 +352,12 @@ class AccretionFlow:
         """Interior primitive fields (5, nr, ntheta): rho, v_r, v_theta, v_phi, p."""
         return self.interior(self.W).cpu().numpy()
 
-    def grid(self) -> Dict[str, np.ndarray]:
+    def grid(self) -> dict[str, np.ndarray]:
         g = self.NG
         return {"r": self.r[g:-g, 0].cpu().numpy(), "theta": self.th[0, g:-g].cpu().numpy(),
                 "r_faces": self.rf_np[g:-g], "theta_faces": self.thf_np[g:-g]}
 
-    def run(self, t_end: float, every: float, *, callback=None, max_steps: int = 10 ** 9) -> Dict[str, np.ndarray]:
+    def run(self, t_end: float, every: float, *, callback=None, max_steps: int = 10 ** 9) -> dict[str, np.ndarray]:
         """Advance to ``t_end``, saving the primitives every ``every`` (times are hit exactly).
 
         Returns {"t": (T,), "frames": (T, 5, nr, ntheta) float32, "mdot": (T,)}, frame 0 = current state.
@@ -414,8 +412,8 @@ def torus_state(flow: AccretionFlow) -> np.ndarray:
     rng = np.random.default_rng(c.seed)
     rho = np.where(torus, rho_t * (1 + c.perturbation * rng.uniform(-1, 1, rho_t.shape)), rho_atm)
     p = np.where(torus, p_t, p_atm)
-    l = lc * (np.maximum(R, 1e-6) / Rc) ** a
-    vph = np.where(torus, l / np.maximum(R, 1e-6), 0.0)
+    ell = lc * (np.maximum(R, 1e-6) / Rc) ** a
+    vph = np.where(torus, ell / np.maximum(R, 1e-6), 0.0)
     zero = np.zeros_like(rho)
     return np.stack([rho, zero, zero, vph, p])
 
@@ -447,7 +445,7 @@ def bondi_pw(r: np.ndarray, *, cs_inf: float, gamma: float = 1.4, rho_inf: float
     lam = rho_c * math.sqrt(cc2) * rc ** 2               # r^2 rho |v|
     rho_out, v_out = np.empty_like(r), np.empty_like(r)
     for i, ri in enumerate(r):
-        def g(ln_rho):
+        def g(ln_rho, ri=ri):
             rho = math.exp(ln_rho)
             c2 = cs_inf ** 2 * (rho / rho_inf) ** (gamma - 1)
             v = lam / (rho * ri ** 2)

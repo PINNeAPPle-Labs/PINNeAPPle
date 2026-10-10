@@ -16,7 +16,7 @@ Coordinates: y is the spin axis (the viewer's up direction), lengths in GM/c^2.
 from __future__ import annotations
 
 import math
-from typing import Dict, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -81,7 +81,7 @@ class CutawayMesh:
         return np.concatenate([plane, plane, sector], axis=1).astype(np.float32)
 
 
-def sphere(radius: float, center: Sequence[float] = (0, 0, 0), n: int = 24) -> Tuple[np.ndarray, np.ndarray]:
+def sphere(radius: float, center: Sequence[float] = (0, 0, 0), n: int = 24) -> tuple[np.ndarray, np.ndarray]:
     th = np.linspace(0, math.pi, n + 1)
     ph = np.linspace(0, 2 * math.pi, 2 * n + 1)
     T, P = np.meshgrid(th, ph, indexing="ij")
@@ -89,9 +89,9 @@ def sphere(radius: float, center: Sequence[float] = (0, 0, 0), n: int = 24) -> T
     return (v + np.asarray(center, float)).astype(np.float32), _grid_faces(n, 2 * n).astype(np.uint32)
 
 
-def accretion_scene(grid: Dict[str, np.ndarray], panels: Dict[str, np.ndarray], times: Sequence[float], *,
+def accretion_scene(grid: dict[str, np.ndarray], panels: dict[str, np.ndarray], times: Sequence[float], *,
                     field: str = "log10_density", unit: str = "", r_view: float = 60.0, gap: float = 0.35,
-                    title: str = "Black hole weather", sensors: Optional[Sequence[dict]] = None,
+                    title: str = "Black hole weather", sensors: Sequence[dict] | None = None,
                     phi_cut_deg: float = 270.0, layout: Sequence[float] = (-1.0, 0.0, -1.0)) -> Scene:
     """One cutaway panel per entry of ``panels`` (name -> (T, nr, ntheta) cell values), laid out along ``layout``
     (default: left to right on screen for the view that looks into the cut, ``view=1,0.75,-1`` in the viewer).

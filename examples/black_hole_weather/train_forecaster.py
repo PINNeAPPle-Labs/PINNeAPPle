@@ -23,7 +23,12 @@ import torch
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from simulate import load_run  # noqa: E402
 
-from pinneapple_physics.blackhole.forecast import DensityCodec, TrainConfig, make_blocks, train_forecaster  # noqa: E402
+from pinneapple_physics.blackhole.forecast import (  # noqa: E402
+    DensityCodec,
+    TrainConfig,
+    make_blocks,
+    train_forecaster,
+)
 
 
 def split_one(n: int):
@@ -61,8 +66,8 @@ def main(argv=None):
         train_frames = {k: v[:int(0.9 * len(v))] for k, v in rho.items()}
         val_frames = {k: v[int(0.9 * len(v)):] for k, v in rho.items()}
     codec = DensityCodec.fit(np.concatenate(list(train_frames.values())), a.r_cells, a.theta_trim)
-    X, Y = zip(*[make_blocks(codec.encode(v)) for v in train_frames.values()])
-    Xv, Yv = zip(*[make_blocks(codec.encode(v)) for v in val_frames.values()])
+    X, Y = zip(*[make_blocks(codec.encode(v)) for v in train_frames.values()], strict=True)
+    Xv, Yv = zip(*[make_blocks(codec.encode(v)) for v in val_frames.values()], strict=True)
     X, Y, Xv, Yv = (np.concatenate(z) for z in (X, Y, Xv, Yv))
     print(f"train {X.shape}  val {Xv.shape}  codec {codec}", flush=True)
     cfg = TrainConfig(filters=a.filters, epochs=a.epochs, batch_size=a.batch_size, alpha=a.alpha, lr=a.lr, residual=a.residual,

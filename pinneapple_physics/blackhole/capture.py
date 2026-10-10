@@ -11,7 +11,7 @@ import http.server
 import os
 import socketserver
 import threading
-from typing import Iterable, List, Optional
+from collections.abc import Iterable
 
 __all__ = ["capture_twin"]
 
@@ -35,10 +35,10 @@ def _not_blank(path: str, min_std: float = 12.0) -> bool:
     return float(np.asarray(Image.open(path).convert("L"), float).std()) > min_std
 
 
-def capture_twin(folder: str, steps: Iterable[int], out_dir: Optional[str] = None, *, field: str = "",
+def capture_twin(folder: str, steps: Iterable[int], out_dir: str | None = None, *, field: str = "",
                  cmap: str = "turbo", view: str = "", zoom: float = 1.0, size=(1280, 720), theme: str = "dark",
-                 vrange: Optional[tuple] = None,
-                 hide_panel: bool = True) -> List[str]:
+                 vrange: tuple | None = None,
+                 hide_panel: bool = True) -> list[str]:
     """Screenshot the exported scene in ``folder`` at each time step; returns the PNG paths."""
     from playwright.sync_api import sync_playwright
 

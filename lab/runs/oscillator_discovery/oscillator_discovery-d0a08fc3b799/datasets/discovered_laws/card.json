@@ -1,0 +1,53 @@
+{
+ "name": "discovered_laws",
+ "description": "Recovered oscillator parameters per trajectory",
+ "n_samples": 20,
+ "shards": 1,
+ "schema": {
+  "zeta_true": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.07063719533483889,
+   "max": 1.4942129249724063
+  },
+  "zeta_found": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.09796773720484978,
+   "max": 1.4946072023257837
+  },
+  "omega_true": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.5589412336795502,
+   "max": 7.398392483401406
+  },
+  "omega_found": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.5589438316229013,
+   "max": 7.398396140797957
+  },
+  "terms": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "x,x'",
+    "x,x',x\u00b2",
+    "x,x',x x'"
+   ]
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "oscillator_discovery",
+  "run_id": "oscillator_discovery-d0a08fc3b799",
+  "params": {
+   "threshold": 0.02,
+   "max_runs": 200,
+   "seed": 0
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

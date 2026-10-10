@@ -1,0 +1,54 @@
+{
+ "run_id": "oscillator_discovery-d0a08fc3b799",
+ "experiment": "oscillator_discovery",
+ "version": "1",
+ "params": {
+  "threshold": 0.02,
+  "max_runs": 200,
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791652006.2140348,
+ "tags": [
+  "discovery",
+  "reuse",
+  "symbolic-regression"
+ ],
+ "git": "02a5a18e",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Uses the oscillator trajectories already in the lab database: for each one, SINDy over {x, x', x\u00b2, x x', x'\u00b2} finds x'' = -\u03c9\u00b2 x - 2\u03b6\u03c9 x' and recovers \u03b6 and \u03c9 from the data alone.",
+ "code": {
+  "files": [
+   "code/discovery.py"
+  ],
+  "sha1": "86c86e29ab1e5e9f6eef6bf9b96873255838487c",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791652018.547927,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [],
+  "outputs": [],
+  "figures": [
+   "figures/oscillator_rediscovery.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 12.334,
+ "datasets": {
+  "discovered_laws": {
+   "n_samples": 20,
+   "path": "runs/oscillator_discovery/oscillator_discovery-d0a08fc3b799/datasets/discovered_laws"
+  }
+ }
+}

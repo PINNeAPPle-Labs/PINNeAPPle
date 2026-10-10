@@ -9,4 +9,4 @@
 | ``cylinder_lbm`` | lattice-Boltzmann flow past a cylinder; regime, Strouhal number, vorticity images | vorticity |
 | ``bh_forecast`` | Duarte et al. U-Net forecast of accretion flows, scored against persistence (source checkout) | - |
 """
-from . import accretion, blackhole_forecast, cylinder, ode, pde  # noqa: F401
+from . import accretion, blackhole_forecast, cylinder, discovery, ode, pde  # noqa: F401

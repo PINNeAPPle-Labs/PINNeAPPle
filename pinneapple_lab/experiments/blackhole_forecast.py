@@ -34,6 +34,7 @@ class BlackHoleForecast(Experiment):
                    "by lead time against persistence, with the mass check, tendency correlation and optional "
                    "ray-traced GIF. Validation: the forecast must beat persistence on its first block.")
     tags = ["astrophysics", "forecasting", "surrogate", "reproduction"]
+    code_files = [os.path.join(_EX, f) for f in ("simulate.py", "train_forecaster.py", "evaluate.py")]
     params = {"runs_root": "", "train": "PL0SS0.1", "test": "PL0SS0.1", "split": "test", "stride": 2,
               "filters": 16, "residual": False, "loss": "multi", "lr": 2e-4, "clip": 1.0, "batch_size": 16,
               "epochs": 40, "max_minutes": 1e9, "blocks": 12, "starts": 8, "interstellar": False, "threads": 4}

@@ -38,6 +38,7 @@ class RunContext:
         validation.json  [{name, passed, value, reference, tolerance, detail}]
         inputs/ outputs/ arrays (.npy), tables / dicts (.json), files
         figures/         PNG, GIF
+        code/            the experiment's source (and code_files, and the uncommitted diff) as it ran
         datasets/NAME/   shards of samples + card.json (see ``DatasetWriter``)
         log.txt
     """

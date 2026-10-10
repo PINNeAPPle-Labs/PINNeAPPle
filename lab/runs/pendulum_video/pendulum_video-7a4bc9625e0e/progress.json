@@ -1,0 +1,29 @@
+{
+ "stages": [
+  {
+   "name": "film",
+   "started": 1791651998.440949,
+   "status": "done",
+   "seconds": 1.088
+  },
+  {
+   "name": "measure",
+   "started": 1791651999.529136,
+   "status": "done",
+   "seconds": 0.299
+  },
+  {
+   "name": "discover",
+   "started": 1791651999.833075,
+   "status": "done",
+   "seconds": 0.098
+  },
+  {
+   "name": "predict",
+   "started": 1791651999.9372742,
+   "status": "done",
+   "seconds": 0.574
+  }
+ ],
+ "updated": 1791652000.5165148
+}

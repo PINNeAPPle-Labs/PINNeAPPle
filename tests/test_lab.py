@@ -43,6 +43,7 @@ def test_run_records_everything_and_is_cached(tmp_path):
     rec = json.load(open(os.path.join(r.dir, "run.json")))
     assert rec["params"] == {"a": 2.0, "n": 5} and rec["validation"] == {"total": 2, "failed": 0}
     assert rec["stages"][0]["name"] == "compute"
+    assert rec["code"]["files"] == ["code/test_lab.py"] and os.path.exists(os.path.join(r.dir, "code/test_lab.py"))
     again = run("_test_square", {"a": 2.0}, root=root)
     assert again.status == "cached:completed" and again.run_id == r.run_id
     card = json.load(open(os.path.join(r.dir, "datasets/curves/card.json")))
@@ -111,3 +112,17 @@ def test_parallel_sweep_and_cli(tmp_path, capsys):
     assert cli(["--root", root, "report"]) == 0
     assert cli(["--root", root, "export", "oscillator", "trajectories", str(tmp_path / "osc.npz")]) == 0
     assert np.load(tmp_path / "osc.npz")["x"].shape[0] == 5
+
+
+def test_law_discovery_experiments(tmp_path):
+    root = str(tmp_path)
+    r = run("kepler_law", root=root)
+    assert r.ok and abs(r.metrics["Sun_exponent"] - 1.5) < 0.002
+    assert abs(r.metrics["sun_to_jupiter_mass_ratio"] / 1047.35 - 1) < 0.01
+    r = run("lorenz_discovery", root=root)
+    assert r.ok and r.metrics["max_coefficient_rel_error"] < 0.05
+    r = run("pendulum_video", {"seconds": 8.0, "predict_seconds": 3.0, "size": 120}, root=root)
+    assert r.ok and r.metrics["g_rel_error"] < 0.02 and r.metrics["n_terms"] == 2
+    sweep("oscillator", grid={"zeta": [0.1, 0.3], "omega": [1.0, 3.0]}, root=root)
+    r = run("oscillator_discovery", root=root)
+    assert r.ok and r.metrics["n_trajectories"] == 4 and r.metrics["omega_rel_error_median"] < 0.01

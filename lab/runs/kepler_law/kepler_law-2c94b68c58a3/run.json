@@ -1,0 +1,58 @@
+{
+ "run_id": "kepler_law-2c94b68c58a3",
+ "experiment": "kepler_law",
+ "version": "1",
+ "params": {
+  "exponent_grid": 0.25,
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791651991.4629064,
+ "tags": [
+  "discovery",
+  "real-data",
+  "astronomy",
+  "symbolic-regression"
+ ],
+ "git": "02a5a18e",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Discover Kepler's third law from real orbital data (planets, moons of Jupiter and Saturn): sparse regression over power laws finds P \u221d a^n, n is compared with 3/2, the central masses come out as GM, and all three systems collapse onto P = 2\u03c0 sqrt(a^3 / GM).",
+ "code": {
+  "files": [
+   "code/discovery.py"
+  ],
+  "sha1": "86c86e29ab1e5e9f6eef6bf9b96873255838487c",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791651993.1793165,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/orbits.json"
+  ],
+  "outputs": [
+   "outputs/discovered.json"
+  ],
+  "figures": [
+   "figures/kepler.png"
+  ]
+ },
+ "validation": {
+  "total": 7,
+  "failed": 0
+ },
+ "seconds": 1.716,
+ "datasets": {
+  "orbits": {
+   "n_samples": 19,
+   "path": "runs/kepler_law/kepler_law-2c94b68c58a3/datasets/orbits"
+  }
+ }
+}

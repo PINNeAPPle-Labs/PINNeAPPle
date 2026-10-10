@@ -46,6 +46,42 @@ def _git() -> str | None:
         return None
 
 
+def _snapshot_code(cls, run_dir: str) -> dict[str, Any]:
+    """Save the code that ran: the experiment's source file, any extra files it declares (``code_files``), and
+    the uncommitted diff of the repository (so a run from a dirty tree can still be reproduced)."""
+    import hashlib
+    import inspect
+    code_dir = os.path.join(run_dir, "code")
+    os.makedirs(code_dir, exist_ok=True)
+    info: dict[str, Any] = {"files": []}
+    paths = []
+    try:
+        paths.append(inspect.getsourcefile(cls))
+    except (TypeError, OSError):
+        pass
+    for extra in getattr(cls, "code_files", []) or []:
+        paths.append(extra if os.path.isabs(extra) else os.path.join(os.path.dirname(paths[0] or ""), extra))
+    h = hashlib.sha1()
+    for src in paths:
+        if src and os.path.isfile(src):
+            dst = os.path.join(code_dir, os.path.basename(src))
+            shutil.copy(src, dst)
+            with open(src, "rb") as f:
+                h.update(f.read())
+            info["files"].append(os.path.relpath(dst, run_dir))
+    info["sha1"] = h.hexdigest()
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        diff = subprocess.check_output(["git", "-C", here, "diff", "HEAD"], stderr=subprocess.DEVNULL, timeout=10)
+        if diff.strip():
+            with open(os.path.join(code_dir, "uncommitted.diff"), "wb") as f:
+                f.write(diff)
+            info["uncommitted_diff"] = "code/uncommitted.diff"
+    except Exception:
+        pass
+    return info
+
+
 def _env() -> dict[str, Any]:
     vers = {}
     for m in ("numpy", "torch", "scipy"):
@@ -78,7 +114,8 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None = 
     os.makedirs(d)
     record = {"run_id": rid, "experiment": cls.name, "version": cls.version, "params": _jsonable(p),
               "status": "running", "started": time.time(), "tags": list(tags or []) + list(cls.tags),
-              "git": _git(), "environment": _env(), "description": cls.description}
+              "git": _git(), "environment": _env(), "description": cls.description,
+              "code": _snapshot_code(cls, d)}
     with open(rj, "w") as f:
         json.dump(record, f, indent=1)
     store.index_run(record, {}, {})

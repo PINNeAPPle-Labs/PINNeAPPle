@@ -1,0 +1,12 @@
+[17:06:38] stage film started
+[17:06:39] stage film done (1.088 s)
+[17:06:39] stage measure started
+[17:06:39] stage measure done (0.299 s)
+[17:06:39] stage discover started
+[17:06:39] stage discover done (0.098 s)
+[17:06:39] θ'' = -0.152 θ'  -12.23 sin θ
+[17:06:39] check g_within_2pct: PASS 
+[17:06:39] check only_the_true_terms: PASS θ'' = -0.152 θ'  -12.23 sin θ
+[17:06:39] stage predict started
+[17:06:40] stage predict done (0.574 s)
+[17:06:40] check forecast_beyond_observation: PASS 

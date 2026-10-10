@@ -1,0 +1,9 @@
+[17:06:33] stage smooth started
+[17:06:33] stage smooth done (0.151 s)
+[17:06:36] stage discover started
+[17:06:36] dx/dt = -10.02 x  +10.01 y
+[17:06:36] dy/dt = +28.03 x  -1.018 y  -1 x z
+[17:06:36] dz/dt = -2.665 z  +0.9994 x y
+[17:06:36] stage discover done (0.047 s)
+[17:06:36] check exact_structure: PASS {'x': {'x': -10.016626274109075, 'y': 10.012137881769872}, 'y': {'x': 28.026027339216363, 'y': -1.0177757584686542, 'x z': -1.000099851762002}, 'z': {'z': -2.664925268945403, 'x y': 0.9993912069107045}}
+[17:06:36] check coefficients_within_5pct: PASS 

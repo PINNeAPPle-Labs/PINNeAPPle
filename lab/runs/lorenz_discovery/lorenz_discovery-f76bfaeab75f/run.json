@@ -1,0 +1,73 @@
+{
+ "run_id": "lorenz_discovery-f76bfaeab75f",
+ "experiment": "lorenz_discovery",
+ "version": "1",
+ "params": {
+  "sigma": 10.0,
+  "rho": 28.0,
+  "beta": 2.6666666666666665,
+  "dt": 0.005,
+  "subsample": 4,
+  "t_end": 20.0,
+  "noise": 0.01,
+  "threshold": 0.08,
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791651993.6956182,
+ "tags": [
+  "discovery",
+  "chaos",
+  "xtfc",
+  "symbolic-regression"
+ ],
+ "git": "02a5a18e",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "AI-Lorenz style equation discovery (De Florio, Kevrekidis & Karniadakis 2024): noisy, subsampled observations of the Lorenz system are fitted window by window with an extreme learning machine (the free function of X-TFC), whose analytic derivatives feed SINDy over quadratic monomials; the recovered system is integrated and compared with the true attractor.",
+ "code": {
+  "files": [
+   "code/discovery.py"
+  ],
+  "sha1": "86c86e29ab1e5e9f6eef6bf9b96873255838487c",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791651997.160129,
+ "error": null,
+ "stages": [
+  {
+   "name": "smooth",
+   "started": 1791651993.8206453,
+   "status": "done",
+   "seconds": 0.151
+  },
+  {
+   "name": "discover",
+   "started": 1791651996.3181393,
+   "status": "done",
+   "seconds": 0.047
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/observations.npy"
+  ],
+  "outputs": [
+   "outputs/discovered.json"
+  ],
+  "figures": [
+   "figures/lorenz_discovery.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 3.465,
+ "datasets": {}
+}

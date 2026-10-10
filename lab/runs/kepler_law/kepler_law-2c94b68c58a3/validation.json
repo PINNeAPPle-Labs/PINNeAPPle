@@ -1,0 +1,79 @@
+[
+ {
+  "name": "Sun_exponent_is_3/2",
+  "passed": true,
+  "value": 1.4998734880196545,
+  "reference": 1.5,
+  "rtol": null,
+  "atol": 0.005,
+  "max": null,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "Sun_GM_within_1pct",
+  "passed": true,
+  "value": 0.0005239117203943433,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "Jupiter_exponent_is_3/2",
+  "passed": true,
+  "value": 1.5003133205005552,
+  "reference": 1.5,
+  "rtol": null,
+  "atol": 0.005,
+  "max": null,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "Jupiter_GM_within_1pct",
+  "passed": true,
+  "value": 0.0004799293415556072,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "Saturn_exponent_is_3/2",
+  "passed": true,
+  "value": 1.5007174908793222,
+  "reference": 1.5,
+  "rtol": null,
+  "atol": 0.005,
+  "max": null,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "Saturn_GM_within_1pct",
+  "passed": true,
+  "value": 0.0012301935749896575,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "sun_jupiter_mass_ratio",
+  "passed": true,
+  "value": 1047.611534046748,
+  "reference": 1047.35,
+  "rtol": 0.01,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": ""
+ }
+]

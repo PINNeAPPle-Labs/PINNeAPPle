@@ -1,6 +1,6 @@
 # PINNeAPPle Lab catalogue
 
-93 runs, generated 2026-10-10 16:57.
+97 runs, generated 2026-10-10 17:07.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
@@ -8,7 +8,11 @@
 | [bondi_accretion](#bondi_accretion) | 6 | 6 | 0 | 0 | profiles (6) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
 | [heat_xtfc](#heat_xtfc) | 12 | 8 | 4 | 0 | fields (12) |
+| [kepler_law](#kepler_law) | 1 | 1 | 0 | 0 | orbits (19) |
+| [lorenz_discovery](#lorenz_discovery) | 1 | 1 | 0 | 0 | - |
 | [oscillator](#oscillator) | 60 | 60 | 0 | 0 | trajectories (60) |
+| [oscillator_discovery](#oscillator_discovery) | 1 | 1 | 0 | 0 | discovered_laws (20) |
+| [pendulum_video](#pendulum_video) | 1 | 1 | 0 | 0 | pendulum (1) |
 
 ## accretion_flow
 
@@ -87,6 +91,26 @@ Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential):
 
 ![heat_xtfc](runs/heat_xtfc/heat_xtfc-4ae0ba0dabeb/figures/solution.png)
 
+## kepler_law
+
+Discover Kepler's third law from real orbital data (planets, moons of Jupiter and Saturn): sparse regression over power laws finds P ∝ a^n, n is compared with 3/2, the central masses come out as GM, and all three systems collapse onto P = 2π sqrt(a^3 / GM).
+
+| run | status | exponent_grid | seed | Jupiter_GM_rel_error | Jupiter_exponent | Saturn_GM_rel_error | Saturn_exponent | Sun_GM_rel_error | Sun_exponent | checks |
+|---|---|---|---|---|---|---|---|---|---|---|
+| [2c94b68c58a3](runs/kepler_law/kepler_law-2c94b68c58a3) | completed | 0.25 | 0 | 0.0004799 | 1.5 | 0.00123 | 1.501 | 0.0005239 | 1.5 | 7/7 |
+
+![kepler_law](runs/kepler_law/kepler_law-2c94b68c58a3/figures/kepler.png)
+
+## lorenz_discovery
+
+AI-Lorenz style equation discovery (De Florio, Kevrekidis & Karniadakis 2024): noisy, subsampled observations of the Lorenz system are fitted window by window with an extreme learning machine (the free function of X-TFC), whose analytic derivatives feed SINDy over quadratic monomials; the recovered system is integrated and compared with the true attractor.
+
+| run | status | beta | dt | noise | rho | seed | sigma | subsample | t_end | threshold | beta | max_coefficient_rel_error | prediction_horizon_lyapunov_times | rho | sigma | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [f76bfaeab75f](runs/lorenz_discovery/lorenz_discovery-f76bfaeab75f) | completed | 2.6666666666666665 | 0.005 | 0.01 | 28.0 | 0 | 10.0 | 4 | 20.0 | 0.08 | 2.665 | 0.01778 | 3.801 | 28.03 | 10.02 | 2/2 |
+
+![lorenz_discovery](runs/lorenz_discovery/lorenz_discovery-f76bfaeab75f/figures/lorenz_discovery.png)
+
 ## oscillator
 
 Damped harmonic oscillator x'' + 2 zeta omega x' + omega^2 x = 0: integrator vs exact solution.
@@ -127,3 +151,23 @@ Damped harmonic oscillator x'' + 2 zeta omega x' + omega^2 x = 0: integrator vs 
 ![oscillator](runs/oscillator/oscillator-65ee0f1ccc6c/figures/trajectory.png)
 
 ![oscillator](runs/oscillator/oscillator-158a279ad88f/figures/trajectory.png)
+
+## oscillator_discovery
+
+Uses the oscillator trajectories already in the lab database: for each one, SINDy over {x, x', x², x x', x'²} finds x'' = -ω² x - 2ζω x' and recovers ζ and ω from the data alone.
+
+| run | status | max_runs | seed | threshold | n_trajectories | omega_rel_error_median | zeta_abs_error_median | checks |
+|---|---|---|---|---|---|---|---|---|
+| [d0a08fc3b799](runs/oscillator_discovery/oscillator_discovery-d0a08fc3b799) | completed | 200 | 0 | 0.02 | 20 | 4.667e-06 | 3.776e-06 | 2/2 |
+
+![oscillator_discovery](runs/oscillator_discovery/oscillator_discovery-d0a08fc3b799/figures/oscillator_rediscovery.png)
+
+## pendulum_video
+
+Law -> video -> law -> video. A large-amplitude damped pendulum is filmed (rendered with camera noise and motion blur); its angle is measured from the frames; weak-form SINDy discovers θ'' = -(g/L) sin θ - c θ' from a library that also offers θ, θ³, cos θ, θ'|θ'|, ...; the discovered law is re-simulated and re-rendered, and the predicted video is compared with the observed one, including after the observation window.
+
+| run | status | L | damping | fps | g | n_test | noise | predict_seconds | seconds | seed | size | test_width | theta0 | angle_measurement_rmse_rad | damping_discovered | forecast_rmse_rad | g_discovered | g_rel_error | n_terms | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [7a4bc9625e0e](runs/pendulum_video/pendulum_video-7a4bc9625e0e) | completed | 0.8 | 0.15 | 60 | 9.81 | 120 | 0.04 | 6.0 | 10.0 | 0 | 160 | 2.0 | 2.4 | 0.01516 | 0.152 | 0.009488 | 9.787 | 0.002353 | 2 | 3/3 |
+
+![pendulum_video](runs/pendulum_video/pendulum_video-7a4bc9625e0e/figures/pendulum_discovery.png)

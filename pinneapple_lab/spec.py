@@ -29,6 +29,7 @@ class Experiment:
     tags: list[str] = []
     params: dict[str, Any] = {}
     space: dict[str, Any] = {}
+    code_files: list[str] = []   # extra source files to snapshot with each run (relative to the experiment's file)
 
     def run(self, ctx) -> None:  # pragma: no cover - interface
         raise NotImplementedError

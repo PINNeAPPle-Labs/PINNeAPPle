@@ -86,6 +86,36 @@ An experiment defined outside the package is addressed as `package.module:ClassN
 it reads what the script wrote, checks it against the reference again, and snapshots the generating script with
 the run.
 
+## Examples and use cases
+
+Every script under `examples/` (224 today, use cases included) is also a lab experiment, `example_script`. A run
+executes the script from the repository root as a user would, then keeps what it produced anywhere in the checkout:
+figures, JSON files (outputs, and their numbers as metrics), the `name: value` lines it printed (metrics prefixed
+`stdout.`), arrays from `.npy` / `.npz` / `.csv` (the `artifacts` dataset), the console output, and the script with
+its neighbouring Python files as the code that ran. Data files it overwrote in the checkout are restored, and
+untracked files it left in the working tree are moved into the run, so the checkout stays clean. A script that needs
+a GPU, a download or a missing optional dependency fails and is recorded, so the catalogue doubles as a health
+report of the examples.
+
+```bash
+python -m pinneapple_lab examples                                   # list them, grouped by folder
+python -m pinneapple_lab examples --run --match use_cases --timeout 1800
+python -m pinneapple_lab run example_script -p script=examples/getting_started/03_heat_diffusion_1d.py
+```
+
+Scripts run one at a time, and the checkout should not be edited while they run: a run attributes every file that
+changes during it to the script (sources and docs are never restored, but they are recorded as produced).
+
+## Serving the catalogue
+
+`python -m pinneapple_lab serve --host 0.0.0.0 --port 8093` serves the lab as a web app (standard library only):
+the catalogue page, live from the database (new runs appear on reload), every run's files (`/files/...`), a JSON API
+(`/api/catalog`, `/api/status`, `/api/runs`, `/api/runs/<id>`, `/api/datasets`) and each dataset over all validated
+runs as one `.npz` (`/download/<experiment>/<dataset>.npz`). `LAB_USER` / `LAB_PASSWORD` turn on HTTP Basic login
+(except `/health`). `pinneapple_lab/deploy/Dockerfile` packages it, and `apps/deploy` runs it as the `lab` service
+behind Caddy next to the other apps. On a fresh checkout the run records are present but the dataset shards are not:
+sweeping again recomputes exactly the runs whose shards are missing.
+
 ## Versioning the database
 
 The run metadata, metrics, validation, figures and dataset cards are small and versioned in git under `lab/`. Arrays,

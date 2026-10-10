@@ -49,6 +49,8 @@ examples/studio/_out/**/case_*/
 # arrays, dataset shards and the SQLite index (rebuilt with `python -m pinneapple_lab reindex`) are not
 !lab/runs/
 lab/index.sqlite
+lab/_worktree/
+lab/_exports/
 lab/**/*.npy
 lab/**/*.npz
 lab/**/samples.jsonl

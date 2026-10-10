@@ -24,6 +24,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   Strouhal, MeshGraphNet, delta-wing polar, black-hole forecast skill), re-validates them against their references
   and stores them as datasets. `report` also writes `lab/DATASETS.md` (schema, units, counts, rebuild and export
   commands per dataset).
+  `example_script` runs any script of `examples/` (examples and use cases) into the lab: figures, JSON and printed
+  metrics, arrays as a dataset, console output and code, with the checkout left clean; `python -m pinneapple_lab
+  examples [--run]`. `python -m pinneapple_lab serve` serves the catalogue as a web app (run files, JSON API,
+  dataset downloads, optional login); Dockerfile in `pinneapple_lab/deploy` and a `lab` service in `apps/deploy`.
+  Cached runs whose dataset shards are missing (a fresh checkout) are recomputed.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

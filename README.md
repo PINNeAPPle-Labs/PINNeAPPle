@@ -55,6 +55,8 @@ The same library that solves equations also finds them. Each discovery is an exp
 ```bash
 python -m pinneapple_lab run pendulum_video          # or kepler_law, lorenz_discovery, ...
 python -m pinneapple_lab report --html               # lab/index.html: every run, its checks, its code, its data
+python -m pinneapple_lab examples --run              # every example and use case, into the same database
+python -m pinneapple_lab serve                       # the catalogue as a web app: files, JSON API, dataset downloads
 ```
 
 ---

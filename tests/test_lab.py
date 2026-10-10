@@ -207,7 +207,8 @@ def test_example_script_collects_outputs_and_leaves_checkout_clean(tmp_path):
                     "json.dump({'rel_l2': 0.01, 'nested': {'cl': 0.5}}, open(os.path.join(here, 'm.json'), 'w'))\n"
                     "np.save(os.path.join(here, 'u.npy'), np.arange(6.0).reshape(2, 3))\n"
                     "print('relative L2 error: 1.5e-03')\n")
-        r = run("example_script", {"script": "examples/_lab_test_tmp/demo.py", "timeout": 120}, root=str(tmp_path))
+        r = run("example_script", {"script": "examples/_lab_test_tmp/demo.py", "timeout": 120, "isolated": False},
+                root=str(tmp_path))
         assert r.ok, r.status
         assert r.metrics["m.rel_l2"] == 0.01 and r.metrics["m.nested.cl"] == 0.5
         assert r.metrics["stdout.relative_l2_error"] == 1.5e-3

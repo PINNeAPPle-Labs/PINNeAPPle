@@ -4,8 +4,12 @@
 a user would (``python examples/...`` from the repository root, one thread per library), then collects what it
 produced: every file it created or changed anywhere in the checkout. Figures become run figures, JSON files become
 outputs and their numbers metrics, arrays (.npy / .npz / .csv) become the ``artifacts`` dataset, the console output
-is kept, and the script plus the Python files next to it are snapshotted as the code that ran. Tracked files the
-script overwrote are copied into the run and then restored, so running the whole catalogue leaves git clean.
+is kept, and the script plus the Python files next to it are snapshotted as the code that ran.
+
+Scripts run in a git worktree of HEAD under ``<lab>/_worktree`` (``isolated``, the default), so they never write
+into the working checkout and the run records the exact commit. Without git (or with ``isolated=False``) they run in
+the checkout itself: tracked data files they overwrite are restored, untracked files they leave are moved into the
+run, and sources and docs are never touched.
 
     python -m pinneapple_lab examples                     # list every runnable example with its group
     python -m pinneapple_lab examples --run --match use_cases --timeout 1800
@@ -88,6 +92,34 @@ def _git_lines(repo: str, *args: str) -> set[str]:
     return {os.path.join(repo, x) for x in out.splitlines() if x}
 
 
+def _git_lines_raw(repo: str, *args: str) -> str:
+    try:
+        return subprocess.check_output(["git", "-C", repo, *args], stderr=subprocess.DEVNULL, timeout=60).decode().strip()
+    except Exception:
+        return ""
+
+
+def _worktree(lab_root: str) -> str | None:
+    """A detached git worktree of the repository's HEAD under ``<lab>/_worktree``, where the scripts run: what they
+    write never touches the working checkout (nor edits made in it meanwhile), and the commit that ran is exact.
+    Tracked files are reset to HEAD before each run; untracked outputs are kept, so a script can use what an earlier
+    example of its folder produced. None when git is not available (e.g. an image without .git)."""
+    head = _git_lines_raw(REPO, "rev-parse", "HEAD")
+    if not head:
+        return None
+    path = os.path.join(lab_root, "_worktree")
+    if not os.path.isdir(os.path.join(path, "examples")):
+        subprocess.run(["git", "-C", REPO, "worktree", "prune"], capture_output=True, timeout=60)
+        r = subprocess.run(["git", "-C", REPO, "worktree", "add", "--detach", "--force", path, head],
+                           capture_output=True, timeout=600)
+        if r.returncode != 0:
+            return None
+    else:
+        subprocess.run(["git", "-C", path, "checkout", "--detach", "--force", head], capture_output=True, timeout=600)
+        subprocess.run(["git", "-C", path, "checkout", "--", "."], capture_output=True, timeout=600)
+    return path
+
+
 def _flatten(obj, prefix="", out=None, depth=0):
     out = {} if out is None else out
     if depth > 3 or len(out) >= _MAX_METRICS:
@@ -152,7 +184,8 @@ class ExampleScript(Experiment):
                    "outputs and their numbers as metrics, arrays as the 'artifacts' dataset, the console output and "
                    "the code. The catalogue of these runs is also the health report of the examples.")
     tags = ["examples", "use-case", "dataset"]
-    params = {"script": "examples/getting_started/01_harmonic_oscillator.py", "timeout": 900, "args": ""}
+    params = {"script": "examples/getting_started/01_harmonic_oscillator.py", "timeout": 900, "args": "",
+              "isolated": True}
 
     @classmethod
     def code_for(cls, params):
@@ -162,42 +195,48 @@ class ExampleScript(Experiment):
 
     def run(self, ctx):
         p = ctx.params
-        script = os.path.join(REPO, p["script"])
+        lab_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(ctx.dir))))
+        base = _worktree(lab_root) if p["isolated"] else None
+        ctx.input("checkout", {"isolated": base is not None, "path": base or REPO,
+                               "commit": _git_lines_raw(base or REPO, "rev-parse", "HEAD")})
+        base = base or REPO
+        script = os.path.join(base, p["script"])
         if not os.path.isfile(script):
             raise FileNotFoundError(p["script"])
-        dirty_before = _git_lines(REPO, "diff", "--name-only", "HEAD")
-        stray_before = _git_lines(REPO, "ls-files", "--others", "--exclude-standard")
-        tracked = _git_lines(REPO, "ls-files")
-        before = _walk(REPO)
+        dirty_before = _git_lines(base, "diff", "--name-only", "HEAD")
+        stray_before = _git_lines(base, "ls-files", "--others", "--exclude-standard")
+        tracked = _git_lines(base, "ls-files")
+        before = _walk(base)
         env = dict(os.environ, MPLBACKEND="Agg", PYTHONUNBUFFERED="1", OMP_NUM_THREADS="1", MKL_NUM_THREADS="1",
-                   PYTHONPATH=REPO + os.pathsep + os.environ.get("PYTHONPATH", ""))
+                   PYTHONPATH=base + os.pathsep + os.environ.get("PYTHONPATH", ""))
         cmd = [sys.executable, script, *p["args"].split()] if p["args"] else [sys.executable, script]
         t0 = time.time()
         with ctx.stage("run"):
             try:
-                proc = subprocess.run(cmd, cwd=REPO, env=env, capture_output=True, timeout=float(p["timeout"]),
+                proc = subprocess.run(cmd, cwd=base, env=env, capture_output=True, timeout=float(p["timeout"]),
                                       stdin=subprocess.DEVNULL)
                 code, out, err = proc.returncode, proc.stdout, proc.stderr
             except subprocess.TimeoutExpired as exc:
                 code, out, err = None, exc.stdout or b"", (exc.stderr or b"") + b"\n[timeout]"
         seconds = time.time() - t0
-        ctx.output("stdout.txt", out.decode(errors="replace")[-200_000:])
-        if err:
-            ctx.output("stderr.txt", err.decode(errors="replace")[-200_000:])
+        for name, data in (("stdout.txt", out), ("stderr.txt", err)):
+            if data:
+                with open(ctx.path("outputs", name), "wb") as fh:
+                    fh.write(data[-200_000:])
         ctx.metric("script_seconds", round(seconds, 2))
         ctx.metric("exit_code", -1 if code is None else code)
         for k, v in _stdout_metrics(out.decode(errors="replace")).items():
             ctx.metric(k, v)
 
         with ctx.stage("collect"):
-            after = _walk(REPO)
+            after = _walk(base)
             changed = sorted(f for f, s in after.items() if before.get(f) != s and not f.startswith(ctx.dir))
             ctx.metric("files_produced", len(changed))
-            ctx.output("produced_files", [os.path.relpath(f, REPO) for f in changed])
+            ctx.output("produced_files", [os.path.relpath(f, base) for f in changed])
             n_fig, metrics, ds = 0, {}, None
             for f in changed:
                 ext = os.path.splitext(f)[1].lower()
-                rel = os.path.relpath(f, REPO)
+                rel = os.path.relpath(f, base)
                 if os.path.getsize(f) > _MAX_FILE_MB * 2 ** 20:
                     continue
                 stem = rel.replace(os.sep, "__")
@@ -231,16 +270,16 @@ class ExampleScript(Experiment):
             restore = [f for f in changed if f in tracked and f not in dirty_before
                        and os.path.splitext(f)[1].lower() not in _SOURCE]
             if restore:
-                subprocess.run(["git", "-C", REPO, "checkout", "--", *[os.path.relpath(f, REPO) for f in restore]],
+                subprocess.run(["git", "-C", base, "checkout", "--", *[os.path.relpath(f, base) for f in restore]],
                                capture_output=True, timeout=60)
-                ctx.output("restored_tracked_files", [os.path.relpath(f, REPO) for f in restore])
+                ctx.output("restored_tracked_files", [os.path.relpath(f, base) for f in restore])
             # untracked, not git-ignored files (a figure saved in the working directory) now live in the run
-            stray = sorted(_git_lines(REPO, "ls-files", "--others", "--exclude-standard") - stray_before)
+            stray = sorted(f for f in _git_lines(base, "ls-files", "--others", "--exclude-standard") - stray_before
+                           if f in changed)
             for f in stray:
-                if f in changed and not f.startswith(os.path.join(REPO, "lab") + os.sep):
-                    os.remove(f)
+                os.remove(f)
             if stray:
-                ctx.output("moved_untracked_files", [os.path.relpath(f, REPO) for f in stray])
+                ctx.output("moved_untracked_files", [os.path.relpath(f, base) for f in stray])
 
         tail = (err or out).decode(errors="replace").strip().splitlines()[-12:]
         ctx.check("exits_cleanly", code == 0,

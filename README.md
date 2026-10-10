@@ -1,334 +1,264 @@
+<div align="center">
+
 # PINNeAPPle 🍍
-### Your Physics AI Laboratory — from first principles to real-world systems
 
-> *Experiment. Learn. Build. Then scale — anywhere.*
+### Physics AI that tells you when to trust it
 
-PINNeAPPle is an open-source **Physics AI research and experimentation platform** designed to take you from your first physics-informed neural network all the way to **robust, production-ready solutions** — independent of any specific framework, vendor, or ecosystem.
+**Solve, simulate, forecast and design with physics-informed AI — and know, for every prediction, whether it still holds.**
+
+[![Tests](https://github.com/PINNeAPPle-Labs/PINNeAPPle/actions/workflows/tests.yml/badge.svg)](https://github.com/PINNeAPPle-Labs/PINNeAPPle/actions/workflows/tests.yml)
+[![PyPI](https://img.shields.io/pypi/v/pinneapple.svg)](https://pypi.org/project/pinneapple/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+
+<img src="docs/assets/weather/pnw_heat_dome_2021_preview.gif" width="100%" alt="ERA5 against a PINNeAPPle global forecast of the 2021 heat dome, on lit globes"/>
+
+<sub>A global forecast model trained with <code>pinneapple_physics.weather</code> on public ERA5, against what happened (2021 Pacific Northwest heat dome). The lead bar turns amber when the forecast stops being trustworthy. Preview weights, training in progress (<a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/322">#322</a>).</sub>
+
+</div>
+
+---
+
+## What makes it different
+
+Most Physics AI libraries stop at the prediction. PINNeAPPle adds a **trust layer**, so a model can say how good it is right now:
+
+- **"This model just left its domain."** Every model's PDE residual on the current case, compared with its level in its own domain, switches the ensemble on the **first** case of a new regime instead of after errors pile up.
+- **"That was the sensor, not the process."** A physics check of the reading itself keeps sensor noise from switching models or teaching them anything.
+- **"Trust this forecast for 3.8 days."** Skill by lead time and a useful horizon for every forecast, next to the operational models.
+- **"Here is the evidence."** Conservation and boundary-condition checks, uncertainty, provenance and a decision layer that only learns from verified results.
 
 <div align="center">
 
 | | |
 |:---:|:---:|
-| ![Clamped Plate](./data/viz_06_structural.png) | ![2D Heat Equation](./data/viz_02_heat_2d.png) |
-| *Clamped Plate — deflection, Von Mises stress & bending moment* | *2D Heat Equation — Exact vs PINN across time steps* |
-| ![Lamb-Oseen Vortex](./data/viz_03_vortex_dynamics.png) | ![Allen-Cahn Phase](./data/viz_04_phase_field.png) |
-| *Lamb-Oseen Vortex Pair — vorticity evolution* | *Allen-Cahn Phase Separation — interface dynamics* |
+| <img src="docs/assets/physics_ensemble/sensor_noise_comparison.gif" width="100%"/> | <img src="docs/assets/apps/13-aircraft-render-streamlines.jpg" width="100%"/> |
+| **Regime change or sensor noise?** Five model families (FNO, GNN, DeepONet, PINN, CNN); with the physics check of the reading (right), noisy readings never switch the model. | **OpenFOAM in the loop.** An airliner designed and optimised in the library, verified with 3D RANS; streamlines coloured by speed. |
+| <img src="docs/assets/physics_ensemble/five_model_families.gif" width="100%"/> | <img src="docs/assets/studio/ahmed-streamlines.jpg" width="100%"/> |
+| **Adaptive physics ensembles.** The model chosen on each case against the exact field, as the regime drifts. | **External aerodynamics from any STL.** The Ahmed body, meshed and solved automatically. |
+| <img src="examples/meshgraphnet/_out/cylinder_flow/rollout.png" width="100%"/> | <img src="docs/assets/qualitative/heat_sink_preview.png" width="100%"/> |
+| **Neural operators and graph networks.** A MeshGraphNet rollout of the flow past a cylinder against the solver. | **Qualitative preview before any solver.** Which design change should help, by which mechanism, and how sure it is. |
 
 </div>
 
 ---
 
-## Why PINNeAPPle?
-
-Modern Physics AI ecosystems are powerful — but they assume you already understand:
-
-- How to formulate physical problems correctly
-- Which architectures to use (PINNs, operators, surrogates…)
-- How to validate physics consistency
-- How to benchmark and trust your results
-
-**PINNeAPPle is where you build that foundation.**
-
-```
-Your physics problem
-        ↓
-  [ PINNeAPPle ]   ← experiment freely here
-    Understand the physics
-    Try architectures
-    Compare approaches
-    Validate results
-    Build intuition
-        ↓
-[ Your Target Stack ]
-  (custom infra, HPC, cloud, internal platform, etc.)
-  Scale, deploy, integrate
-```
-
----
-
-## Package Structure
-
-PINNeAPPle is organized into **8 mega-modules**, each grouping related sub-modules:
-
-```
-pinneapple_physics/
-├── pde_environment/    # PDE problem specs, BCs, ICs, presets, RANS
-├── pinn_solver/        # PINN compiler, DoMINO domain decomposition
-└── symbolic_pde/       # SymPy → autograd residual compiler
-
-pinneapple_neural/
-├── architectures/      # SIREN, ModifiedMLP, AFNO, HashGridMLP, MeshGraphNet
-├── trainer/            # Trainer, TwoPhase, DDP, Causal, HPC utilities
-└── predictor/          # Batched inference, grid evaluation, FlowVisualizer
-
-pinneapple_analysis/
-├── uncertainty/        # MC-Dropout, Ensemble UQ, conformal, calibration
-├── validation/         # Conservation, BC, symmetry checks vs. reference
-└── inverse_problems/   # Noise models, regularizers, EKI, SINDy discovery
-
-pinneapple_adaptation/
-├── transfer_learning/  # Fine-tuning, layer freezing, progressive unfreezing
-└── meta_learning/      # MAML, Reptile, PDETaskSampler, few-shot adaptation
-
-pinneapple_simulation/
-├── numerical_solvers/  # FEM, FDM, FVM, Spectral, SPH, LBM, OpenFOAM, FEniCS
-├── particle_dynamics/  # MPM, SPH particles, rigid-body (pure PyTorch)
-└── external_solvers/   # OpenFOAM, MATLAB, FMU/Modelica, FEniCS bridges
-
-pinneapple_systems/
-├── time_series/        # LSTM, GRU, NBeats, TFT, TCN, XGBoost, HHT, FFT
-├── cosimulation/       # Graph co-sim engine: PINNNode, CoSimGraph, CoSimTrainer
-└── digital_twin/       # Live twin, sensor streams, EKF/EnKF, anomaly detection
-
-pinneapple_design/
-├── geometry/           # SDF library, CSG, physics domains, mesh, NACA airfoil
-└── design_optimizer/   # Adjoint, Pareto, Bayesian/evolutionary optimization
-
-pinneapple_tools/
-├── visualization/      # CFD-style plots, streamlines, Q-criterion, animations
-├── model_export/       # TorchScript, ONNX, CSV, NPZ
-├── hpo_experiments/    # Paper discovery, knowledge base, HPO
-├── benchmark_suite/    # Arena, leaderboards, transfer/meta benchmark pipelines
-└── compute_backends/   # PyTorch (default) + JAX backend abstraction
-```
-
-Additional packages:
-
-- `pinneapple_data` — UPD dataset
-- `pinneapple_pdb` — physics database
-- `pinneapple_problemdesign` — NLP → PDE agent
-- `pinneapple_app` — FastAPI + frontend web app for benchmarking PINN models on physics problems (Docker-composed backend/frontend)
-- `pinneapple_arena` — YAML/JSON-driven multi-model physics benchmark runner (~80+ architectures, physics losses, UQ, inverse problems)
-- `pinneapple_blender` — export a field/trajectory as a `.ply` sequence, and optionally build/render a Blender scene via a real local Blender install
-- `pinneapple_hub` — model hub client (`push_to_hub`/`from_pretrained` + `ModelCard`) built on the Hugging Face Hub
-- `pinneapple_llm` — LLM-assisted physics-AI pipeline drafting, gated by a physics-grounded `PhysicsGuardrail` verification layer
-- `pinneapple_models` — compatibility shim re-exporting `pinneapple_neural.architectures` (not a separate package)
-- `pinneapple_perception` — extracts physics observations (velocity fields, boundary geometry, modal frequencies) from images, video, and audio
-- `pinneapple_registry` — local, self-hosted artifact registry: versioned model/dataset storage, experiment tracking, and problem-spec history
-- `pinneapple_security` — data and process security for scientific and industrial Physics AI: dataset/model manifests, Ed25519 signatures, in-toto/SLSA provenance and CycloneDX SBOM, tamper-evident audit trail, AES-GCM at rest, PII detection and log sanitising, differential privacy (DP-SGD), checkpoint scanning, physics-residual detection of manipulated sensor data, and a control map to NIST CSF, IEC 62443, ISO 27001, 21 CFR Part 11 and LGPD/GDPR
-- `pinneapple_solvers` — compatibility shim re-exporting `pinneapple_simulation.numerical_solvers` (not a separate package)
-- `pinneapple_train` — compatibility shim re-exporting `pinneapple_neural.trainer` (not a separate package)
-- `pinneapple_worldmodel` — generalist Physics Foundation Model trained across many physics domains
-
----
-
-## Installation
+## Install
 
 ```bash
 pip install pinneapple
+pip install "pinneapple[all]"     # every optional backend (solvers, geometry, FEniCS, ONNX, ...)
 ```
 
-With optional extras:
+## Five things to try
 
-```bash
-pip install "pinneapple[solvers]"      # numba-accelerated FDM/FEM/LBM
-pip install "pinneapple[pinn]"         # SymPy symbolic PDE compiler
-pip install "pinneapple[geom]"         # trimesh, meshio, gmsh
-pip install "pinneapple[fenics]"       # FEniCS / DOLFINx bridge
-pip install "pinneapple[export]"       # ONNX export
-pip install "pinneapple[all]"          # everything
-```
-
----
-
-## Three Tiers of Physics AI Experience
-
-### Tier 1 — Explorer
-> *"I understand the physics. I want to see what AI can do with it."*
-
-```python
-from pinneapple_physics import get_preset, solve_pde
-from pinneapple_neural import build_model
-
-# Load a 2D Poisson problem preset
-spec = get_preset("poisson_2d")
-
-# Build a SIREN network and train it in one call
-model = build_model("siren", in_dim=2, out_dim=1, hidden_dim=64, n_layers=4)
-result = solve_pde(spec, model, epochs=3000)
-result["history"]  # {"loss": [...]}
-```
-
----
-
-### Tier 2 — Experimenter
-> *"I want to test ideas and compare approaches."*
-
-```python
-from pinneapple_tools.benchmark_suite import Arena
-
-runner  = Arena.from_preset("burgers_1d")
-results = runner.compare(["VanillaPINN", "siren"], epochs=2000)
-print(results.leaderboard())
-```
-
-<div align="center">
-
-![Potential Flow Past Cylinder](./data/viz_05_wave_2d.png)
-*Potential Flow Past Circular Cylinder — exact solution vs PINN vs pointwise error*
-
-</div>
-
----
-
-### Tier 3 — Builder
-> *"I want to turn this into a real system."*
-
-```python
-from pinneapple_neural.trainer import DDPPINNTrainer, DDPTrainerConfig
-from pinneapple_tools.model_export import export_onnx
-from pinneapple_systems.digital_twin import build_digital_twin, MQTTStream
-
-# Distributed training: one DDPPINNTrainer.setup(rank, world_size) call per
-# spawned process, then loss_fn(model, epoch) -> Tensor each step
-cfg     = DDPTrainerConfig(backend="nccl", world_size=4)
-trainer = DDPPINNTrainer(model, cfg)
-trainer.setup(rank=0, world_size=4)
-history = trainer.train(loss_fn, n_epochs=10_000)
-
-# Export to ONNX
-export_onnx(model, "surrogate.onnx", example_input=x_sample)
-
-# Wrap as a live digital twin
-twin = build_digital_twin(model, field_names=["u", "v", "p"])
-twin.add_stream(MQTTStream(broker="sensors.local", topic="plant/telemetry", sensor_id="s1", field_names=["u", "v", "p"]))
-twin.start()
-```
-
-<div align="center">
-
-![Model Comparison](./outputs/07_forecast_comparison.png)
-*Multi-model forecast comparison across test windows — Naive, FFT-only, LSTM, FFT+LSTM*
-
-</div>
-
----
-
-## Key Features
-
-| Mega-module | Sub-modules | What it does |
-|---|---|---|
-| `pinneapple_physics` | `pde_environment` · `pinn_solver` · `symbolic_pde` | Define PDEs, compile PINN losses, SymPy → autograd |
-| `pinneapple_neural` | `architectures` · `trainer` · `predictor` | SIREN/AFNO/MGN models, distributed training, inference |
-| `pinneapple_analysis` | `uncertainty` · `validation` · `inverse_problems` | UQ, physics consistency checks, parameter inversion |
-| `pinneapple_adaptation` | `transfer_learning` · `meta_learning` | Fine-tune across PDEs, MAML/Reptile few-shot |
-| `pinneapple_simulation` | `numerical_solvers` · `particle_dynamics` · `external_solvers` | FEM/FDM/SPH/LBM, OpenFOAM/FEniCS bridges |
-| `pinneapple_systems` | `time_series` · `cosimulation` · `digital_twin` | Forecasting, co-sim graphs, live sensor fusion |
-| `pinneapple_design` | `geometry` · `design_optimizer` | SDF/CSG geometry, adjoint + Bayesian shape opt |
-| `pinneapple_tools` | `visualization` · `model_export` · `benchmark_suite` · `compute_backends` | CFD plots, ONNX export, Arena benchmarks, JAX backend |
-
----
-
-## Quick Examples
-
-### First result in about a minute
-
-[`examples/first_example/first_example.py`](examples/first_example/first_example.py) solves Burgers' equation with a
-PINN, checks it against the exact solution and plots both, in about a minute on a laptop CPU (relative L2 about 0.08 at
-the steep front). CI runs it from a clean `pip install` of the wheel.
-
-
-### Solve, compare and reproduce in a few lines
+<details open>
+<summary><b>1. Solve a PDE and compare against the exact solution</b></summary>
 
 ```python
 import pinneapple as pp
 
 prob = pp.PhysicalProblem.from_preset("burgers_1d", nu=0.01 / 3.141592653589793)
-print(prob.summary())
-
 exact = pp.solve(prob, "analytic")                      # Cole-Hopf closed form
-pinn = pp.solve(prob, "pinn", epochs=4000)              # physics-informed network
+pinn = pp.solve(prob, "pinn", epochs=4000)            # physics-informed network
 print(pp.compare(prob, ["pinn"], reference="analytic", options={"pinn": {"epochs": 4000}}))
-
-result = pp.Experiment(prob, method="pinn", options={"epochs": 4000}, reference="analytic", seed=0).run()
-print(result.metrics["relative_l2"]["u"])               # about 2e-2 on CPU in a few minutes
-result.save("runs/burgers_pinn")                        # JSON record + weights, with the problem fingerprint
 ```
+`pp.Experiment(...).run()` records the result with the problem's fingerprint; add your own method with `@pp.register_method("name")`.
+</details>
 
-`pp.metrics` holds the error metrics with one convention (per field; relative errors are `nan` when the
-reference is zero). Add your own method with `@pp.register_method("name")`.
-
-### Lower-level building blocks
+<details>
+<summary><b>2. An ensemble that notices a regime change on its first case</b></summary>
 
 ```python
-import torch
+import numpy as np
+from pinneapple_physics.advection_diffusion_1d import AdvectionDiffusion1D
+from pinneapple_physics.ensemble import PhysicsEnsemble, from_callable
 
-# ── Physics problem definition ──────────────────────────────────────────────
-from pinneapple_physics.pde_environment import get_preset
-from pinneapple_physics.pinn_solver import compile_problem
+ad = AdvectionDiffusion1D()                             # u_t + c u_x = nu u_xx, exact solutions
+experts = [from_callable("surrogate A (built for nu=0.01)", lambda q: ad.exact({**q, "nu": 0.01})),
+           from_callable("surrogate B (built for nu=0.2)", lambda q: ad.exact({**q, "nu": 0.2})),
+           from_callable("upwind scheme", lambda q: ad.finite_difference(q, "upwind"))]
 
-spec   = get_preset("burgers_1d")
-losses = compile_problem(spec)
+rng = np.random.default_rng(0)                          # the diffusivity jumps half way: a regime change
+cases = [ad.random_case(rng, nu) for nu in [0.01] * 30 + [0.2] * 30]
 
-# ── Neural network architectures ────────────────────────────────────────────
-from pinneapple_neural.architectures import ModelRegistry, SIREN, AFNO
-from pinneapple_neural.trainer import Trainer, TrainConfig
-from pinneapple_simulation.numerical_solvers.problem_runner import generate_pinn_dataset
+def implausible(q):                                     # physics on the reading itself: energy a real state lacks
+    e = np.abs(np.fft.rfft(q["u0"])) ** 2
+    return e[8:].sum() / e.sum() > 1e-4
 
-model = ModelRegistry.build("siren", in_dim=2, out_dim=1, hidden_dim=128, n_layers=6)
-
-# One full physics batch (collocation + BC/IC points), re-used every epoch
-batch  = generate_pinn_dataset(spec, n_col=4096, n_bc=512)
-loader = [{k: (torch.as_tensor(v) if hasattr(v, "dtype") else v) for k, v in batch.items()}]
-
-cfg     = TrainConfig(epochs=5000, device="cuda")
-trainer = Trainer(model, losses)
-result  = trainer.fit(loader, loader, cfg)
-
-# ── Uncertainty quantification ──────────────────────────────────────────────
-from pinneapple_analysis.uncertainty import uq_predict
-from pinneapple_analysis.validation import validate_model
-
-uq_result  = uq_predict(model, x_test, method="mc_dropout")
-val_report = validate_model(model, spec)
-
-# ── Design optimization ─────────────────────────────────────────────────────
-from pinneapple_design.geometry import get_domain
-from pinneapple_design.design_optimizer import DesignOptLoop, DesignOptConfig
-
-domain = get_domain("lid_driven_cavity_2d")
-x_int  = domain.sample_interior(4096)
-
-# ── Simulation data generation ──────────────────────────────────────────────
-from pinneapple_simulation.numerical_solvers import HeatConduction3D
-from pinneapple_simulation.numerical_solvers.fdm3d import HeatConfig3D
-
-solver = HeatConduction3D(HeatConfig3D(nx=32, ny=32, nz=32))
-data   = solver.solve()
-
-# ── Time series forecasting ─────────────────────────────────────────────────
-from pinneapple_systems.time_series import NaiveForecaster
-
-forecaster = NaiveForecaster()
-forecaster.fit(train_series)
-forecast = forecaster.predict(24)
-
-# ── Benchmarking ────────────────────────────────────────────────────────────
-from pinneapple_tools.benchmark_suite import Arena
-
-runner = Arena.from_preset("poisson_2d")
-result = runner.run("siren", epochs=5000)
-print(result.summary())
+ens = PhysicsEnsemble(experts, mode="select",
+                      residual_fn=ad.residual, residual_lookahead=2.0,   # switch on the first new case
+                      measurement_check=implausible)                     # sensor noise never switches it
+run = ens.run(cases, [ad.exact(q) for q in cases])
+print(run.switches(), run.summary()["ensemble"])
 ```
+Output: `[(0, 'surrogate A (built for nu=0.01)'), (30, 'surrogate B (built for nu=0.2)')] 0.0`. The switch is at case 30, the first case of the new regime. Without `residual_lookahead` it takes five cases, and the error is 0.0103. See [docs/core_concepts/physics_ensembles.md](docs/core_concepts/physics_ensembles.md).
+</details>
+
+<details>
+<summary><b>3. Know which design change should help, before simulating</b></summary>
+
+```python
+from pinneapple_design.geometry.bodies import box
+from pinneapple_design.qualitative import Assembly, preview
+
+def heat_sink(n_fins):                                  # base + fins along the flow (x), metres
+    parts = {"base": box((0.08, 0.06, 0.004), (0.04, 0, 0.002))}
+    for i in range(n_fins):
+        y = -0.03 + 0.00075 + i * (0.06 - 0.0015) / (n_fins - 1)
+        parts[f"fin{i}"] = box((0.08, 0.0015, 0.03), (0.04, y, 0.019))
+    return Assembly(parts)
+
+p = preview({"8 fins": heat_sink(8), "20 fins": heat_sink(20)}, "maximize heat rejection",
+            conditions={"U": 2.0, "dT": 40.0, "base_part": "base"}, lang="en")
+print(p.text())                                         # direction, mechanisms, confidence, before any solver
+```
+Then `p.quantify(...)` runs the accurate physics on the variants worth it and reports where the qualitative reading was right ([examples/qualitative](examples/qualitative)).
+</details>
+
+<details>
+<summary><b>4. A 3D digital twin in the browser</b></summary>
+
+```python
+import numpy as np, trimesh
+from pinneapple_twin3d import Scene
+
+pipe = trimesh.creation.cylinder(radius=0.05, height=1.0, sections=48)
+wear = np.linspace(0, 1, 3)[:, None] * np.abs(pipe.vertices[:, 2])[None, :]     # (time, vertex)
+sc = Scene("Pipe wear", times=[0, 1, 2], time_unit="year")
+sc.add_trimesh("pipe", pipe, group="line A")
+sc.add_field("pipe", "wear_depth", wear, unit="mm")
+sc.add_sensor("PT-101", (0.0, 0.06, 0.3), unit="bar", series=[4.1, 4.0, 3.8], envelope=(3.5, 5.0))
+sc.export("out/pipe_twin")                                          # scene.json + geometry.glb + fields.bin + web viewer
+```
+Open `out/pipe_twin/index.html`: geometry, the field over time, sensors with their operating envelopes. USD export for Omniverse with `usd=True`.
+</details>
+
+<details>
+<summary><b>5. A global weather forecast, Earth-2 style</b></summary>
+
+```python
+from pinneapple_physics.weather.data import download, Era5Store
+from pinneapple_physics.weather.train import Forecaster
+from pinneapple_physics.weather.viz import earth2_gif
+
+ck = "examples/weather_forecasting/checkpoints/"
+store = Era5Store(download("wx/era5", (2021, 2021), normalization=ck + "era5_64x32_normalization.json"))  # public ERA5
+fc = Forecaster.load(ck + "phase1_step15000_fp16.pt", store)
+
+i = store.index("2021-06-23T00")                        # five days before the 2021 heat dome
+x = store.state[i - 1:i + 1]
+f = store.denorm(fc.rollout(x[1], x[0], store.times[i], steps=24)[0])           # 6 days, every 6 h
+t = store.denorm(store.state[i:i + 25])
+c = store.channels.index("t2m")
+earth2_gif("heat_dome.gif", "t2m", t[:, c], f[:, c], store.lat, store.lon, store.times[i:i + 25],
+           lead_hours=range(0, 145, 6), horizon={"useful_hours": 91, "no_skill_hours": 96},
+           title="Heat dome, June 2021", center=(42, -128))
+```
+ERA5 comes from the public WeatherBench2 bucket, no account needed. To finish training and score against IFS HRES, Pangu-Weather and NeuralGCM, see [examples/weather_forecasting](examples/weather_forecasting).
+</details>
 
 ---
 
-## Examples
+## Module map
 
-| Folder | What it covers |
-|--------|---------------|
-| `examples/pde_environment/` | PDE presets, BCs, problem specs |
-| `examples/pinn_solver/` | PINN compiler, symbolic losses |
-| `examples/architectures/` | Model registry, SIREN, AFNO, GNN, operators |
-| `examples/trainer/` | Training loops, DDP, HPC, AMP |
-| `examples/numerical_solvers/` | FEM, FDM, FVM, SPH, LBM, spectral |
-| `examples/time_series/` | Forecasting, backtesting, uncertainty |
-| `examples/geometry/` | SDF, CSG, mesh, airfoil generation |
-| `examples/benchmark_suite/` | Arena, YAML configs, leaderboards |
-| `examples/hpo_experiments/` | Paper discovery, knowledge base |
-| `examples/data_pipeline/` | UPD datasets, Zarr, active learning |
-| `examples/physics_db/` | Physics database, NASA/Earthdata |
-| `examples/problem_designer/` | NLP → PDE agent |
+```
+PINNeAPPle
+│
+├── Problems and physics
+│   ├── pinneapple_core           Field, Mesh, Domain, Geometry: shared primitives
+│   ├── pinneapple_physics        PDE specs and presets, PINN compiler, SymPy → autograd, closed forms,
+│   │                             adaptive physics ensembles, global weather forecasting (ERA5)
+│   └── pinneapple_problemdesign  plain-language problem → PDE spec (elicitation, knowledge base, codegen)
+│
+├── Models and training
+│   ├── pinneapple_neural         SIREN, FNO, DeepONet, AFNO, MeshGraphNet, transformers, recurrent, reservoir,
+│   │                             ROMs, ...; trainers (DDP, causal, two-phase); predictors; PhysicsNeMo bridge
+│   ├── pinneapple_adaptation     transfer learning and meta-learning (MAML, Reptile) across PDE families
+│   ├── pinneapple_quantum        variational quantum circuits with PDE losses (VQ-PINN), simulators and hardware
+│   └── pinneapple_worldmodel     a physics foundation model trained across domains, synthetic data factory
+│
+├── Simulation
+│   ├── pinneapple_simulation     FEM, FDM, FVM, spectral, SPH, LBM, MPM; OpenFOAM, FEniCS, CalculiX, FMU bridges;
+│   │                             geophysics
+│   └── pinneapple_systems        time series, co-simulation graphs, digital twins (EKF/EnKF), process components
+│
+├── Trust, verification and decisions
+│   ├── pinneapple_analysis       uncertainty, validation, verification, inverse problems, data assimilation,
+│   │                             state estimation, trust and cost
+│   ├── pinneapple_decision       probabilistic decision layer: which experiment next, under hard constraints,
+│   │                             learning only from verified results
+│   └── pinneapple_security       manifests, signatures, provenance (in-toto/SLSA), SBOM, audit trail, privacy,
+│                                 physics-residual detection of manipulated sensor data
+│
+├── Data and perception
+│   ├── pinneapple_data           datasets, CAE mesh and field I/O, simulation metadata, preflight, lineage, synthesis
+│   ├── pinneapple_perception     physics from images, video and audio (PIV, geometry, modal frequencies)
+│   ├── pinneapple_pdb            physics database: templates, shards, derived quantities, benchmarks
+│   └── pinneapple_catalog        what the library knows about, with sources
+│
+├── Design
+│   └── pinneapple_design         SDF/CSG geometry, aero (VLM, airliner), thermal (heat sinks), qualitative preview,
+│                                 adjoint, Bayesian and evolutionary optimisation
+│
+├── Visualisation and experience
+│   ├── pinneapple_twin3d         3D digital twins in the browser (glTF/USD), OpenFOAM scenes, scans
+│   ├── pinneapple_blender        fields and trajectories to Blender, Cycles renders
+│   ├── pinneapple_tools          plots, model export (ONNX, TorchScript), HPO, benchmark suite, sandboxes
+│   └── pinneapple_app            web app for benchmarking models on physics problems
+│
+└── Operations
+    ├── pinneapple_arena          YAML-driven multi-model benchmarks (80+ architectures)
+    ├── pinneapple_registry       self-hosted model and dataset registry, experiment tracking
+    ├── pinneapple_hub            push_to_hub / from_pretrained with model cards
+    ├── pinneapple_orchestration  Prefect pipelines
+    └── pinneapple_llm            LLM-drafted pipelines gated by a physics guardrail
+```
+
+`pinneapple_models`, `pinneapple_solvers` and `pinneapple_train` are compatibility aliases of the modules above.
+
+---
+
+## Use cases you can run
+
+| Area | Example | What it shows |
+|---|---|---|
+| Weather | [`examples/weather_forecasting`](examples/weather_forecasting) | Global ERA5 model, skill by lead against IFS/Pangu/NeuralGCM, seven extreme events |
+| Ensembles | [`examples/physics_ensemble`](examples/physics_ensemble) | Five model families, regime detection, sensor noise against regime change |
+| Aerodynamics | [`apps/aero_optimizer`](apps/aero_optimizer), [`examples/use_cases/concorde_high_aoa`](examples/use_cases/concorde_high_aoa), [`examples/use_cases/missile_aero`](examples/use_cases/missile_aero) | Design optimisation with OpenFOAM verification, high angle of attack |
+| Thermal | [`apps/heatsink_sizer`](apps/heatsink_sizer), [`apps/pcb_hotspot`](apps/pcb_hotspot), [`examples/use_cases/fin_convection_inverse`](examples/use_cases/fin_convection_inverse) | Sizing, hot spots, inverse convection |
+| Structures | [`examples/use_cases/solid_mechanics`](examples/use_cases/solid_mechanics), [`examples/use_cases/crash_surrogate`](examples/use_cases/crash_surrogate), [`examples/calculix_cantilever`](examples/calculix_cantilever) | FEM surrogates, crash, CalculiX bridge |
+| Digital twins | [`examples/use_cases/heated_channel_twin`](examples/use_cases/heated_channel_twin), [`examples/use_cases/drill_pipe_surrogate`](examples/use_cases/drill_pipe_surrogate) | Live twins, surrogates in the loop |
+| Field robotics | [`examples/use_cases/terramechanics`](examples/use_cases/terramechanics) | Wheel-soil physics |
+| Synthetic data | [`examples/use_cases/physics_data_factory`](examples/use_cases/physics_data_factory) | Simulation → rendered images for training |
+| Design | [`examples/qualitative`](examples/qualitative) | Qualitative preview, then the quantitative check |
+
+The Engineering Apps in [`apps/`](apps) (heat-sink sizer, PCB hot spots, mesh quality, simulation preflight and comparator, model lineage, interoperability hub, ...) are FastAPI services with a web front end, built on the library.
+
+<div align="center">
+
+| | | |
+|:---:|:---:|:---:|
+| <img src="docs/assets/apps/01-heatsink-sizer.jpg" width="100%"/> | <img src="docs/assets/apps/09-mesh-quality.jpg" width="100%"/> | <img src="docs/assets/apps/11-model-lineage.jpg" width="100%"/> |
+| Heat-sink sizer | Mesh quality | Model lineage |
+
+</div>
+
+---
+
+## Roadmap
+
+New application areas, each entering the same way (a real problem with public data, a known baseline, the trust questions, a GIF and an honest table, then the API): [#327](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/327).
+
+- satellite thunderstorm nowcasting;
+- robotics with physics-verified model switching;
+- drones (flight safety, and the drone as a sensor);
+- river discharge from smartphone video;
+- flood and fire mapping;
+- batteries;
+- manufacturing drift;
+- structural health;
+- agriculture;
+- physics verification as a service.
 
 ---
 
@@ -336,31 +266,9 @@ print(result.summary())
 
 > *If you can't validate it, you shouldn't deploy it.*
 
-Physics AI is about:
-
-- Correct formulations
-- Reliable validation
-- Understanding failure modes
-- Making informed decisions
-
----
-
-## Positioning
-
-|  | PINNeAPPle |
-|--|------------|
-| Vendor lock-in | ❌ Not tied to any vendor |
-| Just a PINN library | ❌ Much more than that |
-| Just experimentation | ❌ Bridges to production |
-| ✅ What it is | A controlled environment to **design, test, and validate** Physics AI systems |
-
----
+Correct formulations, reliable validation, understanding failure modes, and decisions made on evidence.
 
 ## Citation
-
-If you use **PINNeAPPle** in academic research, technical reports, benchmarks, or industrial publications, please cite the framework.
-
-### BibTeX
 
 ```bibtex
 @software{pinneapple2026,
@@ -372,14 +280,6 @@ If you use **PINNeAPPle** in academic research, technical reports, benchmarks, o
 }
 ```
 
----
+If this project makes sense to you, **give it a star** ⭐: it helps grow the ecosystem and attract contributors.
 
-## Support the Project
-
-If this project makes sense to you, **give it a star** ⭐
-
-It helps grow the ecosystem, attract contributors, and build a real standard.
-
----
-
-*Built for researchers and engineers who take physics seriously.*
+<div align="center"><sub>Built for researchers and engineers who take physics seriously.</sub></div>

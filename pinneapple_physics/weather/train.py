@@ -57,6 +57,8 @@ class Forecaster:
         return np.stack(out, 1)
 
     def save(self, path: str | Path, config: dict):
+        config = {**config, "channels": self.store.channels, "mean": self.store.mean.tolist(),
+                  "std": self.store.std.tolist()}
         torch.save({"state_dict": self.model.state_dict(), "config": config}, path)
 
     @classmethod
@@ -65,6 +67,10 @@ class Forecaster:
         cfg = ck["config"]
         m = SphereUNet(len(store.channels), 7, tuple(cfg["widths"]), cfg["blocks"], cfg["patch"])
         m.load_state_dict(ck["state_dict"])
+        if "mean" in cfg and not (np.allclose(cfg["mean"], store.mean, rtol=1e-4) and
+                                  np.allclose(cfg["std"], store.std, rtol=1e-4)):
+            raise ValueError("this checkpoint was trained with another normalisation than the store's: download the "
+                             "store with download(..., normalization=<the json shipped with the checkpoint>)")
         return cls(store, m)
 
 

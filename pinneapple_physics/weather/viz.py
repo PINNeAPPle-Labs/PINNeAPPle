@@ -145,9 +145,9 @@ def forecast_gif(path, var, truth, forecast, lat, lon, times, *, skill_leads_h, 
     cb.set_label(LABEL.get(var, var), color=FG, fontsize=9)
     cb.ax.tick_params(colors=DIM, labelsize=8)
     cb.outline.set_edgecolor(DIM)
-    ttl = fig.text(0.05, 0.955, title, color=FG, fontsize=13, weight="bold")
-    sub = fig.text(0.05, 0.915, "", color=DIM, fontsize=10)
-    badge = fig.text(0.95, 0.955, "", color=GOOD, fontsize=13, weight="bold", ha="right")
+    ttl = fig.text(0.05, 0.962, title, color=FG, fontsize=12.5, weight="bold")
+    sub = fig.text(0.05, 0.925, "", color=DIM, fontsize=9.5)
+    badge = fig.text(0.95, 0.925, "", color=GOOD, fontsize=12, weight="bold", ha="right")
     # skill strip
     axS.set_facecolor(BG)
     lh = np.asarray(skill_leads_h, float) / 24
@@ -158,9 +158,10 @@ def forecast_gif(path, var, truth, forecast, lat, lon, times, *, skill_leads_h, 
         axS.axvspan(U, min(N, xmax), color=FADING, alpha=0.12)
     if N < xmax:
         axS.axvspan(N, xmax, color=POOR, alpha=0.12)
-    for name, (xs, ys) in (extra_series or {}).items():
+    for j, (name, (xs, ys)) in enumerate((extra_series or {}).items()):
+        ys = fill_gaps(xs, ys)
         axS.plot(np.asarray(xs) / 24, ys, color=DIM, lw=1, alpha=0.7)
-        axS.text(np.asarray(xs)[-1] / 24, ys[-1], " " + name, color=DIM, fontsize=7, va="center")
+        axS.text(np.asarray(xs)[-1] / 24 - 0.05, ys[-1] + 0.06 * (j + 1), name, color=DIM, fontsize=7, ha="right")
     axS.plot(lh, skill_acc, color=FG, lw=2)
     axS.axhline(0.6, color=DIM, ls=":", lw=1)
     axS.text(0.02, 0.62, "ACC 0.6: limit of a useful forecast", color=DIM, fontsize=7, transform=axS.get_yaxis_transform())
@@ -197,6 +198,15 @@ def forecast_gif(path, var, truth, forecast, lat, lon, times, *, skill_leads_h, 
     return path
 
 
+def fill_gaps(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Linear interpolation over NaNs (models published every 12 h on a 6-hour lead axis)."""
+    y = np.asarray(y, float).copy()
+    ok = np.isfinite(y)
+    if ok.sum() >= 2:
+        y[~ok] = np.interp(np.asarray(x, float)[~ok], np.asarray(x, float)[ok], y[ok], left=np.nan, right=np.nan)
+    return y
+
+
 def skill_figure(path, leads_h, curves: dict, horizons_by_model: dict, var: str, metric: str = "acc", dpi=110):
     """Skill by lead for every model (dark style), with the useful horizon of each marked."""
     import matplotlib
@@ -209,8 +219,8 @@ def skill_figure(path, leads_h, curves: dict, horizons_by_model: dict, var: str,
     palette = ["#ffffff", "#5fb3ff", "#ff9f43", "#c792ea", "#3ddc97", "#ff5d5d", "#9aa5b1", "#ffd166"]
     for (name, ys), col in zip(curves.items(), palette, strict=False):
         lw = 2.4 if name.startswith("PINNeAPPle") else 1.4
-        ax.plot(np.asarray(leads_h[name] if isinstance(leads_h, dict) else leads_h) / 24, ys, color=col, lw=lw,
-                label=name)
+        xs = np.asarray(leads_h[name] if isinstance(leads_h, dict) else leads_h)
+        ax.plot(xs / 24, fill_gaps(xs, ys), color=col, lw=lw, label=name)
         h = horizons_by_model.get(name)
         if metric == "acc" and h is not None and np.isfinite(h):
             ax.plot([h / 24], [0.6], "o", color=col, ms=5)

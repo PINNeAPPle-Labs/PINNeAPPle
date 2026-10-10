@@ -84,8 +84,12 @@ def _weights(store: Era5Store) -> torch.Tensor:
 
 def train(store_path: str | Path, out: str | Path, *, train_years=(1990, 2017), val_years=(2018, 2019),
           widths=(192, 256, 384), blocks=2, patch=2, batch=16, hours=6.0,
-          schedule=((1, 0.45), (2, 0.2), (4, 0.2), (8, 0.15)), lr=8e-4, seed=0, log=print) -> Path:
-    """Train for ``hours`` of wall time split by ``schedule`` ((rollout steps, fraction of the time), ...)."""
+          schedule=((1, 0.45), (2, 0.2), (4, 0.2), (8, 0.15)), lr=8e-4, seed=0, log=print,
+          init_from: str | Path | None = None, resume: bool = True) -> Path:
+    """Train for ``hours`` of wall time split by ``schedule`` ((rollout steps, fraction of the time), ...).
+
+    ``out/last.pt`` (weights, optimiser, phase and time spent in it) is written every 200 steps; with ``resume`` a
+    run that was interrupted continues from it. ``init_from``: start from the weights of another checkpoint."""
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
     torch.set_num_threads(max(1, torch.get_num_threads()))
@@ -104,6 +108,18 @@ def train(store_path: str | Path, out: str | Path, *, train_years=(1990, 2017), 
     total = hours * 3600.0
     t_start, best, history, step = time.time(), math.inf, [], 0
     use_bf16 = _bf16()
+    start_phase, spent_in_phase = 0, 0.0
+    if init_from is not None:
+        model.load_state_dict(torch.load(init_from, map_location="cpu", weights_only=False)["state_dict"])
+        log(f"weights from {init_from}")
+    if resume and (out / "last.pt").exists():
+        ck = torch.load(out / "last.pt", map_location="cpu", weights_only=False)
+        model.load_state_dict(ck["state_dict"])
+        opt.load_state_dict(ck["optimizer"])
+        start_phase, spent_in_phase = ck["phase"], ck["spent_in_phase"]
+        best, history, step = ck["best"], ck["history"], ck["step"]
+        rng = np.random.default_rng(seed + step)
+        log(f"resumed at step {step}, phase {start_phase}, {spent_in_phase / 60:.0f} min into it")
 
     def batch_at(idx, k):
         x = np.stack([store.state[i - 1:i + k + 1] for i in idx]).astype(np.float32)   # (B, k+2, C, H, W)
@@ -124,8 +140,11 @@ def train(store_path: str | Path, out: str | Path, *, train_years=(1990, 2017), 
         return err
 
     elapsed_before = 0.0
-    for k, frac in schedule:
-        budget = frac * total
+    for ph, (k, frac) in enumerate(schedule):
+        if ph < start_phase:
+            continue
+        budget = frac * total - (spent_in_phase if ph == start_phase else 0.0)
+        offset = (spent_in_phase if ph == start_phase else 0.0)
         t_phase = time.time()
         phase_lr = lr if k == 1 else lr * 0.3
         sched_steps = None
@@ -133,7 +152,7 @@ def train(store_path: str | Path, out: str | Path, *, train_years=(1990, 2017), 
         while time.time() - t_phase < budget:
             idx = rng.choice(tr[(tr >= 1) & (tr + k < len(store.times))], batch, replace=False)
             x, t0 = batch_at(idx, k)
-            frac_done = (time.time() - t_phase) / budget
+            frac_done = (offset + time.time() - t_phase) / (frac * total)
             for g in opt.param_groups:                                # cosine decay inside each phase
                 g["lr"] = phase_lr * (0.05 + 0.95 * 0.5 * (1 + math.cos(math.pi * min(frac_done, 1.0))))
             a, b = x[:, 1], x[:, 0]
@@ -151,7 +170,7 @@ def train(store_path: str | Path, out: str | Path, *, train_years=(1990, 2017), 
             n_in_phase += 1
             if step % 200 == 0:
                 v = val_error()
-                history.append({"step": step, "rollout": k, "loss": float(loss), "val_2day": v,
+                history.append({"step": step, "rollout": k, "loss": float(loss.detach()), "val_2day": v,
                                 "minutes": (time.time() - t_start) / 60})
                 log(f"step {step} rollout {k} loss {float(loss):.4f} val(2 days) {v:.4f} "
                     f"{(time.time() - t_start) / 60:.0f} min")
@@ -159,6 +178,10 @@ def train(store_path: str | Path, out: str | Path, *, train_years=(1990, 2017), 
                     best = v
                     fc.save(out / "model.pt", cfg)
                 (out / "history.json").write_text(json.dumps(history))
+                torch.save({"state_dict": model.state_dict(), "optimizer": opt.state_dict(), "phase": ph,
+                            "spent_in_phase": offset + time.time() - t_phase, "best": best, "history": history,
+                            "step": step, "config": cfg}, out / "last.tmp")
+                (out / "last.tmp").replace(out / "last.pt")
         elapsed_before += time.time() - t_phase
         _ = sched_steps, n_in_phase, elapsed_before
     v = val_error()

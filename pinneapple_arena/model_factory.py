@@ -50,7 +50,7 @@ def _build_kwargs(net_cfg: NetworkConfig, in_dim: int, out_dim: int,
     """
     modes2 = net_cfg.modes2 if net_cfg.modes2 > 0 else net_cfg.modes
     edge_in = edge_in_dim if edge_in_dim > 0 else (net_cfg.edge_in_dim if net_cfg.edge_in_dim > 0 else in_dim)
-    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else in_dim
+    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else 1        # one instance: a constant input function
     trunk  = net_cfg.trunk_dim  if net_cfg.trunk_dim  > 0 else in_dim
     state  = net_cfg.state_dim  if net_cfg.state_dim  > 0 else in_dim
 
@@ -286,7 +286,7 @@ def _build_fno2d(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module
 
 
 def _build_deeponet(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module:
-    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else in_dim
+    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else 1        # one instance: a constant input function
     trunk  = net_cfg.trunk_dim  if net_cfg.trunk_dim  > 0 else in_dim
     from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
     # hidden is a list of widths here; a failure must surface, not turn the DeepONet into an MLP silently

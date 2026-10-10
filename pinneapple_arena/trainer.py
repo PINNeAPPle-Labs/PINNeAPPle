@@ -264,6 +264,13 @@ def _forward_supervised(model: nn.Module, x: torch.Tensor, cfg: ModelConfig
     mtype = cfg.type.lower()
     if mtype in ("fno2d", "fno", "fourier", "fourier_neural_operator"):
         return _fno_forward(model, x)
+    if mtype in ("deeponet", "multiscale_deeponet") and hasattr(model, "branch"):
+        # one problem instance: the branch sees that instance's input function (its parameters, or a constant
+        # when the problem has none) and the trunk the query points -- a genuine DeepONet, not a pointwise MLP
+        u = getattr(model, "instance_input", None)
+        if u is None:
+            u = torch.ones(1, model.branch[0].in_features, device=x.device, dtype=x.dtype)
+        return _unwrap_output(model(u.to(x.device, x.dtype), x))[0]
     return _unwrap_output(model(x))
 
 

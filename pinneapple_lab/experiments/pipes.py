@@ -111,7 +111,7 @@ class PipeFlow(Experiment):
         # mass: the bulk velocity is the same on every section
         clear = (sD > 1) & (sD < L - 1)
         if case == "kenics_mixer":                      # the plates take part of the section inside the mixer
-            clear &= (sD < 2.9) | (sD > 3.0 + 1.5 * p["elements"] + 0.1)
+            clear &= (sD < 2.5) | (sD > 3.0 + 1.5 * p["elements"] + 0.5)      # plus the refined cells around
         um = sec["u_mean"][clear]
         area_err = float(np.abs(um / res.U - 1).max())
         ctx.check("bulk_velocity_constant_along_pipe", value=area_err, max=0.03,

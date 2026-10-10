@@ -166,13 +166,19 @@ class ROMStudy(Experiment):
                 a_ = A_all[:n_fit, :r_]
                 try:
                     m_ = OperatorInference(r=r_, use_quadratic=True, l2_linear=1e-6, l2_quad=lq, scale=True).fit(a_[None])
-                    av = m_.rollout(a_[-1][None], n_tr - n_fit)[0]
-                    pv = (av @ pod.basis_[:, :r_].T + pod.mean_).numpy()
+                    av = m_.rollout(a_[-1][None], n_tr - n_fit + H)[0]          # through the whole horizon
+                    amp = float(av.abs().max()) / float(A_all[:, :r_].abs().max())
+                    pv = (av[: n_tr - n_fit + 1] @ pod.basis_[:, :r_].T + pod.mean_).numpy()
                     ev = float(np.mean(np.linalg.norm(pv - val_truth, axis=1)))
+                    if not np.isfinite(amp) or amp > 2.0:                       # unstable: reject
+                        ev = np.inf
                 except Exception:                                  # noqa: BLE001 - a diverging candidate
                     ev = np.inf
                 if np.isfinite(ev) and ev < best_err:
                     best_cfg, best_err = (r_, lq), ev
+        if best_cfg is None:                                   # every candidate unstable: the most regularised one
+            best_cfg = (4, 1e2)
+            ctx.log("no stable Operator Inference candidate; using r = 4, l2_quad = 100")
         r, lq = best_cfg
         ctx.output("opinf_selection", {"rank": r, "l2_quad": lq, "validation": "last 25 % of the training window"})
         a_tr = A_all[:, :r]
@@ -195,6 +201,9 @@ class ROMStudy(Experiment):
         best = min(float(e_dmd[: k3 + 1].mean()), float(e_oi[: k3 + 1].mean()))
         ctx.check("rom_forecast_beats_persistence", value=float(e_p[: k3 + 1].mean()) / max(best, 1e-12), min=3.0,
                   detail="mean relative error over 3 shedding periods, persistence / best ROM", kind="baseline")
+        ctx.check("opinf_bounded_over_horizon", value=float(np.nanmax(np.abs(a_pred.numpy())) / float(A_all[:, :r].abs().max()))
+                  if np.isfinite(a_pred.numpy()).all() else float("inf"), max=2.0,
+                  detail="largest latent amplitude of the forecast / largest in training (no blow-up)", kind="sanity")
         ctx.check("rom_forecast_error_3_periods", value=best, max=0.15,
                   detail="relative to the fluctuation norm", kind="generalization")
         # figures

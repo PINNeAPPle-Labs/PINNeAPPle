@@ -164,10 +164,13 @@ class CarLBM(Experiment):
                                steps=p["steps"], tunnel_height=p["tunnel_height"])
         n = len(sim["cd_t"])
         q3, q4 = slice(n // 2, 3 * n // 4), slice(3 * n // 4, n)
-        cd, cl = float(sim["cd_t"][n // 2:].mean()), float(sim["cl_t"][n // 2:].mean())
+        # coefficients from the control-volume momentum balance (validated on a cylinder: Cd 2.11 at Re 20 and
+        # 1.64 at Re 40 against 2.05-2.09 and 1.52-1.60 unconfined, blockage 1/12); the bounce-back momentum
+        # exchange series over-predicts the level about 2x here and is used only for its unsteadiness
+        cd, cl = float(sim["cd_cv"]), float(sim["cl_cv"])
         ctx.metric("Cd", cd)
         ctx.metric("Cl", cl)
-        ctx.metric("Cd_rms_fluctuation", float(sim["cd_t"][n // 2:].std()))
+        ctx.metric("Cd_rms_fluctuation", float(sim["cd_t"][n // 2:].std() / sim["cd_t"][n // 2:].mean() * cd))
         sig = sim["cl_t"][n // 2:] - cl
         spec = np.abs(np.fft.rfft(sig))
         k = int(np.argmax(spec[1:]) + 1)
@@ -180,7 +183,8 @@ class CarLBM(Experiment):
         ctx.check("finite_fields", sim["finite"])
         ctx.check("drag_statistically_converged", value=abs(sim["cd_t"][q3].mean() / sim["cd_t"][q4].mean() - 1),
                   max=0.05, detail="mean drag over the 3rd vs 4th quarter of the run")
-        ctx.check("drag_in_bluff_body_range", value=cd, min=0.1, max=3.0)
+        ctx.check("drag_in_bluff_body_range", value=cd, min=0.1, max=2.5,
+                  detail="2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2")
         ds = ctx.dataset("flow", description="Car geometry (mask, signed distance) and the time-mean flow it "
                          "produces (velocity / U, pressure coefficient), with drag and lift",
                          units={"sdf": "car lengths", "mean_ux": "U", "mean_uy": "U", "mean_cp": "-"})
@@ -413,8 +417,7 @@ class CarSurrogate(Experiment):
                                              "Cd_sigma": float(sd_[best, 0])})
             with ctx.stage("verify_lbm"):
                 sim = simulate_car(design)
-            n = len(sim["cd_t"])
-            cd_true = float(sim["cd_t"][n // 2:].mean())
+            cd_true = float(sim["cd_cv"])
             ctx.metric("optimum_Cd_predicted", float(cp_[best, 0]))
             ctx.metric("optimum_Cd_lbm", cd_true)
             ctx.metric("optimum_vs_median_training_Cd", cd_true / float(np.median(C[train, 0])))

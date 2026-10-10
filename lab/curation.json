@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10 19:24 UTC",
+ "generated": "2026-10-10 19:26 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -436,10 +436,10 @@
    "tier_name": "solid",
    "best_run": "car_lbm-354a5d7f3472",
    "best_score": 94.3,
-   "runs": 20,
+   "runs": 21,
    "tier_counts": {
     "A": 0,
-    "B": 19,
+    "B": 20,
     "C": 0,
     "D": 1
    },
@@ -483,7 +483,7 @@
      "declared: 2-D side profile (no 3-D vortices, no wheels)",
      "declared: Re 500 (a real car is ~10^6)",
      "declared: tunnel blockage ~15 %",
-     "detected: 1 of 20 runs fail validation or crash (outside the validated range)",
+     "detected: 1 of 21 runs fail validation or crash (outside the validated range)",
      "detected: evidence only inferred (not measured by a check) for uncertainty"
     ],
     "actions": [
@@ -3243,10 +3243,10 @@
    "tier_name": "solid",
    "best_run": "car_lbm-354a5d7f3472",
    "best_score": 94.3,
-   "runs": 20,
+   "runs": 21,
    "tier_counts": {
     "A": 0,
-    "B": 19,
+    "B": 20,
     "C": 0,
     "D": 1
    },
@@ -3290,7 +3290,7 @@
      "declared: 2-D side profile (no 3-D vortices, no wheels)",
      "declared: Re 500 (a real car is ~10^6)",
      "declared: tunnel blockage ~15 %",
-     "detected: 1 of 20 runs fail validation or crash (outside the validated range)",
+     "detected: 1 of 21 runs fail validation or crash (outside the validated range)",
      "detected: evidence only inferred (not measured by a check) for uncertainty"
     ],
     "actions": [
@@ -12780,6 +12780,154 @@
   },
   "car_lbm-cb2e9c63cc61": {
    "run_id": "car_lbm-cb2e9c63cc61",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git f3e4062b",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-e255b8b0b291": {
+   "run_id": "car_lbm-e255b8b0b291",
    "experiment": "car_lbm",
    "status": "completed",
    "tier": "B",

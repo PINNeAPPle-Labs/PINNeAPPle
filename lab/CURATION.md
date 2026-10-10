@@ -1,12 +1,12 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-10-10 19:24 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-10-10 19:26 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|
 | `benchmark_case` | **B** solid | 100.0 | 0/7/0/0 | 100 % | - | - | - | - | no |
 | `repo_results` | **B** solid | 96.3 | 0/9/0/0 | 100 % | - | - | - | ready | no |
-| `car_lbm` | **B** solid | 94.3 | 0/19/0/1 | 95 % | - | - | - | ready | no |
+| `car_lbm` | **B** solid | 94.3 | 0/20/0/1 | 95 % | - | - | - | ready | no |
 | `pendulum_video` | **B** solid | 92.9 | 0/1/0/0 | 100 % | - | - | - | ready | no |
 | `vehicle_cfd` | **B** solid | 90.3 | 0/1/0/0 | 100 % | - | - | - | ready | no |
 | `kepler_law` | **B** solid | 89.4 | 0/1/0/0 | 100 % | - | - | - | ready | no |

@@ -16,6 +16,10 @@
 
 </div>
 
+<div align="center">
+<img src="docs/assets/readme/mosaic.jpg" width="100%" alt="Highlights: global weather forecast, OpenFOAM airliner and Ahmed body, physics ensembles, MeshGraphNet, LBM, qualitative preview, PINNs for electrodynamics and heat, design apps"/>
+</div>
+
 ---
 
 ## What makes it different
@@ -247,18 +251,33 @@ The Engineering Apps in [`apps/`](apps) (heat-sink sizer, PCB hot spots, mesh qu
 
 ## Roadmap
 
-New application areas, each entering the same way (a real problem with public data, a known baseline, the trust questions, a GIF and an honest table, then the API): [#327](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/327).
-
-- satellite thunderstorm nowcasting;
-- robotics with physics-verified model switching;
-- drones (flight safety, and the drone as a sensor);
-- river discharge from smartphone video;
-- flood and fire mapping;
-- batteries;
-- manufacturing drift;
-- structural health;
-- agriculture;
-- physics verification as a service.
+- **Core** ([#343](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/343)):
+  - a trust object attached to every prediction (`pp.trust`);
+  - data assimilation with neural models;
+  - adaptive fidelity driven by the trust horizon;
+  - "bring your foundation model, PINNeAPPle verifies it";
+  - a trust benchmark with a public leaderboard;
+  - embedded execution for drones and robots;
+  - generic event scoring;
+  - sensor placement;
+  - evolutionary methods where gradients cannot help (symbolic regression for closures, quality-diversity search for designs and for the cases where models fail).
+- **New areas** ([#327](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/327)):
+  - satellite nowcasting;
+  - robotics and drones;
+  - river discharge from video;
+  - floods, fire, landslides and tailings dams;
+  - methane from space and air quality;
+  - batteries;
+  - manufacturing drift;
+  - structural health;
+  - agriculture;
+  - oil, gas and CO2 storage;
+  - power grids;
+  - maritime;
+  - additive manufacturing.
+- **Showcases** ([#344](https://github.com/PINNeAPPle-Labs/PINNeAPPle/issues/344)):
+  - flagships: a hurricane from satellite to street, the drone that knows it is broken, a phone video to river discharge, an aircraft designed in an afternoon, a battle of the models;
+  - science fiction with real physics: terraforming Mars, a tidally locked exoplanet, a warp bubble that shows where it breaks physics, a space elevator, a fusion tokamak, weather inside an O'Neill cylinder, flying on Mars and Titan, planetary defence, listening to black holes.
 
 ---
 

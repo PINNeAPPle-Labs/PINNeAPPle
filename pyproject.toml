@@ -397,6 +397,7 @@ include = [
   "pinneapple_worldmodel/**",
   "pinneapple_quantum/**",
   "pinneapple_registry/**",
+  "pinneapple_lab/**",
   "pinneapple_orchestration/**",
   "pinneapple_hub/**",
   "pinneapple_catalog/**",

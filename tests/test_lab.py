@@ -361,3 +361,25 @@ def test_solid_fem_cantilever_vs_beam_theory():
     s = np.zeros((1, 6))
     s[0, 0] = 100.0
     assert abs(von_mises(s)[0] - 100.0) < 1e-12
+
+
+def test_particles_flow_drag_and_contacts():
+    from pinneapple_simulation.numerical_solvers.particles import (
+        DEM,
+        StirredTank,
+        suspend,
+        terminal_velocity,
+    )
+    tank = StirredTank()
+    x = np.random.default_rng(1).uniform([-0.05, -0.05, 0.01], [0.05, 0.05, 0.14], (500, 3))
+    h = 1e-7
+    div = sum((tank.velocity(x + h * np.eye(3)[k], 200)[:, k] - tank.velocity(x - h * np.eye(3)[k], 200)[:, k])
+              / (2 * h) for k in range(3))
+    assert np.abs(div).max() < 1e-4 * tank.tip_speed(200) / tank.R               # divergence-free loop
+    one = DEM(np.array([[0.0, 0.0, 0.1]]), 3e-3, 1200.0, dt=5e-4)
+    for _ in range(3000):
+        one.step(np.zeros((1, 3)), 0.0, 1.0)
+    assert abs(-one.v[0, 2] / terminal_velocity(3e-3, 1200.0) - 1) < 1e-3
+    r = suspend(tank, n=400, rpm=lambda t: 0.0, t_end=0.5, dt=5e-4, frame_every=0.25)
+    assert r["max_overlap"].max() < 0.25 and r["top_fraction"][-1] == 0.0          # a bed at rest stays at rest
+    assert len(tank.surfaces(0.3)) == 5

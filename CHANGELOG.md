@@ -48,6 +48,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `ParametricPOD` (POD + RBF / per-coefficient Gaussian process / linear / nearest regression, amplitude-shape split,
   predictive standard deviation) and `latin_hypercube` in `pinneapple_neural.architectures.rom`; lab experiment
   `rom_study`; docs page on reduced-order models; tests for POD, DMD, Operator Inference and the parametric ROM.
+  Particle process videos: `pinneapple_simulation.numerical_solvers.particles` (soft-sphere DEM with drag, buoyancy,
+  turbulent dispersion; analytic stirred-tank flow; Zwietering just-suspended speed) and
+  `pinneapple_tools.visualization.studio.particles` (Cycles point-cloud animation with moving equipment, video
+  composer with live charts, colour bar and clock; GIF and MP4); lab experiment `particle_suspension`.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

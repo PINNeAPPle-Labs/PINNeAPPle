@@ -92,6 +92,34 @@ The file grows by about 28 bytes per triangle, plus about 2 bytes per triangle f
 
 Slices are stored as JSON grids, about 7 bytes per value. Keep them to a few hundred cells a side.
 
+## Particle process videos
+
+Thousands of spheres coloured by a value inside glass or steel equipment that moves (an impeller turning), rendered
+with Cycles point clouds, then composed with charts that draw themselves as time runs, a colour bar and a clock.
+Any Lagrangian result works: DEM, stirred tanks, fluidised beds, hoppers, sprays.
+
+```python
+from pinneapple_simulation.numerical_solvers.particles import StirredTank, suspend
+from pinneapple_tools.visualization.studio.particles import compose_video, render_particle_frames
+
+tank = StirredTank(R=0.075, H=0.15)                                   # pitched-blade turbine, glass tank
+res = suspend(tank, n=12000, d=3e-3, rho_p=1200.0, rpm=lambda t: min(400.0, 16.0 * t), t_end=30.0)
+angle = ...                                                           # impeller angle per frame
+pngs = render_particle_frames(res["frames"], 3e-3, "frames/", field_range=(0, 0.4),
+                              equipment=lambda k: tank.surfaces(angle[k]))
+compose_video(pngs, res["times"], "tank.gif", mp4=True, frame_dir="composed/",
+              charts=[("Particles Top [%]", res["times"], 100 * res["top_fraction"]),
+                      ("Stirrer Speed [RPM]", res["times"], res["rpm"])],
+              colorbar=("Velocity Magnitude (m/s)", 0, 0.4))
+```
+
+`frames` is a list of dicts with `x` (n, 3) and a value per particle (`speed` or `value`). `equipment(k)` returns
+the surfaces of frame k as (name, vertices, faces, material) with material "glass", "liquid", "steel" or "grey".
+Surfaces keep their topology between frames, so only the vertices move. The MP4 goes through Blender's own encoder,
+so no ffmpeg binary is needed. The lab experiment `particle_suspension` runs the whole chain with checks: settling
+velocity against Schiller-Naumann, a divergence-free flow, particles kept in the tank, and the just-suspended speed
+against Zwietering.
+
 ## External flow: `pp.cfd.ExternalFlow`
 
 ```python

@@ -61,6 +61,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   benchmark, uncertainty, engineering decision) from its own evidence, in the catalogue, reports and CURATION.md.
   `DeepONet(depth=..., trunk_activation=...)` and per-sample query points; `MeshGraphNet(absolute_pos=False,
   decoder_layers=2)` for the translation-invariant, MLP-decoder form of Pfaff et al.
+  `pinneapple_lab.uq`: coverage check of predictive intervals and grid convergence index (two or three meshes)
+  as `kind="uncertainty"` checks.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).
@@ -319,6 +321,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- Arena: an FNO was trained on random mini-batches of scattered points reshaped as if they were an image (and
+  `fno2d` built the 1-D operator); it now trains on whole ordered grids (half the evaluation resolution, so the
+  evaluation also tests super-resolution) and refuses scattered points. DeepONets train as operators (branch: the
+  instance's input function, trunk: the query points). Compiled PINN loss terms that fail raise instead of being
+  dropped, and an unknown or unbuildable model type raises instead of becoming an MLP under that name.
 - `DynamicModeDecomposition` and `OperatorInference` stored their operators in float32 whatever the data, so a
   float64 fit failed at `rollout` and `eig`; they now keep the data's dtype.
 - `MultiScaleDeepONet` fed every trunk the same unscaled coordinates (no multi-scale effect) and kept an unused

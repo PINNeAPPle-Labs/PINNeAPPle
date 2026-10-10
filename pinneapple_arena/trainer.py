@@ -160,27 +160,19 @@ def _train_pinn_compiled(model, opt, sched, tc, compiled_losses,
         # lets us tell them apart.
         physics_total = torch.tensor(0.0, device=t_int.device)
         has_physics_term = False
-        try:
-            # compiled_losses is Dict[str, callable]; each callable may accept
-            # (model, x_col) or (model, x_col, x_bc, y_bc) — try both
-            for lname, lfn in compiled_losses.items():
-                try:
-                    lval = lfn(model, t_int, t_bc, t_ubc)
-                except TypeError:
-                    try:
-                        lval = lfn(model, t_int)
-                    except Exception:
-                        continue
-                if torch.is_tensor(lval):
-                    total = total + lval
-                    key = str(lname).lower()
-                    if not key.startswith(("bc", "ic", "data")):
-                        physics_total = physics_total + lval
-                        has_physics_term = True
-        except Exception as e:
-            # compiled losses failed mid-epoch — warn once and skip
-            warnings.warn(f"[Arena] compiled_losses failed at epoch {ep}: {e}. "
-                          "Switching to zero loss this step.")
+        # compiled_losses is Dict[str, callable]; each callable takes (model, x_col, x_bc, y_bc) or (model, x_col).
+        # A term that cannot be evaluated is an error, not a term silently dropped from the loss.
+        for lname, lfn in compiled_losses.items():
+            try:
+                lval = lfn(model, t_int, t_bc, t_ubc)
+            except TypeError:
+                lval = lfn(model, t_int)
+            if not torch.is_tensor(lval):
+                raise TypeError(f"[Arena] compiled loss '{lname}' returned {type(lval).__name__}, not a tensor")
+            total = total + lval
+            if not str(lname).lower().startswith(("bc", "ic", "data")):
+                physics_total = physics_total + lval
+                has_physics_term = True
         total.backward()
         if tc.grad_clip > 0:
             nn.utils.clip_grad_norm_(model.parameters(), tc.grad_clip)
@@ -274,34 +266,71 @@ def _forward_supervised(model: nn.Module, x: torch.Tensor, cfg: ModelConfig
     return _unwrap_output(model(x))
 
 
-def _fno_forward(model: nn.Module, x: torch.Tensor) -> torch.Tensor:
-    """Forward pass for FNO-family models.
+def grid_layout(x) -> Tuple[np.ndarray, int, int]:
+    """Order of the rows of ``x`` (n, 2) that lays them out as a full tensor grid, y-major: (order, ny, nx).
+    Raises ValueError when the points are not a complete grid (an FNO cannot take scattered points)."""
+    xa = x.detach().cpu().numpy() if torch.is_tensor(x) else np.asarray(x)
+    if xa.ndim != 2 or xa.shape[1] < 2:
+        raise ValueError("grid operators need 2-D coordinates (n, 2)")
+    ux = np.unique(np.round(xa[:, 0], 9))
+    uy = np.unique(np.round(xa[:, 1], 9))
+    if len(ux) * len(uy) != len(xa):
+        raise ValueError(f"an FNO needs the points of a full tensor grid; got {len(xa)} points on "
+                         f"{len(ux)} x {len(uy)} distinct coordinates")
+    order = np.lexsort((xa[:, 0], xa[:, 1]))
+    return order, len(uy), len(ux)
 
-    Tries input shapes in order:
-      1. (1, C, H, W)  — 2D grid (if N is a perfect square)
-      2. (1, C, N)     — 1D sequence
-      3. (N, C)        — pointwise (fallback; most FNOs reject this)
-    Always returns (N, out_dim).
-    """
-    n, c = x.shape
-    # Try 2D grid
-    side = int(n ** 0.5)
-    if side * side == n:
-        try:
-            xg = x.T.reshape(1, c, side, side)  # (1, C, H, W)
-            out = _unwrap_output(model(xg))      # (1, out, H, W)
-            return out.reshape(n, -1)
-        except Exception:
-            pass
-    # Try 1D sequence
-    try:
-        xg = x.T.unsqueeze(0)          # (1, C, N)
-        out = _unwrap_output(model(xg))  # (1, out, N)
-        return out.squeeze(0).T         # (N, out)
-    except Exception:
-        pass
-    # Pointwise fallback
-    return _unwrap_output(model(x))
+
+def _fno_forward(model: nn.Module, x: torch.Tensor) -> torch.Tensor:
+    """FNO2d on the points of a full grid: (n, C) coordinates -> (1, C, ny, nx) channels-first -> (n, out) back in
+    the caller's row order."""
+    order, ny, nx = grid_layout(x)
+    o = torch.as_tensor(order, device=x.device)
+    xg = x[o].T.reshape(1, x.shape[1], ny, nx)
+    out = _unwrap_output(model(xg))                      # (1, out, ny, nx)
+    if out.dim() != 4 or out.shape[-2:] != (ny, nx):
+        raise ValueError(f"FNO output shape {tuple(out.shape)} is not (1, out, {ny}, {nx})")
+    flat = out[0].reshape(out.shape[1], ny * nx).T       # rows in grid order
+    pred = torch.empty_like(flat)
+    pred[o] = flat
+    return pred
+
+
+def train_grid_operator(
+    model: nn.Module,
+    cfg: ModelConfig,
+    X_grid: np.ndarray,
+    Y_grid: np.ndarray,
+    device: str = "cpu",
+    log_interval: int = 100,
+) -> TrainResult:
+    """Train an FNO-type model on whole fields: every step sees the full training grid (ordered), never a random
+    subset of points reshaped as if it were an image."""
+    tc = cfg.training
+    if tc.seed is not None:
+        torch.manual_seed(tc.seed)
+    model = model.to(device)
+    opt = _make_optimizer(model, tc)
+    sched = _make_scheduler(opt, tc, tc.epochs)
+    Xt = torch.tensor(X_grid, dtype=torch.float32, device=device)
+    Yt = torch.tensor(Y_grid, dtype=torch.float32, device=device)
+    grid_layout(Xt)                                      # fail early on scattered points
+    losses = []
+    t0 = time.time()
+    for ep in range(1, tc.epochs + 1):
+        model.train()
+        opt.zero_grad()
+        loss = nn.functional.mse_loss(_fno_forward(model, Xt), Yt)
+        loss.backward()
+        if tc.grad_clip > 0:
+            nn.utils.clip_grad_norm_(model.parameters(), tc.grad_clip)
+        opt.step()
+        if sched:
+            sched.step()
+        losses.append(loss.item())
+        if ep % log_interval == 0 or ep == 1:
+            print(f"  [{cfg.name}] epoch {ep:5d}/{tc.epochs}  loss={loss.item():.3e}  (full-field grid)")
+    return TrainResult(name=cfg.name, model=model, train_losses=losses, train_time=time.time() - t0)
 
 
 # ── Graph / MeshGraphNet training loop ────────────────────────────────────────

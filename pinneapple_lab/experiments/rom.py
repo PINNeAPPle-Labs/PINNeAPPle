@@ -323,6 +323,15 @@ class ROMStudy(Experiment):
             ctx.check(f"{fld}_rom_error_unseen_designs", value=b["median"], max=0.03,
                       detail=f"median relative L2 error on {len(Pte)} unseen designs ({best[fld]})",
                       kind="generalization")
+        # uncertainty: the GP's predictive standard deviation must cover the unseen designs at its nominal level
+        from ..uq import coverage_check
+        for fld in fields:
+            g_ = ParametricPOD(r=16, energy=None, regressor="gpr", normalize=fld == "von_mises").fit(feats(Ptr), fields[fld][0])
+            mu, sd = g_.predict(feats(Pte), return_std=True)
+            # the GP covers the coefficient regression; add the basis truncation error measured on training designs
+            trunc = np.sqrt(np.mean((g_.projection_error(fields[fld][0]) *
+                                     np.linalg.norm(fields[fld][0], axis=1)) ** 2) / fields[fld][0].shape[1])
+            coverage_check(ctx, fld, fields[fld][1], mu, np.sqrt(sd ** 2 + trunc ** 2), level=0.9, tol=0.1)
         speed = t_fem / max(table[("displacement", best["displacement"])]["t"], 1e-9)
         ctx.metric("fem_seconds_per_design", t_fem)
         ctx.metric("speedup_over_fem", speed)

@@ -388,3 +388,26 @@ def test_particles_flow_drag_and_contacts():
     r = suspend(tank, n=400, rpm=lambda t: 0.0, t_end=0.5, dt=5e-4, frame_every=0.25)
     assert r["max_overlap"].max() < 0.25 and r["top_fraction"][-1] == 0.0          # a bed at rest stays at rest
     assert len(tank.surfaces(0.3)) == 5
+
+
+def test_uq_gci_and_coverage():
+    from pinneapple_lab.uq import coverage, gci
+    g = gci([1.04, 1.01, 1.0025], [0.2, 0.1, 0.05])                  # f = 1 + h^2 exactly
+    assert abs(g["order"] - 2) < 1e-6 and abs(g["extrapolated"] - 1) < 1e-9
+    g2 = gci([1.04, 1.01], [0.2, 0.1], order=2)
+    assert g2["safety"] == 3.0 and g2["gci"] > 0
+    y = np.random.default_rng(0).normal(size=20000)
+    assert abs(coverage(y, 0 * y, 1 + 0 * y, 0.9) - 0.9) < 0.01
+    assert coverage(y, 0 * y, 0.3 + 0 * y, 0.9) < 0.5                 # an over-confident interval is caught
+
+
+def test_arena_grid_layout_rejects_scattered_points():
+    import pytest
+
+    from pinneapple_arena.trainer import grid_layout
+    gx, gy = np.meshgrid(np.linspace(0, 1, 5), np.linspace(0, 2, 4))
+    X = np.c_[gx.ravel(), gy.ravel()][np.random.default_rng(1).permutation(20)]
+    order, ny, nx = grid_layout(X)
+    assert (ny, nx) == (4, 5) and np.all(np.diff(X[order][:nx, 0]) > 0)
+    with pytest.raises(ValueError):
+        grid_layout(np.random.default_rng(2).uniform(size=(20, 2)))

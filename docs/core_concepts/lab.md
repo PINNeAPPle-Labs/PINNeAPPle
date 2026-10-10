@@ -184,7 +184,12 @@ each from the run's own evidence:
 | Uncertainty | Where may the prediction not be reliable? | uncertainty checks (answered); reported spread or declared limitations (partial) |
 | Engineering decision | Is the result adequate for the intended use? | tier A/B, readiness for a use, and the declared limitations |
 
-The status of each stage is answered, partial, open or failed (a failing check). The card appears in the
+The status of each stage is answered, partial, open or failed (a failing check).
+
+Uncertainty is answered only by a number. `pinneapple_lab.uq` provides the checks:
+`coverage_check` (a learned model's 90 % interval must hold about 90 % of unseen values) and `gci_check` (the grid
+convergence index of a solver result from two or three meshes, with the Richardson-extrapolated value).
+`rom_study/beam_parametric` and `calculix_case/plate_hole` use them. The card appears in the
 catalogue's run sheet, in every report (HTML, Markdown, PDF) and as a table in `lab/CURATION.md`.
 
 ## Examples and use cases

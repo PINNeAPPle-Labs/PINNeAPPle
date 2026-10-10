@@ -1,0 +1,9 @@
+[21:47:32] stage mesh_and_solve_0 started
+[21:47:38] stage mesh_and_solve_0 done (5.824 s)
+[21:47:38] stage mesh_and_solve_1 started
+[21:47:56] stage mesh_and_solve_1 done (17.85 s)
+[21:47:56] check reactions_balance_loads: PASS support reactions + applied load
+[21:47:56] check stress_concentration_vs_heywood: PASS peak axial stress at the hole / net-section stress
+[21:47:56] check mesh_convergence_Kt: PASS change of Kt from the 4 mm to the 2.5 mm mesh
+[21:47:56] stage render started
+[21:48:53] stage render done (56.641 s)

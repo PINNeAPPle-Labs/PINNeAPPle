@@ -18,6 +18,7 @@
 from . import (  # noqa: F401
     accretion,
     blackhole_forecast,
+    calculix_cases,
     car,
     cylinder,
     discovery,

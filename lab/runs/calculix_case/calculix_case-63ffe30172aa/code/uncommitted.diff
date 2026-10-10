@@ -1,0 +1,85 @@
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index 4828ea2e..c8ff5e0f 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -18,6 +18,7 @@
+ from . import (  # noqa: F401
+     accretion,
+     blackhole_forecast,
++    calculix_cases,
+     car,
+     cylinder,
+     discovery,
+diff --git a/pinneapple_simulation/numerical_solvers/solid_fem.py b/pinneapple_simulation/numerical_solvers/solid_fem.py
+index b9569822..e67612e1 100644
+--- a/pinneapple_simulation/numerical_solvers/solid_fem.py
++++ b/pinneapple_simulation/numerical_solvers/solid_fem.py
+@@ -313,24 +313,33 @@ class SolidFEM:
+ def fea_figure(res: FEMResult, field: str = "von_mises", scale: float | None = None, bands: int = 12,
+                title: str = "", unit: str = "MPa", factor: float = 1e-6, view=(22, -58), ax=None,
+                vrange: tuple[float, float] | None = None, ghost: bool = True, edges: bool = True,
+-               zoom: float = 0.95):
++               zoom: float = 0.95, values: np.ndarray | None = None, label: str | None = None,
++               u: np.ndarray | None = None):
+     """The deformed boundary mesh coloured by ``field`` in discrete bands with black element edges and a
+     post-processor legend (S, Mises), the undeformed outline in grey. ``scale``: deformation scale factor (default:
+-    the largest displacement drawn as 8 % of the part's length)."""
++    the largest displacement drawn as 8 % of the part's length). Any nodal ``values`` (a mode, a temperature) can be
++    drawn instead, with its legend ``label``, on the shape ``u`` (default: the displacement; zeros: undeformed).
++    Works for hexahedra (quadrilateral faces) and tetrahedra (triangles)."""
+     import matplotlib.pyplot as plt
+     from matplotlib import cm, colors
+     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+     mesh = res.mesh
+     Lx = np.ptp(mesh.nodes, axis=0).max()
++    U = np.asarray(u if u is not None else (res.u if getattr(res, "u", None) is not None else
++                                             np.zeros_like(mesh.nodes)), float)
++    umax = float(np.linalg.norm(U, axis=1).max())
+     if scale is None:
+-        scale = 0.08 * Lx / max(res.max_displacement, 1e-30)
+-    vals = {"von_mises": res.von_mises, "displacement": np.linalg.norm(res.u, axis=1),
+-            "sxx": res.stress[:, 0]}[field] * (factor if field != "displacement" else 1e3)
+-    Q = mesh.boundary_faces()
+-    P = mesh.nodes[Q] + scale * res.u[Q]
++        scale = 0.08 * Lx / umax if umax > 0 else 0.0
++    if values is not None:
++        vals = np.asarray(values, float)
++    else:
++        vals = {"von_mises": lambda: res.von_mises * factor, "displacement": lambda: np.linalg.norm(U, axis=1) * 1e3,
++                "sxx": lambda: res.stress[:, 0] * factor}[field]()
++    Q = np.asarray(mesh.boundary_faces())
++    P = mesh.nodes[Q] + scale * U[Q]
+     e, a = np.radians(view)
+     eye = np.array([math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+-    nrm = np.cross(P[:, 2] - P[:, 0], P[:, 3] - P[:, 1])
++    nrm = _normal(P)
+     front = nrm @ eye > 0                                                    # orthographic back-face culling
+     Q, P = Q[front], P[front]
+     fv = vals[Q].mean(1)
+@@ -367,7 +376,8 @@ def fea_figure(res: FEMResult, field: str = "von_mises", scale: float | None = N
+     ax.view_init(*view)
+     ax.set_axis_off()
+     # post-processor legend
+-    name = {"von_mises": f"S, Mises ({unit})", "displacement": "U, Magnitude (mm)", "sxx": f"S, S11 ({unit})"}[field]
++    name = label or {"von_mises": f"S, Mises ({unit})", "displacement": "U, Magnitude (mm)",
++                     "sxx": f"S, S11 ({unit})"}[field]
+     cax = fig.add_axes([0.04, 0.50, 0.025, 0.38])
+     cb = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax, ticks=lev)
+     cb.ax.set_yticklabels([f"{v:+.3e}" for v in lev], fontsize=7, family="monospace")
+@@ -379,8 +389,15 @@ def fea_figure(res: FEMResult, field: str = "von_mises", scale: float | None = N
+     return fig, scale
+ 
+ 
++def _normal(P: np.ndarray) -> np.ndarray:
++    """Normals of quadrilaterals (diagonal cross product) or triangles."""
++    if P.shape[1] >= 4:
++        return np.cross(P[:, 2] - P[:, 0], P[:, 3] - P[:, 1])
++    return np.cross(P[:, 1] - P[:, 0], P[:, 2] - P[:, 0])
++
++
+ def _lambert(P: np.ndarray) -> np.ndarray:
+-    n = np.cross(P[:, 2] - P[:, 0], P[:, 3] - P[:, 1])
++    n = _normal(P)
+     n /= np.linalg.norm(n, axis=1, keepdims=True) + 1e-30
+     light = np.array([0.35, -0.55, 0.76])
+     return np.abs(n @ (light / np.linalg.norm(light)))

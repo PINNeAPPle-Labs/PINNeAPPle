@@ -6,7 +6,14 @@ import numpy as np
 import pytest
 
 from pinneapple_simulation.external_solvers.calculix import (
-    OutOfEnvelope, cantilever_hex_mesh, ccx_backend, predict_to_frd, read_frd, read_inp, run_ccx, write_frd,
+    OutOfEnvelope,
+    cantilever_hex_mesh,
+    ccx_backend,
+    predict_to_frd,
+    read_frd,
+    read_inp,
+    run_ccx,
+    write_frd,
     write_inp,
 )
 from pinneapple_simulation.external_solvers.calculix.virtual_ccx import main as virtual_ccx_main
@@ -98,3 +105,34 @@ def test_real_ccx_cantilever_matches_timoshenko_and_the_virtual_ccx(tmp_path):
     assert virt.node_ids.tolist() == real.node_ids.tolist()  # same mesh, same order: post-processors see no difference
     uz_r, uz_v = real.field("DISP")[:, 2], virt.field("DISP")[:, 2]
     assert np.abs(uz_r - uz_v).max() < 0.03 * abs(uz_tip)
+
+
+@pytest.mark.skipif(ccx_backend() != "native", reason="needs the ccx binary")
+def test_study_static_modal_buckling_heat(tmp_path):
+    import math
+
+    from pinneapple_simulation.external_solvers.calculix.study import (
+        Buckle,
+        FEModel,
+        Frequency,
+        Heat,
+        Material,
+        Static,
+        solve,
+    )
+    L_, W_, H_ = 1.0, 0.05, 0.1
+    m = FEModel.from_box(L_, W_, H_, 20, 2, 4, "C3D8I")
+    m.material = Material("steel", E, NU, 7850.0, conductivity=50.0)
+    root = m.nodes_where(lambda X: X[:, 0] < 1e-9)
+    tip_nodes = m.nodes_where(lambda X: X[:, 0] > L_ - 1e-9)
+    tip = m.faces_where(lambda C: C[:, 0] > L_ - 1e-9)
+    r = solve(m, Static(fix=[(root, (1, 2, 3))], pressure=[(tip, -1e6)]), str(tmp_path / "s"))
+    assert abs(np.median(r.stress[:, 0]) / 1e6 - 1) < 1e-3                       # uniform tension
+    assert abs(r.reactions[root, 0].sum() + 1e6 * W_ * H_) < 1e-3
+    f = solve(m, Frequency(2, fix=[(root, (1, 2, 3))]), str(tmp_path / "f"))
+    f_eb = 1.8751 ** 2 / (2 * math.pi) * math.sqrt(E * (H_ * W_ ** 3 / 12) / (7850 * W_ * H_ * L_ ** 4))
+    assert abs(f.frequencies[0] / f_eb - 1) < 0.02 and len(f.modes) == 2
+    b = solve(m, Buckle(1, fix=[(root, (1, 2, 3))], loads=[(tip_nodes, (-1.0, 0, 0))]), str(tmp_path / "b"))
+    assert abs(b.buckling_factors[0] / (math.pi ** 2 * E * (H_ * W_ ** 3 / 12) / (4 * L_ ** 2)) - 1) < 0.03
+    h = solve(m, Heat(temperature=[(root, 100.0), (tip_nodes, 0.0)]), str(tmp_path / "h"))
+    assert np.allclose(h.temperature, 100 * (1 - m.nodes[:, 0] / L_), atol=1e-6 * 100)

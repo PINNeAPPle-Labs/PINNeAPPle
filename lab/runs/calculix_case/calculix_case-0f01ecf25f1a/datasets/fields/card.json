@@ -1,0 +1,67 @@
+{
+ "name": "fields",
+ "description": "CalculiX mesh and nodal results",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "nodes": {
+   "kind": "array",
+   "shape": [
+    615,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.05000000074505806,
+   "max": 1.0
+  },
+  "elements": {
+   "kind": "array",
+   "shape": [
+    320,
+    8
+   ],
+   "dtype": "int32",
+   "min": 0.0,
+   "max": 614.0
+  },
+  "element": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "C3D8I"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "modal_cantilever"
+   ]
+  },
+  "frequencies": {
+   "kind": "array",
+   "shape": [
+    4
+   ],
+   "dtype": "float32",
+   "min": 41.9539909362793,
+   "max": 500.6077880859375
+  }
+ },
+ "units": {
+  "nodes": "m",
+  "u": "m",
+  "stress": "Pa"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "calculix_case",
+  "run_id": "calculix_case-0f01ecf25f1a",
+  "params": {
+   "case": "modal_cantilever",
+   "render": true,
+   "samples": 48
+  }
+ },
+ "sha1": "e0926f038423e84613f3f823ea2cc4bba87cb50b"
+}

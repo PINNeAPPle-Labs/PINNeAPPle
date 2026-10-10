@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10 20:42 UTC",
+ "generated": "2026-10-10 21:51 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -685,6 +685,128 @@
     "next_tier": "A"
    },
    "description": "Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential): the hydro solver started from the exact transonic Bondi solution must keep it steady.",
+   "story": ""
+  },
+  "calculix_case": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "calculix_case-bf67ee84a752",
+   "best_score": 95.7,
+   "runs": 5,
+   "tier_counts": {
+    "A": 2,
+    "B": 3,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "description": "CalculiX studies built in Python (gmsh tetrahedra or structured hexahedra, node and face sets picked by geometry): stress concentration, a filleted bracket, modes, buckling and a cooling fin, each against its closed-form reference, with mesh convergence where it matters.",
    "story": ""
   },
   "car_lbm": {
@@ -1938,6 +2060,118 @@
    "description": "Law -> video -> law -> video. A large-amplitude damped pendulum is filmed (rendered with camera noise and motion blur); its angle is measured from the frames; weak-form SINDy discovers \u03b8'' = -(g/L) sin \u03b8 - c \u03b8' from a library that also offers \u03b8, \u03b8\u00b3, cos \u03b8, \u03b8'|\u03b8'|, ...; the discovered law is re-simulated and re-rendered, and the predicted video is compared with the observed one, including after the observation window.",
    "story": ""
   },
+  "pipe_flow": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "pipe_flow-0c34ca2835fe",
+   "best_score": 97.9,
+   "runs": 2,
+   "tier_counts": {
+    "A": 2,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "description": "Internal flow in OpenFOAM on a structured O-grid swept along the pipe: laminar pipe against Hagen-Poiseuille, a turbulent 90 degree bend against Colebrook and Ito, a Kenics static mixer against an empty pipe (mixing of a passive scalar, pressure-drop ratio).",
+   "story": ""
+  },
   "repo_results": {
    "tier": "A",
    "tier_name": "flagship",
@@ -2040,6 +2274,121 @@
     "next_tier": null
    },
    "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.",
+   "story": ""
+  },
+  "rom_study": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "rom_study-9580a00926ca",
+   "best_score": 98.0,
+   "runs": 2,
+   "tier_counts": {
+    "A": 0,
+    "B": 2,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "paper",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 3,
+      "missing": [
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 4,
+      "missing": [
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "rom_study-9580a00926ca",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "marketing",
+    "next_tier": "A"
+   },
+   "description": "Reduced-order models on the lab's own solvers: POD / DMD / Operator Inference forecasting a cylinder wake, and a parametric POD-RBF / POD-GPR model of a 3-D FEM cantilever, each against its baseline (persistence, nearest design).",
    "story": ""
   },
   "solid_fem": {
@@ -4687,6 +5036,687 @@
    "description": "Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential): the hydro solver started from the exact transonic Bondi solution must keep it steady.",
    "title": "bondi_accretion"
   },
+  "calculix_case/modal_cantilever": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "calculix_case-0f01ecf25f1a",
+   "best_score": 92.6,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "show it beats a baseline or satisfies a physical law it was not trained on",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: Euler-Bernoulli neglects shear and rotary inertia (about 1 % at L/H = 10)"
+    ],
+    "actions": [
+     {
+      "gap": "baseline",
+      "action": "Compare with the simplest method that could do the job",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "calculix_case-0f01ecf25f1a",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "calculix_case-0f01ecf25f1a",
+      "distance": 2,
+      "missing": [
+       "baseline or physics check",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "calculix_case-0f01ecf25f1a",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "calculix_case-0f01ecf25f1a",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "calculix_case",
+   "case": "modal_cantilever",
+   "story": "",
+   "description": "Steel cantilever 1 m x 50 mm x 100 mm (C3D8I): first four eigenfrequencies.",
+   "title": "modal cantilever"
+  },
+  "calculix_case/buckling_column": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "calculix_case-66bac137ed69",
+   "best_score": 92.6,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "show it beats a baseline or satisfies a physical law it was not trained on",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: linear buckling (perfect column, no imperfection or plasticity)"
+    ],
+    "actions": [
+     {
+      "gap": "baseline",
+      "action": "Compare with the simplest method that could do the job",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "calculix_case-66bac137ed69",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "calculix_case-66bac137ed69",
+      "distance": 2,
+      "missing": [
+       "baseline or physics check",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "calculix_case-66bac137ed69",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "calculix_case-66bac137ed69",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "calculix_case",
+   "case": "buckling_column",
+   "story": "",
+   "description": "Square steel column 2 m x 40 mm x 40 mm, fixed base, free top (C3D8I): Euler buckling.",
+   "title": "buckling column"
+  },
+  "calculix_case/fin_heat": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "calculix_case-63ffe30172aa",
+   "best_score": 92.6,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "show it beats a baseline or satisfies a physical law it was not trained on",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: the 1-D fin solution assumes a uniform temperature over the section (Biot number 5e-4 here)"
+    ],
+    "actions": [
+     {
+      "gap": "baseline",
+      "action": "Compare with the simplest method that could do the job",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "calculix_case-63ffe30172aa",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "calculix_case-63ffe30172aa",
+      "distance": 2,
+      "missing": [
+       "baseline or physics check",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "calculix_case-63ffe30172aa",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "calculix_case-63ffe30172aa",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "calculix_case",
+   "case": "fin_heat",
+   "story": "",
+   "description": "Aluminium fin 100 x 20 x 4 mm, base at 100 C, convection h = 50 W/m2K to 20 C (C3D8).",
+   "title": "fin heat"
+  },
+  "calculix_case/plate_hole": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "calculix_case-a10042673f52",
+   "best_score": 90.4,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: Heywood's formula is a fit to plane-stress data (a few %); a 4 mm plate around a 10 mm hole is not exactly plane stress",
+     "detected: evidence only inferred (not measured by a check) for generalization"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "calculix_case-a10042673f52",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "calculix_case-a10042673f52",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "calculix_case-a10042673f52",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "calculix_case-a10042673f52",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "calculix_case",
+   "case": "plate_hole",
+   "story": "",
+   "description": "Steel plate 200 x 50 x 4 mm with a 10 mm hole, 50 MPa tension (gmsh C3D10).",
+   "title": "plate hole"
+  },
+  "calculix_case/l_bracket": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "calculix_case-bf67ee84a752",
+   "best_score": 95.7,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: linear elasticity; the clamp makes the base corners singular (excluded from the checks)"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "calculix_case-bf67ee84a752",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "calculix_case",
+   "case": "l_bracket",
+   "story": "",
+   "description": "Steel L bracket 100 x 80 x 40 mm, 10 mm thick, 10 mm fillet, 12 mm bolt hole; base clamped, 2 kN side load on the upright (gmsh C3D10).",
+   "title": "l bracket"
+  },
   "car_lbm": {
    "tier": "B",
    "tier_name": "solid",
@@ -7177,6 +8207,242 @@
    "description": "Law -> video -> law -> video. A large-amplitude damped pendulum is filmed (rendered with camera noise and motion blur); its angle is measured from the frames; weak-form SINDy discovers \u03b8'' = -(g/L) sin \u03b8 - c \u03b8' from a library that also offers \u03b8, \u03b8\u00b3, cos \u03b8, \u03b8'|\u03b8'|, ...; the discovered law is re-simulated and re-rendered, and the predicted video is compared with the observed one, including after the observation window.",
    "title": "pendulum_video"
   },
+  "pipe_flow/bend_90": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "pipe_flow-0c34ca2835fe",
+   "best_score": 97.9,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: RANS k-omega SST with wall functions, y+ about 30: the separation at the inner wall and the loss are model-dependent",
+     "declared: 1/7 power-law inlet profile instead of a fully developed one",
+     "declared: Ito's correlation is a fit to smooth-pipe data with its own scatter (about 10 %)"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "pipe_flow-0c34ca2835fe",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "pipe_flow",
+   "case": "bend_90",
+   "story": "",
+   "description": "Turbulent flow (Re 5e4) through a smooth 90 degree bend of radius 2 D between straight runs of 15 D and 30 D: friction, bend loss and Dean vortices.",
+   "title": "bend 90"
+  },
+  "pipe_flow/laminar_pipe": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "pipe_flow-64f176a5fafc",
+   "best_score": 97.9,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: developed inlet profile imposed (no entrance length)"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "pipe_flow-64f176a5fafc",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "pipe_flow-64f176a5fafc",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "pipe_flow-64f176a5fafc",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "pipe_flow-64f176a5fafc",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "pipe_flow",
+   "case": "laminar_pipe",
+   "story": "",
+   "description": "Hagen-Poiseuille flow at Re 500 in a straight pipe of 20 diameters (developed inlet profile).",
+   "title": "laminar pipe"
+  },
   "repo_results/burgers_pinn": {
    "tier": "B",
    "tier_name": "solid",
@@ -8546,6 +9812,261 @@
    "story": "",
    "description": "Ahmed body (25 deg slant) in OpenFOAM with a moving road: drag against the wind-tunnel value, skin pressure, streamlines and wake renders",
    "title": "ahmed body"
+  },
+  "rom_study/beam_parametric": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "rom_study-61475bf029de",
+   "best_score": 95.4,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "uncertainty estimate",
+      "reference or physics check"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: linear elasticity: displacement is linear in the load magnitude, so only the geometry and the load direction are varied",
+     "declared: 80 training designs in a three-parameter box; test designs inside the box (no extrapolation)"
+    ],
+    "actions": [
+     {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "rom_study-61475bf029de",
+      "distance": 6,
+      "missing": [
+       "uncertainty estimate",
+       "reference or physics check"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "rom_study-61475bf029de",
+      "distance": 4,
+      "missing": [
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "rom_study-61475bf029de",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "rom_study-61475bf029de",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "marketing",
+    "next_tier": "A"
+   },
+   "experiment": "rom_study",
+   "case": "beam_parametric",
+   "story": "",
+   "description": "Parametric ROM of a 3-D cantilever (height, width, load direction): POD + RBF / GPR on 80 FEM solutions, checked on 20 unseen designs against the nearest training design.",
+   "title": "beam parametric"
+  },
+  "rom_study/cylinder_wake": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "rom_study-9580a00926ca",
+   "best_score": 98.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+     "declared: the transient is excluded from the training window"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "paper",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 3,
+      "missing": [
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 4,
+      "missing": [
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "rom_study-9580a00926ca",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "marketing",
+    "next_tier": "A"
+   },
+   "experiment": "rom_study",
+   "case": "cylinder_wake",
+   "story": "",
+   "description": "Vortex shedding behind a cylinder at Re 100 (LBM): POD modes, DMD frequency and OpInf/DMD forecasts of the wake against persistence.",
+   "title": "cylinder wake"
   },
   "solid_fem/cantilever": {
    "tier": "A",
@@ -13381,6 +14902,749 @@
    ],
    "reviewed": false,
    "tier_name": "solid"
+  },
+  "calculix_case-0f01ecf25f1a": {
+   "run_id": "calculix_case-0f01ecf25f1a",
+   "experiment": "calculix_case",
+   "status": "completed",
+   "tier": "B",
+   "score": 92.6,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2/2 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS first_bending_mode_vs_euler_bernoulli (weak axis)",
+      "PASS second_bending_mode_vs_euler_bernoulli (strong axis (shear and rotary inertia lower it by about 1 %))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no physics check"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git e2fb3a62",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 271 chars",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "show it beats a baseline or satisfies a physical law it was not trained on",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "calculix_case-66bac137ed69": {
+   "run_id": "calculix_case-66bac137ed69",
+   "experiment": "calculix_case",
+   "status": "completed",
+   "tier": "B",
+   "score": 92.6,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1/1 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS buckling_load_vs_euler (fixed-free column, K = 2)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no physics check"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git e2fb3a62",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 271 chars",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "show it beats a baseline or satisfies a physical law it was not trained on",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "calculix_case-63ffe30172aa": {
+   "run_id": "calculix_case-63ffe30172aa",
+   "experiment": "calculix_case",
+   "status": "completed",
+   "tier": "B",
+   "score": 92.6,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1/1 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS temperature_vs_1d_fin_solution (relative L2 of T - T_inf against the fin with a convective tip)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no physics check"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git e2fb3a62",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 271 chars",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "baseline or physics check",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "show it beats a baseline or satisfies a physical law it was not trained on",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "calculix_case-a10042673f52": {
+   "run_id": "calculix_case-a10042673f52",
+   "experiment": "calculix_case",
+   "status": "completed",
+   "tier": "A",
+   "score": 90.4,
+   "coverage": 0.85,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS reactions_balance_loads (support reactions + applied load)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 0.5,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "metrics on unseen data, no check: Kt_net_heywood"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git e2fb3a62",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.6000000000000001,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 figures, 0 movies, photoreal render, 3-D viewer"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 271 chars",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "calculix_case-bf67ee84a752": {
+   "run_id": "calculix_case-bf67ee84a752",
+   "experiment": "calculix_case",
+   "status": "completed",
+   "tier": "A",
+   "score": 95.7,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS upright_bending_vs_Mc_over_I (axial stress on the outer face of the upright at z = 32 mm)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS reactions_balance_loads (support reactions + applied load)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git e2fb3a62",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.6000000000000001,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 figures, 0 movies, photoreal render, 3-D viewer"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 271 chars",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
   },
   "car_lbm-db344e5feeb6": {
    "run_id": "car_lbm-db344e5feeb6",
@@ -33585,6 +35849,299 @@
    "reviewed": false,
    "tier_name": "solid"
   },
+  "pipe_flow-0c34ca2835fe": {
+   "run_id": "pipe_flow-0c34ca2835fe",
+   "experiment": "pipe_flow",
+   "status": "completed",
+   "tier": "A",
+   "score": 97.9,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS friction_factor_vs_colebrook (smooth pipe, 18-28 D after the bend)",
+      "PASS bend_loss_vs_ito (total loss of the bend (excess loss over the developed gradient + friction of the bend length) against Ito (1960), R / r = 4)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every section / inlet bulk velocity (mass conservation and section averaging on the O-grid))",
+      "PASS dean_vortices_after_bend (secondary speed / U on the sections after the bend)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 4e1388fa",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 datasets, 7 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5 figures, 0 movies, 3-D viewer"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 258 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "pipe_flow-64f176a5fafc": {
+   "run_id": "pipe_flow-64f176a5fafc",
+   "experiment": "pipe_flow",
+   "status": "completed",
+   "tier": "A",
+   "score": 97.9,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS friction_factor_vs_64_over_Re (Hagen-Poiseuille)",
+      "PASS centreline_speed_vs_2U (parabolic profile u = 2 U (1 - r^2 / R^2))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every section / inlet bulk velocity (mass conservation and section averaging on the O-grid))"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 4e1388fa",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 datasets, 3 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 0 movies, 3-D viewer"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 258 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
   "repo_results-96e87a293dea": {
    "run_id": "repo_results-96e87a293dea",
    "experiment": "repo_results",
@@ -35093,6 +37650,304 @@
    "reviewed": false,
    "tier_name": "flagship"
   },
+  "rom_study-61475bf029de": {
+   "run_id": "rom_study-61475bf029de",
+   "experiment": "rom_study",
+   "status": "completed",
+   "tier": "B",
+   "score": 95.4,
+   "coverage": 0.7,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS displacement_rom_beats_nearest_design (median relative L2 error on unseen designs, nearest training design / best ROM)",
+      "PASS von_mises_rom_beats_nearest_design (median relative L2 error on unseen designs, nearest training design / best ROM)"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no physics check"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS displacement_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr))",
+      "PASS von_mises_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr+split))"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git b28fae5d"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 100 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.6000000000000001,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 229 chars",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "uncertainty estimate",
+      "reference or physics check"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "rom_study-9580a00926ca": {
+   "run_id": "rom_study-9580a00926ca",
+   "experiment": "rom_study",
+   "status": "completed",
+   "tier": "B",
+   "score": 98.0,
+   "coverage": 0.8,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5/5 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git e2fb3a62"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 229 chars",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
   "solid_fem-4b486451e11b": {
    "run_id": "solid_fem-4b486451e11b",
    "experiment": "solid_fem",
@@ -35192,7 +38047,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 284 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
       "papers: 0"
      ]
     },
@@ -35338,7 +38193,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 284 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
       "papers: 0"
      ]
     },
@@ -35484,7 +38339,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 284 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
       "papers: 0"
      ]
     },

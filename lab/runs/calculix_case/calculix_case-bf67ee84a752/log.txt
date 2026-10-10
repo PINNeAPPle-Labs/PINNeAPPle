@@ -1,0 +1,9 @@
+[21:48:57] stage mesh_and_solve_0 started
+[21:49:05] stage mesh_and_solve_0 done (8.158 s)
+[21:49:05] stage mesh_and_solve_1 started
+[21:49:32] stage mesh_and_solve_1 done (26.947 s)
+[21:49:32] check reactions_balance_loads: PASS support reactions + applied load
+[21:49:32] check upright_bending_vs_Mc_over_I: PASS axial stress on the outer face of the upright at z = 32 mm
+[21:49:32] check mesh_convergence_fillet_peak: PASS change of the fillet's peak von Mises stress between the two meshes
+[21:49:33] stage render started
+[21:50:39] stage render done (65.751 s)

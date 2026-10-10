@@ -120,6 +120,33 @@ so no ffmpeg binary is needed. The lab experiment `particle_suspension` runs the
 velocity against Schiller-Naumann, a divergence-free flow, particles kept in the tank, and the just-suspended speed
 against Zwietering.
 
+## Structural FEA with CalculiX: `pp.fea`
+
+The same few lines for any part: a mesh, sets picked by geometry, one step, results as arrays, the post-processor
+figure or a Blender render.
+
+```python
+import pinneapple as pp
+
+m = pp.fea.FEModel.from_gmsh(pp.fea.geo_l_bracket(), size=0.0025)      # gmsh C3D10; or FEModel.from_box(...)
+m.material = pp.fea.Material("steel", E=210e9, nu=0.3, density=7850.0)
+base = m.nodes_where(lambda X: X[:, 2] < 1e-9)
+top = m.nodes_where(lambda X: X[:, 2] > 0.08 - 1e-9)
+res = pp.fea.solve(m, pp.fea.Static(fix=[(base, (1, 2, 3))], loads=[(top, (2000.0, 0, 0))]), "work/bracket")
+res.u, res.stress, res.von_mises, res.reactions
+modes = pp.fea.solve(m, pp.fea.Frequency(6, fix=[(base, (1, 2, 3))]), "work/modes")   # .frequencies, .modes
+
+from pinneapple_simulation.numerical_solvers.solid_fem import fea_figure
+fig, _ = fea_figure(res)                                                # deformed mesh, S Mises bands, legend
+```
+
+Steps: `Static` (point loads, face pressure, gravity, nonlinear geometry, plasticity through `Material.plastic`),
+`Frequency`, `Buckle`, `Heat` (fixed temperatures, film convection, surface flux). Faces come from
+`m.faces_where(pred)` on face centroids. `ccx` runs natively or in the bundled Docker image, and gmsh meshes
+any `.geo` script, OpenCASCADE booleans included. The lab experiment `calculix_case` checks five studies against
+closed-form references: a plate with a hole (Heywood), an L bracket (M c / I, mesh convergence), modes
+(Euler-Bernoulli), buckling (Euler) and a fin (1-D fin).
+
 ## External flow: `pp.cfd.ExternalFlow`
 
 ```python

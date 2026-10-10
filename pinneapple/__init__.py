@@ -569,6 +569,8 @@ _SUBMODULES = {
     "viz":        "pinneapple_tools.visualization.studio",
     # external flow around any body in OpenFOAM (STL -> mesh -> forces, skin fields, streamlines, slices)
     "cfd":        "pinneapple_simulation.numerical_solvers.external_flow",
+    # CalculiX studies: gmsh or hexahedral meshes, sets by geometry, static / modal / buckling / heat, results
+    "fea":        "pinneapple_simulation.external_solvers.calculix.study",
     # CAE files: OpenFOAM, CalculiX/Abaqus, Gmsh, VTK readers, mesh quality, comparison, neutral dataset
     "cae":        "pinneapple_data.cae",
     # closed bodies for flow studies (Ahmed body, sphere, cylinder, box)

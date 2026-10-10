@@ -52,6 +52,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   turbulent dispersion; analytic stirred-tank flow; Zwietering just-suspended speed) and
   `pinneapple_tools.visualization.studio.particles` (Cycles point-cloud animation with moving equipment, video
   composer with live charts, colour bar and clock; GIF and MP4); lab experiment `particle_suspension`.
+  `pp.fea` (`pinneapple_simulation.external_solvers.calculix.study`): CalculiX studies from Python, with gmsh
+  tetrahedra or hexahedral meshes, node and face sets by geometry, `Static` (pressure, gravity, nonlinear geometry,
+  plasticity), `Frequency`, `Buckle` and `Heat` steps, and results as arrays (displacement, stress, reactions,
+  frequencies, modes, buckling factors, temperature); `fea_figure` draws tetrahedral meshes and any nodal field. Lab
+  experiment `calculix_case`.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

@@ -1,0 +1,7 @@
+{
+ "elements_mesh_0": 10173,
+ "elements_mesh_1": 24748,
+ "fillet_peak_von_mises_MPa": 209.013937644159,
+ "upright_bending_stress_MPa": 141.462125,
+ "max_displacement_mm": 0.3324316712549356
+}

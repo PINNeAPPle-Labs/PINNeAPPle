@@ -1,0 +1,79 @@
+{
+ "run_id": "calculix_case-a10042673f52",
+ "experiment": "calculix_case",
+ "version": "1",
+ "params": {
+  "case": "plate_hole",
+  "render": true,
+  "samples": 48
+ },
+ "status": "completed",
+ "started": 1791668849.4280431,
+ "tags": [
+  "structures",
+  "fem",
+  "calculix",
+  "gmsh",
+  "thermal",
+  "modal",
+  "3d",
+  "dataset"
+ ],
+ "git": "e2fb3a62",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "CalculiX studies built in Python (gmsh tetrahedra or structured hexahedra, node and face sets picked by geometry): stress concentration, a filleted bracket, modes, buckling and a cooling fin, each against its closed-form reference, with mesh convergence where it matters.",
+ "code": {
+  "files": [
+   "code/calculix_cases.py"
+  ],
+  "sha1": "17e443840fc6762d17a401818b6b44b47f1341d6",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791668933.5665233,
+ "error": null,
+ "stages": [
+  {
+   "name": "mesh_and_solve_0",
+   "started": 1791668852.4237068,
+   "status": "done",
+   "seconds": 5.824
+  },
+  {
+   "name": "mesh_and_solve_1",
+   "started": 1791668858.2499366,
+   "status": "done",
+   "seconds": 17.85
+  },
+  {
+   "name": "render",
+   "started": 1791668876.6786726,
+   "status": "done",
+   "seconds": 56.641
+  }
+ ],
+ "files": {
+  "inputs": [],
+  "outputs": [],
+  "figures": [
+   "figures/von_mises_fea.png",
+   "figures/von_mises_render.jpg"
+  ]
+ },
+ "validation": {
+  "total": 3,
+  "failed": 0
+ },
+ "seconds": 84.138,
+ "datasets": {
+  "fields": {
+   "n_samples": 1,
+   "path": "runs/calculix_case/calculix_case-a10042673f52/datasets/fields"
+  }
+ }
+}

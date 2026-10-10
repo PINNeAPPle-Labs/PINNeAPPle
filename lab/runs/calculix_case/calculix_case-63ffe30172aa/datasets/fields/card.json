@@ -1,0 +1,67 @@
+{
+ "name": "fields",
+ "description": "CalculiX mesh and nodal results",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "nodes": {
+   "kind": "array",
+   "shape": [
+    765,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.009999999776482582,
+   "max": 0.10000000149011612
+  },
+  "elements": {
+   "kind": "array",
+   "shape": [
+    400,
+    8
+   ],
+   "dtype": "int32",
+   "min": 0.0,
+   "max": 764.0
+  },
+  "element": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "C3D8"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "fin_heat"
+   ]
+  },
+  "temperature": {
+   "kind": "array",
+   "shape": [
+    765
+   ],
+   "dtype": "float32",
+   "min": 62.51179885864258,
+   "max": 100.0
+  }
+ },
+ "units": {
+  "nodes": "m",
+  "u": "m",
+  "stress": "Pa"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "calculix_case",
+  "run_id": "calculix_case-63ffe30172aa",
+  "params": {
+   "case": "fin_heat",
+   "render": true,
+   "samples": 48
+  }
+ },
+ "sha1": "20eaf10d848e020276e8c7100a8a58cf4f6f6e09"
+}

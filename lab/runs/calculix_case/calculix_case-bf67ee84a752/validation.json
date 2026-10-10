@@ -1,0 +1,38 @@
+[
+ {
+  "name": "reactions_balance_loads",
+  "passed": true,
+  "value": 3.678992231856006e-07,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.0001,
+  "min": null,
+  "detail": "support reactions + applied load",
+  "kind": "physics"
+ },
+ {
+  "name": "upright_bending_vs_Mc_over_I",
+  "passed": true,
+  "value": 141462125.0,
+  "reference": 143999999.99999997,
+  "rtol": 0.06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "axial stress on the outer face of the upright at z = 32 mm",
+  "kind": "reference"
+ },
+ {
+  "name": "mesh_convergence_fillet_peak",
+  "passed": true,
+  "value": 0.0004778025420628662,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "change of the fillet's peak von Mises stress between the two meshes",
+  "kind": "sanity"
+ }
+]

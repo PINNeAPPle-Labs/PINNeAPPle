@@ -81,6 +81,7 @@ class CalculixCase(Experiment):
         lab_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(ctx.dir))))
         work = os.path.join(lab_root, "_cases", os.path.basename(ctx.dir))
         steel = Material("steel", 210e9, 0.3, 7850.0)
+        ctx.input("case", {"case": case, "description": CASES[case], "material": "steel E 210 GPa, nu 0.3"})
         plt = _plt()
         res = None
         title = CASES[case]
@@ -117,6 +118,11 @@ class CalculixCase(Experiment):
                       detail="peak axial stress at the hole / net-section stress", kind="reference")
             ctx.check("mesh_convergence_Kt", value=abs(kts[1] / kts[0] - 1), max=0.02,
                       detail="change of Kt from the 4 mm to the 2.5 mm mesh", kind="sanity")
+            from ..uq import gci_check
+            g = gci_check(ctx, "Kt", kts, [0.004, 0.0025], order=2.0, max_band=0.05)
+            ctx.check("heywood_within_discretisation_band", value=abs(kt_ref / g["extrapolated"] - 1),
+                      max=0.05 + g["gci"], detail="|Kt_ref / Kt_extrapolated - 1| within the fit's few % plus the "
+                      "GCI band", kind="reference")
         elif case == "l_bracket":
             a, b, w, t, P = 0.1, 0.08, 0.04, 0.01, 2000.0
             peaks = []

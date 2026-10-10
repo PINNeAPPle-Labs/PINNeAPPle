@@ -2,7 +2,7 @@
  {
   "name": "reactions_balance_loads",
   "passed": true,
-  "value": 1.4143742555724464e-08,
+  "value": 1.4143742555724393e-08,
   "reference": null,
   "rtol": null,
   "atol": null,
@@ -34,5 +34,29 @@
   "min": null,
   "detail": "change of Kt from the 4 mm to the 2.5 mm mesh",
   "kind": "sanity"
+ },
+ {
+  "name": "Kt_discretisation_uncertainty",
+  "passed": true,
+  "value": 0.016541805524416853,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "grid convergence index of the fine-mesh value (2 meshes, order 2.00, safety 3)",
+  "kind": "uncertainty"
+ },
+ {
+  "name": "heywood_within_discretisation_band",
+  "passed": true,
+  "value": 0.025153833208804044,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.06654180552441685,
+  "min": null,
+  "detail": "|Kt_ref / Kt_extrapolated - 1| within the fit's few % plus the GCI band",
+  "kind": "reference"
  }
 ]

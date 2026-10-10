@@ -156,10 +156,33 @@ class ROMStudy(Experiment):
         truth = U[n_tr - 1:]
         x0 = torch.tensor(U[n_tr - 1][None], dtype=torch.float64)
         pred_dmd = dmd.rollout(x0, H)[0].numpy()
-        r = 8
-        a_tr = pod.encode(Xtr)[:, :r] if pod.encode(Xtr).shape[1] >= r else pod.encode(Xtr)
-        r = a_tr.shape[1]
-        oi = OperatorInference(r=r, use_quadratic=True, l2_linear=1e-6, l2_quad=1e-4).fit(a_tr[None])
+        # Operator Inference: rank and quadratic regularisation chosen on the last 25 % of the training window
+        A_all = pod.encode(Xtr)
+        n_fit = int(0.75 * n_tr)
+        val_truth = U[n_fit - 1:n_tr]
+        best_cfg, best_err = None, np.inf
+        for r_ in (4, 6, 8, 10):
+            for lq in (1e-2, 1e0, 1e2):
+                a_ = A_all[:n_fit, :r_]
+                try:
+                    m_ = OperatorInference(r=r_, use_quadratic=True, l2_linear=1e-6, l2_quad=lq, scale=True).fit(a_[None])
+                    av = m_.rollout(a_[-1][None], n_tr - n_fit + H)[0]          # through the whole horizon
+                    amp = float(av.abs().max()) / float(A_all[:, :r_].abs().max())
+                    pv = (av[: n_tr - n_fit + 1] @ pod.basis_[:, :r_].T + pod.mean_).numpy()
+                    ev = float(np.mean(np.linalg.norm(pv - val_truth, axis=1)))
+                    if not np.isfinite(amp) or amp > 2.0:                       # unstable: reject
+                        ev = np.inf
+                except Exception:                                  # noqa: BLE001 - a diverging candidate
+                    ev = np.inf
+                if np.isfinite(ev) and ev < best_err:
+                    best_cfg, best_err = (r_, lq), ev
+        if best_cfg is None:                                   # every candidate unstable: the most regularised one
+            best_cfg = (4, 1e2)
+            ctx.log("no stable Operator Inference candidate; using r = 4, l2_quad = 100")
+        r, lq = best_cfg
+        ctx.output("opinf_selection", {"rank": r, "l2_quad": lq, "validation": "last 25 % of the training window"})
+        a_tr = A_all[:, :r]
+        oi = OperatorInference(r=r, use_quadratic=True, l2_linear=1e-6, l2_quad=lq, scale=True).fit(a_tr[None])
         a_pred = oi.rollout(a_tr[-1][None], H)[0]
         basis = pod.basis_[:, :r]
         pred_oi = (a_pred @ basis.T + pod.mean_).numpy()
@@ -178,6 +201,9 @@ class ROMStudy(Experiment):
         best = min(float(e_dmd[: k3 + 1].mean()), float(e_oi[: k3 + 1].mean()))
         ctx.check("rom_forecast_beats_persistence", value=float(e_p[: k3 + 1].mean()) / max(best, 1e-12), min=3.0,
                   detail="mean relative error over 3 shedding periods, persistence / best ROM", kind="baseline")
+        ctx.check("opinf_bounded_over_horizon", value=float(np.nanmax(np.abs(a_pred.numpy())) / float(A_all[:, :r].abs().max()))
+                  if np.isfinite(a_pred.numpy()).all() else float("inf"), max=2.0,
+                  detail="largest latent amplitude of the forecast / largest in training (no blow-up)", kind="sanity")
         ctx.check("rom_forecast_error_3_periods", value=best, max=0.15,
                   detail="relative to the fluctuation norm", kind="generalization")
         # figures
@@ -297,6 +323,15 @@ class ROMStudy(Experiment):
             ctx.check(f"{fld}_rom_error_unseen_designs", value=b["median"], max=0.03,
                       detail=f"median relative L2 error on {len(Pte)} unseen designs ({best[fld]})",
                       kind="generalization")
+        # uncertainty: the GP's predictive standard deviation must cover the unseen designs at its nominal level
+        from ..uq import coverage_check
+        for fld in fields:
+            g_ = ParametricPOD(r=16, energy=None, regressor="gpr", normalize=fld == "von_mises").fit(feats(Ptr), fields[fld][0])
+            mu, sd = g_.predict(feats(Pte), return_std=True)
+            # the GP covers the coefficient regression; add the basis truncation error measured on training designs
+            trunc = np.sqrt(np.mean((g_.projection_error(fields[fld][0]) *
+                                     np.linalg.norm(fields[fld][0], axis=1)) ** 2) / fields[fld][0].shape[1])
+            coverage_check(ctx, fld, fields[fld][1], mu, np.sqrt(sd ** 2 + trunc ** 2), level=0.9, tol=0.1)
         speed = t_fem / max(table[("displacement", best["displacement"])]["t"], 1e-9)
         ctx.metric("fem_seconds_per_design", t_fem)
         ctx.metric("speedup_over_fem", speed)

@@ -1,16 +1,17 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-10-10 22:23 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-10-10 23:00 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|
 | `bar_wear` | **A** flagship | 100.0 | 8/0/0/0 | 100 % | - | - | - | ready | no |
 | `solid_fem` | **A** flagship | 100.0 | 3/0/0/0 | 100 % | - | - | - | ready | no |
-| `pipe_flow` | **A** flagship | 97.9 | 2/0/0/1 | 67 % | - | - | - | ready | no |
+| `particle_suspension` | **A** flagship | 97.9 | 1/0/0/0 | 100 % | - | - | - | ready | no |
+| `pipe_flow` | **A** flagship | 97.9 | 2/1/0/0 | 100 % | - | - | - | ready | no |
 | `calculix_case` | **A** flagship | 95.7 | 2/3/0/0 | 100 % | - | - | - | ready | no |
 | `repo_results` | **A** flagship | 92.9 | 1/9/0/0 | 100 % | - | - | - | ready | no |
 | `benchmark_case` | **B** solid | 100.0 | 0/7/0/0 | 100 % | - | - | - | - | no |
-| `rom_study` | **B** solid | 95.4 | 0/1/0/0 | 100 % | - | - | - | ready | no |
+| `rom_study` | **B** solid | 95.4 | 0/1/0/1 | 50 % | - | - | - | ready | no |
 | `car_lbm` | **B** solid | 94.3 | 0/40/0/1 | 98 % | - | - | - | ready | no |
 | `pendulum_video` | **B** solid | 92.9 | 0/1/0/0 | 100 % | - | - | - | ready | no |
 | `bar_wear_ranking` | **B** solid | 92.0 | 0/1/0/0 | 100 % | - | - | - | ready | no |
@@ -40,7 +41,8 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `bar_wear/stellite` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `bar_wear/tungsten carbide` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `calculix_case/l_bracket` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
-| `calculix_case/plate_hole` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
+| `calculix_case/plate_hole` | A | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `particle_suspension` | A | ✓ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `pipe_flow/bend_90` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `pipe_flow/laminar_pipe` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
 | `repo_results/ahmed_body` | A | ~ | ✓ | ✓ | ✓ | ~ | ✓ |
@@ -68,6 +70,7 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `oscillator` | B | ✓ | ✓ | ? | ✓ | ? | ~ |
 | `oscillator_discovery` | B | ? | ✓ | ? | ✓ | ? | ~ |
 | `pendulum_video` | B | ? | ✓ | ? | ✓ | ~ | ✓ |
+| `pipe_flow/kenics_mixer` | B | ~ | ? | ✓ | ✓ | ~ | ✓ |
 | `repo_results/airfoil_surrogate` | B | ~ | ? | ? | ? | ? | ~ |
 | `repo_results/bh_forecast` | B | ~ | ? | ? | ✓ | ~ | ✓ |
 | `repo_results/burgers_pinn` | B | ~ | ✓ | ? | ✓ | ~ | ✓ |
@@ -77,7 +80,7 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `repo_results/heatsink_surrogate` | B | ~ | ? | ? | ? | ? | ~ |
 | `repo_results/lbm_strouhal` | B | ~ | ✓ | ? | ✓ | ~ | ✓ |
 | `repo_results/meshgraphnet` | B | ~ | ? | ? | ✓ | ~ | ✓ |
-| `rom_study/beam_parametric` | B | ~ | ✓ | ? | ✓ | ~ | ✓ |
+| `rom_study/beam_parametric` | B | ~ | ✓ | ? | ✓ | ✓ | ✓ |
 | `vehicle_cfd/car` | B | ~ | ? | ✓ | ? | ~ | ✓ |
 | `example_script/examples/getting_started/01_harmonic_oscillator.py` | C | ✓ | ? | ? | ? | ~ | ? |
 | `example_script/examples/getting_started/02_damped_oscillator.py` | C | ✓ | ? | ? | ? | ~ | ? |
@@ -87,7 +90,7 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `example_script/examples/getting_started/03_heat_diffusion_1d.py` | D | ✗ | ? | ? | ? | ~ | ✗ |
 | `example_script/examples/getting_started/04_wave_equation_1d.py` | D | ✗ | ? | ? | ? | ? | ✗ |
 | `example_script/examples/getting_started/08_van_der_pol.py` | D | ✗ | ? | ? | ? | ~ | ✗ |
-| `pipe_flow/kenics_mixer` | D | ? | ? | ? | ? | ~ | ✗ |
+| `rom_study/cylinder_wake` | D | ✗ | ✓ | ✓ | ✓ | ~ | ✗ |
 | `vehicle_cfd/rocket` | D | ~ | ✗ | ✓ | ✗ | ~ | ✗ |
 
 ## What each experiment needs next

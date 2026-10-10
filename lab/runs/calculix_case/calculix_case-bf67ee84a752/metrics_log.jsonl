@@ -1,0 +1,5 @@
+{"name": "elements_mesh_0", "value": 10173, "step": null, "t": 1791668945.927193}
+{"name": "elements_mesh_1", "value": 24748, "step": null, "t": 1791668972.8778794}
+{"name": "fillet_peak_von_mises_MPa", "value": 209.013937644159, "step": null, "t": 1791668972.8786116}
+{"name": "upright_bending_stress_MPa", "value": 141.462125, "step": null, "t": 1791668972.8786678}
+{"name": "max_displacement_mm", "value": 0.3324316712549356, "step": null, "t": 1791668972.8801882}

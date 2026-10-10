@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10 22:23 UTC",
+ "generated": "2026-10-10 23:00 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -2756,6 +2756,187 @@
    "description": "Uses the oscillator trajectories already in the lab database: for each one, SINDy over {x, x', x\u00b2, x x', x'\u00b2} finds x'' = -\u03c9\u00b2 x - 2\u03b6\u03c9 x' and recovers \u03b6 and \u03c9 from the data alone.",
    "story": ""
   },
+  "particle_suspension": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "particle_suspension-b7feb1ba16dd",
+   "best_score": 97.9,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: tank",
+      "PASS particles_stay_in_the_tank (fraction of particle positions inside the tank over all frames)",
+      "PASS contact_overlap_bounded (largest contact overlap / diameter (soft spheres))"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS settling_velocity_vs_schiller_naumann (an isolated sphere in still liquid)",
+      "PASS suspension_speed_vs_zwietering (speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pi)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS flow_is_divergence_free (max |div u| R / V_tip by central differences (stream-function loop))",
+      "PASS particles_stay_in_the_tank (fraction of particle positions inside the tank over all frames)",
+      "PASS suspension_grows_with_speed (correlation of the suspended fraction with the impeller speed during the ramp)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS settling_velocity_vs_schiller_naumann (an isolated sphere in still liquid)",
+      "PASS suspension_speed_vs_zwietering (speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pi)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "limitations: one-way coupling: the particles do not change the liquid flow (no hindered settling, no damping of the loop by",
+      "and 3 more"
+     ],
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "answered",
+     "evidence": [
+      "tier A (flagship), ready for training_data",
+      "4 limitations bound the use"
+     ],
+     "next": ""
+    }
+   },
+   "plan": {
+    "limitations": [
+     "declared: one-way coupling: the particles do not change the liquid flow (no hindered settling, no damping of the loop by the solids)",
+     "declared: analytic stirred-tank flow (swirl + one circulation loop scaled by the tip speed), not a CFD solution of this tank; its constants are not calibrated",
+     "declared: frictionless soft spheres, no particle-impeller collisions, no added mass or lift",
+     "declared: contact stiffness lowered for the time step (overlaps up to about 15 % of the diameter)"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "description": "Solids suspension in a stirred tank as the impeller speeds up: soft-sphere DEM particles with drag, buoyancy and turbulent dispersion in an analytic, divergence-free stirred-tank flow; process video (particles coloured by speed, turning impeller, live charts), suspension curves and the just-suspended speed against Zwietering's correlation.",
+   "story": ""
+  },
   "pendulum_video": {
    "tier": "B",
    "tier_name": "solid",
@@ -2950,11 +3131,11 @@
    "runs": 3,
    "tier_counts": {
     "A": 2,
-    "B": 0,
+    "B": 1,
     "C": 0,
-    "D": 1
+    "D": 0
    },
-   "usable_fraction": 0.67,
+   "usable_fraction": 1.0,
    "readiness": {
     "product": {
      "ready": false,
@@ -3048,9 +3229,7 @@
     }
    },
    "plan": {
-    "limitations": [
-     "detected: 1 of 3 runs fail validation or crash (outside the validated range)"
-    ],
+    "limitations": [],
     "actions": [
      {
       "gap": "review",
@@ -3283,14 +3462,14 @@
    "tier_name": "solid",
    "best_run": "rom_study-61475bf029de",
    "best_score": 95.4,
-   "runs": 1,
+   "runs": 2,
    "tier_counts": {
     "A": 0,
     "B": 1,
     "C": 0,
-    "D": 0
+    "D": 1
    },
-   "usable_fraction": 1.0,
+   "usable_fraction": 0.5,
    "readiness": {
     "product": {
      "ready": false,
@@ -3370,12 +3549,14 @@
     "uncertainty": {
      "title": "Uncertainty",
      "question": "Where may the prediction not be reliable?",
-     "status": "partial",
+     "status": "answered",
      "evidence": [
-      "limitations: linear elasticity: displacement is linear in the load magnitude, so only the geometry and the load direction a",
-      "and 1 more"
+      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)"
      ],
-     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+     "next": ""
     },
     "decision": {
      "title": "Engineering decision",
@@ -3389,7 +3570,9 @@
     }
    },
    "plan": {
-    "limitations": [],
+    "limitations": [
+     "detected: 1 of 2 runs fail validation or crash (outside the validated range)"
+    ],
     "actions": [
      {
       "gap": "reference",
@@ -7911,192 +8094,6 @@
    "description": "Aluminium fin 100 x 20 x 4 mm, base at 100 C, convection h = 50 W/m2K to 20 C (C3D8).",
    "title": "fin heat"
   },
-  "calculix_case/plate_hole": {
-   "tier": "A",
-   "tier_name": "flagship",
-   "best_run": "calculix_case-a10042673f52",
-   "best_score": 90.4,
-   "runs": 1,
-   "tier_counts": {
-    "A": 1,
-    "B": 0,
-    "C": 0,
-    "D": 0
-   },
-   "usable_fraction": 1.0,
-   "readiness": {
-    "product": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "generalization evidence",
-      "uncertainty estimate"
-     ]
-    },
-    "paper": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "novelty review >= 3/5"
-     ]
-    },
-    "marketing": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "strong visuals (movie, render or 3-D view)",
-      "a one-line story (review)"
-     ]
-    },
-    "training_data": {
-     "ready": true,
-     "approved": false,
-     "missing": []
-    }
-   },
-   "gaps": [],
-   "reviewed": false,
-   "stages": {
-    "data_geometry": {
-     "title": "Data and geometry",
-     "question": "Was the physical problem represented correctly?",
-     "status": "partial",
-     "evidence": [
-      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
-     ],
-     "next": "record the geometry, mesh and inputs"
-    },
-    "model": {
-     "title": "Model",
-     "question": "Can the model (or solver) represent the relevant dynamics?",
-     "status": "answered",
-     "evidence": [
-      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)",
-      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
-     ],
-     "next": ""
-    },
-    "physics": {
-     "title": "Physical constraints",
-     "question": "Are the equations and the boundary conditions respected?",
-     "status": "answered",
-     "evidence": [
-      "PASS reactions_balance_loads (support reactions + applied load)"
-     ],
-     "next": ""
-    },
-    "benchmark": {
-     "title": "Benchmark",
-     "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
-     "evidence": [
-      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)"
-     ],
-     "next": ""
-    },
-    "uncertainty": {
-     "title": "Uncertainty",
-     "question": "Where may the prediction not be reliable?",
-     "status": "partial",
-     "evidence": [
-      "limitations: Heywood's formula is a fit to plane-stress data (a few %); a 4 mm plate around a 10 mm hole is not exactly pla"
-     ],
-     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
-    },
-    "decision": {
-     "title": "Engineering decision",
-     "question": "Is the result adequate for the intended use?",
-     "status": "answered",
-     "evidence": [
-      "tier A (flagship), ready for training_data",
-      "1 limitations bound the use"
-     ],
-     "next": ""
-    }
-   },
-   "plan": {
-    "limitations": [
-     "declared: Heywood's formula is a fit to plane-stress data (a few %); a 4 mm plate around a 10 mm hole is not exactly plane stress",
-     "detected: evidence only inferred (not measured by a check) for generalization"
-    ],
-    "actions": [
-     {
-      "gap": "review",
-      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
-      "effort": "S",
-      "unlocks": [
-       "paper",
-       "marketing"
-      ]
-     },
-     {
-      "gap": "assets",
-      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
-      "effort": "S",
-      "unlocks": [
-       "marketing"
-      ]
-     },
-     {
-      "gap": "generalization",
-      "action": "Hold out designs or an out-of-distribution regime and report the error there",
-      "effort": "M",
-      "unlocks": [
-       "product"
-      ]
-     },
-     {
-      "gap": "uncertainty",
-      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
-      "effort": "M",
-      "unlocks": [
-       "product"
-      ]
-     }
-    ],
-    "uses": {
-     "product": {
-      "status": "gap",
-      "run": "calculix_case-a10042673f52",
-      "distance": 6,
-      "missing": [
-       "generalization evidence",
-       "uncertainty estimate"
-      ]
-     },
-     "paper": {
-      "status": "gap",
-      "run": "calculix_case-a10042673f52",
-      "distance": 1,
-      "missing": [
-       "novelty review >= 3/5"
-      ]
-     },
-     "marketing": {
-      "status": "gap",
-      "run": "calculix_case-a10042673f52",
-      "distance": 2,
-      "missing": [
-       "strong visuals (movie, render or 3-D view)",
-       "a one-line story (review)"
-      ]
-     },
-     "training_data": {
-      "status": "ready",
-      "run": "calculix_case-a10042673f52",
-      "distance": 0,
-      "missing": []
-     }
-    },
-    "closest_use": "paper",
-    "next_tier": null
-   },
-   "experiment": "calculix_case",
-   "case": "plate_hole",
-   "story": "",
-   "description": "Steel plate 200 x 50 x 4 mm with a 10 mm hole, 50 MPa tension (gmsh C3D10).",
-   "title": "plate hole"
-  },
   "calculix_case/l_bracket": {
    "tier": "A",
    "tier_name": "flagship",
@@ -8281,6 +8278,195 @@
    "story": "",
    "description": "Steel L bracket 100 x 80 x 40 mm, 10 mm thick, 10 mm fillet, 12 mm bolt hole; base clamped, 2 kN side load on the upright (gmsh C3D10).",
    "title": "l bracket"
+  },
+  "calculix_case/plate_hole": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "calculix_case-a10042673f52",
+   "best_score": 90.4,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: case",
+      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)",
+      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS reactions_balance_loads (support reactions + applied load)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)",
+      "PASS heywood_within_discretisation_band (|Kt_ref / Kt_extrapolated - 1| within the fit's few % plus the GCI band)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "answered",
+     "evidence": [
+      "PASS Kt_discretisation_uncertainty (grid convergence index of the fine-mesh value (2 meshes, order 2.00, safety 3))",
+      "PASS Kt_discretisation_uncertainty (grid convergence index of the fine-mesh value (2 meshes, order 2.00, safety 3))"
+     ],
+     "next": ""
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "answered",
+     "evidence": [
+      "tier A (flagship), ready for training_data",
+      "1 limitations bound the use"
+     ],
+     "next": ""
+    }
+   },
+   "plan": {
+    "limitations": [
+     "declared: Heywood's formula is a fit to plane-stress data (a few %); a 4 mm plate around a 10 mm hole is not exactly plane stress",
+     "detected: evidence only inferred (not measured by a check) for generalization"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "calculix_case-a10042673f52",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "calculix_case-a10042673f52",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "calculix_case-a10042673f52",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "calculix_case-a10042673f52",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "calculix_case",
+   "case": "plate_hole",
+   "story": "",
+   "description": "Steel plate 200 x 50 x 4 mm with a 10 mm hole, 50 MPa tension (gmsh C3D10).",
+   "title": "plate hole"
   },
   "car_lbm": {
    "tier": "B",
@@ -11512,6 +11698,190 @@
    "description": "Uses the oscillator trajectories already in the lab database: for each one, SINDy over {x, x', x\u00b2, x x', x'\u00b2} finds x'' = -\u03c9\u00b2 x - 2\u03b6\u03c9 x' and recovers \u03b6 and \u03c9 from the data alone.",
    "title": "oscillator_discovery"
   },
+  "particle_suspension": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "particle_suspension-b7feb1ba16dd",
+   "best_score": 97.9,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: tank",
+      "PASS particles_stay_in_the_tank (fraction of particle positions inside the tank over all frames)",
+      "PASS contact_overlap_bounded (largest contact overlap / diameter (soft spheres))"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS settling_velocity_vs_schiller_naumann (an isolated sphere in still liquid)",
+      "PASS suspension_speed_vs_zwietering (speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pi)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS flow_is_divergence_free (max |div u| R / V_tip by central differences (stream-function loop))",
+      "PASS particles_stay_in_the_tank (fraction of particle positions inside the tank over all frames)",
+      "PASS suspension_grows_with_speed (correlation of the suspended fraction with the impeller speed during the ramp)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS settling_velocity_vs_schiller_naumann (an isolated sphere in still liquid)",
+      "PASS suspension_speed_vs_zwietering (speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pi)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "limitations: one-way coupling: the particles do not change the liquid flow (no hindered settling, no damping of the loop by",
+      "and 3 more"
+     ],
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "answered",
+     "evidence": [
+      "tier A (flagship), ready for training_data",
+      "4 limitations bound the use"
+     ],
+     "next": ""
+    }
+   },
+   "plan": {
+    "limitations": [
+     "declared: one-way coupling: the particles do not change the liquid flow (no hindered settling, no damping of the loop by the solids)",
+     "declared: analytic stirred-tank flow (swirl + one circulation loop scaled by the tip speed), not a CFD solution of this tank; its constants are not calibrated",
+     "declared: frictionless soft spheres, no particle-impeller collisions, no added mass or lift",
+     "declared: contact stiffness lowered for the time step (overlaps up to about 15 % of the diameter)"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "particle_suspension-b7feb1ba16dd",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "particle_suspension",
+   "case": "",
+   "story": "",
+   "description": "Solids suspension in a stirred tank as the impeller speeds up: soft-sphere DEM particles with drag, buoyancy and turbulent dispersion in an analytic, divergence-free stirred-tank flow; process video (particles coloured by speed, turning impeller, live charts), suspension curves and the just-suspended speed against Zwietering's correlation.",
+   "title": "particle_suspension"
+  },
   "pendulum_video": {
    "tier": "B",
    "tier_name": "solid",
@@ -12058,38 +12428,32 @@
    "title": "laminar pipe"
   },
   "pipe_flow/kenics_mixer": {
-   "tier": "D",
-   "tier_name": "not usable",
+   "tier": "B",
+   "tier_name": "solid",
    "best_run": "pipe_flow-07a353a549b9",
-   "best_score": 48.9,
+   "best_score": 97.7,
    "runs": 1,
    "tier_counts": {
     "A": 0,
-    "B": 0,
+    "B": 1,
     "C": 0,
-    "D": 1
+    "D": 0
    },
-   "usable_fraction": 0.0,
+   "usable_fraction": 1.0,
    "readiness": {
     "product": {
      "ready": false,
      "approved": false,
      "missing": [
-      "not usable until it validates",
       "generalization evidence",
-      "uncertainty estimate",
-      "reference or physics check",
-      "reproducibility"
+      "uncertainty estimate"
      ]
     },
     "paper": {
      "ready": false,
      "approved": false,
      "missing": [
-      "not usable until it validates",
       "comparison with a reference",
-      "baseline or physics check",
-      "reproducibility",
       "novelty review >= 3/5"
      ]
     },
@@ -12097,35 +12461,28 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "not usable until it validates",
-      "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
     "training_data": {
-     "ready": false,
+     "ready": true,
      "approved": false,
-     "missing": [
-      "not usable until it validates",
-      "a documented dataset",
-      "validated runs"
-     ]
+     "missing": []
     }
    },
    "gaps": [
-    "fix the failing checks or the crash"
+    "compare with an independent reference (exact solution, experiment, published value)"
    ],
    "reviewed": false,
    "stages": {
     "data_geometry": {
      "title": "Data and geometry",
      "question": "Was the physical problem represented correctly?",
-     "status": "open",
+     "status": "partial",
      "evidence": [
-      "no inputs or geometry recorded"
+      "inputs recorded: route"
      ],
-     "next": "record the inputs (ctx.input)"
+     "next": "add a mesh-convergence or domain check"
     },
     "model": {
      "title": "Model",
@@ -12139,20 +12496,22 @@
     "physics": {
      "title": "Physical constraints",
      "question": "Are the equations and the boundary conditions respected?",
-     "status": "open",
+     "status": "answered",
      "evidence": [
-      "no conservation, symmetry or boundary-condition check"
+      "PASS bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservat)",
+      "PASS scalar_flux_conserved (flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1))",
+      "PASS mixing_decays_through_elements (CoV after each element smaller than after the previous one)"
      ],
-     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
+     "next": ""
     },
     "benchmark": {
      "title": "Benchmark",
      "question": "How does the result compare with a solver or reference data?",
-     "status": "open",
+     "status": "answered",
      "evidence": [
-      "no comparison with a solver, data or baseline"
+      "PASS mixer_beats_empty_pipe (coefficient of variation at the outlet, empty pipe / mixer)"
      ],
-     "next": "compare with a reference or a simple baseline"
+     "next": ""
     },
     "uncertainty": {
      "title": "Uncertainty",
@@ -12167,54 +12526,21 @@
     "decision": {
      "title": "Engineering decision",
      "question": "Is the result adequate for the intended use?",
-     "status": "failed",
+     "status": "answered",
      "evidence": [
-      "tier D (not usable)"
+      "tier B (solid), ready for training_data",
+      "3 limitations bound the use"
      ],
-     "next": "not usable until it validates"
+     "next": ""
     }
    },
    "plan": {
     "limitations": [
      "declared: the scalar is carried with numerical diffusion only (no molecular diffusivity): striations thinner than a cell are smeared, so the coefficient of variation falls faster than in a real laminar mixer",
      "declared: plates cut by snappyHexMesh on a two-level refinement (about 4 cells across the plate thickness)",
-     "declared: a single Reynolds number",
-     "detected: 1 of 1 runs fail validation or crash (outside the validated range)",
-     "detected: evidence only inferred (not measured by a check) for reproducibility",
-     "detected: only 22 % of the evidence dimensions have data"
+     "declared: a single Reynolds number"
     ],
     "actions": [
-     {
-      "gap": "fix",
-      "action": "Fix the failing checks or the crash",
-      "effort": "M",
-      "unlocks": [
-       "product",
-       "paper",
-       "marketing",
-       "training_data",
-       "tier C"
-      ]
-     },
-     {
-      "gap": "reference",
-      "action": "Validate against a published experiment or benchmark value (drag, Strouhal, Nusselt) and run a grid-convergence study (coarse / medium / fine)",
-      "effort": "M",
-      "unlocks": [
-       "product",
-       "paper",
-       "marketing"
-      ]
-     },
-     {
-      "gap": "reproducibility",
-      "action": "Rerun from a committed tree (the code snapshot is automatic) and repeat with three seeds",
-      "effort": "S",
-      "unlocks": [
-       "product",
-       "paper"
-      ]
-     },
      {
       "gap": "review",
       "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
@@ -12225,27 +12551,12 @@
       ]
      },
      {
-      "gap": "baseline",
-      "action": "Compare with the simplest method that could do the job",
-      "effort": "S",
+      "gap": "reference",
+      "action": "Validate against a published experiment or benchmark value (drag, Strouhal, Nusselt) and run a grid-convergence study (coarse / medium / fine)",
+      "effort": "M",
       "unlocks": [
-       "paper"
-      ]
-     },
-     {
-      "gap": "assets",
-      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
-      "effort": "S",
-      "unlocks": [
-       "marketing"
-      ]
-     },
-     {
-      "gap": "data",
-      "action": "Save the fields as a dataset with a card (ctx.dataset)",
-      "effort": "S",
-      "unlocks": [
-       "training_data"
+       "paper",
+       "tier A"
       ]
      },
      {
@@ -12269,51 +12580,38 @@
      "product": {
       "status": "gap",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 13,
+      "distance": 6,
       "missing": [
-       "not usable until it validates",
        "generalization evidence",
-       "uncertainty estimate",
-       "reference or physics check",
-       "reproducibility"
+       "uncertainty estimate"
       ]
      },
      "paper": {
       "status": "gap",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 9,
+      "distance": 4,
       "missing": [
-       "not usable until it validates",
        "comparison with a reference",
-       "baseline or physics check",
-       "reproducibility",
        "novelty review >= 3/5"
       ]
      },
      "marketing": {
       "status": "gap",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 8,
+      "distance": 1,
       "missing": [
-       "not usable until it validates",
-       "strong visuals (movie, render or 3-D view)",
-       "a validated headline number",
        "a one-line story (review)"
       ]
      },
      "training_data": {
-      "status": "gap",
+      "status": "ready",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 4,
-      "missing": [
-       "not usable until it validates",
-       "a documented dataset",
-       "validated runs"
-      ]
+      "distance": 0,
+      "missing": []
      }
     },
-    "closest_use": "training_data",
-    "next_tier": "C"
+    "closest_use": "marketing",
+    "next_tier": "A"
    },
    "experiment": "pipe_flow",
    "case": "kenics_mixer",
@@ -14277,6 +14575,213 @@
    "description": "Ahmed body (25 deg slant) in OpenFOAM with a moving road: drag against the wind-tunnel value, skin pressure, streamlines and wake renders",
    "title": "ahmed body"
   },
+  "rom_study/cylinder_wake": {
+   "tier": "D",
+   "tier_name": "not usable",
+   "best_run": "rom_study-9580a00926ca",
+   "best_score": 94.9,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 1
+   },
+   "usable_fraction": 0.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "validated runs"
+     ]
+    }
+   },
+   "gaps": [
+    "fix the failing checks or the crash"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "failed",
+     "evidence": [
+      "inputs recorded: setup",
+      "FAIL opinf_bounded_over_horizon (largest latent amplitude of the forecast / largest in training (no blow-up))"
+     ],
+     "next": "fix the failing check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+      "and 1 more"
+     ],
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "failed",
+     "evidence": [
+      "tier D (not usable)"
+     ],
+     "next": "not usable until it validates"
+    }
+   },
+   "plan": {
+    "limitations": [
+     "declared: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+     "declared: the transient is excluded from the training window",
+     "detected: 1 of 1 runs fail validation or crash (outside the validated range)"
+    ],
+    "actions": [
+     {
+      "gap": "fix",
+      "action": "Fix the failing checks or the crash",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "marketing",
+       "training_data",
+       "tier C"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "paper"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 6,
+      "missing": [
+       "not usable until it validates",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 7,
+      "missing": [
+       "not usable until it validates",
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 4,
+      "missing": [
+       "not usable until it validates",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 3,
+      "missing": [
+       "not usable until it validates",
+       "validated runs"
+      ]
+     }
+    },
+    "closest_use": "training_data",
+    "next_tier": "C"
+   },
+   "experiment": "rom_study",
+   "case": "cylinder_wake",
+   "story": "",
+   "description": "Vortex shedding behind a cylinder at Re 100 (LBM): POD modes, DMD frequency and OpInf/DMD forecasts of the wake against persistence.",
+   "title": "cylinder wake"
+  },
   "rom_study/beam_parametric": {
    "tier": "B",
    "tier_name": "solid",
@@ -14369,12 +14874,14 @@
     "uncertainty": {
      "title": "Uncertainty",
      "question": "Where may the prediction not be reliable?",
-     "status": "partial",
+     "status": "answered",
      "evidence": [
-      "limitations: linear elasticity: displacement is linear in the load magnitude, so only the geometry and the load direction a",
-      "and 1 more"
+      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)"
      ],
-     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+     "next": ""
     },
     "decision": {
      "title": "Engineering decision",
@@ -21901,210 +22408,6 @@
    },
    "tier_name": "solid"
   },
-  "calculix_case-a10042673f52": {
-   "run_id": "calculix_case-a10042673f52",
-   "experiment": "calculix_case",
-   "status": "completed",
-   "tier": "A",
-   "score": 90.4,
-   "coverage": 0.85,
-   "dimensions": {
-    "validation": {
-     "name": "validation",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "3/3 checks pass"
-     ]
-    },
-    "reference": {
-     "name": "reference",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)"
-     ]
-    },
-    "baseline": {
-     "name": "baseline",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no baseline check"
-     ]
-    },
-    "physics": {
-     "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "PASS reactions_balance_loads (support reactions + applied load)"
-     ]
-    },
-    "generalization": {
-     "name": "generalization",
-     "score": 0.5,
-     "status": "INFO",
-     "tier": "INFERRED",
-     "evidence": [
-      "metrics on unseen data, no check: Kt_net_heywood"
-     ]
-    },
-    "uncertainty": {
-     "name": "uncertainty",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no uncertainty reported"
-     ]
-    },
-    "reproducibility": {
-     "name": "reproducibility",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "code snapshot: 1 files",
-      "git e2fb3a62",
-      "ran from a dirty tree (diff saved)"
-     ]
-    },
-    "data": {
-     "name": "data",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "1 datasets, 1 samples, 100 % with a card description"
-     ]
-    },
-    "assets": {
-     "name": "assets",
-     "score": 0.6000000000000001,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "2 figures, 0 movies, photoreal render, 3-D viewer"
-     ]
-    },
-    "documentation": {
-     "name": "documentation",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "description 271 chars",
-      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
-      "papers: 0"
-     ]
-    },
-    "review": {
-     "name": "review",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no human review yet"
-     ]
-    }
-   },
-   "readiness": {
-    "product": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "generalization evidence",
-      "uncertainty estimate"
-     ]
-    },
-    "paper": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "novelty review >= 3/5"
-     ]
-    },
-    "marketing": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "strong visuals (movie, render or 3-D view)",
-      "a one-line story (review)"
-     ]
-    },
-    "training_data": {
-     "ready": true,
-     "approved": false,
-     "missing": []
-    }
-   },
-   "gaps": [],
-   "reviewed": false,
-   "stages": {
-    "data_geometry": {
-     "title": "Data and geometry",
-     "question": "Was the physical problem represented correctly?",
-     "status": "partial",
-     "evidence": [
-      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
-     ],
-     "next": "record the geometry, mesh and inputs"
-    },
-    "model": {
-     "title": "Model",
-     "question": "Can the model (or solver) represent the relevant dynamics?",
-     "status": "answered",
-     "evidence": [
-      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)",
-      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
-     ],
-     "next": ""
-    },
-    "physics": {
-     "title": "Physical constraints",
-     "question": "Are the equations and the boundary conditions respected?",
-     "status": "answered",
-     "evidence": [
-      "PASS reactions_balance_loads (support reactions + applied load)"
-     ],
-     "next": ""
-    },
-    "benchmark": {
-     "title": "Benchmark",
-     "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
-     "evidence": [
-      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)"
-     ],
-     "next": ""
-    },
-    "uncertainty": {
-     "title": "Uncertainty",
-     "question": "Where may the prediction not be reliable?",
-     "status": "partial",
-     "evidence": [
-      "limitations: Heywood's formula is a fit to plane-stress data (a few %); a 4 mm plate around a 10 mm hole is not exactly pla"
-     ],
-     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
-    },
-    "decision": {
-     "title": "Engineering decision",
-     "question": "Is the result adequate for the intended use?",
-     "status": "answered",
-     "evidence": [
-      "tier A (flagship), ready for training_data",
-      "1 limitations bound the use"
-     ],
-     "next": ""
-    }
-   },
-   "tier_name": "flagship"
-  },
   "calculix_case-bf67ee84a752": {
    "run_id": "calculix_case-bf67ee84a752",
    "experiment": "calculix_case",
@@ -22295,6 +22598,214 @@
       "limitations: linear elasticity; the clamp makes the base corners singular (excluded from the checks)"
      ],
      "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "answered",
+     "evidence": [
+      "tier A (flagship), ready for training_data",
+      "1 limitations bound the use"
+     ],
+     "next": ""
+    }
+   },
+   "tier_name": "flagship"
+  },
+  "calculix_case-a10042673f52": {
+   "run_id": "calculix_case-a10042673f52",
+   "experiment": "calculix_case",
+   "status": "completed",
+   "tier": "A",
+   "score": 90.4,
+   "coverage": 0.85,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5/5 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)",
+      "PASS heywood_within_discretisation_band (|Kt_ref / Kt_extrapolated - 1| within the fit's few % plus the GCI band)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS reactions_balance_loads (support reactions + applied load)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 0.5,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "metrics on unseen data, no check: Kt_net_heywood, Kt_extrapolated"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 5df41475",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.6000000000000001,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 figures, 0 movies, photoreal render, 3-D viewer"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 271 chars",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: case",
+      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)",
+      "PASS mesh_convergence_Kt (change of Kt from the 4 mm to the 2.5 mm mesh)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS reactions_balance_loads (support reactions + applied load)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS stress_concentration_vs_heywood (peak axial stress at the hole / net-section stress)",
+      "PASS heywood_within_discretisation_band (|Kt_ref / Kt_extrapolated - 1| within the fit's few % plus the GCI band)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "answered",
+     "evidence": [
+      "PASS Kt_discretisation_uncertainty (grid convergence index of the fine-mesh value (2 meshes, order 2.00, safety 3))",
+      "PASS Kt_discretisation_uncertainty (grid convergence index of the fine-mesh value (2 meshes, order 2.00, safety 3))"
+     ],
+     "next": ""
     },
     "decision": {
      "title": "Engineering decision",
@@ -50193,6 +50704,218 @@
    },
    "tier_name": "solid"
   },
+  "particle_suspension-b7feb1ba16dd": {
+   "run_id": "particle_suspension-b7feb1ba16dd",
+   "experiment": "particle_suspension",
+   "status": "completed",
+   "tier": "A",
+   "score": 97.9,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "6/6 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS settling_velocity_vs_schiller_naumann (an isolated sphere in still liquid)",
+      "PASS suspension_speed_vs_zwietering (speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pitched-blade turbines); an order-of-magnitude consistency, the flow model is not calibrated)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS flow_is_divergence_free (max |div u| R / V_tip by central differences (stream-function loop))",
+      "PASS particles_stay_in_the_tank (fraction of particle positions inside the tank over all frames)",
+      "PASS suspension_grows_with_speed (correlation of the suspended fraction with the impeller speed during the ramp)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 93ae486c",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 31 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5 figures, 2 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 341 chars",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: tank",
+      "PASS particles_stay_in_the_tank (fraction of particle positions inside the tank over all frames)",
+      "PASS contact_overlap_bounded (largest contact overlap / diameter (soft spheres))"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS settling_velocity_vs_schiller_naumann (an isolated sphere in still liquid)",
+      "PASS suspension_speed_vs_zwietering (speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pi)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS flow_is_divergence_free (max |div u| R / V_tip by central differences (stream-function loop))",
+      "PASS particles_stay_in_the_tank (fraction of particle positions inside the tank over all frames)",
+      "PASS suspension_grows_with_speed (correlation of the suspended fraction with the impeller speed during the ramp)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS settling_velocity_vs_schiller_naumann (an isolated sphere in still liquid)",
+      "PASS suspension_speed_vs_zwietering (speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pi)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "limitations: one-way coupling: the particles do not change the liquid flow (no hindered settling, no damping of the loop by",
+      "and 3 more"
+     ],
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "answered",
+     "evidence": [
+      "tier A (flagship), ready for training_data",
+      "4 limitations bound the use"
+     ],
+     "next": ""
+    }
+   },
+   "tier_name": "flagship"
+  },
   "pendulum_video-7a4bc9625e0e": {
    "run_id": "pendulum_video-7a4bc9625e0e",
    "experiment": "pendulum_video",
@@ -50817,18 +51540,18 @@
   "pipe_flow-07a353a549b9": {
    "run_id": "pipe_flow-07a353a549b9",
    "experiment": "pipe_flow",
-   "status": "failed_validation",
-   "tier": "D",
-   "score": 48.9,
-   "coverage": 0.22,
+   "status": "completed",
+   "tier": "B",
+   "score": 97.7,
+   "coverage": 0.7,
    "dimensions": {
     "validation": {
      "name": "validation",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "the run records no check"
+      "4/4 checks pass"
      ]
     },
     "reference": {
@@ -50842,20 +51565,22 @@
     },
     "baseline": {
      "name": "baseline",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no baseline check"
+      "PASS mixer_beats_empty_pipe (coefficient of variation at the outlet, empty pipe / mixer)"
      ]
     },
     "physics": {
      "name": "physics",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no physics check"
+      "PASS bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservation and section averaging on the O-grid))",
+      "PASS scalar_flux_conserved (flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1))",
+      "PASS mixing_decays_through_elements (CoV after each element smaller than after the previous one)"
      ]
     },
     "generalization": {
@@ -50878,30 +51603,30 @@
     },
     "reproducibility": {
      "name": "reproducibility",
-     "score": 0.25,
+     "score": 1.0,
      "status": "INFO",
-     "tier": "INFERRED",
+     "tier": "VERIFIED",
      "evidence": [
-      "no code snapshot",
-      "no git commit"
+      "code snapshot: 1 files",
+      "git f7aacc83"
      ]
     },
     "data": {
      "name": "data",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
      "evidence": [
-      "no dataset"
+      "3 datasets, 10 samples, 100 % with a card description"
      ]
     },
     "assets": {
      "name": "assets",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
      "evidence": [
-      "0 figures, 0 movies"
+      "7 figures, 0 movies, 3-D viewer"
      ]
     },
     "documentation": {
@@ -50930,21 +51655,15 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "not usable until it validates",
       "generalization evidence",
-      "uncertainty estimate",
-      "reference or physics check",
-      "reproducibility"
+      "uncertainty estimate"
      ]
     },
     "paper": {
      "ready": false,
      "approved": false,
      "missing": [
-      "not usable until it validates",
       "comparison with a reference",
-      "baseline or physics check",
-      "reproducibility",
       "novelty review >= 3/5"
      ]
     },
@@ -50952,35 +51671,28 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "not usable until it validates",
-      "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
     "training_data": {
-     "ready": false,
+     "ready": true,
      "approved": false,
-     "missing": [
-      "not usable until it validates",
-      "a documented dataset",
-      "validated runs"
-     ]
+     "missing": []
     }
    },
    "gaps": [
-    "fix the failing checks or the crash"
+    "compare with an independent reference (exact solution, experiment, published value)"
    ],
    "reviewed": false,
    "stages": {
     "data_geometry": {
      "title": "Data and geometry",
      "question": "Was the physical problem represented correctly?",
-     "status": "open",
+     "status": "partial",
      "evidence": [
-      "no inputs or geometry recorded"
+      "inputs recorded: route"
      ],
-     "next": "record the inputs (ctx.input)"
+     "next": "add a mesh-convergence or domain check"
     },
     "model": {
      "title": "Model",
@@ -50994,20 +51706,22 @@
     "physics": {
      "title": "Physical constraints",
      "question": "Are the equations and the boundary conditions respected?",
-     "status": "open",
+     "status": "answered",
      "evidence": [
-      "no conservation, symmetry or boundary-condition check"
+      "PASS bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservat)",
+      "PASS scalar_flux_conserved (flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1))",
+      "PASS mixing_decays_through_elements (CoV after each element smaller than after the previous one)"
      ],
-     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
+     "next": ""
     },
     "benchmark": {
      "title": "Benchmark",
      "question": "How does the result compare with a solver or reference data?",
-     "status": "open",
+     "status": "answered",
      "evidence": [
-      "no comparison with a solver, data or baseline"
+      "PASS mixer_beats_empty_pipe (coefficient of variation at the outlet, empty pipe / mixer)"
      ],
-     "next": "compare with a reference or a simple baseline"
+     "next": ""
     },
     "uncertainty": {
      "title": "Uncertainty",
@@ -51022,14 +51736,15 @@
     "decision": {
      "title": "Engineering decision",
      "question": "Is the result adequate for the intended use?",
-     "status": "failed",
+     "status": "answered",
      "evidence": [
-      "tier D (not usable)"
+      "tier B (solid), ready for training_data",
+      "3 limitations bound the use"
      ],
-     "next": "not usable until it validates"
+     "next": ""
     }
    },
-   "tier_name": "not usable"
+   "tier_name": "solid"
   },
   "repo_results-96e87a293dea": {
    "run_id": "repo_results-96e87a293dea",
@@ -53125,6 +53840,222 @@
    },
    "tier_name": "flagship"
   },
+  "rom_study-9580a00926ca": {
+   "run_id": "rom_study-9580a00926ca",
+   "experiment": "rom_study",
+   "status": "failed_validation",
+   "tier": "D",
+   "score": 94.9,
+   "coverage": 0.8,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 0.8333333333333334,
+     "status": "FAIL",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5/6 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 0e06dda0"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 229 chars",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "validated runs"
+     ]
+    }
+   },
+   "gaps": [
+    "fix the failing checks or the crash"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "failed",
+     "evidence": [
+      "inputs recorded: setup",
+      "FAIL opinf_bounded_over_horizon (largest latent amplitude of the forecast / largest in training (no blow-up))"
+     ],
+     "next": "fix the failing check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+      "and 1 more"
+     ],
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "failed",
+     "evidence": [
+      "tier D (not usable)"
+     ],
+     "next": "not usable until it validates"
+    }
+   },
+   "tier_name": "not usable"
+  },
   "rom_study-61475bf029de": {
    "run_id": "rom_study-61475bf029de",
    "experiment": "rom_study",
@@ -53139,7 +54070,7 @@
      "status": "PASS",
      "tier": "VERIFIED",
      "evidence": [
-      "4/4 checks pass"
+      "6/6 checks pass"
      ]
     },
     "reference": {
@@ -53196,7 +54127,8 @@
      "tier": "VERIFIED",
      "evidence": [
       "code snapshot: 1 files",
-      "git b28fae5d"
+      "git 5df41475",
+      "ran from a dirty tree (diff saved)"
      ]
     },
     "data": {
@@ -53317,12 +54249,14 @@
     "uncertainty": {
      "title": "Uncertainty",
      "question": "Where may the prediction not be reliable?",
-     "status": "partial",
+     "status": "answered",
      "evidence": [
-      "limitations: linear elasticity: displacement is linear in the load magnitude, so only the geometry and the load direction a",
-      "and 1 more"
+      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
+      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)"
      ],
-     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+     "next": ""
     },
     "decision": {
      "title": "Engineering decision",

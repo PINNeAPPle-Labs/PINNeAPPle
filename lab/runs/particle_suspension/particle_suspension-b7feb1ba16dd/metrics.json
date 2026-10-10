@@ -1,0 +1,9 @@
+{
+ "terminal_velocity_m_s": 0.10968958529987902,
+ "rpm_90pct_suspended": 288.0,
+ "zwietering_njs_S4_rpm": 237.1280078590429,
+ "zwietering_njs_S8_rpm": 474.2560157180858,
+ "top_third_fraction_end": 0.7735833333333333,
+ "suspended_fraction_end": 0.9568333333333333,
+ "solids_mass_ratio": 0.07695390781563127
+}

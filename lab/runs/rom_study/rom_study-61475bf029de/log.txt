@@ -1,6 +1,8 @@
-[21:26:15] stage fem_snapshots started
-[21:27:47] stage fem_snapshots done (92.117 s)
-[21:28:16] check displacement_rom_beats_nearest_design: PASS median relative L2 error on unseen designs, nearest training design / best ROM
-[21:28:16] check displacement_rom_error_unseen_designs: PASS median relative L2 error on 20 unseen designs (gpr)
-[21:28:35] check von_mises_rom_beats_nearest_design: PASS median relative L2 error on unseen designs, nearest training design / best ROM
-[21:28:35] check von_mises_rom_error_unseen_designs: PASS median relative L2 error on 20 unseen designs (gpr+split)
+[22:54:21] stage fem_snapshots started
+[22:55:53] stage fem_snapshots done (91.73 s)
+[22:57:14] check displacement_rom_beats_nearest_design: PASS median relative L2 error on unseen designs, nearest training design / best ROM
+[22:57:14] check displacement_rom_error_unseen_designs: PASS median relative L2 error on 20 unseen designs (gpr)
+[22:57:50] check von_mises_rom_beats_nearest_design: PASS median relative L2 error on unseen designs, nearest training design / best ROM
+[22:57:50] check von_mises_rom_error_unseen_designs: PASS median relative L2 error on 20 unseen designs (gpr+split)
+[22:58:38] check displacement_uncertainty_calibrated: PASS fraction of unseen values inside the predicted 90 % interval
+[22:59:08] check von_mises_uncertainty_calibrated: PASS fraction of unseen values inside the predicted 90 % interval

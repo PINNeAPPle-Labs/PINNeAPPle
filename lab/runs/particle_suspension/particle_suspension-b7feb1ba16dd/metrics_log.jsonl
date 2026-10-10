@@ -1,0 +1,7 @@
+{"name": "terminal_velocity_m_s", "value": 0.10968958529987902, "step": null, "t": 1791668373.030402}
+{"name": "rpm_90pct_suspended", "value": 288.0, "step": null, "t": 1791669912.470143}
+{"name": "zwietering_njs_S4_rpm", "value": 237.1280078590429, "step": null, "t": 1791669912.4702415}
+{"name": "zwietering_njs_S8_rpm", "value": 474.2560157180858, "step": null, "t": 1791669912.4702687}
+{"name": "top_third_fraction_end", "value": 0.7735833333333333, "step": null, "t": 1791669912.470309}
+{"name": "suspended_fraction_end", "value": 0.9568333333333333, "step": null, "t": 1791669912.4703524}
+{"name": "solids_mass_ratio", "value": 0.07695390781563127, "step": null, "t": 1791669912.470391}

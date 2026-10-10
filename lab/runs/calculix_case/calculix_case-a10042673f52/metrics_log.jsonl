@@ -1,0 +1,6 @@
+{"name": "elements_mesh_0", "value": 8976, "step": null, "t": 1791672757.085058}
+{"name": "elements_mesh_1", "value": 20802, "step": null, "t": 1791672780.390172}
+{"name": "Kt_net", "value": 2.591104, "step": null, "t": 1791672780.3903213}
+{"name": "Kt_net_heywood", "value": 2.512, "step": null, "t": 1791672780.3903453}
+{"name": "Kt_gci", "value": 0.016541805524416853, "step": null, "t": 1791672780.3954215}
+{"name": "Kt_extrapolated", "value": 2.5768168205128203, "step": null, "t": 1791672780.3955157}

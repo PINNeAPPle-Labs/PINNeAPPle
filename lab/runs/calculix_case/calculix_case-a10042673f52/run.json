@@ -8,7 +8,7 @@
   "samples": 48
  },
  "status": "completed",
- "started": 1791668849.4280431,
+ "started": 1791672745.7289186,
  "tags": [
   "structures",
   "fem",
@@ -19,7 +19,7 @@
   "3d",
   "dataset"
  ],
- "git": "e2fb3a62",
+ "git": "5df41475",
  "environment": {
   "python": "3.11.15",
   "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
@@ -32,33 +32,35 @@
   "files": [
    "code/calculix_cases.py"
   ],
-  "sha1": "17e443840fc6762d17a401818b6b44b47f1341d6",
+  "sha1": "9d63170f294a0b31a570da79f2dba5c29b10d965",
   "uncommitted_diff": "code/uncommitted.diff"
  },
- "finished": 1791668933.5665233,
+ "finished": 1791672856.7574425,
  "error": null,
  "stages": [
   {
    "name": "mesh_and_solve_0",
-   "started": 1791668852.4237068,
+   "started": 1791672749.6029632,
    "status": "done",
-   "seconds": 5.824
+   "seconds": 7.477
   },
   {
    "name": "mesh_and_solve_1",
-   "started": 1791668858.2499366,
+   "started": 1791672757.0851538,
    "status": "done",
-   "seconds": 17.85
+   "seconds": 23.303
   },
   {
    "name": "render",
-   "started": 1791668876.6786726,
+   "started": 1791672781.3882444,
    "status": "done",
-   "seconds": 56.641
+   "seconds": 75.081
   }
  ],
  "files": {
-  "inputs": [],
+  "inputs": [
+   "inputs/case.json"
+  ],
   "outputs": [],
   "figures": [
    "figures/von_mises_fea.png",
@@ -66,10 +68,10 @@
   ]
  },
  "validation": {
-  "total": 3,
+  "total": 5,
   "failed": 0
  },
- "seconds": 84.138,
+ "seconds": 111.029,
  "datasets": {
   "fields": {
    "n_samples": 1,

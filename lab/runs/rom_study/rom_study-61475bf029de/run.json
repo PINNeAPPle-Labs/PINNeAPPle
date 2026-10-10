@@ -12,7 +12,7 @@
   "seed": 0
  },
  "status": "completed",
- "started": 1791667572.695795,
+ "started": 1791672858.5284088,
  "tags": [
   "rom",
   "reduced-order-model",
@@ -22,7 +22,7 @@
   "physics-ai",
   "dataset"
  ],
- "git": "b28fae5d",
+ "git": "5df41475",
  "environment": {
   "python": "3.11.15",
   "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
@@ -35,16 +35,17 @@
   "files": [
    "code/rom.py"
   ],
-  "sha1": "2b00a908413d2ea50818ef4c64906858d4627e2c"
+  "sha1": "74f337b86c6a08db5fbf924e98dbe0fce9ebeacd",
+  "uncommitted_diff": "code/uncommitted.diff"
  },
- "finished": 1791667742.417384,
+ "finished": 1791673184.7968009,
  "error": null,
  "stages": [
   {
    "name": "fem_snapshots",
-   "started": 1791667575.4676342,
+   "started": 1791672861.7244866,
    "status": "done",
-   "seconds": 92.117
+   "seconds": 91.73
   }
  ],
  "files": {
@@ -61,10 +62,10 @@
   ]
  },
  "validation": {
-  "total": 4,
+  "total": 6,
   "failed": 0
  },
- "seconds": 169.722,
+ "seconds": 326.268,
  "datasets": {
   "beam_designs": {
    "n_samples": 100,

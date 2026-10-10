@@ -46,5 +46,29 @@
   "min": null,
   "detail": "median relative L2 error on 20 unseen designs (gpr+split)",
   "kind": "generalization"
+ },
+ {
+  "name": "displacement_uncertainty_calibrated",
+  "passed": true,
+  "value": 0.8208141321044546,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0,
+  "min": 0.8,
+  "detail": "fraction of unseen values inside the predicted 90 % interval",
+  "kind": "uncertainty"
+ },
+ {
+  "name": "von_mises_uncertainty_calibrated",
+  "passed": true,
+  "value": 0.8855990783410138,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0,
+  "min": 0.8,
+  "detail": "fraction of unseen values inside the predicted 90 % interval",
+  "kind": "uncertainty"
  }
 ]

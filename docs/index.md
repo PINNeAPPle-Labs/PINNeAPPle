@@ -99,3 +99,4 @@ python -m pinneapple_lab run calculix_case -p case=plate_hole     # run, check, 
 - **[The lab](core_concepts/lab.md)**: experiments, datasets, curation, the trust card and reports.
 - **[3-D studio, CFD and FEA](core_concepts/studio.md)**: renders, OpenFOAM, CalculiX and particle videos.
 - **[Reduced-order models](core_concepts/reduced_order_models.md)**: POD, DMD, Operator Inference, parametric ROMs.
+- **[PINNeAPPle Labs](org/index.html)**: who we are, the trust card and the open repositories.

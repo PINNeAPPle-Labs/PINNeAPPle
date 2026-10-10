@@ -156,3 +156,19 @@ def test_ray_tracer_renders_a_lensed_thin_disc():
     top = col[:20].max()                              # lensed image of the far side, above the shadow
     assert top > 0.05 * col.max()
     assert inten[18, 48] < 0.02 * col.max()               # the shadow, between the arc and the disc, is dark
+
+
+def test_numba_backend_matches_the_torch_reference():
+    pytest.importorskip("numba")
+    out = {}
+    for backend in ("torch", "numba"):
+        flow = AccretionFlow(RIAFConfig(nr=48, ntheta=24, backend=backend))
+        flow.set_primitives(torus_state(flow))
+        for _ in range(60):
+            flow.step()
+        out[backend] = (flow.primitives(), flow.t, flow.boundary["mass_in"])
+    a, b = out["torch"], out["numba"]
+    assert abs(a[1] - b[1]) < 1e-12
+    for q in range(5):
+        assert np.max(np.abs(a[0][q] - b[0][q])) <= 1e-10 * (np.abs(a[0][q]).max() + 1e-30)
+    assert abs(a[2] - b[2]) <= 1e-10 * abs(a[2])

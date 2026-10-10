@@ -52,12 +52,15 @@ def main(argv=None):
     ap.add_argument("--every", type=float, default=10.0)
     ap.add_argument("--chunk", type=int, default=50, help="frames per saved chunk / checkpoint")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--backend", default="numba", choices=["numba", "torch"])
+    ap.add_argument("--cfl", type=float, default=0.3)
     a = ap.parse_args(argv)
     torch.set_num_threads(1)
 
     folder = os.path.join(a.out, a.name)
     os.makedirs(folder, exist_ok=True)
-    cfg = RIAFConfig(nr=a.nr, ntheta=a.ntheta, alpha=a.alpha, viscosity=a.viscosity, torus_a=a.torus_a, seed=a.seed)
+    cfg = RIAFConfig(nr=a.nr, ntheta=a.ntheta, alpha=a.alpha, viscosity=a.viscosity, torus_a=a.torus_a, seed=a.seed,
+                     backend=a.backend, cfl=a.cfl)
     flow = AccretionFlow(cfg)
     state_path = os.path.join(folder, "state.pt")
     if os.path.exists(state_path):

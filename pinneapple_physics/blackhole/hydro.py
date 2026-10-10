@@ -55,6 +55,7 @@ class RIAFConfig:
     v_max: float = 0.9                # speed cap (units of c) for near-empty cells
     t_cap: float | None = 2.0      # temperature ceiling c_s^2 <= t_cap |Phi| (None: off)
     outer_bc: str = "outflow"         # "outflow" (no inflow) | "fixed" (ghosts keep their initial state, e.g. Bondi)
+    backend: str = "torch"            # "torch" (reference) | "numba" (fused loops, much faster on CPU)
     # torus (pressure maximum at R_c on the equator, inner edge at R_edge, l = l_c (R / R_c)**a)
     torus_rc: float = 20.0
     torus_edge: float = 12.0                # outer edge ~58 for a = 0
@@ -277,7 +278,17 @@ class AccretionFlow:
                   "angmom_in": -aFr[3, 0].sum(), "angmom_out": aFr[3, -1].sum()}
         return dU + S, fluxes, nu
 
+    def _numba(self):
+        if getattr(self, "_nb", None) is None:
+            from .hydro_numba import NumbaStepper
+            if self.cfg.dtype != torch.float64 or self.cfg.device != "cpu":
+                raise ValueError("backend='numba' needs float64 on the CPU")
+            self._nb = NumbaStepper(self)
+        return self._nb
+
     def dt(self, nu=None) -> float:
+        if self.cfg.backend == "numba":
+            return float(self._numba().dt())
         c, g = self.cfg, self.NG
         Wi = self.W[self.ii]
         cs = torch.sqrt(c.gamma * Wi[4] / Wi[0])
@@ -295,6 +306,14 @@ class AccretionFlow:
 
     def step(self, dt: float | None = None) -> float:
         dt = self.dt() if dt is None else dt
+        if self.cfg.backend == "numba":
+            f1, f2, self.capped = self._numba().step(dt)
+            two_pi = 2 * math.pi
+            for n_, k in enumerate(("mass_in", "mass_out", "angmom_in", "angmom_out")):
+                self.boundary[k] += float(0.5 * dt * (f1[n_] + f2[n_])) * two_pi
+            self.mdot_in = float(0.5 * (f1[0] + f2[0])) * two_pi
+            self.t += dt
+            return dt
         g = self.NG
         U0 = self.prim_to_cons(self.W[self.ii], self.R[g:-g, g:-g])
         k1, f1, _ = self.rhs(self.W)

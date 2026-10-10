@@ -140,6 +140,22 @@ or a dict per case), by the reviewer, or detected (failed runs, inferred-only ev
 forward: the actions that close each gap, specific to the kind of experiment (a persistence baseline for a forecast,
 a grid-convergence study for CFD, held-out designs for a surrogate, ...), with their effort and what each unlocks.
 
+**Reports** for one item or a filtered set, as HTML, Markdown or PDF: a summary table (tier and distance to each use)
+and, per item, the story, description, key figures, readiness, headline metrics, every validation check with its
+kind, the evidence dimensions, limitations, path forward, references and the command that reproduces it.
+
+```bash
+python -m pinneapple_lab brief --item kepler_law -o kepler.html
+python -m pinneapple_lab brief --tier A,B --use paper --limit 10 -o paper_candidates.pdf
+python -m pinneapple_lab brief --ready marketing --format md -o marketing.md
+python -m pinneapple_lab brief --experiment benchmark_case -o landing_cases.pdf
+```
+
+The catalogue has the same reports one click away (an item, a use's ready and closest items, or everything the
+current filter shows); served by `python -m pinneapple_lab serve` they also download from
+`/report.pdf|.html|.md?items=...&tier=...&use=...&ready=...`. The **Showcase** at the top of the catalogue gathers
+the most striking figures of the database (photoreal renders, general-relativistic views, 3-D twins, movies).
+
 Human review is the qualitative half and is never filled in automatically:
 
 ```bash

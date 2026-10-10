@@ -6,20 +6,18 @@
   "source": "bh_forecast"
  },
  "status": "completed",
- "started": 1791652757.9993622,
+ "started": 1791660479.9286098,
  "tags": [
   "import",
   "benchmark",
   "dataset"
  ],
- "git": "838bbd18",
+ "git": "2e36bfac",
  "environment": {
   "python": "3.11.15",
   "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
   "packages": {
-   "numpy": "2.4.6",
-   "torch": "2.14.1+cu130",
-   "scipy": "1.17.1"
+   "numpy": "2.4.6"
   }
  },
  "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.",
@@ -34,19 +32,23 @@
    "code/01_synthetic_diffusion.py",
    "code/02_cylinder_flow_deepmind.py",
    "code/concorde_high_aoa_pipeline.py",
-   "code/evaluate.py"
+   "code/evaluate.py",
+   "code/surrogate.py",
+   "code/sizer.py",
+   "code/optimize.py",
+   "code/02_ahmed_body_cfd.py"
   ],
-  "sha1": "6e7cb87120228254d0071e3da9dceb96fc474f69",
+  "sha1": "c6906046ee3b0c8d3d566b729148fb3051953c76",
   "uncommitted_diff": "code/uncommitted.diff"
  },
- "finished": 1791652758.1007526,
+ "finished": 1791660480.0959845,
  "error": null,
  "stages": [
   {
    "name": "import",
-   "started": 1791652758.0940323,
+   "started": 1791660480.0644486,
    "status": "done",
-   "seconds": 0.005
+   "seconds": 0.02
   }
  ],
  "files": {
@@ -55,6 +57,9 @@
   ],
   "outputs": [],
   "figures": [
+   "figures/interstellar_forecast.gif",
+   "figures/twin_forecast.gif",
+   "figures/interstellar_frame.png",
    "figures/skill_faithful.png",
    "figures/skill_residual.png"
   ]
@@ -63,7 +68,7 @@
   "total": 2,
   "failed": 0
  },
- "seconds": 0.101,
+ "seconds": 0.167,
  "datasets": {
   "lead_time_skill": {
    "n_samples": 4,

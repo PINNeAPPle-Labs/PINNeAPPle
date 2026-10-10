@@ -1,5 +1,5 @@
-[17:59:43] Airfoil surrogates trained on OpenFOAM (aircraft design optimizer): MLP and MeshGraphNet, Cl / Cd / Cm on held-out shapes
-[17:59:43] stage import started
-[17:59:43] check mlp_Cd_r2: PASS 15 unseen shapes
-[17:59:43] check gnn_Cd_r2: PASS 15 unseen shapes
-[17:59:44] stage import done (0.019 s)
+[19:28:00] Airfoil surrogates trained on OpenFOAM (aircraft design optimizer): MLP and MeshGraphNet, Cl / Cd / Cm on held-out shapes
+[19:28:00] stage import started
+[19:28:00] check mlp_Cd_r2: PASS 15 unseen shapes
+[19:28:00] check gnn_Cd_r2: PASS 15 unseen shapes
+[19:28:00] stage import done (0.018 s)

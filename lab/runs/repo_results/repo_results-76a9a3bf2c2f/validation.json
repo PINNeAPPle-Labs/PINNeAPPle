@@ -1,0 +1,26 @@
+[
+ {
+  "name": "drag_vs_wind_tunnel",
+  "passed": true,
+  "value": 0.29766324550216555,
+  "reference": 0.285,
+  "rtol": 0.08,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Ahmed, Ramm & Faltin (1984), 25 deg slant: CD about 0.285",
+  "kind": "reference"
+ },
+ {
+  "name": "pressure_drag_dominates",
+  "passed": true,
+  "value": 0.8160984316018851,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.7,
+  "detail": "",
+  "kind": "physics"
+ }
+]

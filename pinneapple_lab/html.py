@@ -32,6 +32,33 @@ def thumbnail_bytes(path: str, width: int = 360) -> bytes | None:
         return None
 
 
+SHOWCASE_TOKENS = (("interstellar", 9), ("beauty", 8), ("render", 6), ("flight", 6), ("twin", 5), ("streamlines", 5),
+                   ("wake", 3), ("cp", 3), ("vorticity", 3), (".gif", 4))
+
+
+def showcase_score(path: str) -> int:
+    n = os.path.basename(path).lower()
+    return sum(w for t, w in SHOWCASE_TOKENS if t in n)
+
+
+def _gif_small(path: str, width: int = 420, max_frames: int = 40) -> str | None:
+    """A smaller animated GIF (fewer frames, narrower) as a data URI, for the gallery."""
+    try:
+        from PIL import Image, ImageSequence
+        im = Image.open(path)
+        frames = [f.convert("RGB") for f in ImageSequence.Iterator(im)]
+        step = max(1, len(frames) // max_frames)
+        frames = frames[::step][:max_frames]
+        h = max(1, int(frames[0].height * width / frames[0].width))
+        frames = [f.resize((width, h)).convert("P", palette=Image.ADAPTIVE, colors=128) for f in frames]
+        buf = io.BytesIO()
+        frames[0].save(buf, "GIF", save_all=True, append_images=frames[1:], loop=0,
+                       duration=im.info.get("duration", 80) * step, optimize=True)
+        return "data:image/gif;base64," + base64.b64encode(buf.getvalue()).decode()
+    except Exception:
+        return None
+
+
 def _thumb(path: str, width: int = 360) -> str | None:
     data = thumbnail_bytes(path, width)
     return None if data is None else "data:image/jpeg;base64," + base64.b64encode(data).decode()
@@ -56,6 +83,7 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
     except Exception:                                      # noqa: BLE001 - the page works without curation
         cur = {"runs": {}, "experiments": {}}
     experiments = []
+    showcase: list = []
     for exp, st in sorted(store.status().items()):
         try:
             cls = get(exp)
@@ -69,7 +97,12 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
             rec = _load(os.path.join(d, "run.json"), {})
             figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")) + glob.glob(os.path.join(d, "figures", "*.jpg")))
             gifs = sorted(glob.glob(os.path.join(d, "figures", "*.gif")))
-            shown = (figs + gifs)[:thumbs_per_run]
+            figs_all = sorted(figs + gifs, key=lambda f: -showcase_score(f))
+            shown = figs_all[:thumbs_per_run]
+            for f in figs_all[:3]:
+                sc_ = showcase_score(f)
+                if sc_ >= 5:
+                    showcase.append((sc_, exp, r["run_id"], f))
             if thumbs == "url":
                 tl = ["thumb/" + os.path.relpath(f, os.path.join(store.root, "runs")) for f in shown]
             else:
@@ -99,9 +132,23 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
         items.append({"key": key, "experiment": it["experiment"], "case": it["case"], "title": it["title"],
                       "tier": it["tier"], "tier_name": it["tier_name"], "score": it["best_score"],
                       "best_run": it["best_run"], "story": it.get("story", ""), "runs": it["runs"],
-                      "usable": it["usable_fraction"], "plan": it["plan"]})
+                      "usable": it["usable_fraction"], "plan": it["plan"], "description": it.get("description", "")})
+    gallery, seen = [], set()
+    for _, exp, rid, f in sorted(showcase, key=lambda t: -t[0]):
+        key = (exp, os.path.basename(f))
+        if key in seen or len(gallery) >= 16:
+            continue
+        seen.add(key)
+        rel = os.path.relpath(f, os.path.join(store.root, "runs"))
+        if thumbs == "url":
+            src = ("files/" if f.endswith(".gif") else "thumb/") + rel
+        else:
+            src = _gif_small(f) if f.endswith(".gif") else _thumb(f, 640)
+        if src:
+            gallery.append({"experiment": exp, "run": rid, "src": src, "name": os.path.basename(f),
+                            "file": os.path.relpath(f, store.root)})
     return {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": experiments,
-            "portfolio": items}
+            "portfolio": items, "gallery": gallery}
 
 
 def _quality(a):

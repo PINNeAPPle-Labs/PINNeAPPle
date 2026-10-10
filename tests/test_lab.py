@@ -283,3 +283,24 @@ def test_curation_tiers_readiness_and_review(tmp_path):
     assert infer_check_kind({"name": "sun_jupiter_mass_ratio", "reference": 1047.35}) == "reference"
     assert infer_check_kind({"name": "finite_fields"}) == "sanity"
     assert infer_check_kind({"name": "x", "detail": "900 held-out designs"}) == "generalization"
+
+
+def test_reports_one_item_and_filtered_set(tmp_path):
+    from pinneapple_lab.reports import select, write_report
+    root = str(tmp_path)
+    run("_test_curated", root=root)
+    run("_test_curated", {"error": 0.5}, root=root)
+    sweep("oscillator", grid={"zeta": [0.1, 0.3]}, root=root)
+    store = LabStore(root)
+    h = write_report(store, str(tmp_path / "one.html"), items=["_test_curated"])
+    text = open(h).read()
+    assert "Path forward" in text and "Validation" in text and "data:image/jpeg;base64" in text
+    md = write_report(store, str(tmp_path / "set.md"), tier=["A", "B"], use="paper")
+    assert "| item | tier |" in open(md).read()
+    pdf = write_report(store, str(tmp_path / "set.pdf"), tier=["A", "B", "C", "D"])
+    assert open(pdf, "rb").read(4) == b"%PDF"
+    from pinneapple_lab.curation import curate
+    cur = curate(store)
+    assert select(cur, ready="training_data") and not select(cur, tier=["Z"])
+    with pytest.raises(ValueError):
+        write_report(store, str(tmp_path / "none.html"), tier=["Z"])

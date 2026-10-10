@@ -16,6 +16,7 @@ Routes::
     GET /api/runs/RUN_ID                     one run: record, metrics, validation, file list
     GET /api/datasets                        dataset cards
     GET /api/curation                        quality tier, dimensions and readiness of every run and experiment
+    GET /report.html|.md|.pdf?items=&experiment=&tier=&use=&ready=&tag=   a report for one item or a filtered set
     GET /files/EXPERIMENT/RUN_ID/PATH        a run's file (figures, inputs, outputs, code, logs, cards)
     GET /thumb/EXPERIMENT/RUN_ID/PATH        a JPEG thumbnail of a run's figure
     GET /download/EXPERIMENT/DATASET.npz     a dataset over all completed runs, as one .npz
@@ -207,6 +208,25 @@ class LabServer:
                         return self._send(200, lab.catalog()[0], "text/html; charset=utf-8")
                     if path == "/api/catalog":
                         return self._send(200, lab.catalog()[1], "application/json")
+                    if path.startswith("/report."):
+                        import tempfile
+
+                        from .reports import write_report
+                        fmt = path.rsplit(".", 1)[1]
+                        if fmt not in ("html", "md", "pdf"):
+                            return self._send(404, b"unknown format", "text/plain")
+                        sp = lambda k: [v for v in q.get(k, "").split(",") if v] or None  # noqa: E731
+                        with tempfile.TemporaryDirectory() as td:
+                            out = write_report(lab.store, os.path.join(td, "report." + fmt), items=sp("items"),
+                                               experiment=sp("experiment"), tier=sp("tier"), use=q.get("use") or None,
+                                               ready=q.get("ready") or None, tag=sp("tag"), title=q.get("title"),
+                                               filters=", ".join(f"{k}={v}" for k, v in q.items()))
+                            with open(out, "rb") as fh:
+                                body = fh.read()
+                        ctype = {"html": "text/html; charset=utf-8", "md": "text/markdown; charset=utf-8",
+                                 "pdf": "application/pdf"}[fmt]
+                        extra = None if fmt == "html" else {"Content-Disposition": f'attachment; filename="lab_report.{fmt}"'}
+                        return self._send(200, body, ctype, extra=extra)
                     if path == "/api/curation":
                         from .curation import curate
                         return self._json(curate(lab.store))

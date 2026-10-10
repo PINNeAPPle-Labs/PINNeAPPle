@@ -217,6 +217,7 @@ class BenchmarkCase(Experiment):
                    "arrays behind the paper's figures and the source that produced them.")
     tags = ["landing", "benchmark", "surrogate", "digital-twin", "dataset"]
     case_param = "case"
+    case_descriptions = {k: v[2] for k, v in CASES.items()}
     limitations = {
         "soil_twin": ["one site (Natal, RN)", "at 6 h the PINN does not beat persistence (published negative result); "
                       "the identified physics ODE and the ML baselines do"],

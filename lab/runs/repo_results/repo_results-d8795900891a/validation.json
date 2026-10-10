@@ -8,7 +8,8 @@
   "atol": null,
   "max": null,
   "min": 0.97,
-  "detail": "15 unseen shapes"
+  "detail": "15 unseen shapes",
+  "kind": "generalization"
  },
  {
   "name": "gnn_Cd_r2",
@@ -19,6 +20,7 @@
   "atol": null,
   "max": null,
   "min": 0.97,
-  "detail": "15 unseen shapes"
+  "detail": "15 unseen shapes",
+  "kind": "generalization"
  }
 ]

@@ -10,6 +10,7 @@
     python -m pinneapple_lab serve --host 0.0.0.0 --port 8093                # the catalogue as a web app
     python -m pinneapple_lab examples --run --match use_cases                # examples and use cases into the lab
     python -m pinneapple_lab curate                                          # A flagship .. D not usable, per run
+    python -m pinneapple_lab brief --tier A,B --use paper -o paper_candidates.pdf     # reports, one or many items
     python -m pinneapple_lab review kepler_law --novelty 4 --story "..." --approve paper,marketing
 Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
 """
@@ -75,6 +76,18 @@ def main(argv=None) -> int:
     rv.add_argument("--visual-appeal", type=int, default=None, help="1-5")
     rv.add_argument("--approve", default=None, help="comma list of product,paper,marketing,training_data")
     rv.add_argument("--limitations", default=None)
+    br = sub.add_parser("brief", help="a report (html / md / pdf) for one item or a filtered set")
+    br.add_argument("-o", "--out", required=True, help="report.html, report.md or report.pdf")
+    br.add_argument("--item", action="append", help="item key (experiment or experiment/case); repeatable")
+    br.add_argument("--experiment", default=None, help="comma list")
+    br.add_argument("--tier", default=None, help="comma list, e.g. A,B")
+    br.add_argument("--use", default=None, choices=["product", "paper", "marketing", "training_data"],
+                    help="order by distance to this use")
+    br.add_argument("--ready", default=None, choices=["product", "paper", "marketing", "training_data"],
+                    help="only items ready or approved for this use")
+    br.add_argument("--tag", default=None, help="comma list")
+    br.add_argument("--limit", type=int, default=None)
+    br.add_argument("--title", default=None)
     ex = sub.add_parser("examples", help="list the repository's examples and use cases, or run them into the lab")
     ex.add_argument("--match", default="", help="only scripts whose path contains this text")
     ex.add_argument("--run", action="store_true", help="run them (one at a time: scripts write into the checkout)")
@@ -107,6 +120,14 @@ def main(argv=None) -> int:
         for x in res:
             print(f"{x.run_id}  {x.status:24s} {x.seconds:8.1f} s")
         return 0 if all(x.ok for x in res) else 1
+    if a.cmd == "brief":
+        from .reports import write_report
+        split = lambda x: [v.strip() for v in x.split(",")] if x else None  # noqa: E731
+        filt = ", ".join(f"{k}={v}" for k, v in (("experiment", a.experiment), ("tier", a.tier), ("use", a.use),
+                                                ("ready", a.ready), ("tag", a.tag)) if v)
+        print(write_report(LabStore(a.root), a.out, items=a.item, experiment=split(a.experiment), tier=split(a.tier),
+                           use=a.use, ready=a.ready, tag=split(a.tag), limit=a.limit, title=a.title, filters=filt))
+        return 0
     if a.cmd == "curate":
         from .curation import curate
         out = curate(LabStore(a.root))

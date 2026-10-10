@@ -1,0 +1,7 @@
+{
+ "name": "ahmed_body",
+ "description": "Ahmed body (25 deg slant) in OpenFOAM with a moving road: drag against the wind-tunnel value, skin pressure, streamlines and wake renders",
+ "scripts": [
+  "examples/studio/02_ahmed_body_cfd.py"
+ ]
+}

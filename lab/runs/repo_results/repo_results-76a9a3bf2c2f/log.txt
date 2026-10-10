@@ -1,0 +1,5 @@
+[19:28:00] Ahmed body (25 deg slant) in OpenFOAM with a moving road: drag against the wind-tunnel value, skin pressure, streamlines and wake renders
+[19:28:00] stage import started
+[19:28:00] check drag_vs_wind_tunnel: PASS Ahmed, Ramm & Faltin (1984), 25 deg slant: CD about 0.285
+[19:28:00] check pressure_drag_dominates: PASS 
+[19:28:01] stage import done (0.719 s)

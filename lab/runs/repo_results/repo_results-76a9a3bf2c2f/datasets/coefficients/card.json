@@ -1,0 +1,54 @@
+{
+ "name": "coefficients",
+ "description": "Ahmed body force coefficients (OpenFOAM, medium mesh)",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "CD": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.29766324550216555,
+   "max": 0.29766324550216555
+  },
+  "CL": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.3367825401625653,
+   "max": 0.3367825401625653
+  },
+  "CD_pressure": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.2429225077998442,
+   "max": 0.2429225077998442
+  },
+  "CD_friction": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.054740737702321324,
+   "max": 0.054740737702321324
+  },
+  "cells": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 203856.0,
+   "max": 203856.0
+  },
+  "CD_measured": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.285,
+   "max": 0.285
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-76a9a3bf2c2f",
+  "params": {
+   "source": "ahmed_body"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

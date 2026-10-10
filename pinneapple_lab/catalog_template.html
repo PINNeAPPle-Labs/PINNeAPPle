@@ -105,7 +105,32 @@ h2 .tier { font-size: 12px; margin-right: 4px }
 .qbar { height: 7px; border-radius: 4px; background: var(--chip); overflow: hidden }
 .qbar b { display: block; height: 100%; background: var(--ok) } .qbar b.f { background: var(--bad) }
 .tbl.rd td:last-child { text-align: left }
+.gallery { display: grid; gap: 10px; min-width: 0 }
+.gallery h2 { font: 600 26px/1.15 var(--display); margin: 0 }
+.gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px }
+.gal-item { position: relative; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+  background: #0b0d10; cursor: pointer; aspect-ratio: 16 / 10; max-width: 100% }
+.gal-item.big { grid-column: span 2 }
+.gal-item img { width: 100%; height: 100%; object-fit: cover; display: block }
+.gal-item span { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 10px 7px; font: 500 12px var(--mono);
+  color: #fff; background: linear-gradient(transparent, rgb(0 0 0 / .65)); text-align: left }
+@media (max-width: 640px) { .gal-item.big { grid-column: auto } }
 .portfolio { display: grid; gap: 14px; min-width: 0 }
+.rm-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px }
+.rep-btn { font: 500 12.5px var(--mono); border: 1px solid var(--accent); color: var(--accent); background: var(--sheet);
+  border-radius: 7px; padding: 6px 10px; cursor: pointer }
+.rep-btn:hover { background: var(--accent-soft) } .rep-btn.sm { padding: 3px 8px; font-size: 11.5px; margin-top: 6px }
+.sheet.wide { width: min(980px, 100%) }
+.rep-item { border-top: 2px solid var(--ink); padding-top: 12px; display: grid; gap: 6px }
+.rep-item h3 { margin: 0; font: 600 20px var(--display) } .rep-item h4 { margin: 8px 0 2px; font: 600 11px var(--mono);
+  letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.rep-item ul, .rep-item ol { margin: 0; padding-left: 20px; font-size: 13.5px; display: grid; gap: 3px }
+.rep-item .story { font-style: italic; margin: 0 } .rep-item p { margin: 0 }
+.rep-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px }
+.rep-figs img { width: 100%; border-radius: 6px; border: 1px solid var(--line) }
+.rep-sum td { font-size: 12px } .pass { color: var(--ok); font-weight: 600 } .fail { color: var(--bad); font-weight: 600 }
+.rep-dl a { color: var(--accent); font-weight: 600 }
+.rep-item .unl { color: var(--muted); font: 11.5px var(--mono) }
 .pf-head h2, .rm-title { font: 600 26px/1.15 var(--display); margin: 0 }
 .rm-title { font-size: 20px; margin-top: 12px }
 .pf-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px }
@@ -152,13 +177,20 @@ footer { color: var(--muted); font: 12px var(--mono) }
     <div class="ledger" id="ledger"></div>
     <div class="statusbar" id="statusbar" aria-hidden="true"></div>
   </header>
+  <section class="gallery" aria-labelledby="gTitle" id="gallerySec">
+    <h2 id="gTitle">Showcase</h2>
+    <p class="lede">The most striking results in the database: photoreal renders, general-relativistic views, 3-D twins and
+      movies. Click one for its full record.</p>
+    <div class="gal" id="gal"></div>
+  </section>
   <section class="portfolio" aria-labelledby="pfTitle">
     <div class="pf-head"><h2 id="pfTitle">What can we present?</h2>
       <p class="lede">Each card is an experiment (or one case of it), graded by <code>pinneapple_lab.curation</code>.
       <b>Ready</b> or <b>approved</b> means the evidence for that use is complete; otherwise the card shows the closest
       candidates, how far they are (effort points: S = 1, M = 3, L = 8) and what is missing.</p></div>
     <div class="pf-cols" id="pfCols"></div>
-    <h3 class="rm-title">Roadmap: limitations and the path forward</h3>
+    <div class="rm-bar"><h3 class="rm-title">Roadmap: limitations and the path forward</h3>
+      <button class="rep-btn" id="repFiltered">Report: everything shown</button></div>
     <p class="lede">Sorted by how close each item is to a use. Open a row for its limitations and every action, with
       the effort and what it unlocks.</p>
     <div class="roadmap" id="roadmap"></div>
@@ -295,6 +327,12 @@ const USE_NOTE = { product: "generalization, uncertainty, reference or physics, 
   marketing: "strong visuals, a validated headline number, a story",
   training_data: "documented datasets of validated runs" };
 const effortChip = (e) => `<span class="eff e${e}" title="${{ S: "hours", M: "a day or two", L: "a week or more" }[e]}">${e}</span>`;
+function gallery() {
+  const G = DATA.gallery || [];
+  if (!G.length) { $("gallerySec").hidden = true; return; }
+  $("gal").innerHTML = G.map((g, i) => `<button class="gal-item${i < 2 ? " big" : ""}" data-goto="${esc(g.run)}" aria-label="Open ${esc(g.experiment)}">
+    <img src="${g.src}" alt="${esc(g.experiment)}: ${esc(g.name)}" loading="lazy"><span>${esc(g.experiment)} · ${esc(g.name.replace(/\.(png|jpg|gif)$/i, "").replace(/[_-]/g, " "))}</span></button>`).join("");
+}
 function portfolio() {
   const P = (DATA.portfolio || []).filter((it) => !it.experiment.startsWith("example_script") || it.tier !== "D");
   const PC = P.filter((it) => it.experiment !== "example_script");          // examples: roadmap only
@@ -306,7 +344,8 @@ function portfolio() {
     const li = (it, st) => `<li><button class="pf-item" data-k="${esc(it.key)}">${tierBadge(it)} <span class="ttl">${esc(it.title)}</span>
       ${st ? `<em class="${st}">${st}</em>` : `<em>${it.plan.uses[u].distance} pts</em>`}</button>
       ${st ? "" : `<small>${it.plan.uses[u].missing.map(esc).join(" · ")}</small>`}</li>`;
-    return `<div class="pf-col"><h4>${USE_LABEL[u]} <span>${ready.length} ready</span></h4><p class="note">Needs: ${USE_NOTE[u]}</p>
+    return `<div class="pf-col"><h4>${USE_LABEL[u]} <span>${ready.length} ready</span></h4>
+      <button class="rep-btn sm" data-rep-use="${u}">Report: ready and closest</button><p class="note">Needs: ${USE_NOTE[u]}</p>
       ${ready.length ? `<ul>${ready.slice(0, 6).map((it) => li(it, it.plan.uses[u].status)).join("")}</ul>` : `<p class="none">Nothing ready yet.</p>`}
       ${near.length ? `<div class="near">Closest</div><ul>${near.map((it) => li(it, "")).join("")}</ul>` : ""}</div>`;
   });
@@ -323,17 +362,68 @@ function portfolio() {
       <div class="rm-body">${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}
       <div><h5>Limitations</h5>${pl.limitations.length ? `<ul>${pl.limitations.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "<p class='lede'>None declared or detected.</p>"}</div>
       <div><h5>Path forward</h5>${acts ? `<ol>${acts}</ol>` : "<p class='lede'>Nothing missing.</p>"}</div>
+      <p><button class="rep-btn sm" data-rep="${esc(it.key)}">Report on this item</button></p>
       <p class="lede">Best run <code>${esc(it.best_run)}</code> · ${it.runs} run${it.runs > 1 ? "s" : ""}, ${Math.round(100 * it.usable)} % usable ·
       <a href="#exp-${esc(it.experiment)}" data-goto="${esc(it.best_run)}">open its record</a></p></div></details>`;
   }).join("");
 }
+function findRun(id) {
+  for (const e of DATA.experiments) for (const r of e.runs) if (r.id === id) return [e, r];
+  return [null, null];
+}
+function report(keys, title) {
+  const P = Object.fromEntries((DATA.portfolio || []).map((it) => [it.key, it]));
+  const items = keys.map((k) => P[k]).filter(Boolean);
+  if (!items.length) return;
+  const U = Object.keys(USE_LABEL);
+  const cell = (it, u) => { const s = it.plan.uses[u]; return s.status === "gap" ? `${s.distance} pts` : s.status; };
+  const qs = `items=${encodeURIComponent(items.map((i) => i.key).join(","))}&title=${encodeURIComponent(title)}`;
+  const dl = SERVED ? `<p class="rep-dl">Download: <a href="report.pdf?${qs}">PDF</a> · <a href="report.html?${qs}" target="_blank" rel="noopener">HTML</a> · <a href="report.md?${qs}">Markdown</a></p>`
+    : `<p class="lede">Served by <code>python -m pinneapple_lab serve</code> this report also downloads as PDF, HTML or Markdown; or run <code>python -m pinneapple_lab brief --item ${esc(items[0].key)} -o report.pdf</code>.</p>`;
+  const sections = items.map((it) => {
+    const [, r] = findRun(it.best_run);
+    const img = r ? (SERVED ? r.figures.filter((f) => /\.(png|jpg|gif)$/i.test(f)).slice(0, 2).map((f) => `<img alt="figure" src="${fileUrl(f)}">`).join("")
+                            : r.thumbs.map((t) => `<img alt="figure" src="${t}">`).join("")) : "";
+    const checks = r && r.checks.length ? `<table class="tbl">${r.checks.map((c) => `<tr><td>${esc(c.name)}</td><td>${esc(c.kind || "")}</td><td class="${c.passed ? "pass" : "fail"}">${c.passed ? "PASS" : "FAIL"}</td><td>${esc(c.detail || "")}</td></tr>`).join("")}</table>` : "<p class='lede'>No checks.</p>";
+    return `<article class="rep-item"><div class="eyebrow">${esc(it.experiment)}${it.case ? " / " + esc(it.case) : ""}</div>
+      <h3>${tierBadge(it)} ${esc(it.title)}</h3>${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}<p>${esc(it.description || "")}</p>
+      ${img ? `<div class="rep-figs">${img}</div>` : ""}
+      <h4>Readiness</h4><table class="tbl">${U.map((u) => `<tr><td>${USE_LABEL[u]}</td><td>${it.plan.uses[u].status === "gap" ? "missing: " + it.plan.uses[u].missing.map(esc).join(", ") : it.plan.uses[u].status}</td></tr>`).join("")}</table>
+      <h4>Validation</h4>${checks}
+      <h4>Limitations</h4>${it.plan.limitations.length ? `<ul>${it.plan.limitations.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "<p class='lede'>None declared or detected.</p>"}
+      <h4>Path forward</h4>${it.plan.actions.length ? `<ol>${it.plan.actions.map((a) => `<li>${effortChip(a.effort)} ${esc(a.action)} <span class="unl">unlocks ${a.unlocks.map((x) => esc(USE_LABEL[x] || x)).join(", ")}</span></li>`).join("")}</ol>` : "<p class='lede'>Nothing missing.</p>"}
+      <p class="lede">Best run <code>${esc(it.best_run)}</code> · ${it.runs} runs, ${Math.round(100 * it.usable)} % usable</p></article>`;
+  }).join("");
+  $("sheetExp").textContent = `Report · ${items.length} item${items.length > 1 ? "s" : ""}`;
+  $("sheetTitle").textContent = title;
+  $("sheetBody").innerHTML = `${dl}<table class="tbl rep-sum"><tr><td><b>item</b></td><td><b>tier</b></td>${U.map((u) => `<td><b>${USE_LABEL[u]}</b></td>`).join("")}</tr>
+    ${items.map((it) => `<tr><td>${esc(it.title)}</td><td>${it.tier}</td>${U.map((u) => `<td>${cell(it, u)}</td>`).join("")}</tr>`).join("")}</table>${sections}`;
+  $("sheet").classList.add("wide");
+  $("sheet").hidden = false; $("scrim").hidden = false; $("close").focus();
+}
 document.addEventListener("click", (ev) => {
+  const rb = ev.target.closest("[data-rep]");
+  if (rb) { ev.preventDefault(); const it = (DATA.portfolio || []).find((x) => x.key === rb.dataset.rep); report([rb.dataset.rep], it ? it.title : rb.dataset.rep); return; }
+  const ru = ev.target.closest("[data-rep-use]");
+  if (ru) {
+    const u = ru.dataset.repUse;
+    const P = (DATA.portfolio || []).filter((it) => it.experiment !== "example_script" && it.tier !== "D");
+    const keys = P.filter((it) => it.plan.uses[u].status !== "gap").map((it) => it.key)
+      .concat(P.filter((it) => it.plan.uses[u].status === "gap").sort((a, b) => a.plan.uses[u].distance - b.plan.uses[u].distance).slice(0, 5).map((it) => it.key));
+    report(keys, `${USE_LABEL[u]}: ready and closest`); return;
+  }
+  if (ev.target.closest("#repFiltered")) {
+    const qq = state.q.toLowerCase();
+    const keys = (DATA.portfolio || []).filter((it) => (state.tier === "all" || it.tier === state.tier) &&
+      (!qq || (it.title + " " + it.experiment + " " + (it.description || "")).toLowerCase().includes(qq))).map((it) => it.key);
+    report(keys, `Selection: ${state.tier === "all" ? "any quality" : "tier " + state.tier}${qq ? " · “" + qq + "”" : ""}`); return;
+  }
   const it = ev.target.closest(".pf-item");
   if (it) { const d = document.getElementById("rm-" + it.dataset.k); if (d) { d.open = true; d.scrollIntoView({ behavior: "smooth", block: "center" }); } return; }
   const g = ev.target.closest("[data-goto]");
   if (g) { ev.preventDefault(); DATA.experiments.forEach((e, ei) => e.runs.forEach((r, ri) => { if (r.id === g.dataset.goto) open(ei, ri); })); }
 });
-function close() { $("sheet").hidden = true; $("scrim").hidden = true; }
+function close() { $("sheet").hidden = true; $("scrim").hidden = true; $("sheet").classList.remove("wide"); }
 
 document.addEventListener("click", (ev) => {
   const c = ev.target.closest(".card"); if (c) return open(+c.dataset.e, +c.dataset.r);
@@ -345,6 +435,7 @@ $("close").onclick = close; $("scrim").onclick = close;
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
 $("q").value = state.q;
 $("q").addEventListener("input", (ev) => { state.q = ev.target.value.trim(); render(); });
+gallery();
 portfolio();
 summary(); render();
 $("foot").textContent = SERVED

@@ -1,13 +1,13 @@
 # PINNeAPPle Lab catalogue
 
-148 runs, generated 2026-10-10 19:24.
+154 runs, generated 2026-10-10 19:33.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
 | [accretion_flow](#accretion_flow) | 6 | 6 | 0 | 0 | frames (186) |
 | [benchmark_case](#benchmark_case) | 7 | 7 | 0 | 0 | arrays (84), sweep (8), lead_skill (5) |
 | [bondi_accretion](#bondi_accretion) | 6 | 6 | 0 | 0 | profiles (6) |
-| [car_lbm](#car_lbm) | 21 | 19 | 1 | 0 | flow (20), vorticity (960) |
+| [car_lbm](#car_lbm) | 26 | 24 | 1 | 0 | flow (25), vorticity (1200) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
 | [example_script](#example_script) | 12 | 6 | 0 | 3 | - |
 | [heat_xtfc](#heat_xtfc) | 12 | 8 | 4 | 0 | fields (12) |
@@ -16,7 +16,7 @@
 | [oscillator](#oscillator) | 60 | 60 | 0 | 0 | trajectories (60) |
 | [oscillator_discovery](#oscillator_discovery) | 1 | 1 | 0 | 0 | discovered_laws (20) |
 | [pendulum_video](#pendulum_video) | 1 | 1 | 0 | 0 | pendulum (1) |
-| [repo_results](#repo_results) | 9 | 9 | 0 | 0 | strouhal (3), test_points (120), polar (5), temperature_fields_2d (5), rollout_scores (2), temperature_fields_3d (3), lead_time_skill (4), fields (1), held_out_error (3) |
+| [repo_results](#repo_results) | 10 | 10 | 0 | 0 | strouhal (3), polar (5), temperature_fields_2d (5), rollout_scores (2), temperature_fields_3d (3), fields (1), held_out_error (3), lead_time_skill (4), test_points (120), coefficients (1) |
 | [vehicle_cfd](#vehicle_cfd) | 2 | 1 | 0 | 0 | streamlines (40), surface (1) |
 
 ## accretion_flow
@@ -97,11 +97,16 @@ Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parame
 | [000726cc8ec0](runs/car_lbm/car_lbm-000726cc8ec0) | completed | 0.1 | 500.0 | 0.061661105064526364 | 0.20766016835299797 | 0.7260152743349797 | 64 | 0.6766599554625821 | 39.571066958634866 | 8000 | 2.5 | 0.08 | 52.973223826672104 | 1.516 | 0.1416 | 0.9295 | 0.12 | 0.0003317 | 3/3 |
 | [500798921b1a](runs/car_lbm/car_lbm-500798921b1a) | completed | 0.1 | 500.0 | 0.11475370756281755 | 5.729865836576346 | 0.7190826852498715 | 64 | 0.8559137644101507 | 28.49125646557014 | 8000 | 2.5 | 0.08 | 20.310987054895573 | 1.712 | 0.1539 | 0.6115 | 0.12 | 0.0003417 | 3/3 |
 | [cb2e9c63cc61](runs/car_lbm/car_lbm-cb2e9c63cc61) | completed | 0.1 | 500.0 | 0.07274344790554883 | 8.346858074327661 | 0.5964247811473138 | 64 | 0.9366265863524385 | 16.93475252107471 | 8000 | 2.5 | 0.08 | 34.454211175683994 | 1.498 | 0.1385 | 0.7661 | 0.84 | 0.0003373 | 3/3 |
-| [e255b8b0b291](runs/car_lbm/car_lbm-e255b8b0b291) | running | 0.1 | 500.0 | 0.057079043317894866 | 5.034454038587483 | 0.4718672657632555 | 64 | 0.12202142567173069 | 20.524049578941625 | 8000 | 2.5 | 0.08 | 36.41959146036871 |  |  |  |  |  | 0/0 |
+| [e255b8b0b291](runs/car_lbm/car_lbm-e255b8b0b291) | completed | 0.1 | 500.0 | 0.057079043317894866 | 5.034454038587483 | 0.4718672657632555 | 64 | 0.12202142567173069 | 20.524049578941625 | 8000 | 2.5 | 0.08 | 36.41959146036871 | 1.409 | 0.1244 | 0.8292 | 0.54 | 0.0003316 | 3/3 |
+| [a3d566adf5bc](runs/car_lbm/car_lbm-a3d566adf5bc) | completed | 0.1 | 500.0 | 0.08243011555927618 | 0.6900933239975455 | 0.5103498917846542 | 64 | 0.8190239880414447 | 20.830058654430164 | 8000 | 2.5 | 0.08 | 40.04553189974173 | 1.534 | 0.1381 | 0.8765 | 0.84 | 0.0003289 | 3/3 |
+| [1ea0200595dd](runs/car_lbm/car_lbm-1ea0200595dd) | completed | 0.1 | 500.0 | 0.11849481918323354 | 2.9982372146871517 | 0.585227166254487 | 64 | 0.14572451173904352 | 36.97350084370443 | 8000 | 2.5 | 0.08 | 32.38217949331721 | 1.692 | 0.1477 | 0.6139 | 0.12 | 0.0003317 | 3/3 |
+| [bdfcd6b96b2e](runs/car_lbm/car_lbm-bdfcd6b96b2e) | completed | 0.1 | 500.0 | 0.05065970456656483 | 7.036997037190515 | 0.7276516168001711 | 64 | 0.7190267443132328 | 36.0693007067628 | 8000 | 2.5 | 0.08 | 40.941741968269 | 1.401 | 0.1291 | 0.846 | 0.12 | 0.0003335 | 3/3 |
+| [9ebb460d2144](runs/car_lbm/car_lbm-9ebb460d2144) | completed | 0.1 | 500.0 | 0.08091485139627642 | 1.4281689190153664 | 0.5568957650846434 | 64 | 0.5926930194012445 | 38.13742195460627 | 8000 | 2.5 | 0.08 | 36.6295315075885 | 1.534 | 0.1344 | 0.8532 | 0.84 | 0.00034 | 3/3 |
+| [2c4ed9779ce1](runs/car_lbm/car_lbm-2c4ed9779ce1) | running | 0.1 | 500.0 | 0.09016306292060514 | 7.95633085007501 | 0.5643642732990674 | 64 | 0.3462423335661612 | 12.316106051637387 | 8000 | 2.5 | 0.08 | 44.28385531564803 |  |  |  |  |  | 0/0 |
 
-![car_lbm](runs/car_lbm/car_lbm-cb2e9c63cc61/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-9ebb460d2144/figures/forces.png)
 
-![car_lbm](runs/car_lbm/car_lbm-500798921b1a/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-bdfcd6b96b2e/figures/forces.png)
 
 ## cylinder_lbm
 
@@ -254,21 +259,22 @@ Law -> video -> law -> video. A large-amplitude damped pendulum is filmed (rende
 
 Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.
 
-| run | status | source | CL_max | CL_rms_vs_polhamus | CL_slope_per_rad | St_cylinder_h10 | St_cylinder_h20 | St_naca4412 | checks |
+| run | status | source | CD | CD_friction | CD_pressure | CL | CL_max | CL_rms_vs_polhamus | checks |
 |---|---|---|---|---|---|---|---|---|---|
 | [96e87a293dea](runs/repo_results/repo_results-96e87a293dea) | completed | burgers_pinn |  |  |  |  |  |  | 1/1 |
-| [fa808c1e7a31](runs/repo_results/repo_results-fa808c1e7a31) | completed | lbm_strouhal |  |  |  | 0.1915 | 0.1742 | 0.2068 | 3/3 |
+| [fa808c1e7a31](runs/repo_results/repo_results-fa808c1e7a31) | completed | lbm_strouhal |  |  |  |  |  |  | 3/3 |
 | [cbac6f31f681](runs/repo_results/repo_results-cbac6f31f681) | completed | meshgraphnet |  |  |  |  |  |  | 2/2 |
-| [ae7814d939d6](runs/repo_results/repo_results-ae7814d939d6) | completed | concorde_aoa | 0.5881 | 0.2409 | 1.728 |  |  |  | 2/2 |
-| [269f1207b6f2](runs/repo_results/repo_results-269f1207b6f2) | completed | bh_forecast |  |  |  |  |  |  | 2/2 |
+| [ae7814d939d6](runs/repo_results/repo_results-ae7814d939d6) | completed | concorde_aoa |  |  |  |  | 0.5881 | 0.2409 | 2/2 |
 | [8f10f262c734](runs/repo_results/repo_results-8f10f262c734) | completed | fin_inverse_2d |  |  |  |  |  |  | 3/3 |
 | [e9574ff86021](runs/repo_results/repo_results-e9574ff86021) | completed | fin_inverse_3d |  |  |  |  |  |  | 3/3 |
 | [33073ba61b6c](runs/repo_results/repo_results-33073ba61b6c) | completed | heatsink_surrogate |  |  |  |  |  |  | 3/3 |
+| [269f1207b6f2](runs/repo_results/repo_results-269f1207b6f2) | completed | bh_forecast |  |  |  |  |  |  | 2/2 |
 | [d8795900891a](runs/repo_results/repo_results-d8795900891a) | completed | airfoil_surrogate |  |  |  |  |  |  | 2/2 |
+| [76a9a3bf2c2f](runs/repo_results/repo_results-76a9a3bf2c2f) | completed | ahmed_body | 0.2977 | 0.05474 | 0.2429 | 0.3368 |  |  | 2/2 |
+
+![repo_results](runs/repo_results/repo_results-269f1207b6f2/figures/interstellar_frame.png)
 
 ![repo_results](runs/repo_results/repo_results-e9574ff86021/figures/block_h_convergence.png)
-
-![repo_results](runs/repo_results/repo_results-8f10f262c734/figures/plate_h_convergence.png)
 
 ## vehicle_cfd
 

@@ -521,7 +521,9 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
                 rv = reviews.get(key) or (reviews.get(exp) if not case else None)
                 item = assess_experiment(runs_c)
                 item["plan"] = plan_experiment(runs_c, {**meta, "limitations": lim_c}, rv)
+                cdesc = (getattr(cls, "case_descriptions", {}) or {}).get(case) if cls is not None else None
                 item.update(experiment=exp, case=case, story=(rv or {}).get("story", ""),
+                            description=cdesc or meta.get("description", ""),
                             title=(rv or {}).get("title") or (os.path.splitext(os.path.basename(case))[0].replace("_", " ")
                                                                if case else exp))
                 out["items"][key] = item

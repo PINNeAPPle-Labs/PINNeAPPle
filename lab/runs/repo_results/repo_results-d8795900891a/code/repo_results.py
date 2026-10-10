@@ -31,6 +31,8 @@ SOURCES = {
                           "designs, forced and natural convection",
     "airfoil_surrogate": "Airfoil surrogates trained on OpenFOAM (aircraft design optimizer): MLP and MeshGraphNet, "
                          "Cl / Cd / Cm on held-out shapes",
+    "ahmed_body": "Ahmed body (25 deg slant) in OpenFOAM with a moving road: drag against the wind-tunnel value, "
+                  "skin pressure, streamlines and wake renders",
 }
 
 _SCRIPTS = {
@@ -45,6 +47,7 @@ _SCRIPTS = {
     "bh_forecast": ["examples/black_hole_weather/evaluate.py"],
     "heatsink_surrogate": ["apps/heatsink_sizer/heatsink_sizer/surrogate.py", "apps/heatsink_sizer/heatsink_sizer/sizer.py"],
     "airfoil_surrogate": ["pinneapple_design/aero/optimize.py"],
+    "ahmed_body": ["examples/studio/02_ahmed_body_cfd.py"],
 }
 
 
@@ -162,7 +165,7 @@ def _concorde(ctx):
     ctx.metric("CL_rms_vs_polhamus", float(np.sqrt(np.mean((cl - ref) ** 2))))
     ctx.check("lift_increases_with_aoa", passed=bool(np.all(np.diff(cl) > -0.02)))
     ctx.check("CL_within_polhamus_band", value=float(np.sqrt(np.mean((cl - ref) ** 2))), max=0.5,
-              detail="low-fidelity cross-check vs the Polhamus slender-wing theory, not test data")
+              detail="low-fidelity cross-check vs the Polhamus slender-wing theory, not test data", kind="physics")
     ds = ctx.dataset("polar", description="LBM-LES aerodynamic coefficients vs angle of attack (Re 300, coarse)")
     for r, rcl in zip(sweep, ref, strict=True):
         ds.add(aoa_deg=r["aoa_deg"], CL=r["CL"], CD=r["CD"], CM=r["CM"], CY=r["CY"], Cp_min=r["Cp_min"],
@@ -188,6 +191,8 @@ def _bh(ctx):
         if tag.startswith("res"):
             ctx.check(f"{tag}_beats_persistence_first_block", value=r["one_block_mae"],
                       max=r["one_block_persistence"])
+    for f in ("interstellar_forecast.gif", "twin_forecast.gif", "interstellar_frame.png"):
+        ctx.figure_file(_p("docs/assets/blackhole/" + f))
     _figures(ctx, "docs/assets/blackhole/*skill*.png")
 
 
@@ -223,8 +228,24 @@ def _airfoil(ctx):
         for pt in m.get(f"{model}_test_points", []):
             ds.add(model=model, case=pt["id"], alpha=float(pt["alpha"]), true=np.asarray(pt["true"]),
                    pred=np.asarray(pt["pred"]))
-    for f in sorted(glob.glob(_p("docs/assets/apps/13-*.jpg")))[:4]:
-        ctx.figure_file(f)
+    for f in ("13-aircraft-render-flight.jpg", "13-aircraft-render-streamlines.jpg", "13-aircraft-render-pressure.jpg",
+              "13-aircraft-render-friction.jpg"):
+        ctx.figure_file(_p("docs/assets/apps/" + f), f.replace("13-aircraft-", "airliner_"))
+    ctx.figure_file(_p("docs/assets/studio/airliner-cp.jpg"), "airliner_openfoam_cp.jpg")
+
+
+def _ahmed(ctx):
+    c = _json("examples/studio/_out/ahmed/coefficients_medium.json")
+    for k in ("CD", "CL", "CD_pressure", "CD_friction", "cells"):
+        ctx.metric(k, c[k])
+    ctx.check("drag_vs_wind_tunnel", value=c["CD"], reference=0.285, rtol=0.08,
+              detail="Ahmed, Ramm & Faltin (1984), 25 deg slant: CD about 0.285", kind="reference")
+    ctx.check("pressure_drag_dominates", value=c["CD_pressure"] / c["CD"], min=0.7, kind="physics")
+    ds = ctx.dataset("coefficients", description="Ahmed body force coefficients (OpenFOAM, medium mesh)")
+    ds.add(CD=c["CD"], CL=c["CL"], CD_pressure=c["CD_pressure"], CD_friction=c["CD_friction"], cells=int(c["cells"]),
+           CD_measured=0.285)
+    for f in ("streamlines.jpg", "cp.jpg", "wake_vorticity.jpg", "mid_plane_speed.jpg"):
+        ctx.figure_file(_p("examples/studio/_out/ahmed/" + f), "ahmed_" + f)
 
 
 def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
@@ -248,7 +269,7 @@ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
 
 _RUN = {"burgers_pinn": _burgers, "fin_inverse_2d": lambda c: _fin(c, "2d"), "fin_inverse_3d": lambda c: _fin(c, "3d"),
         "lbm_strouhal": _lbm, "meshgraphnet": _mgn, "concorde_aoa": _concorde, "bh_forecast": _bh,
-        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil}
+        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil, "ahmed_body": _ahmed}
 
 
 @register
@@ -258,6 +279,17 @@ class RepoResults(Experiment):
     description = ("Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, "
                    "black-hole forecasts), re-validated against their references and stored as datasets.")
     tags = ["import", "benchmark", "dataset"]
+    case_param = "source"
+    limitations = {
+        "burgers_pinn": ["5.9 % relative L2 against the exact solution (a well-tuned PINN reaches < 1 %)"],
+        "fin_inverse_3d": ["the network's own h is 7 % low (weak flux constraint); the finite-volume refit is exact"],
+        "lbm_strouhal": ["Strouhal 16 % high with 16 cells per diameter; 6 % with the finer grid"],
+        "meshgraphnet": ["small training set (11 trajectories)"],
+        "concorde_aoa": ["a parametric stand-in, not Concorde CAD; Re 300 coarse LES; checked against theory, "
+                         "not wind-tunnel data"],
+        "bh_forecast": ["pseudo-Newtonian 2.5-D hydro, not GRMHD"],
+        "ahmed_body": ["steady RANS (k-omega SST, wall functions); the medium mesh is not grid-converged"],
+    }
     params = {"source": "burgers_pinn"}
     space = {"source": list(SOURCES)}
     code_files = [_p(s) for v in _SCRIPTS.values() for s in v]

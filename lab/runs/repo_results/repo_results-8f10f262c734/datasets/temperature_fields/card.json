@@ -1,0 +1,66 @@
+{
+ "name": "temperature_fields",
+ "description": "2d temperature field: finite-volume reference and PINN reconstructions from noisy sensors (one per noise draw)",
+ "n_samples": 5,
+ "shards": 1,
+ "schema": {
+  "T_pinn": {
+   "kind": "array",
+   "shape": [
+    60,
+    100
+   ],
+   "dtype": "float32",
+   "min": 62.296695709228516,
+   "max": 79.3792724609375
+  },
+  "T_reference": {
+   "kind": "array",
+   "shape": [
+    60,
+    100
+   ],
+   "dtype": "float32",
+   "min": 62.49766159057617,
+   "max": 79.13482666015625
+  },
+  "draw": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 0.0,
+   "max": 4.0
+  },
+  "h_pinn": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 14.386173248291016,
+   "max": 15.287345886230469
+  },
+  "h_true": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 15.0,
+   "max": 15.0
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "2d_plate"
+   ]
+  }
+ },
+ "units": {
+  "T": "C",
+  "h": "W/m2K"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-8f10f262c734",
+  "params": {
+   "source": "fin_inverse_2d"
+  }
+ },
+ "sha1": "ccbfe891e2a61d2fd1f757dfeab77b56f7f463e3"
+}

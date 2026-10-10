@@ -126,3 +126,16 @@ def test_law_discovery_experiments(tmp_path):
     sweep("oscillator", grid={"zeta": [0.1, 0.3], "omega": [1.0, 3.0]}, root=root)
     r = run("oscillator_discovery", root=root)
     assert r.ok and r.metrics["n_trajectories"] == 4 and r.metrics["omega_rel_error_median"] < 0.01
+
+
+def test_repo_results_import_and_dataset_catalog(tmp_path):
+    root = str(tmp_path)
+    sources = ["burgers_pinn", "fin_inverse_2d", "lbm_strouhal"]
+    by = {s: run("repo_results", {"source": s}, root=root) for s in sources}
+    assert all(r.ok for r in by.values()), [r.status for r in by.values()]
+    assert by["burgers_pinn"].metrics["rel_l2_vs_exact"] < 0.1
+    assert abs(by["fin_inverse_2d"].metrics["h_pinn_mean"] / 15.0 - 1) < 0.05
+    store = LabStore(root)
+    assert store.datasets("repo_results", "temperature_fields")[0]["n_samples"] == 5
+    text = open(store.datasets_catalog()).read()
+    assert "`repo_results` / `strouhal`" in text and "-g source=" in text

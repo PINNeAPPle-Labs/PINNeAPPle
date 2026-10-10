@@ -1,0 +1,50 @@
+{
+ "name": "rollout_scores",
+ "description": "MeshGraphNet rollout and one-step RMSE vs the frozen-initial-condition baseline",
+ "n_samples": 2,
+ "shards": 1,
+ "schema": {
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "synthetic_diffusion",
+    "cylinder_flow"
+   ]
+  },
+  "rollout_rmse": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.029681417159736156,
+   "max": 0.07109754905104637
+  },
+  "one_step_rmse": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.00910506482856969,
+   "max": 0.02651675883680582
+  },
+  "baseline_rmse": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.09619166702032089,
+   "max": 0.1103672298292319
+  },
+  "n_steps": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 20.0,
+   "max": 50.0
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-cbac6f31f681",
+  "params": {
+   "source": "meshgraphnet"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

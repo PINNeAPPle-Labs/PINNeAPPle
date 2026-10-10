@@ -1,0 +1,35 @@
+[
+ {
+  "name": "h_fv_refit",
+  "passed": true,
+  "value": 149.63380785752744,
+  "reference": 150.0,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "h from re-running the finite-volume model against the sensors"
+ },
+ {
+  "name": "h_trainable",
+  "passed": true,
+  "value": 139.44271341959634,
+  "reference": 150.0,
+  "rtol": 0.1,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "the network's own h; the README documents -7 % in 3D (weak flux constraint)"
+ },
+ {
+  "name": "field_error",
+  "passed": true,
+  "value": 0.33533485543343033,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 2.0,
+  "min": null,
+  "detail": "max |T_pinn - T_fv| in C"
+ }
+]

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "synthetic_diffusion_beats_baseline",
+  "passed": true,
+  "value": 0.029681417159736156,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.1103672298292319,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "cylinder_flow_beats_baseline",
+  "passed": true,
+  "value": 0.07109754905104637,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.09619166702032089,
+  "min": null,
+  "detail": ""
+ }
+]

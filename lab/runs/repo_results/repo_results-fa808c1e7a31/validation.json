@@ -1,0 +1,35 @@
+[
+ {
+  "name": "St_cylinder_h10",
+  "passed": true,
+  "value": 0.19154586176873234,
+  "reference": 0.1647,
+  "rtol": 0.2,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Re 100, D = 16 cells; reference St 0.1647"
+ },
+ {
+  "name": "St_cylinder_h20",
+  "passed": true,
+  "value": 0.1742477415960872,
+  "reference": 0.1647,
+  "rtol": 0.2,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Re 100, D = 16 cells; reference St 0.1647"
+ },
+ {
+  "name": "St_naca4412_bluff_body_range",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "no single published value; bluff-body yardstick St ~ 0.15-0.2 on c*sin(alpha)"
+ }
+]

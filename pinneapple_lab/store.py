@@ -186,6 +186,50 @@ class LabStore:
         return card
 
     # -- catalogue -----------------------------------------------------------
+    def datasets_catalog(self, path: str | None = None) -> str:
+        """Write DATASETS.md: every dataset with its description, sample count over completed runs, schema
+        (shapes, dtypes, ranges, units) and the commands that rebuild and export it. Shards are not versioned;
+        the runs are cached by parameters, so the sweep command regenerates exactly what is listed."""
+        path = path or os.path.join(self.root, "DATASETS.md")
+        groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+        for d in self.datasets():
+            if d["status"] == "completed":
+                groups.setdefault((d["experiment"], d["name"]), []).append(d)
+        total = sum(x["n_samples"] for v in groups.values() for x in v)
+        lines = ["# PINNeAPPle Lab datasets", "",
+                 f"{len(groups)} datasets, {total} samples from completed (validated) runs. Arrays are not in git: "
+                 "rebuild a dataset with its sweep command (cached runs are skipped), then export it as one file.", ""]
+        for (exp, name), ds in sorted(groups.items()):
+            card: dict[str, Any] = {}
+            try:
+                with open(os.path.join(self.root, ds[0]["path"], "card.json")) as f:
+                    card = json.load(f)
+            except OSError:
+                pass
+            params = sorted({k for r in self.runs(exp, status="completed") for k in r["params"]})
+            lines += [f"## `{exp}` / `{name}`", "", card.get("description", ""), "",
+                      f"{sum(x['n_samples'] for x in ds)} samples from {len(ds)} runs; every sample also carries the "
+                      f"run parameters ({', '.join(params)}).", "",
+                      "| field | kind | shape / type | range | units |", "|---|---|---|---|---|"]
+            units = card.get("units", {})
+            for k, s in card.get("schema", {}).items():
+                shape = s.get("shape", s.get("type", ""))
+                rng = (f"{s['min']:.4g} .. {s['max']:.4g}" if "min" in s and s["min"] is not None
+                       else ", ".join(map(str, s.get("values", [])[:6])))
+                lines.append(f"| {k} | {s.get('kind', '')} | {shape} {s.get('dtype', '')} | {rng} | {units.get(k, '')} |")
+            runs = self.runs(exp, status="completed")
+            vary = {k: sorted({json.dumps(r["params"].get(k)) for r in runs}) for k in params}
+            grid = "".join(f" -g {k}={','.join(v.strip(chr(34)) for v in vals)}"
+                           for k, vals in vary.items() if len(vals) > 1)
+            if any(len(v) > 12 for v in vary.values()):                # a Latin-hypercube sweep, not a grid
+                grid = f" -n {len(runs)}"
+            lines += ["", f"Schema ranges are those of one run (`{ds[0]['run_id']}`).", "", "```bash",
+                      f"python -m pinneapple_lab sweep {exp}{grid}",
+                      f"python -m pinneapple_lab export {exp} {name} {exp}_{name}.npz", "```", ""]
+        with open(path, "w") as f:
+            f.write("\n".join(lines))
+        return path
+
     def catalog_html(self, path: str | None = None, **kw) -> str:
         """Self-contained HTML catalogue (filters, run cards, a sheet with each run's full record)."""
         from .html import write_html

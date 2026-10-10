@@ -1,0 +1,7 @@
+{
+ "resolution": 56,
+ "Re": 300.0,
+ "u_in": 0.04,
+ "steps": 600,
+ "save_every": 150
+}

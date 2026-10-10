@@ -1,0 +1,83 @@
+{
+ "name": "strouhal",
+ "description": "LBM vortex-shedding runs: Strouhal number, set-up and probe amplitude",
+ "n_samples": 3,
+ "shards": 1,
+ "schema": {
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "cylinder",
+    "naca4412"
+   ]
+  },
+  "tag": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "cylinder_h10",
+    "cylinder_h20",
+    "naca4412"
+   ]
+  },
+  "Re": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 100.0,
+   "max": 500.0
+  },
+  "St": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.1742477415960872,
+   "max": 0.2067956729076523
+  },
+  "St_reference": {
+   "kind": "scalar",
+   "type": "NoneType",
+   "min": 0.1647,
+   "max": 0.1647
+  },
+  "length_scale_cells": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 16.0,
+   "max": 27.361611466053496
+  },
+  "u_in": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.1,
+   "max": 0.1
+  },
+  "steps": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 20000.0,
+   "max": 20000.0
+  },
+  "periods": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 7.557876229776005,
+   "max": 11.971616360545772
+  },
+  "probe_uy_amplitude": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.05769702089883346,
+   "max": 0.07265738717246689
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-fa808c1e7a31",
+  "params": {
+   "source": "lbm_strouhal"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

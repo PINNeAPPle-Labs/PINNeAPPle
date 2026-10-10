@@ -1,0 +1,80 @@
+{
+ "name": "fields",
+ "description": "Burgers u(t, x): PINN prediction and exact solution",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "x": {
+   "kind": "array",
+   "shape": [
+    200
+   ],
+   "dtype": "float32",
+   "min": -1.0,
+   "max": 1.0
+  },
+  "t": {
+   "kind": "array",
+   "shape": [
+    200
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 1.0
+  },
+  "u_pred": {
+   "kind": "array",
+   "shape": [
+    200,
+    200
+   ],
+   "dtype": "float32",
+   "min": -0.9766382575035095,
+   "max": 0.9795569181442261
+  },
+  "u_exact": {
+   "kind": "array",
+   "shape": [
+    200,
+    200
+   ],
+   "dtype": "float32",
+   "min": -0.9999688267707825,
+   "max": 0.9999688267707825
+  },
+  "nu": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.01,
+   "max": 0.01
+  },
+  "model": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "pinn_mlp"
+   ]
+  },
+  "source": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "burgers_pinn"
+   ]
+  }
+ },
+ "units": {
+  "x": "-",
+  "t": "-",
+  "u": "-"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-96e87a293dea",
+  "params": {
+   "source": "burgers_pinn"
+  }
+ },
+ "sha1": "ff7fd3eac7eea01625efd857a7f948d506de3fe8"
+}

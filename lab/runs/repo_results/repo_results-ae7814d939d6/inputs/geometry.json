@@ -1,0 +1,9 @@
+{
+ "root_chord": 1.0,
+ "semispan": 0.425,
+ "wing_area": 0.425,
+ "aspect_ratio": 1.7,
+ "fuselage_length": 1.5,
+ "fuselage_radius": 0.08,
+ "is_parametric_stand_in_not_real_concorde_cad": true
+}

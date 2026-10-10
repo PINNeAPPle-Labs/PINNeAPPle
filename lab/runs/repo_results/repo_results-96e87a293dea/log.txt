@@ -1,0 +1,4 @@
+[17:19:12] PINN for viscous Burgers (nu = 0.01) vs the exact Cole-Hopf solution
+[17:19:12] stage import started
+[17:19:16] check rel_l2_vs_exact: PASS exact Cole-Hopf solution, nu = 0.01
+[17:19:17] stage import done (4.857 s)

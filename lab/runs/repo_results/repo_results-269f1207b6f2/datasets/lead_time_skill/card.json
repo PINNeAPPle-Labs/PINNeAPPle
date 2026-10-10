@@ -1,0 +1,85 @@
+{
+ "name": "lead_time_skill",
+ "description": "Mean absolute error vs lead time of the black-hole flow forecasters and of persistence, in and out of distribution",
+ "n_samples": 4,
+ "shards": 1,
+ "schema": {
+  "model": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "f16",
+    "res16"
+   ]
+  },
+  "test": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "PL0SS0.1",
+    "PL0SS0.3"
+   ]
+  },
+  "lead": {
+   "kind": "array",
+   "shape": [
+    60
+   ],
+   "dtype": "float64",
+   "min": 20.0,
+   "max": 1200.0
+  },
+  "mae": {
+   "kind": "array",
+   "shape": [
+    60
+   ],
+   "dtype": "float64",
+   "min": 0.00042551980004645884,
+   "max": 0.03910133568570018
+  },
+  "persistence": {
+   "kind": "array",
+   "shape": [
+    60
+   ],
+   "dtype": "float64",
+   "min": 0.0002476741465216037,
+   "max": 0.019345279084518552
+  },
+  "climatology": {
+   "kind": "array",
+   "shape": [
+    60
+   ],
+   "dtype": "float64",
+   "min": 0.10069057159125805,
+   "max": 0.14460350014269352
+  },
+  "acc": {
+   "kind": "array",
+   "shape": [
+    60
+   ],
+   "dtype": "float64",
+   "min": 0.9610175937414169,
+   "max": 0.9999580681324005
+  },
+  "horizon_beats_persistence": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 1200.0
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-269f1207b6f2",
+  "params": {
+   "source": "bh_forecast"
+  }
+ },
+ "sha1": "bf460cddc36cd4397de941bbe9c30db049dab6fd"
+}

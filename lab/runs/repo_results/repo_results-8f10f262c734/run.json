@@ -1,0 +1,74 @@
+{
+ "run_id": "repo_results-8f10f262c734",
+ "experiment": "repo_results",
+ "version": "1",
+ "params": {
+  "source": "fin_inverse_2d"
+ },
+ "status": "completed",
+ "started": 1791652757.3538518,
+ "tags": [
+  "import",
+  "benchmark",
+  "dataset"
+ ],
+ "git": "838bbd18",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.",
+ "code": {
+  "files": [
+   "code/repo_results.py",
+   "code/03_pinn_burgers_full_pipeline.py",
+   "code/plate_2d.py",
+   "code/fv_reference.py",
+   "code/block_3d.py",
+   "code/lbm_vortex_shedding.py",
+   "code/01_synthetic_diffusion.py",
+   "code/02_cylinder_flow_deepmind.py",
+   "code/concorde_high_aoa_pipeline.py",
+   "code/evaluate.py"
+  ],
+  "sha1": "6e7cb87120228254d0071e3da9dceb96fc474f69",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791652757.4419196,
+ "error": null,
+ "stages": [
+  {
+   "name": "import",
+   "started": 1791652757.4295893,
+   "status": "done",
+   "seconds": 0.004
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json",
+   "inputs/setup.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/plate_h_convergence.png",
+   "figures/plate_result_card.png"
+  ]
+ },
+ "validation": {
+  "total": 3,
+  "failed": 0
+ },
+ "seconds": 0.088,
+ "datasets": {
+  "temperature_fields": {
+   "n_samples": 5,
+   "path": "runs/repo_results/repo_results-8f10f262c734/datasets/temperature_fields"
+  }
+ }
+}

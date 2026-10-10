@@ -1,0 +1,6 @@
+[17:19:17] PINN inverse problem: heat-transfer coefficient of a 3D block from sensors
+[17:19:17] stage import started
+[17:19:17] check h_fv_refit: PASS h from re-running the finite-volume model against the sensors
+[17:19:17] check h_trainable: PASS the network's own h; the README documents -7 % in 3D (weak flux constraint)
+[17:19:17] check field_error: PASS max |T_pinn - T_fv| in C
+[17:19:17] stage import done (0.003 s)

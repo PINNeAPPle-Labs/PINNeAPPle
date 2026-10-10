@@ -20,6 +20,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   sharded datasets with cards, SQLite index, sweeps (grid / Latin hypercube, parallel), dataset export and a Markdown
   catalogue; CLI `python -m pinneapple_lab`. Built-in experiments: oscillator, heat_xtfc, bondi_accretion,
   accretion_flow, cylinder_lbm, bh_forecast. Black-hole hydro: numba backend (`RIAFConfig(backend="numba")`).
+  `repo_results` imports results already produced by repository scripts (Burgers PINN, fin inverse PINN 2D/3D, LBM
+  Strouhal, MeshGraphNet, delta-wing polar, black-hole forecast skill), re-validates them against their references
+  and stores them as datasets. `report` also writes `lab/DATASETS.md` (schema, units, counts, rebuild and export
+  commands per dataset).
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

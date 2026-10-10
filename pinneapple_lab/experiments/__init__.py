@@ -8,5 +8,14 @@
 | ``accretion_flow`` | torus accreting onto a black hole; density movie, accretion rate, conservation | frames |
 | ``cylinder_lbm`` | lattice-Boltzmann flow past a cylinder; regime, Strouhal number, vorticity images | vorticity |
 | ``bh_forecast`` | Duarte et al. U-Net forecast of accretion flows, scored against persistence (source checkout) | - |
+| ``repo_results`` | results already produced by repository scripts, re-validated and stored as datasets | per source |
 """
-from . import accretion, blackhole_forecast, cylinder, discovery, ode, pde  # noqa: F401
+from . import (  # noqa: F401
+    accretion,
+    blackhole_forecast,
+    cylinder,
+    discovery,
+    ode,
+    pde,
+    repo_results,
+)

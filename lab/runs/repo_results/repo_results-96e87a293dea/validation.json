@@ -1,0 +1,13 @@
+[
+ {
+  "name": "rel_l2_vs_exact",
+  "passed": true,
+  "value": 0.059485871344804764,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.1,
+  "min": null,
+  "detail": "exact Cole-Hopf solution, nu = 0.01"
+ }
+]

@@ -79,10 +79,18 @@ An experiment defined outside the package is addressed as `package.module:ClassN
 | `bondi_accretion` | black-hole hydro started from exact Bondi accretion | accretion rate and density steady within 2 % | radial profiles |
 | `accretion_flow` | torus accreting onto a Schwarzschild hole | mass and angular-momentum budgets | density movies (forecasting) |
 | `cylinder_lbm` | lattice-Boltzmann flow past a cylinder | Strouhal number in its physical range; steady below the onset | vorticity images labelled by regime (vision) |
+| `kepler_law`, `pendulum_video`, `lorenz_discovery`, `oscillator_discovery` | physical laws discovered from data (planet ephemerides, a pendulum video, a chaotic trajectory) | recovered exponents and coefficients against the known law | orbits, video frames, discovered laws |
+| `repo_results` | results already produced by repository scripts, re-validated: Burgers PINN, fin inverse PINN (2D, 3D), LBM Strouhal, MeshGraphNet, delta-wing polar, black-hole forecast skill | exact solution, true h, published Strouhal, solver baselines | fields, polars, skill curves |
+
+`repo_results` lets the long runs (an hour of LBM, 30 minutes of 3D PINN) enter the database without being repeated:
+it reads what the script wrote, checks it against the reference again, and snapshots the generating script with
+the run.
 
 ## Versioning the database
 
 The run metadata, metrics, validation, figures and dataset cards are small and versioned in git under `lab/`. Arrays,
 dataset shards and the SQLite index are not versioned (see `.gitignore`). Rebuild the index with
-`python -m pinneapple_lab reindex`. Large datasets are exported (`export`) and published separately, for example to
+`python -m pinneapple_lab reindex`. `python -m pinneapple_lab report` also writes `lab/DATASETS.md`: every dataset
+with its schema (shapes, ranges, units), its sample count over validated runs, and the sweep and export commands
+that rebuild it (runs are cached by parameters, so the sweep only computes what is missing). Large datasets are exported (`export`) and published separately, for example to
 the Hugging Face Hub with `pinneapple_hub`.

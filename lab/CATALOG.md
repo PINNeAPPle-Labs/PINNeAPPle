@@ -1,6 +1,6 @@
 # PINNeAPPle Lab catalogue
 
-97 runs, generated 2026-10-10 17:10.
+104 runs, generated 2026-10-10 17:19.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
@@ -13,6 +13,7 @@
 | [oscillator](#oscillator) | 60 | 60 | 0 | 0 | trajectories (60) |
 | [oscillator_discovery](#oscillator_discovery) | 1 | 1 | 0 | 0 | discovered_laws (20) |
 | [pendulum_video](#pendulum_video) | 1 | 1 | 0 | 0 | pendulum (1) |
+| [repo_results](#repo_results) | 7 | 7 | 0 | 0 | fields (1), temperature_fields (8), strouhal (3), rollout_scores (2), polar (5), lead_time_skill (4) |
 
 ## accretion_flow
 
@@ -171,3 +172,21 @@ Law -> video -> law -> video. A large-amplitude damped pendulum is filmed (rende
 | [7a4bc9625e0e](runs/pendulum_video/pendulum_video-7a4bc9625e0e) | completed | 0.8 | 0.15 | 60 | 9.81 | 120 | 0.04 | 6.0 | 10.0 | 0 | 160 | 2.0 | 2.4 | 0.01516 | 0.152 | 0.009488 | 9.787 | 0.002353 | 2 | 3/3 |
 
 ![pendulum_video](runs/pendulum_video/pendulum_video-7a4bc9625e0e/figures/pendulum_discovery.png)
+
+## repo_results
+
+Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.
+
+| run | status | source | CL_max | CL_rms_vs_polhamus | CL_slope_per_rad | St_cylinder_h10 | St_cylinder_h20 | St_naca4412 | checks |
+|---|---|---|---|---|---|---|---|---|---|
+| [96e87a293dea](runs/repo_results/repo_results-96e87a293dea) | completed | burgers_pinn |  |  |  |  |  |  | 1/1 |
+| [8f10f262c734](runs/repo_results/repo_results-8f10f262c734) | completed | fin_inverse_2d |  |  |  |  |  |  | 3/3 |
+| [e9574ff86021](runs/repo_results/repo_results-e9574ff86021) | completed | fin_inverse_3d |  |  |  |  |  |  | 3/3 |
+| [fa808c1e7a31](runs/repo_results/repo_results-fa808c1e7a31) | completed | lbm_strouhal |  |  |  | 0.1915 | 0.1742 | 0.2068 | 3/3 |
+| [cbac6f31f681](runs/repo_results/repo_results-cbac6f31f681) | completed | meshgraphnet |  |  |  |  |  |  | 2/2 |
+| [ae7814d939d6](runs/repo_results/repo_results-ae7814d939d6) | completed | concorde_aoa | 0.5881 | 0.2409 | 1.728 |  |  |  | 2/2 |
+| [269f1207b6f2](runs/repo_results/repo_results-269f1207b6f2) | completed | bh_forecast |  |  |  |  |  |  | 2/2 |
+
+![repo_results](runs/repo_results/repo_results-269f1207b6f2/figures/skill_faithful.png)
+
+![repo_results](runs/repo_results/repo_results-ae7814d939d6/figures/01_geometry.png)

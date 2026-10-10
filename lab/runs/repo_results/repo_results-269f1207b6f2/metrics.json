@@ -1,0 +1,14 @@
+{
+ "f16_PL0SS0.1_one_block_mae": 0.005938608676660806,
+ "f16_PL0SS0.1_one_block_persistence": 0.0007401303962979,
+ "f16_PL0SS0.1_horizon_beats_persistence": 0.0,
+ "f16_PL0SS0.3_one_block_mae": 0.007179245690349489,
+ "f16_PL0SS0.3_one_block_persistence": 0.0011689678965922212,
+ "f16_PL0SS0.3_horizon_beats_persistence": 0.0,
+ "res16_PL0SS0.1_one_block_mae": 0.0005186813410546165,
+ "res16_PL0SS0.1_one_block_persistence": 0.0007401303962979,
+ "res16_PL0SS0.1_horizon_beats_persistence": 1200.0,
+ "res16_PL0SS0.3_one_block_mae": 0.0010737575052189642,
+ "res16_PL0SS0.3_one_block_persistence": 0.0011689678965922212,
+ "res16_PL0SS0.3_horizon_beats_persistence": 1200.0
+}

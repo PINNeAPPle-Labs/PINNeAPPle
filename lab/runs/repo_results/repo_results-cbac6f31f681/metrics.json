@@ -1,0 +1,6 @@
+{
+ "synthetic_diffusion_rollout_rmse": 0.029681417159736156,
+ "synthetic_diffusion_baseline_rmse": 0.1103672298292319,
+ "cylinder_flow_rollout_rmse": 0.07109754905104637,
+ "cylinder_flow_baseline_rmse": 0.09619166702032089
+}

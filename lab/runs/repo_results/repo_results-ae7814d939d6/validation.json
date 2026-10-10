@@ -1,0 +1,24 @@
+[
+ {
+  "name": "lift_increases_with_aoa",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "CL_within_polhamus_band",
+  "passed": true,
+  "value": 0.24091160585006066,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.5,
+  "min": null,
+  "detail": "low-fidelity cross-check vs the Polhamus slender-wing theory, not test data"
+ }
+]

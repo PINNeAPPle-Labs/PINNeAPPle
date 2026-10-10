@@ -1,0 +1,5 @@
+[17:19:18] U-Net forecast of black-hole accretion flows: lead-time skill vs persistence
+[17:19:18] stage import started
+[17:19:18] check res16_PL0SS0.1_beats_persistence_first_block: PASS 
+[17:19:18] check res16_PL0SS0.3_beats_persistence_first_block: PASS 
+[17:19:18] stage import done (0.005 s)

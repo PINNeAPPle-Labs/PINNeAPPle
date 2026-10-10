@@ -1,0 +1,7 @@
+{
+ "name": "tungsten carbide",
+ "k": 1e-06,
+ "hardness_MPa": 13000,
+ "E_GPa": 600,
+ "K_mm3_per_Nm": 7.692307692307692e-08
+}

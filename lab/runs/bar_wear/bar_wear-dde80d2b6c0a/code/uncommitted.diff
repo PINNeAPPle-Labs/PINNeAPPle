@@ -1,0 +1,41 @@
+diff --git a/lab/CURATION.md b/lab/CURATION.md
+index e95f32ad..eef4e815 100644
+--- a/lab/CURATION.md
++++ b/lab/CURATION.md
+@@ -1,6 +1,6 @@
+ # PINNeAPPle Lab curation
+ 
+-Generated 2026-10-10 19:33 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
++Generated 2026-10-10 19:34 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see `pinneapple_lab/curation.py`.
+ 
+ | experiment | tier | best score | runs (A/B/C/D) | usable | product | paper | marketing | data | reviewed |
+ |---|---|---|---|---|---|---|---|---|---|
+diff --git a/lab/curation.json b/lab/curation.json
+index b2db22dc..2e6310be 100644
+--- a/lab/curation.json
++++ b/lab/curation.json
+@@ -1,5 +1,5 @@
+ {
+- "generated": "2026-10-10 19:33 UTC",
++ "generated": "2026-10-10 19:34 UTC",
+  "experiments": {
+   "accretion_flow": {
+    "tier": "B",
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index c13132a6..62557b3a 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -12,6 +12,7 @@
+ | ``example_script`` | any script of ``examples/`` (examples and use cases): figures, JSON metrics, arrays, console, code | artifacts |
+ | ``car_lbm`` / ``car_surrogate`` | parametric 2-D car body in an LBM wind tunnel; FNO + MLP surrogates, design search verified by LBM | flow, vorticity, predictions |
+ | ``vehicle_cfd`` | 3-D road car / launch vehicle in OpenFOAM: coefficients, skin Cp, streamlines, Blender renders, 3-D viewer | surface, streamlines |
++| ``bar_wear`` / ``bar_wear_ranking`` | Archard wear of a crowned bar on a counterface, per material; running-in, steady wear, ranking | wear history, ranking |
+ | ``benchmark_case`` | landing-page cases from PINNeAPPle-Benchmark and PINNeAPPle-Climate, headline claim re-checked | arrays, sweep, lead skill |
+ """
+ from . import (  # noqa: F401
+@@ -26,4 +27,5 @@ from . import (  # noqa: F401
+     pde,
+     repo_results,
+     vehicles3d,
++    wear,
+ )

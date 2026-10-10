@@ -1,0 +1,14 @@
+[
+ {
+  "name": "ranking_follows_archard_K",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "simulated steady wear rates order the materials as K = k / H",
+  "kind": "physics"
+ }
+]

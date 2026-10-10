@@ -1,0 +1,50 @@
+[
+ {
+  "name": "worn_volume_equals_K_F_s",
+  "passed": true,
+  "value": 4.440892098500626e-16,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1e-06,
+  "min": null,
+  "detail": "global Archard law, any pressure distribution",
+  "kind": "physics"
+ },
+ {
+  "name": "initial_contact_vs_closed_form",
+  "passed": true,
+  "value": 1.5691150954308704,
+  "reference": 1.5691111817431762,
+  "rtol": 0.02,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Winkler parabolic contact: half-width 2.390 mm (numerical 2.375)",
+  "kind": "reference"
+ },
+ {
+  "name": "steady_rate_vs_flat_punch",
+  "passed": true,
+  "value": 1.9069972128502002e-07,
+  "reference": 1.9117647058823527e-07,
+  "rtol": 0.01,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "dh/ds = K F / A once the end has conformed",
+  "kind": "reference"
+ },
+ {
+  "name": "running_in_vs_estimate",
+  "passed": true,
+  "value": 430873.2399771676,
+  "reference": 435894.71153846773,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "crown volume / (K F)",
+  "kind": "reference"
+ }
+]

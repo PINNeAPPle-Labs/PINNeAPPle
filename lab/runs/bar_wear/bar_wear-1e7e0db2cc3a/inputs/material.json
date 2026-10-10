@@ -1,0 +1,7 @@
+{
+ "name": "PTFE",
+ "k": 2.5e-05,
+ "hardness_MPa": 50,
+ "E_GPa": 0.5,
+ "K_mm3_per_Nm": 0.0005
+}

@@ -238,6 +238,20 @@ def test_car_geometry_and_wind_tunnel_smoke():
     assert sim["mean_ux"].shape == sim["sdf"].shape == (80, 40)
 
 
+def test_bar_wear_physics():
+    from pinneapple_physics.tribology import WEAR_MATERIALS, BarWear, winkler_parabolic_contact
+    mat = WEAR_MATERIALS["PTFE"]
+    bar = BarWear(mat, load_N=50, nx=201)
+    p0, _ = bar.pressure()
+    exact = winkler_parabolic_contact(50, bar.width_mm, bar.crown_radius_mm, bar.k_w)
+    assert abs(p0.max() / exact["p_max_MPa"] - 1) < 0.02
+    r = bar.run(1.5 * bar.running_in_distance_m(), n_save=10)
+    assert abs(r["volume"][-1] / (mat.K * 50 * r["s"][-1]) - 1) < 1e-6        # Archard: V = K F s exactly
+    assert r["contact"][-1] > 0.999 and abs(r["p_max"][-1] / (50 / bar.area_mm2) - 1) < 0.02
+    ks = sorted(WEAR_MATERIALS.values(), key=lambda m: m.K)
+    assert ks[0].name == "tungsten carbide" and ks[-1].name == "mild steel"
+
+
 @register
 class _Curated(Experiment):
     name = "_test_curated"

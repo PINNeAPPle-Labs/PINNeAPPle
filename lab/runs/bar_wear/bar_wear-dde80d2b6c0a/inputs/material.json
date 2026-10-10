@@ -1,0 +1,7 @@
+{
+ "name": "stellite",
+ "k": 5.5e-05,
+ "hardness_MPa": 6900,
+ "E_GPa": 230,
+ "K_mm3_per_Nm": 7.971014492753623e-06
+}

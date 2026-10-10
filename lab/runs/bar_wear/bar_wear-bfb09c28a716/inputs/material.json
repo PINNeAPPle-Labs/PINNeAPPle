@@ -1,0 +1,7 @@
+{
+ "name": "hardened tool steel",
+ "k": 0.00013,
+ "hardness_MPa": 8500,
+ "E_GPa": 210,
+ "K_mm3_per_Nm": 1.5294117647058822e-05
+}

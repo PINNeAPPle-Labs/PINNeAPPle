@@ -1,0 +1,6 @@
+[19:50:21] stage slide started
+[19:50:22] stage slide done (1.694 s)
+[19:50:22] check worn_volume_equals_K_F_s: PASS global Archard law, any pressure distribution
+[19:50:22] check initial_contact_vs_closed_form: PASS Winkler parabolic contact: half-width 0.409 mm (numerical 0.425)
+[19:50:22] check steady_rate_vs_flat_punch: PASS dh/ds = K F / A once the end has conformed
+[19:50:22] check running_in_vs_estimate: PASS crown volume / (K F)

@@ -1,0 +1,42 @@
+[
+ {
+  "material": "tungsten carbide",
+  "K_mm3_per_Nm": 7.692307692307692e-08,
+  "life_to_1mm_km": 52000.0
+ },
+ {
+  "material": "polyethylene",
+  "K_mm3_per_Nm": 7.647058823529412e-07,
+  "life_to_1mm_km": 5230.769230769231
+ },
+ {
+  "material": "ferritic stainless steel",
+  "K_mm3_per_Nm": 6.799999999999999e-06,
+  "life_to_1mm_km": 588.2352941176471
+ },
+ {
+  "material": "stellite",
+  "K_mm3_per_Nm": 7.971014492753623e-06,
+  "life_to_1mm_km": 501.8181818181818
+ },
+ {
+  "material": "hardened tool steel",
+  "K_mm3_per_Nm": 1.5294117647058822e-05,
+  "life_to_1mm_km": 261.53846153846155
+ },
+ {
+  "material": "PTFE",
+  "K_mm3_per_Nm": 0.0005,
+  "life_to_1mm_km": 8.0
+ },
+ {
+  "material": "60/40 brass",
+  "K_mm3_per_Nm": 0.000631578947368421,
+  "life_to_1mm_km": 6.333333333333335
+ },
+ {
+  "material": "mild steel",
+  "K_mm3_per_Nm": 0.003763440860215054,
+  "life_to_1mm_km": 1.062857142857143
+ }
+]

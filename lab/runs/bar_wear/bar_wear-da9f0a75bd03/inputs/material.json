@@ -1,0 +1,7 @@
+{
+ "name": "ferritic stainless steel",
+ "k": 1.7e-05,
+ "hardness_MPa": 2500,
+ "E_GPa": 200,
+ "K_mm3_per_Nm": 6.799999999999999e-06
+}

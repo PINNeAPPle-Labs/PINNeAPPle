@@ -35,7 +35,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   with readiness for product, paper, marketing and training data; Veriphysics vocabulary (verified / inferred /
   unsupported, not run is never a pass). `ctx.check(kind=...)`; tiers, filter and quality panel in the catalogue;
   `/api/curation`. Also: `benchmark_case` (landing-page cases), 3-D `vehicle_cfd` (road car, launch vehicle),
-  `car_lbm` / `car_surrogate` (Physics AI on car geometry).
+  `car_lbm` / `car_surrogate` (Physics AI on car geometry). Reports for one item or a filtered set
+  (`python -m pinneapple_lab brief`, `/report.{html,md,pdf}`) and a showcase gallery in the catalogue.
+  `pinneapple_physics.tribology`: Archard wear of a bar end with contact pressure on an elastic layer (implicit
+  wear-contact step), Archard & Hirst material table; lab experiments `bar_wear` (one run per material) and
+  `bar_wear_ranking`.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

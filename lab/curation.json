@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10 19:33 UTC",
+ "generated": "2026-10-10 19:55 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -141,6 +141,262 @@
     "next_tier": "A"
    },
    "description": "A hot torus accreting onto a Schwarzschild black hole (viscous 2.5-D hydro): density movie, accretion rate and mass / angular-momentum budgets. Frames form a dataset for forecasting.",
+   "story": ""
+  },
+  "bar_wear": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-1e7e0db2cc3a",
+   "best_score": 100.0,
+   "runs": 8,
+   "tier_counts": {
+    "A": 8,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "story": ""
+  },
+  "bar_wear_ranking": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "bar_wear_ranking-0f0d5ccb2871",
+   "best_score": 92.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [],
+    "actions": [
+     {
+      "gap": "reference",
+      "action": "Add a check against an exact solution, a measurement or a published value",
+      "effort": "M",
+      "unlocks": [
+       "paper",
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 4,
+      "missing": [
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 5,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a validated headline number",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "description": "Every bar_wear run side by side: specific wear rate, life to 1 mm of wear at the same load and the ranking of the materials, checked against the ranking of their Archard coefficients K = k/H.",
    "story": ""
   },
   "benchmark_case": {
@@ -436,14 +692,14 @@
    "tier_name": "solid",
    "best_run": "car_lbm-354a5d7f3472",
    "best_score": 94.3,
-   "runs": 25,
+   "runs": 35,
    "tier_counts": {
     "A": 0,
-    "B": 24,
+    "B": 34,
     "C": 0,
     "D": 1
    },
-   "usable_fraction": 0.96,
+   "usable_fraction": 0.97,
    "readiness": {
     "product": {
      "ready": false,
@@ -483,7 +739,7 @@
      "declared: 2-D side profile (no 3-D vortices, no wheels)",
      "declared: Re 500 (a real car is ~10^6)",
      "declared: tunnel blockage ~15 %",
-     "detected: 1 of 25 runs fail validation or crash (outside the validated range)",
+     "detected: 1 of 35 runs fail validation or crash (outside the validated range)",
      "detected: evidence only inferred (not measured by a check) for uncertainty"
     ],
     "actions": [
@@ -1791,14 +2047,14 @@
    "tier_name": "solid",
    "best_run": "vehicle_cfd-19b6c3f7bb85",
    "best_score": 90.3,
-   "runs": 1,
+   "runs": 2,
    "tier_counts": {
     "A": 0,
     "B": 1,
     "C": 0,
-    "D": 0
+    "D": 1
    },
-   "usable_fraction": 1.0,
+   "usable_fraction": 0.5,
    "readiness": {
     "product": {
      "ready": false,
@@ -1837,6 +2093,7 @@
    "reviewed": false,
    "plan": {
     "limitations": [
+     "detected: 1 of 2 runs fail validation or crash (outside the validated range)",
      "detected: evidence only inferred (not measured by a check) for documentation"
     ],
     "actions": [
@@ -2071,6 +2328,1101 @@
    "story": "",
    "description": "A hot torus accreting onto a Schwarzschild black hole (viscous 2.5-D hydro): density movie, accretion rate and mass / angular-momentum budgets. Frames form a dataset for forecasting.",
    "title": "accretion_flow"
+  },
+  "bar_wear/PTFE": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-1e7e0db2cc3a",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-1e7e0db2cc3a",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "PTFE",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "PTFE"
+  },
+  "bar_wear/mild steel": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-238870e1e723",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-238870e1e723",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-238870e1e723",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-238870e1e723",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-238870e1e723",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "mild steel",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "mild steel"
+  },
+  "bar_wear/60/40 brass": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-4a62551f9d4b",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-4a62551f9d4b",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-4a62551f9d4b",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-4a62551f9d4b",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-4a62551f9d4b",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "60/40 brass",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "40 brass"
+  },
+  "bar_wear/hardened tool steel": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-bfb09c28a716",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-bfb09c28a716",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-bfb09c28a716",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-bfb09c28a716",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-bfb09c28a716",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "hardened tool steel",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "hardened tool steel"
+  },
+  "bar_wear/stellite": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-dde80d2b6c0a",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-dde80d2b6c0a",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-dde80d2b6c0a",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-dde80d2b6c0a",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-dde80d2b6c0a",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "stellite",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "stellite"
+  },
+  "bar_wear/ferritic stainless steel": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-da9f0a75bd03",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-da9f0a75bd03",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-da9f0a75bd03",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-da9f0a75bd03",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-da9f0a75bd03",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "ferritic stainless steel",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "ferritic stainless steel"
+  },
+  "bar_wear/polyethylene": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-b6099cd17ea5",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-b6099cd17ea5",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-b6099cd17ea5",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-b6099cd17ea5",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-b6099cd17ea5",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "polyethylene",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "polyethylene"
+  },
+  "bar_wear/tungsten carbide": {
+   "tier": "A",
+   "tier_name": "flagship",
+   "best_run": "bar_wear-ccdb0fae6186",
+   "best_score": 100.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 1,
+    "B": 0,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: one wear coefficient per material pair (no transition between mild and severe wear, no temperature or debris effects)",
+     "declared: Winkler elastic layer instead of a full elastic half-space",
+     "declared: the material data are order-of-magnitude values for dry sliding at low load"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear-ccdb0fae6186",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear-ccdb0fae6186",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear-ccdb0fae6186",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear-ccdb0fae6186",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": null
+   },
+   "experiment": "bar_wear",
+   "case": "tungsten carbide",
+   "story": "",
+   "description": "A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).",
+   "title": "tungsten carbide"
+  },
+  "bar_wear_ranking": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "bar_wear_ranking-0f0d5ccb2871",
+   "best_score": 92.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)",
+    "add figures (a movie, a render or a 3-D view for communication)"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [],
+    "actions": [
+     {
+      "gap": "reference",
+      "action": "Add a check against an exact solution, a measurement or a published value",
+      "effort": "M",
+      "unlocks": [
+       "paper",
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 4,
+      "missing": [
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 5,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a validated headline number",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "bar_wear_ranking-0f0d5ccb2871",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "bar_wear_ranking",
+   "case": "",
+   "story": "",
+   "description": "Every bar_wear run side by side: specific wear rate, life to 1 mm of wear at the same load and the ranking of the materials, checked against the ranking of their Archard coefficients K = k/H.",
+   "title": "bar_wear_ranking"
   },
   "benchmark_case/soil_twin": {
    "tier": "B",
@@ -3228,14 +4580,14 @@
    "tier_name": "solid",
    "best_run": "car_lbm-354a5d7f3472",
    "best_score": 94.3,
-   "runs": 25,
+   "runs": 35,
    "tier_counts": {
     "A": 0,
-    "B": 24,
+    "B": 34,
     "C": 0,
     "D": 1
    },
-   "usable_fraction": 0.96,
+   "usable_fraction": 0.97,
    "readiness": {
     "product": {
      "ready": false,
@@ -3275,7 +4627,7 @@
      "declared: 2-D side profile (no 3-D vortices, no wheels)",
      "declared: Re 500 (a real car is ~10^6)",
      "declared: tunnel blockage ~15 %",
-     "detected: 1 of 25 runs fail validation or crash (outside the validated range)",
+     "detected: 1 of 35 runs fail validation or crash (outside the validated range)",
      "detected: evidence only inferred (not measured by a check) for uncertainty"
     ],
     "actions": [
@@ -7227,6 +8579,155 @@
    "story": "",
    "description": "A parametric 3-D road car or launch vehicle in OpenFOAM (snappyHexMesh + simpleFoam, half model): drag, lift, skin pressure, streamlines and wake, checked against reference ranges (car) or Barrowman's stability equations (rocket); Blender Cycles renders and a 3-D viewer.",
    "title": "car"
+  },
+  "vehicle_cfd/rocket": {
+   "tier": "D",
+   "tier_name": "not usable",
+   "best_run": "vehicle_cfd-61b9a6cd026a",
+   "best_score": 61.5,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 0,
+    "C": 0,
+    "D": 1
+   },
+   "usable_fraction": 0.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "validated runs"
+     ]
+    }
+   },
+   "gaps": [
+    "fix the failing checks or the crash"
+   ],
+   "reviewed": false,
+   "plan": {
+    "limitations": [
+     "declared: incompressible at 50 m/s: no Mach effects (transonic / supersonic flight)",
+     "declared: the plume is only drawn, not simulated",
+     "detected: 1 of 1 runs fail validation or crash (outside the validated range)",
+     "detected: evidence only inferred (not measured by a check) for uncertainty, documentation"
+    ],
+    "actions": [
+     {
+      "gap": "fix",
+      "action": "Fix the failing checks or the crash",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "marketing",
+       "training_data",
+       "tier C"
+      ]
+     },
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "reference",
+      "action": "Validate against a published experiment or benchmark value (drag, Strouhal, Nusselt) and run a grid-convergence study (coarse / medium / fine)",
+      "effort": "M",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "vehicle_cfd-61b9a6cd026a",
+      "distance": 6,
+      "missing": [
+       "not usable until it validates",
+       "generalization evidence"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "vehicle_cfd-61b9a6cd026a",
+      "distance": 7,
+      "missing": [
+       "not usable until it validates",
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "vehicle_cfd-61b9a6cd026a",
+      "distance": 7,
+      "missing": [
+       "not usable until it validates",
+       "a validated headline number",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "vehicle_cfd-61b9a6cd026a",
+      "distance": 3,
+      "missing": [
+       "not usable until it validates",
+       "validated runs"
+      ]
+     }
+    },
+    "closest_use": "training_data",
+    "next_tier": "C"
+   },
+   "experiment": "vehicle_cfd",
+   "case": "rocket",
+   "story": "",
+   "description": "A parametric 3-D road car or launch vehicle in OpenFOAM (snappyHexMesh + simpleFoam, half model): drag, lift, skin pressure, streamlines and wake, checked against reference ranges (car) or Barrowman's stability equations (rocket); Blender Cycles renders and a 3-D viewer.",
+   "title": "rocket"
   }
  },
  "runs": {
@@ -8126,6 +9627,1333 @@
    },
    "gaps": [
     "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "bar_wear-1e7e0db2cc3a": {
+   "run_id": "bar_wear-1e7e0db2cc3a",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 3.011 mm (numerical 3.025))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear-238870e1e723": {
+   "run_id": "bar_wear-238870e1e723",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 0.402 mm (numerical 0.425))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear-4a62551f9d4b": {
+   "run_id": "bar_wear-4a62551f9d4b",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 0.515 mm (numerical 0.525))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear-bfb09c28a716": {
+   "run_id": "bar_wear-bfb09c28a716",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 0.402 mm (numerical 0.425))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear-dde80d2b6c0a": {
+   "run_id": "bar_wear-dde80d2b6c0a",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 0.390 mm (numerical 0.375))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear-da9f0a75bd03": {
+   "run_id": "bar_wear-da9f0a75bd03",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 0.409 mm (numerical 0.425))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear-b6099cd17ea5": {
+   "run_id": "bar_wear-b6099cd17ea5",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 2.390 mm (numerical 2.375))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear-ccdb0fae6186": {
+   "run_id": "bar_wear-ccdb0fae6186",
+   "experiment": "bar_wear",
+   "status": "completed",
+   "tier": "A",
+   "score": 100.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS initial_contact_vs_closed_form (Winkler parabolic contact: half-width 0.283 mm (numerical 0.275))",
+      "PASS steady_rate_vs_flat_punch (dh/ds = K F / A once the end has conformed)",
+      "PASS running_in_vs_estimate (crown volume / (K F))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS worn_volume_equals_K_F_s (global Archard law, any pressure distribution)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies, photoreal render"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 252 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [],
+   "reviewed": false,
+   "tier_name": "flagship"
+  },
+  "bar_wear_ranking-0f0d5ccb2871": {
+   "run_id": "bar_wear_ranking-0f0d5ccb2871",
+   "experiment": "bar_wear_ranking",
+   "status": "completed",
+   "tier": "B",
+   "score": 92.0,
+   "coverage": 0.6,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1/1 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS ranking_follows_archard_K (simulated steady wear rates order the materials as K = k / H)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 8 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 191 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)",
+    "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false,
    "tier_name": "solid"
@@ -13713,6 +16541,1486 @@
      "evidence": [
       "code snapshot: 1 files",
       "git 2e36bfac",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-2c4ed9779ce1": {
+   "run_id": "car_lbm-2c4ed9779ce1",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 2e36bfac",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-ee898deb4ed5": {
+   "run_id": "car_lbm-ee898deb4ed5",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-17377963edf2": {
+   "run_id": "car_lbm-17377963edf2",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-0ebce63174b6": {
+   "run_id": "car_lbm-0ebce63174b6",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-4a95cc22c2e6": {
+   "run_id": "car_lbm-4a95cc22c2e6",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-04698aa89723": {
+   "run_id": "car_lbm-04698aa89723",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-6f431a30a9bf": {
+   "run_id": "car_lbm-6f431a30a9bf",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-8a675bd1fb06": {
+   "run_id": "car_lbm-8a675bd1fb06",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-0f01b8aa2bd5": {
+   "run_id": "car_lbm-0f01b8aa2bd5",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-6940a081d993": {
+   "run_id": "car_lbm-6940a081d993",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git ae621a05",
       "ran from a dirty tree (diff saved)"
      ]
     },
@@ -29583,6 +33891,161 @@
    ],
    "reviewed": false,
    "tier_name": "solid"
+  },
+  "vehicle_cfd-61b9a6cd026a": {
+   "run_id": "vehicle_cfd-61b9a6cd026a",
+   "experiment": "vehicle_cfd",
+   "status": "failed_validation",
+   "tier": "D",
+   "score": 61.5,
+   "coverage": 0.8,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 0.3333333333333333,
+     "status": "FAIL",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 0.0,
+     "status": "FAIL",
+     "tier": "VERIFIED",
+     "evidence": [
+      "FAIL cp_location_vs_barrowman (|x_cp CFD - x_cp Barrowman| / length)",
+      "FAIL normal_force_slope_vs_barrowman"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS statically_stable (centre of pressure behind the CG)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: static_margin_calibers_cfd, static_margin_calibers_barrowman"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git f3e4062b",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 41 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5 figures, 0 movies, photoreal render, 3-D viewer"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "description 271 chars",
+      "docs: none",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "not usable until it validates",
+      "validated runs"
+     ]
+    }
+   },
+   "gaps": [
+    "fix the failing checks or the crash"
+   ],
+   "reviewed": false,
+   "tier_name": "not usable"
   }
  }
 }

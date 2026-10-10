@@ -26,7 +26,8 @@ weights, 21 forecasts of 2020:
 pip install -e . gcsfs
 # 1. ERA5 1990-2022 on the 64 x 32 grid + climatology (about 35 min, 5 GB)
 python -c "from pinneapple_physics.weather.data import download, Era5Store, climatology; \
-download('wx/era5', (1990, 2022)); climatology(Era5Store('wx/era5'))"
+download('wx/era5', (1990, 2022), normalization='examples/weather_forecasting/checkpoints/era5_64x32_normalization.json'); \
+climatology(Era5Store('wx/era5'))"
 # 2. the remaining training phases from the phase-1 weights (resumable: rerun the same command after a stop)
 python -c "from pinneapple_physics.weather.train import train; \
 train('wx/era5', 'wx/run2', hours=4.5, schedule=((1, 0.2), (2, 0.27), (4, 0.27), (8, 0.26)), lr=4e-4, \

@@ -56,14 +56,30 @@ def _to_array(ds, t0, t1, levels) -> np.ndarray:
     return x[:, :, ::-1]                                       # WB2 latitude ascends; maps read north up
 
 
-def download(dest: str | Path, years=(1990, 2022), levels=LEVELS, url: str = ERA5_64x32, log=print) -> Path:
+def download(dest: str | Path, years=(1990, 2022), levels=LEVELS, url: str = ERA5_64x32, log=print,
+             normalization: str | Path | dict | None = None) -> Path:
+    """``normalization``: mean and std per channel to use (a ``meta.json`` of another store, or the file shipped
+    next to a checkpoint) instead of computing them; a trained model only works with the normalisation it was
+    trained with."""
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
     ds = _open(url)
     times = ds.time.sel(time=slice(f"{years[0]}-01-01", f"{years[1]}-12-31")).values
     names = channel_names(levels)
-    nlat, nlon = ds.sizes["latitude"], ds.sizes["longitude"]
-    # normalisation from a sample of years (mean and std per channel)
+    nlon = ds.sizes["longitude"]
+    if normalization is not None:
+        norm = normalization if isinstance(normalization, dict) else json.loads(Path(normalization).read_text())
+        if list(norm["channels"]) != names:
+            raise ValueError("the normalisation file is for other channels")
+        mean, std = np.array(norm["mean"], np.float32), np.array(norm["std"], np.float32)
+    else:
+        mean, std = _normalisation(ds, years, levels, nlon)
+    _write_store(dest, ds, times, names, mean, std, years, levels, url, log)
+    return dest
+
+
+def _normalisation(ds, years, levels, nlon):
+    """Mean and std per channel (area-weighted) from the first and the middle year."""
     ref = _to_array(ds, f"{years[0]}-01-01", f"{years[0]}-12-31", levels)
     if years[1] > years[0]:
         ref = np.concatenate([ref, _to_array(ds, f"{(years[0] + years[1]) // 2}-01-01",
@@ -71,7 +87,11 @@ def download(dest: str | Path, years=(1990, 2022), levels=LEVELS, url: str = ERA
     w = np.cos(np.deg2rad(ds.latitude.values[::-1]))[None, None, :, None]
     mean = (ref * w).sum((0, 2, 3)) / (w.sum() * ref.shape[0] * nlon)
     std = np.sqrt((((ref - mean[None, :, None, None]) ** 2) * w).sum((0, 2, 3)) / (w.sum() * ref.shape[0] * nlon))
-    std = np.maximum(std, 1e-12)
+    return mean, np.maximum(std, 1e-12)
+
+
+def _write_store(dest, ds, times, names, mean, std, years, levels, url, log):
+    nlat, nlon = ds.sizes["latitude"], ds.sizes["longitude"]
     out = np.lib.format.open_memmap(dest / "state.npy", mode="w+", dtype=np.float16,
                                     shape=(len(times), len(names), nlat, nlon))
     k = 0
@@ -90,7 +110,6 @@ def download(dest: str | Path, years=(1990, 2022), levels=LEVELS, url: str = ERA
         "channels": names, "mean": mean.tolist(), "std": std.tolist(), "levels": list(levels),
         "lat": lat.tolist(), "lon": ds.longitude.values.astype(float).tolist(), "source": url,
         "step_hours": 6}))
-    return dest
 
 
 @dataclass

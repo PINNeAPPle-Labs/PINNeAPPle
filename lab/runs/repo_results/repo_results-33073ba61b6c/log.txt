@@ -1,0 +1,6 @@
+[17:59:43] Heat-sink sizer surrogate (landing page): thermal resistance and pressure drop on held-out designs, forced and natural convection
+[17:59:43] stage import started
+[17:59:43] check forced_Rth_mean_error_below_2pct: PASS 900 held-out designs (never trained on)
+[17:59:43] check forced_dp_mean_error_below_2pct: PASS 900 held-out designs (never trained on)
+[17:59:43] check natural_Rth_mean_error_below_2pct: PASS 750 held-out designs (never trained on)
+[17:59:43] stage import done (0.003 s)

@@ -1,0 +1,66 @@
+{
+ "run_id": "benchmark_case-b8f46b4fe34f",
+ "experiment": "benchmark_case",
+ "version": "1",
+ "params": {
+  "case": "pdr"
+ },
+ "status": "completed",
+ "started": 1791655140.8771224,
+ "tags": [
+  "landing",
+  "benchmark",
+  "surrogate",
+  "digital-twin",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Cases from the PINNeAPPle Labs landing page that live in the public PINNeAPPle-Benchmark and PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the arrays behind the paper's figures and the source that produced them.",
+ "code": {
+  "files": [
+   "code/landing.py",
+   "code/pdr_experiment.py"
+  ],
+  "sha1": "d4ae26b36e22c00dca3b30e910e57cc4b7fca898",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791655140.9528036,
+ "error": null,
+ "stages": [
+  {
+   "name": "headline",
+   "started": 1791655140.9495492,
+   "status": "done",
+   "seconds": 0.001
+  },
+  {
+   "name": "artifacts",
+   "started": 1791655140.9503539,
+   "status": "done",
+   "seconds": 0.001
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [
+   "outputs/results.json",
+   "outputs/best_variant.json"
+  ],
+  "figures": []
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.076,
+ "datasets": {}
+}

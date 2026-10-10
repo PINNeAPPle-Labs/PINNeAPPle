@@ -1,0 +1,57 @@
+{
+ "name": "arrays",
+ "description": "Arrays behind the figures of PINNeAPPle-Benchmark/experiments/03_bumper_beam_transolver",
+ "n_samples": 12,
+ "shards": 1,
+ "schema": {
+  "array": {
+   "kind": "array",
+   "shape": "variable",
+   "dtype": "float32",
+   "min": -1011.8699951171875,
+   "max": 1011.8699951171875
+  },
+  "file": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "test_fields_final.npz",
+    "test_node_histories.npz"
+   ]
+  },
+  "key": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "xyz",
+    "truth",
+    "improved",
+    "lite",
+    "mat",
+    "t",
+    "ids",
+    "Reproduction",
+    "Improved",
+    "POD__Gaussian_process_DV1_DV2",
+    "Nearest_design_point"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "bumper_crash"
+   ]
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "benchmark_case",
+  "run_id": "benchmark_case-2a494685fed3",
+  "params": {
+   "case": "bumper_crash"
+  }
+ },
+ "sha1": "8c4bf720515bddc4b72ed155e68b4eb856d05d87"
+}

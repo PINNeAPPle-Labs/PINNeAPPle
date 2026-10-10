@@ -1,0 +1,47 @@
+{
+ "name": "lead_skill",
+ "description": "Test RMSE (degC) per forecast lead for every model",
+ "n_samples": 5,
+ "shards": 1,
+ "schema": {
+  "model": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "Persistence",
+    "Climatology",
+    "Damped persistence (AR1)",
+    "FNO2d (PINNeAPPle) ensemble",
+    "ResNet-CNN (PINNeAPPle Conv2DModel) ensemble"
+   ]
+  },
+  "rmse": {
+   "kind": "array",
+   "shape": [
+    7
+   ],
+   "dtype": "float64",
+   "min": 0.2909831702709198,
+   "max": 1.5736266374588013
+  },
+  "mae": {
+   "kind": "array",
+   "shape": [
+    7
+   ],
+   "dtype": "float64",
+   "min": 0.19314616918563843,
+   "max": 1.1952588558197021
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "benchmark_case",
+  "run_id": "benchmark_case-3074f671a9d8",
+  "params": {
+   "case": "sst"
+  }
+ },
+ "sha1": "b39a1b3d62e4fdc96ebe8f4d7af5ac98b246b438"
+}

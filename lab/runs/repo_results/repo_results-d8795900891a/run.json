@@ -1,0 +1,77 @@
+{
+ "run_id": "repo_results-d8795900891a",
+ "experiment": "repo_results",
+ "version": "1",
+ "params": {
+  "source": "airfoil_surrogate"
+ },
+ "status": "completed",
+ "started": 1791655183.921475,
+ "tags": [
+  "import",
+  "benchmark",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.",
+ "code": {
+  "files": [
+   "code/repo_results.py",
+   "code/03_pinn_burgers_full_pipeline.py",
+   "code/plate_2d.py",
+   "code/fv_reference.py",
+   "code/block_3d.py",
+   "code/lbm_vortex_shedding.py",
+   "code/01_synthetic_diffusion.py",
+   "code/02_cylinder_flow_deepmind.py",
+   "code/concorde_high_aoa_pipeline.py",
+   "code/evaluate.py",
+   "code/surrogate.py",
+   "code/sizer.py",
+   "code/optimize.py"
+  ],
+  "sha1": "e851ec1edd8bcbf7a8cda9c03626ee67d251fc45",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791655184.0084865,
+ "error": null,
+ "stages": [
+  {
+   "name": "import",
+   "started": 1791655183.985313,
+   "status": "done",
+   "seconds": 0.019
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json",
+   "inputs/counts.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/13-aircraft-design-optimizer.jpg",
+   "figures/13-aircraft-render-flight.jpg",
+   "figures/13-aircraft-render-friction.jpg",
+   "figures/13-aircraft-render-pressure.jpg"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.087,
+ "datasets": {
+  "test_points": {
+   "n_samples": 120,
+   "path": "runs/repo_results/repo_results-d8795900891a/datasets/test_points"
+  }
+ }
+}

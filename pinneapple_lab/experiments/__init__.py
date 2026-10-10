@@ -10,12 +10,15 @@
 | ``bh_forecast`` | Duarte et al. U-Net forecast of accretion flows, scored against persistence (source checkout) | - |
 | ``repo_results`` | results already produced by repository scripts, re-validated and stored as datasets | per source |
 | ``example_script`` | any script of ``examples/`` (examples and use cases): figures, JSON metrics, arrays, console, code | artifacts |
+| ``benchmark_case`` | landing-page cases from PINNeAPPle-Benchmark and PINNeAPPle-Climate, headline claim re-checked | arrays, sweep, lead skill |
 """
 from . import (  # noqa: F401
     accretion,
     blackhole_forecast,
     cylinder,
     discovery,
+    examples,
+    landing,
     ode,
     pde,
     repo_results,

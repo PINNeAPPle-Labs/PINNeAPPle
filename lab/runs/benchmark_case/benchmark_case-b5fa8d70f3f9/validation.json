@@ -1,0 +1,24 @@
+[
+ {
+  "name": "selected_surrogate_T_unseen_inputs",
+  "passed": true,
+  "value": 0.09325139503926039,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.15,
+  "min": null,
+  "detail": "POD + MLP latent dynamics"
+ },
+ {
+  "name": "cfd_nusselt_vs_reference",
+  "passed": true,
+  "value": 0.0006051313311770112,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": "Nu = 5.385, fully developed"
+ }
+]

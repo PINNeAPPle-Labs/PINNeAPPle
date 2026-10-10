@@ -1,0 +1,9 @@
+{
+ "repository": "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark",
+ "path": "experiments/08_supersonic_shock_train",
+ "commit": "802452a43578f38ab2cc6c067c7af7d925e02d98",
+ "description": "Shock train in a supersonic duct with a fixed-pressure outlet: back-pressure sweep, grid and 3-D",
+ "papers": [
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/08_supersonic_shock_train/paper/Supersonic_ShockTrain_PINNeAPPle.pdf"
+ ]
+}

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "improved_beats_reproduction",
+  "passed": true,
+  "value": 0.017986226826906204,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.032788001000881195,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "improved_node_r2",
+  "passed": true,
+  "value": 0.9890843629837036,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.95,
+  "detail": ""
+ }
+]

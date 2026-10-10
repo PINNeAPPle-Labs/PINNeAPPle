@@ -1,0 +1,7 @@
+[17:58:57] Soil-temperature digital twin from ten years of real hourly weather, Natal (RN): identified physics ODE, PINN, ML baselines, anomaly detection
+[17:58:57] stage headline started
+[17:58:57] check physics_ode_beats_persistence_6h: PASS 
+[17:58:57] check twin_detects_more_spikes_than_band: PASS 
+[17:58:57] stage headline done (0.006 s)
+[17:58:57] stage artifacts started
+[17:58:57] stage artifacts done (0.092 s)

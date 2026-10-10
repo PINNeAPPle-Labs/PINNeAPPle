@@ -1,0 +1,15 @@
+{
+ "original_Fx_rel_l2": 0.0721310829303836,
+ "robust_pinn_Fx_rel_l2": 0.03755538594895066,
+ "data_only_Fx_rel_l2": 0.021981299884311318,
+ "original_Fz_rel_l2": 0.012663328635792885,
+ "robust_pinn_Fz_rel_l2": 0.0070490231077894846,
+ "data_only_Fz_rel_l2": 0.015134161363677054,
+ "original_My_rel_l2": 0.22082245441569417,
+ "robust_pinn_My_rel_l2": 0.007873785831723072,
+ "data_only_My_rel_l2": 0.018066818557448485,
+ "robust_pinn_violations_R2_mohr_coulomb": 0.0,
+ "robust_pinn_violations_R3_monotone_slip": 0.0,
+ "robust_pinn_violations_R4_torque": 0.0,
+ "robust_pinn_violations_R5_monotone_sinkage": 0.00725
+}

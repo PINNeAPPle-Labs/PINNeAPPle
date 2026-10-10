@@ -1,0 +1,7 @@
+[17:58:58] Bumper-beam crash surrogate: 100 OpenRadioss simulations, Transolver reproduced then improved, classical baselines
+[17:58:58] stage headline started
+[17:58:58] check improved_beats_reproduction: PASS 
+[17:58:58] check improved_node_r2: PASS 
+[17:58:58] stage headline done (0.001 s)
+[17:58:58] stage artifacts started
+[17:58:58] stage artifacts done (0.066 s)

@@ -1,0 +1,73 @@
+{
+ "run_id": "benchmark_case-e5981ba8bbc9",
+ "experiment": "benchmark_case",
+ "version": "1",
+ "params": {
+  "case": "terramechanics"
+ },
+ "status": "completed",
+ "started": 1791655138.4931533,
+ "tags": [
+  "landing",
+  "benchmark",
+  "surrogate",
+  "digital-twin",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Cases from the PINNeAPPle Labs landing page that live in the public PINNeAPPle-Benchmark and PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the arrays behind the paper's figures and the source that produced them.",
+ "code": {
+  "files": [
+   "code/landing.py",
+   "code/terra_experiment.py"
+  ],
+  "sha1": "598185deee6e5f5b9117187d6e0d6b328a1ab6b5",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791655138.5967612,
+ "error": null,
+ "stages": [
+  {
+   "name": "headline",
+   "started": 1791655138.5615723,
+   "status": "done",
+   "seconds": 0.0
+  },
+  {
+   "name": "artifacts",
+   "started": 1791655138.562083,
+   "status": "done",
+   "seconds": 0.014
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [
+   "outputs/results.json"
+  ],
+  "figures": [
+   "figures/fig1_rover.png",
+   "figures/fig2_quadrature_speed.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.104,
+ "datasets": {
+  "arrays": {
+   "n_samples": 2,
+   "path": "runs/benchmark_case/benchmark_case-e5981ba8bbc9/datasets/arrays"
+  }
+ }
+}

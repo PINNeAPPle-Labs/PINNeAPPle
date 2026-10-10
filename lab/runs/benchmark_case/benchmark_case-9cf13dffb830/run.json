@@ -1,0 +1,79 @@
+{
+ "run_id": "benchmark_case-9cf13dffb830",
+ "experiment": "benchmark_case",
+ "version": "1",
+ "params": {
+  "case": "shock_train"
+ },
+ "status": "completed",
+ "started": 1791655153.539421,
+ "tags": [
+  "landing",
+  "benchmark",
+  "surrogate",
+  "digital-twin",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Cases from the PINNeAPPle Labs landing page that live in the public PINNeAPPle-Benchmark and PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the arrays behind the paper's figures and the source that produced them.",
+ "code": {
+  "files": [
+   "code/landing.py",
+   "code/shock_train.py"
+  ],
+  "sha1": "40c4a2559fed6ee8019c902cf5da2da617af4464",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791655153.94064,
+ "error": null,
+ "stages": [
+  {
+   "name": "headline",
+   "started": 1791655153.6702182,
+   "status": "done",
+   "seconds": 0.007
+  },
+  {
+   "name": "artifacts",
+   "started": 1791655153.6772888,
+   "status": "done",
+   "seconds": 0.048
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [
+   "outputs/results.json"
+  ],
+  "figures": [
+   "figures/fig_duct3d.png",
+   "figures/fig_leading_edge.png",
+   "figures/fig_mach_fields.png",
+   "figures/fig_profiles.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.401,
+ "datasets": {
+  "sweep": {
+   "n_samples": 8,
+   "path": "runs/benchmark_case/benchmark_case-9cf13dffb830/datasets/sweep"
+  },
+  "arrays": {
+   "n_samples": 41,
+   "path": "runs/benchmark_case/benchmark_case-9cf13dffb830/datasets/arrays"
+  }
+ }
+}

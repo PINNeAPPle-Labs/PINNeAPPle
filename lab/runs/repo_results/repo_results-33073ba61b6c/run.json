@@ -1,0 +1,74 @@
+{
+ "run_id": "repo_results-33073ba61b6c",
+ "experiment": "repo_results",
+ "version": "1",
+ "params": {
+  "source": "heatsink_surrogate"
+ },
+ "status": "completed",
+ "started": 1791655183.8341627,
+ "tags": [
+  "import",
+  "benchmark",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.",
+ "code": {
+  "files": [
+   "code/repo_results.py",
+   "code/03_pinn_burgers_full_pipeline.py",
+   "code/plate_2d.py",
+   "code/fv_reference.py",
+   "code/block_3d.py",
+   "code/lbm_vortex_shedding.py",
+   "code/01_synthetic_diffusion.py",
+   "code/02_cylinder_flow_deepmind.py",
+   "code/concorde_high_aoa_pipeline.py",
+   "code/evaluate.py",
+   "code/surrogate.py",
+   "code/sizer.py",
+   "code/optimize.py"
+  ],
+  "sha1": "e851ec1edd8bcbf7a8cda9c03626ee67d251fc45",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791655183.900529,
+ "error": null,
+ "stages": [
+  {
+   "name": "import",
+   "started": 1791655183.884025,
+   "status": "done",
+   "seconds": 0.003
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/01-heatsink-sizer.jpg",
+   "figures/02-pcb-hotspot.jpg"
+  ]
+ },
+ "validation": {
+  "total": 3,
+  "failed": 0
+ },
+ "seconds": 0.066,
+ "datasets": {
+  "held_out_error": {
+   "n_samples": 3,
+   "path": "runs/repo_results/repo_results-33073ba61b6c/datasets/held_out_error"
+  }
+ }
+}

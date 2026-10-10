@@ -1,0 +1,11 @@
+{
+ "forced_Rth_mean_abs_pct": 0.711546778678894,
+ "forced_Rth_p95_abs_pct": 2.0861053466796875,
+ "forced_Rth_within_5pct": 99.8888888888889,
+ "forced_dp_mean_abs_pct": 1.040686011314392,
+ "forced_dp_p95_abs_pct": 2.6957952976226807,
+ "forced_dp_within_5pct": 99.22222222222223,
+ "natural_Rth_mean_abs_pct": 0.7249228358268738,
+ "natural_Rth_p95_abs_pct": 2.1089508533477783,
+ "natural_Rth_within_5pct": 99.73333333333333
+}

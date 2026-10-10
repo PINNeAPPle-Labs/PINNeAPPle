@@ -1,0 +1,81 @@
+{
+ "run_id": "benchmark_case-2814207947c8",
+ "experiment": "benchmark_case",
+ "version": "1",
+ "params": {
+  "case": "soil_twin"
+ },
+ "status": "completed",
+ "started": 1791655137.5066953,
+ "tags": [
+  "landing",
+  "benchmark",
+  "surrogate",
+  "digital-twin",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Cases from the PINNeAPPle Labs landing page that live in the public PINNeAPPle-Benchmark and PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the arrays behind the paper's figures and the source that produced them.",
+ "code": {
+  "files": [
+   "code/landing.py",
+   "code/fetch_openmeteo.py",
+   "code/run_experiment.py",
+   "code/twin_core.py",
+   "code/virtual_sensors.py"
+  ],
+  "sha1": "01e2858afe6b94f6dd642c44a230f74cdb7b85b7",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791655137.999582,
+ "error": null,
+ "stages": [
+  {
+   "name": "headline",
+   "started": 1791655137.5902188,
+   "status": "done",
+   "seconds": 0.006
+  },
+  {
+   "name": "artifacts",
+   "started": 1791655137.5967975,
+   "status": "done",
+   "seconds": 0.092
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [
+   "outputs/results.json",
+   "outputs/best_model_h6.json"
+  ],
+  "figures": [
+   "figures/fig1_data.png",
+   "figures/fig2_rmse.png",
+   "figures/fig3_example.png",
+   "figures/fig4_params.png",
+   "figures/fig5_whatif.png",
+   "figures/fig6_anomaly.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.493,
+ "datasets": {
+  "arrays": {
+   "n_samples": 18,
+   "path": "runs/benchmark_case/benchmark_case-2814207947c8/datasets/arrays"
+  }
+ }
+}

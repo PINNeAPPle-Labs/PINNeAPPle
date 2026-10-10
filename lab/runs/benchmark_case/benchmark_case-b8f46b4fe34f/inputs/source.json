@@ -1,0 +1,11 @@
+{
+ "repository": "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark",
+ "path": "experiments/07_pdr_thesis_reproduction",
+ "commit": "802452a43578f38ab2cc6c067c7af7d925e02d98",
+ "description": "Pedestrian dead reckoning from a phone IMU: a thesis reproduced, then improved",
+ "papers": [
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/07_pdr_thesis_reproduction/paper/PDR_Improvement_PINNeAPPle.pdf",
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/07_pdr_thesis_reproduction/paper/PDR_Reproduction_PINNeAPPle.pdf",
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/07_pdr_thesis_reproduction/paper/PDR_Stakeholder_Report_PINNeAPPle.pdf"
+ ]
+}

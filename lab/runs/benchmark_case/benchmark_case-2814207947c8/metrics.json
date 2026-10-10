@@ -1,0 +1,10 @@
+{
+ "rmse_h6_persistence_K": 2.970762252807617,
+ "rmse_h6_physics_ode_K": 0.6714891195297241,
+ "rmse_h6_pinn_K": 2.971561908721924,
+ "rmse_h6_best_K": 0.38673698902130127,
+ "spike_recall_twin": 0.9666666666666667,
+ "spike_recall_naive_band": 0.41333333333333333,
+ "false_alarm_rate_twin": 0.008528784648187633,
+ "pinn_over_persistence_h6": 1.0002691753315336
+}

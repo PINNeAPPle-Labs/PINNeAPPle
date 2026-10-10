@@ -1,0 +1,24 @@
+[
+ {
+  "name": "mlp_Cd_r2",
+  "passed": true,
+  "value": 0.9981487719758286,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.97,
+  "detail": "15 unseen shapes"
+ },
+ {
+  "name": "gnn_Cd_r2",
+  "passed": true,
+  "value": 0.9891997713524623,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.97,
+  "detail": "15 unseen shapes"
+ }
+]

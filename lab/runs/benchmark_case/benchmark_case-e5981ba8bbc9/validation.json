@@ -1,0 +1,24 @@
+[
+ {
+  "name": "hard_constraints_hold",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Mohr-Coulomb and torque, built in"
+ },
+ {
+  "name": "robust_beats_original_on_torque",
+  "passed": true,
+  "value": 0.007873785831723072,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.22082245441569417,
+  "min": null,
+  "detail": ""
+ }
+]

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "network_beats_raw_imu",
+  "passed": true,
+  "value": 4.502424152173276,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 68.9958905679962,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "improvement_beats_reproduction",
+  "passed": true,
+  "value": 2.854443185786527,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 4.502424152173276,
+  "min": null,
+  "detail": "+ TTA + bias correction"
+ }
+]

@@ -1,0 +1,46 @@
+{
+ "name": "sweep",
+ "description": "Shock-train leading-edge position against back-pressure ratio",
+ "n_samples": 8,
+ "shards": 1,
+ "schema": {
+  "pb_ratio": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 2.0,
+   "max": 4.25
+  },
+  "x_shock": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0125,
+   "max": 2.4875
+  },
+  "unstarted": {
+   "kind": "scalar",
+   "type": "bool",
+   "values": [
+    false,
+    true
+   ]
+  },
+  "no_train": {
+   "kind": "scalar",
+   "type": "bool",
+   "values": [
+    true,
+    false
+   ]
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "benchmark_case",
+  "run_id": "benchmark_case-9cf13dffb830",
+  "params": {
+   "case": "shock_train"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

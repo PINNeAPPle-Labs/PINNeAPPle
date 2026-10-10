@@ -1,0 +1,6 @@
+[17:59:01] Sea-surface temperature forecasts from satellite data, Brazil-Malvinas Confluence: FNO and CNN ensembles against persistence on unseen years
+[17:59:01] stage headline started
+[17:59:01] check selected_beats_persistence_lead7: PASS ResNet-CNN (PINNeAPPle Conv2DModel) ensemble
+[17:59:01] stage headline done (0.003 s)
+[17:59:01] stage artifacts started
+[17:59:01] stage artifacts done (0.011 s)

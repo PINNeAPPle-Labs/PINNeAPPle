@@ -1,0 +1,9 @@
+{
+ "repository": "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Climate",
+ "path": "experiments/01_sst_satellite_forecasting",
+ "commit": "bc4622442b3ecc221800a71f0f37d105d16afa99",
+ "description": "Sea-surface temperature forecasts from satellite data, Brazil-Malvinas Confluence: FNO and CNN ensembles against persistence on unseen years",
+ "papers": [
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Climate/blob/main/experiments/01_sst_satellite_forecasting/paper/SST_Satellite_Forecasting_PINNeAPPle.pdf"
+ ]
+}

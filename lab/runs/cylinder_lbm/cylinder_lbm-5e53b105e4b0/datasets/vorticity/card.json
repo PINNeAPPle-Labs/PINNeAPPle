@@ -1,0 +1,63 @@
+{
+ "name": "vorticity",
+ "description": "Vorticity snapshots (normalised by U/D) labelled by regime and Re",
+ "n_samples": 80,
+ "shards": 2,
+ "schema": {
+  "vorticity": {
+   "kind": "array",
+   "shape": [
+    240,
+    100
+   ],
+   "dtype": "float16",
+   "min": -19.90625,
+   "max": 19.90625
+  },
+  "Re": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 60.0,
+   "max": 60.0
+  },
+  "regime": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "shedding"
+   ]
+  },
+  "step": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 8000.0,
+   "max": 15900.0
+  },
+  "strouhal": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.225,
+   "max": 0.225
+  }
+ },
+ "units": {
+  "vorticity": "U/D"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "cylinder_lbm",
+  "run_id": "cylinder_lbm-5e53b105e4b0",
+  "params": {
+   "Re": 60,
+   "D": 20,
+   "height": 5,
+   "length": 12,
+   "u_in": 0.1,
+   "Cs": 0.0,
+   "steps": 16000,
+   "save_every": 100,
+   "seed": 0
+  }
+ },
+ "sha1": "7cafc8e95b3dbadd33b0bfd68cc5a3d1d0fad1b3"
+}

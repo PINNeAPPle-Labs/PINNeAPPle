@@ -1,0 +1,3 @@
+[16:49:00] stage simulate started
+[16:50:53] stage simulate done (112.951 s)
+[16:50:53] check finite_fields: PASS 

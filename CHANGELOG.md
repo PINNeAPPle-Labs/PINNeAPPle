@@ -29,6 +29,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   examples [--run]`. `python -m pinneapple_lab serve` serves the catalogue as a web app (run files, JSON API,
   dataset downloads, optional login); Dockerfile in `pinneapple_lab/deploy` and a `lab` service in `apps/deploy`.
   Cached runs whose dataset shards are missing (a fresh checkout) are recomputed.
+  Curation (`pinneapple_lab.curation`, `python -m pinneapple_lab curate` / `review`): every run and experiment graded
+  A flagship / B solid / C exploratory / D not usable by gates over ten evidence dimensions (validation, reference,
+  baseline, physics, generalization, uncertainty, reproducibility, data, assets, documentation) plus a human review,
+  with readiness for product, paper, marketing and training data; Veriphysics vocabulary (verified / inferred /
+  unsupported, not run is never a pass). `ctx.check(kind=...)`; tiers, filter and quality panel in the catalogue;
+  `/api/curation`. Also: `benchmark_case` (landing-page cases), 3-D `vehicle_cfd` (road car, launch vehicle),
+  `car_lbm` / `car_surrogate` (Physics AI on car geometry).
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

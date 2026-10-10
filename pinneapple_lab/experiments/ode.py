@@ -75,7 +75,8 @@ class Oscillator(Experiment):
         # expected global error: O(h^4) for RK4, O(h) for the first-order schemes (with a generous constant)
         tol = {"rk4": 10 * h ** 4, "symplectic": 2 * h, "euler": 10 * h}[p["method"]]
         ctx.metric("omega_dt", h)
-        ctx.check("accuracy_for_method", value=err, max=max(tol, 1e-9), detail=f"rmse <= {tol:.2g} ({p['method']})")
+        ctx.check("accuracy_for_method", value=err, max=max(tol, 1e-9), detail=f"rmse <= {tol:.2g} ({p['method']}) vs the exact solution",
+                  kind="reference")
         regime = "underdamped" if p["zeta"] < 1 else ("critical" if p["zeta"] == 1 else "overdamped")
         ds = ctx.dataset("trajectories", description="Oscillator trajectories x(t) with parameters and regime",
                          units={"t": "s", "x": "m"})

@@ -236,3 +236,50 @@ def test_car_geometry_and_wind_tunnel_smoke():
     sim = simulate_car(designs[0], length_cells=16, steps=300, keep_frames=2)
     assert sim["finite"] and np.isfinite(sim["cd_cv"]) and len(sim["frames"]) == 2
     assert sim["mean_ux"].shape == sim["sdf"].shape == (80, 40)
+
+
+@register
+class _Curated(Experiment):
+    name = "_test_curated"
+    description = ("A toy experiment with a reference check, a baseline check and three figures, to exercise the "
+                   "curation tiers.")
+    tags = ["verification"]
+    references = ["Toy reference (unit test)"]
+    params = {"error": 0.01, "with_checks": True}
+
+    def run(self, ctx):
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        if ctx.params["with_checks"]:
+            ctx.check("rel_l2_vs_exact", value=ctx.params["error"], max=0.05)
+            ctx.check("beats_persistence", value=ctx.params["error"], max=0.2)
+        for k in range(3):
+            plt.figure()
+            plt.plot([0, 1], [0, k])
+            ctx.figure(f"f{k}")
+        ctx.metric("error", ctx.params["error"])
+
+
+def test_curation_tiers_readiness_and_review(tmp_path):
+    from pinneapple_lab.curation import curate, infer_check_kind, save_review
+    root = str(tmp_path)
+    good = run("_test_curated", root=root)
+    bad = run("_test_curated", {"error": 0.5}, root=root)
+    thin = run("_test_curated", {"with_checks": False}, root=root)
+    out = curate(LabStore(root))
+    tiers = {rid: a["tier"] for rid, a in out["runs"].items()}
+    assert tiers[good.run_id] == "A" and tiers[bad.run_id] == "D" and tiers[thin.run_id] == "C"
+    a = out["runs"][good.run_id]
+    assert a["dimensions"]["reference"]["status"] == "PASS" and a["dimensions"]["uncertainty"]["status"] == "NOT_RUN"
+    assert not a["readiness"]["marketing"]["ready"]                  # no story yet
+    save_review(root, "_test_curated", story="Toy problem solved to 1 %", novelty=4, clarity=4, visual_appeal=4,
+                approved_for=["paper"])
+    out = curate(LabStore(root))
+    a = out["runs"][good.run_id]
+    assert a["reviewed"] and a["readiness"]["paper"]["approved"]
+    assert out["experiments"]["_test_curated"]["best_run"] == good.run_id
+    assert os.path.exists(os.path.join(root, "CURATION.md"))
+    assert infer_check_kind({"name": "sun_jupiter_mass_ratio", "reference": 1047.35}) == "reference"
+    assert infer_check_kind({"name": "finite_fields"}) == "sanity"
+    assert infer_check_kind({"name": "x", "detail": "900 held-out designs"}) == "generalization"

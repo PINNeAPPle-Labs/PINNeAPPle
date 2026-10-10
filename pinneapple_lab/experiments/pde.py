@@ -32,7 +32,7 @@ class HeatXTFC(Experiment):
         ctx.output("u", u.astype(np.float32))
         ctx.metric("rel_l2_error", err)
         ctx.metric("max_abs_error", float(np.max(np.abs(u - ref))))
-        ctx.check("rel_l2_below_1e-3", value=err, max=1e-3)
+        ctx.check("rel_l2_below_1e-3", value=err, max=1e-3, detail="vs the exact solution", kind="reference")
         ds = ctx.dataset("fields", description="u(x, t) of the heat equation on a 101 x 51 grid", units={"u": "-"})
         ds.add(u=u.astype(np.float32), u_exact=ref.astype(np.float32), alpha=float(p["alpha"]))
         import matplotlib

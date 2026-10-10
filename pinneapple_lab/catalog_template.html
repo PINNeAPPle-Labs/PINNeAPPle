@@ -53,6 +53,10 @@ section.exp { display: grid; gap: 14px; padding-top: 6px }
 .exp-head h2 { font: 600 24px/1.15 var(--display); margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap }
 .exp-head h2 small { font: 400 12px var(--mono); color: var(--muted) }
 .exp-head p { margin: 4px 0 0; color: var(--muted); max-width: 90ch; grid-column: 1 / -1 }
+.exp-head .chips { grid-column: 1 / -1 }
+#main, .exp, .exp-head > * { min-width: 0 }
+.exp-head h2 { overflow-wrap: anywhere }
+.wrap > *, header.top > * { min-width: 0 }
 .chips { display: flex; flex-wrap: wrap; gap: 6px }
 .chip { font: 500 11px/1 var(--mono); padding: 5px 8px; border-radius: 6px; background: var(--chip); color: var(--muted) }
 .chip.ok { color: var(--ok) } .chip.warn { color: var(--warn) } .chip.bad { color: var(--bad) } .chip.ds { color: var(--accent) }
@@ -65,10 +69,10 @@ a.chip { text-decoration: none } a.chip:hover { background: var(--accent-soft) }
 .thumb { aspect-ratio: 16 / 9; width: 100%; max-width: 100%; object-fit: cover; background: var(--chip); display: block }
 .noimg { aspect-ratio: 16 / 9; display: grid; place-items: center; color: var(--muted); font: 12px var(--mono); background: var(--chip) }
 .card .body { padding: 10px 12px 12px; display: grid; gap: 6px; min-width: 0 }
-.card .rid { font: 500 12px var(--mono); color: var(--muted); display: flex; justify-content: space-between; gap: 6px }
+.card .rid { font: 500 12px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 6px; min-width: 0 }
 .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; font: 12.5px/1.35 var(--mono) }
 .kv dt { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
-.kv dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right }
+.kv dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 14ch }
 .more { justify-self: start; font: 500 12px var(--mono); color: var(--accent); background: none; border: 0; padding: 4px 0; cursor: pointer }
 .empty { color: var(--muted); padding: 30px; text-align: center; border: 1px dashed var(--line); border-radius: 10px }
 /* side sheet */
@@ -88,6 +92,19 @@ a.chip { text-decoration: none } a.chip:hover { background: var(--accent-soft) }
 pre.err { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font: 12px/1.4 var(--mono); max-height: 260px }
 .scrim { position: fixed; inset: 0; background: rgb(0 0 0 / .25); z-index: 15 }
 .sheet a { color: var(--accent) }
+.tier { display: inline-block; font: 600 11px/1 var(--mono); padding: 4px 7px; border-radius: 5px; vertical-align: middle;
+  color: var(--sheet); letter-spacing: .02em; white-space: nowrap }
+.tier.tA { background: var(--ok) } .tier.tB { background: var(--accent) } .tier.tC { background: var(--warn) }
+.tier.tD { background: var(--bad) }
+h2 .tier { font-size: 12px; margin-right: 4px }
+.gaps { color: var(--muted); font-size: 13px; margin: 6px 0 0 }
+.gaps b { color: var(--ink) }
+.qrow { display: grid; grid-template-columns: 120px minmax(0, 1fr) 120px; gap: 8px; align-items: center;
+  font: 12px/1.6 var(--mono) }
+.qrow em { font-style: normal; color: var(--muted); text-align: right }
+.qbar { height: 7px; border-radius: 4px; background: var(--chip); overflow: hidden }
+.qbar b { display: block; height: 100%; background: var(--ok) } .qbar b.f { background: var(--bad) }
+.tbl.rd td:last-child { text-align: left }
 ul.files { margin: 0; padding: 0; list-style: none; columns: 2 220px; font: 13px/1.6 var(--mono) }
 ul.files li { overflow-wrap: anywhere }
 footer { color: var(--muted); font: 12px var(--mono) }
@@ -106,6 +123,7 @@ footer { color: var(--muted); font: 12px var(--mono) }
   <div class="filters">
     <input type="search" id="q" placeholder="Search experiments, parameters, metrics (e.g. Re, kepler, shedding)" aria-label="Search">
     <div class="seg" id="statusSeg" role="group" aria-label="Status"></div>
+    <div class="seg" id="tierSeg" role="group" aria-label="Quality tier"></div>
     <div class="seg" id="tagSeg" role="group" aria-label="Tags"></div>
   </div>
   <main id="main"></main>
@@ -132,7 +150,10 @@ const fmt = (v) => {
   if (a >= 1e5 || a < 1e-3) return v.toExponential(2);
   return Number.isInteger(v) ? String(v) : v.toPrecision(4);
 };
-let state = { q: "", status: "all", tag: "all" };
+let state = { q: "", status: "all", tag: "all", tier: "all" };
+const TIER = { A: ["A · flagship", "var(--ok)"], B: ["B · solid", "var(--accent)"], C: ["C · exploratory", "var(--warn)"],
+               D: ["D · not usable", "var(--bad)"] };
+const tierBadge = (q) => q ? `<span class="tier t${q.tier}" title="Quality tier (pinneapple_lab.curation)">${TIER[q.tier][0]}</span>` : "";
 try { const s = JSON.parse(localStorage.getItem("lab-filters") || "null"); if (s) state = { ...state, ...s }; } catch (e) {}
 
 function summary() {
@@ -148,6 +169,8 @@ function summary() {
   const tags = [...new Set(exps.flatMap((e) => e.tags))].sort();
   $("statusSeg").innerHTML = [["all", "All"], ["completed", "Completed"], ["failed_validation", "Failed validation"], ["failed", "Crashed"]]
     .map(([k, l]) => `<button data-s="${k}" aria-pressed="${state.status === k}">${l}</button>`).join("");
+  $("tierSeg").innerHTML = [["all", "Any quality"], ["A", "A flagship"], ["B", "B solid"], ["C", "C exploratory"], ["D", "D not usable"]]
+    .map(([k, l]) => `<button data-q="${k}" aria-pressed="${state.tier === k}">${l}</button>`).join("");
   $("tagSeg").innerHTML = ["all", ...tags].map((t) => `<button data-t="${esc(t)}" aria-pressed="${state.tag === t}">${t === "all" ? "Any tag" : esc(t)}</button>`).join("");
 }
 
@@ -158,6 +181,7 @@ function keyMetrics(r, n = 3) {
 function matches(e, r) {
   if (state.status !== "all" && r.status !== state.status) return false;
   if (state.tag !== "all" && !e.tags.includes(state.tag)) return false;
+  if (state.tier !== "all" && (!r.quality || r.quality.tier !== state.tier)) return false;
   if (!state.q) return true;
   const hay = (e.name + " " + e.description + " " + JSON.stringify(r.params) + " " + JSON.stringify(r.metrics) + " " + r.id).toLowerCase();
   return state.q.toLowerCase().split(/\s+/).every((w) => hay.includes(w));
@@ -173,8 +197,10 @@ function render() {
         ? `<a class="chip ds" href="download/${encodeURIComponent(e.name)}/${encodeURIComponent(k)}.npz" title="Download as .npz">dataset ${esc(k)} · ${n.toLocaleString("en")} samples ↓</a>`
         : `<span class="chip ds">dataset ${esc(k)} · ${n.toLocaleString("en")} samples</span>`).join("");
     const shown = runs.slice(-24).reverse();
-    out.push(`<section class="exp" id="exp-${esc(e.name)}"><div class="exp-head"><h2>${esc(e.name)} <small>v${esc(e.version)} · ${runs.length} run${runs.length > 1 ? "s" : ""}</small></h2>
-      <div class="chips">${chips}</div><p>${esc(e.description)}</p></div><div class="grid">${shown.map(([r, ri]) => card(e, r, ei, ri)).join("")}</div>
+    const eq = e.quality;
+    const ready = eq ? Object.entries(eq.readiness).filter(([, v]) => v.ready || v.approved).map(([k, v]) => `<span class="chip ${v.approved ? "ok" : ""}">${v.approved ? "approved" : "ready"}: ${k.replace("_", " ")}</span>`).join("") : "";
+    out.push(`<section class="exp" id="exp-${esc(e.name)}"><div class="exp-head"><h2>${tierBadge(eq)} ${esc(e.name)} <small>v${esc(e.version)} · ${runs.length} run${runs.length > 1 ? "s" : ""}</small></h2>
+      <div class="chips">${chips}${ready}</div><p>${esc(e.description)}</p>${eq && eq.gaps.length ? `<p class="gaps"><b>Next:</b> ${eq.gaps.map(esc).join("; ")}</p>` : ""}</div><div class="grid">${shown.map(([r, ri]) => card(e, r, ei, ri)).join("")}</div>
       ${runs.length > shown.length ? `<p class="lede">Showing the latest ${shown.length} of ${runs.length}; refine the search to see others.</p>` : ""}</section>`);
   });
   $("main").innerHTML = out.join("") || `<div class="empty">No run matches these filters. Clear the search or pick another status.</div>`;
@@ -186,7 +212,7 @@ function card(e, r, ei, ri) {
   const params = Object.entries(r.params).filter(([k]) => k !== "seed").slice(0, 2);
   const img = r.thumbs[0] ? `<img class="thumb" alt="${esc(e.name)} figure" loading="lazy" src="${r.thumbs[0]}">` : `<div class="noimg">no figure</div>`;
   return `<button class="card" style="--st:${st[1]}" data-e="${ei}" data-r="${ri}" aria-label="Open run ${esc(r.id)}">${img}
-    <div class="body"><div class="rid"><span>${esc(r.id.slice(-12))}</span><span style="color:${st[1]}">${st[0]}</span></div>
+    <div class="body"><div class="rid"><span>${esc(r.id.slice(-12))} ${tierBadge(r.quality)}</span><span style="color:${st[1]}">${st[0]}</span></div>
     <dl class="kv">${params.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join("")}
     ${keyMetrics(r).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join("")}</dl></div></button>`;
 }
@@ -200,6 +226,15 @@ function open(ei, ri) {
   if (SERVED) r.figures.filter((f) => /\.(png|gif|jpe?g|svg)$/i.test(f)).slice(0, 8)
     .forEach((f) => parts.push(`<a href="${fileUrl(f)}" target="_blank" rel="noopener"><img alt="figure" loading="lazy" src="${fileUrl(f)}"></a>`));
   else r.thumbs.forEach((t) => parts.push(`<img alt="figure" src="${t}">`));
+  if (r.quality) {
+    const q = r.quality;
+    const bars = Object.entries(q.dims).map(([k, d]) => `<div class="qrow"><span>${esc(k)}</span>
+      <i class="qbar"><b style="width:${d.score == null ? 0 : Math.round(100 * d.score)}%" class="${d.status === "FAIL" ? "f" : ""}"></b></i>
+      <em>${d.score == null ? "not run" : Math.round(100 * d.score) + " · " + esc(d.tier.toLowerCase())}</em></div>`).join("");
+    const rd = Object.entries(q.readiness).map(([k, v]) => `<tr><td>${esc(k.replace("_", " "))}</td><td>${v.approved ? "approved" : v.ready ? "ready" : "missing: " + v.missing.map(esc).join(", ")}</td></tr>`).join("");
+    parts.push(`<div><h4>Quality ${tierBadge(q)} ${q.score == null ? "" : "· score " + q.score + " · coverage " + Math.round(100 * q.coverage) + " %"}</h4>${bars}
+      <table class="tbl rd">${rd}</table>${q.gaps.length ? `<p class="gaps"><b>Next:</b> ${q.gaps.map(esc).join("; ")}</p>` : ""}</div>`);
+  }
   parts.push(`<div><h4>Parameters</h4>${table(r.params)}</div>`);
   parts.push(`<div><h4>Metrics</h4>${Object.keys(r.metrics).length ? table(r.metrics) : "<p class='lede'>No metrics recorded.</p>"}</div>`);
   parts.push(`<div><h4>Validation</h4>${r.checks.length ? r.checks.map((c) => `<div class="check"><b class="${c.passed ? "" : "f"}">${c.passed ? "PASS" : "FAIL"}</b><span>${esc(c.name)}${c.value !== null && c.value !== undefined ? " · " + fmt(c.value) : ""}${c.max !== null && c.max !== undefined ? " ≤ " + fmt(c.max) : ""}${c.min !== null && c.min !== undefined ? " ≥ " + fmt(c.min) : ""}${c.reference !== null && c.reference !== undefined ? " ref " + fmt(c.reference) : ""}${c.detail ? " — " + esc(c.detail) : ""}</span></div>`).join("") : "<p class='lede'>No checks.</p>"}</div>`);
@@ -217,6 +252,7 @@ document.addEventListener("click", (ev) => {
   const c = ev.target.closest(".card"); if (c) return open(+c.dataset.e, +c.dataset.r);
   const s = ev.target.closest("[data-s]"); if (s) { state.status = s.dataset.s; summary(); render(); return; }
   const t = ev.target.closest("[data-t]"); if (t) { state.tag = t.dataset.t; summary(); render(); return; }
+  const qb = ev.target.closest("[data-q]"); if (qb) { state.tier = qb.dataset.q; summary(); render(); return; }
 });
 $("close").onclick = close; $("scrim").onclick = close;
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });

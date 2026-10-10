@@ -9,12 +9,15 @@
     python -m pinneapple_lab export cylinder_lbm vorticity out/cylinder_vorticity.npz
     python -m pinneapple_lab serve --host 0.0.0.0 --port 8093                # the catalogue as a web app
     python -m pinneapple_lab examples --run --match use_cases                # examples and use cases into the lab
+    python -m pinneapple_lab curate                                          # A flagship .. D not usable, per run
+    python -m pinneapple_lab review kepler_law --novelty 4 --story "..." --approve paper,marketing
 Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 
@@ -61,6 +64,17 @@ def main(argv=None) -> int:
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8093)
     sv.add_argument("--refresh", type=float, default=30.0, help="seconds between re-indexing the run folders")
+    cu = sub.add_parser("curate", help="grade every run and experiment (A flagship .. D not usable)")
+    cu.add_argument("--json", action="store_true", help="print the experiment table as JSON")
+    rv = sub.add_parser("review", help="record a human review of an experiment (qualitative curation)")
+    rv.add_argument("name")
+    rv.add_argument("--reviewer", default=None)
+    rv.add_argument("--story", default=None, help="the one-line story / headline")
+    rv.add_argument("--novelty", type=int, default=None, help="1-5")
+    rv.add_argument("--clarity", type=int, default=None, help="1-5")
+    rv.add_argument("--visual-appeal", type=int, default=None, help="1-5")
+    rv.add_argument("--approve", default=None, help="comma list of product,paper,marketing,training_data")
+    rv.add_argument("--limitations", default=None)
     ex = sub.add_parser("examples", help="list the repository's examples and use cases, or run them into the lab")
     ex.add_argument("--match", default="", help="only scripts whose path contains this text")
     ex.add_argument("--run", action="store_true", help="run them (one at a time: scripts write into the checkout)")
@@ -93,6 +107,22 @@ def main(argv=None) -> int:
         for x in res:
             print(f"{x.run_id}  {x.status:24s} {x.seconds:8.1f} s")
         return 0 if all(x.ok for x in res) else 1
+    if a.cmd == "curate":
+        from .curation import curate
+        out = curate(LabStore(a.root))
+        if a.json:
+            print(json.dumps(out["experiments"], indent=1, default=str))
+        else:
+            for exp, e in sorted(out["experiments"].items(), key=lambda kv: kv[1]["tier"]):
+                print(f"{e['tier']} {e['tier_name']:12s} {str(e['best_score']):>6s}  {exp}")
+        return 0
+    if a.cmd == "review":
+        from .curation import save_review
+        rec = save_review(LabStore(a.root).root, a.name, reviewer=a.reviewer, story=a.story, novelty=a.novelty,
+                          clarity=a.clarity, visual_appeal=a.visual_appeal, limitations=a.limitations,
+                          approved_for=[x.strip() for x in a.approve.split(",")] if a.approve else None)
+        print(json.dumps(rec, indent=1))
+        return 0
     if a.cmd == "examples":
         from .experiments.examples import discover_examples
         items = [x for x in discover_examples() if a.match in x["script"]]
@@ -120,6 +150,9 @@ def main(argv=None) -> int:
     elif a.cmd == "report":
         print(store.catalog(a.out))
         print(store.datasets_catalog())
+        from .curation import curate
+        curate(store)
+        print(os.path.join(store.root, "CURATION.md"))
         if a.html:
             print(store.catalog_html())
     elif a.cmd == "export":

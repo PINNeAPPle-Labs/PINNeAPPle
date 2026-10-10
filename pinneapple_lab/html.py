@@ -50,6 +50,11 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
     """Everything the catalogue page shows. ``thumbs="embed"`` inlines JPEG thumbnails (a self-contained file);
     ``thumbs="url"`` points them at the server's ``thumb/`` route (``pinneapple_lab.server``)."""
     from .spec import get
+    try:
+        from .curation import curate
+        cur = curate(store)
+    except Exception:                                      # noqa: BLE001 - the page works without curation
+        cur = {"runs": {}, "experiments": {}}
     experiments = []
     for exp, st in sorted(store.status().items()):
         try:
@@ -78,12 +83,27 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
                 "figures": [os.path.relpath(f, store.root) for f in figs + gifs],
                 "dir": os.path.relpath(d, os.path.join(store.root, "runs")), "thumbs": tl,
                 "error": (r.get("error") or "")[-1500:],
+                "quality": _quality(cur["runs"].get(r["run_id"])),
             })
         ds = {}
         for x in store.datasets(exp):
             ds[x["name"]] = ds.get(x["name"], 0) + x["n_samples"]
-        experiments.append({"name": exp, **meta, "status": st, "runs": runs, "datasets": ds})
+        q = cur["experiments"].get(exp)
+        experiments.append({"name": exp, **meta, "status": st, "runs": runs, "datasets": ds,
+                            "quality": None if q is None else {k: q[k] for k in ("tier", "tier_name", "best_run",
+                                                                                 "best_score", "tier_counts",
+                                                                                 "usable_fraction", "readiness", "gaps",
+                                                                                 "reviewed")}})
     return {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": experiments}
+
+
+def _quality(a):
+    if not a:
+        return None
+    return {"tier": a["tier"], "tier_name": a["tier_name"], "score": a["score"], "coverage": a["coverage"],
+            "dims": {k: {"score": d["score"], "status": d["status"], "tier": d["tier"], "evidence": d["evidence"][:4]}
+                     for k, d in a["dimensions"].items()},
+            "readiness": a["readiness"], "gaps": a["gaps"], "reviewed": a["reviewed"]}
 
 
 def write_html(store, path: str | None = None, *, standalone: bool = True, **kw) -> str:

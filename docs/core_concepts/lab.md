@@ -90,6 +90,56 @@ An experiment defined outside the package is addressed as `package.module:ClassN
 it reads what the script wrote, checks it against the reference again, and snapshots the generating script with
 the run.
 
+## Curation: which experiments are good enough
+
+`python -m pinneapple_lab curate` (also run by `report`) grades every run and experiment and writes
+`lab/curation.json` and `lab/CURATION.md`; the catalogue page shows the tier of each run, a quality filter and, in
+each run's sheet, the dimensions, the readiness for each use and what to do next. It uses the vocabulary of
+`pinneapple_veriphysics.applicability`: a dimension without evidence is *not run*, never a neutral pass, and evidence
+is *verified* (a check measured it in this run), *inferred* (metrics, files, names) or *unsupported*.
+
+| dimension | what counts | kind |
+|---|---|---|
+| validation | fraction of the run's checks that pass | quantitative |
+| reference | checks against an independent truth: exact solution, experiment, published value | quantitative |
+| baseline | checks that the method beats a simpler one (persistence, linear, nearest design, the original) | quantitative |
+| physics | conservation, symmetry, monotonicity, a physical range or law the method was not trained on | quantitative |
+| generalization | checks on unseen inputs (held-out designs, out-of-distribution cases, beyond the observed window) | quantitative |
+| uncertainty | an uncertainty estimate is reported (ensemble spread, sigma, intervals) | quantitative |
+| reproducibility | code snapshot, git commit, parameters, saved diff; agreement of repeats with other seeds | quantitative |
+| data | datasets with documented cards | quantitative |
+| assets | figures, movies, photoreal renders, a 3-D viewer | qualitative |
+| documentation | description, docs pages that cite the experiment, papers / references | qualitative |
+| review | a human review: novelty, clarity, visual appeal (1-5), a one-line story, approvals, limitations | qualitative |
+
+A check says what it is evidence of with `ctx.check(..., kind="reference" | "baseline" | "physics" |
+"generalization" | "sanity")`; left out, the kind is inferred from the name and the arguments.
+
+Tiers are gates, not averages, so a strong figure never hides a failed check:
+
+- **A flagship**: all checks pass; a reference check and a baseline or physics check pass; reproducible (code
+  snapshot, commit); at least three figures or a movie / render / 3-D view; documented; for machine-learning
+  experiments (surrogates, forecasters, neural operators) a generalization check passes. Ready to become a product,
+  a paper or marketing once a human review approves it.
+- **B solid**: all checks pass, at least one independent check (reference, baseline or physics), reproducible.
+  Demos, use cases, training data.
+- **C exploratory**: ran, but the evidence is thin (no checks or only sanity checks).
+- **D not usable**: failed validation or crashed.
+
+An experiment takes the tier of its best run, one level lower when fewer than half of its runs are usable. The score
+(0-100) is the weighted mean of the dimensions that ran, shown with its coverage, like the Veriphysics trust score.
+Readiness lists what each use still needs: *product* (generalization, uncertainty, a reference or physics check,
+reproducibility), *paper* (reference, baseline or physics, reproducibility, novelty review), *marketing* (strong
+visuals, a validated headline number, a story), *training data* (a documented dataset of validated runs).
+
+Human review is the qualitative half and is never filled in automatically:
+
+```bash
+python -m pinneapple_lab review kepler_law --reviewer "name" --novelty 4 --clarity 5 --visual-appeal 3 \
+    --story "Kepler's third law and the Sun/Jupiter mass ratio recovered from planetary data" --approve paper
+python -m pinneapple_lab curate
+```
+
 ## Examples and use cases
 
 Every script under `examples/` (224 today, use cases included) is also a lab experiment, `example_script`. A run

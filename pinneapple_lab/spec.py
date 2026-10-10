@@ -30,6 +30,7 @@ class Experiment:
     params: dict[str, Any] = {}
     space: dict[str, Any] = {}
     code_files: list[str] = []   # extra source files to snapshot with each run (relative to the experiment's file)
+    references: list[str] = []   # papers / data sources the experiment reproduces or compares with (curation)
     # ``code_for(params)`` (optional classmethod): more files to snapshot, chosen by the run's parameters
 
     def run(self, ctx) -> None:  # pragma: no cover - interface

@@ -15,6 +15,7 @@ Routes::
     GET /api/runs?experiment=NAME&status=S   run index rows
     GET /api/runs/RUN_ID                     one run: record, metrics, validation, file list
     GET /api/datasets                        dataset cards
+    GET /api/curation                        quality tier, dimensions and readiness of every run and experiment
     GET /files/EXPERIMENT/RUN_ID/PATH        a run's file (figures, inputs, outputs, code, logs, cards)
     GET /thumb/EXPERIMENT/RUN_ID/PATH        a JPEG thumbnail of a run's figure
     GET /download/EXPERIMENT/DATASET.npz     a dataset over all completed runs, as one .npz
@@ -206,6 +207,9 @@ class LabServer:
                         return self._send(200, lab.catalog()[0], "text/html; charset=utf-8")
                     if path == "/api/catalog":
                         return self._send(200, lab.catalog()[1], "application/json")
+                    if path == "/api/curation":
+                        from .curation import curate
+                        return self._json(curate(lab.store))
                     if path == "/api/status":
                         return self._json(lab.store.status())
                     if path == "/api/runs":

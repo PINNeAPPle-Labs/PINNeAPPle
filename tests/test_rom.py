@@ -69,3 +69,17 @@ def test_parametric_pod_beats_nearest_design():
     e0 = ParametricPOD(regressor="rbf", r=20, energy=None).fit(Ptr, big(Ptr)).error(Pte, big(Pte))
     e1 = ParametricPOD(regressor="rbf", r=20, energy=None, normalize=True).fit(Ptr, big(Ptr)).error(Pte, big(Pte))
     assert np.median(e1) < np.median(e0)
+
+
+def test_opinf_continuous_recovers_linear_operator():
+    A = np.array([[-0.1, -2.0], [2.0, -0.1]])
+    dt, T = 1e-3, 4000
+    a = [np.array([1.0, 0.0])]
+    from scipy.linalg import expm
+    M = expm(A * dt)
+    for _ in range(T - 1):
+        a.append(M @ a[-1])
+    a = torch.tensor(np.array(a))[None]
+    oi = OperatorInference(r=2, use_quadratic=False, use_bias=False, l2_linear=1e-12, center=False).fit_continuous(a, dt=dt)
+    W = oi.W.numpy()                                   # features @ W = da/dt (row-vector convention)
+    assert np.abs(W.T - A).max() < 1e-4

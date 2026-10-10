@@ -148,6 +148,12 @@ class MeshGraphNet(GraphModelBase):
         Dropout probability inside MLP hidden layers (0 = disabled).
     activation:
         ``"gelu"`` (default) or ``"relu"`` (the choice in the original paper).
+    absolute_pos:
+        With ``use_pos``, also feed the absolute coordinates to the node encoder (the default, kept for existing
+        checkpoints). ``False`` follows Pfaff et al.: positions enter only as relative edge displacements, so the
+        model is invariant to translations of the mesh.
+    decoder_layers:
+        ``0`` (default): a linear decoder. The paper decodes with an MLP; ``2`` reproduces it.
 
     Examples
     --------
@@ -175,6 +181,8 @@ class MeshGraphNet(GraphModelBase):
         use_pos: bool = False,
         dropout: float = 0.0,
         activation: str = "gelu",
+        absolute_pos: bool = True,
+        decoder_layers: int = 0,
     ) -> None:
         super().__init__()
 
@@ -190,10 +198,11 @@ class MeshGraphNet(GraphModelBase):
         self.hidden_dim        = hidden_dim
         self.n_message_passing = n_message_passing
         self.use_pos           = use_pos
+        self.absolute_pos      = absolute_pos
 
         # ── Node encoder ─────────────────────────────────────────────────
         # Input: raw node features [+ positions when use_pos]
-        node_enc_in = node_in_dim + (pos_dim if use_pos else 0)
+        node_enc_in = node_in_dim + (pos_dim if (use_pos and absolute_pos) else 0)
         self.node_encoder = _mlp(
             node_enc_in, hidden_dim, hidden_dim, n_layers, dropout, layernorm=True,
             activation=activation,
@@ -223,7 +232,9 @@ class MeshGraphNet(GraphModelBase):
 
         # ── Decoder ──────────────────────────────────────────────────────
         # No activation / LayerNorm — raw linear projection to output field
-        self.decoder = nn.Linear(hidden_dim, out_dim)
+        self.decoder = (nn.Linear(hidden_dim, out_dim) if decoder_layers <= 0 else
+                        _mlp(hidden_dim, hidden_dim, out_dim, decoder_layers, 0.0, layernorm=False,
+                             activation=activation))
 
     # ------------------------------------------------------------------
     # Positional edge features
@@ -284,7 +295,8 @@ class MeshGraphNet(GraphModelBase):
         if self.use_pos:
             if g.pos is None:
                 raise ValueError("MeshGraphNet: use_pos=True but g.pos is None.")
-            x_input = torch.cat([x_input, g.pos], dim=-1)  # (B, N, node_in_dim+pos_dim)
+            if self.absolute_pos:
+                x_input = torch.cat([x_input, g.pos], dim=-1)  # (B, N, node_in_dim+pos_dim)
 
         h = self.node_encoder(x_input)                     # (B, N, hidden_dim)
 
@@ -323,7 +335,7 @@ class MeshGraphNet(GraphModelBase):
         if return_loss and y_true is not None:
             if g.mask is not None:
                 mask = g.mask[..., None].to(y.dtype)       # (B, N, 1)
-                losses["mse"] = torch.mean(((y - y_true) ** 2) * mask)
+                losses["mse"] = (((y - y_true) ** 2) * mask).sum() / (mask.sum() * y.shape[-1]).clamp_min(1.0)  # mean over valid nodes
             else:
                 losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

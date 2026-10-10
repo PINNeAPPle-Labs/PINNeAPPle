@@ -51,7 +51,8 @@ except Exception:                                      # noqa: BLE001 - keep the
 TIERS = {"A": "flagship", "B": "solid", "C": "exploratory", "D": "not usable"}
 WEIGHTS = {"validation": 15, "reference": 15, "baseline": 10, "physics": 10, "generalization": 10,
            "uncertainty": 5, "reproducibility": 15, "data": 5, "assets": 8, "documentation": 7}
-ML_TAGS = {"surrogate", "physics-ai", "fno", "forecasting", "forecast", "machine-learning", "neural-operator"}
+ML_TAGS = {"surrogate", "physics-ai", "fno", "forecasting", "forecast", "machine-learning", "neural-operator", "rom",
+           "reduced-order-model", "deeponet", "gnn", "pinn"}
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 _SANITY = r"^finite|_finite|finite_|exits_cleanly|\bnan\b|statistically|converged|accretes"
@@ -110,6 +111,7 @@ class Assessment:
     readiness: dict[str, dict[str, Any]]
     gaps: list[str]
     reviewed: bool = False
+    stages: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -332,8 +334,125 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
             need(dims["data"].score is not None and dims["data"].score >= 0.75, "a documented dataset", miss)
             need(ok("validation"), "validated runs", miss)
         readiness[use] = {"ready": not miss, "approved": use in approved, "missing": miss}
+    lim = meta.get("limitations", [])
+    if isinstance(lim, dict):
+        lim = lim.get(str(row["params"].get(meta.get("case_param", ""), "")), []) if meta.get("case_param") else []
+    stages = trust_stages(d, checks, metrics, dims, tier, readiness, meta, is_ml, list(lim or []))
     return Assessment(row["run_id"], row["experiment"], row["status"], tier, None if score is None else round(score, 1),
-                      round(coverage, 2), dims, readiness, gaps, reviewed=bool(rv))
+                      round(coverage, 2), dims, readiness, gaps, reviewed=bool(rv), stages=stages)
+
+
+# ---------------------------------------------------------------------- the six questions of a trustworthy result
+STAGES = {
+    "data_geometry": ("Data and geometry", "Was the physical problem represented correctly?"),
+    "model": ("Model", "Can the model (or solver) represent the relevant dynamics?"),
+    "physics": ("Physical constraints", "Are the equations and the boundary conditions respected?"),
+    "benchmark": ("Benchmark", "How does the result compare with a solver or reference data?"),
+    "uncertainty": ("Uncertainty", "Where may the prediction not be reliable?"),
+    "decision": ("Engineering decision", "Is the result adequate for the intended use?"),
+}
+_DATA_CHECK = r"mesh|converg|geometr|domain|finite|inside|stay|overlap|input|resolution|grid|bounded|in_the_tank"
+_MODEL_CHECK = r"projection|capacity|rank|energy_captured|mode_pair|modes_come|pod_|unseen|generaliz|held"
+_ANSWERED, _PARTIAL, _OPEN, _FAILED = "answered", "partial", "open", "failed"
+
+
+def _stage(status: str, evidence: list[str], nxt: str = "") -> dict[str, Any]:
+    return {"status": status, "evidence": evidence, "next": nxt}
+
+
+def trust_stages(d: str, checks: list[dict], metrics: dict[str, Any], dims: dict[str, Dimension], tier: str,
+                 readiness: dict[str, dict[str, Any]], meta: dict[str, Any], is_ml: bool,
+                 limitations: list[str]) -> dict[str, dict[str, Any]]:
+    """The six questions a reviewer asks of a physics / Physics-AI result, each answered from the run's own
+    evidence: answered (a passing check), partial (indirect evidence), open (nothing yet) or failed (a failing
+    check). Nothing is inferred beyond what the run stored."""
+    def by(pattern=None, kinds=None):
+        out = []
+        for c in checks:
+            if kinds and c.get("kind") not in kinds:
+                continue
+            if pattern and not re.search(pattern, c["name"], re.I):
+                continue
+            out.append(c)
+        return out
+
+    def summary(cs):
+        return [f"{'PASS' if c['passed'] else 'FAIL'} {c['name']}" + (f" ({c.get('detail', '')[:90]})"
+                                                                      if c.get("detail") else "") for c in cs[:5]]
+
+    def from_checks(cs, nxt):
+        if not cs:
+            return None
+        if any(not c["passed"] for c in cs):
+            return _stage(_FAILED, summary([c for c in cs if not c["passed"]] + [c for c in cs if c["passed"]]),
+                          "fix the failing check" + ("s" if sum(not c["passed"] for c in cs) > 1 else ""))
+        return _stage(_ANSWERED, summary(cs), nxt)
+
+    out: dict[str, dict[str, Any]] = {}
+    # 1. data and geometry: what was simulated, on which mesh, with which inputs
+    inputs = sorted(os.path.basename(f)[:-5] for f in glob.glob(os.path.join(d, "inputs", "*.json")))
+    cs = by(_DATA_CHECK, {"sanity", "physics"}) or by(kinds={"sanity"})
+    st = from_checks(cs, "")
+    ev = ([f"inputs recorded: {', '.join(inputs[:6])}"] if inputs else []) + (st["evidence"] if st else [])
+    if st and st["status"] == _FAILED:
+        out["data_geometry"] = _stage(_FAILED, ev, st["next"])
+    elif st and inputs:
+        out["data_geometry"] = _stage(_ANSWERED, ev)
+    elif inputs or st:
+        out["data_geometry"] = _stage(_PARTIAL, ev or ["sanity checks only"],
+                                      "record the geometry, mesh and inputs" if not inputs else
+                                      "add a mesh-convergence or domain check")
+    else:
+        out["data_geometry"] = _stage(_OPEN, ["no inputs or geometry recorded"], "record the inputs (ctx.input)")
+    # 2. model capacity: can it represent the dynamics (unseen data for a learned model, verification for a solver)
+    if is_ml:
+        st = from_checks(by(_MODEL_CHECK) + by(kinds={"generalization"}), "")
+        if st is None:
+            m = [k for k in metrics if re.search(r"unseen|held|test|projection|forecast|rank", k, re.I)]
+            out["model"] = (_stage(_PARTIAL, [f"metrics without a check: {', '.join(m[:4])}"],
+                                   "turn the unseen-data metric into a check") if m else
+                            _stage(_OPEN, ["no test on unseen inputs"], "evaluate on held-out cases"))
+        else:
+            out["model"] = st
+    else:
+        st = from_checks(by(r"converg|_vs_|exact|analytic|order|recover") or by(kinds={"reference"}), "")
+        out["model"] = st or _stage(_OPEN, ["the solver is not verified on a problem with a known answer"],
+                                    "add a verification case (exact solution or mesh convergence)")
+    # 3. physical constraints
+    out["physics"] = from_checks(by(kinds={"physics"}), "") or _stage(
+        _OPEN, ["no conservation, symmetry or boundary-condition check"],
+        "check a law the result was not fitted to (mass, energy, divergence, equilibrium)")
+    # 4. benchmark
+    out["benchmark"] = from_checks(by(kinds={"reference", "baseline"}), "") or _stage(
+        _OPEN, ["no comparison with a solver, data or baseline"], "compare with a reference or a simple baseline")
+    # 5. uncertainty: quantified, or at least where it is not reliable
+    st = from_checks(by(kinds={"uncertainty"}) + by(r"uncert|calib|coverage|ensemble|spread"), "")
+    unc = dims.get("uncertainty")
+    if st:
+        out["uncertainty"] = st
+    elif unc is not None and unc.score is not None:
+        out["uncertainty"] = _stage(_PARTIAL, unc.evidence + ([f"{len(limitations)} declared limitations"]
+                                                              if limitations else []), "calibrate it (coverage check)")
+    elif limitations:
+        out["uncertainty"] = _stage(_PARTIAL, [f"limitations: {limitations[0][:110]}"] +
+                                    ([f"and {len(limitations) - 1} more"] if len(limitations) > 1 else []),
+                                    "quantify it (ensemble, GP standard deviation, mesh or seed spread)")
+    else:
+        out["uncertainty"] = _stage(_OPEN, ["no uncertainty and no declared limitation"],
+                                    "declare the limitations and quantify the spread")
+    # 6. engineering decision
+    ready = [u for u, r in readiness.items() if r.get("ready")]
+    if tier == "D":
+        out["decision"] = _stage(_FAILED, [f"tier D ({TIERS['D']})"], "not usable until it validates")
+    elif tier in ("A", "B") and ready and limitations:
+        out["decision"] = _stage(_ANSWERED, [f"tier {tier} ({TIERS[tier]}), ready for {', '.join(ready)}",
+                                             f"{len(limitations)} limitations bound the use"])
+    else:
+        miss = [m for u, r in readiness.items() for m in r.get("missing", [])]
+        out["decision"] = _stage(_PARTIAL if tier in ("A", "B") else _OPEN,
+                                 [f"tier {tier} ({TIERS[tier]})"] + ([f"ready for {', '.join(ready)}"] if ready else []),
+                                 (miss[0] if miss else "declare the limitations of the intended use"))
+    return {k: {"title": STAGES[k][0], "question": STAGES[k][1], **v} for k, v in out.items()}
 
 
 # ---------------------------------------------------------------------- strategy: limitations and the path forward
@@ -471,7 +590,7 @@ def assess_experiment(runs: list[Assessment]) -> dict[str, Any]:
         tier = "B" if tier == "A" else "C"           # one good run among many failing ones is not a result
     return {"tier": tier, "tier_name": TIERS[tier], "best_run": best.run_id, "best_score": best.score,
             "runs": len(runs), "tier_counts": counts, "usable_fraction": round(usable, 2),
-            "readiness": best.readiness, "gaps": best.gaps, "reviewed": best.reviewed}
+            "readiness": best.readiness, "gaps": best.gaps, "reviewed": best.reviewed, "stages": best.stages}
 
 
 def curate(store, path_json: str | None = None, path_md: str | None = None) -> dict[str, Any]:
@@ -485,7 +604,8 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
             cls = get(exp)
             meta = {"description": cls.description, "tags": list(cls.tags),
                     "references": list(getattr(cls, "references", []) or []),
-                    "limitations": getattr(cls, "limitations", []) or []}
+                    "limitations": getattr(cls, "limitations", []) or [],
+                    "case_param": getattr(cls, "case_param", "") or ""}
         except KeyError:
             cls = None
             meta = {"description": "", "tags": []}
@@ -549,6 +669,18 @@ def _write_md(out: dict[str, Any], path: str) -> None:
         L.append(f"| `{exp}` | **{e['tier']}** {e['tier_name']} | {e['best_score']} | {tc['A']}/{tc['B']}/{tc['C']}/{tc['D']} | "
                  f"{int(100 * e['usable_fraction'])} % | {mark['product']} | {mark['paper']} | {mark['marketing']} | "
                  f"{mark['training_data']} | {'yes' if e['reviewed'] else 'no'} |")
+    mark = {"answered": "✓", "partial": "~", "open": "?", "failed": "✗"}
+    L += ["", "## Trust card: six questions per item", "",
+          "Data and geometry (was the physical problem represented correctly?), model (can it represent the dynamics?), "
+          "physical constraints (equations and boundary conditions respected?), benchmark (against a solver or reference "
+          "data?), uncertainty (where may it not be reliable?), engineering decision (adequate for the intended use?). "
+          "✓ answered by a passing check, ~ partial evidence, ? open, ✗ a failing check.", "",
+          "| item | tier | data & geometry | model | physics | benchmark | uncertainty | decision |",
+          "|---|---|---|---|---|---|---|---|"]
+    for key, it in sorted(out.get("items", {}).items(), key=lambda kv: (order[kv[1]["tier"]], kv[0])):
+        sg = it.get("stages", {})
+        L.append(f"| `{key}` | {it['tier']} | " + " | ".join(mark.get(sg.get(k, {}).get("status"), "") for k in STAGES)
+                 + " |")
     L += ["", "## What each experiment needs next", ""]
     for exp, e in sorted(out["experiments"].items()):
         if e["gaps"]:

@@ -288,12 +288,10 @@ def _build_fno2d(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module
 def _build_deeponet(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module:
     branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else in_dim
     trunk  = net_cfg.trunk_dim  if net_cfg.trunk_dim  > 0 else in_dim
-    try:
-        from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
-        return DeepONet(branch_dim=branch, trunk_dim=trunk, out_dim=out_dim,
-                        hidden=net_cfg.hidden, **net_cfg.extra)
-    except Exception:
-        return _MLP(in_dim, out_dim, net_cfg.hidden, net_cfg.activation)
+    from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
+    # hidden is a list of widths here; a failure must surface, not turn the DeepONet into an MLP silently
+    return DeepONet(branch_dim=branch, trunk_dim=trunk, out_dim=out_dim, hidden=list(net_cfg.hidden),
+                    **net_cfg.extra)
 
 
 def _build_meshgraphnet(net_cfg: NetworkConfig, in_dim: int, out_dim: int,

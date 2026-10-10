@@ -170,6 +170,23 @@ python -m pinneapple_lab review kepler_law --reviewer "name" --novelty 4 --clari
 python -m pinneapple_lab curate
 ```
 
+### Trust card: six questions
+
+Every run and portfolio item also answers the six questions a reviewer asks of a physics or Physics-AI result,
+each from the run's own evidence:
+
+| stage | question | answered by |
+|---|---|---|
+| Data and geometry | Was the physical problem represented correctly? | recorded inputs plus a mesh, domain or input check |
+| Model | Can the model (or solver) represent the relevant dynamics? | unseen-data checks (learned models); a known-answer or convergence check (solvers) |
+| Physical constraints | Are the equations and the boundary conditions respected? | `kind="physics"` checks (conservation, divergence, equilibrium) |
+| Benchmark | How does the result compare with a solver or reference data? | `kind="reference"` / `"baseline"` checks |
+| Uncertainty | Where may the prediction not be reliable? | uncertainty checks (answered); reported spread or declared limitations (partial) |
+| Engineering decision | Is the result adequate for the intended use? | tier A/B, readiness for a use, and the declared limitations |
+
+The status of each stage is answered, partial, open or failed (a failing check). The card appears in the
+catalogue's run sheet, in every report (HTML, Markdown, PDF) and as a table in `lab/CURATION.md`.
+
 ## Examples and use cases
 
 Every script under `examples/` (224 today, use cases included) is also a lab experiment, `example_script`. A run

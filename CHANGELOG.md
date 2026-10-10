@@ -57,6 +57,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   plasticity), `Frequency`, `Buckle` and `Heat` steps, and results as arrays (displacement, stress, reactions,
   frequencies, modes, buckling factors, temperature); `fea_figure` draws tetrahedral meshes and any nodal field. Lab
   experiment `calculix_case`.
+  Lab trust card: every run and item answers six questions (data and geometry, model, physical constraints,
+  benchmark, uncertainty, engineering decision) from its own evidence, in the catalogue, reports and CURATION.md.
+  `DeepONet(depth=..., trunk_activation=...)` and per-sample query points; `MeshGraphNet(absolute_pos=False,
+  decoder_layers=2)` for the translation-invariant, MLP-decoder form of Pfaff et al.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).
@@ -315,6 +319,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- `DynamicModeDecomposition` and `OperatorInference` stored their operators in float32 whatever the data, so a
+  float64 fit failed at `rollout` and `eig`; they now keep the data's dtype.
+- `MultiScaleDeepONet` fed every trunk the same unscaled coordinates (no multi-scale effect) and kept an unused
+  base trunk; each trunk now sees the coordinates stretched by its own `scale_factors` (MscaleDNN).
+- The Arena built DeepONets with a list `hidden` that the class rejected, and the benchmark API with argument
+  names that do not exist; both silently returned an MLP under the DeepONet name. The Arena now builds the
+  DeepONet; the pointwise benchmark API raises a clear error.
+- Masked losses of `MeshGraphNet`, `GraphNeuralNetwork` and `EquivariantGNN` averaged over padded nodes too (half
+  the true loss at 50 % padding); they now average over the valid nodes.
 - The digital twin viewer (`pinneapple_twin3d`) is in English: labels, tooltips, status and error messages;
   numbers use the browser's locale (#306).
 - The benchmark suite computes every error through `pp.metrics` (new `metrics.pooled` for the single leaderboard

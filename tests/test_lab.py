@@ -297,6 +297,11 @@ def test_curation_tiers_readiness_and_review(tmp_path):
     assert infer_check_kind({"name": "sun_jupiter_mass_ratio", "reference": 1047.35}) == "reference"
     assert infer_check_kind({"name": "finite_fields"}) == "sanity"
     assert infer_check_kind({"name": "x", "detail": "900 held-out designs"}) == "generalization"
+    st = out["runs"][good.run_id]["stages"]                        # the six questions of the trust card
+    assert list(st) == ["data_geometry", "model", "physics", "benchmark", "uncertainty", "decision"]
+    assert st["benchmark"]["status"] == "answered" and st["uncertainty"]["status"] in ("open", "partial")
+    assert out["runs"][bad.run_id]["stages"]["decision"]["status"] == "failed"
+    assert "Trust card" in open(os.path.join(root, "CURATION.md")).read()
 
 
 def test_reports_one_item_and_filtered_set(tmp_path):

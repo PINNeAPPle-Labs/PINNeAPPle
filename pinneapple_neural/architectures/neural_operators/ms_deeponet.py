@@ -1,21 +1,23 @@
+"""Multi-scale DeepONet: one trunk per spatial scale, each seeing the coordinates stretched by its own factor
+(the MscaleDNN idea, Liu, Cai and Xu 2020), so high-frequency parts of the output are learned by trunks that see
+them as low frequencies. The branch gives the coefficients of all scales."""
 from __future__ import annotations
-"""Multi-scale DeepONet for multi-resolution operator learning (classic contraction)."""
-from typing import Sequence, Optional, Dict
+
+from collections.abc import Sequence
 
 import torch
 import torch.nn as nn
 
-from .base import OperatorOutput
-from .deeponet import DeepONet
+from .base import NeuralOperatorBase, OperatorOutput
+from .deeponet import mlp
 
 
-class MultiScaleDeepONet(DeepONet):
+class MultiScaleDeepONet(NeuralOperatorBase):
     """
-    Multi-scale DeepONet (classic form):
-      - One shared branch that outputs (out_dim * sum(scales)) coefficients
-      - Multiple trunk nets, each producing modes for its scale
-      - Sum contributions from each scale:
-          y(u,x) = sum_s <B_s(u), T_s(x)> + bias
+        y(u, x) = sum_s < B_s(u), T_s(c_s x) > + bias
+
+    ``scales``: number of modes of each trunk; ``scale_factors``: the coordinate stretch c_s of each trunk
+    (default 1, 4, 16, ...: one trunk per octave pair).
     """
     def __init__(
         self,
@@ -23,73 +25,44 @@ class MultiScaleDeepONet(DeepONet):
         trunk_dim: int,
         out_dim: int,
         *,
-        hidden: int = 128,
+        hidden: int | Sequence[int] = 128,
         scales: Sequence[int] = (32, 64, 128),
+        scale_factors: Sequence[float] | None = None,
+        depth: int = 1,
     ):
-        # Initialize base with a dummy modes; we'll override branch/trunk anyway.
-        super().__init__(branch_dim, trunk_dim, out_dim, hidden=hidden, modes=int(scales[0]))
-
+        super().__init__()
         self.scales = [int(s) for s in scales]
+        self.scale_factors = [float(c) for c in (scale_factors or [4.0 ** k for k in range(len(self.scales))])]
+        if len(self.scale_factors) != len(self.scales):
+            raise ValueError("scale_factors must have one entry per scale")
         self.total_modes = int(sum(self.scales))
         self.out_dim = int(out_dim)
-
-        # Override branch: output all modes for all scales (out_dim * total_modes)
-        self.branch = nn.Sequential(
-            nn.Linear(branch_dim, hidden),
-            nn.GELU(),
-            nn.Linear(hidden, self.out_dim * self.total_modes),
-        )
-
-        # Override trunk: now we have one trunk per scale, each outputs its modes
-        self.trunks = nn.ModuleList([
-            nn.Sequential(
-                nn.Linear(trunk_dim, hidden),
-                nn.GELU(),
-                nn.Linear(hidden, s),
-            )
-            for s in self.scales
-        ])
-
-        # Keep classic bias per output channel (already exists in base, but ensure shape)
+        self.branch = mlp(branch_dim, hidden, self.out_dim * self.total_modes, depth)
+        self.trunks = nn.ModuleList([mlp(trunk_dim, hidden, s, depth) for s in self.scales])
         self.bias = nn.Parameter(torch.zeros(self.out_dim))
 
     def forward(
         self,
         u: torch.Tensor,        # (B, branch_dim)
-        coords: torch.Tensor,   # (N, trunk_dim)
+        coords: torch.Tensor,   # (N, trunk_dim) or (B, N, trunk_dim)
         *,
-        y_true: Optional[torch.Tensor] = None,
+        y_true: torch.Tensor | None = None,
         return_loss: bool = False,
     ) -> OperatorOutput:
         B = u.shape[0]
-        N = coords.shape[0]
-
-        # (B, out_dim*total_modes) -> (B, out_dim, total_modes)
         b_all = self.branch(u).view(B, self.out_dim, self.total_modes)
-
-        # Accumulate contributions from each scale using classic contraction over modes
-        y = torch.zeros((B, N, self.out_dim), device=u.device, dtype=u.dtype)
-
+        y = None
         start = 0
-        for trunk, s in zip(self.trunks, self.scales):
-            end = start + s
+        for trunk, s, c in zip(self.trunks, self.scales, self.scale_factors, strict=True):
+            t = trunk(c * coords)
+            b_s = b_all[:, :, start:start + s]
+            term = torch.einsum("bos,ns->bno", b_s, t) if t.dim() == 2 else torch.einsum("bos,bns->bno", b_s, t)
+            y = term if y is None else y + term
+            start += s
+        y = y + self.bias
 
-            # (B, out_dim, s)
-            b_s = b_all[:, :, start:end]
-
-            # (N, s)
-            t_s = trunk(coords)
-
-            # (B, out_dim, s) x (N, s) -> (B, N, out_dim)
-            y = y + torch.einsum("bos,ns->bno", b_s, t_s)
-
-            start = end
-
-        y = y + self.bias  # broadcast over (B,N,out_dim)
-
-        losses: Dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
+        losses: dict[str, torch.Tensor] = {"total": torch.tensor(0.0, device=y.device)}
         if return_loss and y_true is not None:
             losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]
-
         return OperatorOutput(y=y, losses=losses, extras={})

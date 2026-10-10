@@ -157,7 +157,7 @@ def _quality(a):
     return {"tier": a["tier"], "tier_name": a["tier_name"], "score": a["score"], "coverage": a["coverage"],
             "dims": {k: {"score": d["score"], "status": d["status"], "tier": d["tier"], "evidence": d["evidence"][:4]}
                      for k, d in a["dimensions"].items()},
-            "readiness": a["readiness"], "gaps": a["gaps"], "reviewed": a["reviewed"]}
+            "readiness": a["readiness"], "gaps": a["gaps"], "reviewed": a["reviewed"], "stages": a.get("stages", {})}
 
 
 def write_html(store, path: str | None = None, *, standalone: bool = True, **kw) -> str:

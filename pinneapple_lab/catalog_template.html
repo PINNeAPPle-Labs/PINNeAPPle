@@ -98,6 +98,12 @@ pre.err { background: var(--paper); border: 1px solid var(--line); border-radius
 .tier.tD { background: var(--bad) }
 h2 .tier { font-size: 12px; margin-right: 4px }
 .gaps { color: var(--muted); font-size: 13px; margin: 6px 0 0 }
+.stages { display: grid; gap: 6px; margin: 8px 0 }
+.stage { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; font-size: 13px }
+.stage .dot { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 700 11px var(--mono, monospace); color: #fff }
+.stage .dot.answered { background: #2e7d4f } .stage .dot.partial { background: #b26b00 }
+.stage .dot.open { background: #8a969b } .stage .dot.failed { background: #b3261e }
+.stage b { display: block } .stage small { color: var(--muted); display: block; overflow-wrap: anywhere }
 .gaps b { color: var(--ink) }
 .qrow { display: grid; grid-template-columns: 120px minmax(0, 1fr) 120px; gap: 8px; align-items: center;
   font: 12px/1.6 var(--mono) }
@@ -307,6 +313,12 @@ function open(ei, ri) {
       <i class="qbar"><b style="width:${d.score == null ? 0 : Math.round(100 * d.score)}%" class="${d.status === "FAIL" ? "f" : ""}"></b></i>
       <em>${d.score == null ? "not run" : Math.round(100 * d.score) + " · " + esc(d.tier.toLowerCase())}</em></div>`).join("");
     const rd = Object.entries(q.readiness).map(([k, v]) => `<tr><td>${esc(k.replace("_", " "))}</td><td>${v.approved ? "approved" : v.ready ? "ready" : "missing: " + v.missing.map(esc).join(", ")}</td></tr>`).join("");
+    if (q.stages && Object.keys(q.stages).length) {
+      const mark = { answered: "✓", partial: "~", open: "?", failed: "✕" };
+      parts.push(`<div><h4>Trust card: six questions</h4><div class="stages">${Object.values(q.stages).map((g) =>
+        `<div class="stage"><span class="dot ${g.status}" title="${g.status}">${mark[g.status] || ""}</span><div><b>${esc(g.title)} · ${esc(g.status)}</b>
+        <small>${esc(g.question)}</small><small>${g.evidence.slice(0, 2).map(esc).join(" · ")}</small>${g.next ? `<small><b style="display:inline">Next:</b> ${esc(g.next)}</small>` : ""}</div></div>`).join("")}</div></div>`);
+    }
     parts.push(`<div><h4>Quality ${tierBadge(q)} ${q.score == null ? "" : "· score " + q.score + " · coverage " + Math.round(100 * q.coverage) + " %"}</h4>${bars}
       <table class="tbl rd">${rd}</table>${q.gaps.length ? `<p class="gaps"><b>Next:</b> ${q.gaps.map(esc).join("; ")}</p>` : ""}</div>`);
   }

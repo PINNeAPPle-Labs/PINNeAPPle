@@ -107,6 +107,7 @@ def gather(store, cur: dict[str, Any], key: str, n_figures: int = 3) -> dict[str
             "tags": tags, "references": refs + papers, "run": it["best_run"], "runs": it["runs"],
             "usable": it["usable_fraction"], "metrics": metrics, "checks": _load(os.path.join(d, "validation.json"), []),
             "dimensions": run["dimensions"], "coverage": run["coverage"], "plan": it["plan"],
+            "stages": run.get("stages", {}),
             "figures": _figures(d, n_figures), "git": rec.get("git"), "code": rec.get("code", {}).get("files", []),
             "datasets": rec.get("datasets", {}), "command": cmd, "seconds": rec.get("seconds")}
 
@@ -198,6 +199,15 @@ def render_html(store, groups: list[dict[str, Any]], title: str, filters: str = 
             s = g["plan"]["uses"][u]
             L.append(f"<td>{'approved' if s['status'] == 'approved' else 'ready' if s['status'] == 'ready' else 'missing: ' + _e(', '.join(s['missing']))}</td>")
         L.append("</tr></table>")
+        if g["stages"]:
+            L.append("<h3>Trust card</h3><table><tr><th>stage</th><th>question</th><th>status</th><th>evidence</th>"
+                     "<th>next</th></tr>")
+            for s_ in g["stages"].values():
+                L.append(f"<tr><td>{_e(s_['title'])}</td><td class=\"muted\">{_e(s_['question'])}</td>"
+                         f"<td class=\"{'pass' if s_['status'] == 'answered' else 'fail' if s_['status'] == 'failed' else ''}\">"
+                         f"{_e(s_['status'])}</td><td class=\"muted\">{_e('; '.join(s_['evidence'][:2]))}</td>"
+                         f"<td>{_e(s_['next'])}</td></tr>")
+            L.append("</table>")
         if g["metrics"]:
             L.append("<h3>Headline metrics</h3><table>" + "".join(
                 f"<tr><td class=\"mono\">{_e(k)}</td><td class=\"num\">{_fmt(v)}</td></tr>"
@@ -252,6 +262,10 @@ def render_md(groups: list[dict[str, Any]], title: str, filters: str = "") -> st
         if g["story"]:
             L += [f"> {g['story']}", ""]
         L += [g["description"], ""]
+        if g["stages"]:
+            L += ["**Trust card**", "", "| stage | question | status | evidence | next |", "|---|---|---|---|---|"]
+            L += [f"| {s_['title']} | {s_['question']} | {s_['status']} | {'; '.join(s_['evidence'][:2])} | {s_['next']} |"
+                  for s_ in g["stages"].values()] + [""]
         if g["checks"]:
             L += ["**Validation**", ""] + [f"- {'PASS' if c['passed'] else 'FAIL'} `{c['name']}` ({c.get('kind', '')})"
                                            + (f": {c['detail']}" if c.get("detail") else "") for c in g["checks"]] + [""]
@@ -311,6 +325,16 @@ def render_pdf(groups: list[dict[str, Any]], title: str, filters: str = "") -> b
                 pim = PILImage.open(io.BytesIO(im[1]))
                 h = W * pim.height / pim.width
                 S.append(Image(io.BytesIO(im[1]), width=W, height=min(h, 9 * cm), kind="proportional"))
+        if g["stages"]:
+            S.append(Paragraph("Trust card", st["Heading4"]))
+            rows = [["stage", "status", "evidence / next"]] + [
+                [Paragraph(f"<b>{_e(s_['title'])}</b><br/>{_e(s_['question'])}", small), s_["status"],
+                 Paragraph(_e("; ".join(s_["evidence"][:2])) + (f"<br/><b>Next:</b> {_e(s_['next'])}" if s_["next"] else ""),
+                           small)] for s_ in g["stages"].values()]
+            t = Table(rows, colWidths=[W * 0.34, W * 0.12, W * 0.54], repeatRows=1)
+            t.setStyle(TableStyle([("FONT", (0, 0), (-1, -1), "Helvetica", 8), ("LINEBELOW", (0, 0), (-1, -1), 0.3, colors.grey),
+                                   ("VALIGN", (0, 0), (-1, -1), "TOP")]))
+            S.append(t)
         if g["checks"]:
             S.append(Paragraph("Validation", st["Heading4"]))
             rows = [["check", "kind", "result", "detail"]] + [

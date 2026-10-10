@@ -25,6 +25,7 @@ from . import (  # noqa: F401
     landing,
     ode,
     pde,
+    pipes,
     repo_results,
     vehicles3d,
     wear,

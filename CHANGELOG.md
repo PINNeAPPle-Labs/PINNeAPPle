@@ -40,6 +40,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `pinneapple_physics.tribology`: Archard wear of a bar end with contact pressure on an elastic layer (implicit
   wear-contact step), Archard & Hirst material table; lab experiments `bar_wear` (one run per material) and
   `bar_wear_ranking`.
+  `pinneapple_simulation.numerical_solvers.internal_flow`: pipes, bends and Kenics static mixers in OpenFOAM
+  (structured O-grid swept along a centreline, mixer elements cut by snappyHexMesh, passive scalar by
+  scalarTransportFoam), Colebrook and Ito bend-loss references; lab experiment `pipe_flow`.
 
 - Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
   validated against conservation, torus equilibrium and exact Bondi accretion).

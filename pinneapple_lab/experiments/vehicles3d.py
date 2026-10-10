@@ -139,8 +139,11 @@ class VehicleCFD(Experiment):
             else:
                 up = veh.upright(veh.parts())
                 beauty = pp.viz.Scene.from_parts(up, axes="z_up", title=flow.title)
-                renders.append(("beauty", dict(scene=beauty, view=(-0.8, -1.0, -0.35), background="sky", distance=0.75,
-                                               sun_elevation=18.0, colorbar_on=False)))
+                renders.append(("beauty", dict(scene=beauty, view=(-0.8, -1.0, -0.35), background="sky", distance=0.5,
+                                               sun_elevation=18.0, colorbar_on=False, size=(1000, 1500))))
+                renders.append(("beauty_low", dict(scene=beauty, view=(-0.5, -1.0, -0.75), background="sky",
+                                                   distance=0.42, lens=35, sun_elevation=30.0, colorbar_on=False,
+                                                   size=(1000, 1500))))
             renders += [("cp", dict(scene=full, field="cp", view="iso", background="studio")),
                         ("streamlines", dict(scene=full, lines=True, view="iso", background="studio")),
                         ("wake_vorticity", dict(scene=full, slice="wake: vorticity", view="back", background="studio")),

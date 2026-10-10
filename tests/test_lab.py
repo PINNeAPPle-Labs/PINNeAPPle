@@ -318,3 +318,29 @@ def test_reports_one_item_and_filtered_set(tmp_path):
     assert select(cur, ready="training_data") and not select(cur, tier=["Z"])
     with pytest.raises(ValueError):
         write_report(store, str(tmp_path / "none.html"), tier=["Z"])
+
+
+def test_internal_flow_geometry_and_references():
+    import math
+
+    from pinneapple_simulation.numerical_solvers.internal_flow import (
+        Route,
+        colebrook,
+        ito_bend_loss,
+        kenics_elements,
+        oblock_mesh_dict,
+    )
+    rt = Route(D=0.05).straight(5).bend(2.0, 90).straight(5)
+    st = rt.stations()
+    assert abs(st["s"][-1] - rt.length) < 1e-12 and abs(rt.length / 0.05 - (10 + math.pi)) < 1e-9
+    assert np.allclose(st["T"][-1], [0, 1, 0], atol=1e-9)              # turned 90 degrees towards +y
+    assert np.allclose(np.einsum("ij,ij->i", st["T"], st["N"]), 0, atol=1e-9)
+    d = oblock_mesh_dict(rt)
+    n_int = len(st["P"]) - 1
+    assert d.count("hex (") == 5 * n_int and "inlet" in d and "outlet" in d
+    V, F = kenics_elements(0.05, 2, 1.0)
+    e = np.sort(np.concatenate([F[:, [0, 1]], F[:, [1, 2]], F[:, [2, 0]]]), axis=1)
+    _, cnt = np.unique(e, axis=0, return_counts=True)
+    assert (cnt == 2).all()                                             # closed surface for snappyHexMesh
+    assert abs(colebrook(1e5) - 0.0180) < 3e-4                          # Moody chart, smooth pipe
+    assert 0.15 < ito_bend_loss(5e4, 4.0) < 0.3

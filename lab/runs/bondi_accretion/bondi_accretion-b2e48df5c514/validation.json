@@ -8,7 +8,8 @@
   "atol": null,
   "max": 0.02,
   "min": null,
-  "detail": ""
+  "detail": "",
+  "kind": "reference"
  },
  {
   "name": "steady_density",
@@ -19,6 +20,7 @@
   "atol": null,
   "max": 0.02,
   "min": null,
-  "detail": ""
+  "detail": "",
+  "kind": "reference"
  }
 ]

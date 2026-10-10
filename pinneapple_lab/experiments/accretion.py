@@ -36,8 +36,10 @@ class BondiAccretion(Experiment):
         ctx.metric("density_rel_error_median", float(np.median(rel)))
         ctx.metric("density_rel_error_max", float(rel.max()))
         ctx.metric("sonic_radius", rc)
-        ctx.check("steady_accretion_rate", value=abs(out["mdot"][-1] / mdot - 1), max=0.02)
-        ctx.check("steady_density", value=float(np.median(rel)), max=0.02)
+        ctx.check("steady_accretion_rate", value=abs(out["mdot"][-1] / mdot - 1), max=0.02,
+                  detail="vs the exact transonic Bondi accretion rate", kind="reference")
+        ctx.check("steady_density", value=float(np.median(rel)), max=0.02, detail="vs the exact Bondi profile",
+                  kind="reference")
         ds = ctx.dataset("profiles", description="Radial Bondi profiles: exact and simulated")
         ds.add(r=r, rho_exact=rho, rho_sim=Wf[0, :, 1], v_exact=v, v_sim=Wf[1, :, 1], cs_inf=p["cs_inf"],
                gamma=p["gamma"], mdot=mdot)

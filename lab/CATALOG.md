@@ -1,13 +1,13 @@
 # PINNeAPPle Lab catalogue
 
-138 runs, generated 2026-10-10 19:08.
+139 runs, generated 2026-10-10 19:10.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
 | [accretion_flow](#accretion_flow) | 6 | 6 | 0 | 0 | frames (186) |
 | [benchmark_case](#benchmark_case) | 7 | 7 | 0 | 0 | arrays (84), sweep (8), lead_skill (5) |
 | [bondi_accretion](#bondi_accretion) | 6 | 6 | 0 | 0 | profiles (6) |
-| [car_lbm](#car_lbm) | 12 | 10 | 1 | 0 | flow (11), vorticity (528) |
+| [car_lbm](#car_lbm) | 13 | 11 | 1 | 0 | flow (12), vorticity (576) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
 | [example_script](#example_script) | 12 | 6 | 0 | 3 | - |
 | [heat_xtfc](#heat_xtfc) | 12 | 8 | 4 | 0 | fields (12) |
@@ -88,11 +88,12 @@ Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parame
 | [5217dd5f5c97](runs/car_lbm/car_lbm-5217dd5f5c97) | completed | 0.1 | 500.0 | 0.09788960905961368 | 6.8445450821977065 | 0.6722641963792478 | 64 | 0.6057666795575275 | 33.16835187598714 | 8000 | 2.5 | 0.08 | 25.2765565075861 | 1.67 | 0.1536 | 0.7148 | 0.12 | 0.0003234 | 3/3 |
 | [acc42d8937fe](runs/car_lbm/car_lbm-acc42d8937fe) | completed | 0.1 | 500.0 | 0.042758639248505134 | 8.854942733092486 | 0.6163791704738226 | 64 | 0.9992476893395542 | 22.23052810577161 | 8000 | 2.5 | 0.08 | 42.85753058942939 | 1.345 | 0.1256 | 0.8395 | 0.12 | 0.0003259 | 3/3 |
 | [70e89034afb0](runs/car_lbm/car_lbm-70e89034afb0) | completed | 0.1 | 500.0 | 0.09450554910076861 | 6.008334808777811 | 0.7354639906361728 | 64 | 0.0801954416780851 | 13.050530883488621 | 8000 | 2.5 | 0.08 | 25.221254705972697 | 1.651 | 0.1654 | 0.7129 | 0.12 | 0.0003364 | 3/3 |
-| [01d0849fcd6b](runs/car_lbm/car_lbm-01d0849fcd6b) | running | 0.1 | 500.0 | 0.10491302009992373 | 5.461080029102873 | 0.47558637617623484 | 64 | 0.23766190040470328 | 17.573344271776932 | 8000 | 2.5 | 0.08 | 33.7005406387837 |  |  |  |  |  | 0/0 |
+| [01d0849fcd6b](runs/car_lbm/car_lbm-01d0849fcd6b) | completed | 0.1 | 500.0 | 0.10491302009992373 | 5.461080029102873 | 0.47558637617623484 | 64 | 0.23766190040470328 | 17.573344271776932 | 8000 | 2.5 | 0.08 | 33.7005406387837 | 1.652 | 0.1415 | 0.6574 | 0.12 | 0.0003255 | 3/3 |
+| [4d9a736b17f6](runs/car_lbm/car_lbm-4d9a736b17f6) | running | 0.1 | 500.0 | 0.11331448782654147 | 7.385592469388693 | 0.5832302256632885 | 64 | 0.38743462610548784 | 24.253267461795566 | 8000 | 2.5 | 0.08 | 44.8746927155908 |  |  |  |  |  | 0/0 |
+
+![car_lbm](runs/car_lbm/car_lbm-01d0849fcd6b/figures/forces.png)
 
 ![car_lbm](runs/car_lbm/car_lbm-70e89034afb0/figures/forces.png)
-
-![car_lbm](runs/car_lbm/car_lbm-acc42d8937fe/figures/forces.png)
 
 ## cylinder_lbm
 

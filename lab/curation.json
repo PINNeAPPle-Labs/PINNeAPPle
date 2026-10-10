@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10 19:08 UTC",
+ "generated": "2026-10-10 19:10 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -109,7 +109,7 @@
    "tier": "B",
    "tier_name": "solid",
    "best_run": "bondi_accretion-2606e5a668d9",
-   "best_score": 82.2,
+   "best_score": 83.6,
    "runs": 6,
    "tier_counts": {
     "A": 0,
@@ -131,7 +131,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "comparison with a reference",
+      "baseline or physics check",
       "novelty review >= 3/5"
      ]
     },
@@ -140,7 +140,6 @@
      "approved": false,
      "missing": [
       "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -151,7 +150,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
+    "show it beats a baseline or satisfies a physical law it was not trained on",
     "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false
@@ -161,14 +160,14 @@
    "tier_name": "solid",
    "best_run": "car_lbm-354a5d7f3472",
    "best_score": 94.3,
-   "runs": 11,
+   "runs": 12,
    "tier_counts": {
     "A": 0,
-    "B": 10,
+    "B": 11,
     "C": 0,
     "D": 1
    },
-   "usable_fraction": 0.91,
+   "usable_fraction": 0.92,
    "readiness": {
     "product": {
      "ready": false,
@@ -2620,8 +2619,8 @@
    "experiment": "bondi_accretion",
    "status": "completed",
    "tier": "B",
-   "score": 82.2,
-   "coverage": 0.6,
+   "score": 83.6,
+   "coverage": 0.65,
    "dimensions": {
     "validation": {
      "name": "validation",
@@ -2634,11 +2633,12 @@
     },
     "reference": {
      "name": "reference",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no reference check"
+      "PASS steady_accretion_rate",
+      "PASS steady_density"
      ]
     },
     "baseline": {
@@ -2652,12 +2652,11 @@
     },
     "physics": {
      "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "PASS steady_accretion_rate",
-      "PASS steady_density"
+      "no physics check"
      ]
     },
     "generalization": {
@@ -2740,7 +2739,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "comparison with a reference",
+      "baseline or physics check",
       "novelty review >= 3/5"
      ]
     },
@@ -2749,7 +2748,6 @@
      "approved": false,
      "missing": [
       "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -2760,7 +2758,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
+    "show it beats a baseline or satisfies a physical law it was not trained on",
     "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false,
@@ -2771,8 +2769,8 @@
    "experiment": "bondi_accretion",
    "status": "completed",
    "tier": "B",
-   "score": 82.2,
-   "coverage": 0.6,
+   "score": 83.6,
+   "coverage": 0.65,
    "dimensions": {
     "validation": {
      "name": "validation",
@@ -2785,11 +2783,12 @@
     },
     "reference": {
      "name": "reference",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no reference check"
+      "PASS steady_accretion_rate",
+      "PASS steady_density"
      ]
     },
     "baseline": {
@@ -2803,12 +2802,11 @@
     },
     "physics": {
      "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "PASS steady_accretion_rate",
-      "PASS steady_density"
+      "no physics check"
      ]
     },
     "generalization": {
@@ -2891,7 +2889,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "comparison with a reference",
+      "baseline or physics check",
       "novelty review >= 3/5"
      ]
     },
@@ -2900,7 +2898,6 @@
      "approved": false,
      "missing": [
       "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -2911,7 +2908,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
+    "show it beats a baseline or satisfies a physical law it was not trained on",
     "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false,
@@ -2922,8 +2919,8 @@
    "experiment": "bondi_accretion",
    "status": "completed",
    "tier": "B",
-   "score": 82.2,
-   "coverage": 0.6,
+   "score": 83.6,
+   "coverage": 0.65,
    "dimensions": {
     "validation": {
      "name": "validation",
@@ -2936,11 +2933,12 @@
     },
     "reference": {
      "name": "reference",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no reference check"
+      "PASS steady_accretion_rate",
+      "PASS steady_density"
      ]
     },
     "baseline": {
@@ -2954,12 +2952,11 @@
     },
     "physics": {
      "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "PASS steady_accretion_rate",
-      "PASS steady_density"
+      "no physics check"
      ]
     },
     "generalization": {
@@ -3042,7 +3039,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "comparison with a reference",
+      "baseline or physics check",
       "novelty review >= 3/5"
      ]
     },
@@ -3051,7 +3048,6 @@
      "approved": false,
      "missing": [
       "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -3062,7 +3058,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
+    "show it beats a baseline or satisfies a physical law it was not trained on",
     "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false,
@@ -3073,8 +3069,8 @@
    "experiment": "bondi_accretion",
    "status": "completed",
    "tier": "B",
-   "score": 82.2,
-   "coverage": 0.6,
+   "score": 83.6,
+   "coverage": 0.65,
    "dimensions": {
     "validation": {
      "name": "validation",
@@ -3087,11 +3083,12 @@
     },
     "reference": {
      "name": "reference",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no reference check"
+      "PASS steady_accretion_rate",
+      "PASS steady_density"
      ]
     },
     "baseline": {
@@ -3105,12 +3102,11 @@
     },
     "physics": {
      "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "PASS steady_accretion_rate",
-      "PASS steady_density"
+      "no physics check"
      ]
     },
     "generalization": {
@@ -3193,7 +3189,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "comparison with a reference",
+      "baseline or physics check",
       "novelty review >= 3/5"
      ]
     },
@@ -3202,7 +3198,6 @@
      "approved": false,
      "missing": [
       "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -3213,7 +3208,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
+    "show it beats a baseline or satisfies a physical law it was not trained on",
     "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false,
@@ -3224,8 +3219,8 @@
    "experiment": "bondi_accretion",
    "status": "completed",
    "tier": "B",
-   "score": 82.2,
-   "coverage": 0.6,
+   "score": 83.6,
+   "coverage": 0.65,
    "dimensions": {
     "validation": {
      "name": "validation",
@@ -3238,11 +3233,12 @@
     },
     "reference": {
      "name": "reference",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no reference check"
+      "PASS steady_accretion_rate",
+      "PASS steady_density"
      ]
     },
     "baseline": {
@@ -3256,12 +3252,11 @@
     },
     "physics": {
      "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "PASS steady_accretion_rate",
-      "PASS steady_density"
+      "no physics check"
      ]
     },
     "generalization": {
@@ -3344,7 +3339,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "comparison with a reference",
+      "baseline or physics check",
       "novelty review >= 3/5"
      ]
     },
@@ -3353,7 +3348,6 @@
      "approved": false,
      "missing": [
       "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -3364,7 +3358,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
+    "show it beats a baseline or satisfies a physical law it was not trained on",
     "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false,
@@ -3375,8 +3369,8 @@
    "experiment": "bondi_accretion",
    "status": "completed",
    "tier": "B",
-   "score": 82.2,
-   "coverage": 0.6,
+   "score": 83.6,
+   "coverage": 0.65,
    "dimensions": {
     "validation": {
      "name": "validation",
@@ -3389,11 +3383,12 @@
     },
     "reference": {
      "name": "reference",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
      "evidence": [
-      "no reference check"
+      "PASS steady_accretion_rate",
+      "PASS steady_density"
      ]
     },
     "baseline": {
@@ -3407,12 +3402,11 @@
     },
     "physics": {
      "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "PASS steady_accretion_rate",
-      "PASS steady_density"
+      "no physics check"
      ]
     },
     "generalization": {
@@ -3495,7 +3489,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "comparison with a reference",
+      "baseline or physics check",
       "novelty review >= 3/5"
      ]
     },
@@ -3504,7 +3498,6 @@
      "approved": false,
      "missing": [
       "strong visuals (movie, render or 3-D view)",
-      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -3515,7 +3508,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
+    "show it beats a baseline or satisfies a physical law it was not trained on",
     "add figures (a movie, a render or a 3-D view for communication)"
    ],
    "reviewed": false,
@@ -5007,6 +5000,154 @@
   },
   "car_lbm-70e89034afb0": {
    "run_id": "car_lbm-70e89034afb0",
+   "experiment": "car_lbm",
+   "status": "completed",
+   "tier": "B",
+   "score": 94.3,
+   "coverage": 0.65,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3/3 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS drag_in_bluff_body_range (2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: Cd_rms_fluctuation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git cb1a8340",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 datasets, 49 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.7,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 231 chars",
+      "docs: docs/core_concepts/lab.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a validated headline number",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "tier_name": "solid"
+  },
+  "car_lbm-01d0849fcd6b": {
+   "run_id": "car_lbm-01d0849fcd6b",
    "experiment": "car_lbm",
    "status": "completed",
    "tier": "B",

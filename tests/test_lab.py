@@ -96,6 +96,9 @@ def test_builtin_experiments_run(tmp_path):
     assert r.ok and r.metrics["mdot_rel_error"] < 0.02
     r = run("accretion_flow", {"nr": 32, "ntheta": 16, "t_end": 60.0, "every": 20.0}, root=root)
     assert r.ok and r.metrics["frames"] == 4
+    r = run("cylinder_lbm", {"Re": 30.0, "D": 8, "height": 4, "length": 8, "steps": 600, "save_every": 50}, root=root)
+    assert r.ok and r.metrics["regime_shedding"] == 0
+    assert LabStore(root).datasets("cylinder_lbm", "vorticity")[0]["n_samples"] == 6
 
 
 def test_parallel_sweep_and_cli(tmp_path, capsys):

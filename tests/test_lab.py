@@ -220,3 +220,19 @@ def test_example_script_collects_outputs_and_leaves_checkout_clean(tmp_path):
         shutil.rmtree(folder, ignore_errors=True)
         if os.path.exists(os.path.join(REPO, "lab_test_demo_figure.png")):
             os.remove(os.path.join(REPO, "lab_test_demo_figure.png"))
+
+
+def test_car_geometry_and_wind_tunnel_smoke():
+    from pinneapple_design.geometry.gen.car2d import DESIGN_SPACE, CarProfile, sample_designs
+    from pinneapple_lab.experiments.car import simulate_car
+    designs = sample_designs(12, seed=1)
+    for d in designs:
+        for k, (lo, hi) in DESIGN_SPACE.items():
+            assert lo <= d[k] <= hi
+    fast, steep = CarProfile(slant_deg=8), CarProfile(slant_deg=38)
+    m1, m2 = fast.mask(160, 56, 32, 38), steep.mask(160, 56, 32, 38)
+    assert m1.sum() > m2.sum() > 0                       # a steeper slant removes rear volume
+    assert not m1[:, 0].any()                            # ground clearance: the road row is fluid
+    sim = simulate_car(designs[0], length_cells=16, steps=300, keep_frames=2)
+    assert sim["finite"] and np.isfinite(sim["cd_cv"]) and len(sim["frames"]) == 2
+    assert sim["mean_ux"].shape == sim["sdf"].shape == (80, 40)

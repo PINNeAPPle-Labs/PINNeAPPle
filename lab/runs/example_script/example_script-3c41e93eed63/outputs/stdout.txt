@@ -1,0 +1,10 @@
+Nonlinear Pendulum — three amplitude experiments
+
+Training: Small angle  θ₀=0.1 rad ...
+  → relative L2: 1.0087e+00
+Training: Medium angle  θ₀=1.0 rad ...
+  → relative L2: 9.6603e-01
+Training: Large angle  θ₀=2.8 rad ...
+  → relative L2: 1.0295e+00
+
+Saved 07_nonlinear_pendulum.png

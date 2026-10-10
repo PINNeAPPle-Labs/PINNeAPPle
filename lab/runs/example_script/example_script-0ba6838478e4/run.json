@@ -1,0 +1,77 @@
+{
+ "run_id": "example_script-0ba6838478e4",
+ "experiment": "example_script",
+ "version": "1",
+ "params": {
+  "script": "examples/getting_started/02_damped_oscillator.py",
+  "timeout": 600.0,
+  "args": "",
+  "isolated": true
+ },
+ "status": "completed",
+ "started": 1791654954.0572414,
+ "tags": [
+  "examples",
+  "use-case",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Runs an example or use case of the repository and stores what it produced: figures, JSON outputs and their numbers as metrics, arrays as the 'artifacts' dataset, the console output and the code. The catalogue of these runs is also the health report of the examples.",
+ "code": {
+  "files": [
+   "code/examples.py",
+   "code/02_damped_oscillator.py",
+   "code/01_harmonic_oscillator.py",
+   "code/03_heat_diffusion_1d.py",
+   "code/04_wave_equation_1d.py",
+   "code/05_logistic_growth.py",
+   "code/06_lotka_volterra.py",
+   "code/07_nonlinear_pendulum.py",
+   "code/08_van_der_pol.py",
+   "code/09_lorenz_system.py",
+   "code/10_coupled_oscillators.py"
+  ],
+  "sha1": "9b1357d45777a3215c9698f7b1a4c178abd9e0d7"
+ },
+ "finished": 1791655091.2935581,
+ "error": null,
+ "stages": [
+  {
+   "name": "run",
+   "started": 1791654954.2196956,
+   "status": "done",
+   "seconds": 137.009
+  },
+  {
+   "name": "collect",
+   "started": 1791655091.2332044,
+   "status": "done",
+   "seconds": 0.056
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/checkout.json"
+  ],
+  "outputs": [
+   "outputs/produced_files.json",
+   "outputs/moved_untracked_files.json"
+  ],
+  "figures": [
+   "figures/02_damped_oscillator.png"
+  ]
+ },
+ "validation": {
+  "total": 1,
+  "failed": 0
+ },
+ "seconds": 137.236,
+ "datasets": {}
+}

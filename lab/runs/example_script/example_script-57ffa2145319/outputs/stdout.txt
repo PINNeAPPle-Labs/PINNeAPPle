@@ -1,0 +1,10 @@
+Logistic Growth — three population experiments
+
+Training: Fast growth  r=2.0 ...
+  → relative L2: 7.3912e-03
+Training: Slow growth  r=0.5 ...
+  → relative L2: 4.6286e-04
+Training: Above K → decay  N0=1.5 ...
+  → relative L2: 7.6691e-03
+
+Saved 05_logistic_growth.png

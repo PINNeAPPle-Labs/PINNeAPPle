@@ -1,0 +1,10 @@
+Damped Harmonic Oscillator — three physical regimes
+
+Training: Underdamped  ζ=0.1 ...
+  → relative L2: 7.0509e-01
+Training: Critically damped  ζ=1.0 ...
+  → relative L2: 5.0010e-01
+Training: Overdamped  ζ=2.0 ...
+  → relative L2: 5.0006e-01
+
+Saved 02_damped_oscillator.png

@@ -1,0 +1,3 @@
+1D Wave Equation — three wave speed experiments
+
+Training: c = 1  (slow) ...

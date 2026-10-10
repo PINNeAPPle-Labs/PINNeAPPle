@@ -1,0 +1,2 @@
+/home/user/PINNeAPPle/lab/_worktree/examples/getting_started/06_lotka_volterra.py:115: DeprecationWarning: __array_wrap__ must accept context and return_scalar arguments (positionally) in the future. (Deprecated NumPy 2.0)
+  z_pred = (net(torch.tensor(t_eval[:, None])) * scale.numpy()).numpy()

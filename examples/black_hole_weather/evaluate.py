@@ -194,7 +194,7 @@ def make_twin(run, codec, pred, truth, x0, env, dt, k, a, vol, mean_sc):
     sensors = [
         {"id": "forecast error", "panel": "forecast", "series": err, "unit": "", "label": "forecast error (vs simulation)",
          "envelope": (0.0, hz_err), "quantity": "MAE log-density"},
-        {"id": "mass check", "panel": "forecast", "series": rate * 1e3, "unit": "1e-3/M", "dx": 25.0,
+        {"id": "mass check", "panel": "forecast", "series": rate * 1e3, "unit": "1e-3/M", "dy": 72.0,
          "label": "|d ln M / dt| (no ground truth)", "envelope": (0.0, env.margin * env.rate_max * 1e3)},
     ]
     sc = accretion_scene(run["grid"], {"simulation": full(sim), "forecast": full(fc)}, times, r_view=60.0,
@@ -202,7 +202,7 @@ def make_twin(run, codec, pred, truth, x0, env, dt, k, a, vol, mean_sc):
     folder = os.path.join(a.out, "twin")
     sc.export(folder)
     frames = capture_twin(folder, range(len(times)), field="log10_density", cmap="inferno", view="1,0.75,-1",
-                          zoom=0.78, size=(1280, 640))
+                          zoom=0.78, size=(1280, 640), vrange=(round(codec.log_min, 2), round(codec.log_max, 2)))
     _gif(frames, times, err, hz_err, rate, env, os.path.join(a.out, "twin_forecast.gif"), k)
 
 

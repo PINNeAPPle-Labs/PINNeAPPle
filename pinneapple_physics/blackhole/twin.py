@@ -92,9 +92,9 @@ def sphere(radius: float, center: Sequence[float] = (0, 0, 0), n: int = 24) -> T
 def accretion_scene(grid: Dict[str, np.ndarray], panels: Dict[str, np.ndarray], times: Sequence[float], *,
                     field: str = "log10_density", unit: str = "", r_view: float = 60.0, gap: float = 0.35,
                     title: str = "Black hole weather", sensors: Optional[Sequence[dict]] = None,
-                    phi_cut_deg: float = 270.0, layout: Sequence[float] = (1.0, 0.0, 1.0)) -> Scene:
+                    phi_cut_deg: float = 270.0, layout: Sequence[float] = (-1.0, 0.0, -1.0)) -> Scene:
     """One cutaway panel per entry of ``panels`` (name -> (T, nr, ntheta) cell values), laid out along ``layout``
-    (default: across the view that looks into the cut, ``view=1,0.6,-1`` in the viewer).
+    (default: left to right on screen for the view that looks into the cut, ``view=1,0.75,-1`` in the viewer).
 
     ``sensors``: dicts with keys id, panel (name, for placement), series (T,), unit, label, envelope.
     """

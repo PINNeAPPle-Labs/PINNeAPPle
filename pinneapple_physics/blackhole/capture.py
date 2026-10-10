@@ -37,6 +37,7 @@ def _not_blank(path: str, min_std: float = 12.0) -> bool:
 
 def capture_twin(folder: str, steps: Iterable[int], out_dir: Optional[str] = None, *, field: str = "",
                  cmap: str = "turbo", view: str = "", zoom: float = 1.0, size=(1280, 720), theme: str = "dark",
+                 vrange: Optional[tuple] = None,
                  hide_panel: bool = True) -> List[str]:
     """Screenshot the exported scene in ``folder`` at each time step; returns the PNG paths."""
     from playwright.sync_api import sync_playwright
@@ -49,7 +50,8 @@ def capture_twin(folder: str, steps: Iterable[int], out_dir: Optional[str] = Non
         kw = {"executable_path": exe} if os.path.isfile(exe) else {}
         browser = pw.chromium.launch(args=["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"], **kw)
         page = browser.new_page(viewport={"width": size[0], "height": size[1]})
-        q = f"?field={field}&cmap={cmap}&zoom={zoom}&theme={theme}" + (f"&view={view}" if view else "")
+        q = f"?field={field}&cmap={cmap}&zoom={zoom}&theme={theme}" + (f"&view={view}" if view else "") + \
+            (f"&range={vrange[0]},{vrange[1]}" if vrange else "")
         page.goto(base + "index.html" + q)
         import json
         with open(os.path.join(folder, "scene.json")) as f:

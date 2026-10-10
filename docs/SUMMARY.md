@@ -27,6 +27,7 @@
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)
   * [Adaptive ensembles of physics models](core_concepts/physics_ensembles.md)
   * [Qualitative preview of geometry changes](core_concepts/qualitative_preview.md)
+  * [Black-hole weather forecasting](core_concepts/black_hole_weather.md)
 * [Validation status](validation_status.md)
 * [API Reference](api/index.md)
   * [pinneapple](api/pinneapple/index.md)

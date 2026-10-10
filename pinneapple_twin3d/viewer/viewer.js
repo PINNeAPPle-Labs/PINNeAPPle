@@ -11,6 +11,7 @@
 //   &view=x,y,z                 camera direction from the scene centre (default 0.6,0.45,0.66)
 //   &zoom=1.0                   camera distance factor (< 1 closer)
 //   &theme=dark|light           colour theme
+//   &range=min,max              fixed colour range
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -183,6 +184,11 @@ function buildUi() {
   if (s0 !== null && nt) {
     state.step = s0 === "last" ? nt - 1 : Math.min(Math.max(parseInt(s0, 10) || 0, 0), nt - 1);
     $("time").value = state.step;
+  }
+  const r0 = params.get("range");             // fixed colour range "min,max"
+  if (r0) {
+    const [lo0, hi0] = r0.split(",").map(Number);
+    $("autorange").checked = false; $("vmin").value = lo0; $("vmax").value = hi0;
   }
   const c0 = params.get("cmap");
   if (c0 && CMAPS[c0]) { state.cmap = c0; $("cmap").value = c0; }

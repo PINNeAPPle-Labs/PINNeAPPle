@@ -139,7 +139,7 @@ def event_states(store: Era5Store, event: Event, leads: int, cache_dir=None, log
 
         f = Path(cache_dir) / f"{event.key}_{leads}.npy"
         if f.exists():
-            return times, np.load(f)
+            return times, np.load(f).astype(np.float32)
         x = arco_states(store, times, log=log)
         f.parent.mkdir(parents=True, exist_ok=True)
         np.save(f, x)

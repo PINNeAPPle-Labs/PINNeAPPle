@@ -1,0 +1,4 @@
+[16:35:01] stage integrate started
+[16:35:01] stage integrate done (0.007 s)
+[16:35:01] check finite_and_bounded: PASS 
+[16:35:01] check accuracy_for_method: PASS rmse <= 4.1e-09 (rk4)

@@ -1,0 +1,4 @@
+[16:35:04] stage integrate started
+[16:35:04] stage integrate done (0.002 s)
+[16:35:04] check finite_and_bounded: PASS 
+[16:35:04] check accuracy_for_method: PASS rmse <= 0.13 (euler)

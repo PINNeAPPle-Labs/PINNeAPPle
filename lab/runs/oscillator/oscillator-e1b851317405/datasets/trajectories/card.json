@@ -1,0 +1,79 @@
+{
+ "name": "trajectories",
+ "description": "Oscillator trajectories x(t) with parameters and regime",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "t": {
+   "kind": "array",
+   "shape": [
+    15739
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 20.000030517578125
+  },
+  "x": {
+   "kind": "array",
+   "shape": [
+    15739
+   ],
+   "dtype": "float32",
+   "min": -0.1806914061307907,
+   "max": 1.0
+  },
+  "x_exact": {
+   "kind": "array",
+   "shape": [
+    15739
+   ],
+   "dtype": "float32",
+   "min": -0.1802910566329956,
+   "max": 1.0
+  },
+  "zeta": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.4787631207605294,
+   "max": 0.4787631207605294
+  },
+  "omega": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.9752612682859049,
+   "max": 0.9752612682859049
+  },
+  "method": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "euler"
+   ]
+  },
+  "regime": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "underdamped"
+   ]
+  }
+ },
+ "units": {
+  "t": "s",
+  "x": "m"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "oscillator",
+  "run_id": "oscillator-e1b851317405",
+  "params": {
+   "zeta": 0.4787631207605294,
+   "omega": 0.9752612682859049,
+   "method": "euler",
+   "dt": 0.0012708114337755844,
+   "t_end": 20.0,
+   "seed": 0
+  }
+ },
+ "sha1": "4d45da1b07326b0f75c86b0cdd6b78a069be0169"
+}

@@ -1,0 +1,71 @@
+{
+ "name": "frames",
+ "description": "Primitive fields (rho, v_r, v_theta, v_phi, p) on the (r, theta) grid",
+ "n_samples": 31,
+ "shards": 1,
+ "schema": {
+  "frame": {
+   "kind": "array",
+   "shape": [
+    5,
+    64,
+    32
+   ],
+   "dtype": "float32",
+   "min": -0.899746835231781,
+   "max": 0.9820303916931152
+  },
+  "t": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 600.0
+  },
+  "mdot": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 12.173221558070292
+  },
+  "alpha": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.1,
+   "max": 0.1
+  },
+  "viscosity": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "ST"
+   ]
+  },
+  "torus_a": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 0.0
+  }
+ },
+ "units": {
+  "frame": "G=M=c=1",
+  "t": "GM/c^3"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "accretion_flow",
+  "run_id": "accretion_flow-9ee81c81f58c",
+  "params": {
+   "alpha": 0.1,
+   "viscosity": "ST",
+   "torus_a": 0.0,
+   "nr": 64,
+   "ntheta": 32,
+   "t_end": 600.0,
+   "every": 20.0,
+   "backend": "numba",
+   "seed": 0
+  }
+ },
+ "sha1": "fb1105910602c293cd4208ef5ec9c98b434d1473"
+}

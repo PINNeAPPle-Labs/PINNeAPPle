@@ -1,0 +1,35 @@
+[
+ {
+  "name": "mass_budget",
+  "passed": true,
+  "value": 4.1313799171892497e-16,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.001,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "angular_momentum_budget",
+  "passed": true,
+  "value": 1.4072580320423085e-06,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.001,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "accretes",
+  "passed": true,
+  "value": 3.833644181311398,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.0,
+  "detail": ""
+ }
+]

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "finite_and_bounded",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "accuracy_for_method",
+  "passed": true,
+  "value": 0.003527550975055807,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.046468914266336675,
+  "min": null,
+  "detail": "rmse <= 0.046 (symplectic)"
+ }
+]

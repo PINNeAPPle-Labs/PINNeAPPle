@@ -1,0 +1,79 @@
+{
+ "name": "trajectories",
+ "description": "Oscillator trajectories x(t) with parameters and regime",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "t": {
+   "kind": "array",
+   "shape": [
+    599
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 19.993661880493164
+  },
+  "x": {
+   "kind": "array",
+   "shape": [
+    599
+   ],
+   "dtype": "float32",
+   "min": 2.723225918071178e-20,
+   "max": 1.0
+  },
+  "x_exact": {
+   "kind": "array",
+   "shape": [
+    599
+   ],
+   "dtype": "float32",
+   "min": 2.0912626361891142e-21,
+   "max": 1.0
+  },
+  "zeta": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.300177295715079,
+   "max": 1.300177295715079
+  },
+  "omega": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 5.101935902833019,
+   "max": 5.101935902833019
+  },
+  "method": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "symplectic"
+   ]
+  },
+  "regime": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "overdamped"
+   ]
+  }
+ },
+ "units": {
+  "t": "s",
+  "x": "m"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "oscillator",
+  "run_id": "oscillator-14018b222664",
+  "params": {
+   "zeta": 1.300177295715079,
+   "omega": 5.101935902833019,
+   "method": "symplectic",
+   "dt": 0.03343421722756875,
+   "t_end": 20.0,
+   "seed": 0
+  }
+ },
+ "sha1": "4c0cbec08039940aaa74bf852a7a03607e09dbbd"
+}

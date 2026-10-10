@@ -47,6 +47,7 @@ examples/studio/_out/**/case_*/
 
 # PINNeAPPle Lab database: metadata, metrics, validation, figures and dataset cards are versioned;
 # arrays, dataset shards and the SQLite index (rebuilt with `python -m pinneapple_lab reindex`) are not
+!lab/runs/
 lab/index.sqlite
 lab/**/*.npy
 lab/**/*.npz

@@ -1,0 +1,50 @@
+{
+ "name": "fields",
+ "description": "u(x, t) of the heat equation on a 101 x 51 grid",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "u": {
+   "kind": "array",
+   "shape": [
+    101,
+    51
+   ],
+   "dtype": "float32",
+   "min": -0.007766612805426121,
+   "max": 1.0
+  },
+  "u_exact": {
+   "kind": "array",
+   "shape": [
+    101,
+    51
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 1.0
+  },
+  "alpha": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.0,
+   "max": 1.0
+  }
+ },
+ "units": {
+  "u": "-"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "heat_xtfc",
+  "run_id": "heat_xtfc-71e21e11957e",
+  "params": {
+   "alpha": 1.0,
+   "n_basis": 20,
+   "n_collocation": 25,
+   "activation": "sin",
+   "seed": 0
+  }
+ },
+ "sha1": "4c3d304df9493036ab33d173bb921d6f1dbd05c5"
+}

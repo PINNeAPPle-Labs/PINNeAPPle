@@ -156,10 +156,27 @@ class ROMStudy(Experiment):
         truth = U[n_tr - 1:]
         x0 = torch.tensor(U[n_tr - 1][None], dtype=torch.float64)
         pred_dmd = dmd.rollout(x0, H)[0].numpy()
-        r = 8
-        a_tr = pod.encode(Xtr)[:, :r] if pod.encode(Xtr).shape[1] >= r else pod.encode(Xtr)
-        r = a_tr.shape[1]
-        oi = OperatorInference(r=r, use_quadratic=True, l2_linear=1e-6, l2_quad=1e-4).fit(a_tr[None])
+        # Operator Inference: rank and quadratic regularisation chosen on the last 25 % of the training window
+        A_all = pod.encode(Xtr)
+        n_fit = int(0.75 * n_tr)
+        val_truth = U[n_fit - 1:n_tr]
+        best_cfg, best_err = None, np.inf
+        for r_ in (4, 6, 8, 10):
+            for lq in (1e-2, 1e0, 1e2):
+                a_ = A_all[:n_fit, :r_]
+                try:
+                    m_ = OperatorInference(r=r_, use_quadratic=True, l2_linear=1e-6, l2_quad=lq, scale=True).fit(a_[None])
+                    av = m_.rollout(a_[-1][None], n_tr - n_fit)[0]
+                    pv = (av @ pod.basis_[:, :r_].T + pod.mean_).numpy()
+                    ev = float(np.mean(np.linalg.norm(pv - val_truth, axis=1)))
+                except Exception:                                  # noqa: BLE001 - a diverging candidate
+                    ev = np.inf
+                if np.isfinite(ev) and ev < best_err:
+                    best_cfg, best_err = (r_, lq), ev
+        r, lq = best_cfg
+        ctx.output("opinf_selection", {"rank": r, "l2_quad": lq, "validation": "last 25 % of the training window"})
+        a_tr = A_all[:, :r]
+        oi = OperatorInference(r=r, use_quadratic=True, l2_linear=1e-6, l2_quad=lq, scale=True).fit(a_tr[None])
         a_pred = oi.rollout(a_tr[-1][None], H)[0]
         basis = pod.basis_[:, :r]
         pred_oi = (a_pred @ basis.T + pod.mean_).numpy()

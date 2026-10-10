@@ -1,0 +1,12 @@
+[18:25:29] stage run started
+[18:35:29] stage run done (600.162 s)
+[18:35:29] stage collect started
+[18:35:29] stage collect done (0.087 s)
+[18:35:29] check exits_cleanly: FAIL timeout
+[18:35:29] Traceback (most recent call last):
+  File "/home/user/PINNeAPPle/pinneapple_lab/runner.py", line 144, in run
+    cls().run(ctx)
+  File "/home/user/PINNeAPPle/pinneapple_lab/experiments/examples.py", line 288, in run
+    raise TimeoutError(f"{p['script']} did not finish in {p['timeout']} s")
+TimeoutError: examples/getting_started/08_van_der_pol.py did not finish in 600.0 s
+

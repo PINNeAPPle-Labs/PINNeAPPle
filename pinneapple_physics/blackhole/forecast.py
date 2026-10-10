@@ -133,9 +133,10 @@ class TrainConfig:
     frames: int = 5
     epochs: int = 40
     batch_size: int = 16
-    lr: float = 5e-4                   # the paper's learning rate
+    lr: float = 2e-4                   # the paper uses 5e-4 with batch 64; at batch 16 that diverges here
     alpha: float = 8.0
-    bf16: bool = True                  # CPU autocast (AMX); the weights stay float32
+    clip: float = 1.0                  # gradient-norm clipping (not in the paper; keeps the deep U-Net stable)
+    bf16: bool = False                 # CPU autocast (helps only on CPUs with AMX)
     seed: int = 0
     max_minutes: float = 1e9
 
@@ -163,8 +164,10 @@ def train_forecaster(X: np.ndarray, Y: np.ndarray, Xv: np.ndarray, Yv: np.ndarra
             loss = duarte_loss(pred.float(), Yt[b], cfg.alpha)
             opt.zero_grad()
             loss.backward()
+            if cfg.clip:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.clip)
             opt.step()
-            tot += float(loss) * len(b)
+            tot += loss.item() * len(b)
         val = evaluate_loss(model, Xvt, Yvt, cfg)
         hist["train"].append(tot / len(Xt))
         hist["val"].append(val)

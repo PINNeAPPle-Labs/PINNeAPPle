@@ -113,19 +113,43 @@ class Scene:
                 return p
         raise KeyError(f"unknown part '{name}'")
 
-    def to_studio(self, step: int = -1):
+    def to_studio(self, step: int = -1, up: str = "z"):
         """This twin as a ``pp.viz`` Scene (fields at time step ``step``) for Blender renders, glTF/USD export or
-        the studio viewer; sensors are left out."""
+        the studio viewer; sensors are left out. ``up``: the twin's up axis ("z", engineering, or "y", e.g. a scene
+        built for the web viewer), mapped to the studio's z-up."""
         from pinneapple_tools.visualization.studio.scene import Scene as StudioScene, Surface
         sc = StudioScene(title=self.title, axes="z_up")
         for p in self.parts:
-            s = Surface(p.name, p.vertices, p.faces.astype(np.int64), material="grey")
+            v = p.vertices if up == "z" else np.stack([p.vertices[:, 0], -p.vertices[:, 2], p.vertices[:, 1]], 1)
+            s = Surface(p.name, v, p.faces.astype(np.int64), material="grey")
             for name, arr in p.fields.items():
                 s.fields[name] = np.asarray(arr[step if arr.shape[0] > 1 else 0], float)
             sc.surfaces.append(s)
         for name, unit in self.field_units.items():
             sc.labels[name] = f"{name} ({unit})" if unit else name
         return sc
+
+    # -- Blender -------------------------------------------------------
+    def render_blender(self, out: str, *, step: int = -1, field: Optional[str] = None, up: str = "z",
+                       field_range=None, **kw) -> str:
+        """Blender Cycles render of the twin at time step ``step`` (``pip install bpy``), coloured by ``field``.
+
+        Extra keywords go to :func:`pinneapple_tools.visualization.studio.blender.render` (view, background,
+        samples, size, title, ...). The colour range defaults to the field's range over all time steps, so the
+        frames of an animation share one scale."""
+        from pinneapple_tools.visualization.studio.blender import render
+        if field and field_range is None:
+            vals = [p.fields[field] for p in self.parts if field in p.fields]
+            field_range = (float(min(np.nanmin(v) for v in vals)), float(max(np.nanmax(v) for v in vals)))
+        title = kw.pop("title", f"{field} [{self.field_units[field]}]" if field in self.field_units else field)
+        return render(self.to_studio(step, up), out, field=field, field_range=field_range, title=title, **kw)
+
+    def render_blender_frames(self, folder: str, steps: Optional[Sequence[int]] = None, **kw) -> List[str]:
+        """One Blender render per time step (default: all) into ``folder``; returns the image paths."""
+        os.makedirs(folder, exist_ok=True)
+        steps = range(len(self.times) if self.times is not None else 1) if steps is None else steps
+        return [self.render_blender(os.path.join(folder, f"frame_{k:04d}.png"), step=s, **kw)
+                for k, s in enumerate(steps)]
 
     # -- export --------------------------------------------------------
     def export(self, folder: str, *, with_viewer: bool = True, usd: bool = False) -> str:

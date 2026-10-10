@@ -120,3 +120,32 @@ def test_twin_scene_cutaway():
     sc = accretion_scene(g, {"simulation": lr, "forecast": lr}, [0.0, 10.0], r_view=60.0,
                          sensors=[{"id": "err", "panel": "forecast", "series": [0.0, 0.1], "envelope": (0, 0.2)}])
     assert len(sc.parts) == 4 and sc.parts[0].fields["log10_density"].shape[0] == 2
+
+
+def test_ray_tracer_shadow_has_the_schwarzschild_size():
+    """Rays with impact parameter below 3 sqrt(3) M fall in; above it they escape."""
+    from pinneapple_physics.blackhole.raytrace import SHADOW_B, Camera
+    flow = AccretionFlow(RIAFConfig(nr=32, ntheta=16))
+    cam = Camera(width=61, height=61, r_cam=1000.0, inclination_deg=90.0, fov_deg=1.6, ds_out=40.0)
+    paths = cam.trace(flow.grid(), r_max=20.0)
+    d = cam.directions()
+    pos = cam.basis()[0]
+    sin_a = np.linalg.norm(np.cross(d, pos / np.linalg.norm(pos)), axis=1)
+    b = cam.r_cam * sin_a / math.sqrt(1 - 2 / cam.r_cam)
+    clear = np.abs(b - SHADOW_B) > 0.15
+    assert np.array_equal(paths.captured[clear], (b < SHADOW_B)[clear])
+
+
+def test_ray_tracer_renders_a_lensed_thin_disc():
+    """A thin equatorial disc seen nearly edge on also shows its far side above the shadow (lensing)."""
+    from pinneapple_physics.blackhole.raytrace import Camera, render
+    flow = AccretionFlow(RIAFConfig(nr=64, ntheta=64))
+    g = flow.grid()
+    r, th = g["r"], g["theta"]
+    rho = np.where((np.abs(th - np.pi / 2)[None] < 0.03) & (r[:, None] > 6) & (r[:, None] < 30), 1.0, 0.0)
+    cam = Camera(width=96, height=54, r_cam=150.0, inclination_deg=86.0, fov_deg=24.0)
+    I = render(cam.trace(g, r_max=35.0), rho, np.ones_like(rho), None, doppler=False, return_intensity=True)
+    col = I[:, 48]                                    # vertical line through the hole
+    top = col[:20].max()                              # lensed image of the far side, above the shadow
+    assert top > 0.05 * col.max()
+    assert I[18, 48] < 0.02 * col.max()               # the shadow, between the arc and the disc, is dark

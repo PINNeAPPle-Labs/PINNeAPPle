@@ -47,6 +47,7 @@ def main(argv=None):
     ap.add_argument("--starts", type=int, default=8)
     ap.add_argument("--twin", action="store_true")
     ap.add_argument("--twin-blocks", type=int, default=12)
+    ap.add_argument("--interstellar", action="store_true", help="general-relativistic ray-traced GIF")
     a = ap.parse_args(argv)
     torch.set_num_threads(4)
     os.makedirs(a.out, exist_ok=True)
@@ -111,6 +112,8 @@ def main(argv=None):
     slices_figure(run["grid"], codec, pred, truth, dt, k, os.path.join(a.out, "slices.png"))
     if a.twin:
         make_twin(run, codec, pred, truth, x[s_first:s_first + k], env, dt, k, a, vol, mean_sc)
+    if a.interstellar:
+        make_interstellar(run, codec, pred, truth, x[s_first:s_first + k], dt, k, a, mean_sc, stride, seg0)
 
 
 def skill_figure(lead, mean_sc, sc_all, hz, mass_lead, block_dt, path, name):
@@ -204,6 +207,61 @@ def make_twin(run, codec, pred, truth, x0, env, dt, k, a, vol, mean_sc):
     frames = capture_twin(folder, range(len(times)), field="log10_density", cmap="inferno", view="1,0.75,-1",
                           zoom=0.78, size=(1280, 640), vrange=(round(codec.log_min, 2), round(codec.log_max, 2)))
     _gif(frames, times, err, hz_err, rate, env, os.path.join(a.out, "twin_forecast.gif"), k)
+
+
+def make_interstellar(run, codec, pred, truth, x0, dt, k, a, mean_sc, stride, seg0, every=2):
+    """Ray-traced (Schwarzschild geodesics) view of the simulation and of the forecast, side by side.
+
+    The forecaster predicts density only, so both panels use the same time-mean temperature and velocity of the
+    simulation's training segment; the difference between the panels is the forecast density."""
+    from PIL import Image, ImageDraw, ImageFont
+    from pinneapple_physics.blackhole.raytrace import Camera, bloom, render, star_field
+
+    frames = run["frames"][::stride]
+    mean = frames[:max(seg0, 1)].mean(0)
+    temp, vel = mean[4] / mean[0], mean[1:4]
+    cam = Camera(width=480, height=270, r_cam=260.0, inclination_deg=80.0, fov_deg=30.0)
+    paths = cam.trace(run["grid"], r_max=70.0)
+    sky = star_field()
+    nb = min(a.twin_blocks * k, len(pred))
+    sim = np.concatenate([x0, truth[:nb]])[::every]
+    fc = np.concatenate([x0, pred[:nb]])[::every]
+    times = (dt * (np.arange(len(x0) + nb) - (k - 1)))[::every]
+    full = lambda z: 10.0 ** _uncrop(np.log10(codec.decode(z[None])), codec, run["grid"])[0]
+    scale = np.percentile(render(paths, full(sim[0]), temp, vel, return_intensity=True), 99.7)
+    hz_err = float(np.interp(0.6, mean_sc["acc"][::-1], mean_sc["mae"][::-1]))
+    err = np.concatenate([np.zeros(len(x0)), np.abs(pred[:nb] - truth[:nb]).mean((1, 2))])[::every]
+    try:
+        font = ImageFont.truetype("DejaVuSans.ttf", 18)
+        small = ImageFont.truetype("DejaVuSans.ttf", 14)
+    except OSError:
+        font = small = ImageFont.load_default()
+    out = []
+    for i in range(len(sim)):
+        panels = [bloom(render(paths, full(z[i]), temp, vel, sky=sky, scale=scale, t_color=4000, gamma=0.9,
+                               exposure=1.3)) for z in (sim, fc)]
+        img = np.concatenate([np.concatenate(panels, 1)], 0)
+        canvas = Image.new("RGB", (img.shape[1], img.shape[0] + 74), (6, 6, 8))
+        canvas.paste(Image.fromarray((img * 255).astype(np.uint8)), (0, 30))
+        d = ImageDraw.Draw(canvas)
+        W = canvas.size[0]
+        d.text((W * 0.25, 6), "SIMULATION", fill=(230, 225, 215), font=font, anchor="ma")
+        d.text((W * 0.75, 6), "U-NET FORECAST", fill=(230, 225, 215), font=font, anchor="ma")
+        lab = "input frames" if times[i] <= 0 else f"lead +{times[i]:.0f} GM/c^3"
+        H = canvas.size[1]
+        d.text((14, H - 40), lab, fill=(230, 225, 215), font=small)
+        trust = err[i] <= hz_err
+        d.text((W - 14, H - 40), "trusted" if trust else "beyond trust horizon",
+               fill=(46, 160, 67) if trust else (215, 58, 73), font=small, anchor="ra")
+        bw = int((W - 28) * min(1.0, err[i] / (2 * hz_err)))
+        d.rectangle([14, H - 18, W - 14, H - 10], outline=(110, 110, 110))
+        d.rectangle([14, H - 18, 14 + bw, H - 10], fill=(46, 160, 67) if trust else (215, 58, 73))
+        out.append(canvas.convert("P", palette=Image.ADAPTIVE, colors=220))
+    dur = [500 if t <= 0 else 220 for t in times]
+    dur[-1] = 1500
+    path = os.path.join(a.out, "interstellar_forecast.gif")
+    out[0].save(path, save_all=True, append_images=out[1:], duration=dur, loop=0, optimize=True)
+    out[len(out) // 2].convert("RGB").save(os.path.join(a.out, "interstellar_frame.png"))
 
 
 def _uncrop(z, codec, grid):

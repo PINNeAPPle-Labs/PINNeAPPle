@@ -290,7 +290,9 @@ def lead_time_scores(pred: np.ndarray, truth: np.ndarray, last_input: np.ndarray
     clim = np.array([float((np.abs(mean_state - truth[t]) * w).mean()) for t in range(T)])
     acc = np.array([_corr((pred[t] - mean_state) * np.sqrt(w), (truth[t] - mean_state) * np.sqrt(w)) for t in range(T)])
     tend = np.array([_corr((pred[t] - last_input) * np.sqrt(w), (truth[t] - last_input) * np.sqrt(w)) for t in range(T)])
-    return {"mae": mae, "persistence": pers, "climatology": clim, "acc": acc, "tendency": tend}
+    r2 = np.array([1.0 - float(((pred[t] - truth[t]) ** 2).sum()) / max(float(((truth[t] - truth[t].mean()) ** 2).sum()), 1e-30)
+                   for t in range(T)])                      # the paper reports R^2 of the normalised density
+    return {"mae": mae, "persistence": pers, "climatology": clim, "acc": acc, "tendency": tend, "r2": r2}
 
 
 def trust_horizon(scores: dict[str, np.ndarray], frame_dt: float, acc_min: float = 0.6, block: int = 1) -> dict[str, float]:

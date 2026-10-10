@@ -105,7 +105,7 @@ def main(argv=None):
             rolls[int(s0)] = (pp_, truth)
         else:
             rolls[int(s0)] = (pred, truth)
-    keys = ["mae", "persistence", "climatology", "acc", "tendency"]
+    keys = ["mae", "persistence", "climatology", "acc", "tendency", "r2"]
     mean_sc = {kk: np.mean([s[kk] for s in sc_all], 0) for kk in keys}
     mean_proj = {kk: np.mean([s[kk] for s in sc_proj], 0) for kk in keys} if sc_proj else None
     hz = trust_horizon(mean_sc, dt, block=k)

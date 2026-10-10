@@ -1,7 +1,8 @@
 site_name: PINNeAPPle
+site_url: https://pinneapple-labs.github.io/PINNeAPPle/
 site_description: Modular Physics AI framework for reproducible PINN research
-repo_name: barrosyan/PINNeAPPle
-repo_url: https://github.com/barrosyan/PINNeAPPle
+repo_name: PINNeAPPle-Labs/PINNeAPPle
+repo_url: https://github.com/PINNeAPPle-Labs/PINNeAPPle
 edit_uri: edit/main/docs/
 
 theme:
@@ -19,8 +20,13 @@ theme:
   icon:
     repo: fontawesome/brands/github
 
+extra_css:
+  - stylesheets/home.css
+
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
   - footnotes
   - tables
   - toc:

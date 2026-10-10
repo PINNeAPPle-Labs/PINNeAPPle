@@ -23,6 +23,7 @@
   * [Researcher & Benchmarking](core_concepts/researcher_benchmarking.md)
   * [3D Studio & External Flow](core_concepts/studio.md)
   * [Security (pinneapple_security)](core_concepts/security.md)
+  * [Verification and evidence (pinneapple_veriphysics)](core_concepts/veriphysics.md)
   * [Earth-system blocks & data assimilation](core_concepts/earth_system.md)
   * [Adaptive forecasting](core_concepts/adaptive_forecasting.md)
   * [Adaptive ensembles of physics models](core_concepts/physics_ensembles.md)

@@ -1,0 +1,74 @@
+{
+ "run_id": "rom_study-61475bf029de",
+ "experiment": "rom_study",
+ "version": "1",
+ "params": {
+  "case": "beam_parametric",
+  "Re": 100.0,
+  "steps": 30000,
+  "save_every": 50,
+  "n_train": 80,
+  "n_test": 20,
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791667572.695795,
+ "tags": [
+  "rom",
+  "reduced-order-model",
+  "pod",
+  "dmd",
+  "surrogate",
+  "physics-ai",
+  "dataset"
+ ],
+ "git": "b28fae5d",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Reduced-order models on the lab's own solvers: POD / DMD / Operator Inference forecasting a cylinder wake, and a parametric POD-RBF / POD-GPR model of a 3-D FEM cantilever, each against its baseline (persistence, nearest design).",
+ "code": {
+  "files": [
+   "code/rom.py"
+  ],
+  "sha1": "2b00a908413d2ea50818ef4c64906858d4627e2c"
+ },
+ "finished": 1791667742.417384,
+ "error": null,
+ "stages": [
+  {
+   "name": "fem_snapshots",
+   "started": 1791667575.4676342,
+   "status": "done",
+   "seconds": 92.117
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/design_space.json"
+  ],
+  "outputs": [
+   "outputs/errors.json"
+  ],
+  "figures": [
+   "figures/rom_errors.png",
+   "figures/worst_design_fem.png",
+   "figures/worst_design_rom.png"
+  ]
+ },
+ "validation": {
+  "total": 4,
+  "failed": 0
+ },
+ "seconds": 169.722,
+ "datasets": {
+  "beam_designs": {
+   "n_samples": 100,
+   "path": "runs/rom_study/rom_study-61475bf029de/datasets/beam_designs"
+  }
+ }
+}

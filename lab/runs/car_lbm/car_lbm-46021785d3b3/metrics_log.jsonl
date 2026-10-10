@@ -1,0 +1,5 @@
+{"name": "Cd", "value": 1.6527201902742183, "step": null, "t": 1791662133.55352}
+{"name": "Cl", "value": 0.670794615871273, "step": null, "t": 1791662133.5535595}
+{"name": "Cd_rms_fluctuation", "value": 0.14673417333294594, "step": null, "t": 1791662133.5537024}
+{"name": "Strouhal_frontal_height", "value": 0.12000000000000001, "step": null, "t": 1791662133.5538907}
+{"name": "mean_flow_divergence", "value": 0.0003308383747935295, "step": null, "t": 1791662133.554459}

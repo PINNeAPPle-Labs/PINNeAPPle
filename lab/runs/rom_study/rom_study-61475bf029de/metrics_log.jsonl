@@ -1,0 +1,10 @@
+{"name": "displacement_best_rom", "value": "gpr", "step": null, "t": 1791667696.2819946}
+{"name": "displacement_median_error", "value": 0.0005343541212487664, "step": null, "t": 1791667696.2822094}
+{"name": "displacement_max_error", "value": 0.00182925142231064, "step": null, "t": 1791667696.2822385}
+{"name": "displacement_nearest_design_median_error", "value": 0.05243458583623352, "step": null, "t": 1791667696.2822528}
+{"name": "von_mises_best_rom", "value": "gpr+split", "step": null, "t": 1791667715.262418}
+{"name": "von_mises_median_error", "value": 0.010247638172793564, "step": null, "t": 1791667715.2625248}
+{"name": "von_mises_max_error", "value": 0.035742129914881154, "step": null, "t": 1791667715.2625458}
+{"name": "von_mises_nearest_design_median_error", "value": 0.06438114783274926, "step": null, "t": 1791667715.2625587}
+{"name": "fem_seconds_per_design", "value": 0.9229095935821533, "step": null, "t": 1791667715.2626762}
+{"name": "speedup_over_fem", "value": 880.1945041327011, "step": null, "t": 1791667715.2626884}

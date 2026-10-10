@@ -1,0 +1,328 @@
+diff --git a/pinneapple_lab/__main__.py b/pinneapple_lab/__main__.py
+index 66131cbf..b9224bf5 100644
+--- a/pinneapple_lab/__main__.py
++++ b/pinneapple_lab/__main__.py
+@@ -9,12 +9,15 @@
+     python -m pinneapple_lab export cylinder_lbm vorticity out/cylinder_vorticity.npz
+     python -m pinneapple_lab serve --host 0.0.0.0 --port 8093                # the catalogue as a web app
+     python -m pinneapple_lab examples --run --match use_cases                # examples and use cases into the lab
++    python -m pinneapple_lab curate                                          # A flagship .. D not usable, per run
++    python -m pinneapple_lab review kepler_law --novelty 4 --story "..." --approve paper,marketing
+ Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
+ """
+ from __future__ import annotations
+ 
+ import argparse
+ import json
++import os
+ import sys
+ 
+ 
+@@ -61,6 +64,17 @@ def main(argv=None) -> int:
+     sv.add_argument("--host", default="127.0.0.1")
+     sv.add_argument("--port", type=int, default=8093)
+     sv.add_argument("--refresh", type=float, default=30.0, help="seconds between re-indexing the run folders")
++    cu = sub.add_parser("curate", help="grade every run and experiment (A flagship .. D not usable)")
++    cu.add_argument("--json", action="store_true", help="print the experiment table as JSON")
++    rv = sub.add_parser("review", help="record a human review of an experiment (qualitative curation)")
++    rv.add_argument("name")
++    rv.add_argument("--reviewer", default=None)
++    rv.add_argument("--story", default=None, help="the one-line story / headline")
++    rv.add_argument("--novelty", type=int, default=None, help="1-5")
++    rv.add_argument("--clarity", type=int, default=None, help="1-5")
++    rv.add_argument("--visual-appeal", type=int, default=None, help="1-5")
++    rv.add_argument("--approve", default=None, help="comma list of product,paper,marketing,training_data")
++    rv.add_argument("--limitations", default=None)
+     ex = sub.add_parser("examples", help="list the repository's examples and use cases, or run them into the lab")
+     ex.add_argument("--match", default="", help="only scripts whose path contains this text")
+     ex.add_argument("--run", action="store_true", help="run them (one at a time: scripts write into the checkout)")
+@@ -93,6 +107,22 @@ def main(argv=None) -> int:
+         for x in res:
+             print(f"{x.run_id}  {x.status:24s} {x.seconds:8.1f} s")
+         return 0 if all(x.ok for x in res) else 1
++    if a.cmd == "curate":
++        from .curation import curate
++        out = curate(LabStore(a.root))
++        if a.json:
++            print(json.dumps(out["experiments"], indent=1, default=str))
++        else:
++            for exp, e in sorted(out["experiments"].items(), key=lambda kv: kv[1]["tier"]):
++                print(f"{e['tier']} {e['tier_name']:12s} {str(e['best_score']):>6s}  {exp}")
++        return 0
++    if a.cmd == "review":
++        from .curation import save_review
++        rec = save_review(LabStore(a.root).root, a.name, reviewer=a.reviewer, story=a.story, novelty=a.novelty,
++                          clarity=a.clarity, visual_appeal=a.visual_appeal, limitations=a.limitations,
++                          approved_for=[x.strip() for x in a.approve.split(",")] if a.approve else None)
++        print(json.dumps(rec, indent=1))
++        return 0
+     if a.cmd == "examples":
+         from .experiments.examples import discover_examples
+         items = [x for x in discover_examples() if a.match in x["script"]]
+@@ -120,6 +150,9 @@ def main(argv=None) -> int:
+     elif a.cmd == "report":
+         print(store.catalog(a.out))
+         print(store.datasets_catalog())
++        from .curation import curate
++        curate(store)
++        print(os.path.join(store.root, "CURATION.md"))
+         if a.html:
+             print(store.catalog_html())
+     elif a.cmd == "export":
+diff --git a/pinneapple_lab/catalog_template.html b/pinneapple_lab/catalog_template.html
+index 8aed56b6..fee11dbd 100644
+--- a/pinneapple_lab/catalog_template.html
++++ b/pinneapple_lab/catalog_template.html
+@@ -53,6 +53,8 @@ section.exp { display: grid; gap: 14px; padding-top: 6px }
+ .exp-head h2 { font: 600 24px/1.15 var(--display); margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap }
+ .exp-head h2 small { font: 400 12px var(--mono); color: var(--muted) }
+ .exp-head p { margin: 4px 0 0; color: var(--muted); max-width: 90ch; grid-column: 1 / -1 }
++.exp-head .chips { grid-column: 1 / -1 }
++.wrap > *, header.top > * { min-width: 0 }
+ .chips { display: flex; flex-wrap: wrap; gap: 6px }
+ .chip { font: 500 11px/1 var(--mono); padding: 5px 8px; border-radius: 6px; background: var(--chip); color: var(--muted) }
+ .chip.ok { color: var(--ok) } .chip.warn { color: var(--warn) } .chip.bad { color: var(--bad) } .chip.ds { color: var(--accent) }
+@@ -88,6 +90,19 @@ a.chip { text-decoration: none } a.chip:hover { background: var(--accent-soft) }
+ pre.err { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font: 12px/1.4 var(--mono); max-height: 260px }
+ .scrim { position: fixed; inset: 0; background: rgb(0 0 0 / .25); z-index: 15 }
+ .sheet a { color: var(--accent) }
++.tier { display: inline-block; font: 600 11px/1 var(--mono); padding: 4px 7px; border-radius: 5px; vertical-align: middle;
++  color: var(--sheet); letter-spacing: .02em; white-space: nowrap }
++.tier.tA { background: var(--ok) } .tier.tB { background: var(--accent) } .tier.tC { background: var(--warn) }
++.tier.tD { background: var(--bad) }
++h2 .tier { font-size: 12px; margin-right: 4px }
++.gaps { color: var(--muted); font-size: 13px; margin: 6px 0 0 }
++.gaps b { color: var(--ink) }
++.qrow { display: grid; grid-template-columns: 120px minmax(0, 1fr) 120px; gap: 8px; align-items: center;
++  font: 12px/1.6 var(--mono) }
++.qrow em { font-style: normal; color: var(--muted); text-align: right }
++.qbar { height: 7px; border-radius: 4px; background: var(--chip); overflow: hidden }
++.qbar b { display: block; height: 100%; background: var(--ok) } .qbar b.f { background: var(--bad) }
++.tbl.rd td:last-child { text-align: left }
+ ul.files { margin: 0; padding: 0; list-style: none; columns: 2 220px; font: 13px/1.6 var(--mono) }
+ ul.files li { overflow-wrap: anywhere }
+ footer { color: var(--muted); font: 12px var(--mono) }
+@@ -106,6 +121,7 @@ footer { color: var(--muted); font: 12px var(--mono) }
+   <div class="filters">
+     <input type="search" id="q" placeholder="Search experiments, parameters, metrics (e.g. Re, kepler, shedding)" aria-label="Search">
+     <div class="seg" id="statusSeg" role="group" aria-label="Status"></div>
++    <div class="seg" id="tierSeg" role="group" aria-label="Quality tier"></div>
+     <div class="seg" id="tagSeg" role="group" aria-label="Tags"></div>
+   </div>
+   <main id="main"></main>
+@@ -132,7 +148,10 @@ const fmt = (v) => {
+   if (a >= 1e5 || a < 1e-3) return v.toExponential(2);
+   return Number.isInteger(v) ? String(v) : v.toPrecision(4);
+ };
+-let state = { q: "", status: "all", tag: "all" };
++let state = { q: "", status: "all", tag: "all", tier: "all" };
++const TIER = { A: ["A · flagship", "var(--ok)"], B: ["B · solid", "var(--accent)"], C: ["C · exploratory", "var(--warn)"],
++               D: ["D · not usable", "var(--bad)"] };
++const tierBadge = (q) => q ? `<span class="tier t${q.tier}" title="Quality tier (pinneapple_lab.curation)">${TIER[q.tier][0]}</span>` : "";
+ try { const s = JSON.parse(localStorage.getItem("lab-filters") || "null"); if (s) state = { ...state, ...s }; } catch (e) {}
+ 
+ function summary() {
+@@ -148,6 +167,8 @@ function summary() {
+   const tags = [...new Set(exps.flatMap((e) => e.tags))].sort();
+   $("statusSeg").innerHTML = [["all", "All"], ["completed", "Completed"], ["failed_validation", "Failed validation"], ["failed", "Crashed"]]
+     .map(([k, l]) => `<button data-s="${k}" aria-pressed="${state.status === k}">${l}</button>`).join("");
++  $("tierSeg").innerHTML = [["all", "Any quality"], ["A", "A flagship"], ["B", "B solid"], ["C", "C exploratory"], ["D", "D not usable"]]
++    .map(([k, l]) => `<button data-q="${k}" aria-pressed="${state.tier === k}">${l}</button>`).join("");
+   $("tagSeg").innerHTML = ["all", ...tags].map((t) => `<button data-t="${esc(t)}" aria-pressed="${state.tag === t}">${t === "all" ? "Any tag" : esc(t)}</button>`).join("");
+ }
+ 
+@@ -158,6 +179,7 @@ function keyMetrics(r, n = 3) {
+ function matches(e, r) {
+   if (state.status !== "all" && r.status !== state.status) return false;
+   if (state.tag !== "all" && !e.tags.includes(state.tag)) return false;
++  if (state.tier !== "all" && (!r.quality || r.quality.tier !== state.tier)) return false;
+   if (!state.q) return true;
+   const hay = (e.name + " " + e.description + " " + JSON.stringify(r.params) + " " + JSON.stringify(r.metrics) + " " + r.id).toLowerCase();
+   return state.q.toLowerCase().split(/\s+/).every((w) => hay.includes(w));
+@@ -173,8 +195,10 @@ function render() {
+         ? `<a class="chip ds" href="download/${encodeURIComponent(e.name)}/${encodeURIComponent(k)}.npz" title="Download as .npz">dataset ${esc(k)} · ${n.toLocaleString("en")} samples ↓</a>`
+         : `<span class="chip ds">dataset ${esc(k)} · ${n.toLocaleString("en")} samples</span>`).join("");
+     const shown = runs.slice(-24).reverse();
+-    out.push(`<section class="exp" id="exp-${esc(e.name)}"><div class="exp-head"><h2>${esc(e.name)} <small>v${esc(e.version)} · ${runs.length} run${runs.length > 1 ? "s" : ""}</small></h2>
+-      <div class="chips">${chips}</div><p>${esc(e.description)}</p></div><div class="grid">${shown.map(([r, ri]) => card(e, r, ei, ri)).join("")}</div>
++    const eq = e.quality;
++    const ready = eq ? Object.entries(eq.readiness).filter(([, v]) => v.ready || v.approved).map(([k, v]) => `<span class="chip ${v.approved ? "ok" : ""}">${v.approved ? "approved" : "ready"}: ${k.replace("_", " ")}</span>`).join("") : "";
++    out.push(`<section class="exp" id="exp-${esc(e.name)}"><div class="exp-head"><h2>${tierBadge(eq)} ${esc(e.name)} <small>v${esc(e.version)} · ${runs.length} run${runs.length > 1 ? "s" : ""}</small></h2>
++      <div class="chips">${chips}${ready}</div><p>${esc(e.description)}</p>${eq && eq.gaps.length ? `<p class="gaps"><b>Next:</b> ${eq.gaps.map(esc).join("; ")}</p>` : ""}</div><div class="grid">${shown.map(([r, ri]) => card(e, r, ei, ri)).join("")}</div>
+       ${runs.length > shown.length ? `<p class="lede">Showing the latest ${shown.length} of ${runs.length}; refine the search to see others.</p>` : ""}</section>`);
+   });
+   $("main").innerHTML = out.join("") || `<div class="empty">No run matches these filters. Clear the search or pick another status.</div>`;
+@@ -186,7 +210,7 @@ function card(e, r, ei, ri) {
+   const params = Object.entries(r.params).filter(([k]) => k !== "seed").slice(0, 2);
+   const img = r.thumbs[0] ? `<img class="thumb" alt="${esc(e.name)} figure" loading="lazy" src="${r.thumbs[0]}">` : `<div class="noimg">no figure</div>`;
+   return `<button class="card" style="--st:${st[1]}" data-e="${ei}" data-r="${ri}" aria-label="Open run ${esc(r.id)}">${img}
+-    <div class="body"><div class="rid"><span>${esc(r.id.slice(-12))}</span><span style="color:${st[1]}">${st[0]}</span></div>
++    <div class="body"><div class="rid"><span>${esc(r.id.slice(-12))} ${tierBadge(r.quality)}</span><span style="color:${st[1]}">${st[0]}</span></div>
+     <dl class="kv">${params.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join("")}
+     ${keyMetrics(r).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${fmt(v)}</dd>`).join("")}</dl></div></button>`;
+ }
+@@ -200,6 +224,15 @@ function open(ei, ri) {
+   if (SERVED) r.figures.filter((f) => /\.(png|gif|jpe?g|svg)$/i.test(f)).slice(0, 8)
+     .forEach((f) => parts.push(`<a href="${fileUrl(f)}" target="_blank" rel="noopener"><img alt="figure" loading="lazy" src="${fileUrl(f)}"></a>`));
+   else r.thumbs.forEach((t) => parts.push(`<img alt="figure" src="${t}">`));
++  if (r.quality) {
++    const q = r.quality;
++    const bars = Object.entries(q.dims).map(([k, d]) => `<div class="qrow"><span>${esc(k)}</span>
++      <i class="qbar"><b style="width:${d.score == null ? 0 : Math.round(100 * d.score)}%" class="${d.status === "FAIL" ? "f" : ""}"></b></i>
++      <em>${d.score == null ? "not run" : Math.round(100 * d.score) + " · " + esc(d.tier.toLowerCase())}</em></div>`).join("");
++    const rd = Object.entries(q.readiness).map(([k, v]) => `<tr><td>${esc(k.replace("_", " "))}</td><td>${v.approved ? "approved" : v.ready ? "ready" : "missing: " + v.missing.map(esc).join(", ")}</td></tr>`).join("");
++    parts.push(`<div><h4>Quality ${tierBadge(q)} ${q.score == null ? "" : "· score " + q.score + " · coverage " + Math.round(100 * q.coverage) + " %"}</h4>${bars}
++      <table class="tbl rd">${rd}</table>${q.gaps.length ? `<p class="gaps"><b>Next:</b> ${q.gaps.map(esc).join("; ")}</p>` : ""}</div>`);
++  }
+   parts.push(`<div><h4>Parameters</h4>${table(r.params)}</div>`);
+   parts.push(`<div><h4>Metrics</h4>${Object.keys(r.metrics).length ? table(r.metrics) : "<p class='lede'>No metrics recorded.</p>"}</div>`);
+   parts.push(`<div><h4>Validation</h4>${r.checks.length ? r.checks.map((c) => `<div class="check"><b class="${c.passed ? "" : "f"}">${c.passed ? "PASS" : "FAIL"}</b><span>${esc(c.name)}${c.value !== null && c.value !== undefined ? " · " + fmt(c.value) : ""}${c.max !== null && c.max !== undefined ? " ≤ " + fmt(c.max) : ""}${c.min !== null && c.min !== undefined ? " ≥ " + fmt(c.min) : ""}${c.reference !== null && c.reference !== undefined ? " ref " + fmt(c.reference) : ""}${c.detail ? " — " + esc(c.detail) : ""}</span></div>`).join("") : "<p class='lede'>No checks.</p>"}</div>`);
+@@ -217,6 +250,7 @@ document.addEventListener("click", (ev) => {
+   const c = ev.target.closest(".card"); if (c) return open(+c.dataset.e, +c.dataset.r);
+   const s = ev.target.closest("[data-s]"); if (s) { state.status = s.dataset.s; summary(); render(); return; }
+   const t = ev.target.closest("[data-t]"); if (t) { state.tag = t.dataset.t; summary(); render(); return; }
++  const qb = ev.target.closest("[data-q]"); if (qb) { state.tier = qb.dataset.q; summary(); render(); return; }
+ });
+ $("close").onclick = close; $("scrim").onclick = close;
+ document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
+diff --git a/pinneapple_lab/context.py b/pinneapple_lab/context.py
+index 873f1807..2c33fa3e 100644
+--- a/pinneapple_lab/context.py
++++ b/pinneapple_lab/context.py
+@@ -172,10 +172,15 @@ class RunContext:
+ 
+     def check(self, name: str, passed: Any = None, *, value: Any = None, reference: Any = None,
+               rtol: float | None = None, atol: float | None = None, max: float | None = None,
+-              min: float | None = None, detail: str = "") -> bool:
++              min: float | None = None, detail: str = "", kind: str | None = None) -> bool:
+         """Record a validation check. Either pass a boolean, or a value with a reference and tolerances
+         (|value - reference| <= atol + rtol |reference|), or bounds (``max``/``min``).
+-        A failed check does not stop the run; the run ends with status ``failed_validation``."""
++        A failed check does not stop the run; the run ends with status ``failed_validation``.
++
++        ``kind`` says what the check is evidence of (used by ``pinneapple_lab.curation``): "reference"
++        (an exact solution, a published or measured value), "baseline" (beats a simpler method), "physics"
++        (conservation, symmetry, a physical law or range), "generalization" (unseen inputs) or "sanity".
++        Left out, it is inferred from the name and the arguments."""
+         if passed is None:
+             ok = True
+             v = float(value)
+@@ -187,8 +192,10 @@ class RunContext:
+             if min is not None:
+                 ok &= v >= min
+             passed = ok
++        from .curation import infer_check_kind
+         rec = {"name": name, "passed": bool(passed), "value": _jsonable(value), "reference": _jsonable(reference),
+                "rtol": rtol, "atol": atol, "max": max, "min": min, "detail": detail}
++        rec["kind"] = kind or infer_check_kind(rec)
+         self.checks.append(rec)
+         self.log(f"check {name}: {'PASS' if passed else 'FAIL'} {detail}")
+         return bool(passed)
+diff --git a/pinneapple_lab/experiments/ode.py b/pinneapple_lab/experiments/ode.py
+index 807939e4..f0b0c61f 100644
+--- a/pinneapple_lab/experiments/ode.py
++++ b/pinneapple_lab/experiments/ode.py
+@@ -75,7 +75,8 @@ class Oscillator(Experiment):
+         # expected global error: O(h^4) for RK4, O(h) for the first-order schemes (with a generous constant)
+         tol = {"rk4": 10 * h ** 4, "symplectic": 2 * h, "euler": 10 * h}[p["method"]]
+         ctx.metric("omega_dt", h)
+-        ctx.check("accuracy_for_method", value=err, max=max(tol, 1e-9), detail=f"rmse <= {tol:.2g} ({p['method']})")
++        ctx.check("accuracy_for_method", value=err, max=max(tol, 1e-9), detail=f"rmse <= {tol:.2g} ({p['method']}) vs the exact solution",
++                  kind="reference")
+         regime = "underdamped" if p["zeta"] < 1 else ("critical" if p["zeta"] == 1 else "overdamped")
+         ds = ctx.dataset("trajectories", description="Oscillator trajectories x(t) with parameters and regime",
+                          units={"t": "s", "x": "m"})
+diff --git a/pinneapple_lab/experiments/pde.py b/pinneapple_lab/experiments/pde.py
+index 81293239..eec05df6 100644
+--- a/pinneapple_lab/experiments/pde.py
++++ b/pinneapple_lab/experiments/pde.py
+@@ -32,7 +32,7 @@ class HeatXTFC(Experiment):
+         ctx.output("u", u.astype(np.float32))
+         ctx.metric("rel_l2_error", err)
+         ctx.metric("max_abs_error", float(np.max(np.abs(u - ref))))
+-        ctx.check("rel_l2_below_1e-3", value=err, max=1e-3)
++        ctx.check("rel_l2_below_1e-3", value=err, max=1e-3, detail="vs the exact solution", kind="reference")
+         ds = ctx.dataset("fields", description="u(x, t) of the heat equation on a 101 x 51 grid", units={"u": "-"})
+         ds.add(u=u.astype(np.float32), u_exact=ref.astype(np.float32), alpha=float(p["alpha"]))
+         import matplotlib
+diff --git a/pinneapple_lab/html.py b/pinneapple_lab/html.py
+index a65763b9..00f55bb0 100644
+--- a/pinneapple_lab/html.py
++++ b/pinneapple_lab/html.py
+@@ -50,6 +50,11 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+     """Everything the catalogue page shows. ``thumbs="embed"`` inlines JPEG thumbnails (a self-contained file);
+     ``thumbs="url"`` points them at the server's ``thumb/`` route (``pinneapple_lab.server``)."""
+     from .spec import get
++    try:
++        from .curation import curate
++        cur = curate(store)
++    except Exception:                                      # noqa: BLE001 - the page works without curation
++        cur = {"runs": {}, "experiments": {}}
+     experiments = []
+     for exp, st in sorted(store.status().items()):
+         try:
+@@ -78,14 +83,29 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+                 "figures": [os.path.relpath(f, store.root) for f in figs + gifs],
+                 "dir": os.path.relpath(d, os.path.join(store.root, "runs")), "thumbs": tl,
+                 "error": (r.get("error") or "")[-1500:],
++                "quality": _quality(cur["runs"].get(r["run_id"])),
+             })
+         ds = {}
+         for x in store.datasets(exp):
+             ds[x["name"]] = ds.get(x["name"], 0) + x["n_samples"]
+-        experiments.append({"name": exp, **meta, "status": st, "runs": runs, "datasets": ds})
++        q = cur["experiments"].get(exp)
++        experiments.append({"name": exp, **meta, "status": st, "runs": runs, "datasets": ds,
++                            "quality": None if q is None else {k: q[k] for k in ("tier", "tier_name", "best_run",
++                                                                                 "best_score", "tier_counts",
++                                                                                 "usable_fraction", "readiness", "gaps",
++                                                                                 "reviewed")}})
+     return {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": experiments}
+ 
+ 
++def _quality(a):
++    if not a:
++        return None
++    return {"tier": a["tier"], "tier_name": a["tier_name"], "score": a["score"], "coverage": a["coverage"],
++            "dims": {k: {"score": d["score"], "status": d["status"], "tier": d["tier"], "evidence": d["evidence"][:4]}
++                     for k, d in a["dimensions"].items()},
++            "readiness": a["readiness"], "gaps": a["gaps"], "reviewed": a["reviewed"]}
++
++
+ def write_html(store, path: str | None = None, *, standalone: bool = True, **kw) -> str:
+     """Write the catalogue page. ``standalone`` wraps it in a full HTML document (open it from disk); without it,
+     the body-level page is written (for hosts that add their own document skeleton)."""
+diff --git a/pinneapple_lab/server.py b/pinneapple_lab/server.py
+index be4cbc25..53ff694a 100644
+--- a/pinneapple_lab/server.py
++++ b/pinneapple_lab/server.py
+@@ -15,6 +15,7 @@ Routes::
+     GET /api/runs?experiment=NAME&status=S   run index rows
+     GET /api/runs/RUN_ID                     one run: record, metrics, validation, file list
+     GET /api/datasets                        dataset cards
++    GET /api/curation                        quality tier, dimensions and readiness of every run and experiment
+     GET /files/EXPERIMENT/RUN_ID/PATH        a run's file (figures, inputs, outputs, code, logs, cards)
+     GET /thumb/EXPERIMENT/RUN_ID/PATH        a JPEG thumbnail of a run's figure
+     GET /download/EXPERIMENT/DATASET.npz     a dataset over all completed runs, as one .npz
+@@ -206,6 +207,9 @@ class LabServer:
+                         return self._send(200, lab.catalog()[0], "text/html; charset=utf-8")
+                     if path == "/api/catalog":
+                         return self._send(200, lab.catalog()[1], "application/json")
++                    if path == "/api/curation":
++                        from .curation import curate
++                        return self._json(curate(lab.store))
+                     if path == "/api/status":
+                         return self._json(lab.store.status())
+                     if path == "/api/runs":
+diff --git a/pinneapple_lab/spec.py b/pinneapple_lab/spec.py
+index c5c01c85..629369d8 100644
+--- a/pinneapple_lab/spec.py
++++ b/pinneapple_lab/spec.py
+@@ -30,6 +30,7 @@ class Experiment:
+     params: dict[str, Any] = {}
+     space: dict[str, Any] = {}
+     code_files: list[str] = []   # extra source files to snapshot with each run (relative to the experiment's file)
++    references: list[str] = []   # papers / data sources the experiment reproduces or compares with (curation)
+     # ``code_for(params)`` (optional classmethod): more files to snapshot, chosen by the run's parameters
+ 
+     def run(self, ctx) -> None:  # pragma: no cover - interface

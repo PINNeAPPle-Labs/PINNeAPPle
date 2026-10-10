@@ -1,0 +1,15 @@
+[20:56:07] stage cfd started
+[20:56:08]   blockMesh: 0.6 s (exit 0)
+[20:56:09]   checkMesh: 0.4 s (exit 0)
+[20:56:11]   decomposePar: 0.8 s (exit 0)
+[20:59:26]   simpleFoam: 195.1 s (exit 0)
+[20:59:27]   reconstruct: 1.0 s (exit 0)
+[20:59:28] stage cfd done (200.692 s)
+[20:59:28] check bulk_velocity_constant_along_pipe: PASS volume-averaged axial velocity on every section / inlet bulk velocity (mass conservation and section averaging on the O-grid)
+[20:59:29] check friction_factor_vs_colebrook: PASS smooth pipe, 18-28 D after the bend
+[20:59:29] check bend_loss_vs_ito: PASS total loss of the bend (excess loss over the developed gradient + friction of the bend length) against Ito (1960), R / r = 4
+[20:59:29] check dean_vortices_after_bend: PASS secondary speed / U on the sections after the bend
+[20:59:29] stage datasets started
+[20:59:29] stage datasets done (0.007 s)
+[20:59:29] stage render started
+[21:03:10] stage render done (220.74 s)

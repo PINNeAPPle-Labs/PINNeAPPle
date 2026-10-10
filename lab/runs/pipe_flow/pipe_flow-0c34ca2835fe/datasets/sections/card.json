@@ -1,0 +1,75 @@
+{
+ "name": "sections",
+ "description": "Section averages along the pipe: arc length, pressure (kinematic), bulk velocity; coefficient of variation and mean of the scalar (mixer)",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "s": {
+   "kind": "array",
+   "shape": [
+    120
+   ],
+   "dtype": "float32",
+   "min": 0.010029498487710953,
+   "max": 2.397050142288208
+  },
+  "p": {
+   "kind": "array",
+   "shape": [
+    120
+   ],
+   "dtype": "float32",
+   "min": 0.0025857563596218824,
+   "max": 0.5708143711090088
+  },
+  "u_mean": {
+   "kind": "array",
+   "shape": [
+    120
+   ],
+   "dtype": "float32",
+   "min": 0.9913297891616821,
+   "max": 1.011096477508545
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "bend_90"
+   ]
+  },
+  "Re": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 50000.0,
+   "max": 50000.0
+  },
+  "D": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.05,
+   "max": 0.05
+  }
+ },
+ "units": {
+  "s": "m",
+  "p": "m2/s2",
+  "u_mean": "m/s"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "pipe_flow",
+  "run_id": "pipe_flow-0c34ca2835fe",
+  "params": {
+   "case": "bend_90",
+   "D": 0.05,
+   "elements": 6,
+   "iterations": 1500,
+   "procs": 2,
+   "samples": 64,
+   "render": true,
+   "keep_case": false
+  }
+ },
+ "sha1": "47b3564a81cd59f55ccd39663e97f5e5ba91db91"
+}

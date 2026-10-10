@@ -1,0 +1,57 @@
+{
+ "name": "wall",
+ "description": "Wall faces: centre, wall shear stress (kinematic), pressure",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "xyz": {
+   "kind": "array",
+   "shape": [
+    6240,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.02476181648671627,
+   "max": 1.59375
+  },
+  "tau": {
+   "kind": "array",
+   "shape": [
+    6240
+   ],
+   "dtype": "float32",
+   "min": 0.001278582727536559,
+   "max": 0.00472009414806962
+  },
+  "p": {
+   "kind": "array",
+   "shape": [
+    6240
+   ],
+   "dtype": "float32",
+   "min": 0.0012511707609519362,
+   "max": 0.6195601224899292
+  }
+ },
+ "units": {
+  "xyz": "m",
+  "tau": "m2/s2",
+  "p": "m2/s2"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "pipe_flow",
+  "run_id": "pipe_flow-0c34ca2835fe",
+  "params": {
+   "case": "bend_90",
+   "D": 0.05,
+   "elements": 6,
+   "iterations": 1500,
+   "procs": 2,
+   "samples": 64,
+   "render": true,
+   "keep_case": false
+  }
+ },
+ "sha1": "e70990f8afd79d7cc2089a5f68442fb42a9e613d"
+}

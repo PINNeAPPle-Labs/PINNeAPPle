@@ -1,0 +1,6 @@
+[21:26:15] stage fem_snapshots started
+[21:27:47] stage fem_snapshots done (92.117 s)
+[21:28:16] check displacement_rom_beats_nearest_design: PASS median relative L2 error on unseen designs, nearest training design / best ROM
+[21:28:16] check displacement_rom_error_unseen_designs: PASS median relative L2 error on 20 unseen designs (gpr)
+[21:28:35] check von_mises_rom_beats_nearest_design: PASS median relative L2 error on unseen designs, nearest training design / best ROM
+[21:28:35] check von_mises_rom_error_unseen_designs: PASS median relative L2 error on 20 unseen designs (gpr+split)

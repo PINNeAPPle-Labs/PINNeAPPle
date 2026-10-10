@@ -1,0 +1,75 @@
+{
+ "name": "sections",
+ "description": "Section averages along the pipe: arc length, pressure (kinematic), bulk velocity; coefficient of variation and mean of the scalar (mixer)",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "s": {
+   "kind": "array",
+   "shape": [
+    49
+   ],
+   "dtype": "float32",
+   "min": 0.009999999776482582,
+   "max": 0.9900000095367432
+  },
+  "p": {
+   "kind": "array",
+   "shape": [
+    49
+   ],
+   "dtype": "float32",
+   "min": 1.304532361245947e-06,
+   "max": 0.00013087003026157618
+  },
+  "u_mean": {
+   "kind": "array",
+   "shape": [
+    49
+   ],
+   "dtype": "float32",
+   "min": 0.010077707469463348,
+   "max": 0.010110141709446907
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "laminar_pipe"
+   ]
+  },
+  "Re": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 500.0,
+   "max": 500.0
+  },
+  "D": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.05,
+   "max": 0.05
+  }
+ },
+ "units": {
+  "s": "m",
+  "p": "m2/s2",
+  "u_mean": "m/s"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "pipe_flow",
+  "run_id": "pipe_flow-64f176a5fafc",
+  "params": {
+   "case": "laminar_pipe",
+   "D": 0.05,
+   "elements": 6,
+   "iterations": 1500,
+   "procs": 2,
+   "samples": 64,
+   "render": true,
+   "keep_case": false
+  }
+ },
+ "sha1": "f6adec98db8f8bee3a230764d639aba720ad6640"
+}

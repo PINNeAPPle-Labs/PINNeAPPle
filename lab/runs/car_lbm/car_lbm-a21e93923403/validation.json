@@ -1,0 +1,35 @@
+[
+ {
+  "name": "finite_fields",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "drag_statistically_converged",
+  "passed": true,
+  "value": 0.014319429723258947,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "mean drag over the 3rd vs 4th quarter of the run"
+ },
+ {
+  "name": "drag_in_bluff_body_range",
+  "passed": true,
+  "value": 1.6357599330755574,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 2.5,
+  "min": 0.1,
+  "detail": "2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2"
+ }
+]

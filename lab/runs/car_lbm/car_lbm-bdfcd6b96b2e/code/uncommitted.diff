@@ -1,0 +1,213 @@
+diff --git a/pinneapple_lab/catalog_template.html b/pinneapple_lab/catalog_template.html
+index 0174de93..87f68936 100644
+--- a/pinneapple_lab/catalog_template.html
++++ b/pinneapple_lab/catalog_template.html
+@@ -105,6 +105,16 @@ h2 .tier { font-size: 12px; margin-right: 4px }
+ .qbar { height: 7px; border-radius: 4px; background: var(--chip); overflow: hidden }
+ .qbar b { display: block; height: 100%; background: var(--ok) } .qbar b.f { background: var(--bad) }
+ .tbl.rd td:last-child { text-align: left }
++.gallery { display: grid; gap: 10px; min-width: 0 }
++.gallery h2 { font: 600 26px/1.15 var(--display); margin: 0 }
++.gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px }
++.gal-item { position: relative; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
++  background: #0b0d10; cursor: pointer; aspect-ratio: 16 / 10; max-width: 100% }
++.gal-item.big { grid-column: span 2 }
++.gal-item img { width: 100%; height: 100%; object-fit: cover; display: block }
++.gal-item span { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 10px 7px; font: 500 12px var(--mono);
++  color: #fff; background: linear-gradient(transparent, rgb(0 0 0 / .65)); text-align: left }
++@media (max-width: 640px) { .gal-item.big { grid-column: auto } }
+ .portfolio { display: grid; gap: 14px; min-width: 0 }
+ .pf-head h2, .rm-title { font: 600 26px/1.15 var(--display); margin: 0 }
+ .rm-title { font-size: 20px; margin-top: 12px }
+@@ -152,6 +162,12 @@ footer { color: var(--muted); font: 12px var(--mono) }
+     <div class="ledger" id="ledger"></div>
+     <div class="statusbar" id="statusbar" aria-hidden="true"></div>
+   </header>
++  <section class="gallery" aria-labelledby="gTitle" id="gallerySec">
++    <h2 id="gTitle">Showcase</h2>
++    <p class="lede">The most striking results in the database: photoreal renders, general-relativistic views, 3-D twins and
++      movies. Click one for its full record.</p>
++    <div class="gal" id="gal"></div>
++  </section>
+   <section class="portfolio" aria-labelledby="pfTitle">
+     <div class="pf-head"><h2 id="pfTitle">What can we present?</h2>
+       <p class="lede">Each card is an experiment (or one case of it), graded by <code>pinneapple_lab.curation</code>.
+@@ -295,6 +311,12 @@ const USE_NOTE = { product: "generalization, uncertainty, reference or physics,
+   marketing: "strong visuals, a validated headline number, a story",
+   training_data: "documented datasets of validated runs" };
+ const effortChip = (e) => `<span class="eff e${e}" title="${{ S: "hours", M: "a day or two", L: "a week or more" }[e]}">${e}</span>`;
++function gallery() {
++  const G = DATA.gallery || [];
++  if (!G.length) { $("gallerySec").hidden = true; return; }
++  $("gal").innerHTML = G.map((g, i) => `<button class="gal-item${i < 2 ? " big" : ""}" data-goto="${esc(g.run)}" aria-label="Open ${esc(g.experiment)}">
++    <img src="${g.src}" alt="${esc(g.experiment)}: ${esc(g.name)}" loading="lazy"><span>${esc(g.experiment)} · ${esc(g.name.replace(/\.(png|jpg|gif)$/i, "").replace(/[_-]/g, " "))}</span></button>`).join("");
++}
+ function portfolio() {
+   const P = (DATA.portfolio || []).filter((it) => !it.experiment.startsWith("example_script") || it.tier !== "D");
+   const PC = P.filter((it) => it.experiment !== "example_script");          // examples: roadmap only
+@@ -345,6 +367,7 @@ $("close").onclick = close; $("scrim").onclick = close;
+ document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
+ $("q").value = state.q;
+ $("q").addEventListener("input", (ev) => { state.q = ev.target.value.trim(); render(); });
++gallery();
+ portfolio();
+ summary(); render();
+ $("foot").textContent = SERVED
+diff --git a/pinneapple_lab/experiments/repo_results.py b/pinneapple_lab/experiments/repo_results.py
+index 9c852e89..13c9960a 100644
+--- a/pinneapple_lab/experiments/repo_results.py
++++ b/pinneapple_lab/experiments/repo_results.py
+@@ -31,6 +31,8 @@ SOURCES = {
+                           "designs, forced and natural convection",
+     "airfoil_surrogate": "Airfoil surrogates trained on OpenFOAM (aircraft design optimizer): MLP and MeshGraphNet, "
+                          "Cl / Cd / Cm on held-out shapes",
++    "ahmed_body": "Ahmed body (25 deg slant) in OpenFOAM with a moving road: drag against the wind-tunnel value, "
++                  "skin pressure, streamlines and wake renders",
+ }
+ 
+ _SCRIPTS = {
+@@ -45,6 +47,7 @@ _SCRIPTS = {
+     "bh_forecast": ["examples/black_hole_weather/evaluate.py"],
+     "heatsink_surrogate": ["apps/heatsink_sizer/heatsink_sizer/surrogate.py", "apps/heatsink_sizer/heatsink_sizer/sizer.py"],
+     "airfoil_surrogate": ["pinneapple_design/aero/optimize.py"],
++    "ahmed_body": ["examples/studio/02_ahmed_body_cfd.py"],
+ }
+ 
+ 
+@@ -188,6 +191,8 @@ def _bh(ctx):
+         if tag.startswith("res"):
+             ctx.check(f"{tag}_beats_persistence_first_block", value=r["one_block_mae"],
+                       max=r["one_block_persistence"])
++    for f in ("interstellar_forecast.gif", "twin_forecast.gif", "interstellar_frame.png"):
++        ctx.figure_file(_p("docs/assets/blackhole/" + f))
+     _figures(ctx, "docs/assets/blackhole/*skill*.png")
+ 
+ 
+@@ -223,8 +228,24 @@ def _airfoil(ctx):
+         for pt in m.get(f"{model}_test_points", []):
+             ds.add(model=model, case=pt["id"], alpha=float(pt["alpha"]), true=np.asarray(pt["true"]),
+                    pred=np.asarray(pt["pred"]))
+-    for f in sorted(glob.glob(_p("docs/assets/apps/13-*.jpg")))[:4]:
+-        ctx.figure_file(f)
++    for f in ("13-aircraft-render-flight.jpg", "13-aircraft-render-streamlines.jpg", "13-aircraft-render-pressure.jpg",
++              "13-aircraft-render-friction.jpg"):
++        ctx.figure_file(_p("docs/assets/apps/" + f), f.replace("13-aircraft-", "airliner_"))
++    ctx.figure_file(_p("docs/assets/studio/airliner-cp.jpg"), "airliner_openfoam_cp.jpg")
++
++
++def _ahmed(ctx):
++    c = _json("examples/studio/_out/ahmed/coefficients_medium.json")
++    for k in ("CD", "CL", "CD_pressure", "CD_friction", "cells"):
++        ctx.metric(k, c[k])
++    ctx.check("drag_vs_wind_tunnel", value=c["CD"], reference=0.285, rtol=0.08,
++              detail="Ahmed, Ramm & Faltin (1984), 25 deg slant: CD about 0.285", kind="reference")
++    ctx.check("pressure_drag_dominates", value=c["CD_pressure"] / c["CD"], min=0.7, kind="physics")
++    ds = ctx.dataset("coefficients", description="Ahmed body force coefficients (OpenFOAM, medium mesh)")
++    ds.add(CD=c["CD"], CL=c["CL"], CD_pressure=c["CD_pressure"], CD_friction=c["CD_friction"], cells=int(c["cells"]),
++           CD_measured=0.285)
++    for f in ("streamlines.jpg", "cp.jpg", "wake_vorticity.jpg", "mid_plane_speed.jpg"):
++        ctx.figure_file(_p("examples/studio/_out/ahmed/" + f), "ahmed_" + f)
+ 
+ 
+ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
+@@ -248,7 +269,7 @@ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
+ 
+ _RUN = {"burgers_pinn": _burgers, "fin_inverse_2d": lambda c: _fin(c, "2d"), "fin_inverse_3d": lambda c: _fin(c, "3d"),
+         "lbm_strouhal": _lbm, "meshgraphnet": _mgn, "concorde_aoa": _concorde, "bh_forecast": _bh,
+-        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil}
++        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil, "ahmed_body": _ahmed}
+ 
+ 
+ @register
+@@ -267,6 +288,7 @@ class RepoResults(Experiment):
+         "concorde_aoa": ["a parametric stand-in, not Concorde CAD; Re 300 coarse LES; checked against theory, "
+                          "not wind-tunnel data"],
+         "bh_forecast": ["pseudo-Newtonian 2.5-D hydro, not GRMHD"],
++        "ahmed_body": ["steady RANS (k-omega SST, wall functions); the medium mesh is not grid-converged"],
+     }
+     params = {"source": "burgers_pinn"}
+     space = {"source": list(SOURCES)}
+diff --git a/pinneapple_lab/html.py b/pinneapple_lab/html.py
+index 8bb2646f..dffddca0 100644
+--- a/pinneapple_lab/html.py
++++ b/pinneapple_lab/html.py
+@@ -32,6 +32,33 @@ def thumbnail_bytes(path: str, width: int = 360) -> bytes | None:
+         return None
+ 
+ 
++SHOWCASE_TOKENS = (("interstellar", 9), ("beauty", 8), ("render", 6), ("flight", 6), ("twin", 5), ("streamlines", 5),
++                   ("wake", 3), ("cp", 3), ("vorticity", 3), (".gif", 4))
++
++
++def showcase_score(path: str) -> int:
++    n = os.path.basename(path).lower()
++    return sum(w for t, w in SHOWCASE_TOKENS if t in n)
++
++
++def _gif_small(path: str, width: int = 420, max_frames: int = 40) -> str | None:
++    """A smaller animated GIF (fewer frames, narrower) as a data URI, for the gallery."""
++    try:
++        from PIL import Image, ImageSequence
++        im = Image.open(path)
++        frames = [f.convert("RGB") for f in ImageSequence.Iterator(im)]
++        step = max(1, len(frames) // max_frames)
++        frames = frames[::step][:max_frames]
++        h = max(1, int(frames[0].height * width / frames[0].width))
++        frames = [f.resize((width, h)).convert("P", palette=Image.ADAPTIVE, colors=128) for f in frames]
++        buf = io.BytesIO()
++        frames[0].save(buf, "GIF", save_all=True, append_images=frames[1:], loop=0,
++                       duration=im.info.get("duration", 80) * step, optimize=True)
++        return "data:image/gif;base64," + base64.b64encode(buf.getvalue()).decode()
++    except Exception:
++        return None
++
++
+ def _thumb(path: str, width: int = 360) -> str | None:
+     data = thumbnail_bytes(path, width)
+     return None if data is None else "data:image/jpeg;base64," + base64.b64encode(data).decode()
+@@ -56,6 +83,7 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+     except Exception:                                      # noqa: BLE001 - the page works without curation
+         cur = {"runs": {}, "experiments": {}}
+     experiments = []
++    showcase: list = []
+     for exp, st in sorted(store.status().items()):
+         try:
+             cls = get(exp)
+@@ -69,7 +97,12 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+             rec = _load(os.path.join(d, "run.json"), {})
+             figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")) + glob.glob(os.path.join(d, "figures", "*.jpg")))
+             gifs = sorted(glob.glob(os.path.join(d, "figures", "*.gif")))
+-            shown = (figs + gifs)[:thumbs_per_run]
++            figs_all = sorted(figs + gifs, key=lambda f: -showcase_score(f))
++            shown = figs_all[:thumbs_per_run]
++            for f in figs_all[:3]:
++                sc_ = showcase_score(f)
++                if sc_ >= 5:
++                    showcase.append((sc_, exp, r["run_id"], f))
+             if thumbs == "url":
+                 tl = ["thumb/" + os.path.relpath(f, os.path.join(store.root, "runs")) for f in shown]
+             else:
+@@ -100,8 +133,22 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+                       "tier": it["tier"], "tier_name": it["tier_name"], "score": it["best_score"],
+                       "best_run": it["best_run"], "story": it.get("story", ""), "runs": it["runs"],
+                       "usable": it["usable_fraction"], "plan": it["plan"]})
++    gallery, seen = [], set()
++    for _, exp, rid, f in sorted(showcase, key=lambda t: -t[0]):
++        key = (exp, os.path.basename(f))
++        if key in seen or len(gallery) >= 16:
++            continue
++        seen.add(key)
++        rel = os.path.relpath(f, os.path.join(store.root, "runs"))
++        if thumbs == "url":
++            src = ("files/" if f.endswith(".gif") else "thumb/") + rel
++        else:
++            src = _gif_small(f) if f.endswith(".gif") else _thumb(f, 640)
++        if src:
++            gallery.append({"experiment": exp, "run": rid, "src": src, "name": os.path.basename(f),
++                            "file": os.path.relpath(f, store.root)})
+     return {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": experiments,
+-            "portfolio": items}
++            "portfolio": items, "gallery": gallery}
+ 
+ 
+ def _quality(a):

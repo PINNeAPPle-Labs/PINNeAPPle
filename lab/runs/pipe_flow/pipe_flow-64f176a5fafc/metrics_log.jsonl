@@ -1,0 +1,5 @@
+{"name": "cells", "value": 38400, "step": null, "t": 1791666946.6529112}
+{"name": "U_mean_m_s", "value": 0.01, "step": null, "t": 1791666946.6529915}
+{"name": "Re", "value": 500, "step": null, "t": 1791666946.6530073}
+{"name": "friction_factor", "value": 0.13090819876170268, "step": null, "t": 1791666947.3002443}
+{"name": "centreline_speed_over_U", "value": 2.004267176, "step": null, "t": 1791666947.3004377}

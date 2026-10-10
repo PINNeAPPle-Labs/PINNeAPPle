@@ -1,0 +1,82 @@
+{
+ "run_id": "car_lbm-bdfcd6b96b2e",
+ "experiment": "car_lbm",
+ "version": "1",
+ "params": {
+  "slant_deg": 36.0693007067628,
+  "windshield_deg": 40.941741968269,
+  "hood": 0.7276516168001711,
+  "clearance": 0.05065970456656483,
+  "diffuser_deg": 7.036997037190515,
+  "nose": 0.7190267443132328,
+  "length_cells": 64,
+  "Re": 500.0,
+  "u_in": 0.08,
+  "Cs": 0.1,
+  "steps": 8000,
+  "tunnel_height": 2.5
+ },
+ "status": "completed",
+ "started": 1791660564.1937375,
+ "tags": [
+  "automotive",
+  "cfd",
+  "lbm",
+  "geometry",
+  "dataset"
+ ],
+ "git": "2e36bfac",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parameters): lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake vorticity movie. The training data of car_surrogate.",
+ "code": {
+  "files": [
+   "code/car.py"
+  ],
+  "sha1": "dc79af1bb906e7439165061d8b087b12bb5bf5d0",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791660676.0536964,
+ "error": null,
+ "stages": [
+  {
+   "name": "simulate",
+   "started": 1791660564.5451868,
+   "status": "done",
+   "seconds": 109.823
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/design.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/mean_flow.png",
+   "figures/forces.png",
+   "figures/wake_vorticity.gif"
+  ]
+ },
+ "validation": {
+  "total": 3,
+  "failed": 0
+ },
+ "seconds": 111.86,
+ "datasets": {
+  "flow": {
+   "n_samples": 1,
+   "path": "runs/car_lbm/car_lbm-bdfcd6b96b2e/datasets/flow"
+  },
+  "vorticity": {
+   "n_samples": 48,
+   "path": "runs/car_lbm/car_lbm-bdfcd6b96b2e/datasets/vorticity"
+  }
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "name": "cross_sections",
+ "description": "Cross-section grids (72 x 72, NaN outside the fluid): axial and secondary speed / U, concentration",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "station_D": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 10.0,
+   "max": 10.0
+  },
+  "origin": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.02500000037252903,
+   "max": 0.5
+  },
+  "u": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 0.05000000074505806
+  },
+  "v": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 0.05000000074505806
+  },
+  "axial_speed": {
+   "kind": "array",
+   "shape": [
+    72,
+    72
+   ],
+   "dtype": "float32",
+   "min": 0.10160640627145767,
+   "max": 2.004101514816284
+  },
+  "secondary_speed": {
+   "kind": "array",
+   "shape": [
+    72,
+    72
+   ],
+   "dtype": "float32",
+   "min": 1.8856128747302137e-07,
+   "max": 2.8319525881670415e-05
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "pipe_flow",
+  "run_id": "pipe_flow-64f176a5fafc",
+  "params": {
+   "case": "laminar_pipe",
+   "D": 0.05,
+   "elements": 6,
+   "iterations": 1500,
+   "procs": 2,
+   "samples": 64,
+   "render": true,
+   "keep_case": false
+  }
+ },
+ "sha1": "e596437fa997d181c1086482d70bc9d67a1c596d"
+}

@@ -1,0 +1,50 @@
+[
+ {
+  "name": "bulk_velocity_constant_along_pipe",
+  "passed": true,
+  "value": 0.011096429174058065,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.03,
+  "min": null,
+  "detail": "volume-averaged axial velocity on every section / inlet bulk velocity (mass conservation and section averaging on the O-grid)",
+  "kind": "physics"
+ },
+ {
+  "name": "friction_factor_vs_colebrook",
+  "passed": true,
+  "value": 0.021649139702974888,
+  "reference": 0.02089144352833724,
+  "rtol": 0.08,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "smooth pipe, 18-28 D after the bend",
+  "kind": "reference"
+ },
+ {
+  "name": "bend_loss_vs_ito",
+  "passed": true,
+  "value": 0.19562741420156005,
+  "reference": 0.2304308569826252,
+  "rtol": 0.25,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "total loss of the bend (excess loss over the developed gradient + friction of the bend length) against Ito (1960), R / r = 4",
+  "kind": "reference"
+ },
+ {
+  "name": "dean_vortices_after_bend",
+  "passed": true,
+  "value": 0.2992159594311252,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.1,
+  "detail": "secondary speed / U on the sections after the bend",
+  "kind": "physics"
+ }
+]

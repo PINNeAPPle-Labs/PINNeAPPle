@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10 22:21 UTC",
+ "generated": "2026-10-10 22:23 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -3281,12 +3281,12 @@
   "rom_study": {
    "tier": "B",
    "tier_name": "solid",
-   "best_run": "rom_study-9580a00926ca",
-   "best_score": 98.0,
-   "runs": 2,
+   "best_run": "rom_study-61475bf029de",
+   "best_score": 95.4,
+   "runs": 1,
    "tier_counts": {
     "A": 0,
-    "B": 2,
+    "B": 1,
     "C": 0,
     "D": 0
    },
@@ -3296,7 +3296,8 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "uncertainty estimate"
+      "uncertainty estimate",
+      "reference or physics check"
      ]
     },
     "paper": {
@@ -3311,6 +3312,7 @@
      "ready": false,
      "approved": false,
      "missing": [
+      "strong visuals (movie, render or 3-D view)",
       "a one-line story (review)"
      ]
     },
@@ -3330,7 +3332,7 @@
      "question": "Was the physical problem represented correctly?",
      "status": "partial",
      "evidence": [
-      "inputs recorded: setup"
+      "inputs recorded: design_space"
      ],
      "next": "add a mesh-convergence or domain check"
     },
@@ -3339,29 +3341,29 @@
      "question": "Can the model (or solver) represent the relevant dynamics?",
      "status": "answered",
      "evidence": [
-      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
-      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
-      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+      "PASS displacement_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr))",
+      "PASS von_mises_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr+split))",
+      "PASS displacement_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr))",
+      "PASS von_mises_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr+split))"
      ],
      "next": ""
     },
     "physics": {
      "title": "Physical constraints",
      "question": "Are the equations and the boundary conditions respected?",
-     "status": "answered",
+     "status": "open",
      "evidence": [
-      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
-      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
-      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+      "no conservation, symmetry or boundary-condition check"
      ],
-     "next": ""
+     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
     },
     "benchmark": {
      "title": "Benchmark",
      "question": "How does the result compare with a solver or reference data?",
      "status": "answered",
      "evidence": [
-      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+      "PASS displacement_rom_beats_nearest_design (median relative L2 error on unseen designs, nearest training design / best ROM)",
+      "PASS von_mises_rom_beats_nearest_design (median relative L2 error on unseen designs, nearest training design / best ROM)"
      ],
      "next": ""
     },
@@ -3370,7 +3372,7 @@
      "question": "Where may the prediction not be reliable?",
      "status": "partial",
      "evidence": [
-      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+      "limitations: linear elasticity: displacement is linear in the load magnitude, so only the geometry and the load direction a",
       "and 1 more"
      ],
      "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
@@ -3390,6 +3392,16 @@
     "limitations": [],
     "actions": [
      {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "tier A"
+      ]
+     },
+     {
       "gap": "review",
       "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
       "effort": "S",
@@ -3399,12 +3411,11 @@
       ]
      },
      {
-      "gap": "reference",
-      "action": "Score against the high-fidelity solver on designs the model never saw",
-      "effort": "M",
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
       "unlocks": [
-       "paper",
-       "tier A"
+       "marketing"
       ]
      },
      {
@@ -3419,15 +3430,16 @@
     "uses": {
      "product": {
       "status": "gap",
-      "run": "rom_study-9580a00926ca",
-      "distance": 3,
+      "run": "rom_study-61475bf029de",
+      "distance": 6,
       "missing": [
-       "uncertainty estimate"
+       "uncertainty estimate",
+       "reference or physics check"
       ]
      },
      "paper": {
       "status": "gap",
-      "run": "rom_study-9580a00926ca",
+      "run": "rom_study-61475bf029de",
       "distance": 4,
       "missing": [
        "comparison with a reference",
@@ -3436,15 +3448,16 @@
      },
      "marketing": {
       "status": "gap",
-      "run": "rom_study-9580a00926ca",
-      "distance": 1,
+      "run": "rom_study-61475bf029de",
+      "distance": 2,
       "missing": [
+       "strong visuals (movie, render or 3-D view)",
        "a one-line story (review)"
       ]
      },
      "training_data": {
       "status": "ready",
-      "run": "rom_study-9580a00926ca",
+      "run": "rom_study-61475bf029de",
       "distance": 0,
       "missing": []
      }
@@ -12048,7 +12061,7 @@
    "tier": "D",
    "tier_name": "not usable",
    "best_run": "pipe_flow-07a353a549b9",
-   "best_score": 87.6,
+   "best_score": 48.9,
    "runs": 1,
    "tier_counts": {
     "A": 0,
@@ -12065,7 +12078,8 @@
       "not usable until it validates",
       "generalization evidence",
       "uncertainty estimate",
-      "reference or physics check"
+      "reference or physics check",
+      "reproducibility"
      ]
     },
     "paper": {
@@ -12074,6 +12088,8 @@
      "missing": [
       "not usable until it validates",
       "comparison with a reference",
+      "baseline or physics check",
+      "reproducibility",
       "novelty review >= 3/5"
      ]
     },
@@ -12082,6 +12098,8 @@
      "approved": false,
      "missing": [
       "not usable until it validates",
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -12090,6 +12108,7 @@
      "approved": false,
      "missing": [
       "not usable until it validates",
+      "a documented dataset",
       "validated runs"
      ]
     }
@@ -12102,11 +12121,11 @@
     "data_geometry": {
      "title": "Data and geometry",
      "question": "Was the physical problem represented correctly?",
-     "status": "partial",
+     "status": "open",
      "evidence": [
-      "inputs recorded: route"
+      "no inputs or geometry recorded"
      ],
-     "next": "add a mesh-convergence or domain check"
+     "next": "record the inputs (ctx.input)"
     },
     "model": {
      "title": "Model",
@@ -12120,22 +12139,20 @@
     "physics": {
      "title": "Physical constraints",
      "question": "Are the equations and the boundary conditions respected?",
-     "status": "failed",
+     "status": "open",
      "evidence": [
-      "FAIL bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservat)",
-      "PASS scalar_flux_conserved (flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1))",
-      "PASS mixing_decays_through_elements (CoV after each element smaller than after the previous one)"
+      "no conservation, symmetry or boundary-condition check"
      ],
-     "next": "fix the failing check"
+     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
     },
     "benchmark": {
      "title": "Benchmark",
      "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
+     "status": "open",
      "evidence": [
-      "PASS mixer_beats_empty_pipe (coefficient of variation at the outlet, empty pipe / mixer)"
+      "no comparison with a solver, data or baseline"
      ],
-     "next": ""
+     "next": "compare with a reference or a simple baseline"
     },
     "uncertainty": {
      "title": "Uncertainty",
@@ -12162,7 +12179,9 @@
      "declared: the scalar is carried with numerical diffusion only (no molecular diffusivity): striations thinner than a cell are smeared, so the coefficient of variation falls faster than in a real laminar mixer",
      "declared: plates cut by snappyHexMesh on a two-level refinement (about 4 cells across the plate thickness)",
      "declared: a single Reynolds number",
-     "detected: 1 of 1 runs fail validation or crash (outside the validated range)"
+     "detected: 1 of 1 runs fail validation or crash (outside the validated range)",
+     "detected: evidence only inferred (not measured by a check) for reproducibility",
+     "detected: only 22 % of the evidence dimensions have data"
     ],
     "actions": [
      {
@@ -12178,6 +12197,25 @@
       ]
      },
      {
+      "gap": "reference",
+      "action": "Validate against a published experiment or benchmark value (drag, Strouhal, Nusselt) and run a grid-convergence study (coarse / medium / fine)",
+      "effort": "M",
+      "unlocks": [
+       "product",
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "reproducibility",
+      "action": "Rerun from a committed tree (the code snapshot is automatic) and repeat with three seeds",
+      "effort": "S",
+      "unlocks": [
+       "product",
+       "paper"
+      ]
+     },
+     {
       "gap": "review",
       "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
       "effort": "S",
@@ -12187,12 +12225,27 @@
       ]
      },
      {
-      "gap": "reference",
-      "action": "Validate against a published experiment or benchmark value (drag, Strouhal, Nusselt) and run a grid-convergence study (coarse / medium / fine)",
-      "effort": "M",
+      "gap": "baseline",
+      "action": "Compare with the simplest method that could do the job",
+      "effort": "S",
       "unlocks": [
-       "product",
        "paper"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing"
+      ]
+     },
+     {
+      "gap": "data",
+      "action": "Save the fields as a dataset with a card (ctx.dataset)",
+      "effort": "S",
+      "unlocks": [
+       "training_data"
       ]
      },
      {
@@ -12216,39 +12269,45 @@
      "product": {
       "status": "gap",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 12,
+      "distance": 13,
       "missing": [
        "not usable until it validates",
        "generalization evidence",
        "uncertainty estimate",
-       "reference or physics check"
+       "reference or physics check",
+       "reproducibility"
       ]
      },
      "paper": {
       "status": "gap",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 7,
+      "distance": 9,
       "missing": [
        "not usable until it validates",
        "comparison with a reference",
+       "baseline or physics check",
+       "reproducibility",
        "novelty review >= 3/5"
       ]
      },
      "marketing": {
       "status": "gap",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 4,
+      "distance": 8,
       "missing": [
        "not usable until it validates",
+       "strong visuals (movie, render or 3-D view)",
+       "a validated headline number",
        "a one-line story (review)"
       ]
      },
      "training_data": {
       "status": "gap",
       "run": "pipe_flow-07a353a549b9",
-      "distance": 3,
+      "distance": 4,
       "missing": [
        "not usable until it validates",
+       "a documented dataset",
        "validated runs"
       ]
      }
@@ -14413,189 +14472,6 @@
    "story": "",
    "description": "Parametric ROM of a 3-D cantilever (height, width, load direction): POD + RBF / GPR on 80 FEM solutions, checked on 20 unseen designs against the nearest training design.",
    "title": "beam parametric"
-  },
-  "rom_study/cylinder_wake": {
-   "tier": "B",
-   "tier_name": "solid",
-   "best_run": "rom_study-9580a00926ca",
-   "best_score": 98.0,
-   "runs": 1,
-   "tier_counts": {
-    "A": 0,
-    "B": 1,
-    "C": 0,
-    "D": 0
-   },
-   "usable_fraction": 1.0,
-   "readiness": {
-    "product": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "uncertainty estimate"
-     ]
-    },
-    "paper": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "comparison with a reference",
-      "novelty review >= 3/5"
-     ]
-    },
-    "marketing": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "a one-line story (review)"
-     ]
-    },
-    "training_data": {
-     "ready": true,
-     "approved": false,
-     "missing": []
-    }
-   },
-   "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)"
-   ],
-   "reviewed": false,
-   "stages": {
-    "data_geometry": {
-     "title": "Data and geometry",
-     "question": "Was the physical problem represented correctly?",
-     "status": "partial",
-     "evidence": [
-      "inputs recorded: setup"
-     ],
-     "next": "add a mesh-convergence or domain check"
-    },
-    "model": {
-     "title": "Model",
-     "question": "Can the model (or solver) represent the relevant dynamics?",
-     "status": "answered",
-     "evidence": [
-      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
-      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
-      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
-     ],
-     "next": ""
-    },
-    "physics": {
-     "title": "Physical constraints",
-     "question": "Are the equations and the boundary conditions respected?",
-     "status": "answered",
-     "evidence": [
-      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
-      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
-      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
-     ],
-     "next": ""
-    },
-    "benchmark": {
-     "title": "Benchmark",
-     "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
-     "evidence": [
-      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
-     ],
-     "next": ""
-    },
-    "uncertainty": {
-     "title": "Uncertainty",
-     "question": "Where may the prediction not be reliable?",
-     "status": "partial",
-     "evidence": [
-      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
-      "and 1 more"
-     ],
-     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
-    },
-    "decision": {
-     "title": "Engineering decision",
-     "question": "Is the result adequate for the intended use?",
-     "status": "answered",
-     "evidence": [
-      "tier B (solid), ready for training_data",
-      "2 limitations bound the use"
-     ],
-     "next": ""
-    }
-   },
-   "plan": {
-    "limitations": [
-     "declared: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
-     "declared: the transient is excluded from the training window"
-    ],
-    "actions": [
-     {
-      "gap": "review",
-      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
-      "effort": "S",
-      "unlocks": [
-       "paper",
-       "marketing"
-      ]
-     },
-     {
-      "gap": "reference",
-      "action": "Score against the high-fidelity solver on designs the model never saw",
-      "effort": "M",
-      "unlocks": [
-       "paper",
-       "tier A"
-      ]
-     },
-     {
-      "gap": "uncertainty",
-      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
-      "effort": "M",
-      "unlocks": [
-       "product"
-      ]
-     }
-    ],
-    "uses": {
-     "product": {
-      "status": "gap",
-      "run": "rom_study-9580a00926ca",
-      "distance": 3,
-      "missing": [
-       "uncertainty estimate"
-      ]
-     },
-     "paper": {
-      "status": "gap",
-      "run": "rom_study-9580a00926ca",
-      "distance": 4,
-      "missing": [
-       "comparison with a reference",
-       "novelty review >= 3/5"
-      ]
-     },
-     "marketing": {
-      "status": "gap",
-      "run": "rom_study-9580a00926ca",
-      "distance": 1,
-      "missing": [
-       "a one-line story (review)"
-      ]
-     },
-     "training_data": {
-      "status": "ready",
-      "run": "rom_study-9580a00926ca",
-      "distance": 0,
-      "missing": []
-     }
-    },
-    "closest_use": "marketing",
-    "next_tier": "A"
-   },
-   "experiment": "rom_study",
-   "case": "cylinder_wake",
-   "story": "",
-   "description": "Vortex shedding behind a cylinder at Re 100 (LBM): POD modes, DMD frequency and OpInf/DMD forecasts of the wake against persistence.",
-   "title": "cylinder wake"
   },
   "solid_fem/cantilever": {
    "tier": "A",
@@ -50943,16 +50819,16 @@
    "experiment": "pipe_flow",
    "status": "failed_validation",
    "tier": "D",
-   "score": 87.6,
-   "coverage": 0.7,
+   "score": 48.9,
+   "coverage": 0.22,
    "dimensions": {
     "validation": {
      "name": "validation",
-     "score": 0.75,
-     "status": "FAIL",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "3/4 checks pass"
+      "the run records no check"
      ]
     },
     "reference": {
@@ -50966,22 +50842,20 @@
     },
     "baseline": {
      "name": "baseline",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "PASS mixer_beats_empty_pipe (coefficient of variation at the outlet, empty pipe / mixer)"
+      "no baseline check"
      ]
     },
     "physics": {
      "name": "physics",
-     "score": 0.6666666666666666,
-     "status": "FAIL",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "FAIL bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservation and section averaging on the O-grid))",
-      "PASS scalar_flux_conserved (flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1))",
-      "PASS mixing_decays_through_elements (CoV after each element smaller than after the previous one)"
+      "no physics check"
      ]
     },
     "generalization": {
@@ -51004,31 +50878,30 @@
     },
     "reproducibility": {
      "name": "reproducibility",
-     "score": 1.0,
+     "score": 0.25,
      "status": "INFO",
-     "tier": "VERIFIED",
+     "tier": "INFERRED",
      "evidence": [
-      "code snapshot: 1 files",
-      "git e2fb3a62",
-      "ran from a dirty tree (diff saved)"
+      "no code snapshot",
+      "no git commit"
      ]
     },
     "data": {
      "name": "data",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "3 datasets, 10 samples, 100 % with a card description"
+      "no dataset"
      ]
     },
     "assets": {
      "name": "assets",
-     "score": 0.8,
-     "status": "INFO",
-     "tier": "VERIFIED",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
      "evidence": [
-      "7 figures, 0 movies, 3-D viewer"
+      "0 figures, 0 movies"
      ]
     },
     "documentation": {
@@ -51060,7 +50933,8 @@
       "not usable until it validates",
       "generalization evidence",
       "uncertainty estimate",
-      "reference or physics check"
+      "reference or physics check",
+      "reproducibility"
      ]
     },
     "paper": {
@@ -51069,6 +50943,8 @@
      "missing": [
       "not usable until it validates",
       "comparison with a reference",
+      "baseline or physics check",
+      "reproducibility",
       "novelty review >= 3/5"
      ]
     },
@@ -51077,6 +50953,8 @@
      "approved": false,
      "missing": [
       "not usable until it validates",
+      "strong visuals (movie, render or 3-D view)",
+      "a validated headline number",
       "a one-line story (review)"
      ]
     },
@@ -51085,6 +50963,7 @@
      "approved": false,
      "missing": [
       "not usable until it validates",
+      "a documented dataset",
       "validated runs"
      ]
     }
@@ -51097,11 +50976,11 @@
     "data_geometry": {
      "title": "Data and geometry",
      "question": "Was the physical problem represented correctly?",
-     "status": "partial",
+     "status": "open",
      "evidence": [
-      "inputs recorded: route"
+      "no inputs or geometry recorded"
      ],
-     "next": "add a mesh-convergence or domain check"
+     "next": "record the inputs (ctx.input)"
     },
     "model": {
      "title": "Model",
@@ -51115,22 +50994,20 @@
     "physics": {
      "title": "Physical constraints",
      "question": "Are the equations and the boundary conditions respected?",
-     "status": "failed",
+     "status": "open",
      "evidence": [
-      "FAIL bulk_velocity_constant_along_pipe (volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservat)",
-      "PASS scalar_flux_conserved (flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1))",
-      "PASS mixing_decays_through_elements (CoV after each element smaller than after the previous one)"
+      "no conservation, symmetry or boundary-condition check"
      ],
-     "next": "fix the failing check"
+     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
     },
     "benchmark": {
      "title": "Benchmark",
      "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
+     "status": "open",
      "evidence": [
-      "PASS mixer_beats_empty_pipe (coefficient of variation at the outlet, empty pipe / mixer)"
+      "no comparison with a solver, data or baseline"
      ],
-     "next": ""
+     "next": "compare with a reference or a simple baseline"
     },
     "uncertainty": {
      "title": "Uncertainty",
@@ -53443,216 +53320,6 @@
      "status": "partial",
      "evidence": [
       "limitations: linear elasticity: displacement is linear in the load magnitude, so only the geometry and the load direction a",
-      "and 1 more"
-     ],
-     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
-    },
-    "decision": {
-     "title": "Engineering decision",
-     "question": "Is the result adequate for the intended use?",
-     "status": "answered",
-     "evidence": [
-      "tier B (solid), ready for training_data",
-      "2 limitations bound the use"
-     ],
-     "next": ""
-    }
-   },
-   "tier_name": "solid"
-  },
-  "rom_study-9580a00926ca": {
-   "run_id": "rom_study-9580a00926ca",
-   "experiment": "rom_study",
-   "status": "completed",
-   "tier": "B",
-   "score": 98.0,
-   "coverage": 0.8,
-   "dimensions": {
-    "validation": {
-     "name": "validation",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "5/5 checks pass"
-     ]
-    },
-    "reference": {
-     "name": "reference",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no reference check"
-     ]
-    },
-    "baseline": {
-     "name": "baseline",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
-     ]
-    },
-    "physics": {
-     "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
-      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
-      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
-     ]
-    },
-    "generalization": {
-     "name": "generalization",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
-     ]
-    },
-    "uncertainty": {
-     "name": "uncertainty",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no uncertainty reported"
-     ]
-    },
-    "reproducibility": {
-     "name": "reproducibility",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "code snapshot: 1 files",
-      "git e2fb3a62"
-     ]
-    },
-    "data": {
-     "name": "data",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "1 datasets, 1 samples, 100 % with a card description"
-     ]
-    },
-    "assets": {
-     "name": "assets",
-     "score": 0.8,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "3 figures, 1 movies"
-     ]
-    },
-    "documentation": {
-     "name": "documentation",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "description 229 chars",
-      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
-      "papers: 0"
-     ]
-    },
-    "review": {
-     "name": "review",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no human review yet"
-     ]
-    }
-   },
-   "readiness": {
-    "product": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "uncertainty estimate"
-     ]
-    },
-    "paper": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "comparison with a reference",
-      "novelty review >= 3/5"
-     ]
-    },
-    "marketing": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "a one-line story (review)"
-     ]
-    },
-    "training_data": {
-     "ready": true,
-     "approved": false,
-     "missing": []
-    }
-   },
-   "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)"
-   ],
-   "reviewed": false,
-   "stages": {
-    "data_geometry": {
-     "title": "Data and geometry",
-     "question": "Was the physical problem represented correctly?",
-     "status": "partial",
-     "evidence": [
-      "inputs recorded: setup"
-     ],
-     "next": "add a mesh-convergence or domain check"
-    },
-    "model": {
-     "title": "Model",
-     "question": "Can the model (or solver) represent the relevant dynamics?",
-     "status": "answered",
-     "evidence": [
-      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
-      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
-      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
-     ],
-     "next": ""
-    },
-    "physics": {
-     "title": "Physical constraints",
-     "question": "Are the equations and the boundary conditions respected?",
-     "status": "answered",
-     "evidence": [
-      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
-      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
-      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
-     ],
-     "next": ""
-    },
-    "benchmark": {
-     "title": "Benchmark",
-     "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
-     "evidence": [
-      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
-     ],
-     "next": ""
-    },
-    "uncertainty": {
-     "title": "Uncertainty",
-     "question": "Where may the prediction not be reliable?",
-     "status": "partial",
-     "evidence": [
-      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
       "and 1 more"
      ],
      "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"

@@ -1,0 +1,38 @@
+[
+ {
+  "name": "bulk_velocity_constant_along_pipe",
+  "passed": true,
+  "value": 0.01066700057315284,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.03,
+  "min": null,
+  "detail": "volume-averaged axial velocity on every section / inlet bulk velocity (mass conservation and section averaging on the O-grid)",
+  "kind": "physics"
+ },
+ {
+  "name": "friction_factor_vs_64_over_Re",
+  "passed": true,
+  "value": 0.13090819876170268,
+  "reference": 0.128,
+  "rtol": 0.04,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Hagen-Poiseuille",
+  "kind": "reference"
+ },
+ {
+  "name": "centreline_speed_vs_2U",
+  "passed": true,
+  "value": 2.004267176,
+  "reference": 2.0,
+  "rtol": 0.02,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "parabolic profile u = 2 U (1 - r^2 / R^2)",
+  "kind": "reference"
+ }
+]

@@ -1,0 +1,78 @@
+{
+ "name": "cross_sections",
+ "description": "Cross-section grids (72 x 72, NaN outside the fluid): axial and secondary speed / U, concentration",
+ "n_samples": 5,
+ "shards": 1,
+ "schema": {
+  "station_D": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 10.0,
+   "max": 30.1416
+  },
+  "origin": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.02500000037252903,
+   "max": 0.875
+  },
+  "u": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.05000000074505806,
+   "max": 0.05000000074505806
+  },
+  "v": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 0.05000000074505806
+  },
+  "axial_speed": {
+   "kind": "array",
+   "shape": [
+    72,
+    72
+   ],
+   "dtype": "float32",
+   "min": 0.5946568846702576,
+   "max": 1.2090307474136353
+  },
+  "secondary_speed": {
+   "kind": "array",
+   "shape": [
+    72,
+    72
+   ],
+   "dtype": "float32",
+   "min": 8.591023288317956e-06,
+   "max": 0.36715835332870483
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "pipe_flow",
+  "run_id": "pipe_flow-0c34ca2835fe",
+  "params": {
+   "case": "bend_90",
+   "D": 0.05,
+   "elements": 6,
+   "iterations": 1500,
+   "procs": 2,
+   "samples": 64,
+   "render": true,
+   "keep_case": false
+  }
+ },
+ "sha1": "54392defb187ef53152a68665919eed0dc2150c8"
+}

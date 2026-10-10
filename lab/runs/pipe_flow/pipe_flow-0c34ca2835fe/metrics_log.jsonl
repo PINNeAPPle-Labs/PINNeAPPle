@@ -1,0 +1,9 @@
+{"name": "cells", "value": 62400, "step": null, "t": 1791665968.6844864}
+{"name": "U_mean_m_s", "value": 0.9999999999999999, "step": null, "t": 1791665968.6846056}
+{"name": "Re", "value": 50000.0, "step": null, "t": 1791665968.684628}
+{"name": "friction_factor_downstream", "value": 0.021649139702974888, "step": null, "t": 1791665969.193725}
+{"name": "colebrook", "value": 0.02089144352833724, "step": null, "t": 1791665969.1940427}
+{"name": "K_bend_total", "value": 0.19562741420156005, "step": null, "t": 1791665969.1940851}
+{"name": "K_bend_excess", "value": 0.12761463595415504, "step": null, "t": 1791665969.1940997}
+{"name": "K_ito", "value": 0.2304308569826252, "step": null, "t": 1791665969.1941137}
+{"name": "secondary_speed_max_over_U", "value": 0.2992159594311252, "step": null, "t": 1791665969.194126}

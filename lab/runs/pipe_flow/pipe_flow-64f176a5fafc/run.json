@@ -1,0 +1,94 @@
+{
+ "run_id": "pipe_flow-64f176a5fafc",
+ "experiment": "pipe_flow",
+ "version": "1",
+ "params": {
+  "case": "laminar_pipe",
+  "D": 0.05,
+  "elements": 6,
+  "iterations": 1500,
+  "procs": 2,
+  "samples": 64,
+  "render": true,
+  "keep_case": false
+ },
+ "status": "completed",
+ "started": 1791666864.1703863,
+ "tags": [
+  "cfd",
+  "openfoam",
+  "internal-flow",
+  "pipes",
+  "mixing",
+  "3d",
+  "dataset"
+ ],
+ "git": "4e1388fa",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Internal flow in OpenFOAM on a structured O-grid swept along the pipe: laminar pipe against Hagen-Poiseuille, a turbulent 90 degree bend against Colebrook and Ito, a Kenics static mixer against an empty pipe (mixing of a passive scalar, pressure-drop ratio).",
+ "code": {
+  "files": [
+   "code/pipes.py"
+  ],
+  "sha1": "23fb7036ced2d6eebb27e23a77838df3293ef154",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791667196.5249615,
+ "error": null,
+ "stages": [
+  {
+   "name": "cfd",
+   "started": 1791666866.545661,
+   "status": "done",
+   "seconds": 80.102
+  },
+  {
+   "name": "datasets",
+   "started": 1791666947.604105,
+   "status": "done",
+   "seconds": 0.006
+  },
+  {
+   "name": "render",
+   "started": 1791666947.611114,
+   "status": "done",
+   "seconds": 248.607
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/route.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/profile_and_pressure.png",
+   "figures/streamlines.jpg",
+   "figures/section_10.jpg"
+  ]
+ },
+ "validation": {
+  "total": 3,
+  "failed": 0
+ },
+ "seconds": 332.355,
+ "datasets": {
+  "sections": {
+   "n_samples": 1,
+   "path": "runs/pipe_flow/pipe_flow-64f176a5fafc/datasets/sections"
+  },
+  "cross_sections": {
+   "n_samples": 1,
+   "path": "runs/pipe_flow/pipe_flow-64f176a5fafc/datasets/cross_sections"
+  },
+  "wall": {
+   "n_samples": 1,
+   "path": "runs/pipe_flow/pipe_flow-64f176a5fafc/datasets/wall"
+  }
+ }
+}

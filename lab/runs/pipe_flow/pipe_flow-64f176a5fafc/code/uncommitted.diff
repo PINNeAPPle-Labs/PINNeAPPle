@@ -1,0 +1,170 @@
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index 88321189..2435d6f9 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -27,6 +27,7 @@ from . import (  # noqa: F401
+     pde,
+     pipes,
+     repo_results,
++    rom,
+     structures,
+     vehicles3d,
+     wear,
+diff --git a/pinneapple_neural/architectures/rom/__init__.py b/pinneapple_neural/architectures/rom/__init__.py
+index e11fbf72..998d7141 100644
+--- a/pinneapple_neural/architectures/rom/__init__.py
++++ b/pinneapple_neural/architectures/rom/__init__.py
+@@ -8,6 +8,7 @@ from .deep_uq_rom import DeepUQROM
+ from .sindy import SINDy
+ from .koopman import KoopmanAutoencoder
+ from .neural_rom import NeuralROM
++from .parametric import ParametricPOD, latin_hypercube
+ from .registry import ROMCatalog
+ 
+ __all__ = [
+@@ -23,4 +24,6 @@ __all__ = [
+     "KoopmanAutoencoder",
+     "NeuralROM",
+     "ROMCatalog",
++    "ParametricPOD",
++    "latin_hypercube",
+ ]
+diff --git a/pinneapple_neural/architectures/rom/dmd.py b/pinneapple_neural/architectures/rom/dmd.py
+index e298b235..14f3c4c3 100644
+--- a/pinneapple_neural/architectures/rom/dmd.py
++++ b/pinneapple_neural/architectures/rom/dmd.py
+@@ -109,14 +109,14 @@ class DynamicModeDecomposition(ROMBase):
+             raise ValueError("Need at least T>=2 snapshots.")
+ 
+         Xc, mu = self._center_mean(Xseq)
+-        self.mean_.resize_as_(mu).copy_(mu)
++        self.mean_ = mu.detach().clone()          # keep the data's dtype and device
+ 
+         X0 = Xc[:, :-1].reshape(-1, D).t()
+         X1 = Xc[:, 1: ].reshape(-1, D).t()
+ 
+         Ur, A_tilde, Sr = self._build_operator(X0, X1, self.r, self.l2)
+-        self.basis_.resize_as_(Ur).copy_(Ur)
+-        self.A_.resize_as_(A_tilde).copy_(A_tilde)
++        self.basis_ = Ur.detach().clone()          # keep the data's dtype and device
++        self.A_ = A_tilde.detach().clone()          # keep the data's dtype and device
+         self._singular_values = Sr.clone()
+         self._fitted = True
+         return self
+@@ -158,13 +158,13 @@ class DynamicModeDecomposition(ROMBase):
+             mu = torch.zeros((1, D), device=X0.device, dtype=X0.dtype)
+             X0c, X1c = X0, X1
+ 
+-        self.mean_.resize_as_(mu).copy_(mu)
++        self.mean_ = mu.detach().clone()          # keep the data's dtype and device
+ 
+         Ur, A_tilde, Sr = self._build_operator(
+             X0c.t(), X1c.t(), self.r, self.l2
+         )
+-        self.basis_.resize_as_(Ur).copy_(Ur)
+-        self.A_.resize_as_(A_tilde).copy_(A_tilde)
++        self.basis_ = Ur.detach().clone()          # keep the data's dtype and device
++        self.A_ = A_tilde.detach().clone()          # keep the data's dtype and device
+         self._singular_values = Sr.clone()
+         self._fitted = True
+         return self
+@@ -189,7 +189,7 @@ class DynamicModeDecomposition(ROMBase):
+         if not self._fitted:
+             raise RuntimeError("DMD not fitted.")
+         lam, W = torch.linalg.eig(self.A_)
+-        Phi = self.basis_.to(torch.complex64) @ W  # (D, r)
++        Phi = self.basis_.to(W.dtype) @ W  # (D, r)
+         return lam, W, Phi
+ 
+     @property
+diff --git a/pinneapple_neural/architectures/rom/opinf.py b/pinneapple_neural/architectures/rom/opinf.py
+index 0d4286b0..15b29291 100644
+--- a/pinneapple_neural/architectures/rom/opinf.py
++++ b/pinneapple_neural/architectures/rom/opinf.py
+@@ -80,8 +80,8 @@ class OperatorInference(ROMBase):
+         else:
+             std = torch.ones(self.r, device=a0.device, dtype=a0.dtype)
+ 
+-        self.a_mean.copy_(mean)
+-        self.a_std.copy_(std)
++        self.a_mean = mean.detach().clone()
++        self.a_std = std.detach().clone()
+ 
+     def _normalize(self, a: torch.Tensor) -> torch.Tensor:
+         return (a - self.a_mean) / self.a_std
+@@ -206,7 +206,7 @@ class OperatorInference(ROMBase):
+         lam = self._lambda_diag(device=X.device, dtype=X.dtype)
+ 
+         W = self._solve_ridge(X, a1n, lam)  # (F, r)
+-        self.W.copy_(W)
++        self.W = W.detach().clone()
+         self._fitted = True
+         return self
+ 
+@@ -307,7 +307,7 @@ class OperatorInference(ROMBase):
+         lam = self._lambda_diag(device=X.device, dtype=X.dtype)
+ 
+         W = self._solve_ridge(X, yn, lam)  # (F, r) mapping features -> d(a_norm)/dt
+-        self.W.copy_(W)
++        self.W = W.detach().clone()
+         self._fitted = True
+         return self
+ 
+diff --git a/pinneapple_simulation/numerical_solvers/internal_flow.py b/pinneapple_simulation/numerical_solvers/internal_flow.py
+index 62d91271..2f5bf21d 100644
+--- a/pinneapple_simulation/numerical_solvers/internal_flow.py
++++ b/pinneapple_simulation/numerical_solvers/internal_flow.py
+@@ -600,9 +600,15 @@ runTimeModifiable false;
+             shutil.copy(os.path.join(case, "0", "T"), os.path.join(case, str(t_end), "T"))
+             self._control(case, "scalarTransportFoam", t_end, t_end + 3)
+             sh("scalarTransportFoam", "scalarTransportFoam")
++            # keep one solution time: move the transported scalar back into the flow solution
++            later = sorted((float(d), d) for d in os.listdir(case) if _isnum(d) and float(d) > t_end)
++            if later:
++                shutil.copy(os.path.join(case, later[-1][1], "T"), os.path.join(case, str(t_end), "T"))
++                for _, d in later:
++                    shutil.rmtree(os.path.join(case, d), ignore_errors=True)
+         return t
+ 
+-    def solve(self, case: str, procs: int = 2, log: Callable[[str], None] = print, n_sections: int = 120,
++    def solve(self, case: str, procs: int = 2, log: Callable[[str], None] = print, n_sections: int | None = None,
+               n_lines: int = 40, slice_at_D: Sequence[float] = ()) -> InternalResult:
+         self.write(case, procs)
+         t = self.run(case, procs, log)
+@@ -611,7 +617,7 @@ runTimeModifiable false;
+         return res
+ 
+     # -- reading
+-    def read(self, case: str, n_sections: int = 120, n_lines: int = 40, slice_at_D: Sequence[float] = ()) -> InternalResult:
++    def read(self, case: str, n_sections: int | None = None, n_lines: int = 40, slice_at_D: Sequence[float] = ()) -> InternalResult:
+         from pinneapple_data.cae.foam import read_field
+ 
+         from .external_flow import CaseFields, latest_time
+@@ -628,12 +634,17 @@ runTimeModifiable false;
+         # project every cell on the centreline: nearest station interval, then arc length
+         s_cell, rad_cell, uax = _project(C, st, cf.U)
+         D, r = self.route.D, self.route.D / 2
++        if n_sections is None:                      # sections at least two axial cells long: none is empty
++            n_sections = int(min(200, max(10, st["s"][-1] / (2 * self.axial_cell_D * D))))
+         edges = np.linspace(0, st["s"][-1], n_sections + 1)
+         sid = np.clip(np.searchsorted(edges, s_cell) - 1, 0, n_sections - 1)
+-        cnt = np.bincount(sid, vol, n_sections) + 1e-30
++        cnt = np.bincount(sid, vol, n_sections)
++        keep = cnt > 0
++        cnt = np.maximum(cnt, 1e-300)
+         p = np.bincount(sid, vol * cf.p, n_sections) / cnt
+         um = np.bincount(sid, vol * uax, n_sections) / cnt
+-        sec = {"s": 0.5 * (edges[1:] + edges[:-1]), "p": p, "u_mean": um}
++        sm = np.bincount(sid, vol * s_cell, n_sections) / cnt
++        sec = {"s": sm, "p": p, "u_mean": um}
+         if Tc is not None:
+             w = vol * np.maximum(uax, 0)
+             W = np.bincount(sid, w, n_sections) + 1e-30
+@@ -641,6 +652,7 @@ runTimeModifiable false;
+             var = np.bincount(sid, w * (Tc - cm[sid]) ** 2, n_sections) / W
+             sec["c_mean"] = cm
+             sec["cov"] = np.sqrt(var) / np.maximum(cm, 1e-12)
++        sec = {k: v[keep] for k, v in sec.items()}
+         # wall shear on the wall patch
+         wall = {}
+         for pat in cf.patches():

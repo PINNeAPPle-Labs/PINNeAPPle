@@ -91,7 +91,11 @@ def _snapshot_code(cls, run_dir: str, params: dict[str, Any] | None = None) -> d
     info["sha1"] = h.hexdigest()
     try:
         here = os.path.dirname(os.path.abspath(__file__))
-        diff = subprocess.check_output(["git", "-C", here, "diff", "HEAD"], stderr=subprocess.DEVNULL, timeout=10)
+        # source code only: results, figures and data under lab/ (and binaries) are not part of the code
+        diff = subprocess.check_output(["git", "-C", here, "diff", "HEAD", "--", ".",
+                                        ":(exclude)lab", ":(exclude)*.png", ":(exclude)*.jpg", ":(exclude)*.gif",
+                                        ":(exclude)*.npz", ":(exclude)*.npy", ":(exclude)*.glb", ":(exclude)*.json"],
+                                       stderr=subprocess.DEVNULL, timeout=10)
         if diff.strip():
             with open(os.path.join(code_dir, "uncommitted.diff"), "wb") as f:
                 f.write(diff)

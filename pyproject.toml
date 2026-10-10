@@ -54,6 +54,10 @@ pinneapple-ccx = "pinneapple_simulation.external_solvers.calculix.virtual_ccx:ma
 security = [
   "cryptography>=41",
 ]
+# Evidence Report PDF in pinneapple_veriphysics (the Decision Record itself needs only the standard library)
+veriphysics = [
+  "reportlab>=4.0",
+]
 
 # Experiment trackers for pp.Experiment(tracker="mlflow" | "wandb")
 tracking = [
@@ -352,6 +356,7 @@ packages = [
   "pinneapple_blender",      # Blender export/render bridge
   "pinneapple_perception",   # extract physics from images/video/audio
   "pinneapple_security",     # integrity, signatures, provenance, audit trail, privacy/DP, model scanning, OT anomaly detection
+  "pinneapple_veriphysics",  # Decision Record, evidence report, applicability map, robustness and recommendation (verification layer)
 
   # ── arena + compatibility shims ───────────────────────────────────────────
   "pinneapple_arena",     # YAML/JSON-driven multi-model benchmark runner
@@ -400,6 +405,7 @@ include = [
   "pinneapple_blender/**",
   "pinneapple_perception/**",
   "pinneapple_security/**",
+  "pinneapple_veriphysics/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

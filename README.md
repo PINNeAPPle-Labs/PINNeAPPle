@@ -192,6 +192,7 @@ PINNeAPPle
 │   ├── pinneapple_decision       probabilistic decision layer: which experiment next, under hard constraints,
 │   │                             learning only from verified results
 │   └── pinneapple_security       manifests, signatures, provenance (in-toto/SLSA), SBOM, audit trail, privacy,
+│   └── pinneapple_veriphysics    Decision Record, evidence report, applicability map, robustness, recommendation
 │                                 physics-residual detection of manipulated sensor data
 │
 ├── Data and perception

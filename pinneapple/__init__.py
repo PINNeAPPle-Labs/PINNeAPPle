@@ -575,6 +575,8 @@ _SUBMODULES = {
     "bodies":     "pinneapple_design.geometry.bodies",
     # data and process security: manifests, signatures, provenance, audit trail, privacy/DP, model scanning
     "security":   "pinneapple_security",
+    # verification layer of Veriphysics: Decision Record, evidence report, applicability map, robustness, recommendation
+    "veriphysics": "pinneapple_veriphysics",
     # Earth-system blocks: shallow water on the sphere (Williamson cases), Richards equation, two-layer climate EBM
     "geophysics": "pinneapple_simulation.geophysics",
     # adaptive ensembles of physics models (FNO, PINN, GNN, solvers): online selection / combination

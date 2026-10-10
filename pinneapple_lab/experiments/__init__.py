@@ -9,6 +9,7 @@
 | ``cylinder_lbm`` | lattice-Boltzmann flow past a cylinder; regime, Strouhal number, vorticity images | vorticity |
 | ``bh_forecast`` | Duarte et al. U-Net forecast of accretion flows, scored against persistence (source checkout) | - |
 | ``repo_results`` | results already produced by repository scripts, re-validated and stored as datasets | per source |
+| ``example_script`` | any script of ``examples/`` (examples and use cases): figures, JSON metrics, arrays, console, code | artifacts |
 """
 from . import (  # noqa: F401
     accretion,

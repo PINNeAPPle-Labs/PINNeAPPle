@@ -6,20 +6,18 @@
   "source": "fin_inverse_3d"
  },
  "status": "completed",
- "started": 1791652757.4652803,
+ "started": 1791653530.1606045,
  "tags": [
   "import",
   "benchmark",
   "dataset"
  ],
- "git": "838bbd18",
+ "git": "7529d68e",
  "environment": {
   "python": "3.11.15",
   "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
   "packages": {
-   "numpy": "2.4.6",
-   "torch": "2.14.1+cu130",
-   "scipy": "1.17.1"
+   "numpy": "2.4.6"
   }
  },
  "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.",
@@ -36,17 +34,17 @@
    "code/concorde_high_aoa_pipeline.py",
    "code/evaluate.py"
   ],
-  "sha1": "6e7cb87120228254d0071e3da9dceb96fc474f69",
+  "sha1": "0d0c3dd820f40eb2b158557bbfa1bf9d862a37ac",
   "uncommitted_diff": "code/uncommitted.diff"
  },
- "finished": 1791652757.5857332,
+ "finished": 1791653530.8198078,
  "error": null,
  "stages": [
   {
    "name": "import",
-   "started": 1791652757.5373683,
+   "started": 1791653530.7759414,
    "status": "done",
-   "seconds": 0.003
+   "seconds": 0.007
   }
  ],
  "files": {
@@ -65,11 +63,11 @@
   "total": 3,
   "failed": 0
  },
- "seconds": 0.12,
+ "seconds": 0.659,
  "datasets": {
-  "temperature_fields": {
+  "temperature_fields_3d": {
    "n_samples": 3,
-   "path": "runs/repo_results/repo_results-e9574ff86021/datasets/temperature_fields"
+   "path": "runs/repo_results/repo_results-e9574ff86021/datasets/temperature_fields_3d"
   }
  }
 }

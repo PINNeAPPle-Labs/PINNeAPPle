@@ -1,0 +1,8 @@
+.git
+**/__pycache__
+**/*.pyc
+notebooks
+pinneapple_app/frontend
+**/node_modules
+lab/index.sqlite
+lab/_exports

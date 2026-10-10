@@ -136,6 +136,86 @@ def test_repo_results_import_and_dataset_catalog(tmp_path):
     assert by["burgers_pinn"].metrics["rel_l2_vs_exact"] < 0.1
     assert abs(by["fin_inverse_2d"].metrics["h_pinn_mean"] / 15.0 - 1) < 0.05
     store = LabStore(root)
-    assert store.datasets("repo_results", "temperature_fields")[0]["n_samples"] == 5
+    assert store.datasets("repo_results", "temperature_fields_2d")[0]["n_samples"] == 5
     text = open(store.datasets_catalog()).read()
     assert "`repo_results` / `strouhal`" in text and "-g source=" in text
+
+
+def test_server_routes_auth_and_downloads(tmp_path):
+    import base64
+    import threading
+    import urllib.error
+    import urllib.request
+    from http.server import ThreadingHTTPServer
+
+    from pinneapple_lab.server import LabServer
+    root = str(tmp_path)
+    sweep("oscillator", grid={"zeta": [0.1, 0.3]}, root=root)
+    lab = LabServer(root, refresh=0, user="u", password="p")
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), lab.handler())
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{httpd.server_address[1]}"
+    auth = {"Authorization": "Basic " + base64.b64encode(b"u:p").decode()}
+
+    def get(path, headers=auth):
+        with urllib.request.urlopen(urllib.request.Request(base + path, headers=headers)) as r:
+            return r.status, r.headers.get("Content-Type"), r.read()
+    try:
+        assert get("/health", {})[0] == 200
+        with pytest.raises(urllib.error.HTTPError) as e:
+            get("/", {})
+        assert e.value.code == 401
+        code, ctype, body = get("/")
+        assert code == 200 and ctype.startswith("text/html") and b"PINNeAPPle Lab" in body
+        cat = json.loads(get("/api/catalog")[2])
+        assert cat["served"] and len(cat["experiments"][0]["runs"]) == 2
+        r = cat["experiments"][0]["runs"][0]
+        assert get("/" + r["thumbs"][0])[1] == "image/jpeg"
+        assert get("/files/" + r["figures"][0].split("/", 1)[1])[1] == "image/png"
+        assert json.loads(get("/api/runs/" + r["id"])[2])["index"]["run_id"] == r["id"]
+        with pytest.raises(urllib.error.HTTPError) as e:
+            get("/files/../index.sqlite")
+        assert e.value.code == 404
+        code, _, data = get("/download/oscillator/trajectories.npz")
+        assert code == 200 and data[:2] == b"PK"
+    finally:
+        httpd.shutdown()
+
+
+def test_cache_recomputes_runs_whose_shards_are_missing(tmp_path):
+    root = str(tmp_path)
+    r = run("oscillator", {"zeta": 0.2}, root=root)
+    shard = os.path.join(r.dir, "datasets", "trajectories", "shard_00000.npz")
+    assert run("oscillator", {"zeta": 0.2}, root=root).status.startswith("cached")
+    os.remove(shard)                                    # what a fresh git checkout of the lab looks like
+    again = run("oscillator", {"zeta": 0.2}, root=root)
+    assert again.status == "completed" and os.path.exists(shard)
+
+
+def test_example_script_collects_outputs_and_leaves_checkout_clean(tmp_path):
+    import shutil
+
+    from pinneapple_lab.experiments.examples import REPO, discover_examples
+    assert any(x["group"].startswith("use_cases/") for x in discover_examples())
+    folder = os.path.join(REPO, "examples", "_lab_test_tmp")
+    os.makedirs(folder, exist_ok=True)
+    try:
+        with open(os.path.join(folder, "demo.py"), "w") as f:
+            f.write("import json, os\nimport numpy as np\nimport matplotlib.pyplot as plt\n"
+                    "here = os.path.dirname(__file__)\n"
+                    "plt.plot([0, 1], [0, 1]); plt.savefig('lab_test_demo_figure.png')\n"
+                    "json.dump({'rel_l2': 0.01, 'nested': {'cl': 0.5}}, open(os.path.join(here, 'm.json'), 'w'))\n"
+                    "np.save(os.path.join(here, 'u.npy'), np.arange(6.0).reshape(2, 3))\n"
+                    "print('relative L2 error: 1.5e-03')\n")
+        r = run("example_script", {"script": "examples/_lab_test_tmp/demo.py", "timeout": 120}, root=str(tmp_path))
+        assert r.ok, r.status
+        assert r.metrics["m.rel_l2"] == 0.01 and r.metrics["m.nested.cl"] == 0.5
+        assert r.metrics["stdout.relative_l2_error"] == 1.5e-3
+        assert any(f.endswith("lab_test_demo_figure.png") for f in os.listdir(os.path.join(r.dir, "figures")))
+        assert not os.path.exists(os.path.join(REPO, "lab_test_demo_figure.png"))      # moved out of the checkout
+        assert LabStore(str(tmp_path)).datasets("example_script", "artifacts")[0]["n_samples"] == 1
+        assert any(c.endswith("demo.py") for c in json.load(open(os.path.join(r.dir, "run.json")))["code"]["files"])
+    finally:
+        shutil.rmtree(folder, ignore_errors=True)
+        if os.path.exists(os.path.join(REPO, "lab_test_demo_figure.png")):
+            os.remove(os.path.join(REPO, "lab_test_demo_figure.png"))

@@ -46,7 +46,23 @@ def _git() -> str | None:
         return None
 
 
-def _snapshot_code(cls, run_dir: str) -> dict[str, Any]:
+def _shards_present(run_dir: str, record: dict[str, Any]) -> bool:
+    """Whether every dataset shard a run wrote is on disk. Shards are not versioned in git, so a run restored from
+    a checkout keeps its record but not its arrays; such a run is computed again instead of served from the cache."""
+    for name in record.get("datasets") or {}:
+        folder = os.path.join(run_dir, "datasets", name)
+        try:
+            with open(os.path.join(folder, "card.json")) as f:
+                shards = int(json.load(f).get("shards", 0))
+        except (OSError, ValueError):
+            return False
+        if not all(os.path.exists(os.path.join(folder, f"shard_{i:05d}.npz")) for i in range(shards)) or \
+                not os.path.exists(os.path.join(folder, "samples.jsonl")):
+            return False
+    return True
+
+
+def _snapshot_code(cls, run_dir: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
     """Save the code that ran: the experiment's source file, any extra files it declares (``code_files``), and
     the uncommitted diff of the repository (so a run from a dirty tree can still be reproduced)."""
     import hashlib
@@ -59,7 +75,10 @@ def _snapshot_code(cls, run_dir: str) -> dict[str, Any]:
         paths.append(inspect.getsourcefile(cls))
     except (TypeError, OSError):
         pass
-    for extra in getattr(cls, "code_files", []) or []:
+    extras = list(getattr(cls, "code_files", []) or [])
+    if hasattr(cls, "code_for") and params is not None:          # files that depend on the parameters
+        extras += list(cls.code_for(params))
+    for extra in extras:
         paths.append(extra if os.path.isabs(extra) else os.path.join(os.path.dirname(paths[0] or ""), extra))
     h = hashlib.sha1()
     for src in paths:
@@ -106,7 +125,7 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None = 
     rj = os.path.join(d, "run.json")
     if os.path.exists(rj) and not force:
         prev = json.load(open(rj))
-        if prev.get("status") in ("completed", "failed_validation"):
+        if prev.get("status") in ("completed", "failed_validation") and _shards_present(d, prev):
             mets = json.load(open(os.path.join(d, "metrics.json"))) if os.path.exists(os.path.join(d, "metrics.json")) else {}
             return RunResult(rid, cls.name, "cached:" + prev["status"], d, mets, 0.0)
     if os.path.isdir(d):
@@ -115,7 +134,7 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None = 
     record = {"run_id": rid, "experiment": cls.name, "version": cls.version, "params": _jsonable(p),
               "status": "running", "started": time.time(), "tags": list(tags or []) + list(cls.tags),
               "git": _git(), "environment": _env(), "description": cls.description,
-              "code": _snapshot_code(cls, d)}
+              "code": _snapshot_code(cls, d, p)}
     with open(rj, "w") as f:
         json.dump(record, f, indent=1)
     store.index_run(record, {}, {})

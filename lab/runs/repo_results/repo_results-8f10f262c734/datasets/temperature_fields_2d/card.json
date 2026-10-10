@@ -1,54 +1,52 @@
 {
- "name": "temperature_fields",
- "description": "3d temperature field: finite-volume reference and PINN reconstructions from noisy sensors (one per noise draw)",
- "n_samples": 3,
+ "name": "temperature_fields_2d",
+ "description": "2d temperature field: finite-volume reference and PINN reconstructions from noisy sensors (one per noise draw)",
+ "n_samples": 5,
  "shards": 1,
  "schema": {
   "T_pinn": {
    "kind": "array",
    "shape": [
-    12,
-    40,
-    40
+    60,
+    100
    ],
    "dtype": "float32",
-   "min": 65.96134948730469,
-   "max": 74.55706787109375
+   "min": 62.296695709228516,
+   "max": 79.3792724609375
   },
   "T_reference": {
    "kind": "array",
    "shape": [
-    12,
-    40,
-    40
+    60,
+    100
    ],
    "dtype": "float32",
-   "min": 65.91231536865234,
-   "max": 74.4838638305664
+   "min": 62.49766159057617,
+   "max": 79.13482666015625
   },
   "draw": {
    "kind": "scalar",
    "type": "int",
    "min": 0.0,
-   "max": 2.0
+   "max": 4.0
   },
   "h_pinn": {
    "kind": "scalar",
    "type": "float",
-   "min": 137.921630859375,
-   "max": 140.98602294921875
+   "min": 14.386173248291016,
+   "max": 15.287345886230469
   },
   "h_true": {
    "kind": "scalar",
    "type": "float",
-   "min": 150.0,
-   "max": 150.0
+   "min": 15.0,
+   "max": 15.0
   },
   "case": {
    "kind": "scalar",
    "type": "str",
    "values": [
-    "3d_block"
+    "2d_plate"
    ]
   }
  },
@@ -59,10 +57,10 @@
  "license": "",
  "provenance": {
   "experiment": "repo_results",
-  "run_id": "repo_results-e9574ff86021",
+  "run_id": "repo_results-8f10f262c734",
   "params": {
-   "source": "fin_inverse_3d"
+   "source": "fin_inverse_2d"
   }
  },
- "sha1": "3439373ac1a54ce665e1459654d16034f05da2f5"
+ "sha1": "ccbfe891e2a61d2fd1f757dfeab77b56f7f463e3"
 }

@@ -3,12 +3,12 @@
 #
 #   PROXY_NETWORK=<network of the existing proxy> \
 #   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta udr inverse \
-#       preflight mesh compare lineage interop aero
+#       preflight mesh compare lineage interop aero lab
 #
 # Then point the proxy at pinneapple-heatsink:8080, pinneapple-pcb:8081, pinneapple-datahealth:8082,
 # pinneapple-standardizer:8083, pinneapple-simmeta:8084 pinneapple-udr:8085, pinneapple-inverse:8086,
 # pinneapple-preflight:8087, pinneapple-mesh:8088, pinneapple-compare:8089, pinneapple-lineage:8090 and
-# pinneapple-interop:8091 and pinneapple-aero:8092 (see README.md).
+# pinneapple-interop:8091 and pinneapple-aero:8092 and pinneapple-lab:8093 (see README.md).
 services:
   caddy:                       # the server already has a proxy on 80/443: never start this project's own
     profiles: [own-proxy]
@@ -78,6 +78,11 @@ services:
       default: {}
       proxy:
         aliases: [pinneapple-aero]
+  lab:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-lab]
 
 networks:
   proxy:

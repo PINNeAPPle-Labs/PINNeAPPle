@@ -7,6 +7,8 @@
     python -m pinneapple_lab status
     python -m pinneapple_lab report --html                              # lab/CATALOG.md, DATASETS.md, index.html
     python -m pinneapple_lab export cylinder_lbm vorticity out/cylinder_vorticity.npz
+    python -m pinneapple_lab serve --host 0.0.0.0 --port 8093                # the catalogue as a web app
+    python -m pinneapple_lab examples --run --match use_cases                # examples and use cases into the lab
 Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
 """
 from __future__ import annotations
@@ -55,6 +57,15 @@ def main(argv=None) -> int:
     rep = sub.add_parser("report")
     rep.add_argument("--out", default=None)
     rep.add_argument("--html", action="store_true", help="also write the browsable index.html")
+    sv = sub.add_parser("serve", help="serve the catalogue, run files, JSON API and dataset downloads over HTTP")
+    sv.add_argument("--host", default="127.0.0.1")
+    sv.add_argument("--port", type=int, default=8093)
+    sv.add_argument("--refresh", type=float, default=30.0, help="seconds between re-indexing the run folders")
+    ex = sub.add_parser("examples", help="list the repository's examples and use cases, or run them into the lab")
+    ex.add_argument("--match", default="", help="only scripts whose path contains this text")
+    ex.add_argument("--run", action="store_true", help="run them (one at a time: scripts write into the checkout)")
+    ex.add_argument("--timeout", type=float, default=900)
+    ex.add_argument("--force", action="store_true")
     e = sub.add_parser("export")
     e.add_argument("name")
     e.add_argument("dataset")
@@ -82,6 +93,25 @@ def main(argv=None) -> int:
         for x in res:
             print(f"{x.run_id}  {x.status:24s} {x.seconds:8.1f} s")
         return 0 if all(x.ok for x in res) else 1
+    if a.cmd == "examples":
+        from .experiments.examples import discover_examples
+        items = [x for x in discover_examples() if a.match in x["script"]]
+        if not a.run:
+            for x in items:
+                print(f"{x['group']:36s} {x['script']}")
+            print(f"{len(items)} scripts")
+            return 0
+        failed = 0
+        for i, x in enumerate(items, 1):
+            res = run("example_script", {"script": x["script"], "timeout": a.timeout}, root=a.root, force=a.force)
+            failed += not res.ok
+            print(f"[{i}/{len(items)}] {res.status:26s} {res.seconds:7.1f} s  {x['script']}", flush=True)
+        print(f"{len(items) - failed} of {len(items)} examples ran cleanly")
+        return 0 if not failed else 1
+    if a.cmd == "serve":
+        from .server import serve
+        serve(a.root, host=a.host, port=a.port, refresh=a.refresh)
+        return 0
     store = LabStore(a.root)
     if a.cmd == "status":
         print(json.dumps(store.status(), indent=1))

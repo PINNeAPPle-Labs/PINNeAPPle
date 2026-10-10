@@ -97,7 +97,7 @@ def _fin(ctx, dim: str):
               detail="the network's own h; the README documents -7 % in 3D (weak flux constraint)")
     ctx.check("field_error", value=s["max_field_error_C"], max=2.0, detail="max |T_pinn - T_fv| in C")
     ref = np.load(_p(d + "field_reference.npy"))
-    ds = ctx.dataset("temperature_fields", description=f"{dim} temperature field: finite-volume reference and "
+    ds = ctx.dataset(f"temperature_fields_{dim}", description=f"{dim} temperature field: finite-volume reference and "
                      "PINN reconstructions from noisy sensors (one per noise draw)", units={"T": "C", "h": "W/m2K"})
     for i, f in enumerate(sorted(glob.glob(_p(d + "field_pinn_*.npy")))):
         run = s["runs"][i] if i < len(s.get("runs", [])) else {}

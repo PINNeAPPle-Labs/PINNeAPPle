@@ -15,6 +15,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ### Added
 
+- Module reference at `docs/org/reference/` (published under `/PINNeAPPle/org/reference/`): every package and
+  module with its docstring and public API read from the source, plus curated explanations and 38 examples that are
+  executed to record their output and plots (`scripts/reference/run_examples.py`, `scripts/reference/build.py`).
+
 - PINNeAPPle Lab (`pinneapple_lab`): experiment runner and database. Runs keyed by
   experiment, version and parameters (cached), statuses with validation checks, inputs/outputs/metrics/figures,
   sharded datasets with cards, SQLite index, sweeps (grid / Latin hypercube, parallel), dataset export and a Markdown
@@ -323,6 +327,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- `sample_uniform_box` only accepted 3-D boxes, so `CollocationSampler(strategy="uniform")` failed in 1-D and 2-D;
+  it now samples boxes of any dimension.
+- Registry: two model or problem versions saved within the same second got the same version name and the second
+  silently overwrote the first; a suffix (`_2`, `_3`, ...) now keeps both.
 - Arena: an FNO was trained on random mini-batches of scattered points reshaped as if they were an image (and
   `fno2d` built the 1-D operator); it now trains on whole ordered grids (half the evaluation resolution, so the
   evaluation also tests super-resolution) and refuses scattered points. DeepONets train as operators (branch: the

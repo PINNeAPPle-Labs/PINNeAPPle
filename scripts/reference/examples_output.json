@@ -1,0 +1,336 @@
+{
+ "pinneapple__0": {
+  "code_hash": "23b43371839895e0",
+  "figures": [],
+  "ok": true,
+  "seconds": 78.3,
+  "stderr": "",
+  "stdout": "197 public names, e.g.:\nAFNO, ActiveLearningConfig, AdaptiveCollocationTrainer, Backend, BenchmarkConfig, BenchmarkResult, BenchmarkTaskBase, BoxConstraint, CADToCFDPipeline, CFDMesh, CSGCircle, CSGDifference, CSGEllipse, CSGIntersection, CSGPolygon, CSGRectangle, CSGUnion, CauchyMisfit, CausalPINNTrainer, CausalWeightScheduler, ChannelDomain2D, ChannelWithObstacleDomain2D, CollocationConfig, CollocationSampler, Comparison, ComposedObsOperator, CompositeObjective, CompositeRegularizer, ConformalPredictor, ConstraintSet, ContinuousAdjointSolver, DDPPINNTrainer, DDPTrainerConfig, DEFAULT_MODELS, DesignOptConfig, DesignOptLoop, DesignOptResult, DesignOptimizerConfig, DigitalTwin, DigitalTwinConfig\npp.fea -> pinneapple_simulation.external_solvers.calculix.study"
+ },
+ "pinneapple_adaptation__0": {
+  "code_hash": "5451c06332d01c98",
+  "figures": [],
+  "ok": true,
+  "seconds": 2.8,
+  "stderr": "",
+  "stdout": "trainable before: {'trainable': 4417, 'frozen': 0, 'total': 4417}\ntrainable after:  {'trainable': 65, 'frozen': 4352, 'total': 4417}"
+ },
+ "pinneapple_analysis__0": {
+  "code_hash": "649fe1755d32f896",
+  "figures": [],
+  "ok": true,
+  "seconds": 3.6,
+  "stderr": "",
+  "stdout": "interval half-width 0.346\nempirical coverage on 2000 unseen points: 0.908  (target 0.90)"
+ },
+ "pinneapple_analysis__1": {
+  "code_hash": "df13486d99837848",
+  "figures": [
+   "pinneapple_analysis__1_0.png"
+  ],
+  "ok": true,
+  "seconds": 3.5,
+  "stderr": "",
+  "stdout": "a + 4x = -0.009466 * x  -0.2 * v\ntrue:  a + 4x = -0.2 v - 0.01 x   (x = exp(-0.1 t) cos 2t solves x'' + 0.2 x' + 4.01 x = 0)"
+ },
+ "pinneapple_analysis__2": {
+  "code_hash": "2079a0342e93bda1",
+  "figures": [
+   "pinneapple_analysis__2_0.png"
+  ],
+  "ok": true,
+  "seconds": 3.9,
+  "stderr": "",
+  "stdout": "angle RMS error: raw readings 0.137 rad, filter 0.018 rad (after spin-up)\nangular velocity is never measured; filter RMS error 0.048 rad/s"
+ },
+ "pinneapple_arena__0": {
+  "code_hash": "ea9bcfc5b67d3657",
+  "figures": [],
+  "ok": true,
+  "seconds": 4.4,
+  "stderr": "",
+  "stdout": "21 problems\nDiffusion / Heat       heat_1d, heat_2d, convection_diffusion_1d, darcy_flow_2d\nElliptic               laplace_2d, poisson_2d, helmholtz_2d, biharmonic_2d\nFinance                black_scholes_1d\nFluid Mechanics        kovasznay_ns, stokes_2d\nNonlinear / Solitons   burgers_1d, kdv_1d\nReaction-Diffusion     allen_cahn, fisher_kpp_1d, fitzhugh_nagumo_1d\nStructural             linear_elasticity_2d\nTransport              advection_diffusion_1d\nWaves                  wave_1d, klein_gordon_1d, nls_1d"
+ },
+ "pinneapple_blender__0": {
+  "code_hash": "426ba231dc5bd762",
+  "figures": [],
+  "ok": true,
+  "seconds": 0.5,
+  "stderr": "",
+  "stdout": "ply\nformat ascii 1.0\nelement vertex 1000\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nproperty float speed"
+ },
+ "pinneapple_catalog__0": {
+  "code_hash": "0fe03ea7417893d8",
+  "figures": [],
+  "ok": true,
+  "seconds": 3.7,
+  "stderr": "",
+  "stdout": "62 resources, 37 usable commercially\n- PDEBench [dataset, cfd] CC-BY-4.0 (data), MIT (code)\n- AirfRANS [dataset, cfd] ODbL-1.0 (data), MIT (code)\n- The Well [dataset, multiphysics] CC-BY-4.0 (data on HF), BSD-3-Clause (code)\n- DrivAerML [dataset, cfd] CC-BY-SA-4.0\n- PLAID Rotor37 [benchmark, turbomachinery] CC-BY-SA-4.0\n- PLAID VKI-LS59 [benchmark, turbomachinery] CC-BY-SA-4.0"
+ },
+ "pinneapple_core__0": {
+  "code_hash": "58c475b4db037a22",
+  "figures": [
+   "pinneapple_core__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 1.3,
+  "stderr": "",
+  "stdout": "max |du/dx - exact| = 0.0010331855701966042\nintegral = 0.405218069547683  exact 4/pi^2 = 0.4052847345693511\nu at random points: [0.6813 0.0067 0.1498 0.7093 0.2006]"
+ },
+ "pinneapple_data__0": {
+  "code_hash": "0b0e647d0788cc0c",
+  "figures": [
+   "pinneapple_data__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 4.7,
+  "stderr": "",
+  "stdout": "uniform : empty cells of a 10x10 grid = 13\nlhs     : empty cells of a 10x10 grid = 12"
+ },
+ "pinneapple_decision__0": {
+  "code_hash": "0f452a9f00b7aab5",
+  "figures": [],
+  "ok": true,
+  "seconds": 0.6,
+  "stderr": "",
+  "stdout": "selected: deeponet\nprobabilities: {'pinn': 0.04, 'xpinn': 0.04, 'deeponet': 0.51, 'mesh_graph_net': 0.07, 'inverse_pinn': 0.07, 'kpi_regressor': 0.07, 'pod_rom': 0.07, 'point_cloud_operator': 0.07, 'hybrid_surrogate_physics': 0.07}\nexcluded fno -> must_support_geometry: fno supports ['structured_grid'], problem representation is 'unstru\nexcluded pino -> must_support_geometry: pino supports ['structured_grid'], problem representation is 'unstr\nrequires validation: True"
+ },
+ "pinneapple_design__0": {
+  "code_hash": "f220e77c9b7a4207",
+  "figures": [
+   "pinneapple_design__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 4.6,
+  "stderr": "",
+  "stdout": "area of the part: 1.147\nsigned distance at the centre of the big hole: 0.193 (radius 0.2 -> +0.2)"
+ },
+ "pinneapple_design__1": {
+  "code_hash": "0bc1f2a3b63ed484",
+  "figures": [
+   "pinneapple_design__1_0.png"
+  ],
+  "ok": true,
+  "seconds": 4.8,
+  "stderr": "",
+  "stdout": "NACA 0012: 120 points, max thickness 0.120 c\nNACA 2412: 120 points, max thickness 0.122 c\nNACA 4415: 120 points, max thickness 0.156 c"
+ },
+ "pinneapple_hub__0": {
+  "code_hash": "c018790400f42b18",
+  "figures": [],
+  "ok": true,
+  "seconds": 0.5,
+  "stderr": "",
+  "stdout": "problems: ['validation_metrics is empty -- a model card with no computed validation metric makes no checkable physical claim at all']\nproblems after adding evidence: []\n# plate-heat-pinn\n\n\n\n## Architecture\n- `modified_mlp` \u2014 `{}`\n\n## Physics\n\n## Validation\nReference: FEniCS P2 solution on a 256 x 256 mesh\n\n| Metric | Value |\n|---|---|\n| rel_l2 | 0.012 |\n\n## Citation\n(none provided)"
+ },
+ "pinneapple_lab__0": {
+  "code_hash": "8be9c8651738967c",
+  "figures": [],
+  "ok": true,
+  "seconds": 0.6,
+  "stderr": "",
+  "stdout": "completed {'period_s': 2.8374}\n[('period_matches_small_angle', True, 'reference')]\nrun folder: ['code', 'datasets', 'figures', 'inputs', 'log.txt', 'metrics.json', 'metrics_log.jsonl', 'outputs', 'run.json', 'validation.json']"
+ },
+ "pinneapple_lab__1": {
+  "code_hash": "ba71ba7a93c27203",
+  "figures": [],
+  "ok": true,
+  "seconds": 0.6,
+  "stderr": "",
+  "stdout": "observed order 1.56, extrapolated 2.6013, GCI 0.49 %\ncoverage of a calibrated 90 % interval: 0.904\ncoverage of an over-confident one:      0.593"
+ },
+ "pinneapple_llm__0": {
+  "code_hash": "4ad473399cbe5328",
+  "figures": [],
+  "ok": true,
+  "seconds": 3.9,
+  "stderr": "",
+  "stdout": "x^2 - y^2: residual check passed=True  (pde_residual, value 0)\nx^2 + y^2: residual check passed=False  (pde_residual, value 16)"
+ },
+ "pinneapple_neural__0": {
+  "code_hash": "06a61954e14c4ab8",
+  "figures": [
+   "pinneapple_neural__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 4.6,
+  "stderr": "",
+  "stdout": "POD energy in 4 modes: 1.0\nDMD forecast error over 80 unseen steps: 1.57e-14\nDMD frequencies (Hz): [0.2069 0.2069 0.3342 0.3342]"
+ },
+ "pinneapple_neural__1": {
+  "code_hash": "aa238d9c3888dafa",
+  "figures": [],
+  "ok": true,
+  "seconds": 8.6,
+  "stderr": "",
+  "stdout": "modes kept: 2  energy: 1.0\nmedian error  POD-GPR 4.77e-07   nearest design 7.08e-02\npredictive std available: (1, 200)"
+ },
+ "pinneapple_neural__2": {
+  "code_hash": "ef8cb33ddfcb89d3",
+  "figures": [],
+  "ok": true,
+  "seconds": 5.0,
+  "stderr": "",
+  "stdout": "output: (8, 100, 1)  parameters: 23041"
+ },
+ "pinneapple_orchestration__0": {
+  "code_hash": "10af2bf8f0d454df",
+  "figures": [],
+  "ok": true,
+  "seconds": 5.1,
+  "stderr": "",
+  "stdout": "Prefect available: False\nflows: ['flow_01_data_generation', 'flow_02_training', 'flow_03_benchmark', 'flow_04_registry_publish', 'flow_05_digital_twin_prep', 'flow_benchmark', 'flow_data_generation', 'flow_digital_twin_prep', 'flow_registry_publish', 'flow_training']\ntasks: ['annotations', 'benchmark_component_type_task', 'benchmark_tasks', 'data_generation_tasks', 'digital_twin_tasks', 'generate_scenarios_task', 'prepare_digital_twin_task', 'publish_model_task', 'registry_tasks', 'train_component_task']"
+ },
+ "pinneapple_pdb__0": {
+  "code_hash": "cfb979038bfb40f7",
+  "figures": [],
+  "ok": true,
+  "seconds": 1.3,
+  "stderr": "",
+  "stdout": "8 benchmarks: ['blasius_flat_plate', 'concorde_high_aoa', 'lane_emden_n1.5', 'lane_emden_n3', 'pdebench_advection_1d', 'pdebench_darcy_2d', 'pdebench_diffusion_reaction_1d', 'planewall_transient_conduction_bi1']\nBlasius laminar flat-plate boundary-layer similarity solution: f(eta), f'(eta)=u/U_inf (the velocity profile), and f''(eta) (proportional to local shear stress), for eta=y*sqrt(U_inf/(nu*x)) from the wall (eta=0) out to the freestream (eta=10, where f'->1 to within integration tolerance). The classical zero-pressure-gradient laminar boundary-layer benchmark.\nsource: Blasius, H. (1908); high-precision integration by Howarth, L. (1938); tabulated in Schlichting, H. & Gersten, K., 'Boundary-Layer Theory', 8th/9th ed. (wall-shear parameter f''(0)=0.332057).\nx: ('eta',) (200, 1)  y: ('f', 'f_prime', 'f_pprime') (200, 3)"
+ },
+ "pinneapple_perception__0": {
+  "code_hash": "dec41361d904029a",
+  "figures": [
+   "pinneapple_perception__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 4.0,
+  "stderr": "",
+  "stdout": "49 windows, median displacement u = 4.00 px, v = -2.00 px  (imposed 4, -2)"
+ },
+ "pinneapple_physics__0": {
+  "code_hash": "ea31bcc73adcafae",
+  "figures": [
+   "pinneapple_physics__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 147.9,
+  "stderr": "",
+  "stdout": "Comparison on 'burgers_1d_default' against 'analytic' at 4096 points\nmethod          kind       status     train [s]  infer [us/pt]  ref sims  relL2(u)\ntrained_pinn    neural     ok               142          0.442         0  2.092e-03"
+ },
+ "pinneapple_physics__1": {
+  "code_hash": "34724d296949b2be",
+  "figures": [],
+  "ok": true,
+  "seconds": 3.9,
+  "stderr": "",
+  "stdout": "root bending stress: 168.8 MPa\nBasquin life at that amplitude: 5.98e+07 cycles\nbass-reflex tuning of a 40 L box with a 70 mm x 120 mm port: 40.0 Hz"
+ },
+ "pinneapple_physics__2": {
+  "code_hash": "55ecf82cef9ac13a",
+  "figures": [
+   "pinneapple_physics__2_0.png"
+  ],
+  "ok": true,
+  "seconds": 5.2,
+  "stderr": "",
+  "stdout": "specific wear rate K = 6.32e-04 mm^3/(N m)\nworn volume 12.632 mm^3  vs  K F s = 12.632 mm^3\npeak pressure 6.2 -> 0.27 MPa (flat punch F/A = 0.25 MPa)"
+ },
+ "pinneapple_problemdesign__0": {
+  "code_hash": "5d99e27ee85902eb",
+  "figures": [],
+  "ok": true,
+  "seconds": 4.6,
+  "stderr": "",
+  "stdout": "autonomy levels: ['SUPERVISED', 'SEMI_AUTONOMOUS', 'FULL_AUTONOMOUS']\nread_geometry        consequential = False\nrun_openfoam_case    consequential = False\nrun_fluent_case      consequential = True\npush_to_hub          consequential = True\nsend_report_email    consequential = True\nrules are plain data you can read and extend: ['abaqus', 'ansys', 'buy', 'checkout', 'comsol', 'delete_production', 'deploy', 'email'] ..."
+ },
+ "pinneapple_quantum__0": {
+  "code_hash": "d8b5e3bb0f228c26",
+  "figures": [
+   "pinneapple_quantum__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 2.7,
+  "stderr": "",
+  "stdout": "n = 0: E = 0.50 (hbar omega (n + 1/2)), norm = 1.0000\nn = 1: E = 1.50 (hbar omega (n + 1/2)), norm = 1.0000\nn = 2: E = 2.50 (hbar omega (n + 1/2)), norm = 1.0000\nn = 3: E = 3.50 (hbar omega (n + 1/2)), norm = 1.0000"
+ },
+ "pinneapple_registry__0": {
+  "code_hash": "32d4c38d4653ade7",
+  "figures": [],
+  "ok": true,
+  "seconds": 2.7,
+  "stderr": "",
+  "stdout": "versions: 2  latest: True\nmetadata: {'width': 32, 'val_rel_l2': 0.02, 'stage': 'staging'}"
+ },
+ "pinneapple_security__0": {
+  "code_hash": "80246606d9742bd2",
+  "figures": [],
+  "ok": true,
+  "seconds": 0.6,
+  "stderr": "",
+  "stdout": "payload verified: {'field_sha256': 'd5f4b01385b63cd4488a8f866799c34448f08a152d955ce9b790a911fec3465e', 'result': 'Kt = 2.59'}\ntampered envelope rejected: VerificationError\nrun by [EMAIL], CPF [CPF], phone [PHONE]"
+ },
+ "pinneapple_simulation__0": {
+  "code_hash": "b44eac1bbb4a5292",
+  "figures": [
+   "pinneapple_simulation__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 5.2,
+  "stderr": "",
+  "stdout": "tip deflection 1.911 mm, Timoshenko 1.920 mm\nmax von Mises 31.0 MPa, beam theory at the root 30.0 MPa"
+ },
+ "pinneapple_simulation__1": {
+  "code_hash": "a26cb8dabb54baa1",
+  "figures": [],
+  "ok": true,
+  "seconds": 3.4,
+  "stderr": "",
+  "stdout": "Re    1e+04: Darcy f = 0.0309, 90 deg bend (R/r = 3) K = 0.336\nRe    1e+05: Darcy f = 0.0180, 90 deg bend (R/r = 3) K = 0.227\nRe    1e+06: Darcy f = 0.0116, 90 deg bend (R/r = 3) K = 0.154\nterminal velocity of a 3 mm, 1200 kg/m3 bead in water: 11.0 cm/s\nZwietering just-suspended speed: 336 rpm"
+ },
+ "pinneapple_systems__0": {
+  "code_hash": "f51d214f5557b555",
+  "figures": [
+   "pinneapple_systems__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 5.8,
+  "stderr": "",
+  "stdout": "NaiveForecaster            MAE over 24 h: 1.98\nSeasonalNaiveForecaster    MAE over 24 h: 0.64\nDriftForecaster            MAE over 24 h: 2.11"
+ },
+ "pinneapple_tools__0": {
+  "code_hash": "53ef563c1df755a7",
+  "figures": [
+   "pinneapple_tools__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 5.6,
+  "stderr": "",
+  "stdout": "max |vorticity| 1.999 (exact 2), Q > 0 in 51 % of the box"
+ },
+ "pinneapple_tools__1": {
+  "code_hash": "b4e261936cb2f563",
+  "figures": [],
+  "ok": true,
+  "seconds": 5.7,
+  "stderr": "",
+  "stdout": "exported: model.pt 7.4 kB\nmax difference after reload: 0.0"
+ },
+ "pinneapple_twin3d__0": {
+  "code_hash": "0641f0eaf9c3e0a1",
+  "figures": [],
+  "ok": true,
+  "seconds": 4.9,
+  "stderr": "",
+  "stdout": "files: ['fields.bin', 'geometry.glb', 'index.html', 'scene.json', 'vendor', 'viewer.js']\nparts: ['bend', 'inlet', 'outlet']  times: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]\nopen it with: pinneapple_twin3d.serve(folder)"
+ },
+ "pinneapple_veriphysics__0": {
+  "code_hash": "655e1a0befc3ed3c",
+  "figures": [],
+  "ok": true,
+  "seconds": 0.6,
+  "stderr": "",
+  "stdout": "3 cases: ['axial_compressor_meanline', 'axial_compressor_stage_3d', 'burgers_1d']\naxial_compressor_meanline - Axial Compressor 1D (mean-line)\n{'preset': 'axial_compressor_meanline', 'preset_kwargs': \"{'num_stages': 5, 'pressure_ratio': 3.0, 'mass_flow_rate': 4...\", 'description': '1D mean-line thermodynamic analysis of a multi-stage axial c...', 'physical_parameters': \"{'velocity': 136.0, 'length': 1.0, 'kinematic_viscosity': 1....\", 'flow_geometry': 'internal_pipe', 'epochs': 2000, 'n_collocation': 1024, 'residual_threshold': 10000.0, 'notes': 'The cheapest genuinely-3rd-industry-relevant example: dim=1,...'}"
+ },
+ "pinneapple_worldmodel__0": {
+  "code_hash": "28ad277b36f6f577",
+  "figures": [
+   "pinneapple_worldmodel__0_0.png"
+  ],
+  "ok": true,
+  "seconds": 3.5,
+  "stderr": "",
+  "stdout": "domains: ['annulus', 'cavity', 'channel', 'channel_with_cylinder', 'l_shaped', 'unit_square']\nscenarios: 6 e.g. ['advection_2d', 'burgers_1d', 'heat_2d', 'heat_multiscale', 'ns2d_cavity']\n{'interior': (3000, 2), 'boundary': (600, 2), 'inlet': (150, 2), 'outlet': (150, 2), 'walls': (150, 2), 'cylinder': (150, 2)}"
+ }
+}

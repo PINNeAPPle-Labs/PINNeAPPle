@@ -32,7 +32,11 @@ class ProblemStore:
         return os.path.join(self.root, problem_id)
 
     def _new_version_dir(self, problem_id: str) -> tuple[str, str]:
-        version = f"v{datetime.now():%Y%m%d_%H%M%S}"
+        base = f"v{datetime.now():%Y%m%d_%H%M%S}"
+        version, k = base, 1
+        while os.path.exists(os.path.join(self._problem_dir(problem_id), version)):
+            k += 1                      # two saves within one second must not overwrite each other
+            version = f"{base}_{k}"
         d = os.path.join(self._problem_dir(problem_id), version)
         os.makedirs(d, exist_ok=True)
         return version, d

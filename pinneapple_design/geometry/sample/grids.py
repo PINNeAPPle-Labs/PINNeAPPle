@@ -15,13 +15,15 @@ def sample_uniform_box(
     """
     Uniform random samples inside an axis-aligned bounding box.
 
-    bounds_min/max: (3,)
-    returns: (n,3)
+    bounds_min/max: (d,) (commonly d=3)
+    returns: (n,d)
     """
     rng = rng or np.random.default_rng()
-    bounds_min = np.asarray(bounds_min, dtype=np.float64).reshape(3)
-    bounds_max = np.asarray(bounds_max, dtype=np.float64).reshape(3)
-    u = rng.random((n, 3))
+    bounds_min = np.asarray(bounds_min, dtype=np.float64).reshape(-1)
+    bounds_max = np.asarray(bounds_max, dtype=np.float64).reshape(-1)
+    if bounds_min.shape != bounds_max.shape:
+        raise ValueError("bounds_min and bounds_max must have the same length")
+    u = rng.random((n, bounds_min.size))
     return bounds_min[None, :] + u * (bounds_max - bounds_min)[None, :]
 
 

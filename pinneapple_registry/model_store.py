@@ -79,6 +79,10 @@ class ModelStore:
         Returns the new version string (e.g. ``"v20260908_101530"``).
         """
         version = f"v{datetime.now():%Y%m%d_%H%M%S}"
+        k = 1
+        while os.path.exists(self._version_dir(problem_id, version if k == 1 else f"{version}_{k}")):
+            k += 1                      # two saves within one second must not overwrite each other
+        version = version if k == 1 else f"{version}_{k}"
         vdir = self._version_dir(problem_id, version)
         os.makedirs(vdir, exist_ok=True)
 

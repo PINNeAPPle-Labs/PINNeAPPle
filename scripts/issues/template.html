@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contribute to PINNeAPPle</title>
+<meta name="description" content="The open PINNeAPPle issues grouped by theme, area, release, priority and effort, with where to start.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #fbfaf5; --surface: #ffffff; --sunk: #f3f2ea; --fg: #1d2318; --muted: #5b6352; --faint: #8a8f80;
+  --line: #e3e2d6; --accent: #c98a0b; --accent-ink: #7a5200; --accent-soft: #f6ead0; --leaf: #3f7d3a; --leaf-soft: #e3f0df;
+  --p0: #b42318; --p1: #c4560c; --p2: #2b5fb4; --p3: #6b7280;
+  --overlay: rgba(20, 24, 16, 0.35);
+  --nav-w: 280px; --toc-w: 240px; --top-h: 56px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12150f; --surface: #181c14; --sunk: #1d2219; --fg: #ecebdf; --muted: #a3a796; --faint: #7b8072;
+    --line: #2b3124; --accent: #f0b43a; --accent-ink: #f6cf7c; --accent-soft: #3a2f14; --leaf: #8fcf7f; --leaf-soft: #1f3019;
+    --p0: #ff8a80; --p1: #ffb26b; --p2: #8ab8f0; --p3: #a3a796;
+    --overlay: rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12150f; --surface: #181c14; --sunk: #1d2219; --fg: #ecebdf; --muted: #a3a796; --faint: #7b8072;
+  --line: #2b3124; --accent: #f0b43a; --accent-ink: #f6cf7c; --accent-soft: #3a2f14; --leaf: #8fcf7f; --leaf-soft: #1f3019;
+  --p0: #ff8a80; --p1: #ffb26b; --p2: #8ab8f0; --p3: #a3a796;
+  --overlay: rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(var(--top-h) + 12px); }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.6 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+a { color: var(--accent-ink); text-underline-offset: 3px; }
+code, .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; }
+h1, h2, h3 { font-family: Fraunces, Georgia, serif; line-height: 1.2; text-wrap: balance; }
+button { font: inherit; color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 30; height: var(--top-h); display: flex; align-items: center; gap: 10px;
+  padding-inline: 12px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.burger { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); display: inline-grid; place-items: center; cursor: pointer; flex: none; }
+.burger svg { width: 18px; height: 18px; }
+.burger[aria-expanded="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: var(--fg); white-space: nowrap; }
+.brand b { font: 600 1.05rem Fraunces, Georgia, serif; }
+.brand span { color: var(--muted); font-size: 0.85rem; }
+.search { flex: 1; max-width: 460px; margin-left: auto; position: relative; min-width: 0; }
+.search input { width: 100%; height: 38px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); padding: 0 12px 0 34px; font: inherit; color: var(--fg); }
+.search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.search svg { position: absolute; left: 10px; top: 11px; width: 16px; height: 16px; color: var(--faint); }
+
+.layout { display: grid; grid-template-columns: var(--nav-w) minmax(0, 1fr) var(--toc-w); }
+.nav, .toc { position: sticky; top: var(--top-h); height: calc(100vh - var(--top-h)); overflow-y: auto; }
+.nav { border-right: 1px solid var(--line); padding: 14px 10px 40px; background: var(--bg); }
+.toc { border-left: 1px solid var(--line); padding: 20px 16px 40px; }
+main { min-width: 0; padding: 28px clamp(16px, 4vw, 44px) 80px; }
+.page { max-width: 880px; margin: 0 auto; }
+.overlay { display: none; }
+
+.nav h4, .toc h4 { margin: 18px 8px 6px; font: 600 0.72rem Inter, sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
+.toc h4 { margin: 0 0 10px; }
+.nav h4:first-child { margin-top: 2px; }
+.nav a { display: flex; justify-content: space-between; gap: 8px; padding: 5px 8px; border-radius: 6px; text-decoration: none; color: var(--fg); font-size: 0.9rem; }
+.nav a span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav a .ct { color: var(--faint); font-size: 0.78rem; font-variant-numeric: tabular-nums; flex: none; }
+.nav a:hover { background: var(--sunk); }
+.nav a.on { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+.nav details summary { list-style: none; cursor: pointer; }
+.nav details summary::-webkit-details-marker { display: none; }
+.nav details summary h4 { display: flex; justify-content: space-between; align-items: center; }
+.nav details summary h4::after { content: "+"; font-size: 0.9rem; }
+.nav details[open] summary h4::after { content: "–"; }
+.toc a { display: block; padding: 4px 0 4px 10px; border-left: 2px solid transparent; color: var(--muted); text-decoration: none; font-size: 0.85rem; line-height: 1.35; }
+.toc a:hover { color: var(--fg); }
+.toc a.on { color: var(--accent-ink); border-left-color: var(--accent); }
+.toc ol { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.82rem; display: grid; gap: 6px; }
+.toc .steps { margin-top: 26px; }
+
+.eyebrow { font: 600 0.72rem Inter, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-ink); }
+h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 6px 0 8px; }
+.lede { font-size: 1.08rem; color: var(--muted); margin: 0 0 18px; max-width: 42em; }
+.stats { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-bottom: 18px; font-variant-numeric: tabular-nums; }
+.stats b { color: var(--fg); }
+.note { font-size: 0.8rem; color: var(--faint); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 22px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.filters label { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.filters select { height: 30px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: inherit; font-size: 0.82rem; padding: 0 6px; }
+.chip { height: 30px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-size: 0.8rem; }
+.chip[aria-pressed="true"] { background: var(--leaf-soft); border-color: var(--leaf); color: var(--fg); }
+.filters .reset { margin-left: auto; font-size: 0.8rem; background: none; border: 0; color: var(--accent-ink); cursor: pointer; text-decoration: underline; }
+
+h2 { font-size: 1.35rem; margin: 36px 0 10px; display: flex; align-items: baseline; gap: 10px; }
+h2 .ct { font: 500 0.85rem Inter, sans-serif; color: var(--faint); }
+.group-intro { color: var(--muted); font-size: 0.9rem; margin: -4px 0 12px; max-width: 64ch; }
+.list { display: grid; gap: 8px; }
+.issue { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.issue > summary { list-style: none; cursor: pointer; padding: 10px 14px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; }
+.issue > summary::-webkit-details-marker { display: none; }
+.issue[open] > summary { border-bottom: 1px solid var(--line); }
+.issue .num { font: 500 0.82rem "JetBrains Mono", monospace; color: var(--faint); padding-top: 2px; }
+.issue .ttl { font-weight: 500; overflow-wrap: anywhere; }
+.issue .meta { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.75rem; color: var(--muted); }
+.tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); font-size: 0.72rem; white-space: nowrap; }
+.tag.p0 { border-color: var(--p0); color: var(--p0); } .tag.p1 { border-color: var(--p1); color: var(--p1); }
+.tag.p2 { border-color: var(--p2); color: var(--p2); } .tag.p3 { border-color: var(--p3); color: var(--p3); }
+.tag.easy { background: var(--leaf-soft); border-color: var(--leaf); color: var(--fg); }
+.tag.rel { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+.issue .body { padding: 10px 14px 12px; font-size: 0.9rem; }
+.issue .body p { margin: 0 0 10px; color: var(--muted); max-width: 70ch; }
+.issue .links { display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.85rem; }
+.kids { margin: 8px 0 0 0; padding: 8px 0 0; border-top: 1px dashed var(--line); font-size: 0.85rem; }
+.kids a { display: block; text-decoration: none; padding: 2px 0; }
+.kids a span { color: var(--faint); font-family: "JetBrains Mono", monospace; font-size: 0.78rem; margin-right: 6px; }
+.empty { color: var(--muted); padding: 24px 0; }
+.cards { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); margin-bottom: 8px; }
+.cards a { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); text-decoration: none; color: var(--fg); }
+.cards a:hover { border-color: var(--accent); }
+.cards b { font-family: Fraunces, Georgia, serif; }
+.cards small { color: var(--muted); line-height: 1.4; }
+.cards .ct { font-size: 0.75rem; color: var(--faint); }
+.how { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); counter-reset: s; }
+.how div { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 0.88rem; color: var(--muted); }
+.how div b { display: block; color: var(--fg); margin-bottom: 4px; }
+.how div b::before { counter-increment: s; content: counter(s) ". "; color: var(--accent-ink); }
+.how code { font-size: 0.8rem; background: var(--sunk); padding: 0 4px; border-radius: 4px; }
+.foot { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--faint); font-size: 0.8rem; }
+
+@media (max-width: 1240px) {
+  .layout { grid-template-columns: var(--nav-w) minmax(0, 1fr); }
+  .toc { position: fixed; right: 0; top: var(--top-h); z-index: 25; width: min(300px, 86vw); background: var(--bg);
+    transform: translateX(100%); transition: transform .2s ease, visibility .2s; visibility: hidden; }
+  body.toc-open .toc { transform: none; visibility: visible; box-shadow: -12px 0 30px rgba(0,0,0,.12); }
+}
+@media (max-width: 900px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .nav { position: fixed; left: 0; top: var(--top-h); z-index: 25; width: min(320px, 88vw); transform: translateX(-100%);
+    transition: transform .2s ease, visibility .2s; visibility: hidden; }
+  body.nav-open .nav { transform: none; visibility: visible; box-shadow: 12px 0 30px rgba(0,0,0,.12); }
+  .brand span { display: none; }
+}
+@media (max-width: 1240px) { body.nav-open .overlay, body.toc-open .overlay { display: block; position: fixed; inset: var(--top-h) 0 0 0; z-index: 20; background: var(--overlay); } }
+@media (min-width: 901px) { body.nav-open .overlay { display: none; } body.nav-open.toc-open .overlay { display: block; } }
+@media (min-width: 1241px) { #toc-btn { display: none; } }
+@media (max-width: 560px) { .filters .reset { margin-left: 0; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="burger" id="nav-btn" aria-label="Groups" aria-expanded="false">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+  <a class="brand" href="#start"><b>PINNeAPPle</b><span>contribute</span></a>
+  <div class="search">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="6"/><path d="M14 14l4 4" stroke-linecap="round"/></svg>
+    <input id="q" type="search" placeholder="Search issues by title, text or #number" autocomplete="off" aria-label="Search issues">
+  </div>
+  <button class="burger" id="toc-btn" aria-label="On this page" aria-expanded="false">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5h14M7 10h10M7 15h10"/></svg>
+  </button>
+</header>
+<div class="overlay" id="overlay"></div>
+<div class="layout">
+  <nav class="nav" id="nav" aria-label="Issue groups"></nav>
+  <main><div class="page" id="page"></div></main>
+  <aside class="toc" id="toc" aria-label="On this page"></aside>
+</div>
+<script>
+let SNAP = /*__SNAPSHOT__*/null;
+const REPO = SNAP.repo, GH = `https://github.com/${REPO}`;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+/* Themes are inferred from the title (and labels) because many issues carry no area label. Order matters: the
+   first matching theme is the issue's primary one; an issue is listed under every theme it matches. */
+const THEMES = [
+  ["trust", "Trust, verification and uncertainty", "Checks that make a result usable for a decision: verification, validation, uncertainty, applicability.", /\b(verif|validat|uncertaint|trust|gci|grid convergence|applicab|calibrat|confidence|evidence|manufactured)/i],
+  ["lab", "Lab and catalogue", "The experiment runner, its database, curation and the public catalogue.", /\b(lab\b|lab:|catalog|catalogue|experiment)/i],
+  ["releases", "Releases and roadmap", "Release umbrellas and roadmap trackers.", /^(release v|roadmap|\[roadmap)/i],
+  ["cfd", "CFD and fluids", "Flow solvers, turbulence, aerodynamics, internal flows and mixing.", /\b(cfd|openfoam|flow|fluid|turbulen|aero|wake|mixer|pipe|navier|rans|les\b|drag|airfoil|wing|vehicle|car\b|drivaer|ahmed|windsor|stirred|rarefied|knudsen)/i],
+  ["structures", "Structures and materials", "FEA, fatigue, fracture, contact, wear and materials.", /\b(fea\b|finite.element|structur|fatigue|fracture|calculix|elastic|plastic|material|wear|contact|beam|shell|composite|thermal stress)/i],
+  ["operators", "Neural operators, GNNs and surrogates", "Learned models of solvers and their benchmarks.", /\b(deeponet|fno|operator|surrogate|gnn|graph|meshgraph|rom\b|reduced.order|transformer|foundation model|pinn|x-tfc|tfc\b|neural)/i],
+  ["earth", "Weather, climate and Earth", "Forecasting, climate, oceans, rivers, floods and the Earth system.", /\b(weather|climate|ocean|river|flood|coastal|storm|earth-2|era5|precip|heat dome|wildfire|hydro|tide|atmospher|monsoon|drought|snow|glacier)/i],
+  ["space", "Space and astronomy", "Orbits, spacecraft, rockets, stars, galaxies and black holes.", /\b(space|orbit|exoplanet|stellar|star\b|black.hole|galax|cosmolog|rover|reentry|re-entry|spacecraft|starship|rocket|launch|astro|solar|planet|lunar|mars|supernova|lensing|gyrochron|trajector|satellite|telemetry)/i],
+  ["vision", "Vision and video", "Images and video: classification, segmentation, PIV, synthetic data.", /\b(image|video|vision|segment|piv\b|camera|pixel|render|cinematic|interstellar)/i],
+  ["discovery", "Equation and law discovery", "From data, images and trained models back to equations.", /\b(discover|sindy|symbolic|law\b|equation|distil)/i],
+  ["twins", "Digital twins and control", "Live models fed by sensors, control and decision.", /\b(twin|sensor|real.time|control|guidance|anomal|monitor|drift|omniverse)/i],
+  ["energy", "Energy, process and industry", "Plants, batteries, reactors, oil and gas, process equipment.", /\b(battery|reactor|nuclear|grid\b|power|turbine|oil|gas\b|well\b|reservoir|process|plant|heat exchanger|combust|furnace|hvac|data ?center|semiconductor|pcb|chip)/i],
+  ["bio", "Biology and medicine", "Physiology, drugs, cells and medical imaging.", /\b(bio|medic|drug|cell|tissue|blood|cardio|brain|pharma|epidem|protein)/i],
+  ["ecosystem", "Integrations and ecosystem", "NVIDIA, Hugging Face, external datasets and tools.", /\b(nvidia|physicsnemo|warp\b|modulus|hugging ?face|hub\b|integration|bridge|jax|deepxde|fenics|ansys|abaqus|related work|ashton)/i],
+  ["infra", "Infrastructure, CI and scale", "Tests, CI, API stability, performance, distributed training, packaging.", /\b(ci\b|test|lint|api\b|gpu|distributed|cluster|scale|performance|benchmark cost|package|pypi|docs?\b|documentation|production|registry|security|deploy|server)/i],
+];
+const AREA_INTRO = {"area: core-api": "The public API, primitives and their stability.", "area: solvers": "Numerical solvers and their verification.",
+  "area: surrogates-optimization": "Learned surrogates and design optimisation.", "area: benchmark-cost": "Fair benchmarks and the cost of each method.",
+  "area: digital-twin": "Twins, assimilation and live data.", "area: visualization": "Figures, renders, viewers.", "area: apps": "The demo applications.",
+  "area: ecosystem": "Integrations with other tools and datasets.", "area: release-quality": "Packaging, CI and release hygiene.", "area: contributing": "Making it easier to contribute."};
+const PRIO = {"priority: P0": ["P0", "Next release"], "priority: P1": ["P1", "Following release"], "priority: P2": ["P2", "Before 1.0"], "priority: P3": ["P3", "When there is demand"]};
+const EFFORT = {"effort: S": ["S", "Up to a day"], "effort: M": ["M", "A few days"], "effort: L": ["L", "Weeks"]};
+
+let ISSUES, BY;
+function prepare() {
+  ISSUES = SNAP.issues.map(i => {
+    const text = i.t + " " + i.l.join(" ");
+    const themes = THEMES.filter(t => t[3].test(text)).map(t => t[0]);
+    const prio = i.l.find(l => l.startsWith("priority:")), eff = i.l.find(l => l.startsWith("effort:"));
+    return {...i, themes: themes.length ? themes : ["other"], prio: prio ? PRIO[prio][0] : null, eff: eff ? EFFORT[eff][0] : null,
+      areas: i.l.filter(l => l.startsWith("area:")),
+      easy: i.l.includes("good first issue") || i.l.includes("help wanted") || eff === "effort: S"};
+  });
+  BY = Object.fromEntries(ISSUES.map(i => [i.n, i]));
+}
+
+/* ---------- filters ---------- */
+const F = {q: "", prio: "", eff: "", easy: false, unassigned: false, sort: "priority"};
+function pass(i) {
+  if (F.prio && i.prio !== F.prio) return false;
+  if (F.eff && i.eff !== F.eff) return false;
+  if (F.easy && !i.easy) return false;
+  if (F.unassigned && i.a) return false;
+  if (F.q) {
+    const q = F.q.toLowerCase().replace(/^#/, "");
+    if (/^\d+$/.test(q)) return String(i.n).startsWith(q);
+    return q.split(/\s+/).every(t => (i.t + " " + i.x + " " + i.l.join(" ")).toLowerCase().includes(t));
+  }
+  return true;
+}
+const PR = {P0: 0, P1: 1, P2: 2, P3: 3}, ER = {S: 0, M: 1, L: 2};
+function sorted(list) {
+  const k = F.sort;
+  return [...list].sort((a, b) => k === "new" ? b.n - a.n : k === "updated" ? b.up.localeCompare(a.up) || b.n - a.n
+    : k === "effort" ? (ER[a.eff] ?? 9) - (ER[b.eff] ?? 9) || (PR[a.prio] ?? 9) - (PR[b.prio] ?? 9) || b.n - a.n
+    : (PR[a.prio] ?? 9) - (PR[b.prio] ?? 9) || (ER[a.eff] ?? 9) - (ER[b.eff] ?? 9) || b.n - a.n);
+}
+
+/* ---------- views: each returns [title, intro, groups:[{id,title,intro,items}]] ---------- */
+function views() {
+  const v = {};
+  const live = ISSUES.filter(pass);
+  const themed = id => live.filter(i => i.themes.includes(id));
+  v.start = {title: "Where to start", intro: "Small, self-contained issues first: marked good first issue or help wanted, or estimated at up to a day.",
+    groups: [
+      {id: "s-small", title: "Up to a day", intro: "Effort S.", items: live.filter(i => i.eff === "S")},
+      {id: "s-help", title: "Help wanted and good first issues", intro: "Explicitly open for contributors.", items: live.filter(i => i.l.includes("help wanted") || i.l.includes("good first issue"))},
+      {id: "s-next", title: "Needed for the next release", intro: "Priority P0.", items: live.filter(i => i.prio === "P0")},
+    ]};
+  v.all = {title: "All open issues", intro: "Everything, in one list.", groups: [{id: "all", title: "Open issues", items: live}]};
+  for (const [id, title, intro] of THEMES) v["theme/" + id] = {title, intro, groups: [{id: "t-" + id, title, items: themed(id)}]};
+  v["theme/other"] = {title: "Other topics", intro: "Issues that match none of the themes.", groups: [{id: "t-other", title: "Other", items: themed("other")}]};
+  v.themes = {title: "By theme", intro: "Themes are read from each issue's title and labels; an issue can sit in several. Use them to find what matches your field.",
+    groups: [...THEMES.map(t => ({id: "t-" + t[0], title: t[1], intro: t[2], items: themed(t[0]), more: "theme/" + t[0]})),
+             {id: "t-other", title: "Other topics", items: themed("other"), more: "theme/other"}]};
+  const areas = [...new Set(ISSUES.flatMap(i => i.areas))].sort();
+  v.areas = {title: "By area label", intro: "The roadmap's area labels (issues without one are listed at the end).",
+    groups: [...areas.map(a => ({id: "a-" + a.slice(6), title: a.slice(6), intro: AREA_INTRO[a], items: live.filter(i => i.areas.includes(a))})),
+             {id: "a-none", title: "No area label", items: live.filter(i => !i.areas.length)}]};
+  const ms = [...new Set(ISSUES.map(i => i.m).filter(Boolean))].sort((a, b) => a.localeCompare(b, "en", {numeric: true}));
+  v.releases = {title: "By release", intro: "Issues planned for a milestone, earliest first.",
+    groups: [...ms.map(m => ({id: "r-" + m, title: m, items: live.filter(i => i.m === m)})), {id: "r-none", title: "Not scheduled", items: live.filter(i => !i.m)}]};
+  v.priority = {title: "By priority", intro: "P0 is the next release, P3 is when there is demand.",
+    groups: [...Object.values(PRIO).map(([p, d]) => ({id: "p-" + p, title: `${p} · ${d}`, items: live.filter(i => i.prio === p)})), {id: "p-none", title: "No priority yet", items: live.filter(i => !i.prio)}]};
+  v.effort = {title: "By effort", intro: "Estimated size of the work.",
+    groups: [...Object.values(EFFORT).map(([e, d]) => ({id: "e-" + e, title: `${e} · ${d}`, items: live.filter(i => i.eff === e)})), {id: "e-none", title: "Not estimated", items: live.filter(i => !i.eff)}]};
+  const parents = ISSUES.filter(i => i.s > 0 || ISSUES.some(c => c.p === i.n));
+  v.umbrellas = {title: "Umbrella issues", intro: "Large goals split into sub-issues. Pick a sub-issue; the umbrella explains why it matters.",
+    groups: parents.map(p => ({id: "u-" + p.n, title: `#${p.n} ${p.t}`, items: live.filter(c => c.p === p.n), parent: p}))};
+  return v;
+}
+
+/* ---------- rendering ---------- */
+function issueHTML(i) {
+  const tags = [];
+  if (i.prio) tags.push(`<span class="tag p${i.prio[1]}">${i.prio}</span>`);
+  if (i.eff) tags.push(`<span class="tag">effort ${i.eff}</span>`);
+  if (i.easy && (i.l.includes("good first issue") || i.l.includes("help wanted"))) tags.push(`<span class="tag easy">${i.l.includes("good first issue") ? "good first issue" : "help wanted"}</span>`);
+  if (i.m) tags.push(`<span class="tag rel">${esc(i.m)}</span>`);
+  i.areas.forEach(a => tags.push(`<span class="tag">${esc(a.slice(6))}</span>`));
+  const theme = i.themes[0] === "other" ? "" : (THEMES.find(t => t[0] === i.themes[0]) || [])[1];
+  if (theme && !i.areas.length) tags.push(`<span class="tag" title="inferred from the title">${esc(theme)}</span>`);
+  if (i.c) tags.push(`<span>${i.c} comment${i.c === 1 ? "" : "s"}</span>`);
+  if (i.a) tags.push(`<span>assigned</span>`);
+  const kids = ISSUES.filter(c => c.p === i.n);
+  const parent = i.p && BY[i.p];
+  return `<details class="issue" data-n="${i.n}"><summary><span class="num">#${i.n}</span><span class="ttl">${esc(i.t)}</span><span class="meta">${tags.join("")}</span></summary>
+    <div class="body">${i.x ? `<p>${esc(i.x)}</p>` : ""}
+    <div class="links"><a href="${GH}/issues/${i.n}">Open #${i.n} on GitHub</a>${parent ? `<span>part of <a href="#umbrellas" data-goto="${parent.n}">#${parent.n} ${esc(parent.t.slice(0, 60))}</a></span>` : ""}<span class="note">opened ${i.cr} · updated ${i.up}</span></div>
+    ${kids.length ? `<div class="kids"><b>${kids.length} sub-issue${kids.length === 1 ? "" : "s"}</b>${kids.map(k => `<a href="${GH}/issues/${k.n}"><span>#${k.n}</span>${esc(k.t)}</a>`).join("")}</div>` : ""}</div></details>`;
+}
+
+function filtersHTML() {
+  const opt = (o, v) => o.map(([val, lab]) => `<option value="${val}"${v === val ? " selected" : ""}>${lab}</option>`).join("");
+  return `<div class="filters" role="group" aria-label="Filters">
+    <label>Priority <select id="f-prio">${opt([["", "any"], ["P0", "P0"], ["P1", "P1"], ["P2", "P2"], ["P3", "P3"]], F.prio)}</select></label>
+    <label>Effort <select id="f-eff">${opt([["", "any"], ["S", "S · a day"], ["M", "M · days"], ["L", "L · weeks"]], F.eff)}</select></label>
+    <label>Sort <select id="f-sort">${opt([["priority", "priority"], ["effort", "smallest first"], ["new", "newest"], ["updated", "recently updated"]], F.sort)}</select></label>
+    <button class="chip" id="f-easy" aria-pressed="${F.easy}">Good to start</button>
+    <button class="chip" id="f-free" aria-pressed="${F.unassigned}">Unassigned</button>
+    <button class="reset" id="f-reset">Clear</button></div>`;
+}
+
+function render() {
+  const route = decodeURIComponent(location.hash.slice(1)) || "start";
+  const v = views();
+  const page = $("#page");
+  if (route === "how") { page.innerHTML = howHTML(); after(route); return; }
+  const view = v[route] || v.start;
+  const total = ISSUES.length, shown = ISSUES.filter(pass).length;
+  let h = `<div class="eyebrow">Contribute</div><h1>${esc(view.title)}</h1><p class="lede">${esc(view.intro)}</p>
+    <div class="stats"><span><b>${total}</b> open issues</span><span><b>${shown}</b> match the filters</span><span><b>${ISSUES.filter(i => i.easy).length}</b> good to start</span><span class="note" id="fresh">snapshot ${esc(SNAP.taken)}</span></div>
+    ${filtersHTML()}`;
+  const overview = route === "themes" || route === "areas" || route === "releases" || route === "priority" || route === "effort" || route === "umbrellas" || route === "start";
+  for (const g of view.groups) {
+    const items = sorted(g.items);
+    if (!items.length && overview && route !== "start") continue;
+    const cap = overview && g.more ? 6 : Infinity;
+    h += `<h2 id="${esc(g.id)}">${esc(g.title)} <span class="ct">${items.length}</span></h2>`;
+    if (g.parent) h += `<p class="group-intro">${esc(g.parent.x.length > 260 ? g.parent.x.slice(0, 260).replace(/\s\S*$/, "") + " …" : g.parent.x)} <a href="${GH}/issues/${g.parent.n}">Open the umbrella</a></p>`;
+    else if (g.intro) h += `<p class="group-intro">${esc(g.intro)}</p>`;
+    h += items.length ? `<div class="list">${items.slice(0, cap).map(issueHTML).join("")}</div>` : `<p class="empty">Nothing here with these filters.</p>`;
+    if (items.length > cap) h += `<p><a href="#${g.more}">All ${items.length} in ${esc(g.title)} →</a></p>`;
+  }
+  h += `<div class="foot">Issues from <a href="${GH}/issues">${REPO}</a>. Themes are inferred from the titles and labels, so an issue can be in more than one. New here? Read <a href="#how">how to contribute</a>.</div>`;
+  page.innerHTML = h;
+  after(route);
+}
+
+function howHTML() {
+  return `<div class="eyebrow">Contribute</div><h1>How to contribute</h1><p class="lede">Pick an issue, say you are on it, and open a pull request that shows its evidence: a test, a check against a reference, or a figure.</p>
+  <h2 id="steps">Steps</h2><div class="how">
+  <div><b>Pick an issue</b>Start with <a href="#start">where to start</a> or your field in <a href="#themes">themes</a>. Comment on the issue so nobody duplicates the work.</div>
+  <div><b>Set up</b><code>git clone ${GH}</code>, then <code>pip install -e ".[dev]"</code>. Python 3.10+.</div>
+  <div><b>Branch and change</b>One issue per branch. Follow the style of the surrounding code; keep the change to what the issue needs.</div>
+  <div><b>Show it works</b>Add a test with a number checked against a reference (closed form, manufactured solution, solver or paper). Run <code>pytest -q</code> and <code>ruff check</code>.</div>
+  <div><b>Experiments go in the lab</b>A new case is an <code>Experiment</code> with checks; it then appears in the catalogue with its trust card.</div>
+  <div><b>Open the pull request</b>Reference the issue (<code>Closes #123</code>), say what was checked and how, and add an entry to <code>CHANGELOG.md</code>.</div></div>
+  <h2 id="links">Read next</h2><ul><li><a href="${GH}/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a></li><li><a href="../reference/">Module reference</a>: where things live in the code, with examples.</li><li><a href="../../lab/">Experiment catalogue</a></li><li><a href="${GH}/blob/main/CODE_OF_CONDUCT.md">Code of conduct</a></li></ul>`;
+}
+
+function navHTML(route) {
+  const v = views(), n = k => v[k] ? v[k].groups.reduce((s, g) => s + g.items.length, 0) : 0;
+  const link = (k, label, c) => `<a href="#${k}" class="${route === k ? "on" : ""}"><span>${esc(label)}</span>${c != null ? `<span class="ct">${c}</span>` : ""}</a>`;
+  const live = ISSUES.filter(pass);
+  let h = `<h4>Start</h4>${link("start", "Where to start", live.filter(i => i.eff === "S" || i.l.includes("help wanted") || i.l.includes("good first issue") || i.prio === "P0").length)}${link("how", "How to contribute")}${link("all", "All open issues", live.length)}`;
+  h += `<details open><summary><h4>Themes</h4></summary>${link("themes", "Overview of themes")}${THEMES.map(t => link("theme/" + t[0], t[1], live.filter(i => i.themes.includes(t[0])).length)).join("")}${link("theme/other", "Other topics", live.filter(i => i.themes.includes("other")).length)}</details>`;
+  h += `<details open><summary><h4>Organise by</h4></summary>${link("areas", "Area label")}${link("releases", "Release")}${link("priority", "Priority")}${link("effort", "Effort")}${link("umbrellas", "Umbrella issues", ISSUES.filter(i => i.s > 0 || ISSUES.some(c => c.p === i.n)).length)}</details>`;
+  h += `<h4>Elsewhere</h4><a href="../"><span>PINNeAPPle Labs</span></a><a href="../reference/"><span>Module reference</span></a><a href="${GH}/issues/new/choose"><span>Open a new issue</span></a>`;
+  return h;
+}
+
+let obs;
+function after(route) {
+  $("#nav").innerHTML = navHTML(route);
+  const hs = [...document.querySelectorAll("#page h2[id]")];
+  $("#toc").innerHTML = `<h4>On this page</h4>${hs.map(h => `<a href="#" data-id="${esc(h.id)}">${esc(h.childNodes[0].textContent.trim())}</a>`).join("") || `<p class="note">One list.</p>`}
+    <div class="steps"><h4>Contributing in short</h4><ol><li>Pick an issue and comment on it.</li><li>Branch, change, add a test with a reference value.</li><li><code>pytest -q</code> and <code>ruff check</code>.</li><li>Pull request with <code>Closes #n</code>.</li></ol><p class="note"><a href="#how">More</a></p></div>`;
+  $("#toc").querySelectorAll("a[data-id]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); document.getElementById(a.dataset.id)?.scrollIntoView({behavior: "smooth"}); closeDrawers(); }));
+  if (obs) obs.disconnect();
+  obs = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && $("#toc").querySelectorAll("a[data-id]").forEach(a => a.classList.toggle("on", a.dataset.id === e.target.id))), {rootMargin: "-70px 0px -70% 0px"});
+  hs.forEach(h => obs.observe(h));
+  const bind = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
+  bind("#f-prio", "change", e => { F.prio = e.target.value; rerender(); });
+  bind("#f-eff", "change", e => { F.eff = e.target.value; rerender(); });
+  bind("#f-sort", "change", e => { F.sort = e.target.value; rerender(); });
+  bind("#f-easy", "click", () => { F.easy = !F.easy; rerender(); });
+  bind("#f-free", "click", () => { F.unassigned = !F.unassigned; rerender(); });
+  bind("#f-reset", "click", () => { Object.assign(F, {q: "", prio: "", eff: "", easy: false, unassigned: false, sort: "priority"}); $("#q").value = ""; rerender(); });
+  document.querySelectorAll("[data-goto]").forEach(a => a.addEventListener("click", () => setTimeout(() => document.getElementById("u-" + a.dataset.goto)?.scrollIntoView(), 50)));
+  try { localStorage.setItem("contrib-filters", JSON.stringify(F)); } catch {}
+}
+function rerender() { const y = scrollY; render(); scrollTo(0, y); }
+
+/* ---------- drawers ---------- */
+function setDrawer(w, open) { document.body.classList.toggle(w + "-open", open); $(`#${w}-btn`).setAttribute("aria-expanded", String(open)); }
+function closeDrawers() { if (innerWidth <= 900) setDrawer("nav", false); if (innerWidth <= 1240) setDrawer("toc", false); }
+$("#nav-btn").addEventListener("click", () => {
+  if (innerWidth > 900) { const hid = document.body.classList.toggle("nav-hidden"); $("#nav").hidden = hid; document.querySelector(".layout").style.gridTemplateColumns = hid ? (innerWidth > 1240 ? "0 minmax(0,1fr) var(--toc-w)" : "0 minmax(0,1fr)") : ""; $("#nav-btn").setAttribute("aria-expanded", String(!hid)); return; }
+  setDrawer("nav", !document.body.classList.contains("nav-open")); setDrawer("toc", false);
+});
+$("#toc-btn").addEventListener("click", () => { setDrawer("toc", !document.body.classList.contains("toc-open")); if (innerWidth <= 900) setDrawer("nav", false); });
+$("#overlay").addEventListener("click", () => { setDrawer("nav", false); setDrawer("toc", false); });
+addEventListener("keydown", e => { if (e.key === "Escape") { setDrawer("nav", false); setDrawer("toc", false); } if (e.key === "/" && document.activeElement !== $("#q")) { e.preventDefault(); $("#q").focus(); } });
+if (innerWidth > 900) $("#nav-btn").setAttribute("aria-expanded", "true");
+let qt;
+$("#q").addEventListener("input", e => { clearTimeout(qt); qt = setTimeout(() => { F.q = e.target.value.trim(); if (F.q && location.hash.slice(1) !== "all") location.hash = "all"; else rerender(); }, 180); });
+addEventListener("hashchange", () => { closeDrawers(); render(); scrollTo(0, 0); });
+try { Object.assign(F, JSON.parse(localStorage.getItem("contrib-filters") || "{}"), {q: ""}); } catch {}
+
+/* ---------- live refresh from the public API (falls back to the snapshot silently) ---------- */
+async function refresh() {
+  try {
+    const all = [];
+    for (let page = 1; page < 10; page++) {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/issues?state=open&per_page=100&page=${page}`, {headers: {Accept: "application/vnd.github+json"}});
+      if (!r.ok) return;
+      const b = await r.json(); all.push(...b); if (b.length < 100) break;
+    }
+    const clean = t => (t || "").replace(/```[\s\S]*?```/g, " ").replace(/<!--[\s\S]*?-->|<[^>]+>/g, " ").replace(/!\[[^\]]*\]\([^)]*\)/g, " ").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/^\s*#+\s*/gm, "").replace(/^\s*[-*]\s+\[[ xX]\]\s*/gm, "· ").replace(/^\s*[-*]\s+/gm, "· ").replace(/[*_`>]/g, "").replace(/\s+/g, " ").trim();
+    const ex = t => { const c = clean(t); return c.length <= 420 ? c : c.slice(0, 420).replace(/\s\S*$/, "") + " …"; };
+    SNAP = {...SNAP, taken: "live", issues: all.filter(i => !i.pull_request).map(i => ({n: i.number, t: i.title, l: i.labels.map(l => l.name), m: i.milestone && i.milestone.title, c: i.comments,
+      cr: i.created_at.slice(0, 10), up: i.updated_at.slice(0, 10), p: i.parent_issue_url ? +i.parent_issue_url.split("/").pop() : null,
+      s: (i.sub_issues_summary || {}).total || 0, a: !!(i.assignees && i.assignees.length), x: ex(i.body)})).sort((a, b) => b.n - a.n)};
+    prepare(); rerender();
+    const f = $("#fresh"); if (f) f.textContent = "live from GitHub";
+  } catch {}
+}
+prepare();
+render();
+refresh();
+</script>
+</body>
+</html>

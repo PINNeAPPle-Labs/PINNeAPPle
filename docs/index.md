@@ -100,4 +100,5 @@ python -m pinneapple_lab run calculix_case -p case=plate_hole     # run, check, 
 - **[3-D studio, CFD and FEA](core_concepts/studio.md)**: renders, OpenFOAM, CalculiX and particle videos.
 - **[Reduced-order models](core_concepts/reduced_order_models.md)**: POD, DMD, Operator Inference, parametric ROMs.
 - **[Module reference](org/reference/index.html)**: every package and module, with explanations, examples that run, plots and the API.
+- **[Contribute](org/contribute/index.html)**: the open issues grouped by theme, area, release, priority and effort, with where to start.
 - **[PINNeAPPle Labs](org/index.html)**: who we are, the trust card and the open repositories.

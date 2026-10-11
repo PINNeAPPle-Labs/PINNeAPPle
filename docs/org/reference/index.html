@@ -323,7 +323,7 @@ function home() {
     if (!ps.length) continue;
     h += `<section class="grp"><h3 id="g-${g.id}">${esc(g.title)}</h3><div class="cards">${ps.map(p => `<a href="#${p.name}"><b>${esc(p.title)}</b><small>${esc(p.tagline)}</small><span class="meta">${p.name} · ${plural(p.modules, "module")} · ${plural(p.examples.length, "example")}</span></a>`).join("")}</div></section>`;
   }
-  h += `</div><h2 id="links">Elsewhere</h2><ul><li><a href="../">PINNeAPPle Labs</a>: who we are and the trust card.</li><li><a href="../../">Guides</a>: installation, concepts and tutorials.</li><li><a href="../../lab/">Experiment catalogue</a>: every lab experiment with figures, checks and trust cards.</li><li><a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle">Source on GitHub</a>.</li></ul>`;
+  h += `</div><h2 id="links">Elsewhere</h2><ul><li><a href="../">PINNeAPPle Labs</a>: who we are and the trust card.</li><li><a href="../contribute/">Contribute</a>: the open issues by theme, area, release and effort.</li><li><a href="../../">Guides</a>: installation, concepts and tutorials.</li><li><a href="../../lab/">Experiment catalogue</a>: every lab experiment with figures, checks and trust cards.</li><li><a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle">Source on GitHub</a>.</li></ul>`;
   return h;
 }
 

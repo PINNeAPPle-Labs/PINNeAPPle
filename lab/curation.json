@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-10 23:07 UTC",
+ "generated": "2026-10-11 00:36 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -3460,12 +3460,12 @@
   "rom_study": {
    "tier": "B",
    "tier_name": "solid",
-   "best_run": "rom_study-61475bf029de",
-   "best_score": 95.4,
-   "runs": 1,
+   "best_run": "rom_study-9580a00926ca",
+   "best_score": 98.0,
+   "runs": 2,
    "tier_counts": {
     "A": 0,
-    "B": 1,
+    "B": 2,
     "C": 0,
     "D": 0
    },
@@ -3475,8 +3475,7 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "uncertainty estimate",
-      "reference or physics check"
+      "uncertainty estimate"
      ]
     },
     "paper": {
@@ -3491,7 +3490,6 @@
      "ready": false,
      "approved": false,
      "missing": [
-      "strong visuals (movie, render or 3-D view)",
       "a one-line story (review)"
      ]
     },
@@ -3509,54 +3507,53 @@
     "data_geometry": {
      "title": "Data and geometry",
      "question": "Was the physical problem represented correctly?",
-     "status": "partial",
+     "status": "answered",
      "evidence": [
-      "inputs recorded: design_space"
+      "inputs recorded: setup",
+      "PASS opinf_bounded_over_horizon (largest latent amplitude of the forecast / largest in training (no blow-up))"
      ],
-     "next": "add a mesh-convergence or domain check"
+     "next": ""
     },
     "model": {
      "title": "Model",
      "question": "Can the model (or solver) represent the relevant dynamics?",
      "status": "answered",
      "evidence": [
-      "PASS displacement_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr))",
-      "PASS von_mises_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr+split))",
-      "PASS displacement_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr))",
-      "PASS von_mises_rom_error_unseen_designs (median relative L2 error on 20 unseen designs (gpr+split))"
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
      ],
      "next": ""
     },
     "physics": {
      "title": "Physical constraints",
      "question": "Are the equations and the boundary conditions respected?",
-     "status": "open",
+     "status": "answered",
      "evidence": [
-      "no conservation, symmetry or boundary-condition check"
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
      ],
-     "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
+     "next": ""
     },
     "benchmark": {
      "title": "Benchmark",
      "question": "How does the result compare with a solver or reference data?",
      "status": "answered",
      "evidence": [
-      "PASS displacement_rom_beats_nearest_design (median relative L2 error on unseen designs, nearest training design / best ROM)",
-      "PASS von_mises_rom_beats_nearest_design (median relative L2 error on unseen designs, nearest training design / best ROM)"
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
      ],
      "next": ""
     },
     "uncertainty": {
      "title": "Uncertainty",
      "question": "Where may the prediction not be reliable?",
-     "status": "answered",
+     "status": "partial",
      "evidence": [
-      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
-      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
-      "PASS displacement_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)",
-      "PASS von_mises_uncertainty_calibrated (fraction of unseen values inside the predicted 90 % interval)"
+      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+      "and 1 more"
      ],
-     "next": ""
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
     },
     "decision": {
      "title": "Engineering decision",
@@ -3573,16 +3570,6 @@
     "limitations": [],
     "actions": [
      {
-      "gap": "reference",
-      "action": "Score against the high-fidelity solver on designs the model never saw",
-      "effort": "M",
-      "unlocks": [
-       "product",
-       "paper",
-       "tier A"
-      ]
-     },
-     {
       "gap": "review",
       "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
       "effort": "S",
@@ -3592,11 +3579,12 @@
       ]
      },
      {
-      "gap": "assets",
-      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
-      "effort": "S",
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
       "unlocks": [
-       "marketing"
+       "paper",
+       "tier A"
       ]
      },
      {
@@ -3611,16 +3599,15 @@
     "uses": {
      "product": {
       "status": "gap",
-      "run": "rom_study-61475bf029de",
-      "distance": 6,
+      "run": "rom_study-9580a00926ca",
+      "distance": 3,
       "missing": [
-       "uncertainty estimate",
-       "reference or physics check"
+       "uncertainty estimate"
       ]
      },
      "paper": {
       "status": "gap",
-      "run": "rom_study-61475bf029de",
+      "run": "rom_study-9580a00926ca",
       "distance": 4,
       "missing": [
        "comparison with a reference",
@@ -3629,16 +3616,15 @@
      },
      "marketing": {
       "status": "gap",
-      "run": "rom_study-61475bf029de",
-      "distance": 2,
+      "run": "rom_study-9580a00926ca",
+      "distance": 1,
       "missing": [
-       "strong visuals (movie, render or 3-D view)",
        "a one-line story (review)"
       ]
      },
      "training_data": {
       "status": "ready",
-      "run": "rom_study-61475bf029de",
+      "run": "rom_study-9580a00926ca",
       "distance": 0,
       "missing": []
      }
@@ -3826,7 +3812,7 @@
    "tier": "B",
    "tier_name": "solid",
    "best_run": "vehicle_cfd-19b6c3f7bb85",
-   "best_score": 90.3,
+   "best_score": 93.8,
    "runs": 2,
    "tier_counts": {
     "A": 0,
@@ -3867,8 +3853,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
-    "document it (docs page, references)"
+    "compare with an independent reference (exact solution, experiment, published value)"
    ],
    "reviewed": false,
    "stages": {
@@ -3932,8 +3917,7 @@
    },
    "plan": {
     "limitations": [
-     "detected: 1 of 2 runs fail validation or crash (outside the validated range)",
-     "detected: evidence only inferred (not measured by a check) for documentation"
+     "detected: 1 of 2 runs fail validation or crash (outside the validated range)"
     ],
     "actions": [
      {
@@ -3953,14 +3937,6 @@
       "unlocks": [
        "paper",
        "marketing"
-      ]
-     },
-     {
-      "gap": "documentation",
-      "action": "Write a docs page and cite the reference papers (Experiment.references)",
-      "effort": "S",
-      "unlocks": [
-       "tier A"
       ]
      },
      {
@@ -14771,6 +14747,190 @@
    "description": "Parametric ROM of a 3-D cantilever (height, width, load direction): POD + RBF / GPR on 80 FEM solutions, checked on 20 unseen designs against the nearest training design.",
    "title": "beam parametric"
   },
+  "rom_study/cylinder_wake": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "rom_study-9580a00926ca",
+   "best_score": 98.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: setup",
+      "PASS opinf_bounded_over_horizon (largest latent amplitude of the forecast / largest in training (no blow-up))"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+      "and 1 more"
+     ],
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "answered",
+     "evidence": [
+      "tier B (solid), ready for training_data",
+      "2 limitations bound the use"
+     ],
+     "next": ""
+    }
+   },
+   "plan": {
+    "limitations": [
+     "declared: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+     "declared: the transient is excluded from the training window"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "reference",
+      "action": "Score against the high-fidelity solver on designs the model never saw",
+      "effort": "M",
+      "unlocks": [
+       "paper",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 3,
+      "missing": [
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 4,
+      "missing": [
+       "comparison with a reference",
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "rom_study-9580a00926ca",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "ready",
+      "run": "rom_study-9580a00926ca",
+      "distance": 0,
+      "missing": []
+     }
+    },
+    "closest_use": "marketing",
+    "next_tier": "A"
+   },
+   "experiment": "rom_study",
+   "case": "cylinder_wake",
+   "story": "",
+   "description": "Vortex shedding behind a cylinder at Re 100 (LBM): POD modes, DMD frequency and OpInf/DMD forecasts of the wake against persistence.",
+   "title": "cylinder wake"
+  },
   "solid_fem/cantilever": {
    "tier": "A",
    "tier_name": "flagship",
@@ -15310,7 +15470,7 @@
    "tier": "B",
    "tier_name": "solid",
    "best_run": "vehicle_cfd-19b6c3f7bb85",
-   "best_score": 90.3,
+   "best_score": 93.8,
    "runs": 1,
    "tier_counts": {
     "A": 0,
@@ -15351,8 +15511,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
-    "document it (docs page, references)"
+    "compare with an independent reference (exact solution, experiment, published value)"
    ],
    "reviewed": false,
    "stages": {
@@ -15418,8 +15577,7 @@
     "limitations": [
      "declared: steady RANS on a coarse mesh (no grid study yet)",
      "declared: non-rotating wheels, no underbody or cooling-flow detail",
-     "declared: a parametric body, not a production car",
-     "detected: evidence only inferred (not measured by a check) for documentation"
+     "declared: a parametric body, not a production car"
     ],
     "actions": [
      {
@@ -15439,14 +15597,6 @@
       "unlocks": [
        "paper",
        "marketing"
-      ]
-     },
-     {
-      "gap": "documentation",
-      "action": "Write a docs page and cite the reference papers (Experiment.references)",
-      "effort": "S",
-      "unlocks": [
-       "tier A"
       ]
      },
      {
@@ -15514,7 +15664,7 @@
    "tier": "D",
    "tier_name": "not usable",
    "best_run": "vehicle_cfd-61b9a6cd026a",
-   "best_score": 61.5,
+   "best_score": 64.1,
    "runs": 1,
    "tier_counts": {
     "A": 0,
@@ -15627,7 +15777,7 @@
      "declared: incompressible at 50 m/s: no Mach effects (transonic / supersonic flight)",
      "declared: the plume is only drawn, not simulated",
      "detected: 1 of 1 runs fail validation or crash (outside the validated range)",
-     "detected: evidence only inferred (not measured by a check) for uncertainty, documentation"
+     "detected: evidence only inferred (not measured by a check) for uncertainty"
     ],
     "actions": [
      {
@@ -17074,7 +17224,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -17283,7 +17433,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -17492,7 +17642,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -17701,7 +17851,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -17910,7 +18060,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -18119,7 +18269,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -18328,7 +18478,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -18537,7 +18687,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 252 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -21674,7 +21824,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 271 chars",
-      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md, README.md",
       "papers: 0"
      ]
     },
@@ -21883,7 +22033,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 271 chars",
-      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md, README.md",
       "papers: 0"
      ]
     },
@@ -22090,7 +22240,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 271 chars",
-      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md, README.md",
       "papers: 0"
      ]
     },
@@ -22297,7 +22447,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 271 chars",
-      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md, README.md",
       "papers: 0"
      ]
     },
@@ -22502,7 +22652,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 271 chars",
-      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md, README.md",
       "papers: 0"
      ]
     },
@@ -50596,7 +50746,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 341 chars",
-      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md",
+      "docs: docs/core_concepts/lab.md, docs/core_concepts/studio.md, README.md",
       "papers: 0"
      ]
     },
@@ -51015,7 +51165,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 258 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -51222,7 +51372,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 258 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -51427,7 +51577,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 258 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -51635,7 +51785,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -51844,7 +51994,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -52056,7 +52206,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -52266,7 +52416,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -52476,7 +52626,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -52688,7 +52838,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -52899,7 +53049,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -53110,7 +53260,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -53318,7 +53468,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -53526,7 +53676,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 176 chars",
-      "docs: docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -53731,7 +53881,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 229 chars",
-      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -53846,6 +53996,218 @@
    },
    "tier_name": "solid"
   },
+  "rom_study-9580a00926ca": {
+   "run_id": "rom_study-9580a00926ca",
+   "experiment": "rom_study",
+   "status": "completed",
+   "tier": "B",
+   "score": 98.0,
+   "coverage": 0.8,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "6/6 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no reference check"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 9536372e",
+      "ran from a dirty tree (diff saved)"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 datasets, 1 samples, 100 % with a card description"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 1 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "description 229 chars",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md, README.md",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "comparison with a reference",
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": true,
+     "approved": false,
+     "missing": []
+    }
+   },
+   "gaps": [
+    "compare with an independent reference (exact solution, experiment, published value)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: setup",
+      "PASS opinf_bounded_over_horizon (largest latent amplitude of the forecast / largest in training (no blow-up))"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS rom_forecast_error_3_periods (relative to the fluctuation norm)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS pod_mode_pair_holds_the_energy (modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy)",
+      "PASS pod_modes_come_in_pairs (sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy)",
+      "PASS dmd_frequency_vs_probe_spectrum (leading DMD eigenvalue against the zero-padded FFT of a wake probe)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS rom_forecast_beats_persistence (mean relative error over 3 shedding periods, persistence / best ROM)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "limitations: 2-D, single Reynolds number, periodic regime (the easy case for linear ROMs)",
+      "and 1 more"
+     ],
+     "next": "quantify it (ensemble, GP standard deviation, mesh or seed spread)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "answered",
+     "evidence": [
+      "tier B (solid), ready for training_data",
+      "2 limitations bound the use"
+     ],
+     "next": ""
+    }
+   },
+   "tier_name": "solid"
+  },
   "solid_fem-4b486451e11b": {
    "run_id": "solid_fem-4b486451e11b",
    "experiment": "solid_fem",
@@ -53945,7 +54307,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 284 chars",
-      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -54152,7 +54514,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 284 chars",
-      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -54359,7 +54721,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "description 284 chars",
-      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md",
+      "docs: docs/core_concepts/reduced_order_models.md, docs/core_concepts/lab.md, README.md",
       "papers: 0"
      ]
     },
@@ -54471,7 +54833,7 @@
    "experiment": "vehicle_cfd",
    "status": "completed",
    "tier": "B",
-   "score": 90.3,
+   "score": 93.8,
    "coverage": 0.6,
    "dimensions": {
     "validation": {
@@ -54560,12 +54922,12 @@
     },
     "documentation": {
      "name": "documentation",
-     "score": 0.4,
+     "score": 0.7,
      "status": "INFO",
-     "tier": "INFERRED",
+     "tier": "VERIFIED",
      "evidence": [
       "description 271 chars",
-      "docs: none",
+      "docs: README.md",
       "papers: 0"
      ]
     },
@@ -54611,8 +54973,7 @@
     }
    },
    "gaps": [
-    "compare with an independent reference (exact solution, experiment, published value)",
-    "document it (docs page, references)"
+    "compare with an independent reference (exact solution, experiment, published value)"
    ],
    "reviewed": false,
    "stages": {
@@ -54681,7 +55042,7 @@
    "experiment": "vehicle_cfd",
    "status": "failed_validation",
    "tier": "D",
-   "score": 61.5,
+   "score": 64.1,
    "coverage": 0.8,
    "dimensions": {
     "validation": {
@@ -54770,12 +55131,12 @@
     },
     "documentation": {
      "name": "documentation",
-     "score": 0.4,
+     "score": 0.7,
      "status": "INFO",
-     "tier": "INFERRED",
+     "tier": "VERIFIED",
      "evidence": [
       "description 271 chars",
-      "docs: none",
+      "docs: README.md",
       "papers: 0"
      ]
     },

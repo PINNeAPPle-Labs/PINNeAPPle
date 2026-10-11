@@ -1,0 +1,80 @@
+{
+ "name": "wake",
+ "description": "Velocity snapshots (periodic regime) and POD modes / singular values",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "ux": {
+   "kind": "array",
+   "shape": [
+    360,
+    240,
+    100
+   ],
+   "dtype": "float32",
+   "min": -0.028091203421354294,
+   "max": 0.21786370873451233
+  },
+  "uy": {
+   "kind": "array",
+   "shape": [
+    360,
+    240,
+    100
+   ],
+   "dtype": "float32",
+   "min": -0.10412038117647171,
+   "max": 0.1029457226395607
+  },
+  "pod_modes": {
+   "kind": "array",
+   "shape": [
+    48000,
+    8
+   ],
+   "dtype": "float32",
+   "min": -0.028941528871655464,
+   "max": 0.02821849100291729
+  },
+  "singular_values": {
+   "kind": "array",
+   "shape": [
+    20
+   ],
+   "dtype": "float32",
+   "min": 0.14042334258556366,
+   "max": 43.94829559326172
+  },
+  "dt_lattice": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 50.0,
+   "max": 50.0
+  },
+  "St_probe": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.2444444444444444,
+   "max": 0.2444444444444444
+  }
+ },
+ "units": {
+  "ux": "lattice",
+  "uy": "lattice"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "rom_study",
+  "run_id": "rom_study-9580a00926ca",
+  "params": {
+   "case": "cylinder_wake",
+   "Re": 100.0,
+   "steps": 30000,
+   "save_every": 50,
+   "n_train": 80,
+   "n_test": 20,
+   "seed": 0
+  }
+ },
+ "sha1": "716ff21ad42e8e391cc8e07286e1409707a40bd5"
+}

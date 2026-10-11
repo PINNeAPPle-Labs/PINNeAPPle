@@ -1,0 +1,8 @@
+[23:02:26] stage simulate started
+[23:08:10] stage simulate done (344.055 s)
+[23:08:12] check pod_mode_pair_holds_the_energy: PASS modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy
+[23:08:12] check pod_modes_come_in_pairs: PASS sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy
+[23:08:13] check dmd_frequency_vs_probe_spectrum: PASS leading DMD eigenvalue against the zero-padded FFT of a wake probe
+[23:08:15] check rom_forecast_beats_persistence: PASS mean relative error over 3 shedding periods, persistence / best ROM
+[23:08:15] check opinf_bounded_over_horizon: PASS largest latent amplitude of the forecast / largest in training (no blow-up)
+[23:08:15] check rom_forecast_error_3_periods: PASS relative to the fluctuation norm

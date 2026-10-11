@@ -1,0 +1,5 @@
+{
+ "rank": 10,
+ "l2_quad": 0.01,
+ "validation": "last 25 % of the training window, then bounded over the horizon after the refit"
+}

@@ -1,0 +1,14 @@
+{
+ "St_probe": 0.2444444444444444,
+ "pod_energy_modes_1_2": 0.9381449824258359,
+ "pod_energy_modes_1_4": 0.9751789540913351,
+ "St_dmd": 0.24438347878503797,
+ "snapshots_per_period": 16.363636363636363,
+ "forecast_periods": 8.8,
+ "error_3_periods_dmd": 0.03297823419164839,
+ "error_end_dmd": 0.05065494326738508,
+ "error_3_periods_opinf": 0.03462381553373066,
+ "error_end_opinf": 0.27946266449438145,
+ "error_3_periods_persistence": 1.2634331512059858,
+ "error_end_persistence": 1.218346519589547
+}

@@ -1,0 +1,74 @@
+[
+ {
+  "name": "pod_mode_pair_holds_the_energy",
+  "passed": true,
+  "value": 0.9381449824258359,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.8,
+  "detail": "modes 1 and 2 (the travelling vortex street) hold most of the fluctuation energy",
+  "kind": "physics"
+ },
+ {
+  "name": "pod_modes_come_in_pairs",
+  "passed": true,
+  "value": 0.9793809115977937,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.85,
+  "detail": "sigma_2 / sigma_1: a travelling wave needs two modes of nearly equal energy",
+  "kind": "physics"
+ },
+ {
+  "name": "dmd_frequency_vs_probe_spectrum",
+  "passed": true,
+  "value": 0.24438347878503797,
+  "reference": 0.2444444444444444,
+  "rtol": 0.03,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "leading DMD eigenvalue against the zero-padded FFT of a wake probe",
+  "kind": "physics"
+ },
+ {
+  "name": "rom_forecast_beats_persistence",
+  "passed": true,
+  "value": 38.311121931626815,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 3.0,
+  "detail": "mean relative error over 3 shedding periods, persistence / best ROM",
+  "kind": "baseline"
+ },
+ {
+  "name": "opinf_bounded_over_horizon",
+  "passed": true,
+  "value": 1.0314319602335982,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 2.0,
+  "min": null,
+  "detail": "largest latent amplitude of the forecast / largest in training (no blow-up)",
+  "kind": "sanity"
+ },
+ {
+  "name": "rom_forecast_error_3_periods",
+  "passed": true,
+  "value": 0.03297823419164839,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.15,
+  "min": null,
+  "detail": "relative to the fluctuation norm",
+  "kind": "generalization"
+ }
+]

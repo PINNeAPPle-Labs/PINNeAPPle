@@ -1,0 +1,75 @@
+{
+ "run_id": "rom_study-9580a00926ca",
+ "experiment": "rom_study",
+ "version": "1",
+ "params": {
+  "case": "cylinder_wake",
+  "Re": 100.0,
+  "steps": 30000,
+  "save_every": 50,
+  "n_train": 80,
+  "n_test": 20,
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791673344.0788853,
+ "tags": [
+  "rom",
+  "reduced-order-model",
+  "pod",
+  "dmd",
+  "surrogate",
+  "physics-ai",
+  "dataset"
+ ],
+ "git": "9536372e",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Reduced-order models on the lab's own solvers: POD / DMD / Operator Inference forecasting a cylinder wake, and a parametric POD-RBF / POD-GPR model of a 3-D FEM cantilever, each against its baseline (persistence, nearest design).",
+ "code": {
+  "files": [
+   "code/rom.py"
+  ],
+  "sha1": "ca9688eca857a14b423330dd2822383171d974c7",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791673706.2002847,
+ "error": null,
+ "stages": [
+  {
+   "name": "simulate",
+   "started": 1791673346.7619066,
+   "status": "done",
+   "seconds": 344.055
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/setup.json"
+  ],
+  "outputs": [
+   "outputs/opinf_selection.json"
+  ],
+  "figures": [
+   "figures/pod_modes_and_dmd_spectrum.png",
+   "figures/forecast_error.png",
+   "figures/wake_truth_vs_rom.gif"
+  ]
+ },
+ "validation": {
+  "total": 6,
+  "failed": 0
+ },
+ "seconds": 362.121,
+ "datasets": {
+  "wake": {
+   "n_samples": 1,
+   "path": "runs/rom_study/rom_study-9580a00926ca/datasets/wake"
+  }
+ }
+}

@@ -1,0 +1,35 @@
+[
+ {
+  "name": "forced_Rth_mean_error_below_2pct",
+  "passed": true,
+  "value": 0.711546778678894,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 2.0,
+  "min": null,
+  "detail": "900 held-out designs (never trained on)"
+ },
+ {
+  "name": "forced_dp_mean_error_below_2pct",
+  "passed": true,
+  "value": 1.040686011314392,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 2.0,
+  "min": null,
+  "detail": "900 held-out designs (never trained on)"
+ },
+ {
+  "name": "natural_Rth_mean_error_below_2pct",
+  "passed": true,
+  "value": 0.7249228358268738,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 2.0,
+  "min": null,
+  "detail": "750 held-out designs (never trained on)"
+ }
+]

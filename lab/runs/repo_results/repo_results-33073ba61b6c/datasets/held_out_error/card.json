@@ -1,0 +1,64 @@
+{
+ "name": "held_out_error",
+ "description": "Surrogate error on held-out heat-sink designs, per output",
+ "n_samples": 3,
+ "shards": 1,
+ "schema": {
+  "mode": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "forced",
+    "natural"
+   ]
+  },
+  "output": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "thermal resistance (base to air)",
+    "pressure drop"
+   ]
+  },
+  "n_test": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 750.0,
+   "max": 900.0
+  },
+  "mean_abs_pct": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.711546778678894,
+   "max": 1.040686011314392
+  },
+  "p95_abs_pct": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 2.0861053466796875,
+   "max": 2.6957952976226807
+  },
+  "max_abs_pct": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 5.880397796630859,
+   "max": 10.004484176635742
+  },
+  "pct_within_5pct": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 99.22222222222223,
+   "max": 99.8888888888889
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-33073ba61b6c",
+  "params": {
+   "source": "heatsink_surrogate"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

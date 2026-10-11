@@ -1,0 +1,35 @@
+[
+ {
+  "name": "g_within_2pct",
+  "passed": true,
+  "value": 0.0023529973762459466,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.02,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "only_the_true_terms",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "\u03b8'' = -0.152 \u03b8'  -12.23 sin \u03b8"
+ },
+ {
+  "name": "forecast_beyond_observation",
+  "passed": true,
+  "value": 0.009488135837049137,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.1,
+  "min": null,
+  "detail": ""
+ }
+]

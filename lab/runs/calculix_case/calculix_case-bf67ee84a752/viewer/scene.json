@@ -1,0 +1,1 @@
+{"axes": "z_up", "title": "Steel L bracket 100 x 80 x 40 mm, 10 mm thick, 10 mm fillet, 12 mm bolt hole; base clamped, 2 kN side load on the upright (gmsh C3D10).", "labels": {"von_mises": "von Mises stress (MPa)"}, "fields": ["von_mises"], "lines": [], "slices": []}

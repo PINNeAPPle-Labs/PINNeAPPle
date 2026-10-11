@@ -1,0 +1,82 @@
+{
+ "name": "pendulum",
+ "description": "Video frames, measured angle and the true angle",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "frames": {
+   "kind": "array",
+   "shape": [
+    600,
+    160,
+    160
+   ],
+   "dtype": "uint8",
+   "min": 0.0,
+   "max": 255.0
+  },
+  "theta_measured": {
+   "kind": "array",
+   "shape": [
+    600
+   ],
+   "dtype": "float32",
+   "min": -2.0766243934631348,
+   "max": 2.39272141456604
+  },
+  "theta_true": {
+   "kind": "array",
+   "shape": [
+    600
+   ],
+   "dtype": "float32",
+   "min": -2.078211545944214,
+   "max": 2.4000000953674316
+  },
+  "g": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 9.81,
+   "max": 9.81
+  },
+  "L": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.8,
+   "max": 0.8
+  },
+  "damping": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.15,
+   "max": 0.15
+  },
+  "fps": {
+   "kind": "scalar",
+   "type": "int",
+   "min": 60.0,
+   "max": 60.0
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "pendulum_video",
+  "run_id": "pendulum_video-7a4bc9625e0e",
+  "params": {
+   "g": 9.81,
+   "L": 0.8,
+   "damping": 0.15,
+   "theta0": 2.4,
+   "fps": 60,
+   "seconds": 10.0,
+   "noise": 0.04,
+   "size": 160,
+   "test_width": 2.0,
+   "n_test": 120,
+   "predict_seconds": 6.0,
+   "seed": 0
+  }
+ },
+ "sha1": "1fec2a2a9d4f75c4605c5a0d878053dc259c21cf"
+}

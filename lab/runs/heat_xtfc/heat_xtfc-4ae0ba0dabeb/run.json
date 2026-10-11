@@ -1,0 +1,60 @@
+{
+ "run_id": "heat_xtfc-4ae0ba0dabeb",
+ "experiment": "heat_xtfc",
+ "version": "1",
+ "params": {
+  "alpha": 1.0,
+  "n_basis": 60,
+  "n_collocation": 25,
+  "activation": "tanh",
+  "seed": 0
+ },
+ "status": "failed_validation",
+ "started": 1791650113.353181,
+ "tags": [
+  "pde",
+  "xtfc",
+  "verification"
+ ],
+ "git": "c52191ad",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "1D heat equation u_t = alpha u_xx on [0,1] x [0,1], u0 = sin(pi x), solved by X-TFC (pinneapple_simulation.numerical_solvers.xtfc_pde) vs exp(-alpha pi^2 t) sin(pi x).",
+ "finished": 1791650113.9016159,
+ "error": null,
+ "stages": [
+  {
+   "name": "solve",
+   "started": 1791650113.380914,
+   "status": "done",
+   "seconds": 0.01
+  }
+ ],
+ "files": {
+  "inputs": [],
+  "outputs": [
+   "outputs/u.npy"
+  ],
+  "figures": [
+   "figures/solution.png"
+  ]
+ },
+ "validation": {
+  "total": 1,
+  "failed": 1
+ },
+ "seconds": 0.548,
+ "datasets": {
+  "fields": {
+   "n_samples": 1,
+   "path": "runs/heat_xtfc/heat_xtfc-4ae0ba0dabeb/datasets/fields"
+  }
+ }
+}

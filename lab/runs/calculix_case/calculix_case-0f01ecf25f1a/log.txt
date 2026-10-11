@@ -1,0 +1,4 @@
+[21:47:11] stage solve started
+[21:47:13] stage solve done (1.611 s)
+[21:47:13] check first_bending_mode_vs_euler_bernoulli: PASS weak axis
+[21:47:13] check second_bending_mode_vs_euler_bernoulli: PASS strong axis (shear and rotary inertia lower it by about 1 %)

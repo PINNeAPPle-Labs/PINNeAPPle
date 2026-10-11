@@ -1,0 +1,5 @@
+[17:19:17] LBM-LES slender delta wing (parametric Concorde stand-in): CL/CD/CM vs angle of attack
+[17:19:17] stage import started
+[17:19:17] check lift_increases_with_aoa: PASS 
+[17:19:17] check CL_within_polhamus_band: PASS low-fidelity cross-check vs the Polhamus slender-wing theory, not test data
+[17:19:17] stage import done (0.009 s)

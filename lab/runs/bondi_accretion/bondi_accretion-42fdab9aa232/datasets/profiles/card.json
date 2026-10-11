@@ -1,0 +1,85 @@
+{
+ "name": "profiles",
+ "description": "Radial Bondi profiles: exact and simulated",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "r": {
+   "kind": "array",
+   "shape": [
+    64
+   ],
+   "dtype": "float64",
+   "min": 4.1527915481916855,
+   "max": 386.44717065563464
+  },
+  "rho_exact": {
+   "kind": "array",
+   "shape": [
+    64
+   ],
+   "dtype": "float64",
+   "min": 1.1379508002669103,
+   "max": 21.436654619146537
+  },
+  "rho_sim": {
+   "kind": "array",
+   "shape": [
+    64
+   ],
+   "dtype": "float64",
+   "min": 1.141378782654532,
+   "max": 21.930162560673182
+  },
+  "v_exact": {
+   "kind": "array",
+   "shape": [
+    64
+   ],
+   "dtype": "float64",
+   "min": -0.8325086188397441,
+   "max": -0.001811015901390256
+  },
+  "v_sim": {
+   "kind": "array",
+   "shape": [
+    64
+   ],
+   "dtype": "float64",
+   "min": -0.8692637923208857,
+   "max": -0.0022731197201520514
+  },
+  "cs_inf": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.14,
+   "max": 0.14
+  },
+  "gamma": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.4,
+   "max": 1.4
+  },
+  "mdot": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 3867.549467258344,
+   "max": 3867.549467258344
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "bondi_accretion",
+  "run_id": "bondi_accretion-42fdab9aa232",
+  "params": {
+   "cs_inf": 0.14,
+   "gamma": 1.4,
+   "nr": 64,
+   "t_end": 300.0,
+   "backend": "numba"
+  }
+ },
+ "sha1": "a6ac6e7b51bcba742415ae3201945b200240d072"
+}

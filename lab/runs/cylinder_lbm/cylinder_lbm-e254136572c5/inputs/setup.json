@@ -1,0 +1,14 @@
+{
+ "nx": 240,
+ "ny": 100,
+ "cylinder_center": [
+  60.0,
+  50.5
+ ],
+ "diameter": 20,
+ "Re_diameter": 100,
+ "Re_channel_solver": 490.0,
+ "u_in": 0.1,
+ "smagorinsky_Cs": 0.0,
+ "tau": 0.56
+}

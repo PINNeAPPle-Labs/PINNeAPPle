@@ -1,0 +1,23 @@
+{
+ "stages": [
+  {
+   "name": "mesh_and_solve_0",
+   "started": 1791668937.7679415,
+   "status": "done",
+   "seconds": 8.158
+  },
+  {
+   "name": "mesh_and_solve_1",
+   "started": 1791668945.9272892,
+   "status": "done",
+   "seconds": 26.947
+  },
+  {
+   "name": "render",
+   "started": 1791668973.6338284,
+   "status": "done",
+   "seconds": 65.751
+  }
+ ],
+ "updated": 1791669039.386241
+}

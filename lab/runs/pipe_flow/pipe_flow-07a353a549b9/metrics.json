@@ -1,0 +1,10 @@
+{
+ "cells": 344798,
+ "U_mean_m_s": 0.0009999999999999998,
+ "Re": 50,
+ "cov_outlet": 0.16144837973212633,
+ "cov_outlet_empty_pipe": 0.9999999903035893,
+ "mixing_gain": 6.193930171134452,
+ "pressure_drop_ratio_Z": 4.7046120017827,
+ "cov_reduction_per_element": 0.7362212374848058
+}

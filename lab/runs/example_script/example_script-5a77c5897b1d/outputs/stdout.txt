@@ -1,0 +1,10 @@
+Simple Harmonic Oscillator — PINN experiments
+
+Training: ω=1  (slow) ...
+  → relative L2 error: 3.4829e-01
+Training: ω=3  (medium) ...
+  → relative L2 error: 7.8299e-01
+Training: ω=6  (fast, shifted IC) ...
+  → relative L2 error: 9.1500e-01
+
+Saved 01_harmonic_oscillator.png

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "finite_and_bounded",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "accuracy_for_method",
+  "passed": true,
+  "value": 0.15431943379252655,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.4241260000924585,
+  "min": null,
+  "detail": "rmse <= 1.4 (euler)"
+ }
+]

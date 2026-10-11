@@ -1,0 +1,66 @@
+{
+ "run_id": "accretion_flow-2e487e9f3b08",
+ "experiment": "accretion_flow",
+ "version": "1",
+ "params": {
+  "alpha": 0.1,
+  "viscosity": "SS",
+  "torus_a": 0.0,
+  "nr": 64,
+  "ntheta": 32,
+  "t_end": 600.0,
+  "every": 20.0,
+  "backend": "numba",
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791650155.0972629,
+ "tags": [
+  "astrophysics",
+  "hydro",
+  "dataset"
+ ],
+ "git": "c52191ad",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "A hot torus accreting onto a Schwarzschild black hole (viscous 2.5-D hydro): density movie, accretion rate and mass / angular-momentum budgets. Frames form a dataset for forecasting.",
+ "finished": 1791650162.247878,
+ "error": null,
+ "stages": [
+  {
+   "name": "evolve",
+   "started": 1791650155.1188257,
+   "status": "done",
+   "seconds": 6.712
+  }
+ ],
+ "files": {
+  "inputs": [],
+  "outputs": [
+   "outputs/grid.json",
+   "outputs/mdot.npy"
+  ],
+  "figures": [
+   "figures/density.png",
+   "figures/density_rtheta.gif"
+  ]
+ },
+ "validation": {
+  "total": 3,
+  "failed": 0
+ },
+ "seconds": 7.151,
+ "datasets": {
+  "frames": {
+   "n_samples": 31,
+   "path": "runs/accretion_flow/accretion_flow-2e487e9f3b08/datasets/frames"
+  }
+ }
+}

@@ -1,0 +1,1 @@
+{"axes": "z_up", "title": "Square steel bar 1 m x 0.1 m x 0.1 m, clamped at one end, 10 kN m torque on the other.", "labels": {"von_mises": "von Mises stress (MPa)", "displacement": "Displacement (mm)"}, "fields": ["von_mises", "displacement"], "lines": [], "slices": []}

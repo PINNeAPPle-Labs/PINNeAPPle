@@ -1,0 +1,14 @@
+{
+ "displacement_best_rom": "gpr",
+ "displacement_median_error": 0.0005343541212487664,
+ "displacement_max_error": 0.00182925142231064,
+ "displacement_nearest_design_median_error": 0.05243458583623352,
+ "von_mises_best_rom": "gpr+split",
+ "von_mises_median_error": 0.010247638172793564,
+ "von_mises_max_error": 0.035742129914881154,
+ "von_mises_nearest_design_median_error": 0.06438114783274926,
+ "displacement_coverage_90": 0.8208141321044546,
+ "von_mises_coverage_90": 0.8855990783410138,
+ "fem_seconds_per_design": 0.9206536322832107,
+ "speedup_over_fem": 627.4374776582608
+}

@@ -1,0 +1,10 @@
+Lotka-Volterra Predator-Prey System
+
+Training: Classic cycle ...
+  → L2 prey=9.902e-01  predator=7.012e-01
+Training: High predation ...
+  → L2 prey=9.998e-01  predator=5.837e-01
+Training: Slow dynamics ...
+  → L2 prey=7.428e-01  predator=7.064e-01
+
+Saved 06_lotka_volterra.png

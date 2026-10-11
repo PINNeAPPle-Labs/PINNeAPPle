@@ -1,0 +1,16 @@
+{
+ "reproduction_field_rel_l2": 0.032788001000881195,
+ "reproduction_node_rmse_mm": 0.9678969383239746,
+ "reproduction_node_r2": 0.9523853063583374,
+ "improved_field_rel_l2": 0.017986226826906204,
+ "improved_node_rmse_mm": 0.46342933177948,
+ "improved_node_r2": 0.9890843629837036,
+ "pod_gp_field_rel_l2": 0.005496352309079483,
+ "pod_gp_node_rmse_mm": 0.6225885258329903,
+ "pod_gp_node_r2": 0.9802991363943827,
+ "nearest_field_rel_l2": 0.02207893691956997,
+ "nearest_node_rmse_mm": 0.4450763165950775,
+ "nearest_node_r2": 0.9899318218231201,
+ "simulations": 100,
+ "mesh_nodes": 13882
+}

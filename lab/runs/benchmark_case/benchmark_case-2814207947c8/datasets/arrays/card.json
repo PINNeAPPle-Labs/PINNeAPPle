@@ -1,0 +1,64 @@
+{
+ "name": "arrays",
+ "description": "Arrays behind the figures of PINNeAPPle-Benchmark/experiments/02_physics_digital_twin",
+ "n_samples": 18,
+ "shards": 1,
+ "schema": {
+  "array": {
+   "kind": "array",
+   "shape": "variable",
+   "dtype": "int64",
+   "min": -9.397174835205078,
+   "max": 87665.0
+  },
+  "file": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "anomaly_series.npz",
+    "test_predictions.npz"
+   ]
+  },
+  "key": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "tgt",
+    "r1",
+    "r6",
+    "status",
+    "label",
+    "Tc",
+    "T",
+    "start",
+    "Y",
+    "T0",
+    "Persistence",
+    "Physics_ODE_identified",
+    "Linear_Ridge",
+    "Random_Forest",
+    "Gradient_Boosting",
+    "MLP",
+    "NN_no_physics_loss",
+    "PINN_PINNeAPPle"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "soil_twin"
+   ]
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "benchmark_case",
+  "run_id": "benchmark_case-2814207947c8",
+  "params": {
+   "case": "soil_twin"
+  }
+ },
+ "sha1": "caa264aec42b7febaede5d2ba3af2666d299069c"
+}

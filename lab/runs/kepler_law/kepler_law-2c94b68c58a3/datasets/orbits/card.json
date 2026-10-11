@@ -1,0 +1,68 @@
+{
+ "name": "orbits",
+ "description": "Measured orbits (NASA fact sheets)",
+ "n_samples": 19,
+ "shards": 1,
+ "schema": {
+  "system": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "Sun",
+    "Jupiter",
+    "Saturn"
+   ]
+  },
+  "body": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Io",
+    "Europa",
+    "Ganymede",
+    "Callisto",
+    "Mimas",
+    "Enceladus",
+    "Tethys",
+    "Dione",
+    "Rhea",
+    "Titan"
+   ]
+  },
+  "a": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 185540000.0,
+   "max": 5906423130977.399
+  },
+  "P": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 81388.79999999999,
+   "max": 7824391344.0
+  }
+ },
+ "units": {
+  "a": "m",
+  "P": "s"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "kepler_law",
+  "run_id": "kepler_law-2c94b68c58a3",
+  "params": {
+   "exponent_grid": 0.25,
+   "seed": 0
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

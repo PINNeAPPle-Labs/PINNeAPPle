@@ -1,0 +1,63 @@
+{
+ "name": "arrays",
+ "description": "Arrays behind the figures of PINNeAPPle-Benchmark/experiments/08_supersonic_shock_train",
+ "n_samples": 41,
+ "shards": 1,
+ "schema": {
+  "array": {
+   "kind": "array",
+   "shape": "variable",
+   "dtype": "float32",
+   "min": -0.7761698961257935,
+   "max": 11.988888888888889
+  },
+  "file": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "field3d_3d_pb2.50.npz",
+    "field3d_3d_pb3.00.npz",
+    "field_grid_pb3.00_240x20.npz",
+    "field_grid_pb3.00_360x30.npz",
+    "field_grid_pb3.00_540x45.npz",
+    "field_sweep_pb2.00_480x40.npz",
+    "field_sweep_pb2.50_480x40.npz",
+    "field_sweep_pb3.00_480x40.npz",
+    "field_sweep_pb3.25_480x40.npz",
+    "field_sweep_pb3.50_480x40.npz",
+    "field_sweep_pb3.75_480x40.npz",
+    "field_sweep_pb4.00_480x40.npz",
+    "field_sweep_pb4.25_480x40.npz"
+   ]
+  },
+  "key": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "Mach_top",
+    "Mach_side",
+    "p_center",
+    "x",
+    "W",
+    "Mach"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "shock_train"
+   ]
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "benchmark_case",
+  "run_id": "benchmark_case-9cf13dffb830",
+  "params": {
+   "case": "shock_train"
+  }
+ },
+ "sha1": "0e8786d8e2a072edf3bb9fc1b5d0cfe6c9e3464d"
+}

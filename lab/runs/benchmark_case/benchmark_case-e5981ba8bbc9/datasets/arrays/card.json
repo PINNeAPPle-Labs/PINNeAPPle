@@ -1,0 +1,47 @@
+{
+ "name": "arrays",
+ "description": "Arrays behind the figures of PINNeAPPle-Benchmark/experiments/04_terramechanics_robust",
+ "n_samples": 2,
+ "shards": 1,
+ "schema": {
+  "array": {
+   "kind": "array",
+   "shape": "variable",
+   "dtype": "float32",
+   "min": -4.120150967107799,
+   "max": 228.9047727656964
+  },
+  "file": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "test_set.npz"
+   ]
+  },
+  "key": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "P",
+    "Y"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "terramechanics"
+   ]
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "benchmark_case",
+  "run_id": "benchmark_case-e5981ba8bbc9",
+  "params": {
+   "case": "terramechanics"
+  }
+ },
+ "sha1": "c3d2a00d88d6b0a6758596bbb5c804e07e7043f4"
+}

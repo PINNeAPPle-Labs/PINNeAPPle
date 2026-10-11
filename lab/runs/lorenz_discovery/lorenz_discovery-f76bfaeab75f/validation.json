@@ -1,0 +1,24 @@
+[
+ {
+  "name": "exact_structure",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "{'x': {'x': -10.016626274109075, 'y': 10.012137881769872}, 'y': {'x': 28.026027339216363, 'y': -1.0177757584686542, 'x z': -1.000099851762002}, 'z': {'z': -2.664925268945403, 'x y': 0.9993912069107045}}"
+ },
+ {
+  "name": "coefficients_within_5pct",
+  "passed": true,
+  "value": 0.0177757584686542,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": ""
+ }
+]

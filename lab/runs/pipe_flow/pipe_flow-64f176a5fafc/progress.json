@@ -1,0 +1,23 @@
+{
+ "stages": [
+  {
+   "name": "cfd",
+   "started": 1791666866.545661,
+   "status": "done",
+   "seconds": 80.102
+  },
+  {
+   "name": "datasets",
+   "started": 1791666947.604105,
+   "status": "done",
+   "seconds": 0.006
+  },
+  {
+   "name": "render",
+   "started": 1791666947.611114,
+   "status": "done",
+   "seconds": 248.607
+  }
+ ],
+ "updated": 1791667196.221993
+}

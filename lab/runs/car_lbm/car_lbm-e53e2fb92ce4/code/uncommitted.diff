@@ -1,0 +1,367 @@
+diff --git a/pinneapple_lab/curation.py b/pinneapple_lab/curation.py
+index 41042939..85c0ac2a 100644
+--- a/pinneapple_lab/curation.py
++++ b/pinneapple_lab/curation.py
+@@ -279,7 +279,7 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
+         tier = "D"
+         gaps.append("fix the failing checks or the crash" if row["status"] == "failed_validation" else "the run crashed")
+     else:
+-        independent = ok("reference") or ok("baseline") or ok("physics")
++        independent = ok("reference") or ok("baseline") or ok("physics") or ok("generalization")
+         solid = ok("validation") and independent and dims["reproducibility"].score >= 0.6
+         flagship = (solid and ok("reference") and (ok("baseline") or ok("physics")) and
+                     dims["reproducibility"].score >= 0.75 and (dims["assets"].score or 0) >= 0.6 and
+@@ -336,6 +336,130 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
+                       round(coverage, 2), dims, readiness, gaps, reviewed=bool(rv))
+ 
+ 
++# ---------------------------------------------------------------------- strategy: limitations and the path forward
++EFFORT = {"S": 1, "M": 3, "L": 8}          # relative cost: S hours, M a day or two, L a week or more
++USES = ("product", "paper", "marketing", "training_data")
++
++
++def _action(gap: str, tags: set[str], detail: str = "") -> tuple[str, str]:
++    """(action, effort) for a missing piece of evidence, specific to the kind of experiment."""
++    cfd = tags & {"cfd", "lbm", "openfoam", "hydro"}
++    ml = tags & ML_TAGS
++    disc = tags & {"discovery", "symbolic-regression"}
++    fc = tags & {"forecasting", "forecast", "weather"}
++    if gap == "reference":
++        if disc:
++            return ("Recover the law from a second, independent dataset and compare the coefficients with the textbook "
++                    "values", "M")
++        if cfd:
++            return ("Validate against a published experiment or benchmark value (drag, Strouhal, Nusselt) and run a "
++                    "grid-convergence study (coarse / medium / fine)", "M")
++        if ml:
++            return "Score against the high-fidelity solver on designs the model never saw", "M"
++        if tags & {"astrophysics", "astronomy"}:
++            return "Compare with an analytic solution (Bondi, equilibrium torus) or a published simulation", "M"
++        return "Add a check against an exact solution, a measurement or a published value", "M"
++    if gap == "baseline":
++        if fc:
++            return "Compare with persistence and climatology at every lead time", "S"
++        if disc:
++            return ("Compare with a naive model (a linear or polynomial fit, the textbook law without the discovered "
++                    "terms)", "S")
++        if ml:
++            return "Compare with simple surrogates (nearest design, linear regression, POD + Gaussian process)", "S"
++        if tags & {"pinn", "xtfc", "pde"}:
++            return "Compare with a classical solver at equal cost (finite differences, spectral)", "S"
++        return "Compare with the simplest method that could do the job", "S"
++    if gap == "physics":
++        return ("Check a law the model was not trained on: conservation of mass / momentum / energy, symmetry, a "
++                "physical bound", "S")
++    if gap == "generalization":
++        if fc:
++            return "Score unseen years / regimes (out-of-distribution) and report the skill horizon", "M"
++        return "Hold out designs or an out-of-distribution regime and report the error there", "M"
++    if gap == "uncertainty":
++        return ("Report an ensemble spread or intervals and check their calibration "
++                "(pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)", "M")
++    if gap == "reproducibility":
++        return "Rerun from a committed tree (the code snapshot is automatic) and repeat with three seeds", "S"
++    if gap == "assets":
++        return ("Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key "
++                "result", "S")
++    if gap == "documentation":
++        return "Write a docs page and cite the reference papers (Experiment.references)", "S"
++    if gap == "review":
++        return ("Human review: novelty, clarity, the one-line story "
++                "(python -m pinneapple_lab review <experiment> --story ... --novelty ...)", "S")
++    if gap == "data":
++        return "Save the fields as a dataset with a card (ctx.dataset)", "S"
++    if gap == "fix":
++        return f"Fix the failing checks or the crash{': ' + detail if detail else ''}", "M"
++    return gap, "M"
++
++
++_MISSING_TO_GAP = {   # readiness "missing" text -> gap key
++    "generalization evidence": "generalization", "uncertainty estimate": "uncertainty",
++    "reference or physics check": "reference", "reproducibility": "reproducibility",
++    "comparison with a reference": "reference", "baseline or physics check": "baseline",
++    "novelty review >= 3/5": "review", "strong visuals (movie, render or 3-D view)": "assets",
++    "a validated headline number": "reference", "a one-line story (review)": "review",
++    "a documented dataset": "data", "validated runs": "fix", "not usable until it validates": "fix",
++}
++
++
++def plan_experiment(runs: list[Assessment], meta: dict[str, Any], review: dict[str, Any] | None) -> dict[str, Any]:
++    """Limitations, the actions that would close the gaps (with effort and what each unlocks) and, per use, the
++    closest run and its distance (sum of effort) to being ready."""
++    tags = set(meta.get("tags", []))
++    order = {"A": 0, "B": 1, "C": 2, "D": 3}
++    per_use: dict[str, Any] = {}
++    actions: dict[str, dict[str, Any]] = {}
++    for use in USES:
++        best = None
++        for a in runs:
++            r = a.readiness[use]
++            gaps = list(dict.fromkeys(_MISSING_TO_GAP.get(m, m) for m in r["missing"]))
++            cost = sum(EFFORT[_action(g, tags)[1]] for g in gaps)
++            key = (not r["approved"], not r["ready"], cost, order[a.tier], -(a.score or 0))
++            if best is None or key < best[0]:
++                best = (key, a, gaps, cost, r)
++        _, a, gaps, cost, r = best
++        per_use[use] = {"status": "approved" if r["approved"] else "ready" if r["ready"] else "gap",
++                        "run": a.run_id, "distance": cost, "missing": r["missing"]}
++        for g in gaps:
++            text, effort = _action(g, tags)
++            act = actions.setdefault(g, {"gap": g, "action": text, "effort": effort, "unlocks": []})
++            act["unlocks"].append(use)
++    # the tier step: what the best run lacks for the next tier
++    best = sorted(runs, key=lambda a: (order[a.tier], -(a.score or 0)))[0]
++    tier_gap_keys = {"compare with an independent": "reference", "show it beats": "baseline", "test on unseen": "generalization",
++                     "add figures": "assets", "document it": "documentation", "rerun from": "reproducibility",
++                     "record validation": "reference", "fix the failing": "fix", "the run crashed": "fix"}
++    next_tier = {"D": "C", "C": "B", "B": "A", "A": None}[best.tier]
++    for g in best.gaps:
++        key = next((v for k, v in tier_gap_keys.items() if g.startswith(k)), None)
++        if key:
++            text, effort = _action(key, tags)
++            act = actions.setdefault(key, {"gap": key, "action": text, "effort": effort, "unlocks": []})
++            if next_tier and f"tier {next_tier}" not in act["unlocks"]:
++                act["unlocks"].append(f"tier {next_tier}")
++    plan = sorted(actions.values(), key=lambda x: (-len(x["unlocks"]), EFFORT[x["effort"]]))
++    # limitations: declared by the experiment, by the reviewer, and detected
++    lim = [f"declared: {x}" for x in meta.get("limitations", [])]
++    if review and review.get("limitations"):
++        lim.append(f"review: {review['limitations']}")
++    failed = [a for a in runs if a.tier == "D"]
++    if failed:
++        lim.append(f"detected: {len(failed)} of {len(runs)} runs fail validation or crash (outside the validated range)")
++    inferred = [k for k, d in best.dimensions.items() if d.tier == INFERRED and d.score is not None]
++    if inferred:
++        lim.append(f"detected: evidence only inferred (not measured by a check) for {', '.join(inferred)}")
++    if best.coverage < 0.6:
++        lim.append(f"detected: only {int(100 * best.coverage)} % of the evidence dimensions have data")
++    closest = min((u for u in USES if per_use[u]["status"] == "gap"), key=lambda u: per_use[u]["distance"], default=None)
++    return {"limitations": lim, "actions": plan, "uses": per_use, "closest_use": closest, "next_tier": next_tier}
++
++
+ def assess_experiment(runs: list[Assessment]) -> dict[str, Any]:
+     """Best run, tier counts and the consistency of an experiment's runs."""
+     order = {"A": 0, "B": 1, "C": 2, "D": 3}
+@@ -354,13 +478,16 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
+     """Assess every run and experiment; write ``curation.json`` and ``CURATION.md`` in the lab folder."""
+     from .spec import get
+     reviews = load_reviews(store.root)
+-    out = {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": {}, "runs": {}}
++    out = {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": {}, "items": {},
++           "runs": {}}
+     for exp in sorted(store.status()):
+         try:
+             cls = get(exp)
+             meta = {"description": cls.description, "tags": list(cls.tags),
+-                    "references": list(getattr(cls, "references", []) or [])}
++                    "references": list(getattr(cls, "references", []) or []),
++                    "limitations": getattr(cls, "limitations", []) or []}
+         except KeyError:
++            cls = None
+             meta = {"description": "", "tags": []}
+         meta["docs"] = _docs_mentions(exp)
+         rows = [r for r in store.runs(exp) if r["status"] != "running"]          # in progress: not graded yet
+@@ -376,7 +503,27 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
+             assessed.append(a)
+             out["runs"][a.run_id] = a.to_dict()
+         if assessed:
+-            out["experiments"][exp] = assess_experiment(assessed)
++            lim_all = meta.get("limitations", [])
++            m0 = {**meta, "limitations": lim_all if isinstance(lim_all, list) else []}
++            e = assess_experiment(assessed)
++            e["plan"] = plan_experiment(assessed, m0, reviews.get(exp))
++            e["description"] = meta.get("description", "")
++            e["story"] = (reviews.get(exp) or {}).get("story", "")
++            out["experiments"][exp] = e
++            # portfolio items: one per case for experiments that bundle distinct cases, else the experiment
++            cp = getattr(cls, "case_param", "") if cls is not None else ""
++            groups: dict[str, list] = {}
++            for a_, r in zip(assessed, rows, strict=True):
++                groups.setdefault(str(r["params"].get(cp)) if cp else "", []).append(a_)
++            for case, runs_c in groups.items():
++                key = f"{exp}/{case}" if case else exp
++                lim_c = (lim_all.get(case, []) if isinstance(lim_all, dict) else lim_all)
++                rv = reviews.get(key) or (reviews.get(exp) if not case else None)
++                item = assess_experiment(runs_c)
++                item["plan"] = plan_experiment(runs_c, {**meta, "limitations": lim_c}, rv)
++                item.update(experiment=exp, case=case, story=(rv or {}).get("story", ""),
++                            title=(rv or {}).get("title") or (case.replace("_", " ") if case else exp))
++                out["items"][key] = item
+     path_json = path_json or os.path.join(store.root, "curation.json")
+     with open(path_json, "w") as f:
+         json.dump(out, f, indent=1, default=str)
+diff --git a/pinneapple_lab/experiments/accretion.py b/pinneapple_lab/experiments/accretion.py
+index aed92b46..51c88d96 100644
+--- a/pinneapple_lab/experiments/accretion.py
++++ b/pinneapple_lab/experiments/accretion.py
+@@ -63,6 +63,7 @@ class AccretionFlowRun(Experiment):
+     description = ("A hot torus accreting onto a Schwarzschild black hole (viscous 2.5-D hydro): density movie, "
+                    "accretion rate and mass / angular-momentum budgets. Frames form a dataset for forecasting.")
+     tags = ["astrophysics", "hydro", "dataset"]
++    limitations = ["Paczynski-Wiita pseudo-Newtonian gravity, 2.5-D, no magnetic fields", "coarse grid"]
+     params = {"alpha": 0.1, "viscosity": "SS", "torus_a": 0.0, "nr": 64, "ntheta": 32, "t_end": 600.0,
+               "every": 20.0, "backend": "numba", "seed": 0}
+     space = {"alpha": (0.02, 0.3), "viscosity": ["SS", "ST"], "torus_a": (0.0, 0.25)}
+diff --git a/pinneapple_lab/experiments/car.py b/pinneapple_lab/experiments/car.py
+index a46e12ca..4b5400ab 100644
+--- a/pinneapple_lab/experiments/car.py
++++ b/pinneapple_lab/experiments/car.py
+@@ -150,6 +150,8 @@ class CarLBM(Experiment):
+                    "lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake "
+                    "vorticity movie. The training data of car_surrogate.")
+     tags = ["automotive", "cfd", "lbm", "geometry", "dataset"]
++    limitations = ["2-D side profile (no 3-D vortices, no wheels)", "Re 500 (a real car is ~10^6)",
++                   "tunnel blockage ~15 %"]
+     params = {"slant_deg": 25.0, "windshield_deg": 35.0, "hood": 0.62, "clearance": 0.08, "diffuser_deg": 4.0,
+               "nose": 0.5, "length_cells": 64, "Re": 500.0, "u_in": 0.08, "Cs": 0.1, "steps": 8000, "tunnel_height": 2.5}
+     space = {"slant_deg": (5.0, 40.0), "windshield_deg": (20.0, 55.0), "hood": (0.45, 0.75),
+@@ -233,6 +235,7 @@ class CarSurrogate(Experiment):
+                    "and lift; scored on unseen designs against baselines, then used to find a low-drag shape that "
+                    "a new LBM run verifies.")
+     tags = ["automotive", "physics-ai", "surrogate", "fno", "optimization"]
++    limitations = ["trained on 2-D LBM at Re 500; inherits every limit of car_lbm"]
+     params = {"holdout": 0.2, "epochs": 300, "width": 24, "modes": 16, "physics_weight": 0.5, "ensemble": 5,
+               "search_samples": 4000, "verify": True, "seed": 0}
+ 
+diff --git a/pinneapple_lab/experiments/cylinder.py b/pinneapple_lab/experiments/cylinder.py
+index 104c737f..0e9e46d8 100644
+--- a/pinneapple_lab/experiments/cylinder.py
++++ b/pinneapple_lab/experiments/cylinder.py
+@@ -15,6 +15,7 @@ class CylinderLBM(Experiment):
+                    "shedding) and the Strouhal number; saves vorticity snapshots labelled by regime and Re, a "
+                    "dataset for vision (classification / clustering of flow regimes, #415).")
+     tags = ["cfd", "lbm", "dataset", "vision"]
++    limitations = ["without the Smagorinsky model the solver is unstable from Re 140 (failed runs kept)"]
+     params = {"Re": 100.0, "D": 20, "height": 5, "length": 12, "u_in": 0.1, "Cs": 0.0, "steps": 16000,
+               "save_every": 100, "seed": 0}
+     space = {"Re": ("log", 10.0, 200.0)}
+diff --git a/pinneapple_lab/experiments/discovery.py b/pinneapple_lab/experiments/discovery.py
+index d7ce70e9..d269ad32 100644
+--- a/pinneapple_lab/experiments/discovery.py
++++ b/pinneapple_lab/experiments/discovery.py
+@@ -163,6 +163,7 @@ class KeplerLaw(Experiment):
+                    "sparse regression over power laws finds P ∝ a^n, n is compared with 3/2, the central masses "
+                    "come out as GM, and all three systems collapse onto P = 2π sqrt(a^3 / GM).")
+     tags = ["discovery", "real-data", "astronomy", "symbolic-regression"]
++    limitations = ["point-mass two-body law; the eccentricities and perturbations are ignored"]
+     params = {"exponent_grid": 0.25, "seed": 0}
+ 
+     def run(self, ctx):
+@@ -286,6 +287,7 @@ class PendulumVideo(Experiment):
+                    "discovered law is re-simulated and re-rendered, and the predicted video is compared with the "
+                    "observed one, including after the observation window.")
+     tags = ["discovery", "video", "inverse", "symbolic-regression"]
++    limitations = ["the video is rendered (with noise and blur), not filmed by a camera"]
+     params = {"g": 9.81, "L": 0.8, "damping": 0.15, "theta0": 2.4, "fps": 60, "seconds": 10.0, "noise": 0.04,
+               "size": 160, "test_width": 2.0, "n_test": 120, "predict_seconds": 6.0, "seed": 0}
+     space = {"theta0": (0.3, 2.9), "damping": (0.0, 0.5), "noise": (0.0, 0.1)}
+diff --git a/pinneapple_lab/experiments/examples.py b/pinneapple_lab/experiments/examples.py
+index 8df024a6..32eba904 100644
+--- a/pinneapple_lab/experiments/examples.py
++++ b/pinneapple_lab/experiments/examples.py
+@@ -184,6 +184,7 @@ class ExampleScript(Experiment):
+                    "outputs and their numbers as metrics, arrays as the 'artifacts' dataset, the console output and "
+                    "the code. The catalogue of these runs is also the health report of the examples.")
+     tags = ["examples", "use-case", "dataset"]
++    case_param = "script"
+     params = {"script": "examples/getting_started/01_harmonic_oscillator.py", "timeout": 900, "args": "",
+               "isolated": True}
+ 
+diff --git a/pinneapple_lab/experiments/landing.py b/pinneapple_lab/experiments/landing.py
+index 3ab9e9df..7161b9b9 100644
+--- a/pinneapple_lab/experiments/landing.py
++++ b/pinneapple_lab/experiments/landing.py
+@@ -216,6 +216,20 @@ class BenchmarkCase(Experiment):
+                    "PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the "
+                    "arrays behind the paper's figures and the source that produced them.")
+     tags = ["landing", "benchmark", "surrogate", "digital-twin", "dataset"]
++    case_param = "case"
++    limitations = {
++        "soil_twin": ["one site (Natal, RN)", "at 6 h the PINN does not beat persistence (published negative result); "
++                      "the identified physics ODE and the ML baselines do"],
++        "bumper_crash": ["one bumper deck (licensed example, CC BY-NC); the 11 GB of raw simulations are not in git"],
++        "terramechanics": ["every model fails when extrapolating in sinkage (rel. L2 ~0.8)",
++                           "with 150 training points no model is usable"],
++        "heated_channel": ["pressure is poorly predicted by every surrogate (rel. L2 ~0.6-1.5)",
++                           "the linear POD + DMDc model diverges"],
++        "pdr": ["one public dataset; phone placement and devices are those of the thesis"],
++        "shock_train": ["the shock position is not grid-converged (5.5, 3.0, 1.7 m from coarse to fine)",
++                        "2-D and a coarse 3-D duct"],
++        "sst": ["one region (Brazil-Malvinas Confluence); 13 % better than persistence at 7 days"],
++    }
+     params = {"case": "heated_channel"}
+     space = {"case": list(CASES)}
+ 
+diff --git a/pinneapple_lab/experiments/pde.py b/pinneapple_lab/experiments/pde.py
+index eec05df6..77fef577 100644
+--- a/pinneapple_lab/experiments/pde.py
++++ b/pinneapple_lab/experiments/pde.py
+@@ -13,6 +13,7 @@ class HeatXTFC(Experiment):
+     description = ("1D heat equation u_t = alpha u_xx on [0,1] x [0,1], u0 = sin(pi x), solved by X-TFC "
+                    "(pinneapple_simulation.numerical_solvers.xtfc_pde) vs exp(-alpha pi^2 t) sin(pi x).")
+     tags = ["pde", "xtfc", "verification"]
++    limitations = ["at alpha = 1 the smaller bases miss the accuracy target (failed runs kept)"]
+     params = {"alpha": 0.1, "n_basis": 60, "n_collocation": 25, "activation": "tanh", "seed": 0}
+     space = {"alpha": ("log", 0.01, 1.0), "n_basis": [20, 40, 60, 100], "n_collocation": [10, 20, 30],
+              "activation": ["tanh", "sigmoid", "sin"]}
+diff --git a/pinneapple_lab/experiments/repo_results.py b/pinneapple_lab/experiments/repo_results.py
+index 9f567d53..9c852e89 100644
+--- a/pinneapple_lab/experiments/repo_results.py
++++ b/pinneapple_lab/experiments/repo_results.py
+@@ -162,7 +162,7 @@ def _concorde(ctx):
+     ctx.metric("CL_rms_vs_polhamus", float(np.sqrt(np.mean((cl - ref) ** 2))))
+     ctx.check("lift_increases_with_aoa", passed=bool(np.all(np.diff(cl) > -0.02)))
+     ctx.check("CL_within_polhamus_band", value=float(np.sqrt(np.mean((cl - ref) ** 2))), max=0.5,
+-              detail="low-fidelity cross-check vs the Polhamus slender-wing theory, not test data")
++              detail="low-fidelity cross-check vs the Polhamus slender-wing theory, not test data", kind="physics")
+     ds = ctx.dataset("polar", description="LBM-LES aerodynamic coefficients vs angle of attack (Re 300, coarse)")
+     for r, rcl in zip(sweep, ref, strict=True):
+         ds.add(aoa_deg=r["aoa_deg"], CL=r["CL"], CD=r["CD"], CM=r["CM"], CY=r["CY"], Cp_min=r["Cp_min"],
+@@ -258,6 +258,16 @@ class RepoResults(Experiment):
+     description = ("Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, "
+                    "black-hole forecasts), re-validated against their references and stored as datasets.")
+     tags = ["import", "benchmark", "dataset"]
++    case_param = "source"
++    limitations = {
++        "burgers_pinn": ["5.9 % relative L2 against the exact solution (a well-tuned PINN reaches < 1 %)"],
++        "fin_inverse_3d": ["the network's own h is 7 % low (weak flux constraint); the finite-volume refit is exact"],
++        "lbm_strouhal": ["Strouhal 16 % high with 16 cells per diameter; 6 % with the finer grid"],
++        "meshgraphnet": ["small training set (11 trajectories)"],
++        "concorde_aoa": ["a parametric stand-in, not Concorde CAD; Re 300 coarse LES; checked against theory, "
++                         "not wind-tunnel data"],
++        "bh_forecast": ["pseudo-Newtonian 2.5-D hydro, not GRMHD"],
++    }
+     params = {"source": "burgers_pinn"}
+     space = {"source": list(SOURCES)}
+     code_files = [_p(s) for v in _SCRIPTS.values() for s in v]
+diff --git a/pinneapple_lab/experiments/vehicles3d.py b/pinneapple_lab/experiments/vehicles3d.py
+index 577024f7..441e9abc 100644
+--- a/pinneapple_lab/experiments/vehicles3d.py
++++ b/pinneapple_lab/experiments/vehicles3d.py
+@@ -51,6 +51,13 @@ class VehicleCFD(Experiment):
+                    "drag, lift, skin pressure, streamlines and wake, checked against reference ranges (car) or "
+                    "Barrowman's stability equations (rocket); Blender Cycles renders and a 3-D viewer.")
+     tags = ["automotive", "aerospace", "cfd", "openfoam", "3d", "render"]
++    case_param = "vehicle"
++    limitations = {
++        "car": ["steady RANS on a coarse mesh (no grid study yet)", "non-rotating wheels, no underbody or cooling-flow "
++                "detail", "a parametric body, not a production car"],
++        "rocket": ["incompressible at 50 m/s: no Mach effects (transonic / supersonic flight)",
++                   "the plume is only drawn, not simulated"],
++    }
+     params = {"vehicle": "car", "style": "fastback", "slant_deg": 22.0, "speed": 30.0, "alpha": 4.0,
+               "resolution": "coarse", "surface_level": None, "iterations": 600, "procs": 2, "samples": 96,
+               "keep_case": False}
+diff --git a/pinneapple_lab/spec.py b/pinneapple_lab/spec.py
+index 629369d8..8c10bcde 100644
+--- a/pinneapple_lab/spec.py
++++ b/pinneapple_lab/spec.py
+@@ -31,6 +31,8 @@ class Experiment:
+     space: dict[str, Any] = {}
+     code_files: list[str] = []   # extra source files to snapshot with each run (relative to the experiment's file)
+     references: list[str] = []   # papers / data sources the experiment reproduces or compares with (curation)
++    limitations: list[str] | dict[str, list[str]] = []   # known limits, stated up front; a dict maps case -> limits
++    case_param: str = ""         # a parameter that selects distinct cases (curation lists each case separately)
+     # ``code_for(params)`` (optional classmethod): more files to snapshot, chosen by the run's parameters
+ 
+     def run(self, ctx) -> None:  # pragma: no cover - interface

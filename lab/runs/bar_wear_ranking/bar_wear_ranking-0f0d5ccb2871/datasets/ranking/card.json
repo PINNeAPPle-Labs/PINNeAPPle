@@ -1,0 +1,50 @@
+{
+ "name": "ranking",
+ "description": "Materials ranked by simulated wear rate",
+ "n_samples": 8,
+ "shards": 1,
+ "schema": {
+  "material": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "tungsten carbide",
+    "polyethylene",
+    "ferritic stainless steel",
+    "stellite",
+    "hardened tool steel",
+    "PTFE",
+    "60/40 brass",
+    "mild steel"
+   ]
+  },
+  "K": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 7.692307692307692e-08,
+   "max": 0.003763440860215054
+  },
+  "life_to_1mm_km": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.062857142857143,
+   "max": 52000.0
+  },
+  "steady_rate_um_per_km": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.019182812200268285,
+   "max": 938.5139302281797
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "bar_wear_ranking",
+  "run_id": "bar_wear_ranking-0f0d5ccb2871",
+  "params": {
+   "seed": 0
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

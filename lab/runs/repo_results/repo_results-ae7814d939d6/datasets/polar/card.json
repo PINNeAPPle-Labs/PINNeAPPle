@@ -1,0 +1,72 @@
+{
+ "name": "polar",
+ "description": "LBM-LES aerodynamic coefficients vs angle of attack (Re 300, coarse)",
+ "n_samples": 5,
+ "shards": 1,
+ "schema": {
+  "aoa_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 20.0
+  },
+  "CL": {
+   "kind": "scalar",
+   "type": "float",
+   "min": -0.033252438687995406,
+   "max": 0.5880953069784003
+  },
+  "CD": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.10896379518238374,
+   "max": 0.6150477025641741
+  },
+  "CM": {
+   "kind": "scalar",
+   "type": "float",
+   "min": -0.2873303670970974,
+   "max": -0.01799188963950936
+  },
+  "CY": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0071206231945146435,
+   "max": 0.02406660724505186
+  },
+  "Cp_min": {
+   "kind": "scalar",
+   "type": "float",
+   "min": -1.5060539446429646,
+   "max": -1.48846968160408
+  },
+  "Cp_max": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.174267515447987,
+   "max": 1.2831638577189746
+  },
+  "enstrophy": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 377.5741917943407,
+   "max": 438.7042286273098
+  },
+  "CL_polhamus": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 1.0263235569000244
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-ae7814d939d6",
+  "params": {
+   "source": "concorde_aoa"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

@@ -1,0 +1,124 @@
+{
+ "name": "wear_history",
+ "description": "Wear history: sliding distance, worn volume, peak pressure, contact fraction; profiles and pressures along the bar end",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "s": {
+   "kind": "array",
+   "shape": [
+    1043
+   ],
+   "dtype": "float32",
+   "min": 0.32118135690689087,
+   "max": 1333.324951171875
+  },
+  "volume": {
+   "kind": "array",
+   "shape": [
+    1043
+   ],
+   "dtype": "float32",
+   "min": 0.008029533550143242,
+   "max": 33.333126068115234
+  },
+  "p_max": {
+   "kind": "array",
+   "shape": [
+    1043
+   ],
+   "dtype": "float32",
+   "min": 0.2493765652179718,
+   "max": 1.238137125968933
+  },
+  "contact": {
+   "kind": "array",
+   "shape": [
+    1043
+   ],
+   "dtype": "float32",
+   "min": 0.30174562335014343,
+   "max": 1.0
+  },
+  "x": {
+   "kind": "array",
+   "shape": [
+    401
+   ],
+   "dtype": "float32",
+   "min": -10.0,
+   "max": 10.0
+  },
+  "profiles": {
+   "kind": "array",
+   "shape": [
+    60,
+    401
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 0.20812499523162842
+  },
+  "pressures": {
+   "kind": "array",
+   "shape": [
+    60,
+    401
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 1.238137125968933
+  },
+  "s_saved": {
+   "kind": "array",
+   "shape": [
+    60
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 1333.324951171875
+  },
+  "material": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "PTFE"
+   ]
+  },
+  "K": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0005,
+   "max": 0.0005
+  },
+  "load_N": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 50.0,
+   "max": 50.0
+  }
+ },
+ "units": {
+  "s": "m",
+  "volume": "mm3",
+  "p_max": "MPa",
+  "x": "mm",
+  "profiles": "mm",
+  "pressures": "MPa"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "bar_wear",
+  "run_id": "bar_wear-1e7e0db2cc3a",
+  "params": {
+   "material": "PTFE",
+   "load_N": 50.0,
+   "length_mm": 20.0,
+   "width_mm": 10.0,
+   "crown_radius_mm": 400.0,
+   "distance_runins": 2.0,
+   "render": true
+  }
+ },
+ "sha1": "02227bfa02a2f2d34dc9356d3ab91c8bb656fcd7"
+}

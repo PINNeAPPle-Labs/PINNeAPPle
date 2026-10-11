@@ -1,0 +1,56 @@
+{
+ "name": "arrays",
+ "description": "Arrays behind the figures of PINNeAPPle-Benchmark/experiments/05_thermal_channel_twin",
+ "n_samples": 11,
+ "shards": 1,
+ "schema": {
+  "array": {
+   "kind": "array",
+   "shape": "variable",
+   "dtype": "float32",
+   "min": -2.2967019081115723,
+   "max": 115.0
+  },
+  "file": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "example_rollout.npz",
+    "layer3_example.npz"
+   ]
+  },
+  "key": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "truth",
+    "act",
+    "FNO",
+    "POD",
+    "Physics-informed",
+    "ol",
+    "enkf",
+    "gappy",
+    "gains",
+    "sens"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "heated_channel"
+   ]
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "benchmark_case",
+  "run_id": "benchmark_case-b5fa8d70f3f9",
+  "params": {
+   "case": "heated_channel"
+  }
+ },
+ "sha1": "1a49c970d3be4293b61c63b241a82e74712532a1"
+}

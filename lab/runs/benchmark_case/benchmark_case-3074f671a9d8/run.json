@@ -1,0 +1,79 @@
+{
+ "run_id": "benchmark_case-3074f671a9d8",
+ "experiment": "benchmark_case",
+ "version": "1",
+ "params": {
+  "case": "sst"
+ },
+ "status": "completed",
+ "started": 1791655141.0164409,
+ "tags": [
+  "landing",
+  "benchmark",
+  "surrogate",
+  "digital-twin",
+  "dataset"
+ ],
+ "git": "f2ae582b",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Cases from the PINNeAPPle Labs landing page that live in the public PINNeAPPle-Benchmark and PINNeAPPle-Climate repositories, imported with their headline claim re-checked, figures, the arrays behind the paper's figures and the source that produced them.",
+ "code": {
+  "files": [
+   "code/landing.py",
+   "code/download_oisst.py",
+   "code/sst_experiment.py"
+  ],
+  "sha1": "ccb303887a73dfb556f4204d2852b84430cccfe2",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791655141.105972,
+ "error": null,
+ "stages": [
+  {
+   "name": "headline",
+   "started": 1791655141.0865388,
+   "status": "done",
+   "seconds": 0.003
+  },
+  {
+   "name": "artifacts",
+   "started": 1791655141.0896015,
+   "status": "done",
+   "seconds": 0.011
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [
+   "outputs/results.json",
+   "outputs/selected_on_validation.json"
+  ],
+  "figures": [
+   "figures/fig1_region.png",
+   "figures/fig2_rmse_acc.png",
+   "figures/fig3_example.png",
+   "figures/fig4_learning.png",
+   "figures/fig5_spectrum.png",
+   "figures/fig6_skill_splits.png"
+  ]
+ },
+ "validation": {
+  "total": 1,
+  "failed": 0
+ },
+ "seconds": 0.09,
+ "datasets": {
+  "lead_skill": {
+   "n_samples": 5,
+   "path": "runs/benchmark_case/benchmark_case-3074f671a9d8/datasets/lead_skill"
+  }
+ }
+}

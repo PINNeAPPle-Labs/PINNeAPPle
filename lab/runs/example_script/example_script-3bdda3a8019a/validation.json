@@ -1,0 +1,13 @@
+[
+ {
+  "name": "exits_cleanly",
+  "passed": false,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "timeout"
+ }
+]

@@ -1,0 +1,9 @@
+{
+ "Sun_exponent": 1.4998734880196545,
+ "Sun_GM_rel_error": 0.0005239117203943433,
+ "Jupiter_exponent": 1.5003133205005552,
+ "Jupiter_GM_rel_error": 0.0004799293415556072,
+ "Saturn_exponent": 1.5007174908793222,
+ "Saturn_GM_rel_error": 0.0012301935749896575,
+ "sun_to_jupiter_mass_ratio": 1047.611534046748
+}

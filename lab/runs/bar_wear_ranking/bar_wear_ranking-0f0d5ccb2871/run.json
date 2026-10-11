@@ -1,0 +1,55 @@
+{
+ "run_id": "bar_wear_ranking-0f0d5ccb2871",
+ "experiment": "bar_wear_ranking",
+ "version": "1",
+ "params": {
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791662025.9694486,
+ "tags": [
+  "tribology",
+  "wear",
+  "materials",
+  "comparison"
+ ],
+ "git": "ae621a05",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Every bar_wear run side by side: specific wear rate, life to 1 mm of wear at the same load and the ranking of the materials, checked against the ranking of their Archard coefficients K = k/H.",
+ "code": {
+  "files": [
+   "code/wear.py"
+  ],
+  "sha1": "c09532ca2347d7503109cc24fe072f3f2657a16c",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791662026.8779118,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [],
+  "outputs": [
+   "outputs/ranking.json"
+  ],
+  "figures": [
+   "figures/wear_life_ranking.png"
+  ]
+ },
+ "validation": {
+  "total": 1,
+  "failed": 0
+ },
+ "seconds": 0.908,
+ "datasets": {
+  "ranking": {
+   "n_samples": 8,
+   "path": "runs/bar_wear_ranking/bar_wear_ranking-0f0d5ccb2871/datasets/ranking"
+  }
+ }
+}

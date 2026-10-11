@@ -1,0 +1,28 @@
+[22:25:40] stage cfd started
+[22:25:42]   blockMesh: 1.3 s (exit 0)
+[22:25:42]   surfaceFeatureExtract: 0.1 s (exit 0)
+[22:28:54]   snappyHexMesh: 192.4 s (exit 0)
+[22:28:57]   checkMesh: 2.8 s (exit 0)
+[22:29:09]   decomposePar: 4.6 s (exit 0)
+[22:32:05]   simpleFoam: 176.7 s (exit 0)
+[22:32:10]   reconstruct: 4.6 s (exit 0)
+[22:32:10]   clean: 0.3 s (exit 0)
+[22:35:02]   scalarTransportFoam: 171.8 s (exit 0)
+[22:35:09] stage cfd done (569.222 s)
+[22:35:09] stage cfd_empty_pipe started
+[22:35:11]   blockMesh: 1.1 s (exit 0)
+[22:35:11]   checkMesh: 0.5 s (exit 0)
+[22:35:13]   decomposePar: 0.9 s (exit 0)
+[22:35:55]   simpleFoam: 42.1 s (exit 0)
+[22:35:56]   reconstruct: 1.0 s (exit 0)
+[22:35:56]   clean: 0.2 s (exit 0)
+[22:36:17]   scalarTransportFoam: 21.5 s (exit 0)
+[22:36:19] stage cfd_empty_pipe done (69.094 s)
+[22:36:19] check bulk_velocity_constant_along_pipe: PASS volume-averaged axial velocity on every open section / inlet bulk velocity (mass conservation and section averaging on the O-grid)
+[22:36:19] check scalar_flux_conserved: PASS flux-weighted mean concentration at the outlet = inlet mixture (half the inlet at 1)
+[22:36:19] check mixer_beats_empty_pipe: PASS coefficient of variation at the outlet, empty pipe / mixer
+[22:36:19] check mixing_decays_through_elements: PASS CoV after each element smaller than after the previous one
+[22:36:20] stage datasets started
+[22:36:20] stage datasets done (0.006 s)
+[22:36:20] stage render started
+[22:43:47] stage render done (447.244 s)

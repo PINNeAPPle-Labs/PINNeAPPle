@@ -10,9 +10,70 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Ver
 How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#changelog). The entries for
 0.5.0 and later were reconstructed from the git history and checked against the files published on PyPI.
 
+
 ## [Unreleased]
 
 ### Added
+
+- PINNeAPPle Lab (`pinneapple_lab`): experiment runner and database. Runs keyed by
+  experiment, version and parameters (cached), statuses with validation checks, inputs/outputs/metrics/figures,
+  sharded datasets with cards, SQLite index, sweeps (grid / Latin hypercube, parallel), dataset export and a Markdown
+  catalogue; CLI `python -m pinneapple_lab`. Built-in experiments: oscillator, heat_xtfc, bondi_accretion,
+  accretion_flow, cylinder_lbm, bh_forecast. Black-hole hydro: numba backend (`RIAFConfig(backend="numba")`).
+  `repo_results` imports results already produced by repository scripts (Burgers PINN, fin inverse PINN 2D/3D, LBM
+  Strouhal, MeshGraphNet, delta-wing polar, black-hole forecast skill), re-validates them against their references
+  and stores them as datasets. `report` also writes `lab/DATASETS.md` (schema, units, counts, rebuild and export
+  commands per dataset).
+  `example_script` runs any script of `examples/` (examples and use cases) into the lab: figures, JSON and printed
+  metrics, arrays as a dataset, console output and code, with the checkout left clean; `python -m pinneapple_lab
+  examples [--run]`. `python -m pinneapple_lab serve` serves the catalogue as a web app (run files, JSON API,
+  dataset downloads, optional login); Dockerfile in `pinneapple_lab/deploy` and a `lab` service in `apps/deploy`.
+  Cached runs whose dataset shards are missing (a fresh checkout) are recomputed.
+  Curation (`pinneapple_lab.curation`, `python -m pinneapple_lab curate` / `review`): every run and experiment graded
+  A flagship / B solid / C exploratory / D not usable by gates over ten evidence dimensions (validation, reference,
+  baseline, physics, generalization, uncertainty, reproducibility, data, assets, documentation) plus a human review,
+  with readiness for product, paper, marketing and training data; Veriphysics vocabulary (verified / inferred /
+  unsupported, not run is never a pass). `ctx.check(kind=...)`; tiers, filter and quality panel in the catalogue;
+  `/api/curation`. Also: `benchmark_case` (landing-page cases), 3-D `vehicle_cfd` (road car, launch vehicle),
+  `car_lbm` / `car_surrogate` (Physics AI on car geometry). Reports for one item or a filtered set
+  (`python -m pinneapple_lab brief`, `/report.{html,md,pdf}`) and a showcase gallery in the catalogue.
+  `pinneapple_physics.tribology`: Archard wear of a bar end with contact pressure on an elastic layer (implicit
+  wear-contact step), Archard & Hirst material table; lab experiments `bar_wear` (one run per material) and
+  `bar_wear_ranking`.
+  `pinneapple_simulation.numerical_solvers.internal_flow`: pipes, bends and Kenics static mixers in OpenFOAM
+  (structured O-grid swept along a centreline, mixer elements cut by snappyHexMesh, passive scalar by
+  scalarTransportFoam), Colebrook and Ito bend-loss references; lab experiment `pipe_flow`.
+  `pinneapple_simulation.numerical_solvers.solid_fem`: 3-D linear elasticity with C3D8I hexahedra (incompatible
+  modes), structured box meshes, CalculiX cross-check, post-processor style figures; lab experiment `solid_fem`.
+  `ParametricPOD` (POD + RBF / per-coefficient Gaussian process / linear / nearest regression, amplitude-shape split,
+  predictive standard deviation) and `latin_hypercube` in `pinneapple_neural.architectures.rom`; lab experiment
+  `rom_study`; docs page on reduced-order models; tests for POD, DMD, Operator Inference and the parametric ROM.
+  Particle process videos: `pinneapple_simulation.numerical_solvers.particles` (soft-sphere DEM with drag, buoyancy,
+  turbulent dispersion; analytic stirred-tank flow; Zwietering just-suspended speed) and
+  `pinneapple_tools.visualization.studio.particles` (Cycles point-cloud animation with moving equipment, video
+  composer with live charts, colour bar and clock; GIF and MP4); lab experiment `particle_suspension`.
+  `pp.fea` (`pinneapple_simulation.external_solvers.calculix.study`): CalculiX studies from Python, with gmsh
+  tetrahedra or hexahedral meshes, node and face sets by geometry, `Static` (pressure, gravity, nonlinear geometry,
+  plasticity), `Frequency`, `Buckle` and `Heat` steps, and results as arrays (displacement, stress, reactions,
+  frequencies, modes, buckling factors, temperature); `fea_figure` draws tetrahedral meshes and any nodal field. Lab
+  experiment `calculix_case`.
+  Lab trust card: every run and item answers six questions (data and geometry, model, physical constraints,
+  benchmark, uncertainty, engineering decision) from its own evidence, in the catalogue, reports and CURATION.md.
+  `DeepONet(depth=..., trunk_activation=...)` and per-sample query points; `MeshGraphNet(absolute_pos=False,
+  decoder_layers=2)` for the translation-invariant, MLP-decoder form of Pfaff et al.
+  `pinneapple_lab.uq`: coverage check of predictive intervals and grid convergence index (two or three meshes)
+  as `kind="uncertainty"` checks.
+  `python -m pinneapple_lab site docs/lab`: the self-contained public catalogue, published with the docs site under
+  `/lab/`; README experiment gallery (`docs/assets/lab`).
+
+- Black-hole weather (#399): `pinneapple_physics.blackhole`: axisymmetric viscous accretion solver (Paczyński-Wiita, α-viscosity, torus;
+  validated against conservation, torus equilibrium and exact Bondi accretion).
+  A torch port of the Duarte, Nemmen & Navarro (2022) U-Net, plus a residual variant.
+  Lead-time and tendency scores, the mass check and mass projection.
+  `twin.accretion_scene` (Twin3D cutaway) and `raytrace` (Schwarzschild ray tracing with lensed star field, the
+  "Interstellar" view).
+  Twin3D: Blender renders (`Scene.render_blender`), and viewer URL parameters `cmap`, `view`, `zoom`, `theme`,
+  `range`, plus the inferno colormap.
 
 - `pinneapple_veriphysics` (also `pp.veriphysics`): the verification and evidence layer of Veriphysics, now part of PINNeAPPle under
   Apache-2.0. `DecisionRecord` (recommendation, trust score and coverage, per-check evidence, alternatives), the Evidence Report PDF
@@ -262,6 +323,20 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `to_physics_case` and `from_problem_design`/`to_problem_design` cover the other two (#27).
 
 ### Fixed
+- Arena: an FNO was trained on random mini-batches of scattered points reshaped as if they were an image (and
+  `fno2d` built the 1-D operator); it now trains on whole ordered grids (half the evaluation resolution, so the
+  evaluation also tests super-resolution) and refuses scattered points. DeepONets train as operators (branch: the
+  instance's input function, trunk: the query points). Compiled PINN loss terms that fail raise instead of being
+  dropped, and an unknown or unbuildable model type raises instead of becoming an MLP under that name.
+- `DynamicModeDecomposition` and `OperatorInference` stored their operators in float32 whatever the data, so a
+  float64 fit failed at `rollout` and `eig`; they now keep the data's dtype.
+- `MultiScaleDeepONet` fed every trunk the same unscaled coordinates (no multi-scale effect) and kept an unused
+  base trunk; each trunk now sees the coordinates stretched by its own `scale_factors` (MscaleDNN).
+- The Arena built DeepONets with a list `hidden` that the class rejected, and the benchmark API with argument
+  names that do not exist; both silently returned an MLP under the DeepONet name. The Arena now builds the
+  DeepONet; the pointwise benchmark API raises a clear error.
+- Masked losses of `MeshGraphNet`, `GraphNeuralNetwork` and `EquivariantGNN` averaged over padded nodes too (half
+  the true loss at 50 % padding); they now average over the valid nodes.
 - The digital twin viewer (`pinneapple_twin3d`) is in English: labels, tooltips, status and error messages;
   numbers use the browser's locale (#306).
 - The benchmark suite computes every error through `pp.metrics` (new `metrics.pooled` for the single leaderboard

@@ -1,0 +1,24 @@
+[
+ {
+  "name": "physics_ode_beats_persistence_6h",
+  "passed": true,
+  "value": 0.6714891195297241,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 2.970762252807617,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "twin_detects_more_spikes_than_band",
+  "passed": true,
+  "value": 0.9666666666666667,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.41333333333333333,
+  "detail": ""
+ }
+]

@@ -1,0 +1,5 @@
+[17:54:19] stage run started
+[17:55:53] stage run done (94.799 s)
+[17:55:53] stage collect started
+[17:55:54] stage collect done (0.044 s)
+[17:55:54] check exits_cleanly: PASS 

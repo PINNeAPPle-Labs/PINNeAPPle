@@ -1,0 +1,83 @@
+{
+ "name": "fields",
+ "description": "Mesh (nodes, hexahedra) with nodal displacements and stresses (Voigt xx, yy, zz, xy, yz, zx) and von Mises",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "nodes": {
+   "kind": "array",
+   "shape": [
+    4941,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.15000000596046448,
+   "max": 2.0
+  },
+  "elements": {
+   "kind": "array",
+   "shape": [
+    3840,
+    8
+   ],
+   "dtype": "int32",
+   "min": 0.0,
+   "max": 4940.0
+  },
+  "u": {
+   "kind": "array",
+   "shape": [
+    4941,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.0030958596616983414,
+   "max": 0.0009907812345772982
+  },
+  "stress": {
+   "kind": "array",
+   "shape": [
+    4941,
+    6
+   ],
+   "dtype": "float32",
+   "min": -176546512.0,
+   "max": 150353920.0
+  },
+  "von_mises": {
+   "kind": "array",
+   "shape": [
+    4941
+   ],
+   "dtype": "float32",
+   "min": 1000000.3125,
+   "max": 201794272.0
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "simply_supported"
+   ]
+  }
+ },
+ "units": {
+  "nodes": "m",
+  "u": "m",
+  "stress": "Pa",
+  "von_mises": "Pa"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "solid_fem",
+  "run_id": "solid_fem-eda68173545c",
+  "params": {
+   "case": "simply_supported",
+   "refine": 1,
+   "calculix": true,
+   "render": true,
+   "samples": 64
+  }
+ },
+ "sha1": "dff624d2f9d98c72bf9d4d365661782444048304"
+}

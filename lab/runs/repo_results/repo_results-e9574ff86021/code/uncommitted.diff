@@ -1,0 +1,200 @@
+diff --git a/pinneapple_lab/__main__.py b/pinneapple_lab/__main__.py
+index a73a13e4..23f7d54d 100644
+--- a/pinneapple_lab/__main__.py
++++ b/pinneapple_lab/__main__.py
+@@ -7,6 +7,7 @@
+     python -m pinneapple_lab status
+     python -m pinneapple_lab report --html                              # lab/CATALOG.md, DATASETS.md, index.html
+     python -m pinneapple_lab export cylinder_lbm vorticity out/cylinder_vorticity.npz
++    python -m pinneapple_lab serve --host 0.0.0.0 --port 8093                # the catalogue as a web app
+ Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
+ """
+ from __future__ import annotations
+@@ -55,6 +56,10 @@ def main(argv=None) -> int:
+     rep = sub.add_parser("report")
+     rep.add_argument("--out", default=None)
+     rep.add_argument("--html", action="store_true", help="also write the browsable index.html")
++    sv = sub.add_parser("serve", help="serve the catalogue, run files, JSON API and dataset downloads over HTTP")
++    sv.add_argument("--host", default="127.0.0.1")
++    sv.add_argument("--port", type=int, default=8093)
++    sv.add_argument("--refresh", type=float, default=30.0, help="seconds between re-indexing the run folders")
+     e = sub.add_parser("export")
+     e.add_argument("name")
+     e.add_argument("dataset")
+@@ -82,6 +87,10 @@ def main(argv=None) -> int:
+         for x in res:
+             print(f"{x.run_id}  {x.status:24s} {x.seconds:8.1f} s")
+         return 0 if all(x.ok for x in res) else 1
++    if a.cmd == "serve":
++        from .server import serve
++        serve(a.root, host=a.host, port=a.port, refresh=a.refresh)
++        return 0
+     store = LabStore(a.root)
+     if a.cmd == "status":
+         print(json.dumps(store.status(), indent=1))
+diff --git a/pinneapple_lab/catalog_template.html b/pinneapple_lab/catalog_template.html
+index 23aa1994..cd8a3cb8 100644
+--- a/pinneapple_lab/catalog_template.html
++++ b/pinneapple_lab/catalog_template.html
+@@ -86,6 +86,9 @@ section.exp { display: grid; gap: 14px; padding-top: 6px }
+ .check b { color: var(--ok) } .check b.f { color: var(--bad) }
+ pre.err { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font: 12px/1.4 var(--mono); max-height: 260px }
+ .scrim { position: fixed; inset: 0; background: rgb(0 0 0 / .25); z-index: 15 }
++.sheet a { color: var(--accent) }
++ul.files { margin: 0; padding: 0; list-style: none; columns: 2 220px; font: 13px/1.6 var(--mono) }
++ul.files li { overflow-wrap: anywhere }
+ footer { color: var(--muted); font: 12px var(--mono) }
+ @media (max-width: 640px) { .exp-head { grid-template-columns: 1fr } }
+ @media (prefers-reduced-motion: reduce) { .card { transition: none } }
+@@ -115,6 +118,8 @@ footer { color: var(--muted); font: 12px var(--mono) }
+ 
+ <script>
+ const DATA = /*__DATA__*/null;
++const SERVED = !!(DATA && DATA.served);
++const fileUrl = (f) => "files/" + String(f).replace(/^runs\//, "").split("/").map(encodeURIComponent).join("/");
+ const STATUS = { completed: ["Completed", "var(--ok)", "ok"], failed_validation: ["Failed validation", "var(--warn)", "warn"],
+                  failed: ["Crashed", "var(--bad)", "bad"], running: ["Running", "var(--accent)", ""] };
+ const $ = (id) => document.getElementById(id);
+@@ -189,14 +194,16 @@ function open(ei, ri) {
+   $("sheetTitle").textContent = r.id;
+   const table = (o) => `<table class="tbl">${Object.entries(o).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${fmt(v)}</td></tr>`).join("")}</table>`;
+   const parts = [];
+-  r.thumbs.forEach((t) => parts.push(`<img alt="figure" src="${t}">`));
++  if (SERVED) r.figures.filter((f) => /\.(png|gif|jpe?g|svg)$/i.test(f)).slice(0, 8)
++    .forEach((f) => parts.push(`<a href="${fileUrl(f)}" target="_blank" rel="noopener"><img alt="figure" loading="lazy" src="${fileUrl(f)}"></a>`));
++  else r.thumbs.forEach((t) => parts.push(`<img alt="figure" src="${t}">`));
+   parts.push(`<div><h4>Parameters</h4>${table(r.params)}</div>`);
+   parts.push(`<div><h4>Metrics</h4>${Object.keys(r.metrics).length ? table(r.metrics) : "<p class='lede'>No metrics recorded.</p>"}</div>`);
+   parts.push(`<div><h4>Validation</h4>${r.checks.length ? r.checks.map((c) => `<div class="check"><b class="${c.passed ? "" : "f"}">${c.passed ? "PASS" : "FAIL"}</b><span>${esc(c.name)}${c.value !== null && c.value !== undefined ? " · " + fmt(c.value) : ""}${c.max !== null && c.max !== undefined ? " ≤ " + fmt(c.max) : ""}${c.min !== null && c.min !== undefined ? " ≥ " + fmt(c.min) : ""}${c.reference !== null && c.reference !== undefined ? " ref " + fmt(c.reference) : ""}${c.detail ? " — " + esc(c.detail) : ""}</span></div>`).join("") : "<p class='lede'>No checks.</p>"}</div>`);
+   if (r.stages.length) parts.push(`<div><h4>Stages</h4>${table(Object.fromEntries(r.stages.map((s) => [s.name + " (" + s.status + ")", (s.seconds ?? 0) + " s"])))}</div>`);
+   parts.push(`<div><h4>Code that ran</h4>${r.code.length ? table(Object.fromEntries(r.code.map((c) => [c, "saved"]))) : "<p class='lede'>Run predates code snapshots.</p>"}<p class="lede">git ${esc(r.git || "unknown")} · ${fmt(r.seconds)} s</p></div>`);
+-  if (Object.keys(r.datasets).length) parts.push(`<div><h4>Datasets</h4>${table(Object.fromEntries(Object.entries(r.datasets).map(([k, v]) => [k, v.n_samples + " samples"])))}</div>`);
+-  if (r.figures.length) parts.push(`<div><h4>Files</h4>${table(Object.fromEntries(r.figures.map((f) => [f, ""])))}</div>`);
++  if (Object.keys(r.datasets).length) parts.push(`<div><h4>Datasets</h4>${table(Object.fromEntries(Object.entries(r.datasets).map(([k, v]) => [k, v.n_samples + " samples"])))}${SERVED ? `<p class="lede">${Object.keys(r.datasets).map((k) => `<a href="download/${encodeURIComponent(e.name)}/${encodeURIComponent(k)}.npz">Download ${esc(k)} (all validated runs, .npz)</a>`).join(" · ")}</p>` : ""}</div>`);
++  if (r.figures.length) parts.push(`<div><h4>Files</h4>${SERVED ? `<ul class="files">${r.figures.map((f) => `<li><a href="${fileUrl(f)}" target="_blank" rel="noopener">${esc(f.split("/").pop())}</a></li>`).join("")}</ul><p class="lede"><a href="api/runs/${encodeURIComponent(r.id)}" target="_blank" rel="noopener">Full record (JSON)</a></p>` : table(Object.fromEntries(r.figures.map((f) => [f, ""])))}</div>`);
+   if (r.error) parts.push(`<div><h4>Error</h4><pre class="err">${esc(r.error)}</pre></div>`);
+   $("sheetBody").innerHTML = parts.join("");
+   $("sheet").hidden = false; $("scrim").hidden = false; $("close").focus();
+@@ -213,5 +220,7 @@ document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close();
+ $("q").value = state.q;
+ $("q").addEventListener("input", (ev) => { state.q = ev.target.value.trim(); render(); });
+ summary(); render();
+-$("foot").textContent = "Built with python -m pinneapple_lab report --html. Arrays and dataset shards stay in the lab folder; this page carries the record of every run.";
++$("foot").textContent = SERVED
++  ? "Served by python -m pinneapple_lab serve. Live from the lab database: new runs appear on reload; datasets download as one .npz over all validated runs; JSON API under api/."
++  : "Built with python -m pinneapple_lab report --html. Arrays and dataset shards stay in the lab folder; this page carries the record of every run.";
+ </script>
+diff --git a/pinneapple_lab/experiments/repo_results.py b/pinneapple_lab/experiments/repo_results.py
+index 0e82a7e1..0afd4467 100644
+--- a/pinneapple_lab/experiments/repo_results.py
++++ b/pinneapple_lab/experiments/repo_results.py
+@@ -97,7 +97,7 @@ def _fin(ctx, dim: str):
+               detail="the network's own h; the README documents -7 % in 3D (weak flux constraint)")
+     ctx.check("field_error", value=s["max_field_error_C"], max=2.0, detail="max |T_pinn - T_fv| in C")
+     ref = np.load(_p(d + "field_reference.npy"))
+-    ds = ctx.dataset("temperature_fields", description=f"{dim} temperature field: finite-volume reference and "
++    ds = ctx.dataset(f"temperature_fields_{dim}", description=f"{dim} temperature field: finite-volume reference and "
+                      "PINN reconstructions from noisy sensors (one per noise draw)", units={"T": "C", "h": "W/m2K"})
+     for i, f in enumerate(sorted(glob.glob(_p(d + "field_pinn_*.npy")))):
+         run = s["runs"][i] if i < len(s.get("runs", [])) else {}
+diff --git a/pinneapple_lab/html.py b/pinneapple_lab/html.py
+index 8a1547b1..d54a4791 100644
+--- a/pinneapple_lab/html.py
++++ b/pinneapple_lab/html.py
+@@ -16,7 +16,8 @@ from typing import Any
+ _TEMPLATE = os.path.join(os.path.dirname(__file__), "catalog_template.html")
+ 
+ 
+-def _thumb(path: str, width: int = 360) -> str | None:
++def thumbnail_bytes(path: str, width: int = 360) -> bytes | None:
++    """JPEG thumbnail of an image (first frame of a GIF), or None if it cannot be read."""
+     try:
+         from PIL import Image
+         im = Image.open(path)
+@@ -26,11 +27,16 @@ def _thumb(path: str, width: int = 360) -> str | None:
+             im = im.resize((width, max(1, int(im.height * width / im.width))))
+         buf = io.BytesIO()
+         im.save(buf, "JPEG", quality=78, optimize=True)
+-        return "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
++        return buf.getvalue()
+     except Exception:
+         return None
+ 
+ 
++def _thumb(path: str, width: int = 360) -> str | None:
++    data = thumbnail_bytes(path, width)
++    return None if data is None else "data:image/jpeg;base64," + base64.b64encode(data).decode()
++
++
+ def _load(path: str, default: Any) -> Any:
+     try:
+         with open(path) as f:
+@@ -39,7 +45,10 @@ def _load(path: str, default: Any) -> Any:
+         return default
+ 
+ 
+-def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 400) -> dict[str, Any]:
++def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 400,
++            thumbs: str = "embed") -> dict[str, Any]:
++    """Everything the catalogue page shows. ``thumbs="embed"`` inlines JPEG thumbnails (a self-contained file);
++    ``thumbs="url"`` points them at the server's ``thumb/`` route (``pinneapple_lab.server``)."""
+     from .spec import get
+     experiments = []
+     for exp, st in sorted(store.status().items()):
+@@ -55,14 +64,19 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+             rec = _load(os.path.join(d, "run.json"), {})
+             figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")))
+             gifs = sorted(glob.glob(os.path.join(d, "figures", "*.gif")))
+-            thumbs = [t for t in (_thumb(f) for f in (figs + gifs)[:thumbs_per_run]) if t]
++            shown = (figs + gifs)[:thumbs_per_run]
++            if thumbs == "url":
++                tl = ["thumb/" + os.path.relpath(f, os.path.join(store.root, "runs")) for f in shown]
++            else:
++                tl = [t for t in (_thumb(f) for f in shown) if t]
+             runs.append({
+                 "id": r["run_id"], "status": r["status"], "seconds": r["seconds"], "params": r["params"],
+                 "metrics": {k: v for k, v in r["metrics"].items() if isinstance(v, (int, float, str)) or v is None},
+                 "checks": _load(os.path.join(d, "validation.json"), []),
+                 "stages": rec.get("stages", []), "code": rec.get("code", {}).get("files", []),
+                 "git": rec.get("git"), "started": r["started"], "datasets": rec.get("datasets", {}),
+-                "figures": [os.path.relpath(f, store.root) for f in figs + gifs], "thumbs": thumbs,
++                "figures": [os.path.relpath(f, store.root) for f in figs + gifs],
++                "dir": os.path.relpath(d, os.path.join(store.root, "runs")), "thumbs": tl,
+                 "error": (r.get("error") or "")[-1500:],
+             })
+         ds = {}
+@@ -76,7 +90,13 @@ def write_html(store, path: str | None = None, *, standalone: bool = True, **kw)
+     """Write the catalogue page. ``standalone`` wraps it in a full HTML document (open it from disk); without it,
+     the body-level page is written (for hosts that add their own document skeleton)."""
+     path = path or os.path.join(store.root, "index.html")
+-    data = collect(store, **kw)
++    with open(path, "w") as f:
++        f.write(render_page(collect(store, **kw), standalone=standalone))
++    return path
++
++
++def render_page(data: dict[str, Any], *, standalone: bool = True) -> str:
++    """The catalogue page with ``data`` (from ``collect``) embedded."""
+     with open(_TEMPLATE) as f:
+         html = f.read()
+     blob = json.dumps(data, default=str).replace("</", "<\\/")
+@@ -85,6 +105,4 @@ def write_html(store, path: str | None = None, *, standalone: bool = True, **kw)
+         html = ('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+                 '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n</head>\n<body>\n'
+                 + html + "\n</body>\n</html>\n")
+-    with open(path, "w") as f:
+-        f.write(html)
+-    return path
++    return html
+diff --git a/tests/test_lab.py b/tests/test_lab.py
+index 1e1f459e..a68c1858 100644
+--- a/tests/test_lab.py
++++ b/tests/test_lab.py
+@@ -136,6 +136,6 @@ def test_repo_results_import_and_dataset_catalog(tmp_path):
+     assert by["burgers_pinn"].metrics["rel_l2_vs_exact"] < 0.1
+     assert abs(by["fin_inverse_2d"].metrics["h_pinn_mean"] / 15.0 - 1) < 0.05
+     store = LabStore(root)
+-    assert store.datasets("repo_results", "temperature_fields")[0]["n_samples"] == 5
++    assert store.datasets("repo_results", "temperature_fields_2d")[0]["n_samples"] == 5
+     text = open(store.datasets_catalog()).read()
+     assert "`repo_results` / `strouhal`" in text and "-g source=" in text

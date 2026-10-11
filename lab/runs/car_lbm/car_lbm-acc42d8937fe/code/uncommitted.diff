@@ -1,0 +1,33 @@
+diff --git a/pinneapple_lab/context.py b/pinneapple_lab/context.py
+index 873f1807..2c33fa3e 100644
+--- a/pinneapple_lab/context.py
++++ b/pinneapple_lab/context.py
+@@ -172,10 +172,15 @@ class RunContext:
+ 
+     def check(self, name: str, passed: Any = None, *, value: Any = None, reference: Any = None,
+               rtol: float | None = None, atol: float | None = None, max: float | None = None,
+-              min: float | None = None, detail: str = "") -> bool:
++              min: float | None = None, detail: str = "", kind: str | None = None) -> bool:
+         """Record a validation check. Either pass a boolean, or a value with a reference and tolerances
+         (|value - reference| <= atol + rtol |reference|), or bounds (``max``/``min``).
+-        A failed check does not stop the run; the run ends with status ``failed_validation``."""
++        A failed check does not stop the run; the run ends with status ``failed_validation``.
++
++        ``kind`` says what the check is evidence of (used by ``pinneapple_lab.curation``): "reference"
++        (an exact solution, a published or measured value), "baseline" (beats a simpler method), "physics"
++        (conservation, symmetry, a physical law or range), "generalization" (unseen inputs) or "sanity".
++        Left out, it is inferred from the name and the arguments."""
+         if passed is None:
+             ok = True
+             v = float(value)
+@@ -187,8 +192,10 @@ class RunContext:
+             if min is not None:
+                 ok &= v >= min
+             passed = ok
++        from .curation import infer_check_kind
+         rec = {"name": name, "passed": bool(passed), "value": _jsonable(value), "reference": _jsonable(reference),
+                "rtol": rtol, "atol": atol, "max": max, "min": min, "detail": detail}
++        rec["kind"] = kind or infer_check_kind(rec)
+         self.checks.append(rec)
+         self.log(f"check {name}: {'PASS' if passed else 'FAIL'} {detail}")
+         return bool(passed)

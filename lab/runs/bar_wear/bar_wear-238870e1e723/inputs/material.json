@@ -1,0 +1,7 @@
+{
+ "name": "mild steel",
+ "k": 0.007,
+ "hardness_MPa": 1860,
+ "E_GPa": 210,
+ "K_mm3_per_Nm": 0.003763440860215054
+}

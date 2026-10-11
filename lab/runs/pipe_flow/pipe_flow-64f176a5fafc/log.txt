@@ -1,0 +1,14 @@
+[21:14:26] stage cfd started
+[21:14:27]   blockMesh: 0.5 s (exit 0)
+[21:14:27]   checkMesh: 0.5 s (exit 0)
+[21:14:28]   decomposePar: 0.4 s (exit 0)
+[21:15:45]   simpleFoam: 76.3 s (exit 0)
+[21:15:45]   reconstruct: 0.7 s (exit 0)
+[21:15:46] stage cfd done (80.102 s)
+[21:15:46] check bulk_velocity_constant_along_pipe: PASS volume-averaged axial velocity on every section / inlet bulk velocity (mass conservation and section averaging on the O-grid)
+[21:15:47] check friction_factor_vs_64_over_Re: PASS Hagen-Poiseuille
+[21:15:47] check centreline_speed_vs_2U: PASS parabolic profile u = 2 U (1 - r^2 / R^2)
+[21:15:47] stage datasets started
+[21:15:47] stage datasets done (0.006 s)
+[21:15:47] stage render started
+[21:19:56] stage render done (248.607 s)

@@ -1,0 +1,79 @@
+{
+ "name": "suspension",
+ "description": "Particle positions and speeds every 4th frame, with time, impeller speed and suspension measures",
+ "n_samples": 31,
+ "shards": 1,
+ "schema": {
+  "t": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 30.0
+  },
+  "rpm": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 400.0
+  },
+  "x": {
+   "kind": "array",
+   "shape": [
+    12000,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.0737774670124054,
+   "max": 0.14870904386043549
+  },
+  "speed": {
+   "kind": "array",
+   "shape": [
+    12000
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 1.2990351915359497
+  },
+  "top_fraction": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 0.7763333333333333
+  },
+  "suspended_fraction": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.0,
+   "max": 0.9589166666666666
+  }
+ },
+ "units": {
+  "x": "m",
+  "speed": "m/s",
+  "t": "s"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "particle_suspension",
+  "run_id": "particle_suspension-b7feb1ba16dd",
+  "params": {
+   "n": 12000,
+   "d_mm": 3.0,
+   "rho_p": 1200.0,
+   "rpm_max": 400.0,
+   "ramp_s": 25.0,
+   "t_end": 30.0,
+   "dt": 0.00025,
+   "frame_every": 0.25,
+   "render": true,
+   "samples": 16,
+   "size": [
+    800,
+    640
+   ],
+   "seed": 0
+  }
+ },
+ "sha1": "129e667c4c809b812666bea00377119cd82b7cbf"
+}

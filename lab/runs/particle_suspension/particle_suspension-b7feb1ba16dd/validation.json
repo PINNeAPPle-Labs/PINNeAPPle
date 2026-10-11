@@ -1,0 +1,74 @@
+[
+ {
+  "name": "flow_is_divergence_free",
+  "passed": true,
+  "value": 2.0651515417065205e-10,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.0001,
+  "min": null,
+  "detail": "max |div u| R / V_tip by central differences (stream-function loop)",
+  "kind": "physics"
+ },
+ {
+  "name": "settling_velocity_vs_schiller_naumann",
+  "passed": true,
+  "value": 0.10968958529987784,
+  "reference": 0.10968958529987902,
+  "rtol": 0.001,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "an isolated sphere in still liquid",
+  "kind": "reference"
+ },
+ {
+  "name": "particles_stay_in_the_tank",
+  "passed": true,
+  "value": 1.0,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 1.0,
+  "detail": "fraction of particle positions inside the tank over all frames",
+  "kind": "physics"
+ },
+ {
+  "name": "contact_overlap_bounded",
+  "passed": true,
+  "value": 0.23145356069131898,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.25,
+  "min": null,
+  "detail": "largest contact overlap / diameter (soft spheres)",
+  "kind": "sanity"
+ },
+ {
+  "name": "suspension_speed_vs_zwietering",
+  "passed": true,
+  "value": 288.0,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 616.5328204335116,
+  "min": 165.98960550133,
+  "detail": "speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pitched-blade turbines); an order-of-magnitude consistency, the flow model is not calibrated",
+  "kind": "reference"
+ },
+ {
+  "name": "suspension_grows_with_speed",
+  "passed": true,
+  "value": 0.9615987623807498,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 0.8,
+  "detail": "correlation of the suspended fraction with the impeller speed during the ramp",
+  "kind": "physics"
+ }
+]

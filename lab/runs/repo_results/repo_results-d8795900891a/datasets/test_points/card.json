@@ -1,0 +1,108 @@
+{
+ "name": "test_points",
+ "description": "Held-out airfoil cases: OpenFOAM coefficients and surrogate predictions",
+ "n_samples": 120,
+ "shards": 1,
+ "schema": {
+  "model": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "mlp",
+    "gnn"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "s003_a0",
+    "s003_a1",
+    "s003_a2",
+    "s003_a3",
+    "s007_a0",
+    "s007_a1",
+    "s007_a2",
+    "s007_a3",
+    "s008_a0",
+    "s008_a1",
+    "s008_a2",
+    "s008_a3",
+    "s015_a0",
+    "s015_a1",
+    "s015_a2",
+    "s015_a3",
+    "s016_a0",
+    "s016_a1",
+    "s016_a2",
+    "s016_a3",
+    "s021_a0",
+    "s021_a1",
+    "s021_a2",
+    "s021_a3",
+    "s026_a0",
+    "s026_a1",
+    "s026_a2",
+    "s026_a3",
+    "s031_a0",
+    "s031_a1",
+    "s031_a2",
+    "s031_a3",
+    "s042_a0",
+    "s042_a1",
+    "s042_a2",
+    "s042_a3",
+    "s047_a0",
+    "s047_a1",
+    "s047_a2",
+    "s047_a3",
+    "s054_a0",
+    "s054_a1",
+    "s054_a2",
+    "s054_a3",
+    "s060_a0",
+    "s060_a1",
+    "s060_a2",
+    "s060_a3",
+    "s069_a0",
+    "s069_a1"
+   ]
+  },
+  "alpha": {
+   "kind": "scalar",
+   "type": "float",
+   "min": -1.4937465360812614,
+   "max": 13.191490513838392
+  },
+  "true": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float64",
+   "min": -0.08594178146187764,
+   "max": 1.4933565626601293
+  },
+  "pred": {
+   "kind": "array",
+   "shape": [
+    3
+   ],
+   "dtype": "float64",
+   "min": -0.08528934416303564,
+   "max": 1.4926315686864027
+  }
+ },
+ "units": {
+  "alpha": "deg"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-d8795900891a",
+  "params": {
+   "source": "airfoil_surrogate"
+  }
+ },
+ "sha1": "6116749719593010bf8c267a275936813e7f2b5d"
+}

@@ -1,0 +1,91 @@
+{
+ "run_id": "particle_suspension-b7feb1ba16dd",
+ "experiment": "particle_suspension",
+ "version": "1",
+ "params": {
+  "n": 12000,
+  "d_mm": 3.0,
+  "rho_p": 1200.0,
+  "rpm_max": 400.0,
+  "ramp_s": 25.0,
+  "t_end": 30.0,
+  "dt": 0.00025,
+  "frame_every": 0.25,
+  "render": true,
+  "samples": 16,
+  "size": [
+   800,
+   640
+  ],
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791668370.1888418,
+ "tags": [
+  "particles",
+  "dem",
+  "mixing",
+  "stirred-tank",
+  "process",
+  "3d",
+  "video",
+  "dataset"
+ ],
+ "git": "93ae486c",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Solids suspension in a stirred tank as the impeller speeds up: soft-sphere DEM particles with drag, buoyancy and turbulent dispersion in an analytic, divergence-free stirred-tank flow; process video (particles coloured by speed, turning impeller, live charts), suspension curves and the just-suspended speed against Zwietering's correlation.",
+ "code": {
+  "files": [
+   "code/particles.py"
+  ],
+  "sha1": "10faaaf2fc723b7913696dd59be434dc9a23ba38",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791673167.5955129,
+ "error": null,
+ "stages": [
+  {
+   "name": "simulate",
+   "started": 1791668373.0306585,
+   "status": "done",
+   "seconds": 1539.274
+  },
+  {
+   "name": "render",
+   "started": 1791669913.1897156,
+   "status": "done",
+   "seconds": 3254.095
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/tank.json"
+  ],
+  "outputs": [
+   "figures/stirred_tank.mp4"
+  ],
+  "figures": [
+   "figures/suspension_curves.png",
+   "figures/stirred_tank.gif",
+   "figures/stirred_tank_early.png",
+   "figures/stirred_tank_end.png"
+  ]
+ },
+ "validation": {
+  "total": 6,
+  "failed": 0
+ },
+ "seconds": 4797.407,
+ "datasets": {
+  "suspension": {
+   "n_samples": 31,
+   "path": "runs/particle_suspension/particle_suspension-b7feb1ba16dd/datasets/suspension"
+  }
+ }
+}

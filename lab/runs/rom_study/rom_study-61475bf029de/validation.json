@@ -1,0 +1,74 @@
+[
+ {
+  "name": "displacement_rom_beats_nearest_design",
+  "passed": true,
+  "value": 98.12703552036949,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 3.0,
+  "detail": "median relative L2 error on unseen designs, nearest training design / best ROM",
+  "kind": "baseline"
+ },
+ {
+  "name": "displacement_rom_error_unseen_designs",
+  "passed": true,
+  "value": 0.0005343541212487664,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.03,
+  "min": null,
+  "detail": "median relative L2 error on 20 unseen designs (gpr)",
+  "kind": "generalization"
+ },
+ {
+  "name": "von_mises_rom_beats_nearest_design",
+  "passed": true,
+  "value": 6.282535228817372,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": 3.0,
+  "detail": "median relative L2 error on unseen designs, nearest training design / best ROM",
+  "kind": "baseline"
+ },
+ {
+  "name": "von_mises_rom_error_unseen_designs",
+  "passed": true,
+  "value": 0.010247638172793564,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.03,
+  "min": null,
+  "detail": "median relative L2 error on 20 unseen designs (gpr+split)",
+  "kind": "generalization"
+ },
+ {
+  "name": "displacement_uncertainty_calibrated",
+  "passed": true,
+  "value": 0.8208141321044546,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0,
+  "min": 0.8,
+  "detail": "fraction of unseen values inside the predicted 90 % interval",
+  "kind": "uncertainty"
+ },
+ {
+  "name": "von_mises_uncertainty_calibrated",
+  "passed": true,
+  "value": 0.8855990783410138,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0,
+  "min": 0.8,
+  "detail": "fraction of unseen values inside the predicted 90 % interval",
+  "kind": "uncertainty"
+ }
+]

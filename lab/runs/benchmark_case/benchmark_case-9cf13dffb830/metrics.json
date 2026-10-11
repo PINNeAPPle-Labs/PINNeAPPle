@@ -1,0 +1,11 @@
+{
+ "x_shock_pb2": 2.4875,
+ "x_shock_pb2.5": 2.4875,
+ "x_shock_pb3": 1.9625,
+ "x_shock_pb3.25": 1.7125,
+ "x_shock_pb3.5": 1.2375,
+ "x_shock_pb3.75": 0.9125,
+ "x_shock_pb4": 0.4625,
+ "x_shock_pb4.25": 0.0125,
+ "grid_x_shock_coarse_to_fine": "5.47,2.95,1.74"
+}

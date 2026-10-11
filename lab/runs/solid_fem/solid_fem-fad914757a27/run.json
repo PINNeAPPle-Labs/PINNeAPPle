@@ -1,0 +1,88 @@
+{
+ "run_id": "solid_fem-fad914757a27",
+ "experiment": "solid_fem",
+ "version": "1",
+ "params": {
+  "case": "torsion",
+  "refine": 1,
+  "calculix": true,
+  "render": true,
+  "samples": 64
+ },
+ "status": "completed",
+ "started": 1791664781.9949696,
+ "tags": [
+  "structures",
+  "fem",
+  "solid-mechanics",
+  "3d",
+  "dataset"
+ ],
+ "git": "cd9308a7",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "3-D linear elasticity with hexahedra with incompatible modes (C3D8I): a cantilever, a simply supported beam and a bar in torsion, checked against beam and Saint-Venant theory and against CalculiX on the same mesh, drawn as a post-processor draws them (deformed mesh, von Mises bands).",
+ "code": {
+  "files": [
+   "code/structures.py"
+  ],
+  "sha1": "7572478ec8052ddbe3fb515371c2254c9d4b755c",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791664876.772598,
+ "error": null,
+ "stages": [
+  {
+   "name": "solve",
+   "started": 1791664785.1985433,
+   "status": "done",
+   "seconds": 18.57
+  },
+  {
+   "name": "calculix",
+   "started": 1791664803.7776425,
+   "status": "done",
+   "seconds": 3.226
+  },
+  {
+   "name": "dataset",
+   "started": 1791664807.0103946,
+   "status": "done",
+   "seconds": 0.007
+  },
+  {
+   "name": "render",
+   "started": 1791664814.172936,
+   "status": "done",
+   "seconds": 62.574
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/model.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/von_mises_fea.png",
+   "figures/displacement_fea.png",
+   "figures/loading.gif",
+   "figures/von_mises_render.jpg"
+  ]
+ },
+ "validation": {
+  "total": 4,
+  "failed": 0
+ },
+ "seconds": 94.778,
+ "datasets": {
+  "fields": {
+   "n_samples": 1,
+   "path": "runs/solid_fem/solid_fem-fad914757a27/datasets/fields"
+  }
+ }
+}

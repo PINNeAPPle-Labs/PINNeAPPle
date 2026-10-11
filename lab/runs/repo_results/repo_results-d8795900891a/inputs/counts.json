@@ -1,0 +1,7 @@
+{
+ "train": 386,
+ "test": 60,
+ "reference": 36,
+ "train_shapes": 91,
+ "test_shapes": 15
+}

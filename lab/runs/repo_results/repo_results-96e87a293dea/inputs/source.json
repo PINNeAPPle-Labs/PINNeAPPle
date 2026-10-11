@@ -1,0 +1,7 @@
+{
+ "name": "burgers_pinn",
+ "description": "PINN for viscous Burgers (nu = 0.01) vs the exact Cole-Hopf solution",
+ "scripts": [
+  "examples/benchmark_suite/03_pinn_burgers_full_pipeline.py"
+ ]
+}

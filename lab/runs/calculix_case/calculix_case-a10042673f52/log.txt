@@ -1,0 +1,11 @@
+[22:52:29] stage mesh_and_solve_0 started
+[22:52:37] stage mesh_and_solve_0 done (7.477 s)
+[22:52:37] stage mesh_and_solve_1 started
+[22:53:00] stage mesh_and_solve_1 done (23.303 s)
+[22:53:00] check reactions_balance_loads: PASS support reactions + applied load
+[22:53:00] check stress_concentration_vs_heywood: PASS peak axial stress at the hole / net-section stress
+[22:53:00] check mesh_convergence_Kt: PASS change of Kt from the 4 mm to the 2.5 mm mesh
+[22:53:00] check Kt_discretisation_uncertainty: PASS grid convergence index of the fine-mesh value (2 meshes, order 2.00, safety 3)
+[22:53:00] check heywood_within_discretisation_band: PASS |Kt_ref / Kt_extrapolated - 1| within the fit's few % plus the GCI band
+[22:53:01] stage render started
+[22:54:16] stage render done (75.081 s)

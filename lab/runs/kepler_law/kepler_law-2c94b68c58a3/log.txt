@@ -1,0 +1,7 @@
+[17:06:31] check Sun_exponent_is_3/2: PASS 
+[17:06:31] check Sun_GM_within_1pct: PASS 
+[17:06:31] check Jupiter_exponent_is_3/2: PASS 
+[17:06:31] check Jupiter_GM_within_1pct: PASS 
+[17:06:31] check Saturn_exponent_is_3/2: PASS 
+[17:06:31] check Saturn_GM_within_1pct: PASS 
+[17:06:33] check sun_jupiter_mass_ratio: PASS 

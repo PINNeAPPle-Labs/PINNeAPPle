@@ -1,0 +1,12 @@
+[20:39:45] stage solve started
+[20:40:03] stage solve done (18.57 s)
+[20:40:03] check reactions_balance_loads: PASS |sum of reactions + sum of applied forces| / sum of |nodal forces|
+[20:40:03] check twist_rate_vs_saint_venant: PASS theta' = T / (beta G a^4), beta = 0.1406
+[20:40:03] check max_shear_vs_saint_venant: PASS tau = T / (alpha a^3) at the middle of a side, alpha = 0.208
+[20:40:03] stage calculix started
+[20:40:07] stage calculix done (3.226 s)
+[20:40:07] check matches_calculix_same_mesh: PASS largest nodal displacement difference / largest displacement, CalculiX C3D8I
+[20:40:07] stage dataset started
+[20:40:07] stage dataset done (0.007 s)
+[20:40:14] stage render started
+[20:41:16] stage render done (62.574 s)

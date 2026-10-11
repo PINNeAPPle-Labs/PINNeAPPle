@@ -1,0 +1,26 @@
+[
+ {
+  "name": "first_bending_mode_vs_euler_bernoulli",
+  "passed": true,
+  "value": 41.95399,
+  "reference": 41.77564842705726,
+  "rtol": 0.02,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "weak axis",
+  "kind": "reference"
+ },
+ {
+  "name": "second_bending_mode_vs_euler_bernoulli",
+  "passed": true,
+  "value": 83.30845,
+  "reference": 83.55129685411453,
+  "rtol": 0.02,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "strong axis (shear and rotary inertia lower it by about 1 %)",
+  "kind": "reference"
+ }
+]

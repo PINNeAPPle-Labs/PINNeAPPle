@@ -1,0 +1,7 @@
+{
+ "name": "concorde_aoa",
+ "description": "LBM-LES slender delta wing (parametric Concorde stand-in): CL/CD/CM vs angle of attack",
+ "scripts": [
+  "examples/use_cases/concorde_high_aoa/concorde_high_aoa_pipeline.py"
+ ]
+}

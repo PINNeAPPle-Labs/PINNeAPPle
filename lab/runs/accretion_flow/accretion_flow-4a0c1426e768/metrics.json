@@ -1,0 +1,9 @@
+{
+ "mdot_final": 19.485102433110615,
+ "mdot_mean": 23.112428718178933,
+ "capped_cells_last_step": 12,
+ "mass_budget_error": 3.029995345065768e-11,
+ "angmom_budget_error": 3.978321698182952e-06,
+ "t_end": 600.0,
+ "frames": 31
+}

@@ -1,0 +1,5 @@
+{
+ "case": "plate_hole",
+ "description": "Steel plate 200 x 50 x 4 mm with a 10 mm hole, 50 MPa tension (gmsh C3D10).",
+ "material": "steel E 210 GPa, nu 0.3"
+}

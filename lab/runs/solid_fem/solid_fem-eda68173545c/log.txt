@@ -1,0 +1,12 @@
+[20:38:17] stage solve started
+[20:38:25] stage solve done (7.477 s)
+[20:38:25] check reactions_balance_loads: PASS |sum of reactions + sum of applied forces| / sum of |nodal forces|
+[20:38:25] check deflection_vs_beam_theory: PASS Timoshenko beam (bending + shear, k = 5/6)
+[20:38:25] check bending_stress_vs_Mc_over_I: PASS axial stress on the outer fibre at x = 1 m
+[20:38:25] stage calculix started
+[20:38:27] stage calculix done (1.814 s)
+[20:38:27] check matches_calculix_same_mesh: PASS largest nodal displacement difference / largest displacement, CalculiX C3D8I
+[20:38:27] stage dataset started
+[20:38:27] stage dataset done (0.005 s)
+[20:38:34] stage render started
+[20:39:39] stage render done (65.078 s)

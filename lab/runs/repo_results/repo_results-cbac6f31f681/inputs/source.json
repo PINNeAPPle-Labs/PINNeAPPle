@@ -1,0 +1,8 @@
+{
+ "name": "meshgraphnet",
+ "description": "MeshGraphNet rollouts (synthetic diffusion, DeepMind cylinder flow) vs frozen baseline",
+ "scripts": [
+  "examples/meshgraphnet/01_synthetic_diffusion.py",
+  "examples/meshgraphnet/02_cylinder_flow_deepmind.py"
+ ]
+}

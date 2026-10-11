@@ -1,0 +1,4 @@
+[16:49:00] stage simulate started
+[16:50:59] stage simulate done (119.012 s)
+[16:51:00] check finite_fields: PASS 
+[16:51:00] check steady_below_onset: PASS no shedding expected below Re ~ 47

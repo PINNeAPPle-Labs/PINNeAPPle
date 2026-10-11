@@ -1,0 +1,10 @@
+{
+ "repository": "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark",
+ "path": "experiments/03_bumper_beam_transolver",
+ "commit": "802452a43578f38ab2cc6c067c7af7d925e02d98",
+ "description": "Bumper-beam crash surrogate: 100 OpenRadioss simulations, Transolver reproduced then improved, classical baselines",
+ "papers": [
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/03_bumper_beam_transolver/paper/Bumper_Transolver_Improvement_PINNeAPPle.pdf",
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/03_bumper_beam_transolver/paper/Bumper_Transolver_Reproduction_PINNeAPPle.pdf"
+ ]
+}

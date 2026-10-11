@@ -1,0 +1,50 @@
+{
+ "displacement|nearest": {
+  "median": 0.22171345935992698,
+  "max": 0.7274672928494155
+ },
+ "displacement|nearest+split": {
+  "median": 0.05243458583623352,
+  "max": 0.46464619026113396
+ },
+ "displacement|rbf": {
+  "median": 0.01272899559425655,
+  "max": 0.20585954108851498
+ },
+ "displacement|rbf+split": {
+  "median": 0.007436980861549442,
+  "max": 0.04595071782404633
+ },
+ "displacement|gpr": {
+  "median": 0.0005343541212487664,
+  "max": 0.00182925142231064
+ },
+ "displacement|gpr+split": {
+  "median": 0.0034646663063564375,
+  "max": 0.08817333562426481
+ },
+ "von_mises|nearest": {
+  "median": 0.148969294967051,
+  "max": 0.5304892194246008
+ },
+ "von_mises|nearest+split": {
+  "median": 0.06438114783274926,
+  "max": 0.3750990723231337
+ },
+ "von_mises|rbf": {
+  "median": 0.0181995624440577,
+  "max": 0.07138155332324632
+ },
+ "von_mises|rbf+split": {
+  "median": 0.018809676750449117,
+  "max": 0.06238612490822651
+ },
+ "von_mises|gpr": {
+  "median": 0.012190732501900742,
+  "max": 0.051361737558421335
+ },
+ "von_mises|gpr+split": {
+  "median": 0.010247638172793564,
+  "max": 0.035742129914881154
+ }
+}

@@ -1,0 +1,479 @@
+diff --git a/pinneapple_lab/__main__.py b/pinneapple_lab/__main__.py
+index b9224bf5..330f31bf 100644
+--- a/pinneapple_lab/__main__.py
++++ b/pinneapple_lab/__main__.py
+@@ -10,6 +10,7 @@
+     python -m pinneapple_lab serve --host 0.0.0.0 --port 8093                # the catalogue as a web app
+     python -m pinneapple_lab examples --run --match use_cases                # examples and use cases into the lab
+     python -m pinneapple_lab curate                                          # A flagship .. D not usable, per run
++    python -m pinneapple_lab brief --tier A,B --use paper -o paper_candidates.pdf     # reports, one or many items
+     python -m pinneapple_lab review kepler_law --novelty 4 --story "..." --approve paper,marketing
+ Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
+ """
+@@ -75,6 +76,18 @@ def main(argv=None) -> int:
+     rv.add_argument("--visual-appeal", type=int, default=None, help="1-5")
+     rv.add_argument("--approve", default=None, help="comma list of product,paper,marketing,training_data")
+     rv.add_argument("--limitations", default=None)
++    br = sub.add_parser("brief", help="a report (html / md / pdf) for one item or a filtered set")
++    br.add_argument("-o", "--out", required=True, help="report.html, report.md or report.pdf")
++    br.add_argument("--item", action="append", help="item key (experiment or experiment/case); repeatable")
++    br.add_argument("--experiment", default=None, help="comma list")
++    br.add_argument("--tier", default=None, help="comma list, e.g. A,B")
++    br.add_argument("--use", default=None, choices=["product", "paper", "marketing", "training_data"],
++                    help="order by distance to this use")
++    br.add_argument("--ready", default=None, choices=["product", "paper", "marketing", "training_data"],
++                    help="only items ready or approved for this use")
++    br.add_argument("--tag", default=None, help="comma list")
++    br.add_argument("--limit", type=int, default=None)
++    br.add_argument("--title", default=None)
+     ex = sub.add_parser("examples", help="list the repository's examples and use cases, or run them into the lab")
+     ex.add_argument("--match", default="", help="only scripts whose path contains this text")
+     ex.add_argument("--run", action="store_true", help="run them (one at a time: scripts write into the checkout)")
+@@ -107,6 +120,14 @@ def main(argv=None) -> int:
+         for x in res:
+             print(f"{x.run_id}  {x.status:24s} {x.seconds:8.1f} s")
+         return 0 if all(x.ok for x in res) else 1
++    if a.cmd == "brief":
++        from .reports import write_report
++        split = lambda x: [v.strip() for v in x.split(",")] if x else None  # noqa: E731
++        filt = ", ".join(f"{k}={v}" for k, v in (("experiment", a.experiment), ("tier", a.tier), ("use", a.use),
++                                                ("ready", a.ready), ("tag", a.tag)) if v)
++        print(write_report(LabStore(a.root), a.out, items=a.item, experiment=split(a.experiment), tier=split(a.tier),
++                           use=a.use, ready=a.ready, tag=split(a.tag), limit=a.limit, title=a.title, filters=filt))
++        return 0
+     if a.cmd == "curate":
+         from .curation import curate
+         out = curate(LabStore(a.root))
+diff --git a/pinneapple_lab/catalog_template.html b/pinneapple_lab/catalog_template.html
+index 0174de93..b08ea0ce 100644
+--- a/pinneapple_lab/catalog_template.html
++++ b/pinneapple_lab/catalog_template.html
+@@ -105,7 +105,32 @@ h2 .tier { font-size: 12px; margin-right: 4px }
+ .qbar { height: 7px; border-radius: 4px; background: var(--chip); overflow: hidden }
+ .qbar b { display: block; height: 100%; background: var(--ok) } .qbar b.f { background: var(--bad) }
+ .tbl.rd td:last-child { text-align: left }
++.gallery { display: grid; gap: 10px; min-width: 0 }
++.gallery h2 { font: 600 26px/1.15 var(--display); margin: 0 }
++.gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px }
++.gal-item { position: relative; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
++  background: #0b0d10; cursor: pointer; aspect-ratio: 16 / 10; max-width: 100% }
++.gal-item.big { grid-column: span 2 }
++.gal-item img { width: 100%; height: 100%; object-fit: cover; display: block }
++.gal-item span { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 10px 7px; font: 500 12px var(--mono);
++  color: #fff; background: linear-gradient(transparent, rgb(0 0 0 / .65)); text-align: left }
++@media (max-width: 640px) { .gal-item.big { grid-column: auto } }
+ .portfolio { display: grid; gap: 14px; min-width: 0 }
++.rm-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px }
++.rep-btn { font: 500 12.5px var(--mono); border: 1px solid var(--accent); color: var(--accent); background: var(--sheet);
++  border-radius: 7px; padding: 6px 10px; cursor: pointer }
++.rep-btn:hover { background: var(--accent-soft) } .rep-btn.sm { padding: 3px 8px; font-size: 11.5px; margin-top: 6px }
++.sheet.wide { width: min(980px, 100%) }
++.rep-item { border-top: 2px solid var(--ink); padding-top: 12px; display: grid; gap: 6px }
++.rep-item h3 { margin: 0; font: 600 20px var(--display) } .rep-item h4 { margin: 8px 0 2px; font: 600 11px var(--mono);
++  letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
++.rep-item ul, .rep-item ol { margin: 0; padding-left: 20px; font-size: 13.5px; display: grid; gap: 3px }
++.rep-item .story { font-style: italic; margin: 0 } .rep-item p { margin: 0 }
++.rep-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px }
++.rep-figs img { width: 100%; border-radius: 6px; border: 1px solid var(--line) }
++.rep-sum td { font-size: 12px } .pass { color: var(--ok); font-weight: 600 } .fail { color: var(--bad); font-weight: 600 }
++.rep-dl a { color: var(--accent); font-weight: 600 }
++.rep-item .unl { color: var(--muted); font: 11.5px var(--mono) }
+ .pf-head h2, .rm-title { font: 600 26px/1.15 var(--display); margin: 0 }
+ .rm-title { font-size: 20px; margin-top: 12px }
+ .pf-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px }
+@@ -152,13 +177,20 @@ footer { color: var(--muted); font: 12px var(--mono) }
+     <div class="ledger" id="ledger"></div>
+     <div class="statusbar" id="statusbar" aria-hidden="true"></div>
+   </header>
++  <section class="gallery" aria-labelledby="gTitle" id="gallerySec">
++    <h2 id="gTitle">Showcase</h2>
++    <p class="lede">The most striking results in the database: photoreal renders, general-relativistic views, 3-D twins and
++      movies. Click one for its full record.</p>
++    <div class="gal" id="gal"></div>
++  </section>
+   <section class="portfolio" aria-labelledby="pfTitle">
+     <div class="pf-head"><h2 id="pfTitle">What can we present?</h2>
+       <p class="lede">Each card is an experiment (or one case of it), graded by <code>pinneapple_lab.curation</code>.
+       <b>Ready</b> or <b>approved</b> means the evidence for that use is complete; otherwise the card shows the closest
+       candidates, how far they are (effort points: S = 1, M = 3, L = 8) and what is missing.</p></div>
+     <div class="pf-cols" id="pfCols"></div>
+-    <h3 class="rm-title">Roadmap: limitations and the path forward</h3>
++    <div class="rm-bar"><h3 class="rm-title">Roadmap: limitations and the path forward</h3>
++      <button class="rep-btn" id="repFiltered">Report: everything shown</button></div>
+     <p class="lede">Sorted by how close each item is to a use. Open a row for its limitations and every action, with
+       the effort and what it unlocks.</p>
+     <div class="roadmap" id="roadmap"></div>
+@@ -295,6 +327,12 @@ const USE_NOTE = { product: "generalization, uncertainty, reference or physics,
+   marketing: "strong visuals, a validated headline number, a story",
+   training_data: "documented datasets of validated runs" };
+ const effortChip = (e) => `<span class="eff e${e}" title="${{ S: "hours", M: "a day or two", L: "a week or more" }[e]}">${e}</span>`;
++function gallery() {
++  const G = DATA.gallery || [];
++  if (!G.length) { $("gallerySec").hidden = true; return; }
++  $("gal").innerHTML = G.map((g, i) => `<button class="gal-item${i < 2 ? " big" : ""}" data-goto="${esc(g.run)}" aria-label="Open ${esc(g.experiment)}">
++    <img src="${g.src}" alt="${esc(g.experiment)}: ${esc(g.name)}" loading="lazy"><span>${esc(g.experiment)} · ${esc(g.name.replace(/\.(png|jpg|gif)$/i, "").replace(/[_-]/g, " "))}</span></button>`).join("");
++}
+ function portfolio() {
+   const P = (DATA.portfolio || []).filter((it) => !it.experiment.startsWith("example_script") || it.tier !== "D");
+   const PC = P.filter((it) => it.experiment !== "example_script");          // examples: roadmap only
+@@ -306,7 +344,8 @@ function portfolio() {
+     const li = (it, st) => `<li><button class="pf-item" data-k="${esc(it.key)}">${tierBadge(it)} <span class="ttl">${esc(it.title)}</span>
+       ${st ? `<em class="${st}">${st}</em>` : `<em>${it.plan.uses[u].distance} pts</em>`}</button>
+       ${st ? "" : `<small>${it.plan.uses[u].missing.map(esc).join(" · ")}</small>`}</li>`;
+-    return `<div class="pf-col"><h4>${USE_LABEL[u]} <span>${ready.length} ready</span></h4><p class="note">Needs: ${USE_NOTE[u]}</p>
++    return `<div class="pf-col"><h4>${USE_LABEL[u]} <span>${ready.length} ready</span></h4>
++      <button class="rep-btn sm" data-rep-use="${u}">Report: ready and closest</button><p class="note">Needs: ${USE_NOTE[u]}</p>
+       ${ready.length ? `<ul>${ready.slice(0, 6).map((it) => li(it, it.plan.uses[u].status)).join("")}</ul>` : `<p class="none">Nothing ready yet.</p>`}
+       ${near.length ? `<div class="near">Closest</div><ul>${near.map((it) => li(it, "")).join("")}</ul>` : ""}</div>`;
+   });
+@@ -323,17 +362,68 @@ function portfolio() {
+       <div class="rm-body">${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}
+       <div><h5>Limitations</h5>${pl.limitations.length ? `<ul>${pl.limitations.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "<p class='lede'>None declared or detected.</p>"}</div>
+       <div><h5>Path forward</h5>${acts ? `<ol>${acts}</ol>` : "<p class='lede'>Nothing missing.</p>"}</div>
++      <p><button class="rep-btn sm" data-rep="${esc(it.key)}">Report on this item</button></p>
+       <p class="lede">Best run <code>${esc(it.best_run)}</code> · ${it.runs} run${it.runs > 1 ? "s" : ""}, ${Math.round(100 * it.usable)} % usable ·
+       <a href="#exp-${esc(it.experiment)}" data-goto="${esc(it.best_run)}">open its record</a></p></div></details>`;
+   }).join("");
+ }
++function findRun(id) {
++  for (const e of DATA.experiments) for (const r of e.runs) if (r.id === id) return [e, r];
++  return [null, null];
++}
++function report(keys, title) {
++  const P = Object.fromEntries((DATA.portfolio || []).map((it) => [it.key, it]));
++  const items = keys.map((k) => P[k]).filter(Boolean);
++  if (!items.length) return;
++  const U = Object.keys(USE_LABEL);
++  const cell = (it, u) => { const s = it.plan.uses[u]; return s.status === "gap" ? `${s.distance} pts` : s.status; };
++  const qs = `items=${encodeURIComponent(items.map((i) => i.key).join(","))}&title=${encodeURIComponent(title)}`;
++  const dl = SERVED ? `<p class="rep-dl">Download: <a href="report.pdf?${qs}">PDF</a> · <a href="report.html?${qs}" target="_blank" rel="noopener">HTML</a> · <a href="report.md?${qs}">Markdown</a></p>`
++    : `<p class="lede">Served by <code>python -m pinneapple_lab serve</code> this report also downloads as PDF, HTML or Markdown; or run <code>python -m pinneapple_lab brief --item ${esc(items[0].key)} -o report.pdf</code>.</p>`;
++  const sections = items.map((it) => {
++    const [, r] = findRun(it.best_run);
++    const img = r ? (SERVED ? r.figures.filter((f) => /\.(png|jpg|gif)$/i.test(f)).slice(0, 2).map((f) => `<img alt="figure" src="${fileUrl(f)}">`).join("")
++                            : r.thumbs.map((t) => `<img alt="figure" src="${t}">`).join("")) : "";
++    const checks = r && r.checks.length ? `<table class="tbl">${r.checks.map((c) => `<tr><td>${esc(c.name)}</td><td>${esc(c.kind || "")}</td><td class="${c.passed ? "pass" : "fail"}">${c.passed ? "PASS" : "FAIL"}</td><td>${esc(c.detail || "")}</td></tr>`).join("")}</table>` : "<p class='lede'>No checks.</p>";
++    return `<article class="rep-item"><div class="eyebrow">${esc(it.experiment)}${it.case ? " / " + esc(it.case) : ""}</div>
++      <h3>${tierBadge(it)} ${esc(it.title)}</h3>${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}<p>${esc(it.description || "")}</p>
++      ${img ? `<div class="rep-figs">${img}</div>` : ""}
++      <h4>Readiness</h4><table class="tbl">${U.map((u) => `<tr><td>${USE_LABEL[u]}</td><td>${it.plan.uses[u].status === "gap" ? "missing: " + it.plan.uses[u].missing.map(esc).join(", ") : it.plan.uses[u].status}</td></tr>`).join("")}</table>
++      <h4>Validation</h4>${checks}
++      <h4>Limitations</h4>${it.plan.limitations.length ? `<ul>${it.plan.limitations.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "<p class='lede'>None declared or detected.</p>"}
++      <h4>Path forward</h4>${it.plan.actions.length ? `<ol>${it.plan.actions.map((a) => `<li>${effortChip(a.effort)} ${esc(a.action)} <span class="unl">unlocks ${a.unlocks.map((x) => esc(USE_LABEL[x] || x)).join(", ")}</span></li>`).join("")}</ol>` : "<p class='lede'>Nothing missing.</p>"}
++      <p class="lede">Best run <code>${esc(it.best_run)}</code> · ${it.runs} runs, ${Math.round(100 * it.usable)} % usable</p></article>`;
++  }).join("");
++  $("sheetExp").textContent = `Report · ${items.length} item${items.length > 1 ? "s" : ""}`;
++  $("sheetTitle").textContent = title;
++  $("sheetBody").innerHTML = `${dl}<table class="tbl rep-sum"><tr><td><b>item</b></td><td><b>tier</b></td>${U.map((u) => `<td><b>${USE_LABEL[u]}</b></td>`).join("")}</tr>
++    ${items.map((it) => `<tr><td>${esc(it.title)}</td><td>${it.tier}</td>${U.map((u) => `<td>${cell(it, u)}</td>`).join("")}</tr>`).join("")}</table>${sections}`;
++  $("sheet").classList.add("wide");
++  $("sheet").hidden = false; $("scrim").hidden = false; $("close").focus();
++}
+ document.addEventListener("click", (ev) => {
++  const rb = ev.target.closest("[data-rep]");
++  if (rb) { ev.preventDefault(); const it = (DATA.portfolio || []).find((x) => x.key === rb.dataset.rep); report([rb.dataset.rep], it ? it.title : rb.dataset.rep); return; }
++  const ru = ev.target.closest("[data-rep-use]");
++  if (ru) {
++    const u = ru.dataset.repUse;
++    const P = (DATA.portfolio || []).filter((it) => it.experiment !== "example_script" && it.tier !== "D");
++    const keys = P.filter((it) => it.plan.uses[u].status !== "gap").map((it) => it.key)
++      .concat(P.filter((it) => it.plan.uses[u].status === "gap").sort((a, b) => a.plan.uses[u].distance - b.plan.uses[u].distance).slice(0, 5).map((it) => it.key));
++    report(keys, `${USE_LABEL[u]}: ready and closest`); return;
++  }
++  if (ev.target.closest("#repFiltered")) {
++    const qq = state.q.toLowerCase();
++    const keys = (DATA.portfolio || []).filter((it) => (state.tier === "all" || it.tier === state.tier) &&
++      (!qq || (it.title + " " + it.experiment + " " + (it.description || "")).toLowerCase().includes(qq))).map((it) => it.key);
++    report(keys, `Selection: ${state.tier === "all" ? "any quality" : "tier " + state.tier}${qq ? " · “" + qq + "”" : ""}`); return;
++  }
+   const it = ev.target.closest(".pf-item");
+   if (it) { const d = document.getElementById("rm-" + it.dataset.k); if (d) { d.open = true; d.scrollIntoView({ behavior: "smooth", block: "center" }); } return; }
+   const g = ev.target.closest("[data-goto]");
+   if (g) { ev.preventDefault(); DATA.experiments.forEach((e, ei) => e.runs.forEach((r, ri) => { if (r.id === g.dataset.goto) open(ei, ri); })); }
+ });
+-function close() { $("sheet").hidden = true; $("scrim").hidden = true; }
++function close() { $("sheet").hidden = true; $("scrim").hidden = true; $("sheet").classList.remove("wide"); }
+ 
+ document.addEventListener("click", (ev) => {
+   const c = ev.target.closest(".card"); if (c) return open(+c.dataset.e, +c.dataset.r);
+@@ -345,6 +435,7 @@ $("close").onclick = close; $("scrim").onclick = close;
+ document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
+ $("q").value = state.q;
+ $("q").addEventListener("input", (ev) => { state.q = ev.target.value.trim(); render(); });
++gallery();
+ portfolio();
+ summary(); render();
+ $("foot").textContent = SERVED
+diff --git a/pinneapple_lab/curation.py b/pinneapple_lab/curation.py
+index 8c8ec62b..ec042e9c 100644
+--- a/pinneapple_lab/curation.py
++++ b/pinneapple_lab/curation.py
+@@ -521,7 +521,9 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
+                 rv = reviews.get(key) or (reviews.get(exp) if not case else None)
+                 item = assess_experiment(runs_c)
+                 item["plan"] = plan_experiment(runs_c, {**meta, "limitations": lim_c}, rv)
++                cdesc = (getattr(cls, "case_descriptions", {}) or {}).get(case) if cls is not None else None
+                 item.update(experiment=exp, case=case, story=(rv or {}).get("story", ""),
++                            description=cdesc or meta.get("description", ""),
+                             title=(rv or {}).get("title") or (os.path.splitext(os.path.basename(case))[0].replace("_", " ")
+                                                                if case else exp))
+                 out["items"][key] = item
+diff --git a/pinneapple_lab/experiments/landing.py b/pinneapple_lab/experiments/landing.py
+index 7161b9b9..321578ba 100644
+--- a/pinneapple_lab/experiments/landing.py
++++ b/pinneapple_lab/experiments/landing.py
+@@ -217,6 +217,7 @@ class BenchmarkCase(Experiment):
+                    "arrays behind the paper's figures and the source that produced them.")
+     tags = ["landing", "benchmark", "surrogate", "digital-twin", "dataset"]
+     case_param = "case"
++    case_descriptions = {k: v[2] for k, v in CASES.items()}
+     limitations = {
+         "soil_twin": ["one site (Natal, RN)", "at 6 h the PINN does not beat persistence (published negative result); "
+                       "the identified physics ODE and the ML baselines do"],
+diff --git a/pinneapple_lab/experiments/repo_results.py b/pinneapple_lab/experiments/repo_results.py
+index 9c852e89..42b56f64 100644
+--- a/pinneapple_lab/experiments/repo_results.py
++++ b/pinneapple_lab/experiments/repo_results.py
+@@ -31,6 +31,8 @@ SOURCES = {
+                           "designs, forced and natural convection",
+     "airfoil_surrogate": "Airfoil surrogates trained on OpenFOAM (aircraft design optimizer): MLP and MeshGraphNet, "
+                          "Cl / Cd / Cm on held-out shapes",
++    "ahmed_body": "Ahmed body (25 deg slant) in OpenFOAM with a moving road: drag against the wind-tunnel value, "
++                  "skin pressure, streamlines and wake renders",
+ }
+ 
+ _SCRIPTS = {
+@@ -45,6 +47,7 @@ _SCRIPTS = {
+     "bh_forecast": ["examples/black_hole_weather/evaluate.py"],
+     "heatsink_surrogate": ["apps/heatsink_sizer/heatsink_sizer/surrogate.py", "apps/heatsink_sizer/heatsink_sizer/sizer.py"],
+     "airfoil_surrogate": ["pinneapple_design/aero/optimize.py"],
++    "ahmed_body": ["examples/studio/02_ahmed_body_cfd.py"],
+ }
+ 
+ 
+@@ -188,6 +191,8 @@ def _bh(ctx):
+         if tag.startswith("res"):
+             ctx.check(f"{tag}_beats_persistence_first_block", value=r["one_block_mae"],
+                       max=r["one_block_persistence"])
++    for f in ("interstellar_forecast.gif", "twin_forecast.gif", "interstellar_frame.png"):
++        ctx.figure_file(_p("docs/assets/blackhole/" + f))
+     _figures(ctx, "docs/assets/blackhole/*skill*.png")
+ 
+ 
+@@ -223,8 +228,24 @@ def _airfoil(ctx):
+         for pt in m.get(f"{model}_test_points", []):
+             ds.add(model=model, case=pt["id"], alpha=float(pt["alpha"]), true=np.asarray(pt["true"]),
+                    pred=np.asarray(pt["pred"]))
+-    for f in sorted(glob.glob(_p("docs/assets/apps/13-*.jpg")))[:4]:
+-        ctx.figure_file(f)
++    for f in ("13-aircraft-render-flight.jpg", "13-aircraft-render-streamlines.jpg", "13-aircraft-render-pressure.jpg",
++              "13-aircraft-render-friction.jpg"):
++        ctx.figure_file(_p("docs/assets/apps/" + f), f.replace("13-aircraft-", "airliner_"))
++    ctx.figure_file(_p("docs/assets/studio/airliner-cp.jpg"), "airliner_openfoam_cp.jpg")
++
++
++def _ahmed(ctx):
++    c = _json("examples/studio/_out/ahmed/coefficients_medium.json")
++    for k in ("CD", "CL", "CD_pressure", "CD_friction", "cells"):
++        ctx.metric(k, c[k])
++    ctx.check("drag_vs_wind_tunnel", value=c["CD"], reference=0.285, rtol=0.08,
++              detail="Ahmed, Ramm & Faltin (1984), 25 deg slant: CD about 0.285", kind="reference")
++    ctx.check("pressure_drag_dominates", value=c["CD_pressure"] / c["CD"], min=0.7, kind="physics")
++    ds = ctx.dataset("coefficients", description="Ahmed body force coefficients (OpenFOAM, medium mesh)")
++    ds.add(CD=c["CD"], CL=c["CL"], CD_pressure=c["CD_pressure"], CD_friction=c["CD_friction"], cells=int(c["cells"]),
++           CD_measured=0.285)
++    for f in ("streamlines.jpg", "cp.jpg", "wake_vorticity.jpg", "mid_plane_speed.jpg"):
++        ctx.figure_file(_p("examples/studio/_out/ahmed/" + f), "ahmed_" + f)
+ 
+ 
+ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
+@@ -248,7 +269,7 @@ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
+ 
+ _RUN = {"burgers_pinn": _burgers, "fin_inverse_2d": lambda c: _fin(c, "2d"), "fin_inverse_3d": lambda c: _fin(c, "3d"),
+         "lbm_strouhal": _lbm, "meshgraphnet": _mgn, "concorde_aoa": _concorde, "bh_forecast": _bh,
+-        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil}
++        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil, "ahmed_body": _ahmed}
+ 
+ 
+ @register
+@@ -259,6 +280,7 @@ class RepoResults(Experiment):
+                    "black-hole forecasts), re-validated against their references and stored as datasets.")
+     tags = ["import", "benchmark", "dataset"]
+     case_param = "source"
++    case_descriptions = SOURCES
+     limitations = {
+         "burgers_pinn": ["5.9 % relative L2 against the exact solution (a well-tuned PINN reaches < 1 %)"],
+         "fin_inverse_3d": ["the network's own h is 7 % low (weak flux constraint); the finite-volume refit is exact"],
+@@ -267,6 +289,7 @@ class RepoResults(Experiment):
+         "concorde_aoa": ["a parametric stand-in, not Concorde CAD; Re 300 coarse LES; checked against theory, "
+                          "not wind-tunnel data"],
+         "bh_forecast": ["pseudo-Newtonian 2.5-D hydro, not GRMHD"],
++        "ahmed_body": ["steady RANS (k-omega SST, wall functions); the medium mesh is not grid-converged"],
+     }
+     params = {"source": "burgers_pinn"}
+     space = {"source": list(SOURCES)}
+diff --git a/pinneapple_lab/html.py b/pinneapple_lab/html.py
+index 8bb2646f..6411e2d0 100644
+--- a/pinneapple_lab/html.py
++++ b/pinneapple_lab/html.py
+@@ -32,6 +32,33 @@ def thumbnail_bytes(path: str, width: int = 360) -> bytes | None:
+         return None
+ 
+ 
++SHOWCASE_TOKENS = (("interstellar", 9), ("beauty", 8), ("render", 6), ("flight", 6), ("twin", 5), ("streamlines", 5),
++                   ("wake", 3), ("cp", 3), ("vorticity", 3), (".gif", 4))
++
++
++def showcase_score(path: str) -> int:
++    n = os.path.basename(path).lower()
++    return sum(w for t, w in SHOWCASE_TOKENS if t in n)
++
++
++def _gif_small(path: str, width: int = 420, max_frames: int = 40) -> str | None:
++    """A smaller animated GIF (fewer frames, narrower) as a data URI, for the gallery."""
++    try:
++        from PIL import Image, ImageSequence
++        im = Image.open(path)
++        frames = [f.convert("RGB") for f in ImageSequence.Iterator(im)]
++        step = max(1, len(frames) // max_frames)
++        frames = frames[::step][:max_frames]
++        h = max(1, int(frames[0].height * width / frames[0].width))
++        frames = [f.resize((width, h)).convert("P", palette=Image.ADAPTIVE, colors=128) for f in frames]
++        buf = io.BytesIO()
++        frames[0].save(buf, "GIF", save_all=True, append_images=frames[1:], loop=0,
++                       duration=im.info.get("duration", 80) * step, optimize=True)
++        return "data:image/gif;base64," + base64.b64encode(buf.getvalue()).decode()
++    except Exception:
++        return None
++
++
+ def _thumb(path: str, width: int = 360) -> str | None:
+     data = thumbnail_bytes(path, width)
+     return None if data is None else "data:image/jpeg;base64," + base64.b64encode(data).decode()
+@@ -56,6 +83,7 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+     except Exception:                                      # noqa: BLE001 - the page works without curation
+         cur = {"runs": {}, "experiments": {}}
+     experiments = []
++    showcase: list = []
+     for exp, st in sorted(store.status().items()):
+         try:
+             cls = get(exp)
+@@ -69,7 +97,12 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+             rec = _load(os.path.join(d, "run.json"), {})
+             figs = sorted(glob.glob(os.path.join(d, "figures", "*.png")) + glob.glob(os.path.join(d, "figures", "*.jpg")))
+             gifs = sorted(glob.glob(os.path.join(d, "figures", "*.gif")))
+-            shown = (figs + gifs)[:thumbs_per_run]
++            figs_all = sorted(figs + gifs, key=lambda f: -showcase_score(f))
++            shown = figs_all[:thumbs_per_run]
++            for f in figs_all[:3]:
++                sc_ = showcase_score(f)
++                if sc_ >= 5:
++                    showcase.append((sc_, exp, r["run_id"], f))
+             if thumbs == "url":
+                 tl = ["thumb/" + os.path.relpath(f, os.path.join(store.root, "runs")) for f in shown]
+             else:
+@@ -99,9 +132,23 @@ def collect(store, *, thumbs_per_run: int = 1, max_runs_per_experiment: int = 40
+         items.append({"key": key, "experiment": it["experiment"], "case": it["case"], "title": it["title"],
+                       "tier": it["tier"], "tier_name": it["tier_name"], "score": it["best_score"],
+                       "best_run": it["best_run"], "story": it.get("story", ""), "runs": it["runs"],
+-                      "usable": it["usable_fraction"], "plan": it["plan"]})
++                      "usable": it["usable_fraction"], "plan": it["plan"], "description": it.get("description", "")})
++    gallery, seen = [], set()
++    for _, exp, rid, f in sorted(showcase, key=lambda t: -t[0]):
++        key = (exp, os.path.basename(f))
++        if key in seen or len(gallery) >= 16:
++            continue
++        seen.add(key)
++        rel = os.path.relpath(f, os.path.join(store.root, "runs"))
++        if thumbs == "url":
++            src = ("files/" if f.endswith(".gif") else "thumb/") + rel
++        else:
++            src = _gif_small(f) if f.endswith(".gif") else _thumb(f, 640)
++        if src:
++            gallery.append({"experiment": exp, "run": rid, "src": src, "name": os.path.basename(f),
++                            "file": os.path.relpath(f, store.root)})
+     return {"generated": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()), "experiments": experiments,
+-            "portfolio": items}
++            "portfolio": items, "gallery": gallery}
+ 
+ 
+ def _quality(a):
+diff --git a/pinneapple_lab/server.py b/pinneapple_lab/server.py
+index 53ff694a..ea7a798a 100644
+--- a/pinneapple_lab/server.py
++++ b/pinneapple_lab/server.py
+@@ -16,6 +16,7 @@ Routes::
+     GET /api/runs/RUN_ID                     one run: record, metrics, validation, file list
+     GET /api/datasets                        dataset cards
+     GET /api/curation                        quality tier, dimensions and readiness of every run and experiment
++    GET /report.html|.md|.pdf?items=&experiment=&tier=&use=&ready=&tag=   a report for one item or a filtered set
+     GET /files/EXPERIMENT/RUN_ID/PATH        a run's file (figures, inputs, outputs, code, logs, cards)
+     GET /thumb/EXPERIMENT/RUN_ID/PATH        a JPEG thumbnail of a run's figure
+     GET /download/EXPERIMENT/DATASET.npz     a dataset over all completed runs, as one .npz
+@@ -207,6 +208,25 @@ class LabServer:
+                         return self._send(200, lab.catalog()[0], "text/html; charset=utf-8")
+                     if path == "/api/catalog":
+                         return self._send(200, lab.catalog()[1], "application/json")
++                    if path.startswith("/report."):
++                        import tempfile
++
++                        from .reports import write_report
++                        fmt = path.rsplit(".", 1)[1]
++                        if fmt not in ("html", "md", "pdf"):
++                            return self._send(404, b"unknown format", "text/plain")
++                        sp = lambda k: [v for v in q.get(k, "").split(",") if v] or None  # noqa: E731
++                        with tempfile.TemporaryDirectory() as td:
++                            out = write_report(lab.store, os.path.join(td, "report." + fmt), items=sp("items"),
++                                               experiment=sp("experiment"), tier=sp("tier"), use=q.get("use") or None,
++                                               ready=q.get("ready") or None, tag=sp("tag"), title=q.get("title"),
++                                               filters=", ".join(f"{k}={v}" for k, v in q.items()))
++                            with open(out, "rb") as fh:
++                                body = fh.read()
++                        ctype = {"html": "text/html; charset=utf-8", "md": "text/markdown; charset=utf-8",
++                                 "pdf": "application/pdf"}[fmt]
++                        extra = None if fmt == "html" else {"Content-Disposition": f'attachment; filename="lab_report.{fmt}"'}
++                        return self._send(200, body, ctype, extra=extra)
+                     if path == "/api/curation":
+                         from .curation import curate
+                         return self._json(curate(lab.store))
+diff --git a/pinneapple_lab/spec.py b/pinneapple_lab/spec.py
+index 8c10bcde..d7346eda 100644
+--- a/pinneapple_lab/spec.py
++++ b/pinneapple_lab/spec.py
+@@ -33,6 +33,7 @@ class Experiment:
+     references: list[str] = []   # papers / data sources the experiment reproduces or compares with (curation)
+     limitations: list[str] | dict[str, list[str]] = []   # known limits, stated up front; a dict maps case -> limits
+     case_param: str = ""         # a parameter that selects distinct cases (curation lists each case separately)
++    case_descriptions: dict[str, str] = {}   # case -> one-paragraph description (reports, catalogue)
+     # ``code_for(params)`` (optional classmethod): more files to snapshot, chosen by the run's parameters
+ 
+     def run(self, ctx) -> None:  # pragma: no cover - interface
+diff --git a/tests/test_lab.py b/tests/test_lab.py
+index 3c2d40b3..3f086425 100644
+--- a/tests/test_lab.py
++++ b/tests/test_lab.py
+@@ -283,3 +283,24 @@ def test_curation_tiers_readiness_and_review(tmp_path):
+     assert infer_check_kind({"name": "sun_jupiter_mass_ratio", "reference": 1047.35}) == "reference"
+     assert infer_check_kind({"name": "finite_fields"}) == "sanity"
+     assert infer_check_kind({"name": "x", "detail": "900 held-out designs"}) == "generalization"
++
++
++def test_reports_one_item_and_filtered_set(tmp_path):
++    from pinneapple_lab.reports import select, write_report
++    root = str(tmp_path)
++    run("_test_curated", root=root)
++    run("_test_curated", {"error": 0.5}, root=root)
++    sweep("oscillator", grid={"zeta": [0.1, 0.3]}, root=root)
++    store = LabStore(root)
++    h = write_report(store, str(tmp_path / "one.html"), items=["_test_curated"])
++    text = open(h).read()
++    assert "Path forward" in text and "Validation" in text and "data:image/jpeg;base64" in text
++    md = write_report(store, str(tmp_path / "set.md"), tier=["A", "B"], use="paper")
++    assert "| item | tier |" in open(md).read()
++    pdf = write_report(store, str(tmp_path / "set.pdf"), tier=["A", "B", "C", "D"])
++    assert open(pdf, "rb").read(4) == b"%PDF"
++    from pinneapple_lab.curation import curate
++    cur = curate(store)
++    assert select(cur, ready="training_data") and not select(cur, tier=["Z"])
++    with pytest.raises(ValueError):
++        write_report(store, str(tmp_path / "none.html"), tier=["Z"])

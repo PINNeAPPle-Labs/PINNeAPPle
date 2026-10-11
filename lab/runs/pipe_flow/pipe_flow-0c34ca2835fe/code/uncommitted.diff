@@ -1,0 +1,31 @@
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index 88321189..2435d6f9 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -27,6 +27,7 @@ from . import (  # noqa: F401
+     pde,
+     pipes,
+     repo_results,
++    rom,
+     structures,
+     vehicles3d,
+     wear,
+diff --git a/pinneapple_neural/architectures/rom/__init__.py b/pinneapple_neural/architectures/rom/__init__.py
+index e11fbf72..998d7141 100644
+--- a/pinneapple_neural/architectures/rom/__init__.py
++++ b/pinneapple_neural/architectures/rom/__init__.py
+@@ -8,6 +8,7 @@ from .deep_uq_rom import DeepUQROM
+ from .sindy import SINDy
+ from .koopman import KoopmanAutoencoder
+ from .neural_rom import NeuralROM
++from .parametric import ParametricPOD, latin_hypercube
+ from .registry import ROMCatalog
+ 
+ __all__ = [
+@@ -23,4 +24,6 @@ __all__ = [
+     "KoopmanAutoencoder",
+     "NeuralROM",
+     "ROMCatalog",
++    "ParametricPOD",
++    "latin_hypercube",
+ ]

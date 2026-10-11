@@ -1,0 +1,19 @@
+{
+ "length": 4.6,
+ "width": 1.86,
+ "roof_height": 1.36,
+ "clearance": 0.13,
+ "hood_height": 0.92,
+ "deck_height": 1.0,
+ "windshield_deg": 28.0,
+ "slant_deg": 22.0,
+ "style": "fastback",
+ "boat_tail": 0.06,
+ "diffuser_deg": 6.0,
+ "wheel_radius": 0.35,
+ "wheel_width": 0.25,
+ "wheelbase": 2.8,
+ "front_overhang": 0.92,
+ "n_x": 300,
+ "n_ring": 160
+}

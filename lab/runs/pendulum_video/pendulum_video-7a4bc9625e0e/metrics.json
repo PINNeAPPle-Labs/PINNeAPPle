@@ -1,0 +1,9 @@
+{
+ "angle_measurement_rmse_rad": 0.015160978146959296,
+ "g_discovered": 9.786917095739028,
+ "g_rel_error": 0.0023529973762459466,
+ "damping_discovered": 0.15199921466813848,
+ "n_terms": 2,
+ "reconstruction_rmse_rad": 0.010515569351590386,
+ "forecast_rmse_rad": 0.009488135837049137
+}

@@ -1,0 +1,132 @@
+{
+ "name": "flow",
+ "description": "Car geometry (mask, signed distance) and the time-mean flow it produces (velocity / U, pressure coefficient), with drag and lift",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "mask": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "uint8",
+   "min": 0.0,
+   "max": 1.0
+  },
+  "sdf": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -0.15625,
+   "max": 3.604264497756958
+  },
+  "mean_ux": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -0.15226522088050842,
+   "max": 1.4051897525787354
+  },
+  "mean_uy": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -0.4016203284263611,
+   "max": 0.9390100240707397
+  },
+  "mean_cp": {
+   "kind": "array",
+   "shape": [
+    320,
+    160
+   ],
+   "dtype": "float32",
+   "min": -0.9901697635650635,
+   "max": 1.7047673463821411
+  },
+  "Cd": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 1.5510046068811791,
+   "max": 1.5510046068811791
+  },
+  "Cl": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.7626855949638411,
+   "max": 0.7626855949638411
+  },
+  "slant_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 25.981404398859816,
+   "max": 25.981404398859816
+  },
+  "windshield_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 42.32387813496943,
+   "max": 42.32387813496943
+  },
+  "hood": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.48232927647789897,
+   "max": 0.48232927647789897
+  },
+  "clearance": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.08426136849161456,
+   "max": 0.08426136849161456
+  },
+  "diffuser_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 4.111568259072409,
+   "max": 4.111568259072409
+  },
+  "nose": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.639916070933903,
+   "max": 0.639916070933903
+  }
+ },
+ "units": {
+  "sdf": "car lengths",
+  "mean_ux": "U",
+  "mean_uy": "U",
+  "mean_cp": "-"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "car_lbm",
+  "run_id": "car_lbm-0f01b8aa2bd5",
+  "params": {
+   "slant_deg": 25.981404398859816,
+   "windshield_deg": 42.32387813496943,
+   "hood": 0.48232927647789897,
+   "clearance": 0.08426136849161456,
+   "diffuser_deg": 4.111568259072409,
+   "nose": 0.639916070933903,
+   "length_cells": 64,
+   "Re": 500.0,
+   "u_in": 0.08,
+   "Cs": 0.1,
+   "steps": 8000,
+   "tunnel_height": 2.5
+  }
+ },
+ "sha1": "9b37fdbccab4e0f33efc377bfe4cd3d0a8cae711"
+}

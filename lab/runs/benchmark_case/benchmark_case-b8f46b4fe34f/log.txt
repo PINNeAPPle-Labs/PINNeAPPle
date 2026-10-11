@@ -1,0 +1,7 @@
+[17:59:00] Pedestrian dead reckoning from a phone IMU: a thesis reproduced, then improved
+[17:59:00] stage headline started
+[17:59:00] check network_beats_raw_imu: PASS 
+[17:59:00] check improvement_beats_reproduction: PASS + TTA + bias correction
+[17:59:00] stage headline done (0.001 s)
+[17:59:00] stage artifacts started
+[17:59:00] stage artifacts done (0.001 s)

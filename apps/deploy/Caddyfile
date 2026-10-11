@@ -158,3 +158,12 @@
 		}
 	}
 }
+
+{$LAB_DOMAIN} {
+	import common
+	reverse_proxy lab:8093 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}

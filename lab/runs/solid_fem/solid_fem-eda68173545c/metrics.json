@@ -1,0 +1,9 @@
+{
+ "elements": 3840,
+ "dofs": 14823,
+ "max_displacement_mm": 3.1347709091786764,
+ "max_von_mises_MPa": 201.79427430848688,
+ "deflection_mm": 3.0818543825778084,
+ "bending_stress_MPa": 150.2574983013643,
+ "calculix_max_rel_difference": 1.6434017979941266e-06
+}

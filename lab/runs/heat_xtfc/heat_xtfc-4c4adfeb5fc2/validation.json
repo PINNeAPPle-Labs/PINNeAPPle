@@ -1,0 +1,13 @@
+[
+ {
+  "name": "rel_l2_below_1e-3",
+  "passed": true,
+  "value": 4.5515671759373544e-05,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.001,
+  "min": null,
+  "detail": ""
+ }
+]

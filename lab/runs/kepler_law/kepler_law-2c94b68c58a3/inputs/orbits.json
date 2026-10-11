@@ -1,0 +1,116 @@
+[
+ {
+  "system": "Sun",
+  "body": "Mercury",
+  "a_m": 57909335747.97,
+  "P_s": 7599070.079999999
+ },
+ {
+  "system": "Sun",
+  "body": "Venus",
+  "a_m": 108204139877.31001,
+  "P_s": 19414235.52
+ },
+ {
+  "system": "Sun",
+  "body": "Earth",
+  "a_m": 149597870700.0,
+  "P_s": 31557600.0
+ },
+ {
+  "system": "Sun",
+  "body": "Mars",
+  "a_m": 227942275585.59,
+  "P_s": 59353534.08
+ },
+ {
+  "system": "Sun",
+  "body": "Jupiter",
+  "a_m": 778342761465.0299,
+  "P_s": 374336251.2
+ },
+ {
+  "system": "Sun",
+  "body": "Saturn",
+  "a_m": 1426714892865.9001,
+  "P_s": 929592223.2
+ },
+ {
+  "system": "Sun",
+  "body": "Uranus",
+  "a_m": 2870633540862.3,
+  "P_s": 2651185533.6
+ },
+ {
+  "system": "Sun",
+  "body": "Neptune",
+  "a_m": 4498407971949.0,
+  "P_s": 5200376904.0
+ },
+ {
+  "system": "Sun",
+  "body": "Pluto",
+  "a_m": 5906423130977.399,
+  "P_s": 7824391344.0
+ },
+ {
+  "system": "Jupiter",
+  "body": "Io",
+  "a_m": 421800000.0,
+  "P_s": 152841.6
+ },
+ {
+  "system": "Jupiter",
+  "body": "Europa",
+  "a_m": 671100000.0,
+  "P_s": 306806.4
+ },
+ {
+  "system": "Jupiter",
+  "body": "Ganymede",
+  "a_m": 1070400000.0,
+  "P_s": 618192.0
+ },
+ {
+  "system": "Jupiter",
+  "body": "Callisto",
+  "a_m": 1882700000.0,
+  "P_s": 1441929.6
+ },
+ {
+  "system": "Saturn",
+  "body": "Mimas",
+  "a_m": 185540000.0,
+  "P_s": 81388.79999999999
+ },
+ {
+  "system": "Saturn",
+  "body": "Enceladus",
+  "a_m": 238040000.0,
+  "P_s": 118368.00000000001
+ },
+ {
+  "system": "Saturn",
+  "body": "Tethys",
+  "a_m": 294670000.0,
+  "P_s": 163123.19999999998
+ },
+ {
+  "system": "Saturn",
+  "body": "Dione",
+  "a_m": 377420000.0,
+  "P_s": 236476.80000000002
+ },
+ {
+  "system": "Saturn",
+  "body": "Rhea",
+  "a_m": 527070000.0,
+  "P_s": 390355.19999999995
+ },
+ {
+  "system": "Saturn",
+  "body": "Titan",
+  "a_m": 1221870000.0,
+  "P_s": 1377648.0
+ }
+]

@@ -1,0 +1,26 @@
+[
+ {
+  "name": "res16_PL0SS0.1_beats_persistence_first_block",
+  "passed": true,
+  "value": 0.0005186813410546165,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.0007401303962979,
+  "min": null,
+  "detail": "",
+  "kind": "baseline"
+ },
+ {
+  "name": "res16_PL0SS0.3_beats_persistence_first_block",
+  "passed": true,
+  "value": 0.0010737575052189642,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.0011689678965922212,
+  "min": null,
+  "detail": "",
+  "kind": "baseline"
+ }
+]

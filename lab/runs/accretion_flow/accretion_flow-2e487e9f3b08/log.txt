@@ -1,0 +1,5 @@
+[16:35:55] stage evolve started
+[16:36:01] stage evolve done (6.712 s)
+[16:36:01] check mass_budget: PASS 
+[16:36:01] check angular_momentum_budget: PASS 
+[16:36:01] check accretes: PASS 

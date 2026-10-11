@@ -109,14 +109,14 @@ class DynamicModeDecomposition(ROMBase):
             raise ValueError("Need at least T>=2 snapshots.")
 
         Xc, mu = self._center_mean(Xseq)
-        self.mean_.resize_as_(mu).copy_(mu)
+        self.mean_ = mu.detach().clone()          # keep the data's dtype and device
 
         X0 = Xc[:, :-1].reshape(-1, D).t()
         X1 = Xc[:, 1: ].reshape(-1, D).t()
 
         Ur, A_tilde, Sr = self._build_operator(X0, X1, self.r, self.l2)
-        self.basis_.resize_as_(Ur).copy_(Ur)
-        self.A_.resize_as_(A_tilde).copy_(A_tilde)
+        self.basis_ = Ur.detach().clone()          # keep the data's dtype and device
+        self.A_ = A_tilde.detach().clone()          # keep the data's dtype and device
         self._singular_values = Sr.clone()
         self._fitted = True
         return self
@@ -158,13 +158,13 @@ class DynamicModeDecomposition(ROMBase):
             mu = torch.zeros((1, D), device=X0.device, dtype=X0.dtype)
             X0c, X1c = X0, X1
 
-        self.mean_.resize_as_(mu).copy_(mu)
+        self.mean_ = mu.detach().clone()          # keep the data's dtype and device
 
         Ur, A_tilde, Sr = self._build_operator(
             X0c.t(), X1c.t(), self.r, self.l2
         )
-        self.basis_.resize_as_(Ur).copy_(Ur)
-        self.A_.resize_as_(A_tilde).copy_(A_tilde)
+        self.basis_ = Ur.detach().clone()          # keep the data's dtype and device
+        self.A_ = A_tilde.detach().clone()          # keep the data's dtype and device
         self._singular_values = Sr.clone()
         self._fitted = True
         return self
@@ -189,7 +189,7 @@ class DynamicModeDecomposition(ROMBase):
         if not self._fitted:
             raise RuntimeError("DMD not fitted.")
         lam, W = torch.linalg.eig(self.A_)
-        Phi = self.basis_.to(torch.complex64) @ W  # (D, r)
+        Phi = self.basis_.to(W.dtype) @ W  # (D, r)
         return lam, W, Phi
 
     @property

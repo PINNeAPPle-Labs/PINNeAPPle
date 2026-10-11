@@ -1,0 +1,87 @@
+{
+ "name": "surface",
+ "description": "Skin pressure and friction coefficients on the wall faces (half model, y >= 0) with the force per face",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "xyz": {
+   "kind": "array",
+   "shape": [
+    5130,
+    3
+   ],
+   "dtype": "float32",
+   "min": 0.0,
+   "max": 4.6000776290893555
+  },
+  "cp": {
+   "kind": "array",
+   "shape": [
+    5130
+   ],
+   "dtype": "float32",
+   "min": -4.150798797607422,
+   "max": 0.9996280074119568
+  },
+  "cf": {
+   "kind": "array",
+   "shape": [
+    5130
+   ],
+   "dtype": "float32",
+   "min": 1.560866394356708e-06,
+   "max": 0.011434507556259632
+  },
+  "force": {
+   "kind": "array",
+   "shape": [
+    5130,
+    3
+   ],
+   "dtype": "float32",
+   "min": -1.7425819635391235,
+   "max": 3.825930118560791
+  },
+  "vehicle": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "car"
+   ]
+  },
+  "CD": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.2882577987315919,
+   "max": 0.2882577987315919
+  },
+  "CL": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.017981214209357575,
+   "max": 0.017981214209357575
+  }
+ },
+ "units": {
+  "xyz": "m"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "vehicle_cfd",
+  "run_id": "vehicle_cfd-19b6c3f7bb85",
+  "params": {
+   "vehicle": "car",
+   "style": "fastback",
+   "slant_deg": 22.0,
+   "speed": 30.0,
+   "alpha": 4.0,
+   "resolution": "coarse",
+   "surface_level": null,
+   "iterations": 600,
+   "procs": 2,
+   "samples": 96,
+   "keep_case": false
+  }
+ },
+ "sha1": "bf0385bcbba927527e503aa661bff966de89f4c7"
+}

@@ -1,0 +1,66 @@
+{
+ "run_id": "cylinder_lbm-e254136572c5",
+ "experiment": "cylinder_lbm",
+ "version": "1",
+ "params": {
+  "Re": 100,
+  "D": 20,
+  "height": 5,
+  "length": 12,
+  "u_in": 0.1,
+  "Cs": 0.0,
+  "steps": 16000,
+  "save_every": 100,
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791651132.799344,
+ "tags": [
+  "cfd",
+  "lbm",
+  "dataset",
+  "vision"
+ ],
+ "git": "08708f33",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "2D channel flow past a cylinder with the D2Q9 lattice-Boltzmann solver (pinneapple_simulation.numerical_solvers.lbm). Measures the wake regime (steady or vortex shedding) and the Strouhal number; saves vorticity snapshots labelled by regime and Re, a dataset for vision (classification / clustering of flow regimes, #415).",
+ "finished": 1791651207.1722035,
+ "error": null,
+ "stages": [
+  {
+   "name": "simulate",
+   "started": 1791651132.8317263,
+   "status": "done",
+   "seconds": 73.514
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/setup.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/vorticity.png",
+   "figures/vorticity.gif"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 74.373,
+ "datasets": {
+  "vorticity": {
+   "n_samples": 80,
+   "path": "runs/cylinder_lbm/cylinder_lbm-e254136572c5/datasets/vorticity"
+  }
+ }
+}

@@ -1,0 +1,12 @@
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index e619b138..88321189 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -27,6 +27,7 @@ from . import (  # noqa: F401
+     pde,
+     pipes,
+     repo_results,
++    structures,
+     vehicles3d,
+     wear,
+ )

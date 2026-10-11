@@ -1,0 +1,7 @@
+[17:59:13] Shock train in a supersonic duct with a fixed-pressure outlet: back-pressure sweep, grid and 3-D
+[17:59:13] stage headline started
+[17:59:13] check shock_moves_upstream_with_back_pressure: PASS shock-train leading edge vs back-pressure ratio
+[17:59:13] check unstarts_at_highest_back_pressure: PASS 
+[17:59:13] stage headline done (0.007 s)
+[17:59:13] stage artifacts started
+[17:59:13] stage artifacts done (0.048 s)

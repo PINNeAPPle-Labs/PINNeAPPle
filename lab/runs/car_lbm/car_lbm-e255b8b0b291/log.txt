@@ -1,0 +1,5 @@
+[19:23:39] stage simulate started
+[19:25:31] stage simulate done (111.438 s)
+[19:25:31] check finite_fields: PASS 
+[19:25:31] check drag_statistically_converged: PASS mean drag over the 3rd vs 4th quarter of the run
+[19:25:31] check drag_in_bluff_body_range: PASS 2-D bluff bodies near a moving ground: Cd on the frontal height ~0.3-2

@@ -1,0 +1,1 @@
+{"axes": "z_up", "title": "Steel plate 200 x 50 x 4 mm with a 10 mm hole, 50 MPa tension (gmsh C3D10).", "labels": {"von_mises": "von Mises stress (MPa)"}, "fields": ["von_mises"], "lines": [], "slices": []}

@@ -1,0 +1,17 @@
+{
+ "stages": [
+  {
+   "name": "run",
+   "started": 1791655091.5032325,
+   "status": "done",
+   "seconds": 600.141
+  },
+  {
+   "name": "collect",
+   "started": 1791655691.6468992,
+   "status": "done",
+   "seconds": 0.038
+  }
+ ],
+ "updated": 1791655691.685372
+}

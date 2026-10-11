@@ -1,0 +1,9 @@
+{
+ "h_true": 150.0,
+ "h_pinn_mean": 139.44271341959634,
+ "h_pinn_std": 1.5323169543866577,
+ "h_fv_fit_mean": 149.63380785752744,
+ "h_initial_guess": 40.0,
+ "max_field_error_C": 0.33533485543343033,
+ "source_seconds": 1893.0
+}

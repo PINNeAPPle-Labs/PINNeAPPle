@@ -1,0 +1,3 @@
+[21:47:17] stage solve started
+[21:47:18] stage solve done (0.975 s)
+[21:47:18] check buckling_load_vs_euler: PASS fixed-free column, K = 2

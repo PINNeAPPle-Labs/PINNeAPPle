@@ -1,0 +1,4 @@
+[16:35:18] stage evolve started
+[16:35:19] stage evolve done (1.0 s)
+[16:35:19] check steady_accretion_rate: PASS 
+[16:35:19] check steady_density: PASS 

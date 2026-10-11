@@ -1,0 +1,14 @@
+[
+ {
+  "name": "buckling_load_vs_euler",
+  "passed": true,
+  "value": 27712.42,
+  "reference": 27634.892323050204,
+  "rtol": 0.03,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "fixed-free column, K = 2",
+  "kind": "reference"
+ }
+]

@@ -202,7 +202,7 @@ class EquivariantGNN(GraphModelBase):
         if return_loss and y_true is not None:
             if g.mask is not None:
                 mask = g.mask[..., None].to(y.dtype)
-                losses["mse"] = torch.mean(((y - y_true) ** 2) * mask)
+                losses["mse"] = (((y - y_true) ** 2) * mask).sum() / (mask.sum() * y.shape[-1]).clamp_min(1.0)  # mean over valid nodes
             else:
                 losses["mse"] = self.mse(y, y_true)
             losses["total"] = losses["mse"]

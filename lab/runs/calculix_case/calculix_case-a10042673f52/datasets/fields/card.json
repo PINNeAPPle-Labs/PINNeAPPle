@@ -1,0 +1,78 @@
+{
+ "name": "fields",
+ "description": "CalculiX mesh and nodal results",
+ "n_samples": 1,
+ "shards": 1,
+ "schema": {
+  "nodes": {
+   "kind": "array",
+   "shape": [
+    39065,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.10000000149011612,
+   "max": 0.10000000149011612
+  },
+  "elements": {
+   "kind": "array",
+   "shape": [
+    20802,
+    10
+   ],
+   "dtype": "int32",
+   "min": 0.0,
+   "max": 39064.0
+  },
+  "element": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "C3D10"
+   ]
+  },
+  "case": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "plate_hole"
+   ]
+  },
+  "u": {
+   "kind": "array",
+   "shape": [
+    39065,
+    3
+   ],
+   "dtype": "float32",
+   "min": -4.236419954395387e-06,
+   "max": 4.8796198825584725e-05
+  },
+  "stress": {
+   "kind": "array",
+   "shape": [
+    39065,
+    6
+   ],
+   "dtype": "float32",
+   "min": -60584000.0,
+   "max": 161944000.0
+  }
+ },
+ "units": {
+  "nodes": "m",
+  "u": "m",
+  "stress": "Pa"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "calculix_case",
+  "run_id": "calculix_case-a10042673f52",
+  "params": {
+   "case": "plate_hole",
+   "render": true,
+   "samples": 48
+  }
+ },
+ "sha1": "a33edf3475c27cf9cc89cd00af424bb069df6f87"
+}

@@ -1,0 +1,3 @@
+[16:35:11] stage solve started
+[16:35:11] stage solve done (0.005 s)
+[16:35:11] check rel_l2_below_1e-3: PASS 

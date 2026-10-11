@@ -1,0 +1,24 @@
+[
+ {
+  "name": "omega_recovered",
+  "passed": true,
+  "value": 4.667442108641229e-06,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": ""
+ },
+ {
+  "name": "zeta_recovered",
+  "passed": true,
+  "value": 3.775962427010615e-06,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": ""
+ }
+]

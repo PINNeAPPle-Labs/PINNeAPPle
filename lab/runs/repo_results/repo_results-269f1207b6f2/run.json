@@ -1,0 +1,78 @@
+{
+ "run_id": "repo_results-269f1207b6f2",
+ "experiment": "repo_results",
+ "version": "1",
+ "params": {
+  "source": "bh_forecast"
+ },
+ "status": "completed",
+ "started": 1791660479.9286098,
+ "tags": [
+  "import",
+  "benchmark",
+  "dataset"
+ ],
+ "git": "2e36bfac",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.",
+ "code": {
+  "files": [
+   "code/repo_results.py",
+   "code/03_pinn_burgers_full_pipeline.py",
+   "code/plate_2d.py",
+   "code/fv_reference.py",
+   "code/block_3d.py",
+   "code/lbm_vortex_shedding.py",
+   "code/01_synthetic_diffusion.py",
+   "code/02_cylinder_flow_deepmind.py",
+   "code/concorde_high_aoa_pipeline.py",
+   "code/evaluate.py",
+   "code/surrogate.py",
+   "code/sizer.py",
+   "code/optimize.py",
+   "code/02_ahmed_body_cfd.py"
+  ],
+  "sha1": "c6906046ee3b0c8d3d566b729148fb3051953c76",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791660480.0959845,
+ "error": null,
+ "stages": [
+  {
+   "name": "import",
+   "started": 1791660480.0644486,
+   "status": "done",
+   "seconds": 0.02
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/interstellar_forecast.gif",
+   "figures/twin_forecast.gif",
+   "figures/interstellar_frame.png",
+   "figures/skill_faithful.png",
+   "figures/skill_residual.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.167,
+ "datasets": {
+  "lead_time_skill": {
+   "n_samples": 4,
+   "path": "runs/repo_results/repo_results-269f1207b6f2/datasets/lead_time_skill"
+  }
+ }
+}

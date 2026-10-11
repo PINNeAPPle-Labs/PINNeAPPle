@@ -1,0 +1,9 @@
+{
+ "repository": "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark",
+ "path": "experiments/05_thermal_channel_twin",
+ "commit": "802452a43578f38ab2cc6c067c7af7d925e02d98",
+ "description": "Digital twin of an actuated heated channel: verified CFD, POD/FNO/DeepONet surrogates, assimilation and control",
+ "papers": [
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/05_thermal_channel_twin/paper/Heated_Channel_Digital_Twin_PINNeAPPle.pdf"
+ ]
+}

@@ -44,3 +44,17 @@ examples/studio/_out/**
 !examples/studio/_out/**/coefficients_*.json
 examples/studio/_out/**/viewer/
 examples/studio/_out/**/case_*/
+
+# PINNeAPPle Lab database: metadata, metrics, validation, figures and dataset cards are versioned;
+# arrays, dataset shards and the SQLite index (rebuilt with `python -m pinneapple_lab reindex`) are not
+!lab/runs/
+lab/index.sqlite
+lab/_worktree/
+lab/_exports/
+lab/_cases/
+lab/_external/
+lab/**/outputs/scene.glb
+lab/**/*.npy
+lab/**/*.npz
+lab/**/samples.jsonl
+lab/**/metrics_log.jsonl

@@ -347,6 +347,7 @@ packages = [
   "pinneapple_worldmodel",
   "pinneapple_quantum",
   "pinneapple_registry",     # local artifact registry: models, datasets, experiments
+  "pinneapple_lab",          # experiment runner + database: runs, metrics, validation, datasets, catalogue
   "pinneapple_orchestration", # optional Prefect-based pipeline layer (data gen, training, benchmark, publish, twin prep)
   "pinneapple_hub",          # push_to_hub/from_pretrained model hub
   "pinneapple_catalog",      # public datasets/models catalog with license gate + method references
@@ -396,6 +397,7 @@ include = [
   "pinneapple_worldmodel/**",
   "pinneapple_quantum/**",
   "pinneapple_registry/**",
+  "pinneapple_lab/**",
   "pinneapple_orchestration/**",
   "pinneapple_hub/**",
   "pinneapple_catalog/**",

@@ -34,6 +34,7 @@ from .trainer import (
     TrainResult,
     train_pinn,
     train_supervised,
+    train_grid_operator,
     train_graph,
     evaluate_model,
     run_uq,
@@ -327,7 +328,20 @@ class Arena:
         else:
             print(f"        [--] Using built-in autograd PINN residuals")
 
+        # grid operators (FNO) learn whole fields: a training grid at half the evaluation resolution from the same
+        # analytical source as the scattered supervised points, so the evaluation also tests super-resolution
+        X_grid = Y_grid = None
+        if in_dim == 2:
+            lo_e, hi_e = xy_eval.min(axis=0), xy_eval.max(axis=0)
+            ng = max(8, pc.grid_n // 2)
+            gx, gy = np.meshgrid(np.linspace(lo_e[0], hi_e[0], ng), np.linspace(lo_e[1], hi_e[1], ng))
+            X_grid = np.stack([gx.ravel(), gy.ravel()], axis=1)
+            gf = p.analytical(X_grid[:, 0], X_grid[:, 1], **pc.params)
+            if gf is not None:
+                Y_grid = np.stack([gf[f] for f in field_names], axis=1)
+
         self._data = {
+            "X_grid": X_grid, "Y_grid": Y_grid,
             "xy_int": xy_int,   "Y_int": Y_int,
             "xy_bc":  xy_bc,    "Y_bc":  Y_bc,
             "xy_col": xy_col,
@@ -422,6 +436,10 @@ class Arena:
                 node_targets=d["node_targets"],
                 device=self.device,
             )
+        elif mcfg.type.lower() in ("fno2d", "fno", "fourier", "fourier_neural_operator"):
+            if d.get("X_grid") is None or d.get("Y_grid") is None:
+                raise ValueError(f"{mcfg.name}: an FNO needs gridded training fields; this problem provides none")
+            return train_grid_operator(model, mcfg, X_grid=d["X_grid"], Y_grid=d["Y_grid"], device=self.device)
         else:
             return train_supervised(
                 model, mcfg,

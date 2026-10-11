@@ -1,0 +1,72 @@
+{
+ "name": "beam_designs",
+ "description": "Parametric FEM snapshots: design parameters, nodal displacement and von Mises on a fixed-topology mesh",
+ "n_samples": 100,
+ "shards": 1,
+ "schema": {
+  "split": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "train",
+    "test"
+   ]
+  },
+  "H": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.12210098004740289,
+   "max": 0.29796324752631265
+  },
+  "W": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.06102602561878387,
+   "max": 0.19840359380182912
+  },
+  "angle_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.8692303513785621,
+   "max": 89.08055142629239
+  },
+  "u": {
+   "kind": "array",
+   "shape": [
+    868,
+    3
+   ],
+   "dtype": "float32",
+   "min": -0.009889267385005951,
+   "max": 0.031141556799411774
+  },
+  "von_mises": {
+   "kind": "array",
+   "shape": [
+    868
+   ],
+   "dtype": "float32",
+   "min": 0.16781611740589142,
+   "max": 188.55882263183594
+  }
+ },
+ "units": {
+  "u": "m",
+  "von_mises": "MPa"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "rom_study",
+  "run_id": "rom_study-61475bf029de",
+  "params": {
+   "case": "beam_parametric",
+   "Re": 100.0,
+   "steps": 30000,
+   "save_every": 50,
+   "n_train": 80,
+   "n_test": 20,
+   "seed": 0
+  }
+ },
+ "sha1": "9f3fe96917d4313593a541b2130d7c162a5e3da5"
+}

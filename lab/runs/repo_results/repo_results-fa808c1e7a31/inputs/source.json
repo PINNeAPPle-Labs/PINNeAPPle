@@ -1,0 +1,7 @@
+{
+ "name": "lbm_strouhal",
+ "description": "Lattice-Boltzmann vortex shedding: Strouhal numbers vs the published cylinder value",
+ "scripts": [
+  "benchmarks/lbm_vortex_shedding.py"
+ ]
+}

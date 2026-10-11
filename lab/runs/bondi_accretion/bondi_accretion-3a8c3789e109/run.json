@@ -1,0 +1,60 @@
+{
+ "run_id": "bondi_accretion-3a8c3789e109",
+ "experiment": "bondi_accretion",
+ "version": "1",
+ "params": {
+  "cs_inf": 0.1,
+  "gamma": 1.4,
+  "nr": 64,
+  "t_end": 300.0,
+  "backend": "numba"
+ },
+ "status": "completed",
+ "started": 1791650121.817142,
+ "tags": [
+  "astrophysics",
+  "hydro",
+  "verification"
+ ],
+ "git": "c52191ad",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.17.1"
+  }
+ },
+ "description": "Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential): the hydro solver started from the exact transonic Bondi solution must keep it steady.",
+ "finished": 1791650122.5471907,
+ "error": null,
+ "stages": [
+  {
+   "name": "evolve",
+   "started": 1791650121.8585396,
+   "status": "done",
+   "seconds": 0.448
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/initial_profile.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/bondi_profile.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.73,
+ "datasets": {
+  "profiles": {
+   "n_samples": 1,
+   "path": "runs/bondi_accretion/bondi_accretion-3a8c3789e109/datasets/profiles"
+  }
+ }
+}

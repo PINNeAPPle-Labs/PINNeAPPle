@@ -1,0 +1,7 @@
+{
+ "name": "fin_inverse_3d",
+ "description": "PINN inverse problem: heat-transfer coefficient of a 3D block from sensors",
+ "scripts": [
+  "examples/use_cases/fin_convection_inverse/block_3d.py"
+ ]
+}

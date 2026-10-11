@@ -1,0 +1,8 @@
+{
+ "name": "fin_inverse_2d",
+ "description": "PINN inverse problem: heat-transfer coefficient of a plate from 8 noisy sensors",
+ "scripts": [
+  "examples/use_cases/fin_convection_inverse/plate_2d.py",
+  "examples/use_cases/fin_convection_inverse/fv_reference.py"
+ ]
+}

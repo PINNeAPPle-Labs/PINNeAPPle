@@ -1,0 +1,3 @@
+[21:47:22] stage solve started
+[21:47:22] stage solve done (0.327 s)
+[21:47:22] check temperature_vs_1d_fin_solution: PASS relative L2 of T - T_inf against the fin with a convective tip

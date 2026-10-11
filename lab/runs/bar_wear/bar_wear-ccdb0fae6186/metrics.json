@@ -1,0 +1,10 @@
+{
+ "K_mm3_per_Nm": 7.692307692307692e-08,
+ "wear_rate_mm3_per_m": 3.846153846153846e-06,
+ "steady_wear_rate_um_per_km": 0.019182812200268285,
+ "initial_peak_pressure_MPa": 13.211788211788084,
+ "steady_pressure_MPa": 0.24937655860358535,
+ "running_in_distance_m": 4335933.018878735,
+ "life_to_1mm_km": 52000.0,
+ "distance_m": 8666612.500000123
+}

@@ -1,0 +1,8 @@
+{
+ "Persistence|rmse_lead7_degC": 1.0615061521530151,
+ "Climatology|rmse_lead7_degC": 1.5735477209091187,
+ "Damped persistence (AR1)|rmse_lead7_degC": 1.0175142288208008,
+ "FNO2d (PINNeAPPle) ensemble|rmse_lead7_degC": 0.9609155058860779,
+ "ResNet-CNN (PINNeAPPle Conv2DModel) ensemble|rmse_lead7_degC": 0.9285238981246948,
+ "rmse_reduction_vs_persistence_lead7": 0.12527695082934487
+}

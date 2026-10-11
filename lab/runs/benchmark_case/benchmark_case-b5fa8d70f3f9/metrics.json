@@ -1,0 +1,14 @@
+{
+ "POD + MLP latent dynamics|test_same_family|T_rel_l2": 0.04444047094633182,
+ "POD + MLP latent dynamics|test_unseen_sinusoid|T_rel_l2": 0.09325139503926039,
+ "Conv autoencoder + latent MLP|test_same_family|T_rel_l2": 0.09345255916317304,
+ "Conv autoencoder + latent MLP|test_unseen_sinusoid|T_rel_l2": 0.14090597815811634,
+ "FNO (PINNeAPPle FNO2d)|test_same_family|T_rel_l2": 0.1357570681720972,
+ "FNO (PINNeAPPle FNO2d)|test_unseen_sinusoid|T_rel_l2": 0.39272581972181797,
+ "Physics-informed FNO|test_same_family|T_rel_l2": 0.11658666593333085,
+ "Physics-informed FNO|test_unseen_sinusoid|T_rel_l2": 0.33572406973689795,
+ "DeepONet (PINNeAPPle)|test_same_family|T_rel_l2": 0.8398436307907104,
+ "DeepONet (PINNeAPPle)|test_unseen_sinusoid|T_rel_l2": 0.8313818946480751,
+ "cfd_nusselt_rel_error": 0.0006051313311770112,
+ "cfd_poiseuille_profile_max_error": 0.0003490267340118189
+}

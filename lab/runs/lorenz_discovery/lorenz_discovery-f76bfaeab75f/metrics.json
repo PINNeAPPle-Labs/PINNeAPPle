@@ -1,0 +1,7 @@
+{
+ "max_coefficient_rel_error": 0.0177757584686542,
+ "sigma": 10.016626274109075,
+ "rho": 28.026027339216363,
+ "beta": 2.664925268945403,
+ "prediction_horizon_lyapunov_times": 3.8006700000000007
+}

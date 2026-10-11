@@ -1,0 +1,7 @@
+[17:58:58] Digital twin of an actuated heated channel: verified CFD, POD/FNO/DeepONet surrogates, assimilation and control
+[17:58:58] stage headline started
+[17:58:58] check selected_surrogate_T_unseen_inputs: PASS POD + MLP latent dynamics
+[17:58:58] check cfd_nusselt_vs_reference: PASS Nu = 5.385, fully developed
+[17:58:58] stage headline done (0.001 s)
+[17:58:58] stage artifacts started
+[17:58:59] stage artifacts done (0.459 s)

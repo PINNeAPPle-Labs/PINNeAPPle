@@ -1,0 +1,28 @@
+[21:39:32] check flow_is_divergence_free: PASS max |div u| R / V_tip by central differences (stream-function loop)
+[21:39:33] check settling_velocity_vs_schiller_naumann: PASS an isolated sphere in still liquid
+[21:39:33] stage simulate started
+[21:45:15] t = 4.75 s, 76 rpm, top third 0.0 %
+[21:50:34] t = 9.75 s, 156 rpm, top third 3.9 %
+[21:54:11] t = 14.75 s, 236 rpm, top third 45.0 %
+[21:57:21] t = 19.75 s, 316 rpm, top third 67.8 %
+[22:01:05] t = 24.75 s, 396 rpm, top third 75.9 %
+[22:05:00] t = 29.75 s, 400 rpm, top third 77.3 %
+[22:05:12] stage simulate done (1539.274 s)
+[22:05:12] check particles_stay_in_the_tank: PASS fraction of particle positions inside the tank over all frames
+[22:05:12] check contact_overlap_bounded: PASS largest contact overlap / diameter (soft spheres)
+[22:05:12] check suspension_speed_vs_zwietering: PASS speed with 90 % of the solids off the bottom, against Zwietering's N_js for S = 4 to 8 (pitched-blade turbines); an order-of-magnitude consistency, the flow model is not calibrated
+[22:05:12] check suspension_grows_with_speed: PASS correlation of the suspended fraction with the impeller speed during the ramp
+[22:05:13] stage render started
+[22:08:11] rendered 10 frames
+[22:11:08] rendered 20 frames
+[22:14:18] rendered 30 frames
+[22:17:32] rendered 40 frames
+[22:21:12] rendered 50 frames
+[22:25:43] rendered 60 frames
+[22:30:48] rendered 70 frames
+[22:33:46] rendered 80 frames
+[22:38:01] rendered 90 frames
+[22:43:45] rendered 100 frames
+[22:49:23] rendered 110 frames
+[22:57:13] rendered 120 frames
+[22:59:27] stage render done (3254.095 s)

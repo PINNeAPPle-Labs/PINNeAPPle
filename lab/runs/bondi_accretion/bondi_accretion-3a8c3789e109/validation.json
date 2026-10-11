@@ -1,0 +1,26 @@
+[
+ {
+  "name": "steady_accretion_rate",
+  "passed": true,
+  "value": 0.007716431124589973,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.02,
+  "min": null,
+  "detail": "",
+  "kind": "reference"
+ },
+ {
+  "name": "steady_density",
+  "passed": true,
+  "value": 0.0004488078057147127,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.02,
+  "min": null,
+  "detail": "",
+  "kind": "reference"
+ }
+]

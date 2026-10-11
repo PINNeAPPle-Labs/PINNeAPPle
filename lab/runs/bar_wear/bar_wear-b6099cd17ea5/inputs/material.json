@@ -1,0 +1,7 @@
+{
+ "name": "polyethylene",
+ "k": 1.3e-07,
+ "hardness_MPa": 170,
+ "E_GPa": 1.0,
+ "K_mm3_per_Nm": 7.647058823529412e-07
+}

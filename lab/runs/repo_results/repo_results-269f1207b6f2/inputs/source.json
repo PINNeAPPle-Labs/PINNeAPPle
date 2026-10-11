@@ -1,0 +1,7 @@
+{
+ "name": "bh_forecast",
+ "description": "U-Net forecast of black-hole accretion flows: lead-time skill vs persistence",
+ "scripts": [
+  "examples/black_hole_weather/evaluate.py"
+ ]
+}

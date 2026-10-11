@@ -1,0 +1,13 @@
+[
+ {
+  "name": "selected_beats_persistence_lead7",
+  "passed": true,
+  "value": 0.9285238981246948,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0615061521530151,
+  "min": null,
+  "detail": "ResNet-CNN (PINNeAPPle Conv2DModel) ensemble"
+ }
+]

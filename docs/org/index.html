@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PINNeAPPle Labs</title>
+<meta name="description" content="PINNeAPPle Labs builds open-source physics AI that tells you when to trust it: simulation, scientific machine learning and a trust card for every result.">
+<meta property="og:title" content="PINNeAPPle Labs">
+<meta property="og:description" content="Physics AI that tells you when to trust it.">
+<meta property="og:image" content="https://pinneapple-labs.github.io/PINNeAPPle/assets/readme/mosaic.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #fbfaf5; --surface: #ffffff; --fg: #1d2318; --muted: #5b6352; --line: #e3e2d6;
+  --accent: #c98a0b; --accent-ink: #7a5200; --leaf: #3f7d3a; --code: #f2f1e8;
+  --pass: #2f7a3b; --partial: #b9770e; --open: #8a8f84;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12150f; --surface: #1a1e16; --fg: #ecebdf; --muted: #a3a796; --line: #2d3326;
+    --accent: #f0b43a; --accent-ink: #f6cf7c; --leaf: #8fcf7f; --code: #20251b;
+    --pass: #7fcf8a; --partial: #f0b43a; --open: #8b9183;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12150f; --surface: #1a1e16; --fg: #ecebdf; --muted: #a3a796; --line: #2d3326;
+  --accent: #f0b43a; --accent-ink: #f6cf7c; --leaf: #8fcf7f; --code: #20251b;
+  --pass: #7fcf8a; --partial: #f0b43a; --open: #8b9183;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--accent-ink); text-underline-offset: 3px; }
+img { max-width: 100%; display: block; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; }
+h1, h2, h3 { font-family: Fraunces, Georgia, "Times New Roman", serif; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.3rem, 5.5vw, 4rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 600; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+.label { font: 500 0.75rem/1 Inter, sans-serif; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+code, pre { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; }
+
+/* header */
+header.top { border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 1.05rem Fraunces, Georgia, serif; color: var(--fg); text-decoration: none; }
+.brand svg { width: 28px; height: 28px; }
+nav.links { display: flex; gap: 20px; flex-wrap: wrap; }
+nav.links a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+nav.links a:hover { color: var(--fg); }
+
+/* hero */
+.hero { padding-block: 72px 48px; display: grid; gap: 40px; grid-template-columns: 1.05fr 1fr; align-items: center; }
+.hero > * { min-width: 0; }
+.hero .lede { font-size: 1.15rem; color: var(--muted); max-width: 34em; margin-top: 20px; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.btn { display: inline-block; padding: 11px 20px; border-radius: 8px; font-weight: 600; text-decoration: none; border: 1px solid var(--line); color: var(--fg); background: var(--surface); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #1d1606; }
+.hero figure { margin: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+.hero figcaption { font-size: 0.8rem; color: var(--muted); padding: 8px 12px; background: var(--surface); }
+
+section { padding-block: 56px; border-top: 1px solid var(--line); }
+.section-head { display: grid; gap: 10px; margin-bottom: 32px; max-width: 46em; }
+.section-head p { color: var(--muted); }
+
+/* pillars */
+.pillars { display: grid; gap: 28px; grid-template-columns: repeat(4, 1fr); }
+.pillars > div { min-width: 0; display: grid; gap: 8px; align-content: start; }
+.pillars .n { font: 500 0.8rem "JetBrains Mono", monospace; color: var(--accent-ink); }
+.pillars p { color: var(--muted); font-size: 0.95rem; }
+
+/* trust card */
+.trust { display: grid; gap: 32px; grid-template-columns: 1fr 1.1fr; align-items: start; }
+.trust > * { min-width: 0; }
+.trust p + p { margin-top: 14px; }
+.trust .prose p { color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.card .head { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.card .head strong { font-family: Fraunces, Georgia, serif; }
+.card .head span { font-size: 0.85rem; color: var(--muted); }
+.stage { display: grid; grid-template-columns: 9.5rem 1fr; gap: 12px; padding: 11px 18px; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+.stage:last-child { border-bottom: 0; }
+.stage > * { min-width: 0; }
+.stage b { font-weight: 600; }
+.stage .ev { color: var(--muted); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; }
+.dot.pass { background: var(--pass); } .dot.partial { background: var(--partial); }
+
+/* gallery */
+.gallery { display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr); }
+.gallery figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; min-width: 0; }
+.gallery img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.gallery figcaption { padding: 10px 12px; font-size: 0.88rem; display: grid; gap: 2px; }
+.gallery figcaption span { color: var(--muted); font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+
+/* code */
+pre.code { background: var(--code); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; overflow-x: auto; font-size: 0.88rem; line-height: 1.55; margin: 0; }
+.quick { display: grid; gap: 32px; grid-template-columns: 1fr 1.2fr; align-items: start; }
+.quick > * { min-width: 0; }
+.quick ul { margin: 16px 0 0; padding-left: 1.1em; color: var(--muted); display: grid; gap: 6px; }
+
+/* projects */
+.projects { display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr); }
+.projects a { min-width: 0; display: grid; gap: 6px; align-content: start; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); text-decoration: none; }
+.projects a:hover { border-color: var(--accent); }
+.projects a.main { grid-column: span 3; grid-template-columns: 1fr auto; align-items: center; }
+.projects .repo { font: 500 0.95rem "JetBrains Mono", monospace; overflow-wrap: anywhere; }
+.projects p { color: var(--muted); font-size: 0.9rem; }
+.sectors { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.sectors a { font-size: 0.85rem; padding: 5px 11px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--fg); background: var(--surface); }
+.sectors a:hover { border-color: var(--accent); }
+
+footer { border-top: 1px solid var(--line); padding-block: 32px; color: var(--muted); font-size: 0.9rem; }
+footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .hero, .trust, .quick { grid-template-columns: 1fr; }
+  .pillars { grid-template-columns: repeat(2, 1fr); }
+  .gallery, .projects { grid-template-columns: repeat(2, 1fr); }
+  .projects a.main { grid-column: span 2; }
+}
+@media (max-width: 560px) {
+  .wrap { padding-inline: 16px; }
+  .hero { padding-block: 44px 32px; }
+  .pillars, .gallery, .projects { grid-template-columns: 1fr; }
+  .projects a.main { grid-column: auto; grid-template-columns: 1fr; }
+  .stage { grid-template-columns: 1fr; gap: 2px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c1.6 2.2 2.2 4 2 6 2-1.6 4.2-2.2 6.5-1.8-1.3 2.2-3.2 3.5-5.6 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 3c-1.6 2.2-2.2 4-2 6-2-1.6-4.2-2.2-6.5-1.8 1.3 2.2 3.2 3.5 5.6 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="16" cy="20" rx="8" ry="10" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 15l12 10M22 15L10 25M9 20h14" stroke="currentColor" stroke-width="1.2" opacity=".55"/></svg>
+      PINNeAPPle Labs
+    </a>
+    <nav class="links">
+      <a href="#trust">Trust card</a>
+      <a href="#experiments">Experiments</a>
+      <a href="#projects">Projects</a>
+      <a href="../">Docs</a>
+      <a href="https://github.com/PINNeAPPle-Labs">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <p class="label">Open-source scientific machine learning</p>
+      <h1 style="margin-top:14px">Physics AI that tells you when to trust it.</h1>
+      <p class="lede">We build PINNeAPPle, a Python library to simulate, learn, forecast and design physical systems, where every result
+        comes with its evidence: the reference it was checked against, the baseline it had to beat, the physical laws it
+        respects, its uncertainty and its limits.</p>
+      <div class="cta">
+        <a class="btn primary" href="../">Read the docs</a>
+        <a class="btn" href="../lab/">Experiment catalogue</a>
+        <a class="btn" href="https://github.com/PINNeAPPle-Labs/PINNeAPPle">Source on GitHub</a>
+      </div>
+    </div>
+    <figure>
+      <img src="../assets/lab/stirred_tank.gif" alt="Solids suspension in a stirred tank: 12 000 DEM particles with live charts of suspended fraction and impeller speed" width="960" height="540">
+      <figcaption>Solids suspension in a stirred tank, 12 000 DEM particles. Just-suspended speed 288 rpm, inside Zwietering's 237–474 rpm.</figcaption>
+    </figure>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">What PINNeAPPle does</p>
+        <h2>One library from the solver to the decision</h2>
+      </div>
+      <div class="pillars">
+        <div><span class="n">01 · Simulate</span><h3>Solvers you can check</h3>
+          <p>OpenFOAM around bodies and through pipes and mixers, CalculiX from Python, lattice Boltzmann, DEM particles and a 3-D finite-element solver, each verified on a case with a known answer.</p></div>
+        <div><span class="n">02 · Learn</span><h3>Models against baselines</h3>
+          <p>PINNs, FNO, DeepONet, MeshGraphNet, equivariant GNNs and reduced-order models (POD, DMD, Operator Inference, POD-GPR), always trained next to the simple model they must beat.</p></div>
+        <div><span class="n">03 · Trust</span><h3>Evidence, not claims</h3>
+          <p>Checks against references, physical laws and unseen cases, calibrated uncertainty, grid convergence indices and a curation tier for every experiment.</p></div>
+        <div><span class="n">04 · Show</span><h3>Results people read</h3>
+          <p>Blender renders, post-processor style FEA figures, process videos with live charts, a 3-D browser viewer and glTF / USD exports, made from the same data the checks ran on.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="trust">
+    <div class="wrap trust">
+      <div class="prose">
+        <p class="label">The trust card</p>
+        <h2 style="margin-block:10px 18px">Six questions every result has to answer</h2>
+        <p>A surrogate that is fast but wrong is worse than no surrogate. So each experiment in PINNeAPPle answers the same six
+          questions, and each answer is a check that ran, not a sentence someone wrote.</p>
+        <p>A stage is <em>answered</em> when its checks pass, <em>partial</em> when evidence is missing, and <em>failed</em> when a
+          check says no. The catalogue shows the card next to the figures, so the limits travel with the result.</p>
+      </div>
+      <div class="card" role="table" aria-label="Trust card of the plate-with-a-hole experiment">
+        <div class="head"><strong>Plate with a hole · CalculiX</strong><span>tier A · 6 / 6 answered</span></div>
+        <div class="stage" role="row"><b><span class="dot pass"></span>Data and geometry</b><span class="ev">gmsh C3D10 mesh, three refinements, boundary sets checked</span></div>
+        <div class="stage" role="row"><b><span class="dot pass"></span>Model</b><span class="ev">Linear elastic steel, E 210 GPa, ν 0.3</span></div>
+        <div class="stage" role="row"><b><span class="dot pass"></span>Physical constraints</b><span class="ev">Reaction force balances the applied load</span></div>
+        <div class="stage" role="row"><b><span class="dot pass"></span>Benchmark</b><span class="ev">K<sub>t</sub> 2.59 against Heywood's 2.51</span></div>
+        <div class="stage" role="row"><b><span class="dot pass"></span>Uncertainty</b><span class="ev">Grid convergence index 1.7 % (Celik 2008)</span></div>
+        <div class="stage" role="row"><b><span class="dot pass"></span>Engineering decision</b><span class="ev">Peak stress and its band against the allowable</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experiments">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">From the experiment catalogue</p>
+        <h2>Every picture here passed its checks</h2>
+        <p>The <a href="../lab/">catalogue</a> has every experiment with its figures, movies, checks, tier and trust card.</p>
+      </div>
+      <div class="gallery">
+        <figure><img src="../assets/lab/cantilever_loading.gif" alt="3-D FEA cantilever under load, von Mises stress in bands" loading="lazy">
+          <figcaption>3-D FEA cantilever, C3D8I<span>0.6 % from Timoshenko · 3e-6 from CalculiX</span></figcaption></figure>
+        <figure><img src="../assets/lab/bracket_calculix_render.jpg" alt="L bracket solved in CalculiX" loading="lazy">
+          <figcaption>L bracket in CalculiX, gmsh C3D10<span>pp.fea from Python</span></figcaption></figure>
+        <figure><img src="../assets/lab/kenics_streamlines.jpg" alt="Kenics static mixer streamlines" loading="lazy">
+          <figcaption>Kenics static mixer, six elements<span>outlet mixing 0.50 · 6.2× gain over an empty pipe</span></figcaption></figure>
+        <figure><img src="../assets/lab/pipe_bend_streamlines.jpg" alt="Pipe bend streamlines with Dean vortices" loading="lazy">
+          <figcaption>90° pipe bend, k-ω SST<span>friction −3.6 % vs Colebrook</span></figcaption></figure>
+        <figure><img src="../assets/lab/bar_wear_render.jpg" alt="Bar end coloured by wear depth" loading="lazy">
+          <figcaption>Sliding wear of a bar end<span>Archard wear, eight materials ranked</span></figcaption></figure>
+        <figure><img src="../assets/lab/car_cfd_beauty.jpg" alt="Road car aerodynamics in OpenFOAM" loading="lazy">
+          <figcaption>Road car in OpenFOAM<span>C<sub>D</sub> 0.288</span></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap quick">
+      <div>
+        <p class="label">Quick start</p>
+        <h2 style="margin-block:10px 14px">A validated result in a few lines</h2>
+        <p style="color:var(--muted)">Mesh an L bracket with gmsh, solve it in CalculiX from Python, then run a full experiment with its checks.</p>
+        <ul>
+          <li>Python 3.10+, PyTorch</li>
+          <li>OpenFOAM, CalculiX, gmsh and Blender are optional</li>
+          <li>Apache-2.0 licensed</li>
+        </ul>
+      </div>
+      <pre class="code"><code>pip install pinneapple
+
+import pinneapple as pp
+
+m = pp.fea.FEModel.from_gmsh(pp.fea.geo_l_bracket(), size=0.0025)   # gmsh C3D10
+m.material = pp.fea.Material("steel", E=210e9, nu=0.3)
+base = m.nodes_where(lambda X: X[:, 2] &lt; 1e-9)
+top = m.nodes_where(lambda X: X[:, 2] &gt; 0.08 - 1e-9)
+res = pp.fea.solve(m, pp.fea.Static(fix=[(base, (1, 2, 3))],
+                                    loads=[(top, (2000.0, 0, 0))]), "work/bracket")
+print(res.von_mises.max() / 1e6, "MPa")
+
+# run an experiment with its checks and trust card
+python -m pinneapple_lab run calculix_case -p case=plate_hole</code></pre>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="label">Projects</p>
+        <h2>Open repositories</h2>
+      </div>
+      <div class="projects">
+        <a class="main" href="https://github.com/PINNeAPPle-Labs/PINNeAPPle">
+          <div style="display:grid;gap:6px"><span class="repo">PINNeAPPle</span>
+            <p>The core library: solvers, neural models, the arena, the lab and the trust card.</p></div>
+          <span class="btn primary" style="pointer-events:none">View repository</span>
+        </a>
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-Climate"><span class="repo">PINNeAPPle-Climate</span><p>Weather and climate forecasting on the globe.</p></a>
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark"><span class="repo">PINNeAPPle-Benchmark</span><p>Benchmarks that compare models on the same data and metrics.</p></a>
+        <a href="https://github.com/PINNeAPPle-Labs/pinnfactory"><span class="repo">pinnfactory</span><p>Build physics-informed models from a problem description.</p></a>
+      </div>
+      <p class="label" style="margin-top:32px">Sector packages</p>
+      <div class="sectors">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-Aerospace">Aerospace</a>
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-Energy">Energy</a>
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-OilGas">Oil &amp; Gas</a>
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-Maritime">Maritime</a>
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-Defense">Defense</a>
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle-Automotive">Automotive</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>PINNeAPPle Labs · open-source physics AI</span>
+    <span><a href="https://github.com/PINNeAPPle-Labs">github.com/PINNeAPPle-Labs</a></span>
+  </div>
+</footer>
+</body>
+</html>

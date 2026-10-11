@@ -1,0 +1,96 @@
+{
+ "run_id": "pipe_flow-0c34ca2835fe",
+ "experiment": "pipe_flow",
+ "version": "1",
+ "params": {
+  "case": "bend_90",
+  "D": 0.05,
+  "elements": 6,
+  "iterations": 1500,
+  "procs": 2,
+  "samples": 64,
+  "render": true,
+  "keep_case": false
+ },
+ "status": "completed",
+ "started": 1791665765.657531,
+ "tags": [
+  "cfd",
+  "openfoam",
+  "internal-flow",
+  "pipes",
+  "mixing",
+  "3d",
+  "dataset"
+ ],
+ "git": "4e1388fa",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Internal flow in OpenFOAM on a structured O-grid swept along the pipe: laminar pipe against Hagen-Poiseuille, a turbulent 90 degree bend against Colebrook and Ito, a Kenics static mixer against an empty pipe (mixing of a passive scalar, pressure-drop ratio).",
+ "code": {
+  "files": [
+   "code/pipes.py"
+  ],
+  "sha1": "23fb7036ced2d6eebb27e23a77838df3293ef154",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1791666191.0549426,
+ "error": null,
+ "stages": [
+  {
+   "name": "cfd",
+   "started": 1791665767.9851842,
+   "status": "done",
+   "seconds": 200.692
+  },
+  {
+   "name": "datasets",
+   "started": 1791665969.874923,
+   "status": "done",
+   "seconds": 0.007
+  },
+  {
+   "name": "render",
+   "started": 1791665969.884285,
+   "status": "done",
+   "seconds": 220.74
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/route.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/pressure_along_bend.png",
+   "figures/dean_sections.png",
+   "figures/streamlines.jpg",
+   "figures/section_16p5708.jpg",
+   "figures/section_19p1416.jpg"
+  ]
+ },
+ "validation": {
+  "total": 4,
+  "failed": 0
+ },
+ "seconds": 425.397,
+ "datasets": {
+  "sections": {
+   "n_samples": 1,
+   "path": "runs/pipe_flow/pipe_flow-0c34ca2835fe/datasets/sections"
+  },
+  "cross_sections": {
+   "n_samples": 5,
+   "path": "runs/pipe_flow/pipe_flow-0c34ca2835fe/datasets/cross_sections"
+  },
+  "wall": {
+   "n_samples": 1,
+   "path": "runs/pipe_flow/pipe_flow-0c34ca2835fe/datasets/wall"
+  }
+ }
+}

@@ -1,0 +1,4 @@
+[16:55:15] stage simulate started
+[16:57:05] stage simulate done (110.926 s)
+[16:57:06] check finite_fields: PASS 
+[16:57:06] check strouhal_in_physical_range: PASS 

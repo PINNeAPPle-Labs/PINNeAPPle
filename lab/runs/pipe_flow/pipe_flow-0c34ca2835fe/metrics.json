@@ -1,0 +1,11 @@
+{
+ "cells": 62400,
+ "U_mean_m_s": 0.9999999999999999,
+ "Re": 50000.0,
+ "friction_factor_downstream": 0.021649139702974888,
+ "colebrook": 0.02089144352833724,
+ "K_bend_total": 0.19562741420156005,
+ "K_bend_excess": 0.12761463595415504,
+ "K_ito": 0.2304308569826252,
+ "secondary_speed_max_over_U": 0.2992159594311252
+}

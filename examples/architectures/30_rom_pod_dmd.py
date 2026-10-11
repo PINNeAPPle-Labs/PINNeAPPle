@@ -6,7 +6,7 @@ We create a synthetic linear dynamical system in a high-dimensional space, then:
 3) Roll out future states and measure reconstruction error
 
 Run:
-  python examples/pinneapple_models_showcase/30_rom_pod_dmd.py
+  python examples/architectures/30_rom_pod_dmd.py
 """
 
 from __future__ import annotations

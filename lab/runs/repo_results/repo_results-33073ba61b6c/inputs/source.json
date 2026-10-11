@@ -1,0 +1,8 @@
+{
+ "name": "heatsink_surrogate",
+ "description": "Heat-sink sizer surrogate (landing page): thermal resistance and pressure drop on held-out designs, forced and natural convection",
+ "scripts": [
+  "apps/heatsink_sizer/heatsink_sizer/surrogate.py",
+  "apps/heatsink_sizer/heatsink_sizer/sizer.py"
+ ]
+}

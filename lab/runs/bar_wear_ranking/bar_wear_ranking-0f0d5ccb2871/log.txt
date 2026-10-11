@@ -1,0 +1,1 @@
+[19:53:46] check ranking_follows_archard_K: PASS simulated steady wear rates order the materials as K = k / H

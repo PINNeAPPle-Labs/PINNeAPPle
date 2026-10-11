@@ -1,0 +1,7 @@
+{
+ "name": "airfoil_surrogate",
+ "description": "Airfoil surrogates trained on OpenFOAM (aircraft design optimizer): MLP and MeshGraphNet, Cl / Cd / Cm on held-out shapes",
+ "scripts": [
+  "pinneapple_design/aero/optimize.py"
+ ]
+}

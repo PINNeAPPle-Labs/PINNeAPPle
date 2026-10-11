@@ -190,11 +190,10 @@ def _build_model(
 
         # DeepONet
         if "deeponet" in name_lc or "onet" in name_lc:
-            try:
-                from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
-                return DeepONet(branch_in=in_dim, trunk_in=in_dim, out_dim=out_dim)
-            except Exception:
-                pass
+            # a DeepONet takes (input function, query points); this pointwise benchmark calls model(x), so it
+            # cannot host one: say so instead of returning an MLP under the DeepONet name
+            raise ValueError("DeepONet needs (u, coords) inputs; use pinneapple_neural.architectures."
+                             "neural_operators.DeepONet with an operator dataset, not the pointwise benchmark API")
 
     # Generic MLP fallback
     act_map = {"tanh": nn.Tanh, "relu": nn.ReLU, "silu": nn.SiLU, "gelu": nn.GELU}

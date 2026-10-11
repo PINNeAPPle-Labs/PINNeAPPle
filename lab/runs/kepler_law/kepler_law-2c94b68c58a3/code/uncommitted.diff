@@ -1,0 +1,115 @@
+diff --git a/pinneapple_lab/context.py b/pinneapple_lab/context.py
+index 08a8ee6b..873f1807 100644
+--- a/pinneapple_lab/context.py
++++ b/pinneapple_lab/context.py
+@@ -38,6 +38,7 @@ class RunContext:
+         validation.json  [{name, passed, value, reference, tolerance, detail}]
+         inputs/ outputs/ arrays (.npy), tables / dicts (.json), files
+         figures/         PNG, GIF
++        code/            the experiment's source (and code_files, and the uncommitted diff) as it ran
+         datasets/NAME/   shards of samples + card.json (see ``DatasetWriter``)
+         log.txt
+     """
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index 6829645a..7ba53909 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -9,4 +9,4 @@
+ | ``cylinder_lbm`` | lattice-Boltzmann flow past a cylinder; regime, Strouhal number, vorticity images | vorticity |
+ | ``bh_forecast`` | Duarte et al. U-Net forecast of accretion flows, scored against persistence (source checkout) | - |
+ """
+-from . import accretion, blackhole_forecast, cylinder, ode, pde  # noqa: F401
++from . import accretion, blackhole_forecast, cylinder, discovery, ode, pde  # noqa: F401
+diff --git a/pinneapple_lab/experiments/blackhole_forecast.py b/pinneapple_lab/experiments/blackhole_forecast.py
+index ca5fed61..77e1f6b0 100644
+--- a/pinneapple_lab/experiments/blackhole_forecast.py
++++ b/pinneapple_lab/experiments/blackhole_forecast.py
+@@ -34,6 +34,7 @@ class BlackHoleForecast(Experiment):
+                    "by lead time against persistence, with the mass check, tendency correlation and optional "
+                    "ray-traced GIF. Validation: the forecast must beat persistence on its first block.")
+     tags = ["astrophysics", "forecasting", "surrogate", "reproduction"]
++    code_files = [os.path.join(_EX, f) for f in ("simulate.py", "train_forecaster.py", "evaluate.py")]
+     params = {"runs_root": "", "train": "PL0SS0.1", "test": "PL0SS0.1", "split": "test", "stride": 2,
+               "filters": 16, "residual": False, "loss": "multi", "lr": 2e-4, "clip": 1.0, "batch_size": 16,
+               "epochs": 40, "max_minutes": 1e9, "blocks": 12, "starts": 8, "interstellar": False, "threads": 4}
+diff --git a/pinneapple_lab/runner.py b/pinneapple_lab/runner.py
+index 7556b903..863dc414 100644
+--- a/pinneapple_lab/runner.py
++++ b/pinneapple_lab/runner.py
+@@ -46,6 +46,42 @@ def _git() -> str | None:
+         return None
+ 
+ 
++def _snapshot_code(cls, run_dir: str) -> dict[str, Any]:
++    """Save the code that ran: the experiment's source file, any extra files it declares (``code_files``), and
++    the uncommitted diff of the repository (so a run from a dirty tree can still be reproduced)."""
++    import hashlib
++    import inspect
++    code_dir = os.path.join(run_dir, "code")
++    os.makedirs(code_dir, exist_ok=True)
++    info: dict[str, Any] = {"files": []}
++    paths = []
++    try:
++        paths.append(inspect.getsourcefile(cls))
++    except (TypeError, OSError):
++        pass
++    for extra in getattr(cls, "code_files", []) or []:
++        paths.append(extra if os.path.isabs(extra) else os.path.join(os.path.dirname(paths[0] or ""), extra))
++    h = hashlib.sha1()
++    for src in paths:
++        if src and os.path.isfile(src):
++            dst = os.path.join(code_dir, os.path.basename(src))
++            shutil.copy(src, dst)
++            with open(src, "rb") as f:
++                h.update(f.read())
++            info["files"].append(os.path.relpath(dst, run_dir))
++    info["sha1"] = h.hexdigest()
++    try:
++        here = os.path.dirname(os.path.abspath(__file__))
++        diff = subprocess.check_output(["git", "-C", here, "diff", "HEAD"], stderr=subprocess.DEVNULL, timeout=10)
++        if diff.strip():
++            with open(os.path.join(code_dir, "uncommitted.diff"), "wb") as f:
++                f.write(diff)
++            info["uncommitted_diff"] = "code/uncommitted.diff"
++    except Exception:
++        pass
++    return info
++
++
+ def _env() -> dict[str, Any]:
+     vers = {}
+     for m in ("numpy", "torch", "scipy"):
+@@ -78,7 +114,8 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None =
+     os.makedirs(d)
+     record = {"run_id": rid, "experiment": cls.name, "version": cls.version, "params": _jsonable(p),
+               "status": "running", "started": time.time(), "tags": list(tags or []) + list(cls.tags),
+-              "git": _git(), "environment": _env(), "description": cls.description}
++              "git": _git(), "environment": _env(), "description": cls.description,
++              "code": _snapshot_code(cls, d)}
+     with open(rj, "w") as f:
+         json.dump(record, f, indent=1)
+     store.index_run(record, {}, {})
+diff --git a/pinneapple_lab/spec.py b/pinneapple_lab/spec.py
+index 06ee0626..a4b3745d 100644
+--- a/pinneapple_lab/spec.py
++++ b/pinneapple_lab/spec.py
+@@ -29,6 +29,7 @@ class Experiment:
+     tags: list[str] = []
+     params: dict[str, Any] = {}
+     space: dict[str, Any] = {}
++    code_files: list[str] = []   # extra source files to snapshot with each run (relative to the experiment's file)
+ 
+     def run(self, ctx) -> None:  # pragma: no cover - interface
+         raise NotImplementedError
+diff --git a/tests/test_lab.py b/tests/test_lab.py
+index 273b415a..6575a7ad 100644
+--- a/tests/test_lab.py
++++ b/tests/test_lab.py
+@@ -43,6 +43,7 @@ def test_run_records_everything_and_is_cached(tmp_path):
+     rec = json.load(open(os.path.join(r.dir, "run.json")))
+     assert rec["params"] == {"a": 2.0, "n": 5} and rec["validation"] == {"total": 2, "failed": 0}
+     assert rec["stages"][0]["name"] == "compute"
++    assert rec["code"]["files"] == ["code/test_lab.py"] and os.path.exists(os.path.join(r.dir, "code/test_lab.py"))
+     again = run("_test_square", {"a": 2.0}, root=root)
+     assert again.status == "cached:completed" and again.run_id == r.run_id
+     card = json.load(open(os.path.join(r.dir, "datasets/curves/card.json")))

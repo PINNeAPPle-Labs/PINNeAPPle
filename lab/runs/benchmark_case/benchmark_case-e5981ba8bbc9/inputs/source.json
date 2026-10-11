@@ -1,0 +1,9 @@
+{
+ "repository": "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark",
+ "path": "experiments/04_terramechanics_robust",
+ "commit": "802452a43578f38ab2cc6c067c7af7d925e02d98",
+ "description": "Wheel-soil terramechanics surrogate: constraint audit, robust PINN with hard constraints",
+ "papers": [
+  "https://github.com/PINNeAPPle-Labs/PINNeAPPle-Benchmark/blob/main/experiments/04_terramechanics_robust/paper/Terramechanics_Robust_PINNeAPPle.pdf"
+ ]
+}

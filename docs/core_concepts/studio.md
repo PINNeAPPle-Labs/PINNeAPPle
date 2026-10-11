@@ -92,6 +92,61 @@ The file grows by about 28 bytes per triangle, plus about 2 bytes per triangle f
 
 Slices are stored as JSON grids, about 7 bytes per value. Keep them to a few hundred cells a side.
 
+## Particle process videos
+
+Thousands of spheres coloured by a value inside glass or steel equipment that moves (an impeller turning), rendered
+with Cycles point clouds, then composed with charts that draw themselves as time runs, a colour bar and a clock.
+Any Lagrangian result works: DEM, stirred tanks, fluidised beds, hoppers, sprays.
+
+```python
+from pinneapple_simulation.numerical_solvers.particles import StirredTank, suspend
+from pinneapple_tools.visualization.studio.particles import compose_video, render_particle_frames
+
+tank = StirredTank(R=0.075, H=0.15)                                   # pitched-blade turbine, glass tank
+res = suspend(tank, n=12000, d=3e-3, rho_p=1200.0, rpm=lambda t: min(400.0, 16.0 * t), t_end=30.0)
+angle = ...                                                           # impeller angle per frame
+pngs = render_particle_frames(res["frames"], 3e-3, "frames/", field_range=(0, 0.4),
+                              equipment=lambda k: tank.surfaces(angle[k]))
+compose_video(pngs, res["times"], "tank.gif", mp4=True, frame_dir="composed/",
+              charts=[("Particles Top [%]", res["times"], 100 * res["top_fraction"]),
+                      ("Stirrer Speed [RPM]", res["times"], res["rpm"])],
+              colorbar=("Velocity Magnitude (m/s)", 0, 0.4))
+```
+
+`frames` is a list of dicts with `x` (n, 3) and a value per particle (`speed` or `value`). `equipment(k)` returns
+the surfaces of frame k as (name, vertices, faces, material) with material "glass", "liquid", "steel" or "grey".
+Surfaces keep their topology between frames, so only the vertices move. The MP4 goes through Blender's own encoder,
+so no ffmpeg binary is needed. The lab experiment `particle_suspension` runs the whole chain with checks: settling
+velocity against Schiller-Naumann, a divergence-free flow, particles kept in the tank, and the just-suspended speed
+against Zwietering.
+
+## Structural FEA with CalculiX: `pp.fea`
+
+The same few lines for any part: a mesh, sets picked by geometry, one step, results as arrays, the post-processor
+figure or a Blender render.
+
+```python
+import pinneapple as pp
+
+m = pp.fea.FEModel.from_gmsh(pp.fea.geo_l_bracket(), size=0.0025)      # gmsh C3D10; or FEModel.from_box(...)
+m.material = pp.fea.Material("steel", E=210e9, nu=0.3, density=7850.0)
+base = m.nodes_where(lambda X: X[:, 2] < 1e-9)
+top = m.nodes_where(lambda X: X[:, 2] > 0.08 - 1e-9)
+res = pp.fea.solve(m, pp.fea.Static(fix=[(base, (1, 2, 3))], loads=[(top, (2000.0, 0, 0))]), "work/bracket")
+res.u, res.stress, res.von_mises, res.reactions
+modes = pp.fea.solve(m, pp.fea.Frequency(6, fix=[(base, (1, 2, 3))]), "work/modes")   # .frequencies, .modes
+
+from pinneapple_simulation.numerical_solvers.solid_fem import fea_figure
+fig, _ = fea_figure(res)                                                # deformed mesh, S Mises bands, legend
+```
+
+Steps: `Static` (point loads, face pressure, gravity, nonlinear geometry, plasticity through `Material.plastic`),
+`Frequency`, `Buckle`, `Heat` (fixed temperatures, film convection, surface flux). Faces come from
+`m.faces_where(pred)` on face centroids. `ccx` runs natively or in the bundled Docker image, and gmsh meshes
+any `.geo` script, OpenCASCADE booleans included. The lab experiment `calculix_case` checks five studies against
+closed-form references: a plate with a hole (Heywood), an L bracket (M c / I, mesh convergence), modes
+(Euler-Bernoulli), buckling (Euler) and a fin (1-D fin).
+
 ## External flow: `pp.cfd.ExternalFlow`
 
 ```python

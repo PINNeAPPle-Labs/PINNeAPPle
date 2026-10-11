@@ -1,0 +1,47 @@
+{
+ "name": "streamlines",
+ "description": "Streamlines (points) and the speed along them, |U|/U",
+ "n_samples": 40,
+ "shards": 1,
+ "schema": {
+  "points": {
+   "kind": "array",
+   "shape": [
+    103,
+    3
+   ],
+   "dtype": "float32",
+   "min": -1.3799999952316284,
+   "max": 10.157387733459473
+  },
+  "speed": {
+   "kind": "array",
+   "shape": [
+    103
+   ],
+   "dtype": "float32",
+   "min": 0.16342657804489136,
+   "max": 1.3323593139648438
+  }
+ },
+ "units": {},
+ "license": "",
+ "provenance": {
+  "experiment": "vehicle_cfd",
+  "run_id": "vehicle_cfd-19b6c3f7bb85",
+  "params": {
+   "vehicle": "car",
+   "style": "fastback",
+   "slant_deg": 22.0,
+   "speed": 30.0,
+   "alpha": 4.0,
+   "resolution": "coarse",
+   "surface_level": null,
+   "iterations": 600,
+   "procs": 2,
+   "samples": 96,
+   "keep_case": false
+  }
+ },
+ "sha1": "f520ed205cbea0e67f615fbd7958ca05830b869a"
+}

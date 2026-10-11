@@ -1,0 +1,6 @@
+[17:19:17] Lattice-Boltzmann vortex shedding: Strouhal numbers vs the published cylinder value
+[17:19:17] stage import started
+[17:19:17] check St_cylinder_h10: PASS Re 100, D = 16 cells; reference St 0.1647
+[17:19:17] check St_cylinder_h20: PASS Re 100, D = 16 cells; reference St 0.1647
+[17:19:17] check St_naca4412_bluff_body_range: PASS no single published value; bluff-body yardstick St ~ 0.15-0.2 on c*sin(alpha)
+[17:19:17] stage import done (0.004 s)

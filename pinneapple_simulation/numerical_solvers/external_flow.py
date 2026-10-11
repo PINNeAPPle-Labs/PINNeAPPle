@@ -556,7 +556,7 @@ mergePatchPairs ();
         dd, ll, ss = flow_directions(info["alpha"], info["beta"])
         out: Dict[str, Any] = {"bodies": {}}
         Fp, Fv = np.zeros(3), np.zeros(3)
-        xyz, cpl, cfl, bid = [], [], [], []
+        xyz, cpl, cfl, bid, frc = [], [], [], [], []
         names = info["bodies"]
         half_m = info["half_model"]
         for patch in cf.patches():
@@ -573,6 +573,7 @@ mergePatchPairs ();
             cpl.append(w["cp"])
             cfl.append(w["cf"])
             bid.append(np.full(len(w["cp"]), names.index(patch["name"])))
+            frc.append(w["f_pressure"] + w["f_viscous"])
         F = Fp + Fv
         out.update(CD=float(F @ dd / (q * S)), CL=float(F @ ll / (q * S)),
                    CS=0.0 if half_m else float(F @ ss / (q * S)),              # a half model is symmetric
@@ -632,7 +633,8 @@ mergePatchPairs ();
                                       "vorticity": f"Streamwise vorticity ωx·L/U∞, {f:g} L behind the body"}})
         info = {**info, "time": cf.time}
         return FlowResult(out, {"xyz": np.concatenate(xyz), "cp": np.concatenate(cpl), "cf": np.concatenate(cfl),
-                                "body": np.concatenate(bid)}, names, lines, speeds, slices, info, self.geometry)
+                                "body": np.concatenate(bid), "force": np.concatenate(frc)},   # force per face / rho
+                          names, lines, speeds, slices, info, self.geometry)
 
 
 def openfoam_available() -> bool:

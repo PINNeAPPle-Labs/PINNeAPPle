@@ -1,0 +1,97 @@
+diff --git a/pinneapple_lab/experiments/__init__.py b/pinneapple_lab/experiments/__init__.py
+index e21908ae..eb0acd00 100644
+--- a/pinneapple_lab/experiments/__init__.py
++++ b/pinneapple_lab/experiments/__init__.py
+@@ -10,12 +10,15 @@
+ | ``bh_forecast`` | Duarte et al. U-Net forecast of accretion flows, scored against persistence (source checkout) | - |
+ | ``repo_results`` | results already produced by repository scripts, re-validated and stored as datasets | per source |
+ | ``example_script`` | any script of ``examples/`` (examples and use cases): figures, JSON metrics, arrays, console, code | artifacts |
++| ``benchmark_case`` | landing-page cases from PINNeAPPle-Benchmark and PINNeAPPle-Climate, headline claim re-checked | arrays, sweep, lead skill |
+ """
+ from . import (  # noqa: F401
+     accretion,
+     blackhole_forecast,
+     cylinder,
+     discovery,
++    examples,
++    landing,
+     ode,
+     pde,
+     repo_results,
+diff --git a/pinneapple_lab/experiments/repo_results.py b/pinneapple_lab/experiments/repo_results.py
+index 0afd4467..9f567d53 100644
+--- a/pinneapple_lab/experiments/repo_results.py
++++ b/pinneapple_lab/experiments/repo_results.py
+@@ -27,6 +27,10 @@ SOURCES = {
+     "meshgraphnet": "MeshGraphNet rollouts (synthetic diffusion, DeepMind cylinder flow) vs frozen baseline",
+     "concorde_aoa": "LBM-LES slender delta wing (parametric Concorde stand-in): CL/CD/CM vs angle of attack",
+     "bh_forecast": "U-Net forecast of black-hole accretion flows: lead-time skill vs persistence",
++    "heatsink_surrogate": "Heat-sink sizer surrogate (landing page): thermal resistance and pressure drop on held-out "
++                          "designs, forced and natural convection",
++    "airfoil_surrogate": "Airfoil surrogates trained on OpenFOAM (aircraft design optimizer): MLP and MeshGraphNet, "
++                         "Cl / Cd / Cm on held-out shapes",
+ }
+ 
+ _SCRIPTS = {
+@@ -39,6 +43,8 @@ _SCRIPTS = {
+                      "examples/meshgraphnet/02_cylinder_flow_deepmind.py"],
+     "concorde_aoa": ["examples/use_cases/concorde_high_aoa/concorde_high_aoa_pipeline.py"],
+     "bh_forecast": ["examples/black_hole_weather/evaluate.py"],
++    "heatsink_surrogate": ["apps/heatsink_sizer/heatsink_sizer/surrogate.py", "apps/heatsink_sizer/heatsink_sizer/sizer.py"],
++    "airfoil_surrogate": ["pinneapple_design/aero/optimize.py"],
+ }
+ 
+ 
+@@ -185,6 +191,42 @@ def _bh(ctx):
+     _figures(ctx, "docs/assets/blackhole/*skill*.png")
+ 
+ 
++def _heatsink(ctx):
++    ds = ctx.dataset("held_out_error", description="Surrogate error on held-out heat-sink designs, per output")
++    for mode in ("forced", "natural"):
++        r = _json(f"apps/heatsink_sizer/artifacts/surrogate_{mode}_report.json")
++        err = r["error"]
++        for out, e in err["per_output"].items():
++            key = "Rth" if out.startswith("thermal") else "dp"
++            ctx.metric(f"{mode}_{key}_mean_abs_pct", e["mean_abs_pct"])
++            ctx.metric(f"{mode}_{key}_p95_abs_pct", e["p95_abs_pct"])
++            ctx.metric(f"{mode}_{key}_within_5pct", e["pct_within_5pct"])
++            ctx.check(f"{mode}_{key}_mean_error_below_2pct", value=e["mean_abs_pct"], max=2.0,
++                      detail=f"{err['n_test_designs']} {err['measured_on']}")
++            ds.add(mode=mode, output=out, n_test=int(err["n_test_designs"]), mean_abs_pct=e["mean_abs_pct"],
++                   p95_abs_pct=e["p95_abs_pct"], max_abs_pct=e["max_abs_pct"], pct_within_5pct=e["pct_within_5pct"])
++    for f in sorted(glob.glob(_p("docs/assets/apps/0[12]-*.jpg"))):
++        ctx.figure_file(f)
++
++
++def _airfoil(ctx):
++    m = _json("apps/aero_optimizer/model/surrogate.metrics.json")
++    ctx.input("counts", m["counts"])
++    ds = ctx.dataset("test_points", description="Held-out airfoil cases: OpenFOAM coefficients and surrogate "
++                     "predictions", units={"alpha": "deg"})
++    for model in ("mlp", "gnn"):
++        for c in ("Cl", "Cd", "Cm"):
++            ctx.metric(f"{model}_{c}_r2", m[f"{model}_test"][c]["r2"])
++            ctx.metric(f"{model}_{c}_mae", m[f"{model}_test"][c]["mae"])
++        ctx.check(f"{model}_Cd_r2", value=m[f"{model}_test"]["Cd"]["r2"], min=0.97,
++                  detail=f"{m['counts']['test_shapes']} unseen shapes")
++        for pt in m.get(f"{model}_test_points", []):
++            ds.add(model=model, case=pt["id"], alpha=float(pt["alpha"]), true=np.asarray(pt["true"]),
++                   pred=np.asarray(pt["pred"]))
++    for f in sorted(glob.glob(_p("docs/assets/apps/13-*.jpg")))[:4]:
++        ctx.figure_file(f)
++
++
+ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
+     import matplotlib
+     matplotlib.use("Agg")
+@@ -205,7 +247,8 @@ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
+ 
+ 
+ _RUN = {"burgers_pinn": _burgers, "fin_inverse_2d": lambda c: _fin(c, "2d"), "fin_inverse_3d": lambda c: _fin(c, "3d"),
+-        "lbm_strouhal": _lbm, "meshgraphnet": _mgn, "concorde_aoa": _concorde, "bh_forecast": _bh}
++        "lbm_strouhal": _lbm, "meshgraphnet": _mgn, "concorde_aoa": _concorde, "bh_forecast": _bh,
++        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil}
+ 
+ 
+ @register

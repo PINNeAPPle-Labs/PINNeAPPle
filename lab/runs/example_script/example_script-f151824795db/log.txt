@@ -1,0 +1,12 @@
+[17:58:11] stage run started
+[18:08:11] stage run done (600.141 s)
+[18:08:11] stage collect started
+[18:08:11] stage collect done (0.038 s)
+[18:08:11] check exits_cleanly: FAIL timeout
+[18:08:11] Traceback (most recent call last):
+  File "/home/user/PINNeAPPle/pinneapple_lab/runner.py", line 144, in run
+    cls().run(ctx)
+  File "/home/user/PINNeAPPle/pinneapple_lab/experiments/examples.py", line 288, in run
+    raise TimeoutError(f"{p['script']} did not finish in {p['timeout']} s")
+TimeoutError: examples/getting_started/03_heat_diffusion_1d.py did not finish in 600.0 s
+

@@ -1,0 +1,5 @@
+[17:19:17] MeshGraphNet rollouts (synthetic diffusion, DeepMind cylinder flow) vs frozen baseline
+[17:19:17] stage import started
+[17:19:17] check synthetic_diffusion_beats_baseline: PASS 
+[17:19:17] check cylinder_flow_beats_baseline: PASS 
+[17:19:17] stage import done (0.002 s)

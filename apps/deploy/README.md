@@ -2,8 +2,8 @@
 
 HeatSink Sizer, PCB Hotspot, Engineering Data Health, Engineering Data Standardizer, Simulation Metadata, the Form
 Compiler, Inverse Heat Lab, Simulation Preflight, Mesh Quality, Simulation Comparator, Engineering Model Lineage and the
-Simulation Interoperability Hub and the
-Aircraft Design Optimizer on a single Linux VM (e.g. Hetzner Cloud), each on its own
+Simulation Interoperability Hub, the
+Aircraft Design Optimizer and the PINNeAPPle Lab catalogue on a single Linux VM (e.g. Hetzner Cloud), each on its own
 subdomain, behind one Caddy that obtains and renews Let's Encrypt certificates automatically.
 
 ```
@@ -41,6 +41,7 @@ At your DNS provider, create two **A** records (and AAAA records if you use IPv6
 | `lineage` | A | `<server IPv4>` |
 | `interop` | A | `<server IPv4>` |
 | `aero` | A | `<server IPv4>` |
+| `lab` | A | `<server IPv4>` |
 
 If the zone is on Cloudflare, set both records to **DNS only** (grey cloud) for the first start, so
 Let's Encrypt can reach Caddy. Check propagation with `dig +short heatsink.example.org`.
@@ -101,7 +102,7 @@ Caddy. Start only the apps, attached to that proxy's Docker network, and add two
 ```bash
 docker inspect <proxy container> --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
 PROXY_NETWORK=<that network> docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml \
-  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero
+  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab
 ```
 
 Caddyfile blocks for the existing proxy (then `caddy validate` and `caddy reload` inside its container):
@@ -239,7 +240,26 @@ aero.example.org {
 		}
 	}
 }
+lab.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-lab:8093
+}
 ```
+
+## PINNeAPPle Lab catalogue (`lab`)
+
+The `lab` service runs `python -m pinneapple_lab serve` (standard library HTTP server, port 8093) on the `lab_data`
+volume, which starts as a copy of the repository's `lab/` folder. It serves the catalogue page, every run's files,
+a JSON API (`/api/catalog`, `/api/runs`, `/api/runs/<id>`, `/api/datasets`) and dataset downloads
+(`/download/<experiment>/<dataset>.npz`). New runs appear on reload, so sweeps can run in the container:
+
+```bash
+docker compose exec lab python -m pinneapple_lab sweep repo_results -g source=burgers_pinn,lbm_strouhal
+docker compose exec lab python -m pinneapple_lab examples --run --match use_cases   # examples and use cases
+```
+
+Set `LAB_USER` / `LAB_PASSWORD` in `.env` to require a login (`/health` stays open). Without Docker:
+`pip install pinneapple pillow` and `python -m pinneapple_lab serve --host 0.0.0.0 --root /path/to/lab`.
 
 ## Operations
 

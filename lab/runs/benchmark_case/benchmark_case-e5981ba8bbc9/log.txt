@@ -1,0 +1,7 @@
+[17:58:58] Wheel-soil terramechanics surrogate: constraint audit, robust PINN with hard constraints
+[17:58:58] stage headline started
+[17:58:58] check hard_constraints_hold: PASS Mohr-Coulomb and torque, built in
+[17:58:58] check robust_beats_original_on_torque: PASS 
+[17:58:58] stage headline done (0.0 s)
+[17:58:58] stage artifacts started
+[17:58:58] stage artifacts done (0.014 s)

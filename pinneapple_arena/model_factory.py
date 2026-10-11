@@ -50,7 +50,7 @@ def _build_kwargs(net_cfg: NetworkConfig, in_dim: int, out_dim: int,
     """
     modes2 = net_cfg.modes2 if net_cfg.modes2 > 0 else net_cfg.modes
     edge_in = edge_in_dim if edge_in_dim > 0 else (net_cfg.edge_in_dim if net_cfg.edge_in_dim > 0 else in_dim)
-    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else in_dim
+    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else 1        # one instance: a constant input function
     trunk  = net_cfg.trunk_dim  if net_cfg.trunk_dim  > 0 else in_dim
     state  = net_cfg.state_dim  if net_cfg.state_dim  > 0 else in_dim
 
@@ -189,7 +189,9 @@ def build_model(cfg: ModelConfig, in_dim: int = 2, out_dim: int = 1,
 
     # ── canonical alias map (user-facing → registry key) ─────────────────
     _ALIASES = {
-        "fno2d": "fno", "fourier": "fno", "fourier_neural_operator": "fno",
+        # the Arena's fields are 2-D grids: a "fno" there is the 2-D operator, never the 1-D one over a point list
+        "fno2d": "fno2d", "fno": "fno2d" if in_dim == 2 else "fno",
+        "fourier": "fno2d" if in_dim == 2 else "fno", "fourier_neural_operator": "fno2d" if in_dim == 2 else "fno",
         "pinn": "vanilla_pinn", "vanilla": "vanilla_pinn",
         "inv_pinn": "inverse_pinn",
         "gnn": "gnn",
@@ -233,13 +235,9 @@ def _fallback_build(cfg: ModelConfig, in_dim: int, out_dim: int,
     if any(mtype.startswith(p) for p in ("noether_", "upt", "ab_upt", "transolver", "aero_")):
         return _build_noether(mtype, net, in_dim, out_dim)
 
-    # ultimate fallback: generic MLP
-    import warnings
-    warnings.warn(
-        f"Unknown model type '{mtype}'. Using generic MLP as fallback. "
-        "Check that pinneapple_neural is installed and the model key is correct."
-    )
-    return _MLP(in_dim, out_dim, net.hidden, net.activation)
+    raise ValueError(
+        f"Unknown model type '{mtype}'. Check that pinneapple_neural is installed and the model key is correct "
+        "(an unknown type is an error, not a generic MLP under that name).")
 
 
 # ── individual fallback builders ───────────────────────────────────────────────
@@ -250,8 +248,8 @@ def _build_vanilla_pinn(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn
         return VanillaPINN(in_dim=in_dim, out_dim=out_dim,
                            hidden=net_cfg.hidden, activation=net_cfg.activation,
                            **net_cfg.extra)
-    except Exception:
-        return _MLP(in_dim, out_dim, net_cfg.hidden, net_cfg.activation)
+    except Exception as e:
+        raise RuntimeError(f"could not build the requested model: {e}") from e  # never an MLP in disguise
 
 
 def _build_siren(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module:
@@ -260,8 +258,8 @@ def _build_siren(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module
         return SIREN(in_dim=in_dim, out_dim=out_dim,
                      hidden=net_cfg.hidden, omega_0=net_cfg.omega_0,
                      **net_cfg.extra)
-    except Exception:
-        return _MLP(in_dim, out_dim, net_cfg.hidden, net_cfg.activation)
+    except Exception as e:
+        raise RuntimeError(f"could not build the requested model: {e}") from e  # never an MLP in disguise
 
 
 def _build_modified_mlp(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module:
@@ -270,8 +268,8 @@ def _build_modified_mlp(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn
         return ModifiedMLP(in_dim=in_dim, out_dim=out_dim,
                            hidden=net_cfg.hidden, activation=net_cfg.activation,
                            **net_cfg.extra)
-    except Exception:
-        return _MLP(in_dim, out_dim, net_cfg.hidden, net_cfg.activation)
+    except Exception as e:
+        raise RuntimeError(f"could not build the requested model: {e}") from e  # never an MLP in disguise
 
 
 def _build_fno2d(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module:
@@ -281,19 +279,17 @@ def _build_fno2d(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module
         return FNO2d(in_channels=in_dim, out_channels=out_dim,
                      width=net_cfg.width, modes1=net_cfg.modes, modes2=modes2,
                      n_layers=net_cfg.layers, **net_cfg.extra)
-    except Exception:
-        return _MLP(in_dim, out_dim, net_cfg.hidden, net_cfg.activation)
+    except Exception as e:
+        raise RuntimeError(f"could not build the requested model: {e}") from e  # never an MLP in disguise
 
 
 def _build_deeponet(net_cfg: NetworkConfig, in_dim: int, out_dim: int) -> nn.Module:
-    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else in_dim
+    branch = net_cfg.branch_dim if net_cfg.branch_dim > 0 else 1        # one instance: a constant input function
     trunk  = net_cfg.trunk_dim  if net_cfg.trunk_dim  > 0 else in_dim
-    try:
-        from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
-        return DeepONet(branch_dim=branch, trunk_dim=trunk, out_dim=out_dim,
-                        hidden=net_cfg.hidden, **net_cfg.extra)
-    except Exception:
-        return _MLP(in_dim, out_dim, net_cfg.hidden, net_cfg.activation)
+    from pinneapple_neural.architectures.neural_operators.deeponet import DeepONet
+    # hidden is a list of widths here; a failure must surface, not turn the DeepONet into an MLP silently
+    return DeepONet(branch_dim=branch, trunk_dim=trunk, out_dim=out_dim, hidden=list(net_cfg.hidden),
+                    **net_cfg.extra)
 
 
 def _build_meshgraphnet(net_cfg: NetworkConfig, in_dim: int, out_dim: int,
@@ -305,8 +301,8 @@ def _build_meshgraphnet(net_cfg: NetworkConfig, in_dim: int, out_dim: int,
                             hidden_dim=net_cfg.hidden_dim, n_layers=net_cfg.n_layers,
                             n_message_passing=net_cfg.n_message_passing,
                             dropout=net_cfg.dropout, **net_cfg.extra)
-    except Exception:
-        return _MLP(in_dim, out_dim, net_cfg.hidden, net_cfg.activation)
+    except Exception as e:
+        raise RuntimeError(f"could not build the requested model: {e}") from e  # never an MLP in disguise
 
 
 def _build_noether(model_type: str, net_cfg: NetworkConfig, in_dim: int, out_dim: int

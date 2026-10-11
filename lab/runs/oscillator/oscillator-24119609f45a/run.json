@@ -1,0 +1,61 @@
+{
+ "run_id": "oscillator-24119609f45a",
+ "experiment": "oscillator",
+ "version": "1",
+ "params": {
+  "zeta": 0.33451060674716326,
+  "omega": 4.1504895252131755,
+  "method": "symplectic",
+  "dt": 0.011371309939945087,
+  "t_end": 20.0,
+  "seed": 0
+ },
+ "status": "completed",
+ "started": 1791650105.343673,
+ "tags": [
+  "ode",
+  "verification"
+ ],
+ "git": "c52191ad",
+ "environment": {
+  "python": "3.11.15",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.4.6"
+  }
+ },
+ "description": "Damped harmonic oscillator x'' + 2 zeta omega x' + omega^2 x = 0: integrator vs exact solution.",
+ "finished": 1791650105.4884224,
+ "error": null,
+ "stages": [
+  {
+   "name": "integrate",
+   "started": 1791650105.3690424,
+   "status": "done",
+   "seconds": 0.001
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/params.json"
+  ],
+  "outputs": [
+   "outputs/t.npy",
+   "outputs/x.npy"
+  ],
+  "figures": [
+   "figures/trajectory.png"
+  ]
+ },
+ "validation": {
+  "total": 2,
+  "failed": 0
+ },
+ "seconds": 0.145,
+ "datasets": {
+  "trajectories": {
+   "n_samples": 1,
+   "path": "runs/oscillator/oscillator-24119609f45a/datasets/trajectories"
+  }
+ }
+}

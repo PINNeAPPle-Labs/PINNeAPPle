@@ -1,0 +1,2264 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/strategy/STRATEGY_PHYSICS_AI/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Physics AI Strategy — structure and first implementation - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#physics-ai-strategy-structure-and-first-implementation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Physics AI Strategy — structure and first implementation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../core_concepts/reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-thesis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Thesis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-current-state-of-the-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Current state of the repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-researchs-diagnosis-nine-problems-one-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The research's diagnosis: nine problems, one architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-products-the-research-proposes-seven-internal-products" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Products the research proposes (seven internal products)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-implementation-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Implementation status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-demonstrations-the-research-recommends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Demonstrations the research recommends
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Phases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-what-the-research-recommends-not-doing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. What the research recommends not doing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-decisions-the-owner-must-take" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Decisions the owner must take
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Caveats
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/strategy/STRATEGY_PHYSICS_AI.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/strategy/STRATEGY_PHYSICS_AI.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="physics-ai-strategy-structure-and-first-implementation">Physics AI Strategy — structure and first implementation<a class="headerlink" href="#physics-ai-strategy-structure-and-first-implementation" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Status:</strong> structured from the owner's research (October 2026), which covers the public PINNeAPPle repository, recent Physics AI / Scientific ML / CAE job postings, and public moves by NVIDIA, Siemens, Dassault, SimScale, PhysicsX, PTC, Blue Origin, Periodic Labs and Engineering AI startups.</p>
+<p><strong>Verification status:</strong> this document does <strong>not</strong> verify the market facts quoted in the research (company launches, customer counts, dataset sizes, pricing, marketing claims). Treat them as working hypotheses until checked against primary sources.</p>
+<p><strong>Scope of this file:</strong> what the research recommends, how that maps to the code that exists today, what is implemented, and what is decided versus still open.</p>
+</blockquote>
+<hr />
+<h2 id="1-thesis">1. Thesis<a class="headerlink" href="#1-thesis" title="Permanent link">&para;</a></h2>
+<p>Physics AI is moving from a question of neural architecture ("which network solves this PDE best?") to a question of <strong>engineering infrastructure</strong>. Commercial value shifts from the model to the accelerated workflow: explore more designs, turn hours of simulation into seconds of prediction, operate a digital twin, and let an agent run the engineering process.</p>
+<p>Evolution proposed by the research:</p>
+<div class="highlight"><pre><span></span><code>Solver → Surrogate → Physics AI → Design AI → Digital Twin → Engineering Agent → Autonomous Engineering
+</code></pre></div>
+<p>Recommended positioning: <strong>an open, vendor-neutral infrastructure layer between physical models and engineering applications.</strong> PINNeAPPle does not replace solvers (OpenFOAM, FEniCS, Ansys, Siemens). It sits above them and composes them.</p>
+<p>Recommended one-line description:</p>
+<blockquote>
+<p>An open, vendor-neutral infrastructure for building, validating and deploying AI systems for physical engineering.</p>
+</blockquote>
+<h2 id="2-current-state-of-the-repository">2. Current state of the repository<a class="headerlink" href="#2-current-state-of-the-repository" title="Permanent link">&para;</a></h2>
+<p>Verified by inspecting module directories and <code>ROADMAP.md</code> on <code>main</code> (October 2026). "Exists" means a module is present, not that it is validated in production.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Modules present</th>
+<th>Main gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Problem specification</td>
+<td><code>pinneapple_problemdesign</code> (<code>ProblemSpec</code> for elicited problems), <code>pinneapple_physics/pde_environment</code> (<code>ProblemSpec</code> for PDEs), <code>pinneapple_data/upd_types</code> (<code>ConditionSpec</code>)</td>
+<td>Three overlapping specs; no single universal physical problem (see §5, Decision D1).</td>
+</tr>
+<tr>
+<td>Physics AI models</td>
+<td><code>pinneapple_neural</code>, <code>pinneapple_models</code>, <code>pinneapple_physics</code> (PINN, neural operators, GNN, ROM, SINDy, symplectic models)</td>
+<td>No common interface; the user chooses the architecture.</td>
+</tr>
+<tr>
+<td>Physics engines</td>
+<td><code>pinneapple_solvers</code>, <code>pinneapple_simulation</code>; bridges to OpenFOAM and FEniCS in the CFD product</td>
+<td>Bridges are per product, not a common backend contract.</td>
+</tr>
+<tr>
+<td>Geometry</td>
+<td><code>SDF</code>, <code>CSG</code>, mesh and GNN code</td>
+<td>No geometry as a first-class layer.</td>
+</tr>
+<tr>
+<td>Data</td>
+<td><code>pinneapple_data</code>, <code>pinneapple_registry</code> (problem, dataset, model, experiment stores), <code>pinneapple_pdb</code></td>
+<td>Stores exist separately; no lineage graph linking them.</td>
+</tr>
+<tr>
+<td>Trust and validation</td>
+<td><code>pinneapple_analysis/trust/trust_gate.py</code> (OOD, residual, ensemble per prediction); <code>pinneapple_analysis/verification/evidence_graph.py</code>; <code>pinneapple_hub/model_card.py</code></td>
+<td>No deployment decision aggregating the checks (addressed in §4).</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>Bayesian optimization code and design modules (<code>pinneapple_design</code>)</td>
+<td>Not connected to surrogate validation.</td>
+</tr>
+<tr>
+<td>Agents</td>
+<td><code>pinneapple_llm</code> (guardrails), <code>pinneapple_tools</code>, <code>pinneapple_problemdesign</code></td>
+<td>No agent that runs the full workflow through the platform APIs.</td>
+</tr>
+<tr>
+<td>Benchmarking</td>
+<td><code>pinneapple_arena</code>, <code>benchmarks/</code></td>
+<td>Not yet a reference benchmark with domain-of-validity reporting.</td>
+</tr>
+<tr>
+<td>Foundation / world models</td>
+<td><code>pinneapple_worldmodel</code> (described as generalist)</td>
+<td>No multi-domain demonstration against baselines.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-the-researchs-diagnosis-nine-problems-one-architecture">3. The research's diagnosis: nine problems, one architecture<a class="headerlink" href="#3-the-researchs-diagnosis-nine-problems-one-architecture" title="Permanent link">&para;</a></h2>
+<p>The research lists twenty problems. The ones that drive the plan:</p>
+<ol>
+<li><strong>CAD / engineering intent → executable simulation.</strong> Missing: an engineering problem compiler (intent → physics → geometry → mesh → solver → surrogate → validation).</li>
+<li><strong>Generating data efficiently.</strong> Missing: a simulation factory (CAD → design of experiments → solver → dataset → quality control), with active learning to pick the next simulations.</li>
+<li><strong>Choosing the right model.</strong> Missing: a model selector that compares candidates (PINN, operator, GNN, ROM) on a benchmark, instead of a fixed choice.</li>
+<li><strong>Out-of-distribution generalization.</strong> Missing: a generalization suite that tests geometry, physics, resolution and regime OOD separately.</li>
+<li><strong>Knowing when to trust a surrogate.</strong> Missing: a trust layer that combines residual checks, OOD, uncertainty and boundary-condition violations into a decision.</li>
+<li><strong>Deciding AI versus solver per request.</strong> Missing: an adaptive fidelity engine.</li>
+<li><strong>Surrogate, solver and optimizer are separate systems.</strong> Missing: a design loop (requirements → candidates → physics AI → high-fidelity validation → Pareto front → engineer review).</li>
+<li><strong>Generated geometry ignores physics.</strong> Missing: a physics-aware generator.</li>
+<li><strong>Engineering language is not executable.</strong> Missing: intent → physics selection → geometry → material → boundary conditions.</li>
+<li><strong>Agents cannot call engineering tools safely.</strong> Missing: a typed, auditable tool surface.</li>
+<li><strong>Simulations are not reproducible.</strong> Missing: experiment lineage (commit, environment, data, seeds, hardware, outputs).</li>
+<li><strong>Multi-fidelity learning.</strong> Missing: training on cheap, medium and high-fidelity data together.</li>
+<li><strong>Transfer across geometries and applications.</strong></li>
+<li><strong>Neural operator scaling.</strong></li>
+<li><strong>Physics AI on bad problems</strong> (stiff, multi-scale, sparse data).</li>
+<li><strong>Connecting the physical world to the model</strong> (sensors, state estimation).</li>
+<li><strong>Multi-objective optimization.</strong></li>
+<li><strong>Explaining model decisions to engineers.</strong></li>
+<li><strong>Connecting multiple solvers.</strong></li>
+<li><strong>No universal representation of a physical problem.</strong></li>
+</ol>
+<p><strong>Priority list from the research (ten problems, in order):</strong> engineering intent → simulation (1); simulation data factory (2); model selector (3); OOD generalization (4); trust layer (5); adaptive fidelity (6); design loop (7); orchestrator (8); runtime and digital twin (9); universal physical problem (10). Foundation models and world models come after these.</p>
+<h2 id="4-products-the-research-proposes-seven-internal-products">4. Products the research proposes (seven internal products)<a class="headerlink" href="#4-products-the-research-proposes-seven-internal-products" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Internal product</th>
+<th>Pipeline</th>
+<th>Existing base</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Problem Compiler</td>
+<td>natural language or CAD → universal physical problem</td>
+<td><code>problemdesign</code>, <code>physics/pde_environment</code></td>
+<td>Specification gap (D1).</td>
+</tr>
+<tr>
+<td>Simulation Factory</td>
+<td>CAD → DOE → solver → dataset → quality control</td>
+<td><code>simulation</code>, <code>data</code>, CFD product pipeline</td>
+<td>Works per product; not generalized.</td>
+</tr>
+<tr>
+<td>Physics Model Factory</td>
+<td>dataset → architecture search → training → UQ → benchmark → registry</td>
+<td><code>neural</code>, <code>train</code>, <code>registry</code>, <code>arena</code></td>
+<td>Pieces exist; no single pipeline.</td>
+</tr>
+<tr>
+<td><strong>Physics Trust</strong></td>
+<td>prediction → physics checks → OOD → UQ → validation → trust score</td>
+<td><code>analysis/trust</code>, <code>hub/model_card</code></td>
+<td><strong>First slice implemented (§5).</strong></td>
+</tr>
+<tr>
+<td>Design Explorer</td>
+<td>requirements → generate → simulate → surrogate → optimize → Pareto</td>
+<td><code>design</code>, <code>analysis</code></td>
+<td>Not connected to validation.</td>
+</tr>
+<tr>
+<td>Physics Agent</td>
+<td>engineer ↔ agent ↔ CAD / solver / model / optimizer</td>
+<td><code>llm</code>, <code>tools</code></td>
+<td>Not built.</td>
+</tr>
+<tr>
+<td>Physics Runtime</td>
+<td>trained model → API → edge → digital twin → sensor stream → continuous validation</td>
+<td><code>systems/digital_twin</code>, <code>hub</code></td>
+<td>Partial.</td>
+</tr>
+</tbody>
+</table>
+<p>The research also proposes <strong>Geometric AI</strong> (CAD, B-Rep, SDF, point cloud, mesh and graph representations) and <strong>Multi-fidelity learning</strong> as cross-cutting capabilities.</p>
+<h2 id="5-implementation-status">5. Implementation status<a class="headerlink" href="#5-implementation-status" title="Permanent link">&para;</a></h2>
+<h3 id="51-done-deployment-trust-report-physics-trust-first-slice">5.1 Done: deployment trust report (Physics Trust, first slice)<a class="headerlink" href="#51-done-deployment-trust-report-physics-trust-first-slice" title="Permanent link">&para;</a></h3>
+<p><code>pinneapple_analysis/trust/trust_report.py</code> combines independent checks into one decision: <code>APPROVED</code>, <code>REVIEW</code> or <code>REJECT</code>.</p>
+<ul>
+<li><code>Check</code>: one check with status <code>supports</code>, <code>contradicts</code> or <code>not_run</code>, criticality, weight and reason. The vocabulary matches the proofs used by the CFD product's verification module.</li>
+<li><code>TrustReport</code>: score (weighted over executed checks), coverage, reasons, Markdown and dict output.</li>
+<li><code>from_trust_score</code>: converts the sub-scores of the existing <code>TrustGate</code> (OOD, PDE residual, ensemble) into checks.</li>
+</ul>
+<p>Decision rules (design choices, not standards):
+- any failed <strong>critical</strong> check → <code>REJECT</code>;
+- any other failed check → <code>REVIEW</code>;
+- coverage below 60% → <code>REVIEW</code>;
+- score below 0.80 → <code>REVIEW</code>;
+- otherwise → <code>APPROVED</code>.</p>
+<p>Tests: <code>tests/test_trust_report.py</code> (9 tests) and <code>tests/test_trust_gate.py</code> pass.</p>
+<h3 id="52-decided-not-yet-implemented">5.2 Decided, not yet implemented<a class="headerlink" href="#52-decided-not-yet-implemented" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>D1 — Universal physical problem.</strong> Do <strong>not</strong> add a third specification class. First reconcile <code>problemdesign.ProblemSpec</code>, <code>physics.pde_environment.ProblemSpec</code> and <code>upd_types.ConditionSpec</code> into one representation with explicit conversions, then add the universal problem as a façade over it. Reason: a third class increases fragmentation, which is the problem the research describes.</li>
+<li><strong>D2 — Trust report is linked to model records.</strong> Next step: store the <code>TrustReport</code> in <code>ModelCard</code> and in the registry, so every published model carries its decision and reasons.</li>
+<li><strong>D3 — Calibrate trust limits.</strong> The 0.80 score, 60% coverage and 0.7 sub-score limits are provisional. Calibrate them on the existing surrogates of the CFD product, whose measured errors range from 0.23% to about 10%.</li>
+</ul>
+<h2 id="6-demonstrations-the-research-recommends">6. Demonstrations the research recommends<a class="headerlink" href="#6-demonstrations-the-research-recommends" title="Permanent link">&para;</a></h2>
+<p>Five demonstrations, each chosen to show the full loop rather than a single model:</p>
+<ol>
+<li><strong>Aerospace:</strong> wing geometry (STEP) → CFD → neural operator → drag/lift prediction → geometry optimization → high-fidelity CFD validation.</li>
+<li><strong>Automotive:</strong> vehicle geometry → simulation factory (about 10,000 designs) → neural operator → OOD validation → aerodynamic optimization.</li>
+<li><strong>Structural:</strong> bracket → FEA → surrogate → stress prediction → mass optimization → uncertainty → validation.</li>
+<li><strong>Industrial digital twin:</strong> CFD/FEA → surrogate → sensor stream → ensemble Kalman filter → anomaly detection → prediction.</li>
+<li><strong>Agentic engineering (flagship):</strong> "Design a cooling system that keeps the electronics below 80 °C while minimizing mass and pressure drop" → the system interprets the problem, generates geometry, selects physics, runs simulations, trains a surrogate, optimizes, validates, and returns five candidate designs.</li>
+</ol>
+<p>The CFD product (pipe erosion) is a vertical slice of demonstration 1's pattern and should be the reference for the surrogate and trust pieces.</p>
+<h2 id="7-phases">7. Phases<a class="headerlink" href="#7-phases" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Focus</th>
+<th>Entry condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Universal physical problem (D1)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Simulation factory</td>
+<td>Phase 1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Physics model factory</td>
+<td>Phase 2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Trust, OOD and validation (§5.1, D2, D3)</td>
+<td>Phase 3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Adaptive fidelity</td>
+<td>Phase 4</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Design optimization</td>
+<td>Phase 5</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Engineering agent</td>
+<td>Phases 1–6 provide APIs for the agent</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Digital twin runtime</td>
+<td>Phase 4 (trust) and phase 6</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Foundation and world models</td>
+<td>Phases 1–8</td>
+</tr>
+</tbody>
+</table>
+<p>The research's rule for the sequence: each stage feeds the next, forming a closed loop — problem → data → model → trust → decision → optimization → deployment → real world → more data.</p>
+<p><strong>Recommendation from the research:</strong> temporarily freeze horizontal expansion of models, and invest in the sequence above. The repository already contains most primitives; the work is composition, not new architectures.</p>
+<h2 id="8-what-the-research-recommends-not-doing">8. What the research recommends not doing<a class="headerlink" href="#8-what-the-research-recommends-not-doing" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Do not add more architectures without an industrial problem that needs them.</li>
+<li>Do not try to build a new general-purpose solver or a new CAE platform.</li>
+<li>Do not compete head-on with SimScale on CFD/FEA.</li>
+<li>Do not build a generic "ChatGPT for CFD": it is easy to copy.</li>
+</ul>
+<h2 id="9-decisions-the-owner-must-take">9. Decisions the owner must take<a class="headerlink" href="#9-decisions-the-owner-must-take" title="Permanent link">&para;</a></h2>
+<p>These are not decided here:</p>
+<ul>
+<li>Whether the product is sold as a platform, as engineering applications, or as both.</li>
+<li>The first industrial vertical (the research points at aerospace and automotive; the current product is pipe erosion).</li>
+<li>Whether to publish a reference architecture or keep the design internal until the first demonstration exists.</li>
+<li>The trust limits (D3) and the erosion accuracy target for the CFD product (today only ΔP has a target).</li>
+</ul>
+<h2 id="10-caveats">10. Caveats<a class="headerlink" href="#10-caveats" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Market and company statements in the research are not verified here (see the status note at the top).</li>
+<li>The research text is long and was partly duplicated in the source file; this document keeps only the structure, not every example.</li>
+<li>Career-related remarks in the source research are intentionally not part of this repository document.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

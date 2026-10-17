@@ -68,3 +68,7 @@ examples/openfoam_campaign/_out/
 examples/lbm/_out/
 examples/geometry_library/_out/
 dist/geometries/
+
+# brick experiment: heavy outputs (viewer copies three.js, frames)
+examples/bricks/_out/viewer_*/
+examples/bricks/_out/turntable_frames/

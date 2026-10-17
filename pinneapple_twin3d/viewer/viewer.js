@@ -12,6 +12,7 @@
 //   &zoom=1.0                   camera distance factor (< 1 closer)
 //   &theme=dark|light           colour theme
 //   &range=min,max              fixed colour range
+//   &speed=ms                   playback interval per time step (default 250)
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
@@ -95,7 +96,7 @@ async function load() {
   const base = new URL(".", sceneUrl);
   const [gltf, buf] = await Promise.all([
     new GLTFLoader().loadAsync(new URL(m.geometry, base).href),
-    (m.fields.length || (m.motions || []).length) ? fetch(new URL(m.fields_file, base)).then((r) => r.arrayBuffer()) : Promise.resolve(new ArrayBuffer(0)),
+    (m.fields.length || (m.motions || []).length || (m.visibility || []).length) ? fetch(new URL(m.fields_file, base)).then((r) => r.arrayBuffer()) : Promise.resolve(new ArrayBuffer(0)),
   ]);
   state.fields = buf;
 
@@ -119,6 +120,10 @@ async function load() {
   for (const mo of m.motions || []) {          // rigid motion per step: x, y, z, qw, qx, qy, qz
     const part = state.parts.get(mo.part);
     if (part) part.motion = new Float32Array(buf, mo.offset, mo.steps * 7);
+  }
+  for (const vi of m.visibility || []) {       // 1 = drawn, 0 = hidden, per step
+    const part = state.parts.get(vi.part);
+    if (part) part.visibility = new Float32Array(buf, vi.offset, vi.steps);
   }
   buildUi();
   fitCamera();
@@ -165,15 +170,16 @@ function buildUi() {
       row.innerHTML = `<input type="checkbox" checked><span></span><button title="Show only this part">isolate</button>`;
       row.querySelector("span").textContent = name;
       const cb = row.querySelector("input");
-      cb.onchange = () => { state.parts.get(name).mesh.visible = cb.checked; };
+      cb.onchange = () => { state.parts.get(name).hidden = !cb.checked; update(); };
       row.querySelector("button").onclick = (e) => {
         e.preventDefault();
         for (const [n, p] of state.parts) {
-          p.mesh.visible = n === name;
+          p.hidden = n !== name;
           box.querySelectorAll("label").forEach((l) => {
             if (l.querySelector("span").textContent === n) l.querySelector("input").checked = n === name;
           });
         }
+        update();
       };
       box.appendChild(row);
     }
@@ -201,7 +207,8 @@ function buildUi() {
   $("play").onclick = () => {
     if (state.playing) { clearInterval(state.playing); state.playing = null; $("play").textContent = "▶"; return; }
     $("play").textContent = "⏸";
-    state.playing = setInterval(() => { state.step = (state.step + 1) % nt; $("time").value = state.step; update(); }, 250);
+    const speed = Math.max(16, parseInt(params.get("speed") || "250", 10) || 250);
+    state.playing = setInterval(() => { state.step = (state.step + 1) % nt; $("time").value = state.step; update(); }, speed);
   };
 
   // clipping
@@ -290,6 +297,8 @@ function update() {
       p.mesh.position.set(a[k], a[k + 1], a[k + 2]);
       p.mesh.quaternion.set(a[k + 4], a[k + 5], a[k + 6], a[k + 3]);
     }
+    const shown = !p.visibility || p.visibility[Math.min(state.step, p.visibility.length - 1)] > 0.5;
+    p.mesh.visible = shown && !p.hidden;
     const vals = state.field ? valuesAt(p, state.field, state.step) : null;
     const mat = p.mesh.material;
     if (!vals) { mat.vertexColors = false; mat.color.copy(p.base); mat.needsUpdate = true; continue; }
@@ -302,7 +311,9 @@ function update() {
     if (!mat.vertexColors) { mat.vertexColors = true; mat.color.set(0xffffff); mat.needsUpdate = true; }
   }
   const t = m.times.length ? m.times[state.step] : null;
-  $("timeLabel").textContent = t === null ? "steady state" : `t = ${fmt(t)} ${m.time_unit} (${state.step + 1}/${m.times.length})`;
+  const caption = (m.step_labels || [])[state.step];
+  $("timeLabel").textContent = (t === null ? "steady state" : `t = ${fmt(t)} ${m.time_unit} (${state.step + 1}/${m.times.length})`) +
+    (caption ? ` · ${caption}` : "");
   updateSensors();
   updateLegend();
 }

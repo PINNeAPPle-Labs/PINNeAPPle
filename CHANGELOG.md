@@ -14,6 +14,37 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Interlocking bricks (`pinneapple_design.bricks`), a self-modifying design loop on LDraw-compatible geometry:
+  - `parts`: nominal dimensions (8 mm stud pitch, 3.2 mm plate, 9.6 mm brick, stud 4.8 x 1.6 mm), a catalogue of
+    rectangular bricks and plates with LDraw part numbers, published brick masses (StableLego) and a fitted shell
+    model for the others, and `JointModel` (0.98 N clutch per stud, cited, with an assumed uncertainty band; friction;
+    optional stud shear cap; a 0.5 mm contact edge inset so designs do not balance on a knife edge).
+  - `assembly`: grid assemblies, stud-tube connections, validity rules (overlaps, supported placement), ground as a
+    table or baseplate with regions (table edges, river banks).
+  - `ldraw`: .ldr / .mpd export with one STEP per layer and import (sub-models, quarter-turn rotations, off-grid and
+    unknown parts reported); `fetch_parts_library` downloads the LDraw parts library (CC BY 2.0) at run time and
+    `PartsLibrary` triangulates real parts. `mesh`: brick meshes, glTF with per-brick colours, STL, USD.
+  - `statics`: equilibrium of the build as a linear programme (corner compression, stud clutch tension, friction),
+    the most favourable force distribution and peak stud utilisation, `capacity` (largest load factor),
+    `progressive_failure`, tipping explanations (which support polygon the resultant left) and
+    `single_stud_torsion`. `closed_form`: tipping, harmonic stacking, stud cantilever, beam reactions and deflection.
+  - `dynamics`: Newton replays with one compound rigid body per intact cluster, dead weights, table edges and a floor;
+    `harmonic_threshold`, `cross_check` (statics verdicts against Newton) and `friction_creep`. `fea`: Hex8 FEA on the
+    voxelised build. `validation.validate`: every closed-form check in a trust report.
+  - `goals` (cantilever, bridge, tower) and `search`: add / remove / move / swap / rotate / recolour edits and grammar
+    rules (extend, counterweight, brace, widen, mirror), NSGA-II evolution and a GP-surrogate-guided search at equal
+    evaluation budget, `compare` over seeds.
+  - `visuals`: the evolution as a timeline (best build per generation coloured by stud utilisation, rejected
+    candidates replayed by Newton with the joints that let go in red) for the twin3d viewer, GIF and MP4; Blender
+    Cycles renders and turntables; building instructions (step images, part list, LDraw steps). `report`: joint-model
+    sensitivity, comparison chart, Markdown report.
+  - `examples/bricks/self_modifying_bricks.py`, the lab experiment `bricks` and the guide
+    [Self-modifying brick builds](docs/guides/interlocking_bricks.md).
+- `pinneapple_twin3d.Scene.add_visibility` and `set_step_labels`: parts that appear and disappear over time and a
+  caption per time step, shown by the viewer (`&speed=ms` sets the playback interval).
+- Newton backend: `RigidScene.compound` (one rigid body made of several boxes) and `simulate(..., wrenches=...)`
+  (constant external forces and torques).
+- `render_geometry(..., frame=(lo, hi))`: a fixed framing box, so animation frames share one camera.
 - Physics Design Optimizer app (`apps/physics_design`, day 23, `design.pinneapple.org`, port 8106): gradient
   optimisation through differentiable surrogates, SLSQP, NSGA-II, differential evolution and Bayesian optimisation
   compared on the same problem, budget and seeds (hypervolume, evaluations to 95 %, convergence, wall time) on a
@@ -974,6 +1005,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Newton backend: a scene with several jointed trees failed to build (Newton needs the joints of an articulation to
+  be contiguous); joints are now created tree by tree.
+- Blender renders of small models (a few centimetres) were cut by the camera's default 0.1 m near clipping plane;
+  the clipping range now follows the camera distance.
 - Zoo publishing (`pinneapple_hub.zoo.publish`): each item gets its own working directory per kind. The model and
   the dataset `rover_contact_grc1_viper` share a name; publishing the model deleted the dataset's Parquet copies before
   they were committed, so the dataset was not published and the workflow failed before its download check.

@@ -270,6 +270,7 @@ def render(scene, out: str, *, field: Optional[str] = None, field_range: Optiona
     lat = np.maximum(np.abs(k @ right) / tx, np.abs(k @ up) / ty)
     fit = float(np.max(k @ d + lat)) * 1.15 * distance
     cam.location = centre + Vector(tuple(d * fit))
+    cam_data.clip_start, cam_data.clip_end = fit * 1e-3, fit * 1e3     # small models: the default 0.1 m cuts them
     look = centre - cam.location
     cam.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()
     bs.camera = cam

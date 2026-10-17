@@ -25,10 +25,11 @@ _IDENTITY: Quat = (1.0, 0.0, 0.0, 0.0)
 class Shape:
     """One collision shape of a body, in the body frame (centred on the body origin)."""
 
-    kind: str                      # "sphere" | "box" | "capsule" | "cylinder" | "mesh"
+    kind: str                      # "sphere" | "box" | "capsule" | "cylinder" | "mesh" | "compound"
     size: tuple[float, ...]        # sphere (r,), box (hx, hy, hz), capsule/cylinder (r, half_height)
     vertices: np.ndarray | None = None
     faces: np.ndarray | None = None
+    boxes: list | None = None      # compound: [((hx, hy, hz), (x, y, z) in the body frame, mass), ...]
 
 
 @dataclass
@@ -102,6 +103,12 @@ class RigidScene:
         f = np.asarray(faces, np.int32).reshape(-1, 3)
         return self._add(name, Shape("mesh", (), vertices=v, faces=f), **kw)
 
+    def compound(self, name: str, boxes, **kw) -> int:
+        """One rigid body made of several boxes ``[(half_extents, position in the body frame, mass), ...]``; its mass,
+        centre of mass and inertia follow from the boxes (``mass`` / ``density`` keywords are not used)."""
+        bx = [(tuple(float(v) for v in h), tuple(float(v) for v in p), float(m)) for h, p, m in boxes]
+        return self._add(name, Shape("compound", (), boxes=bx), **kw)
+
     def revolute(self, parent: int, child: int, anchor: Sequence[float], axis: Sequence[float] = (0, 1, 0),
                  damping: float = 0.0) -> int:
         """Hinge between ``parent`` (``-1`` = world) and ``child`` through ``anchor`` about ``axis`` (world, t = 0)."""
@@ -130,6 +137,10 @@ class RigidScene:
                 out.append(f"joint {j.kind} connects body {j.child} to itself")
         for b in self.bodies:
             s = b.shape.size
+            if b.shape.kind == "compound":
+                if not b.shape.boxes or any(min(h) <= 0 or m <= 0 for h, _, m in b.shape.boxes):
+                    out.append(f"{b.name}: a compound needs boxes with positive sizes and masses")
+                continue
             if b.shape.kind != "mesh" and (len(s) == 0 or min(s) <= 0):
                 out.append(f"{b.name}: shape sizes must be positive, got {s}")
             if b.shape.kind == "mesh" and (b.shape.vertices is None or len(b.shape.faces) < 4):
@@ -173,38 +184,44 @@ class RigidScene:
                 builder.add_shape_cylinder(bid, radius=s.size[0], half_height=s.size[1], cfg=cfg)
             elif s.kind == "mesh":
                 builder.add_shape_mesh(bid, mesh=newton.Mesh(s.vertices, s.faces.reshape(-1)), cfg=cfg)
+            elif s.kind == "compound":
+                for (hx, hy, hz), p, m in s.boxes:
+                    c = newton.ModelBuilder.ShapeConfig(density=m / (8 * hx * hy * hz), mu=b.mu, restitution=b.restitution)
+                    builder.add_shape_box(bid, xform=wp.transform(p=wp.vec3(*p), q=wp.quat_identity()),
+                                          hx=hx, hy=hy, hz=hz, cfg=c)
             else:
                 raise ValueError(f"unknown shape {s.kind!r}")
             ids.append(bid)
 
-        # one articulation per tree: a jointed body without a parent joint gets a free joint to the world
+        # one articulation per tree: a jointed body without a parent joint gets a free joint to the world. Newton
+        # needs the joints of an articulation to be contiguous, so the joints are created tree by tree.
         by_child = {j.child: k for k, j in enumerate(self.joints)}
-        newton_joint = {}
         roots = [i for i in sorted(jointed) if i not in by_child]
-        trees = {}
-        for i in roots:
-            newton_joint[("free", i)] = builder.add_joint_free(ids[i], label=f"{self.bodies[i].name}_free")
-            trees[i] = [newton_joint[("free", i)]]
+        groups: dict[int, list[int]] = {i: [] for i in roots}
         for k in _topological(self.joints):
-            j = self.joints[k]
-            pq = self.bodies[j.parent] if j.parent >= 0 else None
-            pxf = _joint_frame(wp, pq, j.anchor)
-            cxf = _joint_frame(wp, self.bodies[j.child], j.anchor)
-            parent = ids[j.parent] if j.parent >= 0 else -1
-            if j.kind == "revolute":
-                jid = builder.add_joint_revolute(parent=parent, child=ids[j.child], parent_xform=pxf,
-                                                 child_xform=cxf, axis=wp.vec3(*j.axis), damping=j.damping,
-                                                 label=f"{self.bodies[j.child].name}_hinge")
-            else:
-                jid = builder.add_joint_fixed(parent=parent, child=ids[j.child], parent_xform=pxf,
-                                              child_xform=cxf, label=f"{self.bodies[j.child].name}_weld")
-            root = _root(self.joints, k)
-            trees.setdefault(root, []).append(jid)
-        for root, js in trees.items():
+            groups.setdefault(_root(self.joints, k), []).append(k)
+        for root, ks in groups.items():
+            js = []
+            if root >= 0:
+                js.append(builder.add_joint_free(ids[root], label=f"{self.bodies[root].name}_free"))
+            for k in ks:
+                j = self.joints[k]
+                pq = self.bodies[j.parent] if j.parent >= 0 else None
+                pxf = _joint_frame(wp, pq, j.anchor)
+                cxf = _joint_frame(wp, self.bodies[j.child], j.anchor)
+                parent = ids[j.parent] if j.parent >= 0 else -1
+                if j.kind == "revolute":
+                    jid = builder.add_joint_revolute(parent=parent, child=ids[j.child], parent_xform=pxf,
+                                                     child_xform=cxf, axis=wp.vec3(*j.axis), damping=j.damping,
+                                                     label=f"{self.bodies[j.child].name}_hinge")
+                else:
+                    jid = builder.add_joint_fixed(parent=parent, child=ids[j.child], parent_xform=pxf,
+                                                  child_xform=cxf, label=f"{self.bodies[j.child].name}_weld")
+                js.append(jid)
             builder.add_articulation(js, label=f"tree_{root}")
 
         for i, b in enumerate(self.bodies):            # optional exact mass: rescale density
-            if b.mass is not None:
+            if b.mass is not None and b.shape.kind != "compound":
                 m0 = builder.body_mass[ids[i]]
                 k = b.mass / m0
                 builder.body_mass[ids[i]] = b.mass

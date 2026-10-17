@@ -4,8 +4,8 @@ Export layout (one folder, static files, served by anything)::
 
     scene.json      manifest: parts, fields, time steps, sensors, units, provenance
     geometry.glb    all parts as glTF 2.0 binary meshes (opens in Blender, CAD viewers, three.js)
-    fields.bin      float32 field values and part motions (position + quaternion per step), offsets listed
-                    in scene.json
+    fields.bin      float32 field values, part motions (position + quaternion per step) and per-step part
+                    visibility, offsets listed in scene.json
     index.html,
     viewer.js       the bundled web viewer (see ``viewer/``), added by ``export(with_viewer=True)``
 
@@ -37,6 +37,7 @@ class Part:
     color: Sequence[float] = (0.75, 0.77, 0.8)
     fields: dict[str, np.ndarray] = field(default_factory=dict)  # name -> (V,) or (T, V)
     motion: np.ndarray | None = None  # (T, 7): position (3) + quaternion (w, x, y, z) per time step
+    visibility: np.ndarray | None = None  # (T,) 1 = drawn, 0 = hidden at that time step
     physics: "PhysicsProps | None" = None  # rigid body / collider / material, exported as UsdPhysics
 
 
@@ -95,6 +96,7 @@ class Scene:
         self.sensors: list[Sensor] = []
         self.field_units: dict[str, str] = {}
         self.gravity: tuple[float, float, float] | None = None  # m/s^2 vector; None -> no PhysicsScene
+        self.step_labels: list[str] | None = None  # one caption per time step, shown under the time slider
 
     # -- building ------------------------------------------------------
     def add_part(self, name: str, vertices, faces, *, group: str = "", color=(0.75, 0.77, 0.8)) -> Part:
@@ -139,6 +141,21 @@ class Scene:
             raise ValueError(f"motion of '{part}': one position and one quaternion per scene time step")
         q = q / np.linalg.norm(q, axis=1, keepdims=True)
         p.motion = np.concatenate([pos, q], 1)
+
+    def add_visibility(self, part: str, visible) -> None:
+        """Whether a part is drawn at each scene time step (e.g. parts that appear or disappear in a sequence)."""
+        p = self._part(part)
+        v = np.asarray(visible, dtype=np.float32).reshape(-1)
+        if self.times is None or len(v) != len(self.times):
+            raise ValueError(f"visibility of '{part}': one value per scene time step")
+        p.visibility = (v > 0.5).astype(np.float32)
+
+    def set_step_labels(self, labels: Sequence[str]) -> None:
+        """A caption per time step (what happens at that step), shown by the viewer next to the time."""
+        labels = [str(x) for x in labels]
+        if self.times is None or len(labels) != len(self.times):
+            raise ValueError("step labels: one label per scene time step")
+        self.step_labels = labels
 
     _APPROX = ("none", "convexHull", "convexDecomposition", "boundingSphere", "boundingCube", "meshSimplification")
 
@@ -267,6 +284,13 @@ class Scene:
                     fb.write(data.tobytes())
                     motion_meta.append({"part": p.name, "steps": int(len(data)), "offset": offset})
                     offset += data.nbytes
+            visibility_meta = []
+            for p in self.parts:
+                if p.visibility is not None:
+                    data = np.ascontiguousarray(p.visibility, dtype="<f4")
+                    fb.write(data.tobytes())
+                    visibility_meta.append({"part": p.name, "steps": int(len(data)), "offset": offset})
+                    offset += data.nbytes
 
         lo = np.min([self._extent(p)[0] for p in self.parts], axis=0)
         hi = np.max([self._extent(p)[1] for p in self.parts], axis=0)
@@ -285,6 +309,8 @@ class Scene:
                       for i, p in enumerate(self.parts)],
             "fields": field_meta,
             "motions": motion_meta,
+            "visibility": visibility_meta,
+            "step_labels": self.step_labels or [],
             "sensors": [{"id": s.id, "label": s.label, "unit": s.unit, "quantity": s.quantity,
                          "position": list(s.position),
                          "series": None if s.series is None else [float(v) for v in s.series],

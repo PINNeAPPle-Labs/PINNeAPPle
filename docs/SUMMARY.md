@@ -86,6 +86,7 @@
     * [Simulation Campaign Planner: which simulations need to run](guides/campaign_planner.md)
     * [Choose a model by the scale of the question](guides/scale_aware_ensembles.md)
     * [Identifiability, calibration and inverse problems](guides/identifiability_calibration_inversion.md)
+    * [Self-modifying brick builds](guides/interlocking_bricks.md)
 * Apps
     * [Inverse Model Studio (day 21)](apps/inverse_studio.md)
     * [Parameter Identifiability Lab (day 25)](apps/identifiability_lab.md)

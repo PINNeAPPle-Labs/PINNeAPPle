@@ -105,13 +105,16 @@ def _make_solver(newton, model, solver: str, iterations: int):
 
 
 def simulate(scene: RigidScene, duration: float, dt: float = 1e-3, solver: str = "xpbd", iterations: int = 8,
-             record_every: int = 10, device: str = "cpu", log=None) -> RigidTrajectory:
+             record_every: int = 10, device: str = "cpu", log=None, wrenches=None) -> RigidTrajectory:
     """Integrate ``scene`` for ``duration`` seconds with step ``dt`` and record every ``record_every`` steps.
 
     ``solver``: ``"xpbd"`` (position-based, robust contacts, default), ``"semi_implicit"`` (penalty contacts,
     needs a small ``dt``), ``"featherstone"`` (reduced coordinates, best for joint chains) or ``"mujoco"``
     (MuJoCo-Warp, needs the ``newton[sim]`` extra). The first call on a device compiles Warp kernels
     (seconds to a minute on CPU); later calls reuse the cache.
+
+    ``wrenches``: constant external loads ``{body index: (force [N], torque [N m])}`` in the world frame, the torque
+    taken about the body's centre of mass, applied at every step (e.g. a steady push).
     """
     import newton
 
@@ -144,10 +147,18 @@ def simulate(scene: RigidScene, duration: float, dt: float = 1e-3, solver: str =
         rec_q.append(s0.body_q.numpy()[ids].copy())
         rec_qd.append(s0.body_qd.numpy()[ids].copy())
 
+    ext = None
+    if wrenches:
+        ext = np.zeros((model.body_count, 6), np.float32)
+        for i, (f, tau) in wrenches.items():
+            ext[ids[i]] = np.concatenate([np.asarray(f, float), np.asarray(tau, float)])
+
     t0 = time.time()
     record(0)
     for k in range(1, n_steps + 1):
         s0.clear_forces()
+        if ext is not None:
+            s0.body_f.assign(ext)
         pipe.collide(s0, contacts)
         sol.step(s0, s1, ctrl, contacts, dt)
         s0, s1 = s1, s0

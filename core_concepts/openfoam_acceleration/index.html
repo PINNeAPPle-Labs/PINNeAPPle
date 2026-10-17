@@ -1,0 +1,5032 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/core_concepts/openfoam_acceleration/">
+      
+      
+        <link rel="prev" href="../openfoam_campaigns/">
+      
+      
+        <link rel="next" href="../lbm_wind_tunnel/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Faster implicit pressure solves in OpenFOAM - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#faster-implicit-pressure-solves-in-openfoam" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Faster implicit pressure solves in OpenFOAM
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-time-goes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the time goes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-exists-and-what-it-costs-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What exists, and what it costs to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-package-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this package does
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproducing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducing
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lunar_rover_terramechanics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_52" >
+        
+          
+          <label class="md-nav__link" for="__nav_52" id="__nav_52_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_52_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_52">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_53" id="__nav_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-time-goes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the time goes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-exists-and-what-it-costs-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What exists, and what it costs to use
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-this-package-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What this package does
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproducing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducing
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/core_concepts/openfoam_acceleration.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/core_concepts/openfoam_acceleration.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="faster-implicit-pressure-solves-in-openfoam">Faster implicit pressure solves in OpenFOAM<a class="headerlink" href="#faster-implicit-pressure-solves-in-openfoam" title="Permanent link">&para;</a></h1>
+<p><code>pinneapple_simulation.accelerated_foam</code> makes the pressure solve of an OpenFOAM run cheaper. It changes only
+the <strong>initial guess</strong> of the linear solve. OpenFOAM's own solver (PCG, GAMG, ...) still iterates, with the same
+tolerance and the same stopping test, so the converged fields pass the same convergence test as a plain run
+(section 2 shows why an equal residual is not always an equal error, and compares at matched accuracy). Every
+number on this page comes from a run made with the code in this package, and each one is compared with plain
+OpenFOAM on the same case at the same settings.</p>
+<h2 id="where-the-time-goes">Where the time goes<a class="headerlink" href="#where-the-time-goes" title="Permanent link">&para;</a></h2>
+<p>In a pressure-based solver (PISO in <code>icoFoam</code>/<code>pisoFoam</code>, PIMPLE in <code>pimpleFoam</code>/<code>interFoam</code>, SIMPLE in
+<code>simpleFoam</code>) every corrector assembles and solves a Poisson-type equation for the pressure (<code>p</code>, or <code>p_rgh</code>
+with gravity): <code>fvm::laplacian(rAU, p) == fvc::div(phiHbyA)</code>. The matrix is symmetric and negative
+definite, it is new at every corrector because <code>rAU</code> changes, and it is solved by PCG (DIC or FDIC
+preconditioner) or GAMG. Momentum, turbulence and phase-fraction equations are much cheaper to solve. They are
+diagonally dominant and need a few smoother sweeps. The pressure equation is elliptic, so its iteration count
+grows with the mesh.</p>
+<p>The logs of the runs below show this directly. On the 128 x 128 cavity with PCG-DIC, the pressure needed
+34 239 iterations over 256 solves, while the velocity components needed 1 478 + 1 492 symmetric Gauss-Seidel
+sweeps over 128 solves each. At 256 x 256 the figures were 74 261 against 2 540 + 2 579. Each pressure
+iteration also costs more than a smoother sweep, because it adds a preconditioner application and two global
+reductions. Profiling
+studies by GPU-solver vendors also treat the pressure solve as the part worth offloading. One NVIDIA
+presentation reports that the pressure solve is still "about 35% of total" <em>after</em> offloading it to AmgX
+(OpenFOAM workshop 2020; we could not open the slides, so this figure comes from search excerpts). We found no
+peer-reviewed CPU breakdown for PISO/PIMPLE that we could verify, so this page relies on our own logs.</p>
+<h2 id="what-exists-and-what-it-costs-to-use">What exists, and what it costs to use<a class="headerlink" href="#what-exists-and-what-it-costs-to-use" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it does</th>
+<th>Licence</th>
+<th>Use here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PETSc4FOAM</strong> (<a href="https://gitlab.com/petsc/petsc4foam">gitlab.com/petsc/petsc4foam</a>, upstream develop.openfoam.com/modules/external-solver)</td>
+<td><code>ldu2csr</code> conversion and PETSc/Hypre solvers behind <code>solver petsc;</code> (BoomerAMG, GPU back-ends, matrix caching)</td>
+<td>GPL-3.0-or-later (README and LICENSE)</td>
+<td>Not used. It is a separate build against PETSc.</td>
+</tr>
+<tr>
+<td><strong>AmgX</strong> (<a href="https://github.com/NVIDIA/AMGX">github.com/NVIDIA/AMGX</a>)</td>
+<td>GPU algebraic multigrid and Krylov</td>
+<td>BSD-3-Clause</td>
+<td>Not used: there is no GPU here.</td>
+</tr>
+<tr>
+<td><strong>amgx4Foam</strong> (<a href="https://github.com/SimFlowCFD/foamExternalSolvers">github.com/SimFlowCFD/foamExternalSolvers</a>)</td>
+<td>OpenFOAM to AmgX bridge</td>
+<td>No LICENSE file in that repository; the Cineca original was not reachable</td>
+<td>Not used: the licence is unknown.</td>
+</tr>
+<tr>
+<td><strong>Ginkgo</strong> (<a href="https://github.com/ginkgo-project/ginkgo">github.com/ginkgo-project/ginkgo</a>)</td>
+<td>Portable sparse linear algebra (CUDA/HIP/SYCL/OpenMP), including mixed precision</td>
+<td>BSD-3-Clause</td>
+<td>Not used.</td>
+</tr>
+<tr>
+<td><strong>OGL</strong> (<a href="https://github.com/hpsim/OGL">github.com/hpsim/OGL</a>; Olenik et al., <em>Meccanica</em> 2024, <a href="https://doi.org/10.1007/s11012-024-01806-1">doi:10.1007/s11012-024-01806-1</a>)</td>
+<td>Ginkgo solvers as OpenFOAM <code>lduMatrix</code> solvers</td>
+<td>GPL-3.0</td>
+<td>Not used.</td>
+</tr>
+<tr>
+<td><strong>RapidCFD</strong> (<a href="https://github.com/Atizar/RapidCFD-dev">github.com/Atizar/RapidCFD-dev</a>)</td>
+<td>OpenFOAM fork with everything on CUDA</td>
+<td>GPLv3</td>
+<td>Not used. It is a fork, not a plugin.</td>
+</tr>
+<tr>
+<td><strong>pyamg</strong></td>
+<td>Smoothed-aggregation and classical AMG in Python</td>
+<td>MIT</td>
+<td>Optional, for the Python benchmarks</td>
+</tr>
+</tbody>
+</table>
+<p>None of these is a dependency of PINNeAPPle, and no code from them is copied into the repository. The
+pinneWarmStart plugin is our own code. It is written against OpenFOAM's public <code>lduMatrix::solver</code> interface, the
+same runtime-selection mechanism that PETSc4FOAM and OGL use. OpenFOAM is GPL-3.0-or-later: this repository
+contains no OpenFOAM source, and the plugin binary you build links against your installed <code>libOpenFOAM.so</code>,
+so that binary falls under OpenFOAM's licence if you distribute it.</p>
+<p><strong>Ideas from the literature, and which ones were tried.</strong> Learned multigrid and preconditioners: Greenfeld et
+al. 2019 (<a href="https://arxiv.org/abs/1902.10248">arXiv:1902.10248</a>), Luz et al. 2020
+(<a href="https://arxiv.org/abs/2003.05744">arXiv:2003.05744</a>), Li et al. ICML 2023
+(<a href="https://proceedings.mlr.press/v202/li23e.html">PMLR 202</a>), and Häusner et al. "Neural incomplete
+factorization" (<a href="https://arxiv.org/abs/2305.16368">arXiv:2305.16368</a>). Learned pressure predictions or initial
+guesses: Tompson et al. 2017 (<a href="https://arxiv.org/abs/1607.03597">arXiv:1607.03597</a>), CFD-GCN
+(<a href="https://arxiv.org/abs/2007.04439">arXiv:2007.04439</a>), and a neural initial guess for pressure-velocity coupling
+(<a href="https://arxiv.org/abs/2409.07175">arXiv:2409.07175</a>). Projection of a new right-hand side on earlier solutions:
+Fischer 1998, <em>CMAME</em> 163:193-204, which PETSc implements as
+<a href="https://petsc.org/main/manualpages/KSP/KSPGUESSFISCHER/"><code>KSPGUESSFISCHER</code></a>. POD/ROM predictors as initial
+guesses: Markovinović &amp; Jansen 2006, <em>IJNME</em> 68:525-541. Mixed-precision iterative refinement: Carson &amp; Higham
+2018, <em>SISC</em> 40:A817. The arXiv and DOI pages could not be opened from the build environment, so these
+references were checked through their abstracts and listings, not read in full.</p>
+<p>We tried four of them, all measured below:</p>
+<ol>
+<li>Fischer projection on past solutions, in C++ inside OpenFOAM.</li>
+<li>POD of earlier runs.</li>
+<li>A learned graph-network correction of the guess.</li>
+<li>Mixed-precision CG.</li>
+</ol>
+<p>We also tried AMG through pyamg, offline only.</p>
+<h2 id="what-this-package-does">What this package does<a class="headerlink" href="#what-this-package-does" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>OpenFOAM pressure corrector
+   fvMatrix::solve -&gt; lduMatrix::solver::New("pinneWarmStart")
+      1. x_prev = incoming p (what plain OpenFOAM starts from)
+      2. guess x0:  projection on the last k solutions  (C++, k mat-vecs)
+                    or a Python guesser via named pipes (POD of earlier runs, learned network, ...)
+      3. safeguard: keep x0 only if sum|b - A x0| &lt; sum|b - A x_prev|
+      4. inner OpenFOAM solver (PCG/DIC, GAMG, ...) from x0, same tolerance;
+         relTol measured against the residual of x_prev, so a run stops where a plain run would
+      5. store the solution; optionally write A, b, x_prev, x to disk
+</code></pre></div>
+<p><strong><code>plugin/pinneWarmStart.C</code></strong> is the solver wrapper (about 500 lines). To use it, set this in <code>fvSolution</code>:</p>
+<div class="highlight"><pre><span></span><code>p
+{
+    solver          pinneWarmStart;
+    innerSolver     PCG;            // or GAMG, with its usual entries
+    preconditioner  DIC;
+    tolerance       1e-6;
+    relTol          0.05;
+    guess           projection;     // none | projection | external
+    nSnapshots      8;
+    snapshots       all;            // all | converged: keep only solutions of relTol 0 solves
+    applyTo         all;            // all | converged: change the guess of relTol 0 solves only
+    dumpDir         "";             // write every system (lduMatrix arrays) to this directory
+    pipeDir         "";             // guess external: request/reply FIFOs served by Python
+}
+</code></pre></div>
+<p>Also load the library from <code>controlDict</code> with <code>libs ("&lt;path&gt;/libpinneWarmStart.so");</code>.</p>
+<p>The <strong>projection guess</strong> is the Galerkin projection on the span of the last <code>k</code> solutions and the current
+field: <code>x0 = X (X^T A X)^-1 X^T b</code>, built with the matrix and right-hand side of the <em>current</em> solve. Because
+<code>x_prev</code> is in the span, the A-norm error of <code>x0</code> is never larger than that of <code>x_prev</code>. This is the default
+guess that plain OpenFOAM uses. The cost is <code>k</code> matrix-vector products, <code>k(k+1)/2</code> dot products and a <code>k x k</code>
+solve, which is a few inner iterations' worth. The C++ code does a symmetric elimination with diagonal
+pivoting that drops linearly dependent snapshots. It runs in parallel, because the reductions use
+<code>gSumProd</code>/<code>gSumMag</code> and the history is kept per processor.</p>
+<p><strong><code>relTolReference previous</code></strong> (the default) handles the case where OpenFOAM's <code>relTol</code> is relative to the
+initial residual. With a better guess, the same <code>relTol</code> would ask for a smaller absolute residual. That makes
+the solve more accurate but not cheaper, and the run would no longer be comparable with a plain run. The
+wrapper therefore turns <code>relTol</code> into the absolute tolerance <code>max(tolerance, relTol * r(x_prev))</code>, the point
+where a plain run stops.</p>
+<p><strong>Building.</strong> <code>build.build_plugin()</code> compiles the wrapper with the installed compiler against
+<code>libOpenFOAM.so</code>:</p>
+<ul>
+<li>With a full OpenFOAM installation (<code>$FOAM_SRC/OpenFOAM/lnInclude</code>), it uses those headers. <code>wmake libso</code>
+  also works with <code>plugin/Make</code>.</li>
+<li>With a binary-only package such as Ubuntu's <code>openfoam</code> (v1912), there are no headers. Use the source of
+  the same version instead (<code>apt-get source openfoam</code> with a <code>deb-src</code> entry), passed as <code>openfoam_src</code> or
+  <code>$PINNEAPPLE_OPENFOAM_SRC</code>. The headers are only read at build time.</li>
+</ul>
+<p><strong>Python side:</strong></p>
+<ul>
+<li><strong><code>ldu</code></strong>: reads the dumped systems and converts them to SciPy CSR or PyTorch sparse matrices. It also
+  computes OpenFOAM's normalised residual (<code>normFactor</code>).</li>
+<li><strong><code>solvers</code></strong>: PCG with Jacobi, DIC (the same algorithm as OpenFOAM's), or pyamg AMG preconditioners, plus
+  a PyTorch CG. The PyTorch CG runs in float64, or in mixed precision with float32 inner CG and float64
+  refinement. All of them use OpenFOAM's stopping test.</li>
+<li><strong><code>warm_start</code></strong>: <code>ProjectionWarmStart</code> (the same algorithm as the C++ code) and <code>PODWarmStart</code> (a POD of
+  earlier runs plus recent solutions).</li>
+<li><strong><code>learned</code></strong>: <code>LearnedWarmStart</code>, the projection plus a graph-network correction. It is trained on dumped
+  systems and safeguarded.</li>
+<li><strong><code>guess_server</code></strong>: serves any of these guesses to a running solver through named pipes.</li>
+<li><strong><code>case</code></strong>: writes the cavity case, runs and parses logs, and compares fields.</li>
+<li><strong><code>benchmark</code></strong>: the comparisons on this page, including <code>tutorial_comparison</code> for an installed tutorial.</li>
+</ul>
+<p><code>FreeSurfaceFlow</code> (<code>numerical_solvers/free_surface.py</code>) accepts <code>pressure_solver=</code> and <code>libs=</code>, so its
+<code>p_rgh</code> solve can be warm-started.</p>
+<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
+<p><strong>Extraction is exact.</strong> A run with <code>guess none; dumpDir systems;</code> writes every pressure system as OpenFOAM
+handed it to PCG. Re-solving those systems in Python with the DIC-PCG of <code>solvers.pcg</code>, starting from the
+dumped <code>x_prev</code>, gives:</p>
+<ul>
+<li>the same iteration count as the OpenFOAM log, solve by solve;</li>
+<li>the same initial residual to about 1e-15 relative;</li>
+<li>a solution within about 1e-14 (relative L2) of OpenFOAM's.</li>
+</ul>
+<p><code>test_openfoam_dump_is_reproduced_by_python</code> checks this on a 16 x 16 cavity.</p>
+<p><strong>Fields are unchanged within solver tolerance.</strong> Every comparison runs three versions of the same case:</p>
+<ol>
+<li>plain OpenFOAM;</li>
+<li>the same inner solver wrapped by <code>pinneWarmStart</code>;</li>
+<li>a reference whose pressure is solved to <code>tolerance 1e-11; relTol 0</code> (1e-12 for damBreak).</li>
+</ol>
+<p>The tables report the relative L2 difference of the final fields between runs. "vs plain" is the warm-started
+run against plain OpenFOAM. "vs ref" measures each run against the tightly converged reference. The plain
+run's own "vs ref" value is the size of the error that the solver tolerance allows.</p>
+<p>All runs used one core of the same machine (4-core VM, no GPU) with OpenFOAM v1912 from the Ubuntu 24.04
+package. Wall times are the best of two runs of the solver process.</p>
+<h3 id="1-lid-driven-cavity-piso-icofoam-standard-settings">1. Lid-driven cavity, PISO (<code>icoFoam</code>), standard settings<a class="headerlink" href="#1-lid-driven-cavity-piso-icofoam-standard-settings" title="Permanent link">&para;</a></h3>
+<p>Settings: Re = 100, Courant number 0.5, 128 time steps, 2 PISO correctors. Pressure tolerance 1e-6 with
+<code>relTol 0.05</code>, and <code>relTol 0</code> for <code>pFinal</code>. <code>pinneWarmStart</code> uses projection on the last 8 solutions around the
+same inner solver.</p>
+<table>
+<thead>
+<tr>
+<th>case</th>
+<th>inner</th>
+<th>run</th>
+<th>p solves</th>
+<th>p iterations</th>
+<th>wall [s]</th>
+<th>dp vs plain</th>
+<th>dU vs plain</th>
+<th>dp vs ref</th>
+<th>dU vs ref</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cavity 128x128</td>
+<td>PCG-DIC</td>
+<td>plain</td>
+<td>256</td>
+<td>34 239</td>
+<td>13.11</td>
+<td>-</td>
+<td>-</td>
+<td>2.8e-4</td>
+<td>1.2e-7</td>
+</tr>
+<tr>
+<td>cavity 128x128</td>
+<td>PCG-DIC</td>
+<td><strong>warm</strong></td>
+<td>256</td>
+<td><strong>11 197</strong></td>
+<td><strong>7.19</strong></td>
+<td>2.6e-4</td>
+<td>1.8e-7</td>
+<td>3.8e-5</td>
+<td>1.5e-7</td>
+</tr>
+<tr>
+<td>cavity 128x128</td>
+<td>GAMG</td>
+<td>plain</td>
+<td>256</td>
+<td>1 590</td>
+<td>5.02</td>
+<td>-</td>
+<td>-</td>
+<td>9.9e-4</td>
+<td>1.2e-6</td>
+</tr>
+<tr>
+<td>cavity 128x128</td>
+<td>GAMG</td>
+<td><strong>warm</strong></td>
+<td>256</td>
+<td><strong>501</strong></td>
+<td><strong>4.32</strong></td>
+<td>9.8e-4</td>
+<td>1.7e-6</td>
+<td>1.8e-5</td>
+<td>5.5e-7</td>
+</tr>
+<tr>
+<td>cavity 256x256</td>
+<td>PCG-DIC</td>
+<td>plain</td>
+<td>256</td>
+<td>74 261</td>
+<td>112.8</td>
+<td>-</td>
+<td>-</td>
+<td>3.2e-3</td>
+<td>1.5e-7</td>
+</tr>
+<tr>
+<td>cavity 256x256</td>
+<td>PCG-DIC</td>
+<td><strong>warm</strong></td>
+<td>256</td>
+<td><strong>30 041</strong></td>
+<td><strong>61.3</strong></td>
+<td>3.1e-3</td>
+<td>4.1e-7</td>
+<td>5.8e-5</td>
+<td>3.6e-7</td>
+</tr>
+<tr>
+<td>cavity 256x256</td>
+<td>GAMG</td>
+<td>plain</td>
+<td>256</td>
+<td>2 955</td>
+<td>32.8</td>
+<td>-</td>
+<td>-</td>
+<td>4.5e-3</td>
+<td>1.3e-6</td>
+</tr>
+<tr>
+<td>cavity 256x256</td>
+<td>GAMG</td>
+<td><strong>warm</strong></td>
+<td>256</td>
+<td><strong>979</strong></td>
+<td><strong>25.9</strong></td>
+<td>4.4e-3</td>
+<td>2.3e-6</td>
+<td>3.9e-5</td>
+<td>1.1e-6</td>
+</tr>
+</tbody>
+</table>
+<p>How the speed-ups break down:</p>
+<ul>
+<li><strong>Iterations:</strong> 3.1x fewer (PCG, 128), 2.5x fewer (PCG, 256), 3.2x fewer (GAMG, 128) and 3.0x fewer
+  (GAMG, 256).</li>
+<li><strong>Whole-run wall time:</strong> 1.83x and 1.84x with PCG, 1.16x and 1.27x with GAMG.</li>
+</ul>
+<p>The pressure difference to plain OpenFOAM (2.6e-4 to 4.4e-3) is the same size as the plain run's own
+distance to the tightly converged reference (2.8e-4 to 4.5e-3). That distance comes from <code>relTol 0.05</code>, not
+from the warm start.</p>
+<p>The warm-started run is 7-115x closer to the reference in pressure. This is because it stops at the same
+absolute residual as plain but starts from a much better point in the non-final correctors. The velocity
+agrees with the reference to 1e-6 or better in every run.</p>
+<h3 id="2-the-same-cavity-with-reltol-0-everywhere-matched-accuracy">2. The same cavity with <code>relTol 0</code> everywhere: matched accuracy<a class="headerlink" href="#2-the-same-cavity-with-reltol-0-everywhere-matched-accuracy" title="Permanent link">&para;</a></h3>
+<p>With <code>relTol 0</code>, both runs stop at the same absolute normalised residual. Even so, the warm-started solution
+carries more <em>algebraic</em> error. The projection leaves error in smooth, low-eigenvalue modes, which the L1
+residual under-weights.</p>
+<p>In this closed cavity, most of that error is the pressure level (the near-null mode fixed only by <code>pRefCell</code>).
+Re-solving the dumped 64 x 64 systems offline against exact solutions (<code>spsolve</code>) gives a relative error of
+5e-7 for plain and 4e-6 for warm at the same residual, mostly in the mean level. The fair comparison is
+therefore at <strong>equal accuracy</strong>: tighten the warm start's tolerance until its error against the reference is
+no larger than plain's.</p>
+<table>
+<thead>
+<tr>
+<th>case</th>
+<th>run</th>
+<th>p iterations</th>
+<th>wall [s]</th>
+<th>dp vs ref</th>
+<th>dp vs ref (mean removed)</th>
+<th>dU vs ref</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cavity 64x64</td>
+<td>plain PCG-DIC, tol 1e-6</td>
+<td>11 796</td>
+<td>1.34</td>
+<td>9.2e-7</td>
+<td>9.2e-7</td>
+<td>1.2e-8</td>
+</tr>
+<tr>
+<td>cavity 64x64</td>
+<td>warm, tol 1e-6</td>
+<td>5 054</td>
+<td>0.89</td>
+<td>4.1e-5</td>
+<td>8.2e-6</td>
+<td>3.1e-8</td>
+</tr>
+<tr>
+<td>cavity 64x64</td>
+<td>warm, tol 1e-7</td>
+<td>7 370</td>
+<td>1.09</td>
+<td>4.2e-6</td>
+<td>5.2e-7</td>
+<td>3.4e-9</td>
+</tr>
+<tr>
+<td>cavity 64x64</td>
+<td>warm, tol 1e-8</td>
+<td>9 616</td>
+<td>1.33</td>
+<td>1.1e-6</td>
+<td>9.8e-8</td>
+<td>4.7e-10</td>
+</tr>
+<tr>
+<td>cavity 128x128</td>
+<td>plain PCG-DIC, tol 1e-6</td>
+<td>46 844</td>
+<td>17.52</td>
+<td>1.5e-6</td>
+<td>1.5e-6</td>
+<td>5.3e-9</td>
+</tr>
+<tr>
+<td>cavity 128x128</td>
+<td>warm, tol 1e-6</td>
+<td>11 435</td>
+<td>7.92</td>
+<td>4.6e-5</td>
+<td>3.3e-6</td>
+<td>1.1e-8</td>
+</tr>
+<tr>
+<td>cavity 128x128</td>
+<td>warm, tol 1e-7</td>
+<td>19 782</td>
+<td>10.35</td>
+<td>2.2e-6</td>
+<td>2.7e-7</td>
+<td>9.9e-10</td>
+</tr>
+<tr>
+<td>cavity 128x128</td>
+<td><strong>warm, tol 1e-8</strong></td>
+<td><strong>29 227</strong></td>
+<td><strong>13.36</strong></td>
+<td><strong>2.5e-7</strong></td>
+<td><strong>1.2e-8</strong></td>
+<td><strong>1.2e-10</strong></td>
+</tr>
+</tbody>
+</table>
+<p>At equal or better accuracy in every field, the warm start is 1.31x faster on 128 x 128 (13.4 s vs 17.5 s,
+tolerance 1e-8 vs 1e-6). On 64 x 64 it gives nothing (1.33 s vs 1.34 s). At the <em>same tolerance</em> it is 2.2x
+faster on 128 x 128 (1.5x on 64 x 64), but with a 30x larger pressure error (still at the 1e-5 level) and the same velocity to 3e-8.</p>
+<p><strong>Recommendation:</strong> pair <code>pinneWarmStart</code> with a tolerance about 10-100x tighter than the plain run's when the
+pressure itself is a quantity of interest. Settings with <code>relTol &gt; 0</code> in the non-final correctors, the usual
+PISO/PIMPLE practice (table 1), do not need this.</p>
+<h3 id="3-free-surface-dambreak-interfoam-p_rgh-refined-2x">3. Free surface: <code>damBreak</code> (<code>interFoam</code>, <code>p_rgh</code>), refined 2x<a class="headerlink" href="#3-free-surface-dambreak-interfoam-p_rgh-refined-2x" title="Permanent link">&para;</a></h3>
+<p>The case is the v1912 tutorial, refined 2x to 9 072 cells, run to t = 0.25 s. It uses PIMPLE with 3 correctors.
+<code>p_rgh</code> uses PCG-DIC with tolerance 1e-7 and <code>relTol 0.05</code>, and <code>relTol 0</code> for <code>p_rghFinal</code>. The reference
+uses tolerance 1e-12 with <code>relTol 0</code>.</p>
+<table>
+<thead>
+<tr>
+<th>run</th>
+<th>p_rgh iterations</th>
+<th>wall [s]</th>
+<th>dp_rgh vs plain</th>
+<th>dp_rgh vs ref</th>
+<th>dU vs ref</th>
+<th>dalpha vs ref</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plain PCG-DIC</td>
+<td>23 355</td>
+<td>9.24-10.03</td>
+<td>-</td>
+<td>1.5e-2</td>
+<td>2.3e-2</td>
+<td>7.8e-3</td>
+</tr>
+<tr>
+<td>warm, all solves</td>
+<td>31 964</td>
+<td>12.32</td>
+<td>1.0e-2</td>
+<td>6.9e-3</td>
+<td>1.0e-2</td>
+<td>3.8e-3</td>
+</tr>
+<tr>
+<td>warm, <code>snapshots converged</code></td>
+<td>25 429</td>
+<td>10.82</td>
+<td>7.8e-3</td>
+<td>8.5e-3</td>
+<td>1.5e-2</td>
+<td>4.3e-3</td>
+</tr>
+<tr>
+<td>warm, <code>snapshots converged; applyTo converged</code></td>
+<td>23 346</td>
+<td>9.41</td>
+<td>2.6e-7</td>
+<td>1.5e-2</td>
+<td>2.3e-2</td>
+<td>7.8e-3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>No gain here.</strong> The interface moves through the mesh and changes the density in the matrix from step to
+step, so old solutions are a poor basis. In the second corrector, the projected guess has about the same
+residual as the field it replaces, but its error is smoother: PCG needed 58 iterations where plain needed 12
+for the same reduction (read from the logs).</p>
+<p>Restricting the projection to the final solves (<code>applyTo converged</code>) makes the wrapper neutral (23 346 vs
+23 355 iterations, fields identical to 3e-7). The overhead of the wrapper is then 1.8% of wall time (9.41 s vs 9.24 s).</p>
+<p>The differences to the reference are at the 1e-2 level for every run, including plain. This transient is
+sensitive to the pressure tolerance itself.</p>
+<h3 id="4-offline-python-solvers-and-guesses-on-the-same-systems">4. Offline: Python solvers and guesses on the same systems<a class="headerlink" href="#4-offline-python-solvers-and-guesses-on-the-same-systems" title="Permanent link">&para;</a></h3>
+<p>The systems are the 128 pressure systems of a 64 x 64 cavity (lid speed 1, <code>relTol 0</code> everywhere), dumped by
+<code>guess none</code>. Each is re-solved to tolerance 1e-6 starting from each guess. Times are Python times, which
+are only comparable <em>within</em> this table: the NumPy DIC uses SciPy triangular solves and is far slower per
+iteration than OpenFOAM's C++.</p>
+<p>The POD basis comes from the 256 systems of two other runs, at lid speeds 0.8 and 1.2 (a two-point design
+of experiments), and keeps rank 9 for 99.9999% of the energy. The last 8 solutions of the current run are
+added to it.</p>
+<p>The graph network has 4 layers and a width of 32. It was trained for 150 epochs (390 s on the CPU) on 128
+systems of those two runs. Its mean training residual ratio went from 1.0 to 0.53.</p>
+<table>
+<thead>
+<tr>
+<th>guess</th>
+<th>solver</th>
+<th>iterations</th>
+<th>solve [s]</th>
+<th>guess [s]</th>
+<th>mean initial residual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>previous field (OpenFOAM)</td>
+<td>PCG-DIC</td>
+<td>11 796</td>
+<td>31.8</td>
+<td>0</td>
+<td>1.9e-2</td>
+</tr>
+<tr>
+<td>previous field</td>
+<td>PCG-Jacobi</td>
+<td>39 762</td>
+<td>3.29</td>
+<td>0</td>
+<td>1.9e-2</td>
+</tr>
+<tr>
+<td>previous field</td>
+<td>PCG-AMG (pyamg)</td>
+<td>695</td>
+<td>3.72</td>
+<td>0</td>
+<td>1.9e-2</td>
+</tr>
+<tr>
+<td>previous field</td>
+<td>Jacobi-CG, PyTorch f64</td>
+<td>39 762</td>
+<td>22.1</td>
+<td>0</td>
+<td>1.9e-2</td>
+</tr>
+<tr>
+<td>previous field</td>
+<td>Jacobi-CG, PyTorch f32 + f64 refinement</td>
+<td>48 508</td>
+<td>6.49</td>
+<td>0</td>
+<td>1.9e-2</td>
+</tr>
+<tr>
+<td>projection, last 8</td>
+<td>PCG-DIC</td>
+<td>2 743</td>
+<td>8.92</td>
+<td>0.12</td>
+<td>1.2e-2</td>
+</tr>
+<tr>
+<td>projection, last 8</td>
+<td>PCG-AMG (pyamg)</td>
+<td>282</td>
+<td>3.31</td>
+<td>0.12</td>
+<td>1.2e-2</td>
+</tr>
+<tr>
+<td>POD of 2 earlier runs + last 8</td>
+<td>PCG-DIC</td>
+<td><strong>2 128</strong></td>
+<td>6.88</td>
+<td>0.34</td>
+<td>3.8e-4</td>
+</tr>
+<tr>
+<td>POD of 2 earlier runs + last 8</td>
+<td>PCG-AMG (pyamg)</td>
+<td>253</td>
+<td>3.42</td>
+<td>0.34</td>
+<td>3.8e-4</td>
+</tr>
+<tr>
+<td>projection + learned correction</td>
+<td>PCG-DIC</td>
+<td>2 683</td>
+<td>7.85</td>
+<td>1.99</td>
+<td>8.7e-3</td>
+</tr>
+<tr>
+<td>projection + learned correction</td>
+<td>PCG-AMG (pyamg)</td>
+<td>273</td>
+<td>3.27</td>
+<td>1.90</td>
+<td>8.7e-3</td>
+</tr>
+</tbody>
+</table>
+<p>What the table shows:</p>
+<ul>
+<li><strong>Projection.</strong> It cuts DIC-PCG iterations 4.3x and AMG-PCG iterations 2.5x on the same systems. Every
+  solution in this section agrees with OpenFOAM's to 7e-5 or better.</li>
+<li><strong>POD of earlier runs.</strong> It removes another 22% of iterations relative to the projection alone. Its initial
+  residual is 30x smaller.</li>
+<li><strong>Learned correction.</strong> It removes 2% of DIC iterations relative to the projection alone, and its guess
+  costs more than it saves. A local graph network acts like a learned smoother: it reduces the residual, but
+  the iteration count is set by global, low-frequency error that it cannot see. We report it as <strong>no
+  practical gain</strong>.</li>
+<li><strong>AMG (pyamg).</strong> It cuts iterations about 17x relative to DIC. In Python, its setup on every new matrix
+  dominates the time.</li>
+<li><strong>Mixed-precision PyTorch CG.</strong> On the CPU it needs more iterations than float64 and is not faster
+  per useful iteration. Without a GPU we make no GPU claim.</li>
+</ul>
+<h3 id="5-python-guesses-inside-a-running-openfoam-guess-external">5. Python guesses inside a running OpenFOAM (<code>guess external</code>)<a class="headerlink" href="#5-python-guesses-inside-a-running-openfoam-guess-external" title="Permanent link">&para;</a></h3>
+<p>The 64 x 64 cavity from section 4, run by <code>icoFoam</code> with the guesses served through the pipes:</p>
+<table>
+<thead>
+<tr>
+<th>run</th>
+<th>p iterations</th>
+<th>wall [s]</th>
+<th>Python guess time [s]</th>
+<th>dp vs ref</th>
+<th>dU vs ref</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plain PCG-DIC</td>
+<td>11 796</td>
+<td>1.20</td>
+<td>-</td>
+<td>9.2e-7</td>
+<td>1.2e-8</td>
+</tr>
+<tr>
+<td>projection in C++ (<code>guess projection</code>)</td>
+<td>5 054</td>
+<td>0.90</td>
+<td>-</td>
+<td>4.1e-5</td>
+<td>3.1e-8</td>
+</tr>
+<tr>
+<td>Python projection (<code>guess external</code>)</td>
+<td>4 999</td>
+<td>1.34</td>
+<td>0.29</td>
+<td>3.4e-5</td>
+<td>6.9e-8</td>
+</tr>
+<tr>
+<td>Python POD of earlier runs + last 8</td>
+<td><strong>4 237</strong></td>
+<td>1.35</td>
+<td>0.43</td>
+<td>3.9e-5</td>
+<td>2.6e-8</td>
+</tr>
+<tr>
+<td>Python projection + learned correction</td>
+<td>5 088</td>
+<td>3.82</td>
+<td>2.71</td>
+<td>1.9e-5</td>
+<td>5.2e-8</td>
+</tr>
+</tbody>
+</table>
+<p>The Python projection reproduces the C++ one (4 999 vs 5 054 iterations; the small difference comes from
+round-off in the elimination order). This confirms that the coupling loop works end to end. POD of earlier
+runs saves the most iterations, but on a 4 096-cell case the pipe and Python overhead outweighs the saving.
+These Python models belong inside the C++ wrapper, or on much larger meshes where an iteration costs more
+than a round trip.</p>
+<h3 id="summary-of-measured-speed-ups">Summary of measured speed-ups<a class="headerlink" href="#summary-of-measured-speed-ups" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>setting</th>
+<th>pressure iterations</th>
+<th>wall time (whole run)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cavity, PISO with <code>relTol 0.05</code>, PCG-DIC (128², 256²)</td>
+<td>3.1x, 2.5x fewer</td>
+<td><strong>1.83x, 1.84x faster</strong></td>
+</tr>
+<tr>
+<td>Cavity, PISO with <code>relTol 0.05</code>, GAMG (128², 256²)</td>
+<td>3.2x, 3.0x fewer</td>
+<td>1.16x, 1.27x faster</td>
+</tr>
+<tr>
+<td>Cavity, <code>relTol 0</code>, matched accuracy, PCG-DIC (128²)</td>
+<td>1.6x fewer</td>
+<td>1.31x faster</td>
+</tr>
+<tr>
+<td>Cavity, <code>relTol 0</code>, matched accuracy, PCG-DIC (64²)</td>
+<td>1.2x fewer</td>
+<td>none</td>
+</tr>
+<tr>
+<td>damBreak, interFoam <code>p_rgh</code></td>
+<td>none (worse unless restricted to final solves)</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The gain comes from time correlation. The projection helps when consecutive pressure systems are alike, as
+  in transient PISO/PIMPLE runs with small time steps. For steady SIMPLE with <code>relTol 0.1</code>-<code>0.01</code>, each solve
+  is short and the right-hand side changes a lot, so expect little.</li>
+<li>Equal residual does not mean equal error. At the same tolerance, a warm-started solution can have a
+  larger algebraic error in smooth modes (section 2). Tighten the tolerance 10-100x when the pressure itself
+  matters, and compare at matched accuracy, as done above.</li>
+<li>Multiphase cases with a moving interface (damBreak) did not benefit. Use <code>applyTo converged</code> there, or
+  leave the plain solver.</li>
+<li>It works with any symmetric inner solver. With GAMG, iterations drop, but a GAMG cycle costs much more
+  than the projection, so the wall-time gain is smaller (see the tables).</li>
+<li><code>guess external</code> blocks the solver until the Python server answers. Start the <code>GuessServer</code> before the solver.
+  For production use, prefer the in-process C++ projection; the pipes are for experimenting with Python models.</li>
+<li>Systems with coupled interfaces (processor, cyclic) are handled by the C++ wrapper. In Python, <code>LduSystem.to_csr</code>
+  refuses them because the interface coefficients are not in the dump.</li>
+<li>No GPU was available, so the GPU paths (<code>torch_pcg</code> on CUDA) were only run on the CPU. No GPU speed-up is
+  claimed.</li>
+</ul>
+<h2 id="reproducing">Reproducing<a class="headerlink" href="#reproducing" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_simulation.accelerated_foam</span><span class="w"> </span><span class="kn">import</span> <span class="n">build</span><span class="p">,</span> <span class="n">benchmark</span>
+<span class="n">lib</span> <span class="o">=</span> <span class="n">build</span><span class="o">.</span><span class="n">build_plugin</span><span class="p">(</span><span class="n">openfoam_src</span><span class="o">=</span><span class="s2">"/path/to/openfoam-OpenFOAM-v1912.200626"</span><span class="p">)</span>   <span class="c1"># or with FOAM_SRC set</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">openfoam_comparison</span><span class="p">(</span><span class="s2">"work"</span><span class="p">,</span> <span class="n">lib</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">benchmark</span><span class="o">.</span><span class="n">markdown_table</span><span class="p">(</span><span class="n">rows</span><span class="p">))</span>
+</code></pre></div>
+<p>The tests are in <code>tests/test_accelerated_foam.py</code>. The OpenFOAM tests skip when <code>icoFoam</code> is missing or the
+plugin cannot be built.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

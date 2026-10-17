@@ -1,0 +1,5090 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular Physics AI framework for reproducible PINN research">
+      
+      
+      
+        <link rel="canonical" href="https://pinneapple-labs.github.io/PINNeAPPle/core_concepts/lunar_rover_terramechanics/">
+      
+      
+        <link rel="prev" href="../newton_rigid_body/">
+      
+      
+        <link rel="next" href="../fitmesh/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Lunar rover terramechanics in 3D - PINNeAPPle</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/home.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lunar-rover-terramechanics-in-3d" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PINNeAPPle" class="md-header__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PINNeAPPle
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lunar rover terramechanics in 3D
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PINNeAPPle" class="md-nav__button md-logo" aria-label="PINNeAPPle" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PINNeAPPle
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PINNeAPPle-Labs/PINNeAPPle
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../why/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why PINNeAPPle?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/system_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/execution_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/package_layers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package Layers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/first_pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First PINN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting_started/project_layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Layout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physical_sample/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicalSample
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../problem_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ProblemDefinition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geometry_domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry & Domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core_primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core primitives
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsOptimizer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pinn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN / Physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../solver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../training_pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Training Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../researcher_benchmarking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Researcher & Benchmarking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3D Studio & External Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dashboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Animation-centred dashboards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../free_surface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Free-surface flow: runners, channels, launders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openfoam_campaigns/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenFOAM parameter campaigns on several machines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openfoam_acceleration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Faster implicit pressure solves in OpenFOAM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lbm_wind_tunnel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lattice Boltzmann wind tunnel and FluidX3D bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../newton_rigid_body/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rigid bodies with NVIDIA Newton
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lunar rover terramechanics in 3D
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about-the-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        About the sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-rover-nasa-viper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The rover: NASA VIPER
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wheel-soil-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wheel-soil model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-against-single-wheel-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation against single-wheel tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multibody-vehicle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multibody vehicle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-full-vehicle-grc-1-lunar-g" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results (full vehicle, GRC-1, lunar g)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pinn-surrogate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PINN surrogate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pictures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pictures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fitmesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Problem to CAD, fit-for-purpose meshes and one report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modelica/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modelica models as Physics AI data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../geomechanics_mpm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geomechanics with the material point method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (pinneapple_security)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../veriphysics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verification and evidence (pinneapple_veriphysics)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../earth_system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Earth-system blocks & data assimilation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adaptive_forecasting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adaptive ensembles of physics models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multiscale_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multiscale ensembles: scales, filters and closures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../physics_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics audit: assumptions, routing, failure attribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../non_hermitian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-Hermitian physics: PT dimers and exceptional points
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../molecular_visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Molecular visualisation: proteins on metal surfaces
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proof_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof graphs: mathematics with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../viewers_and_twin_standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other 3-D viewers and digital-twin standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qualitative_preview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualitative preview of geometry changes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../black_hole_weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Black-hole weather forecasting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../astroml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    astroML: periodograms, deconvolved densities, fits with errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../astro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positional astronomy and astrophysics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle Lab: experiments and datasets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reduced_order_models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_52" >
+        
+          
+          <label class="md-nav__link" for="__nav_52" id="__nav_52_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_52_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_52">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/choosing_a_method/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choosing a method: PINN, operator, graph network or solver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/running_a_benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running a benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/surrogates_arena_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogates from simulation results: study, regime arena, gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/recreate_a_wear_twin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recreate a 3D wear twin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_zoo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pre-trained models and datasets (pp.zoo)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/zoo_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Zoo catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/geometry_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/design_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design studies: optimisers and verified candidates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/colab_notebooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colab notebooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mcp_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINNeAPPle from coding agents (MCP server)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_checks_in_ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks in CI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_gui_agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering GUI agent: run FreeCAD, OpenFOAM, ParaView with evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pp_validate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pp.validate: one call, one validation report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/fmi_compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FMI import compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/spectral_fidelity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spectral fidelity: what relative L2 does not see
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/metamorphic_tests/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Metamorphic tests: checking a surrogate without ground truth
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset physics audit: does the data solve its PDE?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/residual_error_bound/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    From residual to error bound
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rollout_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rollout validation: trust horizon of an autoregressive surrogate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/pinn_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PINN validation: what the training loss does not say
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/training_callbacks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics checks during training (Lightning, PhysicsNeMo, Hugging Face)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation gallery: one example per model family and physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_methods_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation methods reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/check_power/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check power: how often each check catches a defect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/validation_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Red team / blue team for the validation checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/evidence_ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evidence ledger: a test passed only if it ran
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/trusted_latent_surrogate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    A latent surrogate that says when not to trust it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rom_and_meshless_studies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced-order models and meshless methods, measured
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_residual_attack_detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detect false data injection with physics residuals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/observatory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The PINNeAPPle Observatory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground: physics surrogates in the browser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/workflow_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Workflow Runner: campaigns as traceable, resumable workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/campaign_planner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Simulation Campaign Planner: which simulations need to run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/scale_aware_ensembles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a model by the scale of the question
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/identifiability_calibration_inversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Identifiability, calibration and inverse problems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_53" >
+        
+          
+          <label class="md-nav__link" for="__nav_53" id="__nav_53_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Apps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_53_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_53">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Apps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/inverse_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inverse Model Studio (day 21)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/identifiability_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parameter Identifiability Lab (day 25)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/calibration_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Calibration Lab (day 18)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physicsnemo_trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PhysicsNeMo trains, PINNeAPPle says when to trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/evidence_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Evidence Report (day 30)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/validation_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Validation Lab (day 24)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_and_sensitivity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Uncertainty and sensitivity studies on any model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/sensitivity_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Sensitivity Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/uncertainty_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Uncertainty Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/meshless_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshless Method Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/rom_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reduced Order Model Lab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/surrogate_studio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Surrogate Studio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/benchmark_arena/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Benchmark Arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/model_gateway/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics AI Model Gateway
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/twin_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Digital Twin Runtime (day 20)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/anomaly_detector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Anomaly Detector (day 28)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../apps/control_lab/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics-Based Control Lab (day 29)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/engineering_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engineering Design Optimizer (day 17)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/physics_design_optimizer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics Design Optimizer (day 23)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_physics/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_physics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_neural/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_neural
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_analysis/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_adaptation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_adaptation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_simulation/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_systems/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_design/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_tools/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_data/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_pdb/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_pdb
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_problemdesign/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_problemdesign
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_arena/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_arena
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_quantum/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_quantum
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_worldmodel/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_worldmodel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_models/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_solvers/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_train/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_train
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_registry/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_hub/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_hub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_llm/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_llm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_blender/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_blender
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/pinneapple_perception/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pinneapple_perception
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#about-the-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        About the sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-rover-nasa-viper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The rover: NASA VIPER
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wheel-soil-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wheel-soil model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-against-single-wheel-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation against single-wheel tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multibody-vehicle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multibody vehicle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-full-vehicle-grc-1-lunar-g" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results (full vehicle, GRC-1, lunar g)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pinn-surrogate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PINN surrogate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pictures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pictures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/edit/main/docs/core_concepts/lunar_rover_terramechanics.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/PINNeAPPle-Labs/PINNeAPPle/raw/main/docs/core_concepts/lunar_rover_terramechanics.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="lunar-rover-terramechanics-in-3d">Lunar rover terramechanics in 3D<a class="headerlink" href="#lunar-rover-terramechanics-in-3d" title="Permanent link">&para;</a></h1>
+<p><a href="https://colab.research.google.com/github/PINNeAPPle-Labs/PINNeAPPle/blob/main/notebooks/colab/04_lunar_rover_dashboard.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>NASA's VIPER rover at real scale, driving on lunar regolith with Wong-Reece wheels and full multibody dynamics.
+Everything on this page is a library feature: the soil database, the wheel model, the deformable terrain, the
+multibody vehicle, the CAD, the renders and the PINN surrogate. The example
+<code>examples/use_cases/terramechanics/lunar_rover_3d.py</code> is a thin script that puts them together.</p>
+<p><img alt="VIPER crossing a crater; ruts coloured by the peak normal stress the wheels left in them" src="../../assets/lunar_rover/crater_crossing.gif" /></p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pinneapple</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pinneapple_simulation.vehicle</span><span class="w"> </span><span class="kn">import</span> <span class="n">scenarios</span><span class="p">,</span> <span class="n">viz</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">vehicle</span><span class="o">.</span><span class="n">viper</span><span class="p">()</span>                                   <span class="c1"># cited figures in spec.sources, CAD in spec.cad</span>
+<span class="n">spec</span><span class="o">.</span><span class="n">cad</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"viper.glb"</span><span class="p">)</span>                                <span class="c1"># PBR materials; .stl too</span>
+<span class="n">site</span> <span class="o">=</span> <span class="n">scenarios</span><span class="o">.</span><span class="n">crater_site</span><span class="p">()</span>                              <span class="c1"># deformable regolith, a crater, rocks</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">vehicle</span><span class="o">.</span><span class="n">VehicleSimulator</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">vehicle</span><span class="o">.</span><span class="n">build_vehicle</span><span class="p">(</span><span class="n">spec</span><span class="p">),</span> <span class="n">site</span><span class="p">,</span>
+                                  <span class="n">pp</span><span class="o">.</span><span class="n">terramechanics</span><span class="o">.</span><span class="n">get_soil</span><span class="p">(</span><span class="s2">"GRC-1"</span><span class="p">))</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mf">45.0</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">run</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>                                               <span class="c1"># distance, slip, sinkage, energy, loads, attitude</span>
+<span class="n">viz</span><span class="o">.</span><span class="n">animate</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="s2">"run.gif"</span><span class="p">,</span> <span class="n">mp4</span><span class="o">=</span><span class="s2">"run.mp4"</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s2">"normal_stress"</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Library module</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pinneapple_simulation.terramechanics.soils</code></td>
+<td><code>Soil</code>, <code>get_soil</code>: GRC-1, JSC-1A and the validation soils, each parameter with its source</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.terramechanics.wong_reece</code></td>
+<td><code>WongReeceModel</code>: stresses on the contact arc, forces, sinkage for a load, testbed operating points</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.terramechanics.terrain</code></td>
+<td><code>DeformableTerrain</code> (soil memory, ruts, grouser marks, stress maps), <code>RigidRock</code></td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.terramechanics.testbed</code></td>
+<td>single-wheel testbed, the bundled published points, validation and (separate) calibration</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.terramechanics.surrogate</code></td>
+<td><code>train_contact_surrogate</code>: PINN of the wheel-soil contact with a held-out error report</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.multibody</code></td>
+<td><code>MultibodyTree</code>: floating base, revolute joints, linearly implicit steps</td>
+</tr>
+<tr>
+<td><code>pinneapple_simulation.vehicle</code></td>
+<td><code>VehicleSpec</code>, <code>build_vehicle</code>, <code>VehicleSimulator</code>, <code>viper()</code>, <code>scenarios</code>, <code>viz</code></td>
+</tr>
+<tr>
+<td><code>pinneapple_design.geometry.vehicle_cad</code></td>
+<td>parametric vehicle CAD, centre of mass and inertia from the meshes, glTF/STL</td>
+</tr>
+<tr>
+<td><code>pinneapple_tools.visualization.studio</code></td>
+<td><code>lighting</code> presets, <code>shadows</code> (Sun shadows, Lunar-Lambert), <code>planetary</code> renders</td>
+</tr>
+</tbody>
+</table>
+<p>Shortcuts: <code>pp.terramechanics</code>, <code>pp.multibody</code>, <code>pp.vehicle</code>.</p>
+<h2 id="about-the-sources">About the sources<a class="headerlink" href="#about-the-sources" title="Permanent link">&para;</a></h2>
+<p>Every number below either cites a source or is marked as an estimate with its reason. One caveat applies to all
+of them. From the environment this was built in, NASA's documents and the journal papers could only be found
+through a web search. The search returned text excerpts, but the PDFs, figures and photos could not be opened. So:</p>
+<ul>
+<li>the wording of the quotes, and the slide or page they come from, should be checked against the documents;</li>
+<li>the single-wheel test points are third-party readings of the published figures (see Validation), not tables
+  from the papers;</li>
+<li>the renders were compared with VIPER's published dimensions and ratios and with the layout NASA's renders and
+  photo captions describe (arrays on three sides, a white front without arrays, the mast at the front-left, the
+  TRIDENT drill on a vertical rail at the front). The photographs themselves could not be downloaded, so a
+  pixel-level side-by-side comparison is still to do.</li>
+</ul>
+<h2 id="the-rover-nasa-viper">The rover: NASA VIPER<a class="headerlink" href="#the-rover-nasa-viper" title="Permanent link">&para;</a></h2>
+<p><img alt="VIPER, parametric model from public figures, under a 5 degree Sun" src="../../assets/lunar_rover/viper_beauty.png" />
+<img alt="Side view" src="../../assets/lunar_rover/viper_side.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Value used</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Envelope (L × W × H)</td>
+<td>1.7 × 1.7 × 2.5 m (model: 1.69 × 1.54 × 2.50 m)</td>
+<td>Bluethmann (2024), <em>VIPER Rover Overview and Mobility and Hardware</em>, LSIC, NTRS 20240013903</td>
+</tr>
+<tr>
+<td>Mass</td>
+<td>450 kg (447 kg roving in LSIC 2024)</td>
+<td>Francis &amp; Sobey (2025), <em>Design and Test of the VIPER Mobility Actuators</em>, NTRS 20250000568</td>
+</tr>
+<tr>
+<td>Wheels</td>
+<td>4, 0.50 m diameter, 0.20 m wide, rigid sheet metal with spokes and rim grousers</td>
+<td>Fong, VIPER briefings, NTRS 20220000441 and 20250004148</td>
+</tr>
+<tr>
+<td>Grousers</td>
+<td>24, 0.025 m tall</td>
+<td>Hu et al. (2025), J. Field Robotics, doi:10.1002/rob.22597 (arXiv:2405.11001); 2.5 cm also in LSIC 2024</td>
+</tr>
+<tr>
+<td>Mobility module per corner</td>
+<td>actuated suspension, steering and drive</td>
+<td>Francis &amp; Sobey (2025)</td>
+</tr>
+<tr>
+<td>Suspension</td>
+<td>±40°, 200 N m</td>
+<td>Fong (2022, 2025)</td>
+</tr>
+<tr>
+<td>Steering</td>
+<td>±50°</td>
+<td>McBryan, Francis &amp; Sobey (2025), ICES-2025-147, NTRS 20250005201</td>
+</tr>
+<tr>
+<td>Track, wheelbase</td>
+<td>≈ 1.3 m, ≈ 1 m at nominal ride height; suspension changes ride height and track, steering changes track and wheelbase</td>
+<td><em>Investigating the geotechnical properties of the lunar south pole with NASA VIPER's mobility system</em>, Planet. Sci. J. (2025), doi:10.3847/PSJ/add13f</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>0.20 m/s top, 0.10 m/s prospecting</td>
+<td>Fong (2022), NTRS 20220000441</td>
+</tr>
+<tr>
+<td>Mast</td>
+<td>tip ≈ 2.5 m above the wheel rims; NavCam pair and LED headlights on a pan-tilt head</td>
+<td>NASA (2023), <em>VIPER team raises its mighty mast</em></td>
+</tr>
+<tr>
+<td>Antennas</td>
+<td>gimballed high-gain (gimbal at ≈ 2.3 m), fixed low-gain</td>
+<td>LSIC 2024</td>
+</tr>
+<tr>
+<td>Power and thermal</td>
+<td>solar arrays on three sides, radiator on top</td>
+<td>LSIC 2024; Fong (2022)</td>
+</tr>
+<tr>
+<td>Drill</td>
+<td>TRIDENT, 1 m class rotary-percussive, vertical, 10 cm bites; integrated into the rover's belly, stows inside and extends 1 m; &lt; 20 kg, 200 N maximum weight on bit; deployment and feed stages, brush, chute, footpad</td>
+<td>Zacny et al. (2021), LPSC 52, abstract 2400; NASA (2024), <em>Into the Belly of the Rover</em>; NTRS 20240000585; Chu et al., Honeybee Robotics / LSIC poster</td>
+</tr>
+<tr>
+<td>Instruments</td>
+<td>NSS on the front; NIRVSS and MSolo under the rover; one hazard camera per wheel</td>
+<td>Andrews (2020), NTRS 20205000864; Fong (2022)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Estimates</strong> (not found in the sources that could be reached). Each one is chosen to agree with the published
+envelope, track, wheelbase and wheel size:</p>
+<ul>
+<li><strong>Suspension geometry:</strong> pivots under the chassis, arm length, and a 0.15 m steering offset. These give the
+  1.3 m track and 1.0 m wheelbase, and ±40° of arm travel changes ride height and track as the PSJ paper says.</li>
+<li><strong>Chassis:</strong> a 1.44 × 1.48 m body with 7 cm chamfers on its edges, on a 1.20 × 0.40 m keel that carries the
+  suspension actuators. It fills the 1.7 m envelope with the wheels outboard, and the wheels clear every chassis
+  part when steered ±50° (tested).</li>
+<li><strong>Faces:</strong> arrays on the left, right and aft faces; the front face white radiator over silver MLI, gold MLI on
+  the belly, a radiator and a raised rim on the deck (layout from NASA renders; sizes estimated).</li>
+<li><strong>Mast and head:</strong> a tapered square mast at the front-left of the deck, a pan-tilt head with the NavCam stereo
+  pair (0.24 m baseline), an AftCam and a row of six LED lights, the high-gain antenna on a gimbal at ≈ 2.24 m.</li>
+<li><strong>TRIDENT position:</strong> the drill rail stands on the front face, right of centre, with the auger below the belly
+  and the footpad 0.36 m above the ground (from NASA renders and photos; the internal bay of the belly
+  installation is not modelled). Rail 1.30 m, auger 25 mm, footpad 0.12 m: sized for the 1 m stroke.</li>
+<li><strong>Instruments:</strong> NSS low on the front face, NIRVSS on the keel front near the drill, MSolo under the keel.</li>
+<li><strong>Other dimensions:</strong> array panels covering the body faces; high-gain dish 0.40 m across; straight grousers (the
+  shape was not found).</li>
+<li><strong>Mass split:</strong> per corner, 12 kg wheel with its drive, 8 kg steering module and 10 kg arm; 330 kg chassis,
+  split among structure, avionics, arrays, radiator, mast, drill and instruments. The centre of mass and the
+  inertias are computed from the CAD meshes with these masses.</li>
+<li><strong>Actuators:</strong> drive torque limit 80 N m (more than the soil torque at 90 % slip under the static lunar load,
+  so traction, not the motor, limits climbing); wheel speed limit 2.5 rad/s; steering torque limit 60 N m.</li>
+</ul>
+<p>All of this lives in <code>pinneapple_simulation.vehicle.viper.VIPER_SOURCES</code>. The CAD is built by
+<code>pinneapple_design.geometry.vehicle_cad</code>:
+- every part is a closed mesh with a material and a mass;
+- the bodies (chassis, 4 arms, 4 steering modules, 4 wheels) get their mass, centre of mass and inertia tensor from
+  the meshes (Eberly's polyhedral mass properties, checked against boxes, cylinders and tubes in the tests);
+- <code>export(".glb")</code> writes glTF with PBR materials (new studio materials: white paint, anodised black, wheel metal,
+  solar cells, radiator, gold and silver MLI, lens, LED, regolith, rock).</p>
+<p>Computed for the model: total mass 450.0 kg, centre of mass 0.871 m above the ground at nominal ride height, and
+inertias about it 162 / 177 / 172 (roll / pitch / yaw) kg m² (glTF: <a href="../../assets/lunar_rover/viper.glb">viper.glb</a>).</p>
+<h2 id="wheel-soil-model">Wheel-soil model<a class="headerlink" href="#wheel-soil-model" title="Permanent link">&para;</a></h2>
+<p><code>WongReeceModel(soil, wheel, g=1.62)</code> integrates the stresses on the contact arc with piecewise Gauss-Legendre
+quadrature, vectorised over wheels.</p>
+<ul>
+<li><strong>Normal stress:</strong> Bekker pressure-sinkage <code>σ = (k_c/b + k_φ) h^n</code>, with the Wong-Reece shape: maximum at
+  <code>θ_m = (a0 + a1 s) θ_f</code>, and the rear arc mapped onto the front one (Wong &amp; Reece 1967; Wong 2008).</li>
+<li><strong>Shear:</strong> Janosi-Hanamoto <code>τ = (c + σ tan φ)(1 - e^(-j/K))</code>, with the shear displacement
+  <code>j = R_s[(θ_f - θ) - (1 - s)(sin θ_f - sin θ)]</code>.</li>
+<li><strong>Slip-sinkage:</strong> the exponent of the pressure-sinkage law grows with driving slip, <code>n = n0 + n1 s</code> (Ding et al.
+  2010, 2011, who identified it from single-wheel tests on lunar simulant). Skid (s &lt; 0) leaves it at n0 by default
+  (<code>slip_sinkage="drive"</code>; <code>"both"</code> uses <code>|s|</code>, <code>"none"</code> turns it off). A larger exponent means a softer response
+  at the few-centimetre depths of a wheel, so the wheel sinks deeper as it slips and digs.</li>
+<li><strong>Grousers:</strong> shear on the equivalent radius <code>R_s = R + λ h</code> (Ding et al. 2011, λ = 1 by default). The visual
+  grouser marks come from the vehicle simulation (below).</li>
+<li><strong>Multi-pass:</strong> Wong's repetitive loading. The soil remembers the deepest sinkage it carried, <code>z_u</code>. A later wheel
+  reloads it elastically (<code>p = k_u h</code>, <code>k_u = k_u0 + A_u z_u</code>) up to <code>p_u = k z_u^n</code>, then follows the virgin
+  curve. As in Wong's treatment of consecutive wheels in one track, the shear displacement left by the wheel in
+  front is carried over. A rear wheel in a rut therefore sinks deeper in total but needs less extra compaction,
+  and its traction builds over a shorter arc. Both effects are tested.</li>
+<li><strong>Bulldozing:</strong> passive earth pressure on the soil wedge, <code>R_b = b(0.67 c z K_pc + 0.5 z² γ K_pγ)</code>, with
+  Terzaghi's bearing-capacity factors (Bekker 1969; Wong 2008). It is applied on the side face by default. Ahead
+  of the wheel it is optional (<code>bulldozing="both"</code>), because Wong-Reece's <code>σ sin θ</code> term already contains the
+  compaction resistance.</li>
+<li><strong>Lateral force and side slip:</strong> lateral shear with <code>j_y = R(1 - s)(θ_f - θ) tan β</code> (Ishigami et al. 2007), plus
+  sidewall bulldozing. The force opposes the side slip.</li>
+</ul>
+<p>The model reproduces the library's earlier Bekker-Wong solver to 2e-6 relative error when the extensions are off.</p>
+<h3 id="soils">Soils<a class="headerlink" href="#soils" title="Permanent link">&para;</a></h3>
+<p><code>get_soil(name)</code> returns the parameters with <code>soil.sources</code> (and <code>soil.provenance()</code> as a table). Status of each
+parameter:</p>
+<table>
+<thead>
+<tr>
+<th>Soil</th>
+<th>c [kPa]</th>
+<th>φ [°]</th>
+<th>k_c [kN/m^(n+1)]</th>
+<th>k_φ [kN/m^(n+2)]</th>
+<th>n</th>
+<th>ρ [kg/m³]</th>
+<th>K [m]</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GRC-1</td>
+<td>0.25</td>
+<td>38</td>
+<td>0.7</td>
+<td>505</td>
+<td>0.8</td>
+<td>1620</td>
+<td>0.018</td>
+<td>c, φ, k_c, k_φ, n, ρ: secondary (the RoverDevKit catalogue, MIT, which attributes them to Oravec et al. 2010); K: estimate</td>
+</tr>
+<tr>
+<td>JSC-1A</td>
+<td>1.0</td>
+<td>45</td>
+<td>1.4</td>
+<td>820</td>
+<td>1.0</td>
+<td>1600</td>
+<td>0.018</td>
+<td>secondary (RoverDevKit, attributed to Zeng et al. 2010). k_c, k_φ, n equal the classic Apollo lunar-soil set, so they are probably not a JSC-1A bevameter fit; K: estimate</td>
+</tr>
+<tr>
+<td>Ding2011-TYII</td>
+<td>0.25</td>
+<td>31.9</td>
+<td>15.6</td>
+<td>2407.4</td>
+<td>1.10</td>
+<td>1605</td>
+<td>0.011</td>
+<td>secondary (Ding et al. 2011, Table 2, via RoverDevKit)</td>
+</tr>
+<tr>
+<td>FJS-1/Hurrell2025</td>
+<td>2.4</td>
+<td>38</td>
+<td>1.37</td>
+<td>820</td>
+<td>1.0</td>
+<td>1740</td>
+<td>0.018</td>
+<td>c, φ secondary (Hurrell et al. 2025); pressure-sinkage proxied by catalogue FJS-1</td>
+</tr>
+<tr>
+<td>KLS-1</td>
+<td>1.716</td>
+<td>40.6</td>
+<td>−44.06</td>
+<td>3581.8</td>
+<td>1.26</td>
+<td>1600</td>
+<td>0.018</td>
+<td>secondary (Wang &amp; Han 2016; Lim et al. 2021)</td>
+</tr>
+</tbody>
+</table>
+<p>Other values, not measured for these simulants:
+- <strong>Wong-Reece coefficients:</strong> a0 = 0.40, a1 = 0.15, exit-angle ratio 1/3 (estimates, the library's earlier
+  values).
+- <strong>Unloading modulus:</strong> k_u0 = 2e8 N/m³. Almost all of the sinkage stays plastic.
+- <strong>Slip-sinkage:</strong> n1 was not published for any of these simulants. The validation soils keep n1 = 0 (the cited
+  state, the "before" of the calibration below). GRC-1 and JSC-1A use n1 = 0.8, an estimate: the rounded mean of
+  n1 fitted on the training points of the five single-wheel series (0.64–0.94).</p>
+<p>The Oravec et al. (2010) GRC-1 paper and the Zeng et al. (2010) JSC-1A paper are the primary sources to check these
+against. The parameters the library used before under the name "GRC-1" (<code>SoilParams()</code>: c = 1.4 kPa, φ = 30°,
+k_c = 1.37, k_φ = 814, n = 1) are kept as <code>"Apollo-lunar"</code>. Their source was not recorded, and they are not the
+GRC-1 values above.</p>
+<h2 id="validation-against-single-wheel-tests">Validation against single-wheel tests<a class="headerlink" href="#validation-against-single-wheel-tests" title="Permanent link">&para;</a></h2>
+<p><img alt="Published single-wheel points, the cited soils (dashed) and the slip-sinkage calibration (solid)" src="../../assets/lunar_rover/validation_single_wheel.png" /></p>
+<p><code>testbed.validate(testbed.load_dataset(name, wheel))</code> runs the wheel at the measured slips. It finds the sinkage
+for the test load, then the drawbar pull and the torque, using the soil parameters cited for that test. The bundled
+points (<code>terramechanics/data/single_wheel_tests.csv</code>) are <strong>readings of the published figures made by RoverDevKit</strong>
+(MIT licence, status <code>digitised_approx</code>). They are not tables from the papers, and they are used unchanged. No
+tabulated single-wheel data for GRC-1 or JSC-1A could be obtained here; the NASA Glenn and WES reports that hold
+such tables could not be opened.</p>
+<p><strong>With the cited soils</strong> (nothing fitted, n1 = 0), errors over all points:</p>
+<table>
+<thead>
+<tr>
+<th>Test (load)</th>
+<th>Drawbar pull RMSE</th>
+<th>RMSE / load</th>
+<th>Sinkage RMSE</th>
+<th>Torque RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ding2011 smooth (80.0 N)</td>
+<td>7.7 N</td>
+<td>0.096</td>
+<td>4.2 mm</td>
+<td>0.58 N m</td>
+</tr>
+<tr>
+<td>ding2011 grousered (80.0 N)</td>
+<td>4.0 N</td>
+<td>0.050</td>
+<td>7.7 mm</td>
+<td>0.53 N m</td>
+</tr>
+<tr>
+<td>wanghan2016 smooth (58.9 N)</td>
+<td>14.4 N</td>
+<td>0.244</td>
+<td>16.1 mm</td>
+<td>0.82 N m</td>
+</tr>
+<tr>
+<td>wanghan2016 grousered (58.9 N)</td>
+<td>9.2 N</td>
+<td>0.156</td>
+<td>13.6 mm</td>
+<td>0.54 N m</td>
+</tr>
+<tr>
+<td>hurrell2025 grousered (24.5 N)</td>
+<td>3.0 N</td>
+<td>0.122</td>
+<td>4.7 mm</td>
+<td>not reported</td>
+</tr>
+</tbody>
+</table>
+<p>With a constant exponent the model's sinkage is almost flat with slip (≈ 10, 12 and 20 mm), while every test
+series rises, from ≈ 5 mm at zero slip to 15–27 mm at 0.6 slip, and the model over-predicts the sinkage at low
+slip.</p>
+<p><strong>Slip-sinkage calibration with held-out points.</strong> <code>testbed.calibrate_holdout(data)</code> fits the two coefficients
+of the slip-dependent exponent <code>n = n0 + n1 s</code> (Ding et al. 2010, 2011) and the shear modulus K, by least squares
+on the drawbar pull and sinkage of <strong>every other point</strong> (sorted by slip, starting with the lowest:
+<code>testbed.holdout_split</code>). The other points are held out: they do not enter the fit or its scaling (a test moves
+them and checks that the fit does not change). Errors on the <strong>held-out points only</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Fitted n0, n1, K</th>
+<th>Sinkage RMSE before → after</th>
+<th>Drawbar pull RMSE / load before → after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ding2011 smooth</td>
+<td>0.91, 0.65, 16 mm</td>
+<td>4.9 → 0.5 mm</td>
+<td>0.116 → 0.101</td>
+</tr>
+<tr>
+<td>ding2011 grousered</td>
+<td>0.88, 0.84, 10 mm</td>
+<td>10.2 → 3.1 mm</td>
+<td>0.061 → 0.067</td>
+</tr>
+<tr>
+<td>wanghan2016 smooth</td>
+<td>0.53, 0.82, 50 mm (bound)</td>
+<td>15.7 → 1.3 mm</td>
+<td>0.232 → 0.045</td>
+</tr>
+<tr>
+<td>wanghan2016 grousered</td>
+<td>0.63, 0.94, 31 mm</td>
+<td>13.9 → 0.4 mm</td>
+<td>0.109 → 0.117</td>
+</tr>
+<tr>
+<td>hurrell2025 grousered</td>
+<td>0.77, 0.74, 25 mm</td>
+<td>3.3 → 0.8 mm</td>
+<td>0.092 → 0.139</td>
+</tr>
+</tbody>
+</table>
+<p>What this says:
+- <strong>Sinkage:</strong> the slip-dependent exponent reproduces the rise of sinkage with slip in all five series; the
+  held-out sinkage error falls by a factor of 3 to 37. The largest remaining miss is the 27 mm point of the Ding
+  grousered wheel at 0.6 slip (model 22 mm), where the grousers dig more than the exponent law follows.
+- <strong>Drawbar pull:</strong> much better for the Wang &amp; Han smooth wheel (0.232 → 0.045 W, 0.244 → 0.043 W over all
+  points), about unchanged for the Ding wheels and the Wang &amp; Han grousered wheel, and worse for the Hurrell
+  wheel (0.092 → 0.139 W): there the fit trades pull for sinkage, and the model's pull keeps rising past 0.3 slip
+  while the measured pull levels off. For the Wang &amp; Han smooth wheel K ends at its 50 mm bound.
+- The fitted n0 are 0.53–0.92 and n1 0.64–0.94. Every fitted value and the held-out errors are in <code>results.json</code>
+  (<code>slip_sinkage_calibration</code>).</p>
+<h2 id="multibody-vehicle">Multibody vehicle<a class="headerlink" href="#multibody-vehicle" title="Permanent link">&para;</a></h2>
+<p><code>build_vehicle(spec)</code> makes a floating-base tree:</p>
+<div class="highlight"><pre><span></span><code>chassis -&gt; 4 × (suspension arm -&gt; steering module -&gt; wheel)
+</code></pre></div>
+<p>That is 18 degrees of freedom, with the bodies' masses and inertias taken from the CAD.</p>
+<ul>
+<li><strong>Dynamics:</strong> <code>MultibodyTree.step</code> takes a linearly implicit Euler step on <code>M(q) v' + h(q, v) = Q</code>. Each force
+  provider returns its generalised force and the derivative with respect to the velocities, so stiff slip
+  dynamics and servo gains stay stable at 2 ms. The tree is checked against free fall, a pendulum's period
+  (0.004 % off), and momentum and energy conservation of a tumbling free tree.</li>
+<li><strong>Wheels:</strong> at each step the simulator finds each wheel's sinkage below the undisturbed surface, its slip (from
+  the wheel's angular velocity and its centre velocity) and its slip angle. It then evaluates Wong-Reece with the
+  soil memory ahead of the wheel, and applies the forces at the axle and the soil torque about it. Slip is
+  regularised below 0.02 m/s.</li>
+<li><strong>Vertical damping:</strong> <code>c = ζ 2√(k m)</code> (<code>soil_damping</code>, ζ = 0.7). Granular soil dissipates the energy of a
+  bouncing wheel, and the quasi-static laws have no damping of their own. This is a model setting, like the
+  damping of Chrono's SCM soil, not a measured property.</li>
+<li><strong>Rocks:</strong> rigid. The rim and its grousers get a penalty contact with Coulomb friction (μ = 0.6), so a wheel
+  climbs a rock and the vehicle bounces off it.</li>
+<li><strong>Drive:</strong> per wheel, a PI speed loop with an 80 N m torque limit. The wheels turn at the commanded rate, and the
+  slip is whatever the soil gives.</li>
+<li><strong>Steering:</strong> PD heading hold (±20° command), front and rear steering opposite.</li>
+<li><strong>Suspension:</strong> PD to a set point, 200 N m limit, plus an assumed load-levelling loop. On four wheels only the
+  diagonal ("warp") share of the loads can be equalised by the arms; the front/rear split is fixed by the centre of
+  mass.</li>
+<li><strong>Slip-sinkage in the dynamic run:</strong> the slip that sets the exponent follows the wheel's slip with a lag of
+  0.15 m of rim travel (<code>sink_length</code>, about one contact length). Slip-sinkage builds up as the wheel turns and
+  digs; a stopped wheel neither builds nor loses it, so the slip ratio of a nearly stopped wheel, a ratio of
+  noise, cannot feed back into the sinkage. Without the lag, a wheel held on a 20° slope dug itself in and the
+  run diverged. This is a model setting, not a published law.</li>
+<li><strong>Terrain:</strong> <code>DeformableTerrain</code> keeps the soil memory on a 1 cm grid. Every wheel writes its rim trace and the
+  shear it leaves, and the rut gets a real cross-section: a floor as wide as the wheel at the computed sinkage,
+  walls at the angle of repose (38°) and rounded berms on both sides holding 30 % of the rut cross-section (the
+  rest is compaction). A rear wheel in a front wheel's rut reloads the compacted soil (multi-pass) and deepens the
+  rut only where it sinks deeper; a wheel running over a berm flattens it. Each time a grouser passes the bottom
+  of a loaded wheel it writes a mark across the track, so the marks are spaced by the grouser pitch times
+  (1 − slip) (tested). Ruts keep the peak normal and shear stress for optional colour maps.</li>
+</ul>
+<h2 id="results-full-vehicle-grc-1-lunar-g">Results (full vehicle, GRC-1, lunar g)<a class="headerlink" href="#results-full-vehicle-grc-1-lunar-g" title="Permanent link">&para;</a></h2>
+<p><img alt="Slip, speed and torque on uniform grades" src="../../assets/lunar_rover/grade_sweep.png" /></p>
+<p><strong>Grades</strong> (wheel-rate command 0.1 m/s, mean over the second half of a 14 s run):</p>
+<table>
+<thead>
+<tr>
+<th>Grade [°]</th>
+<th>Slip</th>
+<th>Speed [m/s]</th>
+<th>Sinkage [mm]</th>
+<th>Drive torque per wheel [N m]</th>
+<th>End heading [°]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.0</td>
+<td>-0.007</td>
+<td>0.101</td>
+<td>14.8</td>
+<td>4.8 (peak 10.1)</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>5.0</td>
+<td>0.001</td>
+<td>0.100</td>
+<td>15.2</td>
+<td>9.3 (peak 19.0)</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>10.0</td>
+<td>0.020</td>
+<td>0.098</td>
+<td>16.0</td>
+<td>14.0 (peak 28.3)</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>12.5</td>
+<td>0.031</td>
+<td>0.096</td>
+<td>16.5</td>
+<td>16.3 (peak 35.3)</td>
+<td>-0.0</td>
+</tr>
+<tr>
+<td>15.0</td>
+<td>0.054</td>
+<td>0.093</td>
+<td>17.2</td>
+<td>18.8 (peak 39.1)</td>
+<td>-0.0</td>
+</tr>
+<tr>
+<td>17.5</td>
+<td>0.080</td>
+<td>0.090</td>
+<td>18.2</td>
+<td>21.9 (peak 47.9)</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td>20.0</td>
+<td>0.125</td>
+<td>0.085</td>
+<td>20.0</td>
+<td>25.0 (peak 54.4)</td>
+<td>-0.0</td>
+</tr>
+</tbody>
+</table>
+<p>On level ground the mean slip is -0.007: the rear wheels, running in the front wheels' ruts, carry slightly more traction and push. The slip grows with grade, to 0.05 at 15° and 0.13 at 20°, the sinkage with it (slip-sinkage), and the vehicle holds its heading on every grade. <strong>The averaging window straddles a change of regime:</strong> the rear wheels drive on virgin soil until they reach the start of the front wheels' ruts, one wheelbase (≈ 1 m, ≈ 11 s) after the start; there the slip is ≈ 0.17 on 15° and ≈ 0.26 on 20° (all four wheels). In the ruts the shear carried over from the front wheels lets the rear wheels push and the slip of all four falls to ≈ 0. A longer run would report the in-rut value. <strong>This is more optimistic than NASA's published figures.</strong> LSIC 2024 lists 15° slopes as a design requirement, and a limit of 40 % slip on 15° is quoted for VIPER in the literature (secondary source). Pavlov et al. (NTRS 20220005373) give about 18° as the safe limit with a 50 % slip cap, and Hu et al. (2025) extrapolate about 85 % slip at 30° for the full-scale rover. Likely reasons:
+- the GRC-1 parameters are secondary and describe a dense, firm state (φ = 38°, n = 0.8);
+- the shear carried over between wheels in one rut (Wong's multi-pass treatment) helps the rear wheels, and its size is not calibrated for lunar simulants (<code>VehicleSimulator(multipass_shear=False)</code> turns it off);
+- slip-sinkage on GRC-1 uses an estimated n1 (0.8), not a measured one.</p>
+<p>Treat these grades as model results, not as predictions of VIPER's performance.</p>
+<p><strong>Cross slope 10°</strong> at 0.1 m/s (heading hold): slip angles -3.2 / -3.0 / -5.7 / -5.6° and lateral forces 32 / 45 / 20 / 30 N per wheel
+(FL, FR, RL, RR). The steering crabs into the slope to hold the heading.</p>
+<p><img alt="Cross slope, per wheel" src="../../assets/lunar_rover/crossslope_series.png" /></p>
+<p><strong>Crater crossing</strong> at 0.2 m/s. The crater is 4 m across and 0.32 m deep, degraded (depth 0.08 D; Pike's 0.2
+holds for fresh craters), and a 12 cm rock sits under the left wheels:</p>
+<table>
+<thead>
+<tr>
+<th>Distance</th>
+<th>Mean slip</th>
+<th>Max sinkage</th>
+<th>Energy</th>
+<th>Max pitch</th>
+<th>Max roll</th>
+<th>Max rock force</th>
+<th>Max drive torque</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8.63 m</td>
+<td>0.018</td>
+<td>36.6 mm</td>
+<td>794 J (92.0 J/m)</td>
+<td>10.5°</td>
+<td>3.8°</td>
+<td>490 N</td>
+<td>31.4 N m</td>
+</tr>
+</tbody>
+</table>
+<p>What the run shows:
+- the left front wheel climbs the rock, leaves the soil and spins up (slip 1);
+- the wheel loads swing between 0 and about 300 N;
+- the rear-left wheel, pushed against the rock with the front-left wheel lifted, slips up to ≈ 0.3 and digs to
+  37 mm (slip-sinkage), the deepest point of the run; elsewhere the sinkage stays at 11-20 mm;
+- the chassis pitches down into the bowl and back up;
+- the arms move to keep all four wheels loaded;
+- slip rises on the climb out.</p>
+<p><img alt="Crater crossing, per wheel" src="../../assets/lunar_rover/crater_series.png" /></p>
+<h2 id="pinn-surrogate">PINN surrogate<a class="headerlink" href="#pinn-surrogate" title="Permanent link">&para;</a></h2>
+<p><code>train_contact_surrogate(WongReeceModel(GRC-1, VIPER wheel), slip -0.4 to 0.9, sinkage 2-60 mm)</code> trains a
+Fourier-feature residual MLP on Wong-Reece data, with four physics terms:
+- <code>dF_z/dz ≥ 0</code>;
+- <code>dF_x/ds ≥ 0</code> below 0.3 slip;
+- the Mohr-Coulomb traction limit;
+- <code>M_y ≥ R F_x</code>.</p>
+<p>Each term is first checked on the reference over the box, and a term the reference violates would be dropped. All
+four hold. The error is measured on 2000 held-out Latin-hypercube points that were never used in training:</p>
+<table>
+<thead>
+<tr>
+<th>Output</th>
+<th>Held-out RMSE</th>
+<th>Max error</th>
+<th>RMSE / range</th>
+<th>R²</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fx [N]</td>
+<td>0.916</td>
+<td>5.340</td>
+<td>0.066 %</td>
+<td>0.999985</td>
+</tr>
+<tr>
+<td>Fz [N]</td>
+<td>1.473</td>
+<td>13.873</td>
+<td>0.108 %</td>
+<td>0.999982</td>
+</tr>
+<tr>
+<td>My [N m]</td>
+<td>0.196</td>
+<td>1.110</td>
+<td>0.052 %</td>
+<td>0.999989</td>
+</tr>
+</tbody>
+</table>
+<p>Along the crater run, at the (slip, sinkage) states the wheels actually met (same inputs to both): drawbar pull RMSE 0.79 N, load 2.83 N, torque 0.28 N m, with 0.2 % of the states outside the training box (they are left out of these errors).
+<code>sur.save(stem)</code> writes TorchScript + JSON in the format <code>rover.SurrogateContact.from_torchscript</code> reads.</p>
+<p><img alt="PINN vs Wong-Reece" src="../../assets/lunar_rover/surrogate.png" /></p>
+<h2 id="pictures">Pictures<a class="headerlink" href="#pictures" title="Permanent link">&para;</a></h2>
+<p><code>vehicle.viz</code> and <code>studio.planetary</code> render with PyVista:
+- <strong>Pose:</strong> the CAD posed by the multibody state, so the wheels roll with their joint angles.
+- <strong>Terrain:</strong> replayed to each instant. Ruts, walls, berms and grouser marks are deformations of the terrain
+  mesh, so their shading and shadows come from the geometry under the low Sun.
+- <strong>Ground to the horizon:</strong> a 1 cm patch around the vehicle, a 4 cm field with the ruts out to 14 m, and a
+  curved annulus out to 4 km whose height follows the Moon's curvature. The camera (≈ 2 m up) sees the real
+  horizon, ≈ 2.6 km away, and never the edge of a mesh. <code>studio.planetary.border_visibility</code> projects the mesh
+  border through the camera and checks that every point inside the frame is hidden by the ground; the tests and
+  the dashboard example run it for every camera used.
+- <strong>Shadows:</strong> Sun shadows of the vehicle, rocks and terrain, baked into the terrain and applied to the vehicle's
+  vertices.
+- <strong>Regolith:</strong> shaded with McEwen's (1991) Lunar-Lambert function, which keeps it lit at grazing Sun angles.
+- <strong>Colour maps (optional):</strong> contact stresses on the wheel arcs and in the ruts, with a colour bar
+  (<code>field="normal_stress"</code>). The default view shows the ruts by their geometry only.</p>
+<p>The lighting presets (<code>studio.lighting</code>) are shared by PyVista, Blender (<code>render(..., background="lunar_south_pole")</code>)
+and the browser viewer (<code>Scene.set_lighting(...)</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Preset</th>
+<th>Sky</th>
+<th>Sun</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lunar_south_pole</code></td>
+<td>black</td>
+<td>5° high, 0.53° disc. At ≈ 86° S the Sun stays within ≈ 5.5° of a level horizon: 90° − 86° + the 1.54° lunar obliquity</td>
+</tr>
+<tr>
+<td><code>lunar_low_sun</code></td>
+<td>black</td>
+<td>12° high: shadows ≈ 4.7 times the object height, and small crater floors stay partly lit (used for the animation)</td>
+</tr>
+<tr>
+<td><code>lunar_day</code></td>
+<td>black</td>
+<td>30° high</td>
+</tr>
+</tbody>
+</table>
+<p>Earth can be shown in the sky (<code>earth=True</code>) at its 1.9° apparent size.</p>
+<h2 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The renders and the CAD were checked against published dimensions, not against photographs (see About the
+  sources). The geometry details marked as estimates may differ from the real rover.</li>
+<li>The Wong-Reece laws are quasi-static and per wheel. Transient soil flow, grouser-by-grouser force oscillations
+  (Irani et al. 2011) and wheel-wheel soil interaction beyond the rut memory are not modelled.</li>
+<li>Soil parameters are secondary or estimated (see the table). The single-wheel validation uses digitised figure
+  points. The slip-sinkage coefficients are calibrated per test series (on half of its points); for GRC-1 n1 is an
+  estimate, so the vehicle's sinkage at high slip carries that uncertainty.</li>
+<li>The load-levelling suspension law, the controllers' gains and the vertical soil damping are model choices.</li>
+<li>Rocks are rigid ellipsoids. The terrain grid is 1 cm, so grouser marks are drawn about 1 cm wide.</li>
+</ul>
+<p>The previous quasi-static six-wheel rocker-bogie model (<code>pinneapple_simulation.rover</code>) is still in the library
+with its verification tests. Its generic 40 kg rover is no longer used by the example.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Bekker, M.G. (1969). <em>Introduction to Terrain-Vehicle Systems</em>. University of Michigan Press.</li>
+<li>Ding, L., Gao, H., Deng, Z., Tao, J. (2010). Wheel slip-sinkage and its prediction model of lunar rover.
+  <em>J. Central South University of Technology</em> 17, 129-135. doi:10.1007/s11771-010-0021-7</li>
+<li>Ding, L., Gao, H., Deng, Z., Nagatani, K., Yoshida, K. (2011). Experimental study and analysis on driving wheels'
+  performance for planetary exploration rovers moving in deformable soil. <em>J. Terramechanics</em> 48(1), 27-45.</li>
+<li>Hurrell et al. (2025). Traction performance evaluation for a Rashid-1 rover wheel. <em>Space Sci. Rev.</em> 221, 37.</li>
+<li>Ishigami, G., Miwa, A., Nagatani, K., Yoshida, K. (2007). Terramechanics-based model for steering maneuver of
+  planetary exploration rovers on loose soil. <em>J. Field Robotics</em> 24(3), 233-250.</li>
+<li>McEwen, A.S. (1991). Photometric functions for photoclinometry and other applications. <em>Icarus</em> 92, 298-311.</li>
+<li>Oravec, H.A., Zeng, X., Asnani, V.M. (2010). Design and characterization of GRC-1. <em>J. Terramechanics</em> 47(6),
+  361-377.</li>
+<li>Pike, R.J. (1977). Apparent depth/apparent diameter relation for lunar craters. <em>Proc. Lunar Sci. Conf.</em> 8th.</li>
+<li>RoverDevKit, https://github.com/Coordinated-Autonomous-Systems-Lab/roverdevkit (MIT): soil catalogue and
+  digitised single-wheel points.</li>
+<li>Wang, Han (2016). Experimental study of lunar rover wheel's motion performance on Korean lunar soil simulant.
+  <em>J. Korean Geotech. Soc.</em> 32(11), 97-108.</li>
+<li>Wong, J.Y., Reece, A.R. (1967). Prediction of rigid wheel performance based on the analysis of soil-wheel
+  stresses, part I. <em>J. Terramechanics</em> 4(1), 81-98.</li>
+<li>Wong, J.Y. (2008). <em>Theory of Ground Vehicles</em>, 4th ed. Wiley.</li>
+<li>Zeng, X. et al. (2010). Geotechnical properties of JSC-1A lunar soil simulant. <em>J. Aerospace Eng.</em> 23(2), 111-116.</li>
+<li>The VIPER sources are listed in the table above and in <code>VIPER_SOURCES</code>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "toc.follow", "search.highlight", "search.suggest", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

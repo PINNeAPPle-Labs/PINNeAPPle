@@ -277,6 +277,20 @@ def _is_unit_cell(cell: str) -> bool:
     return bool(cell) and _UNIT_CELL.fullmatch(cell.strip()) is not None
 
 
+def _header_units(rows: List[List[str]]) -> Dict[int, str]:
+    """Unit named in the header of a column, by position among the non-empty cells of the first row:
+    ``Item | Value (MPa g)`` -> ``{1: "MPa(g)"}``. Empty when the first row is not a header (it holds a digit)."""
+    cells = [c for c in (rows[0] if rows else []) if c]
+    if len(cells) < 2 or any(re.search(r"\d", c) for c in cells):
+        return {}
+    out = {}
+    for k, c in enumerate(cells):
+        m = re.search(r"[(\[]\s*([^)\]]+?)\s*[)\]]\s*$", c)
+        if m and _is_unit_cell(m.group(1)):
+            out[k] = _unit_text(m.group(1))
+    return out
+
+
 def _pairs(f: Field, label: str, value: str, spec: FormSpec, unit: str = "") -> List[Tuple[Field, str]]:
     """``[(field, value)]``: the value split in two when the label names a pair (int/ext, max/min) and the spec has
     the partner item; a part written "NA" or "-" is left out. ``unit`` (from a unit column) is added to every
@@ -397,6 +411,7 @@ def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
     for page, rows in doc.tables:
         if id(rows) in row_tables:
             continue
+        col_units = _header_units(rows)
         for r_i, row in enumerate(rows):
             row_cut = cut.get((id(rows), r_i))
             cells = [c for c in (row if row_cut is None else row[:row_cut]) if c]
@@ -415,8 +430,13 @@ def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
                     step, unit = 2, ""
                     if f.kind == "quantity" and i + 2 < len(cells) and _is_unit_cell(cells[i + 2]):
                         unit, step = _unit_text(cells[i + 2]), 3
+                    elif f.kind == "quantity" and i + 2 < len(cells) and _is_unit_cell(cells[i + 1]) \
+                            and re.search(r"\d", cells[i + 2]):          # Item | Unit | Value
+                        unit, value, step = _unit_text(cells[i + 1]), cells[i + 2], 3
                     elif unit_hint and f.kind == "quantity" and not _PAIR_LABEL.search(unit_hint.group(1)):
                         unit = unit_hint.group(1)
+                    elif f.kind == "quantity" and r_i > 0 and (i + 1) in col_units:       # Item | Value (MPa g)
+                        unit = col_units[i + 1]
                     for g, v in _pairs(f, cells[i], value, spec, unit):
                         add(g, v, page, snippet, 0.9)
                     i += step
@@ -658,6 +678,8 @@ def compile(docs: Sequence[Document], candidates: Iterable[Candidate], spec: For
             if distinct:
                 d.note = (f"{len(distinct)} other value(s) disagree; using {best.doc} (higher priority). "
                           "Confirm with the owner.")
+            if f.kind == "quantity" and isinstance(best.value, float) and best.unit is None:
+                d.note = (d.note + " " if d.note else "") + "No unit was found with this value: check it."
             if best.ocr is not None and best.ocr < OCR_CHECK:
                 d.note = (d.note + " " if d.note else "") + (f"Read by OCR with {best.ocr:.0f}% confidence: "
                                                              "check it against the scan.")

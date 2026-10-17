@@ -102,7 +102,7 @@ FIELDS: List[Field] = [
     # ---------------------------------------------------------------- design
     _f("design_p_int", "Internal design pressure", "Design conditions", kind="quantity", quantity="pressure",
        pdf="PressureInternal Design Pressure", patterns=(r"internal design pressure", r"design pressure,? internal",
-                                                          r"design pressure(?! ,?ext)"), required=True,
+                                                          r"design press(?:ure|\.)(?! ,?ext)"), required=True,
        source_hint="process datasheet"),
     _f("design_t_int", "Temperature at internal design pressure", "Design conditions", kind="quantity",
        quantity="temperature", pdf="T emperatureInternal Design Pressure",
@@ -229,7 +229,9 @@ FIELDS: List[Field] = [
        patterns=(r"fire ?proofing rating", r"fire rating")),
     # ---------------------------------------------------------------- materials
     *[_f(f"mat_{k}", f"Material: {lab}", "Materials", pdf=f"Specification{pdfname}",
-         patterns=tuple(rf"{p}(?: material)?(?: spec(?:ification)?)?" for p in pats) + tuple(rf"material[ ,:-]*{p}" for p in pats),
+         patterns=tuple(rf"{p}(?: material)?(?: spec(?:ification)?)?" for p in pats) + tuple(rf"material[ ,:-]*{p}" for p in pats)
+                  + tuple(rf"{p} (?:moc|material of construction)" for p in pats)
+                  + tuple(rf"(?:moc|material of construction)[ ,:/-]*{p}" for p in pats),
          required=k in ("shell",), source_hint="mechanical datasheet")
       for k, lab, pdfname, pats in (
           ("shell", "shell", "Shell", (r"shell",)),

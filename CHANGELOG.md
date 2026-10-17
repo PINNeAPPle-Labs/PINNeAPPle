@@ -727,6 +727,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Form Compiler (`pinneapple_data.formfill`): a `Label | Unit | Value` row and a unit named in the column header
+  (`Value (MPa g)`) now give the value its unit; "Design press." and "Shell MOC" / "MOC - Nozzles" are recognised; a
+  quantity found without any unit is kept but flagged "No unit was found with this value" (#732).
 - Form Compiler (`pinneapple_data.formfill`): vendor datasheets laid out as one grid now compile. A unit in its own
   column ("Design pressure | 1.5 | MPa g") is attached to the value; a label naming a pair ("(Int/Ext)", "Max/Min")
   splits "1.5 / NA" or "60 / 10" into both items and drops the "NA" part; a nozzle schedule printed beside the other

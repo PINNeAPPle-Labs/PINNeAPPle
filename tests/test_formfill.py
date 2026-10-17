@@ -612,3 +612,39 @@ def test_grid_layout_with_unit_column_pairs_and_embedded_nozzle_schedule():
     assert got["mat_shell"] == "SA-516 GR 70" and "mat_internals" not in got
     marks = [r.value["description"].split()[0] for r in comp.nozzles]
     assert marks == ["N1", "N2", "N3", "H1"]
+
+
+def _compile_rows(rows, spec_name="asme_u-dr-1"):
+    spec = ff.get_spec(spec_name)
+    doc = ff.Document(name="t.pdf", pages=[" "], tables=[(1, rows)])
+    return ff.compile([doc], ff.extract_rules(doc, spec), spec)
+
+
+def test_unit_column_before_the_value_and_unit_in_the_column_header():
+    got = {k: d.display for k, d in _compile_rows([["Item", "Unit", "Value"],
+                                                   ["Inside diameter", "mm", "800"],
+                                                   ["Length T/T", "mm", "1200"],
+                                                   ["Design pressure", "MPa g", "1.5"],
+                                                   ["Design temperature", "°C", "150"]]).decisions.items()
+           if d.status == "filled"}
+    assert got["diameter"] == "800 mm" and got["length_tt"] == "1200 mm"
+    assert got["design_p_int"] == "1.5 MPa(g)" and got["design_t_int"] == "150 °C"
+    assert "unit" not in got and "service" not in got
+    head = _compile_rows([["Item", "Value (MPa g)"], ["Design pressure", "1.5"]])
+    assert head.decisions["design_p_int"].display == "1.5 MPa(g)"
+
+
+def test_alternative_labels_for_design_pressure_and_material_of_construction():
+    comp = _compile_rows([["Design press.", "1.5 MPa(g)"], ["Shell MOC", "SA-516 Gr 70"],
+                          ["MOC - Nozzles", "SA-106 B"], ["Corrosion allowance", "3 mm"], ["C.A.", "3 mm"]])
+    d = comp.decisions
+    assert d["design_p_int"].display == "1.5 MPa(g)"
+    assert d["mat_shell"].display == "SA-516 Gr 70" and d["mat_nozzles"].display == "SA-106 B"
+    assert d["ca_shell_int"].status == "filled" and not d["ca_shell_int"].note
+
+
+def test_a_quantity_written_without_a_unit_is_kept_and_flagged():
+    comp = _compile_rows([["Design pressure", "1.5"], ["Inside diameter", "800 mm"]])
+    p, dia = comp.decisions["design_p_int"], comp.decisions["diameter"]
+    assert p.display == "1.5" and "No unit was found" in p.note
+    assert dia.display == "800 mm" and dia.note == ""

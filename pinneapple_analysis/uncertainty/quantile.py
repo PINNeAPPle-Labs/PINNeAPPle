@@ -53,6 +53,25 @@ def pinball_loss_torch(
     return torch.mean(torch.maximum(q * e, (q - 1.0) * e))
 
 
+def crossing_rate(y_pred: torch.Tensor, quantiles: Sequence[float]) -> float:
+    """Fraction of predictions whose quantiles are out of order.
+
+    Parameters
+    ----------
+    y_pred : Tensor — ``(..., Q)``, one column per level in *quantiles*.
+    quantiles : the ``Q`` levels, in the order of the last axis (any order).
+
+    Returns
+    -------
+    float in ``[0, 1]``: the share of points where a higher level is predicted below a lower one.
+    """
+    levels = torch.as_tensor(list(quantiles), dtype=torch.float64)
+    if y_pred.shape[-1] != len(levels):
+        raise ValueError(f"y_pred has {y_pred.shape[-1]} columns for {len(levels)} quantile levels")
+    ordered = y_pred.detach()[..., torch.argsort(levels)]
+    return float((ordered[..., 1:] < ordered[..., :-1]).any(dim=-1).double().mean())
+
+
 @dataclass
 class QuantileConfig:
     """Configuration for quantile prediction.
@@ -76,6 +95,15 @@ class QuantileHead(nn.Module):
     base : nn.Module — backbone forecaster (any architecture).
     cfg : QuantileConfig — quantile levels.
     hidden_dim : int — width of the projection head.
+    rearrange : bool — sort the ``Q`` outputs at every point so that a higher level is never predicted below a
+        lower one (Chernozhukov, Fernandez-Val and Galichon 2010; the sorted estimate is never farther from the
+        true quantile function). Default ``True``; ``False`` returns the raw outputs, which can cross,
+        especially early in training and away from the data. :func:`crossing_rate` measures it.
+
+    Notes
+    -----
+    The head sees only the point prediction ``base(x)``, not ``x``, so the width of the interval depends on ``x``
+    only through that prediction.
     """
 
     def __init__(
@@ -83,10 +111,12 @@ class QuantileHead(nn.Module):
         base: nn.Module,
         cfg: QuantileConfig,
         hidden_dim: int = 64,
+        rearrange: bool = True,
     ) -> None:
         super().__init__()
         self.base = base
         self.cfg = cfg
+        self.rearrange = rearrange
         self.proj = nn.Sequential(
             nn.Linear(1, hidden_dim),
             nn.GELU(),
@@ -104,7 +134,11 @@ class QuantileHead(nn.Module):
         if y_point.shape[-1] != 1:
             raise ValueError("QuantileHead expects single-target base output (C=1).")
         B, H, _ = y_point.shape
-        return self.proj(y_point.reshape(B * H, 1)).reshape(B, H, -1)
+        out = self.proj(y_point.reshape(B * H, 1)).reshape(B, H, -1)
+        if self.rearrange:
+            order = torch.argsort(torch.as_tensor(list(self.cfg.quantiles)))   # levels need not be given sorted
+            out = torch.sort(out, dim=-1).values[..., torch.argsort(order)]
+        return out
 
 
 class QuantileLoss:

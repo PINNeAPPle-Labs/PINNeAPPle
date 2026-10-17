@@ -438,6 +438,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   and `pinneapple_design.design_optimizer.representatives` (best per objective + balanced pick of a Pareto front).
 
 ### Changed
+- **Behavior:** `QuantileHead` sorts its outputs at every point, so a higher quantile level is never predicted
+  below a lower one (Chernozhukov, Fernandez-Val and Galichon 2010). `rearrange=False` restores the raw outputs, and
+  `pinneapple_analysis.uncertainty.crossing_rate` measures how often they cross (#774).
 - `pp.benchmark`: adding entries to `budget_study` or `ablations` reuses an existing `out_dir` (they only add jobs); changing
   or removing an entry is still refused. Before, any change to them was refused.
 - **Behavior:** `pinneapple_analysis.cost.measure` now counts FLOPs of code that calls `torch.autograd.grad` with

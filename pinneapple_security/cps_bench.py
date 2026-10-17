@@ -129,8 +129,8 @@ def physics_detector(dt: float = 60.0, window: int = 1, k: float = 0.5) -> Physi
     ], k=k)
 
 
-def _matrix(D: Data) -> np.ndarray:
-    return np.stack([np.asarray(D[k], dtype=float) for k in SENSORS], axis=1)
+def _matrix(D: Data, sensors: tuple[str, ...] | None = None) -> np.ndarray:
+    return np.stack([np.asarray(D[k], dtype=float) for k in (sensors or SENSORS)], axis=1)
 
 
 @dataclass
@@ -138,16 +138,17 @@ class _Scaled(CusumAlarm):
     k: float = 0.5
     h: float = 8.0
     upper_only: bool = True
+    sensors: tuple[str, ...] | None = None             # columns to read; the three-tank ``SENSORS`` by default
     mean_: np.ndarray = field(default=None, repr=False)
     std_: np.ndarray = field(default=None, repr=False)
 
     def _features(self, D: Data) -> np.ndarray:
-        X = (_matrix(D) - self.mean_) / self.std_
+        X = (_matrix(D, self.sensors) - self.mean_) / self.std_
         dX = np.vstack([np.zeros((1, X.shape[1])), np.diff(X, axis=0)])
         return np.hstack([X, dX])
 
     def _fit_scale(self, D: Data) -> None:
-        X = _matrix(D)
+        X = _matrix(D, self.sensors)
         self.mean_, self.std_ = X.mean(0), X.std(0) + 1e-12
 
     def _standardise(self, s: np.ndarray) -> np.ndarray:
@@ -196,7 +197,7 @@ class ARResidualDetector(_Scaled):
 
     @property
     def channels(self) -> list[str]:
-        return [f"ar[{k}]" for k in SENSORS]
+        return [f"ar[{k}]" for k in (self.sensors or SENSORS)]
 
     def _design(self, X: np.ndarray) -> np.ndarray:
         n = len(X)
@@ -204,12 +205,12 @@ class ARResidualDetector(_Scaled):
         return np.hstack(cols + [np.ones((n, 1))])
 
     def _resid(self, D: Data) -> np.ndarray:
-        X = (_matrix(D) - self.mean_) / self.std_
+        X = (_matrix(D, self.sensors) - self.mean_) / self.std_
         return X - self._design(X) @ self._W
 
     def fit(self, D: Data) -> ARResidualDetector:
         self._fit_scale(D)
-        X = (_matrix(D) - self.mean_) / self.std_
+        X = (_matrix(D, self.sensors) - self.mean_) / self.std_
         Phi = self._design(X)[self.lags:]
         Y = X[self.lags:]
         self._W = np.linalg.solve(Phi.T @ Phi + self.ridge * np.eye(Phi.shape[1]), Phi.T @ Y)

@@ -101,6 +101,81 @@ What the numbers say:
 * The isolation forest and PCA, which only look at the joint distribution of the readings, miss most attacks that
   keep values in range.
 
+## Public data: BATADAL (C-Town)
+
+`pinneapple_security.batadal` runs the same detectors and the same alarm rule on BATADAL (Taormina et al., J. Water
+Resour. Plann. Manage. 144(8), 2018): hourly SCADA data of the C-Town water network with 7 tanks, 11 pumps, a
+flow-control valve and 12 pressure sensors. It is a public benchmark produced by an independent hydraulic simulator
+(EPANET), not a recording from a physical plant. The BATADAL site licenses it under CC BY 4.0 (its footer also says
+"All rights reserved"), so the data are not in the repository: `batadal.fetch()` downloads three files (about 4 MB)
+to `$PINNEAPPLE_BATADAL_CACHE` (default `~/.cache/pinneapple/batadal`) and checks their SHA-256.
+
+```python
+from pinneapple_security import batadal
+
+batadal.fetch()                              # once; nothing is downloaded at import
+result = batadal.run_benchmark(false_alarms_per_day=0.25)
+```
+
+What is scored, and what is not:
+
+* Dataset 03 is one attack-free year. The first half fits each detector, the next quarter calibrates its threshold
+  to the false-alarm budget, and the last quarter is clean data used for neither (the false-alarm rate to trust).
+* Dataset 04 has five labelled attack episodes (42, 60, 37, 7 and 73 hours). Every other row is labelled `-999`,
+  which means unlabelled, not clean: the organisers say undiscovered attacks remain. Alarms outside the labelled
+  episodes are therefore an upper bound on false alarms, not a measurement of them.
+* **The competition's own score is not reproduced.** The test dataset has no labels in the file and its attack times
+  are not on the site, and the rules document with the exact formulas could not be read. `ttd_score` and
+  `classification_score` follow the published description (the overall score is the mean of a time-to-detection and
+  a classification score, the latter the mean of TPR and TNR); `ttd_score`'s normalisation by the attack length and
+  the 12-hour `hold` that turns alarms into hourly flags are this module's choices. Do not compare these numbers
+  with the competition ranking.
+* Which component was attacked is not in the labels, so localisation (the blamed channel) is not evaluated.
+
+The physics detector has seven tank balances (`TankBalance`) and the head curves of the two pumps that have pressure
+sensors at both ends and run in the attack-free year (`PumpLaw` for PU2 and PU10). Each balance identifies, on the
+attack-free half, a coefficient per flow that the EPANET topology allows to touch that tank and a demand-by-hour-of-day
+profile for the demand nobody measures. On the calibration quarter, a balance explains 90 % of the hourly level
+changes of T1, T2 and T3 but only 49, 73, 37 and 54 % for T4 to T7 (demand dominates there), and the two pump laws
+fit to 0.03 and 0.01 L/s. Baselines: the three of the simulated benchmark, reading all 31 measured columns.
+
+The parameters were fixed before dataset 04's labels were read: budget 0.25 false alarms per day, 6 hours of
+grace after an episode, a 12-hour hold. The conservative score `S_floor` was added after the first run, because the
+AR twin's score looked excellent for a reason a clean year cannot show (below).
+
+Budget 0.25 false alarms per day (alarms on the clean held-out quarter: physics 0.20, AR twin 0.26, PCA 0.18,
+isolation forest 0.27 per day):
+
+| detector | detected | delay per episode (h) | alarms per day outside the attacks | S_TTD | S | S_floor |
+|---|---|---|---|---|---|---|
+| physics | 4 / 5 | 0, 4, 7, missed, 55 | 0.33 | 0.598 | 0.667 | 0.664 |
+| AR twin | 5 / 5 | 0, 0, 0, 0, 0 | **19.5** | 1.000 | 0.972 | 0.750 |
+| PCA | 5 / 5 | 1, 0, 1, 1, 0 | 1.52 | 0.961 | 0.945 | 0.853 |
+| isolation forest | 5 / 5 | 18, 27, 18, 4, 4 | 0.32 | 0.602 | 0.683 | 0.680 |
+
+`S` takes the true-negative rate from the clean held-out quarter. `S_floor` takes it from dataset 04's own
+unlabelled hours, assuming all of them clean, which makes it a lower bound. The same budget at 0.1 and 1.0 per day
+(detected / alarms per day outside the attacks / S_floor):
+
+| budget per day | physics | AR twin | PCA | isolation forest |
+|---|---|---|---|---|
+| 0.1 | 3 / 5, 0.21, 0.578 | 5 / 5, 19.06, 0.750 | 5 / 5, 1.03, 0.802 | 4 / 5, 0.08, 0.630 |
+| 1.0 | 4 / 5, 1.22, 0.721 | 5 / 5, 20.51, 0.750 | 5 / 5, 3.37, 0.797 | 5 / 5, 1.11, 0.699 |
+
+What the numbers say:
+
+* **The physics residuals did not beat PCA on this data.** At every budget they raised fewer alarms outside the
+  labelled attacks than PCA (0.21 against 1.03 at 0.1 a day, 0.33 against 1.52 at 0.25, 1.22 against 3.37 at 1.0),
+  but they detected 3 or 4 of the 5 attacks, missed the 7-hour attack at the main budget and took 55 hours on the
+  last one, so their conservative score (0.58 to 0.72) is below PCA's (0.80 to 0.85).
+* **The AR twin catches every attack because it is in alarm almost all the time**: 19 to 21 alarms a day outside the
+  attacks at every budget. At the main budget its flags cover 99.9 % of dataset 04's unlabelled hours (3,436 alarms
+  in 4,177 hours), against 45 % for PCA and 11 % for the physics residuals. Dataset 03 is from 2014 and dataset 04
+  from 2016. This is the failure the simulated benchmark shows under a regime shift (84 alarms a day there); the
+  physics residuals do not show it (0.33).
+* With five labelled attacks, any single number is coarse: one missed 7-hour attack moves the detection rate by 20
+  points.
+
 ## Limits
 
 * Coordinated replay of every sensor is physically consistent. Both residual detectors catch it here only because
@@ -108,8 +183,9 @@ What the numbers say:
   splice, or one who knows the plant model and injects consistent data (a stealthy attack in the sense of Liu, Ning
   and Reiter 2009), is invisible to any residual test. Pair the detector with `anomaly.replay_score`, with signed
   data paths (`pinneapple_security.signing`) and with physical watermarking where the control loop allows it.
-* The benchmark is simulated (seeded, reproducible). Public ICS datasets either need a signed request (SWaT, WADI) or
-  were not reachable when this was written; an adapter for BATADAL is on the roadmap.
+* The three-tank benchmark is simulated (seeded, reproducible). SWaT and WADI need a signed request; BATADAL is
+  public and has an adapter (above), but it is itself simulated, its labels are partial and its test labels are not
+  public, so no result here is a measurement on a physical plant.
 * Attacks rewrite the reported readings only; the controller here acts on the true T1 level, so no attack changes
   the physical trajectory.
 

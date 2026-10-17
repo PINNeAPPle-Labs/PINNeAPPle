@@ -170,7 +170,9 @@ security module compared physics against data-driven detection on a reproducible
   `cps.episode_metrics`; `cps_bench`: seeded three-tank water network, six attacks, three data-driven baselines,
   nominal and shifted operating regimes.
 * **Data.** Simulated. SWaT and WADI require a signed request; BATADAL is public but its host was not reachable from
-  the build environment. A BATADAL adapter is issue-tracked (see roadmap).
+  the build environment. A BATADAL adapter (`pinneapple_security.batadal`, #645) now runs the detectors on its
+  training and attack datasets; its test set has no public labels, so the competition score is not reproduced.
+  Results and limits: `docs/guides/physics_residual_attack_detection.md`.
 * **Acceptance test (met).** At a calibrated budget of one false alarm per day: physics detector episode AUC ≥ 0.95
   on every single-sensor attack in both regimes; false alarms per day in the shifted regime ≤ 3 × budget; better than
   every data-driven baseline in the shifted regime. Measured (three seeds): AUC 1.000 on all five single-sensor

@@ -139,6 +139,77 @@ angular steps, rotor off the grid); Maxwell-stress and co-energy torque of the s
 torque of 38.10 N m with linear iron; re-evaluated with the nonlinear B-H curve the same rotor gives 13.44 N m, so
 saturation must be in the optimisation loop for thin-featured designs.
 
+### Interior-PM traction motor: the 2004 Toyota Prius
+
+`pinneapple_simulation.electromagnetics.machines` models interior-magnet machines on conforming meshes:
+
+* `geometry`: parametric V-magnet rotors (`VRotor`: V opening and depth, magnet width and thickness, bridges, ribs,
+  centre post, magnet segments) and round-bottom slots (`RoundBottomSlots`), the parametrisations of pyleecan's
+  `HoleM50` and `SlotW11`; `prius_2004()` holds the dimensions of pyleecan's `Toyota_Prius.json` (48 slots, 8 poles,
+  0.75 mm gap, 83.82 mm stack, stacking factor 0.95).
+* `mesher`: every polygon edge is a mesh edge (conforming Delaunay with Gabriel-edge recovery, concentric-shell
+  splitting at small angles). Half a pole and half a slot pitch are meshed, mirrored and copied around, so all
+  poles and slots have identical, symmetric elements: the no-load torque of the aligned rotor is 6e-13 N m
+  and the cogging curve is antisymmetric with zero mean. The air gap holds three ring layers; only the middle
+  one (moving band) is re-triangulated as the rotor turns.
+* `steel`: M400-50A (EN 10106) B-H curve and specific-loss table (50 Hz to 2.5 kHz), the data of pyleecan's material
+  library (Apache-2.0), and the Prius magnet grade (Br 1.24 T at 20 degC, -0.1 %/K); `stacked` applies the
+  stacking factor; `TableIronLoss` interpolates the catalogue table; `fit_iron_loss` fits
+  `k_h f^alpha B^beta + k_c (f B)^2 + k_e (f B)^1.5` with the classical term from resistivity and thickness.
+* `pmsm.IPMMachine`: Newton solution with the nonlinear B-H curve, Arkkio and co-energy torque, flux linkage,
+  back-EMF, the dq frame (d-axis on the magnet flux), torque ripple, frozen-permeability flux split and L_d / L_q,
+  MTPA by golden-section search on the FEA torque, iron loss per element in its own frame (table or fit) and
+  resistance-limited magnet eddy loss.
+
+The cross-check is against a published benchmark, not against FEMM or pyleecan (neither runs in this
+environment: FEMM is Windows-only, pyleecan's wheel needs a git-only dependency). The reference is the
+torque against current angle of the Prius motor at 250 A peak computed by Yang, Krishnamurthy and Brown (IEEE IEMDC
+2013), as tabulated in pyleecan's test suite. Their model and pyleecan's geometry are not the same file (centre
+post, magnet temperature, steel data), so agreement within a few per cent is the expectation, not a mesh error.
+
+`python examples/electrodynamics/10_pmsm_prius.py --write-docs` (run on 2026-10-17, 960 gap nodes, 29 936
+elements) wrote the table below and `examples/electrodynamics/results/10_pmsm_prius.json`; figures:
+`10_pmsm_field.png` (|B| and flux lines at MTPA, 250 A), `10_pmsm_curves.png` (torque against current angle with the
+published curve, cogging, back-EMF), `10_pmsm_mtpa.png` (MTPA locus, L_d and L_q).
+
+Results of that run (magnets at 20 degC, 1.24 T):
+
+| Peak current (A) | MTPA angle (deg from q) | Mean torque (N m) | Ripple pk-pk | L_d (mH) | L_q (mH) | psi_pm (Wb) |
+|---|---|---|---|---|---|---|
+| 50 | 26.9 | 70.4 | 24.9 % | 1.948 | 4.870 | 0.2141 |
+| 100 | 36.5 | 147.8 | 25.6 % | 1.744 | 3.698 | 0.2184 |
+| 150 | 42.4 | 221.3 | 22.4 % | 1.627 | 3.103 | 0.2217 |
+| 200 | 46.5 | 287.9 | 22.8 % | 1.515 | 2.731 | 0.2201 |
+| 250 | 49.5 | 345.6 | 22.9 % | 1.392 | 2.428 | 0.2138 |
+
+L_d, L_q and psi_pm are the apparent frozen-permeability values at each MTPA point (saturation lowers L_q from 4.87
+to 2.43 mH). No load: cogging 1.38 N m peak to peak, magnet flux linkage 0.209 Wb peak per phase, back-EMF 107.7 V
+line-to-line rms at 1000 rpm (THD 8.8 %). Losses at 1500 rpm (100 Hz), 250 A MTPA: stator iron 391 W, rotor iron
+29 W with the catalogue table (332 W and 32 W with the Bertotti fit), magnet eddy loss 37.9 W (resistance limited,
+one piece per magnet). The Bertotti fit to the M400-50A table up to 1 kHz has 8.2 % rms and 22 % maximum relative
+error; the table model is the default. Mesh convergence of the torque is not monotone (480, 960, 1920 gap nodes:
+343.20, 345.50, 344.08 N m): treat the FEA torque as converged to about 0.4 %.
+
+<!-- machine-verification:start -->
+| Case | Quantity | Reference | Error (finest) | Observed order | Status |
+|---|---|---|---|---|---|
+| Magnetised ring, sector mesher + P1 FEM | relative L2 error of A_z, h halved | closed form (two magnetised cylinders + harmonic) | 1.91e-04 | 1.89, 1.91, 1.99 (expected 2) | pass |
+| Machine sector geometry (Prius slot and magnet areas) | slot area, gap nodes doubled | exact area (trapezoid + half disc) | 5.70e-05 | 1.99, 1.81, 1.90 (expected 2) | pass |
+| Prius IPM: Maxwell stress vs co-energy torque | Arkkio torque at 250 A, 3 rotor angles | virtual work dW'/dtheta (4th-order differences) | 1.92e-03 | - | pass |
+| Prius IPM: dq power balance and frozen permeability | mean Maxwell-stress torque over 60 el. deg | 1.5 p (psi_d i_q - psi_q i_d) | 2.37e-04 | - | pass |
+| Prius IPM: torque vs current angle (Yang et al. 2013) | mean torque, 250 A, Phi0 = 60..180 deg | published FEA (IEMDC 2013), 13 angles | 2.12e-02 | - | pass |
+| Prius IPM: mesh convergence of the peak torque | mean torque at 250 A, 50 deg, gap nodes doubled | successive differences | 4.13e-03 | - | pass |
+
+Notes from the same run:
+
+- Magnetised ring, sector mesher + P1 FEM: 8 sector copies, magnet edges on mesh edges
+- Machine sector geometry (Prius slot and magnet areas): magnet area (straight edges) exact to 4.4e-16
+- Prius IPM: Maxwell stress vs co-energy torque: max relative difference over the angles
+- Prius IPM: dq power balance and frozen permeability: frozen-permeability superposition error 3.1e-10; L_d = 1.393 mH, L_q = 2.453 mH, psi_pm = 0.2142 Wb at this point
+- Prius IPM: torque vs current angle (Yang et al. 2013): peak 345.5 N m at Phi0 = 140 deg (published 353 N m at 140 deg); rms deviation 5.0 % of the peak
+- Prius IPM: mesh convergence of the peak torque: 480: 343.20 N m, 960: 345.50 N m, 1920: 344.08 N m; difference ratio 1.62
+<!-- machine-verification:end -->
+
 ## Verification
 
 Each case compares a solver or reference implementation with an independent result; where the mesh or step is
@@ -202,6 +273,10 @@ Notes from the same run:
   by the integral kinds.
 * `maxwell_checks` uses central differences on tensor grids: fields with discontinuities (material interfaces,
   PEC edges) leave residuals there that are not errors of the field; crop them or check each region separately.
+* Machines: 2-D only (no end windings, no axial flux, no skew in the FEA), magnets at a uniform temperature,
+  iron loss from B waveforms with the elliptic-to-alternating split (no minor loops, no rotational-loss data),
+  magnet eddy loss resistance-limited (valid while the skin depth exceeds the magnet size). The Bertotti fit to the
+  M400-50A table has measured errors (see the notes above); the table model is exact at the catalogue points only.
 * `JilesAtherton` is the scalar model; its parameters must be fitted to measured loops of the material.
   `illustrative_steel` is a formula, not a measured grade.
 
@@ -213,6 +288,14 @@ Notes from the same run:
   3rd ed., Artech House, 2005.
 * J.-M. Jin, *The Finite Element Method in Electromagnetics*, 3rd ed., Wiley-IEEE Press, 2014.
 * D. M. Pozar, *Microwave Engineering*, 4th ed., Wiley, 2012.
+* Z. Yang, M. Krishnamurthy, I. P. Brown, "Electromagnetic and vibrational characteristic of IPM over full
+  torque-speed range", IEEE IEMDC 2013, pp. 295-302.
+* M. Arkkio, *Analysis of induction motors based on the numerical solution of the magnetic field and circuit
+  equations*, Acta Polytechnica Scandinavica EE-59, 1987.
+* G. Bertotti, "General properties of power losses in soft ferromagnetic materials", IEEE Trans. Magn. 24(1),
+  621-630, 1988.
+* J. R. Shewchuk, "Delaunay refinement algorithms for triangular mesh generation", Comput. Geom. 22, 21-74, 2002.
+* pyleecan 1.4.2 (Apache-2.0): machine and material library, https://github.com/Eomys/pyleecan.
 * C. A. Balanis, *Antenna Theory*, 4th ed., Wiley, 2016.
 * R. F. Harrington, *Time-Harmonic Electromagnetic Fields*, McGraw-Hill, 1961.
 * M. Born and E. Wolf, *Principles of Optics*, 7th ed., Cambridge University Press, 1999.

@@ -14,6 +14,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Interior-PM machine FEA (`pinneapple_simulation.electromagnetics.machines`): parametric V-magnet rotors and
+  round-bottom slots, conforming mirrored sector meshes with a moving band, M400-50A B-H and loss data, stacking
+  factor, table and Bertotti iron-loss models, and `IPMMachine` (Maxwell-stress and co-energy torque, cogging, ripple,
+  flux linkage, back-EMF, dq flux linkages, frozen-permeability L_d / L_q, MTPA, iron and magnet losses). Verified
+  against a closed form (magnetised ring, second order), exact areas, torque consistency (co-energy, dq power
+  balance, frozen-permeability superposition) and the published Prius torque curve (Yang et al., IEMDC 2013);
+  example `examples/electrodynamics/10_pmsm_prius.py`, tests `tests/test_emachine_pmsm.py`.
+  `analytic.magnetized_ring` added.
 - Electromagnetics and electrodynamics (`pinneapple_simulation.electromagnetics`, `pp.em`; guide
   `docs/guides/electromagnetics.md`):
   - SI core: CODATA 2022 constants (`constants`), SI dimensions of every field and a dimensional check of Maxwell's

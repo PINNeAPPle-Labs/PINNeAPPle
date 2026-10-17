@@ -57,7 +57,7 @@ jobs:
       - name: Electromagnetics — references, solvers, Maxwell checks, machines, topology optimisation (must pass)
         run: |
           pip install ".[em]"
-          pytest tests/test_em_core.py tests/test_maxwell_checks.py tests/test_em_verification.py tests/test_motor_magnetics.py tests/test_topology_optimization.py tests/test_inspection.py tests/test_solver_exact_solutions_batch4.py -q -p no:warnings
+          pytest tests/test_em_core.py tests/test_maxwell_checks.py tests/test_em_verification.py tests/test_emachine_pmsm.py tests/test_motor_magnetics.py tests/test_topology_optimization.py tests/test_inspection.py tests/test_solver_exact_solutions_batch4.py -q -p no:warnings
 
       # `continue-on-error: true` (not `|| true` in the shell command) is
       # deliberate: it keeps the workflow from blocking on pre-existing,

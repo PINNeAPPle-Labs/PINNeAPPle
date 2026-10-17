@@ -49,7 +49,8 @@ from .mesh import Mesh2D
 
 __all__ = ["torque_maxwell_stress", "torque_maxwell_stress_gradient", "torque_coenergy", "region_integral_A", "flux_linkage",
            "back_emf", "IronLossModel", "iron_loss", "classical_eddy_coefficient",
-           "magnet_eddy_loss_resistance_limited", "element_flux_density_history"]
+           "magnet_eddy_loss_resistance_limited", "element_flux_density_history", "flux_density_ellipses",
+           "iron_loss_components"]
 
 # 3-point edge-midpoint rule on a triangle (exact for quadratics), barycentric coordinates
 _MID = np.array([[0.5, 0.5, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.5]])
@@ -217,27 +218,46 @@ def element_flux_density_history(B_steps: Sequence[np.ndarray], thetas: Sequence
     return out
 
 
-def iron_loss(B_hist: np.ndarray, f_fundamental: float, model: IronLossModel, area: np.ndarray,
-              mask: np.ndarray, length: float = 1.0, n_harmonics: int | None = None):
-    """Iron loss (W) of the elements in ``mask`` from ``B_hist`` (steps, M, 2) sampled uniformly over one
-    period of the fundamental. Returns (total W, loss density per element W/m^3)."""
+def flux_density_ellipses(B_hist: np.ndarray, mask: np.ndarray, n_harmonics: int | None = None):
+    """Semi-axes of the ellipse traced by each harmonic of B per element: ``(b_major, b_minor)``, each of shape
+    (harmonics, elements in ``mask``), from ``B_hist`` (steps, M, 2) sampled uniformly over one period."""
     Bh = B_hist[:, mask, :]
     n = Bh.shape[0]
     F = np.fft.rfft(Bh, axis=0) / n
     F[1:] *= 2.0  # one-sided amplitudes (Nyquist bin is rare for odd n; treated alike)
     nh = F.shape[0] - 1 if n_harmonics is None else min(n_harmonics, F.shape[0] - 1)
-    dens = np.zeros(Bh.shape[1])
-    for h in range(1, nh + 1):
-        X, Y = F[h, :, 0], F[h, :, 1]  # complex amplitudes of B(t) = Re(X e^{jwt}), Re(Y e^{jwt})
-        # semi-axes of the ellipse traced by (Re(X e^{jt}), Re(Y e^{jt}))
-        s1 = np.abs(X) ** 2 + np.abs(Y) ** 2
-        s2 = np.abs(X ** 2 + Y ** 2)
-        b_maj = np.sqrt(0.5 * (s1 + s2))
-        b_min = np.sqrt(np.maximum(0.5 * (s1 - s2), 0.0))
+    X, Y = F[1:nh + 1, :, 0], F[1:nh + 1, :, 1]  # complex amplitudes of B(t) = Re(X e^{jwt}), Re(Y e^{jwt})
+    s1 = np.abs(X) ** 2 + np.abs(Y) ** 2
+    s2 = np.abs(X ** 2 + Y ** 2)
+    return np.sqrt(0.5 * (s1 + s2)), np.sqrt(np.maximum(0.5 * (s1 - s2), 0.0))
+
+
+def iron_loss(B_hist: np.ndarray, f_fundamental: float, model: IronLossModel, area: np.ndarray,
+              mask: np.ndarray, length: float = 1.0, n_harmonics: int | None = None):
+    """Iron loss (W) of the elements in ``mask`` from ``B_hist`` (steps, M, 2) sampled uniformly over one
+    period of the fundamental. Returns (total W, loss density per element W/m^3)."""
+    b_maj, b_min = flux_density_ellipses(B_hist, mask, n_harmonics)
+    dens = np.zeros(b_maj.shape[1])
+    for h in range(1, b_maj.shape[0] + 1):
         f = h * f_fundamental
-        dens += model.density * (model.specific_loss(f, b_maj) + model.specific_loss(f, b_min))
+        dens += model.density * (model.specific_loss(f, b_maj[h - 1]) + model.specific_loss(f, b_min[h - 1]))
     total = float(length * np.sum(area[mask] * dens))
     return total, dens
+
+
+def iron_loss_components(B_hist: np.ndarray, area: np.ndarray, mask: np.ndarray, alpha: float, beta: float,
+                         density: float, length: float = 1.0, n_harmonics: int | None = None) -> np.ndarray:
+    """Frequency-free sums ``(S_h, S_c, S_e)`` such that the loss of :class:`IronLossModel` with exponents
+    ``alpha``, ``beta`` at fundamental frequency ``f`` is ``k_h f^alpha S_h + k_c f^2 S_c + k_e f^1.5 S_e`` (W):
+    one field solution period gives the iron loss at every speed (the field waveform is fixed by the
+    currents in the rotor frame)."""
+    b_maj, b_min = flux_density_ellipses(B_hist, mask, n_harmonics)
+    h = np.arange(1, b_maj.shape[0] + 1)[:, None]
+    w = density * length * area[mask][None, :]
+    S_h = np.sum(w * h ** alpha * (b_maj ** beta + b_min ** beta))
+    S_c = np.sum(w * h ** 2 * (b_maj ** 2 + b_min ** 2))
+    S_e = np.sum(w * h ** 1.5 * (b_maj ** 1.5 + b_min ** 1.5))
+    return np.array([S_h, S_c, S_e])
 
 
 def magnet_eddy_loss_resistance_limited(mesh: Mesh2D, geometry: Geometry, A_hist: np.ndarray,

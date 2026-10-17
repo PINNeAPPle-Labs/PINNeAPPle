@@ -27,7 +27,7 @@ import numpy as np
 
 from .materials import MU0
 
-__all__ = ["wire_field", "coax_field", "magnetized_cylinder", "skin_effect_wire", "Layer",
+__all__ = ["wire_field", "coax_field", "magnetized_cylinder", "magnetized_ring", "skin_effect_wire", "Layer",
            "RadialLayers", "round_conductor_eddy_loss_low_freq"]
 
 
@@ -62,6 +62,19 @@ def magnetized_cylinder(x, y, Br: float, a: float, R: float, alpha: float = 0.0)
     c = 0.5 * Br * a * a  # mu0 M a^2 / 2
     f = np.where(r <= a, (c / a ** 2 - c / R ** 2) * r, c * (1.0 / np.maximum(r, 1e-300) - r / R ** 2))
     return f * np.sin(phi - alpha), 0.5 * Br * (1.0 - a * a / (R * R))
+
+
+def magnetized_ring(x, y, Br: float, a: float, b: float, r0: float, R: float, alpha: float = 0.0):
+    """A_z of a uniformly magnetised ring ``a < r < b`` (``mu_r = 1``, remanence ``Br`` along ``alpha``) in air
+    between two circles with ``A = 0``: ``r0 < a`` and ``R > b``. Superposition of two cylinders
+    (:func:`magnetized_cylinder`, radii ``b`` and ``a``) plus the harmonic ``C (1/r - r/R^2) sin(phi - alpha)``
+    that cancels A on ``r0``."""
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    r = np.hypot(x, y)
+    A = magnetized_cylinder(x, y, Br, b, R, alpha)[0] - magnetized_cylinder(x, y, Br, a, R, alpha)[0]
+    f_r0 = 0.5 * Br * (a * a - b * b) / R ** 2 * r0  # the two cylinders' uniform inner fields, at r0
+    C = -f_r0 / (1.0 / r0 - r0 / R ** 2)
+    return A + C * (1.0 / np.maximum(r, 1e-300) - r / R ** 2) * np.sin(np.arctan2(y, x) - alpha)
 
 
 def skin_effect_wire(r, current: complex, radius: float, sigma: float, omega: float, mu: float = MU0):

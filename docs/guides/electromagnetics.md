@@ -125,6 +125,63 @@ Poynting's theorem under PC103 (tolerances `maxwell-gauss`, `maxwell-faraday`, `
 `maxwell-continuity`, `maxwell-energy`). `save_maxwell_npz` writes the file with SI units and
 `check_config_entry` the configuration block. It runs without torch.
 
+## Time domain: FDTD on the Yee grid
+
+`pp.em.fdtd` solves the curl equations by the leapfrog scheme of Yee (1966): E at integer, H at half time
+steps, components staggered by half a cell (Taflove & Hagness, *Computational Electrodynamics*, 3rd ed., ch. 3).
+One code path covers 1-D, 2-D and 3-D: an axis with one node is a direction of invariance.
+
+```python
+import numpy as np
+from pinneapple_simulation.electromagnetics import fdtd, media
+
+grid = fdtd.YeeGrid((200, 200, 1), (1.5e-2, 1.5e-2, 1.5e-2))     # dt = 0.99 x the Courant limit
+sim = fdtd.FDTD(grid, {"x": "cpml", "y": "cpml"}, npml=10)
+sim.set_material(fdtd.fill_fraction(grid, lambda x, y, z: np.hypot(x - 1.5, y - 1.5) < 0.3), media.Medium(3.0))
+sim.add_plane_wave(fdtd.PlaneWaveTFSF("x", "Ez", fdtd.modulated_gaussian(1e9, 0.6e9), ((30, 170), (30, 170), (0, 1))))
+dft = sim.add_dft(["Ez", "Hx", "Hy"], [1e9])
+sim.run_until(40e-9)
+```
+
+* **Stability.** `dt <= 1 / (c sqrt(sum 1/dx_i^2))` (TH eq. 4.65). `YeeGrid` refuses a larger step; the test
+  shows grid-scale noise growing by 1e6 in 400 steps at 1.02 times the limit and staying bounded at 0.999.
+* **Numerical dispersion.** The scheme's waves obey `(sin(omega dt/2) / (c dt))^2 = sum_i (sin(k_i dx_i/2) / dx_i)^2`
+  (TH eq. 4.12, `numerical_dispersion`). The FDTD resonances match this relation to 1e-7 and the continuum at
+  second order.
+* **Energy.** The scheme conserves `(1/2) sum eps E^{n-1} . E^n + (1/2) sum mu |H^{n-1/2}|^2` exactly in a
+  lossless cavity (`energy()`; constant to 1e-12 in the test).
+* **Boundaries.** `pec`, `pmc`, `periodic`, `bloch` (Floquet phase `exp(-j k_b L)`, complex fields) and `cpml`,
+  the convolutional PML of Roden & Gedney (2000) with polynomial `sigma`, `kappa` and linear `alpha` grading
+  (TH sec. 7.9). Measured reflection 5 cells from the PML: -51 dB (5 cells), -87 dB (10), -106 dB (20).
+* **Dispersive media** by auxiliary differential equations solved with the E update: Drude (polarisation current,
+  trapezoidal), Debye (polarisation, trapezoidal), Lorentz (polarisation, central), TH sec. 9.4-9.6.
+* **Sources and plane waves.** Soft and hard E sources, impressed currents (a Hertzian dipole is one cell of `J`).
+  `PlaneWaveTFSF` is a total-field / scattered-field box driven by an auxiliary 1-D line with the same `dx` and
+  `dt`. The masked-curl form works for any box in 1-D, 2-D and 3-D, and the leakage into the scattered-field
+  region is 1e-16.
+* **Sub-cell averaging.** `fill_fraction` gives the fraction of each cell inside a shape, and `set_material` mixes
+  `eps` arithmetically with it at the nodes. Each E component then takes the harmonic mean of its two nodes (the
+  series rule for E normal to an interface; `harmonic_eps=False` switches it off). For E tangential to the surface
+  this is the exact first-order correction (Farjadpour et al., Opt. Lett. 31, 2006):
+  - the TMz cylinder converges at order 2, where the staircased one jumped between 1.2 % and 3.4 %;
+  - on a sphere (E normal to part of the surface) harmonic averaging cuts the Q_sca error from 9.7 % to 2 %, but
+    the error then plateaus near 2 % instead of converging. Full anisotropic (Kottke) smoothing is not implemented.
+* **Monitors and output.**
+  - Probes and running DFTs (phasors in this package's `exp(+j omega t)` convention, E and H stamped at their own
+    times).
+  - `poynting_flux_dft` gives the power through a plane.
+  - `NearToFarField` gives far-field patterns and radiated power from equivalent currents on a closed box (Balanis,
+    *Advanced Engineering Electromagnetics*, eq. 6-122).
+  - `snapshot()` returns node- and time-centred fields in the layout of `maxwell_checks`, so an FDTD run can be
+    checked like any other field.
+
+Figures and animations: `pinneapple_tools.visualization.electromagnetics` (`field_movie` writes GIF with Pillow
+or MP4 with ffmpeg, `field_map` adds a material outline and Poynting arrows, `radiation_pattern` draws polar
+patterns). `examples/electrodynamics/08_fdtd_gallery.py` writes `results/fdtd_cylinder_scattering.gif` / `.mp4`,
+`results/fdtd_cylinder_field_map.png` and `results/fdtd_dipole_pattern.png`. Each figure comes with its check:
+the cylinder's field against the series of cylinder functions (1.7 % at 30 cells per wavelength), the snapshots
+through `maxwell_trust_report` (APPROVED), and the dipole pattern and power against the closed forms.
+
 ## Electric machines
 
 The A_z solver includes a polar ring mesher with a moving band, magnets, coils, (anti-)periodic constraints,
@@ -146,6 +203,7 @@ refined the observed order is measured. The table is the output of
 `python examples/electrodynamics/07_em_verification.py` (`pinneapple_simulation.electromagnetics.verification`,
 asserted by `tests/test_em_verification.py`):
 
+<!-- verification-table:start -->
 | Case | Quantity | Reference | Error (finest) | Observed order | Status |
 |---|---|---|---|---|---|
 | Coaxial capacitor (P1 FEM) | capacitance per metre | 2 pi eps / ln(b/a) | 3.87e-04 | 1.99, 2.00, 2.00 (expected 2) | pass |
@@ -167,6 +225,19 @@ asserted by `tests/test_em_verification.py`):
 | Froehlich-Kennelly iron ring (Newton) | \|B\| in saturated iron | B(H) at H = I / (2 pi r) | 5.08e-04 | - | pass |
 | Jiles-Atherton integrator | M along a major loop vs RK4 sub-steps | 256 sub-steps; c = 1 stays anhysteretic | 1.28e-09 | 2.77, 1.11, 2.88, 2.20 | pass |
 | Maxwell residual checks on an exact cavity mode | Ampere-Maxwell residual vs grid | exact TM12 mode (residual -> 0) | 2.33e-04 | 2.28, 2.22 (expected 2) | pass |
+| FDTD 1-D dielectric half-space (Fresnel) | \|r(f)\|, 0.6-1.4 f0 | (n1 - n2)/(n1 + n2) | 2.02e-03 | 2.11, 2.03 (expected 2) | pass |
+| FDTD dispersive half-spaces (Drude, Debye, Lorentz ADE) | \|r(f)\| of each medium, 0.6-1.4 f0 | Fresnel with eps(omega) of the pole | 8.74e-04 | 2.05, 2.02 (expected 2) | pass |
+| FDTD 2-D PEC cavity resonance (TM11) | resonance frequency | c/2 sqrt(1/a^2 + 1/b^2) | 1.36e-05 | 2.01, 1.98 (expected 2) | pass |
+| FDTD 3-D PEC box resonance (TE101) | resonance frequency | rectangular cavity formula | 2.37e-04 | 2.01, 2.00 (expected 2) | pass |
+| FDTD rectangular waveguide TE10 propagation constant | beta at 1.5 f_c (2-D section) | k sqrt(1 - (fc/f)^2) | 3.89e-05 | 1.53, 1.25 | pass |
+| FDTD bulk plasma (Drude) dispersion | k at omega = 1.67 omega_p | omega^2 = omega_p^2 + c^2 k^2 | 9.89e-05 | 1.83, 1.11 | pass |
+| FDTD dielectric cylinder, TF/SF plane wave | total Ez on a ring r = lambda/2 | series of cylinder functions (Harrington 5-9) | 4.23e-03 | 1.97, 2.12, 1.95 (expected 2) | pass |
+| FDTD Hertzian dipole (3-D) | phasor E_z at r = 0.8 lambda, theta = 30-120 deg | complete dipole fields (Balanis 4-8) | 1.17e-02 | 2.11, 1.98 (expected 2) | pass |
+| FDTD Bloch-periodic oblique incidence (Floquet) | \|r_s\| at 25 degrees | Fresnel coefficient | 1.01e-03 | 2.05, 2.01 (expected 2) | pass |
+| FDTD CPML reflection | max \|E - E_ref\| / max \|E_ref\| 5 cells from the PML | same run in a domain too large to reflect | 4.25e-05 | - | pass |
+| FDTD fields through the Maxwell checks | Ampere-Maxwell residual of the snapshots | 0 for a solution of Maxwell's equations | 1.78e-03 | 1.51, 1.50 | pass |
+| FDTD near-to-far-field transform (dipole pattern and power) | far-field E_theta(theta) | eta k \|I l\| sin(theta) / (4 pi) | 2.90e-03 | 2.08, 2.06 (expected 2) | pass |
+| FDTD dielectric sphere vs Mie (3-D, TF/SF + near-to-far field) | Q_sca, eps = 4, x = 1.57 | Mie series | 2.41e-02 | - | pass |
 
 Notes from the same run:
 
@@ -181,6 +252,19 @@ Notes from the same run:
 - Froehlich-Kennelly iron ring (Newton): Newton: 8 iterations to residual 1.9e-12
 - Jiles-Atherton integrator: c = 1 deviation from the anhysteretic curve 1.2e-05 Ms (orders irregular: the pinning switch makes dM/dH non-smooth)
 - Maxwell residual checks on an exact cavity mode: a 20 % wrong frequency gives 0.181 (rejected) and Poynting imbalance 0.218
+- FDTD 1-D dielectric half-space (Fresnel): errors 3.56e-02, 8.25e-03, 2.02e-03 at 20/40/80 cells per wavelength
+- FDTD dispersive half-spaces (Drude, Debye, Lorentz ADE): Drude: errors 2.7e-03, 6.5e-04, 1.6e-04, orders 2.05, 2.02; Debye: errors 6.5e-03, 1.6e-03, 4.0e-04, orders 2.02, 2.01; Lorentz: errors 1.4e-02, 3.5e-03, 8.7e-04, orders 2.03, 2.01
+- FDTD 2-D PEC cavity resonance (TM11): against the scheme's own dispersion relation: max 1.6e-07
+- FDTD rectangular waveguide TE10 propagation constant: errors 2.7e-04, 9.3e-05, 3.9e-05; against the scheme's own dispersion relation max 2.5e-05 (the phase-slope measurement floor)
+- FDTD bulk plasma (Drude) dispersion: errors 7.6e-04, 2.1e-04, 9.9e-05
+- FDTD dielectric cylinder, TF/SF plane wave: eps = 3, a = 0.3 lambda, sub-cell (arithmetic) averaging of eps; errors 3.8e-02, 1.7e-02, 9.3e-03, 4.2e-03 at 20/30/40/60 cells per wavelength
+- FDTD Hertzian dipole (3-D): errors 4.9e-02, 2.1e-02, 1.2e-02 at 10, 15, 20 cells per wavelength
+- FDTD Bloch-periodic oblique incidence (Floquet): errors 1.7e-02, 4.1e-03, 1.0e-03
+- FDTD CPML reflection: 5 cells: 2.8e-03 (-51 dB), 10 cells: 4.2e-05 (-87 dB), 20 cells: 5.3e-06 (-106 dB)
+- FDTD fields through the Maxwell checks: Poynting imbalance 6e-05, 4e-06, 9e-07; residuals 1.4e-02, 5.0e-03, 1.8e-03
+- FDTD near-to-far-field transform (dipole pattern and power): radiated power errors 8.0e-03, 3.6e-03, 2.0e-03 vs eta k^2 |I l|^2 / (12 pi)
+- FDTD dielectric sphere vs Mie (3-D, TF/SF + near-to-far field): errors 2.1e-02, 1.8e-02, 2.4e-02 at 10, 15, 20 cells per wavelength: a plateau near 2 %, not a convergence order (harmonic/arithmetic sub-cell averaging is not the full anisotropic smoothing an oblique surface needs; arithmetic averaging alone gives 9.7 % at 10 cells)
+<!-- verification-table:end -->
 
 ## Fixed while building this
 
@@ -198,6 +282,13 @@ Notes from the same run:
 
 * The FEM solvers are 2-D (planar or axisymmetric for `eddy_current_fdm`), first order (P1), and resolve
   geometry on the mesh (polar grids are staircased in angle).
+* FDTD: uniform grids only. The sub-cell averaging is not the full anisotropic smoothing: curved surfaces with E
+  normal to them keep an error of a few percent that does not converge (2 % on the Mie sphere below). The CPML is tuned for vacuum; inside
+  dispersive or negative-permittivity media its reflection is not measured. Surface plasmon polaritons are
+  verified only in closed form: an FDTD SPP run on a lossless Drude interface did not converge cleanly at
+  affordable resolutions (4.9 % at 80 cells per wavelength), so no FDTD SPP number is claimed. NumPy, single
+  thread: a 60^3 grid takes 19 ms per step with PEC walls and 38 ms with CPML on all sides (measured in the
+  development container).
 * The differential compiler kinds do not differentiate material maps: jumps of `eps`, `mu` or `nu` are only seen
   by the integral kinds.
 * `maxwell_checks` uses central differences on tensor grids: fields with discontinuities (material interfaces,

@@ -12,7 +12,7 @@
   "expected_order": 2.0,
   "passed": true,
   "detail": "errors 2.45e-02, 6.17e-03, 1.55e-03, 3.87e-04",
-  "seconds": 0.06688267200024711
+  "seconds": 0.05974076300026354
  },
  {
   "case": "Two-dielectric parallel-plate capacitor (P1 FEM)",
@@ -23,7 +23,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "",
-  "seconds": 0.24987318599960417
+  "seconds": 0.2631229410008018
  },
  {
   "case": "Circular loop by Biot-Savart (polygon)",
@@ -38,7 +38,7 @@
   "expected_order": 2.0,
   "passed": true,
   "detail": "",
-  "seconds": 0.0015820909998183197
+  "seconds": 0.0010347999996156432
  },
  {
   "case": "Infinite wire and finite solenoid (Biot-Savart)",
@@ -49,7 +49,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "20 km segment vs mu0 I / (2 pi s): 6.3e-12",
-  "seconds": 0.017640159000166022
+  "seconds": 0.016226252000706154
  },
  {
   "case": "Coaxial mutual inductance",
@@ -60,7 +60,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "",
-  "seconds": 0.00012950499967701035
+  "seconds": 0.00013085899990983307
  },
  {
   "case": "Axisymmetric coil (FDM, eddy_current_fdm at DC)",
@@ -71,7 +71,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "errors 1.00e-02, 1.40e-03, 3.69e-04 (finite box: A = 0 at 20 coil radii)",
-  "seconds": 12.758264746999885
+  "seconds": 12.478310272999806
  },
  {
   "case": "Mie sphere vs Bohren & Huffman / miepython",
@@ -82,7 +82,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "published 5-digit values; miepython 3.3.0, 4 spheres incl. absorbing: max rel. diff 7.9e-09",
-  "seconds": 0.004548899999917921
+  "seconds": 0.004379586000140989
  },
  {
   "case": "Mie small-sphere (Rayleigh) limit",
@@ -96,7 +96,7 @@
   "expected_order": 2.0,
   "passed": true,
   "detail": "PEC sphere vs 10/3 x^4: orders 2.00, 2.00",
-  "seconds": 0.0005450150001706788
+  "seconds": 0.0004167609995420207
  },
  {
   "case": "Fresnel coefficients and Brewster angle",
@@ -107,7 +107,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "|r_p| at Brewster 0.0e+00",
-  "seconds": 0.00033711700007188483
+  "seconds": 0.0004015499998786254
  },
  {
   "case": "Bragg mirror (characteristic matrices)",
@@ -118,7 +118,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "",
-  "seconds": 0.00033766600017770543
+  "seconds": 0.00038922799922147533
  },
  {
   "case": "Hertzian dipole radiated power",
@@ -129,7 +129,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "",
-  "seconds": 0.000481113999740046
+  "seconds": 0.00053576400023303
  },
  {
   "case": "Half-wave dipole radiation resistance",
@@ -140,7 +140,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "73.079 ohm",
-  "seconds": 0.00932334399976753
+  "seconds": 0.009456742000111262
  },
  {
   "case": "Dispersive ADE recursions (Drude, Debye, Lorentz)",
@@ -154,7 +154,7 @@
   "expected_order": 2.0,
   "passed": true,
   "detail": "Debye orders 2.00, 2.00; Lorentz 2.00, 2.00",
-  "seconds": 0.00016901099979804712
+  "seconds": 0.00016228799995587906
  },
  {
   "case": "Uniaxial crystal indices",
@@ -165,7 +165,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "",
-  "seconds": 0.0010651679999682528
+  "seconds": 0.0010213049999947543
  },
  {
   "case": "Round wire, A_z P1 FEM",
@@ -179,7 +179,7 @@
   "expected_order": 2.0,
   "passed": true,
   "detail": "",
-  "seconds": 0.08240877300022476
+  "seconds": 0.0766722899998058
  },
  {
   "case": "Skin effect in a round wire (A_z eddy FEM)",
@@ -190,7 +190,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "",
-  "seconds": 0.0919623709996813
+  "seconds": 0.09526808300051925
  },
  {
   "case": "Froehlich-Kennelly iron ring (Newton)",
@@ -201,7 +201,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "Newton: 8 iterations to residual 1.9e-12",
-  "seconds": 0.1136220010002944
+  "seconds": 0.11345098899982986
  },
  {
   "case": "Jiles-Atherton integrator",
@@ -217,7 +217,7 @@
   "expected_order": null,
   "passed": true,
   "detail": "c = 1 deviation from the anhysteretic curve 1.2e-05 Ms (orders irregular: the pinning switch makes dM/dH non-smooth)",
-  "seconds": 7.544447649999711
+  "seconds": 7.101991653000368
  },
  {
   "case": "Maxwell residual checks on an exact cavity mode",
@@ -231,6 +231,183 @@
   "expected_order": 2.0,
   "passed": true,
   "detail": "a 20 % wrong frequency gives 0.181 (rejected) and Poynting imbalance 0.218",
-  "seconds": 0.6492435640002441
+  "seconds": 0.6530338419997861
+ },
+ {
+  "case": "FDTD 1-D dielectric half-space (Fresnel)",
+  "quantity": "|r(f)|, 0.6-1.4 f0",
+  "reference": "(n1 - n2)/(n1 + n2)",
+  "error": 0.0020237232724983345,
+  "orders": [
+   2.1093248218801746,
+   2.0272455135833987
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "errors 3.56e-02, 8.25e-03, 2.02e-03 at 20/40/80 cells per wavelength",
+  "seconds": 0.23622469499969156
+ },
+ {
+  "case": "FDTD dispersive half-spaces (Drude, Debye, Lorentz ADE)",
+  "quantity": "|r(f)| of each medium, 0.6-1.4 f0",
+  "reference": "Fresnel with eps(omega) of the pole",
+  "error": 0.0008743142142669802,
+  "orders": [
+   2.0549764702940467,
+   2.0194961231053346
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "Drude: errors 2.7e-03, 6.5e-04, 1.6e-04, orders 2.05, 2.02; Debye: errors 6.5e-03, 1.6e-03, 4.0e-04, orders 2.02, 2.01; Lorentz: errors 1.4e-02, 3.5e-03, 8.7e-04, orders 2.03, 2.01",
+  "seconds": 7.410451904000183
+ },
+ {
+  "case": "FDTD 2-D PEC cavity resonance (TM11)",
+  "quantity": "resonance frequency",
+  "reference": "c/2 sqrt(1/a^2 + 1/b^2)",
+  "error": 1.3550764831338213e-05,
+  "orders": [
+   2.0052491172890665,
+   1.981566992902509
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "against the scheme's own dispersion relation: max 1.6e-07",
+  "seconds": 7.668250231999991
+ },
+ {
+  "case": "FDTD 3-D PEC box resonance (TE101)",
+  "quantity": "resonance frequency",
+  "reference": "rectangular cavity formula",
+  "error": 0.00023733203871345587,
+  "orders": [
+   2.0127246848400615,
+   2.0024247966619155
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "",
+  "seconds": 11.055866634999802
+ },
+ {
+  "case": "FDTD rectangular waveguide TE10 propagation constant",
+  "quantity": "beta at 1.5 f_c (2-D section)",
+  "reference": "k sqrt(1 - (fc/f)^2)",
+  "error": 3.8924365947323736e-05,
+  "orders": [
+   1.5322307348448556,
+   1.2502699065328013
+  ],
+  "expected_order": null,
+  "passed": true,
+  "detail": "errors 2.7e-04, 9.3e-05, 3.9e-05; against the scheme's own dispersion relation max 2.5e-05 (the phase-slope measurement floor)",
+  "seconds": 6.134277588999794
+ },
+ {
+  "case": "FDTD bulk plasma (Drude) dispersion",
+  "quantity": "k at omega = 1.67 omega_p",
+  "reference": "omega^2 = omega_p^2 + c^2 k^2",
+  "error": 9.889781850658252e-05,
+  "orders": [
+   1.829442820350825,
+   1.1136709712134305
+  ],
+  "expected_order": null,
+  "passed": true,
+  "detail": "errors 7.6e-04, 2.1e-04, 9.9e-05",
+  "seconds": 4.151950213999953
+ },
+ {
+  "case": "FDTD dielectric cylinder, TF/SF plane wave",
+  "quantity": "total Ez on a ring r = lambda/2",
+  "reference": "series of cylinder functions (Harrington 5-9)",
+  "error": 0.004232606690565246,
+  "orders": [
+   1.9749300963898164,
+   2.1217026447815654,
+   1.9474548097995492
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "eps = 3, a = 0.3 lambda, sub-cell (arithmetic) averaging of eps; errors 3.8e-02, 1.7e-02, 9.3e-03, 4.2e-03 at 20/30/40/60 cells per wavelength",
+  "seconds": 40.53462870000021
+ },
+ {
+  "case": "FDTD Hertzian dipole (3-D)",
+  "quantity": "phasor E_z at r = 0.8 lambda, theta = 30-120 deg",
+  "reference": "complete dipole fields (Balanis 4-8)",
+  "error": 0.011748799880753207,
+  "orders": [
+   2.1069704890173497,
+   1.9774252748947503
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "errors 4.9e-02, 2.1e-02, 1.2e-02 at 10, 15, 20 cells per wavelength",
+  "seconds": 33.78392313399945
+ },
+ {
+  "case": "FDTD Bloch-periodic oblique incidence (Floquet)",
+  "quantity": "|r_s| at 25 degrees",
+  "reference": "Fresnel coefficient",
+  "error": 0.001014913502586201,
+  "orders": [
+   2.050794521653568,
+   2.0073782137854073
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "errors 1.7e-02, 4.1e-03, 1.0e-03",
+  "seconds": 6.957058648000384
+ },
+ {
+  "case": "FDTD CPML reflection",
+  "quantity": "max |E - E_ref| / max |E_ref| 5 cells from the PML",
+  "reference": "same run in a domain too large to reflect",
+  "error": 4.245235491095233e-05,
+  "orders": [],
+  "expected_order": null,
+  "passed": true,
+  "detail": "5 cells: 2.8e-03 (-51 dB), 10 cells: 4.2e-05 (-87 dB), 20 cells: 5.3e-06 (-106 dB)",
+  "seconds": 20.613710147999882
+ },
+ {
+  "case": "FDTD fields through the Maxwell checks",
+  "quantity": "Ampere-Maxwell residual of the snapshots",
+  "reference": "0 for a solution of Maxwell's equations",
+  "error": 0.0017761033478869515,
+  "orders": [
+   1.5111538797983384,
+   1.5012460804521806
+  ],
+  "expected_order": null,
+  "passed": true,
+  "detail": "Poynting imbalance 6e-05, 4e-06, 9e-07; residuals 1.4e-02, 5.0e-03, 1.8e-03",
+  "seconds": 0.4583290640002815
+ },
+ {
+  "case": "FDTD near-to-far-field transform (dipole pattern and power)",
+  "quantity": "far-field E_theta(theta)",
+  "reference": "eta k |I l| sin(theta) / (4 pi)",
+  "error": 0.002898738361211767,
+  "orders": [
+   2.083807080552851,
+   2.06393380454824
+  ],
+  "expected_order": 2.0,
+  "passed": true,
+  "detail": "radiated power errors 8.0e-03, 3.6e-03, 2.0e-03 vs eta k^2 |I l|^2 / (12 pi)",
+  "seconds": 22.195106612999552
+ },
+ {
+  "case": "FDTD dielectric sphere vs Mie (3-D, TF/SF + near-to-far field)",
+  "quantity": "Q_sca, eps = 4, x = 1.57",
+  "reference": "Mie series",
+  "error": 0.024085037243478213,
+  "orders": [],
+  "expected_order": null,
+  "passed": true,
+  "detail": "errors 2.1e-02, 1.8e-02, 2.4e-02 at 10, 15, 20 cells per wavelength: a plateau near 2 %, not a convergence order (harmonic/arithmetic sub-cell averaging is not the full anisotropic smoothing an oblique surface needs; arithmetic averaging alone gives 9.7 % at 10 cells)",
+  "seconds": 55.35759623300055
  }
 ]

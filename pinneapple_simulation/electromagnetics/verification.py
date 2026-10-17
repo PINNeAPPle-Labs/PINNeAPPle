@@ -19,7 +19,7 @@ import numpy as np
 
 _trapz = getattr(np, "trapezoid", None) or np.trapz  # numpy < 2 has only trapz
 
-__all__ = ["CaseResult", "CASES", "case", "run", "to_markdown", "observed_orders"]
+__all__ = ["CaseResult", "CASES", "case", "run", "to_markdown", "observed_orders", "write_markdown_block"]
 
 
 @dataclass
@@ -78,6 +78,20 @@ def to_markdown(results: Sequence[CaseResult]) -> str:
     head = ("| Case | Quantity | Reference | Error (finest) | Observed order | Status |\n"
             "|---|---|---|---|---|---|")
     return "\n".join([head] + [r.row() for r in results])
+
+
+def write_markdown_block(path, results: Sequence[CaseResult], marker: str = "verification-table") -> None:
+    """Replace the text between ``<!-- marker:start -->`` and ``<!-- marker:end -->`` in a Markdown file with the
+    table of ``results`` and their notes, so a page shows exactly what the last run measured."""
+    from pathlib import Path
+
+    p = Path(path)
+    text = p.read_text()
+    start, end = f"<!-- {marker}:start -->", f"<!-- {marker}:end -->"
+    i, j = text.index(start) + len(start), text.index(end)
+    notes = "\n".join(f"- {r.name}: {r.detail}" for r in results if r.detail)
+    block = "\n" + to_markdown(results) + "\n\nNotes from the same run:\n\n" + notes + "\n"
+    p.write_text(text[:i] + block + text[j:])
 
 
 # ============================================================================================ statics
@@ -429,7 +443,7 @@ def _checks(quick: bool) -> CaseResult:
         t = np.linspace(0, 0.7 * 2 * math.pi / w, n)
         X, Y, T = np.meshgrid(x, y, t, indexing="ij")
 
-        def fields(wf):
+        def fields(wf, X=X, Y=Y, T=T):
             return {"Ez": np.sin(kx * X) * np.sin(ky * Y) * np.cos(wf * T),
                     "Bx": -ky * np.sin(kx * X) * np.cos(ky * Y) * np.sin(wf * T) / wf,
                     "By": kx * np.cos(kx * X) * np.sin(ky * Y) * np.sin(wf * T) / wf}
@@ -441,3 +455,438 @@ def _checks(quick: bool) -> CaseResult:
                       "exact TM12 mode (residual -> 0)", vals[-1], 1e-3, observed_orders(vals), 2.0,
                       f"a 20 % wrong frequency gives {bad['ampere_maxwell'].value:.3f} (rejected) and Poynting "
                       f"imbalance {bad['poynting_balance'].value:.3f}")
+
+
+# ============================================================================================ FDTD
+def _fdtd_reflection_1d(ncl: int, medium, f0: float, bw: float, periods: float, freqs) -> np.ndarray:
+    """Reflection coefficient of a half-space from two 1-D runs (with and without it), DFT one wavelength in
+    front of the interface."""
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid, modulated_gaussian
+
+    lam = C0 / f0
+    dx = lam / ncl
+    N = int(5 * lam / dx) + 40
+    g = YeeGrid((N, 1, 1), (dx, dx, dx))
+    im = N // 2 - int(lam / dx)
+    out = []
+    for with_medium in (True, False):
+        s = FDTD(g, {"x": "cpml", "y": "periodic", "z": "periodic"}, npml=20)
+        if with_medium:
+            m = np.zeros(g.shape, bool)
+            m[N // 2:] = True
+            s.set_material(m, medium)
+        s.add_source("Ey", (30, 0, 0), modulated_gaussian(f0, bw * f0), "soft")
+        mon = s.add_dft(["Ey"], freqs, (slice(im, im + 1), slice(None), slice(None)))
+        s.run_until(periods / f0)
+        out.append(mon.phasor("Ey").ravel())
+    return (out[0] - out[1]) / out[1]
+
+
+@case("FDTD 1-D dielectric half-space (Fresnel)")
+def _fdtd_fresnel(quick: bool) -> CaseResult:
+    from .media import Medium
+    from .waves import fresnel
+
+    f0 = 1e9
+    freqs = np.linspace(0.6, 1.4, 5) * f0
+    errs = []
+    for ncl in ((20, 40) if quick else (20, 40, 80)):
+        r = _fdtd_reflection_1d(ncl, Medium(4.0), f0, 0.8, 12, freqs)
+        errs.append(float(np.max(np.abs(np.abs(r) - abs(fresnel(1.0, 2.0, 0.0)[0])))))
+    return CaseResult("FDTD 1-D dielectric half-space (Fresnel)", "|r(f)|, 0.6-1.4 f0",
+                      "(n1 - n2)/(n1 + n2)", errs[-1], 2e-2, observed_orders(errs), 2.0,
+                      f"errors {', '.join(f'{e:.2e}' for e in errs)} at 20/40/80 cells per wavelength")
+
+
+@case("FDTD dispersive half-spaces (Drude, Debye, Lorentz ADE)")
+def _fdtd_dispersive(quick: bool) -> CaseResult:
+    from .media import Debye, Lorentz, Medium, drude_metal
+    from .waves import fresnel
+
+    f0 = 1e15
+    w0 = 2 * math.pi * f0
+    media = {"Drude": drude_metal(1.5 * w0, 0.1 * w0),
+             "Debye": Medium(2.0, poles=(Debye(3.0, 1 / w0),)),
+             "Lorentz": Medium(1.5, poles=(Lorentz(2.0, 1.3 * w0, 0.1 * w0),))}
+    freqs = np.linspace(0.6, 1.4, 5) * f0
+    ladder = (40, 80) if quick else (40, 80, 160)
+    worst, orders, det = 0.0, {}, []
+    for name, med in media.items():
+        rex = fresnel(1.0, med.n(2 * math.pi * freqs), 0.0)[0]
+        errs = [float(np.max(np.abs(np.abs(_fdtd_reflection_1d(n, med, f0, 0.8, 40, freqs)) - np.abs(rex))))
+                for n in ladder]
+        orders[name] = observed_orders(errs)
+        worst = max(worst, errs[-1])
+        det.append(f"{name}: errors {', '.join(f'{e:.1e}' for e in errs)}, orders "
+                   f"{', '.join(f'{o:.2f}' for o in orders[name])}")
+    return CaseResult("FDTD dispersive half-spaces (Drude, Debye, Lorentz ADE)", "|r(f)| of each medium, 0.6-1.4 f0",
+                      "Fresnel with eps(omega) of the pole", worst, 2e-2, orders["Drude"], 2.0, "; ".join(det))
+
+
+@case("FDTD 2-D PEC cavity resonance (TM11)")
+def _fdtd_cavity(quick: bool) -> CaseResult:
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid, gaussian_pulse
+
+    a, b = 1.0, 0.7
+    errs, disc = [], []
+    for nx in ((21, 41) if quick else (21, 41, 81)):
+        dx = a / (nx - 1)
+        ny = int(round(b / dx)) + 1
+        dy = b / (ny - 1)
+        g = YeeGrid((nx, ny, 1), (dx, dy, dx))
+        s = FDTD(g)
+        s.add_source("Ez", (nx // 3, ny // 3, 0), gaussian_pulse(20 * g.dt, 6 * g.dt), "soft")
+        p = s.add_probe("Ez", (nx // 5 + 1, 2 * ny // 3, 0))
+        s.run(20000)
+        fm = _spectral_peak(np.asarray(p.values), g.dt, C0 / 2 * math.hypot(1 / a, 1 / b))
+        fex = C0 / 2 * math.hypot(1 / a, 1 / b)
+        wd = 2 / g.dt * math.asin(C0 * g.dt * math.hypot(math.sin(math.pi / a * dx / 2) / dx,
+                                                         math.sin(math.pi / b * dy / 2) / dy))
+        errs.append(abs(fm / fex - 1))
+        disc.append(abs(fm / (wd / (2 * math.pi)) - 1))
+    return CaseResult("FDTD 2-D PEC cavity resonance (TM11)", "resonance frequency", "c/2 sqrt(1/a^2 + 1/b^2)",
+                      errs[-1], 1e-3, observed_orders(errs), 2.0,
+                      f"against the scheme's own dispersion relation: max {max(disc):.1e}")
+
+
+def _spectral_peak(v: np.ndarray, dt: float, near: float) -> float:
+    """Frequency of the spectral peak of ``v`` within 10 % of ``near`` (Hann window, zero padding, parabolic fit
+    of the log spectrum)."""
+    nfft = 8 * len(v)
+    fr = np.fft.rfftfreq(nfft, dt)
+    sp = np.abs(np.fft.rfft(v * np.hanning(len(v)), nfft))
+    k = int(np.argmax(sp * (np.abs(fr - near) < 0.1 * near)))
+    y0, y1, y2 = np.log(sp[k - 1:k + 2])
+    return (k + 0.5 * (y0 - y2) / (y0 - 2 * y1 + y2)) * (fr[1] - fr[0])
+
+
+@case("FDTD 3-D PEC box resonance (TE101)")
+def _fdtd_box(quick: bool) -> CaseResult:
+    from .fdtd import FDTD, YeeGrid, gaussian_pulse
+    from .waves import rect_cavity_resonance
+
+    a, b, d = 1.0, 0.5, 0.75
+    errs = []
+    for n in ((9, 17) if quick else (9, 17, 33)):
+        dx = a / (n - 1)
+        ny, nz = int(round(b / dx)) + 1, int(round(d / dx)) + 1
+        g = YeeGrid((n, ny, nz), (dx, b / (ny - 1), d / (nz - 1)))
+        s = FDTD(g)
+        s.add_source("Ey", (n // 3, ny // 2, nz // 3), gaussian_pulse(20 * g.dt, 6 * g.dt), "soft")
+        p = s.add_probe("Ey", (2 * n // 3, ny // 2, 2 * nz // 3))
+        s.run(12000)
+        fex = rect_cavity_resonance(1, 0, 1, a, b, d)
+        errs.append(abs(_spectral_peak(np.asarray(p.values), g.dt, fex) / fex - 1))
+    return CaseResult("FDTD 3-D PEC box resonance (TE101)", "resonance frequency", "rectangular cavity formula",
+                      errs[-1], 5e-3, observed_orders(errs), 2.0)
+
+
+@case("FDTD rectangular waveguide TE10 propagation constant")
+def _fdtd_guide(quick: bool) -> CaseResult:
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid, modulated_gaussian
+
+    b = 0.02286
+    fc = C0 / (2 * b)
+    f = 1.5 * fc
+    bex = 2 * math.pi * f / C0 * math.sqrt(1 - (fc / f) ** 2)
+    errs, disc = [], []
+    for ny in ((11, 21) if quick else (11, 21, 41)):
+        dy = b / (ny - 1)
+        dx = dy
+        lamg = 2 * math.pi / bex
+        N = int(6 * lamg / dx) + 40
+        g = YeeGrid((N, ny, 1), (dx, dy, dx))
+        s = FDTD(g, {"x": "cpml", "y": "pec"}, npml=20)
+        y = np.arange(ny) * dy
+        w = modulated_gaussian(f, 0.15 * f)
+        for j in range(ny):
+            s.add_current("Ez", (25, j, 0), w, math.sin(math.pi * y[j] / b))
+        i1, i2 = N // 2 - int(lamg / dx), N // 2 + int(lamg / dx)
+        m = s.add_dft(["Ez"], [f], (slice(None), slice(ny // 2, ny // 2 + 1), slice(None)))
+        s.run_until(60 / f)
+        ph = np.unwrap(np.angle(m.phasor("Ez")[0, i1:i2 + 1, 0, 0]))
+        beta = -(ph[-1] - ph[0]) / ((i2 - i1) * dx)
+        lhs = (math.sin(math.pi * f * g.dt) / (C0 * g.dt)) ** 2 - (math.sin(math.pi * dy / (2 * b)) / dy) ** 2
+        bd = 2 / dx * math.asin(math.sqrt(lhs) * dx)
+        errs.append(abs(beta / bex - 1))
+        disc.append(abs(beta / bd - 1))
+    return CaseResult("FDTD rectangular waveguide TE10 propagation constant", "beta at 1.5 f_c (2-D section)",
+                      "k sqrt(1 - (fc/f)^2)", errs[-1], 3e-4, observed_orders(errs),
+                      detail=f"errors {', '.join(f'{e:.1e}' for e in errs)}; against the scheme's own dispersion "
+                             f"relation max {max(disc):.1e} (the phase-slope measurement floor)")
+
+
+@case("FDTD bulk plasma (Drude) dispersion")
+def _fdtd_plasma(quick: bool) -> CaseResult:
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid, modulated_gaussian
+    from .media import drude_metal
+
+    f0 = 1e15
+    wp = 2 * math.pi * 0.6e15
+    kex = math.sqrt((2 * math.pi * f0) ** 2 - wp ** 2) / C0
+    errs = []
+    for ncl in ((40, 80) if quick else (40, 80, 160)):
+        lam = C0 / f0
+        dx = lam / ncl
+        N = int(8 * lam / dx)
+        g = YeeGrid((N, 1, 1), (dx, dx, dx))
+        s = FDTD(g, {"x": "cpml", "y": "periodic", "z": "periodic"}, npml=20)
+        m = np.zeros(g.shape, bool)
+        m[60:] = True
+        s.set_material(m, drude_metal(wp, 0.0))
+        s.add_source("Ey", (30, 0, 0), modulated_gaussian(f0, 0.3 * f0), "soft")
+        mon = s.add_dft(["Ey"], [f0])
+        s.run_until(80 / f0)
+        i1, i2 = int(2 * lam / dx), int(5 * lam / dx)
+        ph = np.unwrap(np.angle(mon.phasor("Ey")[0, i1:i2 + 1, 0, 0]))
+        errs.append(abs(-(ph[-1] - ph[0]) / ((i2 - i1) * dx) / kex - 1))
+    return CaseResult("FDTD bulk plasma (Drude) dispersion", "k at omega = 1.67 omega_p",
+                      "omega^2 = omega_p^2 + c^2 k^2", errs[-1], 1e-3, observed_orders(errs),
+                      detail=f"errors {', '.join(f'{e:.1e}' for e in errs)}")
+
+
+@case("FDTD dielectric cylinder, TF/SF plane wave")
+def _fdtd_cylinder(quick: bool) -> CaseResult:
+    from .constants import C0
+    from .fdtd import FDTD, PlaneWaveTFSF, YeeGrid, fill_fraction, modulated_gaussian
+    from .media import Medium
+    from .waves import cylinder_scattering_tm
+
+    f0 = 1e9
+    lam = C0 / f0
+    k0 = 2 * math.pi / lam
+    a, epsc = 0.3 * lam, 3.0
+    errs = []
+    for ncl in ((20, 30) if quick else (20, 30, 40, 60)):
+        dx = lam / ncl
+        N = int(3 * lam / dx) + 50
+        g = YeeGrid((N, N, 1), (dx, dx, dx))
+        s = FDTD(g, {"x": "cpml", "y": "cpml"}, npml=20)
+        c = N // 2
+        s.set_material(fill_fraction(g, lambda x, y, z, c=c, dx=dx: np.hypot(x - c * dx, y - c * dx) <= a, 16),
+                       Medium(epsc))
+        s.add_plane_wave(PlaneWaveTFSF("x", "Ez", modulated_gaussian(f0, 0.6 * f0), ((30, N - 30), (30, N - 30),
+                                                                                       (0, 1))))
+        inc = s.incident_monitor([f0])
+        mon = s.add_dft(["Ez"], [f0])
+        s.run_until(40 / f0)
+        Ez = mon.phasor("Ez")[0, :, :, 0] / inc.phasor("Ey")[0, c, 0, 0]
+        ang = np.linspace(0, 2 * np.pi, 72, endpoint=False)
+        ii = np.round(c + 0.5 * lam * np.cos(ang) / dx).astype(int)
+        jj = np.round(c + 0.5 * lam * np.sin(ang) / dx).astype(int)
+        ex = cylinder_scattering_tm((ii - c) * dx, (jj - c) * dx, k0, a, epsc)
+        errs.append(float(np.max(np.abs(Ez[ii, jj] - ex)) / np.max(np.abs(ex))))
+    return CaseResult("FDTD dielectric cylinder, TF/SF plane wave", "total Ez on a ring r = lambda/2",
+                      "series of cylinder functions (Harrington 5-9)", errs[-1], 4e-2, observed_orders(errs, 1.5)
+                      if len(errs) == 2 else [math.log(errs[i] / errs[i + 1]) / math.log(r) for i, r in
+                                              enumerate((1.5, 4 / 3, 1.5))], 2.0,
+                      f"eps = 3, a = 0.3 lambda, sub-cell (arithmetic) averaging of eps; errors "
+                      f"{', '.join(f'{e:.1e}' for e in errs)} at 20/30/40/60 cells per wavelength")
+
+
+@case("FDTD Hertzian dipole (3-D)")
+def _fdtd_dipole(quick: bool) -> CaseResult:
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid, modulated_gaussian
+    from .waves import hertzian_dipole_fields
+
+    f0 = 1e9
+    lam = C0 / f0
+    errs = []
+    ladder = (10, 15) if quick else (10, 15, 20)
+    for ncl in ladder:
+        dx = lam / ncl
+        N = int(2.4 * lam / dx) + 20
+        c = N // 2
+        s = FDTD(YeeGrid((N, N, N), (dx, dx, dx)), {"x": "cpml", "y": "cpml", "z": "cpml"}, npml=10)
+        w = modulated_gaussian(f0, 0.5 * f0)
+        s.add_current("Ez", (c, c, c), w, 1.0)
+        mon = s.add_dft(["Ez"], [f0], (slice(None), slice(c, c + 1), slice(None)))
+        s.run_until(14 / f0)
+        tj = (np.arange(s.n) + 0.5) * s.dt
+        Il = np.sum(np.array([w(x) for x in tj]) * np.exp(-2j * np.pi * f0 * tj)) * s.dt * dx ** 3
+        e = 0.0
+        for th in np.radians([30, 60, 90, 120]):
+            i = int(round(c + 0.8 * lam * math.sin(th) / dx))
+            k = int(round(c + 0.8 * lam * math.cos(th) / dx))
+            x, z = (i - c) * dx, (k - c) * dx
+            rr, tt = math.hypot(x, z), math.atan2(x, z)
+            Er, Et, _ = hertzian_dipole_fields(rr, tt, Il, 2 * np.pi * f0)
+            Ez_ex = Er * math.cos(tt) - Et * math.sin(tt)
+            e = max(e, abs(mon.phasor("Ez")[0, i, 0, k] - Ez_ex) / abs(Ez_ex))
+        errs.append(float(e))
+    return CaseResult("FDTD Hertzian dipole (3-D)", "phasor E_z at r = 0.8 lambda, theta = 30-120 deg",
+                      "complete dipole fields (Balanis 4-8)", errs[-1], 5e-2, observed_orders(errs, 1.5)
+                      if len(errs) == 2 else [math.log(errs[0] / errs[1]) / math.log(1.5),
+                                              math.log(errs[1] / errs[2]) / math.log(4 / 3)], 2.0,
+                      f"errors {', '.join(f'{e:.1e}' for e in errs)} at {', '.join(map(str, ladder))} cells per "
+                      "wavelength")
+
+
+@case("FDTD Bloch-periodic oblique incidence (Floquet)")
+def _fdtd_bloch(quick: bool) -> CaseResult:
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid, modulated_gaussian
+    from .media import Medium
+    from .waves import fresnel
+
+    f0 = 1e9
+    lam = C0 / f0
+    th0 = math.radians(25)
+    ky = 2 * math.pi * f0 / C0 * math.sin(th0)
+    errs = []
+    for ncl in ((20, 40) if quick else (20, 40, 80)):
+        dx = lam / ncl
+        ny = 4
+        N = int(4 * lam / dx) + 40
+        g = YeeGrid((N, ny, 1), (dx, dx, dx))
+        im = N // 2 - int(0.7 * lam / dx)
+        out = []
+        for slab in (True, False):
+            s = FDTD(g, {"x": "cpml", "y": "bloch"}, npml=20, bloch_k={"y": ky})
+            if slab:
+                m = np.zeros(g.shape, bool)
+                m[N // 2:] = True
+                s.set_material(m, Medium(4.0))
+            w = modulated_gaussian(f0, 0.15 * f0)
+            for j in range(ny):
+                s.add_current("Ez", (30, j, 0), w, np.exp(-1j * ky * j * dx))
+            mon = s.add_dft(["Ez"], [f0], (slice(im, im + 1), slice(0, 1), slice(None)))
+            s.run_until(60 / f0)
+            out.append(mon.phasor("Ez").ravel()[0])
+        r = (out[0] - out[1]) / out[1]
+        errs.append(abs(abs(r) - abs(fresnel(1.0, 2.0, th0)[0])))
+    return CaseResult("FDTD Bloch-periodic oblique incidence (Floquet)", "|r_s| at 25 degrees",
+                      "Fresnel coefficient", errs[-1], 5e-3, observed_orders(errs), 2.0,
+                      f"errors {', '.join(f'{e:.1e}' for e in errs)}")
+
+
+@case("FDTD CPML reflection")
+def _fdtd_cpml(quick: bool) -> CaseResult:
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid, modulated_gaussian
+
+    f0 = 1e9
+    dx = C0 / f0 / 20
+
+    def probe(N, npml):
+        s = FDTD(YeeGrid((N, N, 1), (dx, dx, dx)), {"x": "cpml", "y": "cpml"}, npml=npml)
+        c = N // 2
+        s.add_current("Ez", (c, c, 0), modulated_gaussian(f0, 0.8 * f0), 1.0)
+        p = s.add_probe("Ez", (c + 15, c + 15, 0))
+        s.run(400)
+        return np.asarray(p.values)
+
+    # the reference is large enough that nothing returns from its boundary within the 400 steps (0.7 cells/step)
+    ref = probe(2 * 300 + 40, 10)
+    levels = {n: float(np.max(np.abs(probe(2 * n + 40, n) - ref)) / np.max(np.abs(ref))) for n in (5, 10, 20)}
+    return CaseResult("FDTD CPML reflection", "max |E - E_ref| / max |E_ref| 5 cells from the PML",
+                      "same run in a domain too large to reflect", levels[10], 1e-4,
+                      detail=", ".join(f"{n} cells: {v:.1e} ({20 * math.log10(v):.0f} dB)" for n, v in levels.items()))
+
+
+@case("FDTD fields through the Maxwell checks")
+def _fdtd_checks(quick: bool) -> CaseResult:
+    from pinneapple_physics import maxwell_checks as mc
+
+    from .constants import C0
+    from .fdtd import FDTD, YeeGrid
+
+    vals, pb = [], []
+    for nx in ((21, 41) if quick else (21, 41, 81)):
+        dx = 1.0 / (nx - 1)
+        s = FDTD(YeeGrid((nx, nx, 1), (dx, dx, dx)))
+        x = np.arange(nx) * dx
+        X, Y = np.meshgrid(x, x, indexing="ij")
+        s.E["Ez"][:, :, 0] = np.sin(np.pi * X) * np.sin(2 * np.pi * Y)
+        frames, ts = [], []
+        for _ in range(int(0.25 * 2 / (C0 * math.hypot(1, 2) / 2) / s.dt)):
+            s.step()
+            t, f = s.snapshot()
+            frames.append(f)
+            ts.append(t)
+        fields = {c: np.stack([fr[c][:, :, 0] for fr in frames], -1) for c in ("Ez", "Hx", "Hy")}
+        ch = {c.key: c for c in mc.maxwell_checks({"x": x, "y": x, "t": np.array(ts)}, fields)}
+        vals.append(ch["ampere_maxwell"].value)
+        pb.append(ch["poynting_balance"].value)
+    return CaseResult("FDTD fields through the Maxwell checks", "Ampere-Maxwell residual of the snapshots",
+                      "0 for a solution of Maxwell's equations", vals[-1], 2e-2, observed_orders(vals),
+                      detail=f"Poynting imbalance {', '.join(f'{v:.0e}' for v in pb)}; residuals "
+                             f"{', '.join(f'{v:.1e}' for v in vals)}")
+
+
+@case("FDTD near-to-far-field transform (dipole pattern and power)")
+def _fdtd_ntff(quick: bool) -> CaseResult:
+    from .constants import C0, ETA0
+    from .fdtd import FDTD, NearToFarField, YeeGrid, modulated_gaussian
+    from .waves import hertzian_dipole_power
+
+    f0 = 1e9
+    lam = C0 / f0
+    errs, perr = [], []
+    ladder = (10, 15) if quick else (10, 15, 20)
+    for ncl in ladder:
+        dx = lam / ncl
+        N = int(1.2 * lam / dx) + 28
+        c = N // 2
+        s = FDTD(YeeGrid((N, N, N), (dx, dx, dx)), {"x": "cpml", "y": "cpml", "z": "cpml"}, npml=10)
+        w = modulated_gaussian(f0, 0.5 * f0)
+        s.add_current("Ez", (c, c, c), w, 1.0)
+        b = 14
+        nt = NearToFarField(s, [f0], ((b, N - b), (b, N - b), (b, N - b)))
+        s.run_until(14 / f0)
+        tj = (np.arange(s.n) + 0.5) * s.dt
+        Il = np.sum(np.array([w(x) for x in tj]) * np.exp(-2j * np.pi * f0 * tj)) * s.dt * dx ** 3
+        th = np.linspace(0.05, np.pi - 0.05, 37)
+        Et, _ = nt.far_field(th, 0 * th)
+        ex = ETA0 * (2 * np.pi / lam) * abs(Il) * np.sin(th) / (4 * np.pi)
+        errs.append(float(np.max(np.abs(np.abs(Et[0]) - ex)) / ex.max()))
+        perr.append(abs(float(nt.radiated_power()[0]) / hertzian_dipole_power(Il, 2 * np.pi * f0) - 1))
+    orders = [math.log(errs[0] / errs[1]) / math.log(1.5)]
+    if len(errs) == 3:
+        orders.append(math.log(errs[1] / errs[2]) / math.log(4 / 3))
+    return CaseResult("FDTD near-to-far-field transform (dipole pattern and power)", "far-field E_theta(theta)",
+                      "eta k |I l| sin(theta) / (4 pi)", errs[-1], 2e-2, orders, 2.0,
+                      f"radiated power errors {', '.join(f'{e:.1e}' for e in perr)} vs eta k^2 |I l|^2 / (12 pi)")
+
+
+@case("FDTD dielectric sphere vs Mie (3-D, TF/SF + near-to-far field)")
+def _fdtd_mie(quick: bool) -> CaseResult:
+    from .constants import C0, ETA0
+    from .fdtd import FDTD, NearToFarField, PlaneWaveTFSF, YeeGrid, fill_fraction, modulated_gaussian
+    from .media import Medium
+    from .mie import mie
+
+    f0 = 1e9
+    lam = C0 / f0
+    a, eps = 0.25 * lam, 4.0
+    ref = mie(2.0, 2 * math.pi * a / lam).qsca
+    errs = []
+    ladder = (10,) if quick else (10, 15, 20)
+    for ncl in ladder:
+        dx = lam / ncl
+        npml = 10
+        N = int(2 * a / dx) + 12 + 2 * npml + 10
+        c = N // 2
+        g = YeeGrid((N, N, N), (dx, dx, dx))
+        s = FDTD(g, {"x": "cpml", "y": "cpml", "z": "cpml"}, npml=npml)
+        s.set_material(fill_fraction(g, lambda X, Y, Z, c=c, dx=dx: (X - c * dx) ** 2 + (Y - c * dx) ** 2
+                                     + (Z - c * dx) ** 2 <= a * a, 6), Medium(eps))
+        tf = npml + 5
+        s.add_plane_wave(PlaneWaveTFSF("x", "Ez", modulated_gaussian(f0, 0.5 * f0), ((tf, N - tf),) * 3))
+        inc = s.incident_monitor([f0])
+        nt = NearToFarField(s, [f0], ((npml + 2, N - npml - 2),) * 3)   # in the scattered-field region
+        s.run_until(20 / f0)
+        E0 = inc.phasor("Ey")[0, c, 0, 0]
+        Q = float(nt.radiated_power()[0]) / (abs(E0) ** 2 / (2 * ETA0) * math.pi * a * a)
+        errs.append(abs(Q / ref - 1))
+    return CaseResult("FDTD dielectric sphere vs Mie (3-D, TF/SF + near-to-far field)",
+                      "Q_sca, eps = 4, x = 1.57", "Mie series", errs[-1], 3e-2,
+                      detail=f"errors {', '.join(f'{e:.1e}' for e in errs)} at {', '.join(map(str, ladder))} cells per "
+                             "wavelength: a plateau near 2 %, not a convergence order (harmonic/arithmetic sub-cell "
+                             "averaging is not the full anisotropic smoothing an oblique surface needs; arithmetic "
+                             "averaging alone gives 9.7 % at 10 cells)")

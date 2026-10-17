@@ -1954,6 +1954,7 @@
   },
   "S38": {
    "other_tests": [
+    "PINNeAPPle/tests/test_fdtd.py::test_snapshot_layout_feeds_the_maxwell_checks",
     "PINNeAPPle/tests/test_maxwell_checks.py::test_divergence_of_B_catches_a_magnetic_monopole_and_gauss_E_a_charge"
    ],
    "reference_tests": [
@@ -1983,6 +1984,30 @@
     "PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_laplace_2d",
     "PINNeAPPle/tests/test_gradient_backend_consistency.py::test_gradient_backends_agree_reaction_diffusion_2d",
     "PINNeAPPle/tests/test_solver_exact_solutions_batch3.py::test_spectral_poisson_is_exact_for_a_fourier_mode"
+   ],
+   "status": "validated"
+  },
+  "S40": {
+   "other_tests": [
+    "PINNeAPPle/tests/test_fdtd.py::test_courant_limit_is_enforced_and_is_the_real_stability_limit",
+    "PINNeAPPle/tests/test_fdtd.py::test_fill_fraction_and_partial_poles",
+    "PINNeAPPle/tests/test_fdtd.py::test_lossless_cavity_conserves_energy_and_conductor_dissipates_it",
+    "PINNeAPPle/tests/test_fdtd.py::test_numerical_dispersion_relation",
+    "PINNeAPPle/tests/test_fdtd.py::test_pec_and_pmc_walls_reflect_with_opposite_signs",
+    "PINNeAPPle/tests/test_fdtd.py::test_snapshot_layout_feeds_the_maxwell_checks"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_fdtd.py::test_fdtd_reflection_matches_the_closed_form_fresnel_coefficient",
+    "PINNeAPPle/tests/test_fdtd.py::test_near_to_far_field_reproduces_the_dipole_closed_form",
+    "PINNeAPPle/tests/test_fdtd.py::test_periodic_axis_wraps_a_pulse_around",
+    "PINNeAPPle/tests/test_fdtd.py::test_tfsf_box_leaks_nothing_and_reproduces_the_incident_wave_2d_and_3d"
+   ],
+   "status": "validated"
+  },
+  "S41": {
+   "other_tests": [],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_fdtd.py::test_near_to_far_field_reproduces_the_dipole_closed_form"
    ],
    "status": "validated"
   },
@@ -2253,6 +2278,6 @@
   }
  },
  "rule": "validated = a test exercising the item compares against an independent reference (closed form, manufactured solution, published/tabulated value)",
- "test_files_scanned": 354,
- "test_functions_scanned": 3157
+ "test_files_scanned": 355,
+ "test_functions_scanned": 3167
 }

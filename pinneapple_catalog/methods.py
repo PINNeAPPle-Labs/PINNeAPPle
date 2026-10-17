@@ -240,6 +240,14 @@ METHODS: List[Method] = [
                    "Bendsoe & Sigmund, Topology Optimization, Springer, 2003",
                    "Borrvall & Petersson, Topology optimization of fluids in Stokes flow, Int. J. Numer. Meth. "
                    "Fluids 41 (2003) 77-107"]),
+    _m("S40", "Yee FDTD in 1-D/2-D/3-D (CPML, Courant check, Drude/Lorentz/Debye ADE, PEC/PMC/periodic/Bloch, "
+              "TF/SF plane waves, DFT monitors, sub-cell averaging)", [EM + "fdtd.py"], ["FDTD(", "YeeGrid("],
+       refs_in_code=[TAFLOVE, "Yee, Numerical solution of initial boundary value problems involving Maxwell's "
+                              "equations in isotropic media, IEEE Trans. Antennas Propag. 14(3) (1966) 302-307",
+                     "Roden & Gedney, Convolution PML (CPML), Microw. Opt. Technol. Lett. 27(5) (2000) 334-339"]),
+    _m("S41", "Near-to-far-field transform on a closed box (FDTD radiation patterns)", [EM + "fdtd.py"],
+       ["NearToFarField("], refs_in_code=[TAFLOVE, "Balanis, Advanced Engineering Electromagnetics, 2nd ed., "
+                                                   "Wiley, 2012"]),
     # ── B. Training ──────────────────────────────────────────────────────
     _m("T1", "Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler",
        [TR + "trainer.py", TR + "hpc.py"], ["trainer.trainer", "from pinneapple_neural.trainer import", "Trainer("],

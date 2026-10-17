@@ -8,7 +8,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
-| A. Solvers (S) | 29 | 8 | 2 |
+| A. Solvers (S) | 31 | 8 | 2 |
 | B. Métodos de treino (T) | 2 | 12 | 8 |
 | C. Equações físicas (E) | 50 | 18 | 3 |
 | D. Problemas físicos (P) | 27 | 9 | 30 |
@@ -256,6 +256,18 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Evidência:** `PINNeAPPle/tests/test_topology_optimization.py::test_mma_matches_slsqp_on_svanberg_cantilever_problem`
 - **Código:** `pinneapple_design/topology/`
 - **Referências adicionadas:** Svanberg, The method of moving asymptotes, Int. J. Numer. Meth. Eng. 24 (1987) 359-373 · Bendsoe & Sigmund, Topology Optimization, Springer, 2003 · Borrvall & Petersson, Topology optimization of fluids in Stokes flow, Int. J. Numer. Meth. Fluids 41 (2003) 77-107
+
+### S40 — Yee FDTD in 1-D/2-D/3-D (CPML, Courant check, Drude/Lorentz/Debye ADE, PEC/PMC/periodic/Bloch, TF/SF plane waves, DFT monitors, sub-cell averaging)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_fdtd.py::test_fdtd_reflection_matches_the_closed_form_fresnel_coefficient`; `PINNeAPPle/tests/test_fdtd.py::test_near_to_far_field_reproduces_the_dipole_closed_form`; `PINNeAPPle/tests/test_fdtd.py::test_periodic_axis_wraps_a_pulse_around` (+1)
+- **Código:** `pinneapple_simulation/electromagnetics/fdtd.py`
+- **Referências no código:** Taflove & Hagness, Computational Electrodynamics: The Finite-Difference Time-Domain Method, 3rd ed., Artech House, 2005 · Yee, Numerical solution of initial boundary value problems involving Maxwell's equations in isotropic media, IEEE Trans. Antennas Propag. 14(3) (1966) 302-307 · Roden & Gedney, Convolution PML (CPML), Microw. Opt. Technol. Lett. 27(5) (2000) 334-339
+
+### S41 — Near-to-far-field transform on a closed box (FDTD radiation patterns)
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_fdtd.py::test_near_to_far_field_reproduces_the_dipole_closed_form`
+- **Código:** `pinneapple_simulation/electromagnetics/fdtd.py`
+- **Referências no código:** Taflove & Hagness, Computational Electrodynamics: The Finite-Difference Time-Domain Method, 3rd ed., Artech House, 2005 · Balanis, Advanced Engineering Electromagnetics, 2nd ed., Wiley, 2012
 
 
 ## B. Métodos de treino (T)

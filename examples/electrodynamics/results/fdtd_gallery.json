@@ -1,0 +1,22 @@
+{
+ "cylinder": {
+  "cells_per_wavelength": 30,
+  "eps": 3.0,
+  "radius_wavelengths": 0.3,
+  "ring_error_vs_series": 0.01716408005315687
+ },
+ "maxwell_checks": {
+  "decision": "APPROVED",
+  "gauss_electric": null,
+  "gauss_magnetic": 9.685504003621404e-15,
+  "faraday": 0.003742709324135349,
+  "ampere_maxwell": 0.020214589318241,
+  "poynting_balance": 0.00015689792521455308
+ },
+ "dipole": {
+  "cells_per_wavelength": 15,
+  "pattern_error": 0.005259297534342559,
+  "radiated_power_W": 8.873400478660926e-26,
+  "radiated_power_closed_form_W": 8.905216168067661e-26
+ }
+}

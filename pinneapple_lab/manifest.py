@@ -456,9 +456,18 @@ def _attach_lab(m: Manifest, rel: str, cur: dict | None) -> None:
 def example_dirs(root: str | None = None) -> list[str]:
     """Every ``examples/*`` folder that must carry a manifest (not ``_*``, ``.*`` or the ignored names)."""
     root = root or os.path.join(REPO, "examples")
-    return sorted(os.path.join(root, d) for d in os.listdir(root)
-                  if os.path.isdir(os.path.join(root, d)) and not d.startswith(("_", "."))
-                  and d not in IGNORED_EXAMPLE_DIRS)
+    dirs = [os.path.join(root, d) for d in os.listdir(root)
+            if os.path.isdir(os.path.join(root, d)) and not d.startswith(("_", ".")) and d not in IGNORED_EXAMPLE_DIRS]
+    return sorted(d for d in dirs if not _git_ignored(d))
+
+
+def _git_ignored(path: str) -> bool:
+    """True for a folder whose manifest git would ignore (local output that is never committed: it needs none)."""
+    try:
+        return subprocess.run(["git", "check-ignore", "-q", os.path.join(path, FILENAME)], cwd=os.path.dirname(path),
+                              capture_output=True, timeout=10).returncode == 0
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def scan(roots: list[str] | None = None, *, lab: str | None = None) -> list[tuple[str, Manifest]]:

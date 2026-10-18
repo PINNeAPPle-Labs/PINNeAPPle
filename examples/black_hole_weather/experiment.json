@@ -3,7 +3,7 @@
  "id": "examples/black_hole_weather",
  "title": "Black-hole weather: forecasting the gas around a black hole, and knowing for how long to trust it",
  "description": "This is a reproduction and extension of **Duarte, Nemmen & Navarro (2022)**, *Black hole weather forecasting with deep learning: a pilot study*:",
- "domain": "geophysical forecasting",
+ "domain": "astrophysics",
  "methods": [],
  "modules": [
   "pinneapple_physics.blackhole",

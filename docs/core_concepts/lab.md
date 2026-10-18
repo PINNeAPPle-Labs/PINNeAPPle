@@ -378,6 +378,38 @@ python -m pinneapple_lab legend --lang pt -o seal_legend_pt.png             # th
 `--tiers` (also `--tier`) filters, it never changes a letter: `stamp ITEM FILE --tiers A,B` on a D item writes
 nothing and exits with status 2. Every `stamp --all` writes `manifest.json` (item, tier, reason, next step, files).
 
+### Experiments page
+
+`pinneapple_lab.explorer` builds the page of every experiment, served by the Lab server at `/experiments` (behind
+the same `LAB_USER` / `LAB_PASSWORD` login) and exported as static HTML by `python -m pinneapple_lab site --out
+<dir>` (`<dir>/experiments/`). It reads the Lab curation and the experiment manifests
+([adding an experiment](../guides/adding_an_experiment.md)) and nothing else:
+
+* every Lab item, with its A-F seal and reason, the trust card, its best run's measured metrics, the failing check
+  for E and F, the path to the next letter with the suggested commands, its figures stamped with the seal, movies
+  (loaded on demand), the 3-D viewer and links to the guide, the script and the pull request;
+* every `examples/*` folder, from its `experiment.json`: the Lab items made from its scripts and the best letter
+  among them, or "not curated" with `python -m pinneapple_lab register examples/<folder>`.
+
+Filters by letter, domain, method and "ready to use", search, sort by letter or date, a bar with the number of
+experiments per letter (counted from the list), a page per experiment, EN / PT, lazy thumbnails, and a layout that
+works on a phone. `python -m pinneapple_lab coverage -o docs/lab/coverage.md` writes the coverage list (experiment ->
+curated yes / no); the committed one is [here](../lab/coverage.md).
+
+| route | what |
+|---|---|
+| `/experiments` | the page |
+| `/api/experiments?letter=&domain=&method=&ready=1&q=&sort=letter\|date` | its entries, filtered |
+| `/api/experiment?key=KEY` | one entry |
+| `/api/coverage` | experiment -> curated yes / no |
+| `/stamped/EXPERIMENT/RUN_ID/PATH?key=ITEM`, `/stamped-repo/PATH?key=ITEM` | a figure stamped with the item's seal |
+| `/seal.png?key=ITEM&lang=en\|pt` | an item's seal |
+| `/repo/PATH`, `/repo-thumb/PATH` | files an experiment manifest lists (nothing else under the checkout) |
+
+![The experiments page](../assets/experiments/experiments_list.png)
+
+![An F item: its problem, trust card, metrics and next steps](../assets/experiments/experiment_F_next_steps.png)
+
 ### Showcase panel
 
 `pinneapple_lab.showcase.panel` renders the animated panel of the Lab's best results, 1080 x 1350 on `#090C14`:

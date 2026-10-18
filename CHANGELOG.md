@@ -38,6 +38,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   the Observatory cache is bounded. Lab catalogue: `LAB_PASSWORD_HASH` and lockout.
 
 ### Added
+- The experiments page (`pinneapple_lab.explorer`): every Lab item and every `examples/*` manifest with its A-F
+  seal, trust card, measured metrics, failing check (E/F), next steps with commands, stamped figure gallery, movies
+  on demand, 3-D viewers and links (guide, script, pull request); filters (letter, domain, method, ready), search,
+  sort, per-letter counts, detail pages, EN/PT, mobile layout. Served at `/experiments` with `/api/experiments`,
+  `/api/experiment`, `/api/coverage`, `/stamped/...`, `/seal.png`, `/repo/...` (behind the Lab login); static export
+  `python -m pinneapple_lab site --out <dir>`; coverage list `python -m pinneapple_lab coverage`
+  (`docs/lab/coverage.md`: 139 experiments, 74 curated, 65 not curated). The Lab image sets `PINNEAPPLE_REPO`;
+  deploy steps in `apps/deploy/README.md`.
 - Experiment manifests (`pinneapple_lab.manifest`, format `pinneapple.experiment/1`): one `experiment.json` per
   experiment that the curation, the experiments site and the Flow Studio read through one loader (Lab run folders
   read as manifests too). `pinneapple_lab.experiment(...)` (context manager or decorator) records parameters, git

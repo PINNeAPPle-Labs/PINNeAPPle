@@ -3,7 +3,7 @@
  "id": "examples/data_pipeline",
  "title": "Project Layout",
  "description": "03_prefetch_streaming_gpu.py Showcase: high-throughput streaming from a Zarr-backed UPD store with: - process-local Zarr caching - background prefetch thread - optional pinned-memory + async CPU->GPU transfer Run:",
- "domain": "data",
+ "domain": "fluid dynamics",
  "methods": [],
  "modules": [
   "pinneapple_data.collate",

@@ -3,7 +3,7 @@
  "id": "examples/enso_forecasting",
  "title": "Predicting El Ni\u00f1o: physical, physics-informed, data-driven and hybrid models under one protocol",
  "description": "El Nino (ENSO) prediction: data-driven, physical, physics-informed and hybrid models under one honest protocol. Reproduces docs/guides/enso_forecasting.md. Every model lives in ``pinneapple_systems.time_series.enso`` and ``forecast_lab``; this script only wires the calls together: 1. the data set (OISST v2.1, WOD thermocline casts, ERA5 stress; cached with the SHA-256 of every source file); 2. the",
- "domain": "geophysical forecasting",
+ "domain": "geophysics and climate",
  "methods": [
   "PINN"
  ],

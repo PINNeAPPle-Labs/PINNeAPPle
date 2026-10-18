@@ -3,7 +3,7 @@
  "id": "examples/problem_designer",
  "title": "pinneapple_problemdesign examples",
  "description": "This folder showcases **problem elicitation + specification + planning**.",
- "domain": "electromagnetics",
+ "domain": "design and geometry",
  "methods": [],
  "modules": [
   "pinneapple_problemdesign",

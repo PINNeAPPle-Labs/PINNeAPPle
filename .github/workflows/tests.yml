@@ -45,7 +45,7 @@ jobs:
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |
           python scripts/check_experiment_manifests.py
-          pytest tests/test_experiment_manifests.py -q -p no:warnings
+          pytest tests/test_experiment_manifests.py tests/test_experiments_site.py -q -p no:warnings
 
       - name: Agents — AGENTS.md examples and the MCP server (must pass)
         run: pytest tests/test_agents_md.py tests/test_mcp_server.py -q

@@ -22,6 +22,8 @@
     python -m pinneapple_lab register examples/my_study                             # manifest -> Lab item, curated
     python -m pinneapple_lab scaffold my_study                                      # a new example, wired
     python -m pinneapple_lab manifests --check                                      # the CI gate
+    python -m pinneapple_lab site --out site                                        # catalogue + site/experiments
+    python -m pinneapple_lab coverage -o docs/lab/coverage.md                       # experiment -> curated yes/no
     python -m pinneapple_lab showcase --lang en,pt --out docs/assets/showcase         # the animated panel
 Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
 """
@@ -110,6 +112,10 @@ def main(argv=None) -> int:
     ex.add_argument("--force", action="store_true")
     st = sub.add_parser("site", help="write the self-contained public catalogue for a static host (GitHub Pages)")
     st.add_argument("out", nargs="?", default="docs/lab")
+    st.add_argument("--out", dest="out_opt", default=None, help="output folder (same as the positional argument)")
+    st.add_argument("--no-media", action="store_true", help="experiments page without copied figures and movies")
+    cv = sub.add_parser("coverage", help="experiment -> curated yes / no, as Markdown")
+    cv.add_argument("-o", "--out", default=None)
     se = sub.add_parser("seal", help="write the quality seal of a curated item (tier from the curation)")
     se.add_argument("item")
     se.add_argument("-o", "--out", default=None, help="seal.svg or seal.png")
@@ -257,8 +263,21 @@ def main(argv=None) -> int:
             print(json.dumps({k: meta[k] for k in ("files", "sizes_bytes")}, indent=1))
         return 0
     if a.cmd == "site":
+        from .explorer import write_static
         from .html import write_site
-        print(write_site(LabStore(a.root), a.out))
+        out = a.out_opt or a.out
+        print(write_site(LabStore(a.root), out))
+        print(write_static(LabStore(a.root), os.path.join(out, "experiments"), media=not a.no_media))
+        return 0
+    if a.cmd == "coverage":
+        from .explorer import collect, coverage_md
+        text = coverage_md(collect(LabStore(a.root)))
+        if a.out:
+            with open(a.out, "w") as f:
+                f.write(text)
+            print(a.out)
+        else:
+            print(text)
         return 0
     if a.cmd == "list":
         for n in available():

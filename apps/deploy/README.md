@@ -771,6 +771,28 @@ docker compose exec lab python -m pinneapple_lab sweep repo_results -g source=bu
 docker compose exec lab python -m pinneapple_lab examples --run --match use_cases   # examples and use cases
 ```
 
+The **experiments page** (`/experiments`) lists every experiment: each Lab item with its A-F seal, trust card,
+measured metrics, next steps and stamped figures, and every `examples/*` folder from its `experiment.json` (shown as
+"not curated" with the command that curates it until the Lab grades it). JSON: `/api/experiments` (filters
+`letter`, `domain`, `method`, `ready`, `q`, `sort`), `/api/experiment?key=`, `/api/coverage`; media: `/stamped/...`,
+`/seal.png`, `/repo/...` (only files a manifest lists). The image already holds the repository at `/srv`
+(`PINNEAPPLE_REPO`), so the example figures and movies come with it; Lab figures come from the `lab_data` volume.
+
+To deploy it on a server that already runs the `lab` service:
+
+```bash
+cd PINNeAPPle && git pull                                   # main, with the experiments page
+cd apps/deploy && docker compose build lab && docker compose up -d lab
+docker compose exec lab python -m pinneapple_lab reindex    # the volume's runs into the index
+docker compose exec lab python -m pinneapple_lab curate     # A-F letters and next steps for the volume's runs
+curl -fsS -u "$LAB_USER:$LAB_PASSWORD" https://$LAB_DOMAIN/api/coverage | head -c 300   # check
+```
+
+The `lab_data` volume was seeded from the image the first time and is kept across rebuilds, so the `curate` step is
+what brings the new letters and next steps to the runs already in it. A static copy for GitHub Pages:
+`python -m pinneapple_lab site --out site` (`site/experiments/index.html` with stamped figures, seals and movies up
+to 10 MB).
+
 Set `LAB_USER` / `LAB_PASSWORD` in `.env` to require a login (`/health` stays open). Without Docker:
 `pip install pinneapple pillow` and `python -m pinneapple_lab serve --host 0.0.0.0 --root /path/to/lab`.
 

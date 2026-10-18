@@ -5,7 +5,8 @@
 # `docker exec ... python -m pinneapple_lab sweep ...`) and the page picks the new runs up on reload.
 FROM python:3.11-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1 PINNEAPPLE_LAB=/data/lab
+# PINNEAPPLE_REPO: the checkout copied below; /experiments reads the example manifests and their media from it
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1 PINNEAPPLE_LAB=/data/lab PINNEAPPLE_REPO=/srv
 WORKDIR /srv
 
 # The server needs only numpy and Pillow; PyTorch (CPU wheel) is installed so the built-in experiments also run here.

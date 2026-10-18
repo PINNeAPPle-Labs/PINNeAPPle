@@ -3,7 +3,7 @@
  "id": "examples/weather_forecasting",
  "title": "Weather forecasting on ERA5: how many days a model is good for, and extreme events",
  "description": "A global forecast model trained with `pinneapple_physics.weather` on ERA5 (WeatherBench2, public, no account), scored",
- "domain": "geophysical forecasting",
+ "domain": "geophysics and climate",
  "methods": [],
  "modules": [
   "pinneapple_physics.weather.data",

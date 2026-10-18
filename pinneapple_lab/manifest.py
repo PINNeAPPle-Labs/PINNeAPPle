@@ -52,22 +52,37 @@ from typing import Any
 
 SCHEMA = "pinneapple.experiment/1"
 FILENAME = "experiment.json"
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+def _repo_root() -> str:
+    """The checkout: ``$PINNEAPPLE_REPO``, else the folder above this package when it holds ``examples/`` (a source
+    checkout or an editable install), else the working directory (the Lab image runs from /srv)."""
+    env = os.environ.get("PINNEAPPLE_REPO")
+    here = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    return os.path.abspath(env) if env else here if os.path.isdir(os.path.join(here, "examples")) else os.getcwd()
+
+
+REPO = _repo_root()
 IGNORED_EXAMPLE_DIRS = ("scratch", "__pycache__")          # plus every name starting with "_" or "."
 FIGURE_EXT = (".png", ".jpg", ".jpeg", ".webp", ".svg")
 VIDEO_EXT = (".gif", ".mp4", ".webm", ".mov")
 DATA_EXT = (".json", ".csv", ".npz", ".md", ".h5", ".parquet")
 STATUS = ("curated", "not curated")
-_DOMAINS = [   # folder-name pattern -> domain, first match wins (a manifest may always say otherwise)
-    (r"flight", "flight dynamics"), (r"enso|weather|black_hole|climate", "geophysical forecasting"),
-    (r"time_series|forecast", "time series"), (r"electro|motor|em_|maxwell", "electromagnetics"),
-    (r"calculix|solid|fem|bricks|topology|geomech|inspection", "structural mechanics"),
-    (r"lbm|openfoam|free_surface|cfd|vehicle|handoff", "fluid dynamics"),
-    (r"modelica|cosim|systems|rigid_body|results_chassis", "system dynamics"), (r"molecular", "molecular dynamics"),
-    (r"pinn|trainer|architectures|latent|worldmodel|meshgraphnet|model_zoo", "physics AI"),
-    (r"geometr|design", "design and geometry"), (r"benchmark|arena|vs_physicsnemo|hpo|validation|physics_check|"
-                                                 r"physics_audit|proof_graph", "validation and benchmarks"),
-    (r"solver|numerical|pde|physics_", "numerical methods"), (r"data|db", "data"), (r"security", "security"),
+_DOMAINS = [   # pattern over the name, title and tags -> domain, first match wins (a manifest may always say otherwise)
+    (r"flight", "flight dynamics"), (r"black_hole|\bbh_|accretion|bondi", "astrophysics"),
+    (r"enso|weather|climate|geophys", "geophysics and climate"), (r"time_series|forecast", "time series"),
+    (r"electro|motor|\bem_|em_pinn|maxwell|prius|pmsm|fdtd", "electromagnetics"),
+    (r"heat|\bfin_|thermal|coldplate", "heat transfer"),
+    (r"rover|terramech|soil|vehicle_bicycle|chassis", "vehicle dynamics"),
+    (r"calculix|solid|\bfem\b|bricks|topology|geomech|inspection|wear|tribolog|beam|bracket|plate|buckling|crash",
+     "structural mechanics"),
+    (r"lbm|openfoam|free_surface|cfd|vehicle|handoff|ahmed|airfoil|airliner|concorde|pipe|wake|cylinder|flow|"
+     r"particle|shock|channel", "fluid dynamics"),
+    (r"kepler|lorenz|discovery|oscillator|pendulum|modelica|cosim|systems|rigid_body", "system dynamics"),
+    (r"molecular", "molecular dynamics"),
+    (r"pinn|trainer|architectures|latent|worldmodel|meshgraphnet|model_zoo|surrogate", "physics AI"),
+    (r"geometr|design", "design and geometry"),
+    (r"benchmark|arena|vs_physicsnemo|hpo|validation|physics_check|physics_audit|proof_graph", "validation and benchmarks"),
+    (r"solver|numerical|pde|physics_|xtfc", "numerical methods"), (r"\bdata\b|_db\b|data_", "data"),
+    (r"security", "security"),
 ]
 
 

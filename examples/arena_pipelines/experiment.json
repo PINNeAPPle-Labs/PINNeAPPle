@@ -3,7 +3,7 @@
  "id": "examples/arena_pipelines",
  "title": "00_list_datasets.py \u2014 List and inspect all available PINNeAPPle datasets",
  "description": "00_list_datasets.py \u2014 List and inspect all available PINNeAPPle datasets. Run with: cd examples/arena_pipelines",
- "domain": "validation and benchmarks",
+ "domain": "fluid dynamics",
  "methods": [
   "PINN",
   "FNO"

@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/problem_designer",
+ "title": "pinneapple_problemdesign examples",
+ "description": "This folder showcases **problem elicitation + specification + planning**.",
+ "domain": "electromagnetics",
+ "methods": [],
+ "modules": [
+  "pinneapple_problemdesign",
+  "pinneapple_problemdesign.elicitation.validators",
+  "pinneapple_problemdesign.knowledge.mapping",
+  "pinneapple_problemdesign.protocol",
+  "pinneapple_problemdesign.renderers.report_json",
+  "pinneapple_problemdesign.renderers.report_md",
+  "pinneapple_problemdesign.schema"
+ ],
+ "params": {},
+ "scripts": [
+  "01_SimpleUseCase.py",
+  "02_Api.py",
+  "03_offline_spec_to_report.py",
+  "04_custom_provider_mock_end_to_end.py",
+  "05_batch_generate_reports.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/problem_designer/01_SimpleUseCase.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

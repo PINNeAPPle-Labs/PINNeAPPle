@@ -1,0 +1,48 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/hpo_experiments",
+ "title": "pinneapple_researcher examples",
+ "description": "These examples are designed to show the full workflow:",
+ "domain": "validation and benchmarks",
+ "methods": [],
+ "modules": [
+  "pinneapple_researcher",
+  "pinneapple_researcher.kb.chunking",
+  "pinneapple_researcher.models",
+  "pinneapple_researcher.pipelines.build_kb",
+  "pinneapple_researcher.pipelines.discover",
+  "pinneapple_researcher.pipelines.export_problemdesign",
+  "pinneapple_researcher.pipelines.extract_problem_solutions",
+  "pinneapple_researcher.pipelines.reproduce"
+ ],
+ "params": {},
+ "scripts": [
+  "00_quickstart_end_to_end.py",
+  "01_discover.py",
+  "02_build_kb.py",
+  "03_extract.py",
+  "04_reproduce.py",
+  "05_local_search_over_chunks.py",
+  "06_compare_chunking_settings.py",
+  "07_export_problemdesign_from_extracted.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/hpo_experiments/00_quickstart_end_to_end.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

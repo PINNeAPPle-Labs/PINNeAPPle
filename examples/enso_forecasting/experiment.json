@@ -1,0 +1,64 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/enso_forecasting",
+ "title": "Predicting El Ni\u00f1o: physical, physics-informed, data-driven and hybrid models under one protocol",
+ "description": "El Nino (ENSO) prediction: data-driven, physical, physics-informed and hybrid models under one honest protocol. Reproduces docs/guides/enso_forecasting.md. Every model lives in ``pinneapple_systems.time_series.enso`` and ``forecast_lab``; this script only wires the calls together: 1. the data set (OISST v2.1, WOD thermocline casts, ERA5 stress; cached with the SHA-256 of every source file); 2. the",
+ "domain": "geophysical forecasting",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_core.jsonable",
+  "pinneapple_systems.time_series.enso",
+  "pinneapple_systems.time_series.enso.data",
+  "pinneapple_systems.time_series.forecast_lab",
+  "pinneapple_systems.time_series.forecast_lab.study"
+ ],
+ "params": {},
+ "scripts": [
+  "run_study.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "figures/enso_1997_01_slab.png",
+   "figures/enso_1997_12_slab.png",
+   "figures/hovmoller_1996_1999.png",
+   "figures/phase_portrait.png",
+   "figures/pit.png",
+   "figures/plumes.png",
+   "figures/skill_vs_lead.png",
+   "figures/solver_checks.png",
+   "figures/spring_barrier.png"
+  ],
+  "videos": [
+   "figures/enso_1997_98_slab.mp4"
+  ],
+  "viewers": [],
+  "data": [
+   "results/data.json",
+   "results/phase.json",
+   "results/shallow_water_pinn.json",
+   "results/solver_checks.json",
+   "results/spring_barrier.json",
+   "results/study.json",
+   "results/tables.md"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/enso_forecasting.md",
+  "script": "examples/enso_forecasting/run_study.py",
+  "pr": [
+   846
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

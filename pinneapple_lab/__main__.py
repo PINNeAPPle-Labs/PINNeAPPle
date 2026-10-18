@@ -19,6 +19,9 @@
     python -m pinneapple_lab legend --lang pt -o seal_legend_pt.png                  # the six seals, A to F
     python -m pinneapple_lab seal --explain em_pinn/em_tm_cavity --lang pt          # what it lacks, and how
     python -m pinneapple_lab improve em_pinn/em_tm_cavity [--run]                   # dry run, or run and re-curate
+    python -m pinneapple_lab register examples/my_study                             # manifest -> Lab item, curated
+    python -m pinneapple_lab scaffold my_study                                      # a new example, wired
+    python -m pinneapple_lab manifests --check                                      # the CI gate
     python -m pinneapple_lab showcase --lang en,pt --out docs/assets/showcase         # the animated panel
 Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
 """
@@ -136,6 +139,18 @@ def main(argv=None) -> int:
     im.add_argument("--run", action="store_true", help="run them (default: dry run, print only)")
     im.add_argument("--dry-run", action="store_true", help="print only (the default)")
     im.add_argument("--lang", default="en", choices=["en", "pt"])
+    rg = sub.add_parser("register", help="write (if missing) and import an experiment manifest, then curate")
+    rg.add_argument("path", help="a folder (examples/<name>, a results folder) or an experiment.json")
+    rg.add_argument("--no-lab", action="store_true", help="only write / validate the manifest")
+    rg.add_argument("--overwrite", action="store_true", help="regenerate an existing experiment.json from the folder")
+    sc = sub.add_parser("scaffold", help="create examples/<name> wired with pinneapple_lab.experiment(...)")
+    sc.add_argument("name")
+    sc.add_argument("--title", default="")
+    sc.add_argument("--domain", default="")
+    sc.add_argument("--dir", default=None, help="parent folder (default: the repository's examples/)")
+    mf = sub.add_parser("manifests", help="list the experiment manifests; --check is the CI gate")
+    mf.add_argument("--check", action="store_true", help="exit 1 if a folder lacks a valid manifest")
+    mf.add_argument("roots", nargs="*")
     lg = sub.add_parser("legend", help="the legend of the six seals, A to F (PNG)")
     lg.add_argument("-o", "--out", required=True)
     lg.add_argument("--lang", default="en", choices=["en", "pt"])
@@ -171,6 +186,42 @@ def main(argv=None) -> int:
         if not a.out:
             ap.error("seal needs -o/--out (or --explain)")
         print(save_seal(s, a.out, height=a.height, reason=not a.no_reason, lang=a.lang, next_step=not a.no_next))
+        return 0
+    if a.cmd == "register":
+        from . import manifest as mfs
+        from .capture import register_manifest
+        p = a.path
+        if os.path.isdir(p) and (a.overwrite or not os.path.exists(os.path.join(p, mfs.FILENAME))):
+            from .seal import load_curation
+            try:
+                cur = load_curation(LabStore(a.root))
+            except FileNotFoundError:
+                cur = None
+            print(mfs.save(mfs.manifest_from_dir(p, cur), p))
+        m = mfs.load(p)
+        base = p if os.path.isdir(p) else os.path.dirname(p)
+        errors = mfs.validate(m, base)
+        for e in errors:
+            print(f"error: {e}", file=sys.stderr)
+        if errors:
+            return 1
+        if not a.no_lab:
+            print(register_manifest(p, LabStore(a.root)))
+        return 0
+    if a.cmd == "scaffold":
+        from .manifest import scaffold
+        print(scaffold(a.name, a.dir, title=a.title, domain=a.domain))
+        return 0
+    if a.cmd == "manifests":
+        from . import manifest as mfs
+        if a.check:
+            problems = mfs.check_repo(a.roots[0] if a.roots else None)
+            for x in problems:
+                print(x)
+            print(f"{len(problems)} problem(s)" if problems else "every experiment has a valid manifest")
+            return 1 if problems else 0
+        for _path, m in mfs.scan(a.roots or None, lab=LabStore(a.root).root):
+            print(f"{m.status:12s} {m.domain[:22]:22s} {m.id}")
         return 0
     if a.cmd == "improve":
         from .improve import improve

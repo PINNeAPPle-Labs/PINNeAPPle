@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/validation_arena",
+ "title": "Red team / blue team for the validation checks",
+ "description": "Run an external model (for instance the FNO or MeshGraphNet of a PhysicsNeMo experiment) through the hardened defence of the validation arena (#707), and compare each of its outputs with the reference solver.",
+ "domain": "validation and benchmarks",
+ "methods": [
+  "FNO",
+  "graph network"
+ ],
+ "modules": [
+  "pinneapple_analysis.validation.arena",
+  "pinneapple_analysis.validation.arena.__main__",
+  "pinneapple_analysis.validation.fault_injection"
+ ],
+ "params": {},
+ "scripts": [
+  "external_model.py",
+  "run_arena.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/validation_arena.md",
+  "script": "examples/validation_arena/external_model.py",
+  "pr": [
+   739
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

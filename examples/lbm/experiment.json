@@ -1,0 +1,40 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/lbm",
+ "title": "Lattice Boltzmann wind tunnel and the FluidX3D bridge",
+ "description": "3-D lattice Boltzmann wind tunnel: drag on a sphere against Stokes' law and the Schiller-Naumann correlation, in 32-bit and 16-bit storage of the distributions. 1. Stokes flow (Re ~ 0.06): a sphere of radius 5 cells in a box of 8 radii, the open sides fixed to the analytic Stokes far field (as in the usual LBM validation of this case). Drag against F = 6 pi rho nu R U. 2. Re = 20: sphere of diamet",
+ "domain": "fluid dynamics",
+ "methods": [
+  "lattice Boltzmann"
+ ],
+ "modules": [
+  "pinneapple_simulation.numerical_solvers.lbm_tunnel"
+ ],
+ "params": {},
+ "scripts": [
+  "01_sphere_wind_tunnel.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/lbm_wind_tunnel.md",
+  "script": "examples/lbm/01_sphere_wind_tunnel.py",
+  "pr": [
+   470
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

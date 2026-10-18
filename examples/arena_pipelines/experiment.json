@@ -1,0 +1,62 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/arena_pipelines",
+ "title": "00_list_datasets.py \u2014 List and inspect all available PINNeAPPle datasets",
+ "description": "00_list_datasets.py \u2014 List and inspect all available PINNeAPPle datasets. Run with: cd examples/arena_pipelines",
+ "domain": "validation and benchmarks",
+ "methods": [
+  "PINN",
+  "FNO"
+ ],
+ "modules": [
+  "pinneapple_arena",
+  "pinneapple_data.datasets",
+  "pinneapple_design.geometry.gen.domains3d",
+  "pinneapple_neural.architectures.graphnn.base",
+  "pinneapple_neural.architectures.graphnn.mesh_graph_net",
+  "pinneapple_neural.architectures.neural_operators.fno",
+  "pinneapple_neural.architectures.pinns.vanilla",
+  "pinneapple_neural.trainer.parallel",
+  "pinneapple_neural.utils",
+  "pinneapple_physics.metrics",
+  "pinneapple_physics.pinn_solver.compiler.autograd_ops",
+  "pinneapple_tools.benchmark_suite",
+  "pinneapple_tools.visualization.fields"
+ ],
+ "params": {},
+ "scripts": [
+  "00_list_datasets.py",
+  "01_physics_benchmark.py",
+  "02_timeseries_benchmark.py",
+  "03_kovasznay_ns_benchmark.py",
+  "04_arena_from_yaml.py",
+  "05_all_problems_gallery.py",
+  "06_custom_problem.py",
+  "07_easy_custom_problem.py",
+  "08_3d_geometry_pipeline.py",
+  "09_dataset_benchmarks.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/arena_pipelines/00_list_datasets.py",
+  "pr": [
+   659,
+   678
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

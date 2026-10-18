@@ -26,13 +26,17 @@ everything in SQLite, so runs can be queried, compared, exported as training set
 
 Command line: ``python -m pinneapple_lab list | run NAME -p k=v | sweep NAME -g k=v1,v2 | status | report | export``.
 
+Any script becomes an experiment with a manifest, a Lab item and a grade: ``with experiment("name", ...) as ex:``
+(``pinneapple_lab.capture``; the format is ``pinneapple_lab.manifest``).
+
 Built-in experiments (``pinneapple_lab.experiments``) span ODEs, PDEs solved by X-TFC, black-hole hydrodynamics
 and lattice-Boltzmann flow; new ones only need a class.
 """
+from .capture import experiment, register_manifest
 from .context import RunContext
 from .runner import RunResult, run, sweep
 from .spec import Experiment, available, get, register
 from .store import LabStore, default_root
 
-__all__ = ["Experiment", "LabStore", "RunContext", "RunResult", "available", "default_root", "get", "register",
-           "run", "sweep"]
+__all__ = ["Experiment", "LabStore", "RunContext", "RunResult", "available", "default_root", "experiment", "get",
+           "register", "register_manifest", "run", "sweep"]

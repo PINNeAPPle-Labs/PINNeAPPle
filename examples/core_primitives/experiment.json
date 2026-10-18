@@ -1,0 +1,43 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/core_primitives",
+ "title": "Core primitives: Domain, Geometry, Mesh, Field",
+ "description": "Poisson PINN on the core primitives (Domain, Geometry, FunctionField, Mesh, Field). Solves -laplace(u) = 2 pi^2 sin(pi x) sin(pi y) on the unit square with u = 0 on the boundary (exact solution sin(pi x) sin(pi y)).",
+ "domain": "general",
+ "methods": [
+  "PINN",
+  "FNO"
+ ],
+ "modules": [
+  "pinneapple_core",
+  "pinneapple_neural.architectures.neural_operators.fno"
+ ],
+ "params": {},
+ "scripts": [
+  "01_poisson_pinn.py",
+  "02_operator_poisson_1d.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/core_primitives.md",
+  "script": "examples/core_primitives/01_poisson_pinn.py",
+  "pr": [
+   290
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

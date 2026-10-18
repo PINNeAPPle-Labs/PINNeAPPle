@@ -38,6 +38,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   the Observatory cache is bounded. Lab catalogue: `LAB_PASSWORD_HASH` and lockout.
 
 ### Added
+- Experiment manifests (`pinneapple_lab.manifest`, format `pinneapple.experiment/1`): one `experiment.json` per
+  experiment that the curation, the experiments site and the Flow Studio read through one loader (Lab run folders
+  read as manifests too). `pinneapple_lab.experiment(...)` (context manager or decorator) records parameters, git
+  commit, environment, timing, `log_metric`, `check`, every figure saved through `savefig`, movies and viewers, then
+  writes the manifest, imports it into the Lab (`manifest` experiment) and re-curates (A-F and next steps). Lab
+  runs and `pinneapple_core.workflows` runs write their manifest; `Solution.to_experiment` /
+  `Comparison.to_experiment`; `manifest.from_flow_run` for the Flow Studio. `python -m pinneapple_lab register`,
+  `scaffold`, `manifests [--check]`. Every `examples/*` folder (67) now has a manifest generated from what it
+  holds (README or docstring, imports, figures, the docs page citing it, the pull requests whose merge changed
+  it); metrics only where a Lab run measured them. CI gate `scripts/check_experiment_manifests.py` (must pass) and
+  an AGENTS.md rule. Guide (EN/PT): `docs/guides/adding_an_experiment.md`.
 - Lab quality seals for every tier, A to F (`pinneapple_lab.curation`, `pinneapple_lab.seal`). The curation now
   grades on six letters: A flagship and B solid unchanged, C plausible (every check passes, the trust card's model,
   physics or benchmark stage answered, B gates not met), D exploratory (consistent, not validated), E known problems

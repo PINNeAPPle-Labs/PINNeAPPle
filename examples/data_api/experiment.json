@@ -1,0 +1,41 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/data_api",
+ "title": "Training Pipeline",
+ "description": "A PINN, a neural operator and an inverse problem trained from the same loader API. PYTHONPATH=.",
+ "domain": "data",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_core",
+  "pinneapple_core.data"
+ ],
+ "params": {},
+ "scripts": [
+  "01_pinn_operator_inverse.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/training_pipeline.md",
+  "script": "examples/data_api/01_pinn_operator_inverse.py",
+  "pr": [
+   309
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

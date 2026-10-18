@@ -1,0 +1,52 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_db",
+ "title": "Quickstart: discover a dataset via CMR/earthaccess and inspect variables",
+ "description": "Quickstart: discover a dataset via CMR/earthaccess and inspect variables. This demonstrates the *discovery* workflow of pinneapple_pdb: 1) login() (NASA Earthdata) 2) list_collections() to find dataset short_name/provider 3) set_dataset() + set_spacetime() 4) inspect() opens the first granule and returns: - dims/coords - variables + units - suggested variable packs (core_state_2d, upper_air_plev,",
+ "domain": "numerical methods",
+ "methods": [],
+ "modules": [
+  "pinneapple_data.adapters.upd_adapter",
+  "pinneapple_data.datasets.external_sources",
+  "pinneapple_data.zarr_store",
+  "pinneapple_pdb",
+  "pinneapple_pdb.builder",
+  "pinneapple_pdb.derived",
+  "pinneapple_pdb.shard",
+  "pinneapple_pdb.validate",
+  "pinneapple_physics.pinn_solver.io.mappings",
+  "pinneapple_physics.pinn_solver.io.upd_dataset"
+ ],
+ "params": {},
+ "scripts": [
+  "00_quickstart_inspect.py",
+  "01_pdb_nasa_power_daily_to_upd.py",
+  "02_build_upd_earthaccess_sharded.py",
+  "03_offline_synthetic_upd_pipeline.py",
+  "04_load_catalog_and_convert_to_physicalsample.py",
+  "05_pinn_sampling_from_upd_shard.py",
+  "06_supervised_tiny_train_from_upd.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/physics_db/00_quickstart_inspect.py",
+  "pr": [
+   659
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

@@ -1,0 +1,53 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/vs_physicsnemo",
+ "title": "PINNeAPPle vs PhysicsNeMo \u2014 Comparison & Integration Guide",
+ "description": "---",
+ "domain": "validation and benchmarks",
+ "methods": [],
+ "modules": [],
+ "params": {},
+ "scripts": [],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "07_physicsnemo_trains_pinneapple_checks/check/expected.json",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/contrast/fno_0.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/contrast/fno_1.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/contrast/meshgraphnet_0.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/contrast/meshgraphnet_1.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/in_distribution/fno_0.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/in_distribution/fno_1.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/in_distribution/meshgraphnet_0.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/in_distribution/meshgraphnet_1.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/length_scale/fno_0.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/length_scale/fno_1.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/length_scale/meshgraphnet_0.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/predictions/length_scale/meshgraphnet_1.npz",
+   "07_physicsnemo_trains_pinneapple_checks/check/sample_verdicts.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/core_concepts/pinn.md",
+  "pr": [
+   240,
+   307,
+   659,
+   678,
+   740,
+   779
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

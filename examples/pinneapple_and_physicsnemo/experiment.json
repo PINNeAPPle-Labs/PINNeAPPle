@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pinneapple_and_physicsnemo",
+ "title": "Pinneapple and physicsnemo",
+ "description": "",
+ "domain": "physics AI",
+ "methods": [],
+ "modules": [],
+ "params": {},
+ "scripts": [],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "pinneapple/benchmarks/_out/bar_test_mse_residual.png",
+   "pinneapple/benchmarks/_out/bar_test_mse_u.png",
+   "pinneapple/benchmarks/_out/bar_train_time.png",
+   "pinneapple/benchmarks/_out/loss_conditions.png",
+   "pinneapple/benchmarks/_out/loss_data.png",
+   "pinneapple/benchmarks/_out/loss_pde.png",
+   "pinneapple/benchmarks/_out/loss_total.png",
+   "pinneapple/benchmarks/_out/residual_abs.png",
+   "pinneapple/benchmarks/_out/scatter_time_vs_mse_u.png",
+   "pinneapple/benchmarks/_out/u_true_vs_preds.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.csv",
+   "pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

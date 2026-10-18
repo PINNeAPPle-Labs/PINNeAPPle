@@ -1,0 +1,63 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_ensemble",
+ "title": "Multiscale ensembles: scales, filters and closures",
+ "description": "Side by side: the five-family ensemble reacting only to past errors (left) and with the current-case physics residual against the level each model has in its own training regime (right, ``residual_lookahead`` + ``residual_baseline``), on the same stream of cases. Writes ``lookahead_comparison.gif`` (both animations stitched frame by frame) and ``lookahead_timeline.png`` (the model chosen on every",
+ "domain": "numerical methods",
+ "methods": [
+  "FNO",
+  "DeepONet"
+ ],
+ "modules": [
+  "pinneapple_neural.architectures.convolutions.conv1d",
+  "pinneapple_neural.architectures.graphnn.base",
+  "pinneapple_neural.architectures.graphnn.mesh_graph_net",
+  "pinneapple_neural.architectures.neural_operators.deeponet",
+  "pinneapple_neural.architectures.neural_operators.fno",
+  "pinneapple_physics.advection_diffusion_1d",
+  "pinneapple_physics.ensemble",
+  "pinneapple_physics.ensemble_viz",
+  "pinneapple_physics.multiscale",
+  "pinneapple_physics.multiscale.comparison",
+  "pinneapple_physics.multiscale.filters",
+  "pinneapple_physics.multiscale.learned",
+  "pinneapple_physics.multiscale.turbulence",
+  "pinneapple_physics.multiscale.viz",
+  "pinneapple_tools.visualization.dashboard.static"
+ ],
+ "params": {},
+ "scripts": [
+  "compare_lookahead_gif.py",
+  "five_model_families_gif.py",
+  "fno_pinn_gnn_solvers.py",
+  "multiscale_turbulence.py",
+  "sensor_noise_gif.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/multiscale_ensembles.md",
+  "script": "examples/physics_ensemble/compare_lookahead_gif.py",
+  "pr": [
+   240,
+   318,
+   319,
+   321,
+   680
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

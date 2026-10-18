@@ -1,0 +1,39 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/free_surface",
+ "title": "Free-surface flow (interFoam, VOF)",
+ "description": "`01_runner_slope_study.py`: a tapping jet falling into a melt runner held by a weir; the floor slope (+2\u00b0, 0\u00b0,",
+ "domain": "fluid dynamics",
+ "methods": [],
+ "modules": [
+  "pinneapple_design.geometry.trough",
+  "pinneapple_simulation.numerical_solvers.free_surface"
+ ],
+ "params": {},
+ "scripts": [
+  "01_runner_slope_study.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/free_surface.md",
+  "script": "examples/free_surface/01_runner_slope_study.py",
+  "pr": [
+   470
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

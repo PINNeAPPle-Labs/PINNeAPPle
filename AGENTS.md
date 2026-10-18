@@ -49,6 +49,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | A plain-language goal to a verified, buildable design (or the questions it needs, or a refusal saying what is missing) | `pp.design(text, answers=..., out_dir=...)`, `pinneapple design "<goal>"`, MCP `design`; templates in `pinneapple_design.intent` ([docs](docs/guides/design_from_intent.md)) |
 | Forecast a noisy or near-random series without fooling yourself (predictability first, purged walk-forward, untouched test, DM tests) | `pinneapple_systems.time_series.predictability.predictability_report(y)`, `pinneapple_systems.time_series.forecast_lab` (`study.run_zoo(data, specs, Protocol(horizons))`, `presets.case(name)`) ([docs](docs/guides/near_random_forecasting.md)) |
 | Predict El Niño: ENSO data (OISST, WOD thermocline, ERA5), recharge / delayed oscillators, an intermediate coupled model with checks against theory, PINNs, LIM / CNN, EnKF, the forecast_lab protocol | `pinneapple_systems.time_series.enso`: `dataset.build_dataset()`, `dataset.to_series(ds)`, `study.protocol(ds.months)`, `study.run_model(name, data, prot)`, `pipeline.solver_checks()` ([docs](docs/guides/enso_forecasting.md)) |
+| Record an experiment so the Lab, the site and the Flow Studio see it (manifest, A-F grade, next steps) | `with pinneapple_lab.experiment("name", title=..., domain=...) as ex:` + `ex.log_metric` / `ex.check` (figures saved with `savefig` are recorded); `python -m pinneapple_lab scaffold <name>`, `register <folder>`, `seal --explain <item>`; format `pinneapple_lab.manifest` ([docs](docs/guides/adding_an_experiment.md)) |
 | Everything from an agent tool call | the MCP server `pinneapple-mcp` ([docs](docs/guides/mcp_server.md)) |
 
 Check the zoo before training a surrogate: a zoo model comes with its held-out errors, physics checks and validity
@@ -187,6 +188,7 @@ pytest tests/test_agents_md.py tests/test_mcp_server.py -q                  # th
 python scripts/run_colab_notebooks.py --smoke                               # every Colab notebook, tiny sizes
 pinneapple check <result dirs or models>                                    # physics linter (pinneapple_check)
 python scripts/check_app_helpers.py                                         # apps/examples only compose library calls
+python scripts/check_experiment_manifests.py                                # every examples/* folder has a valid experiment.json
 ruff check <changed files>
 ```
 
@@ -208,3 +210,7 @@ example from a clean wheel, and the Colab notebooks in smoke mode. Changes go un
 - Do not copy GPL (or other copyleft) code into this Apache-2.0 repository; reimplement from the paper and cite it.
 - Do not invent reference values or citations; every reference number needs its source.
 - Do not widen tolerances or skip a failing check to get a pass; fix the cause or report the failure.
+- Do not add an `examples/*` folder without a valid `experiment.json`: wrap the script in
+  `pinneapple_lab.experiment(...)` (or start from `python -m pinneapple_lab scaffold <name>`, or run
+  `python -m pinneapple_lab register <folder>`). CI fails otherwise (`scripts/check_experiment_manifests.py`), and a
+  metric in a manifest needs its measured value, unit and how it was measured.

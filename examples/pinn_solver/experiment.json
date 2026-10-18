@@ -1,0 +1,60 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pinn_solver",
+ "title": "pinneapple_physics.pinn_solver examples",
+ "description": "This folder focuses on the **PINN-specific** layer of PINNeAPPle.",
+ "domain": "physics AI",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_data.datasets.external_sources",
+  "pinneapple_neural.trainer.self_scaled_qn",
+  "pinneapple_physics.pde_environment.conditions",
+  "pinneapple_physics.pde_environment.spec",
+  "pinneapple_physics.pinn_solver.compiler.compile",
+  "pinneapple_physics.pinn_solver.compiler.loss",
+  "pinneapple_physics.pinn_solver.domino",
+  "pinneapple_physics.pinn_solver.factory",
+  "pinneapple_physics.pinn_solver.factory.pinn_factory",
+  "pinneapple_physics.pinn_solver.io",
+  "pinneapple_physics.symbolic_pde",
+  "pinneapple_train"
+ ],
+ "params": {},
+ "scripts": [
+  "01_symbolic_loss_basic.py",
+  "02_compiler_poisson_2d.py",
+  "03_compiler_burgers_1d.py",
+  "03_symbolic_pde_hard_bc.py",
+  "04_factory_inverse_parameter_heat_1d.py",
+  "05_upd_dataset_data_only_regression.py",
+  "06_compiler_wave_1d.py",
+  "06_domino_time_marching_demo.py",
+  "06_open_meteo_climate_twin.py",
+  "07_interface_bc_conjugate_heat_transfer.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/dev/AUDIT_REPORT.md",
+  "script": "examples/pinn_solver/01_symbolic_loss_basic.py",
+  "pr": [
+   659
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

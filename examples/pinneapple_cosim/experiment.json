@@ -1,0 +1,37 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pinneapple_cosim",
+ "title": "01_spring_mass_pinn.py \u2014 2-DOF Coupled Spring-Mass System with Two PINN Models Physical system\u2026",
+ "description": "01_spring_mass_pinn.py \u2014 2-DOF Coupled Spring-Mass System with Two PINN Models Physical system --------------- Mass 1 (m\u2081=1.0 kg): m\u2081\u00b7x\u2081'' + c\u2081\u00b7x\u2081' + k\u2081\u00b7x\u2081 + k_c\u00b7(x\u2081\u2212x\u2082) = F(t) Mass 2 (m\u2082=0.5 kg): m\u2082\u00b7x\u2082'' + c\u2082\u00b7x\u2082' + k\u2082\u00b7x\u2082 \u2212 k_c\u00b7(x\u2081\u2212x\u2082) = 0 F(t) = A\u00b7sin(\u03c9\u00b7t), x(0)=0, v(0)=0. Two PINN models \u2014 demonstrating PINNeAPPle multi-model co-simulation --------------------------------------------------------",
+ "domain": "system dynamics",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_cosim",
+  "pinneapple_models"
+ ],
+ "params": {},
+ "scripts": [
+  "01_spring_mass_pinn.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/pinneapple_cosim/01_spring_mass_pinn.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

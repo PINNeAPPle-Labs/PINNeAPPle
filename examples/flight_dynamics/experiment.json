@@ -1,0 +1,68 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/flight_dynamics",
+ "title": "Flight dynamics, turbulence and take-off",
+ "description": "Verification of the flight-dynamics library: turbulence spectra and variances against MIL-F-8785C, trim of the four aircraft held for 10 s stick fixed, energy / angular-momentum conservation of the integrator, the lattice-in-the-loop lift against the steady vortex lattice. Writes results/verification.json and the PSD figure.",
+ "domain": "flight dynamics",
+ "methods": [
+  "vortex lattice",
+  "render (Blender)"
+ ],
+ "modules": [
+  "pinneapple",
+  "pinneapple_simulation.flight",
+  "pinneapple_simulation.flight.control",
+  "pinneapple_simulation.flight.encounter",
+  "pinneapple_simulation.flight.figures",
+  "pinneapple_simulation.flight.simulate",
+  "pinneapple_simulation.flight.takeoff",
+  "pinneapple_simulation.flight.trim",
+  "pinneapple_simulation.flight.turbulence",
+  "pinneapple_simulation.flight.verification",
+  "pinneapple_simulation.flight.visuals",
+  "pinneapple_tools.visualization.studio.blender",
+  "pinneapple_tools.visualization.studio.compose",
+  "pinneapple_tools.visualization.studio.web"
+ ],
+ "params": {},
+ "scripts": [
+  "01_verification.py",
+  "02_trim_and_stability.py",
+  "03_takeoff.py",
+  "04_turbulence_encounters.py",
+  "05_render_clips.py",
+  "06_tables.py",
+  "07_same_gust.py",
+  "08_viewers.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/same_gust.json",
+   "results/stability.json",
+   "results/tables.md",
+   "results/takeoff.json",
+   "results/turbulence.json",
+   "results/verification.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/flight_dynamics.md",
+  "script": "examples/flight_dynamics/01_verification.py",
+  "pr": [
+   847
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

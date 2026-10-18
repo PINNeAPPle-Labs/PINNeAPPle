@@ -1,0 +1,38 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/molecular",
+ "title": "Molecular visualisation: proteins on metal surfaces",
+ "description": "A protein on a gold surface: orient, build the Au(111) slab, run a short OpenMM MD and visualise it.",
+ "domain": "molecular dynamics",
+ "methods": [],
+ "modules": [
+  "pinneapple_tools.visualization.molecular"
+ ],
+ "params": {},
+ "scripts": [
+  "protein_on_gold.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/molecular_visualization.md",
+  "script": "examples/molecular/protein_on_gold.py",
+  "pr": [
+   463
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

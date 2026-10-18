@@ -169,6 +169,8 @@ def run(experiment, params: dict[str, Any] | None = None, *, root: str | None = 
     with open(rj, "w") as f:
         json.dump(record, f, indent=1)
     store.index_run(record, ctx.metrics, cards)
+    from .manifest import write_for_run
+    write_for_run(d)                                             # experiment.json: the run as a manifest
     if error and raise_errors:
         raise RuntimeError(f"{rid} failed:\n{error}")
     return RunResult(rid, cls.name, status, d, ctx.metrics, record["seconds"], error)

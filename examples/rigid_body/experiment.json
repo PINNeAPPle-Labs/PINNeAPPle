@@ -1,0 +1,37 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/rigid_body",
+ "title": "Rigid bodies with NVIDIA Newton: check the solver, then run a small scene",
+ "description": "Rigid bodies with NVIDIA Newton: check the solver, then run a small scene. pip install newton",
+ "domain": "system dynamics",
+ "methods": [],
+ "modules": [
+  "pinneapple_simulation.external_solvers.newton_physics"
+ ],
+ "params": {},
+ "scripts": [
+  "newton_quickstart.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/rigid_body/newton_quickstart.py",
+  "pr": [
+   536
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

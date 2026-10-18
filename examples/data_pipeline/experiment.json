@@ -1,0 +1,56 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/data_pipeline",
+ "title": "Project Layout",
+ "description": "03_prefetch_streaming_gpu.py Showcase: high-throughput streaming from a Zarr-backed UPD store with: - process-local Zarr caching - background prefetch thread - optional pinned-memory + async CPU->GPU transfer Run:",
+ "domain": "data",
+ "methods": [],
+ "modules": [
+  "pinneapple_data.collate",
+  "pinneapple_data.physical_sample",
+  "pinneapple_data.synth.pde",
+  "pinneapple_data.synth.sample_adapter",
+  "pinneapple_data.validators",
+  "pinneapple_data.zarr_cached_store",
+  "pinneapple_data.zarr_cached_store_bytes",
+  "pinneapple_data.zarr_iterable",
+  "pinneapple_data.zarr_prefetch",
+  "pinneapple_data.zarr_shard_iterable",
+  "pinneapple_data.zarr_shards",
+  "pinneapple_data.zarr_store",
+  "pinneapple_design.geometry.gen.cadquery_gen",
+  "pinneapple_design.geometry.io.trimesh_bridge",
+  "pinneapple_design.geometry.sample.points"
+ ],
+ "params": {},
+ "scripts": [
+  "01_physical_sample_basics.py",
+  "02_upd_dataloaders.py",
+  "03_prefetch_streaming_gpu.py",
+  "04_synth_pde_end_to_end.py",
+  "05_cadquery_parametric_variants.py",
+  "06_sharded_zarr_balanced_workers.py",
+  "07_validation_and_quality_gates.py",
+  "08_collate_pinn_factory_style_batches.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/getting_started/project_layout.md",
+  "script": "examples/data_pipeline/01_physical_sample_basics.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

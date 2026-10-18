@@ -1,0 +1,49 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/weather_forecasting",
+ "title": "Weather forecasting on ERA5: how many days a model is good for, and extreme events",
+ "description": "A global forecast model trained with `pinneapple_physics.weather` on ERA5 (WeatherBench2, public, no account), scored",
+ "domain": "geophysical forecasting",
+ "methods": [],
+ "modules": [
+  "pinneapple_physics.weather.data",
+  "pinneapple_physics.weather.evaluate",
+  "pinneapple_physics.weather.events",
+  "pinneapple_physics.weather.train",
+  "pinneapple_physics.weather.viz"
+ ],
+ "params": {},
+ "scripts": [
+  "run_use_cases.py",
+  "score_baselines.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "checkpoints/era5_64x32_normalization.json",
+   "data/baselines_2020.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/dev/model_dataset_inventory.md",
+  "script": "examples/weather_forecasting/run_use_cases.py",
+  "pr": [
+   321,
+   325,
+   326,
+   342
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

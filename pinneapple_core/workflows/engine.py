@@ -150,7 +150,16 @@ class WorkflowRunner:
         self._set_run(run_id, status="running", started=time.time())
         status = self._execute(workflow, run_id, should_stop, progress)
         self._set_run(run_id, status=status, finished=time.time())
+        self._write_manifest(run_id)
         return self.get_run(run_id)
+
+    def _write_manifest(self, run_id: str) -> None:
+        """``runs/<id>/experiment.json``: the run in the experiment-manifest format the Lab site reads."""
+        try:
+            from pinneapple_lab.manifest import from_workflow_run, save
+            save(from_workflow_run(self, run_id), str(self.root / "runs" / run_id))
+        except Exception:  # noqa: BLE001 - a manifest must never fail the run it describes
+            pass
 
     def _reset_for_resume(self, run_id: str) -> None:
         conn = self.db.conn

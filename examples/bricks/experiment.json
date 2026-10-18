@@ -1,0 +1,87 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/bricks",
+ "title": "Self-modifying brick builds",
+ "description": "Self-modifying interlocking-brick builds: simulate, judge by physics, redesign, repeat. 1. Check the physics against closed forms (harmonic stacking, tipping, stud cantilever, tower push, beam reactions, voxel FEA against Timoshenko, Newton replays) -> a trust report. 2. Three goals: the longest cantilever past a table edge with 8 parts, a bridge over a 96 mm gap carrying 1 N with the fewest parts",
+ "domain": "structural mechanics",
+ "methods": [],
+ "modules": [
+  "pinneapple",
+  "pinneapple_design.bricks"
+ ],
+ "params": {},
+ "scripts": [
+  "self_modifying_bricks.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "_out/best_bridge_cycles.png",
+   "_out/best_bridge_load_path.png",
+   "_out/best_cantilever_cycles.png",
+   "_out/best_cantilever_load_path.png",
+   "_out/best_tower_cycles.png",
+   "_out/best_tower_load_path.png",
+   "_out/comparison.png",
+   "_out/instructions_bridge/step_01.png",
+   "_out/instructions_bridge/step_02.png",
+   "_out/instructions_cantilever/step_01.png",
+   "_out/instructions_cantilever/step_02.png",
+   "_out/instructions_cantilever/step_03.png",
+   "_out/instructions_cantilever/step_04.png",
+   "_out/instructions_cantilever/step_05.png",
+   "_out/instructions_cantilever/step_06.png",
+   "_out/instructions_cantilever/step_07.png",
+   "_out/instructions_tower/step_01.png",
+   "_out/instructions_tower/step_02.png",
+   "_out/instructions_tower/step_03.png",
+   "_out/instructions_tower/step_04.png",
+   "_out/instructions_tower/step_05.png",
+   "_out/instructions_tower/step_06.png",
+   "_out/instructions_tower/step_07.png",
+   "_out/instructions_tower/step_08.png",
+   "_out/instructions_tower/step_09.png",
+   "_out/instructions_tower/step_10.png",
+   "_out/instructions_tower/step_11.png",
+   "_out/instructions_tower/step_12.png",
+   "_out/instructions_tower/step_13.png",
+   "_out/instructions_tower/step_14.png",
+   "_out/instructions_tower/step_15.png",
+   "_out/instructions_tower/step_16.png"
+  ],
+  "videos": [
+   "_out/evolution_bridge.gif",
+   "_out/evolution_bridge.mp4",
+   "_out/evolution_cantilever.gif",
+   "_out/evolution_cantilever.mp4",
+   "_out/evolution_tower.gif",
+   "_out/evolution_tower.mp4",
+   "_out/turntable_cantilever.gif",
+   "_out/turntable_cantilever.mp4"
+  ],
+  "viewers": [],
+  "data": [
+   "_out/instructions_bridge/instructions.md",
+   "_out/instructions_cantilever/instructions.md",
+   "_out/instructions_tower/instructions.md",
+   "_out/report.md",
+   "_out/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/interlocking_bricks.md",
+  "script": "examples/bricks/self_modifying_bricks.py",
+  "pr": [
+   805
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

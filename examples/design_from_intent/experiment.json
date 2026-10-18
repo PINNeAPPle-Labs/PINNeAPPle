@@ -1,0 +1,73 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/design_from_intent",
+ "title": "Design from intent",
+ "description": "Design from intent: five requests through the same pipeline. 1. \"I want a toy car that does a loop\" -> loop track, clothoid entry, launch speed (Newton check) 2. \"a bracket that holds 2 kN\" (+ the arm length) -> angle bracket (CalculiX check) 3. \"a heat sink for a 40 W chip in still air\" -> asks for the temperature limit, then a plate-fin heat sink 4. \"a wing for a 1.2 kg model glider ...\" -> glid",
+ "domain": "design and geometry",
+ "methods": [
+  "FEM (CalculiX)"
+ ],
+ "modules": [
+  "pinneapple",
+  "pinneapple_design.intent"
+ ],
+ "params": {},
+ "scripts": [
+  "design_from_intent.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "_out/bracket/figures/bracket_von_mises.png",
+   "_out/bracket/figures/optimisation.png",
+   "_out/bracket/geometry/bracket.png",
+   "_out/glider/figures/optimisation.png",
+   "_out/glider/figures/wing_polar.png",
+   "_out/glider/geometry/glider_wing.png",
+   "_out/heatsink/figures/heatsink_base_temperature.png",
+   "_out/heatsink/figures/optimisation.png",
+   "_out/heatsink/geometry/heatsink.png",
+   "_out/loop/figures/optimisation.png",
+   "_out/loop/figures/profiles.png",
+   "_out/loop/figures/track_side_view.png",
+   "_out/loop/geometry/loop_car.png"
+  ],
+  "videos": [
+   "_out/loop/figures/loop_newton.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "_out/bracket/check/qoi/margins.csv",
+   "_out/bracket/check/qoi/reduced.csv",
+   "_out/bracket/check/reference/reduced.csv",
+   "_out/bracket/design.json",
+   "_out/glider/check/qoi/margins.csv",
+   "_out/glider/check/qoi/reduced.csv",
+   "_out/glider/check/reference/reduced.csv",
+   "_out/glider/design.json",
+   "_out/heatsink/check/qoi/margins.csv",
+   "_out/heatsink/check/qoi/reduced.csv",
+   "_out/heatsink/check/reference/reduced.csv",
+   "_out/heatsink/design.json",
+   "_out/loop/check/qoi/margins.csv",
+   "_out/loop/design.json",
+   "_out/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/design_from_intent.md",
+  "script": "examples/design_from_intent/design_from_intent.py",
+  "pr": [
+   821
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

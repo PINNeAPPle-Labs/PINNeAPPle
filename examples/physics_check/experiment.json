@@ -1,0 +1,87 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_check",
+ "title": "Physics checks in CI",
+ "description": "Rebuild the fixtures of ``examples/physics_check``: a passing and a failing case for every rule of ``pinneapple check``.",
+ "domain": "validation and benchmarks",
+ "methods": [],
+ "modules": [
+  "pinneapple_check.fields",
+  "pinneapple_neural.architectures.registry",
+  "pinneapple_security.integrity",
+  "pinneapple_security.signing",
+  "pinneapple_simulation.numerical_solvers"
+ ],
+ "params": {},
+ "scripts": [
+  "generate.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "fail/datasets/darcy.npz",
+   "fail/expected.json",
+   "fail/fields/block_gravity.npz",
+   "fail/fields/cooling_plate.npz",
+   "fail/fields/diffusion_1d.npz",
+   "fail/fields/heat_plate.npz",
+   "fail/fields/mixing_c.npz",
+   "fail/fields/porosity.npz",
+   "fail/fields/probe_T.csv",
+   "fail/fields/stream.npz",
+   "fail/fields/surrogate_T.npz",
+   "fail/fields/unlabelled_T.npz",
+   "fail/keys/release.pub.json",
+   "fail/models/drag_training_points.csv",
+   "fail/models/manifest.json",
+   "fail/models/queries.csv",
+   "fail/qoi/airfoil.csv",
+   "fail/reference/airfoil.csv",
+   "fail/reference/cavity.npz",
+   "fail/reference/kovasznay.csv",
+   "fail/reference/mixing_c.npz",
+   "pass/datasets/darcy.npz",
+   "pass/fields/block_gravity.npz",
+   "pass/fields/cooling_plate.npz",
+   "pass/fields/diffusion_1d.npz",
+   "pass/fields/heat_plate.npz",
+   "pass/fields/mixing_c.npz",
+   "pass/fields/porosity.npz",
+   "pass/fields/probe_T.csv",
+   "pass/fields/surrogate_T.npz",
+   "pass/keys/release.pub.json",
+   "pass/models/drag_training_points.csv",
+   "pass/models/manifest.json",
+   "pass/models/queries.csv",
+   "pass/qoi/airfoil.csv",
+   "pass/reference/airfoil.csv",
+   "pass/reference/cavity.npz",
+   "pass/reference/kovasznay.csv",
+   "pass/reference/mixing_c.npz",
+   "torch/models/heatsink_queries.csv",
+   "torch/models/queries.csv",
+   "torch/models/queries_out.csv"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/physics_checks_in_ci.md",
+  "script": "examples/physics_check/generate.py",
+  "pr": [
+   712,
+   725,
+   738
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

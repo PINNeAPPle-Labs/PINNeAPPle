@@ -1,0 +1,76 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/validation",
+ "title": "Red team / blue team for the validation checks",
+ "description": "PINN, steady heat conduction: -lap T = q on the unit square, T = 0 on the walls (manufactured source, exact T). 1. Train a PINN (``validation.pinn.train_pinn``). 2. ``pp.validate(net, {\"pinn\": problem})``: residual at fresh points, near-trivial solution, boundary condition, spectrum and the exact solution. 3. Trust card and ``pinneapple check`` outputs (``validation.gallery.conclude``). 4. Failure",
+ "domain": "validation and benchmarks",
+ "methods": [
+  "PINN",
+  "DeepONet",
+  "graph network",
+  "reduced-order model"
+ ],
+ "modules": [
+  "pinneapple",
+  "pinneapple_analysis.benchmark.builtin.fields",
+  "pinneapple_analysis.validation.gallery",
+  "pinneapple_analysis.validation.pinn",
+  "pinneapple_lab.experiments.rom",
+  "pinneapple_neural.architectures.continuous.hamiltonian",
+  "pinneapple_neural.architectures.continuous.neural_ode",
+  "pinneapple_neural.architectures.graphnn.base",
+  "pinneapple_neural.architectures.graphnn.mesh_graph_net",
+  "pinneapple_neural.architectures.neural_operators.fno_export",
+  "pinneapple_neural.architectures.pinns.physics_diffusion",
+  "pinneapple_neural.architectures.rom",
+  "pinneapple_neural.utils",
+  "pinneapple_neural.workflows.hybrid_surrogate_physics",
+  "pinneapple_physics.advection_diffusion_1d",
+  "pinneapple_simulation.numerical_solvers",
+  "pinneapple_simulation.numerical_solvers.heat_fv_reference",
+  "pinneapple_simulation.numerical_solvers.nonlinear_beam_fem",
+  "pinneapple_simulation.numerical_solvers.reaction_diffusion",
+  "pinneapple_simulation.numerical_solvers.solid_fem",
+  "pinneapple_simulation.particle_dynamics.molecular_dynamics"
+ ],
+ "params": {},
+ "scripts": [
+  "01_pinn_heat_conduction.py",
+  "02_fno_darcy_onnx.py",
+  "03_deeponet_fno_reaction_diffusion.py",
+  "04_meshgraphnet_elasticity.py",
+  "05_pod_dmd_cylinder_wake.py",
+  "06_opinf_weather_advection.py",
+  "07_mlp_zoo_heatsink_convection.py",
+  "08_gaussian_process_fin_convection.py",
+  "09_neural_ode_molecular_dynamics.py",
+  "10_diffusion_darcy_generative.py",
+  "11_physicsnemo_fno_magnetostatics.py",
+  "12_regression_cantilever_modal.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "heatsink_queries.csv"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/validation_arena.md",
+  "script": "examples/validation/01_pinn_heat_conduction.py",
+  "pr": [
+   753
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

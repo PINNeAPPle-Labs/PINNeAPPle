@@ -1,0 +1,39 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/geomechanics",
+ "title": "Geomechanics with the material point method",
+ "description": "`01_granular_column_collapse.py`: sand columns of aspect ratio 0.5 to 3 collapse on a rough floor; runout against",
+ "domain": "structural mechanics",
+ "methods": [],
+ "modules": [
+  "pinneapple_simulation.external_solvers.geotaichi",
+  "pinneapple_simulation.particle_dynamics.geo_mpm"
+ ],
+ "params": {},
+ "scripts": [
+  "01_granular_column_collapse.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/geomechanics_mpm.md",
+  "script": "examples/geomechanics/01_granular_column_collapse.py",
+  "pr": [
+   470
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

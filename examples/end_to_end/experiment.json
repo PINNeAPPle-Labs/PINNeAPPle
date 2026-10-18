@@ -1,0 +1,65 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/end_to_end",
+ "title": "End to end",
+ "description": "",
+ "domain": "general",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_data.collate",
+  "pinneapple_data.physical_sample",
+  "pinneapple_data.zarr_iterable",
+  "pinneapple_data.zarr_store",
+  "pinneapple_design.geometry.builders.stl_domain_batch_builder",
+  "pinneapple_design.geometry.gen.cadquery_gen",
+  "pinneapple_design.geometry.io.stl",
+  "pinneapple_design.geometry.ops.repair",
+  "pinneapple_design.geometry.ops.simplify",
+  "pinneapple_design.geometry.sample.points",
+  "pinneapple_neural.architectures.pinns.vanilla",
+  "pinneapple_neural.architectures.register_all",
+  "pinneapple_neural.architectures.registry",
+  "pinneapple_neural.trainer.checkpoint",
+  "pinneapple_neural.trainer.losses",
+  "pinneapple_neural.trainer.metrics",
+  "pinneapple_neural.trainer.preprocess",
+  "pinneapple_neural.trainer.trainer",
+  "pinneapple_neural.utils",
+  "pinneapple_physics.pde_environment.presets.industry",
+  "pinneapple_physics.pinn_solver.compiler",
+  "pinneapple_physics.pinn_solver.factory.pinn_factory"
+ ],
+ "params": {},
+ "scripts": [
+  "01_upd_zarr_train_with_solvers.py",
+  "02_mesh_to_train_points.py",
+  "03_pinn_physics_loss_training.py",
+  "04_cadquery_to_upd_zarr_train.py",
+  "05_registry_train_and_infer.py",
+  "06_stl_pipeline_heat.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/end_to_end/01_upd_zarr_train_with_solvers.py",
+  "pr": [
+   659
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

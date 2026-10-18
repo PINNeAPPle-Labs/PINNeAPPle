@@ -1,0 +1,51 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/topology_optimization",
+ "title": "Audit: electric-motor magnetics and topology optimization",
+ "description": "Half MBB beam and cantilever: SIMP compliance minimisation with pinneapple_design.topology. 1. MBB beam 60 x 20, volume 0.5, density filter r_min = 2.4, OC and MMA (same problem as the classic educational codes of Sigmund 2001 / Andreassen et al. 2011; compare the layout qualitatively). 2. Same beam with Heaviside projection and beta continuation (crisp 0/1 design). 3. Cantilever 80 x 40, volume 0",
+ "domain": "structural mechanics",
+ "methods": [],
+ "modules": [
+  "pinneapple_design.topology",
+  "pinneapple_design.topology.magnetic",
+  "pinneapple_simulation.electromagnetics",
+  "pinneapple_simulation.electromagnetics.machine"
+ ],
+ "params": {},
+ "scripts": [
+  "01_mbb_beam.py",
+  "02_heat_and_stokes_flow.py",
+  "03_reluctance_rotor.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "results/heat_and_stokes.png",
+   "results/mbb_and_cantilever.png",
+   "results/reluctance_rotor.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/heat_stokes_summary.json",
+   "results/mbb_summary.json",
+   "results/reluctance_rotor_summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/core_concepts/motor_and_topopt_audit.md",
+  "script": "examples/topology_optimization/01_mbb_beam.py",
+  "pr": [
+   801
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

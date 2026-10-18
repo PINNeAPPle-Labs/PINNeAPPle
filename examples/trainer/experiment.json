@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/trainer",
+ "title": "pinneapple_train example 02: DataModule + robust preprocessing",
+ "description": "pinneapple_train example 02: DataModule + robust preprocessing. What this shows -------------- - Building loaders with pinneapple_train.DataModule (train/val/test split). - Leakage-safe *time* split (no shuffle across the time axis). - A preprocessing pipeline that: - fills missing values (NaNs) - normalizes inputs using statistics fitted on *train batches only* - Training with Trainer + audit log",
+ "domain": "physics AI",
+ "methods": [],
+ "modules": [
+  "pinneapple_train",
+  "pinneapple_train.inference",
+  "pinneapple_train.losses",
+  "pinneapple_train.metrics",
+  "pinneapple_train.preprocess",
+  "pinneapple_train.trainer",
+  "pinneapple_train.viz"
+ ],
+ "params": {},
+ "scripts": [
+  "01_audited_training.py",
+  "02_datamodule_splits_preprocess.py",
+  "03_physics_aware_pinn_ode.py",
+  "04_resume_infer_and_plot.py",
+  "05_ddp_torchrun.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/trainer/01_audited_training.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/getting_started",
+ "title": "Getting Started Examples \u2014 Tier 1: Explorer",
+ "description": "These examples are your **first step into Physics AI**. Each one:",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {},
+ "scripts": [
+  "01_harmonic_oscillator.py",
+  "02_damped_oscillator.py",
+  "03_heat_diffusion_1d.py",
+  "04_wave_equation_1d.py",
+  "05_logistic_growth.py",
+  "06_lotka_volterra.py",
+  "07_nonlinear_pendulum.py",
+  "08_van_der_pol.py",
+  "09_lorenz_system.py",
+  "10_coupled_oscillators.py"
+ ],
+ "metrics": [
+  {
+   "name": "script_seconds",
+   "value": 94.8,
+   "unit": "",
+   "how": "recorded by the Lab run example_script-5a77c5897b1d of examples/getting_started/01_harmonic_oscillator.py"
+  },
+  {
+   "name": "exit_code",
+   "value": 0,
+   "unit": "",
+   "how": "recorded by the Lab run example_script-5a77c5897b1d of examples/getting_started/01_harmonic_oscillator.py"
+  },
+  {
+   "name": "stdout.relative_l2_error",
+   "value": 0.915,
+   "unit": "",
+   "how": "recorded by the Lab run example_script-5a77c5897b1d of examples/getting_started/01_harmonic_oscillator.py"
+  },
+  {
+   "name": "files_produced",
+   "value": 1,
+   "unit": "",
+   "how": "recorded by the Lab run example_script-5a77c5897b1d of examples/getting_started/01_harmonic_oscillator.py"
+  }
+ ],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/lab.md",
+  "script": "examples/getting_started/01_harmonic_oscillator.py"
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "example_script/examples/getting_started/01_harmonic_oscillator.py",
+  "experiment": "example_script",
+  "run_id": "example_script-5a77c5897b1d",
+  "tier": "D"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

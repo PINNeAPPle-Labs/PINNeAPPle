@@ -1,0 +1,39 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/latent",
+ "title": "A latent surrogate that says when not to trust it",
+ "description": "Latent surrogate with a trust card: error, speed and calibration against the full solver. Full model: steady 2-D advection-diffusion-reaction of a pollutant released by a Gaussian source, -kappa * lap(u) + v . grad(u) + k u = f(x; xs), u = 0 on the boundary of [0, 1]^2, finite differences (upwind convection) on a 96 x 96 grid, sparse direct solve. Four design parameters: wind speed V, wind directi",
+ "domain": "physics AI",
+ "methods": [
+  "reduced-order model",
+  "finite differences"
+ ],
+ "modules": [
+  "pinneapple_neural.architectures.rom",
+  "pinneapple_security.cps"
+ ],
+ "params": {},
+ "scripts": [
+  "trusted_latent_surrogate.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/trusted_latent_surrogate.md",
+  "script": "examples/latent/trusted_latent_surrogate.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

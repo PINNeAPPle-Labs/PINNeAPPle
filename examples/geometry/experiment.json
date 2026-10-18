@@ -1,0 +1,65 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/geometry",
+ "title": "pinneapple_geom examples",
+ "description": "This folder focuses on geometry + meshing workflows that typically appear in Physics-AI / PINN pipelines:",
+ "domain": "design and geometry",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_data.geometry_features",
+  "pinneapple_data.stl_import",
+  "pinneapple_design.geometry.builders.stl_domain_batch_builder",
+  "pinneapple_design.geometry.core.geometry",
+  "pinneapple_design.geometry.core.registry",
+  "pinneapple_design.geometry.csg",
+  "pinneapple_design.geometry.gen.primitives",
+  "pinneapple_design.geometry.io.meshio_bridge",
+  "pinneapple_design.geometry.io.step",
+  "pinneapple_design.geometry.io.trimesh_bridge",
+  "pinneapple_design.geometry.ops.features",
+  "pinneapple_design.geometry.ops.repair",
+  "pinneapple_design.geometry.ops.simplify",
+  "pinneapple_design.geometry.ops.voxelize",
+  "pinneapple_design.geometry.sample.points",
+  "pinneapple_physics.pde_environment"
+ ],
+ "params": {},
+ "scripts": [
+  "01_load_mesh_and_sample.py",
+  "02_repair_and_simplify.py",
+  "03_parametric_boolean_and_export_stl.py",
+  "04_curvature_importance_sampling.py",
+  "05_stl_domain_batchbuilder_inlet_outlet_wall.py",
+  "06_meshio_roundtrip_with_pointdata.py",
+  "07_csg_domain_demo.py",
+  "08_open_cad_datasets_showcase.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "_out/07_csg_annulus.png",
+   "_out/07_csg_channel_hole.png",
+   "_out/07_csg_lshape.png",
+   "_out/07_csg_operators.png",
+   "_out/07_csg_polygon.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/geometry_library.md",
+  "script": "examples/geometry/01_load_mesh_and_sample.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "cfaaf553"
+ }
+}

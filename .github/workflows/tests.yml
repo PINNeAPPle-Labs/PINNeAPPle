@@ -42,6 +42,11 @@ jobs:
           pip install scikit-learn statsmodels
           pytest tests/test_near_random_forecasting.py tests/test_near_random_visuals.py -q -p no:warnings
 
+      - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
+        run: |
+          python scripts/check_experiment_manifests.py
+          pytest tests/test_experiment_manifests.py -q -p no:warnings
+
       - name: Agents — AGENTS.md examples and the MCP server (must pass)
         run: pytest tests/test_agents_md.py tests/test_mcp_server.py -q
 

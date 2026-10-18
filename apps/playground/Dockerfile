@@ -2,7 +2,7 @@
 #   docker build -f apps/playground/Dockerfile -t pinneapple-playground .
 #   docker run -p 8095:8095 pinneapple-playground
 # Stage 1 assembles the site with the standard library only; stage 2 serves it with Caddy.
-FROM python:3.11-slim AS build
+FROM python:3.14-slim AS build
 WORKDIR /src
 COPY apps/playground apps/playground
 COPY pinneapple_hub/zoo/web pinneapple_hub/zoo/web

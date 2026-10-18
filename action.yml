@@ -77,7 +77,7 @@ runs:
         python-version: ${{ inputs.python-version }}
 
     - name: Cache pip downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/.cache/pip
         key: pinneapple-check-${{ runner.os }}-py${{ inputs.python-version }}-${{ inputs.version || github.action_ref || 'src' }}-torch-${{ inputs.torch }}

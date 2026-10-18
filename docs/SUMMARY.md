@@ -96,6 +96,7 @@
     * [Electromagnetics and electrodynamics](guides/electromagnetics.md)
     * [Flight dynamics, turbulence and take-off](guides/flight_dynamics.md)
     * [Topology optimisation](guides/topology_optimization.md)
+    * [Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models](guides/enso_forecasting.md)
     * [Engineering Evidence Report (day 30)](apps/evidence_report.md)
     * [Physics Validation Lab (day 24)](apps/validation_lab.md)
     * [Forecasting near-random series without overfitting](guides/near_random_forecasting.md)

@@ -76,10 +76,10 @@ jobs:
       SPACE: ${{ github.event.inputs.space != 'false' }}
     timeout-minutes: 240
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check out the staging files of Hub-only items
         if: ${{ env.STAGING_REF != '' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.STAGING_REF }}
           path: _zoo_staging
@@ -132,7 +132,7 @@ jobs:
       HAS_TOKEN: ${{ secrets.HF_TOKEN != '' }}
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"

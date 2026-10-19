@@ -480,3 +480,106 @@ def scene(ctx, inputs, params):
         from ..runtime import artifact
         out["figure"] = artifact(shots[0], "png")
     return out
+
+
+# ------------------------------------------------------------------------------------------- planner capabilities
+_AC_WORDS = {"light_ga": ("cessna", "c172", "light aircraft", "light ga", "general aviation", "light single"),
+             "regional_turboprop": ("atr", "turboprop", "regional"),
+             "a320": ("a320", "airliner", "airbus", "single-aisle", "transport aircraft", "jet"),
+             "motor_glider": ("glider", "planador", "stemme")}
+_FLYING = ("aircraft", "airplane", "aeroplane", "plane", "flight", "avião", "aviao", "aeronave", "voo", "take-off",
+           "takeoff", "airliner", "a320", "cessna", "glider", "turboprop")
+
+
+def _named_aircraft(text: str) -> list[str]:
+    t = text.lower()
+    return [n for n, words in _AC_WORDS.items() if any(w in t for w in words)]
+
+
+def _keep_named_aircraft(doc, text, det):
+    """Only the aircraft the description names (all four when it names none)."""
+    names = _named_aircraft(text)
+    for n in doc["nodes"]:
+        if n["type"] == "flight.aircraft" and names:
+            n["params"]["aircraft"] = names
+        if n["type"] == "examples.compare" and names:
+            n["params"]["comparisons"] = [c for c in n["params"].get("comparisons", [])
+                                          if not any(a in c["flow"] for a in AIRCRAFT if a not in names)]
+    return doc
+
+
+def _register_capabilities():
+    from ..planner.extensions import Capability, register_capability
+    common = dict(domain="flight dynamics", example="flight_dynamics", adapt=_keep_named_aircraft,
+                  inputs=("the aircraft (catalog: light GA, regional turboprop, A320-class, motor glider)",))
+    register_capability(Capability(
+        id="flight.takeoff", title="Aircraft take-off: ground roll, lift-off, 35 ft screen, crosswind, gust",
+        keywords={"take-off": 3, "takeoff": 3, "take off": 3, "runway": 2, "decolagem": 3, "35 ft": 2,
+                  "lift-off": 2, "crosswind": 1.5, "raymer": 2, "ground roll": 2}, min_score=3,
+        nodes=("flight.aircraft", "flight.takeoff_cases", "flight.scene", "examples.compare"),
+        downstream=("flight.scene", "render.blender_clip"), references=("raymer2018aircraft",),
+        template="flight_dynamics/03_takeoff", quick=True,
+        description="6-DOF take-off with the vortex lattice in the loop against Raymer's closed form "
+                    "(examples/flight_dynamics/03_takeoff.py)", **common))
+    register_capability(Capability(
+        id="flight.turbulence", title="Aircraft in MIL-F-8785C turbulence: load factors, roll and pitch, cabin",
+        keywords={"turbulence": 3, "turbulent air": 3, "turbulência": 3, "mil-f-8785": 3, "von karman": 2,
+                  "von kármán": 2, "dryden": 2, "rough air": 2, "gust encounter": 2, "load factor": 1},
+        requires_all=(_FLYING,), min_score=3,
+        nodes=("flight.aircraft", "flight.turbulence_encounter", "flight.pratt", "flight.scene", "examples.compare"),
+        downstream=("flight.scene", "render.blender_clip"),
+        uncited="MIL-F-8785C is a military specification (no DOI); flight.verification checks the generated "
+                "spectra and variances against it",
+        template="flight_dynamics/04_turbulence_encounters", quick=True,
+        description="the aircraft through the same severe turbulence, stick fixed and with the autopilot "
+                    "(examples/flight_dynamics/04_turbulence_encounters.py)", **common))
+    register_capability(Capability(
+        id="flight.same_gust", title="The aircraft through the same 1-cosine gust (Blender 2 x 2 clip)",
+        keywords={"same gust": 4, "1-cosine": 3, "one-cosine": 3, "1 - cos": 3, "discrete gust": 3,
+                  "side by side": 1, "pratt": 1.5}, requires_all=(_FLYING,), min_score=3,
+        nodes=("flight.aircraft", "flight.same_gust", "flight.scene", "render.blender_clip", "render.clip_grid"),
+        downstream=("render.clip_grid",), uncited="Pratt-Walker (NACA Report 1206) is quoted by the library "
+                                                   "docs but not in the flow reference registry",
+        template="flight_dynamics/07_same_gust", quick=True,
+        description="peak load factors at the CG and in the cabin for one vertical gust "
+                    "(examples/flight_dynamics/07_same_gust.py)", **common))
+    register_capability(Capability(
+        id="flight.trim_stability", title="Trim, stability derivatives and dynamic modes",
+        keywords={"trim": 2.5, "stability derivative": 3, "static margin": 2.5, "dynamic modes": 2.5, "phugoid": 2,
+                  "dutch roll": 2, "short period": 2, "eigenvalue": 1, "linearis": 1, "lineariz": 1},
+        requires_all=(_FLYING,), min_score=2.5,
+        nodes=("flight.aircraft", "flight.trim_stability", "examples.compare"),
+        uncited="the derivatives come from the library's vortex lattice; checked by examples.compare",
+        template="flight_dynamics/02_trim_and_stability",
+        description="trim at cruise, non-dimensional derivatives, 12-state modes "
+                    "(examples/flight_dynamics/02_trim_and_stability.py)", **common))
+    register_capability(Capability(
+        id="flight.verification", title="Verify the flight-dynamics library",
+        keywords={"verification": 2, "verify": 1.5, "conservation": 1.5, "turbulence spectra": 2, "psd": 1.5},
+        requires_all=(_FLYING,), min_score=3.5, nodes=("flight.verification", "examples.compare"),
+        uncited="checks against MIL-F-8785C spectra, energy conservation and the steady lattice",
+        template="flight_dynamics/01_verification",
+        description="turbulence spectra, trim hold, conservation, lattice in the loop "
+                    "(examples/flight_dynamics/01_verification.py)", domain="flight dynamics",
+        example="flight_dynamics"))
+    register_capability(Capability(
+        id="flight.render", title="Blender clips and three.js viewers of flights",
+        keywords={"blender": 2.5, "cycles": 2, "clip": 1.5, "render": 1.5, "video": 1, "three.js": 1.5, "viewer": 1},
+        requires_all=(_FLYING,), min_score=3,
+        nodes=("flight.scene", "render.blender_clip", "render.clip_grid"),
+        uncited="visualisation (no physics claim)", template="flight_dynamics/05_render_clips", quick=True,
+        description="Cycles clips of the take-off, the turbulence encounter and the same-gust grid "
+                    "(examples/flight_dynamics/05_render_clips.py, 08_viewers.py)", **common))
+    register_capability(Capability(
+        id="flight.full_study", title="The whole flight-dynamics study",
+        keywords={"flight dynamics": 3, "flight-dynamics": 3, "whole study": 1.5, "full study": 1.5,
+                  "complete study": 1.5, "dinâmica de voo": 3, "four aircraft": 1}, min_score=4,
+        nodes=("flight.aircraft", "flight.verification", "flight.trim_stability", "flight.takeoff_cases",
+               "flight.turbulence_encounter", "flight.pratt", "flight.same_gust", "flight.scene",
+               "render.blender_clip", "render.clip_grid", "examples.compare"),
+        references=("raymer2018aircraft",), template="flight_dynamics/00_full_study", quick=True,
+        description="verification, trim, take-off, turbulence, Pratt, the same gust, viewers and clips on one "
+                    "canvas", **common))
+
+
+_register_capabilities()

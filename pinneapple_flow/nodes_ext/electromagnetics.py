@@ -450,3 +450,61 @@ def prius_tolerances(ctx, inputs, params):
     ax[1].set(xlabel="ripple pk-pk (%)")
     f = ctx.figure(fig, "prius_tolerances", "torque and ripple under manufacturing tolerances")
     return {"metrics": ctx.report["metrics"], "figure": f}
+
+
+# ------------------------------------------------------------------------------------------- planner capabilities
+_MACHINE = ("motor", "machine", "máquina", "motor elétrico", "ipm", "pmsm", "prius", "rotor", "stator")
+
+
+def _register_capabilities():
+    from ..planner.extensions import Capability, register_capability
+    em = dict(domain="electromagnetics")
+    register_capability(Capability(
+        id="em.spm_machine", title="Surface-PM machine: cogging, torque vs current angle, back-EMF, losses",
+        keywords={"surface-pm": 3, "surface pm": 3, "surface permanent": 3, "spm": 3, "cogging": 2,
+                  "back-emf": 1.5, "back emf": 1.5, "permanent magnet": 1.5, "24 slots": 1, "24-slot": 1,
+                  "ímã": 1, "imã": 1}, requires_all=(_MACHINE + ("cogging", "torque"),), min_score=3,
+        nodes=("em.spm_machine", "examples.compare"), references=("brenner2008fem",),
+        inputs=("machine dimensions (illustrative defaults), rated current, speed",),
+        template="electromagnetics/motor_spm_cogging_and_torque", example="motor_magnetics",
+        description="2-D A_z FEM with Maxwell stress and co-energy torques "
+                    "(examples/motor_magnetics/01_spm_cogging_and_torque.py)", **em))
+    register_capability(Capability(
+        id="em.prius_machine", title="Interior-PM traction motor (2004 Prius): FEA, MTPA, losses",
+        keywords={"prius": 3, "interior pm": 2.5, "interior permanent": 2.5, "ipm": 2.5, "mtpa": 2,
+                  "traction motor": 2, "l_d": 1, "inductance": 1}, min_score=3,
+        nodes=("em.prius_machine", "examples.compare"), references=("brenner2008fem",),
+        template="electromagnetics/10_pmsm_prius", quick=True, example="electrodynamics",
+        description="nonlinear 2-D FEA against Yang et al. (IEMDC 2013) (examples/electrodynamics/10_pmsm_prius.py)",
+        **em))
+    register_capability(Capability(
+        id="em.prius_drive", title="Traction drive: torque-speed envelope, efficiency map, WLTC energy",
+        keywords={"wltc": 3, "efficiency map": 3, "flux weakening": 2.5, "drive cycle": 2, "torque-speed": 2,
+                  "envelope": 1, "wh/km": 2}, requires_all=(_MACHINE + ("drive", "inverter", "vehicle", "car"),),
+        min_score=3, nodes=("em.prius_flux_map", "em.prius_drive", "examples.compare"),
+        references=("brenner2008fem",), template="electromagnetics/11_prius_drive", quick=True,
+        example="electrodynamics", description="flux map, MTPA + flux weakening, WLTC class 3b "
+                                               "(examples/electrodynamics/11_prius_drive.py)", **em))
+    register_capability(Capability(
+        id="em.prius_skew", title="Rotor step skew: cogging, ripple, back-EMF harmonics",
+        keywords={"skew": 3, "step skew": 3, "multi-slice": 2}, requires_all=(_MACHINE,), min_score=3,
+        nodes=("em.prius_skew", "examples.compare"), references=("brenner2008fem",),
+        template="electromagnetics/15_prius_skew", quick=True, example="electrodynamics",
+        description="multi-slice 2-D FEA (examples/electrodynamics/15_prius_skew.py)", **em))
+    register_capability(Capability(
+        id="em.prius_tolerances", title="Manufacturing tolerances of a PM motor (Monte Carlo FEA)",
+        keywords={"tolerance": 2.5, "tolerances": 2.5, "manufacturing": 1.5, "monte carlo": 1.5, "tolerância": 2.5},
+        requires_all=(_MACHINE,), min_score=3, nodes=("em.prius_tolerances", "examples.compare"),
+        references=("mckay1979lhs",), template="electromagnetics/17_prius_tolerances", quick=True,
+        example="electrodynamics", description="examples/electrodynamics/17_prius_tolerances.py", **em))
+    register_capability(Capability(
+        id="em.verification", title="Electromagnetics solvers against independent references",
+        keywords={"electromagnetic": 1.5, "electromagnetics": 1.5, "maxwell": 1, "mie": 1.5, "biot-savart": 2,
+                  "fresnel": 1.5, "verification": 2, "verify": 1.5}, min_score=3.5,
+        requires_all=(("electromagnetic", "electromagnetics", "maxwell", "mie", "biot", "fresnel"),),
+        nodes=("em.verification", "examples.compare"), references=("brenner2008fem",),
+        template="electromagnetics/07_em_verification", example="electrodynamics",
+        description="examples/electrodynamics/07_em_verification.py", **em))
+
+
+_register_capabilities()

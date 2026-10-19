@@ -1,4 +1,117 @@
 {
+ "enso_forecasting/solver_checks": {
+  "full": {
+   "commit": "93721f70",
+   "comparisons": [
+    {
+     "flow": "checks.kelvin_speed",
+     "outcome": "match",
+     "ref": "manifest:kelvin_speed",
+     "reference": 2.68867,
+     "rel_diff": 4.956246146349775e-07,
+     "value": 2.6886686674289675
+    },
+    {
+     "flow": "checks.kelvin_speed_theory",
+     "outcome": "match",
+     "ref": "manifest:kelvin_speed_theory",
+     "reference": 2.7,
+     "rel_diff": 0.0,
+     "value": 2.7
+    },
+    {
+     "flow": "checks.rossby_speed",
+     "outcome": "match",
+     "ref": "manifest:rossby_speed",
+     "reference": -0.86335,
+     "rel_diff": 2.0455598221181493e-06,
+     "value": -0.8633517660340724
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon72",
+     "outcome": "differs",
+     "ref": "manifest:gill_rel_l2_u_nlon72",
+     "reference": 0.00147,
+     "rel_diff": 0.00047951310927066943,
+     "value": 0.0014707048842706278
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon144",
+     "outcome": "match",
+     "ref": "manifest:gill_rel_l2_u_nlon144",
+     "reference": 0.000488,
+     "rel_diff": 2.1160353002824722e-06,
+     "value": 0.00048799896737477345
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon288",
+     "outcome": "match",
+     "ref": "manifest:gill_rel_l2_u_nlon288",
+     "reference": 0.00012809,
+     "rel_diff": 2.7177451684725173e-05,
+     "value": 0.0001280934811597863
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon576",
+     "outcome": "match",
+     "ref": "manifest:gill_rel_l2_u_nlon576",
+     "reference": 5.1905e-05,
+     "rel_diff": 3.1512236911272198e-06,
+     "value": 5.190483643573431e-05
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub1",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub1",
+     "reference": 1.7971e-06,
+     "rel_diff": 1.0445357348654769e-05,
+     "value": 1.7971187713516912e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub2",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub2",
+     "reference": -2.5874e-06,
+     "rel_diff": 7.002408274323457e-06,
+     "value": -2.587381881968831e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub4",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub4",
+     "reference": -2.8256e-06,
+     "rel_diff": 1.2599389092598585e-05,
+     "value": -2.82563560083382e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub8",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub8",
+     "reference": -2.8394e-06,
+     "rel_diff": 1.133491351560626e-06,
+     "value": -2.8394032184353435e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub16",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub16",
+     "reference": -2.8402e-06,
+     "rel_diff": 1.0057899971933222e-05,
+     "value": -2.8402285664475002e-06
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work2/example-enso-solver-checks.experiment.json, Lab item manifest/flow/example-enso-solver-checks",
+   "matched": 11,
+   "nodes": {
+    "checks": "done",
+    "compare": "done"
+   },
+   "seconds": 10.2,
+   "status": "done"
+  }
+ },
  "flight_dynamics/01_verification": {
   "full": {
    "commit": "57c66c1a",

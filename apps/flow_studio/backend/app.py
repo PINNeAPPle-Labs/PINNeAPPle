@@ -61,6 +61,21 @@ def create_app(service: FlowService | None = None) -> FastAPI:
         except ValueError as exc:
             bad(exc)
 
+    @app.get("/api/capabilities")
+    def capabilities():
+        """The planner's registered domain capabilities and the guided wizard's steps."""
+        from pinneapple_flow.planner.extensions import describe
+        from pinneapple_flow.planner.wizard import STEPS
+        return {"capabilities": describe(), "steps": STEPS}
+
+    @app.post("/api/wizard")
+    def wizard(body: JSONBody):
+        from pinneapple_flow.planner.wizard import plan_from_answers
+        try:
+            return plan_from_answers(dict(body))
+        except ValueError as exc:
+            bad(exc)
+
     @app.post("/api/validate")
     def validate(body: JSONBody):
         return svc.validate(body)

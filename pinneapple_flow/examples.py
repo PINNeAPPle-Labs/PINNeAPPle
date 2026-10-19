@@ -210,14 +210,21 @@ def status(example: str, inv: dict | None = None, meas: dict | None = None) -> d
            or (fl[0]["domain"] if fl else ""), "reason": entry.get("reason", ""), "notes": entry.get("notes", ""),
            "needs": entry.get("needs", "")}
     runs = {f["name"]: meas.get(f["name"], {}) for f in fl}
-    full_ok = [n for n, r in runs.items() if r.get("full", {}).get("status") == "done"]
-    quick_ok = [n for n, r in runs.items() if r.get("quick", {}).get("status") == "done"]
+    # flows that cannot run here (``flow_status``: {flow: {status, needs, reason}}) do not count against the example
+    held = entry.get("flow_status") or {}
+    row["held"] = held
+    counted = [f["name"] for f in fl if f["name"] not in held]
+    full_ok = [n for n in counted if runs[n].get("full", {}).get("status") == "done"]
+    quick_ok = [n for n in counted if runs[n].get("quick", {}).get("status") == "done"]
     if entry.get("status"):
         row["status"] = entry["status"]
-    elif fl and len(full_ok) == len(fl):
+    elif counted and len(full_ok) == len(counted):
         row["status"] = "runs"
-    elif fl and len(set(full_ok) | set(quick_ok)) == len(fl):
+    elif counted and len(set(full_ok) | set(quick_ok)) == len(counted):
         row["status"] = "runs-quick"
+    elif fl and not counted:
+        row["status"] = "needs"
+        row["needs"] = "; ".join(h.get("needs", "") for h in held.values())
     elif fl:
         row["status"] = "not yet run"
     else:
@@ -242,6 +249,11 @@ def problems() -> list[str]:
             out.append(f"examples/{ex}: status {e['status']!r} is not one of {STATUSES}")
         if e.get("status") in ("needs", "not_convertible") and not e.get("reason"):
             out.append(f"examples/{ex}: status {e['status']} needs a reason")
+        for f, h in (e.get("flow_status") or {}).items():
+            if not h.get("reason") or h.get("status") not in STATUSES:
+                out.append(f"examples/{ex}: flow_status of {f} needs a status in {STATUSES} and a reason")
+            if not any(x["name"] == f for x in flows()):
+                out.append(f"examples/{ex}: flow_status names {f}, which is not an example flow")
     out += [f"{f['name']}: names example {f['example']!r}, which is not an examples/* folder" for f in flows()
             if f["example"] not in folders]
     out += [f"{INVENTORY_FILE.name}: {ex} is not an examples/* folder" for ex in inv if ex not in folders]
@@ -276,7 +288,10 @@ def markdown() -> str:
     L += [f"| {k} | {v} |" for k, v in sorted(counts.items())]
     L += ["", "| example | domain | flow(s) | status | same numbers | notes |", "|---|---|---|---|---|---|"]
     for r in rows:
-        fl = "<br>".join(f"`{f}`" for f in r["flows"]) or "-"
+        fl = "<br>".join(f"`{f}`" + (f" ({r['held'][f].get('status')}: {r['held'][f].get('needs', '')})"
+                                     if f in r["held"] else "") for f in r["flows"]) or "-"
+        if r["held"]:
+            r["notes"] = "; ".join([r["notes"]] + [f"{f}: {h.get('reason', '')}" for f, h in r["held"].items()]).strip("; ")
         st = r["status"] + (f" {r['needs']}" if r["status"] == "needs" and r["needs"] else "")
         same = f"{r['matched']} / {r['compared']} match" if r["compared"] else ""
         note = "; ".join(x for x in (r["reason"], r["notes"]) if x)

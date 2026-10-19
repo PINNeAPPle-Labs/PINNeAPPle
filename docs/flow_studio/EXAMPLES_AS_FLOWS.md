@@ -6,10 +6,11 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 
 | status | examples |
 |---|---|
-| needs | 9 |
-| no flow | 42 |
-| not yet run | 3 |
+| needs | 8 |
+| no flow | 40 |
+| not yet run | 5 |
 | not_convertible | 13 |
+| runs | 1 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -17,7 +18,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `arena_pipelines` | benchmarks | - |  |  | not converted yet (a later batch of this PR): pinneapple_arena.Arena from the YAML configs (04, 05, 07, 09); 03, 06, 08 hold custom training or subclass the API |
 | `benchmark` | benchmarks | - |  |  | not converted yet (a later batch of this PR): pp.benchmark.run in smoke mode (a harness that writes a results tree; no committed numbers) |
 | `benchmark_suite` | benchmarks | - |  |  | not converted yet (a later batch of this PR): 03 (Burgers PINN), 12 (benchmark.arena --fast), 16/17; 01, 04, 05, 07, 08, 09 import pinneapple_arena.* / pinneapple_digital_twin modules that no longer exist; 14 and 15 hold their solvers in the script |
-| `black_hole_weather` | astrophysics | - | needs hours of simulation or the Hub dataset |  | simulate.py (about 2 h per RIAF run), convergence.py (12 runs on disk), train_forecaster.py / skill.py / evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are CLI harnesses over run folders; nothing to recompute in a flow here |
+| `black_hole_weather` | astrophysics | `black_hole_weather/accretion_run` | not yet run |  | the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows |
 | `bricks` | design | - |  |  | not converted yet (a later batch of this PR): bricks validation and references (deterministic); the committed search numbers are from --full (400 x 5 seeds) |
 | `calculix_cantilever` | structures | - |  |  | not converted yet (a later batch of this PR): solver.calculix + a .frd reader against the committed beam.frd (tip uz); needs ccx to rerun |
 | `core_primitives` | core | - | not_convertible |  | demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate) |
@@ -26,7 +27,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `design_from_intent` | design | - |  |  | not converted yet (a later batch of this PR): pp.design with answers / verify against _out/summary.json |
 | `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/17_prius_tolerances` | not yet run |  | 01-06 are hand-written torch PINN scripts with no library entry point (nothing committed to compare); 08 holds its FDTD set-up inline; 12 (2 h GP/NSGA-II) and 13 (thermal network, reads the 11 flux map) are a later batch; 14 and 16 need gmsh + GetDP; 18 builds PPTX slides from the JSON (document build step). |
 | `end_to_end` | data | - | not_convertible |  | legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh |
-| `enso_forecasting` | time series | - |  |  | not converted yet (a later batch of this PR): solver checks (no data) and the model zoo (forecast.enso, observations downloaded from NOAA / WeatherBench2) |
+| `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 11 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
 | `first_example` | PINN | - |  |  | not converted yet (a later batch of this PR): Burgers PINN against the analytic solution (the bundled burgers_1d flow is the same problem) |
 | `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 127 / 127 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
 | `flow_studio` | flows | - | not_convertible |  | already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step |
@@ -46,7 +47,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `modelica` | systems | - | needs OpenModelica (omc) + fmpy |  | every script builds its FMU with omc; 02 / 03 train hand-written torch models in the script; fmi_compatibility.py downloads the Reference-FMUs |
 | `molecular` | molecular | - | needs OpenMM + pdbfixer + an input PDB |  | protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled) |
 | `motor_magnetics` | electromagnetics | `electromagnetics/motor_spm_cogging_and_torque` | not yet run |  |  |
-| `near_random_forecasting` | time series | - |  |  | not converted yet (a later batch of this PR): forecast_lab.pipeline.run_case / run_overfitting / lyapunov_study nodes, --smoke cases |
+| `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | not yet run |  | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet |
 | `non_hermitian` | physics | - |  |  | not converted yet (a later batch of this PR): analyze_ep_tuning takes sympy expressions: needs named presets |
 | `numerical_solvers` | numerical solvers | - |  |  | not converted yet (a later batch of this PR): 12 (LJ molecular dynamics) and 13 (shallow water); 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, cfd_pipeline) |
 | `openfoam_campaign` | CFD | - | needs OpenFOAM (interFoam) |  | the campaign runs interFoam on 6 cases (pinneapple_simulation.external_solvers.openfoam.campaign); OpenFOAM is not installed here and nothing is committed to compare |
@@ -84,6 +85,25 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 ## Measured comparisons
 
 Per flow run: the flow's number, the example's committed number (results file or manifest metric) and the relative difference; the tolerance of each comparison is in the flow (`examples.compare` node).
+
+### `enso_forecasting/solver_checks` (full)
+
+done in 10 s (commit 93721f70, 2026-10-19); 11 of 12 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `checks.kelvin_speed` | `manifest:kelvin_speed` | 2.68867 | 2.68867 | 4.95625e-07 | match |
+| `checks.kelvin_speed_theory` | `manifest:kelvin_speed_theory` | 2.7 | 2.7 | 0 | match |
+| `checks.rossby_speed` | `manifest:rossby_speed` | -0.863352 | -0.86335 | 2.04556e-06 | match |
+| `checks.gill_rel_l2_u_nlon72` | `manifest:gill_rel_l2_u_nlon72` | 0.0014707 | 0.00147 | 0.000479513 | differs |
+| `checks.gill_rel_l2_u_nlon144` | `manifest:gill_rel_l2_u_nlon144` | 0.000487999 | 0.000488 | 2.11604e-06 | match |
+| `checks.gill_rel_l2_u_nlon288` | `manifest:gill_rel_l2_u_nlon288` | 0.000128093 | 0.00012809 | 2.71775e-05 | match |
+| `checks.gill_rel_l2_u_nlon576` | `manifest:gill_rel_l2_u_nlon576` | 5.19048e-05 | 5.1905e-05 | 3.15122e-06 | match |
+| `checks.recharge_period_rel_error_sub1` | `manifest:recharge_period_rel_error_sub1` | 1.79712e-06 | 1.7971e-06 | 1.04454e-05 | match |
+| `checks.recharge_period_rel_error_sub2` | `manifest:recharge_period_rel_error_sub2` | -2.58738e-06 | -2.5874e-06 | 7.00241e-06 | match |
+| `checks.recharge_period_rel_error_sub4` | `manifest:recharge_period_rel_error_sub4` | -2.82564e-06 | -2.8256e-06 | 1.25994e-05 | match |
+| `checks.recharge_period_rel_error_sub8` | `manifest:recharge_period_rel_error_sub8` | -2.8394e-06 | -2.8394e-06 | 1.13349e-06 | match |
+| `checks.recharge_period_rel_error_sub16` | `manifest:recharge_period_rel_error_sub16` | -2.84023e-06 | -2.8402e-06 | 1.00579e-05 | match |
 
 ### `flight_dynamics/01_verification` (full)
 
@@ -321,7 +341,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 |---|---|---|
 | `convergence.py` | - | `pinneapple_physics.blackhole.convergence.resolution_study` |
 | `evaluate.py` | `pinneapple_physics.blackhole.forecast.rollout`, `pinneapple_physics.blackhole.raytrace.render` | `pinneapple_physics.blackhole.capture.capture_twin`, `pinneapple_physics.blackhole.forecast.MassEnvelope`, `pinneapple_physics.blackhole.forecast.MassProjection`, `pinneapple_physics.blackhole.forecast.lead_time_scores`, `pinneapple_physics.blackhole.forecast.load_forecaster`, `pinneapple_physics.blackhole.forecast.trust_horizon`, `pinneapple_physics.blackhole.forecast.window_mass`, `pinneapple_physics.blackhole.raytrace.Camera`, `pinneapple_physics.blackhole.raytrace.bloom`, `pinneapple_physics.blackhole.raytrace.star_field`, `pinneapple_physics.blackhole.twin.accretion_scene` |
-| `simulate.py` | - | `pinneapple_physics.blackhole.RIAFConfig`, `pinneapple_physics.blackhole.runs.load_run`, `pinneapple_physics.blackhole.runs.simulate_run` |
+| `simulate.py` | `pinneapple_physics.blackhole.RIAFConfig`, `pinneapple_physics.blackhole.runs.load_run`, `pinneapple_physics.blackhole.runs.simulate_run` | - |
 | `skill.py` | - | `pinneapple_physics.blackhole.dataset.load_trajectories`, `pinneapple_physics.blackhole.dataset.window_volumes`, `pinneapple_physics.blackhole.forecast.load_forecaster`, `pinneapple_physics.blackhole.skill.evaluate_skill` |
 | `train_forecaster.py` | - | `pinneapple_physics.blackhole.dataset.load_trajectories`, `pinneapple_physics.blackhole.dataset.window_volumes`, `pinneapple_physics.blackhole.forecast.DensityCodec`, `pinneapple_physics.blackhole.forecast.TrainConfig`, `pinneapple_physics.blackhole.forecast.make_blocks`, `pinneapple_physics.blackhole.forecast.train_forecaster`, `pinneapple_physics.blackhole.forecast.train_on_trajectories` |
 
@@ -416,7 +436,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `run_study.py` | `pinneapple_systems.time_series.enso.data`, `pinneapple_systems.time_series.enso.dataset`, `pinneapple_systems.time_series.enso.pipeline`, `pinneapple_systems.time_series.enso.render`, `pinneapple_systems.time_series.enso.study`, `pinneapple_systems.time_series.forecast_lab.study.merge_zoo` | `pinneapple_core.jsonable.to_jsonable`, `pinneapple_systems.time_series.enso.data.manifests`, `pinneapple_systems.time_series.enso.forecasters`, `pinneapple_systems.time_series.enso.plots`, `pinneapple_systems.time_series.forecast_lab.ARForecaster`, `pinneapple_systems.time_series.forecast_lab.Persistence`, `pinneapple_systems.time_series.forecast_lab.plots` |
+| `run_study.py` | `pinneapple_systems.time_series.enso.data`, `pinneapple_systems.time_series.enso.dataset`, `pinneapple_systems.time_series.enso.pipeline`, `pinneapple_systems.time_series.enso.plots`, `pinneapple_systems.time_series.enso.render`, `pinneapple_systems.time_series.enso.study`, `pinneapple_systems.time_series.forecast_lab.plots`, `pinneapple_systems.time_series.forecast_lab.study.merge_zoo` | `pinneapple_core.jsonable.to_jsonable`, `pinneapple_systems.time_series.enso.data.manifests`, `pinneapple_systems.time_series.enso.forecasters`, `pinneapple_systems.time_series.forecast_lab.ARForecaster`, `pinneapple_systems.time_series.forecast_lab.Persistence` |
 
 </details>
 
@@ -630,8 +650,8 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `render_visuals.py` | `pinneapple_blender.cycles.available`, `pinneapple_systems.time_series.forecast_lab.pipeline`, `pinneapple_systems.time_series.synthetic` | `pinneapple_blender.cycles.frames_to_video`, `pinneapple_core.jsonable.to_jsonable`, `pinneapple_systems.time_series.forecast_lab.GBMForecaster`, `pinneapple_systems.time_series.forecast_lab.plots`, `pinneapple_systems.time_series.forecast_lab.presets.case`, `pinneapple_systems.time_series.forecast_lab.renders` |
-| `run_study.py` | `pinneapple_systems.time_series.forecast_lab.pipeline` | `pinneapple_systems.time_series.forecast_lab.plots`, `pinneapple_systems.time_series.forecast_lab.presets.CASES` |
+| `render_visuals.py` | `pinneapple_blender.cycles.available`, `pinneapple_systems.time_series.forecast_lab.pipeline`, `pinneapple_systems.time_series.forecast_lab.plots`, `pinneapple_systems.time_series.forecast_lab.presets.case`, `pinneapple_systems.time_series.synthetic` | `pinneapple_blender.cycles.frames_to_video`, `pinneapple_core.jsonable.to_jsonable`, `pinneapple_systems.time_series.forecast_lab.GBMForecaster`, `pinneapple_systems.time_series.forecast_lab.renders` |
+| `run_study.py` | `pinneapple_systems.time_series.forecast_lab.pipeline`, `pinneapple_systems.time_series.forecast_lab.plots` | `pinneapple_systems.time_series.forecast_lab.presets.CASES` |
 
 </details>
 

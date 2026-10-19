@@ -17,9 +17,7 @@
  },
  "black_hole_weather": {
   "domain": "astrophysics",
-  "needs": "hours of simulation or the Hub dataset",
-  "reason": "simulate.py (about 2 h per RIAF run), convergence.py (12 runs on disk), train_forecaster.py / skill.py / evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are CLI harnesses over run folders; nothing to recompute in a flow here",
-  "status": "needs"
+  "notes": "the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows"
  },
  "bricks": {
   "domain": "design",
@@ -59,7 +57,14 @@
  },
  "enso_forecasting": {
   "domain": "time series",
-  "reason": "not converted yet (a later batch of this PR): solver checks (no data) and the model zoo (forecast.enso, observations downloaded from NOAA / WeatherBench2)"
+  "flow_status": {
+   "enso_forecasting/forecast": {
+    "needs": "the ENSO observations (~92 GB streamed on first use)",
+    "reason": "dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them",
+    "status": "needs"
+   }
+  },
+  "notes": "the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet"
  },
  "first_example": {
   "domain": "PINN",
@@ -149,7 +154,7 @@
  },
  "near_random_forecasting": {
   "domain": "time series",
-  "reason": "not converted yet (a later batch of this PR): forecast_lab.pipeline.run_case / run_overfitting / lyapunov_study nodes, --smoke cases"
+  "notes": "one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet"
  },
  "non_hermitian": {
   "domain": "physics",

@@ -25,6 +25,8 @@ export const api = {
   info: () => call<{ version: string; settings: Record<string, string>; planners: string[] }>("/api/info"),
   catalog: () => call<Catalog>("/api/catalog"),
   plan: (text: string, backend: string) => post<PlanResult>("/api/plan", { text, backend }),
+  capabilities: () => call<{ capabilities: any[]; steps: any[] }>("/api/capabilities"),
+  wizard: (answers: Record<string, any>) => post<PlanResult & { wizard?: { description: string } }>("/api/wizard", answers),
   validate: (flow: FlowDoc) => post<{ valid: boolean; issues: { level: string; message: string; node: string; edge: string }[] }>("/api/validate", flow),
   previewEquations: (geometry: unknown, equations: unknown) =>
     post<{ ok: boolean; error?: string; system?: any; resolved?: any; geometry?: any }>("/api/preview/equations", { geometry, equations }),

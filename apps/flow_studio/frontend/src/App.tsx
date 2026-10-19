@@ -8,6 +8,7 @@ import { FlowNode, type FlowNodeData } from "./components/FlowNode";
 import { Palette } from "./components/Palette";
 import { ParamPanel } from "./components/ParamPanel";
 import { PlannerDialog } from "./components/PlannerDialog";
+import { NewFlowDialog } from "./components/NewFlowDialog";
 import { CustomNodeDialog } from "./components/CustomNodeDialog";
 import { DecisionList } from "./components/DecisionsPanel";
 import { ResultPanel } from "./components/ResultPanel";
@@ -40,6 +41,7 @@ function Studio() {
   const [issues, setIssues] = useState<{ level: string; message: string; node: string }[]>([]);
   const [toast, setToast] = useState("");
   const [showPlanner, setShowPlanner] = useState(false);
+  const [showNew, setShowNew] = useState(false);
   const [lists, setLists] = useState<{ examples: any[]; flows: any[] } | null>(null);
   const wrapper = useRef<HTMLDivElement>(null);
   const rf = useReactFlow();
@@ -252,7 +254,7 @@ function Studio() {
         <button className="btn" onClick={save} data-testid="save">Save</button>
         <button className="btn" onClick={exportJson}>Export JSON</button>
         <label className="btn cursor-pointer">Import<input type="file" accept=".json" hidden onChange={(e) => e.target.files?.[0] && importJson(e.target.files[0])} /></label>
-        <button className="btn" onClick={() => load({ schema: SCHEMA, id: "untitled", name: "Untitled flow", description: "", nodes: [], edges: [], meta: {} })}>New</button>
+        <button className="btn" onClick={() => setShowNew(true)} data-testid="new">New…</button>
         <button className="btn" onClick={() => setShowDecisions(true)} data-testid="open-decisions">
           Decisions &amp; references{decisions?.summary.no_reference ? ` (${decisions.summary.no_reference} ⚠)` : ""}
         </button>
@@ -329,6 +331,9 @@ function Studio() {
           )}
         </aside>
       </div>
+      {showNew && <NewFlowDialog onClose={() => setShowNew(false)} onOpen={(f) => { load(f); setShowNew(false); }}
+        onDescribe={() => { setShowNew(false); setShowPlanner(true); }}
+        onBlank={() => { load({ schema: SCHEMA, id: "untitled", name: "Untitled flow", description: "", nodes: [], edges: [], meta: {} }); setShowNew(false); }} />}
       {showPlanner && <PlannerDialog planners={info?.planners || ["heuristic"]} onClose={() => setShowPlanner(false)} onOpen={(f) => { load(f); setShowPlanner(false); }} />}
       {lists && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-start justify-center pt-16" onClick={() => setLists(null)}>

@@ -24,7 +24,10 @@ def lj_gas(ctx, inputs, params):
     energy against its initial value (examples/numerical_solvers/12_molecular_dynamics_lj_gas.py)."""
     import torch
 
-    from pinneapple_simulation.particle_dynamics.molecular_dynamics import MDState, MolecularDynamicsSimulator
+    from pinneapple_simulation.particle_dynamics.molecular_dynamics import (
+        MDState,
+        MolecularDynamicsSimulator,
+    )
     torch.manual_seed(int(params["seed"]))
     dim, n, s = int(params["dim"]), int(params["n_side"]), float(params["sigma"])
     sim = MolecularDynamicsSimulator(epsilon=float(params["epsilon"]), sigma=s, mass=1.0,
@@ -107,6 +110,39 @@ def dam_break(ctx, inputs, params):
     return {"metrics": ctx.report["metrics"], "figure": f}
 
 
+def _newton_available():
+    import importlib.util
+    return (True, "") if importlib.util.find_spec("newton") else (False, "needs NVIDIA Newton (pip install newton)")
+
+
+@node("newton.crate_and_pendulum", "Rigid bodies: a sliding crate and a pendulum (NVIDIA Newton)",
+      category="Particles", outputs=[Port("metrics", "metrics")],
+      params=[Param("mu", "float", 0.4, minimum=0.0, maximum=2.0, help="friction of the crate and the ground"),
+              Param("v0", "float", 2.0, help="initial crate speed [m/s]"),
+              Param("pendulum_deg", "float", 20.0), Param("duration", "float", 2.0, minimum=0.01),
+              Param("dt", "float", 1e-3, minimum=1e-5)],
+      calls="pinneapple_simulation.external_solvers.newton_physics.RigidScene (ground, box, sphere, revolute) + "
+            "simulate", available=_newton_available)
+def crate_and_pendulum(ctx, inputs, params):
+    """examples/rigid_body/newton_quickstart.py: where the crate stops against Coulomb friction, v0^2 / (2 mu g)."""
+    from pinneapple_simulation.external_solvers.newton_physics import RigidScene, simulate
+    mu, v0 = float(params["mu"]), float(params["v0"])
+    scene = RigidScene().ground(mu=mu)
+    scene.box("crate", (0.1, 0.1, 0.1), pos=(0, 0, 0.1), vel=(v0, 0, 0), mu=mu)
+    a = np.radians(float(params["pendulum_deg"]))
+    bob = scene.sphere("bob", 0.05, pos=(1.0 + np.sin(a), 0, 2.0 - np.cos(a)))
+    scene.revolute(-1, bob, anchor=(1.0, 0, 2.0), axis=(0, 1, 0))
+    traj = simulate(scene, duration=float(params["duration"]), dt=float(params["dt"]))
+    x = float(traj.pos[-1, traj.index("crate"), 0])
+    coulomb = v0 ** 2 / (2 * mu * 9.81)
+    ctx.metric("crate_x_final_m", x, "where the crate came to rest")
+    ctx.metric("coulomb_stop_m", coulomb, "v0^2 / (2 mu g)")
+    ctx.metric("crate_over_coulomb", x / coulomb)
+    ctx.metric("wall_time_s", float(traj.wall_time_s))
+    ctx.summary(f"crate stopped at {x:.3f} m (Coulomb {coulomb:.3f} m)")
+    return {"metrics": ctx.report["metrics"]}
+
+
 def _register_capabilities():
     from ..planner.extensions import Capability, register_capability
     register_capability(Capability(
@@ -123,6 +159,13 @@ def _register_capabilities():
                   "flood": 1.5, "gate release": 2}, min_score=3, nodes=("swe.dam_break",),
         references=("leveque2007fd",), template="numerical_solvers/13_shallow_water_dam_break",
         description="examples/numerical_solvers/13_shallow_water_twin3d_browser_demo.py (without the server)"))
+    register_capability(Capability(
+        id="newton.rigid_body", title="Rigid bodies with NVIDIA Newton (validation and a small scene)",
+        domain="multibody", example="rigid_body",
+        keywords={"rigid body": 3, "rigid-body": 3, "newton": 1.5, "friction": 1.5, "pendulum": 1.5, "crate": 2,
+                  "sliding": 1.5, "contact": 1}, min_score=3, nodes=("solver.newton", "newton.crate_and_pendulum"),
+        uncited="closed forms (Coulomb friction, pendulum period) are the checks", template="rigid_body/newton_quickstart",
+        description="examples/rigid_body/newton_quickstart.py"))
 
 
 _register_capabilities()

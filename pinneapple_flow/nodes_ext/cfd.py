@@ -45,7 +45,11 @@ def trough_jet(ctx, inputs, params):
     impact zone, its peak, the depth under the jet and how settled the liquid volume is."""
     from pinneapple_design.geometry.trough import TroughSection
     from pinneapple_simulation.external_solvers.openfoam.campaign import parse_solver_log
-    from pinneapple_simulation.numerical_solvers.free_surface import FreeSurfaceFlow, Phase, SampleLine
+    from pinneapple_simulation.numerical_solvers.free_surface import (
+        FreeSurfaceFlow,
+        Phase,
+        SampleLine,
+    )
     sec = TroughSection(length=float(params["length"]), slope_deg=float(params["slope_deg"]),
                         inlet_x=float(params["inlet_x"]), inlet_width=float(params["inlet_width"]),
                         cell=float(params["cell"]))

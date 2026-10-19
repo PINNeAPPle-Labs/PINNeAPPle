@@ -77,9 +77,270 @@
    "status": "done"
   }
  },
+ "design_from_intent/design_from_intent": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [
+    {
+     "flow": "loop.design.radius",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.radius",
+     "reference": 0.08392212590233154,
+     "rel_diff": 0.0,
+     "value": 0.08392212590233154
+    },
+    {
+     "flow": "loop.design.clothoid_ratio",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.clothoid_ratio",
+     "reference": 2.498212126585065,
+     "rel_diff": 0.0,
+     "value": 2.498212126585065
+    },
+    {
+     "flow": "loop.design.v0",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.v0",
+     "reference": 2.4650848447980396,
+     "rel_diff": 0.0,
+     "value": 2.4650848447980396
+    },
+    {
+     "flow": "loop.design.mass",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.mass",
+     "reference": 0.03101345493025515,
+     "rel_diff": 0.0,
+     "value": 0.03101345493025515
+    },
+    {
+     "flow": "loop.design.clothoid_length",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.clothoid_length",
+     "reference": 0.20965527261800326,
+     "rel_diff": 0.0,
+     "value": 0.20965527261800326
+    },
+    {
+     "flow": "loop.design.thickness",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.thickness",
+     "reference": 0.0015,
+     "rel_diff": 0.0,
+     "value": 0.0015
+    },
+    {
+     "flow": "loop.v_top.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.verification.comparison[output=v_top].full",
+     "reference": 1.5067742778928064,
+     "rel_diff": 0.0,
+     "value": 1.5067742778928064
+    },
+    {
+     "flow": "bracket.design.thickness_mm",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.thickness_mm",
+     "reference": 17.0,
+     "rel_diff": 0.11764705882352941,
+     "value": 15.0
+    },
+    {
+     "flow": "bracket.design.width_mm",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.width_mm",
+     "reference": 36.0,
+     "rel_diff": 0.19444444444444445,
+     "value": 43.0
+    },
+    {
+     "flow": "bracket.design.mount_mm",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.mount_mm",
+     "reference": 72.0,
+     "rel_diff": 0.041666666666666664,
+     "value": 75.0
+    },
+    {
+     "flow": "bracket.design.thickness",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.thickness",
+     "reference": 0.017,
+     "rel_diff": 0.11764705882352951,
+     "value": 0.015
+    },
+    {
+     "flow": "bracket.design.width",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.width",
+     "reference": 0.036000000000000004,
+     "rel_diff": 0.1944444444444444,
+     "value": 0.043000000000000003
+    },
+    {
+     "flow": "bracket.design.mount",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.mount",
+     "reference": 0.07200000000000001,
+     "rel_diff": 0.041666666666666505,
+     "value": 0.075
+    },
+    {
+     "flow": "bracket.design.arm_length",
+     "outcome": "match",
+     "ref": "_out/summary.json:bracket.design.arm_length",
+     "reference": 0.1,
+     "rel_diff": 0.0,
+     "value": 0.1
+    },
+    {
+     "flow": "bracket.design.fillet",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.fillet",
+     "reference": 0.017,
+     "rel_diff": 0.11764705882352951,
+     "value": 0.015
+    },
+    {
+     "flow": "bracket.design.hole",
+     "outcome": "match",
+     "ref": "_out/summary.json:bracket.design.hole",
+     "reference": 0.0066,
+     "rel_diff": 0.0,
+     "value": 0.0066
+    },
+    {
+     "flow": "bracket.sigma_peak_mpa.full",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.verification.comparison[output=sigma_peak_mpa].full",
+     "reference": 94.26070979280537,
+     "rel_diff": 0.09020459876071002,
+     "value": 102.76345929856511
+    },
+    {
+     "flow": "bracket.deflection_mm.full",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.verification.comparison[output=deflection_mm].full",
+     "reference": 0.37959899270073,
+     "rel_diff": 0.28514682253375784,
+     "value": 0.4878404393063583
+    },
+    {
+     "flow": "heatsink.design.width_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.width_mm",
+     "reference": 100.0,
+     "rel_diff": 0.0,
+     "value": 100.0
+    },
+    {
+     "flow": "heatsink.design.depth_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.depth_mm",
+     "reference": 100.0,
+     "rel_diff": 0.0,
+     "value": 100.0
+    },
+    {
+     "flow": "heatsink.design.base_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.base_mm",
+     "reference": 6.5,
+     "rel_diff": 0.0,
+     "value": 6.5
+    },
+    {
+     "flow": "heatsink.design.n_fins",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.n_fins",
+     "reference": 14.0,
+     "rel_diff": 0.0,
+     "value": 14.0
+    },
+    {
+     "flow": "heatsink.design.fin_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.fin_mm",
+     "reference": 1.1,
+     "rel_diff": 0.0,
+     "value": 1.1
+    },
+    {
+     "flow": "heatsink.design.height_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.height_mm",
+     "reference": 47.0,
+     "rel_diff": 0.0,
+     "value": 47.0
+    },
+    {
+     "flow": "heatsink.t_source_c.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.verification.comparison[output=t_source_c].full",
+     "reference": 77.67582709953824,
+     "rel_diff": 0.0,
+     "value": 77.67582709953824
+    },
+    {
+     "flow": "glider.design.span",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.design.span",
+     "reference": 2.0,
+     "rel_diff": 0.0,
+     "value": 2.0
+    },
+    {
+     "flow": "glider.design.aspect_ratio",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.design.aspect_ratio",
+     "reference": 7.692664314236054,
+     "rel_diff": 0.0,
+     "value": 7.692664314236054
+    },
+    {
+     "flow": "glider.design.taper",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.design.taper",
+     "reference": 0.32544819133101444,
+     "rel_diff": 0.0,
+     "value": 0.32544819133101444
+    },
+    {
+     "flow": "glider.sink_m_s.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.verification.comparison[output=sink_m_s].full",
+     "reference": 0.4408530413532117,
+     "rel_diff": 2.518351741925821e-16,
+     "value": 0.4408530413532118
+    },
+    {
+     "flow": "glider.span_eff.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.verification.comparison[output=span_eff].full",
+     "reference": 0.9894267037896335,
+     "rel_diff": 3.366261554411835e-16,
+     "value": 0.9894267037896332
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-design-from-intent.experiment.json, Lab item manifest/flow/example-design-from-intent",
+   "matched": 21,
+   "nodes": {
+    "bracket": "done",
+    "compare": "done",
+    "glider": "done",
+    "heatsink": "done",
+    "loop": "done",
+    "out_of_scope": "done"
+   },
+   "seconds": 546.4,
+   "status": "done"
+  }
+ },
  "enso_forecasting/solver_checks": {
   "full": {
-   "commit": "93721f70",
+   "commit": "b25e808a",
    "comparisons": [
     {
      "flow": "checks.kelvin_speed",
@@ -107,7 +368,7 @@
     },
     {
      "flow": "checks.gill_rel_l2_u_nlon72",
-     "outcome": "differs",
+     "outcome": "match",
      "ref": "manifest:gill_rel_l2_u_nlon72",
      "reference": 0.00147,
      "rel_diff": 0.00047951310927066943,
@@ -180,13 +441,13 @@
    ],
    "configuration": "full",
    "date": "2026-10-19",
-   "manifest": "manifest /home/user/flowhome/work2/example-enso-solver-checks.experiment.json, Lab item manifest/flow/example-enso-solver-checks",
-   "matched": 11,
+   "manifest": "manifest /home/user/flowhome/work4/example-enso-solver-checks.experiment.json, Lab item manifest/flow/example-enso-solver-checks",
+   "matched": 12,
    "nodes": {
     "checks": "done",
     "compare": "done"
    },
-   "seconds": 10.2,
+   "seconds": 10.8,
    "status": "done"
   }
  },
@@ -1301,6 +1562,38 @@
    "status": "done"
   }
  },
+ "geomechanics/01_granular_column_collapse": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-geo-column-collapse.experiment.json, Lab item manifest/flow/example-geo-column-collapse",
+   "matched": 0,
+   "nodes": {
+    "mpm": "done",
+    "report": "done"
+   },
+   "seconds": 297.7,
+   "status": "done"
+  }
+ },
+ "inspection/01_eddy_current_pinn": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-inspection-eddy-current.experiment.json, Lab item manifest/flow/example-inspection-eddy-current",
+   "matched": 0,
+   "nodes": {
+    "ec": "done",
+    "report": "done"
+   },
+   "seconds": 444.5,
+   "status": "done"
+  }
+ },
  "numerical_solvers/12_molecular_dynamics_lj_gas": {
   "full": {
    "commit": "5d9bf73a",
@@ -1330,6 +1623,54 @@
     "swe": "done"
    },
    "seconds": 2.2,
+   "status": "done"
+  }
+ },
+ "openfoam_campaign/campaign": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work4/example-openfoam-campaign.experiment.json, Lab item manifest/flow/example-openfoam-campaign",
+   "matched": 0,
+   "nodes": {
+    "campaign": "done",
+    "report": "done"
+   },
+   "seconds": 269.9,
+   "status": "done"
+  }
+ },
+ "rigid_body/newton_quickstart": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-newton-quickstart.experiment.json, Lab item manifest/flow/example-newton-quickstart",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "scene": "done",
+    "validate": "done"
+   },
+   "seconds": 113.3,
+   "status": "done"
+  }
+ },
+ "systems/01_component_library_toolbox": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-systems-components.experiment.json, Lab item manifest/flow/example-systems-components",
+   "matched": 0,
+   "nodes": {
+    "comp": "done"
+   },
+   "seconds": 14.7,
    "status": "done"
   }
  },
@@ -1530,6 +1871,103 @@
     "pipe15": "done"
    },
    "seconds": 27.8,
+   "status": "done"
+  }
+ },
+ "topology_optimization/03_reluctance_rotor": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [
+    {
+     "flow": "rotor.design_variables",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:design_variables",
+     "reference": 1410.0,
+     "rel_diff": 0.0,
+     "value": 1410.0
+    },
+    {
+     "flow": "rotor.optimized_mean_torque_linear_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:optimized_mean_torque_linear_Nm",
+     "reference": 38.10446217859075,
+     "rel_diff": 2.0831943251570765e-09,
+     "value": 38.10446225796975
+    },
+    {
+     "flow": "rotor.coenergy_torque_at_5deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:coenergy_torque_at_5deg_Nm",
+     "reference": 47.07271765955712,
+     "rel_diff": 1.4170144020734103e-07,
+     "value": 47.072710989285234
+    },
+    {
+     "flow": "rotor.optimized_mean_torque_nonlinear_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:optimized_mean_torque_nonlinear_Nm",
+     "reference": 13.441238878282855,
+     "rel_diff": 4.552900369777596e-08,
+     "value": 13.44123826631664
+    },
+    {
+     "flow": "rotor.iterations",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:iterations",
+     "reference": 120.0,
+     "rel_diff": 0.0,
+     "value": 120.0
+    },
+    {
+     "flow": "rotor.volume_fraction",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:volume_fraction",
+     "reference": 0.49999636696619604,
+     "rel_diff": 1.0578072895648078e-08,
+     "value": 0.49999637225519405
+    },
+    {
+     "flow": "rotor.torque_linear_0deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.0",
+     "reference": 32.25860673827633,
+     "rel_diff": 1.1553036390448868e-07,
+     "value": 32.2586104651249
+    },
+    {
+     "flow": "rotor.torque_linear_5deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.1",
+     "reference": 46.20596311531595,
+     "rel_diff": 1.332999973224398e-07,
+     "value": 46.20595695606119
+    },
+    {
+     "flow": "rotor.torque_linear_10deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.2",
+     "reference": 35.848816682179965,
+     "rel_diff": 7.449459785030555e-08,
+     "value": 35.84881935272315
+    },
+    {
+     "flow": "rotor.solid_round_rotor_torque_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:solid_round_rotor_torque_Nm",
+     "reference": -2.429796757315768e-11,
+     "rel_diff": 0.1526647224398278,
+     "value": -2.8007410048565735e-11
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-topology-rotor.experiment.json, Lab item manifest/flow/example-topology-rotor",
+   "matched": 10,
+   "nodes": {
+    "compare": "done",
+    "rotor": "done"
+   },
+   "seconds": 249.9,
    "status": "done"
   }
  }

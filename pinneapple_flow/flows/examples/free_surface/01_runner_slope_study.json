@@ -54,12 +54,63 @@
    }
   },
   {
-   "id": "report",
-   "type": "export.report",
+   "id": "compare",
+   "type": "examples.compare",
    "params": {
-    "title": "runner slope"
+    "example": "free_surface",
+    "comparisons": [
+     {
+      "flow": "plus2.+2 deg.depth_at_jet_m",
+      "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Metal under the jet"
+     },
+     {
+      "flow": "plus2.+2 deg.k_zone_mean",
+      "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Mean k, impact zone 0.5\u20133 m"
+     },
+     {
+      "flow": "plus2.+2 deg.k_peak",
+      "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Peak k"
+     },
+     {
+      "flow": "ratio.+2 deg.k_zone_mean_rel_to_baseline",
+      "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Relative to 0\u00b0"
+     },
+     {
+      "flow": "zero.+0 deg.depth_at_jet_m",
+      "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Metal under the jet"
+     },
+     {
+      "flow": "zero.+0 deg.k_zone_mean",
+      "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Mean k, impact zone 0.5\u20133 m"
+     },
+     {
+      "flow": "zero.+0 deg.k_peak",
+      "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Peak k"
+     },
+     {
+      "flow": "ratio.+0 deg.k_zone_mean_rel_to_baseline",
+      "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Relative to 0\u00b0"
+     },
+     {
+      "flow": "minus2.-2 deg.depth_at_jet_m",
+      "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Metal under the jet"
+     },
+     {
+      "flow": "minus2.-2 deg.k_zone_mean",
+      "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Mean k, impact zone 0.5\u20133 m"
+     },
+     {
+      "flow": "minus2.-2 deg.k_peak",
+      "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Peak k"
+     },
+     {
+      "flow": "ratio.-2 deg.k_zone_mean_rel_to_baseline",
+      "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Relative to 0\u00b0"
+     }
+    ],
+    "tolerance_source": "the example commits no results file; its numbers are the guide's table (docs/core_concepts/free_surface.md), rounded to 2-3 digits: each matches within half a unit of its last digit"
    },
-   "label": "Report",
+   "label": "Same numbers as the guide",
    "position": {
     "x": 620.0,
     "y": 40.0
@@ -89,11 +140,32 @@
    "id": "minus2.metrics->ratio.metrics"
   },
   {
+   "source": "plus2",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "plus2.metrics->compare.metrics"
+  },
+  {
+   "source": "zero",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "zero.metrics->compare.metrics"
+  },
+  {
+   "source": "minus2",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "minus2.metrics->compare.metrics"
+  },
+  {
    "source": "ratio",
    "source_port": "metrics",
-   "target": "report",
-   "target_port": "items",
-   "id": "ratio.metrics->report.items"
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "ratio.metrics->compare.metrics"
   }
  ],
  "meta": {
@@ -118,6 +190,22 @@
     "end_time": 1.0,
     "average_from": 0.5,
     "cell": 0.08
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "plus2.+2 deg.depth_at_jet_m",
+      "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Metal under the jet"
+     },
+     {
+      "flow": "zero.+0 deg.depth_at_jet_m",
+      "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Metal under the jet"
+     },
+     {
+      "flow": "minus2.-2 deg.depth_at_jet_m",
+      "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Metal under the jet"
+     }
+    ]
    }
   }
  }

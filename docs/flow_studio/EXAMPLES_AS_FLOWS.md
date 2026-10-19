@@ -6,11 +6,11 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 
 | status | examples |
 |---|---|
-| needs | 6 |
-| no flow | 35 |
-| not yet run | 9 |
+| needs | 5 |
+| no flow | 32 |
+| not yet run | 6 |
 | not_convertible | 13 |
-| runs | 4 |
+| runs | 11 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -24,22 +24,22 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `core_primitives` | core | - | not_convertible |  | demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate) |
 | `data_api` | core | - | not_convertible |  | demonstrates the pinneapple_core.data loaders with hand-written loops; the same three problems are equations + train.pinn, surrogate.train and inverse.discover flows |
 | `data_pipeline` | data | - | not_convertible |  | API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed |
-| `design_from_intent` | design | `design_from_intent/design_from_intent` | not yet run |  | the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run |
-| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/17_prius_tolerances` | not yet run |  | 01-06 are hand-written torch PINN scripts with no library entry point (nothing committed to compare); 08 holds its FDTD set-up inline; 12 (2 h GP/NSGA-II) and 13 (thermal network, reads the 11 flux map) are a later batch; 14 and 16 need gmsh + GetDP; 18 builds PPTX slides from the JSON (document build step). |
+| `design_from_intent` | design | `design_from_intent/design_from_intent` | runs | 21 / 30 match | the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run |
+| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run |  | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12 + GetDP 3.2 from apt |
 | `end_to_end` | data | - | not_convertible |  | legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh |
-| `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 11 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
+| `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 12 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
 | `first_example` | PINN | - |  |  | not converted yet (a later batch of this PR): Burgers PINN against the analytic solution (the bundled burgers_1d flow is the same problem) |
 | `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 127 / 127 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
 | `flow_studio` | flows | - | not_convertible |  | already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step |
-| `free_surface` | CFD | `free_surface/01_runner_slope_study` | not yet run |  | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
-| `geomechanics` | geomechanics | - |  |  | not converted yet (a later batch of this PR): GeoMPM granular collapse (6 min); no committed numbers (docs table only) |
+| `free_surface` | CFD | `free_surface/01_runner_slope_study` | runs |  | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
+| `geomechanics` | geomechanics | `geomechanics/01_granular_column_collapse` | not yet run |  | no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md) |
 | `geometry` | geometry | - | not_convertible |  | small demos of geometry I/O and sampling with no numbers (trimesh, meshio, gmsh optional; 08 downloads STL / STEP files); the CSG domains of 07 are geometry.domain / auto.design.geometry.* nodes |
 | `geometry_library` | geometry | - |  |  | not converted yet (a later batch of this PR): 03 VLM; 01 needs OpenFOAM; 02's BEM lives in the script |
 | `geophysics` | geophysics | - |  |  | not converted yet (a later batch of this PR): williamson_case6, twin_experiment (4D-Var), solve_richards nodes; no committed numbers |
 | `getting_started` | PINN | - |  |  | not converted yet (a later batch of this PR): pure-torch ODE / PDE PINN scripts (no pinneapple imports); 03 and 04 are the heat_1d flow |
 | `handoff_cases` | CFD | - | needs OpenFOAM (+ xfoil) |  | the airfoil and trough packages run simpleFoam / interFoam campaigns (hours); make_zips.py packs folders |
 | `hpo_experiments` | tools | - | not_convertible |  | imports pinneapple_researcher, which no longer exists (now pinneapple_tools.hpo_experiments); arXiv / GitHub discovery and Gemini extraction need network and an API key, and the output is not deterministic |
-| `inspection` | inspection | - |  |  | not converted yet (a later batch of this PR): generate_eddy_current_synthetic + train_eddy_current |
+| `inspection` | inspection | `inspection/01_eddy_current_pinn` | runs |  | nothing committed to compare: the script prints the losses |
 | `latent` | reduced-order models | - |  |  | not converted yet (a later batch of this PR): TrustedLatentSurrogate; the advection-diffusion-reaction solver and sampling are in the script |
 | `lbm` | numerical solvers | - |  |  | not converted yet (a later batch of this PR): WindTunnelLBM sphere drag (60 min full); no committed numbers |
 | `meshgraphnet` | neural operators | `meshgraphnet/01_synthetic_diffusion` | not yet run |  | 02_cylinder_flow_deepmind.py needs the DeepMind TFRecords (download + tfrecord) and is a later flow; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers) |
@@ -50,7 +50,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | not yet run |  | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet |
 | `non_hermitian` | physics | - |  |  | not converted yet (a later batch of this PR): analyze_ep_tuning takes sympy expressions: needs named presets |
 | `numerical_solvers` | numerical solvers | `numerical_solvers/12_molecular_dynamics_lj_gas`<br>`numerical_solvers/13_shallow_water_dam_break` | runs |  | flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate |
-| `openfoam_campaign` | CFD | `openfoam_campaign/campaign` | not yet run |  | no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt |
+| `openfoam_campaign` | CFD | `openfoam_campaign/campaign` | runs |  | no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt |
 | `pde_environment` | PINN | - |  |  | not converted yet (a later batch of this PR): compile_problem loss evaluations (01, 02, 03_ns, 07); 03_elasticity / 04 need trimesh; 05 / 06 train in the script |
 | `physics_audit` | physics audit | - | not_convertible |  | the case study (Churchill truth, model lambdas, profiles, 160-case stream) is built in the script; PhysicsEnsemble / PhysicsAwareRouter have no case generator to call |
 | `physics_check` | physics checks | - |  |  | not converted yet (a later batch of this PR): pinneapple_check.run on pass/ and fail/ against fail/expected.json (needs meshio) |
@@ -65,14 +65,14 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `problem_designer` | design | - |  |  | not converted yet (a later batch of this PR): 03 offline report (validators + plan + renderers); 01 / 02 need Gemini and network, 04 / 05 a mock provider defined in the script |
 | `proof_graph` | physics | - |  |  | not converted yet (a later batch of this PR): build_pt_chain_graph against the committed report |
 | `qualitative` | design | - |  |  | not converted yet (a later batch of this PR): 03 (Ahmed body); 01 / 02 build their variants in the script |
-| `rigid_body` | multibody | - | needs NVIDIA Newton |  | newton_quickstart.py needs pip install newton (warp); solver.newton covers the validation part once it is installed |
+| `rigid_body` | multibody | `rigid_body/newton_quickstart` | runs |  | NVIDIA Newton 1.7 (warp, CPU) installed with pip here |
 | `security` | security | - |  |  | not converted yet (a later batch of this PR): 02 cps_bench.run_benchmark (needs scikit-learn); 01 chains a dozen primitives with a DP-SGD loop in the script |
 | `solver_api` | PINN | - |  |  | not converted yet (a later batch of this PR): pp.compare fem vs pinn on the manufactured Poisson problem (the poisson_2d flow) |
 | `solvers` | numerical solvers | - |  |  | not converted yet (a later batch of this PR): SolverRegistry.build (decompositions, SPH, FDM vs spectral) |
 | `studio` | visualization | - |  |  | not converted yet (a later batch of this PR): 01 (any result in 3-D); 02 and 04-06 need OpenFOAM; 07 is the lunar-rover dashboard, built by the Flow Studio session on #850 (vehicle.* nodes) |
-| `systems` | systems | - |  |  | not converted yet (a later batch of this PR): ComponentRegistry build + fit (unseeded random data in the script: no numbers to compare) |
+| `systems` | systems | `systems/01_component_library_toolbox` | runs |  | the example fits random targets (an API demonstration); nothing to compare |
 | `time_series` | time series | - |  |  | not converted yet (a later batch of this PR): 00 baselines and adaptive_forecasting; 01-05, 07, 08 import pinneapple_timeseries, which no longer exists |
-| `topology_optimization` | design | `topology_optimization/01_mbb_beam`<br>`topology_optimization/02_heat_and_stokes_flow`<br>`topology_optimization/03_reluctance_rotor` | not yet run | 20 / 20 match |  |
+| `topology_optimization` | design | `topology_optimization/01_mbb_beam`<br>`topology_optimization/02_heat_and_stokes_flow`<br>`topology_optimization/03_reluctance_rotor` | runs | 30 / 30 match |  |
 | `trainer` | training | - | not_convertible |  | demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch |
 | `use_cases` | use cases | - |  |  | not converted yet (a later batch of this PR): the fin-convection inverse problem (results/summary.json); concorde LBM, crash, missile, heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's |
 | `validation` | validation | - |  |  | not converted yet (a later batch of this PR): the gallery's run(smoke=True) through pp.validate; 11 needs PhysicsNeMo, 02 onnx |
@@ -105,16 +105,53 @@ done in 7 s (commit 5d9bf73a, 2026-10-19); 4 of 4 numbers match.
 | `results.max_abs_sxx_Pa` | `node:committed.max_abs_sxx_Pa` | 6.59687e+06 | 6.59687e+06 | 0 | match |
 | `results.nodes` | `node:committed.nodes` | 621 | 621 | 0 | match |
 
+### `design_from_intent/design_from_intent` (full)
+
+done in 546 s (commit b25e808a, 2026-10-19); 21 of 30 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `loop.design.radius` | `_out/summary.json:loop.design.radius` | 0.0839221 | 0.0839221 | 0 | match |
+| `loop.design.clothoid_ratio` | `_out/summary.json:loop.design.clothoid_ratio` | 2.49821 | 2.49821 | 0 | match |
+| `loop.design.v0` | `_out/summary.json:loop.design.v0` | 2.46508 | 2.46508 | 0 | match |
+| `loop.design.mass` | `_out/summary.json:loop.design.mass` | 0.0310135 | 0.0310135 | 0 | match |
+| `loop.design.clothoid_length` | `_out/summary.json:loop.design.clothoid_length` | 0.209655 | 0.209655 | 0 | match |
+| `loop.design.thickness` | `_out/summary.json:loop.design.thickness` | 0.0015 | 0.0015 | 0 | match |
+| `loop.v_top.full` | `_out/summary.json:loop.verification.comparison[output=v_top].full` | 1.50677 | 1.50677 | 0 | match |
+| `bracket.design.thickness_mm` | `_out/summary.json:bracket.design.thickness_mm` | 15 | 17 | 0.117647 | differs |
+| `bracket.design.width_mm` | `_out/summary.json:bracket.design.width_mm` | 43 | 36 | 0.194444 | differs |
+| `bracket.design.mount_mm` | `_out/summary.json:bracket.design.mount_mm` | 75 | 72 | 0.0416667 | differs |
+| `bracket.design.thickness` | `_out/summary.json:bracket.design.thickness` | 0.015 | 0.017 | 0.117647 | differs |
+| `bracket.design.width` | `_out/summary.json:bracket.design.width` | 0.043 | 0.036 | 0.194444 | differs |
+| `bracket.design.mount` | `_out/summary.json:bracket.design.mount` | 0.075 | 0.072 | 0.0416667 | differs |
+| `bracket.design.arm_length` | `_out/summary.json:bracket.design.arm_length` | 0.1 | 0.1 | 0 | match |
+| `bracket.design.fillet` | `_out/summary.json:bracket.design.fillet` | 0.015 | 0.017 | 0.117647 | differs |
+| `bracket.design.hole` | `_out/summary.json:bracket.design.hole` | 0.0066 | 0.0066 | 0 | match |
+| `bracket.sigma_peak_mpa.full` | `_out/summary.json:bracket.verification.comparison[output=sigma_peak_mpa].full` | 102.763 | 94.2607 | 0.0902046 | differs |
+| `bracket.deflection_mm.full` | `_out/summary.json:bracket.verification.comparison[output=deflection_mm].full` | 0.48784 | 0.379599 | 0.285147 | differs |
+| `heatsink.design.width_mm` | `_out/summary.json:heatsink.design.width_mm` | 100 | 100 | 0 | match |
+| `heatsink.design.depth_mm` | `_out/summary.json:heatsink.design.depth_mm` | 100 | 100 | 0 | match |
+| `heatsink.design.base_mm` | `_out/summary.json:heatsink.design.base_mm` | 6.5 | 6.5 | 0 | match |
+| `heatsink.design.n_fins` | `_out/summary.json:heatsink.design.n_fins` | 14 | 14 | 0 | match |
+| `heatsink.design.fin_mm` | `_out/summary.json:heatsink.design.fin_mm` | 1.1 | 1.1 | 0 | match |
+| `heatsink.design.height_mm` | `_out/summary.json:heatsink.design.height_mm` | 47 | 47 | 0 | match |
+| `heatsink.t_source_c.full` | `_out/summary.json:heatsink.verification.comparison[output=t_source_c].full` | 77.6758 | 77.6758 | 0 | match |
+| `glider.design.span` | `_out/summary.json:glider.design.span` | 2 | 2 | 0 | match |
+| `glider.design.aspect_ratio` | `_out/summary.json:glider.design.aspect_ratio` | 7.69266 | 7.69266 | 0 | match |
+| `glider.design.taper` | `_out/summary.json:glider.design.taper` | 0.325448 | 0.325448 | 0 | match |
+| `glider.sink_m_s.full` | `_out/summary.json:glider.verification.comparison[output=sink_m_s].full` | 0.440853 | 0.440853 | 2.51835e-16 | match |
+| `glider.span_eff.full` | `_out/summary.json:glider.verification.comparison[output=span_eff].full` | 0.989427 | 0.989427 | 3.36626e-16 | match |
+
 ### `enso_forecasting/solver_checks` (full)
 
-done in 10 s (commit 93721f70, 2026-10-19); 11 of 12 numbers match.
+done in 11 s (commit b25e808a, 2026-10-19); 12 of 12 numbers match.
 
 | flow metric | example reference | flow | example | rel. diff | outcome |
 |---|---|---|---|---|---|
 | `checks.kelvin_speed` | `manifest:kelvin_speed` | 2.68867 | 2.68867 | 4.95625e-07 | match |
 | `checks.kelvin_speed_theory` | `manifest:kelvin_speed_theory` | 2.7 | 2.7 | 0 | match |
 | `checks.rossby_speed` | `manifest:rossby_speed` | -0.863352 | -0.86335 | 2.04556e-06 | match |
-| `checks.gill_rel_l2_u_nlon72` | `manifest:gill_rel_l2_u_nlon72` | 0.0014707 | 0.00147 | 0.000479513 | differs |
+| `checks.gill_rel_l2_u_nlon72` | `manifest:gill_rel_l2_u_nlon72` | 0.0014707 | 0.00147 | 0.000479513 | match |
 | `checks.gill_rel_l2_u_nlon144` | `manifest:gill_rel_l2_u_nlon144` | 0.000487999 | 0.000488 | 2.11604e-06 | match |
 | `checks.gill_rel_l2_u_nlon288` | `manifest:gill_rel_l2_u_nlon288` | 0.000128093 | 0.00012809 | 2.71775e-05 | match |
 | `checks.gill_rel_l2_u_nlon576` | `manifest:gill_rel_l2_u_nlon576` | 5.19048e-05 | 5.1905e-05 | 3.15122e-06 | match |
@@ -279,6 +316,14 @@ done in 121 s (commit 57c66c1a, 2026-10-19); 24 of 24 numbers match.
 | `gust.motor_glider.quasi_steady_dn` | `results/same_gust.json:aircraft.motor_glider.quasi_steady_dn` | 1.8827 | 1.8827 | 4.24582e-15 | match |
 | `gust.motor_glider.pratt_dn_for_this_gust` | `results/same_gust.json:aircraft.motor_glider.pratt_dn_for_this_gust` | 1.29739 | 1.29739 | 3.25179e-15 | match |
 
+### `free_surface/01_runner_slope_study` (full)
+
+done in 173 s (commit 5d9bf73a, 2026-10-19); 0 of 0 numbers match.
+
+### `inspection/01_eddy_current_pinn` (full)
+
+done in 444 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
 ### `numerical_solvers/12_molecular_dynamics_lj_gas` (full)
 
 done in 29 s (commit 5d9bf73a, 2026-10-19); 0 of 0 numbers match.
@@ -286,6 +331,18 @@ done in 29 s (commit 5d9bf73a, 2026-10-19); 0 of 0 numbers match.
 ### `numerical_solvers/13_shallow_water_dam_break` (full)
 
 done in 2 s (commit 5d9bf73a, 2026-10-19); 0 of 0 numbers match.
+
+### `openfoam_campaign/campaign` (full)
+
+done in 270 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
+### `rigid_body/newton_quickstart` (full)
+
+done in 113 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
+### `systems/01_component_library_toolbox` (full)
+
+done in 15 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
 
 ### `topology_optimization/01_mbb_beam` (full)
 
@@ -320,6 +377,23 @@ done in 28 s (commit 5d9bf73a, 2026-10-19); 7 of 7 numbers match.
 | `pipe10.double_pipe_L1.0.uniform` | `results/heat_stokes_summary.json:double_pipe_L1.0.uniform` | 136.394 | 136.394 | 0 | match |
 | `pipe15.double_pipe_L1.5.objective` | `results/heat_stokes_summary.json:double_pipe_L1.5.optimized` | 26.7932 | 26.7932 | 0 | match |
 | `pipe15.double_pipe_L1.5.uniform` | `results/heat_stokes_summary.json:double_pipe_L1.5.uniform` | 179.322 | 179.322 | 0 | match |
+
+### `topology_optimization/03_reluctance_rotor` (full)
+
+done in 250 s (commit b25e808a, 2026-10-19); 10 of 10 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `rotor.design_variables` | `results/reluctance_rotor_summary.json:design_variables` | 1410 | 1410 | 0 | match |
+| `rotor.optimized_mean_torque_linear_Nm` | `results/reluctance_rotor_summary.json:optimized_mean_torque_linear_Nm` | 38.1045 | 38.1045 | 2.08319e-09 | match |
+| `rotor.coenergy_torque_at_5deg_Nm` | `results/reluctance_rotor_summary.json:coenergy_torque_at_5deg_Nm` | 47.0727 | 47.0727 | 1.41701e-07 | match |
+| `rotor.optimized_mean_torque_nonlinear_Nm` | `results/reluctance_rotor_summary.json:optimized_mean_torque_nonlinear_Nm` | 13.4412 | 13.4412 | 4.5529e-08 | match |
+| `rotor.iterations` | `results/reluctance_rotor_summary.json:iterations` | 120 | 120 | 0 | match |
+| `rotor.volume_fraction` | `results/reluctance_rotor_summary.json:volume_fraction` | 0.499996 | 0.499996 | 1.05781e-08 | match |
+| `rotor.torque_linear_0deg_Nm` | `results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.0` | 32.2586 | 32.2586 | 1.1553e-07 | match |
+| `rotor.torque_linear_5deg_Nm` | `results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.1` | 46.206 | 46.206 | 1.333e-07 | match |
+| `rotor.torque_linear_10deg_Nm` | `results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.2` | 35.8488 | 35.8488 | 7.44946e-08 | match |
+| `rotor.solid_round_rotor_torque_Nm` | `results/reluctance_rotor_summary.json:solid_round_rotor_torque_Nm` | -2.80074e-11 | -2.4298e-11 | 0.152665 | match |
 
 ## Library calls per script
 
@@ -471,10 +545,10 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `10_pmsm_prius.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.M400_50A`, `pinneapple_simulation.electromagnetics.machines.fit_iron_loss`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.verification`, `pinneapple_simulation.electromagnetics.verification.to_markdown` | - |
 | `11_prius_drive.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.drive.Drive`, `pinneapple_simulation.electromagnetics.machines.drive.FluxMap`, `pinneapple_simulation.electromagnetics.machines.drive.Vehicle`, `pinneapple_simulation.electromagnetics.machines.drive.cycle_energy`, `pinneapple_simulation.electromagnetics.machines.drive.prius_phase_resistance`, `pinneapple_simulation.electromagnetics.machines.drive.v_max_svpwm`, `pinneapple_simulation.electromagnetics.machines.drive.wltc_class3b`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.verification`, `pinneapple_simulation.electromagnetics.verification.to_markdown` | - |
 | `12_prius_rotor_design.py` | `pinneapple_simulation.electromagnetics.machines.design` | - |
-| `13_prius_thermal.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.drive.Drive`, `pinneapple_simulation.electromagnetics.machines.drive.FluxMap`, `pinneapple_simulation.electromagnetics.machines.drive.Vehicle`, `pinneapple_simulation.electromagnetics.machines.drive.cycle_energy`, `pinneapple_simulation.electromagnetics.machines.drive.prius_phase_resistance`, `pinneapple_simulation.electromagnetics.machines.drive.v_max_svpwm`, `pinneapple_simulation.electromagnetics.machines.drive.wltc_class3b`, `pinneapple_simulation.electromagnetics.machines.prius_2004` | `pinneapple_simulation.electromagnetics.machines.thermal.NDFEB_HCJ_MIN_KAM`, `pinneapple_simulation.electromagnetics.machines.thermal.demagnetisation_margin`, `pinneapple_simulation.electromagnetics.machines.thermal.demagnetisation_refinement`, `pinneapple_simulation.electromagnetics.machines.thermal.intrinsic_coercivity`, `pinneapple_simulation.electromagnetics.machines.thermal.machine_network`, `pinneapple_simulation.electromagnetics.machines.thermal.magnet_temperature_sweep` |
-| `14_prius_getdp_crosscheck.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.M400_50A`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.verification` | `pinneapple_simulation.electromagnetics.constants.MU0`, `pinneapple_simulation.electromagnetics.machine.belt_winding`, `pinneapple_simulation.electromagnetics.machines.getdp` |
+| `13_prius_thermal.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.drive.Drive`, `pinneapple_simulation.electromagnetics.machines.drive.FluxMap`, `pinneapple_simulation.electromagnetics.machines.drive.Vehicle`, `pinneapple_simulation.electromagnetics.machines.drive.cycle_energy`, `pinneapple_simulation.electromagnetics.machines.drive.prius_phase_resistance`, `pinneapple_simulation.electromagnetics.machines.drive.v_max_svpwm`, `pinneapple_simulation.electromagnetics.machines.drive.wltc_class3b`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.thermal.demagnetisation_margin`, `pinneapple_simulation.electromagnetics.machines.thermal.demagnetisation_refinement`, `pinneapple_simulation.electromagnetics.machines.thermal.intrinsic_coercivity`, `pinneapple_simulation.electromagnetics.machines.thermal.iron_split`, `pinneapple_simulation.electromagnetics.machines.thermal.machine_network`, `pinneapple_simulation.electromagnetics.machines.thermal.magnet_temperature_sweep` | `pinneapple_simulation.electromagnetics.machines.thermal.NDFEB_HCJ_MIN_KAM` |
+| `14_prius_getdp_crosscheck.py` | `pinneapple_simulation.electromagnetics.machine.belt_winding`, `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.M400_50A`, `pinneapple_simulation.electromagnetics.machines.getdp`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.verification` | `pinneapple_simulation.electromagnetics.constants.MU0` |
 | `15_prius_skew.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.robustness.skewed_no_load`, `pinneapple_simulation.electromagnetics.machines.robustness.skewed_torque`, `pinneapple_simulation.electromagnetics.machines.robustness.step_skew_factor` | `pinneapple_simulation.electromagnetics.machines.export.write_vtu`, `pinneapple_simulation.electromagnetics.machines.robustness.skewed_field_3d` |
-| `16_prius_end_effects.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.M400_50A`, `pinneapple_simulation.electromagnetics.machines.drive.Drive`, `pinneapple_simulation.electromagnetics.machines.drive.FluxMap`, `pinneapple_simulation.electromagnetics.machines.drive.prius_phase_resistance`, `pinneapple_simulation.electromagnetics.machines.drive.v_max_svpwm`, `pinneapple_simulation.electromagnetics.machines.prius_2004` | `pinneapple_simulation.electromagnetics.machine.belt_winding`, `pinneapple_simulation.electromagnetics.machines.MAGNET_PRIUS`, `pinneapple_simulation.electromagnetics.machines.endwinding.end_winding_inductance`, `pinneapple_simulation.electromagnetics.machines.getdp` |
+| `16_prius_end_effects.py` | `pinneapple_simulation.electromagnetics.machine.belt_winding`, `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.M400_50A`, `pinneapple_simulation.electromagnetics.machines.drive.Drive`, `pinneapple_simulation.electromagnetics.machines.drive.FluxMap`, `pinneapple_simulation.electromagnetics.machines.drive.prius_phase_resistance`, `pinneapple_simulation.electromagnetics.machines.drive.v_max_svpwm`, `pinneapple_simulation.electromagnetics.machines.endwinding.end_winding_inductance`, `pinneapple_simulation.electromagnetics.machines.getdp`, `pinneapple_simulation.electromagnetics.machines.prius_2004` | `pinneapple_simulation.electromagnetics.machines.MAGNET_PRIUS` |
 | `17_prius_tolerances.py` | `pinneapple_analysis.uncertainty.tolerance.propagate`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.robustness.tolerance_model` | `pinneapple_simulation.electromagnetics.machines.robustness.TOLERANCE_VARIABLES` |
 | `18_emachine_slides.py` | - | - |
 
@@ -546,7 +620,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_granular_column_collapse.py` | `pinneapple_simulation.particle_dynamics.geo_mpm.box` | `pinneapple_simulation.external_solvers.geotaichi.frames_to_samples`, `pinneapple_simulation.external_solvers.geotaichi.read_geotaichi`, `pinneapple_simulation.particle_dynamics.geo_mpm.GeoMPM`, `pinneapple_simulation.particle_dynamics.geo_mpm.Sand`, `pinneapple_simulation.particle_dynamics.geo_mpm.runout` |
+| `01_granular_column_collapse.py` | `pinneapple_simulation.external_solvers.geotaichi.frames_to_samples`, `pinneapple_simulation.external_solvers.geotaichi.read_geotaichi`, `pinneapple_simulation.particle_dynamics.geo_mpm.GeoMPM`, `pinneapple_simulation.particle_dynamics.geo_mpm.Sand`, `pinneapple_simulation.particle_dynamics.geo_mpm.box`, `pinneapple_simulation.particle_dynamics.geo_mpm.runout` | - |
 
 </details>
 
@@ -639,7 +713,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_eddy_current_pinn.py` | `pinneapple_analysis.inspection.generate_eddy_current_synthetic` | `pinneapple_analysis.inspection.train_eddy_current` |
+| `01_eddy_current_pinn.py` | `pinneapple_analysis.inspection.generate_eddy_current_synthetic`, `pinneapple_analysis.inspection.train_eddy_current` | - |
 
 </details>
 
@@ -911,7 +985,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `newton_quickstart.py` | `pinneapple_simulation.external_solvers.newton_physics.simulate`, `pinneapple_simulation.external_solvers.newton_physics.validate` | `pinneapple_simulation.external_solvers.newton_physics.RigidScene` |
+| `newton_quickstart.py` | `pinneapple_simulation.external_solvers.newton_physics.RigidScene`, `pinneapple_simulation.external_solvers.newton_physics.simulate`, `pinneapple_simulation.external_solvers.newton_physics.validate` | - |
 
 </details>
 
@@ -919,7 +993,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_secure_physics_ai_pipeline.py` | `pinneapple_security.audit`, `pinneapple_security.integrate` | `pinneapple_registry.model_store.ModelStore`, `pinneapple_security.anomaly`, `pinneapple_security.attestation`, `pinneapple_security.classification`, `pinneapple_security.compliance`, `pinneapple_security.dp`, `pinneapple_security.encryption`, `pinneapple_security.integrity`, `pinneapple_security.privacy`, `pinneapple_security.signing` |
+| `01_secure_physics_ai_pipeline.py` | `pinneapple_security.audit`, `pinneapple_security.dp`, `pinneapple_security.integrate` | `pinneapple_registry.model_store.ModelStore`, `pinneapple_security.anomaly`, `pinneapple_security.attestation`, `pinneapple_security.classification`, `pinneapple_security.compliance`, `pinneapple_security.encryption`, `pinneapple_security.integrity`, `pinneapple_security.privacy`, `pinneapple_security.signing` |
 | `02_physics_residual_fdi.py` | - | `pinneapple_security.cps_bench.ATTACKS`, `pinneapple_security.cps_bench.run_benchmark` |
 
 </details>
@@ -960,7 +1034,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_component_library_toolbox.py` | - | `pinneapple_systems.component_library.ComponentRegistry`, `pinneapple_systems.component_library.ToolboxRegistry` |
+| `01_component_library_toolbox.py` | `pinneapple_systems.component_library.ComponentRegistry`, `pinneapple_systems.component_library.ToolboxRegistry` | - |
 
 </details>
 

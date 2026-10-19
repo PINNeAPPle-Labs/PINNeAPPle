@@ -5,7 +5,9 @@ the helpers the example-domain nodes share (object artifacts, the checkout's ``e
 reference number in the example's own files: a key path into a committed results file
 (``results/takeoff.json:nominal.light_ga.distance_35ft_m``, list items selected by field values with
 ``runs[aircraft=a320,seed=0].dnz_cg_rms``), a metric of its manifest (``manifest:distance_35ft_a320``) or a metric of
-another upstream node that reads a committed file the example keeps in a solver format (``node:committed.tip_uz_m``). A comparison
+another upstream node that reads a committed file the example keeps in a solver format (``node:committed.tip_uz_m``),
+or a cell of a markdown table in the guide the example's numbers are published in when the example commits no
+results file (``doc:docs/core_concepts/free_surface.md|+2°|Peak k``). A comparison
 passes when ``|flow - reference| <= atol + rtol |reference|``; the tolerance is part of the flow document, next to a
 note saying where it comes from, or is a number of the example itself (``atol_ref``, e.g. the spread over the seeds
 of a stochastic study). The checks are recorded on the output port, so the run's experiment manifest
@@ -102,8 +104,53 @@ def _split_dotted(folder: Path, ref: str) -> tuple[Path, str]:
     return p, path
 
 
+class Written(float):
+    """A reference number with the text it was written as (``1.40`` keeps its two decimals)."""
+    text: str = ""
+
+
+def _written(text: str) -> Written:
+    w = Written(float(text))
+    w.text = text
+    return w
+
+
+_NUM = re.compile(r"[-+−]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
+
+
+def doc_table_value(ref: str) -> float:
+    """``doc:<path under docs/>|<row key>|<column header>``: the first number in that cell of a markdown table (the
+    row whose first cell is the key; ``−`` and ``×`` are read as minus and nothing)."""
+    from ..examples import ROOT
+    parts = ref.removeprefix("doc:").split("|")
+    if len(parts) != 3:
+        raise KeyError(f"doc reference {ref!r}: doc:<path>|<row key>|<column header>")
+    path, row, col = parts
+    p = (ROOT / path).resolve()
+    if (ROOT / "docs").resolve() not in p.parents or not p.is_file():
+        raise StepFailed(f"doc reference {path!r} is not a file under docs/")
+    header = None
+    for line in p.read_text().splitlines():
+        if not line.startswith("|"):
+            header = None
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if header is None:
+            header = cells
+            continue
+        if set("".join(cells)) <= set("-: "):
+            continue
+        if cells[0] == row and col in header:
+            m = _NUM.search(cells[header.index(col)].replace("×", ""))
+            if m:
+                return _written(m.group(0).replace("−", "-"))
+    raise KeyError(f"no number in row {row!r}, column {col!r} of {path}")
+
+
 def reference_value(folder: Path, ref: str) -> float:
     """The number ``ref`` names in an example folder (see the module docstring)."""
+    if ref.startswith("doc:"):
+        return doc_table_value(ref)
     if ref.startswith("manifest:"):
         name = ref.split(":", 1)[1]
         man = json.loads((folder / "experiment.json").read_text())
@@ -134,13 +181,13 @@ def reference_value(folder: Path, ref: str) -> float:
 def rounding_half_unit(x: float) -> float:
     """Half a unit of the last digit of ``x`` as Python writes it (0.00147 -> 5e-6); 0 for a number written with 12
     or more significant digits (not rounded)."""
-    r = repr(float(x)).lower()
+    r = (getattr(x, "text", "") or repr(float(x))).lower()
     mant, _, exp = r.partition("e")
     digits = mant.lstrip("-").replace(".", "").lstrip("0")
     if len(digits) >= 12 or not math.isfinite(x):
         return 0.0
     dec = len(mant.split(".")[1]) if "." in mant else 0
-    if mant.endswith(".0"):
+    if mant.endswith(".0") and not getattr(x, "text", ""):
         dec = 0
     return 0.5 * 10.0 ** (-dec + (int(exp) if exp else 0))
 

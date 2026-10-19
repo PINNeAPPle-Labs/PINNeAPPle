@@ -48,7 +48,7 @@
  },
  "electrodynamics": {
   "domain": "electromagnetics",
-  "notes": "01-06 are hand-written torch PINN scripts with no library entry point (nothing committed to compare); 08 holds its FDTD set-up inline; 12 (2 h GP/NSGA-II) and 13 (thermal network, reads the 11 flux map) are a later batch; 14 and 16 need gmsh + GetDP; 18 builds PPTX slides from the JSON (document build step)."
+  "notes": "01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12 + GetDP 3.2 from apt"
  },
  "end_to_end": {
   "domain": "data",
@@ -85,7 +85,7 @@
  },
  "geomechanics": {
   "domain": "geomechanics",
-  "reason": "not converted yet (a later batch of this PR): GeoMPM granular collapse (6 min); no committed numbers (docs table only)"
+  "notes": "no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md)"
  },
  "geometry": {
   "domain": "geometry",
@@ -117,7 +117,7 @@
  },
  "inspection": {
   "domain": "inspection",
-  "reason": "not converted yet (a later batch of this PR): generate_eddy_current_synthetic + train_eddy_current"
+  "notes": "nothing committed to compare: the script prints the losses"
  },
  "latent": {
   "domain": "reduced-order models",
@@ -230,9 +230,7 @@
  },
  "rigid_body": {
   "domain": "multibody",
-  "needs": "NVIDIA Newton",
-  "reason": "newton_quickstart.py needs pip install newton (warp); solver.newton covers the validation part once it is installed",
-  "status": "needs"
+  "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"
  },
  "security": {
   "domain": "security",
@@ -252,7 +250,7 @@
  },
  "systems": {
   "domain": "systems",
-  "reason": "not converted yet (a later batch of this PR): ComponentRegistry build + fit (unseeded random data in the script: no numbers to compare)"
+  "notes": "the example fits random targets (an API demonstration); nothing to compare"
  },
  "time_series": {
   "domain": "time series",

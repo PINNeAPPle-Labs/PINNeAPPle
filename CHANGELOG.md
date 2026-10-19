@@ -14,6 +14,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Every `examples/*` study as a flow: domain nodes in `pinneapple_flow/nodes_ext` (`flight.*`, `render.blender_clip` /
+  `render.clip_grid`, `em.*`, `examples.compare`), flows in `pinneapple_flow/flows/examples/<domain>/` with a quick
+  configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
+  finish; `python -m pinneapple_flow example-flows list|run|doc|check`; the inventory with measured comparisons against
+  the examples' committed results is `docs/flow_studio/EXAMPLES_AS_FLOWS.md` (CI gate `tests/test_flow_examples.py`).
 - Flow Studio decision records: every planner, LLM and user choice records who decided, why, references from a
   curated registry (`pinneapple_flow/references.yaml`; LLM citations are checked), evidence and a confidence.
   Uncited choices are flagged `no reference` and suggest nodes that would back them.

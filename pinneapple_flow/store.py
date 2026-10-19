@@ -88,6 +88,9 @@ class FlowStore:
         self.custom = sa.Table(
             prefix + "custom_nodes", md, sa.Column("type", sa.String(64), primary_key=True), sa.Column("doc", sa.Text),
             sa.Column("created", sa.Float))
+        self.prefs = sa.Table(
+            prefix + "user_prefs", md, sa.Column("user", sa.String(120), primary_key=True),
+            sa.Column("key", sa.String(64), primary_key=True), sa.Column("value", sa.Text), sa.Column("updated", sa.Float))
         md.create_all(self.engine)
         self.sa = sa
 
@@ -117,6 +120,18 @@ class FlowStore:
         from .decisions import collect
         self.record_decisions(flow.id, collect(flow), version=version)
         return version
+
+    # -- per-user preferences (palette favourites and recent node types) ----------------------------------------
+    def get_pref(self, user: str, key: str, default: Any = None) -> Any:
+        with self.engine.connect() as c:
+            row = c.execute(self.sa.select(self.prefs.c.value).where(
+                (self.prefs.c.user == user) & (self.prefs.c.key == key))).first()
+        return json.loads(row[0]) if row else default
+
+    def set_pref(self, user: str, key: str, value: Any) -> None:
+        with self.engine.begin() as c:
+            c.execute(self.prefs.delete().where((self.prefs.c.user == user) & (self.prefs.c.key == key)))
+            c.execute(self.prefs.insert().values(user=user, key=key, value=json.dumps(value), updated=time.time()))
 
     # -- user-defined node types -----------------------------------------------------------------------------------
     def save_custom_node(self, doc: dict[str, Any]) -> None:

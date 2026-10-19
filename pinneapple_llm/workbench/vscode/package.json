@@ -1,0 +1,31 @@
+{
+  "name": "agent-workbench",
+  "displayName": "PINNeAPPle Agent Workbench",
+  "description": "Local-model coding and engineering agents beside your editor.",
+  "version": "0.1.0",
+  "publisher": "pinneapple",
+  "engines": { "vscode": "^1.80.0" },
+  "main": "./extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      { "command": "pinneappleWorkbench.open", "title": "PINNeAPPle: Open Agent Workbench" },
+      { "command": "pinneappleWorkbench.askSelection", "title": "PINNeAPPle: Ask the agents about the selection" }
+    ],
+    "menus": {
+      "editor/context": [
+        { "command": "pinneappleWorkbench.askSelection", "when": "editorHasSelection", "group": "navigation" }
+      ]
+    },
+    "configuration": {
+      "title": "PINNeAPPle Agent Workbench",
+      "properties": {
+        "pinneappleWorkbench.python": { "type": "string", "default": "python3",
+          "description": "Python interpreter with pinneapple installed." },
+        "pinneappleWorkbench.port": { "type": "number", "default": 8770 },
+        "pinneappleWorkbench.extraArgs": { "type": "array", "items": { "type": "string" }, "default": [],
+          "description": "Extra arguments for `serve`, e.g. [\"--model\", \"qwen3-coder:30b\"]." }
+      }
+    }
+  }
+}

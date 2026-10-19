@@ -13,6 +13,7 @@ Two kinds:
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pinneapple_flow as pf
@@ -153,12 +154,13 @@ def inverse_heat():
 def elnino():
     fb = FlowBuilder("El Nino forecast (ENSO models)",
                      "Nino 3.4 from OISST with the WOD thermocline (warm-water volume) and ERA5 wind stress: the ENSO "
-                     "library's baselines, recharge and delayed oscillators, linear inverse model and a "
-                     "gradient-boosting forecaster (quick settings), tuned on 1982-2011 and scored on the untouched test "
-                     "period from 2012 against climatology and persistence. The intermediate coupled model (im_nudged) "
-                     "is left out of this example: it ran for more than 55 minutes without finishing on a 4-core CPU.")
+                     "library's baselines (persistence, climatology, AR), recharge and delayed oscillators and the "
+                     "linear inverse model (quick settings), tuned on 1982-2011 and scored on the untouched test period "
+                     "from 2012 against climatology and persistence. Left out of this example for run time on a shared "
+                     "4-core CPU: the intermediate coupled model (im_nudged, over 55 minutes without finishing) and "
+                     "gradient boosting (gbm, over 18 minutes); both are in the node's model list.")
     f = fb.add("forecast", "forecast.enso", {"models": ["persistence", "climatology", "ar", "ro", "delayed_oscillator",
-                                                         "lim", "gbm"], "quick": True},
+                                                         "lim"], "quick": True},
                label="ENSO forecast")
     r = fb.add("report", "export.report", {"title": "El Nino forecast"}, label="Report")
     fb.connect(f, "metrics", r, "items")
@@ -174,6 +176,39 @@ def takeoff():
     r = fb.add("report", "export.report", {"title": "take-off"}, label="Report")
     fb.connect(t, "metrics", r, "items")
     return fb.flow({"kind": "reproduction"})
+
+
+def lunar_rover(quick: bool = False):
+    """examples/studio/07_lunar_rover_dashboard.py as a flow (``quick``: its --quick settings, 12 s and 24 frames)."""
+    fb = FlowBuilder("Lunar rover dashboard" + (" (quick)" if quick else ""),
+                     "NASA VIPER crossing a lunar crater on GRC-1: multibody dynamics with Wong-Reece wheels, the model "
+                     "zoo's wheel-contact PINN checked against the run's physics, and the animated dashboard (planetary "
+                     "render with the ruts coloured by normal stress, charts synced to the animation) with a horizon "
+                     "check on the frames. The flow form of examples/studio/07_lunar_rover_dashboard.py"
+                     + (" --quick (12 s traverse, 24 frames)." if quick else " (45 s traverse, 150 frames)."))
+    veh = fb.add("vehicle", "vehicle.spec", {"preset": "viper", "total_mass": 450.0}, label="VIPER")
+    soil = fb.add("soil", "terramechanics.soil", {"preset": "GRC-1"}, label="GRC-1 soil")
+    site = fb.add("site", "scenario.site", {"scenario": "crater_site"}, label="Crater site")
+    sim = fb.add("simulate", "vehicle.simulate", {"duration": 12.0 if quick else 45.0, "speed": 0.2},
+                 label="Traverse")
+    wr = fb.add("wheel", "terramechanics.wheel_model", {}, label="Wong-Reece wheel")
+    zoo = fb.add("pinn", "terramechanics.zoo_surrogate", {"zoo_name": "rover_contact_grc1_viper"}, label="Zoo PINN")
+    db = fb.add("dashboard", "vehicle.dashboard", {"frames": 24 if quick else 150, "gif_every": 1 if quick else 2},
+                label="Dashboard")
+    lab = fb.add("lab", "validate.lab", {"title": "Lunar rover dashboard"}, label="Lab")
+    fb.connect(veh, "vehicle", sim, "vehicle")
+    fb.connect(soil, "soil", sim, "soil")
+    fb.connect(site, "site", sim, "site")
+    fb.connect(veh, "vehicle", wr, "vehicle")
+    fb.connect(soil, "soil", wr, "soil")
+    fb.connect(wr, "model", zoo, "model")
+    fb.connect(sim, "run", db, "run")
+    fb.connect(wr, "model", db, "model")
+    fb.connect(zoo, "surrogate", db, "surrogate")
+    fb.connect(zoo, "metrics", lab, "validation")
+    fb.connect(db, "metrics", lab, "validation")
+    return fb.flow({"kind": "reproduction", "reproduces": "examples/studio/07_lunar_rover_dashboard.py"
+                    + (" --quick" if quick else "")})
 
 
 def planned(name: str) -> pf.Flow:
@@ -203,14 +238,18 @@ def to_3d(f: pf.Flow) -> pf.Flow:
     return d
 
 
-def main():
+def main(names=()):
+    """Write the example flows (``names``: only these; the planned ones are re-planned only when asked, since a new
+    plan has new decision ids)."""
     OUT.mkdir(parents=True, exist_ok=True)
-    flows = {"heat_1d": heat_1d(), "burgers_1d": burgers_1d(), "poisson_2d": poisson_2d(),
-             "operator_burgers": operator_burgers(), "inverse_heat": inverse_heat(), "elnino_forecast": elnino(),
-             "aircraft_takeoff": takeoff()}
+    flows = {"heat_1d": heat_1d, "burgers_1d": burgers_1d, "poisson_2d": poisson_2d,
+             "operator_burgers": operator_burgers, "inverse_heat": inverse_heat, "elnino_forecast": elnino,
+             "aircraft_takeoff": takeoff, "lunar_rover_dashboard": lunar_rover,
+             "lunar_rover_dashboard_quick": lambda: lunar_rover(quick=True)}
     for name in PROMPTS:
-        flows[name] = planned(name)
-    flows["planned_plate_2d_to_3d_edited"] = to_3d(flows["planned_plate_2d_to_3d"])
+        flows[name] = lambda name=name: planned(name)
+    flows["planned_plate_2d_to_3d_edited"] = lambda: to_3d(planned("planned_plate_2d_to_3d"))
+    flows = {k: fn() for k, fn in flows.items() if not names or k in names}
     for name, f in flows.items():
         issues = [i for i in pf.validate_flow(f) if i.level == "error"]
         assert not issues, (name, issues)
@@ -219,4 +258,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

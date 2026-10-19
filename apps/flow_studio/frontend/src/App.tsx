@@ -26,6 +26,7 @@ function compatibleFn(cat: Catalog) {
 
 function Studio() {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
+  const [added, setAdded] = useState({ type: "", n: 0 });
   const [info, setInfo] = useState<{ version: string; planners: string[] } | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -125,10 +126,12 @@ function Studio() {
     const base = type.split(".").pop()!.replace(/[^a-z0-9_]/gi, "_");
     while (nodes.some((n) => n.id === `${base}${k}`)) k++;
     const id = `${base}${k}`;
-    const pos = position || rf.screenToFlowPosition({ x: (wrapper.current?.clientWidth || 800) / 2, y: 200 });
+    const box = wrapper.current?.getBoundingClientRect();
+    const pos = position || rf.screenToFlowPosition({ x: (box?.left || 0) + (box?.width || 800) / 2, y: (box?.top || 0) + (box?.height || 400) / 2 });
     setNodes((ns) => [...ns, { id, type: "flow", position: pos, data: { spec: s, label: s.title, params: {}, status: "idle" } as FlowNodeData }]);
     setSelected(id);
     setTab("params");
+    setAdded((a) => ({ type, n: a.n + 1 }));
   };
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -269,7 +272,8 @@ function Studio() {
         )}
       </header>
       <div className="flex flex-1 min-h-0">
-        <Palette nodes={catalog.nodes} onAdd={(t) => addNode(t)} onNewType={() => setShowCustom(true)} />
+        <Palette nodes={catalog.nodes} onAdd={(t) => addNode(t)} onNewType={() => setShowCustom(true)}
+          recentBump={added.type ? `${added.type}#${added.n}` : undefined} />
         <div className="flex-1 relative" ref={wrapper} onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }} onDrop={onDrop} data-testid="canvas">
           <ReactFlow
             nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}

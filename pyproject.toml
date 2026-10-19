@@ -51,6 +51,8 @@ dependencies = [
 pinneapple-ccx = "pinneapple_simulation.external_solvers.calculix.virtual_ccx:main"
 # MCP server (stdio) for coding agents: solve, benchmark, trust card; needs the [mcp] extra
 pinneapple-mcp = "pinneapple_mcp.server:main"
+# Agent Workbench: coding and engineering agents on a local model (web app, VS Code, terminal); needs [workbench]
+pinneapple-workbench = "pinneapple_llm.workbench.__main__:main"
 # pinneapple check [paths]: physics linter for CI (and `pinneapple benchmark ...` when that package is present)
 pinneapple = "pinneapple_check.cli:main"
 
@@ -266,6 +268,13 @@ tuning = [
 
 # Local fine-tuning of a local (Ollama-served) model on data logged via
 # pinneapple_llm.conversation_store
+# Agent Workbench (pinneapple_llm.workbench): web app + local model server client. Postgres: add psycopg[binary];
+# fine-tuning on Apple Silicon: add mlx-lm
+workbench = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "requests>=2.31",
+]
 finetune = [
   "peft>=0.12",
   "datasets>=2.20",

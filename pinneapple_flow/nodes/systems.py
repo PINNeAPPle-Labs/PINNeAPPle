@@ -218,6 +218,7 @@ def enso(ctx, inputs, params):
     fig.tight_layout()
     fa = ctx.figure(fig, "skill", f"Nino 3.4 forecasts, test {params['test_start']} to {ds.months[-1]}")
     best = ctx.report["metrics"].get(f"best_skill_vs_climatology_lead{leads[1] if len(leads) > 1 else leads[0]}")
+    best = best.get("value") if isinstance(best, dict) else best
     ctx.summary(f"{len(names)} models on Nino 3.4 (test from {params['test_start']}); best non-baseline skill vs "
                 f"climatology at {leads[1] if len(leads) > 1 else leads[0]} months: {best}")
     return {"metrics": ctx.report["metrics"], "figure": fa}

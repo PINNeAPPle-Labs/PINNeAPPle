@@ -223,7 +223,7 @@ def lab(ctx, inputs, params):
     if not vals:
         raise StepFailed("connect the metrics of a validation node")
     checks = [c for v in vals for c in v["checks"]]
-    cand = {k: r for v in vals for k, r in v["candidates"].items()}
+    cand = {k: r for v in vals for k, r in (v.get("candidates") or {}).items()}
     figure = next((v.get("figure") for v in vals if v.get("figure")), None)
     flow_id = re.sub(r"[^a-z0-9_]+", "_", str(ctx.meta.get("flow_id", "flow")).lower())
     name = f"flow_{flow_id}_{re.sub(r'[^a-z0-9_]+', '_', ctx.node_id.lower())}"[:80]

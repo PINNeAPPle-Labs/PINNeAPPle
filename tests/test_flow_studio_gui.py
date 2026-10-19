@@ -71,6 +71,16 @@ def page(server):
         browser.close()
 
 
+def wait_until(page, js, timeout=60.0):
+    """Poll a JS expression from Python: page.evaluate is not subject to the page's CSP, wait_for_function's polling
+    is (the app forbids 'unsafe-eval')."""
+    end = time.time() + timeout
+    while not page.evaluate(js):
+        if time.time() > end:
+            raise AssertionError(f"timed out waiting for {js}")
+        time.sleep(0.1)
+
+
 def shot(page, name, **kw):
     if SHOTS:
         Path(SHOTS).mkdir(parents=True, exist_ok=True)
@@ -97,7 +107,7 @@ def test_drag_from_palette_creates_a_node(page):
     before = page.locator(".react-flow__node").count()
     page.drag_and_drop("[data-testid='palette-geometry.domain']", "[data-testid=canvas]",
                        target_position={"x": 400, "y": 300})
-    page.wait_for_function(f"document.querySelectorAll('.react-flow__node').length > {before}")
+    wait_until(page, f"document.querySelectorAll('.react-flow__node').length > {before}")
     assert page.locator("[data-testid=param-panel]").is_visible()
 
 
@@ -145,6 +155,69 @@ def test_equation_editor_and_architecture_preview(page):
     page.wait_for_selector("[data-testid=layer-graph]")
     n0 = page.locator("[data-testid=layer-graph] rect").count()
     page.click("[data-testid=add-block]")
-    page.wait_for_function(f"document.querySelectorAll('[data-testid=layer-graph] rect').length > {n0}")
+    wait_until(page, f"document.querySelectorAll('[data-testid=layer-graph] rect').length > {n0}")
     assert "trainable parameters" in page.inner_text("[data-testid=layer-graph]")
     shot(page, "flow_studio_architecture.png")
+
+
+# -- the palette ---------------------------------------------------------------------------------------------------
+def test_palette_sections_follow_the_workflow_and_library_calls_start_collapsed(page):
+    from pinneapple_flow.palette import SECTION_IDS
+    page.fill("[data-testid=palette-search]", "")
+    page.wait_for_selector("[data-testid=palette-section-library]")
+    ids = page.eval_on_selector_all("[data-testid^=palette-section-]:not([data-testid^=palette-section-toggle])",
+                                    "els => els.map(e => e.dataset.testid.slice('palette-section-'.length))")
+    assert ids == [s for s in SECTION_IDS if s in ids] and ids[0] == "problem" and ids[-1] == "library"
+    lib = page.locator("[data-testid=palette-section-library]")
+    assert lib.get_attribute("data-open") == "no"
+    assert page.locator("[data-testid^='palette-auto.']").count() == 0
+    page.click("[data-testid=palette-section-toggle-library]")
+    page.wait_for_selector("[data-testid^=palette-group-]")
+    assert page.locator("[data-testid^='palette-auto.']").count() == 0       # package groups start collapsed too
+    page.click("[data-testid=palette-section-toggle-library]")
+
+
+def test_palette_search_ranks_curated_nodes_first_and_names_the_section(page):
+    page.fill("[data-testid=palette-search]", "pinn")
+    page.wait_for_selector("[data-testid=palette-results] [data-testid='palette-train.pinn']")
+    hits = page.eval_on_selector_all("[data-testid=palette-results] > [data-testid^=palette-]",
+                                     "els => els.map(e => e.dataset.testid.slice('palette-'.length))")
+    assert hits[0] == "train.pinn"
+    auto = [i for i, t in enumerate(hits) if t.startswith("auto.")]
+    assert not auto or all(not t.startswith("auto.") for t in hits[:auto[0]]) and \
+        all(t.startswith("auto.") for t in hits[auto[0]:])
+    first = page.locator("[data-testid=palette-results] > [data-testid='palette-train.pinn']")
+    assert first.locator("[data-testid=palette-hit-section]").inner_text().lower().startswith("physics ai")
+    assert first.locator("mark").count() >= 1
+    shot(page, "palette_search.png", clip={"x": 0, "y": 0, "width": 640, "height": 920})
+    page.fill("[data-testid=palette-search]", "")
+
+
+def test_palette_unavailable_items_stay_visible_with_the_reason(page):
+    from pinneapple_flow import REGISTRY
+    off = [s.type for s in REGISTRY.specs() if not s.available()[0] and not s.type.startswith("auto.")]
+    if not off:
+        pytest.skip("every curated node is available here")
+    el = page.locator(f"[data-testid='palette-{off[0]}']")
+    assert el.get_attribute("data-available") == "no"
+    assert "unavailable:" in el.get_attribute("aria-label")
+    assert el.locator("[data-testid=palette-unavailable]").inner_text().strip()
+    el.hover()
+    card = page.wait_for_selector("[data-testid=palette-tooltip]")
+    assert "Unavailable here" in card.inner_text()
+    shot(page, "palette_unavailable.png", clip={"x": 0, "y": 0, "width": 640, "height": 920})
+    page.mouse.move(900, 500)
+
+
+def test_palette_favourites_are_stored_for_the_user(page, server):
+    import urllib.request
+    page.hover("[data-testid='palette-viz.plot']")
+    page.click("[data-testid='palette-star-viz.plot']")
+    page.wait_for_selector("[data-testid=palette-favourites] [data-testid='palette-viz.plot']")
+    for _ in range(30):
+        prefs = json.loads(urllib.request.urlopen(server + "/api/palette").read())
+        if "viz.plot" in prefs["favourites"]:
+            break
+        time.sleep(0.1)
+    assert "viz.plot" in prefs["favourites"]
+    shot(page, "palette.png", clip={"x": 0, "y": 0, "width": 640, "height": 920})

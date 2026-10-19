@@ -2,9 +2,9 @@
  "flow": "planned_plate_2d_to_3d_edited",
  "title": "Classical solver + PINN, validated (edited to 3-D)",
  "status": "done",
- "wall_seconds": 123.7,
+ "wall_seconds": 205.5,
  "machine": "x86_64 x86_64 (linux), CPU only",
- "date": "2026-10-18",
+ "date": "2026-10-19",
  "meta": {
   "title": "Classical solver + PINN, validated",
   "family": "poisson",
@@ -57,8 +57,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "ee93c30fc6",
-    "created": 1792356560.3608153
+    "id": "ed9c41162f",
+    "created": 1792368157.3688123
    },
    {
     "topic": "equations",
@@ -110,8 +110,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "c0c37269c8",
-    "created": 1792356560.3609211
+    "id": "47bc6ad019",
+    "created": 1792368157.3689113
    },
    {
     "topic": "dimension",
@@ -138,8 +138,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "a15c72f590",
-    "created": 1792356560.3609605
+    "id": "c363de5bb8",
+    "created": 1792368157.3689477
    },
    {
     "topic": "dimension",
@@ -162,8 +162,8 @@
     "raise_with": [
      "validate.compare"
     ],
-    "id": "bf93593f05",
-    "created": 1792356560.3609846
+    "id": "829ccc2252",
+    "created": 1792368157.3689704
    },
    {
     "topic": "bcs",
@@ -213,8 +213,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "1f4ceba0f8",
-    "created": 1792356560.361012
+    "id": "c2a2e7de89",
+    "created": 1792368157.3689969
    },
    {
     "topic": "validation",
@@ -282,8 +282,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "ae767c0bad",
-    "created": 1792356560.3610432
+    "id": "135fe599d2",
+    "created": 1792368157.3690274
    },
    {
     "topic": "method",
@@ -357,8 +357,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "be9fc29cee",
-    "created": 1792356560.3610947
+    "id": "6a04b2fb41",
+    "created": 1792368157.3690789
    },
    {
     "topic": "method",
@@ -404,8 +404,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "1ab5cd5717",
-    "created": 1792356560.3611338
+    "id": "692e53a373",
+    "created": 1792368157.3691092
    },
    {
     "topic": "method",
@@ -458,8 +458,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "fb188953cf",
-    "created": 1792356560.3611577
+    "id": "8432930d8d",
+    "created": 1792368157.3691342
    },
    {
     "topic": "hyperparameters",
@@ -545,8 +545,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "5c85a20296",
-    "created": 1792356560.3611848
+    "id": "27a4b11476",
+    "created": 1792368157.369161
    },
    {
     "topic": "architecture",
@@ -576,8 +576,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "964ff1fc90",
-    "created": 1792356560.3612504
+    "id": "a0eb57bd3c",
+    "created": 1792368157.36919
    },
    {
     "topic": "validation",
@@ -629,8 +629,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "4930eb395d",
-    "created": 1792356560.3612857
+    "id": "43e34e8f5d",
+    "created": 1792368157.3692107
    },
    {
     "topic": "validation",
@@ -657,8 +657,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "3caa3ee1e8",
-    "created": 1792356560.361317
+    "id": "ec708517b1",
+    "created": 1792368157.369233
    },
    {
     "topic": "validation",
@@ -667,7 +667,7 @@
      "kind": "rule",
      "id": "validation.lab_tiers"
     },
-    "rationale": "PINNeAPPle Lab tiers A-D and the seal on A/B",
+    "rationale": "PINNeAPPle Lab seal letters A-F from the curation",
     "value": null,
     "references": [],
     "evidence": [
@@ -685,8 +685,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "2f84784058",
-    "created": 1792356560.3613372
+    "id": "1eb28b6dca",
+    "created": 1792368157.369255
    },
    {
     "topic": "route",
@@ -709,8 +709,8 @@
     "raise_with": [
      "validate.compare"
     ],
-    "id": "63884b7456",
-    "created": 1792356560.361355
+    "id": "68e907e225",
+    "created": 1792368157.3692718
    },
    {
     "topic": "dimension",
@@ -763,8 +763,8 @@
     "no_reference": false,
     "suggestion": "",
     "raise_with": [],
-    "id": "367cb4367d",
-    "created": 1792356560.3613791
+    "id": "80e5aaacde",
+    "created": 1792368157.3692925
    }
   ],
   "planner": "heuristic",
@@ -788,7 +788,7 @@
   "geo": {
    "type": "geometry.domain",
    "status": "done",
-   "seconds": 0.0013644695281982422,
+   "seconds": 0.0017137527465820312,
    "error": null,
    "summary": "box in 3-D, coordinates ['x', 'y', 'z']",
    "metrics": {
@@ -801,7 +801,7 @@
   "mesh": {
    "type": "geometry.mesh",
    "status": "done",
-   "seconds": 0.0010483264923095703,
+   "seconds": 0.0010302066802978516,
    "error": null,
    "summary": "",
    "metrics": {
@@ -840,7 +840,7 @@
   "eq": {
    "type": "equations.system",
    "status": "done",
-   "seconds": 0.05984926223754883,
+   "seconds": 0.3352658748626709,
    "error": null,
    "summary": "poisson (linear), 1 PDE(s), 1 condition(s)",
    "metrics": {
@@ -878,16 +878,16 @@
   "fd": {
    "type": "solver.classical",
    "status": "done",
-   "seconds": 28.856031894683838,
+   "seconds": 26.331799030303955,
    "error": null,
-   "summary": "FD on 21x21x21 points in 28.58 s",
+   "summary": "FD on 21x21x21 points in 25.58 s",
    "metrics": {
     "method": "newton",
     "iterations": 3,
     "n_unknowns": 9261,
     "residual_inf": 2.4513724383723456e-13,
     "solve_seconds": {
-     "value": 28.5809,
+     "value": 25.5754,
      "how": "wall clock of the solve on this machine"
     }
    },
@@ -900,13 +900,13 @@
   "fem": {
    "type": "solver.classical",
    "status": "done",
-   "seconds": 0.36504364013671875,
+   "seconds": 3.574662208557129,
    "error": null,
-   "summary": "FEM on 11x11x11 points in 0.07 s",
+   "summary": "FEM on 11x11x11 points in 3.29 s",
    "metrics": {
     "n_dof": 1331,
     "solve_seconds": {
-     "value": 0.0726,
+     "value": 3.2935,
      "how": "wall clock of the solve on this machine"
     }
    },
@@ -919,22 +919,22 @@
   "pinn": {
    "type": "train.pinn",
    "status": "done",
-   "seconds": 92.382559299469,
+   "seconds": 91.35492420196533,
    "error": null,
-   "summary": "PINN trained in 91.7 s; validation failed",
+   "summary": "PINN trained in 89.5 s; validation failed",
    "metrics": {
     "train_seconds": {
-     "value": 91.74,
+     "value": 89.47,
      "how": "wall clock of training on this machine (CPU)"
     },
-    "final_loss": 0.002629635389894247,
+    "final_loss": 0.0027582463808357716,
     "n_parameters": 3329,
     "residual_rms_fresh": {
-     "value": 0.025068749812897473,
+     "value": 0.02350876367910483,
      "how": "relative PDE residual at fresh points"
     },
     "rel_l2_vs_exact": {
-     "value": 0.030680212951536584,
+     "value": 0.03267542599398538,
      "how": "validate_pinn on a fresh grid"
     },
     "validation": "fail"
@@ -954,7 +954,7 @@
       [
        "pinn.residual",
        "fail",
-       "relative residual at fresh points: RMS 2.51e-02 (<= 0.05), max 3.89e-01 (<= 0.3, adaptive points included)"
+       "relative residual at fresh points: RMS 2.35e-02 (<= 0.05), max 5.06e-01 (<= 0.3, adaptive points included)"
       ],
       [
        "pinn.trivial",
@@ -969,7 +969,7 @@
       [
        "pinn.boundary",
        "fail",
-       "boundary condition error 1.48e-02 of the solution scale (<= 0.01)"
+       "boundary condition error 1.62e-02 of the solution scale (<= 0.01)"
       ],
       [
        "pinn.initial",
@@ -984,7 +984,7 @@
       [
        "pinn.exact",
        "fail",
-       "relative L2 error 3.07e-02 (<= 0.02), max 7.27e-02 of the scale"
+       "relative L2 error 3.27e-02 (<= 0.02), max 9.51e-02 of the scale"
       ]
      ]
     }
@@ -997,7 +997,7 @@
   "view3d": {
    "type": "viz.field3d",
    "status": "done",
-   "seconds": 0.07023835182189941,
+   "seconds": 0.3622157573699951,
    "error": null,
    "summary": "",
    "metrics": {
@@ -1010,9 +1010,9 @@
   "validate": {
    "type": "validate.compare",
    "status": "done",
-   "seconds": 0.7772886753082275,
+   "seconds": 0.9257304668426514,
    "error": null,
-   "summary": "FD: 2.06e-03, FEM: 5.87e-02, PINN: 2.78e-02 (vs exact solution)",
+   "summary": "FD: 2.06e-03, FEM: 5.87e-02, PINN: 2.96e-02 (vs exact solution)",
    "metrics": {
     "FD_rel_l2": {
      "value": 0.0020587067645338355,
@@ -1023,7 +1023,7 @@
      "how": "against the exact solution on 9261 points"
     },
     "PINN_rel_l2": {
-     "value": 0.027846776655734127,
+     "value": 0.029562267954310568,
      "how": "against the exact solution on 9261 points"
     },
     "best": "FD"
@@ -1060,10 +1060,51 @@
       [
        "PINN",
        "pinn",
-       0.027846776655734127,
-       0.0726686418056488,
-       0.009150524528009898,
+       0.029562267954310568,
+       0.09514950215816498,
+       0.009714239510152323,
        "FAIL"
+      ]
+     ]
+    },
+    {
+     "title": "candidates' own checks",
+     "columns": [
+      "candidate",
+      "check",
+      "verdict",
+      "detail"
+     ],
+     "rows": [
+      [
+       "PINN",
+       "pinn.residual",
+       "FAIL",
+       "relative residual at fresh points: RMS 2.35e-02 (<= 0.05), max 5.06e-01 (<= 0.3, adaptive points included)"
+      ],
+      [
+       "PINN",
+       "pinn.trivial",
+       "PASS",
+       "spread and gradient energy 1.00 x the exact solution's (>= 0.2)"
+      ],
+      [
+       "PINN",
+       "pinn.boundary",
+       "FAIL",
+       "boundary condition error 1.62e-02 of the solution scale (<= 0.01)"
+      ],
+      [
+       "PINN",
+       "pinn.spectrum",
+       "PASS",
+       "high-wavenumber energy -3% relative to the exact solution (within +/-25%)"
+      ],
+      [
+       "PINN",
+       "pinn.exact",
+       "FAIL",
+       "relative L2 error 3.27e-02 (<= 0.02), max 9.51e-02 of the scale"
       ]
      ]
     }
@@ -1075,7 +1116,7 @@
   "plot": {
    "type": "viz.plot",
    "status": "done",
-   "seconds": 0.5792098045349121,
+   "seconds": 0.619873046875,
    "error": null,
    "summary": "",
    "metrics": {},
@@ -1089,23 +1130,27 @@
   "lab": {
    "type": "validate.lab",
    "status": "done",
-   "seconds": 0.07067298889160156,
+   "seconds": 1.481541395187378,
    "error": null,
-   "summary": "tier D: not sealed (only A and B are)",
+   "summary": "tier F (PINN pinn.residual \u00b7 PINN's own check (+4 more)), sealed",
    "metrics": {
     "lab_status": "failed_validation",
     "tier": {
-     "value": "D",
-     "how": "pinneapple_lab.curation: A flagship, B solid, C exploratory, D failed"
+     "value": "F",
+     "how": "this run, graded by pinneapple_lab.curation: A flagship, B solid, C plausible, D exploratory, E known problems, F not usable; PINN pinn.residual \u00b7 PINN's own check (+4 more)"
     },
-    "lab_run_id": "flow_poisson_2d_classical_vs_pinn_3d_lab-0815e907d38e",
+    "item_tier": {
+     "value": "F",
+     "how": "the Lab item's letter: the best of its runs"
+    },
+    "lab_run_id": "flow_poisson_2d_classical_vs_pinn_3d_lab-8f6dfbb4dd24",
     "seal": {
-     "value": "D",
-     "how": "pinneapple_lab (ABCD): not usable"
+     "value": "F",
+     "how": "pinneapple_lab (ABCDEF): not usable"
     }
    },
    "warnings": [
-    "no seal: flow_poisson_2d_classical_vs_pinn_3d_lab is tier D (not usable): only tiers A and B are sealed"
+    "failing check: PINN pinn.residual \u00b7 PINN's own check (+4 more); to raise it: E: make the physics check pass"
    ],
    "tables": [
     {
@@ -1117,19 +1162,41 @@
      ],
      "rows": [
       [
-       "fix the failing checks or the crash",
-       "",
-       ""
+       "make the physics check pass",
+       "lint the run's fields for conservation, boundary conditions, residual and units",
+       "validate.compare, train.pinn"
+      ],
+      [
+       "make the physics check pass",
+       "lint the run's fields for conservation, boundary conditions, residual and units",
+       "validate.compare, train.pinn"
+      ],
+      [
+       "make the physics check pass",
+       "lint the run's fields for conservation, boundary conditions, residual and units",
+       "validate.compare, train.pinn"
+      ],
+      [
+       "bring the error vs the reference within its tolerance",
+       "diagnose the PINN on fresh points (residual, failure modes such as a collapsed or spectrally biased solution) before retraining",
+       "train.pinn, lib.compare.preset"
+      ],
+      [
+       "bring the error vs the reference within its tolerance",
+       "diagnose the PINN on fresh points (residual, failure modes such as a collapsed or spectrally biased solution) before retraining",
+       "train.pinn, lib.compare.preset"
       ]
      ]
     }
    ],
-   "figures": []
+   "figures": [
+    "lab_validation_sealed.png"
+   ]
   },
   "report": {
    "type": "export.report",
    "status": "done",
-   "seconds": 0.002511262893676758,
+   "seconds": 0.0027523040771484375,
    "error": null,
    "summary": "report written (html)",
    "metrics": {

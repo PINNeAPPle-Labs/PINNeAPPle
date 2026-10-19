@@ -1,6 +1,6 @@
 // What a node produced in the last run: summary, warnings, metrics, tables, figures, the 3-D scene, the
 // architecture, the parsed equations, the log.
-import { artifactUrl, runFileUrl } from "../api";
+import { artifactUrl, htmlArtifactUrl } from "../api";
 import type { NodeResult } from "../types";
 import { LayerGraph } from "./LayerGraph";
 import { Viewer3D } from "./Viewer3D";
@@ -61,6 +61,24 @@ export function ResultPanel({ result, onAccept }: { result: NodeResult | null; o
       )}
       {views.architecture && (
         <div><div className="font-semibold text-[11.5px] mb-1">Architecture</div><LayerGraph graph={views.architecture} /></div>
+      )}
+      {views.html && (
+        <div data-testid="html-view">
+          <div className="flex items-center justify-between mb-1">
+            <div className="font-semibold text-[11.5px]">{views.html.title || "Dashboard"}</div>
+            <a className="text-[11px] text-sky-700" href={htmlArtifactUrl(views.html.path)} target="_blank" rel="noopener">open full size ↗</a>
+          </div>
+          {/* the dashboard runs in its own opaque origin: scripts only, no access to the app */}
+          <iframe src={htmlArtifactUrl(views.html.path)} sandbox="allow-scripts allow-downloads" title={views.html.title || "dashboard"}
+            className="w-full rounded border border-slate-200 bg-black" style={{ height: 420 }} data-testid="html-frame" />
+          {views.html.links && (
+            <div className="flex flex-wrap gap-2 mt-1 text-[11px]" data-testid="html-links">
+              {Object.entries(views.html.links as Record<string, string>).filter(([k]) => k !== "html").map(([k, p]) => (
+                <a key={k} className="text-sky-700 underline" href={artifactUrl(p)} target="_blank" rel="noopener" download={k !== "png" && k !== "frame" ? true : undefined}>{k.toUpperCase()}</a>
+              ))}
+            </div>
+          )}
+        </div>
       )}
       {views.video && (
         <figure data-testid="video">

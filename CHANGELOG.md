@@ -19,6 +19,16 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
   finish; `python -m pinneapple_flow example-flows list|run|doc|check`; the inventory with measured comparisons against
   the examples' committed results is `docs/flow_studio/EXAMPLES_AS_FLOWS.md` (CI gate `tests/test_flow_examples.py`).
+- Flow Studio rover nodes and the lunar rover dashboard as a flow (`lunar_rover_dashboard`, and a quick variant
+  matching `examples/studio/07_lunar_rover_dashboard.py --quick`): vehicle, soil and site presets, the multibody
+  traverse, the Wong-Reece wheel model, the model zoo's wheel-contact PINN with its physics check, and the animated
+  dashboard shown in the result panel in a sandboxed frame (`/api/artifact/html`, its own opaque origin).
+- Flow Studio palette: sections in workflow order (Problem & geometry ... Export & report), each collapsible with its
+  count; the generated library calls in a collapsed "Library calls (advanced)" section grouped by package; human
+  titles, one-line summaries, colour chips by output port type, a hover card with the description and, for an
+  unavailable node, the reason and the install hint; search ranked by the library (`pinneapple_flow.palette`) with
+  matches highlighted and the section of each hit; favourites and recent node types stored per user in the flow
+  store; a drag preview, and double-click adds at the canvas centre.
 - Flow Studio decision records: every planner, LLM and user choice records who decided, why, references from a
   curated registry (`pinneapple_flow/references.yaml`; LLM citations are checked), evidence and a confidence.
   Uncited choices are flagged `no reference` and suggest nodes that would back them.
@@ -76,6 +86,19 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   the Observatory cache is bounded. Lab catalogue: `LAB_PASSWORD_HASH` and lockout.
 
 ### Added
+- Agent Workbench (`pinneapple_llm.workbench`, `pinneapple-workbench`, `[workbench]` extra): a team of agents on a
+  local model (Ollama or any OpenAI-compatible server), started with one command as a web app, in VS Code or in the
+  terminal.
+  - A lead and seven specialists: explorer, researcher, coder, tester, reviewer, physics, reporter. Their prompts are
+    editable Markdown, overridable per user or per project.
+  - Tools: files, search, shell commands (also as background jobs), internet search and fetch, GitHub, showing files
+    in the chat, a plan, delegation, questions with choices, parallel sessions and scheduled follow-ups. Paths are
+    confined to the workspace, with an `ask` / `auto` / `yolo` approval policy.
+  - Every event and every model call goes to SQLite or PostgreSQL, with 👍/👎 feedback per turn.
+  - Fine-tuning: dataset export (trajectories, rated turns, secrets masked) and LoRA training with MLX on Apple
+    Silicon or TRL/PEFT on CUDA, plus serving the adapter.
+  - A model recommendation from the machine's memory, `doctor`, and `eval` (checkable tasks reporting pass/fail,
+    time and tokens). Guide: `docs/guides/agent_workbench.md`.
 - The experiments page (`pinneapple_lab.explorer`): every Lab item and every `examples/*` manifest with its A-F
   seal, trust card, measured metrics, failing check (E/F), next steps with commands, stamped figure gallery, movies
   on demand, 3-D viewers and links (guide, script, pull request); filters (letter, domain, method, ready), search,

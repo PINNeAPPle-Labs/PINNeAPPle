@@ -124,6 +124,7 @@ class NodeSpec:
     calls: str = ""                                  # the library function(s) this node wraps
     requires: tuple[str, ...] = ()                   # importable modules it needs (availability check)
     available_fn: Callable[[], tuple[bool, str]] | None = None
+    tags: tuple[str, ...] = ()                       # search words; "section:<id>" places it in the palette
 
     def input(self, name: str) -> Port | None:
         return next((p for p in self.inputs if p.name == name), None)
@@ -172,7 +173,13 @@ class NodeSpec:
         return {"type": self.type, "title": self.title, "category": self.category, "description": self.description,
                 "calls": self.calls, "inputs": [asdict(p) for p in self.inputs],
                 "outputs": [asdict(p) for p in self.outputs], "params": [asdict(p) for p in self.params],
-                "params_schema": self.params_schema(), "available": ok, "unavailable_reason": why}
+                "params_schema": self.params_schema(), "available": ok, "unavailable_reason": why,
+                "tags": list(self.tags), "palette": palette_entry(self, (ok, why))}
+
+
+def palette_entry(spec: NodeSpec, avail: tuple[bool, str]) -> dict[str, Any]:
+    from .palette import entry
+    return entry(spec, avail)
 
 
 class Registry:
@@ -236,12 +243,13 @@ def _load_builtin():
 
 def node(type_: str, title: str, *, category: str, inputs=(), outputs=(), params=(), description: str = "",
          calls: str = "", requires: tuple[str, ...] = (), available: Callable[[], tuple[bool, str]] | None = None,
-         registry: Registry | None = None):
+         tags: tuple[str, ...] = (), registry: Registry | None = None):
     """Decorator registering ``fn(ctx, inputs, params) -> {output port: value}`` as a node type."""
     def deco(fn):
         (registry or REGISTRY).register(NodeSpec(type=type_, title=title, category=category, fn=fn,
                                                  inputs=list(inputs), outputs=list(outputs), params=list(params),
                                                  description=description or (fn.__doc__ or "").strip(),
-                                                 calls=calls, requires=tuple(requires), available_fn=available))
+                                                 calls=calls, requires=tuple(requires), available_fn=available,
+                                                 tags=tuple(tags)))
         return fn
     return deco

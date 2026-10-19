@@ -52,6 +52,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | Predict El Niño: ENSO data (OISST, WOD thermocline, ERA5), recharge / delayed oscillators, an intermediate coupled model with checks against theory, PINNs, LIM / CNN, EnKF, the forecast_lab protocol | `pinneapple_systems.time_series.enso`: `dataset.build_dataset()`, `dataset.to_series(ds)`, `study.protocol(ds.months)`, `study.run_model(name, data, prot)`, `pipeline.solver_checks()` ([docs](docs/guides/enso_forecasting.md)) |
 | Record an experiment so the Lab, the site and the Flow Studio see it (manifest, A-F grade, next steps) | `with pinneapple_lab.experiment("name", title=..., domain=...) as ex:` + `ex.log_metric` / `ex.check` (figures saved with `savefig` are recorded); `python -m pinneapple_lab scaffold <name>`, `register <folder>`, `seal --explain <item>`; format `pinneapple_lab.manifest` ([docs](docs/guides/adding_an_experiment.md)) |
 | Everything from an agent tool call | the MCP server `pinneapple-mcp` ([docs](docs/guides/mcp_server.md)) |
+| Coding and engineering agents on a local model (web app, VS Code, terminal), conversations kept for fine-tuning | `python -m pinneapple_llm.workbench serve --workspace <project>` (`doctor`, `eval`, `finetune`), `pinneapple_llm.workbench.Session` ([docs](docs/guides/agent_workbench.md)) |
 
 Check the zoo before training a surrogate: a zoo model comes with its held-out errors, physics checks and validity
 range. The geometry library (`pp.geometries`) is being added; use it once `hasattr(pp, "geometries")` is true.

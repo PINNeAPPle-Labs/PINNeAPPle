@@ -83,7 +83,8 @@ def table() -> None:
             if n["summary"] and n["type"] in ("validate.compare", "validate.lab", "inverse.discover", "inverse.calibrate",
                                               "surrogate.train", "surrogate.hpo", "twin.connect", "forecast.lab",
                                               "uq.sensitivity", "flight.takeoff", "problem.generic", "forecast.enso",
-                                              "twin.auto"):
+                                              "twin.auto", "vehicle.simulate", "terramechanics.zoo_surrogate",
+                                              "vehicle.dashboard"):
                 key.append(f"{nid}: {n['summary']}")
             elif n["status"] == "failed":
                 key.append(f"{nid}: FAILED ({(n['error'] or '')[:120]})")

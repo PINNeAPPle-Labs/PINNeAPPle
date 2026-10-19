@@ -1,0 +1,110 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/flow_studio",
+ "title": "Flow Studio example flows: built, run headless, measured",
+ "description": "Example flows of PINNeAPPle Flow Studio (pinneapple_flow/flows/): reproductions of earlier results composed node by node (heat, Burgers, Poisson, DeepONet/FNO, inverse heat, the ENSO forecast, the aircraft take-off) and problems planned from plain text (plate 2-D to 3-D, tank twin, hybrid surrogate with HPO, rod twin). run_examples.py runs each flow with every node recomputed; results/RESULTS.md collects the measured numbers.",
+ "domain": "general",
+ "methods": [
+  "PINN",
+  "finite differences",
+  "FEM",
+  "FNO",
+  "DeepONet",
+  "EnKF",
+  "Kalman filter"
+ ],
+ "modules": [
+  "pinneapple_flow",
+  "pinneapple_flow.planner.build",
+  "pinneapple_flow.service",
+  "pinneapple_flow.templates"
+ ],
+ "params": {},
+ "scripts": [
+  "build_examples.py",
+  "run_examples.py",
+  "screenshots.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "results/aircraft_takeoff/takeoff_takeoff.png",
+   "results/aircraft_takeoff/takeoff_takeoff_render.png",
+   "results/burgers_1d/fd_solution.png",
+   "results/burgers_1d/lab_validation_sealed.png",
+   "results/burgers_1d/pinn_loss.png",
+   "results/burgers_1d/pinn_solution.png",
+   "results/burgers_1d/render_render.png",
+   "results/burgers_1d/validate_validation.png",
+   "results/heat_1d/fd_solution.png",
+   "results/heat_1d/lab_validation_sealed.png",
+   "results/heat_1d/pinn_loss.png",
+   "results/heat_1d/pinn_solution.png",
+   "results/heat_1d/plot_plot_0.png",
+   "results/heat_1d/plot_plot_1.png",
+   "results/heat_1d/validate_validation.png",
+   "results/inverse_heat/discover_loss.png",
+   "results/inverse_heat/discover_solution.png",
+   "results/inverse_heat/fd_solution.png",
+   "results/operator_burgers/deeponet_surrogate.png",
+   "results/operator_burgers/fno_surrogate.png",
+   "results/planned_digital_twin/twin_twin.png",
+   "results/planned_hybrid_surrogate_hpo/hpo_surrogate.png",
+   "results/planned_hybrid_surrogate_hpo/sobol_sobol.png",
+   "results/planned_pde_twin/twin_twin_dashboard.png",
+   "results/planned_plate_2d_to_3d/fd_solution.png",
+   "results/planned_plate_2d_to_3d/fem_solution.png",
+   "results/planned_plate_2d_to_3d/lab_validation_sealed.png",
+   "results/planned_plate_2d_to_3d/pinn_loss.png",
+   "results/planned_plate_2d_to_3d/pinn_solution.png",
+   "results/planned_plate_2d_to_3d/plot_plot_0.png",
+   "results/planned_plate_2d_to_3d/plot_plot_1.png",
+   "results/planned_plate_2d_to_3d/validate_validation.png",
+   "results/planned_plate_2d_to_3d_edited/fd_solution.png",
+   "results/planned_plate_2d_to_3d_edited/fem_solution.png",
+   "results/planned_plate_2d_to_3d_edited/pinn_loss.png",
+   "results/planned_plate_2d_to_3d_edited/pinn_solution.png",
+   "results/planned_plate_2d_to_3d_edited/plot_plot_0.png",
+   "results/planned_plate_2d_to_3d_edited/plot_plot_1.png",
+   "results/planned_plate_2d_to_3d_edited/validate_validation.png",
+   "results/poisson_2d/fd_solution.png",
+   "results/poisson_2d/fem_solution.png",
+   "results/poisson_2d/lab_validation_sealed.png",
+   "results/poisson_2d/pinn_loss.png",
+   "results/poisson_2d/pinn_solution.png",
+   "results/poisson_2d/validate_validation.png"
+  ],
+  "videos": [
+   "results/aircraft_takeoff/takeoff_clip.mp4"
+  ],
+  "viewers": [],
+  "data": [
+   "results/RESULTS.md",
+   "results/aircraft_takeoff/summary.json",
+   "results/burgers_1d/summary.json",
+   "results/elnino_forecast/summary.json",
+   "results/heat_1d/summary.json",
+   "results/inverse_heat/summary.json",
+   "results/operator_burgers/summary.json",
+   "results/planned_digital_twin/summary.json",
+   "results/planned_hybrid_surrogate_hpo/summary.json",
+   "results/planned_pde_twin/summary.json",
+   "results/planned_plate_2d_to_3d/summary.json",
+   "results/planned_plate_2d_to_3d_edited/summary.json",
+   "results/poisson_2d/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/flow_schema.md",
+  "script": "examples/flow_studio/build_examples.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "57c66c1a"
+ }
+}

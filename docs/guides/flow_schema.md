@@ -109,8 +109,27 @@ def simple_foam(ctx, inputs, params):
 ```
 
 Import the module that defines the nodes before running or serving (for example in the app's start-up); the catalog,
-the validator, the planner's repair step and the GUI pick the new types up from `REGISTRY`. Port types are fixed by
-the library (add a new one in `pinneapple_flow.types` with a pull request) so documents stay portable.
+the validator, the planner's repair step and the GUI pick the new types up from `REGISTRY`. A new port type is
+registered with `register_port_type` (see above).
+
+### Where a node appears in the palette
+
+`pinneapple_flow.palette` describes the palette every front end shows: thirteen sections in workflow order
+(`palette.sections()`: Problem & geometry, Equations, Classical solvers, Physics AI, Surrogates & ROMs, Data,
+Inverse & calibration, Validation & UQ, Optimization & control, Digital twin, Visualization, Export & report, and
+Library calls (advanced), which holds the generated `auto.*` nodes grouped by package and starts collapsed). Each
+catalog row carries a `palette` object: `section`, a human `title`, a one-line `summary` (the first sentence of the
+description), `tags`, `package`, `curated`, `group` and, for an unavailable node, an `install` hint
+(`pip install fmpy`). A node registered by another package chooses its section with a tag:
+
+```python
+@node("cfd.simple_foam", "simpleFoam case", category="CFD", tags=("section:solvers", "rans", "openfoam"), ...)
+```
+
+without one it falls back on its category, then on the advanced section. `palette.search(text)` ranks the catalog
+(every query word must match; title, then tags, type, description and package; curated nodes above generated library
+calls), and `FlowService.palette(user)` / `set_palette_prefs(user, ...)` keep each user's favourites and recent node
+types in the store (`user_prefs` table).
 
 ## Running and storing
 

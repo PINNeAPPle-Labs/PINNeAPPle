@@ -10,6 +10,7 @@ from . import (  # noqa: F401
     surrogates,
     systems,
     twin_nodes,
+    vehicle,
     viz,
 )
 

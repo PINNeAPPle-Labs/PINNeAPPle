@@ -25,6 +25,10 @@ PORT_TYPES: dict[str, str] = {
     "scene": "a 3-D scene payload for the three.js viewer",
     "twin": "state of a digital twin (estimates, residuals, alarms)",
     "report": "a report artifact (HTML / Markdown / JSON)",
+    "vehicle": "a ground vehicle: preset and its parameters (mass, wheels) from pinneapple_simulation.vehicle",
+    "soil": "a terramechanics soil: preset and its Bekker / Wong-Reece parameters",
+    "site": "a terrain scenario (craters, rocks, slope) for a vehicle run",
+    "vehicle_run": "a simulated vehicle traverse (time histories per wheel and the rutted terrain artifact)",
     "any": "accepts every type",
 }
 

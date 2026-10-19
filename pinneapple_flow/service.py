@@ -46,6 +46,35 @@ class FlowService:
         return {"nodes": REGISTRY.catalog(), "port_types": PORT_TYPES,
                 "conversions": sorted([list(c) for c in CONVERSIONS])}
 
+    # -- palette: sections, search, per-user favourites and recent node types -----------------------------------
+    PALETTE_LIMITS = {"favourites": 60, "recent": 12}
+
+    def palette(self, user: str = "local") -> dict[str, Any]:
+        from .palette import layout
+        return {"sections": layout(REGISTRY.catalog()), **self.palette_prefs(user)}
+
+    def palette_search(self, q: str, limit: int = 50) -> list[dict[str, Any]]:
+        from .palette import search
+        return [{"type": e["type"], "section": e["palette"]["section"]} for e in search(q[:200], limit=limit)]
+
+    def palette_prefs(self, user: str = "local") -> dict[str, list[str]]:
+        return {k: [t for t in self.store.get_pref(user, f"palette.{k}", []) if REGISTRY.get(t) is not None]
+                for k in self.PALETTE_LIMITS}
+
+    def set_palette_prefs(self, user: str, prefs: dict[str, Any]) -> dict[str, list[str]]:
+        """Store ``favourites`` and/or ``recent`` (lists of registered node types; unknown ones are dropped)."""
+        for k, n in self.PALETTE_LIMITS.items():
+            if k in prefs:
+                v = prefs[k]
+                if not isinstance(v, list):
+                    raise FlowError(f"{k} must be a list of node types")
+                seen: list[str] = []
+                for t in v:
+                    if isinstance(t, str) and REGISTRY.get(t) is not None and t not in seen:
+                        seen.append(t)
+                self.store.set_pref(user, f"palette.{k}", seen[:n])
+        return self.palette_prefs(user)
+
     def schema(self) -> dict[str, Any]:
         return flow_json_schema()
 
@@ -294,6 +323,13 @@ class FlowService:
         roots = [self.workdir.resolve(), (home() / "lab").resolve()]
         if not any(r == p or r in p.parents for r in roots) or not p.is_file():
             raise PermissionError("not a run artifact")
+        return p
+
+    def html_artifact(self, path: str) -> Path:
+        """An HTML report of a run, to be shown in a sandboxed frame (same rules as :meth:`artifact_path`)."""
+        p = self.artifact_path(path)
+        if p.suffix.lower() not in (".html", ".htm"):
+            raise PermissionError("not an HTML artifact")
         return p
 
     def shutdown(self):

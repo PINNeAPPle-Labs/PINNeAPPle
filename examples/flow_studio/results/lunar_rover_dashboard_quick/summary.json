@@ -1,0 +1,546 @@
+{
+ "flow": "lunar_rover_dashboard_quick",
+ "title": "Lunar rover dashboard (quick)",
+ "status": "done",
+ "wall_seconds": 366.2,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-19",
+ "meta": {
+  "kind": "reproduction",
+  "reproduces": "examples/studio/07_lunar_rover_dashboard.py --quick"
+ },
+ "nodes": {
+  "vehicle": {
+   "type": "vehicle.spec",
+   "status": "done",
+   "seconds": 0.07808804512023926,
+   "error": null,
+   "summary": "NASA VIPER: 450 kg, 4 wheels R 0.250 m, b 0.200 m",
+   "metrics": {
+    "total_mass_kg": 450.0,
+    "wheel_radius_m": 0.25,
+    "wheel_width_m": 0.2,
+    "wheels": 4
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "soil": {
+   "type": "terramechanics.soil",
+   "status": "done",
+   "seconds": 0.0010271072387695312,
+   "error": null,
+   "summary": "GRC-1: c 250 Pa, phi 38 deg, k_c 700, k_phi 505000, n 0.8",
+   "metrics": {},
+   "warnings": [],
+   "tables": [
+    {
+     "title": "soil GRC-1",
+     "columns": [
+      "parameter",
+      "value"
+     ],
+     "rows": [
+      [
+       "c",
+       250.0
+      ],
+      [
+       "phi_deg",
+       38.0
+      ],
+      [
+       "K",
+       0.018
+      ],
+      [
+       "k_c",
+       700.0
+      ],
+      [
+       "k_phi",
+       505000.0
+      ],
+      [
+       "n0",
+       0.8
+      ],
+      [
+       "n1",
+       0.8
+      ],
+      [
+       "rho",
+       1620.0
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "site": {
+   "type": "scenario.site",
+   "status": "done",
+   "seconds": 3.6175286769866943,
+   "error": null,
+   "summary": "crater_site",
+   "metrics": {},
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "wheel": {
+   "type": "terramechanics.wheel_model",
+   "status": "done",
+   "seconds": 0.16675615310668945,
+   "error": null,
+   "summary": "Wong-Reece on GRC-1: drawbar pull 56.9 N at 20 % slip, static load 182 N",
+   "metrics": {
+    "static_wheel_load_N": 182.25,
+    "drawbar_pull_at_slip_0.2_N": {
+     "value": 56.8569,
+     "how": "WongReeceModel.steady_state(load, 0.2)"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "testbed at the static load 182 N",
+     "columns": [
+      "slip",
+      "sinkage [m]",
+      "drawbar pull [N]",
+      "torque [N m]"
+     ],
+     "rows": [
+      [
+       0.0,
+       0.013,
+       -10.1315,
+       2.9113
+      ],
+      [
+       0.1,
+       0.0173,
+       29.2664,
+       14.7072
+      ],
+      [
+       0.2,
+       0.0223,
+       56.8569,
+       23.2899
+      ],
+      [
+       0.3,
+       0.028,
+       73.1726,
+       28.817
+      ],
+      [
+       0.5,
+       0.0417,
+       83.5514,
+       33.9359
+      ],
+      [
+       0.7,
+       0.0588,
+       79.7865,
+       35.4631
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "simulate": {
+   "type": "vehicle.simulate",
+   "status": "done",
+   "seconds": 44.33719348907471,
+   "error": null,
+   "summary": "2.10 m in 12 s, mean slip 0.048, max sinkage 36.6 mm, 120 J/m (40 s)",
+   "metrics": {
+    "duration_s": {
+     "value": 12.0,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "distance_m": {
+     "value": 2.099783537537256,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "mean_speed_m_s": {
+     "value": 0.174981961461438,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "mean_slip": {
+     "value": 0.04753145576141935,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "max_slip": {
+     "value": 0.965145512703998,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "max_sinkage_mm": {
+     "value": 36.6239816952596,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "mean_sinkage_mm": {
+     "value": 15.364526968169784,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "energy_J": {
+     "value": 251.71215169400864,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "energy_per_metre_J_m": {
+     "value": 119.8752858064745,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "max_load_N": {
+     "value": 294.911525948707,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "min_load_N": {
+     "value": 0.0,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "max_pitch_deg": {
+     "value": 1.3555408490103829,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "max_roll_deg": {
+     "value": 0.6290679962597995,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "max_drive_torque_Nm": {
+     "value": 31.406370213904925,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "max_rock_force_N": {
+     "value": 490.2834561775085,
+     "how": "pinneapple_simulation.vehicle.VehicleRun.summary()"
+    },
+    "sim_seconds": {
+     "value": 40.2,
+     "how": "wall time of VehicleSimulator.run on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "run summary",
+     "columns": [
+      "quantity",
+      "value"
+     ],
+     "rows": [
+      [
+       "duration_s",
+       12.0
+      ],
+      [
+       "distance_m",
+       2.0998
+      ],
+      [
+       "mean_speed_m_s",
+       0.175
+      ],
+      [
+       "mean_slip",
+       0.0475
+      ],
+      [
+       "max_slip",
+       0.9651
+      ],
+      [
+       "max_sinkage_mm",
+       36.624
+      ],
+      [
+       "mean_sinkage_mm",
+       15.3645
+      ],
+      [
+       "energy_J",
+       251.7122
+      ],
+      [
+       "energy_per_metre_J_m",
+       119.8753
+      ],
+      [
+       "max_load_N",
+       294.9115
+      ],
+      [
+       "min_load_N",
+       0.0
+      ],
+      [
+       "max_pitch_deg",
+       1.3555
+      ],
+      [
+       "max_roll_deg",
+       0.6291
+      ],
+      [
+       "max_drive_torque_Nm",
+       31.4064
+      ],
+      [
+       "max_rock_force_N",
+       490.2835
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "pinn": {
+   "type": "terramechanics.zoo_surrogate",
+   "status": "done",
+   "seconds": 0.08521199226379395,
+   "error": null,
+   "summary": "rover_contact_grc1_viper v1.1.0: same physics as the run yes",
+   "metrics": {
+    "heldout_Fx_rmse_N": {
+     "value": 0.22012320923636258,
+     "how": "held-out error from the zoo model card"
+    },
+    "heldout_Fx_max_abs_N": {
+     "value": 1.6962837221363714,
+     "how": "held-out error from the zoo model card"
+    },
+    "heldout_Fz_rmse_N": {
+     "value": 0.46965493069413194,
+     "how": "held-out error from the zoo model card"
+    },
+    "heldout_Fz_max_abs_N": {
+     "value": 5.374369781392943,
+     "how": "held-out error from the zoo model card"
+    },
+    "heldout_My_rmse_Nm": {
+     "value": 0.07066064857911242,
+     "how": "held-out error from the zoo model card"
+    },
+    "heldout_My_max_abs_Nm": {
+     "value": 0.6174497678684645,
+     "how": "held-out error from the zoo model card"
+    },
+    "same_physics": {
+     "value": true,
+     "how": "ZooContactSurrogate.check_physics(WongReeceModel) is empty"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "rover_contact_grc1_viper v1.1.0: held-out errors (model card)",
+     "columns": [
+      "output",
+      "error",
+      "value"
+     ],
+     "rows": [
+      [
+       "Fx",
+       "rmse_N",
+       0.22012320923636258
+      ],
+      [
+       "Fx",
+       "max_abs_N",
+       1.6962837221363714
+      ],
+      [
+       "Fz",
+       "rmse_N",
+       0.46965493069413194
+      ],
+      [
+       "Fz",
+       "max_abs_N",
+       5.374369781392943
+      ],
+      [
+       "My",
+       "rmse_Nm",
+       0.07066064857911242
+      ],
+      [
+       "My",
+       "max_abs_Nm",
+       0.6174497678684645
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "dashboard": {
+   "type": "vehicle.dashboard",
+   "status": "done",
+   "seconds": 313.3811514377594,
+   "error": null,
+   "summary": "dashboard: 24 frames, horizon check passed, html, png, frame, mp4, gif",
+   "metrics": {
+    "render_seconds": {
+     "value": 223.8,
+     "how": "wall time of render_frames on this machine"
+    },
+    "border_frames_visible": {
+     "value": 0,
+     "how": "frames where an edge of the ground mesh shows"
+    },
+    "dashboard_seconds": {
+     "value": 313.2,
+     "how": "render, dashboard and videos on this machine"
+    },
+    "frames": 24,
+    "clim_kPa": "11.0 to 21.2",
+    "html_MB": {
+     "value": 2.54,
+     "how": "file size"
+    },
+    "png_MB": {
+     "value": 0.66,
+     "how": "file size"
+    },
+    "frame_MB": {
+     "value": 0.53,
+     "how": "file size"
+    },
+    "mp4_MB": {
+     "value": 1.22,
+     "how": "file size"
+    },
+    "gif_MB": {
+     "value": 1.45,
+     "how": "file size"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "ground border visibility (sampled frames)",
+     "columns": [
+      "sample",
+      "visible border pixels"
+     ],
+     "rows": [
+      [
+       0,
+       0
+      ],
+      [
+       20,
+       0
+      ],
+      [
+       41,
+       0
+      ],
+      [
+       62,
+       0
+      ],
+      [
+       83,
+       0
+      ],
+      [
+       104,
+       0
+      ],
+      [
+       125,
+       0
+      ],
+      [
+       146,
+       0
+      ],
+      [
+       166,
+       0
+      ],
+      [
+       187,
+       0
+      ],
+      [
+       208,
+       0
+      ],
+      [
+       229,
+       0
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "dashboard_dashboard.png",
+    "dashboard_clip.mp4"
+   ]
+  },
+  "lab": {
+   "type": "validate.lab",
+   "status": "done",
+   "seconds": 0.06642460823059082,
+   "error": null,
+   "summary": "tier B, sealed",
+   "metrics": {
+    "lab_status": "completed",
+    "tier": {
+     "value": "B",
+     "how": "this run, graded by pinneapple_lab.curation: A flagship, B solid, C plausible, D exploratory, E known problems, F not usable; zoo pinn same physics \u00b7 ZooContactSurrogate.check_physics\u2026"
+    },
+    "item_tier": {
+     "value": "B",
+     "how": "the Lab item's letter: the best of its runs"
+    },
+    "lab_run_id": "flow_lunar_rover_dashboard_quick_lab-a28af7c2a7db",
+    "seal": {
+     "value": "B",
+     "how": "pinneapple_lab (ABCDEF): solid"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "what the next letter needs",
+     "columns": [
+      "gap",
+      "suggested action",
+      "nodes"
+     ],
+     "rows": [
+      [
+       "compare with an independent reference",
+       "compare with an exact solution, a measurement or a published value, with its source",
+       "lib.compare.preset"
+      ],
+      [
+       "add figures: three plots, a movie, a render or a 3-D view",
+       "save the key plots, a movie or a render with the run",
+       "viz.field3d"
+      ],
+      [
+       "document it: references and a docs page",
+       "cite the papers or data the experiment reproduces, and cite `flow_lunar_rover_dashboard_quick_lab` in a docs page",
+       ""
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  }
+ },
+ "cached_nodes": []
+}

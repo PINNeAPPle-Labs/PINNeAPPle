@@ -16,9 +16,11 @@ from playwright.sync_api import sync_playwright
 OUT = Path(__file__).resolve().parents[2] / "docs" / "flow_studio"
 
 
-def wait_done(page, timeout_ms=900_000):
+def wait_done(page, timeout_ms=2_400_000):
+    """Every node in an end state (done, cached, degraded, not_run, failed, cancelled)."""
     page.wait_for_function("""() => [...document.querySelectorAll('[data-testid=node-status]')]
-                              .every(e => ['done','cached','failed'].includes(e.textContent))""", timeout=timeout_ms)
+                              .every(e => ['done','cached','degraded','not_run','failed','cancelled']
+                                          .includes(e.textContent))""", timeout=timeout_ms)
 
 
 def main():
@@ -31,7 +33,30 @@ def main():
         b = p.chromium.launch(executable_path=a.chromium if Path(a.chromium).exists() else None)
         page = b.new_page(viewport={"width": 1600, "height": 960}, device_scale_factor=1)
         page.goto(a.url)
-        page.wait_for_selector("[data-testid=palette]")
+        page.wait_for_selector("[data-testid=palette-section-problem]")
+        # 0. the palette: favourites, sections in workflow order, search, an unavailable node with its reason
+        for t in ("train.pinn", "solver.classical", "validate.compare"):
+            page.hover(f"[data-testid='palette-{t}']")
+            page.click(f"[data-testid='palette-star-{t}']")
+        page.wait_for_selector("[data-testid=palette-favourites] [data-testid='palette-validate.compare']")
+        page.mouse.move(900, 500)
+        page.eval_on_selector("[data-testid=palette] .overflow-y-auto", "e => e.scrollTop = 0")
+        page.wait_for_timeout(300)
+        page.screenshot(path=str(OUT / "flow_studio_palette.png"), clip={"x": 0, "y": 0, "width": 760, "height": 960})
+        page.fill("[data-testid=palette-search]", "kalman filter")
+        page.wait_for_selector("[data-testid=palette-results] [data-testid='palette-assimilate.filter']")
+        page.wait_for_timeout(300)
+        page.screenshot(path=str(OUT / "flow_studio_palette_search.png"),
+                        clip={"x": 0, "y": 0, "width": 760, "height": 960})
+        page.fill("[data-testid=palette-search]", "")
+        off = page.locator("[data-testid=palette-section-solvers] [data-available=no]")
+        if off.count():
+            off.first.scroll_into_view_if_needed()
+            off.first.hover()
+            page.wait_for_selector("[data-testid=palette-tooltip]")
+            page.screenshot(path=str(OUT / "flow_studio_palette_unavailable.png"),
+                            clip={"x": 0, "y": 0, "width": 760, "height": 960})
+        page.mouse.move(900, 500)
         # 1. the planner and the canvas it fills
         page.click("[data-testid=open-planner]")
         page.fill("[data-testid=planner-text]", "Steady heat conduction in a square plate with internal heat "

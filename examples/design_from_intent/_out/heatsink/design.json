@@ -1,0 +1,891 @@
+{
+ "status": "designed",
+ "seed": 0,
+ "verdict": "will work",
+ "requirements": {
+  "text": "a heat sink for a 40 W chip in still air",
+  "template": "heatsink",
+  "parser": "template",
+  "match_score": 3.7,
+  "values": {
+   "air_velocity": {
+    "name": "air_velocity",
+    "value": 0.0,
+    "unit": "m/s",
+    "provenance": "stated",
+    "source": "user",
+    "quote": "still air"
+   },
+   "power": {
+    "name": "power",
+    "value": 40.0,
+    "unit": "W",
+    "provenance": "stated",
+    "source": "user",
+    "quote": "40 W"
+   },
+   "t_limit": {
+    "name": "t_limit",
+    "value": 358.15,
+    "unit": "K",
+    "provenance": "answered",
+    "source": "user (follow-up)",
+    "quote": ""
+   },
+   "t_ambient": {
+    "name": "t_ambient",
+    "value": 298.15,
+    "unit": "K",
+    "provenance": "defaulted",
+    "source": "template default: room temperature 25 \u00b0C (state yours)",
+    "quote": ""
+   },
+   "source_size": {
+    "name": "source_size",
+    "value": 0.03,
+    "unit": "m",
+    "provenance": "defaulted",
+    "source": "pinneapple_design.thermal.heatsink sizer default (30 x 30 mm): affects the spreading resistance; state yours",
+    "quote": ""
+   },
+   "tim": {
+    "name": "tim",
+    "value": 1e-05,
+    "unit": "K*m^2/W",
+    "provenance": "defaulted",
+    "source": "pinneapple_design.thermal.heatsink sizer default (thermal grease, 10 K\u00b7mm\u00b2/W)",
+    "quote": ""
+   },
+   "max_width": {
+    "name": "max_width",
+    "value": 0.1,
+    "unit": "m",
+    "provenance": "defaulted",
+    "source": "pinneapple_design.thermal.heatsink sizer default envelope (100 mm)",
+    "quote": ""
+   },
+   "max_depth": {
+    "name": "max_depth",
+    "value": 0.1,
+    "unit": "m",
+    "provenance": "defaulted",
+    "source": "pinneapple_design.thermal.heatsink sizer default envelope (100 mm)",
+    "quote": ""
+   },
+   "max_height": {
+    "name": "max_height",
+    "value": 0.05,
+    "unit": "m",
+    "provenance": "defaulted",
+    "source": "pinneapple_design.thermal.heatsink sizer default envelope (50 mm)",
+    "quote": ""
+   },
+   "material": {
+    "name": "material",
+    "value": null,
+    "unit": "",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   }
+  },
+  "objectives": [
+   {
+    "name": "mass_g",
+    "sense": "min",
+    "label": "mass"
+   }
+  ],
+  "questions": [],
+  "issues": [],
+  "unsupported": []
+ },
+ "plan": {
+  "template": "heatsink",
+  "title": "Plate-fin heat sink",
+  "physics": [
+   "steady conduction in the base and the fins (fin efficiency, spreading resistance)",
+   "convection from the fins: Elenbaas / Bar-Cohen & Rohsenow correlation in still air, Teertstra model with a fan",
+   "interface (thermal paste) resistance between the source and the base"
+  ],
+  "assumptions": [
+   "vertical fins with air rising along the base depth (natural convection)",
+   "radiation neglected (conservative: real parts run cooler, more so if anodised)",
+   "a fan's air is ducted between the fins (forced convection)",
+   "air at 1 atm; properties from Incropera & DeWitt Table A.4"
+  ],
+  "variables": [
+   {
+    "name": "width_mm",
+    "label": "base width",
+    "lower": 30,
+    "upper": 100,
+    "unit": "mm",
+    "choices": [],
+    "integer": true
+   },
+   {
+    "name": "depth_mm",
+    "label": "base depth (along the fins)",
+    "lower": 30,
+    "upper": 100,
+    "unit": "mm",
+    "choices": [],
+    "integer": true
+   },
+   {
+    "name": "base_mm",
+    "label": "base thickness",
+    "lower": 3.0,
+    "upper": 12.0,
+    "unit": "mm",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "n_fins",
+    "label": "number of fins",
+    "lower": 2,
+    "upper": 40,
+    "unit": "",
+    "choices": [],
+    "integer": true
+   },
+   {
+    "name": "fin_mm",
+    "label": "fin thickness",
+    "lower": 1.0,
+    "upper": 3.0,
+    "unit": "mm",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "height_mm",
+    "label": "fin height",
+    "lower": 8,
+    "upper": 47,
+    "unit": "mm",
+    "choices": [],
+    "integer": true
+   },
+   {
+    "name": "material",
+    "label": "material",
+    "lower": 0,
+    "upper": 2,
+    "unit": "",
+    "choices": [
+     "al6063",
+     "al6061",
+     "cu110"
+    ],
+    "integer": false
+   }
+  ],
+  "objectives": [
+   {
+    "name": "mass_g",
+    "sense": "min",
+    "label": "mass"
+   }
+  ],
+  "failure_modes": [
+   {
+    "name": "margin_temp",
+    "label": "source stays below its limit",
+    "description": "(T_limit - T_ambient) / (T_source - T_ambient) - 1",
+    "critical": true
+   },
+   {
+    "name": "margin_gap",
+    "label": "fins can be extruded (gap)",
+    "description": "fin gap / 1.5 mm - 1 (extrusion process limit)",
+    "critical": true
+   },
+   {
+    "name": "margin_aspect",
+    "label": "fins can be extruded (aspect)",
+    "description": "20 / (fin height / gap) - 1",
+    "critical": true
+   }
+  ],
+  "fidelities": [
+   {
+    "level": "closed_form",
+    "label": "hand calculation",
+    "method": "convection coefficient evaluated once with the fin root at the temperature limit, fin efficiency, spreading",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "reduced",
+    "label": "resistance network",
+    "method": "the same correlations iterated to the fin-root temperature (plate_fin_heatsink.evaluate)",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "full",
+    "label": "3-D finite volume (base)",
+    "method": "finite-volume conduction in the base with the fins' convection; energy balance, grid convergence, +-15 % h band (thermal.heatsink.evaluate_design)",
+    "available": true,
+    "reason": ""
+   }
+  ],
+  "uncertain": [
+   "h_scale",
+   "tim"
+  ]
+ },
+ "design": {
+  "width_mm": 100,
+  "depth_mm": 100,
+  "base_mm": 6.5,
+  "n_fins": 14,
+  "fin_mm": 1.1,
+  "height_mm": 47,
+  "material": "cu110"
+ },
+ "numbers": [
+  {
+   "quantity": "fins can be extruded (gap)",
+   "key": "margin_gap",
+   "value": 3.338461538461538,
+   "unit": "",
+   "fidelity": "resistance network",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "source stays below its limit",
+   "key": "margin_temp",
+   "value": 0.017099010033697626,
+   "unit": "",
+   "fidelity": "resistance network",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "r_total_k_w",
+   "key": "r_total_k_w",
+   "value": 1.4747826762217606,
+   "unit": "K/W",
+   "fidelity": "resistance network",
+   "note": ""
+  },
+  {
+   "quantity": "fins can be extruded (aspect)",
+   "key": "margin_aspect",
+   "value": 1.7692307692307696,
+   "unit": "",
+   "fidelity": "resistance network",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "h_w_m2k",
+   "key": "h_w_m2k",
+   "value": 5.161457306916972,
+   "unit": "W/(m\u00b2\u00b7K)",
+   "fidelity": "resistance network",
+   "note": ""
+  },
+  {
+   "quantity": "fin_gap_mm",
+   "key": "fin_gap_mm",
+   "value": 6.507692307692308,
+   "unit": "mm",
+   "fidelity": "resistance network",
+   "note": ""
+  },
+  {
+   "quantity": "t_source_c",
+   "key": "t_source_c",
+   "value": 83.99130704887042,
+   "unit": "\u00b0C",
+   "fidelity": "resistance network",
+   "note": ""
+  },
+  {
+   "quantity": "fin_efficiency",
+   "key": "fin_efficiency",
+   "value": 0.9821613268669152,
+   "unit": "-",
+   "fidelity": "resistance network",
+   "note": ""
+  },
+  {
+   "quantity": "mass_g",
+   "key": "mass_g",
+   "value": 1228.1772000000003,
+   "unit": "g",
+   "fidelity": "resistance network",
+   "note": ""
+  },
+  {
+   "quantity": "source stays below its limit",
+   "key": "margin_temp",
+   "value": 0.041921824345797054,
+   "unit": "",
+   "fidelity": "hand calculation",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "fins can be extruded (gap)",
+   "key": "margin_gap",
+   "value": 3.338461538461538,
+   "unit": "",
+   "fidelity": "hand calculation",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "fins can be extruded (aspect)",
+   "key": "margin_aspect",
+   "value": 1.7692307692307696,
+   "unit": "",
+   "fidelity": "hand calculation",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "t_source_c",
+   "key": "t_source_c",
+   "value": 77.67582709953824,
+   "unit": "\u00b0C",
+   "fidelity": "3-D finite volume (base)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "t_source_band_hi_c",
+   "key": "t_source_band_hi_c",
+   "value": 83.85298913857227,
+   "unit": "",
+   "fidelity": "3-D finite volume (base)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "r_total_k_w",
+   "key": "r_total_k_w",
+   "value": 1.316895677488456,
+   "unit": "K/W",
+   "fidelity": "3-D finite volume (base)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "margin_temp",
+   "key": "margin_temp",
+   "value": 0.1390423901009039,
+   "unit": "",
+   "fidelity": "3-D finite volume (base)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "mass_g",
+   "key": "mass_g",
+   "value": 1228.1772000000003,
+   "unit": "g",
+   "fidelity": "3-D finite volume (base)",
+   "note": "full solver"
+  }
+ ],
+ "optimisation": {
+  "method": "nsga2",
+  "n_screen": 2000,
+  "n_feasible_screen": 0,
+  "n_reduced": 600,
+  "calls": {
+   "calls": {
+    "closed_form": 2000,
+    "reduced": 2600,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0871,
+    "reduced": 0.2045,
+    "full": 0.2921
+   },
+   "s_per_call": {
+    "closed_form": 4.35335084999906e-05,
+    "reduced": 7.865783807692249e-05,
+    "full": 0.292097950000084
+   }
+  },
+  "notes": [],
+  "candidates": [
+   {
+    "rank": 0,
+    "design": {
+     "width_mm": 100,
+     "depth_mm": 100,
+     "base_mm": 6.559840722100599,
+     "n_fins": 14,
+     "fin_mm": 1.1424747438316043,
+     "height_mm": 47,
+     "material": "cu110"
+    },
+    "reduced": {
+     "margin_gap": 3.338461538461538,
+     "margin_temp": 0.017099010033697626,
+     "r_total_k_w": 1.4747826762217606,
+     "margin_aspect": 1.7692307692307696,
+     "h_w_m2k": 5.161457306916972,
+     "fin_gap_mm": 6.507692307692308,
+     "t_source_c": 83.99130704887042,
+     "fin_efficiency": 0.9821613268669152,
+     "mass_g": 1228.1772000000003
+    },
+    "closed_form": {
+     "margin_temp": 0.041921824345797054,
+     "margin_gap": 3.338461538461538,
+     "margin_aspect": 1.7692307692307696,
+     "mass_g": 1228.1772000000003,
+     "fin_gap_mm": 6.507692307692308,
+     "t_source_c": 82.5858942561961,
+     "r_total_k_w": 1.4396473564049026,
+     "h_w_m2k": 5.297461277910852,
+     "fin_efficiency": 0.9817015952308153
+    }
+   }
+  ]
+ },
+ "robustness": {
+  "p_success": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "n_samples": 2000,
+  "per_mode": {
+   "margin_temp": 1.0,
+   "margin_gap": 1.0,
+   "margin_aspect": 1.0
+  },
+  "margin_p05": {
+   "margin_temp": 0.03239842105841616,
+   "margin_gap": 3.338461538461538,
+   "margin_aspect": 1.7692307692307696
+  },
+  "inputs": [
+   {
+    "name": "h_scale",
+    "nominal": 1.0,
+    "spread": 0.15,
+    "dist": "uniform",
+    "unit": "",
+    "source": "+-15 % on the convection coefficient: the band the heat-sink engine states for its correlations (not a measured uncertainty of this design)"
+   },
+   {
+    "name": "tim",
+    "nominal": 1e-05,
+    "spread": 5e-06,
+    "dist": "uniform",
+    "unit": "K*m^2/W",
+    "source": "interface resistance +-50 % (paste thickness and coverage vary)"
+   }
+  ],
+  "sensitivity": {
+   "h_scale": 0.9991237972809492,
+   "tim": -0.030045894011473503
+  },
+  "model": "reduced",
+  "calibration": {}
+ },
+ "alternatives": [
+  {
+   "rank": 0,
+   "design": {
+    "width_mm": 100,
+    "depth_mm": 100,
+    "base_mm": 6.559840722100599,
+    "n_fins": 14,
+    "fin_mm": 1.1424747438316043,
+    "height_mm": 47,
+    "material": "cu110"
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "mass_g": 1228.1772000000003
+   }
+  }
+ ],
+ "verification": {
+  "ran": true,
+  "label": "3-D finite volume (base)",
+  "reason": "",
+  "comparison": [
+   {
+    "output": "t_source_c",
+    "full": 77.67582709953824,
+    "reduced": 77.59192278761418,
+    "closed_form": 74.36283534108611,
+    "rel_err": 0.0010801856260447512,
+    "kind": "agree"
+   }
+  ],
+  "outputs": {
+   "t_source_c": 77.67582709953824,
+   "t_source_band_hi_c": 83.85298913857227,
+   "r_total_k_w": 1.316895677488456,
+   "margin_temp": 0.1390423901009039,
+   "mass_g": 1228.1772000000003
+  },
+  "checks": [
+   {
+    "name": "energy_balance",
+    "passed": true,
+    "critical": true,
+    "value": 1.4455991959039237e-12,
+    "limit": null,
+    "detail": "Heat leaving through the fins / heat injected by the source - 1 (FVM)."
+   },
+   {
+    "name": "spreading_methods_agree",
+    "passed": true,
+    "critical": false,
+    "value": 0.03154060038517922,
+    "limit": null,
+    "detail": "3D finite-volume base solve vs Lee et al. closed form: 0.0686 vs 0.0665 K/W (independent methods)."
+   },
+   {
+    "name": "grid_convergence",
+    "passed": true,
+    "critical": false,
+    "value": 0.0001865693185784956,
+    "limit": null,
+    "detail": "Hotspot change between the coarse and fine finite-volume grids."
+   },
+   {
+    "name": "correlation_in_range",
+    "passed": true,
+    "critical": false,
+    "value": null,
+    "limit": null,
+    "detail": "Convection correlation used inside its validated range."
+   },
+   {
+    "name": "temperature_above_ambient",
+    "passed": true,
+    "critical": false,
+    "value": 52.23138265509379,
+    "limit": null,
+    "detail": "Hotspot rise above ambient must be positive (2nd law)."
+   },
+   {
+    "name": "limit met with the convection coefficient 15 % low",
+    "passed": true,
+    "critical": false,
+    "value": 83.85298913857227,
+    "limit": 85.0,
+    "detail": "source temperature band 73.0 to 83.9 \u00b0C for h +-15 %"
+   }
+  ],
+  "wall_s": 0.0,
+  "notes": [
+   "Resistance network with published correlations (Teertstra 2000 forced / Bar-Cohen & Rohsenow 1984 natural), fin efficiency (Incropera), pressure drop (Muzychka & Yovanovich), base conduction by 3D finite volumes cross-checked against Lee et al. 1995."
+  ]
+ },
+ "assessment": {
+  "verdict": "will work",
+  "probability": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "assumptions": [
+   "vertical fins with air rising along the base depth (natural convection)",
+   "radiation neglected (conservative: real parts run cooler, more so if anodised)",
+   "a fan's air is ducted between the fins (forced convection)",
+   "air at 1 atm; properties from Incropera & DeWitt Table A.4",
+   "t_ambient = 298.1 K (template default: room temperature 25 \u00b0C (state yours))",
+   "source_size = 0.03 m (pinneapple_design.thermal.heatsink sizer default (30 x 30 mm): affects the spreading resistance; state yours)",
+   "tim = 1e-05 K*m^2/W (pinneapple_design.thermal.heatsink sizer default (thermal grease, 10 K\u00b7mm\u00b2/W))",
+   "max_width = 0.1 m (pinneapple_design.thermal.heatsink sizer default envelope (100 mm))",
+   "max_depth = 0.1 m (pinneapple_design.thermal.heatsink sizer default envelope (100 mm))",
+   "max_height = 0.05 m (pinneapple_design.thermal.heatsink sizer default envelope (50 mm))"
+  ],
+  "reasons": [],
+  "trust": {
+   "decision": "APPROVED",
+   "score": 1.0,
+   "coverage": 1.0,
+   "checks": [
+    {
+     "name": "requirements complete",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": null,
+     "limit": null,
+     "source": "",
+     "reason": "every critical value stated, answered or defaulted with a source"
+    },
+    {
+     "name": "margin: source stays below its limit",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.017099010033697626,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "(T_limit - T_ambient) / (T_source - T_ambient) - 1"
+    },
+    {
+     "name": "margin: fins can be extruded (gap)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 3.338461538461538,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "fin gap / 1.5 mm - 1 (extrusion process limit)"
+    },
+    {
+     "name": "margin: fins can be extruded (aspect)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 1.7692307692307696,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "20 / (fin height / gap) - 1"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_temp",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.024405504348369213,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_gap",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_aspect",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "full solver agrees: t_source_c",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0010801856260447512,
+     "limit": 0.1,
+     "source": "3-D finite volume (base)",
+     "reason": "reduced 77.59 vs full 77.68"
+    },
+    {
+     "name": "solver check: energy_balance",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 1.4455991959039237e-12,
+     "limit": null,
+     "source": "3-D finite volume (base)",
+     "reason": "Heat leaving through the fins / heat injected by the source - 1 (FVM)."
+    },
+    {
+     "name": "solver check: spreading_methods_agree",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.03154060038517922,
+     "limit": null,
+     "source": "3-D finite volume (base)",
+     "reason": "3D finite-volume base solve vs Lee et al. closed form: 0.0686 vs 0.0665 K/W (independent methods)."
+    },
+    {
+     "name": "solver check: grid_convergence",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.0001865693185784956,
+     "limit": null,
+     "source": "3-D finite volume (base)",
+     "reason": "Hotspot change between the coarse and fine finite-volume grids."
+    },
+    {
+     "name": "solver check: correlation_in_range",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": null,
+     "limit": null,
+     "source": "3-D finite volume (base)",
+     "reason": "Convection correlation used inside its validated range."
+    },
+    {
+     "name": "solver check: temperature_above_ambient",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 52.23138265509379,
+     "limit": null,
+     "source": "3-D finite volume (base)",
+     "reason": "Hotspot rise above ambient must be positive (2nd law)."
+    },
+    {
+     "name": "solver check: limit met with the convection coefficient 15 % low",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 83.85298913857227,
+     "limit": 85.0,
+     "source": "3-D finite volume (base)",
+     "reason": "source temperature band 73.0 to 83.9 \u00b0C for h +-15 %"
+    },
+    {
+     "name": "robustness",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 1.0,
+     "limit": 0.95,
+     "source": "Monte Carlo (2000 samples)",
+     "reason": "lower 95 % bound 0.998 vs target 0.95"
+    }
+   ]
+  }
+ },
+ "operating_window": [
+  {
+   "quantity": "power",
+   "value": 40.0,
+   "min": 0.0,
+   "max": 47.2,
+   "unit": "W",
+   "fidelity": "resistance network",
+   "note": "source stays below 85 \u00b0C at 25 \u00b0C ambient"
+  },
+  {
+   "quantity": "ambient temperature",
+   "value": 25.0,
+   "min": null,
+   "max": 31.3,
+   "unit": "\u00b0C",
+   "fidelity": "resistance network",
+   "note": "at 40 W"
+  },
+  {
+   "quantity": "orientation",
+   "value": null,
+   "min": null,
+   "max": null,
+   "unit": "",
+   "fidelity": "-",
+   "note": "fins vertical, air rising along the depth (natural convection)"
+  }
+ ],
+ "bill_of_materials": [
+  {
+   "item": "plate-fin heat sink",
+   "material": "Copper C110",
+   "quantity": 1,
+   "size": "base 100 x 100 x 6.5 mm, 14 fins 1.1 mm thick x 47 mm tall (gap 6.51 mm)",
+   "mass_g": 1228.2,
+   "properties": {
+    "density": {
+     "value": 8940.0,
+     "unit": "kg/m^3",
+     "source": "pinneapple_physics.closed_form.plate_fin_heatsink.MATERIALS (the heat-sink model's own table)"
+    },
+    "conductivity": {
+     "value": 388.0,
+     "unit": "W/(m*K)",
+     "source": "pinneapple_physics.closed_form.plate_fin_heatsink.MATERIALS (the heat-sink model's own table)"
+    }
+   }
+  },
+  {
+   "item": "thermal interface (paste or pad)",
+   "material": "-",
+   "quantity": 1,
+   "size": "30 mm square, 10 K\u00b7mm\u00b2/W or better",
+   "mass_g": null,
+   "properties": {}
+  }
+ ],
+ "build_instructions": [
+  "Extrude or machine the heat sink in Copper C110: base 100 x 100 x 6.5 mm with 14 fins 1.1 mm thick and 47 mm tall (heatsink.step).",
+  "Centre the heat source on the base; apply the thermal paste thinly over the whole footprint.",
+  "Mount with the fins vertical and nothing blocking the air below and above them.",
+  "Check: at full power the case temperature should settle below the limit; the operating window gives the margin."
+ ],
+ "limits": [
+  "Correlation-based convection: +-15 % on h is the stated band of the correlations, not a measured uncertainty of this part.",
+  "Radiation is neglected (conservative).",
+  "The full model resolves conduction in the base; the fins and the air are modelled by the correlations, not by CFD.",
+  "The source temperature is the case / lid temperature; the junction is hotter by the package's own resistance (not modelled)."
+ ],
+ "calls": {
+  "calls": {
+   "closed_form": 2000,
+   "reduced": 2600,
+   "full": 1
+  },
+  "wall_s": {
+   "closed_form": 0.0871,
+   "reduced": 0.2045,
+   "full": 0.2921
+  },
+  "s_per_call": {
+   "closed_form": 4.35335084999906e-05,
+   "reduced": 7.865783807692249e-05,
+   "full": 0.292097950000084
+  }
+ },
+ "savings": {
+  "designs_ranked_without_full_solver": 4600,
+  "full_solver_calls": 1,
+  "full_solver_s_per_call": 0.292097950000084,
+  "text": "4600 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 0.3 s each (measured). Running every evaluation on the full solver would have taken about 0.4 h (estimate: evaluations x measured time per full call)."
+ },
+ "calibration_rounds": [
+  {
+   "round": 0,
+   "options": {
+    "h_scale": 0.85,
+    "tim": 1.5000000000000002e-05
+   },
+   "design": {
+    "width_mm": 100,
+    "depth_mm": 100,
+    "base_mm": 6.559840722100599,
+    "n_fins": 14,
+    "fin_mm": 1.1424747438316043,
+    "height_mm": 47,
+    "material": "cu110"
+   },
+   "measured": {},
+   "full_margins_negative": []
+  }
+ ],
+ "files": {
+  "stl": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/geometry/heatsink.stl",
+  "step": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/geometry/heatsink.step",
+  "glb": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/geometry/heatsink.glb",
+  "render": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/geometry/heatsink.png",
+  "check_margins": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/check/qoi/margins.csv",
+  "check_reduced": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/check/qoi/reduced.csv",
+  "check_toml": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/check/pinneapple-check.toml",
+  "json": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/design.json",
+  "html": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/report.html",
+  "pdf": "/home/user/PINNeAPPle/examples/design_from_intent/_out/heatsink/report.pdf"
+ }
+}

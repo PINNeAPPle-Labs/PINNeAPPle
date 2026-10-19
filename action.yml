@@ -72,12 +72,12 @@ runs:
   using: "composite"
   steps:
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ inputs.python-version }}
 
     - name: Cache pip downloads
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ~/.cache/pip
         key: pinneapple-check-${{ runner.os }}-py${{ inputs.python-version }}-${{ inputs.version || github.action_ref || 'src' }}-torch-${{ inputs.torch }}
@@ -146,7 +146,7 @@ runs:
 
     - name: Upload SARIF to code scanning
       if: ${{ always() && inputs.sarif == 'true' && steps.check.outputs.exit-code != '2' }}
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       continue-on-error: true
       with:
         sarif_file: ${{ steps.check.outputs.sarif-file }}

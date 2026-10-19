@@ -225,3 +225,40 @@ def test_build_is_on_the_reproducibility_grid():
     from pinneapple_design.geometry_library.core import QUANTUM
     for b in gl.build("wigley_hull").bodies:
         assert np.allclose(b.vertices / QUANTUM, np.round(b.vertices / QUANTUM), atol=1e-6)
+
+
+def test_no_negative_zero_coordinates(light):
+    # -0 and +0 are equal but written differently by the STL / OBJ / USD writers, and which one a coordinate that rounds
+    # to zero gets depends on the SIMD path NumPy takes on the CPU (the publishing job's SHA-256 check failed on it)
+    for n, g in light.items():
+        for b in g.bodies:
+            assert not np.any((b.vertices == 0) & np.signbit(b.vertices)), (n, b.name)
+
+
+_SIMD_BUILD = """
+import hashlib, sys
+from pinneapple_design import geometry_library as gl
+from pinneapple_design.geometry_library import exporters
+g = gl.build(sys.argv[1], lod="light")
+for fmt in ("stl", "obj", "usda", "glb"):
+    print(fmt, hashlib.sha256(exporters.WRITERS[fmt](g)).hexdigest())
+"""
+
+
+@pytest.mark.parametrize("disabled", ["X86_V4", "X86_V3 X86_V4"])
+def test_files_do_not_depend_on_the_cpu_simd_level(disabled, light):
+    """Every machine writes the bytes of the manifest: the same build with NumPy's AVX-512 / AVX2 kernels turned off
+    (NPY_DISABLE_CPU_FEATURES, as on a CI runner without them) writes identical files."""
+    import platform
+    import subprocess
+    import sys
+    if platform.machine().lower() not in ("x86_64", "amd64"):
+        pytest.skip("x86 SIMD levels")
+    name = "helicopter_h145"                           # had coordinates whose sign of zero followed the SIMD level
+    env = {**os.environ, "NPY_DISABLE_CPU_FEATURES": disabled, "PYTHONWARNINGS": "ignore"}
+    r = subprocess.run([sys.executable, "-c", _SIMD_BUILD, name], env=env, capture_output=True, text=True,
+                       cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))), timeout=600)
+    assert r.returncode == 0, r.stderr[-2000:]
+    other = dict(line.split() for line in r.stdout.splitlines())
+    here = {fmt: hashlib.sha256(exporters.WRITERS[fmt](light[name])).hexdigest() for fmt in other}
+    assert other == here

@@ -67,3 +67,28 @@ def test_exact_mass_rescales_inertia():
     assert tr.mass[0] == pytest.approx(2.0)
     ixx = 2.0 * ((0.4) ** 2 + (0.6) ** 2) / 12.0                # m (b^2 + c^2) / 12 with full side lengths
     assert tr.inertia[0, 0, 0] == pytest.approx(ixx, rel=1e-4)
+
+
+def test_several_welded_trees_build_and_rest():
+    """Joints are created tree by tree (Newton needs each articulation's joints contiguous)."""
+    from pinneapple_simulation.external_solvers.newton_physics import simulate
+    s = RigidScene().ground(mu=0.5)
+    a = s.box("a", (0.05, 0.05, 0.05), pos=(0, 0, 0.05))
+    b = s.box("b", (0.05, 0.05, 0.05), pos=(1, 0, 0.05))
+    c = s.box("c", (0.05, 0.05, 0.05), pos=(0, 0, 0.15))
+    d = s.box("d", (0.05, 0.05, 0.05), pos=(1, 0, 0.15))
+    s.fixed(a, c)
+    s.fixed(b, d)
+    tr = simulate(s, duration=0.2, dt=1e-3)
+    assert np.abs(tr.pos[-1] - tr.pos[0]).max() < 5e-3
+
+
+def test_constant_wrench_balances_gravity_and_spins_up():
+    from pinneapple_simulation.external_solvers.newton_physics import simulate
+    s = RigidScene()
+    b = s.box("b", (0.01, 0.01, 0.01), pos=(0, 0, 1), mass=0.1)
+    tr = simulate(s, 0.5, wrenches={b: ((0, 0, 0.1 * 9.81), (0, 0, 0))})
+    assert abs(tr.pos[-1, 0, 2] - 1.0) < 1e-6
+    tr = simulate(s, 0.5, wrenches={b: ((0, 0, 0), (0, 0, 1e-4))})
+    inertia = 0.1 * 0.02 ** 2 / 6
+    assert tr.omega[-1, 0, 2] == pytest.approx(1e-4 / inertia * 0.5, rel=0.01)

@@ -1,0 +1,451 @@
+{
+ "format": "pinneapple-arena-cases/1",
+ "problem": "darcy_2d",
+ "options": {
+  "n": 32,
+  "high": 12.0,
+  "low": 3.0,
+  "alpha": 2.0,
+  "tau": 3.0,
+  "f": 1.0,
+  "n_train": 256,
+  "envelope_seed": 7
+ },
+ "defence": {
+  "kind": "split-conformal combined test (hardened)",
+  "checks": [
+   "residual (finite differences)",
+   "boundary condition (u = 0)",
+   "bounds (0 <= u <= max torsion / a_min)",
+   "training envelope",
+   "residual (conservative, solver stencil)"
+  ],
+  "thresholds": {
+   "residual (finite differences)": 0.46135156221757073,
+   "boundary condition (u = 0)": 0.10524498119419895,
+   "bounds (0 <= u <= max torsion / a_min)": 0.0,
+   "training envelope": 0.7657324250658735,
+   "residual (conservative, solver stencil)": 0.051865555455478024
+  },
+  "alpha": 0.01,
+  "alpha_cal": 0.005,
+  "scales": {
+   "residual (finite differences)": 0.4543799397431548,
+   "boundary condition (u = 0)": 0.10365459257020436,
+   "bounds (0 <= u <= max torsion / a_min)": 0.0,
+   "training envelope": 0.7541612116547424,
+   "residual (conservative, solver stencil)": 0.05108179941849087
+  },
+  "statistic_threshold": 1.0153431563866062,
+  "n_calibration": 400,
+  "alpha_guaranteed": true,
+  "log": [
+   "calibrated residual (finite differences), boundary condition (u = 0), bounds (0 <= u <= max torsion / a_min), training envelope, residual (conservative, solver stencil): 15/15 stored escape(s) rejected"
+  ]
+ },
+ "cases": [
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 605291690,
+   "variation": {
+    "contrast": 1.0238402129694286,
+    "tau": 3.293968240295156,
+    "level": 0.1714714204282845,
+    "refine": 2.239820989573456
+   },
+   "generator": "fault:bias",
+   "params": {
+    "magnitude": 0.05,
+    "rng_seed": 0
+   },
+   "true_error": 0.10851653150399163,
+   "values": {
+    "residual (finite differences)": 0.32854661799270146,
+    "boundary condition (u = 0)": 0.0656343870656083,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.3436561293439171,
+   "found": true,
+   "method": "mutation",
+   "evaluations": 0,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 1227350964,
+   "variation": {
+    "contrast": 0.944841225984174,
+    "tau": 3.3914500452995453,
+    "level": -0.09725326469572004,
+    "refine": 2.170940811579202
+   },
+   "generator": "fault:scale",
+   "params": {
+    "magnitude": 0.5,
+    "rng_seed": 0
+   },
+   "true_error": 0.5000000000000001,
+   "values": {
+    "residual (finite differences)": 0.31457868512207804,
+    "boundary condition (u = 0)": 0.0319732349080439,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.47570219146320325,
+   "found": true,
+   "method": "mutation",
+   "evaluations": 0,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 72124473,
+   "variation": {
+    "contrast": 1.1283449508934749,
+    "tau": 2.7634834309038387,
+    "level": 0.2179073534099319,
+    "refine": 2.618969048544784
+   },
+   "generator": "fault:stale_model",
+   "params": {
+    "magnitude": 2.0,
+    "rng_seed": 0
+   },
+   "true_error": 0.4827919747350192,
+   "values": {
+    "residual (finite differences)": 0.47162581169451573,
+    "boundary condition (u = 0)": 0.013782509841483626,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.21395698050914047,
+   "found": true,
+   "method": "mutation",
+   "evaluations": 0,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "mutant",
+   "params": {
+    "bias": 0.04726192090275219,
+    "scale": 0.25959550923890556,
+    "smoothing": 0.221593685669355,
+    "noise": 0.001107604539775081
+   },
+   "true_error": 0.3511509399420754,
+   "values": {
+    "residual (finite differences)": 0.3507891674098134,
+    "boundary condition (u = 0)": 0.09048352068506281,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.09516479314937198,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "mutant",
+   "params": {
+    "bias": 0.008118567507190588,
+    "scale": 0.2954474577735497,
+    "smoothing": 0.150623216483448,
+    "noise": 0.0015384535756707953
+   },
+   "true_error": 0.31358414986520655,
+   "values": {
+    "residual (finite differences)": 0.42797430740654613,
+    "boundary condition (u = 0)": 0.04260767657531973,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.28670948765575643,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "mutant",
+   "params": {
+    "bias": 0.04114076592252219,
+    "scale": 0.2811777240896685,
+    "smoothing": 0.22053391410624124,
+    "noise": 0.03946486880788527
+   },
+   "true_error": 0.3687942802472616,
+   "values": {
+    "residual (finite differences)": 0.5803280099278745,
+    "boundary condition (u = 0)": 0.09143999869004332,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.032786650120209204,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "smooth_modes",
+   "params": {
+    "c11": 0.3929402998567023,
+    "c12": -0.3210933574478023,
+    "c21": 0.39209610282116025,
+    "c22": 0.10859520364612618
+   },
+   "true_error": 0.45014084721861836,
+   "values": {
+    "residual (finite differences)": 0.5548049751771104,
+    "boundary condition (u = 0)": 0.03187784393135067,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.07532504137148266,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "smooth_modes",
+   "params": {
+    "c11": -0.31535934184321324,
+    "c12": -0.3383863409607222,
+    "c21": -0.2657454812862231,
+    "c22": -0.32113950112676504
+   },
+   "true_error": 0.4274244697605516,
+   "values": {
+    "residual (finite differences)": 0.43577876410357497,
+    "boundary condition (u = 0)": 0.04240413512491122,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.27370205982737505,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "smooth_modes",
+   "params": {
+    "c11": 0.29590203852261077,
+    "c12": -0.3431758180670752,
+    "c21": 0.3953866035925663,
+    "c22": -0.3300560962458309
+   },
+   "true_error": 0.46436322360356574,
+   "values": {
+    "residual (finite differences)": 0.5282779118894622,
+    "boundary condition (u = 0)": 0.01432717665195292,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.11953681351756307,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "coefficient_field",
+   "params": {
+    "g00": -0.5937244101538325,
+    "g01": -0.07030404697556247,
+    "g10": 0.5160238411048984,
+    "g11": 0.5424645785287708
+   },
+   "true_error": 0.866181179615838,
+   "values": {
+    "residual (finite differences)": 0.5287717127848098,
+    "boundary condition (u = 0)": 0.07096551430033064,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.11871381202531694,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "coefficient_field",
+   "params": {
+    "g00": -0.5307565682028936,
+    "g01": 0.3258942541083455,
+    "g10": 0.5548839639433655,
+    "g11": -0.29028421978741775
+   },
+   "true_error": 0.8106668145615978,
+   "values": {
+    "residual (finite differences)": 0.5723866452908501,
+    "boundary condition (u = 0)": 0.08153602041234155,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.04602225784858305,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "coefficient_field",
+   "params": {
+    "g00": -0.5986041567470087,
+    "g01": 0.3673650751525963,
+    "g10": 0.19834646073704776,
+    "g11": 0.1000197412967676
+   },
+   "true_error": 0.8717612159089705,
+   "values": {
+    "residual (finite differences)": 0.41992619973628326,
+    "boundary condition (u = 0)": 0.024509079442552605,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.3001230004395279,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "source_field",
+   "params": {
+    "s00": -0.47445469884966374,
+    "s01": 0.4538907374007146,
+    "s10": -0.29894704474099887,
+    "s11": -0.22569407608787317
+   },
+   "true_error": 0.5591229111414551,
+   "values": {
+    "residual (finite differences)": 0.4118503704336962,
+    "boundary condition (u = 0)": 0.09360323841077658,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.06396761589223421,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "source_field",
+   "params": {
+    "s00": 0.49585568972387506,
+    "s01": 0.09023082042759478,
+    "s10": 0.4437910173284231,
+    "s11": 0.19375552772783244
+   },
+   "true_error": 0.5551429599496897,
+   "values": {
+    "residual (finite differences)": 0.48142347418323295,
+    "boundary condition (u = 0)": 0.025735629900368793,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.19762754302794505,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "darcy_2d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "source_field",
+   "params": {
+    "s00": 0.48168553686131765,
+    "s01": -0.4316371809532451,
+    "s10": 0.2931272541743185,
+    "s11": -0.39024388666808446
+   },
+   "true_error": 0.5425009410253535,
+   "values": {
+    "residual (finite differences)": 0.36468537965544306,
+    "boundary condition (u = 0)": 0.024737017340831308,
+    "bounds (0 <= u <= max torsion / a_min)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.3921910339075949,
+   "found": true,
+   "method": "de",
+   "evaluations": 160,
+   "round": 0
+  }
+ ],
+ "meta": {
+  "alpha": 0.01,
+  "min_error": 0.1,
+  "seed": 0,
+  "method": "de",
+  "rounds": 2,
+  "safety": 0.5,
+  "budget": {
+   "n_bases": 3,
+   "evals": 160,
+   "fa_seeds": 4,
+   "fa_evals": 80,
+   "n_calibration": 400,
+   "n_holdout": 300,
+   "n_mutation_cases": 20,
+   "n_datasets": 0
+  },
+  "seconds": 103.7
+ }
+}

@@ -18,6 +18,22 @@ def jet(t: float) -> Tuple[float, float, float]:
     return tuple(c / 255 for c in JET[-1][1])
 
 
+#: blue - white - red diverging scale (sRGB stops of ColorBrewer RdBu, reversed: blue = low)
+RDBU = [(0.0, (33, 102, 172)), (0.25, (103, 169, 207)), (0.5, (247, 247, 247)), (0.75, (239, 138, 98)),
+        (1.0, (178, 24, 43))]
+
+
+def ramp(t: float, stops=None) -> tuple[float, float, float]:
+    """sRGB colour of a piecewise-linear scale (default :data:`JET`) at t in [0, 1], floats in [0, 1]."""
+    stops = stops or JET
+    t = min(1.0, max(0.0, float(t)))
+    for (a, ca), (b, cb) in zip(stops, stops[1:], strict=False):
+        if t <= b:
+            f = (t - a) / (b - a)
+            return tuple((ca[k] + f * (cb[k] - ca[k])) / 255 for k in range(3))
+    return tuple(c / 255 for c in stops[-1][1])
+
+
 def decimals(lo: float, hi: float) -> int:
     """Decimals that tell five ticks over [lo, hi] apart (same rule as studio-core.js)."""
     span = abs(hi - lo) or abs(hi) or 1.0
@@ -41,8 +57,9 @@ def ticks(lo: float, hi: float, n: int = 5, nd: Optional[int] = None) -> List[st
 
 
 def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = None, lo_txt: str = "",
-             hi_txt: str = "", corner: str = "bottom-right") -> str:
-    """Draw a jet colour bar with 5 ticks and a title in a corner of the image at ``path`` (overwritten)."""
+             hi_txt: str = "", corner: str = "bottom-right", stops=None) -> str:
+    """Draw a colour bar (jet, or the scale ``stops`` such as :data:`RDBU`) with 5 ticks and a title in a corner of
+    the image at ``path`` (overwritten)."""
     from PIL import Image, ImageDraw, ImageFont
     im = Image.open(path).convert("RGB")
     W, H = im.size
@@ -62,7 +79,7 @@ def colorbar(path: str, title: str, lo: float, hi: float, nd: Optional[int] = No
     d.text((x0, y0), title, fill=(15, 23, 42), font=fb)
     yb = y0 + int(40 * s)
     for i in range(bw):
-        c = jet(i / (bw - 1))
+        c = ramp(i / (bw - 1), stops)
         d.line([(x0 + i, yb), (x0 + i, yb + bh)], fill=tuple(int(255 * v) for v in c))
     for k, t in enumerate(ticks(lo, hi, 5, nd)):
         tw = d.textlength(t, font=f)

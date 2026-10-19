@@ -1,0 +1,18 @@
+{
+  "thermal": {
+    "uniform": 418228746.42490536,
+    "optimized": 24877449.20986821,
+    "iterations": 150
+  },
+  "double_pipe_L1.0": {
+    "uniform": 136.39390323264288,
+    "optimized": 25.723261267390452,
+    "fluid_fraction": 0.33333333181647723
+  },
+  "double_pipe_L1.5": {
+    "uniform": 179.3219849127891,
+    "optimized": 26.79316455565264,
+    "fluid_fraction": 0.33333333176671665
+  },
+  "runtime_s": 31.376243829727173
+}

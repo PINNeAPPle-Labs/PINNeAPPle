@@ -558,3 +558,93 @@ def test_api_local_llm_when_ollama_is_configured(api, client, ollama, monkeypatc
     r = client.post("/api/compile", files=_uploads(ORDER[2:]), data={"use_llm": "true"}).json()
     assert srv.requests and r["rejected"] == [] or all(x["doc"] == ORDER[2][0] for x in r["rejected"])
     api._LLM_CACHE["t"] = 0.0
+
+
+# ---------------------------------------------------------------------------------------------- vendor grid layout
+def _grid_datasheet() -> "ff.extract.Document":
+    """A fictitious vendor datasheet laid out as one grid: label | value | unit on the left, a nozzle schedule in the
+    right half, "label: value" inside header cells, combined int/ext and max/min values, notes without a colon."""
+    n = None
+    rows = [
+        ["Data Sheet No.: DS-001", n, n, n, "Service : Non-Lethal", n, n, "Location: SAMPLE CITY", n, n],
+        ["Item No.: V-900 Qty: 1", n, n, n, "Stamping : U designator", n, n, n, n, n],
+        ["DESIGN CONDITIONS", n, n, n, "MATERIALS OF CONSTRUCTION", n, n, n, n, n],
+        ["Design Pressure (Int/Ext)", n, "1.5 / NA", "MPa g", "Shell / Pad plate", n, n, "SA-516 GR 70", n, n],
+        ["Temperature (Int/Ext)", n, "150 / NA", "Deg C", "Heads", n, n, "SA-516 GR 70", n, n],
+        ["Corrosion Allow. (internal)", n, "1.5", "MM", "Coupling", n, n, "SA-105", n, n],
+        ["MDMT", n, "-10", "Deg C", "Supports", n, n, "SA-36", n, n],
+        ["OPERATING CONDITIONS", n, n, n, "NOZZLE SCHEDULE", n, n, n, n, n],
+        ["Internal Pressure", n, "1.2", "MPa g", "Mark", "Service", "Qty", "Size", "Type/Class", "RF pad"],
+        ["Temperature Max/Min", n, "60 / 10", "Deg C", n, n, n, n, n, n],
+        ["Fluid", n, "AIR", n, "N1", "Inlet", "1", "DN 50", "Half Coupling CL6000", "-"],
+        ["VESSEL DIMENSIONS", n, n, n, "N2", "Outlet", "1", "DN 50", "Half Coupling CL6000", "-"],
+        ["Shell Inside Diameter", n, "800", "MM", "N3", "Drain", "1", "DN 50", "Half Coupling CL6000", "With Plug"],
+        ["Shell Length (TL-TL)", n, "1200", "MM", "H1", "Inspection", "1", "DN 50", "Half Coupling CL6000", "-"],
+        ["TESTING", n, n, n, "EXTERNALS", n, n, n, n, n],
+        ["PWHT", n, "As per Code", n, "Supports", n, n, "Legs", n, n],
+        ["Notes", n, n, n, "INTERNALS", n, n, n, n, n],
+        [n, n, n, n, "Elements", n, n, "No", n, n],
+    ]
+    rows = [[c or "" for c in r] for r in rows]                 # as read_document stores empty cells
+    lines = [" ".join(c for c in r if c) for r in rows]
+    notes = ["2. NB Registration is not required", "4. Wind loads shall be as per UBC97.",
+             "5. Seismic loads shall be as per UBC97."]
+    return ff.extract.Document("grid.pdf", ["\n".join(lines + notes)], [(1, rows)], "mechanical datasheet")
+
+
+def test_grid_layout_with_unit_column_pairs_and_embedded_nozzle_schedule():
+    spec = ff.get_spec("asme_u-dr-1")
+    doc = _grid_datasheet()
+    comp = ff.compile([doc], ff.extract_rules(doc, spec), spec)
+    got = {k: d.display for k, d in comp.decisions.items() if d.status == "filled"}
+    assert "service" not in got                          # neither "Qty" (a header) nor "Non-Lethal"
+    assert got["design_p_int"] == "1.5 MPa(g)" and "design_p_ext" not in got      # "NA" is not an answer
+    assert got["design_t_int"] == "150 °C"
+    assert got["op1_pmax"] == "1.2 MPa(g)"
+    assert got["op1_tmax"] == "60 °C" and got["op1_tmin"] == "10 °C"
+    assert got["mdmt1_temp"] == "-10 °C"
+    assert got["diameter"] == "800 mm" and got["length_tt"] == "1200 mm"
+    assert got["ca_shell_int"] == "1.5 mm"
+    assert got["item_no"] == "V-900" and got["city"] == "SAMPLE CITY"
+    assert got["nb_registration"] == "no"
+    assert got["wind_code"] == "ubc" and got["seismic_code"] == "ubc"
+    assert got["support"] == "legs" and got["pwht"] == "per code"
+    assert got["mat_shell"] == "SA-516 GR 70" and "mat_internals" not in got
+    marks = [r.value["description"].split()[0] for r in comp.nozzles]
+    assert marks == ["N1", "N2", "N3", "H1"]
+
+
+def _compile_rows(rows, spec_name="asme_u-dr-1"):
+    spec = ff.get_spec(spec_name)
+    doc = ff.Document(name="t.pdf", pages=[" "], tables=[(1, rows)])
+    return ff.compile([doc], ff.extract_rules(doc, spec), spec)
+
+
+def test_unit_column_before_the_value_and_unit_in_the_column_header():
+    got = {k: d.display for k, d in _compile_rows([["Item", "Unit", "Value"],
+                                                   ["Inside diameter", "mm", "800"],
+                                                   ["Length T/T", "mm", "1200"],
+                                                   ["Design pressure", "MPa g", "1.5"],
+                                                   ["Design temperature", "°C", "150"]]).decisions.items()
+           if d.status == "filled"}
+    assert got["diameter"] == "800 mm" and got["length_tt"] == "1200 mm"
+    assert got["design_p_int"] == "1.5 MPa(g)" and got["design_t_int"] == "150 °C"
+    assert "unit" not in got and "service" not in got
+    head = _compile_rows([["Item", "Value (MPa g)"], ["Design pressure", "1.5"]])
+    assert head.decisions["design_p_int"].display == "1.5 MPa(g)"
+
+
+def test_alternative_labels_for_design_pressure_and_material_of_construction():
+    comp = _compile_rows([["Design press.", "1.5 MPa(g)"], ["Shell MOC", "SA-516 Gr 70"],
+                          ["MOC - Nozzles", "SA-106 B"], ["Corrosion allowance", "3 mm"], ["C.A.", "3 mm"]])
+    d = comp.decisions
+    assert d["design_p_int"].display == "1.5 MPa(g)"
+    assert d["mat_shell"].display == "SA-516 Gr 70" and d["mat_nozzles"].display == "SA-106 B"
+    assert d["ca_shell_int"].status == "filled" and not d["ca_shell_int"].note
+
+
+def test_a_quantity_written_without_a_unit_is_kept_and_flagged():
+    comp = _compile_rows([["Design pressure", "1.5"], ["Inside diameter", "800 mm"]])
+    p, dia = comp.decisions["design_p_int"], comp.decisions["diameter"]
+    assert p.display == "1.5" and "No unit was found" in p.note
+    assert dia.display == "800 mm" and dia.note == ""

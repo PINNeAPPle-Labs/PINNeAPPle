@@ -1,0 +1,942 @@
+{
+ "version": "1.0",
+ "description": "The brightest stars of the night sky, down to V = 2.05 (the 50 brightest systems, with Alpha Centauri A and B listed apart): Hipparcos 2007 parallaxes and text in English and Portuguese written for this project. Magnitudes, colours and spectral types come from the Yale BSC in the library.",
+ "stars": {
+  "2491": {
+   "hr": 2491,
+   "parallax_mas": {
+    "value": 379.21,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Sirius is the brightest star in the night sky, a white star twice the Sun's mass only 8.6 light-years away.",
+     "history": "Its name comes from the Greek for 'scorching'. In 1862 Alvan Clark saw its faint companion, the white dwarf Sirius B, predicted by Bessel in 1844."
+    },
+    "pt": {
+     "summary": "Sírius é a estrela mais brilhante do céu noturno, uma estrela branca com o dobro da massa do Sol, a apenas 8,6 anos-luz.",
+     "history": "O nome vem do grego para 'abrasador'. Em 1862 Alvan Clark viu a sua companheira fraca, a anã branca Sírius B, prevista por Bessel em 1844."
+    }
+   }
+  },
+  "2326": {
+   "hr": 2326,
+   "parallax_mas": {
+    "value": 10.55,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Canopus is the second-brightest star, a white bright giant in the southern constellation Carina.",
+     "history": "Spacecraft use it as a guide star to keep their orientation, because it is bright and far from the ecliptic."
+    },
+    "pt": {
+     "summary": "Canopus é a segunda estrela mais brilhante, uma gigante luminosa branca na constelação austral da Quilha.",
+     "history": "Naves espaciais a usam como estrela-guia para manter a orientação, porque é brilhante e fica longe da eclíptica."
+    }
+   }
+  },
+  "5340": {
+   "hr": 5340,
+   "parallax_mas": {
+    "value": 88.83,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Arcturus is an orange giant, the brightest star of the northern celestial hemisphere.",
+     "history": "Its name means 'guardian of the bear' in Greek. Its light, focused by a telescope, switched on the lights of the 1933 Chicago World's Fair."
+    },
+    "pt": {
+     "summary": "Arcturo é uma gigante laranja, a estrela mais brilhante do hemisfério celeste norte.",
+     "history": "O nome significa 'guardião da ursa' em grego. A sua luz, captada por um telescópio, acendeu as luzes da Feira Mundial de Chicago de 1933."
+    }
+   }
+  },
+  "5459": {
+   "hr": 5459,
+   "parallax_mas": {
+    "value": 754.81,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Rigil Kentaurus (Alpha Centauri A) is a Sun-like star in the nearest star system to us, 4.3 light-years away.",
+     "history": "Its name is Arabic for 'foot of the centaur'. With its companion Toliman and the red dwarf Proxima it forms the closest stellar system to the Sun."
+    },
+    "pt": {
+     "summary": "Rigil Kentaurus (Alfa do Centauro A) é uma estrela parecida com o Sol no sistema estelar mais próximo de nós, a 4,3 anos-luz.",
+     "history": "O nome é árabe para 'pé do centauro'. Com a companheira Toliman e a anã vermelha Próxima, forma o sistema estelar mais próximo do Sol."
+    }
+   }
+  },
+  "7001": {
+   "hr": 7001,
+   "parallax_mas": {
+    "value": 130.23,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Vega is a bright white star in Lyra, used for a long time as the zero point of the magnitude scale.",
+     "history": "In 1850 it became the first star other than the Sun to be photographed. About 12,000 years from now it will be the pole star."
+    },
+    "pt": {
+     "summary": "Vega é uma estrela branca brilhante na Lira, usada por muito tempo como ponto zero da escala de magnitudes.",
+     "history": "Em 1850 se tornou a primeira estrela, além do Sol, a ser fotografada. Daqui a cerca de 12 mil anos será a estrela polar."
+    }
+   }
+  },
+  "1708": {
+   "hr": 1708,
+   "parallax_mas": {
+    "value": 76.2,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Capella is a yellow star in Auriga that is really two giant stars orbiting each other every 104 days.",
+     "history": "Its name means 'little goat' in Latin."
+    },
+    "pt": {
+     "summary": "Capela é uma estrela amarela no Cocheiro que, na verdade, são duas gigantes orbitando uma à outra a cada 104 dias.",
+     "history": "O nome significa 'cabritinha' em latim."
+    }
+   }
+  },
+  "1713": {
+   "hr": 1713,
+   "parallax_mas": {
+    "value": 3.78,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Rigel is a blue-white supergiant at Orion's foot, tens of thousands of times more luminous than the Sun.",
+     "history": "Its name comes from the Arabic for 'the foot'."
+    },
+    "pt": {
+     "summary": "Rigel é uma supergigante branco-azulada no pé de Órion, dezenas de milhares de vezes mais luminosa que o Sol.",
+     "history": "O nome vem do árabe para 'o pé'."
+    }
+   }
+  },
+  "2943": {
+   "hr": 2943,
+   "parallax_mas": {
+    "value": 284.56,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Procyon is a yellow-white star in Canis Minor, one of our nearest bright neighbours.",
+     "history": "Its Greek name means 'before the dog': it rises just before Sirius, the Dog Star."
+    },
+    "pt": {
+     "summary": "Prócion é uma estrela branco-amarelada no Cão Menor, uma das nossas vizinhas brilhantes mais próximas.",
+     "history": "O nome grego significa 'antes do cão': nasce pouco antes de Sírius, a Estrela do Cão."
+    }
+   }
+  },
+  "472": {
+   "hr": 472,
+   "parallax_mas": {
+    "value": 23.39,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Achernar is a hot blue star at the end of the river Eridanus, spinning so fast that it is strongly flattened.",
+     "history": "Its name is Arabic for 'end of the river'."
+    },
+    "pt": {
+     "summary": "Achernar é uma estrela azul e quente no fim do rio Erídano, girando tão rápido que é bem achatada.",
+     "history": "O nome é árabe para 'fim do rio'."
+    }
+   }
+  },
+  "2061": {
+   "hr": 2061,
+   "parallax_mas": {
+    "value": 6.55,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Betelgeuse is a red supergiant on Orion's shoulder, so large that it would reach past the orbit of Mars if it replaced the Sun.",
+     "history": "Its name comes from Arabic, 'the hand of al-Jawzā'. In 2019–2020 it dimmed by more than a magnitude in the 'Great Dimming', caused by a cloud of dust it ejected. It will end its life as a supernova."
+    },
+    "pt": {
+     "summary": "Betelgeuse é uma supergigante vermelha no ombro de Órion, tão grande que passaria da órbita de Marte se ocupasse o lugar do Sol.",
+     "history": "O nome vem do árabe, 'a mão de al-Jawzā'. Em 2019–2020 perdeu mais de uma magnitude de brilho no 'Grande Escurecimento', causado por uma nuvem de poeira que ela mesma expeliu. Vai terminar a vida como supernova."
+    }
+   }
+  },
+  "5267": {
+   "hr": 5267,
+   "parallax_mas": {
+    "value": 8.32,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Hadar is a hot blue giant in Centaurus, the pointer star next to Alpha Centauri that leads to the Southern Cross.",
+     "history": "With Rigil Kentaurus it forms the 'Pointers' of the southern sky."
+    },
+    "pt": {
+     "summary": "Hadar é uma gigante azul e quente no Centauro, a estrela-guia ao lado de Alfa do Centauro que aponta para o Cruzeiro do Sul.",
+     "history": "Com Rigil Kentaurus forma as 'Guardas' do céu austral."
+    }
+   }
+  },
+  "7557": {
+   "hr": 7557,
+   "parallax_mas": {
+    "value": 194.95,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Altair is a white star in Aquila that spins once every 9 hours, flattening it.",
+     "history": "Its surface was the first of a main-sequence star (other than the Sun) to be imaged, by interferometry in 2007. It is a corner of the Summer Triangle."
+    },
+    "pt": {
+     "summary": "Altair é uma estrela branca na Águia que gira uma vez a cada 9 horas, o que a achata.",
+     "history": "A sua superfície foi a primeira de uma estrela da sequência principal (além do Sol) a ser fotografada, por interferometria, em 2007. É um vértice do Triângulo de Verão."
+    }
+   }
+  },
+  "1457": {
+   "hr": 1457,
+   "parallax_mas": {
+    "value": 48.94,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Aldebaran is an orange giant, the red eye of Taurus the bull.",
+     "history": "Its name is Arabic for 'the follower': it follows the Pleiades across the sky. Pioneer 10 is heading in its direction."
+    },
+    "pt": {
+     "summary": "Aldebarã é uma gigante laranja, o olho vermelho do Touro.",
+     "history": "O nome é árabe para 'o seguidor': ela segue as Plêiades pelo céu. A Pioneer 10 viaja na sua direção."
+    }
+   }
+  },
+  "6134": {
+   "hr": 6134,
+   "parallax_mas": {
+    "value": 5.89,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Antares is a red supergiant, the heart of Scorpius.",
+     "history": "Its name means 'rival of Ares (Mars)' because of its red colour."
+    },
+    "pt": {
+     "summary": "Antares é uma supergigante vermelha, o coração do Escorpião.",
+     "history": "O nome significa 'rival de Ares (Marte)' por causa da cor vermelha."
+    }
+   }
+  },
+  "5056": {
+   "hr": 5056,
+   "parallax_mas": {
+    "value": 13.06,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Spica is a pair of hot blue stars in Virgo orbiting each other every four days.",
+     "history": "Hipparchus used Spica around 130 BC to discover the precession of the equinoxes."
+    },
+    "pt": {
+     "summary": "Espiga é um par de estrelas azuis e quentes na Virgem que orbitam uma à outra a cada quatro dias.",
+     "history": "Hiparco usou a Espiga por volta de 130 a.C. para descobrir a precessão dos equinócios."
+    }
+   }
+  },
+  "2990": {
+   "hr": 2990,
+   "parallax_mas": {
+    "value": 96.54,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Pollux is an orange giant in Gemini with a planet of its own.",
+     "history": "Its planet, Thestias, was confirmed in 2006."
+    },
+    "pt": {
+     "summary": "Pólux é uma gigante laranja nos Gêmeos com um planeta próprio.",
+     "history": "O seu planeta, Thestias, foi confirmado em 2006."
+    }
+   }
+  },
+  "8728": {
+   "hr": 8728,
+   "parallax_mas": {
+    "value": 129.81,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Fomalhaut is a white star in Piscis Austrinus surrounded by a wide ring of dust.",
+     "history": "Its name means 'mouth of the fish' in Arabic."
+    },
+    "pt": {
+     "summary": "Fomalhaut é uma estrela branca no Peixe Austral cercada por um largo anel de poeira.",
+     "history": "O nome significa 'boca do peixe' em árabe."
+    }
+   }
+  },
+  "4853": {
+   "hr": 4853,
+   "parallax_mas": {
+    "value": 11.71,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Mimosa is a blue giant, the second-brightest star of the Southern Cross.",
+     "history": "It appears on the flag of Brazil."
+    },
+    "pt": {
+     "summary": "Mimosa é uma gigante azul, a segunda estrela mais brilhante do Cruzeiro do Sul.",
+     "history": "Aparece na bandeira do Brasil."
+    }
+   }
+  },
+  "7924": {
+   "hr": 7924,
+   "parallax_mas": {
+    "value": 2.31,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Deneb is a white supergiant in Cygnus, one of the most luminous stars visible to the naked eye.",
+     "history": "Its name means 'tail' (of the hen) in Arabic. Its distance is uncertain because its parallax is tiny."
+    },
+    "pt": {
+     "summary": "Deneb é uma supergigante branca no Cisne, uma das estrelas mais luminosas vistas a olho nu.",
+     "history": "O nome significa 'cauda' (da galinha) em árabe. A distância é incerta porque a paralaxe é minúscula."
+    }
+   }
+  },
+  "4730": {
+   "hr": 4730,
+   "parallax_mas": {
+    "value": 10.13,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Acrux is the foot of the Southern Cross, a multiple system of hot blue stars.",
+     "history": "It represents the state of São Paulo on the flag of Brazil."
+    },
+    "pt": {
+     "summary": "Acrux é o pé do Cruzeiro do Sul, um sistema múltiplo de estrelas azuis e quentes.",
+     "history": "Representa o estado de São Paulo na bandeira do Brasil."
+    }
+   }
+  },
+  "5460": {
+   "hr": 5460,
+   "parallax_mas": {
+    "value": 754.81,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Toliman (Alpha Centauri B) is the orange companion of Rigil Kentaurus, in the nearest star system.",
+     "history": "The two stars orbit each other every 80 years."
+    },
+    "pt": {
+     "summary": "Toliman (Alfa do Centauro B) é a companheira laranja de Rigil Kentaurus, no sistema estelar mais próximo.",
+     "history": "As duas estrelas orbitam uma à outra a cada 80 anos."
+    }
+   }
+  },
+  "3982": {
+   "hr": 3982,
+   "parallax_mas": {
+    "value": 41.13,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Regulus is a blue-white star at the heart of Leo, almost on the ecliptic.",
+     "history": "Its Latin name means 'little king'. The Moon often passes in front of it."
+    },
+    "pt": {
+     "summary": "Régulo é uma estrela branco-azulada no coração do Leão, quase sobre a eclíptica.",
+     "history": "O nome latino significa 'pequeno rei'. A Lua passa com frequência na frente dela."
+    }
+   }
+  },
+  "2618": {
+   "hr": 2618,
+   "parallax_mas": {
+    "value": 8.05,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Adhara is a blue giant in Canis Major, the brightest source of extreme-ultraviolet light in our sky.",
+     "history": "Its name means 'the virgins' in Arabic."
+    },
+    "pt": {
+     "summary": "Adhara é uma gigante azul no Cão Maior, a fonte mais brilhante de ultravioleta extremo do nosso céu.",
+     "history": "O nome significa 'as virgens' em árabe."
+    }
+   }
+  },
+  "6527": {
+   "hr": 6527,
+   "parallax_mas": {
+    "value": 5.71,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Shaula is a hot blue star at the tip of the scorpion's sting.",
+     "history": "Its name is Arabic for 'the raised (tail)'."
+    },
+    "pt": {
+     "summary": "Shaula é uma estrela azul e quente na ponta do ferrão do Escorpião.",
+     "history": "O nome é árabe para 'a (cauda) erguida'."
+    }
+   }
+  },
+  "4763": {
+   "hr": 4763,
+   "parallax_mas": {
+    "value": 36.83,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Gacrux is a red giant at the top of the Southern Cross, the nearest red giant to the Sun.",
+     "history": "Its name joins 'Gamma' and 'Crux'."
+    },
+    "pt": {
+     "summary": "Gacrux é uma gigante vermelha no topo do Cruzeiro do Sul, a gigante vermelha mais próxima do Sol.",
+     "history": "O nome junta 'Gama' e 'Crux'."
+    }
+   }
+  },
+  "1790": {
+   "hr": 1790,
+   "parallax_mas": {
+    "value": 12.92,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Bellatrix is a hot blue giant on Orion's left shoulder.",
+     "history": "Its Latin name means 'female warrior'."
+    },
+    "pt": {
+     "summary": "Bellatrix é uma gigante azul e quente no ombro esquerdo de Órion.",
+     "history": "O nome latino significa 'guerreira'."
+    }
+   }
+  },
+  "1791": {
+   "hr": 1791,
+   "parallax_mas": {
+    "value": 24.36,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Elnath is a blue-white giant at the tip of Taurus's horn.",
+     "history": "Its name means 'the butting' (with the horns) in Arabic."
+    },
+    "pt": {
+     "summary": "Elnath é uma gigante branco-azulada na ponta do chifre do Touro.",
+     "history": "O nome significa 'a que dá chifradas' em árabe."
+    }
+   }
+  },
+  "3685": {
+   "hr": 3685,
+   "parallax_mas": {
+    "value": 28.82,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Miaplacidus is a white star in Carina, deep in the southern sky.",
+     "history": "Its name mixes Arabic and Latin: 'calm waters'."
+    },
+    "pt": {
+     "summary": "Miaplacidus é uma estrela branca na Quilha, bem ao sul do céu.",
+     "history": "O nome mistura árabe e latim: 'águas calmas'."
+    }
+   }
+  },
+  "1903": {
+   "hr": 1903,
+   "parallax_mas": {
+    "value": 1.65,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alnilam is the middle star of Orion's Belt, a blue supergiant hundreds of thousands of times more luminous than the Sun.",
+     "history": "Its name means 'string of pearls' in Arabic."
+    },
+    "pt": {
+     "summary": "Alnilam é a estrela do meio do Cinturão de Órion (as Três Marias), uma supergigante azul centenas de milhares de vezes mais luminosa que o Sol.",
+     "history": "O nome significa 'colar de pérolas' em árabe."
+    }
+   }
+  },
+  "8425": {
+   "hr": 8425,
+   "parallax_mas": {
+    "value": 32.29,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alnair is a blue-white star in Grus, the crane.",
+     "history": "Its name means 'the bright one' in Arabic."
+    },
+    "pt": {
+     "summary": "Alnair é uma estrela branco-azulada no Grou.",
+     "history": "O nome significa 'a brilhante' em árabe."
+    }
+   }
+  },
+  "4905": {
+   "hr": 4905,
+   "parallax_mas": {
+    "value": 39.51,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alioth is the brightest star of the Big Dipper in Ursa Major.",
+     "history": "It belongs to the Ursa Major moving group, stars born together that travel through space together."
+    },
+    "pt": {
+     "summary": "Alioth é a estrela mais brilhante da Ursa Maior.",
+     "history": "Faz parte do grupo de movimento da Ursa Maior, estrelas que nasceram juntas e viajam juntas pelo espaço."
+    }
+   }
+  },
+  "3207": {
+   "hr": 3207,
+   "parallax_mas": {
+    "value": 2.92,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Regor is a system in Vela with the brightest Wolf–Rayet star, a massive star that has lost its outer layers.",
+     "history": "Apollo astronauts named it after Roger Chaffee, spelled backwards, as a navigation star."
+    },
+    "pt": {
+     "summary": "Regor é um sistema na Vela com a estrela de Wolf–Rayet mais brilhante, uma estrela massiva que perdeu as camadas externas.",
+     "history": "Os astronautas da Apollo lhe deram o nome de Roger Chaffee ao contrário, como estrela de navegação."
+    }
+   }
+  },
+  "1017": {
+   "hr": 1017,
+   "parallax_mas": {
+    "value": 6.44,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Mirfak is a yellow-white supergiant, the brightest star of Perseus.",
+     "history": "Its name means 'elbow' in Arabic."
+    },
+    "pt": {
+     "summary": "Mirfak é uma supergigante branco-amarelada, a estrela mais brilhante de Perseu.",
+     "history": "O nome significa 'cotovelo' em árabe."
+    }
+   }
+  },
+  "4301": {
+   "hr": 4301,
+   "parallax_mas": {
+    "value": 26.54,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Dubhe is an orange giant in the Big Dipper and one of the two 'pointers' to Polaris.",
+     "history": "Its name comes from the Arabic for 'the bear'."
+    },
+    "pt": {
+     "summary": "Dubhe é uma gigante laranja na Ursa Maior e uma das duas estrelas que apontam para a Polar.",
+     "history": "O nome vem do árabe para 'a ursa'."
+    }
+   }
+  },
+  "2693": {
+   "hr": 2693,
+   "parallax_mas": {
+    "value": 2.02,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Wezen is a yellow-white supergiant in Canis Major, tens of thousands of times more luminous than the Sun.",
+     "history": "Its name means 'weight' in Arabic."
+    },
+    "pt": {
+     "summary": "Wezen é uma supergigante branco-amarelada no Cão Maior, dezenas de milhares de vezes mais luminosa que o Sol.",
+     "history": "O nome significa 'peso' em árabe."
+    }
+   }
+  },
+  "6879": {
+   "hr": 6879,
+   "parallax_mas": {
+    "value": 22.76,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Kaus Australis is a blue-white giant, the brightest star of Sagittarius and the base of the 'Teapot'.",
+     "history": "Its name means 'southern part of the bow'."
+    },
+    "pt": {
+     "summary": "Kaus Australis é uma gigante branco-azulada, a estrela mais brilhante de Sagitário e a base do 'Bule'.",
+     "history": "O nome significa 'parte sul do arco'."
+    }
+   }
+  },
+  "5191": {
+   "hr": 5191,
+   "parallax_mas": {
+    "value": 31.38,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alkaid is a hot blue star at the end of the Big Dipper's handle.",
+     "history": "Its name comes from Arabic, 'the leader'."
+    },
+    "pt": {
+     "summary": "Alkaid é uma estrela azul e quente na ponta do cabo da Ursa Maior.",
+     "history": "O nome vem do árabe, 'o líder'."
+    }
+   }
+  },
+  "3307": {
+   "hr": 3307,
+   "parallax_mas": {
+    "value": 5.39,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Avior is a pair of stars in Carina, an orange giant and a hot blue companion.",
+     "history": "Its name was given in the 1930s for the Royal Air Force's navigation almanac."
+    },
+    "pt": {
+     "summary": "Avior é um par de estrelas na Quilha, uma gigante laranja e uma companheira azul e quente.",
+     "history": "O nome foi dado na década de 1930 para o almanaque de navegação da Força Aérea britânica."
+    }
+   }
+  },
+  "6553": {
+   "hr": 6553,
+   "parallax_mas": {
+    "value": 10.86,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Sargas is a yellow-white giant in the curved tail of Scorpius.",
+     "history": "Its name comes from Sumerian."
+    },
+    "pt": {
+     "summary": "Sargas é uma gigante branco-amarelada na cauda curva do Escorpião.",
+     "history": "O nome vem do sumério."
+    }
+   }
+  },
+  "2088": {
+   "hr": 2088,
+   "parallax_mas": {
+    "value": 40.21,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Menkalinan is a pair of white stars in Auriga that eclipse each other every four days.",
+     "history": "Its name means 'shoulder of the rein-holder'."
+    },
+    "pt": {
+     "summary": "Menkalinan é um par de estrelas brancas no Cocheiro que se eclipsam a cada quatro dias.",
+     "history": "O nome significa 'ombro do condutor das rédeas'."
+    }
+   }
+  },
+  "6217": {
+   "hr": 6217,
+   "parallax_mas": {
+    "value": 8.35,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Atria is an orange giant, the brightest star of Triangulum Australe.",
+     "history": "Its name is a contraction of 'Alpha Trianguli Australis'."
+    },
+    "pt": {
+     "summary": "Atria é uma gigante laranja, a estrela mais brilhante do Triângulo Austral.",
+     "history": "O nome é uma contração de 'Alpha Trianguli Australis'."
+    }
+   }
+  },
+  "2421": {
+   "hr": 2421,
+   "parallax_mas": {
+    "value": 29.84,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alhena is a white star at the foot of Pollux in Gemini.",
+     "history": "Its name comes from Arabic, 'the brand' (a mark on a camel's neck)."
+    },
+    "pt": {
+     "summary": "Alhena é uma estrela branca no pé de Pólux, nos Gêmeos.",
+     "history": "O nome vem do árabe, 'a marca' (no pescoço de um camelo)."
+    }
+   }
+  },
+  "7790": {
+   "hr": 7790,
+   "parallax_mas": {
+    "value": 18.24,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Peacock is a blue-white star, the brightest of Pavo.",
+     "history": "Its name was given in the 1930s for the British Nautical Almanac."
+    },
+    "pt": {
+     "summary": "Peacock é uma estrela branco-azulada, a mais brilhante do Pavão.",
+     "history": "O nome foi dado na década de 1930 para o almanaque náutico britânico."
+    }
+   }
+  },
+  "3485": {
+   "hr": 3485,
+   "parallax_mas": {
+    "value": 40.49,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alsephina is a white star in Vela that is partly eclipsed by a companion every 45 days.",
+     "history": "Its Arabic name means 'the ship'."
+    },
+    "pt": {
+     "summary": "Alsephina é uma estrela branca na Vela parcialmente eclipsada por uma companheira a cada 45 dias.",
+     "history": "O nome árabe significa 'o navio'."
+    }
+   }
+  },
+  "2294": {
+   "hr": 2294,
+   "parallax_mas": {
+    "value": 6.62,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Mirzam is a blue giant in Canis Major that pulsates slightly every six hours.",
+     "history": "Its name means 'the herald': it rises just before Sirius."
+    },
+    "pt": {
+     "summary": "Mirzam é uma gigante azul no Cão Maior que pulsa levemente a cada seis horas.",
+     "history": "O nome significa 'o arauto': nasce pouco antes de Sírius."
+    }
+   }
+  },
+  "3748": {
+   "hr": 3748,
+   "parallax_mas": {
+    "value": 18.09,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alphard is an orange giant, the lonely brightest star of Hydra.",
+     "history": "Its name means 'the solitary one' in Arabic."
+    },
+    "pt": {
+     "summary": "Alphard é uma gigante laranja, a solitária estrela mais brilhante da Hidra.",
+     "history": "O nome significa 'a solitária' em árabe."
+    }
+   }
+  },
+  "2891": {
+   "hr": 2891,
+   "parallax_mas": {
+    "value": 64.12,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Castor looks like one star but is a system of six stars in Gemini.",
+     "history": "Castor and Pollux are the twins of Greek mythology."
+    },
+    "pt": {
+     "summary": "Castor parece uma estrela, mas é um sistema de seis estrelas nos Gêmeos.",
+     "history": "Castor e Pólux são os gêmeos da mitologia grega."
+    }
+   }
+  },
+  "617": {
+   "hr": 617,
+   "parallax_mas": {
+    "value": 49.56,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Hamal is an orange giant, the brightest star of Aries.",
+     "history": "Its name means 'head of the ram' in Arabic."
+    },
+    "pt": {
+     "summary": "Hamal é uma gigante laranja, a estrela mais brilhante de Áries.",
+     "history": "O nome significa 'cabeça do carneiro' em árabe."
+    }
+   }
+  },
+  "424": {
+   "hr": 424,
+   "parallax_mas": {
+    "value": 7.54,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Polaris, the North Star, is a yellow supergiant less than 1° from the north celestial pole.",
+     "history": "Navigators have used it for centuries to find north. It cannot be seen from most of Brazil, because it stays below the horizon south of the equator."
+    },
+    "pt": {
+     "summary": "Polaris, a Estrela Polar, é uma supergigante amarela a menos de 1° do polo celeste norte.",
+     "history": "Navegadores a usam há séculos para achar o norte. Não pode ser vista da maior parte do Brasil, porque fica abaixo do horizonte ao sul do equador."
+    }
+   }
+  },
+  "7121": {
+   "hr": 7121,
+   "parallax_mas": {
+    "value": 14.32,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Nunki is a hot blue star in Sagittarius, on the handle of the 'Teapot'.",
+     "history": "Its name comes from Babylonian astronomy."
+    },
+    "pt": {
+     "summary": "Nunki é uma estrela azul e quente em Sagitário, na alça do 'Bule'.",
+     "history": "O nome vem da astronomia babilônica."
+    }
+   }
+  },
+  "188": {
+   "hr": 188,
+   "parallax_mas": {
+    "value": 33.86,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Diphda is an orange giant, the brightest star of Cetus.",
+     "history": "Its name means 'the frog' in Arabic."
+    },
+    "pt": {
+     "summary": "Diphda é uma gigante laranja, a estrela mais brilhante da Baleia.",
+     "history": "O nome significa 'a rã' em árabe."
+    }
+   }
+  },
+  "1948": {
+   "hr": 1948,
+   "parallax_mas": {
+    "value": 4.43,
+    "unit": "mas",
+    "source": "hipparcos2007"
+   },
+   "text": {
+    "en": {
+     "summary": "Alnitak is a hot blue supergiant, the easternmost star of Orion's Belt, next to the Horsehead Nebula.",
+     "history": "Its name means 'the girdle' in Arabic."
+    },
+    "pt": {
+     "summary": "Alnitak é uma supergigante azul e quente, a estrela mais a leste do Cinturão de Órion, ao lado da Nebulosa Cabeça de Cavalo.",
+     "history": "O nome significa 'o cinturão' em árabe."
+    }
+   }
+  }
+ }
+}

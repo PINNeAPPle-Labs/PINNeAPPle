@@ -5,6 +5,8 @@
     python scripts/zoo/build_assets.py --rover ROVER_DIR --only rover_contact_grc1_viper   # rebuild one item
     python scripts/zoo/train_heatsink_natural.py HS_DIR        # ~5 min on one CPU core
     python scripts/zoo/build_assets.py --heatsink-natural HS_DIR --only heatsink_natural_mlp
+    python scripts/zoo/train_airfoil_gnn.py RUN_DIR GNN_DIR     # ~2 h on 4 CPU cores
+    python scripts/zoo/build_assets.py --airfoil-gnn GNN_DIR --only airfoil_cst_rans_gnn   # needs its catalog entry
     python scripts/zoo/build_assets.py --hub-only STAGING_DIR  # only (re)write the Hub-only dataset entries
 
 ``--only`` rebuilds the named models/datasets and keeps every other manifest entry as it is (their published files
@@ -15,6 +17,7 @@ SHA-256, Hub tag, the catalog's ``supersedes_reason``), so the old release stays
 Sources (all in this repository):
   airfoil_cst_rans_mlp        apps/aero_optimizer/model/surrogate.pt (MLP part) + surrogate.metrics.json
   airfoil_rans_cst_re4e6      examples/handoff_cases/airfoil_ld/results/{campaign,baseline,reference}
+  airfoil_cst_rans_gnn        scripts/zoo/train_airfoil_gnn.py output (not in the catalog: rejected, see the inventory)
   heatsink_forced_mlp         apps/heatsink_sizer/artifacts/surrogate_forced.pt
   heatsink_natural_mlp        scripts/zoo/train_heatsink_natural.py output (monotone-constrained training)
   heatsink_*_convection       apps/heatsink_sizer/artifacts/dataset_{forced,natural}.json.gz
@@ -185,6 +188,15 @@ def airfoil_model():
     return b["mlp_state"], cfg
 
 
+def airfoil_gnn_model(train_dir: Path):
+    """The bundle of scripts/zoo/train_airfoil_gnn.py (graph network on the regenerated campaign)."""
+    b = torch.load(train_dir / "airfoil_gnn.pt", map_location="cpu", weights_only=False)
+    cfg = {"node_in": int(b["node_in"]), "hidden": int(b["hidden"]), "mp": int(b["mp"]),
+           **{k: np.asarray(v).tolist() for k, v in b["norm"].items()}, "reynolds": 4.0e6,
+           "field_dataset": "airfoil_rans_cst_re4e6_fields"}
+    return b["state"], cfg
+
+
 def heatsink_model():
     o = torch.load(HS / "surrogate_forced.pt", map_location="cpu", weights_only=False)
     cfg = {"arch": o["arch"], "in_dim": len(o["x_mean"]), "out_dim": len(o["y_mean"]),
@@ -275,6 +287,8 @@ def _carry_versions(old: dict | None, new: dict, spec: dict) -> dict:
     (its files lose ``bundled``: they now live only on the Hub, under the old tag)."""
     if not old:
         return new
+    if old["version"] == new["version"] and old["revision"].startswith(new["revision"] + ".post"):
+        new = {**new, "revision": old["revision"]}       # same files republished (new card, derived formats)
     history = list(old.get("superseded", []))
     if old["version"] != new["version"]:
         prev = {"version": old["version"], "revision": old["revision"], "superseded_by": new["version"],
@@ -284,7 +298,8 @@ def _carry_versions(old: dict | None, new: dict, spec: dict) -> dict:
     return {**new, "superseded": history} if history else new
 
 
-def main(rover_dir: Path | None, only: list[str] | None = None, heatsink_natural_dir: Path | None = None) -> None:
+def main(rover_dir: Path | None, only: list[str] | None = None, heatsink_natural_dir: Path | None = None,
+         airfoil_gnn_dir: Path | None = None) -> None:
     from pinneapple_hub.zoo import _models
 
     old_man = json.loads(art.MANIFEST.read_text()) if art.MANIFEST.exists() else {"models": {}, "datasets": {}}
@@ -328,6 +343,7 @@ def main(rover_dir: Path | None, only: list[str] | None = None, heatsink_natural
     write_manifest({k: v for k, v in old_man["models"].items() if only is not None}, ds_man)
 
     makers = {"airfoil_cst_rans_mlp": airfoil_model, "heatsink_forced_mlp": heatsink_model,
+              "airfoil_cst_rans_gnn": lambda: airfoil_gnn_model(_need(airfoil_gnn_dir, "--airfoil-gnn")),
               "heatsink_natural_mlp": lambda: heatsink_natural_model(_need(heatsink_natural_dir, "--heatsink-natural")),
               "rover_contact_grc1_viper": lambda: rover_model(_need(rover_dir, "--rover"))}
     m_man = {}
@@ -386,6 +402,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--rover", type=Path, help="output directory of train_rover_contact.py")
     ap.add_argument("--heatsink-natural", type=Path, help="output directory of train_heatsink_natural.py")
+    ap.add_argument("--airfoil-gnn", type=Path, help="output directory of train_airfoil_gnn.py")
     ap.add_argument("--only", nargs="+", default=None, help="rebuild only these models/datasets (names)")
     ap.add_argument("--hub-only", type=Path, metavar="STAGING_DIR",
                     help="only (re)write the manifest entries of the Hub-only datasets generated in STAGING_DIR")
@@ -393,4 +410,4 @@ if __name__ == "__main__":
     if a.hub_only:
         build_hub_only(a.hub_only)
     else:
-        main(a.rover, a.only, a.heatsink_natural)
+        main(a.rover, a.only, a.heatsink_natural, a.airfoil_gnn)

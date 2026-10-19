@@ -1,0 +1,11 @@
+# written by pinneapple_design.intent: run `pinneapple check` on this folder
+
+[[result]]
+path = "qoi/margins.csv"
+bounds = { margin_temp = [0.0, 1e9], margin_gap = [0.0, 1e9], margin_aspect = [0.0, 1e9] }
+
+[[result]]
+path = "qoi/reduced.csv"
+[result.reference]
+path = "reference/reduced.csv"
+qoi = { t_source_c = { rel = 0.10 } }

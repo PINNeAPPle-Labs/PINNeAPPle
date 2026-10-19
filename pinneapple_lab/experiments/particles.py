@@ -19,6 +19,11 @@ from ..spec import Experiment, register
 @register
 class ParticleSuspension(Experiment):
     name = "particle_suspension"
+    check_labels = {
+        "settling_velocity_vs_schiller_naumann": {"en": "vs Zwietering and Schiller\u2013Naumann",
+                                                  "pt": "vs Zwietering e Schiller\u2013Naumann",
+                                                  "also": ["suspension_speed_vs_zwietering"]},
+    }
     version = "1"
     description = ("Solids suspension in a stirred tank as the impeller speeds up: soft-sphere DEM particles with "
                    "drag, buoyancy and turbulent dispersion in an analytic, divergence-free stirred-tank flow; process "

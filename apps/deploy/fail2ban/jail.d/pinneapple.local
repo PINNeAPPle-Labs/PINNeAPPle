@@ -1,0 +1,30 @@
+# Copy to /etc/fail2ban/jail.d/ together with filter.d/*.conf (docs/security/server.md). Bans apply to the host's
+# ports 80/443 through Docker's DOCKER-USER chain, so the ban reaches the Caddy container.
+[sshd]
+enabled  = true
+maxretry = 4
+findtime = 10m
+bantime  = 1h
+
+[pinneapple-caddy]
+enabled  = true
+filter   = pinneapple-caddy
+# the caddy_data volume; for an existing proxy, the path of its JSON access log
+logpath  = /var/lib/docker/volumes/pinneapple-apps_caddy_data/_data/access.log
+backend  = auto
+maxretry = 20
+findtime = 10m
+bantime  = 1h
+chain    = DOCKER-USER
+port     = http,https
+
+[pinneapple-apps]
+enabled  = true
+filter   = pinneapple-apps
+logpath  = /var/lib/docker/containers/*/*-json.log
+backend  = auto
+maxretry = 10
+findtime = 10m
+bantime  = 1h
+chain    = DOCKER-USER
+port     = http,https

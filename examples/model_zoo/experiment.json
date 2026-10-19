@@ -1,0 +1,35 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/model_zoo",
+ "title": "Pre-trained models and datasets (`pp.zoo`, `pp.datasets`)",
+ "description": "Model zoo quickstart: load a pre-trained model, predict, compare with the reference, validate, benchmark and fine-tune -- every step on the shipped, verified airfoil surrogate and its dataset.",
+ "domain": "physics AI",
+ "methods": [],
+ "modules": [
+  "pinneapple"
+ ],
+ "params": {},
+ "scripts": [
+  "quickstart.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/model_zoo.md",
+  "script": "examples/model_zoo/quickstart.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

@@ -1,0 +1,463 @@
+{
+ "format": "pinneapple-arena-cases/1",
+ "problem": "burgers_1d",
+ "options": {
+  "n": 128,
+  "n_t": 21,
+  "t_end": 0.5,
+  "nu": 0.01,
+  "dt": 0.001,
+  "alpha": 2.5,
+  "tau": 7.0,
+  "sigma": 1.0,
+  "n_train": 256,
+  "envelope_seed": 7
+ },
+ "defence": {
+  "kind": "split-conformal combined test (hardened)",
+  "checks": [
+   "residual (finite differences)",
+   "initial condition",
+   "bounds (max |u| <= max |u0|)",
+   "training envelope",
+   "residual (one-step re-integration)"
+  ],
+  "thresholds": {
+   "residual (finite differences)": 0.29805992379019763,
+   "initial condition": 0.00016582837565693175,
+   "bounds (max |u| <= max |u0|)": 0.0,
+   "training envelope": 0.446140061877041,
+   "residual (one-step re-integration)": 0.005427586370685448
+  },
+  "alpha": 0.01,
+  "alpha_cal": 0.005,
+  "scales": {
+   "residual (finite differences)": 0.35948000166971245,
+   "initial condition": 0.0002,
+   "bounds (max |u| <= max |u0|)": 0.0,
+   "training envelope": 0.5380744521070656,
+   "residual (one-step re-integration)": 0.006546028505898317
+  },
+  "statistic_threshold": 0.8291418782846587,
+  "n_calibration": 400,
+  "alpha_guaranteed": true,
+  "log": [
+   "calibrated residual (finite differences), initial condition, bounds (max |u| <= max |u0|), training envelope, residual (one-step re-integration): 16/16 stored escape(s) rejected"
+  ]
+ },
+ "cases": [
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1331898245,
+   "variation": {
+    "amplitude": 1.2970579031411944,
+    "tau": 8.846831024813296,
+    "nu_factor": 1.0070203126890933,
+    "refine": 3.2656092474717915
+   },
+   "generator": "fault:wrong_boundary",
+   "params": {
+    "magnitude": 0.5,
+    "rng_seed": 0
+   },
+   "true_error": 0.37926647771163563,
+   "values": {
+    "residual (finite differences)": 0.28815357500408,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.2898459373667529
+   },
+   "margin": -0.0394880833197333,
+   "found": true,
+   "method": "mutation",
+   "evaluations": 0,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1628312689,
+   "variation": {
+    "amplitude": 1.0481994315921104,
+    "tau": 6.896088398456768,
+    "nu_factor": 1.1023976950803618,
+    "refine": 1.5965511774649577
+   },
+   "generator": "fault:source_sign_flip",
+   "params": {
+    "magnitude": 0.5,
+    "rng_seed": 0
+   },
+   "true_error": 0.35166855694852256,
+   "values": {
+    "residual (finite differences)": 0.25700250800043145,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.1433249733318951,
+   "found": true,
+   "method": "mutation",
+   "evaluations": 0,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1628312689,
+   "variation": {
+    "amplitude": 1.0481994315921104,
+    "tau": 6.896088398456768,
+    "nu_factor": 1.1023976950803618,
+    "refine": 1.5965511774649577
+   },
+   "generator": "fault:out_of_range",
+   "params": {
+    "magnitude": 0.3,
+    "rng_seed": 0
+   },
+   "true_error": 0.25353543009129254,
+   "values": {
+    "residual (finite differences)": 0.16555134753638634,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.04665732006216894
+   },
+   "margin": -0.4481621748787121,
+   "found": true,
+   "method": "mutation",
+   "evaluations": 0,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1577291459,
+   "variation": {
+    "amplitude": 1.12668572679385,
+    "tau": 8.796179059840135,
+    "nu_factor": 0.8517196849764074,
+    "refine": 3.1797552000581653
+   },
+   "generator": "fault:stale_model",
+   "params": {
+    "magnitude": 2.0,
+    "rng_seed": 0
+   },
+   "true_error": 0.24976194058029083,
+   "values": {
+    "residual (finite differences)": 0.2902135251676867,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.032621582774377544,
+   "found": true,
+   "method": "mutation",
+   "evaluations": 0,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "smooth_modes_periodic",
+   "params": {
+    "c1": 0.28688644275631076,
+    "c2": -0.18618864456153872,
+    "c3": 0.2994324375251302,
+    "phase1": 1.412575314157419,
+    "phase2": 4.779603983450937,
+    "phase3": 0.4000078343723955
+   },
+   "true_error": 0.44919095539196796,
+   "values": {
+    "residual (finite differences)": 0.2731074198046734,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.089641933984422,
+   "found": true,
+   "method": "de",
+   "evaluations": 144,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "smooth_modes_periodic",
+   "params": {
+    "c1": 0.27672877578987937,
+    "c2": 0.1197011655442336,
+    "c3": -0.28820952482172557,
+    "phase1": 2.499411544010175,
+    "phase2": 0.35264091525797236,
+    "phase3": 1.723204444940351
+   },
+   "true_error": 0.44720333443833965,
+   "values": {
+    "residual (finite differences)": 0.25653434570017486,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.14488551433275043,
+   "found": true,
+   "method": "de",
+   "evaluations": 144,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "smooth_modes_periodic",
+   "params": {
+    "c1": -0.18613116872155017,
+    "c2": 0.27694313456734115,
+    "c3": -0.27598874216733776,
+    "phase1": 4.549309066513885,
+    "phase2": 0.4454145933527025,
+    "phase3": 1.2606391678457949
+   },
+   "true_error": 0.41973237212698367,
+   "values": {
+    "residual (finite differences)": 0.2789776457223288,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.07007451425890399,
+   "found": true,
+   "method": "de",
+   "evaluations": 144,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "viscosity",
+   "params": {
+    "log_factor": 1.2549817994276662
+   },
+   "true_error": 0.25133684248667704,
+   "values": {
+    "residual (finite differences)": 0.29398365173787505,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.020054494207083162,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "viscosity",
+   "params": {
+    "log_factor": -1.2040737792919067
+   },
+   "true_error": 0.12927465574625552,
+   "values": {
+    "residual (finite differences)": 0.2939630405624812,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.02012319812506269,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "viscosity",
+   "params": {
+    "log_factor": 1.0417123567171243
+   },
+   "true_error": 0.18780284143205697,
+   "values": {
+    "residual (finite differences)": 0.29399740630057974,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.020008645664734148,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "hard_ic_evolution",
+   "params": {
+    "sigma": 1.7803904168109672,
+    "amplitude": 0.8286511379471636
+   },
+   "true_error": 0.1854005798052913,
+   "values": {
+    "residual (finite differences)": 0.29290107063213927,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.023663097892869023,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "hard_ic_evolution",
+   "params": {
+    "sigma": 3.7911513761646285,
+    "amplitude": 0.8676241948521007
+   },
+   "true_error": 0.12602018355052336,
+   "values": {
+    "residual (finite differences)": 0.2894545129504325,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.03515162349855827,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "hard_ic_evolution",
+   "params": {
+    "sigma": 0.6789045513061602,
+    "amplitude": 0.8321764134001864
+   },
+   "true_error": 0.1556234663065201,
+   "values": {
+    "residual (finite differences)": 0.2917363072006337,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.027545642664554282,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 883193502,
+   "variation": {},
+   "generator": "time_warp",
+   "params": {
+    "s": 0.5001269539664268
+   },
+   "true_error": 0.50227413459961,
+   "values": {
+    "residual (finite differences)": 0.22540820578655338,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.2486393140448221,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 460490113,
+   "variation": {},
+   "generator": "time_warp",
+   "params": {
+    "s": 0.5000018680080581
+   },
+   "true_error": 0.35376752029751407,
+   "values": {
+    "residual (finite differences)": 0.21915828619327116,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.26947237935576274,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  },
+  {
+   "kind": "escape",
+   "problem": "burgers_1d",
+   "seed": 1874405552,
+   "variation": {},
+   "generator": "time_warp",
+   "params": {
+    "s": 0.5002271369394633
+   },
+   "true_error": 0.4230790378672473,
+   "values": {
+    "residual (finite differences)": 0.2035527388958894,
+    "initial condition": 0.0,
+    "bounds (max |u| <= max |u0|)": 0.0,
+    "training envelope": 0.0
+   },
+   "margin": -0.3214908703470353,
+   "found": true,
+   "method": "de",
+   "evaluations": 150,
+   "round": 0
+  }
+ ],
+ "meta": {
+  "alpha": 0.01,
+  "min_error": 0.1,
+  "seed": 0,
+  "method": "de",
+  "rounds": 2,
+  "safety": 0.5,
+  "budget": {
+   "n_bases": 3,
+   "evals": 160,
+   "fa_seeds": 4,
+   "fa_evals": 80,
+   "n_calibration": 400,
+   "n_holdout": 300,
+   "n_mutation_cases": 20,
+   "n_datasets": 0
+  },
+  "seconds": 763.9
+ }
+}

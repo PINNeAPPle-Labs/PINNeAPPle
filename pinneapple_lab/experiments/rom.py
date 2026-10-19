@@ -37,7 +37,9 @@ def _plt():
     return plt
 
 
-def _wake(Re: float, steps: int, save_every: int, D: int = 20):
+def cylinder_wake(Re: float, steps: int, save_every: int, D: int = 20):
+    """Velocity snapshots of the flow past a cylinder (lattice Boltzmann, D2Q9): ``ux``, ``uy`` (n, nx, ny), the
+    solid mask and the setup. Lattice units; the cylinder has diameter ``D`` cells."""
     import warnings
 
     import torch
@@ -65,6 +67,21 @@ def _wake(Re: float, steps: int, save_every: int, D: int = 20):
     return ux, uy, mask.numpy().astype(bool), {"nx": nx, "ny": ny, "D": D, "u_in": u_in, "cx": cx, "cy": cy}
 
 
+_wake = cylinder_wake
+
+
+def cantilever(H: float, W: float, angle_deg: float, *, L: float = 2.0, mesh=(30, 3, 6), F: float = 1e4):
+    """3-D solid FEM of a steel cantilever (length ``L``, height ``H``, width ``W``) clamped at x = 0 and loaded by
+    ``F`` newtons on its free face, in the y-z plane at ``angle_deg`` from -z: the ``FEMResult``."""
+    from pinneapple_simulation.numerical_solvers.solid_fem import SolidFEM, box_mesh
+    m = box_mesh(L, W, H, *mesh)
+    f = SolidFEM(m)
+    f.fix(m.nodes_on(x=0.0))
+    a = math.radians(angle_deg)
+    f.load_face(m.face_nodes("x+"), (0.0, F * math.sin(a), -F * math.cos(a)))
+    return f.solve()
+
+
 def _vort(ux, uy, D, u):
     return (np.gradient(uy, axis=-2) - np.gradient(ux, axis=-1)) / u * D
 
@@ -72,6 +89,11 @@ def _vort(ux, uy, D, u):
 @register
 class ROMStudy(Experiment):
     name = "rom_study"
+    check_labels = {
+        "pod_mode_pair_holds_the_energy": {"en": "POD mode pair holds the energy \u00b7 beats persistence",
+                                           "pt": "par de modos POD concentra a energia \u00b7 supera a persist\u00eancia",
+                                           "also": ["rom_forecast_beats_persistence"]},
+    }
     version = "1"
     description = ("Reduced-order models on the lab's own solvers: POD / DMD / Operator Inference forecasting a "
                    "cylinder wake, and a parametric POD-RBF / POD-GPR model of a 3-D FEM cantilever, each against "
@@ -265,24 +287,14 @@ class ROMStudy(Experiment):
     # ------------------------------------------------------------------ parametric beam
     def _beam(self, ctx):
         from pinneapple_neural.architectures.rom import ParametricPOD, latin_hypercube
-        from pinneapple_simulation.numerical_solvers.solid_fem import (
-            FEMResult,
-            SolidFEM,
-            box_mesh,
-            fea_figure,
-        )
+        from pinneapple_simulation.numerical_solvers.solid_fem import FEMResult, fea_figure
         p = ctx.params
         L, nx, ny, nz, F = 2.0, 30, 3, 6, 1e4
         box = {"H": (0.12, 0.3), "W": (0.06, 0.2), "angle_deg": (0.0, 90.0)}
         inner = {k: (a + 0.1 * (b - a), b - 0.1 * (b - a)) for k, (a, b) in box.items()}
 
         def solve(H, W, ang):
-            m = box_mesh(L, W, H, nx, ny, nz)
-            f = SolidFEM(m)
-            f.fix(m.nodes_on(x=0.0))
-            a = math.radians(ang)
-            f.load_face(m.face_nodes("x+"), (0.0, F * math.sin(a), -F * math.cos(a)))
-            return f.solve()
+            return cantilever(H, W, ang, L=L, mesh=(nx, ny, nz), F=F)
         Ptr, names = latin_hypercube(int(p["n_train"]), box, int(p["seed"]))
         Pte, _ = latin_hypercube(int(p["n_test"]), inner, int(p["seed"]) + 7)
         ctx.input("design_space", {"parameters": box, "test_inside": inner, "L": L, "mesh": [nx, ny, nz], "load_N": F})

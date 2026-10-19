@@ -26,6 +26,7 @@ class FMUSimConfig:
     output_interval : output recording interval; defaults to step_size
     parameters : initial/override parameter values  {name: value}
     output_variables : variables to record; None = all FMU outputs
+    fmi_type : "CoSimulation" or "ModelExchange"; None lets fmpy pick (Co-Simulation when the FMU has it)
     """
     start_time: float = 0.0
     stop_time: float = 1.0
@@ -33,6 +34,7 @@ class FMUSimConfig:
     output_interval: Optional[float] = None
     parameters: Dict[str, float] = field(default_factory=dict)
     output_variables: Optional[List[str]] = None
+    fmi_type: Optional[str] = None
 
 
 def simulate_fmu(
@@ -63,6 +65,7 @@ def simulate_fmu(
         output_interval=config.output_interval,
         start_values=dict(config.parameters),
         output=config.output_variables,
+        fmi_type=config.fmi_type,
         validate=False,
     )
     # fmpy returns a numpy structured array

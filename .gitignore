@@ -23,6 +23,9 @@ pinneapple_app/frontend
 # Build/output cruft
 docs/api/
 dist/
+# Flow Studio ships its built UI so `python -m pinneapple_flow studio` works without Node
+!apps/flow_studio/frontend/dist/
+apps/flow_studio/frontend/node_modules/
 runs/
 run_results/
 # MCP server results (python -m pinneapple_mcp --workdir pinneapple_mcp_work) and notebook downloads
@@ -68,3 +71,11 @@ examples/openfoam_campaign/_out/
 examples/lbm/_out/
 examples/geometry_library/_out/
 dist/geometries/
+
+# brick experiment: heavy outputs (viewer copies three.js, frames)
+examples/bricks/_out/viewer_*/
+examples/bricks/_out/turntable_frames/
+examples/flow_studio/_runs/
+
+examples/flight_dynamics/_out/
+examples/flight_dynamics/_*.log

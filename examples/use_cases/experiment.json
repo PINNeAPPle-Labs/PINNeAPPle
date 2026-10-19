@@ -1,0 +1,76 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/use_cases",
+ "title": "Lunar rover terramechanics in 3D",
+ "description": "",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {},
+ "scripts": [],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "concorde_high_aoa/outputs/01_geometry.png",
+   "concorde_high_aoa/outputs/02_obstacle_mask_aoa10.png",
+   "concorde_high_aoa/outputs/03_flow_field_aoa10.png",
+   "concorde_high_aoa/outputs/04_q_criterion_aoa10.png",
+   "concorde_high_aoa/outputs/05_cl_cd_cm_polar.png",
+   "concorde_high_aoa/outputs/06_validation_vs_polhamus.png",
+   "fin_convection_inverse/results/2d/plate_h_convergence.png",
+   "fin_convection_inverse/results/2d/plate_result_card.png",
+   "fin_convection_inverse/results/3d/block_h_convergence.png",
+   "fin_convection_inverse/results/3d/block_render.png",
+   "fin_convection_inverse/results/3d/block_result_card.png",
+   "fin_convection_inverse/results/fin_h_convergence.png",
+   "fin_convection_inverse/results/fin_result_card.png",
+   "fin_convection_inverse/results/fin_temperature_profile.png",
+   "physics_data_factory/outputs/blender/frame_0001.png",
+   "physics_data_factory/outputs/blender/frame_0002.png",
+   "physics_data_factory/outputs/blender/frame_0003.png",
+   "physics_data_factory/outputs/blender_fixed/frame_0001.png",
+   "physics_data_factory/outputs/blender_fixed/frame_0002.png",
+   "physics_data_factory/outputs/blender_fixed/frame_0003.png",
+   "physics_data_factory/outputs/blender_fixed/frame_0004.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "concorde_high_aoa/outputs/metrics.json",
+   "fin_convection_inverse/results/2d/summary.json",
+   "fin_convection_inverse/results/3d/summary.json",
+   "fin_convection_inverse/results/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/core_concepts/lunar_rover_terramechanics.md",
+  "pr": [
+   240,
+   317,
+   470,
+   657,
+   659,
+   678
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "repo_results/concorde_aoa",
+  "items": [
+   "repo_results/concorde_aoa",
+   "repo_results/fin_inverse_2d",
+   "repo_results/fin_inverse_3d",
+   "repo_results/lunar_rover"
+  ],
+  "experiment": "repo_results",
+  "run_id": "repo_results-ae7814d939d6",
+  "tier": "B"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

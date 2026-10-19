@@ -1,0 +1,8 @@
+[15:37:52] stage train started
+[15:52:28] stage train done (876.318 s)
+[15:52:28] stage score started
+[15:52:28] stage score done (0.042 s)
+[15:52:28] check rel_l2_Ez_vs_closed_form: FAIL 4096 points, exact solution of the preset; tolerance 0.05
+[15:52:28] check rel_l2_Hx_vs_closed_form: FAIL 4096 points, exact solution of the preset; tolerance 0.05
+[15:52:28] check rel_l2_Hy_vs_closed_form: FAIL 4096 points, exact solution of the preset; tolerance 0.05
+[15:52:28] check training_loss_decreased: PASS 

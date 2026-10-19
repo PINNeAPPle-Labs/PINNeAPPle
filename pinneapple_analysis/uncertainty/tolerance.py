@@ -112,6 +112,10 @@ def propagate(fn: Callable[[np.ndarray], np.ndarray], nominal, tolerances, n: in
         raise ValueError("tolerances must be non-negative")
     rng = np.random.default_rng(seed)
     X = _sample(x0, tol, dist, int(n), rng)
+    return _evaluate(fn, X, limits, level, percentiles)
+
+
+def _evaluate(fn, X: np.ndarray, limits, level: float, percentiles: Sequence[float]) -> ToleranceResult:
     Y = np.asarray(fn(X), dtype=float)
     if Y.ndim == 1:
         Y = Y[:, None]
@@ -130,3 +134,20 @@ def propagate(fn: Callable[[np.ndarray], np.ndarray], nominal, tolerances, n: in
         res.p_within = k / Y.shape[0]
         res.p_within_ci = wilson_interval(k, Y.shape[0], level)
     return res
+
+
+def propagate_space(fn: Callable[[np.ndarray], np.ndarray], space, n: int = 4096, method: str = "lhs",
+                    limits=None, seed: int = 0, level: float = 0.95,
+                    percentiles: Sequence[float] = (1, 5, 50, 95, 99)) -> ToleranceResult:
+    """Propagate independent inputs with any distribution (see
+    :mod:`pinneapple_analysis.uncertainty.distributions`) through ``fn``.
+
+    ``method`` is ``"mc"`` (plain Monte Carlo), ``"lhs"`` (Latin hypercube: same estimator, lower variance of the
+    mean for smooth models) or ``"sobol"`` (scrambled quasi-Monte Carlo). The probability of meeting ``limits`` and
+    its Wilson interval assume independent draws, exact for ``"mc"`` and conservative for the other two.
+    """
+    from pinneapple_analysis.uncertainty.distributions import as_space, to_values, unit_sample
+
+    sp = as_space(space)
+    X = to_values(sp, unit_sample(len(sp), int(n), method, seed))
+    return _evaluate(fn, X, limits, level, percentiles)

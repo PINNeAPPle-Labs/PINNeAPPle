@@ -12,6 +12,12 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 COPY . .
 RUN pip install --no-cache-dir . -r apps/observatory/requirements.txt
 
+# Unprivileged runtime user: /data (the volume) and /tmp are the only places it writes (apps/deploy/README.md)
+RUN useradd --system --uid 10001 --gid 0 --no-create-home --home-dir /tmp --shell /usr/sbin/nologin app \
+    && mkdir -p /data /srv/cache && chown -R 10001:0 /data /srv/cache && chmod -R g+rwX /data /srv/cache
+ENV HOME=/tmp MPLCONFIGDIR=/tmp/matplotlib
+USER 10001:0
+
 ENV PYTHONPATH=/srv:/srv/apps/observatory OBS_CACHE_DIR=/srv/cache/tle
 WORKDIR /srv/apps/observatory
 EXPOSE 8094

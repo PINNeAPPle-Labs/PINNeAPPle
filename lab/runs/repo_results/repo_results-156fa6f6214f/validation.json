@@ -1,0 +1,98 @@
+[
+ {
+  "name": "loop_v_top_full_solver_at_least_bound",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Newton rigid-body contact: 1.507 >= closed-form bound 1.023 (v_top^2 = g R)",
+  "kind": "physics"
+ },
+ {
+  "name": "bracket_sigma_peak_mpa_full_solver_vs_reduced",
+  "passed": true,
+  "value": 0.02652649958099753,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "CalculiX (gmsh C3D10) against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %",
+  "kind": "verification"
+ },
+ {
+  "name": "bracket_deflection_mm_full_solver_vs_reduced",
+  "passed": true,
+  "value": 0.002196705921449858,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "CalculiX (gmsh C3D10) against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %",
+  "kind": "verification"
+ },
+ {
+  "name": "heatsink_t_source_c_full_solver_vs_reduced",
+  "passed": true,
+  "value": 0.0010801856260447512,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "3-D finite volume (base) against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %",
+  "kind": "verification"
+ },
+ {
+  "name": "glider_sink_m_s_full_solver_vs_reduced",
+  "passed": true,
+  "value": 0.0004920357194430399,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "vortex lattice, fine against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %",
+  "kind": "verification"
+ },
+ {
+  "name": "glider_span_eff_full_solver_vs_reduced",
+  "passed": true,
+  "value": 0.0009034641438557357,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "vortex lattice, fine against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %",
+  "kind": "verification"
+ },
+ {
+  "name": "glider_span_efficiency_at_most_elliptic",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Munk: no planar wing beats the elliptic loading (e = 1)",
+  "kind": "physics"
+ },
+ {
+  "name": "out_of_scope_goal_refused",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ }
+]

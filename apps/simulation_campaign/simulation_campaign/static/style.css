@@ -1,0 +1,56 @@
+/* Simulation Campaign Planner (base styles in /shared/app.css) */
+:root { --brand: #0f766e; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+input:focus, select:focus, textarea:focus { outline: 2px solid #0f766e33; border-color: var(--brand); }
+.layout { grid-template-columns: 560px 1fr; }
+@media (max-width: 1150px) { .layout { grid-template-columns: 1fr; } }
+textarea { width: 100%; box-sizing: border-box; font: 12.5px var(--mono, ui-monospace, monospace); border: 1px solid var(--line); border-radius: 7px; padding: 6px 8px; margin-top: 4px; resize: vertical; }
+.note { font-size: 12.5px; color: var(--muted); margin: 4px 0 2px; }
+.ptable-wrap { overflow-x: auto; }
+table.ptable { font-size: 12px; }
+table.ptable th, table.ptable td { padding: 3px 3px; border-bottom: 0; }
+table.ptable input, table.ptable select { margin: 0; padding: 4px 5px; font-size: 12px; width: 100%; box-sizing: border-box; min-width: 0; }
+table.ptable td.n input { min-width: 76px; } table.ptable td.k select { min-width: 96px; }
+table.ptable td.v input { min-width: 54px; } table.ptable td.vals input { min-width: 84px; }
+form.panel, .ptable-wrap { min-width: 0; max-width: 100%; }
+table.ptable td.lg { text-align: center; } table.ptable td.lg input { width: auto; }
+table.ptable button { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 15px; }
+.row-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 6px 0; }
+.upl { position: relative; overflow: hidden; display: inline-block; cursor: pointer; }
+.upl input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.link.small { font-size: 12px; }
+label.check { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+label.check input { width: auto; margin: 0; }
+.drop.small { padding: 10px; font-size: 12px; min-height: 0; margin: 6px 0; }
+.drop.small b { font-size: 12.5px; } .drop.small span { display: block; color: var(--muted); }
+.examples { display: grid; gap: 6px; }
+.examples button { text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 7px 10px; cursor: pointer; font: inherit; font-size: 12.5px; }
+.examples button:hover { border-color: var(--brand); }
+.examples b { display: block; }
+.checkgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 12px 0; }
+.checkgrid div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.checkgrid b { display: block; margin-bottom: 3px; color: var(--ink); }
+.checkgrid span { color: var(--muted); font-size: 13px; }
+.progress { display: flex; gap: 10px; align-items: center; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.pbar { flex: 0 0 160px; height: 8px; background: #eef1f5; border-radius: 4px; overflow: hidden; }
+.pbar div { height: 100%; width: 0; background: var(--brand); transition: width .2s; }
+.grid-res { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; }
+@media (max-width: 1150px) { .grid-res { grid-template-columns: 1fr; } }
+.scatter svg { width: 100%; display: block; font: 11px system-ui, sans-serif; }
+.scatter .ax { stroke: #c9d1dd; } .scatter text { fill: #5d6b82; }
+.axsel { display: flex; gap: 8px; align-items: center; font-size: 12.5px; flex-wrap: wrap; }
+.axsel select { width: auto; margin: 0; padding: 3px 6px; }
+.cov1 { display: grid; grid-template-columns: 110px 1fr 44px; gap: 4px 8px; align-items: center; font-size: 12px; }
+.cov1 .track { background: #eef1f5; height: 9px; border-radius: 3px; position: relative; overflow: hidden; }
+.cov1 .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.cov1 .hdr { font-weight: 600; color: var(--muted); }
+.checklist .item { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.checklist .item:last-child { border-bottom: 0; }
+.checklist .d { color: var(--muted); font-size: 12px; }
+.dl { display: flex; flex-wrap: wrap; gap: 6px; }
+.dl a { border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; font-size: 12.5px; text-decoration: none; color: var(--ink); background: #fff; }
+.dl a.main { background: var(--brand); color: #fff; border-color: var(--brand); font-weight: 700; }
+.casetab { max-height: 420px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+.casetab table { font-size: 12px; } .casetab th { position: sticky; top: 0; background: #f7f9fc; }
+.flag { color: var(--bad); font-weight: 700; }

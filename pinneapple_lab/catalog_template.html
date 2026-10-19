@@ -94,8 +94,11 @@ pre.err { background: var(--paper); border: 1px solid var(--line); border-radius
 .sheet a { color: var(--accent) }
 .tier { display: inline-block; font: 600 11px/1 var(--mono); padding: 4px 7px; border-radius: 5px; vertical-align: middle;
   color: var(--sheet); letter-spacing: .02em; white-space: nowrap }
-.tier.tA { background: var(--ok) } .tier.tB { background: var(--accent) } .tier.tC { background: var(--warn) }
-.tier.tD { background: var(--bad) }
+.tier.tA { background: #2FBF71; color: #0F1420 } .tier.tB { background: #A6D96A; color: #0F1420 }
+.tier.tC { background: #FFE066; color: #0F1420 } .tier.tD { background: #FDAE61; color: #0F1420 }
+.tier.tE { background: #F0603C; color: #0F1420 } .tier.tF { background: #A50026; color: #FFFFFF }
+.next code { font-size: 12px; overflow-wrap: anywhere } .next ol { padding-left: 18px }
+.problem { border-left: 4px solid var(--bad); padding: 6px 10px; margin: 6px 0; font-size: 13px }
 h2 .tier { font-size: 12px; margin-right: 4px }
 .gaps { color: var(--muted); font-size: 13px; margin: 6px 0 0 }
 .stages { display: grid; gap: 6px; margin: 8px 0 }
@@ -232,8 +235,18 @@ const fmt = (v) => {
   return Number.isInteger(v) ? String(v) : v.toPrecision(4);
 };
 let state = { q: "", status: "all", tag: "all", tier: "all" };
-const TIER = { A: ["A · flagship", "var(--ok)"], B: ["B · solid", "var(--accent)"], C: ["C · exploratory", "var(--warn)"],
-               D: ["D · not usable", "var(--bad)"] };
+const TIER = { A: ["A · flagship"], B: ["B · solid"], C: ["C · plausible"], D: ["D · exploratory"],
+               E: ["E · known problems"], F: ["F · not usable"] };
+const UNUSABLE = (t) => t === "E" || t === "F";
+const groupSteps = (gaps) => { const out = [], idx = {};            // gaps sharing the same commands: actions once
+  for (const g of gaps) { const k = JSON.stringify(g.actions.map((a) => a.command));
+    if (k in idx) out[idx[k]].gaps.push(g); else { idx[k] = out.length; out.push({ gaps: [g], actions: g.actions }); } }
+  return out; };
+const nextSteps = (it) => (it.next_steps || []).length ? `<div class="next"><h5>Next letter: what is missing and how</h5>${groupSteps(it.next_steps).map((grp) =>
+  `<ol>${grp.gaps.map((g) => `<li><b>${esc(g.to)}: ${esc(g.short)}</b> <span class="unl">${esc(g.why)}</span></li>`).join("")}</ol><ul>${grp.actions.length ? grp.actions.map((a) =>
+    `<li>${esc(a.text)}<br><code>${esc(a.command)}</code></li>`).join("") : "<li>no PINNeAPPle action yet</li>"}</ul>`).join("")}</div>` : "";
+const problem = (it) => UNUSABLE(it.tier) && it.headline && it.headline.kind === "failing"
+  ? `<p class="problem"><b>Main problem:</b> ✗ ${esc(it.headline.text)}<br><b>To raise it:</b> ↑ ${esc(it.headline.hint || "")}</p>` : "";
 const tierBadge = (q) => q ? `<span class="tier t${q.tier}" title="Quality tier (pinneapple_lab.curation)">${TIER[q.tier][0]}</span>` : "";
 try { const s = JSON.parse(localStorage.getItem("lab-filters") || "null"); if (s) state = { ...state, ...s }; } catch (e) {}
 
@@ -250,7 +263,8 @@ function summary() {
   const tags = [...new Set(exps.flatMap((e) => e.tags))].sort();
   $("statusSeg").innerHTML = [["all", "All"], ["completed", "Completed"], ["failed_validation", "Failed validation"], ["failed", "Crashed"]]
     .map(([k, l]) => `<button data-s="${k}" aria-pressed="${state.status === k}">${l}</button>`).join("");
-  $("tierSeg").innerHTML = [["all", "Any quality"], ["A", "A flagship"], ["B", "B solid"], ["C", "C exploratory"], ["D", "D not usable"]]
+  $("tierSeg").innerHTML = [["all", "Any quality"], ["A", "A flagship"], ["B", "B solid"], ["C", "C plausible"], ["D", "D exploratory"],
+    ["E", "E known problems"], ["F", "F not usable"]]
     .map(([k, l]) => `<button data-q="${k}" aria-pressed="${state.tier === k}">${l}</button>`).join("");
   $("tagSeg").innerHTML = ["all", ...tags].map((t) => `<button data-t="${esc(t)}" aria-pressed="${state.tag === t}">${t === "all" ? "Any tag" : esc(t)}</button>`).join("");
 }
@@ -346,12 +360,12 @@ function gallery() {
     <img src="${g.src}" alt="${esc(g.experiment)}: ${esc(g.name)}" loading="lazy"><span>${esc(g.experiment)} · ${esc(g.name.replace(/\.(png|jpg|gif)$/i, "").replace(/[_-]/g, " "))}</span></button>`).join("");
 }
 function portfolio() {
-  const P = (DATA.portfolio || []).filter((it) => !it.experiment.startsWith("example_script") || it.tier !== "D");
+  const P = (DATA.portfolio || []).filter((it) => !it.experiment.startsWith("example_script") || !UNUSABLE(it.tier));
   const PC = P.filter((it) => it.experiment !== "example_script");          // examples: roadmap only
   const cols = Object.keys(USE_LABEL).map((u) => {
     const ready = PC.filter((it) => it.plan.uses[u].status !== "gap")
       .sort((a, b) => (a.plan.uses[u].status === "approved" ? -1 : 1) - (b.plan.uses[u].status === "approved" ? -1 : 1) || (b.score || 0) - (a.score || 0));
-    const near = PC.filter((it) => it.plan.uses[u].status === "gap" && it.tier !== "D")
+    const near = PC.filter((it) => it.plan.uses[u].status === "gap" && !UNUSABLE(it.tier))
       .sort((a, b) => a.plan.uses[u].distance - b.plan.uses[u].distance || (b.score || 0) - (a.score || 0)).slice(0, 5);
     const li = (it, st) => `<li><button class="pf-item" data-k="${esc(it.key)}">${tierBadge(it)} <span class="ttl">${esc(it.title)}</span>
       ${st ? `<em class="${st}">${st}</em>` : `<em>${it.plan.uses[u].distance} pts</em>`}</button>
@@ -362,7 +376,7 @@ function portfolio() {
       ${near.length ? `<div class="near">Closest</div><ul>${near.map((it) => li(it, "")).join("")}</ul>` : ""}</div>`;
   });
   $("pfCols").innerHTML = cols.join("");
-  const order = { A: 0, B: 1, C: 2, D: 3 };
+  const order = { A: 0, B: 1, C: 2, D: 3, E: 4, F: 5 };
   const rows = P.slice().sort((a, b) => order[a.tier] - order[b.tier] ||
     Math.min(...Object.values(a.plan.uses).map((x) => x.distance)) - Math.min(...Object.values(b.plan.uses).map((x) => x.distance)));
   $("roadmap").innerHTML = rows.map((it) => {
@@ -371,7 +385,7 @@ function portfolio() {
     return `<details class="rm" id="rm-${esc(it.key)}"><summary>${tierBadge(it)} <b>${esc(it.title)}</b>
       <span class="rm-meta">${esc(it.experiment)}${it.case ? "" : ""} · ${cu ? `closest: ${USE_LABEL[cu]} (${pl.uses[cu].distance} pts)` : "ready for every use"}
       ${pl.limitations.length ? ` · ${pl.limitations.length} limitation${pl.limitations.length > 1 ? "s" : ""}` : ""}</span></summary>
-      <div class="rm-body">${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}
+      <div class="rm-body">${problem(it)}${nextSteps(it)}${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}
       <div><h5>Limitations</h5>${pl.limitations.length ? `<ul>${pl.limitations.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>` : "<p class='lede'>None declared or detected.</p>"}</div>
       <div><h5>Path forward</h5>${acts ? `<ol>${acts}</ol>` : "<p class='lede'>Nothing missing.</p>"}</div>
       <p><button class="rep-btn sm" data-rep="${esc(it.key)}">Report on this item</button></p>
@@ -398,7 +412,7 @@ function report(keys, title) {
                             : r.thumbs.map((t) => `<img alt="figure" src="${t}">`).join("")) : "";
     const checks = r && r.checks.length ? `<table class="tbl">${r.checks.map((c) => `<tr><td>${esc(c.name)}</td><td>${esc(c.kind || "")}</td><td class="${c.passed ? "pass" : "fail"}">${c.passed ? "PASS" : "FAIL"}</td><td>${esc(c.detail || "")}</td></tr>`).join("")}</table>` : "<p class='lede'>No checks.</p>";
     return `<article class="rep-item"><div class="eyebrow">${esc(it.experiment)}${it.case ? " / " + esc(it.case) : ""}</div>
-      <h3>${tierBadge(it)} ${esc(it.title)}</h3>${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}<p>${esc(it.description || "")}</p>
+      <h3>${tierBadge(it)} ${esc(it.title)}</h3>${problem(it)}${nextSteps(it)}${it.story ? `<p class="story">“${esc(it.story)}”</p>` : ""}<p>${esc(it.description || "")}</p>
       ${img ? `<div class="rep-figs">${img}</div>` : ""}
       <h4>Readiness</h4><table class="tbl">${U.map((u) => `<tr><td>${USE_LABEL[u]}</td><td>${it.plan.uses[u].status === "gap" ? "missing: " + it.plan.uses[u].missing.map(esc).join(", ") : it.plan.uses[u].status}</td></tr>`).join("")}</table>
       <h4>Validation</h4>${checks}
@@ -419,7 +433,7 @@ document.addEventListener("click", (ev) => {
   const ru = ev.target.closest("[data-rep-use]");
   if (ru) {
     const u = ru.dataset.repUse;
-    const P = (DATA.portfolio || []).filter((it) => it.experiment !== "example_script" && it.tier !== "D");
+    const P = (DATA.portfolio || []).filter((it) => it.experiment !== "example_script" && !UNUSABLE(it.tier));
     const keys = P.filter((it) => it.plan.uses[u].status !== "gap").map((it) => it.key)
       .concat(P.filter((it) => it.plan.uses[u].status === "gap").sort((a, b) => a.plan.uses[u].distance - b.plan.uses[u].distance).slice(0, 5).map((it) => it.key));
     report(keys, `${USE_LABEL[u]}: ready and closest`); return;

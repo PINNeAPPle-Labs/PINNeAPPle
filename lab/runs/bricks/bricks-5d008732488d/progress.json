@@ -1,0 +1,17 @@
+{
+ "stages": [
+  {
+   "name": "closed-form checks",
+   "started": 1792339729.7343693,
+   "status": "done",
+   "seconds": 2.164
+  },
+  {
+   "name": "search",
+   "started": 1792339731.904496,
+   "status": "done",
+   "seconds": 481.575
+  }
+ ],
+ "updated": 1792340213.4840543
+}

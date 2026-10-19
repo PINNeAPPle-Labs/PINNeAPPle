@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_optimizer",
+ "title": "PhysicsOptimizer",
+ "description": "One constrained design problem through one interface, six optimizers. Torsional rigidity of an a x b rectangle is the integral of u for -laplace(u) = 1, u = 0 on the boundary (solved by the differentiable finite-element solver). Maximise it at fixed area a*b = 1, with 0.5 <= a, b <= 2: among rectangles of equal area the square is the best, so the answer is a = b = 1. PYTHONPATH=. python examples/p",
+ "domain": "numerical methods",
+ "methods": [
+  "FEM"
+ ],
+ "modules": [
+  "pinneapple_core",
+  "pinneapple_core.fem",
+  "pinneapple_core.optim"
+ ],
+ "params": {},
+ "scripts": [
+  "01_constrained_shape_six_methods.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/physics_optimizer.md",
+  "script": "examples/physics_optimizer/01_constrained_shape_six_methods.py",
+  "pr": [
+   308
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

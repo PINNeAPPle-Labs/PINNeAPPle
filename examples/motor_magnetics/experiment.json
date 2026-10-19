@@ -1,0 +1,54 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/motor_magnetics",
+ "title": "Audit: electric-motor magnetics and topology optimization",
+ "description": "Surface-PM machine (4 poles, 24 slots, nonlinear iron): cogging torque, torque vs current angle, back-EMF and losses with the 2D A_z FEM of pinneapple_simulation.electromagnetics. Torque is computed twice -- Maxwell stress (Arkkio) and virtual work (co-energy differences) -- and the two are printed side by side. Dimensions, materials and loss coefficients are illustrative. Runs in about two minute",
+ "domain": "electromagnetics",
+ "methods": [
+  "FEM"
+ ],
+ "modules": [
+  "pinneapple_simulation.electromagnetics.machine",
+  "pinneapple_simulation.electromagnetics.postprocess"
+ ],
+ "params": {},
+ "scripts": [
+  "01_spm_cogging_and_torque.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "results/spm_flux_density.png",
+   "results/spm_torque_cogging_emf.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/spm_summary.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/core_concepts/motor_and_topopt_audit.md",
+  "script": "examples/motor_magnetics/01_spm_cogging_and_torque.py",
+  "pr": [
+   801
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "repo_results/motor_spm",
+  "items": [
+   "repo_results/motor_spm"
+  ],
+  "experiment": "repo_results",
+  "run_id": "repo_results-baf5389acdaf",
+  "tier": "B"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

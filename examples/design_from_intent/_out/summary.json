@@ -1,0 +1,284 @@
+{
+ "loop": {
+  "text": "I want a toy car that does a loop",
+  "answers": {},
+  "first_reply": [],
+  "verdict": "will work",
+  "probability": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "trust": "APPROVED",
+  "design": {
+   "radius": 0.08392212590233154,
+   "clothoid_ratio": 2.498212126585065,
+   "v0": 2.4650848447980396,
+   "mass": 0.03101345493025515,
+   "clothoid_length": 0.20965527261800326,
+   "material": "pla_4043d",
+   "thickness": 0.0015
+  },
+  "calls": {
+   "calls": {
+    "closed_form": 2000,
+    "reduced": 6600,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0069,
+    "reduced": 6.3287,
+    "full": 272.5327
+   },
+   "s_per_call": {
+    "closed_form": 3.433998500014468e-06,
+    "reduced": 0.0009588959483333393,
+    "full": 272.53270733899996
+   }
+  },
+  "verification": {
+   "ran": true,
+   "label": "Newton rigid-body contact",
+   "comparison": [
+    {
+     "output": "v_top",
+     "full": 1.5067742778928064,
+     "reduced": 1.0233505969160992,
+     "closed_form": 1.0225160335037675,
+     "rel_err": 0.32083351041322894,
+     "kind": "at_least"
+    }
+   ]
+  },
+  "savings": "8600 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 272.5 s each (measured). Running every evaluation on the full solver would have taken about 651.1 h (estimate: evaluations x measured time per full call).",
+  "wall_s": 317.7
+ },
+ "bracket": {
+  "text": "a bracket that holds 2 kN",
+  "answers": {
+   "arm_length": [
+    100,
+    "mm"
+   ]
+  },
+  "first_reply": [
+   {
+    "slot": "arm_length",
+    "question": "How far from the mounting face does the load act (arm length)?",
+    "unit": "mm",
+    "choices": [],
+    "why": "needed by the physics and has no safe default"
+   }
+  ],
+  "verdict": "will work",
+  "probability": 0.9985,
+  "ci95": [
+   0.9955989674442294,
+   0.9994897364163615
+  ],
+  "trust": "APPROVED",
+  "design": {
+   "thickness_mm": 17,
+   "width_mm": 36,
+   "mount_mm": 72,
+   "material": "al6061_t6",
+   "thickness": 0.017,
+   "width": 0.036000000000000004,
+   "mount": 0.07200000000000001,
+   "arm_length": 0.1,
+   "fillet": 0.017,
+   "hole": 0.0066
+  },
+  "calls": {
+   "calls": {
+    "closed_form": 12000,
+    "reduced": 19,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0081,
+    "reduced": 9.8319,
+    "full": 39.4809
+   },
+   "s_per_call": {
+    "closed_form": 6.775249999861899e-07,
+    "reduced": 0.5174676794210583,
+    "full": 39.48087916700001
+   }
+  },
+  "verification": {
+   "ran": true,
+   "label": "CalculiX (gmsh C3D10)",
+   "comparison": [
+    {
+     "output": "sigma_peak_mpa",
+     "full": 94.26070979280537,
+     "reduced": 96.76111647162875,
+     "closed_form": 95.73241061130331,
+     "rel_err": 0.02652649958099753,
+     "kind": "agree"
+    },
+    {
+     "output": "deflection_mm",
+     "full": 0.37959899270073,
+     "reduced": 0.3804328600557721,
+     "closed_form": 0.3753667302434723,
+     "rel_err": 0.002196705921449858,
+     "kind": "agree"
+    }
+   ]
+  },
+  "savings": "12019 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 39.5 s each (measured). Running every evaluation on the full solver would have taken about 131.8 h (estimate: evaluations x measured time per full call).",
+  "wall_s": 59.0
+ },
+ "heatsink": {
+  "text": "a heat sink for a 40 W chip in still air",
+  "answers": {
+   "t_limit": [
+    85,
+    "\u00b0C"
+   ]
+  },
+  "first_reply": [
+   {
+    "slot": "t_limit",
+    "question": "What is the highest allowed temperature of the chip's case (or source)?",
+    "unit": "\u00b0C",
+    "choices": [],
+    "why": "needed by the physics and has no safe default"
+   }
+  ],
+  "verdict": "will work",
+  "probability": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "trust": "APPROVED",
+  "design": {
+   "width_mm": 100,
+   "depth_mm": 100,
+   "base_mm": 6.5,
+   "n_fins": 14,
+   "fin_mm": 1.1,
+   "height_mm": 47,
+   "material": "cu110"
+  },
+  "calls": {
+   "calls": {
+    "closed_form": 2000,
+    "reduced": 2600,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0871,
+    "reduced": 0.2045,
+    "full": 0.2921
+   },
+   "s_per_call": {
+    "closed_form": 4.35335084999906e-05,
+    "reduced": 7.865783807692249e-05,
+    "full": 0.292097950000084
+   }
+  },
+  "verification": {
+   "ran": true,
+   "label": "3-D finite volume (base)",
+   "comparison": [
+    {
+     "output": "t_source_c",
+     "full": 77.67582709953824,
+     "reduced": 77.59192278761418,
+     "closed_form": 74.36283534108611,
+     "rel_err": 0.0010801856260447512,
+     "kind": "agree"
+    }
+   ]
+  },
+  "savings": "4600 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 0.3 s each (measured). Running every evaluation on the full solver would have taken about 0.4 h (estimate: evaluations x measured time per full call).",
+  "wall_s": 15.9
+ },
+ "glider": {
+  "text": "a wing for a 1.2 kg model glider, at most 2 m span",
+  "answers": {},
+  "first_reply": [],
+  "verdict": "will work",
+  "probability": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "trust": "APPROVED",
+  "design": {
+   "span": 2.0,
+   "aspect_ratio": 7.692664314236054,
+   "taper": 0.32544819133101444,
+   "section": "NACA 2412"
+  },
+  "calls": {
+   "calls": {
+    "closed_form": 2000,
+    "reduced": 6600,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0621,
+    "reduced": 4.367,
+    "full": 0.4037
+   },
+   "s_per_call": {
+    "closed_form": 3.1035802500014144e-05,
+    "reduced": 0.0006616651124242922,
+    "full": 0.40374807099999543
+   }
+  },
+  "verification": {
+   "ran": true,
+   "label": "vortex lattice, fine",
+   "comparison": [
+    {
+     "output": "sink_m_s",
+     "full": 0.4408530413532117,
+     "reduced": 0.4406361259098408,
+     "closed_form": 0.4383121731227015,
+     "rel_err": 0.0004920357194430399,
+     "kind": "agree"
+    },
+    {
+     "output": "span_eff",
+     "full": 0.9894267037896335,
+     "reduced": 0.9903206153394808,
+     "closed_form": 1.0,
+     "rel_err": 0.0009034641438557357,
+     "kind": "agree"
+    }
+   ]
+  },
+  "savings": "8600 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 0.4 s each (measured). Running every evaluation on the full solver would have taken about 1.0 h (estimate: evaluations x measured time per full call).",
+  "wall_s": 12.1
+ },
+ "out_of_scope": {
+  "text": "an electric motor for my drone",
+  "reply": {
+   "status": "out_of_scope",
+   "kind": "needs",
+   "text": "an electric motor for my drone",
+   "reason": "The request 'motor': needs an electromagnetics design template: the interior-PM machine FEA and drive models exist (pinneapple_simulation.electromagnetics.machines), but no template sizes a machine from a request yet, and it would also need winding current-density, thermal and demagnetisation limits, which those models do not check.",
+   "needs": "needs an electromagnetics design template: the interior-PM machine FEA and drive models exist (pinneapple_simulation.electromagnetics.machines), but no template sizes a machine from a request yet, and it would also need winding current-density, thermal and demagnetisation limits, which those models do not check.",
+   "closest_templates": [
+    [
+     "loop_car",
+     0.0
+    ],
+    [
+     "bracket",
+     0.0
+    ],
+    [
+     "heatsink",
+     0.0
+    ]
+   ]
+  }
+ }
+}

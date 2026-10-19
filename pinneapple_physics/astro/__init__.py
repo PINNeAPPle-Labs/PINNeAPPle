@@ -14,6 +14,9 @@ An independent NumPy implementation, validated against USNO NOVAS, JPL Horizons 
 * :mod:`.nbody`       symplectic and Runge-Kutta N-body integrators with conservation diagnostics
 * :mod:`.surrogate`   physics-informed neural orbit surrogate with conformal bands and a trust verdict
 * :mod:`.lensing`     black-hole lensing of the real sky, Einstein radius, shadow size vs the EHT
+* :mod:`.journey`     a trip to a target: heliocentric / galactic positions, distance, light time, magnitude vs distance
+* :mod:`.observing`   observing sessions: visibility, air mass, extinction, sky brightness, optics, slews, field rotation
+* :mod:`.facts`       info cards in English and Portuguese: numbers with sources, curiosities, history, quiz
 
     from pinneapple_physics.astro import Observer, Time, apparent
     p = apparent("jupiter", Time.now(), Observer(-23.55, -46.63, 760))

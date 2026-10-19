@@ -1,0 +1,48 @@
+{
+ "run_id": "manifest-74bb64b79576",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/flight_dynamics",
+  "path": "examples/flight_dynamics/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792364755.9606538,
+ "tags": [
+  "manifest"
+ ],
+ "git": "c31f0955",
+ "environment": {
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1792364756.005845,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": []
+ },
+ "validation": {
+  "total": 18,
+  "failed": 0
+ },
+ "seconds": 0.045,
+ "datasets": {}
+}

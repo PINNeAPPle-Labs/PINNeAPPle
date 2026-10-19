@@ -1,0 +1,43 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/qualitative",
+ "title": "Qualitative preview: physical impact of geometry changes before the numbers",
+ "description": "Qualitative preview of heat-sink variants, then the quantitative check. A plate-fin heat sink is an ``Assembly`` of a base and fins. Before computing anything, ``preview`` says which way each variant (more fins, taller, thicker, fins across the flow) should move the heat rejected, through which mechanism (leading edges, boundary-layer growth, the air heating up, fin efficiency, wake) and how sure",
+ "domain": "general",
+ "methods": [],
+ "modules": [
+  "pinneapple_design.geometry.bodies",
+  "pinneapple_design.qualitative",
+  "pinneapple_design.qualitative.quantitative",
+  "pinneapple_design.thermal.heatsink.engine"
+ ],
+ "params": {},
+ "scripts": [
+  "01_heat_sink_fins.py",
+  "02_beam_stiffness_per_mass.py",
+  "03_ahmed_slant.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/qualitative_preview.md",
+  "script": "examples/qualitative/01_heat_sink_fins.py",
+  "pr": [
+   240
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

@@ -1,0 +1,154 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/enso_forecasting",
+ "title": "Predicting El Ni\u00f1o: physical, physics-informed, data-driven and hybrid models under one protocol",
+ "description": "El Nino (ENSO) prediction: data-driven, physical, physics-informed and hybrid models under one honest protocol. Reproduces docs/guides/enso_forecasting.md. Every model lives in ``pinneapple_systems.time_series.enso`` and ``forecast_lab``; this script only wires the calls together: 1. the data set (OISST v2.1, WOD thermocline casts, ERA5 stress; cached with the SHA-256 of every source file); 2. the",
+ "domain": "geophysical forecasting",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_core.jsonable",
+  "pinneapple_systems.time_series.enso",
+  "pinneapple_systems.time_series.enso.data",
+  "pinneapple_systems.time_series.forecast_lab",
+  "pinneapple_systems.time_series.forecast_lab.study"
+ ],
+ "params": {},
+ "scripts": [
+  "run_study.py"
+ ],
+ "metrics": [
+  {
+   "name": "kelvin_speed",
+   "value": 2.68867,
+   "unit": "m/s",
+   "how": "shallow-water solver, crossing time of the basin (results/solver_checks.json)"
+  },
+  {
+   "name": "kelvin_speed_theory",
+   "value": 2.7,
+   "unit": "m/s",
+   "how": "sqrt(g' H) of the solver's layer (results/solver_checks.json)"
+  },
+  {
+   "name": "rossby_speed",
+   "value": -0.86335,
+   "unit": "m/s",
+   "how": "shallow-water solver (results/solver_checks.json)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon72",
+   "value": 0.00147,
+   "unit": "",
+   "how": "Gill (1980) steady response vs the analytic solution (results/solver_checks.json)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon144",
+   "value": 0.000488,
+   "unit": "",
+   "how": "Gill (1980) steady response vs the analytic solution (results/solver_checks.json)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon288",
+   "value": 0.00012809,
+   "unit": "",
+   "how": "Gill (1980) steady response vs the analytic solution (results/solver_checks.json)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon576",
+   "value": 5.1905e-05,
+   "unit": "",
+   "how": "Gill (1980) steady response vs the analytic solution (results/solver_checks.json)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub1",
+   "value": 1.7971e-06,
+   "unit": "",
+   "how": "recharge oscillator period vs theory (results/solver_checks.json)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub2",
+   "value": -2.5874e-06,
+   "unit": "",
+   "how": "recharge oscillator period vs theory (results/solver_checks.json)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub4",
+   "value": -2.8256e-06,
+   "unit": "",
+   "how": "recharge oscillator period vs theory (results/solver_checks.json)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub8",
+   "value": -2.8394e-06,
+   "unit": "",
+   "how": "recharge oscillator period vs theory (results/solver_checks.json)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub16",
+   "value": -2.8402e-06,
+   "unit": "",
+   "how": "recharge oscillator period vs theory (results/solver_checks.json)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "Kelvin wave speed vs theory",
+   "passed": true,
+   "value": -0.0042,
+   "kind": "reference",
+   "max": 0.01,
+   "detail": "|value| < 0.01, the threshold of tests/test_enso.py:49; value from results/solver_checks.json"
+  },
+  {
+   "name": "Rossby wave speed vs theory",
+   "passed": true,
+   "value": -0.04072,
+   "kind": "reference",
+   "max": 0.06,
+   "detail": "|value| < 0.06, the threshold of tests/test_enso.py:56; value from results/solver_checks.json"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/enso_1997_01_slab.png",
+   "figures/enso_1997_12_slab.png",
+   "figures/hovmoller_1996_1999.png",
+   "figures/phase_portrait.png",
+   "figures/pit.png",
+   "figures/plumes.png",
+   "figures/skill_vs_lead.png",
+   "figures/solver_checks.png",
+   "figures/spring_barrier.png"
+  ],
+  "videos": [
+   "figures/enso_1997_98_slab.mp4"
+  ],
+  "viewers": [],
+  "data": [
+   "results/data.json",
+   "results/phase.json",
+   "results/shallow_water_pinn.json",
+   "results/solver_checks.json",
+   "results/spring_barrier.json",
+   "results/study.json",
+   "results/tables.md"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/enso_forecasting.md",
+  "script": "examples/enso_forecasting/run_study.py",
+  "pr": [
+   846
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "results",
+  "methods": "inferred from names",
+  "git": "c31f0955"
+ }
+}

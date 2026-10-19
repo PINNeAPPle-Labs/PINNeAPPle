@@ -1,0 +1,7 @@
+{
+ "airfoil": "NACA 2412 (6-weight CST fit)",
+ "alpha_deg": 4.0,
+ "reynolds": 4000000.0,
+ "mach": 0.0,
+ "solver": "OpenFOAM v1912 simpleFoam, k-omega SST (Menter 1994), fully turbulent, y+ < 1"
+}

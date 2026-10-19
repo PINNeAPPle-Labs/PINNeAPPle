@@ -3,5 +3,11 @@
   "role": "Physics AI Lead Engineer & SciML Researcher · Founder of PINNeAPPle Labs and ChordIQ",
   "bio": "I build engineering tools on PINNeAPPle that pair physics models with machine learning, validated against published references and test data. Questions, a custom version for your product, or a validation on your own measurements: get in touch.",
   "email": "yan@pinneapple.org",
-  "linkedin": "https://www.linkedin.com/in/yan-barros-yan"
+  "linkedin": "https://www.linkedin.com/in/yan-barros-yan",
+  "i18n": {
+    "pt": {
+      "role": "Engenheiro líder de IA para física e pesquisador em SciML · Fundador da PINNeAPPle Labs e da ChordIQ",
+      "bio": "Construo ferramentas de engenharia sobre o PINNeAPPle que unem modelos físicos e aprendizado de máquina, validadas contra referências publicadas e dados de ensaio. Dúvidas, uma versão sob medida para o seu produto ou uma validação com as suas próprias medições: entre em contato."
+    }
+  }
 }

@@ -1,0 +1,14 @@
+[
+ {
+  "name": "maxwell_stress_vs_coenergy_torque",
+  "passed": true,
+  "value": 0.001128310778951563,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.02,
+  "min": null,
+  "detail": "on-load torque at 3 current angles, two torque definitions of the same field; tolerance 2 % as for the Prius",
+  "kind": "physics"
+ }
+]

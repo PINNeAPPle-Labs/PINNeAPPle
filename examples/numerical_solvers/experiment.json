@@ -1,0 +1,69 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/numerical_solvers",
+ "title": "pinneapple_solvers examples",
+ "description": "This folder contains runnable scripts showcasing the **numerical-solvers layer**:",
+ "domain": "numerical methods",
+ "methods": [
+  "FEM"
+ ],
+ "modules": [
+  "pinneapple_backend",
+  "pinneapple_design.geometry.sample.particles",
+  "pinneapple_design_opt.adjoint",
+  "pinneapple_dynamics",
+  "pinneapple_simulation.numerical_solvers.shallow_water_fv",
+  "pinneapple_simulation.particle_dynamics.molecular_dynamics",
+  "pinneapple_solvers",
+  "pinneapple_solvers.adapters.upd_signal",
+  "pinneapple_solvers.cfd_pipeline",
+  "pinneapple_solvers.fem",
+  "pinneapple_solvers.fft",
+  "pinneapple_solvers.fvm",
+  "pinneapple_solvers.hilbert_huang",
+  "pinneapple_solvers.registry",
+  "pinneapple_train.losses",
+  "pinneapple_train.metrics",
+  "pinneapple_train.preprocess",
+  "pinneapple_train.trainer",
+  "pinneapple_twin3d.scene",
+  "pinneapple_twin3d.serve",
+  "pinneapple_worldmodel"
+ ],
+ "params": {},
+ "scripts": [
+  "01_solvers_fft_feature_train.py",
+  "02_solvers_hilbert_huang_decompose.py",
+  "03_solvers_fem_poisson_1d.py",
+  "04_solvers_fvm_advection_1d.py",
+  "05_solvers_catalog_and_adapters.py",
+  "06_solvers_decomp_demo.py",
+  "07_solver_sph_demo.py",
+  "08_solver_fdm_demo.py",
+  "09_solver_lmb_demo.py",
+  "10_solver_spectral_demo.py",
+  "11_cad_cfd_pipeline_demo.py",
+  "12_molecular_dynamics_lj_gas.py",
+  "13_shallow_water_twin3d_browser_demo.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/dev/PEDIDOS_2026-09-24.md",
+  "script": "examples/numerical_solvers/01_solvers_fft_feature_train.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

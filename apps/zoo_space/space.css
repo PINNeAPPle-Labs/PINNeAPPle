@@ -1,0 +1,16 @@
+/* Layout of the zoo demo; colours, cards, charts and verdicts come from the Playground's css/app.css. */
+.zoo { display: grid; grid-template-columns: 300px minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+@media (max-width: 1100px) { .zoo { grid-template-columns: 1fr; } }
+.field { margin-top: 10px; }
+.field label { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--ink-2); }
+.field label .u { color: var(--muted); font-size: 11.5px; }
+.field input { width: 100%; box-sizing: border-box; margin-top: 3px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 12.5px var(--mono); }
+.field input.oor { border-color: var(--bad); color: var(--bad); }
+.field .rng { font: 11px var(--mono); color: var(--muted); }
+.row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.src { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.foot { display: block; max-width: 1360px; margin: 0 auto; padding: 0 20px 24px; color: var(--muted); font-size: 12.5px; }
+.decision { display: inline-block; border-radius: 6px; padding: 1px 8px; font-weight: 700; font-size: 12.5px; }
+.decision.APPROVED { background: var(--ok-bg); color: var(--ok); }
+.decision.REVIEW { background: var(--warn-bg); color: var(--warn); }
+.decision.REJECT { background: var(--bad-bg); color: var(--bad); }

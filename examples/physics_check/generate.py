@@ -271,6 +271,24 @@ def surrogate_field(path: Path, *, nan: bool) -> None:
     np.savez_compressed(path, x=x, y=y, T=T, units=np.array(["x=m", "y=m", "T=K"]))
 
 
+def mixing_field(path: Path, ref_path: Path, *, blurred: bool) -> None:
+    """A multi-scale scalar (spectrum ~ k^-5/3, random phases) and its reference; the failing copy is the same field
+    through a Gaussian filter of one cell: a small relative L2 error, most of the small-scale energy gone (PC704)."""
+    n = 64
+    rng = np.random.default_rng(7)
+    m = np.fft.fftfreq(n) * n
+    KX, KY = np.meshgrid(m, m, indexing="ij")
+    K = np.hypot(KX, KY)
+    amp = np.where(K > 0, np.maximum(K, 1.0) ** (-(5 / 3 + 1) / 2), 0.0)
+    c = 300 + 2.0 * np.fft.ifft2(np.fft.fft2(rng.standard_normal((n, n))) * amp).real / 0.05
+    x = np.linspace(0, 1, n, endpoint=False)
+    np.savez_compressed(ref_path, x=x, y=x, c=c)
+    if blurred:
+        k2 = (2 * np.pi * KX / n) ** 2 + (2 * np.pi * KY / n) ** 2
+        c = 300 + np.fft.ifft2(np.fft.fft2(c - 300) * np.exp(-0.5 * k2)).real
+    np.savez_compressed(path, x=x, y=x, c=c)
+
+
 def darcy_dataset(path: Path, *, defects: bool) -> None:
     """Darcy pairs (a, u) on 16 x 16 cells in the zoo layout (``train__a`` ...). The failing set has the three
     defects of #700: u scaled by 0.9 (does not solve its PDE), permeability samples drawn with one shared Fourier
@@ -288,22 +306,6 @@ def darcy_dataset(path: Path, *, defects: bool) -> None:
         a[45], u[45] = a[3], u[3]
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, train__a=a[:40], train__u=u[:40], test__a=a[40:], test__u=u[40:])
-def mixing_field(path: Path, ref_path: Path, *, blurred: bool) -> None:
-    """A multi-scale scalar (spectrum ~ k^-5/3, random phases) and its reference; the failing copy is the same field
-    through a Gaussian filter of one cell: a small relative L2 error, most of the small-scale energy gone (PC704)."""
-    n = 64
-    rng = np.random.default_rng(7)
-    m = np.fft.fftfreq(n) * n
-    KX, KY = np.meshgrid(m, m, indexing="ij")
-    K = np.hypot(KX, KY)
-    amp = np.where(K > 0, np.maximum(K, 1.0) ** (-(5 / 3 + 1) / 2), 0.0)
-    c = 300 + 2.0 * np.fft.ifft2(np.fft.fft2(rng.standard_normal((n, n))) * amp).real / 0.05
-    x = np.linspace(0, 1, n, endpoint=False)
-    np.savez_compressed(ref_path, x=x, y=x, c=c)
-    if blurred:
-        k2 = (2 * np.pi * KX / n) ** 2 + (2 * np.pi * KY / n) ** 2
-        c = 300 + np.fft.ifft2(np.fft.fft2(c - 300) * np.exp(-0.5 * k2)).real
-    np.savez_compressed(path, x=x, y=x, c=c)
 
 
 def temperature_table(path: Path, unit: str, celsius: bool) -> None:
@@ -349,6 +351,22 @@ def predict(X):
     re, aoa = X[:, 0], X[:, 1]
     return (0.006 + 0.9 / np.sqrt(re) * 10 + 1.2e-4 * aoa ** 2).reshape(-1, 1)
 '''
+
+
+PEAK = '''"""A stand-in for a surrogate of the peak temperature of a slab with uniform heating q, thickness L and
+conductivity k, cooled to T0 on both faces (exact: T0 + q L^2 / (8 k)).{note}"""
+
+
+def predict(X):
+    q, L, k, T0 = X.T
+    return (T0 + q * L ** 2 / (8 * {k_term})).reshape(-1, 1)
+'''
+
+
+def peak_temperature(path: Path, *, sign_error: bool) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(PEAK.format(note=" A unit slip divides by 1/k instead of k." if sign_error else "",
+                                k_term="(1e4 / k)" if sign_error else "k"))
 
 
 def kovasznay_reference(path: Path) -> None:
@@ -465,12 +483,13 @@ def main() -> None:
         vof_tank(d / "fields/tank_alpha.vtu", overshoot=bad)
         porosity(d / "fields/porosity.npz", out_of_range=bad)
         surrogate_field(d / "fields/surrogate_T.npz", nan=bad)
-        darcy_dataset(d / "datasets/darcy.npz", defects=bad)
         mixing_field(d / "fields/mixing_c.npz", d / "reference/mixing_c.npz", blurred=bad)
+        darcy_dataset(d / "datasets/darcy.npz", defects=bad)
         temperature_table(d / "fields/probe_T.csv", "degC" if bad else "K", celsius=bad)
         qoi(d / "qoi/airfoil.csv", cd=0.0129 if bad else 0.01231, cl=0.802)
         qoi(d / "reference/airfoil.csv", cd=0.01230, cl=0.801)
         models(d, broken=bad)
+        peak_temperature(d / "surrogates/peak_temperature.py", sign_error=bad)
         integrity(d, tamper=bad)
     np.savez_compressed(FAIL / "fields/unlabelled_T.npz", x=np.linspace(0, 1, 20), y=np.linspace(0, 1, 20),
                         T=300 + np.linspace(0, 5, 20)[:, None] * np.ones((20, 20)))

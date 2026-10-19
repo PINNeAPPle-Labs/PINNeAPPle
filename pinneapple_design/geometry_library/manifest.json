@@ -14,19 +14,19 @@
      "sha256": "87de208f24baf33e6a70debb7738dfeb068a64ac02c93d11bd763a885cfaac49"
     },
     "airliner_a320.fine.obj": {
-     "bytes": 5579094,
+     "bytes": 5578379,
      "location": "hub",
-     "sha256": "c01e036b774fd1d4b6fc970101b600e8acb41f187e8a1baf9bb5a74d095de210"
+     "sha256": "ad6e67452689a45e7a1daad33107f978aa0c8f82f63c01c5366afb74ddc56313"
     },
     "airliner_a320.fine.stl": {
      "bytes": 7843284,
      "location": "hub",
-     "sha256": "f4540c94499f49538d3807183a6accd68fc7b5bac112aa551828590b1f246dae"
+     "sha256": "4d2e6765c80b3e68c4bddfeaf22e33b1e8e6df6fe1c5fc47fc4d074061420421"
     },
     "airliner_a320.fine.usda": {
-     "bytes": 8203080,
+     "bytes": 8202365,
      "location": "hub",
-     "sha256": "171cf780d3c252fc36f4e466f4b57db227e9524e5a3dd430859058c439ebf0d8"
+     "sha256": "59c20b118a26664a8d2a48cbaf5c834eb34b61a09b829a565321761fb646b5b6"
     },
     "airliner_a320.light.glb": {
      "bytes": 886628,
@@ -34,9 +34,9 @@
      "sha256": "d1ebca8fefbdf6ace37188f427ac67f95caa6901b870adde2975db0a20d3d28d"
     },
     "airliner_a320.light.obj": {
-     "bytes": 1197820,
+     "bytes": 1197574,
      "location": "hub",
-     "sha256": "f0b276e1babdbf0f9260ed06729f5ef02c029af7c970316270c7f5af1893542b"
+     "sha256": "df3befdf987c879477549a96fcc73b194ee1f9b931d3732aef64eaf8d066b66e"
     },
     "airliner_a320.light.step": {
      "bytes": 12710497,
@@ -46,12 +46,12 @@
     "airliner_a320.light.stl": {
      "bytes": 1728084,
      "location": "repo+hub",
-     "sha256": "292349f60f3c199d83668fc3ae940bbeedaa02ca5df98fc43858e9d9179619a4"
+     "sha256": "5ab9c6a1278b6e344207d9a9f725633122be2cb7c6036b6c6646df3410479f79"
     },
     "airliner_a320.light.usda": {
-     "bytes": 1769465,
+     "bytes": 1769219,
      "location": "hub",
-     "sha256": "fa3e37638807dcd3c0822a50dedfda6f73133b9551d5242a717f05cea397ee7b"
+     "sha256": "fef24381d2b0dc8f50a4cfb8ecfd5af2db5793ce17ff4c2dfdb9888194a5b6db"
     }
    },
    "n_triangles": {
@@ -77,19 +77,19 @@
      "sha256": "f2c7b1077be4fe8b164165d3b8a8ddc72e7d5c1db05c3b76a6ce27c3915908fc"
     },
     "aortic_arch.fine.obj": {
-     "bytes": 3033828,
+     "bytes": 3033824,
      "location": "hub",
-     "sha256": "9b1a637b90c465b8ec6d041368f3fbbfce8fac5c193b9e1c95169e39ac09276d"
+     "sha256": "3ba3370c3d8e79daf0ac8ce9901d0600086d0508af2de856869100c22562c8e4"
     },
     "aortic_arch.fine.stl": {
      "bytes": 4290084,
      "location": "hub",
-     "sha256": "85e26e7191db16a655a83f458721ecf8290533a47e79e78ecab3571bcff73947"
+     "sha256": "a6a7b59709e9c80af8421bfe9370d9b39afbc6cc7768b08aacae0f1fb8330fe2"
     },
     "aortic_arch.fine.usda": {
-     "bytes": 4443764,
+     "bytes": 4443760,
      "location": "hub",
-     "sha256": "f26bb4adaa19c2848e7120a13271a5c412e0bccebfec7004a21c088a3f15c0cc"
+     "sha256": "f2b71ab43e003b16cfbf7e3e5e25ad1b7149a01434b46baba15e1be583bd87d3"
     },
     "aortic_arch.light.glb": {
      "bytes": 345424,
@@ -97,9 +97,9 @@
      "sha256": "d254d97aecd8ca922c68c0a2191c79530fde2086eca2cfb27fc1a25aa7e181ce"
     },
     "aortic_arch.light.obj": {
-     "bytes": 468673,
+     "bytes": 468668,
      "location": "hub",
-     "sha256": "7426fd8cc937048c4394d7cd25cf35bb53349e1a5776420a3c36ef53d674c9d1"
+     "sha256": "b3b67460a17173c08e4a0383c2aac9389e2daf73e0b216ac15405f72474b6007"
     },
     "aortic_arch.light.step": {
      "bytes": 5206781,
@@ -109,12 +109,12 @@
     "aortic_arch.light.stl": {
      "bytes": 716984,
      "location": "repo+hub",
-     "sha256": "4b006e2b1ea1380b7c86d9704bdc0314cdb0d93b27b220658feb53c8b04d249c"
+     "sha256": "97203f5d4b71fe7f1dce12c01adcabd61b45b24bf76676bf5fd7649c518c090d"
     },
     "aortic_arch.light.usda": {
-     "bytes": 705029,
+     "bytes": 705024,
      "location": "hub",
-     "sha256": "34594f27a88f21a923139e4ba14e2e97277eb7b59f692d321c760f737581a2f6"
+     "sha256": "19fc0b4360aababa5b198a13b2ab98236a925bb701b1ecdcef2153b9871a1e65"
     }
    },
    "n_triangles": {
@@ -140,19 +140,19 @@
      "sha256": "bb6607df36cf55892db2bf70f6d61a1829861a22eae19fe8733fedc0e7ba68bf"
     },
     "caarc_building.fine.obj": {
-     "bytes": 1484992,
+     "bytes": 1484988,
      "location": "hub",
-     "sha256": "95d611b0a38f7961371d72e90854574f6e2926401ce9fe149176772a353eb32f"
+     "sha256": "738357868920898016f9fa05cc12ad38ebb8261beaf577d7993eb1d6de4af60c"
     },
     "caarc_building.fine.stl": {
      "bytes": 1466684,
      "location": "hub",
-     "sha256": "50c9badca90aa5c2d5aa9fd812d888b1f65dd6e2c59f0aabb640c4cd35c3819e"
+     "sha256": "b75a51cb9a8897b561237a728b8633e5a82eb4586564ec56856fb8b0f2bf6830"
     },
     "caarc_building.fine.usda": {
-     "bytes": 2840353,
+     "bytes": 2840349,
      "location": "hub",
-     "sha256": "5efb1be9a57b30175dade43d446096b26fa45ebd465494a0bb967f36b47d1fde"
+     "sha256": "3ee0e08f95d39276010af42301d94840477f7ce4c54caa30f1585bd04c328b75"
     },
     "caarc_building.light.glb": {
      "bytes": 752200,
@@ -160,9 +160,9 @@
      "sha256": "19b5ed3194411f9001c78ef18e6f83480e4491409e38f9bbd4c93b9948395ce5"
     },
     "caarc_building.light.obj": {
-     "bytes": 788393,
+     "bytes": 788389,
      "location": "hub",
-     "sha256": "dbdc3f52a6c87ad4f105b72a7d3f8b0dfe63e45ec5b25674f5718fe9376ca84a"
+     "sha256": "ccb27f7062ddfbc4315e8e29f8b37c9f3740c84fa95654cb01a29602498b5804"
     },
     "caarc_building.light.step": {
      "bytes": 5324495,
@@ -172,12 +172,12 @@
     "caarc_building.light.stl": {
      "bytes": 831884,
      "location": "repo+hub",
-     "sha256": "028ec6c1b185b820c11f20a789382b5b8a0a8240b6d1da3448745758ab6982af"
+     "sha256": "5d689c33651e2d58d68d42dd66a6d5956940caee08b893654b82451680c5b094"
     },
     "caarc_building.light.usda": {
-     "bytes": 1480361,
+     "bytes": 1480357,
      "location": "hub",
-     "sha256": "1b7522773dfcac210a3d8302ab9bb566c7c788f743483c7667548ed11d10dd98"
+     "sha256": "af153027ea96675ebdd0f53e86910dbe5990e85cda6fc6a1947f143accfdeb5b"
     }
    },
    "n_triangles": {
@@ -203,19 +203,19 @@
      "sha256": "c3756d6ec5452ac9f844132d8db82722d01083a4be58dec0479c823be7ac1d0a"
     },
     "centrifugal_impeller.fine.obj": {
-     "bytes": 2428434,
+     "bytes": 2428356,
      "location": "hub",
-     "sha256": "404b81a972dbaa9c486cdfacb178135db163a31bb667046949ed61faefd35334"
+     "sha256": "0ca74882bc2cb5292e4bcd55b62572258d4e5a0cb0b8f99dc94a67a8ea729944"
     },
     "centrifugal_impeller.fine.stl": {
      "bytes": 3465484,
      "location": "hub",
-     "sha256": "b7f334538b6c77bea6a243359ee84bca18fc696fcb94cf412293b4f617ac360b"
+     "sha256": "af84ceb6fe67399593205db3c59fe76dc0d240c3f211fc43ec117fa8a8987cdd"
     },
     "centrifugal_impeller.fine.usda": {
-     "bytes": 3447587,
+     "bytes": 3447509,
      "location": "hub",
-     "sha256": "039d5db9f86c05d430290acfd01075a6fc10259a799d6f16e2def0f1bc10d0ae"
+     "sha256": "48c921c74a17de9a294c56658a32256deb6629ab6de7b936d0381e30af4f0e32"
     },
     "centrifugal_impeller.light.glb": {
      "bytes": 336868,
@@ -223,9 +223,9 @@
      "sha256": "0beb2713a0589862223ef91a7c16b823f2c0465df5c3a82f8b80fdaedaf016ad"
     },
     "centrifugal_impeller.light.obj": {
-     "bytes": 442968,
+     "bytes": 442932,
      "location": "hub",
-     "sha256": "9ac10514e03eefcf0475ca57e25b0ef6abe0a93b30a36af020371a6653d2d568"
+     "sha256": "00c54d4ac063dfe9f2fb84393f655b836b6b99926b9aff8f2da9a07e2c59232f"
     },
     "centrifugal_impeller.light.step": {
      "bytes": 4936558,
@@ -235,12 +235,12 @@
     "centrifugal_impeller.light.stl": {
      "bytes": 687284,
      "location": "repo+hub",
-     "sha256": "e58152848584ddbe007931a9c36ba27f1b23588074a8a994e07e9c4215405fd6"
+     "sha256": "22f7cf9cb1370a2a6330389b6bd1a30c87b0578ce68cb1c07bd2d16a8b0d61a6"
     },
     "centrifugal_impeller.light.usda": {
-     "bytes": 663038,
+     "bytes": 663002,
      "location": "hub",
-     "sha256": "f9125bc49296c4e5d26fb8e464eaff9fee20f0a6753ba5558ba0c785df74ff1d"
+     "sha256": "1a8cc30818a679c1c5cb22cf50df973cf6b1135d23aa95b3ac13294501a98438"
     }
    },
    "n_triangles": {
@@ -266,19 +266,19 @@
      "sha256": "472e6784ca48bf9c806e8610bd2f7ad488c5ff7820ee72ac3006ee5674c41b9e"
     },
     "container_ship_kcs.fine.obj": {
-     "bytes": 1871443,
+     "bytes": 1871433,
      "location": "hub",
-     "sha256": "d8d08c935d772b359eadb55e7e86a4e7abc9225ced818d45bc4c958648d40e9d"
+     "sha256": "c066b17ede5a8f2fe03692505439fb193d367207d89dfb2535a88648ccf0852c"
     },
     "container_ship_kcs.fine.stl": {
      "bytes": 2783584,
      "location": "hub",
-     "sha256": "a6ced53c1fdb6b4c9c4695d5bf0ad49d9a7c913789ceb7f749ebf5a4b4f17ebd"
+     "sha256": "6bbbe8966dd137281747445ee17f9f405d799b34d69a18c739278cdcafc84fbd"
     },
     "container_ship_kcs.fine.usda": {
-     "bytes": 2891847,
+     "bytes": 2891837,
      "location": "hub",
-     "sha256": "67a0e2ae6ec3e20ba1f9b93c05ae2d62f86cebacf63933eed655a7fbf8f17ef3"
+     "sha256": "b17da985d5c8c8650b80e1a8d6f399d1b98921ac7eead3bca9682d9dffd38d6a"
     },
     "container_ship_kcs.light.glb": {
      "bytes": 448440,
@@ -286,9 +286,9 @@
      "sha256": "e5e344fbf6e824def9372572d0718dcf3aa1ffc79143bdf442f20f367021df75"
     },
     "container_ship_kcs.light.obj": {
-     "bytes": 505548,
+     "bytes": 505517,
      "location": "hub",
-     "sha256": "aa94d351aebc9a8f4044a12bf8a483e830fd2fc4b65f89f3f27101b94d97ebf4"
+     "sha256": "ae254a24d15c81aa5b786c8f6355540e58dacde8347382e5a648f95b1a5471ff"
     },
     "container_ship_kcs.light.step": {
      "bytes": 5463393,
@@ -298,12 +298,12 @@
     "container_ship_kcs.light.stl": {
      "bytes": 803084,
      "location": "repo+hub",
-     "sha256": "8a45c9a52cf6fa8d5090dd03e772236487dee65ccb21b19d35b3b002d1ff2126"
+     "sha256": "72d440e77a87ff49de4cbca4539278fb18670a42c72de420d4187c4166fcb0b1"
     },
     "container_ship_kcs.light.usda": {
-     "bytes": 876486,
+     "bytes": 876455,
      "location": "hub",
-     "sha256": "64deca0e089440c858daa4dc6de362b0d847b985701de8afedc9b48c674e8c94"
+     "sha256": "d554fccaf5bcd5e2d7e3966cb1efd2d8cf4d6a2ac678c98984316d0583d81627"
     }
    },
    "n_triangles": {
@@ -329,19 +329,19 @@
      "sha256": "5b68d4d7877d91bdf684e532f7639f2761ddf05ed6a3e469598bd1c804c3a78e"
     },
     "f1_car.fine.obj": {
-     "bytes": 730539,
+     "bytes": 730419,
      "location": "hub",
-     "sha256": "7b64b86516d1c516056c7025829ca8838fca243c9daada3af997c4ab56e0d736"
+     "sha256": "5d45feae5743f1168b2c66873cc3f37748282958b7774b770705ac481c74b1c9"
     },
     "f1_car.fine.stl": {
      "bytes": 1180684,
      "location": "hub",
-     "sha256": "fefa59bf89b8048f1a2a44434a5f3316270fb426289c1e6e7bcad7f3756e7631"
+     "sha256": "8276abd7134043f37c27004c8d294fbe8141a995c39351c8df55709ba2019dce"
     },
     "f1_car.fine.usda": {
-     "bytes": 1140536,
+     "bytes": 1140416,
      "location": "hub",
-     "sha256": "3501564ab438bdae6741d920f9f145e9855facb98f7160acd87d983349ef0a45"
+     "sha256": "6007d1246fa25ff762a22dc85732a75280dfdd9ebc9892c4afc78e7421478363"
     },
     "f1_car.light.glb": {
      "bytes": 588980,
@@ -349,9 +349,9 @@
      "sha256": "5b68d4d7877d91bdf684e532f7639f2761ddf05ed6a3e469598bd1c804c3a78e"
     },
     "f1_car.light.obj": {
-     "bytes": 730540,
+     "bytes": 730420,
      "location": "hub",
-     "sha256": "4116ff24d6ad82132856dec945e447886a80a292054e2af9e9fbe148a29eb870"
+     "sha256": "11135ec8222579312db2fb160e7771b0d0400238ac2cf88ba11407dc7cb04855"
     },
     "f1_car.light.step": {
      "bytes": 8492060,
@@ -361,12 +361,12 @@
     "f1_car.light.stl": {
      "bytes": 1180684,
      "location": "repo+hub",
-     "sha256": "4a5f704e4c133cc0ce0dcd9ab2bb8a1014f7d98e80fbf45b83dd163757e236bb"
+     "sha256": "ae4238e1ef1e5943dbb5b929c95b20be7ed99fcc7c6f1095c173c456345ab3ac"
     },
     "f1_car.light.usda": {
-     "bytes": 1140536,
+     "bytes": 1140416,
      "location": "hub",
-     "sha256": "3501564ab438bdae6741d920f9f145e9855facb98f7160acd87d983349ef0a45"
+     "sha256": "6007d1246fa25ff762a22dc85732a75280dfdd9ebc9892c4afc78e7421478363"
     }
    },
    "n_triangles": {
@@ -392,19 +392,19 @@
      "sha256": "1b4ac6fe0e0f4d52fc0d3e4946e3911027a431a0f52f3c67dba0df0cf3946523"
     },
     "falcon9_booster.fine.obj": {
-     "bytes": 1133839,
+     "bytes": 1133733,
      "location": "hub",
-     "sha256": "a6a01f8edc412d0e3d2aafc95f29d7e9e87a54b55840e09c8cfeccc264316a3b"
+     "sha256": "14c299f91816ae9058a70d81d91752f5ba934b814fe9428f721fcc1944dd38e5"
     },
     "falcon9_booster.fine.stl": {
      "bytes": 1746284,
      "location": "hub",
-     "sha256": "c2b7af7f5cc1e7740323f0e3af7669dca3a464e7de89c127f85d6109c6566a32"
+     "sha256": "0eeb723b034773c3988d22308a1988e575e8d190188138c654ade99eb7b8124a"
     },
     "falcon9_booster.fine.usda": {
-     "bytes": 1708352,
+     "bytes": 1708246,
      "location": "hub",
-     "sha256": "18620a23ac1d1ea53df23aaf36115b9f7d5f0e54d1bfc9943ddd99f0e91c8bcc"
+     "sha256": "b8c2efff302667f40e448b3f44a6c45fd89170b5d9cf9efd17b5d25c2c8c0e58"
     },
     "falcon9_booster.light.glb": {
      "bytes": 281560,
@@ -412,9 +412,9 @@
      "sha256": "eeae76086e5008a761316fd9891a689d1a2de4bc60dc585ebc87a43ace2ccd78"
     },
     "falcon9_booster.light.obj": {
-     "bytes": 340670,
+     "bytes": 340615,
      "location": "hub",
-     "sha256": "3e0d0fe3aeefd273a66580f08c076be2cb1d20590d19fe897273270bcddad40c"
+     "sha256": "7c3316e59cb316e377f8c3d027b00d9db183298774aa89076ca75b9917cd09c6"
     },
     "falcon9_booster.light.step": {
      "bytes": 3976880,
@@ -424,12 +424,12 @@
     "falcon9_booster.light.stl": {
      "bytes": 567884,
      "location": "repo+hub",
-     "sha256": "151e8d7f6d6cc81e16e8c23cc32cf7bfefef6352bc009de4cd29f10f3a8e8e09"
+     "sha256": "099c44a36405e933a5058c8794a92114b1606ea201ca72b7181f507a512020b9"
     },
     "falcon9_booster.light.usda": {
-     "bytes": 526945,
+     "bytes": 526890,
      "location": "hub",
-     "sha256": "ec94a66df08b107e89e8cdb747e5c2f1f7a759cec9aa2095d2aa6f3817fa3e35"
+     "sha256": "406a45cf13e4959e565cf83c0909e22ce68396f661f65d0d60796f8fec99e3f1"
     }
    },
    "n_triangles": {
@@ -455,19 +455,19 @@
      "sha256": "1cb018689d7a3f4e07ca2ada0a17c330cfd82f5c05ba65187314d2dcafcde8da"
     },
     "helicopter_h145.fine.obj": {
-     "bytes": 2001257,
+     "bytes": 2001239,
      "location": "hub",
-     "sha256": "60b4e6c2b649104bea9572f7f82785e50ad13264169c3c6121039a18d197b2a9"
+     "sha256": "7453427a26a55591ab64c3b26b06531b638ca998b86e3f5d12205259dc5106c5"
     },
     "helicopter_h145.fine.stl": {
      "bytes": 2913584,
      "location": "hub",
-     "sha256": "ec76c460931b01c9572c34116fbbcb0ead2083f807bebdb8d94827909b6aaaff"
+     "sha256": "cc50a2111c6391d81b763e0d0baed032b3d2404857cb2b66cf70512769fe1227"
     },
     "helicopter_h145.fine.usda": {
-     "bytes": 2849184,
+     "bytes": 2849166,
      "location": "hub",
-     "sha256": "20523b447de9a994cd6ec5f88bee8f27aeec77615d975d0338177418743eeb8c"
+     "sha256": "622caf9bd7ba5dfa4c9b3dcc69315836a0937bffb1850d8c7bf37b5408ec1b63"
     },
     "helicopter_h145.light.glb": {
      "bytes": 338300,
@@ -475,9 +475,9 @@
      "sha256": "ae76adc9f675c05c2e355d73690e8c01f0cbfebabdcf48a5349878359699c09a"
     },
     "helicopter_h145.light.obj": {
-     "bytes": 389472,
+     "bytes": 389453,
      "location": "hub",
-     "sha256": "251805992d8366bb1ec49891b4911c323cc0985aeb5778088eebb398197fb4f0"
+     "sha256": "aab84e3aa33102c4fe5f8a941b6e0d5ea4fe304d4dfba98e3c43f63b2114e13c"
     },
     "helicopter_h145.light.step": {
      "bytes": 4350926,
@@ -487,12 +487,12 @@
     "helicopter_h145.light.stl": {
      "bytes": 607484,
      "location": "repo+hub",
-     "sha256": "3e180533166631d7d9fbf5b18a937a02591864e19ae9333a6e4eece5de75dd1f"
+     "sha256": "5b76e153deda9807e932ac7fc7ff526a5a03c993a9b85bd79321f84cda278a59"
     },
     "helicopter_h145.light.usda": {
-     "bytes": 601061,
+     "bytes": 601042,
      "location": "hub",
-     "sha256": "c61c3162435afdafecbe43b92bc4c50a9bfce20a4ca9e9009172fc888f9ae18d"
+     "sha256": "97dcc7dcf216b8ff64f13dfc663d380ced62c9784d263dfc7fd117c47025f189"
     }
    },
    "n_triangles": {
@@ -518,19 +518,19 @@
      "sha256": "ca3686d9bb48919493f76adef4596cf3af39e11f89b549777659c807aa765984"
     },
     "high_speed_train.fine.obj": {
-     "bytes": 1449768,
+     "bytes": 1449764,
      "location": "hub",
-     "sha256": "b300831ba1cc94ad70396474750bb6635a4824ff5019b3560cc635807552164e"
+     "sha256": "cd966cabd753c9f8bd77dfc852fbdff66e87fde4501613fe8a6f25d18052ed2a"
     },
     "high_speed_train.fine.stl": {
      "bytes": 2138084,
      "location": "hub",
-     "sha256": "98248c0225a3e8e4bd989ffff730fbed8217731e962945a20a0e0bbb2e889d77"
+     "sha256": "1edd10394fd7d052ded385afaab2533c257f8502ff33b3cbd177905f2de29fb8"
     },
     "high_speed_train.fine.usda": {
-     "bytes": 2184031,
+     "bytes": 2184027,
      "location": "hub",
-     "sha256": "42f1919d00219e8b4c752e784f54d2392541eff5c69c06891060cc19726f51fc"
+     "sha256": "019f19de1815f2dfc8b9e9c5b7136462db0d0209a8070cafec3fd9f37c864d28"
     },
     "high_speed_train.light.glb": {
      "bytes": 353884,
@@ -538,9 +538,9 @@
      "sha256": "b5ca98c0ed531c9c335d19f2cf3fc3d640061abbea6850aa876b383f3b01fd78"
     },
     "high_speed_train.light.obj": {
-     "bytes": 412240,
+     "bytes": 412204,
      "location": "hub",
-     "sha256": "c5270cb513f05abe10f57306f0e746cfd9bd99522b8252c67ed7c59491e565e8"
+     "sha256": "a004bbcafb5ce369fdcb8c7ee3639ea4c674870721ce71bd562d71c75fd14907"
     },
     "high_speed_train.light.step": {
      "bytes": 4438559,
@@ -550,12 +550,12 @@
     "high_speed_train.light.stl": {
      "bytes": 645684,
      "location": "repo+hub",
-     "sha256": "af1d09eac6a4c1bc4b5565d214a89372436aa6d30973a0950298a62a44a8ef89"
+     "sha256": "b408da3a0e7b43f5f1ce227879ffc5f72ffc76b86fe4777db4512419b50de966"
     },
     "high_speed_train.light.usda": {
-     "bytes": 675704,
+     "bytes": 675668,
      "location": "hub",
-     "sha256": "2fa04b21650a013bbdf63f2f6814f2b9685b7b7f610f24e1d458cdfe018ee91d"
+     "sha256": "81a554ae86315b23cb239f98046d3658fa9219f88c6237e2f6c20af5d2d151c8"
     }
    },
    "n_triangles": {
@@ -581,19 +581,19 @@
      "sha256": "ae58ed8bbb8aba79fd5bb5973712fdfbc8ed381f7042d8be7bc20ea3204e8cad"
     },
     "launch_vehicle_two_stage.fine.obj": {
-     "bytes": 1142395,
+     "bytes": 1142167,
      "location": "hub",
-     "sha256": "75de399b61f0d796e491e80c808baab10b7a73ff0207a4d4100557321b0a76ac"
+     "sha256": "470bd22230256a5ad345053d12fa601f86694f2e1cd816d6a27cf20f22deb4e0"
     },
     "launch_vehicle_two_stage.fine.stl": {
      "bytes": 1718484,
      "location": "hub",
-     "sha256": "c7bf8a3a21027d4d3b80335b0da1ae9ba88afc4c724c20be1f16969e85d7fe91"
+     "sha256": "c06dab70dc39a6a27f15d4956d0c13c21a3cfd2224785f0979eda05856f33ab0"
     },
     "launch_vehicle_two_stage.fine.usda": {
-     "bytes": 1736947,
+     "bytes": 1736719,
      "location": "hub",
-     "sha256": "e179fe6e4d7bf07493d9b47b43f658f111f96cefe52ba0bd0162b4fa1b2aefe9"
+     "sha256": "9aeb94af632aeec066e3022a81ec9a062154e7ba0392a74127a70c26d0a6241f"
     },
     "launch_vehicle_two_stage.light.glb": {
      "bytes": 842796,
@@ -601,9 +601,9 @@
      "sha256": "ae58ed8bbb8aba79fd5bb5973712fdfbc8ed381f7042d8be7bc20ea3204e8cad"
     },
     "launch_vehicle_two_stage.light.obj": {
-     "bytes": 1142396,
+     "bytes": 1142168,
      "location": "hub",
-     "sha256": "a9c53eae24f2c2c51bf7d861a3ba0e25dc1d52350a4bbbca848f1bce33bafe32"
+     "sha256": "df61509359c2f6ce0459f1411d7a86111ccd16db7394e0b2548553115f0de38d"
     },
     "launch_vehicle_two_stage.light.step": {
      "bytes": 12195911,
@@ -613,12 +613,12 @@
     "launch_vehicle_two_stage.light.stl": {
      "bytes": 1718484,
      "location": "repo+hub",
-     "sha256": "6cba3f0b4c88cdd49784f0d50127e8571dba155ba10f6679ae7a25cd8b0f47bd"
+     "sha256": "49ae163fb0f9a6c145542146b5a5945f7fd9040f8f87d3e9e672f336b6c227de"
     },
     "launch_vehicle_two_stage.light.usda": {
-     "bytes": 1736947,
+     "bytes": 1736719,
      "location": "hub",
-     "sha256": "e179fe6e4d7bf07493d9b47b43f658f111f96cefe52ba0bd0162b4fa1b2aefe9"
+     "sha256": "9aeb94af632aeec066e3022a81ec9a062154e7ba0392a74127a70c26d0a6241f"
     }
    },
    "n_triangles": {
@@ -707,19 +707,19 @@
      "sha256": "7daf5117220873965c9ee4aac24d08b3f4517f032cfb18e1e54c393c1367b538"
     },
     "quadrotor_drone.fine.obj": {
-     "bytes": 1211989,
+     "bytes": 1211983,
      "location": "hub",
-     "sha256": "973d4570a9f607d2183b3a0e484d5e530d6e9a7079598387aaf61161576f7a99"
+     "sha256": "8b95c0576f3ca2ee154dd208095d73477a42637635f440d90f0a45868404fae6"
     },
     "quadrotor_drone.fine.stl": {
      "bytes": 1743484,
      "location": "hub",
-     "sha256": "a64a9dc42f5561ba95e11af2cc5d4e9e1edc155282acaca73f41d01c2a1ed23f"
+     "sha256": "716000bb27a3fd135040236c5f0e7f50d8d05497fca548f28729c2592bad0c5a"
     },
     "quadrotor_drone.fine.usda": {
-     "bytes": 1676891,
+     "bytes": 1676885,
      "location": "hub",
-     "sha256": "812eb22a51b9df4da3bd4d0ac788d5918d6520021d7254d38a77490ebafc42df"
+     "sha256": "0c5406ce632c87baf5184a2740bab5a7cfdd4df1cb797d31f2a61ea599c346e4"
     },
     "quadrotor_drone.light.glb": {
      "bytes": 239776,
@@ -727,9 +727,9 @@
      "sha256": "57c5f499f71601c6e0170e086dfbb12d81df4834af9b5c3796e681e5296ca46a"
     },
     "quadrotor_drone.light.obj": {
-     "bytes": 262855,
+     "bytes": 262838,
      "location": "hub",
-     "sha256": "4baba571949e2eb885de82ea638d77cf2bde19e0c63adfdf515dd5f0263b9edd"
+     "sha256": "e90cf8d592084eb841f08b07cb7d27cd7d28956f3840730399bf9f8c964a6296"
     },
     "quadrotor_drone.light.step": {
      "bytes": 2816426,
@@ -739,12 +739,12 @@
     "quadrotor_drone.light.stl": {
      "bytes": 398084,
      "location": "repo+hub",
-     "sha256": "7208cdcfeb35093216a0e6b1fef4e74130c07d873e76f16e4d6d7278948c77a9"
+     "sha256": "186de602f4da29a570b5fc12f170fcac19cf163fdad2df4dbdfbd855c6b5057a"
     },
     "quadrotor_drone.light.usda": {
-     "bytes": 393498,
+     "bytes": 393481,
      "location": "hub",
-     "sha256": "4c406189341240e1b53124ed2e81821c47a49f334a5a122a85ab63c5e3675f62"
+     "sha256": "dd37efb67413204ed90781b4461f0ffd3feb8b9ba0d70a079a027fe1977580f7"
     }
    },
    "n_triangles": {
@@ -770,19 +770,19 @@
      "sha256": "5c4e1529cb52662394846a83c737f4392191cd15a3ee65eb25cfcbb7efe420a6"
     },
     "road_car.fine.obj": {
-     "bytes": 4111766,
+     "bytes": 4111413,
      "location": "hub",
-     "sha256": "cb2bf5c2af6d578f4986723e9b0ec75f60dabbe6b70c4d782b1222b6e0fbf626"
+     "sha256": "004f126d2159d03ca4a3ca0e8957cf16f010dc6be56d0b493707faa3abc63761"
     },
     "road_car.fine.stl": {
      "bytes": 5792084,
      "location": "hub",
-     "sha256": "a81e275a04d1eb111d4be3b0f9bf8cffb77520e7ec57e09f9aa03a0eec833469"
+     "sha256": "beb302b7a745cb542d3959669675126f98c1e2994d2100e8331511600222b9a4"
     },
     "road_car.fine.usda": {
-     "bytes": 5984680,
+     "bytes": 5984327,
      "location": "hub",
-     "sha256": "25e242a2ef004a208ecba0b2f3b7f93fcf4be269ebc90435ef3c857097d87c53"
+     "sha256": "78a5996108d8179da16c332cc3cbe653009b2254879370cd574a6bd375d7327f"
     },
     "road_car.light.glb": {
      "bytes": 553284,
@@ -790,9 +790,9 @@
      "sha256": "f27191c3ca1cefe75b76711e31c7a0d62ee76df666430b65b64554f41db082f4"
     },
     "road_car.light.obj": {
-     "bytes": 728138,
+     "bytes": 727995,
      "location": "hub",
-     "sha256": "ac15e525d53b41b541e7bd2794cce1491ca278a490129e000dd26ab8348524fd"
+     "sha256": "241f8056bec78b1acffa605ff77fa58b097a18fc4c2caf0f7700f791cfa6fa6e"
     },
     "road_car.light.step": {
      "bytes": 7897106,
@@ -802,12 +802,12 @@
     "road_car.light.stl": {
      "bytes": 1088084,
      "location": "repo+hub",
-     "sha256": "69165ebdd311d7da76c78f8dd31460a3d8d2d4779f217a3312611b495342915e"
+     "sha256": "7ea5df4b07fed43c7fc905e9b937f65810724837b7b1425442d720d428d490b3"
     },
     "road_car.light.usda": {
-     "bytes": 1095640,
+     "bytes": 1095497,
      "location": "hub",
-     "sha256": "befeb4b811c0ccd56f08b69bfb7d517a0c303d4b1e67fe012330e0ca7f5de357"
+     "sha256": "8add6c8f782af308b37250d79f9f5134c5afcf97a341eca4d1e25de55ff7a308"
     }
    },
    "n_triangles": {
@@ -833,19 +833,19 @@
      "sha256": "e35a48e22b16fc0ce09debbd9ce93d9cacb5d45986e0ee47b8928db1b287d1dd"
     },
     "turboprop_atr72.fine.obj": {
-     "bytes": 3090168,
+     "bytes": 3090143,
      "location": "hub",
-     "sha256": "e665d30db5ffacdf98e18d12364c6d7b853a8f6c4f1717b191e54dabfbfd1d92"
+     "sha256": "0f378ce10be75cc93f3b0d7e516d8a17361d552e703d65fa432197d70af469ea"
     },
     "turboprop_atr72.fine.stl": {
      "bytes": 4458084,
      "location": "hub",
-     "sha256": "df45b6673458438a70361dc38a2837bf39276142cb6367c51e6fab18ec641ebe"
+     "sha256": "df6afc64b6b3b640c951c41f6acb7a927d34abe98168ee005fa6f0f521c873ca"
     },
     "turboprop_atr72.fine.usda": {
-     "bytes": 4412074,
+     "bytes": 4412049,
      "location": "hub",
-     "sha256": "1e97d13aba91719b0b54fe334a9385b3e2ba6882d318fd054c131ac9a6c76cfd"
+     "sha256": "83c5f328bde6df3774735618898e1af32463244615e0e121338bd105f74dc8e6"
     },
     "turboprop_atr72.light.glb": {
      "bytes": 529684,
@@ -853,9 +853,9 @@
      "sha256": "302e2702a2bc5d72eb0214fc9aaf894a86971d1e23f9d10f468809c625aafa75"
     },
     "turboprop_atr72.light.obj": {
-     "bytes": 613974,
+     "bytes": 613934,
      "location": "hub",
-     "sha256": "babbbd6796802326e2b0e352261e6fabd0250eb7b89e44999f375353e80be241"
+     "sha256": "5b87df19298c5c2ab3a6bc996d8dab61e8721a6be53a1eb41ed5c9dbaa7bb7d8"
     },
     "turboprop_atr72.light.step": {
      "bytes": 6787212,
@@ -865,12 +865,12 @@
     "turboprop_atr72.light.stl": {
      "bytes": 938884,
      "location": "repo+hub",
-     "sha256": "142a0726ae6f14aee72fbca6fda74479e269daa3a40aef45ddfc74806b5304f2"
+     "sha256": "05f22a5b49ec262e4458a825fabde0e7cef921063e9942e2c47aa1d7c8d983f6"
     },
     "turboprop_atr72.light.usda": {
-     "bytes": 958296,
+     "bytes": 958256,
      "location": "hub",
-     "sha256": "5c9a299721f7ecf94db94c6013daa7c9fc828a8d84bb208080bf99043ee2f89f"
+     "sha256": "21466fc034ff3fb6d9b6e2f9a6b3ad29bceb3115bd7af8e2da9d027f299292da"
     }
    },
    "n_triangles": {
@@ -896,19 +896,19 @@
      "sha256": "29527d70be78a7d5adb3f2b94fdd2d7a5c94e36027ca2ba19f835bd4efc57394"
     },
     "viper_rover.fine.obj": {
-     "bytes": 809072,
+     "bytes": 809070,
      "location": "hub",
-     "sha256": "b81a81e6008ae77620df3d587f46819ec04de87cf5dfc0a060039b2a63808056"
+     "sha256": "d74d8657c817486014768acc487cb50bae837fcd39cc1a282eec5f969cc63c3c"
     },
     "viper_rover.fine.stl": {
      "bytes": 1240284,
      "location": "hub",
-     "sha256": "6f15ca4df691a1e2fb41b254a71a700f43cdb291fcba8d26379233839106f116"
+     "sha256": "024b4b52c793f7edf5cccecd013df278503e2c9095334e64a11583acfc17be03"
     },
     "viper_rover.fine.usda": {
-     "bytes": 1296271,
+     "bytes": 1296269,
      "location": "hub",
-     "sha256": "e546224009f0949c6f5575dbcfa1b6d3f2950b87efa593796f70bf7ec242ca1c"
+     "sha256": "b0c3a9ad8f9e779985ee8706b12a20cc0c481114fea17bf4b78a8e3656271bc9"
     },
     "viper_rover.light.glb": {
      "bytes": 918644,
@@ -916,9 +916,9 @@
      "sha256": "29527d70be78a7d5adb3f2b94fdd2d7a5c94e36027ca2ba19f835bd4efc57394"
     },
     "viper_rover.light.obj": {
-     "bytes": 809073,
+     "bytes": 809071,
      "location": "hub",
-     "sha256": "56894a6a39feb9dd77d82c4a465dff75e7fbc20be02cf5884fce9dd784a880fb"
+     "sha256": "f1d09930d0261bae8f82a840a3f12b28215ddc117025563a7597a6377a5e4437"
     },
     "viper_rover.light.step": {
      "bytes": 8694649,
@@ -928,12 +928,12 @@
     "viper_rover.light.stl": {
      "bytes": 1240284,
      "location": "repo+hub",
-     "sha256": "eec4ce3f24c7c36dc12294d591c4b52ab6aad136e0c730f2f566762bda51961f"
+     "sha256": "5d4e965e987454677d84371d7a93a7418fcbe390ab5500e83131f8b4412f7f94"
     },
     "viper_rover.light.usda": {
-     "bytes": 1296271,
+     "bytes": 1296269,
      "location": "hub",
-     "sha256": "e546224009f0949c6f5575dbcfa1b6d3f2950b87efa593796f70bf7ec242ca1c"
+     "sha256": "b0c3a9ad8f9e779985ee8706b12a20cc0c481114fea17bf4b78a8e3656271bc9"
     }
    },
    "n_triangles": {
@@ -959,19 +959,19 @@
      "sha256": "c1dc496876a3b70e44cee7b0d703fddd26f03324f1aefbb857cac9882b8e52ca"
     },
     "wigley_hull.fine.obj": {
-     "bytes": 821182,
+     "bytes": 821097,
      "location": "hub",
-     "sha256": "5d308a3a4ceb842cfe86cf6e9dcf0b38bf14c3584cbbb67bea89609ec34829dc"
+     "sha256": "149f08a8d766f8d77d5e8106c0319e3f31838746d6b6498018c0d9b0cc03729c"
     },
     "wigley_hull.fine.stl": {
      "bytes": 1214984,
      "location": "hub",
-     "sha256": "f8c6736cfd7b2e30447e24ebea6ba0db40b574b3c071ec2fa6ac99dec096bf00"
+     "sha256": "40881fd6513a00dc0ae333147f27bf75f306d0093adb9dda20cb329a5fb5c180"
     },
     "wigley_hull.fine.usda": {
-     "bytes": 1243599,
+     "bytes": 1243514,
      "location": "hub",
-     "sha256": "37ee1f2d9fc99394bc01ae06cbb35139a0e87ad17c51c4a6eab16e9481ea55b4"
+     "sha256": "443248840a2d839d9553d5e7f665b267eeda0a3322bb32ed95eedeee731b6075"
     },
     "wigley_hull.light.glb": {
      "bytes": 103668,
@@ -979,9 +979,9 @@
      "sha256": "696989997d6008915ce4b258426bd3af7ea884ecd39f34bf07e2c8d6fa153085"
     },
     "wigley_hull.light.obj": {
-     "bytes": 127825,
+     "bytes": 127788,
      "location": "hub",
-     "sha256": "28ec967ddf4fab0c8d0dd0e3aa01e51a8be05b603f4117e6a84316b2a612834d"
+     "sha256": "d080aa3069e2dc5a6a7cbf2332bad39dbde3adcae83c1dc262b8dd6277dee301"
     },
     "wigley_hull.light.step": {
      "bytes": 1362142,
@@ -991,12 +991,12 @@
     "wigley_hull.light.stl": {
      "bytes": 197984,
      "location": "repo+hub",
-     "sha256": "18e4914fa5e42be864a0b582d660179204904baa58b1b3184de35b40b1f58467"
+     "sha256": "6f39efe708f01c87f5eb7ee57c59658f4a4ccc6ab28229e9518f4ea75a9b5f8b"
     },
     "wigley_hull.light.usda": {
-     "bytes": 204775,
+     "bytes": 204738,
      "location": "hub",
-     "sha256": "4d5e2984259eeb7819887bf9cdd22d8c2af7a92214e96e00fb892c4cfea77125"
+     "sha256": "a96c81caf19688de69981d84cb7486fb02aa984e7688bd2e36839a8e31062082"
     }
    },
    "n_triangles": {
@@ -1022,19 +1022,19 @@
      "sha256": "5b718ba71ab0282637cfc4dbe1f6be4b53e4315574d1f0dda99c2484835a64a8"
     },
     "wind_turbine_nrel5mw.fine.obj": {
-     "bytes": 3455544,
+     "bytes": 3455290,
      "location": "hub",
-     "sha256": "896564beaa69f590f1e52a72a321448eb6b8f14bf47c8fcde5cdab32aacc5e9d"
+     "sha256": "08bc4eac3ff82b5b40fcc48f6fc96d9c8c309d4690e34d4ac1554d2068239042"
     },
     "wind_turbine_nrel5mw.fine.stl": {
      "bytes": 5010084,
      "location": "hub",
-     "sha256": "a7c6992e98ad0b3c66fb618d294ae0ff212a728afe9211167dd09526ff1b511b"
+     "sha256": "def1d744a20863653aae682f107993fb157db2b755cac04520263a31dda440bd"
     },
     "wind_turbine_nrel5mw.fine.usda": {
-     "bytes": 5100248,
+     "bytes": 5099994,
      "location": "hub",
-     "sha256": "d8523317c13da8f5600e1f071b520ba095483e78d821b95a0fb6befd7538f4ff"
+     "sha256": "fb1106718a5aa96ffc8db735b5d006e46568f1a5da89ab95db4719707e9b8a27"
     },
     "wind_turbine_nrel5mw.light.glb": {
      "bytes": 413848,
@@ -1042,9 +1042,9 @@
      "sha256": "6b1e6986e255cffa111b01d737ba39264f0d1c0166b34bd1317d2af1fc06be8f"
     },
     "wind_turbine_nrel5mw.light.obj": {
-     "bytes": 534278,
+     "bytes": 534231,
      "location": "hub",
-     "sha256": "96e60d1c20ff4b52dfb9993c1dac2d023d47c73f9fc09ddbdc13458d308030b2"
+     "sha256": "255a9059b65f8c254c7c7c61efc823c229284c536dbfbace3cd6f834eb474b12"
     },
     "wind_turbine_nrel5mw.light.step": {
      "bytes": 6184343,
@@ -1054,12 +1054,12 @@
     "wind_turbine_nrel5mw.light.stl": {
      "bytes": 840884,
      "location": "repo+hub",
-     "sha256": "8df53f92552a27b1158f6c88f8b29dfeab186a3f08bbf26bcde69b9603f62d49"
+     "sha256": "9133b28c878f54349efcd05ad7ba3e5544d485438d43fea5e21da47529f4511f"
     },
     "wind_turbine_nrel5mw.light.usda": {
-     "bytes": 832569,
+     "bytes": 832522,
      "location": "hub",
-     "sha256": "a07a028af50c97cb07efd21830b5070b595858c41ab23e557203d8a8e5c8bd42"
+     "sha256": "b6cf73cf32ba0e00e9545cba9a19638e73c8c10a6f08353e4979a40842977724"
     }
    },
    "n_triangles": {

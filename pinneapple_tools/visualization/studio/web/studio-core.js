@@ -6,6 +6,15 @@
 // CFD convention: jet, blue = low, red = high. Stops: [position 0..1, [r, g, b] 0..255].
 export const JET = [[0, [0, 0, 143]], [0.125, [0, 0, 255]], [0.375, [0, 255, 255]], [0.625, [255, 255, 0]], [0.875, [255, 0, 0]], [1, [128, 0, 0]]];
 
+// diverging, neutral midpoint (use a range symmetric about zero): Moreland's coolwarm, plain blue-white-red and
+// ColorBrewer RdBu reversed; the same stops as pinneapple_tools.visualization.studio.compose
+export const COOLWARM = [[0, [59, 76, 192]], [0.25, [141, 176, 254]], [0.5, [221, 221, 221]], [0.75, [244, 154, 123]], [1, [180, 4, 38]]];
+export const BWR = [[0, [0, 0, 255]], [0.5, [255, 255, 255]], [1, [255, 0, 0]]];
+export const RDBU = [[0, [33, 102, 172]], [0.25, [103, 169, 207]], [0.5, [247, 247, 247]], [0.75, [239, 138, 98]], [1, [178, 24, 43]]];
+
+// errors: sequential, white = no error, dark red = largest (YlOrRd); used for |prediction - reference|
+export const ERR = [[0, [255, 255, 229]], [0.2, [255, 237, 160]], [0.4, [254, 178, 76]], [0.6, [252, 78, 42]], [0.8, [189, 0, 38]], [1, [103, 0, 13]]];
+
 export function ramp(stops, t) {
   t = Number.isFinite(t) ? Math.min(1, Math.max(0, t)) : 0;
   for (let i = 1; i < stops.length; i++) if (t <= stops[i][0]) {
@@ -36,7 +45,7 @@ export function decimals(lo, hi) {
   return Math.max(0, Math.min(6, 2 - Math.floor(Math.log10(s))));
 }
 export function fmt(v, d) {
-  if (v === 0) return (0).toFixed(d);
+  if (v === 0) return d > 3 ? "0" : (0).toFixed(d);
   return Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3 ? v.toExponential(2) : v.toFixed(d);
 }
 export function ticks(lo, hi, n = 5, nd = null) {
@@ -166,4 +175,50 @@ export function setEdges(THREE, mesh, mode, color = 0x1e293b) {
   const e = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: mode === "wire" ? 0.35 : 0.8 }));
   e.renderOrder = 1;
   mesh.add(e); mesh.userData.edges = e;
+}
+
+// ---------------------------------------------------------------- animation helpers (scene.json "animation")
+// fractional frame index of time t in the increasing times (clamped to the ends)
+export function frameAt(times, t) {
+  const n = times.length;
+  if (n < 2 || t <= times[0]) return 0;
+  if (t >= times[n - 1]) return n - 1;
+  let a = 0, b = n - 1;
+  while (b - a > 1) { const m = (a + b) >> 1; if (times[m] <= t) a = m; else b = m; }
+  return a + (t - times[a]) / ((times[b] - times[a]) || 1);
+}
+// the frame pair and weight of a fractional index: [k0, k1, w]
+export function bracket(f, n) {
+  const k0 = Math.max(0, Math.min(n - 1, Math.floor(f))), k1 = Math.min(n - 1, k0 + 1);
+  return [k0, k1, k1 === k0 ? 0 : f - k0];
+}
+export const lerp = (a, b, w) => (a === null || b === null ? (w < 0.5 ? a : b) : a + (b - a) * w);
+export const lerp3 = (a, b, w) => [lerp(a[0], b[0], w), lerp(a[1], b[1], w), lerp(a[2], b[2], w)];
+// scene axes -> three.js as a matrix C (rows); a rotation R in scene axes is C R C^T in three.js
+export const AXES_MATRIX = { z_up: [[1, 0, 0], [0, 0, 1], [0, -1, 0]], aircraft: [[0, 1, 0], [0, 0, 1], [1, 0, 0]], as_is: [[1, 0, 0], [0, 1, 0], [0, 0, 1]] };
+// quaternion [w, x, y, z] in scene axes -> three.js order [x, y, z, w]: C is a proper rotation, so C R C^T turns
+// about the axis C a by the same angle, i.e. the vector part maps like a point
+export function quatToThree(q, axes = "z_up") {
+  const C = AXES_MATRIX[axes] || AXES_MATRIX.z_up, v = [q[1], q[2], q[3]];
+  const r = C.map((row) => row[0] * v[0] + row[1] * v[1] + row[2] * v[2]);
+  return [r[0], r[1], r[2], q[0]];
+}
+// one head-up line: "label: value unit" with the entry's decimals
+export function hudLine(h, v) {
+  const s = v === null || v === undefined || !Number.isFinite(v) ? "–" : v.toFixed(h.nd ?? 1);
+  return `${h.label}: ${s}${h.unit ? " " + h.unit : ""}`;
+}
+
+// colour map stops by name ("jet", "coolwarm", "bwr", "rdbu"; anything else: jet)
+export const CMAPS = { jet: JET, coolwarm: COOLWARM, bwr: BWR, rdbu: RDBU };
+export const cmapStops = (name) => CMAPS[name] || JET;
+
+// first point index of a trail shown at frame `last` (its last `seconds`; null: all) and the opacity factor of point
+// i: 1 at the current time t, falling linearly to 0 at the tail end when `fade`
+export function trailWindow(times, last, seconds = null, fade = false, t = null) {
+  const tn = t === null ? times[last] : t;
+  let j0 = 0;
+  if (seconds !== null && seconds !== undefined) while (j0 < last && times[j0] < tn - seconds) j0++;
+  const span = seconds ?? ((tn - times[j0]) || 1);
+  return [j0, (i) => (fade ? Math.min(1, Math.max(0, 1 - (tn - times[i]) / span)) : 1)];
 }

@@ -1,23 +1,32 @@
 # PINNeAPPle Lab catalogue
 
-154 runs, generated 2026-10-10 19:33.
+208 runs, generated 2026-10-18 16:42.
 
 | experiment | runs | completed | failed validation | failed | datasets (samples) |
 |---|---|---|---|---|---|
 | [accretion_flow](#accretion_flow) | 6 | 6 | 0 | 0 | frames (186) |
+| [bar_wear](#bar_wear) | 8 | 8 | 0 | 0 | wear_history (8) |
+| [bar_wear_ranking](#bar_wear_ranking) | 1 | 1 | 0 | 0 | ranking (8) |
 | [benchmark_case](#benchmark_case) | 7 | 7 | 0 | 0 | arrays (84), sweep (8), lead_skill (5) |
 | [bondi_accretion](#bondi_accretion) | 6 | 6 | 0 | 0 | profiles (6) |
-| [car_lbm](#car_lbm) | 26 | 24 | 1 | 0 | flow (25), vorticity (1200) |
+| [bricks](#bricks) | 3 | 3 | 0 | 0 | - |
+| [calculix_case](#calculix_case) | 5 | 5 | 0 | 0 | fields (5) |
+| [car_lbm](#car_lbm) | 40 | 40 | 0 | 0 | flow (40), vorticity (1920) |
 | [cylinder_lbm](#cylinder_lbm) | 9 | 7 | 2 | 0 | vorticity (720) |
-| [example_script](#example_script) | 12 | 6 | 0 | 3 | - |
+| [em_pinn](#em_pinn) | 4 | 2 | 2 | 0 | - |
+| [example_script](#example_script) | 8 | 5 | 0 | 3 | - |
 | [heat_xtfc](#heat_xtfc) | 12 | 8 | 4 | 0 | fields (12) |
 | [kepler_law](#kepler_law) | 1 | 1 | 0 | 0 | orbits (19) |
 | [lorenz_discovery](#lorenz_discovery) | 1 | 1 | 0 | 0 | - |
 | [oscillator](#oscillator) | 60 | 60 | 0 | 0 | trajectories (60) |
 | [oscillator_discovery](#oscillator_discovery) | 1 | 1 | 0 | 0 | discovered_laws (20) |
+| [particle_suspension](#particle_suspension) | 1 | 1 | 0 | 0 | suspension (31) |
 | [pendulum_video](#pendulum_video) | 1 | 1 | 0 | 0 | pendulum (1) |
-| [repo_results](#repo_results) | 10 | 10 | 0 | 0 | strouhal (3), polar (5), temperature_fields_2d (5), rollout_scores (2), temperature_fields_3d (3), fields (1), held_out_error (3), lead_time_skill (4), test_points (120), coefficients (1) |
-| [vehicle_cfd](#vehicle_cfd) | 2 | 1 | 0 | 0 | streamlines (40), surface (1) |
+| [pipe_flow](#pipe_flow) | 3 | 3 | 0 | 0 | cross_sections (14), sections (3), wall (3) |
+| [repo_results](#repo_results) | 25 | 24 | 1 | 0 | strouhal (3), test_points (120), polar (5), coefficients (1), temperature_fields_2d (5), rollout_scores (2), temperature_fields_3d (3), lead_time_skill (4), fields (1), held_out_error (3), torque_vs_current_angle (13), single_wheel_validation (5) |
+| [rom_study](#rom_study) | 2 | 2 | 0 | 0 | beam_designs (100), wake (1) |
+| [solid_fem](#solid_fem) | 3 | 3 | 0 | 0 | fields (3) |
+| [vehicle_cfd](#vehicle_cfd) | 1 | 1 | 0 | 0 | streamlines (40), surface (1) |
 
 ## accretion_flow
 
@@ -35,6 +44,35 @@ A hot torus accreting onto a Schwarzschild black hole (viscous 2.5-D hydro): den
 ![accretion_flow](runs/accretion_flow/accretion_flow-069c9c145e88/figures/density.png)
 
 ![accretion_flow](runs/accretion_flow/accretion_flow-4a0c1426e768/figures/density.png)
+
+## bar_wear
+
+A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch wear; one run per material (classic Archard & Hirst data).
+
+| run | status | crown_radius_mm | distance_runins | length_mm | load_N | material | render | width_mm | K_mm3_per_Nm | distance_m | initial_peak_pressure_MPa | life_to_1mm_km | running_in_distance_m | steady_pressure_MPa | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [1e7e0db2cc3a](runs/bar_wear/bar_wear-1e7e0db2cc3a) | completed | 400.0 | 2.0 | 20.0 | 50.0 | PTFE | True | 10.0 | 0.0005 | 1333 | 1.245 | 8 | 649.9 | 0.2494 | 4/4 |
+| [238870e1e723](runs/bar_wear/bar_wear-238870e1e723) | completed | 400.0 | 2.0 | 20.0 | 50.0 | mild steel | True | 10.0 | 0.003763 | 177.1 | 9.344 | 1.063 | 88.68 | 0.2494 | 4/4 |
+| [4a62551f9d4b](runs/bar_wear/bar_wear-4a62551f9d4b) | completed | 400.0 | 2.0 | 20.0 | 50.0 | 60/40 brass | True | 10.0 | 0.0006316 | 1056 | 7.28 | 6.333 | 528.7 | 0.2494 | 4/4 |
+| [bfb09c28a716](runs/bar_wear/bar_wear-bfb09c28a716) | completed | 400.0 | 2.0 | 20.0 | 50.0 | hardened tool steel | True | 10.0 | 1.529e-05 | 4.359e+04 | 9.344 | 261.5 | 2.182e+04 | 0.2494 | 4/4 |
+| [dde80d2b6c0a](runs/bar_wear/bar_wear-dde80d2b6c0a) | completed | 400.0 | 2.0 | 20.0 | 50.0 | stellite | True | 10.0 | 7.971e-06 | 8.364e+04 | 9.615 | 501.8 | 4.187e+04 | 0.2494 | 4/4 |
+| [da9f0a75bd03](runs/bar_wear/bar_wear-da9f0a75bd03) | completed | 400.0 | 2.0 | 20.0 | 50.0 | ferritic stainless steel | True | 10.0 | 6.8e-06 | 9.804e+04 | 9.179 | 588.2 | 4.908e+04 | 0.2494 | 4/4 |
+| [b6099cd17ea5](runs/bar_wear/bar_wear-b6099cd17ea5) | completed | 400.0 | 2.0 | 20.0 | 50.0 | polyethylene | True | 10.0 | 7.647e-07 | 8.718e+05 | 1.569 | 5231 | 4.309e+05 | 0.2494 | 4/4 |
+| [ccdb0fae6186](runs/bar_wear/bar_wear-ccdb0fae6186) | completed | 400.0 | 2.0 | 20.0 | 50.0 | tungsten carbide | True | 10.0 | 7.692e-08 | 8.667e+06 | 13.21 | 5.2e+04 | 4.336e+06 | 0.2494 | 4/4 |
+
+![bar_wear](runs/bar_wear/bar_wear-ccdb0fae6186/figures/wear_profiles.png)
+
+![bar_wear](runs/bar_wear/bar_wear-b6099cd17ea5/figures/wear_profiles.png)
+
+## bar_wear_ranking
+
+Every bar_wear run side by side: specific wear rate, life to 1 mm of wear at the same load and the ranking of the materials, checked against the ranking of their Archard coefficients K = k/H.
+
+| run | status | seed | best_material_life_km | materials | worst_material_life_km | checks |
+|---|---|---|---|---|---|---|
+| [0f0d5ccb2871](runs/bar_wear_ranking/bar_wear_ranking-0f0d5ccb2871) | completed | 0 | 5.2e+04 | 8 | 1.063 | 1/1 |
+
+![bar_wear_ranking](runs/bar_wear_ranking/bar_wear_ranking-0f0d5ccb2871/figures/wear_life_ranking.png)
 
 ## benchmark_case
 
@@ -71,23 +109,42 @@ Spherical accretion onto a Schwarzschild black hole (Paczynski-Wiita potential):
 
 ![bondi_accretion](runs/bondi_accretion/bondi_accretion-24fd3dba0cb6/figures/bondi_profile.png)
 
+## bricks
+
+Self-modifying interlocking-brick builds: rigid-body statics with stud clutch judge every candidate, an evolutionary and a surrogate-guided search redesign it at equal evaluation budget.
+
+| run | status | budget | case | gif | newton | seeds | best_parts | best_score | evaluations_per_run | evolution_best_mean | evolution_best_std | evolution_success_rate | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [f119f554b32e](runs/bricks/bricks-f119f554b32e) | completed | 200 | tower | True | True | 3 | 14 | 134.4 | 200 | 65.07 | 5.439 | 1 | 9/9 |
+| [5d008732488d](runs/bricks/bricks-5d008732488d) | completed | 200 | cantilever | True | True | 3 | 8 | 119.9 | 200 | 95.9 | 17.28 | 1 | 9/9 |
+| [0613c73f2edf](runs/bricks/bricks-0613c73f2edf) | completed | 200 | bridge | True | True | 3 | 5 | -5 | 200 | -6 | 1.414 | 1 | 9/9 |
+
+![bricks](runs/bricks/bricks-0613c73f2edf/figures/comparison.png)
+
+![bricks](runs/bricks/bricks-5d008732488d/figures/comparison.png)
+
+## calculix_case
+
+CalculiX studies built in Python (gmsh tetrahedra or structured hexahedra, node and face sets picked by geometry): stress concentration, a filleted bracket, modes, buckling and a cooling fin, each against its closed-form reference, with mesh convergence where it matters.
+
+| run | status | case | render | samples | Kt_extrapolated | Kt_gci | Kt_net | Kt_net_heywood | buckling_load_kN | elements_mesh_0 | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| [0f01ecf25f1a](runs/calculix_case/calculix_case-0f01ecf25f1a) | completed | modal_cantilever | True | 48 |  |  |  |  |  |  | 2/2 |
+| [66bac137ed69](runs/calculix_case/calculix_case-66bac137ed69) | completed | buckling_column | True | 48 |  |  |  |  | 27.71 |  | 1/1 |
+| [63ffe30172aa](runs/calculix_case/calculix_case-63ffe30172aa) | completed | fin_heat | True | 48 |  |  |  |  |  |  | 1/1 |
+| [bf67ee84a752](runs/calculix_case/calculix_case-bf67ee84a752) | completed | l_bracket | True | 48 |  |  |  |  |  | 1.017e+04 | 3/3 |
+| [a10042673f52](runs/calculix_case/calculix_case-a10042673f52) | completed | plate_hole | True | 48 | 2.577 | 0.01654 | 2.591 | 2.512 |  | 8976 | 5/5 |
+
+![calculix_case](runs/calculix_case/calculix_case-a10042673f52/figures/von_mises_fea.png)
+
+![calculix_case](runs/calculix_case/calculix_case-bf67ee84a752/figures/von_mises_fea.png)
+
 ## car_lbm
 
 Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parameters): lattice-Boltzmann LES with moving road; drag and lift by momentum exchange, mean flow, wake vorticity movie. The training data of car_surrogate.
 
 | run | status | Cs | Re | clearance | diffuser_deg | hood | length_cells | nose | slant_deg | steps | tunnel_height | u_in | windshield_deg | Cd | Cd_rms_fluctuation | Cl | Strouhal_frontal_height | mean_flow_divergence | checks |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| [db344e5feeb6](runs/car_lbm/car_lbm-db344e5feeb6) | failed_validation | 0.1 | 500.0 | 0.08 | 4.0 | 0.62 | 64 | 0.5 | 25.0 | 8000 |  | 0.08 | 35.0 | 3.585 | 0.2213 | 1.648 | 0.12 | 0.0002995 | 2/3 |
-| [354a5d7f3472](runs/car_lbm/car_lbm-354a5d7f3472) | completed | 0.1 | 500.0 | 0.05573454677514471 | 6.598754803801609 | 0.4910939737116722 | 64 | 0.21977034496926323 | 8.907930272159629 | 8000 | 2.5 | 0.08 | 22.51669145709561 | 1.392 | 0.1255 | 0.8275 | 0.54 | 0.0003275 | 3/3 |
-| [d173020195fa](runs/car_lbm/car_lbm-d173020195fa) | completed | 0.1 | 500.0 | 0.09378589551638157 | 0.4103072776524538 | 0.551960136528662 | 64 | 0.42183593622864207 | 5.802521801543746 | 8000 | 2.5 | 0.08 | 38.78426393971233 | 1.615 | 0.1674 | 0.7673 | 0.12 | 0.0003307 | 3/3 |
-| [79a74998d572](runs/car_lbm/car_lbm-79a74998d572) | completed | 0.1 | 500.0 | 0.07832302465389399 | 3.546111410611645 | 0.604944562549568 | 64 | 0.7544842815922052 | 30.050572972679632 | 8000 | 2.5 | 0.08 | 30.97918079931202 | 1.523 | 0.1351 | 0.8128 | 0.84 | 0.0003389 | 3/3 |
-| [8b26bf074009](runs/car_lbm/car_lbm-8b26bf074009) | completed | 0.1 | 500.0 | 0.040053404700172573 | 1.9398736163202015 | 0.49729994618166656 | 64 | 0.2784077181204508 | 22.949852940774573 | 8000 | 2.5 | 0.08 | 29.9068928960577 | 1.326 | 0.1188 | 0.8745 | 0.12 | 0.0003287 | 3/3 |
-| [f4e94996017f](runs/car_lbm/car_lbm-f4e94996017f) | completed | 0.1 | 500.0 | 0.06930161488684446 | 0.9394226661295972 | 0.7497101313355234 | 64 | 0.0028297910195510673 | 31.684764255969316 | 8000 | 2.5 | 0.08 | 26.782409304873063 | 1.627 | 0.1447 | 0.9533 | 0.12 | 0.0003419 | 3/3 |
-| [7c9493675b34](runs/car_lbm/car_lbm-7c9493675b34) | completed | 0.1 | 500.0 | 0.06442935254548753 | 8.68032380340868 | 0.6784938002629585 | 64 | 0.44948991826120793 | 13.966575556773915 | 8000 | 2.5 | 0.08 | 48.022047261951535 | 1.523 | 0.1395 | 0.8281 | 0.12 | 0.0003429 | 3/3 |
-| [02605e3d0aac](runs/car_lbm/car_lbm-02605e3d0aac) | completed | 0.1 | 500.0 | 0.06312741944853413 | 9.611199756106695 | 0.6647107564114868 | 64 | 0.07353978257139795 | 15.510319772349693 | 8000 | 2.5 | 0.08 | 51.82566211349456 | 1.516 | 0.1388 | 0.7989 | 0.12 | 0.0003348 | 3/3 |
-| [5217dd5f5c97](runs/car_lbm/car_lbm-5217dd5f5c97) | completed | 0.1 | 500.0 | 0.09788960905961368 | 6.8445450821977065 | 0.6722641963792478 | 64 | 0.6057666795575275 | 33.16835187598714 | 8000 | 2.5 | 0.08 | 25.2765565075861 | 1.67 | 0.1536 | 0.7148 | 0.12 | 0.0003234 | 3/3 |
-| [acc42d8937fe](runs/car_lbm/car_lbm-acc42d8937fe) | completed | 0.1 | 500.0 | 0.042758639248505134 | 8.854942733092486 | 0.6163791704738226 | 64 | 0.9992476893395542 | 22.23052810577161 | 8000 | 2.5 | 0.08 | 42.85753058942939 | 1.345 | 0.1256 | 0.8395 | 0.12 | 0.0003259 | 3/3 |
-| [70e89034afb0](runs/car_lbm/car_lbm-70e89034afb0) | completed | 0.1 | 500.0 | 0.09450554910076861 | 6.008334808777811 | 0.7354639906361728 | 64 | 0.0801954416780851 | 13.050530883488621 | 8000 | 2.5 | 0.08 | 25.221254705972697 | 1.651 | 0.1654 | 0.7129 | 0.12 | 0.0003364 | 3/3 |
 | [01d0849fcd6b](runs/car_lbm/car_lbm-01d0849fcd6b) | completed | 0.1 | 500.0 | 0.10491302009992373 | 5.461080029102873 | 0.47558637617623484 | 64 | 0.23766190040470328 | 17.573344271776932 | 8000 | 2.5 | 0.08 | 33.7005406387837 | 1.652 | 0.1415 | 0.6574 | 0.12 | 0.0003255 | 3/3 |
 | [4d9a736b17f6](runs/car_lbm/car_lbm-4d9a736b17f6) | completed | 0.1 | 500.0 | 0.11331448782654147 | 7.385592469388693 | 0.5832302256632885 | 64 | 0.38743462610548784 | 24.253267461795566 | 8000 | 2.5 | 0.08 | 44.8746927155908 | 1.726 | 0.1511 | 0.623 | 0.12 | 0.0003555 | 3/3 |
 | [45dc6edd8075](runs/car_lbm/car_lbm-45dc6edd8075) | completed | 0.1 | 500.0 | 0.04420219793570932 | 3.096879659750433 | 0.7036141634121883 | 64 | 0.172873897568471 | 29.351291763576526 | 8000 | 2.5 | 0.08 | 27.458272594421672 | 1.419 | 0.1327 | 0.9005 | 0.12 | 0.0003347 | 3/3 |
@@ -102,15 +159,30 @@ Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parame
 | [1ea0200595dd](runs/car_lbm/car_lbm-1ea0200595dd) | completed | 0.1 | 500.0 | 0.11849481918323354 | 2.9982372146871517 | 0.585227166254487 | 64 | 0.14572451173904352 | 36.97350084370443 | 8000 | 2.5 | 0.08 | 32.38217949331721 | 1.692 | 0.1477 | 0.6139 | 0.12 | 0.0003317 | 3/3 |
 | [bdfcd6b96b2e](runs/car_lbm/car_lbm-bdfcd6b96b2e) | completed | 0.1 | 500.0 | 0.05065970456656483 | 7.036997037190515 | 0.7276516168001711 | 64 | 0.7190267443132328 | 36.0693007067628 | 8000 | 2.5 | 0.08 | 40.941741968269 | 1.401 | 0.1291 | 0.846 | 0.12 | 0.0003335 | 3/3 |
 | [9ebb460d2144](runs/car_lbm/car_lbm-9ebb460d2144) | completed | 0.1 | 500.0 | 0.08091485139627642 | 1.4281689190153664 | 0.5568957650846434 | 64 | 0.5926930194012445 | 38.13742195460627 | 8000 | 2.5 | 0.08 | 36.6295315075885 | 1.534 | 0.1344 | 0.8532 | 0.84 | 0.00034 | 3/3 |
-| [2c4ed9779ce1](runs/car_lbm/car_lbm-2c4ed9779ce1) | running | 0.1 | 500.0 | 0.09016306292060514 | 7.95633085007501 | 0.5643642732990674 | 64 | 0.3462423335661612 | 12.316106051637387 | 8000 | 2.5 | 0.08 | 44.28385531564803 |  |  |  |  |  | 0/0 |
+| [2c4ed9779ce1](runs/car_lbm/car_lbm-2c4ed9779ce1) | completed | 0.1 | 500.0 | 0.09016306292060514 | 7.95633085007501 | 0.5643642732990674 | 64 | 0.3462423335661612 | 12.316106051637387 | 8000 | 2.5 | 0.08 | 44.28385531564803 | 1.604 | 0.1556 | 0.7049 | 0.12 | 0.0003166 | 3/3 |
+| [ee898deb4ed5](runs/car_lbm/car_lbm-ee898deb4ed5) | completed | 0.1 | 500.0 | 0.05350546427273401 | 3.4801429862490902 | 0.5714062750076697 | 64 | 0.5420369172684172 | 11.64841105880631 | 8000 | 2.5 | 0.08 | 47.83421097652759 | 1.461 | 0.133 | 0.9251 | 0.12 | 0.0003459 | 3/3 |
+| [17377963edf2](runs/car_lbm/car_lbm-17377963edf2) | completed | 0.1 | 500.0 | 0.11715810914885852 | 8.030845353569394 | 0.5067529186378905 | 64 | 0.96839207648284 | 5.926845187052316 | 8000 | 2.5 | 0.08 | 41.119668545099756 | 1.694 | 0.1591 | 0.5942 | 0.12 | 0.0003541 | 3/3 |
+| [0ebce63174b6](runs/car_lbm/car_lbm-0ebce63174b6) | completed | 0.1 | 500.0 | 0.076599387745781 | 1.0229524782879023 | 0.45779239380774783 | 64 | 0.6575411125688053 | 34.21417782597189 | 8000 | 2.5 | 0.08 | 49.24154069454904 | 1.534 | 0.1315 | 0.8505 | 0.84 | 0.0003334 | 3/3 |
+| [4a95cc22c2e6](runs/car_lbm/car_lbm-4a95cc22c2e6) | completed | 0.1 | 500.0 | 0.08615509314470199 | 3.9969678954616334 | 0.6944279090087614 | 64 | 0.35419101807246856 | 18.40765680297593 | 8000 | 2.5 | 0.08 | 38.213349243245666 | 1.598 | 0.1574 | 0.7439 | 0.12 | 0.000343 | 3/3 |
+| [04698aa89723](runs/car_lbm/car_lbm-04698aa89723) | completed | 0.1 | 500.0 | 0.07152636190280295 | 2.279189121275397 | 0.6837450836478541 | 64 | 0.8439131244788948 | 30.506424762936646 | 8000 | 2.5 | 0.08 | 53.262487290974036 | 1.543 | 0.144 | 0.8287 | 0.84 | 0.0003344 | 3/3 |
+| [6f431a30a9bf](runs/car_lbm/car_lbm-6f431a30a9bf) | completed | 0.1 | 500.0 | 0.07426215797658264 | 6.294201889784224 | 0.5225840528142548 | 64 | 0.7291459323942165 | 10.964295840841691 | 8000 | 2.5 | 0.08 | 35.424904204383004 | 1.527 | 0.1414 | 0.8017 | 0.12 | 0.0003382 | 3/3 |
+| [8a675bd1fb06](runs/car_lbm/car_lbm-8a675bd1fb06) | completed | 0.1 | 500.0 | 0.048266413284699355 | 2.143738233457255 | 0.6301580651583292 | 64 | 0.7979863962879993 | 19.332015400106524 | 8000 | 2.5 | 0.08 | 46.94389570083578 | 1.403 | 0.1331 | 0.941 | 0.12 | 0.0003328 | 3/3 |
+| [0f01b8aa2bd5](runs/car_lbm/car_lbm-0f01b8aa2bd5) | completed | 0.1 | 500.0 | 0.08426136849161456 | 4.111568259072409 | 0.48232927647789897 | 64 | 0.639916070933903 | 25.981404398859816 | 8000 | 2.5 | 0.08 | 42.32387813496943 | 1.551 | 0.1328 | 0.7627 | 0.84 | 0.0003455 | 3/3 |
+| [6940a081d993](runs/car_lbm/car_lbm-6940a081d993) | completed | 0.1 | 500.0 | 0.10016252462223196 | 5.937598047831958 | 0.5470375596514846 | 64 | 0.1832358528217956 | 27.391242731384285 | 8000 | 2.5 | 0.08 | 50.3851182429822 | 1.688 | 0.1518 | 0.688 | 0.12 | 0.0003458 | 3/3 |
+| [46021785d3b3](runs/car_lbm/car_lbm-46021785d3b3) | completed | 0.1 | 500.0 | 0.1038127847308005 | 4.797639312039529 | 0.5290379728490794 | 64 | 0.5734160789163087 | 9.90442422210112 | 8000 | 2.5 | 0.08 | 28.94812054736 | 1.653 | 0.1467 | 0.6708 | 0.12 | 0.0003308 | 3/3 |
+| [a21e93923403](runs/car_lbm/car_lbm-a21e93923403) | completed | 0.1 | 500.0 | 0.11053848859934676 | 9.47860694038998 | 0.45608690552060066 | 64 | 0.47887825679844614 | 7.308247008189791 | 8000 | 2.5 | 0.08 | 22.79870600449359 | 1.636 | 0.148 | 0.584 | 0.12 | 0.0003373 | 3/3 |
+| [8b2e43cfcd6f](runs/car_lbm/car_lbm-8b2e43cfcd6f) | completed | 0.1 | 500.0 | 0.10861282115841372 | 9.05429871157693 | 0.642435195612088 | 64 | 0.037861658442381166 | 32.71689396333619 | 8000 | 2.5 | 0.08 | 21.192736081731557 | 1.684 | 0.1424 | 0.5954 | 0.12 | 0.0003372 | 3/3 |
+| [7f14ab3828f8](runs/car_lbm/car_lbm-7f14ab3828f8) | completed | 0.1 | 500.0 | 0.05966558862000414 | 7.69227774754666 | 0.6120806308921014 | 64 | 0.877288851830406 | 34.88193951677232 | 8000 | 2.5 | 0.08 | 28.031980274121253 | 1.459 | 0.1269 | 0.845 | 0.84 | 0.0003416 | 3/3 |
+| [07a280c137da](runs/car_lbm/car_lbm-07a280c137da) | completed | 0.1 | 500.0 | 0.09923984691942359 | 2.516900881318515 | 0.6464343951006367 | 64 | 0.5241356927271144 | 23.760274283789663 | 8000 | 2.5 | 0.08 | 50.927803759223416 | 1.692 | 0.1609 | 0.7648 | 0.12 | 0.000348 | 3/3 |
+| [14188f61c799](runs/car_lbm/car_lbm-14188f61c799) | completed | 0.1 | 500.0 | 0.04637428677308144 | 4.368350646939291 | 0.6268079606119336 | 64 | 0.4643844015452907 | 14.834618466600833 | 8000 | 2.5 | 0.08 | 54.95460855373447 | 1.374 | 0.1349 | 0.8747 | 0.12 | 0.0003292 | 3/3 |
 
-![car_lbm](runs/car_lbm/car_lbm-9ebb460d2144/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-14188f61c799/figures/forces.png)
 
-![car_lbm](runs/car_lbm/car_lbm-bdfcd6b96b2e/figures/forces.png)
+![car_lbm](runs/car_lbm/car_lbm-07a280c137da/figures/forces.png)
 
 ## cylinder_lbm
 
-2D channel flow past a cylinder with the D2Q9 lattice-Boltzmann solver (pinneapple_simulation.numerical_solvers.lbm). Measures the wake regime (steady or vortex shedding) and the Strouhal number; saves vorticity snapshots labelled by regime and Re, a dataset for vision (classification / clustering of flow regimes, #415).
+2D channel flow past a cylinder with the D2Q9 lattice-Boltzmann solver (pinneapple_simulation.numerical_solvers.cylinder_wake). Measures the wake regime (steady or vortex shedding) and the Strouhal number; saves vorticity snapshots labelled by regime and Re, a dataset for vision (classification / clustering of flow regimes, #415).
 
 | run | status | Cs | D | Re | height | length | save_every | seed | steps | u_in | regime_shedding | strouhal | wake_amplitude | checks |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -128,15 +200,27 @@ Virtual wind tunnel for a parametric 2-D car body (Ahmed-type, six design parame
 
 ![cylinder_lbm](runs/cylinder_lbm/cylinder_lbm-d79b20689d8c/figures/vorticity.png)
 
+## em_pinn
+
+Physics-informed networks on the electromagnetics presets with closed-form solutions (electrostatics, magnetostatics, a TM cavity, the skin effect), scored against the exact field.
+
+| run | status | case | epochs | n_collocation | seed | tolerance | n_parameters | rel_l2_Ai | rel_l2_Ar | rel_l2_Az | rel_l2_Ez | rel_l2_Hx | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [d750874a636b](runs/em_pinn/em_pinn-d750874a636b) | failed_validation | em_tm_cavity | 3000 | 2048 | 0 | 0.05 | 2.1e+04 |  |  |  | 1.33 | 0.9954 | 1/4 |
+| [276d8c0f9edf](runs/em_pinn/em_pinn-276d8c0f9edf) | failed_validation | em_two_dielectric_capacitor | 3000 | 2048 | 0 | 0.05 | 2.086e+04 |  |  |  |  |  | 1/2 |
+| [435dc2e1ca9c](runs/em_pinn/em_pinn-435dc2e1ca9c) | completed | em_skin_effect | 3000 | 2048 | 0 | 0.05 | 2.093e+04 | 0.008055 | 0.002579 |  |  |  | 3/3 |
+| [dc339d690726](runs/em_pinn/em_pinn-dc339d690726) | completed | em_wire_az | 3000 | 2048 | 0 | 0.05 | 2.086e+04 |  |  | 0.01594 |  |  | 2/2 |
+
+![em_pinn](runs/em_pinn/em_pinn-dc339d690726/figures/em_wire_az_pinn_vs_exact.png)
+
+![em_pinn](runs/em_pinn/em_pinn-435dc2e1ca9c/figures/em_skin_effect_pinn_vs_exact.png)
+
 ## example_script
 
 Runs an example or use case of the repository and stores what it produced: figures, JSON outputs and their numbers as metrics, arrays as the 'artifacts' dataset, the console output and the code. The catalogue of these runs is also the health report of the examples.
 
 | run | status | args | isolated | script | timeout | exit_code | files_produced | script_seconds | stdout.relative_l2 | stdout.relative_l2_error | checks |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| [ea7a7580e8be](runs/example_script/example_script-ea7a7580e8be) | running |  |  | examples/getting_started/03_heat_diffusion_1d.py | 600.0 |  |  |  |  |  | 0/0 |
-| [d2cb43a85c44](runs/example_script/example_script-d2cb43a85c44) | completed |  |  | examples/getting_started/01_harmonic_oscillator.py | 600.0 | 0 | 7 | 96.21 |  | 0.915 | 1/1 |
-| [76ba471d54ae](runs/example_script/example_script-76ba471d54ae) | running |  |  | examples/getting_started/02_damped_oscillator.py | 600.0 |  |  |  |  |  | 0/0 |
 | [5a77c5897b1d](runs/example_script/example_script-5a77c5897b1d) | completed |  | True | examples/getting_started/01_harmonic_oscillator.py | 600.0 | 0 | 1 | 94.8 |  | 0.915 | 1/1 |
 | [0ba6838478e4](runs/example_script/example_script-0ba6838478e4) | completed |  | True | examples/getting_started/02_damped_oscillator.py | 600.0 | 0 | 1 | 137 | 0.5001 |  | 1/1 |
 | [f151824795db](runs/example_script/example_script-f151824795db) | failed |  | True | examples/getting_started/03_heat_diffusion_1d.py | 600.0 | -1 | 0 | 600.1 | 0.0006818 |  | 0/1 |
@@ -145,7 +229,6 @@ Runs an example or use case of the repository and stores what it produced: figur
 | [2ab998651866](runs/example_script/example_script-2ab998651866) | completed |  | True | examples/getting_started/06_lotka_volterra.py | 600.0 | 0 | 1 | 163.6 |  |  | 1/1 |
 | [3c41e93eed63](runs/example_script/example_script-3c41e93eed63) | completed |  | True | examples/getting_started/07_nonlinear_pendulum.py | 600.0 | 0 | 1 | 219.4 | 1.03 |  | 1/1 |
 | [3bdda3a8019a](runs/example_script/example_script-3bdda3a8019a) | failed |  | True | examples/getting_started/08_van_der_pol.py | 600.0 | -1 | 0 | 600.2 | 1.04 |  | 0/1 |
-| [a6b9305a6b2f](runs/example_script/example_script-a6b9305a6b2f) | running |  | True | examples/getting_started/09_lorenz_system.py | 600.0 |  |  |  |  |  | 0/0 |
 
 ![example_script](runs/example_script/example_script-3c41e93eed63/figures/07_nonlinear_pendulum.png)
 
@@ -245,6 +328,16 @@ Uses the oscillator trajectories already in the lab database: for each one, SIND
 
 ![oscillator_discovery](runs/oscillator_discovery/oscillator_discovery-d0a08fc3b799/figures/oscillator_rediscovery.png)
 
+## particle_suspension
+
+Solids suspension in a stirred tank as the impeller speeds up: soft-sphere DEM particles with drag, buoyancy and turbulent dispersion in an analytic, divergence-free stirred-tank flow; process video (particles coloured by speed, turning impeller, live charts), suspension curves and the just-suspended speed against Zwietering's correlation.
+
+| run | status | d_mm | dt | frame_every | n | ramp_s | render | rho_p | rpm_max | samples | seed | size | t_end | rpm_90pct_suspended | solids_mass_ratio | suspended_fraction_end | terminal_velocity_m_s | top_third_fraction_end | zwietering_njs_S4_rpm | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [b7feb1ba16dd](runs/particle_suspension/particle_suspension-b7feb1ba16dd) | completed | 3.0 | 0.00025 | 0.25 | 12000 | 25.0 | True | 1200.0 | 400.0 | 16 | 0 | [800, 640] | 30.0 | 288 | 0.07695 | 0.9568 | 0.1097 | 0.7736 | 237.1 | 6/6 |
+
+![particle_suspension](runs/particle_suspension/particle_suspension-b7feb1ba16dd/figures/stirred_tank_early.png)
+
 ## pendulum_video
 
 Law -> video -> law -> video. A large-amplitude damped pendulum is filmed (rendered with camera noise and motion blur); its angle is measured from the frames; weak-form SINDy discovers θ'' = -(g/L) sin θ - c θ' from a library that also offers θ, θ³, cos θ, θ'|θ'|, ...; the discovered law is re-simulated and re-rendered, and the predicted video is compared with the observed one, including after the observation window.
@@ -255,9 +348,23 @@ Law -> video -> law -> video. A large-amplitude damped pendulum is filmed (rende
 
 ![pendulum_video](runs/pendulum_video/pendulum_video-7a4bc9625e0e/figures/pendulum_discovery.png)
 
+## pipe_flow
+
+Internal flow in OpenFOAM on a structured O-grid swept along the pipe: laminar pipe against Hagen-Poiseuille, a turbulent 90 degree bend against Colebrook and Ito, a Kenics static mixer against an empty pipe (mixing of a passive scalar, pressure-drop ratio).
+
+| run | status | D | case | elements | iterations | keep_case | procs | render | samples | K_bend_excess | K_bend_total | K_ito | Re | U_mean_m_s | cells | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [0c34ca2835fe](runs/pipe_flow/pipe_flow-0c34ca2835fe) | completed | 0.05 | bend_90 | 6 | 1500 | False | 2 | True | 64 | 0.1276 | 0.1956 | 0.2304 | 5e+04 | 1 | 6.24e+04 | 4/4 |
+| [64f176a5fafc](runs/pipe_flow/pipe_flow-64f176a5fafc) | completed | 0.05 | laminar_pipe | 6 | 1500 | False | 2 | True | 64 |  |  |  | 500 | 0.01 | 3.84e+04 | 3/3 |
+| [07a353a549b9](runs/pipe_flow/pipe_flow-07a353a549b9) | completed | 0.05 | kenics_mixer | 6 | 1500 | False | 2 | True | 64 |  |  |  | 50 | 0.001 | 3.448e+05 | 4/4 |
+
+![pipe_flow](runs/pipe_flow/pipe_flow-07a353a549b9/figures/mixing_and_pressure.png)
+
+![pipe_flow](runs/pipe_flow/pipe_flow-64f176a5fafc/figures/profile_and_pressure.png)
+
 ## repo_results
 
-Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts), re-validated against their references and stored as datasets.
+Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts, electric machines, electromagnetics, airfoil and airliner CFD, the lunar rover, forecasting studies, design apps), re-validated against their references and stored as datasets.
 
 | run | status | source | CD | CD_friction | CD_pressure | CL | CL_max | CL_rms_vs_polhamus | checks |
 |---|---|---|---|---|---|---|---|---|---|
@@ -271,10 +378,52 @@ Results already produced by repository scripts (PINNs, inverse problems, LBM, Me
 | [269f1207b6f2](runs/repo_results/repo_results-269f1207b6f2) | completed | bh_forecast |  |  |  |  |  |  | 2/2 |
 | [d8795900891a](runs/repo_results/repo_results-d8795900891a) | completed | airfoil_surrogate |  |  |  |  |  |  | 2/2 |
 | [76a9a3bf2c2f](runs/repo_results/repo_results-76a9a3bf2c2f) | completed | ahmed_body | 0.2977 | 0.05474 | 0.2429 | 0.3368 |  |  | 2/2 |
+| [4104d166d1c0](runs/repo_results/repo_results-4104d166d1c0) | completed | prius_pmsm |  |  |  |  |  |  | 12/12 |
+| [32624513331b](runs/repo_results/repo_results-32624513331b) | completed | prius_end_effects |  |  |  |  |  |  | 4/4 |
+| [b1eaa75f0af8](runs/repo_results/repo_results-b1eaa75f0af8) | completed | prius_thermal_demag |  |  |  |  |  |  | 5/5 |
+| [4de224ca1ac2](runs/repo_results/repo_results-4de224ca1ac2) | completed | prius_drive |  |  |  |  |  |  | 6/6 |
+| [c9fd2d4178ee](runs/repo_results/repo_results-c9fd2d4178ee) | completed | em_verification |  |  |  |  |  |  | 33/33 |
+| [baf5389acdaf](runs/repo_results/repo_results-baf5389acdaf) | completed | motor_spm |  |  |  |  |  |  | 1/1 |
+| [b2b7314f5a6d](runs/repo_results/repo_results-b2b7314f5a6d) | completed | airfoil_handoff |  |  |  |  |  |  | 8/8 |
+| [3fe077b4c485](runs/repo_results/repo_results-3fe077b4c485) | completed | airliner_cfd | 0.04615 | 0.01479 | 0.03137 | 0.5893 |  |  | 3/3 |
+| [dd2cd168e8d1](runs/repo_results/repo_results-dd2cd168e8d1) | completed | lunar_rover |  |  |  |  |  |  | 3/3 |
+| [caf5921ef263](runs/repo_results/repo_results-caf5921ef263) | completed | near_random_forecasting |  |  |  |  |  |  | 5/5 |
+| [156fa6f6214f](runs/repo_results/repo_results-156fa6f6214f) | completed | design_from_intent |  |  |  |  |  |  | 8/8 |
+| [ea46a4b7c9e3](runs/repo_results/repo_results-ea46a4b7c9e3) | completed | topology_optimization |  |  |  |  |  |  | 5/5 |
+| [6b9418caaf82](runs/repo_results/repo_results-6b9418caaf82) | completed | free_surface_trough |  |  |  |  |  |  | 5/5 |
+| [835ff767e739](runs/repo_results/repo_results-835ff767e739) | failed_validation | benchmark_arena |  |  |  |  |  |  | 5/6 |
+| [4cb729015e4a](runs/repo_results/repo_results-4cb729015e4a) | completed | weather_era5 |  |  |  |  |  |  | 0/0 |
 
-![repo_results](runs/repo_results/repo_results-269f1207b6f2/figures/interstellar_frame.png)
+![repo_results](runs/repo_results/repo_results-4cb729015e4a/figures/weather_pnw_heat_dome_2021_preview_day3.png)
 
-![repo_results](runs/repo_results/repo_results-e9574ff86021/figures/block_h_convergence.png)
+![repo_results](runs/repo_results/repo_results-6b9418caaf82/figures/trough_checks.png)
+
+## rom_study
+
+Reduced-order models on the lab's own solvers: POD / DMD / Operator Inference forecasting a cylinder wake, and a parametric POD-RBF / POD-GPR model of a 3-D FEM cantilever, each against its baseline (persistence, nearest design).
+
+| run | status | Re | case | n_test | n_train | save_every | seed | steps | St_dmd | St_probe | displacement_coverage_90 | displacement_max_error | displacement_median_error | displacement_nearest_design_median_error | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [61475bf029de](runs/rom_study/rom_study-61475bf029de) | completed | 100.0 | beam_parametric | 20 | 80 | 50 | 0 | 30000 |  |  | 0.8208 | 0.001829 | 0.0005344 | 0.05243 | 6/6 |
+| [9580a00926ca](runs/rom_study/rom_study-9580a00926ca) | completed | 100.0 | cylinder_wake | 20 | 80 | 50 | 0 | 30000 | 0.2444 | 0.2444 |  |  |  |  | 6/6 |
+
+![rom_study](runs/rom_study/rom_study-9580a00926ca/figures/forecast_error.png)
+
+![rom_study](runs/rom_study/rom_study-61475bf029de/figures/rom_errors.png)
+
+## solid_fem
+
+3-D linear elasticity with hexahedra with incompatible modes (C3D8I): a cantilever, a simply supported beam and a bar in torsion, checked against beam and Saint-Venant theory and against CalculiX on the same mesh, drawn as a post-processor draws them (deformed mesh, von Mises bands).
+
+| run | status | calculix | case | refine | render | samples | bending_stress_MPa | calculix_max_rel_difference | deflection_mm | dofs | elements | max_displacement_mm | checks |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| [4b486451e11b](runs/solid_fem/solid_fem-4b486451e11b) | completed | True | cantilever | 1 | True | 64 | 22.5 | 2.617e-06 | 1.908 | 8235 | 1920 | 1.913 | 4/4 |
+| [eda68173545c](runs/solid_fem/solid_fem-eda68173545c) | completed | True | simply_supported | 1 | True | 64 | 150.3 | 1.643e-06 | 3.082 | 1.482e+04 | 3840 | 3.135 | 4/4 |
+| [fad914757a27](runs/solid_fem/solid_fem-fad914757a27) | completed | True | torsion | 1 | True | 64 |  | 1.121e-06 |  | 2.079e+04 | 5760 | 0.6283 | 4/4 |
+
+![solid_fem](runs/solid_fem/solid_fem-fad914757a27/figures/displacement_fea.png)
+
+![solid_fem](runs/solid_fem/solid_fem-eda68173545c/figures/displacement_fea.png)
 
 ## vehicle_cfd
 
@@ -283,4 +432,3 @@ A parametric 3-D road car or launch vehicle in OpenFOAM (snappyHexMesh + simpleF
 | run | status | alpha | iterations | keep_case | procs | resolution | samples | slant_deg | speed | style | surface_level | vehicle | CD | CD_friction | CD_pressure | CL | Re | cells | checks |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | [19b6c3f7bb85](runs/vehicle_cfd/vehicle_cfd-19b6c3f7bb85) | completed | 4.0 | 600 | False | 2 | coarse | 96 | 22.0 | 30.0 | fastback | None | car | 0.2883 | 0.03308 | 0.2552 | 0.01798 | 9.2e+06 | 1.518e+05 | 2/2 |
-| [61b9a6cd026a](runs/vehicle_cfd/vehicle_cfd-61b9a6cd026a) | running | 4.0 | 600 | False | 2 | coarse | 96 | 22.0 | 30.0 | fastback | None | rocket |  |  |  |  |  |  | 0/0 |

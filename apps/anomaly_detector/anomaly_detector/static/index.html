@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Physics Anomaly Detector</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%23b45309%22/%3E%3Cpath d=%22M2 10h3l2-6 2 9 2-5h3%22 stroke=%22white%22 stroke-width=%221.4%22 fill=%22none%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M1.5 10h3l2-6 2.2 9 1.8-5h4" stroke="white" stroke-width="1.5" fill="none" stroke-linejoin="round"/><circle cx="8.7" cy="13" r="1.3" fill="#fde68a"/></svg></div>
+    <div>
+      <div class="title">Physics Anomaly Detector</div>
+      <div class="subtitle">Which balance broke, by how much, and which sensors are involved</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="analyze" class="active">Analyze</button>
+    <button data-tab="bench">Benchmark</button>
+    <button data-tab="api">API</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-analyze" class="tab active">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>Sensor time series</h2>
+        <label class="drop" id="drop"><input type="file" id="file" accept=".csv,.parquet,.json"><b>Drop a CSV, Parquet or JSON table</b>
+          <span>a time column <code>t</code> in seconds, one column per sensor, optionally a label column</span></label>
+        <div class="fileinfo" id="fileinfo"></div>
+        <div class="row2">
+          <label>Normal until <span class="u">t, seconds</span><input id="normal" type="number" value="7200" step="any"></label>
+          <label>Label column <span class="u">optional</span><input id="label" placeholder="fault"></label>
+        </div>
+        <label>Sensors <span class="u">comma-separated; empty = all numeric</span><input id="sensors" value="h, T, q_in, q_out, Q"></label>
+        <fieldset><legend>Methods</legend>
+          <div class="checks" id="methods">
+            <label><input type="checkbox" value="statistical" checked> Statistical</label>
+            <label><input type="checkbox" value="timeseries" checked> AR + CUSUM</label>
+            <label><input type="checkbox" value="balance" checked> Conservation balances</label>
+            <label><input type="checkbox" value="model" checked> Physical-model residuals</label>
+          </div>
+        </fieldset>
+        <details class="adv" open><summary>Balances and constants (JSON)</summary>
+          <textarea id="balances" rows="9" spellcheck="false"></textarea>
+          <p class="hint">Each balance: <code>d(accumulation)/dt = inflow − outflow</code>, formulas over your columns and constants.</p>
+        </details>
+        <details class="adv"><summary>Reference model and thresholds</summary>
+          <label>Reference model <select id="model"><option value="lumped_tank">Heated-tank lumped model (states h, T)</option><option value="none">None</option></select></label>
+          <div class="row2"><label>Window <span class="u">samples</span><input id="window" type="number" value="12" min="2"></label>
+            <label>Threshold <span class="u">× normal spread</span><input id="threshold" type="number" value="5" step="0.5" min="1"></label></div>
+        </details>
+        <button class="primary" type="button" id="run" disabled>Detect anomalies</button>
+        <button class="secondary" type="button" id="example">Try with example: heated tank with six faults</button>
+        <div class="status-line" id="status"></div>
+        <p class="privacy">Uploads are kept in your upload space on this server until you delete them (DELETE /api/uploads/{id}).</p>
+      </form>
+      <div id="out">
+        <div class="panel empty">
+          <h3>Not only a neural network</h3>
+          <div class="checkgrid">
+            <div><b>Conservation balances</b><span>mass and energy written as formulas over your columns: a broken balance says which law failed and by how much, in its units</span></div>
+            <div><b>Physical-model residuals</b><span>a reference model predicts each state one step ahead from the measured inputs</span></div>
+            <div><b>Statistics</b><span>robust z-scores of values and rates against the normal window</span></div>
+            <div><b>Time-series models</b><span>an AR model of each signal with a robust CUSUM for slow drifts</span></div>
+          </div>
+          <p class="hint">Every detector is calibrated only on the window you declare normal. With a label column, precision and recall are computed against it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-bench" class="tab">
+    <div class="panel">
+      <h2 style="margin-top:0">Benchmark on labelled data with known faults</h2>
+      <p class="hint">Each run: two fault-free hours to calibrate, then a leak, a heater loss, a temperature-sensor bias, a level-sensor drift,
+        a stuck flow meter and a partially closed drain valve, separated by normal periods. Seeds 101-103 were not used while developing the detectors.
+        The public BATADAL adapter (PR #731) is not merged yet, so the benchmark is synthetic with exact ground truth.</p>
+      <button class="primary" style="width:auto;padding:10px 22px" type="button" id="brun">Run the benchmark (about 15 s)</button>
+      <div class="status-line" id="bstatus"></div>
+      <div id="bench-out"></div>
+    </div>
+  </section>
+
+  <section id="tab-api" class="tab">
+    <div class="panel">
+      <h2 style="margin-top:0">API</h2>
+      <p>Run the detector from a historian export, a nightly job or another app. Interactive documentation:
+        <a class="link" href="/docs" target="_blank">/docs</a>.</p>
+      <pre class="code"><code id="c1"></code></pre>
+      <h3>Python (PINNeAPPle)</h3>
+      <pre class="code"><code id="c2"></code></pre>
+    </div>
+  </section>
+  <div id="scope"></div>
+</main>
+
+<footer class="foot">
+  Built on <b>PINNeAPPle</b> (pinneapple_systems.operations.anomaly: robust statistics, AR + CUSUM, conservation balances,
+  physical-model residuals, event fusion and scoring · pinneapple_data.contracts). Monetization: monitored assets, data
+  volume and analysis frequency.
+</footer>
+<script src="/shared/charts.js"></script>
+<script src="/shared/scope.js"></script>
+<script src="/shared/author.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

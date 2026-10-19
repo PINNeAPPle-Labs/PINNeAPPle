@@ -1,0 +1,14 @@
+{
+  "name": "pinneapple-observatory",
+  "private": true,
+  "version": "1.0.0",
+  "description": "PINNeAPPle Observatory: browser tests (Playwright) of the sky, the panels and the interface languages.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}

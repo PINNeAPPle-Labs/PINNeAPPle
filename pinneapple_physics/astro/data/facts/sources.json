@@ -1,0 +1,200 @@
+{
+ "nasa_planet_fs": {
+  "title": "Planetary Fact Sheet - Metric",
+  "publisher": "NASA Space Science Data Coordinated Archive (D. R. Williams)",
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/",
+  "licence": "US Government work, public domain"
+ },
+ "nasa_sun_fs": {
+  "title": "Sun Fact Sheet",
+  "publisher": "NASA NSSDCA (D. R. Williams)",
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/sunfact.html",
+  "licence": "public domain"
+ },
+ "nasa_moon_fs": {
+  "title": "Moon Fact Sheet",
+  "publisher": "NASA NSSDCA (D. R. Williams)",
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/moonfact.html",
+  "licence": "public domain"
+ },
+ "nasa_pluto_fs": {
+  "title": "Pluto Fact Sheet",
+  "publisher": "NASA NSSDCA (D. R. Williams)",
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/plutofact.html",
+  "licence": "public domain"
+ },
+ "nasa_jovian_sats": {
+  "title": "Jovian Satellite Fact Sheet",
+  "publisher": "NASA NSSDCA (D. R. Williams)",
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/joviansatfact.html",
+  "licence": "public domain"
+ },
+ "nasa_saturnian_sats": {
+  "title": "Saturnian Satellite Fact Sheet",
+  "publisher": "NASA NSSDCA (D. R. Williams)",
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/saturniansatfact.html",
+  "licence": "public domain"
+ },
+ "nasa_neptunian_sats": {
+  "title": "Neptunian Satellite Fact Sheet",
+  "publisher": "NASA NSSDCA (D. R. Williams)",
+  "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/neptuniansatfact.html",
+  "licence": "public domain"
+ },
+ "nasa_dwarf": {
+  "title": "Dwarf planets: Ceres, Eris, Haumea, Makemake (facts pages)",
+  "publisher": "NASA Science",
+  "url": "https://science.nasa.gov/dwarf-planets/",
+  "licence": "public domain"
+ },
+ "jpl_sbdb": {
+  "title": "JPL Small-Body Database (orbital elements, physical parameters)",
+  "publisher": "NASA/JPL Solar System Dynamics",
+  "url": "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html",
+  "licence": "public domain"
+ },
+ "nasa_missions": {
+  "title": "Mission pages (Mariner, Viking, Voyager, Galileo, Cassini, Juno, New Horizons, Dawn, Parker Solar Probe, MESSENGER, Magellan, Apollo)",
+  "publisher": "NASA Science",
+  "url": "https://science.nasa.gov/solar-system/missions/",
+  "licence": "public domain"
+ },
+ "esa_missions": {
+  "title": "Mission pages (Huygens, BepiColombo, Juice, Solar Orbiter, Venus Express)",
+  "publisher": "European Space Agency",
+  "url": "https://www.esa.int/Science_Exploration/Space_Science",
+  "licence": "facts only"
+ },
+ "iau_2006_b5": {
+  "title": "IAU Resolution B5: Definition of a planet in the Solar System (2006)",
+  "publisher": "International Astronomical Union",
+  "url": "https://www.iau.org/static/resolutions/Resolution_GA26-5-6.pdf",
+  "licence": "facts only"
+ },
+ "iau_wgsn": {
+  "title": "IAU Catalog of Star Names (Working Group on Star Names)",
+  "publisher": "International Astronomical Union",
+  "url": "https://www.iau.org/public/themes/naming_stars/",
+  "licence": "facts only"
+ },
+ "iau_constellations": {
+  "title": "The Constellations (88 IAU constellations, boundaries by Delporte 1930)",
+  "publisher": "International Astronomical Union",
+  "url": "https://www.iau.org/public/themes/constellations/",
+  "licence": "facts only"
+ },
+ "bsc5": {
+  "title": "Yale Bright Star Catalogue, 5th revised ed. (Hoffleit & Warren 1991), CDS V/50",
+  "publisher": "NASA ADC / CDS",
+  "url": "https://cdsarc.cds.unistra.fr/viz-bin/cat/V/50",
+  "licence": "free for research and education"
+ },
+ "hipparcos2007": {
+  "title": "Hipparcos, the New Reduction of the Raw Data (van Leeuwen 2007, A&A 474, 653), parallaxes as listed in SIMBAD",
+  "publisher": "ESA / CDS SIMBAD",
+  "url": "https://simbad.cds.unistra.fr/simbad/",
+  "licence": "facts only"
+ },
+ "d3celestial": {
+  "title": "d3-celestial data: Messier objects and constellation boundaries (O. Frohn)",
+  "publisher": "github.com/ofrohn/d3-celestial",
+  "url": "https://github.com/ofrohn/d3-celestial",
+  "licence": "BSD-3-Clause"
+ },
+ "constellation_areas": {
+  "title": "Constellation areas computed from the IAU boundaries (scripts/astro/build_facts.py)",
+  "publisher": "PINNeAPPle, from d3celestial",
+  "url": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/scripts/astro/build_facts.py",
+  "licence": "Apache-2.0"
+ },
+ "messier_catalogue": {
+  "title": "C. Messier, Catalogue des Nébuleuses et des Amas d'Étoiles, Connaissance des Temps for 1774 (M1-M45), 1783 (M46-M68) and 1784 (M69-M103); later additions M104-M110 (Flammarion 1921, Hogg 1947, Gingerich 1953 and 1960, Jones 1966)",
+  "publisher": "Académie royale des sciences (historical)",
+  "url": "https://gallica.bnf.fr/",
+  "licence": "public domain"
+ },
+ "eht2019": {
+  "title": "Event Horizon Telescope Collaboration 2019, ApJL 875, L1 (M87 distance 16.8 Mpc)",
+  "publisher": "The Astrophysical Journal Letters",
+  "url": "https://doi.org/10.3847/2041-8213/ab0ec7",
+  "licence": "facts only"
+ },
+ "menten2007": {
+  "title": "Menten et al. 2007, A&A 474, 515: distance to the Orion Nebula 414 ± 7 pc (VLBA parallax)",
+  "publisher": "Astronomy & Astrophysics",
+  "url": "https://doi.org/10.1051/0004-6361:20078247",
+  "licence": "facts only"
+ },
+ "gaia2018_clusters": {
+  "title": "Gaia Collaboration, Babusiaux et al. 2018, A&A 616, A10: open-cluster distances (Pleiades 136 pc, Praesepe 186 pc)",
+  "publisher": "Astronomy & Astrophysics",
+  "url": "https://doi.org/10.1051/0004-6361/201832843",
+  "licence": "facts only"
+ },
+ "trimble1973": {
+  "title": "Trimble 1973, PASP 85, 579: distance to the Crab Nebula, 2.0 kpc",
+  "publisher": "PASP",
+  "url": "https://doi.org/10.1086/129507",
+  "licence": "facts only"
+ },
+ "ngc_distances": {
+  "title": "Galaxy distances: M31 0.77 Mpc and M33 0.84 Mpc (Freedman & Madore 1990, 1991), M81 3.6 Mpc (Freedman et al. 1994), M51 8.6 Mpc and M104 9.6 Mpc (McQuinn et al. 2016)",
+  "publisher": "ApJ / AJ",
+  "url": "https://ned.ipac.caltech.edu/",
+  "licence": "facts only"
+ },
+ "harris2010": {
+  "title": "Harris 1996 (2010 edition), Catalog of parameters for Milky Way globular clusters",
+  "publisher": "arXiv:1012.3224",
+  "url": "https://arxiv.org/abs/1012.3224",
+  "licence": "facts only"
+ },
+ "nasa_iss": {
+  "title": "International Space Station facts and figures",
+  "publisher": "NASA",
+  "url": "https://www.nasa.gov/international-space-station/space-station-facts-and-figures/",
+  "licence": "public domain"
+ },
+ "nasa_hubble": {
+  "title": "Hubble Space Telescope: mission overview and facts",
+  "publisher": "NASA Science",
+  "url": "https://science.nasa.gov/mission/hubble/",
+  "licence": "public domain"
+ },
+ "cmsa_tiangong": {
+  "title": "China Space Station (Tiangong): Tianhe core module launch 29 April 2021, station completed November 2022",
+  "publisher": "China Manned Space Agency",
+  "url": "https://en.cmse.gov.cn/",
+  "licence": "facts only"
+ },
+ "celestrak": {
+  "title": "CelesTrak GP element sets (orbit altitude and period from the current TLE)",
+  "publisher": "CelesTrak (T. S. Kelso)",
+  "url": "https://celestrak.org/",
+  "licence": "free use"
+ },
+ "computed": {
+  "title": "Computed by pinneapple_physics.astro.facts from the other numbers of the card",
+  "publisher": "PINNeAPPle",
+  "url": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_physics/astro/facts.py",
+  "licence": "Apache-2.0"
+ },
+ "sicardy2011": {
+  "title": "Sicardy et al. 2011, Nature 478, 493: Eris diameter 2326 ± 12 km from a stellar occultation",
+  "publisher": "Nature",
+  "url": "https://doi.org/10.1038/nature10550",
+  "licence": "facts only"
+ },
+ "ortiz2012": {
+  "title": "Ortiz et al. 2012, Nature 491, 566: Makemake size from a stellar occultation (1430 km)",
+  "publisher": "Nature",
+  "url": "https://doi.org/10.1038/nature11597",
+  "licence": "facts only"
+ },
+ "ortiz2017": {
+  "title": "Ortiz et al. 2017, Nature 550, 219: Haumea's size, shape and ring (semi-axes 1161 × 852 × 513 km; equivalent diameter 1595 km)",
+  "publisher": "Nature",
+  "url": "https://doi.org/10.1038/nature24051",
+  "licence": "facts only"
+ }
+}

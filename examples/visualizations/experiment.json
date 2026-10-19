@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/visualizations",
+ "title": "Run all PINNeAPPle visualization examples",
+ "description": "Run all PINNeAPPle visualization examples. Usage ----- python -m examples.visualizations.run_all # all 6 scripts python -m examples.visualizations.run_all 1 3 5 # specific scripts Output files (current directory): viz_01_flow_cylinder.png viz_02_heat_2d.png viz_03_vortex_dynamics.png viz_04_phase_field.png viz_05_wave_2d.png viz_06_structural.png Notes ----- \u2022 Scripts 01, 02, 05, 06 train a PINN \u2014",
+ "domain": "general",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_analysis.validation",
+  "pinneapple_design.geometry"
+ ],
+ "params": {},
+ "scripts": [
+  "__init__.py",
+  "run_all.py",
+  "viz_01_flow_cylinder.py",
+  "viz_02_heat_2d.py",
+  "viz_03_vortex_dynamics.py",
+  "viz_04_phase_field.py",
+  "viz_05_wave_2d.py",
+  "viz_06_structural.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/visualizations/__init__.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

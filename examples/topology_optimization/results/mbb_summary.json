@@ -1,0 +1,28 @@
+{
+  "gradient_check_max_rel_err": 1.0141238723468811e-06,
+  "MBB, OC, filter": {
+    "compliance": 233.70990775752145,
+    "iterations": 146,
+    "volume": 0.5000000036494708,
+    "gray_fraction": 0.44416666666666665
+  },
+  "MBB, MMA, filter": {
+    "compliance": 233.4878134008748,
+    "iterations": 58,
+    "volume": 0.49999992900455614,
+    "gray_fraction": 0.4525
+  },
+  "MBB, MMA, filter + projection": {
+    "compliance": 190.05035631421268,
+    "iterations": 207,
+    "volume": 0.49999975004106506,
+    "gray_fraction": 0.0225
+  },
+  "Cantilever, MMA, projection": {
+    "compliance": 75.42806021465833,
+    "iterations": 228,
+    "volume": 0.3999935594000493,
+    "gray_fraction": 0.00875
+  },
+  "runtime_s": 49.43192529678345
+}

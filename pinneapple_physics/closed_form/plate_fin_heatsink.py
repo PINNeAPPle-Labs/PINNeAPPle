@@ -204,11 +204,14 @@ def spreading_resistance(k: float, tb: float, source_area: float, plate_area: fl
 # ── full evaluation ──────────────────────────────────────────────────────────
 
 def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
-             h_scale: float = 1.0) -> Dict[str, object]:
+             h_scale: float = 1.0, t_root_guess_c: float | None = None) -> Dict[str, object]:
     """Thermal resistance network: T_source = T_amb + Q (R_tim + R_spread + R_fins).
 
     ``h_scale`` multiplies the correlation's heat-transfer coefficient; use
-    it to propagate correlation uncertainty (e.g. 0.85 / 1.15)."""
+    it to propagate correlation uncertainty (e.g. 0.85 / 1.15).
+    ``t_root_guess_c`` is the fin-root temperature the natural-convection
+    iteration starts from (default ambient + 20 K); with ``max_iter=1`` the
+    coefficient is evaluated once at that temperature (a hand calculation)."""
     errs = geometry_errors(g, op)
     if errs:
         raise ValueError("; ".join(errs))
@@ -219,7 +222,7 @@ def evaluate(g: HeatSinkGeometry, op: OperatingPoint, max_iter: int = 60,
     a_src = op.source_width * op.source_depth
     a_base = g.base_width * g.base_depth
 
-    t_root = Ta + 20.0
+    t_root = Ta + 20.0 if t_root_guess_c is None else float(t_root_guess_c)
     conv: Dict[str, float] = {}
     fin: Dict[str, float] = {}
     converged = False

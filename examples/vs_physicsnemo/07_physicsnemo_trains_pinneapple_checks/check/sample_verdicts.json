@@ -1,0 +1,123 @@
+{
+ "in_distribution/fno_0": {
+  "regime": "in_distribution",
+  "model": "fno",
+  "sample": 0,
+  "verdict": "PASS",
+  "failed": []
+ },
+ "in_distribution/fno_1": {
+  "regime": "in_distribution",
+  "model": "fno",
+  "sample": 1,
+  "verdict": "PASS",
+  "failed": []
+ },
+ "in_distribution/meshgraphnet_0": {
+  "regime": "in_distribution",
+  "model": "meshgraphnet",
+  "sample": 0,
+  "verdict": "PASS",
+  "failed": []
+ },
+ "in_distribution/meshgraphnet_1": {
+  "regime": "in_distribution",
+  "model": "meshgraphnet",
+  "sample": 1,
+  "verdict": "PASS",
+  "failed": []
+ },
+ "contrast/fno_0": {
+  "regime": "contrast",
+  "model": "fno",
+  "sample": 0,
+  "verdict": "FAIL",
+  "failed": [
+   "energy_bound",
+   "l2_bound",
+   "flux",
+   "bc",
+   "positivity",
+   "a_min",
+   "a_max",
+   "contrast"
+  ]
+ },
+ "contrast/fno_1": {
+  "regime": "contrast",
+  "model": "fno",
+  "sample": 1,
+  "verdict": "FAIL",
+  "failed": [
+   "energy_bound",
+   "l2_bound",
+   "bc",
+   "positivity",
+   "a_min",
+   "a_max",
+   "contrast"
+  ]
+ },
+ "contrast/meshgraphnet_0": {
+  "regime": "contrast",
+  "model": "meshgraphnet",
+  "sample": 0,
+  "verdict": "FAIL",
+  "failed": [
+   "energy_bound",
+   "l2_bound",
+   "bc",
+   "a_min",
+   "a_max",
+   "contrast"
+  ]
+ },
+ "contrast/meshgraphnet_1": {
+  "regime": "contrast",
+  "model": "meshgraphnet",
+  "sample": 1,
+  "verdict": "FAIL",
+  "failed": [
+   "energy_bound",
+   "l2_bound",
+   "flux",
+   "bc",
+   "a_min",
+   "a_max",
+   "contrast"
+  ]
+ },
+ "length_scale/fno_0": {
+  "regime": "length_scale",
+  "model": "fno",
+  "sample": 3,
+  "verdict": "FAIL",
+  "failed": [
+   "interface_density"
+  ]
+ },
+ "length_scale/fno_1": {
+  "regime": "length_scale",
+  "model": "fno",
+  "sample": 0,
+  "verdict": "PASS",
+  "failed": []
+ },
+ "length_scale/meshgraphnet_0": {
+  "regime": "length_scale",
+  "model": "meshgraphnet",
+  "sample": 3,
+  "verdict": "FAIL",
+  "failed": [
+   "l2_bound",
+   "interface_density"
+  ]
+ },
+ "length_scale/meshgraphnet_1": {
+  "regime": "length_scale",
+  "model": "meshgraphnet",
+  "sample": 0,
+  "verdict": "PASS",
+  "failed": []
+ }
+}

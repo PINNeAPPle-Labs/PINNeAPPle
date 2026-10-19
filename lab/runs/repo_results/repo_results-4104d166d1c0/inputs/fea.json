@@ -1,0 +1,7 @@
+{
+ "machine": "2004 Toyota Prius interior-PM motor (pyleecan Toyota_Prius geometry)",
+ "n_gap": 960,
+ "elements": 29936,
+ "magnets": "20 degC, Br 1.24 T",
+ "load": "250 A peak, 12 rotor angles per point"
+}

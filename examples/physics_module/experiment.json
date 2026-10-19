@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_module",
+ "title": "Model",
+ "description": "Hybrid model: a coarse finite-element solve plus a neural correction, trained end to end. -(k(x) u')' = 1 on (0, 1), u(0) = u(1) = 0, with k(x) = 1 + 0.8 sin(2 pi f x + phase). The input is (f, phase). A 6-cell FEM mesh cannot resolve k; a small dilated conv net sees the coarse solution, k and x on a fine grid and learns the error. Held-out relative L2 error: coarse FEM 3.1e-1, hybrid 1.0e-1 (abou",
+ "domain": "numerical methods",
+ "methods": [
+  "FEM"
+ ],
+ "modules": [
+  "pinneapple_core",
+  "pinneapple_core.fem",
+  "pinneapple_core.module"
+ ],
+ "params": {},
+ "scripts": [
+  "01_coarse_fem_plus_neural_correction.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/model.md",
+  "script": "examples/physics_module/01_coarse_fem_plus_neural_correction.py",
+  "pr": [
+   303
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

@@ -158,12 +158,18 @@ def graph_data(lay: Layout, recs: Sequence[dict[str, Any]]):
 
 def train_gnn(tr: Sequence[dict[str, Any]], te: Sequence[dict[str, Any]], minutes: float | None = 60.0,
               seed: int = 0, batch: int = 4, log: Callable[[str], Any] = print, *, epochs: int | None = None,
-              hidden: int = 48, mp: int = 8, layout: Layout | None = None):
+              hidden: int = 48, mp: int = 8, layout: Layout | None = None, checkpoint_dir: str | None = None,
+              checkpoint_every: int = 5):
     """Train the graph network on ``tr`` for a wall-clock budget of ``minutes`` and/or a number of ``epochs``.
 
     The learning rate follows a cosine from 1e-3 to 3e-5 over the budget (the larger of the elapsed time and epoch
     fractions). Every 5 epochs and at the end the Cd error on ``te`` is logged. Returns
     ``(model, norm, history, layout)``.
+
+    With ``checkpoint_dir``, the full training state (weights, optimiser, epoch, elapsed time, history, shuffling RNG)
+    is written to ``checkpoint_dir/gnn_last.pt`` every ``checkpoint_every`` epochs, and a later call with the same
+    settings resumes from it: an interrupted run continues to the same weights as an uninterrupted one. A
+    checkpoint written with other settings is refused.
     """
     if minutes is None and epochs is None:
         raise ValueError("give minutes, epochs or both")
@@ -182,6 +188,26 @@ def train_gnn(tr: Sequence[dict[str, Any]], te: Sequence[dict[str, Any]], minute
     t0, ep, hist = time.time(), 0, []
     budget = None if minutes is None else minutes * 60
     rng = np.random.default_rng(seed)
+    settings = {"minutes": minutes, "epochs": epochs, "seed": seed, "batch": batch, "hidden": hidden, "mp": mp,
+                "n_train": len(tr), "train_ids": sorted(str(r.get("id", i)) for i, r in enumerate(tr))}
+    ckpt = os.path.join(checkpoint_dir, "gnn_last.pt") if checkpoint_dir else None
+    if ckpt and os.path.exists(ckpt):
+        st = torch.load(ckpt, map_location="cpu", weights_only=False)
+        if st["settings"] != settings:
+            raise ValueError(f"{ckpt} was written with other training settings; remove it or change checkpoint_dir")
+        model.load_state_dict(st["model"])
+        opt.load_state_dict(st["optimizer"])
+        ep, hist = st["epoch"], st["history"]
+        rng.bit_generator.state = st["rng"]
+        t0 = time.time() - st["elapsed"]
+        log(f"  gnn resumed at epoch {ep} from {ckpt}")
+
+    def save_checkpoint():
+        os.makedirs(checkpoint_dir, exist_ok=True)
+        tmp = ckpt + ".tmp"
+        torch.save({"settings": settings, "model": model.state_dict(), "optimizer": opt.state_dict(), "epoch": ep,
+                    "history": hist, "rng": rng.bit_generator.state, "elapsed": time.time() - t0}, tmp)
+        os.replace(tmp, ckpt)                                      # never leaves a half-written checkpoint
     T = lambda a: torch.from_numpy(np.ascontiguousarray(a))         # noqa: E731
 
     def done():
@@ -213,6 +239,8 @@ def train_gnn(tr: Sequence[dict[str, Any]], te: Sequence[dict[str, Any]], minute
             cdr = float(np.mean(np.abs(pv[1] - coef_from_targets(Ycv)[1]) / coef_from_targets(Ycv)[1]) * 100)
             hist.append({"epoch": ep, "minutes": (time.time() - t0) / 60, "train_loss": tot / len(X), "test_cd_mape": cdr})
             log(f"  gnn epoch {ep}  {hist[-1]['minutes']:.1f} min  loss {tot / len(X):.4f}  test Cd err {cdr:.2f} %")
+        if ckpt and (ep % checkpoint_every == 0 or done()):
+            save_checkpoint()
     return model, norm, hist, lay
 
 

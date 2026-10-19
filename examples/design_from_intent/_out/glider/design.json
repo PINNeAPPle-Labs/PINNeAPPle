@@ -1,0 +1,821 @@
+{
+ "status": "designed",
+ "seed": 0,
+ "verdict": "will work",
+ "requirements": {
+  "text": "a wing for a 1.2 kg model glider, at most 2 m span",
+  "template": "glider_wing",
+  "parser": "template",
+  "match_score": 5.5,
+  "values": {
+   "mass": {
+    "name": "mass",
+    "value": 1.2,
+    "unit": "kg",
+    "provenance": "stated",
+    "source": "user",
+    "quote": "1.2 kg"
+   },
+   "max_span": {
+    "name": "max_span",
+    "value": 2.0,
+    "unit": "m",
+    "provenance": "stated",
+    "source": "user",
+    "quote": "2 m"
+   },
+   "cl_limit": {
+    "name": "cl_limit",
+    "value": 0.8,
+    "unit": "",
+    "provenance": "defaulted",
+    "source": "template design limit kept below stall; stall is not predicted by these models",
+    "quote": ""
+   }
+  },
+  "objectives": [
+   {
+    "name": "sink_m_s",
+    "sense": "min",
+    "label": "minimum sink rate"
+   }
+  ],
+  "questions": [],
+  "issues": [],
+  "unsupported": []
+ },
+ "plan": {
+  "template": "glider_wing",
+  "title": "Model glider wing",
+  "physics": [
+   "steady, incompressible, attached flow around the wing",
+   "lift = weight in steady glide; induced drag from the span loading (vortex lattice / lifting line)",
+   "profile drag from turbulent flat-plate friction and a thickness form factor",
+   "sink rate = V C_D / C_L"
+  ],
+  "assumptions": [
+   "wing alone: the fuselage and tail drag are not included (the sink rate is the wing's share)",
+   "air density 1.225 kg/m^3 (ICAO standard atmosphere, sea level)",
+   "fully turbulent skin friction (conservative for the profile drag at model Reynolds numbers)",
+   "no twist, no sweep, no dihedral in the aerodynamic model"
+  ],
+  "variables": [
+   {
+    "name": "span",
+    "label": "span",
+    "lower": 0.5,
+    "upper": 2.0,
+    "unit": "m",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "aspect_ratio",
+    "label": "aspect ratio",
+    "lower": 5.0,
+    "upper": 20.0,
+    "unit": "",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "taper",
+    "label": "taper ratio (tip / root chord)",
+    "lower": 0.3,
+    "upper": 1.0,
+    "unit": "",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "section",
+    "label": "section",
+    "lower": 0,
+    "upper": 1,
+    "unit": "",
+    "choices": [
+     "NACA 2412",
+     "NACA 4412"
+    ],
+    "integer": false
+   }
+  ],
+  "objectives": [
+   {
+    "name": "sink_m_s",
+    "sense": "min",
+    "label": "minimum sink rate"
+   }
+  ],
+  "failure_modes": [
+   {
+    "name": "margin_cl",
+    "label": "lift coefficient below the design limit",
+    "description": "C_L limit / operating C_L - 1, at the design speed",
+    "critical": true
+   },
+   {
+    "name": "margin_re",
+    "label": "Reynolds number above the critical value",
+    "description": "Re(mean chord) / 70000 - 1 (below it laminar separation can halve the lift; Lissaman 1983)",
+    "critical": true
+   }
+  ],
+  "fidelities": [
+   {
+    "level": "closed_form",
+    "label": "elliptic lifting line",
+    "method": "C_Di = C_L^2 / (pi AR), lift slope a0 AR / (AR + 2)",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "reduced",
+    "label": "vortex lattice, coarse",
+    "method": "pinneapple_design.aero.vlm, 3 x 10 panels per half span",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "full",
+    "label": "vortex lattice, fine",
+    "method": "8 x 32 panels per half span; lattice-convergence check",
+    "available": true,
+    "reason": ""
+   }
+  ],
+  "uncertain": [
+   "mass_scale",
+   "rho_scale",
+   "cd0_scale"
+  ]
+ },
+ "design": {
+  "span": 2.0,
+  "aspect_ratio": 7.692664314236054,
+  "taper": 0.32544819133101444,
+  "section": "NACA 2412"
+ },
+ "numbers": [
+  {
+   "quantity": "speed_m_s",
+   "key": "speed_m_s",
+   "value": 7.182771298845718,
+   "unit": "m/s",
+   "fidelity": "vortex lattice, coarse",
+   "note": ""
+  },
+  {
+   "quantity": "Reynolds number above the critical value",
+   "key": "margin_re",
+   "value": 0.9320549948425851,
+   "unit": "",
+   "fidelity": "vortex lattice, coarse",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "span_eff",
+   "key": "span_eff",
+   "value": 0.9903206153394808,
+   "unit": "-",
+   "fidelity": "vortex lattice, coarse",
+   "note": ""
+  },
+  {
+   "quantity": "cl",
+   "key": "cl",
+   "value": 0.8,
+   "unit": "-",
+   "fidelity": "vortex lattice, coarse",
+   "note": ""
+  },
+  {
+   "quantity": "area_m2",
+   "key": "area_m2",
+   "value": 0.5199758934752418,
+   "unit": "m\u00b2",
+   "fidelity": "vortex lattice, coarse",
+   "note": ""
+  },
+  {
+   "quantity": "re_mac",
+   "key": "re_mac",
+   "value": 135243.84963898096,
+   "unit": "-",
+   "fidelity": "vortex lattice, coarse",
+   "note": ""
+  },
+  {
+   "quantity": "lift coefficient below the design limit",
+   "key": "margin_cl",
+   "value": 0.0,
+   "unit": "",
+   "fidelity": "vortex lattice, coarse",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "sink_m_s",
+   "key": "sink_m_s",
+   "value": 0.4406361259098408,
+   "unit": "m/s",
+   "fidelity": "vortex lattice, coarse",
+   "note": ""
+  },
+  {
+   "quantity": "ld",
+   "key": "ld",
+   "value": 16.30091333073175,
+   "unit": "-",
+   "fidelity": "vortex lattice, coarse",
+   "note": ""
+  },
+  {
+   "quantity": "lift coefficient below the design limit",
+   "key": "margin_cl",
+   "value": 0.0,
+   "unit": "",
+   "fidelity": "elliptic lifting line",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "Reynolds number above the critical value",
+   "key": "margin_re",
+   "value": 0.9320549948425851,
+   "unit": "",
+   "fidelity": "elliptic lifting line",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "sink_m_s",
+   "key": "sink_m_s",
+   "value": 0.4408530413532117,
+   "unit": "m/s",
+   "fidelity": "vortex lattice, fine",
+   "note": "full solver"
+  },
+  {
+   "quantity": "span_eff",
+   "key": "span_eff",
+   "value": 0.9894267037896335,
+   "unit": "-",
+   "fidelity": "vortex lattice, fine",
+   "note": "full solver"
+  },
+  {
+   "quantity": "speed_m_s",
+   "key": "speed_m_s",
+   "value": 7.182771298845718,
+   "unit": "m/s",
+   "fidelity": "vortex lattice, fine",
+   "note": "full solver"
+  },
+  {
+   "quantity": "ld",
+   "key": "ld",
+   "value": 16.292892699113484,
+   "unit": "-",
+   "fidelity": "vortex lattice, fine",
+   "note": "full solver"
+  },
+  {
+   "quantity": "margin_cl",
+   "key": "margin_cl",
+   "value": 0.0,
+   "unit": "",
+   "fidelity": "vortex lattice, fine",
+   "note": "full solver"
+  },
+  {
+   "quantity": "margin_re",
+   "key": "margin_re",
+   "value": 0.9320549948425851,
+   "unit": "",
+   "fidelity": "vortex lattice, fine",
+   "note": "full solver"
+  },
+  {
+   "quantity": "cl_alpha",
+   "key": "cl_alpha",
+   "value": 4.680902141138804,
+   "unit": "",
+   "fidelity": "vortex lattice, fine",
+   "note": "full solver"
+  }
+ ],
+ "optimisation": {
+  "method": "nsga2",
+  "n_screen": 2000,
+  "n_feasible_screen": 2000,
+  "n_reduced": 600,
+  "calls": {
+   "calls": {
+    "closed_form": 2000,
+    "reduced": 6600,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0621,
+    "reduced": 4.367,
+    "full": 0.4037
+   },
+   "s_per_call": {
+    "closed_form": 3.1035802500014144e-05,
+    "reduced": 0.0006616651124242922,
+    "full": 0.40374807099999543
+   }
+  },
+  "notes": [],
+  "candidates": [
+   {
+    "rank": 0,
+    "design": {
+     "span": 2.0,
+     "aspect_ratio": 7.692664314236054,
+     "taper": 0.32544819133101444,
+     "section": "NACA 2412"
+    },
+    "reduced": {
+     "speed_m_s": 7.182771298845718,
+     "margin_re": 0.9320549948425851,
+     "span_eff": 0.9903206153394808,
+     "cl": 0.8,
+     "area_m2": 0.5199758934752418,
+     "re_mac": 135243.84963898096,
+     "margin_cl": 0.0,
+     "sink_m_s": 0.4406361259098408,
+     "ld": 16.30091333073175
+    },
+    "closed_form": {
+     "sink_m_s": 0.4383121731227015,
+     "speed_m_s": 7.182771298845718,
+     "cl": 0.8,
+     "span_eff": 1.0,
+     "ld": 16.387341578201998,
+     "area_m2": 0.5199758934752418,
+     "re_mac": 135243.84963898096,
+     "margin_cl": 0.0,
+     "margin_re": 0.9320549948425851
+    }
+   },
+   {
+    "rank": 1,
+    "design": {
+     "span": 2.0,
+     "aspect_ratio": 8.108870951230584,
+     "taper": 0.4217062771776402,
+     "section": "NACA 2412"
+    },
+    "reduced": {
+     "speed_m_s": 7.374521435325386,
+     "margin_re": 0.8278009473594081,
+     "span_eff": 0.9944558108583864,
+     "cl": 0.8,
+     "area_m2": 0.49328692293382337,
+     "re_mac": 127946.06631515856,
+     "margin_cl": 0.0,
+     "sink_m_s": 0.44107151938796807,
+     "ld": 16.719559325794354
+    },
+    "closed_form": {
+     "sink_m_s": 0.4397804008527762,
+     "speed_m_s": 7.374521435325386,
+     "cl": 0.8,
+     "span_eff": 1.0,
+     "ld": 16.768645035170927,
+     "area_m2": 0.49328692293382337,
+     "re_mac": 127946.06631515856,
+     "margin_cl": 0.0,
+     "margin_re": 0.8278009473594081
+    }
+   },
+   {
+    "rank": 2,
+    "design": {
+     "span": 2.0,
+     "aspect_ratio": 7.9030089480137935,
+     "taper": 0.3233658840824592,
+     "section": "NACA 4412"
+    },
+    "reduced": {
+     "speed_m_s": 7.280310209060364,
+     "margin_re": 0.9075868180157063,
+     "span_eff": 0.9885341526966405,
+     "cl": 0.8,
+     "area_m2": 0.5061363369714128,
+     "re_mac": 133531.07726109945,
+     "margin_cl": 0.0,
+     "sink_m_s": 0.4410896103663156,
+     "ld": 16.5052860869115
+    },
+    "closed_form": {
+     "sink_m_s": 0.43836871399901284,
+     "speed_m_s": 7.280310209060364,
+     "cl": 0.8,
+     "span_eff": 1.0,
+     "ld": 16.607732204805014,
+     "area_m2": 0.5061363369714128,
+     "re_mac": 133531.07726109945,
+     "margin_cl": 0.0,
+     "margin_re": 0.9075868180157063
+    }
+   }
+  ]
+ },
+ "robustness": {
+  "p_success": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "n_samples": 2000,
+  "per_mode": {
+   "margin_cl": 1.0,
+   "margin_re": 1.0
+  },
+  "margin_p05": {
+   "margin_cl": 0.03450389242210167,
+   "margin_re": 0.9320549948425851
+  },
+  "inputs": [
+   {
+    "name": "mass_scale",
+    "nominal": 1.0,
+    "spread": 0.05,
+    "dist": "uniform",
+    "unit": "",
+    "source": "flying mass within +-5 % (weigh it)"
+   },
+   {
+    "name": "rho_scale",
+    "nominal": 1.0,
+    "spread": 0.06,
+    "dist": "uniform",
+    "unit": "",
+    "source": "air density +-6 % (weather, a few hundred metres of altitude)"
+   },
+   {
+    "name": "cd0_scale",
+    "nominal": 1.0,
+    "spread": 0.25,
+    "dist": "uniform",
+    "unit": "",
+    "source": "profile drag +-25 % (transition location, surface finish)"
+   }
+  ],
+  "sensitivity": {
+   "mass_scale": -0.6260807795201948,
+   "rho_scale": 0.7604157896039474,
+   "cd0_scale": 0.0030014782503695625
+  },
+  "model": "reduced",
+  "calibration": {}
+ },
+ "alternatives": [
+  {
+   "rank": 0,
+   "design": {
+    "span": 2.0,
+    "aspect_ratio": 7.692664314236054,
+    "taper": 0.32544819133101444,
+    "section": "NACA 2412"
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "sink_m_s": 0.4406361259098408
+   }
+  },
+  {
+   "rank": 1,
+   "design": {
+    "span": 2.0,
+    "aspect_ratio": 8.108870951230584,
+    "taper": 0.4217062771776402,
+    "section": "NACA 2412"
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "sink_m_s": 0.44107151938796807
+   }
+  },
+  {
+   "rank": 2,
+   "design": {
+    "span": 2.0,
+    "aspect_ratio": 7.9030089480137935,
+    "taper": 0.3233658840824592,
+    "section": "NACA 4412"
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "sink_m_s": 0.4410896103663156
+   }
+  }
+ ],
+ "verification": {
+  "ran": true,
+  "label": "vortex lattice, fine",
+  "reason": "",
+  "comparison": [
+   {
+    "output": "sink_m_s",
+    "full": 0.4408530413532117,
+    "reduced": 0.4406361259098408,
+    "closed_form": 0.4383121731227015,
+    "rel_err": 0.0004920357194430399,
+    "kind": "agree"
+   },
+   {
+    "output": "span_eff",
+    "full": 0.9894267037896335,
+    "reduced": 0.9903206153394808,
+    "closed_form": 1.0,
+    "rel_err": 0.0009034641438557357,
+    "kind": "agree"
+   }
+  ],
+  "outputs": {
+   "sink_m_s": 0.4408530413532117,
+   "span_eff": 0.9894267037896335,
+   "speed_m_s": 7.182771298845718,
+   "ld": 16.292892699113484,
+   "margin_cl": 0.0,
+   "margin_re": 0.9320549948425851,
+   "cl_alpha": 4.680902141138804
+  },
+  "checks": [
+   {
+    "name": "lattice convergence of the span efficiency",
+    "passed": true,
+    "critical": true,
+    "value": 0.0002253046145169746,
+    "limit": 0.01,
+    "detail": "e = 0.9903 (3x10), 0.9896 (5x20), 0.9894 (8x32 panels per half span)"
+   },
+   {
+    "name": "span efficiency <= 1 (Munk: the elliptic loading is optimal)",
+    "passed": true,
+    "critical": true,
+    "value": 0.9894267037896335,
+    "limit": 1.0,
+    "detail": "planar wing"
+   },
+   {
+    "name": "lift slope below the 2-D thin-airfoil value",
+    "passed": true,
+    "critical": true,
+    "value": 4.680902141138804,
+    "limit": 6.283185307179586,
+    "detail": "C_L_alpha = 4.681 /rad; Helmbold's estimate 2 pi AR / (2 + sqrt(AR^2 + 4)) = 4.859 /rad"
+   }
+  ],
+  "wall_s": 0.0,
+  "notes": [
+   "no viscous solver ran: profile drag is the flat-plate estimate at every fidelity; a RANS check (OpenFOAM / the airfoil zoo surrogate) is the next level and is not part of this verification"
+  ]
+ },
+ "assessment": {
+  "verdict": "will work",
+  "probability": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "assumptions": [
+   "wing alone: the fuselage and tail drag are not included (the sink rate is the wing's share)",
+   "air density 1.225 kg/m^3 (ICAO standard atmosphere, sea level)",
+   "fully turbulent skin friction (conservative for the profile drag at model Reynolds numbers)",
+   "no twist, no sweep, no dihedral in the aerodynamic model",
+   "cl_limit = 0.8 (template design limit kept below stall; stall is not predicted by these models)"
+  ],
+  "reasons": [],
+  "trust": {
+   "decision": "APPROVED",
+   "score": 1.0,
+   "coverage": 1.0,
+   "checks": [
+    {
+     "name": "requirements complete",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": null,
+     "limit": null,
+     "source": "",
+     "reason": "every critical value stated, answered or defaulted with a source"
+    },
+    {
+     "name": "margin: lift coefficient below the design limit",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "C_L limit / operating C_L - 1, at the design speed"
+    },
+    {
+     "name": "margin: Reynolds number above the critical value",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.9320549948425851,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "Re(mean chord) / 70000 - 1 (below it laminar separation can halve the lift; Lissaman 1983)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_cl",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_re",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "full solver agrees: sink_m_s",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0004920357194430399,
+     "limit": 0.1,
+     "source": "vortex lattice, fine",
+     "reason": "reduced 0.4406 vs full 0.4409"
+    },
+    {
+     "name": "full solver agrees: span_eff",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0009034641438557357,
+     "limit": 0.1,
+     "source": "vortex lattice, fine",
+     "reason": "reduced 0.9903 vs full 0.9894"
+    },
+    {
+     "name": "solver check: lattice convergence of the span efficiency",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0002253046145169746,
+     "limit": 0.01,
+     "source": "vortex lattice, fine",
+     "reason": "e = 0.9903 (3x10), 0.9896 (5x20), 0.9894 (8x32 panels per half span)"
+    },
+    {
+     "name": "solver check: span efficiency <= 1 (Munk: the elliptic loading is optimal)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.9894267037896335,
+     "limit": 1.0,
+     "source": "vortex lattice, fine",
+     "reason": "planar wing"
+    },
+    {
+     "name": "solver check: lift slope below the 2-D thin-airfoil value",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 4.680902141138804,
+     "limit": 6.283185307179586,
+     "source": "vortex lattice, fine",
+     "reason": "C_L_alpha = 4.681 /rad; Helmbold's estimate 2 pi AR / (2 + sqrt(AR^2 + 4)) = 4.859 /rad"
+    },
+    {
+     "name": "robustness",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 1.0,
+     "limit": 0.95,
+     "source": "Monte Carlo (2000 samples)",
+     "reason": "lower 95 % bound 0.998 vs target 0.95"
+    }
+   ]
+  }
+ },
+ "operating_window": [
+  {
+   "quantity": "glide speed (minimum sink)",
+   "value": 7.18,
+   "min": 6.8,
+   "max": null,
+   "unit": "m/s",
+   "fidelity": "vortex lattice, coarse",
+   "note": "min: C_L reaches the design limit 0.8"
+  },
+  {
+   "quantity": "flying mass",
+   "value": 1.2,
+   "min": null,
+   "max": 1.34,
+   "unit": "kg",
+   "fidelity": "vortex lattice, coarse",
+   "note": "at the design speed and sea-level density, C_L reaches the design limit"
+  }
+ ],
+ "bill_of_materials": [
+  {
+   "item": "wing (built-up or sheeted balsa)",
+   "material": "Balsa wood",
+   "quantity": 1,
+   "size": "span 2.00 m, area 0.520 m\u00b2, taper 0.33, NACA 2412",
+   "mass_g": null,
+   "properties": {
+    "density": {
+     "value": 160.0,
+     "unit": "kg/m^3",
+     "source": "USDA Forest Products Laboratory, 'Wood Handbook' FPL-GTR-190 (2010), ch. 5, imported woods: balsa at 12 % moisture content (specific gravity on oven-dry weight)"
+    }
+   }
+  }
+ ],
+ "build_instructions": [
+  "Wing: span 200 cm, root chord 39.2 cm, tip chord 12.8 cm (straight taper), section NACA 2412, no twist.",
+  "Size the spar for the launch loads separately: no structural check is part of this design.",
+  "Balance and trim the glider to fly at about 7.2 m/s."
+ ],
+ "limits": [
+  "Wing only: fuselage, tail and interference drag are not included.",
+  "Inviscid lift (vortex lattice): no stall prediction; the design lift coefficient is capped instead.",
+  "Profile drag from a flat-plate correlation, not from a viscous solver.",
+  "No structural sizing (spar, launch loads)."
+ ],
+ "calls": {
+  "calls": {
+   "closed_form": 2000,
+   "reduced": 6600,
+   "full": 1
+  },
+  "wall_s": {
+   "closed_form": 0.0621,
+   "reduced": 4.367,
+   "full": 0.4037
+  },
+  "s_per_call": {
+   "closed_form": 3.1035802500014144e-05,
+   "reduced": 0.0006616651124242922,
+   "full": 0.40374807099999543
+  }
+ },
+ "savings": {
+  "designs_ranked_without_full_solver": 8600,
+  "full_solver_calls": 1,
+  "full_solver_s_per_call": 0.40374807099999543,
+  "text": "8600 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 0.4 s each (measured). Running every evaluation on the full solver would have taken about 1.0 h (estimate: evaluations x measured time per full call)."
+ },
+ "calibration_rounds": [
+  {
+   "round": 0,
+   "options": {
+    "mass_scale": 1.05,
+    "rho_scale": 0.94,
+    "cd0_scale": 1.25
+   },
+   "design": {
+    "span": 2.0,
+    "aspect_ratio": 7.692664314236054,
+    "taper": 0.32544819133101444,
+    "section": "NACA 2412"
+   },
+   "measured": {},
+   "full_margins_negative": []
+  }
+ ],
+ "files": {
+  "stl": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/geometry/glider_wing.stl",
+  "step": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/geometry/glider_wing.step",
+  "glb": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/geometry/glider_wing.glb",
+  "render": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/geometry/glider_wing.png",
+  "check_margins": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/check/qoi/margins.csv",
+  "check_reduced": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/check/qoi/reduced.csv",
+  "check_toml": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/check/pinneapple-check.toml",
+  "json": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/design.json",
+  "html": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/report.html",
+  "pdf": "/home/user/PINNeAPPle/examples/design_from_intent/_out/glider/report.pdf"
+ }
+}

@@ -18,6 +18,10 @@ What it covers, and where:
 ``classification``     data labels (level, personal data, export control) and handling policy
 ``compliance``         capability → control map (NIST CSF 2.0, IEC 62443, ISO 27001, 21 CFR 11, LGPD/GDPR, SSDF, SLSA)
 ``integrate``          signed ModelStore versions, signed model cards, attested experiments
+``web``                HTTP hardening for the apps: security headers/CSP, body limits, rate limits, login lockout,
+                       trusted-proxy client IP, CSRF origin check, CORS allow-list, auth audit events
+``passwords``          salted password hashes (scrypt; argon2id / bcrypt when installed) and verification
+``archives``           zip extraction without zip-slip, links or zip bombs (counted sizes, ratio, member limits)
 =====================  ==============================================================================================
 
 Dependencies: the standard library and NumPy; PyTorch for ``dp.DPSGD``, ``model_security.safe_load`` and
@@ -30,10 +34,12 @@ import importlib as _importlib
 
 __all__ = [
     "integrity", "signing", "attestation", "audit", "encryption", "privacy", "dp", "model_security", "anomaly",
-    "secrets_scan", "classification", "compliance", "integrate", "cps", "cps_bench",
+    "secrets_scan", "classification", "compliance", "integrate", "cps", "cps_bench", "web", "passwords",
+    "archives",
     "build_manifest", "Manifest", "sha256_file", "digest_array", "generate_key", "hmac_key", "sign_json",
     "verify_json", "AuditLog", "find_pii", "redact", "sanitize_log", "scan_checkpoint", "safe_load", "scan_path",
     "DataLabel", "HandlingPolicy", "ResidualCUSUM", "sbom", "attest_experiment", "PhysicsResidualDetector",
+    "hash_password", "verify_password", "safe_extract_zip",
 ]
 
 _ATTRS = {
@@ -43,8 +49,9 @@ _ATTRS = {
     "scan_checkpoint": "model_security", "safe_load": "model_security", "scan_path": "secrets_scan",
     "DataLabel": "classification", "HandlingPolicy": "classification", "ResidualCUSUM": "anomaly",
     "sbom": "attestation", "attest_experiment": "attestation", "PhysicsResidualDetector": "cps",
+    "hash_password": "passwords", "verify_password": "passwords", "safe_extract_zip": "archives",
 }
-_MODULES = set(__all__[:15])
+_MODULES = set(__all__[:18])
 
 
 def __getattr__(name: str):

@@ -46,7 +46,8 @@ class ParametricPOD:
         if self.normalize:
             from scipy.interpolate import RBFInterpolator
             amp = np.maximum(np.linalg.norm(X, axis=1), 1e-300)
-            self._amp = RBFInterpolator(self._scale(P), np.log(amp), kernel=self.kernel)
+            self._logamp = np.log(amp)
+            self._amp = RBFInterpolator(self._scale(P), self._logamp, kernel=self.kernel)
             X = X / amp[:, None]
         self.mean_ = X.mean(0)
         U, S, Vt = np.linalg.svd(X - self.mean_, full_matrices=False)
@@ -80,6 +81,51 @@ class ParametricPOD:
             self._model = (LinearNDInterpolator(Ps, A), NearestNDInterpolator(Ps, A))
         elif self.regressor != "nearest":
             raise ValueError(f"unknown regressor {self.regressor}")
+        return self
+
+    def to_arrays(self) -> dict[str, np.ndarray]:
+        """The fitted model as plain arrays (no pickle): basis, mean, training coefficients and parameters and, for
+        GPR, the optimised kernel hyperparameters. ``from_arrays`` rebuilds the same predictor (the regression is
+        refitted on the stored coefficients with the hyperparameters fixed, so predictions are identical)."""
+        if self.basis_ is None:
+            raise RuntimeError("fit the model first")
+        out = {"basis": self.basis_, "mean": self.mean_, "sv": self.sv_, "P_scaled": self._P, "A": self._A,
+               "lo": self._lo, "span": self._span}
+        if self.normalize:
+            out["logamp"] = self._logamp
+        if self.regressor == "gpr":
+            out["gp_theta"] = np.stack([g.kernel_.theta for g in self._model])
+        return out
+
+    def config(self) -> dict:
+        return {"r": self.r, "energy": self.energy, "regressor": self.regressor, "kernel": self.kernel,
+                "smoothing": self.smoothing, "normalize": self.normalize, "seed": self.seed}
+
+    @classmethod
+    def from_arrays(cls, arrays: dict, config: dict) -> ParametricPOD:
+        """Inverse of ``to_arrays`` (with ``config()``)."""
+        self = cls(**config)
+        self.basis_, self.mean_, self.sv_ = (np.asarray(arrays[k], float) for k in ("basis", "mean", "sv"))
+        self._P, self._A = np.asarray(arrays["P_scaled"], float), np.asarray(arrays["A"], float)
+        self._lo, self._span = np.asarray(arrays["lo"], float), np.asarray(arrays["span"], float)
+        from scipy.interpolate import RBFInterpolator
+        if self.normalize:
+            self._logamp = np.asarray(arrays["logamp"], float)
+            self._amp = RBFInterpolator(self._P, self._logamp, kernel=self.kernel)
+        if self.regressor == "rbf":
+            self._model = RBFInterpolator(self._P, self._A, kernel=self.kernel, smoothing=self.smoothing)
+        elif self.regressor == "gpr":
+            from sklearn.gaussian_process import GaussianProcessRegressor
+            from sklearn.gaussian_process.kernels import RBF, ConstantKernel, WhiteKernel
+            self._model = []
+            for j, th in enumerate(np.asarray(arrays["gp_theta"], float)):
+                k = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(np.full(self._P.shape[1], 0.3), (1e-2, 1e2)) \
+                    + WhiteKernel(1e-8, (1e-12, 1e-3))
+                k = k.clone_with_theta(th)
+                self._model.append(GaussianProcessRegressor(k, normalize_y=True, optimizer=None).fit(self._P, self._A[:, j]))
+        elif self.regressor == "linear":
+            from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
+            self._model = (LinearNDInterpolator(self._P, self._A), NearestNDInterpolator(self._P, self._A))
         return self
 
     @property

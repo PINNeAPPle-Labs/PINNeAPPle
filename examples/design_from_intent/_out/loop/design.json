@@ -1,0 +1,1108 @@
+{
+ "status": "designed",
+ "seed": 0,
+ "verdict": "will work",
+ "requirements": {
+  "text": "I want a toy car that does a loop",
+  "template": "loop_car",
+  "parser": "template",
+  "match_score": 3.5,
+  "values": {
+   "loop_radius": {
+    "name": "loop_radius",
+    "value": null,
+    "unit": "m",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "loop_diameter": {
+    "name": "loop_diameter",
+    "value": null,
+    "unit": "m",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "car_mass": {
+    "name": "car_mass",
+    "value": null,
+    "unit": "kg",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "launch_speed": {
+    "name": "launch_speed",
+    "value": null,
+    "unit": "m/s",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "max_height": {
+    "name": "max_height",
+    "value": null,
+    "unit": "m",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "crr_max": {
+    "name": "crr_max",
+    "value": 0.05,
+    "unit": "",
+    "provenance": "defaulted",
+    "source": "assumed design envelope, not a measured value: the design must work for any value in the range; measure yours (build step 1)",
+    "quote": ""
+   },
+   "cd_range": {
+    "name": "cd_range",
+    "value": 1.2,
+    "unit": "",
+    "provenance": "defaulted",
+    "source": "worst case of the bluff-body range; a cube in cross-flow is about 1.05 (Hoerner, Fluid-Dynamic Drag, 1965)",
+    "quote": ""
+   },
+   "launch_scatter": {
+    "name": "launch_scatter",
+    "value": 0.05,
+    "unit": "",
+    "provenance": "defaulted",
+    "source": "assumed design envelope, not a measured value: the design must work for any value in the range; measure yours (build step 1)",
+    "quote": ""
+   },
+   "track_material": {
+    "name": "track_material",
+    "value": "pla_4043d",
+    "unit": "",
+    "provenance": "defaulted",
+    "source": "template default: printable on a desktop 3-D printer",
+    "quote": ""
+   },
+   "support_spacing": {
+    "name": "support_spacing",
+    "value": 0.1,
+    "unit": "m",
+    "provenance": "defaulted",
+    "source": "template default (build step: clamp the strip every 10 cm)",
+    "quote": ""
+   },
+   "safety_factor": {
+    "name": "safety_factor",
+    "value": 2.0,
+    "unit": "",
+    "provenance": "defaulted",
+    "source": "template default (engineering convention for a known static load; state yours)",
+    "quote": ""
+   }
+  },
+  "objectives": [
+   {
+    "name": "launch_speed",
+    "sense": "min",
+    "label": "launch speed"
+   },
+   {
+    "name": "g_peak",
+    "sense": "min",
+    "label": "peak load on the car (g)"
+   }
+  ],
+  "questions": [],
+  "issues": [],
+  "unsupported": []
+ },
+ "plan": {
+  "template": "loop_car",
+  "title": "Toy car loop-the-loop",
+  "physics": [
+   "rigid-body dynamics of the car along the track (Newton's second law along the path)",
+   "unilateral contact: normal force N = m (v^2 kappa + g cos theta) >= 0",
+   "rolling resistance C_rr N and aerodynamic drag 0.5 rho C_d A v^2",
+   "clothoid (Euler spiral) entry and exit: curvature rising linearly to 1/R",
+   "track strip in bending under the peak contact load (simply supported between stand clamps)"
+  ],
+  "assumptions": [
+   "the car is a point on its centre-of-mass path for the 1-D model; Newton models it as a rigid sphere of the wheel radius",
+   "rolling losses are lumped into one coefficient C_rr = force / normal force",
+   "wheels: four solid PLA discs, their rotation adds inertia (not weight)",
+   "air at 20 \u00b0C, 1 atm (density from the ideal gas law)",
+   "the track is rigid and does not move (clamped to its stands)"
+  ],
+  "variables": [
+   {
+    "name": "radius",
+    "label": "loop radius R",
+    "lower": 0.08,
+    "upper": 0.3,
+    "unit": "m",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "clothoid_ratio",
+    "label": "clothoid length / R",
+    "lower": 0.0,
+    "upper": 2.5,
+    "unit": "",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "v0",
+    "label": "launch speed",
+    "lower": 1.0,
+    "upper": 6.0,
+    "unit": "m/s",
+    "choices": [],
+    "integer": false
+   },
+   {
+    "name": "mass",
+    "label": "car mass",
+    "lower": 0.02,
+    "upper": 0.15,
+    "unit": "kg",
+    "choices": [],
+    "integer": false
+   }
+  ],
+  "objectives": [
+   {
+    "name": "launch_speed",
+    "sense": "min",
+    "label": "launch speed"
+   },
+   {
+    "name": "g_peak",
+    "sense": "min",
+    "label": "peak load on the car (g)"
+   }
+  ],
+  "failure_modes": [
+   {
+    "name": "margin_contact",
+    "label": "car stays on the track",
+    "description": "minimum over the loop of N / (m g) at the worst-case envelope (< 0: the car falls at the top or stalls)",
+    "critical": true
+   },
+   {
+    "name": "margin_track",
+    "label": "track strip does not yield",
+    "description": "yield / (safety factor x bending stress under the peak contact load) - 1",
+    "critical": true
+   },
+   {
+    "name": "margin_clearance",
+    "label": "car body clears the track in the loop",
+    "description": "wheel radius / sag of the wheelbase chord b^2 / (8 R) - 1 (< 0: the body scrapes the track)",
+    "critical": true
+   },
+   {
+    "name": "margin_height",
+    "label": "loop fits the space available",
+    "description": "space available / loop height - 1 (no limit stated: not constraining)",
+    "critical": false
+   }
+  ],
+  "fidelities": [
+   {
+    "level": "closed_form",
+    "label": "energy balance",
+    "method": "v_top^2 = v0^2 - 2 g z_top - losses at the mean speed; contact at the top if v_top^2 >= g R",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "reduced",
+    "label": "1-D along-track ODE",
+    "method": "d(v^2)/ds with gravity, N(s), rolling resistance and drag, RK4, vectorised over designs",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "full",
+    "label": "Newton rigid-body contact",
+    "method": "NVIDIA Newton XPBD: the car on the swept 3-D track mesh (rails, helical exit), two time steps",
+    "available": true,
+    "reason": ""
+   }
+  ],
+  "uncertain": [
+   "crr",
+   "cd",
+   "v_scale",
+   "m_scale"
+  ]
+ },
+ "design": {
+  "radius": 0.08392212590233154,
+  "clothoid_ratio": 2.498212126585065,
+  "v0": 2.4650848447980396,
+  "mass": 0.03101345493025515,
+  "clothoid_length": 0.20965527261800326,
+  "material": "pla_4043d",
+  "thickness": 0.0015
+ },
+ "numbers": [
+  {
+   "quantity": "thickness",
+   "key": "thickness",
+   "value": 0.0015,
+   "unit": "m",
+   "fidelity": "1-D along-track ODE",
+   "note": ""
+  },
+  {
+   "quantity": "launch_speed",
+   "key": "launch_speed",
+   "value": 2.4650848447980396,
+   "unit": "m/s",
+   "fidelity": "1-D along-track ODE",
+   "note": ""
+  },
+  {
+   "quantity": "footprint",
+   "key": "footprint",
+   "value": 0.7992119689873398,
+   "unit": "m",
+   "fidelity": "1-D along-track ODE",
+   "note": ""
+  },
+  {
+   "quantity": "loop fits the space available",
+   "key": "margin_height",
+   "value": 1.0,
+   "unit": "",
+   "fidelity": "1-D along-track ODE",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "track strip does not yield",
+   "key": "margin_track",
+   "value": 10.838066889244145,
+   "unit": "",
+   "fidelity": "1-D along-track ODE",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "track_mass_kg",
+   "key": "track_mass_kg",
+   "value": 0.14671728159315986,
+   "unit": "kg",
+   "fidelity": "1-D along-track ODE",
+   "note": ""
+  },
+  {
+   "quantity": "v_top",
+   "key": "v_top",
+   "value": 1.0233505969160992,
+   "unit": "m/s",
+   "fidelity": "1-D along-track ODE",
+   "note": "speed at the top, worst-case envelope"
+  },
+  {
+   "quantity": "car body clears the track in the loop",
+   "key": "margin_clearance",
+   "value": 1.0070661488121377,
+   "unit": "",
+   "fidelity": "1-D along-track ODE",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "g_peak",
+   "key": "g_peak",
+   "value": 4.999434584464722,
+   "unit": "g",
+   "fidelity": "1-D along-track ODE",
+   "note": "peak N / (m g), worst-case envelope"
+  },
+  {
+   "quantity": "loop_radius",
+   "key": "loop_radius",
+   "value": 0.08392212590233154,
+   "unit": "m",
+   "fidelity": "1-D along-track ODE",
+   "note": ""
+  },
+  {
+   "quantity": "track_stress_mpa",
+   "key": "track_stress_mpa",
+   "value": 2.53419754092262,
+   "unit": "MPa",
+   "fidelity": "1-D along-track ODE",
+   "note": "strip bending stress under the peak contact load"
+  },
+  {
+   "quantity": "car stays on the track",
+   "key": "margin_contact",
+   "value": 0.4950403855651667,
+   "unit": "",
+   "fidelity": "1-D along-track ODE",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "loop_height",
+   "key": "loop_height",
+   "value": 0.20849107506722991,
+   "unit": "m",
+   "fidelity": "1-D along-track ODE",
+   "note": ""
+  },
+  {
+   "quantity": "car stays on the track",
+   "key": "margin_contact",
+   "value": 0.4927490545372384,
+   "unit": "",
+   "fidelity": "energy balance",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "track strip does not yield",
+   "key": "margin_track",
+   "value": 10.943984585102882,
+   "unit": "",
+   "fidelity": "energy balance",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "car body clears the track in the loop",
+   "key": "margin_clearance",
+   "value": 1.0070661488121377,
+   "unit": "",
+   "fidelity": "energy balance",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "loop fits the space available",
+   "key": "margin_height",
+   "value": 1.0,
+   "unit": "",
+   "fidelity": "energy balance",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "g_peak",
+   "key": "g_peak",
+   "value": 4.955100251310656,
+   "unit": "g",
+   "fidelity": "energy balance",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "v_top",
+   "key": "v_top",
+   "value": 1.0225160335037675,
+   "unit": "m/s",
+   "fidelity": "energy balance",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "v_top",
+   "key": "v_top",
+   "value": 1.5067742778928064,
+   "unit": "m/s",
+   "fidelity": "Newton rigid-body contact",
+   "note": "full solver"
+  },
+  {
+   "quantity": "completes",
+   "key": "completes",
+   "value": 1.0,
+   "unit": "",
+   "fidelity": "Newton rigid-body contact",
+   "note": "full solver"
+  },
+  {
+   "quantity": "max_gap_m",
+   "key": "max_gap_m",
+   "value": 6.330647561509847e-05,
+   "unit": "",
+   "fidelity": "Newton rigid-body contact",
+   "note": "full solver"
+  },
+  {
+   "quantity": "v_top_1d_no_losses",
+   "key": "v_top_1d_no_losses",
+   "value": 1.617120141934486,
+   "unit": "",
+   "fidelity": "Newton rigid-body contact",
+   "note": "full solver"
+  },
+  {
+   "quantity": "newton_energy_lost",
+   "key": "newton_energy_lost",
+   "value": 0.057199430089228454,
+   "unit": "",
+   "fidelity": "Newton rigid-body contact",
+   "note": "full solver"
+  }
+ ],
+ "optimisation": {
+  "method": "nsga2",
+  "n_screen": 2000,
+  "n_feasible_screen": 1013,
+  "n_reduced": 600,
+  "calls": {
+   "calls": {
+    "closed_form": 2000,
+    "reduced": 6600,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0069,
+    "reduced": 6.3287,
+    "full": 272.5327
+   },
+   "s_per_call": {
+    "closed_form": 3.433998500014468e-06,
+    "reduced": 0.0009588959483333393,
+    "full": 272.53270733899996
+   }
+  },
+  "notes": [
+   "7 designs on the feasible Pareto front; candidates ranked by distance to the ideal point (objectives scaled to [0, 1] over the front)"
+  ],
+  "candidates": [
+   {
+    "rank": 0,
+    "design": {
+     "radius": 0.08392212590233154,
+     "clothoid_ratio": 2.498212126585065,
+     "v0": 2.4650848447980396,
+     "mass": 0.03101345493025515
+    },
+    "reduced": {
+     "thickness": 0.0015,
+     "launch_speed": 2.4650848447980396,
+     "footprint": 0.7992119689873398,
+     "margin_height": 1.0,
+     "margin_track": 10.838066889244145,
+     "track_mass_kg": 0.14671728159315986,
+     "v_top": 1.0233505969160992,
+     "margin_clearance": 1.0070661488121377,
+     "g_peak": 4.999434584464722,
+     "loop_radius": 0.08392212590233154,
+     "track_stress_mpa": 2.53419754092262,
+     "margin_contact": 0.4950403855651667,
+     "loop_height": 0.20849107506722991
+    },
+    "closed_form": {
+     "margin_contact": 0.4927490545372384,
+     "margin_track": 10.943984585102882,
+     "margin_clearance": 1.0070661488121377,
+     "margin_height": 1.0,
+     "thickness": 0.0015,
+     "launch_speed": 2.4650848447980396,
+     "g_peak": 4.955100251310656,
+     "loop_radius": 0.08392212590233154,
+     "footprint": 0.7992119689873398,
+     "v_top": 1.0225160335037675,
+     "loop_height": 0.20849107506722991,
+     "track_stress_mpa": 2.511724608002045,
+     "track_mass_kg": 0.14671728159315986
+    }
+   },
+   {
+    "rank": 1,
+    "design": {
+     "radius": 0.12004502319705931,
+     "clothoid_ratio": 2.451052249862723,
+     "v0": 2.8938459084500368,
+     "mass": 0.1419605135163356
+    },
+    "reduced": {
+     "thickness": 0.0015,
+     "launch_speed": 2.8938459084500368,
+     "footprint": 0.8801056019814912,
+     "margin_height": 1.0,
+     "margin_track": 1.718265567756474,
+     "track_mass_kg": 0.18090658206077742,
+     "v_top": 1.0884258243594094,
+     "margin_clearance": 1.8709747256949765,
+     "g_peak": 4.756553478236335,
+     "loop_radius": 0.12004502319705931,
+     "track_stress_mpa": 11.036449254941841,
+     "margin_contact": 0.1232929185675258,
+     "loop_height": 0.2885781050306446
+    },
+    "closed_form": {
+     "margin_contact": 0.11368911663359693,
+     "margin_track": 1.7076016290809806,
+     "margin_clearance": 1.8709747256949765,
+     "margin_height": 1.0,
+     "thickness": 0.0015,
+     "launch_speed": 2.8938459084500368,
+     "g_peak": 4.775287251348974,
+     "loop_radius": 0.12004502319705931,
+     "footprint": 0.8801056019814912,
+     "v_top": 1.0837708966385433,
+     "loop_height": 0.2885781050306446,
+     "track_stress_mpa": 11.079916512748834,
+     "track_mass_kg": 0.18090658206077742
+    }
+   },
+   {
+    "rank": 2,
+    "design": {
+     "radius": 0.08217612876525687,
+     "clothoid_ratio": 1.7472860558453847,
+     "v0": 2.3426394886999633,
+     "mass": 0.14201690459044
+    },
+    "reduced": {
+     "thickness": 0.0015,
+     "launch_speed": 2.3426394886999633,
+     "footprint": 0.7400086303262022,
+     "margin_height": 1.0,
+     "margin_track": 1.2510989968433885,
+     "track_mass_kg": 0.13826285797242013,
+     "v_top": 0.9371739324939043,
+     "margin_clearance": 0.9653092019752116,
+     "g_peak": 5.741391904240444,
+     "loop_radius": 0.08217612876525687,
+     "track_stress_mpa": 13.326823938914997,
+     "margin_contact": 0.28504177312181356,
+     "loop_height": 0.19452539036516836
+    },
+    "closed_form": {
+     "margin_contact": 0.2568704010660887,
+     "margin_track": 1.1627304182515341,
+     "margin_clearance": 0.9653092019752116,
+     "margin_height": 1.0,
+     "thickness": 0.0015,
+     "launch_speed": 2.3426394886999633,
+     "g_peak": 5.975983621004978,
+     "loop_radius": 0.08217612876525687,
+     "footprint": 0.7400086303262022,
+     "v_top": 0.9267179897212521,
+     "loop_height": 0.19452539036516836,
+     "track_stress_mpa": 13.871354352269936,
+     "track_mass_kg": 0.13826285797242013
+    }
+   }
+  ]
+ },
+ "robustness": {
+  "p_success": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "n_samples": 2000,
+  "per_mode": {
+   "margin_contact": 1.0,
+   "margin_track": 1.0,
+   "margin_clearance": 1.0,
+   "margin_height": 1.0
+  },
+  "margin_p05": {
+   "margin_contact": 1.0225624678506298,
+   "margin_track": 7.030772775235075,
+   "margin_clearance": 1.0070661488121377,
+   "margin_height": 1.0
+  },
+  "inputs": [
+   {
+    "name": "crr",
+    "nominal": 0.025,
+    "spread": 0.025,
+    "dist": "uniform",
+    "unit": "",
+    "source": "0 to 0.05: assumed design envelope, not a measured value: the design must work for any value in the range; measure yours (build step 1)"
+   },
+   {
+    "name": "cd",
+    "nominal": 0.75,
+    "spread": 0.44999999999999996,
+    "dist": "uniform",
+    "unit": "",
+    "source": "0.3 (streamlined) to 1.2 (bluff)"
+   },
+   {
+    "name": "v_scale",
+    "nominal": 1.0,
+    "spread": 0.025,
+    "dist": "normal",
+    "unit": "",
+    "source": "launcher scatter +-5 % taken as 2 standard deviations"
+   },
+   {
+    "name": "m_scale",
+    "nominal": 1.0,
+    "spread": 0.05,
+    "dist": "uniform",
+    "unit": "",
+    "source": "car mass within +-5 % of target (weigh it)"
+   }
+  ],
+  "sensitivity": {
+   "crr": -0.16142167485541872,
+   "cd": -0.030717426179356546,
+   "v_scale": 0.09203192150798038,
+   "m_scale": 0.03828425757106439
+  },
+  "model": "reduced",
+  "calibration": {}
+ },
+ "alternatives": [
+  {
+   "rank": 0,
+   "design": {
+    "radius": 0.08392212590233154,
+    "clothoid_ratio": 2.498212126585065,
+    "v0": 2.4650848447980396,
+    "mass": 0.03101345493025515
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "launch_speed": 2.4650848447980396,
+    "g_peak": 4.999434584464722
+   }
+  },
+  {
+   "rank": 1,
+   "design": {
+    "radius": 0.12004502319705931,
+    "clothoid_ratio": 2.451052249862723,
+    "v0": 2.8938459084500368,
+    "mass": 0.1419605135163356
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "launch_speed": 2.8938459084500368,
+    "g_peak": 4.756553478236335
+   }
+  },
+  {
+   "rank": 2,
+   "design": {
+    "radius": 0.08217612876525687,
+    "clothoid_ratio": 1.7472860558453847,
+    "v0": 2.3426394886999633,
+    "mass": 0.14201690459044
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "launch_speed": 2.3426394886999633,
+    "g_peak": 5.741391904240444
+   }
+  }
+ ],
+ "verification": {
+  "ran": true,
+  "label": "Newton rigid-body contact",
+  "reason": "",
+  "comparison": [
+   {
+    "output": "v_top",
+    "full": 1.5067742778928064,
+    "reduced": 1.0233505969160992,
+    "closed_form": 1.0225160335037675,
+    "rel_err": 0.32083351041322894,
+    "kind": "at_least"
+   }
+  ],
+  "outputs": {
+   "v_top": 1.5067742778928064,
+   "completes": 1.0,
+   "max_gap_m": 6.330647561509847e-05,
+   "v_top_1d_no_losses": 1.617120141934486,
+   "newton_energy_lost": 0.057199430089228454
+  },
+  "checks": [
+   {
+    "name": "car stays on the track and reaches the end (both time steps)",
+    "critical": true,
+    "passed": true,
+    "value": 0.00011255828257238608,
+    "limit": 0.012,
+    "detail": "largest gap between the car and the running surface in the loop [m]; the car must not leave the track before the end of the run-out"
+   },
+   {
+    "name": "speed at the top insensitive to the time step",
+    "critical": false,
+    "passed": true,
+    "value": 0.021085326347740407,
+    "limit": 0.05,
+    "detail": "v_top = [1.4757, 1.5068] m/s at dt = [5e-05, 2.5e-05] s"
+   },
+   {
+    "name": "Newton within 10 % of the 1-D model without losses",
+    "critical": false,
+    "passed": true,
+    "value": 0.06823603341535156,
+    "limit": 0.1,
+    "detail": "v_top 1.507 (Newton, frictionless) vs 1.617 m/s (1-D, no friction, no air): the gap is the contact's numerical dissipation"
+   },
+   {
+    "name": "Newton Coulomb friction (analytic sliding case)",
+    "critical": false,
+    "passed": true,
+    "value": 0.0019709199666976276,
+    "limit": 0.03,
+    "detail": "stopping distance [m]: 0.5087 vs 0.5097 on a flat surface"
+   }
+  ],
+  "wall_s": 252.07915568351746,
+  "notes": [
+   "NVIDIA Newton 1.7.0, XPBD, 12 iterations: the car is a sphere of the wheel radius (6 mm) on the 3-D track mesh (strip, rails, the exit shifted sideways), launched at the design speed; no air",
+   "Newton loses 5.7 % of the launch energy by the top with no friction at all: XPBD contact dissipation on the curved mesh, which barely changes with the time step or a finer mesh. The run is therefore judged against the worst-case envelope (it must still go round and keep at least the envelope's speed at the top), not for equality.",
+   "Friction is not used in the loop run: Newton's Coulomb friction is checked on its analytic flat sliding case, but on the curved track mesh a rolling sphere with friction loses most of its energy (measured while building this template), so the rolling-resistance envelope stays in the 1-D model."
+  ]
+ },
+ "assessment": {
+  "verdict": "will work",
+  "probability": 1.0,
+  "ci95": [
+   0.9980829527187469,
+   0.9999999999999998
+  ],
+  "assumptions": [
+   "the car is a point on its centre-of-mass path for the 1-D model; Newton models it as a rigid sphere of the wheel radius",
+   "rolling losses are lumped into one coefficient C_rr = force / normal force",
+   "wheels: four solid PLA discs, their rotation adds inertia (not weight)",
+   "air at 20 \u00b0C, 1 atm (density from the ideal gas law)",
+   "the track is rigid and does not move (clamped to its stands)",
+   "crr_max = 0.05 (assumed design envelope, not a measured value: the design must work for any value in the range; measure yours (build step 1))",
+   "cd_range = 1.2 (worst case of the bluff-body range; a cube in cross-flow is about 1.05 (Hoerner, Fluid-Dynamic Drag, 1965))",
+   "launch_scatter = 0.05 (assumed design envelope, not a measured value: the design must work for any value in the range; measure yours (build step 1))",
+   "track_material = pla_4043d (template default: printable on a desktop 3-D printer)",
+   "support_spacing = 0.1 m (template default (build step: clamp the strip every 10 cm))",
+   "safety_factor = 2 (template default (engineering convention for a known static load; state yours))"
+  ],
+  "reasons": [],
+  "trust": {
+   "decision": "APPROVED",
+   "score": 1.0,
+   "coverage": 1.0,
+   "checks": [
+    {
+     "name": "requirements complete",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": null,
+     "limit": null,
+     "source": "",
+     "reason": "every critical value stated, answered or defaulted with a source"
+    },
+    {
+     "name": "margin: car stays on the track",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.4950403855651667,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "minimum over the loop of N / (m g) at the worst-case envelope (< 0: the car falls at the top or stalls)"
+    },
+    {
+     "name": "margin: track strip does not yield",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 10.838066889244145,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "yield / (safety factor x bending stress under the peak contact load) - 1"
+    },
+    {
+     "name": "margin: car body clears the track in the loop",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 1.0070661488121377,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "wheel radius / sag of the wheelbase chord b^2 / (8 R) - 1 (< 0: the body scrapes the track)"
+    },
+    {
+     "name": "margin: loop fits the space available",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 1.0,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "space available / loop height - 1 (no limit stated: not constraining)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_contact",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.001532621493072415,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_track",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.00894721214618009,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_clearance",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_height",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "full solver within the envelope: v_top",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 1.5067742778928064,
+     "limit": 1.0233505969160992,
+     "source": "Newton rigid-body contact",
+     "reason": "full 1.507 >= reduced model at the worst-case envelope 1.023"
+    },
+    {
+     "name": "solver check: car stays on the track and reaches the end (both time steps)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.00011255828257238608,
+     "limit": 0.012,
+     "source": "Newton rigid-body contact",
+     "reason": "largest gap between the car and the running surface in the loop [m]; the car must not leave the track before the end of the run-out"
+    },
+    {
+     "name": "solver check: speed at the top insensitive to the time step",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.021085326347740407,
+     "limit": 0.05,
+     "source": "Newton rigid-body contact",
+     "reason": "v_top = [1.4757, 1.5068] m/s at dt = [5e-05, 2.5e-05] s"
+    },
+    {
+     "name": "solver check: Newton within 10 % of the 1-D model without losses",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.06823603341535156,
+     "limit": 0.1,
+     "source": "Newton rigid-body contact",
+     "reason": "v_top 1.507 (Newton, frictionless) vs 1.617 m/s (1-D, no friction, no air): the gap is the contact's numerical dissipation"
+    },
+    {
+     "name": "solver check: Newton Coulomb friction (analytic sliding case)",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.0019709199666976276,
+     "limit": 0.03,
+     "source": "Newton rigid-body contact",
+     "reason": "stopping distance [m]: 0.5087 vs 0.5097 on a flat surface"
+    },
+    {
+     "name": "robustness",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 1.0,
+     "limit": 0.95,
+     "source": "Monte Carlo (2000 samples)",
+     "reason": "lower 95 % bound 0.998 vs target 0.95"
+    }
+   ]
+  }
+ },
+ "operating_window": [
+  {
+   "quantity": "launch speed",
+   "value": 2.465,
+   "min": 2.241,
+   "max": 7.016,
+   "unit": "m/s",
+   "fidelity": "1-D along-track ODE",
+   "note": "min: still completes with C_rr = 0.05 and C_d = 1.2; max: track strip reaches yield / safety factor"
+  },
+  {
+   "quantity": "car mass",
+   "value": 31.0,
+   "min": 10.0,
+   "max": null,
+   "unit": "g",
+   "fidelity": "1-D along-track ODE",
+   "note": "at the design launch speed minus the launcher scatter, worst-case envelope; no upper limit up to 300 g (heavier cars lose less to drag)"
+  },
+  {
+   "quantity": "wheel rolling-resistance coefficient",
+   "value": null,
+   "min": 0.0,
+   "max": 0.0695,
+   "unit": "-",
+   "fidelity": "1-D along-track ODE",
+   "note": "largest C_rr that still completes at the design launch speed minus the scatter"
+  },
+  {
+   "quantity": "loop radius (top arc)",
+   "value": 8.39,
+   "min": null,
+   "max": null,
+   "unit": "cm",
+   "fidelity": "design",
+   "note": "radius of the circular arc at the top"
+  },
+  {
+   "quantity": "clothoid entry length",
+   "value": 20.97,
+   "min": null,
+   "max": null,
+   "unit": "cm",
+   "fidelity": "design",
+   "note": "curvature 0 -> 1/R; turns the track by 71.6 deg (same at the exit)"
+  }
+ ],
+ "bill_of_materials": [
+  {
+   "item": "track strip with side rails",
+   "material": "PLA (Ingeo 4043D)",
+   "quantity": 1,
+   "size": "134 cm long, 40 mm wide running surface, 1.5 mm thick, 8 mm rails",
+   "mass_g": 146.7,
+   "properties": {
+    "density": {
+     "value": 1240.0,
+     "unit": "kg/m^3",
+     "source": "NatureWorks, 'Ingeo Biopolymer 4043D Technical Data Sheet' (moulded / film specimens; printed parts are weaker and anisotropic)"
+    },
+    "yield_strength": {
+     "value": 60000000.0,
+     "unit": "Pa",
+     "source": "NatureWorks, 'Ingeo Biopolymer 4043D Technical Data Sheet' (moulded / film specimens; printed parts are weaker and anisotropic)"
+    }
+   }
+  },
+  {
+   "item": "car (body + ballast)",
+   "material": "any; ballast to the target mass",
+   "quantity": 1,
+   "size": "70 x 30 x 25 mm",
+   "mass_g": 31.0,
+   "properties": {}
+  },
+  {
+   "item": "wheels",
+   "material": "PLA (Ingeo 4043D)",
+   "quantity": 4,
+   "size": "12 mm diameter, 3 mm wide",
+   "mass_g": 0.42,
+   "properties": {
+    "density": {
+     "value": 1240.0,
+     "unit": "kg/m^3",
+     "source": "NatureWorks, 'Ingeo Biopolymer 4043D Technical Data Sheet' (moulded / film specimens; printed parts are weaker and anisotropic)"
+    }
+   }
+  },
+  {
+   "item": "stand clamps",
+   "material": "any",
+   "quantity": 14,
+   "size": "one every 10 cm",
+   "mass_g": null,
+   "properties": {}
+  }
+ ],
+ "build_instructions": [
+  "Measure the car's rolling resistance first: on a straight strip of the track material tilted by an angle a, find the smallest angle at which the car keeps rolling at constant speed; C_rr = tan(a). This design completes the loop for C_rr up to 0.0695.",
+  "Print or cut the track strip (PLA (Ingeo 4043D), 1.5 mm thick) from track.stl / track.step: 134 cm of running surface, 40 mm wide, with 8 mm side rails.",
+  "Shape the loop: top arc radius 8.4 cm, entry and exit clothoids 21.0 cm long; the exit is shifted 5 cm sideways so it clears the entry.",
+  "Clamp the strip to a stand every 10 cm; the loop is 18.8 cm tall.",
+  "Ballast the car to 31 g (+-5 %).",
+  "Set the launcher to 2.47 m/s (+-5 %); check with a phone slow-motion video over the 30 cm run-in.",
+  "First runs: start 10 % below the design speed and raise it until the car completes the loop; the operating window table gives the speed range that works."
+ ],
+ "limits": [
+  "The car is a point on its centre-of-mass path (1-D model) or a sphere (Newton); wheel bounce, steering and track joints are not modelled.",
+  "Newton's check has no friction and no air, and its contact dissipates energy: it confirms the 3-D track lets the car go round with margin, not the 1-D model's speeds to a tolerance.",
+  "Rolling resistance and drag are envelopes, not measurements: the design covers them, a car outside them (bent axle, dirty wheels) may not complete the loop.",
+  "The track strength check is a beam under a point load between clamps; the clamps, the stand and fatigue of the strip are not checked.",
+  "Toy scale only: nothing here applies to rides that carry people."
+ ],
+ "calls": {
+  "calls": {
+   "closed_form": 2000,
+   "reduced": 6600,
+   "full": 1
+  },
+  "wall_s": {
+   "closed_form": 0.0069,
+   "reduced": 6.3287,
+   "full": 272.5327
+  },
+  "s_per_call": {
+   "closed_form": 3.433998500014468e-06,
+   "reduced": 0.0009588959483333393,
+   "full": 272.53270733899996
+  }
+ },
+ "savings": {
+  "designs_ranked_without_full_solver": 8600,
+  "full_solver_calls": 1,
+  "full_solver_s_per_call": 272.53270733899996,
+  "text": "8600 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 272.5 s each (measured). Running every evaluation on the full solver would have taken about 651.1 h (estimate: evaluations x measured time per full call)."
+ },
+ "calibration_rounds": [
+  {
+   "round": 0,
+   "options": {},
+   "design": {
+    "radius": 0.08392212590233154,
+    "clothoid_ratio": 2.498212126585065,
+    "v0": 2.4650848447980396,
+    "mass": 0.03101345493025515
+   },
+   "measured": {},
+   "full_margins_negative": []
+  }
+ ],
+ "files": {
+  "stl": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/geometry/loop_car.stl",
+  "step": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/geometry/loop_car.step",
+  "glb": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/geometry/loop_car.glb",
+  "render": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/geometry/loop_car.png",
+  "check_margins": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/check/qoi/margins.csv",
+  "check_toml": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/check/pinneapple-check.toml",
+  "json": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/design.json",
+  "html": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/report.html",
+  "pdf": "/home/user/PINNeAPPle/examples/design_from_intent/_out/loop/report.pdf"
+ }
+}

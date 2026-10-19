@@ -1,0 +1,12 @@
+{
+ "evolution_best_mean": -6.0,
+ "evolution_best_std": 1.4142135623730951,
+ "evolution_success_rate": 1.0,
+ "surrogate_best_mean": -8.0,
+ "surrogate_best_std": 0.0,
+ "surrogate_success_rate": 0.3333333333333333,
+ "best_score": -5,
+ "best_parts": 5,
+ "evaluations_per_run": 200,
+ "seeds": 3
+}

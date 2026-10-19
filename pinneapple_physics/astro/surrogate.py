@@ -222,19 +222,19 @@ def _train_orbit_pinn(body: str = "mars", jd_tdb: float = 2461327.0, days: float
 
     th = THRESHOLDS
     checks = [
-        {"name": "Heliocentric angular error vs integrator (test)", "value": float(ang_arcsec[test].max()),
+        {"id": "angle_vs_integrator", "name": "Heliocentric angular error vs integrator (test)", "value": float(ang_arcsec[test].max()),
          "unit": "arcsec", "threshold": th["max_angle_arcsec"],
          "status": "pass" if ang_arcsec[test].max() <= th["max_angle_arcsec"] else "fail"},
-        {"name": "Orbital energy error / perturbation signal", "value": d_eps, "unit": "ratio",
+        {"id": "energy_vs_signal", "name": "Orbital energy error / perturbation signal", "value": d_eps, "unit": "ratio",
          "threshold": th["energy_rel"], "status": "pass" if d_eps <= th["energy_rel"] else "fail"},
-        {"name": "Angular momentum error / perturbation signal", "value": d_h, "unit": "ratio",
+        {"id": "angmom_vs_signal", "name": "Angular momentum error / perturbation signal", "value": d_h, "unit": "ratio",
          "threshold": th["angmom_rel"], "status": "pass" if d_h <= th["angmom_rel"] else "fail"},
-        {"name": "Conformal coverage on test points", "value": float(covered.mean()), "unit": "fraction",
+        {"id": "conformal_coverage", "name": "Conformal coverage on test points", "value": float(covered.mean()), "unit": "fraction",
          "threshold": th["coverage_min"], "status": "pass" if covered.mean() >= th["coverage_min"] else "warn"},
-        {"name": "Equation-of-motion residual (RMS / perturbing accel.)",
+        {"id": "eom_residual", "name": "Equation-of-motion residual (RMS / perturbing accel.)",
          "value": float(np.sqrt((res**2).mean())), "unit": "-", "threshold": th["residual_rms"],
          "status": "pass" if np.sqrt((res**2).mean()) <= th["residual_rms"] else "warn"},
-        {"name": "Improvement over the Kepler two-body solution", "value": float(kep_err_km[test].max()
+        {"id": "gain_over_kepler", "name": "Improvement over the Kepler two-body solution", "value": float(kep_err_km[test].max()
                                                                                    / max(err_km[test].max(), 1e-9)),
          "unit": "x", "threshold": 10.0, "status": "pass" if kep_err_km[test].max() >= 10 * err_km[test].max()
          else "warn"},

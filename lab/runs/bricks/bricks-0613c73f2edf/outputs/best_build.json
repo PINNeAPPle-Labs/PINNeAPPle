@@ -1,0 +1,62 @@
+{
+ "name": "bridge seed",
+ "ground": {
+  "kind": "table",
+  "regions": [
+   [
+    -1000,
+    0,
+    -1000,
+    1000
+   ],
+   [
+    12,
+    1000,
+    -1000,
+    1000
+   ]
+  ]
+ },
+ "bricks": [
+  {
+   "part": "brick_1x8",
+   "x": -5,
+   "y": 0,
+   "z": 0,
+   "rot": 0,
+   "colour": "light_grey"
+  },
+  {
+   "part": "plate_1x8",
+   "x": -2,
+   "y": 0,
+   "z": 3,
+   "rot": 0,
+   "colour": "blue"
+  },
+  {
+   "part": "brick_1x8",
+   "x": 9,
+   "y": 0,
+   "z": 0,
+   "rot": 0,
+   "colour": "light_grey"
+  },
+  {
+   "part": "plate_1x8",
+   "x": 6,
+   "y": 0,
+   "z": 3,
+   "rot": 0,
+   "colour": "blue"
+  },
+  {
+   "part": "brick_1x8",
+   "x": 0,
+   "y": 0,
+   "z": 4,
+   "rot": 0,
+   "colour": "lime"
+  }
+ ]
+}

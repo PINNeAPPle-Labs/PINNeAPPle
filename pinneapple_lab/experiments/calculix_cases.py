@@ -41,6 +41,18 @@ def _plt():
 @register
 class CalculixCase(Experiment):
     name = "calculix_case"
+    check_labels = {
+        "upright_bending_vs_Mc_over_I": {"en": "bending vs Mc/I \u00b7 mesh converged",
+                                         "pt": "flex\u00e3o vs Mc/I \u00b7 malha convergida",
+                                         "also": ["mesh_convergence_fillet_peak"]},
+        "stress_concentration_vs_heywood": {"en": "stress vs Heywood", "pt": "tens\u00e3o vs Heywood"},
+        "buckling_load_vs_euler": {"en": "buckling load vs Euler", "pt": "carga de flambagem vs Euler"},
+        "temperature_vs_1d_fin_solution": {"en": "temperature vs 1-D fin solution",
+                                           "pt": "temperatura vs solu\u00e7\u00e3o de aleta 1-D"},
+        "first_bending_mode_vs_euler_bernoulli": {"en": "modes vs Euler\u2013Bernoulli",
+                                                  "pt": "modos vs Euler\u2013Bernoulli",
+                                                  "also": ["second_bending_mode_vs_euler_bernoulli"]},
+    }
     version = "1"
     description = ("CalculiX studies built in Python (gmsh tetrahedra or structured hexahedra, node and face sets "
                    "picked by geometry): stress concentration, a filleted bracket, modes, buckling and a cooling fin, "

@@ -10,23 +10,31 @@ from __future__ import annotations
 import json
 import math
 import os
-from typing import Callable, Dict, List, Optional, Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 import torch
 
-from pinneapple_physics.pinn_solver.factory.pinn_factory import PINN, NeuralNetwork, PINNFactory, PINNProblemSpec
-
-from pinneapple_simulation.numerical_solvers.heat_fv_reference import _footprint_area, interp_grid, plate_2d
+from pinneapple_physics.pinn_solver.factory.pinn_factory import (
+    PINN,
+    NeuralNetwork,
+    PINNFactory,
+    PINNProblemSpec,
+)
+from pinneapple_simulation.numerical_solvers.heat_fv_reference import (
+    _footprint_area,
+    interp_grid,
+    plate_2d,
+)
 
 # stored results of the long runs (the 3D block); the Inverse Heat Lab app points here explicitly
 _ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 EXAMPLE = os.environ.get("PINNEAPPLE_INVERSE_HEAT_RESULTS") or os.path.join(_ROOT, "examples", "use_cases",
                                                                             "fin_convection_inverse")
 
-__all__ = ["FinInput", "run_fin", "run_plate", "plate_precomputed", "block_precomputed", "fin_exact", "fin_q_exact"]
+__all__ = ["run_fin", "run_plate", "plate_precomputed", "block_precomputed", "fin_exact", "fin_q_exact"]
 
-Progress = Optional[Callable[[int, int, float], None]]       # (step, total, current h)
+Progress = Callable[[int, int, float], None] | None       # (step, total, current h)
 
 
 class InputError(ValueError):
@@ -61,7 +69,7 @@ def _golden(f: Callable[[float], float], a: float, b: float, n: int = 80) -> flo
 
 def run_fin(*, k: float, d_mm: float, length_mm: float, t_base: float, t_air: float, sensors_mm: Sequence[float],
             readings: Sequence[float], h_guess: float = 100.0, steps: int = 2000, seed: int = 0,
-            progress: Progress = None, h_true: Optional[float] = None) -> Dict:
+            progress: Progress = None, h_true: float | None = None) -> dict:
     """Learn the temperature profile and h of a pin fin from thermocouple readings (°C at ``sensors_mm``)."""
     d, length = d_mm / 1000, length_mm / 1000
     xs = np.asarray(sensors_mm, float)
@@ -139,7 +147,7 @@ def run_fin(*, k: float, d_mm: float, length_mm: float, t_base: float, t_air: fl
     return out
 
 
-def fin_synthetic_readings(*, k, d_mm, length_mm, t_base, t_air, sensors_mm, h_true, noise, seed=0) -> List[float]:
+def fin_synthetic_readings(*, k, d_mm, length_mm, t_base, t_air, sensors_mm, h_true, noise, seed=0) -> list[float]:
     rng = np.random.default_rng(seed)
     xs = np.asarray(sensors_mm, float)
     t = t_air + (t_base - t_air) * fin_exact(xs / length_mm, h_true, k, d_mm / 1000, length_mm / 1000)
@@ -153,8 +161,13 @@ PLATE_SENSORS_MM = [[10, 10], [50, 10], [90, 10], [70, 30], [90, 50], [50, 50], 
 
 def run_plate(*, power: float, h_true: float, noise: float, h_guess: float = 60.0, steps: int = 1500, seed: int = 0,
               progress: Progress = None, budget=None, width: int = 48, depth: int = 4, n_colloc: int = 2500,
-              lr: float = 2e-3) -> Dict:
+              lr: float = 2e-3, readings: Sequence[float] | None = None,
+              sensors_mm: Sequence[Sequence[float]] | None = None, t_air: float | None = None) -> dict:
     """Synthetic readings from the finite-volume model, then the PINN learns T(x, y) and h; compared to the model.
+
+    ``readings`` (°C) at ``sensors_mm`` ([[x, y], ...], default the app's eight thermocouples) replace the synthetic
+    ones (measured data, or readings shared with another estimator); the finite-volume field at ``h_true`` is then
+    only the comparison. ``t_air`` overrides the plate's 25 °C air.
 
     ``budget``: a ``pinneapple_analysis.cost.ComputeBudget`` (wall clock, FLOPs or steps) to train under instead of a
     fixed ``steps``, for equal-budget comparisons; the learning-rate steps (x0.3 at 1/3 and 2/3) then follow the
@@ -162,14 +175,20 @@ def run_plate(*, power: float, h_true: float, noise: float, h_guess: float = 60.
     ``depth``, ``n_colloc``, ``lr``: the network and the collocation set (the defaults are the app's)."""
     if not (0.5 <= power <= 50 and 2 <= h_true <= 200 and 0 <= noise <= 3 and 1 <= h_guess <= 500):
         raise InputError("power 0.5-50 W, true h 2-200 W/m2K, noise 0-3 °C, starting h 1-500")
-    lx, ly, thk, k, t_air = PLATE["lx"], PLATE["ly"], PLATE["t"], PLATE["k"], PLATE["t_air"]
+    lx, ly, thk, k = PLATE["lx"], PLATE["ly"], PLATE["t"], PLATE["k"]
+    t_air = PLATE["t_air"] if t_air is None else float(t_air)
     dev = PLATE["device"]
     fv = dict(lx=lx, ly=ly, t=thk, k=k, power=power, t_air=t_air, device=dev)
     x, y, t_ref = plate_2d(h_true, nx=100, ny=60, **fv)
-    s = np.asarray(PLATE_SENSORS_MM, float)
-    rng = np.random.default_rng(seed + 100)
-    t_meas = interp_grid(x, y, t_ref, s[:, 0] / 1000, s[:, 1] / 1000) + rng.normal(0, noise, len(s))
-    length, dtemp = lx, max(10.0, float(t_ref.max() - t_air))
+    s = np.asarray(PLATE_SENSORS_MM if sensors_mm is None else sensors_mm, float).reshape(-1, 2)
+    if readings is None:
+        rng = np.random.default_rng(seed + 100)
+        t_meas = interp_grid(x, y, t_ref, s[:, 0] / 1000, s[:, 1] / 1000) + rng.normal(0, noise, len(s))
+    else:
+        t_meas = np.asarray(readings, float)
+        if len(t_meas) != len(s) or len(s) < 2:
+            raise InputError("give one reading per sensor position, at least two")
+    length, dtemp = lx, max(10.0, float(max(t_ref.max(), t_meas.max()) - t_air))
     q_flux = power / _footprint_area(*dev, lx, ly)
     c_h, c_q = 2 * length**2 / (k * thk), q_flux * length**2 / (k * thk * dtemp)
     ar = ly / length
@@ -217,7 +236,7 @@ def run_plate(*, power: float, h_true: float, noise: float, h_guess: float = 60.
     history = []
     state = {"step": 0, "batch": None}
 
-    def one_step(frac: Optional[float] = None):
+    def one_step(frac: float | None = None):
         step = state["step"]
         if step % 250 == 0:
             state["batch"] = {"collocation": col(n_colloc), "data": data,
@@ -261,24 +280,24 @@ def run_plate(*, power: float, h_true: float, noise: float, h_guess: float = 60.
             "max_field_error": float(np.max(np.abs(t_pinn - t_ref))),
             "field_pinn": t_pinn.round(2).tolist(), "field_reference": t_ref.round(2).tolist(),
             "x_mm": (x * 1000).round(2).tolist(), "y_mm": (y * 1000).round(2).tolist(),
-            "sensors_mm": PLATE_SENSORS_MM, "readings": np.round(t_meas, 2).tolist(), "history": history,
+            "sensors_mm": s.tolist(), "readings": np.round(t_meas, 2).tolist(), "history": history,
             "device_mm": [v * 1000 for v in dev[:3]],
             "hot_spot_if_guess": float(plate_2d(h_guess, nx=100, ny=60, **fv)[2].max()),
             **({"train": run.to_dict()} if run is not None else {})}
 
 
 # --------------------------------------------------------------------------- precomputed full runs
-def _summary(case: str) -> Dict:
+def _summary(case: str) -> dict:
     with open(os.path.join(EXAMPLE, "results", case, "summary.json")) as fh:
         return json.load(fh)
 
 
-def _typical(summary: Dict) -> int:
+def _typical(summary: dict) -> int:
     hp = summary["h_pinn"]["mean"]
     return min(range(len(summary["runs"])), key=lambda i: abs(summary["runs"][i]["h_pinn"] - hp))
 
 
-def plate_precomputed() -> Dict:
+def plate_precomputed() -> dict:
     s = _summary("2d")
     i = _typical(s)
     field = np.load(os.path.join(EXAMPLE, "results", "2d", f"field_pinn_{i}.npy"))
@@ -293,7 +312,7 @@ def plate_precomputed() -> Dict:
                       for r in s["runs"]]}
 
 
-def block_precomputed() -> Dict:
+def block_precomputed() -> dict:
     s = _summary("3d")
     i = _typical(s)
     field = np.load(os.path.join(EXAMPLE, "results", "3d", f"field_pinn_{i}.npy"))

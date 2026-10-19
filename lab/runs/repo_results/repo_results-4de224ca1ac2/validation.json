@@ -1,0 +1,74 @@
+[
+ {
+  "name": "envelope_vs_closed_form_linear_dq",
+  "passed": true,
+  "value": 1.306940023413922e-14,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Drive: torque envelope vs closed form (linear dq) (machines.verification); L_d = 0.6 mH, L_q = 2.4 mH, psi_m = 0.2 Wb, 250 A, 500 V SVPWM",
+  "kind": "verification"
+ },
+ {
+  "name": "least_loss_currents_vs_mtpa_closed_form",
+  "passed": true,
+  "value": 1.973246299416986e-08,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Drive: least-loss currents vs MTPA closed form (machines.verification); ",
+  "kind": "verification"
+ },
+ {
+  "name": "wltc_energy_balance_lossless_drive",
+  "passed": true,
+  "value": 0.0,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Drive cycle: WLTC class 3b energy balance (machines.verification); trace: 23266.3 m (GTR 15: 23 266 m), max 131.3 km/h, sum 83758.6 km/h s",
+  "kind": "physics"
+ },
+ {
+  "name": "flux_map_interpolation_vs_direct_fea",
+  "passed": true,
+  "value": 0.00027175927664814027,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Prius flux map: interpolation vs direct FEA (machines.verification); error relative to 300 N m",
+  "kind": "verification"
+ },
+ {
+  "name": "battery_energy_balance",
+  "passed": true,
+  "value": 8547951.199500713,
+  "reference": 8547951.199500713,
+  "rtol": 1e-09,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "battery energy = motoring - regenerated over the WLTC class 3b cycle",
+  "kind": "physics"
+ },
+ {
+  "name": "efficiency_below_one",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "physics"
+ }
+]

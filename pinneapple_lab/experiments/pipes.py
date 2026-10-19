@@ -56,6 +56,15 @@ def _flow(case: str, p: dict, mixer: int | None = None):
 @register
 class PipeFlow(Experiment):
     name = "pipe_flow"
+    check_labels = {
+        "friction_factor_vs_colebrook": {"en": "friction vs Colebrook \u00b7 loss vs Ito",
+                                         "pt": "atrito vs Colebrook \u00b7 perda vs Ito", "also": ["bend_loss_vs_ito"]},
+        "friction_factor_vs_64_over_Re": {"en": "friction vs 64/Re (Hagen\u2013Poiseuille)",
+                                          "pt": "atrito vs 64/Re (Hagen\u2013Poiseuille)"},
+        "bulk_velocity_constant_along_pipe": {"en": "mass conserved \u00b7 beats an empty pipe",
+                                              "pt": "massa conservada \u00b7 supera o tubo vazio",
+                                              "also": ["mixer_beats_empty_pipe"]},
+    }
     version = "1"
     description = ("Internal flow in OpenFOAM on a structured O-grid swept along the pipe: laminar pipe against "
                    "Hagen-Poiseuille, a turbulent 90 degree bend against Colebrook and Ito, a Kenics static mixer "

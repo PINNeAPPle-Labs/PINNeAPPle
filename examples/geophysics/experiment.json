@@ -1,0 +1,38 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/geophysics",
+ "title": "Earth-system blocks in one script (about one minute on a laptop CPU): 1",
+ "description": "Earth-system blocks in one script (about one minute on a laptop CPU): 1. Rossby-Haurwitz wave (Williamson case 6) on the sphere at T42 for 4 days, with the conserved quantities; 2. 4D-Var on Lorenz-96: background, analysis and truth; 3. Richards infiltration (Celia et al. 1990) after 6 h, 12 h and 24 h. Writes sphere_and_assimilation.png.",
+ "domain": "geophysics and climate",
+ "methods": [],
+ "modules": [
+  "pinneapple_analysis.data_assimilation",
+  "pinneapple_simulation.geophysics"
+ ],
+ "params": {},
+ "scripts": [
+  "01_sphere_and_assimilation.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/geophysics/01_sphere_and_assimilation.py",
+  "pr": [
+   240
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

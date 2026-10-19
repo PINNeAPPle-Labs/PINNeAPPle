@@ -1,0 +1,39 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/physics_audit",
+ "title": "Physics audit: which model to use, when to trust it, when to revisit the physics",
+ "description": "Physics audit on pipe friction: models judged by their physics, not only by their past errors. The Darcy friction factor of a rough pipe (relative roughness 1e-3) is predicted for a stream of cases whose Reynolds number moves through the laminar, transitional and turbulent regimes and back. The truth is Churchill's (1977) correlation, which covers every regime and includes roughness. The models: *",
+ "domain": "validation and benchmarks",
+ "methods": [],
+ "modules": [
+  "pinneapple_physics.ensemble",
+  "pinneapple_physics.physics_audit"
+ ],
+ "params": {},
+ "scripts": [
+  "pipe_regimes.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/physics_audit.md",
+  "script": "examples/physics_audit/pipe_regimes.py",
+  "pr": [
+   463
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

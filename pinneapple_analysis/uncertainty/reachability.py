@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from typing import Dict, Optional, Sequence
 
 import numpy as np
+from scipy.optimize import minimize_scalar
 
 from pinneapple_neural._licencas import require_research_use
 
@@ -60,19 +61,47 @@ def encounter_feasibility(a: BodyState, b: BodyState, horizon: float, *, contact
     cannot be ruled out (collision screening) / the encounter is reachable (rendezvous).
     """
     require_research_use("pinneapple_analysis.uncertainty.reachability", NOTICE)
-    t = np.linspace(0.0, horizon, n)
-    margin = np.linalg.norm(a.center(t) - b.center(t), axis=1) - a.radius(t) - b.radius(t) - contact_distance
+    if not horizon > 0:
+        raise ValueError(f"horizon must be positive, got {horizon}")
+    for body in (a, b):
+        if min(body.pos_uncertainty, body.vel_uncertainty, body.max_accel, body.latency) < 0:
+            raise ValueError(f"uncertainties, max_accel and latency must be non-negative, got {body}")
+
+    def margin_at(s):
+        s = np.atleast_1d(np.asarray(s, float))
+        return np.linalg.norm(a.center(s) - b.center(s), axis=1) - a.radius(s) - b.radius(s) - contact_distance
+
+    # The centres move on straight lines, so their distance has one minimum, at the closest approach t_ca. A fast
+    # flyby can overlap only between two grid points; sampling t_ca, and searching every interval whose lower bound
+    # (closest distance in the interval minus the radii at its end, the radii never shrink) reaches 0, keeps that
+    # contact from being missed.
+    dp = np.asarray(a.position, float) - np.asarray(b.position, float)
+    dv = np.asarray(a.velocity, float) - np.asarray(b.velocity, float)
+    vv = float(dv @ dv)
+    t_ca = float(np.clip(-(dp @ dv) / vv, 0.0, horizon)) if vv > 0 else 0.0
+    t = np.union1d(np.linspace(0.0, horizon, n), [t_ca])
+    margin = margin_at(t)
+    lo_t, hi_t = t[:-1], t[1:]
+    closest = np.linalg.norm(dp[None, :] + np.clip(t_ca, lo_t, hi_t)[:, None] * dv[None, :], axis=1)
+    bound = closest - a.radius(hi_t) - b.radius(hi_t) - contact_distance
+    extra = []
+    for i in np.flatnonzero((bound <= 0) & (margin[:-1] > 0) & (margin[1:] > 0)):
+        r = minimize_scalar(lambda s: float(margin_at(s)[0]), bounds=(lo_t[i], hi_t[i]), method="bounded",
+                            options={"xatol": 1e-12 * max(horizon, 1.0)})
+        if r.fun <= 0:
+            extra.append(float(r.x))
+    if extra:
+        t = np.union1d(t, extra)
+        margin = margin_at(t)
     k = int(np.argmax(margin <= 0)) if np.any(margin <= 0) else None
     t_first = None
     if k is not None:
         t_first = float(t[k])
         if refine and k > 0:
             lo, hi = t[k - 1], t[k]
-            f = lambda s: float(np.linalg.norm(a.center([s]) - b.center([s])) - a.radius([s])[0] - b.radius([s])[0]
-                                - contact_distance)
             for _ in range(60):
                 mid = 0.5 * (lo + hi)
-                lo, hi = (lo, mid) if f(mid) <= 0 else (mid, hi)
+                lo, hi = (lo, mid) if margin_at(mid)[0] <= 0 else (mid, hi)
             t_first = float(hi)
     return {"possible": k is not None, "t_first": t_first, "min_margin": float(margin.min()),
             "t_min_margin": float(t[int(np.argmin(margin))]), "times": t, "margin": margin}

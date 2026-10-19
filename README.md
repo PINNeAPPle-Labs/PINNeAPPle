@@ -345,6 +345,8 @@ PINNeAPPle
 
 The Engineering Apps in [`apps/`](apps) (heat-sink sizer, PCB hot spots, mesh quality, simulation preflight and comparator, model lineage, interoperability hub, ...) are FastAPI services with a web front end, built on the library.
 
+**Flow Studio** ([`apps/flow_studio`](apps/flow_studio/README.md)): describe a problem in words, get proposed node graphs (domain, editable equations, classical solvers, PINNs, neural operators, inverse problems, validation with the Lab seal, digital twin, ...), edit and run them on a canvas, or headless with `python -m pinneapple_flow run flow.json`. `pip install -e ".[flow]"` then `python -m pinneapple_flow studio`.
+
 <div align="center">
 
 | | | |

@@ -1,0 +1,12 @@
+{
+ "id": "bench09",
+ "title": "Equal-budget benchmark: PINN vs FNO vs DeepONet (pinneapple-benchmark experiment 09)",
+ "repository": "https://github.com/PINNeAPPle-Labs/pinneapple-benchmark",
+ "path": "experiments/09_equal_budget_pinn_fno_deeponet",
+ "commit": "e6b23e5e89122e9a36166d7b3a0302ef7c670f90",
+ "commit_date": "2026-10-13",
+ "license": "Apache-2.0",
+ "files": ["results/table.csv", "results/hardware.json"],
+ "protocol": "pp.benchmark: same wall-clock budget per training run on one CPU core (300 s Burgers, Darcy, Navier-Stokes; 900 s airfoil; 120 s inverse heat), an equal-trial hyper-parameter search, 3 seeds, correctness gates; test and OOD sets fixed before any run (see the experiment README).",
+ "note": "Copied unchanged from the repository at this commit; the arena shows these numbers as published there and did not rerun them."
+}

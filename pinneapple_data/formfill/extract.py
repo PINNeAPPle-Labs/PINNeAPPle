@@ -167,7 +167,7 @@ def _unit_after(s: str, start: int) -> Tuple[Optional[str], Optional[bool], Opti
 def parse_value(f: Field, text: str) -> Optional[Dict[str, Any]]:
     """Interpret ``text`` as an answer to ``f``; ``None`` when it does not look like one."""
     t = text.strip().strip(":=").strip()
-    if not t:
+    if not t or (f.reject and re.search(f.reject, t, re.I)):
         return None
     if f.kind == "quantity":
         if re.search(r"full\s*vacuum|\bf\.?v\.?\b", t, re.I):
@@ -209,8 +209,10 @@ def parse_value(f: Field, text: str) -> Optional[Dict[str, Any]]:
         if not found and f.other and len(low) > 1:
             return {"value": f.other, "raw": t}
         return None
-    # text
+    # text: a bare yes/no/n.a. answers a check box, not a text item (a material "NO", a service "-")
     t = re.sub(r"\s+", " ", t)
+    if re.fullmatch(r"(?:yes|no|n\.?/?a\.?|nil|-+)", t, re.I):
+        return None
     return {"value": t, "raw": t} if len(t) <= 300 else None
 
 
@@ -242,9 +244,84 @@ def _label_hits(line: str, rules) -> List[Tuple[int, int, Field]]:
 
 
 def _label_is_whole_cell(cell: str, start: int, end: int) -> bool:
+    if re.match(r"\s*(?:\([^)]*\))?\s*[:=]\s*\S", cell[end:]):      # "Service : Non-Lethal" holds its own value
+        return False
     rest = (cell[:start] + cell[end:]).strip(" :=-–()[]*.,")
     rest = re.sub(r"\(.*?\)", "", rest).strip()
     return len(rest) <= 12           # allow a unit hint such as "(barg)" or "case 1"
+
+
+# A cell that holds only a unit, as in datasheets with a separate unit column ("Design pressure | 1.5 | MPa g").
+_UNIT_CELL = re.compile(r"(?:mm|cm|m|in|inch|ft|deg\.?\s*[cf]|°\s*[cf]|k?pa\s*\(?[ga]?\)?|mpa\s*\(?[ga]?\)?|"
+                        r"bar\s*\(?[ga]?\)?|psi\s*\(?[ga]?\)?|kgf?/cm[2²]\s*\(?g?\)?|kg/m[3³]|m/s|km/h|mph|%|"
+                        r"years?|hrs?|h)", re.I)
+# A label naming two values written in one cell: "Design pressure (int/ext) | 1.5 / FV", "Temperature max/min | 60 / 10"
+_PAIR_LABEL = re.compile(r"\bint(?:ernal)?\s*/\s*ext(?:ernal)?\b|\bmax(?:imum)?\s*/\s*min(?:imum)?\b", re.I)
+_PAIR_VALUE = re.compile(r"^\s*([^/]+?)\s*/\s*([^/]+?)\s*$")
+_PARTNER = (("_int", "_ext"), ("tmax", "tmin"), ("pmax", "pmin"))
+
+
+def _unit_text(cell: str) -> str:
+    """The unit as the value parser reads it: "MPa g" -> "MPa(g)", "MM" -> "mm"."""
+    u = re.sub(r"\s+", " ", cell.strip())
+    d = re.fullmatch(r"(?:deg\.?|°)\s*([cf])", u, re.I)
+    if d:
+        return f"°{d.group(1).upper()}"
+    m = re.fullmatch(r"(k?pa|mpa|bar|psi|kgf?/cm[2²])\s*\(?([ga])\)?", u, re.I)
+    if m:
+        return f"{m.group(1)}({m.group(2).lower()})"
+    return u.lower() if re.fullmatch(r"mm|cm|m|in|inch|ft", u, re.I) else u
+
+
+def _is_unit_cell(cell: str) -> bool:
+    return bool(cell) and _UNIT_CELL.fullmatch(cell.strip()) is not None
+
+
+def _header_units(rows: List[List[str]]) -> Dict[int, str]:
+    """Unit named in the header of a column, by position among the non-empty cells of the first row:
+    ``Item | Value (MPa g)`` -> ``{1: "MPa(g)"}``. Empty when the first row is not a header (it holds a digit)."""
+    cells = [c for c in (rows[0] if rows else []) if c]
+    if len(cells) < 2 or any(re.search(r"\d", c) for c in cells):
+        return {}
+    out = {}
+    for k, c in enumerate(cells):
+        m = re.search(r"[(\[]\s*([^)\]]+?)\s*[)\]]\s*$", c)
+        if m and _is_unit_cell(m.group(1)):
+            out[k] = _unit_text(m.group(1))
+    return out
+
+
+def _pairs(f: Field, label: str, value: str, spec: FormSpec, unit: str = "") -> List[Tuple[Field, str]]:
+    """``[(field, value)]``: the value split in two when the label names a pair (int/ext, max/min) and the spec has
+    the partner item; a part written "NA" or "-" is left out. ``unit`` (from a unit column) is added to every
+    numeric part written without one."""
+    def with_unit(v: str) -> str:
+        return f"{v} {unit}" if unit and re.search(r"\d", v) and not re.search(r"[A-Za-z°]", v) else v
+    m = _PAIR_VALUE.match(value)
+    if not (m and _PAIR_LABEL.search(label)):
+        return [(f, with_unit(value))]
+    first, second = m.group(1), m.group(2)
+    tail = re.search(r"\d\s*([A-Za-z°%].*)$", second)       # "120 / -10 °C": the unit after the second value
+    if tail and not re.search(r"[A-Za-z°]", first):
+        first = f"{first} {tail.group(1).strip()}"
+    first, second = with_unit(first), with_unit(second)
+    partner = next((spec.by_key.get(f.key.replace(a, b)) for a, b in _PARTNER if a in f.key), None)
+    out = [(f, first)]
+    if partner is not None:
+        out.append((partner, second))
+    return [(g, v) for g, v in out if not re.fullmatch(r"\s*(?:n\.?/?a\.?|-+|nil)\s*", v, re.I)]
+
+
+def _sub_tables(rows: List[List[str]], t: TableSpec) -> List[Tuple[int, int]]:
+    """``(row, column)`` of every header of ``t`` that starts inside a table rather than in its first row (a nozzle
+    schedule printed next to the design conditions in one grid)."""
+    out = []
+    for i, row in enumerate(rows):
+        for k in range(1, len(row)):
+            if row[k] and any(re.search(rx, row[k].lower()) for rx in t.columns.values()) and _is_header(row[k:], t):
+                out.append((i, k))
+                break
+    return out
 
 
 def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
@@ -284,49 +361,96 @@ def extract_rules(doc: Document, spec: FormSpec) -> List[Candidate]:
                 row_tables.add(id(rows))
     norm = lambda x: re.sub(r"\s+", " ", x).strip().lower()  # noqa: E731
     table_lines = {(page, norm(" ".join(c for c in row if c))) for page, rows in doc.tables for row in rows}
-    # 1. tables: label cell followed by value cell (several pairs per row allowed)
-    for page, rows in doc.tables:
+    # a table printed beside the label/value grid (a nozzle schedule in the right half): read with spec.tables, and
+    # its cells are not label/value pairs ("Mark | Service | Qty" is a header, not Service = Qty)
+    cut: Dict[Tuple[int, int], int] = {}
+    for _page, rows in doc.tables:
         if id(rows) in row_tables:
             continue
-        for row in rows:
-            cells = [c for c in row if c]
-            i = 0
-            while i < len(cells) - 1:
-                hits = _label_hits(cells[i], rules)
-                if len({id(h[2]) for h in hits}) == 1 and len(hits) > 1:     # one item named twice: "k (Cp/Cv)"
-                    hits = [(hits[0][0], hits[-1][1], hits[0][2])]
-                if len(hits) == 1 and _label_is_whole_cell(cells[i], hits[0][0], hits[0][1]):
-                    unit_hint = re.search(r"\(([^)]+)\)", cells[i])
-                    value = cells[i + 1]
-                    if unit_hint and hits[0][2].kind == "quantity" and not re.search(r"[A-Za-z°]", value):
-                        value = f"{value} {unit_hint.group(1)}"
-                    add(hits[0][2], value, page, " | ".join(row), 0.9)
-                    i += 2
-                else:
-                    i += 1
-    # 2. text lines: "label: value" (several labels per line allowed). Lines that are table rows were read above,
-    #    and a label without ":" or "=" in running text (a heading, a sentence) is not an answer.
-    for page_no, text in enumerate(doc.pages, start=1):
-        for line in text.splitlines():
-            if (page_no, norm(line)) in table_lines:
-                continue
-            hits = _label_hits(line, rules)
-            # the same field named twice in a row ("overpressure protection: pressure relief valve") is one label
-            hits = [h for j, h in enumerate(hits) if j == 0 or h[2] is not hits[j - 1][2]
-                    or line[hits[j - 1][1]:h[0]].strip(" :=")]
-            for j, (s, e, f) in enumerate(hits):
-                nxt = hits[j + 1][0] if j + 1 < len(hits) else len(line)
-                tail = line[e:nxt]
-                sep = re.match(r"\s*(?:\([^)]*\))?\s*[:=]", tail)
-                if not sep:
-                    continue
+        for t in spec.tables:
+            for i, k in _sub_tables(rows, t):
+                for j in range(i, len(rows)):
+                    rest = [c for c in rows[j][k:] if c]
+                    if j > i and len(rest) == 1 and rest[0].isupper():    # the next section title ends it
+                        break
+                    cut[(id(rows), j)] = min(k, cut.get((id(rows), j), k))
+
+    def scan_line(line: str, page: int, conf: float, snippet: str = "", one_cell: bool = False):
+        """ "label: value" (several labels per line allowed); also "label shall be as per X" for a choice and
+        "label is (not) required" for a yes/no item, as notes are written."""
+        hits = [h for h in _label_hits(line, rules) if h[0] == 0 or line[h[0] - 1] not in "-/"]   # not "Non-Lethal"
+        if one_cell:      # inside a cell only "label:" starts an answer; "City" in "Location: Sample City" does not
+            hits = [h for h in hits if re.match(r"\s*(?:\([^)]*\))?\s*[:=]", line[h[1]:])]
+        # the same field named twice in a row ("overpressure protection: pressure relief valve") is one label
+        hits = [h for j, h in enumerate(hits) if j == 0 or h[2] is not hits[j - 1][2]
+                or line[hits[j - 1][1]:h[0]].strip(" :=")]
+        for j, (s_, e, f) in enumerate(hits):
+            nxt = hits[j + 1][0] if j + 1 < len(hits) else len(line)
+            tail = line[e:nxt]
+            sep = re.match(r"\s*(?:\([^)]*\))?\s*[:=]", tail)
+            if sep:
                 unit_hint = re.match(r"\s*\(([^)]+)\)", tail)
                 value = re.sub(r"^\s*(?:\([^)]*\))?\s*[:=]?\s*", "", tail)
+                if one_cell:          # "Item No.: ABC-001 Qty: 1" -> stop at the next "Word:" in the cell
+                    value = re.split(r"\s+[A-Z][A-Za-z.'/ ]{0,24}\s*:", value)[0]
                 if unit_hint and f.kind == "quantity" and value and not re.search(r"[A-Za-z°]", value):
                     value = f"{value} {unit_hint.group(1)}"
                 if not value.strip() and j + 1 < len(hits) and hits[j + 1][2] is f:
                     value = line[hits[j + 1][0]:(hits[j + 2][0] if j + 2 < len(hits) else len(line))]
-                add(f, value, page_no, line, 0.8)
+            elif f.kind == "choice" and re.match(r"\s+(?:shall be |is |are )?(?:as )?per\s", tail, re.I):
+                value = re.sub(r"^\s+(?:shall be |is |are )?(?:as )?per\s+", "", tail, flags=re.I)
+            elif f.kind == "bool" and re.match(r"\s*(?:is |are )?(?:not )?(?:required|applicable)\b", tail, re.I):
+                value = "no" if re.match(r"\s*(?:is |are )?not\b", tail, re.I) else "yes"
+            else:
+                continue
+            for g, v in _pairs(f, line[s_:e] + tail, value, spec):
+                add(g, v, page, snippet or line, conf)
+
+    # 1. tables: label cell followed by value cell (several pairs per row allowed); a unit cell after the value
+    #    belongs to it
+    for page, rows in doc.tables:
+        if id(rows) in row_tables:
+            continue
+        col_units = _header_units(rows)
+        for r_i, row in enumerate(rows):
+            row_cut = cut.get((id(rows), r_i))
+            cells = [c for c in (row if row_cut is None else row[:row_cut]) if c]
+            snippet = " | ".join(c for c in row if c)
+            i = 0
+            while i < len(cells):
+                hits = _label_hits(cells[i], rules)
+                if len({id(h[2]) for h in hits}) == 1 and len(hits) > 1:     # one item named twice: "k (Cp/Cv)"
+                    hits = [(hits[0][0], hits[-1][1], hits[0][2])]
+                elif len(hits) > 1:      # "Shell inside diameter": the longest label, if the rest is a qualifier
+                    hits = [max(hits, key=lambda h: h[1] - h[0])]
+                if i + 1 < len(cells) and len(hits) == 1 and _label_is_whole_cell(cells[i], hits[0][0], hits[0][1]):
+                    f = hits[0][2]
+                    unit_hint = re.search(r"\(([^)]+)\)", cells[i])
+                    value = cells[i + 1]
+                    step, unit = 2, ""
+                    if f.kind == "quantity" and i + 2 < len(cells) and _is_unit_cell(cells[i + 2]):
+                        unit, step = _unit_text(cells[i + 2]), 3
+                    elif f.kind == "quantity" and i + 2 < len(cells) and _is_unit_cell(cells[i + 1]) \
+                            and re.search(r"\d", cells[i + 2]):          # Item | Unit | Value
+                        unit, value, step = _unit_text(cells[i + 1]), cells[i + 2], 3
+                    elif unit_hint and f.kind == "quantity" and not _PAIR_LABEL.search(unit_hint.group(1)):
+                        unit = unit_hint.group(1)
+                    elif f.kind == "quantity" and r_i > 0 and (i + 1) in col_units:       # Item | Value (MPa g)
+                        unit = col_units[i + 1]
+                    for g, v in _pairs(f, cells[i], value, spec, unit):
+                        add(g, v, page, snippet, 0.9)
+                    i += step
+                else:
+                    if ":" in cells[i]:      # "Service : Non-Lethal" written inside one cell
+                        scan_line(re.sub(r"\s+", " ", cells[i]), page, 0.85, snippet, one_cell=True)
+                    i += 1
+    # 2. text lines. Lines that are table rows were read above, and a label without ":" or "=" in running text (a
+    #    heading, a sentence) is not an answer.
+    for page_no, text in enumerate(doc.pages, start=1):
+        for line in text.splitlines():
+            if (page_no, norm(line)) in table_lines:
+                continue
+            scan_line(line, page_no, 0.8)
     for t in spec.tables:
         out.extend(_table_rows(doc, t))
     return out
@@ -385,14 +509,28 @@ def _column_table(rows: List[List[str]], spec: FormSpec, page: int, doc: Documen
 
 
 def _is_header(row: List[str], t: TableSpec) -> bool:
-    head = [c.lower() for c in row]
+    head = [(c or "").lower() for c in row]
     return bool(t.header) and all(any(re.search(rx, h) for h in head) for rx in t.header)
 
 
 def _find_tables(doc: Document, t: TableSpec) -> List[Tuple[int, List[List[str]]]]:
-    """Tables whose header matches ``t``, including a header-less continuation on the next page (same columns)."""
+    """Tables whose header matches ``t``, including a header-less continuation on the next page (same columns), and
+    tables that start inside a larger grid (header in a later row, at a column offset)."""
     found, prev = [], None
     for page, rows in doc.tables:
+        subs = _sub_tables(rows, t) if rows and not _is_header(rows[0], t) else []
+        if subs:
+            for i, k in subs:
+                sub = [rows[i][k:]]
+                for row in rows[i + 1:]:
+                    rest = [c for c in row[k:] if c]
+                    if len(rest) == 1 and rest[0].isupper():      # the next section title ends it
+                        break
+                    if len(rest) >= 2:
+                        sub.append([c or "" for c in row[k:]])
+                found.append((page, sub))
+            prev = None
+            continue
         if rows and _is_header(rows[0], t):
             found.append((page, rows))
             prev = (page, rows[0])
@@ -540,6 +678,8 @@ def compile(docs: Sequence[Document], candidates: Iterable[Candidate], spec: For
             if distinct:
                 d.note = (f"{len(distinct)} other value(s) disagree; using {best.doc} (higher priority). "
                           "Confirm with the owner.")
+            if f.kind == "quantity" and isinstance(best.value, float) and best.unit is None:
+                d.note = (d.note + " " if d.note else "") + "No unit was found with this value: check it."
             if best.ocr is not None and best.ocr < OCR_CHECK:
                 d.note = (d.note + " " if d.note else "") + (f"Read by OCR with {best.ocr:.0f}% confidence: "
                                                              "check it against the scan.")

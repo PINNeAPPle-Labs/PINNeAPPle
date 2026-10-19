@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #172033; background: #f4f6f9; }
+
+@layer components {
+  .btn { @apply px-2.5 py-1 rounded border border-slate-200 bg-white text-[12.5px] hover:bg-slate-50 disabled:opacity-50; }
+  .btn-primary { @apply px-2.5 py-1 rounded bg-brand-500 text-white text-[12.5px] font-medium hover:bg-brand-600 disabled:opacity-50; }
+}
+.react-flow__handle { cursor: crosshair; }

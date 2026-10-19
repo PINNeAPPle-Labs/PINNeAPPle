@@ -1,0 +1,76 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/studio",
+ "title": "Animation-centred dashboards",
+ "description": "Any simulation result in 3D, with three calls: load, export, render.",
+ "domain": "general",
+ "methods": [],
+ "modules": [
+  "pinneapple",
+  "pinneapple_design.aero.airliner3d",
+  "pinneapple_design.geometry.vehicles3d",
+  "pinneapple_hub",
+  "pinneapple_simulation.terramechanics",
+  "pinneapple_simulation.terramechanics.surrogate",
+  "pinneapple_simulation.vehicle",
+  "pinneapple_tools.visualization.integrations.plotly_export",
+  "pinneapple_tools.visualization.integrations.rerun_bridge",
+  "pinneapple_tools.visualization.studio.planetary",
+  "pinneapple_tools.visualization.studio.pyvista_render",
+  "pinneapple_tools.visualization.studio.scene"
+ ],
+ "params": {},
+ "scripts": [
+  "01_any_result_in_3d.py",
+  "02_ahmed_body_cfd.py",
+  "03_airliner_with_cfd.py",
+  "04_road_car_cfd.py",
+  "05_launch_vehicle_cfd.py",
+  "06_formula_car_cfd.py",
+  "07_lunar_rover_dashboard.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "_out/ahmed/cp.jpg",
+   "_out/ahmed/mid_plane_speed.jpg",
+   "_out/ahmed/streamlines.jpg",
+   "_out/ahmed/wake_vorticity.jpg",
+   "_out/airliner/cp.jpg",
+   "_out/beam/beam_stress.jpg"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/ahmed/coefficients_medium.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/core_concepts/dashboard.md",
+  "script": "examples/studio/01_any_result_in_3d.py",
+  "pr": [
+   240,
+   412,
+   470,
+   650,
+   651
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "repo_results/ahmed_body",
+  "items": [
+   "repo_results/ahmed_body"
+  ],
+  "experiment": "repo_results",
+  "run_id": "repo_results-76a9a3bf2c2f",
+  "tier": "A"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

@@ -1,0 +1,10 @@
+{
+ "test_mse_u_VanillaPINN": 0.0001490869908593595,
+ "test_mse_u_VPINN": 7.62357643679934e-08,
+ "test_mse_u_PINNsFormer": 0.006393932271748781,
+ "test_mse_u_PIELM_wrap_": 0.004979216493666172,
+ "train_time_VanillaPINN": 44.164775133132935,
+ "train_time_VPINN": 43.5403208732605,
+ "train_time_PINNsFormer": 892.39404129982,
+ "train_time_PIELM_wrap_": 53.437671422958374
+}

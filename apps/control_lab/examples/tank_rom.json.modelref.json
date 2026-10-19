@@ -1,0 +1,94 @@
+{
+ "schema_version": "1.0",
+ "metadata": {},
+ "kind": "ModelRef",
+ "name": "heated-tank ROM",
+ "version": "0.1.0",
+ "model_type": "rom",
+ "uri": "tank_rom.json",
+ "sha256": "6991bf9f21a9d705ad82a5e942842f687dc15edafe05f7b0488e5a2be73cc7a7",
+ "framework": "pinneapple_systems.operations.rom (controlled operator inference)",
+ "inputs": [
+  {
+   "name": "h",
+   "unit": "m",
+   "low": 0.7315646809367282,
+   "high": 1.6730877370591437,
+   "description": ""
+  },
+  {
+   "name": "T",
+   "unit": "degC",
+   "low": 16.815424330909842,
+   "high": 35.95863500689657,
+   "description": ""
+  },
+  {
+   "name": "q_in",
+   "unit": "m3/s",
+   "low": 0.0045316471830681194,
+   "high": 0.008498186932877464,
+   "description": ""
+  },
+  {
+   "name": "Q",
+   "unit": "W",
+   "low": 150250.1139953825,
+   "high": 549026.2366350892,
+   "description": ""
+  },
+  {
+   "name": "T_in",
+   "unit": "degC",
+   "low": 9.044471364223988,
+   "high": 16.98738013369259,
+   "description": ""
+  },
+  {
+   "name": "T_amb",
+   "unit": "degC",
+   "low": 15.016255755712578,
+   "high": 24.832437753980493,
+   "description": ""
+  }
+ ],
+ "outputs": [
+  {
+   "name": "h",
+   "unit": "m",
+   "description": "h one step (20 s) later"
+  },
+  {
+   "name": "T",
+   "unit": "degC",
+   "description": "T one step (20 s) later"
+  }
+ ],
+ "dataset": {
+  "name": "heated-tank campaign runs",
+  "version": "0.1.0",
+  "content_hash": "dc13502d365237a9126b7191f53d795434bd870b6ebea28588218b684e769483",
+  "uri": "campaign_runs.dataset.json"
+ },
+ "metrics": {
+  "one_step_rmse_h": 6.956362484741441e-05,
+  "one_step_rmse_T": 0.023953560590850437,
+  "rollout_rmse_h": 0.0012509032326221844,
+  "rollout_rmse_T": 0.20379846314391728,
+  "rollout_rel_rmse_h": 0.006349347126408382,
+  "rollout_rel_rmse_T": 0.06001472787202123,
+  "rollout_max_abs_error_h": 0.004880090338278298,
+  "rollout_max_abs_error_T": 0.6352200018881895
+ },
+ "metrics_split": "test",
+ "trust_decision": "REVIEW",
+ "provenance": {
+  "app": "surrogate",
+  "study_id": "",
+  "source": "",
+  "run_ids": [],
+  "library_version": "0.7.0",
+  "created": "2026-10-17T11:26:44Z",
+  "notes": "whole trajectories held out (last 3)"
+ }
+}

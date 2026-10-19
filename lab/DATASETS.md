@@ -1,6 +1,6 @@
 # PINNeAPPle Lab datasets
 
-25 datasets, 2321 samples from completed (validated) runs. Arrays are not in git: rebuild a dataset with its sweep command (cached runs are skipped), then export it as one file.
+37 datasets, 3299 samples from completed (validated) runs. Arrays are not in git: rebuild a dataset with its sweep command (cached runs are skipped), then export it as one file.
 
 ## `accretion_flow` / `frames`
 
@@ -22,6 +22,53 @@ Schema ranges are those of one run (`accretion_flow-4a0c1426e768`).
 ```bash
 python -m pinneapple_lab sweep accretion_flow -g alpha=0.05,0.1,0.2 -g viscosity=SS,ST
 python -m pinneapple_lab export accretion_flow frames accretion_flow_frames.npz
+```
+
+## `bar_wear` / `wear_history`
+
+Wear history: sliding distance, worn volume, peak pressure, contact fraction; profiles and pressures along the bar end
+
+8 samples from 8 runs; every sample also carries the run parameters (crown_radius_mm, distance_runins, length_mm, load_N, material, render, width_mm).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| s | array | [1045] float32 | 196.8 .. 8.667e+06 | m |
+| volume | array | [1045] float32 | 0.0007569 .. 33.33 | mm3 |
+| p_max | array | [1045] float32 | 0.2494 .. 9.183 | MPa |
+| contact | array | [1045] float32 | 0.04239 .. 1 |  |
+| x | array | [401] float32 | -10 .. 10 | mm |
+| profiles | array | [60, 401] float32 | 0 .. 0.2081 | mm |
+| pressures | array | [60, 401] float32 | 0 .. 9.183 | MPa |
+| s_saved | array | [60] float32 | 0 .. 8.667e+06 |  |
+| material | scalar | str  | tungsten carbide |  |
+| K | scalar | float  | 7.692e-08 .. 7.692e-08 |  |
+| load_N | scalar | float  | 50 .. 50 |  |
+
+Schema ranges are those of one run (`bar_wear-ccdb0fae6186`).
+
+```bash
+python -m pinneapple_lab sweep bar_wear -g material=60/40 brass,PTFE,ferritic stainless steel,hardened tool steel,mild steel,polyethylene,stellite,tungsten carbide
+python -m pinneapple_lab export bar_wear wear_history bar_wear_wear_history.npz
+```
+
+## `bar_wear_ranking` / `ranking`
+
+Materials ranked by simulated wear rate
+
+8 samples from 1 runs; every sample also carries the run parameters (seed).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| material | scalar | str  | tungsten carbide, polyethylene, ferritic stainless steel, stellite, hardened tool steel, PTFE |  |
+| K | scalar | float  | 7.692e-08 .. 0.003763 |  |
+| life_to_1mm_km | scalar | float  | 1.063 .. 5.2e+04 |  |
+| steady_rate_um_per_km | scalar | float  | 0.01918 .. 938.5 |  |
+
+Schema ranges are those of one run (`bar_wear_ranking-0f0d5ccb2871`).
+
+```bash
+python -m pinneapple_lab sweep bar_wear_ranking
+python -m pinneapple_lab export bar_wear_ranking ranking bar_wear_ranking_ranking.npz
 ```
 
 ## `benchmark_case` / `arrays`
@@ -107,32 +154,53 @@ python -m pinneapple_lab sweep bondi_accretion -g cs_inf=0.08,0.1,0.14 -g gamma=
 python -m pinneapple_lab export bondi_accretion profiles bondi_accretion_profiles.npz
 ```
 
+## `calculix_case` / `fields`
+
+CalculiX mesh and nodal results
+
+5 samples from 5 runs; every sample also carries the run parameters (case, render, samples).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| nodes | array | [816, 3] float32 | -0.02 .. 2 | m |
+| elements | array | [450, 8] int32 | 0 .. 815 |  |
+| element | scalar | str  | C3D8I |  |
+| case | scalar | str  | buckling_column |  |
+| buckling_factors | array | [2] float32 | 2.771e+04 .. 2.771e+04 |  |
+
+Schema ranges are those of one run (`calculix_case-66bac137ed69`).
+
+```bash
+python -m pinneapple_lab sweep calculix_case -g case=buckling_column,fin_heat,l_bracket,modal_cantilever,plate_hole
+python -m pinneapple_lab export calculix_case fields calculix_case_fields.npz
+```
+
 ## `car_lbm` / `flow`
 
 Car geometry (mask, signed distance) and the time-mean flow it produces (velocity / U, pressure coefficient), with drag and lift
 
-24 samples from 24 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
+40 samples from 40 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
 
 | field | kind | shape / type | range | units |
 |---|---|---|---|---|
 | mask | array | [320, 160] uint8 | 0 .. 1 |  |
-| sdf | array | [320, 160] float32 | -0.1562 .. 3.582 | car lengths |
-| mean_ux | array | [320, 160] float32 | -0.1728 .. 1.401 | U |
-| mean_uy | array | [320, 160] float32 | -0.3832 .. 1.002 | U |
-| mean_cp | array | [320, 160] float32 | -1.057 .. 1.735 | - |
-| Cd | scalar | float  | 1.429 .. 1.429 |  |
-| Cl | scalar | float  | 0.8153 .. 0.8153 |  |
-| slant_deg | scalar | float  | 7.859 .. 7.859 |  |
-| windshield_deg | scalar | float  | 23.8 .. 23.8 |  |
-| hood | scalar | float  | 0.5333 .. 0.5333 |  |
-| clearance | scalar | float  | 0.06627 .. 0.06627 |  |
-| diffuser_deg | scalar | float  | 4.68 .. 4.68 |  |
-| nose | scalar | float  | 0.2579 .. 0.2579 |  |
+| sdf | array | [320, 160] float32 | -0.1539 .. 3.602 | car lengths |
+| mean_ux | array | [320, 160] float32 | -0.173 .. 1.411 | U |
+| mean_uy | array | [320, 160] float32 | -0.397 .. 0.9672 | U |
+| mean_cp | array | [320, 160] float32 | -1.016 .. 1.833 | - |
+| Cd | scalar | float  | 1.692 .. 1.692 |  |
+| Cl | scalar | float  | 0.6139 .. 0.6139 |  |
+| slant_deg | scalar | float  | 36.97 .. 36.97 |  |
+| windshield_deg | scalar | float  | 32.38 .. 32.38 |  |
+| hood | scalar | float  | 0.5852 .. 0.5852 |  |
+| clearance | scalar | float  | 0.1185 .. 0.1185 |  |
+| diffuser_deg | scalar | float  | 2.998 .. 2.998 |  |
+| nose | scalar | float  | 0.1457 .. 0.1457 |  |
 
-Schema ranges are those of one run (`car_lbm-ddba6505f43d`).
+Schema ranges are those of one run (`car_lbm-1ea0200595dd`).
 
 ```bash
-python -m pinneapple_lab sweep car_lbm -n 24
+python -m pinneapple_lab sweep car_lbm -n 40
 python -m pinneapple_lab export car_lbm flow car_lbm_flow.npz
 ```
 
@@ -140,24 +208,24 @@ python -m pinneapple_lab export car_lbm flow car_lbm_flow.npz
 
 Wake vorticity snapshots (normalised by U / car length)
 
-1152 samples from 24 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
+1920 samples from 40 runs; every sample also carries the run parameters (Cs, Re, clearance, diffuser_deg, hood, length_cells, nose, slant_deg, steps, tunnel_height, u_in, windshield_deg).
 
 | field | kind | shape / type | range | units |
 |---|---|---|---|---|
-| vorticity | array | [320, 160] float16 | -50.47 .. 56.25 |  |
+| vorticity | array | [320, 160] float16 | -51.56 .. 76.06 |  |
 | frame | scalar | int  | 0 .. 47 |  |
-| Cd | scalar | float  | 1.429 .. 1.429 |  |
-| slant_deg | scalar | float  | 7.859 .. 7.859 |  |
-| windshield_deg | scalar | float  | 23.8 .. 23.8 |  |
-| hood | scalar | float  | 0.5333 .. 0.5333 |  |
-| clearance | scalar | float  | 0.06627 .. 0.06627 |  |
-| diffuser_deg | scalar | float  | 4.68 .. 4.68 |  |
-| nose | scalar | float  | 0.2579 .. 0.2579 |  |
+| Cd | scalar | float  | 1.692 .. 1.692 |  |
+| slant_deg | scalar | float  | 36.97 .. 36.97 |  |
+| windshield_deg | scalar | float  | 32.38 .. 32.38 |  |
+| hood | scalar | float  | 0.5852 .. 0.5852 |  |
+| clearance | scalar | float  | 0.1185 .. 0.1185 |  |
+| diffuser_deg | scalar | float  | 2.998 .. 2.998 |  |
+| nose | scalar | float  | 0.1457 .. 0.1457 |  |
 
-Schema ranges are those of one run (`car_lbm-ddba6505f43d`).
+Schema ranges are those of one run (`car_lbm-1ea0200595dd`).
 
 ```bash
-python -m pinneapple_lab sweep car_lbm -n 24
+python -m pinneapple_lab sweep car_lbm -n 40
 python -m pinneapple_lab export car_lbm vorticity car_lbm_vorticity.npz
 ```
 
@@ -265,6 +333,28 @@ python -m pinneapple_lab sweep oscillator_discovery
 python -m pinneapple_lab export oscillator_discovery discovered_laws oscillator_discovery_discovered_laws.npz
 ```
 
+## `particle_suspension` / `suspension`
+
+Particle positions and speeds every 4th frame, with time, impeller speed and suspension measures
+
+31 samples from 1 runs; every sample also carries the run parameters (d_mm, dt, frame_every, n, ramp_s, render, rho_p, rpm_max, samples, seed, size, t_end).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| t | scalar | float  | 0 .. 30 | s |
+| rpm | scalar | float  | 0 .. 400 |  |
+| x | array | [12000, 3] float32 | -0.07378 .. 0.1487 | m |
+| speed | array | [12000] float32 | 0 .. 1.299 | m/s |
+| top_fraction | scalar | float  | 0 .. 0.7763 |  |
+| suspended_fraction | scalar | float  | 0 .. 0.9589 |  |
+
+Schema ranges are those of one run (`particle_suspension-b7feb1ba16dd`).
+
+```bash
+python -m pinneapple_lab sweep particle_suspension
+python -m pinneapple_lab export particle_suspension suspension particle_suspension_suspension.npz
+```
+
 ## `pendulum_video` / `pendulum`
 
 Video frames, measured angle and the true angle
@@ -288,6 +378,69 @@ python -m pinneapple_lab sweep pendulum_video
 python -m pinneapple_lab export pendulum_video pendulum pendulum_video_pendulum.npz
 ```
 
+## `pipe_flow` / `cross_sections`
+
+Cross-section grids (72 x 72, NaN outside the fluid): axial and secondary speed / U, concentration
+
+14 samples from 3 runs; every sample also carries the run parameters (D, case, elements, iterations, keep_case, procs, render, samples).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| station_D | scalar | float  | 10 .. 30.14 |  |
+| origin | array | [3] float32 | -0.025 .. 0.875 |  |
+| u | array | [3] float32 | -0.05 .. 0.05 |  |
+| v | array | [3] float32 | 0 .. 0.05 |  |
+| axial_speed | array | [72, 72] float32 | 0.5947 .. 1.209 |  |
+| secondary_speed | array | [72, 72] float32 | 8.591e-06 .. 0.3672 |  |
+
+Schema ranges are those of one run (`pipe_flow-0c34ca2835fe`).
+
+```bash
+python -m pinneapple_lab sweep pipe_flow -g case=bend_90,kenics_mixer,laminar_pipe
+python -m pinneapple_lab export pipe_flow cross_sections pipe_flow_cross_sections.npz
+```
+
+## `pipe_flow` / `sections`
+
+Section averages along the pipe: arc length, pressure (kinematic), bulk velocity; coefficient of variation and mean of the scalar (mixer)
+
+3 samples from 3 runs; every sample also carries the run parameters (D, case, elements, iterations, keep_case, procs, render, samples).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| s | array | [120] float32 | 0.01003 .. 2.397 | m |
+| p | array | [120] float32 | 0.002586 .. 0.5708 | m2/s2 |
+| u_mean | array | [120] float32 | 0.9913 .. 1.011 | m/s |
+| case | scalar | str  | bend_90 |  |
+| Re | scalar | float  | 5e+04 .. 5e+04 |  |
+| D | scalar | float  | 0.05 .. 0.05 |  |
+
+Schema ranges are those of one run (`pipe_flow-0c34ca2835fe`).
+
+```bash
+python -m pinneapple_lab sweep pipe_flow -g case=bend_90,kenics_mixer,laminar_pipe
+python -m pinneapple_lab export pipe_flow sections pipe_flow_sections.npz
+```
+
+## `pipe_flow` / `wall`
+
+Wall faces: centre, wall shear stress (kinematic), pressure
+
+3 samples from 3 runs; every sample also carries the run parameters (D, case, elements, iterations, keep_case, procs, render, samples).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| xyz | array | [6240, 3] float32 | -0.02476 .. 1.594 | m |
+| tau | array | [6240] float32 | 0.001279 .. 0.00472 | m2/s2 |
+| p | array | [6240] float32 | 0.001251 .. 0.6196 | m2/s2 |
+
+Schema ranges are those of one run (`pipe_flow-0c34ca2835fe`).
+
+```bash
+python -m pinneapple_lab sweep pipe_flow -g case=bend_90,kenics_mixer,laminar_pipe
+python -m pinneapple_lab export pipe_flow wall pipe_flow_wall.npz
+```
+
 ## `repo_results` / `coefficients`
 
 Ahmed body force coefficients (OpenFOAM, medium mesh)
@@ -306,7 +459,7 @@ Ahmed body force coefficients (OpenFOAM, medium mesh)
 Schema ranges are those of one run (`repo_results-76a9a3bf2c2f`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results coefficients repo_results_coefficients.npz
 ```
 
@@ -329,7 +482,7 @@ Burgers u(t, x): PINN prediction and exact solution
 Schema ranges are those of one run (`repo_results-96e87a293dea`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results fields repo_results_fields.npz
 ```
 
@@ -352,7 +505,7 @@ Surrogate error on held-out heat-sink designs, per output
 Schema ranges are those of one run (`repo_results-33073ba61b6c`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results held_out_error repo_results_held_out_error.npz
 ```
 
@@ -376,7 +529,7 @@ Mean absolute error vs lead time of the black-hole flow forecasters and of persi
 Schema ranges are those of one run (`repo_results-269f1207b6f2`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results lead_time_skill repo_results_lead_time_skill.npz
 ```
 
@@ -401,7 +554,7 @@ LBM-LES aerodynamic coefficients vs angle of attack (Re 300, coarse)
 Schema ranges are those of one run (`repo_results-ae7814d939d6`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results polar repo_results_polar.npz
 ```
 
@@ -422,8 +575,29 @@ MeshGraphNet rollout and one-step RMSE vs the frozen-initial-condition baseline
 Schema ranges are those of one run (`repo_results-cbac6f31f681`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results rollout_scores repo_results_rollout_scores.npz
+```
+
+## `repo_results` / `single_wheel_validation`
+
+Wong-Reece wheel with the cited soils against published single-wheel tests (third-party digitisations)
+
+5 samples from 1 runs; every sample also carries the run parameters (source).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| dataset | scalar | str  | ding2011 smooth, ding2011 grousered, wanghan2016 smooth, wanghan2016 grousered, hurrell2025 grousered |  |
+| source | scalar | str  | Ding et al. (2011), J. Terramechanics 48(1):27-45, Figs 8/9 (80 N), Wang & Han (2016), J. Korean Geotech. Soc. 32(11):97-108, Fig. 14 (58.86 N), Hurrell et al. (2025), Space Sci. Rev. 221, art. 37, Figs 5/6 (24.5 N) |  |
+| load_N | scalar | float  | 24.5 .. 80 |  |
+| drawbar_rmse_N | scalar | float  | 3.001 .. 14.38 |  |
+| sinkage_rmse_m | scalar | float  | 0.004171 .. 0.01611 |  |
+
+Schema ranges are those of one run (`repo_results-dd2cd168e8d1`).
+
+```bash
+python -m pinneapple_lab sweep repo_results -n 24
+python -m pinneapple_lab export repo_results single_wheel_validation repo_results_single_wheel_validation.npz
 ```
 
 ## `repo_results` / `strouhal`
@@ -448,7 +622,7 @@ LBM vortex-shedding runs: Strouhal number, set-up and probe amplitude
 Schema ranges are those of one run (`repo_results-fa808c1e7a31`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results strouhal repo_results_strouhal.npz
 ```
 
@@ -470,7 +644,7 @@ python -m pinneapple_lab export repo_results strouhal repo_results_strouhal.npz
 Schema ranges are those of one run (`repo_results-8f10f262c734`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results temperature_fields_2d repo_results_temperature_fields_2d.npz
 ```
 
@@ -492,7 +666,7 @@ python -m pinneapple_lab export repo_results temperature_fields_2d repo_results_
 Schema ranges are those of one run (`repo_results-e9574ff86021`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results temperature_fields_3d repo_results_temperature_fields_3d.npz
 ```
 
@@ -513,8 +687,94 @@ Held-out airfoil cases: OpenFOAM coefficients and surrogate predictions
 Schema ranges are those of one run (`repo_results-d8795900891a`).
 
 ```bash
-python -m pinneapple_lab sweep repo_results -g source=ahmed_body,airfoil_surrogate,bh_forecast,burgers_pinn,concorde_aoa,fin_inverse_2d,fin_inverse_3d,heatsink_surrogate,lbm_strouhal,meshgraphnet
+python -m pinneapple_lab sweep repo_results -n 24
 python -m pinneapple_lab export repo_results test_points repo_results_test_points.npz
+```
+
+## `repo_results` / `torque_vs_current_angle`
+
+Prius IPM mean torque at 250 A against current angle: this FEA, GetDP and the published curve of Yang et al. (2013)
+
+13 samples from 1 runs; every sample also carries the run parameters (source).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| phi0_deg | scalar | float  | 60 .. 180 |  |
+| torque_pinneapple | scalar | float  | -3.385e-12 .. 345.6 |  |
+| torque_getdp | scalar | float  | -0.2369 .. 345 |  |
+| torque_yang_2013 | scalar | float  | 22 .. 353 |  |
+
+Schema ranges are those of one run (`repo_results-4104d166d1c0`).
+
+```bash
+python -m pinneapple_lab sweep repo_results -n 24
+python -m pinneapple_lab export repo_results torque_vs_current_angle repo_results_torque_vs_current_angle.npz
+```
+
+## `rom_study` / `beam_designs`
+
+Parametric FEM snapshots: design parameters, nodal displacement and von Mises on a fixed-topology mesh
+
+100 samples from 1 runs; every sample also carries the run parameters (Re, case, n_test, n_train, save_every, seed, steps).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| split | scalar | str  | train, test |  |
+| H | scalar | float  | 0.1221 .. 0.298 |  |
+| W | scalar | float  | 0.06103 .. 0.1984 |  |
+| angle_deg | scalar | float  | 0.8692 .. 89.08 |  |
+| u | array | [868, 3] float32 | -0.009889 .. 0.03114 | m |
+| von_mises | array | [868] float32 | 0.1678 .. 188.6 | MPa |
+
+Schema ranges are those of one run (`rom_study-61475bf029de`).
+
+```bash
+python -m pinneapple_lab sweep rom_study -g case=beam_parametric,cylinder_wake
+python -m pinneapple_lab export rom_study beam_designs rom_study_beam_designs.npz
+```
+
+## `rom_study` / `wake`
+
+Velocity snapshots (periodic regime) and POD modes / singular values
+
+1 samples from 1 runs; every sample also carries the run parameters (Re, case, n_test, n_train, save_every, seed, steps).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| ux | array | [360, 240, 100] float32 | -0.02809 .. 0.2179 | lattice |
+| uy | array | [360, 240, 100] float32 | -0.1041 .. 0.1029 | lattice |
+| pod_modes | array | [48000, 8] float32 | -0.02894 .. 0.02822 |  |
+| singular_values | array | [20] float32 | 0.1404 .. 43.95 |  |
+| dt_lattice | scalar | float  | 50 .. 50 |  |
+| St_probe | scalar | float  | 0.2444 .. 0.2444 |  |
+
+Schema ranges are those of one run (`rom_study-9580a00926ca`).
+
+```bash
+python -m pinneapple_lab sweep rom_study -g case=beam_parametric,cylinder_wake
+python -m pinneapple_lab export rom_study wake rom_study_wake.npz
+```
+
+## `solid_fem` / `fields`
+
+Mesh (nodes, hexahedra) with nodal displacements and stresses (Voigt xx, yy, zz, xy, yz, zx) and von Mises
+
+3 samples from 3 runs; every sample also carries the run parameters (calculix, case, refine, render, samples).
+
+| field | kind | shape / type | range | units |
+|---|---|---|---|---|
+| nodes | array | [6929, 3] float32 | -0.05 .. 1 | m |
+| elements | array | [5760, 8] int32 | 0 .. 6928 |  |
+| u | array | [6929, 3] float32 | -0.0004443 .. 0.0004443 | m |
+| stress | array | [6929, 6] float32 | -5.44e+07 .. 5.44e+07 | Pa |
+| von_mises | array | [6929] float32 | 5.273e-06 .. 9.799e+07 | Pa |
+| case | scalar | str  | torsion |  |
+
+Schema ranges are those of one run (`solid_fem-fad914757a27`).
+
+```bash
+python -m pinneapple_lab sweep solid_fem -g case=cantilever,simply_supported,torsion
+python -m pinneapple_lab export solid_fem fields solid_fem_fields.npz
 ```
 
 ## `vehicle_cfd` / `streamlines`

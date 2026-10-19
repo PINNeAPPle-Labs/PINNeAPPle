@@ -1,0 +1,92 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/near_random_forecasting",
+ "title": "Forecasting near-random series without overfitting",
+ "description": "Visual pack of the near-random forecasting study: four Blender Cycles renders and two 2-D figures. Needs the case results of ``run_study.py`` (``results/cases``) and, for the renders, the ``bpy`` module (``pip install bpy``) plus ffmpeg for the clip. Every number drawn is written to ``results/visuals.json``.",
+ "domain": "time series",
+ "methods": [
+  "render (Blender)"
+ ],
+ "modules": [
+  "pinneapple_blender.cycles",
+  "pinneapple_core.jsonable",
+  "pinneapple_systems.time_series",
+  "pinneapple_systems.time_series.forecast_lab",
+  "pinneapple_systems.time_series.forecast_lab.presets"
+ ],
+ "params": {},
+ "scripts": [
+  "render_visuals.py",
+  "run_study.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "figures/fan_charts.png",
+   "figures/overfitting.png",
+   "figures/pit.png",
+   "figures/skill_vs_horizon.png",
+   "figures/skill_vs_persistence.png",
+   "figures/surrogate_tests.png",
+   "figures/visuals/attractor_vs_surrogates.png",
+   "figures/visuals/ensemble_divergence.png",
+   "figures/visuals/forecast_cone.png",
+   "figures/visuals/landscape.png",
+   "figures/visuals/memorise_vs_learn.png",
+   "figures/visuals/surprise_calendar.png"
+  ],
+  "videos": [
+   "figures/visuals/forecast_cone.mp4"
+  ],
+  "viewers": [],
+  "data": [
+   "results/cases/double_well.json",
+   "results/cases/lorenz63_noise0.01.json",
+   "results/cases/lorenz63_noise0.1.json",
+   "results/cases/lorenz63_noise0.3.json",
+   "results/cases/lorenz96_noise0.1.json",
+   "results/cases/mackey_glass_noise0.01.json",
+   "results/cases/mackey_glass_noise0.1.json",
+   "results/cases/mackey_glass_noise0.3.json",
+   "results/cases/ornstein_uhlenbeck.json",
+   "results/cases/random_walk.json",
+   "results/cases/stochastic_oscillator.json",
+   "results/cases/sunspots_yearly.json",
+   "results/cases/usd_eur_log_returns.json",
+   "results/cases/white_noise.json",
+   "results/cases/youtube_us_entertainment_slots.json",
+   "results/cases/youtube_us_log_views.json",
+   "results/lyapunov_mackey_glass.json",
+   "results/overfitting_double_well.json",
+   "results/overfitting_lorenz63_noise0.1.json",
+   "results/overfitting_usd_eur_log_returns.json",
+   "results/tables.md",
+   "results/visuals.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/near_random_forecasting.md",
+  "script": "examples/near_random_forecasting/render_visuals.py",
+  "pr": [
+   828,
+   833
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "repo_results/near_random_forecasting",
+  "items": [
+   "repo_results/near_random_forecasting"
+  ],
+  "experiment": "repo_results",
+  "run_id": "repo_results-caf5921ef263",
+  "tier": "B"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

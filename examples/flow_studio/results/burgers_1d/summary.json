@@ -1,0 +1,368 @@
+{
+ "flow": "burgers_1d",
+ "title": "Burgers 1D: PINN vs finite differences vs Cole-Hopf",
+ "status": "done",
+ "wall_seconds": 3768.5,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-18",
+ "meta": {
+  "kind": "reproduction"
+ },
+ "nodes": {
+  "geo": {
+   "type": "geometry.domain",
+   "status": "done",
+   "seconds": 0.0016913414001464844,
+   "error": null,
+   "summary": "interval in 1-D, coordinates ['x', 't']",
+   "metrics": {
+    "dimension": 1
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "mesh": {
+   "type": "geometry.mesh",
+   "status": "done",
+   "seconds": 0.001764059066772461,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "nodes": 513
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "spacing",
+     "columns": [
+      "axis",
+      "nodes",
+      "h"
+     ],
+     "rows": [
+      [
+       "x",
+       513,
+       0.00390625
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "eq": {
+   "type": "equations.system",
+   "status": "done",
+   "seconds": 0.045816898345947266,
+   "error": null,
+   "summary": "burgers (nonlinear), 1 PDE(s), 2 condition(s)",
+   "metrics": {
+    "family": "burgers",
+    "linear": false
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "equations",
+     "columns": [
+      "kind",
+      "on",
+      "equation",
+      "derivatives"
+     ],
+     "rows": [
+      [
+       "pde",
+       "",
+       "u_t + u*u_x = nu*u_xx",
+       "u_t, u_x, u_xx"
+      ],
+      [
+       "initial",
+       "t_min",
+       "u = -sin(pi*x)",
+       ""
+      ],
+      [
+       "dirichlet",
+       "boundary",
+       "u = 0",
+       ""
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "fd": {
+   "type": "solver.classical",
+   "status": "done",
+   "seconds": 0.51491379737854,
+   "error": null,
+   "summary": "FD on 513x51 points in 0.36 s",
+   "metrics": {
+    "method": "method of lines + BDF",
+    "nfev": 310,
+    "n_unknowns": 513,
+    "solve_seconds": {
+     "value": 0.3632,
+     "how": "wall clock of the solve on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "fd_solution.png"
+   ]
+  },
+  "pinn": {
+   "type": "train.pinn",
+   "status": "done",
+   "seconds": 3740.7142560482025,
+   "error": null,
+   "summary": "PINN trained in 3736.6 s; validation failed",
+   "metrics": {
+    "train_seconds": {
+     "value": 3736.58,
+     "how": "wall clock of training on this machine (CPU)"
+    },
+    "final_loss": 2.2799442376708612e-05,
+    "n_parameters": 4353,
+    "residual_rms_fresh": {
+     "value": 0.004638530146462453,
+     "how": "relative PDE residual at fresh points"
+    },
+    "rel_l2_vs_exact": {
+     "value": 0.0012154960956843029,
+     "how": "validate_pinn on a fresh grid"
+    },
+    "validation": "fail"
+   },
+   "warnings": [
+    "failure modes: PDE residual too large at fresh points"
+   ],
+   "tables": [
+    {
+     "title": "PINN validation (fresh points)",
+     "columns": [
+      "check",
+      "status",
+      "summary"
+     ],
+     "rows": [
+      [
+       "pinn.residual",
+       "fail",
+       "relative residual at fresh points: RMS 4.64e-03 (<= 0.05), max 1.10e+00 (<= 0.3, adaptive points included)"
+      ],
+      [
+       "pinn.trivial",
+       "pass",
+       "spread and gradient energy 1.00 x the exact solution's (>= 0.2)"
+      ],
+      [
+       "pinn.causality",
+       "pass",
+       "residual in the last quarter of the time interval 3.5e-03, first quarter 5.5e-03 (late/early 0.6, <= 10 unless the late residual passes); error early 4.5e-04 -> late 1.6e-03"
+      ],
+      [
+       "pinn.boundary",
+       "pass",
+       "boundary condition error 1.23e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "pinn.initial",
+       "pass",
+       "initial condition error 3.30e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "pinn.spectrum",
+       "pass",
+       "high-wavenumber energy -0% relative to the exact solution (within +/-25%)"
+      ],
+      [
+       "pinn.exact",
+       "pass",
+       "relative L2 error 1.22e-03 (<= 0.02), max 9.77e-03 of the scale"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "pinn_loss.png",
+    "pinn_solution.png"
+   ]
+  },
+  "render": {
+   "type": "viz.render",
+   "status": "done",
+   "seconds": 11.784162282943726,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "renderer": "blender-cycles"
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "render_render.png"
+   ]
+  },
+  "validate": {
+   "type": "validate.compare",
+   "status": "done",
+   "seconds": 13.887340307235718,
+   "error": null,
+   "summary": "FD: 5.09e-03, PINN: 7.29e-03 (vs exact solution)",
+   "metrics": {
+    "FD_rel_l2": {
+     "value": 0.005089771980164296,
+     "how": "against the exact solution on 26163 points"
+    },
+    "PINN_rel_l2": {
+     "value": 0.007289749943281609,
+     "how": "against the exact solution on 26163 points"
+    },
+    "best": "FD"
+   },
+   "warnings": [
+    "PINN: pinn.residual fails (relative residual at fresh points: RMS 4.64e-03 (<= 0.05), max 1.10e+00 (<= 0.3, adaptive points included)) although its relative L2 against the exact solution is 7.29e-03: a small global error with a check that fails locally; the failing check is passed to the Lab curation"
+   ],
+   "tables": [
+    {
+     "title": "errors against the exact solution",
+     "columns": [
+      "candidate",
+      "method",
+      "rel. L2",
+      "max |err|",
+      "RMSE",
+      "verdict"
+     ],
+     "rows": [
+      [
+       "FD",
+       "fd",
+       0.005089771980164296,
+       0.06296459684075006,
+       0.00312017097817788,
+       "PASS"
+      ],
+      [
+       "PINN",
+       "pinn",
+       0.007289749943281609,
+       0.09912046790122996,
+       0.004468818308529987,
+       "PASS"
+      ]
+     ]
+    },
+    {
+     "title": "candidates' own checks",
+     "columns": [
+      "candidate",
+      "check",
+      "verdict",
+      "detail"
+     ],
+     "rows": [
+      [
+       "PINN",
+       "pinn.residual",
+       "FAIL",
+       "relative residual at fresh points: RMS 4.64e-03 (<= 0.05), max 1.10e+00 (<= 0.3, adaptive points included)"
+      ],
+      [
+       "PINN",
+       "pinn.trivial",
+       "PASS",
+       "spread and gradient energy 1.00 x the exact solution's (>= 0.2)"
+      ],
+      [
+       "PINN",
+       "pinn.causality",
+       "PASS",
+       "residual in the last quarter of the time interval 3.5e-03, first quarter 5.5e-03 (late/early 0.6, <= 10 unless the late residual passes); error early 4.5e-04 -> late 1.6e-03"
+      ],
+      [
+       "PINN",
+       "pinn.boundary",
+       "PASS",
+       "boundary condition error 1.23e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "PINN",
+       "pinn.initial",
+       "PASS",
+       "initial condition error 3.30e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "PINN",
+       "pinn.spectrum",
+       "PASS",
+       "high-wavenumber energy -0% relative to the exact solution (within +/-25%)"
+      ],
+      [
+       "PINN",
+       "pinn.exact",
+       "PASS",
+       "relative L2 error 1.22e-03 (<= 0.02), max 9.77e-03 of the scale"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "validate_validation.png"
+   ]
+  },
+  "lab": {
+   "type": "validate.lab",
+   "status": "done",
+   "seconds": 0.27848196029663086,
+   "error": null,
+   "summary": "tier F, sealed",
+   "metrics": {
+    "lab_status": "failed_validation",
+    "tier": {
+     "value": "F",
+     "how": "pinneapple_lab.curation: A flagship, B solid, C plausible, D exploratory, E known problems, F not usable"
+    },
+    "lab_run_id": "flow_burgers_1d_pinn_vs_finite_differences_vs_cole_ho_lab-3476d13bd904",
+    "run_tier": {
+     "value": "F",
+     "how": "this run's grade by the Lab curation; PINN pinn.residual \u00b7 PINN's own check"
+    },
+    "seal": {
+     "value": "F",
+     "how": "pinneapple_lab (ABCDEF): not usable"
+    }
+   },
+   "warnings": [
+    "failing check: PINN pinn.residual \u00b7 PINN's own check; to raise it: E: make the physics check pass"
+   ],
+   "tables": [
+    {
+     "title": "what the next letter needs",
+     "columns": [
+      "gap",
+      "suggested action",
+      "nodes"
+     ],
+     "rows": [
+      [
+       "make the physics check pass",
+       "lint the run's fields for conservation, boundary conditions, residual and units",
+       "validate.compare, train.pinn"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "lab_validation_sealed.png"
+   ]
+  }
+ },
+ "cached_nodes": []
+}

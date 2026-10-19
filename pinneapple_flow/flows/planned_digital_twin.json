@@ -1,0 +1,228 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "digital-twin",
+ "name": "Digital twin on a sensor stream",
+ "description": "Stream sensor readings (the simulated heated tank; switch the source to MQTT or connect recorded data) into the twin runtime: an ensemble Kalman filter estimates level, temperature and hidden states (leak flow, heater efficiency) with uncertainty and raises alerts.",
+ "nodes": [
+  {
+   "id": "twin",
+   "type": "twin.connect",
+   "params": {
+    "source": "simulated",
+    "fault": "leak"
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Twin runtime"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "digital twin"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "twin",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "twin.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "title": "Digital twin on a sensor stream",
+  "family": "twin",
+  "decisions": [
+   {
+    "topic": "twin",
+    "what": "twin of the heated tank: plant stream, EnKF, alerts",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.design"
+    },
+    "rationale": "digital twin = model + live data + assimilation + calibration + anomaly alerts",
+    "value": null,
+    "references": [
+     {
+      "key": "kapteyn2021twin",
+      "title": "A probabilistic graphical model foundation for enabling predictive digital twins at scale",
+      "authors": [
+       "M. G. Kapteyn",
+       "J. V. R. Pretorius",
+       "K. E. Willcox"
+      ],
+      "year": 2021,
+      "venue": "Nature Computational Science 1, 337-347",
+      "doi": "10.1038/s43588-021-00069-0",
+      "kind": "article",
+      "topics": [
+       "digital_twin"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1038/s43588-021-00069-0"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "517bca064c",
+    "created": 1792368157.3720984
+   },
+   {
+    "topic": "twin",
+    "what": "ensemble Kalman filter",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.enkf"
+    },
+    "rationale": "ensemble Kalman filter for state estimation",
+    "value": null,
+    "references": [
+     {
+      "key": "evensen1994enkf",
+      "title": "Sequential data assimilation with a nonlinear quasi-geostrophic model using Monte Carlo methods to forecast error statistics",
+      "authors": [
+       "G. Evensen"
+      ],
+      "year": 1994,
+      "venue": "Journal of Geophysical Research: Oceans 99(C5), 10143-10162",
+      "doi": "10.1029/94JC00572",
+      "kind": "article",
+      "topics": [
+       "enkf",
+       "data_assimilation",
+       "digital_twin",
+       "parameter_estimation"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1029/94JC00572"
+     },
+     {
+      "key": "kalman1960filter",
+      "title": "A New Approach to Linear Filtering and Prediction Problems",
+      "authors": [
+       "R. E. Kalman"
+      ],
+      "year": 1960,
+      "venue": "Journal of Basic Engineering 82(1), 35-45",
+      "doi": "10.1115/1.3662552",
+      "kind": "article",
+      "topics": [
+       "kalman",
+       "data_assimilation",
+       "digital_twin"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1115/1.3662552"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "ad7aa9c252",
+    "created": 1792368157.372152
+   },
+   {
+    "topic": "twin",
+    "what": "leak flow and heater efficiency as estimated states",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.parameter_state"
+    },
+    "rationale": "coefficients carried as random-walk states so the filter calibrates them",
+    "value": null,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "standard practice; the cited EnKF paper covers the filter, not this augmentation",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "fcb401c56c",
+    "created": 1792368157.372183
+   },
+   {
+    "topic": "twin",
+    "what": "alert thresholds",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.alert_thresholds"
+    },
+    "rationale": "alerts at chi-square 0.999 consistency and 3-sigma parameter limits",
+    "value": null,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "library",
+      "ref": "pinneapple_systems/operations/twin.py",
+      "detail": "AlertRules"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "defaults of pinneapple_systems.operations.twin.AlertRules",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "f717223d54",
+    "created": 1792368157.372204
+   }
+  ],
+  "planner": "heuristic",
+  "prompt": "Monitor a heated water tank in real time from its level and temperature sensors (a digital twin) and detect leaks.",
+  "kind": "planned",
+  "detected": {
+   "family": "heat",
+   "dimension": null,
+   "intents": [
+    "twin"
+   ],
+   "boundary": []
+  }
+ }
+}

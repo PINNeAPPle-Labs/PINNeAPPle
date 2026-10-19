@@ -109,6 +109,17 @@ train-samples = "models/drag_training_points.csv"
 queries = "models/queries.csv"
 bounds = { Cd = [0, 1] }
 
+[[model]]
+name = "peak-temperature"
+path = "surrogates/peak_temperature.py:predict"   # peak temperature of a heated slab
+inputs = ["q", "L", "k", "T0"]
+outputs = ["T"]
+domain = { q = [1e3, 1e5], L = [0.01, 0.1], k = [1, 400], T0 = [250, 350] }
+relations = [
+  { name = "more-heat-hotter", kind = "monotonic", input = "q", output = "T", direction = "increasing" },
+  { name = "better-conductor-cooler", kind = "monotonic", input = "k", output = "T", direction = "decreasing" },
+  { name = "same-q-L2", kind = "invariant", inputs = { q = "4 * q", L = "L / 2" }, output = "T", tol = 1e-9 },
+]
 # ---------------------------------------------------------------- datasets
 [[dataset]]
 path = "datasets/darcy.npz"                      # Darcy pairs solved with the documented discretisation

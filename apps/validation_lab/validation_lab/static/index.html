@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Physics Validation Lab</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%230f766e%22/%3E%3Cpath d=%22M4 8.5l2.5 2.5L12 5%22 stroke=%22white%22 stroke-width=%221.8%22 fill=%22none%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3L12.5 4.5" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="6.6" stroke="#99f6e4" stroke-width="1" fill="none" stroke-dasharray="2 1.6"/></svg></div>
+    <div>
+      <div class="title">Physics Validation Lab</div>
+      <div class="subtitle">Is this model or result physically and numerically consistent? Every check with its evidence</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="input" class="active">Validate</button>
+    <button data-tab="result">Report</button>
+    <button data-tab="api">API &amp; CI</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-input" class="tab active">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>What to check</h2>
+        <label class="drop" id="drop"><input type="file" id="files" multiple><b>Drop predictions, results and references</b>
+          <span>OpenFOAM case (zip), VTU/VTK, NPZ, HDF5, CSV, Parquet or JSON tables, and a pinneapple-check.toml</span></label>
+        <div class="filelist" id="filelist"></div>
+        <div class="seg" id="mode">
+          <button type="button" data-m="form" class="on">Describe it</button>
+          <button type="button" data-m="config">Configuration file</button>
+          <button type="button" data-m="zoo">Zoo model</button>
+        </div>
+        <div data-pane="form">
+          <label>Predictions / result file <select id="f-path"></select></label>
+          <label>Governing equations
+            <select id="f-physics">
+              <option value="">None declared (bounds, units, reference only)</option>
+              <option value="heat">Heat conduction: ∇·(k∇T) + q = ρc ∂T/∂t</option>
+              <option value="incompressible-flow">Incompressible flow: ∇·u = 0, Navier–Stokes</option>
+              <option value="elasticity">Linear elasticity: ∇·σ + f = 0</option>
+              <option value="conservation">Conservation law: ∂q/∂t + ∇·F = 0</option>
+            </select></label>
+          <label>Parameters <span class="u">name = value unit, comma-separated</span><input id="f-params" placeholder="k = 10 W/(m*K), q = 1000 W/m3"></label>
+          <label>Units of the fields <input id="f-units" placeholder="T = K"></label>
+          <label>Bounds / constraints <input id="f-bounds" placeholder="T = 250 .. 400"></label>
+          <label>Boundary conditions <span class="u">face: field = value or expression, one per line</span>
+            <textarea id="f-bc" rows="2" placeholder="x=max: T = 300 + 25*(1 - y**2)"></textarea></label>
+          <div class="row2">
+            <label>Reference data <select id="f-ref"><option value="">none</option></select></label>
+            <label>Max relative L2 <input id="f-rell2" type="number" step="any" placeholder="0.01"></label>
+          </div>
+        </div>
+        <div data-pane="config" hidden>
+          <label>pinneapple-check.toml <span class="u">or upload it with the files</span>
+            <textarea id="config" rows="9" spellcheck="false" placeholder='[[result]]&#10;path = "pred.npz"&#10;physics = "heat"&#10;units = { T = "K" }'></textarea></label>
+        </div>
+        <div data-pane="zoo" hidden>
+          <label>Model (ModelRef to the PINNeAPPle zoo) <select id="z-model"></select></label>
+          <label>Query points (CSV / Parquet with the model inputs) <select id="z-queries"><option value="">none</option></select></label>
+          <p class="hint">Your own Python or checkpoint models are not run on this server: upload their predictions, or run <code>pinneapple check</code> in CI.</p>
+        </div>
+        <button class="primary" type="button" id="run">Validate</button>
+        <div class="status-line" id="status"></div>
+        <fieldset><legend>Or try an example (runs in seconds)</legend><div id="examples" class="examples"></div></fieldset>
+        <p class="privacy">Files are processed in a temporary folder for this request and deleted afterwards.</p>
+      </form>
+      <div class="panel">
+        <div class="empty">
+          <h3>Three questions, kept apart</h3>
+          <div class="groups">
+            <div class="g verification"><b>Numerical verification</b><span>Were the equations solved right? PDE residuals, finite values, readable and intact artefacts, method status.</span></div>
+            <div class="g validation"><b>Validation against data</b><span>Does it match trusted reference data, and is it used inside the range the data covers? Reference error, QoIs, out-of-range queries.</span></div>
+            <div class="g physics"><b>Physical consistency</b><span>Conservation of mass, energy and momentum; boundary and initial conditions; bounds and constraints; dimensional consistency.</span></div>
+          </div>
+          <p class="note" id="disclaimer"></p>
+          <p class="hint">Every check that runs leaves an evidence record (SHA-256 of its inputs, its outputs, start and finish time). A check that did not run is reported as <i>not run</i>, never as a pass. The report holds the configuration and the input hashes, so <code>pinneapple check</code> reproduces it locally or in CI.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-result" class="tab"><div id="result"><div class="panel empty"><h3>No validation yet</h3><p>Upload results or open an example.</p></div></div></section>
+
+  <section id="tab-api" class="tab">
+    <div class="panel">
+      <h2 style="margin-top:0">REST API</h2>
+      <p>Validate every new model version or dataset from a script. Interactive documentation: <a class="link" href="/docs" target="_blank">/docs</a>.</p>
+      <pre class="code"><code id="c1"></code></pre>
+      <h3>GitHub Action: the same checks on every pull request</h3>
+      <p>Copy the configuration this lab used (Report → Download configuration) next to your results and add this workflow. Violations are annotated on the changed lines and uploaded to code scanning.</p>
+      <pre class="code"><code id="c2"></code></pre>
+      <h3>Python (PINNeAPPle)</h3>
+      <pre class="code"><code id="c3"></code></pre>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  Built on <b>PINNeAPPle</b>: <code>pinneapple check</code> (conservation, BCs, residuals, units, OOD, regression, integrity) ·
+  <code>pinneapple_veriphysics.validation_lab</code> (groups, evidence ledger, reproducible report).
+</footer>
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script type="module" src="/shared/fieldview3d.js"></script>
+<script src="/shared/scope.js"></script>
+<script src="/shared/author.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

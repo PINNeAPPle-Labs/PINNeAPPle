@@ -1,0 +1,67 @@
+diff --git a/pinneapple_lab/results_rules.py b/pinneapple_lab/results_rules.py
+index 496c25ce..27631253 100644
+--- a/pinneapple_lab/results_rules.py
++++ b/pinneapple_lab/results_rules.py
+@@ -5,7 +5,8 @@ Only values in the results files are used. A check is one of:
+ * ``Flag``: a verdict the study recorded itself (a boolean in its results, e.g. ``stall_margin_ok``);
+ * ``CheckList``: check records the study wrote (each with its own ``passed``, value, reference, tolerance or limit);
+ * ``Bound``: a measured value against the acceptance threshold the study's own test applies to it, cited as
+-  ``file:line``; the literal must appear on that line (a test checks every citation), so no threshold is invented.
++  ``file:line``; the literal must appear on that line (a test checks every citation), so no threshold is invented;
++* ``Expect``: a recorded outcome against the outcome the study's own expectations file lists for it.
+ 
+ Paths are dotted, ``*`` matching every key of a dict or index of a list; a name template is formatted with the
+ matched keys (``{0}``, ``{1}``) and the object the last ``*`` matched (``{o[aircraft]}``).
+@@ -71,7 +72,17 @@ class CheckList:
+     passed_key: str = "passed"
+ 
+ 
+-Rule = Metric | Flag | Bound | CheckList
++@dataclass(frozen=True)
++class Expect:
++    file: str
++    path: str                            # "*.failed": a value per key
++    expected_file: str                   # {key: expected value}; a key missing there expects ``default``
++    name: str
++    kind: str
++    default: tuple = ()
++
++
++Rule = Metric | Flag | Bound | CheckList | Expect
+ 
+ _FL = "results/verification.json"
+ RESULTS_RULES: dict[str, list[Rule]] = {
+@@ -113,6 +124,18 @@ RESULTS_RULES: dict[str, list[Rule]] = {
+                "recharge_period_rel_error_sub{o[sub]}", "", "recharge oscillator period vs theory "
+                "(results/solver_checks.json)"),
+     ],
++    "examples/pinneapple_and_physicsnemo": [
++        Metric("pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json", "*.test_mse_u",
++               "test_mse_u_{o[name]}", "", "test-set MSE of u; steps and learning rate in the same record "
++               "(pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json)"),
++        Metric("pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json", "*.train_time_s",
++               "train_time_{o[name]}", "s", "wall-clock training time (same file)"),
++    ],
++    "examples/vs_physicsnemo": [
++        Expect("07_physicsnemo_trains_pinneapple_checks/check/sample_verdicts.json", "*.failed",
++               "07_physicsnemo_trains_pinneapple_checks/check/expected.json", "{0}: the checks that fail are the "
++               "expected ones", "verification"),
++    ],
+     "examples/bricks": [
+         CheckList("_out/summary.json", "validation", "{r[check]}", "reference", value_key="simulated",
+                   reference_key="reference", tolerance_key="tolerance"),
+@@ -175,6 +198,14 @@ def extract(folder: str, rules: list[Rule]) -> tuple[list[dict], list[dict]]:
+                                "max" if r.op == "<" else "min": r.threshold,
+                                "detail": f"{'|value|' if r.absolute else 'value'} {r.op} {r.literal}, the threshold "
+                                          f"of {r.source}; value from {r.file}"})
++            elif isinstance(r, Expect) and isinstance(v, list):
++                exp = load(r.expected_file)
++                if not isinstance(exp, dict):
++                    continue
++                want = sorted(exp.get(keys[-1], list(r.default))) if keys else []
++                checks.append({"name": name, "passed": sorted(v) == want, "kind": r.kind,
++                               "detail": f"recorded {sorted(v) or 'none'}, expected {want or 'none'} "
++                                         f"({r.expected_file})"})
+             elif isinstance(r, CheckList) and isinstance(v, list):
+                 for rec in v:
+                     if not isinstance(rec, dict) or not isinstance(rec.get(r.passed_key), bool):

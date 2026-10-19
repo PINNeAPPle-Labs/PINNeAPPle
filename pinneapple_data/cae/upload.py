@@ -6,13 +6,15 @@ dropped; a single common top folder is stripped.
 """
 from __future__ import annotations
 
-import io
 import re
-import zipfile
 from typing import Dict, Sequence, Tuple
 
 MAX_FILES = 20000
 MAX_UNZIPPED = 1024 * 1024 * 1024
+
+
+def _skip(p: str) -> bool:
+    return "__MACOSX" in p or p.split("/")[-1].startswith("._") or bool(re.search(r"(^|/)(processor\d+|\.git)(/|$)", p))
 
 
 def expand(files: Sequence[Tuple[str, bytes]], max_unzipped: int = MAX_UNZIPPED) -> Dict[str, bytes]:
@@ -21,18 +23,15 @@ def expand(files: Sequence[Tuple[str, bytes]], max_unzipped: int = MAX_UNZIPPED)
     for name, data in files:
         name = name.replace("\\", "/").lstrip("/")
         if name.lower().endswith(".zip") or data[:4] == b"PK\x03\x04":
-            with zipfile.ZipFile(io.BytesIO(data)) as z:
-                infos = [i for i in z.infolist() if not i.is_dir()]
-                if len(infos) > MAX_FILES:
-                    raise ValueError(f"The archive has {len(infos)} files (limit {MAX_FILES}).")
-                for i in infos:
-                    p = i.filename.replace("\\", "/")
-                    if "__MACOSX" in p or p.split("/")[-1].startswith("._") or re.search(r"(^|/)(processor\d+|\.git)(/|$)", p):
-                        continue
-                    total += i.file_size
-                    if total > max_unzipped:
-                        raise ValueError(f"The archive expands to more than {max_unzipped // 2**20} MB.")
-                    fs[p] = z.read(i)
+            from pinneapple_security.archives import ArchiveLimits, UnsafeArchive, read_members
+            try:                                   # names checked, links refused, sizes counted while inflating
+                members = read_members(data, ArchiveLimits(max_members=MAX_FILES, max_total_bytes=max_unzipped - total,
+                                                           max_member_bytes=max_unzipped, max_ratio=None), skip=_skip)
+            except UnsafeArchive as e:
+                raise ValueError(f"The archive was refused: {e}") from None
+            for p, b in members.items():
+                total += len(b)
+                fs[p] = b
         else:
             total += len(data)
             fs[name] = data

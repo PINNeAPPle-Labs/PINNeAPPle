@@ -38,7 +38,7 @@ def main():
     ap.add_argument("--skip-run", action="store_true")
     a = ap.parse_args()
     x = np.array(a.x) if a.x else baseline_x()
-    did = hashlib.sha1(np.round(x, 5).tobytes()).hexdigest()[:10]
+    did = hashlib.sha1(np.round(x, 5).tobytes(), usedforsecurity=False).hexdigest()[:10]
     case = os.path.join(a.work, did)
     af = airframe_from(x)
     if not a.skip_run:

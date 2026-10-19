@@ -23,7 +23,7 @@ import numpy as np
 from .registry import Check
 
 __all__ = ["physics_audit_check", "envelope_checks", "gci_check", "mesh_quality_check", "preflight_check",
-           "yplus_check", "trust_card", "field_validation"]
+           "yplus_check", "trust_card", "field_validation", "field_features"]
 
 
 def physics_audit_check(subject: str, name: str, family: str, equations: Sequence[str], assumptions: Sequence,
@@ -114,7 +114,7 @@ def yplus_check(subject: str, first_cell: float, length: float, velocity: float,
 
 
 # ---------------------------------------------------------------------- field problems
-def _features(x: np.ndarray) -> dict[str, float]:
+def field_features(x: np.ndarray) -> dict[str, float]:
     """Scalar descriptors of an input field: amplitude and spectral centroid (for the applicability envelope)."""
     a = np.asarray(x, float)
     spec = np.abs(np.fft.rfftn(a - a.mean())) ** 2
@@ -122,6 +122,9 @@ def _features(x: np.ndarray) -> dict[str, float]:
                                                   np.fft.rfftfreq(n, 1 / n) for i, n in enumerate(a.shape)],
                                                  indexing="ij")))
     return {"amplitude": float(a.std()), "spectral_centroid": float((k * spec).sum() / max(spec.sum(), 1e-30))}
+
+
+_features = field_features
 
 
 def field_validation(problem, out: Path, grid_study=None) -> list[Check]:

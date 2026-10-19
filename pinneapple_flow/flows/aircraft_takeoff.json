@@ -1,0 +1,49 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "aircraft-take-off-flight-library",
+ "name": "Aircraft take-off (flight library)",
+ "description": "6-DOF take-off of the light-GA aircraft with the vortex lattice in the loop, against Raymer's closed form (pinneapple_simulation.flight).",
+ "nodes": [
+  {
+   "id": "takeoff",
+   "type": "flight.takeoff",
+   "params": {
+    "aircraft": "light_ga",
+    "kind": "light",
+    "render": "blender",
+    "camera": "side",
+    "frames": 36,
+    "samples": 8
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Take-off"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "take-off"
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "takeoff",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "takeoff.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

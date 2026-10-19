@@ -1,0 +1,448 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-74bb64b79576",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/flight_dynamics",
+  "path": "examples/flight_dynamics/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "energy_rel_error_dt0.02",
+   "value": 4.400790123313728e-10,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "energy_rel_error_dt0.01",
+   "value": 8.031223917958976e-12,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "energy_rel_error_dt0.005",
+   "value": 1.6153032200503471e-12,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_light_ga_alpha0.0",
+   "value": 4.001881555440111e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_light_ga_alpha4.0",
+   "value": 0.0013170807441250027,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_regional_turboprop_alpha0.0",
+   "value": 4.001934726262859e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_regional_turboprop_alpha4.0",
+   "value": 0.0016482088787130292,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_a320_alpha0.0",
+   "value": 4.0018827562322495e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_a320_alpha4.0",
+   "value": 0.0013551835852437142,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_motor_glider_alpha0.0",
+   "value": 4.002083070316326e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "lattice_rel_diff_motor_glider_alpha4.0",
+   "value": 0.0017100451002938326,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_dryden_u",
+   "value": 7.038389279382401,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_dryden_v",
+   "value": 7.041755888504826,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_dryden_w",
+   "value": 7.041755888504826,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_von_karman_u",
+   "value": 7.018580538784683,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_von_karman_v",
+   "value": 7.019179682190814,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_von_karman_w",
+   "value": 7.0191796821908135,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_DrydenFilter_dryden_u",
+   "value": 2.823390706093345,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_DrydenFilter_dryden_v",
+   "value": 2.8943564608410153,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_DrydenFilter_dryden_w",
+   "value": 2.794692681879422,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenField3D_von_karman_u",
+   "value": 6.917059804557012,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenField3D_von_karman_v",
+   "value": 7.465483154110868,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenField3D_von_karman_w",
+   "value": 6.3405765168522885,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "ground_roll_light_ga",
+   "value": 244.22102440714593,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "ground_roll_regional_turboprop",
+   "value": 1060.4467477410672,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "ground_roll_a320",
+   "value": 1345.9344060357964,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "ground_roll_motor_glider",
+   "value": 186.20942483890792,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "distance_35ft_light_ga",
+   "value": 402.9400670592907,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "distance_35ft_regional_turboprop",
+   "value": 1291.3315916801412,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "distance_35ft_a320",
+   "value": 1691.2169164612756,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "distance_35ft_motor_glider",
+   "value": 285.85658548273517,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "energy conserved, dt 0.02 s",
+   "passed": true,
+   "value": 4.400790123313728e-10,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json",
+   "kind": "physics"
+  },
+  {
+   "name": "energy conserved, dt 0.01 s",
+   "passed": true,
+   "value": 8.031223917958976e-12,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json",
+   "kind": "physics"
+  },
+  {
+   "name": "energy conserved, dt 0.005 s",
+   "passed": true,
+   "value": 1.6153032200503471e-12,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json",
+   "kind": "physics"
+  },
+  {
+   "name": "angular momentum conserved, dt 0.02 s",
+   "passed": true,
+   "value": 2.6805440215490186e-09,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json",
+   "kind": "physics"
+  },
+  {
+   "name": "angular momentum conserved, dt 0.01 s",
+   "passed": true,
+   "value": 1.6734936236992688e-10,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json",
+   "kind": "physics"
+  },
+  {
+   "name": "angular momentum conserved, dt 0.005 s",
+   "passed": true,
+   "value": 1.0450494667566552e-11,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json",
+   "kind": "physics"
+  },
+  {
+   "name": "trim residual, light_ga",
+   "passed": true,
+   "value": 1.4422201293043387e-14,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json",
+   "kind": "verification"
+  },
+  {
+   "name": "trim residual, regional_turboprop",
+   "passed": true,
+   "value": 3.799752187558197e-15,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json",
+   "kind": "verification"
+  },
+  {
+   "name": "trim residual, a320",
+   "passed": true,
+   "value": 1.118488673319333e-14,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json",
+   "kind": "verification"
+  },
+  {
+   "name": "trim residual, motor_glider",
+   "passed": true,
+   "value": 1.990483267090515e-14,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json",
+   "kind": "verification"
+  },
+  {
+   "name": "take-off: light_ga lifts off",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)",
+   "kind": "sanity"
+  },
+  {
+   "name": "take-off: regional_turboprop lifts off",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)",
+   "kind": "sanity"
+  },
+  {
+   "name": "take-off: a320 lifts off",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)",
+   "kind": "sanity"
+  },
+  {
+   "name": "take-off: motor_glider lifts off",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)",
+   "kind": "sanity"
+  },
+  {
+   "name": "take-off: light_ga keeps its stall margin",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)",
+   "kind": "physics"
+  },
+  {
+   "name": "take-off: regional_turboprop keeps its stall margin",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)",
+   "kind": "physics"
+  },
+  {
+   "name": "take-off: a320 keeps its stall margin",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)",
+   "kind": "physics"
+  },
+  {
+   "name": "take-off: motor_glider keeps its stall margin",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-74bb64b79576",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "c31f0955",
+  "seconds": 0.045,
+  "created": "2026-10-18T23:05:55Z",
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

@@ -187,7 +187,9 @@ reusable logic in the library (`pinneapple_hub/zoo/{checks,export,web}`, `pinnea
 | `apps/playground/build.py`, `site/js/*`, `tools/`, deploy files | static-site build, browser UI over the zoo web bundle (checks come from the ONNX graph) | glue |
 | `examples/physics_ensemble/multiscale_turbulence.py` | wires `pinneapple_physics.multiscale` and the architectures for one benchmark | glue |
 | `examples/studio/07_lunar_rover_dashboard.py` | loads the zoo contact model, renders the dashboard | glue |
-| `scripts/zoo/build_assets.py` `hub_only_entry`, `_carry_versions`; `scripts/zoo/publish_to_hub.py` `plan`, `verify` | zoo release manifest and Hub checksum verification | stays for now; candidate for `pinneapple_hub.zoo._artifacts` once the open zoo PRs (#656, #674) land |
+| `scripts/zoo/build_assets.py` `hub_only_entry`, `_carry_versions` | zoo release manifest | stays for now; candidate for `pinneapple_hub.zoo._artifacts` once the open zoo PRs (#656, #674) land |
+| `scripts/zoo/publish_to_hub.py` | command line of the zoo's Hub publication | glue: `plan`, `publish`, the Parquet copies, cards, Space and every Hub check are in `pinneapple_hub.zoo.publish`, `.parquet`, `.hub_cards` |
+| `apps/zoo_space/` (`index.html`, `app.js`, `space.css`) | page of the static zoo demo Space | UI over the data of `pinneapple_hub.zoo.demo.export_space` and the runtime `pinneapple_hub/zoo/web`; charts and widgets are the Playground's |
 
 ## Pull requests
 

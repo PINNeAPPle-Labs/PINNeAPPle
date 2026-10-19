@@ -95,7 +95,7 @@ def sarif(report: Report, **_) -> str:
                                  f"[Documentation]({r.help_uri})"},
             "helpUri": r.help_uri,
             "defaultConfiguration": {"level": _LEVEL[r.severity]},
-            "properties": {"tags": ["physics", r.stage], "precision": "high",
+            "properties": {"tags": list(dict.fromkeys(["physics", r.stage])), "precision": "high",
                            "problem.severity": "error" if r.severity == "error" else "warning"},
         })
     results = []

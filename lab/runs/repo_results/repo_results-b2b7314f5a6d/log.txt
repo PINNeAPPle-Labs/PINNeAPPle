@@ -1,0 +1,11 @@
+[16:40:17] NACA 2412 hand-off package: OpenFOAM on three grids against XFOIL and thin-airfoil theory, a 436-run campaign and optimised shapes checked in OpenFOAM
+[16:40:17] stage import started
+[16:40:17] check cd_vs_xfoil_tripped: PASS NACA 2412, Re 6e6, alpha 4 deg: grid-extrapolated OpenFOAM Cd against XFOIL 6.99 (Drela 1989; an independent panel + boundary-layer code), transition fixed at the leading edge; tolerance 5 %
+[16:40:17] check cl_vs_xfoil_tripped: PASS same case, lift on the medium grid; tolerance 5 %
+[16:40:17] check lift_slope_vs_thin_airfoil_theory: PASS thin-airfoil theory (Abbott & von Doenhoff 1959), fit over -2..6 deg; tolerance 5 %
+[16:40:17] check zero_lift_angle_vs_thin_airfoil_theory: PASS zero-lift angle from the mean line; tolerance 0.25 deg
+[16:40:17] check grid_convergence_cd_gci: PASS Celik et al. (2008) GCI on 3 grids, observed order 2.36; tolerance 5 %
+[16:40:17] check pressure_and_friction_drag_split: PASS 
+[16:40:17] check campaign_rerun_reproduces_stored: PASS 3 campaign cases re-run from scratch
+[16:40:17] check surrogate_ld_on_unseen_optimised_shapes: PASS surrogate L/D against OpenFOAM on the 4 optimiser picks (not in training); tolerance 2 %
+[16:40:17] stage import done (0.008 s)

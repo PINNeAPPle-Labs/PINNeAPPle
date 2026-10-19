@@ -1,0 +1,237 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "poisson-2d-fem-fd-and-pinn-with-the-trust-card",
+ "name": "Poisson 2D: FEM, FD and PINN with the trust card",
+ "description": "lap(u) = -2 pi^2 sin(pi x) sin(pi y), u = 0 on the boundary; three methods against the manufactured solution, trust card (residual, conservation, boundary), 3-D view.",
+ "nodes": [
+  {
+   "id": "geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 2,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0.0,
+     1.0
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": false,
+    "t_range": [
+     0,
+     1
+    ]
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Domain"
+  },
+  {
+   "id": "mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 41,
+    "n_t": 41
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Grid"
+  },
+  {
+   "id": "eq",
+   "type": "equations.system",
+   "params": {
+    "template": "poisson",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "lap(u) = -2*pi**2*sin(pi*x)*sin(pi*y)"
+    ],
+    "conditions": [
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {},
+    "exact": "sin(pi*x)*sin(pi*y)"
+   },
+   "position": {
+    "x": 580.0,
+    "y": 40.0
+   },
+   "label": "poisson equations"
+  },
+  {
+   "id": "fd",
+   "type": "solver.classical",
+   "params": {
+    "method": "fd"
+   },
+   "position": {
+    "x": 850.0,
+    "y": 40.0
+   },
+   "label": "Finite differences"
+  },
+  {
+   "id": "fem",
+   "type": "solver.classical",
+   "params": {
+    "method": "fem"
+   },
+   "position": {
+    "x": 850.0,
+    "y": 190.0
+   },
+   "label": "Finite elements"
+  },
+  {
+   "id": "pinn",
+   "type": "train.pinn",
+   "params": {
+    "adam_steps": 3000,
+    "lbfgs_steps": 300
+   },
+   "position": {
+    "x": 850.0,
+    "y": 340.0
+   },
+   "label": "PINN"
+  },
+  {
+   "id": "validate",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "position": {
+    "x": 1120.0,
+    "y": 40.0
+   },
+   "label": "Validation"
+  },
+  {
+   "id": "lab",
+   "type": "validate.lab",
+   "params": {
+    "title": "Poisson 2D"
+   },
+   "position": {
+    "x": 1390.0,
+    "y": 40.0
+   },
+   "label": "Lab seal"
+  },
+  {
+   "id": "view3d",
+   "type": "viz.field3d",
+   "params": {},
+   "position": {
+    "x": 1120.0,
+    "y": 190.0
+   },
+   "label": "3-D viewer"
+  }
+ ],
+ "edges": [
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "mesh",
+   "target_port": "geometry",
+   "id": "geo.geometry->mesh.geometry"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq.mesh"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "fd",
+   "target_port": "problem",
+   "id": "eq.problem->fd.problem"
+  },
+  {
+   "source": "fd",
+   "source_port": "solution",
+   "target": "validate",
+   "target_port": "candidates",
+   "id": "fd.solution->validate.candidates"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "fem",
+   "target_port": "problem",
+   "id": "eq.problem->fem.problem"
+  },
+  {
+   "source": "fem",
+   "source_port": "solution",
+   "target": "validate",
+   "target_port": "candidates",
+   "id": "fem.solution->validate.candidates"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "pinn",
+   "target_port": "problem",
+   "id": "eq.problem->pinn.problem"
+  },
+  {
+   "source": "pinn",
+   "source_port": "solution",
+   "target": "validate",
+   "target_port": "candidates",
+   "id": "pinn.solution->validate.candidates"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "validate",
+   "target_port": "problem",
+   "id": "eq.problem->validate.problem"
+  },
+  {
+   "source": "validate",
+   "source_port": "metrics",
+   "target": "lab",
+   "target_port": "validation",
+   "id": "validate.metrics->lab.validation"
+  },
+  {
+   "source": "pinn",
+   "source_port": "solution",
+   "target": "view3d",
+   "target_port": "solution",
+   "id": "pinn.solution->view3d.solution"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

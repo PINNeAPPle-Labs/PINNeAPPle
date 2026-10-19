@@ -72,11 +72,17 @@ class Surface:
 
 @dataclass
 class Lines:
-    """Polylines (e.g. streamlines), each with optional per-point values (e.g. speed)."""
+    """Polylines (e.g. streamlines), each with optional per-point values (e.g. speed). ``cmap``: "jet" or the
+    diverging "coolwarm" / "bwr"; ``color_range`` (default: 1st..99th percentile, symmetric for a diverging map);
+    ``alpha`` < 1 and ``radius`` (tube radius; default from the scene size) for soft translucent wisps."""
     points: List[np.ndarray]
     values: Optional[List[np.ndarray]] = None
     name: str = "streamlines"
     label: str = ""
+    cmap: str = "jet"
+    alpha: float = 1.0
+    radius: Optional[float] = None
+    color_range: Optional[Tuple[float, float]] = None
 
 
 @dataclass
@@ -101,6 +107,8 @@ class Scene:
     title: str = "PINNeAPPle scene"
     labels: Dict[str, str] = field(default_factory=dict)     # field name -> label with unit (for colour bars)
     lighting: Optional[Dict[str, Any]] = None                 # a lighting preset for the browser viewer (see .lighting)
+    materials: Dict[str, Dict[str, Any]] = field(default_factory=dict)   # extra / overriding entries of MATERIALS
+    animation: Any = None                                     # an .animation.Animation (tracks, arrows, HUD per frame)
 
     # ------------------------------------------------------------------ construction
     @classmethod
@@ -202,9 +210,12 @@ class Scene:
         a = np.concatenate([s.fields[name] for s in self.surfaces if name in s.fields])
         return float(np.nanpercentile(a, pct[0])), float(np.nanpercentile(a, pct[1]))
 
-    def add_lines(self, points, values=None, name: str = "streamlines", label: str = "") -> "Scene":
+    def add_lines(self, points, values=None, name: str = "streamlines", label: str = "", cmap: str = "jet",
+                  alpha: float = 1.0, radius: Optional[float] = None,
+                  color_range: Optional[Tuple[float, float]] = None) -> "Scene":
         self.lines.append(Lines([np.asarray(p, float) for p in points],
-                                None if values is None else [np.asarray(v, float) for v in values], name, label))
+                                None if values is None else [np.asarray(v, float) for v in values], name, label,
+                                cmap, alpha, radius, color_range))
         return self
 
     def add_slice(self, name, origin, u, v, grid, label: str = "", group: str = "") -> "Scene":
@@ -219,16 +230,24 @@ class Scene:
         self.lighting = threejs_config(preset)
         return self
 
+    def unknown_materials(self) -> List[str]:
+        """Material names of the surfaces found neither in ``MATERIALS`` nor in ``self.materials`` (they export as
+        plain grey)."""
+        return sorted({s.material for s in self.surfaces} - set(MATERIALS) - set(self.materials))
+
     def n_faces(self) -> int:
         return int(sum(len(s.faces) for s in self.surfaces))
 
-    def decimate(self, max_faces: int) -> "Scene":
+    def decimate(self, max_faces: int, keep: Sequence[str] = ()) -> "Scene":
         """Reduce the surfaces (in place) to about ``max_faces`` triangles in total, each in proportion to its size,
-        by vertex clustering; fields are averaged over the merged vertices. Small parts are left alone."""
+        by vertex clustering; fields are averaged over the merged vertices. Small parts and the surfaces named in
+        ``keep`` (e.g. those carrying an animated per-vertex field) are left alone."""
         total = self.n_faces()
         if total <= max_faces:
             return self
         for i, srf in enumerate(self.surfaces):
+            if srf.name in keep:
+                continue
             target = max(200, int(len(srf.faces) * max_faces / total))
             if len(srf.faces) > target:
                 self.surfaces[i] = decimate_surface(srf, target)
@@ -249,25 +268,30 @@ class Scene:
         return path
 
     def to_glb(self, materials: Optional[Dict[str, Dict[str, Any]]] = None) -> bytes:
-        return write_glb(self.surfaces, AXES[self.axes], {**MATERIALS, **(materials or {})},
+        return write_glb(self.surfaces, AXES[self.axes], {**MATERIALS, **self.materials, **(materials or {})},
                          generator="PINNeAPPle pinneapple_tools.visualization.studio")
 
     def to_usda(self, materials: Optional[Dict[str, Dict[str, Any]]] = None) -> str:
-        return write_usda(self.surfaces, {**MATERIALS, **(materials or {})}, self.title)
+        return write_usda(self.surfaces, {**MATERIALS, **self.materials, **(materials or {})}, self.title)
 
     def to_stl(self) -> bytes:
         return write_stl(self.surfaces, self.title)
 
     def extras(self) -> Dict[str, Any]:
-        """Lines and slices as JSON (scene axes, same as the surfaces), with the field labels."""
+        """Lines, slices and the animation as JSON (scene axes, same as the surfaces), with the field labels."""
         r = lambda a, nd=4: np.round(np.asarray(a, float), nd).tolist()  # noqa: E731
         return {"axes": self.axes, "title": self.title, "labels": self.labels, "fields": self.field_names(),
                 **({"lighting": self.lighting} if self.lighting else {}),
                 "lines": [{"name": L.name, "label": L.label, "points": [r(p) for p in L.points],
-                           "values": None if L.values is None else [r(v) for v in L.values]} for L in self.lines],
+                           "values": None if L.values is None else [r(v) for v in L.values],
+                           "cmap": getattr(L, "cmap", "jet"), "alpha": float(getattr(L, "alpha", 1.0)),
+                           "radius": None if getattr(L, "radius", None) is None else float(L.radius),
+                           "range": None if getattr(L, "color_range", None) is None else [float(x) for x in L.color_range]}
+                          for L in self.lines],
                 "slices": [{"name": s.name, "label": s.label, "group": s.group or s.name, "origin": r(s.origin), "u": r(s.u), "v": r(s.v),
                             "grid": [[None if not np.isfinite(t) else round(float(t), 5) for t in row] for row in s.grid]}
-                           for s in self.slices]}
+                           for s in self.slices],
+                **({"animation": self.animation.to_dict(surfaces=self.surfaces)} if self.animation is not None else {})}
 
 
 # ---------------------------------------------------------------------- helpers

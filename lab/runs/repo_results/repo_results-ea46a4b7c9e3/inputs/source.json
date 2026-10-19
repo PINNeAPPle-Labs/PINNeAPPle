@@ -1,0 +1,9 @@
+{
+ "name": "topology_optimization",
+ "description": "Topology optimisation: MBB beam and cantilever, heat conduction and Stokes channels, a reluctance rotor",
+ "scripts": [
+  "examples/topology_optimization/01_mbb_beam.py",
+  "examples/topology_optimization/02_heat_and_stokes_flow.py",
+  "examples/topology_optimization/03_reluctance_rotor.py"
+ ]
+}

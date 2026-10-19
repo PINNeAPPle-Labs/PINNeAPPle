@@ -13,6 +13,11 @@ magnetostatics and electromagnetics problems.
 | `04_magnetostatics_wire.py` | Infinite current-carrying wire | ∇²A_z = −μ₀J_z | Analytical inside/outside |
 | `05_em_wave_1d.py` | Transverse EM plane wave | E_tt = c²E_xx | sin(πx)cos(πct) |
 | `06_tm_waveguide.py` | TM₁₁ resonant cavity mode | ∇²E_z + k²E_z = 0 | sin(πx)sin(πy) |
+| `07_em_verification.py` | Verification table of `pinneapple_simulation.electromagnetics` (FEM, Biot-Savart, Mie, Fresnel, dipoles, dispersive media, hysteresis, Maxwell checks) | — | closed forms, published values, miepython |
+
+The library behind these examples is documented in [docs/guides/electromagnetics.md](../../docs/guides/electromagnetics.md):
+SI solvers and references (`pp.em`), physics checks of any field (`pp.maxwell`, `pinneapple check` with
+`physics = "maxwell"`) and PDE presets with exact solutions (`em_*`).
 
 ## Running
 

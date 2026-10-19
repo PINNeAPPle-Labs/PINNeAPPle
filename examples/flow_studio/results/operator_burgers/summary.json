@@ -1,0 +1,285 @@
+{
+ "flow": "operator_burgers",
+ "title": "Neural operators: DeepONet and FNO on Burgers",
+ "status": "done",
+ "wall_seconds": 204.0,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-18",
+ "meta": {
+  "kind": "reproduction"
+ },
+ "nodes": {
+  "data": {
+   "type": "data.grf_burgers",
+   "status": "done",
+   "seconds": 18.081201314926147,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "samples": 512,
+    "generation_seconds": 18.02
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "deeponet": {
+   "type": "surrogate.train",
+   "status": "done",
+   "seconds": 116.27654075622559,
+   "error": null,
+   "summary": "deeponet: test rel. L2 0.0474, 99329 parameters",
+   "metrics": {
+    "train_rel_l2": {
+     "value": 0.026924263685941696,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "val_rel_l2": {
+     "value": 0.04503536969423294,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "test_rel_l2": {
+     "value": 0.04742489382624626,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "n_parameters": 99329,
+    "train_seconds": {
+     "value": 115.93,
+     "how": "wall clock on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "test samples",
+     "columns": [
+      "sample",
+      "relative L2"
+     ],
+     "rows": [
+      [
+       63,
+       0.0703598886894399
+      ],
+      [
+       464,
+       0.07181477757356611
+      ],
+      [
+       109,
+       0.06023074973432249
+      ],
+      [
+       339,
+       0.027621849124100293
+      ],
+      [
+       285,
+       0.017333893834950695
+      ],
+      [
+       88,
+       0.026824357801686356
+      ],
+      [
+       209,
+       0.031183733478777616
+      ],
+      [
+       119,
+       0.07640049840374101
+      ],
+      [
+       367,
+       0.009276844834745135
+      ],
+      [
+       208,
+       0.07003923147856099
+      ],
+      [
+       388,
+       0.10665276966213025
+      ],
+      [
+       338,
+       0.03966060297994481
+      ],
+      [
+       251,
+       0.12309339512720331
+      ],
+      [
+       456,
+       0.04720376966891495
+      ],
+      [
+       153,
+       0.025397732083013658
+      ],
+      [
+       68,
+       0.019318144816223643
+      ],
+      [
+       221,
+       0.023689914952547873
+      ],
+      [
+       349,
+       0.02493171320604391
+      ],
+      [
+       124,
+       0.026277899094425163
+      ],
+      [
+       312,
+       0.02909823548746399
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "deeponet_surrogate.png"
+   ]
+  },
+  "fno": {
+   "type": "surrogate.train",
+   "status": "done",
+   "seconds": 69.45747184753418,
+   "error": null,
+   "summary": "fno: test rel. L2 0.00473, 69889 parameters",
+   "metrics": {
+    "train_rel_l2": {
+     "value": 0.0033453817013651133,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "val_rel_l2": {
+     "value": 0.0044542173855006695,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "test_rel_l2": {
+     "value": 0.004726354032754898,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "n_parameters": 69889,
+    "train_seconds": {
+     "value": 69.15,
+     "how": "wall clock on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "test samples",
+     "columns": [
+      "sample",
+      "relative L2"
+     ],
+     "rows": [
+      [
+       63,
+       0.009836498861835519
+      ],
+      [
+       464,
+       0.004953257575219668
+      ],
+      [
+       109,
+       0.006801279626601973
+      ],
+      [
+       339,
+       0.0023812536392555732
+      ],
+      [
+       285,
+       0.0025675170001606697
+      ],
+      [
+       88,
+       0.0019718749255782874
+      ],
+      [
+       209,
+       0.0031392292010038927
+      ],
+      [
+       119,
+       0.006657083054048251
+      ],
+      [
+       367,
+       0.004234427531366638
+      ],
+      [
+       208,
+       0.012779262017739114
+      ],
+      [
+       388,
+       0.009692905994624577
+      ],
+      [
+       338,
+       0.0040708041530270744
+      ],
+      [
+       251,
+       0.013047987729080286
+      ],
+      [
+       456,
+       0.00321139155219394
+      ],
+      [
+       153,
+       0.0026914493203158774
+      ],
+      [
+       68,
+       0.005159491496433092
+      ],
+      [
+       221,
+       0.003398854355597996
+      ],
+      [
+       349,
+       0.002557039492411685
+      ],
+      [
+       124,
+       0.004127871735139673
+      ],
+      [
+       312,
+       0.00291024738862323
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "fno_surrogate.png"
+   ]
+  },
+  "report": {
+   "type": "export.report",
+   "status": "done",
+   "seconds": 0.0034797191619873047,
+   "error": null,
+   "summary": "report written (html)",
+   "metrics": {
+    "decisions": 2,
+    "decisions_without_reference": 0,
+    "items": 2
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  }
+ },
+ "cached_nodes": []
+}

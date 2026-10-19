@@ -98,7 +98,10 @@ def evaluate(expr: str | float | int | list, names: dict) -> float | list:
                 return _MATH[n.id]
             raise NameError(f"unknown name {n.id!r} in {expr!r}")
         if isinstance(n, ast.BinOp) and type(n.op) in _BIN:
-            return _BIN[type(n.op)](ev(n.left), ev(n.right))
+            left, right = ev(n.left), ev(n.right)
+            if isinstance(n.op, ast.Pow) and isinstance(right, int) and abs(right) > 1024:
+                left = float(left)                  # 9**9**9 in integers would stall the server; floats overflow
+            return _BIN[type(n.op)](left, right)
         if isinstance(n, ast.UnaryOp) and type(n.op) in _UN:
             return _UN[type(n.op)](ev(n.operand))
         if isinstance(n, (ast.List, ast.Tuple)):
@@ -107,6 +110,25 @@ def evaluate(expr: str | float | int | list, names: dict) -> float | list:
             return _MATH[n.func.id](*[ev(a) for a in n.args])
         raise ValueError(f"not allowed in an expression: {ast.dump(n)[:60]} in {expr!r}")
     return ev(ast.parse(str(expr), mode="eval"))
+
+
+_FIELD = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+_SPEC = re.compile(r"^[<>=^+\- #0]{0,4}(\d{1,2})?(,|_)?(\.\d{1,2})?[eEfFgGdnxXo%s]?$")
+
+
+def format_template(template: str, values: dict) -> str:
+    """``template.format(**values)`` restricted to ``{name}`` and ``{name:spec}`` with a numeric spec of width and
+    precision below 100: user templates (case decks, dictionary values) can not reach attributes or items of the
+    values (``{x.__class__}``, ``{x[0]}``) or ask for gigabyte-wide padding (``{x:>999999999}``)."""
+    import string
+    for _, name, spec, conv in string.Formatter().parse(template):
+        if name is None:
+            continue
+        if not _FIELD.match(name) or conv not in (None, "s", "r"):
+            raise ValueError(f"template field {{{name}}} not allowed: use {{name}} or {{name:.3g}}")
+        if spec and not _SPEC.match(spec):
+            raise ValueError(f"format spec {spec!r} of {{{name}}} not allowed")
+    return template.format(**values)
 
 
 class _V:
@@ -232,8 +254,12 @@ def set_entry(text: str, key: str, value: str) -> str:
     return t[:vs] + f"{value};" + t[e:]
 
 
-def edit_file(path: str | Path, key: str, value: str) -> None:
+def edit_file(path: str | Path, key: str, value: str, root: str | Path | None = None) -> None:
+    """Set ``key`` to ``value`` in an OpenFOAM dictionary file. With ``root``, the file must lie inside it (the edit
+    list of a campaign comes from the user)."""
     p = Path(path)
+    if root is not None and not p.resolve().is_relative_to(Path(root).resolve()):
+        raise ValueError(f"edit target {path} is outside the case")
     p.write_text(set_entry(p.read_text(), key, value))
 
 

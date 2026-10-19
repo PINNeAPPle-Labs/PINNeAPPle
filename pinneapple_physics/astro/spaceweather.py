@@ -129,13 +129,14 @@ def train_forecaster(horizon: int = 1, seed: int = 0, epochs: int = 300):
     storms = y[test] >= 5
     hit = float(np.mean(hi[test][storms] >= 5)) if storms.any() else None
     checks = [
-        {"name": f"Median forecast MAE vs persistence (test: Nov-Dec, {horizon * 3} h ahead)", "value": mae(med),
+        {"id": "kp_mae", "args": {"hours": horizon * 3},
+         "name": f"Median forecast MAE vs persistence (test: Nov-Dec, {horizon * 3} h ahead)", "value": mae(med),
          "threshold": mae(persistence), "unit": "Kp", "status": "pass" if mae(med) <= mae(persistence) else "fail"},
-        {"name": "80 % interval coverage on the test months", "value": cover, "threshold": 0.75, "unit": "fraction",
+        {"id": "kp_coverage", "name": "80 % interval coverage on the test months", "value": cover, "threshold": 0.75, "unit": "fraction",
          "status": "pass" if cover >= 0.75 else "warn", "higher_is_better": True},
     ]
     if hit is not None:
-        checks.append({"name": "Storm periods (Kp >= 5) inside the upper bound", "value": hit, "threshold": 0.5,
+        checks.append({"id": "kp_storms", "name": "Storm periods (Kp >= 5) inside the upper bound", "value": hit, "threshold": 0.5,
                        "unit": "fraction", "status": "pass" if hit >= 0.5 else "warn", "higher_is_better": True})
     model = {"net": net, "mu": mu, "sd": sd, "qhat": qhat, "horizon": horizon, "use_net_median": use_net}
     report = {

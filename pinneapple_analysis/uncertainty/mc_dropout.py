@@ -7,6 +7,8 @@ Representing Model Uncertainty in Deep Learning*. ICML.
 """
 from __future__ import annotations
 
+import contextlib
+import warnings
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
@@ -55,8 +57,8 @@ class MCDropoutConfig:
         predictive distribution.  Higher values yield lower variance estimates
         at the cost of more compute.
     dropout_p:
-        Dropout probability applied to every ``nn.Linear`` layer during
-        stochastic inference.
+        Dropout probability applied to the input of every ``nn.Linear`` layer
+        but the first (the hidden activations) during stochastic inference.
     seed:
         Optional integer RNG seed for reproducible sampling.  When ``None``
         the global PyTorch RNG state is used.
@@ -71,18 +73,40 @@ class MCDropoutConfig:
             raise ValueError(
                 f"dropout_p must be in (0, 1); got {self.dropout_p}."
             )
-        if self.n_samples < 1:
-            raise ValueError(
-                f"n_samples must be >= 1; got {self.n_samples}."
-            )
+        _check_n_samples(self.n_samples)
+
+
+def _check_n_samples(n: int) -> None:
+    # the sample standard deviation needs two samples; one gives NaN
+    if n < 2:
+        raise ValueError(f"n_samples must be >= 2 to estimate a standard deviation; got {n}.")
+
+
+@contextlib.contextmanager
+def _sampling_state(model: Any, seed: int | None):
+    """Seed a forked RNG (the caller's global RNG stream is left untouched) and restore every submodule's
+    train/eval flag on exit, even when the forward pass raises."""
+    modes = [(m, m.training) for m in model.modules()] if isinstance(model, nn.Module) else []
+    with torch.random.fork_rng(enabled=seed is not None):
+        if seed is not None:
+            torch.manual_seed(seed)
+        try:
+            yield
+        finally:
+            for m, mode in modes:
+                m.training = mode
 
 
 class MCDropoutWrapper(nn.Module):
     """Wraps any ``nn.Module`` and adds Monte Carlo Dropout at inference time.
 
-    A thin ``nn.Dropout`` hook is registered *after* every ``nn.Linear`` layer
-    in the wrapped model.  The wrapper owns the dropout modules; the wrapped
-    model's parameters are **never** modified.
+    A thin ``nn.Dropout`` pre-forward hook is registered on every ``nn.Linear``
+    layer but the first, so dropout acts on the hidden activations (Gal &
+    Ghahramani 2016, dropout before each weight layer). It is never applied to
+    the network's output: dropping an output unit zeroes the prediction itself
+    and turns the "uncertainty" into ``|mean| sqrt(p / (1 - p))``. The input
+    coordinates are not dropped either. The wrapper owns the dropout modules;
+    the wrapped model's parameters are **never** modified.
 
     Parameters
     ----------
@@ -118,29 +142,30 @@ class MCDropoutWrapper(nn.Module):
     # ------------------------------------------------------------------
 
     def _register_dropout_hooks(self) -> None:
-        """Attach a post-forward Dropout hook to every Linear sub-module."""
+        """Attach a pre-forward Dropout hook to every Linear sub-module but the first."""
         p = self.config.dropout_p
+        linears = [m for m in self.model.modules() if isinstance(m, nn.Linear)]
+        if len(linears) < 2:
+            warnings.warn(
+                f"MCDropoutWrapper: the model has {len(linears)} nn.Linear layer(s), so there is no hidden "
+                "activation to drop; the samples vary only through the model's own dropout layers.",
+                stacklevel=3,
+            )
 
-        for _name, module in self.model.named_modules():
-            if isinstance(module, nn.Linear):
-                dropout = nn.Dropout(p=p)
-                self._dropout_modules.append(dropout)
+        for module in linears[1:]:
+            dropout = nn.Dropout(p=p)
+            self._dropout_modules.append(dropout)
 
-                # Capture in closure.
-                _dropout_ref = dropout
+            def _hook(
+                mod: nn.Module,
+                inputs: tuple,
+                _d: nn.Dropout = dropout,
+            ) -> tuple | None:
+                if self._dropout_enabled:
+                    return (_d(inputs[0]),) + tuple(inputs[1:])
+                return None
 
-                def _hook(
-                    mod: nn.Module,
-                    inputs: tuple,
-                    output: Tensor,
-                    _d: nn.Dropout = _dropout_ref,
-                ) -> Optional[Tensor]:
-                    if self._dropout_enabled:
-                        return _d(output)
-                    return output
-
-                handle = module.register_forward_hook(_hook)
-                self._hooks.append(handle)
+            self._hooks.append(module.register_forward_pre_hook(_hook))
 
     # ------------------------------------------------------------------
     # Dropout toggling
@@ -222,35 +247,32 @@ class MCDropoutWrapper(nn.Module):
             ``(n_samples, N, ...)``.
         """
         n = n_samples if n_samples is not None else self.config.n_samples
+        _check_n_samples(n)
         if device is None:
             device = x.device
 
         x = x.to(device)
         self.model.to(device)
 
-        # Seed for reproducibility.
-        if self.config.seed is not None:
-            torch.manual_seed(self.config.seed)
-
         # Collect samples with dropout active. Keep the whole model in eval
         # mode (BatchNorm etc. stay deterministic and unmutated) and only
-        # flip Dropout-family submodules to train mode.
-        self.model.eval()
-        _set_dropout_training(self.model, True)
-        self.enable_dropout()
-
+        # flip Dropout-family submodules to train mode; every module's
+        # train/eval flag is restored afterwards.
         preds: List[Tensor] = []
-        for _ in range(n):
-            out = self.model(x)
-            if hasattr(out, "y"):
-                # Unwrap ModelOutput/PINNOutput-style wrapper dataclasses.
-                out = out.y
-            # Detach to avoid accumulating the computation graph.
-            preds.append(out.detach())
-
-        self.disable_dropout()
-        _set_dropout_training(self.model, False)
-        self.model.eval()
+        with _sampling_state(self.model, self.config.seed):
+            self.model.eval()
+            _set_dropout_training(self.model, True)
+            self.enable_dropout()
+            try:
+                for _ in range(n):
+                    out = self.model(x)
+                    if hasattr(out, "y"):
+                        # Unwrap ModelOutput/PINNOutput-style wrapper dataclasses.
+                        out = out.y
+                    # Detach to avoid accumulating the computation graph.
+                    preds.append(out.detach())
+            finally:
+                self.disable_dropout()
 
         # Stack → (n_samples, N, ...)
         samples = torch.stack(preds, dim=0)
@@ -356,30 +378,24 @@ class MCDropout:
 
         x = x.to(device)
 
-        if self.config.seed is not None:
-            torch.manual_seed(self.config.seed)
-
-        # If the callable is an nn.Module, keep it in eval mode (so
-        # BatchNorm/etc. stay deterministic and unmutated) and activate only
-        # its Dropout-family submodules -- see `_set_dropout_training`'s
-        # docstring for why blindly calling `.train()` on the whole model is
-        # wrong here.
-        if isinstance(self.model, nn.Module):
-            self.model.eval()
-            _set_dropout_training(self.model, True)
-            self.model.to(device)
-
         preds: List[Tensor] = []
-        for _ in range(self.config.n_samples):
-            out = self.model(x)
-            if hasattr(out, "y"):
-                # Unwrap ModelOutput/PINNOutput-style wrapper dataclasses.
-                out = out.y
-            preds.append(out.detach())
+        with _sampling_state(self.model, self.config.seed):
+            # If the callable is an nn.Module, keep it in eval mode (so
+            # BatchNorm/etc. stay deterministic and unmutated) and activate only
+            # its Dropout-family submodules -- see `_set_dropout_training`'s
+            # docstring for why blindly calling `.train()` on the whole model is
+            # wrong here. Every module's train/eval flag is restored on exit.
+            if isinstance(self.model, nn.Module):
+                self.model.eval()
+                _set_dropout_training(self.model, True)
+                self.model.to(device)
 
-        if isinstance(self.model, nn.Module):
-            _set_dropout_training(self.model, False)
-            self.model.eval()
+            for _ in range(self.config.n_samples):
+                out = self.model(x)
+                if hasattr(out, "y"):
+                    # Unwrap ModelOutput/PINNOutput-style wrapper dataclasses.
+                    out = out.y
+                preds.append(out.detach())
 
         samples = torch.stack(preds, dim=0)
         mean = samples.mean(dim=0)

@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
@@ -22,11 +22,35 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[pyvista,cost,fmi,hub,mcp,geometry]"
-          pip install pytest
+          pip install pytest datasets
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
 
+      - name: App runtime and data contracts (must pass)
+        run: |
+          pip install fastapi httpx python-multipart pyarrow h5py
+          pytest tests/pinneapple_data/test_contracts.py tests/pinneapple_core/test_service.py tests/test_appkit_runtime.py tests/pinneapple_core/test_workflows.py tests/test_simulation_runner_app.py -q
+          pytest tests/pinneapple_data/test_doe.py tests/pinneapple_simulation/test_campaign_cases.py tests/test_app_campaign.py -q
+
+      - name: PINNeAPPle Flow — schema, safe equation parser, FD / PINN from text, planner, runtime, store, Studio API (must pass)
+        run: |
+          pip install -e ".[flow]"
+          pytest tests/test_flow_equations.py tests/test_flow_schema.py tests/test_flow_planner.py tests/test_flow_runtime.py tests/test_flow_studio_api.py tests/test_flow_studio_gui.py tests/test_flow_decisions.py tests/test_flow_generic.py tests/test_flow_library_nodes.py tests/test_flow_lab_status.py tests/test_flow_methods.py tests/test_flow_extensions.py tests/test_flow_palette.py tests/test_flow_vehicle.py -q -p no:warnings
+
       - name: Tier C — public API, cost validation, PyVista and CalculiX bridges (must pass)
-        run: xvfb-run -a pytest tests/test_public_api.py tests/test_cost_validation.py tests/test_pyvista_bridge.py tests/test_calculix_bridge.py tests/test_example_imports.py tests/test_app_helpers.py tests/test_release_version.py tests/test_model_zoo.py tests/test_geometry_library.py tests/test_multiscale.py tests/test_aero_panel.py tests/test_benchmark_api.py tests/test_equal_budget.py tests/test_inverse_heat_budget.py tests/test_operator_benchmarks.py -q
+        run: xvfb-run -a pytest tests/test_public_api.py tests/test_cost_validation.py tests/test_pyvista_bridge.py tests/test_calculix_bridge.py tests/test_example_imports.py tests/test_app_helpers.py tests/test_release_version.py tests/test_model_zoo.py tests/test_zoo_hub_formats.py tests/test_geometry_library.py tests/test_multiscale.py tests/test_aero_panel.py tests/test_benchmark_api.py tests/test_equal_budget.py tests/test_inverse_heat_budget.py tests/test_operator_benchmarks.py tests/test_fault_injection.py tests/test_validation_arena.py tests/test_inverse_core.py tests/test_design_intent.py tests/test_design_intent_entry_points.py -q
+
+      - name: Validation arena — replay the stored escapes and false alarms (must pass)
+        run: pinneapple check --arena-cases
+
+      - name: Near-random forecasting — predictability, surrogates, purged splits, DM tests, forecaster zoo (must pass)
+        run: |
+          pip install scikit-learn statsmodels
+          pytest tests/test_near_random_forecasting.py tests/test_near_random_visuals.py -q -p no:warnings
+
+      - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
+        run: |
+          python scripts/check_experiment_manifests.py
+          pytest tests/test_experiment_manifests.py tests/test_experiments_site.py -q -p no:warnings
 
       - name: Agents — AGENTS.md examples and the MCP server (must pass)
         run: pytest tests/test_agents_md.py tests/test_mcp_server.py -q
@@ -40,10 +64,15 @@ jobs:
       - name: Astronomy accuracy (USNO NOVAS, JPL Horizons, USNO almanac, NASA eclipses) and the Observatory app (must pass)
         run: |
           pip install ".[sky]" fastapi httpx "uvicorn[standard]"
-          pytest tests/test_astro_accuracy.py tests/test_astro_ai.py tests/test_observatory.py -q -p no:warnings
+          pytest tests/test_astro_accuracy.py tests/test_astro_ai.py tests/test_astro_facts.py tests/test_astro_observing.py tests/test_astro_journey.py tests/test_observatory.py tests/test_observatory_i18n.py -q -p no:warnings
 
       - name: Tier B — manufactured-solution physics-correctness tests (must pass)
         run: pytest tests/test_manufactured_solutions.py -q
+
+      - name: Electromagnetics — references, solvers, Maxwell checks, machines, topology optimisation (must pass)
+        run: |
+          pip install ".[em]"
+          pytest tests/test_em_core.py tests/test_maxwell_checks.py tests/test_em_verification.py tests/test_emachine_pmsm.py tests/test_fdtd.py tests/test_motor_magnetics.py tests/test_topology_optimization.py tests/test_inspection.py tests/test_solver_exact_solutions_batch4.py -q -p no:warnings
 
       # `continue-on-error: true` (not `|| true` in the shell command) is
       # deliberate: it keeps the workflow from blocking on pre-existing,
@@ -68,8 +97,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: Build the wheel
@@ -91,8 +120,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: Install (CPU torch) and the notebook runner

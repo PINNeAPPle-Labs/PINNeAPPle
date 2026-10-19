@@ -1,0 +1,127 @@
+id: channel_obstacle
+title: Channel with an obstacle — FreeCAD, CfdOF, OpenFOAM, ParaView
+application: FreeCAD 1.0 + CfdOF + OpenFOAM + ParaView
+description: >-
+  Open the parametric FreeCAD project of a 400 mm long, 100 mm high, 50 mm wide air channel with an obstacle on its floor, set the
+  obstacle height with a macro, build the CFD case with CfdOF (laminar, steady, incompressible; gmsh mesh), mesh and
+  solve it with OpenFOAM (simpleFoam), export the velocity field and an image with ParaView, and check the result:
+  solver converged, outlet flow equals inlet flow, pressure drop inside the design range.
+inputs:
+  obstacle_height_mm:
+    default: 55
+    min: 10
+    max: 80
+    unit: mm
+    description: obstacle height, from the floor of the 100 mm high channel
+  inlet_velocity_mm_s:
+    default: 20
+    min: 5
+    max: 40
+    unit: mm/s
+    description: uniform inlet velocity of the air (laminar range)
+steps:
+  - id: open_project
+    title: Open the FreeCAD project
+    action: freecad.open
+    requires: [freecad, xvfb]
+    params:
+      document: "{example}/channel_obstacle.FCStd"
+      solid: FluidDomain
+      view: {hide: [Channel, Obstacle], show: [FluidDomain]}
+    expects: [open_project/project.json]
+  - id: set_parameter
+    title: Run the macro that sets the obstacle height
+    action: freecad.macro
+    after: [open_project]
+    params:
+      macro: "{example}/set_parameter.FCMacro"
+      args:
+        document: "{example}/channel_obstacle.FCStd"
+        output: set_parameter/channel_obstacle_modified.FCStd
+        parameters: {obstacle_height: "{inputs.obstacle_height_mm}"}
+        solid: FluidDomain
+        expected_volume: length*height*width - obstacle_length*obstacle_height*width
+      view: {hide: [Channel, Obstacle], show: [FluidDomain]}
+    expects: [set_parameter/channel_obstacle_modified.FCStd]
+  - id: cfd_setup
+    title: Prepare the CFD case with CfdOF
+    action: cfdof.setup
+    after: [set_parameter]
+    requires: [cfdof, openfoam, gmsh]
+    params:
+      document: "{steps.set_parameter.document}"
+      solid: FluidDomain
+      inlet: x_min
+      outlet: x_max
+      inlet_velocity_mm_s: "{inputs.inlet_velocity_mm_s}"
+      mesh_size_mm: 8
+      max_iterations: 1000
+      convergence_tol: 0.0001
+      fluid: {name: Air, density: 1.2, viscosity: 1.8e-5}
+      view: {hide: [Channel, Obstacle], show: [FluidDomain]}
+    expects:
+      - {path: cfd_setup/cfd/case/Allrun}
+      - {path: cfd_setup/cfd/meshCase/Allmesh}
+  - id: mesh
+    title: Mesh with gmsh and check it (OpenFOAM)
+    action: openfoam.mesh
+    after: [cfd_setup]
+    params:
+      mesh_case: "{steps.cfd_setup.mesh_case}"
+      expected_size_m: [0.4, 0.05, 0.1]
+    expects: [{path: cfd_setup/cfd/meshCase/constant/polyMesh/faces}]
+  - id: solve
+    title: Solve with simpleFoam
+    action: openfoam.solve
+    after: [mesh]
+    confirm: [expensive]
+    timeout_s: 1500
+    params:
+      case: "{steps.cfd_setup.case}"
+      residual_tol: 0.0001
+  - id: postprocess
+    title: Export the velocity field and an image with ParaView
+    action: paraview.export
+    after: [solve]
+    params:
+      case: "{steps.cfd_setup.case}"
+      field: U
+      arrays: [U, p]
+      slice_normal: [0, 1, 0]
+      view_up: [0, 0, 1]
+    expects: [postprocess/U_cells.csv, postprocess/U_slice.png]
+  - id: verify
+    title: Compare with the acceptance criteria
+    action: verify.criteria
+    after: [postprocess]
+criteria:
+  - id: converged
+    kind: converged
+    title: simpleFoam converged (residual control 1e-4)
+    params: {step: solve}
+  - id: mass_balance
+    kind: mass_balance
+    title: Outlet volume flow equals the inlet flow within 1 %
+    params: {case: "{steps.cfd_setup.case}", inlet: inlet, outlet: outlet, tol: 0.01}
+  - id: inflow
+    kind: inflow
+    title: Inflow equals the prescribed inlet velocity x inlet area within 1 %
+    params: {case: "{steps.cfd_setup.case}", inlet: inlet, velocity: "{steps.cfd_setup.inlet_velocity_m_s}", tol: 0.01}
+  - id: pressure_drop
+    kind: pressure_drop
+    title: Pressure drop below the 0.01 Pa design limit (illustrative fan budget)
+    params: {case: "{steps.cfd_setup.case}", inlet: inlet, outlet: outlet, density: 1.2, min_pa: 0.0, max_pa: 0.01}
+  - id: velocity_exported
+    kind: artifact
+    title: Velocity field exported
+    params: {path: postprocess/U_cells.csv}
+limits:
+  - Laminar, steady, incompressible air at 20 °C; the inlet velocity is bounded to 5-40 mm/s (Reynolds number on the
+    67 mm hydraulic diameter 22-180) so the steady laminar model stays applicable.
+  - One mesh (gmsh tetrahedra, 8 mm maximum size, about 20 000 cells), no mesh-independence study; the pressure drop
+    is a mesh-dependent estimate.
+  - The 0.01 Pa limit is an illustrative design budget for the demo, not a standard; set your own in the workflow.
+    Measured on this setup at 20 mm/s - obstacle 25 mm 1.9 mPa, 55 mm 3.5 mPa (accepted), 80 mm 14.1 mPa (rejected).
+  - OpenFOAM v1912 (Ubuntu package) with CfdOF 1.37.3, which targets newer OpenFOAM releases. The agent makes and
+    records two edits for v1912 (mesh scaling in Allmesh, a fixedValue velocity inlet) and runs without
+    potential-flow initialisation, which diverged on v1912; the inflow criterion checks the inlet edit took effect.

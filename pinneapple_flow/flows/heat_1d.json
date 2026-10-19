@@ -1,0 +1,225 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "heat-1d-pinn-vs-finite-differences-vs-exact",
+ "name": "Heat 1D: PINN vs finite differences vs exact",
+ "description": "u_t = alpha u_xx on a rod with fixed ends; the PINN and the method-of-lines solution are measured against the exact sine mode; the Lab grades and seals the result.",
+ "nodes": [
+  {
+   "id": "geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 1,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": true,
+    "t_range": [
+     0.0,
+     0.5
+    ]
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Domain"
+  },
+  {
+   "id": "mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 201,
+    "n_t": 41
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Grid"
+  },
+  {
+   "id": "eq",
+   "type": "equations.system",
+   "params": {
+    "template": "heat",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_t = alpha*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "alpha": 0.1
+    },
+    "exact": "exp(-1*alpha*pi**2*t)*sin(pi*x)"
+   },
+   "position": {
+    "x": 580.0,
+    "y": 40.0
+   },
+   "label": "heat equations"
+  },
+  {
+   "id": "fd",
+   "type": "solver.classical",
+   "params": {
+    "method": "fd"
+   },
+   "position": {
+    "x": 850.0,
+    "y": 40.0
+   },
+   "label": "Finite differences"
+  },
+  {
+   "id": "pinn",
+   "type": "train.pinn",
+   "params": {
+    "adam_steps": 3000,
+    "lbfgs_steps": 300
+   },
+   "position": {
+    "x": 850.0,
+    "y": 190.0
+   },
+   "label": "PINN"
+  },
+  {
+   "id": "validate",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "position": {
+    "x": 1120.0,
+    "y": 40.0
+   },
+   "label": "Validation"
+  },
+  {
+   "id": "lab",
+   "type": "validate.lab",
+   "params": {
+    "title": "Heat 1D PINN vs FD"
+   },
+   "position": {
+    "x": 1390.0,
+    "y": 40.0
+   },
+   "label": "Lab seal"
+  },
+  {
+   "id": "plot",
+   "type": "viz.plot",
+   "params": {},
+   "position": {
+    "x": 1120.0,
+    "y": 190.0
+   },
+   "label": "Plots"
+  }
+ ],
+ "edges": [
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "mesh",
+   "target_port": "geometry",
+   "id": "geo.geometry->mesh.geometry"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq.mesh"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "fd",
+   "target_port": "problem",
+   "id": "eq.problem->fd.problem"
+  },
+  {
+   "source": "fd",
+   "source_port": "solution",
+   "target": "validate",
+   "target_port": "candidates",
+   "id": "fd.solution->validate.candidates"
+  },
+  {
+   "source": "fd",
+   "source_port": "solution",
+   "target": "plot",
+   "target_port": "solution",
+   "id": "fd.solution->plot.solution"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "pinn",
+   "target_port": "problem",
+   "id": "eq.problem->pinn.problem"
+  },
+  {
+   "source": "pinn",
+   "source_port": "solution",
+   "target": "validate",
+   "target_port": "candidates",
+   "id": "pinn.solution->validate.candidates"
+  },
+  {
+   "source": "pinn",
+   "source_port": "solution",
+   "target": "plot",
+   "target_port": "solution",
+   "id": "pinn.solution->plot.solution"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "validate",
+   "target_port": "problem",
+   "id": "eq.problem->validate.problem"
+  },
+  {
+   "source": "validate",
+   "source_port": "metrics",
+   "target": "lab",
+   "target_port": "validation",
+   "id": "validate.metrics->lab.validation"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

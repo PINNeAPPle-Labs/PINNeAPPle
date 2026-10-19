@@ -1,0 +1,106 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "neural-operators-deeponet-and-fno-on-burgers",
+ "name": "Neural operators: DeepONet and FNO on Burgers",
+ "description": "Random initial data -> viscous Burgers at t = 0.5 (periodic, pseudo-spectral reference); a DeepONet and an FNO trained on the same samples, held-out test errors.",
+ "nodes": [
+  {
+   "id": "data",
+   "type": "data.grf_burgers",
+   "params": {
+    "n_samples": 512,
+    "n": 128,
+    "nu": 0.01,
+    "t_end": 0.5
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Operator set (GRF -> Burgers)"
+  },
+  {
+   "id": "deeponet",
+   "type": "surrogate.train",
+   "params": {
+    "kind": "deeponet",
+    "epochs": 2000,
+    "lr": 0.001,
+    "architecture": {
+     "hidden": 128,
+     "modes": 64,
+     "depth": 3
+    }
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "DeepONet"
+  },
+  {
+   "id": "fno",
+   "type": "surrogate.train",
+   "params": {
+    "kind": "fno",
+    "epochs": 300,
+    "lr": 0.002,
+    "architecture": {
+     "width": 32,
+     "modes": 16,
+     "layers": 4
+    }
+   },
+   "position": {
+    "x": 310.0,
+    "y": 190.0
+   },
+   "label": "FNO"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Operators on Burgers"
+   },
+   "position": {
+    "x": 580.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "data",
+   "source_port": "data",
+   "target": "deeponet",
+   "target_port": "data",
+   "id": "data.data->deeponet.data"
+  },
+  {
+   "source": "deeponet",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "deeponet.metrics->report.items"
+  },
+  {
+   "source": "data",
+   "source_port": "data",
+   "target": "fno",
+   "target_port": "data",
+   "id": "data.data->fno.data"
+  },
+  {
+   "source": "fno",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "fno.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

@@ -1,0 +1,102 @@
+{
+ "run_id": "repo_results-b1eaa75f0af8",
+ "experiment": "repo_results",
+ "version": "1",
+ "params": {
+  "source": "prius_thermal_demag"
+ },
+ "status": "completed",
+ "started": 1792341613.034653,
+ "tags": [
+  "import",
+  "benchmark",
+  "dataset"
+ ],
+ "git": "38374d23",
+ "environment": {
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, black-hole forecasts, electric machines, electromagnetics, airfoil and airliner CFD, the lunar rover, forecasting studies, design apps), re-validated against their references and stored as datasets.",
+ "code": {
+  "files": [
+   "code/repo_results.py",
+   "code/03_pinn_burgers_full_pipeline.py",
+   "code/plate_2d.py",
+   "code/heat_fv_reference.py",
+   "code/block_3d.py",
+   "code/lbm_vortex_shedding.py",
+   "code/01_synthetic_diffusion.py",
+   "code/02_cylinder_flow_deepmind.py",
+   "code/concorde_high_aoa_pipeline.py",
+   "code/evaluate.py",
+   "code/surrogate.py",
+   "code/sizer.py",
+   "code/optimize.py",
+   "code/02_ahmed_body_cfd.py",
+   "code/10_pmsm_prius.py",
+   "code/14_prius_getdp_crosscheck.py",
+   "code/15_prius_skew.py",
+   "code/17_prius_tolerances.py",
+   "code/verification.py",
+   "code/16_prius_end_effects.py",
+   "code/13_prius_thermal.py",
+   "code/11_prius_drive.py",
+   "code/07_em_verification.py",
+   "code/08_fdtd_gallery.py",
+   "code/verification.py",
+   "code/01_spm_cogging_and_torque.py",
+   "code/summarise_baseline.py",
+   "code/xfoil_reference.py",
+   "code/verify3d_airliner.py",
+   "code/lunar_rover_3d.py",
+   "code/run_study.py",
+   "code/design_from_intent.py",
+   "code/01_mbb_beam.py",
+   "code/02_heat_and_stokes_flow.py",
+   "code/03_reluctance_rotor.py",
+   "code/trough_case.py",
+   "code/run_public_benchmarks.py",
+   "code/run_use_cases.py",
+   "code/repo_sources.py"
+  ],
+  "sha1": "9da7ebab94799ec54e393c6b7eb79f8fc2b2dcd4"
+ },
+ "finished": 1792341617.3955452,
+ "error": null,
+ "stages": [
+  {
+   "name": "import",
+   "started": 1792341613.0631807,
+   "status": "done",
+   "seconds": 4.331
+  },
+  {
+   "name": "closed-form verification (run now)",
+   "started": 1792341615.6864748,
+   "status": "done",
+   "seconds": 1.696
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/source.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/prius_13_prius_demag.png",
+   "figures/prius_13_prius_thermal.png",
+   "figures/prius_13_prius_demag_mesh.png"
+  ]
+ },
+ "validation": {
+  "total": 5,
+  "failed": 0
+ },
+ "seconds": 4.361,
+ "datasets": {}
+}

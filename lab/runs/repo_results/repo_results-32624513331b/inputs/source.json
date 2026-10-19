@@ -1,0 +1,7 @@
+{
+ "name": "prius_end_effects",
+ "description": "Prius end effects: end-winding inductance (Neumann integral) and 3-D magnet end leakage (GetDP), with the corrected 2-D torque and drive envelope",
+ "scripts": [
+  "examples/electrodynamics/16_prius_end_effects.py"
+ ]
+}

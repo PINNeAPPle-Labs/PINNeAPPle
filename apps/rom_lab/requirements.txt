@@ -1,0 +1,13 @@
+# on top of `pip install .` (PINNeAPPle core)
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+pandas>=2.0
+meshio>=5.3
+h5py>=3.9
+pyarrow>=14
+onnx>=1.16
+pydantic>=2
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9

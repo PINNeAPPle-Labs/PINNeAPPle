@@ -97,6 +97,14 @@ _BASE: Dict[str, Tuple[float, Dim, float]] = {
     # electrical
     "V": (1, _V, 0), "mV": (1e-3, _V, 0), "kV": (1e3, _V, 0), "ohm": (1, _d((_V, 1), (_A, -1)), 0),
     "Ω": (1, _d((_V, 1), (_A, -1)), 0), "VA": (1, _W, 0), "kVA": (1e3, _W, 0), "var": (1, _W, 0), "kvar": (1e3, _W, 0),
+    # electromagnetic (SI derived units; "C", "F", "H" and "S" stay degC, degF, hour and second, so charge,
+    # capacitance, inductance and conductance are spelled out)
+    "T": (1, _d((_V, 1), (_T, 1), (_L, -2)), 0), "mT": (1e-3, _d((_V, 1), (_T, 1), (_L, -2)), 0),
+    "µT": (1e-6, _d((_V, 1), (_T, 1), (_L, -2)), 0), "uT": (1e-6, _d((_V, 1), (_T, 1), (_L, -2)), 0),
+    "Wb": (1, _d((_V, 1), (_T, 1)), 0), "tesla": (1, _d((_V, 1), (_T, 1), (_L, -2)), 0),
+    "weber": (1, _d((_V, 1), (_T, 1)), 0), "coulomb": (1, _d((_A, 1), (_T, 1)), 0),
+    "farad": (1, _d((_A, 1), (_T, 1), (_V, -1)), 0), "henry": (1, _d((_V, 1), (_T, 1), (_A, -1)), 0),
+    "siemens": (1, _d((_A, 1), (_V, -1)), 0),
     # frequency / rotation (rpm is revolutions per minute -> 1/s)
     "Hz": (1, _d((_T, -1)), 0), "kHz": (1e3, _d((_T, -1)), 0), "rpm": (1 / 60, _d((_T, -1)), 0),
     # volume

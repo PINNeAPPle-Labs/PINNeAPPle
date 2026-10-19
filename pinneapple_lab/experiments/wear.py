@@ -67,6 +67,10 @@ def _worn_bar_scene(x_mm, gap_mm, wear_um, width_mm=10.0, height_mm=24.0, exagge
 @register
 class BarWear(Experiment):
     name = "bar_wear"
+    check_labels = {
+        "initial_contact_vs_closed_form": {"en": "contact vs Winkler \u00b7 Archard",
+                                           "pt": "contato vs Winkler \u00b7 Archard", "also": ["worn_volume_equals_K_F_s"]},
+    }
     version = "1"
     description = ("A crowned bar end slid on a flat counterface: Archard wear with the contact pressure redistributed "
                    "on an elastic layer, from the first Hertz-like contact through running-in to steady flat-punch "

@@ -1,0 +1,524 @@
+{
+ "$defs": {
+  "Column": {
+   "additionalProperties": false,
+   "properties": {
+    "description": {
+     "default": "",
+     "title": "Description",
+     "type": "string"
+    },
+    "dtype": {
+     "default": "float64",
+     "title": "Dtype",
+     "type": "string"
+    },
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "role": {
+     "default": "input",
+     "enum": [
+      "input",
+      "output",
+      "id",
+      "meta"
+     ],
+     "title": "Role",
+     "type": "string"
+    },
+    "unit": {
+     "default": "",
+     "title": "Unit",
+     "type": "string"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "Column",
+   "type": "object"
+  },
+  "FileRef": {
+   "additionalProperties": false,
+   "properties": {
+    "description": {
+     "default": "",
+     "title": "Description",
+     "type": "string"
+    },
+    "format": {
+     "default": "other",
+     "enum": [
+      "csv",
+      "parquet",
+      "hdf5",
+      "npz",
+      "json",
+      "vtk",
+      "openfoam",
+      "calculix",
+      "other"
+     ],
+     "title": "Format",
+     "type": "string"
+    },
+    "path": {
+     "description": "Relative to the contract file, or a URI.",
+     "title": "Path",
+     "type": "string"
+    },
+    "rows": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Rows"
+    },
+    "sha256": {
+     "anyOf": [
+      {
+       "pattern": "^[0-9a-f]{64}$",
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Sha256"
+    },
+    "size": {
+     "anyOf": [
+      {
+       "minimum": 0,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Bytes.",
+     "title": "Size"
+    }
+   },
+   "required": [
+    "path"
+   ],
+   "title": "FileRef",
+   "type": "object"
+  },
+  "Parameter": {
+   "additionalProperties": false,
+   "properties": {
+    "default": {
+     "default": null,
+     "title": "Default"
+    },
+    "description": {
+     "default": "",
+     "title": "Description",
+     "type": "string"
+    },
+    "group": {
+     "default": "other",
+     "enum": [
+      "geometry",
+      "material",
+      "boundary",
+      "operating",
+      "numerics",
+      "other"
+     ],
+     "title": "Group",
+     "type": "string"
+    },
+    "high": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "High"
+    },
+    "kind": {
+     "default": "continuous",
+     "enum": [
+      "continuous",
+      "integer",
+      "categorical",
+      "constant"
+     ],
+     "title": "Kind",
+     "type": "string"
+    },
+    "log": {
+     "default": false,
+     "description": "Sample uniformly in log space (low > 0).",
+     "title": "Log",
+     "type": "boolean"
+    },
+    "low": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Low"
+    },
+    "name": {
+     "description": "Identifier: also the column name.",
+     "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+     "title": "Name",
+     "type": "string"
+    },
+    "unit": {
+     "default": "",
+     "title": "Unit",
+     "type": "string"
+    },
+    "value": {
+     "default": null,
+     "description": "Value of a constant parameter.",
+     "title": "Value"
+    },
+    "values": {
+     "anyOf": [
+      {
+       "items": {},
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Choices of a categorical parameter.",
+     "title": "Values"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "Parameter",
+   "type": "object"
+  },
+  "ParameterSpace": {
+   "additionalProperties": false,
+   "description": "The parameters of a study and the constraints between them.",
+   "properties": {
+    "budget": {
+     "anyOf": [
+      {
+       "minimum": 1,
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "How many cases the study may run.",
+     "title": "Budget"
+    },
+    "constraints": {
+     "description": "Expressions that must hold, e.g. \"chord - 2*thickness >= 0.01\".",
+     "items": {
+      "type": "string"
+     },
+     "title": "Constraints",
+     "type": "array"
+    },
+    "description": {
+     "default": "",
+     "title": "Description",
+     "type": "string"
+    },
+    "kind": {
+     "const": "ParameterSpace",
+     "default": "ParameterSpace",
+     "title": "Kind",
+     "type": "string"
+    },
+    "metadata": {
+     "additionalProperties": true,
+     "description": "Free-form additions (app-specific).",
+     "title": "Metadata",
+     "type": "object"
+    },
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "parameters": {
+     "items": {
+      "$ref": "#/$defs/Parameter"
+     },
+     "title": "Parameters",
+     "type": "array"
+    },
+    "schema_version": {
+     "default": "1.0",
+     "title": "Schema Version",
+     "type": "string"
+    }
+   },
+   "required": [
+    "name",
+    "parameters"
+   ],
+   "title": "ParameterSpace",
+   "type": "object"
+  },
+  "Provenance": {
+   "additionalProperties": false,
+   "properties": {
+    "app": {
+     "default": "",
+     "title": "App",
+     "type": "string"
+    },
+    "created": {
+     "title": "Created",
+     "type": "string"
+    },
+    "library_version": {
+     "default": "",
+     "title": "Library Version",
+     "type": "string"
+    },
+    "notes": {
+     "default": "",
+     "title": "Notes",
+     "type": "string"
+    },
+    "run_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Run Ids",
+     "type": "array"
+    },
+    "source": {
+     "default": "",
+     "description": "What produced it: a campaign, a run set, an import, ...",
+     "title": "Source",
+     "type": "string"
+    },
+    "study_id": {
+     "default": "",
+     "title": "Study Id",
+     "type": "string"
+    }
+   },
+   "title": "Provenance",
+   "type": "object"
+  },
+  "Splits": {
+   "additionalProperties": false,
+   "description": "Either explicit row ids per split or fractions with a seed (and optionally the column holding ids).",
+   "properties": {
+    "id_column": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Id Column"
+    },
+    "seed": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Seed"
+    },
+    "test": {
+     "anyOf": [
+      {
+       "items": {},
+       "type": "array"
+      },
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Test"
+    },
+    "train": {
+     "anyOf": [
+      {
+       "items": {},
+       "type": "array"
+      },
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Train"
+    },
+    "val": {
+     "anyOf": [
+      {
+       "items": {},
+       "type": "array"
+      },
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Val"
+    }
+   },
+   "title": "Splits",
+   "type": "object"
+  }
+ },
+ "$id": "https://pinneapple.org/schemas/DatasetSpec-1.0.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "description": "A table of cases or samples: what the columns are, where the files are, how it is split.",
+ "properties": {
+  "columns": {
+   "items": {
+    "$ref": "#/$defs/Column"
+   },
+   "title": "Columns",
+   "type": "array"
+  },
+  "description": {
+   "default": "",
+   "title": "Description",
+   "type": "string"
+  },
+  "files": {
+   "items": {
+    "$ref": "#/$defs/FileRef"
+   },
+   "title": "Files",
+   "type": "array"
+  },
+  "kind": {
+   "const": "DatasetSpec",
+   "default": "DatasetSpec",
+   "title": "Kind",
+   "type": "string"
+  },
+  "license": {
+   "default": "",
+   "title": "License",
+   "type": "string"
+  },
+  "metadata": {
+   "additionalProperties": true,
+   "description": "Free-form additions (app-specific).",
+   "title": "Metadata",
+   "type": "object"
+  },
+  "n_rows": {
+   "anyOf": [
+    {
+     "minimum": 0,
+     "type": "integer"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "N Rows"
+  },
+  "name": {
+   "title": "Name",
+   "type": "string"
+  },
+  "parameter_space": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/ParameterSpace"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "provenance": {
+   "$ref": "#/$defs/Provenance"
+  },
+  "schema_version": {
+   "default": "1.0",
+   "title": "Schema Version",
+   "type": "string"
+  },
+  "splits": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/Splits"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "status": {
+   "default": "complete",
+   "description": "skeleton: planned, no outputs yet; partial: some cases have results.",
+   "enum": [
+    "skeleton",
+    "partial",
+    "complete"
+   ],
+   "title": "Status",
+   "type": "string"
+  },
+  "version": {
+   "default": "0.1.0",
+   "title": "Version",
+   "type": "string"
+  }
+ },
+ "required": [
+  "name"
+ ],
+ "title": "DatasetSpec",
+ "type": "object"
+}

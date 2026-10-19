@@ -22,7 +22,7 @@ import os
 import time
 from typing import Any
 
-from .curation import TIERS, USES, curate
+from .curation import TIER_ORDER, TIERS, USES, curate
 
 USE_LABEL = {"product": "Product", "paper": "Publication", "marketing": "Marketing", "training_data": "Training data"}
 
@@ -45,7 +45,7 @@ def select(cur: dict[str, Any], *, items: list[str] | None = None, experiment: l
         if tag and tags_of is not None and not set(tag) & set(tags_of.get(it["experiment"], [])):
             continue
         keys.append(k)
-    order = {"A": 0, "B": 1, "C": 2, "D": 3}
+    order = TIER_ORDER
     if use:
         keys.sort(key=lambda k: (cur["items"][k]["plan"]["uses"][use]["distance"], order[cur["items"][k]["tier"]]))
     else:
@@ -107,9 +107,17 @@ def gather(store, cur: dict[str, Any], key: str, n_figures: int = 3) -> dict[str
             "tags": tags, "references": refs + papers, "run": it["best_run"], "runs": it["runs"],
             "usable": it["usable_fraction"], "metrics": metrics, "checks": _load(os.path.join(d, "validation.json"), []),
             "dimensions": run["dimensions"], "coverage": run["coverage"], "plan": it["plan"],
-            "stages": run.get("stages", {}),
+            "stages": run.get("stages", {}), "problem": _problem(it), "next_steps": it.get("next_steps", []),
             "figures": _figures(d, n_figures), "git": rec.get("git"), "code": rec.get("code", {}).get("files", []),
             "datasets": rec.get("datasets", {}), "command": cmd, "seconds": rec.get("seconds")}
+
+
+def _problem(it: dict[str, Any]) -> dict[str, str] | None:
+    """E and F: the main problem and the next step, as the item's seal prints them (from the curation headline)."""
+    hl = it.get("headline") or {}
+    if it["tier"] not in ("E", "F") or hl.get("kind") != "failing":
+        return None
+    return {"text": hl.get("text", ""), "hint": hl.get("hint", "")}
 
 
 # ---------------------------------------------------------------------- HTML
@@ -128,7 +136,9 @@ td, th { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: lef
 th { font: 600 11.5px "IBM Plex Mono", monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .05em }
 td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", monospace }
 .tier { display: inline-block; padding: 3px 8px; border-radius: 5px; color: #fff; font: 600 12px "IBM Plex Mono", monospace }
-.tA { background: var(--ok) } .tB { background: var(--accent) } .tC { background: var(--warn) } .tD { background: var(--bad) }
+.tA { background: #2FBF71; color: #0F1420 } .tB { background: #A6D96A; color: #0F1420 } .tC { background: #FFE066; color: #0F1420 }
+.tD { background: #FDAE61; color: #0F1420 } .tE { background: #F0603C; color: #0F1420 } .tF { background: #A50026 }
+.problem { border-left: 4px solid var(--bad); padding: 6px 10px; background: #fbeeed }
 .pass { color: var(--ok); font-weight: 600 } .fail { color: var(--bad); font-weight: 600 }
 .figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px }
 .figs img { width: 100%; border: 1px solid var(--line); border-radius: 8px }
@@ -185,7 +195,17 @@ def render_html(store, groups: list[dict[str, Any]], title: str, filters: str = 
                  f"<span class=\"tier t{g['tier']}\">{g['tier']} · {_e(g['tier_name'])}</span></h2>")
         if g["story"]:
             L.append(f"<p class=\"story\">“{_e(g['story'])}”</p>")
+        if g["problem"]:
+            L.append(f"<p class=\"problem\"><b>Main problem:</b> ✗ {_e(g['problem']['text'])}<br>"
+                     f"<b>To raise it:</b> ↑ {_e(g['problem']['hint'])}</p>")
         L.append(f"<p>{_e(g['description'])}</p>")
+        if g["next_steps"]:
+            from .next_steps import group
+            L.append("<h3>Next letter: what is missing and how</h3>" + "".join(
+                "<ol>" + "".join(f"<li><b>{_e(x['to'])}: {_e(x['short'])}</b> <span class=\"muted\">{_e(x['why'])}"
+                                 "</span></li>" for x in grp["gaps"]) + "</ol><ul>"
+                + ("".join(f"<li>{_e(a['text'])}<br><code>{_e(a['command'])}</code></li>" for a in grp["actions"])
+                   or "<li>no PINNeAPPle action yet</li>") + "</ul>" for grp in group(g["next_steps"])))
         if g["figures"]:
             imgs = []
             for f in g["figures"]:
@@ -261,7 +281,16 @@ def render_md(groups: list[dict[str, Any]], title: str, filters: str = "") -> st
         L += ["", f"## {g['title']} — {g['tier']} {g['tier_name']}", ""]
         if g["story"]:
             L += [f"> {g['story']}", ""]
+        if g["problem"]:
+            L += [f"**Main problem:** ✗ {g['problem']['text']}  ", f"**To raise it:** ↑ {g['problem']['hint']}", ""]
         L += [g["description"], ""]
+        if g["next_steps"]:
+            from .next_steps import group
+            L += ["**Next letter: what is missing and how**", ""]
+            for grp in group(g["next_steps"]):
+                L += [f"- **{x['to']}: {x['short']}** ({x['why']})" for x in grp["gaps"]]
+                L += [f"  - {a['text']}: `{a['command']}`" for a in grp["actions"]] or ["  - no PINNeAPPle action yet"]
+            L.append("")
         if g["stages"]:
             L += ["**Trust card**", "", "| stage | question | status | evidence | next |", "|---|---|---|---|---|"]
             L += [f"| {s_['title']} | {s_['question']} | {s_['status']} | {'; '.join(s_['evidence'][:2])} | {s_['next']} |"
@@ -317,7 +346,18 @@ def render_pdf(groups: list[dict[str, Any]], title: str, filters: str = "") -> b
         S += [PageBreak(), Paragraph(f"{_e(g['title'])} — {g['tier']} {_e(g['tier_name'])}", h2)]
         if g["story"]:
             S.append(Paragraph(f"<i>{_e(g['story'])}</i>", body))
+        if g["problem"]:
+            S.append(Paragraph(f"<b>Main problem:</b> {_e(g['problem']['text'])}<br/>"
+                               f"<b>To raise it:</b> {_e(g['problem']['hint'])}", body))
         S.append(Paragraph(_e(g["description"]), body))
+        if g["next_steps"]:
+            S.append(Paragraph("Next letter: what is missing and how", st["Heading4"]))
+            from .next_steps import group
+            for grp in group(g["next_steps"]):
+                acts = "<br/>".join(f"&rarr; {_e(a['text'])}: <font face=\"Courier\">{_e(a['command'])}</font>"
+                                    for a in grp["actions"]) or "&rarr; no PINNeAPPle action yet"
+                heads = "<br/>".join(f"<b>{_e(x['to'])}: {_e(x['short'])}</b> ({_e(x['why'])})" for x in grp["gaps"])
+                S.append(Paragraph(f"{heads}<br/>{acts}", body))
         for f in g["figures"][:2]:
             im = _img_data(f, 1100)
             if im:

@@ -1,0 +1,149 @@
+name: Security
+
+# Static analysis, dependency and secret scans, Dockerfile lint, base-image scan, the security tests, and SBOMs.
+# Fails on: a high-severity bandit finding, a known-vulnerable Python dependency, a committed secret, a Dockerfile
+# error, a critical fixable CVE in a base image, or a failing security test. Findings and the reasoning behind
+# the gates: docs/security/audit.md.
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: "17 5 * * 1"          # weekly: new CVEs in unchanged dependencies
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: "8.21.2"
+  HADOLINT_VERSION: "2.12.0"
+  TRIVY_VERSION: "0.69.3"
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0          # gitleaks scans the commits of the pull request
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install scanners
+        run: |
+          # pip-audit also audits this environment: bring the runner's own pip and setuptools up to date first
+          # (setuptools 79.0.1 on the runner image: PYSEC-2026-3447, fixed in 83.0.0; the project builds with hatchling)
+          python -m pip install --upgrade pip "setuptools>=83"
+          pip install "bandit>=1.7.9" "pip-audit>=2.7" "cyclonedx-bom>=4.4"
+          curl -sSfL -o /usr/local/bin/hadolint \
+            "https://github.com/hadolint/hadolint/releases/download/v${HADOLINT_VERSION}/hadolint-Linux-x86_64"
+          chmod +x /usr/local/bin/hadolint
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar xz -C /usr/local/bin gitleaks
+          curl -sSfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            | tar xz -C /usr/local/bin trivy
+
+      - name: bandit (apps and the shared service and security code; fails on high severity)
+        run: |
+          bandit -r apps pinneapple_security pinneapple_core/service -f json -o bandit.json || true
+          bandit -r apps pinneapple_security pinneapple_core/service -lll -ii
+
+      - name: pip-audit (every app's requirements and the core package, resolved as the images install them)
+        run: |
+          cat apps/*/requirements.txt | sed 's/#.*//' | grep -v '^\s*$' | sort -u > app-requirements.txt
+          pip-audit -r app-requirements.txt --desc on -f json -o pip-audit-apps.json || true
+          pip-audit -r app-requirements.txt
+          pip install -e . >/dev/null
+          pip-audit --skip-editable
+
+      - name: gitleaks (secrets in the commits of this change, or the whole history on main)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            gitleaks detect --source . --redact --config .gitleaks.toml \
+              --log-opts="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+          else
+            gitleaks detect --source . --redact --config .gitleaks.toml
+          fi
+
+      - name: hadolint (Dockerfiles; fails on errors)
+        run: hadolint --failure-threshold error apps/*/Dockerfile pinneapple_lab/deploy/Dockerfile
+
+      - name: Trivy (base images; fails on critical CVEs that have a fix)
+        run: |
+          imgs=$( (sed -n 's/^ *image: *\(caddy:[^ ]*\).*/\1/p' apps/deploy/docker-compose.yml
+                   sed -n 's/^FROM \(caddy:[^ ]*\).*/\1/p' apps/playground/Dockerfile) | sort -u)
+          for img in python:3.11-slim $imgs; do
+            echo "trivy: $img"
+            trivy image --quiet --scanners vuln --severity CRITICAL --ignore-unfixed --exit-code 1 "$img"
+          done
+
+      - name: SBOM (CycloneDX) of the Python environment the app images install, and of the base images
+        if: always()
+        run: |
+          pip install -r app-requirements.txt >/dev/null
+          cyclonedx-py environment --of JSON -o sbom-python.cdx.json
+          trivy image --quiet --format cyclonedx -o sbom-python-3.11-slim.cdx.json python:3.11-slim
+          caddy=$(sed -n 's/^ *image: *\(caddy:[^ ]*\).*/\1/p' apps/deploy/docker-compose.yml | head -1)
+          trivy image --quiet --format cyclonedx -o sbom-caddy.cdx.json "$caddy"
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit.json
+            pip-audit-apps.json
+            sbom-*.cdx.json
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[security]" pytest fastapi httpx python-multipart pyyaml argon2-cffi
+      - name: Security tests per layer (library, app wiring, deployment)
+        # tests/test_*_security.py: the app-wiring and deployment suites (tests/test_app_security.py,
+        # tests/test_deploy_security.py) and any later ones
+        run: |
+          shopt -s nullglob
+          pytest -q tests/pinneapple_security tests/test_*_security.py tests/test_app_campaign.py \
+            tests/test_app_model_gateway.py tests/test_appkit_runtime.py tests/pinneapple_core/test_service.py
+
+  image:
+    # one real app image end to end: built, run with the Compose hardening, scanned, SBOM; weekly and on demand
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the HeatSink Sizer image
+        run: docker build -f apps/heatsink_sizer/Dockerfile -t pinneapple/heatsink-sizer:ci .
+      - name: Runs as non-root with a read-only root filesystem and no capabilities
+        run: |
+          docker run -d --name hss --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges:true \
+            pinneapple/heatsink-sizer:ci
+          for _ in $(seq 1 60); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' hss)" = "healthy" ] && break; sleep 2
+          done
+          docker inspect -f '{{.State.Health.Status}}' hss | grep -q healthy
+          test "$(docker exec hss id -u)" = "10001"
+          docker exec hss python -c "import urllib.request as u; r = u.urlopen('http://localhost:8080/'); \
+            assert 'frame-ancestors' in r.headers['content-security-policy']"
+      - name: Trivy image scan and SBOM
+        run: |
+          curl -sSfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            | tar xz -C /usr/local/bin trivy
+          trivy image --quiet --scanners vuln,secret --severity HIGH,CRITICAL pinneapple/heatsink-sizer:ci
+          trivy image --quiet --format cyclonedx -o sbom-heatsink-sizer.cdx.json pinneapple/heatsink-sizer:ci
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sbom-heatsink-sizer
+          path: sbom-heatsink-sizer.cdx.json

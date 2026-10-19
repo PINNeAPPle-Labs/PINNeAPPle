@@ -24,7 +24,7 @@ import numpy as np
 from . import operator_benchmarks as ob
 
 __all__ = ["BURGERS", "DARCY", "NS", "SHARD_ROWS", "fourier_pad", "burgers_inputs", "darcy_inputs", "ns_inputs",
-           "solve_burgers", "solve_darcy", "solve_ns", "rel_l2", "write_npz", "convergence", "generate"]
+           "block_average", "darcy_set", "solve_burgers", "solve_darcy", "solve_ns", "rel_l2", "write_npz", "convergence", "generate"]
 
 # --------------------------------------------------------------------------- problem definitions
 # Burgers: u0 ~ N(0, 625 (-lap + 25 I)^-2) on the periodic [0, 1), nu = 0.1, map u0 -> u(., 1) (Li et al. 2021, 5.1)
@@ -67,10 +67,23 @@ def solve_burgers(u0: np.ndarray, dt: float | None = None) -> np.ndarray:
     return u                                                    # (batch, n_save + 1, n)
 
 
-def darcy_inputs(n_samples: int, n: int, seed: int) -> np.ndarray:
+def darcy_inputs(n_samples: int, n: int, seed: int, *, tau: float | None = None, high: float | None = None,
+                 low: float | None = None) -> np.ndarray:
+    """Coefficients of the Darcy benchmark; ``tau`` (inverse correlation length), ``high`` and ``low`` override the
+    dataset's values to draw shifted inputs (other length scale, other contrast) from the same family."""
     p = DARCY
-    g = ob.periodic_grf(n_samples, (n, n), alpha=p["alpha"], tau=p["tau"], seed=seed)
-    return ob.threshold_coefficient(g, high=p["high"], low=p["low"])
+    g = ob.periodic_grf(n_samples, (n, n), alpha=p["alpha"], tau=p["tau"] if tau is None else tau, seed=seed)
+    return ob.threshold_coefficient(g, high=p["high"] if high is None else high, low=p["low"] if low is None else low)
+
+
+def block_average(x: np.ndarray, factor: int) -> np.ndarray:
+    """Cell averages on a grid ``factor`` times coarser over the last two axes (``(..., n, n)``, ``n % factor == 0``):
+    the coarse-grid version of a cell-averaged field (``u`` of the dataset) or of a coefficient."""
+    x = np.asarray(x)
+    n0, n1 = x.shape[-2:]
+    if n0 % factor or n1 % factor:
+        raise ValueError(f"grid {n0} x {n1} is not divisible by {factor}")
+    return x.reshape(*x.shape[:-2], n0 // factor, factor, n1 // factor, factor).mean(axis=(-3, -1))
 
 
 def solve_darcy(a: np.ndarray, refine: int | None = None) -> np.ndarray:
@@ -154,6 +167,17 @@ def _write_splits(out: Path, name: str, cols: dict[str, np.ndarray], n_train: in
 
 def _chunks(x: np.ndarray, size: int) -> list[np.ndarray]:
     return [x[i:i + size] for i in range(0, len(x), size)]
+
+
+def darcy_set(n_samples: int, seed: int, *, n: int | None = None, tau: float | None = None,
+              high: float | None = None, low: float | None = None, workers: int = 1) -> tuple[np.ndarray, np.ndarray]:
+    """``(a, u)`` pairs of the Darcy benchmark drawn and solved exactly as the zoo dataset ``darcy_2d_li2021``
+    (same solver, refinement and source), optionally from a shifted input distribution: ``tau`` (correlation
+    length ~ 1 / tau; the dataset uses 3), ``high`` / ``low`` (the two coefficient values; 12 / 3)."""
+    n = n or DARCY["n"]
+    a = darcy_inputs(n_samples, n, seed, tau=tau, high=high, low=low)
+    u = np.concatenate(_pmap(solve_darcy, _chunks(a, max(1, -(-n_samples // max(workers, 1)))), workers))
+    return a, u
 
 
 def generate(out: Path, workers: int = 1, only: str | None = None) -> None:

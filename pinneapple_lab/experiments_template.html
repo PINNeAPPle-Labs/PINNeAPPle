@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PINNeAPPle experiments</title>
+<style>
+:root { --bg: #f6f7f9; --card: #ffffff; --ink: #142127; --muted: #5a6b72; --line: #d9e0e3; --chip: #eef2f3;
+  --accent: #0b6e69; --bad: #b3261e; --code: #f1f4f5; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0b0f17; --card: #131a26; --ink: #e6e9f0; --muted: #9aa6b2;
+  --line: #263142; --chip: #1b2433; --accent: #4fd1c5; --bad: #ff8a80; --code: #0f1520; } }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 Inter, system-ui, -apple-system, "Segoe UI", sans-serif }
+header { padding: 18px 16px 8px; max-width: 1240px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline }
+header h1 { font-size: 24px; margin: 0; flex: 1 1 auto }
+header small { color: var(--muted) }
+.lang button, .chip, select, input[type=search] { font: inherit; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px }
+.lang button[aria-pressed=true], .chip[aria-pressed=true] { background: var(--accent); color: #fff; border-color: var(--accent) }
+main { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px }
+.summary { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px }
+.chip { cursor: pointer; display: inline-flex; gap: 6px; align-items: center }
+.disc { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font-weight: 800; font-size: 13px }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; align-items: center }
+.controls input[type=search] { flex: 1 1 240px; min-width: 0 }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; cursor: pointer;
+  display: flex; flex-direction: column; text-align: left; padding: 0; color: inherit; font: inherit }
+.card:focus-visible { outline: 3px solid var(--accent) }
+.thumb { aspect-ratio: 16/10; background: var(--chip); width: 100%; object-fit: cover; display: block }
+.thumb.empty { display: grid; place-items: center; color: var(--muted); font-size: 13px }
+.card .body { padding: 10px 12px 12px; display: grid; gap: 4px }
+.card h2 { font-size: 15px; margin: 0; display: flex; gap: 8px; align-items: flex-start }
+.meta { color: var(--muted); font-size: 12.5px }
+.reason { font-size: 13px }
+.problem { color: var(--bad); font-size: 13px }
+.nc { font-size: 12px; color: var(--muted); border: 1px dashed var(--line); border-radius: 6px; padding: 2px 6px; display: inline-block }
+#detail { display: none }
+#detail.on { display: block }
+#list.off { display: none }
+.back { display: inline-block; margin: 6px 0 12px; color: var(--accent); text-decoration: none }
+.dhead { display: flex; flex-wrap: wrap; gap: 16px; align-items: center }
+.dhead h2 { margin: 0; font-size: 22px; flex: 1 1 320px }
+.seal { max-width: 100%; height: auto }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 12px 0 }
+section h3 { margin: 0 0 8px; font-size: 15px }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px }
+td, th { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere }
+code { background: var(--code); padding: 1px 4px; border-radius: 4px; font-size: 12.5px; overflow-wrap: anywhere }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px }
+.gallery a img { width: 100%; border-radius: 8px; border: 1px solid var(--line); display: block }
+.vid { display: grid; gap: 6px }
+.vid video { width: 100%; border-radius: 8px }
+.st-answered { color: #2FBF71 } .st-partial { color: #FDAE61 } .st-open { color: var(--muted) } .st-failed { color: var(--bad) }
+ol.next > li { margin-bottom: 8px }
+.empty-list { color: var(--muted); padding: 24px 0 }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="h1">PINNeAPPle experiments</h1>
+  <small id="gen"></small>
+  <div class="lang" role="group" aria-label="Language"><button data-lang="en">EN</button> <button data-lang="pt">PT</button></div>
+</header>
+<main>
+  <div id="list">
+    <div class="summary" id="summary" role="group" aria-label="Filter by letter"></div>
+    <div class="controls">
+      <input type="search" id="q" aria-label="Search">
+      <select id="domain" aria-label="Domain"></select>
+      <select id="method" aria-label="Method"></select>
+      <label><input type="checkbox" id="ready"> <span id="readyl"></span></label>
+      <select id="sort" aria-label="Sort"></select>
+    </div>
+    <p class="meta" id="count"></p>
+    <div class="grid" id="grid"></div>
+  </div>
+  <div id="detail"></div>
+</main>
+<script id="data" type="application/json">/*__DATA__*/null</script>
+<script>
+const D = JSON.parse(document.getElementById("data").textContent);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let S = { lang: "en", letter: "", domain: "", method: "", ready: false, q: "", sort: "letter" };
+try { S = { ...S, ...JSON.parse(localStorage.getItem("pnp-exp") || "{}") }; } catch (e) {}
+const T = () => D.ui[S.lang];
+const tierOrder = ["A", "B", "C", "D", "E", "F"];
+const disc = (t) => t ? `<span class="disc" style="background:${D.tiers[t].colour};color:${D.tiers[t].ink}" aria-label="tier ${t}">${t}</span>`
+                      : `<span class="disc" style="background:var(--chip);color:var(--muted)" aria-label="not curated">–</span>`;
+const pick = (o, k) => (S.lang === "pt" && o[k + "_pt"]) ? o[k + "_pt"] : o[k];
+const gh = (p) => p ? `${D.github}/blob/main/${p}` : "";
+
+function save() { try { localStorage.setItem("pnp-exp", JSON.stringify(S)); } catch (e) {} }
+
+function filtered() {
+  let out = D.entries.filter((e) => (!S.letter || (S.letter === "none" ? !e.tier : e.tier === S.letter))
+    && (!S.domain || e.domain === S.domain) && (!S.method || e.methods.includes(S.method)) && (!S.ready || e.ready.length));
+  if (S.q) { const w = S.q.toLowerCase().split(/\s+/).filter(Boolean);
+    out = out.filter((e) => w.every((x) => [e.title, e.description, e.domain, e.key, e.search || "", ...e.methods].join(" ").toLowerCase().includes(x))); }
+  if (S.sort === "date") out.sort((a, b) => (b.date || 0) - (a.date || 0));
+  else out.sort((a, b) => ((a.tier ? tierOrder.indexOf(a.tier) : 9) - (b.tier ? tierOrder.indexOf(b.tier) : 9)) || a.title.localeCompare(b.title));
+  return out;
+}
+
+function chrome() {
+  document.documentElement.lang = S.lang;
+  document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.lang === S.lang));
+  $("h1").textContent = T().title; document.title = T().title;
+  $("gen").textContent = `${T().generated} ${D.generated}`;
+  $("q").placeholder = T().search; $("q").value = S.q; $("readyl").textContent = T().ready; $("ready").checked = S.ready;
+  $("domain").innerHTML = `<option value="">${T().domain}: ${T().all}</option>` + D.domains.map((d) => `<option ${d === S.domain ? "selected" : ""}>${esc(d)}</option>`).join("");
+  $("method").innerHTML = `<option value="">${T().method}: ${T().all}</option>` + D.methods.map((d) => `<option ${d === S.method ? "selected" : ""}>${esc(d)}</option>`).join("");
+  $("sort").innerHTML = [["letter", T().by_letter], ["date", T().by_date]].map(([v, l]) => `<option value="${v}" ${v === S.sort ? "selected" : ""}>${T().sort}: ${l}</option>`).join("");
+  const chips = tierOrder.map((t) => `<button class="chip" data-letter="${t}" aria-pressed="${S.letter === t}">${disc(t)} ${esc(D.tiers[t][S.lang])} <b>${D.counts[t]}</b></button>`);
+  chips.push(`<button class="chip" data-letter="none" aria-pressed="${S.letter === "none"}">${disc(null)} ${T().not_curated} <b>${D.counts["not curated"]}</b></button>`);
+  $("summary").innerHTML = chips.join("");
+}
+
+function card(e) {
+  const fig = e.media.find((m) => m.kind === "figure");
+  const img = fig ? `<img class="thumb" loading="lazy" decoding="async" src="${esc(fig.thumb)}" alt="">` : `<div class="thumb empty">${esc(e.domain)}</div>`;
+  const reason = e.problem ? `<div class="problem">✗ ${esc(pick(e.problem, "text"))}</div>`
+    : e.seal && pick(e.seal, "reason") ? `<div class="reason">${e.seal.kind === "reference" ? "✓" : "◐"} ${esc(pick(e.seal, "reason"))}</div>`
+    : !e.tier ? `<span class="nc">${T().not_curated}</span>` : "";
+  return `<button class="card" data-key="${esc(e.key)}">${img}<div class="body"><h2>${disc(e.tier)} <span>${esc(pick(e, "title"))}</span></h2>
+    <div class="meta">${esc(e.domain)}${e.methods.length ? " · " + esc(e.methods.slice(0, 3).join(", ")) : ""}</div>${reason}</div></button>`;
+}
+
+function list() {
+  const f = filtered();
+  $("count").textContent = `${f.length} ${T().count}`;
+  $("grid").innerHTML = f.length ? f.map(card).join("") : `<p class="empty-list">${T().none}</p>`;
+}
+
+function detail(e) {
+  const t = T(), L = S.lang;
+  const stages = Object.entries(e.stages || {}).map(([k, s]) => `<tr><td>${esc(L === "pt" ? s.title_pt : s.title)}</td>
+    <td class="st-${esc(s.status)}">${esc(s.status)}</td><td>${(s.evidence || []).map(esc).join("<br>")}${s.next ? `<br><i>${esc(s.next)}</i>` : ""}</td></tr>`).join("");
+  const metrics = (e.metrics || []).map((m) => `<tr><td>${esc(m.name)}</td><td>${esc(typeof m.value === "number" ? Number(m.value.toPrecision(6)) : m.value)}${m.unit ? " " + esc(m.unit) : ""}</td><td>${esc(m.how)}</td></tr>`).join("");
+  const groups = [], gi = {};                       // gaps sharing the same commands: the actions are listed once
+  for (const g of e.next_steps || []) { const k = JSON.stringify(g.actions.map((a) => a.command));
+    if (k in gi) groups[gi[k]].gaps.push(g); else { gi[k] = groups.length; groups.push({ gaps: [g], actions: g.actions }); } }
+  const next = groups.map((grp) => `<li>${grp.gaps.map((g) => `<div><b>${esc(g.to)}: ${esc(L === "pt" ? g.short_pt : g.short)}</b> <span class="meta">${t.why}: ${esc(L === "pt" ? g.why_pt : g.why)}</span></div>`).join("")}
+    <ul>${grp.actions.length ? grp.actions.map((a) => `<li>${esc(L === "pt" ? a.text_pt : a.text)}<br><code>${esc(a.command)}</code></li>`).join("") : `<li>${t.no_action}</li>`}</ul></li>`).join("");
+  const figs = e.media.filter((m) => m.kind === "figure");
+  const vids = e.media.filter((m) => m.kind === "video");
+  const links = [e.links.guide ? `<a href="${gh(e.links.guide)}">${t.guide}</a>` : "", e.links.script ? `<a href="${gh(e.links.script)}">${t.script}: ${esc(e.links.script)}</a>` : "",
+    ...(e.links.pr || []).map((n) => `<a href="${D.github}/pull/${n}">${t.pr} #${n}</a>`)].filter(Boolean);
+  const seal = e.tier && e["seal_" + L] ? `<img class="seal" src="${esc(e["seal_" + L])}" alt="tier ${e.tier}">` : `<span class="nc">${t.not_curated}</span>`;
+  $("detail").innerHTML = `<a class="back" href="#">${t.back}</a>
+    <div class="dhead"><h2>${disc(e.tier)} ${esc(pick(e, "title"))}</h2>${seal}</div>
+    <p class="meta">${esc(e.domain)}${e.methods.length ? " · " + esc(e.methods.join(", ")) : ""} · <code>${esc(e.key)}</code></p>
+    <p>${esc(e.description)}</p>
+    ${e.curate ? `<section><h3>${t.how_curate}</h3><code>${esc(e.curate)}</code></section>` : ""}
+    ${e.problem ? `<section><h3>${t.problem}</h3><p class="problem">✗ ${esc(pick(e.problem, "text"))}</p><p>↑ ${esc(pick(e.problem, "hint"))}</p></section>` : ""}
+    ${(e.items || []).length ? `<section><h3>${t.items}</h3>${e.items.map((i) => `<div>${disc(i.tier)} ${esc(pick(i, "title"))} <code>${esc(i.key)}</code>${i.reason ? ` <span class="meta">· ${esc(i.reason)}</span>` : ""}</div>`).join("")}</section>` : ""}
+    ${stages ? `<section><h3>${t.trust}</h3><table>${stages}</table></section>` : ""}
+    <section><h3>${t.metrics}</h3>${metrics ? `<table>${metrics}</table>` : `<p class="meta">${t.none}</p>`}</section>
+    ${next ? `<section><h3>${t.next}</h3><ol class="next">${next}</ol></section>` : ""}
+    ${figs.length ? `<section><h3>${t.gallery}</h3><div class="gallery">${figs.map((m) => `<a href="${esc(m.src)}" target="_blank" rel="noopener"><img loading="lazy" decoding="async" src="${esc(m.thumb)}" alt="${esc(m.name)}"></a>`).join("")}</div></section>` : ""}
+    ${vids.length ? `<section><h3>${t.videos}</h3><div class="gallery">${vids.map((m, i) => `<div class="vid"><span class="meta">${esc(m.name)}</span>${m.src ? `<button class="chip" data-play="${i}" data-src="${esc(m.src)}">▶ ${t.play}</button>` : `<span class="meta">server only</span>`}</div>`).join("")}</div></section>` : ""}
+    ${(e.viewer_urls || []).filter(Boolean).length ? `<section><h3>3-D</h3>${e.viewer_urls.filter(Boolean).map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${t.viewer}</a>`).join("<br>")}</section>` : ""}
+    ${links.length ? `<section><h3>${t.links}</h3>${links.join(" · ")}</section>` : ""}`;
+}
+
+function route() {
+  const m = location.hash.match(/^#e=(.+)$/);
+  const e = m && D.entries.find((x) => x.key === decodeURIComponent(m[1]));
+  $("list").classList.toggle("off", !!e); $("detail").classList.toggle("on", !!e);
+  chrome();
+  if (e) { detail(e); window.scrollTo(0, 0); } else list();
+}
+
+document.addEventListener("click", (ev) => {
+  const lb = ev.target.closest("[data-lang]"); if (lb) { S.lang = lb.dataset.lang; save(); route(); return; }
+  const lt = ev.target.closest("[data-letter]"); if (lt) { S.letter = S.letter === lt.dataset.letter ? "" : lt.dataset.letter; save(); route(); return; }
+  const c = ev.target.closest(".card"); if (c) { location.hash = "e=" + encodeURIComponent(c.dataset.key); return; }
+  const p = ev.target.closest("[data-play]"); if (p) { const v = document.createElement("video"); v.controls = true; v.autoplay = true; v.src = p.dataset.src; p.replaceWith(v); }
+});
+$("q").addEventListener("input", (ev) => { S.q = ev.target.value; save(); list(); });
+$("domain").addEventListener("change", (ev) => { S.domain = ev.target.value; save(); list(); });
+$("method").addEventListener("change", (ev) => { S.method = ev.target.value; save(); list(); });
+$("ready").addEventListener("change", (ev) => { S.ready = ev.target.checked; save(); list(); });
+$("sort").addEventListener("change", (ev) => { S.sort = ev.target.value; save(); list(); });
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>

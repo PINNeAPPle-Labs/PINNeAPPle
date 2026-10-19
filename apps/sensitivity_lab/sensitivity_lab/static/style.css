@@ -1,0 +1,58 @@
+/* Engineering Sensitivity Lab (base styles in /shared/app.css) */
+:root { --brand: #b45309; --s1: #d97706; --st: #7c2d12; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+.layout { grid-template-columns: 440px 1fr; }
+textarea { display: block; width: 100%; margin-top: 3px; padding: 7px 9px; font: 12px var(--mono); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 7px; resize: vertical; white-space: pre; }
+code { font-family: var(--mono); font-size: 12px; background: #f1f5f9; padding: 0 4px; border-radius: 4px; }
+.drop { display: block; border: 1.5px dashed #b6c2d2; border-radius: 9px; padding: 8px 10px; margin-top: 8px; cursor: pointer;
+  font-size: 12px; color: var(--muted); }
+.drop b { display: block; color: var(--ink); font-size: 12.5px; }
+.drop input { display: none; }
+.drop.has { border-color: var(--brand); background: #fffbeb; }
+.examples { display: grid; gap: 6px; margin: 6px 0 8px; }
+.examples button { text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 7px 10px;
+  cursor: pointer; font: inherit; font-size: 12px; color: var(--muted); }
+.examples button:hover { border-color: var(--brand); }
+.examples b { display: block; font-size: 12.5px; color: var(--ink); }
+.checkgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 12px 0; }
+.checkgrid div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.checkgrid b { display: block; margin-bottom: 3px; }
+.checkgrid span { color: var(--muted); font-size: 13px; }
+.prow { display: grid; grid-template-columns: 18px 1.5fr 1.1fr 0.8fr 0.8fr 0.8fr; gap: 4px; align-items: center; margin-top: 4px; }
+.prow input, .prow select { padding: 4px 5px; font-size: 11.5px; margin: 0; }
+.prow input[type=checkbox] { width: auto; }
+.prow .nm { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prow.off .nm { color: var(--muted); }
+.phead { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.cost { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.cost b { color: var(--ink); }
+.sec h3 { margin: 0 0 4px; }
+.bars { display: grid; grid-template-columns: 190px 1fr 130px; gap: 6px 10px; align-items: center; font-size: 12px; }
+.bars .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bars .num { font-variant-numeric: tabular-nums; text-align: right; color: var(--muted); }
+.bars svg { display: block; width: 100%; height: 26px; }
+.bars .frz { color: var(--ok); font-weight: 700; font-size: 10.5px; text-transform: uppercase; margin-left: 6px; }
+.legend i.s1 { background: var(--s1); } .legend i.st { background: var(--st); }
+.charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.charts .ec { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.charts .ec b { font-size: 12px; }
+.charts svg { display: block; width: 100%; height: 150px; font: 10px system-ui, sans-serif; }
+.charts text, .scat text { fill: #5d6b82; }
+.scat svg { display: block; width: 100%; height: 300px; font: 11px system-ui, sans-serif; }
+.heat td { text-align: center; font-variant-numeric: tabular-nums; font-size: 11.5px; }
+.heat th { font-size: 11px; }
+.dec { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.dec.freeze { background: var(--ok-bg); color: var(--ok); } .dec.keep { background: #fef3c7; color: #92400e; }
+.dec.inconclusive { background: #eef1f5; color: var(--na); }
+.why { font-size: 11.5px; color: var(--muted); }
+.outsel { display: flex; gap: 4px; flex-wrap: wrap; }
+.outsel button { border: 1px solid var(--line); background: #fff; border-radius: 99px; padding: 3px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+.outsel button.on { border-color: var(--brand); color: var(--brand); font-weight: 700; }
+pre.code { background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 12px 14px; overflow-x: auto; font-size: 12px; }
+pre.code code { background: none; color: inherit; padding: 0; }
+a.link { color: var(--brand); }
+.tblwrap { overflow-x: auto; }
+.status-line { margin-top: 8px; font-size: 12.5px; }
+.dl { display: flex; gap: 6px; flex-wrap: wrap; }

@@ -1,0 +1,42 @@
+/* Physics AI Benchmark Arena (base styles in /shared/app.css) */
+:root { --brand: #b45309; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+.layout { grid-template-columns: 380px 1fr; }
+.bench { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.bench button { text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 12px 14px; cursor: pointer; font: inherit; }
+.bench button.on { border-color: var(--brand); box-shadow: 0 0 0 2px #b4530922; }
+.bench b { display: block; font-size: 14px; margin-bottom: 3px; }
+.bench span { color: var(--muted); font-size: 12.5px; }
+.prov { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; }
+.prov b { color: var(--ink); }
+table.matrix td.cell { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+table.matrix td.cell .sd { color: var(--muted); font-size: 11px; }
+table.matrix td.r1 { background: #fef3c7; font-weight: 700; }
+table.matrix td.na { color: #98a2b3; text-align: center; }
+table.matrix th.reg { text-align: right; }
+.rk { display: inline-block; min-width: 18px; border-radius: 99px; background: #eef1f5; color: var(--muted); font-size: 10.5px; text-align: center; margin-left: 4px; }
+td.r1 .rk { background: var(--brand); color: #fff; }
+.strip svg { width: 100%; display: block; }
+.strip text { font: 11px system-ui, sans-serif; fill: #5d6b82; }
+.colgrid { display: grid; grid-template-columns: 1fr 60px 60px; gap: 2px 8px; font-size: 12.5px; margin-top: 6px; max-height: 240px; overflow: auto; }
+.colgrid .h { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+.colgrid input { width: auto; margin: 0 auto; display: block; }
+.colgrid .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.colgrid .n small { color: var(--muted); }
+.progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.progress div { height: 100%; background: var(--brand); transition: width .3s; }
+.logbox { font: 11.5px var(--mono); background: #0f1724; color: #dbe6f5; border-radius: 8px; padding: 8px 10px; max-height: 140px; overflow: auto; margin-top: 8px; white-space: pre-wrap; }
+.files { display: flex; flex-wrap: wrap; gap: 6px; }
+.files a { border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; font-size: 12.5px; color: var(--ink); text-decoration: none; background: #fff; }
+.files a:hover { border-color: var(--brand); }
+.chk { display: grid; grid-template-columns: 70px 1fr; gap: 4px 8px; padding: 5px 0; border-top: 1px solid var(--line); font-size: 12.5px; }
+.chk:first-child { border-top: 0; }
+td.num { white-space: nowrap; }
+.joblist div { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding: 5px 0; font-size: 12.5px; }
+.joblist button { border: 0; background: none; color: var(--brand); font-weight: 600; cursor: pointer; font: inherit; }
+.failed { color: var(--bad); font-size: 12px; }
+.costtab td:first-child { min-width: 220px; }
+.hscroll { overflow-x: auto; }
+table.ext th.reg { white-space: normal; min-width: 92px; max-width: 130px; vertical-align: bottom; }
+table.ext td.cell { font-size: 12px; }

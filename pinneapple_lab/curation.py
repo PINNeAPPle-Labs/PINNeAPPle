@@ -11,11 +11,23 @@ Dimensions (score 0-1, or None when not run)
     qualitative:  assets (figures, movies, renders, 3-D viewer), documentation (description, docs, papers),
                   review (human: novelty, clarity, visual appeal, a one-line story, approvals)
 
-Tiers (gates, not a weighted sum: a strong figure never hides a failed check)
+Tiers A-F (gates, not a weighted sum: a strong figure never hides a failed check; the first rule that holds wins)
+    F  not usable    the run crashed, a divergence check failed (non-finite, not converged), a physics check failed
+                     (conservation, symmetry, equilibrium), or every reference check failed with no other
+                     independent check passing (it contradicts the reference)
+    E  known issues  any other failing check: a reference check failed while another independent check passed
+                     (large error), unseen inputs failed (outside the validity range), a baseline was not beaten
     A  flagship      ready to become product, paper or marketing once a human review approves it
     B  solid         validated against at least one independent piece of evidence; demos, use cases, datasets
-    C  exploratory   ran, but the evidence is thin (no checks, or only sanity checks)
-    D  not usable    failed validation or crashed
+    C  plausible     every check passes and the trust card's model, physics or benchmark stage is answered, but
+                     the B gates are not met (only verification against a code that shares the inputs, or not
+                     reproducible)
+    D  exploratory   ran and is consistent (no failing check), but no evidence stage is answered (no checks, or only
+                     sanity checks)
+
+Until 2026-10 there were four tiers: A and B are unchanged, the old C (exploratory) is now C or D, the old D (not
+usable) is now E or F. :data:`TIER_HISTORY` records the mapping. The tier of an E or F item comes with its main
+problem and the next step (``headline["hint"]``), which the seal prints.
 
 Readiness for each use (product, paper, marketing, training data) lists what is missing.
 
@@ -34,6 +46,8 @@ import time
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+from . import next_steps as _ns
+
 try:                                                   # the shared vocabulary of the verification layer
     from pinneapple_veriphysics.applicability import (
         FAIL,
@@ -48,7 +62,11 @@ except Exception:                                      # noqa: BLE001 - keep the
     PASS, FAIL, NOT_RUN, INFO = "PASS", "FAIL", "NOT_RUN", "INFO"
     VERIFIED, INFERRED, UNSUPPORTED = "VERIFIED", "INFERRED", "UNSUPPORTED"
 
-TIERS = {"A": "flagship", "B": "solid", "C": "exploratory", "D": "not usable"}
+TIERS = {"A": "flagship", "B": "solid", "C": "plausible", "D": "exploratory", "E": "known problems",
+         "F": "not usable"}
+TIER_ORDER = {t: i for i, t in enumerate(TIERS)}
+TIER_HISTORY = {"A": ("A",), "B": ("B",), "C": ("C", "D"), "D": ("E", "F")}   # old tier -> the letters it splits into
+INDEPENDENT = ("reference", "baseline", "physics", "generalization")
 WEIGHTS = {"validation": 15, "reference": 15, "baseline": 10, "physics": 10, "generalization": 10,
            "uncertainty": 5, "reproducibility": 15, "data": 5, "assets": 8, "documentation": 7}
 ML_TAGS = {"surrogate", "physics-ai", "fno", "forecasting", "forecast", "machine-learning", "neural-operator", "rom",
@@ -112,6 +130,8 @@ class Assessment:
     gaps: list[str]
     reviewed: bool = False
     stages: dict[str, dict[str, Any]] = field(default_factory=dict)
+    headline: dict[str, Any] = field(default_factory=dict)
+    next_steps: list[dict[str, Any]] = field(default_factory=list)    # pinneapple_lab.next_steps.Gap.to_dict()
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -276,17 +296,23 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
         return dims[k].score is not None and dims[k].score >= thr and dims[k].status != FAIL
 
     is_ml = bool(tags & ML_TAGS)
+    lim = meta.get("limitations", [])
+    if isinstance(lim, dict):
+        lim = lim.get(str(row["params"].get(meta.get("case_param", ""), "")), []) if meta.get("case_param") else []
+    evidence = evidence_stages(d, checks, metrics, dims, is_ml, list(lim or []))
     gaps: list[str] = []
-    if row["status"] in ("failed", "failed_validation"):
-        tier = "D"
-        gaps.append("fix the failing checks or the crash" if row["status"] == "failed_validation" else "the run crashed")
+    issue = problem(row["status"], checks, rec.get("error"))
+    if issue:
+        tier = issue["tier"]
+        gaps.append("the run crashed" if issue["rule"] == "crashed" else "fix the failing checks or the crash")
     else:
         independent = ok("reference") or ok("baseline") or ok("physics") or ok("generalization")
         solid = ok("validation") and independent and dims["reproducibility"].score >= 0.6
         flagship = (solid and ok("reference") and (ok("baseline") or ok("physics")) and
                     dims["reproducibility"].score >= 0.75 and (dims["assets"].score or 0) >= 0.6 and
                     dims["documentation"].score >= 0.6 and (not is_ml or ok("generalization")))
-        tier = "A" if flagship else "B" if solid else "C"
+        partly = ok("validation") and any(evidence[k]["status"] == _ANSWERED for k in ("model", "physics", "benchmark"))
+        tier = "A" if flagship else "B" if solid else "C" if partly else "D"
         if not ok("validation"):
             gaps.append("record validation checks")
         if not ok("reference"):
@@ -301,6 +327,11 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
             gaps.append("document it (docs page, references)")
         if dims["reproducibility"].score < 0.75:
             gaps.append("rerun from a committed tree with a code snapshot")
+    nctx = _ns.context_for(row["experiment"], row.get("params") or {},
+                           os.path.join(os.path.basename(store.root), os.path.relpath(d, store.root)), tags, is_ml,
+                           meta.get("params"))
+    steps = path_to_next(tier, issue, checks, dims, evidence, ok, is_ml, nctx, reviewed=bool((reviews or {}).get(
+        row["experiment"])))
 
     # readiness per use ----------------------------------------------------------------------------------
     approved = set((rv or {}).get("approved_for", []) if isinstance((rv or {}).get("approved_for"), list) else
@@ -314,7 +345,7 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
     readiness = {}
     for use in ("product", "paper", "marketing", "training_data"):
         miss: list[str] = []
-        if tier == "D":
+        if tier in ("E", "F"):
             miss.append("not usable until it validates")
         if use == "product":
             need(ok("generalization"), "generalization evidence", miss)
@@ -334,12 +365,228 @@ def assess_run(store, row: dict[str, Any], *, meta: dict[str, Any] | None = None
             need(dims["data"].score is not None and dims["data"].score >= 0.75, "a documented dataset", miss)
             need(ok("validation"), "validated runs", miss)
         readiness[use] = {"ready": not miss, "approved": use in approved, "missing": miss}
-    lim = meta.get("limitations", [])
-    if isinstance(lim, dict):
-        lim = lim.get(str(row["params"].get(meta.get("case_param", ""), "")), []) if meta.get("case_param") else []
-    stages = trust_stages(d, checks, metrics, dims, tier, readiness, meta, is_ml, list(lim or []))
+    stages = {**evidence, "decision": _decision_stage(tier, readiness, list(lim or []))}
+    stages = {k: {"title": STAGES[k][0], "question": STAGES[k][1], **v} for k, v in stages.items()}
     return Assessment(row["run_id"], row["experiment"], row["status"], tier, None if score is None else round(score, 1),
-                      round(coverage, 2), dims, readiness, gaps, reviewed=bool(rv), stages=stages)
+                      round(coverage, 2), dims, readiness, gaps, reviewed=bool(rv), stages=stages,
+                      headline=problem_headline(issue) if issue else headline(checks, tier, meta.get("check_labels")),
+                      next_steps=[g.to_dict() for g in steps])
+
+
+# ---------------------------------------------------------------------- the path to the next letter
+def path_to_next(tier: str, issue: dict[str, Any] | None, checks: list[dict[str, Any]], dims: dict[str, Dimension],
+                 evidence: dict[str, dict[str, Any]], ok, is_ml: bool, ctx: dict[str, Any], *,
+                 reviewed: bool = False) -> list[Any]:
+    """The gaps between ``tier`` and the next letter up (for A: what would strengthen it), each with its PINNeAPPle
+    actions (``pinneapple_lab.next_steps``). Computed from the same evidence and thresholds as the letter."""
+    G = _ns.make_gap
+    out = []
+    if tier in ("E", "F"):
+        if issue["rule"] == "crashed":
+            out.append(G("fix_crashed", "E", ctx, why=(issue["text"], issue["text_pt"])))
+        for c in checks:
+            if c.get("passed") or (issue["rule"] == "crashed" and c.get("name") == "exits_cleanly"):
+                continue                                  # a crash's own "exits cleanly" check is the crash
+            k = c.get("kind") or infer_check_kind(c)
+            if k == "sanity" and re.search(_DIVERGED, str(c.get("name", "")).lower()):
+                t = "fix_diverged"
+            elif k == "physics":
+                t = "fix_physics"
+            elif k == "reference":
+                t = "fix_contradicts" if issue["rule"] == "contradicts" else "fix_reference"
+            else:
+                t = {"generalization": "fix_generalization", "baseline": "fix_baseline"}.get(k, "fix_check")
+            out.append(G(t, "E" if t in _ns.F_CAUSING else "D", ctx, check=c))
+        out.sort(key=lambda g: g.to != "E")
+        return out
+    score = lambda k: dims[k].score or 0.0  # noqa: E731
+
+    def dim_gap(t, to, k, thr):
+        m = {"value": round(score(k), 2), "threshold": thr, "op": "score"}
+        en, pt = _ns.GAP_TYPES[t]["short"]
+        return G(t, to, ctx, meas=m, why=(f"{k} {_ns.measured_text(m)}: {en}", f"{k} {_ns.measured_text(m, 'pt')}: {pt}"))
+
+    if tier == "D":
+        open_ = [k for k in ("model", "physics", "benchmark") if evidence[k]["status"] != _ANSWERED]
+        pt = {"model": "modelo", "physics": "física", "benchmark": "benchmark"}
+        out.append(G("no_evidence", "C", ctx, why=(
+            f"no passing check answers the trust card's {', '.join(open_)} stages",
+            f"nenhuma verificação responde às etapas {', '.join(pt[k] for k in open_)} do cartão")))
+        return out
+    if tier == "C":
+        if not (ok("reference") or ok("baseline") or ok("physics") or ok("generalization")):
+            out.append(G("no_independent", "B", ctx, why=(
+                "no reference, baseline, physics or unseen-data check passes (verification against a code that shares "
+                "the inputs does not count)", "nenhuma verificação de referência, baseline, física ou dados não vistos "
+                "passa (verificar contra um código com as mesmas entradas não conta)")))
+        if score("reproducibility") < 0.6:
+            out.append(dim_gap("reproducibility", "B", "reproducibility", 0.6))
+        return out
+    if tier == "B":
+        if not ok("reference"):
+            out.append(G("no_reference", "A", ctx))
+        if not (ok("baseline") or ok("physics")):
+            out.append(G("no_baseline_or_physics", "A", ctx))
+        if is_ml and not ok("generalization"):
+            out.append(G("generalization", "A", ctx))
+        if score("reproducibility") < 0.75:
+            out.append(dim_gap("reproducibility", "A", "reproducibility", 0.75))
+        if score("assets") < 0.6:
+            out.append(dim_gap("assets", "A", "assets", 0.6))
+        if score("documentation") < 0.6:
+            out.append(dim_gap("documentation", "A", "documentation", 0.6))
+        return out
+    refs = [c for c in checks if c.get("passed") and c.get("kind") == "reference"]
+    if len(refs) < 2:
+        out.append(G("second_reference", _ns.STRENGTHEN, ctx, why=(
+            f"{len(refs)} passing independent reference check", f"{len(refs)} verificação de referência independente")))
+    if evidence["uncertainty"]["status"] != _ANSWERED:
+        out.append(G("uncertainty", _ns.STRENGTHEN, ctx, why=(
+            f"uncertainty stage {evidence['uncertainty']['status']}: no check quantifies it",
+            f"etapa de incerteza {evidence['uncertainty']['status']}: nenhuma verificação a quantifica")))
+    if not ok("baseline"):
+        out.append(G("benchmark_row", _ns.STRENGTHEN, ctx))
+    if not reviewed:
+        out.append(G("review", _ns.STRENGTHEN, ctx))
+    return out
+
+
+def next_steps(item: str, lab: Any = None) -> list[Any]:
+    """The path to the next letter of a curated item (``experiment`` or ``experiment/case``), read from the curation
+    record: a list of :class:`pinneapple_lab.next_steps.Gap`, each with its suggested actions. ``lab`` as for
+    :func:`pinneapple_lab.seal.load_curation`."""
+    from .seal import load_curation
+    rec = load_curation(lab).get("items", {}).get(item)
+    if rec is None:
+        raise KeyError(f"{item!r} is not in the curation")
+    return [_ns.Gap.from_dict(g) for g in rec.get("next_steps", [])]
+
+
+# ---------------------------------------------------------------------- E and F: what is wrong, and the next step
+_DIVERGED = r"finite|(^|_)nan(_|$)|exits_cleanly|converg|diverg"
+# rule -> (English, Portuguese) next step; the seal prints it after the letter it leads to
+HINTS = {
+    "crashed": ("make the run finish without an error", "fazer a execução terminar sem erro"),
+    "diverged": ("make the result finite and converged", "tornar o resultado finito e convergido"),
+    "physics": ("make the physics check pass", "fazer a verificação física passar"),
+    "contradicts": ("agree with the reference, or pass an independent physics check",
+                    "concordar com a referência ou passar numa verificação física independente"),
+    "reference": ("bring the error vs the reference within its tolerance",
+                  "trazer o erro face à referência para dentro da tolerância"),
+    "generalization": ("pass on the unseen inputs", "passar nos dados não vistos"),
+    "baseline": ("beat the baseline", "superar o baseline"),
+    "other": ("fix the failing check", "corrigir a verificação que falha"),
+}
+
+
+def problem(status: str, checks: list[dict[str, Any]], error: str | None = None) -> dict[str, Any] | None:
+    """The E or F rule a run falls under, or None when it finished and every check passed. The first rule that holds
+    wins: crashed, diverged (a failing sanity check on finiteness or convergence), physics (a failing physics
+    check), contradicts (every reference check failed and no other independent check passed) give F; any other
+    failing check gives E (by its kind: reference, generalization, baseline, else other). ``checks`` carry their
+    ``kind`` (see :func:`infer_check_kind`)."""
+    failing = [c for c in checks if not c.get("passed")]
+    if status == "failed":
+        last = next((ln.strip() for ln in reversed(str(error or "").strip().splitlines()) if ln.strip()), "")
+        last = _short(re.sub(r"\S*/(\S+)", r"\1", last), 64)                # the error's last line, paths cut
+        return {"tier": "F", "rule": "crashed", "check": None, "failing": len(failing),
+                "text": f"crashed · {last}" if last else "the run crashed",
+                "text_pt": f"falhou · {last}" if last else "a execução falhou"}
+    if not failing:
+        return None
+    kind = lambda c: c.get("kind") or infer_check_kind(c)  # noqa: E731
+    rule, main, tier = None, None, "E"
+    div = [c for c in failing if kind(c) == "sanity" and re.search(_DIVERGED, str(c.get("name", "")).lower())]
+    phys = [c for c in failing if kind(c) == "physics"]
+    refs = [c for c in checks if kind(c) == "reference"]
+    if div:
+        rule, main, tier = "diverged", div[0], "F"
+    elif phys:
+        rule, main, tier = "physics", phys[0], "F"
+    elif refs and not any(c.get("passed") for c in refs) and \
+            not any(c.get("passed") and kind(c) in INDEPENDENT for c in checks):
+        rule, main, tier = "contradicts", next(c for c in failing if kind(c) == "reference"), "F"
+    else:
+        for k in ("reference", "generalization", "baseline"):
+            hit = [c for c in failing if kind(c) == k]
+            if hit:
+                rule, main = k, hit[0]
+                break
+        else:
+            rule, main = "other", failing[0]
+    more = f" (+{len(failing) - 1} more)" if len(failing) > 1 else ""
+    line = check_line(main, 90) + more                 # the seal wraps it onto two lines
+    return {"tier": tier, "rule": rule, "check": main, "failing": len(failing), "text": line, "text_pt": line}
+
+
+def problem_headline(issue: dict[str, Any]) -> dict[str, Any]:
+    """The headline of an E or F item: the main failing check (``text``, ``text_pt``), the rule and the next step to
+    the next tier up (``hint`` / ``hint_pt``, also in ``missing``)."""
+    nxt = {"F": "E", "E": "D"}[issue["tier"]]
+    en, pt = HINTS[issue["rule"]]
+    if issue["rule"] == "other" and issue["failing"] > 1:
+        en, pt = f"fix the {issue['failing']} failing checks", f"corrigir as {issue['failing']} verificações que falham"
+    c = issue.get("check") or {}
+    return {"kind": "failing", "text": issue["text"], "text_pt": issue["text_pt"], "check": c.get("name", ""),
+            "rule": issue["rule"], "next_tier": nxt, "hint": f"{nxt}: {en}", "hint_pt": f"{nxt}: {pt}",
+            "missing": f"{nxt}: {en}"}
+
+
+# ---------------------------------------------------------------------- the one-line evidence of an item
+def _short(text: str, n: int) -> str:
+    text = " ".join(str(text).split())
+    if len(text) <= n:
+        return text
+    cut = text[:n - 1].rsplit(" ", 1)[0].rstrip(",;:-")
+    return cut + "\u2026"
+
+
+def check_line(check: dict[str, Any], max_chars: int = 64) -> str:
+    """One line naming what a check compared against: its ``label`` when the experiment gave one, else the check's
+    name (underscores to spaces) and, unless the name already has a colon, the first clause of its detail."""
+    if check.get("label"):
+        return _short(check["label"], max_chars)
+    name = str(check.get("name", "")).replace("_", " ").strip()
+    if ":" in name:                                    # a name that already says what it compared with
+        return _short(name, max_chars)
+    det = re.split(r"[:;]", str(check.get("detail") or ""), maxsplit=1)[0].strip()
+    if det and len(name) + 3 < max_chars:
+        return name + " \u00b7 " + _short(det, max_chars - len(name) - 3)
+    return _short(name, max_chars)
+
+
+def headline(checks: list[dict[str, Any]], tier: str, labels: dict[str, Any] | None = None) -> dict[str, Any]:
+    """The evidence a seal or a showcase tile may print, taken from the run's passing checks only (nothing written by
+    hand): ``kind`` "reference" (an independent reference the result was compared with), "benchmark" (a physical
+    law, a baseline or unseen data, no independent reference) or "" (nothing passed), ``text`` the line, ``check``
+    the check's name and ``missing`` what the item still lacks for the next claim.
+
+    ``labels`` (``Experiment.check_labels``) maps a check name to its short display line,
+    ``{"en": ..., "pt": ..., "short": ..., "short_pt": ..., "also": [other check names the line also claims]}``
+    (``short`` for small tiles); it becomes ``label`` / ``label_pt`` / ``label_short`` / ``label_short_pt`` only when
+    that check and every check in ``also`` passed, so a label never says more than the run showed. A ``label`` recorded on the check itself (``ctx.check(label=...)``) is used when the experiment has none."""
+    passing = [c for c in checks if c.get("passed")]
+    ref = [c for c in passing if c.get("kind") == "reference"]
+    other = [c for c in passing if c.get("kind") in ("physics", "baseline", "generalization")] or \
+        [c for c in passing if c.get("kind") == "verification"]                 # C: the solver verified, no more
+    if ref:
+        c, kind, missing = ref[0], "reference", "" if tier == "A" else "flagship gates (see gaps)"
+    elif other:
+        c, kind = other[0], "benchmark" if other[0].get("kind") != "verification" else "verification"
+        missing = "independent reference" if kind == "benchmark" else "an independent check (reference, baseline or physics)"
+    else:
+        return {"kind": "", "text": "", "check": "", "missing": "a passing check"}
+    out = {"kind": kind, "text": check_line(c), "check": c.get("name", ""), "missing": missing}
+    lab = (labels or {}).get(c.get("name", ""))
+    names = {x.get("name") for x in passing}
+    if isinstance(lab, dict) and all(a in names for a in lab.get("also", [])):
+        out["label"] = lab.get("en", "")
+        for k, dst in (("pt", "label_pt"), ("short", "label_short"), ("short_pt", "label_short_pt")):
+            if lab.get(k):
+                out[dst] = lab[k]
+    elif c.get("label"):
+        out["label"] = c["label"]
+    return out
 
 
 # ---------------------------------------------------------------------- the six questions of a trustworthy result
@@ -366,6 +613,28 @@ def trust_stages(d: str, checks: list[dict], metrics: dict[str, Any], dims: dict
     """The six questions a reviewer asks of a physics / Physics-AI result, each answered from the run's own
     evidence: answered (a passing check), partial (indirect evidence), open (nothing yet) or failed (a failing
     check). Nothing is inferred beyond what the run stored."""
+    out = {**evidence_stages(d, checks, metrics, dims, is_ml, limitations),
+           "decision": _decision_stage(tier, readiness, limitations)}
+    return {k: {"title": STAGES[k][0], "question": STAGES[k][1], **v} for k, v in out.items()}
+
+
+def _decision_stage(tier: str, readiness: dict[str, dict[str, Any]], limitations: list[str]) -> dict[str, Any]:
+    ready = [u for u, r in readiness.items() if r.get("ready")]
+    if tier in ("E", "F"):
+        return _stage(_FAILED, [f"tier {tier} ({TIERS[tier]})"], "not usable until it validates")
+    if tier in ("A", "B") and ready and limitations:
+        return _stage(_ANSWERED, [f"tier {tier} ({TIERS[tier]}), ready for {', '.join(ready)}",
+                                  f"{len(limitations)} limitations bound the use"])
+    miss = [m for u, r in readiness.items() for m in r.get("missing", [])]
+    return _stage(_PARTIAL if tier in ("A", "B") else _OPEN,
+                  [f"tier {tier} ({TIERS[tier]})"] + ([f"ready for {', '.join(ready)}"] if ready else []),
+                  (miss[0] if miss else "declare the limitations of the intended use"))
+
+
+def evidence_stages(d: str, checks: list[dict], metrics: dict[str, Any], dims: dict[str, Dimension], is_ml: bool,
+                    limitations: list[str]) -> dict[str, dict[str, Any]]:
+    """The first five questions of the trust card (data and geometry, model, physics, benchmark, uncertainty), which
+    do not depend on the tier; the C / D rule reads them."""
     def by(pattern=None, kinds=None):
         out = []
         for c in checks:
@@ -415,7 +684,9 @@ def trust_stages(d: str, checks: list[dict], metrics: dict[str, Any], dims: dict
         else:
             out["model"] = st
     else:
-        st = from_checks(by(r"converg|_vs_|exact|analytic|order|recover") or by(kinds={"reference"}), "")
+        st = from_checks(by(kinds={"verification"}) + [c for c in by(r"converg|_vs_|exact|analytic|order|recover")
+                                                         if c.get("kind") != "verification"]
+                         or by(kinds={"reference"}), "")
         out["model"] = st or _stage(_OPEN, ["the solver is not verified on a problem with a known answer"],
                                     "add a verification case (exact solution or mesh convergence)")
     # 3. physical constraints
@@ -440,19 +711,7 @@ def trust_stages(d: str, checks: list[dict], metrics: dict[str, Any], dims: dict
     else:
         out["uncertainty"] = _stage(_OPEN, ["no uncertainty and no declared limitation"],
                                     "declare the limitations and quantify the spread")
-    # 6. engineering decision
-    ready = [u for u, r in readiness.items() if r.get("ready")]
-    if tier == "D":
-        out["decision"] = _stage(_FAILED, [f"tier D ({TIERS['D']})"], "not usable until it validates")
-    elif tier in ("A", "B") and ready and limitations:
-        out["decision"] = _stage(_ANSWERED, [f"tier {tier} ({TIERS[tier]}), ready for {', '.join(ready)}",
-                                             f"{len(limitations)} limitations bound the use"])
-    else:
-        miss = [m for u, r in readiness.items() for m in r.get("missing", [])]
-        out["decision"] = _stage(_PARTIAL if tier in ("A", "B") else _OPEN,
-                                 [f"tier {tier} ({TIERS[tier]})"] + ([f"ready for {', '.join(ready)}"] if ready else []),
-                                 (miss[0] if miss else "declare the limitations of the intended use"))
-    return {k: {"title": STAGES[k][0], "question": STAGES[k][1], **v} for k, v in out.items()}
+    return out
 
 
 # ---------------------------------------------------------------------- strategy: limitations and the path forward
@@ -530,7 +789,7 @@ def plan_experiment(runs: list[Assessment], meta: dict[str, Any], review: dict[s
     """Limitations, the actions that would close the gaps (with effort and what each unlocks) and, per use, the
     closest run and its distance (sum of effort) to being ready."""
     tags = set(meta.get("tags", []))
-    order = {"A": 0, "B": 1, "C": 2, "D": 3}
+    order = TIER_ORDER
     per_use: dict[str, Any] = {}
     actions: dict[str, dict[str, Any]] = {}
     for use in USES:
@@ -554,7 +813,7 @@ def plan_experiment(runs: list[Assessment], meta: dict[str, Any], review: dict[s
     tier_gap_keys = {"compare with an independent": "reference", "show it beats": "baseline", "test on unseen": "generalization",
                      "add figures": "assets", "document it": "documentation", "rerun from": "reproducibility",
                      "record validation": "reference", "fix the failing": "fix", "the run crashed": "fix"}
-    next_tier = {"D": "C", "C": "B", "B": "A", "A": None}[best.tier]
+    next_tier = {"F": "E", "E": "D", "D": "C", "C": "B", "B": "A", "A": None}[best.tier]
     for g in best.gaps:
         key = next((v for k, v in tier_gap_keys.items() if g.startswith(k)), None)
         if key:
@@ -567,7 +826,7 @@ def plan_experiment(runs: list[Assessment], meta: dict[str, Any], review: dict[s
     lim = [f"declared: {x}" for x in meta.get("limitations", [])]
     if review and review.get("limitations"):
         lim.append(f"review: {review['limitations']}")
-    failed = [a for a in runs if a.tier == "D"]
+    failed = [a for a in runs if a.tier in ("E", "F")]
     if failed:
         lim.append(f"detected: {len(failed)} of {len(runs)} runs fail validation or crash (outside the validated range)")
     inferred = [k for k, d in best.dimensions.items() if d.tier == INFERRED and d.score is not None]
@@ -581,7 +840,7 @@ def plan_experiment(runs: list[Assessment], meta: dict[str, Any], review: dict[s
 
 def assess_experiment(runs: list[Assessment]) -> dict[str, Any]:
     """Best run, tier counts and the consistency of an experiment's runs."""
-    order = {"A": 0, "B": 1, "C": 2, "D": 3}
+    order = TIER_ORDER
     best = sorted(runs, key=lambda a: (order[a.tier], -(a.score or 0)))[0]
     counts = {t: sum(a.tier == t for a in runs) for t in TIERS}
     usable = sum(a.tier in ("A", "B") for a in runs) / len(runs)
@@ -590,7 +849,19 @@ def assess_experiment(runs: list[Assessment]) -> dict[str, Any]:
         tier = "B" if tier == "A" else "C"           # one good run among many failing ones is not a result
     return {"tier": tier, "tier_name": TIERS[tier], "best_run": best.run_id, "best_score": best.score,
             "runs": len(runs), "tier_counts": counts, "usable_fraction": round(usable, 2),
-            "readiness": best.readiness, "gaps": best.gaps, "reviewed": best.reviewed, "stages": best.stages}
+            "readiness": best.readiness, "gaps": best.gaps, "reviewed": best.reviewed, "stages": best.stages,
+            "headline": best.headline, "next_steps": _consistency(tier, best, usable)}
+
+
+def _consistency(tier: str, best: Assessment, usable: float) -> list[dict[str, Any]]:
+    """The best run's gaps; when the item was lowered because most of its runs fail, that comes first."""
+    if tier == best.tier:
+        return best.next_steps
+    ctx = _ns.context_for(best.experiment, {}, "", set(), False, {})
+    g = _ns.make_gap("consistency", best.tier, ctx, meas={"value": usable, "threshold": 0.5, "op": "score"},
+                     why=(f"only {round(100 * usable)} % of its runs are A or B", f"só {round(100 * usable)} % das "
+                          "execuções são A ou B"))
+    return [g.to_dict()] + best.next_steps
 
 
 def curate(store, path_json: str | None = None, path_md: str | None = None) -> dict[str, Any]:
@@ -605,7 +876,8 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
             meta = {"description": cls.description, "tags": list(cls.tags),
                     "references": list(getattr(cls, "references", []) or []),
                     "limitations": getattr(cls, "limitations", []) or [],
-                    "case_param": getattr(cls, "case_param", "") or ""}
+                    "case_param": getattr(cls, "case_param", "") or "",
+                    "check_labels": getattr(cls, "check_labels", {}) or {}, "params": dict(cls.params)}
         except KeyError:
             cls = None
             meta = {"description": "", "tags": []}
@@ -621,7 +893,7 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
             sib = by_params[key] if len(by_params[key]) > 1 else None
             a = assess_run(store, r, meta=meta, reviews=reviews, siblings=sib)
             assessed.append(a)
-            out["runs"][a.run_id] = a.to_dict()
+            out["runs"][a.run_id] = {k: v for k, v in a.to_dict().items() if k != "next_steps"}   # on items only
         if assessed:
             lim_all = meta.get("limitations", [])
             m0 = {**meta, "limitations": lim_all if isinstance(lim_all, list) else []}
@@ -657,16 +929,17 @@ def curate(store, path_json: str | None = None, path_md: str | None = None) -> d
 def _write_md(out: dict[str, Any], path: str) -> None:
     L = ["# PINNeAPPle Lab curation", "",
          f"Generated {out['generated']}. Tiers: **A flagship** (product / paper / marketing once reviewed), "
-         "**B solid** (demos, use cases, datasets), **C exploratory**, **D not usable**. Gates, not averages: see "
-         "`pinneapple_lab/curation.py`.", "",
-         "| experiment | tier | best score | runs (A/B/C/D) | usable | product | paper | marketing | data | reviewed |",
+         "**B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not "
+         "validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or "
+         "contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.", "",
+         "| experiment | tier | best score | runs (A/B/C/D/E/F) | usable | product | paper | marketing | data | reviewed |",
          "|---|---|---|---|---|---|---|---|---|---|"]
-    order = {"A": 0, "B": 1, "C": 2, "D": 3}
+    order = TIER_ORDER
     for exp, e in sorted(out["experiments"].items(), key=lambda kv: (order[kv[1]["tier"]], -(kv[1]["best_score"] or 0))):
         tc = e["tier_counts"]
         rd = e["readiness"]
         mark = {u: "approved" if rd[u]["approved"] else "ready" if rd[u]["ready"] else "-" for u in rd}
-        L.append(f"| `{exp}` | **{e['tier']}** {e['tier_name']} | {e['best_score']} | {tc['A']}/{tc['B']}/{tc['C']}/{tc['D']} | "
+        L.append(f"| `{exp}` | **{e['tier']}** {e['tier_name']} | {e['best_score']} | {'/'.join(str(tc.get(t, 0)) for t in TIERS)} | "
                  f"{int(100 * e['usable_fraction'])} % | {mark['product']} | {mark['paper']} | {mark['marketing']} | "
                  f"{mark['training_data']} | {'yes' if e['reviewed'] else 'no'} |")
     mark = {"answered": "✓", "partial": "~", "open": "?", "failed": "✗"}
@@ -681,6 +954,13 @@ def _write_md(out: dict[str, Any], path: str) -> None:
         sg = it.get("stages", {})
         L.append(f"| `{key}` | {it['tier']} | " + " | ".join(mark.get(sg.get(k, {}).get("status"), "") for k in STAGES)
                  + " |")
+    problems = [(k, it) for k, it in sorted(out.get("items", {}).items()) if it["tier"] in ("E", "F")]
+    if problems:
+        L += ["", "## E and F: the main problem and the next step", "",
+              "| item | tier | main problem | next step |", "|---|---|---|---|"]
+        for key, it in sorted(problems, key=lambda kv: (order[kv[1]["tier"]], kv[0])):
+            hl = it.get("headline", {})
+            L.append(f"| `{key}` | {it['tier']} | {hl.get('text', '')} | {hl.get('hint', '')} |")
     L += ["", "## What each experiment needs next", ""]
     for exp, e in sorted(out["experiments"].items()):
         if e["gaps"]:

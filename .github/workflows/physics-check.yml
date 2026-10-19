@@ -19,7 +19,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: pinneapple check examples/physics_check/pass
         uses: ./
         with:
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: pinneapple check examples/physics_check/fail
         id: check
         uses: ./
@@ -61,12 +61,62 @@ jobs:
           print(f"{sum(map(len, exp.values()))} expected violations found on {len(exp)} targets")
           PY
 
+  # PhysicsNeMo FNO / MeshGraphNet predictions on 2-D Darcy (examples/vs_physicsnemo/07_...): inside the validated
+  # range (test set; length-scale samples whose coefficient is inside the training envelope) the action passes; for a
+  # coefficient contrast the models never saw, or a coefficient outside the envelope, it must fail with exactly the
+  # rules in expected.json (the job summary shows the red trust cards; the job asserts them instead of failing).
+  darcy-trust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CHECK: examples/vs_physicsnemo/07_physicsnemo_trains_pinneapple_checks/check
+    steps:
+      - uses: actions/checkout@v7
+      - name: pinneapple check, inside the validated range
+        uses: ./
+        with:
+          config: ${{ env.CHECK }}/pinneapple-check.toml
+          paths: >-
+            ${{ env.CHECK }}/predictions/in_distribution ${{ env.CHECK }}/predictions/length_scale/fno_1.npz
+            ${{ env.CHECK }}/predictions/length_scale/meshgraphnet_1.npz
+          fail-on: error
+          annotations: "false"
+          sarif: "false"
+      - name: pinneapple check, coefficients outside the training range or envelope
+        id: shifted
+        uses: ./
+        with:
+          config: ${{ env.CHECK }}/pinneapple-check.toml
+          paths: >-
+            ${{ env.CHECK }}/predictions/contrast ${{ env.CHECK }}/predictions/length_scale/fno_0.npz
+            ${{ env.CHECK }}/predictions/length_scale/meshgraphnet_0.npz
+          fail-on: never
+          annotations: "false"
+          sarif: "false"
+      - name: The shifted predictions break exactly the expected rules
+        env:
+          REPORT: ${{ steps.shifted.outputs.report }}
+          ERRORS: ${{ steps.shifted.outputs.errors }}
+        run: |
+          test "$ERRORS" -gt 0
+          python - <<'PY'
+          import json, os
+          rep = json.load(open(os.environ["REPORT"]))
+          exp = json.load(open(os.path.join(os.environ["CHECK"], "expected.json")))
+          got = {}
+          for v in rep["violations"]:
+              got.setdefault(v["target"], set()).add(v["rule"])
+          got = {k: sorted(v) for k, v in got.items()}
+          assert got == exp, json.dumps({"expected": exp, "got": got}, indent=1)
+          print(f"{sum(map(len, exp.values()))} expected violations on {len(exp)} predictions out of range")
+          PY
+
   unit-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
@@ -76,4 +126,4 @@ jobs:
           pip install torch --index-url https://download.pytorch.org/whl/cpu
           pip install -e ".[check]" pytest
       - name: Tests
-        run: pytest tests/test_physics_check.py -q
+        run: pytest tests/test_physics_check.py tests/test_physics_check_darcy.py tests/test_physicsnemo_darcy_example.py -q

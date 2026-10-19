@@ -6,11 +6,12 @@ the metadata extractor, here only the data lists are read.
 """
 from __future__ import annotations
 
-import gzip
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
+from pinneapple_security.archives import gunzip
 
 from .model import Mesh, PolyMesh
 
@@ -23,7 +24,7 @@ _NAMED_UNITS = {(1, -1, -2, 0, 0, 0, 0): "Pa", (0, 2, -2, 0, 0, 0, 0): "m2/s2", 
 
 def _text(b: bytes) -> str:
     if b[:2] == b"\x1f\x8b":
-        b = gzip.decompress(b)
+        b = gunzip(b)   # capped: an uploaded .gz must not expand without limit
     return b.decode("latin-1")
 
 
@@ -333,3 +334,38 @@ def read_time(fs: Dict[str, bytes], mesh: Mesh, root: str = "", time: Optional[s
         loaded.append(name)
     mesh.source.update(time=float(t), times=[float(x) for x in times])
     return {"time": float(t), "fields": loaded, "skipped": skipped}
+
+
+def boundary_conditions(fs: Dict[str, bytes], mesh: Mesh, root: str = "", time: Optional[str] = None
+                        ) -> Dict[str, Dict[str, str]]:
+    """Patch -> field -> condition as written in the boundaryField of each field of one time directory (the first,
+    which holds the initial and boundary conditions, by default): ``"fixedValue uniform (1 0 0)"``, ``"noSlip"``,
+    ``"zeroGradient"``. Empty patches are left out."""
+    times = time_dirs(fs, root)
+    if not times:
+        return {}
+    t0 = time if time is not None else times[0]
+    out: Dict[str, Dict[str, str]] = {p["name"]: {} for p in mesh.poly.patches if p["type"] != "empty"} \
+        if mesh.poly is not None else {}
+    for k in sorted(fs):
+        if not k.startswith(f"{root}{t0}/") or k.count("/") != root.count("/") + 1:
+            continue
+        t = _text(fs[k])
+        bf = re.search(r"boundaryField\s*\{", t)
+        if not bf or "Field" not in header(t).get("class", ""):
+            continue
+        field = k.split("/")[-1].removesuffix(".gz")
+        for name in out:
+            m = re.compile(r'(?:^|\s)"?' + re.escape(name) + r'"?\s*\{', re.M).search(t, bf.end())
+            if not m:
+                continue
+            depth, j = 1, m.end()
+            while depth and j < len(t):
+                depth += (t[j] == "{") - (t[j] == "}")
+                j += 1
+            blk = t[m.end():j - 1]
+            typ = re.search(r"\btype\s+(\w+)\s*;", blk)
+            val = re.search(r"\bvalue\s+(uniform\s+[^;]+);", blk)
+            out[name][field] = ((typ.group(1) if typ else "?") +
+                                (" " + " ".join(val.group(1).split()) if val and len(val.group(1)) < 80 else ""))
+    return out

@@ -1,0 +1,7 @@
+{
+ "name": "design_from_intent",
+ "description": "Plain-language goals to verified designs (loop, bracket, heat sink, glider), each checked by a full solver",
+ "scripts": [
+  "examples/design_from_intent/design_from_intent.py"
+ ]
+}

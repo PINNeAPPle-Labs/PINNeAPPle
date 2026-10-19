@@ -5,7 +5,7 @@ from typing import Any
 
 import numpy as np
 
-from .. import balances
+from .. import _reuse, balances
 from ..config import ResultTarget
 from ..fields import FieldData, LoadError, load_result
 from ..numerics import GridD, PointD, components, rel_rms
@@ -16,14 +16,16 @@ __all__ = ["check_result", "evaluate_expr", "check_balance", "report_equations"]
 
 _SAFE = {k: getattr(np, k) for k in ("sin", "cos", "tan", "exp", "log", "sqrt", "tanh", "sinh", "cosh", "abs",
                                        "arctan", "arctan2", "where", "minimum", "maximum")}
-_SAFE.update(pi=np.pi, e=np.e)
 
 
 def evaluate_expr(value: Any, coords: dict[str, np.ndarray], n: int) -> np.ndarray:
     """A declared value: a number, a vector (list) or an expression of the coordinates (``"sin(pi*x)"``)."""
     if isinstance(value, str):
+        from pinneapple_data.expressions import (
+            evaluate,  # interpreted, never eval(): configs are uploaded
+        )
         try:
-            out = eval(compile(value, "<bc>", "eval"), {"__builtins__": {}}, {**_SAFE, **coords})   # noqa: S307
+            out = evaluate(value, {"pi": np.pi, "e": np.e, **coords}, _SAFE)
         except Exception as e:
             raise ValueError(f"cannot evaluate {value!r}: {e}") from e
         return np.broadcast_to(np.asarray(out, float), (n,)).copy()
@@ -92,6 +94,10 @@ def _used_fields(physics, fd) -> set[str]:
         return {"T"} & set(fd.fields)
     if physics == "elasticity":
         return {n for n in fd.fields if n in ("D", "disp", "displacement", "ux", "uy", "uz")}
+    if physics == "darcy":
+        return {n for n in fd.fields if n in DARCY_COEF + DARCY_SOL}
+    if physics == "maxwell":
+        return {n for n in fd.fields if _maxwell_name(n) is not None}
     return set()
 
 
@@ -230,6 +236,12 @@ def _grid_slices(fd: FieldData):
 
 
 def _physics_grid(ctx: Ctx, t: ResultTarget, fd: FieldData, physics: str, params: dict[str, Any]) -> None:
+    if physics == "darcy":
+        _darcy(ctx, t, fd, params)
+        return
+    if physics == "maxwell":
+        _maxwell(ctx, t, fd, params)
+        return
     nd_all = len(fd.axes)
     comps = components(fd.fields, vector_ndim=nd_all + 1)
     D = GridD(fd.axes, comps)
@@ -295,6 +307,122 @@ def _total_drift(ctx: Ctx, t: ResultTarget, fd: FieldData, coords, sp, loc) -> N
                                  + ("" if ok else f" (worst at t={tt[k]:.4g})"), loc, value=rel,
                  threshold=t.tol("total-drift"))
     _ = trapz
+
+
+# ---------------------------------------------------------------------------------------------- darcy
+DARCY_COEF = ("a", "K", "k", "permeability")
+DARCY_SOL = ("u", "p", "pressure", "h")
+
+
+def _darcy(ctx: Ctx, t: ResultTarget, fd: FieldData, params: dict[str, Any]) -> None:
+    """-div(a grad u) = f, u = 0 on the boundary of the unit square, on the reference solver's cell-centred
+    finite-volume discretisation (``pinneapple_physics.darcy_checks.sample_checks``): certified energy-norm and L2
+    error bounds from the residual (PC301), net boundary flux against the source (PC101), boundary condition (PC201),
+    maximum principle (PC402) and, with ``envelope``, the coefficient against its training envelope (PC401)."""
+    loc = ctx.default_location() if t.declared else ctx.file_location(fd.source)
+    coef = next((n for n in DARCY_COEF if n in fd.fields), None)
+    sol = next((n for n in (t.fields or []) if n in DARCY_SOL and n in fd.fields), None) or \
+        next((n for n in DARCY_SOL if n in fd.fields), None)
+    sp = fd.spatial_axes
+    if coef is None or sol is None or len(sp) != 2 or "t" in fd.axes:
+        ctx.note("darcy: needs a steady 2-D grid with a coefficient field (a or K) and a solution field (u or p)")
+        return
+    x, y = fd.axes[sp[0]], fd.axes[sp[1]]
+    n = len(x)
+    centres = (np.arange(n) + 0.5) / n
+    if len(y) != n or not (np.allclose(x, centres, atol=1e-6) and np.allclose(y, centres, atol=1e-6)):
+        ctx.note(f"darcy: the grid must be the {n} x {n} cell centres of the unit square ((i + 1/2) / n)")
+        return
+    a, u = np.asarray(fd.fields[coef], float), np.asarray(fd.fields[sol], float)
+    if not (np.isfinite(a).all() and np.isfinite(u).all()):
+        return                                                   # PC403 already reported
+    dc = _reuse.darcy_checks()
+    f = float(params.get("f") if params.get("f") is not None else 1.0)
+    eq = f"-div({coef} grad {sol}) = {fmt(f)}"
+    tol_key = {"energy_bound": "darcy-energy", "l2_bound": "darcy-l2", "flux": "darcy-flux", "bc": "darcy-bc",
+               "positivity": "darcy-positivity"}
+    env = dc.CoefficientEnvelope.from_check_config(t.envelope) if t.envelope else None
+    checks = dc.sample_checks(a, u, f, tolerances={k: t.tol(v) for k, v in tol_key.items()}, envelope=env)
+    i = int(np.argmax(np.abs(dc.darcy_residual(u, a, f))))
+    for c in checks:
+        k, v, lim, ok = c["key"], c["value"], c["limit"], c["passed"]
+        rel = "<=" if ok else ">"
+        if k in ("energy_bound", "l2_bound"):
+            what = "energy-norm" if k == "energy_bound" else "L2"
+            ctx.emit("PC301", "darcy" if k == "energy_bound" else "darcy-l2", ok,
+                     f"darcy residual ({eq}, finite volumes): certified {what} error bound {fmt(v)} {rel} {fmt(lim)}"
+                     + ("" if ok else f"; largest residual at {_where(fd)(i)}"), loc, value=v, threshold=lim)
+        elif k == "flux":
+            ctx.emit("PC101", "darcy-flux", ok, f"darcy flux through the boundary against the source integral: "
+                     f"imbalance {fmt(v)} {rel} {fmt(lim)}", loc, value=v, threshold=lim)
+        elif k == "bc":
+            ctx.emit("PC201", f"{sol}@boundary", ok, f"{sol} = 0 on the boundary: RMS of the extrapolated boundary "
+                     f"value {fmt(v)} of max |{sol}| {rel} {fmt(lim)}", loc, value=v, threshold=lim)
+        elif k == "positivity":
+            ctx.emit("PC402", sol, ok, f"{sol} >= 0 (maximum principle, f >= 0): most negative value {fmt(v)} of "
+                     f"max |{sol}| {rel} {fmt(lim)}", loc, value=v, threshold=lim)
+        else:                                                    # coefficient against the training envelope
+            rng = f"[{fmt(lim[0])}, {fmt(lim[1])}]" if isinstance(lim, list) else \
+                (f">= {fmt(lim)}" if k == "a_min" else f"<= {fmt(lim)}")
+            ctx.emit("PC401", f"{coef}-envelope:{k.replace('_', '-')}", ok,
+                     f"{coef}: {k.replace('_', ' ')} {fmt(v)} {'inside' if ok else 'outside'} the training envelope "
+                     f"{rng}", loc, value=v, threshold=lim)
+
+
+# ---------------------------------------------------------------------------------------------- maxwell
+MAXWELL_COMPONENTS = tuple(f"{v}{c}" for v in "EBHDJ" for c in "xyz") + ("rho",)
+
+
+def _maxwell_name(n: str) -> str | None:
+    base = n[:-3] if n.endswith(("_re", "_im")) else n
+    return base if base in MAXWELL_COMPONENTS else None
+
+
+def _maxwell(ctx: Ctx, t: ResultTarget, fd: FieldData, params: dict[str, Any]) -> None:
+    """Maxwell's equations on stored grid fields (``pinneapple_physics.maxwell_checks``): Gauss's laws (PC102),
+    Faraday, Ampere-Maxwell and charge continuity (PC301) and Poynting's theorem over the grid box (PC103)."""
+    loc = ctx.default_location() if t.declared else ctx.file_location(fd.source)
+    fields: dict[str, np.ndarray] = {}
+    for n, v in fd.fields.items():
+        base = _maxwell_name(n)
+        if base is None:
+            continue
+        v = np.asarray(v)
+        if n.endswith("_re"):
+            fields[base] = fields.get(base, 0j) + v
+        elif n.endswith("_im"):
+            fields[base] = fields.get(base, 0j) + 1j * v
+        else:
+            fields[base] = v
+    omega = params.get("omega")
+    if not fields:
+        ctx.note("maxwell: no field components found (Ex, Ey, Ez, Bx/Hx.., Dx.., Jx.., rho)")
+        return
+    if any(np.iscomplexobj(v) for v in fields.values()) and omega is None:
+        ctx.note("maxwell: complex (phasor) fields need the parameter omega (rad/s)")
+        return
+    mc = _reuse.maxwell_checks()
+    eps = mc.EPS0 * float(params.get("eps_r") or 1.0)
+    mu = mc.MU0 * float(params.get("mu_r") or 1.0)
+    sigma = float(params.get("sigma") or 0.0)
+    tol = {"gauss_electric": t.tol("maxwell-gauss"), "gauss_magnetic": t.tol("maxwell-gauss"),
+           "faraday": t.tol("maxwell-faraday"), "ampere_maxwell": t.tol("maxwell-ampere"),
+           "continuity": t.tol("maxwell-continuity"), "poynting_balance": t.tol("maxwell-energy")}
+    try:
+        checks = mc.sample_checks(fd.axes, fields, eps=eps, mu=mu, sigma=sigma, omega=omega, tolerances=tol)
+    except ValueError as e:
+        ctx.note(f"maxwell: {e}")
+        return
+    rule = {"gauss_electric": "PC102", "gauss_magnetic": "PC102", "faraday": "PC301", "ampere_maxwell": "PC301",
+            "continuity": "PC301", "poynting_balance": "PC103", "finite": "PC403"}
+    for c in checks:
+        if c["passed"] is None:
+            ctx.note(f"maxwell: {c['name']}: {c['detail']}")
+            continue
+        ok, v, lim = c["passed"], c["value"], c["limit"]
+        ctx.emit(rule.get(c["key"], "PC301"), f"maxwell-{c['key'].replace('_', '-')}", ok,
+                 f"{c['name']}: {fmt(v)} {'<=' if ok else '>'} {fmt(lim)}; {c['detail']}", loc, value=v,
+                 threshold=lim)
 
 
 # ---------------------------------------------------------------------------------------------- points

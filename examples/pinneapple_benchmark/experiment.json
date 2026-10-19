@@ -1,0 +1,43 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pinneapple_benchmark",
+ "title": "01_pde_comparison.py \u2014 PINNeAPPle PDE Architecture Benchmark Three canonical PDEs, three\u2026",
+ "description": "01_pde_comparison.py \u2014 PINNeAPPle PDE Architecture Benchmark Three canonical PDEs, three architectures \u2014 same setup, same conditions. Automatic comparison pipeline: train \u2192 evaluate \u2192 rank \u2192 plot. PDEs ---- (1) Burgers 1D+t \u2014 nonlinear advection-diffusion, shock formation (2) Heat 2D+t \u2014 pure diffusion, smooth solution (analytical reference) (3) Kovasznay NS \u2014 2D steady incompressible flow (analyt",
+ "domain": "physics AI",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_neural.architectures.modified_mlp",
+  "pinneapple_neural.architectures.pinns.vanilla",
+  "pinneapple_neural.architectures.siren",
+  "pinneapple_neural.utils"
+ ],
+ "params": {},
+ "scripts": [
+  "01_pde_comparison.py",
+  "02_inverse_benchmark.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/pinneapple_benchmark/01_pde_comparison.py",
+  "pr": [
+   659
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

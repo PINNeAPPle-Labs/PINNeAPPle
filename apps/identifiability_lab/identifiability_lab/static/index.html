@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parameter Identifiability Lab</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%236d28d9%22/%3E%3Cellipse cx=%228%22 cy=%228%22 rx=%225.5%22 ry=%222.2%22 transform=%22rotate(-35 8 8)%22 stroke=%22white%22 stroke-width=%221.4%22 fill=%22none%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="6" ry="2.3" transform="rotate(-35 8 8)" stroke="white" stroke-width="1.4" fill="none"/><circle cx="8" cy="8" r="1.4" fill="white"/></svg></div>
+    <div>
+      <div class="title">Parameter Identifiability Lab</div>
+      <div class="subtitle">Before you estimate: can these measurements determine these parameters? And which measurement would help most?</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="lab" class="active">Analyse</button>
+    <button data-tab="api">API</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-lab" class="tab active">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>Model and experiment</h2>
+        <p class="hint">Describe the model, the unknown parameters with their plausible range, and where and when you
+          measure (with the noise). Measured values are optional: without them the analysis uses the model's own
+          predictions at the nominal values, the usual setting when planning an experiment.</p>
+        <label>Try with example <select id="preset"><option value="">—</option></select></label>
+        <div class="hint" id="preset-note"></div>
+        <div id="editor"></div>
+        <fieldset><legend>Analysis</legend>
+          <div class="row2">
+            <label>Extra measurements to suggest <input id="o-n" type="number" value="3" min="0" max="10"></label>
+            <label>Practical limit <span class="u">σ in ln units</span><input id="o-thr" type="number" value="0.5" step="0.1"></label>
+          </div>
+          <div class="row2">
+            <label>Profile likelihood <select id="o-prof"><option value="auto">auto (fast models)</option><option value="true">always</option><option value="false">skip</option></select></label>
+            <label>Posterior (MCMC) <select id="o-post"><option value="auto">auto (fast models)</option><option value="true">always</option><option value="false">skip</option></select></label>
+          </div>
+        </fieldset>
+        <button class="primary" type="button" id="run">Analyse identifiability</button>
+        <div class="status-line" id="status"></div>
+      </form>
+      <div class="panel" id="out">
+        <div class="empty">
+          <h3>What comes out</h3>
+          <ul class="list-plain">
+            <li><b>Which parameters these measurements can determine</b>, which only in combination (and which
+              combination), and which not at all: structural (no data could) or practical (these data cannot).</li>
+            <li><b>Four methods on the same problem</b>: Fisher information rank and conditioning, local sensitivity,
+              profile likelihood and a Bayesian posterior (MCMC), with the expected correlations.</li>
+            <li><b>The value of each measurement</b>, and the <b>extra measurements that would help most</b>
+              (D-optimal design): another sensor position, time, temperature or observable.</li>
+            <li>Downloads: the full report (JSON), a <code>StudyResult</code> for the other apps, CSV tables.</li>
+          </ul>
+          <p class="hint">Pick an example on the left: each runs in a few seconds.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-api" class="tab">
+    <div class="panel">
+      <h2>REST API</h2>
+      <p>Every analysis on this page is one call. The interactive reference is at <a class="link" href="/docs">/docs</a>.</p>
+      <pre class="code" id="api-code"></pre>
+      <p class="hint">Jobs, usage and API keys come from the shared app runtime: <code>GET /api/jobs/{id}</code>,
+        <code>GET /api/usage</code>, an <code>X-API-Key</code> header for scripts. The same analysis in Python:</p>
+      <pre class="code">import numpy as np
+import pinneapple_analysis.inverse_problems as inv
+
+fin = inv.PinFinModel(d_mm=5, length_mm=50)
+params = fin.default_parameters()
+params[1].fixed = False                         # k unknown as well as h
+plan = inv.Observations({"x_mm": [10, 20, 30, 40, 50]}, sigma=0.5,
+                        observable=np.array(["T"] * 5, dtype=object))
+report = inv.analyze_identifiability(fin, plan, params)
+print(report.summary)</pre>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  Built on <b>PINNeAPPle</b> (<code>pinneapple_analysis.inverse_problems</code>): Fisher information, profile
+  likelihood, adaptive Metropolis and D-optimal design on one model; exact derivatives where the model has them.
+</footer>
+<script src="/shared/scope.js"></script>
+<script src="/shared/author.js"></script>
+<script src="/shared/inverse.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

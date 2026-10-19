@@ -281,6 +281,7 @@ class BayesianDesignOptimizer:
     def __init__(self, cfg: DesignOptimizerConfig, seed: int = 0) -> None:
         self.cfg = cfg
         self.rng = np.random.default_rng(int(seed))
+        self._gp_seed = int(seed)
         self.X_obs: List[np.ndarray] = []
         self.y_obs: List[float] = []
         self.Y_obs: List[np.ndarray] = []
@@ -311,6 +312,7 @@ class BayesianDesignOptimizer:
                 kernel=Matern(nu=2.5),
                 n_restarts_optimizer=3,
                 normalize_y=True,
+                random_state=self._gp_seed,     # hyper-parameter restarts: same seed, same run
             )
             gpr.fit(X, y)
             self._gp = gpr
@@ -388,8 +390,19 @@ class BayesianDesignOptimizer:
         # Random multi-start maximisation of the acquisition.
         n_candidates = max(500, 20 * len(lo))
         Xs = self.rng.uniform(lo, hi, size=(n_candidates, len(lo)))
-        acq_vals = np.array([self._acquisition(x) for x in Xs])
+        acq_vals = self._acquisition_batch(Xs)
         return Xs[int(np.argmax(acq_vals))]
+
+    def _acquisition_batch(self, X: np.ndarray) -> np.ndarray:
+        """:meth:`_acquisition` for every row of ``X`` with one GP prediction (same values, one call)."""
+        mu, sigma = self._gp_predict(X)
+        mu, sigma = np.asarray(mu, dtype=float).ravel(), np.asarray(sigma, dtype=float).ravel()
+        if self.cfg.acquisition == "ucb":
+            return -(mu - self.cfg.kappa * sigma)
+        from scipy.stats import norm  # deferred: only needed for BO
+        imp = min(self.y_obs) - mu - self.cfg.xi
+        z = imp / (sigma + 1e-9)
+        return imp * norm.cdf(z) + sigma * norm.pdf(z)
 
     def update(self, x: np.ndarray, obj_vals: "float | List[float]", penalty: float = 0.0) -> None:
         """Record a new design/objective observation.
@@ -582,6 +595,11 @@ class EvolutionaryDesignOptimizer:
             idx = self._nsga2_select(combined_obj, combined_pen, mu)
             self._obj_vecs = combined_obj[idx].tolist()
             self._penalties = combined_pen[idx].tolist()
+            self._population = [combined_x[i] for i in idx]
+            # parents are drawn by the crowded-comparison tournament of NSGA-II (rank, then crowding distance),
+            # not by the first objective alone
+            self._fitness = self._crowded_scores(combined_obj[idx], combined_pen[idx]).tolist()
+            return
         else:
             idx = np.argsort(combined_y)[:mu]
             self._obj_vecs = None
@@ -589,6 +607,28 @@ class EvolutionaryDesignOptimizer:
 
         self._population = [combined_x[i] for i in idx]
         self._fitness = [combined_y[i] for i in idx]
+
+    @staticmethod
+    def _crowded_scores(objectives: np.ndarray, penalties: np.ndarray) -> np.ndarray:
+        """Lower is better: front rank among the feasible (constrained domination: every infeasible design ranks
+        after them, by violation), minus a crowding bonus in [0, 1) inside the front."""
+        n = len(objectives)
+        score = np.zeros(n)
+        feas = np.where(penalties <= 0.0)[0]
+        infeas = np.where(penalties > 0.0)[0]
+        n_fronts = 0
+        if len(feas):
+            for rank, front in enumerate(fast_non_dominated_sort(objectives[feas])):
+                g = feas[front]
+                cd = crowding_distance(objectives[g])
+                fin = np.where(np.isinf(cd), 0.0, cd)
+                bonus = np.where(np.isinf(cd), 0.999, fin / (1.0 + fin))
+                score[g] = rank + 1.0 - bonus
+                n_fronts = rank + 1
+        if len(infeas):
+            order = np.argsort(np.argsort(penalties[infeas]))
+            score[infeas] = n_fronts + 1.0 + order
+        return score
 
     @staticmethod
     def _nsga2_select(objectives: np.ndarray, penalties: np.ndarray, mu: int) -> np.ndarray:

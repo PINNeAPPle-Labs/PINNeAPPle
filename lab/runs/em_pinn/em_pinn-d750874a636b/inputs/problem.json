@@ -1,0 +1,13 @@
+{
+ "preset": "em_tm_cavity",
+ "fields": [
+  "Ez",
+  "Hx",
+  "Hy"
+ ],
+ "coords": [
+  "x",
+  "y",
+  "t"
+ ]
+}

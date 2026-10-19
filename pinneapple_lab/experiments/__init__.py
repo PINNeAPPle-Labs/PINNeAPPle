@@ -13,17 +13,22 @@
 | ``car_lbm`` / ``car_surrogate`` | parametric 2-D car body in an LBM wind tunnel; FNO + MLP surrogates, design search verified by LBM | flow, vorticity, predictions |
 | ``vehicle_cfd`` | 3-D road car / launch vehicle in OpenFOAM: coefficients, skin Cp, streamlines, Blender renders, 3-D viewer | surface, streamlines |
 | ``bar_wear`` / ``bar_wear_ranking`` | Archard wear of a crowned bar on a counterface, per material; running-in, steady wear, ranking | wear history, ranking |
+| ``bricks`` | self-modifying interlocking-brick builds: statics with stud clutch, evolution vs surrogate search | best builds |
+| ``manifest`` | an experiment manifest (``experiment.json``) imported for curation (``pinneapple_lab.experiment``) | - |
 | ``benchmark_case`` | landing-page cases from PINNeAPPle-Benchmark and PINNeAPPle-Climate, headline claim re-checked | arrays, sweep, lead skill |
 """
 from . import (  # noqa: F401
     accretion,
     blackhole_forecast,
+    bricks,
     calculix_cases,
     car,
     cylinder,
     discovery,
+    em_pinn,
     examples,
     landing,
+    manifest_import,
     ode,
     particles,
     pde,

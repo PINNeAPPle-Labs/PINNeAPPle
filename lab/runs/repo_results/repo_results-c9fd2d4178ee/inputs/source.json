@@ -1,0 +1,9 @@
+{
+ "name": "em_verification",
+ "description": "Electromagnetics verification suite (32 cases: FEM, Biot-Savart, Mie, Fresnel, dipoles, FDTD) against closed forms and published values, with the FDTD gallery",
+ "scripts": [
+  "examples/electrodynamics/07_em_verification.py",
+  "examples/electrodynamics/08_fdtd_gallery.py",
+  "pinneapple_simulation/electromagnetics/verification.py"
+ ]
+}

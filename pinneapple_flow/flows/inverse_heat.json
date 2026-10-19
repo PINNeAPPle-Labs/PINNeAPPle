@@ -1,0 +1,319 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "inverse-heat-identify-the-diffusivity",
+ "name": "Inverse heat: identify the diffusivity",
+ "description": "Synthetic sensors (400 points, 1 % noise) from a finite-difference solution with alpha = 0.1; alpha recovered by an inverse PINN and by least-squares calibration with the FD solver.",
+ "nodes": [
+  {
+   "id": "true_geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 1,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": true,
+    "t_range": [
+     0.0,
+     0.5
+    ]
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Domain"
+  },
+  {
+   "id": "true_mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 101,
+    "n_t": 41
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Grid"
+  },
+  {
+   "id": "true_eq",
+   "type": "equations.system",
+   "params": {
+    "template": "heat",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_t = alpha*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "alpha": 0.1
+    },
+    "exact": "exp(-1*alpha*pi**2*t)*sin(pi*x)"
+   },
+   "position": {
+    "x": 580.0,
+    "y": 40.0
+   },
+   "label": "heat equations"
+  },
+  {
+   "id": "fd",
+   "type": "solver.classical",
+   "params": {
+    "method": "fd"
+   },
+   "position": {
+    "x": 850.0,
+    "y": 40.0
+   },
+   "label": "Synthetic truth (FD)"
+  },
+  {
+   "id": "sensors",
+   "type": "data.observe",
+   "params": {
+    "n_points": 400,
+    "noise": 0.01
+   },
+   "position": {
+    "x": 1120.0,
+    "y": 40.0
+   },
+   "label": "Sensors (1% noise)"
+  },
+  {
+   "id": "inv_geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 1,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": true,
+    "t_range": [
+     0.0,
+     0.5
+    ]
+   },
+   "position": {
+    "x": 40.0,
+    "y": 190.0
+   },
+   "label": "Domain"
+  },
+  {
+   "id": "inv_mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 101,
+    "n_t": 41
+   },
+   "position": {
+    "x": 310.0,
+    "y": 190.0
+   },
+   "label": "Grid"
+  },
+  {
+   "id": "inv_eq",
+   "type": "equations.system",
+   "params": {
+    "template": "heat",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_t = alpha*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {},
+    "exact": "",
+    "unknowns": [
+     "alpha"
+    ]
+   },
+   "position": {
+    "x": 580.0,
+    "y": 190.0
+   },
+   "label": "heat equations"
+  },
+  {
+   "id": "discover",
+   "type": "inverse.discover",
+   "params": {
+    "initial_guess": {
+     "alpha": 0.5
+    },
+    "adam_steps": 3000,
+    "lbfgs_steps": 200
+   },
+   "position": {
+    "x": 1390.0,
+    "y": 40.0
+   },
+   "label": "Inverse PINN"
+  },
+  {
+   "id": "calibrate",
+   "type": "inverse.calibrate",
+   "params": {
+    "bounds": {
+     "alpha": [
+      0.001,
+      2.0
+     ]
+    },
+    "initial_guess": {
+     "alpha": 0.5
+    },
+    "n": 41
+   },
+   "position": {
+    "x": 1390.0,
+    "y": 190.0
+   },
+   "label": "Calibration (FD)"
+  }
+ ],
+ "edges": [
+  {
+   "source": "true_geo",
+   "source_port": "geometry",
+   "target": "true_mesh",
+   "target_port": "geometry",
+   "id": "true_geo.geometry->true_mesh.geometry"
+  },
+  {
+   "source": "true_geo",
+   "source_port": "geometry",
+   "target": "true_eq",
+   "target_port": "geometry",
+   "id": "true_geo.geometry->true_eq.geometry"
+  },
+  {
+   "source": "true_mesh",
+   "source_port": "mesh",
+   "target": "true_eq",
+   "target_port": "mesh",
+   "id": "true_mesh.mesh->true_eq.mesh"
+  },
+  {
+   "source": "true_eq",
+   "source_port": "problem",
+   "target": "fd",
+   "target_port": "problem",
+   "id": "true_eq.problem->fd.problem"
+  },
+  {
+   "source": "fd",
+   "source_port": "solution",
+   "target": "sensors",
+   "target_port": "solution",
+   "id": "fd.solution->sensors.solution"
+  },
+  {
+   "source": "true_eq",
+   "source_port": "problem",
+   "target": "sensors",
+   "target_port": "problem",
+   "id": "true_eq.problem->sensors.problem"
+  },
+  {
+   "source": "inv_geo",
+   "source_port": "geometry",
+   "target": "inv_mesh",
+   "target_port": "geometry",
+   "id": "inv_geo.geometry->inv_mesh.geometry"
+  },
+  {
+   "source": "inv_geo",
+   "source_port": "geometry",
+   "target": "inv_eq",
+   "target_port": "geometry",
+   "id": "inv_geo.geometry->inv_eq.geometry"
+  },
+  {
+   "source": "inv_mesh",
+   "source_port": "mesh",
+   "target": "inv_eq",
+   "target_port": "mesh",
+   "id": "inv_mesh.mesh->inv_eq.mesh"
+  },
+  {
+   "source": "inv_eq",
+   "source_port": "problem",
+   "target": "discover",
+   "target_port": "problem",
+   "id": "inv_eq.problem->discover.problem"
+  },
+  {
+   "source": "sensors",
+   "source_port": "data",
+   "target": "discover",
+   "target_port": "data",
+   "id": "sensors.data->discover.data"
+  },
+  {
+   "source": "inv_eq",
+   "source_port": "problem",
+   "target": "calibrate",
+   "target_port": "problem",
+   "id": "inv_eq.problem->calibrate.problem"
+  },
+  {
+   "source": "sensors",
+   "source_port": "data",
+   "target": "calibrate",
+   "target_port": "data",
+   "id": "sensors.data->calibrate.data"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

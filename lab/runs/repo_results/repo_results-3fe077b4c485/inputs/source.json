@@ -1,0 +1,7 @@
+{
+ "name": "airliner_cfd",
+ "description": "A320-class airliner, OpenFOAM half model (0.4 M cells): pressure, friction and streamlines at approach",
+ "scripts": [
+  "apps/aero_optimizer/tools/verify3d_airliner.py"
+ ]
+}

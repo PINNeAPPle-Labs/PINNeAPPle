@@ -1,0 +1,9 @@
+# on top of `pip install .` (PINNeAPPle core)
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+pydantic>=2
+pandas>=2.0
+pyarrow>=14          # Parquet uploads
+scikit-learn>=1.3    # Gaussian-process surrogates (your data, active learning, Bayesian optimisation)
+pymoo>=0.6           # optional NSGA-II from pymoo (the app lists it as unavailable without it)

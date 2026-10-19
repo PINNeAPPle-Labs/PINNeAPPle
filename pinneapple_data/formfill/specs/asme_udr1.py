@@ -35,6 +35,10 @@ def _f(*args, **kw) -> Field:
 SECTIONS = ["General", "Operating conditions", "Design conditions", "Corrosion and fatigue", "Loadings",
             "Heat treatment, insulation and support", "Materials", "Welded joints", "Body flanges", "Certification"]
 
+# Operating case 1 as a plain datasheet writes it, without a case number ("Internal pressure", "Temperature max/min").
+_OP_CASE1 = {"pmax": (r"(?:max(?:imum)? )?operating pressure", r"internal pressure"),
+             "tmax": (r"(?:max(?:imum)? )?operating temperature", r"temperature,? max(?:imum)?\s*/\s*min(?:imum)?")}
+
 FIELDS: List[Field] = [
     # ---------------------------------------------------------------- general
     _f("owner", "Owner", "General", pdf="Owner", patterns=(r"owner", r"end[- ]user", r"client"), required=True,
@@ -45,8 +49,9 @@ FIELDS: List[Field] = [
     _f("state_province", "State/Province of installation", "General", pdf="StateProvince of Installation",
        patterns=(r"state(?:/province)?(?: of installation)?", r"province")),
     _f("city", "City of installation", "General", pdf="City of Installation",
-       patterns=(r"city(?: of installation)?", r"site location", r"plant location")),
+       patterns=(r"city(?: of installation)?", r"site location", r"plant location", r"location")),
     _f("service", "Service", "General", pdf="Service", patterns=(r"service", r"fluid service"), required=True,
+       reject=r"^\s*(?:non[- ]?)?lethal\s*$",
        source_hint="process datasheet"),
     _f("liquid_level", "Liquid level", "General", kind="quantity", quantity="length", pdf="1",
        patterns=(r"(?:normal |design )?liquid level", r"\bnll\b", r"\bhll\b")),
@@ -60,7 +65,7 @@ FIELDS: List[Field] = [
     _f("length_tt", "Length, tangent-to-tangent", "General", kind="quantity", quantity="length",
        pdf="Length  T angentto T angent",
        patterns=(r"length,? tangent[- ]to[- ]tangent", r"t/t length", r"length t/t", r"tan(?:gent)?[- ]tan(?:gent)?(?: length)?",
-                 r"length \(t/t\)"), required=True, source_hint="mechanical datasheet"),
+                 r"length \(t/t\)", r"(?:shell )?length,? \(?tl[- ]tl\)?", r"tl[- ]tl length"), required=True, source_hint="mechanical datasheet"),
     _f("orientation", "Type (orientation)", "General", kind="choice",
        states={"vertical": ("roup6", "/Choice1"), "horizontal": ("roup6", "/Choice2"), "sphere": ("roup6", "/Choice3")},
        patterns=(r"orientation", r"vessel type", r"position"), required=True),
@@ -81,7 +86,8 @@ FIELDS: List[Field] = [
     # ---------------------------------------------------------------- operating
     *[_f(f"op{c}_{k}", f"Operating case {c}: {lab}", "Operating conditions", kind="quantity", quantity=q,
          pdf=f"{pdfname}Case {c}",
-         patterns=tuple(p.format(c=c) for p in pats), required=(c == 1), source_hint="process datasheet")
+         patterns=tuple(p.format(c=c) for p in pats) + (_OP_CASE1.get(k, ()) if c == 1 else ()),
+         required=(c == 1), source_hint="process datasheet")
       for c in (1, 2)
       for k, lab, q, pdfname, pats in (
           ("pmin", "minimum pressure", "pressure", "Minimum Pressure",
@@ -96,11 +102,12 @@ FIELDS: List[Field] = [
     # ---------------------------------------------------------------- design
     _f("design_p_int", "Internal design pressure", "Design conditions", kind="quantity", quantity="pressure",
        pdf="PressureInternal Design Pressure", patterns=(r"internal design pressure", r"design pressure,? internal",
-                                                          r"design pressure(?! ,?ext)"), required=True,
+                                                          r"design press(?:ure|\.)(?! ,?ext)"), required=True,
        source_hint="process datasheet"),
     _f("design_t_int", "Temperature at internal design pressure", "Design conditions", kind="quantity",
        quantity="temperature", pdf="T emperatureInternal Design Pressure",
-       patterns=(r"(?:max(?:imum)? )?design temperature(?:,? internal)?", r"temperature at internal design pressure"),
+       patterns=(r"(?:max(?:imum)? )?design temperature(?:,? internal)?", r"temperature at internal design pressure",
+                 r"(?:design )?temperature \(int(?:ernal)?\s*/\s*ext(?:ernal)?\)"),
        required=True, source_hint="process datasheet"),
     _f("design_p_ext", "External design pressure", "Design conditions", kind="quantity", quantity="pressure",
        pdf="PressureExternal Design Pressure", patterns=(r"external design pressure", r"design pressure,? external",
@@ -138,7 +145,8 @@ FIELDS: List[Field] = [
     *[_f(f"ca_{comp}_{side}", f"Corrosion allowance: {name}, {'internal' if side == 'int' else 'external'}",
          "Corrosion and fatigue", kind="quantity", quantity="length", pdf=f"{'IntRow1' if side == 'int' else 'ExtRow1'}{suffix}",
          patterns=(rf"{pat}[ ,]*(?:corrosion allowance|c\.?a\.?)[ ,]*{_SIDE[side]}",
-                   rf"corrosion allowance[ ,:-]*{pat}[ ,]*{_SIDE[side]}"),
+                   rf"corrosion allowance[ ,:-]*{pat}[ ,]*{_SIDE[side]}")
+         + ((r"corrosion allow(?:ance|\.)?(?:\s*\(\s*int(?:ernal)?\s*\))?",) if (comp, side) == ("shell", "int") else ()),
          required=(comp in ("shell", "heads") and side == "int"), source_hint="client specification")
       for comp, name, pat, suffix in (("shell", "shell", "shell", ""), ("heads", "heads", "heads?", "_2"),
                                       ("nozzles", "nozzles", "nozzles?", "_3"), ("jacket", "jacket", "jacket", "_4"),
@@ -161,7 +169,7 @@ FIELDS: List[Field] = [
     _f("wind_code", "Wind loading code", "Loadings", kind="choice",
        states={"ubc": ("group69", "/Choice1"), "other": ("group69", "/Choice2"), "asce 7": ("group69", "/Choice3"),
                "ibc": ("group69", "/Choice4"), "none": ("group69", "/Choice5")}, other="other",
-       patterns=(r"wind (?:load(?:ing)? )?(?:code|standard|design code|loading)",), required=True,
+       patterns=(r"wind (?:load(?:ing)? )?(?:code|standard|design code|loading)", r"wind loads?"), required=True,
        source_hint="client specification"),
     _f("wind_speed", "Wind speed", "Loadings", kind="quantity", quantity="speed", pdf="Wind Speed",
        patterns=(r"(?:basic |design )?wind speed",)),
@@ -175,7 +183,7 @@ FIELDS: List[Field] = [
     _f("seismic_code", "Seismic loading code", "Loadings", kind="choice",
        states={"ubc": ("group70", "/Choice1"), "other": ("group70", "/Choice2"), "asce 7": ("group70", "/Choice3"),
                "ibc": ("group70", "/Choice4"), "none": ("group70", "/Choice5")}, other="other",
-       patterns=(r"seismic (?:load(?:ing)? )?(?:code|standard|design code|loading)",), required=True,
+       patterns=(r"seismic (?:load(?:ing)? )?(?:code|standard|design code|loading)", r"seismic loads?"), required=True,
        source_hint="client specification"),
     _f("soil_profile", "Soil profile classification", "Loadings", pdf="Soil Profile Classification",
        patterns=(r"soil (?:profile|site) class(?:ification)?", r"site class")),
@@ -212,7 +220,7 @@ FIELDS: List[Field] = [
     _f("support", "Vessel support", "Heat treatment, insulation and support", kind="choice",
        states={"legs": ("group72", "/Choice1"), "skirt": ("group72", "/Choice2"), "lugs": ("group72", "/Choice3"),
                "saddles": ("group72", "/Choice4")},
-       patterns=(r"(?:vessel )?support(?: type)?",), required=True, source_hint="mechanical datasheet"),
+       patterns=(r"(?:vessel )?supports?(?: type)?",), required=True, source_hint="mechanical datasheet"),
     _f("fireproofing", "Fireproofing", "Heat treatment, insulation and support", kind="bool", states=YES_NO("Group20"),
        patterns=(r"fire ?proofing(?: required)?",)),
     _f("fireproofing_type", "Fireproofing type", "Heat treatment, insulation and support", pdf="T ype",
@@ -221,7 +229,9 @@ FIELDS: List[Field] = [
        patterns=(r"fire ?proofing rating", r"fire rating")),
     # ---------------------------------------------------------------- materials
     *[_f(f"mat_{k}", f"Material: {lab}", "Materials", pdf=f"Specification{pdfname}",
-         patterns=tuple(rf"{p}(?: material)?(?: spec(?:ification)?)?" for p in pats) + tuple(rf"material[ ,:-]*{p}" for p in pats),
+         patterns=tuple(rf"{p}(?: material)?(?: spec(?:ification)?)?" for p in pats) + tuple(rf"material[ ,:-]*{p}" for p in pats)
+                  + tuple(rf"{p} (?:moc|material of construction)" for p in pats)
+                  + tuple(rf"(?:moc|material of construction)[ ,:/-]*{p}" for p in pats),
          required=k in ("shell",), source_hint="mechanical datasheet")
       for k, lab, pdfname, pats in (
           ("shell", "shell", "Shell", (r"shell",)),
@@ -296,7 +306,7 @@ NOZZLES = TableSpec(
     description="One row per nozzle: mark and service, number required, size, flange type, pressure class.")
 
 # Option names as documents write them, shared by the choice items.
-ALIASES = {"asce 7": r"asce\s*7", "ibc": r"\bibc\b", "ubc": r"\bubc\b", "none": r"\bnone\b|not applicable|n/a",
+ALIASES = {"asce 7": r"asce\s*7", "ibc": r"\bibc(?:\s*-?\s*\d{2,4})?\b", "ubc": r"\bubc(?:\s*-?\s*\d{2,4})?\b", "none": r"\bnone\b|not applicable|n/a",
            "rupture disk": r"rupture dis[ck]|bursting dis[ck]", "valve": r"\bvalves?\b|\bpsv\b|\bprv\b|\bsrv\b",
            "system design": r"system design", "ambient temperature": r"ambient",
            "manufacturer": r"manufacturer|fabricator|vendor", "others": r"\bothers?\b|by client|by owner"}

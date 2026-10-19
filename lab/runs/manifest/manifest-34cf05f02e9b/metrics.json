@@ -1,0 +1,14 @@
+{
+ "kelvin_speed": 2.68867,
+ "kelvin_speed_theory": 2.7,
+ "rossby_speed": -0.86335,
+ "gill_rel_l2_u_nlon72": 0.00147,
+ "gill_rel_l2_u_nlon144": 0.000488,
+ "gill_rel_l2_u_nlon288": 0.00012809,
+ "gill_rel_l2_u_nlon576": 5.1905e-05,
+ "recharge_period_rel_error_sub1": 1.7971e-06,
+ "recharge_period_rel_error_sub2": -2.5874e-06,
+ "recharge_period_rel_error_sub4": -2.8256e-06,
+ "recharge_period_rel_error_sub8": -2.8394e-06,
+ "recharge_period_rel_error_sub16": -2.8402e-06
+}

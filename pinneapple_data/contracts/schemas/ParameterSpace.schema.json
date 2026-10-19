@@ -1,0 +1,174 @@
+{
+ "$defs": {
+  "Parameter": {
+   "additionalProperties": false,
+   "properties": {
+    "default": {
+     "default": null,
+     "title": "Default"
+    },
+    "description": {
+     "default": "",
+     "title": "Description",
+     "type": "string"
+    },
+    "group": {
+     "default": "other",
+     "enum": [
+      "geometry",
+      "material",
+      "boundary",
+      "operating",
+      "numerics",
+      "other"
+     ],
+     "title": "Group",
+     "type": "string"
+    },
+    "high": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "High"
+    },
+    "kind": {
+     "default": "continuous",
+     "enum": [
+      "continuous",
+      "integer",
+      "categorical",
+      "constant"
+     ],
+     "title": "Kind",
+     "type": "string"
+    },
+    "log": {
+     "default": false,
+     "description": "Sample uniformly in log space (low > 0).",
+     "title": "Log",
+     "type": "boolean"
+    },
+    "low": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Low"
+    },
+    "name": {
+     "description": "Identifier: also the column name.",
+     "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+     "title": "Name",
+     "type": "string"
+    },
+    "unit": {
+     "default": "",
+     "title": "Unit",
+     "type": "string"
+    },
+    "value": {
+     "default": null,
+     "description": "Value of a constant parameter.",
+     "title": "Value"
+    },
+    "values": {
+     "anyOf": [
+      {
+       "items": {},
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Choices of a categorical parameter.",
+     "title": "Values"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "Parameter",
+   "type": "object"
+  }
+ },
+ "$id": "https://pinneapple.org/schemas/ParameterSpace-1.0.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "description": "The parameters of a study and the constraints between them.",
+ "properties": {
+  "budget": {
+   "anyOf": [
+    {
+     "minimum": 1,
+     "type": "integer"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "description": "How many cases the study may run.",
+   "title": "Budget"
+  },
+  "constraints": {
+   "description": "Expressions that must hold, e.g. \"chord - 2*thickness >= 0.01\".",
+   "items": {
+    "type": "string"
+   },
+   "title": "Constraints",
+   "type": "array"
+  },
+  "description": {
+   "default": "",
+   "title": "Description",
+   "type": "string"
+  },
+  "kind": {
+   "const": "ParameterSpace",
+   "default": "ParameterSpace",
+   "title": "Kind",
+   "type": "string"
+  },
+  "metadata": {
+   "additionalProperties": true,
+   "description": "Free-form additions (app-specific).",
+   "title": "Metadata",
+   "type": "object"
+  },
+  "name": {
+   "title": "Name",
+   "type": "string"
+  },
+  "parameters": {
+   "items": {
+    "$ref": "#/$defs/Parameter"
+   },
+   "title": "Parameters",
+   "type": "array"
+  },
+  "schema_version": {
+   "default": "1.0",
+   "title": "Schema Version",
+   "type": "string"
+  }
+ },
+ "required": [
+  "name",
+  "parameters"
+ ],
+ "title": "ParameterSpace",
+ "type": "object"
+}

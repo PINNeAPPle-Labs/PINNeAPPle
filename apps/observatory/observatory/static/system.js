@@ -5,10 +5,10 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/OrbitControls.js";
 import { D2R, interp, mul3, radecVec, rotZ, teffToRGB, bvToTeff, toMatrix4 } from "./astro.js";
 import { glowTexture } from "./sky.js";
+import { t } from "./i18n.js";
 
 const RADII = { mercury: 2439.4, venus: 6051.8, earth: 6371.0, mars: 3389.5, jupiter: 69911, saturn: 58232, uranus: 25362, neptune: 24622 };
 const SPRITE_COLORS = { mercury: "#cfc6b8", venus: "#fff1c8", earth: "#8fc0ff", mars: "#ff9a6a", jupiter: "#ffe2b8", saturn: "#f5dc9c", uranus: "#a8e6ee", neptune: "#7ea6ff" };
-const NAMES = { mercury: "Mercury", venus: "Venus", earth: "Earth", mars: "Mars", jupiter: "Jupiter", saturn: "Saturn", uranus: "Uranus", neptune: "Neptune" };
 const T = [[1, 0, 0], [0, 0, 1], [0, -1, 0]];                     // ecliptic (x, y, z) -> three (x, z, -y)
 const tr = (M) => M[0].map((_, j) => M.map((r) => r[j]));
 
@@ -308,12 +308,12 @@ export class SystemView {
       if (v.z > 1) return;
       L.add((v.x + 1) / 2 * w, (1 - v.y) / 2 * h, text, cls, id);
     };
-    put(new THREE.Vector3(), "Sun", "body", "sun");
-    for (const [b, o] of Object.entries(this.planets)) put(o.grp.position, NAMES[b], "body", b);
+    put(new THREE.Vector3(), t("body.sun"), "body", "sun");
+    for (const [b, o] of Object.entries(this.planets)) put(o.grp.position, t("body." + b), "body", b);
     if (this.sbTrack) put(this.sbDot.position, this.sbTrack.name.replace(/\s*\(.*\)/, ""), "sat", "sb");
     if (this.camera.position.distanceTo(this.planets.earth.grp.position) < 12) {
-      put(this.moon.position, "Moon", "body", "moon");
-      if (this.observer) put(this.pinGrp.position, "You", "you", "you");
+      put(this.moon.position, t("body.moon"), "body", "moon");
+      if (this.observer) put(this.pinGrp.position, t("system.you"), "you", "you");
     }
     L.end();
   }

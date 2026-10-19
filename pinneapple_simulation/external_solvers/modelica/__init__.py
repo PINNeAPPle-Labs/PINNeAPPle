@@ -13,6 +13,7 @@ Typical workflow
 >>> cfg = FMUSimConfig(stop_time=10.0, parameters={"k": 2.0}, output_variables=["x", "v"])
 >>> sample = fmu_to_upd("MyModel.fmu", cfg)
 """
+from .fmi_compat import check_fmu, check_fmus
 from .fmi_runner import FMUSimConfig, simulate_fmu, fmu_to_upd
 from .om_runner import OMSimConfig, simulate_openmodelica, om_to_upd
 from .result_reader import modelica_result_to_upd
@@ -22,6 +23,8 @@ __all__ = [
     "FMUSimConfig",
     "simulate_fmu",
     "fmu_to_upd",
+    "check_fmu",
+    "check_fmus",
     # OpenModelica
     "OMSimConfig",
     "simulate_openmodelica",

@@ -1,0 +1,50 @@
+[
+ {
+  "name": "end_leakage_mesh_convergence",
+  "passed": true,
+  "value": 0.0020797898247049457,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.005,
+  "min": null,
+  "detail": "3-D/2-D magnet flux ratio on 3 meshes: 0.9345, 0.9463, 0.9482; tolerance 0.5 % on the last step",
+  "kind": "sanity"
+ },
+ {
+  "name": "end_leakage_ratio_below_one",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "flux that leaks round the magnet ends can only lower the 2-D magnet flux",
+  "kind": "physics"
+ },
+ {
+  "name": "end_winding_discretisation_convergence",
+  "passed": true,
+  "value": 4.3072615394851043e-11,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.001,
+  "min": null,
+  "detail": "Neumann integral with 150 and 300 pieces per metre",
+  "kind": "sanity"
+ },
+ {
+  "name": "end_winding_reactance_lowers_envelope",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "the end-winding reactance takes voltage, so the torque envelope cannot rise",
+  "kind": "physics"
+ }
+]

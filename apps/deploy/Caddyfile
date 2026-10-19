@@ -4,16 +4,37 @@
 
 (common) {
 	encode zstd gzip
+	# TLS 1.2+ with Caddy's modern cipher suites; certificates from Let's Encrypt (ACME_EMAIL)
+	tls {
+		protocols tls1.2 tls1.3
+	}
 	header {
-		Strict-Transport-Security "max-age=31536000"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), payment=(), usb=(), geolocation=(self)"
+		Cross-Origin-Opener-Policy "same-origin"
 		-Server
+		-X-Powered-By
+	}
+	# JSON access log on the caddy_data volume, rotated (Authorization and cookies are redacted by Caddy);
+	# fail2ban reads it for repeated 401/429 (docs/security/server.md)
+	log {
+		output file /data/access.log {
+			roll_size 50MiB
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json
 	}
 }
 
 {$HSS_DOMAIN} {
 	import common
+	request_body {
+		max_size 1MB
+	}
 	reverse_proxy heatsink:8080 {
 		transport http {
 			read_timeout 120s
@@ -23,6 +44,9 @@
 
 {$PCB_DOMAIN} {
 	import common
+	request_body {
+		max_size 1MB
+	}
 	reverse_proxy pcb:8081 {
 		transport http {
 			read_timeout 120s
@@ -80,6 +104,9 @@
 
 {$IHL_DOMAIN} {
 	import common
+	request_body {
+		max_size 1MB
+	}
 	reverse_proxy inverse:8086 {
 		transport http {
 			read_timeout 120s
@@ -161,6 +188,9 @@
 
 {$LAB_DOMAIN} {
 	import common
+	request_body {
+		max_size 1MB
+	}
 	reverse_proxy lab:8093 {
 		transport http {
 			read_timeout 300s
@@ -170,6 +200,9 @@
 
 {$OBS_DOMAIN} {
 	import common
+	request_body {
+		max_size 1MB
+	}
 	reverse_proxy observatory:8094 {
 		transport http {
 			read_timeout 180s
@@ -179,5 +212,248 @@
 
 {$PLG_DOMAIN} {
 	import common
+	request_body {
+		max_size 1MB
+	}
 	reverse_proxy playground:8095
+}
+
+{$RUNNER_DOMAIN} {
+	import common
+	request_body {
+		max_size 25MB
+	}
+	reverse_proxy runner:8110 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$CAMPAIGN_DOMAIN} {
+	import common
+	request_body {
+		max_size 110MB
+	}
+	reverse_proxy campaign:8096 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
+{$UQL_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy uncertainty:8098 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$SEN_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy sensitivity:8099 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
+{$VAL_DOMAIN} {
+	import common
+	request_body {
+		max_size 220MB
+	}
+	reverse_proxy validate:8107 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$EVR_DOMAIN} {
+	import common
+	request_body {
+		max_size 220MB
+	}
+	reverse_proxy evidence:8113 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$CALIB_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy calibration:8101 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$IDENT_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy identifiability:8108 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$INVS_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy inverse-studio:8104 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$GUIAGENT_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy guiagent:8115 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$ROM_DOMAIN} {
+	import common
+	request_body {
+		max_size 220MB
+	}
+	reverse_proxy rom:8102 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$MESHLESS_DOMAIN} {
+	import common
+	request_body {
+		max_size 25MB
+	}
+	reverse_proxy meshless:8109 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$SUR_DOMAIN} {
+	import common
+	request_body {
+		max_size 110MB
+	}
+	reverse_proxy surrogate:8097 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$ARN_DOMAIN} {
+	import common
+	request_body {
+		max_size 110MB
+	}
+	reverse_proxy arena:8105 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$MDL_DOMAIN} {
+	import common
+	request_body {
+		max_size 110MB
+	}
+	reverse_proxy models:8114 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+
+{$TWIN_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy twin:8103 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$ANOMALY_DOMAIN} {
+	import common
+	request_body {
+		max_size 120MB
+	}
+	reverse_proxy anomaly:8111 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$CONTROL_DOMAIN} {
+	import common
+	request_body {
+		max_size 20MB
+	}
+	reverse_proxy control:8112 {
+		transport http {
+			read_timeout 180s
+		}
+	}
+}
+
+{$EDO_DOMAIN} {
+	import common
+	request_body {
+		max_size 25MB
+	}
+	reverse_proxy optimize:8100 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
+{$PDO_DOMAIN} {
+	import common
+	request_body {
+		max_size 25MB
+	}
+	reverse_proxy design:8106 {
+		transport http {
+			read_timeout 300s
+		}
+	}
 }

@@ -1,5 +1,7 @@
 // Small client-side helpers. Everything physical is computed on the server (pinneapple_physics.astro); the browser
 // only interpolates samples, applies the sidereal rotation, and draws.
+import { num, t } from "./i18n.js";
+
 export const D2R = Math.PI / 180, R2D = 180 / Math.PI;
 
 // alt/az (deg) -> three.js world: x = east, y = up, z = -north
@@ -70,17 +72,13 @@ export function refractionDeg(h) { // Saemundsson, standard conditions (display 
 }
 export function jdToDate(jd) { return new Date((jd - 2440587.5) * 86400000); }
 export function dateToJd(d) { return d.getTime() / 86400000 + 2440587.5; }
-export function fmtTime(iso, tz) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: tz });
-}
 export function fmtRA(deg) {
   const h = ((deg % 360) + 360) % 360 / 15, hh = Math.floor(h), m = (h - hh) * 60, mm = Math.floor(m), s = (m - mm) * 60;
-  return `${hh}h ${String(mm).padStart(2, "0")}m ${s.toFixed(1).padStart(4, "0")}s`;
+  return `${hh}h ${String(mm).padStart(2, "0")}m ${(s < 10 ? "0" : "") + num(Math.floor(s * 10) / 10, 1)}s`;
 }
 export function fmtDec(deg) {
   const s = deg < 0 ? "−" : "+", a = Math.abs(deg), d = Math.floor(a), m = (a - d) * 60, mm = Math.floor(m), ss = (m - mm) * 60;
   return `${s}${d}° ${String(mm).padStart(2, "0")}′ ${ss.toFixed(0).padStart(2, "0")}″`;
 }
-export function compass(az) { return ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"][Math.round(az / 22.5) % 16]; }
+// 16-point compass in the interface language (N, NNE, ... ; Portuguese uses L for east and O for west)
+export function compass(az) { return t("compass.points").split(" ")[Math.round((((az % 360) + 360) % 360) / 22.5) % 16]; }

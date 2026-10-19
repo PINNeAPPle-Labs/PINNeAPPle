@@ -25,15 +25,20 @@ def normalise_format(fmt: str) -> str:
     return f
 
 
-def to_stl(geom, aero_only: bool = False) -> bytes:
-    V, F = geom.mesh(aero_only=aero_only)
-    tris = V[F].astype("<f4")
+def stl_bytes(V: np.ndarray, F: np.ndarray, header: str) -> bytes:
+    """Binary STL of the triangle mesh ``(V, F)``; ``header`` fills the 80-byte header."""
+    tris = np.asarray(V)[np.asarray(F)].astype("<f4")
     n = np.cross(tris[:, 1] - tris[:, 0], tris[:, 2] - tris[:, 0])
     n /= np.linalg.norm(n, axis=1, keepdims=True) + np.float32(1e-30)
     rec = np.zeros(len(tris), dtype=[("n", "<f4", 3), ("v", "<f4", (3, 3)), ("a", "<u2")])
     rec["n"], rec["v"] = n, tris
-    head = f"PINNeAPPle geometry library: {geom.name} ({geom.lod}), metres".encode()[:80].ljust(80, b" ")
+    head = header.encode()[:80].ljust(80, b" ")
     return head + struct.pack("<I", len(tris)) + rec.tobytes()
+
+
+def to_stl(geom, aero_only: bool = False) -> bytes:
+    V, F = geom.mesh(aero_only=aero_only)
+    return stl_bytes(V, F, f"PINNeAPPle geometry library: {geom.name} ({geom.lod}), metres")
 
 
 def to_obj(geom) -> bytes:

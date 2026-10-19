@@ -1,0 +1,18 @@
+[23:05:56] check energy conserved, dt 0.02 s: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json
+[23:05:56] check energy conserved, dt 0.01 s: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json
+[23:05:56] check energy conserved, dt 0.005 s: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json
+[23:05:56] check angular momentum conserved, dt 0.02 s: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json
+[23:05:56] check angular momentum conserved, dt 0.01 s: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json
+[23:05:56] check angular momentum conserved, dt 0.005 s: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json
+[23:05:56] check trim residual, light_ga: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json
+[23:05:56] check trim residual, regional_turboprop: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json
+[23:05:56] check trim residual, a320: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json
+[23:05:56] check trim residual, motor_glider: PASS value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json
+[23:05:56] check take-off: light_ga lifts off: PASS recorded in results/takeoff.json (nominal.*.lifted_off)
+[23:05:56] check take-off: regional_turboprop lifts off: PASS recorded in results/takeoff.json (nominal.*.lifted_off)
+[23:05:56] check take-off: a320 lifts off: PASS recorded in results/takeoff.json (nominal.*.lifted_off)
+[23:05:56] check take-off: motor_glider lifts off: PASS recorded in results/takeoff.json (nominal.*.lifted_off)
+[23:05:56] check take-off: light_ga keeps its stall margin: PASS CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)
+[23:05:56] check take-off: regional_turboprop keeps its stall margin: PASS CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)
+[23:05:56] check take-off: a320 keeps its stall margin: PASS CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)
+[23:05:56] check take-off: motor_glider keeps its stall margin: PASS CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)

@@ -91,12 +91,15 @@ class FV:
 
     # ------------------------------------------------------------------ balances over the boundary
     def patch_sums(self, face_q: np.ndarray) -> dict[str, float]:
+        """Sum of a face quantity over each non-empty patch. ``face_q`` holds either every face (internal first) or
+        only the boundary faces, as the balances pass it."""
+        base = 0 if len(face_q) == self.nb else self.ni
         out = {}
         for pt in self.fd.patches:
             if pt["type"] == "empty" or pt["nFaces"] == 0:
                 continue
-            a = pt["startFace"] - self.ni
-            out[pt["name"]] = float(np.sum(face_q[self.ni + a:self.ni + a + pt["nFaces"]], axis=0).sum())
+            a = base + pt["startFace"] - self.ni
+            out[pt["name"]] = float(np.sum(face_q[a:a + pt["nFaces"]], axis=0).sum())
         return out
 
     def patch_slice(self, name: str) -> slice | None:

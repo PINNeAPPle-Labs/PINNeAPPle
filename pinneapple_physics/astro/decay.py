@@ -186,12 +186,12 @@ def train_decay_pinn(h0_km: float = 415.0, B: float = 0.005, days: float = 60.0,
            "t_days": t_ref.tolist(), "h_pinn_km": h_pinn.tolist(), "h_ref_km": np.where(ok, h_ref, None).tolist(),
            "decay_rate_m_per_day_t0": rate0 * 86400.0, "history": hist}
     checks = [
-        {"name": "Max |PINN - RK integration| over the window", "value": float(err_m.max()), "unit": "m",
+        {"id": "decay_vs_rk", "name": "Max |PINN - RK integration| over the window", "value": float(err_m.max()), "unit": "m",
          "threshold": max(50.0, 0.02 * float(np.nanmax(h_ref[0] - h_ref)) * 1000.0),
          "status": None},
-        {"name": "ODE residual (RMS / initial decay rate)", "value": float(np.sqrt((res ** 2).mean())), "unit": "-",
+        {"id": "decay_ode_residual", "name": "ODE residual (RMS / initial decay rate)", "value": float(np.sqrt((res ** 2).mean())), "unit": "-",
          "threshold": 0.05, "status": None},
-        {"name": "Monotone decay (da/dt < 0 everywhere)", "value": float(np.max(np.diff(h_pinn))), "unit": "km",
+        {"id": "decay_monotone", "name": "Monotone decay (da/dt < 0 everywhere)", "value": float(np.max(np.diff(h_pinn))), "unit": "km",
          "threshold": 0.0, "status": None},
     ]
     for c in checks:
@@ -202,7 +202,7 @@ def train_decay_pinn(h0_km: float = 415.0, B: float = 0.005, days: float = 60.0,
         out.update(env_median_km=np.nan_to_num(med, nan=-1).tolist(), env_p05_km=np.nan_to_num(lo, nan=-1).tolist(),
                    env_p95_km=np.nan_to_num(hi, nan=-1).tolist())
         inside = float(np.mean((h_pinn >= lo - 1e-3) & (h_pinn <= hi + 1e-3)))
-        checks.append({"name": "PINN inside the 5-95 % input-uncertainty envelope", "value": inside,
+        checks.append({"id": "decay_in_envelope", "name": "PINN inside the 5-95 % input-uncertainty envelope", "value": inside,
                        "unit": "fraction", "threshold": 0.95, "status": "pass" if inside >= 0.95 else "warn",
                        "higher_is_better": True})
     nf = sum(c["status"] == "fail" for c in checks)

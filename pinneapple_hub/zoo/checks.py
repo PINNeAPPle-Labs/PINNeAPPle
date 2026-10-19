@@ -123,6 +123,10 @@ def _airfoil(zm: ZooModel):
 
 # ====================================================================== heat sink
 def _heatsink(zm: ZooModel):
+    """Forced convection (outputs R, ΔP, R upper bound) or natural convection (R, R upper bound; no air speed): the
+    validity box, the derived limits of ``ZooModel.in_range`` (fin gap, source fractions, two fins), positive
+    outputs and the monotonicity the model was trained or gated on, here."""
+    forced = zm.adapter == "heatsink_forced"
     vr = zm.card.validity_range
     names = zm.input_names
     box = [k for k in names if k in vr and isinstance(vr[k], (list, tuple))]
@@ -134,17 +138,23 @@ def _heatsink(zm: ZooModel):
         _rng("source_frac_w", -1, *vr["source_frac_w"], group="source", label="source width / base width"),
         _rng("source_frac_d", -1, *vr["source_frac_d"], group="source", label="source depth / base depth"),
         _chk("fins", "PC601", "At least two fins", ">=", 2.0, "fail", "{value:.0f} fins"),
-        _chk("positive", "PC403", "R > 0 and ΔP > 0, finite", ">", 0.0, "fail", "min(R, ΔP) = {value:.4g}"),
-        _chk("mono:V", "PC302", "More airflow lowers R here (+5 % speed)", "<", 0.0, "warn",
-             "R {R:.4g} → {R_v:.4g} K/W"),
-        _chk("mono:dP", "PC302", "Pressure drop rises with air speed here", ">", 0.0, "warn",
-             "ΔP {dP:.4g} → {dP_v:.4g} Pa"),
-        _chk("mono:k", "PC302", "A more conductive material lowers R here (+5 % k)", "<", 0.0, "warn",
-             "R {R:.4g} → {R_k:.4g} K/W"),
     ]
+    if forced:
+        spec += [
+            _chk("positive", "PC403", "R > 0 and ΔP > 0, finite", ">", 0.0, "fail", "min(R, ΔP) = {value:.4g}"),
+            _chk("mono:V", "PC302", "More airflow lowers R here (+5 % speed)", "<", 0.0, "warn",
+                 "R {R:.4g} → {R_v:.4g} K/W"),
+            _chk("mono:dP", "PC302", "Pressure drop rises with air speed here", ">", 0.0, "warn",
+                 "ΔP {dP:.4g} → {dP_v:.4g} Pa"),
+        ]
+    else:
+        spec += [_chk("positive", "PC403", "R > 0, finite", ">", 0.0, "fail", "R = {value:.4g}")]
+    spec += [_chk("mono:k", "PC302", "A more conductive material lowers R here (+5 % k)", "<", 0.0, "warn",
+                  "R {R:.4g} → {R_k:.4g} K/W")]
     groups["source"] = {"name": "Heat source covers 15–100 % of the base", "rule": "PC601"}
-    aux = ["R", "R_v", "R_k", "dP", "dP_v"]
-    iV, ik = names.index("air_velocity_m_s"), names.index("k_w_mk")
+    aux = ["R", "R_v", "R_k", "dP", "dP_v"] if forced else ["R", "R_k"]
+    ik = names.index("k_w_mk")
+    iV = names.index("air_velocity_m_s") if forced else None
 
     def values(q, predict):
         import torch
@@ -153,15 +163,19 @@ def _heatsink(zm: ZooModel):
                                                                "source_depth_mm"))
         gap = (W - N * t) / torch.clamp(N - 1, min=1.0)
         y0 = predict(q)[0]
-        fv = torch.tensor([1.05 if j == iV else 1.0 for j in range(len(names))])     # +5 % air speed
         fk = torch.tensor([1.05 if j == ik else 1.0 for j in range(len(names))])     # +5 % conductivity
-        yv = predict(q * fv)[0]
         yk = predict(q * fk)[0]
-        cols = [q[:, names.index(k)] for k in box] + [
-            gap, sw / W, sd / D, N, torch.minimum(y0[:, 0], y0[:, 1]),
-            torch.log(yv[:, 0]) - torch.log(y0[:, 0]), torch.log(yv[:, 1]) - torch.log(y0[:, 1]),
-            torch.log(yk[:, 0]) - torch.log(y0[:, 0])]
-        aux_ = [y0[:, 0], yv[:, 0], yk[:, 0], y0[:, 1], yv[:, 1]]
+        cols = [q[:, names.index(k)] for k in box] + [gap, sw / W, sd / D, N]
+        if forced:
+            fv = torch.tensor([1.05 if j == iV else 1.0 for j in range(len(names))])  # +5 % air speed
+            yv = predict(q * fv)[0]
+            cols += [torch.minimum(y0[:, 0], y0[:, 1]), torch.log(yv[:, 0]) - torch.log(y0[:, 0]),
+                     torch.log(yv[:, 1]) - torch.log(y0[:, 1])]
+            aux_ = [y0[:, 0], yv[:, 0], yk[:, 0], y0[:, 1], yv[:, 1]]
+        else:
+            cols += [y0[:, 0]]
+            aux_ = [y0[:, 0], yk[:, 0]]
+        cols += [torch.log(yk[:, 0]) - torch.log(y0[:, 0])]
         return torch.stack(cols, 1), torch.stack(aux_, 1)
     return spec, aux, groups, values, None
 
@@ -236,7 +250,13 @@ def _rover(zm: ZooModel):
     return spec, aux, groups, values, init
 
 
-_BUILDERS = {"airfoil_mlp": _airfoil, "heatsink_forced": _heatsink, "rover_contact": _rover}
+_BUILDERS = {"airfoil_mlp": _airfoil, "heatsink_forced": _heatsink, "heatsink_natural": _heatsink,
+             "rover_contact": _rover}
+
+
+def has_query_checks(zm: ZooModel) -> bool:
+    """Whether the model has per-query checks (:func:`query_checks`); otherwise only ``in_range`` applies."""
+    return zm.adapter in _BUILDERS
 
 
 def _build(zm: ZooModel):

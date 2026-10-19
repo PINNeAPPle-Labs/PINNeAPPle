@@ -286,8 +286,10 @@ def build(name: str, lod: str = "light", **params) -> Geometry:
         if b.closed:
             b.vertices, b.faces = meshops.orient_outward(b.vertices, b.faces)
         # snap to a 0.1 um grid: last-bit differences between NumPy / SciPy builds vanish, so every machine writes
-        # the same bytes as the manifest (the grid is far below any feature of the library)
-        b.vertices = np.round(b.vertices / QUANTUM) * QUANTUM
+        # the same bytes as the manifest (the grid is far below any feature of the library); "+ 0.0" turns -0 into +0:
+        # whether a coordinate that rounds to zero keeps its sign depends on the SIMD path NumPy takes on the CPU, and
+        # the text and STL writers keep the sign
+        b.vertices = np.round(b.vertices / QUANTUM) * QUANTUM + 0.0
     names = [b.name for b in bodies]
     if len(set(names)) != len(names):
         raise RuntimeError(f"{name}: duplicate body names")

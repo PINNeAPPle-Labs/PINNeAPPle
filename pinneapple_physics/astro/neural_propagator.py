@@ -222,13 +222,13 @@ def trust_report(folder=MODEL_DIR, real: dict | None = None) -> dict:
     info = json.load(open(os.path.join(folder, "scaling.json")))["info"]
     kep = info["test_kepler_max_err_km_median"]
     checks = [
-        {"name": "Unseen synthetic NEOs: median of the max error over 1 yr", "value": info["test_max_err_km_median"],
+        {"id": "neo_median", "name": "Unseen synthetic NEOs: median of the max error over 1 yr", "value": info["test_max_err_km_median"],
          "unit": "km", "threshold": kep / 5, "status": "pass" if info["test_max_err_km_median"] <= kep / 5 else "fail"},
-        {"name": "Unseen synthetic NEOs: 90th percentile of the max error", "value": info["test_max_err_km_p90"],
+        {"id": "neo_p90", "name": "Unseen synthetic NEOs: 90th percentile of the max error", "value": info["test_max_err_km_p90"],
          "unit": "km", "threshold": kep, "status": "pass" if info["test_max_err_km_p90"] <= kep else "warn"},
     ]
     if real:
-        checks.append({"name": f"{real['name']} (real object)", "value": real["max_err_km"], "unit": "km",
+        checks.append({"id": "neo_real", "args": {"name": real["name"]}, "name": f"{real['name']} (real object)", "value": real["max_err_km"], "unit": "km",
                        "threshold": real["kepler_max_err_km"],
                        "status": "pass" if real["max_err_km"] <= real["kepler_max_err_km"] else "warn"})
     status = "trustworthy" if all(c["status"] == "pass" for c in checks) else \

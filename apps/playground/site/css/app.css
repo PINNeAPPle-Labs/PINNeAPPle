@@ -173,6 +173,8 @@ ul.checks .det { display: block; color: var(--muted); font-size: 12px; }
 .chart .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .chart .band { stroke: none; }
 .chart .oor-zone { fill: var(--bad); opacity: .06; }
+.chart .zone-warn { fill: var(--warn); opacity: .14; }
+.chart .zone-fail { fill: var(--bad); opacity: .10; }
 .chart .cross { stroke: var(--line-strong); stroke-width: 1; }
 .chart .marker { stroke: var(--surface); stroke-width: 2; }
 .chart .ref { stroke: var(--surface); stroke-width: 1.5; }

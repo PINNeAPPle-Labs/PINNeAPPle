@@ -1,0 +1,62 @@
+[
+ {
+  "name": "lorenz63_generator_lyapunov_vs_sprott_2003",
+  "passed": true,
+  "value": 0.8935,
+  "reference": 0.906,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "largest Lyapunov exponent of the synthetic truth (Benettin) against the published 0.906 (J. C. Sprott, Chaos and Time-Series Analysis, 2003); tolerance 5 %. It checks the data generator, not the forecasts, which have no independent reference",
+  "kind": "verification"
+ },
+ {
+  "name": "beats_best_baseline_on_untouched_test",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "every chaotic series: at least one model beats the best baseline (chosen on validation) on the untouched test block, one-sided Diebold-Mariano, Holm-corrected p < 0.05",
+  "kind": "generalization"
+ },
+ {
+  "name": "beats_persistence_lorenz63",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "baseline"
+ },
+ {
+  "name": "no_false_skill_on_pure_noise",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "negative controls: no model may beat the baseline on white noise or a random walk",
+  "kind": "sanity"
+ },
+ {
+  "name": "iaaft_test_flags_nonlinearity_only_where_present",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "IAAFT surrogate test of permutation entropy rejects on chaotic truths only (synthetic cases)",
+  "kind": "sanity"
+ }
+]

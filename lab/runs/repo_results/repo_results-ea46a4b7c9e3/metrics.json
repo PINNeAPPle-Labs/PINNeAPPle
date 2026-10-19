@@ -1,0 +1,8 @@
+{
+ "MBB_OC_filter_compliance": 233.70990775752145,
+ "MBB_MMA_filter_compliance": 233.4878134008748,
+ "MBB_MMA_filter_+_projection_compliance": 190.05035631421268,
+ "Cantilever_MMA_projection_compliance": 75.42806021465833,
+ "rotor_torque_linear_Nm": 38.10446217859075,
+ "rotor_torque_nonlinear_Nm": 13.441238878282855
+}

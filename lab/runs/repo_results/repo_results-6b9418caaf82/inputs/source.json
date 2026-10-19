@@ -1,0 +1,7 @@
+{
+ "name": "free_surface_trough",
+ "description": "Free-surface jet into a trough (interFoam, 5 and 10 mm cells): mass balance, impingement, floor shear",
+ "scripts": [
+  "examples/handoff_cases/free_surface_trough/simulation/trough_case.py"
+ ]
+}

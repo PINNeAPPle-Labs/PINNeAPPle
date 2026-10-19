@@ -155,11 +155,13 @@ def _sky(d):
 
 def render_geometry(geom, path: str | None = None, size: tuple[int, int] = (960, 640), azimuth: float | None = None,
                     elevation: float | None = None, ssaa: int = 2, background: str = "studio", fov_deg: float = 28.0,
-                    ground: bool | None = None, margin: float = 0.90, label: str | None = None):
+                    ground: bool | None = None, margin: float = 0.90, label: str | None = None,
+                    frame: tuple[Sequence[float], Sequence[float]] | None = None):
     """Render ``geom`` (a library :class:`Geometry`) and return a PIL image (also saved to ``path`` if given).
 
     ``azimuth`` / ``elevation`` (degrees) default to the entry's camera; azimuth 0 looks from +x (behind for
-    vehicles, whose x points aft), measured toward +y."""
+    vehicles, whose x points aft), measured toward +y. ``frame``: (lo, hi) corners of a box to frame instead of
+    the geometry's own bounds, so the frames of an animation share one camera."""
     from PIL import Image, ImageDraw
 
     cam = geom.spec.camera
@@ -167,7 +169,12 @@ def render_geometry(geom, path: str | None = None, size: tuple[int, int] = (960,
     el = math.radians(cam.get("elevation", 18.0) if elevation is None else elevation)
     W, H = size[0] * ssaa, size[1] * ssaa
     V, F, CN, base, metal, rough, emis = _gather(geom)
-    lo, hi = V.min(0), V.max(0)
+    if frame is None:
+        fit = V
+    else:
+        (x0, y0, z0), (x1, y1, z1) = frame
+        fit = np.array([[x, y, z] for x in (x0, x1) for y in (y0, y1) for z in (z0, z1)], float)
+    lo, hi = fit.min(0), fit.max(0)
     ctr = 0.5 * (lo + hi)
     rad = 0.5 * float(np.linalg.norm(hi - lo))
     d = np.array([math.cos(el) * math.cos(az), math.cos(el) * math.sin(az), math.sin(el)])
@@ -179,9 +186,11 @@ def render_geometry(geom, path: str | None = None, size: tuple[int, int] = (960,
     f = 1.0 / math.tan(math.radians(fov_deg) / 2)
     nx, ny = f * Pc[:, 0] / depth, f * Pc[:, 1] / depth
     asp = W / H
-    # fit: zoom and centre so the projected model fills `margin` of the frame
-    cx, cy = 0.5 * (nx.min() + nx.max()), 0.5 * (ny.min() + ny.max())
-    zoom = margin * min(2 * asp / max(np.ptp(nx), 1e-9), 2 / max(np.ptp(ny), 1e-9))
+    # fit: zoom and centre so the projected model (or the given frame box) fills `margin` of the frame
+    Pf = (fit - eye) @ R.T
+    fx, fy = f * Pf[:, 0] / -Pf[:, 2], f * Pf[:, 1] / -Pf[:, 2]
+    cx, cy = 0.5 * (fx.min() + fx.max()), 0.5 * (fy.min() + fy.max())
+    zoom = margin * min(2 * asp / max(np.ptp(fx), 1e-9), 2 / max(np.ptp(fy), 1e-9))
     sx = ((nx - cx) * zoom / asp * 0.5 + 0.5) * W
     sy = (0.5 - (ny - cy) * zoom * 0.5) * H
     zb, ib, b0, b1 = rasterize(sx, sy, depth, F, W, H, persp=True)

@@ -21,6 +21,13 @@
   #ctl input[type=number] { width: 78px; font: inherit; padding: 2px 4px; }
   #ctl button, #ctl select { font: inherit; border: 1px solid #cbd5e1; background: #fff; border-radius: 5px; padding: 2px 8px; cursor: pointer; }
   #load { position: absolute; inset: 0; display: grid; place-items: center; color: #475569; }
+  #anim { position: absolute; left: 14px; right: 14px; bottom: 10px; display: none; flex-wrap: wrap; align-items: center; gap: 10px; background: #ffffffeb; border-radius: 8px; padding: 6px 10px; font-size: 13px; z-index: 2; }
+  #anim button, #anim select { font: inherit; border: 1px solid #cbd5e1; background: #fff; border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+  #anim #aslider { flex: 1 1 200px; min-width: 120px; }
+  #anim #atime { font-variant-numeric: tabular-nums; min-width: 110px; }
+  #hud { position: absolute; left: 14px; top: 58px; background: #0f172acc; color: #f8fafc; border-radius: 8px; padding: 7px 11px; font: 13px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; display: none; z-index: 1; pointer-events: none; }
+  #alegend { position: absolute; right: 14px; top: 58px; background: #ffffffe6; border-radius: 8px; padding: 8px 12px; display: none; max-width: 90vw; }
+  body.anim #ctl { bottom: 62px; } body.anim #legend { bottom: 62px; } body.anim #foot { display: none; }
   #foot { position: absolute; left: 14px; bottom: 12px; font-size: 12px; color: #475569; background: #ffffffb0; border-radius: 6px; padding: 3px 7px; }
 </style>
 <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.min.js" } }</script>
@@ -31,6 +38,9 @@
   <div id="views"><button data-v="iso">3/4</button><button data-v="front">Front</button><button data-v="side">Side</button><button data-v="top">Top</button><button id="shot">PNG</button></div></div>
 <div id="legend"></div>
 <div id="ctl"></div>
+<div id="hud"></div>
+<div id="alegend"></div>
+<div id="anim"></div>
 <div id="foot">PINNeAPPle studio · drag to orbit, scroll to zoom</div>
 <script type="module" src="viewer.js"></script>
 </body>

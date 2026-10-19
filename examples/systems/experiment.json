@@ -1,0 +1,36 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/systems",
+ "title": "Component registry + toolbox + physics-informed fit, end to end",
+ "description": "Component registry + toolbox + physics-informed fit, end to end. Builds a \"pipe\" component (VanillaPINN backbone, mass-conservation physics), trains it on synthetic collocation data, evaluates it, and shows the installed \"Fluid Mechanics Toolbox\" it belongs to. Run:",
+ "domain": "system dynamics",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_systems.component_library"
+ ],
+ "params": {},
+ "scripts": [
+  "01_component_library_toolbox.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/systems/01_component_library_toolbox.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

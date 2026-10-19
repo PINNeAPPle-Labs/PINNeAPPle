@@ -1,0 +1,45 @@
+{
+ "name": "torque_vs_current_angle",
+ "description": "Prius IPM mean torque at 250 A against current angle: this FEA, GetDP and the published curve of Yang et al. (2013)",
+ "n_samples": 13,
+ "shards": 1,
+ "schema": {
+  "phi0_deg": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 60.0,
+   "max": 180.0
+  },
+  "torque_pinneapple": {
+   "kind": "scalar",
+   "type": "float",
+   "min": -3.385366061555336e-12,
+   "max": 345.64594730530865
+  },
+  "torque_getdp": {
+   "kind": "scalar",
+   "type": "float",
+   "min": -0.2368842402143012,
+   "max": 344.9815683217251
+  },
+  "torque_yang_2013": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 22.0,
+   "max": 353.0
+  }
+ },
+ "units": {
+  "phi0": "deg",
+  "T": "N m"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-4104d166d1c0",
+  "params": {
+   "source": "prius_pmsm"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

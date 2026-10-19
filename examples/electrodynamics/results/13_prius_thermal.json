@@ -1,0 +1,393 @@
+{
+ "magnet_temperature_sweep": [
+  {
+   "magnet_temperature_C": 20.0,
+   "Br_T": 1.24,
+   "mtpa_gamma_deg": 50.304205616938326,
+   "torque_Nm": 345.60497177686904,
+   "ripple": 0.22888372401275334,
+   "L_d_mH": 1.3859573864874903,
+   "L_q_mH": 2.435186668660399,
+   "psi_pm_Wb": 0.21421020895396062,
+   "emf_phase_fundamental_peak_V_1000rpm": 87.61931589092629
+  },
+  {
+   "magnet_temperature_C": 60.0,
+   "Br_T": 1.1904,
+   "mtpa_gamma_deg": 50.55332010443291,
+   "torque_Nm": 338.7179082383738,
+   "ripple": 0.23254170020376033,
+   "L_d_mH": 1.3862718183479676,
+   "L_q_mH": 2.4426781821390153,
+   "psi_pm_Wb": 0.20531117368572765,
+   "emf_phase_fundamental_peak_V_1000rpm": 83.97628121665208
+  },
+  {
+   "magnet_temperature_C": 100.0,
+   "Br_T": 1.1408,
+   "mtpa_gamma_deg": 50.956395812289145,
+   "torque_Nm": 331.63292320949955,
+   "ripple": 0.2334362847857414,
+   "L_d_mH": 1.3875807283020984,
+   "L_q_mH": 2.4581699073906544,
+   "psi_pm_Wb": 0.1965687436567128,
+   "emf_phase_fundamental_peak_V_1000rpm": 80.2293606560318
+  },
+  {
+   "magnet_temperature_C": 150.0,
+   "Br_T": 1.0788,
+   "mtpa_gamma_deg": 51.35947152014538,
+   "torque_Nm": 322.59469556977666,
+   "ripple": 0.23214683715534573,
+   "L_d_mH": 1.3893844580625896,
+   "L_q_mH": 2.473563800495365,
+   "psi_pm_Wb": 0.1855591267118185,
+   "emf_phase_fundamental_peak_V_1000rpm": 75.44266372679986
+  }
+ ],
+ "iron_split": {
+  "yoke": 0.26282761768604956,
+  "teeth": 0.6337779176164349,
+  "rotor": 0.10339446469751548
+ },
+ "wltc_cycles": 4,
+ "peak_temperatures_C": {
+  "yoke": 71.88097558900056,
+  "teeth": 82.50518740460485,
+  "winding": 80.33684193660206,
+  "end_winding": 75.110256029819,
+  "rotor": 78.48675200497999,
+  "magnets": 78.48668955294256
+ },
+ "mean_losses_W": {
+  "copper": 298.13479288038036,
+  "iron": 246.6502428234695,
+  "magnet": 0.20480710386462198
+ },
+ "peak_load": {
+  "torque_Nm": 343.2127035990886,
+  "rpm": 1500,
+  "copper_W": 8751.65284626098,
+  "iron_W": 381.76680337793283,
+  "magnet_W": 29.785610064509445,
+  "time_to_180C_winding_s": 237.0
+ },
+ "demagnetisation": {
+  "magnet_temperature_C": 127.40719109020533,
+  "beta_Hcj_per_K": -0.0055,
+  "short_circuit_peak_estimate_A": 165.43982061321339,
+  "cases": {
+   "i_d = -250 A": {
+    "N": {
+     "H_rev_max": 718956.9288006551,
+     "margin": -328141.98797480756,
+     "Hcj": 390814.9408258475,
+     "demagnetised_fraction": 0.9935897435897436
+    },
+    "M": {
+     "H_rev_max": 718956.9288006551,
+     "margin": -263006.16450383305,
+     "Hcj": 455950.764296822,
+     "demagnetised_fraction": 0.9333727357569997
+    },
+    "H": {
+     "H_rev_max": 718956.9288006551,
+     "margin": -165302.42929737107,
+     "Hcj": 553654.499503284,
+     "demagnetised_fraction": 0.185839267085498
+    },
+    "SH": {
+     "H_rev_max": 718956.9288006551,
+     "margin": -67598.69409090932,
+     "Hcj": 651358.2347097457,
+     "demagnetised_fraction": 0.023504273504273563
+    },
+    "UH": {
+     "H_rev_max": 718956.9288006551,
+     "margin": 95240.86458652723,
+     "Hcj": 814197.7933871823,
+     "demagnetised_fraction": 0.0
+    }
+   },
+   "short-circuit peak 2 psi/L_d = -165 A": {
+    "N": {
+     "H_rev_max": 517272.1375730757,
+     "margin": -126457.19674722821,
+     "Hcj": 390814.9408258475,
+     "demagnetised_fraction": 0.31797887344958453
+    },
+    "M": {
+     "H_rev_max": 517272.1375730757,
+     "margin": -61321.3732762537,
+     "Hcj": 455950.764296822,
+     "demagnetised_fraction": 0.031772869141833096
+    },
+    "H": {
+     "H_rev_max": 517272.1375730757,
+     "margin": 36382.36193020828,
+     "Hcj": 553654.499503284,
+     "demagnetised_fraction": 0.0
+    },
+    "SH": {
+     "H_rev_max": 517272.1375730757,
+     "margin": 134086.09713667003,
+     "Hcj": 651358.2347097457,
+     "demagnetised_fraction": 0.0
+    },
+    "UH": {
+     "H_rev_max": 517272.1375730757,
+     "margin": 296925.6558141066,
+     "Hcj": 814197.7933871823,
+     "demagnetised_fraction": 0.0
+    }
+   }
+  },
+  "mesh_refinement": [
+   {
+    "grading": 0.2,
+    "magnet_elements": 784,
+    "cases": {
+     "i_d = -250 A": {
+      "N": {
+       "ratio_max": 1.839635217838389,
+       "demagnetised_fraction": 0.9935897435897436,
+       "fraction_above_margin": 1.0
+      },
+      "M": {
+       "ratio_max": 1.5768301867186194,
+       "demagnetised_fraction": 0.9333727357569997,
+       "fraction_above_margin": 0.9638214537057176
+      },
+      "H": {
+       "ratio_max": 1.2985660361212157,
+       "demagnetised_fraction": 0.185839267085498,
+       "fraction_above_margin": 0.8343317573921474
+      },
+      "SH": {
+       "ratio_max": 1.1037811307030336,
+       "demagnetised_fraction": 0.023504273504273563,
+       "fraction_above_margin": 0.0756958136828421
+      },
+      "UH": {
+       "ratio_max": 0.8830249045624267,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      }
+     },
+     "short-circuit peak 2 psi/L_d = -165 A": {
+      "N": {
+       "ratio_max": 1.3235730867402515,
+       "demagnetised_fraction": 0.31797887344958453,
+       "fraction_above_margin": 0.9066945012299535
+      },
+      "M": {
+       "ratio_max": 1.13449121720593,
+       "demagnetised_fraction": 0.031772869141833096,
+       "fraction_above_margin": 0.10898312142877914
+      },
+      "H": {
+       "ratio_max": 0.9342868847578245,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.01971487713675219
+      },
+      "SH": {
+       "ratio_max": 0.794143852044151,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      },
+      "UH": {
+       "ratio_max": 0.6353150816353207,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      }
+     }
+    },
+    "magnet_element_size_m": 0.002239260081876538
+   },
+   {
+    "grading": 0.1,
+    "magnet_elements": 1920,
+    "cases": {
+     "i_d = -250 A": {
+      "N": {
+       "ratio_max": 2.023712652838778,
+       "demagnetised_fraction": 0.9791597031541824,
+       "fraction_above_margin": 0.991176876911341
+      },
+      "M": {
+       "ratio_max": 1.7346108452903812,
+       "demagnetised_fraction": 0.9341215730589824,
+       "fraction_above_margin": 0.9748348370893316
+      },
+      "H": {
+       "ratio_max": 1.4285030490626667,
+       "demagnetised_fraction": 0.19414546988576312,
+       "fraction_above_margin": 0.8547715092331123
+      },
+      "SH": {
+       "ratio_max": 1.2142275917032668,
+       "demagnetised_fraction": 0.025857035155579685,
+       "fraction_above_margin": 0.08288874959500743
+      },
+      "UH": {
+       "ratio_max": 0.9713820733626133,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.006669078905529228
+      }
+     },
+     "short-circuit peak 2 psi/L_d = -165 A": {
+      "N": {
+       "ratio_max": 1.4613513436564753,
+       "demagnetised_fraction": 0.3146482536825927,
+       "fraction_above_margin": 0.8789483493934503
+      },
+      "M": {
+       "ratio_max": 1.252586865991265,
+       "demagnetised_fraction": 0.033411434354334454,
+       "fraction_above_margin": 0.12268391328970005
+      },
+      "H": {
+       "ratio_max": 1.0315421249339825,
+       "demagnetised_fraction": 0.0019682242046744638,
+       "fraction_above_margin": 0.010226134681812098
+      },
+      "SH": {
+       "ratio_max": 0.8768108061938854,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      },
+      "UH": {
+       "ratio_max": 0.7014486449551082,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      }
+     }
+    },
+    "magnet_element_size_m": 0.0014309088021254182
+   },
+   {
+    "grading": 0.05,
+    "magnet_elements": 4224,
+    "cases": {
+     "i_d = -250 A": {
+      "N": {
+       "ratio_max": 2.06534965048857,
+       "demagnetised_fraction": 0.9846503272887959,
+       "fraction_above_margin": 0.9881873217575565
+      },
+      "M": {
+       "ratio_max": 1.7702997004187744,
+       "demagnetised_fraction": 0.9353362113306697,
+       "fraction_above_margin": 0.9675963959224478
+      },
+      "H": {
+       "ratio_max": 1.457893870933108,
+       "demagnetised_fraction": 0.18643513625577915,
+       "fraction_above_margin": 0.8552430674628824
+      },
+      "SH": {
+       "ratio_max": 1.239209790293142,
+       "demagnetised_fraction": 0.020013809599798697,
+       "fraction_above_margin": 0.07503521678433032
+      },
+      "UH": {
+       "ratio_max": 0.9913678322345135,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0071159907991084
+      }
+     },
+     "short-circuit peak 2 psi/L_d = -165 A": {
+      "N": {
+       "ratio_max": 1.496457272659313,
+       "demagnetised_fraction": 0.3196342712161712,
+       "fraction_above_margin": 0.8935536854451973
+      },
+      "M": {
+       "ratio_max": 1.2826776622794114,
+       "demagnetised_fraction": 0.0414154285381556,
+       "fraction_above_margin": 0.1396564853278268
+      },
+      "H": {
+       "ratio_max": 1.0563227807006914,
+       "demagnetised_fraction": 0.004313735724447512,
+       "fraction_above_margin": 0.011150185922326514
+      },
+      "SH": {
+       "ratio_max": 0.8978743635955879,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      },
+      "UH": {
+       "ratio_max": 0.7182994908764703,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      }
+     }
+    },
+    "magnet_element_size_m": 0.0009647185175903997
+   },
+   {
+    "grading": 0.025,
+    "magnet_elements": 7216,
+    "cases": {
+     "i_d = -250 A": {
+      "N": {
+       "ratio_max": 2.1459265085481425,
+       "demagnetised_fraction": 0.9794529173480202,
+       "fraction_above_margin": 0.9840502905745334
+      },
+      "M": {
+       "ratio_max": 1.8393655787555507,
+       "demagnetised_fraction": 0.9382107582569302,
+       "fraction_above_margin": 0.9742301528173298
+      },
+      "H": {
+       "ratio_max": 1.5147716530928061,
+       "demagnetised_fraction": 0.18841112236443516,
+       "fraction_above_margin": 0.8514162376270435
+      },
+      "SH": {
+       "ratio_max": 1.2875559051288856,
+       "demagnetised_fraction": 0.023040407568008795,
+       "fraction_above_margin": 0.08581309602169528
+      },
+      "UH": {
+       "ratio_max": 1.0300447241031083,
+       "demagnetised_fraction": 0.0018424853894189333,
+       "fraction_above_margin": 0.005337626044439774
+      }
+     },
+     "short-circuit peak 2 psi/L_d = -165 A": {
+      "N": {
+       "ratio_max": 1.5515276543894538,
+       "demagnetised_fraction": 0.31604078947204567,
+       "fraction_above_margin": 0.897042623520793
+      },
+      "M": {
+       "ratio_max": 1.329880846619532,
+       "demagnetised_fraction": 0.03549485234684899,
+       "fraction_above_margin": 0.13947653806890695
+      },
+      "H": {
+       "ratio_max": 1.0951959913337321,
+       "demagnetised_fraction": 0.002565719659586683,
+       "fraction_above_margin": 0.009892944107561698
+      },
+      "SH": {
+       "ratio_max": 0.9309165926336724,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0018424853894189333
+      },
+      "UH": {
+       "ratio_max": 0.7447332741069379,
+       "demagnetised_fraction": 0.0,
+       "fraction_above_margin": 0.0
+      }
+     }
+    },
+    "magnet_element_size_m": 0.0007380984737719481
+   }
+  ]
+ },
+ "seconds": 940.0571945239999
+}

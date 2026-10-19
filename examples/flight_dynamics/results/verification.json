@@ -1,0 +1,293 @@
+{
+ "turbulence": {
+  "cases": [
+   {
+    "generator": "FrozenLine",
+    "model": "dryden",
+    "component": "u",
+    "sigma_target": 7.050480000000001,
+    "sigma": 7.038389279382401,
+    "psd_ratio_min": 0.99155423943143,
+    "psd_ratio_max": 1.007005895218154
+   },
+   {
+    "generator": "FrozenLine",
+    "model": "dryden",
+    "component": "v",
+    "sigma_target": 7.050480000000001,
+    "sigma": 7.041755888504826,
+    "psd_ratio_min": 0.9904905091720042,
+    "psd_ratio_max": 1.0146445471441021
+   },
+   {
+    "generator": "FrozenLine",
+    "model": "dryden",
+    "component": "w",
+    "sigma_target": 7.050480000000001,
+    "sigma": 7.041755888504826,
+    "psd_ratio_min": 0.9923428436603814,
+    "psd_ratio_max": 1.0113234622647347
+   },
+   {
+    "generator": "FrozenLine",
+    "model": "von_karman",
+    "component": "u",
+    "sigma_target": 7.050480000000001,
+    "sigma": 7.018580538784683,
+    "psd_ratio_min": 0.9943549220755534,
+    "psd_ratio_max": 1.0151081124096402
+   },
+   {
+    "generator": "FrozenLine",
+    "model": "von_karman",
+    "component": "v",
+    "sigma_target": 7.050480000000001,
+    "sigma": 7.019179682190814,
+    "psd_ratio_min": 0.9884918504935797,
+    "psd_ratio_max": 1.0125990544679726
+   },
+   {
+    "generator": "FrozenLine",
+    "model": "von_karman",
+    "component": "w",
+    "sigma_target": 7.050480000000001,
+    "sigma": 7.0191796821908135,
+    "psd_ratio_min": 0.994587240134495,
+    "psd_ratio_max": 1.037019722346628
+   },
+   {
+    "generator": "DrydenFilter",
+    "model": "dryden",
+    "component": "u",
+    "sigma_target": 2.8785600000000002,
+    "sigma": 2.823390706093345,
+    "psd_ratio_min": 0.9746204670570673,
+    "psd_ratio_max": 1.069171076493106
+   },
+   {
+    "generator": "DrydenFilter",
+    "model": "dryden",
+    "component": "v",
+    "sigma_target": 2.8785600000000002,
+    "sigma": 2.8943564608410153,
+    "psd_ratio_min": 0.9331016586451891,
+    "psd_ratio_max": 1.0503655151110474
+   },
+   {
+    "generator": "DrydenFilter",
+    "model": "dryden",
+    "component": "w",
+    "sigma_target": 2.8785600000000002,
+    "sigma": 2.794692681879422,
+    "psd_ratio_min": 0.9551677503829218,
+    "psd_ratio_max": 1.0643862840702256
+   },
+   {
+    "generator": "FrozenField3D",
+    "model": "von_karman",
+    "component": "u",
+    "sigma_target": 6.990867262650814,
+    "sigma": 6.917059804557012,
+    "psd_ratio_min": 0.7897986266430264,
+    "psd_ratio_max": 1.0901804170468246,
+    "psd_ratio_high_band": [
+     0.6243451136797294,
+     0.5961053647015423,
+     0.31815368943062394,
+     0.12140824801966865
+    ]
+   },
+   {
+    "generator": "FrozenField3D",
+    "model": "von_karman",
+    "component": "v",
+    "sigma_target": 6.990867262650814,
+    "sigma": 7.465483154110868,
+    "psd_ratio_min": 0.8375896312304737,
+    "psd_ratio_max": 1.3388440922523892,
+    "psd_ratio_high_band": [
+     1.0003693666436297,
+     0.8697260894148283,
+     0.6140226599782393,
+     0.5189199084379916
+    ]
+   },
+   {
+    "generator": "FrozenField3D",
+    "model": "von_karman",
+    "component": "w",
+    "sigma_target": 6.990867262650814,
+    "sigma": 6.3405765168522885,
+    "psd_ratio_min": 0.6581895887264392,
+    "psd_ratio_max": 1.1818920075892885,
+    "psd_ratio_high_band": [
+     0.7235965961922848,
+     0.7304013172441645,
+     0.853609632487286,
+     0.29704554362327035
+    ]
+   }
+  ],
+  "field3d_variance_fraction": 0.9831612257392831,
+  "field3d_band_rad_m": [
+   2.6246719160104988e-05,
+   0.7853981633974483
+  ],
+  "field3d_dx_min_m": 2.0
+ },
+ "trim": [
+  {
+   "aircraft": "light_ga",
+   "V": 55.0,
+   "altitude": 1500.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 2.996030921169528,
+   "theta_deg": 2.996030921169528,
+   "elevator_deg": -1.6094013513673693,
+   "throttle": 0.7394412201533278,
+   "CL": 0.41406549867552184,
+   "residual": 1.4422201293043387e-14,
+   "feasible": true,
+   "hold_s": 10.0,
+   "dV_max": 1.0000036354540498e-09,
+   "dh_max": 0.0,
+   "dnz_max": 0.0013668421470064418,
+   "dtheta_max_deg": 3.975693351829396e-16
+  },
+  {
+   "aircraft": "regional_turboprop",
+   "V": 120.0,
+   "altitude": 3000.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 1.4479339786177559,
+   "theta_deg": 1.4479339786177559,
+   "elevator_deg": -0.8284129521238716,
+   "throttle": 0.6988005601402515,
+   "CL": 0.5640530264355298,
+   "residual": 3.799752187558197e-15,
+   "feasible": true,
+   "hold_s": 10.0,
+   "dV_max": 1.000017846308765e-09,
+   "dh_max": 0.0,
+   "dnz_max": 0.00031930016727632626,
+   "dtheta_max_deg": 0.0
+  },
+  {
+   "aircraft": "a320",
+   "V": 128.0,
+   "altitude": 3000.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 6.8354478498289755,
+   "theta_deg": 6.8354478498289755,
+   "elevator_deg": -3.561217803685879,
+   "throttle": 0.29599968842654983,
+   "CL": 0.7844659631357201,
+   "residual": 1.118488673319333e-14,
+   "feasible": true,
+   "hold_s": 10.0,
+   "dV_max": 9.999894245993346e-10,
+   "dh_max": 0.0,
+   "dnz_max": 0.007107936293500705,
+   "dtheta_max_deg": 0.0
+  },
+  {
+   "aircraft": "motor_glider",
+   "V": 30.0,
+   "altitude": 1500.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 3.9796239179753936,
+   "theta_deg": 3.9796239179753936,
+   "elevator_deg": -2.41614841707819,
+   "throttle": 0.1597177246563511,
+   "CL": 0.9341635293241795,
+   "residual": 1.990483267090515e-14,
+   "feasible": true,
+   "hold_s": 10.0,
+   "dV_max": 1.0000036354540498e-09,
+   "dh_max": 0.0,
+   "dnz_max": 0.0024112053476799122,
+   "dtheta_max_deg": 1.5902773407317584e-15
+  }
+ ],
+ "conservation": {
+  "0.02": {
+   "energy_rel_error": 4.400790123313728e-10,
+   "momentum_rel_error": 2.6805440215490186e-09,
+   "quat_norm_error": 0.0,
+   "t_end": 20.0,
+   "dt": 0.02
+  },
+  "0.01": {
+   "energy_rel_error": 8.031223917958976e-12,
+   "momentum_rel_error": 1.6734936236992688e-10,
+   "quat_norm_error": 0.0,
+   "t_end": 20.0,
+   "dt": 0.01
+  },
+  "0.005": {
+   "energy_rel_error": 1.6153032200503471e-12,
+   "momentum_rel_error": 1.0450494667566552e-11,
+   "quat_norm_error": 0.0,
+   "t_end": 20.0,
+   "dt": 0.005
+  }
+ },
+ "lattice": [
+  {
+   "aircraft": "light_ga",
+   "alpha_deg": 0.0,
+   "CL_loop": 0.16172366725457354,
+   "CL_vlm": 0.16172366726104553,
+   "rel_diff": 4.001881555440111e-11
+  },
+  {
+   "aircraft": "light_ga",
+   "alpha_deg": 4.0,
+   "CL_loop": 0.5193752604442208,
+   "CL_vlm": 0.5200602217480705,
+   "rel_diff": 0.0013170807441250027
+  },
+  {
+   "aircraft": "regional_turboprop",
+   "alpha_deg": 0.0,
+   "CL_loop": 0.4256950802691551,
+   "CL_vlm": 0.42569508028619113,
+   "rel_diff": 4.001934726262859e-11
+  },
+  {
+   "aircraft": "regional_turboprop",
+   "alpha_deg": 4.0,
+   "CL_loop": 0.8254087812777542,
+   "CL_vlm": 0.8267714733608141,
+   "rel_diff": 0.0016482088787130292
+  },
+  {
+   "aircraft": "a320",
+   "alpha_deg": 0.0,
+   "CL_loop": 0.1863485708376108,
+   "CL_vlm": 0.18634857084506826,
+   "rel_diff": 4.0018827562322495e-11
+  },
+  {
+   "aircraft": "a320",
+   "alpha_deg": 4.0,
+   "CL_loop": 0.5564477583558968,
+   "CL_vlm": 0.5572028705397029,
+   "rel_diff": 0.0013551835852437142
+  },
+  {
+   "aircraft": "motor_glider",
+   "alpha_deg": 0.0,
+   "CL_loop": 0.5238468341115815,
+   "CL_vlm": 0.5238468341325463,
+   "rel_diff": 4.002083070316326e-11
+  },
+  {
+   "aircraft": "motor_glider",
+   "alpha_deg": 4.0,
+   "CL_loop": 0.9457152291215704,
+   "CL_vlm": 0.9473352150644271,
+   "rel_diff": 0.0017100451002938326
+  }
+ ]
+}

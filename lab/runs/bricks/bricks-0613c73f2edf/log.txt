@@ -1,0 +1,13 @@
+[16:08:50] stage closed-form checks started
+[16:08:52] stage closed-form checks done (2.163 s)
+[16:08:52] check harmonic stack (6 blocks): stability limit / closed form: PASS tolerance 0.001
+[16:08:52] check single block overhang limit / length: PASS tolerance 0.001
+[16:08:52] check stud cantilever brick_1x4 on 1 stud(s): tension per stud: PASS tolerance 1e-06
+[16:08:52] check stud cantilever brick_1x8 on 2 stud(s): tension per stud: PASS tolerance 1e-06
+[16:08:52] check tower of 8 2x2 bricks: tipping push at the top: PASS tolerance 1e-06
+[16:08:52] check plate beam: sum of support reactions: PASS tolerance 1e-06
+[16:08:52] check voxel FEA plate beam: mid-span deflection (Timoshenko): PASS tolerance 0.02
+[16:08:52] stage search started
+[16:17:00] stage search done (488.041 s)
+[16:17:00] check a_strategy_found_a_feasible_build: PASS 
+[16:17:00] check best_build_passes_statics: PASS carries 1.049 N at mid-span (1.05 x the 1.0 N load)

@@ -1,0 +1,70 @@
+diff --git a/pinneapple_lab/__main__.py b/pinneapple_lab/__main__.py
+index 946045df..a1e109df 100644
+--- a/pinneapple_lab/__main__.py
++++ b/pinneapple_lab/__main__.py
+@@ -12,6 +12,10 @@
+     python -m pinneapple_lab curate                                          # A flagship .. D not usable, per run
+     python -m pinneapple_lab brief --tier A,B --use paper -o paper_candidates.pdf     # reports, one or many items
+     python -m pinneapple_lab review kepler_law --novelty 4 --story "..." --approve paper,marketing
++    python -m pinneapple_lab seal repo_results/ahmed_body -o seal.svg                # the item's quality seal
++    python -m pinneapple_lab stamp repo_results/ahmed_body render.jpg -o out.jpg     # seal a figure / GIF / MP4
++    python -m pinneapple_lab stamp --all --out export/sealed                         # every figure of every A/B item
++    python -m pinneapple_lab showcase --lang en,pt --out docs/assets/showcase         # the animated panel
+ Use ``--root`` (or ``$PINNEAPPLE_LAB``) to choose the database folder.
+ """
+ from __future__ import annotations
+@@ -95,12 +99,54 @@ def main(argv=None) -> int:
+     ex.add_argument("--force", action="store_true")
+     st = sub.add_parser("site", help="write the self-contained public catalogue for a static host (GitHub Pages)")
+     st.add_argument("out", nargs="?", default="docs/lab")
++    se = sub.add_parser("seal", help="write the quality seal of a curated item (tier from the curation)")
++    se.add_argument("item")
++    se.add_argument("-o", "--out", required=True, help="seal.svg or seal.png")
++    se.add_argument("--height", type=int, default=96)
++    se.add_argument("--no-reason", action="store_true")
++    sp = sub.add_parser("stamp", help="stamp a figure, render, GIF or video with an item's seal")
++    sp.add_argument("item", nargs="?", default=None)
++    sp.add_argument("file", nargs="?", default=None)
++    sp.add_argument("-o", "--out", default=None, help="output file (default name.sealed.ext); with --all a folder")
++    sp.add_argument("--all", action="store_true", help="every figure of every A/B item into --out")
++    sp.add_argument("--tier", default="A,B")
++    sp.add_argument("--corner", default="auto", choices=["auto", "br", "tr", "bl", "tl"])
++    sp.add_argument("--size", type=float, default=0.24, help="seal width / image width")
++    sp.add_argument("--opacity", type=float, default=0.95)
++    sp.add_argument("--no-reason", action="store_true")
++    sh = sub.add_parser("showcase", help="the animated showcase panel (MP4, GIF, PNG) from the curation")
++    sh.add_argument("--lang", default="en", help="en, pt or en,pt")
++    sh.add_argument("--out", default="docs/assets/showcase")
++    sh.add_argument("--seconds", type=float, default=8.0)
++    sh.add_argument("--fps", type=int, default=15)
+     e = sub.add_parser("export")
+     e.add_argument("name")
+     e.add_argument("dataset")
+     e.add_argument("out")
+     a = ap.parse_args(argv)
+ 
++    if a.cmd == "seal":
++        from .seal import save_seal, seal_for
++        print(save_seal(seal_for(a.item, LabStore(a.root)), a.out, height=a.height, reason=not a.no_reason))
++        return 0
++    if a.cmd == "stamp":
++        from .seal import seal_for, stamp_all, stamp_file
++        kw = {"corner": a.corner, "size": a.size, "opacity": a.opacity, "reason": not a.no_reason}
++        if a.all:
++            man = stamp_all(LabStore(a.root), a.out or "export/sealed", tiers=tuple(a.tier.split(",")), **kw)
++            for k, v in man["items"].items():
++                print(f"{v['tier']}  {len(v['files']):3d} files  {k}")
++            return 0
++        if not (a.item and a.file):
++            ap.error("stamp needs ITEM FILE, or --all")
++        print(stamp_file(a.file, seal_for(a.item, LabStore(a.root)), a.out, **kw))
++        return 0
++    if a.cmd == "showcase":
++        from .showcase import panel
++        for lang in a.lang.split(","):
++            meta = panel(LabStore(a.root), lang=lang.strip(), out_dir=a.out, seconds=a.seconds, fps=a.fps)
++            print(json.dumps({k: meta[k] for k in ("files", "sizes_bytes")}, indent=1))
++        return 0
+     if a.cmd == "site":
+         from .html import write_site
+         print(write_site(LabStore(a.root), a.out))

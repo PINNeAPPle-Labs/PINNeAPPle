@@ -68,6 +68,9 @@
   "PC601",
   "PC602"
  ],
+ "peak-temperature": [
+  "PC303"
+ ],
  "datasets/darcy.npz": [
   "PC451",
   "PC452",

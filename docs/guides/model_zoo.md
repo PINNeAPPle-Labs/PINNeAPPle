@@ -32,6 +32,7 @@ The candidates that did not pass, and why, are listed in
 | `navier_stokes_2d_li2021_nu1e-3` | 2-D Navier–Stokes vorticity, ν = 10⁻³: 1200 runs on 64 × 64, t = 0…50 (Li et al. 2021); Hub-only, 12 shards, 919 MB |
 | `thermal_channel_cfd` | Actuated heated channel (2-D incompressible flow + heat, Re 100): 82 trajectories of u, v, p, T on 128 × 32 × 101 snapshots, with two unseen actuation families for testing; Hub-only, 8 shards, 360 MB |
 | `airfoil_rans_cst_re4e6_fields` | The cell fields (p, Ux, Uy, nut on the 20064-cell O-grid) of the 436 OpenFOAM runs of `airfoil_rans_cst_re4e6`, same splits; Hub-only, 5 files, 186 MB |
+| `cylinder_wake_lbm` | Confined cylinder wake (lattice Boltzmann, blockage 0.2): 720 vorticity snapshots of 9 saturated runs at Re 20–100, labelled by regime, Strouhal number and wake amplitude; Hub-only, 3 files, 64 MB |
 
 ## Quickstart
 
@@ -250,7 +251,9 @@ fields = test["fields"]                                   # (8, 101, 4, 128, 32)
 ## Hosting, cache and offline use
 
 Every file is listed in `pinneapple_hub/zoo/manifest.json` with its SHA-256, size, version and its Hugging Face Hub
-location (`huggingface.co/PINNeAPPle-Labs/<name>`, tag `v<version>`). A file is resolved in this order:
+location (`huggingface.co/PINNeAPPle-Labs/<name>`, tag `revision`: `v<version>`, or `v<version>.postN` when the same
+files were republished with a new card or derived formats; the loader then falls back to `v<version>` while the new
+tag does not exist yet, and checks the SHA-256 either way). A file is resolved in this order:
 
 1. **Bundled with the package.** This applies only to small items (under about 2 MB each). Larger datasets are
    Hub-only: one `<split>.npz` per split, possibly sharded into `<split>-NN.npz`, and `pp.datasets.load(name,
@@ -288,6 +291,39 @@ with the same held-out protocol (2000 Latin-hypercube states, seed 1000, disjoin
 the pull need not grow with slip at a fixed sinkage, so its gate checks that dFx/ds has the sign of the recorded
 reference instead of dFx/ds ≥ 0.
 
+## On the Hugging Face Hub
+
+What each repo holds besides the manifest's files, so the Hub's own tools work:
+
+- **Datasets: Parquet for the dataset viewer and `datasets.load_dataset`.** The npz files stay the source of truth
+  (the library reads them, SHA-256 checked). `pinneapple_hub.zoo.parquet.write_dataset` derives Parquet files from
+  them, deterministically, under `data/<config>/<split>-NNNNN.parquet`. Scalar columns are plain columns; array
+  columns are fixed-size list columns of their shape (`List(List(float32, length=128), length=128)`; use
+  `with_format("numpy")`). A sample larger than 512 KiB whose arrays share a leading axis (Navier-Stokes vorticity
+  in time, the heated-channel fields in time) is stored as one row per step, with `sample` and `step` columns, so
+  the viewer can show every row. Shards stay below 256 MiB uncompressed and row groups below 16 MiB. Splits with
+  other columns (a grid, a convergence study, an XFOIL polar) are separate configs. The README's YAML (`configs`
+  with the `data_files` of each split, `dataset_info` features and split sizes, licence, task category, size
+  category, tags) is written by `pinneapple_hub.zoo.hub_cards.dataset_card`, with the columns, units, provenance and
+  both ways of loading. `pinneapple_hub.zoo.parquet.read_parquet` puts a split back together; a test checks the
+  round trip npz -> Parquet -> arrays bit for bit.
+- **Models: safetensors, ONNX and an honest card.** Next to `weights.pt` the repo holds `model.safetensors` (the same
+  tensors; `pinneapple_hub.zoo.export.load_safetensors`), `model.onnx` (pre- and post-processing in the graph, parity
+  with PyTorch within 1e-5) and `example.json` (a held-out case, the model's outputs for it and the verdicts). The
+  card says `library_name: pinneapple`, `pipeline_tag: tabular-regression` and `inference: false`: no Hub inference
+  provider can run these models with their encoding, ensembles and validity checks, so the widget is off. Its "How to
+  use" code prints the numbers of `example.json`, and the publishing workflow runs it.
+- **The demo Space** [`PINNeAPPle-Labs/zoo-demo`](https://huggingface.co/spaces/PINNeAPPle-Labs/zoo-demo), linked from
+  every model card, replaces the widget. It is a static Space (no server, free for the organisation):
+  `pinneapple_hub.zoo.demo.export_space` computes, from the models published on the Hub, every model's prediction
+  along a sweep of each input with its ensemble spread or conformal bound and the verdict of its query checks at
+  every point, and writes them with each model's ONNX graph (prediction and query checks in one graph) and the
+  browser runtime (`pinneapple_hub/zoo/web`). The page (`apps/zoo_space`, UI only, with the Playground's charts)
+  plots a sweep, shades where the checks warn (yellow) or fail (red), and shows the checks at the chosen input and
+  the model's trust decision. **Evaluate in your browser** runs the graph on the visitor's own inputs.
+  `tests/js/zoo_space.test.mjs` runs every precomputed sweep again through the browser runtime and requires the
+  same numbers and the same verdicts as Python.
+
 To publish (maintainers):
 
 1. Add a repository secret `HF_TOKEN` with write access to the PINNeAPPle-Labs organisation.
@@ -296,8 +332,25 @@ To publish (maintainers):
 
 Hub-only items are not in the repository. To upload them, put their files on a branch as `<name>/<file>` (for
 example the output of `scripts/zoo/operator_data.py generate`) and run the workflow by hand with `staging_ref` set to
-that branch. Every staged file must match the SHA-256 in the manifest. Runs without `staging_ref` upload the bundled
-items and report Hub-only items that are not on the Hub yet, without failing.
+that branch. Every staged file must match the SHA-256 in the manifest. Runs without `staging_ref` convert the
+Hub-only datasets from the copy already on the Hub (downloaded, SHA-256 checked) and upload only their Parquet files
+and card.
+
+After the upload the workflow checks, anonymously, what the Hub serves, and fails when something is wrong:
+
+1. every manifest file at the tag (SHA-256);
+2. the dataset viewer of every dataset: datasets-server `is-valid` (preview and viewer, retried while the Hub
+   processes the push), `splits` (every split of the manifest is listed) and `first-rows` of every split;
+3. every model: loaded from the Hub with the bundled copy ignored, its card metrics reproduced on the stored
+   reference, the card's example reproduced by the PyTorch, safetensors and ONNX copies, the card's front matter,
+   and its "How to use" code run;
+4. the Space reaches `RUNNING` and serves its page, `index.json` and every model's sweeps.
+
+To republish files that did not change (a new card, new derived formats), bump the item's `revision` to the next
+`v<version>.postN`: the old tags stay as they are, so code pinned to them keeps working. Inputs of the manual run:
+`only` (some items), `tags=false` (upload to `main` without creating the tags, e.g. to try a branch; the model
+checks then wait for the tagged run) and `space`.
 
 Without the secret, the workflow checks the manifest and skips the upload with a warning.
-`python scripts/zoo/publish_to_hub.py --dry-run` lists the uploads.
+`python scripts/zoo/publish_to_hub.py --dry-run` builds the derived files and cards and lists the uploads;
+`--verify-viewer`, `--verify-models` and `--verify-space` run the checks from any machine that reaches the Hub.

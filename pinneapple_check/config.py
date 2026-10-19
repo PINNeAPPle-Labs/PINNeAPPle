@@ -45,11 +45,13 @@ __all__ = ["ConfigError", "Config", "ResultTarget", "ModelTarget", "Integrity", 
 
 CONFIG_NAMES = ("pinneapple-check.toml", ".pinneapple-check.toml")
 
-PHYSICS = ("incompressible-flow", "heat", "elasticity", "conservation", "none")
+PHYSICS = ("incompressible-flow", "heat", "elasticity", "conservation", "darcy", "maxwell", "none")
 _PHYSICS_ALIASES = {"incompressible": "incompressible-flow", "flow": "incompressible-flow", "navier-stokes":
                     "incompressible-flow", "stokes": "incompressible-flow", "heat-conduction": "heat",
                     "thermal": "heat", "diffusion": "heat", "linear-elasticity": "elasticity", "solid": "elasticity",
-                    "conservation-law": "conservation", "generic": "conservation"}
+                    "conservation-law": "conservation", "generic": "conservation", "darcy-flow": "darcy",
+                    "porous-media": "darcy", "electromagnetics": "maxwell", "electrodynamics": "maxwell",
+                    "em": "maxwell", "maxwell-equations": "maxwell"}
 
 #: Default tolerances (all relative, dimensionless). Override per target under ``tolerances``.
 DEFAULT_TOLERANCES: dict[str, float] = {
@@ -68,6 +70,16 @@ DEFAULT_TOLERANCES: dict[str, float] = {
     "hf-bias": 0.25,           # PC704 |E_pred / E_ref - 1| in the high-wavenumber band
     "qoi": 1e-2,               # PC702 relative tolerance of a quantity of interest (default)
     "fraction-slack": 1e-6,    # PC402 slack on [0, 1] for fractions
+    "darcy-energy": 1e-1,      # PC301 darcy: certified relative energy-norm error bound from the FV residual
+    "darcy-l2": 5e-2,          # PC301 darcy: certified relative L2 error bound (same 5 % as a reference comparison)
+    "darcy-flux": 2e-2,        # PC101 darcy: |net boundary flux - source integral| / source integral
+    "darcy-bc": 2e-2,          # PC201 darcy: RMS of u extrapolated to the boundary / max |u|
+    "darcy-positivity": 1e-2,  # PC402 darcy: most negative u / max |u| (maximum principle, f >= 0)
+    "maxwell-gauss": 5e-2,     # PC102 maxwell: relative residual of div D = rho and div B = 0 (central differences)
+    "maxwell-faraday": 5e-2,   # PC301 maxwell: relative residual of curl E + dB/dt = 0
+    "maxwell-ampere": 5e-2,    # PC301 maxwell: relative residual of curl H - J - dD/dt = 0
+    "maxwell-continuity": 5e-2,  # PC301 maxwell: relative residual of d rho/dt + div J = 0
+    "maxwell-energy": 5e-2,    # PC103 maxwell: Poynting balance over the grid box / largest term
 }
 
 
@@ -125,6 +137,7 @@ class ResultTarget(_Target):
     fields: list[str] | None = None
     flux: dict[str, str] = field(default_factory=dict)     # conservation: {"q": "flux column"}
     conserved: list[str] = field(default_factory=list)
+    envelope: dict[str, Any] = field(default_factory=dict)  # darcy: training envelope of the coefficient (PC401)
 
 
 @dataclass
@@ -142,6 +155,7 @@ class ModelTarget(_Target):
     method: str | None = None
     n_points: int = 1024
     seed: int = 0
+    relations: list[dict[str, Any]] = field(default_factory=list)   # metamorphic relations (PC303)
 
 
 @dataclass
@@ -402,21 +416,47 @@ def _common(r: dict[str, Any], base: Path, where: str) -> dict[str, Any]:
 
 def _result(r: dict[str, Any], base: Path, where: str) -> ResultTarget:
     known = {"name", "path", "physics", "parameters", "units", "bounds", "bc", "ic", "reference", "tolerances",
-             "sha256", "kind", "time", "fields", "flux", "conserved"}
+             "sha256", "kind", "time", "fields", "flux", "conserved", "envelope"}
     if set(r) - known:
         raise ConfigError(f"{where}: unknown key(s) {', '.join(sorted(set(r) - known))}")
     c = _common(r, base, where)
     for k, v in c["bounds"].items():
         if len(v) != 2:
             raise ConfigError(f"{where}: bounds.{k} must be [low, high] (use \"-inf\"/\"inf\" or false for open)")
+    env = {str(k): v for k, v in (r.get("envelope") or {}).items()}
+    bad = set(env) - {"a-min", "a-max", "contrast", "high-fraction", "interface-density"}
+    if bad:
+        raise ConfigError(f"{where}: unknown envelope key(s) {', '.join(sorted(bad))} (a-min, a-max, contrast, "
+                          "high-fraction, interface-density)")
+    for k, v in env.items():
+        if k not in ("a-min", "a-max") and (not isinstance(v, list) or len(v) != 2):
+            raise ConfigError(f"{where}: envelope.{k} must be [low, high]")
     return ResultTarget(**c, kind=r.get("kind"), time=None if r.get("time") in (None, "latest") else str(r["time"]),
-                        fields=r.get("fields"), flux=dict(r.get("flux") or {}), conserved=list(r.get("conserved") or []))
+                        fields=r.get("fields"), flux=dict(r.get("flux") or {}), conserved=list(r.get("conserved") or []),
+                        envelope=env)
+
+
+_RELATION_KINDS = {"monotonic": {"input", "output"}, "invariant": {"inputs", "output"},
+                   "symmetric": {"inputs"}, "superposition": set()}
+
+
+def _relations(v: Any, where: str) -> list[dict[str, Any]]:
+    """``relations = [{kind = "monotonic", input = "q", output = "T", direction = "increasing"}, ...]`` (PC303)."""
+    out = []
+    for i, r in enumerate(v or []):
+        if not isinstance(r, dict) or r.get("kind") not in _RELATION_KINDS:
+            raise ConfigError(f"{where}: relations[{i}] needs kind = {' | '.join(_RELATION_KINDS)}")
+        missing = _RELATION_KINDS[r["kind"]] - set(r)
+        if missing:
+            raise ConfigError(f"{where}: relations[{i}] ({r['kind']}) needs {', '.join(sorted(missing))}")
+        out.append(dict(r))
+    return out
 
 
 def _model(r: dict[str, Any], base: Path, where: str) -> ModelTarget:
     known = {"name", "path", "hub", "zoo", "physics", "parameters", "units", "bounds", "bc", "ic", "reference",
              "tolerances", "sha256", "architecture", "config", "inputs", "outputs", "train-range", "train-samples",
-             "queries", "domain", "method", "n-points", "seed"}
+             "queries", "domain", "method", "n-points", "seed", "relations"}
     if set(r) - known:
         raise ConfigError(f"{where}: unknown key(s) {', '.join(sorted(set(r) - known))}")
     c = _common(r, base, where)
@@ -433,7 +473,8 @@ def _model(r: dict[str, Any], base: Path, where: str) -> ModelTarget:
         train_samples=base / r["train-samples"] if r.get("train-samples") else None,
         queries=base / r["queries"] if r.get("queries") else None,
         domain={k: [float(a) for a in v] for k, v in (r.get("domain") or {}).items()},
-        method=r.get("method"), n_points=int(r.get("n-points", 1024)), seed=int(r.get("seed", 0)))
+        method=r.get("method"), n_points=int(r.get("n-points", 1024)), seed=int(r.get("seed", 0)),
+        relations=_relations(r.get("relations"), where))
 
 
 # ---------------------------------------------------------------------------------------------- discovery

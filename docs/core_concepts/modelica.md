@@ -16,6 +16,7 @@ data and checked surrogates:
 | `omc.omc_available()` | Returns `"local"` (omc on the PATH), `"docker"` (the image `openmodelica/openmodelica:v1.24.4-minimal`, or `PINNEAPPLE_OMC_IMAGE`) or None |
 | `sweep.fmu_sweep(fmu, ranges, n, stop_time, output_interval, outputs, step_size=...)` | Latin-hypercube sweep on one output grid. Returns an `FMUDataset` (`params`, `time`, `outputs`, `split`, `save` / `load`) |
 | `simulate_fmu`, `fmu_to_upd` | One FMU run, as arrays or as a `PhysicalSample` |
+| `fmi_compat.check_fmus(fmus, exporter)` | Run FMUs in every interface they offer (CS, ME) and tabulate what passed; see [FMI import compatibility](../guides/fmi_compatibility.md) |
 
 OpenModelica does not need to be installed. If Docker is available, the helpers run omc from the official image
 and mount only the working directory.

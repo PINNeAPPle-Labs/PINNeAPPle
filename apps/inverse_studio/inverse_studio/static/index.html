@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inverse Model Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%23b45309%22/%3E%3Cpath d=%22M3 5h10M3 8h7M3 11h4%22 stroke=%22white%22 stroke-width=%221.5%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M2.5 4.5h11M2.5 8h8M2.5 11.5h4.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M11 9.5l2.5 2-2.5 2" stroke="#fde68a" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></div>
+    <div>
+      <div class="title">Inverse Model Studio</div>
+      <div class="subtitle">From measurements back to the unknown parameters and fields: one problem, five methods, the same data, checked</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="lab" class="active">Studio</button>
+    <button data-tab="api">API &amp; Python</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-lab" class="tab active">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>Formulate the problem</h2>
+        <p class="hint">Measurements, the physical model and geometry, and the unknowns: parameters, boundary conditions,
+          or the zones of a field. Held-out measurements are never fitted and decide which method generalises best.
+          The heat examples are the <a class="link" id="ihl" href="https://inverse.pinneapple.org" target="_blank" rel="noopener">Inverse Heat Lab</a>'s.</p>
+        <label>Try with example <select id="preset"><option value="">—</option></select></label>
+        <div class="hint" id="preset-note"></div>
+        <div id="editor"></div>
+        <fieldset><legend>Methods (same data)</legend>
+          <div class="mlist" id="methods"></div>
+          <div class="row2">
+            <label>Bayesian prior width <span class="u">σ, ln units</span><input id="o-prior" type="number" value="1" step="0.5" min="0.1"></label>
+            <label>Field smoothness <span class="u">weight on zone jumps</span><input id="o-smooth" type="number" value="0" step="0.1" min="0"></label>
+          </div>
+          <label id="pinn-row" hidden>PINN training steps <input id="o-pinn" type="number" value="1500" min="200" max="3000"></label>
+        </fieldset>
+        <button class="primary" type="button" id="run">Solve with every method</button>
+        <div class="status-line" id="status"></div>
+      </form>
+      <div class="panel" id="out">
+        <div class="empty">
+          <h3>What comes out</h3>
+          <ul class="list-plain">
+            <li><b>Estimated parameters</b> from every method, with their 95 % intervals where the method gives one,
+              side by side on the same data.</li>
+            <li><b>Reconstructed physical fields</b> (temperature profile and map, the h(x) field) per method, against the
+              known truth on the examples.</li>
+            <li><b>Validation</b>: residuals, the error on held-out measurements, the identifiability diagnosis
+              (what the data cannot determine), and whether each method recovered the known answer.</li>
+            <li><b>Cost</b>: model runs and time per method: the adjoint gradient costs one extra solve whatever the
+              number of unknowns.</li>
+          </ul>
+          <p class="hint">Pick an example on the left. The classical methods take seconds; a PINN trains for about a minute.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-api" class="tab">
+    <div class="panel">
+      <h2>REST API</h2>
+      <p>The interactive reference is at <a class="link" href="/docs">/docs</a>. Jobs, usage and API keys come from the shared
+        app runtime (<code>GET /api/jobs/{id}</code>, <code>GET /api/usage</code>, <code>X-API-Key</code>).</p>
+      <pre class="code" id="api-code"></pre>
+      <h2>The same in Python</h2>
+      <pre class="code">import pinneapple_analysis.inverse_problems as inv
+
+problem = inv.get_preset("rod_h_field").problem()          # or inv.InverseProblem(model, obs, params, validation)
+print(inv.available_methods(problem))                       # which methods apply, and why not
+out = inv.compare_methods(problem, ["least_squares", "adjoint", "autodiff", "bayesian"])
+for row in out["table"]:
+    print(row["method"], row["validation_rmse"], row["forward_evaluations"], row["truth_recovered"])</pre>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  Built on <b>PINNeAPPle</b> (<code>pinneapple_analysis.inverse_problems</code>): one problem formulation; least squares,
+  discrete adjoint, PyTorch autodiff, Bayesian MAP + MCMC and the Inverse Heat Lab's physics-informed networks; the
+  identifiability core of the Parameter Identifiability Lab.
+</footer>
+<script src="/shared/scope.js"></script>
+<script src="/shared/author.js"></script>
+<script src="/shared/inverse.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

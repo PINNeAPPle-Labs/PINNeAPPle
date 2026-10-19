@@ -34,6 +34,10 @@ class Experiment:
     limitations: list[str] | dict[str, list[str]] = []   # known limits, stated up front; a dict maps case -> limits
     case_param: str = ""         # a parameter that selects distinct cases (curation lists each case separately)
     case_descriptions: dict[str, str] = {}   # case -> one-paragraph description (reports, catalogue)
+    # check name -> {"en": short line, "pt": its translation, "short"/"short_pt": a shorter form for small tiles,
+    # "also": [other checks the line claims]}: what a seal or a
+    # showcase tile prints for the item's headline check (``pinneapple_lab.curation.headline``)
+    check_labels: dict[str, dict] = {}
     # ``code_for(params)`` (optional classmethod): more files to snapshot, chosen by the run's parameters
 
     def run(self, ctx) -> None:  # pragma: no cover - interface

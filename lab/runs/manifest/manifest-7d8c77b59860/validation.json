@@ -1,0 +1,110 @@
+[
+ {
+  "name": "harmonic stack (6 blocks): stability limit / closed form",
+  "passed": true,
+  "value": 1.0,
+  "reference": 1.0,
+  "rtol": 0.001,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "single block overhang limit / length",
+  "passed": true,
+  "value": 0.5,
+  "reference": 0.5,
+  "rtol": 0.001,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "stud cantilever brick_1x4 on 1 stud(s): tension per stud",
+  "passed": true,
+  "value": 0.030803399999999998,
+  "reference": 0.0308034,
+  "rtol": 1e-06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "stud cantilever brick_1x8 on 2 stud(s): tension per stud",
+  "passed": true,
+  "value": 0.029724300000000006,
+  "reference": 0.029724300000000002,
+  "rtol": 1e-06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "tower of 8 2x2 bricks: tipping push at the top",
+  "passed": true,
+  "value": 0.00940125,
+  "reference": 0.009401249999999998,
+  "rtol": 1e-06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "plate beam: sum of support reactions",
+  "passed": true,
+  "value": 0.11435100851534816,
+  "reference": 0.1143510085153483,
+  "rtol": 1e-06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "voxel FEA plate beam: mid-span deflection (Timoshenko)",
+  "passed": true,
+  "value": 0.032660874732303814,
+  "reference": 0.03279307568438004,
+  "rtol": 0.02,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "Newton harmonic stack (4 blocks): stands iff factor < 1, factors != 1",
+  "passed": true,
+  "value": 7.0,
+  "reference": 7.0,
+  "rtol": 0.0,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ },
+ {
+  "name": "Newton table edge: brick with centre of mass inside stays, outside falls",
+  "passed": true,
+  "value": 1.0,
+  "reference": 1.0,
+  "rtol": 0.0,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "recorded by the study in _out/summary.json",
+  "kind": "reference"
+ }
+]

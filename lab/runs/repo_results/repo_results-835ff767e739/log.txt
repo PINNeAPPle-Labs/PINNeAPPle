@@ -1,0 +1,9 @@
+[16:40:18] Benchmark arena: equal-budget methods on viscous Burgers (exact Cole-Hopf data) in five regimes
+[16:40:18] stage import started
+[16:40:18] check best_method_beats_fdm_baseline: PASS mlp relative L2 against the exact Cole-Hopf solution, interpolation regime, vs fdm_201
+[16:40:18] check dataset_audit_finite: PASS every value finite
+[16:40:18] check dataset_audit_constraint_abs(u)_<=_1.005: PASS 0 of 48384 rows violate it
+[16:40:18] check dataset_audit_diversity.duplicates: PASS train: 0 exact, 0 near copies of 54; test: 0 exact, 0 near copies of 30
+[16:40:18] check dataset_audit_diversity.effective: FAIL effective sample count 1 of 54 (no generator stated: only a collapse to one pattern is flagged)
+[16:40:18] check dataset_audit_leakage: PASS 0 of 30 test samples are (near) copies of train samples (closest: 0.0349 x the median train spacing)
+[16:40:18] stage import done (0.007 s)

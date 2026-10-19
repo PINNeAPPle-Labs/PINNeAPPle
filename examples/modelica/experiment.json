@@ -1,0 +1,47 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/modelica",
+ "title": "Modelica models as Physics AI data",
+ "description": "Models: `models/DrainingTank.mo`, `models/LadleCooling.mo`. OpenModelica is used from the PATH or from Docker",
+ "domain": "system dynamics",
+ "methods": [
+  "Modelica / FMU"
+ ],
+ "modules": [
+  "pinneapple_simulation.external_solvers.modelica",
+  "pinneapple_simulation.external_solvers.modelica.fmi_compat",
+  "pinneapple_simulation.external_solvers.modelica.omc",
+  "pinneapple_simulation.external_solvers.modelica.sweep"
+ ],
+ "params": {},
+ "scripts": [
+  "01_modelica_to_fmu.py",
+  "02_ladle_surrogate.py",
+  "03_tank_inverse_pinn.py",
+  "fmi_compatibility.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/modelica.md",
+  "script": "examples/modelica/01_modelica_to_fmu.py",
+  "pr": [
+   470,
+   746
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

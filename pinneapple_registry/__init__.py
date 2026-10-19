@@ -26,6 +26,7 @@ from __future__ import annotations
 from .dataset_store import DatasetStore
 from .experiment_memory import ExperimentMemory, ExperimentRecord
 from .experiment_store import ExperimentStore
+from .gateway import ModelGateway
 from .model_store import ModelStore, VALID_STAGES
 from .problem_store import ProblemStore
 from .registry import ArtifactRegistry
@@ -33,6 +34,7 @@ from .registry import ArtifactRegistry
 __all__ = [
     "ArtifactRegistry",
     "ModelStore",
+    "ModelGateway",
     "DatasetStore",
     "ExperimentStore",
     "ExperimentMemory",

@@ -1,0 +1,24 @@
+{
+ "source": "viscous Burgers, exact solution (Cole-Hopf, 120-node Gauss-Hermite quadrature)",
+ "protocol": {
+  "metric": "rel_l2",
+  "metric_definition": "relative L2 error per held-out field, averaged",
+  "budget": {
+   "wall_s": 10.0,
+   "flops": null,
+   "steps": null
+  },
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "split_seed": 0,
+  "few_data_fraction": 0.25,
+  "stopping": "iterative methods: until the budget is spent, best of 10 validation checkpoints (evaluation time not charged); one-shot fits: fitted once, time reported",
+  "equal_data": "one split shared by every method and seed; the model seed varies, the data does not",
+  "hyperparameters": "each method's defaults in pinneapple_analysis.surrogate.methods; no per-method search",
+  "threads": 1,
+  "dataset_sha256": "eefeef72b0f22b6a50dc3514dac3b056ab5e202d2c49cc4b97dd285a0ceaf3de"
+ }
+}

@@ -1,0 +1,39 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/benchmark",
+ "title": "Running a benchmark",
+ "description": "An equal-budget benchmark in one call: PINN vs FNO vs DeepONet on 1-D Burgers.",
+ "domain": "validation and benchmarks",
+ "methods": [
+  "PINN",
+  "FNO",
+  "DeepONet"
+ ],
+ "modules": [
+  "pinneapple"
+ ],
+ "params": {},
+ "scripts": [
+  "01_equal_budget.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/running_a_benchmark.md",
+  "script": "examples/benchmark/01_equal_budget.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

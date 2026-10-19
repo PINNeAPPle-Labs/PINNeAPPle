@@ -66,6 +66,16 @@ class Solution:
                 "kind": self.kind, "wall_time_s": self.wall_time_s, "fields": list(self.problem.fields),
                 "coords": list(self.problem.coords), "on_grid": self.grid is not None, "info": dict(self.info)}
 
+    def to_experiment(self, path: str, *, title: Optional[str] = None, register: bool = False, lab: Any = None):
+        """Save the result as an experiment manifest (``path``: a folder or an ``experiment.json``) and, with
+        ``register=True``, import it into the Lab for curation. Returns the manifest path."""
+        from pinneapple_lab.capture import register_manifest
+        from pinneapple_lab.manifest import from_solution, save
+        out = save(from_solution(self, title), path)
+        if register:
+            register_manifest(out, lab)
+        return out
+
     def predict(self, x) -> np.ndarray:
         x = np.asarray(x, dtype=np.float64)
         if x.ndim == 1:
@@ -174,6 +184,16 @@ def _burgers_exact(p: PhysicalProblem):
     from .closed_form.burgers import burgers_sine_exact
     nu = float(p.parameter_values()["nu"])
     return lambda X: burgers_sine_exact(X[:, 0], X[:, 1], nu)[:, None]
+
+
+def _register_closed_forms() -> None:
+    from .closed_form import electromagnetics as _em
+
+    for name, matcher, factory in _em.ANALYTIC:
+        register_analytic(name, matcher)(factory)
+
+
+_register_closed_forms()
 
 
 @register_method("analytic", kind="analytic")
@@ -395,6 +415,16 @@ class Comparison:
                   if r["status"] == "ok" and metric in r["metrics"]]
         scored = [s for s in scored if np.isfinite(s[0])]
         return min(scored)[1] if scored else None
+
+    def to_experiment(self, path: str, *, title: Optional[str] = None, register: bool = False, lab: Any = None):
+        """Save the comparison as an experiment manifest (every metric of every method that ran, against the stated
+        reference) and, with ``register=True``, import it into the Lab. Returns the manifest path."""
+        from pinneapple_lab.capture import register_manifest
+        from pinneapple_lab.manifest import from_comparison, save
+        out = save(from_comparison(self, title), path)
+        if register:
+            register_manifest(out, lab)
+        return out
 
     def to_dict(self) -> Dict[str, Any]:
         return {"problem": self.problem.name, "fingerprint": self.problem.fingerprint(), "reference": self.reference,

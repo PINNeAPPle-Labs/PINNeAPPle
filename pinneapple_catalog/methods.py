@@ -60,6 +60,8 @@ TR = "pinneapple_neural/trainer/"
 PC = "pinneapple_systems/process_components/"
 CF = "pinneapple_physics/closed_form/"
 COMPILE = "pinneapple_physics/pinn_solver/compiler/compile.py"
+EMK = "pinneapple_physics/pinn_solver/compiler/em_kinds.py"
+EM = "pinneapple_simulation/electromagnetics/"
 
 # Standard references reused below.
 LEVEQUE_FD = "LeVeque, Finite Difference Methods for Ordinary and Partial Differential Equations, SIAM, 2007"
@@ -74,6 +76,11 @@ BATCHELOR = "Batchelor, An Introduction to Fluid Dynamics, Cambridge University 
 VALLADO = "Vallado, Fundamentals of Astrodynamics and Applications, 4th ed., Microcosm Press, 2013"
 SHIGLEY = "Budynas & Nisbett, Shigley's Mechanical Engineering Design, 10th ed., McGraw-Hill, 2015"
 JACKSON = "Jackson, Classical Electrodynamics, 3rd ed., Wiley, 1999"
+GRIFFITHS = "Griffiths, Introduction to Electrodynamics, 4th ed., Cambridge University Press, 2017"
+JIN = "Jin, The Finite Element Method in Electromagnetics, 3rd ed., Wiley-IEEE Press, 2014"
+TAFLOVE = "Taflove & Hagness, Computational Electrodynamics: The Finite-Difference Time-Domain Method, 3rd ed., Artech House, 2005"
+POZAR = "Pozar, Microwave Engineering, 4th ed., Wiley, 2012"
+BOHREN_HUFFMAN = "Bohren & Huffman, Absorption and Scattering of Light by Small Particles, Wiley, 1983"
 RAISSI = "Raissi, Perdikaris & Karniadakis, Physics-informed neural networks, J. Comput. Phys. 378 (2019) 686-707"
 RAISSI_I = "Raissi, Perdikaris & Karniadakis, Physics Informed Deep Learning (Part I), arXiv:1711.10561"
 WONG = "Wong, Theory of Ground Vehicles, Wiley, 1978 (4th ed. 2008)"
@@ -197,6 +204,50 @@ METHODS: List[Method] = [
                      "Fedkiw, Stam & Jensen, Visual simulation of smoke, SIGGRAPH 2001, 15-22"],
        refs_added=["Taylor & Green, Mechanism of the production of small eddies from large ones, "
                    "Proc. R. Soc. A 158 (1937) 499-521"]),
+    _m("S29", "2-D A_z magnetostatics, P1 FEM with Newton (nonlinear B-H, magnets, (anti-)periodic constraints)",
+       [EM + "fem.py", EM + "mesh.py", EM + "materials.py"], ["solve_magnetostatic("],
+       refs_added=[JIN, "Brauer, Simple equations for the magnetization and reluctivity curves of steel, IEEE Trans. "
+                        "Magn. 11(1) (1975) 81"]),
+    _m("S30", "Time-harmonic 2-D eddy currents (A_z, solid conductors with imposed net currents)",
+       [EM + "eddy.py"], ["solve_time_harmonic("], refs_added=[JIN]),
+    _m("S31", "Surface-PM machine model: Maxwell-stress and co-energy torque, cogging, back-EMF, losses",
+       [EM + "machine.py", EM + "postprocess.py"], ["SPMMachine(", "torque_maxwell_stress("],
+       refs_added=["Arkkio, Analysis of induction motors based on the numerical solution of the magnetic field "
+                   "and circuit equations, Acta Polytechnica Scandinavica 59 (1987)",
+                   "Zhu, Howe, Bolte & Ackermann, Instantaneous magnetic field distribution in brushless permanent "
+                   "magnet DC motors, IEEE Trans. Magn. 29(1) (1993) 124-135"]),
+    _m("S32", "2-D electrostatics, P1 FEM (capacitance from field energy)", [EM + "electrostatics.py"],
+       ["solve_electrostatic("], refs_added=[JACKSON, GRIFFITHS]),
+    _m("S33", "Biot-Savart integration of straight filament segments, loop and solenoid fields",
+       [EM + "statics.py"], ["biot_savart(", "loop_field("], refs_added=[JACKSON, GRIFFITHS]),
+    _m("S34", "Mie series for dielectric and perfectly conducting spheres", [EM + "mie.py"],
+       ["mie.mie(", "mie_pec("], refs_in_code=[BOHREN_HUFFMAN, "Wiscombe, Improved Mie scattering algorithms, "
+                                                              "Appl. Opt. 19 (1980) 1505-1509"]),
+    _m("S35", "Fresnel coefficients and characteristic matrices of planar multilayers", [EM + "waves.py"],
+       ["wv.multilayer(", "wv.fresnel("], refs_in_code=["Born & Wolf, Principles of Optics, 7th ed., Cambridge "
+                                                        "University Press, 1999"]),
+    _m("S36", "Jiles-Atherton hysteresis model (RK4 along an applied field path)", [EM + "hysteresis.py"],
+       ["JilesAtherton("], refs_in_code=["Jiles & Atherton, Theory of ferromagnetic hysteresis, J. Magn. Magn. "
+                                          "Mater. 61 (1986) 48-60"]),
+    _m("S37", "Dispersive media (Drude, Lorentz, Debye) and their auxiliary-differential-equation coefficients",
+       [EM + "media.py"], [".ade(", "md.Drude("], refs_in_code=[TAFLOVE]),
+    _m("S38", "Maxwell physics checks of predicted fields (Gauss, Faraday, Ampere-Maxwell, continuity, Poynting, "
+              "interfaces, reciprocity, passivity)", ["pinneapple_physics/maxwell_checks.py"],
+       ["maxwell_checks(", "mc.passivity(", "mc.gauss_magnetic("], refs_in_code=[JACKSON, POZAR]),
+    _m("S39", "Density-based topology optimisation (SIMP, filter, projection, OC, MMA; compliance, thermal, "
+              "Stokes-Brinkman, machine rotor)", ["pinneapple_design/topology/"], ["Compliance2D", "MMA("],
+       refs_added=["Svanberg, The method of moving asymptotes, Int. J. Numer. Meth. Eng. 24 (1987) 359-373",
+                   "Bendsoe & Sigmund, Topology Optimization, Springer, 2003",
+                   "Borrvall & Petersson, Topology optimization of fluids in Stokes flow, Int. J. Numer. Meth. "
+                   "Fluids 41 (2003) 77-107"]),
+    _m("S40", "Yee FDTD in 1-D/2-D/3-D (CPML, Courant check, Drude/Lorentz/Debye ADE, PEC/PMC/periodic/Bloch, "
+              "TF/SF plane waves, DFT monitors, sub-cell averaging)", [EM + "fdtd.py"], ["FDTD(", "YeeGrid("],
+       refs_in_code=[TAFLOVE, "Yee, Numerical solution of initial boundary value problems involving Maxwell's "
+                              "equations in isotropic media, IEEE Trans. Antennas Propag. 14(3) (1966) 302-307",
+                     "Roden & Gedney, Convolution PML (CPML), Microw. Opt. Technol. Lett. 27(5) (2000) 334-339"]),
+    _m("S41", "Near-to-far-field transform on a closed box (FDTD radiation patterns)", [EM + "fdtd.py"],
+       ["NearToFarField("], refs_in_code=[TAFLOVE, "Balanis, Advanced Engineering Electromagnetics, 2nd ed., "
+                                                   "Wiley, 2012"]),
     # ── B. Training ──────────────────────────────────────────────────────
     _m("T1", "Base trainer: AMP, gradient accumulation, auto batch size, CUDA graphs, profiler",
        [TR + "trainer.py", TR + "hpc.py"], ["trainer.trainer", "from pinneapple_neural.trainer import", "Trainer("],
@@ -285,6 +336,10 @@ METHODS: List[Method] = [
                      "Zaheer et al., Deep Sets, NeurIPS 2017, arXiv:1703.06114",
                      "Lakshminarayanan, Pritzel & Blundell, Deep ensembles, NeurIPS 2017, arXiv:1612.01474"],
        refs_added=["Milne-Thomson, Theoretical Hydrodynamics, §9.61 (ellipse potential flow, benchmark reference)"]),
+    _m("T23", "MultiAdam: per-loss-term Adam moments for multi-term PINN losses", [TR + "multiadam.py"],
+       ["MultiAdam", "multiadam"],
+       refs_in_code=["Yao, Su, Hao, Liu, Su & Zhu, MultiAdam: Parameter-wise Scale-invariant Optimizer for "
+                     "Multiscale Training of PINNs, ICML 2023, arXiv:2306.02816"]),
     # ── C. Equations (PINN compiler kinds + closed forms) ────────────────
     _m("E1", "Laplace", [COMPILE], ['"laplace"', "laplace_2d"], refs_added=[EVANS]),
     _m("E2", "Poisson", [COMPILE], ['"poisson"', "poisson_2d"], refs_added=[EVANS]),
@@ -420,6 +475,17 @@ METHODS: List[Method] = [
     _m("E64", "Membrane diffusion", [CF + "membrane_diffusion.py"], ["membrane_diffusion"],
        refs_added=["Crank, The Mathematics of Diffusion, 2nd ed., Oxford University Press, 1975"]),
     _m("E65", "Cantilever fatigue", [CF + "cantilever_fatigue.py"], ["cantilever_fatigue"], refs_added=[SHIGLEY]),
+    _m("E66", "Electrostatics (Gauss's law with permittivity), differential and integral form", [EMK],
+       ["electrostatics_integral", '"electrostatics"'], refs_added=[JACKSON, GRIFFITHS]),
+    _m("E67", "Magnetostatics in the vector potential A_z", [EMK], ["magnetostatics_az"], refs_added=[JACKSON]),
+    _m("E68", "Magneto-quasistatic eddy currents (time-harmonic A_z)", [EMK], ["eddy_current_az"],
+       refs_added=[JACKSON, JIN]),
+    _m("E69", "Maxwell TMz time domain, differential and integral (Ampere-Maxwell circulation, Faraday) form",
+       [EMK], ["maxwell_tm_integral", '"maxwell_tm"'], refs_added=[JACKSON]),
+    _m("E70", "Maxwell's curl equations in 3-D with optional Gauss constraints", [EMK], ["maxwell_3d"],
+       refs_added=[JACKSON]),
+    _m("E71", "Frequency-domain TMz wave equation with complex permittivity", [EMK], ["maxwell_tm_frequency"],
+       refs_added=[JIN, "Harrington, Time-Harmonic Electromagnetic Fields, McGraw-Hill, 1961"]),
 ]
 
 # ── D. Problems: the 65 registered presets, grouped; each points at its equations ──

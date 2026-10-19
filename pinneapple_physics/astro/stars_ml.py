@@ -129,13 +129,13 @@ def analyse(seed: int = 0) -> dict:
     m2 = np.array([v is not None for v in sp_all])
     spec_cv = cross_validate(cat.bv[allok][m2][:, None], sp_all[m2].astype(int), seed=seed)
     checks = [
-        {"name": "Luminosity class from (B-V, M_V): CV accuracy vs majority baseline",
+        {"id": "ml_lum_class", "name": "Luminosity class from (B-V, M_V): CV accuracy vs majority baseline",
          "value": lum_cv["accuracy"], "threshold": lum_cv["baseline"] + 0.1,
          "status": "pass" if lum_cv["accuracy"] >= lum_cv["baseline"] + 0.1 else "fail", "higher_is_better": True},
-        {"name": "Spectral class from B-V: CV accuracy vs majority baseline",
+        {"id": "ml_spec_class", "name": "Spectral class from B-V: CV accuracy vs majority baseline",
          "value": spec_cv["accuracy"], "threshold": spec_cv["baseline"] + 0.2,
          "status": "pass" if spec_cv["accuracy"] >= spec_cv["baseline"] + 0.2 else "fail", "higher_is_better": True},
-        {"name": "Unsupervised clusters: purity against MK luminosity classes", "value": purity, "threshold": 0.6,
+        {"id": "ml_cluster_purity", "name": "Unsupervised clusters: purity against MK luminosity classes", "value": purity, "threshold": 0.6,
          "status": "pass" if purity >= 0.6 else "warn", "higher_is_better": True},
     ]
     return {

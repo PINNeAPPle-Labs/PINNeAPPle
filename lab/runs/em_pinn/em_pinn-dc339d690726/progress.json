@@ -1,0 +1,17 @@
+{
+ "stages": [
+  {
+   "name": "train",
+   "started": 1792337872.9380116,
+   "status": "done",
+   "seconds": 853.469
+  },
+  {
+   "name": "score",
+   "started": 1792338726.413482,
+   "status": "done",
+   "seconds": 0.049
+  }
+ ],
+ "updated": 1792338726.4631705
+}

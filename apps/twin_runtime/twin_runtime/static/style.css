@@ -1,0 +1,30 @@
+/* Digital Twin Runtime (base styles in /shared/app.css) */
+:root { --brand: #0f766e; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+input:focus, select:focus { outline: 2px solid #0f766e33; }
+.layout { grid-template-columns: 380px 1fr; }
+.checkgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 12px 0; }
+.checkgrid div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.checkgrid b { display: block; margin-bottom: 3px; }
+.checkgrid span { color: var(--muted); font-size: 13px; }
+.faults { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.faults button:disabled { opacity: .5; cursor: not-allowed; }
+.status-pill { display: inline-block; padding: 3px 12px; border-radius: 99px; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.status-pill.normal { background: var(--ok-bg); color: var(--ok); }
+.status-pill.warning, .status-pill.revalidation_required { background: var(--warn-bg); color: var(--warn); }
+.status-pill.alarm { background: var(--bad-bg); color: var(--bad); }
+.status-pill.starting { background: #eef1f5; color: var(--na); }
+.charts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+@media (max-width: 1100px) { .charts2 { grid-template-columns: 1fr; } }
+.chartbox { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; }
+.chartbox .cap { font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
+.alerts { max-height: 260px; overflow: auto; }
+.alerts .a { display: grid; grid-template-columns: 70px 92px 1fr; gap: 8px; font-size: 12.5px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.alerts .a.cleared { color: var(--muted); }
+.steps { display: grid; gap: 10px; margin-top: 14px; }
+.step { display: grid; grid-template-columns: 56px 1fr; gap: 12px; border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; }
+.step .day { font-weight: 800; color: var(--brand); font-size: 18px; }
+.step .ran { font-size: 11.5px; color: var(--muted); }
+.step .files a { margin-right: 10px; font-size: 12px; }
+.arrow { text-align: center; color: var(--muted); font-size: 12px; margin: -4px 0; }

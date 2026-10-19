@@ -71,8 +71,43 @@ def load_bright_stars() -> StarCatalog:
 
 @lru_cache(maxsize=1)
 def load_constellations() -> list:
+    """IAU constellation figures with a ``key`` (the IAU abbreviation; Serpens is split into ``Ser1`` = Caput and
+    ``Ser2`` = Cauda), the Latin ``name``, the ``names`` per language ({"en": ..., "pt": ...}) and a label point.
+
+    The d3-celestial source gives both halves of Serpens the same name and label point; here each half gets its own
+    name and a label at the mean of its figure's vertices."""
     with gzip.open(os.path.join(DATA, "constellations.json.gz"), "rt", encoding="utf-8") as fh:
+        cons = json.load(fh)
+    names = constellation_names()
+    for c in cons:
+        key = c["id"]
+        if key == "Ser":
+            pts = np.array([p for line in c["lines"] for p in line], dtype=float)
+            ra = np.degrees(np.arctan2(np.sin(np.radians(pts[:, 0])).mean(), np.cos(np.radians(pts[:, 0])).mean()))
+            key = "Ser1" if ra % 360 < 255 else "Ser2"
+            c["label"] = [round(float(ra % 360), 3), round(float(pts[:, 1].mean()), 3)]
+        c["key"] = key
+        c["names"] = names[key]
+        c["name"] = names[key]["en"]
+    return cons
+
+
+@lru_cache(maxsize=1)
+def _constellation_names_file() -> dict:
+    with open(os.path.join(DATA, "constellation_names.json"), encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def constellation_names(lang: str | None = None) -> dict:
+    """Constellation names by key (IAU abbreviation, ``Ser1``/``Ser2`` for the two halves of Serpens): the IAU Latin
+    name (``en``) and the Brazilian Portuguese name (``pt``), e.g. ``Cru`` -> Crux / Cruzeiro do Sul. With ``lang``,
+    a {key: name} map in that language. Sources: ``constellation_names.json``."""
+    names = _constellation_names_file()["names"]
+    if lang is None:
+        return {k: dict(v) for k, v in names.items()}
+    if lang not in ("en", "pt"):
+        raise ValueError(f"language {lang!r}: use 'en' or 'pt'")
+    return {k: v[lang] for k, v in names.items()}
 
 
 # --------------------------------------------------------------------------------------------- black body

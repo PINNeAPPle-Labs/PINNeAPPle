@@ -1,0 +1,37 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/solvers",
+ "title": "Examples: time-series decomposition solvers",
+ "description": "Examples: time-series decomposition solvers. Run:",
+ "domain": "numerical methods",
+ "methods": [],
+ "modules": [
+  "pinneapple_design.geometry.sample",
+  "pinneapple_simulation.numerical_solvers"
+ ],
+ "params": {},
+ "scripts": [
+  "01_time_series_decompositions.py",
+  "02_sph_box.py",
+  "03_poisson_solvers.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/solvers/01_time_series_decompositions.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

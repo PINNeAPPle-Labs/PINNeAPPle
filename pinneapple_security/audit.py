@@ -26,6 +26,37 @@ __all__ = ["AuditLog", "GENESIS"]
 
 GENESIS = "0" * 64
 
+try:
+    import fcntl
+
+    def _lock(f) -> None:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+
+    def _unlock(f) -> None:
+        fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+except ImportError:                                           # Windows: single-process use only
+    def _lock(f) -> None:
+        pass
+
+    def _unlock(f) -> None:
+        pass
+
+
+def _tail_record(f) -> dict[str, Any] | None:
+    """The last JSON line of a binary file handle, read backwards from the end (constant cost per append)."""
+    f.seek(0, os.SEEK_END)
+    end = f.tell()
+    pos, buf = end, b""
+    while pos > 0:
+        step = min(8192, pos)
+        pos -= step
+        f.seek(pos)
+        buf = f.read(step) + buf
+        lines = [ln for ln in buf.split(b"\n") if ln.strip()]
+        if len(lines) >= 2 or (pos == 0 and lines):
+            return json.loads(lines[-1])
+    return None
+
 
 class AuditLog:
     def __init__(self, path: str, key: bytes | None = None):
@@ -49,24 +80,32 @@ class AuditLog:
                     yield json.loads(line)
 
     def _last(self) -> dict[str, Any] | None:
-        last = None
-        for rec in self.records():
-            last = rec
-        return last
+        if not os.path.exists(self.path):
+            return None
+        with open(self.path, "rb") as f:
+            return _tail_record(f)
 
     def append(self, action: str, actor: str, target: str = "", data: dict[str, Any] | None = None,
                reason: str = "") -> dict[str, Any]:
+        """Append one record. Safe across processes (an exclusive file lock where the OS has one), so several server
+        workers can share one log without forking the chain."""
         if not action or not actor:
             raise ValueError("an audit record needs an action and an actor")
-        last = self._last()
-        body = {"seq": (last["seq"] + 1) if last else 0, "time": datetime.now(timezone.utc).isoformat(timespec="microseconds"),
-                "actor": actor, "action": action, "target": target, "reason": reason, "data": data or {},
-                "prev": last["hash"] if last else GENESIS}
-        rec = {**body, "hash": self._hash(body)}
-        with open(self.path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(rec, sort_keys=True, ensure_ascii=False) + "\n")
-            f.flush()
-            os.fsync(f.fileno())
+        with open(self.path, "a+b") as f:
+            _lock(f)
+            try:
+                last = _tail_record(f)
+                body = {"seq": (last["seq"] + 1) if last else 0,
+                        "time": datetime.now(timezone.utc).isoformat(timespec="microseconds"),
+                        "actor": actor, "action": action, "target": target, "reason": reason, "data": data or {},
+                        "prev": last["hash"] if last else GENESIS}
+                rec = {**body, "hash": self._hash(body)}
+                f.seek(0, os.SEEK_END)
+                f.write((json.dumps(rec, sort_keys=True, ensure_ascii=False) + "\n").encode("utf-8"))
+                f.flush()
+                os.fsync(f.fileno())
+            finally:
+                _unlock(f)
         return rec
 
     def verify(self) -> dict[str, Any]:

@@ -2,13 +2,13 @@
 // (server-computed topocentric apparent places), satellites, atmosphere (Preetham sky), refraction and extinction.
 import * as THREE from "three";
 import { Sky } from "three/addons/objects/Sky.js";
-import { D2R, altazVec, horizonMatrix, interpAltaz, mul3, radecVec, refractionDeg, teffToRGB, bvToTeff, toMatrix4 } from "./astro.js";
+import { D2R, altazVec, compass, horizonMatrix, interpAltaz, mul3, radecVec, refractionDeg, teffToRGB, bvToTeff, toMatrix4 } from "./astro.js";
+import { lang, t } from "./i18n.js";
 
 const R_STARS = 1000, R_BODIES = 900;
 const BODY_COLORS = { sun: "#fff3c4", moon: "#e8e8f0", mercury: "#cfc6b8", venus: "#fff6d8", mars: "#ff9a6a",
   jupiter: "#ffe2b8", saturn: "#f5dc9c", uranus: "#a8e6ee", neptune: "#7ea6ff" };
-const NAMES = { sun: "Sun", moon: "Moon", mercury: "Mercury", venus: "Venus", mars: "Mars", jupiter: "Jupiter",
-  saturn: "Saturn", uranus: "Uranus", neptune: "Neptune" };
+const NAMES = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune"];
 // IAU WGCCRE north poles (J2000) for ring / disc orientation
 const POLES = { saturn: [40.589, 83.537], jupiter: [268.057, 64.495] };
 
@@ -168,7 +168,7 @@ export class SkyView {
     this.bodies = {};
     const glow = glowTexture();
     const loader = new THREE.TextureLoader();
-    for (const b of Object.keys(NAMES)) {
+    for (const b of NAMES) {
       const grp = new THREE.Group();
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, color: BODY_COLORS[b], transparent: true,
         blending: THREE.AdditiveBlending, depthWrite: false }));
@@ -232,7 +232,7 @@ export class SkyView {
     const cg = new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(seg, 3));
     this.conLines = new THREE.LineSegments(cg, new THREE.LineBasicMaterial({ color: "#5d7fbf", transparent: true, opacity: 0.42, depthWrite: false }));
     this.eqJ2000.add(this.conLines);
-    this.conLabels = cat.constellations.map((c) => ({ name: c.name, v: radecVec(...c.label) }));
+    this.conLabels = cat.constellations.map((c) => ({ names: c.names || { en: c.name }, v: radecVec(...c.label) }));
     this.namedStars = [];
     for (let i = 0; i < n; i++) if (cat.name[i] && (cat.v[i] < 2.1 || (cat.proper[i] && cat.v[i] < 3.2))) this.namedStars.push(i);
     this.namedStars.sort((a, b) => cat.v[a] - cat.v[b]);
@@ -405,8 +405,7 @@ export class SkyView {
       L.add(x, y, text, cls, extra);
     };
     const ground = this.layers.ground;
-    for (const [t, az] of [["N", 0], ["E", 90], ["S", 180], ["W", 270], ["NE", 45], ["SE", 135], ["SW", 225], ["NW", 315]])
-      put(altazVec(1.5, az, 500), t, "cardinal");
+    for (const az of [0, 90, 180, 270, 45, 135, 225, 315]) put(altazVec(1.5, az, 500), compass(az), "cardinal");
     if (this.layers.names && this.cat) {
       const M = this.Mj2000;
       const limit = this.fov < 25 ? 4.0 : this.fov < 45 ? 3.2 : 2.1;
@@ -425,12 +424,12 @@ export class SkyView {
       for (const c of this.conLabels) {
         const p = [0, 1, 2].map((r) => (M[r][0] * c.v[0] + M[r][1] * c.v[1] + M[r][2] * c.v[2]) * 1000);
         if (ground && p[1] < 0) continue;
-        put(p, c.name, "con");
+        put(p, c.names[lang] || c.names.en, "con");
       }
     }
     for (const [b, o] of Object.entries(this.bodies)) {
       if (ground && o.alt < -1) continue;
-      put(o.grp.position.toArray(), NAMES[b], "body", b);
+      put(o.grp.position.toArray(), t("body." + b), "body", b);
     }
     if (this.layers.satellites) for (const o of this.sats) if (o.sp.visible && (o.lit || o.s.name.includes("ISS")))
       put(o.sp.position.toArray(), o.s.name.replace(" (ZARYA)", "").slice(0, 18), "sat");

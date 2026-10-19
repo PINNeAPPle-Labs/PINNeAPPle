@@ -249,3 +249,16 @@ def test_equal_flops_arm_with_a_per_instance_pinn(tmp_path):
                 budget={"wall_s": 2.0}, seeds=1, n_trials=1, n_workers=1, log=lambda *a: None)
     ef = res._build()["tables"]["burgers"]["equal_flops"]
     assert ef and ef["rows"]["pinn"]["common"] and ef["rows"]["fno"]["common"]
+
+
+def test_budget_study_curve_uses_each_methods_own_metric():
+    from pinneapple_analysis.benchmark.report import study_metric_key
+
+    class Prob:
+        def main_metric_for(self, mid):
+            return ("test4", "cd") if mid == "mlp" else ("test4", "u")
+
+    pts = [{"budget_s": 1.0, "metrics": {"test4/cd": 1.0, "test4/u": 0.5}}]
+    assert study_metric_key(Prob(), "pinn", pts) == "test4/u"      # a field model is judged on its field
+    assert study_metric_key(Prob(), "mlp", pts) == "test4/cd"
+    assert study_metric_key(object(), "pinn", pts) == "test4/cd"   # no metric declared: the first column

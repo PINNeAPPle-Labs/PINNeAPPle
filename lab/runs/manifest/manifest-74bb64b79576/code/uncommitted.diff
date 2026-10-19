@@ -1,0 +1,105 @@
+diff --git a/pinneapple_lab/capture.py b/pinneapple_lab/capture.py
+index e96d1182..ae46a90e 100644
+--- a/pinneapple_lab/capture.py
++++ b/pinneapple_lab/capture.py
+@@ -156,7 +156,10 @@ def register_manifest(path: str, lab: Any = None, *, curate: bool = True) -> str
+     if errors:
+         raise ValueError(f"{path}: invalid manifest: " + "; ".join(errors))
+     store = lab if isinstance(lab, LabStore) else LabStore(lab)
++    from .manifest import REPO
+     p = os.path.abspath(path if path.endswith(".json") else os.path.join(path, "experiment.json"))
++    if p.startswith(REPO + os.sep):
++        p = os.path.relpath(p, REPO)                      # portable: the run id and record do not name this machine
+     run("manifest", {"id": m.id, "path": p}, root=store.root, force=True)
+     if curate:
+         from .curation import curate as _curate
+diff --git a/pinneapple_lab/experiments/manifest_import.py b/pinneapple_lab/experiments/manifest_import.py
+index c56157aa..f450af49 100644
+--- a/pinneapple_lab/experiments/manifest_import.py
++++ b/pinneapple_lab/experiments/manifest_import.py
+@@ -21,6 +21,9 @@ class ManifestImport(Experiment):
+ 
+     def run(self, ctx):
+         path = ctx.params["path"]
++        if not os.path.isabs(path):
++            from ..manifest import REPO
++            path = os.path.join(REPO, path)                # a manifest inside the checkout, stored relative to it
+         m = load(path)
+         base = os.path.dirname(path)
+         ctx.input("manifest", m.to_dict())
+diff --git a/pinneapple_lab/manifest.py b/pinneapple_lab/manifest.py
+index 819ba596..b45ed1ff 100644
+--- a/pinneapple_lab/manifest.py
++++ b/pinneapple_lab/manifest.py
+@@ -435,21 +435,59 @@ def manifest_from_dir(folder: str, lab_curation: dict | None = None) -> Manifest
+     return m
+ 
+ 
+-def _attach_lab(m: Manifest, rel: str, cur: dict | None) -> None:
+-    """Link the manifest to the Lab item that ran its scripts (``example_script``), with that run's metrics."""
++def lab_items_for(rel: str, cur: dict | None) -> list[str]:
++    """The Lab items that grade a folder (``examples/<name>``): its own imported manifest (``manifest/<rel>``), the
++    ``example_script`` runs of its scripts, and the ``repo_results`` sources that read its results (their scripts
++    live in it). Best letter first."""
+     if not cur:
++        return []
++    items = cur.get("items", {})
++    try:
++        from .experiments.repo_results import _SCRIPTS
++    except Exception:  # noqa: BLE001
++        _SCRIPTS = {}
++    keys = []
++    for k, it in items.items():
++        exp, case = it.get("experiment"), it.get("case") or ""
++        if k == f"manifest/{rel}":
++            keys.append(k)
++        elif exp == "example_script" and case.startswith(rel + "/"):
++            keys.append(k)
++        elif exp == "repo_results" and any(s.startswith(rel + "/") for s in _SCRIPTS.get(case, [])):
++            keys.append(k)
++    order = "ABCDEF"
++    return sorted(keys, key=lambda k: (not k.startswith("manifest/"), order.index(items[k]["tier"]), k))
++
++
++def _attach_lab(m: Manifest, rel: str, cur: dict | None) -> None:
++    """Link the manifest to the Lab items that grade the folder (see :func:`lab_items_for`); the metrics of the
++    best ``example_script`` run come along when the folder has no results rules."""
++    keys = lab_items_for(rel, cur)
++    if not keys:
+         return
+-    hits = [(k, it) for k, it in cur.get("items", {}).items()
+-            if it.get("experiment") == "example_script" and (it.get("case") or "").startswith(rel + "/")]
+-    if not hits:
+-        return
+-    key, it = sorted(hits)[0]
++    it = cur["items"][keys[0]]
+     m.status = "curated"
+-    m.lab = {"item": key, "experiment": it["experiment"], "run_id": it.get("best_run"), "tier": it.get("tier")}
+-    run = os.path.join(REPO, "lab", "runs", it["experiment"], it.get("best_run", ""))
+-    for k, v in _read(os.path.join(run, "metrics.json"), {}).items():
+-        if _number(v):
+-            m.metric(k, v, "", f"recorded by the Lab run {it.get('best_run')} of {it.get('case')}")
++    m.lab = {"item": keys[0], "items": keys, "experiment": it["experiment"], "run_id": it.get("best_run"),
++             "tier": it.get("tier")}
++    if it["experiment"] == "example_script" and not m.metrics:
++        run = os.path.join(REPO, "lab", "runs", it["experiment"], it.get("best_run", ""))
++        for k, v in _read(os.path.join(run, "metrics.json"), {}).items():
++            if _number(v):
++                m.metric(k, v, "", f"recorded by the Lab run {it.get('best_run')} of {it.get('case')}")
++
++
++def from_results(folder: str, rules=None) -> Manifest:
++    """The folder's manifest (:func:`manifest_from_dir`) with the metrics and checks its committed results hold,
++    extracted by ``rules`` (default: the folder's entry in ``pinneapple_lab.results_rules.RESULTS_RULES``). Only
++    values in the files are used; a check is a verdict the study recorded, its own check records, or a value
++    against the threshold the study's own test applies (cited)."""
++    from .results_rules import RESULTS_RULES, extract
++    rel = os.path.relpath(os.path.abspath(folder), REPO)
++    rules = RESULTS_RULES.get(rel, []) if rules is None else rules
++    m = manifest_from_dir(folder)
++    m.metrics, m.checks = extract(folder, rules)
++    m.provenance["source"] = "results"
++    return m
+ 
+ 
+ # ---------------------------------------------------------------------------------------------- discovery and the gate

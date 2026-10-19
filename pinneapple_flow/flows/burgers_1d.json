@@ -1,0 +1,225 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "burgers-1d-pinn-vs-finite-differences-vs-cole-ho",
+ "name": "Burgers 1D: PINN vs finite differences vs Cole-Hopf",
+ "description": "u_t + u u_x = nu u_xx with nu = 0.01/pi (Raissi et al. 2019); both solutions against the Cole-Hopf exact solution.",
+ "nodes": [
+  {
+   "id": "geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 1,
+    "x_range": [
+     -1.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": true,
+    "t_range": [
+     0.0,
+     1.0
+    ]
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Domain"
+  },
+  {
+   "id": "mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 513,
+    "n_t": 51
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Grid"
+  },
+  {
+   "id": "eq",
+   "type": "equations.system",
+   "params": {
+    "template": "burgers",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_t + u*u_x = nu*u_xx"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = -sin(pi*x)"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "nu": 0.003183098861837907
+    },
+    "exact": "cole_hopf"
+   },
+   "position": {
+    "x": 580.0,
+    "y": 40.0
+   },
+   "label": "burgers equations"
+  },
+  {
+   "id": "fd",
+   "type": "solver.classical",
+   "params": {
+    "method": "fd"
+   },
+   "position": {
+    "x": 850.0,
+    "y": 40.0
+   },
+   "label": "Finite differences"
+  },
+  {
+   "id": "pinn",
+   "type": "train.pinn",
+   "params": {
+    "adam_steps": 8000,
+    "lbfgs_steps": 1000,
+    "width": 32,
+    "depth": 5,
+    "n_collocation": 6000,
+    "lr": 0.002
+   },
+   "position": {
+    "x": 850.0,
+    "y": 190.0
+   },
+   "label": "PINN"
+  },
+  {
+   "id": "validate",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact",
+    "tolerance": 0.05
+   },
+   "position": {
+    "x": 1120.0,
+    "y": 40.0
+   },
+   "label": "Validation"
+  },
+  {
+   "id": "lab",
+   "type": "validate.lab",
+   "params": {
+    "title": "Burgers PINN vs FD"
+   },
+   "position": {
+    "x": 1390.0,
+    "y": 40.0
+   },
+   "label": "Lab seal"
+  },
+  {
+   "id": "render",
+   "type": "viz.render",
+   "params": {
+    "animate": false
+   },
+   "position": {
+    "x": 1120.0,
+    "y": 190.0
+   },
+   "label": "Space-time render"
+  }
+ ],
+ "edges": [
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "mesh",
+   "target_port": "geometry",
+   "id": "geo.geometry->mesh.geometry"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq.mesh"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "fd",
+   "target_port": "problem",
+   "id": "eq.problem->fd.problem"
+  },
+  {
+   "source": "fd",
+   "source_port": "solution",
+   "target": "validate",
+   "target_port": "candidates",
+   "id": "fd.solution->validate.candidates"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "pinn",
+   "target_port": "problem",
+   "id": "eq.problem->pinn.problem"
+  },
+  {
+   "source": "pinn",
+   "source_port": "solution",
+   "target": "validate",
+   "target_port": "candidates",
+   "id": "pinn.solution->validate.candidates"
+  },
+  {
+   "source": "eq",
+   "source_port": "problem",
+   "target": "validate",
+   "target_port": "problem",
+   "id": "eq.problem->validate.problem"
+  },
+  {
+   "source": "validate",
+   "source_port": "metrics",
+   "target": "lab",
+   "target_port": "validation",
+   "id": "validate.metrics->lab.validation"
+  },
+  {
+   "source": "fd",
+   "source_port": "solution",
+   "target": "render",
+   "target_port": "solution",
+   "id": "fd.solution->render.solution"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

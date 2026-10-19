@@ -16,6 +16,7 @@ test("ticks and decimals", () => {
   assert.deepEqual(core.ticks(0, 2e5), ["0", "5.00e+4", "1.00e+5", "1.50e+5", "2.00e+5"]);
   assert.equal(core.decimals(0, 1), 2);
   assert.equal(core.decimals(0, 1000), 0);
+  assert.equal(core.ticks(0, 8e-5)[0], "0");                // not "0.000000" next to exponents
 });
 
 test("colour bar html has the title, the five ticks and the end words", () => {
@@ -66,3 +67,12 @@ test("line thinning and repeat removal", () => {
   const [P, S] = core.dropRepeats([[0, 0, 0], [1, 0, 0], [1, 0, 0]], [1, 2, 2]);
   assert.equal(P.length, 2); assert.deepEqual(S, [1, 2]);
 });
+
+test("error scale: white at zero, dark red at the top, monotone darker", () => {
+  assert.deepEqual(core.ramp(core.ERR, 0).map((v) => Math.round(v * 255)), [255, 255, 229]);
+  assert.deepEqual(core.ramp(core.ERR, 1).map((v) => Math.round(v * 255)), [103, 0, 13]);
+  const lum = (c) => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  const L = Array.from({ length: 11 }, (_, k) => lum(core.ramp(core.ERR, k / 10)));
+  for (let k = 1; k < L.length; k++) assert.ok(L[k] < L[k - 1], `luminance falls at ${k / 10}`);
+});
+

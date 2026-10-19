@@ -138,8 +138,11 @@ pinneapple check [paths] [--config FILE] [--select PC1,PC201] [--ignore PC5] [--
                  [--sarif FILE] [--junit FILE] [--json FILE] [--summary FILE]
                  [--baseline FILE] [--write-baseline] [--no-baseline]
                  [--fail-on error|warning|never] [--exit-zero] [--show-passed] [--no-fixes]
-                 [--list-rules] [--explain PC101]
+                 [--list-rules] [--explain PC101] [--arena-cases [FILE ...]]
 ```
+
+`--arena-cases` replays the regression cases of the [validation arena](validation_arena.md): the stored escapes must
+still be rejected and the stored false alarms still accepted (without a file: the cases shipped with the library).
 
 Exit codes: `0` nothing to report (warnings allowed with `--fail-on error`), `1` violations, `2` a configuration
 or usage error. Inside GitHub Actions the default format is `github` (annotations followed by the readable log).
@@ -240,6 +243,7 @@ checker loads them without the package `__init__` files that do, so it starts in
 | [PC203](#pc203) | `wall-velocity` | warning | physics | Velocity on a wall patch is not zero |
 | [PC301](#pc301) | `pde-residual` | error | physics | PDE residual of the stored fields is too large |
 | [PC302](#pc302) | `model-residual` | error | physics | PDE residual of a model's predictions is too large |
+| [PC303](#pc303) | `metamorphic-relation` | error | physics | A model breaks a relation its physics implies |
 | [PC401](#pc401) | `out-of-bounds` | error | data_geometry | A field leaves its declared bounds |
 | [PC402](#pc402) | `unphysical-value` | error | data_geometry | A field takes a physically impossible value |
 | [PC403](#pc403) | `non-finite` | error | data_geometry | A field contains NaN or infinite values |
@@ -341,6 +345,12 @@ checker loads them without the package `__init__` files that do, so it starts in
 **`model-residual`** (error). The model is evaluated at sampled interior points of its domain and the PDE residual is computed with central differences. Reported as the relative residual described for PC301.
 
 *Fix:* Train longer, add collocation points where the residual is largest, or check that the declared parameters match the ones the model was trained with.
+
+#### PC303
+
+**`metamorphic-relation`** (error). A declared metamorphic relation does not hold for the model's predictions: more of an input moves an output the wrong way (`monotonic`), a change that must not matter moves the output (`invariant`, e.g. a similarity group kept fixed), a mirrored input does not give the mirrored output (`symmetric`), or a linear model is not linear (`superposition`). These hold whatever the true answer is, so they test a surrogate where no reference solution exists. The worst sample found is reported as the counterexample (`pinneapple_analysis.validation.metamorphic`, guide: [Metamorphic tests](metamorphic_tests.md)).
+
+*Fix:* Look at the counterexample: a sign error, an input swapped or in the wrong unit, or a fit that is not constrained in that region. If the relation does not hold for the real physics there, narrow its box or remove it rather than loosening the tolerance.
 
 ### Bounds (PC4xx)
 

@@ -35,7 +35,7 @@ References
 from __future__ import annotations
 
 import logging
-from typing import Callable, Dict, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 
@@ -74,10 +74,10 @@ class ExtendedKalmanFilter:
         n_obs: int,
         f: Callable[[np.ndarray], np.ndarray],
         h: Callable[[np.ndarray], np.ndarray],
-        Q: Optional[np.ndarray] = None,
-        R: Optional[np.ndarray] = None,
-        F_jac: Optional[Callable] = None,
-        H_jac: Optional[Callable] = None,
+        Q: np.ndarray | None = None,
+        R: np.ndarray | None = None,
+        F_jac: Callable | None = None,
+        H_jac: Callable | None = None,
         *,
         eps_fd: float = 1e-5,
     ) -> None:
@@ -119,13 +119,13 @@ class ExtendedKalmanFilter:
             return self._H_jac(x)
         return self._jacobian_fd(self.h, x, self.eps_fd)
 
-    def initialize(self, x0: np.ndarray, P0: Optional[np.ndarray] = None) -> None:
+    def initialize(self, x0: np.ndarray, P0: np.ndarray | None = None) -> None:
         """Set initial state estimate and covariance."""
         self.x = np.asarray(x0, dtype=np.float64)
         if P0 is not None:
             self.P = np.asarray(P0, dtype=np.float64)
 
-    def predict(self) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self) -> tuple[np.ndarray, np.ndarray]:
         """Predict step: propagate state and covariance."""
         x_pred = self.f(self.x)
         F = self._F(self.x)
@@ -134,7 +134,7 @@ class ExtendedKalmanFilter:
         self.P = P_pred
         return x_pred, P_pred
 
-    def update(self, y: np.ndarray) -> Dict[str, np.ndarray]:
+    def update(self, y: np.ndarray) -> dict[str, np.ndarray]:
         """
         Update step: fuse observation y with the prior.
 
@@ -163,7 +163,7 @@ class ExtendedKalmanFilter:
             "innovation_cov": S,
         }
 
-    def step(self, y: np.ndarray) -> Dict[str, np.ndarray]:
+    def step(self, y: np.ndarray) -> dict[str, np.ndarray]:
         """Predict + update in one call."""
         self.predict()
         return self.update(y)
@@ -198,8 +198,8 @@ class EnsembleKalmanFilter:
         n_obs: int,
         f: Callable[[np.ndarray], np.ndarray],
         h: Callable[[np.ndarray], np.ndarray],
-        Q: Optional[np.ndarray] = None,
-        R: Optional[np.ndarray] = None,
+        Q: np.ndarray | None = None,
+        R: np.ndarray | None = None,
         n_ens: int = 100,
         inflation: float = 1.02,
         seed: int = 0,
@@ -220,7 +220,7 @@ class EnsembleKalmanFilter:
     def initialize(
         self,
         x0: np.ndarray,
-        P0: Optional[np.ndarray] = None,
+        P0: np.ndarray | None = None,
     ) -> None:
         """Initialize ensemble around x0."""
         x0 = np.asarray(x0, dtype=np.float64)
@@ -253,7 +253,7 @@ class EnsembleKalmanFilter:
         mu = self.mean
         self.ensemble = mu[:, None] + self.inflation * (self.ensemble - mu[:, None])
 
-    def update(self, y: np.ndarray) -> Dict[str, np.ndarray]:
+    def update(self, y: np.ndarray) -> dict[str, np.ndarray]:
         """
         Stochastic EnKF analysis step.
 
@@ -291,7 +291,55 @@ class EnsembleKalmanFilter:
             "K": K,
         }
 
-    def step(self, y: np.ndarray) -> Dict[str, np.ndarray]:
+    def step(self, y: np.ndarray) -> dict[str, np.ndarray]:
         """Predict + update in one call."""
         self.predict()
         return self.update(y)
+
+
+# ---------------------------------------------------------------------------
+# Localized ensemble analysis for large states (batched models, no dense Q)
+# ---------------------------------------------------------------------------
+
+def gaspari_cohn(d: np.ndarray) -> np.ndarray:
+    """Gaspari & Cohn (1999, QJRMS 125:723) fifth-order compactly supported correlation of the normalised distance
+    ``d`` = distance / half-width (zero for d >= 2)."""
+    d = np.abs(np.asarray(d, float))
+    out = np.zeros_like(d)
+    a = d <= 1
+    b = (d > 1) & (d < 2)
+    x = d[a]
+    out[a] = -0.25 * x ** 5 + 0.5 * x ** 4 + 0.625 * x ** 3 - 5 / 3 * x ** 2 + 1
+    x = d[b]
+    out[b] = x ** 5 / 12 - 0.5 * x ** 4 + 0.625 * x ** 3 + 5 / 3 * x ** 2 - 5 * x + 4 - 2 / (3 * x)
+    return out
+
+
+def enkf_analysis(ens: np.ndarray, y: np.ndarray, hx: np.ndarray, r_var: np.ndarray, *,
+                  loc_xy: np.ndarray | None = None, loc_yy: np.ndarray | None = None,
+                  inflation: float = 1.0, rng: np.random.Generator | None = None) -> np.ndarray:
+    """Stochastic EnKF analysis (perturbed observations; Burgers et al. 1998, Mon. Wea. Rev. 126:1719) of an
+    ensemble ``ens`` (N, n_state) given observations ``y`` (m,), their forecast equivalents ``hx`` (N, m) and
+    independent observation-error variances ``r_var`` (m,).
+
+    ``loc_xy`` (n_state, m) and ``loc_yy`` (m, m) are Schur-product localisation weights (e.g. :func:`gaspari_cohn`
+    of distances); ``inflation`` multiplies the forecast anomalies first. Returns the analysis ensemble (N,
+    n_state). Use it with any batched model: forecast the N members, call this, repeat.
+    """
+    rng = rng or np.random.default_rng(0)
+    N = ens.shape[0]
+    xm = ens.mean(0)
+    A = (ens - xm) * inflation
+    ens = xm + A
+    hm = hx.mean(0)
+    HA = (hx - hm) * inflation
+    hx = hm + HA
+    PHt = A.T @ HA / (N - 1)                                # (n_state, m)
+    HPHt = HA.T @ HA / (N - 1)                              # (m, m)
+    if loc_xy is not None:
+        PHt = PHt * loc_xy
+    if loc_yy is not None:
+        HPHt = HPHt * loc_yy
+    S = HPHt + np.diag(r_var)
+    D = y[None, :] + rng.standard_normal((N, len(y))) * np.sqrt(r_var)[None, :] - hx   # (N, m)
+    return ens + np.linalg.solve(S, D.T).T @ PHt.T

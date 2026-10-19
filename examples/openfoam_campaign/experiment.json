@@ -1,0 +1,43 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/openfoam_campaign",
+ "title": "OpenFOAM parameter campaign",
+ "description": "One base case, six runs that change the jet speed and elevation, split between two machines.",
+ "domain": "fluid dynamics",
+ "methods": [
+  "CFD (OpenFOAM)"
+ ],
+ "modules": [
+  "pinneapple_design.geometry.trough",
+  "pinneapple_simulation.numerical_solvers.free_surface"
+ ],
+ "params": {},
+ "scripts": [
+  "make_base.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "plan.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/core_concepts/openfoam_campaigns.md",
+  "script": "examples/openfoam_campaign/make_base.py",
+  "pr": [
+   470
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

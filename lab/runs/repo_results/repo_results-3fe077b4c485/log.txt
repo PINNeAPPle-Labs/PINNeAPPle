@@ -1,0 +1,6 @@
+[16:40:17] A320-class airliner, OpenFOAM half model (0.4 M cells): pressure, friction and streamlines at approach
+[16:40:17] stage import started
+[16:40:17] check drag_balance_pressure_plus_friction: PASS total drag = integrated pressure + skin-friction drag
+[16:40:17] check force_balance_over_patches: PASS fuselage + wing + tails = aircraft: CL 0.5893 vs 0.5893, CD 0.04615 vs 0.04615
+[16:40:17] check lift_vs_vortex_lattice: PASS the design tool's own vortex lattice (wing + tail, no fuselage): same pipeline, not independent; tolerance 0.1 as in tests/test_aero_optimizer_3d.py
+[16:40:17] stage import done (0.011 s)

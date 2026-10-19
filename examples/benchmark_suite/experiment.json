@@ -1,0 +1,109 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/benchmark_suite",
+ "title": "PINNeAPPle Arena \u2014 Examples",
+ "description": "These examples are meant to **show the full potential of `pinneapple_arena`**:",
+ "domain": "validation and benchmarks",
+ "methods": [
+  "PINN",
+  "DeepONet",
+  "X-TFC"
+ ],
+ "modules": [
+  "pinneapple_arena",
+  "pinneapple_arena.benchmark",
+  "pinneapple_arena.bundle.loader",
+  "pinneapple_arena.bundle.schema",
+  "pinneapple_arena.meta_benchmark",
+  "pinneapple_arena.registry",
+  "pinneapple_arena.runner.compare",
+  "pinneapple_arena.runner.run_benchmark",
+  "pinneapple_arena.runner.run_sweep",
+  "pinneapple_arena.transfer_benchmark",
+  "pinneapple_digital_twin",
+  "pinneapple_digital_twin.monitoring",
+  "pinneapple_models",
+  "pinneapple_neural",
+  "pinneapple_neural.architectures.neural_operators.deeponet",
+  "pinneapple_neural.architectures.pinns.xtfc",
+  "pinneapple_physics",
+  "pinneapple_physics.metrics",
+  "pinneapple_physics.pde_environment",
+  "pinneapple_physics.pinn_solver.compiler.autograd_ops",
+  "pinneapple_physics.pinn_solver.compiler.dataset",
+  "pinneapple_systems.digital_twin",
+  "pinneapple_tools.benchmark_suite",
+  "pinneapple_tools.benchmark_suite.runner.run_arena_yaml",
+  "pinneapple_tools.visualization.style",
+  "pinneapple_train"
+ ],
+ "params": {},
+ "scripts": [
+  "01_quickstart_native.py",
+  "02_arena_from_yaml.py",
+  "03_pinn_burgers_full_pipeline.py",
+  "04_custom_task_poisson_bundle.py",
+  "04_digital_twin_flow.py",
+  "05_surrogate_deeponet_multifield.py",
+  "06_end_to_end_generic_pinn_and_digital_twin.py",
+  "06_engineering_presets_showcase.py",
+  "07_end_to_end_genetic_sdf_fdm_sweep.py",
+  "07_xtfc_1d_ode.py",
+  "08_hyperparameter_sweep_parallel.py",
+  "09_full_pipeline_yaml.py",
+  "10_datacenter_digital_twin.py",
+  "11_problem_design_pipeline.py",
+  "12_physics_benchmark_suite.py",
+  "13_transfer_meta_benchmark.py",
+  "14_physics_simulation_surrogate_workflow.py",
+  "15_naca0012_aerodynamic_surrogate.py",
+  "16_common_pinn_examples.py",
+  "17_3d_geometry_pinn.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "_out/3d_pinn/3d_pinn_losses.png",
+   "_out/3d_pinn/laplace_3d_cross_sections.png",
+   "_out/3d_pinn/sphere_heat_3d.png",
+   "_out/common_pinns/burgers_1d.png",
+   "_out/common_pinns/common_pinns_losses.png",
+   "_out/common_pinns/heat_2d.png",
+   "_out/common_pinns/poisson_2d.png",
+   "_out/naca0012/naca0012_cp_distribution.png",
+   "_out/naca0012/naca0012_flow.png",
+   "_out/naca0012/naca0012_pinn.png",
+   "_out/naca0012/naca0012_reference_flow.png",
+   "_out/naca0012/naca0012_surface_cp.png",
+   "_out/naca0012/naca0012_training_loss.png",
+   "_out/naca0012/naca0012_true_vs_pred.png",
+   "outputs/problem_design_pipeline.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/benchmark_suite/01_quickstart_native.py",
+  "pr": [
+   678
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "repo_results/burgers_pinn",
+  "items": [
+   "repo_results/burgers_pinn"
+  ],
+  "experiment": "repo_results",
+  "run_id": "repo_results-96e87a293dea",
+  "tier": "B"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

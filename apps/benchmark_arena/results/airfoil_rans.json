@@ -1,0 +1,671 @@
+{
+ "id": "airfoil_rans",
+ "title": "Airfoil Cl and Cd from OpenFOAM RANS (CST shapes, Re 4e6)",
+ "problem": {
+  "n_samples": 374,
+  "kind": "scalar",
+  "inputs": [
+   "T0",
+   "T1",
+   "T2",
+   "M0",
+   "M1",
+   "M2",
+   "alpha_deg"
+  ],
+  "outputs": [
+   "Cl",
+   "Cd"
+  ],
+  "grid_shape": [],
+  "coord_names": [],
+  "sha256": "d8653c66678b8ac674577cd709f35e8745daebe96f4a9c497929418af2403255",
+  "input_ranges": {
+   "T0": [
+    0.101129,
+    0.239634
+   ],
+   "T1": [
+    0.080896,
+    0.219847
+   ],
+   "T2": [
+    0.08046,
+    0.219988
+   ],
+   "M0": [
+    -0.029278,
+    0.079131
+   ],
+   "M1": [
+    -0.019601,
+    0.138507
+   ],
+   "M2": [
+    -0.039025,
+    0.118724
+   ],
+   "alpha_deg": [
+    -1.9888,
+    13.7668
+   ]
+  },
+  "n_groups": 100,
+  "meta": {
+   "source": "PINNeAPPle zoo dataset airfoil_rans_cst_re4e6 (OpenFOAM simpleFoam, k-omega SST, Re 4e6)",
+   "solver": "OpenFOAM",
+   "group": "shape_id",
+   "constraints": [
+    "Cd > 0"
+   ],
+   "unsteady_runs_left_out": 26,
+   "status_counts": {
+    "converged": 304,
+    "steady-ish": 68,
+    "unsteady": 2
+   }
+  },
+  "constraints": [
+   "Cd > 0"
+  ],
+  "pde": null
+ },
+ "protocol": {
+  "metric": "nrmse",
+  "metric_definition": "RMSE / std of the training targets per output, averaged over outputs and held-out samples",
+  "budget": {
+   "wall_s": 10.0,
+   "flops": null,
+   "steps": null
+  },
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "split_seed": 0,
+  "few_data_fraction": 0.25,
+  "stopping": "iterative methods: until the budget is spent, best of 10 validation checkpoints (evaluation time not charged); one-shot fits: fitted once, time reported",
+  "equal_data": "one split shared by every method and seed; the model seed varies, the data does not",
+  "hyperparameters": "each method's defaults in pinneapple_analysis.surrogate.methods; no per-method search",
+  "threads": 1,
+  "dataset_sha256": "d8653c66678b8ac674577cd709f35e8745daebe96f4a9c497929418af2403255"
+ },
+ "regimes": [
+  {
+   "id": "interpolation",
+   "title": "interpolation",
+   "description": "random held-out samples inside the training distribution",
+   "available": true,
+   "reason": "",
+   "n_train": 206,
+   "n_eval": 64
+  },
+  {
+   "id": "few_data",
+   "title": "few data",
+   "description": "52 of 206 training samples (25%); same held-out samples as interpolation",
+   "available": true,
+   "reason": "",
+   "n_train": 52,
+   "n_eval": 64
+  },
+  {
+   "id": "extrapolation",
+   "title": "extrapolation",
+   "description": "the 56 samples farthest from the centre of the input space (normalised distance > 1.17); training covers the interior",
+   "available": true,
+   "reason": "",
+   "n_train": 206,
+   "n_eval": 56
+  },
+  {
+   "id": "geometry_change",
+   "title": "geometry change",
+   "description": "15 of 100 groups never seen in training (56 samples)",
+   "available": true,
+   "reason": "",
+   "n_train": 206,
+   "n_eval": 56
+  },
+  {
+   "id": "steep_fronts",
+   "title": "steep fronts",
+   "description": "held-out fields with the steepest gradients (top quartile of max |grad u|)",
+   "available": false,
+   "reason": "scalar outputs: no field to have a front",
+   "n_train": 206,
+   "n_eval": 0
+  }
+ ],
+ "methods": [
+  {
+   "id": "ridge",
+   "title": "Polynomial ridge",
+   "family": "classical ML",
+   "iterative": false,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.0653047288567779,
+      0.0653047288567779,
+      0.0653047288567779
+     ],
+     "n_ok": 3,
+     "error_mean": 0.0653047288567779,
+     "error_std": 0.0
+    },
+    "few_data": {
+     "errors": [
+      0.12189996603169317,
+      0.12189996603169317,
+      0.12189996603169317
+     ],
+     "n_ok": 3,
+     "error_mean": 0.12189996603169317,
+     "error_std": 0.0
+    },
+    "extrapolation": {
+     "errors": [
+      0.11172372204365913,
+      0.11172372204365913,
+      0.11172372204365913
+     ],
+     "n_ok": 3,
+     "error_mean": 0.11172372204365914,
+     "error_std": 1.6996749443881478e-17
+    },
+    "geometry_change": {
+     "errors": [
+      0.091836781810918,
+      0.091836781810918,
+      0.091836781810918
+     ],
+     "n_ok": 3,
+     "error_mean": 0.09183678181091799,
+     "error_std": 1.6996749443881478e-17
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 0.08461443033335551,
+    "infer_s_per_query": 0.00028353783333538257,
+    "size_bytes": 1974.0,
+    "n_params": 74.0
+   },
+   "cost_std": {
+    "train_s": 0.13984869011790754,
+    "infer_s_per_query": 1.9468095806102517e-05,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "Cd > 0": 0.0
+   },
+   "pde_residual_ratio": null,
+   "failures": []
+  },
+  {
+   "id": "gp",
+   "title": "Gaussian process",
+   "family": "classical ML",
+   "iterative": false,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.013378993931641074,
+      0.013379002769933328,
+      0.013378876638455106
+     ],
+     "n_ok": 3,
+     "error_mean": 0.013378957780009837,
+     "error_std": 7.04094651341849e-08
+    },
+    "few_data": {
+     "errors": [
+      0.026326721305772995,
+      0.03517618158378311,
+      0.03517618158378311
+     ],
+     "n_ok": 3,
+     "error_mean": 0.032226361491113076,
+     "error_std": 0.005109238273692042
+    },
+    "extrapolation": {
+     "errors": [
+      0.039609945120990954,
+      0.039609992664141495,
+      0.03960953619627742
+     ],
+     "n_ok": 3,
+     "error_mean": 0.03960982466046995,
+     "error_std": 2.5094577217600315e-07
+    },
+    "geometry_change": {
+     "errors": [
+      0.022087824810206096,
+      0.022090843122638187,
+      0.02209007358061152
+     ],
+     "n_ok": 3,
+     "error_mean": 0.022089580504485267,
+     "error_std": 1.5684054112819624e-06
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 3.992226460999992,
+    "infer_s_per_query": 0.0003235853333383905,
+    "size_bytes": 721810.0,
+    "n_params": 1854.0
+   },
+   "cost_std": {
+    "train_s": 1.299361101076283,
+    "infer_s_per_query": 3.0435074560959582e-05,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "Cd > 0": 0.0
+   },
+   "pde_residual_ratio": null,
+   "failures": []
+  },
+  {
+   "id": "gbt",
+   "title": "Gradient-boosted trees",
+   "family": "classical ML",
+   "iterative": false,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.07488814209552425,
+      0.0771801125764232,
+      0.07393861651941507
+     ],
+     "n_ok": 3,
+     "error_mean": 0.07533562373045417,
+     "error_std": 0.0016664345267965023
+    },
+    "few_data": {
+     "errors": [
+      0.14348702649877804,
+      0.14904197695466997,
+      0.14821175392888472
+     ],
+     "n_ok": 3,
+     "error_mean": 0.14691358579411093,
+     "error_std": 0.0029963809873679447
+    },
+    "extrapolation": {
+     "errors": [
+      0.15233900969725028,
+      0.14707922919852415,
+      0.1564517299376063
+     ],
+     "n_ok": 3,
+     "error_mean": 0.1519566562777936,
+     "error_std": 0.004697934453464799
+    },
+    "geometry_change": {
+     "errors": [
+      0.0977504526353018,
+      0.08794129618141053,
+      0.09693556826998499
+     ],
+     "n_ok": 3,
+     "error_mean": 0.09420910569556577,
+     "error_std": 0.005443352479080397
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 0.494543700666668,
+    "infer_s_per_query": 0.0007821143333236099,
+    "size_bytes": 1422609.0,
+    "n_params": 23329.0
+   },
+   "cost_std": {
+    "train_s": 0.0655850199185607,
+    "infer_s_per_query": 0.00014702614203163306,
+    "size_bytes": 22435.673134541787,
+    "n_params": 407.6812480357663
+   },
+   "violations": {
+    "Cd > 0": 0.0
+   },
+   "pde_residual_ratio": null,
+   "failures": []
+  },
+  {
+   "id": "mlp",
+   "title": "MLP",
+   "family": "neural network",
+   "iterative": true,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.011181373086869052,
+      0.01214705744576303,
+      0.013593415140529093
+     ],
+     "n_ok": 3,
+     "error_mean": 0.012307281891053725,
+     "error_std": 0.00121397719163404
+    },
+    "few_data": {
+     "errors": [
+      0.05008708184549195,
+      0.050664967969926235,
+      0.04705839672073551
+     ],
+     "n_ok": 3,
+     "error_mean": 0.04927014884538456,
+     "error_std": 0.0019371044599790254
+    },
+    "extrapolation": {
+     "errors": [
+      0.04524280306891094,
+      0.04053011766000857,
+      0.04680399224987717
+     ],
+     "n_ok": 3,
+     "error_mean": 0.04419230432626556,
+     "error_std": 0.003266195998187242
+    },
+    "geometry_change": {
+     "errors": [
+      0.022344580236731883,
+      0.02079212274168651,
+      0.026093503314368032
+     ],
+     "n_ok": 3,
+     "error_mean": 0.023076735430928808,
+     "error_std": 0.002725471961953272
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 10.001333333333335,
+    "infer_s_per_query": 0.00013113083333375167,
+    "size_bytes": 40446.0,
+    "n_params": 8962.0
+   },
+   "cost_std": {
+    "train_s": 0.0011547005383796371,
+    "infer_s_per_query": 5.4539823170874896e-05,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "Cd > 0": 0.0
+   },
+   "pde_residual_ratio": null,
+   "failures": []
+  },
+  {
+   "id": "fno",
+   "title": "FNO",
+   "family": "neural operator",
+   "iterative": true,
+   "applicable": false,
+   "reason": "FNO maps parameters to a field; the outputs here are scalars",
+   "results": {},
+   "runs": []
+  },
+  {
+   "id": "deeponet",
+   "title": "DeepONet",
+   "family": "neural operator",
+   "iterative": true,
+   "applicable": false,
+   "reason": "DeepONet maps parameters to a field; the outputs here are scalars",
+   "results": {},
+   "runs": []
+  },
+  {
+   "id": "pinn",
+   "title": "PINN",
+   "family": "physics-informed",
+   "iterative": true,
+   "applicable": false,
+   "reason": "a PINN needs a field over coordinates (the outputs here are scalars)",
+   "results": {},
+   "runs": []
+  }
+ ],
+ "rankings": {
+  "interpolation": [
+   {
+    "rank": 1,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.012307281891053725,
+    "error_std": 0.00121397719163404,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.013378957780009837,
+    "error_std": 7.04094651341849e-08,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.0653047288567779,
+    "error_std": 0.0,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "gbt",
+    "title": "Gradient-boosted trees",
+    "error_mean": 0.07533562373045417,
+    "error_std": 0.0016664345267965023,
+    "n_seeds": 3
+   }
+  ],
+  "few_data": [
+   {
+    "rank": 1,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.032226361491113076,
+    "error_std": 0.005109238273692042,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.04927014884538456,
+    "error_std": 0.0019371044599790254,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.12189996603169317,
+    "error_std": 0.0,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "gbt",
+    "title": "Gradient-boosted trees",
+    "error_mean": 0.14691358579411093,
+    "error_std": 0.0029963809873679447,
+    "n_seeds": 3
+   }
+  ],
+  "extrapolation": [
+   {
+    "rank": 1,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.03960982466046995,
+    "error_std": 2.5094577217600315e-07,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.04419230432626556,
+    "error_std": 0.003266195998187242,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.11172372204365914,
+    "error_std": 1.6996749443881478e-17,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "gbt",
+    "title": "Gradient-boosted trees",
+    "error_mean": 0.1519566562777936,
+    "error_std": 0.004697934453464799,
+    "n_seeds": 3
+   }
+  ],
+  "geometry_change": [
+   {
+    "rank": 1,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.022089580504485267,
+    "error_std": 1.5684054112819624e-06,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.023076735430928808,
+    "error_std": 0.002725471961953272,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.09183678181091799,
+    "error_std": 1.6996749443881478e-17,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "gbt",
+    "title": "Gradient-boosted trees",
+    "error_mean": 0.09420910569556577,
+    "error_std": 0.005443352479080397,
+    "n_seeds": 3
+   }
+  ]
+ },
+ "overall": [
+  {
+   "method": "gp",
+   "title": "Gaussian process",
+   "mean_rank": 1.25,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "mlp",
+   "title": "MLP",
+   "mean_rank": 1.75,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "ridge",
+   "title": "Polynomial ridge",
+   "mean_rank": 3.0,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "gbt",
+   "title": "Gradient-boosted trees",
+   "mean_rank": 4.0,
+   "regimes_ranked": 4
+  }
+ ],
+ "baselines": [],
+ "audit": {
+  "decision": "pass",
+  "tool": "pinneapple_data.audit.audit_dataset (pinneapple check PC451-PC453)",
+  "checks": [
+   {
+    "id": "finite",
+    "status": "pass",
+    "summary": "every value finite"
+   },
+   {
+    "id": "physics",
+    "status": "not-applicable",
+    "summary": "no PDE stated for this dataset"
+   },
+   {
+    "id": "constraint: Cd > 0",
+    "status": "pass",
+    "summary": "0 of 326 rows violate it"
+   },
+   {
+    "id": "diversity.duplicates",
+    "status": "pass",
+    "summary": "train: 0 exact, 0 near copies of 206; test: 0 exact, 0 near copies of 120"
+   },
+   {
+    "id": "diversity.effective",
+    "status": "pass",
+    "summary": "effective sample count 6.37 of 206 (no generator stated: only a collapse to one pattern is flagged)"
+   },
+   {
+    "id": "leakage",
+    "status": "pass",
+    "summary": "0 of 120 test samples are (near) copies of train samples (closest: 0.0442 x the median train spacing)"
+   },
+   {
+    "id": "units",
+    "status": "not-applicable",
+    "summary": "no unit metadata"
+   }
+  ]
+ },
+ "created": "2026-10-17T11:09:17+00:00",
+ "hardware": {
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "python": "3.13.16",
+  "logical_cpus": 4,
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+  "mem_gb": 15.7,
+  "torch": "2.14.1+cu130",
+  "torch_threads": 1,
+  "gpu": null,
+  "numpy": "2.5.3"
+ },
+ "wall_s": 121.80492508799995,
+ "notes": [
+  "One-shot fits (ridge, gp, gbt) use the time they need, which can be less than the budget; their train_s is that time."
+ ],
+ "not_run": {
+  "gnn": "graph networks (MeshGraphNet) need mesh connectivity; parametric tables and regular grids have none. pp.benchmark runs MeshGraphNet on the airfoil mesh fields.",
+  "r_oams": "R-OAMS is not in the PINNeAPPle library."
+ }
+}

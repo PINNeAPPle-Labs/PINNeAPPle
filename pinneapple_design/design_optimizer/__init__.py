@@ -6,6 +6,9 @@ Provides a closed-loop optimizer that:
 3. Optimizes design via gradient / Bayesian / evolutionary methods
 4. Optionally refines with PINNs
 5. Handles multi-objective optimization with Pareto fronts
+6. Runs design studies (:mod:`.study`, :mod:`.methods`): black-box and gradient methods on one problem
+   description and one evaluation budget, high-fidelity verification and active learning (:mod:`.verify`),
+   method comparison (:mod:`.compare`), presets built from library physics (:mod:`.presets`)
 
 Quick start::
 
@@ -65,6 +68,21 @@ from .optimizer import (
 )
 from .refinement import RefinementConfig, PINNRefinement, RefinementResult
 from .pipeline import DesignOptConfig, DesignOptResult, DesignOptLoop
+from .study import (
+    Variable, DesignSpace, Objective, Constraint, Evaluator, FunctionEvaluator, DesignProblem, Evaluations,
+    feasibility_report, hypervolume, constants_of,
+)
+from .methods import METHODS, OptimizationResult, available_methods, run
+from .verify import (
+    select_candidates, verify_candidates, VerificationReport, GPSurrogate, surrogate_assisted, ActiveLearningResult,
+)
+from .compare import MethodComparison, compare_methods
+from .evaluators import ZooEvaluator, TorchModuleEvaluator, CommandEvaluator, from_model_ref
+from .spec import SpecError, problem_from_spec, reference_for_spec, zoo_problem
+from .report import (
+    to_parameter_space, designs_frame, study_result, surrogate_from_table, model_ref_for_surrogate, table_evaluator,
+    verify_front, write_design_files, chart_points, verify_uploaded_results, DESIGN_FILES,
+)
 
 __all__ = [
     # Adjoint shape optimisation (Feature 16)
@@ -84,4 +102,14 @@ __all__ = [
     "BayesianDesignOptimizer", "EvolutionaryDesignOptimizer",
     "RefinementConfig", "PINNRefinement", "RefinementResult",
     "DesignOptConfig", "DesignOptResult", "DesignOptLoop",
+    # Design studies: one problem description, many methods, high-fidelity verification
+    "Variable", "DesignSpace", "Objective", "Constraint", "Evaluator", "FunctionEvaluator", "DesignProblem",
+    "Evaluations", "feasibility_report", "hypervolume", "constants_of",
+    "METHODS", "OptimizationResult", "available_methods", "run",
+    "select_candidates", "verify_candidates", "VerificationReport", "GPSurrogate", "surrogate_assisted",
+    "ActiveLearningResult", "MethodComparison", "compare_methods",
+    "ZooEvaluator", "TorchModuleEvaluator", "CommandEvaluator", "from_model_ref",
+    "to_parameter_space", "designs_frame", "study_result", "surrogate_from_table", "model_ref_for_surrogate",
+    "table_evaluator", "verify_front", "write_design_files", "chart_points", "verify_uploaded_results", "DESIGN_FILES",
+    "SpecError", "problem_from_spec", "reference_for_spec", "zoo_problem",
 ]

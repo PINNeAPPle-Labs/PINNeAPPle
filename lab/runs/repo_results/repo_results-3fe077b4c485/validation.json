@@ -1,0 +1,39 @@
+[
+ {
+  "name": "drag_balance_pressure_plus_friction",
+  "passed": true,
+  "value": 0.04615455092747001,
+  "reference": 0.046154550927470006,
+  "rtol": 1e-06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "total drag = integrated pressure + skin-friction drag",
+  "label": "force balance (pressure + friction)",
+  "kind": "physics"
+ },
+ {
+  "name": "force_balance_over_patches",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "fuselage + wing + tails = aircraft: CL 0.5893 vs 0.5893, CD 0.04615 vs 0.04615",
+  "kind": "physics"
+ },
+ {
+  "name": "lift_vs_vortex_lattice",
+  "passed": true,
+  "value": 0.5892788407634334,
+  "reference": 0.5577080395854312,
+  "rtol": null,
+  "atol": 0.1,
+  "max": null,
+  "min": null,
+  "detail": "the design tool's own vortex lattice (wing + tail, no fuselage): same pipeline, not independent; tolerance 0.1 as in tests/test_aero_optimizer_3d.py",
+  "kind": "verification"
+ }
+]

@@ -1,0 +1,868 @@
+{
+ "id": "burgers_fields",
+ "title": "Viscous Burgers fields u(x, t) across viscosity",
+ "problem": {
+  "n_samples": 96,
+  "kind": "field",
+  "inputs": [
+   "nu"
+  ],
+  "outputs": [
+   "u"
+  ],
+  "grid_shape": [
+   48,
+   12
+  ],
+  "coord_names": [
+   "x",
+   "t"
+  ],
+  "sha256": "eefeef72b0f22b6a50dc3514dac3b056ab5e202d2c49cc4b97dd285a0ceaf3de",
+  "input_ranges": {
+   "nu": [
+    0.0040354154302511824,
+    0.09910593373208586
+   ]
+  },
+  "n_groups": null,
+  "meta": {
+   "source": "viscous Burgers, exact solution (Cole-Hopf, 120-node Gauss-Hermite quadrature)",
+   "solver": "pinneapple_physics.closed_form.burgers.burgers_sine_exact",
+   "solver_s_per_sample": 0.005781960197917139,
+   "shift": {
+    "column": "nu",
+    "side": "low"
+   },
+   "constraints": [
+    "abs(u) <= 1.005"
+   ],
+   "pde": {
+    "type": "burgers",
+    "coords": {
+     "x": "x",
+     "t": "t"
+    },
+    "coefficients": {
+     "nu": "nu"
+    }
+   }
+  },
+  "constraints": [
+   "abs(u) <= 1.005"
+  ],
+  "pde": {
+   "type": "burgers",
+   "coords": {
+    "x": "x",
+    "t": "t"
+   },
+   "coefficients": {
+    "nu": "nu"
+   }
+  }
+ },
+ "protocol": {
+  "metric": "rel_l2",
+  "metric_definition": "relative L2 error per held-out field, averaged",
+  "budget": {
+   "wall_s": 10.0,
+   "flops": null,
+   "steps": null
+  },
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "split_seed": 0,
+  "few_data_fraction": 0.25,
+  "stopping": "iterative methods: until the budget is spent, best of 10 validation checkpoints (evaluation time not charged); one-shot fits: fitted once, time reported",
+  "equal_data": "one split shared by every method and seed; the model seed varies, the data does not",
+  "hyperparameters": "each method's defaults in pinneapple_analysis.surrogate.methods; no per-method search",
+  "threads": 1,
+  "dataset_sha256": "eefeef72b0f22b6a50dc3514dac3b056ab5e202d2c49cc4b97dd285a0ceaf3de"
+ },
+ "regimes": [
+  {
+   "id": "interpolation",
+   "title": "interpolation",
+   "description": "random held-out samples inside the training distribution",
+   "available": true,
+   "reason": "",
+   "n_train": 54,
+   "n_eval": 16
+  },
+  {
+   "id": "few_data",
+   "title": "few data",
+   "description": "14 of 54 training samples (25%); same held-out samples as interpolation",
+   "available": true,
+   "reason": "",
+   "n_train": 14,
+   "n_eval": 16
+  },
+  {
+   "id": "extrapolation",
+   "title": "extrapolation",
+   "description": "nu <= 0.006179 (14 samples): extrapolation in nu",
+   "available": true,
+   "reason": "",
+   "n_train": 54,
+   "n_eval": 14
+  },
+  {
+   "id": "geometry_change",
+   "title": "geometry change",
+   "description": "whole geometries / cases never seen in training",
+   "available": false,
+   "reason": "the data has no groups (geometry or case labels)",
+   "n_train": 0,
+   "n_eval": 0
+  },
+  {
+   "id": "steep_fronts",
+   "title": "steep fronts",
+   "description": "held-out fields with the steepest gradients (top quartile of max |grad u|)",
+   "available": true,
+   "reason": "",
+   "n_train": 54,
+   "n_eval": 8
+  }
+ ],
+ "methods": [
+  {
+   "id": "ridge",
+   "title": "Polynomial ridge",
+   "family": "classical ML",
+   "iterative": false,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.017627211270276992,
+      0.017627211270276992,
+      0.017627211270276992
+     ],
+     "n_ok": 3,
+     "error_mean": 0.017627211270276992,
+     "error_std": 0.0
+    },
+    "few_data": {
+     "errors": [
+      0.017501742587523718,
+      0.017501742587523718,
+      0.017501742587523718
+     ],
+     "n_ok": 3,
+     "error_mean": 0.017501742587523718,
+     "error_std": 0.0
+    },
+    "extrapolation": {
+     "errors": [
+      0.04941781371151304,
+      0.04941781371151304,
+      0.04941781371151304
+     ],
+     "n_ok": 3,
+     "error_mean": 0.04941781371151304,
+     "error_std": 0.0
+    },
+    "steep_fronts": {
+     "errors": [
+      0.05248937151126847,
+      0.05248937151126847,
+      0.05248937151126847
+     ],
+     "n_ok": 3,
+     "error_mean": 0.05248937151126847,
+     "error_std": 0.0
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 0.0060310470000028244,
+    "infer_s_per_query": 0.00029510383333786194,
+    "size_bytes": 28916.0,
+    "n_params": 2304.0
+   },
+   "cost_std": {
+    "train_s": 0.0004942174327539005,
+    "infer_s_per_query": 2.8600004430587923e-05,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "abs(u) <= 1.005": 0.4666666666666666
+   },
+   "pde_residual_ratio": 1.0605064788828853,
+   "failures": []
+  },
+  {
+   "id": "gp",
+   "title": "Gaussian process",
+   "family": "classical ML",
+   "iterative": false,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.005099874469699513,
+      0.005099874137812264,
+      0.005099873820046345
+     ],
+     "n_ok": 3,
+     "error_mean": 0.005099874142519374,
+     "error_std": 3.2485216230782106e-10
+    },
+    "few_data": {
+     "errors": [
+      0.0053019391137882075,
+      0.0053019288649678,
+      0.005301928217003416
+     ],
+     "n_ok": 3,
+     "error_mean": 0.005301932065253141,
+     "error_std": 6.112802090451591e-09
+    },
+    "extrapolation": {
+     "errors": [
+      0.017126188339829717,
+      0.017126185159827674,
+      0.01712618748196138
+     ],
+     "n_ok": 3,
+     "error_mean": 0.017126186993872923,
+     "error_std": 1.6452282531458131e-09
+    },
+    "steep_fronts": {
+     "errors": [
+      0.01920000264370967,
+      0.01919999759963129,
+      0.019200000834180365
+     ],
+     "n_ok": 3,
+     "error_mean": 0.019200000359173776,
+     "error_std": 2.5553679037569925e-09
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 0.42080788666663693,
+    "infer_s_per_query": 0.0004245721666791269,
+    "size_bytes": 120155.0,
+    "n_params": 216.0
+   },
+   "cost_std": {
+    "train_s": 0.009916389041007553,
+    "infer_s_per_query": 2.161256214966175e-05,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "abs(u) <= 1.005": 0.4666666666666666
+   },
+   "pde_residual_ratio": 1.0179598813358168,
+   "failures": []
+  },
+  {
+   "id": "gbt",
+   "title": "Gradient-boosted trees",
+   "family": "classical ML",
+   "iterative": false,
+   "applicable": false,
+   "reason": "fields: one tree ensemble per grid point is not offered (use gp on POD modes or an operator)",
+   "results": {},
+   "runs": []
+  },
+  {
+   "id": "mlp",
+   "title": "MLP",
+   "family": "neural network",
+   "iterative": true,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.0007719717830753834,
+      0.0008450647678802284,
+      0.0010047895880741027
+     ],
+     "n_ok": 3,
+     "error_mean": 0.0008739420463432382,
+     "error_std": 0.00011906492132310877
+    },
+    "few_data": {
+     "errors": [
+      0.0015197556412729365,
+      0.0008180380758556188,
+      0.001899005356871928
+     ],
+     "n_ok": 3,
+     "error_mean": 0.0014122663580001611,
+     "error_std": 0.0005484414509962019
+    },
+    "extrapolation": {
+     "errors": [
+      0.0077441229712624324,
+      0.007048268845183889,
+      0.008246405458416048
+     ],
+     "n_ok": 3,
+     "error_mean": 0.00767959909162079,
+     "error_std": 0.0006016687911757299
+    },
+    "steep_fronts": {
+     "errors": [
+      0.010295988344118965,
+      0.00931041794186346,
+      0.011059381071120825
+     ],
+     "n_ok": 3,
+     "error_mean": 0.010221929119034417,
+     "error_std": 0.0008768304188898335
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 10.001666666666667,
+    "infer_s_per_query": 0.00015818316664232648,
+    "size_bytes": 197262.0,
+    "n_params": 45888.0
+   },
+   "cost_std": {
+    "train_s": 0.0005773502691903314,
+    "infer_s_per_query": 5.345431589663288e-05,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "abs(u) <= 1.005": 0.17777777777777773
+   },
+   "pde_residual_ratio": 1.003364724612177,
+   "failures": []
+  },
+  {
+   "id": "fno",
+   "title": "FNO",
+   "family": "neural operator",
+   "iterative": true,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.05144200132929555,
+      0.04615655386456798,
+      0.044620791374290855
+     ],
+     "n_ok": 3,
+     "error_mean": 0.04740644885605146,
+     "error_std": 0.0035782543830568283
+    },
+    "few_data": {
+     "errors": [
+      0.03761285183709805,
+      0.03845986565574437,
+      0.03885834227116096
+     ],
+     "n_ok": 3,
+     "error_mean": 0.03831035325466779,
+     "error_std": 0.000636063734143296
+    },
+    "extrapolation": {
+     "errors": [
+      0.1274185218782537,
+      0.11626929444304433,
+      0.11598096263783755
+     ],
+     "n_ok": 3,
+     "error_mean": 0.11988959298637854,
+     "error_std": 0.006521837279605952
+    },
+    "steep_fronts": {
+     "errors": [
+      0.13200091553442833,
+      0.12074236672476639,
+      0.12041717403316662
+     ],
+     "n_ok": 3,
+     "error_mean": 0.12438681876412046,
+     "error_std": 0.0065960055937193665
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 10.085666666666667,
+    "infer_s_per_query": 0.0072506401666790525,
+    "size_bytes": 2093248.0,
+    "n_params": 260569.0
+   },
+   "cost_std": {
+    "train_s": 0.022007574453658987,
+    "infer_s_per_query": 0.00018479362410495401,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "abs(u) <= 1.005": 0.35555555555555557
+   },
+   "pde_residual_ratio": 1.0092621002561515,
+   "failures": []
+  },
+  {
+   "id": "deeponet",
+   "title": "DeepONet",
+   "family": "neural operator",
+   "iterative": true,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.04564447320967807,
+      0.05557806539184903,
+      0.04716385522368391
+     ],
+     "n_ok": 3,
+     "error_mean": 0.04946213127507034,
+     "error_std": 0.005350758639361738
+    },
+    "few_data": {
+     "errors": [
+      0.04781729034340322,
+      0.039135363588248526,
+      0.039428789955033204
+     ],
+     "n_ok": 3,
+     "error_mean": 0.04212714796222832,
+     "error_std": 0.0049299913789694625
+    },
+    "extrapolation": {
+     "errors": [
+      0.12005684256917097,
+      0.13463769456818817,
+      0.12354294825696963
+     ],
+     "n_ok": 3,
+     "error_mean": 0.1260791617981096,
+     "error_std": 0.007614105042551437
+    },
+    "steep_fronts": {
+     "errors": [
+      0.12452050045495529,
+      0.1390507069695388,
+      0.12801739124460462
+     ],
+     "n_ok": 3,
+     "error_mean": 0.13052953288969957,
+     "error_std": 0.007583855686448457
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 10.004,
+    "infer_s_per_query": 0.0008226090000107433,
+    "size_bytes": 106910.0,
+    "n_params": 21121.0
+   },
+   "cost_std": {
+    "train_s": 0.001000000000000334,
+    "infer_s_per_query": 0.0002042171203214029,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "abs(u) <= 1.005": 0.5333333333333333
+   },
+   "pde_residual_ratio": 1.0442334801271507,
+   "failures": []
+  },
+  {
+   "id": "pinn",
+   "title": "PINN",
+   "family": "physics-informed",
+   "iterative": true,
+   "applicable": true,
+   "reason": "",
+   "results": {
+    "interpolation": {
+     "errors": [
+      0.18337581873539782,
+      0.22501375263455273,
+      0.19507759675142272
+     ],
+     "n_ok": 3,
+     "error_mean": 0.20115572270712442,
+     "error_std": 0.021474102919508173
+    },
+    "few_data": {
+     "errors": [
+      0.17501228208194317,
+      0.22561339472885386,
+      0.18948786729838984
+     ],
+     "n_ok": 3,
+     "error_mean": 0.1967045147030623,
+     "error_std": 0.02606104660405757
+    },
+    "extrapolation": {
+     "errors": [
+      0.3449643442135306,
+      0.3833003253987595,
+      0.35128464237506696
+     ],
+     "n_ok": 3,
+     "error_mean": 0.35984977066245233,
+     "error_std": 0.02055317324145066
+    },
+    "steep_fronts": {
+     "errors": [
+      0.3521996086143909,
+      0.38969216380532,
+      0.3587137953688977
+     ],
+     "n_ok": 3,
+     "error_mean": 0.3668685225962029,
+     "error_std": 0.02003241387851275
+    }
+   },
+   "runs": [],
+   "cost": {
+    "train_s": 10.004,
+    "infer_s_per_query": 0.0006204414999804916,
+    "size_bytes": 75945.0,
+    "n_params": 12801.0
+   },
+   "cost_std": {
+    "train_s": 0.0026457513110641315,
+    "infer_s_per_query": 9.831263288439012e-05,
+    "size_bytes": 0.0,
+    "n_params": 0.0
+   },
+   "violations": {
+    "abs(u) <= 1.005": 0.0
+   },
+   "pde_residual_ratio": 0.3297091646644416,
+   "failures": []
+  }
+ ],
+ "rankings": {
+  "interpolation": [
+   {
+    "rank": 1,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.0008739420463432382,
+    "error_std": 0.00011906492132310877,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.005099874142519374,
+    "error_std": 3.2485216230782106e-10,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.017627211270276992,
+    "error_std": 0.0,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "fno",
+    "title": "FNO",
+    "error_mean": 0.04740644885605146,
+    "error_std": 0.0035782543830568283,
+    "n_seeds": 3
+   },
+   {
+    "rank": 5,
+    "method": "deeponet",
+    "title": "DeepONet",
+    "error_mean": 0.04946213127507034,
+    "error_std": 0.005350758639361738,
+    "n_seeds": 3
+   },
+   {
+    "rank": 6,
+    "method": "pinn",
+    "title": "PINN",
+    "error_mean": 0.20115572270712442,
+    "error_std": 0.021474102919508173,
+    "n_seeds": 3
+   }
+  ],
+  "few_data": [
+   {
+    "rank": 1,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.0014122663580001611,
+    "error_std": 0.0005484414509962019,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.005301932065253141,
+    "error_std": 6.112802090451591e-09,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.017501742587523718,
+    "error_std": 0.0,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "fno",
+    "title": "FNO",
+    "error_mean": 0.03831035325466779,
+    "error_std": 0.000636063734143296,
+    "n_seeds": 3
+   },
+   {
+    "rank": 5,
+    "method": "deeponet",
+    "title": "DeepONet",
+    "error_mean": 0.04212714796222832,
+    "error_std": 0.0049299913789694625,
+    "n_seeds": 3
+   },
+   {
+    "rank": 6,
+    "method": "pinn",
+    "title": "PINN",
+    "error_mean": 0.1967045147030623,
+    "error_std": 0.02606104660405757,
+    "n_seeds": 3
+   }
+  ],
+  "extrapolation": [
+   {
+    "rank": 1,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.00767959909162079,
+    "error_std": 0.0006016687911757299,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.017126186993872923,
+    "error_std": 1.6452282531458131e-09,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.04941781371151304,
+    "error_std": 0.0,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "fno",
+    "title": "FNO",
+    "error_mean": 0.11988959298637854,
+    "error_std": 0.006521837279605952,
+    "n_seeds": 3
+   },
+   {
+    "rank": 5,
+    "method": "deeponet",
+    "title": "DeepONet",
+    "error_mean": 0.1260791617981096,
+    "error_std": 0.007614105042551437,
+    "n_seeds": 3
+   },
+   {
+    "rank": 6,
+    "method": "pinn",
+    "title": "PINN",
+    "error_mean": 0.35984977066245233,
+    "error_std": 0.02055317324145066,
+    "n_seeds": 3
+   }
+  ],
+  "steep_fronts": [
+   {
+    "rank": 1,
+    "method": "mlp",
+    "title": "MLP",
+    "error_mean": 0.010221929119034417,
+    "error_std": 0.0008768304188898335,
+    "n_seeds": 3
+   },
+   {
+    "rank": 2,
+    "method": "gp",
+    "title": "Gaussian process",
+    "error_mean": 0.019200000359173776,
+    "error_std": 2.5553679037569925e-09,
+    "n_seeds": 3
+   },
+   {
+    "rank": 3,
+    "method": "ridge",
+    "title": "Polynomial ridge",
+    "error_mean": 0.05248937151126847,
+    "error_std": 0.0,
+    "n_seeds": 3
+   },
+   {
+    "rank": 4,
+    "method": "fno",
+    "title": "FNO",
+    "error_mean": 0.12438681876412046,
+    "error_std": 0.0065960055937193665,
+    "n_seeds": 3
+   },
+   {
+    "rank": 5,
+    "method": "deeponet",
+    "title": "DeepONet",
+    "error_mean": 0.13052953288969957,
+    "error_std": 0.007583855686448457,
+    "n_seeds": 3
+   },
+   {
+    "rank": 6,
+    "method": "pinn",
+    "title": "PINN",
+    "error_mean": 0.3668685225962029,
+    "error_std": 0.02003241387851275,
+    "n_seeds": 3
+   }
+  ]
+ },
+ "overall": [
+  {
+   "method": "mlp",
+   "title": "MLP",
+   "mean_rank": 1.0,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "gp",
+   "title": "Gaussian process",
+   "mean_rank": 2.0,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "ridge",
+   "title": "Polynomial ridge",
+   "mean_rank": 3.0,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "fno",
+   "title": "FNO",
+   "mean_rank": 4.0,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "deeponet",
+   "title": "DeepONet",
+   "mean_rank": 5.0,
+   "regimes_ranked": 4
+  },
+  {
+   "method": "pinn",
+   "title": "PINN",
+   "mean_rank": 6.0,
+   "regimes_ranked": 4
+  }
+ ],
+ "baselines": [
+  {
+   "id": "fdm_201",
+   "description": "explicit upwind / FTCS finite differences, 201 points, CFL 0.4",
+   "regime": "interpolation",
+   "error_mean": 0.02087378343353792,
+   "s_per_query": 0.10270011618749919,
+   "n_eval": 16,
+   "violations": {
+    "abs(u) <= 1.005": 0.0
+   },
+   "pde_residual_ratio": 0.8024442315780309
+  }
+ ],
+ "audit": {
+  "decision": "fail",
+  "tool": "pinneapple_data.audit.audit_dataset (pinneapple check PC451-PC453)",
+  "checks": [
+   {
+    "id": "finite",
+    "status": "pass",
+    "summary": "every value finite"
+   },
+   {
+    "id": "physics",
+    "status": "not-applicable",
+    "summary": "no PDE stated for this dataset"
+   },
+   {
+    "id": "constraint: abs(u) <= 1.005",
+    "status": "pass",
+    "summary": "0 of 48384 rows violate it"
+   },
+   {
+    "id": "diversity.duplicates",
+    "status": "pass",
+    "summary": "train: 0 exact, 0 near copies of 54; test: 0 exact, 0 near copies of 30"
+   },
+   {
+    "id": "diversity.effective",
+    "status": "fail",
+    "summary": "effective sample count 1 of 54 (no generator stated: only a collapse to one pattern is flagged)"
+   },
+   {
+    "id": "leakage",
+    "status": "pass",
+    "summary": "0 of 30 test samples are (near) copies of train samples (closest: 0.0349 x the median train spacing)"
+   },
+   {
+    "id": "units",
+    "status": "not-applicable",
+    "summary": "no unit metadata"
+   }
+  ]
+ },
+ "created": "2026-10-17T11:13:26+00:00",
+ "hardware": {
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "python": "3.13.16",
+  "logical_cpus": 4,
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+  "mem_gb": 15.7,
+  "torch": "2.14.1+cu130",
+  "torch_threads": 1,
+  "gpu": null,
+  "numpy": "2.5.3"
+ },
+ "wall_s": 248.43286717900003,
+ "notes": [
+  "One-shot fits (ridge, gp, gbt) use the time they need, which can be less than the budget; their train_s is that time."
+ ],
+ "not_run": {
+  "gnn": "graph networks (MeshGraphNet) need mesh connectivity; parametric tables and regular grids have none. pp.benchmark runs MeshGraphNet on the airfoil mesh fields.",
+  "r_oams": "R-OAMS is not in the PINNeAPPle library."
+ }
+}

@@ -1,0 +1,356 @@
+{
+ "schema": "validation-report/v1",
+ "model": "airfoil_cst_rans_mlp v1.0.0",
+ "problem": "zoo card of airfoil_cst_rans_mlp",
+ "level": "standard",
+ "decision": "warn",
+ "trust_decision": "REVIEW",
+ "verdict": "warn: data finite (missing values documented)",
+ "credibility": {
+  "code_verification": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  },
+  "solution_verification": {
+   "level": 3,
+   "meaning": "passes quantitative checks",
+   "checks": [
+    "physics.model_checks.1",
+    "physics.model_checks.2",
+    "physics.model_checks.3",
+    "physics.model_checks.4"
+   ]
+  },
+  "validation": {
+   "level": 4,
+   "meaning": "passes against an independent reference or a guaranteed bound",
+   "checks": [
+    "reference.card_metrics",
+    "reference.acceptance.test/Cl_mae",
+    "reference.acceptance.test/Cd_mape_pct",
+    "reference.acceptance.test/Cm_mae",
+    "reference.acceptance.naca_reference/Cl_mae",
+    "reference.acceptance.naca_reference/Cd_mape_pct",
+    "metamorphic.symmetry.camber-mirror-lift",
+    "metamorphic.symmetry.camber-mirror-moment",
+    "metamorphic.symmetry.camber-mirror-drag",
+    "metamorphic.monotonicity.lift-grows-with-alpha"
+   ]
+  },
+  "input_pedigree": {
+   "level": 2,
+   "meaning": "passes with warnings or qualitative evidence only",
+   "checks": [
+    "data.finite",
+    "data.physics.constraint.cd-0",
+    "data.diversity.duplicates",
+    "data.diversity.effective",
+    "data.leakage"
+   ]
+  },
+  "uncertainty": {
+   "level": 2,
+   "meaning": "passes with warnings or qualitative evidence only",
+   "checks": [
+    "uncertainty.spread"
+   ]
+  },
+  "robustness": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  },
+  "applicability": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  }
+ },
+ "checks": [
+  {
+   "id": "method.status",
+   "factor": "code_verification",
+   "status": "not-applicable",
+   "summary": "no catalog method id given (validate(..., method='S2'))",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "reference.card_metrics",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "card metrics reproduced on the stored reference (max relative difference)",
+   "value": 0.0,
+   "threshold": 0.001,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/Cl_mae",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/Cl_mae within the zoo acceptance limit",
+   "value": 0.0028476635807695894,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/Cd_mape_pct",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/Cd_mape_pct within the zoo acceptance limit",
+   "value": 0.5447462642571239,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/Cm_mae",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/Cm_mae within the zoo acceptance limit",
+   "value": 0.0004539437796155409,
+   "threshold": 0.002,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.naca_reference/Cl_mae",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out naca_reference/Cl_mae within the zoo acceptance limit",
+   "value": 0.003231396365459536,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.naca_reference/Cd_mape_pct",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out naca_reference/Cd_mape_pct within the zoo acceptance limit",
+   "value": 0.615631882294239,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.1",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "lift slope vs thin-airfoil 2 pi/rad (alpha -2..6, held-out shapes)",
+   "value": 0.04875750467180495,
+   "threshold": 0.15,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.2",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "Cl increases with alpha below stall (alpha -2..10, held-out shapes)",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.3",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "symmetric airfoil: |Cl(0)| and |Cl(2)+Cl(-2)| (NACA 0012)",
+   "value": 0.000901879482561152,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.4",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "Cd > 0 and finite outputs on 2000 random in-range inputs",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "applicability.range",
+   "factor": "applicability",
+   "status": "not-applicable",
+   "summary": "no query inputs given",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "uncertainty.spread",
+   "factor": "uncertainty",
+   "status": "pass",
+   "summary": "the model returns a predictive spread or bound",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "metamorphic.symmetry.camber-mirror-lift",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "worst violation 0.819 over 64 samples",
+   "value": 0.8187218703710392,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "metamorphic.symmetry.camber-mirror-moment",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "worst violation 1.03 over 64 samples",
+   "value": 1.0316587651207796,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "metamorphic.symmetry.camber-mirror-drag",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "worst violation 0.0219 over 64 samples",
+   "value": 0.02190769643044228,
+   "threshold": 0.04,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "metamorphic.monotonicity.lift-grows-with-alpha",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "worst violation 0 over 64 samples",
+   "value": 0.0,
+   "threshold": 0.001,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.finite",
+   "factor": "input_pedigree",
+   "status": "warn",
+   "summary": "stored audit card of airfoil_rans_cst_re4e6: missing values (NaN) in train/Cm (340, documented)",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "data.physics.physics",
+   "factor": "input_pedigree",
+   "status": "not-applicable",
+   "summary": "stored audit card of airfoil_rans_cst_re4e6: no PDE stated for this dataset",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.physics.constraint.cd-0",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of airfoil_rans_cst_re4e6: Cd > 0: 0 of 448 rows violate it",
+   "value": 0,
+   "threshold": 0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.diversity.duplicates",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of airfoil_rans_cst_re4e6: train: 0 exact, 0 near copies of 340; test: 0 exact, 0 near copies of 60",
+   "value": 0.0,
+   "threshold": 0.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.diversity.effective",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of airfoil_rans_cst_re4e6: effective sample count 6.47 of 340 (no generator stated: only a collapse to one pattern is flagged)",
+   "value": 6.472532340987487,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.leakage",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of airfoil_rans_cst_re4e6: 0 of 60 test samples are (near) copies of train samples (closest: 1.03 x the median train spacing)",
+   "value": 0.0,
+   "threshold": 0.0,
+   "critical": true,
+   "evidence": {}
+  }
+ ],
+ "provenance": {
+  "library_version": "0.7.0",
+  "level": "standard",
+  "source": "pp.validate",
+  "model_hash": "fb3de764d06bc4194dd6e92120dc5f76a3db15c4a71501a17c8c1599345e7333",
+  "data_hash": null,
+  "physics": {
+   "problem": null,
+   "tolerances": {
+    "energy_bound": 1.0,
+    "flux": 0.1,
+    "reference": 0.1,
+    "spectral": 0.25,
+    "symmetry": 0.1,
+    "noise": 3.0,
+    "alpha": 0.1
+   },
+   "seed": 0
+  },
+  "model_card": {
+   "name": "airfoil_cst_rans_mlp",
+   "version": "1.0.0"
+  },
+  "validity_range": {
+   "T0": [
+    0.1,
+    0.24
+   ],
+   "T1": [
+    0.08,
+    0.22
+   ],
+   "T2": [
+    0.08,
+    0.22
+   ],
+   "M0": [
+    -0.03,
+    0.08
+   ],
+   "M1": [
+    -0.02,
+    0.14
+   ],
+   "M2": [
+    -0.04,
+    0.12
+   ],
+   "alpha_deg": [
+    -2.0,
+    14.0
+   ]
+  }
+ }
+}

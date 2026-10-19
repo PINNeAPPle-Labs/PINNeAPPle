@@ -1,0 +1,257 @@
+{
+ "flow": "planned_digital_twin",
+ "title": "Digital twin on a sensor stream",
+ "status": "done",
+ "wall_seconds": 4.6,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-18",
+ "meta": {
+  "title": "Digital twin on a sensor stream",
+  "family": "twin",
+  "decisions": [
+   {
+    "topic": "twin",
+    "what": "twin of the heated tank: plant stream, EnKF, alerts",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.design"
+    },
+    "rationale": "digital twin = model + live data + assimilation + calibration + anomaly alerts",
+    "value": null,
+    "references": [
+     {
+      "key": "kapteyn2021twin",
+      "title": "A probabilistic graphical model foundation for enabling predictive digital twins at scale",
+      "authors": [
+       "M. G. Kapteyn",
+       "J. V. R. Pretorius",
+       "K. E. Willcox"
+      ],
+      "year": 2021,
+      "venue": "Nature Computational Science 1, 337-347",
+      "doi": "10.1038/s43588-021-00069-0",
+      "kind": "article",
+      "topics": [
+       "digital_twin"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1038/s43588-021-00069-0"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "7e89b4daae",
+    "created": 1792356560.3642707
+   },
+   {
+    "topic": "twin",
+    "what": "ensemble Kalman filter",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.enkf"
+    },
+    "rationale": "ensemble Kalman filter for state estimation",
+    "value": null,
+    "references": [
+     {
+      "key": "evensen1994enkf",
+      "title": "Sequential data assimilation with a nonlinear quasi-geostrophic model using Monte Carlo methods to forecast error statistics",
+      "authors": [
+       "G. Evensen"
+      ],
+      "year": 1994,
+      "venue": "Journal of Geophysical Research: Oceans 99(C5), 10143-10162",
+      "doi": "10.1029/94JC00572",
+      "kind": "article",
+      "topics": [
+       "enkf",
+       "data_assimilation",
+       "digital_twin",
+       "parameter_estimation"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1029/94JC00572"
+     },
+     {
+      "key": "kalman1960filter",
+      "title": "A New Approach to Linear Filtering and Prediction Problems",
+      "authors": [
+       "R. E. Kalman"
+      ],
+      "year": 1960,
+      "venue": "Journal of Basic Engineering 82(1), 35-45",
+      "doi": "10.1115/1.3662552",
+      "kind": "article",
+      "topics": [
+       "kalman",
+       "data_assimilation",
+       "digital_twin"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1115/1.3662552"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "e74534caf3",
+    "created": 1792356560.3643308
+   },
+   {
+    "topic": "twin",
+    "what": "leak flow and heater efficiency as estimated states",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.parameter_state"
+    },
+    "rationale": "coefficients carried as random-walk states so the filter calibrates them",
+    "value": null,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "standard practice; the cited EnKF paper covers the filter, not this augmentation",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "6a918b8ba4",
+    "created": 1792356560.3643625
+   },
+   {
+    "topic": "twin",
+    "what": "alert thresholds",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.alert_thresholds"
+    },
+    "rationale": "alerts at chi-square 0.999 consistency and 3-sigma parameter limits",
+    "value": null,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "library",
+      "ref": "pinneapple_systems/operations/twin.py",
+      "detail": "AlertRules"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "defaults of pinneapple_systems.operations.twin.AlertRules",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "03724b8a11",
+    "created": 1792356560.3643854
+   }
+  ],
+  "planner": "heuristic",
+  "prompt": "Monitor a heated water tank in real time from its level and temperature sensors (a digital twin) and detect leaks.",
+  "kind": "planned",
+  "detected": {
+   "family": "heat",
+   "dimension": null,
+   "intents": [
+    "twin"
+   ],
+   "boundary": []
+  }
+ },
+ "nodes": {
+  "twin": {
+   "type": "twin.connect",
+   "status": "done",
+   "seconds": 4.504979610443115,
+   "error": null,
+   "summary": "721 readings assimilated, 1 alert(s)",
+   "metrics": {
+    "readings": 721,
+    "alerts": 1,
+    "assimilation_seconds": 4.11,
+    "q_leak_final_estimate": {
+     "value": 0.0005028609220658921,
+     "how": "m^3/s, ensemble mean at the last reading"
+    },
+    "q_leak_true": {
+     "value": 0.0005,
+     "how": "the leak injected in the simulated plant"
+    },
+    "detection_delay_s": {
+     "value": 140.0,
+     "how": "first alert after the fault started"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "alerts",
+     "columns": [
+      "t",
+      "kind",
+      "message"
+     ],
+     "rows": [
+      [
+       3740.0,
+       "parameter",
+       "estimated q_leak = 0.0004537 +- 5e-05 is above 0.0003 (beyond 3 sigma)"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "twin_twin.png"
+   ]
+  },
+  "report": {
+   "type": "export.report",
+   "status": "done",
+   "seconds": 0.0018284320831298828,
+   "error": null,
+   "summary": "report written (html)",
+   "metrics": {
+    "decisions": 7,
+    "decisions_without_reference": 0,
+    "items": 1
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  }
+ },
+ "cached_nodes": []
+}

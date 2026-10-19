@@ -1,0 +1,1213 @@
+{
+ "flow": "planned_plate_2d_to_3d_edited",
+ "title": "Classical solver + PINN, validated (edited to 3-D)",
+ "status": "done",
+ "wall_seconds": 205.5,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-19",
+ "meta": {
+  "title": "Classical solver + PINN, validated",
+  "family": "poisson",
+  "decisions": [
+   {
+    "topic": "equations",
+    "what": "PDE family: poisson",
+    "decided_by": {
+     "kind": "rule",
+     "id": "family.keywords"
+    },
+    "rationale": "keyword scores heat (4), poisson (1.5); steady wording turned heat into poisson",
+    "value": "poisson",
+    "references": [
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_planner.py",
+      "detail": "detection of the family from descriptions"
+     }
+    ],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "ed9c41162f",
+    "created": 1792368157.3688123
+   },
+   {
+    "topic": "equations",
+    "what": "equations: lap(u) = -2*pi**2*sin(pi*x)*sin(pi*y)",
+    "decided_by": {
+     "kind": "rule",
+     "id": "family.poisson"
+    },
+    "rationale": "steady field with a source: lap(u) = f",
+    "value": [
+     "lap(u) = -2*pi**2*sin(pi*x)*sin(pi*y)"
+    ],
+    "references": [
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/poisson_2d/summary.json",
+      "detail": "Poisson 2D: FD / FEM / PINN vs exact"
+     }
+    ],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "47bc6ad019",
+    "created": 1792368157.3689113
+   },
+   {
+    "topic": "dimension",
+    "what": "2-D",
+    "decided_by": {
+     "kind": "rule",
+     "id": "dimension.keywords"
+    },
+    "rationale": "dimension from the description's words (rod -> 1-D, plate -> 2-D, block -> 3-D)",
+    "value": 2,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_planner.py",
+      "detail": "dimension detection"
+     }
+    ],
+    "node": "geo",
+    "notes": "",
+    "uncited_reason": "a reading of the user's words; confirm it in the domain node",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "c363de5bb8",
+    "created": 1792368157.3689477
+   },
+   {
+    "topic": "dimension",
+    "what": "domain extent and time interval",
+    "decided_by": {
+     "kind": "rule",
+     "id": "domain.unit_box"
+    },
+    "rationale": "unit domain (or the stated length) with time [0, T] from the template",
+    "value": null,
+    "references": [],
+    "evidence": [],
+    "node": "geo",
+    "notes": "",
+    "uncited_reason": "illustrative extent; replace with the real geometry",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "validate.compare"
+    ],
+    "id": "829ccc2252",
+    "created": 1792368157.3689704
+   },
+   {
+    "topic": "bcs",
+    "what": "boundary conditions of the template",
+    "decided_by": {
+     "kind": "rule",
+     "id": "bc.dirichlet_template"
+    },
+    "rationale": "fixed values on the boundary (Dirichlet), the template's well-posed setting",
+    "value": [
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "references": [
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "c2a2e7de89",
+    "created": 1792368157.3689969
+   },
+   {
+    "topic": "validation",
+    "what": "exact solution: sin(pi*x)*sin(pi*y)",
+    "decided_by": {
+     "kind": "rule",
+     "id": "exact.template"
+    },
+    "rationale": "exact solution of the template problem (for validation)",
+    "value": "sin(pi*x)*sin(pi*y)",
+    "references": [
+     {
+      "key": "carslaw1959heat",
+      "title": "Conduction of Heat in Solids (2nd ed.)",
+      "authors": [
+       "H. S. Carslaw",
+       "J. C. Jaeger"
+      ],
+      "year": 1959,
+      "venue": "Oxford University Press",
+      "kind": "book",
+      "topics": [
+       "heat",
+       "exact_solutions",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": ""
+     },
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_equations.py",
+      "detail": "FD and PINN solutions of parsed systems against exact solutions"
+     }
+    ],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "135fe599d2",
+    "created": 1792368157.3690274
+   },
+   {
+    "topic": "method",
+    "what": "finite differences (method of lines) as the classical reference",
+    "decided_by": {
+     "kind": "rule",
+     "id": "method.fd"
+    },
+    "rationale": "finite differences / method of lines with BDF for the edited system",
+    "value": null,
+    "references": [
+     {
+      "key": "leveque2007fd",
+      "title": "Finite Difference Methods for Ordinary and Partial Differential Equations",
+      "authors": [
+       "R. J. LeVeque"
+      ],
+      "year": 2007,
+      "venue": "SIAM",
+      "doi": "10.1137/1.9780898717839",
+      "kind": "book",
+      "topics": [
+       "finite_differences",
+       "method_of_lines",
+       "stability",
+       "heat",
+       "wave",
+       "advection",
+       "poisson"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1137/1.9780898717839"
+     },
+     {
+      "key": "hairer1996odes2",
+      "title": "Solving Ordinary Differential Equations II: Stiff and Differential-Algebraic Problems (2nd ed.)",
+      "authors": [
+       "E. Hairer",
+       "G. Wanner"
+      ],
+      "year": 1996,
+      "venue": "Springer",
+      "doi": "10.1007/978-3-642-05221-7",
+      "kind": "book",
+      "topics": [
+       "bdf",
+       "stiff",
+       "method_of_lines"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1007/978-3-642-05221-7"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_equations.py",
+      "detail": "FD and PINN solutions of parsed systems against exact solutions"
+     },
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/heat_1d/summary.json",
+      "detail": "heat 1D: FD and PINN vs exact, Lab tier"
+     }
+    ],
+    "node": "fd",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "6a04b2fb41",
+    "created": 1792368157.3690789
+   },
+   {
+    "topic": "method",
+    "what": "P1 finite elements as a second classical method",
+    "decided_by": {
+     "kind": "rule",
+     "id": "method.fem"
+    },
+    "rationale": "P1 finite elements for steady Poisson / Laplace",
+    "value": null,
+    "references": [
+     {
+      "key": "brenner2008fem",
+      "title": "The Mathematical Theory of Finite Element Methods (3rd ed.)",
+      "authors": [
+       "S. C. Brenner",
+       "L. R. Scott"
+      ],
+      "year": 2008,
+      "venue": "Springer",
+      "doi": "10.1007/978-0-387-75934-0",
+      "kind": "book",
+      "topics": [
+       "finite_elements",
+       "poisson"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1007/978-0-387-75934-0"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/poisson_2d/summary.json",
+      "detail": "Poisson 2D: FD / FEM / PINN vs exact"
+     }
+    ],
+    "node": "fem",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "692e53a373",
+    "created": 1792368157.3691092
+   },
+   {
+    "topic": "method",
+    "what": "a PINN on the same equations",
+    "decided_by": {
+     "kind": "rule",
+     "id": "method.pinn"
+    },
+    "rationale": "physics-informed network on the same equations",
+    "value": null,
+    "references": [
+     {
+      "key": "raissi2019pinn",
+      "title": "Physics-informed neural networks: A deep learning framework for solving forward and inverse problems involving nonlinear partial differential equations",
+      "authors": [
+       "M. Raissi",
+       "P. Perdikaris",
+       "G. E. Karniadakis"
+      ],
+      "year": 2019,
+      "venue": "Journal of Computational Physics 378, 686-707",
+      "doi": "10.1016/j.jcp.2018.10.045",
+      "kind": "article",
+      "topics": [
+       "pinn",
+       "inverse_pinn",
+       "burgers"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1016/j.jcp.2018.10.045"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/heat_1d/summary.json",
+      "detail": "heat 1D: FD and PINN vs exact, Lab tier"
+     },
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/poisson_2d/summary.json",
+      "detail": "Poisson 2D: FD / FEM / PINN vs exact"
+     }
+    ],
+    "node": "pinn",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "8432930d8d",
+    "created": 1792368157.3691342
+   },
+   {
+    "topic": "hyperparameters",
+    "what": "4000 Adam steps then 300 L-BFGS, width 32, depth 4",
+    "decided_by": {
+     "kind": "rule",
+     "id": "method.pinn_training"
+    },
+    "rationale": "Adam then L-BFGS, validated at fresh points (residual, conditions, causality)",
+    "value": {
+     "adam_steps": 4000,
+     "lbfgs_steps": 300
+    },
+    "references": [
+     {
+      "key": "kingma2015adam",
+      "title": "Adam: A Method for Stochastic Optimization",
+      "authors": [
+       "D. P. Kingma",
+       "J. Ba"
+      ],
+      "year": 2015,
+      "venue": "International Conference on Learning Representations (ICLR)",
+      "url": "https://arxiv.org/abs/1412.6980",
+      "kind": "conference",
+      "topics": [
+       "optimizer",
+       "hyperparameters"
+      ],
+      "status": "registry",
+      "link": "https://arxiv.org/abs/1412.6980"
+     },
+     {
+      "key": "liu1989lbfgs",
+      "title": "On the limited memory BFGS method for large scale optimization",
+      "authors": [
+       "D. C. Liu",
+       "J. Nocedal"
+      ],
+      "year": 1989,
+      "venue": "Mathematical Programming 45, 503-528",
+      "doi": "10.1007/BF01589116",
+      "kind": "article",
+      "topics": [
+       "optimizer",
+       "lbfgs"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1007/BF01589116"
+     },
+     {
+      "key": "wang2022causality",
+      "title": "Respecting causality is all you need for training physics-informed neural networks",
+      "authors": [
+       "S. Wang",
+       "S. Sankaran",
+       "P. Perdikaris"
+      ],
+      "year": 2022,
+      "venue": "arXiv preprint",
+      "url": "https://arxiv.org/abs/2203.07404",
+      "kind": "preprint",
+      "topics": [
+       "pinn",
+       "pinn_validation"
+      ],
+      "status": "registry",
+      "link": "https://arxiv.org/abs/2203.07404"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "library",
+      "ref": "pinneapple_analysis/validation/pinn.py",
+      "detail": "train_pinn / validate_pinn"
+     }
+    ],
+    "node": "pinn",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "27a4b11476",
+    "created": 1792368157.369161
+   },
+   {
+    "topic": "architecture",
+    "what": "PINN width 32, depth 4",
+    "decided_by": {
+     "kind": "rule",
+     "id": "architecture.default_sizes"
+    },
+    "rationale": "suggested widths, depths and modes",
+    "value": {
+     "width": 32,
+     "depth": 4
+    },
+    "references": [],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/operator_burgers/summary.json",
+      "detail": "DeepONet and FNO on Burgers"
+     }
+    ],
+    "node": "pinn",
+    "notes": "",
+    "uncited_reason": "rule-of-thumb sizes; the HPO node or a benchmark should confirm them",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "a0eb57bd3c",
+    "created": 1792368157.36919
+   },
+   {
+    "topic": "validation",
+    "what": "compare against the exact solution",
+    "decided_by": {
+     "kind": "rule",
+     "id": "validation.reference"
+    },
+    "rationale": "measure every candidate against an exact solution or a reference solution",
+    "value": null,
+    "references": [
+     {
+      "key": "oberkampf2010vv",
+      "title": "Verification and Validation in Scientific Computing",
+      "authors": [
+       "W. L. Oberkampf",
+       "C. J. Roy"
+      ],
+      "year": 2010,
+      "venue": "Cambridge University Press",
+      "doi": "10.1017/CBO9780511760396",
+      "kind": "book",
+      "topics": [
+       "validation",
+       "verification",
+       "thresholds"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1017/CBO9780511760396"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/heat_1d/summary.json",
+      "detail": "heat 1D: FD and PINN vs exact, Lab tier"
+     },
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/poisson_2d/summary.json",
+      "detail": "Poisson 2D: FD / FEM / PINN vs exact"
+     }
+    ],
+    "node": "validate",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "43e34e8f5d",
+    "created": 1792368157.3692107
+   },
+   {
+    "topic": "validation",
+    "what": "pass at relative L2 <= 0.02",
+    "decided_by": {
+     "kind": "rule",
+     "id": "validation.threshold"
+    },
+    "rationale": "pass at relative L2 <= 2 % (the PINN validation default)",
+    "value": 0.02,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "library",
+      "ref": "pinneapple_analysis/validation/pinn.py",
+      "detail": "TOLERANCES"
+     }
+    ],
+    "node": "validate",
+    "notes": "",
+    "uncited_reason": "project convention: TOLERANCES['exact'] in pinneapple_analysis.validation.pinn",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "ec708517b1",
+    "created": 1792368157.369233
+   },
+   {
+    "topic": "validation",
+    "what": "Lab curation and seal of the validation",
+    "decided_by": {
+     "kind": "rule",
+     "id": "validation.lab_tiers"
+    },
+    "rationale": "PINNeAPPle Lab seal letters A-F from the curation",
+    "value": null,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "library",
+      "ref": "pinneapple_lab/curation.py",
+      "detail": "tier gates"
+     }
+    ],
+    "node": "lab",
+    "notes": "",
+    "uncited_reason": "the library's own curation rules",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "1eb28b6dca",
+    "created": 1792368157.369255
+   },
+   {
+    "topic": "route",
+    "what": "route: classical solver + PINN, validated",
+    "decided_by": {
+     "kind": "rule",
+     "id": "route.alternatives"
+    },
+    "rationale": "offer the classical + PINN route, a surrogate route and an inverse route when they apply",
+    "value": null,
+    "references": [],
+    "evidence": [],
+    "node": "",
+    "notes": "",
+    "uncited_reason": "a planning heuristic of this library",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "validate.compare"
+    ],
+    "id": "68e907e225",
+    "created": 1792368157.3692718
+   },
+   {
+    "topic": "dimension",
+    "what": "switch 2-D -> 3-D on the domain node; equations follow the template",
+    "decided_by": {
+     "kind": "rule",
+     "id": "dimension.lap_switch"
+    },
+    "rationale": "lap() keeps one equation text valid in 1-D, 2-D and 3-D, so the domain switch carries the problem",
+    "value": [
+     2,
+     3
+    ],
+    "references": [
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_equations.py",
+      "detail": "lap() expands to the spatial coordinates"
+     }
+    ],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "80e5aaacde",
+    "created": 1792368157.3692925
+   }
+  ],
+  "planner": "heuristic",
+  "prompt": "Steady heat conduction in a square plate with internal heat generation and the edges held at 0 degrees; compare finite elements, finite differences and a PINN. Then switch the plate from 2D to 3D.",
+  "kind": "planned",
+  "detected": {
+   "family": "poisson",
+   "dimension": 2,
+   "intents": [
+    "fd",
+    "fem",
+    "pinn"
+   ],
+   "boundary": [
+    "dirichlet"
+   ]
+  },
+  "edit": "geometry.domain dimension 2 -> 3"
+ },
+ "nodes": {
+  "geo": {
+   "type": "geometry.domain",
+   "status": "done",
+   "seconds": 0.0017137527465820312,
+   "error": null,
+   "summary": "box in 3-D, coordinates ['x', 'y', 'z']",
+   "metrics": {
+    "dimension": 3
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "mesh": {
+   "type": "geometry.mesh",
+   "status": "done",
+   "seconds": 0.0010302066802978516,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "nodes": 9261
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "spacing",
+     "columns": [
+      "axis",
+      "nodes",
+      "h"
+     ],
+     "rows": [
+      [
+       "x",
+       21,
+       0.05
+      ],
+      [
+       "y",
+       21,
+       0.05
+      ],
+      [
+       "z",
+       21,
+       0.05
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "eq": {
+   "type": "equations.system",
+   "status": "done",
+   "seconds": 0.3352658748626709,
+   "error": null,
+   "summary": "poisson (linear), 1 PDE(s), 1 condition(s)",
+   "metrics": {
+    "family": "poisson",
+    "linear": true
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "equations",
+     "columns": [
+      "kind",
+      "on",
+      "equation",
+      "derivatives"
+     ],
+     "rows": [
+      [
+       "pde",
+       "",
+       "lap(u) = -3*pi**2*sin(pi*x)*sin(pi*y)*sin(pi*z)",
+       "u_xx, u_yy, u_zz"
+      ],
+      [
+       "dirichlet",
+       "boundary",
+       "u = 0",
+       ""
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "fd": {
+   "type": "solver.classical",
+   "status": "done",
+   "seconds": 26.331799030303955,
+   "error": null,
+   "summary": "FD on 21x21x21 points in 25.58 s",
+   "metrics": {
+    "method": "newton",
+    "iterations": 3,
+    "n_unknowns": 9261,
+    "residual_inf": 2.4513724383723456e-13,
+    "solve_seconds": {
+     "value": 25.5754,
+     "how": "wall clock of the solve on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "fd_solution.png"
+   ]
+  },
+  "fem": {
+   "type": "solver.classical",
+   "status": "done",
+   "seconds": 3.574662208557129,
+   "error": null,
+   "summary": "FEM on 11x11x11 points in 3.29 s",
+   "metrics": {
+    "n_dof": 1331,
+    "solve_seconds": {
+     "value": 3.2935,
+     "how": "wall clock of the solve on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "fem_solution.png"
+   ]
+  },
+  "pinn": {
+   "type": "train.pinn",
+   "status": "done",
+   "seconds": 91.35492420196533,
+   "error": null,
+   "summary": "PINN trained in 89.5 s; validation failed",
+   "metrics": {
+    "train_seconds": {
+     "value": 89.47,
+     "how": "wall clock of training on this machine (CPU)"
+    },
+    "final_loss": 0.0027582463808357716,
+    "n_parameters": 3329,
+    "residual_rms_fresh": {
+     "value": 0.02350876367910483,
+     "how": "relative PDE residual at fresh points"
+    },
+    "rel_l2_vs_exact": {
+     "value": 0.03267542599398538,
+     "how": "validate_pinn on a fresh grid"
+    },
+    "validation": "fail"
+   },
+   "warnings": [
+    "failure modes: boundary condition not satisfied; PDE residual too large at fresh points; error against the exact solution"
+   ],
+   "tables": [
+    {
+     "title": "PINN validation (fresh points)",
+     "columns": [
+      "check",
+      "status",
+      "summary"
+     ],
+     "rows": [
+      [
+       "pinn.residual",
+       "fail",
+       "relative residual at fresh points: RMS 2.35e-02 (<= 0.05), max 5.06e-01 (<= 0.3, adaptive points included)"
+      ],
+      [
+       "pinn.trivial",
+       "pass",
+       "spread and gradient energy 1.00 x the exact solution's (>= 0.2)"
+      ],
+      [
+       "pinn.causality",
+       "not-applicable",
+       "steady problem (no time axis)"
+      ],
+      [
+       "pinn.boundary",
+       "fail",
+       "boundary condition error 1.62e-02 of the solution scale (<= 0.01)"
+      ],
+      [
+       "pinn.initial",
+       "not-applicable",
+       "the problem has no initial condition to check"
+      ],
+      [
+       "pinn.spectrum",
+       "pass",
+       "high-wavenumber energy -3% relative to the exact solution (within +/-25%)"
+      ],
+      [
+       "pinn.exact",
+       "fail",
+       "relative L2 error 3.27e-02 (<= 0.02), max 9.51e-02 of the scale"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "pinn_loss.png",
+    "pinn_solution.png"
+   ]
+  },
+  "view3d": {
+   "type": "viz.field3d",
+   "status": "done",
+   "seconds": 0.3622157573699951,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "points": 9261
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "validate": {
+   "type": "validate.compare",
+   "status": "done",
+   "seconds": 0.9257304668426514,
+   "error": null,
+   "summary": "FD: 2.06e-03, FEM: 5.87e-02, PINN: 2.96e-02 (vs exact solution)",
+   "metrics": {
+    "FD_rel_l2": {
+     "value": 0.0020587067645338355,
+     "how": "against the exact solution on 9261 points"
+    },
+    "FEM_rel_l2": {
+     "value": 0.05871026997465407,
+     "how": "against the exact solution on 9261 points"
+    },
+    "PINN_rel_l2": {
+     "value": 0.029562267954310568,
+     "how": "against the exact solution on 9261 points"
+    },
+    "best": "FD"
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "errors against the exact solution",
+     "columns": [
+      "candidate",
+      "method",
+      "rel. L2",
+      "max |err|",
+      "RMSE",
+      "verdict"
+     ],
+     "rows": [
+      [
+       "FD",
+       "fd",
+       0.0020587067645338355,
+       0.002058706764533902,
+       0.0006764964928523474,
+       "PASS"
+      ],
+      [
+       "FEM",
+       "fem",
+       0.05871026997465407,
+       0.07237903071157592,
+       0.01929235013771442,
+       "FAIL"
+      ],
+      [
+       "PINN",
+       "pinn",
+       0.029562267954310568,
+       0.09514950215816498,
+       0.009714239510152323,
+       "FAIL"
+      ]
+     ]
+    },
+    {
+     "title": "candidates' own checks",
+     "columns": [
+      "candidate",
+      "check",
+      "verdict",
+      "detail"
+     ],
+     "rows": [
+      [
+       "PINN",
+       "pinn.residual",
+       "FAIL",
+       "relative residual at fresh points: RMS 2.35e-02 (<= 0.05), max 5.06e-01 (<= 0.3, adaptive points included)"
+      ],
+      [
+       "PINN",
+       "pinn.trivial",
+       "PASS",
+       "spread and gradient energy 1.00 x the exact solution's (>= 0.2)"
+      ],
+      [
+       "PINN",
+       "pinn.boundary",
+       "FAIL",
+       "boundary condition error 1.62e-02 of the solution scale (<= 0.01)"
+      ],
+      [
+       "PINN",
+       "pinn.spectrum",
+       "PASS",
+       "high-wavenumber energy -3% relative to the exact solution (within +/-25%)"
+      ],
+      [
+       "PINN",
+       "pinn.exact",
+       "FAIL",
+       "relative L2 error 3.27e-02 (<= 0.02), max 9.51e-02 of the scale"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "validate_validation.png"
+   ]
+  },
+  "plot": {
+   "type": "viz.plot",
+   "status": "done",
+   "seconds": 0.619873046875,
+   "error": null,
+   "summary": "",
+   "metrics": {},
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "plot_plot_0.png",
+    "plot_plot_1.png"
+   ]
+  },
+  "lab": {
+   "type": "validate.lab",
+   "status": "done",
+   "seconds": 1.481541395187378,
+   "error": null,
+   "summary": "tier F (PINN pinn.residual \u00b7 PINN's own check (+4 more)), sealed",
+   "metrics": {
+    "lab_status": "failed_validation",
+    "tier": {
+     "value": "F",
+     "how": "this run, graded by pinneapple_lab.curation: A flagship, B solid, C plausible, D exploratory, E known problems, F not usable; PINN pinn.residual \u00b7 PINN's own check (+4 more)"
+    },
+    "item_tier": {
+     "value": "F",
+     "how": "the Lab item's letter: the best of its runs"
+    },
+    "lab_run_id": "flow_poisson_2d_classical_vs_pinn_3d_lab-8f6dfbb4dd24",
+    "seal": {
+     "value": "F",
+     "how": "pinneapple_lab (ABCDEF): not usable"
+    }
+   },
+   "warnings": [
+    "failing check: PINN pinn.residual \u00b7 PINN's own check (+4 more); to raise it: E: make the physics check pass"
+   ],
+   "tables": [
+    {
+     "title": "what the next letter needs",
+     "columns": [
+      "gap",
+      "suggested action",
+      "nodes"
+     ],
+     "rows": [
+      [
+       "make the physics check pass",
+       "lint the run's fields for conservation, boundary conditions, residual and units",
+       "validate.compare, train.pinn"
+      ],
+      [
+       "make the physics check pass",
+       "lint the run's fields for conservation, boundary conditions, residual and units",
+       "validate.compare, train.pinn"
+      ],
+      [
+       "make the physics check pass",
+       "lint the run's fields for conservation, boundary conditions, residual and units",
+       "validate.compare, train.pinn"
+      ],
+      [
+       "bring the error vs the reference within its tolerance",
+       "diagnose the PINN on fresh points (residual, failure modes such as a collapsed or spectrally biased solution) before retraining",
+       "train.pinn, lib.compare.preset"
+      ],
+      [
+       "bring the error vs the reference within its tolerance",
+       "diagnose the PINN on fresh points (residual, failure modes such as a collapsed or spectrally biased solution) before retraining",
+       "train.pinn, lib.compare.preset"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "lab_validation_sealed.png"
+   ]
+  },
+  "report": {
+   "type": "export.report",
+   "status": "done",
+   "seconds": 0.0027523040771484375,
+   "error": null,
+   "summary": "report written (html)",
+   "metrics": {
+    "decisions": 20,
+    "decisions_without_reference": 2,
+    "items": 2
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  }
+ },
+ "cached_nodes": []
+}

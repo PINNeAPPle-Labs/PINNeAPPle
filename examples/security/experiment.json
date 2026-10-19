@@ -1,0 +1,41 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/security",
+ "title": "Security for scientific and industrial Physics AI (`pinneapple_security`)",
+ "description": "Secure Physics AI pipeline, end to end, with pinneapple_security. A plant shares 30 days of operating data (flow in, flow out, pump speed) to train a surrogate of the outlet flow. The data is confidential and holds operator e-mails in a notes column. The pipeline: 1. labels the dataset, redacts personal data, writes a signed manifest of it and an encrypted copy (AES-GCM); 2. trains the surrogate w",
+ "domain": "security",
+ "methods": [],
+ "modules": [
+  "pinneapple_registry.model_store",
+  "pinneapple_security",
+  "pinneapple_security.cps_bench"
+ ],
+ "params": {},
+ "scripts": [
+  "01_secure_physics_ai_pipeline.py",
+  "02_physics_residual_fdi.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/security.md",
+  "script": "examples/security/01_secure_physics_ai_pipeline.py",
+  "pr": [
+   240
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

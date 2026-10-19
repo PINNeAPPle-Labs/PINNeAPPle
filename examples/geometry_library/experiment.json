@@ -1,0 +1,47 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/geometry_library",
+ "title": "Geometry library",
+ "description": "Wind on the CAARC standard tall building with OpenFOAM, through the generic STL path of ``pp.cfd``.",
+ "domain": "design and geometry",
+ "methods": [
+  "CFD (OpenFOAM)",
+  "vortex lattice"
+ ],
+ "modules": [
+  "pinneapple",
+  "pinneapple_design.aero.airliner",
+  "pinneapple_design.aero.vlm",
+  "pinneapple_design.geometry_library",
+  "pinneapple_design.geometry_library.entries.wind_turbine"
+ ],
+ "params": {},
+ "scripts": [
+  "01_caarc_building_wind_openfoam.py",
+  "02_wind_turbine_bem.py",
+  "03_airliner_vlm.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/guides/geometry_library.md",
+  "script": "examples/geometry_library/01_caarc_building_wind_openfoam.py",
+  "pr": [
+   633
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

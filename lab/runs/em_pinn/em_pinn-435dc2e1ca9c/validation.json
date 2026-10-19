@@ -1,0 +1,40 @@
+[
+ {
+  "name": "rel_l2_Ar_vs_closed_form",
+  "passed": true,
+  "value": 0.0025790352136805202,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "4096 points, exact solution of the preset; tolerance 0.05",
+  "label": "Ar vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "rel_l2_Ai_vs_closed_form",
+  "passed": true,
+  "value": 0.008055384240798536,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "4096 points, exact solution of the preset; tolerance 0.05",
+  "label": "Ai vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "training_loss_decreased",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ }
+]

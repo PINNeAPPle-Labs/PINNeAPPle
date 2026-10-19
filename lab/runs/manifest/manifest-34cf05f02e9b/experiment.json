@@ -1,0 +1,154 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-34cf05f02e9b",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/enso_forecasting",
+  "path": "examples/enso_forecasting/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "kelvin_speed",
+   "value": 2.68867,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "kelvin_speed_theory",
+   "value": 2.7,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rossby_speed",
+   "value": -0.86335,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon72",
+   "value": 0.00147,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon144",
+   "value": 0.000488,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon288",
+   "value": 0.00012809,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "gill_rel_l2_u_nlon576",
+   "value": 5.1905e-05,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub1",
+   "value": 1.7971e-06,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub2",
+   "value": -2.5874e-06,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub4",
+   "value": -2.8256e-06,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub8",
+   "value": -2.8394e-06,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "recharge_period_rel_error_sub16",
+   "value": -2.8402e-06,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "Kelvin wave speed vs theory",
+   "passed": true,
+   "value": -0.0042,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "|value| < 0.01, the threshold of tests/test_enso.py:49; value from results/solver_checks.json",
+   "kind": "reference"
+  },
+  {
+   "name": "Rossby wave speed vs theory",
+   "passed": true,
+   "value": -0.04072,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.06,
+   "min": null,
+   "detail": "|value| < 0.06, the threshold of tests/test_enso.py:56; value from results/solver_checks.json",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/figures__enso_1997_01_slab.png",
+   "figures/figures__enso_1997_12_slab.png",
+   "figures/figures__hovmoller_1996_1999.png",
+   "figures/figures__phase_portrait.png",
+   "figures/figures__pit.png",
+   "figures/figures__plumes.png",
+   "figures/figures__skill_vs_lead.png",
+   "figures/figures__solver_checks.png",
+   "figures/figures__spring_barrier.png"
+  ],
+  "videos": [
+   "figures/figures__enso_1997_98_slab.mp4"
+  ],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-34cf05f02e9b",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "c31f0955",
+  "seconds": 0.589,
+  "created": "2026-10-18T23:05:56Z",
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

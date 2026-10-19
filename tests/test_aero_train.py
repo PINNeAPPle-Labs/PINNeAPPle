@@ -131,6 +131,35 @@ def test_short_training_runs_and_predicts(runs_dir):
     assert c.shape == (1, 3) and np.isfinite(c).all() and set(ferr) == set(FIELDS)
 
 
+class _Interrupted(Exception):
+    pass
+
+
+def test_gnn_training_resumes_from_a_checkpoint_to_the_same_weights(runs_dir, tmp_path, monkeypatch):
+    import pinneapple_design.aero.train as aero_train
+    tr, te, _ = split(load_runs([runs_dir]))
+    kw = dict(minutes=None, epochs=4, batch=1, hidden=8, mp=1, log=lambda s: None)
+    full, *_ = train_gnn(tr[:3], te[:1], **kw)
+    d = str(tmp_path / "ckpt")
+    real_replace = os.replace
+
+    def replace_then_die(src, dst):                                # the run is killed right after its first checkpoint
+        real_replace(src, dst)
+        raise _Interrupted
+    monkeypatch.setattr(aero_train.os, "replace", replace_then_die)
+    with pytest.raises(_Interrupted):
+        train_gnn(tr[:3], te[:1], checkpoint_dir=d, checkpoint_every=2, **kw)
+    monkeypatch.setattr(aero_train.os, "replace", real_replace)
+    assert torch.load(os.path.join(d, "gnn_last.pt"), weights_only=False)["epoch"] == 2
+    logs = []
+    resumed, *_ = train_gnn(tr[:3], te[:1], checkpoint_dir=d, checkpoint_every=2, **{**kw, "log": logs.append})
+    assert any("resumed at epoch 2" in m for m in logs)
+    for a, b in zip(full.state_dict().values(), resumed.state_dict().values(), strict=True):
+        assert torch.allclose(a, b, atol=1e-6)
+    with pytest.raises(ValueError, match="other training settings"):
+        train_gnn(tr[:3], te[:1], checkpoint_dir=d, **{**kw, "epochs": 6})
+
+
 def test_train_surrogates_bundle_loads_in_the_engine(runs_dir):
     recs = load_runs([runs_dir])
     bundle, res = train_surrogates(recs, gnn_minutes=0, log=lambda s: None, mlp_k=2, mlp_width=16, mlp_epochs=2)

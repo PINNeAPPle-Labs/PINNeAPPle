@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PINNeAPPle zoo demo</title>
+<meta name="description" content="Every PINNeAPPle zoo model along a sweep of each input, with its uncertainty band and where its physics checks warn or fail; evaluate your own inputs in the browser.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="space.css">
+<link rel="modulepreload" href="lib/onnx.js">
+<link rel="modulepreload" href="lib/zoo.js">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./" aria-label="PINNeAPPle zoo demo, home">
+    <img src="icon.svg" alt="" width="34" height="34">
+    <span><span class="title">PINNeAPPle <b>zoo demo</b></span>
+      <span class="subtitle">Pre-trained surrogates, their uncertainty, and where their physics checks stop trusting them.</span></span>
+  </a>
+  <nav class="actions">
+    <a class="btn ghost" href="https://huggingface.co/PINNeAPPle-Labs" target="_blank" rel="noopener">Models and datasets</a>
+    <a class="btn ghost" href="https://github.com/PINNeAPPle-Labs/PINNeAPPle" target="_blank" rel="noopener">Code</a>
+  </nav>
+</header>
+<main id="view" tabindex="-1" aria-live="polite">
+  <div class="loading" id="boot"><div class="spinner"></div><p>Loading the zoo…</p></div>
+</main>
+<footer class="foot">
+  Static page: the curves were computed from the published models by <code>pinneapple_hub.zoo.demo</code> when the zoo
+  was published; <b>Evaluate in your browser</b> runs the model's ONNX graph, with its query checks, on this device.
+  Shaded: the checks warn (yellow) or fail (red, outside the validity range: an extrapolation).
+</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

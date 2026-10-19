@@ -1,0 +1,11 @@
+{
+ "I_max_A": 250.0,
+ "V_dc_V": 500.0,
+ "V_max_phase_peak_V": 288.6751345948129,
+ "series_turns": 72,
+ "conductor_area_mm2": 8.492252730219015,
+ "end_turn_per_side_m": 0.15975802396835825,
+ "temperature_C": 100.0,
+ "R_phase_ohm": 0.09359281215945266,
+ "flux_map": "11_prius_fluxmap.npz"
+}

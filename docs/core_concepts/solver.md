@@ -38,6 +38,10 @@ The training-policy layer is `pinneapple_neural.trainer` (re-exported at
   `LossRatioBalancer`, `NTKWeightBalancer`, `ReLoBRaLo`, `SoftAdapt`,
   `AugmentedLagrangian`, `InverseDirichlet`, `PCGrad`, `JointAdaptiveWeights`,
   `AutoBalancer`.
+- `MultiAdam` — an optimizer that keeps separate Adam moments for each loss
+  term (Yao et al. 2023), so a term with a much larger gradient than the
+  others does not take over the step. Pass the terms to
+  `opt.step([loss_pde, loss_bc])` instead of calling `backward()`.
 
 ## Using it
 

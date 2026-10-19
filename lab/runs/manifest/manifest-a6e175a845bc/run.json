@@ -1,0 +1,59 @@
+{
+ "run_id": "manifest-a6e175a845bc",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/pinneapple_and_physicsnemo",
+  "path": "examples/pinneapple_and_physicsnemo/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792365103.7294714,
+ "tags": [
+  "manifest"
+ ],
+ "git": "8f323527",
+ "environment": {
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1792365103.759793,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/pinneapple__benchmarks___out__bar_test_mse_residual.png",
+   "figures/pinneapple__benchmarks___out__bar_test_mse_u.png",
+   "figures/pinneapple__benchmarks___out__bar_train_time.png",
+   "figures/pinneapple__benchmarks___out__loss_conditions.png",
+   "figures/pinneapple__benchmarks___out__loss_data.png",
+   "figures/pinneapple__benchmarks___out__loss_pde.png",
+   "figures/pinneapple__benchmarks___out__loss_total.png",
+   "figures/pinneapple__benchmarks___out__residual_abs.png",
+   "figures/pinneapple__benchmarks___out__scatter_time_vs_mse_u.png",
+   "figures/pinneapple__benchmarks___out__u_true_vs_preds.png"
+  ]
+ },
+ "validation": {
+  "total": 0,
+  "failed": 0
+ },
+ "seconds": 0.03,
+ "datasets": {}
+}

@@ -1,0 +1,68 @@
+{
+ "run_id": "em_pinn-435dc2e1ca9c",
+ "experiment": "em_pinn",
+ "version": "1",
+ "params": {
+  "case": "em_skin_effect",
+  "epochs": 3000,
+  "n_collocation": 2048,
+  "seed": 0,
+  "tolerance": 0.05
+ },
+ "status": "completed",
+ "started": 1792337868.337394,
+ "tags": [
+  "pinn",
+  "electromagnetics",
+  "pde"
+ ],
+ "git": "3432db2e",
+ "environment": {
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "Physics-informed networks on the electromagnetics presets with closed-form solutions (electrostatics, magnetostatics, a TM cavity, the skin effect), scored against the exact field.",
+ "code": {
+  "files": [
+   "code/em_pinn.py"
+  ],
+  "sha1": "390be11daa634431bdca2b07770b3337a770f771",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1792338789.7261753,
+ "error": null,
+ "stages": [
+  {
+   "name": "train",
+   "started": 1792337873.088367,
+   "status": "done",
+   "seconds": 916.465
+  },
+  {
+   "name": "score",
+   "started": 1792338789.556391,
+   "status": "done",
+   "seconds": 0.046
+  }
+ ],
+ "files": {
+  "inputs": [
+   "inputs/problem.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/em_skin_effect_pinn_vs_exact.png"
+  ]
+ },
+ "validation": {
+  "total": 3,
+  "failed": 0
+ },
+ "seconds": 921.389,
+ "datasets": {}
+}

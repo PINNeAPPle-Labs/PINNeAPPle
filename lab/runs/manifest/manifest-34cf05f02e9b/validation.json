@@ -1,0 +1,26 @@
+[
+ {
+  "name": "Kelvin wave speed vs theory",
+  "passed": true,
+  "value": -0.0042,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": "|value| < 0.01, the threshold of tests/test_enso.py:49; value from results/solver_checks.json",
+  "kind": "reference"
+ },
+ {
+  "name": "Rossby wave speed vs theory",
+  "passed": true,
+  "value": -0.04072,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.06,
+  "min": null,
+  "detail": "|value| < 0.06, the threshold of tests/test_enso.py:56; value from results/solver_checks.json",
+  "kind": "reference"
+ }
+]

@@ -100,3 +100,24 @@ def test_exported_viewer_is_in_english(tmp_path):
     left = [w for w in words if w in text]
     assert not left, left
     assert not re.search(r"[ãõçÃÕÇ]", text)
+
+
+def test_visibility_and_step_labels_round_trip(tmp_path):
+    V = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], float)
+    F = np.array([[0, 1, 2]])
+    sc = Scene("vis", times=[0, 1, 2])
+    sc.add_part("p", V, F)
+    sc.add_visibility("p", [1, 0, 1])
+    sc.set_step_labels(["a", "b", "c"])
+    with pytest.raises(ValueError):
+        sc.add_visibility("p", [1, 0])
+    with pytest.raises(ValueError):
+        sc.set_step_labels(["a"])
+    man = json.load(open(sc.export(str(tmp_path))))
+    assert man["step_labels"] == ["a", "b", "c"]
+    vi = man["visibility"][0]
+    raw = open(tmp_path / "fields.bin", "rb").read()
+    vals = np.frombuffer(raw[vi["offset"]:vi["offset"] + 4 * vi["steps"]], "<f4")
+    assert vals.tolist() == [1.0, 0.0, 1.0]
+    js = open(tmp_path / "viewer.js").read()
+    assert "visibility" in js and "step_labels" in js

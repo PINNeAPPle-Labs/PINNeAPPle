@@ -1,0 +1,24 @@
+/* Physics Anomaly Detector (base styles in /shared/app.css) */
+:root { --brand: #b45309; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+input:focus, select:focus, textarea:focus { outline: 2px solid #b4530933; }
+.layout { grid-template-columns: 400px 1fr; }
+.checkgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 12px 0; }
+.checkgrid div { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.checkgrid b { display: block; margin-bottom: 3px; }
+.checkgrid span { color: var(--muted); font-size: 13px; }
+details.adv { margin: 8px 0; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+details.adv summary { cursor: pointer; font-weight: 600; font-size: 13px; }
+.chartbox { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; margin-top: 12px; }
+.chartbox .cap { font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
+.charts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 1100px) { .charts2 { grid-template-columns: 1fr; } }
+table.ev tr { cursor: pointer; } table.ev tr.sel td { background: #fffbeb; }
+.pill.low { background: #eef1f5; color: #334155; } .pill.medium { background: var(--warn-bg); color: var(--warn); }
+.pill.high { background: #ffedd5; color: #c2410c; } .pill.critical { background: var(--bad-bg); color: var(--bad); }
+.evdetail { border: 1px solid var(--line); border-radius: 9px; padding: 10px 14px; margin-top: 10px; background: #fffdf7; }
+.evdetail li { margin: 4px 0; font-size: 13px; }
+.truthbar { position: relative; height: 18px; border-radius: 4px; background: #f1f5f9; margin: 4px 0 0 56px; margin-right: 14px; }
+.truthbar div { position: absolute; top: 0; bottom: 0; background: #b4231855; border-radius: 3px; font-size: 10px; color: #7f1d1d; overflow: hidden; white-space: nowrap; padding-left: 2px; }
+.mat td.ok { color: var(--ok); font-weight: 700; } .mat td.part { color: var(--warn); font-weight: 700; } .mat td.no { color: var(--bad); font-weight: 700; }

@@ -124,7 +124,25 @@ def _not_published(kind: str, name: str, ent: dict[str, Any], filename: str, det
         "`python scripts/zoo/publish_to_hub.py`.")
 
 
+def revisions(ent: dict[str, Any]) -> list[str]:
+    """Hub revisions holding an entry's files, in the order they are tried: its ``revision`` and, when that is a
+    republication of the same files (``v1.0.0.post1``: new card, Parquet or safetensors copies), the tag of the
+    version itself (``v1.0.0``). Every file is checked against the manifest's SHA-256 whichever tag it came from."""
+    base = f"v{ent['version']}"
+    return [ent["revision"]] + ([base] if ent["revision"].startswith(base + ".post") else [])
+
+
 def _download(kind: str, name: str, ent: dict[str, Any], filename: str, dest: Path) -> None:
+    revs = revisions(ent)
+    for i, rev in enumerate(revs):
+        try:
+            return _download_rev(kind, name, {**ent, "revision": rev}, filename, dest)
+        except ArtifactNotPublishedError:
+            if i == len(revs) - 1:
+                raise
+
+
+def _download_rev(kind: str, name: str, ent: dict[str, Any], filename: str, dest: Path) -> None:
     repo_type = "dataset" if kind == "datasets" else "model"
     tmpdir = Path(tempfile.mkdtemp(prefix="zoo_dl_", dir=dest.parent))
     try:

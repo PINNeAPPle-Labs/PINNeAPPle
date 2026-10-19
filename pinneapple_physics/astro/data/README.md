@@ -6,6 +6,8 @@ Built by `scripts/astro/build_catalogs.py`. All sources are open; nothing here c
 |---|---|---|
 | `bsc5.json.gz` | 9,096 stars to V ~ 6.5: J2000 position, proper motion, V, B-V, spectral type, parallax, radial velocity | *Yale Bright Star Catalogue*, 5th revised ed., D. Hoffleit & W. H. Warren Jr. (1991), NASA Astronomical Data Center / CDS catalogue V/50 (freely distributed for research and education). Read from the JSON conversion in github.com/brettonw/YaleBrightStarCatalog (MIT, (c) 2016 Bretton Wade). Proper names matched by HD number from d3-celestial `starnames.json` (below). |
 | `constellations.json.gz` | IAU constellation names, label points and stick figures (J2000 RA/Dec) | d3-celestial data, (c) 2015 Olaf Frohn, BSD-3-Clause (licence text below). |
+| `constellation_names.json` | Constellation names by IAU abbreviation (Serpens as `Ser1` Caput / `Ser2` Cauda): Latin (IAU) and Brazilian Portuguese | IAU list (1922); Portuguese names in common Brazilian use (R. R. de Freitas Mourão, *Dicionário Enciclopédico de Astronomia e Astronáutica*, 1987). Written for this project. |
+| `facts/` | Info cards (Learn mode): Solar System, brightest stars, constellations, Messier objects, satellites, with a source per number and text in English and Portuguese | See `facts/README.md` (NASA fact sheets, Hipparcos 2007, IAU, d3-celestial BSD-3, published distances). Text written for this project. |
 
 The planetary ephemeris is **not** stored here: JPL DE421 (public domain, JPL/NASA) is read from the `skyfield-data`
 package (MIT) or from `$PINNEAPPLE_DE_KERNEL`.

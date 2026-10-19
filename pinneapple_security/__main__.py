@@ -9,6 +9,7 @@
     scan-secrets PATH                        credentials in code and configs (exit 1 if any)
     sanitize-log LOG [-o OUT] [--hide WORD]  strip user names, hosts, e-mails and IPs from a log
     sbom [-o sbom.json]                      CycloneDX SBOM of this Python environment
+    hash-password [--scheme scrypt|argon2]   salted hash for <PREFIX>_PASSWORD_HASH (password from stdin or a prompt)
 """
 from __future__ import annotations
 
@@ -54,6 +55,8 @@ def main(argv=None) -> int:
     a.add_argument("--hide", action="append", default=[])
     a = sub.add_parser("sbom")
     a.add_argument("-o", "--out")
+    a = sub.add_parser("hash-password")
+    a.add_argument("--scheme", default="auto", choices=["auto", "scrypt", "argon2"])
     args = p.parse_args(argv)
 
     if args.cmd == "manifest":
@@ -119,6 +122,18 @@ def main(argv=None) -> int:
                 f.write(doc)
         else:
             print(doc)
+        return 0
+    if args.cmd == "hash-password":
+        from .passwords import hash_password
+        if sys.stdin.isatty():
+            import getpass
+            pw = getpass.getpass("Password: ")
+            if pw != getpass.getpass("Again: "):
+                print("the passwords differ", file=sys.stderr)
+                return 1
+        else:
+            pw = sys.stdin.readline().rstrip("\r\n")
+        print(hash_password(pw, scheme=args.scheme))
         return 0
     return 2
 

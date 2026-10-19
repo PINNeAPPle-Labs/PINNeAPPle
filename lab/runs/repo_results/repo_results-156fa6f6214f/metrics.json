@@ -1,0 +1,12 @@
+{
+ "loop_probability": 1.0,
+ "loop_v_top_full_vs_reduced_rel": 0.32083351041322894,
+ "bracket_probability": 0.9985,
+ "bracket_sigma_peak_mpa_full_vs_reduced_rel": 0.02652649958099753,
+ "bracket_deflection_mm_full_vs_reduced_rel": 0.002196705921449858,
+ "heatsink_probability": 1.0,
+ "heatsink_t_source_c_full_vs_reduced_rel": 0.0010801856260447512,
+ "glider_probability": 1.0,
+ "glider_sink_m_s_full_vs_reduced_rel": 0.0004920357194430399,
+ "glider_span_eff_full_vs_reduced_rel": 0.0009034641438557357
+}

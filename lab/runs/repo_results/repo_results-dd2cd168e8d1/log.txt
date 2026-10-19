@@ -1,0 +1,6 @@
+[16:40:17] NASA VIPER-class lunar rover: Wong-Reece wheels against published single-wheel tests, grades, cross-slope and a crater crossing
+[16:40:17] stage import started
+[16:40:17] check held_out_sinkage_improves_after_calibration: PASS slip-dependent exponent fitted on every other published point; error on the other points only, 5 series
+[16:40:17] check slip_and_sinkage_rise_with_grade: PASS 0..20 deg: slip -0.007 -> 0.125
+[16:40:17] check wheel_surrogate_held_out_r2: PASS 2000 held-out states against the Wong-Reece model it learned
+[16:40:17] stage import done (0.02 s)

@@ -1,0 +1,4 @@
+[16:40:18] ERA5 64 x 32 global weather model (phase 1): heat-dome forecast and z500 skill previews
+[16:40:18] stage import started
+[16:40:18] the model's own scores are not in a committed file (run_use_cases.py writes horizon.json, not committed): no check can be recorded until they are
+[16:40:18] stage import done (0.004 s)

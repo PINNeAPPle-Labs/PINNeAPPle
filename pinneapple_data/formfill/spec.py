@@ -43,6 +43,7 @@ class Field:
     description: str = ""                    # extra context for the LLM
     column: Optional[str] = None             # side in a multi-column table (e.g. "shell" / "tube"), see FormSpec.columns
     row_patterns: Tuple[str, ...] = ()       # the row label in such a table (without the side words)
+    reject: str = ""                         # regex: a value matching it is not an answer to this item
 
     def __post_init__(self):
         if self.kind not in KINDS:

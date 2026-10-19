@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PINNeAPPle Agent Workbench</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<aside id="side">
+  <div class="brand">PINNeAPPle <span>Agent Workbench</span></div>
+  <button id="new-btn" class="primary" data-testid="new-session">+ New session</button>
+  <div id="sessions" data-testid="sessions"></div>
+  <nav>
+    <button data-panel="agents">Agents</button>
+    <button data-panel="training">Training data</button>
+    <button data-panel="machine">Model &amp; machine</button>
+  </nav>
+</aside>
+
+<main id="main">
+  <header id="top">
+    <div id="title">No session</div>
+    <div id="meta"></div>
+  </header>
+  <section id="body">
+    <div id="feed" data-testid="feed"></div>
+    <aside id="planbox" hidden><h3>Plan</h3><ol id="plan" data-testid="plan"></ol></aside>
+  </section>
+  <footer id="composer">
+    <textarea id="input" data-testid="input" rows="3"
+              placeholder="Describe the task. Enter to send, Shift+Enter for a new line."></textarea>
+    <div class="actions">
+      <button id="stop" data-testid="stop" hidden>Stop</button>
+      <button id="send" class="primary" data-testid="send">Send</button>
+    </div>
+  </footer>
+</main>
+
+<dialog id="dlg-new">
+  <form method="dialog" id="form-new">
+    <h3>New session</h3>
+    <label>Workspace folder <input name="workspace" id="ws" required></label>
+    <label>Model <select name="model" id="model-select"></select></label>
+    <label>Approvals
+      <select name="policy">
+        <option value="auto" selected>auto: read-only and test commands run, others ask</option>
+        <option value="ask">ask: every command and every file change asks</option>
+        <option value="yolo">yolo: nothing asks (only in a throw-away folder)</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" name="web" checked> Internet search and fetch</label>
+    <menu><button value="cancel">Cancel</button><button value="ok" class="primary" data-testid="create">Create</button></menu>
+  </form>
+</dialog>
+
+<dialog id="dlg-panel"><div id="panel"></div><menu><button id="panel-close">Close</button></menu></dialog>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

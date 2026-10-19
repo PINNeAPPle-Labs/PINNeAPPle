@@ -1,0 +1,472 @@
+{
+ "version": "1.0",
+ "description": "Common names (English, Portuguese), distances with their source, and hand-written text for Messier objects. Positions, types, magnitudes and sizes: messier_catalog.json.",
+ "objects": {
+  "M1": {
+   "names": {
+    "en": "Crab Nebula",
+    "pt": "Nebulosa do Caranguejo"
+   },
+   "distance": {
+    "value": 6500,
+    "unit": "ly",
+    "source": "trimble1973"
+   },
+   "text": {
+    "en": {
+     "summary": "The Crab Nebula is the debris of a star that exploded as a supernova seen in 1054.",
+     "curiosities": [
+      {
+       "text": "Chinese astronomers recorded the explosion in 1054; it was visible in daylight for weeks.",
+       "source": "trimble1973"
+      },
+      {
+       "text": "At its centre a pulsar, a neutron star about 20 km wide, spins 30 times a second.",
+       "source": "nasa_hubble"
+      }
+     ],
+     "history": "John Bevis found it in 1731. Messier came across it in 1758 while following a comet, and that is what led him to start his catalogue."
+    },
+    "pt": {
+     "summary": "A Nebulosa do Caranguejo é o que restou de uma estrela que explodiu como supernova vista em 1054.",
+     "curiosities": [
+      {
+       "text": "Astrônomos chineses registraram a explosão em 1054; ela ficou visível de dia por semanas.",
+       "source": "trimble1973"
+      },
+      {
+       "text": "No centro, um pulsar, uma estrela de nêutrons com cerca de 20 km de diâmetro, gira 30 vezes por segundo.",
+       "source": "nasa_hubble"
+      }
+     ],
+     "history": "John Bevis a encontrou em 1731. Messier a viu em 1758 enquanto seguia um cometa, e foi isso que o levou a começar o seu catálogo."
+    }
+   }
+  },
+  "M2": {
+   "distance": {
+    "value": 37.5,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M3": {
+   "distance": {
+    "value": 33.3,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M4": {
+   "distance": {
+    "value": 7.2,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M5": {
+   "distance": {
+    "value": 24.5,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M6": {
+   "names": {
+    "en": "Butterfly Cluster",
+    "pt": "Aglomerado da Borboleta"
+   }
+  },
+  "M7": {
+   "names": {
+    "en": "Ptolemy Cluster",
+    "pt": "Aglomerado de Ptolomeu"
+   }
+  },
+  "M8": {
+   "names": {
+    "en": "Lagoon Nebula",
+    "pt": "Nebulosa da Lagoa"
+   }
+  },
+  "M10": {
+   "distance": {
+    "value": 14.3,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M11": {
+   "names": {
+    "en": "Wild Duck Cluster",
+    "pt": "Aglomerado do Pato Selvagem"
+   }
+  },
+  "M12": {
+   "distance": {
+    "value": 15.7,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M13": {
+   "names": {
+    "en": "Great Hercules Cluster",
+    "pt": "Grande Aglomerado de Hércules"
+   },
+   "distance": {
+    "value": 23.2,
+    "unit": "kly",
+    "source": "harris2010"
+   },
+   "text": {
+    "en": {
+     "summary": "M13, the Great Hercules Cluster, is a ball of several hundred thousand old stars orbiting the Milky Way.",
+     "curiosities": [
+      {
+       "text": "In 1974 the Arecibo radio telescope sent a message towards it; it will arrive in about 25,000 years.",
+       "source": "harris2010"
+      }
+     ],
+     "history": "Edmond Halley discovered it in 1714; Messier added it in 1764."
+    },
+    "pt": {
+     "summary": "M13, o Grande Aglomerado de Hércules, é uma bola de centenas de milhares de estrelas antigas em órbita da Via Láctea.",
+     "curiosities": [
+      {
+       "text": "Em 1974 o radiotelescópio de Arecibo enviou uma mensagem na sua direção; ela vai chegar daqui a cerca de 25 mil anos.",
+       "source": "harris2010"
+      }
+     ],
+     "history": "Edmond Halley o descobriu em 1714; Messier o incluiu em 1764."
+    }
+   }
+  },
+  "M15": {
+   "distance": {
+    "value": 33.9,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M16": {
+   "names": {
+    "en": "Eagle Nebula",
+    "pt": "Nebulosa da Águia"
+   }
+  },
+  "M17": {
+   "names": {
+    "en": "Omega Nebula",
+    "pt": "Nebulosa Ômega"
+   }
+  },
+  "M20": {
+   "names": {
+    "en": "Trifid Nebula",
+    "pt": "Nebulosa Trífida"
+   }
+  },
+  "M22": {
+   "distance": {
+    "value": 10.4,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M24": {
+   "names": {
+    "en": "Sagittarius Star Cloud",
+    "pt": "Nuvem Estelar de Sagitário"
+   }
+  },
+  "M27": {
+   "names": {
+    "en": "Dumbbell Nebula",
+    "pt": "Nebulosa do Haltere"
+   }
+  },
+  "M31": {
+   "names": {
+    "en": "Andromeda Galaxy",
+    "pt": "Galáxia de Andrômeda"
+   },
+   "distance": {
+    "value": 2.5,
+    "unit": "Mly",
+    "source": "ngc_distances"
+   },
+   "text": {
+    "en": {
+     "summary": "The Andromeda Galaxy is the nearest large spiral galaxy, a sister of the Milky Way with about a trillion stars.",
+     "curiosities": [
+      {
+       "text": "It is the most distant object most people can see with the naked eye.",
+       "source": "ngc_distances"
+      },
+      {
+       "text": "It is approaching us at about 110 km/s; in around 4.5 billion years it will merge with the Milky Way.",
+       "source": "nasa_hubble"
+      }
+     ],
+     "history": "The Persian astronomer al-Sufi described it as a 'small cloud' around 964. In 1923 Edwin Hubble found Cepheid variable stars in it and measured its distance, proving that it is a galaxy far beyond the Milky Way."
+    },
+    "pt": {
+     "summary": "A Galáxia de Andrômeda é a grande galáxia espiral mais próxima, uma irmã da Via Láctea com cerca de um trilhão de estrelas.",
+     "curiosities": [
+      {
+       "text": "É o objeto mais distante que a maioria das pessoas consegue ver a olho nu.",
+       "source": "ngc_distances"
+      },
+      {
+       "text": "Ela se aproxima de nós a cerca de 110 km/s; daqui a uns 4,5 bilhões de anos vai se fundir com a Via Láctea.",
+       "source": "nasa_hubble"
+      }
+     ],
+     "history": "O astrônomo persa al-Sufi a descreveu como uma 'pequena nuvem' por volta de 964. Em 1923 Edwin Hubble encontrou nela estrelas variáveis cefeidas e mediu a sua distância, provando que é uma galáxia muito além da Via Láctea."
+    }
+   }
+  },
+  "M33": {
+   "names": {
+    "en": "Triangulum Galaxy",
+    "pt": "Galáxia do Triângulo"
+   },
+   "distance": {
+    "value": 2.7,
+    "unit": "Mly",
+    "source": "ngc_distances"
+   }
+  },
+  "M40": {
+   "names": {
+    "en": "Winnecke 4",
+    "pt": "Winnecke 4"
+   },
+   "text": {
+    "en": {
+     "curiosities": [
+      {
+       "text": "It is not a nebula at all but a pair of unrelated stars that only look close together: Messier was checking a report of a nebula in the area.",
+       "source": "messier_catalogue"
+      }
+     ]
+    },
+    "pt": {
+     "curiosities": [
+      {
+       "text": "Não é uma nebulosa, e sim um par de estrelas sem ligação que só parecem próximas: Messier estava conferindo o relato de uma nebulosa na região.",
+       "source": "messier_catalogue"
+      }
+     ]
+    }
+   }
+  },
+  "M42": {
+   "names": {
+    "en": "Orion Nebula",
+    "pt": "Nebulosa de Órion"
+   },
+   "distance": {
+    "value": 1350,
+    "unit": "ly",
+    "source": "menten2007"
+   },
+   "text": {
+    "en": {
+     "summary": "The Orion Nebula is a cloud of glowing gas where new stars are being born, below Orion's Belt.",
+     "curiosities": [
+      {
+       "text": "It is the nearest large region of star formation to the Earth.",
+       "source": "menten2007"
+      },
+      {
+       "text": "The four bright stars at its heart, the Trapezium, light up the whole nebula with ultraviolet light.",
+       "source": "nasa_hubble"
+      }
+     ],
+     "history": "Nicolas-Claude Fabri de Peiresc recorded it with a telescope in 1610. Messier added it in 1769, and Henry Draper took the first photograph of a nebula with it in 1880."
+    },
+    "pt": {
+     "summary": "A Nebulosa de Órion é uma nuvem de gás brilhante onde estrelas novas estão nascendo, abaixo das Três Marias.",
+     "curiosities": [
+      {
+       "text": "É a grande região de formação de estrelas mais próxima da Terra.",
+       "source": "menten2007"
+      },
+      {
+       "text": "As quatro estrelas brilhantes do centro, o Trapézio, iluminam toda a nebulosa com luz ultravioleta.",
+       "source": "nasa_hubble"
+      }
+     ],
+     "history": "Nicolas-Claude Fabri de Peiresc a registrou com um telescópio em 1610. Messier a incluiu em 1769, e Henry Draper fez com ela a primeira fotografia de uma nebulosa, em 1880."
+    }
+   }
+  },
+  "M44": {
+   "names": {
+    "en": "Beehive Cluster",
+    "pt": "Aglomerado do Presépio"
+   },
+   "distance": {
+    "value": 610,
+    "unit": "ly",
+    "source": "gaia2018_clusters"
+   }
+  },
+  "M45": {
+   "names": {
+    "en": "Pleiades",
+    "pt": "Plêiades"
+   },
+   "distance": {
+    "value": 444,
+    "unit": "ly",
+    "source": "gaia2018_clusters"
+   },
+   "text": {
+    "en": {
+     "summary": "The Pleiades, or Seven Sisters, are a young cluster of hot blue stars in Taurus.",
+     "curiosities": [
+      {
+       "text": "Most people see six or seven stars; a telescope shows over a thousand.",
+       "source": "gaia2018_clusters"
+      },
+      {
+       "text": "The stars are about 100 million years old, young compared with the Sun's 4.6 billion.",
+       "source": "gaia2018_clusters"
+      }
+     ],
+     "history": "Known since prehistory and named in many cultures; Messier added it to his list in 1769. Subaru, the Japanese name for the cluster, is the name of a car company whose logo shows its stars."
+    },
+    "pt": {
+     "summary": "As Plêiades, ou Sete Irmãs, são um aglomerado jovem de estrelas azuis e quentes no Touro.",
+     "curiosities": [
+      {
+       "text": "A maioria das pessoas vê seis ou sete estrelas; um telescópio mostra mais de mil.",
+       "source": "gaia2018_clusters"
+      },
+      {
+       "text": "As estrelas têm cerca de 100 milhões de anos, jovens perto dos 4,6 bilhões de anos do Sol.",
+       "source": "gaia2018_clusters"
+      }
+     ],
+     "history": "Conhecidas desde a pré-história e com nome em muitas culturas; Messier as incluiu na lista em 1769. Subaru, o nome japonês do aglomerado, é o nome de uma montadora cujo logotipo mostra as suas estrelas."
+    }
+   }
+  },
+  "M51": {
+   "names": {
+    "en": "Whirlpool Galaxy",
+    "pt": "Galáxia do Rodamoinho"
+   },
+   "distance": {
+    "value": 28,
+    "unit": "Mly",
+    "source": "ngc_distances"
+   }
+  },
+  "M57": {
+   "names": {
+    "en": "Ring Nebula",
+    "pt": "Nebulosa do Anel"
+   }
+  },
+  "M64": {
+   "names": {
+    "en": "Black Eye Galaxy",
+    "pt": "Galáxia do Olho Negro"
+   }
+  },
+  "M73": {
+   "text": {
+    "en": {
+     "curiosities": [
+      {
+       "text": "It is a small group of four stars that line up by chance; Messier saw them as a faint smudge.",
+       "source": "messier_catalogue"
+      }
+     ]
+    },
+    "pt": {
+     "curiosities": [
+      {
+       "text": "É um pequeno grupo de quatro estrelas alinhadas por acaso; Messier as viu como uma mancha fraca.",
+       "source": "messier_catalogue"
+      }
+     ]
+    }
+   }
+  },
+  "M76": {
+   "names": {
+    "en": "Little Dumbbell Nebula",
+    "pt": "Nebulosa do Pequeno Haltere"
+   }
+  },
+  "M81": {
+   "names": {
+    "en": "Bode's Galaxy",
+    "pt": "Galáxia de Bode"
+   },
+   "distance": {
+    "value": 11.7,
+    "unit": "Mly",
+    "source": "ngc_distances"
+   }
+  },
+  "M82": {
+   "names": {
+    "en": "Cigar Galaxy",
+    "pt": "Galáxia do Charuto"
+   }
+  },
+  "M83": {
+   "names": {
+    "en": "Southern Pinwheel Galaxy",
+    "pt": "Galáxia do Cata-vento Austral"
+   }
+  },
+  "M87": {
+   "names": {
+    "en": "Virgo A",
+    "pt": "Virgo A"
+   },
+   "distance": {
+    "value": 54.8,
+    "unit": "Mly",
+    "source": "eht2019"
+   }
+  },
+  "M92": {
+   "distance": {
+    "value": 26.7,
+    "unit": "kly",
+    "source": "harris2010"
+   }
+  },
+  "M97": {
+   "names": {
+    "en": "Owl Nebula",
+    "pt": "Nebulosa da Coruja"
+   }
+  },
+  "M101": {
+   "names": {
+    "en": "Pinwheel Galaxy",
+    "pt": "Galáxia do Cata-vento"
+   }
+  },
+  "M104": {
+   "names": {
+    "en": "Sombrero Galaxy",
+    "pt": "Galáxia do Sombreiro"
+   },
+   "distance": {
+    "value": 31,
+    "unit": "Mly",
+    "source": "ngc_distances"
+   }
+  }
+ }
+}

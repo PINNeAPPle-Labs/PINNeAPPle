@@ -1,0 +1,67 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/black_hole_weather",
+ "title": "Black-hole weather: forecasting the gas around a black hole, and knowing for how long to trust it",
+ "description": "This is a reproduction and extension of **Duarte, Nemmen & Navarro (2022)**, *Black hole weather forecasting with deep learning: a pilot study*:",
+ "domain": "astrophysics",
+ "methods": [],
+ "modules": [
+  "pinneapple_physics.blackhole",
+  "pinneapple_physics.blackhole.capture",
+  "pinneapple_physics.blackhole.convergence",
+  "pinneapple_physics.blackhole.dataset",
+  "pinneapple_physics.blackhole.forecast",
+  "pinneapple_physics.blackhole.raytrace",
+  "pinneapple_physics.blackhole.runs",
+  "pinneapple_physics.blackhole.skill",
+  "pinneapple_physics.blackhole.twin"
+ ],
+ "params": {},
+ "scripts": [
+  "convergence.py",
+  "evaluate.py",
+  "simulate.py",
+  "skill.py",
+  "train_forecaster.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/convergence.json",
+   "results/history_faithful.json",
+   "results/history_residual.json",
+   "results/one_f16_PL0SS0.1.json",
+   "results/one_f16_PL0SS0.3.json",
+   "results/one_res16_PL0SS0.1.json",
+   "results/one_res16_PL0SS0.3.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/core_concepts/black_hole_weather.md",
+  "script": "examples/black_hole_weather/convergence.py",
+  "pr": [
+   412,
+   758
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "repo_results/bh_forecast",
+  "items": [
+   "repo_results/bh_forecast"
+  ],
+  "experiment": "repo_results",
+  "run_id": "repo_results-269f1207b6f2",
+  "tier": "B"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

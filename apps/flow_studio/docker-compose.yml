@@ -1,0 +1,46 @@
+# Flow Studio with optional services. From the repository root:
+#   docker compose -f apps/flow_studio/docker-compose.yml up --build                       # the app (SQLite)
+#   docker compose -f apps/flow_studio/docker-compose.yml --profile llm up --build         # + a local Ollama
+#   docker compose -f apps/flow_studio/docker-compose.yml --profile postgres up --build    # + Postgres
+# Settings come from apps/flow_studio/.env (copy .env.example). The UI is on http://127.0.0.1:8765.
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: apps/flow_studio/Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PINNEAPPLE_FLOW_HOME: /data
+    # Published on the host's loopback only. To expose it, set FLOW_USER and FLOW_PASSWORD_HASH in .env, publish
+    # "8765:8765" and drop --insecure-no-auth.
+    ports:
+      - "127.0.0.1:8765:8765"
+    command: ["python", "-m", "pinneapple_flow", "studio", "--host", "0.0.0.0", "--port", "8765", "--no-browser",
+              "--insecure-no-auth"]
+    volumes:
+      - flow_data:/data
+
+  ollama:
+    image: ollama/ollama:0.3.14
+    profiles: ["llm"]
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: flow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: flow
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  flow_data:
+  ollama:
+  pg_data:

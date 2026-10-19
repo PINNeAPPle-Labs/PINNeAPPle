@@ -118,14 +118,29 @@ def annular_current_source(
     annular band centered at (r_center, z_center) -- the standard
     lumped-coil approximation for an axisymmetric current loop / solenoid
     turn, used to drive the eddy-current or magnetostatic equation above.
+    The band is ``|z - z_center| <= width_z / 2`` and ``|r - r_center| <= width_r``
+    (``width_r`` is the radial half-width).
+
+    The density is normalised on the grid so that the discrete total current
+    ``sum(J * dr * dz)`` over the band nodes equals ``n_turns * current_amp``
+    exactly, whatever the alignment of the band with the grid (a band narrower
+    than one cell falls back to the nearest node). Normalising by the nominal
+    band area instead made the injected current depend on that alignment (0.75
+    of N I on a grid where the band covers 4 x 5 nodes), which is what the
+    validation gallery saw as a coil field of a fraction of the loop formula.
     Returns a (len(r), len(z)) real array.
     """
     RR, ZZ = np.meshgrid(r, z, indexing="ij")
     mask = (np.abs(ZZ - z_center) <= width_z / 2) & (np.abs(RR - r_center) <= width_r)
+    if not mask.any():
+        i = int(np.argmin(np.abs(r - r_center)))
+        j = int(np.argmin(np.abs(z - z_center)))
+        mask[i, j] = True
+    wr = np.gradient(r) if len(r) > 1 else np.ones(1)
+    wz = np.gradient(z) if len(z) > 1 else np.ones(1)
+    cell = wr[:, None] * wz[None, :]
     J = np.zeros_like(RR)
-    area = width_z * width_r * 2
-    if area > 0:
-        J[mask] = current_amp * n_turns / area
+    J[mask] = current_amp * n_turns / float(np.sum(cell[mask]))
     return J
 
 
@@ -155,18 +170,26 @@ def solve_axisymmetric_eddy_current(
 
 
 def eddy_current_density(A: np.ndarray, omega: float, sigma: np.ndarray) -> np.ndarray:
-    """Induced eddy-current density J_theta = i*omega*sigma*A, given the
-    solved vector potential A and the same sigma(r,z) map used to solve it."""
-    return 1j * omega * sigma * A
+    """Induced eddy-current density J_theta = -i*omega*sigma*A, given the
+    solved vector potential A and the same sigma(r,z) map used to solve it.
+
+    The system above, ``L[A] - i omega mu sigma A = -mu J_source``, is Ampere's law
+    ``L[A] = -mu (J_source + J_eddy)`` with ``J_eddy = sigma E`` and ``E = -i omega A``:
+    the phasor convention ``exp(+i omega t)``. (Before this was fixed the function
+    returned ``+i omega sigma A``, the eddy current with the wrong sign.)"""
+    return -1j * omega * sigma * A
 
 
 def axial_flux_density(A: np.ndarray, r: np.ndarray, z: np.ndarray) -> np.ndarray:
     """B_z(r,z) = (1/r) d(r*A)/dr = A/r + dA/dr, computed via central differences (the
     axisymmetric curl relating A_theta to the axial field component). Complex A gives the
-    complex phasor B_z (in-phase and quadrature parts); A = B0 r / 2 gives B_z = B0."""
+    complex phasor B_z (in-phase and quadrature parts); A = B0 r / 2 gives B_z = B0, on the axis too."""
     RR = r[:, None] * np.ones((1, len(z)))
     dAdr = np.gradient(A, r, axis=0, edge_order=2)
-    return A / (RR + 1e-30) + dAdr
+    # on the axis A/r -> dA/dr (A vanishes there), so B_z = 2 dA/dr; dividing by r there gave half the field
+    on_axis = RR == 0.0
+    A_over_r = np.where(on_axis, dAdr, A / np.where(on_axis, 1.0, RR))
+    return A_over_r + dAdr
 
 
 @SolverRegistry.register(

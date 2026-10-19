@@ -16,6 +16,12 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 COPY . .
 RUN pip install --no-cache-dir . -r apps/design_requirements/requirements.txt
 
+# Unprivileged runtime user: /data (the volume) and /tmp are the only places it writes (apps/deploy/README.md)
+RUN useradd --system --uid 10001 --gid 0 --no-create-home --home-dir /tmp --shell /usr/sbin/nologin app \
+    && mkdir -p /data && chown -R 10001:0 /data && chmod -R g+rwX /data
+ENV HOME=/tmp MPLCONFIGDIR=/tmp/matplotlib
+USER 10001:0
+
 ENV PYTHONPATH=/srv:/srv/apps/design_requirements
 WORKDIR /srv/apps/design_requirements
 EXPOSE 8085

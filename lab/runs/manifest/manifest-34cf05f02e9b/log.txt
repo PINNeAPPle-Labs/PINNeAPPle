@@ -1,0 +1,2 @@
+[23:05:56] check Kelvin wave speed vs theory: PASS |value| < 0.01, the threshold of tests/test_enso.py:49; value from results/solver_checks.json
+[23:05:56] check Rossby wave speed vs theory: PASS |value| < 0.06, the threshold of tests/test_enso.py:56; value from results/solver_checks.json

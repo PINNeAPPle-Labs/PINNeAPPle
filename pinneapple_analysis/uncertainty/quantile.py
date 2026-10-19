@@ -49,6 +49,11 @@ def pinball_loss_torch(
     Tensor — scalar mean pinball loss.
     """
     q = float(q)
+    if not 0.0 < q < 1.0:
+        raise ValueError(f"quantile level q must be in (0, 1), got {q}")
+    if y_pred.shape != y_true.shape:
+        # broadcasting a (B, 1) target against (B, H) predictions would silently score the wrong pairs
+        raise ValueError(f"y_pred {tuple(y_pred.shape)} and y_true {tuple(y_true.shape)} must have the same shape")
     e = y_true - y_pred
     return torch.mean(torch.maximum(q * e, (q - 1.0) * e))
 
@@ -82,6 +87,19 @@ class QuantileConfig:
         Default ``(0.1, 0.5, 0.9)`` gives 80 % prediction interval + median.
     """
     quantiles: Sequence[float] = (0.1, 0.5, 0.9)
+
+    def __post_init__(self) -> None:
+        _check_levels(self.quantiles)
+
+
+def _check_levels(quantiles: Sequence[float]) -> None:
+    qs = [float(q) for q in quantiles]
+    if not qs:
+        raise ValueError("at least one quantile level is needed")
+    if any(not 0.0 < q < 1.0 for q in qs):
+        raise ValueError(f"quantile levels must be in (0, 1), got {qs}")
+    if len(set(qs)) != len(qs):
+        raise ValueError(f"quantile levels must be distinct, got {qs}")
 
 
 class QuantileHead(nn.Module):
@@ -150,6 +168,7 @@ class QuantileLoss:
     """
 
     def __init__(self, quantiles: Sequence[float]) -> None:
+        _check_levels(quantiles)
         self.quantiles = list(quantiles)
 
     def __call__(
@@ -180,6 +199,9 @@ class QuantileLoss:
 
         if y_pred.ndim != 3:
             raise ValueError(f"Expected y_pred (B, H, Q), got {tuple(y_pred.shape)}")
+        if y_pred.shape[-1] != len(self.quantiles):
+            raise ValueError(f"y_pred has {y_pred.shape[-1]} quantile outputs for {len(self.quantiles)} levels "
+                             f"{self.quantiles}")
 
         total: torch.Tensor = sum(  # type: ignore[assignment]
             pinball_loss_torch(y_pred[:, :, qi], y_true, q)

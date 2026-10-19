@@ -1,0 +1,51 @@
+# FreeCAD macro: set spreadsheet parameters of a document, recompute, check the solid, save under a new name.
+# Run by the GUI agent with ARGS = {"document", "output", "parameters": {alias: value in mm}, "solid", "expected_volume"}
+# (expected_volume: a formula of the aliases, e.g. "length*height*width - obstacle_length*obstacle_height*width").
+# Fills RESULT with the values before/after, the solid's volume and checks. Never writes over the input document.
+import ast
+import operator
+import os
+
+_OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
+
+
+def arith(expr, names):
+    """+ - * / of numbers and names only."""
+    def ev(n):
+        if isinstance(n, ast.Expression):
+            return ev(n.body)
+        if isinstance(n, ast.BinOp) and type(n.op) in _OPS:
+            return _OPS[type(n.op)](ev(n.left), ev(n.right))
+        if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
+            return n.value
+        if isinstance(n, ast.Name) and n.id in names:
+            return names[n.id]
+        raise ValueError(f"not allowed in expected_volume: {ast.dump(n)}")
+    return ev(ast.parse(expr, mode="eval"))
+
+
+doc = FreeCAD.openDocument(ARGS["document"])
+sheet = doc.getObject(ARGS.get("sheet", "Params"))
+before, after = {}, {}
+for alias, value in ARGS["parameters"].items():
+    before[alias] = float(sheet.get(alias).Value)
+    sheet.set(sheet.getCellFromAlias(alias), f"{float(value)} mm")
+doc.recompute()
+for alias in ARGS["parameters"]:
+    after[alias] = float(sheet.get(alias).Value)
+solid = doc.getObject(ARGS.get("solid", "FluidDomain")).Shape
+checks = [{"name": f"parameter {a} applied", "passed": abs(after[a] - float(v)) < 1e-9,
+           "detail": f"{before[a]:g} mm -> {after[a]:g} mm", "value": after[a]} for a, v in ARGS["parameters"].items()]
+checks.append({"name": "solid valid after recompute", "passed": bool(solid.isValid()) and solid.Volume > 0,
+               "detail": f"{len(solid.Faces)} faces, volume {solid.Volume:.6g} mm³", "value": solid.Volume})
+if ARGS.get("expected_volume"):
+    names = {a: float(sheet.get(a).Value) for a in [sheet.getAlias(c) for c in sheet.getUsedCells()] if a}
+    want = arith(ARGS["expected_volume"], names)
+    checks.append({"name": "volume matches the parameters", "passed": abs(solid.Volume - want) <= 1e-6 * want,
+                   "detail": f"{solid.Volume:.6g} mm³ (from the parameters: {want:.6g} mm³)", "value": solid.Volume,
+                   "threshold": want})
+out = ARGS["output"]
+if os.path.abspath(out) == os.path.abspath(ARGS["document"]):
+    raise RuntimeError("the macro writes a new document; output must differ from the input")
+doc.saveAs(out)
+RESULT.update({"document": out, "before": before, "after": after, "volume_mm3": solid.Volume, "checks": checks})

@@ -1,0 +1,37 @@
+/* Model Calibration Lab (base styles in /shared/app.css) */
+:root { --brand: #0e7490; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+input:focus, select:focus { outline: 2px solid #0e749033; }
+.layout { grid-template-columns: 470px 1fr; }
+.tab > .layout > .panel { min-height: 300px; }
+label.chk { display: flex; gap: 6px; align-items: center; color: var(--ink); }
+label.chk input { width: auto; display: inline; margin: 0; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; font-size: 12.5px; }
+.checks label { display: inline-flex; gap: 4px; align-items: center; margin: 0; color: var(--ink); }
+.checks label input { width: auto; margin: 0; }
+.checks label.off { color: var(--na); }
+.st { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 99px; padding: 2px 9px; white-space: nowrap; }
+.st.ok { background: var(--ok-bg); color: var(--ok); }
+.st.warn { background: var(--warn-bg); color: var(--warn); }
+.st.bad { background: var(--bad-bg); color: var(--bad); }
+.verdict { border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; }
+.verdict.ok { background: var(--ok-bg); } .verdict.bad { background: var(--bad-bg); } .verdict.warn { background: var(--warn-bg); }
+h3.sec { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 20px 0 8px; }
+table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.t th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; border-bottom: 1px solid var(--line); padding: 5px 6px; }
+table.t td { border-bottom: 1px solid var(--line); padding: 5px 6px; vertical-align: top; }
+table.t td.ne { color: var(--bad); font-size: 12px; }
+table.t tr.best td { background: #ecfeff; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 1100px) { .grid2 { grid-template-columns: 1fr; } }
+.warnings li { margin: 3px 0; }
+.dl { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.dl a { font-size: 12.5px; border: 1px solid var(--line); border-radius: 7px; padding: 5px 10px; text-decoration: none; color: var(--ink); }
+.dl a:hover { border-color: var(--brand); }
+.progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+.progress div { height: 100%; background: var(--brand); width: 0; transition: width .3s; }
+canvas.field { width: 100%; border-radius: 8px; image-rendering: auto; }
+.fcap { font-size: 12px; color: var(--muted); }
+.fbar { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.fbar i { flex: 1; height: 9px; border-radius: 99px; background: linear-gradient(90deg, #313695, #4575b4, #fee090, #f46d43, #a50026); }

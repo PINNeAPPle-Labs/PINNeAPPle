@@ -1,0 +1,38 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/proof_graph",
+ "title": "Proof graphs: mathematics with the same evidence discipline",
+ "description": "Proof-graph experiment: does the no-go theorem for linear exceptional-point tuning (PT dimers, Zenodo 23287622) extend to PT tetramers whose bonds are modulated independently? An open question of the paper (Q2), attacked as a graph of assumptions, lemmas and a theorem, each with exact (sympy) and numerical checks.",
+ "domain": "validation and benchmarks",
+ "methods": [],
+ "modules": [
+  "pinneapple_analysis.proof.pt_chains"
+ ],
+ "params": {},
+ "scripts": [
+  "pt_chain_no_go.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/proof_graphs.md",
+  "script": "examples/proof_graph/pt_chain_no_go.py",
+  "pr": [
+   463
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

@@ -1,0 +1,1158 @@
+{
+ "flow": "planned_hybrid_surrogate_hpo",
+ "title": "Fast surrogate (neural operator)",
+ "status": "done",
+ "wall_seconds": 19.1,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-18",
+ "meta": {
+  "title": "Fast surrogate (neural operator)",
+  "family": "wave",
+  "decisions": [
+   {
+    "topic": "equations",
+    "what": "PDE family: wave",
+    "decided_by": {
+     "kind": "rule",
+     "id": "family.keywords"
+    },
+    "rationale": "keyword scores wave (7.5); highest score wins",
+    "value": "wave",
+    "references": [
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_planner.py",
+      "detail": "detection of the family from descriptions"
+     }
+    ],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "0936f60750",
+    "created": 1792356560.365997
+   },
+   {
+    "topic": "equations",
+    "what": "equations: u_tt = c**2*lap(u)",
+    "decided_by": {
+     "kind": "rule",
+     "id": "family.wave"
+    },
+    "rationale": "waves / vibration: u_tt = c^2 lap(u)",
+    "value": [
+     "u_tt = c**2*lap(u)"
+    ],
+    "references": [
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     },
+     {
+      "key": "whitham1974waves",
+      "title": "Linear and Nonlinear Waves",
+      "authors": [
+       "G. B. Whitham"
+      ],
+      "year": 1974,
+      "venue": "Wiley",
+      "doi": "10.1002/9781118032954",
+      "kind": "book",
+      "topics": [
+       "wave",
+       "burgers",
+       "advection"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1002/9781118032954"
+     }
+    ],
+    "evidence": [],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "e8a0fcd42c",
+    "created": 1792356560.3660405
+   },
+   {
+    "topic": "dimension",
+    "what": "1-D",
+    "decided_by": {
+     "kind": "rule",
+     "id": "dimension.keywords"
+    },
+    "rationale": "dimension from the description's words (rod -> 1-D, plate -> 2-D, block -> 3-D)",
+    "value": 1,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_planner.py",
+      "detail": "dimension detection"
+     }
+    ],
+    "node": "geo",
+    "notes": "",
+    "uncited_reason": "a reading of the user's words; confirm it in the domain node",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "72c10917aa",
+    "created": 1792356560.36607
+   },
+   {
+    "topic": "dimension",
+    "what": "domain extent and time interval",
+    "decided_by": {
+     "kind": "rule",
+     "id": "domain.unit_box"
+    },
+    "rationale": "unit domain (or the stated length) with time [0, T] from the template",
+    "value": null,
+    "references": [],
+    "evidence": [],
+    "node": "geo",
+    "notes": "",
+    "uncited_reason": "illustrative extent; replace with the real geometry",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "validate.compare"
+    ],
+    "id": "29159e4b53",
+    "created": 1792356560.3660898
+   },
+   {
+    "topic": "bcs",
+    "what": "boundary conditions of the template",
+    "decided_by": {
+     "kind": "rule",
+     "id": "bc.dirichlet_template"
+    },
+    "rationale": "fixed values on the boundary (Dirichlet), the template's well-posed setting",
+    "value": [
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "references": [
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "93b1dd1d1f",
+    "created": 1792356560.366111
+   },
+   {
+    "topic": "bcs",
+    "what": "initial condition",
+    "decided_by": {
+     "kind": "rule",
+     "id": "ic.template"
+    },
+    "rationale": "initial condition of the template: a mode with a known exact solution",
+    "value": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u_t = 0"
+     }
+    ],
+    "references": [
+     {
+      "key": "carslaw1959heat",
+      "title": "Conduction of Heat in Solids (2nd ed.)",
+      "authors": [
+       "H. S. Carslaw",
+       "J. C. Jaeger"
+      ],
+      "year": 1959,
+      "venue": "Oxford University Press",
+      "kind": "book",
+      "topics": [
+       "heat",
+       "exact_solutions",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": ""
+     },
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "022be1cf14",
+    "created": 1792356560.3661458
+   },
+   {
+    "topic": "coefficients",
+    "what": "c = 1 (template default)",
+    "decided_by": {
+     "kind": "rule",
+     "id": "coef.template_default"
+    },
+    "rationale": "illustrative coefficient value of the template",
+    "value": {
+     "c": 1.0
+    },
+    "references": [],
+    "evidence": [],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "placeholder: replace with the material's or the fluid's value",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "inverse.calibrate",
+     "validate.compare"
+    ],
+    "id": "6c7c33e16e",
+    "created": 1792356560.3661764
+   },
+   {
+    "topic": "validation",
+    "what": "exact solution: cos(c*pi*sqrt(1)*t)*sin(pi*x)",
+    "decided_by": {
+     "kind": "rule",
+     "id": "exact.template"
+    },
+    "rationale": "exact solution of the template problem (for validation)",
+    "value": "cos(c*pi*sqrt(1)*t)*sin(pi*x)",
+    "references": [
+     {
+      "key": "carslaw1959heat",
+      "title": "Conduction of Heat in Solids (2nd ed.)",
+      "authors": [
+       "H. S. Carslaw",
+       "J. C. Jaeger"
+      ],
+      "year": 1959,
+      "venue": "Oxford University Press",
+      "kind": "book",
+      "topics": [
+       "heat",
+       "exact_solutions",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": ""
+     },
+     {
+      "key": "evans2010pde",
+      "title": "Partial Differential Equations (2nd ed.)",
+      "authors": [
+       "L. C. Evans"
+      ],
+      "year": 2010,
+      "venue": "American Mathematical Society, Graduate Studies in Mathematics 19",
+      "doi": "10.1090/gsm/019",
+      "kind": "book",
+      "topics": [
+       "pde_theory",
+       "heat",
+       "wave",
+       "poisson",
+       "laplace",
+       "well_posedness",
+       "boundary_conditions"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1090/gsm/019"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_equations.py",
+      "detail": "FD and PINN solutions of parsed systems against exact solutions"
+     }
+    ],
+    "node": "eq",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "50564c2bf2",
+    "created": 1792356560.3662028
+   },
+   {
+    "topic": "hyperparameters",
+    "what": "Latin hypercube over {'c': [0.5, 2.0]}",
+    "decided_by": {
+     "kind": "rule",
+     "id": "sampling.lhs"
+    },
+    "rationale": "Latin hypercube samples of the varied coefficients",
+    "value": {
+     "c": [
+      0.5,
+      2.0
+     ]
+    },
+    "references": [
+     {
+      "key": "mckay1979lhs",
+      "title": "A Comparison of Three Methods for Selecting Values of Input Variables in the Analysis of Output from a Computer Code",
+      "authors": [
+       "M. D. McKay",
+       "R. J. Beckman",
+       "W. J. Conover"
+      ],
+      "year": 1979,
+      "venue": "Technometrics 21(2), 239-245",
+      "doi": "10.1080/00401706.1979.10489755",
+      "kind": "article",
+      "topics": [
+       "lhs",
+       "sampling",
+       "doe"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1080/00401706.1979.10489755"
+     }
+    ],
+    "evidence": [],
+    "node": "sweep",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "a5be590a63",
+    "created": 1792356560.3663552
+   },
+   {
+    "topic": "method",
+    "what": "training data from the finite-difference solver",
+    "decided_by": {
+     "kind": "rule",
+     "id": "method.fd"
+    },
+    "rationale": "finite differences / method of lines with BDF for the edited system",
+    "value": null,
+    "references": [
+     {
+      "key": "leveque2007fd",
+      "title": "Finite Difference Methods for Ordinary and Partial Differential Equations",
+      "authors": [
+       "R. J. LeVeque"
+      ],
+      "year": 2007,
+      "venue": "SIAM",
+      "doi": "10.1137/1.9780898717839",
+      "kind": "book",
+      "topics": [
+       "finite_differences",
+       "method_of_lines",
+       "stability",
+       "heat",
+       "wave",
+       "advection",
+       "poisson"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1137/1.9780898717839"
+     },
+     {
+      "key": "hairer1996odes2",
+      "title": "Solving Ordinary Differential Equations II: Stiff and Differential-Algebraic Problems (2nd ed.)",
+      "authors": [
+       "E. Hairer",
+       "G. Wanner"
+      ],
+      "year": 1996,
+      "venue": "Springer",
+      "doi": "10.1007/978-3-642-05221-7",
+      "kind": "book",
+      "topics": [
+       "bdf",
+       "stiff",
+       "method_of_lines"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1007/978-3-642-05221-7"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_equations.py",
+      "detail": "FD and PINN solutions of parsed systems against exact solutions"
+     },
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/heat_1d/summary.json",
+      "detail": "heat 1D: FD and PINN vs exact, Lab tier"
+     }
+    ],
+    "node": "sweep",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "a09f205004",
+    "created": 1792356560.3663895
+   },
+   {
+    "topic": "architecture",
+    "what": "pod_mlp surrogate",
+    "decided_by": {
+     "kind": "rule",
+     "id": "surrogate.pod_mlp"
+    },
+    "rationale": "POD basis + network for the coefficients (ROM + NN hybrid)",
+    "value": "pod_mlp",
+    "references": [
+     {
+      "key": "berkooz1993pod",
+      "title": "The Proper Orthogonal Decomposition in the Analysis of Turbulent Flows",
+      "authors": [
+       "G. Berkooz",
+       "P. Holmes",
+       "J. L. Lumley"
+      ],
+      "year": 1993,
+      "venue": "Annual Review of Fluid Mechanics 25, 539-575",
+      "doi": "10.1146/annurev.fl.25.010193.002543",
+      "kind": "article",
+      "topics": [
+       "pod",
+       "rom"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1146/annurev.fl.25.010193.002543"
+     },
+     {
+      "key": "benner2015pmor",
+      "title": "A Survey of Projection-Based Model Reduction Methods for Parametric Dynamical Systems",
+      "authors": [
+       "P. Benner",
+       "S. Gugercin",
+       "K. Willcox"
+      ],
+      "year": 2015,
+      "venue": "SIAM Review 57(4), 483-531",
+      "doi": "10.1137/130932715",
+      "kind": "article",
+      "topics": [
+       "rom",
+       "parametric_rom",
+       "hybrid"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1137/130932715"
+     }
+    ],
+    "evidence": [],
+    "node": "hpo",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "0b5419817b",
+    "created": 1792356560.3664224
+   },
+   {
+    "topic": "architecture",
+    "what": "suggested architecture sizes (see the preview)",
+    "decided_by": {
+     "kind": "rule",
+     "id": "architecture.default_sizes"
+    },
+    "rationale": "suggested widths, depths and modes",
+    "value": null,
+    "references": [],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/operator_burgers/summary.json",
+      "detail": "DeepONet and FNO on Burgers"
+     }
+    ],
+    "node": "hpo",
+    "notes": "",
+    "uncited_reason": "rule-of-thumb sizes; the HPO node or a benchmark should confirm them",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "8344d7bb5c",
+    "created": 1792356560.3664465
+   },
+   {
+    "topic": "hpo",
+    "what": "TPE (Optuna) when installed, else random search",
+    "decided_by": {
+     "kind": "rule",
+     "id": "hpo.search"
+    },
+    "rationale": "TPE (Optuna) when installed, else random search, on the validation split only",
+    "value": null,
+    "references": [
+     {
+      "key": "akiba2019optuna",
+      "title": "Optuna: A Next-generation Hyperparameter Optimization Framework",
+      "authors": [
+       "T. Akiba",
+       "S. Sano",
+       "T. Yanase",
+       "T. Ohta",
+       "M. Koyama"
+      ],
+      "year": 2019,
+      "venue": "Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery & Data Mining, 2623-2631",
+      "doi": "10.1145/3292500.3330701",
+      "kind": "conference",
+      "topics": [
+       "hpo",
+       "tpe"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1145/3292500.3330701"
+     },
+     {
+      "key": "bergstra2012random",
+      "title": "Random Search for Hyper-Parameter Optimization",
+      "authors": [
+       "J. Bergstra",
+       "Y. Bengio"
+      ],
+      "year": 2012,
+      "venue": "Journal of Machine Learning Research 13, 281-305",
+      "url": "https://www.jmlr.org/papers/v13/bergstra12a.html",
+      "kind": "article",
+      "topics": [
+       "hpo",
+       "hyperparameters"
+      ],
+      "status": "registry",
+      "link": "https://www.jmlr.org/papers/v13/bergstra12a.html"
+     }
+    ],
+    "evidence": [],
+    "node": "hpo",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "f840541c40",
+    "created": 1792356560.3664687
+   },
+   {
+    "topic": "hpo",
+    "what": "search ranges",
+    "decided_by": {
+     "kind": "rule",
+     "id": "hpo.ranges"
+    },
+    "rationale": "default search ranges (learning rate 3e-4 to 1e-2, log; width 16-128; depth 1-4)",
+    "value": {
+     "lr": [
+      0.0003,
+      0.01,
+      "log"
+     ],
+     "width": [
+      16,
+      128
+     ],
+     "depth": [
+      1,
+      4
+     ],
+     "rank": [
+      4,
+      16
+     ]
+    },
+    "references": [],
+    "evidence": [],
+    "node": "hpo",
+    "notes": "",
+    "uncited_reason": "rule-of-thumb ranges",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "validate.compare",
+     "uq.sensitivity"
+    ],
+    "id": "d9589c09ed",
+    "created": 1792356560.3664913
+   },
+   {
+    "topic": "method",
+    "what": "Sobol indices of the field mean",
+    "decided_by": {
+     "kind": "rule",
+     "id": "uq.sobol"
+    },
+    "rationale": "variance-based (Sobol) sensitivity indices",
+    "value": null,
+    "references": [
+     {
+      "key": "sobol2001indices",
+      "title": "Global sensitivity indices for nonlinear mathematical models and their Monte Carlo estimates",
+      "authors": [
+       "I. M. Sobol'"
+      ],
+      "year": 2001,
+      "venue": "Mathematics and Computers in Simulation 55(1-3), 271-280",
+      "doi": "10.1016/S0378-4754(00)00270-6",
+      "kind": "article",
+      "topics": [
+       "sensitivity",
+       "sobol",
+       "uq"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1016/S0378-4754(00)00270-6"
+     },
+     {
+      "key": "saltelli2002sensitivity",
+      "title": "Making best use of model evaluations to compute sensitivity indices",
+      "authors": [
+       "A. Saltelli"
+      ],
+      "year": 2002,
+      "venue": "Computer Physics Communications 145(2), 280-297",
+      "doi": "10.1016/S0010-4655(02)00280-1",
+      "kind": "article",
+      "topics": [
+       "sensitivity",
+       "sobol",
+       "uq"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1016/S0010-4655(02)00280-1"
+     }
+    ],
+    "evidence": [],
+    "node": "sobol",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "622bd342f4",
+    "created": 1792356560.3665142
+   },
+   {
+    "topic": "route",
+    "what": "route: parametric data + surrogate",
+    "decided_by": {
+     "kind": "rule",
+     "id": "route.alternatives"
+    },
+    "rationale": "offer the classical + PINN route, a surrogate route and an inverse route when they apply",
+    "value": null,
+    "references": [],
+    "evidence": [],
+    "node": "",
+    "notes": "",
+    "uncited_reason": "a planning heuristic of this library",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "validate.compare"
+    ],
+    "id": "524bf04747",
+    "created": 1792356560.3665354
+   }
+  ],
+  "planner": "heuristic",
+  "prompt": "Build a fast surrogate of a vibrating string for many wave speeds: a mixed ROM + NN model with hyperparameter tuning and a sensitivity analysis.",
+  "kind": "planned",
+  "detected": {
+   "family": "wave",
+   "dimension": 1,
+   "intents": [
+    "hpo",
+    "hybrid",
+    "surrogate",
+    "uq"
+   ],
+   "boundary": []
+  }
+ },
+ "nodes": {
+  "geo": {
+   "type": "geometry.domain",
+   "status": "done",
+   "seconds": 0.0019309520721435547,
+   "error": null,
+   "summary": "interval in 1-D, coordinates ['x', 't']",
+   "metrics": {
+    "dimension": 1
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "mesh": {
+   "type": "geometry.mesh",
+   "status": "done",
+   "seconds": 0.0015952587127685547,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "nodes": 201
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "spacing",
+     "columns": [
+      "axis",
+      "nodes",
+      "h"
+     ],
+     "rows": [
+      [
+       "x",
+       201,
+       0.005
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "eq": {
+   "type": "equations.system",
+   "status": "done",
+   "seconds": 0.020425081253051758,
+   "error": null,
+   "summary": "wave (linear), 1 PDE(s), 3 condition(s)",
+   "metrics": {
+    "family": "wave",
+    "linear": true
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "equations",
+     "columns": [
+      "kind",
+      "on",
+      "equation",
+      "derivatives"
+     ],
+     "rows": [
+      [
+       "pde",
+       "",
+       "u_tt = c**2*lap(u)",
+       "u_tt, u_xx"
+      ],
+      [
+       "initial",
+       "t_min",
+       "u = sin(pi*x)",
+       ""
+      ],
+      [
+       "initial",
+       "t_min",
+       "u_t = 0",
+       "u_t"
+      ],
+      [
+       "dirichlet",
+       "boundary",
+       "u = 0",
+       ""
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "sweep": {
+   "type": "data.parametric",
+   "status": "done",
+   "seconds": 5.819295167922974,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "samples": 96,
+    "outputs_per_sample": 81,
+    "generation_seconds": 5.81
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "hpo": {
+   "type": "surrogate.hpo",
+   "status": "done",
+   "seconds": 12.972216844558716,
+   "error": null,
+   "summary": "best of 10 trials (random-search): test rel. L2 0.015",
+   "metrics": {
+    "search_backend": "random-search",
+    "trials": 10,
+    "best_trial_val_rel_l2": 0.05673176795244217,
+    "train_rel_l2": {
+     "value": 0.011157765053212643,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "val_rel_l2": {
+     "value": 0.011232205666601658,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "test_rel_l2": {
+     "value": 0.014993320219218731,
+     "how": "mean relative L2 over the samples of that split (held out from training for val/test)"
+    },
+    "n_parameters": 39328,
+    "train_seconds": {
+     "value": 4.36,
+     "how": "wall clock on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "trials (best first, validation rel. L2)",
+     "columns": [
+      "depth",
+      "lr",
+      "rank",
+      "width",
+      "val rel L2"
+     ],
+     "rows": [
+      [
+       4,
+       0.005795265596830145,
+       4,
+       113,
+       0.05673176795244217
+      ],
+      [
+       3,
+       0.007507248671952319,
+       11,
+       122,
+       0.0816909447312355
+      ],
+      [
+       2,
+       0.00941422052615729,
+       8,
+       119,
+       0.15198524296283722
+      ],
+      [
+       4,
+       0.002555218495357601,
+       11,
+       42,
+       0.3473894000053406
+      ],
+      [
+       4,
+       0.0021362378605884725,
+       9,
+       61,
+       0.8991023898124695
+      ],
+      [
+       4,
+       0.0007437381694744973,
+       10,
+       81,
+       1.0917680263519287
+      ],
+      [
+       1,
+       0.0062356732754319496,
+       16,
+       49,
+       1.526795744895935
+      ],
+      [
+       2,
+       0.0010528997854828922,
+       8,
+       43,
+       2.1488254070281982
+      ],
+      [
+       3,
+       0.0004241562327530574,
+       11,
+       25,
+       2.178501844406128
+      ],
+      [
+       3,
+       0.0004897079341053302,
+       12,
+       28,
+       2.2021381855010986
+      ]
+     ]
+    },
+    {
+     "title": "test samples",
+     "columns": [
+      "sample",
+      "relative L2"
+     ],
+     "rows": [
+      [
+       36,
+       0.003223348560161941
+      ],
+      [
+       87,
+       0.017953792638091076
+      ],
+      [
+       5,
+       0.09803146100848491
+      ],
+      [
+       13,
+       0.0011598281057655683
+      ],
+      [
+       52,
+       0.0037292891649873946
+      ],
+      [
+       20,
+       0.005646931228876912
+      ],
+      [
+       93,
+       0.004704865955479929
+      ],
+      [
+       34,
+       0.016671809116414846
+      ],
+      [
+       50,
+       0.00789456068091491
+      ],
+      [
+       27,
+       0.0007545452061694178
+      ],
+      [
+       16,
+       0.01794877392964713
+      ],
+      [
+       94,
+       0.004549253585241246
+      ],
+      [
+       11,
+       0.018807811789219656
+      ],
+      [
+       10,
+       0.008830209103437738
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "hpo_surrogate.png"
+   ]
+  },
+  "sobol": {
+   "type": "uq.sensitivity",
+   "status": "done",
+   "seconds": 0.18573546409606934,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "S1_c": 1.000151595281674,
+    "ST_c": 1.0001516737499476,
+    "model_evaluations": 3072
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "Sobol indices of the field mean",
+     "columns": [
+      "parameter",
+      "S1",
+      "ST"
+     ],
+     "rows": [
+      [
+       "c",
+       1.000151595281674,
+       1.0001516737499476
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "sobol_sobol.png"
+   ]
+  },
+  "report": {
+   "type": "export.report",
+   "status": "done",
+   "seconds": 0.0025072097778320312,
+   "error": null,
+   "summary": "report written (html)",
+   "metrics": {
+    "decisions": 18,
+    "decisions_without_reference": 4,
+    "items": 1
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  }
+ },
+ "cached_nodes": []
+}

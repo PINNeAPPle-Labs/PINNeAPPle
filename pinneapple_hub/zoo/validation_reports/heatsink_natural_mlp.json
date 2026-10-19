@@ -1,0 +1,327 @@
+{
+ "schema": "validation-report/v1",
+ "model": "heatsink_natural_mlp v1.0.0",
+ "problem": "zoo card of heatsink_natural_mlp",
+ "level": "standard",
+ "decision": "pass",
+ "trust_decision": "APPROVED",
+ "verdict": "pass: every applicable check passed",
+ "credibility": {
+  "code_verification": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  },
+  "solution_verification": {
+   "level": 3,
+   "meaning": "passes quantitative checks",
+   "checks": [
+    "physics.model_checks.1",
+    "physics.model_checks.2",
+    "physics.model_checks.3",
+    "physics.model_checks.4"
+   ]
+  },
+  "validation": {
+   "level": 4,
+   "meaning": "passes against an independent reference or a guaranteed bound",
+   "checks": [
+    "reference.card_metrics",
+    "reference.acceptance.test/R_mean_abs_pct",
+    "reference.acceptance.test/R_p95_abs_pct"
+   ]
+  },
+  "input_pedigree": {
+   "level": 4,
+   "meaning": "passes against an independent reference or a guaranteed bound",
+   "checks": [
+    "data.finite",
+    "data.physics.constraint.r-base-k-w-0",
+    "data.physics.constraint.source-width-mm-source-frac-w-base-width-mm",
+    "data.physics.constraint.source-depth-mm-source-frac-d-base-depth-mm",
+    "data.diversity.duplicates",
+    "data.diversity.effective",
+    "data.leakage"
+   ]
+  },
+  "uncertainty": {
+   "level": 2,
+   "meaning": "passes with warnings or qualitative evidence only",
+   "checks": [
+    "uncertainty.spread"
+   ]
+  },
+  "robustness": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  },
+  "applicability": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  }
+ },
+ "checks": [
+  {
+   "id": "method.status",
+   "factor": "code_verification",
+   "status": "not-applicable",
+   "summary": "no catalog method id given (validate(..., method='S2'))",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "reference.card_metrics",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "card metrics reproduced on the stored reference (max relative difference)",
+   "value": 0.0,
+   "threshold": 0.001,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/R_mean_abs_pct",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/R_mean_abs_pct within the zoo acceptance limit",
+   "value": 0.46867034214113035,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/R_p95_abs_pct",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/R_p95_abs_pct within the zoo acceptance limit",
+   "value": 1.5446053620114195,
+   "threshold": 5.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.1",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "monotonic: a more conductive material never raises the resistance (share of held-out designs violating, +5 % step)",
+   "value": 0.0,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.2",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "monotonic: a wider heat source spreads less (lower resistance) (share of held-out designs violating, +5 % step)",
+   "value": 0.0,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.3",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "monotonic: more power drives more buoyant flow (lower resistance) (share of held-out designs violating, +5 % step)",
+   "value": 0.0,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.4",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "R > 0 on the held-out designs",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "applicability.range",
+   "factor": "applicability",
+   "status": "not-applicable",
+   "summary": "no query inputs given",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "uncertainty.spread",
+   "factor": "uncertainty",
+   "status": "pass",
+   "summary": "the model returns a predictive spread or bound",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "metamorphic",
+   "factor": "validation",
+   "status": "not-applicable",
+   "summary": "no relations declared for heatsink_natural_mlp",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.finite",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of heatsink_natural_convection: every value finite",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "data.physics.physics",
+   "factor": "input_pedigree",
+   "status": "not-applicable",
+   "summary": "stored audit card of heatsink_natural_convection: no PDE stated for this dataset",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.physics.constraint.r-base-k-w-0",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of heatsink_natural_convection: r_base_k_w > 0: 0 of 5000 rows violate it",
+   "value": 0,
+   "threshold": 0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.physics.constraint.source-width-mm-source-frac-w-base-width-mm",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of heatsink_natural_convection: source_width_mm == source_frac_w * base_width_mm: 0 of 5000 rows violate it",
+   "value": 0,
+   "threshold": 0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.physics.constraint.source-depth-mm-source-frac-d-base-depth-mm",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of heatsink_natural_convection: source_depth_mm == source_frac_d * base_depth_mm: 0 of 5000 rows violate it",
+   "value": 0,
+   "threshold": 0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.diversity.duplicates",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of heatsink_natural_convection: train: 0 exact, 0 near copies of 3250; cal: 0 exact, 0 near copies of 500; test: 0 exact, 0 near copies of 750; val: 0 exact, 0 near copies of 500",
+   "value": 0.0,
+   "threshold": 0.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.diversity.effective",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of heatsink_natural_convection: effective sample count 11 of 3250 (no generator stated: only a collapse to one pattern is flagged)",
+   "value": 10.96830526274571,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.leakage",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of heatsink_natural_convection: 0 of 750 test samples are (near) copies of train samples (closest: 0.458 x the median train spacing)",
+   "value": 0.0,
+   "threshold": 0.0,
+   "critical": true,
+   "evidence": {}
+  }
+ ],
+ "provenance": {
+  "library_version": "0.7.0",
+  "level": "standard",
+  "source": "pp.validate",
+  "model_hash": "a93b5a6de4cb56d956b1fc9d5e7216d0f19e9c2c170d7b91ba8a4b0eb1e23115",
+  "data_hash": null,
+  "physics": {
+   "problem": null,
+   "tolerances": {
+    "energy_bound": 1.0,
+    "flux": 0.1,
+    "reference": 0.1,
+    "spectral": 0.25,
+    "symmetry": 0.1,
+    "noise": 3.0,
+    "alpha": 0.1
+   },
+   "seed": 0
+  },
+  "model_card": {
+   "name": "heatsink_natural_mlp",
+   "version": "1.0.0"
+  },
+  "validity_range": {
+   "base_width_mm": [
+    30.0,
+    200.0
+   ],
+   "base_depth_mm": [
+    30.0,
+    200.0
+   ],
+   "base_thickness_mm": [
+    2.0,
+    15.0
+   ],
+   "fin_thickness_mm": [
+    0.6,
+    4.0
+   ],
+   "fin_height_mm": [
+    8.0,
+    80.0
+   ],
+   "k_w_mk": [
+    150.0,
+    400.0
+   ],
+   "source_frac_w": [
+    0.15,
+    1.0
+   ],
+   "source_frac_d": [
+    0.15,
+    1.0
+   ],
+   "t_ambient_c": [
+    0.0,
+    50.0
+   ],
+   "fin_gap_mm": [
+    2.2,
+    30.6
+   ],
+   "power_w": [
+    1.0,
+    80.0
+   ]
+  }
+ }
+}

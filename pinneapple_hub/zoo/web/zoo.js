@@ -148,6 +148,16 @@ export async function loadModel(base, name, opts = {}) {
       const ev = evaluate(meta.checks, out.checks[0], out.aux[0]);
       return { rows: named, query: { ...ev, groups: grouped(meta.checks, ev.checks) } };
     },
+    /** rows: inputs in card order -> [{outputs: {column: value}, ...evaluation of that row's query checks}]
+     *  (a sweep: every row is predicted and checked, as pinneapple_hub.zoo.checks.query_checks does). */
+    async evaluateRows(rows) {
+      const out = await graph.run({ x: rows, query: rows });
+      return rows.map((_, i) => {
+        const o = {};
+        for (const [k, cols] of Object.entries(outCols)) if (Array.isArray(cols)) cols.forEach((c, j) => { o[c] = out[k][i][j]; });
+        return { outputs: o, ...evaluate(meta.checks, out.checks[i], out.aux[i]) };
+      });
+    },
   };
 }
 

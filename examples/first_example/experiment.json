@@ -1,0 +1,39 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/first_example",
+ "title": "Your first PINNeAPPle result in about a minute on a laptop CPU: solve Burgers' equation with a\u2026",
+ "description": "Your first PINNeAPPle result in about a minute on a laptop CPU: solve Burgers' equation with a physics-informed network, check it against the exact solution and plot both. pip install pinneapple",
+ "domain": "general",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple"
+ ],
+ "params": {},
+ "scripts": [
+  "first_example.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/first_example/first_example.py",
+  "pr": [
+   240
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

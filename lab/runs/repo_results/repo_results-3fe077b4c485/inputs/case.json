@@ -1,0 +1,21 @@
+{
+ "note": "Half model with a symmetry plane, snappyHexMesh (~0.4 M cells), simpleFoam k-\u03c9 SST with wall functions, approach at 70 m/s and \u03b1 4\u00b0, sea level, clean wing, tail at zero incidence, no nacelles or sharklets. The vortex lattice models wing and tail only; the CFD adds the fuselage's lift.",
+ "cells": 414944,
+ "alpha": 4.0,
+ "speed": 70.0,
+ "x": [
+  0.169591214624429,
+  0.1449587341607089,
+  0.13143323808820243,
+  0.024922226362596903,
+  0.07108767218761683,
+  0.05895967523554785,
+  122.6,
+  9.5,
+  0.24,
+  25.0,
+  -4.0,
+  0.78,
+  12.3
+ ]
+}

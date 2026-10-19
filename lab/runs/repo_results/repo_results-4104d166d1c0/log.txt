@@ -1,0 +1,15 @@
+[16:40:12] 2004 Toyota Prius interior-PM motor, nonlinear 2-D FEA: torque against current angle vs the published curve of Yang et al. (2013), second code GetDP, cogging, step skew, tolerances
+[16:40:12] stage import started
+[16:40:12] check peak_torque_vs_yang_2013: PASS published FEA of the same motor (Yang, Krishnamurthy & Brown, IEEE IEMDC 2013): another group and code, not a measurement; tolerance 5 % (machines.verification); largest deviation +25.3 N m at 90 deg, rms 13.3 N m
+[16:40:12] check zero_mean_torque_at_180deg_symmetry: PASS pure negative d-axis current on a rotor symmetric about its d-axis gives no mean torque
+[16:40:12] check fem_vs_magnetised_ring_closed_form: PASS Magnetised ring, sector mesher + P1 FEM, pass/fail and tolerance of machines.verification; 8 sector copies, magnet edges on mesh edges
+[16:40:12] check geometry_slot_and_magnet_areas_exact: PASS Machine sector geometry (Prius slot and magnet areas), pass/fail and tolerance of machines.verification; magnet area (straight edges) exact to 4.4e-16
+[16:40:12] check maxwell_stress_vs_coenergy_torque: PASS Prius IPM: Maxwell stress vs co-energy torque, pass/fail and tolerance of machines.verification; max relative difference over the angles
+[16:40:12] check dq_power_balance: PASS Prius IPM: dq power balance and frozen permeability, pass/fail and tolerance of machines.verification; frozen-permeability superposition error 4.1e-11; L_d = 1.386 mH, L_q = 2.420 mH, psi_pm = 0.2140 Wb at this point
+[16:40:12] check mesh_convergence_peak_torque: PASS Prius IPM: mesh convergence of the peak torque, pass/fail and tolerance of machines.verification; 480: 343.42 N m, 960: 345.65 N m, 1920: 344.22 N m; difference ratio 1.56
+[16:40:12] check torque_vs_getdp_second_code: PASS gmsh 4.12 + GetDP 3.2, 13 current angles: its own mesh, Newton solver and Arkkio torque, but the same geometry, materials and currents, so partly independent (it cannot catch an input error); tolerance 1 % of the peak
+[16:40:12] check back_emf_vs_getdp_second_code: PASS fundamental at 1000 rpm, 60 positions; same sharing as the torque
+[16:40:12] check cogging_linear_iron_vs_getdp: PASS with linear iron the two codes agree on cogging; with saturated bridges they converge 25 % apart (a declared uncertainty, not settled without a measurement or a third code)
+[16:40:12] check skew_back_emf_vs_closed_form_factor: PASS every harmonic = straight harmonic x |sin(K h pi s / lam) / (K sin(h pi s / lam))|; checks the multi-slice composition, not the 2-D field
+[16:40:12] check half_pitch_skew_lowers_cogging: PASS 2 steps over half a slot pitch: 1.353 -> 0.624 N m
+[16:40:12] stage import done (0.01 s)

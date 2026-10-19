@@ -1,0 +1,50 @@
+/* Physics Validation Lab (base styles in /shared/app.css) */
+:root { --brand: #0f766e; }
+[hidden] { display: none !important; }
+.logo { background: var(--brand); }
+input:focus, select:focus, textarea:focus { outline: 2px solid #0f766e33; }
+.layout { grid-template-columns: 440px 1fr; }
+.seg { margin: 10px 0 4px; }
+textarea { font-family: var(--mono); font-size: 12px; }
+.filelist { display: grid; gap: 3px; margin: 4px 0; }
+.filelist div { display: flex; justify-content: space-between; font-size: 11.5px; border: 1px solid var(--line); border-radius: 6px; padding: 3px 7px; }
+.filelist button { border: 0; background: none; cursor: pointer; color: var(--muted); }
+.examples { display: grid; gap: 6px; }
+.examples button { text-align: left; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 7px 10px; cursor: pointer; font: inherit; font-size: 12.5px; }
+.examples button:hover { border-color: var(--brand); }
+.examples b { display: block; }
+.examples span { color: var(--muted); }
+.groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+.groups .g { border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 8px; padding: 10px 12px; }
+.groups .g b { display: block; margin-bottom: 3px; }
+.groups .g span { color: var(--muted); font-size: 13px; }
+.verification { --c: #2a78d6; } .validation { --c: #eb6834; } .physics { --c: #1baf7a; }
+.note { background: #fff7e6; border: 1px solid #f5d38a; border-radius: 8px; padding: 9px 12px; font-size: 13px; }
+.verdict { display: flex; align-items: center; gap: 14px; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; }
+.verdict.pass { background: var(--ok-bg); color: var(--ok); } .verdict.fail { background: var(--bad-bg); color: var(--bad); }
+.verdict.warn { background: var(--warn-bg); color: var(--warn); }
+.verdict .big { font-size: 22px; font-weight: 800; }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 1100px) { .cols { grid-template-columns: 1fr; } }
+.cat { border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 10px; padding: 10px 12px; }
+.cat h3 { margin: 0 0 2px; font-size: 15px; }
+.cat .q { color: var(--muted); font-size: 12.5px; margin-bottom: 8px; }
+.cat .counts { font-size: 13px; margin-bottom: 6px; }
+.cat table { font-size: 12px; }
+.st { font-weight: 700; font-size: 11.5px; border-radius: 99px; padding: 1px 8px; white-space: nowrap; }
+.st.passed { background: var(--ok-bg); color: var(--ok); } .st.failed { background: var(--bad-bg); color: var(--bad); }
+.st.warning { background: var(--warn-bg); color: var(--warn); } .st.notrun { background: #eef1f5; color: #64748b; font-style: italic; }
+table.checks td:nth-child(5) { max-width: 420px; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; font-size: 13px; }
+.filters select { width: auto; margin: 0; }
+.prov code { word-break: break-all; }
+.prov td:first-child { white-space: nowrap; font-weight: 600; }
+@media (max-width: 1100px) { .groups { grid-template-columns: 1fr; } }
+.v3wrap { display: grid; grid-template-columns: minmax(0, 1fr) 500px; gap: 14px; align-items: start; margin-top: 8px; }
+@media (max-width: 1100px) { .v3wrap { grid-template-columns: 1fr; } }
+.v3side { font-size: 13px; } .v3side h4 { margin: 4px 0 6px; } .v3side p { margin: 0 0 7px; }
+.v3side table.regions { font-size: 12px; width: 100%; border-collapse: collapse; }
+.v3side table.regions td, .v3side table.regions th { padding: 3px 5px; border-bottom: 1px solid var(--line); text-align: left; }
+.v3side table.regions .num { text-align: right; white-space: nowrap; } .v3side table.regions tr[data-k] { cursor: pointer; }
+.v3side table.regions tr[data-k]:hover { background: #f1f5f9; }
+.v3pick select { display: inline-block; width: auto; margin-left: 6px; }

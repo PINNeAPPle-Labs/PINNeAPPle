@@ -1,0 +1,20 @@
+{
+ "peak_torque_Nm": 345.64594736544115,
+ "peak_torque_yang_2013_Nm": 353.0,
+ "torque_rms_vs_yang_2013_Nm": 13.29425349016487,
+ "torque_max_abs_vs_yang_2013_Nm": 25.258044566850685,
+ "getdp_torque_max_abs_difference_Nm": 1.0859378706751954,
+ "cogging_pkpk_Nm": 1.3530931228632959,
+ "cogging_pkpk_getdp_Nm": 1.045574169725277,
+ "cogging_code_spread_rel": 0.227271093128664,
+ "cogging_pkpk_n480_Nm": 1.697634983769245,
+ "cogging_pkpk_getdp_n480_Nm": 1.5375606509213562,
+ "cogging_pkpk_n960_Nm": 1.3530931228632959,
+ "cogging_pkpk_getdp_n960_Nm": 1.045574169725277,
+ "cogging_pkpk_n1920_Nm": 1.341446462354523,
+ "cogging_pkpk_getdp_n1920_Nm": 1.0042595055815884,
+ "torque_std_Nm": 1.9611826570469055,
+ "ripple_std": 0.00467829726161092,
+ "yield_within_spec": 1.0,
+ "yield_wilson95_low": 0.9811546736227335
+}

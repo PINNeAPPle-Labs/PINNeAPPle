@@ -1,0 +1,9 @@
+{
+ "mass_kg": 1450.0,
+ "c_rr": 0.009,
+ "cd_a_m2": 0.58,
+ "wheel_radius_m": 0.3,
+ "gear_ratio": 4.113,
+ "gear_efficiency": 0.97,
+ "note": "illustrative compact car, not a measured Prius"
+}

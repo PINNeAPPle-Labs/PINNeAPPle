@@ -210,3 +210,86 @@ def deck_mesh(deck: Deck) -> Mesh:
 def _nodes_for(vt: str) -> int:
     return {"tetra": 4, "tetra10": 10, "hexahedron": 8, "hexahedron20": 20, "wedge": 6, "wedge15": 15,
             "pyramid": 5, "triangle": 3, "triangle6": 6, "quad": 4, "quad8": 8, "line": 2, "line3": 3}[vt]
+
+
+_DOF = {1: "ux", 2: "uy", 3: "uz", 4: "rx", 5: "ry", 6: "rz", 11: "T"}
+_BODY_LOADS = {"GRAV", "CENTRIF", "NEWTON", "CORIO", "BX", "BY", "BZ", "BF", "BFNU"}
+
+
+def _num(s: str) -> Optional[float]:
+    try:
+        return float(s)
+    except (TypeError, ValueError):
+        return None
+
+
+def deck_conditions(deck: Deck) -> List[Dict[str, object]]:
+    """The supports and loads of a deck as node ids (labels of ``*NODE``), one entry per keyword block and kind:
+    ``*BOUNDARY`` (kind ``bc``: the constrained degrees of freedom and their values), ``*CLOAD`` / ``*CFLUX`` (kind
+    ``load``: the sum of the nodal forces or fluxes per direction), ``*DLOAD`` / ``*DFLUX`` / ``*FILM`` on element sets or
+    elements (kind ``load``: the nodes of those elements, the load type and magnitude). Body loads on whole sets (GRAV,
+    CENTRIF) carry no nodes and are listed with ``nodes == []``. Each entry: ``name``, ``kind``, ``keyword``, ``line``,
+    ``node_ids``, ``detail``."""
+    nsets, elsets = resolve_sets(deck, "NSET"), resolve_sets(deck, "ELSET")
+    el_nodes: Dict[int, List[int]] = {}
+    for b in deck.find("ELEMENT"):
+        vt = vtk_type(b.params.get("TYPE", ""))
+        want = _nodes_for(vt) if vt else None
+        cur: List[int] = []
+        for r in b.data:
+            cur += [int(float(x)) for x in r if x]
+            if want and len(cur) >= want + 1:
+                el_nodes[cur[0]] = cur[1:want + 1]
+                cur = []
+
+    def targets(t: str, sets: Dict[str, List[str]]) -> List[int]:
+        t = t.strip()
+        if re.fullmatch(r"-?\d+", t):
+            return [int(t)]
+        return [int(x) for x in sets.get(t.upper(), [])]
+
+    out: List[Dict[str, object]] = []
+    for b in deck.blocks:
+        kw = b.keyword
+        rows = [r for r in b.data if r and r[0]]
+        if kw == "BOUNDARY" and rows:
+            nodes, dofs, nonzero = [], set(), []
+            for r in rows:
+                nodes += targets(r[0], nsets)
+                d1 = int(_num(r[1]) or 0) if len(r) > 1 else 0
+                d2 = int(_num(r[2]) or d1) if len(r) > 2 and r[2] else d1
+                v = _num(r[3]) if len(r) > 3 else 0.0
+                for d in range(d1, d2 + 1):
+                    dofs.add(d)
+                    if v:
+                        nonzero.append(f"{_DOF.get(d, d)} = {v:g}")
+            names = ", ".join(_DOF.get(d, str(d)) for d in sorted(dofs))
+            out.append({"name": "fixed " + names if not nonzero else "prescribed " + names, "kind": "bc",
+                        "keyword": "*BOUNDARY", "line": b.line, "node_ids": sorted(set(nodes)),
+                        "detail": (", ".join(sorted(set(nonzero))) if nonzero else names + " = 0")})
+        elif kw in ("CLOAD", "CFLUX") and rows:
+            nodes, tot = [], {}
+            for r in rows:
+                ns = targets(r[0], nsets)
+                nodes += ns
+                d, v = int(_num(r[1]) or 0) if len(r) > 1 else 0, _num(r[2]) if len(r) > 2 else 0.0
+                tot[d] = tot.get(d, 0.0) + (v or 0.0) * len(ns)
+            sym = "F" if kw == "CLOAD" else "Q"
+            det = ", ".join(f"{sym}{'xyz'[d - 1] if 1 <= d <= 3 else d} = {v:.4g}" for d, v in sorted(tot.items()) if v)
+            out.append({"name": f"{'load' if kw == 'CLOAD' else 'heat flux'} {det or '0'}", "kind": "load",
+                        "keyword": f"*{kw}", "line": b.line, "node_ids": sorted(set(nodes)),
+                        "detail": f"sum over {len(set(nodes))} nodes: {det or '0'}"})
+        elif kw in ("DLOAD", "DFLUX", "FILM") and rows:
+            nodes, kinds = [], []
+            for r in rows:
+                els = targets(r[0], elsets)
+                lt = r[1].strip().upper() if len(r) > 1 else ""
+                kinds.append(" ".join(x for x in r[1:3] if x))
+                if lt in _BODY_LOADS:
+                    continue                                             # GRAV, CENTRIF: a body load, no surface
+                for e in els:
+                    nodes += el_nodes.get(e, [])
+            out.append({"name": f"{kw.lower()} {kinds[0]}" + (" …" if len(set(kinds)) > 1 else ""), "kind": "load",
+                        "keyword": f"*{kw}", "line": b.line, "node_ids": sorted(set(nodes)),
+                        "detail": "; ".join(dict.fromkeys(kinds)) + ("" if nodes else " (body load: no region)")})
+    return out

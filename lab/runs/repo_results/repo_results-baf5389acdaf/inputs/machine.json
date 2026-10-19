@@ -1,0 +1,8 @@
+{
+ "pole_pairs": 2,
+ "slots": 24,
+ "length_m": 0.05,
+ "airgap_m": 0.001,
+ "Br_T": 1.2,
+ "n_theta": 360
+}

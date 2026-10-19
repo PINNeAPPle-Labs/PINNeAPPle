@@ -29,13 +29,30 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | Solve it | `pp.solve(problem, method, **options)`: `"pinn"`, `"fem"`, `"analytic"`, `"reference"`, `"exact"`, `"external"` (`pp.list_methods()`) |
 | Compare methods on the same points | `pp.compare(problem, methods, reference=...)` |
 | Check a result | `pp.trust_card(grid, values, pde=..., dirichlet=..., reference=..., train_bounds=...)` (decision APPROVED / REVIEW / REJECT) |
+| Validate a model (zoo, PyTorch, ONNX, callable) | `pp.validate(model, problem, data=..., query=..., level="quick" / "standard" / "thorough")` (credibility per factor, decision pass / warn / fail; [docs](docs/guides/pp_validate.md)) |
+| Validate an autoregressive rollout (trust horizon, drift, long-run statistics) | `pinneapple_analysis.validation.rollout.validate_rollout(pred, ndim, ref, long_ref=...)` or `pp.validate(step, {"rollout": {...}}, data=...)` ([docs](docs/guides/rollout_validation.md)) |
+| Validate a trained PINN (fresh-point residual, failure modes, exact solutions) | `pinneapple_analysis.validation.pinn.validate_pinn(net, problem)` or `pp.validate(net, {"pinn": "burgers_1d"})`; `PINNMonitor` during training ([docs](docs/guides/pinn_validation.md)) |
+| Physics checks during training (Lightning, PhysicsNeMo, Hugging Face) | `pinneapple_neural.callbacks.PhysicsMonitor(problem, reference=..., every=N)` with `PhysicsValidationCallback` / `PhysicsNeMoHook` / `PhysicsTrainerCallback` ([docs](docs/guides/training_callbacks.md)) |
+| Worked validation examples per model family and physics | `examples/validation/NN_*.py` (`run(smoke=True)`), each ending in `pp.validate` + trust card + `pinneapple check` ([docs](docs/guides/validation_gallery.md)) |
 | Deploy decision from your own checks | `pinneapple_analysis.trust.TrustReport`, `Check` |
 | Which methods are validated | `pinneapple_catalog.validated_methods()`, `pinneapple_catalog.methods.method_status()` |
 | Equal-budget benchmark | `pp.compare` with the same epochs / collocation / seeds per method (below); `pp.benchmark.run(...)` where installed |
+| A field, a prediction against its reference, or a deformed shape on its mesh in an app | `pp.viz.field_view(mesh, fields, deform=..., markers=...)` + `pinneapple_analysis.validation.error_map.error_map(points, pred, ref, regions=...)`; page module `/shared/fieldview3d.js` ([docs](docs/core_concepts/studio.md)) |
 | Animations with synced charts | `pp.dashboard.Dashboard(...)`: `.to_png`, `.to_html`, `.to_video(gif=...)` |
 | Lint results and models for physics in CI | `pinneapple check [paths]` (conservation, BCs, residual, units, OOD, regression; [docs](docs/guides/physics_checks_in_ci.md)) |
 | Helpers that used to live in apps and examples | `pp.to_jsonable`, `pp.as_tensor`, `pp.dominant_frequency`, `pp.closed_form` (pipe flow, compressible, heat), `pp.uncertainty` (resampling, drift, tolerances), `pp.assess_drift`, `pp.propagate_tolerances`, `pp.score_against_reference`, `pp.excitation`, `pp.reporting.paperkit` ([inventory](docs/dev/LIBRARY_CONSOLIDATION.md)) |
+| Electromagnetics: references, materials, solvers, physics checks of any field | `pp.em` (statics, waves, Mie, media, FEM), `pp.maxwell.maxwell_checks(grid, fields, ...)`, `pinneapple check` with `physics = "maxwell"`, `pp.em.verification.run()` ([docs](docs/guides/electromagnetics.md)) |
+| Electric machines: interior-PM FEA (torque, cogging, L_d/L_q, MTPA, losses) | `pinneapple_simulation.electromagnetics.machines`: `IPMMachine(prius_2004())`, `.operating_point(I_peak=, gamma=)`, `.mtpa(I)`, `.inductances(i_d, i_q)`, `.losses(rpm, i_d, i_q)`; drive: `machines.drive.FluxMap.from_fea(m, I_max)`, `Drive(fm, R, I_max, V_max).max_torque(w)` / `.operating_point(T, w)` / `.efficiency_map(...)`, `cycle_energy(drive, Vehicle(...), *wltc_class3b())`; verification `machines.verification.run()` ([docs](docs/guides/electromagnetics.md#interior-pm-traction-motor-the-2004-toyota-prius)) |
+| Run FreeCAD / CfdOF / OpenFOAM / ParaView and keep the evidence | `pinneapple_tools.automation`: `Workflow.load(...)`, `Runner(wf, folder, inputs).run(approve=[...])`, `interpret(task, catalog())` ([guide](docs/guides/engineering_gui_agent.md)) |
+| Flight dynamics: 6-DOF aircraft on the vortex lattice, MIL-F-8785C turbulence, take-off, gust encounters, animated 3-D scenes | `pinneapple_simulation.flight`: `catalog.build("a320")`, `trim(ac, V, h)`, `stability_derivatives`, `simulate_takeoff(ac)` + `takeoff_metrics` + `raymer_takeoff`, `turbulence_encounter(ac, V, h, turbulence_spec(h, "severe"))`, `pratt_check`, `visuals.flight_scene(ac, hist, wind=...)`, `verification.run()` ([docs](docs/guides/flight_dynamics.md)) |
+| Interlocking-brick builds: statics with stud clutch, Newton replay, self-modifying search | `pinneapple_design.bricks`: `Assembly`, `analyse_assembly`, `CantileverGoal` / `BridgeGoal` / `TowerGoal`, `evolve`, `surrogate_search`, `compare`, `visuals` ([docs](docs/guides/interlocking_bricks.md)) |
+| A plain-language goal to a verified, buildable design (or the questions it needs, or a refusal saying what is missing) | `pp.design(text, answers=..., out_dir=...)`, `pinneapple design "<goal>"`, MCP `design`; templates in `pinneapple_design.intent` ([docs](docs/guides/design_from_intent.md)) |
+| Forecast a noisy or near-random series without fooling yourself (predictability first, purged walk-forward, untouched test, DM tests) | `pinneapple_systems.time_series.predictability.predictability_report(y)`, `pinneapple_systems.time_series.forecast_lab` (`study.run_zoo(data, specs, Protocol(horizons))`, `presets.case(name)`) ([docs](docs/guides/near_random_forecasting.md)) |
+| A problem description to a runnable flow of library calls (node graph, GUI or headless) | `pinneapple_flow.plan(text)`, `pinneapple_flow.run(flow)`, `python -m pinneapple_flow run flow.json` / `studio`; equations as safe text `pinneapple_physics.symbolic_pde.text.parse_system`, any parsed system by finite differences `pinneapple_simulation.numerical_solvers.symbolic_fd.solve_fd` ([schema](docs/guides/flow_schema.md), [app](apps/flow_studio/README.md)) |
+| Predict El Niño: ENSO data (OISST, WOD thermocline, ERA5), recharge / delayed oscillators, an intermediate coupled model with checks against theory, PINNs, LIM / CNN, EnKF, the forecast_lab protocol | `pinneapple_systems.time_series.enso`: `dataset.build_dataset()`, `dataset.to_series(ds)`, `study.protocol(ds.months)`, `study.run_model(name, data, prot)`, `pipeline.solver_checks()` ([docs](docs/guides/enso_forecasting.md)) |
+| Record an experiment so the Lab, the site and the Flow Studio see it (manifest, A-F grade, next steps) | `with pinneapple_lab.experiment("name", title=..., domain=...) as ex:` + `ex.log_metric` / `ex.check` (figures saved with `savefig` are recorded); `python -m pinneapple_lab scaffold <name>`, `register <folder>`, `seal --explain <item>`; format `pinneapple_lab.manifest` ([docs](docs/guides/adding_an_experiment.md)) |
 | Everything from an agent tool call | the MCP server `pinneapple-mcp` ([docs](docs/guides/mcp_server.md)) |
+| Coding and engineering agents on a local model (web app, VS Code, terminal), conversations kept for fine-tuning | `python -m pinneapple_llm.workbench serve --workspace <project>` (`doctor`, `eval`, `finetune`), `pinneapple_llm.workbench.Session` ([docs](docs/guides/agent_workbench.md)) |
 
 Check the zoo before training a surrogate: a zoo model comes with its held-out errors, physics checks and validity
 range. The geometry library (`pp.geometries`) is being added; use it once `hasattr(pp, "geometries")` is true.
@@ -163,6 +180,7 @@ assert status["S2"]["status"] == "validated"   # linear finite elements: compare
 | `pinneapple_catalog/` | method catalog and validation status |
 | `pinneapple_lab/` | experiment runner, database, trust card per run |
 | `pinneapple_mcp/` | the MCP server for agents |
+| `pinneapple_flow/` | engineering flows: schema, node catalog, planner, runtime, store (Flow Studio's library) |
 | `tests/`, `examples/`, `notebooks/colab/`, `docs/` | tests, runnable scripts, Colab notebooks, documentation (mkdocs) |
 
 ## Tests and lint
@@ -173,6 +191,7 @@ pytest tests/test_agents_md.py tests/test_mcp_server.py -q                  # th
 python scripts/run_colab_notebooks.py --smoke                               # every Colab notebook, tiny sizes
 pinneapple check <result dirs or models>                                    # physics linter (pinneapple_check)
 python scripts/check_app_helpers.py                                         # apps/examples only compose library calls
+python scripts/check_experiment_manifests.py                                # every examples/* folder has a valid experiment.json
 ruff check <changed files>
 ```
 
@@ -194,3 +213,7 @@ example from a clean wheel, and the Colab notebooks in smoke mode. Changes go un
 - Do not copy GPL (or other copyleft) code into this Apache-2.0 repository; reimplement from the paper and cite it.
 - Do not invent reference values or citations; every reference number needs its source.
 - Do not widen tolerances or skip a failing check to get a pass; fix the cause or report the failure.
+- Do not add an `examples/*` folder without a valid `experiment.json`: wrap the script in
+  `pinneapple_lab.experiment(...)` (or start from `python -m pinneapple_lab scaffold <name>`, or run
+  `python -m pinneapple_lab register <folder>`). CI fails otherwise (`scripts/check_experiment_manifests.py`), and a
+  metric in a manifest needs its measured value, unit and how it was measured.

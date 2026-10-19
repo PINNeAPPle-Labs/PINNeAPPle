@@ -8,8 +8,35 @@
 # this server. See README.md for the full walkthrough.
 name: pinneapple-apps
 
+# Container hardening shared by every app (apps/deploy/README.md, docs/security/server.md): an unprivileged user
+# (the images set uid 10001 too), a read-only root filesystem with /tmp in memory, no Linux capabilities, no
+# privilege escalation, process / CPU limits and rotated logs. Only Caddy publishes ports.
+x-app-hardening: &app-hardening
+  user: "10001:0"
+  read_only: true
+  tmpfs:
+    - /tmp:size=${APP_TMP_SIZE:-1g},mode=1777
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  pids_limit: ${APP_PIDS_LIMIT:-512}
+  cpus: ${APP_CPUS:-2}
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "5"}
+
+# The same without the read-only root filesystem, for images that write outside /data and /tmp (the GUI agent's
+# FreeCAD/X11 stack) or run as their own user (Ollama).
+x-base-hardening: &base-hardening
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  pids_limit: ${APP_PIDS_LIMIT:-512}
+  logging:
+    driver: json-file
+    options: {max-size: "10m", max-file: "5"}
+
 services:
   heatsink:
+    <<: *app-hardening
     build:
       context: ../..                          # repository root
       dockerfile: apps/heatsink_sizer/Dockerfile
@@ -18,11 +45,14 @@ services:
     environment:
       HSS_USER: ${HSS_USER:-}
       HSS_PASSWORD: ${HSS_PASSWORD:-}
+      HSS_PASSWORD_HASH: ${HSS_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      HSS_RATE_LIMIT: ${HSS_RATE_LIMIT:-}
       HSS_MAX_SIZING: ${HSS_MAX_SIZING:-2}
     expose: ["8080"]
     mem_limit: ${HSS_MEM_LIMIT:-2g}
 
   pcb:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/pcb_hotspot/Dockerfile
@@ -31,11 +61,14 @@ services:
     environment:
       PCB_USER: ${PCB_USER:-}
       PCB_PASSWORD: ${PCB_PASSWORD:-}
+      PCB_PASSWORD_HASH: ${PCB_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PCB_RATE_LIMIT: ${PCB_RATE_LIMIT:-}
       PCB_MAX_HEAVY: ${PCB_MAX_HEAVY:-2}
     expose: ["8081"]
     mem_limit: ${PCB_MEM_LIMIT:-2g}
 
   datahealth:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/data_health/Dockerfile
@@ -44,12 +77,15 @@ services:
     environment:
       EDH_USER: ${EDH_USER:-}
       EDH_PASSWORD: ${EDH_PASSWORD:-}
+      EDH_PASSWORD_HASH: ${EDH_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      EDH_RATE_LIMIT: ${EDH_RATE_LIMIT:-}
       EDH_MAX_HEAVY: ${EDH_MAX_HEAVY:-2}
       EDH_MAX_MB: ${EDH_MAX_MB:-50}
     expose: ["8082"]
     mem_limit: ${EDH_MEM_LIMIT:-2g}
 
   standardizer:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/data_standardizer/Dockerfile
@@ -58,12 +94,15 @@ services:
     environment:
       EDS_USER: ${EDS_USER:-}
       EDS_PASSWORD: ${EDS_PASSWORD:-}
+      EDS_PASSWORD_HASH: ${EDS_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      EDS_RATE_LIMIT: ${EDS_RATE_LIMIT:-}
       EDS_MAX_HEAVY: ${EDS_MAX_HEAVY:-2}
       EDS_MAX_MB: ${EDS_MAX_MB:-80}
     expose: ["8083"]
     mem_limit: ${EDS_MEM_LIMIT:-2g}
 
   simmeta:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/simulation_metadata/Dockerfile
@@ -72,12 +111,15 @@ services:
     environment:
       SMD_USER: ${SMD_USER:-}
       SMD_PASSWORD: ${SMD_PASSWORD:-}
+      SMD_PASSWORD_HASH: ${SMD_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      SMD_RATE_LIMIT: ${SMD_RATE_LIMIT:-}
       SMD_MAX_HEAVY: ${SMD_MAX_HEAVY:-2}
       SMD_MAX_MB: ${SMD_MAX_MB:-100}
     expose: ["8084"]
     mem_limit: ${SMD_MEM_LIMIT:-2g}
 
   udr:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/design_requirements/Dockerfile
@@ -86,6 +128,8 @@ services:
     environment:
       UDR_USER: ${UDR_USER:-}
       UDR_PASSWORD: ${UDR_PASSWORD:-}
+      UDR_PASSWORD_HASH: ${UDR_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      UDR_RATE_LIMIT: ${UDR_RATE_LIMIT:-}
       UDR_MAX_HEAVY: ${UDR_MAX_HEAVY:-2}
       UDR_MAX_MB: ${UDR_MAX_MB:-40}
       UDR_FORM_PDF: ${UDR_FORM_PDF:-}          # e.g. /forms/u-dr-1.pdf (your copy, mounted below)
@@ -99,6 +143,7 @@ services:
     mem_limit: ${UDR_MEM_LIMIT:-2g}
 
   inverse:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/inverse_heat/Dockerfile
@@ -107,12 +152,15 @@ services:
     environment:
       IHL_USER: ${IHL_USER:-}
       IHL_PASSWORD: ${IHL_PASSWORD:-}
+      IHL_PASSWORD_HASH: ${IHL_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      IHL_RATE_LIMIT: ${IHL_RATE_LIMIT:-}
       IHL_MAX_JOBS: ${IHL_MAX_JOBS:-2}
       IHL_THREADS: ${IHL_THREADS:-1}
     expose: ["8086"]
     mem_limit: ${IHL_MEM_LIMIT:-2g}
 
   preflight:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/simulation_preflight/Dockerfile
@@ -121,12 +169,15 @@ services:
     environment:
       PFL_USER: ${PFL_USER:-}
       PFL_PASSWORD: ${PFL_PASSWORD:-}
+      PFL_PASSWORD_HASH: ${PFL_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PFL_RATE_LIMIT: ${PFL_RATE_LIMIT:-}
       PFL_MAX_HEAVY: ${PFL_MAX_HEAVY:-2}
       PFL_MAX_MB: ${PFL_MAX_MB:-200}
     expose: ["8087"]
     mem_limit: ${PFL_MEM_LIMIT:-2g}
 
   mesh:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/mesh_quality/Dockerfile
@@ -135,6 +186,8 @@ services:
     environment:
       MQA_USER: ${MQA_USER:-}
       MQA_PASSWORD: ${MQA_PASSWORD:-}
+      MQA_PASSWORD_HASH: ${MQA_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      MQA_RATE_LIMIT: ${MQA_RATE_LIMIT:-}
       MQA_MAX_HEAVY: ${MQA_MAX_HEAVY:-2}
       MQA_MAX_MB: ${MQA_MAX_MB:-200}
       MQA_MAX_CELLS: ${MQA_MAX_CELLS:-3000000}
@@ -142,6 +195,7 @@ services:
     mem_limit: ${MQA_MEM_LIMIT:-3g}
 
   compare:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/simulation_comparator/Dockerfile
@@ -150,6 +204,8 @@ services:
     environment:
       CMP_USER: ${CMP_USER:-}
       CMP_PASSWORD: ${CMP_PASSWORD:-}
+      CMP_PASSWORD_HASH: ${CMP_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      CMP_RATE_LIMIT: ${CMP_RATE_LIMIT:-}
       CMP_MAX_HEAVY: ${CMP_MAX_HEAVY:-2}
       CMP_MAX_MB: ${CMP_MAX_MB:-300}
       CMP_MAX_POINTS: ${CMP_MAX_POINTS:-2000000}
@@ -157,6 +213,7 @@ services:
     mem_limit: ${CMP_MEM_LIMIT:-3g}
 
   lineage:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/model_lineage/Dockerfile
@@ -165,12 +222,15 @@ services:
     environment:
       LIN_USER: ${LIN_USER:-}
       LIN_PASSWORD: ${LIN_PASSWORD:-}
+      LIN_PASSWORD_HASH: ${LIN_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      LIN_RATE_LIMIT: ${LIN_RATE_LIMIT:-}
       LIN_MAX_HEAVY: ${LIN_MAX_HEAVY:-2}
       LIN_MAX_MB: ${LIN_MAX_MB:-300}
     expose: ["8090"]
     mem_limit: ${LIN_MEM_LIMIT:-2g}
 
   interop:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/interop_hub/Dockerfile
@@ -179,6 +239,8 @@ services:
     environment:
       IOP_USER: ${IOP_USER:-}
       IOP_PASSWORD: ${IOP_PASSWORD:-}
+      IOP_PASSWORD_HASH: ${IOP_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      IOP_RATE_LIMIT: ${IOP_RATE_LIMIT:-}
       IOP_MAX_HEAVY: ${IOP_MAX_HEAVY:-2}
       IOP_MAX_MB: ${IOP_MAX_MB:-500}
       IOP_CACHE_MIN: ${IOP_CACHE_MIN:-30}
@@ -186,6 +248,7 @@ services:
     mem_limit: ${IOP_MEM_LIMIT:-3g}
 
   aero:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/aero_optimizer/Dockerfile
@@ -194,23 +257,28 @@ services:
     environment:
       ADO_USER: ${ADO_USER:-}
       ADO_PASSWORD: ${ADO_PASSWORD:-}
+      ADO_PASSWORD_HASH: ${ADO_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      ADO_RATE_LIMIT: ${ADO_RATE_LIMIT:-}
       ADO_MAX_HEAVY: ${ADO_MAX_HEAVY:-2}
     expose: ["8092"]
     mem_limit: ${ADO_MEM_LIMIT:-2g}
 
   # Static site; the models run in the visitor's browser, so this container only serves files.
   playground:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/playground/Dockerfile
     image: pinneapple/playground:latest
     restart: unless-stopped
+    tmpfs: ["/tmp", "/data", "/config"]        # Caddy's own state (no certificates here: plain HTTP behind the proxy)
     expose: ["8095"]
     mem_limit: ${PLG_MEM_LIMIT:-128m}
 
   # Optional local LLM for the Form Compiler: `docker compose --profile llm up -d ollama`, then
   # `docker compose exec ollama ollama pull <model>` and set UDR_OLLAMA_MODEL. Not published outside the network.
   ollama:
+    <<: *base-hardening
     image: ollama/ollama:latest
     profiles: ["llm"]
     restart: unless-stopped
@@ -219,6 +287,7 @@ services:
     expose: ["11434"]
 
   lab:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: pinneapple_lab/deploy/Dockerfile
@@ -227,12 +296,15 @@ services:
     environment:
       LAB_USER: ${LAB_USER:-}
       LAB_PASSWORD: ${LAB_PASSWORD:-}
+      LAB_PASSWORD_HASH: ${LAB_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      LAB_RATE_LIMIT: ${LAB_RATE_LIMIT:-}
     volumes:
       - lab_data:/data/lab        # runs, figures and dataset shards: keep this volume
     expose: ["8093"]
     mem_limit: ${LAB_MEM_LIMIT:-1g}
 
   observatory:
+    <<: *app-hardening
     build:
       context: ../..
       dockerfile: apps/observatory/Dockerfile
@@ -241,6 +313,8 @@ services:
     environment:
       OBS_USER: ${OBS_USER:-}
       OBS_PASSWORD: ${OBS_PASSWORD:-}
+      OBS_PASSWORD_HASH: ${OBS_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      OBS_RATE_LIMIT: ${OBS_RATE_LIMIT:-}
       OBS_MAX_HEAVY: ${OBS_MAX_HEAVY:-2}
       OBS_TLE_GROUPS: ${OBS_TLE_GROUPS:-stations,visual}
     volumes:
@@ -248,8 +322,479 @@ services:
     expose: ["8094"]
     mem_limit: ${OBS_MEM_LIMIT:-1500m}
 
+  runner:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/simulation_runner/Dockerfile
+    image: pinneapple/simulation-runner:latest
+    restart: unless-stopped
+    environment:
+      RUNNER_USER: ${RUNNER_USER:-}
+      RUNNER_PASSWORD: ${RUNNER_PASSWORD:-}
+      RUNNER_PASSWORD_HASH: ${RUNNER_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      RUNNER_RATE_LIMIT: ${RUNNER_RATE_LIMIT:-}
+      RUNNER_ADMIN_TOKEN: ${RUNNER_ADMIN_TOKEN:-}
+      RUNNER_MAX_JOBS: ${RUNNER_MAX_JOBS:-2}
+      RUNNER_MAX_CASES: ${RUNNER_MAX_CASES:-60}
+      RUNNER_FREE_JOBS_RUN: ${RUNNER_FREE_JOBS_RUN:-}
+      RUNNER_FREE_COMPUTE_SECONDS: ${RUNNER_FREE_COMPUTE_SECONDS:-}
+      RUNNER_FREE_STORAGE_MB: ${RUNNER_FREE_STORAGE_MB:-}
+      RUNNER_VIEW_MAX_FACES: ${RUNNER_VIEW_MAX_FACES:-250000}
+      # RUNNER_SELF_HOSTED=1 runs any workflow the caller sends: never on a public server
+    volumes:
+      - runner_data:/data         # runs, step files, job queue, keys and usage: keep this volume
+    expose: ["8110"]
+    mem_limit: ${RUNNER_MEM_LIMIT:-1g}
+  campaign:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/simulation_campaign/Dockerfile
+    image: pinneapple/simulation-campaign:latest
+    restart: unless-stopped
+    environment:
+      CAMPAIGN_USER: ${CAMPAIGN_USER:-}
+      CAMPAIGN_PASSWORD: ${CAMPAIGN_PASSWORD:-}
+      CAMPAIGN_PASSWORD_HASH: ${CAMPAIGN_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      CAMPAIGN_RATE_LIMIT: ${CAMPAIGN_RATE_LIMIT:-}
+      CAMPAIGN_MAX_JOBS: ${CAMPAIGN_MAX_JOBS:-2}
+      CAMPAIGN_FREE_CAMPAIGNS: ${CAMPAIGN_FREE_CAMPAIGNS:-}
+      CAMPAIGN_FREE_CASES_PLANNED: ${CAMPAIGN_FREE_CASES_PLANNED:-}
+      CAMPAIGN_ADMIN_TOKEN: ${CAMPAIGN_ADMIN_TOKEN:-}
+      CAMPAIGN_MAX_CASE_DIRS: ${CAMPAIGN_MAX_CASE_DIRS:-50}
+    volumes:
+      - campaign_data:/data       # jobs, campaign files, API keys, usage: keep this volume
+    expose: ["8096"]
+    mem_limit: ${CAMPAIGN_MEM_LIMIT:-1g}
+
+  uncertainty:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/uncertainty_lab/Dockerfile
+    image: pinneapple/uncertainty-lab:latest
+    restart: unless-stopped
+    environment:
+      UQL_USER: ${UQL_USER:-}
+      UQL_PASSWORD: ${UQL_PASSWORD:-}
+      UQL_PASSWORD_HASH: ${UQL_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      UQL_RATE_LIMIT: ${UQL_RATE_LIMIT:-}
+      UQL_MAX_HEAVY: ${UQL_MAX_HEAVY:-2}
+      UQL_MAX_JOBS: ${UQL_MAX_JOBS:-2}
+      UQL_FREE_STUDIES: ${UQL_FREE_STUDIES:-}
+      UQL_FREE_SCENARIOS: ${UQL_FREE_SCENARIOS:-}
+      UQL_FREE_PROPAGATION_SAMPLES: ${UQL_FREE_PROPAGATION_SAMPLES:-}
+      UQL_FREE_HF_RUNS: ${UQL_FREE_HF_RUNS:-}
+      UQL_ADMIN_TOKEN: ${UQL_ADMIN_TOKEN:-}
+      UQL_MAX_CASES: ${UQL_MAX_CASES:-2000}
+      UQL_MAX_PROPAGATION: ${UQL_MAX_PROPAGATION:-20000}
+      UQL_MAX_HF: ${UQL_MAX_HF:-40}
+      UQL_MAX_MB: ${UQL_MAX_MB:-50}
+    volumes:
+      - uncertainty_data:/data    # jobs, uploads, API keys, usage: keep this volume
+    expose: ["8098"]
+    mem_limit: ${UQL_MEM_LIMIT:-1g}
+
+  sensitivity:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/sensitivity_lab/Dockerfile
+    image: pinneapple/sensitivity-lab:latest
+    restart: unless-stopped
+    environment:
+      SEN_USER: ${SEN_USER:-}
+      SEN_PASSWORD: ${SEN_PASSWORD:-}
+      SEN_PASSWORD_HASH: ${SEN_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      SEN_RATE_LIMIT: ${SEN_RATE_LIMIT:-}
+      SEN_MAX_HEAVY: ${SEN_MAX_HEAVY:-2}
+      SEN_MAX_JOBS: ${SEN_MAX_JOBS:-2}
+      SEN_FREE_STUDIES: ${SEN_FREE_STUDIES:-}
+      SEN_FREE_EVALUATIONS: ${SEN_FREE_EVALUATIONS:-}
+      SEN_FREE_PARAMETERS: ${SEN_FREE_PARAMETERS:-}
+      SEN_ADMIN_TOKEN: ${SEN_ADMIN_TOKEN:-}
+      SEN_MAX_EVALS: ${SEN_MAX_EVALS:-400000}
+      SEN_MAX_PARAMS: ${SEN_MAX_PARAMS:-30}
+      SEN_MAX_MB: ${SEN_MAX_MB:-50}
+    volumes:
+      - sensitivity_data:/data    # jobs, uploads, API keys, usage: keep this volume
+    expose: ["8099"]
+    mem_limit: ${SEN_MEM_LIMIT:-1g}
+
+  validate:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/validation_lab/Dockerfile
+    image: pinneapple/validation-lab:latest
+    restart: unless-stopped
+    environment:
+      VAL_USER: ${VAL_USER:-}
+      VAL_PASSWORD: ${VAL_PASSWORD:-}
+      VAL_PASSWORD_HASH: ${VAL_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      VAL_RATE_LIMIT: ${VAL_RATE_LIMIT:-}
+      VAL_MAX_HEAVY: ${VAL_MAX_HEAVY:-2}
+      VAL_MAX_MB: ${VAL_MAX_MB:-200}
+      VAL_VIEW_MAX_FACES: ${VAL_VIEW_MAX_FACES:-250000}
+      VAL_VIEWS_KEPT: ${VAL_VIEWS_KEPT:-300}
+    expose: ["8107"]
+    mem_limit: ${VAL_MEM_LIMIT:-1g}
+
+  evidence:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/evidence_report/Dockerfile
+    image: pinneapple/evidence-report:latest
+    restart: unless-stopped
+    environment:
+      EVR_USER: ${EVR_USER:-}
+      EVR_PASSWORD: ${EVR_PASSWORD:-}
+      EVR_PASSWORD_HASH: ${EVR_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      EVR_RATE_LIMIT: ${EVR_RATE_LIMIT:-}
+      EVR_MAX_HEAVY: ${EVR_MAX_HEAVY:-2}
+      EVR_MAX_MB: ${EVR_MAX_MB:-200}
+      EVR_FREE_REPORTS: ${EVR_FREE_REPORTS:-}
+      EVR_FREE_DOWNLOADS: ${EVR_FREE_DOWNLOADS:-}
+      EVR_ADMIN_TOKEN: ${EVR_ADMIN_TOKEN:-}
+    volumes:
+      - evidence_data:/data       # API keys and usage of the shared runtime: keep this volume
+    expose: ["8113"]
+    mem_limit: ${EVR_MEM_LIMIT:-1g}
+
+  calibration:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/calibration_lab/Dockerfile
+    image: pinneapple/calibration-lab:latest
+    restart: unless-stopped
+    environment:
+      CALIB_USER: ${CALIB_USER:-}
+      CALIB_PASSWORD: ${CALIB_PASSWORD:-}
+      CALIB_PASSWORD_HASH: ${CALIB_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      CALIB_RATE_LIMIT: ${CALIB_RATE_LIMIT:-}
+      CALIB_MAX_JOBS: ${CALIB_MAX_JOBS:-2}
+      CALIB_ADMIN_TOKEN: ${CALIB_ADMIN_TOKEN:-}
+      CALIB_IDENTIFIABILITY_URL: ${CALIB_IDENTIFIABILITY_URL:-https://identifiability.pinneapple.org}
+      CALIB_FREE_CALIBRATIONS: ${CALIB_FREE_CALIBRATIONS:-}
+      CALIB_FREE_METHOD_RUNS: ${CALIB_FREE_METHOD_RUNS:-}
+      CALIB_FREE_PINN_RUNS: ${CALIB_FREE_PINN_RUNS:-}
+    volumes:
+      - calibration_data:/data          # jobs, API keys, usage, uploads (SQLite): keep this volume
+    expose: ["8101"]
+    mem_limit: ${CALIB_MEM_LIMIT:-1g}
+
+  identifiability:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/identifiability_lab/Dockerfile
+    image: pinneapple/identifiability-lab:latest
+    restart: unless-stopped
+    environment:
+      IDENT_USER: ${IDENT_USER:-}
+      IDENT_PASSWORD: ${IDENT_PASSWORD:-}
+      IDENT_PASSWORD_HASH: ${IDENT_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      IDENT_RATE_LIMIT: ${IDENT_RATE_LIMIT:-}
+      IDENT_MAX_JOBS: ${IDENT_MAX_JOBS:-2}
+      IDENT_ADMIN_TOKEN: ${IDENT_ADMIN_TOKEN:-}
+      IDENT_FREE_ANALYSES: ${IDENT_FREE_ANALYSES:-}
+      IDENT_FREE_PARAMETERS: ${IDENT_FREE_PARAMETERS:-}
+      IDENT_FREE_SCENARIOS: ${IDENT_FREE_SCENARIOS:-}
+    volumes:
+      - identifiability_data:/data          # jobs, API keys, usage, uploads (SQLite): keep this volume
+    expose: ["8108"]
+    mem_limit: ${IDENT_MEM_LIMIT:-1g}
+
+  inverse-studio:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/inverse_studio/Dockerfile
+    image: pinneapple/inverse-studio:latest
+    restart: unless-stopped
+    environment:
+      INVS_USER: ${INVS_USER:-}
+      INVS_PASSWORD: ${INVS_PASSWORD:-}
+      INVS_PASSWORD_HASH: ${INVS_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      INVS_RATE_LIMIT: ${INVS_RATE_LIMIT:-}
+      INVS_MAX_JOBS: ${INVS_MAX_JOBS:-2}
+      INVS_ADMIN_TOKEN: ${INVS_ADMIN_TOKEN:-}
+      INVS_HEAT_LAB_URL: ${INVS_HEAT_LAB_URL:-https://inverse.pinneapple.org}
+      INVS_FREE_PROBLEMS: ${INVS_FREE_PROBLEMS:-}
+      INVS_FREE_METHOD_RUNS: ${INVS_FREE_METHOD_RUNS:-}
+      INVS_FREE_PINN_RUNS: ${INVS_FREE_PINN_RUNS:-}
+    volumes:
+      - inverse-studio_data:/data          # jobs, API keys, usage, uploads (SQLite): keep this volume
+    expose: ["8104"]
+    mem_limit: ${INVS_MEM_LIMIT:-1g}
+
+  # Engineering GUI Agent: a separate, optional heavy image (FreeCAD + CfdOF + OpenFOAM + ParaView, about 5.5 GB).
+  # Not started by a plain `up`: name it (`... up -d --build guiagent`) or use `--profile guiagent`.
+  guiagent:
+    <<: *base-hardening
+    build:
+      context: ../..
+      dockerfile: apps/guiagent/Dockerfile
+    image: pinneapple/guiagent:latest
+    profiles: ["guiagent"]
+    restart: unless-stopped
+    environment:
+      GUIAGENT_USER: ${GUIAGENT_USER:-}
+      GUIAGENT_PASSWORD: ${GUIAGENT_PASSWORD:-}
+      GUIAGENT_PASSWORD_HASH: ${GUIAGENT_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      GUIAGENT_RATE_LIMIT: ${GUIAGENT_RATE_LIMIT:-}
+      GUIAGENT_MODE: ${GUIAGENT_MODE:-public}         # public: committed workflows only; selfhosted: uploads too
+      GUIAGENT_MAX_JOBS: ${GUIAGENT_MAX_JOBS:-1}         # runs at once; further runs wait in the shared job queue
+      GUIAGENT_ADMIN_TOKEN: ${GUIAGENT_ADMIN_TOKEN:-}   # X-Admin-Token for API keys when there is no login
+      GUIAGENT_FREE_RUNS: ${GUIAGENT_FREE_RUNS:-}       # free use per caller and month (defaults 20 runs,
+      GUIAGENT_FREE_COMPUTE_SECONDS: ${GUIAGENT_FREE_COMPUTE_SECONDS:-}   # 1800 s, 500 MB)
+      GUIAGENT_FREE_STORAGE_MB: ${GUIAGENT_FREE_STORAGE_MB:-}
+      GUIAGENT_KEEP_RUNS: ${GUIAGENT_KEEP_RUNS:-40}
+      GUIAGENT_OLLAMA_URL: ${GUIAGENT_OLLAMA_URL:-http://ollama:11434}
+      GUIAGENT_OLLAMA_MODEL: ${GUIAGENT_OLLAMA_MODEL:-}  # empty = rule-based reading of tasks
+    volumes:
+      - guiagent_data:/data       # runs and their evidence, job queue, API keys, usage: keep this volume
+    expose: ["8115"]
+    mem_limit: ${GUIAGENT_MEM_LIMIT:-2g}
+    shm_size: 256m
+
+  rom:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/rom_lab/Dockerfile
+    image: pinneapple/rom-lab:latest
+    restart: unless-stopped
+    environment:
+      ROM_USER: ${ROM_USER:-}
+      ROM_PASSWORD: ${ROM_PASSWORD:-}
+      ROM_PASSWORD_HASH: ${ROM_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      ROM_RATE_LIMIT: ${ROM_RATE_LIMIT:-}
+      ROM_MAX_JOBS: ${ROM_MAX_JOBS:-2}
+      ROM_MAX_MB: ${ROM_MAX_MB:-200}
+      ROM_MAX_BUDGET_S: ${ROM_MAX_BUDGET_S:-30}
+      ROM_ADMIN_TOKEN: ${ROM_ADMIN_TOKEN:-}
+      ROM_FREE_STUDIES: ${ROM_FREE_STUDIES:-}
+      ROM_FREE_EXPORTS: ${ROM_FREE_EXPORTS:-}
+      ROM_FREE_QUERIES: ${ROM_FREE_QUERIES:-}
+    volumes:
+      - rom_data:/data          # jobs, uploads, usage (shared runtime): keep this volume
+    expose: ["8102"]
+    mem_limit: ${ROM_MEM_LIMIT:-1g}
+
+  meshless:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/meshless_lab/Dockerfile
+    image: pinneapple/meshless-lab:latest
+    restart: unless-stopped
+    environment:
+      MESHLESS_USER: ${MESHLESS_USER:-}
+      MESHLESS_PASSWORD: ${MESHLESS_PASSWORD:-}
+      MESHLESS_PASSWORD_HASH: ${MESHLESS_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      MESHLESS_RATE_LIMIT: ${MESHLESS_RATE_LIMIT:-}
+      MESHLESS_MAX_JOBS: ${MESHLESS_MAX_JOBS:-2}
+      MESHLESS_MAX_NODES: ${MESHLESS_MAX_NODES:-20000}
+      MESHLESS_MAX_PINN_S: ${MESHLESS_MAX_PINN_S:-30}
+      MESHLESS_ADMIN_TOKEN: ${MESHLESS_ADMIN_TOKEN:-}
+      MESHLESS_FREE_RUNS: ${MESHLESS_FREE_RUNS:-}
+      MESHLESS_FREE_UNKNOWNS: ${MESHLESS_FREE_UNKNOWNS:-}
+      MESHLESS_FREE_REPORTS: ${MESHLESS_FREE_REPORTS:-}
+    volumes:
+      - meshless_data:/data          # jobs, uploads, usage (shared runtime): keep this volume
+    expose: ["8109"]
+    mem_limit: ${MESHLESS_MEM_LIMIT:-1g}
+
+  surrogate:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/surrogate_studio/Dockerfile
+    image: pinneapple/surrogate-studio:latest
+    restart: unless-stopped
+    environment:
+      SUR_USER: ${SUR_USER:-}
+      SUR_PASSWORD: ${SUR_PASSWORD:-}
+      SUR_PASSWORD_HASH: ${SUR_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      SUR_RATE_LIMIT: ${SUR_RATE_LIMIT:-}
+      SUR_ADMIN_TOKEN: ${SUR_ADMIN_TOKEN:-}
+      SUR_REQUIRE_API_KEY: ${SUR_REQUIRE_API_KEY:-0}
+      SUR_MAX_JOBS: ${SUR_MAX_JOBS:-2}
+      SUR_MAX_BUDGET_S: ${SUR_MAX_BUDGET_S:-30}
+      SUR_MAX_SEEDS: ${SUR_MAX_SEEDS:-3}
+      SUR_FREE_TRAININGS: ${SUR_FREE_TRAININGS:-}
+      SUR_FREE_INFERENCES: ${SUR_FREE_INFERENCES:-}
+      SUR_FREE_HOSTED_MODELS: ${SUR_FREE_HOSTED_MODELS:-}
+      SUR_VIEW_MAX_FACES: ${SUR_VIEW_MAX_FACES:-250000}
+    volumes:
+      - surrogate_data:/data      # jobs, uploads, hosted models, usage, API keys
+    expose: ["8097"]
+    mem_limit: ${SUR_MEM_LIMIT:-1g}
+
+  arena:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/benchmark_arena/Dockerfile
+    image: pinneapple/benchmark-arena:latest
+    restart: unless-stopped
+    environment:
+      ARN_USER: ${ARN_USER:-}
+      ARN_PASSWORD: ${ARN_PASSWORD:-}
+      ARN_PASSWORD_HASH: ${ARN_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      ARN_RATE_LIMIT: ${ARN_RATE_LIMIT:-}
+      ARN_ADMIN_TOKEN: ${ARN_ADMIN_TOKEN:-}
+      ARN_REQUIRE_API_KEY: ${ARN_REQUIRE_API_KEY:-0}
+      ARN_MAX_JOBS: ${ARN_MAX_JOBS:-1}
+      ARN_MAX_BUDGET_S: ${ARN_MAX_BUDGET_S:-20}
+      ARN_MAX_SEEDS: ${ARN_MAX_SEEDS:-5}
+      ARN_FREE_BENCHMARKS: ${ARN_FREE_BENCHMARKS:-}
+    volumes:
+      - arena_data:/data      # private benchmark jobs, uploads, usage, API keys
+    expose: ["8105"]
+    mem_limit: ${ARN_MEM_LIMIT:-1g}
+
+  models:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/model_gateway/Dockerfile
+    image: pinneapple/model-gateway:latest
+    restart: unless-stopped
+    environment:
+      MDL_USER: ${MDL_USER:-}
+      MDL_PASSWORD: ${MDL_PASSWORD:-}
+      MDL_PASSWORD_HASH: ${MDL_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      MDL_RATE_LIMIT: ${MDL_RATE_LIMIT:-}
+      MDL_ADMIN_TOKEN: ${MDL_ADMIN_TOKEN:-}
+      MDL_REQUIRE_API_KEY: ${MDL_REQUIRE_API_KEY:-0}
+      MDL_MAX_ROWS: ${MDL_MAX_ROWS:-5000}
+      MDL_FREE_INFERENCES: ${MDL_FREE_INFERENCES:-}
+      MDL_FREE_HOSTED_MODELS: ${MDL_FREE_HOSTED_MODELS:-}
+    volumes:
+      - models_data:/data      # published models, run log, usage, API keys
+    expose: ["8114"]
+    mem_limit: ${MDL_MEM_LIMIT:-1g}
+
+  twin:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/twin_runtime/Dockerfile
+    image: pinneapple/twin-runtime:latest
+    restart: unless-stopped
+    environment:
+      TWIN_USER: ${TWIN_USER:-}
+      TWIN_PASSWORD: ${TWIN_PASSWORD:-}
+      TWIN_PASSWORD_HASH: ${TWIN_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      TWIN_RATE_LIMIT: ${TWIN_RATE_LIMIT:-}
+      TWIN_MAX_JOBS: ${TWIN_MAX_JOBS:-2}
+      TWIN_MAX_ASSETS: ${TWIN_MAX_ASSETS:-4}
+      TWIN_DB_URL: ${TWIN_DB_URL:-}
+      TWIN_MQTT_URL: ${TWIN_MQTT_URL:-}
+      TWIN_MQTT_HOST: ${TWIN_MQTT_HOST:-}
+      TWIN_MQTT_PORT: ${TWIN_MQTT_PORT:-}
+    volumes:
+      - twin_data:/data          # jobs, uploads, usage, twin history (SQLite): keep this volume
+    expose: ["8103"]
+    mem_limit: ${TWIN_MEM_LIMIT:-1g}
+
+  anomaly:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/anomaly_detector/Dockerfile
+    image: pinneapple/anomaly-detector:latest
+    restart: unless-stopped
+    environment:
+      ANOMALY_USER: ${ANOMALY_USER:-}
+      ANOMALY_PASSWORD: ${ANOMALY_PASSWORD:-}
+      ANOMALY_PASSWORD_HASH: ${ANOMALY_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      ANOMALY_RATE_LIMIT: ${ANOMALY_RATE_LIMIT:-}
+      ANOMALY_MAX_JOBS: ${ANOMALY_MAX_JOBS:-2}
+      ANOMALY_MAX_ROWS: ${ANOMALY_MAX_ROWS:-500000}
+    volumes:
+      - anomaly_data:/data          # jobs, uploads, usage: keep this volume
+    expose: ["8111"]
+    mem_limit: ${ANOMALY_MEM_LIMIT:-1g}
+
+  control:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/control_lab/Dockerfile
+    image: pinneapple/control-lab:latest
+    restart: unless-stopped
+    environment:
+      CONTROL_USER: ${CONTROL_USER:-}
+      CONTROL_PASSWORD: ${CONTROL_PASSWORD:-}
+      CONTROL_PASSWORD_HASH: ${CONTROL_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      CONTROL_RATE_LIMIT: ${CONTROL_RATE_LIMIT:-}
+      CONTROL_MAX_JOBS: ${CONTROL_MAX_JOBS:-2}
+    volumes:
+      - control_data:/data          # jobs, uploads, usage: keep this volume
+    expose: ["8112"]
+    mem_limit: ${CONTROL_MEM_LIMIT:-1g}
+
+  # Engineering Design Optimizer (day 17): jobs, API keys and usage live in the optimize_data volume
+  optimize:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/engineering_optimizer/Dockerfile
+    image: pinneapple/engineering-optimizer:latest
+    restart: unless-stopped
+    environment:
+      EDO_USER: ${EDO_USER:-}
+      EDO_PASSWORD: ${EDO_PASSWORD:-}
+      EDO_PASSWORD_HASH: ${EDO_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      EDO_RATE_LIMIT: ${EDO_RATE_LIMIT:-}
+      EDO_MAX_JOBS: ${EDO_MAX_JOBS:-2}
+      EDO_ADMIN_TOKEN: ${EDO_ADMIN_TOKEN:-}
+      EDO_REQUIRE_API_KEY: ${EDO_REQUIRE_API_KEY:-0}
+      EDO_FREE_EVALUATIONS: ${EDO_FREE_EVALUATIONS:-}
+      EDO_FREE_CAMPAIGNS: ${EDO_FREE_CAMPAIGNS:-}
+      EDO_FREE_REFERENCE_RUNS: ${EDO_FREE_REFERENCE_RUNS:-}
+      EDO_SOLVERS: ${EDO_SOLVERS:-}
+    volumes:
+      - optimize_data:/data          # jobs, uploads, API keys and usage (SQLite): keep this volume
+    expose: ["8100"]
+    mem_limit: ${EDO_MEM_LIMIT:-1g}
+
+  # Physics Design Optimizer (day 23): jobs, API keys and usage live in the design_data volume
+  design:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/physics_design/Dockerfile
+    image: pinneapple/physics-design:latest
+    restart: unless-stopped
+    environment:
+      PDO_USER: ${PDO_USER:-}
+      PDO_PASSWORD: ${PDO_PASSWORD:-}
+      PDO_PASSWORD_HASH: ${PDO_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PDO_RATE_LIMIT: ${PDO_RATE_LIMIT:-}
+      PDO_MAX_JOBS: ${PDO_MAX_JOBS:-2}
+      PDO_ADMIN_TOKEN: ${PDO_ADMIN_TOKEN:-}
+      PDO_REQUIRE_API_KEY: ${PDO_REQUIRE_API_KEY:-0}
+      PDO_FREE_EVALUATIONS: ${PDO_FREE_EVALUATIONS:-}
+      PDO_FREE_CAMPAIGNS: ${PDO_FREE_CAMPAIGNS:-}
+      PDO_FREE_SOLVER_RUNS: ${PDO_FREE_SOLVER_RUNS:-}
+    volumes:
+      - design_data:/data          # jobs, uploads, API keys and usage (SQLite): keep this volume
+    expose: ["8106"]
+    mem_limit: ${PDO_MEM_LIMIT:-1g}
+
   caddy:
-    image: caddy:2
+    <<: *base-hardening
+    cap_add: [NET_BIND_SERVICE]            # ports 80 and 443
+    read_only: true
+    tmpfs: ["/tmp"]
+    image: caddy:2@sha256:685ae3d7c34d9b5f8caeddc5d14051db7bbd88ff1f5a2fa0c16bd8ca328fb7af   # pinned; Dependabot proposes updates
     restart: unless-stopped
     ports: ["80:80", "443:443", "443:443/udp"]
     environment:
@@ -269,15 +814,54 @@ services:
       LAB_DOMAIN: ${LAB_DOMAIN:-lab.localhost}
       OBS_DOMAIN: ${OBS_DOMAIN:-observatory.localhost}
       PLG_DOMAIN: ${PLG_DOMAIN:-playground.localhost}
+      RUNNER_DOMAIN: ${RUNNER_DOMAIN:-runner.localhost}
+      CAMPAIGN_DOMAIN: ${CAMPAIGN_DOMAIN:-campaign.localhost}
+      UQL_DOMAIN: ${UQL_DOMAIN:-uncertainty.localhost}
+      SEN_DOMAIN: ${SEN_DOMAIN:-sensitivity.localhost}
+      VAL_DOMAIN: ${VAL_DOMAIN:-validate.localhost}
+      EVR_DOMAIN: ${EVR_DOMAIN:-evidence.localhost}
+      CALIB_DOMAIN: ${CALIB_DOMAIN:-calibration.localhost}
+      IDENT_DOMAIN: ${IDENT_DOMAIN:-identifiability.localhost}
+      INVS_DOMAIN: ${INVS_DOMAIN:-inverse-studio.localhost}
+      GUIAGENT_DOMAIN: ${GUIAGENT_DOMAIN:-guiagent.localhost}
+      ROM_DOMAIN: ${ROM_DOMAIN:-rom.localhost}
+      MESHLESS_DOMAIN: ${MESHLESS_DOMAIN:-meshless.localhost}
+      SUR_DOMAIN: ${SUR_DOMAIN:-surrogate.localhost}
+      ARN_DOMAIN: ${ARN_DOMAIN:-arena.localhost}
+      MDL_DOMAIN: ${MDL_DOMAIN:-models.localhost}
+      TWIN_DOMAIN: ${TWIN_DOMAIN:-twin.localhost}
+      ANOMALY_DOMAIN: ${ANOMALY_DOMAIN:-anomaly.localhost}
+      CONTROL_DOMAIN: ${CONTROL_DOMAIN:-control.localhost}
+      EDO_DOMAIN: ${EDO_DOMAIN:-optimize.localhost}
+      PDO_DOMAIN: ${PDO_DOMAIN:-design.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design]
 
 volumes:
+  surrogate_data:
+  arena_data:
+  models_data:
+  twin_data:
+  anomaly_data:
+  control_data:
+  calibration_data:
+  evidence_data:
+  identifiability_data:
+  inverse-studio_data:
+  guiagent_data:
   lab_data:
+  uncertainty_data:
+  sensitivity_data:
+  campaign_data:
+  rom_data:
+  meshless_data:
+  runner_data:
+  optimize_data:
+  design_data:
   obs_cache:
   caddy_data:
   caddy_config:

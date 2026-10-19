@@ -1,0 +1,267 @@
+{
+ "schema": "validation-report/v1",
+ "model": "rover_contact_grc1_viper v1.1.0",
+ "problem": "zoo card of rover_contact_grc1_viper",
+ "level": "standard",
+ "decision": "pass",
+ "trust_decision": "APPROVED",
+ "verdict": "pass: every applicable check passed",
+ "credibility": {
+  "code_verification": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  },
+  "solution_verification": {
+   "level": 3,
+   "meaning": "passes quantitative checks",
+   "checks": [
+    "physics.model_checks.1",
+    "physics.model_checks.2",
+    "physics.model_checks.3",
+    "physics.model_checks.4"
+   ]
+  },
+  "validation": {
+   "level": 4,
+   "meaning": "passes against an independent reference or a guaranteed bound",
+   "checks": [
+    "reference.card_metrics",
+    "reference.acceptance.test/Fx_rmse_N",
+    "reference.acceptance.test/Fz_rmse_N",
+    "reference.acceptance.test/My_rmse_Nm"
+   ]
+  },
+  "input_pedigree": {
+   "level": 3,
+   "meaning": "passes quantitative checks",
+   "checks": [
+    "data.finite",
+    "data.diversity.duplicates",
+    "data.diversity.effective",
+    "data.leakage"
+   ]
+  },
+  "uncertainty": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  },
+  "robustness": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  },
+  "applicability": {
+   "level": 0,
+   "meaning": "no evidence",
+   "checks": []
+  }
+ },
+ "checks": [
+  {
+   "id": "method.status",
+   "factor": "code_verification",
+   "status": "not-applicable",
+   "summary": "no catalog method id given (validate(..., method='S2'))",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "reference.card_metrics",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "card metrics reproduced on the stored reference (max relative difference)",
+   "value": 0.0,
+   "threshold": 0.001,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/Fx_rmse_N",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/Fx_rmse_N within the zoo acceptance limit",
+   "value": 0.22012320923636258,
+   "threshold": 5.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/Fz_rmse_N",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/Fz_rmse_N within the zoo acceptance limit",
+   "value": 0.46965493069413194,
+   "threshold": 5.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "reference.acceptance.test/My_rmse_Nm",
+   "factor": "validation",
+   "status": "pass",
+   "summary": "held-out test/My_rmse_Nm within the zoo acceptance limit",
+   "value": 0.07066064857911242,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.1",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "dFz/dz >= 0 (share of grid steps violating beyond 0.2 % of range)",
+   "value": 0.0,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.2",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "dFx/ds for slip <= 0.3 has the sign of the Wong-Reece reference (share disagreeing)",
+   "value": 0.0,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.3",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "Mohr-Coulomb limit Fx <= c A + Fz tan(phi) (share violating)",
+   "value": 0.0,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "physics.model_checks.4",
+   "factor": "solution_verification",
+   "status": "pass",
+   "summary": "torque coupling My >= R Fx (share violating)",
+   "value": 0.0,
+   "threshold": 0.01,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "applicability.range",
+   "factor": "applicability",
+   "status": "not-applicable",
+   "summary": "no query inputs given",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "uncertainty.spread",
+   "factor": "uncertainty",
+   "status": "not-applicable",
+   "summary": "the model returns no spread",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "metamorphic",
+   "factor": "validation",
+   "status": "not-applicable",
+   "summary": "no relations declared for rover_contact_grc1_viper",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.finite",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of rover_contact_grc1_viper: every value finite",
+   "value": null,
+   "threshold": null,
+   "critical": false,
+   "evidence": {}
+  },
+  {
+   "id": "data.physics.physics",
+   "factor": "input_pedigree",
+   "status": "not-applicable",
+   "summary": "stored audit card of rover_contact_grc1_viper: no PDE stated for this dataset",
+   "value": null,
+   "threshold": null,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.diversity.duplicates",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of rover_contact_grc1_viper: train: 0 exact, 0 near copies of 3600; test: 0 exact, 0 near copies of 2000",
+   "value": 0.0,
+   "threshold": 0.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.diversity.effective",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of rover_contact_grc1_viper: effective sample count 2.53 of 3600 (no generator stated: only a collapse to one pattern is flagged)",
+   "value": 2.5280326212455186,
+   "threshold": 2.0,
+   "critical": true,
+   "evidence": {}
+  },
+  {
+   "id": "data.leakage",
+   "factor": "input_pedigree",
+   "status": "pass",
+   "summary": "stored audit card of rover_contact_grc1_viper: 0 of 2000 test samples are (near) copies of train samples (closest: 0.0193 x the median train spacing)",
+   "value": 0.0,
+   "threshold": 0.0,
+   "critical": true,
+   "evidence": {}
+  }
+ ],
+ "provenance": {
+  "library_version": "0.7.0",
+  "level": "standard",
+  "source": "pp.validate",
+  "model_hash": "210464578510a4f94eae0e5071efe1141367015e645274bd0ff9c28d072825b4",
+  "data_hash": null,
+  "physics": {
+   "problem": null,
+   "tolerances": {
+    "energy_bound": 1.0,
+    "flux": 0.1,
+    "reference": 0.1,
+    "spectral": 0.25,
+    "symmetry": 0.1,
+    "noise": 3.0,
+    "alpha": 0.1
+   },
+   "seed": 0
+  },
+  "model_card": {
+   "name": "rover_contact_grc1_viper",
+   "version": "1.1.0"
+  },
+  "validity_range": {
+   "slip": [
+    -0.4,
+    0.9
+   ],
+   "sinkage_m": [
+    0.002,
+    0.06
+   ]
+  }
+ }
+}

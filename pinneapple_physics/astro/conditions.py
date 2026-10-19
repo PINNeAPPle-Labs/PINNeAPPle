@@ -78,3 +78,48 @@ def calibrate(p_forecast, observed_clear, bins: int = 10) -> dict:
     corrected = np.maximum.accumulate(filled)                      # monotone
     brier = float(np.mean((p - o) ** 2))
     return {"bin_edges": edges.tolist(), "observed_freq": freq, "map": corrected.tolist(), "brier": brier}
+
+
+# --------------------------------------------------------------------------------- deterministic cloud forecast
+FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
+CLOUDY_PCT = 75.0          # at or above this total cloud cover the view through a telescope is lost
+
+
+def fetch_cloud_forecast(lat: float, lon: float, days: int = 3, timeout: float = 8.0) -> dict:
+    """Hourly total cloud cover (%) for the next ``days`` from Open-Meteo's forecast API (no key; CC BY 4.0):
+    {"time": [ISO UTC], "cloud_cover": [%], "source": ...}. Raises on network errors (callers fall back)."""
+    q = {"latitude": f"{lat:.4f}", "longitude": f"{lon:.4f}", "hourly": "cloud_cover", "forecast_days": days,
+         "timezone": "UTC"}
+    req = urllib.request.Request(FORECAST_URL + "?" + urllib.parse.urlencode(q),
+                                 headers={"User-Agent": "PINNeAPPle-observatory/1.0"})
+    d = json.loads(urllib.request.urlopen(req, timeout=timeout).read().decode())
+    h = d["hourly"]
+    return {"time": [t if t.endswith("Z") else t + "Z" for t in h["time"]], "cloud_cover": h["cloud_cover"],
+            "source": "Open-Meteo forecast API (CC BY 4.0)"}
+
+
+def cloud_at(forecast: dict, iso_utc: str) -> float | None:
+    """Cloud cover (%) at a time, linearly interpolated in the hourly forecast; None outside it."""
+    from datetime import datetime
+    ts = [datetime.fromisoformat(t.replace("Z", "+00:00")).timestamp() for t in forecast["time"]]
+    x = datetime.fromisoformat(iso_utc.replace("Z", "+00:00")).timestamp()
+    cc = [np.nan if c is None else float(c) for c in forecast["cloud_cover"]]
+    if not ts or x < ts[0] or x > ts[-1]:
+        return None
+    v = float(np.interp(x, ts, cc))
+    return None if np.isnan(v) else v
+
+
+def sky_view(mode: str, forecast: dict | None, iso_utc: str) -> dict:
+    """What the sky lets through for an observing session. ``mode`` "perfect" removes the weather (any target, any
+    night); "real" uses the cloud-cover forecast and hides the view at or above ``CLOUDY_PCT``. Without a forecast
+    "real" falls back to "perfect" and says so."""
+    if mode == "perfect":
+        return {"mode": "perfect", "cloud_cover": 0.0, "hidden": False, "transmission": 1.0, "fallback": False}
+    if forecast is None:
+        return {"mode": "perfect", "cloud_cover": 0.0, "hidden": False, "transmission": 1.0, "fallback": True}
+    cc = cloud_at(forecast, iso_utc)
+    if cc is None:
+        return {"mode": "perfect", "cloud_cover": 0.0, "hidden": False, "transmission": 1.0, "fallback": True}
+    return {"mode": "real", "cloud_cover": cc, "hidden": cc >= CLOUDY_PCT, "transmission": max(0.0, 1.0 - cc / 100.0),
+            "fallback": False}

@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Digital Twin Runtime</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%230f766e%22/%3E%3Cpath d=%22M3 11c2-5 4-5 5 0s3 5 5 0%22 stroke=%22white%22 stroke-width=%221.4%22 fill=%22none%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M2 10.5c2-6 4-6 6 0s4 6 6 0" stroke="white" stroke-width="1.5" fill="none"/><path d="M2 8.5c2-6 4-6 6 0s4 6 6 0" stroke="#99f6e4" stroke-width="1.1" fill="none" stroke-dasharray="1.6 1.2"/></svg></div>
+    <div>
+      <div class="title">Digital Twin Runtime</div>
+      <div class="subtitle">A validated model next to live data: state, forecast, alerts, and when to stop trusting it</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="live" class="active">Live twin</button>
+    <button data-tab="record">Recorded data</button>
+    <button data-tab="series">Series flow</button>
+    <button data-tab="api">API &amp; MQTT</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-live" class="tab active">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>Live twin of tank-1</h2>
+        <p class="hint">A heated buffer tank (level and temperature, pump and heater). The built-in plant publishes its
+          sensors over MQTT through the embedded broker; the twin subscribes and assimilates every reading.</p>
+        <label>Model
+          <select id="model">
+            <option value="lumped">Lumped model: mass + energy balance, leak and heater efficiency estimated</option>
+            <option value="rom">Reduced-order surrogate (ModelRef from the series flow)</option>
+          </select></label>
+        <label>Source
+          <select id="source">
+            <option value="simulated">Simulated plant over MQTT (embedded broker)</option>
+            <option value="rest">REST pushes only (POST /api/assets/tank-1/readings)</option>
+            <option value="mqtt">External publisher on MQTT topic pinneapple/tank-1/sensors</option>
+          </select></label>
+        <label>Speed <span class="u">simulated seconds per second</span>
+          <input id="speed" type="number" value="60" min="1" max="600"></label>
+        <button class="primary" type="button" id="start">Start the twin</button>
+        <button class="secondary" type="button" id="stop" disabled>Stop</button>
+        <fieldset><legend>Inject a fault in the simulated plant</legend>
+          <div class="faults">
+            <button type="button" class="ghost" data-fault='{"kind":"leak","magnitude":0.0006}'>Leak 0.6 L/s</button>
+            <button type="button" class="ghost" data-fault='{"kind":"heater","magnitude":0.25}'>Heater −25 %</button>
+            <button type="button" class="ghost" data-fault='{"kind":"valve","magnitude":0.3}'>Drain valve −30 %</button>
+            <button type="button" class="ghost" data-fault='{"kind":"sensor_bias","magnitude":0.8,"target":"T"}'>T sensor +0.8 °C</button>
+            <button type="button" class="ghost" id="clear">Clear faults</button>
+          </div>
+        </fieldset>
+        <button class="secondary" type="button" id="reval" disabled>Revalidate the model now</button>
+        <div class="status-line" id="lstatus"></div>
+        <p class="privacy">Simulation and monitoring only: the twin sends no command to any equipment.</p>
+      </form>
+      <div id="live-out">
+        <div class="panel empty">
+          <h3>What the twin keeps up to date</h3>
+          <div class="checkgrid">
+            <div><b>Estimated state</b><span>level and temperature with their spread, from an ensemble Kalman filter; a leak flow and the heater efficiency as estimated parameters</span></div>
+            <div><b>Forecast</b><span>the next 10 minutes with a 5-95 % band, including the uncertainty of the held inputs</span></div>
+            <div><b>Alerts</b><span>limits, a forecast reaching a limit, parameters out of range, data disagreeing with the model</span></div>
+            <div><b>Validity</b><span>drift checks on the model's own predictions; a revalidation request when conditions leave its training range</span></div>
+          </div>
+          <p class="hint">Start the twin, then inject a leak: the leak flow appears as an estimated parameter within a
+            few simulated minutes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-record" class="tab">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>Run the twin over recorded data</h2>
+        <label class="drop" id="drop"><input type="file" id="file" accept=".csv,.parquet,.json"><b>Drop a CSV, Parquet or JSON table</b>
+          <span>columns t [s], h [m], T [°C], q_in [m³/s], Q [W], T_in, T_amb [°C]</span></label>
+        <div class="fileinfo" id="fileinfo"></div>
+        <label>Model
+          <select id="rmodel">
+            <option value="lumped">Lumped model (leak and heater efficiency estimated)</option>
+            <option value="rom">Reduced-order surrogate (example ModelRef)</option>
+          </select></label>
+        <button class="primary" type="button" id="rrun" disabled>Run the twin</button>
+        <button class="secondary" type="button" id="rexample">Try with example: two hours with a leak</button>
+        <div class="status-line" id="rstatus"></div>
+        <p class="privacy">Uploads are kept in your upload space on this server until you delete them (DELETE /api/uploads/{id}).</p>
+      </form>
+      <div id="record-out"><div class="panel empty"><h3>No run yet</h3><p>Upload a record or open the example (offline, a few seconds).</p></div></div>
+    </div>
+  </section>
+
+  <section id="tab-series" class="tab">
+    <div class="panel">
+      <h2 style="margin-top:0">Campaign → Surrogate → Uncertainty → Optimizer → Twin</h2>
+      <p class="hint">The days 13-31 apps chained on one asset, every hand-over a <code>pinneapple_data.contracts</code>
+        file. Each step names the library function it calls and whether its app is on main or the step is a library stand-in.</p>
+      <button class="primary" style="width:auto;padding:10px 22px" type="button" id="srun">Run the series flow (about 10 s)</button>
+      <div class="status-line" id="sstatus"></div>
+      <div id="series-out"></div>
+    </div>
+  </section>
+
+  <section id="tab-api" class="tab">
+    <div class="panel">
+      <h2 style="margin-top:0">Connect your systems</h2>
+      <p>Interactive documentation: <a class="link" href="/docs" target="_blank">/docs</a>. The state endpoint is what
+        dashboards, historians or other apps read.</p>
+      <pre class="code"><code id="c1"></code></pre>
+      <h3>MQTT</h3>
+      <p class="hint">Publish JSON readings to <code>pinneapple/&lt;asset&gt;/sensors</code>. With the embedded broker, publish
+        port 1883 of the container (<code>TWIN_MQTT_HOST=0.0.0.0</code>, <code>TWIN_MQTT_PORT=1883</code>) or point
+        <code>TWIN_MQTT_URL</code> at your own broker (Mosquitto, EMQX, HiveMQ).</p>
+      <pre class="code"><code id="c2"></code></pre>
+      <h3>Python (PINNeAPPle)</h3>
+      <pre class="code"><code id="c3"></code></pre>
+    </div>
+  </section>
+  <div id="scope"></div>
+</main>
+
+<footer class="foot">
+  Built on <b>PINNeAPPle</b> (pinneapple_systems.operations: lumped tank model, operator inference with inputs, EnKF
+  twin runtime, drift monitoring with assess_drift · pinneapple_data.contracts · embedded MQTT broker). Monetization:
+  per monitored asset, data volume and inferences.
+</footer>
+<script src="/shared/charts.js"></script>
+<script src="/shared/scope.js"></script>
+<script src="/shared/author.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "design_variables": 1410,
+  "design_elements": 5640,
+  "gradient_check_max_rel_err": 4.5531935712474944e-08,
+  "solid_round_rotor_torque_Nm": -2.429796757315768e-11,
+  "optimized_mean_torque_linear_Nm": 38.10446217859075,
+  "torque_per_position_linear_Nm": [
+    32.25860673827633,
+    46.20596311531595,
+    35.848816682179965
+  ],
+  "coenergy_torque_at_5deg_Nm": 47.07271765955712,
+  "optimized_mean_torque_nonlinear_Nm": 13.441238878282855,
+  "iterations": 120,
+  "volume_fraction": 0.49999636696619604,
+  "runtime_s": 215.29105377197266
+}

@@ -1,0 +1,918 @@
+{
+ "status": "designed",
+ "seed": 0,
+ "verdict": "will work",
+ "requirements": {
+  "text": "a bracket that holds 2 kN",
+  "template": "bracket",
+  "parser": "template",
+  "match_score": 2.6,
+  "values": {
+   "load": {
+    "name": "load",
+    "value": 2000.0,
+    "unit": "N",
+    "provenance": "stated",
+    "source": "user",
+    "quote": "2 kN"
+   },
+   "load_mass": {
+    "name": "load_mass",
+    "value": null,
+    "unit": "kg",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "arm_length": {
+    "name": "arm_length",
+    "value": 0.1,
+    "unit": "m",
+    "provenance": "answered",
+    "source": "user (follow-up)",
+    "quote": ""
+   },
+   "max_deflection": {
+    "name": "max_deflection",
+    "value": null,
+    "unit": "m",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "material": {
+    "name": "material",
+    "value": null,
+    "unit": "",
+    "provenance": "missing",
+    "source": "",
+    "quote": ""
+   },
+   "safety_factor": {
+    "name": "safety_factor",
+    "value": 2.0,
+    "unit": "",
+    "provenance": "defaulted",
+    "source": "template default (engineering convention for a known static load; state yours)",
+    "quote": ""
+   }
+  },
+  "objectives": [
+   {
+    "name": "mass_g",
+    "sense": "min",
+    "label": "mass"
+   }
+  ],
+  "questions": [],
+  "issues": [],
+  "unsupported": []
+ },
+ "plan": {
+  "template": "bracket",
+  "title": "Load-bearing angle bracket",
+  "physics": [
+   "linear elasticity of the bracket (small strains, isotropic material)",
+   "yield by the von Mises criterion at the most stressed point (the fillet)",
+   "bolts in tension from the moment about the toe of the mounting leg"
+  ],
+  "assumptions": [
+   "the load acts at the end of the arm, perpendicular to it (a shelf load)",
+   "the mounting leg's face is fully clamped by its two M6 bolts (the support is rigid)",
+   "inner-corner fillet radius equal to the thickness",
+   "static load; no fatigue, impact or temperature effects"
+  ],
+  "variables": [
+   {
+    "name": "thickness_mm",
+    "label": "plate thickness t",
+    "lower": 2,
+    "upper": 25,
+    "unit": "mm",
+    "choices": [],
+    "integer": true
+   },
+   {
+    "name": "width_mm",
+    "label": "width w",
+    "lower": 36,
+    "upper": 120,
+    "unit": "mm",
+    "choices": [],
+    "integer": true
+   },
+   {
+    "name": "mount_mm",
+    "label": "mounting-leg length a",
+    "lower": 40,
+    "upper": 200,
+    "unit": "mm",
+    "choices": [],
+    "integer": true
+   },
+   {
+    "name": "material",
+    "label": "material",
+    "lower": 0,
+    "upper": 2,
+    "unit": "",
+    "choices": [
+     "al6061_t6",
+     "steel_1018",
+     "ss304"
+    ],
+    "integer": false
+   }
+  ],
+  "objectives": [
+   {
+    "name": "mass_g",
+    "sense": "min",
+    "label": "mass"
+   }
+  ],
+  "failure_modes": [
+   {
+    "name": "margin_yield",
+    "label": "no yield at the most stressed point",
+    "description": "yield / (safety factor x peak von Mises) - 1",
+    "critical": true
+   },
+   {
+    "name": "margin_bolts",
+    "label": "bolts stay below their proof load",
+    "description": "proof load / (safety factor x bolt tension) - 1",
+    "critical": true
+   },
+   {
+    "name": "margin_deflection",
+    "label": "deflection within the stated limit",
+    "description": "allowed / computed deflection - 1 (no limit stated: not constraining)",
+    "critical": false
+   }
+  ],
+  "fidelities": [
+   {
+    "level": "closed_form",
+    "label": "cantilever beam theory",
+    "method": "root stress M c / I and tip deflection P L^3 / (3 E I)",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "reduced",
+    "label": "hexahedral FE (SolidFEM)",
+    "method": "C3D8I structured mesh of the L, staircase fillet, clamped mounting face; nominal stress x stress-concentration factor",
+    "available": true,
+    "reason": ""
+   },
+   {
+    "level": "full",
+    "label": "CalculiX (gmsh C3D10)",
+    "method": "exact fillet and bolt holes, two meshes, peak von Mises, deflection, reactions",
+    "available": true,
+    "reason": ""
+   }
+  ],
+  "uncertain": [
+   "load_scale",
+   "t_delta",
+   "yield_scale"
+  ]
+ },
+ "design": {
+  "thickness_mm": 17,
+  "width_mm": 36,
+  "mount_mm": 72,
+  "material": "al6061_t6",
+  "thickness": 0.017,
+  "width": 0.036000000000000004,
+  "mount": 0.07200000000000001,
+  "arm_length": 0.1,
+  "fillet": 0.017,
+  "hole": 0.0066
+ },
+ "numbers": [
+  {
+   "quantity": "bolts stay below their proof load",
+   "key": "margin_bolts",
+   "value": 0.017425454545454633,
+   "unit": "",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "deflection_mm",
+   "key": "deflection_mm",
+   "value": 0.4383264851430749,
+   "unit": "mm",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": ""
+  },
+  {
+   "quantity": "sigma_peak_mpa",
+   "key": "sigma_peak_mpa",
+   "value": 106.39918774459008,
+   "unit": "MPa",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": "peak von Mises (nominal x stress-concentration factor)"
+  },
+  {
+   "quantity": "sigma_nominal_mpa",
+   "key": "sigma_nominal_mpa",
+   "value": 109.22158575371543,
+   "unit": "MPa",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": ""
+  },
+  {
+   "quantity": "deflection within the stated limit",
+   "key": "margin_deflection",
+   "value": 1.0,
+   "unit": "",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "bolt_tension_n",
+   "key": "bolt_tension_n",
+   "value": 5729.166666666666,
+   "unit": "N",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": "per bolt, moment about the toe"
+  },
+  {
+   "quantity": "no yield at the most stressed point",
+   "key": "margin_yield",
+   "value": 0.16730214424324896,
+   "unit": "",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": "margin (>= 0 needed)"
+  },
+  {
+   "quantity": "mass_g",
+   "key": "mass_g",
+   "value": 256.2190128541933,
+   "unit": "g",
+   "fidelity": "hexahedral FE (SolidFEM)",
+   "note": ""
+  },
+  {
+   "quantity": "no yield at the most stressed point",
+   "key": "margin_yield",
+   "value": 0.14906713286713336,
+   "unit": "",
+   "fidelity": "cantilever beam theory",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "bolts stay below their proof load",
+   "key": "margin_bolts",
+   "value": 0.017425454545454633,
+   "unit": "",
+   "fidelity": "cantilever beam theory",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "deflection within the stated limit",
+   "key": "margin_deflection",
+   "value": 1.0,
+   "unit": "",
+   "fidelity": "cantilever beam theory",
+   "note": "screening estimate"
+  },
+  {
+   "quantity": "sigma_peak_mpa",
+   "key": "sigma_peak_mpa",
+   "value": 94.26070979280537,
+   "unit": "MPa",
+   "fidelity": "CalculiX (gmsh C3D10)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "deflection_mm",
+   "key": "deflection_mm",
+   "value": 0.37959899270073,
+   "unit": "mm",
+   "fidelity": "CalculiX (gmsh C3D10)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "margin_yield",
+   "key": "margin_yield",
+   "value": 0.46402462174683423,
+   "unit": "",
+   "fidelity": "CalculiX (gmsh C3D10)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "margin_bolts",
+   "key": "margin_bolts",
+   "value": 0.10751,
+   "unit": "",
+   "fidelity": "CalculiX (gmsh C3D10)",
+   "note": "full solver"
+  },
+  {
+   "quantity": "elements",
+   "key": "elements",
+   "value": 18584.0,
+   "unit": "",
+   "fidelity": "CalculiX (gmsh C3D10)",
+   "note": "full solver"
+  }
+ ],
+ "optimisation": {
+  "method": "surrogate_assisted",
+  "n_screen": 2000,
+  "n_feasible_screen": 934,
+  "n_reduced": 19,
+  "calls": {
+   "calls": {
+    "closed_form": 12000,
+    "reduced": 19,
+    "full": 1
+   },
+   "wall_s": {
+    "closed_form": 0.0081,
+    "reduced": 9.8319,
+    "full": 39.4809
+   },
+   "s_per_call": {
+    "closed_form": 6.775249999861899e-07,
+    "reduced": 0.5174676794210583,
+    "full": 39.48087916700001
+   }
+  },
+  "notes": [
+   "the reduced model is expensive: a GP surrogate was optimised and 19 designs were checked with the reduced model"
+  ],
+  "candidates": [
+   {
+    "rank": 0,
+    "design": {
+     "thickness_mm": 17,
+     "width_mm": 36,
+     "mount_mm": 72,
+     "material": "al6061_t6"
+    },
+    "reduced": {
+     "margin_bolts": 0.017425454545454633,
+     "deflection_mm": 0.4383264851430749,
+     "sigma_peak_mpa": 106.39918774459008,
+     "sigma_nominal_mpa": 109.22158575371543,
+     "margin_deflection": 1.0,
+     "bolt_tension_n": 5729.166666666666,
+     "margin_yield": 0.16730214424324896,
+     "mass_g": 256.2190128541933
+    },
+    "closed_form": {
+     "margin_yield": 0.14906713286713336,
+     "margin_bolts": 0.017425454545454633,
+     "margin_deflection": 1.0,
+     "mass_g": 256.2190128541933,
+     "deflection_mm": 0.43092638206658623,
+     "sigma_peak_mpa": 108.08767951625089,
+     "sigma_nominal_mpa": 108.08767951625089,
+     "bolt_tension_n": 5729.166666666666
+    }
+   },
+   {
+    "rank": 1,
+    "design": {
+     "thickness_mm": 20,
+     "width_mm": 36,
+     "mount_mm": 78,
+     "material": "al6061_t6"
+    },
+    "reduced": {
+     "margin_bolts": 0.01742545454545441,
+     "deflection_mm": 0.2423195053177397,
+     "sigma_peak_mpa": 75.84327574278386,
+     "sigma_nominal_mpa": 75.84327574278386,
+     "margin_deflection": 1.0,
+     "bolt_tension_n": 5729.166666666668,
+     "margin_yield": 0.6375874958409489,
+     "mass_g": 308.98513033868323
+    },
+    "closed_form": {
+     "margin_yield": 0.6557935162094766,
+     "margin_bolts": 0.01742545454545441,
+     "margin_deflection": 1.0,
+     "mass_g": 308.98513033868323,
+     "deflection_mm": 0.23576996745438675,
+     "sigma_peak_mpa": 75.00935278713055,
+     "sigma_nominal_mpa": 75.00935278713055,
+     "bolt_tension_n": 5729.166666666668
+    }
+   },
+   {
+    "rank": 2,
+    "design": {
+     "thickness_mm": 24,
+     "width_mm": 42,
+     "mount_mm": 98,
+     "material": "al6061_t6"
+    },
+    "reduced": {
+     "margin_bolts": 0.33537090909090916,
+     "deflection_mm": 0.10288498915708584,
+     "sigma_peak_mpa": 42.927027862494846,
+     "sigma_nominal_mpa": 42.927027862494846,
+     "margin_deflection": 1.0,
+     "bolt_tension_n": 4365.079365079365,
+     "margin_yield": 1.8932820692324936,
+     "mass_g": 479.53974285190145
+    },
+    "closed_form": {
+     "margin_yield": 1.9376219040801717,
+     "margin_bolts": 0.33537090909090916,
+     "margin_deflection": 1.0,
+     "mass_g": 479.53974285190145,
+     "deflection_mm": 0.09980405863828858,
+     "sigma_peak_mpa": 42.2790965125546,
+     "sigma_nominal_mpa": 42.2790965125546,
+     "bolt_tension_n": 4365.079365079365
+    }
+   }
+  ]
+ },
+ "robustness": {
+  "p_success": 0.9985,
+  "ci95": [
+   0.9955989674442294,
+   0.9994897364163615
+  ],
+  "n_samples": 2000,
+  "per_mode": {
+   "margin_yield": 1.0,
+   "margin_bolts": 0.9985,
+   "margin_deflection": 1.0
+  },
+  "margin_p05": {
+   "margin_yield": 0.25004619112559395,
+   "margin_bolts": 0.016528203258804264,
+   "margin_deflection": 1.0
+  },
+  "inputs": [
+   {
+    "name": "load_scale",
+    "nominal": 1.0,
+    "spread": 0.1,
+    "dist": "uniform",
+    "unit": "",
+    "source": "load +-10 %: assumed (state the load's own uncertainty)"
+   },
+   {
+    "name": "t_delta",
+    "nominal": 0.0,
+    "spread": 0.0002,
+    "dist": "uniform",
+    "unit": "m",
+    "source": "plate thickness +-0.2 mm: assumed stock tolerance (check your supplier's)"
+   },
+   {
+    "name": "yield_scale",
+    "nominal": 0.95,
+    "spread": 0.05,
+    "dist": "uniform",
+    "unit": "",
+    "source": "yield strength 90-100 % of the datasheet value: assumed lot scatter"
+   }
+  ],
+  "sensitivity": {
+   "load_scale": -0.9947582501895624,
+   "t_delta": -0.11053757913439477,
+   "yield_scale": 0.01938637984659496
+  },
+  "model": "closed_form",
+  "calibration": {
+   "margin_yield": 1.0156130886530865,
+   "margin_bolts": 1.0
+  }
+ },
+ "alternatives": [
+  {
+   "rank": 0,
+   "design": {
+    "thickness_mm": 17,
+    "width_mm": 36,
+    "mount_mm": 72,
+    "material": "al6061_t6"
+   },
+   "p_success": 0.9985,
+   "ci95": [
+    0.9955989674442294,
+    0.9994897364163615
+   ],
+   "objectives": {
+    "mass_g": 256.2190128541933
+   }
+  },
+  {
+   "rank": 1,
+   "design": {
+    "thickness_mm": 20,
+    "width_mm": 36,
+    "mount_mm": 78,
+    "material": "al6061_t6"
+   },
+   "p_success": 0.9985,
+   "ci95": [
+    0.9955989674442294,
+    0.9994897364163615
+   ],
+   "objectives": {
+    "mass_g": 308.98513033868323
+   }
+  },
+  {
+   "rank": 2,
+   "design": {
+    "thickness_mm": 24,
+    "width_mm": 42,
+    "mount_mm": 98,
+    "material": "al6061_t6"
+   },
+   "p_success": 1.0,
+   "ci95": [
+    0.9980829527187469,
+    0.9999999999999998
+   ],
+   "objectives": {
+    "mass_g": 479.53974285190145
+   }
+  }
+ ],
+ "verification": {
+  "ran": true,
+  "label": "CalculiX (gmsh C3D10)",
+  "reason": "",
+  "comparison": [
+   {
+    "output": "sigma_peak_mpa",
+    "full": 94.26070979280537,
+    "reduced": 96.76111647162875,
+    "closed_form": 95.73241061130331,
+    "rel_err": 0.02652649958099753,
+    "kind": "agree"
+   },
+   {
+    "output": "deflection_mm",
+    "full": 0.37959899270073,
+    "reduced": 0.3804328600557721,
+    "closed_form": 0.3753667302434723,
+    "rel_err": 0.002196705921449858,
+    "kind": "agree"
+   }
+  ],
+  "outputs": {
+   "sigma_peak_mpa": 94.26070979280537,
+   "deflection_mm": 0.37959899270073,
+   "margin_yield": 0.46402462174683423,
+   "margin_bolts": 0.10751,
+   "elements": 18584.0
+  },
+  "checks": [
+   {
+    "name": "equilibrium (support reaction = load)",
+    "passed": true,
+    "critical": true,
+    "value": 1.1501832508642451e-07,
+    "limit": 0.005,
+    "detail": "reaction 2000.0 N for a load of 2000.0 N"
+   },
+   {
+    "name": "arm bending stress vs M c / I",
+    "passed": true,
+    "critical": true,
+    "value": 0.0005430904545458137,
+    "limit": 0.06,
+    "detail": "outer face at z = 45 mm: 63.5 vs 63.4 MPa (60 nodes)"
+   },
+   {
+    "name": "mesh convergence of the peak stress",
+    "passed": true,
+    "value": 0.011684835159273321,
+    "limit": 0.05,
+    "detail": "peak von Mises 93.2 MPa (h = 8.5 mm) vs 94.3 MPa (h = 5.7 mm)"
+   }
+  ],
+  "wall_s": 0.0,
+  "notes": [
+   "CalculiX on gmsh C3D10 tetrahedra (18584 elements at h = 5.7 mm); peak von Mises taken away from the clamped face (its edge is a singularity of the idealised clamp) and from the loaded face",
+   "peak at x = 17.3, y = 28.0, z = 30.6 mm",
+   "measured stress-concentration factor of the fillet: 0.974 (CalculiX peak / hexahedral-model nominal stress)"
+  ]
+ },
+ "assessment": {
+  "verdict": "will work",
+  "probability": 0.9985,
+  "ci95": [
+   0.9955989674442294,
+   0.9994897364163615
+  ],
+  "assumptions": [
+   "the load acts at the end of the arm, perpendicular to it (a shelf load)",
+   "the mounting leg's face is fully clamped by its two M6 bolts (the support is rigid)",
+   "inner-corner fillet radius equal to the thickness",
+   "static load; no fatigue, impact or temperature effects",
+   "safety_factor = 2 (template default (engineering convention for a known static load; state yours))"
+  ],
+  "reasons": [],
+  "trust": {
+   "decision": "APPROVED",
+   "score": 1.0,
+   "coverage": 1.0,
+   "checks": [
+    {
+     "name": "requirements complete",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": null,
+     "limit": null,
+     "source": "",
+     "reason": "every critical value stated, answered or defaulted with a source"
+    },
+    {
+     "name": "margin: no yield at the most stressed point",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.16730214424324896,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "yield / (safety factor x peak von Mises) - 1"
+    },
+    {
+     "name": "margin: bolts stay below their proof load",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.017425454545454633,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "proof load / (safety factor x bolt tension) - 1"
+    },
+    {
+     "name": "margin: deflection within the stated limit",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 1.0,
+     "limit": 0.0,
+     "source": "reduced model",
+     "reason": "allowed / computed deflection - 1 (no limit stated: not constraining)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_yield",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.015621500796554428,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_bolts",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "closed form agrees with reduced model: margin_deflection",
+     "status": "supports",
+     "critical": false,
+     "weight": 0.5,
+     "value": 0.0,
+     "limit": 0.25,
+     "source": "closed form vs reduced",
+     "reason": "screening model within 25 % of the reduced model on (1 + margin)"
+    },
+    {
+     "name": "full solver agrees: sigma_peak_mpa",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.02652649958099753,
+     "limit": 0.1,
+     "source": "CalculiX (gmsh C3D10)",
+     "reason": "reduced 96.76 vs full 94.26"
+    },
+    {
+     "name": "full solver agrees: deflection_mm",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.002196705921449858,
+     "limit": 0.1,
+     "source": "CalculiX (gmsh C3D10)",
+     "reason": "reduced 0.3804 vs full 0.3796"
+    },
+    {
+     "name": "solver check: equilibrium (support reaction = load)",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 1.1501832508642451e-07,
+     "limit": 0.005,
+     "source": "CalculiX (gmsh C3D10)",
+     "reason": "reaction 2000.0 N for a load of 2000.0 N"
+    },
+    {
+     "name": "solver check: arm bending stress vs M c / I",
+     "status": "supports",
+     "critical": true,
+     "weight": 1.0,
+     "value": 0.0005430904545458137,
+     "limit": 0.06,
+     "source": "CalculiX (gmsh C3D10)",
+     "reason": "outer face at z = 45 mm: 63.5 vs 63.4 MPa (60 nodes)"
+    },
+    {
+     "name": "solver check: mesh convergence of the peak stress",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.011684835159273321,
+     "limit": 0.05,
+     "source": "CalculiX (gmsh C3D10)",
+     "reason": "peak von Mises 93.2 MPa (h = 8.5 mm) vs 94.3 MPa (h = 5.7 mm)"
+    },
+    {
+     "name": "robustness",
+     "status": "supports",
+     "critical": false,
+     "weight": 1.0,
+     "value": 0.9985,
+     "limit": 0.95,
+     "source": "Monte Carlo (2000 samples)",
+     "reason": "lower 95 % bound 0.996 vs target 0.95"
+    }
+   ]
+  }
+ },
+ "operating_window": [
+  {
+   "quantity": "load at the arm's end",
+   "value": 2000.0,
+   "min": 0.0,
+   "max": 2928.0,
+   "unit": "N",
+   "fidelity": "CalculiX",
+   "note": "max: yield / 2 at the fillet (linear: stress scales with the load)"
+  },
+  {
+   "quantity": "load at first yield (no safety factor)",
+   "value": null,
+   "min": null,
+   "max": 5856.1,
+   "unit": "N",
+   "fidelity": "CalculiX",
+   "note": "linear elastic extrapolation"
+  },
+  {
+   "quantity": "load at bolt proof (no safety factor)",
+   "value": null,
+   "min": null,
+   "max": 4069.7,
+   "unit": "N",
+   "fidelity": "closed form (moment about the toe)",
+   "note": "two M6 8.8 bolts"
+  },
+  {
+   "quantity": "bolt tightening",
+   "value": null,
+   "min": null,
+   "max": null,
+   "unit": "",
+   "fidelity": "-",
+   "note": "follow the bolt and anchor supplier's torque; the wall anchor is not checked"
+  }
+ ],
+ "bill_of_materials": [
+  {
+   "item": "angle bracket",
+   "material": "Aluminium 6061-T6",
+   "quantity": 1,
+   "size": "t = 17.0 mm, w = 36.0 mm, mounting leg 72 mm, arm 100 mm, inner fillet R17.0",
+   "mass_g": 259.0,
+   "properties": {
+    "density": {
+     "value": 2700.0,
+     "unit": "kg/m^3",
+     "source": "ASM Aerospace Specification Metals, 'Aluminum 6061-T6; 6061-T651' datasheet (asm.matweb.com)"
+    },
+    "youngs_modulus": {
+     "value": 68900000000.0,
+     "unit": "Pa",
+     "source": "ASM Aerospace Specification Metals, 'Aluminum 6061-T6; 6061-T651' datasheet (asm.matweb.com)"
+    },
+    "poisson": {
+     "value": 0.33,
+     "unit": "1",
+     "source": "ASM Aerospace Specification Metals, 'Aluminum 6061-T6; 6061-T651' datasheet (asm.matweb.com)"
+    },
+    "yield_strength": {
+     "value": 276000000.0,
+     "unit": "Pa",
+     "source": "ASM Aerospace Specification Metals, 'Aluminum 6061-T6; 6061-T651' datasheet (asm.matweb.com)"
+    }
+   }
+  },
+  {
+   "item": "bolts M6, property class 8.8, with washers",
+   "material": "steel",
+   "quantity": 2,
+   "size": "clearance holes 6.6 mm",
+   "mass_g": null,
+   "properties": {
+    "proof_load": {
+     "value": 11658.0,
+     "unit": "N",
+     "source": "ISO 898-1, property class 8.8, M6: stress area 20.1 mm^2 x proof stress 580 MPa"
+    },
+    "hole": {
+     "value": 0.0066,
+     "unit": "m",
+     "source": "ISO 273: medium clearance hole for an M6 bolt, 6.6 mm"
+    }
+   }
+  }
+ ],
+ "build_instructions": [
+  "Make the bracket from Aluminium 6061-T6: 17.0 mm plate, 36.0 mm wide; mounting leg 72 mm, arm 100 mm (bracket.step).",
+  "Inner corner fillet R17.0 mm (bend radius if formed from sheet; machined otherwise). A sharp inner corner raises the peak stress above the verified value.",
+  "Two 6.6 mm clearance holes for M6 bolts in the mounting leg, on its centre line between the fillet and the end (positions in bracket.step).",
+  "Bolt to a rigid, flat support with two M6 8.8 bolts and washers.",
+  "Apply the load at the end of the arm, perpendicular to it, as assumed in the design."
+ ],
+ "limits": [
+  "Static load only: no fatigue, impact, vibration or creep.",
+  "The mounting face is idealised as fully clamped; a flexible wall or anchor changes the stresses and is not checked (nor is the anchor's pull-out).",
+  "Bolt check: tension from the moment about the toe; prying and shear are not included.",
+  "Linear elastic: valid while the peak stays below yield (the safety factor keeps it there)."
+ ],
+ "calls": {
+  "calls": {
+   "closed_form": 12000,
+   "reduced": 19,
+   "full": 1
+  },
+  "wall_s": {
+   "closed_form": 0.0081,
+   "reduced": 9.8319,
+   "full": 39.4809
+  },
+  "s_per_call": {
+   "closed_form": 6.775249999861899e-07,
+   "reduced": 0.5174676794210583,
+   "full": 39.48087916700001
+  }
+ },
+ "savings": {
+  "designs_ranked_without_full_solver": 12019,
+  "full_solver_calls": 1,
+  "full_solver_s_per_call": 39.48087916700001,
+  "text": "12019 design evaluations ran on the closed form and the reduced model; the full solver ran 1 time(s) at 39.5 s each (measured). Running every evaluation on the full solver would have taken about 131.8 h (estimate: evaluations x measured time per full call)."
+ },
+ "calibration_rounds": [
+  {
+   "round": 0,
+   "options": {
+    "load_scale": 1.1,
+    "t_delta": -0.0002,
+    "yield_scale": 0.9
+   },
+   "design": {
+    "thickness_mm": 17,
+    "width_mm": 36,
+    "mount_mm": 72,
+    "material": "al6061_t6"
+   },
+   "measured": {
+    "kt": 0.9741589724261137
+   },
+   "full_margins_negative": []
+  }
+ ],
+ "files": {
+  "step_exact": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/geometry/bracket.step",
+  "stl": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/geometry/bracket.stl",
+  "step": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/geometry/bracket.step",
+  "glb": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/geometry/bracket.glb",
+  "render": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/geometry/bracket.png",
+  "check_margins": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/check/qoi/margins.csv",
+  "check_reduced": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/check/qoi/reduced.csv",
+  "check_toml": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/check/pinneapple-check.toml",
+  "json": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/design.json",
+  "html": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/report.html",
+  "pdf": "/home/user/PINNeAPPle/examples/design_from_intent/_out/bracket/report.pdf"
+ }
+}

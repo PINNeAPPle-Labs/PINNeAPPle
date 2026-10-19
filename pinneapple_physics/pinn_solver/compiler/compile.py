@@ -20,6 +20,7 @@ from .autograd_ops import (
     norm_dot_grad,
     mse,
 )
+from .em_kinds import EM_KINDS, em_residuals
 from .loss import LossWeights
 
 
@@ -248,7 +249,12 @@ def compile_problem(
         p = spec.pde.params
         res_list: List[torch.Tensor] = []
 
-        if pde_kind == "laplace":
+        if pde_kind in EM_KINDS:
+            # Maxwell's equations, differential and integral forms (em_kinds.py)
+            res_list.extend(em_residuals(pde_kind, fields=fields, xcol=xcol, coords=coords, params=p, ctx=ctx,
+                                         model=model, field_names=field_names, split_fields=_split_fields))
+
+        elif pde_kind == "laplace":
             if len(field_names) != 1:
                 raise ValueError("Laplace expects 1 scalar field.")
             phi = fields[field_names[0]]

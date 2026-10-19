@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-_PROVIDERS = ("anthropic", "openai", "ollama")
+_PROVIDERS = ("anthropic", "openai", "openai_compatible", "ollama")
 
 
 def call_llm(
@@ -31,25 +31,32 @@ def call_llm(
     """Dispatch a single prompt to whichever provider is requested and
     return the raw text response. See individual provider modules for
     what ``**provider_kwargs`` accepts (``host``/``port``/``timeout`` for
-    ``"ollama"``; unused for the others).
+    ``"ollama"``; ``base_url`` for ``"openai"`` / ``"openai_compatible"``, i.e. any server speaking the OpenAI
+    chat API: vLLM, LM Studio, llama.cpp, a user-hosted model; ``max_tokens`` for every provider).
     """
+    max_tokens = provider_kwargs.pop("max_tokens", None)
+    base_url = provider_kwargs.pop("base_url", None)
     if provider == "anthropic":
         import anthropic
 
         client = anthropic.Anthropic(api_key=api_key)
         msg = client.messages.create(
             model=model or "claude-sonnet-5",
-            max_tokens=1024,
+            max_tokens=int(max_tokens or 1024),
             system=system or "You are a helpful assistant.",
             messages=[{"role": "user", "content": prompt}],
         )
         response = "".join(block.text for block in msg.content if hasattr(block, "text"))
 
-    elif provider == "openai":
+    elif provider in ("openai", "openai_compatible"):
+        if provider == "openai_compatible" and not base_url:
+            raise ValueError("provider 'openai_compatible' needs base_url (e.g. http://localhost:8000/v1)")
         import openai
 
-        client = openai.OpenAI(api_key=api_key)
+        client = openai.OpenAI(api_key=api_key or ("not-needed" if base_url else None), base_url=base_url)
         kwargs = {"response_format": {"type": "json_object"}} if json_mode else {}
+        if max_tokens:
+            kwargs["max_tokens"] = int(max_tokens)
         resp = client.chat.completions.create(
             model=model or "gpt-4o",
             messages=[

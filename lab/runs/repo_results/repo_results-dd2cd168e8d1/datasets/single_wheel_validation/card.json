@@ -1,0 +1,59 @@
+{
+ "name": "single_wheel_validation",
+ "description": "Wong-Reece wheel with the cited soils against published single-wheel tests (third-party digitisations)",
+ "n_samples": 5,
+ "shards": 1,
+ "schema": {
+  "dataset": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "ding2011 smooth",
+    "ding2011 grousered",
+    "wanghan2016 smooth",
+    "wanghan2016 grousered",
+    "hurrell2025 grousered"
+   ]
+  },
+  "source": {
+   "kind": "scalar",
+   "type": "str",
+   "values": [
+    "Ding et al. (2011), J. Terramechanics 48(1):27-45, Figs 8/9 (80 N)",
+    "Wang & Han (2016), J. Korean Geotech. Soc. 32(11):97-108, Fig. 14 (58.86 N)",
+    "Hurrell et al. (2025), Space Sci. Rev. 221, art. 37, Figs 5/6 (24.5 N)"
+   ]
+  },
+  "load_N": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 24.5,
+   "max": 80.0
+  },
+  "drawbar_rmse_N": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 3.000561416282936,
+   "max": 14.379402885873631
+  },
+  "sinkage_rmse_m": {
+   "kind": "scalar",
+   "type": "float",
+   "min": 0.004171354797436324,
+   "max": 0.016113989134837164
+  }
+ },
+ "units": {
+  "rmse_N": "N",
+  "rmse_m": "m"
+ },
+ "license": "",
+ "provenance": {
+  "experiment": "repo_results",
+  "run_id": "repo_results-dd2cd168e8d1",
+  "params": {
+   "source": "lunar_rover"
+  }
+ },
+ "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33"
+}

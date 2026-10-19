@@ -1,0 +1,11 @@
+{
+ "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+ "python": "3.13.16",
+ "logical_cpus": 4,
+ "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+ "mem_gb": 15.7,
+ "torch": "2.14.1+cu130",
+ "torch_threads": 1,
+ "gpu": null,
+ "numpy": "2.5.3"
+}

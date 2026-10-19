@@ -1,0 +1,42 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/solver_api",
+ "title": "Solver",
+ "description": "The same problem through one call: a classical FEM solve and a PINN, compared against the exact solution. PYTHONPATH=.",
+ "domain": "numerical methods",
+ "methods": [
+  "PINN",
+  "FEM"
+ ],
+ "modules": [
+  "pinneapple",
+  "pinneapple_physics.pde_environment.builder"
+ ],
+ "params": {},
+ "scripts": [
+  "01_classical_vs_pinn.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/core_concepts/solver.md",
+  "script": "examples/solver_api/01_classical_vs_pinn.py",
+  "pr": [
+   301
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

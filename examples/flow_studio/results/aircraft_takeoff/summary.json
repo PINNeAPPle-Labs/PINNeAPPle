@@ -1,0 +1,96 @@
+{
+ "flow": "aircraft_takeoff",
+ "title": "Aircraft take-off (flight library)",
+ "status": "done",
+ "wall_seconds": 110.2,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-18",
+ "meta": {
+  "kind": "reproduction"
+ },
+ "nodes": {
+  "takeoff": {
+   "type": "flight.takeoff",
+   "status": "done",
+   "seconds": 105.23913621902466,
+   "error": null,
+   "summary": "ground roll 244 m, 35 ft at 403 m; Raymer 17.8: 311 m with V_LOF = 1.1 V_s (+30%), 410 m with the simulated V_LOF and rotation (-2%)",
+   "metrics": {
+    "mass_kg": 1100.0,
+    "V_R": 28.67832007979312,
+    "lifted_off": true,
+    "ground_roll_m": 244.22102440714593,
+    "t_LOF": 13.51,
+    "V_LOF": 32.112160901687766,
+    "V_LOF_kt": 62.42110103662938,
+    "theta_LOF_deg": 6.780732082839731,
+    "alpha_LOF_deg": 6.50737549071021,
+    "V_R_kt": 55.74624270045548,
+    "rotation_time_s": 2.119999999999999,
+    "rotation_distance_m": 64.62175075225971,
+    "distance_35ft_m": 402.9400670592907,
+    "t_35ft": 18.17871796286585,
+    "V_35ft_kt": 67.86463689389285,
+    "climb_gradient_pct": 13.572624182930408,
+    "climb_end_height_m": 120.29881455060027,
+    "theta_max_deg": 15.198268684170344,
+    "alpha_max_deg": 7.159203098955207,
+    "CL_max_reached": 1.0988253474802745,
+    "CLmax_takeoff_assumed": 1.6,
+    "stall_margin_ok": true,
+    "tail_clearance_min_m": 0.954575958185787,
+    "wingtip_clearance_min_m": 1.9678827629375506,
+    "max_lateral_deviation_ground_m": 6.8807824168304414e-15,
+    "max_bank_deg": 8.91506007015448e-14,
+    "max_rudder_deg": 1.7999937492672256e-14,
+    "max_aileron_deg": 3.047457024749472e-14,
+    "heading_at_LOF_deg": 5.448781915913358e-16,
+    "nz_max": 1.0870426482296196,
+    "peak_gear_load_kN": 4.664726451110001,
+    "raymer_1p1Vs_total_35ft_m": {
+     "value": 311.0036264775558,
+     "how": "Raymer sec. 17.8, V_LOF = 1.1 V_stall, rotation 1 s (light) / 3 s (transport)"
+    },
+    "sim_over_raymer_1p1Vs": {
+     "value": 1.295612117527413,
+     "how": "simulated distance to 35 ft / closed form"
+    },
+    "raymer_sim_VLOF_total_35ft_m": {
+     "value": 409.8572551428263,
+     "how": "Raymer sec. 17.8 with the simulated V_LOF and rotation time"
+    },
+    "sim_over_raymer_sim_VLOF": {
+     "value": 0.9831229336635138,
+     "how": "simulated distance to 35 ft / closed form"
+    },
+    "render_seconds": {
+     "value": 86.3,
+     "how": "Cycles on this machine's CPU, still + clip"
+    }
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "takeoff_takeoff.png",
+    "takeoff_takeoff_render.png",
+    "takeoff_clip.mp4"
+   ]
+  },
+  "report": {
+   "type": "export.report",
+   "status": "done",
+   "seconds": 0.0020003318786621094,
+   "error": null,
+   "summary": "report written (html)",
+   "metrics": {
+    "decisions": 1,
+    "decisions_without_reference": 0,
+    "items": 1
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  }
+ },
+ "cached_nodes": []
+}

@@ -1,0 +1,62 @@
+[
+ {
+  "name": "adjoint_gradient_vs_finite_differences",
+  "passed": true,
+  "value": 1.0141238723468811e-06,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.0001,
+  "min": null,
+  "detail": "MBB compliance sensitivities; tolerance 1e-4",
+  "kind": "verification"
+ },
+ {
+  "name": "rotor_adjoint_gradient_vs_finite_differences",
+  "passed": true,
+  "value": 4.5531935712474944e-08,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.0001,
+  "min": null,
+  "detail": "",
+  "kind": "verification"
+ },
+ {
+  "name": "oc_and_mma_reach_the_same_compliance",
+  "passed": true,
+  "value": 0.000951203205904895,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.01,
+  "min": null,
+  "detail": "two optimisers, same problem; tolerance 1 %",
+  "kind": "verification"
+ },
+ {
+  "name": "optimised_conductor_beats_uniform",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "thermal compliance of the optimised layout against the uniform material",
+  "kind": "baseline"
+ },
+ {
+  "name": "optimised_channels_beat_uniform",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Stokes dissipation, double_pipe_L1.0, double_pipe_L1.5",
+  "kind": "baseline"
+ }
+]

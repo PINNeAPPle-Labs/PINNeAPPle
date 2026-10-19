@@ -46,6 +46,21 @@ Monitoring and tolerances
     deployed surrogate, with an ok / review / retrain decision (NumPy + SciPy).
 ``propagate`` / ``ToleranceResult``
     Monte-Carlo propagation of input tolerances through any model, with the probability of meeting limits.
+``propagate_space`` / ``polynomial_chaos``
+    Propagation of inputs with any distribution (``distributions``: uniform, normal, truncated normal, lognormal,
+    triangular) by Monte Carlo, Latin hypercube or Sobol sampling; least-squares polynomial chaos with its
+    leave-one-out error and the Sobol indices it implies.
+
+Studies on any model's predictions (NumPy)
+------------------------------------------
+``conformal_study``
+    Split-conformal intervals calibrated on one split and their coverage measured on another (Wilson interval,
+    per-group coverage, reliability across levels); absolute or normalised scores.
+``ApplicabilityDomain`` / ``route_cases``
+    Range and k-NN data-density gates on the inputs, and the rule that sends a case to the high-fidelity solver.
+``uncertainty_study``
+    All of the above for one model output: held-out coverage, gate, screened cases (with optional high-fidelity
+    checks), propagation around an operating point.
 
 Unified interface
 -----------------
@@ -70,13 +85,21 @@ Quick start
 from __future__ import annotations
 
 from pinneapple_analysis.uncertainty.aleatoric import AleatoricHead, aleatoric_nll_loss
+from pinneapple_analysis.uncertainty.applicability import (
+    ApplicabilityDomain,
+    route_cases,
+    routing_summary,
+)
 from pinneapple_analysis.uncertainty.calibration import CalibrationMetrics
 from pinneapple_analysis.uncertainty.conformal import ConformalPredictor
+from pinneapple_analysis.uncertainty.conformal_study import ConformalStudy, conformal_study
 from pinneapple_analysis.uncertainty.core import UQResult, uq_predict
 from pinneapple_analysis.uncertainty.decomposition import decompose_uncertainty
+from pinneapple_analysis.uncertainty.distributions import UncertainParameter, as_space, sample_space
 from pinneapple_analysis.uncertainty.drift import DriftReport, DriftThresholds, assess_drift
 from pinneapple_analysis.uncertainty.ensemble import EnsembleConfig, EnsembleUQ
 from pinneapple_analysis.uncertainty.mc_dropout import MCDropout, MCDropoutConfig, MCDropoutWrapper
+from pinneapple_analysis.uncertainty.pce import PCEResult, polynomial_chaos
 from pinneapple_analysis.uncertainty.quantile import (
     QuantileConfig,
     QuantileHead,
@@ -90,7 +113,19 @@ from pinneapple_analysis.uncertainty.resampling import (
     jackknife,
     skill_score,
 )
-from pinneapple_analysis.uncertainty.tolerance import ToleranceResult, propagate, wilson_interval
+from pinneapple_analysis.uncertainty.residual_bound import (
+    ResidualErrorCalibrator,
+    coverage_study,
+    darcy_problem,
+    energy_error_bound,
+)
+from pinneapple_analysis.uncertainty.study import uncertainty_study
+from pinneapple_analysis.uncertainty.tolerance import (
+    ToleranceResult,
+    propagate,
+    propagate_space,
+    wilson_interval,
+)
 
 __all__ = [
     # Core types and unified interface
@@ -130,4 +165,21 @@ __all__ = [
     "propagate",
     "ToleranceResult",
     "wilson_interval",
+    "ResidualErrorCalibrator",
+    "coverage_study",
+    "darcy_problem",
+    "energy_error_bound",
+    "propagate_space",
+    "UncertainParameter",
+    "as_space",
+    "sample_space",
+    "PCEResult",
+    "polynomial_chaos",
+    # Studies on predictions: conformal coverage, applicability, routing
+    "ConformalStudy",
+    "conformal_study",
+    "ApplicabilityDomain",
+    "route_cases",
+    "routing_summary",
+    "uncertainty_study",
 ]

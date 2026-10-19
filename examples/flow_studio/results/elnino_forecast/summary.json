@@ -1,0 +1,292 @@
+{
+  "flow": "elnino_forecast",
+  "title": "El Nino forecast (ENSO models)",
+  "status": "done",
+  "wall_seconds": 22.7,
+  "machine": "x86_64 x86_64 (linux), CPU only",
+  "date": "2026-10-19",
+  "meta": {
+    "kind": "reproduction"
+  },
+  "nodes": {
+    "forecast": {
+      "type": "forecast.enso",
+      "status": "done",
+      "seconds": 18.822379112243652,
+      "error": null,
+      "summary": "6 models on Nino 3.4 (test from 2012-01); best non-baseline skill vs climatology at 6 months: lim (0.27)",
+      "metrics": {
+        "best_skill_vs_climatology_lead3": {
+          "value": "lim (0.48)",
+          "how": "1 - RMSE / RMSE(climatology) on the test period"
+        },
+        "best_skill_vs_climatology_lead6": {
+          "value": "lim (0.27)",
+          "how": "1 - RMSE / RMSE(climatology) on the test period"
+        },
+        "best_skill_vs_climatology_lead9": {
+          "value": "lim (0.13)",
+          "how": "1 - RMSE / RMSE(climatology) on the test period"
+        },
+        "best_skill_vs_climatology_lead12": {
+          "value": "lim (0.07)",
+          "how": "1 - RMSE / RMSE(climatology) on the test period"
+        },
+        "test_period": "2012-01 to 2024-12",
+        "study_seconds": 9.0
+      },
+      "warnings": [],
+      "tables": [
+        {
+          "title": "test period: RMSE skill vs climatology / persistence, anomaly correlation",
+          "columns": [
+            "model",
+            "family",
+            "lead [months]",
+            "skill vs climatology",
+            "significant (Holm)",
+            "skill vs persistence",
+            "ACC"
+          ],
+          "rows": [
+            [
+              "persistence",
+              "baseline",
+              3,
+              0.2672444196660365,
+              null,
+              0.0,
+              0.7264440350065339
+            ],
+            [
+              "persistence",
+              "baseline",
+              6,
+              -0.11437022762749782,
+              null,
+              0.0,
+              0.3612492143801454
+            ],
+            [
+              "persistence",
+              "baseline",
+              9,
+              -0.31803357899720086,
+              null,
+              0.0,
+              0.08059016127185765
+            ],
+            [
+              "persistence",
+              "baseline",
+              12,
+              -0.3317696114698063,
+              null,
+              0.0,
+              0.009214196066231622
+            ],
+            [
+              "climatology",
+              "baseline",
+              3,
+              0.0,
+              null,
+              -0.3647115448022056,
+              3.725836940108162e-16
+            ],
+            [
+              "climatology",
+              "baseline",
+              6,
+              0.0,
+              null,
+              0.10263216370289518,
+              9.891409519635153e-17
+            ],
+            [
+              "climatology",
+              "baseline",
+              9,
+              0.0,
+              null,
+              0.24129398830579896,
+              -4.5103746798548215e-16
+            ],
+            [
+              "climatology",
+              "baseline",
+              12,
+              0.0,
+              null,
+              0.24911937366077086,
+              -4.157252984100354e-16
+            ],
+            [
+              "ar",
+              "baseline",
+              3,
+              0.3492735661840999,
+              null,
+              0.11194612326347275,
+              0.7575338136323638
+            ],
+            [
+              "ar",
+              "baseline",
+              6,
+              0.09660172341109408,
+              null,
+              0.18931944322287997,
+              0.4322997127551058
+            ],
+            [
+              "ar",
+              "baseline",
+              9,
+              -0.013597062071469379,
+              null,
+              0.23097781557079589,
+              0.09201177604165867
+            ],
+            [
+              "ar",
+              "baseline",
+              12,
+              -0.01371572853773051,
+              null,
+              0.23882049882566092,
+              -7.349210777741972e-06
+            ],
+            [
+              "ro",
+              "physical",
+              3,
+              0.4059259199240778,
+              false,
+              0.189260244452639,
+              0.8033695909885707
+            ],
+            [
+              "ro",
+              "physical",
+              6,
+              0.16909610608572745,
+              false,
+              0.25437357054731,
+              0.5420764170552181
+            ],
+            [
+              "ro",
+              "physical",
+              9,
+              0.05462373417448052,
+              false,
+              0.28273734380516335,
+              0.30152225892212475
+            ],
+            [
+              "ro",
+              "physical",
+              12,
+              0.03349368256312757,
+              false,
+              0.27426913100217953,
+              0.230446999509926
+            ],
+            [
+              "delayed_oscillator",
+              "physical",
+              3,
+              0.28731726728249163,
+              false,
+              0.027393646879231737,
+              0.7039064166692374
+            ],
+            [
+              "delayed_oscillator",
+              "physical",
+              6,
+              0.024968936036345202,
+              false,
+              0.12503848380847105,
+              0.3628890978357636
+            ],
+            [
+              "delayed_oscillator",
+              "physical",
+              9,
+              -0.06788328152201006,
+              false,
+              0.18979053452151995,
+              0.12964572711825945
+            ],
+            [
+              "delayed_oscillator",
+              "physical",
+              12,
+              -0.02561137199740382,
+              false,
+              0.22988829061395333,
+              0.1470035991969276
+            ],
+            [
+              "lim",
+              "data",
+              3,
+              0.48363841165517085,
+              false,
+              0.29531537909340766,
+              0.8946800181534206
+            ],
+            [
+              "lim",
+              "data",
+              6,
+              0.27372152948187667,
+              false,
+              0.348261060361981,
+              0.7098618596492632
+            ],
+            [
+              "lim",
+              "data",
+              9,
+              0.12778992388034682,
+              false,
+              0.3382489717877625,
+              0.4788496001896625
+            ],
+            [
+              "lim",
+              "data",
+              12,
+              0.07270157096203012,
+              false,
+              0.303709574800586,
+              0.3242847277054992
+            ]
+          ]
+        }
+      ],
+      "figures": [
+        "forecast_skill.png"
+      ]
+    },
+    "report": {
+      "type": "export.report",
+      "status": "done",
+      "seconds": 0.0036783218383789062,
+      "error": null,
+      "summary": "report written (html)",
+      "metrics": {
+        "decisions": 1,
+        "decisions_without_reference": 0,
+        "items": 1
+      },
+      "warnings": [],
+      "tables": [],
+      "figures": []
+    }
+  },
+  "cached_nodes": []
+}

@@ -35,7 +35,14 @@ try:                                   # reportlab is optional: the Decision Rec
     from reportlab.lib.pagesizes import LETTER
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import inch
-    from reportlab.platypus import ListFlowable, ListItem, Paragraph, SimpleDocTemplate, Spacer
+    from reportlab.platypus import (
+        Image,
+        ListFlowable,
+        ListItem,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+    )
     _SEM_REPORTLAB: "ImportError | None" = None
 except ImportError as _e:  # pragma: no cover - exercised only where reportlab is missing
     _SEM_REPORTLAB = _e
@@ -62,12 +69,35 @@ def _styles():
     return styles
 
 
+def _scope_section(story: list[Any], styles, data: dict[str, Any], width: float) -> None:
+    """``DecisionRecord.scope_of_use``: the summary, one line per use, the notes and, when the file exists, the
+    figure scaled to the text width."""
+    import os
+
+    from .scope import ScopeOfUse
+    scope = ScopeOfUse.from_dict(data)
+    story.append(Paragraph(f"Where this result can be used -- {_escape(scope.subject)}", styles["EvidenceH2"]))
+    story.append(Paragraph(_escape(scope.summary()), styles["EvidenceBody"]))
+    story.append(ListFlowable([ListItem(Paragraph(_escape(u.line()), styles["EvidenceBody"])) for u in scope.uses],
+                              bulletType="bullet", leftIndent=14))
+    for note in scope.notes:
+        story.append(Paragraph(_escape(note), styles["EvidenceBody"]))
+    if scope.figure and os.path.exists(scope.figure):
+        img = Image(scope.figure)
+        k = width / img.imageWidth
+        img.drawWidth, img.drawHeight = width, img.imageHeight * k
+        story.append(img)
+    elif scope.figure:
+        story.append(Paragraph(_escape(f"(figure not found: {scope.figure})"), styles["EvidenceBody"]))
+
+
 def render_evidence_report_pdf(decision: DecisionRecord) -> bytes:
     """Render *decision* (a real, already-computed ``DecisionRecord``) as
     an Evidence Report PDF and return the raw PDF bytes.
 
     Sections, in order: problem, recommended strategy + reasoning, trust
-    score + coverage, guardrail verdict, the per-check confidence
+    score + coverage, guardrail verdict, the scope of use (when the record
+    has one: which uses the result serves and why, with its figure), the per-check confidence
     breakdown (one line per check, or "not run"), alternatives considered,
     external tools recommended, and the next best action -- the same
     content ``DecisionRecord.render()``'s plain-text report carries, laid
@@ -111,6 +141,9 @@ def render_evidence_report_pdf(decision: DecisionRecord) -> bytes:
             f"Guardrail verdict: {'TRUSTWORTHY' if decision.trustworthy else 'NOT TRUSTWORTHY'}",
             styles["EvidenceBody"],
         ))
+
+    if decision.scope_of_use:
+        _scope_section(story, styles, decision.scope_of_use, doc.width)
 
     story.append(Paragraph("Per-check confidence breakdown", styles["EvidenceH2"]))
     by_name: Dict[str, Dict[str, Any]] = {c["name"]: c for c in decision.confidence_components}

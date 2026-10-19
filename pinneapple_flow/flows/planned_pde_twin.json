@@ -1,0 +1,408 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "digital-twin-heat",
+ "name": "Digital twin generated from the description",
+ "description": "Identify the governing equations from the description, simulate (or connect) the sensors, and build the twin: the identified PDE on a coarse grid with an ensemble Kalman filter, live calibration of alpha, alerts when the asset stops behaving like the model, 3-D view.",
+ "nodes": [
+  {
+   "id": "problem",
+   "type": "problem.generic",
+   "params": {
+    "description": "A 1 m metal rod cools down by heat conduction. Build a digital twin from 5 temperature sensors along the rod, estimate the thermal diffusivity online and detect when it changes.",
+    "dimension": 1
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Identified problem"
+  },
+  {
+   "id": "live",
+   "type": "data.stream",
+   "params": {
+    "source": "simulated",
+    "sensors": [
+     0.1667,
+     0.3333,
+     0.5,
+     0.6667,
+     0.8333
+    ],
+    "t_end": 0.5,
+    "dt": 0.001667,
+    "fault": {
+     "t": 0.25,
+     "alpha": 0.15
+    }
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Live data"
+  },
+  {
+   "id": "twin",
+   "type": "twin.auto",
+   "params": {
+    "estimate": [
+     "alpha"
+    ]
+   },
+   "position": {
+    "x": 580.0,
+    "y": 40.0
+   },
+   "label": "Digital twin"
+  },
+  {
+   "id": "view3d",
+   "type": "viz.field3d",
+   "params": {},
+   "position": {
+    "x": 850.0,
+    "y": 40.0
+   },
+   "label": "Twin 3-D view"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "digital twin"
+   },
+   "position": {
+    "x": 850.0,
+    "y": 190.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "problem",
+   "source_port": "problem",
+   "target": "live",
+   "target_port": "problem",
+   "id": "problem.problem->live.problem"
+  },
+  {
+   "source": "problem",
+   "source_port": "problem",
+   "target": "twin",
+   "target_port": "problem",
+   "id": "problem.problem->twin.problem"
+  },
+  {
+   "source": "live",
+   "source_port": "stream",
+   "target": "twin",
+   "target_port": "stream",
+   "id": "live.stream->twin.stream"
+  },
+  {
+   "source": "twin",
+   "source_port": "solution",
+   "target": "view3d",
+   "target_port": "solution",
+   "id": "twin.solution->view3d.solution"
+  },
+  {
+   "source": "twin",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "twin.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "title": "Digital twin generated from the description",
+  "family": "heat",
+  "decisions": [
+   {
+    "topic": "twin",
+    "what": "5 sensors, evenly spaced",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.sensor_layout"
+    },
+    "rationale": "the number of sensors read from the description, placed evenly inside the domain",
+    "value": [
+     0.1667,
+     0.3333,
+     0.5,
+     0.6667,
+     0.8333
+    ],
+    "references": [],
+    "evidence": [
+     {
+      "kind": "test",
+      "ref": "tests/test_flow_planner.py",
+      "detail": "sensor count read from the text"
+     }
+    ],
+    "node": "live",
+    "notes": "",
+    "uncited_reason": "a reading of the user's words and a neutral placement; edit the positions in the live-data node",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "c49d15d074",
+    "created": 1792368157.3768795
+   },
+   {
+    "topic": "twin",
+    "what": "twin generated from the identified equations",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.design"
+    },
+    "rationale": "digital twin = model + live data + assimilation + calibration + anomaly alerts",
+    "value": null,
+    "references": [
+     {
+      "key": "kapteyn2021twin",
+      "title": "A probabilistic graphical model foundation for enabling predictive digital twins at scale",
+      "authors": [
+       "M. G. Kapteyn",
+       "J. V. R. Pretorius",
+       "K. E. Willcox"
+      ],
+      "year": 2021,
+      "venue": "Nature Computational Science 1, 337-347",
+      "doi": "10.1038/s43588-021-00069-0",
+      "kind": "article",
+      "topics": [
+       "digital_twin"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1038/s43588-021-00069-0"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "209587ebef",
+    "created": 1792368157.3769114
+   },
+   {
+    "topic": "twin",
+    "what": "identified PDE on a coarse grid as the twin model",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.coarse_model"
+    },
+    "rationale": "the identified PDE on a coarse grid as the twin's fast model",
+    "value": null,
+    "references": [
+     {
+      "key": "leveque2007fd",
+      "title": "Finite Difference Methods for Ordinary and Partial Differential Equations",
+      "authors": [
+       "R. J. LeVeque"
+      ],
+      "year": 2007,
+      "venue": "SIAM",
+      "doi": "10.1137/1.9780898717839",
+      "kind": "book",
+      "topics": [
+       "finite_differences",
+       "method_of_lines",
+       "stability",
+       "heat",
+       "wave",
+       "advection",
+       "poisson"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1137/1.9780898717839"
+     }
+    ],
+    "evidence": [],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.75,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "a00e791127",
+    "created": 1792368157.3769367
+   },
+   {
+    "topic": "twin",
+    "what": "ensemble Kalman filter for the state",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.enkf"
+    },
+    "rationale": "ensemble Kalman filter for state estimation",
+    "value": null,
+    "references": [
+     {
+      "key": "evensen1994enkf",
+      "title": "Sequential data assimilation with a nonlinear quasi-geostrophic model using Monte Carlo methods to forecast error statistics",
+      "authors": [
+       "G. Evensen"
+      ],
+      "year": 1994,
+      "venue": "Journal of Geophysical Research: Oceans 99(C5), 10143-10162",
+      "doi": "10.1029/94JC00572",
+      "kind": "article",
+      "topics": [
+       "enkf",
+       "data_assimilation",
+       "digital_twin",
+       "parameter_estimation"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1029/94JC00572"
+     },
+     {
+      "key": "kalman1960filter",
+      "title": "A New Approach to Linear Filtering and Prediction Problems",
+      "authors": [
+       "R. E. Kalman"
+      ],
+      "year": 1960,
+      "venue": "Journal of Basic Engineering 82(1), 35-45",
+      "doi": "10.1115/1.3662552",
+      "kind": "article",
+      "topics": [
+       "kalman",
+       "data_assimilation",
+       "digital_twin"
+      ],
+      "status": "registry",
+      "link": "https://doi.org/10.1115/1.3662552"
+     }
+    ],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "",
+    "confidence": 0.85,
+    "label": "high",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "6693034169",
+    "created": 1792368157.3769598
+   },
+   {
+    "topic": "twin",
+    "what": "calibrate alpha live",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.parameter_state"
+    },
+    "rationale": "coefficients carried as random-walk states so the filter calibrates them",
+    "value": "alpha",
+    "references": [],
+    "evidence": [
+     {
+      "kind": "example",
+      "ref": "examples/flow_studio/results/planned_digital_twin/summary.json",
+      "detail": "tank twin, leak detected"
+     }
+    ],
+    "node": "twin",
+    "notes": "",
+    "uncited_reason": "standard practice; the cited EnKF paper covers the filter, not this augmentation",
+    "confidence": 0.7,
+    "label": "medium",
+    "no_reference": false,
+    "suggestion": "",
+    "raise_with": [],
+    "id": "247a1a51f8",
+    "created": 1792368157.3769836
+   },
+   {
+    "topic": "twin",
+    "what": "simulated asset changes alpha at t = 0.25",
+    "decided_by": {
+     "kind": "rule",
+     "id": "twin.simulated_fault"
+    },
+    "rationale": "the simulated asset changes a coefficient mid-run so the alerts can be seen",
+    "value": {
+     "t": 0.25,
+     "alpha": 0.15
+    },
+    "references": [],
+    "evidence": [],
+    "node": "live",
+    "notes": "",
+    "uncited_reason": "a demonstration setting; with a real stream there is no injected change",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "validate.compare"
+    ],
+    "id": "3079495d1f",
+    "created": 1792368157.3770041
+   },
+   {
+    "topic": "route",
+    "what": "route: automatic digital twin",
+    "decided_by": {
+     "kind": "rule",
+     "id": "route.alternatives"
+    },
+    "rationale": "offer the classical + PINN route, a surrogate route and an inverse route when they apply",
+    "value": null,
+    "references": [],
+    "evidence": [],
+    "node": "",
+    "notes": "",
+    "uncited_reason": "a planning heuristic of this library",
+    "confidence": 0.35,
+    "label": "low",
+    "no_reference": true,
+    "suggestion": "no reference and no evidence in the library: connect a validation node (validate.compare against an exact solution, a reference solver or measurements) or run a benchmark to raise the confidence",
+    "raise_with": [
+     "validate.compare"
+    ],
+    "id": "4ecff92638",
+    "created": 1792368157.3770218
+   }
+  ],
+  "planner": "heuristic",
+  "prompt": "A 1 m metal rod cools down by heat conduction. Build a digital twin from 5 temperature sensors along the rod, estimate the thermal diffusivity online and detect when it changes.",
+  "kind": "planned",
+  "detected": {
+   "family": "heat",
+   "dimension": 1,
+   "intents": [
+    "inverse",
+    "twin"
+   ],
+   "boundary": []
+  }
+ }
+}

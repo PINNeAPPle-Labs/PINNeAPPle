@@ -120,6 +120,8 @@ def check_model(ctx: Ctx, t: ModelTarget) -> LoadedModel | None:
                 _bc(ctx, t, model, domain, loc)
             if t.ic:
                 _ic(ctx, t, model, domain, loc)
+            if t.relations:
+                _relations(ctx, t, model, domain, loc)
     if t.reference is not None:
         _reference(ctx, t, model)
     substantive = ctx.ran - {"PC001", "PC403", "PC502", "PC504", "PC803"}
@@ -127,6 +129,30 @@ def check_model(ctx: Ctx, t: ModelTarget) -> LoadedModel | None:
              f"checked by {', '.join(sorted(substantive))}" if substantive else
              f"no physics, range, boundary condition or reference check applies to {t.name}")
     return model
+
+
+def _relations(ctx: Ctx, t: ModelTarget, model: LoadedModel, domain, loc) -> None:
+    """PC303: the declared metamorphic relations, on samples of the domain box (random search)."""
+    mm = _reuse.metamorphic()
+    box = {a: tuple(domain[a]) for a in t.inputs}
+
+    def f(x: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+        return model(np.column_stack([np.asarray(x[a], float) for a in t.inputs]))
+    try:
+        rels = mm.relations_from_spec(t.relations)
+        rep = mm.check_relations(f, rels, mm.box_sampler(box), n=min(t.n_points, 256), seed=t.seed)
+    except Exception as e:
+        ctx.emit("PC303", "relations", False, f"the relations could not be evaluated: {e}", loc)
+        return
+    for r in rep.results:
+        ce = r.counterexample if not r.passed else None
+        at = ""
+        if ce:
+            at = "; counterexample " + ", ".join(f"{k}={v[0]:.4g}" for k, v in ce["input"].items()
+                                                 if isinstance(v, list) and v and isinstance(v[0], float))
+        ctx.emit("PC303", r.name, r.passed, f"{r.kind} relation {r.name}: worst violation {fmt(r.worst)} "
+                 f"({'<=' if r.passed else '>'} {fmt(r.tol)}, {r.n_tested} samples){at}", loc,
+                 value=r.worst, threshold=r.tol)
 
 
 def _named(P: dict[str, np.ndarray], name: str) -> dict[str, np.ndarray]:

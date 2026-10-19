@@ -1,0 +1,9 @@
+{
+ "wltc_peak_yoke_C": 71.88097558900056,
+ "wltc_peak_teeth_C": 82.50518740460485,
+ "wltc_peak_winding_C": 80.33684193660206,
+ "wltc_peak_end_winding_C": 75.110256029819,
+ "wltc_peak_rotor_C": 78.48675200497999,
+ "wltc_peak_magnets_C": 78.48668955294256,
+ "time_to_180C_winding_at_peak_load_s": 237.0
+}

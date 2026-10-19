@@ -17,7 +17,9 @@ Environment (all optional):
 """
 from __future__ import annotations
 
+import collections
 import io
+import json
 import math
 import os
 import sys
@@ -68,22 +70,28 @@ _HEAVY = BusyLimiter("OBS_MAX_HEAVY")
 EPH = default_ephemeris()
 
 
+def _error(status: int, code: str, message: str, **args) -> HTTPException:
+    """An HTTP error whose message the page shows in the visitor's language: ``code`` names the message in the
+    interface catalogues (static/i18n), ``args`` fill its placeholders; ``detail`` stays English for API users."""
+    return HTTPException(status, message, headers={"X-Error-Code": code, "X-Error-Args": json.dumps(args)})
+
+
 def _time(t: str | None) -> Time:
     if not t or t == "now":
         return Time.now()
     try:
         tt = Time.from_iso(t)
     except ValueError as exc:
-        raise HTTPException(400, f"bad time {t!r}: use ISO 8601, e.g. 2026-10-13T21:00:00Z") from exc
+        raise _error(400, "bad_time", f"bad time {t!r}: use ISO 8601, e.g. 2026-10-13T21:00:00Z", value=t) from exc
     lo, hi = EPH.jd_range
     if not lo + 2 < float(tt.tdb) < hi - 2:
-        raise HTTPException(400, "time outside the DE421 span (1900-2050)")
+        raise _error(400, "time_span", "time outside the DE421 span (1900-2050)")
     return tt
 
 
 def _obs(lat: float, lon: float, elev: float) -> Observer:
     if not (-90 <= lat <= 90 and -180 <= lon <= 360):
-        raise HTTPException(400, "latitude must be in [-90, 90] and longitude in [-180, 360]")
+        raise _error(400, "bad_location", "latitude must be in [-90, 90] and longitude in [-180, 360]")
     return Observer(lat, ((lon + 180) % 360) - 180, elev)
 
 
@@ -135,6 +143,203 @@ def milkyway():
     import pinneapple_physics.astro as astro
     return FileResponse(os.path.join(os.path.dirname(astro.__file__), "data", "milkyway.jpg"),
                         headers={"Cache-Control": "public, max-age=86400"})
+
+
+# ----------------------------------------------------------------------------------------------- learn (facts)
+def _lang(lang: str) -> str:
+    if lang not in ("en", "pt"):
+        raise _error(400, "bad_lang", "lang must be 'en' or 'pt'")
+    return lang
+
+
+@app.get("/api/facts/card")
+def facts_card(id: str, lang: str = "en", lat: float | None = None, lon: float | None = None, elev: float = 0.0,
+               t: str | None = None):
+    """The info card of an object (pinneapple_physics.astro.facts): key numbers with a source each and everyday
+    comparisons, curiosities with sources, history, missions, a quiz; with lat/lon, how to see it tonight."""
+    from pinneapple_physics.astro import facts
+    try:
+        card = facts.card(id, _lang(lang))
+    except KeyError as exc:
+        raise _error(404, "no_card", str(exc), value=id) from exc
+    if lat is not None and lon is not None:
+        tt, obs = _time(t), _obs(lat, lon, elev)
+        if card["kind"] == "satellite":
+            from pinneapple_physics.astro.satellites import find_passes
+            sats, _ = _satellites()
+            sat = next((s for s in sats if s.norad == card["norad"] and abs(float(tt.utc) - s.epoch_jd) <= 30), None)
+            card["passes"] = find_passes(sat, obs, tt, 3.0, eph=EPH)[:4] if sat else []
+        else:
+            card["tonight"] = facts.tonight(card["id"], obs, tt, eph=EPH)
+    return card
+
+
+@app.get("/api/facts/search")
+def facts_search(q: str, lang: str = "en", limit: int = Query(12, ge=1, le=50)):
+    from pinneapple_physics.astro import facts
+    return {"q": q, "results": facts.search(q, _lang(lang), limit)}
+
+
+@app.get("/api/facts/list")
+def facts_list(kind: str | None = None, lang: str = "en"):
+    from pinneapple_physics.astro import facts
+    return {"kind": kind, "cards": facts.list_cards(kind, _lang(lang))}
+
+
+@app.get("/api/facts/tip")
+def facts_tip(lang: str = "en", seed: int | None = None):
+    from pinneapple_physics.astro import facts
+    return facts.did_you_know(_lang(lang), seed)
+
+
+# ------------------------------------------------------------------------------------------- observing session
+_SURVEY_DOWN = {"t": 0.0}
+
+
+def _observe_target(target: str):
+    """(spec for pinneapple_physics.astro.observing, display info) for a body, star:HR, M<n>, con-.. or facts id."""
+    from pinneapple_physics.astro import facts
+    key = target.strip().lower()
+    if key in BODIES:
+        return key, {"id": key, "kind": "body"}
+    try:
+        oid = facts.resolve(target)
+    except KeyError as exc:
+        raise _error(404, "unknown_target", str(exc), value=target) from exc
+    pos = facts.position(oid)
+    if pos is None:
+        raise _error(404, "unknown_target", f"{target!r} has no fixed position", value=target)
+    info = {"id": oid, "kind": facts.ids()[oid], "ra_deg": pos[0], "dec_deg": pos[1]}
+    size = facts.numbers(oid).get("size_arcmin")
+    if size:
+        info["size_arcmin"] = size["value"]
+    if oid.startswith("star-"):
+        info["hr"] = int(oid[5:])
+    return pos, info
+
+
+@app.get("/api/observe/presets")
+def observe_presets():
+    from dataclasses import asdict
+
+    from pinneapple_physics.astro import observing as ob
+    return {"telescopes": {k: asdict(v) for k, v in ob.TELESCOPES.items()},
+            "eyepieces": {k: asdict(v) for k, v in ob.EYEPIECES.items()},
+            "cameras": {k: asdict(v) for k, v in ob.CAMERAS.items()}, "survey_credit": ob.SURVEY_CREDIT}
+
+
+@app.get("/api/observe/plan")
+def observe_plan(target: str = "saturn", lat: float = Query(-23.5505), lon: float = Query(-46.6333), elev: float = 0.0,
+                 t: str | None = None, hours: float = Query(24.0, gt=1, le=48), step_min: float = Query(5.0, ge=1, le=30),
+                 min_alt: float = Query(30.0, ge=0, le=80)):
+    """The night for a target: altitude / air mass / extinction / sky brightness / field rotation curves, rise,
+    transit and set, twilight, the Moon, the best window (pinneapple_physics.astro.observing.visibility)."""
+    from pinneapple_physics.astro import observing as ob
+    spec, info = _observe_target(target)
+    tt, obs = _time(t), _obs(lat, lon, elev)
+    with _HEAVY:
+        v = ob.visibility(spec, obs, tt, hours, step_min, min_alt, eph=EPH)
+    return {**v, "target": info, "t": tt.iso()}
+
+
+@app.get("/api/observe/optics")
+def observe_optics(telescope: str = "newton200", eyepiece: str | None = "plossl25", camera: str | None = None,
+                   aperture_mm: float | None = Query(None, gt=5, le=2000), focal_mm: float | None = Query(None, gt=10, le=40000)):
+    from pinneapple_physics.astro import observing as ob
+    if aperture_mm and focal_mm:
+        tel = ob.Telescope(f"{aperture_mm:g} mm f/{focal_mm / aperture_mm:.1f}", aperture_mm, focal_mm, "custom")
+    elif telescope in ob.TELESCOPES:
+        tel = ob.TELESCOPES[telescope]
+    else:
+        raise _error(404, "unknown_preset", f"unknown telescope {telescope!r}", value=telescope)
+    ep = ob.EYEPIECES.get(eyepiece) if eyepiece else None
+    cam = ob.CAMERAS.get(camera) if camera else None
+    return ob.optics(tel, ep, cam)
+
+
+@app.get("/api/observe/slew")
+def observe_slew(from_alt: float, from_az: float, to_alt: float, to_az: float, lat: float = -23.5505,
+                 mount: str = Query("altaz", pattern="^(altaz|equatorial)$"), rate: float = Query(4.0, gt=0.1, le=20)):
+    from pinneapple_physics.astro import observing as ob
+    return ob.slew((from_alt, from_az), (to_alt, to_az), lat, mount, rate_deg_s=rate)
+
+
+@app.get("/api/observe/weather")
+def observe_weather(lat: float = Query(-23.5505), lon: float = Query(-46.6333), t: str | None = None,
+                    mode: str = Query("real", pattern="^(real|perfect)$"),
+                    force: str | None = Query(None, pattern="^(clear|cloudy)$")):
+    """Cloud cover from the Open-Meteo forecast and what it leaves of the view ("real sky"), or no weather at all
+    ("perfect sky"). Without a forecast "real" falls back to "perfect" and says so. ``force`` replaces the
+    forecast by a clear or overcast one (demos, tests); OBS_WEATHER_FILE reads a saved forecast (offline)."""
+    from pinneapple_physics.astro import conditions as cd
+    tt = _time(t)
+    fc, err = None, None
+    if force:
+        jd0 = math.floor(float(tt.utc) * 24) / 24
+        fc = {"time": [Time(jd0 + h / 24).iso() for h in range(-24, 73)], "cloud_cover": [100 if force == "cloudy" else 0] * 97,
+              "source": f"forced {force} forecast"}
+    elif os.environ.get("OBS_WEATHER_FILE"):
+        fc = json.load(open(os.environ["OBS_WEATHER_FILE"]))
+    elif mode == "real":
+        try:
+            fc = _forecast(round(lat, 2), round(lon, 2), int(time.time() // 1800))
+        except Exception as exc:  # noqa: BLE001
+            err = type(exc).__name__
+    view = cd.sky_view(mode, fc, tt.iso())
+    return {**view, "forecast": fc, "error": err, "threshold": cd.CLOUDY_PCT}
+
+
+@lru_cache(maxsize=64)
+def _forecast(lat, lon, half_hour):
+    from pinneapple_physics.astro import conditions as cd
+    return cd.fetch_cloud_forecast(lat, lon)
+
+
+@app.get("/api/observe/field.jpg")
+def observe_field(ra: float = Query(..., ge=0, le=360), dec: float = Query(..., ge=-90, le=90),
+                  fov: float = Query(1.0, gt=0.01, le=10), size: int = Query(512, ge=64, le=1024)):
+    """A survey cut-out (DSS2 colour from CDS hips2fits) around a position, cached on the server. 503 when the
+    survey cannot be reached (the page then draws the field from the star catalogue)."""
+    from pinneapple_physics.astro import observing as ob
+    if os.environ.get("OBS_SURVEY", "1") == "0" or time.time() - _SURVEY_DOWN["t"] < 600:
+        raise _error(503, "no_survey", "survey images unavailable")
+    cache = os.path.join(os.environ.get("OBS_CACHE_DIR") or os.path.expanduser("~/.cache/pinneapple"), "hips")
+    try:
+        data = ob.survey_cutout(ra, dec, fov, size, size, cache_dir=cache, timeout=6.0)
+    except Exception as exc:  # noqa: BLE001
+        _SURVEY_DOWN["t"] = time.time()
+        raise _error(503, "no_survey", f"survey images unavailable ({type(exc).__name__})") from exc
+    return Response(data, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=604800",
+                                                           "X-Credit": ob.SURVEY_CREDIT.encode("ascii", "replace").decode()})
+
+
+# ----------------------------------------------------------------------------------------------- space journey
+@app.get("/api/journey/plan")
+def journey_plan(target: str = "mars", lat: float = Query(-23.5505), lon: float = Query(-46.6333), elev: float = 0.0,
+                 t: str | None = None):
+    """The trip from the observer to a body or a star (pinneapple_physics.astro.journey.plan): start, end and arrival
+    points (heliocentric ICRS km), distance, light time, travel times at real speeds, scale markers, the target's
+    magnitude and size versus the distance left; plus the Earth's orientation for drawing."""
+    from pinneapple_physics.astro import journey
+    tt, obs = _time(t), _obs(lat, lon, elev)
+    try:
+        j = journey.plan(obs, target, tt, eph=EPH)
+    except (KeyError, ValueError) as exc:
+        raise _error(404, "no_journey", str(exc), value=target) from exc
+    return {**j, "gast_deg": float(np.degrees(gast_rad(tt))), "npb": frames.npb_matrix(float(tt.tt)).tolist()}
+
+
+@lru_cache(maxsize=8)
+def _journey_scene(day_jd: float):
+    from pinneapple_physics.astro import journey
+    return journey.scene(Time(day_jd), eph=EPH)
+
+
+@app.get("/api/journey/scene")
+def journey_scene(t: str | None = None):
+    """Planets, Sun and Moon (heliocentric ICRS km) for the date, and the bright stars with a usable parallax."""
+    tt = _time(t)
+    return JSONResponse(_journey_scene(round(float(tt.utc) * 96) / 96), headers={"Cache-Control": "public, max-age=900"})
 
 
 # ------------------------------------------------------------------------------------------------------- sky
@@ -346,7 +551,7 @@ def _target_vec(name: str, t: Time, obs: Observer | None):
                           pm_dec_mas=c.pmdec[i:i + 1], parallax_mas=np.nan_to_num(c.plx[i:i + 1]))
         return (float(r[0][0]), float(r[1][0]), None if obs is None else float(r[4][0]),
                 None if obs is None else float(r[3][0]))
-    raise HTTPException(404, f"unknown target {name!r} (use a body name or 'HR <number>')")
+    raise _error(404, "unknown_target", f"unknown target {name!r} (use a body name or 'HR <number>')", value=name)
 
 
 @app.get("/api/analysis/separation")
@@ -413,7 +618,7 @@ def orbit(body: str = "mars", t: str | None = None, lat: float = -23.5505, lon: 
     from pinneapple_physics.astro.orbits import light_time_and_doppler, planet_elements
     b = body.lower()
     if b not in BODIES or b == "sun":
-        raise HTTPException(404, "body must be the Moon or a planet")
+        raise _error(404, "not_moon_or_planet", "body must be the Moon or a planet")
     tt = _time(t)
     el = planet_elements(b, float(tt.tdb), EPH)
     p = apparent(b, tt, _obs(lat, lon, 0))
@@ -435,7 +640,7 @@ def star(hr: int, t: str | None = None, lat: float = -23.5505, lon: float = -46.
     try:
         i = c.index_of(hr)
     except KeyError as exc:
-        raise HTTPException(404, str(exc)) from exc
+        raise _error(404, "unknown_star", str(exc), hr=hr) from exc
     tt = _time(t)
     ra, dec, alt, az = _target_vec(f"HR {hr}", tt, _obs(lat, lon, 0))
     props = star_properties(c, i)
@@ -476,7 +681,7 @@ def _events(day_jd: float, days: int, lat: float, lon: float):
         ev.append({**e, "kind": "season"})
     for b in PLANETS:
         for e in planet_events(b, day_jd, jd1, EPH):
-            ev.append({**e, "kind": "planet", "body": b, "event": f"{b.capitalize()} {e['event']}"})
+            ev.append({**e, "kind": "planet", "body": b, "type": e["event"], "event": f"{b.capitalize()} {e['event']}"})
     for e in lunar_eclipses(day_jd, jd1, EPH):
         ev.append({**e, "kind": "eclipse"})
     for e in solar_eclipses(day_jd, jd1, obs, EPH):
@@ -537,7 +742,21 @@ def lensing_info(elongation: float = Query(0.2666, gt=0.2, le=180)):
 
 
 # ---------------------------------------------------------------------------------------------------- engine
-_CACHE: dict = {}
+class _Bounded(collections.OrderedDict):
+    """Result cache keyed on request values: the oldest entries go past ``limit`` (memory stays bounded)."""
+
+    def __init__(self, limit: int):
+        super().__init__()
+        self.limit = limit
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.move_to_end(key)
+        while len(self) > self.limit:
+            self.popitem(last=False)
+
+
+_CACHE: dict = _Bounded(int(os.environ.get("OBS_CACHE_ENTRIES") or 256))
 _CACHE_LOCK = threading.Lock()
 
 
@@ -557,7 +776,7 @@ def _surrogate(body: str, day_jd: float, days: int):
 def engine_surrogate(body: str = "mars", t: str | None = None, days: int = Query(365, ge=30, le=730)):
     """Train (or fetch from cache) the physics-informed orbit surrogate and its trust report."""
     if body not in ("mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"):
-        raise HTTPException(404, "body must be a planet")
+        raise _error(404, "not_planet", "body must be a planet")
     tt = _time(t)
     day = math.floor(float(tt.tdb) - 0.5) + 0.5
     with _HEAVY:

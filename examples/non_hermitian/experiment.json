@@ -1,0 +1,40 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/non_hermitian",
+ "title": "Exceptional-point tuning in PT-symmetric dimers: the no-go theorem (Zenodo 23287622) checked\u2026",
+ "description": "Exceptional-point tuning in PT-symmetric dimers: the no-go theorem (Zenodo 23287622) checked symbolically and numerically, the three routes around it, the hypothesis map as a physics audit, and the figure.",
+ "domain": "general",
+ "methods": [],
+ "modules": [
+  "pinneapple_physics.non_hermitian",
+  "pinneapple_physics.non_hermitian.ep_tuning",
+  "pinneapple_physics.non_hermitian.viz",
+  "pinneapple_physics.physics_audit"
+ ],
+ "params": {},
+ "scripts": [
+  "ep_tuning.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/non_hermitian/ep_tuning.py",
+  "pr": [
+   463
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

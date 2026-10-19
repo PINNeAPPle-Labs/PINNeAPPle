@@ -1,0 +1,1719 @@
+{
+ "validation": [
+  {
+   "check": "harmonic stack (6 blocks): stability limit / closed form",
+   "simulated": 1.0,
+   "reference": 1.0,
+   "rel_error": 0.0,
+   "tolerance": 0.001,
+   "passed": true,
+   "unit": "x offsets",
+   "source": "Johnson 1955; Paterson and Zwick 2009",
+   "note": ""
+  },
+  {
+   "check": "single block overhang limit / length",
+   "simulated": 0.5,
+   "reference": 0.5,
+   "rel_error": 0.0,
+   "tolerance": 0.001,
+   "passed": true,
+   "unit": "",
+   "source": "centre of mass over the edge",
+   "note": ""
+  },
+  {
+   "check": "stud cantilever brick_1x4 on 1 stud(s): tension per stud",
+   "simulated": 0.030803399999999998,
+   "reference": 0.0308034,
+   "rel_error": 1.1263194816006071e-16,
+   "tolerance": 1e-06,
+   "passed": true,
+   "unit": "N",
+   "source": "moment about the patch edge",
+   "note": ""
+  },
+  {
+   "check": "stud cantilever brick_1x8 on 2 stud(s): tension per stud",
+   "simulated": 0.029724300000000006,
+   "reference": 0.029724300000000002,
+   "rel_error": 1.167208967731322e-16,
+   "tolerance": 1e-06,
+   "passed": true,
+   "unit": "N",
+   "source": "moment about the patch edge",
+   "note": ""
+  },
+  {
+   "check": "tower of 8 2x2 bricks: tipping push at the top",
+   "simulated": 0.00940125,
+   "reference": 0.009401249999999998,
+   "rel_error": 1.845205133335256e-16,
+   "tolerance": 1e-06,
+   "passed": true,
+   "unit": "N",
+   "source": "F = W b / h",
+   "note": ""
+  },
+  {
+   "check": "plate beam: sum of support reactions",
+   "simulated": 0.11435100851534816,
+   "reference": 0.1143510085153483,
+   "rel_error": 1.2136130662941873e-15,
+   "tolerance": 1e-06,
+   "passed": true,
+   "unit": "N",
+   "source": "vertical equilibrium",
+   "note": ""
+  },
+  {
+   "check": "voxel FEA plate beam: mid-span deflection (Timoshenko)",
+   "simulated": 0.032660874732303814,
+   "reference": 0.03279307568438004,
+   "rel_error": 0.004031367882311576,
+   "tolerance": 0.02,
+   "passed": true,
+   "unit": "mm",
+   "source": "Euler-Bernoulli + shear",
+   "note": "Euler-Bernoulli alone: 0.0322 mm"
+  },
+  {
+   "check": "Newton harmonic stack (4 blocks): stands iff factor < 1, factors != 1",
+   "simulated": 7.0,
+   "reference": 7.0,
+   "rel_error": 0.0,
+   "tolerance": 0.0,
+   "passed": true,
+   "unit": "cases",
+   "source": "harmonic stacking",
+   "note": "at exactly factor 1 (neutral equilibrium) Newton tips the stack"
+  },
+  {
+   "check": "Newton table edge: brick with centre of mass inside stays, outside falls",
+   "simulated": 1.0,
+   "reference": 1.0,
+   "rel_error": 0.0,
+   "tolerance": 0.0,
+   "passed": true,
+   "unit": "",
+   "source": "tipping",
+   "note": ""
+  }
+ ],
+ "harmonic_newton": [
+  {
+   "factor": 0.9,
+   "overhang_mm": 59.8125,
+   "closed_form_stands": true,
+   "newton_top_drop_mm": 0.16912072896957397,
+   "newton_stands": true,
+   "agree": true
+  },
+  {
+   "factor": 0.95,
+   "overhang_mm": 63.13541666666666,
+   "closed_form_stands": true,
+   "newton_top_drop_mm": 0.18006563186645508,
+   "newton_stands": true,
+   "agree": true
+  },
+  {
+   "factor": 0.98,
+   "overhang_mm": 65.12916666666666,
+   "closed_form_stands": true,
+   "newton_top_drop_mm": 0.20570307970046997,
+   "newton_stands": true,
+   "agree": true
+  },
+  {
+   "factor": 0.99,
+   "overhang_mm": 65.79375,
+   "closed_form_stands": true,
+   "newton_top_drop_mm": 0.11324137449264526,
+   "newton_stands": true,
+   "agree": true
+  },
+  {
+   "factor": 1.0,
+   "overhang_mm": 66.45833333333333,
+   "closed_form_stands": true,
+   "newton_top_drop_mm": 108.80069667473435,
+   "newton_stands": false,
+   "agree": false
+  },
+  {
+   "factor": 1.01,
+   "overhang_mm": 67.12291666666667,
+   "closed_form_stands": false,
+   "newton_top_drop_mm": 108.80069620907307,
+   "newton_stands": false,
+   "agree": true
+  },
+  {
+   "factor": 1.02,
+   "overhang_mm": 67.7875,
+   "closed_form_stands": false,
+   "newton_top_drop_mm": 108.80069620907307,
+   "newton_stands": false,
+   "agree": true
+  },
+  {
+   "factor": 1.05,
+   "overhang_mm": 69.78125,
+   "closed_form_stands": false,
+   "newton_top_drop_mm": 108.80069620907307,
+   "newton_stands": false,
+   "agree": true
+  }
+ ],
+ "trust_decision": "APPROVED",
+ "budget": 400,
+ "seeds": [
+  0,
+  1,
+  2,
+  3,
+  4
+ ],
+ "comparison": {
+  "cantilever": {
+   "evolution": {
+    "best_median": 111.9,
+    "best_mean": 115.1,
+    "best_std": 14.837789592793126,
+    "best_min": 95.9,
+    "best_max": 135.9,
+    "success_rate": 1.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "budget": 400,
+    "per_seed": [
+     127.9,
+     135.9,
+     95.9,
+     111.9,
+     103.9
+    ]
+   },
+   "surrogate": {
+    "best_median": 103.9,
+    "best_mean": 102.3,
+    "best_std": 20.489997559785117,
+    "best_min": 71.9,
+    "best_max": 127.9,
+    "success_rate": 1.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "budget": 400,
+    "per_seed": [
+     103.9,
+     127.9,
+     119.9,
+     71.9,
+     87.9
+    ]
+   }
+  },
+  "bridge": {
+   "evolution": {
+    "best_median": -5.0,
+    "best_mean": -4.6,
+    "best_std": 0.7999999999999999,
+    "best_min": -5.0,
+    "best_max": -3.0,
+    "success_rate": 1.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "budget": 400,
+    "per_seed": [
+     -5.0,
+     -3.0,
+     -5.0,
+     -5.0,
+     -5.0
+    ]
+   },
+   "surrogate": {
+    "best_median": -8.0,
+    "best_mean": -4.666666666666667,
+    "best_std": 2.357022603955158,
+    "best_min": -8.0,
+    "best_max": -3.0,
+    "success_rate": 0.6,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "budget": 400,
+    "per_seed": [
+     -3.0,
+     null,
+     -8.0,
+     null,
+     -3.0
+    ]
+   }
+  },
+  "tower": {
+   "evolution": {
+    "best_median": 118.4,
+    "best_mean": 104.96,
+    "best_std": 32.4701462885525,
+    "best_min": 57.6,
+    "best_max": 144.0,
+    "success_rate": 1.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "budget": 400,
+    "per_seed": [
+     118.4,
+     57.6,
+     76.80000000000001,
+     128.0,
+     144.0
+    ]
+   },
+   "surrogate": {
+    "best_median": 115.2,
+    "best_mean": 113.28000000000002,
+    "best_std": 30.39831574281707,
+    "best_min": 70.4,
+    "best_max": 153.60000000000002,
+    "success_rate": 1.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "budget": 400,
+    "per_seed": [
+     153.60000000000002,
+     115.2,
+     70.4,
+     89.60000000000001,
+     137.6
+    ]
+   }
+  }
+ },
+ "best": {
+  "cantilever": {
+   "strategy": "evolution",
+   "seed": 1,
+   "score": 135.9,
+   "n_bricks": 8,
+   "explanation": "stands: peak stud tension 0.333 N = 34% of the 0.98 N clutch",
+   "metrics": {
+    "reach_mm": 135.9,
+    "utilisation": 0.33946284899800694,
+    "margin": 2.945830458183279
+   },
+   "build": {
+    "name": "cantilever seed",
+    "ground": {
+     "kind": "table",
+     "regions": [
+      [
+       -1000,
+       0,
+       -1000,
+       1000
+      ]
+     ]
+    },
+    "bricks": [
+     {
+      "part": "brick_1x8",
+      "x": -2,
+      "y": 0,
+      "z": 0,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_1x8",
+      "x": -7,
+      "y": 0,
+      "z": 3,
+      "rot": 0,
+      "colour": "green"
+     },
+     {
+      "part": "brick_1x4",
+      "x": -9,
+      "y": 0,
+      "z": 6,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "plate_1x4",
+      "x": 5,
+      "y": 0,
+      "z": 3,
+      "rot": 0,
+      "colour": "white"
+     },
+     {
+      "part": "brick_1x2",
+      "x": 8,
+      "y": 0,
+      "z": 4,
+      "rot": 0,
+      "colour": "white"
+     },
+     {
+      "part": "plate_1x8",
+      "x": 9,
+      "y": 0,
+      "z": 7,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_1x4",
+      "x": -12,
+      "y": 0,
+      "z": 9,
+      "rot": 0,
+      "colour": "yellow"
+     },
+     {
+      "part": "brick_1x2",
+      "x": -13,
+      "y": 0,
+      "z": 12,
+      "rot": 0,
+      "colour": "lime"
+     }
+    ]
+   }
+  },
+  "bridge": {
+   "strategy": "evolution",
+   "seed": 1,
+   "score": -3,
+   "n_bricks": 3,
+   "explanation": "carries 1.462 N at mid-span (1.46 x the 1.0 N load)",
+   "metrics": {
+    "load_factor": 1.4615479442020294,
+    "utilisation": 0.6528298262270448,
+    "load_n": 1.0,
+    "capacity_n": 1.4615479442020294
+   },
+   "build": {
+    "name": "bridge seed",
+    "ground": {
+     "kind": "table",
+     "regions": [
+      [
+       -1000,
+       0,
+       -1000,
+       1000
+      ],
+      [
+       12,
+       1000,
+       -1000,
+       1000
+      ]
+     ]
+    },
+    "bricks": [
+     {
+      "part": "brick_1x8",
+      "x": 10,
+      "y": 0,
+      "z": 0,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_1x8",
+      "x": 3,
+      "y": 0,
+      "z": 3,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_1x8",
+      "x": -2,
+      "y": 0,
+      "z": 0,
+      "rot": 0,
+      "colour": "yellow"
+     }
+    ]
+   }
+  },
+  "tower": {
+   "strategy": "surrogate",
+   "seed": 0,
+   "score": 153.60000000000002,
+   "n_bricks": 16,
+   "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 21% of the 0.98 N clutch",
+   "metrics": {
+    "height_mm": 153.60000000000002,
+    "load_factor": 1.6373950195312492,
+    "push_capacity_n": 0.016373950195312494,
+    "utilisation": 0.20585973760932952
+   },
+   "build": {
+    "name": "tower seed",
+    "ground": {
+     "kind": "table",
+     "regions": null
+    },
+    "bricks": [
+     {
+      "part": "brick_2x4",
+      "x": 2,
+      "y": 2,
+      "z": 0,
+      "rot": 1,
+      "colour": "yellow"
+     },
+     {
+      "part": "brick_2x4",
+      "x": 2,
+      "y": 2,
+      "z": 3,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_2x2",
+      "x": 2,
+      "y": 2,
+      "z": 6,
+      "rot": 0,
+      "colour": "orange"
+     },
+     {
+      "part": "brick_2x2",
+      "x": 1,
+      "y": 2,
+      "z": 9,
+      "rot": 0,
+      "colour": "lime"
+     },
+     {
+      "part": "brick_2x2",
+      "x": 0,
+      "y": 2,
+      "z": 12,
+      "rot": 0,
+      "colour": "green"
+     },
+     {
+      "part": "brick_1x2",
+      "x": 0,
+      "y": 2,
+      "z": 15,
+      "rot": 0,
+      "colour": "yellow"
+     },
+     {
+      "part": "brick_1x2",
+      "x": 0,
+      "y": 2,
+      "z": 18,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_2x4",
+      "x": 0,
+      "y": 2,
+      "z": 21,
+      "rot": 0,
+      "colour": "white"
+     },
+     {
+      "part": "brick_1x1",
+      "x": 0,
+      "y": 2,
+      "z": 24,
+      "rot": 0,
+      "colour": "green"
+     },
+     {
+      "part": "brick_1x2",
+      "x": 0,
+      "y": 2,
+      "z": 27,
+      "rot": 0,
+      "colour": "lime"
+     },
+     {
+      "part": "brick_1x2",
+      "x": 0,
+      "y": 2,
+      "z": 30,
+      "rot": 0,
+      "colour": "orange"
+     },
+     {
+      "part": "brick_1x1",
+      "x": 0,
+      "y": 2,
+      "z": 33,
+      "rot": 1,
+      "colour": "white"
+     },
+     {
+      "part": "brick_1x1",
+      "x": 0,
+      "y": 2,
+      "z": 36,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_1x1",
+      "x": 0,
+      "y": 2,
+      "z": 39,
+      "rot": 0,
+      "colour": "orange"
+     },
+     {
+      "part": "brick_1x2",
+      "x": 0,
+      "y": 2,
+      "z": 42,
+      "rot": 0,
+      "colour": "blue"
+     },
+     {
+      "part": "brick_1x1",
+      "x": 0,
+      "y": 2,
+      "z": 45,
+      "rot": 0,
+      "colour": "orange"
+     }
+    ]
+   }
+  }
+ },
+ "sensitivity": {
+  "cantilever": [
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 68% of the 0.49 N clutch",
+    "load_factor": null,
+    "utilisation": 0.6789256979960139
+   },
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 68% of the 0.49 N clutch",
+    "load_factor": null,
+    "utilisation": 0.6789256979960139
+   },
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 68% of the 0.49 N clutch",
+    "load_factor": null,
+    "utilisation": 0.6789256979960139
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 45% of the 0.735 N clutch",
+    "load_factor": null,
+    "utilisation": 0.4526171319973426
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 45% of the 0.735 N clutch",
+    "load_factor": null,
+    "utilisation": 0.4526171319973426
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 45% of the 0.735 N clutch",
+    "load_factor": null,
+    "utilisation": 0.4526171319973426
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 34% of the 0.98 N clutch",
+    "load_factor": null,
+    "utilisation": 0.33946284899800694
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 34% of the 0.98 N clutch",
+    "load_factor": null,
+    "utilisation": 0.33946284899800694
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 34% of the 0.98 N clutch",
+    "load_factor": null,
+    "utilisation": 0.33946284899800694
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 27% of the 1.225 N clutch",
+    "load_factor": null,
+    "utilisation": 0.27157027919840554
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 27% of the 1.225 N clutch",
+    "load_factor": null,
+    "utilisation": 0.27157027919840554
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 27% of the 1.225 N clutch",
+    "load_factor": null,
+    "utilisation": 0.27157027919840554
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 23% of the 1.47 N clutch",
+    "load_factor": null,
+    "utilisation": 0.2263085659986713
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 23% of the 1.47 N clutch",
+    "load_factor": null,
+    "utilisation": 0.2263085659986713
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "stands: peak stud tension 0.333 N = 23% of the 1.47 N clutch",
+    "load_factor": null,
+    "utilisation": 0.2263085659986713
+   }
+  ],
+  "bridge": [
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": null,
+    "feasible": false,
+    "status": "joint_failure",
+    "explanation": "joint failure at 0:brick_1x8 / 1:brick_1x8 (z = 9.6 mm, 1 studs): needs 0.640 N per stud, clutch is 0.49 N (utilisation 1.31)",
+    "load_factor": 0.7968192620314871,
+    "utilisation": 1.3056596524540895
+   },
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": 1.0,
+    "feasible": false,
+    "status": "joint_failure",
+    "explanation": "joint failure at 0:brick_1x8 / 1:brick_1x8 (z = 9.6 mm, 1 studs): needs 0.640 N per stud, clutch is 0.49 N (utilisation 1.31)",
+    "load_factor": 0.7968192620314862,
+    "utilisation": 1.305659652454083
+   },
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": 0.3,
+    "feasible": false,
+    "status": "joint_failure",
+    "explanation": "joint failure at 0:brick_1x8 / 1:brick_1x8 (z = 9.6 mm, 1 studs): needs 0.640 N per stud, clutch is 0.49 N (utilisation 1.31)",
+    "load_factor": 0.7968192620314862,
+    "utilisation": 1.3056596524540873
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.129 N at mid-span (1.13 x the 1.0 N load)",
+    "load_factor": 1.129183603116759,
+    "utilisation": 0.8704397683027263
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.129 N at mid-span (1.13 x the 1.0 N load)",
+    "load_factor": 1.1291836031167577,
+    "utilisation": 0.8704397683027233
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.129 N at mid-span (1.13 x the 1.0 N load)",
+    "load_factor": 1.1291836031167577,
+    "utilisation": 0.8704397683027263
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.462 N at mid-span (1.46 x the 1.0 N load)",
+    "load_factor": 1.4615479442020294,
+    "utilisation": 0.6528298262270448
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.462 N at mid-span (1.46 x the 1.0 N load)",
+    "load_factor": 1.4615479442020285,
+    "utilisation": 0.6528298262270424
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.450 N at mid-span (1.45 x the 1.0 N load)",
+    "load_factor": 1.4503667356242833,
+    "utilisation": 0.6528298262270448
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.794 N at mid-span (1.79 x the 1.0 N load)",
+    "load_factor": 1.7939122852873033,
+    "utilisation": 0.5222638609816358
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.794 N at mid-span (1.79 x the 1.0 N load)",
+    "load_factor": 1.7939122852873006,
+    "utilisation": 0.5222638609816339
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.641 N at mid-span (1.64 x the 1.0 N load)",
+    "load_factor": 1.6409222911798405,
+    "utilisation": 0.5222638609816358
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 2.126 N at mid-span (2.13 x the 1.0 N load)",
+    "load_factor": 2.1262766263725723,
+    "utilisation": 0.4352198841513638
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 2.126 N at mid-span (2.13 x the 1.0 N load)",
+    "load_factor": 2.1262766263725723,
+    "utilisation": 0.43521988415136165
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "carries 1.831 N at mid-span (1.83 x the 1.0 N load)",
+    "load_factor": 1.8314778467353934,
+    "utilisation": 0.4352198841513621
+   }
+  ],
+  "tower": [
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 41% of the 0.49 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.41171947521865904
+   },
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 41% of the 0.49 N clutch",
+    "load_factor": 1.6373950195312459,
+    "utilisation": 0.4117194752186591
+   },
+   {
+    "clutch_n": 0.49,
+    "clutch_factor": 0.5,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 41% of the 0.49 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.4117194752186591
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 27% of the 0.735 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.2744796501457727
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 27% of the 0.735 N clutch",
+    "load_factor": 1.6373950195312459,
+    "utilisation": 0.27447965014577275
+   },
+   {
+    "clutch_n": 0.735,
+    "clutch_factor": 0.75,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 27% of the 0.735 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.27447965014577275
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 21% of the 0.98 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.20585973760932952
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 21% of the 0.98 N clutch",
+    "load_factor": 1.6373950195312454,
+    "utilisation": 0.20585973760932955
+   },
+   {
+    "clutch_n": 0.98,
+    "clutch_factor": 1.0,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 21% of the 0.98 N clutch",
+    "load_factor": 1.637395019531249,
+    "utilisation": 0.20585973760932955
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 16% of the 1.225 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.16468779008746362
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 16% of the 1.225 N clutch",
+    "load_factor": 1.6373950195312454,
+    "utilisation": 0.16468779008746362
+   },
+   {
+    "clutch_n": 1.225,
+    "clutch_factor": 1.25,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 16% of the 1.225 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.16468779008746362
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": null,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 14% of the 1.47 N clutch",
+    "load_factor": 1.6373950195312492,
+    "utilisation": 0.13723982507288635
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": 1.0,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 14% of the 1.47 N clutch",
+    "load_factor": 1.6373950195312459,
+    "utilisation": 0.13723982507288637
+   },
+   {
+    "clutch_n": 1.47,
+    "clutch_factor": 1.5,
+    "shear_cap_n": 0.3,
+    "feasible": true,
+    "status": "stable",
+    "explanation": "153.6 mm tall, survives 16.4 mN at the top (1.64 x the push); stands: peak stud tension 0.202 N = 14% of the 1.47 N clutch",
+    "load_factor": 1.637395019531249,
+    "utilisation": 0.13723982507288637
+   }
+  ]
+ },
+ "references": {
+  "cantilever": {
+   "single_block": 31.9,
+   "harmonic_unconnected": 86.69964285714286,
+   "com_bound": 255.2
+  }
+ },
+ "files": {
+  "comparison chart": "comparison.png",
+  "cantilever glTF": "best_cantilever.glb",
+  "cantilever STL": "best_cantilever.stl",
+  "cantilever LDraw": "best_cantilever.ldr",
+  "cantilever instructions": "instructions_cantilever/instructions.md",
+  "bridge glTF": "best_bridge.glb",
+  "bridge STL": "best_bridge.stl",
+  "bridge LDraw": "best_bridge.ldr",
+  "bridge instructions": "instructions_bridge/instructions.md",
+  "tower glTF": "best_tower.glb",
+  "tower STL": "best_tower.stl",
+  "tower LDraw": "best_tower.ldr",
+  "tower instructions": "instructions_tower/instructions.md",
+  "cantilever viewer": "viewer_cantilever",
+  "cantilever GIF": "evolution_cantilever.gif",
+  "cantilever MP4": "evolution_cantilever.mp4",
+  "cantilever Cycles render": "best_cantilever_cycles.png",
+  "cantilever Cycles load path": "best_cantilever_load_path.png",
+  "bridge viewer": "viewer_bridge",
+  "bridge GIF": "evolution_bridge.gif",
+  "bridge MP4": "evolution_bridge.mp4",
+  "bridge Cycles render": "best_bridge_cycles.png",
+  "bridge Cycles load path": "best_bridge_load_path.png",
+  "tower viewer": "viewer_tower",
+  "tower GIF": "evolution_tower.gif",
+  "tower MP4": "evolution_tower.mp4",
+  "tower Cycles render": "best_tower_cycles.png",
+  "tower Cycles load path": "best_tower_load_path.png",
+  "turntable GIF": "turntable_cantilever.gif",
+  "turntable MP4": "turntable_cantilever.mp4",
+  "report": "report.md"
+ },
+ "cross_checks": {
+  "cantilever": {
+   "rows": [
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0011240991067306256,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "stands: peak stud tension 0.088 N = 9% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.008412676823776841,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 4,
+     "explanation": "stands: peak stud tension 0.017 N = 2% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.00023479965605173044,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "stands: peak stud tension 0.216 N = 22% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0014795237134988316,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 4,
+     "explanation": "stands on compression and friction alone (no stud in tension)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.00040970736715751954,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "stands: peak stud tension 0.245 N = 25% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.010191532206022704,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 5,
+     "explanation": "stands: peak stud tension 0.022 N = 2% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0001946078754851594,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "stands: peak stud tension 0.000 N = 0% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.005330211101396095,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 2,
+     "explanation": "stands: peak stud tension 0.000 N = 0% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.003534533070248169,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "stands: peak stud tension 0.403 N = 41% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0011808783890928849,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "stands: peak stud tension 0.240 N = 25% of the 0.98 N clutch"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 80.39830202074015,
+     "newton_tilt_deg": 32.943578156752196,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "tips: the centre of mass of 3 part(s) from 3:brick_1x8, 4:plate_1x4, 5:plate_1x8 up passes 47.1 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 7.298032846249386,
+     "newton_tilt_deg": 11.309847236976573,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "tips: the centre of mass of 3 part(s) from 0:brick_1x6, 1:brick_1x8, 2:brick_1x6 up passes 6.9 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 15.623466771080905,
+     "newton_tilt_deg": 11.3097779206943,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "tips: the centre of mass of 6 part(s) from 0:plate_1x4, 1:brick_1x8, 2:brick_1x8 up passes 9.8 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 93.28809993060236,
+     "newton_tilt_deg": 65.50107551275538,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "tips: the centre of mass of 6 part(s) from 0:brick_1x4, 1:brick_1x8, 2:plate_1x8 up passes 6.5 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 0.013475053298281397,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": false,
+     "n_bricks": 3,
+     "explanation": "tips: the centre of mass of 3 part(s) from 0:brick_1x8, 1:brick_1x6, 2:brick_1x6 up passes 0.5 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 105.35539336465733,
+     "newton_tilt_deg": 51.45391501533551,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 5,
+     "explanation": "tips: the centre of mass of 5 part(s) from 0:brick_1x4, 1:brick_1x6, 2:plate_1x8 up passes 21.4 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 78.99341721909279,
+     "newton_tilt_deg": 44.47186894716707,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 4,
+     "explanation": "tips: the centre of mass of 4 part(s) from 0:brick_1x4, 1:brick_1x8, 2:plate_1x8 up passes 13.7 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 128.31362032842208,
+     "newton_tilt_deg": 137.5898828127454,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 5,
+     "explanation": "tips: the centre of mass of 5 part(s) from 0:brick_1x4, 1:brick_1x8, 2:plate_1x8 up passes 3.4 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 54.00810322115007,
+     "newton_tilt_deg": 68.0948282820882,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 4,
+     "explanation": "tips: the centre of mass of 4 part(s) from 0:brick_1x8, 1:brick_1x8, 2:brick_1x6 up passes 1.0 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 0.003706210863555623,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": false,
+     "n_bricks": 6,
+     "explanation": "tips: the centre of mass of 6 part(s) from 0:plate_1x4, 1:brick_1x8, 2:brick_1x8 up passes 0.2 mm outside its support on ground (z = 0.0 mm)"
+    }
+   ],
+   "confusion": {
+    "stable_and_stays": 10,
+    "stable_but_moves": 0,
+    "tips_and_moves": 8,
+    "tips_but_stays": 2
+   },
+   "agreement": 0.9,
+   "tol_mm": 2.0,
+   "duration_s": 0.4,
+   "dt": 0.00025,
+   "iterations": 32
+  },
+  "bridge": {
+   "rows": [
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0022882510372193316,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "carries 100.000 N at mid-span (100.00 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.003600259353283797,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 8,
+     "explanation": "carries 10.326 N at mid-span (10.33 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.014233107831226244,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 9,
+     "explanation": "carries 9.449 N at mid-span (9.45 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0007462163242462529,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 9,
+     "explanation": "carries 10.170 N at mid-span (10.17 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.00531979284340649,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 9,
+     "explanation": "carries 3.408 N at mid-span (3.41 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0009117441402114186,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 8,
+     "explanation": "carries 10.254 N at mid-span (10.25 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0011112737292240812,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "carries 100.000 N at mid-span (100.00 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.0022862461187475084,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "carries 3.120 N at mid-span (3.12 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.022091486668810396,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 10,
+     "explanation": "carries 2.393 N at mid-span (2.39 x the 1.0 N load)"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.003115897878155728,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 8,
+     "explanation": "carries 12.708 N at mid-span (12.71 x the 1.0 N load)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 78.1084306326223,
+     "newton_tilt_deg": 74.04777259945382,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "tips: the resultant of the weight and loads of 3 part(s) from 0:brick_1x8, 1:brick_1x6, 2:plate_1x6 up passes 45.8 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 173.351479733939,
+     "newton_tilt_deg": 125.88728728985821,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "tips: the resultant of the weight and loads of 3 part(s) from 0:brick_1x8, 1:plate_1x8, 2:plate_1x4 up passes 52.7 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 156.36442137073595,
+     "newton_tilt_deg": 128.50780242201526,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "tips: the resultant of the weight and loads of 4 part(s) from 0:brick_1x8, 1:plate_1x8, 2:plate_1x8 up passes 53.2 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 118.9622699562068,
+     "newton_tilt_deg": 126.50501575115837,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 4,
+     "explanation": "tips: the resultant of the weight and loads of 3 part(s) from 0:brick_1x8, 2:plate_1x8, 3:plate_1x4 up passes 45.6 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 132.2244297932297,
+     "newton_tilt_deg": 118.42292930175486,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 5,
+     "explanation": "tips: the resultant of the weight and loads of 5 part(s) from 0:brick_1x8, 1:brick_1x8, 2:brick_1x8 up passes 42.2 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 178.8440982944456,
+     "newton_tilt_deg": 129.84173128904712,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 4,
+     "explanation": "tips: the resultant of the weight and loads of 3 part(s) from 0:brick_1x8, 1:brick_1x8, 2:brick_1x2 up passes 44.8 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 95.81887247129391,
+     "newton_tilt_deg": 127.3504232448472,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 2,
+     "explanation": "tips: the resultant of the weight and loads of 2 part(s) from 0:brick_1x8, 1:brick_1x6 up passes 46.2 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 87.35786192455782,
+     "newton_tilt_deg": 124.525551331043,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 2,
+     "explanation": "tips: the resultant of the weight and loads of 2 part(s) from 0:brick_1x8, 1:plate_1x8 up passes 46.4 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 119.55476661925779,
+     "newton_tilt_deg": 127.48634406114704,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "tips: the resultant of the weight and loads of 3 part(s) from 0:brick_1x8, 1:plate_1x8, 2:plate_1x8 up passes 45.2 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 105.77049402451325,
+     "newton_tilt_deg": 89.10369345010228,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 9,
+     "explanation": "tips: the resultant of the weight and loads of 6 part(s) from 0:brick_1x8, 1:brick_1x8, 2:brick_1x8 up passes 41.2 mm outside its support on ground (z = 0.0 mm)"
+    }
+   ],
+   "confusion": {
+    "stable_and_stays": 10,
+    "stable_but_moves": 0,
+    "tips_and_moves": 10,
+    "tips_but_stays": 0
+   },
+   "agreement": 1.0,
+   "tol_mm": 2.0,
+   "duration_s": 0.4,
+   "dt": 0.00025,
+   "iterations": 32
+  },
+  "tower": {
+   "rows": [
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.08382907685780804,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "22.4 mm tall, survives 16.0 mN at the top (1.60 x the push); stands: peak stud tension 0.001 N = 0% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.38027870123099416,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 5,
+     "explanation": "48.0 mm tall, survives 10.2 mN at the top (1.02 x the push); stands: peak stud tension 0.024 N = 2% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.24518804929330695,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "57.6 mm tall, survives 12.3 mN at the top (1.23 x the push); stands: peak stud tension 0.145 N = 15% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.12198222897666185,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "41.6 mm tall, survives 16.7 mN at the top (1.67 x the push); stands: peak stud tension 0.023 N = 2% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.22235666042311478,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "41.6 mm tall, survives 10.6 mN at the top (1.06 x the push); stands: peak stud tension 0.023 N = 2% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.023398257092840293,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 15,
+     "explanation": "144.0 mm tall, survives 16.9 mN at the top (1.69 x the push); stands: peak stud tension 0.169 N = 17% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.21416054089722802,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "19.2 mm tall, survives 13.5 mN at the top (1.35 x the push); stands: peak stud tension 0.001 N = 0% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.34154077261402566,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "41.6 mm tall, survives 10.8 mN at the top (1.08 x the push); stands: peak stud tension 0.046 N = 5% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.17030715516814335,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 6,
+     "explanation": "41.6 mm tall, survives 13.2 mN at the top (1.32 x the push); stands: peak stud tension 0.015 N = 1% of the 0.98 N clutch"
+    },
+    {
+     "statics": "stable",
+     "newton_moved_mm": 0.11947962328949434,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": true,
+     "n_bricks": 7,
+     "explanation": "41.6 mm tall, survives 16.0 mN at the top (1.60 x the push); stands: peak stud tension 0.001 N = 0% of the 0.98 N clutch"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 0.7632151545651723,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": false,
+     "n_bricks": 4,
+     "explanation": "slides or tips (resultant inside its support): the resultant of the weight and loads of 4 part(s) from 0:brick_2x2, 1:brick_1x2, 2:brick_1x2 up passes 0.9 mm inside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 22.5386237240371,
+     "newton_tilt_deg": 30.96376965892895,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "tips: the resultant of the weight and loads of 3 part(s) from 0:brick_2x2, 1:brick_2x2, 2:brick_2x4 up passes 12.8 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 0.18709723596729944,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": false,
+     "n_bricks": 6,
+     "explanation": "slides or tips (resultant inside its support): the resultant of the weight and loads of 6 part(s) from 0:brick_2x2, 1:brick_2x2, 2:brick_1x1 up passes 1.4 mm inside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 75.3976253890711,
+     "newton_tilt_deg": 90.0198308829744,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 5,
+     "explanation": "tips: the resultant of the weight and loads of 5 part(s) from 0:brick_2x2, 1:brick_1x2, 2:brick_1x1 up passes 2.1 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 27.71134223090544,
+     "newton_tilt_deg": 38.66142048961863,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 3,
+     "explanation": "tips: the resultant of the weight and loads of 3 part(s) from 0:brick_2x2, 1:plate_2x2, 2:brick_2x4 up passes 3.8 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 0.10919505875180899,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": false,
+     "n_bricks": 11,
+     "explanation": "slides or tips (resultant inside its support): the resultant of the weight and loads of 11 part(s) from 0:brick_2x2, 10:brick_2x2, 1:brick_1x2 up passes 0.9 mm inside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 0.1922122867300105,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": false,
+     "n_bricks": 6,
+     "explanation": "slides or tips (resultant inside its support): the resultant of the weight and loads of 6 part(s) from 0:brick_2x2, 1:brick_1x2, 2:brick_1x2 up passes 5.0 mm inside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 96.23792908138884,
+     "newton_tilt_deg": 90.00002127984133,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 8,
+     "explanation": "tips: the resultant of the weight and loads of 8 part(s) from 0:brick_2x2, 1:brick_1x1, 2:brick_2x2 up passes 3.1 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 34.12880182936192,
+     "newton_tilt_deg": 50.19464351542621,
+     "newton_stands": false,
+     "agree": true,
+     "n_bricks": 5,
+     "explanation": "tips: the resultant of the weight and loads of 5 part(s) from 0:brick_2x2, 1:brick_2x2, 2:brick_2x2 up passes 1.9 mm outside its support on ground (z = 0.0 mm)"
+    },
+    {
+     "statics": "mechanism",
+     "newton_moved_mm": 0.33759199425258996,
+     "newton_tilt_deg": 0.0,
+     "newton_stands": true,
+     "agree": false,
+     "n_bricks": 5,
+     "explanation": "slides or tips (resultant inside its support): the resultant of the weight and loads of 5 part(s) from 0:brick_2x2, 1:brick_1x1, 2:brick_1x4 up passes 0.2 mm inside its support on ground (z = 0.0 mm)"
+    }
+   ],
+   "confusion": {
+    "stable_and_stays": 10,
+    "stable_but_moves": 0,
+    "tips_and_moves": 5,
+    "tips_but_stays": 5
+   },
+   "agreement": 0.75,
+   "tol_mm": 2.0,
+   "duration_s": 0.4,
+   "dt": 0.00025,
+   "iterations": 32
+  }
+ },
+ "notes": [
+  "cantilever: 0 of 40 statics mechanisms stand once single-stud joints get a little torsion capacity (a lone stud is a pivot in the statics; Newton welds every intact joint).",
+  "bridge: 0 of 40 statics mechanisms stand once single-stud joints get a little torsion capacity (a lone stud is a pivot in the statics; Newton welds every intact joint).",
+  "tower: 2 of 40 statics mechanisms stand once single-stud joints get a little torsion capacity (a lone stud is a pivot in the statics; Newton welds every intact joint).",
+  "XPBD friction creep under the sustained 10 mN push on the best tower (statics: friction holds): 0.23 mm at dt = 0.001 s, 0.03 mm at dt = 0.00025 s over 0.6 s; it shrinks with dt, so it is a solver artefact.",
+  "Harmonic stack at exactly the closed-form limit (neutral equilibrium): Newton tips it (top block drop 108.8 mm); at 0.99x it stands and at 1.01x it falls."
+ ]
+}

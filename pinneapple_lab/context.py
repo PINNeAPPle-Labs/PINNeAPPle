@@ -163,15 +163,20 @@ class RunContext:
 
     def check(self, name: str, passed: Any = None, *, value: Any = None, reference: Any = None,
               rtol: float | None = None, atol: float | None = None, max: float | None = None,
-              min: float | None = None, detail: str = "", kind: str | None = None) -> bool:
+              min: float | None = None, detail: str = "", kind: str | None = None, label: str = "") -> bool:
         """Record a validation check. Either pass a boolean, or a value with a reference and tolerances
         (|value - reference| <= atol + rtol |reference|), or bounds (``max``/``min``).
         A failed check does not stop the run; the run ends with status ``failed_validation``.
 
         ``kind`` says what the check is evidence of (used by ``pinneapple_lab.curation``): "reference"
         (an exact solution, a published or measured value), "baseline" (beats a simpler method), "physics"
-        (conservation, symmetry, a physical law or range), "generalization" (unseen inputs) or "sanity".
-        Left out, it is inferred from the name and the arguments."""
+        (conservation, symmetry, a physical law or range), "generalization" (unseen inputs), "verification" (agreement
+        with a second code or method that shares the model's inputs -- evidence the solver is right, not an
+        independent reference, so it never counts toward a tier on its own) or "sanity".
+        Left out, it is inferred from the name and the arguments.
+
+        ``label`` is the short line a quality seal or a showcase tile prints for this check, e.g. "drag vs Ahmed
+        1984" (``pinneapple_lab.seal``); left out, it is made from the name and the detail."""
         if passed is None:
             ok = True
             v = float(value)
@@ -186,6 +191,8 @@ class RunContext:
         from .curation import infer_check_kind
         rec = {"name": name, "passed": bool(passed), "value": _jsonable(value), "reference": _jsonable(reference),
                "rtol": rtol, "atol": atol, "max": max, "min": min, "detail": detail}
+        if label:
+            rec["label"] = label
         rec["kind"] = kind or infer_check_kind(rec)
         self.checks.append(rec)
         self.log(f"check {name}: {'PASS' if passed else 'FAIL'} {detail}")

@@ -1,0 +1,7 @@
+[16:40:13] Prius end effects: end-winding inductance (Neumann integral) and 3-D magnet end leakage (GetDP), with the corrected 2-D torque and drive envelope
+[16:40:13] stage import started
+[16:40:13] check end_leakage_mesh_convergence: PASS 3-D/2-D magnet flux ratio on 3 meshes: 0.9345, 0.9463, 0.9482; tolerance 0.5 % on the last step
+[16:40:13] check end_leakage_ratio_below_one: PASS flux that leaks round the magnet ends can only lower the 2-D magnet flux
+[16:40:13] check end_winding_discretisation_convergence: PASS Neumann integral with 150 and 300 pieces per metre
+[16:40:13] check end_winding_reactance_lowers_envelope: PASS the end-winding reactance takes voltage, so the torque envelope cannot rise
+[16:40:13] stage import done (0.002 s)

@@ -1,0 +1,768 @@
+{
+ "light_ga": {
+  "type": "Cessna 172-class light single piston",
+  "mass": 1100.0,
+  "inertia_body": [
+   [
+    1889.6659250211587,
+    0.0,
+    -95.29548712224059
+   ],
+   [
+    0.0,
+    2905.2399314882123,
+    0.0
+   ],
+   [
+    -95.29548712224059,
+    0.0,
+    4505.08610325642
+   ]
+  ],
+  "cg_mac": 0.2500000000000004,
+  "wing_area": 16.2,
+  "span": 11.022703842524301,
+  "mac": 1.4849501831682101,
+  "wing_loading": 665.8836419753086,
+  "cd0": 0.03119366776913671,
+  "oswald_lattice": 0.9757353196576994,
+  "trim": {
+   "V": 55.0,
+   "altitude": 1500.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 2.996030921169528,
+   "theta_deg": 2.996030921169528,
+   "elevator_deg": -1.6094013513673693,
+   "throttle": 0.7394412201533278,
+   "CL": 0.41406549867552184,
+   "residual": 1.4422201293043387e-14,
+   "feasible": true
+  },
+  "derivatives": {
+   "CL_alpha": 5.118081922433671,
+   "Cm_alpha": -1.501461440713736,
+   "CD_alpha": 0.18435141844017017,
+   "CY_beta": -0.30368084242459065,
+   "Cl_beta": -0.04220450332112286,
+   "Cn_beta": 0.06405384158302654,
+   "Cl_p": -0.49826501069428025,
+   "Cn_p": -0.05368744201257578,
+   "CY_p": -0.0999372567714703,
+   "CL_q": 10.118641127824814,
+   "Cm_q": -18.442052316268267,
+   "Cl_r": 0.08858410461802979,
+   "Cn_r": -0.10626214027139157,
+   "CY_r": 0.24350539235301322,
+   "CL_de": 0.5593461309879862,
+   "Cm_de": -1.681576262489482,
+   "Cl_da": -0.1933184655238469,
+   "Cn_da": -0.010136014589728367,
+   "CY_dr": 0.14733774584064044,
+   "Cl_dr": 0.01389178095844605,
+   "Cn_dr": -0.06648996195580746,
+   "CL_df": 1.6171462023239642,
+   "Cm_df": 0.6160796741892218,
+   "static_margin": 0.2933640890218077,
+   "x_np": 3.1068686035199615
+  },
+  "modes": {
+   "oscillatory": [
+    {
+     "wn": 5.1032576164801835,
+     "zeta": 0.5402697956911398,
+     "period": 1.463128457988234
+    },
+    {
+     "wn": 2.1384785133465787,
+     "zeta": 0.197921921224404,
+     "period": 2.997453107857597
+    },
+    {
+     "wn": 0.21181615666831138,
+     "zeta": 0.09638532025771274,
+     "period": 29.802146128397162
+    }
+   ],
+   "real": [
+    -7.522146791872989,
+    -0.0008433837593797463,
+    -3.393551503948477e-16,
+    0.0,
+    0.0,
+    0.014835744130325502
+   ]
+  },
+  "info": {
+   "published": {
+    "reference": "Cessna 172-class baseline of the aero optimizer (pinneapple_design.aero.aircraft.Aircraft: 1100 kg, 120 kW, 16.2 m^2), calibrated there to a C172N (CD0 ~0.030, ~124 kt)."
+   },
+   "assumptions": [
+    "take-off mass 1100 kg and 120 kW (the aero optimizer's C172-class defaults)",
+    "CG at 25 % MAC",
+    "flaps 10 deg for take-off on 5-60 % of the half-span, ailerons 62-95 %, elevator 35 % chord, rudder 30 % chord",
+    "CLmax 1.6 with take-off flaps",
+    "engine 140 kg, fuel 100 kg, 240 kg of occupants; the fuselage and systems take the rest",
+    "fixed gear: its drag is in the calibrated miscellaneous D/q"
+   ],
+   "type": "Cessna 172-class light single piston",
+   "components": {
+    "wing": {
+     "mass": 142.57781924866373,
+     "x": 2.893980073267284,
+     "y": 0.0,
+     "z": 0.6739171267779221
+    },
+    "htail": {
+     "mass": 14.381231253144476,
+     "x": 7.38,
+     "y": 0.0,
+     "z": 0.3733488215488215
+    },
+    "vtail": {
+     "mass": 8.406565645710423,
+     "x": 7.4078251486524,
+     "y": 0.0,
+     "z": 1.1191298946954542
+    },
+    "engine": {
+     "mass": 140.0,
+     "x": 0.45,
+     "y": 0.0,
+     "z": 0.03787478907478907
+    },
+    "fuel": {
+     "mass": 100.0,
+     "x": 2.8197325641088735,
+     "y": 0.0,
+     "z": 0.6739171267779221
+    },
+    "occupants_front": {
+     "mass": 160.0,
+     "x": 2.45,
+     "y": 0.0,
+     "z": -0.11212521092521092
+    },
+    "occupants_rear": {
+     "mass": 80.0,
+     "x": 3.35,
+     "y": 0.0,
+     "z": -0.062125210925210936
+    },
+    "fuselage_systems": {
+     "mass": 454.6343838524814,
+     "x": 2.974616239213766,
+     "y": 0.0,
+     "z": 0.03787478907478907
+    }
+   },
+   "cg_mac": 0.2500000000000004,
+   "fuselage_cma": 0.3644834296688681,
+   "fuselage_cnb": -0.05117619768761753
+  },
+  "gear": [
+   {
+    "name": "nose",
+    "contact": [
+     0.75,
+     0.0,
+     -1.4068519724484165
+    ],
+    "k": 11878.049745325083,
+    "c": 2275.810267090754
+   },
+   {
+    "name": "main_left",
+    "contact": [
+     3.4009783707275867,
+     -1.25,
+     -1.4068519724484165
+    ],
+    "k": 15635.605127337458,
+    "c": 2995.7502657350224
+   },
+   {
+    "name": "main_right",
+    "contact": [
+     3.4009783707275867,
+     1.25,
+     -1.4068519724484165
+    ],
+    "k": 15635.605127337458,
+    "c": 2995.7502657350224
+   }
+  ]
+ },
+ "regional_turboprop": {
+  "type": "ATR 72-600-class regional twin turboprop",
+  "mass": 23000.0,
+  "inertia_body": [
+   [
+    288155.1490440948,
+    0.0,
+    -34836.91983553733
+   ],
+   [
+    0.0,
+    520554.5895545197,
+    0.0
+   ],
+   [
+    -34836.91983553733,
+    0.0,
+    754446.2875331983
+   ]
+  ],
+  "cg_mac": 0.24999999999999975,
+  "wing_area": 61.0,
+  "span": 27.05,
+  "mac": 2.3020640788662967,
+  "wing_loading": 3697.5893442622946,
+  "cd0": 0.024328261231677657,
+  "oswald_lattice": 0.9814445931824916,
+  "trim": {
+   "V": 120.0,
+   "altitude": 3000.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 1.4479339786177559,
+   "theta_deg": 1.4479339786177559,
+   "elevator_deg": -0.8284129521238716,
+   "throttle": 0.6988005601402515,
+   "CL": 0.5640530264355298,
+   "residual": 3.799752187558197e-15,
+   "feasible": true
+  },
+  "derivatives": {
+   "CL_alpha": 5.732501009951984,
+   "Cm_alpha": -1.7588489756666532,
+   "CD_alpha": 0.17484653543084241,
+   "CY_beta": -0.5961806485737874,
+   "Cl_beta": -0.08475134746149728,
+   "Cn_beta": 0.134722868952426,
+   "Cl_p": -0.6037925804399118,
+   "Cn_p": -0.052211903836458684,
+   "CY_p": -0.15107341720942583,
+   "CL_q": 13.60705961448064,
+   "Cm_q": -54.489137156830616,
+   "Cl_r": 0.1489600400057622,
+   "Cn_r": -0.1456063672962847,
+   "CY_r": 0.4185380921869794,
+   "CL_de": 0.4615759288965763,
+   "Cm_de": -2.636239732052719,
+   "Cl_da": -0.18740792953036958,
+   "Cn_da": -0.004637574099403993,
+   "CY_dr": 0.31326531186701856,
+   "Cl_dr": 0.02497734440375591,
+   "Cn_dr": -0.11356541867043672,
+   "CL_df": 2.1963041470605447,
+   "Cm_df": 0.5979410816191275,
+   "static_margin": 0.30682052608681276,
+   "x_np": 12.617560114169372
+  },
+  "modes": {
+   "oscillatory": [
+    {
+     "wn": 1.954509838717266,
+     "zeta": 0.450217555224634,
+     "period": 3.6002279094575105
+    },
+    {
+     "wn": 1.447197975822415,
+     "zeta": 0.08887520365281228,
+     "period": 4.358870182394586
+    },
+    {
+     "wn": 0.1114128086712443,
+     "zeta": 0.04573992139608084,
+     "period": 56.454624619308134
+    }
+   ],
+   "real": [
+    -2.6203434037765785,
+    -0.0007846052828501113,
+    0.0,
+    0.0,
+    1.2279439227186422e-18,
+    0.00895953260408299
+   ]
+  },
+  "info": {
+   "published": {
+    "atr72_600": "ATR 72-600: MTOW 23,000 kg (option; basic 22,800 kg), take-off field length 1,315 m at MTOW, ISA, sea level; PW127M normal take-off power 2,475 shp, one-engine (reserve) take-off power 2,750 shp. ATR, ATR 72-600 brochure (2023) and factsheet (2020), https://www.atr-aircraft.com/"
+   },
+   "assumptions": [
+    "take-off mass 23,000 kg, normal take-off power 2 x 2,475 shp (published, see sources)",
+    "planform: the turboprop_atr72 geometry entry (span, area, 3.1 deg LE sweep, 2 deg dihedral) with one taper 0.60 for the lattice; horizontal tail 11.7 m^2 at the fin top (T-tail), fin 12.5 m^2 (estimates)",
+    "CG at 25 % MAC",
+    "flaps 15 deg on 5-70 % of the half-span (ATR settings 0 / 15 / 30), CLmax 2.1 with take-off flaps",
+    "propeller efficiency 0.80, static figure of merit 0.70, turboprop power lapse sigma^0.75",
+    "masses: engines and nacelles 1,100 kg each, fuel 2,500 kg, payload 6,800 kg; the fuselage and systems take the rest; wing by the Raymer transport equation",
+    "nacelle friction drag as cylinders 1.0 m dia x 7.2 m, miscellaneous CD0 0.0030, gear drag 0.015"
+   ],
+   "type": "ATR 72-600-class regional twin turboprop",
+   "components": {
+    "wing": {
+     "mass": 2649.5024070143145,
+     "x": 12.256549214236006,
+     "y": 0.0,
+     "z": 3.8
+    },
+    "htail": {
+     "mass": 327.59999999999997,
+     "x": 25.2,
+     "y": 0.0,
+     "z": 7.5
+    },
+    "vtail": {
+     "mass": 375.0,
+     "x": 21.6,
+     "y": 0.0,
+     "z": 4.75
+    },
+    "engine_right": {
+     "mass": 1100.0,
+     "x": 12.0,
+     "y": 4.05,
+     "z": 3.4
+    },
+    "engine_left": {
+     "mass": 1100.0,
+     "x": 12.0,
+     "y": -4.05,
+     "z": 3.4
+    },
+    "fuel": {
+     "mass": 2500.0,
+     "x": 12.256549214236006,
+     "y": 0.0,
+     "z": 3.8
+    },
+    "payload": {
+     "mass": 6800.0,
+     "x": 11.3,
+     "y": 0.0,
+     "z": 2.2
+    },
+    "fuselage_systems": {
+     "mass": 8147.897592985686,
+     "x": 11.198945511231585,
+     "y": 0.0,
+     "z": 2.3
+    }
+   },
+   "cg_mac": 0.24999999999999975,
+   "fuselage_cma": 1.9849232068822904,
+   "fuselage_cnb": -0.062470609659103754
+  },
+  "gear": [
+   {
+    "name": "nose",
+    "contact": [
+     2.78,
+     0.0,
+     0.0
+    ],
+    "k": 137280.31272812848,
+    "c": 26302.629798218095
+   },
+   {
+    "name": "main_left",
+    "contact": [
+     13.55,
+     -2.05,
+     0.0
+    ],
+    "k": 382465.7436359357,
+    "c": 73279.6616312993
+   },
+   {
+    "name": "main_right",
+    "contact": [
+     13.55,
+     2.05,
+     0.0
+    ],
+    "k": 382465.7436359357,
+    "c": 73279.6616312993
+   }
+  ]
+ },
+ "a320": {
+  "type": "A320-class single-aisle twin turbofan",
+  "mass": 73500.0,
+  "inertia_body": [
+   [
+    1385360.5499702438,
+    0.0,
+    -67717.79852985822
+   ],
+   [
+    0.0,
+    4014283.2209208626,
+    0.0
+   ],
+   [
+    -67717.79852985822,
+    0.0,
+    5200375.547007188
+   ]
+  ],
+  "cg_mac": 0.2500000000000002,
+  "wing_area": 122.6,
+  "span": 34.12770135828078,
+  "mac": 4.042217105948222,
+  "wing_loading": 5879.190660685154,
+  "cd0": 0.019484430129842634,
+  "oswald_lattice": 0.9481224060542771,
+  "trim": {
+   "V": 128.0,
+   "altitude": 3000.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 6.8354478498289755,
+   "theta_deg": 6.8354478498289755,
+   "elevator_deg": -3.561217803685879,
+   "throttle": 0.29599968842654983,
+   "CL": 0.7844659631357201,
+   "residual": 1.118488673319333e-14,
+   "feasible": true
+  },
+  "derivatives": {
+   "CL_alpha": 5.25726553930619,
+   "Cm_alpha": -1.9380279929967004,
+   "CD_alpha": 0.2914804084495372,
+   "CY_beta": -0.4881030508720424,
+   "Cl_beta": -0.2170083943507805,
+   "Cn_beta": 0.0799599435623928,
+   "Cl_p": -0.474536208744925,
+   "Cn_p": -0.0830215161822737,
+   "CY_p": -0.021136232582155856,
+   "CL_q": 14.168138319781026,
+   "Cm_q": -44.587307720211435,
+   "Cl_r": 0.18986677681344108,
+   "Cn_r": -0.24571813548758528,
+   "CY_r": 0.4974742211709817,
+   "CL_de": 0.5276266620337556,
+   "Cm_de": -2.3789983411945674,
+   "Cl_da": -0.07236723794210605,
+   "Cn_da": -0.008079013882508678,
+   "CY_dr": 0.24228624540937152,
+   "Cl_dr": 0.032931443729268206,
+   "Cn_dr": -0.12940691005344362,
+   "CL_df": 2.016738585395956,
+   "Cm_df": 0.7743434367704689,
+   "static_margin": 0.3686380264620351,
+   "x_np": 18.502067021040915
+  },
+  "modes": {
+   "oscillatory": [
+    {
+     "wn": 1.4415731153567812,
+     "zeta": 0.4040953910086983,
+     "period": 4.764929889961379
+    },
+    {
+     "wn": 1.0042032935664362,
+     "zeta": 0.11471075435539214,
+     "period": 6.2984623426407875
+    },
+    {
+     "wn": 0.10207380839302488,
+     "zeta": 0.018381518660751214,
+     "period": 61.56571560543503
+    }
+   ],
+   "real": [
+    -1.4026603314396926,
+    -0.030391833297442328,
+    -0.0007873527623375952,
+    0.0,
+    0.0,
+    9.294803942251062e-17
+   ]
+  },
+  "info": {
+   "published": {
+    "cfm56_5b4": "CFM56-5B4 take-off rating 27,000 lbf (120 kN): CFM International; EASA TCDS E.003 (CFM56-5B/-5C).",
+    "a320_tofl": "A320-200, MTOW 78 t, sea level ISA: take-off field length about 2,090-2,100 m (certified, one engine inoperative and 1.15 x all-engines distance, whichever is longer); e.g. https://www.skytamer.com/Airbus_A320.html, https://aircraftinvestigation.info/airplanes/Airbus_A320-200_CFM56.html (which also quotes about 1,825 m at 73.5 t). Authoritative source: Airbus, A320 Aircraft Characteristics - Airport and Maintenance Planning (rev. Jun 2024)."
+   },
+   "assumptions": [
+    "take-off mass 73,500 kg (the aero optimizer's A320-class MTOW, below the A320ceo's 78 t), two 27,000 lbf turbofans (CFM56-5B4 rating)",
+    "CG at 25 % MAC",
+    "CONF 1+F modelled as 10 deg of flap on 5-75 % of the half-span (slats change CLmax, not modelled), CLmax 2.0 at take-off, gear drag 0.015",
+    "wheelbase 12.6 m and track 7.6 m chosen so the nose gear carries ~7 % of the weight; geometry, not a published drawing",
+    "masses: engines 3,000 kg each, fuel 12,000 kg, payload 17,100 kg (180 x 95 kg); fuselage and systems take the rest"
+   ],
+   "type": "A320-class single-aisle twin turbofan",
+   "components": {
+    "wing": {
+     "mass": 8916.25553682764,
+     "x": 17.618284650465313,
+     "y": 0.0,
+     "z": -1.2419999999999998
+    },
+    "htail": {
+     "mass": 799.1041859351859,
+     "x": 34.37655,
+     "y": 0.0,
+     "z": 1.0789837870860335
+    },
+    "vtail": {
+     "mass": 597.685031208089,
+     "x": 34.59715706046785,
+     "y": 0.0,
+     "z": 4.002000854820412
+    },
+    "engine_right": {
+     "mass": 3000.0,
+     "x": 14.598194559234598,
+     "y": 5.801709230907734,
+     "z": -1.7901362132218654
+    },
+    "engine_left": {
+     "mass": 3000.0,
+     "x": 14.598194559234598,
+     "y": -5.801709230907734,
+     "z": -1.7901362132218654
+    },
+    "fuel": {
+     "mass": 12000.0,
+     "x": 17.416173795167904,
+     "y": 0.0,
+     "z": -1.2419999999999998
+    },
+    "payload": {
+     "mass": 17100.0,
+     "x": 17.5,
+     "y": 0.0,
+     "z": -0.3
+    },
+    "fuselage_systems": {
+     "mass": 28086.955246029087,
+     "x": 15.997015177275149,
+     "y": 0.0,
+     "z": 0.0
+    }
+   },
+   "cg_mac": 0.2500000000000002,
+   "fuselage_cma": 1.2005887112008298,
+   "fuselage_cnb": -0.1292845389803793
+  },
+  "gear": [
+   {
+    "name": "nose",
+    "contact": [
+     5.3603391813472765,
+     0.0,
+     -3.7699999999999996
+    ],
+    "k": 216934.0620958325,
+    "c": 41564.126804041014
+   },
+   {
+    "name": "main_left",
+    "contact": [
+     17.960339181347276,
+     -3.8,
+     -3.7699999999999996
+    ],
+    "k": 1333110.5189520838,
+    "c": 255421.27464080616
+   },
+   {
+    "name": "main_right",
+    "contact": [
+     17.960339181347276,
+     3.8,
+     -3.7699999999999996
+    ],
+    "k": 1333110.5189520838,
+    "c": 255421.27464080616
+   }
+  ]
+ },
+ "motor_glider": {
+  "type": "high-aspect-ratio self-launching motor glider (Stemme S10-class)",
+  "mass": 850.0,
+  "inertia_body": [
+   [
+    9075.927661951962,
+    0.0,
+    -71.58665842827008
+   ],
+   [
+    0.0,
+    1895.2421326613176,
+    0.0
+   ],
+   [
+    -71.58665842827008,
+    0.0,
+    10780.356698243224
+   ]
+  ],
+  "cg_mac": 0.30000000000000004,
+  "wing_area": 18.7,
+  "span": 23.0,
+  "mac": 0.8628216503992902,
+  "wing_loading": 445.75681818181823,
+  "cd0": 0.01860417901329938,
+  "oswald_lattice": 0.9216823784535702,
+  "trim": {
+   "V": 30.0,
+   "altitude": 1500.0,
+   "gamma_deg": 0.0,
+   "alpha_deg": 3.9796239179753936,
+   "theta_deg": 3.9796239179753936,
+   "elevator_deg": -2.41614841707819,
+   "throttle": 0.1597177246563511,
+   "CL": 0.9341635293241795,
+   "residual": 1.990483267090515e-14,
+   "feasible": true
+  },
+  "derivatives": {
+   "CL_alpha": 6.01562040902134,
+   "Cm_alpha": -0.3183851279156783,
+   "CD_alpha": 0.13720538893599285,
+   "CY_beta": -0.3939065262550862,
+   "Cl_beta": -0.08285378629885339,
+   "Cn_beta": 0.0440876101669726,
+   "Cl_p": -0.6860758322352624,
+   "Cn_p": -0.15030056601591937,
+   "CY_p": -0.16530136050458483,
+   "CL_q": 9.68828533626414,
+   "Cm_q": -21.487849757098896,
+   "Cl_r": 0.18055580998278065,
+   "Cn_r": -0.02824586466388106,
+   "CY_r": 0.18139800186156319,
+   "CL_de": 0.22320817417281608,
+   "Cm_de": -1.1296624968746032,
+   "Cl_da": -0.3448698433638448,
+   "Cn_da": -0.024056968603621793,
+   "CY_dr": 0.19658046523707007,
+   "Cl_dr": 0.012642859964930819,
+   "Cn_dr": -0.04215507076449099,
+   "CL_df": 1.6968963253584604,
+   "Cm_df": 0.12105872641692787,
+   "static_margin": 0.05292639931838307,
+   "x_np": 3.2905410726184385
+  },
+  "modes": {
+   "oscillatory": [
+    {
+     "wn": 1.9994911476556343,
+     "zeta": 0.8423287629419858,
+     "period": 5.830429909964352
+    },
+    {
+     "wn": 1.1895088748883567,
+     "zeta": 0.2663913744484456,
+     "period": 5.480194787791639
+    },
+    {
+     "wn": 0.2712338498335129,
+     "zeta": 0.04352965710904795,
+     "period": 23.18717435661173
+    }
+   ],
+   "real": [
+    -5.699262139696211,
+    -0.00014146564681873157,
+    -5.0207678492934007e-17,
+    0.0,
+    0.0,
+    0.05708035703945045
+   ]
+  },
+  "info": {
+   "published": {
+    "stemme_s10": "Stemme S10: span 23 m, wing area 18.7 m^2, loaded mass 850 kg (S10-VT: Rotax 914F, 84.5 kW). https://en.wikipedia.org/wiki/Stemme_S10, https://planeandpilotmag.com/stemme-s10-vt/"
+   },
+   "assumptions": [
+    "span 23 m, area 18.7 m^2, mass 850 kg, 84.5 kW (Stemme S10 / S10-VT figures); fuselage, tails, taper 0.40, NACA 4412 camber and the nose propeller are the parametric Airframe's, not the S10's (which has a mid-fuselage engine and a taildragger gear)",
+    "tricycle gear for the take-off model",
+    "CG at 30 % MAC",
+    "flaps 10 deg on 5-50 %, CLmax 1.45 at take-off",
+    "wing mass: Raymer general-aviation equation x 0.85 (a composite sailplane wing, assumption); miscellaneous CD0 0.0015, gear drag 0.008"
+   ],
+   "type": "high-aspect-ratio self-launching motor glider (Stemme S10-class)",
+   "components": {
+    "wing": {
+     "mass": 246.3177324898026,
+     "x": 3.3311571944487883,
+     "y": 0.0,
+     "z": -0.5042524206131918
+    },
+    "htail": {
+     "mass": 5.166132768325916,
+     "x": 7.812000000000001,
+     "y": 0.0,
+     "z": 0.34732289562289564
+    },
+    "vtail": {
+     "mass": 9.663137049898047,
+     "x": 7.882057576541284,
+     "y": 0.0,
+     "z": 1.2113792349146877
+    },
+    "engine": {
+     "mass": 75.0,
+     "x": 3.0,
+     "y": 0.0,
+     "z": 0.03334048334048334
+    },
+    "occupants": {
+     "mass": 180.0,
+     "x": 1.9,
+     "y": 0.0,
+     "z": -0.06665951665951667
+    },
+    "fuel": {
+     "mass": 60.0,
+     "x": 3.288016111928824,
+     "y": 0.0,
+     "z": -0.5042524206131918
+    },
+    "fuselage_systems": {
+     "mass": 273.8529976919734,
+     "x": 3.8590648950401825,
+     "y": 0.0,
+     "z": 0.03334048334048334
+    }
+   },
+   "cg_mac": 0.30000000000000004,
+   "fuselage_cma": 0.7462369344520015,
+   "fuselage_cnb": -0.016865937911393316
+  },
+  "gear": [
+   {
+    "name": "nose",
+    "contact": [
+     0.8,
+     0.0,
+     -1.3150478057100294
+    ],
+    "k": 5125.747900893697,
+    "c": 982.082913397792
+   },
+   {
+    "name": "main_left",
+    "contact": [
+     3.6888198757763973,
+     -1.0,
+     -1.3150478057100294
+    ],
+    "k": 14108.43104955315,
+    "c": 2703.1468063814123
+   },
+   {
+    "name": "main_right",
+    "contact": [
+     3.6888198757763973,
+     1.0,
+     -1.3150478057100294
+    ],
+    "k": 14108.43104955315,
+    "c": 2703.1468063814123
+   }
+  ]
+ }
+}

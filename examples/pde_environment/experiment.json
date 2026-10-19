@@ -1,0 +1,56 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pde_environment",
+ "title": "Evidenced audit report",
+ "description": "End-to-end demonstration for the astrophysics specialization: train a PINN on the `kepler_two_body_orbit` preset and compare the trained network's predicted trajectory against the exact (Kepler's-equation) solution. This is the \"did we actually reproduce it, not just implement a residual that runs\" check that AUDIT_REPORT.md's astrophysics section originally flagged as not yet done when the preset",
+ "domain": "numerical methods",
+ "methods": [
+  "PINN"
+ ],
+ "modules": [
+  "pinneapple_design.geometry.builders.stl_domain_batch_builder",
+  "pinneapple_models",
+  "pinneapple_neural.architectures",
+  "pinneapple_neural.architectures.registry",
+  "pinneapple_physics",
+  "pinneapple_physics.pde_environment.conditions",
+  "pinneapple_physics.pde_environment.presets.astrophysics",
+  "pinneapple_physics.pde_environment.presets.tag_geometry",
+  "pinneapple_physics.pinn_solver.compiler.compile"
+ ],
+ "params": {},
+ "scripts": [
+  "01_laplace2d_manual.py",
+  "02_burgers1d_ic.py",
+  "03_elasticity3d_stl_fixed.py",
+  "03_ns2d_channel_tags.py",
+  "04_heat3d_stl_box.py",
+  "05_kepler_orbit_validation.py",
+  "06_space_debris_cw_validation.py",
+  "07_tagged_presets_real_geometry.py",
+  "_utils.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "_runs_kepler/kepler_orbit_validation.png",
+   "_runs_kepler/space_debris_cw_validation.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "guide": "docs/dev/AUDIT_REPORT.md",
+  "script": "examples/pde_environment/01_laplace2d_manual.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

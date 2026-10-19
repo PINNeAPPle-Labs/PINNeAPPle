@@ -1,0 +1,4 @@
+[16:40:17] Surface-PM motor (24 slots, 4 poles): cogging, torque against current angle, back-EMF, losses
+[16:40:17] stage import started
+[16:40:17] check maxwell_stress_vs_coenergy_torque: PASS on-load torque at 3 current angles, two torque definitions of the same field; tolerance 2 % as for the Prius
+[16:40:17] stage import done (0.007 s)

@@ -1,0 +1,80 @@
+{
+ "name": "cantilever seed",
+ "ground": {
+  "kind": "table",
+  "regions": [
+   [
+    -1000,
+    0,
+    -1000,
+    1000
+   ]
+  ]
+ },
+ "bricks": [
+  {
+   "part": "brick_1x6",
+   "x": -4,
+   "y": 0,
+   "z": 0,
+   "rot": 0,
+   "colour": "light_grey"
+  },
+  {
+   "part": "brick_1x8",
+   "x": -10,
+   "y": 0,
+   "z": 3,
+   "rot": 0,
+   "colour": "blue"
+  },
+  {
+   "part": "brick_1x6",
+   "x": 1,
+   "y": 0,
+   "z": 3,
+   "rot": 0,
+   "colour": "yellow"
+  },
+  {
+   "part": "plate_1x8",
+   "x": 5,
+   "y": 0,
+   "z": 2,
+   "rot": 0,
+   "colour": "yellow"
+  },
+  {
+   "part": "brick_1x6",
+   "x": -10,
+   "y": 0,
+   "z": 6,
+   "rot": 0,
+   "colour": "lime"
+  },
+  {
+   "part": "brick_1x4",
+   "x": -9,
+   "y": 0,
+   "z": 9,
+   "rot": 0,
+   "colour": "lime"
+  },
+  {
+   "part": "brick_1x2",
+   "x": 12,
+   "y": 0,
+   "z": 3,
+   "rot": 0,
+   "colour": "yellow"
+  },
+  {
+   "part": "brick_1x2",
+   "x": 13,
+   "y": 0,
+   "z": 6,
+   "rot": 0,
+   "colour": "yellow"
+  }
+ ]
+}

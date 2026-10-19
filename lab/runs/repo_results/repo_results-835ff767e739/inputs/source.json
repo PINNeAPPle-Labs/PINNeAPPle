@@ -1,0 +1,7 @@
+{
+ "name": "benchmark_arena",
+ "description": "Benchmark arena: equal-budget methods on viscous Burgers (exact Cole-Hopf data) in five regimes",
+ "scripts": [
+  "apps/benchmark_arena/run_public_benchmarks.py"
+ ]
+}

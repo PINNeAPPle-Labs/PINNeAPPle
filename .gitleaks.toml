@@ -1,0 +1,12 @@
+# gitleaks configuration: the default rules plus allow-listed false positives found by the audit
+# (docs/security/audit.md): curl examples with the literal placeholder USER:PASSWORD in the apps' UIs, and a case
+# key ("key=") in the VeriPhysics example registry; citation keys of the Flow reference registry (author + year + word,
+# e.g. "key": "kapteyn2021twin", pinneapple_flow/references.yaml) in decision records of flows and example results.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "placeholders, not credentials"
+regexTarget = "line"
+regexes = ['''-u USER:PASSWORD''', '''key="axial_compressor_stage_3d"''', '''"key": "[a-z]+(19|20)[0-9]{2}[a-z0-9]*"''']
+paths = ['''apps/deploy/\.env\.example''', '''__pycache__/''']

@@ -1,0 +1,6 @@
+[15:37:53] stage train started
+[16:07:30] stage train done (1777.693 s)
+[16:07:30] stage score started
+[16:07:30] stage score done (0.024 s)
+[16:07:30] check rel_l2_phi_vs_closed_form: FAIL 4096 points, exact solution of the preset; tolerance 0.05
+[16:07:30] check training_loss_decreased: PASS 

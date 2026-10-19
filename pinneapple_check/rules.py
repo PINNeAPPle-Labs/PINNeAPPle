@@ -64,23 +64,28 @@ RULES: dict[str, Rule] = {r.id: r for r in [
        the flux through every boundary face (from `phi` when the solver wrote it, else from the face velocity) or,
        for a model, integrates u.n over the faces of the domain box, and divides the net flux by the total absolute
        flux. A non-zero value means a leaking boundary condition, an unconverged run or a model that creates or
-       destroys mass.""",
+       destroys mass. For `darcy` it compares the net outward Darcy flux with the integral of the source.""",
        """Look at the inlet/outlet patches named in the message; check that the run converged (residuals) and that
        the outlet is not a fixed-value velocity. For a PINN, add a mass-balance or divergence penalty, or use a
        divergence-free architecture (stream function)."""),
     _r("PC102", "divergence", "Velocity field is not divergence-free", ERROR, "physics", "conservation_divergence",
        """Incompressible flow requires div(u) = 0 in every cell. The check computes the discrete divergence (finite
        volume on OpenFOAM meshes, finite differences on grids, least squares on point clouds, central differences
-       on a model) and reports its RMS relative to the RMS of the velocity gradients, a number between 0 and 1.""",
+       on a model) and reports its RMS relative to the RMS of the velocity gradients, a number between 0 and 1.
+       For `maxwell` the same measure is applied to Gauss's laws, div D = rho and div B = 0.""",
        """Converge the pressure-velocity coupling further (more correctors, tighter p tolerance). For a model,
        raise the weight of the continuity residual or sample more collocation points where the message says the
        divergence is largest."""),
     _r("PC103", "energy-imbalance", "Heat entering the domain does not balance heat leaving it", ERROR, "physics",
        "conservation_energy",
        """For steady conduction the conductive flux k dT/dn through the boundary plus the heat generated inside
-       must be zero. The check reports the net heat flow relative to the total absolute boundary heat flow.""",
+       must be zero. The check reports the net heat flow relative to the total absolute boundary heat flow. For
+       `maxwell` it is Poynting's theorem over the grid box: the change of electromagnetic energy plus the
+       Poynting flux through the faces plus the work J.E must vanish.""",
        """Check the thermal boundary conditions (a fixed temperature on all walls with a source has no steady
-       solution only if the flux cannot leave), the source term and the conductivity; converge further."""),
+       solution only if the flux cannot leave), the source term and the conductivity; converge further. For
+       `maxwell`: the fields are not a solution (wrong frequency, material or source), or energy leaves through
+       faces that were not stored (crop less)."""),
     _r("PC104", "momentum-imbalance", "Forces on the body do not balance", ERROR, "physics", "conservation_momentum",
        """For static elasticity the tractions on the boundary plus the body force must sum to zero (Newton's
        second law with no acceleration). The check reports the norm of the resultant relative to the total
@@ -115,7 +120,10 @@ RULES: dict[str, Rule] = {r.id: r for r in [
        """The governing equation of the declared physics is evaluated on the stored fields and its RMS residual is
        divided by the RMS of the sum of the absolute values of its terms: 0 means the equation holds exactly, 1
        means the terms do not balance at all. Discretisation error makes it non-zero on coarse meshes, so the
-       default tolerance is loose.""",
+       default tolerance is loose. For `darcy` the residual of the finite-volume discretisation is turned into a
+       guaranteed bound on the relative energy-norm error (tolerance `darcy-energy`). For `maxwell` the laws are
+       Faraday's, Ampere-Maxwell's and charge continuity; the message also gives the ratio of the residual on a
+       grid twice as coarse, about 4 when the residual is only discretisation error.""",
        """Converge the solver, refine the mesh where the residual is largest, or check the declared parameters
        (viscosity, conductivity, source) match the ones used in the run."""),
     _r("PC302", "model-residual", "PDE residual of a model's predictions is too large", ERROR, "physics",
@@ -125,6 +133,16 @@ RULES: dict[str, Rule] = {r.id: r for r in [
        """Train longer, add collocation points where the residual is largest, or check that the declared
        parameters match the ones the model was trained with."""),
     # ------------------------------------------------------------------ PC4 bounds
+    _r("PC303", "metamorphic-relation", "A model breaks a relation its physics implies", ERROR, "physics", "",
+       """A declared metamorphic relation does not hold for the model's predictions: more of an input moves an output
+       the wrong way (`monotonic`), a change that must not matter moves the output (`invariant`, e.g. a similarity
+       group kept fixed), a mirrored input does not give the mirrored output (`symmetric`), or a linear model is not
+       linear (`superposition`). These hold whatever the true answer is, so they test a surrogate where no reference
+       solution exists. The worst sample found is reported as the counterexample
+       (`pinneapple_analysis.validation.metamorphic`).""",
+       """Look at the counterexample: a sign error, an input swapped or in the wrong unit, or a fit that is not
+       constrained in that region. If the relation does not hold for the real physics there, narrow its box or
+       remove it rather than loosening the tolerance."""),
     _r("PC401", "out-of-bounds", "A field leaves its declared bounds", ERROR, "data_geometry", "bounds",
        """A value is outside the range declared under `bounds` in the configuration.""",
        """Check the solver limiters (e.g. MULES for a phase fraction), the time step, or the model's output

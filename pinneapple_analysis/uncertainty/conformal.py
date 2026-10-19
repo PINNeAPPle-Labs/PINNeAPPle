@@ -56,8 +56,27 @@ def _conformal_quantile(scores: Tensor, alpha: float) -> float:
     if n == 0:
         raise ValueError("scores must contain at least one calibration point")
     k = min(math.ceil((n + 1) * (1.0 - alpha)), n)
-    sorted_scores, _ = torch.sort(scores.float())
+    # float64 scores stay float64: rounding to float32 can put the quantile below the order statistic it must equal
+    sorted_scores, _ = torch.sort(scores if scores.is_floating_point() else scores.float())
     return float(sorted_scores[k - 1])
+
+
+def conformal_quantile(scores: Any, alpha: float) -> float:
+    """The split-conformal quantile of any array of non-conformity scores (NumPy, list or tensor): the
+    ``ceil((n + 1)(1 - alpha))``-th smallest score, clipped to the largest (see ``_conformal_quantile``).
+
+    A new score exchangeable with the ``n`` calibration scores exceeds it with probability at most ``alpha``
+    when ``ceil((n + 1)(1 - alpha)) <= n``; ``conformal_quantile_valid`` says whether ``n`` is large enough.
+    """
+    t = torch.as_tensor(scores)
+    return _conformal_quantile(t.reshape(-1).double() if not t.is_floating_point() else t.reshape(-1), alpha)
+
+
+def conformal_quantile_valid(n: int, alpha: float) -> bool:
+    """True when ``n`` calibration scores are enough for the finite-sample guarantee at level ``alpha``
+    (``n >= ceil(1 / alpha) - 1``); otherwise the quantile is clipped to the largest score and the guarantee
+    does not hold."""
+    return math.ceil((n + 1) * (1.0 - alpha)) <= n
 
 
 class ConformalPredictor:

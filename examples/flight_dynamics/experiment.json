@@ -1,0 +1,392 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/flight_dynamics",
+ "title": "Flight dynamics, turbulence and take-off",
+ "description": "Verification of the flight-dynamics library: turbulence spectra and variances against MIL-F-8785C, trim of the four aircraft held for 10 s stick fixed, energy / angular-momentum conservation of the integrator, the lattice-in-the-loop lift against the steady vortex lattice. Writes results/verification.json and the PSD figure.",
+ "domain": "flight dynamics",
+ "methods": [
+  "vortex lattice",
+  "render (Blender)"
+ ],
+ "modules": [
+  "pinneapple",
+  "pinneapple_simulation.flight",
+  "pinneapple_simulation.flight.control",
+  "pinneapple_simulation.flight.encounter",
+  "pinneapple_simulation.flight.figures",
+  "pinneapple_simulation.flight.simulate",
+  "pinneapple_simulation.flight.takeoff",
+  "pinneapple_simulation.flight.trim",
+  "pinneapple_simulation.flight.turbulence",
+  "pinneapple_simulation.flight.verification",
+  "pinneapple_simulation.flight.visuals",
+  "pinneapple_tools.visualization.studio.blender",
+  "pinneapple_tools.visualization.studio.compose",
+  "pinneapple_tools.visualization.studio.web"
+ ],
+ "params": {},
+ "scripts": [
+  "01_verification.py",
+  "02_trim_and_stability.py",
+  "03_takeoff.py",
+  "04_turbulence_encounters.py",
+  "05_render_clips.py",
+  "06_tables.py",
+  "07_same_gust.py",
+  "08_viewers.py"
+ ],
+ "metrics": [
+  {
+   "name": "energy_rel_error_dt0.02",
+   "value": 4.400790123313728e-10,
+   "unit": "",
+   "how": "20 s free flight, relative change of total energy (results/verification.json)"
+  },
+  {
+   "name": "energy_rel_error_dt0.01",
+   "value": 8.031223917958976e-12,
+   "unit": "",
+   "how": "20 s free flight, relative change of total energy (results/verification.json)"
+  },
+  {
+   "name": "energy_rel_error_dt0.005",
+   "value": 1.6153032200503471e-12,
+   "unit": "",
+   "how": "20 s free flight, relative change of total energy (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_light_ga_alpha0.0",
+   "value": 4.001881555440111e-11,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_light_ga_alpha4.0",
+   "value": 0.0013170807441250027,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_regional_turboprop_alpha0.0",
+   "value": 4.001934726262859e-11,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_regional_turboprop_alpha4.0",
+   "value": 0.0016482088787130292,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_a320_alpha0.0",
+   "value": 4.0018827562322495e-11,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_a320_alpha4.0",
+   "value": 0.0013551835852437142,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_motor_glider_alpha0.0",
+   "value": 4.002083070316326e-11,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "lattice_rel_diff_motor_glider_alpha4.0",
+   "value": 0.0017100451002938326,
+   "unit": "",
+   "how": "lattice-in-the-loop CL vs steady vortex lattice (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_dryden_u",
+   "value": 7.038389279382401,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_dryden_v",
+   "value": 7.041755888504826,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_dryden_w",
+   "value": 7.041755888504826,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_von_karman_u",
+   "value": 7.018580538784683,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_von_karman_v",
+   "value": 7.019179682190814,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenLine_von_karman_w",
+   "value": 7.0191796821908135,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_DrydenFilter_dryden_u",
+   "value": 2.823390706093345,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_DrydenFilter_dryden_v",
+   "value": 2.8943564608410153,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_DrydenFilter_dryden_w",
+   "value": 2.794692681879422,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenField3D_von_karman_u",
+   "value": 6.917059804557012,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenField3D_von_karman_v",
+   "value": 7.465483154110868,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "turbulence_sigma_FrozenField3D_von_karman_w",
+   "value": 6.3405765168522885,
+   "unit": "m/s",
+   "how": "measured gust standard deviation; MIL-F-8785C target in sigma_target (results/verification.json)"
+  },
+  {
+   "name": "ground_roll_light_ga",
+   "value": 244.22102440714593,
+   "unit": "m",
+   "how": "simulated take-off ground roll (results/takeoff.json)"
+  },
+  {
+   "name": "ground_roll_regional_turboprop",
+   "value": 1060.4467477410672,
+   "unit": "m",
+   "how": "simulated take-off ground roll (results/takeoff.json)"
+  },
+  {
+   "name": "ground_roll_a320",
+   "value": 1345.9344060357964,
+   "unit": "m",
+   "how": "simulated take-off ground roll (results/takeoff.json)"
+  },
+  {
+   "name": "ground_roll_motor_glider",
+   "value": 186.20942483890792,
+   "unit": "m",
+   "how": "simulated take-off ground roll (results/takeoff.json)"
+  },
+  {
+   "name": "distance_35ft_light_ga",
+   "value": 402.9400670592907,
+   "unit": "m",
+   "how": "simulated distance to 35 ft (results/takeoff.json)"
+  },
+  {
+   "name": "distance_35ft_regional_turboprop",
+   "value": 1291.3315916801412,
+   "unit": "m",
+   "how": "simulated distance to 35 ft (results/takeoff.json)"
+  },
+  {
+   "name": "distance_35ft_a320",
+   "value": 1691.2169164612756,
+   "unit": "m",
+   "how": "simulated distance to 35 ft (results/takeoff.json)"
+  },
+  {
+   "name": "distance_35ft_motor_glider",
+   "value": 285.85658548273517,
+   "unit": "m",
+   "how": "simulated distance to 35 ft (results/takeoff.json)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "energy conserved, dt 0.02 s",
+   "passed": true,
+   "value": 4.400790123313728e-10,
+   "kind": "physics",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json"
+  },
+  {
+   "name": "energy conserved, dt 0.01 s",
+   "passed": true,
+   "value": 8.031223917958976e-12,
+   "kind": "physics",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json"
+  },
+  {
+   "name": "energy conserved, dt 0.005 s",
+   "passed": true,
+   "value": 1.6153032200503471e-12,
+   "kind": "physics",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json"
+  },
+  {
+   "name": "angular momentum conserved, dt 0.02 s",
+   "passed": true,
+   "value": 2.6805440215490186e-09,
+   "kind": "physics",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json"
+  },
+  {
+   "name": "angular momentum conserved, dt 0.01 s",
+   "passed": true,
+   "value": 1.6734936236992688e-10,
+   "kind": "physics",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json"
+  },
+  {
+   "name": "angular momentum conserved, dt 0.005 s",
+   "passed": true,
+   "value": 1.0450494667566552e-11,
+   "kind": "physics",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:51; value from results/verification.json"
+  },
+  {
+   "name": "trim residual, light_ga",
+   "passed": true,
+   "value": 1.4422201293043387e-14,
+   "kind": "verification",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json"
+  },
+  {
+   "name": "trim residual, regional_turboprop",
+   "passed": true,
+   "value": 3.799752187558197e-15,
+   "kind": "verification",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json"
+  },
+  {
+   "name": "trim residual, a320",
+   "passed": true,
+   "value": 1.118488673319333e-14,
+   "kind": "verification",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json"
+  },
+  {
+   "name": "trim residual, motor_glider",
+   "passed": true,
+   "value": 1.990483267090515e-14,
+   "kind": "verification",
+   "max": 1e-08,
+   "detail": "value < 1e-8, the threshold of tests/test_flight_dynamics.py:68; value from results/verification.json"
+  },
+  {
+   "name": "take-off: light_ga lifts off",
+   "passed": true,
+   "kind": "sanity",
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)"
+  },
+  {
+   "name": "take-off: regional_turboprop lifts off",
+   "passed": true,
+   "kind": "sanity",
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)"
+  },
+  {
+   "name": "take-off: a320 lifts off",
+   "passed": true,
+   "kind": "sanity",
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)"
+  },
+  {
+   "name": "take-off: motor_glider lifts off",
+   "passed": true,
+   "kind": "sanity",
+   "detail": "recorded in results/takeoff.json (nominal.*.lifted_off)"
+  },
+  {
+   "name": "take-off: light_ga keeps its stall margin",
+   "passed": true,
+   "kind": "physics",
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)"
+  },
+  {
+   "name": "take-off: regional_turboprop keeps its stall margin",
+   "passed": true,
+   "kind": "physics",
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)"
+  },
+  {
+   "name": "take-off: a320 keeps its stall margin",
+   "passed": true,
+   "kind": "physics",
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)"
+  },
+  {
+   "name": "take-off: motor_glider keeps its stall margin",
+   "passed": true,
+   "kind": "physics",
+   "detail": "CL reached below the assumed take-off CLmax; recorded in results/takeoff.json (nominal.*.stall_margin_ok)"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/same_gust.json",
+   "results/stability.json",
+   "results/tables.md",
+   "results/takeoff.json",
+   "results/turbulence.json",
+   "results/verification.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/flight_dynamics.md",
+  "script": "examples/flight_dynamics/01_verification.py",
+  "pr": [
+   847
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "manifest/examples/flight_dynamics",
+  "items": [
+   "manifest/examples/flight_dynamics"
+  ],
+  "experiment": "manifest",
+  "run_id": "manifest-74bb64b79576",
+  "tier": "B"
+ },
+ "provenance": {
+  "source": "results",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

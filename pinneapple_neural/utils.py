@@ -2,7 +2,7 @@
 
 ``as_tensor`` turns whatever a model's ``forward`` returns (a plain Tensor, ``PINNOutput``, ``ModelOutput``,
 ``OperatorOutput``, ``GraphOutput``, ``AEOutput``, a dict of fields or a ``(prediction, extras)`` tuple) into the
-prediction Tensor.
+prediction Tensor. ``fit_supervised`` is a minimal Adam loop on ``(x, y)`` tensors (examples, tests, baselines).
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Any
 
 import torch
 
-__all__ = ["OUTPUT_TENSOR_ATTRS", "as_tensor"]
+__all__ = ["OUTPUT_TENSOR_ATTRS", "as_tensor", "fit_supervised"]
 
 #: Attribute names searched, in this order, on a model-output object.
 OUTPUT_TENSOR_ATTRS: tuple[str, ...] = ("y", "pred", "out", "logits", "recon", "x_hat", "y_hat", "x")
@@ -60,3 +60,32 @@ def as_tensor(out: Any, *, attrs: Sequence[str] = OUTPUT_TENSOR_ATTRS) -> torch.
         if _is_tensor_seq(val):
             return _join_fields(val)
     raise TypeError(f"cannot extract a Tensor from {type(out).__name__}: no Tensor attribute among {list(attrs)}")
+
+
+def fit_supervised(model: torch.nn.Module, x, y, *, steps: int = 1000, lr: float = 1e-3, batch: int = 32,
+                   loss: str = "mse", weight_decay: float = 0.0, seed: int = 0, forward=None) -> list[float]:
+    """Train ``model`` to map ``x`` to ``y`` (tensors or arrays, first axis = samples) with Adam on random
+    mini-batches for ``steps`` steps; returns the loss history. ``loss``: ``"mse"`` or ``"rel_l2"`` (per-sample
+    relative L2, for fields). ``forward(model, xb)`` overrides the call (default ``as_tensor(model(xb))``). The model
+    is left in eval mode."""
+    x = torch.as_tensor(x, dtype=torch.float32)
+    y = torch.as_tensor(y, dtype=torch.float32)
+    gen = torch.Generator().manual_seed(seed)
+    opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    call = forward or (lambda m, xb: as_tensor(m(xb)))
+    hist = []
+    model.train()
+    for _ in range(steps):
+        idx = torch.randint(0, len(x), (min(batch, len(x)),), generator=gen)
+        pred = call(model, x[idx]).reshape(y[idx].shape)
+        if loss == "rel_l2":
+            d = (pred - y[idx]).reshape(len(idx), -1)
+            val = (d.norm(dim=1) / y[idx].reshape(len(idx), -1).norm(dim=1).clamp_min(1e-12)).mean()
+        else:
+            val = ((pred - y[idx]) ** 2).mean()
+        opt.zero_grad()
+        val.backward()
+        opt.step()
+        hist.append(float(val.detach()))
+    model.eval()
+    return hist

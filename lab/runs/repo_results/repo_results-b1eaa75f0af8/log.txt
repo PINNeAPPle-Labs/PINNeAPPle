@@ -1,0 +1,10 @@
+[16:40:13] Prius magnet temperature, WLTC thermal network and demagnetisation by grade
+[16:40:13] stage import started
+[16:40:15] stage closed-form verification (run now) started
+[16:40:17] stage closed-form verification (run now) done (1.696 s)
+[16:40:17] check thermal_network_first-order_transient: PASS T_b + P/G (1 - e^-1) (closed form); tolerance 0.0001, observed orders 2.00, 2.00, 2.00
+[16:40:17] check thermal_network_cylindrical_conduction: PASS 2 pi k L / ln(r2/r1); tolerance 0.0001, observed orders 2.00, 2.00, 2.00
+[16:40:17] check demagnetisation_field_in_a_magnetised_ring: PASS closed form of the magnetised ring; tolerance 0.05, observed orders 1.02, 0.89, 0.95
+[16:40:17] check torque_and_emf_fall_with_magnet_temperature: PASS 20 -> 150 degC: 345.6 -> 322.6 N m
+[16:40:17] check demag_fraction_mesh_convergence: PASS grade H at i_d = -250 A, demagnetised area fraction on the two finest of 4 magnet meshes; tolerance 1 point (the worst-element ratio does not converge: corners)
+[16:40:17] stage import done (4.331 s)

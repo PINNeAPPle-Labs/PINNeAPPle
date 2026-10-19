@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model Calibration Lab</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%230e7490%22/%3E%3Cpath d=%22M3 12C6 12 6 4 8 4s2 8 5 8%22 stroke=%22white%22 stroke-width=%221.5%22 fill=%22none%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M2.5 12.5C5.5 12.5 6 4 8 4s2.5 8.5 5.5 8.5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="4" cy="11" r="1" fill="white"/><circle cx="8" cy="4.6" r="1" fill="white"/><circle cx="11.5" cy="10.5" r="1" fill="white"/></svg></div>
+    <div>
+      <div class="title">Model Calibration Lab</div>
+      <div class="subtitle">Fit model parameters to your measurements: intervals only where the data determine them, checked on measurements the fit never saw</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="lab" class="active">Calibrate</button>
+    <button data-tab="api">API &amp; Python</button>
+  </nav>
+</header>
+
+<main>
+  <section id="tab-lab" class="tab active">
+    <div class="layout">
+      <form class="panel form" onsubmit="return false">
+        <h2>Model and measurements</h2>
+        <p class="hint">Pick a physical model (or write your formula, or upload your simulated runs), the parameters to
+          adjust with their bounds, and your measurements. Upload a CSV, Excel, Parquet or JSON table, or a sensor
+          export, and map its columns.</p>
+        <label>Try with example <select id="preset"><option value="">—</option></select></label>
+        <div class="hint" id="preset-note"></div>
+        <div id="editor"></div>
+        <fieldset><legend>Validation</legend>
+          <label>Hold out <select id="h-mode">
+            <option value="validation">the held-out measurements above</option>
+            <option value="last">the last rows by an input (extrapolation)</option>
+            <option value="random">a random fraction of the rows</option>
+            <option value="none">nothing (not validated)</option></select></label>
+          <div class="row2" id="h-opts" hidden>
+            <label>Fraction <input id="h-frac" type="number" value="0.25" step="0.05" min="0.05" max="0.5"></label>
+            <label>By input <select id="h-by"></select></label>
+          </div>
+        </fieldset>
+        <fieldset><legend>Estimation</legend>
+          <div class="row2">
+            <label>Loss <select id="o-loss"><option value="linear">least squares (Gaussian)</option><option value="soft_l1">soft L1 (outliers)</option><option value="huber">Huber</option><option value="cauchy">Cauchy</option></select></label>
+            <label>Bootstrap refits <input id="o-boot" type="number" value="100" min="0" max="500"></label>
+          </div>
+          <label>Bayesian prior width <span class="u">σ in ln units around the start values (1 ≈ a factor 2.7)</span><input id="o-prior" type="number" value="1" step="0.5" min="0.1"></label>
+          <label class="chk"><input type="checkbox" id="o-abs" checked> σ is the real sensor noise (intervals never narrower than it implies)</label>
+          <label>Also solve with <span class="u">same data, ranked by held-out error</span></label>
+          <div class="checks" id="o-cmp"></div>
+          <label id="pinn-row" hidden>PINN training steps <input id="o-pinn" type="number" value="1500" min="200" max="3000"></label>
+        </fieldset>
+        <button class="primary" type="button" id="run">Calibrate</button>
+        <div class="status-line" id="status"></div>
+      </form>
+      <div class="panel" id="out">
+        <div class="empty">
+          <h3>What comes out</h3>
+          <ul class="list-plain">
+            <li><b>Calibrated parameters</b>, with 95 % intervals from the Jacobian and from a bootstrap. A parameter the
+              measurements cannot determine is reported <b>not estimable</b>, with the reason, instead of a number
+              that looks precise.</li>
+            <li><b>Before / after</b>: the model with your starting values and with the calibrated ones, against every
+              measurement, and the residuals.</li>
+            <li><b>Validation</b> on measurements the fit never saw (or the last ones, as an extrapolation test).</li>
+            <li><b>Other estimators on the same data</b> (Bayesian, autodiff, adjoint, physics-informed network),
+              ranked by held-out error.</li>
+            <li>Downloads: report, <code>StudyResult</code> and <code>ModelRef</code> contracts, CSV tables.</li>
+          </ul>
+          <p class="hint">Pick an example on the left: each calibrates in a few seconds.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-api" class="tab">
+    <div class="panel">
+      <h2>REST API</h2>
+      <p>The interactive reference is at <a class="link" href="/docs">/docs</a>. Jobs, usage and API keys come from the shared
+        app runtime (<code>GET /api/jobs/{id}</code>, <code>GET /api/usage</code>, <code>X-API-Key</code>).</p>
+      <pre class="code" id="api-code"></pre>
+      <h2>Your own solver, on your machine</h2>
+      <p>This server does not run uploaded code. To calibrate a solver you run yourself, upload a table of its runs
+        here, or call the same library on your machine. <code>CallableModel</code> wraps any function or solver
+        interface that returns the predictions at the measurement points:</p>
+      <pre class="code">import numpy as np
+import pinneapple_analysis.inverse_problems as inv
+from pinneapple_data.data_health import load_table
+
+def run_solver(theta, inputs):                  # your solver: parameters in, predictions at the probes out
+    return my_solver(h=theta["h"], k=theta["k"], probes=inputs["x_mm"])
+
+model = inv.CallableModel(run_solver, inputs=["x_mm"], name="my solver", cost="expensive")
+df, _ = load_table(open("thermocouples.csv", "rb").read(), "thermocouples.csv")
+obs = inv.Observations.from_frame(df, inputs=["x_mm"], value="T_C", sigma=0.5)
+params = [inv.Parameter("h", 50, 1, 2000, "W/m²K"), inv.Parameter("k", 16, 1, 500, "W/m·K")]
+result = inv.calibrate(model, obs, params, holdout_fraction=0.25)
+print(result.parameters, result.metrics, result.warnings)</pre>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  Built on <b>PINNeAPPle</b> (<code>pinneapple_analysis.inverse_problems</code>): weighted least squares in scaled
+  parameters, Jacobian and bootstrap intervals, the identifiability core of the Parameter Identifiability Lab, and the
+  inverse-studio estimators.
+</footer>
+<script src="/shared/scope.js"></script>
+<script src="/shared/author.js"></script>
+<script src="/shared/inverse.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/inspection",
+ "title": "pinneapple_analysis.inspection example 01: eddy-current NDE end to end",
+ "description": "pinneapple_analysis.inspection example 01: eddy-current NDE end to end. Generates a synthetic eddy-current probe-scan dataset on top of the existing axisymmetric complex-Helmholtz FDM solver (`pinneapple_simulation.numerical_solvers.eddy_current_fdm`), trains an `InspectionPINN` on it with a physics loss reusing that same Helmholtz equation, and predicts the learned vector-potential field at a few",
+ "domain": "structural mechanics",
+ "methods": [
+  "finite differences"
+ ],
+ "modules": [
+  "pinneapple_analysis.inspection"
+ ],
+ "params": {},
+ "scripts": [
+  "01_eddy_current_pinn.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/inspection/01_eddy_current_pinn.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

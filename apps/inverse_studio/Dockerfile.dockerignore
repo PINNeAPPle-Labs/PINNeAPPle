@@ -1,0 +1,14 @@
+.git
+**/__pycache__
+**/*.pyc
+data
+examples
+notebooks
+benchmarks
+docs
+tests
+projects
+runs
+run_results
+pinneapple_app/frontend
+apps/*/artifacts/dataset_*

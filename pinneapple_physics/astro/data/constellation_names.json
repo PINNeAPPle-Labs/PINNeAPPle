@@ -1,0 +1,365 @@
+{
+ "source": {
+  "en": "IAU constellation names (Latin), IAU Commission 3 list (1922) and boundaries (Delporte 1930)",
+  "pt": "Brazilian Portuguese names in common use (R. R. de Freitas Mourão, Dicionário Enciclopédico de Astronomia e Astronáutica, 1987)"
+ },
+ "note": "Serpens is one constellation in two parts: Ser1 = Caput (west of Ophiuchus), Ser2 = Cauda (east).",
+ "names": {
+  "And": {
+   "en": "Andromeda",
+   "pt": "Andrômeda"
+  },
+  "Ant": {
+   "en": "Antlia",
+   "pt": "Máquina Pneumática"
+  },
+  "Aps": {
+   "en": "Apus",
+   "pt": "Ave-do-Paraíso"
+  },
+  "Aql": {
+   "en": "Aquila",
+   "pt": "Águia"
+  },
+  "Aqr": {
+   "en": "Aquarius",
+   "pt": "Aquário"
+  },
+  "Ara": {
+   "en": "Ara",
+   "pt": "Altar"
+  },
+  "Ari": {
+   "en": "Aries",
+   "pt": "Áries"
+  },
+  "Aur": {
+   "en": "Auriga",
+   "pt": "Cocheiro"
+  },
+  "Boo": {
+   "en": "Boötes",
+   "pt": "Boieiro"
+  },
+  "CMa": {
+   "en": "Canis Major",
+   "pt": "Cão Maior"
+  },
+  "CMi": {
+   "en": "Canis Minor",
+   "pt": "Cão Menor"
+  },
+  "CVn": {
+   "en": "Canes Venatici",
+   "pt": "Cães de Caça"
+  },
+  "Cae": {
+   "en": "Caelum",
+   "pt": "Buril"
+  },
+  "Cam": {
+   "en": "Camelopardalis",
+   "pt": "Girafa"
+  },
+  "Cap": {
+   "en": "Capricornus",
+   "pt": "Capricórnio"
+  },
+  "Car": {
+   "en": "Carina",
+   "pt": "Quilha"
+  },
+  "Cas": {
+   "en": "Cassiopeia",
+   "pt": "Cassiopeia"
+  },
+  "Cen": {
+   "en": "Centaurus",
+   "pt": "Centauro"
+  },
+  "Cep": {
+   "en": "Cepheus",
+   "pt": "Cefeu"
+  },
+  "Cet": {
+   "en": "Cetus",
+   "pt": "Baleia"
+  },
+  "Cha": {
+   "en": "Chamaeleon",
+   "pt": "Camaleão"
+  },
+  "Cir": {
+   "en": "Circinus",
+   "pt": "Compasso"
+  },
+  "Cnc": {
+   "en": "Cancer",
+   "pt": "Câncer"
+  },
+  "Col": {
+   "en": "Columba",
+   "pt": "Pomba"
+  },
+  "Com": {
+   "en": "Coma Berenices",
+   "pt": "Cabeleira de Berenice"
+  },
+  "CrA": {
+   "en": "Corona Austrina",
+   "pt": "Coroa Austral"
+  },
+  "CrB": {
+   "en": "Corona Borealis",
+   "pt": "Coroa Boreal"
+  },
+  "Crt": {
+   "en": "Crater",
+   "pt": "Taça"
+  },
+  "Cru": {
+   "en": "Crux",
+   "pt": "Cruzeiro do Sul"
+  },
+  "Crv": {
+   "en": "Corvus",
+   "pt": "Corvo"
+  },
+  "Cyg": {
+   "en": "Cygnus",
+   "pt": "Cisne"
+  },
+  "Del": {
+   "en": "Delphinus",
+   "pt": "Golfinho"
+  },
+  "Dor": {
+   "en": "Dorado",
+   "pt": "Dourado"
+  },
+  "Dra": {
+   "en": "Draco",
+   "pt": "Dragão"
+  },
+  "Equ": {
+   "en": "Equuleus",
+   "pt": "Cavalo Menor"
+  },
+  "Eri": {
+   "en": "Eridanus",
+   "pt": "Erídano"
+  },
+  "For": {
+   "en": "Fornax",
+   "pt": "Fornalha"
+  },
+  "Gem": {
+   "en": "Gemini",
+   "pt": "Gêmeos"
+  },
+  "Gru": {
+   "en": "Grus",
+   "pt": "Grou"
+  },
+  "Her": {
+   "en": "Hercules",
+   "pt": "Hércules"
+  },
+  "Hor": {
+   "en": "Horologium",
+   "pt": "Relógio"
+  },
+  "Hya": {
+   "en": "Hydra",
+   "pt": "Hidra"
+  },
+  "Hyi": {
+   "en": "Hydrus",
+   "pt": "Hidra Macho"
+  },
+  "Ind": {
+   "en": "Indus",
+   "pt": "Índio"
+  },
+  "LMi": {
+   "en": "Leo Minor",
+   "pt": "Leão Menor"
+  },
+  "Lac": {
+   "en": "Lacerta",
+   "pt": "Lagarto"
+  },
+  "Leo": {
+   "en": "Leo",
+   "pt": "Leão"
+  },
+  "Lep": {
+   "en": "Lepus",
+   "pt": "Lebre"
+  },
+  "Lib": {
+   "en": "Libra",
+   "pt": "Libra"
+  },
+  "Lup": {
+   "en": "Lupus",
+   "pt": "Lobo"
+  },
+  "Lyn": {
+   "en": "Lynx",
+   "pt": "Lince"
+  },
+  "Lyr": {
+   "en": "Lyra",
+   "pt": "Lira"
+  },
+  "Men": {
+   "en": "Mensa",
+   "pt": "Mesa"
+  },
+  "Mic": {
+   "en": "Microscopium",
+   "pt": "Microscópio"
+  },
+  "Mon": {
+   "en": "Monoceros",
+   "pt": "Unicórnio"
+  },
+  "Mus": {
+   "en": "Musca",
+   "pt": "Mosca"
+  },
+  "Nor": {
+   "en": "Norma",
+   "pt": "Esquadro"
+  },
+  "Oct": {
+   "en": "Octans",
+   "pt": "Oitante"
+  },
+  "Oph": {
+   "en": "Ophiuchus",
+   "pt": "Ofiúco"
+  },
+  "Ori": {
+   "en": "Orion",
+   "pt": "Órion"
+  },
+  "Pav": {
+   "en": "Pavo",
+   "pt": "Pavão"
+  },
+  "Peg": {
+   "en": "Pegasus",
+   "pt": "Pégaso"
+  },
+  "Per": {
+   "en": "Perseus",
+   "pt": "Perseu"
+  },
+  "Phe": {
+   "en": "Phoenix",
+   "pt": "Fênix"
+  },
+  "Pic": {
+   "en": "Pictor",
+   "pt": "Pintor"
+  },
+  "PsA": {
+   "en": "Piscis Austrinus",
+   "pt": "Peixe Austral"
+  },
+  "Psc": {
+   "en": "Pisces",
+   "pt": "Peixes"
+  },
+  "Pup": {
+   "en": "Puppis",
+   "pt": "Popa"
+  },
+  "Pyx": {
+   "en": "Pyxis",
+   "pt": "Bússola"
+  },
+  "Ret": {
+   "en": "Reticulum",
+   "pt": "Retículo"
+  },
+  "Scl": {
+   "en": "Sculptor",
+   "pt": "Escultor"
+  },
+  "Sco": {
+   "en": "Scorpius",
+   "pt": "Escorpião"
+  },
+  "Sct": {
+   "en": "Scutum",
+   "pt": "Escudo"
+  },
+  "Ser1": {
+   "en": "Serpens Caput",
+   "pt": "Cabeça da Serpente"
+  },
+  "Ser2": {
+   "en": "Serpens Cauda",
+   "pt": "Cauda da Serpente"
+  },
+  "Sex": {
+   "en": "Sextans",
+   "pt": "Sextante"
+  },
+  "Sge": {
+   "en": "Sagitta",
+   "pt": "Flecha"
+  },
+  "Sgr": {
+   "en": "Sagittarius",
+   "pt": "Sagitário"
+  },
+  "Tau": {
+   "en": "Taurus",
+   "pt": "Touro"
+  },
+  "Tel": {
+   "en": "Telescopium",
+   "pt": "Telescópio"
+  },
+  "TrA": {
+   "en": "Triangulum Australe",
+   "pt": "Triângulo Austral"
+  },
+  "Tri": {
+   "en": "Triangulum",
+   "pt": "Triângulo"
+  },
+  "Tuc": {
+   "en": "Tucana",
+   "pt": "Tucano"
+  },
+  "UMa": {
+   "en": "Ursa Major",
+   "pt": "Ursa Maior"
+  },
+  "UMi": {
+   "en": "Ursa Minor",
+   "pt": "Ursa Menor"
+  },
+  "Vel": {
+   "en": "Vela",
+   "pt": "Vela"
+  },
+  "Vir": {
+   "en": "Virgo",
+   "pt": "Virgem"
+  },
+  "Vol": {
+   "en": "Volans",
+   "pt": "Peixe Voador"
+  },
+  "Vul": {
+   "en": "Vulpecula",
+   "pt": "Raposa"
+  }
+ }
+}

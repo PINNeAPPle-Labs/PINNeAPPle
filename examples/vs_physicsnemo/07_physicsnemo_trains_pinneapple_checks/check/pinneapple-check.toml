@@ -1,0 +1,126 @@
+# `pinneapple check` on predictions of the two PhysicsNeMo models (written by ../run.py evaluate).
+# One predicted field u per file, for one coefficient a on the 128 x 128 cell centres of the unit square.
+# physics = "darcy": -div(a grad u) = 1, u = 0 on the boundary, checked with the reference solver's
+# finite volumes. tolerances: the model's own 99th percentiles on held-out in-distribution inputs (no
+# labels); bounds and envelope of a: the training coefficients. Exported samples: the first two of the
+# test and contrast sets; for the length-scale set the first outside the envelope (_0), then the first
+# inside it (_1).
+[[result]]
+name = "in_distribution/fno_0"
+path = "predictions/in_distribution/fno_0.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 0.38665, darcy-l2 = 0.593941, darcy-bc = 0.0140255, darcy-flux = 0.643858, darcy-positivity = 0.0261377 }
+
+[[result]]
+name = "in_distribution/fno_1"
+path = "predictions/in_distribution/fno_1.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 0.38665, darcy-l2 = 0.593941, darcy-bc = 0.0140255, darcy-flux = 0.643858, darcy-positivity = 0.0261377 }
+
+[[result]]
+name = "in_distribution/meshgraphnet_0"
+path = "predictions/in_distribution/meshgraphnet_0.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 1.11641, darcy-l2 = 2.40242, darcy-bc = 0.00430167, darcy-flux = 0.278057, darcy-positivity = 1e-12 }
+
+[[result]]
+name = "in_distribution/meshgraphnet_1"
+path = "predictions/in_distribution/meshgraphnet_1.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 1.11641, darcy-l2 = 2.40242, darcy-bc = 0.00430167, darcy-flux = 0.278057, darcy-positivity = 1e-12 }
+
+[[result]]
+name = "contrast/fno_0"
+path = "predictions/contrast/fno_0.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 0.38665, darcy-l2 = 0.593941, darcy-bc = 0.0140255, darcy-flux = 0.643858, darcy-positivity = 0.0261377 }
+
+[[result]]
+name = "contrast/fno_1"
+path = "predictions/contrast/fno_1.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 0.38665, darcy-l2 = 0.593941, darcy-bc = 0.0140255, darcy-flux = 0.643858, darcy-positivity = 0.0261377 }
+
+[[result]]
+name = "contrast/meshgraphnet_0"
+path = "predictions/contrast/meshgraphnet_0.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 1.11641, darcy-l2 = 2.40242, darcy-bc = 0.00430167, darcy-flux = 0.278057, darcy-positivity = 1e-12 }
+
+[[result]]
+name = "contrast/meshgraphnet_1"
+path = "predictions/contrast/meshgraphnet_1.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 1.11641, darcy-l2 = 2.40242, darcy-bc = 0.00430167, darcy-flux = 0.278057, darcy-positivity = 1e-12 }
+
+[[result]]
+name = "length_scale/fno_0"
+path = "predictions/length_scale/fno_0.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 0.38665, darcy-l2 = 0.593941, darcy-bc = 0.0140255, darcy-flux = 0.643858, darcy-positivity = 0.0261377 }
+
+[[result]]
+name = "length_scale/fno_1"
+path = "predictions/length_scale/fno_1.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 0.38665, darcy-l2 = 0.593941, darcy-bc = 0.0140255, darcy-flux = 0.643858, darcy-positivity = 0.0261377 }
+
+[[result]]
+name = "length_scale/meshgraphnet_0"
+path = "predictions/length_scale/meshgraphnet_0.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 1.11641, darcy-l2 = 2.40242, darcy-bc = 0.00430167, darcy-flux = 0.278057, darcy-positivity = 1e-12 }
+
+[[result]]
+name = "length_scale/meshgraphnet_1"
+path = "predictions/length_scale/meshgraphnet_1.npz"
+physics = "darcy"
+parameters = { f = 1 }
+units = { a = "1", u = "1" }
+bounds = { a = [3, 12] }
+envelope = { a-min = 3.0, a-max = 12.0, contrast = [4, 4], high-fraction = [0.399769, 0.586807], interface-density = [0.0143621, 0.0449079] }
+tolerances = { darcy-energy = 1.11641, darcy-l2 = 2.40242, darcy-bc = 0.00430167, darcy-flux = 0.278057, darcy-positivity = 1e-12 }

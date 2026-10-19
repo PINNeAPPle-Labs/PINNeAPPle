@@ -6,6 +6,9 @@ datasets, so the lab database also holds the long runs that are too expensive to
 scripts that produced the artefacts are snapshotted with each run (``code_files``).
 
     python -m pinneapple_lab sweep repo_results -g source=burgers_pinn,fin_inverse_2d,fin_inverse_3d,...
+
+More sources (electric machines, electromagnetics, aero, rover, forecasting, design apps) live in
+``repo_sources``, which also states what each check kind means for the curation.
 """
 from __future__ import annotations
 
@@ -16,6 +19,7 @@ import os
 import numpy as np
 
 from ..spec import Experiment, register
+from . import repo_sources
 
 _REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -267,9 +271,12 @@ def _plot_pair(ctx, name, a, b, *, extent, xlabel, ylabel, cmap, title):
     ctx.figure(name, fig)
 
 
+SOURCES.update(repo_sources.SOURCES)
+_SCRIPTS.update(repo_sources.SCRIPTS)
+
 _RUN = {"burgers_pinn": _burgers, "fin_inverse_2d": lambda c: _fin(c, "2d"), "fin_inverse_3d": lambda c: _fin(c, "3d"),
         "lbm_strouhal": _lbm, "meshgraphnet": _mgn, "concorde_aoa": _concorde, "bh_forecast": _bh,
-        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil, "ahmed_body": _ahmed}
+        "heatsink_surrogate": _heatsink, "airfoil_surrogate": _airfoil, "ahmed_body": _ahmed, **repo_sources.RUN}
 
 
 @register
@@ -277,10 +284,13 @@ class RepoResults(Experiment):
     name = "repo_results"
     version = "1"
     description = ("Results already produced by repository scripts (PINNs, inverse problems, LBM, MeshGraphNet, "
-                   "black-hole forecasts), re-validated against their references and stored as datasets.")
+                   "black-hole forecasts, electric machines, electromagnetics, airfoil and airliner CFD, the lunar "
+                   "rover, forecasting studies, design apps), re-validated against their references and stored as "
+                   "datasets.")
     tags = ["import", "benchmark", "dataset"]
     case_param = "source"
     case_descriptions = SOURCES
+    check_labels = repo_sources.CHECK_LABELS
     limitations = {
         "burgers_pinn": ["5.9 % relative L2 against the exact solution (a well-tuned PINN reaches < 1 %)"],
         "fin_inverse_3d": ["the network's own h is 7 % low (weak flux constraint); the finite-volume refit is exact"],
@@ -290,10 +300,11 @@ class RepoResults(Experiment):
                          "not wind-tunnel data"],
         "bh_forecast": ["pseudo-Newtonian 2.5-D hydro, not GRMHD"],
         "ahmed_body": ["steady RANS (k-omega SST, wall functions); the medium mesh is not grid-converged"],
+        **repo_sources.LIMITATIONS,
     }
     params = {"source": "burgers_pinn"}
     space = {"source": list(SOURCES)}
-    code_files = [_p(s) for v in _SCRIPTS.values() for s in v]
+    code_files = [_p(s) for v in _SCRIPTS.values() for s in v] + [repo_sources.__file__]
 
     def run(self, ctx):
         src = ctx.params["source"]

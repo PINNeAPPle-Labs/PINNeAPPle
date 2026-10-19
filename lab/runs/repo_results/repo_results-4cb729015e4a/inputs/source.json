@@ -1,0 +1,7 @@
+{
+ "name": "weather_era5",
+ "description": "ERA5 64 x 32 global weather model (phase 1): heat-dome forecast and z500 skill previews",
+ "scripts": [
+  "examples/weather_forecasting/run_use_cases.py"
+ ]
+}

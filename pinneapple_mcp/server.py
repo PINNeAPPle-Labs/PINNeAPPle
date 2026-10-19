@@ -19,7 +19,8 @@ Start with capabilities and list_methods; zoo_list shows pre-trained, verified m
 your own). solve and benchmark start a job: poll job_status with the job_id (or pass
 wait_seconds). Never report a result without its trust card: every solve/benchmark result carries the physics checks
 (PDE residual, boundary conditions, conservation, reference error, applicability) and a decision APPROVED / REVIEW /
-REJECT. Use trust_card to check any field you have (a file or inline values). Results are saved under the working
+REJECT. Use trust_card to check any field you have (a file or inline values). design turns a plain-language goal into
+a verified design package, or says what is missing / out of scope. Results are saved under the working
 directory; the paths are in each result."""
 
 Problem = Annotated[dict[str, Any], Field(description=(
@@ -134,6 +135,23 @@ def _register(server) -> None:
         training time, and a trust card per run; writes table.md. Returns the job status; poll job_status."""
         return T.benchmark(problem, methods, budget, seeds, reference, options, grid_points_per_axis, max_seconds,
                            wait_seconds)
+
+    @server.tool()
+    def design(
+        text: Annotated[str, Field(description="The goal in plain language, e.g. 'a bracket that holds 2 kN'")],
+        answers: Annotated[dict[str, Any] | None, Field(description=(
+            "Answers to follow-up questions: {slot: value} in the slot's unit or {slot: [value, unit]}, e.g. "
+            "{'arm_length': [100, 'mm']}"))] = None,
+        verify: Annotated[bool, Field(description="Run the full-fidelity solver on the chosen design")] = True,
+        seed: Annotated[int, Field(ge=0, description="Seed (same seed, same design)")] = 0,
+        max_seconds: MaxSeconds = None,
+        wait_seconds: Wait = 0.0,
+    ) -> dict[str, Any]:
+        """Design from intent: returns at once 'out_of_scope' (with what would be needed) or 'needs_input' (the
+        questions to answer), otherwise starts a job whose result is the design package: verdict with probability,
+        design, margins per failure mode, full-solver verification, operating window, bill of materials, limits and
+        the files (report.html, STEP / STL / glTF). Poll job_status."""
+        return T.design(text, answers, verify, seed, max_seconds, wait_seconds)
 
     @server.tool()
     def zoo_list(task: Annotated[str | None, Field(description="Filter by task")] = None) -> dict[str, Any]:

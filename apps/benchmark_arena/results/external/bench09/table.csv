@@ -1,0 +1,207 @@
+problem,method,column,kind,set,metric,n,mean,std,n_seeds,status
+burgers,pinn,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.2457845022239642,0.08144417797494086,3,pass (warnings)
+burgers,pinn,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.5923763706022083,0.05064358293712406,3,pass (warnings)
+burgers,pinn,Energy ∫u² rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.11750736607153907,0.023694320597683043,3,pass (warnings)
+burgers,pinn,train_s,cost,,train_s,,300.05108119749156,,,pass (warnings)
+burgers,pinn,flops,cost,,flops,,2241272165171.1997,,,pass (warnings)
+burgers,pinn,time_per_instance_s,cost,,time_per_instance_s,,300.0548834320917,,,pass (warnings)
+burgers,fno,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.001676527301879763,0.0003401449172882273,3,pass (warnings)
+burgers,fno,"Rel. L2, test, all (n = 200)",field,test,rel_l2,200,0.0032846107762475782,0.0002972792714147989,3,pass (warnings)
+burgers,fno,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.03931561359999131,0.0016907839782570027,3,pass (warnings)
+burgers,fno,"Rel. L2, OOD, all (n = 100)",field,ood,rel_l2,100,0.01991684296400444,0.0014842477329437638,3,pass (warnings)
+burgers,fno,Energy ∫u² rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.0019307499935322945,0.001111784514421097,3,pass (warnings)
+burgers,fno,train_s,cost,,train_s,,300.0075883069658,,,pass (warnings)
+burgers,fno,flops,cost,,flops,,2680576081920.0,,,pass (warnings)
+burgers,fno,data_core_s,cost,,data_core_s,,1170.449283505,,,pass (warnings)
+burgers,fno,time_per_instance_s,cost,,time_per_instance_s,,0.001684399000320506,,,pass (warnings)
+burgers,fno,break_even,cost,,break_even,,4.900653872548103,,,pass (warnings)
+burgers,deeponet,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.0154797150613295,0.0019580828483298546,3,pass (warnings)
+burgers,deeponet,"Rel. L2, test, all (n = 200)",field,test,rel_l2,200,0.04162854967339861,0.0012966054261018347,3,pass (warnings)
+burgers,deeponet,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.2281410026866922,0.032568559827243854,3,pass (warnings)
+burgers,deeponet,"Rel. L2, OOD, all (n = 100)",field,ood,rel_l2,100,0.1416690705939484,0.0018340222333455883,3,pass (warnings)
+burgers,deeponet,Energy ∫u² rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.01088548052114914,0.0058649832621013665,3,pass (warnings)
+burgers,deeponet,train_s,cost,,train_s,,300.0020565374628,,,pass (warnings)
+burgers,deeponet,flops,cost,,flops,,10816507871232.0,,,pass (warnings)
+burgers,deeponet,data_core_s,cost,,data_core_s,,1170.449283505,,,pass (warnings)
+burgers,deeponet,time_per_instance_s,cost,,time_per_instance_s,,0.002004889166225136,,,pass (warnings)
+burgers,deeponet,break_even,cost,,break_even,,4.900640671014594,,,pass (warnings)
+burgers,pinn,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.2523865361285888,0.08570739256198828,3,pass (warnings)
+burgers,fno,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.001858842545428405,0.00012711603327030465,3,pass (warnings)
+burgers,fno,"equal FLOPs: rel_l2, test",equal_flops,test,rel_l2,200,0.0033628770274959606,0.00033673155348767697,3,pass (warnings)
+burgers,deeponet,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.05800899168121255,0.006082177698869648,3,pass (warnings)
+burgers,deeponet,"equal FLOPs: rel_l2, test",equal_flops,test,rel_l2,200,0.05608697710858369,0.003644768308208924,3,pass (warnings)
+darcy,pinn,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.8727073621998507,0.004087054928587666,3,pass (warnings)
+darcy,pinn,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.8914068410463426,0.0029878535111952315,3,pass (warnings)
+darcy,pinn,Compliance ∫u rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.8630079540433818,0.004037339011686302,3,pass (warnings)
+darcy,pinn,train_s,cost,,train_s,,300.07403762107924,,,pass (warnings)
+darcy,pinn,flops,cost,,flops,,10993235656704.0,,,pass (warnings)
+darcy,pinn,time_per_instance_s,cost,,time_per_instance_s,,300.07983703811254,,,pass (warnings)
+darcy,fno,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.016737446366776394,0.0004918799970596287,3,pass
+darcy,fno,"Rel. L2, test, all (n = 200)",field,test,rel_l2,200,0.015305901321849108,0.00041413366527568964,3,pass
+darcy,fno,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.013786529462873775,0.0016579728040469171,3,pass
+darcy,fno,"Rel. L2, OOD, all (n = 100)",field,ood,rel_l2,100,0.01720288685974549,0.0005349725186767483,3,pass
+darcy,fno,Compliance ∫u rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.009625045735243502,0.0006113264095446581,3,pass
+darcy,fno,train_s,cost,,train_s,,300.15301831068547,,,pass
+darcy,fno,flops,cost,,flops,,2114869002240.0,,,pass
+darcy,fno,data_core_s,cost,,data_core_s,,69.187990658,,,pass
+darcy,fno,time_per_instance_s,cost,,time_per_instance_s,,0.012608192499707608,,,pass
+darcy,fno,break_even,cost,,break_even,,1.2308608653786535,,,pass
+darcy,deeponet,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.05698679929274897,0.0031841648438645505,3,pass (warnings)
+darcy,deeponet,"Rel. L2, test, all (n = 200)",field,test,rel_l2,200,0.057710184671184744,0.00081807070301097,3,pass (warnings)
+darcy,deeponet,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.0602416657217926,0.003206121770098345,3,pass (warnings)
+darcy,deeponet,"Rel. L2, OOD, all (n = 100)",field,ood,rel_l2,100,0.06111586205782482,0.0005139357275279866,3,pass (warnings)
+darcy,deeponet,Compliance ∫u rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.024120663479694934,0.004787699212750183,3,pass (warnings)
+darcy,deeponet,train_s,cost,,train_s,,300.0188193592585,,,pass (warnings)
+darcy,deeponet,flops,cost,,flops,,15814503475882.666,,,pass (warnings)
+darcy,deeponet,data_core_s,cost,,data_core_s,,69.187990658,,,pass (warnings)
+darcy,deeponet,time_per_instance_s,cost,,time_per_instance_s,,0.004977442333862807,,,pass (warnings)
+darcy,deeponet,break_even,cost,,break_even,,1.2303823469737027,,,pass (warnings)
+darcy,pinn,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.8458797652146108,0.013277995271271877,3,pass (warnings)
+darcy,fno,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.013871881529165813,0.0005181762207379423,3,pass
+darcy,fno,"equal FLOPs: rel_l2, test",equal_flops,test,rel_l2,200,0.015345952469545758,0.00037124537638955226,3,pass
+darcy,deeponet,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.05214472281009346,0.001703213291800789,3,pass (warnings)
+darcy,deeponet,"equal FLOPs: rel_l2, test",equal_flops,test,rel_l2,200,0.06601996084679011,0.000927105821056771,3,pass (warnings)
+navier_stokes,pinn,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.16043103662102454,0.005628397752650316,3,pass (warnings)
+navier_stokes,pinn,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.5065861204822569,0.005313721290196734,3,pass (warnings)
+navier_stokes,pinn,Enstrophy ∫ω² rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.2482736588932465,0.008744508522105723,3,pass (warnings)
+navier_stokes,pinn,train_s,cost,,train_s,,300.11438970060135,,,pass (warnings)
+navier_stokes,pinn,flops,cost,,flops,,3639046349619.2007,,,pass (warnings)
+navier_stokes,pinn,time_per_instance_s,cost,,time_per_instance_s,,300.14201766903466,,,pass (warnings)
+navier_stokes,fno,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.006802712789775014,0.000891259203166012,3,pass (warnings)
+navier_stokes,fno,"Rel. L2, test, all (n = 200)",field,test,rel_l2,200,0.008439765519039437,0.0011818637120039046,3,pass (warnings)
+navier_stokes,fno,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.01067966223781089,0.0011929287132257606,3,pass (warnings)
+navier_stokes,fno,"Rel. L2, OOD, all (n = 100)",field,ood,rel_l2,100,0.01373675496329232,0.0013495739775493114,3,pass (warnings)
+navier_stokes,fno,Enstrophy ∫ω² rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.001965224823388381,0.0009716289289585336,3,pass (warnings)
+navier_stokes,fno,train_s,cost,,train_s,,300.09780253733226,,,pass (warnings)
+navier_stokes,fno,flops,cost,,flops,,2206964121600.0,,,pass (warnings)
+navier_stokes,fno,data_core_s,cost,,data_core_s,,3842.721344333,,,pass (warnings)
+navier_stokes,fno,time_per_instance_s,cost,,time_per_instance_s,,0.015271771333345896,,,pass (warnings)
+navier_stokes,fno,break_even,cost,,break_even,,13.803565338633362,,,pass (warnings)
+navier_stokes,deeponet,"Rel. L2, test (n = 3)",field,pinn_test,rel_l2,3,0.03071790065026678,0.005121962709544976,3,pass (warnings)
+navier_stokes,deeponet,"Rel. L2, test, all (n = 200)",field,test,rel_l2,200,0.031526288157282915,0.0005428083874615984,3,pass (warnings)
+navier_stokes,deeponet,"Rel. L2, OOD (n = 2)",field,pinn_ood,rel_l2,2,0.04193150227186479,0.008500840450519385,3,pass (warnings)
+navier_stokes,deeponet,"Rel. L2, OOD, all (n = 100)",field,ood,rel_l2,100,0.04167672894568638,0.001866206449152458,3,pass (warnings)
+navier_stokes,deeponet,Enstrophy ∫ω² rel. err (n = 3),integral,pinn_test,qoi_rel_err,3,0.011547753025270122,0.005669866167536763,3,pass (warnings)
+navier_stokes,deeponet,train_s,cost,,train_s,,300.01852661199746,,,pass (warnings)
+navier_stokes,deeponet,flops,cost,,flops,,15780107823786.666,,,pass (warnings)
+navier_stokes,deeponet,data_core_s,cost,,data_core_s,,3842.721344333,,,pass (warnings)
+navier_stokes,deeponet,time_per_instance_s,cost,,time_per_instance_s,,0.007115435499978655,,,pass (warnings)
+navier_stokes,deeponet,break_even,cost,,break_even,,13.802926084622893,,,pass (warnings)
+navier_stokes,pinn,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.3037666175125325,0.0167025934922946,3,pass (warnings)
+navier_stokes,fno,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.011078706051088176,0.0020610380598786613,3,pass (warnings)
+navier_stokes,fno,"equal FLOPs: rel_l2, test",equal_flops,test,rel_l2,200,0.008449045940582059,0.001164059398232476,3,pass (warnings)
+navier_stokes,deeponet,"equal FLOPs: rel_l2, pinn_test",equal_flops,pinn_test,rel_l2,1,0.05243930478365732,0.0018675773598080963,3,pass (warnings)
+navier_stokes,deeponet,"equal FLOPs: rel_l2, test",equal_flops,test,rel_l2,200,0.04098860831643252,0.0006987783097686669,3,pass (warnings)
+airfoil,pinn,"Cl abs. err, held-out test, PINN cases (n = 4)",integral,test4,cl,4,0.7801301875529972,0.09877424154180346,3,pass
+airfoil,pinn,"Cd rel. err, held-out test, PINN cases (n = 4)",integral,test4,cd,4,0.9869877533595672,0.0034917974507573577,3,pass
+airfoil,pinn,"Cl abs. err, NACA polars (n = 36)",integral,naca,cl,1,0.5355148521257108,0.1389953942545335,3,pass
+airfoil,pinn,"Cd rel. err, NACA polars (n = 36)",integral,naca,cd,1,0.9865749506411411,0.013813364534349835,3,pass
+airfoil,pinn,"Cl abs. err, OOD, PINN cases (n = 4)",integral,ood4,cl,4,0.37602676353082104,0.0,1,pass
+airfoil,pinn,"Cd rel. err, OOD, PINN cases (n = 4)",integral,ood4,cd,4,0.9902135013845963,0.0,1,pass
+airfoil,pinn,"Velocity rel. L2, held-out test, PINN cases (n = 4)",field,test4,u,4,0.8331922739744186,0.011775538982494007,3,pass
+airfoil,pinn,"Pressure rel. L2, held-out test, PINN cases (n = 4)",field,test4,p,4,1.976063181956609,0.009009918304902604,3,pass
+airfoil,pinn,"Velocity rel. L2, NACA polars (n = 36)",field,naca,u,1,0.7801206509272257,0.05016268630989231,3,pass
+airfoil,pinn,"Pressure rel. L2, NACA polars (n = 36)",field,naca,p,1,2.649267594019572,0.05720426265276011,3,pass
+airfoil,pinn,"Velocity rel. L2, OOD, PINN cases (n = 4)",field,ood4,u,4,0.8562732338905334,0.0,1,pass
+airfoil,pinn,"Pressure rel. L2, OOD, PINN cases (n = 4)",field,ood4,p,4,2.839360296726227,0.0,1,pass
+airfoil,pinn,train_s,cost,,train_s,,900.0478771735578,,,pass
+airfoil,pinn,flops,cost,,flops,,16496897285597.867,,,pass
+airfoil,pinn,time_per_instance_s,cost,,time_per_instance_s,,900.0519753322538,,,pass
+airfoil,mgn,"Cl abs. err, held-out test, PINN cases (n = 4)",integral,test4,cl,4,0.03419591362538412,0.01639791032353024,3,pass (warnings)
+airfoil,mgn,"Cd rel. err, held-out test, PINN cases (n = 4)",integral,test4,cd,4,0.018657858199671137,0.00554469360222336,3,pass (warnings)
+airfoil,mgn,"Cl abs. err, held-out test, all (n = 60)",integral,test,cl,60,0.03332446211142883,0.0038533635006961883,3,pass (warnings)
+airfoil,mgn,"Cd rel. err, held-out test, all (n = 60)",integral,test,cd,60,0.021580874876183917,0.0031038180737283615,3,pass (warnings)
+airfoil,mgn,"Cl abs. err, NACA polars (n = 36)",integral,naca,cl,36,0.03387507385630802,0.0031776924785978317,3,pass (warnings)
+airfoil,mgn,"Cd rel. err, NACA polars (n = 36)",integral,naca,cd,36,0.029479938905960183,0.008230946026699115,3,pass (warnings)
+airfoil,mgn,"Cl abs. err, OOD, PINN cases (n = 4)",integral,ood4,cl,4,0.08673000516670058,0.028330976207942418,3,pass (warnings)
+airfoil,mgn,"Cd rel. err, OOD, PINN cases (n = 4)",integral,ood4,cd,4,0.04406355644498445,0.006767977040017339,3,pass (warnings)
+airfoil,mgn,"Cl abs. err, OOD, all (n = 12)",integral,ood,cl,12,0.08390635546481567,0.031683450165590724,3,pass (warnings)
+airfoil,mgn,"Cd rel. err, OOD, all (n = 12)",integral,ood,cd,12,0.060952075885800976,0.008454139689252287,3,pass (warnings)
+airfoil,mgn,"Velocity rel. L2, held-out test, PINN cases (n = 4)",field,test4,u,4,0.16858558294673762,0.04928758954405714,3,pass (warnings)
+airfoil,mgn,"Pressure rel. L2, held-out test, PINN cases (n = 4)",field,test4,p,4,0.4793002853790919,0.14679168973858667,3,pass (warnings)
+airfoil,mgn,"Velocity rel. L2, held-out test, all (n = 60)",field,test,u,60,0.16891801030271583,0.04714221370435951,3,pass (warnings)
+airfoil,mgn,"Pressure rel. L2, held-out test, all (n = 60)",field,test,p,60,0.50172587732474,0.10946452009232548,3,pass (warnings)
+airfoil,mgn,"Velocity rel. L2, NACA polars (n = 36)",field,naca,u,36,0.17745427269902495,0.04686046686699122,3,pass (warnings)
+airfoil,mgn,"Pressure rel. L2, NACA polars (n = 36)",field,naca,p,36,0.5231543986333741,0.10677721121507007,3,pass (warnings)
+airfoil,mgn,"Velocity rel. L2, OOD, PINN cases (n = 4)",field,ood4,u,4,0.20261017108956972,0.023715956908366507,3,pass (warnings)
+airfoil,mgn,"Pressure rel. L2, OOD, PINN cases (n = 4)",field,ood4,p,4,0.7457463095585505,0.044620035362408064,3,pass (warnings)
+airfoil,mgn,"Velocity rel. L2, OOD, all (n = 12)",field,ood,u,12,0.21053639178474745,0.023171206933612944,3,pass (warnings)
+airfoil,mgn,"Pressure rel. L2, OOD, all (n = 12)",field,ood,p,12,0.7239736989140511,0.04916408564315926,3,pass (warnings)
+airfoil,mgn,train_s,cost,,train_s,,900.3396493539932,,,pass (warnings)
+airfoil,mgn,flops,cost,,flops,,18612279613440.0,,,pass (warnings)
+airfoil,mgn,data_core_s,cost,,data_core_s,,24498.720455884933,,,pass (warnings)
+airfoil,mgn,time_per_instance_s,cost,,time_per_instance_s,,0.10493043600005574,,,pass (warnings)
+airfoil,mgn,break_even,cost,,break_even,,28.222838498421805,,,pass (warnings)
+airfoil,mlp,"Cl abs. err, held-out test, PINN cases (n = 4)",integral,test4,cl,4,0.0010696252636490933,0.00030925504831617385,3,pass (warnings)
+airfoil,mlp,"Cd rel. err, held-out test, PINN cases (n = 4)",integral,test4,cd,4,0.0029544258622703702,0.0014942732492865388,3,pass (warnings)
+airfoil,mlp,"Cl abs. err, held-out test, all (n = 60)",integral,test,cl,60,0.0022664283272031353,0.0003794925855341903,3,pass (warnings)
+airfoil,mlp,"Cd rel. err, held-out test, all (n = 60)",integral,test,cd,60,0.005662981770430523,0.0020936440051314313,3,pass (warnings)
+airfoil,mlp,"Cl abs. err, NACA polars (n = 36)",integral,naca,cl,36,0.002376131128464454,0.00022028142505640946,3,pass (warnings)
+airfoil,mlp,"Cd rel. err, NACA polars (n = 36)",integral,naca,cd,36,0.004559659082608438,0.0001308667444227022,3,pass (warnings)
+airfoil,mlp,"Cl abs. err, OOD, PINN cases (n = 4)",integral,ood4,cl,4,0.004527992815353811,0.0012032034072131986,3,pass (warnings)
+airfoil,mlp,"Cd rel. err, OOD, PINN cases (n = 4)",integral,ood4,cd,4,0.005350837539121839,0.0016651775120325115,3,pass (warnings)
+airfoil,mlp,"Cl abs. err, OOD, all (n = 12)",integral,ood,cl,12,0.004615184986995147,0.0009537101485570322,3,pass (warnings)
+airfoil,mlp,"Cd rel. err, OOD, all (n = 12)",integral,ood,cd,12,0.007391784318194476,0.002453464275225583,3,pass (warnings)
+airfoil,mlp,train_s,cost,,train_s,,900.0382470896757,,,pass (warnings)
+airfoil,mlp,flops,cost,,flops,,17173862903040.0,,,pass (warnings)
+airfoil,mlp,data_core_s,cost,,data_core_s,,24498.720455884933,,,pass (warnings)
+airfoil,mlp,time_per_instance_s,cost,,time_per_instance_s,,0.00023114616665983098,,,pass (warnings)
+airfoil,mlp,break_even,cost,,break_even,,28.219220580415183,,,pass (warnings)
+airfoil,mlp_fields,"Velocity rel. L2, held-out test, PINN cases (n = 4)",field,test4,u,4,0.0038324075479370854,0.00030290325605743885,3,pass
+airfoil,mlp_fields,"Pressure rel. L2, held-out test, PINN cases (n = 4)",field,test4,p,4,0.009286505441802243,0.001455296339524998,3,pass
+airfoil,mlp_fields,"Velocity rel. L2, held-out test, all (n = 60)",field,test,u,60,0.004962124477606266,0.00032797145160733403,3,pass
+airfoil,mlp_fields,"Pressure rel. L2, held-out test, all (n = 60)",field,test,p,60,0.01421253170637,0.0017151251188461825,3,pass
+airfoil,mlp_fields,"Velocity rel. L2, NACA polars (n = 36)",field,naca,u,36,0.004656269735682548,0.00021226252404452303,3,pass
+airfoil,mlp_fields,"Pressure rel. L2, NACA polars (n = 36)",field,naca,p,36,0.012025356139660019,0.0015551379880110623,3,pass
+airfoil,mlp_fields,"Velocity rel. L2, OOD, PINN cases (n = 4)",field,ood4,u,4,0.016352719084049266,0.0034693885639103176,3,pass
+airfoil,mlp_fields,"Pressure rel. L2, OOD, PINN cases (n = 4)",field,ood4,p,4,0.05863028112798929,0.015654450896947662,3,pass
+airfoil,mlp_fields,"Velocity rel. L2, OOD, all (n = 12)",field,ood,u,12,0.01792910904623568,0.003459326749906128,3,pass
+airfoil,mlp_fields,"Pressure rel. L2, OOD, all (n = 12)",field,ood,p,12,0.058085969287074275,0.018720858334539042,3,pass
+airfoil,mlp_fields,train_s,cost,,train_s,,900.000916779417,,,pass
+airfoil,mlp_fields,flops,cost,,flops,,12333801062400.0,,,pass
+airfoil,mlp_fields,data_core_s,cost,,data_core_s,,24498.720455884933,,,pass
+airfoil,mlp_fields,time_per_instance_s,cost,,time_per_instance_s,,5.484716681773231e-05,,,pass
+airfoil,mlp_fields,break_even,cost,,break_even,,28.21917357720385,,,pass
+airfoil,pinn_rans,"Cl abs. err, held-out test, PINN cases (n = 4)",integral,test4,cl,4,0.8751623429845173,0.001319090478308315,3,INVALID
+airfoil,pinn_rans,"Cd rel. err, held-out test, PINN cases (n = 4)",integral,test4,cd,4,0.8976521673803862,0.04167502350324595,3,INVALID
+airfoil,pinn_rans,"Cl abs. err, NACA polars (n = 36)",integral,naca,cl,1,0.6618108978914682,0.0005169193446052392,3,INVALID
+airfoil,pinn_rans,"Cd rel. err, NACA polars (n = 36)",integral,naca,cd,1,0.9303672915434537,0.0625257458243441,3,INVALID
+airfoil,pinn_rans,"Cl abs. err, OOD, PINN cases (n = 4)",integral,ood4,cl,4,0.4804333524433334,0.0,1,INVALID
+airfoil,pinn_rans,"Cd rel. err, OOD, PINN cases (n = 4)",integral,ood4,cd,4,0.8769787551583239,0.0,1,INVALID
+airfoil,pinn_rans,"Velocity rel. L2, held-out test, PINN cases (n = 4)",field,test4,u,4,0.9596873621145884,0.004313040202694378,3,INVALID
+airfoil,pinn_rans,"Pressure rel. L2, held-out test, PINN cases (n = 4)",field,test4,p,4,1.0196844885746639,0.016848329427750625,3,INVALID
+airfoil,pinn_rans,"Velocity rel. L2, NACA polars (n = 36)",field,naca,u,1,0.9588770866394043,0.02187515823497574,3,INVALID
+airfoil,pinn_rans,"Pressure rel. L2, NACA polars (n = 36)",field,naca,p,1,1.0327545007069905,0.02178008064050248,3,INVALID
+airfoil,pinn_rans,"Velocity rel. L2, OOD, PINN cases (n = 4)",field,ood4,u,4,0.979610949754715,0.0,1,INVALID
+airfoil,pinn_rans,"Pressure rel. L2, OOD, PINN cases (n = 4)",field,ood4,p,4,1.0337574481964111,0.0,1,INVALID
+airfoil,pinn_rans,train_s,cost,,train_s,,900.6147254855587,,,INVALID
+airfoil,pinn_rans,flops,cost,,flops,,16239314337792.0,,,INVALID
+airfoil,pinn_rans,time_per_instance_s,cost,,time_per_instance_s,,900.6279679292699,,,INVALID
+inverse_heat,pinn,"h rel. err, in range (n = 3)",integral,id,h,3,0.1136114537274396,0.05301922647416123,3,pass (warnings)
+inverse_heat,pinn,"h rel. err, out of range (n = 2)",integral,ood,h,2,0.39308201048109265,0.012998707621402131,3,pass (warnings)
+inverse_heat,pinn,"Hot-spot err °C, in range (n = 3)",integral,id,hot,3,0.2395010955102216,0.1332322028785669,3,pass (warnings)
+inverse_heat,pinn,"Max field err °C, in range (n = 3)",field,id,field,3,1.0987326414340117,0.31032827144336556,3,pass (warnings)
+inverse_heat,pinn,"Max field err °C, out of range (n = 2)",field,ood,field,2,1.7075115689674927,0.17157678749315458,3,pass (warnings)
+inverse_heat,pinn,train_s,cost,,train_s,,120.01570823399997,,,pass (warnings)
+inverse_heat,pinn,flops,cost,,flops,,1176728705211.7334,,,pass (warnings)
+inverse_heat,pinn,time_per_instance_s,cost,,time_per_instance_s,,120.01570823399997,,,pass (warnings)
+inverse_heat,deeponet,"h rel. err, in range (n = 3)",integral,id,h,3,0.010061666278847801,0.0029213765448201164,3,pass (warnings)
+inverse_heat,deeponet,"h rel. err, out of range (n = 2)",integral,ood,h,2,0.020615981443503132,0.011543906017810414,3,pass (warnings)
+inverse_heat,deeponet,"Hot-spot err °C, in range (n = 3)",integral,id,hot,3,0.12930179807924544,0.013914097602922098,3,pass (warnings)
+inverse_heat,deeponet,"Max field err °C, in range (n = 3)",field,id,field,3,0.524074598156618,0.10347202631288686,3,pass (warnings)
+inverse_heat,deeponet,"Max field err °C, out of range (n = 2)",field,ood,field,2,0.6667981073643604,0.21784462470560062,3,pass (warnings)
+inverse_heat,deeponet,train_s,cost,,train_s,,120.00673780764934,,,pass (warnings)
+inverse_heat,deeponet,flops,cost,,flops,,4471060531200.0,,,pass (warnings)
+inverse_heat,deeponet,data_core_s,cost,,data_core_s,,13.630291133000004,,,pass (warnings)
+inverse_heat,deeponet,time_per_instance_s,cost,,time_per_instance_s,,0.6197185170666367,,,pass (warnings)
+inverse_heat,deeponet,break_even,cost,,break_even,,1.1192756913986723,,,pass (warnings)
+inverse_heat,mlp,"h rel. err, in range (n = 3)",integral,id,h,3,0.010119927624460876,0.006253644980303614,3,pass (warnings)
+inverse_heat,mlp,"h rel. err, out of range (n = 2)",integral,ood,h,2,0.04481271583880684,0.02942147078847225,3,pass (warnings)
+inverse_heat,mlp,"Hot-spot err °C, in range (n = 3)",integral,id,hot,3,0.18935552735417516,0.09015618544796773,3,pass (warnings)
+inverse_heat,mlp,"Max field err °C, in range (n = 3)",field,id,field,3,0.23518417616949783,0.09577980719943216,3,pass (warnings)
+inverse_heat,mlp,"Max field err °C, out of range (n = 2)",field,ood,field,2,0.6133109366920445,0.08198868817102867,3,pass (warnings)
+inverse_heat,mlp,train_s,cost,,train_s,,120.00177530064184,,,pass (warnings)
+inverse_heat,mlp,flops,cost,,flops,,1271930316800.0,,,pass (warnings)
+inverse_heat,mlp,data_core_s,cost,,data_core_s,,13.630291133000004,,,pass (warnings)
+inverse_heat,mlp,time_per_instance_s,cost,,time_per_instance_s,,0.11048322106662455,,,pass (warnings)
+inverse_heat,mlp,break_even,cost,,break_even,,1.1144807611113519,,,pass (warnings)

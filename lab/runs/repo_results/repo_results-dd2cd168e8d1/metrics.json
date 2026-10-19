@@ -1,0 +1,14 @@
+{
+ "ding2011_smooth_drawbar_rmse_over_load": 0.09581371177631437,
+ "ding2011_smooth_sinkage_rmse_mm": 4.171354797436324,
+ "ding2011_grousered_drawbar_rmse_over_load": 0.05002045181587554,
+ "ding2011_grousered_sinkage_rmse_mm": 7.728943709932137,
+ "wanghan2016_smooth_drawbar_rmse_over_load": 0.24429838406173346,
+ "wanghan2016_smooth_sinkage_rmse_mm": 16.113989134837166,
+ "wanghan2016_grousered_drawbar_rmse_over_load": 0.15599364240331542,
+ "wanghan2016_grousered_sinkage_rmse_mm": 13.64520542393691,
+ "hurrell2025_grousered_drawbar_rmse_over_load": 0.12247189454216065,
+ "hurrell2025_grousered_sinkage_rmse_mm": 4.745803227231645,
+ "crater_max_sinkage_mm": 36.6239816952596,
+ "crater_energy_J": 794.1591016857135
+}

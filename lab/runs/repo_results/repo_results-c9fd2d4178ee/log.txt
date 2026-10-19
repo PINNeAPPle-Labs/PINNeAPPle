@@ -1,0 +1,36 @@
+[16:40:17] Electromagnetics verification suite (32 cases: FEM, Biot-Savart, Mie, Fresnel, dipoles, FDTD) against closed forms and published values, with the FDTD gallery
+[16:40:17] stage import started
+[16:40:17] check coaxial_capacitor_p1_fem: PASS 2 pi eps / ln(b/a); pass/fail and tolerance of pp.em.verification; observed orders 1.99, 2.00, 2.00 (expected 2)
+[16:40:17] check two_dielectric_parallel_plate_capacitor_p1_fem: PASS D uniform, E_i = D / eps_i (exact in P1); pass/fail and tolerance of pp.em.verification
+[16:40:17] check circular_loop_by_biot_savart_polygon: PASS elliptic-integral loop field (Jackson 5.37); pass/fail and tolerance of pp.em.verification; observed orders 1.99, 2.00, 2.00 (expected 2)
+[16:40:17] check infinite_wire_and_finite_solenoid_biot_savart: PASS current-sheet solenoid (closed form); pass/fail and tolerance of pp.em.verification
+[16:40:17] check coaxial_mutual_inductance: PASS Neumann double integral; pass/fail and tolerance of pp.em.verification
+[16:40:17] check axisymmetric_coil_fdm_eddy_current_fdm_at_dc: PASS sum of current-loop fields (closed form); pass/fail and tolerance of pp.em.verification
+[16:40:17] check mie_sphere_vs_bohren_huffman_miepython: PASS BHMIE sample (B&H app. A); pass/fail and tolerance of pp.em.verification
+[16:40:17] check mie_small_sphere_rayleigh_limit: PASS 8/3 x^4 |(m^2-1)/(m^2+2)|^2; pass/fail and tolerance of pp.em.verification; observed orders 1.98, 2.00 (expected 2)
+[16:40:17] check fresnel_coefficients_and_brewster_angle: PASS energy conservation; r_p(atan n2/n1) = 0; pass/fail and tolerance of pp.em.verification
+[16:40:17] check bragg_mirror_characteristic_matrices: PASS ((1 - Y)/(1 + Y))^2, Y = (nH/nL)^2N ns; pass/fail and tolerance of pp.em.verification
+[16:40:17] check hertzian_dipole_radiated_power: PASS eta k^2 |I l|^2 / (12 pi); pass/fail and tolerance of pp.em.verification
+[16:40:17] check half_wave_dipole_radiation_resistance: PASS eta Cin(2 pi) / (4 pi) = 73.08 ohm; pass/fail and tolerance of pp.em.verification
+[16:40:17] check dispersive_ade_recursions_drude_debye_lorentz: PASS continuous chi(omega); pass/fail and tolerance of pp.em.verification; observed orders 2.00, 2.00 (expected 2)
+[16:40:17] check uniaxial_crystal_indices: PASS index ellipsoid; pass/fail and tolerance of pp.em.verification
+[16:40:17] check round_wire_a_z_p1_fem: PASS Ampere's law (closed form); pass/fail and tolerance of pp.em.verification; observed orders 2.06, 2.04 (expected 2)
+[16:40:17] check skin_effect_in_a_round_wire_a_z_eddy_fem: PASS Bessel solution (closed form); pass/fail and tolerance of pp.em.verification
+[16:40:17] check froehlich_kennelly_iron_ring_newton: PASS B(H) at H = I / (2 pi r); pass/fail and tolerance of pp.em.verification
+[16:40:17] check jiles_atherton_integrator: PASS 256 sub-steps; c = 1 stays anhysteretic; pass/fail and tolerance of pp.em.verification
+[16:40:17] check maxwell_residual_checks_on_an_exact_cavity_mode: PASS exact TM12 mode (residual -> 0); pass/fail and tolerance of pp.em.verification; observed orders 2.28, 2.22 (expected 2)
+[16:40:17] check fdtd_1_d_dielectric_half_space_fresnel: PASS (n1 - n2)/(n1 + n2); pass/fail and tolerance of pp.em.verification; observed orders 2.11, 2.03 (expected 2)
+[16:40:17] check fdtd_dispersive_half_spaces_drude_debye_lorentz_ade: PASS Fresnel with eps(omega) of the pole; pass/fail and tolerance of pp.em.verification; observed orders 2.05, 2.02 (expected 2)
+[16:40:17] check fdtd_2_d_pec_cavity_resonance_tm11: PASS c/2 sqrt(1/a^2 + 1/b^2); pass/fail and tolerance of pp.em.verification; observed orders 2.01, 1.98 (expected 2)
+[16:40:17] check fdtd_3_d_pec_box_resonance_te101: PASS rectangular cavity formula; pass/fail and tolerance of pp.em.verification; observed orders 2.01, 2.00 (expected 2)
+[16:40:17] check fdtd_rectangular_waveguide_te10_propagation_constant: PASS k sqrt(1 - (fc/f)^2); pass/fail and tolerance of pp.em.verification
+[16:40:17] check fdtd_bulk_plasma_drude_dispersion: PASS omega^2 = omega_p^2 + c^2 k^2; pass/fail and tolerance of pp.em.verification
+[16:40:17] check fdtd_dielectric_cylinder_tf_sf_plane_wave: PASS series of cylinder functions (Harrington 5-9); pass/fail and tolerance of pp.em.verification; observed orders 1.97, 2.12, 1.95 (expected 2)
+[16:40:17] check fdtd_hertzian_dipole_3_d: PASS complete dipole fields (Balanis 4-8); pass/fail and tolerance of pp.em.verification; observed orders 2.11, 1.98 (expected 2)
+[16:40:17] check fdtd_bloch_periodic_oblique_incidence_floquet: PASS Fresnel coefficient; pass/fail and tolerance of pp.em.verification; observed orders 2.05, 2.01 (expected 2)
+[16:40:17] check fdtd_cpml_reflection: PASS same run in a domain too large to reflect; pass/fail and tolerance of pp.em.verification
+[16:40:17] check fdtd_fields_through_the_maxwell_checks: PASS 0 for a solution of Maxwell's equations; pass/fail and tolerance of pp.em.verification
+[16:40:17] check fdtd_near_to_far_field_transform_dipole_pattern_and_power: PASS eta k |I l| sin(theta) / (4 pi); pass/fail and tolerance of pp.em.verification; observed orders 2.08, 2.06 (expected 2)
+[16:40:17] check fdtd_dielectric_sphere_vs_mie_3_d_tf_sf_near_to_far_field: PASS Mie series; pass/fail and tolerance of pp.em.verification
+[16:40:17] check fdtd_fields_pass_maxwell_checks: PASS Gauss, Faraday, Ampere-Maxwell and Poynting balance on the FDTD gallery fields
+[16:40:17] stage import done (0.033 s)

@@ -18,18 +18,19 @@
 </div>
 
 <header class="top obs-top">
-  <div class="brand"><span class="logo">◐</span> PINNeAPPle <b>Observatory</b></div>
+  <div class="brand"><span class="logo">◐</span> PINNeAPPle <b data-i18n="top.brand">Observatory</b></div>
   <div class="loc">
-    <button id="btnLocate" class="ghost" title="Use my location">⌖</button>
-    <select id="city" title="Location"></select>
+    <button id="btnLocate" class="ghost" title="Use my location" data-i18n-title="top.locate">⌖</button>
+    <select id="city" title="Location" data-i18n-title="top.location"></select>
     <span id="locText" class="muted"></span>
   </div>
   <div class="view seg" role="tablist">
-    <button id="vSky" class="on">Sky</button><button id="vSys">Solar system</button>
+    <button id="vSky" class="on" data-i18n="top.sky">Sky</button><button id="vSys" data-i18n="top.system">Solar system</button><button id="vJour" data-i18n="top.journey">Journey</button>
   </div>
   <div class="tools">
-    <button id="btnGyro" class="ghost" title="Point your phone at the sky" hidden>📱 Point</button>
-    <button id="btnPanel" class="ghost" title="Panels">☰</button>
+    <div id="langSel" class="seg lang" role="group" aria-label="Language" data-i18n-aria="top.language"><button data-lang="en" title="English">EN</button><button data-lang="pt" title="Português">PT</button></div>
+    <button id="btnGyro" class="ghost" title="Point your phone at the sky" data-i18n-title="top.gyroTitle" data-i18n="top.point" hidden>📱 Point</button>
+    <button id="btnPanel" class="ghost" title="Panels" data-i18n-title="top.panels">☰</button>
   </div>
 </header>
 
@@ -39,35 +40,42 @@
     <div id="clockSub" class="muted">--</div>
   </div>
   <div class="tctl">
-    <button id="tNow" class="ghost" title="Back to now">Now</button>
-    <button id="tBack" class="ghost" title="Slower / reverse">◀◀</button>
-    <button id="tPlay" class="ghost" title="Play / pause">❚❚</button>
-    <button id="tFwd" class="ghost" title="Faster">▶▶</button>
+    <button id="tNow" class="ghost" title="Back to now" data-i18n="hud.now" data-i18n-title="hud.nowTitle">Now</button>
+    <button id="tBack" class="ghost" title="Slower / reverse" data-i18n-title="hud.slower">◀◀</button>
+    <button id="tPlay" class="ghost" title="Play / pause" data-i18n-title="hud.play">❚❚</button>
+    <button id="tFwd" class="ghost" title="Faster" data-i18n-title="hud.faster">▶▶</button>
     <span id="speed" class="pill">×1</span>
-    <button id="tLayers" class="ghost" title="Layers">◎ Layers</button>
-    <input id="tSlider" type="range" min="-720" max="720" value="0" step="1" title="Shift time ±12 h">
-    <input id="tDate" type="datetime-local" title="Set date and time (local to your browser)">
+    <button id="tLayers" class="ghost" title="Layers" data-i18n="hud.layers" data-i18n-title="hud.layersTitle">◎ Layers</button>
+    <input id="tSlider" type="range" min="-720" max="720" value="0" step="1" title="Shift time ±12 h" data-i18n-title="hud.shift">
+    <input id="tDate" type="datetime-local" title="Set date and time (local to your browser)" data-i18n-title="hud.setDate">
   </div>
   <div class="layers" id="layers"></div>
 </div>
 
 <aside id="panel" class="open">
   <nav class="ptabs">
-    <button data-tab="tonight" class="on">Tonight</button>
-    <button data-tab="object">Object</button>
-    <button data-tab="sats">Satellites</button>
-    <button data-tab="analyses">Analyses</button>
-    <button data-tab="engine">Engine</button>
+    <button data-tab="tonight" class="on" data-i18n="tab.tonight">Tonight</button>
+    <button data-tab="object" data-i18n="tab.object">Object</button>
+    <button data-tab="sats" data-i18n="tab.sats">Satellites</button>
+    <button data-tab="analyses" data-i18n="tab.analyses">Analyses</button>
+    <button data-tab="engine" data-i18n="tab.engine">Engine</button>
+    <button data-tab="observe" data-i18n="tab.observe">Observe</button>
+    <button data-tab="learn" data-i18n="tab.learn">Learn</button>
   </nav>
   <section id="tab-tonight" class="pbody on"></section>
-  <section id="tab-object" class="pbody"><p class="muted">Tap or click any star, planet, the Moon, the Sun or a satellite.</p></section>
+  <section id="tab-object" class="pbody"></section>
   <section id="tab-sats" class="pbody"></section>
   <section id="tab-analyses" class="pbody"></section>
   <section id="tab-engine" class="pbody"></section>
+  <section id="tab-observe" class="pbody"></section>
+  <section id="tab-learn" class="pbody"></section>
   <footer class="foot pfoot"></footer>
 </aside>
 
 <div id="toast" hidden></div>
+<div id="tip" class="tipbox" hidden></div>
+<div id="eyepiece" hidden></div>
+<div id="journey" hidden></div>
 
 <script src="/shared/charts.js"></script>
 <script src="/shared/author.js"></script>

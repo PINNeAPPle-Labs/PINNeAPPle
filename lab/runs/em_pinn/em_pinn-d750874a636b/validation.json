@@ -1,0 +1,53 @@
+[
+ {
+  "name": "rel_l2_Ez_vs_closed_form",
+  "passed": false,
+  "value": 1.3295381726780136,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "4096 points, exact solution of the preset; tolerance 0.05",
+  "label": "Ez vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "rel_l2_Hx_vs_closed_form",
+  "passed": false,
+  "value": 0.9953918293658374,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "4096 points, exact solution of the preset; tolerance 0.05",
+  "label": "Hx vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "rel_l2_Hy_vs_closed_form",
+  "passed": false,
+  "value": 0.9969077935888737,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "4096 points, exact solution of the preset; tolerance 0.05",
+  "label": "Hy vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "training_loss_decreased",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ }
+]

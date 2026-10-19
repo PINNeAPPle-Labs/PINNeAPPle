@@ -112,6 +112,34 @@ def _one(args) -> Optional[Dict[str, float]]:
     return row if math.isfinite(r["r_base_k_w"]) and r["r_base_k_w"] > 0 else None
 
 
+def reference_solve(params: dict, mode: str = "forced") -> dict | None:
+    """The physics engine on one design given in the surrogate's dataset columns (``base_width_mm`` ...
+    ``fin_gap_mm`` or ``n_fins``, ``k_w_mk``, ``source_frac_w``/``_d`` or ``source_width_mm``/``_depth_mm``,
+    ``t_ambient_c``, ``air_velocity_m_s``, ``power_w``): the high-fidelity answer the zoo surrogates approximate.
+    ``None`` for a geometry the engine rejects (no gap between fins, non-finite result). About 0.4 s per design."""
+    p = dict(params)
+    if "fin_gap_mm" not in p:
+        N = max(float(p["n_fins"]), 2.0)
+        p["fin_gap_mm"] = (p["base_width_mm"] - N * p["fin_thickness_mm"]) / (N - 1)
+    p.setdefault("source_frac_w", p.get("source_width_mm", p["base_width_mm"]) / p["base_width_mm"])
+    p.setdefault("source_frac_d", p.get("source_depth_mm", p["base_depth_mm"]) / p["base_depth_mm"])
+    if p["fin_gap_mm"] <= 0:
+        return None
+    return _one((mode, p))
+
+
+def reference_solve_batch(X, names, output: str = "r_base_k_w", mode: str = "forced") -> np.ndarray:
+    """:func:`reference_solve` on every row of ``X`` (columns named by ``names``); NaN where the engine rejects
+    the design."""
+    X = np.atleast_2d(np.asarray(X, dtype=float))
+    out = np.full(X.shape[0], np.nan)
+    for i, row in enumerate(X):
+        r = reference_solve(dict(zip(names, row.tolist(), strict=True)), mode)
+        if r is not None:
+            out[i] = r[output]
+    return out
+
+
 def generate_dataset(mode: str, n: int, seed: int = 0, workers: int = 4) -> List[Dict[str, float]]:
     from pinneapple_data.parameter_sampling import sample_parameters
     ranges = {**COMMON_RANGES, **MODE_RANGES[mode]}

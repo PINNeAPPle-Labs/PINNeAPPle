@@ -1,0 +1,10 @@
+{
+ "preset": "em_two_dielectric_capacitor",
+ "fields": [
+  "phi"
+ ],
+ "coords": [
+  "x",
+  "y"
+ ]
+}

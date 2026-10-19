@@ -1,0 +1,362 @@
+{
+ "flow": "heat_1d",
+ "title": "Heat 1D: PINN vs finite differences vs exact",
+ "status": "done",
+ "wall_seconds": 83.7,
+ "machine": "x86_64 x86_64 (linux), CPU only",
+ "date": "2026-10-18",
+ "meta": {
+  "kind": "reproduction"
+ },
+ "nodes": {
+  "geo": {
+   "type": "geometry.domain",
+   "status": "done",
+   "seconds": 0.0022635459899902344,
+   "error": null,
+   "summary": "interval in 1-D, coordinates ['x', 't']",
+   "metrics": {
+    "dimension": 1
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": []
+  },
+  "mesh": {
+   "type": "geometry.mesh",
+   "status": "done",
+   "seconds": 0.0011794567108154297,
+   "error": null,
+   "summary": "",
+   "metrics": {
+    "nodes": 201
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "spacing",
+     "columns": [
+      "axis",
+      "nodes",
+      "h"
+     ],
+     "rows": [
+      [
+       "x",
+       201,
+       0.005
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "eq": {
+   "type": "equations.system",
+   "status": "done",
+   "seconds": 0.019434452056884766,
+   "error": null,
+   "summary": "heat (linear), 1 PDE(s), 2 condition(s)",
+   "metrics": {
+    "family": "heat",
+    "linear": true
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "equations",
+     "columns": [
+      "kind",
+      "on",
+      "equation",
+      "derivatives"
+     ],
+     "rows": [
+      [
+       "pde",
+       "",
+       "u_t = alpha*lap(u)",
+       "u_t, u_xx"
+      ],
+      [
+       "initial",
+       "t_min",
+       "u = sin(pi*x)",
+       ""
+      ],
+      [
+       "dirichlet",
+       "boundary",
+       "u = 0",
+       ""
+      ]
+     ]
+    }
+   ],
+   "figures": []
+  },
+  "fd": {
+   "type": "solver.classical",
+   "status": "done",
+   "seconds": 0.2387866973876953,
+   "error": null,
+   "summary": "FD on 201x41 points in 0.04 s",
+   "metrics": {
+    "method": "method of lines + BDF",
+    "nfev": 44,
+    "n_unknowns": 201,
+    "solve_seconds": {
+     "value": 0.0383,
+     "how": "wall clock of the solve on this machine"
+    }
+   },
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "fd_solution.png"
+   ]
+  },
+  "pinn": {
+   "type": "train.pinn",
+   "status": "done",
+   "seconds": 82.40129590034485,
+   "error": null,
+   "summary": "PINN trained in 82.0 s; validation passed",
+   "metrics": {
+    "train_seconds": {
+     "value": 81.97,
+     "how": "wall clock of training on this machine (CPU)"
+    },
+    "final_loss": 5.521896582649788e-06,
+    "n_parameters": 3297,
+    "residual_rms_fresh": {
+     "value": 0.0017747078453967675,
+     "how": "relative PDE residual at fresh points"
+    },
+    "rel_l2_vs_exact": {
+     "value": 0.00034210719564177516,
+     "how": "validate_pinn on a fresh grid"
+    },
+    "validation": "pass"
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "PINN validation (fresh points)",
+     "columns": [
+      "check",
+      "status",
+      "summary"
+     ],
+     "rows": [
+      [
+       "pinn.residual",
+       "pass",
+       "relative residual at fresh points: RMS 1.77e-03 (<= 0.05), max 9.12e-03 (<= 0.3, adaptive points included)"
+      ],
+      [
+       "pinn.trivial",
+       "pass",
+       "spread and gradient energy 1.00 x the exact solution's (>= 0.2)"
+      ],
+      [
+       "pinn.causality",
+       "pass",
+       "residual in the last quarter of the time interval 2.0e-03, first quarter 2.3e-03 (late/early 0.9, <= 10 unless the late residual passes); error early 2.8e-04 -> late 3.7e-04"
+      ],
+      [
+       "pinn.boundary",
+       "pass",
+       "boundary condition error 4.34e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "pinn.initial",
+       "pass",
+       "initial condition error 2.69e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "pinn.spectrum",
+       "pass",
+       "high-wavenumber energy -0% relative to the exact solution (within +/-25%)"
+      ],
+      [
+       "pinn.exact",
+       "pass",
+       "relative L2 error 3.42e-04 (<= 0.02), max 1.49e-03 of the scale"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "pinn_loss.png",
+    "pinn_solution.png"
+   ]
+  },
+  "validate": {
+   "type": "validate.compare",
+   "status": "done",
+   "seconds": 0.14580416679382324,
+   "error": null,
+   "summary": "FD: 6.58e-06, PINN: 3.35e-04 (vs exact solution)",
+   "metrics": {
+    "FD_rel_l2": {
+     "value": 6.577268207590082e-06,
+     "how": "against the exact solution on 8241 points"
+    },
+    "PINN_rel_l2": {
+     "value": 0.0003347401904029681,
+     "how": "against the exact solution on 8241 points"
+    },
+    "best": "FD"
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "errors against the exact solution",
+     "columns": [
+      "candidate",
+      "method",
+      "rel. L2",
+      "max |err|",
+      "RMSE",
+      "verdict"
+     ],
+     "rows": [
+      [
+       "FD",
+       "fd",
+       6.577268207590082e-06,
+       7.033978186021805e-06,
+       3.702252159909777e-06,
+       "PASS"
+      ],
+      [
+       "PINN",
+       "pinn",
+       0.0003347401904029681,
+       0.0014871060848236832,
+       0.00018842056516683793,
+       "PASS"
+      ]
+     ]
+    },
+    {
+     "title": "candidates' own checks",
+     "columns": [
+      "candidate",
+      "check",
+      "verdict",
+      "detail"
+     ],
+     "rows": [
+      [
+       "PINN",
+       "pinn.residual",
+       "PASS",
+       "relative residual at fresh points: RMS 1.77e-03 (<= 0.05), max 9.12e-03 (<= 0.3, adaptive points included)"
+      ],
+      [
+       "PINN",
+       "pinn.trivial",
+       "PASS",
+       "spread and gradient energy 1.00 x the exact solution's (>= 0.2)"
+      ],
+      [
+       "PINN",
+       "pinn.causality",
+       "PASS",
+       "residual in the last quarter of the time interval 2.0e-03, first quarter 2.3e-03 (late/early 0.9, <= 10 unless the late residual passes); error early 2.8e-04 -> late 3.7e-04"
+      ],
+      [
+       "PINN",
+       "pinn.boundary",
+       "PASS",
+       "boundary condition error 4.34e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "PINN",
+       "pinn.initial",
+       "PASS",
+       "initial condition error 2.69e-04 of the solution scale (<= 0.01)"
+      ],
+      [
+       "PINN",
+       "pinn.spectrum",
+       "PASS",
+       "high-wavenumber energy -0% relative to the exact solution (within +/-25%)"
+      ],
+      [
+       "PINN",
+       "pinn.exact",
+       "PASS",
+       "relative L2 error 3.42e-04 (<= 0.02), max 1.49e-03 of the scale"
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "validate_validation.png"
+   ]
+  },
+  "plot": {
+   "type": "viz.plot",
+   "status": "done",
+   "seconds": 0.22351503372192383,
+   "error": null,
+   "summary": "",
+   "metrics": {},
+   "warnings": [],
+   "tables": [],
+   "figures": [
+    "plot_plot_0.png",
+    "plot_plot_1.png"
+   ]
+  },
+  "lab": {
+   "type": "validate.lab",
+   "status": "done",
+   "seconds": 0.1841135025024414,
+   "error": null,
+   "summary": "tier B, sealed",
+   "metrics": {
+    "lab_status": "completed",
+    "tier": {
+     "value": "B",
+     "how": "pinneapple_lab.curation: A flagship, B solid, C plausible, D exploratory, E known problems, F not usable"
+    },
+    "lab_run_id": "flow_heat_1d_pinn_vs_finite_differences_vs_exact_lab-c143d412184f",
+    "seal": {
+     "value": "B",
+     "how": "pinneapple_lab (ABCDEF): solid"
+    }
+   },
+   "warnings": [],
+   "tables": [
+    {
+     "title": "what the next letter needs",
+     "columns": [
+      "gap",
+      "suggested action",
+      "nodes"
+     ],
+     "rows": [
+      [
+       "add figures: three plots, a movie, a render or a 3-D view",
+       "save the key plots, a movie or a render with the run",
+       "viz.field3d"
+      ],
+      [
+       "document it: references and a docs page",
+       "cite the papers or data the experiment reproduces, and cite `flow_heat_1d_pinn_vs_finite_differences_vs_exact_lab` in a docs page",
+       ""
+      ]
+     ]
+    }
+   ],
+   "figures": [
+    "lab_validation_sealed.png"
+   ]
+  }
+ },
+ "cached_nodes": []
+}

@@ -25,7 +25,8 @@ export class LineChart {
   }
 
   /** opts: {series: [{name, x[], y[], lo?[], hi?[], color, dash?}], refs: [{name, x[], y[], color}],
-   *        marker: {x, y}, xValid: [lo, hi], xDomain?, yDomain?, xFmt?, yFmt?, ariaLabel} */
+   *        marker: {x, y}, xValid: [lo, hi], zones: [{x0, x1, status: "warn" | "fail"}], xDomain?, yDomain?, xFmt?,
+   *        yFmt?, ariaLabel} */
   update(o) {
     this.o = o;
     const { W, H, m } = this, s = this.svg;
@@ -50,6 +51,10 @@ export class LineChart {
       const [a, b] = o.xValid;
       if (a > x0) g.append(svg("rect", { class: "oor-zone", x: X(x0), y: m.t, width: X(a) - X(x0), height: H - m.t - m.b }));
       if (b < x1) g.append(svg("rect", { class: "oor-zone", x: X(b), y: m.t, width: X(x1) - X(b), height: H - m.t - m.b }));
+    }
+    for (const z of o.zones || []) {                       // stretches where checks warn / fail: {x0, x1, status}
+      const a = Math.max(z.x0, x0), b = Math.min(z.x1, x1);
+      if (b > a) g.append(svg("rect", { class: `zone zone-${z.status}`, x: X(a), y: m.t, width: X(b) - X(a), height: H - m.t - m.b }));
     }
     for (const v of yt) if (v >= y0 && v <= y1) {
       g.append(svg("line", { class: "gridline", x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v) }));

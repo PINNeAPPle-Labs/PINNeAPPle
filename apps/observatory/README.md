@@ -25,6 +25,12 @@ JPL DE421 (public domain) ──► SPK reader ──► light time, solar defle
              black-body spectra, black-hole lensing of your sky         transits, satellite passes (SGP4)
 ```
 
+The interface is in **English and Portuguese** (EN / PT in the top bar; `#lang=pt` in the URL). All text lives in the
+message catalogues `observatory/static/i18n/{en,pt}.json`; constellations use their Portuguese names, stars their IAU
+names.
+
+![O céu de São Paulo ao anoitecer, em português](../../docs/assets/apps/14-observatory-sky-pt.jpg)
+
 ## Panels
 
 - **Tonight**: sky state (day / twilight / night), Moon phase, twilight times, what is up now, rise · transit · set of
@@ -39,6 +45,15 @@ JPL DE421 (public domain) ──► SPK reader ──► light time, solar defle
   greatest elongations, lunar and solar eclipses with local circumstances, transits of Mercury and Venus), and a
   Schwarzschild black hole placed in front of the sky you are looking at (null geodesics from
   `pinneapple_physics.blackhole`), with the predicted shadow sizes of M87* and Sgr A* against the EHT rings.
+- **Observe**: an observing session: plan the night for a target, set up a telescope (presets or your own), slew a
+  GoTo mount, then track the target in an eyepiece / camera view at 1x-3600x with field rotation, extinction, sky
+  brightness, seeing and the cloud forecast ("real sky") or none ("perfect sky"); a session log.
+- **Journey**: fly from your place to a planet, moon, the Sun or a star in 3-D (real positions for the date, stars at
+  their parallax distance), with scale markers, counters (distance, light time, trip times at real speeds, the
+  target's size and magnitude) and, at a star, the Sun behind you at the right magnitude.
+- **Learn**: an info card for every object (planets, moons, bright stars, constellations, Messier objects,
+  satellites): key numbers with a source each and everyday comparisons, curiosities, history, how to see it tonight,
+  a quiz; search in English or Portuguese. Data: `pinneapple_physics/astro/data/facts/`.
 - **Engine**: the PINNeAPPle part. A physics-informed neural network learns a planet's orbit for the next year,
   `r(t) = r_Kepler(t) + τ² g_θ(τ)`, from the residual of the full N-body equation of motion plus 8 anchor states, and is
   judged against the classical integrator: error, split-conformal band, energy / angular-momentum checks, residual, a
@@ -97,9 +112,18 @@ Deployment with the other apps: `apps/deploy` (service `observatory`, `OBS_DOMAI
 | `OBS_TLE_GROUPS` | CelesTrak groups, default `stations,visual` |
 | `OBS_TLE_FILE` | use a local TLE file instead of CelesTrak (offline demos, tests) |
 | `OBS_CACHE_DIR` | TLE cache directory |
+| `OBS_SURVEY` | `0` disables the DSS2 survey cut-outs (CDS hips2fits); the eyepiece field is then drawn from the catalogue |
+| `OBS_WEATHER_FILE` | a saved Open-Meteo forecast (JSON) used instead of the live one (offline demos) |
 | `OBS_PRECOMPUTE` | `0` skips the start-up validation run and the default Mars surrogate |
 
 Geolocation and the phone's motion sensors need HTTPS (or `localhost`).
+
+Browser tests (Playwright, Chromium; the server runs offline with a local TLE file):
+
+```bash
+cd apps/observatory && npm ci && npx playwright test
+node tools/capture.mjs http://localhost:8797        # regenerate docs/assets/apps/14-observatory-*.jpg (EN and PT)
+```
 
 ## Data and licences
 
@@ -110,5 +134,7 @@ Geolocation and the phone's motion sensors need HTTPS (or `localhost`).
 - Earth textures: NASA Blue Marble and Earth at Night (public domain) via the three-globe package (MIT). The Moon,
   planet and Sun textures are **procedural** (`tools/make_textures.py`), not imagery; NASA/USGS maps with the same
   file names can replace them in `observatory/static/textures/`.
+- Deep-sky fields in the Observe tab: DSS2 colour (STScI Digitized Sky Survey) via CDS hips2fits, fetched by the
+  server, cached and credited in the view. Cloud forecast: Open-Meteo (CC BY 4.0).
 - No code from GPL planetarium software was used; the algorithms follow the IERS Conventions, the Explanatory
   Supplement, Meeus, and the papers cited in the module docstrings.

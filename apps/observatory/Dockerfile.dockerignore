@@ -12,3 +12,5 @@ projects
 pinneapple_app/frontend
 apps/*/artifacts/dataset_*
 apps/observatory/tools
+apps/observatory/node_modules
+apps/observatory/tests

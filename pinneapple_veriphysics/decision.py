@@ -75,6 +75,11 @@ class DecisionRecord:
     # field existed or by callers that did not supply one.
     applicability: Optional[Dict[str, Any]] = None
 
+    # ``scope.ScopeOfUse.to_dict()`` -- which uses the result can serve and which it cannot, each with the measured
+    # value against its limit, what the use needs and where the evidence comes from (certified / reference /
+    # estimated / input check). None for records without one; a record without it renders exactly as before.
+    scope_of_use: dict[str, Any] | None = None
+
     def render(self) -> str:
         """A plain-text report in the format the platform's design spec
         asked for: recommended strategy, trust score, evidence, and a
@@ -97,6 +102,10 @@ class DecisionRecord:
             )
         if self.trustworthy is not None:
             lines.append(f"Guardrail verdict: {'TRUSTWORTHY' if self.trustworthy else 'NOT TRUSTWORTHY'}")
+
+        if self.scope_of_use:
+            from .scope import ScopeOfUse
+            lines += ["", ScopeOfUse.from_dict(self.scope_of_use).render()]
 
         lines.append("")
         lines.append("Per-check confidence breakdown:")

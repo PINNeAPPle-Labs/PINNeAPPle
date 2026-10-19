@@ -31,7 +31,7 @@ import scipy.sparse.linalg as spla
 from .etdrk4 import ETDRK4
 
 __all__ = ["periodic_grf", "threshold_coefficient", "burgers_1d", "navier_stokes_2d_vorticity", "li_forcing",
-           "darcy_2d", "spectral_downsample", "FourierInterpolant"]
+           "darcy_2d", "darcy_matrix", "darcy_operator", "spectral_downsample", "FourierInterpolant"]
 
 
 # --------------------------------------------------------------------------- random inputs
@@ -153,14 +153,28 @@ def navier_stokes_2d_vorticity(w0: np.ndarray, nu: float, t_end: float, *, forci
 
 
 # --------------------------------------------------------------------------- Darcy 2-D
-def darcy_2d(a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
+def darcy_2d(a: np.ndarray, f: float | np.ndarray = 1.0, *, axis_weights: Sequence[float] = (1.0, 1.0)) -> np.ndarray:
     """``-div(a grad u) = f`` on the unit square, ``u = 0`` on the boundary; ``a`` (and ``f``) at the ``n x n``
     cell centres ``((i + 1/2) h, (j + 1/2) h)``, ``h = 1/n``. Returns ``u`` at the cell centres.
 
     Two-point flux finite volumes with harmonic-mean face coefficients (exact flux continuity across a
     coefficient jump aligned with the faces); the boundary face uses the cell's own ``a`` over a half cell.
-    Second order for smooth coefficients.
+    Second order for smooth coefficients. The matrix is :func:`darcy_matrix`; ``axis_weights``: see there.
     """
+    a = np.asarray(a, dtype=np.float64)
+    n = a.shape[0]
+    rhs = np.broadcast_to(np.asarray(f, dtype=np.float64), (n, n)).ravel()
+    return spla.spsolve(darcy_matrix(a, axis_weights), rhs).reshape(n, n)
+
+
+def darcy_matrix(a: np.ndarray, axis_weights: Sequence[float] = (1.0, 1.0)) -> sp.csc_matrix:
+    """The ``n^2 x n^2`` finite-volume matrix of :func:`darcy_2d` (``A u = f`` with ``u`` raveled in C order). It is
+    symmetric positive definite, and ``A - min(a) * darcy_matrix(ones)`` is positive semi-definite (every face
+    coefficient is a harmonic mean, never below ``min a``).
+
+    ``axis_weights`` multiplies the transmissibilities of the x and y faces (an anisotropic conductivity
+    ``a diag(w_x, w_y)``; ``(1, 1)`` is the isotropic problem). ``A @ u.ravel() - f`` is the conservative residual
+    of a field ``u`` on that grid."""
     a = np.asarray(a, dtype=np.float64)
     n = a.shape[0]
     if a.shape != (n, n):
@@ -173,7 +187,7 @@ def darcy_2d(a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
     for axis in (0, 1):
         a_l = a[:-1, :] if axis == 0 else a[:, :-1]
         a_r = a[1:, :] if axis == 0 else a[:, 1:]
-        t = 2 * a_l * a_r / (a_l + a_r) / h ** 2
+        t = float(axis_weights[axis]) * 2 * a_l * a_r / (a_l + a_r) / h ** 2
         i_l = idx[:-1, :] if axis == 0 else idx[:, :-1]
         i_r = idx[1:, :] if axis == 0 else idx[:, 1:]
         rows += [i_l.ravel(), i_r.ravel()]
@@ -187,16 +201,18 @@ def darcy_2d(a: np.ndarray, f: float | np.ndarray = 1.0) -> np.ndarray:
             diag[:, 1:] += t
     # Dirichlet faces: flux a (u - 0) / (h/2)
     tb = 2 * a / h ** 2
-    diag[0, :] += tb[0, :]
-    diag[-1, :] += tb[-1, :]
-    diag[:, 0] += tb[:, 0]
-    diag[:, -1] += tb[:, -1]
+    diag[0, :] += axis_weights[0] * tb[0, :]
+    diag[-1, :] += axis_weights[0] * tb[-1, :]
+    diag[:, 0] += axis_weights[1] * tb[:, 0]
+    diag[:, -1] += axis_weights[1] * tb[:, -1]
     rows.append(idx.ravel())
     cols.append(idx.ravel())
     vals.append(diag.ravel())
-    A = sp.csc_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))), shape=(n * n, n * n))
-    rhs = np.broadcast_to(np.asarray(f, dtype=np.float64), (n, n)).ravel()
-    return spla.spsolve(A, rhs).reshape(n, n)
+    return sp.csc_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))), shape=(n * n, n * n))
+
+
+#: Name used by the validation arena and the fault-injection suite; same matrix as :func:`darcy_matrix`.
+darcy_operator = darcy_matrix
 
 
 # --------------------------------------------------------------------------- differentiable interpolation

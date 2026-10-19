@@ -34,11 +34,15 @@ filtering a state through time.
 from __future__ import annotations
 
 from pinneapple_analysis.state_estimation.kalman import (
-    ExtendedKalmanFilter,
     EnsembleKalmanFilter,
+    ExtendedKalmanFilter,
+    enkf_analysis,
+    gaspari_cohn,
 )
 
 __all__ = [
     "ExtendedKalmanFilter",
     "EnsembleKalmanFilter",
+    "enkf_analysis",
+    "gaspari_cohn",
 ]

@@ -1,0 +1,7 @@
+[15:37:53] stage train started
+[15:53:09] stage train done (916.465 s)
+[15:53:09] stage score started
+[15:53:09] stage score done (0.046 s)
+[15:53:09] check rel_l2_Ar_vs_closed_form: PASS 4096 points, exact solution of the preset; tolerance 0.05
+[15:53:09] check rel_l2_Ai_vs_closed_form: PASS 4096 points, exact solution of the preset; tolerance 0.05
+[15:53:09] check training_loss_decreased: PASS 

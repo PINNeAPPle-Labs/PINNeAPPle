@@ -68,44 +68,15 @@ Quick start
 """
 from __future__ import annotations
 
-# Noise models
-from .noise_models import (
-    DataMisfitBase,
-    GaussianMisfit,
-    HuberMisfit,
-    CauchyMisfit,
-    StudentTMisfit,
-    HeteroscedasticMisfit,
-)
+from .calibration import CalibrationResult, calibrate, residual_metrics
 
-# Regularization
-from .regularization import (
-    RegularizerBase,
-    TikhonovRegularizer,
-    SparsityRegularizer,
-    TotalVariationRegularizer,
-    CompositeRegularizer,
-    LCurveSelector,
-    LCurveResult,
-)
-
-# Observation operators
-from .obs_operator import (
-    ObsOperatorBase,
-    PointObsOperator,
-    LinearObsOperator,
-    IntegralObsOperator,
-    ComposedObsOperator,
-)
-
-# Sensitivity analysis
-from .sensitivity import (
-    LocalSensitivity,
-    LocalSensitivityResult,
-    IdentifiabilityAnalyzer,
-    IdentifiabilityResult,
-    GlobalSensitivity,
-    SobolResult,
+# Counterfactual (Shapley-value) attribution
+from .counterfactual_attribution import (
+    AmbiguityResult,
+    CandidateCause,
+    ExactShapleyAttributor,
+    ShapleyAttributionResult,
+    classify_ambiguity,
 )
 
 # Ensemble Kalman Inversion
@@ -115,33 +86,88 @@ from .ensemble_kalman import (
     EnsembleKalmanInversion,
     IteratedEKI,
 )
+from .estimation import FitResult, Prior, gradient_fit, least_squares_fit, metropolis
 
-# High-level solver
-from .solver import (
-    InverseSolverConfig,
-    InverseSolverResult,
-    InverseProblemSolver,
+# Identifiability, calibration and the inverse studio (one core for the identifiability, calibration and inverse
+# model apps): models, parameters and observations; estimators; the four identifiability methods and D-optimal
+# design; calibration with intervals and held-out validation; one interface over five inversion methods; presets.
+from .forward import (
+    CallableModel,
+    ExpressionModel,
+    ForwardModel,
+    Observations,
+    Parameter,
+    ParameterSet,
+    TabulatedModel,
+    jacobian,
 )
-
-# Counterfactual (Shapley-value) attribution
-from .counterfactual_attribution import (
-    CandidateCause,
-    ExactShapleyAttributor,
-    ShapleyAttributionResult,
-    AmbiguityResult,
-    classify_ambiguity,
+from .identifiability import (
+    IdentifiabilityReport,
+    analyze_identifiability,
+    d_optimal_design,
+    profile_likelihood,
 )
 
 # Missing term identification
 from .missing_term import (
     CandidateLibrary,
-    SINDyResult,
-    SINDyIdentifier,
-    ResidualAnalysisResult,
-    ResidualAnalyzer,
     NeuralTermConfig,
     NeuralTermDiscovery,
+    ResidualAnalysisResult,
+    ResidualAnalyzer,
+    SINDyIdentifier,
+    SINDyResult,
 )
+from .models import ArrheniusModel, LumpedCoolingModel, PinFinModel, PlateModel, RodModel
+
+# Noise models
+from .noise_models import (
+    CauchyMisfit,
+    DataMisfitBase,
+    GaussianMisfit,
+    HeteroscedasticMisfit,
+    HuberMisfit,
+    StudentTMisfit,
+)
+
+# Observation operators
+from .obs_operator import (
+    ComposedObsOperator,
+    IntegralObsOperator,
+    LinearObsOperator,
+    ObsOperatorBase,
+    PointObsOperator,
+)
+from .presets import get_preset, list_presets, model_from_spec
+
+# Regularization
+from .regularization import (
+    CompositeRegularizer,
+    LCurveResult,
+    LCurveSelector,
+    RegularizerBase,
+    SparsityRegularizer,
+    TikhonovRegularizer,
+    TotalVariationRegularizer,
+)
+
+# Sensitivity analysis
+from .sensitivity import (
+    GlobalSensitivity,
+    IdentifiabilityAnalyzer,
+    IdentifiabilityResult,
+    LocalSensitivity,
+    LocalSensitivityResult,
+    SobolResult,
+)
+
+# High-level solver
+from .solver import (
+    InverseProblemSolver,
+    InverseSolverConfig,
+    InverseSolverResult,
+)
+from .studio import METHODS, InverseProblem, available_methods, compare_methods, solve_inverse
 
 __version__ = "0.1.0"
 
@@ -197,4 +223,38 @@ __all__ = [
     "ResidualAnalyzer",
     "NeuralTermConfig",
     "NeuralTermDiscovery",
+    # Identifiability, calibration, inverse studio
+    "Parameter",
+    "ParameterSet",
+    "Observations",
+    "ForwardModel",
+    "CallableModel",
+    "ExpressionModel",
+    "TabulatedModel",
+    "jacobian",
+    "FitResult",
+    "Prior",
+    "least_squares_fit",
+    "gradient_fit",
+    "metropolis",
+    "IdentifiabilityReport",
+    "analyze_identifiability",
+    "d_optimal_design",
+    "profile_likelihood",
+    "CalibrationResult",
+    "calibrate",
+    "residual_metrics",
+    "PinFinModel",
+    "RodModel",
+    "PlateModel",
+    "LumpedCoolingModel",
+    "ArrheniusModel",
+    "METHODS",
+    "InverseProblem",
+    "available_methods",
+    "solve_inverse",
+    "compare_methods",
+    "get_preset",
+    "list_presets",
+    "model_from_spec",
 ]

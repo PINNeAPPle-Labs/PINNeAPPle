@@ -1,0 +1,10 @@
+{
+ "preset": "em_wire_az",
+ "fields": [
+  "Az"
+ ],
+ "coords": [
+  "x",
+  "y"
+ ]
+}

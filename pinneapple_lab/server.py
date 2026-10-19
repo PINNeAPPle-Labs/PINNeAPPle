@@ -20,6 +20,13 @@ Routes::
     GET /files/EXPERIMENT/RUN_ID/PATH        a run's file (figures, inputs, outputs, code, logs, cards)
     GET /thumb/EXPERIMENT/RUN_ID/PATH        a JPEG thumbnail of a run's figure
     GET /download/EXPERIMENT/DATASET.npz     a dataset over all completed runs, as one .npz
+    GET /experiments                         every experiment: A-F seal, trust card, metrics, next steps, gallery
+    GET /api/experiments?letter=&domain=&method=&ready=1&q=&sort=letter|date   the page's entries, filtered
+    GET /api/experiment?key=KEY              one entry
+    GET /api/coverage                        experiment -> curated yes / no
+    GET /stamped/EXPERIMENT/RUN_ID/PATH?key=ITEM   a run's figure stamped with the item's seal (JPEG)
+    GET /seal.png?key=ITEM&lang=en|pt        an item's seal
+    GET /repo/PATH, /repo-thumb/PATH, /stamped-repo/PATH?key=ITEM   files listed by an experiment manifest
 
 Set ``LAB_USER`` and ``LAB_PASSWORD`` to require HTTP Basic login on everything except ``/health``.
 """
@@ -53,7 +60,10 @@ class LabServer:
         self.root = os.path.abspath(self.store.root)
         self.refresh = refresh
         self.user = user if user is not None else os.environ.get("LAB_USER", "")
-        self.password = password if password is not None else os.environ.get("LAB_PASSWORD", "")
+        self.password = password if password is not None else (os.environ.get("LAB_PASSWORD_HASH")
+                                                               or os.environ.get("LAB_PASSWORD", ""))
+        from pinneapple_security.web import LoginThrottle
+        self.throttle = LoginThrottle(max_failures=int(os.environ.get("LAB_LOGIN_MAX_FAILURES") or 10))
         self._lock = threading.Lock()
         self._page: tuple[Any, bytes, bytes] | None = None     # (signature, html, catalog json)
         self._thumbs: dict[tuple[str, float], bytes] = {}
@@ -122,6 +132,43 @@ class LabServer:
                 self._thumbs[key] = data
         return data
 
+    def experiments(self) -> dict[str, Any]:
+        """The experiments page data (server URLs) and HTML, rebuilt with the catalogue."""
+        sig = self._signature()
+        cur_path = os.path.join(self.root, "curation.json")
+        sig = (sig, os.path.getmtime(cur_path) if os.path.exists(cur_path) else 0.0)
+        with self._lock:
+            if getattr(self, "_exp", None) is None or self._exp[0] != sig:
+                from .explorer import collect, media_urls, render
+                data = media_urls(collect(self.store), "server")
+                allowed = {x["repo"] for e in data["entries"] for x in e["media"] if "repo" in x}
+                allowed |= {v for e in data["entries"] if e["source"] == "manifest" for v in e["viewers"]}
+                self._exp = (sig, data, render(data).encode(), allowed)
+            return {"data": self._exp[1], "html": self._exp[2], "allowed": self._exp[3]}
+
+    def repo_file(self, rel: str) -> str | None:
+        """A repository file an experiment manifest lists (nothing else under the checkout is served)."""
+        from .manifest import REPO
+        if rel not in self.experiments()["allowed"]:
+            return None
+        path = os.path.realpath(os.path.join(REPO, rel))
+        return path if path.startswith(os.path.realpath(REPO) + os.sep) and os.path.isfile(path) else None
+
+    def stamped(self, path: str, key: str) -> bytes | None:
+        from .explorer import stamped_jpeg
+        from .seal import load_curation
+        ck = ("stamped", path, key, os.path.getmtime(path))
+        with self._lock:
+            if ck in self._thumbs:
+                return self._thumbs[ck]
+        data = stamped_jpeg(path, key, load_curation(self.store))
+        if data is not None:
+            with self._lock:
+                if len(self._thumbs) > 4000:
+                    self._thumbs.clear()
+                self._thumbs[ck] = data
+        return data
+
     def export(self, experiment: str, dataset: str) -> str | None:
         rows = self.store.datasets(experiment, dataset)
         if not rows:
@@ -139,7 +186,9 @@ class LabServer:
                     os.replace(tmp, path)
         return path
 
-    def authorised(self, header: str | None) -> bool:
+    def authorised(self, header: str | None, ip: str = "") -> bool:
+        """Basic login against ``LAB_USER`` and ``LAB_PASSWORD_HASH`` (or the plain ``LAB_PASSWORD``); repeated
+        failures lock the client and the user name out (``LAB_LOGIN_MAX_FAILURES``, 15 minutes)."""
         if not (self.user or self.password):
             return True
         if not header or not header.startswith("Basic "):
@@ -148,7 +197,16 @@ class LabServer:
             u, _, p = base64.b64decode(header[6:]).decode().partition(":")
         except (ValueError, UnicodeDecodeError):
             return False
-        return hmac.compare_digest(u, self.user) and hmac.compare_digest(p, self.password)
+        if self.throttle.locked_for(ip, u):
+            return False
+        from pinneapple_security.passwords import is_hash, verify_password
+        ok = hmac.compare_digest(u, self.user) and (verify_password(p, self.password) if is_hash(self.password)
+                                                    else hmac.compare_digest(p, self.password))
+        if ok:
+            self.throttle.success(ip, u)
+        else:
+            self.throttle.failure(ip, u)
+        return ok
 
     # ------------------------------------------------------------------ HTTP
     def handler(self) -> type[BaseHTTPRequestHandler]:
@@ -167,6 +225,9 @@ class LabServer:
                 self.send_header("Content-Length", str(len(body)))
                 self.send_header("Cache-Control", cache)
                 self.send_header("X-Content-Type-Options", "nosniff")
+                self.send_header("X-Frame-Options", "DENY")
+                self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+                self.send_header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
                 for k, v in (extra or {}).items():
                     self.send_header(k, v)
                 self.end_headers()
@@ -199,7 +260,9 @@ class LabServer:
                 path = urllib.parse.unquote(url.path)
                 if path == "/health":
                     return self._json({"ok": True, "runs": sum(sum(v.values()) for v in lab.store.status().values())})
-                if not lab.authorised(self.headers.get("Authorization")):
+                from pinneapple_security.web import client_ip
+                ip = client_ip(self.client_address[0], self.headers.get("X-Forwarded-For"))
+                if not lab.authorised(self.headers.get("Authorization"), ip):
                     return self._send(401, b"login required", "text/plain",
                                       extra={"WWW-Authenticate": 'Basic realm="PINNeAPPle Lab"'})
                 q = dict(urllib.parse.parse_qsl(url.query))
@@ -227,6 +290,47 @@ class LabServer:
                                  "pdf": "application/pdf"}[fmt]
                         extra = None if fmt == "html" else {"Content-Disposition": f'attachment; filename="lab_report.{fmt}"'}
                         return self._send(200, body, ctype, extra=extra)
+                    if path == "/experiments":
+                        return self._send(200, lab.experiments()["html"], "text/html; charset=utf-8")
+                    if path == "/api/experiments":
+                        from .explorer import filter_entries
+                        ents = filter_entries(lab.experiments()["data"]["entries"], letter=q.get("letter"),
+                                              domain=q.get("domain"), method=q.get("method"),
+                                              ready=q.get("ready") in ("1", "true"), q=q.get("q"),
+                                              sort=q.get("sort", "letter"))
+                        return self._json({"count": len(ents), "counts": lab.experiments()["data"]["counts"],
+                                           "entries": ents})
+                    if path == "/api/experiment":
+                        e = next((x for x in lab.experiments()["data"]["entries"] if x["key"] == q.get("key")), None)
+                        return self._json(e) if e else self._json({"error": "unknown experiment"}, 404)
+                    if path == "/api/coverage":
+                        from .explorer import coverage
+                        return self._json(coverage(lab.experiments()["data"]))
+                    if path == "/seal.png":
+                        from .explorer import seal_png
+                        from .seal import load_curation
+                        try:
+                            body = seal_png(q.get("key", ""), load_curation(lab.store), q.get("lang", "en"))
+                        except (KeyError, ValueError):
+                            return self._send(404, b"unknown item", "text/plain")
+                        return self._send(200, body, "image/png", cache="public, max-age=600")
+                    if path.startswith("/stamped/") or path.startswith("/stamped-repo/"):
+                        f = (lab.resolve(path[len("/stamped/"):]) if path.startswith("/stamped/")
+                             else lab.repo_file(path[len("/stamped-repo/"):]))
+                        data = lab.stamped(f, q.get("key", "")) if f else None
+                        if data is None:
+                            return self._send(404, b"not found", "text/plain")
+                        return self._send(200, data, "image/jpeg", cache="public, max-age=600")
+                    if path.startswith("/repo/") or path.startswith("/repo-thumb/"):
+                        thumb = path.startswith("/repo-thumb/")
+                        f = lab.repo_file(path[len("/repo-thumb/" if thumb else "/repo/"):])
+                        if not f:
+                            return self._send(404, b"not found", "text/plain")
+                        if thumb:
+                            data = lab.thumb(f)
+                            return (self._send(200, data, "image/jpeg", cache="public, max-age=3600") if data
+                                    else self._send(404, b"not found", "text/plain"))
+                        return self._file(f)
                     if path == "/api/curation":
                         from .curation import curate
                         return self._json(curate(lab.store))
@@ -255,6 +359,8 @@ class LabServer:
                             if f:
                                 return self._file(f, download=f"{parts[0]}_{parts[1]}.npz")
                         return self._send(404, b"unknown dataset", "text/plain")
+                except (BrokenPipeError, ConnectionResetError):       # the browser went away (a cancelled image)
+                    return None
                 except Exception as exc:                              # noqa: BLE001 - report, keep serving
                     return self._json({"error": f"{type(exc).__name__}: {exc}"}, int(HTTPStatus.INTERNAL_SERVER_ERROR))
                 return self._send(404, b"not found", "text/plain")

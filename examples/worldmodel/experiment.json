@@ -1,0 +1,41 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/worldmodel",
+ "title": "Physics World Model \u2014 end-to-end example",
+ "description": "Physics World Model \u2014 end-to-end example. Generates a small dataset, trains a specialist FNO model, and evaluates it with rollout predictions, error plots, and benchmark metrics. Designed to run in ~2-5 minutes on CPU so you can quickly verify the idea. Run --- cd <repo-root>",
+ "domain": "physics AI",
+ "methods": [
+  "FNO"
+ ],
+ "modules": [
+  "pinneapple_worldmodel",
+  "pinneapple_worldmodel.benchmark",
+  "pinneapple_worldmodel.dataset",
+  "pinneapple_worldmodel.model_zoo",
+  "pinneapple_worldmodel.scenario",
+  "pinneapple_worldmodel.simulator"
+ ],
+ "params": {},
+ "scripts": [
+  "01_generate_train_evaluate.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/worldmodel/01_generate_train_evaluate.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

@@ -1,0 +1,11 @@
+[16:40:17] Plain-language goals to verified designs (loop, bracket, heat sink, glider), each checked by a full solver
+[16:40:17] stage import started
+[16:40:17] check loop_v_top_full_solver_at_least_bound: PASS Newton rigid-body contact: 1.507 >= closed-form bound 1.023 (v_top^2 = g R)
+[16:40:17] check bracket_sigma_peak_mpa_full_solver_vs_reduced: PASS CalculiX (gmsh C3D10) against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %
+[16:40:17] check bracket_deflection_mm_full_solver_vs_reduced: PASS CalculiX (gmsh C3D10) against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %
+[16:40:17] check heatsink_t_source_c_full_solver_vs_reduced: PASS 3-D finite volume (base) against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %
+[16:40:17] check glider_sink_m_s_full_solver_vs_reduced: PASS vortex lattice, fine against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %
+[16:40:17] check glider_span_eff_full_solver_vs_reduced: PASS vortex lattice, fine against the pipeline's reduced model (same design, same loads: not independent); tolerance 5 %
+[16:40:17] check glider_span_efficiency_at_most_elliptic: PASS Munk: no planar wing beats the elliptic loading (e = 1)
+[16:40:17] check out_of_scope_goal_refused: PASS 
+[16:40:18] stage import done (0.012 s)

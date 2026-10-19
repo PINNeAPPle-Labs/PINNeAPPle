@@ -1,0 +1,7 @@
+{
+ "Cd_extrapolated": 0.009761087630638692,
+ "Cd_xfoil_tripped": 0.00971,
+ "Cl_medium": 0.6624698411038754,
+ "optimum_LD_gain_fine_pct": 22.55015902974009,
+ "surrogate_ld_max_rel_error_unseen": 0.0095099428879033
+}

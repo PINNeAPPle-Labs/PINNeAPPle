@@ -1,0 +1,11 @@
+# on top of `pip install .` (PINNeAPPle core)
+numpy>=1.24
+scipy>=1.10
+pandas>=2
+pyarrow>=14
+pydantic>=2
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+paho-mqtt>=2.0
+# optional: postgresql:// in TWIN_DB_URL needs psycopg[binary]; the experimental OPC UA source needs asyncua

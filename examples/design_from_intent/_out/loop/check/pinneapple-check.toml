@@ -1,0 +1,5 @@
+# written by pinneapple_design.intent: run `pinneapple check` on this folder
+
+[[result]]
+path = "qoi/margins.csv"
+bounds = { margin_contact = [0.0, 1e9], margin_track = [0.0, 1e9], margin_clearance = [0.0, 1e9], margin_height = [0.0, 1e9] }

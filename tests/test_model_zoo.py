@@ -3,6 +3,7 @@ not-published behaviour, the fine-tune guard, validation and the publish script.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import warnings
 from pathlib import Path
@@ -19,8 +20,8 @@ from pinneapple_hub.zoo import _artifacts as art  # noqa: E402
 MODELS = ["airfoil_cst_rans_mlp", "heatsink_forced_mlp", "heatsink_natural_mlp", "rover_contact_grc1_viper"]
 BUNDLED_DATASETS = ["airfoil_rans_cst_re4e6", "heatsink_forced_convection", "heatsink_natural_convection",
                     "rover_contact_grc1_viper", "single_wheel_tests"]
-HUB_ONLY_DATASETS = ["burgers_1d_li2021", "darcy_2d_li2021", "navier_stokes_2d_li2021_nu1e-3",
-                     "thermal_channel_cfd", "airfoil_rans_cst_re4e6_fields"]       # downloaded on first use, never bundled
+HUB_ONLY_DATASETS = ["burgers_1d_li2021", "darcy_2d_li2021", "navier_stokes_2d_li2021_nu1e-3",   # downloaded on first
+                     "thermal_channel_cfd", "airfoil_rans_cst_re4e6_fields", "cylinder_wake_lbm"]  # use, never bundled
 BLACKHOLE_DATASETS = ["blackhole_riaf_density_256"]                 # Hub-only too, one file per split
 DATASETS = BUNDLED_DATASETS + HUB_ONLY_DATASETS + BLACKHOLE_DATASETS
 
@@ -45,7 +46,9 @@ def test_manifest_is_small_hashed_and_versioned():
     man = art.manifest()
     for kind in ("models", "datasets"):
         for name, e in man[kind].items():
-            assert e["hf_repo"].startswith("PINNeAPPle-Labs/") and e["revision"] == f"v{e['version']}"
+            # the tag of the version, or a republication of the same files (v1.0.0.post1: new card, Parquet copies)
+            assert e["hf_repo"].startswith("PINNeAPPle-Labs/") and re.fullmatch(
+                rf"v{re.escape(e['version'])}(\.post\d+)?", e["revision"])
             for fn, spec in e["files"].items():
                 assert len(spec["sha256"]) == 64 and spec["size"] > 0, (name, fn)
                 if name in HUB_ONLY_DATASETS + BLACKHOLE_DATASETS:     # downloaded on first use, never bundled
@@ -198,7 +201,8 @@ def test_lazy_download_then_cache_then_offline(monkeypatch, isolated_cache):
     assert pp.datasets.status("single_wheel_tests") == {"data.npz": "remote"}
     d = pp.datasets.load("single_wheel_tests", split="all")
     assert d.n_rows > 20 and len(calls) == 1
-    assert calls[0] == ("PINNeAPPle-Labs/single-wheel-tests", "data.npz", "v1.0.0", "dataset")
+    assert calls[0] == ("PINNeAPPle-Labs/single-wheel-tests", "data.npz",
+                        art.entry("datasets", "single_wheel_tests")["revision"], "dataset")
     assert pp.datasets.status("single_wheel_tests") == {"data.npz": "cached"}
     monkeypatch.setenv("PINNEAPPLE_OFFLINE", "1")
     pp.datasets.load("single_wheel_tests", split="all")                     # served from the cache
@@ -259,6 +263,9 @@ def test_hub_only_dataset_is_documented(name):
     elif name == "thermal_channel_cfd":                            # heated channel: solver verification and GCI
         assert sum(v["n"] for v in info.splits.values()) == 82 and info.splits["train"]["n"] == 48
         assert "Nusselt" in info.verification and "GCI" in info.verification
+    elif name == "cylinder_wake_lbm":                              # cylinder wake: resolution study
+        assert {s: v["n"] for s, v in info.splits.items()} == {"train": 480, "test": 240}
+        assert "Poiseuille" in info.verification and "D = 40" in info.verification
     else:                                                          # airfoil fields: the 436-run campaign
         assert {s: v["n"] for s, v in info.splits.items()} == {"train": 340, "test": 60, "naca_reference": 36}
         assert "reproduce" in info.verification and "GCI" in info.verification
@@ -422,6 +429,40 @@ def test_publish_script_uses_the_staging_directory(tmp_path, monkeypatch, capsys
     (staged / "test.npz").write_bytes(b"not the data")
     with pytest.raises(SystemExit, match="SHA-256"):                # a staged file must match the manifest
         mod.plan(tmp_path / "staging")
+
+
+def test_publish_keeps_the_files_of_a_dataset_named_like_a_model(tmp_path, monkeypatch):
+    """rover_contact_grc1_viper is a model and a dataset: publishing the model first must not delete the dataset's
+    Parquet copies before they are committed (one working directory per kind)."""
+    pytest.importorskip("pyarrow")
+    pytest.importorskip("safetensors")
+    import huggingface_hub
+
+    from pinneapple_hub.zoo import publish
+    committed = []
+
+    class FakeApi:
+        def __init__(self, token=None):
+            pass
+
+        def create_repo(self, *a, **k):
+            pass
+
+        def list_repo_files(self, *a, **k):
+            return []
+
+        def create_commit(self, repo, operations, **k):
+            for op in operations:
+                src = op.path_or_fileobj
+                if isinstance(src, str):
+                    assert Path(src).is_file(), (repo, op.path_in_repo)
+                committed.append((repo, op.path_in_repo))
+
+    monkeypatch.setattr(huggingface_hub, "HfApi", FakeApi)
+    items = publish.plan(work=tmp_path, only=["rover_contact_grc1_viper"])
+    assert [it["kind"] for it in items] == ["models", "datasets"]
+    assert publish.publish(items, "token", work=tmp_path, tags=False) == []
+    assert any(p.endswith(".parquet") for _, p in committed)
 
 
 def test_catalogue_page_is_up_to_date():

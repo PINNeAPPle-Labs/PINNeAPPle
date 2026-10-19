@@ -21,6 +21,7 @@ pinneapple-mcp --help            # or: python -m pinneapple_mcp
 | `list_presets` | problem presets | call |
 | `solve` | a problem (preset or JSON box problem) by one method; metrics against the reference, physics checks, trust card, `prediction.npz`, `field.png` | job |
 | `trust_card` | physics checks of any field (inline values or a `.npz` / `.npy` / `.csv` file): finite values, PDE residual, boundary conditions, conservation, maximum principle, reference error, applicability (OOD); decision APPROVED / REVIEW / REJECT | call |
+| `design` | design from a plain-language goal: `out_of_scope` (with what would be needed) or `needs_input` (the questions) at once, otherwise the design package: verdict with probability, design, margins, full-solver verification, operating window, bill of materials, files ([guide](design_from_intent.md)) | call / job |
 | `benchmark` | several methods with the same training budget (epochs, collocation points, seeds), scored on the same grid against one reference; `table.md` and a trust card per run | job |
 | `zoo_list`, `zoo_predict`, `zoo_validate` | pre-trained, verified models of `pp.zoo` and the datasets of `pp.datasets`; predictions with the rows outside the validity range flagged; the model's trust report | call |
 | `job_status`, `list_jobs`, `cancel_job` | follow, list and stop jobs | call |

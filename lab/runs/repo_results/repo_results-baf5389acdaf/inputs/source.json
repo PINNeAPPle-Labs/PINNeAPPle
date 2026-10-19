@@ -1,0 +1,7 @@
+{
+ "name": "motor_spm",
+ "description": "Surface-PM motor (24 slots, 4 poles): cogging, torque against current angle, back-EMF, losses",
+ "scripts": [
+  "examples/motor_magnetics/01_spm_cogging_and_torque.py"
+ ]
+}

@@ -1,0 +1,30 @@
+# Weekly update pull requests; the Security workflow scans each one (docs/security/runbook.md).
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      python-minor:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+
+  # base images of the deployed services (Caddy is pinned by digest; Dependabot proposes new digests)
+  - package-ecosystem: docker
+    directory: "/apps/playground"
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker-compose
+    directory: "/apps/deploy"
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: "/apps/heatsink_sizer"
+    schedule:
+      interval: weekly

@@ -1,0 +1,7 @@
+{
+ "name": "prius_thermal_demag",
+ "description": "Prius magnet temperature, WLTC thermal network and demagnetisation by grade",
+ "scripts": [
+  "examples/electrodynamics/13_prius_thermal.py"
+ ]
+}

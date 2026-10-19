@@ -72,8 +72,8 @@ def _txt(fs: Dict[str, bytes], path: str) -> Optional[str]:
     if b is None:
         b = fs.get(path + ".gz")
         if b is not None:
-            import gzip
-            b = gzip.decompress(b)
+            from pinneapple_security.archives import gunzip
+            b = gunzip(b)   # capped: an uploaded .gz must not expand without limit
     return b.decode("latin-1") if b is not None else None
 
 

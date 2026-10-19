@@ -1,0 +1,71 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/time_series",
+ "title": "PINNeAPPle Time Series Examples",
+ "description": "This folder contains runnable scripts that demonstrate **forecasting workflows** supported by `pinneapple_timeseries`.",
+ "domain": "time series",
+ "methods": [
+  "LSTM"
+ ],
+ "modules": [
+  "pinneapple_models",
+  "pinneapple_neural.trainer.audit",
+  "pinneapple_neural.trainer.parallel",
+  "pinneapple_systems",
+  "pinneapple_systems.time_series",
+  "pinneapple_systems.time_series.metrics_ext.point",
+  "pinneapple_timeseries",
+  "pinneapple_timeseries.audit.tests",
+  "pinneapple_timeseries.csv_loader",
+  "pinneapple_timeseries.datamodule",
+  "pinneapple_timeseries.decomposition.fft_lstm",
+  "pinneapple_timeseries.decomposition.hht_lstm",
+  "pinneapple_timeseries.metrics_ext.point",
+  "pinneapple_timeseries.problem",
+  "pinneapple_timeseries.spec",
+  "pinneapple_timeseries.uncertainty.quantile",
+  "pinneapple_timeseries.validation.backtest",
+  "pinneapple_timeseries.validation.splitters",
+  "pinneapple_train.callbacks",
+  "pinneapple_train.losses",
+  "pinneapple_train.metrics",
+  "pinneapple_train.preprocess",
+  "pinneapple_train.trainer"
+ ],
+ "params": {},
+ "scripts": [
+  "00_quickstart.py",
+  "01_FNO.py",
+  "02_full_pipeline.py",
+  "03_audit_and_features.py",
+  "04_backtest_baselines.py",
+  "05_quantile_uncertainty.py",
+  "06_custom_model_registry.py",
+  "07_fft_lstm_hybrid.py",
+  "08_hht_lstm_hybrid.py",
+  "adaptive_forecasting.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/time_series/00_quickstart.py",
+  "pr": [
+   240,
+   678
+  ]
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

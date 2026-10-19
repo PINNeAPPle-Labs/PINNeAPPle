@@ -1,0 +1,7 @@
+{
+ "name": "lunar_rover",
+ "description": "NASA VIPER-class lunar rover: Wong-Reece wheels against published single-wheel tests, grades, cross-slope and a crater crossing",
+ "scripts": [
+  "examples/use_cases/terramechanics/lunar_rover_3d.py"
+ ]
+}

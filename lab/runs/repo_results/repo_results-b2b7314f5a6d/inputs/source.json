@@ -1,0 +1,8 @@
+{
+ "name": "airfoil_handoff",
+ "description": "NACA 2412 hand-off package: OpenFOAM on three grids against XFOIL and thin-airfoil theory, a 436-run campaign and optimised shapes checked in OpenFOAM",
+ "scripts": [
+  "examples/handoff_cases/airfoil_ld/simulation/summarise_baseline.py",
+  "examples/handoff_cases/airfoil_ld/simulation/xfoil_reference.py"
+ ]
+}

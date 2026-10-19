@@ -1,0 +1,62 @@
+[
+ {
+  "name": "mass_balance_5mm",
+  "passed": true,
+  "value": 0.2517618587007548,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0,
+  "min": null,
+  "detail": "liquid in - out - stored, % of the inflow, after 1 s; tolerance 1 %",
+  "kind": "physics"
+ },
+ {
+  "name": "mass_balance_10mm",
+  "passed": true,
+  "value": 0.2059970991585501,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0,
+  "min": null,
+  "detail": "liquid in - out - stored, % of the inflow, after 1 s; tolerance 1 %",
+  "kind": "physics"
+ },
+ {
+  "name": "solver_volume_matches_fields",
+  "passed": true,
+  "value": 3.070080616261176e-08,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1e-06,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ },
+ {
+  "name": "courant_below_one",
+  "passed": true,
+  "value": 0.56962531,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 1.0,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ },
+ {
+  "name": "impingement_point_mesh_sensitivity",
+  "passed": true,
+  "value": 0.024057454084826298,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.05,
+  "min": null,
+  "detail": "floor pressure peak, 5 mm against 10 mm cells; tolerance 5 %",
+  "kind": "sanity"
+ }
+]

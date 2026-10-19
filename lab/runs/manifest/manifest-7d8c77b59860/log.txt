@@ -1,0 +1,9 @@
+[23:05:56] check harmonic stack (6 blocks): stability limit / closed form: PASS recorded by the study in _out/summary.json
+[23:05:56] check single block overhang limit / length: PASS recorded by the study in _out/summary.json
+[23:05:56] check stud cantilever brick_1x4 on 1 stud(s): tension per stud: PASS recorded by the study in _out/summary.json
+[23:05:56] check stud cantilever brick_1x8 on 2 stud(s): tension per stud: PASS recorded by the study in _out/summary.json
+[23:05:56] check tower of 8 2x2 bricks: tipping push at the top: PASS recorded by the study in _out/summary.json
+[23:05:56] check plate beam: sum of support reactions: PASS recorded by the study in _out/summary.json
+[23:05:56] check voxel FEA plate beam: mid-span deflection (Timoshenko): PASS recorded by the study in _out/summary.json
+[23:05:56] check Newton harmonic stack (4 blocks): stands iff factor < 1, factors != 1: PASS recorded by the study in _out/summary.json
+[23:05:56] check Newton table edge: brick with centre of mass inside stays, outside falls: PASS recorded by the study in _out/summary.json

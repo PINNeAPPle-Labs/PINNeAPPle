@@ -1,0 +1,71 @@
+{
+ "run_id": "bricks-0613c73f2edf",
+ "experiment": "bricks",
+ "version": "1",
+ "params": {
+  "case": "bridge",
+  "budget": 200,
+  "seeds": 3,
+  "newton": true,
+  "gif": true
+ },
+ "status": "completed",
+ "started": 1792339728.8324127,
+ "tags": [
+  "design",
+  "optimisation",
+  "rigid-body",
+  "statics",
+  "newton"
+ ],
+ "git": "cc068a92",
+ "environment": {
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "Self-modifying interlocking-brick builds: rigid-body statics with stud clutch judge every candidate, an evolutionary and a surrogate-guided search redesign it at equal evaluation budget.",
+ "code": {
+  "files": [
+   "code/bricks.py"
+  ],
+  "sha1": "84b87a533a8776fae6ac8fe0a18ab54e6509590e"
+ },
+ "finished": 1792340231.1064382,
+ "error": null,
+ "stages": [
+  {
+   "name": "closed-form checks",
+   "started": 1792339730.0986273,
+   "status": "done",
+   "seconds": 2.163
+  },
+  {
+   "name": "search",
+   "started": 1792339732.2675242,
+   "status": "done",
+   "seconds": 488.041
+  }
+ ],
+ "files": {
+  "inputs": [],
+  "outputs": [
+   "outputs/best_build.json",
+   "outputs/best_explanation.json"
+  ],
+  "figures": [
+   "figures/comparison.png",
+   "figures/evolution.gif"
+  ]
+ },
+ "validation": {
+  "total": 9,
+  "failed": 0
+ },
+ "seconds": 502.274,
+ "datasets": {}
+}

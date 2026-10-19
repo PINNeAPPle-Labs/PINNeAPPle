@@ -1,0 +1,893 @@
+{
+ "memorise_vs_learn": [
+  {
+   "case": "double_well",
+   "horizon": 1,
+   "variants": {
+    "overfit: MLP 512x3, 32 lags, no early stop": {
+     "rmse": {
+      "train": 0.1659,
+      "test": 0.3502
+     },
+     "n_params": 546312
+    },
+    "MLP 64x2 + early stopping": {
+     "rmse": {
+      "train": 0.2446,
+      "test": 0.2481
+     },
+     "n_params": 5768
+    }
+   }
+  },
+  {
+   "case": "lorenz63_noise0.1",
+   "horizon": 1,
+   "variants": {
+    "overfit: MLP 512x3, 32 lags, no early stop": {
+     "rmse": {
+      "train": 0.6129,
+      "test": 1.1452
+     },
+     "n_params": 579080
+    },
+    "MLP 64x2 + early stopping": {
+     "rmse": {
+      "train": 0.8605,
+      "test": 0.9129
+     },
+     "n_params": 7816
+    }
+   }
+  }
+ ],
+ "surprise_calendar": [
+  {
+   "case": "youtube_us_log_views",
+   "model": "transformer",
+   "baseline": "exp_smoothing",
+   "horizon": 1,
+   "n_days": 34,
+   "first": "2018-05-06",
+   "last": "2018-06-08",
+   "fraction_model_closer": 0.6765
+  },
+  {
+   "case": "youtube_us_entertainment_slots",
+   "model": "lstm",
+   "baseline": "ar",
+   "horizon": 1,
+   "n_days": 34,
+   "first": "2018-05-06",
+   "last": "2018-06-08",
+   "fraction_model_closer": 0.3824
+  },
+  {
+   "case": "usd_eur_log_returns",
+   "model": "mlp",
+   "baseline": "ar",
+   "horizon": 1,
+   "n_days": 687,
+   "first": "2021-03-22",
+   "last": "2026-09-14",
+   "fraction_model_closer": 0.4978
+  }
+ ],
+ "landscape": [
+  {
+   "case": "lorenz63_noise0.01",
+   "title": "Lorenz-63, noise 0.01",
+   "x": [
+    -1.3499,
+    -1.0489,
+    -0.7479,
+    -0.4468,
+    -0.1458,
+    0.1552,
+    0.4562,
+    0.7573
+   ],
+   "x_unit": "log10 LT",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "gbm",
+    "gbm_physics_features",
+    "enkf",
+    "ode_fitted+gbm"
+   ],
+   "skill": [
+    [
+     0.7731,
+     0.9019,
+     0.9407,
+     0.9314,
+     0.7436,
+     0.5508,
+     0.0143,
+     -0.0587
+    ],
+    [
+     0.8022,
+     0.9118,
+     0.9364,
+     0.9217,
+     0.7016,
+     0.475,
+     0.0121,
+     -0.0396
+    ],
+    [
+     0.8624,
+     0.9541,
+     0.981,
+     0.9786,
+     0.9417,
+     0.8399,
+     0.6454,
+     0.023
+    ],
+    [
+     0.8409,
+     0.9448,
+     0.9741,
+     0.9657,
+     0.8532,
+     0.7293,
+     0.3429,
+     -0.0364
+    ]
+   ],
+   "max_skill": 0.981,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128
+   ]
+  },
+  {
+   "case": "lorenz63_noise0.3",
+   "title": "Lorenz-63, noise 0.3",
+   "x": [
+    -1.3499,
+    -1.0489,
+    -0.7479,
+    -0.4468,
+    -0.1458,
+    0.1552,
+    0.4562,
+    0.7573
+   ],
+   "x_unit": "log10 LT",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "lstm",
+    "mlp_physics_loss",
+    "enkf",
+    "ode_missing_xz+gbm"
+   ],
+   "skill": [
+    [
+     0.3314,
+     0.4802,
+     0.5998,
+     0.5067,
+     0.4111,
+     0.1191,
+     -0.0052,
+     -0.0375
+    ],
+    [
+     0.2935,
+     0.454,
+     0.5433,
+     0.3612,
+     0.2813,
+     0.1002,
+     -0.013,
+     -0.0321
+    ],
+    [
+     0.3319,
+     0.4696,
+     0.5837,
+     0.4565,
+     0.3831,
+     0.1209,
+     0.0027,
+     -0.0214
+    ],
+    [
+     0.2938,
+     0.438,
+     0.532,
+     0.3772,
+     0.3276,
+     0.0662,
+     -0.0075,
+     -0.0304
+    ]
+   ],
+   "max_skill": 0.5998,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128
+   ]
+  },
+  {
+   "case": "mackey_glass_noise0.01",
+   "title": "Mackey-Glass, noise 0.01",
+   "x": [
+    -1.8327,
+    -1.5317,
+    -1.2306,
+    -0.9296,
+    -0.6286,
+    -0.3275,
+    -0.0265,
+    0.2745,
+    0.5756
+   ],
+   "x_unit": "log10 LT",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "tcn",
+    "gbm_physics_features",
+    "dde_fitted",
+    "dde_fitted+gbm"
+   ],
+   "skill": [
+    [
+     0.7676,
+     0.8288,
+     0.8575,
+     0.8382,
+     0.9139,
+     0.8673,
+     0.7199,
+     0.2098,
+     0.0114
+    ],
+    [
+     0.7784,
+     0.8335,
+     0.8962,
+     0.9108,
+     0.8371,
+     0.72,
+     0.4396,
+     0.2058,
+     -0.0169
+    ],
+    [
+     0.8489,
+     0.931,
+     0.9583,
+     0.9515,
+     0.9343,
+     0.888,
+     0.7362,
+     0.1858,
+     -0.5
+    ],
+    [
+     0.8743,
+     0.9527,
+     0.9715,
+     0.9698,
+     0.9643,
+     0.9449,
+     0.8716,
+     0.4741,
+     -0.0023
+    ]
+   ],
+   "max_skill": 0.9715,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+   ]
+  },
+  {
+   "case": "mackey_glass_noise0.3",
+   "title": "Mackey-Glass, noise 0.3",
+   "x": [
+    -1.8327,
+    -1.5317,
+    -1.2306,
+    -0.9296,
+    -0.6286,
+    -0.3275,
+    -0.0265,
+    0.2745,
+    0.5756
+   ],
+   "x_unit": "log10 LT",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "transformer",
+    "gbm_physics_features",
+    "dde_fitted",
+    "dde_fitted+gbm"
+   ],
+   "skill": [
+    [
+     0.2294,
+     0.3348,
+     0.4218,
+     0.4355,
+     0.3726,
+     0.2158,
+     0.0354,
+     -0.0309,
+     -0.0615
+    ],
+    [
+     0.1962,
+     0.3008,
+     0.3671,
+     0.3742,
+     0.223,
+     0.1092,
+     0.0166,
+     0.0157,
+     -0.0437
+    ],
+    [
+     0.1293,
+     0.264,
+     0.3545,
+     0.3139,
+     0.1328,
+     -0.0948,
+     -0.4845,
+     -0.4002,
+     -0.5
+    ],
+    [
+     0.2174,
+     0.303,
+     0.3966,
+     0.4039,
+     0.2751,
+     0.1435,
+     -0.0006069,
+     0.0055,
+     -0.0835
+    ]
+   ],
+   "max_skill": 0.4355,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+   ]
+  },
+  {
+   "case": "lorenz96_noise0.1",
+   "title": "Lorenz-96, noise 0.1",
+   "x": [
+    -1.0765,
+    -0.7755,
+    -0.4745,
+    -0.1735,
+    0.1276,
+    0.4286,
+    0.7296
+   ],
+   "x_unit": "log10 LT",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "gbm",
+    "gbm_physics_features",
+    "enkf",
+    "ode_fitted+gbm"
+   ],
+   "skill": [
+    [
+     0.1976,
+     0.3121,
+     0.3256,
+     0.22,
+     0.0275,
+     -0.006,
+     -0.0645
+    ],
+    [
+     0.3531,
+     0.5307,
+     0.4976,
+     0.2682,
+     0.0546,
+     -0.0072,
+     -0.0758
+    ],
+    [
+     0.4899,
+     0.7008,
+     0.8276,
+     0.8254,
+     0.5986,
+     0.2577,
+     0.0525
+    ],
+    [
+     0.3758,
+     0.6205,
+     0.7548,
+     0.7276,
+     0.4453,
+     0.081,
+     -0.0604
+    ]
+   ],
+   "max_skill": 0.8276,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64
+   ]
+  },
+  {
+   "case": "double_well",
+   "title": "double well",
+   "x": [
+    0.0,
+    0.301,
+    0.6021,
+    0.9031,
+    1.2041,
+    1.5051,
+    1.8062,
+    2.1072
+   ],
+   "x_unit": "log10 samples",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "transformer",
+    "gbm_physics_features",
+    "sde_poly3",
+    "sde_poly1_nn_closure"
+   ],
+   "skill": [
+    [
+     0.0105,
+     0.0142,
+     0.0158,
+     0.0219,
+     0.0284,
+     0.0166,
+     0.0339,
+     0.0193
+    ],
+    [
+     0.0118,
+     0.0237,
+     0.0277,
+     0.0328,
+     0.0147,
+     0.013,
+     0.0119,
+     0.0299
+    ],
+    [
+     0.017,
+     0.0298,
+     0.025,
+     0.0243,
+     0.0116,
+     0.0081,
+     0.0253,
+     0.0508
+    ],
+    [
+     0.0136,
+     0.0257,
+     0.0227,
+     0.0283,
+     0.0192,
+     0.0103,
+     0.0197,
+     0.0354
+    ]
+   ],
+   "max_skill": 0.0508,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128
+   ]
+  },
+  {
+   "case": "stochastic_oscillator",
+   "title": "noise-driven oscillator",
+   "x": [
+    0.0,
+    0.301,
+    0.6021,
+    0.9031,
+    1.2041,
+    1.5051,
+    1.8062
+   ],
+   "x_unit": "log10 samples",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "mlp",
+    "gbm_physics_features",
+    "oscillator_kalman",
+    "oscillator_kalman+gbm"
+   ],
+   "skill": [
+    [
+     -0.0247,
+     -0.0157,
+     -0.0218,
+     -0.0289,
+     -0.0179,
+     -0.0338,
+     -0.0429
+    ],
+    [
+     -0.0385,
+     -0.0352,
+     -0.0152,
+     -0.000597,
+     -0.0089,
+     -0.0055,
+     -0.0053
+    ],
+    [
+     -0.0015,
+     -0.0015,
+     -4.944e-05,
+     0.0007797,
+     -0.0013,
+     -0.0012,
+     -0.0005931
+    ],
+    [
+     -0.0047,
+     0.0044,
+     0.0054,
+     0.0076,
+     -0.0044,
+     -0.0024,
+     -0.0167
+    ]
+   ],
+   "max_skill": 0.0076,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64
+   ]
+  },
+  {
+   "case": "white_noise",
+   "title": "white noise",
+   "x": [
+    0.0,
+    0.301,
+    0.6021,
+    0.9031,
+    1.2041
+   ],
+   "x_unit": "log10 samples",
+   "families": [
+    "data"
+   ],
+   "representatives": [
+    "lstm"
+   ],
+   "skill": [
+    [
+     -0.004,
+     -0.0002093,
+     0.003,
+     0.0008822,
+     0.0044
+    ]
+   ],
+   "max_skill": 0.0044,
+   "horizons": [
+    1,
+    2,
+    4,
+    8,
+    16
+   ]
+  },
+  {
+   "case": "usd_eur_log_returns",
+   "title": "USD/EUR returns",
+   "x": [
+    0.0,
+    0.301,
+    0.699,
+    1.0,
+    1.301
+   ],
+   "x_unit": "log10 samples",
+   "families": [
+    "data"
+   ],
+   "representatives": [
+    "mlp"
+   ],
+   "skill": [
+    [
+     -0.0034,
+     -0.0005201,
+     0.0003645,
+     -0.005,
+     -0.0033
+    ]
+   ],
+   "max_skill": 0.0003645,
+   "horizons": [
+    1,
+    2,
+    5,
+    10,
+    20
+   ]
+  },
+  {
+   "case": "sunspots_yearly",
+   "title": "sunspots",
+   "x": [
+    0.0,
+    0.301,
+    0.4771,
+    0.699,
+    0.9031,
+    1.0414
+   ],
+   "x_unit": "log10 samples",
+   "families": [
+    "data",
+    "data+physics",
+    "physical",
+    "hybrid"
+   ],
+   "representatives": [
+    "mlp",
+    "gbm_physics_features",
+    "oscillator_kalman",
+    "oscillator_kalman+gbm"
+   ],
+   "skill": [
+    [
+     0.0566,
+     -0.0538,
+     -0.0992,
+     -0.2413,
+     -0.3643,
+     -0.0627
+    ],
+    [
+     0.196,
+     0.0068,
+     -0.103,
+     -0.1676,
+     -0.3687,
+     0.0247
+    ],
+    [
+     -0.0727,
+     -0.2341,
+     -0.3687,
+     -0.4317,
+     -0.443,
+     -0.479
+    ],
+    [
+     0.1805,
+     0.0803,
+     -0.0167,
+     -0.0808,
+     -0.2376,
+     -0.0825
+    ]
+   ],
+   "max_skill": 0.196,
+   "horizons": [
+    1,
+    2,
+    3,
+    5,
+    8,
+    11
+   ]
+  },
+  {
+   "case": "youtube_us_log_views",
+   "title": "YouTube: log views",
+   "x": [
+    0.0,
+    0.301,
+    0.4771,
+    0.699,
+    0.8451
+   ],
+   "x_unit": "log10 samples",
+   "families": [
+    "data"
+   ],
+   "representatives": [
+    "transformer"
+   ],
+   "skill": [
+    [
+     -0.0028,
+     0.0175,
+     -0.1194,
+     -0.4315,
+     0.0229
+    ]
+   ],
+   "max_skill": 0.0229,
+   "horizons": [
+    1,
+    2,
+    3,
+    5,
+    7
+   ]
+  },
+  {
+   "case": "youtube_us_entertainment_slots",
+   "title": "YouTube: Entertainment",
+   "x": [
+    0.0,
+    0.301,
+    0.4771,
+    0.699,
+    0.8451
+   ],
+   "x_unit": "log10 samples",
+   "families": [
+    "data"
+   ],
+   "representatives": [
+    "lstm"
+   ],
+   "skill": [
+    [
+     -0.119,
+     -0.1022,
+     -0.1092,
+     -0.0714,
+     0.0634
+    ]
+   ],
+   "max_skill": 0.0634,
+   "horizons": [
+    1,
+    2,
+    3,
+    5,
+    7
+   ]
+  }
+ ],
+ "cones": [
+  {
+   "case": "lorenz63_noise0.1",
+   "model": "gbm",
+   "max_horizon": 48,
+   "n_test_origins": 576,
+   "coverage50_mean": 0.6226,
+   "coverage90_mean": 0.8903,
+   "origin": 5376
+  },
+  {
+   "case": "white_noise",
+   "model": "gbm",
+   "max_horizon": 48,
+   "n_test_origins": 576,
+   "coverage50_mean": 0.5037,
+   "coverage90_mean": 0.8936,
+   "origin": 5376
+  }
+ ],
+ "attractor": {
+  "delay": 7,
+  "npe": {
+   "original": 0.1299,
+   "iaaft": 0.2882,
+   "shuffled": 1.0484
+  }
+ },
+ "ensembles": [
+  {
+   "case": "lorenz63",
+   "spread_at_1LT": 0.0178,
+   "spread_at_end": 0.7469,
+   "spread_at_start": 0.0111
+  },
+  {
+   "case": "mackey_glass",
+   "spread_at_1LT": 0.0523,
+   "spread_at_end": 0.9439,
+   "spread_at_start": 0.0086
+  },
+  {
+   "case": "stochastic_oscillator",
+   "spread_at_end": 0.0013,
+   "spread_at_start": 0.0093
+  }
+ ]
+}

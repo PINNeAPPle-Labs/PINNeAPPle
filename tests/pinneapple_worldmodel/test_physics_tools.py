@@ -28,8 +28,10 @@ def registry() -> PhysicsToolRegistry:
     return reg
 
 
-def test_registers_38_tools(registry):
-    assert len(registry) == 38
+def test_registers_41_tools(registry):
+    # 38 physics tools plus the three REA bridge tools added with the evidence/harvest ledger
+    assert len(registry) == 41
+    assert {"rea_analyze_javascript", "rea_locate_feature", "reference_license_policy"} <= set(registry._tools)
 
 
 def test_every_tools_module_name_is_a_real_top_level_package(registry):
@@ -117,8 +119,8 @@ def test_registry_get_unknown_tool_raises_keyerror(registry):
 
 def test_summary_reports_full_availability(registry):
     text = registry.summary()
-    assert "38 tools" in text
-    assert "(38 available)" in text
+    assert "41 tools" in text
+    assert "(41 available)" in text
 
 
 def test_physics_tool_call_without_fn_raises_runtime_error():

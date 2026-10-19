@@ -1,0 +1,4 @@
+Toyota_Prius.json is a machine file of pyleecan 1.4.2 (pyleecan/Data/Machine/Toyota_Prius.json),
+https://github.com/Eomys/pyleecan, distributed under the Apache License 2.0
+(https://www.apache.org/licenses/LICENSE-2.0). Copyright the pyleecan developers (EOMYS). Unmodified; used as a
+test fixture of pinneapple_simulation.electromagnetics.machines.interop.from_pyleecan.

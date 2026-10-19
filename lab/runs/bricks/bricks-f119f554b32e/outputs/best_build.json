@@ -1,0 +1,121 @@
+{
+ "name": "tower seed",
+ "ground": {
+  "kind": "table",
+  "regions": null
+ },
+ "bricks": [
+  {
+   "part": "brick_2x4",
+   "x": 2,
+   "y": 2,
+   "z": 0,
+   "rot": 0,
+   "colour": "yellow"
+  },
+  {
+   "part": "brick_2x4",
+   "x": 2,
+   "y": 2,
+   "z": 3,
+   "rot": 0,
+   "colour": "blue"
+  },
+  {
+   "part": "brick_2x2",
+   "x": 2,
+   "y": 2,
+   "z": 6,
+   "rot": 0,
+   "colour": "orange"
+  },
+  {
+   "part": "brick_2x2",
+   "x": 1,
+   "y": 2,
+   "z": 9,
+   "rot": 0,
+   "colour": "lime"
+  },
+  {
+   "part": "brick_2x2",
+   "x": 0,
+   "y": 2,
+   "z": 12,
+   "rot": 0,
+   "colour": "green"
+  },
+  {
+   "part": "brick_1x2",
+   "x": 0,
+   "y": 2,
+   "z": 15,
+   "rot": 0,
+   "colour": "yellow"
+  },
+  {
+   "part": "brick_1x2",
+   "x": 0,
+   "y": 2,
+   "z": 18,
+   "rot": 0,
+   "colour": "blue"
+  },
+  {
+   "part": "brick_2x4",
+   "x": 0,
+   "y": 2,
+   "z": 21,
+   "rot": 0,
+   "colour": "white"
+  },
+  {
+   "part": "brick_1x1",
+   "x": 0,
+   "y": 2,
+   "z": 24,
+   "rot": 0,
+   "colour": "green"
+  },
+  {
+   "part": "brick_1x2",
+   "x": 0,
+   "y": 2,
+   "z": 27,
+   "rot": 0,
+   "colour": "lime"
+  },
+  {
+   "part": "brick_1x2",
+   "x": 0,
+   "y": 2,
+   "z": 30,
+   "rot": 0,
+   "colour": "orange"
+  },
+  {
+   "part": "brick_1x1",
+   "x": 0,
+   "y": 2,
+   "z": 33,
+   "rot": 0,
+   "colour": "white"
+  },
+  {
+   "part": "brick_1x1",
+   "x": 0,
+   "y": 2,
+   "z": 36,
+   "rot": 0,
+   "colour": "blue"
+  },
+  {
+   "part": "brick_1x1",
+   "x": 0,
+   "y": 2,
+   "z": 39,
+   "rot": 0,
+   "colour": "orange"
+  }
+ ]
+}

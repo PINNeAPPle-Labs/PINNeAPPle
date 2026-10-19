@@ -1,0 +1,6 @@
+# on top of `pip install ".[surrogate]"` (PINNeAPPle core + scikit-learn, pyarrow, h5py, onnx, onnxruntime)
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+pandas>=2.0
+xgboost>=1.7          # optional: gradient-boosted trees fall back to scikit-learn without it

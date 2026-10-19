@@ -1,0 +1,33 @@
+{
+ "contrast/fno_0": [
+  "PC101",
+  "PC201",
+  "PC301",
+  "PC401",
+  "PC402"
+ ],
+ "contrast/fno_1": [
+  "PC201",
+  "PC301",
+  "PC401",
+  "PC402"
+ ],
+ "contrast/meshgraphnet_0": [
+  "PC201",
+  "PC301",
+  "PC401"
+ ],
+ "contrast/meshgraphnet_1": [
+  "PC101",
+  "PC201",
+  "PC301",
+  "PC401"
+ ],
+ "length_scale/fno_0": [
+  "PC401"
+ ],
+ "length_scale/meshgraphnet_0": [
+  "PC301",
+  "PC401"
+ ]
+}

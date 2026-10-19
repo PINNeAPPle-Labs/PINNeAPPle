@@ -137,7 +137,7 @@ def capabilities() -> dict[str, Any]:
     return _clean({"pinneapple_version": pp.__version__, "device": device, "optional_apis": opt,
                    "limits": cfg.to_dict(), "jobs_running": jobs.running(),
                    "tools": ["capabilities", "list_methods", "describe_method", "list_presets", "solve",
-                             "trust_card", "benchmark", "job_status", "list_jobs", "cancel_job"]
+                             "trust_card", "benchmark", "design", "job_status", "list_jobs", "cancel_job"]
                    + (["zoo_list", "zoo_predict", "zoo_validate"] if opt.get("zoo") else [])})
 
 
@@ -567,4 +567,38 @@ def cancel_job(job_id: str) -> dict[str, Any]:
     return _clean(jobs.cancel(job_id, get_config()))
 
 
-JOB_KINDS = {"solve": _run_solve, "benchmark": _run_benchmark}
+# ---------------------------------------------------------------------- design from intent
+def _answers(answers: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    if not answers:
+        return None
+    return {k: tuple(v) if isinstance(v, (list, tuple)) else v for k, v in answers.items()}
+
+
+def design(text: str, answers: Mapping[str, Any] | None = None, verify: bool = True, seed: int = 0,
+           max_seconds: float | None = None, wait_seconds: float = 0.0) -> dict[str, Any]:
+    """Design from a plain-language goal. Out-of-scope requests and missing values are answered at once (status
+    ``out_of_scope`` with what is needed, or ``needs_input`` with the questions); an in-scope request starts a job
+    whose result is the design package (verdict, design, margins, verification, files)."""
+    from pinneapple_design.intent import OutOfScope, formulate
+    spec = formulate(text, answers=_answers(answers))
+    if isinstance(spec, OutOfScope):
+        return _clean(spec.to_dict())
+    if spec.questions or spec.issues:
+        from pinneapple_design.intent import NeedsInput
+        return _clean(NeedsInput(spec).to_dict())
+    cfg = get_config()
+    args = {"text": text, "answers": dict(answers or {}), "verify": bool(verify), "seed": int(seed)}
+    jid = jobs.submit("design", args, cfg, max_seconds)
+    return jobs.status(jid, cfg, wait_seconds)
+
+
+def _run_design(args: dict[str, Any], jd: Path) -> dict[str, Any]:
+    from pinneapple_design.intent import design as run_design
+    pkg = run_design(args["text"], answers=_answers(args.get("answers")), verify=bool(args.get("verify", True)),
+                     seed=int(args.get("seed", 0)), out_dir=str(jd / "design"))
+    d = pkg.to_dict()
+    return _clean({k: d.get(k) for k in ("status", "verdict", "design", "assessment", "verification",
+                                          "operating_window", "bill_of_materials", "limits", "savings", "files")})
+
+
+JOB_KINDS = {"solve": _run_solve, "benchmark": _run_benchmark, "design": _run_design}

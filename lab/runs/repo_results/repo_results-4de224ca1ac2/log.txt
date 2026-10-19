@@ -1,0 +1,9 @@
+[16:40:17] Prius drive: flux map, MTPA and flux weakening, efficiency map, WLTC class 3b energy
+[16:40:17] stage import started
+[16:40:17] check envelope_vs_closed_form_linear_dq: PASS Drive: torque envelope vs closed form (linear dq) (machines.verification); L_d = 0.6 mH, L_q = 2.4 mH, psi_m = 0.2 Wb, 250 A, 500 V SVPWM
+[16:40:17] check least_loss_currents_vs_mtpa_closed_form: PASS Drive: least-loss currents vs MTPA closed form (machines.verification); 
+[16:40:17] check wltc_energy_balance_lossless_drive: PASS Drive cycle: WLTC class 3b energy balance (machines.verification); trace: 23266.3 m (GTR 15: 23 266 m), max 131.3 km/h, sum 83758.6 km/h s
+[16:40:17] check flux_map_interpolation_vs_direct_fea: PASS Prius flux map: interpolation vs direct FEA (machines.verification); error relative to 300 N m
+[16:40:17] check battery_energy_balance: PASS battery energy = motoring - regenerated over the WLTC class 3b cycle
+[16:40:17] check efficiency_below_one: PASS 
+[16:40:17] stage import done (0.007 s)

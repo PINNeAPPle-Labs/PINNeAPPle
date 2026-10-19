@@ -1,0 +1,9 @@
+{
+ "end_leakage_ratio_116856_prisms": 0.934474373103207,
+ "end_leakage_ratio_198336_prisms": 0.9462640380334694,
+ "end_leakage_ratio_342832_prisms": 0.9482361699711926,
+ "L_end_air_uH": 135.245190227115,
+ "L_end_iron_face_uH": 115.34101824078365,
+ "torque_2d_Nm": 345.67213358560895,
+ "torque_end_corrected_Nm": 336.68743608581536
+}

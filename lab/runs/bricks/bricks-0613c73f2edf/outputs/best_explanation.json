@@ -1,0 +1,9 @@
+{
+ "text": "carries 1.049 N at mid-span (1.05 x the 1.0 N load)",
+ "metrics": {
+  "load_factor": 1.0485201520940077,
+  "utilisation": 0.953988372776159,
+  "load_n": 1.0,
+  "capacity_n": 1.0485201520940077
+ }
+}

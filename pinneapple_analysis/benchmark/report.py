@@ -605,6 +605,14 @@ def studies_markdown(plan, studies: dict) -> list[str]:
     return (["## Budget study and setup audit", ""] + L) if L else []
 
 
+def study_metric_key(prob, method_id: str, pts: list[dict]) -> str | None:
+    """The metric column a budget-study curve shows: the method's own convergence metric (``main_metric_for``), so a
+    field model is judged on its field and not on an integral it cannot predict; else the first column."""
+    keys = _metric_cols([p["metrics"] for p in pts])
+    main = prob.main_metric_for(method_id) if hasattr(prob, "main_metric_for") else None
+    return next((k for k in keys if main and k.endswith("/" + main[1])), keys[0] if keys else None)
+
+
 def studies_figure(plan, studies: dict, fig_dir: Path) -> list[str]:
     import matplotlib
     matplotlib.use("Agg")
@@ -615,18 +623,20 @@ def studies_figure(plan, studies: dict, fig_dir: Path) -> list[str]:
     fig, axes = plt.subplots(1, len(panels), figsize=(4.6 * len(panels), 3.6), squeeze=False)
     for ax, (pid, mid, per) in zip(axes[0], panels, strict=False):
         prob = plan.P[pid]
-        main = prob.main_metric() if hasattr(prob, "main_metric") else None
+        ys_all = []
         for i, (suffix, pts) in enumerate(per.items()):
-            keys = _metric_cols([p["metrics"] for p in pts])
-            key = next((k for k in keys if main and k.endswith("/" + main[1])), keys[0] if keys else None)
+            key = study_metric_key(prob, mid, pts)
             if key is None:
                 continue
             xs = [p["budget_s"] for p in pts if key in p["metrics"]]
             ys = [p["metrics"][key] for p in pts if key in p["metrics"]]
+            ys_all += ys
             ax.plot(xs, ys, marker=MARKERS[i % len(MARKERS)], color=COLORS[i % len(COLORS)], lw=1.4,
                     label=f"{suffix} ({key})")
         ax.set_xscale("log")
-        ax.set_yscale("log")
+        pos = [y for y in ys_all if y > 0]
+        if pos and max(pos) / min(pos) >= 10:      # log only when the errors span a decade; else it has no labels
+            ax.set_yscale("log")
         ax.set_xlabel("training budget (s, one core)", fontsize=8, color=INK2)
         ax.set_title(f"{prob.method_title(plan.M[mid])}, {prob.title}", fontsize=9, color=INK)
         _style(ax)

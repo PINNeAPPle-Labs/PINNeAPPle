@@ -1,0 +1,38 @@
+name: Validation gallery
+
+# Every example in examples/validation at smoke size (each must catch the failure it documents), and
+# `pinneapple check` on the gallery's configuration. CPU only.
+on:
+  push:
+    branches: ["main"]
+    paths: ["examples/validation/**", "pinneapple_analysis/validation/**", "pinneapple_neural/**",
+            "pinneapple_simulation/numerical_solvers/**", "pinneapple_data/audit.py",
+            "tests/test_validation_gallery.py", ".github/workflows/validation-gallery.yml"]
+  pull_request:
+    paths: ["examples/validation/**", "pinneapple_analysis/validation/**", "pinneapple_neural/**",
+            "pinneapple_simulation/numerical_solvers/**", "pinneapple_data/audit.py",
+            "tests/test_validation_gallery.py", ".github/workflows/validation-gallery.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gallery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install the package, CPU PyTorch, ONNX Runtime and PhysicsNeMo
+        run: |
+          python -m pip install --upgrade pip
+          # torchvision from the same CPU index: PhysicsNeMo needs it, and the PyPI build does not match CPU torch
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[check,export]" pytest onnxscript nvidia-physicsnemo
+      - name: Every example runs at smoke size and catches its failure
+        run: pytest tests/test_validation_gallery.py -q -rs -p no:warnings
+      - name: pinneapple check on the gallery configuration
+        run: pinneapple check examples/validation

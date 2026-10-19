@@ -1,0 +1,247 @@
+{
+ "$defs": {
+  "DatasetRef": {
+   "additionalProperties": false,
+   "properties": {
+    "content_hash": {
+     "default": "",
+     "description": "DatasetSpec.content_hash() of the training dataset.",
+     "title": "Content Hash",
+     "type": "string"
+    },
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "uri": {
+     "default": "",
+     "title": "Uri",
+     "type": "string"
+    },
+    "version": {
+     "default": "",
+     "title": "Version",
+     "type": "string"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "DatasetRef",
+   "type": "object"
+  },
+  "Provenance": {
+   "additionalProperties": false,
+   "properties": {
+    "app": {
+     "default": "",
+     "title": "App",
+     "type": "string"
+    },
+    "created": {
+     "title": "Created",
+     "type": "string"
+    },
+    "library_version": {
+     "default": "",
+     "title": "Library Version",
+     "type": "string"
+    },
+    "notes": {
+     "default": "",
+     "title": "Notes",
+     "type": "string"
+    },
+    "run_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Run Ids",
+     "type": "array"
+    },
+    "source": {
+     "default": "",
+     "description": "What produced it: a campaign, a run set, an import, ...",
+     "title": "Source",
+     "type": "string"
+    },
+    "study_id": {
+     "default": "",
+     "title": "Study Id",
+     "type": "string"
+    }
+   },
+   "title": "Provenance",
+   "type": "object"
+  },
+  "Variable": {
+   "additionalProperties": false,
+   "properties": {
+    "description": {
+     "default": "",
+     "title": "Description",
+     "type": "string"
+    },
+    "high": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "High"
+    },
+    "low": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "description": "Lower end of the validity range (inputs).",
+     "title": "Low"
+    },
+    "name": {
+     "title": "Name",
+     "type": "string"
+    },
+    "unit": {
+     "default": "",
+     "title": "Unit",
+     "type": "string"
+    }
+   },
+   "required": [
+    "name"
+   ],
+   "title": "Variable",
+   "type": "object"
+  }
+ },
+ "$id": "https://pinneapple.org/schemas/ModelRef-1.0.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "description": "Where a trained model is and what it may be used for.",
+ "properties": {
+  "dataset": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/DatasetRef"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
+  "framework": {
+   "default": "",
+   "title": "Framework",
+   "type": "string"
+  },
+  "inputs": {
+   "items": {
+    "$ref": "#/$defs/Variable"
+   },
+   "title": "Inputs",
+   "type": "array"
+  },
+  "kind": {
+   "const": "ModelRef",
+   "default": "ModelRef",
+   "title": "Kind",
+   "type": "string"
+  },
+  "metadata": {
+   "additionalProperties": true,
+   "description": "Free-form additions (app-specific).",
+   "title": "Metadata",
+   "type": "object"
+  },
+  "metrics": {
+   "additionalProperties": {
+    "type": "number"
+   },
+   "description": "Held-out metrics only (e.g. test_rel_l2), with the split named.",
+   "title": "Metrics",
+   "type": "object"
+  },
+  "metrics_split": {
+   "default": "test",
+   "description": "The split the metrics were computed on.",
+   "title": "Metrics Split",
+   "type": "string"
+  },
+  "model_type": {
+   "default": "surrogate",
+   "description": "surrogate, pinn, neural_operator, rom, gp, ...",
+   "title": "Model Type",
+   "type": "string"
+  },
+  "name": {
+   "title": "Name",
+   "type": "string"
+  },
+  "outputs": {
+   "items": {
+    "$ref": "#/$defs/Variable"
+   },
+   "title": "Outputs",
+   "type": "array"
+  },
+  "provenance": {
+   "$ref": "#/$defs/Provenance"
+  },
+  "schema_version": {
+   "default": "1.0",
+   "title": "Schema Version",
+   "type": "string"
+  },
+  "sha256": {
+   "anyOf": [
+    {
+     "pattern": "^[0-9a-f]{64}$",
+     "type": "string"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null,
+   "title": "Sha256"
+  },
+  "trust_decision": {
+   "default": "UNCHECKED",
+   "enum": [
+    "APPROVED",
+    "REVIEW",
+    "REJECT",
+    "UNCHECKED"
+   ],
+   "title": "Trust Decision",
+   "type": "string"
+  },
+  "uri": {
+   "description": "\"zoo:<name>\", \"hub:<repo>\", a file path or an http(s) URL.",
+   "title": "Uri",
+   "type": "string"
+  },
+  "version": {
+   "default": "0.1.0",
+   "title": "Version",
+   "type": "string"
+  }
+ },
+ "required": [
+  "name",
+  "uri"
+ ],
+ "title": "ModelRef",
+ "type": "object"
+}

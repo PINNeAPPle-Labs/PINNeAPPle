@@ -1,0 +1,110 @@
+[
+ {
+  "name": "harmonic stack (6 blocks): stability limit / closed form",
+  "passed": true,
+  "value": 0.0,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "tolerance 0.001",
+  "kind": "verification"
+ },
+ {
+  "name": "single block overhang limit / length",
+  "passed": true,
+  "value": 0.0,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "tolerance 0.001",
+  "kind": "verification"
+ },
+ {
+  "name": "stud cantilever brick_1x4 on 1 stud(s): tension per stud",
+  "passed": true,
+  "value": 1.1263194816006071e-16,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "tolerance 1e-06",
+  "kind": "verification"
+ },
+ {
+  "name": "stud cantilever brick_1x8 on 2 stud(s): tension per stud",
+  "passed": true,
+  "value": 1.167208967731322e-16,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "tolerance 1e-06",
+  "kind": "verification"
+ },
+ {
+  "name": "tower of 8 2x2 bricks: tipping push at the top",
+  "passed": true,
+  "value": 1.845205133335256e-16,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "tolerance 1e-06",
+  "kind": "verification"
+ },
+ {
+  "name": "plate beam: sum of support reactions",
+  "passed": true,
+  "value": 1.2136130662941873e-15,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "tolerance 1e-06",
+  "kind": "verification"
+ },
+ {
+  "name": "voxel FEA plate beam: mid-span deflection (Timoshenko)",
+  "passed": true,
+  "value": 0.004031367882311576,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "tolerance 0.02",
+  "kind": "verification"
+ },
+ {
+  "name": "a_strategy_found_a_feasible_build",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ },
+ {
+  "name": "best_build_passes_statics",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "carries 1.049 N at mid-span (1.05 x the 1.0 N load)",
+  "kind": "physics"
+ }
+]

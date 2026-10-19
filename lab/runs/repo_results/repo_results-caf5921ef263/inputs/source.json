@@ -1,0 +1,7 @@
+{
+ "name": "near_random_forecasting",
+ "description": "Forecasting near-random series without fooling yourself: 14 series, predictability tests, a model zoo, purged walk-forward and Diebold-Mariano tests on an untouched test",
+ "scripts": [
+  "examples/near_random_forecasting/run_study.py"
+ ]
+}

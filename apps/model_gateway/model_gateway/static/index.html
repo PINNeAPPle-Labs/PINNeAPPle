@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Physics AI Model Gateway</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%234338ca%22/%3E%3Cpath d=%22M3 8h4M9 8h4M8 3v4M8 9v4%22 stroke=%22white%22 stroke-width=%221.6%22/%3E%3Ccircle cx=%228%22 cy=%228%22 r=%221.6%22 fill=%22white%22/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/shared/app.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 16 16"><path d="M2.5 8h4M9.5 8h4M8 2.5v4M8 9.5v4" stroke="white" stroke-width="1.6"/><circle cx="8" cy="8" r="1.7" fill="white"/></svg></div>
+    <div>
+      <div class="title">Physics AI Model Gateway</div>
+      <div class="subtitle">Publish physical models as versioned endpoints; every call checked against the model's validity range</div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="models" class="active">Models</button>
+    <button data-tab="publish">Publish</button>
+    <button data-tab="metrics">Operations</button>
+    <button data-tab="api">API</button>
+  </nav>
+</header>
+<main>
+  <section id="tab-models" class="tab active">
+    <div class="layout">
+      <div class="panel"><h2 style="margin-top:0">Endpoints</h2><div id="mlist" class="mlist"></div>
+        <fieldset><legend>Try with an example</legend><div id="examples" class="examples"></div></fieldset></div>
+      <div id="detail"><div class="panel empty"><h3>Pick a model</h3></div></div>
+    </div>
+  </section>
+  <section id="tab-publish" class="tab">
+    <div class="grid2">
+      <div class="panel form"><h2>Credentials</h2>
+        <p class="hint">Publishing needs the app login, the admin token, or (ONNX only) an API key. They are kept in this tab only (sessionStorage).</p>
+        <div class="row2"><label>X-Admin-Token<input id="tok" type="password"></label><label>X-API-Key<input id="key" type="password"></label></div>
+        <button class="secondary" id="savecred" type="button">Use for this tab</button><div class="status-line" id="who"></div></div>
+      <div class="panel form"><h2>From a ModelRef</h2>
+        <p class="hint">A pinneapple_data.contracts ModelRef: <code>zoo:&lt;name&gt;</code>, or the http(s) URI of a model behind the same API (a Surrogate Studio endpoint). Its input ranges become the validity bounds. Admin only.</p>
+        <textarea id="ref" rows="7">{"kind": "ModelRef", "name": "zoo-heatsink-natural-copy", "uri": "zoo:heatsink_natural_mlp"}</textarea>
+        <div class="row2"><label>OOD policy<select id="refpol"><option>warn</option><option>refuse</option></select></label><label>Stage<select id="refstage"><option>production</option><option>staging</option><option>development</option></select></label></div>
+        <button class="primary" id="pubref" type="button">Publish</button><div class="status-line" id="refst"></div></div>
+      <div class="panel form"><h2>ONNX graph</h2>
+        <p class="hint">inputs (n, d) → outputs (n, p), float32. Declare the names and the validity bounds of every input.</p>
+        <label>Name<input id="oname" placeholder="my-model"></label><label>File<input id="ofile" type="file" accept=".onnx"></label>
+        <label>Spec<textarea id="ospec" rows="5">{"inputs": ["x"], "outputs": ["y"], "validity_bounds": {"x": [0, 1]}}</textarea></label>
+        <label>OOD policy<select id="opol"><option>warn</option><option>refuse</option></select></label>
+        <button class="primary" id="pubonnx" type="button">Publish</button><div class="status-line" id="onst"></div></div>
+      <div class="panel form"><h2>Surrogate Studio model.zip</h2>
+        <p class="hint">Admin only: loading it unpickles the model (checked against the sha256 in its card). Upload only models you produced.</p>
+        <label>Name<input id="sname" placeholder="airfoil-cl-cd"></label><label>File<input id="sfile" type="file" accept=".zip"></label>
+        <label>OOD policy<select id="spol"><option>warn</option><option>refuse</option></select></label>
+        <button class="primary" id="pubsur" type="button">Publish</button><div class="status-line" id="sust"></div></div>
+    </div>
+  </section>
+  <section id="tab-metrics" class="tab"><div class="panel" id="ops"></div></section>
+  <section id="tab-api" class="tab"><div class="panel"><h2 style="margin-top:0">API</h2>
+    <p>Interactive documentation at <a class="link" href="/docs" target="_blank">/docs</a>. The same <code>/v1</code> API is served by the Surrogate Studio, so a client works against either.</p>
+    <pre class="code"><code id="c1"></code></pre><h3>Python client</h3><pre class="code"><code id="c2"></code></pre></div></section>
+</main>
+<footer class="foot">Built on <b>PINNeAPPle</b>: pinneapple_registry.ModelGateway (versions, stages, OOD policies, run log, metrics), gateway_api, gateway_client, pinneapple_data.contracts (ModelRef), pp.zoo. One interface for physical models, with their validity range.</footer>
+<script src="/shared/author.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

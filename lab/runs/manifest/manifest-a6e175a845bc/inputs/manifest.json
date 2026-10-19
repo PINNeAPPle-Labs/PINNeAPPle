@@ -1,0 +1,91 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/pinneapple_and_physicsnemo",
+ "title": "Pinneapple and physicsnemo",
+ "description": "",
+ "domain": "physics AI",
+ "methods": [],
+ "modules": [],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "test_mse_u_VanillaPINN",
+   "value": 0.0001490869908593595,
+   "unit": "",
+   "how": "test-set MSE of u; steps and learning rate in the same record (pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json)"
+  },
+  {
+   "name": "test_mse_u_VPINN",
+   "value": 7.62357643679934e-08,
+   "unit": "",
+   "how": "test-set MSE of u; steps and learning rate in the same record (pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json)"
+  },
+  {
+   "name": "test_mse_u_PINNsFormer",
+   "value": 0.006393932271748781,
+   "unit": "",
+   "how": "test-set MSE of u; steps and learning rate in the same record (pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json)"
+  },
+  {
+   "name": "test_mse_u_PIELM_wrap_",
+   "value": 0.004979216493666172,
+   "unit": "",
+   "how": "test-set MSE of u; steps and learning rate in the same record (pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json)"
+  },
+  {
+   "name": "train_time_VanillaPINN",
+   "value": 44.164775133132935,
+   "unit": "s",
+   "how": "wall-clock training time (same file)"
+  },
+  {
+   "name": "train_time_VPINN",
+   "value": 43.5403208732605,
+   "unit": "s",
+   "how": "wall-clock training time (same file)"
+  },
+  {
+   "name": "train_time_PINNsFormer",
+   "value": 892.39404129982,
+   "unit": "s",
+   "how": "wall-clock training time (same file)"
+  },
+  {
+   "name": "train_time_PIELM_wrap_",
+   "value": 53.437671422958374,
+   "unit": "s",
+   "how": "wall-clock training time (same file)"
+  }
+ ],
+ "checks": [],
+ "files": {
+  "figures": [
+   "pinneapple/benchmarks/_out/bar_test_mse_residual.png",
+   "pinneapple/benchmarks/_out/bar_test_mse_u.png",
+   "pinneapple/benchmarks/_out/bar_train_time.png",
+   "pinneapple/benchmarks/_out/loss_conditions.png",
+   "pinneapple/benchmarks/_out/loss_data.png",
+   "pinneapple/benchmarks/_out/loss_pde.png",
+   "pinneapple/benchmarks/_out/loss_total.png",
+   "pinneapple/benchmarks/_out/residual_abs.png",
+   "pinneapple/benchmarks/_out/scatter_time_vs_mse_u.png",
+   "pinneapple/benchmarks/_out/u_true_vs_preds.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.csv",
+   "pinneapple/benchmarks/_out/pinneapple_pure_benchmark_results.json"
+  ]
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "results",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

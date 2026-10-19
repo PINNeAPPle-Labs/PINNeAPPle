@@ -1,0 +1,26 @@
+# `pinneapple check` for the validation gallery: the same physics checks the examples run with pp.validate, as a CI
+# step (`pinneapple check examples/validation`, or the GitHub Action of this repository with
+# `paths: examples/validation`). Each example also writes report.sarif for code scanning.
+
+[check]
+select = ["ALL"]
+fail-on = "error"
+
+[[model]]
+name = "cantilever-first-frequency"                 # 12_regression_cantilever_modal.py
+path = "12_regression_cantilever_modal.py:predict"
+inputs = ["L_m", "h_mm", "E_gpa", "rho"]
+outputs = ["f1_hz"]
+domain = { L_m = [0.2, 1.0], h_mm = [2.0, 20.0], E_gpa = [50.0, 250.0], rho = [2000.0, 9000.0] }
+bounds = { f1_hz = [0, 1e5] }
+relations = [
+  { name = "wave-speed", kind = "invariant", inputs = { E_gpa = "1.2 * E_gpa", rho = "1.2 * rho" }, output = "f1_hz", tol = 0.02 },
+  { name = "stiffness-scaling", kind = "symmetric", inputs = { E_gpa = "1.21 * E_gpa" }, outputs = { f1_hz = "1.1 * f1_hz" }, tol = 0.02 },
+  { name = "longer-lower", kind = "monotonic", input = "L_m", output = "f1_hz", direction = "decreasing" },
+]
+
+[[model]]
+name = "heatsink-zoo"                                # 07_mlp_zoo_heatsink_convection.py
+zoo = "heatsink_forced_mlp"
+queries = "heatsink_queries.csv"                     # 8 designs of the zoo dataset's test split
+bounds = { r_base_k_w = [0, 10], pressure_drop_pa = [0, 2000] }

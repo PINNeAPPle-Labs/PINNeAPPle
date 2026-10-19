@@ -83,6 +83,12 @@ def build(case: str, refine: int = 1):
 @register
 class SolidFEMExperiment(Experiment):
     name = "solid_fem"
+    check_labels = {
+        "deflection_vs_beam_theory": {"en": "deflection vs Timoshenko and CalculiX",
+                                      "pt": "flecha vs Timoshenko e CalculiX", "also": ["matches_calculix_same_mesh"]},
+        "twist_rate_vs_saint_venant": {"en": "vs Saint-Venant and CalculiX", "pt": "vs Saint-Venant e CalculiX",
+                                       "also": ["matches_calculix_same_mesh"]},
+    }
     version = "1"
     description = ("3-D linear elasticity with hexahedra with incompatible modes (C3D8I): a cantilever, a simply "
                    "supported beam and a bar in torsion, checked against beam and Saint-Venant theory and against "

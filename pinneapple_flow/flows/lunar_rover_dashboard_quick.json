@@ -1,0 +1,188 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "lunar-rover-dashboard-quick",
+ "name": "Lunar rover dashboard (quick)",
+ "description": "NASA VIPER crossing a lunar crater on GRC-1: multibody dynamics with Wong-Reece wheels, the model zoo's wheel-contact PINN checked against the run's physics, and the animated dashboard (planetary render with the ruts coloured by normal stress, charts synced to the animation) with a horizon check on the frames. The flow form of examples/studio/07_lunar_rover_dashboard.py --quick (12 s traverse, 24 frames).",
+ "nodes": [
+  {
+   "id": "vehicle",
+   "type": "vehicle.spec",
+   "params": {
+    "preset": "viper",
+    "total_mass": 450.0
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "VIPER"
+  },
+  {
+   "id": "soil",
+   "type": "terramechanics.soil",
+   "params": {
+    "preset": "GRC-1"
+   },
+   "position": {
+    "x": 40.0,
+    "y": 190.0
+   },
+   "label": "GRC-1 soil"
+  },
+  {
+   "id": "site",
+   "type": "scenario.site",
+   "params": {
+    "scenario": "crater_site"
+   },
+   "position": {
+    "x": 40.0,
+    "y": 340.0
+   },
+   "label": "Crater site"
+  },
+  {
+   "id": "simulate",
+   "type": "vehicle.simulate",
+   "params": {
+    "duration": 12.0,
+    "speed": 0.2
+   },
+   "position": {
+    "x": 310.0,
+    "y": 40.0
+   },
+   "label": "Traverse"
+  },
+  {
+   "id": "wheel",
+   "type": "terramechanics.wheel_model",
+   "params": {},
+   "position": {
+    "x": 310.0,
+    "y": 190.0
+   },
+   "label": "Wong-Reece wheel"
+  },
+  {
+   "id": "pinn",
+   "type": "terramechanics.zoo_surrogate",
+   "params": {
+    "zoo_name": "rover_contact_grc1_viper"
+   },
+   "position": {
+    "x": 580.0,
+    "y": 40.0
+   },
+   "label": "Zoo PINN"
+  },
+  {
+   "id": "dashboard",
+   "type": "vehicle.dashboard",
+   "params": {
+    "frames": 24,
+    "gif_every": 1
+   },
+   "position": {
+    "x": 850.0,
+    "y": 40.0
+   },
+   "label": "Dashboard"
+  },
+  {
+   "id": "lab",
+   "type": "validate.lab",
+   "params": {
+    "title": "Lunar rover dashboard"
+   },
+   "position": {
+    "x": 1120.0,
+    "y": 40.0
+   },
+   "label": "Lab"
+  }
+ ],
+ "edges": [
+  {
+   "source": "vehicle",
+   "source_port": "vehicle",
+   "target": "simulate",
+   "target_port": "vehicle",
+   "id": "vehicle.vehicle->simulate.vehicle"
+  },
+  {
+   "source": "soil",
+   "source_port": "soil",
+   "target": "simulate",
+   "target_port": "soil",
+   "id": "soil.soil->simulate.soil"
+  },
+  {
+   "source": "site",
+   "source_port": "site",
+   "target": "simulate",
+   "target_port": "site",
+   "id": "site.site->simulate.site"
+  },
+  {
+   "source": "vehicle",
+   "source_port": "vehicle",
+   "target": "wheel",
+   "target_port": "vehicle",
+   "id": "vehicle.vehicle->wheel.vehicle"
+  },
+  {
+   "source": "soil",
+   "source_port": "soil",
+   "target": "wheel",
+   "target_port": "soil",
+   "id": "soil.soil->wheel.soil"
+  },
+  {
+   "source": "wheel",
+   "source_port": "model",
+   "target": "pinn",
+   "target_port": "model",
+   "id": "wheel.model->pinn.model"
+  },
+  {
+   "source": "simulate",
+   "source_port": "run",
+   "target": "dashboard",
+   "target_port": "run",
+   "id": "simulate.run->dashboard.run"
+  },
+  {
+   "source": "wheel",
+   "source_port": "model",
+   "target": "dashboard",
+   "target_port": "model",
+   "id": "wheel.model->dashboard.model"
+  },
+  {
+   "source": "pinn",
+   "source_port": "surrogate",
+   "target": "dashboard",
+   "target_port": "surrogate",
+   "id": "pinn.surrogate->dashboard.surrogate"
+  },
+  {
+   "source": "pinn",
+   "source_port": "metrics",
+   "target": "lab",
+   "target_port": "validation",
+   "id": "pinn.metrics->lab.validation"
+  },
+  {
+   "source": "dashboard",
+   "source_port": "metrics",
+   "target": "lab",
+   "target_port": "validation",
+   "id": "dashboard.metrics->lab.validation"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction",
+  "reproduces": "examples/studio/07_lunar_rover_dashboard.py --quick"
+ }
+}

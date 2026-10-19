@@ -1,0 +1,9 @@
+{
+ "text": "134.4 mm tall, survives 32.6 mN at the top (3.26 x the push); stands: peak stud tension 0.150 N = 15% of the 0.98 N clutch",
+ "metrics": {
+  "height_mm": 134.4,
+  "load_factor": 3.258868861607142,
+  "push_capacity_n": 0.03258868861607142,
+  "utilisation": 0.15302912536443147
+ }
+}

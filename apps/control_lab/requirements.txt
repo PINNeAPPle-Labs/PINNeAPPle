@@ -1,0 +1,10 @@
+# on top of `pip install .` (PINNeAPPle core)
+numpy>=1.24
+scipy>=1.10
+pandas>=2
+pyarrow>=14
+pydantic>=2
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+casadi>=3.6       # nonlinear MPC with IPOPT (the SciPy fallback is used without it)

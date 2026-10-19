@@ -1,0 +1,7 @@
+{
+ "name": "prius_drive",
+ "description": "Prius drive: flux map, MTPA and flux weakening, efficiency map, WLTC class 3b energy",
+ "scripts": [
+  "examples/electrodynamics/11_prius_drive.py"
+ ]
+}

@@ -54,8 +54,9 @@ def predictor_module(zm: ZooModel):
                 return m, sd, torch.stack([ldm, lds], 1)
         return Airfoil()
 
-    if zm.adapter == "heatsink_forced":
+    if zm.adapter in ("heatsink_forced", "heatsink_natural"):
         c = zm.config
+        forced = zm.adapter == "heatsink_forced"
 
         class Heatsink(nn.Module):
             def __init__(self):
@@ -66,14 +67,17 @@ def predictor_module(zm: ZooModel):
                 self.q95 = float(math.exp(c["conformal_log_q"]["95"]))
 
             def forward(self, x):
-                W, D, tb, N, t, H, k, sw, sd, Ta, V, Q = (x[:, i:i + 1] for i in range(12))
+                W, D, tb, N, t, H, k, sw, sd, Ta = (x[:, i:i + 1] for i in range(10))
+                Q = x[:, -1:]
                 gap = (W - N * t) / torch.clamp(N - 1, min=1.0)
-                f = torch.cat([torch.log(W), torch.log(D), torch.log(tb), torch.log(torch.clamp(gap, min=1e-3)),
-                               torch.log(t), torch.log(H), torch.log(N), torch.log(k), torch.log(sw / W),
-                               torch.log(sd / D), Ta, torch.log(V), torch.log(Q)], 1)
+                f = [torch.log(W), torch.log(D), torch.log(tb), torch.log(torch.clamp(gap, min=1e-3)),
+                     torch.log(t), torch.log(H), torch.log(N), torch.log(k), torch.log(sw / W), torch.log(sd / D), Ta]
+                f = torch.cat([*f, *([torch.log(x[:, 10:11])] if forced else []), torch.log(Q)], 1)
                 y = self.net((f - self.x_mean) / self.x_std)
                 y = (y.y if hasattr(y, "y") else y) * self.y_std + self.y_mean
                 r = torch.exp(y[:, 0:1])
+                if not forced:                                       # natural convection: no pressure drop
+                    return (torch.cat([r, r * self.q95], 1),)
                 return (torch.cat([r, torch.exp(y[:, 1:2]), r * self.q95], 1),)
         return Heatsink()
 
@@ -97,6 +101,7 @@ def predictor_module(zm: ZooModel):
 OUTPUTS = {
     "airfoil_mlp": {"mean": ["Cl", "Cd", "Cm"], "std": ["Cl_std", "Cd_std", "Cm_std"], "ld": ["LD", "LD_std"]},
     "heatsink_forced": {"y": ["r_base_k_w", "pressure_drop_pa", "r_base_upper95_k_w"]},
+    "heatsink_natural": {"y": ["r_base_k_w", "r_base_upper95_k_w"]},
     "rover_contact": {"y": ["Fx_N", "Fz_N", "My_Nm"]},
 }
 
@@ -118,8 +123,8 @@ def output_scale(zm: ZooModel) -> dict[str, np.ndarray]:
     if zm.adapter == "airfoil_mlp":
         s = np.array([zm.config["y_std"][0], np.nan, zm.config["y_std"][2]])
         return {"mean": s, "std": s, "ld": np.array([np.nan, np.nan])}
-    if zm.adapter == "heatsink_forced":
-        return {"y": np.full(3, np.nan)}
+    if zm.adapter in ("heatsink_forced", "heatsink_natural"):
+        return {"y": np.full(len(OUTPUTS[zm.adapter]["y"]), np.nan)}
     lo, hi = np.asarray(zm.config["y_lo"]), np.asarray(zm.config["y_hi"])
     return {"y": (hi - lo) / 2}
 
@@ -279,3 +284,33 @@ def checks_parity(name: str | ZooModel, onnx_model: bytes | str | Path, X: np.nd
                 if min(abs(v[i, col] - lim) for lim in lims) > CHECK_TOL:
                     flips += 1
     return {"max_value_diff": diff, "status_flips": flips}
+
+
+# ====================================================================== safetensors
+def export_safetensors(name: str | ZooModel, path: str | Path, *, offline: bool | None = None) -> dict[str, Any]:
+    """Write the model's weights (the tensors of ``weights.pt``) as safetensors at ``path``; the file's metadata
+    names the model, its version and adapter. Returns ``{"path", "bytes", "sha256", "tensors"}``."""
+    import hashlib
+
+    from safetensors.torch import save_file
+
+    from . import load
+    zm = load(name, offline=offline) if isinstance(name, str) else name
+    state = {k: v.detach().cpu().contiguous().clone() for k, v in zm.state_dict().items()}
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    save_file(state, str(path), metadata={"format": "pt", "model": zm.name, "version": str(zm.card.version),
+                                          "adapter": zm.adapter, "library": "pinneapple"})
+    data = Path(path).read_bytes()
+    return {"path": str(path), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(), "tensors": len(state)}
+
+
+def load_safetensors(name: str | ZooModel, path: str | Path, *, offline: bool | None = None) -> ZooModel:
+    """The zoo model ``name`` (config and card from the zoo) with its weights read from a safetensors file."""
+    from safetensors.torch import load_file
+
+    from . import load
+    from ._models import copy_model
+    zm = copy_model(load(name, offline=offline) if isinstance(name, str) else name)
+    zm.module.load_state_dict(load_file(str(path)))
+    zm.module.eval()
+    return zm

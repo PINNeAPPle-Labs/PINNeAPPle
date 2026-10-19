@@ -1,8 +1,21 @@
 name: Publish zoo to the Hugging Face Hub
 
 # Uploads every model and dataset of pinneapple_hub/zoo/manifest.json to huggingface.co/PINNeAPPle-Labs (one repo per
-# item, tagged v<version>). Needs the repository secret HF_TOKEN (write access to the organisation); without it the
-# job verifies the manifest, prints a warning and succeeds without uploading.
+# item, tagged with its revision) and the demo Space PINNeAPPle-Labs/zoo-demo (static), then checks what the Hub serves:
+# - datasets: the npz files of the manifest plus their Parquet copies (pinneapple_hub.zoo.parquet) and a card whose
+#   YAML (configs, dataset_info) the dataset viewer reads; Hub-only datasets that are not staged are converted from
+#   the copy already on the Hub (SHA-256 checked);
+# - models: weights.pt, config.json, model_card.json plus model.safetensors, model.onnx, example.json and the card;
+# - checks: every manifest file by anonymous download (SHA-256), the dataset viewer of every dataset (datasets-server
+#   is-valid / splits / first-rows; the job fails when a viewer is not valid), every model downloaded anonymously
+#   (card metrics and the card's example reproduced by PyTorch, safetensors and ONNX, "How to use" code run), and the
+#   Space's build status. The file, viewer and model checks run even when the Space or an item failed to upload, so
+#   one failure does not hide the state of the others (the job still fails); the Space check runs only when the Space
+#   was published.
+# Needs the repository secret HF_TOKEN (write access to the organisation); without it the job verifies the manifest,
+# prints a warning and succeeds without uploading. It runs on every push to main that changes the zoo or this
+# publishing code; run it by hand (workflow_dispatch) to republish, e.g. with tags=false to try a branch without
+# creating the revision tags.
 # The second job publishes the geometry library (pp.geometries): it rebuilds every file of both levels of detail,
 # checks each against pinneapple_design/geometry_library/manifest.json, uploads them to the dataset
 # PINNeAPPle-Labs/geometry-library and verifies the published files by anonymous download.
@@ -11,15 +24,36 @@ on:
   workflow_dispatch:
     inputs:
       staging_ref:
-        description: "Branch holding the files of Hub-only items as <name>/<file> (empty: bundled items only)"
+        description: "Branch holding the files of Hub-only items as <name>/<file> (empty: Hub-only datasets are converted from the Hub copy)"
         required: false
         default: ""
+      only:
+        description: "Only these items (space-separated names; empty: all)"
+        required: false
+        default: ""
+      tags:
+        description: "Create the revision tags (false: upload to main only, e.g. from a branch)"
+        type: boolean
+        required: false
+        default: true
+      space:
+        description: "Publish and check the demo Space"
+        type: boolean
+        required: false
+        default: true
   push:
     branches: ["main"]
     paths:
       - "pinneapple_hub/zoo/manifest.json"
       - "pinneapple_hub/zoo/assets/**"
+      - "pinneapple_hub/zoo/parquet.py"
+      - "pinneapple_hub/zoo/hub_cards.py"
+      - "pinneapple_hub/zoo/publish.py"
+      - "pinneapple_hub/zoo/demo.py"
+      - "pinneapple_hub/zoo/export.py"
+      - "apps/zoo_space/**"
       - "scripts/zoo/publish_to_hub.py"
+      - ".github/workflows/publish-zoo.yml"
       - "pinneapple_design/geometry_library/**"
       - "data/geometries/**"
       - "scripts/geometry_library.py"
@@ -27,38 +61,70 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: publish-zoo
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     env:
       HAS_TOKEN: ${{ secrets.HF_TOKEN != '' }}
       STAGING_REF: ${{ github.event.inputs.staging_ref || '' }}
-    timeout-minutes: 90
+      ONLY: ${{ github.event.inputs.only || '' }}
+      NO_TAGS: ${{ github.event.inputs.tags == 'false' && '--no-tags' || '' }}
+      SPACE: ${{ github.event.inputs.space != 'false' }}
+    timeout-minutes: 240
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check out the staging files of Hub-only items
         if: ${{ env.STAGING_REF != '' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.STAGING_REF }}
           path: _zoo_staging
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install numpy "huggingface_hub>=0.24"
-      - name: Check the manifest (SHA-256 of every file) and list the uploads
-        run: python scripts/zoo/publish_to_hub.py --dry-run ${STAGING_REF:+--staging _zoo_staging}
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[hub]" build
+      - name: Validation must not regress (a check the stored report passed must still pass)
+        run: python scripts/zoo/validation_reports.py check
+      - name: Check the manifest (SHA-256 of every file), build the derived files and cards, list the uploads
+        run: python scripts/zoo/publish_to_hub.py --dry-run ${STAGING_REF:+--staging _zoo_staging} ${ONLY:+--only $ONLY}
       - name: Upload (skipped with a warning when HF_TOKEN is not set)
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python scripts/zoo/publish_to_hub.py ${STAGING_REF:+--staging _zoo_staging}
+        run: |
+          python scripts/zoo/publish_to_hub.py --hub-fallback $NO_TAGS --work "$RUNNER_TEMP/zoo-work" \
+            ${STAGING_REF:+--staging _zoo_staging} ${ONLY:+--only $ONLY}
+      - name: Publish the demo Space (static; sweeps computed from the models on the Hub)
+        id: space
+        if: ${{ env.SPACE == 'true' }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/zoo/publish_to_hub.py --space --work "$RUNNER_TEMP/zoo-space"
       - name: Verify the published files (anonymous download, SHA-256 against the manifest)
-        if: ${{ env.HAS_TOKEN == 'true' }}
-        # without staging files, Hub-only items not uploaded yet are reported, not failed; with them, verify everything
-        run: python scripts/zoo/publish_to_hub.py --verify $([ -z "$STAGING_REF" ] && echo --allow-unpublished)
+        if: ${{ !cancelled() && env.HAS_TOKEN == 'true' && env.NO_TAGS == '' }}
+        run: python scripts/zoo/publish_to_hub.py --verify ${ONLY:+--only $ONLY}
+      - name: Verify the dataset viewer (datasets-server is-valid, splits, first-rows of every split)
+        if: ${{ !cancelled() && env.HAS_TOKEN == 'true' }}
+        run: |
+          DATASETS=$(python -c "import json,os; m=json.load(open('pinneapple_hub/zoo/manifest.json')); o=os.environ.get('ONLY','').split(); print(' '.join(n for n in m['datasets'] if not o or n in o))")
+          if [ -n "$DATASETS" ]; then python scripts/zoo/publish_to_hub.py --verify-viewer --only $DATASETS; fi
+      - name: Verify every model as downloaded anonymously (card metrics, example, safetensors, ONNX, How to use)
+        if: ${{ !cancelled() && env.HAS_TOKEN == 'true' && env.NO_TAGS == '' }}
+        run: |
+          MODELS=$(python -c "import json,os; m=json.load(open('pinneapple_hub/zoo/manifest.json')); o=os.environ.get('ONLY','').split(); print(' '.join(n for n in m['models'] if not o or n in o))")
+          if [ -n "$MODELS" ]; then python scripts/zoo/publish_to_hub.py --verify-models --only $MODELS; fi
+      - name: Verify the demo Space runs and serves its page and data
+        if: ${{ !cancelled() && env.HAS_TOKEN == 'true' && steps.space.outcome == 'success' }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/zoo/publish_to_hub.py --verify-space
 
   geometries:
     runs-on: ubuntu-latest
@@ -66,8 +132,8 @@ jobs:
       HAS_TOKEN: ${{ secrets.HF_TOKEN != '' }}
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - name: Install

@@ -1,0 +1,36 @@
+name: Training callbacks (Lightning, PhysicsNeMo, Hugging Face)
+
+# The physics-validation callbacks against the real frameworks, which the main test job does not install.
+on:
+  push:
+    branches: ["main"]
+    paths: ["pinneapple_neural/callbacks.py", "pinneapple_analysis/validation/**",
+            "pinneapple_analysis/uncertainty/residual_bound.py", "tests/test_training_callbacks.py",
+            ".github/workflows/training-callbacks.yml"]
+  pull_request:
+    paths: ["pinneapple_neural/callbacks.py", "pinneapple_analysis/validation/**",
+            "pinneapple_analysis/uncertainty/residual_bound.py", "tests/test_training_callbacks.py",
+            ".github/workflows/training-callbacks.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  callbacks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install the package, CPU PyTorch and the training frameworks
+        run: |
+          python -m pip install --upgrade pip
+          # torchvision from the same CPU index: PhysicsNeMo needs it, and the PyPI build does not match CPU torch
+          # (transformers' Trainer import then fails on torchvision::nms)
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -e . pytest lightning nvidia-physicsnemo transformers "accelerate>=1.1"
+      - name: Callbacks give identical metrics in every framework and warn on a wrong residual weight
+        run: pytest tests/test_training_callbacks.py tests/test_pinn_validation.py -q -rs

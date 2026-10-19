@@ -44,7 +44,7 @@ import numpy as np
 
 __all__ = ["DatasetPhysics", "DARCY", "AuditCheck", "AuditCard", "DEFAULT_TOLERANCES", "audit_dataset",
            "effective_sample_count", "near_duplicates", "leakage", "darcy_consistency", "audit_zoo_dataset",
-           "ZOO_AUDIT"]
+           "ZOO_AUDIT", "constraint_mask"]
 
 PASS, WARN, FAIL, NA = "pass", "warn", "fail", "not-applicable"
 
@@ -270,17 +270,28 @@ def _radial_spectrum(x: np.ndarray) -> np.ndarray:
 
 
 # ---------------------------------------------------------------------------------------------- the audit
+_CONSTRAINT_FUNCTIONS = {"abs": np.abs, "sqrt": np.sqrt, "exp": np.exp, "log": np.log, "minimum": np.minimum,
+                         "maximum": np.maximum, "floor": np.floor, "round": np.round}
+
+
 def _constraint(expr: str, cols: Mapping[str, np.ndarray]) -> np.ndarray:
+    # interpreted by pinneapple_data.expressions, never eval(): the constraints come from uploaded datasets
+    from pinneapple_data.expressions import evaluate
     env = {k: np.asarray(v, float) for k, v in cols.items() if np.asarray(v).dtype.kind in "fiub"}
-    env.update(abs=np.abs, sqrt=np.sqrt, exp=np.exp, log=np.log, minimum=np.minimum, maximum=np.maximum,
-               floor=np.floor, round=np.round, pi=np.pi)
+    env["pi"] = np.pi
     if "==" in expr:                                   # equality to a relative 1e-6
         lhs, rhs = expr.split("==", 1)
-        a = eval(compile(lhs.strip(), "<constraint>", "eval"), {"__builtins__": {}}, env)   # noqa: S307
-        b = eval(compile(rhs.strip(), "<constraint>", "eval"), {"__builtins__": {}}, env)   # noqa: S307
+        a = evaluate(lhs, env, _CONSTRAINT_FUNCTIONS)
+        b = evaluate(rhs, env, _CONSTRAINT_FUNCTIONS)
         a, b = np.broadcast_arrays(np.asarray(a, float), np.asarray(b, float))
         return np.abs(a - b) <= 1e-6 * np.maximum(np.abs(b), 1e-12) + 1e-12
-    return np.asarray(eval(compile(expr.strip(), "<constraint>", "eval"), {"__builtins__": {}}, env), bool)  # noqa: S307
+    return np.asarray(evaluate(expr, env, _CONSTRAINT_FUNCTIONS), bool)
+
+
+def constraint_mask(expr: str, cols: Mapping[str, np.ndarray]) -> np.ndarray:
+    """Where the declared relation ``expr`` (``"Cd > 0"``, ``"abs(u) <= 1"``, ``"a == b * c"`` to 1e-6 relative)
+    holds, element-wise over ``cols``: the evaluator the ``constraints`` check uses, for checking predictions too."""
+    return _constraint(expr, cols)
 
 
 def _tol(t: dict, v: str | float) -> float:

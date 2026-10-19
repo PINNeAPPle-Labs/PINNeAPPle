@@ -204,11 +204,12 @@ def validation_summary(eph=None) -> dict:
     sig3 = (ref["dist_max_au"] - ref["dist_min_au"]) / 2 * AU_KM
     dt = (ca["jd_tdb"] - ref["jd_tdb"]) * DAY
     checks = [
-        {"name": f"Ceres after {(jd[0] - c.epoch_jd) / 365.25:.1f} years vs JPL Horizons", "value": ceres_err,
+        {"id": "ceres_horizons", "args": {"years": round((jd[0] - c.epoch_jd) / 365.25, 1)},
+         "name": f"Ceres after {(jd[0] - c.epoch_jd) / 365.25:.1f} years vs JPL Horizons", "value": ceres_err,
          "unit": "km", "threshold": 100.0, "status": "pass" if ceres_err <= 100 else "fail"},
-        {"name": "Apophis 2029-04-13: distance vs JPL close approach (3-sigma range)", "value": d_err, "unit": "km",
+        {"id": "apophis_distance", "name": "Apophis 2029-04-13: distance vs JPL close approach (3-sigma range)", "value": d_err, "unit": "km",
          "threshold": sig3, "status": "pass" if d_err <= sig3 else "fail"},
-        {"name": "Apophis 2029-04-13: time of closest approach vs JPL", "value": abs(dt), "unit": "s",
+        {"id": "apophis_time", "name": "Apophis 2029-04-13: time of closest approach vs JPL", "value": abs(dt), "unit": "s",
          "threshold": 120.0, "status": "pass" if abs(dt) <= 120 else "fail"},
     ]
     return {"ceres": {"max_err_km": ceres_err, "years": (jd[0] - c.epoch_jd) / 365.25,

@@ -1,0 +1,16 @@
+.git
+**/__pycache__
+**/*.pyc
+data
+notebooks
+benchmarks
+docs
+tests
+projects
+lab
+runs
+run_results
+paper
+pinneapple_app/frontend
+apps/flow_studio/frontend/node_modules
+apps/*/artifacts/dataset_*

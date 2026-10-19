@@ -1,0 +1,11 @@
+{
+ "name": "prius_pmsm",
+ "description": "2004 Toyota Prius interior-PM motor, nonlinear 2-D FEA: torque against current angle vs the published curve of Yang et al. (2013), second code GetDP, cogging, step skew, tolerances",
+ "scripts": [
+  "examples/electrodynamics/10_pmsm_prius.py",
+  "examples/electrodynamics/14_prius_getdp_crosscheck.py",
+  "examples/electrodynamics/15_prius_skew.py",
+  "examples/electrodynamics/17_prius_tolerances.py",
+  "pinneapple_simulation/electromagnetics/machines/verification.py"
+ ]
+}

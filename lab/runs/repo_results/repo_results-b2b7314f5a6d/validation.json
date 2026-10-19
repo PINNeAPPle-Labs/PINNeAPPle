@@ -1,0 +1,99 @@
+[
+ {
+  "name": "cd_vs_xfoil_tripped",
+  "passed": true,
+  "value": 0.009761087630638692,
+  "reference": 0.00971,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "NACA 2412, Re 6e6, alpha 4 deg: grid-extrapolated OpenFOAM Cd against XFOIL 6.99 (Drela 1989; an independent panel + boundary-layer code), transition fixed at the leading edge; tolerance 5 %",
+  "label": "Cd vs XFOIL (tripped)",
+  "kind": "reference"
+ },
+ {
+  "name": "cl_vs_xfoil_tripped",
+  "passed": true,
+  "value": 0.6624698411038754,
+  "reference": 0.6778,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "same case, lift on the medium grid; tolerance 5 %",
+  "kind": "reference"
+ },
+ {
+  "name": "lift_slope_vs_thin_airfoil_theory",
+  "passed": true,
+  "value": 0.11003169999999997,
+  "reference": 0.10966227112321508,
+  "rtol": 0.05,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "thin-airfoil theory (Abbott & von Doenhoff 1959), fit over -2..6 deg; tolerance 5 %",
+  "kind": "reference"
+ },
+ {
+  "name": "zero_lift_angle_vs_thin_airfoil_theory",
+  "passed": true,
+  "value": -2.000274466358332,
+  "reference": -2.0772404056924296,
+  "rtol": null,
+  "atol": 0.25,
+  "max": null,
+  "min": null,
+  "detail": "zero-lift angle from the mean line; tolerance 0.25 deg",
+  "kind": "reference"
+ },
+ {
+  "name": "grid_convergence_cd_gci",
+  "passed": true,
+  "value": 1.8521971050132569,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 5.0,
+  "min": null,
+  "detail": "Celik et al. (2008) GCI on 3 grids, observed order 2.36; tolerance 5 %",
+  "kind": "sanity"
+ },
+ {
+  "name": "pressure_and_friction_drag_split",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "sanity"
+ },
+ {
+  "name": "campaign_rerun_reproduces_stored",
+  "passed": true,
+  "value": 1.6702645149413442e-05,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.001,
+  "min": null,
+  "detail": "3 campaign cases re-run from scratch",
+  "kind": "verification"
+ },
+ {
+  "name": "surrogate_ld_on_unseen_optimised_shapes",
+  "passed": true,
+  "value": 0.0095099428879033,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": 0.02,
+  "min": null,
+  "detail": "surrogate L/D against OpenFOAM on the 4 optimiser picks (not in training); tolerance 2 %",
+  "kind": "generalization"
+ }
+]

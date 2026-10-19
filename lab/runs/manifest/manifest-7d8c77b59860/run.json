@@ -1,0 +1,89 @@
+{
+ "run_id": "manifest-7d8c77b59860",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/bricks",
+  "path": "examples/bricks/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792364756.6539176,
+ "tags": [
+  "manifest"
+ ],
+ "git": "c31f0955",
+ "environment": {
+  "python": "3.13.16",
+  "platform": "Linux-6.18.44-fc-v139-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d",
+  "uncommitted_diff": "code/uncommitted.diff"
+ },
+ "finished": 1792364756.7568793,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/_out__best_bridge_cycles.png",
+   "figures/_out__best_bridge_load_path.png",
+   "figures/_out__best_cantilever_cycles.png",
+   "figures/_out__best_cantilever_load_path.png",
+   "figures/_out__best_tower_cycles.png",
+   "figures/_out__best_tower_load_path.png",
+   "figures/_out__comparison.png",
+   "figures/_out__instructions_bridge__step_01.png",
+   "figures/_out__instructions_bridge__step_02.png",
+   "figures/_out__instructions_cantilever__step_01.png",
+   "figures/_out__instructions_cantilever__step_02.png",
+   "figures/_out__instructions_cantilever__step_03.png",
+   "figures/_out__instructions_cantilever__step_04.png",
+   "figures/_out__instructions_cantilever__step_05.png",
+   "figures/_out__instructions_cantilever__step_06.png",
+   "figures/_out__instructions_cantilever__step_07.png",
+   "figures/_out__instructions_tower__step_01.png",
+   "figures/_out__instructions_tower__step_02.png",
+   "figures/_out__instructions_tower__step_03.png",
+   "figures/_out__instructions_tower__step_04.png",
+   "figures/_out__instructions_tower__step_05.png",
+   "figures/_out__instructions_tower__step_06.png",
+   "figures/_out__instructions_tower__step_07.png",
+   "figures/_out__instructions_tower__step_08.png",
+   "figures/_out__instructions_tower__step_09.png",
+   "figures/_out__instructions_tower__step_10.png",
+   "figures/_out__instructions_tower__step_11.png",
+   "figures/_out__instructions_tower__step_12.png",
+   "figures/_out__instructions_tower__step_13.png",
+   "figures/_out__instructions_tower__step_14.png",
+   "figures/_out__instructions_tower__step_15.png",
+   "figures/_out__instructions_tower__step_16.png",
+   "figures/_out__evolution_bridge.gif",
+   "figures/_out__evolution_bridge.mp4",
+   "figures/_out__evolution_cantilever.gif",
+   "figures/_out__evolution_cantilever.mp4",
+   "figures/_out__evolution_tower.gif",
+   "figures/_out__evolution_tower.mp4",
+   "figures/_out__turntable_cantilever.gif",
+   "figures/_out__turntable_cantilever.mp4"
+  ]
+ },
+ "validation": {
+  "total": 9,
+  "failed": 0
+ },
+ "seconds": 0.103,
+ "datasets": {}
+}

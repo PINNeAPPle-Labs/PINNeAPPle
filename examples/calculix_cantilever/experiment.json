@@ -1,0 +1,30 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/calculix_cantilever",
+ "title": "Viga em balan\u00e7o (CalculiX)",
+ "description": "Execu\u00e7\u00e3o de refer\u00eancia do solver CalculiX (`ccx`) de uma viga em balan\u00e7o de 1,0 \u00d7 0,1 \u00d7 0,1 (m).",
+ "domain": "structural mechanics",
+ "methods": [
+  "FEM (CalculiX)"
+ ],
+ "modules": [],
+ "params": {},
+ "scripts": [],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

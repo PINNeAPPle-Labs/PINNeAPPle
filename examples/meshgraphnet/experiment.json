@@ -1,0 +1,58 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/meshgraphnet",
+ "title": "MeshGraphNet in PINNeAPPle",
+ "description": "Implementation:",
+ "domain": "physics AI",
+ "methods": [
+  "graph network"
+ ],
+ "modules": [
+  "pinneapple_data.datasets.deepmind_mgn",
+  "pinneapple_neural.architectures.graphnn.mgn_dynamics",
+  "pinneapple_neural.trainer.parallel"
+ ],
+ "params": {},
+ "scripts": [
+  "01_synthetic_diffusion.py",
+  "02_cylinder_flow_deepmind.py",
+  "_common.py"
+ ],
+ "metrics": [],
+ "checks": [],
+ "files": {
+  "figures": [
+   "_out/cylinder_flow/rollout.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/cylinder_flow/metrics.json",
+   "_out/synthetic_diffusion.json"
+  ]
+ },
+ "links": {
+  "script": "examples/meshgraphnet/01_synthetic_diffusion.py",
+  "pr": [
+   232,
+   240,
+   659
+  ]
+ },
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "item": "repo_results/meshgraphnet",
+  "items": [
+   "repo_results/meshgraphnet"
+  ],
+  "experiment": "repo_results",
+  "run_id": "repo_results-cbac6f31f681",
+  "tier": "B"
+ },
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "8f323527"
+ }
+}

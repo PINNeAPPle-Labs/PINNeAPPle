@@ -26,7 +26,7 @@ MODEL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "model
 
 
 def design_id(x) -> str:
-    return hashlib.sha1(np.round(np.asarray(x, float), 5).tobytes()).hexdigest()[:10]
+    return hashlib.sha1(np.round(np.asarray(x, float), 5).tobytes(), usedforsecurity=False).hexdigest()[:10]
 
 
 def main():

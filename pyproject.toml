@@ -51,6 +51,8 @@ dependencies = [
 pinneapple-ccx = "pinneapple_simulation.external_solvers.calculix.virtual_ccx:main"
 # MCP server (stdio) for coding agents: solve, benchmark, trust card; needs the [mcp] extra
 pinneapple-mcp = "pinneapple_mcp.server:main"
+# Agent Workbench: coding and engineering agents on a local model (web app, VS Code, terminal); needs [workbench]
+pinneapple-workbench = "pinneapple_llm.workbench.__main__:main"
 # pinneapple check [paths]: physics linter for CI (and `pinneapple benchmark ...` when that package is present)
 pinneapple = "pinneapple_check.cli:main"
 
@@ -62,12 +64,17 @@ mcp = [
 # Ed25519 signatures and AES-GCM encryption in pinneapple_security (the rest of the module needs only NumPy)
 security = [
   "cryptography>=41",
+  "argon2-cffi>=23.1",     # argon2id login hashes (pinneapple_security.passwords; scrypt from the stdlib otherwise)
 ]
 # pinneapple check: VTK/VTU results (meshio), HDF5 fields (h5py), artefact signatures (cryptography)
 check = [
   "meshio>=5.3",
   "h5py>=3.8",
   "cryptography>=41",
+]
+# Electromagnetics: independent Mie implementation for the cross-check (pinneapple_simulation.electromagnetics)
+em = [
+  "miepython>=3.0",
 ]
 # Evidence Report PDF in pinneapple_veriphysics (the Decision Record itself needs only the standard library)
 veriphysics = [
@@ -216,9 +223,26 @@ export = [
   "onnxruntime>=1.18",
 ]
 
-# Model hub (push_to_hub/from_pretrained on the Hugging Face Hub)
+# Model hub (push_to_hub/from_pretrained on the Hugging Face Hub); Parquet copies of the zoo datasets, safetensors and
+# ONNX copies of the zoo models (pinneapple_hub.zoo.parquet, pinneapple_hub.zoo.export)
 hub = [
   "huggingface_hub>=0.24",
+  "pyarrow>=14",
+  "safetensors>=0.4",
+  "onnx>=1.16",
+  "onnxruntime>=1.18",
+]
+
+# PINNeAPPle Flow + Flow Studio (pinneapple_flow; python -m pinneapple_flow studio): the store (SQLite by default,
+# Postgres with psycopg), the safe equation parser (SymPy), the local server. LLM planning needs the [llm] extra or
+# a local Ollama server.
+flow = [
+  "sqlalchemy>=2.0",
+  "sympy>=1.12",
+  "fastapi>=0.111",
+  "uvicorn[standard]>=0.29",
+  "httpx>=0.27",
+  "pillow>=10",
 ]
 
 # LLM-assisted pipeline drafting (pinneapple_llm) -- bring your own API key
@@ -244,6 +268,13 @@ tuning = [
 
 # Local fine-tuning of a local (Ollama-served) model on data logged via
 # pinneapple_llm.conversation_store
+# Agent Workbench (pinneapple_llm.workbench): web app + local model server client. Postgres: add psycopg[binary];
+# fine-tuning on Apple Silicon: add mlx-lm
+workbench = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "requests>=2.31",
+]
 finetune = [
   "peft>=0.12",
   "datasets>=2.20",
@@ -356,6 +387,17 @@ cost = [
   "psutil>=5.9",
 ]
 
+# Surrogate studies, regime arena and model gateway (pinneapple_analysis.surrogate, pinneapple_arena.regimes,
+# pinneapple_registry.gateway): GP / ridge / trees, Parquet and HDF5 readers, ONNX export and serving.
+# XGBoost is used when installed (else scikit-learn's gradient boosting).
+surrogate = [
+  "scikit-learn>=1.4",
+  "pyarrow>=14",
+  "h5py>=3.8",
+  "onnx>=1.15",
+  "onnxruntime>=1.17",
+]
+
 # Dev tools
 dev = [
   "ruff>=0.5",
@@ -421,6 +463,7 @@ packages = [
   "pinneapple_mcp",         # MCP server for coding agents (stdio; tools: solve, benchmark, trust card, catalog)
   "pinneapple_check",       # physics linter for CI: pinneapple check (conservation, units, BCs, residual, OOD, regression, integrity)
   "pinneapple_veriphysics",  # Decision Record, evidence report, applicability map, robustness and recommendation (verification layer)
+  "pinneapple_flow",         # engineering flows: typed node graphs, planner, runtime on pinneapple_core.workflows, Flow Studio
 
   # ── arena + compatibility shims ───────────────────────────────────────────
   "pinneapple_arena",     # YAML/JSON-driven multi-model benchmark runner
@@ -473,6 +516,7 @@ include = [
   "pinneapple_security/**",
   "pinneapple_check/**",
   "pinneapple_veriphysics/**",
+  "pinneapple_flow/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

@@ -1,0 +1,1975 @@
+{
+ "version": "1.0",
+ "description": "Sun, planets, Moon, dwarf planets and major moons: numbers with a source each, text in English and Portuguese written for this project.",
+ "objects": {
+  "sun": {
+   "kind": "star",
+   "names": {
+    "en": "Sun",
+    "pt": "Sol"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 1391400,
+     "unit": "km",
+     "source": "nasa_sun_fs"
+    },
+    "mass_kg": {
+     "value": 1.9885e+30,
+     "unit": "kg",
+     "source": "nasa_sun_fs"
+    },
+    "density_kg_m3": {
+     "value": 1408,
+     "unit": "kg/m3",
+     "source": "nasa_sun_fs"
+    },
+    "gravity_m_s2": {
+     "value": 274.0,
+     "unit": "m/s2",
+     "source": "nasa_sun_fs"
+    },
+    "rotation_h": {
+     "value": 609.12,
+     "unit": "h",
+     "source": "nasa_sun_fs"
+    },
+    "distance_earth_km": {
+     "value": 149600000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "luminosity_w": {
+     "value": 3.828e+26,
+     "unit": "W",
+     "source": "nasa_sun_fs"
+    },
+    "teff_k": {
+     "value": 5772,
+     "unit": "K",
+     "source": "nasa_sun_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "The Sun is the star at the centre of the Solar System, a ball of hot gas that holds 99.8 % of its mass.",
+     "curiosities": [
+      {
+       "text": "Light from the Sun takes about 8 minutes 20 seconds to reach the Earth.",
+       "source": "computed"
+      },
+      {
+       "text": "About 109 Earths would fit side by side across the Sun's diameter.",
+       "source": "computed"
+      },
+      {
+       "text": "Its surface is at about 5772 K, but its outer atmosphere, the corona, is above a million kelvin.",
+       "source": "nasa_sun_fs"
+      },
+      {
+       "text": "Near its equator the Sun turns once in about 25 days; near the poles it takes longer, because it is not solid.",
+       "source": "nasa_sun_fs"
+      }
+     ],
+     "history": "In 1543 Copernicus put the Sun, not the Earth, at the centre of the planetary system. SOHO (since 1995), Solar Orbiter (since 2020) and the Parker Solar Probe, which flies through the corona, watch it today."
+    },
+    "pt": {
+     "summary": "O Sol é a estrela no centro do Sistema Solar, uma bola de gás quente que concentra 99,8 % de toda a sua massa.",
+     "curiosities": [
+      {
+       "text": "A luz do Sol leva cerca de 8 minutos e 20 segundos para chegar à Terra.",
+       "source": "computed"
+      },
+      {
+       "text": "Cabem cerca de 109 Terras lado a lado no diâmetro do Sol.",
+       "source": "computed"
+      },
+      {
+       "text": "A superfície está a cerca de 5772 K, mas a atmosfera externa, a coroa, passa de um milhão de kelvin.",
+       "source": "nasa_sun_fs"
+      },
+      {
+       "text": "Perto do equador o Sol dá uma volta em cerca de 25 dias; perto dos polos demora mais, porque ele não é sólido.",
+       "source": "nasa_sun_fs"
+      }
+     ],
+     "history": "Em 1543 Copérnico colocou o Sol, e não a Terra, no centro do sistema planetário. Hoje ele é observado pela SOHO (desde 1995), pela Solar Orbiter (desde 2020) e pela Parker Solar Probe, que atravessa a coroa."
+    }
+   },
+   "missions": [
+    "SOHO (1995–)",
+    "Parker Solar Probe (2018–)",
+    "Solar Orbiter (2020–)"
+   ]
+  },
+  "mercury": {
+   "kind": "planet",
+   "names": {
+    "en": "Mercury",
+    "pt": "Mercúrio"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 4879,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 3.3e+23,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 5429,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 3.7,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": 1407.6,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 4222.6,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 57900000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 88.0,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": 167,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 0,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Mercury is the smallest planet and the closest to the Sun.",
+     "curiosities": [
+      {
+       "text": "A year on Mercury lasts 88 Earth days, but one day (sunrise to sunrise) lasts 176 Earth days: two of its years.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "With almost no air to keep heat in, its surface swings from about 430 °C by day to about −180 °C at night.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Ice survives in craters near its poles that never see sunlight, as MESSENGER found.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It is never far from the Sun in our sky: look for it low in the west after sunset or in the east before sunrise.",
+       "source": "computed"
+      }
+     ],
+     "history": "Known since antiquity. Mariner 10 flew past it in 1974–75, MESSENGER orbited it from 2011 to 2015, and the European–Japanese BepiColombo is arriving in 2026."
+    },
+    "pt": {
+     "summary": "Mercúrio é o menor planeta e o mais próximo do Sol.",
+     "curiosities": [
+      {
+       "text": "Um ano em Mercúrio dura 88 dias terrestres, mas um dia (de um nascer do Sol ao outro) dura 176 dias terrestres: dois dos seus anos.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Quase sem ar para guardar o calor, a superfície vai de cerca de 430 °C de dia a cerca de −180 °C à noite.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Há gelo em crateras perto dos polos que nunca recebem luz do Sol, como a MESSENGER descobriu.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "No nosso céu ele nunca se afasta muito do Sol: procure-o baixo no oeste depois do pôr do Sol ou no leste antes do amanhecer.",
+       "source": "computed"
+      }
+     ],
+     "history": "Conhecido desde a Antiguidade. A Mariner 10 passou por ele em 1974–75, a MESSENGER o orbitou de 2011 a 2015 e a missão europeia e japonesa BepiColombo chega em 2026."
+    }
+   },
+   "missions": [
+    "Mariner 10 (1974–75)",
+    "MESSENGER (2011–2015)",
+    "BepiColombo (arrival 2026)"
+   ]
+  },
+  "venus": {
+   "kind": "planet",
+   "names": {
+    "en": "Venus",
+    "pt": "Vênus"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 12104,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 4.87e+24,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 5243,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 8.9,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": -5832.5,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 2802.0,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 108200000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 224.7,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": 464,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 0,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Venus is the second planet from the Sun, almost the size of the Earth, wrapped in thick clouds of sulfuric acid.",
+     "curiosities": [
+      {
+       "text": "Venus spins backwards and so slowly that one turn takes 243 Earth days, longer than its year of 225 days.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Its carbon-dioxide atmosphere traps so much heat that the surface, at 464 °C, is hotter than Mercury's.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "The air pressure on the ground is 92 times the Earth's, like being 900 m under the sea.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "After the Moon it is the brightest natural object in the night sky, the 'morning star' or 'evening star'.",
+       "source": "computed"
+      }
+     ],
+     "history": "The Soviet Venera 7 made the first landing on another planet in 1970. NASA's Magellan mapped the surface with radar from 1990 to 1994."
+    },
+    "pt": {
+     "summary": "Vênus é o segundo planeta a partir do Sol, quase do tamanho da Terra, envolto em nuvens espessas de ácido sulfúrico.",
+     "curiosities": [
+      {
+       "text": "Vênus gira ao contrário e tão devagar que uma volta leva 243 dias terrestres, mais que o seu ano de 225 dias.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "A atmosfera de gás carbônico prende tanto calor que a superfície, a 464 °C, é mais quente que a de Mercúrio.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "A pressão do ar no chão é 92 vezes a da Terra, como estar a 900 m de profundidade no mar.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Depois da Lua, é o objeto natural mais brilhante do céu noturno: a 'estrela da manhã' ou 'estrela d'alva' e a 'estrela da tarde'.",
+       "source": "computed"
+      }
+     ],
+     "history": "A soviética Venera 7 fez o primeiro pouso em outro planeta, em 1970. A Magellan, da NASA, mapeou a superfície por radar de 1990 a 1994."
+    }
+   },
+   "missions": [
+    "Venera 7 (1970)",
+    "Magellan (1990–1994)",
+    "Venus Express (2006–2014)",
+    "Akatsuki (2015–2024)"
+   ]
+  },
+  "earth": {
+   "kind": "planet",
+   "names": {
+    "en": "Earth",
+    "pt": "Terra"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 12756,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 5.97e+24,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 5514,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 9.8,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": 23.9,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 24.0,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 149600000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 365.2,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": 15,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 1,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "The Earth is the third planet from the Sun and the only place known to have life.",
+     "curiosities": [
+      {
+       "text": "It is the densest planet in the Solar System, 5.5 times denser than water.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Its axis is tilted 23.4°, which is why we have seasons.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "The Earth travels around the Sun at about 30 km/s, more than 100,000 km per hour.",
+       "source": "nasa_planet_fs"
+      }
+     ],
+     "history": "Eratosthenes estimated its size around 240 BC from the length of shadows in Syene and Alexandria. The first photo of the whole Earth was taken from space in 1967; Apollo 17's 'Blue Marble' followed in 1972."
+    },
+    "pt": {
+     "summary": "A Terra é o terceiro planeta a partir do Sol e o único lugar onde se conhece vida.",
+     "curiosities": [
+      {
+       "text": "É o planeta mais denso do Sistema Solar, 5,5 vezes mais denso que a água.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "O eixo é inclinado 23,4°, e é por isso que temos estações do ano.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "A Terra viaja em volta do Sol a cerca de 30 km/s, mais de 100 mil km por hora.",
+       "source": "nasa_planet_fs"
+      }
+     ],
+     "history": "Eratóstenes estimou o seu tamanho por volta de 240 a.C. a partir das sombras em Siena e Alexandria. A primeira foto da Terra inteira vista do espaço é de 1967; a 'Bola de Gude Azul' da Apollo 17 veio em 1972."
+    }
+   },
+   "missions": [
+    "Sputnik 1 (1957)",
+    "Landsat (1972–)",
+    "ISS (1998–)"
+   ]
+  },
+  "moon": {
+   "kind": "moon",
+   "parent": "earth",
+   "names": {
+    "en": "Moon",
+    "pt": "Lua"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 3475,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 7.3e+22,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 3344,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 1.6,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": 655.7,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 708.7,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_earth_km": {
+     "value": 384400,
+     "unit": "km",
+     "source": "nasa_moon_fs"
+    },
+    "orbital_period_d": {
+     "value": 27.3,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": -20,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "The Moon is the Earth's only natural satellite, a quarter of the Earth's width.",
+     "curiosities": [
+      {
+       "text": "It always shows us the same face, because it turns once on its axis in the time it takes to go around us.",
+       "source": "nasa_moon_fs"
+      },
+      {
+       "text": "Its light takes about 1.3 seconds to reach us.",
+       "source": "computed"
+      },
+      {
+       "text": "It moves away from the Earth by about 3.8 cm a year, measured by lasers bounced off mirrors left by Apollo astronauts.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "On the Moon you would weigh about one sixth of your weight on Earth.",
+       "source": "nasa_planet_fs"
+      }
+     ],
+     "history": "The Soviet Luna 2 reached it in 1959 and Luna 3 photographed its far side the same year. Apollo 11 landed the first people, Neil Armstrong and Buzz Aldrin, on 20 July 1969; twelve astronauts walked on it until 1972."
+    },
+    "pt": {
+     "summary": "A Lua é o único satélite natural da Terra, com um quarto da largura da Terra.",
+     "curiosities": [
+      {
+       "text": "Ela sempre nos mostra a mesma face, porque gira uma vez em torno do próprio eixo no mesmo tempo em que dá uma volta em torno de nós.",
+       "source": "nasa_moon_fs"
+      },
+      {
+       "text": "A luz dela leva cerca de 1,3 segundo para chegar até nós.",
+       "source": "computed"
+      },
+      {
+       "text": "Ela se afasta da Terra cerca de 3,8 cm por ano, medido com lasers refletidos em espelhos deixados pelos astronautas da Apollo.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Na Lua você pesaria cerca de um sexto do seu peso na Terra.",
+       "source": "nasa_planet_fs"
+      }
+     ],
+     "history": "A soviética Luna 2 chegou até ela em 1959, e a Luna 3 fotografou o seu lado oculto no mesmo ano. A Apollo 11 levou as primeiras pessoas, Neil Armstrong e Buzz Aldrin, em 20 de julho de 1969; doze astronautas andaram nela até 1972."
+    }
+   },
+   "missions": [
+    "Luna 2 (1959)",
+    "Apollo 11 (1969)",
+    "Lunar Reconnaissance Orbiter (2009–)",
+    "Chang'e 4 (2019, far side)"
+   ]
+  },
+  "mars": {
+   "kind": "planet",
+   "names": {
+    "en": "Mars",
+    "pt": "Marte"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 6792,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 6.42e+23,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 3934,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 3.7,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": 24.6,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 24.7,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 228000000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 687.0,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": -65,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 2,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Mars is the fourth planet, a cold desert world whose red colour comes from iron oxide (rust) in its dust.",
+     "curiosities": [
+      {
+       "text": "A day on Mars lasts 24 h 40 min, very close to ours, but its year lasts 687 Earth days.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Olympus Mons, a volcano three times taller than Mount Everest, is the largest known volcano in the Solar System.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Its two small moons, Phobos and Deimos, were discovered by Asaph Hall in 1877.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Rovers found rocks that formed in liquid water, so Mars once had lakes and rivers.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "Mariner 4 sent the first close-up pictures in 1965 and the Viking landers touched down in 1976. Curiosity (2012) and Perseverance (2021), with the Ingenuity helicopter, explore it today."
+    },
+    "pt": {
+     "summary": "Marte é o quarto planeta, um deserto frio cuja cor vermelha vem do óxido de ferro (ferrugem) na sua poeira.",
+     "curiosities": [
+      {
+       "text": "Um dia em Marte dura 24 h 40 min, bem parecido com o nosso, mas o ano dura 687 dias terrestres.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "O Monte Olimpo, um vulcão três vezes mais alto que o Everest, é o maior vulcão conhecido do Sistema Solar.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "As duas pequenas luas, Fobos e Deimos, foram descobertas por Asaph Hall em 1877.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Os jipes-robôs encontraram rochas formadas em água líquida: Marte já teve lagos e rios.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "A Mariner 4 mandou as primeiras fotos de perto em 1965, e as sondas Viking pousaram em 1976. Hoje o Curiosity (2012) e o Perseverance (2021), com o helicóptero Ingenuity, exploram o planeta."
+    }
+   },
+   "missions": [
+    "Mariner 4 (1965)",
+    "Viking 1 and 2 (1976)",
+    "Curiosity (2012–)",
+    "Perseverance (2021–)"
+   ]
+  },
+  "jupiter": {
+   "kind": "planet",
+   "names": {
+    "en": "Jupiter",
+    "pt": "Júpiter"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 142984,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 1.898e+27,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 1326,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 23.1,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": 9.9,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 9.9,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 778500000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 4331,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": -110,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 95,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Jupiter is the largest planet, a gas giant more than twice as massive as all the other planets together.",
+     "curiosities": [
+      {
+       "text": "More than 1,300 Earths would fit inside Jupiter.",
+       "source": "computed"
+      },
+      {
+       "text": "It spins faster than any other planet: a day lasts under 10 hours.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "The Great Red Spot is a storm wider than the Earth that has been watched for more than 150 years.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Its four largest moons, Io, Europa, Ganymede and Callisto, can be seen with binoculars.",
+       "source": "nasa_jovian_sats"
+      }
+     ],
+     "history": "Galileo Galilei discovered its four large moons in January 1610, the first moons found around another planet. Pioneer 10 flew past in 1973, Galileo orbited it from 1995 to 2003, and Juno has been in orbit since 2016."
+    },
+    "pt": {
+     "summary": "Júpiter é o maior planeta, um gigante gasoso com mais que o dobro da massa de todos os outros planetas juntos.",
+     "curiosities": [
+      {
+       "text": "Caberiam mais de 1.300 Terras dentro de Júpiter.",
+       "source": "computed"
+      },
+      {
+       "text": "Ele gira mais rápido que qualquer outro planeta: um dia dura menos de 10 horas.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "A Grande Mancha Vermelha é uma tempestade mais larga que a Terra, observada há mais de 150 anos.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "As quatro maiores luas, Io, Europa, Ganimedes e Calisto, podem ser vistas com um binóculo.",
+       "source": "nasa_jovian_sats"
+      }
+     ],
+     "history": "Galileu Galilei descobriu as quatro grandes luas em janeiro de 1610, as primeiras luas encontradas em volta de outro planeta. A Pioneer 10 passou por ele em 1973, a Galileo o orbitou de 1995 a 2003 e a Juno está em órbita desde 2016."
+    }
+   },
+   "missions": [
+    "Pioneer 10 (1973)",
+    "Voyager 1 and 2 (1979)",
+    "Galileo (1995–2003)",
+    "Juno (2016–)",
+    "Juice (en route)",
+    "Europa Clipper (en route)"
+   ]
+  },
+  "saturn": {
+   "kind": "planet",
+   "names": {
+    "en": "Saturn",
+    "pt": "Saturno"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 120536,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 5.68e+26,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 687,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 9.0,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": 10.7,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 10.7,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 1432000000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 10747,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": -140,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 274,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Saturn is the sixth planet, a gas giant famous for its bright rings of ice and rock.",
+     "curiosities": [
+      {
+       "text": "Its average density, 687 kg/m³, is lower than water's: in a large enough bathtub it would float.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "The main rings are about 280,000 km wide but mostly only about 10 m thick.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It has 274 known moons, more than any other planet; Titan is bigger than Mercury.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "A year on Saturn lasts about 29.4 Earth years.",
+       "source": "computed"
+      }
+     ],
+     "history": "Galileo saw its rings in 1610 but could not tell what they were; Christiaan Huygens explained them as a ring in 1655 and discovered Titan. Cassini orbited Saturn from 2004 until it dived into the planet in 2017."
+    },
+    "pt": {
+     "summary": "Saturno é o sexto planeta, um gigante gasoso famoso pelos anéis brilhantes de gelo e rocha.",
+     "curiosities": [
+      {
+       "text": "A densidade média, 687 kg/m³, é menor que a da água: numa banheira grande o suficiente, ele boiaria.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Os anéis principais têm cerca de 280 mil km de largura, mas em geral só uns 10 m de espessura.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Tem 274 luas conhecidas, mais que qualquer outro planeta; Titã é maior que Mercúrio.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Um ano em Saturno dura cerca de 29,4 anos terrestres.",
+       "source": "computed"
+      }
+     ],
+     "history": "Galileu viu os anéis em 1610, mas não entendeu o que eram; Christiaan Huygens os explicou como um anel em 1655 e descobriu Titã. A Cassini orbitou Saturno de 2004 até mergulhar no planeta em 2017."
+    }
+   },
+   "missions": [
+    "Pioneer 11 (1979)",
+    "Voyager 1 and 2 (1980–81)",
+    "Cassini–Huygens (2004–2017)"
+   ]
+  },
+  "uranus": {
+   "kind": "planet",
+   "names": {
+    "en": "Uranus",
+    "pt": "Urano"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 51118,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 8.68e+25,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 1270,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 8.7,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": -17.2,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 17.2,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 2867000000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 30589,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": -195,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 28,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Uranus is the seventh planet, an ice giant that spins lying on its side.",
+     "curiosities": [
+      {
+       "text": "Its axis is tilted 98°, so each pole gets about 42 years of daylight followed by 42 years of night.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Methane in its atmosphere absorbs red light, which gives it a blue-green colour.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "A year on Uranus lasts about 84 Earth years.",
+       "source": "computed"
+      }
+     ],
+     "history": "William Herschel discovered it with a telescope on 13 March 1781, the first planet found since antiquity. Only Voyager 2 has visited it, in January 1986."
+    },
+    "pt": {
+     "summary": "Urano é o sétimo planeta, um gigante de gelo que gira deitado.",
+     "curiosities": [
+      {
+       "text": "O eixo é inclinado 98°, então cada polo tem cerca de 42 anos de dia seguidos de 42 anos de noite.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "O metano na atmosfera absorve a luz vermelha, o que dá a ele a cor azul-esverdeada.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Um ano em Urano dura cerca de 84 anos terrestres.",
+       "source": "computed"
+      }
+     ],
+     "history": "William Herschel o descobriu com um telescópio em 13 de março de 1781, o primeiro planeta encontrado desde a Antiguidade. Só a Voyager 2 o visitou, em janeiro de 1986."
+    }
+   },
+   "missions": [
+    "Voyager 2 (1986)"
+   ]
+  },
+  "neptune": {
+   "kind": "planet",
+   "names": {
+    "en": "Neptune",
+    "pt": "Netuno"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 49528,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 1.02e+26,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 1638,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 11.0,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": 16.1,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 16.1,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 4515000000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 59800,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": -200,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 16,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Neptune is the eighth and farthest planet, a dark, cold ice giant with the fastest winds in the Solar System.",
+     "curiosities": [
+      {
+       "text": "It was found by mathematics before it was seen: Le Verrier predicted its position from small pulls on Uranus.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Since its discovery in 1846 it has completed only one orbit around the Sun, in 2011.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Its winds reach about 2,000 km/h.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Sunlight takes about 4 hours to get there.",
+       "source": "computed"
+      }
+     ],
+     "history": "Johann Galle and Heinrich d'Arrest found it on 23 September 1846, within 1° of Urbain Le Verrier's prediction. Voyager 2 flew past in August 1989."
+    },
+    "pt": {
+     "summary": "Netuno é o oitavo planeta e o mais distante, um gigante de gelo escuro e frio com os ventos mais rápidos do Sistema Solar.",
+     "curiosities": [
+      {
+       "text": "Foi encontrado pela matemática antes de ser visto: Le Verrier previu a sua posição a partir de pequenos puxões em Urano.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Desde a descoberta, em 1846, ele completou só uma volta em torno do Sol, em 2011.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Os ventos chegam a cerca de 2.000 km/h.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "A luz do Sol leva cerca de 4 horas para chegar lá.",
+       "source": "computed"
+      }
+     ],
+     "history": "Johann Galle e Heinrich d'Arrest o encontraram em 23 de setembro de 1846, a menos de 1° da posição prevista por Urbain Le Verrier. A Voyager 2 passou por ele em agosto de 1989."
+    }
+   },
+   "missions": [
+    "Voyager 2 (1989)"
+   ]
+  },
+  "pluto": {
+   "kind": "dwarf_planet",
+   "names": {
+    "en": "Pluto",
+    "pt": "Plutão"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 2376,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "mass_kg": {
+     "value": 1.3e+22,
+     "unit": "kg",
+     "source": "nasa_planet_fs"
+    },
+    "density_kg_m3": {
+     "value": 1850,
+     "unit": "kg/m3",
+     "source": "nasa_planet_fs"
+    },
+    "gravity_m_s2": {
+     "value": 0.7,
+     "unit": "m/s2",
+     "source": "nasa_planet_fs"
+    },
+    "rotation_h": {
+     "value": -153.3,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "day_h": {
+     "value": 153.3,
+     "unit": "h",
+     "source": "nasa_planet_fs"
+    },
+    "distance_sun_km": {
+     "value": 5906400000.0,
+     "unit": "km",
+     "source": "nasa_planet_fs"
+    },
+    "orbital_period_d": {
+     "value": 90560,
+     "unit": "d",
+     "source": "nasa_planet_fs"
+    },
+    "mean_temp_c": {
+     "value": -225,
+     "unit": "C",
+     "source": "nasa_planet_fs"
+    },
+    "moons": {
+     "value": 5,
+     "unit": "count",
+     "source": "nasa_planet_fs"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Pluto is a dwarf planet in the Kuiper belt, beyond Neptune, with a heart-shaped plain of nitrogen ice.",
+     "curiosities": [
+      {
+       "text": "It is smaller than the Moon: 2376 km across.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "A year on Pluto lasts 248 Earth years; it has not completed an orbit since it was discovered.",
+       "source": "computed"
+      },
+      {
+       "text": "Its largest moon, Charon, is half Pluto's size; the two always face each other.",
+       "source": "nasa_pluto_fs"
+      }
+     ],
+     "history": "Clyde Tombaugh discovered it on 18 February 1930 at Lowell Observatory; the name was suggested by Venetia Burney, aged 11. In 2006 the IAU classified it as a dwarf planet. New Horizons flew past on 14 July 2015."
+    },
+    "pt": {
+     "summary": "Plutão é um planeta anão no cinturão de Kuiper, além de Netuno, com uma planície de gelo de nitrogênio em forma de coração.",
+     "curiosities": [
+      {
+       "text": "É menor que a Lua: 2376 km de diâmetro.",
+       "source": "nasa_planet_fs"
+      },
+      {
+       "text": "Um ano em Plutão dura 248 anos terrestres; ele ainda não completou uma volta desde que foi descoberto.",
+       "source": "computed"
+      },
+      {
+       "text": "A maior lua, Caronte, tem metade do tamanho de Plutão; os dois estão sempre de frente um para o outro.",
+       "source": "nasa_pluto_fs"
+      }
+     ],
+     "history": "Clyde Tombaugh o descobriu em 18 de fevereiro de 1930, no Observatório Lowell; o nome foi sugerido por Venetia Burney, de 11 anos. Em 2006 a UAI o classificou como planeta anão. A New Horizons passou por ele em 14 de julho de 2015."
+    }
+   },
+   "missions": [
+    "New Horizons (2015)"
+   ]
+  },
+  "ceres": {
+   "kind": "dwarf_planet",
+   "names": {
+    "en": "Ceres",
+    "pt": "Ceres"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 939.4,
+     "unit": "km",
+     "source": "jpl_sbdb"
+    },
+    "orbital_period_d": {
+     "value": 1680,
+     "unit": "d",
+     "source": "jpl_sbdb"
+    },
+    "distance_sun_km": {
+     "value": 413700000.0,
+     "unit": "km",
+     "source": "jpl_sbdb"
+    },
+    "moons": {
+     "value": 0,
+     "unit": "count",
+     "source": "nasa_dwarf"
+    },
+    "rotation_h": {
+     "value": 9.07,
+     "unit": "h",
+     "source": "jpl_sbdb"
+    },
+    "mass_kg": {
+     "value": 9.38e+20,
+     "unit": "kg",
+     "source": "jpl_sbdb"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Ceres is the largest object in the asteroid belt and the only dwarf planet in the inner Solar System.",
+     "curiosities": [
+      {
+       "text": "It holds about a quarter of all the mass of the asteroid belt.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "Bright spots in Occator crater are salt deposits left by briny water from below.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It turns in about 9 hours.",
+       "source": "jpl_sbdb"
+      }
+     ],
+     "history": "Giuseppe Piazzi discovered it on 1 January 1801 and named it after the Roman goddess of harvests. It was called a planet, then an asteroid, and since 2006 a dwarf planet. NASA's Dawn orbited it from 2015 to 2018."
+    },
+    "pt": {
+     "summary": "Ceres é o maior objeto do cinturão de asteroides e o único planeta anão do Sistema Solar interior.",
+     "curiosities": [
+      {
+       "text": "Concentra cerca de um quarto de toda a massa do cinturão de asteroides.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "Manchas brilhantes na cratera Occator são depósitos de sal deixados por água salgada vinda do subsolo.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Ele gira em cerca de 9 horas.",
+       "source": "jpl_sbdb"
+      }
+     ],
+     "history": "Giuseppe Piazzi o descobriu em 1º de janeiro de 1801 e lhe deu o nome da deusa romana das colheitas. Foi chamado de planeta, depois de asteroide e, desde 2006, de planeta anão. A Dawn, da NASA, o orbitou de 2015 a 2018."
+    }
+   },
+   "missions": [
+    "Dawn (2015–2018)"
+   ]
+  },
+  "eris": {
+   "kind": "dwarf_planet",
+   "names": {
+    "en": "Eris",
+    "pt": "Éris"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 2326,
+     "unit": "km",
+     "source": "sicardy2011"
+    },
+    "orbital_period_d": {
+     "value": 204000,
+     "unit": "d",
+     "source": "jpl_sbdb"
+    },
+    "distance_sun_km": {
+     "value": 10160000000.0,
+     "unit": "km",
+     "source": "jpl_sbdb"
+    },
+    "moons": {
+     "value": 1,
+     "unit": "count",
+     "source": "nasa_dwarf"
+    },
+    "mass_kg": {
+     "value": 1.66e+22,
+     "unit": "kg",
+     "source": "jpl_sbdb"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Eris is a dwarf planet in the scattered disc, almost as large as Pluto and a little more massive.",
+     "curiosities": [
+      {
+       "text": "It is about 68 times farther from the Sun than the Earth on average, so a year there lasts about 559 Earth years.",
+       "source": "jpl_sbdb"
+      },
+      {
+       "text": "It has one known moon, Dysnomia.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "Its discovery started the debate that led the IAU to define 'planet' in 2006.",
+       "source": "iau_2006_b5"
+      }
+     ],
+     "history": "Mike Brown, Chad Trujillo and David Rabinowitz discovered it in images taken in 2003 and announced it in 2005. It is named after the Greek goddess of discord."
+    },
+    "pt": {
+     "summary": "Éris é um planeta anão do disco disperso, quase do tamanho de Plutão e com um pouco mais de massa.",
+     "curiosities": [
+      {
+       "text": "Fica em média cerca de 68 vezes mais longe do Sol que a Terra, então um ano lá dura cerca de 559 anos terrestres.",
+       "source": "jpl_sbdb"
+      },
+      {
+       "text": "Tem uma lua conhecida, Disnomia.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "A descoberta dela iniciou o debate que levou a UAI a definir 'planeta' em 2006.",
+       "source": "iau_2006_b5"
+      }
+     ],
+     "history": "Mike Brown, Chad Trujillo e David Rabinowitz a descobriram em imagens feitas em 2003 e anunciaram em 2005. O nome é o da deusa grega da discórdia."
+    }
+   },
+   "missions": []
+  },
+  "haumea": {
+   "kind": "dwarf_planet",
+   "names": {
+    "en": "Haumea",
+    "pt": "Haumea"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 1595,
+     "unit": "km",
+     "source": "ortiz2017"
+    },
+    "orbital_period_d": {
+     "value": 103800,
+     "unit": "d",
+     "source": "jpl_sbdb"
+    },
+    "distance_sun_km": {
+     "value": 6450000000.0,
+     "unit": "km",
+     "source": "jpl_sbdb"
+    },
+    "moons": {
+     "value": 2,
+     "unit": "count",
+     "source": "nasa_dwarf"
+    },
+    "rotation_h": {
+     "value": 3.92,
+     "unit": "h",
+     "source": "jpl_sbdb"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Haumea is a dwarf planet in the Kuiper belt, stretched into an egg shape by its fast spin.",
+     "curiosities": [
+      {
+       "text": "A day lasts under 4 hours, one of the fastest spins of any large body in the Solar System.",
+       "source": "jpl_sbdb"
+      },
+      {
+       "text": "It has two moons, Hiʻiaka and Namaka, and a ring.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "The diameter here is that of a sphere of the same volume: its longest axis, about 2320 km, is more than twice its shortest.",
+       "source": "ortiz2017"
+      }
+     ],
+     "history": "It was found independently by Mike Brown's team and by a team led by José Luis Ortiz in 2004–2005 and is named after the Hawaiian goddess of childbirth."
+    },
+    "pt": {
+     "summary": "Haumea é um planeta anão do cinturão de Kuiper, esticado em forma de ovo pela rotação rápida.",
+     "curiosities": [
+      {
+       "text": "Um dia dura menos de 4 horas, uma das rotações mais rápidas entre os corpos grandes do Sistema Solar.",
+       "source": "jpl_sbdb"
+      },
+      {
+       "text": "Tem duas luas, Hiʻiaka e Namaka, e um anel.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "O diâmetro aqui é o de uma esfera de mesmo volume: o eixo mais longo, cerca de 2320 km, tem mais que o dobro do mais curto.",
+       "source": "ortiz2017"
+      }
+     ],
+     "history": "Foi encontrado de forma independente pela equipe de Mike Brown e por uma equipe liderada por José Luis Ortiz em 2004–2005; o nome é o da deusa havaiana do parto."
+    }
+   },
+   "missions": []
+  },
+  "makemake": {
+   "kind": "dwarf_planet",
+   "names": {
+    "en": "Makemake",
+    "pt": "Makemake"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 1430,
+     "unit": "km",
+     "source": "ortiz2012"
+    },
+    "orbital_period_d": {
+     "value": 111400,
+     "unit": "d",
+     "source": "jpl_sbdb"
+    },
+    "distance_sun_km": {
+     "value": 6800000000.0,
+     "unit": "km",
+     "source": "jpl_sbdb"
+    },
+    "moons": {
+     "value": 1,
+     "unit": "count",
+     "source": "nasa_dwarf"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Makemake is a dwarf planet in the Kuiper belt, the second-brightest object there after Pluto.",
+     "curiosities": [
+      {
+       "text": "A year on Makemake lasts about 305 Earth years.",
+       "source": "jpl_sbdb"
+      },
+      {
+       "text": "Its surface is covered in frozen methane, which makes it reddish.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "It has one small, dark moon, found by the Hubble Space Telescope in 2016.",
+       "source": "nasa_dwarf"
+      }
+     ],
+     "history": "Mike Brown's team discovered it in March 2005, just after Easter; it is named after the creator god of the Rapa Nui people of Easter Island."
+    },
+    "pt": {
+     "summary": "Makemake é um planeta anão do cinturão de Kuiper, o segundo objeto mais brilhante de lá depois de Plutão.",
+     "curiosities": [
+      {
+       "text": "Um ano em Makemake dura cerca de 305 anos terrestres.",
+       "source": "jpl_sbdb"
+      },
+      {
+       "text": "A superfície é coberta de metano congelado, o que a deixa avermelhada.",
+       "source": "nasa_dwarf"
+      },
+      {
+       "text": "Tem uma lua pequena e escura, encontrada pelo telescópio espacial Hubble em 2016.",
+       "source": "nasa_dwarf"
+      }
+     ],
+     "history": "A equipe de Mike Brown a descobriu em março de 2005, logo depois da Páscoa; o nome é o do deus criador do povo rapa nui, da Ilha de Páscoa."
+    }
+   },
+   "missions": []
+  },
+  "io": {
+   "kind": "moon",
+   "parent": "jupiter",
+   "names": {
+    "en": "Io",
+    "pt": "Io"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 3643,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    },
+    "mass_kg": {
+     "value": 8.932e+22,
+     "unit": "kg",
+     "source": "nasa_jovian_sats"
+    },
+    "orbital_period_d": {
+     "value": 1.769,
+     "unit": "d",
+     "source": "nasa_jovian_sats"
+    },
+    "distance_planet_km": {
+     "value": 421800.0,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Io is the innermost of Jupiter's four large moons and the most volcanically active world known.",
+     "curiosities": [
+      {
+       "text": "It has hundreds of active volcanoes, heated by the tides that Jupiter raises in its rock.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It goes around Jupiter in 1.8 days.",
+       "source": "nasa_jovian_sats"
+      },
+      {
+       "text": "Its yellow and orange colours come from sulfur.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "Discovered by Galileo Galilei in January 1610. Voyager 1 saw its first erupting volcano in 1979."
+    },
+    "pt": {
+     "summary": "Io é a mais interna das quatro grandes luas de Júpiter e o mundo vulcanicamente mais ativo que se conhece.",
+     "curiosities": [
+      {
+       "text": "Tem centenas de vulcões ativos, aquecidos pelas marés que Júpiter provoca na sua rocha.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Dá uma volta em Júpiter em 1,8 dia.",
+       "source": "nasa_jovian_sats"
+      },
+      {
+       "text": "As cores amarela e laranja vêm do enxofre.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "Descoberta por Galileu Galilei em janeiro de 1610. A Voyager 1 viu o seu primeiro vulcão em erupção em 1979."
+    }
+   },
+   "missions": [
+    "Voyager 1 (1979)",
+    "Galileo (1995–2003)",
+    "Juno (2023–24 flybys)"
+   ]
+  },
+  "europa": {
+   "kind": "moon",
+   "parent": "jupiter",
+   "names": {
+    "en": "Europa",
+    "pt": "Europa"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 3122,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    },
+    "mass_kg": {
+     "value": 4.8e+22,
+     "unit": "kg",
+     "source": "nasa_jovian_sats"
+    },
+    "orbital_period_d": {
+     "value": 3.551,
+     "unit": "d",
+     "source": "nasa_jovian_sats"
+    },
+    "distance_planet_km": {
+     "value": 671100.0,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Europa is a moon of Jupiter with an icy crust over a global ocean of salty liquid water.",
+     "curiosities": [
+      {
+       "text": "Its ocean may hold about twice as much water as all of the Earth's oceans.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It is slightly smaller than our Moon.",
+       "source": "computed"
+      },
+      {
+       "text": "NASA's Europa Clipper, launched in 2024, will study whether the ocean could support life.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "Discovered by Galileo Galilei in January 1610; Simon Marius proposed the names of the four large moons, from lovers of Zeus."
+    },
+    "pt": {
+     "summary": "Europa é uma lua de Júpiter com uma crosta de gelo sobre um oceano global de água líquida salgada.",
+     "curiosities": [
+      {
+       "text": "O oceano pode ter cerca do dobro da água de todos os oceanos da Terra.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "É um pouco menor que a nossa Lua.",
+       "source": "computed"
+      },
+      {
+       "text": "A Europa Clipper, da NASA, lançada em 2024, vai estudar se o oceano poderia abrigar vida.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "Descoberta por Galileu Galilei em janeiro de 1610; Simon Marius propôs os nomes das quatro grandes luas, amores de Zeus."
+    }
+   },
+   "missions": [
+    "Galileo (1995–2003)",
+    "Europa Clipper (en route)"
+   ]
+  },
+  "ganymede": {
+   "kind": "moon",
+   "parent": "jupiter",
+   "names": {
+    "en": "Ganymede",
+    "pt": "Ganimedes"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 5262,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    },
+    "mass_kg": {
+     "value": 1.4819e+23,
+     "unit": "kg",
+     "source": "nasa_jovian_sats"
+    },
+    "orbital_period_d": {
+     "value": 7.155,
+     "unit": "d",
+     "source": "nasa_jovian_sats"
+    },
+    "distance_planet_km": {
+     "value": 1070400.0,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Ganymede, a moon of Jupiter, is the largest moon in the Solar System, bigger than the planet Mercury.",
+     "curiosities": [
+      {
+       "text": "It is the only moon known to have its own magnetic field.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It is 5262 km across, about 8 % wider than Mercury.",
+       "source": "computed"
+      },
+      {
+       "text": "ESA's Juice will go into orbit around it in the 2030s, the first spacecraft to orbit a moon other than ours.",
+       "source": "esa_missions"
+      }
+     ],
+     "history": "Discovered by Galileo Galilei in January 1610."
+    },
+    "pt": {
+     "summary": "Ganimedes, lua de Júpiter, é a maior lua do Sistema Solar, maior que o planeta Mercúrio.",
+     "curiosities": [
+      {
+       "text": "É a única lua conhecida com campo magnético próprio.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Tem 5262 km de diâmetro, cerca de 8 % mais que Mercúrio.",
+       "source": "computed"
+      },
+      {
+       "text": "A Juice, da ESA, vai entrar em órbita dela na década de 2030, a primeira nave a orbitar uma lua que não seja a nossa.",
+       "source": "esa_missions"
+      }
+     ],
+     "history": "Descoberta por Galileu Galilei em janeiro de 1610."
+    }
+   },
+   "missions": [
+    "Galileo (1995–2003)",
+    "Juno (2021 flyby)",
+    "Juice (en route)"
+   ]
+  },
+  "callisto": {
+   "kind": "moon",
+   "parent": "jupiter",
+   "names": {
+    "en": "Callisto",
+    "pt": "Calisto"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 4821,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    },
+    "mass_kg": {
+     "value": 1.0759e+23,
+     "unit": "kg",
+     "source": "nasa_jovian_sats"
+    },
+    "orbital_period_d": {
+     "value": 16.689,
+     "unit": "d",
+     "source": "nasa_jovian_sats"
+    },
+    "distance_planet_km": {
+     "value": 1882700.0,
+     "unit": "km",
+     "source": "nasa_jovian_sats"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Callisto is the outermost of Jupiter's four large moons and one of the most heavily cratered surfaces known.",
+     "curiosities": [
+      {
+       "text": "Its old surface has barely changed in about four billion years.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It takes almost 17 days to go around Jupiter.",
+       "source": "nasa_jovian_sats"
+      },
+      {
+       "text": "It is nearly as wide as Mercury but has only about a third of its mass.",
+       "source": "computed"
+      }
+     ],
+     "history": "Discovered by Galileo Galilei in January 1610."
+    },
+    "pt": {
+     "summary": "Calisto é a mais externa das quatro grandes luas de Júpiter e uma das superfícies mais crateradas que se conhecem.",
+     "curiosities": [
+      {
+       "text": "A superfície antiga quase não mudou em cerca de quatro bilhões de anos.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Leva quase 17 dias para dar uma volta em Júpiter.",
+       "source": "nasa_jovian_sats"
+      },
+      {
+       "text": "É quase tão larga quanto Mercúrio, mas tem só cerca de um terço da massa dele.",
+       "source": "computed"
+      }
+     ],
+     "history": "Descoberta por Galileu Galilei em janeiro de 1610."
+    }
+   },
+   "missions": [
+    "Galileo (1995–2003)"
+   ]
+  },
+  "titan": {
+   "kind": "moon",
+   "parent": "saturn",
+   "names": {
+    "en": "Titan",
+    "pt": "Titã"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 5150,
+     "unit": "km",
+     "source": "nasa_saturnian_sats"
+    },
+    "mass_kg": {
+     "value": 1.3455e+23,
+     "unit": "kg",
+     "source": "nasa_saturnian_sats"
+    },
+    "orbital_period_d": {
+     "value": 15.945,
+     "unit": "d",
+     "source": "nasa_saturnian_sats"
+    },
+    "distance_planet_km": {
+     "value": 1221900.0,
+     "unit": "km",
+     "source": "nasa_saturnian_sats"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Titan is Saturn's largest moon, the only moon with a thick atmosphere and with lakes on its surface.",
+     "curiosities": [
+      {
+       "text": "Its lakes and seas are made of liquid methane and ethane, not water.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "The air pressure at the ground is about 1.5 times the Earth's.",
+       "source": "esa_missions"
+      },
+      {
+       "text": "It is bigger than the planet Mercury.",
+       "source": "computed"
+      }
+     ],
+     "history": "Christiaan Huygens discovered it on 25 March 1655. ESA's Huygens probe landed on it on 14 January 2005, the most distant landing ever made. NASA's Dragonfly rotorcraft is planned to fly there."
+    },
+    "pt": {
+     "summary": "Titã é a maior lua de Saturno, a única lua com atmosfera espessa e com lagos na superfície.",
+     "curiosities": [
+      {
+       "text": "Os lagos e mares são de metano e etano líquidos, não de água.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "A pressão do ar no chão é cerca de 1,5 vez a da Terra.",
+       "source": "esa_missions"
+      },
+      {
+       "text": "É maior que o planeta Mercúrio.",
+       "source": "computed"
+      }
+     ],
+     "history": "Christiaan Huygens a descobriu em 25 de março de 1655. A sonda Huygens, da ESA, pousou nela em 14 de janeiro de 2005, o pouso mais distante já feito. O drone Dragonfly, da NASA, está planejado para voar lá."
+    }
+   },
+   "missions": [
+    "Cassini–Huygens (2004–2017)",
+    "Dragonfly (planned)"
+   ]
+  },
+  "enceladus": {
+   "kind": "moon",
+   "parent": "saturn",
+   "names": {
+    "en": "Enceladus",
+    "pt": "Encélado"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 504,
+     "unit": "km",
+     "source": "nasa_saturnian_sats"
+    },
+    "mass_kg": {
+     "value": 1.08e+20,
+     "unit": "kg",
+     "source": "nasa_saturnian_sats"
+    },
+    "orbital_period_d": {
+     "value": 1.37,
+     "unit": "d",
+     "source": "nasa_saturnian_sats"
+    },
+    "distance_planet_km": {
+     "value": 238000.0,
+     "unit": "km",
+     "source": "nasa_saturnian_sats"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Enceladus is a small, bright moon of Saturn that sprays water from an ocean under its ice.",
+     "curiosities": [
+      {
+       "text": "Geysers near its south pole shoot water vapour and ice into space, feeding Saturn's E ring.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It reflects almost all the sunlight that falls on it, more than any other body in the Solar System.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "It is only 504 km across, about the width of the United Kingdom.",
+       "source": "nasa_saturnian_sats"
+      }
+     ],
+     "history": "William Herschel discovered it on 28 August 1789. Cassini found its plumes in 2005 and later flew through them."
+    },
+    "pt": {
+     "summary": "Encélado é uma lua pequena e brilhante de Saturno que lança água de um oceano escondido sob o gelo.",
+     "curiosities": [
+      {
+       "text": "Gêiseres perto do polo sul jogam vapor d'água e gelo no espaço, alimentando o anel E de Saturno.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Reflete quase toda a luz do Sol que recebe, mais que qualquer outro corpo do Sistema Solar.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Tem só 504 km de diâmetro, mais ou menos a largura do Reino Unido.",
+       "source": "nasa_saturnian_sats"
+      }
+     ],
+     "history": "William Herschel a descobriu em 28 de agosto de 1789. A Cassini encontrou as plumas em 2005 e depois voou através delas."
+    }
+   },
+   "missions": [
+    "Cassini (2004–2017)"
+   ]
+  },
+  "triton": {
+   "kind": "moon",
+   "parent": "neptune",
+   "names": {
+    "en": "Triton",
+    "pt": "Tritão"
+   },
+   "numbers": {
+    "diameter_km": {
+     "value": 2707,
+     "unit": "km",
+     "source": "nasa_neptunian_sats"
+    },
+    "mass_kg": {
+     "value": 2.14e+22,
+     "unit": "kg",
+     "source": "nasa_neptunian_sats"
+    },
+    "orbital_period_d": {
+     "value": -5.877,
+     "unit": "d",
+     "source": "nasa_neptunian_sats"
+    },
+    "distance_planet_km": {
+     "value": 354800.0,
+     "unit": "km",
+     "source": "nasa_neptunian_sats"
+    }
+   },
+   "text": {
+    "en": {
+     "summary": "Triton is Neptune's largest moon and goes around the planet backwards, probably a captured Kuiper-belt object.",
+     "curiosities": [
+      {
+       "text": "It is the only large moon that orbits opposite to its planet's rotation.",
+       "source": "nasa_neptunian_sats"
+      },
+      {
+       "text": "Voyager 2 saw dark plumes of nitrogen gas rising 8 km from its surface.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "Its surface, at about −235 °C, is one of the coldest measured in the Solar System.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "William Lassell discovered it on 10 October 1846, only 17 days after Neptune was found. Voyager 2 flew past in 1989."
+    },
+    "pt": {
+     "summary": "Tritão é a maior lua de Netuno e gira em volta do planeta ao contrário, provavelmente um objeto do cinturão de Kuiper capturado.",
+     "curiosities": [
+      {
+       "text": "É a única lua grande que orbita no sentido oposto ao da rotação do seu planeta.",
+       "source": "nasa_neptunian_sats"
+      },
+      {
+       "text": "A Voyager 2 viu plumas escuras de gás nitrogênio subindo 8 km acima da superfície.",
+       "source": "nasa_missions"
+      },
+      {
+       "text": "A superfície, a cerca de −235 °C, é uma das mais frias já medidas no Sistema Solar.",
+       "source": "nasa_missions"
+      }
+     ],
+     "history": "William Lassell a descobriu em 10 de outubro de 1846, só 17 dias depois da descoberta de Netuno. A Voyager 2 passou por ela em 1989."
+    }
+   },
+   "missions": [
+    "Voyager 2 (1989)"
+   ]
+  }
+ }
+}

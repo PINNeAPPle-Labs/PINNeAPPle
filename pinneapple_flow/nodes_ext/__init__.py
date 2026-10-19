@@ -3,6 +3,17 @@ API (:func:`pinneapple_flow.registry.node`, :func:`pinneapple_flow.types.registe
 calls; the flows that use them are under ``pinneapple_flow/flows/examples/<domain>/`` and the inventory of examples
 is :mod:`pinneapple_flow.examples` (``docs/flow_studio/EXAMPLES_AS_FLOWS.md``)."""
 from ..examples import register_hook  # noqa: E402
-from . import astro, electromagnetics, examples, flight, forecasting, render  # noqa: F401
+from . import (  # noqa: F401
+    astro,
+    cfd,
+    design,
+    electromagnetics,
+    examples,
+    flight,
+    forecasting,
+    render,
+    solvers,
+    structures,
+)
 
 register_hook()                         # example-flow runs become Lab experiments (pinneapple_flow.examples)

@@ -319,66 +319,54 @@
      },
      {
       "flow": "line.light_ga.stick_fixed.seed0.phi_rms_deg",
-      "ref": "results/turbulence.json:line_field[aircraft=light_ga].phi_rms_deg",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:line_field[aircraft=light_ga].phi_rms_deg"
      },
      {
       "flow": "line.regional_turboprop.stick_fixed.seed0.phi_rms_deg",
-      "ref": "results/turbulence.json:line_field[aircraft=regional_turboprop].phi_rms_deg",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:line_field[aircraft=regional_turboprop].phi_rms_deg"
      },
      {
       "flow": "line.a320.stick_fixed.seed0.phi_rms_deg",
-      "ref": "results/turbulence.json:line_field[aircraft=a320].phi_rms_deg",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:line_field[aircraft=a320].phi_rms_deg"
      },
      {
       "flow": "line.motor_glider.stick_fixed.seed0.phi_rms_deg",
-      "ref": "results/turbulence.json:line_field[aircraft=motor_glider].phi_rms_deg",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:line_field[aircraft=motor_glider].phi_rms_deg"
      },
      {
       "flow": "light.light_ga.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=light].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=light].dnz_cg_rms"
      },
      {
       "flow": "light.regional_turboprop.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=light].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=light].dnz_cg_rms"
      },
      {
       "flow": "light.a320.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=a320,severity=light].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=a320,severity=light].dnz_cg_rms"
      },
      {
       "flow": "light.motor_glider.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=light].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=light].dnz_cg_rms"
      },
      {
       "flow": "moderate.light_ga.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=moderate].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=moderate].dnz_cg_rms"
      },
      {
       "flow": "moderate.regional_turboprop.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=moderate].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=moderate].dnz_cg_rms"
      },
      {
       "flow": "moderate.a320.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=a320,severity=moderate].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=a320,severity=moderate].dnz_cg_rms"
      },
      {
       "flow": "moderate.motor_glider.autopilot.seed0.dnz_cg_rms",
-      "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=moderate].dnz_cg_rms",
-      "rtol": 0.05
+      "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=moderate].dnz_cg_rms"
      }
     ],
-    "tolerance_source": "stochastic turbulence fields: the tolerance of each mean is the spread over the three seeds that results/turbulence.json reports for it; single-seed runs (frozen line, light, moderate): 5% (one realisation re-run; the committed run is the same seed)"
+    "tolerance_source": "stochastic turbulence fields: the tolerance of each mean is the spread over the three seeds that results/turbulence.json reports for it; single-seed runs (frozen line, light, moderate) are the committed seed re-run: 1e-6 relative"
    },
    "label": "Same numbers as examples/flight_dynamics",
    "position": {

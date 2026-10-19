@@ -24,86 +24,70 @@
     "comparisons": [
      {
       "flow": "case.predictability.ar1_coefficient",
-      "ref": "results/cases/random_walk.json:predictability.ar1_coefficient",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:predictability.ar1_coefficient"
      },
      {
       "flow": "case.zoo.persistence.test_rmse_h1",
-      "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.0"
      },
      {
       "flow": "case.zoo.persistence.test_rmse_h4",
-      "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.2",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.2"
      },
      {
       "flow": "case.zoo.persistence.test_rmse_h16",
-      "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.4",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.4"
      },
      {
       "flow": "case.zoo.climatology.test_rmse_h1",
-      "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.0"
      },
      {
       "flow": "case.zoo.climatology.test_rmse_h4",
-      "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.2",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.2"
      },
      {
       "flow": "case.zoo.climatology.test_rmse_h16",
-      "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.4",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.4"
      },
      {
       "flow": "case.zoo.ar.test_rmse_h1",
-      "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.0"
      },
      {
       "flow": "case.zoo.ar.test_rmse_h4",
-      "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.2",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.2"
      },
      {
       "flow": "case.zoo.ar.test_rmse_h16",
-      "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.4",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.4"
      },
      {
       "flow": "case.zoo.gbm.test_rmse_h1",
-      "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.0"
      },
      {
       "flow": "case.zoo.gbm.test_rmse_h4",
-      "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.2",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.2"
      },
      {
       "flow": "case.zoo.gbm.test_rmse_h16",
-      "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.4",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.4"
      },
      {
       "flow": "case.zoo.mlp.test_rmse_h1",
-      "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.0"
      },
      {
       "flow": "case.zoo.mlp.test_rmse_h4",
-      "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.2",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.2"
      },
      {
       "flow": "case.zoo.mlp.test_rmse_h16",
-      "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.4",
-      "rtol": 0.001
+      "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.4"
      }
     ],
-    "tolerance_source": "the committed JSON rounds to 4 decimals: 1e-3 relative"
+    "tolerance_source": "deterministic: the same library code, data and seed; 1e-6 relative covers BLAS / platform rounding; the committed JSON rounds to 4 decimals: each number matches within half a unit of its last digit"
    },
    "label": "Same numbers as examples/near_random_forecasting",
    "position": {

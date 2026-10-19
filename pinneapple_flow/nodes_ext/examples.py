@@ -4,7 +4,8 @@ the helpers the example-domain nodes share (object artifacts, the checkout's ``e
 ``examples.compare`` takes the metrics of the nodes upstream of it and, for each comparison it is given, looks up the
 reference number in the example's own files: a key path into a committed results file
 (``results/takeoff.json:nominal.light_ga.distance_35ft_m``, list items selected by field values with
-``runs[aircraft=a320,seed=0].dnz_cg_rms``) or a metric of its manifest (``manifest:distance_35ft_a320``). A comparison
+``runs[aircraft=a320,seed=0].dnz_cg_rms``), a metric of its manifest (``manifest:distance_35ft_a320``) or a metric of
+another upstream node that reads a committed file the example keeps in a solver format (``node:committed.tip_uz_m``). A comparison
 passes when ``|flow - reference| <= atol + rtol |reference|``; the tolerance is part of the flow document, next to a
 note saying where it comes from, or is a number of the example itself (``atol_ref``, e.g. the spread over the seeds
 of a stochastic study). The checks are recorded on the output port, so the run's experiment manifest
@@ -130,6 +131,20 @@ def reference_value(folder: Path, ref: str) -> float:
     return float(obj)
 
 
+def rounding_half_unit(x: float) -> float:
+    """Half a unit of the last digit of ``x`` as Python writes it (0.00147 -> 5e-6); 0 for a number written with 12
+    or more significant digits (not rounded)."""
+    r = repr(float(x)).lower()
+    mant, _, exp = r.partition("e")
+    digits = mant.lstrip("-").replace(".", "").lstrip("0")
+    if len(digits) >= 12 or not math.isfinite(x):
+        return 0.0
+    dec = len(mant.split(".")[1]) if "." in mant else 0
+    if mant.endswith(".0"):
+        dec = 0
+    return 0.5 * 10.0 ** (-dec + (int(exp) if exp else 0))
+
+
 def metric_value(reports: dict[str, dict[str, Any]], name: str) -> float:
     """``node.metric`` from the reports of the upstream nodes (a metric with its ``how`` is ``{"value": ...}``)."""
     nid, _, key = name.partition(".")
@@ -154,6 +169,8 @@ def metric_value(reports: dict[str, dict[str, Any]], name: str) -> float:
               Param("rtol", "float", 1e-6, minimum=0.0, help="default relative tolerance"),
               Param("atol", "float", 0.0, minimum=0.0, help="default absolute tolerance"),
               Param("tolerance_source", "text", "", help="where the tolerance comes from (shown in the report)"),
+              Param("rounded", "bool", True, help="a committed number written with few digits matches within half a "
+                                                  "unit of its last digit (the example rounded it)"),
               Param("strict", "bool", False, help="fail the node when a comparison does not match")],
       calls="pinneapple_lab.manifest (the example's experiment.json) and the example's committed results files")
 def compare(ctx, inputs, params):
@@ -170,11 +187,14 @@ def compare(ctx, inputs, params):
             checks.append({"name": c["flow"], "passed": False, "kind": "reference", "detail": f"missing: {exc}"})
             continue
         try:
-            ref = reference_value(folder, c["ref"])
+            ref = (metric_value(ctx.upstream_reports, c["ref"][5:]) if c["ref"].startswith("node:")
+                   else reference_value(folder, c["ref"]))
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise StepFailed(f"reference {c['ref']!r}: {exc}") from None
         if c.get("atol_ref"):                    # the example's own spread (e.g. over seeds) as the tolerance
             atol = abs(reference_value(folder, c["atol_ref"]))
+        if c.get("rounded", params["rounded"]):
+            atol = max(atol, rounding_half_unit(ref))
         diff = abs(got - ref)
         ok = bool(math.isfinite(got) and diff <= atol + rtol * abs(ref))
         rel = diff / abs(ref) if ref else diff

@@ -25,7 +25,7 @@
  },
  "calculix_cantilever": {
   "domain": "structures",
-  "reason": "not converted yet (a later batch of this PR): solver.calculix + a .frd reader against the committed beam.frd (tip uz); needs ccx to rerun"
+  "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
  },
  "core_primitives": {
   "domain": "core",
@@ -44,7 +44,7 @@
  },
  "design_from_intent": {
   "domain": "design",
-  "reason": "not converted yet (a later batch of this PR): pp.design with answers / verify against _out/summary.json"
+  "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
  },
  "electrodynamics": {
   "domain": "electromagnetics",
@@ -81,9 +81,7 @@
  },
  "free_surface": {
   "domain": "CFD",
-  "needs": "OpenFOAM (interFoam)",
-  "reason": "VOF runs with interFoam (FreeSurfaceFlow.run); the reference numbers are only a table in docs/core_concepts/free_surface.md",
-  "status": "needs"
+  "notes": "no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt"
  },
  "geomechanics": {
   "domain": "geomechanics",
@@ -131,7 +129,7 @@
  },
  "meshgraphnet": {
   "domain": "neural operators",
-  "reason": "not converted yet (a later batch of this PR): 01 through gnn.meshgraphnet (24/6/150/2500/20) against _out/synthetic_diffusion.json; 02 needs the DeepMind TFRecords (network)"
+  "notes": "02_cylinder_flow_deepmind.py needs the DeepMind TFRecords (download + tfrecord) and is a later flow; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"
  },
  "model_zoo": {
   "domain": "zoo",
@@ -162,13 +160,11 @@
  },
  "numerical_solvers": {
   "domain": "numerical solvers",
-  "reason": "not converted yet (a later batch of this PR): 12 (LJ molecular dynamics) and 13 (shallow water); 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, cfd_pipeline)"
+  "notes": "flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate"
  },
  "openfoam_campaign": {
   "domain": "CFD",
-  "needs": "OpenFOAM (interFoam)",
-  "reason": "the campaign runs interFoam on 6 cases (pinneapple_simulation.external_solvers.openfoam.campaign); OpenFOAM is not installed here and nothing is committed to compare",
-  "status": "needs"
+  "notes": "no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt"
  },
  "pde_environment": {
   "domain": "PINN",
@@ -263,8 +259,7 @@
   "reason": "not converted yet (a later batch of this PR): 00 baselines and adaptive_forecasting; 01-05, 07, 08 import pinneapple_timeseries, which no longer exists"
  },
  "topology_optimization": {
-  "domain": "design",
-  "reason": "not converted yet (a later batch of this PR): design.topology2d / reluctance rotor nodes against results/*_summary.json"
+  "domain": "design"
  },
  "trainer": {
   "domain": "training",

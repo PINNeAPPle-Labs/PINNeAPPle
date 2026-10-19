@@ -24,101 +24,82 @@
     "comparisons": [
      {
       "flow": "case.predictability.ar1_coefficient",
-      "ref": "results/cases/lorenz63_noise0.1.json:predictability.ar1_coefficient",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:predictability.ar1_coefficient"
      },
      {
       "flow": "case.zoo.persistence.test_rmse_h1",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.0"
      },
      {
       "flow": "case.zoo.persistence.test_rmse_h8",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.3",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.3"
      },
      {
       "flow": "case.zoo.persistence.test_rmse_h64",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.6",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.6"
      },
      {
       "flow": "case.zoo.climatology.test_rmse_h1",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.0"
      },
      {
       "flow": "case.zoo.climatology.test_rmse_h8",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.3",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.3"
      },
      {
       "flow": "case.zoo.climatology.test_rmse_h64",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.6",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.6"
      },
      {
       "flow": "case.zoo.ar.test_rmse_h1",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.0"
      },
      {
       "flow": "case.zoo.ar.test_rmse_h8",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.3",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.3"
      },
      {
       "flow": "case.zoo.ar.test_rmse_h64",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.6",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.6"
      },
      {
       "flow": "case.zoo.gbm.test_rmse_h1",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.0"
      },
      {
       "flow": "case.zoo.gbm.test_rmse_h8",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.3",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.3"
      },
      {
       "flow": "case.zoo.gbm.test_rmse_h64",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.6",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.6"
      },
      {
       "flow": "case.zoo.enkf.test_rmse_h1",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.0"
      },
      {
       "flow": "case.zoo.enkf.test_rmse_h8",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.3",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.3"
      },
      {
       "flow": "case.zoo.enkf.test_rmse_h64",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.6",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.6"
      },
      {
       "flow": "case.zoo.sindy.test_rmse_h1",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.0",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.0"
      },
      {
       "flow": "case.zoo.sindy.test_rmse_h8",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.3",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.3"
      },
      {
       "flow": "case.zoo.sindy.test_rmse_h64",
-      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.6",
-      "rtol": 0.001
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.6"
      }
     ],
-    "tolerance_source": "the committed JSON rounds to 4 decimals: 1e-3 relative"
+    "tolerance_source": "deterministic: the same library code, data and seed; 1e-6 relative covers BLAS / platform rounding; the committed JSON rounds to 4 decimals: each number matches within half a unit of its last digit"
    },
    "label": "Same numbers as examples/near_random_forecasting",
    "position": {

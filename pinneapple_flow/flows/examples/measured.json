@@ -1,4 +1,82 @@
 {
+ "black_hole_weather/accretion_run": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "stats.mdot_mean",
+     "outcome": "match",
+     "ref": "results/convergence.json:scalars.mdot_mean.by_level.90.per_seed.0",
+     "reference": 2.1962127703949106,
+     "rel_diff": 0.0,
+     "value": 2.1962127703949106
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work2/example-blackhole-accretion.experiment.json, Lab item manifest/flow/example-blackhole-accretion",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "sim": "done",
+    "stats": "done"
+   },
+   "seconds": 315.1,
+   "status": "done"
+  }
+ },
+ "calculix_cantilever/beam": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "results.tip_uz_m",
+     "outcome": "match",
+     "ref": "node:committed.tip_uz_m",
+     "reference": -0.000190217,
+     "rel_diff": 0.0,
+     "value": -0.000190217
+    },
+    {
+     "flow": "results.tip_uz_mean_m",
+     "outcome": "match",
+     "ref": "node:committed.tip_uz_mean_m",
+     "reference": -0.00019015295238095239,
+     "rel_diff": 0.0,
+     "value": -0.00019015295238095239
+    },
+    {
+     "flow": "results.max_abs_sxx_Pa",
+     "outcome": "match",
+     "ref": "node:committed.max_abs_sxx_Pa",
+     "reference": 6596870.0,
+     "rel_diff": 0.0,
+     "value": 6596870.0
+    },
+    {
+     "flow": "results.nodes",
+     "outcome": "match",
+     "ref": "node:committed.nodes",
+     "reference": 621.0,
+     "rel_diff": 0.0,
+     "value": 621.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-calculix-cantilever.experiment.json, Lab item manifest/flow/example-calculix-cantilever",
+   "matched": 4,
+   "nodes": {
+    "committed": "done",
+    "compare": "done",
+    "deck": "done",
+    "results": "done",
+    "solve": "done"
+   },
+   "seconds": 6.9,
+   "status": "done"
+  }
+ },
  "enso_forecasting/solver_checks": {
   "full": {
    "commit": "93721f70",
@@ -1201,6 +1279,257 @@
     "scene": "done"
    },
    "seconds": 121.2,
+   "status": "done"
+  }
+ },
+ "free_surface/01_runner_slope_study": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work4/example-free-surface-runner.experiment.json, Lab item manifest/flow/example-free-surface-runner",
+   "matched": 0,
+   "nodes": {
+    "minus2": "done",
+    "plus2": "done",
+    "ratio": "done",
+    "report": "done",
+    "zero": "done"
+   },
+   "seconds": 172.8,
+   "status": "done"
+  }
+ },
+ "numerical_solvers/12_molecular_dynamics_lj_gas": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-md-lj-gas.experiment.json, Lab item manifest/flow/example-md-lj-gas",
+   "matched": 0,
+   "nodes": {
+    "md": "done",
+    "report": "done"
+   },
+   "seconds": 28.9,
+   "status": "done"
+  }
+ },
+ "numerical_solvers/13_shallow_water_dam_break": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-swe-dam-break.experiment.json, Lab item manifest/flow/example-swe-dam-break",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "swe": "done"
+   },
+   "seconds": 2.2,
+   "status": "done"
+  }
+ },
+ "topology_optimization/01_mbb_beam": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "grad.gradient_check_max_rel_err",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:gradient_check_max_rel_err",
+     "reference": 1.0141238723468811e-06,
+     "rel_diff": 0.0,
+     "value": 1.0141238723468811e-06
+    },
+    {
+     "flow": "mbb_oc.MBB, OC, filter.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, OC, filter.compliance",
+     "reference": 233.70990775752145,
+     "rel_diff": 0.0,
+     "value": 233.70990775752145
+    },
+    {
+     "flow": "mbb_oc.MBB, OC, filter.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, OC, filter.iterations",
+     "reference": 146.0,
+     "rel_diff": 0.0,
+     "value": 146.0
+    },
+    {
+     "flow": "mbb_oc.MBB, OC, filter.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, OC, filter.gray_fraction",
+     "reference": 0.44416666666666665,
+     "rel_diff": 0.0,
+     "value": 0.44416666666666665
+    },
+    {
+     "flow": "mbb_mma.MBB, MMA, filter.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter.compliance",
+     "reference": 233.4878134008748,
+     "rel_diff": 0.0,
+     "value": 233.4878134008748
+    },
+    {
+     "flow": "mbb_mma.MBB, MMA, filter.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter.iterations",
+     "reference": 58.0,
+     "rel_diff": 0.0,
+     "value": 58.0
+    },
+    {
+     "flow": "mbb_mma.MBB, MMA, filter.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter.gray_fraction",
+     "reference": 0.4525,
+     "rel_diff": 0.0,
+     "value": 0.4525
+    },
+    {
+     "flow": "mbb_proj.MBB, MMA, filter + projection.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.compliance",
+     "reference": 190.05035631421268,
+     "rel_diff": 0.0,
+     "value": 190.05035631421268
+    },
+    {
+     "flow": "mbb_proj.MBB, MMA, filter + projection.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.iterations",
+     "reference": 207.0,
+     "rel_diff": 0.0,
+     "value": 207.0
+    },
+    {
+     "flow": "mbb_proj.MBB, MMA, filter + projection.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.gray_fraction",
+     "reference": 0.0225,
+     "rel_diff": 0.0,
+     "value": 0.0225
+    },
+    {
+     "flow": "cant.Cantilever, MMA, projection.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:Cantilever, MMA, projection.compliance",
+     "reference": 75.42806021465833,
+     "rel_diff": 0.0,
+     "value": 75.42806021465833
+    },
+    {
+     "flow": "cant.Cantilever, MMA, projection.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:Cantilever, MMA, projection.iterations",
+     "reference": 228.0,
+     "rel_diff": 0.0,
+     "value": 228.0
+    },
+    {
+     "flow": "cant.Cantilever, MMA, projection.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:Cantilever, MMA, projection.gray_fraction",
+     "reference": 0.00875,
+     "rel_diff": 0.0,
+     "value": 0.00875
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-topology-mbb.experiment.json, Lab item manifest/flow/example-topology-mbb",
+   "matched": 13,
+   "nodes": {
+    "cant": "done",
+    "compare": "done",
+    "grad": "done",
+    "mbb_mma": "done",
+    "mbb_oc": "done",
+    "mbb_proj": "done"
+   },
+   "seconds": 52.5,
+   "status": "done"
+  }
+ },
+ "topology_optimization/02_heat_and_stokes_flow": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "heat.thermal.objective",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:thermal.optimized",
+     "reference": 24877449.20986821,
+     "rel_diff": 0.0,
+     "value": 24877449.20986821
+    },
+    {
+     "flow": "heat.thermal.uniform",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:thermal.uniform",
+     "reference": 418228746.42490536,
+     "rel_diff": 0.0,
+     "value": 418228746.42490536
+    },
+    {
+     "flow": "heat.thermal.iterations",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:thermal.iterations",
+     "reference": 150.0,
+     "rel_diff": 0.0,
+     "value": 150.0
+    },
+    {
+     "flow": "pipe10.double_pipe_L1.0.objective",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.0.optimized",
+     "reference": 25.723261267390452,
+     "rel_diff": 0.0,
+     "value": 25.723261267390452
+    },
+    {
+     "flow": "pipe10.double_pipe_L1.0.uniform",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.0.uniform",
+     "reference": 136.39390323264288,
+     "rel_diff": 0.0,
+     "value": 136.39390323264288
+    },
+    {
+     "flow": "pipe15.double_pipe_L1.5.objective",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.5.optimized",
+     "reference": 26.79316455565264,
+     "rel_diff": 0.0,
+     "value": 26.79316455565264
+    },
+    {
+     "flow": "pipe15.double_pipe_L1.5.uniform",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.5.uniform",
+     "reference": 179.3219849127891,
+     "rel_diff": 0.0,
+     "value": 179.3219849127891
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-topology-heat-stokes.experiment.json, Lab item manifest/flow/example-topology-heat-stokes",
+   "matched": 7,
+   "nodes": {
+    "compare": "done",
+    "heat": "done",
+    "pipe10": "done",
+    "pipe15": "done"
+   },
+   "seconds": 27.8,
    "status": "done"
   }
  }

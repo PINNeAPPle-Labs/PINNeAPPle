@@ -1,0 +1,293 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-flight-render-clips",
+ "name": "Blender clips and three.js viewers of the flights (05, 08)",
+ "description": "Take-off (low chase camera, motion blur, depth of field, n_z trail, lattice loading), severe turbulence (haze, gust wisps, n_z sparkline) and the same-gust 2 x 2 grid, rendered with Blender Cycles; the three.js viewers with screenshots (examples/flight_dynamics/05_render_clips.py, 08_viewers.py).",
+ "nodes": [
+  {
+   "id": "aircraft",
+   "type": "flight.aircraft",
+   "params": {
+    "aircraft": [
+     "light_ga",
+     "regional_turboprop",
+     "a320",
+     "motor_glider"
+    ]
+   },
+   "label": "Four aircraft",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "takeoff",
+   "type": "flight.takeoff_cases",
+   "params": {
+    "cases": [
+     "nominal"
+    ]
+   },
+   "label": "Take-off",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "turb",
+   "type": "flight.turbulence_encounter",
+   "params": {
+    "severity": "severe",
+    "controllers": [
+     "autopilot"
+    ],
+    "seeds": [
+     0
+    ],
+    "duration": 120.0
+   },
+   "label": "Severe turbulence",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "gust",
+   "type": "flight.same_gust",
+   "params": {},
+   "label": "Same gust",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "sc_to",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 72,
+    "arrows": false
+   },
+   "label": "Take-off scenes",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "sc_tu",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 72,
+    "arrows": false,
+    "wisps": "on"
+   },
+   "label": "Turbulence scenes",
+   "position": {
+    "x": 620.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "sc_g",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 120,
+    "arrows": false,
+    "wisps": "on",
+    "viewer": false
+   },
+   "label": "Gust scenes",
+   "position": {
+    "x": 620.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "r_to",
+   "type": "render.blender_clip",
+   "params": {
+    "preset": "takeoff"
+   },
+   "label": "Take-off clips",
+   "position": {
+    "x": 910.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "r_tu",
+   "type": "render.blender_clip",
+   "params": {
+    "preset": "turbulence"
+   },
+   "label": "Turbulence clips",
+   "position": {
+    "x": 910.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "r_g",
+   "type": "render.blender_clip",
+   "params": {
+    "preset": "gust",
+    "frames": 120,
+    "still": false
+   },
+   "label": "Gust clips",
+   "position": {
+    "x": 910.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "grid",
+   "type": "render.clip_grid",
+   "params": {
+    "labels": {
+     "light_ga_gust_same": "Light GA (C172 class)",
+     "regional_turboprop_gust_same": "Turboprop (ATR 72 class)",
+     "a320_gust_same": "Airliner (A320 class)",
+     "motor_glider_gust_same": "Motor glider (AR 28)"
+    }
+   },
+   "label": "Same-gust grid",
+   "position": {
+    "x": 1200.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "takeoff",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->takeoff.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "turb",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->turb.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "gust",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->gust.aircraft"
+  },
+  {
+   "source": "takeoff",
+   "source_port": "runs",
+   "target": "sc_to",
+   "target_port": "runs",
+   "id": "takeoff.runs->sc_to.runs"
+  },
+  {
+   "source": "turb",
+   "source_port": "runs",
+   "target": "sc_tu",
+   "target_port": "runs",
+   "id": "turb.runs->sc_tu.runs"
+  },
+  {
+   "source": "gust",
+   "source_port": "runs",
+   "target": "sc_g",
+   "target_port": "runs",
+   "id": "gust.runs->sc_g.runs"
+  },
+  {
+   "source": "sc_to",
+   "source_port": "scene",
+   "target": "r_to",
+   "target_port": "scene",
+   "id": "sc_to.scene->r_to.scene"
+  },
+  {
+   "source": "sc_tu",
+   "source_port": "scene",
+   "target": "r_tu",
+   "target_port": "scene",
+   "id": "sc_tu.scene->r_tu.scene"
+  },
+  {
+   "source": "sc_g",
+   "source_port": "scene",
+   "target": "r_g",
+   "target_port": "scene",
+   "id": "sc_g.scene->r_g.scene"
+  },
+  {
+   "source": "r_g",
+   "source_port": "clip",
+   "target": "grid",
+   "target_port": "clip",
+   "id": "r_g.clip->grid.clip"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "flight_dynamics",
+  "domain": "flight dynamics",
+  "scripts": [
+   "05_render_clips.py",
+   "08_viewers.py"
+  ],
+  "quick": {
+   "r_to": {
+    "frames": 24,
+    "width": 480,
+    "height": 270,
+    "samples": 8,
+    "still_width": 960,
+    "still_height": 540,
+    "still_samples": 16,
+    "only": [
+     "a320_takeoff"
+    ]
+   },
+   "r_tu": {
+    "frames": 24,
+    "width": 480,
+    "height": 270,
+    "samples": 8,
+    "still_width": 960,
+    "still_height": 540,
+    "still_samples": 16,
+    "only": [
+     "a320_turbulence"
+    ]
+   },
+   "r_g": {
+    "frames": 24,
+    "width": 480,
+    "height": 270,
+    "samples": 8,
+    "still_width": 960,
+    "still_height": 540,
+    "still_samples": 16
+   },
+   "turb": {
+    "duration": 30.0
+   },
+   "sc_to": {
+    "n_frames": 24
+   },
+   "sc_tu": {
+    "n_frames": 24
+   },
+   "sc_g": {
+    "n_frames": 24
+   }
+  }
+ }
+}

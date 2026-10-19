@@ -220,14 +220,23 @@ class FlowService:
         self.store.delete_flow(flow_id)
 
     def examples(self) -> list[dict[str, Any]]:
+        """The bundled flows (group "Flow Studio"), then every ``examples/*`` study as a flow, grouped by domain
+        (``pinneapple_flow.examples``)."""
+        from . import examples as EX
         out = []
         for p in sorted(FLOWS_DIR.glob("*.json")):
             d = json.loads(p.read_text())
             out.append({"name": p.stem, "title": d.get("name"), "description": d.get("description", ""),
-                        "nodes": len(d.get("nodes", []))})
+                        "nodes": len(d.get("nodes", [])), "group": "Flow Studio"})
+        for f in sorted(EX.flows(), key=lambda f: (f["domain"], f["name"])):
+            out.append({"name": f"examples/{f['name']}", "title": f["title"], "description": f["description"],
+                        "nodes": f["nodes"], "group": f["domain"], "example": f["example"], "quick": f["quick"]})
         return out
 
     def example(self, name: str) -> dict[str, Any]:
+        if name.startswith("examples/"):
+            from .examples import flow_path
+            return json.loads(flow_path(name.split("/", 1)[1]).read_text())
         p = (FLOWS_DIR / f"{name}.json").resolve()
         if p.parent != FLOWS_DIR.resolve() or not p.is_file():
             raise KeyError(f"unknown example {name!r}")

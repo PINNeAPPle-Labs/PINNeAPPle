@@ -1,0 +1,298 @@
+{
+ "architectures": {
+  "domain": "neural architectures",
+  "reason": "not converted yet (a later batch of this PR): 00/01/60 build registry models (lib.model.architecture), 10/20/30 map onto surrogate / inverse / rom nodes; 02-05 and 40 are per-class demos with training loops in the script; 50 imports pinneapple_models.transformers, which does not exist"
+ },
+ "arena_pipelines": {
+  "domain": "benchmarks",
+  "reason": "not converted yet (a later batch of this PR): pinneapple_arena.Arena from the YAML configs (04, 05, 07, 09); 03, 06, 08 hold custom training or subclass the API"
+ },
+ "benchmark": {
+  "domain": "benchmarks",
+  "reason": "not converted yet (a later batch of this PR): pp.benchmark.run in smoke mode (a harness that writes a results tree; no committed numbers)"
+ },
+ "benchmark_suite": {
+  "domain": "benchmarks",
+  "reason": "not converted yet (a later batch of this PR): 03 (Burgers PINN), 12 (benchmark.arena --fast), 16/17; 01, 04, 05, 07, 08, 09 import pinneapple_arena.* / pinneapple_digital_twin modules that no longer exist; 14 and 15 hold their solvers in the script"
+ },
+ "black_hole_weather": {
+  "domain": "astrophysics",
+  "notes": "the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows"
+ },
+ "bricks": {
+  "domain": "design",
+  "reason": "not converted yet (a later batch of this PR): bricks validation and references (deterministic); the committed search numbers are from --full (400 x 5 seeds)"
+ },
+ "calculix_cantilever": {
+  "domain": "structures",
+  "notes": "no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd"
+ },
+ "core_primitives": {
+  "domain": "core",
+  "reason": "demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate)",
+  "status": "not_convertible"
+ },
+ "data_api": {
+  "domain": "core",
+  "reason": "demonstrates the pinneapple_core.data loaders with hand-written loops; the same three problems are equations + train.pinn, surrogate.train and inverse.discover flows",
+  "status": "not_convertible"
+ },
+ "data_pipeline": {
+  "domain": "data",
+  "reason": "API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed",
+  "status": "not_convertible"
+ },
+ "design_from_intent": {
+  "domain": "design",
+  "notes": "the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run"
+ },
+ "electrodynamics": {
+  "domain": "electromagnetics",
+  "notes": "01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12 + GetDP 3.2 from apt"
+ },
+ "end_to_end": {
+  "domain": "data",
+  "reason": "legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh",
+  "status": "not_convertible"
+ },
+ "enso_forecasting": {
+  "domain": "time series",
+  "flow_status": {
+   "enso_forecasting/forecast": {
+    "needs": "the ENSO observations (~92 GB streamed on first use)",
+    "reason": "dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them",
+    "status": "needs"
+   }
+  },
+  "notes": "the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet"
+ },
+ "first_example": {
+  "domain": "PINN",
+  "reason": "not converted yet (a later batch of this PR): Burgers PINN against the analytic solution (the bundled burgers_1d flow is the same problem)"
+ },
+ "flight_dynamics": {
+  "domain": "flight dynamics",
+  "notes": "06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports."
+ },
+ "flow_studio": {
+  "domain": "flows",
+  "reason": "already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step",
+  "status": "not_convertible"
+ },
+ "free_surface": {
+  "domain": "CFD",
+  "notes": "no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt"
+ },
+ "geomechanics": {
+  "domain": "geomechanics",
+  "notes": "no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md)"
+ },
+ "geometry": {
+  "domain": "geometry",
+  "reason": "small demos of geometry I/O and sampling with no numbers (trimesh, meshio, gmsh optional; 08 downloads STL / STEP files); the CSG domains of 07 are geometry.domain / auto.design.geometry.* nodes",
+  "status": "not_convertible"
+ },
+ "geometry_library": {
+  "domain": "geometry",
+  "reason": "not converted yet (a later batch of this PR): 03 VLM; 01 needs OpenFOAM; 02's BEM lives in the script"
+ },
+ "geophysics": {
+  "domain": "geophysics",
+  "reason": "not converted yet (a later batch of this PR): williamson_case6, twin_experiment (4D-Var), solve_richards nodes; no committed numbers"
+ },
+ "getting_started": {
+  "domain": "PINN",
+  "reason": "not converted yet (a later batch of this PR): pure-torch ODE / PDE PINN scripts (no pinneapple imports); 03 and 04 are the heat_1d flow"
+ },
+ "handoff_cases": {
+  "domain": "CFD",
+  "needs": "OpenFOAM (+ xfoil)",
+  "reason": "the airfoil and trough packages run simpleFoam / interFoam campaigns (hours); make_zips.py packs folders",
+  "status": "needs"
+ },
+ "hpo_experiments": {
+  "domain": "tools",
+  "reason": "imports pinneapple_researcher, which no longer exists (now pinneapple_tools.hpo_experiments); arXiv / GitHub discovery and Gemini extraction need network and an API key, and the output is not deterministic",
+  "status": "not_convertible"
+ },
+ "inspection": {
+  "domain": "inspection",
+  "notes": "nothing committed to compare: the script prints the losses"
+ },
+ "latent": {
+  "domain": "reduced-order models",
+  "reason": "not converted yet (a later batch of this PR): TrustedLatentSurrogate; the advection-diffusion-reaction solver and sampling are in the script"
+ },
+ "lbm": {
+  "domain": "numerical solvers",
+  "reason": "not converted yet (a later batch of this PR): WindTunnelLBM sphere drag (60 min full); no committed numbers"
+ },
+ "meshgraphnet": {
+  "domain": "neural operators",
+  "notes": "02_cylinder_flow_deepmind.py needs the DeepMind TFRecords (download + tfrecord) and is a later flow; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"
+ },
+ "model_zoo": {
+  "domain": "zoo",
+  "reason": "not converted yet (a later batch of this PR): pp.zoo load / evaluate / validate against the bundled model card"
+ },
+ "modelica": {
+  "domain": "systems",
+  "needs": "OpenModelica (omc) + fmpy",
+  "reason": "every script builds its FMU with omc; 02 / 03 train hand-written torch models in the script; fmi_compatibility.py downloads the Reference-FMUs",
+  "status": "needs"
+ },
+ "molecular": {
+  "domain": "molecular",
+  "needs": "OpenMM + pdbfixer + an input PDB",
+  "reason": "protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled)",
+  "status": "needs"
+ },
+ "motor_magnetics": {
+  "domain": "electromagnetics"
+ },
+ "near_random_forecasting": {
+  "domain": "time series",
+  "notes": "one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet"
+ },
+ "non_hermitian": {
+  "domain": "physics",
+  "reason": "not converted yet (a later batch of this PR): analyze_ep_tuning takes sympy expressions: needs named presets"
+ },
+ "numerical_solvers": {
+  "domain": "numerical solvers",
+  "notes": "flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate"
+ },
+ "openfoam_campaign": {
+  "domain": "CFD",
+  "notes": "no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt"
+ },
+ "pde_environment": {
+  "domain": "PINN",
+  "reason": "not converted yet (a later batch of this PR): compile_problem loss evaluations (01, 02, 03_ns, 07); 03_elasticity / 04 need trimesh; 05 / 06 train in the script"
+ },
+ "physics_audit": {
+  "domain": "physics audit",
+  "reason": "the case study (Churchill truth, model lambdas, profiles, 160-case stream) is built in the script; PhysicsEnsemble / PhysicsAwareRouter have no case generator to call",
+  "status": "not_convertible"
+ },
+ "physics_check": {
+  "domain": "physics checks",
+  "reason": "not converted yet (a later batch of this PR): pinneapple_check.run on pass/ and fail/ against fail/expected.json (needs meshio)"
+ },
+ "physics_db": {
+  "domain": "data",
+  "needs": "earthaccess + NASA Earthdata login / network",
+  "reason": "00-02 query NASA Earthdata or NASA POWER; 03-06 write shards with the private PhysicalDatasetBuilder._write_upd from a dataset built in the script",
+  "status": "needs"
+ },
+ "physics_ensemble": {
+  "domain": "ensembles",
+  "reason": "the expert training loops, ring-graph adapters, ParametricPINN and FD schemes are in the scripts (docs/dev/LIBRARY_CONSOLIDATION.md lists them for a later pass); multiscale_turbulence takes hours",
+  "status": "not_convertible"
+ },
+ "physics_module": {
+  "domain": "core",
+  "reason": "not converted yet (a later batch of this PR): pinneapple_core.module.Hybrid over fem.solve_poisson"
+ },
+ "physics_optimizer": {
+  "domain": "core",
+  "reason": "not converted yet (a later batch of this PR): PhysicsOptimizer.compare on the rectangle torsional rigidity"
+ },
+ "pinn_solver": {
+  "domain": "PINN",
+  "reason": "not converted yet (a later batch of this PR): compiler / factory PINNs; the same problems run as train.pinn / inverse.discover flows"
+ },
+ "pinneapple_and_physicsnemo": {
+  "domain": "PINN",
+  "reason": "not converted yet (a later batch of this PR): the pinneapple/ benchmark (training loop in the script) against the committed JSON; physicsnemo/ and both/ need NVIDIA PhysicsNeMo-Sym"
+ },
+ "pinneapple_benchmark": {
+  "domain": "benchmarks",
+  "reason": "two hand-written PINN benchmarks (760 lines of sampling, residuals and training loops around the architecture classes); nothing committed",
+  "status": "not_convertible"
+ },
+ "pinneapple_cosim": {
+  "domain": "co-simulation",
+  "reason": "imports pinneapple_cosim, which no longer exists (moved to pinneapple_systems.cosimulation without a shim), and trains in the script",
+  "status": "not_convertible"
+ },
+ "problem_designer": {
+  "domain": "design",
+  "reason": "not converted yet (a later batch of this PR): 03 offline report (validators + plan + renderers); 01 / 02 need Gemini and network, 04 / 05 a mock provider defined in the script"
+ },
+ "proof_graph": {
+  "domain": "physics",
+  "reason": "not converted yet (a later batch of this PR): build_pt_chain_graph against the committed report"
+ },
+ "qualitative": {
+  "domain": "design",
+  "reason": "not converted yet (a later batch of this PR): 03 (Ahmed body); 01 / 02 build their variants in the script"
+ },
+ "rigid_body": {
+  "domain": "multibody",
+  "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"
+ },
+ "security": {
+  "domain": "security",
+  "reason": "not converted yet (a later batch of this PR): 02 cps_bench.run_benchmark (needs scikit-learn); 01 chains a dozen primitives with a DP-SGD loop in the script"
+ },
+ "solver_api": {
+  "domain": "PINN",
+  "reason": "not converted yet (a later batch of this PR): pp.compare fem vs pinn on the manufactured Poisson problem (the poisson_2d flow)"
+ },
+ "solvers": {
+  "domain": "numerical solvers",
+  "reason": "not converted yet (a later batch of this PR): SolverRegistry.build (decompositions, SPH, FDM vs spectral)"
+ },
+ "studio": {
+  "domain": "visualization",
+  "reason": "not converted yet (a later batch of this PR): 01 (any result in 3-D); 02 and 04-06 need OpenFOAM; 07 is the lunar-rover dashboard, built by the Flow Studio session on #850 (vehicle.* nodes)"
+ },
+ "systems": {
+  "domain": "systems",
+  "notes": "the example fits random targets (an API demonstration); nothing to compare"
+ },
+ "time_series": {
+  "domain": "time series",
+  "reason": "not converted yet (a later batch of this PR): 00 baselines and adaptive_forecasting; 01-05, 07, 08 import pinneapple_timeseries, which no longer exists"
+ },
+ "topology_optimization": {
+  "domain": "design"
+ },
+ "trainer": {
+  "domain": "training",
+  "reason": "demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch",
+  "status": "not_convertible"
+ },
+ "use_cases": {
+  "domain": "use cases",
+  "reason": "not converted yet (a later batch of this PR): the fin-convection inverse problem (results/summary.json); concorde LBM, crash, missile, heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's"
+ },
+ "validation": {
+  "domain": "validation",
+  "reason": "not converted yet (a later batch of this PR): the gallery's run(smoke=True) through pp.validate; 11 needs PhysicsNeMo, 02 onnx"
+ },
+ "validation_arena": {
+  "domain": "validation",
+  "reason": "not converted yet (a later batch of this PR): run_arena(budget='small') and audit_model"
+ },
+ "visualizations": {
+  "domain": "visualization",
+  "reason": "hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows",
+  "status": "not_convertible"
+ },
+ "vs_physicsnemo": {
+  "domain": "PINN",
+  "reason": "not converted yet (a later batch of this PR): 07 check replay (pinneapple_check on 07_*/check against expected.json); training needs PhysicsNeMo, 01-06 hold their models in the scripts"
+ },
+ "weather_forecasting": {
+  "domain": "weather",
+  "needs": "ERA5 store (5 GB) + a trained model",
+  "reason": "score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed)",
+  "status": "needs"
+ },
+ "worldmodel": {
+  "domain": "world model",
+  "reason": "not converted yet (a later batch of this PR): generate_datasets / train_specialist / PhysicsBenchmark with --fast sizes"
+ }
+}

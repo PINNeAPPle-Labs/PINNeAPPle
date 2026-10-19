@@ -1,0 +1,551 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-flight-turbulence",
+ "name": "Turbulence encounters of the four aircraft (04)",
+ "description": "The four aircraft in the same MIL-F-8785C severe von Karman turbulence at 3000 m (frozen 3-D field), stick fixed and with the autopilot, three realisations each; a frozen-line field run, light and moderate with the autopilot, and the 1-cosine gust against Pratt (examples/flight_dynamics/04_turbulence_encounters.py).",
+ "nodes": [
+  {
+   "id": "aircraft",
+   "type": "flight.aircraft",
+   "params": {
+    "aircraft": [
+     "light_ga",
+     "regional_turboprop",
+     "a320",
+     "motor_glider"
+    ]
+   },
+   "label": "Four aircraft",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "severe",
+   "type": "flight.turbulence_encounter",
+   "params": {
+    "severity": "severe",
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "duration": 120.0
+   },
+   "label": "Severe, 3-D field, 3 seeds",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "line",
+   "type": "flight.turbulence_encounter",
+   "params": {
+    "severity": "severe",
+    "controllers": [
+     "stick_fixed"
+    ],
+    "seeds": [
+     0
+    ],
+    "field": "line",
+    "keep": "none"
+   },
+   "label": "Severe, frozen line",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "light",
+   "type": "flight.turbulence_encounter",
+   "params": {
+    "severity": "light",
+    "controllers": [
+     "autopilot"
+    ],
+    "seeds": [
+     0
+    ],
+    "keep": "none"
+   },
+   "label": "Light, autopilot",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "moderate",
+   "type": "flight.turbulence_encounter",
+   "params": {
+    "severity": "moderate",
+    "controllers": [
+     "autopilot"
+    ],
+    "seeds": [
+     0
+    ]
+   },
+   "label": "Moderate, autopilot",
+   "position": {
+    "x": 330.0,
+    "y": 550.0
+   }
+  },
+  {
+   "id": "pratt",
+   "type": "flight.pratt",
+   "params": {},
+   "label": "Pratt check",
+   "position": {
+    "x": 330.0,
+    "y": 720.0
+   }
+  },
+  {
+   "id": "viewers",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 200,
+    "screenshot_frame": 120
+   },
+   "label": "three.js viewers",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "flight_dynamics",
+    "comparisons": [
+     {
+      "flow": "severe.light_ga.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.light_ga.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.regional_turboprop.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.a320.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.stick_fixed.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.stick_fixed.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.stick_fixed.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.autopilot.dnz_cg_rms",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].dnz_cg_rms",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].dnz_cg_rms_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.autopilot.phi_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].phi_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].phi_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "severe.motor_glider.autopilot.theta_rms_deg",
+      "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].theta_rms_deg",
+      "atol_ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].theta_rms_deg_spread",
+      "rtol": 0.0
+     },
+     {
+      "flow": "pratt.light_ga.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_sim"
+     },
+     {
+      "flow": "pratt.light_ga.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_pratt"
+     },
+     {
+      "flow": "pratt.light_ga.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].K_g"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt"
+     },
+     {
+      "flow": "pratt.regional_turboprop.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].K_g"
+     },
+     {
+      "flow": "pratt.a320.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_sim"
+     },
+     {
+      "flow": "pratt.a320.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_pratt"
+     },
+     {
+      "flow": "pratt.a320.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].K_g"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_sim"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt"
+     },
+     {
+      "flow": "pratt.motor_glider.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].K_g"
+     },
+     {
+      "flow": "line.light_ga.stick_fixed.seed0.phi_rms_deg",
+      "ref": "results/turbulence.json:line_field[aircraft=light_ga].phi_rms_deg",
+      "rtol": 0.05
+     },
+     {
+      "flow": "line.regional_turboprop.stick_fixed.seed0.phi_rms_deg",
+      "ref": "results/turbulence.json:line_field[aircraft=regional_turboprop].phi_rms_deg",
+      "rtol": 0.05
+     },
+     {
+      "flow": "line.a320.stick_fixed.seed0.phi_rms_deg",
+      "ref": "results/turbulence.json:line_field[aircraft=a320].phi_rms_deg",
+      "rtol": 0.05
+     },
+     {
+      "flow": "line.motor_glider.stick_fixed.seed0.phi_rms_deg",
+      "ref": "results/turbulence.json:line_field[aircraft=motor_glider].phi_rms_deg",
+      "rtol": 0.05
+     },
+     {
+      "flow": "light.light_ga.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=light].dnz_cg_rms",
+      "rtol": 0.05
+     },
+     {
+      "flow": "light.regional_turboprop.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=light].dnz_cg_rms",
+      "rtol": 0.05
+     },
+     {
+      "flow": "light.a320.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=a320,severity=light].dnz_cg_rms",
+      "rtol": 0.05
+     },
+     {
+      "flow": "light.motor_glider.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=light].dnz_cg_rms",
+      "rtol": 0.05
+     },
+     {
+      "flow": "moderate.light_ga.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=moderate].dnz_cg_rms",
+      "rtol": 0.05
+     },
+     {
+      "flow": "moderate.regional_turboprop.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=moderate].dnz_cg_rms",
+      "rtol": 0.05
+     },
+     {
+      "flow": "moderate.a320.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=a320,severity=moderate].dnz_cg_rms",
+      "rtol": 0.05
+     },
+     {
+      "flow": "moderate.motor_glider.autopilot.seed0.dnz_cg_rms",
+      "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=moderate].dnz_cg_rms",
+      "rtol": 0.05
+     }
+    ],
+    "tolerance_source": "stochastic turbulence fields: the tolerance of each mean is the spread over the three seeds that results/turbulence.json reports for it; single-seed runs (frozen line, light, moderate): 5% (one realisation re-run; the committed run is the same seed)"
+   },
+   "label": "Same numbers as examples/flight_dynamics",
+   "position": {
+    "x": 620.0,
+    "y": 210.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "severe",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->severe.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "line",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->line.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "light",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->light.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "moderate",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->moderate.aircraft"
+  },
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "pratt",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->pratt.aircraft"
+  },
+  {
+   "source": "severe",
+   "source_port": "runs",
+   "target": "viewers",
+   "target_port": "runs",
+   "id": "severe.runs->viewers.runs"
+  },
+  {
+   "source": "severe",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "severe.metrics->compare.metrics"
+  },
+  {
+   "source": "line",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "line.metrics->compare.metrics"
+  },
+  {
+   "source": "light",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "light.metrics->compare.metrics"
+  },
+  {
+   "source": "moderate",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "moderate.metrics->compare.metrics"
+  },
+  {
+   "source": "pratt",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "pratt.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "flight_dynamics",
+  "domain": "flight dynamics",
+  "scripts": [
+   "04_turbulence_encounters.py"
+  ],
+  "quick": {
+   "severe": {
+    "seeds": [
+     0
+    ],
+    "duration": 30.0
+   },
+   "line": {
+    "duration": 30.0
+   },
+   "light": {
+    "duration": 30.0
+   },
+   "moderate": {
+    "duration": 30.0
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "pratt.light_ga.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_sim"
+     },
+     {
+      "flow": "pratt.light_ga.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_pratt"
+     },
+     {
+      "flow": "pratt.light_ga.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=light_ga].K_g"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim"
+     },
+     {
+      "flow": "pratt.regional_turboprop.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt"
+     },
+     {
+      "flow": "pratt.regional_turboprop.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].K_g"
+     },
+     {
+      "flow": "pratt.a320.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_sim"
+     },
+     {
+      "flow": "pratt.a320.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].dn_pratt"
+     },
+     {
+      "flow": "pratt.a320.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=a320].K_g"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_sim",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_sim"
+     },
+     {
+      "flow": "pratt.motor_glider.dn_pratt",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt"
+     },
+     {
+      "flow": "pratt.motor_glider.K_g",
+      "ref": "results/turbulence.json:pratt[aircraft=motor_glider].K_g"
+     }
+    ]
+   },
+   "viewers": {
+    "only": [
+     "a320_turbulence"
+    ]
+   }
+  }
+ }
+}

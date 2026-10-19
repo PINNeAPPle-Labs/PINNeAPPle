@@ -33,8 +33,8 @@ export const api = {
   flows: () => call<{ id: string; name: string; latest_version: number; updated: number }[]>("/api/flows"),
   getFlow: (id: string) => call<FlowDoc>(`/api/flows/${encodeURIComponent(id)}`),
   saveFlow: (flow: FlowDoc, note = "") => post<{ id: string; version: number }>("/api/flows", { flow, note }),
-  examples: () => call<{ name: string; title: string; description: string; nodes: number }[]>("/api/examples"),
-  example: (name: string) => call<FlowDoc>(`/api/examples/${encodeURIComponent(name)}`),
+  examples: () => call<{ name: string; title: string; description: string; nodes: number; group?: string; example?: string; quick?: boolean }[]>("/api/examples"),
+  example: (name: string) => call<FlowDoc>(`/api/examples/${name.split("/").map(encodeURIComponent).join("/")}`),
   run: (flow: FlowDoc, from_node?: string) => post<{ run_id: string }>("/api/runs", { flow, from_node }),
   status: (runId: string) => call<RunStatus>(`/api/runs/${runId}`),
   cancel: (runId: string) => post<{ cancelled: boolean }>(`/api/runs/${runId}/cancel`, {}),
@@ -52,3 +52,5 @@ export const api = {
 };
 
 export const artifactUrl = (path: string) => `/api/artifact?path=${encodeURIComponent(path)}`;
+// a file of a run folder by its path, so a viewer page's relative links (viewer.js, scene.glb) resolve
+export const runFileUrl = (path: string) => `/api/runfile${path.split("/").map(encodeURIComponent).join("/")}`;

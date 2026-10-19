@@ -334,11 +334,16 @@ function Studio() {
         <div className="fixed inset-0 bg-black/30 z-50 flex items-start justify-center pt-16" onClick={() => setLists(null)}>
           <div className="bg-white rounded-xl shadow-xl w-[620px] max-h-[75vh] overflow-y-auto p-5" onClick={(e) => e.stopPropagation()} data-testid="lists">
             <h2 className="font-semibold mb-2">Examples</h2>
-            {lists.examples.map((x) => (
-              <button key={x.name} className="block w-full text-left px-2 py-1.5 rounded hover:bg-brand-50 text-sm" data-testid={`example-${x.name}`}
-                onClick={async () => { load(await api.example(x.name)); setLists(null); }}>
-                <b>{x.title}</b> <span className="text-slate-500 text-[12px]">{x.description.slice(0, 110)}</span>
-              </button>
+            {Array.from(new Set(lists.examples.map((x) => x.group || "Flow Studio"))).map((g) => (
+              <div key={g} data-testid={`example-group-${g}`}>
+                <div className="text-[11px] uppercase tracking-wide text-slate-500 mt-3 mb-1">{g}</div>
+                {lists.examples.filter((x) => (x.group || "Flow Studio") === g).map((x) => (
+                  <button key={x.name} className="block w-full text-left px-2 py-1.5 rounded hover:bg-brand-50 text-sm" data-testid={`example-${x.name}`}
+                    onClick={async () => { load(await api.example(x.name)); setLists(null); }}>
+                    <b>{x.title}</b> <span className="text-slate-500 text-[12px]">{x.description.slice(0, 110)}</span>
+                  </button>
+                ))}
+              </div>
             ))}
             <h2 className="font-semibold mt-4 mb-2">Saved flows</h2>
             {lists.flows.length === 0 && <div className="text-sm text-slate-400">none yet</div>}

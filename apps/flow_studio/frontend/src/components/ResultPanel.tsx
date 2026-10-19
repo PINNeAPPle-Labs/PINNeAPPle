@@ -1,6 +1,6 @@
 // What a node produced in the last run: summary, warnings, metrics, tables, figures, the 3-D scene, the
 // architecture, the parsed equations, the log.
-import { artifactUrl } from "../api";
+import { artifactUrl, runFileUrl } from "../api";
 import type { NodeResult } from "../types";
 import { LayerGraph } from "./LayerGraph";
 import { Viewer3D } from "./Viewer3D";
@@ -69,6 +69,19 @@ export function ResultPanel({ result, onAccept }: { result: NodeResult | null; o
           {views.video.caption && <figcaption className="text-[10.5px] text-slate-500">{views.video.caption}</figcaption>}
         </figure>
       )}
+      {(views.videos || []).length > 1 && (views.videos as any[]).slice(1).map((v: any) => (
+        <figure key={v.path} data-testid="video">
+          <video src={artifactUrl(v.path)} poster={v.poster ? artifactUrl(v.poster) : undefined}
+            controls loop muted playsInline className="w-full rounded border border-slate-100" />
+          {v.caption && <figcaption className="text-[10.5px] text-slate-500">{v.caption}</figcaption>}
+        </figure>
+      ))}
+      {(views.viewers || []).map((v: any) => (
+        <div key={v.index} data-testid="viewer">
+          <div className="font-semibold text-[11.5px] mb-1">3-D viewer: {v.key} <a className="text-sky-700 font-normal" href={runFileUrl(v.index)} target="_blank" rel="noreferrer">open</a></div>
+          <iframe src={runFileUrl(v.index)} title={v.key} className="w-full h-[320px] rounded border border-slate-100" />
+        </div>
+      ))}
       {views.scene && <div><div className="font-semibold text-[11.5px] mb-1">3-D view</div><Viewer3D scene={views.scene} /></div>}
       {(r.figures || []).map((f: any) => (
         <figure key={f.path}>

@@ -1,0 +1,1974 @@
+{
+ "black_hole_weather/accretion_run": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "stats.mdot_mean",
+     "outcome": "match",
+     "ref": "results/convergence.json:scalars.mdot_mean.by_level.90.per_seed.0",
+     "reference": 2.1962127703949106,
+     "rel_diff": 0.0,
+     "value": 2.1962127703949106
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work2/example-blackhole-accretion.experiment.json, Lab item manifest/flow/example-blackhole-accretion",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "sim": "done",
+    "stats": "done"
+   },
+   "seconds": 315.1,
+   "status": "done"
+  }
+ },
+ "calculix_cantilever/beam": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "results.tip_uz_m",
+     "outcome": "match",
+     "ref": "node:committed.tip_uz_m",
+     "reference": -0.000190217,
+     "rel_diff": 0.0,
+     "value": -0.000190217
+    },
+    {
+     "flow": "results.tip_uz_mean_m",
+     "outcome": "match",
+     "ref": "node:committed.tip_uz_mean_m",
+     "reference": -0.00019015295238095239,
+     "rel_diff": 0.0,
+     "value": -0.00019015295238095239
+    },
+    {
+     "flow": "results.max_abs_sxx_Pa",
+     "outcome": "match",
+     "ref": "node:committed.max_abs_sxx_Pa",
+     "reference": 6596870.0,
+     "rel_diff": 0.0,
+     "value": 6596870.0
+    },
+    {
+     "flow": "results.nodes",
+     "outcome": "match",
+     "ref": "node:committed.nodes",
+     "reference": 621.0,
+     "rel_diff": 0.0,
+     "value": 621.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-calculix-cantilever.experiment.json, Lab item manifest/flow/example-calculix-cantilever",
+   "matched": 4,
+   "nodes": {
+    "committed": "done",
+    "compare": "done",
+    "deck": "done",
+    "results": "done",
+    "solve": "done"
+   },
+   "seconds": 6.9,
+   "status": "done"
+  }
+ },
+ "design_from_intent/design_from_intent": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [
+    {
+     "flow": "loop.design.radius",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.radius",
+     "reference": 0.08392212590233154,
+     "rel_diff": 0.0,
+     "value": 0.08392212590233154
+    },
+    {
+     "flow": "loop.design.clothoid_ratio",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.clothoid_ratio",
+     "reference": 2.498212126585065,
+     "rel_diff": 0.0,
+     "value": 2.498212126585065
+    },
+    {
+     "flow": "loop.design.v0",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.v0",
+     "reference": 2.4650848447980396,
+     "rel_diff": 0.0,
+     "value": 2.4650848447980396
+    },
+    {
+     "flow": "loop.design.mass",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.mass",
+     "reference": 0.03101345493025515,
+     "rel_diff": 0.0,
+     "value": 0.03101345493025515
+    },
+    {
+     "flow": "loop.design.clothoid_length",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.clothoid_length",
+     "reference": 0.20965527261800326,
+     "rel_diff": 0.0,
+     "value": 0.20965527261800326
+    },
+    {
+     "flow": "loop.design.thickness",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.design.thickness",
+     "reference": 0.0015,
+     "rel_diff": 0.0,
+     "value": 0.0015
+    },
+    {
+     "flow": "loop.v_top.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:loop.verification.comparison[output=v_top].full",
+     "reference": 1.5067742778928064,
+     "rel_diff": 0.0,
+     "value": 1.5067742778928064
+    },
+    {
+     "flow": "bracket.design.thickness_mm",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.thickness_mm",
+     "reference": 17.0,
+     "rel_diff": 0.11764705882352941,
+     "value": 15.0
+    },
+    {
+     "flow": "bracket.design.width_mm",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.width_mm",
+     "reference": 36.0,
+     "rel_diff": 0.19444444444444445,
+     "value": 43.0
+    },
+    {
+     "flow": "bracket.design.mount_mm",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.mount_mm",
+     "reference": 72.0,
+     "rel_diff": 0.041666666666666664,
+     "value": 75.0
+    },
+    {
+     "flow": "bracket.design.thickness",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.thickness",
+     "reference": 0.017,
+     "rel_diff": 0.11764705882352951,
+     "value": 0.015
+    },
+    {
+     "flow": "bracket.design.width",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.width",
+     "reference": 0.036000000000000004,
+     "rel_diff": 0.1944444444444444,
+     "value": 0.043000000000000003
+    },
+    {
+     "flow": "bracket.design.mount",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.mount",
+     "reference": 0.07200000000000001,
+     "rel_diff": 0.041666666666666505,
+     "value": 0.075
+    },
+    {
+     "flow": "bracket.design.arm_length",
+     "outcome": "match",
+     "ref": "_out/summary.json:bracket.design.arm_length",
+     "reference": 0.1,
+     "rel_diff": 0.0,
+     "value": 0.1
+    },
+    {
+     "flow": "bracket.design.fillet",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.design.fillet",
+     "reference": 0.017,
+     "rel_diff": 0.11764705882352951,
+     "value": 0.015
+    },
+    {
+     "flow": "bracket.design.hole",
+     "outcome": "match",
+     "ref": "_out/summary.json:bracket.design.hole",
+     "reference": 0.0066,
+     "rel_diff": 0.0,
+     "value": 0.0066
+    },
+    {
+     "flow": "bracket.sigma_peak_mpa.full",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.verification.comparison[output=sigma_peak_mpa].full",
+     "reference": 94.26070979280537,
+     "rel_diff": 0.09020459876071002,
+     "value": 102.76345929856511
+    },
+    {
+     "flow": "bracket.deflection_mm.full",
+     "outcome": "differs",
+     "ref": "_out/summary.json:bracket.verification.comparison[output=deflection_mm].full",
+     "reference": 0.37959899270073,
+     "rel_diff": 0.28514682253375784,
+     "value": 0.4878404393063583
+    },
+    {
+     "flow": "heatsink.design.width_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.width_mm",
+     "reference": 100.0,
+     "rel_diff": 0.0,
+     "value": 100.0
+    },
+    {
+     "flow": "heatsink.design.depth_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.depth_mm",
+     "reference": 100.0,
+     "rel_diff": 0.0,
+     "value": 100.0
+    },
+    {
+     "flow": "heatsink.design.base_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.base_mm",
+     "reference": 6.5,
+     "rel_diff": 0.0,
+     "value": 6.5
+    },
+    {
+     "flow": "heatsink.design.n_fins",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.n_fins",
+     "reference": 14.0,
+     "rel_diff": 0.0,
+     "value": 14.0
+    },
+    {
+     "flow": "heatsink.design.fin_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.fin_mm",
+     "reference": 1.1,
+     "rel_diff": 0.0,
+     "value": 1.1
+    },
+    {
+     "flow": "heatsink.design.height_mm",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.design.height_mm",
+     "reference": 47.0,
+     "rel_diff": 0.0,
+     "value": 47.0
+    },
+    {
+     "flow": "heatsink.t_source_c.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:heatsink.verification.comparison[output=t_source_c].full",
+     "reference": 77.67582709953824,
+     "rel_diff": 0.0,
+     "value": 77.67582709953824
+    },
+    {
+     "flow": "glider.design.span",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.design.span",
+     "reference": 2.0,
+     "rel_diff": 0.0,
+     "value": 2.0
+    },
+    {
+     "flow": "glider.design.aspect_ratio",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.design.aspect_ratio",
+     "reference": 7.692664314236054,
+     "rel_diff": 0.0,
+     "value": 7.692664314236054
+    },
+    {
+     "flow": "glider.design.taper",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.design.taper",
+     "reference": 0.32544819133101444,
+     "rel_diff": 0.0,
+     "value": 0.32544819133101444
+    },
+    {
+     "flow": "glider.sink_m_s.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.verification.comparison[output=sink_m_s].full",
+     "reference": 0.4408530413532117,
+     "rel_diff": 2.518351741925821e-16,
+     "value": 0.4408530413532118
+    },
+    {
+     "flow": "glider.span_eff.full",
+     "outcome": "match",
+     "ref": "_out/summary.json:glider.verification.comparison[output=span_eff].full",
+     "reference": 0.9894267037896335,
+     "rel_diff": 3.366261554411835e-16,
+     "value": 0.9894267037896332
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-design-from-intent.experiment.json, Lab item manifest/flow/example-design-from-intent",
+   "matched": 21,
+   "nodes": {
+    "bracket": "done",
+    "compare": "done",
+    "glider": "done",
+    "heatsink": "done",
+    "loop": "done",
+    "out_of_scope": "done"
+   },
+   "seconds": 546.4,
+   "status": "done"
+  }
+ },
+ "enso_forecasting/solver_checks": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [
+    {
+     "flow": "checks.kelvin_speed",
+     "outcome": "match",
+     "ref": "manifest:kelvin_speed",
+     "reference": 2.68867,
+     "rel_diff": 4.956246146349775e-07,
+     "value": 2.6886686674289675
+    },
+    {
+     "flow": "checks.kelvin_speed_theory",
+     "outcome": "match",
+     "ref": "manifest:kelvin_speed_theory",
+     "reference": 2.7,
+     "rel_diff": 0.0,
+     "value": 2.7
+    },
+    {
+     "flow": "checks.rossby_speed",
+     "outcome": "match",
+     "ref": "manifest:rossby_speed",
+     "reference": -0.86335,
+     "rel_diff": 2.0455598221181493e-06,
+     "value": -0.8633517660340724
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon72",
+     "outcome": "match",
+     "ref": "manifest:gill_rel_l2_u_nlon72",
+     "reference": 0.00147,
+     "rel_diff": 0.00047951310927066943,
+     "value": 0.0014707048842706278
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon144",
+     "outcome": "match",
+     "ref": "manifest:gill_rel_l2_u_nlon144",
+     "reference": 0.000488,
+     "rel_diff": 2.1160353002824722e-06,
+     "value": 0.00048799896737477345
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon288",
+     "outcome": "match",
+     "ref": "manifest:gill_rel_l2_u_nlon288",
+     "reference": 0.00012809,
+     "rel_diff": 2.7177451684725173e-05,
+     "value": 0.0001280934811597863
+    },
+    {
+     "flow": "checks.gill_rel_l2_u_nlon576",
+     "outcome": "match",
+     "ref": "manifest:gill_rel_l2_u_nlon576",
+     "reference": 5.1905e-05,
+     "rel_diff": 3.1512236911272198e-06,
+     "value": 5.190483643573431e-05
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub1",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub1",
+     "reference": 1.7971e-06,
+     "rel_diff": 1.0445357348654769e-05,
+     "value": 1.7971187713516912e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub2",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub2",
+     "reference": -2.5874e-06,
+     "rel_diff": 7.002408274323457e-06,
+     "value": -2.587381881968831e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub4",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub4",
+     "reference": -2.8256e-06,
+     "rel_diff": 1.2599389092598585e-05,
+     "value": -2.82563560083382e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub8",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub8",
+     "reference": -2.8394e-06,
+     "rel_diff": 1.133491351560626e-06,
+     "value": -2.8394032184353435e-06
+    },
+    {
+     "flow": "checks.recharge_period_rel_error_sub16",
+     "outcome": "match",
+     "ref": "manifest:recharge_period_rel_error_sub16",
+     "reference": -2.8402e-06,
+     "rel_diff": 1.0057899971933222e-05,
+     "value": -2.8402285664475002e-06
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work4/example-enso-solver-checks.experiment.json, Lab item manifest/flow/example-enso-solver-checks",
+   "matched": 12,
+   "nodes": {
+    "checks": "done",
+    "compare": "done"
+   },
+   "seconds": 10.8,
+   "status": "done"
+  }
+ },
+ "flight_dynamics/01_verification": {
+  "full": {
+   "commit": "57c66c1a",
+   "comparisons": [
+    {
+     "flow": "verif.energy_rel_error_dt0.02",
+     "outcome": "match",
+     "ref": "manifest:energy_rel_error_dt0.02",
+     "reference": 4.400790123313728e-10,
+     "rel_diff": 0.0,
+     "value": 4.400790123313728e-10
+    },
+    {
+     "flow": "verif.energy_rel_error_dt0.01",
+     "outcome": "match",
+     "ref": "manifest:energy_rel_error_dt0.01",
+     "reference": 8.031223917958976e-12,
+     "rel_diff": 0.0,
+     "value": 8.031223917958976e-12
+    },
+    {
+     "flow": "verif.energy_rel_error_dt0.005",
+     "outcome": "match",
+     "ref": "manifest:energy_rel_error_dt0.005",
+     "reference": 1.6153032200503471e-12,
+     "rel_diff": 0.0,
+     "value": 1.6153032200503471e-12
+    },
+    {
+     "flow": "verif.lattice_rel_diff_light_ga_alpha0.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_light_ga_alpha0.0",
+     "reference": 4.001881555440111e-11,
+     "rel_diff": 1.715427699201298e-05,
+     "value": 4.001950204824802e-11
+    },
+    {
+     "flow": "verif.lattice_rel_diff_light_ga_alpha4.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_light_ga_alpha4.0",
+     "reference": 0.0013170807441250027,
+     "rel_diff": 4.939114829466844e-16,
+     "value": 0.0013170807441250034
+    },
+    {
+     "flow": "verif.lattice_rel_diff_regional_turboprop_alpha0.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha0.0",
+     "reference": 4.001934726262859e-11,
+     "rel_diff": 1.1465123181905952e-14,
+     "value": 4.001934726262905e-11
+    },
+    {
+     "flow": "verif.lattice_rel_diff_regional_turboprop_alpha4.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_regional_turboprop_alpha4.0",
+     "reference": 0.0016482088787130292,
+     "rel_diff": 4.945387710270432e-13,
+     "value": 0.0016482088787138443
+    },
+    {
+     "flow": "verif.lattice_rel_diff_a320_alpha0.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_a320_alpha0.0",
+     "reference": 4.0018827562322495e-11,
+     "rel_diff": 1.86092905000536e-05,
+     "value": 4.0018082840334916e-11
+    },
+    {
+     "flow": "verif.lattice_rel_diff_a320_alpha4.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_a320_alpha4.0",
+     "reference": 0.0013551835852437142,
+     "rel_diff": 8.00040809445403e-16,
+     "value": 0.0013551835852437153
+    },
+    {
+     "flow": "verif.lattice_rel_diff_motor_glider_alpha0.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_motor_glider_alpha0.0",
+     "reference": 4.002083070316326e-11,
+     "rel_diff": 5.2956565063086465e-06,
+     "value": 4.002104263973576e-11
+    },
+    {
+     "flow": "verif.lattice_rel_diff_motor_glider_alpha4.0",
+     "outcome": "match",
+     "ref": "manifest:lattice_rel_diff_motor_glider_alpha4.0",
+     "reference": 0.0017100451002938326,
+     "rel_diff": 2.7212122788505427e-13,
+     "value": 0.0017100451002933672
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenLine_dryden_u",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenLine_dryden_u",
+     "reference": 7.038389279382401,
+     "rel_diff": 0.0,
+     "value": 7.038389279382401
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenLine_dryden_v",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenLine_dryden_v",
+     "reference": 7.041755888504826,
+     "rel_diff": 0.0,
+     "value": 7.041755888504826
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenLine_dryden_w",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenLine_dryden_w",
+     "reference": 7.041755888504826,
+     "rel_diff": 0.0,
+     "value": 7.041755888504826
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenLine_von_karman_u",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_u",
+     "reference": 7.018580538784683,
+     "rel_diff": 0.0,
+     "value": 7.018580538784683
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenLine_von_karman_v",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_v",
+     "reference": 7.019179682190814,
+     "rel_diff": 0.0,
+     "value": 7.019179682190814
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenLine_von_karman_w",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenLine_von_karman_w",
+     "reference": 7.0191796821908135,
+     "rel_diff": 0.0,
+     "value": 7.0191796821908135
+    },
+    {
+     "flow": "verif.turbulence_sigma_DrydenFilter_dryden_u",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_u",
+     "reference": 2.823390706093345,
+     "rel_diff": 0.0,
+     "value": 2.823390706093345
+    },
+    {
+     "flow": "verif.turbulence_sigma_DrydenFilter_dryden_v",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_v",
+     "reference": 2.8943564608410153,
+     "rel_diff": 0.0,
+     "value": 2.8943564608410153
+    },
+    {
+     "flow": "verif.turbulence_sigma_DrydenFilter_dryden_w",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_DrydenFilter_dryden_w",
+     "reference": 2.794692681879422,
+     "rel_diff": 0.0,
+     "value": 2.794692681879422
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_u",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_u",
+     "reference": 6.917059804557012,
+     "rel_diff": 0.0,
+     "value": 6.917059804557012
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_v",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_v",
+     "reference": 7.465483154110868,
+     "rel_diff": 0.0,
+     "value": 7.465483154110868
+    },
+    {
+     "flow": "verif.turbulence_sigma_FrozenField3D_von_karman_w",
+     "outcome": "match",
+     "ref": "manifest:turbulence_sigma_FrozenField3D_von_karman_w",
+     "reference": 6.3405765168522885,
+     "rel_diff": 0.0,
+     "value": 6.3405765168522885
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work/example-flight-verification.experiment.json, Lab item manifest/flow/example-flight-verification",
+   "matched": 23,
+   "nodes": {
+    "compare": "done",
+    "report": "done",
+    "verif": "done"
+   },
+   "seconds": 33.3,
+   "status": "done"
+  }
+ },
+ "flight_dynamics/02_trim_and_stability": {
+  "full": {
+   "commit": "57c66c1a",
+   "comparisons": [
+    {
+     "flow": "stab.light_ga.CL_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.CL_alpha",
+     "reference": 5.118081922433671,
+     "rel_diff": 1.7353735894828983e-15,
+     "value": 5.11808192243368
+    },
+    {
+     "flow": "stab.light_ga.static_margin",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.static_margin",
+     "reference": 0.2933640890218077,
+     "rel_diff": 1.513781769714324e-15,
+     "value": 0.29336408902180816
+    },
+    {
+     "flow": "stab.light_ga.Cm_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.Cm_alpha",
+     "reference": -1.501461440713736,
+     "rel_diff": 3.253484355900981e-15,
+     "value": -1.501461440713741
+    },
+    {
+     "flow": "stab.light_ga.Cm_q",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.Cm_q",
+     "reference": -18.442052316268267,
+     "rel_diff": 1.9264199113384738e-16,
+     "value": -18.44205231626827
+    },
+    {
+     "flow": "stab.light_ga.Cl_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.Cl_beta",
+     "reference": -0.04220450332112286,
+     "rel_diff": 3.4855178757478503e-14,
+     "value": -0.04220450332112433
+    },
+    {
+     "flow": "stab.light_ga.Cn_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.Cn_beta",
+     "reference": 0.06405384158302654,
+     "rel_diff": 1.299948992738499e-15,
+     "value": 0.06405384158302663
+    },
+    {
+     "flow": "stab.light_ga.Cl_p",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.Cl_p",
+     "reference": -0.49826501069428025,
+     "rel_diff": 1.002680000317862e-15,
+     "value": -0.49826501069427975
+    },
+    {
+     "flow": "stab.light_ga.Cn_r",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.derivatives.Cn_r",
+     "reference": -0.10626214027139157,
+     "rel_diff": 5.22398204002699e-16,
+     "value": -0.10626214027139151
+    },
+    {
+     "flow": "stab.regional_turboprop.CL_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.CL_alpha",
+     "reference": 5.732501009951984,
+     "rel_diff": 1.2394986665097017e-15,
+     "value": 5.732501009951991
+    },
+    {
+     "flow": "stab.regional_turboprop.static_margin",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.static_margin",
+     "reference": 0.30682052608681276,
+     "rel_diff": 1.809238512795957e-16,
+     "value": 0.3068205260868127
+    },
+    {
+     "flow": "stab.regional_turboprop.Cm_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.Cm_alpha",
+     "reference": -1.7588489756666532,
+     "rel_diff": 1.1361984297530898e-15,
+     "value": -1.7588489756666552
+    },
+    {
+     "flow": "stab.regional_turboprop.Cm_q",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.Cm_q",
+     "reference": -54.489137156830616,
+     "rel_diff": 1.1736072464196207e-15,
+     "value": -54.48913715683068
+    },
+    {
+     "flow": "stab.regional_turboprop.Cl_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.Cl_beta",
+     "reference": -0.08475134746149728,
+     "rel_diff": 2.5872042620099087e-14,
+     "value": -0.08475134746149947
+    },
+    {
+     "flow": "stab.regional_turboprop.Cn_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.Cn_beta",
+     "reference": 0.134722868952426,
+     "rel_diff": 0.0,
+     "value": 0.134722868952426
+    },
+    {
+     "flow": "stab.regional_turboprop.Cl_p",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.Cl_p",
+     "reference": -0.6037925804399118,
+     "rel_diff": 9.193745175009182e-16,
+     "value": -0.6037925804399112
+    },
+    {
+     "flow": "stab.regional_turboprop.Cn_r",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.derivatives.Cn_r",
+     "reference": -0.1456063672962847,
+     "rel_diff": 3.812412345835253e-16,
+     "value": -0.14560636729628465
+    },
+    {
+     "flow": "stab.a320.CL_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.CL_alpha",
+     "reference": 5.25726553930619,
+     "rel_diff": 0.0,
+     "value": 5.25726553930619
+    },
+    {
+     "flow": "stab.a320.static_margin",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.static_margin",
+     "reference": 0.3686380264620351,
+     "rel_diff": 6.023377649237144e-16,
+     "value": 0.36863802646203486
+    },
+    {
+     "flow": "stab.a320.Cm_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.Cm_alpha",
+     "reference": -1.9380279929967004,
+     "rel_diff": 5.728622231655488e-16,
+     "value": -1.9380279929966993
+    },
+    {
+     "flow": "stab.a320.Cm_q",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.Cm_q",
+     "reference": -44.587307720211435,
+     "rel_diff": 1.5935986541703907e-16,
+     "value": -44.58730772021144
+    },
+    {
+     "flow": "stab.a320.Cl_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.Cl_beta",
+     "reference": -0.2170083943507805,
+     "rel_diff": 4.476532575863087e-15,
+     "value": -0.21700839435078148
+    },
+    {
+     "flow": "stab.a320.Cn_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.Cn_beta",
+     "reference": 0.0799599435623928,
+     "rel_diff": 3.4711849932674374e-15,
+     "value": 0.07995994356239308
+    },
+    {
+     "flow": "stab.a320.Cl_p",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.Cl_p",
+     "reference": -0.474536208744925,
+     "rel_diff": 7.837646662055797e-15,
+     "value": -0.47453620874492874
+    },
+    {
+     "flow": "stab.a320.Cn_r",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.derivatives.Cn_r",
+     "reference": -0.24571813548758528,
+     "rel_diff": 7.906987773770516e-16,
+     "value": -0.2457181354875851
+    },
+    {
+     "flow": "stab.motor_glider.CL_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.CL_alpha",
+     "reference": 6.01562040902134,
+     "rel_diff": 4.1340699812622245e-15,
+     "value": 6.0156204090213645
+    },
+    {
+     "flow": "stab.motor_glider.static_margin",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.static_margin",
+     "reference": 0.05292639931838307,
+     "rel_diff": 2.6220918079711966e-16,
+     "value": 0.052926399318383055
+    },
+    {
+     "flow": "stab.motor_glider.Cm_alpha",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.Cm_alpha",
+     "reference": -0.3183851279156783,
+     "rel_diff": 3.83574865786793e-15,
+     "value": -0.3183851279156795
+    },
+    {
+     "flow": "stab.motor_glider.Cm_q",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.Cm_q",
+     "reference": -21.487849757098896,
+     "rel_diff": 3.306718651666669e-16,
+     "value": -21.487849757098903
+    },
+    {
+     "flow": "stab.motor_glider.Cl_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.Cl_beta",
+     "reference": -0.08285378629885339,
+     "rel_diff": 1.8424706064165907e-15,
+     "value": -0.08285378629885354
+    },
+    {
+     "flow": "stab.motor_glider.Cn_beta",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.Cn_beta",
+     "reference": 0.0440876101669726,
+     "rel_diff": 1.8886650134024372e-15,
+     "value": 0.04408761016697252
+    },
+    {
+     "flow": "stab.motor_glider.Cl_p",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.Cl_p",
+     "reference": -0.6860758322352624,
+     "rel_diff": 6.311065909334282e-15,
+     "value": -0.686075832235258
+    },
+    {
+     "flow": "stab.motor_glider.Cn_r",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.derivatives.Cn_r",
+     "reference": -0.02824586466388106,
+     "rel_diff": 3.6849078545541356e-15,
+     "value": -0.028245864663881164
+    },
+    {
+     "flow": "stab.light_ga.mode0_wn",
+     "outcome": "match",
+     "ref": "results/stability.json:light_ga.modes.oscillatory[0].wn",
+     "reference": 5.1032576164801835,
+     "rel_diff": 9.74893252867312e-12,
+     "value": 5.103257616430432
+    },
+    {
+     "flow": "stab.regional_turboprop.mode0_wn",
+     "outcome": "match",
+     "ref": "results/stability.json:regional_turboprop.modes.oscillatory[0].wn",
+     "reference": 1.954509838717266,
+     "rel_diff": 2.3629198765188663e-11,
+     "value": 1.9545098387634494
+    },
+    {
+     "flow": "stab.a320.mode0_wn",
+     "outcome": "match",
+     "ref": "results/stability.json:a320.modes.oscillatory[0].wn",
+     "reference": 1.4415731153567812,
+     "rel_diff": 5.463052234912085e-11,
+     "value": 1.4415731152780273
+    },
+    {
+     "flow": "stab.motor_glider.mode0_wn",
+     "outcome": "match",
+     "ref": "results/stability.json:motor_glider.modes.oscillatory[0].wn",
+     "reference": 1.9994911476556343,
+     "rel_diff": 2.9026283441538605e-11,
+     "value": 1.9994911475975965
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work/example-flight-trim-stability.experiment.json, Lab item manifest/flow/example-flight-trim-stability",
+   "matched": 36,
+   "nodes": {
+    "aircraft": "cached",
+    "compare": "cached",
+    "stab": "cached"
+   },
+   "seconds": 3.1,
+   "status": "done"
+  }
+ },
+ "flight_dynamics/03_takeoff": {
+  "full": {
+   "commit": "57c66c1a",
+   "comparisons": [
+    {
+     "flow": "takeoff.light_ga.ground_roll_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.light_ga.ground_roll_m",
+     "reference": 244.22102440714593,
+     "rel_diff": 3.4913099106924045e-16,
+     "value": 244.22102440714602
+    },
+    {
+     "flow": "takeoff.light_ga.distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.light_ga.distance_35ft_m",
+     "reference": 402.9400670592907,
+     "rel_diff": 2.680361291041409e-15,
+     "value": 402.9400670592918
+    },
+    {
+     "flow": "takeoff.light_ga.V_LOF_kt",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.light_ga.V_LOF_kt",
+     "reference": 62.42110103662938,
+     "rel_diff": 2.276610710032641e-16,
+     "value": 62.421101036629395
+    },
+    {
+     "flow": "takeoff.light_ga.theta_LOF_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.light_ga.theta_LOF_deg",
+     "reference": 6.780732082839731,
+     "rel_diff": 6.156324304797423e-15,
+     "value": 6.780732082839689
+    },
+    {
+     "flow": "takeoff.light_ga.tail_clearance_min_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.light_ga.tail_clearance_min_m",
+     "reference": 0.954575958185787,
+     "rel_diff": 2.326107241869329e-16,
+     "value": 0.9545759581857872
+    },
+    {
+     "flow": "takeoff.light_ga.raymer_1p1Vs_total_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:closed_form.light_ga.raymer_1p1Vs.total_35ft_m",
+     "reference": 311.0036264775558,
+     "rel_diff": 3.6554827031838634e-16,
+     "value": 311.0036264775557
+    },
+    {
+     "flow": "takeoff.light_ga.distance_35ft_m",
+     "outcome": "match",
+     "ref": "manifest:distance_35ft_light_ga",
+     "reference": 402.9400670592907,
+     "rel_diff": 2.680361291041409e-15,
+     "value": 402.9400670592918
+    },
+    {
+     "flow": "takeoff.light_ga.crosswind_max_lateral_deviation_ground_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.light_ga.max_lateral_deviation_ground_m",
+     "reference": 3.4784722688483,
+     "rel_diff": 1.4043467737542364e-14,
+     "value": 3.4784722688482512
+    },
+    {
+     "flow": "takeoff.light_ga.crosswind_max_bank_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.light_ga.max_bank_deg",
+     "reference": 11.089386949106883,
+     "rel_diff": 2.2425942809765878e-15,
+     "value": 11.089386949106908
+    },
+    {
+     "flow": "takeoff.light_ga.crosswind_max_rudder_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.light_ga.max_rudder_deg",
+     "reference": 7.346698154166014,
+     "rel_diff": 3.747742241879195e-15,
+     "value": 7.346698154165987
+    },
+    {
+     "flow": "takeoff.light_ga.gust_delta_distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:gust_at_rotation.light_ga.delta_distance_35ft_m",
+     "reference": -9.02328782294569,
+     "rel_diff": 6.299634897632163e-15,
+     "value": -9.023287822945633
+    },
+    {
+     "flow": "takeoff.regional_turboprop.ground_roll_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.regional_turboprop.ground_roll_m",
+     "reference": 1060.4467477410672,
+     "rel_diff": 2.1441310082526713e-16,
+     "value": 1060.4467477410674
+    },
+    {
+     "flow": "takeoff.regional_turboprop.distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.regional_turboprop.distance_35ft_m",
+     "reference": 1291.3315916801412,
+     "rel_diff": 2.6411536383238095e-15,
+     "value": 1291.3315916801446
+    },
+    {
+     "flow": "takeoff.regional_turboprop.V_LOF_kt",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.regional_turboprop.V_LOF_kt",
+     "reference": 119.73777637046209,
+     "rel_diff": 1.1868313531424204e-16,
+     "value": 119.73777637046207
+    },
+    {
+     "flow": "takeoff.regional_turboprop.theta_LOF_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.regional_turboprop.theta_LOF_deg",
+     "reference": 6.252462830060879,
+     "rel_diff": 1.733041365435198e-14,
+     "value": 6.252462830060771
+    },
+    {
+     "flow": "takeoff.regional_turboprop.tail_clearance_min_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.regional_turboprop.tail_clearance_min_m",
+     "reference": 0.2272690794434622,
+     "rel_diff": 2.540231052190716e-14,
+     "value": 0.22726907944345642
+    },
+    {
+     "flow": "takeoff.regional_turboprop.raymer_1p1Vs_total_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:closed_form.regional_turboprop.raymer_1p1Vs.total_35ft_m",
+     "reference": 1299.405757548208,
+     "rel_diff": 0.0,
+     "value": 1299.405757548208
+    },
+    {
+     "flow": "takeoff.regional_turboprop.distance_35ft_m",
+     "outcome": "match",
+     "ref": "manifest:distance_35ft_regional_turboprop",
+     "reference": 1291.3315916801412,
+     "rel_diff": 2.6411536383238095e-15,
+     "value": 1291.3315916801446
+    },
+    {
+     "flow": "takeoff.regional_turboprop.crosswind_max_lateral_deviation_ground_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.regional_turboprop.max_lateral_deviation_ground_m",
+     "reference": 1.0113466560687556,
+     "rel_diff": 2.6346408950001305e-15,
+     "value": 1.0113466560687583
+    },
+    {
+     "flow": "takeoff.regional_turboprop.crosswind_max_bank_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.regional_turboprop.max_bank_deg",
+     "reference": 1.2452972324814595,
+     "rel_diff": 4.457662779884505e-15,
+     "value": 1.245297232481465
+    },
+    {
+     "flow": "takeoff.regional_turboprop.crosswind_max_rudder_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.regional_turboprop.max_rudder_deg",
+     "reference": 5.675101547844759,
+     "rel_diff": 1.878052920559485e-15,
+     "value": 5.675101547844748
+    },
+    {
+     "flow": "takeoff.regional_turboprop.gust_delta_distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:gust_at_rotation.regional_turboprop.delta_distance_35ft_m",
+     "reference": 1.796485647741747,
+     "rel_diff": 3.796974538522749e-13,
+     "value": 1.796485647741065
+    },
+    {
+     "flow": "takeoff.a320.ground_roll_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.a320.ground_roll_m",
+     "reference": 1345.9344060357964,
+     "rel_diff": 0.0,
+     "value": 1345.9344060357964
+    },
+    {
+     "flow": "takeoff.a320.distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.a320.distance_35ft_m",
+     "reference": 1691.2169164612756,
+     "rel_diff": 1.344438275363232e-16,
+     "value": 1691.2169164612753
+    },
+    {
+     "flow": "takeoff.a320.V_LOF_kt",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.a320.V_LOF_kt",
+     "reference": 155.64401982416462,
+     "rel_diff": 5.478214221628201e-16,
+     "value": 155.6440198241647
+    },
+    {
+     "flow": "takeoff.a320.theta_LOF_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.a320.theta_LOF_deg",
+     "reference": 9.721112692844756,
+     "rel_diff": 9.136592155277356e-16,
+     "value": 9.721112692844747
+    },
+    {
+     "flow": "takeoff.a320.tail_clearance_min_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.a320.tail_clearance_min_m",
+     "reference": 0.18430775653353004,
+     "rel_diff": 2.4094982121345068e-14,
+     "value": 0.18430775653353448
+    },
+    {
+     "flow": "takeoff.a320.raymer_1p1Vs_total_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:closed_form.a320.raymer_1p1Vs.total_35ft_m",
+     "reference": 1703.0442183123814,
+     "rel_diff": 1.3351014201413177e-16,
+     "value": 1703.0442183123816
+    },
+    {
+     "flow": "takeoff.a320.distance_35ft_m",
+     "outcome": "match",
+     "ref": "manifest:distance_35ft_a320",
+     "reference": 1691.2169164612756,
+     "rel_diff": 1.344438275363232e-16,
+     "value": 1691.2169164612753
+    },
+    {
+     "flow": "takeoff.a320.crosswind_max_lateral_deviation_ground_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.a320.max_lateral_deviation_ground_m",
+     "reference": 1.5127914398313298,
+     "rel_diff": 4.4033420419761573e-16,
+     "value": 1.5127914398313305
+    },
+    {
+     "flow": "takeoff.a320.crosswind_max_bank_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.a320.max_bank_deg",
+     "reference": 4.987004805715337,
+     "rel_diff": 1.7809856904132755e-16,
+     "value": 4.987004805715338
+    },
+    {
+     "flow": "takeoff.a320.crosswind_max_rudder_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.a320.max_rudder_deg",
+     "reference": 11.617423803999934,
+     "rel_diff": 1.3761408574160634e-15,
+     "value": 11.61742380399995
+    },
+    {
+     "flow": "takeoff.a320.gust_delta_distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:gust_at_rotation.a320.delta_distance_35ft_m",
+     "reference": 1.3196091383053954,
+     "rel_diff": 6.892152193950972e-13,
+     "value": 1.3196091383063049
+    },
+    {
+     "flow": "takeoff.motor_glider.ground_roll_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.motor_glider.ground_roll_m",
+     "reference": 186.20942483890792,
+     "rel_diff": 0.0,
+     "value": 186.20942483890792
+    },
+    {
+     "flow": "takeoff.motor_glider.distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.motor_glider.distance_35ft_m",
+     "reference": 285.85658548273517,
+     "rel_diff": 1.5908234197876452e-15,
+     "value": 285.8565854827356
+    },
+    {
+     "flow": "takeoff.motor_glider.V_LOF_kt",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.motor_glider.V_LOF_kt",
+     "reference": 54.29777608522303,
+     "rel_diff": 0.0,
+     "value": 54.29777608522303
+    },
+    {
+     "flow": "takeoff.motor_glider.theta_LOF_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.motor_glider.theta_LOF_deg",
+     "reference": 1.567521698261091,
+     "rel_diff": 1.1898876318199419e-14,
+     "value": 1.5675216982610722
+    },
+    {
+     "flow": "takeoff.motor_glider.tail_clearance_min_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:nominal.motor_glider.tail_clearance_min_m",
+     "reference": 1.1717410401998674,
+     "rel_diff": 0.0,
+     "value": 1.1717410401998674
+    },
+    {
+     "flow": "takeoff.motor_glider.raymer_1p1Vs_total_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:closed_form.motor_glider.raymer_1p1Vs.total_35ft_m",
+     "reference": 249.66309713049796,
+     "rel_diff": 0.0,
+     "value": 249.66309713049796
+    },
+    {
+     "flow": "takeoff.motor_glider.distance_35ft_m",
+     "outcome": "match",
+     "ref": "manifest:distance_35ft_motor_glider",
+     "reference": 285.85658548273517,
+     "rel_diff": 1.5908234197876452e-15,
+     "value": 285.8565854827356
+    },
+    {
+     "flow": "takeoff.motor_glider.crosswind_max_lateral_deviation_ground_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.motor_glider.max_lateral_deviation_ground_m",
+     "reference": 1.3562863333697772,
+     "rel_diff": 4.911454155259703e-16,
+     "value": 1.3562863333697766
+    },
+    {
+     "flow": "takeoff.motor_glider.crosswind_max_bank_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.motor_glider.max_bank_deg",
+     "reference": 5.639271504575063,
+     "rel_diff": 9.76492477383517e-15,
+     "value": 5.639271504575008
+    },
+    {
+     "flow": "takeoff.motor_glider.crosswind_max_rudder_deg",
+     "outcome": "match",
+     "ref": "results/takeoff.json:crosswind.motor_glider.max_rudder_deg",
+     "reference": 11.14898534601699,
+     "rel_diff": 3.1865802748316634e-16,
+     "value": 11.148985346016994
+    },
+    {
+     "flow": "takeoff.motor_glider.gust_delta_distance_35ft_m",
+     "outcome": "match",
+     "ref": "results/takeoff.json:gust_at_rotation.motor_glider.delta_distance_35ft_m",
+     "reference": -1.8410697755744536,
+     "rel_diff": 9.262563475043465e-14,
+     "value": -1.8410697755746241
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work/example-flight-takeoff.experiment.json, Lab item manifest/flow/example-flight-takeoff",
+   "matched": 44,
+   "nodes": {
+    "aircraft": "done",
+    "compare": "done",
+    "takeoff": "done",
+    "viewers": "done"
+   },
+   "seconds": 282.8,
+   "status": "done"
+  }
+ },
+ "flight_dynamics/07_same_gust": {
+  "quick": {
+   "commit": "57c66c1a",
+   "comparisons": [
+    {
+     "flow": "gust.light_ga.dnz_cg_max",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.light_ga.dnz_cg_max",
+     "reference": 0.624640878027401,
+     "rel_diff": 3.5547562245084273e-16,
+     "value": 0.6246408780274012
+    },
+    {
+     "flow": "gust.light_ga.t_peak_s",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.light_ga.t_peak_s",
+     "reference": 0.6299999999999999,
+     "rel_diff": 0.0,
+     "value": 0.6299999999999999
+    },
+    {
+     "flow": "gust.light_ga.theta_max_deg",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.light_ga.theta_max_deg",
+     "reference": 5.39874471276125,
+     "rel_diff": 0.0,
+     "value": 5.39874471276125
+    },
+    {
+     "flow": "gust.light_ga.dh_max_m",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.light_ga.dh_max_m",
+     "reference": 4.386632248654223,
+     "rel_diff": 0.0,
+     "value": 4.386632248654223
+    },
+    {
+     "flow": "gust.light_ga.quasi_steady_dn",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.light_ga.quasi_steady_dn",
+     "reference": 1.4625275167368368,
+     "rel_diff": 1.3664026293222e-15,
+     "value": 1.4625275167368348
+    },
+    {
+     "flow": "gust.light_ga.pratt_dn_for_this_gust",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.light_ga.pratt_dn_for_this_gust",
+     "reference": 1.0139348114749627,
+     "rel_diff": 1.0949648952383084e-15,
+     "value": 1.0139348114749616
+    },
+    {
+     "flow": "gust.regional_turboprop.dnz_cg_max",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.regional_turboprop.dnz_cg_max",
+     "reference": 0.5705495398481772,
+     "rel_diff": 7.783534624674912e-16,
+     "value": 0.5705495398481777
+    },
+    {
+     "flow": "gust.regional_turboprop.t_peak_s",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.regional_turboprop.t_peak_s",
+     "reference": 0.41000000000000014,
+     "rel_diff": 0.0,
+     "value": 0.41000000000000014
+    },
+    {
+     "flow": "gust.regional_turboprop.theta_max_deg",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.regional_turboprop.theta_max_deg",
+     "reference": 1.3075900950587362,
+     "rel_diff": 3.2264296812267354e-15,
+     "value": 1.3075900950587405
+    },
+    {
+     "flow": "gust.regional_turboprop.dh_max_m",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.regional_turboprop.dh_max_m",
+     "reference": 1.5595426760696682,
+     "rel_diff": 0.0,
+     "value": 1.5595426760696682
+    },
+    {
+     "flow": "gust.regional_turboprop.quasi_steady_dn",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.regional_turboprop.quasi_steady_dn",
+     "reference": 0.6444029413163799,
+     "rel_diff": 1.206009574770163e-15,
+     "value": 0.6444029413163807
+    },
+    {
+     "flow": "gust.regional_turboprop.pratt_dn_for_this_gust",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.regional_turboprop.pratt_dn_for_this_gust",
+     "reference": 0.5229767190327947,
+     "rel_diff": 1.2737351215309492e-15,
+     "value": 0.5229767190327954
+    },
+    {
+     "flow": "gust.a320.dnz_cg_max",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.a320.dnz_cg_max",
+     "reference": 0.356909384821703,
+     "rel_diff": 2.1774605832397606e-15,
+     "value": 0.35690938482170376
+    },
+    {
+     "flow": "gust.a320.t_peak_s",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.a320.t_peak_s",
+     "reference": 0.41000000000000014,
+     "rel_diff": 0.0,
+     "value": 0.41000000000000014
+    },
+    {
+     "flow": "gust.a320.theta_max_deg",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.a320.theta_max_deg",
+     "reference": 0.8637986100014832,
+     "rel_diff": 2.1207118990714315e-14,
+     "value": 0.8637986100014649
+    },
+    {
+     "flow": "gust.a320.dh_max_m",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.a320.dh_max_m",
+     "reference": 1.3793734541027334,
+     "rel_diff": 0.0,
+     "value": 1.3793734541027334
+    },
+    {
+     "flow": "gust.a320.quasi_steady_dn",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.a320.quasi_steady_dn",
+     "reference": 0.39646343844584664,
+     "rel_diff": 0.0,
+     "value": 0.39646343844584664
+    },
+    {
+     "flow": "gust.a320.pratt_dn_for_this_gust",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.a320.pratt_dn_for_this_gust",
+     "reference": 0.32143730079340255,
+     "rel_diff": 0.0,
+     "value": 0.32143730079340255
+    },
+    {
+     "flow": "gust.motor_glider.dnz_cg_max",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.motor_glider.dnz_cg_max",
+     "reference": 0.9394387967818225,
+     "rel_diff": 7.090763305252321e-16,
+     "value": 0.9394387967818218
+    },
+    {
+     "flow": "gust.motor_glider.t_peak_s",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.motor_glider.t_peak_s",
+     "reference": 0.9700000000000002,
+     "rel_diff": 0.0,
+     "value": 0.9700000000000002
+    },
+    {
+     "flow": "gust.motor_glider.theta_max_deg",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.motor_glider.theta_max_deg",
+     "reference": 3.213606026114734,
+     "rel_diff": 4.283899579935762e-15,
+     "value": 3.2136060261147477
+    },
+    {
+     "flow": "gust.motor_glider.dh_max_m",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.motor_glider.dh_max_m",
+     "reference": 15.508810350961085,
+     "rel_diff": 0.0,
+     "value": 15.508810350961085
+    },
+    {
+     "flow": "gust.motor_glider.quasi_steady_dn",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.motor_glider.quasi_steady_dn",
+     "reference": 1.882699366414311,
+     "rel_diff": 4.245821674931204e-15,
+     "value": 1.882699366414303
+    },
+    {
+     "flow": "gust.motor_glider.pratt_dn_for_this_gust",
+     "outcome": "match",
+     "ref": "results/same_gust.json:aircraft.motor_glider.pratt_dn_for_this_gust",
+     "reference": 1.297394109675386,
+     "rel_diff": 3.2517856078683522e-15,
+     "value": 1.2973941096753818
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work_q/example-flight-same-gust-quick.experiment.json, Lab item manifest/flow/example-flight-same-gust-quick",
+   "matched": 24,
+   "nodes": {
+    "aircraft": "done",
+    "clips": "done",
+    "compare": "done",
+    "grid": "done",
+    "gust": "done",
+    "scene": "done"
+   },
+   "seconds": 121.2,
+   "status": "done"
+  }
+ },
+ "free_surface/01_runner_slope_study": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work4/example-free-surface-runner.experiment.json, Lab item manifest/flow/example-free-surface-runner",
+   "matched": 0,
+   "nodes": {
+    "minus2": "done",
+    "plus2": "done",
+    "ratio": "done",
+    "report": "done",
+    "zero": "done"
+   },
+   "seconds": 172.8,
+   "status": "done"
+  }
+ },
+ "geomechanics/01_granular_column_collapse": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-geo-column-collapse.experiment.json, Lab item manifest/flow/example-geo-column-collapse",
+   "matched": 0,
+   "nodes": {
+    "mpm": "done",
+    "report": "done"
+   },
+   "seconds": 297.7,
+   "status": "done"
+  }
+ },
+ "inspection/01_eddy_current_pinn": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-inspection-eddy-current.experiment.json, Lab item manifest/flow/example-inspection-eddy-current",
+   "matched": 0,
+   "nodes": {
+    "ec": "done",
+    "report": "done"
+   },
+   "seconds": 444.5,
+   "status": "done"
+  }
+ },
+ "numerical_solvers/12_molecular_dynamics_lj_gas": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-md-lj-gas.experiment.json, Lab item manifest/flow/example-md-lj-gas",
+   "matched": 0,
+   "nodes": {
+    "md": "done",
+    "report": "done"
+   },
+   "seconds": 28.9,
+   "status": "done"
+  }
+ },
+ "numerical_solvers/13_shallow_water_dam_break": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-swe-dam-break.experiment.json, Lab item manifest/flow/example-swe-dam-break",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "swe": "done"
+   },
+   "seconds": 2.2,
+   "status": "done"
+  }
+ },
+ "openfoam_campaign/campaign": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work4/example-openfoam-campaign.experiment.json, Lab item manifest/flow/example-openfoam-campaign",
+   "matched": 0,
+   "nodes": {
+    "campaign": "done",
+    "report": "done"
+   },
+   "seconds": 269.9,
+   "status": "done"
+  }
+ },
+ "rigid_body/newton_quickstart": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-newton-quickstart.experiment.json, Lab item manifest/flow/example-newton-quickstart",
+   "matched": 0,
+   "nodes": {
+    "report": "done",
+    "scene": "done",
+    "validate": "done"
+   },
+   "seconds": 113.3,
+   "status": "done"
+  }
+ },
+ "systems/01_component_library_toolbox": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-systems-components.experiment.json, Lab item manifest/flow/example-systems-components",
+   "matched": 0,
+   "nodes": {
+    "comp": "done"
+   },
+   "seconds": 14.7,
+   "status": "done"
+  }
+ },
+ "topology_optimization/01_mbb_beam": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "grad.gradient_check_max_rel_err",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:gradient_check_max_rel_err",
+     "reference": 1.0141238723468811e-06,
+     "rel_diff": 0.0,
+     "value": 1.0141238723468811e-06
+    },
+    {
+     "flow": "mbb_oc.MBB, OC, filter.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, OC, filter.compliance",
+     "reference": 233.70990775752145,
+     "rel_diff": 0.0,
+     "value": 233.70990775752145
+    },
+    {
+     "flow": "mbb_oc.MBB, OC, filter.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, OC, filter.iterations",
+     "reference": 146.0,
+     "rel_diff": 0.0,
+     "value": 146.0
+    },
+    {
+     "flow": "mbb_oc.MBB, OC, filter.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, OC, filter.gray_fraction",
+     "reference": 0.44416666666666665,
+     "rel_diff": 0.0,
+     "value": 0.44416666666666665
+    },
+    {
+     "flow": "mbb_mma.MBB, MMA, filter.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter.compliance",
+     "reference": 233.4878134008748,
+     "rel_diff": 0.0,
+     "value": 233.4878134008748
+    },
+    {
+     "flow": "mbb_mma.MBB, MMA, filter.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter.iterations",
+     "reference": 58.0,
+     "rel_diff": 0.0,
+     "value": 58.0
+    },
+    {
+     "flow": "mbb_mma.MBB, MMA, filter.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter.gray_fraction",
+     "reference": 0.4525,
+     "rel_diff": 0.0,
+     "value": 0.4525
+    },
+    {
+     "flow": "mbb_proj.MBB, MMA, filter + projection.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.compliance",
+     "reference": 190.05035631421268,
+     "rel_diff": 0.0,
+     "value": 190.05035631421268
+    },
+    {
+     "flow": "mbb_proj.MBB, MMA, filter + projection.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.iterations",
+     "reference": 207.0,
+     "rel_diff": 0.0,
+     "value": 207.0
+    },
+    {
+     "flow": "mbb_proj.MBB, MMA, filter + projection.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:MBB, MMA, filter + projection.gray_fraction",
+     "reference": 0.0225,
+     "rel_diff": 0.0,
+     "value": 0.0225
+    },
+    {
+     "flow": "cant.Cantilever, MMA, projection.objective",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:Cantilever, MMA, projection.compliance",
+     "reference": 75.42806021465833,
+     "rel_diff": 0.0,
+     "value": 75.42806021465833
+    },
+    {
+     "flow": "cant.Cantilever, MMA, projection.iterations",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:Cantilever, MMA, projection.iterations",
+     "reference": 228.0,
+     "rel_diff": 0.0,
+     "value": 228.0
+    },
+    {
+     "flow": "cant.Cantilever, MMA, projection.gray_fraction",
+     "outcome": "match",
+     "ref": "results/mbb_summary.json:Cantilever, MMA, projection.gray_fraction",
+     "reference": 0.00875,
+     "rel_diff": 0.0,
+     "value": 0.00875
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-topology-mbb.experiment.json, Lab item manifest/flow/example-topology-mbb",
+   "matched": 13,
+   "nodes": {
+    "cant": "done",
+    "compare": "done",
+    "grad": "done",
+    "mbb_mma": "done",
+    "mbb_oc": "done",
+    "mbb_proj": "done"
+   },
+   "seconds": 52.5,
+   "status": "done"
+  }
+ },
+ "topology_optimization/02_heat_and_stokes_flow": {
+  "full": {
+   "commit": "5d9bf73a",
+   "comparisons": [
+    {
+     "flow": "heat.thermal.objective",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:thermal.optimized",
+     "reference": 24877449.20986821,
+     "rel_diff": 0.0,
+     "value": 24877449.20986821
+    },
+    {
+     "flow": "heat.thermal.uniform",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:thermal.uniform",
+     "reference": 418228746.42490536,
+     "rel_diff": 0.0,
+     "value": 418228746.42490536
+    },
+    {
+     "flow": "heat.thermal.iterations",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:thermal.iterations",
+     "reference": 150.0,
+     "rel_diff": 0.0,
+     "value": 150.0
+    },
+    {
+     "flow": "pipe10.double_pipe_L1.0.objective",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.0.optimized",
+     "reference": 25.723261267390452,
+     "rel_diff": 0.0,
+     "value": 25.723261267390452
+    },
+    {
+     "flow": "pipe10.double_pipe_L1.0.uniform",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.0.uniform",
+     "reference": 136.39390323264288,
+     "rel_diff": 0.0,
+     "value": 136.39390323264288
+    },
+    {
+     "flow": "pipe15.double_pipe_L1.5.objective",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.5.optimized",
+     "reference": 26.79316455565264,
+     "rel_diff": 0.0,
+     "value": 26.79316455565264
+    },
+    {
+     "flow": "pipe15.double_pipe_L1.5.uniform",
+     "outcome": "match",
+     "ref": "results/heat_stokes_summary.json:double_pipe_L1.5.uniform",
+     "reference": 179.3219849127891,
+     "rel_diff": 0.0,
+     "value": 179.3219849127891
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-topology-heat-stokes.experiment.json, Lab item manifest/flow/example-topology-heat-stokes",
+   "matched": 7,
+   "nodes": {
+    "compare": "done",
+    "heat": "done",
+    "pipe10": "done",
+    "pipe15": "done"
+   },
+   "seconds": 27.8,
+   "status": "done"
+  }
+ },
+ "topology_optimization/03_reluctance_rotor": {
+  "full": {
+   "commit": "b25e808a",
+   "comparisons": [
+    {
+     "flow": "rotor.design_variables",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:design_variables",
+     "reference": 1410.0,
+     "rel_diff": 0.0,
+     "value": 1410.0
+    },
+    {
+     "flow": "rotor.optimized_mean_torque_linear_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:optimized_mean_torque_linear_Nm",
+     "reference": 38.10446217859075,
+     "rel_diff": 2.0831943251570765e-09,
+     "value": 38.10446225796975
+    },
+    {
+     "flow": "rotor.coenergy_torque_at_5deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:coenergy_torque_at_5deg_Nm",
+     "reference": 47.07271765955712,
+     "rel_diff": 1.4170144020734103e-07,
+     "value": 47.072710989285234
+    },
+    {
+     "flow": "rotor.optimized_mean_torque_nonlinear_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:optimized_mean_torque_nonlinear_Nm",
+     "reference": 13.441238878282855,
+     "rel_diff": 4.552900369777596e-08,
+     "value": 13.44123826631664
+    },
+    {
+     "flow": "rotor.iterations",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:iterations",
+     "reference": 120.0,
+     "rel_diff": 0.0,
+     "value": 120.0
+    },
+    {
+     "flow": "rotor.volume_fraction",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:volume_fraction",
+     "reference": 0.49999636696619604,
+     "rel_diff": 1.0578072895648078e-08,
+     "value": 0.49999637225519405
+    },
+    {
+     "flow": "rotor.torque_linear_0deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.0",
+     "reference": 32.25860673827633,
+     "rel_diff": 1.1553036390448868e-07,
+     "value": 32.2586104651249
+    },
+    {
+     "flow": "rotor.torque_linear_5deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.1",
+     "reference": 46.20596311531595,
+     "rel_diff": 1.332999973224398e-07,
+     "value": 46.20595695606119
+    },
+    {
+     "flow": "rotor.torque_linear_10deg_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.2",
+     "reference": 35.848816682179965,
+     "rel_diff": 7.449459785030555e-08,
+     "value": 35.84881935272315
+    },
+    {
+     "flow": "rotor.solid_round_rotor_torque_Nm",
+     "outcome": "match",
+     "ref": "results/reluctance_rotor_summary.json:solid_round_rotor_torque_Nm",
+     "reference": -2.429796757315768e-11,
+     "rel_diff": 0.1526647224398278,
+     "value": -2.8007410048565735e-11
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work3/example-topology-rotor.experiment.json, Lab item manifest/flow/example-topology-rotor",
+   "matched": 10,
+   "nodes": {
+    "compare": "done",
+    "rotor": "done"
+   },
+   "seconds": 249.9,
+   "status": "done"
+  }
+ }
+}

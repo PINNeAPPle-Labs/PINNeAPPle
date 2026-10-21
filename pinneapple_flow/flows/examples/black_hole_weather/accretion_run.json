@@ -1,0 +1,95 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-blackhole-accretion",
+ "name": "Black-hole accretion run and its statistics",
+ "description": "One RIAF torus simulation around a Schwarzschild black hole on the coarsest grid of the resolution study (90 x 45, seeded 'modes' perturbation, alpha 0.1 SS, to 10 000 M) and its window statistics from 2000 to 10 000 M (examples/black_hole_weather/simulate.py, convergence.py; results/convergence.json).",
+ "nodes": [
+  {
+   "id": "sim",
+   "type": "blackhole.simulate",
+   "params": {
+    "nr": 90,
+    "ntheta": 45,
+    "t_end": 10000.0,
+    "seed": 0
+   },
+   "label": "RIAF simulation",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "stats",
+   "type": "blackhole.statistics",
+   "params": {
+    "t0": 2000.0,
+    "t1": 10000.0
+   },
+   "label": "Window statistics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "black_hole_weather",
+    "comparisons": [
+     {
+      "flow": "stats.mdot_mean",
+      "ref": "results/convergence.json:scalars.mdot_mean.by_level.90.per_seed.0"
+     }
+    ],
+    "tolerance_source": "deterministic: the same library code, data and seed; 1e-6 relative covers BLAS / platform rounding (seeded modes perturbation, seed 0)"
+   },
+   "label": "Same numbers as examples/black_hole_weather",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "sim",
+   "source_port": "run",
+   "target": "stats",
+   "target_port": "run",
+   "id": "sim.run->stats.run"
+  },
+  {
+   "source": "stats",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "stats.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "black_hole_weather",
+  "domain": "astrophysics",
+  "scripts": [
+   "simulate.py",
+   "convergence.py"
+  ],
+  "quick": {
+   "sim": {
+    "nr": 64,
+    "ntheta": 32,
+    "t_end": 400.0
+   },
+   "stats": {
+    "t0": 100.0,
+    "t1": 400.0
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: a 64 x 32 grid to 400 M, not comparable"
+   }
+  }
+ }
+}

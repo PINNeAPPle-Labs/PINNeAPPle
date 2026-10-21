@@ -1627,36 +1627,213 @@
  },
  "free_surface/01_runner_slope_study": {
   "full": {
-   "commit": "5d9bf73a",
-   "comparisons": [],
+   "commit": "3f2296e8",
+   "comparisons": [
+    {
+     "flow": "plus2.+2 deg.depth_at_jet_m",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Metal under the jet",
+     "reference": 0.26,
+     "rel_diff": 0.011725214086785516,
+     "value": 0.2569514443374358
+    },
+    {
+     "flow": "plus2.+2 deg.k_zone_mean",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Mean k, impact zone 0.5\u20133 m",
+     "reference": 1.4,
+     "rel_diff": 0.0033831627020440374,
+     "value": 1.4047364277828616
+    },
+    {
+     "flow": "plus2.+2 deg.k_peak",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Peak k",
+     "reference": 5.0,
+     "rel_diff": 0.006912526913580663,
+     "value": 5.034562634567903
+    },
+    {
+     "flow": "ratio.+2 deg.k_zone_mean_rel_to_baseline",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|+2\u00b0|Relative to 0\u00b0",
+     "reference": 2.9,
+     "rel_diff": 0.005307663676144988,
+     "value": 2.8846077753391794
+    },
+    {
+     "flow": "zero.+0 deg.depth_at_jet_m",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Metal under the jet",
+     "reference": 0.5,
+     "rel_diff": 0.0,
+     "value": 0.5
+    },
+    {
+     "flow": "zero.+0 deg.k_zone_mean",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Mean k, impact zone 0.5\u20133 m",
+     "reference": 0.49,
+     "rel_diff": 0.00617024581289307,
+     "value": 0.4869765795516824
+    },
+    {
+     "flow": "zero.+0 deg.k_peak",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Peak k",
+     "reference": 1.6,
+     "rel_diff": 0.018717511188272168,
+     "value": 1.6299480179012356
+    },
+    {
+     "flow": "ratio.+0 deg.k_zone_mean_rel_to_baseline",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|0\u00b0|Relative to 0\u00b0",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "minus2.-2 deg.depth_at_jet_m",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Metal under the jet",
+     "reference": 0.74,
+     "rel_diff": 0.004119669814275992,
+     "value": 0.7430485556625642
+    },
+    {
+     "flow": "minus2.-2 deg.k_zone_mean",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Mean k, impact zone 0.5\u20133 m",
+     "reference": 0.2,
+     "rel_diff": 0.003235085610021615,
+     "value": 0.1993529828779957
+    },
+    {
+     "flow": "minus2.-2 deg.k_peak",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Peak k",
+     "reference": 0.4,
+     "rel_diff": 0.009850882407407557,
+     "value": 0.396059647037037
+    },
+    {
+     "flow": "ratio.-2 deg.k_zone_mean_rel_to_baseline",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/free_surface.md|\u22122\u00b0|Relative to 0\u00b0",
+     "reference": 0.41,
+     "rel_diff": 0.001539688099715278,
+     "value": 0.4093687278791167
+    }
+   ],
    "configuration": "full",
-   "date": "2026-10-19",
-   "manifest": "manifest /home/user/flowhome/work4/example-free-surface-runner.experiment.json, Lab item manifest/flow/example-free-surface-runner",
-   "matched": 0,
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/qa/example-free-surface-runner.experiment.json, Lab item manifest/flow/example-free-surface-runner",
+   "matched": 12,
    "nodes": {
+    "compare": "done",
     "minus2": "done",
     "plus2": "done",
     "ratio": "done",
-    "report": "done",
     "zero": "done"
    },
-   "seconds": 172.8,
+   "seconds": 433.8,
    "status": "done"
   }
  },
  "geomechanics/01_granular_column_collapse": {
   "full": {
-   "commit": "b25e808a",
+   "commit": "3f2296e8",
+   "comparisons": [
+    {
+     "flow": "mpm.a=0.5.runout_dL_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|0.5|MPM (L\u221e \u2212 L0)/L0",
+     "reference": 0.44,
+     "rel_diff": 0.010099545856866428,
+     "value": 0.44444380017702123
+    },
+    {
+     "flow": "mpm.a=0.5.final_height_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|0.5|Final height / L0",
+     "reference": 0.47,
+     "rel_diff": 0.0003546402409354909,
+     "value": 0.47016668091323965
+    },
+    {
+     "flow": "mpm.a=1.runout_dL_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|1|MPM (L\u221e \u2212 L0)/L0",
+     "reference": 1.32,
+     "rel_diff": 0.0022267991156377565,
+     "value": 1.3170606251673582
+    },
+    {
+     "flow": "mpm.a=1.final_height_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|1|Final height / L0",
+     "reference": 0.77,
+     "rel_diff": 0.0048572433510267335,
+     "value": 0.7737400773802906
+    },
+    {
+     "flow": "mpm.a=2.runout_dL_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|2|MPM (L\u221e \u2212 L0)/L0",
+     "reference": 3.71,
+     "rel_diff": 0.0003457938250205204,
+     "value": 3.708717104909174
+    },
+    {
+     "flow": "mpm.a=2.final_height_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|2|Final height / L0",
+     "reference": 1.03,
+     "rel_diff": 0.0017403835882738947,
+     "value": 1.028207404904078
+    },
+    {
+     "flow": "mpm.a=3.runout_dL_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|3|MPM (L\u221e \u2212 L0)/L0",
+     "reference": 6.2,
+     "rel_diff": 0.0007527850108639042,
+     "value": 6.204667267067356
+    },
+    {
+     "flow": "mpm.a=3.final_height_over_L0",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/geomechanics_mpm.md|3|Final height / L0",
+     "reference": 1.07,
+     "rel_diff": 0.00289344967436407,
+     "value": 1.0669040088484305
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/qa/example-geo-column-collapse.experiment.json, Lab item manifest/flow/example-geo-column-collapse",
+   "matched": 8,
+   "nodes": {
+    "compare": "done",
+    "mpm": "done"
+   },
+   "seconds": 855.7,
+   "status": "done"
+  }
+ },
+ "geometry_library/03_airliner_vlm": {
+  "full": {
+   "commit": "3f2296e8",
    "comparisons": [],
    "configuration": "full",
-   "date": "2026-10-19",
-   "manifest": "manifest /home/user/flowhome/work5/example-geo-column-collapse.experiment.json, Lab item manifest/flow/example-geo-column-collapse",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/q5/example.geometry_library.03_airliner_vlm.experiment.json, Lab item manifest/flow/example.geometry_library.03_airliner_vlm",
    "matched": 0,
    "nodes": {
-    "mpm": "done",
-    "report": "done"
+    "vlm": "done"
    },
-   "seconds": 297.7,
+   "seconds": 8.1,
    "status": "done"
   }
  },
@@ -1993,6 +2170,21 @@
    "status": "done"
   }
  },
+ "problem_designer/03_offline_spec_to_report": {
+  "full": {
+   "commit": "3f2296e8",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/q5/example.problem_designer.03_offline_spec_to_report.experiment.json, Lab item manifest/flow/example.problem_designer.03_offline_spec_to_report",
+   "matched": 0,
+   "nodes": {
+    "report": "done"
+   },
+   "seconds": 10.1,
+   "status": "done"
+  }
+ },
  "proof_graph/pt_chain_no_go": {
   "full": {
    "commit": "5e891c36",
@@ -2042,6 +2234,21 @@
    "status": "done"
   }
  },
+ "qualitative/03_ahmed_slant": {
+  "full": {
+   "commit": "3f2296e8",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/q5/example.qualitative.03_ahmed_slant.experiment.json, Lab item manifest/flow/example.qualitative.03_ahmed_slant",
+   "matched": 0,
+   "nodes": {
+    "ahmed": "done"
+   },
+   "seconds": 11.0,
+   "status": "done"
+  }
+ },
  "rigid_body/newton_quickstart": {
   "full": {
    "commit": "b25e808a",
@@ -2056,6 +2263,1086 @@
     "validate": "done"
    },
    "seconds": 113.3,
+   "status": "done"
+  }
+ },
+ "security/02_physics_residual_fdi": {
+  "full": {
+   "commit": "3f2296e8",
+   "comparisons": [
+    {
+     "flow": "fdi.nominal.physics.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.bias.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.bias.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 8.0,
+     "rel_diff": 0.0625,
+     "value": 7.5
+    },
+    {
+     "flow": "fdi.nominal.physics.bias.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.98,
+     "rel_diff": 0.003401360544217766,
+     "value": 0.9833333333333334
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.bias.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.bias.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 16.0,
+     "rel_diff": 0.03125,
+     "value": 16.5
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.bias.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.03,
+     "rel_diff": 0.11111111111111113,
+     "value": 0.03333333333333333
+    },
+    {
+     "flow": "fdi.nominal.pca.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.49,
+     "rel_diff": 0.0005668934240362565,
+     "value": 0.4897222222222222
+    },
+    {
+     "flow": "fdi.nominal.pca.bias.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.1,
+     "rel_diff": 1.3877787807814457e-16,
+     "value": 0.09999999999999999
+    },
+    {
+     "flow": "fdi.nominal.pca.bias.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 122.0,
+     "rel_diff": 0.0,
+     "value": 122.0
+    },
+    {
+     "flow": "fdi.nominal.iforest.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.497,
+     "rel_diff": 0.0010060362173038239,
+     "value": 0.4975
+    },
+    {
+     "flow": "fdi.nominal.iforest.bias.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.03,
+     "rel_diff": 0.11111111111111113,
+     "value": 0.03333333333333333
+    },
+    {
+     "flow": "fdi.nominal.iforest.bias.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| bias\\ \\(F12\\ \\+4\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 152.0,
+     "rel_diff": 0.003289473684210526,
+     "value": 152.5
+    },
+    {
+     "flow": "fdi.nominal.physics.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.ramp.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.ramp.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 108.0,
+     "rel_diff": 0.0,
+     "value": 108.0
+    },
+    {
+     "flow": "fdi.nominal.physics.ramp.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.93,
+     "rel_diff": 0.0035842293906808475,
+     "value": 0.9333333333333332
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.ramp.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.ramp.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 82.0,
+     "rel_diff": 0.006097560975609756,
+     "value": 81.5
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.ramp.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.57,
+     "rel_diff": 0.005847953216374015,
+     "value": 0.5666666666666668
+    },
+    {
+     "flow": "fdi.nominal.pca.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.497,
+     "rel_diff": 0.0004471272076906132,
+     "value": 0.49722222222222223
+    },
+    {
+     "flow": "fdi.nominal.pca.ramp.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.1,
+     "rel_diff": 1.3877787807814457e-16,
+     "value": 0.09999999999999999
+    },
+    {
+     "flow": "fdi.nominal.pca.ramp.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 119.0,
+     "rel_diff": 0.0,
+     "value": 119.0
+    },
+    {
+     "flow": "fdi.nominal.iforest.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.504,
+     "rel_diff": 0.00033068783068779424,
+     "value": 0.5041666666666667
+    },
+    {
+     "flow": "fdi.nominal.iforest.ramp.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.05,
+     "rel_diff": 1.3877787807814457e-16,
+     "value": 0.05000000000000001
+    },
+    {
+     "flow": "fdi.nominal.iforest.ramp.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| ramp\\ \\(h2,\\ 0\\ \u2192\\ 8\\ cm\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 148.0,
+     "rel_diff": 0.0,
+     "value": 148.0
+    },
+    {
+     "flow": "fdi.nominal.physics.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.stuck.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.98,
+     "rel_diff": 0.003401360544217766,
+     "value": 0.9833333333333334
+    },
+    {
+     "flow": "fdi.nominal.physics.stuck.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 9.0,
+     "rel_diff": 0.0,
+     "value": 9.0
+    },
+    {
+     "flow": "fdi.nominal.physics.stuck.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.93,
+     "rel_diff": 0.0016977928692699065,
+     "value": 0.9315789473684211
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.stuck.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.98,
+     "rel_diff": 0.003401360544217766,
+     "value": 0.9833333333333334
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.stuck.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 10.0,
+     "rel_diff": 0.05,
+     "value": 9.5
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.stuck.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.76,
+     "rel_diff": 0.0030009233610340568,
+     "value": 0.7622807017543859
+    },
+    {
+     "flow": "fdi.nominal.pca.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.815,
+     "rel_diff": 0.00034083162917510453,
+     "value": 0.8147222222222222
+    },
+    {
+     "flow": "fdi.nominal.pca.stuck.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.67,
+     "rel_diff": 0.004975124378109567,
+     "value": 0.6666666666666666
+    },
+    {
+     "flow": "fdi.nominal.pca.stuck.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 89.0,
+     "rel_diff": 0.0,
+     "value": 89.0
+    },
+    {
+     "flow": "fdi.nominal.iforest.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.368,
+     "rel_diff": 0.0009057971014493264,
+     "value": 0.36833333333333335
+    },
+    {
+     "flow": "fdi.nominal.iforest.stuck.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.03,
+     "rel_diff": 0.11111111111111113,
+     "value": 0.03333333333333333
+    },
+    {
+     "flow": "fdi.nominal.iforest.stuck.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| stuck\\ \\(h3\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 202.0,
+     "rel_diff": 0.0024752475247524753,
+     "value": 202.5
+    },
+    {
+     "flow": "fdi.nominal.physics.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.delayed.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.97,
+     "rel_diff": 0.0034364261168384528,
+     "value": 0.9666666666666667
+    },
+    {
+     "flow": "fdi.nominal.physics.delayed.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.delayed.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.994,
+     "rel_diff": 0.00011178180192270914,
+     "value": 0.9938888888888888
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.delayed.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.9,
+     "rel_diff": 0.0,
+     "value": 0.9
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.delayed.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 3.0,
+     "rel_diff": 0.0,
+     "value": 3.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.delayed.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.pca.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.877,
+     "rel_diff": 6.334726973270975e-05,
+     "value": 0.8769444444444444
+    },
+    {
+     "flow": "fdi.nominal.pca.delayed.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.77,
+     "rel_diff": 0.004329004329004429,
+     "value": 0.7666666666666666
+    },
+    {
+     "flow": "fdi.nominal.pca.delayed.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 51.0,
+     "rel_diff": 0.0,
+     "value": 51.0
+    },
+    {
+     "flow": "fdi.nominal.iforest.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.592,
+     "rel_diff": 9.38438438437085e-05,
+     "value": 0.5919444444444445
+    },
+    {
+     "flow": "fdi.nominal.iforest.delayed.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.1,
+     "rel_diff": 1.3877787807814457e-16,
+     "value": 0.10000000000000002
+    },
+    {
+     "flow": "fdi.nominal.iforest.delayed.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| delayed\\ \\(F23,\\ 24\\ h\\ old\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 148.0,
+     "rel_diff": 0.0,
+     "value": 148.0
+    },
+    {
+     "flow": "fdi.nominal.physics.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.scaling.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.physics.scaling.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 4.0,
+     "rel_diff": 0.0,
+     "value": 4.0
+    },
+    {
+     "flow": "fdi.nominal.physics.scaling.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.9,
+     "rel_diff": 0.0,
+     "value": 0.9
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.scaling.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.scaling.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 6.0,
+     "rel_diff": 0.0,
+     "value": 6.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.scaling.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.07,
+     "rel_diff": 0.04761904761904772,
+     "value": 0.06666666666666667
+    },
+    {
+     "flow": "fdi.nominal.pca.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.632,
+     "rel_diff": 0.0005274261603374947,
+     "value": 0.6316666666666667
+    },
+    {
+     "flow": "fdi.nominal.pca.scaling.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.25,
+     "rel_diff": 0.0,
+     "value": 0.25
+    },
+    {
+     "flow": "fdi.nominal.pca.scaling.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 137.0,
+     "rel_diff": 0.0,
+     "value": 137.0
+    },
+    {
+     "flow": "fdi.nominal.iforest.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.499,
+     "rel_diff": 0.0008906702293474118,
+     "value": 0.49944444444444436
+    },
+    {
+     "flow": "fdi.nominal.iforest.scaling.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.08,
+     "rel_diff": 0.04166666666666659,
+     "value": 0.08333333333333333
+    },
+    {
+     "flow": "fdi.nominal.iforest.scaling.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| scaling\\ \\(Fd\\ \u22128\\ %\\) \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 144.0,
+     "rel_diff": 0.003472222222222222,
+     "value": 143.5
+    },
+    {
+     "flow": "fdi.nominal.physics.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (\\d[\\d.]*)",
+     "reference": 0.986,
+     "rel_diff": 0.0002535496957403372,
+     "value": 0.98625
+    },
+    {
+     "flow": "fdi.nominal.physics.coordinated_replay.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.97,
+     "rel_diff": 0.0034364261168384528,
+     "value": 0.9666666666666667
+    },
+    {
+     "flow": "fdi.nominal.physics.coordinated_replay.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.99,
+     "rel_diff": 1.1214373986112693e-16,
+     "value": 0.9899999999999999
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.coordinated_replay.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.97,
+     "rel_diff": 0.0034364261168384528,
+     "value": 0.9666666666666667
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.coordinated_replay.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    },
+    {
+     "flow": "fdi.nominal.pca.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.496,
+     "rel_diff": 0.0007840501792113459,
+     "value": 0.4963888888888888
+    },
+    {
+     "flow": "fdi.nominal.pca.coordinated_replay.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.13,
+     "rel_diff": 0.02564102564102559,
+     "value": 0.13333333333333333
+    },
+    {
+     "flow": "fdi.nominal.pca.coordinated_replay.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 96.0,
+     "rel_diff": 0.0,
+     "value": 96.0
+    },
+    {
+     "flow": "fdi.nominal.iforest.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.463,
+     "rel_diff": 0.0004799616030719012,
+     "value": 0.46277777777777773
+    },
+    {
+     "flow": "fdi.nominal.iforest.coordinated_replay.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.05,
+     "rel_diff": 1.3877787807814457e-16,
+     "value": 0.049999999999999996
+    },
+    {
+     "flow": "fdi.nominal.iforest.coordinated_replay.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 94.0,
+     "rel_diff": 0.0,
+     "value": 94.0
+    },
+    {
+     "flow": "fdi.shifted.physics.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.bias.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.bias.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 6.0,
+     "rel_diff": 0.0,
+     "value": 6.0
+    },
+    {
+     "flow": "fdi.shifted.physics.bias.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.98,
+     "rel_diff": 0.003401360544217766,
+     "value": 0.9833333333333334
+    },
+    {
+     "flow": "fdi.shifted.ar_twin.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.67,
+     "rel_diff": 0.0004145936981756868,
+     "value": 0.6702777777777778
+    },
+    {
+     "flow": "fdi.shifted.pca.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.562,
+     "rel_diff": 9.885330170052929e-05,
+     "value": 0.5619444444444444
+    },
+    {
+     "flow": "fdi.shifted.iforest.bias.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| bias \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.454,
+     "rel_diff": 0.0002447381302005768,
+     "value": 0.45388888888888895
+    },
+    {
+     "flow": "fdi.shifted.physics.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.ramp.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.ramp.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 128.0,
+     "rel_diff": 0.00390625,
+     "value": 127.5
+    },
+    {
+     "flow": "fdi.shifted.physics.ramp.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.95,
+     "rel_diff": 1.1686558153949016e-16,
+     "value": 0.9499999999999998
+    },
+    {
+     "flow": "fdi.shifted.ar_twin.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.733,
+     "rel_diff": 0.0006821282401090654,
+     "value": 0.7325
+    },
+    {
+     "flow": "fdi.shifted.pca.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.56,
+     "rel_diff": 0.0004960317460318235,
+     "value": 0.5597222222222222
+    },
+    {
+     "flow": "fdi.shifted.iforest.ramp.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| ramp \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.439,
+     "rel_diff": 0.0003796507213364552,
+     "value": 0.4391666666666667
+    },
+    {
+     "flow": "fdi.shifted.physics.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.stuck.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.9,
+     "rel_diff": 0.0,
+     "value": 0.9
+    },
+    {
+     "flow": "fdi.shifted.physics.stuck.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 16.0,
+     "rel_diff": 0.0,
+     "value": 16.0
+    },
+    {
+     "flow": "fdi.shifted.physics.stuck.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.71,
+     "rel_diff": 0.00539575026122785,
+     "value": 0.7061690173145282
+    },
+    {
+     "flow": "fdi.shifted.ar_twin.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.697,
+     "rel_diff": 0.00047824007651835963,
+     "value": 0.6966666666666667
+    },
+    {
+     "flow": "fdi.shifted.pca.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.689,
+     "rel_diff": 0.0001612643122077981,
+     "value": 0.6888888888888888
+    },
+    {
+     "flow": "fdi.shifted.iforest.stuck.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| stuck \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.339,
+     "rel_diff": 0.001147164863979006,
+     "value": 0.33861111111111114
+    },
+    {
+     "flow": "fdi.shifted.physics.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.delayed.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.83,
+     "rel_diff": 0.004016064257028206,
+     "value": 0.8333333333333334
+    },
+    {
+     "flow": "fdi.shifted.physics.delayed.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 5.0,
+     "rel_diff": 0.0,
+     "value": 5.0
+    },
+    {
+     "flow": "fdi.shifted.physics.delayed.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.77,
+     "rel_diff": 0.004611945788416523,
+     "value": 0.7664488017429193
+    },
+    {
+     "flow": "fdi.shifted.ar_twin.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.552,
+     "rel_diff": 0.0006038647342996514,
+     "value": 0.5516666666666666
+    },
+    {
+     "flow": "fdi.shifted.pca.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.662,
+     "rel_diff": 0.0003356831151391597,
+     "value": 0.6622222222222222
+    },
+    {
+     "flow": "fdi.shifted.iforest.delayed.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| delayed \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.521,
+     "rel_diff": 0.0007464278097675299,
+     "value": 0.5213888888888889
+    },
+    {
+     "flow": "fdi.shifted.physics.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.scaling.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "fdi.shifted.physics.scaling.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 4.0,
+     "rel_diff": 0.0,
+     "value": 4.0
+    },
+    {
+     "flow": "fdi.shifted.physics.scaling.localisation",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.7,
+     "rel_diff": 1.5860328923216522e-16,
+     "value": 0.7000000000000001
+    },
+    {
+     "flow": "fdi.shifted.ar_twin.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.669,
+     "rel_diff": 0.00024912805181844135,
+     "value": 0.6691666666666666
+    },
+    {
+     "flow": "fdi.shifted.pca.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.611,
+     "rel_diff": 0.0006364793598836057,
+     "value": 0.6113888888888889
+    },
+    {
+     "flow": "fdi.shifted.iforest.scaling.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| scaling \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.431,
+     "rel_diff": 0.0002577984016500531,
+     "value": 0.43111111111111117
+    },
+    {
+     "flow": "fdi.shifted.physics.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (\\d[\\d.]*)",
+     "reference": 0.901,
+     "rel_diff": 0.0001233197681587812,
+     "value": 0.9011111111111111
+    },
+    {
+     "flow": "fdi.shifted.physics.coordinated_replay.detection_rate",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.83,
+     "rel_diff": 0.004016064257028206,
+     "value": 0.8333333333333334
+    },
+    {
+     "flow": "fdi.shifted.physics.coordinated_replay.delay_min",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^/|]+/ )(?:[^/|]+/ )(\\d[\\d.]*)",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    },
+    {
+     "flow": "fdi.shifted.ar_twin.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.538,
+     "rel_diff": 0.00010326311441558819,
+     "value": 0.5380555555555556
+    },
+    {
+     "flow": "fdi.shifted.pca.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.551,
+     "rel_diff": 0.00020165355918523023,
+     "value": 0.5511111111111111
+    },
+    {
+     "flow": "fdi.shifted.iforest.coordinated_replay.auc",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|(?s)\\*\\*Shifted operating regime.*?\\| coordinated\\ replay \\| (?:[^|]*\\| )(?:[^|]*\\| )(?:[^|]*\\| )(\\d[\\d.]*)",
+     "reference": 0.48,
+     "rel_diff": 0.0005787037037037942,
+     "value": 0.4802777777777778
+    },
+    {
+     "flow": "fdi.nominal.physics.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?physics ([\\d.]+)",
+     "reference": 0.63,
+     "rel_diff": 0.005291005291005237,
+     "value": 0.6333333333333333
+    },
+    {
+     "flow": "fdi.shifted.physics.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?physics \\**(\\d+(?:\\.\\d+)?)",
+     "reference": 0.47,
+     "rel_diff": 0.0070921985815600936,
+     "value": 0.46666666666666673
+    },
+    {
+     "flow": "fdi.nominal.ar_twin.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?AR twin ([\\d.]+)",
+     "reference": 0.63,
+     "rel_diff": 0.005291005291005413,
+     "value": 0.6333333333333334
+    },
+    {
+     "flow": "fdi.shifted.ar_twin.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?AR twin \\**(\\d+(?:\\.\\d+)?)",
+     "reference": 84.4,
+     "rel_diff": 0.00039494470774089377,
+     "value": 84.36666666666667
+    },
+    {
+     "flow": "fdi.nominal.pca.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?PCA ([\\d.]+)",
+     "reference": 0.8,
+     "rel_diff": 1.3877787807814457e-16,
+     "value": 0.7999999999999999
+    },
+    {
+     "flow": "fdi.shifted.pca.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?PCA \\**(\\d+(?:\\.\\d+)?)",
+     "reference": 32.0,
+     "rel_diff": 0.0010416666666666075,
+     "value": 31.96666666666667
+    },
+    {
+     "flow": "fdi.nominal.iforest.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?isolation forest ([\\d.]+)",
+     "reference": 0.5,
+     "rel_diff": 2.220446049250313e-16,
+     "value": 0.5000000000000001
+    },
+    {
+     "flow": "fdi.shifted.iforest.false_alarms_per_day",
+     "outcome": "match",
+     "ref": "text:docs/guides/physics_residual_attack_detection.md|False\\s+alarms per day on clean test data:.*?isolation forest \\**(\\d+(?:\\.\\d+)?)",
+     "reference": 1.07,
+     "rel_diff": 0.00311526479750786,
+     "value": 1.0666666666666667
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/qe/example.security.02_physics_residual_fdi.experiment.json, Lab item manifest/flow/example.security.02_physics_residual_fdi",
+   "matched": 131,
+   "nodes": {
+    "compare": "done",
+    "fdi": "done"
+   },
+   "seconds": 164.3,
+   "status": "done"
+  }
+ },
+ "studio/01_any_result_in_3d": {
+  "quick": {
+   "commit": "3f2296e8",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/q5/example.studio.01_any_result_in_3d-quick.experiment.json, Lab item manifest/flow/example.studio.01_any_result_in_3d-quick",
+   "matched": 0,
+   "nodes": {
+    "scene": "done"
+   },
+   "seconds": 23.0,
    "status": "done"
   }
  },
@@ -2368,6 +3655,71 @@
     "rotor": "done"
    },
    "seconds": 249.9,
+   "status": "done"
+  }
+ },
+ "use_cases/fin_convection_inverse": {
+  "full": {
+   "commit": "3f2296e8",
+   "comparisons": [
+    {
+     "flow": "fin.h_pinn.mean",
+     "outcome": "match",
+     "ref": "fin_convection_inverse/results/summary.json:h_pinn.mean",
+     "reference": 24.831066513061522,
+     "rel_diff": 0.0,
+     "value": 24.831066513061522
+    },
+    {
+     "flow": "fin.h_pinn.std",
+     "outcome": "match",
+     "ref": "fin_convection_inverse/results/summary.json:h_pinn.std",
+     "reference": 0.3606791178076995,
+     "rel_diff": 0.0,
+     "value": 0.3606791178076995
+    },
+    {
+     "flow": "fin.h_least_squares.mean",
+     "outcome": "match",
+     "ref": "fin_convection_inverse/results/summary.json:h_least_squares.mean",
+     "reference": 24.835344419041697,
+     "rel_diff": 1.1335066548798215e-10,
+     "value": 24.8353444218568
+    },
+    {
+     "flow": "fin.q_true_W",
+     "outcome": "match",
+     "ref": "fin_convection_inverse/results/summary.json:q_true_W",
+     "reference": 0.5791503631492161,
+     "rel_diff": 0.0,
+     "value": 0.5791503631492161
+    },
+    {
+     "flow": "fin.q_pinn_W.mean",
+     "outcome": "match",
+     "ref": "fin_convection_inverse/results/summary.json:q_pinn_W.mean",
+     "reference": 0.5783078134059906,
+     "rel_diff": 0.0,
+     "value": 0.5783078134059906
+    },
+    {
+     "flow": "fin.max_field_error_C",
+     "outcome": "match",
+     "ref": "fin_convection_inverse/results/summary.json:max_field_error_C",
+     "reference": 0.7426228586695882,
+     "rel_diff": 4.730311163862997e-07,
+     "value": 0.7426232099533081
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/qd/example-fin-inverse.experiment.json, Lab item manifest/flow/example-fin-inverse",
+   "matched": 6,
+   "nodes": {
+    "compare": "done",
+    "fin": "done"
+   },
+   "seconds": 210.9,
    "status": "done"
   }
  },

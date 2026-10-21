@@ -4,6 +4,7 @@ calls; the flows that use them are under ``pinneapple_flow/flows/examples/<domai
 is :mod:`pinneapple_flow.examples` (``docs/flow_studio/EXAMPLES_AS_FLOWS.md``)."""
 from ..examples import register_hook  # noqa: E402
 from . import (  # noqa: F401
+    aero,
     astro,
     cfd,
     core_ts,
@@ -14,10 +15,15 @@ from . import (  # noqa: F401
     flight,
     forecasting,
     geomechanics,
+    pinn_examples,
+    problemdesign,
     render,
+    security,
     solvers,
     structures,
+    use_cases,
     validation,
+    viz,
 )
 
 register_hook()                         # example-flow runs become Lab experiments (pinneapple_flow.examples)

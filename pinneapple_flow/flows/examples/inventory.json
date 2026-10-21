@@ -68,7 +68,7 @@
  },
  "first_example": {
   "domain": "PINN",
-  "reason": "not converted yet (a later batch of this PR): Burgers PINN against the analytic solution (the bundled burgers_1d flow is the same problem)"
+  "notes": "nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75"
  },
  "flight_dynamics": {
   "domain": "flight dynamics",
@@ -94,7 +94,7 @@
  },
  "geometry_library": {
   "domain": "geometry",
-  "reason": "not converted yet (a later batch of this PR): 03 VLM; 01 needs OpenFOAM; 02's BEM lives in the script"
+  "notes": "03_airliner_vlm: the friction-drag build-up moved from the script into pinneapple_design.aero.buildup.friction_drag (same printed numbers); nothing committed to compare, the published A320-class values (CL_alpha 5.5-6 /rad, L/D 16-18) are in the metric notes. 01 needs OpenFOAM and hours of CPU; 02's BEM lives in the script"
  },
  "geophysics": {
   "domain": "geophysics",
@@ -218,7 +218,7 @@
  },
  "problem_designer": {
   "domain": "design",
-  "reason": "not converted yet (a later batch of this PR): 03 offline report (validators + plan + renderers); 01 / 02 need Gemini and network, 04 / 05 a mock provider defined in the script"
+  "notes": "03_offline_spec_to_report: nothing numeric committed; the flow writes the same report as the script (5 plan steps, no validator warnings). 01 and 02 call Gemini over the network; 04 and 05 use a mock LLM provider defined in the scripts"
  },
  "proof_graph": {
   "domain": "validation",
@@ -226,7 +226,7 @@
  },
  "qualitative": {
   "domain": "design",
-  "reason": "not converted yet (a later batch of this PR): 03 (Ahmed body); 01 / 02 build their variants in the script"
+  "notes": "03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts"
  },
  "rigid_body": {
   "domain": "multibody",
@@ -234,11 +234,11 @@
  },
  "security": {
   "domain": "security",
-  "reason": "not converted yet (a later batch of this PR): 02 cps_bench.run_benchmark (needs scikit-learn); 01 chains a dozen primitives with a DP-SGD loop in the script"
+  "notes": "02_physics_residual_fdi compared with the tables of docs/guides/physics_residual_attack_detection.md (mean of seeds 0 1 2; the isolation forest needs scikit-learn). 01 chains a dozen primitives with a DP-SGD loop written in the script"
  },
  "solver_api": {
   "domain": "PINN",
-  "reason": "not converted yet (a later batch of this PR): pp.compare fem vs pinn on the manufactured Poisson problem (the poisson_2d flow)"
+  "notes": "compared with the FEM and PINN errors quoted in docs/core_concepts/solver.md"
  },
  "solvers": {
   "domain": "numerical solvers",
@@ -246,7 +246,7 @@
  },
  "studio": {
   "domain": "visualization",
-  "reason": "not converted yet (a later batch of this PR): 01 (any result in 3-D); 02 and 04-06 need OpenFOAM; 07 is the lunar-rover dashboard, built by the Flow Studio session on #850 (vehicle.* nodes)"
+  "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"
  },
  "systems": {
   "domain": "systems",
@@ -266,7 +266,7 @@
  },
  "use_cases": {
   "domain": "use cases",
-  "reason": "not converted yet (a later batch of this PR): the fin-convection inverse problem (results/summary.json); concorde LBM, crash, missile, heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's"
+  "notes": "fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes)"
  },
  "validation": {
   "domain": "validation",

@@ -7,10 +7,11 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 5 |
-| no flow | 23 |
-| not yet run | 6 |
+| no flow | 15 |
+| not yet run | 8 |
 | not_convertible | 13 |
-| runs | 20 |
+| runs | 25 |
+| runs-quick | 1 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -28,13 +29,13 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run | 8 / 8 match | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12 + GetDP 3.2 from apt |
 | `end_to_end` | data | - | not_convertible |  | legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh |
 | `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 12 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
-| `first_example` | PINN | - |  |  | not converted yet (a later batch of this PR): Burgers PINN against the analytic solution (the bundled burgers_1d flow is the same problem) |
+| `first_example` | PINN | `first_example/first_example` | not yet run |  | nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75 |
 | `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 127 / 127 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
 | `flow_studio` | flows | - | not_convertible |  | already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step |
-| `free_surface` | CFD | `free_surface/01_runner_slope_study` | runs |  | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
+| `free_surface` | CFD | `free_surface/01_runner_slope_study` | runs | 12 / 12 match | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
 | `geomechanics` | geomechanics | `geomechanics/01_granular_column_collapse` | runs |  | no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md) |
 | `geometry` | geometry | - | not_convertible |  | small demos of geometry I/O and sampling with no numbers (trimesh, meshio, gmsh optional; 08 downloads STL / STEP files); the CSG domains of 07 are geometry.domain / auto.design.geometry.* nodes |
-| `geometry_library` | geometry | - |  |  | not converted yet (a later batch of this PR): 03 VLM; 01 needs OpenFOAM; 02's BEM lives in the script |
+| `geometry_library` | geometry | `geometry_library/03_airliner_vlm` | runs |  | 03_airliner_vlm: the friction-drag build-up moved from the script into pinneapple_design.aero.buildup.friction_drag (same printed numbers); nothing committed to compare, the published A320-class values (CL_alpha 5.5-6 /rad, L/D 16-18) are in the metric notes. 01 needs OpenFOAM and hours of CPU; 02's BEM lives in the script |
 | `geophysics` | geophysics | `geophysics/01_sphere_and_assimilation` | runs |  | nothing committed to compare: the script prints the drifts, RMSEs and the mass-balance ratio |
 | `getting_started` | PINN | - |  |  | not converted yet (a later batch of this PR): pure-torch ODE / PDE PINN scripts (no pinneapple imports); 03 and 04 are the heat_1d flow |
 | `handoff_cases` | CFD | - | needs OpenFOAM (+ xfoil) |  | the airfoil and trough packages run simpleFoam / interFoam campaigns (hours); make_zips.py packs folders |
@@ -62,19 +63,19 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `pinneapple_and_physicsnemo` | PINN | - |  |  | not converted yet (a later batch of this PR): the pinneapple/ benchmark (training loop in the script) against the committed JSON; physicsnemo/ and both/ need NVIDIA PhysicsNeMo-Sym |
 | `pinneapple_benchmark` | benchmarks | - | not_convertible |  | two hand-written PINN benchmarks (760 lines of sampling, residuals and training loops around the architecture classes); nothing committed |
 | `pinneapple_cosim` | co-simulation | - | not_convertible |  | imports pinneapple_cosim, which no longer exists (moved to pinneapple_systems.cosimulation without a shim), and trains in the script |
-| `problem_designer` | design | - |  |  | not converted yet (a later batch of this PR): 03 offline report (validators + plan + renderers); 01 / 02 need Gemini and network, 04 / 05 a mock provider defined in the script |
+| `problem_designer` | design | `problem_designer/03_offline_spec_to_report` | runs |  | 03_offline_spec_to_report: nothing numeric committed; the flow writes the same report as the script (5 plan steps, no validator warnings). 01 and 02 call Gemini over the network; 04 and 05 use a mock LLM provider defined in the scripts |
 | `proof_graph` | validation | `proof_graph/pt_chain_no_go` | runs | 4 / 4 match | status counts compared with the committed report docs/assets/proof_graph/pt_chain_no_go_report.md |
-| `qualitative` | design | - |  |  | not converted yet (a later batch of this PR): 03 (Ahmed body); 01 / 02 build their variants in the script |
+| `qualitative` | design | `qualitative/03_ahmed_slant` | runs |  | 03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts |
 | `rigid_body` | multibody | `rigid_body/newton_quickstart` | runs |  | NVIDIA Newton 1.7 (warp, CPU) installed with pip here |
-| `security` | security | - |  |  | not converted yet (a later batch of this PR): 02 cps_bench.run_benchmark (needs scikit-learn); 01 chains a dozen primitives with a DP-SGD loop in the script |
-| `solver_api` | PINN | - |  |  | not converted yet (a later batch of this PR): pp.compare fem vs pinn on the manufactured Poisson problem (the poisson_2d flow) |
+| `security` | security | `security/02_physics_residual_fdi` | runs | 131 / 131 match | 02_physics_residual_fdi compared with the tables of docs/guides/physics_residual_attack_detection.md (mean of seeds 0 1 2; the isolation forest needs scikit-learn). 01 chains a dozen primitives with a DP-SGD loop written in the script |
+| `solver_api` | PINN | `solver_api/01_classical_vs_pinn` | not yet run |  | compared with the FEM and PINN errors quoted in docs/core_concepts/solver.md |
 | `solvers` | numerical solvers | - |  |  | not converted yet (a later batch of this PR): SolverRegistry.build (decompositions, SPH, FDM vs spectral) |
-| `studio` | visualization | - |  |  | not converted yet (a later batch of this PR): 01 (any result in 3-D); 02 and 04-06 need OpenFOAM; 07 is the lunar-rover dashboard, built by the Flow Studio session on #850 (vehicle.* nodes) |
+| `studio` | visualization | `studio/01_any_result_in_3d` | runs-quick |  | 01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes) |
 | `systems` | systems | `systems/01_component_library_toolbox` | runs |  | the example fits random targets (an API demonstration); nothing to compare |
 | `time_series` | time series | `time_series/adaptive_forecasting` | not yet run |  | flows for adaptive_forecasting.py and 00_quickstart.py (nothing committed to compare); 01-05, 07 and 08 import pinneapple_timeseries, which no longer exists (now pinneapple_systems.time_series, without a shim); 06 registers a model class defined in the script |
 | `topology_optimization` | design | `topology_optimization/01_mbb_beam`<br>`topology_optimization/02_heat_and_stokes_flow`<br>`topology_optimization/03_reluctance_rotor` | runs | 30 / 30 match |  |
 | `trainer` | training | - | not_convertible |  | demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch |
-| `use_cases` | use cases | - |  |  | not converted yet (a later batch of this PR): the fin-convection inverse problem (results/summary.json); concorde LBM, crash, missile, heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's |
+| `use_cases` | use cases | `use_cases/fin_convection_inverse` | runs | 6 / 6 match | fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes) |
 | `validation` | validation | - |  |  | not converted yet (a later batch of this PR): the gallery's run(smoke=True) through pp.validate; 11 needs PhysicsNeMo, 02 onnx |
 | `validation_arena` | validation | `validation_arena/run_arena` | runs | 4 / 4 match | compared with the table of docs/guides/validation_arena.md (full budget, seed 0, alpha 1 %, 2 rounds) |
 | `visualizations` | visualization | - | not_convertible |  | hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows |
@@ -333,11 +334,30 @@ done in 121 s (commit 57c66c1a, 2026-10-19); 24 of 24 numbers match.
 
 ### `free_surface/01_runner_slope_study` (full)
 
-done in 173 s (commit 5d9bf73a, 2026-10-19); 0 of 0 numbers match.
+done in 434 s (commit 3f2296e8, 2026-10-21); 12 of 12 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `plus2.+2 deg.depth_at_jet_m` | `doc:docs/core_concepts/free_surface.md|+2°|Metal under the jet` | 0.256951 | 0.26 | 0.0117252 | match |
+| `plus2.+2 deg.k_zone_mean` | `doc:docs/core_concepts/free_surface.md|+2°|Mean k, impact zone 0.5–3 m` | 1.40474 | 1.4 | 0.00338316 | match |
+| `plus2.+2 deg.k_peak` | `doc:docs/core_concepts/free_surface.md|+2°|Peak k` | 5.03456 | 5 | 0.00691253 | match |
+| `ratio.+2 deg.k_zone_mean_rel_to_baseline` | `doc:docs/core_concepts/free_surface.md|+2°|Relative to 0°` | 2.88461 | 2.9 | 0.00530766 | match |
+| `zero.+0 deg.depth_at_jet_m` | `doc:docs/core_concepts/free_surface.md|0°|Metal under the jet` | 0.5 | 0.5 | 0 | match |
+| `zero.+0 deg.k_zone_mean` | `doc:docs/core_concepts/free_surface.md|0°|Mean k, impact zone 0.5–3 m` | 0.486977 | 0.49 | 0.00617025 | match |
+| `zero.+0 deg.k_peak` | `doc:docs/core_concepts/free_surface.md|0°|Peak k` | 1.62995 | 1.6 | 0.0187175 | match |
+| `ratio.+0 deg.k_zone_mean_rel_to_baseline` | `doc:docs/core_concepts/free_surface.md|0°|Relative to 0°` | 1 | 1 | 0 | match |
+| `minus2.-2 deg.depth_at_jet_m` | `doc:docs/core_concepts/free_surface.md|−2°|Metal under the jet` | 0.743049 | 0.74 | 0.00411967 | match |
+| `minus2.-2 deg.k_zone_mean` | `doc:docs/core_concepts/free_surface.md|−2°|Mean k, impact zone 0.5–3 m` | 0.199353 | 0.2 | 0.00323509 | match |
+| `minus2.-2 deg.k_peak` | `doc:docs/core_concepts/free_surface.md|−2°|Peak k` | 0.39606 | 0.4 | 0.00985088 | match |
+| `ratio.-2 deg.k_zone_mean_rel_to_baseline` | `doc:docs/core_concepts/free_surface.md|−2°|Relative to 0°` | 0.409369 | 0.41 | 0.00153969 | match |
 
 ### `geomechanics/01_granular_column_collapse` (full)
 
 done in 298 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
+### `geometry_library/03_airliner_vlm` (full)
+
+done in 8 s (commit 3f2296e8, 2026-10-21); 0 of 0 numbers match.
 
 ### `geophysics/01_sphere_and_assimilation` (full)
 
@@ -410,6 +430,10 @@ done in 1424 s (commit 5e891c36, 2026-10-19); 12 of 12 numbers match.
 | `opt.bayesian.value` | `doc:docs/core_concepts/physics_optimizer.md|bayesian|value` | -0.0340975 | -0.0340975 | 1.46103e-06 | match |
 | `opt.bayesian.evaluations` | `doc:docs/core_concepts/physics_optimizer.md|bayesian|evaluations` | 61 | 61 | 0 | match |
 
+### `problem_designer/03_offline_spec_to_report` (full)
+
+done in 10 s (commit 3f2296e8, 2026-10-21); 0 of 0 numbers match.
+
 ### `proof_graph/pt_chain_no_go` (full)
 
 done in 242 s (commit 5e891c36, 2026-10-19); 4 of 4 numbers match.
@@ -421,9 +445,155 @@ done in 242 s (commit 5e891c36, 2026-10-19); 4 of 4 numbers match.
 | `graph.status.ARGUED` | `text:docs/assets/proof_graph/pt_chain_no_go_report.md|ARGUED (\d+)` | 4 | 4 | 0 | match |
 | `graph.status.SUPPORTED` | `text:docs/assets/proof_graph/pt_chain_no_go_report.md|SUPPORTED (\d+)` | 2 | 2 | 0 | match |
 
+### `qualitative/03_ahmed_slant` (full)
+
+done in 11 s (commit 3f2296e8, 2026-10-21); 0 of 0 numbers match.
+
 ### `rigid_body/newton_quickstart` (full)
 
 done in 113 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
+### `security/02_physics_residual_fdi` (full)
+
+done in 164 s (commit 3f2296e8, 2026-10-21); 131 of 131 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `fdi.nominal.physics.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.bias.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.bias.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 7.5 | 8 | 0.0625 | match |
+| `fdi.nominal.physics.bias.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.983333 | 0.98 | 0.00340136 | match |
+| `fdi.nominal.ar_twin.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.bias.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.bias.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 16.5 | 16 | 0.03125 | match |
+| `fdi.nominal.ar_twin.bias.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.0333333 | 0.03 | 0.111111 | match |
+| `fdi.nominal.pca.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.489722 | 0.49 | 0.000566893 | match |
+| `fdi.nominal.pca.bias.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.1 | 0.1 | 1.38778e-16 | match |
+| `fdi.nominal.pca.bias.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 122 | 122 | 0 | match |
+| `fdi.nominal.iforest.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.4975 | 0.497 | 0.00100604 | match |
+| `fdi.nominal.iforest.bias.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.0333333 | 0.03 | 0.111111 | match |
+| `fdi.nominal.iforest.bias.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| bias\ \(F12\ \+4\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 152.5 | 152 | 0.00328947 | match |
+| `fdi.nominal.physics.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.ramp.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.ramp.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 108 | 108 | 0 | match |
+| `fdi.nominal.physics.ramp.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.933333 | 0.93 | 0.00358423 | match |
+| `fdi.nominal.ar_twin.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.ramp.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.ramp.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 81.5 | 82 | 0.00609756 | match |
+| `fdi.nominal.ar_twin.ramp.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.566667 | 0.57 | 0.00584795 | match |
+| `fdi.nominal.pca.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.497222 | 0.497 | 0.000447127 | match |
+| `fdi.nominal.pca.ramp.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.1 | 0.1 | 1.38778e-16 | match |
+| `fdi.nominal.pca.ramp.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 119 | 119 | 0 | match |
+| `fdi.nominal.iforest.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.504167 | 0.504 | 0.000330688 | match |
+| `fdi.nominal.iforest.ramp.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.05 | 0.05 | 1.38778e-16 | match |
+| `fdi.nominal.iforest.ramp.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| ramp\ \(h2,\ 0\ →\ 8\ cm\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 148 | 148 | 0 | match |
+| `fdi.nominal.physics.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.stuck.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^/|]+/ )(\d[\d.]*)` | 0.983333 | 0.98 | 0.00340136 | match |
+| `fdi.nominal.physics.stuck.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 9 | 9 | 0 | match |
+| `fdi.nominal.physics.stuck.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.931579 | 0.93 | 0.00169779 | match |
+| `fdi.nominal.ar_twin.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.stuck.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.983333 | 0.98 | 0.00340136 | match |
+| `fdi.nominal.ar_twin.stuck.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 9.5 | 10 | 0.05 | match |
+| `fdi.nominal.ar_twin.stuck.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.762281 | 0.76 | 0.00300092 | match |
+| `fdi.nominal.pca.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.814722 | 0.815 | 0.000340832 | match |
+| `fdi.nominal.pca.stuck.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.666667 | 0.67 | 0.00497512 | match |
+| `fdi.nominal.pca.stuck.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 89 | 89 | 0 | match |
+| `fdi.nominal.iforest.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.368333 | 0.368 | 0.000905797 | match |
+| `fdi.nominal.iforest.stuck.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.0333333 | 0.03 | 0.111111 | match |
+| `fdi.nominal.iforest.stuck.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| stuck\ \(h3\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 202.5 | 202 | 0.00247525 | match |
+| `fdi.nominal.physics.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.delayed.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^/|]+/ )(\d[\d.]*)` | 0.966667 | 0.97 | 0.00343643 | match |
+| `fdi.nominal.physics.delayed.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.delayed.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(\d[\d.]*)` | 0.993889 | 0.994 | 0.000111782 | match |
+| `fdi.nominal.ar_twin.delayed.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.9 | 0.9 | 0 | match |
+| `fdi.nominal.ar_twin.delayed.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 3 | 3 | 0 | match |
+| `fdi.nominal.ar_twin.delayed.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.pca.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.876944 | 0.877 | 6.33473e-05 | match |
+| `fdi.nominal.pca.delayed.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.766667 | 0.77 | 0.004329 | match |
+| `fdi.nominal.pca.delayed.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 51 | 51 | 0 | match |
+| `fdi.nominal.iforest.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.591944 | 0.592 | 9.38438e-05 | match |
+| `fdi.nominal.iforest.delayed.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.1 | 0.1 | 1.38778e-16 | match |
+| `fdi.nominal.iforest.delayed.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| delayed\ \(F23,\ 24\ h\ old\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 148 | 148 | 0 | match |
+| `fdi.nominal.physics.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.scaling.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.physics.scaling.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 4 | 4 | 0 | match |
+| `fdi.nominal.physics.scaling.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.9 | 0.9 | 0 | match |
+| `fdi.nominal.ar_twin.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.scaling.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.nominal.ar_twin.scaling.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 6 | 6 | 0 | match |
+| `fdi.nominal.ar_twin.scaling.localisation` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.0666667 | 0.07 | 0.047619 | match |
+| `fdi.nominal.pca.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.631667 | 0.632 | 0.000527426 | match |
+| `fdi.nominal.pca.scaling.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.25 | 0.25 | 0 | match |
+| `fdi.nominal.pca.scaling.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 137 | 137 | 0 | match |
+| `fdi.nominal.iforest.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.499444 | 0.499 | 0.00089067 | match |
+| `fdi.nominal.iforest.scaling.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.0833333 | 0.08 | 0.0416667 | match |
+| `fdi.nominal.iforest.scaling.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| scaling\ \(Fd\ −8\ %\) \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 143.5 | 144 | 0.00347222 | match |
+| `fdi.nominal.physics.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (\d[\d.]*)` | 0.98625 | 0.986 | 0.00025355 | match |
+| `fdi.nominal.physics.coordinated_replay.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^/|]+/ )(\d[\d.]*)` | 0.966667 | 0.97 | 0.00343643 | match |
+| `fdi.nominal.physics.coordinated_replay.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0 | 0 | 0 | match |
+| `fdi.nominal.ar_twin.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(\d[\d.]*)` | 0.99 | 0.99 | 1.12144e-16 | match |
+| `fdi.nominal.ar_twin.coordinated_replay.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.966667 | 0.97 | 0.00343643 | match |
+| `fdi.nominal.ar_twin.coordinated_replay.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0 | 0 | 0 | match |
+| `fdi.nominal.pca.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.496389 | 0.496 | 0.00078405 | match |
+| `fdi.nominal.pca.coordinated_replay.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.133333 | 0.13 | 0.025641 | match |
+| `fdi.nominal.pca.coordinated_replay.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 96 | 96 | 0 | match |
+| `fdi.nominal.iforest.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.462778 | 0.463 | 0.000479962 | match |
+| `fdi.nominal.iforest.coordinated_replay.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(\d[\d.]*)` | 0.05 | 0.05 | 1.38778e-16 | match |
+| `fdi.nominal.iforest.coordinated_replay.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 94 | 94 | 0 | match |
+| `fdi.shifted.physics.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| bias \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.bias.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| bias \| (?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.bias.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| bias \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 6 | 6 | 0 | match |
+| `fdi.shifted.physics.bias.localisation` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| bias \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.983333 | 0.98 | 0.00340136 | match |
+| `fdi.shifted.ar_twin.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| bias \| (?:[^|]*\| )(\d[\d.]*)` | 0.670278 | 0.67 | 0.000414594 | match |
+| `fdi.shifted.pca.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| bias \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.561944 | 0.562 | 9.88533e-05 | match |
+| `fdi.shifted.iforest.bias.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| bias \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.453889 | 0.454 | 0.000244738 | match |
+| `fdi.shifted.physics.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| ramp \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.ramp.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| ramp \| (?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.ramp.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| ramp \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 127.5 | 128 | 0.00390625 | match |
+| `fdi.shifted.physics.ramp.localisation` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| ramp \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.95 | 0.95 | 1.16866e-16 | match |
+| `fdi.shifted.ar_twin.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| ramp \| (?:[^|]*\| )(\d[\d.]*)` | 0.7325 | 0.733 | 0.000682128 | match |
+| `fdi.shifted.pca.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| ramp \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.559722 | 0.56 | 0.000496032 | match |
+| `fdi.shifted.iforest.ramp.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| ramp \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.439167 | 0.439 | 0.000379651 | match |
+| `fdi.shifted.physics.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| stuck \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.stuck.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| stuck \| (?:[^/|]+/ )(\d[\d.]*)` | 0.9 | 0.9 | 0 | match |
+| `fdi.shifted.physics.stuck.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| stuck \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 16 | 16 | 0 | match |
+| `fdi.shifted.physics.stuck.localisation` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| stuck \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.706169 | 0.71 | 0.00539575 | match |
+| `fdi.shifted.ar_twin.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| stuck \| (?:[^|]*\| )(\d[\d.]*)` | 0.696667 | 0.697 | 0.00047824 | match |
+| `fdi.shifted.pca.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| stuck \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.688889 | 0.689 | 0.000161264 | match |
+| `fdi.shifted.iforest.stuck.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| stuck \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.338611 | 0.339 | 0.00114716 | match |
+| `fdi.shifted.physics.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| delayed \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.delayed.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| delayed \| (?:[^/|]+/ )(\d[\d.]*)` | 0.833333 | 0.83 | 0.00401606 | match |
+| `fdi.shifted.physics.delayed.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| delayed \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 5 | 5 | 0 | match |
+| `fdi.shifted.physics.delayed.localisation` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| delayed \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.766449 | 0.77 | 0.00461195 | match |
+| `fdi.shifted.ar_twin.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| delayed \| (?:[^|]*\| )(\d[\d.]*)` | 0.551667 | 0.552 | 0.000603865 | match |
+| `fdi.shifted.pca.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| delayed \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.662222 | 0.662 | 0.000335683 | match |
+| `fdi.shifted.iforest.delayed.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| delayed \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.521389 | 0.521 | 0.000746428 | match |
+| `fdi.shifted.physics.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| scaling \| (\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.scaling.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| scaling \| (?:[^/|]+/ )(\d[\d.]*)` | 1 | 1 | 0 | match |
+| `fdi.shifted.physics.scaling.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| scaling \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 4 | 4 | 0 | match |
+| `fdi.shifted.physics.scaling.localisation` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| scaling \| (?:[^/|]+/ )(?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0.7 | 0.7 | 1.58603e-16 | match |
+| `fdi.shifted.ar_twin.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| scaling \| (?:[^|]*\| )(\d[\d.]*)` | 0.669167 | 0.669 | 0.000249128 | match |
+| `fdi.shifted.pca.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| scaling \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.611389 | 0.611 | 0.000636479 | match |
+| `fdi.shifted.iforest.scaling.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| scaling \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.431111 | 0.431 | 0.000257798 | match |
+| `fdi.shifted.physics.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| coordinated\ replay \| (\d[\d.]*)` | 0.901111 | 0.901 | 0.00012332 | match |
+| `fdi.shifted.physics.coordinated_replay.detection_rate` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| coordinated\ replay \| (?:[^/|]+/ )(\d[\d.]*)` | 0.833333 | 0.83 | 0.00401606 | match |
+| `fdi.shifted.physics.coordinated_replay.delay_min` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| coordinated\ replay \| (?:[^/|]+/ )(?:[^/|]+/ )(\d[\d.]*)` | 0 | 0 | 0 | match |
+| `fdi.shifted.ar_twin.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| coordinated\ replay \| (?:[^|]*\| )(\d[\d.]*)` | 0.538056 | 0.538 | 0.000103263 | match |
+| `fdi.shifted.pca.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.551111 | 0.551 | 0.000201654 | match |
+| `fdi.shifted.iforest.coordinated_replay.auc` | `text:docs/guides/physics_residual_attack_detection.md|(?s)\*\*Shifted operating regime.*?\| coordinated\ replay \| (?:[^|]*\| )(?:[^|]*\| )(?:[^|]*\| )(\d[\d.]*)` | 0.480278 | 0.48 | 0.000578704 | match |
+| `fdi.nominal.physics.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?physics ([\d.]+)` | 0.633333 | 0.63 | 0.00529101 | match |
+| `fdi.shifted.physics.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|False\s+alarms per day on clean test data:.*?physics \**(\d+(?:\.\d+)?)` | 0.466667 | 0.47 | 0.0070922 | match |
+| `fdi.nominal.ar_twin.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?AR twin ([\d.]+)` | 0.633333 | 0.63 | 0.00529101 | match |
+| `fdi.shifted.ar_twin.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|False\s+alarms per day on clean test data:.*?AR twin \**(\d+(?:\.\d+)?)` | 84.3667 | 84.4 | 0.000394945 | match |
+| `fdi.nominal.pca.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?PCA ([\d.]+)` | 0.8 | 0.8 | 1.38778e-16 | match |
+| `fdi.shifted.pca.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|False\s+alarms per day on clean test data:.*?PCA \**(\d+(?:\.\d+)?)` | 31.9667 | 32 | 0.00104167 | match |
+| `fdi.nominal.iforest.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|false alarms per day on clean test data:[^)]*?isolation forest ([\d.]+)` | 0.5 | 0.5 | 2.22045e-16 | match |
+| `fdi.shifted.iforest.false_alarms_per_day` | `text:docs/guides/physics_residual_attack_detection.md|False\s+alarms per day on clean test data:.*?isolation forest \**(\d+(?:\.\d+)?)` | 1.06667 | 1.07 | 0.00311526 | match |
+
+### `studio/01_any_result_in_3d` (quick)
+
+done in 23 s (commit 3f2296e8, 2026-10-21); 0 of 0 numbers match.
 
 ### `systems/01_component_library_toolbox` (full)
 
@@ -480,6 +650,19 @@ done in 250 s (commit b25e808a, 2026-10-19); 10 of 10 numbers match.
 | `rotor.torque_linear_10deg_Nm` | `results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.2` | 35.8488 | 35.8488 | 7.44946e-08 | match |
 | `rotor.solid_round_rotor_torque_Nm` | `results/reluctance_rotor_summary.json:solid_round_rotor_torque_Nm` | -2.80074e-11 | -2.4298e-11 | 0.152665 | match |
 
+### `use_cases/fin_convection_inverse` (full)
+
+done in 211 s (commit 3f2296e8, 2026-10-21); 6 of 6 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `fin.h_pinn.mean` | `fin_convection_inverse/results/summary.json:h_pinn.mean` | 24.8311 | 24.8311 | 0 | match |
+| `fin.h_pinn.std` | `fin_convection_inverse/results/summary.json:h_pinn.std` | 0.360679 | 0.360679 | 0 | match |
+| `fin.h_least_squares.mean` | `fin_convection_inverse/results/summary.json:h_least_squares.mean` | 24.8353 | 24.8353 | 1.13351e-10 | match |
+| `fin.q_true_W` | `fin_convection_inverse/results/summary.json:q_true_W` | 0.57915 | 0.57915 | 0 | match |
+| `fin.q_pinn_W.mean` | `fin_convection_inverse/results/summary.json:q_pinn_W.mean` | 0.578308 | 0.578308 | 0 | match |
+| `fin.max_field_error_C` | `fin_convection_inverse/results/summary.json:max_field_error_C` | 0.742623 | 0.742623 | 4.73031e-07 | match |
+
 ### `validation_arena/run_arena` (full)
 
 done in 600 s (commit 5e891c36, 2026-10-19); 4 of 4 numbers match.
@@ -512,7 +695,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `01_list_models.py` | - | `pinneapple_models.ModelRegistry`, `pinneapple_models.register_all` |
 | `02_autoencoders.py` | - | `pinneapple_neural.architectures.autoencoders.ae_2d.Autoencoder2D`, `pinneapple_neural.architectures.autoencoders.ae_rom_hybrid.AEROMHybrid`, `pinneapple_neural.architectures.autoencoders.dense_ae.DenseAutoencoder`, `pinneapple_neural.architectures.autoencoders.kae.KAEAutoencoder`, `pinneapple_neural.architectures.autoencoders.koopman_pi_ae.PhysicsInformedKoopmanAutoencoder`, `pinneapple_neural.architectures.autoencoders.vae.VariationalAutoencoder` |
 | `03_classical_ts.py` | `pinneapple_neural.architectures.classical_ts.ekf.ExtendedKalmanFilter`, `pinneapple_neural.architectures.classical_ts.enkf.EnsembleKalmanFilter`, `pinneapple_neural.architectures.classical_ts.kalman.KalmanFilter` | `pinneapple_neural.architectures.classical_ts.arima.ARIMA`, `pinneapple_neural.architectures.classical_ts.tcn.TCN`, `pinneapple_neural.architectures.classical_ts.ukf.UnscentedKalmanFilter`, `pinneapple_neural.architectures.classical_ts.var.VAR` |
-| `04_pinns.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN` | `pinneapple_models.VanillaPINN`, `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pielm.PIELMFactoryAdapter`, `pinneapple_neural.architectures.pinns.pinn_lstm.PINNLSTM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vpinn.VPINN`, `pinneapple_neural.architectures.pinns.vpinn.pinn_factory_adapter`, `pinneapple_neural.architectures.pinns.xpinn.XPINN`, `pinneapple_neural.architectures.pinns.xtfc.XTFC`, `pinneapple_neural.architectures.pinns.xtfc.XTFCConfig`, `pinneapple_neural.architectures.pinns.xtfc.XTFCFactoryModel`, `pinneapple_neural.trainer.parallel.best_device`, `pinneapple_physics.metrics.relative_l2`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `04_pinns.py` | `pinneapple_physics.metrics.relative_l2`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_models.VanillaPINN`, `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pielm.PIELMFactoryAdapter`, `pinneapple_neural.architectures.pinns.pinn_lstm.PINNLSTM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vpinn.VPINN`, `pinneapple_neural.architectures.pinns.vpinn.pinn_factory_adapter`, `pinneapple_neural.architectures.pinns.xpinn.XPINN`, `pinneapple_neural.architectures.pinns.xtfc.XTFC`, `pinneapple_neural.architectures.pinns.xtfc.XTFCConfig`, `pinneapple_neural.architectures.pinns.xtfc.XTFCFactoryModel`, `pinneapple_neural.trainer.parallel.best_device`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
 | `05_continuous.py` | - | `pinneapple_neural.architectures.continuous.bayesian_rnn.BayesianRNN`, `pinneapple_neural.architectures.continuous.deep_state_space.DeepStateSpaceModel`, `pinneapple_neural.architectures.continuous.hamiltonian.HamiltonianNeuralNetwork`, `pinneapple_neural.architectures.continuous.latent_ode.LatentODE`, `pinneapple_neural.architectures.continuous.neural_cde.NeuralCDE`, `pinneapple_neural.architectures.continuous.neural_gp.NeuralGaussianProcess`, `pinneapple_neural.architectures.continuous.neural_ode.NeuralODE`, `pinneapple_neural.architectures.continuous.neural_sde.NeuralSDE`, `pinneapple_neural.architectures.continuous.ode_rnn.ODERNN`, `pinneapple_neural.architectures.continuous.symplectic_ode.SymplecticODENet`, `pinneapple_neural.architectures.continuous.symplectic_rnn.SymplecticRNN` |
 | `10_operator_learning_fno_toy.py` | `pinneapple_models.FourierNeuralOperator` | - |
 | `20_pinn_inverse_parameter_ode.py` | - | `pinneapple_models.VanillaPINN` |
@@ -530,7 +713,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `00_list_datasets.py` | `pinneapple_data.datasets.dataset_ids`, `pinneapple_data.datasets.list_datasets` | `pinneapple_data.datasets.load_dataset` |
 | `01_physics_benchmark.py` | - | `pinneapple_tools.benchmark_suite.PhysicsBenchmarkSpec` |
 | `02_timeseries_benchmark.py` | - | `pinneapple_tools.benchmark_suite.TimeSeriesBenchmarkSpec` |
-| `03_kovasznay_ns_benchmark.py` | `pinneapple_physics.pinn_solver.compiler.autograd_ops.grad` | `pinneapple_neural.architectures.graphnn.base.GraphBatch`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.architectures.neural_operators.fno.FNO2d`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_neural.trainer.parallel.best_device`, `pinneapple_physics.metrics.relative_l2`, `pinneapple_physics.metrics.relative_linf`, `pinneapple_tools.visualization.fields.plot_scalar`, `pinneapple_tools.visualization.fields.plot_streamlines` |
+| `03_kovasznay_ns_benchmark.py` | `pinneapple_physics.metrics.relative_l2`, `pinneapple_physics.pinn_solver.compiler.autograd_ops.grad` | `pinneapple_neural.architectures.graphnn.base.GraphBatch`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.architectures.neural_operators.fno.FNO2d`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_neural.trainer.parallel.best_device`, `pinneapple_physics.metrics.relative_linf`, `pinneapple_tools.visualization.fields.plot_scalar`, `pinneapple_tools.visualization.fields.plot_streamlines` |
 | `04_arena_from_yaml.py` | `pinneapple_arena.Arena` | `pinneapple_arena.ArenaConfig` |
 | `05_all_problems_gallery.py` | `pinneapple_arena.Arena` | `pinneapple_arena.ArenaConfig`, `pinneapple_arena.list_problems_by_domain` |
 | `06_custom_problem.py` | `pinneapple_arena.Arena` | `pinneapple_arena.ArenaConfig`, `pinneapple_arena.ArenaProblem`, `pinneapple_arena.register_problem`, `pinneapple_neural.utils.as_tensor` |
@@ -552,23 +735,23 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_quickstart_native.py` | - | `pinneapple_arena.runner.run_benchmark.run_benchmark` |
+| `01_quickstart_native.py` | `pinneapple_arena.runner.run_benchmark.run_benchmark` | - |
 | `02_arena_from_yaml.py` | - | `pinneapple_tools.benchmark_suite.runner.run_arena_yaml.run_arena_experiment` |
 | `03_pinn_burgers_full_pipeline.py` | `pinneapple_physics.pde_environment.get_preset`, `pinneapple_train.Trainer` | `pinneapple_neural.ThroughputMonitor`, `pinneapple_neural.batched_inference`, `pinneapple_neural.best_device`, `pinneapple_neural.build_metrics_from_cfg`, `pinneapple_neural.infer_on_grid_2d`, `pinneapple_neural.maybe_compile`, `pinneapple_train.TrainConfig` |
-| `04_custom_task_poisson_bundle.py` | - | `pinneapple_arena.bundle.loader.BundleData`, `pinneapple_arena.bundle.loader.load_bundle`, `pinneapple_arena.bundle.schema.load_bundle_schema`, `pinneapple_arena.registry.register_backend`, `pinneapple_arena.registry.register_task`, `pinneapple_arena.runner.run_benchmark.run_benchmark`, `pinneapple_physics.pinn_solver.compiler.autograd_ops.laplacian` |
+| `04_custom_task_poisson_bundle.py` | `pinneapple_arena.runner.run_benchmark.run_benchmark` | `pinneapple_arena.bundle.loader.BundleData`, `pinneapple_arena.bundle.loader.load_bundle`, `pinneapple_arena.bundle.schema.load_bundle_schema`, `pinneapple_arena.registry.register_backend`, `pinneapple_arena.registry.register_task`, `pinneapple_physics.pinn_solver.compiler.autograd_ops.laplacian` |
 | `04_digital_twin_flow.py` | `pinneapple_digital_twin.EnsembleKalmanFilter` | `pinneapple_digital_twin.DigitalTwin`, `pinneapple_digital_twin.DigitalTwinConfig`, `pinneapple_digital_twin.MockStream`, `pinneapple_digital_twin.Sensor`, `pinneapple_digital_twin.SensorRegistry`, `pinneapple_digital_twin.ThresholdDetector`, `pinneapple_digital_twin.ZScoreDetector`, `pinneapple_digital_twin.build_digital_twin`, `pinneapple_digital_twin.monitoring.AnomalyMonitor`, `pinneapple_train.batched_inference`, `pinneapple_train.best_device` |
 | `05_surrogate_deeponet_multifield.py` | `pinneapple_neural.architectures.neural_operators.deeponet.DeepONet` | `pinneapple_train.AMPContext`, `pinneapple_train.GradAccumConfig`, `pinneapple_train.GradAccumTrainer`, `pinneapple_train.ThroughputMonitor`, `pinneapple_train.batched_inference`, `pinneapple_train.best_device`, `pinneapple_train.maybe_compile` |
-| `06_end_to_end_generic_pinn_and_digital_twin.py` | `pinneapple_physics.pde_environment.DataConstraint`, `pinneapple_physics.pde_environment.DirichletBC`, `pinneapple_physics.pde_environment.InitialCondition`, `pinneapple_train.Trainer` | `pinneapple_models.ModelRegistry`, `pinneapple_models.register_all`, `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem`, `pinneapple_physics.pde_environment.PDETermSpec`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_physics.pinn_solver.compiler.dataset.SingleBatchDataset`, `pinneapple_physics.pinn_solver.compiler.dataset.dict_collate`, `pinneapple_train.TrainConfig` |
+| `06_end_to_end_generic_pinn_and_digital_twin.py` | `pinneapple_physics.pde_environment.DataConstraint`, `pinneapple_physics.pde_environment.DirichletBC`, `pinneapple_physics.pde_environment.InitialCondition`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_train.Trainer` | `pinneapple_models.ModelRegistry`, `pinneapple_models.register_all`, `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem`, `pinneapple_physics.pde_environment.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.dataset.SingleBatchDataset`, `pinneapple_physics.pinn_solver.compiler.dataset.dict_collate`, `pinneapple_train.TrainConfig` |
 | `06_engineering_presets_showcase.py` | `pinneapple_physics.pde_environment.get_preset`, `pinneapple_physics.pde_environment.list_presets` | `pinneapple_neural.best_device` |
 | `07_end_to_end_genetic_sdf_fdm_sweep.py` | - | `pinneapple_arena.runner.compare.compare_runs`, `pinneapple_arena.runner.run_sweep.run_sweep` |
 | `07_xtfc_1d_ode.py` | - | `pinneapple_models.VanillaPINN`, `pinneapple_neural.architectures.pinns.xtfc.XTFC`, `pinneapple_neural.architectures.pinns.xtfc.XTFCConfig`, `pinneapple_neural.architectures.pinns.xtfc.build_xtfc`, `pinneapple_neural.architectures.pinns.xtfc.tfc_available` |
 | `08_hyperparameter_sweep_parallel.py` | - | `pinneapple_train.SweepConfig`, `pinneapple_train.ThroughputMonitor`, `pinneapple_train.best_device`, `pinneapple_train.run_parallel_sweep` |
 | `09_full_pipeline_yaml.py` | - | `pinneapple_arena.run_full_pipeline` |
 | `10_datacenter_digital_twin.py` | `pinneapple_physics.pde_environment.get_preset`, `pinneapple_systems.digital_twin.EnsembleKalmanFilter` | `pinneapple_neural.best_device`, `pinneapple_systems.digital_twin.DigitalTwin`, `pinneapple_systems.digital_twin.DigitalTwinConfig`, `pinneapple_systems.digital_twin.MockStream`, `pinneapple_systems.digital_twin.Observation`, `pinneapple_systems.digital_twin.Sensor`, `pinneapple_systems.digital_twin.SensorRegistry`, `pinneapple_systems.digital_twin.ThresholdDetector`, `pinneapple_systems.digital_twin.ZScoreDetector`, `pinneapple_systems.digital_twin.build_digital_twin` |
-| `11_problem_design_pipeline.py` | `pinneapple_physics.pde_environment.get_preset`, `pinneapple_physics.pde_environment.list_presets`, `pinneapple_tools.benchmark_suite.Arena` | `pinneapple_physics.pde_environment.PDETermSpec`, `pinneapple_physics.pde_environment.ProblemBuilder`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_tools.benchmark_suite.ArenaResult` |
+| `11_problem_design_pipeline.py` | `pinneapple_physics.pde_environment.ProblemBuilder`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_physics.pde_environment.get_preset`, `pinneapple_physics.pde_environment.list_presets`, `pinneapple_tools.benchmark_suite.Arena` | `pinneapple_physics.pde_environment.PDETermSpec`, `pinneapple_tools.benchmark_suite.ArenaResult` |
 | `12_physics_benchmark_suite.py` | `pinneapple_arena.benchmark.PINNArenaBenchmark` | `pinneapple_arena.benchmark.BenchmarkConfig` |
 | `13_transfer_meta_benchmark.py` | - | `pinneapple_arena.meta_benchmark.MetaBenchmarkConfig`, `pinneapple_arena.meta_benchmark.MetaBenchmarkPipeline`, `pinneapple_arena.meta_benchmark.MetaBenchmarkResult`, `pinneapple_arena.transfer_benchmark.TransferBenchmarkConfig`, `pinneapple_arena.transfer_benchmark.TransferBenchmarkPipeline`, `pinneapple_arena.transfer_benchmark.TransferBenchmarkResult` |
-| `14_physics_simulation_surrogate_workflow.py` | `pinneapple_physics.metrics.summary` | `pinneapple_physics.metrics.relative_l2` |
+| `14_physics_simulation_surrogate_workflow.py` | `pinneapple_physics.metrics.relative_l2`, `pinneapple_physics.metrics.summary` | - |
 | `15_naca0012_aerodynamic_surrogate.py` | - | `pinneapple_tools.visualization.style.use_cfd_style` |
 | `16_common_pinn_examples.py` | - | `pinneapple_tools.visualization.style.use_cfd_style` |
 | `17_3d_geometry_pinn.py` | - | `pinneapple_tools.visualization.style.use_cfd_style` |
@@ -665,7 +848,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 |---|---|---|
 | `01_upd_zarr_train_with_solvers.py` | `pinneapple_data.collate.collate_upd_supervised`, `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_data.physical_sample.PhysicalSample`, `pinneapple_data.zarr_iterable.ZarrUPDIterable`, `pinneapple_data.zarr_store.UPDZarrStore`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.preprocess.PreprocessPipeline`, `pinneapple_neural.trainer.trainer.TrainConfig` |
 | `02_mesh_to_train_points.py` | `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_data.physical_sample.PhysicalSample`, `pinneapple_design.geometry.io.stl.load_stl`, `pinneapple_design.geometry.ops.repair.repair_mesh`, `pinneapple_design.geometry.ops.simplify.simplify_mesh`, `pinneapple_design.geometry.sample.points.sample_surface_points`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig` |
-| `03_pinn_physics_loss_training.py` | `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.PhysicsLossHook`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `03_pinn_physics_loss_training.py` | `pinneapple_neural.trainer.trainer.Trainer`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.PhysicsLossHook`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
 | `04_cadquery_to_upd_zarr_train.py` | `pinneapple_data.collate.collate_upd_supervised`, `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_data.physical_sample.PhysicalSample`, `pinneapple_data.zarr_iterable.ZarrUPDIterable`, `pinneapple_data.zarr_store.UPDZarrStore`, `pinneapple_design.geometry.gen.cadquery_gen.build_mesh_from_cadquery_object`, `pinneapple_design.geometry.sample.points.sample_surface_points`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig` |
 | `05_registry_train_and_infer.py` | `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_neural.architectures.register_all.register_all`, `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_neural.trainer.checkpoint.load_checkpoint`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig`, `pinneapple_neural.utils.as_tensor` |
 | `06_stl_pipeline_heat.py` | `pinneapple_physics.pde_environment.presets.industry.steady_heat_conduction_3d_default` | `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchBuilder`, `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchConfig`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_physics.pinn_solver.compiler.LossWeights`, `pinneapple_physics.pinn_solver.compiler.compile_problem` |
@@ -684,7 +867,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `first_example.py` | `pp.metrics`, `pp.solve` | `pp.PhysicalProblem` |
+| `first_example.py` | `pp.PhysicalProblem`, `pp.metrics`, `pp.solve` | - |
 
 </details>
 
@@ -737,7 +920,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `02_repair_and_simplify.py` | - | `pinneapple_design.geometry.io.trimesh_bridge.TrimeshBridge`, `pinneapple_design.geometry.ops.repair.repair_mesh`, `pinneapple_design.geometry.ops.simplify.simplify_mesh` |
 | `03_parametric_boolean_and_export_stl.py` | `pinneapple_design.geometry.core.registry.build_geometry_asset` | `pinneapple_design.geometry.core.geometry.GeometrySpec` |
 | `04_curvature_importance_sampling.py` | - | `pinneapple_design.geometry.gen.primitives.build_primitive`, `pinneapple_design.geometry.ops.features.compute_curvature_proxy`, `pinneapple_design.geometry.ops.features.compute_face_areas`, `pinneapple_design.geometry.sample.points.sample_surface_points`, `pinneapple_design.geometry.sample.points.sample_surface_points_weighted` |
-| `05_stl_domain_batchbuilder_inlet_outlet_wall.py` | `pinneapple_physics.pde_environment.DirichletBC` | `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchBuilder`, `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchConfig`, `pinneapple_design.geometry.gen.primitives.build_primitive`, `pinneapple_physics.pde_environment.PDETermSpec`, `pinneapple_physics.pde_environment.ProblemSpec` |
+| `05_stl_domain_batchbuilder_inlet_outlet_wall.py` | `pinneapple_physics.pde_environment.DirichletBC`, `pinneapple_physics.pde_environment.ProblemSpec` | `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchBuilder`, `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchConfig`, `pinneapple_design.geometry.gen.primitives.build_primitive`, `pinneapple_physics.pde_environment.PDETermSpec` |
 | `06_meshio_roundtrip_with_pointdata.py` | - | `pinneapple_design.geometry.gen.primitives.build_primitive`, `pinneapple_design.geometry.io.meshio_bridge.meshio_to_upd`, `pinneapple_design.geometry.io.meshio_bridge.save_meshio` |
 | `07_csg_domain_demo.py` | `pinneapple_design.geometry.csg.annulus`, `pinneapple_design.geometry.csg.channel_with_hole`, `pinneapple_design.geometry.csg.lshape`, `pinneapple_design.geometry.csg.t_junction` | `pinneapple_design.geometry.csg.CSGCircle`, `pinneapple_design.geometry.csg.CSGEllipse`, `pinneapple_design.geometry.csg.CSGPolygon`, `pinneapple_design.geometry.csg.CSGRectangle` |
 | `08_open_cad_datasets_showcase.py` | - | `pinneapple_data.geometry_features.featurize_mesh`, `pinneapple_data.stl_import.load_stl`, `pinneapple_design.geometry.io.step.StepImportConfig`, `pinneapple_design.geometry.io.step.step_to_mesh`, `pinneapple_design.geometry.ops.voxelize.voxelize_pointcloud` |
@@ -748,9 +931,9 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_caarc_building_wind_openfoam.py` | `pp.viz` | `pp.cfd`, `pp.geometries` |
-| `02_wind_turbine_bem.py` | - | `pinneapple_design.geometry_library.entries.wind_turbine.BLADE`, `pp.geometries` |
-| `03_airliner_vlm.py` | `pinneapple_design.aero.vlm.solve` | `pinneapple_design.aero.airliner.Airliner`, `pinneapple_design.geometry_library.meshops`, `pp.geometries` |
+| `01_caarc_building_wind_openfoam.py` | `pp.geometries`, `pp.viz` | `pp.cfd` |
+| `02_wind_turbine_bem.py` | `pp.geometries` | `pinneapple_design.geometry_library.entries.wind_turbine.BLADE` |
+| `03_airliner_vlm.py` | `pinneapple_design.aero.airliner.Airliner`, `pinneapple_design.aero.buildup.friction_drag`, `pinneapple_design.aero.vlm.solve`, `pp.geometries` | - |
 
 </details>
 
@@ -975,8 +1158,8 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 |---|---|---|
 | `00_quickstart_inspect.py` | - | `pinneapple_pdb.PhysicalDatasetBuilder` |
 | `01_pdb_nasa_power_daily_to_upd.py` | - | `pinneapple_data.datasets.external_sources.NASAPowerClient`, `pinneapple_data.zarr_store.UPDZarrStore` |
-| `02_build_upd_earthaccess_sharded.py` | - | `pinneapple_pdb.DerivedSpec`, `pinneapple_pdb.PhysicalDatasetBuilder`, `pinneapple_pdb.ShardSpec`, `pinneapple_pdb.ValidationSpec` |
-| `03_offline_synthetic_upd_pipeline.py` | - | `pinneapple_pdb.builder.PhysicalDatasetBuilder`, `pinneapple_pdb.derived.DerivedSpec`, `pinneapple_pdb.derived.apply_derived`, `pinneapple_pdb.shard.ShardSpec`, `pinneapple_pdb.shard.iter_tiles`, `pinneapple_pdb.shard.iter_time_windows`, `pinneapple_pdb.shard.regime_tags_for`, `pinneapple_pdb.shard.subset_tile`, `pinneapple_pdb.shard.subset_time`, `pinneapple_pdb.validate.ValidationSpec`, `pinneapple_pdb.validate.standardize_dims`, `pinneapple_pdb.validate.validate_dataset` |
+| `02_build_upd_earthaccess_sharded.py` | `pinneapple_pdb.ValidationSpec` | `pinneapple_pdb.DerivedSpec`, `pinneapple_pdb.PhysicalDatasetBuilder`, `pinneapple_pdb.ShardSpec` |
+| `03_offline_synthetic_upd_pipeline.py` | `pinneapple_pdb.validate.ValidationSpec` | `pinneapple_pdb.builder.PhysicalDatasetBuilder`, `pinneapple_pdb.derived.DerivedSpec`, `pinneapple_pdb.derived.apply_derived`, `pinneapple_pdb.shard.ShardSpec`, `pinneapple_pdb.shard.iter_tiles`, `pinneapple_pdb.shard.iter_time_windows`, `pinneapple_pdb.shard.regime_tags_for`, `pinneapple_pdb.shard.subset_tile`, `pinneapple_pdb.shard.subset_time`, `pinneapple_pdb.validate.standardize_dims`, `pinneapple_pdb.validate.validate_dataset` |
 | `04_load_catalog_and_convert_to_physicalsample.py` | `pinneapple_data.adapters.upd_adapter.upd_to_physical_sample` | - |
 | `05_pinn_sampling_from_upd_shard.py` | - | `pinneapple_physics.pinn_solver.io.mappings.CoordMapping`, `pinneapple_physics.pinn_solver.io.mappings.PINNMapping`, `pinneapple_physics.pinn_solver.io.mappings.VarMapping`, `pinneapple_physics.pinn_solver.io.upd_dataset.ConditionSpec`, `pinneapple_physics.pinn_solver.io.upd_dataset.SamplingSpec`, `pinneapple_physics.pinn_solver.io.upd_dataset.UPDDataset`, `pinneapple_physics.pinn_solver.io.upd_dataset.UPDItem` |
 | `06_supervised_tiny_train_from_upd.py` | - | `pinneapple_physics.pinn_solver.io.mappings.CoordMapping`, `pinneapple_physics.pinn_solver.io.mappings.PINNMapping`, `pinneapple_physics.pinn_solver.io.mappings.VarMapping`, `pinneapple_physics.pinn_solver.io.upd_dataset.SamplingSpec`, `pinneapple_physics.pinn_solver.io.upd_dataset.UPDDataset`, `pinneapple_physics.pinn_solver.io.upd_dataset.UPDItem` |
@@ -1015,16 +1198,16 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_symbolic_loss_basic.py` | - | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
-| `02_compiler_poisson_2d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pde_environment.spec.ProblemSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
-| `03_compiler_burgers_1d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.conditions.InitialCondition` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pde_environment.spec.ProblemSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
+| `01_symbolic_loss_basic.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `02_compiler_poisson_2d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
+| `03_compiler_burgers_1d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.conditions.InitialCondition`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
 | `03_symbolic_pde_hard_bc.py` | - | `pinneapple_physics.symbolic_pde.HardBC`, `pinneapple_physics.symbolic_pde.SymbolicPDE` |
-| `04_factory_inverse_parameter_heat_1d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
-| `05_upd_dataset_data_only_regression.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_physics.pinn_solver.io.SamplingSpec`, `pinneapple_physics.pinn_solver.io.UPDDataset`, `pinneapple_physics.pinn_solver.io.UPDItem`, `pinneapple_physics.pinn_solver.io.build_default_mapping_atmosphere` |
-| `06_compiler_wave_1d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.conditions.InitialCondition` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pde_environment.spec.ProblemSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
+| `04_factory_inverse_parameter_heat_1d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `05_upd_dataset_data_only_regression.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_physics.pinn_solver.io.SamplingSpec`, `pinneapple_physics.pinn_solver.io.UPDDataset`, `pinneapple_physics.pinn_solver.io.UPDItem`, `pinneapple_physics.pinn_solver.io.build_default_mapping_atmosphere` |
+| `06_compiler_wave_1d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.conditions.InitialCondition`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
 | `06_domino_time_marching_demo.py` | - | `pinneapple_physics.pinn_solver.domino.DoMINO`, `pinneapple_train.TimeMarchingTrainer` |
-| `06_open_meteo_climate_twin.py` | `pinneapple_physics.pinn_solver.factory.PINN` | `pinneapple_data.datasets.external_sources.OpenMeteoClient`, `pinneapple_neural.trainer.self_scaled_qn.SelfScaledQuasiNewton`, `pinneapple_physics.pinn_solver.factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.PINNProblemSpec`, `pinneapple_physics.pinn_solver.factory.TabulatedSignal` |
-| `07_interface_bc_conjugate_heat_transfer.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC` | `pinneapple_physics.pde_environment.conditions.InterfaceBC`, `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pde_environment.spec.ProblemSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
+| `06_open_meteo_climate_twin.py` | `pinneapple_physics.pinn_solver.factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.PINN`, `pinneapple_physics.pinn_solver.factory.PINNFactory` | `pinneapple_data.datasets.external_sources.OpenMeteoClient`, `pinneapple_neural.trainer.self_scaled_qn.SelfScaledQuasiNewton`, `pinneapple_physics.pinn_solver.factory.PINNProblemSpec`, `pinneapple_physics.pinn_solver.factory.TabulatedSignal` |
+| `07_interface_bc_conjugate_heat_transfer.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.conditions.InterfaceBC`, `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
 
 </details>
 
@@ -1032,10 +1215,10 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `both/bench_ode_geom_sampling.py` | - | `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `both/bench_ode_geom_sampling.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
 | `physicsnemo/wave_1d.py` | - | - |
 | `physicsnemo/wave_equation.py` | - | - |
-| `pinneapple/pinneapple.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN` | `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_neural.architectures.pinns.vpinn.VPINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `pinneapple/pinneapple.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_neural.architectures.pinns.vpinn.VPINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
 
 </details>
 
@@ -1062,9 +1245,9 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 |---|---|---|
 | `01_SimpleUseCase.py` | - | `pinneapple_problemdesign.DesignAgent`, `pinneapple_problemdesign.GeminiProvider` |
 | `02_Api.py` | - | `pinneapple_problemdesign.DesignAgent`, `pinneapple_problemdesign.GeminiProvider` |
-| `03_offline_spec_to_report.py` | - | `pinneapple_problemdesign.elicitation.validators.validate_and_suggest`, `pinneapple_problemdesign.knowledge.mapping.build_plan_fno_first`, `pinneapple_problemdesign.renderers.report_json.render_json_report`, `pinneapple_problemdesign.renderers.report_md.render_markdown_report`, `pinneapple_problemdesign.schema.DataSpec`, `pinneapple_problemdesign.schema.DesignReport`, `pinneapple_problemdesign.schema.ProblemSpec`, `pinneapple_problemdesign.schema.ValidationSpec` |
+| `03_offline_spec_to_report.py` | `pinneapple_problemdesign.elicitation.validators.validate_and_suggest`, `pinneapple_problemdesign.knowledge.mapping.build_plan_fno_first`, `pinneapple_problemdesign.renderers.report_json.render_json_report`, `pinneapple_problemdesign.renderers.report_md.render_markdown_report`, `pinneapple_problemdesign.schema.DataSpec`, `pinneapple_problemdesign.schema.DesignReport`, `pinneapple_problemdesign.schema.ProblemSpec`, `pinneapple_problemdesign.schema.ValidationSpec` | - |
 | `04_custom_provider_mock_end_to_end.py` | - | `pinneapple_problemdesign.DesignAgent`, `pinneapple_problemdesign.protocol.LLMMessage`, `pinneapple_problemdesign.protocol.LLMProvider`, `pinneapple_problemdesign.protocol.LLMResponse` |
-| `05_batch_generate_reports.py` | - | `pinneapple_problemdesign.DesignAgent`, `pinneapple_problemdesign.GeminiProvider`, `pinneapple_problemdesign.protocol.LLMMessage`, `pinneapple_problemdesign.protocol.LLMProvider`, `pinneapple_problemdesign.protocol.LLMResponse`, `pinneapple_problemdesign.renderers.report_json.render_json_report` |
+| `05_batch_generate_reports.py` | `pinneapple_problemdesign.renderers.report_json.render_json_report` | `pinneapple_problemdesign.DesignAgent`, `pinneapple_problemdesign.GeminiProvider`, `pinneapple_problemdesign.protocol.LLMMessage`, `pinneapple_problemdesign.protocol.LLMProvider`, `pinneapple_problemdesign.protocol.LLMResponse` |
 
 </details>
 
@@ -1080,9 +1263,9 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_heat_sink_fins.py` | `pinneapple_design.geometry.bodies.box` | `pinneapple_design.qualitative.Assembly`, `pinneapple_design.qualitative.part_sensitivity`, `pinneapple_design.qualitative.preview`, `pinneapple_design.thermal.heatsink.engine.DesignInput`, `pinneapple_design.thermal.heatsink.engine.OperatingInput`, `pinneapple_design.thermal.heatsink.engine.physics_resistance` |
-| `02_beam_stiffness_per_mass.py` | `pinneapple_design.geometry.bodies.box` | `pinneapple_design.qualitative.Assembly`, `pinneapple_design.qualitative.part_sensitivity`, `pinneapple_design.qualitative.preview`, `pinneapple_design.qualitative.quantitative.voxel_fem_cantilever` |
-| `03_ahmed_slant.py` | - | `pinneapple_design.geometry.bodies.ahmed_body`, `pinneapple_design.qualitative.preview` |
+| `01_heat_sink_fins.py` | `pinneapple_design.geometry.bodies.box`, `pinneapple_design.qualitative.preview` | `pinneapple_design.qualitative.Assembly`, `pinneapple_design.qualitative.part_sensitivity`, `pinneapple_design.thermal.heatsink.engine.DesignInput`, `pinneapple_design.thermal.heatsink.engine.OperatingInput`, `pinneapple_design.thermal.heatsink.engine.physics_resistance` |
+| `02_beam_stiffness_per_mass.py` | `pinneapple_design.geometry.bodies.box`, `pinneapple_design.qualitative.preview` | `pinneapple_design.qualitative.Assembly`, `pinneapple_design.qualitative.part_sensitivity`, `pinneapple_design.qualitative.quantitative.voxel_fem_cantilever` |
+| `03_ahmed_slant.py` | `pinneapple_design.geometry.bodies.ahmed_body`, `pinneapple_design.qualitative.preview` | - |
 
 </details>
 
@@ -1099,7 +1282,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | script | covered by a node | not covered |
 |---|---|---|
 | `01_secure_physics_ai_pipeline.py` | `pinneapple_security.audit`, `pinneapple_security.dp`, `pinneapple_security.integrate` | `pinneapple_registry.model_store.ModelStore`, `pinneapple_security.anomaly`, `pinneapple_security.attestation`, `pinneapple_security.classification`, `pinneapple_security.compliance`, `pinneapple_security.encryption`, `pinneapple_security.integrity`, `pinneapple_security.privacy`, `pinneapple_security.signing` |
-| `02_physics_residual_fdi.py` | - | `pinneapple_security.cps_bench.ATTACKS`, `pinneapple_security.cps_bench.run_benchmark` |
+| `02_physics_residual_fdi.py` | `pinneapple_security.cps_bench.ATTACKS`, `pinneapple_security.cps_bench.run_benchmark` | - |
 
 </details>
 
@@ -1107,7 +1290,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_classical_vs_pinn.py` | `pp.compare`, `pp.solve` | `pinneapple_physics.pde_environment.builder.ProblemBuilder`, `pp.PhysicalProblem` |
+| `01_classical_vs_pinn.py` | `pinneapple_physics.pde_environment.builder.ProblemBuilder`, `pp.PhysicalProblem`, `pp.compare`, `pp.solve` | - |
 
 </details>
 
@@ -1126,7 +1309,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | script | covered by a node | not covered |
 |---|---|---|
 | `01_any_result_in_3d.py` | `pp.viz` | - |
-| `02_ahmed_body_cfd.py` | `pp.viz` | `pp.bodies`, `pp.cfd` |
+| `02_ahmed_body_cfd.py` | `pp.bodies`, `pp.viz` | `pp.cfd` |
 | `03_airliner_with_cfd.py` | `pp.viz` | `pinneapple_design.aero.airliner3d.airliner_from`, `pinneapple_design.aero.airliner3d.baseline_x_al` |
 | `04_road_car_cfd.py` | `pp.viz` | `pinneapple_design.geometry.vehicles3d.RoadCar`, `pinneapple_design.geometry.vehicles3d.road`, `pp.cfd` |
 | `05_launch_vehicle_cfd.py` | `pp.viz` | `pinneapple_design.geometry.vehicles3d.LaunchVehicle`, `pp.cfd` |
@@ -1190,9 +1373,9 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `concorde_high_aoa/concorde_high_aoa_pipeline.py` | - | `pinneapple_design.geometry.csg.CSGEllipse`, `pinneapple_design.geometry.csg.CSGPolygon`, `pinneapple_design.geometry.csg.CSGUnion`, `pinneapple_design.geometry.gen.primitives._boolean_or_fallback`, `pinneapple_design.geometry.gen.primitives.build_mesh`, `pinneapple_design.geometry.ops.lbm_bridge._aoa_rotation_matrix`, `pinneapple_design.geometry.ops.lbm_bridge.mesh_to_obstacle_mask`, `pinneapple_pdb.benchmarks.get_benchmark`, `pinneapple_physics.pde_environment.turbulence_selector.TurbulenceModel`, `pinneapple_physics.pde_environment.turbulence_selector.get_turbulence_closure`, `pinneapple_simulation.numerical_solvers.lbm.LBMSolver3D`, `pinneapple_tools.aero_coefficients.compute_cp`, `pinneapple_tools.aero_coefficients.force_to_coefficients`, `pinneapple_tools.aero_coefficients.integrate_surface_forces`, `pinneapple_tools.visualization.style.make_figure`, `pinneapple_tools.visualization.style.use_cfd_style`, `pinneapple_tools.visualization.vortex.compute_dissipation_rate`, `pinneapple_tools.visualization.vortex.compute_enstrophy`, `pinneapple_tools.visualization.vortex.compute_q_criterion_3d`, `pinneapple_tools.visualization.vortex.compute_strain_rate_tensor_3d`, `pinneapple_tools.visualization.vortex.compute_vorticity_3d`, `pinneapple_tools.visualization.vortex.plot_lbm_flow`, `pinneapple_tools.visualization.vortex.plot_q_criterion_3d`, `pinneapple_train.best_device` |
 | `crash_surrogate/__init__.py` | - | - |
 | `crash_surrogate/crash_surrogate_pipeline.py` | - | `pinneapple_adaptation.transfer_learning.freeze_layers`, `pinneapple_adaptation.transfer_learning.layer_lr_groups`, `pinneapple_analysis.uncertainty.EnsembleUQ`, `pinneapple_neural.architectures.rom.parametric.latin_hypercube`, `pinneapple_tools.visualization.style.make_figure`, `pinneapple_tools.visualization.style.use_cfd_style`, `pinneapple_train.best_device`, `pinneapple_train.maybe_compile` |
-| `fin_convection_inverse/block_3d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.block_3d`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area` |
-| `fin_convection_inverse/fin_convection_inverse.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
-| `fin_convection_inverse/plate_2d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.interp_grid`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.plate_2d` |
+| `fin_convection_inverse/block_3d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.block_3d`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area` |
+| `fin_convection_inverse/fin_convection_inverse.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `fin_convection_inverse/plate_2d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.interp_grid`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.plate_2d` |
 | `fin_convection_inverse/plots.py` | - | - |
 | `fin_convection_inverse/plots_2d3d.py` | - | - |
 | `heated_channel_twin/__init__.py` | - | - |
@@ -1213,7 +1396,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `solid_mechanics/drill_pipe_rotating_pipeline.py` | `pinneapple_physics.pde_environment.get_preset`, `pinneapple_physics.solid.axisymmetric.lame_parameters` | `pinneapple_physics.pde_environment.presets.solid_mechanics.lame_analytical`, `pinneapple_physics.solid.axisymmetric.equilibrium_residual_rz`, `pinneapple_physics.solid.axisymmetric.von_mises_rz` |
 | `solid_mechanics/generate_geometry.py` | `pinneapple_physics.pde_environment.get_preset` | - |
 | `solid_mechanics/run_simulations_rotating.py` | `pinneapple_physics.pde_environment.get_preset` | `pinneapple_physics.solid.axisymmetric.von_mises_from_components` |
-| `solid_mechanics/solid_mechanics_pipeline.py` | `pinneapple_physics.pde_environment.get_preset`, `pinneapple_physics.pde_environment.list_presets` | `pinneapple_physics.pde_environment.ProblemBuilder`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_physics.pde_environment.presets.solid_mechanics.lame_analytical`, `pinneapple_physics.solid.axisymmetric.equilibrium_residual_rz`, `pinneapple_physics.solid.axisymmetric.von_mises_rz` |
+| `solid_mechanics/solid_mechanics_pipeline.py` | `pinneapple_physics.pde_environment.ProblemBuilder`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_physics.pde_environment.get_preset`, `pinneapple_physics.pde_environment.list_presets` | `pinneapple_physics.pde_environment.presets.solid_mechanics.lame_analytical`, `pinneapple_physics.solid.axisymmetric.equilibrium_residual_rz`, `pinneapple_physics.solid.axisymmetric.von_mises_rz` |
 | `terramechanics/benchmark_vs_omnilrs.py` | - | `pinneapple_train.best_device`, `pinneapple_train.maybe_compile` |
 | `terramechanics/lunar_rover_3d.py` | `pinneapple_simulation.terramechanics.WongReeceModel`, `pinneapple_simulation.terramechanics.get_soil`, `pinneapple_simulation.vehicle.VehicleSimulator`, `pinneapple_simulation.vehicle.build_vehicle`, `pinneapple_simulation.vehicle.scenarios`, `pinneapple_simulation.vehicle.viper`, `pinneapple_simulation.vehicle.viz` | `pinneapple_simulation.terramechanics.surrogate.compare_on_states`, `pinneapple_simulation.terramechanics.surrogate.train_contact_surrogate`, `pinneapple_simulation.terramechanics.testbed` |
 | `terramechanics/terramechanics_rover_pinn.py` | - | `pinneapple_physics.pde_environment.presets.terramechanics.TerramechanicsResiduals`, `pinneapple_simulation.numerical_solvers.bekker_wong.BekkerWongSolver`, `pinneapple_simulation.particle_dynamics.terramechanics.SoilParams`, `pinneapple_simulation.particle_dynamics.terramechanics.WheelParams`, `pinneapple_train.best_device`, `pinneapple_train.maybe_compile` |

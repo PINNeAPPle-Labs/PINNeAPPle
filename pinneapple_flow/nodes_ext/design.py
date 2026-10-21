@@ -243,6 +243,45 @@ def from_intent(ctx, inputs, params):
     return {"metrics": ctx.report["metrics"]}
 
 
+# Ahmed, Ramm & Faltin (1984, SAE 840300), total drag coefficient against the slant angle, Re = 4.3e6
+AHMED_1984_CD = {"0": 0.250, "12.5": 0.230, "25": 0.285, "30": 0.378, "35": 0.260, "40": 0.250}
+
+
+@node("qualitative.ahmed_slant", "Qualitative drag preview of the Ahmed slant, checked against the wind tunnel",
+      category="Design", outputs=[Port("metrics", "metrics"), Port("figure", "figure")],
+      params=[Param("measured_cd", "dict", AHMED_1984_CD, help="slant angle (deg) -> measured CD"),
+              Param("U", "float", 60.0), Param("lang", "enum", "en", choices=["en", "pt"])],
+      calls="pinneapple_design.geometry.bodies.ahmed_body + pinneapple_design.qualitative.preview + "
+            "QualitativePreview.quantify / figure")
+def ahmed_slant(ctx, inputs, params):
+    """examples/qualitative/03_ahmed_slant.py: the preview's expected drag change per slant against the measured
+    one, its direction and the rank correlation; low confidence near the separation angle."""
+    from pinneapple_design.geometry.bodies import ahmed_body
+    from pinneapple_design.qualitative import preview
+    meas = {float(k): float(v) for k, v in dict(params["measured_cd"]).items()}
+    geoms = {f"slant {a:g}°": ahmed_body(a) for a in sorted(meas)}
+    lang = str(params["lang"])
+    p = preview(geoms, "minimizar coeficiente de arrasto" if lang == "pt" else "minimize drag coefficient",
+                {"U": float(params["U"])}, lang=lang)
+    png = ctx.path("ahmed_preview.png")
+    p.figure(str(png))
+    check = p.quantify(lambda name, g: meas[float(name.split()[1].rstrip("°"))], variants=list(geoms))
+    rows = check.table
+    for r in rows:
+        if r["direction_ok"] is not None:
+            ctx.metric(f"direction_ok.{r['variant'].split()[1].rstrip('°')}", int(r["direction_ok"]),
+                       f"expected {r['expected_pct']:+.0f}%, measured {r['computed_pct']:+.0f}% ({r['confidence']})")
+    ctx.metric("direction_agreement", float(check.direction_agreement))
+    ctx.metric("rank_correlation", float(check.rank_correlation))
+    ctx.table("expected against measured", ["variant", "expected %", "measured %", "direction", "confidence"],
+              [[r["variant"], round(r["expected_pct"], 1), round(r["computed_pct"], 1),
+                "-" if r["direction_ok"] is None else ("right" if r["direction_ok"] else "wrong"), r["confidence"]]
+               for r in rows])
+    from ..runtime import artifact
+    ctx.report["figures"].append({"path": str(png), "name": "ahmed_preview", "caption": "qualitative preview"})
+    return {"metrics": ctx.report["metrics"], "figure": artifact(str(png), "png")}
+
+
 def _register_capabilities():
     from ..planner.extensions import Capability, register_capability
     register_capability(Capability(
@@ -261,6 +300,14 @@ def _register_capabilities():
         nodes=("design.reluctance_rotor", "examples.compare"), references=("brenner2008fem",),
         template="topology_optimization/03_reluctance_rotor",
         description="examples/topology_optimization/03_reluctance_rotor.py"))
+
+    register_capability(Capability(
+        id="qualitative.ahmed_slant", title="Qualitative drag preview of the Ahmed body slant, against the tunnel",
+        domain="design", example="qualitative",
+        keywords={"ahmed": 3, "slant": 2, "qualitative": 2, "preview": 1, "drag": 1, "wind tunnel": 1},
+        requires_all=(("ahmed", "slant"),), min_score=3, nodes=("qualitative.ahmed_slant",),
+        references=("white2011fm",), template="qualitative/03_ahmed_slant",
+        description="examples/qualitative/03_ahmed_slant.py"))
 
 
 _register_capabilities()

@@ -1,0 +1,72 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-proof-graph",
+ "name": "Proof graph: no linear EP tuning in PT tetramers",
+ "description": "Does the no-go theorem for linear exceptional-point tuning extend to PT tetramers whose bonds are modulated independently? Assumptions, lemmas and a theorem with exact and numerical checks (examples/proof_graph/pt_chain_no_go.py; the committed report docs/assets/proof_graph/pt_chain_no_go_report.md).",
+ "nodes": [
+  {
+   "id": "graph",
+   "type": "proof.pt_chain",
+   "params": {},
+   "label": "Proof graph",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "proof_graph",
+    "comparisons": [
+     {
+      "flow": "graph.status.ASSUMED",
+      "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|ASSUMED (\\d+)"
+     },
+     {
+      "flow": "graph.status.PROVED",
+      "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|PROVED (\\d+)"
+     },
+     {
+      "flow": "graph.status.ARGUED",
+      "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|ARGUED (\\d+)"
+     },
+     {
+      "flow": "graph.status.SUPPORTED",
+      "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|SUPPORTED (\\d+)"
+     }
+    ],
+    "tolerance_source": "exact counts"
+   },
+   "label": "Same numbers as examples/proof_graph",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "graph",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "graph.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "proof_graph",
+  "domain": "validation",
+  "scripts": [
+   "pt_chain_no_go.py"
+  ],
+  "quick": {
+   "graph": {
+    "search_iters": 5,
+    "n_numeric": 60
+   }
+  }
+ }
+}

@@ -79,7 +79,7 @@
  },
  "design_from_intent/design_from_intent": {
   "full": {
-   "commit": "b25e808a",
+   "commit": "5e891c36",
    "comparisons": [
     {
      "flow": "loop.design.radius",
@@ -324,7 +324,7 @@
    ],
    "configuration": "full",
    "date": "2026-10-19",
-   "manifest": "manifest /home/user/flowhome/work3/example-design-from-intent.experiment.json, Lab item manifest/flow/example-design-from-intent",
+   "manifest": "manifest /home/user/flowhome/work6/example-design-from-intent.experiment.json, Lab item manifest/flow/example-design-from-intent",
    "matched": 21,
    "nodes": {
     "bracket": "done",
@@ -334,7 +334,89 @@
     "loop": "done",
     "out_of_scope": "done"
    },
-   "seconds": 546.4,
+   "seconds": 624.3,
+   "status": "done"
+  }
+ },
+ "electromagnetics/11_prius_drive": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "drive.assumptions.R_phase_ohm",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:assumptions.R_phase_ohm",
+     "reference": 0.09359281215945266,
+     "rel_diff": 0.0,
+     "value": 0.09359281215945266
+    },
+    {
+     "flow": "drive.efficiency_map.peak_efficiency",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:efficiency_map.peak_efficiency",
+     "reference": 0.9617710844302483,
+     "rel_diff": 0.0,
+     "value": 0.9617710844302483
+    },
+    {
+     "flow": "drive.wltc_class3b.battery_Wh_per_km",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:wltc_class3b.battery_Wh_per_km",
+     "reference": 102.05460931176876,
+     "rel_diff": 0.0,
+     "value": 102.05460931176876
+    },
+    {
+     "flow": "drive.wltc_class3b.battery_J",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:wltc_class3b.battery_J",
+     "reference": 8547951.199500713,
+     "rel_diff": 0.0,
+     "value": 8547951.199500713
+    },
+    {
+     "flow": "drive.wltc_class3b.regenerated_J",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:wltc_class3b.regenerated_J",
+     "reference": 2969752.345531531,
+     "rel_diff": 0.0,
+     "value": 2969752.345531531
+    },
+    {
+     "flow": "drive.envelope.torque_0rpm_Nm",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:envelope.torque_Nm.0",
+     "reference": 343.55625985894756,
+     "rel_diff": 0.0,
+     "value": 343.55625985894756
+    },
+    {
+     "flow": "drive.envelope.torque_3000rpm_Nm",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:envelope.torque_Nm.12",
+     "reference": 239.2605203918924,
+     "rel_diff": 0.0,
+     "value": 239.2605203918924
+    },
+    {
+     "flow": "drive.envelope.torque_6000rpm_Nm",
+     "outcome": "match",
+     "ref": "results/11_prius_drive.json:envelope.torque_Nm.24",
+     "reference": 104.38573260887776,
+     "rel_diff": 0.0,
+     "value": 104.38573260887776
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/em_b/example-em-prius-drive.experiment.json, Lab item manifest/flow/example-em-prius-drive",
+   "matched": 8,
+   "nodes": {
+    "compare": "done",
+    "drive": "done",
+    "fluxmap": "done"
+   },
+   "seconds": 927.6,
    "status": "done"
   }
  },
@@ -1578,6 +1660,22 @@
    "status": "done"
   }
  },
+ "geophysics/01_sphere_and_assimilation": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work8/example-geophysics.experiment.json, Lab item manifest/flow/example-geophysics",
+   "matched": 0,
+   "nodes": {
+    "earth": "done",
+    "report": "done"
+   },
+   "seconds": 43.6,
+   "status": "done"
+  }
+ },
  "inspection/01_eddy_current_pinn": {
   "full": {
    "commit": "b25e808a",
@@ -1591,6 +1689,104 @@
     "report": "done"
    },
    "seconds": 444.5,
+   "status": "done"
+  }
+ },
+ "meshgraphnet/01_synthetic_diffusion": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "mgn.frozen_ic_baseline_rmse",
+     "outcome": "match",
+     "ref": "_out/synthetic_diffusion.json:frozen_ic_baseline_rmse",
+     "reference": 0.1103672298292319,
+     "rel_diff": 4.500478751112993e-08,
+     "value": 0.11036723479628563
+    },
+    {
+     "flow": "mgn.rollout_rmse",
+     "outcome": "differs",
+     "ref": "_out/synthetic_diffusion.json:rollout_rmse",
+     "reference": 0.029681417159736156,
+     "rel_diff": 0.2074994098192336,
+     "value": 0.02352254061649243
+    },
+    {
+     "flow": "mgn.one_step_rmse",
+     "outcome": "differs",
+     "ref": "_out/synthetic_diffusion.json:one_step_rmse",
+     "reference": 0.00910506482856969,
+     "rel_diff": 0.12125906619151193,
+     "value": 0.00800099316984415
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work5/example-mgn-synthetic-diffusion.experiment.json, Lab item manifest/flow/example-mgn-synthetic-diffusion",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "mgn": "done"
+   },
+   "seconds": 28.8,
+   "status": "done"
+  }
+ },
+ "model_zoo/quickstart": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "zoo.eval.test/Cl_mae",
+     "outcome": "match",
+     "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.test/Cl_mae",
+     "reference": 0.0028476635807695894,
+     "rel_diff": 0.0,
+     "value": 0.0028476635807695894
+    },
+    {
+     "flow": "zoo.eval.test/Cd_mape_pct",
+     "outcome": "match",
+     "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.test/Cd_mape_pct",
+     "reference": 0.5447462642571239,
+     "rel_diff": 0.0,
+     "value": 0.5447462642571239
+    },
+    {
+     "flow": "zoo.eval.naca_reference/Cd_mape_pct",
+     "outcome": "match",
+     "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.naca_reference/Cd_mape_pct",
+     "reference": 0.615631882294239,
+     "rel_diff": 0.0,
+     "value": 0.615631882294239
+    },
+    {
+     "flow": "zoo.eval.xfoil_naca2412/Cd_mape_pct",
+     "outcome": "match",
+     "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.xfoil_naca2412/Cd_mape_pct",
+     "reference": 2.812720929821659,
+     "rel_diff": 0.0,
+     "value": 2.812720929821659
+    },
+    {
+     "flow": "zoo.eval.test/Cm_mae",
+     "outcome": "match",
+     "ref": "repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.test/Cm_mae",
+     "reference": 0.0004539437796155409,
+     "rel_diff": 0.0,
+     "value": 0.0004539437796155409
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work7/example-model-zoo.experiment.json, Lab item manifest/flow/example-model-zoo",
+   "matched": 5,
+   "nodes": {
+    "compare": "done",
+    "zoo": "done"
+   },
+   "seconds": 106.3,
    "status": "done"
   }
  },
@@ -1639,6 +1835,210 @@
     "report": "done"
    },
    "seconds": 269.9,
+   "status": "done"
+  }
+ },
+ "physics_check/fail_and_pass": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "failing.targets_matching_expected",
+     "outcome": "match",
+     "ref": "node:failing.targets_compared",
+     "reference": 23.0,
+     "rel_diff": 0.0,
+     "value": 23.0
+    },
+    {
+     "flow": "failing.targets_with_violations",
+     "outcome": "match",
+     "ref": "node:failing.targets_expected_to_fail",
+     "reference": 23.0,
+     "rel_diff": 0.0,
+     "value": 23.0
+    },
+    {
+     "flow": "passing.violations",
+     "outcome": "match",
+     "ref": "node:passing.targets_expected_to_fail",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work7/example-physics-check.experiment.json, Lab item manifest/flow/example-physics-check",
+   "matched": 3,
+   "nodes": {
+    "compare": "done",
+    "failing": "done",
+    "passing": "done"
+   },
+   "seconds": 6.9,
+   "status": "done"
+  }
+ },
+ "physics_optimizer/01_constrained_shape_six_methods": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "opt.slsqp.value",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|slsqp|value",
+     "reference": -0.0340297,
+     "rel_diff": 9.977544797796692e-07,
+     "value": -0.03402966604671438
+    },
+    {
+     "flow": "opt.slsqp.evaluations",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|slsqp|evaluations",
+     "reference": 17.0,
+     "rel_diff": 0.0,
+     "value": 17.0
+    },
+    {
+     "flow": "opt.adjoint.value",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|adjoint|value",
+     "reference": -0.0340297,
+     "rel_diff": 9.977544797796692e-07,
+     "value": -0.03402966604671438
+    },
+    {
+     "flow": "opt.adjoint.evaluations",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|adjoint|evaluations",
+     "reference": 17.0,
+     "rel_diff": 0.0,
+     "value": 17.0
+    },
+    {
+     "flow": "opt.penalty.value",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|penalty|value",
+     "reference": -0.0340298,
+     "rel_diff": 9.548050065637082e-07,
+     "value": -0.03402983249182341
+    },
+    {
+     "flow": "opt.penalty.evaluations",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|penalty|evaluations",
+     "reference": 3001.0,
+     "rel_diff": 0.0,
+     "value": 3001.0
+    },
+    {
+     "flow": "opt.augmented_lagrangian.value",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|augmented_lagrangian|value",
+     "reference": -0.0340297,
+     "rel_diff": 1.0018781239939741e-06,
+     "value": -0.03402966590638801
+    },
+    {
+     "flow": "opt.augmented_lagrangian.evaluations",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|augmented_lagrangian|evaluations",
+     "reference": 2001.0,
+     "rel_diff": 0.0,
+     "value": 2001.0
+    },
+    {
+     "flow": "opt.differential_evolution.value",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|differential_evolution|value",
+     "reference": -0.0340637,
+     "rel_diff": 1.0608576987617576e-07,
+     "value": -0.03406370361367384
+    },
+    {
+     "flow": "opt.differential_evolution.evaluations",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|differential_evolution|evaluations",
+     "reference": 605.0,
+     "rel_diff": 0.0,
+     "value": 605.0
+    },
+    {
+     "flow": "opt.bayesian.value",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|bayesian|value",
+     "reference": -0.0340975,
+     "rel_diff": 1.461033875938791e-06,
+     "value": -0.03409745018239742
+    },
+    {
+     "flow": "opt.bayesian.evaluations",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/physics_optimizer.md|bayesian|evaluations",
+     "reference": 61.0,
+     "rel_diff": 0.0,
+     "value": 61.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work8/example-physics-optimizer.experiment.json, Lab item manifest/flow/example-physics-optimizer",
+   "matched": 12,
+   "nodes": {
+    "compare": "done",
+    "opt": "done"
+   },
+   "seconds": 1423.8,
+   "status": "done"
+  }
+ },
+ "proof_graph/pt_chain_no_go": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "graph.status.ASSUMED",
+     "outcome": "match",
+     "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|ASSUMED (\\d+)",
+     "reference": 4.0,
+     "rel_diff": 0.0,
+     "value": 4.0
+    },
+    {
+     "flow": "graph.status.PROVED",
+     "outcome": "match",
+     "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|PROVED (\\d+)",
+     "reference": 2.0,
+     "rel_diff": 0.0,
+     "value": 2.0
+    },
+    {
+     "flow": "graph.status.ARGUED",
+     "outcome": "match",
+     "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|ARGUED (\\d+)",
+     "reference": 4.0,
+     "rel_diff": 0.0,
+     "value": 4.0
+    },
+    {
+     "flow": "graph.status.SUPPORTED",
+     "outcome": "match",
+     "ref": "text:docs/assets/proof_graph/pt_chain_no_go_report.md|SUPPORTED (\\d+)",
+     "reference": 2.0,
+     "rel_diff": 0.0,
+     "value": 2.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work7/example-proof-graph.experiment.json, Lab item manifest/flow/example-proof-graph",
+   "matched": 4,
+   "nodes": {
+    "compare": "done",
+    "graph": "done"
+   },
+   "seconds": 241.5,
    "status": "done"
   }
  },
@@ -1968,6 +2368,90 @@
     "rotor": "done"
    },
    "seconds": 249.9,
+   "status": "done"
+  }
+ },
+ "validation_arena/run_arena": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "darcy.round0.escapes_found",
+     "outcome": "match",
+     "ref": "doc:docs/guides/validation_arena.md|escapes found at round 0 (true error \u2265 10 %, every check passes)|Darcy 2-D",
+     "reference": 15.0,
+     "rel_diff": 0.0,
+     "value": 15.0
+    },
+    {
+     "flow": "burgers.round0.escapes_found",
+     "outcome": "match",
+     "ref": "doc:docs/guides/validation_arena.md|escapes found at round 0 (true error \u2265 10 %, every check passes)|Burgers 1-D",
+     "reference": 16.0,
+     "rel_diff": 0.0,
+     "value": 16.0
+    },
+    {
+     "flow": "darcy.round0.heldout_false_alarm_before",
+     "outcome": "match",
+     "ref": "doc:docs/guides/validation_arena.md|held-out false-alarm rate, hand tolerances \u2192 combined test|Darcy 2-D",
+     "reference": 1.33,
+     "rel_diff": 0.0025062656641604585,
+     "value": 1.3333333333333335
+    },
+    {
+     "flow": "burgers.round0.heldout_false_alarm_after",
+     "outcome": "match",
+     "ref": "text:docs/guides/validation_arena.md|0\\.00 % \u2192 (\\d+\\.\\d+) %",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work7/example-validation-arena.experiment.json, Lab item manifest/flow/example-validation-arena",
+   "matched": 4,
+   "nodes": {
+    "audit": "done",
+    "burgers": "done",
+    "compare": "done",
+    "darcy": "done"
+   },
+   "seconds": 600.1,
+   "status": "done"
+  }
+ },
+ "vs_physicsnemo/07_check_replay": {
+  "full": {
+   "commit": "5e891c36",
+   "comparisons": [
+    {
+     "flow": "check.targets_matching_expected",
+     "outcome": "match",
+     "ref": "node:check.targets_compared",
+     "reference": 6.0,
+     "rel_diff": 0.0,
+     "value": 6.0
+    },
+    {
+     "flow": "check.targets_with_violations",
+     "outcome": "match",
+     "ref": "node:check.targets_expected_to_fail",
+     "reference": 6.0,
+     "rel_diff": 0.0,
+     "value": 6.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-19",
+   "manifest": "manifest /home/user/flowhome/work7/example-physicsnemo-check-replay.experiment.json, Lab item manifest/flow/example-physicsnemo-check-replay",
+   "matched": 2,
+   "nodes": {
+    "check": "done",
+    "compare": "done"
+   },
+   "seconds": 0.4,
    "status": "done"
   }
  }

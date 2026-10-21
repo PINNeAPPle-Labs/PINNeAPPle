@@ -147,10 +147,28 @@ def doc_table_value(ref: str) -> float:
     raise KeyError(f"no number in row {row!r}, column {col!r} of {path}")
 
 
+def _repo_file(rel: str) -> Path:
+    from ..examples import ROOT
+    p = (ROOT / rel).resolve()
+    if ROOT.resolve() not in p.parents or not p.is_file():
+        raise StepFailed(f"{rel!r} is not a file of the checkout")
+    return p
+
+
 def reference_value(folder: Path, ref: str) -> float:
     """The number ``ref`` names in an example folder (see the module docstring)."""
     if ref.startswith("doc:"):
         return doc_table_value(ref)
+    if ref.startswith("text:"):                     # text:<file>|<regex with one group>: a number in committed text
+        rel, _, rx = ref[5:].partition("|")
+        m = re.search(rx, _repo_file(rel).read_text())
+        if not m:
+            raise KeyError(f"{rx!r} not found in {rel}")
+        return _written(m.group(1))
+    if ref.startswith("repo:"):                     # repo:<json file of the checkout>:<key path> (e.g. a model card)
+        rel, _, path = ref[5:].partition(":")
+        p = _repo_file(rel)
+        return reference_value(p.parent, f"{p.name}:{path}")
     if ref.startswith("manifest:"):
         name = ref.split(":", 1)[1]
         man = json.loads((folder / "experiment.json").read_text())
@@ -228,7 +246,7 @@ def compare(ctx, inputs, params):
         rtol = float(c.get("rtol", params["rtol"]))
         atol = float(c.get("atol", params["atol"]))
         try:
-            got = metric_value(ctx.upstream_reports, c["flow"])
+            got = metric_value(ctx.upstream_reports, c["flow"]) * float(c.get("scale", 1.0))   # scale: units (e.g. % )
         except (KeyError, TypeError, ValueError) as exc:
             rows.append([c["flow"], c["ref"], None, None, None, f"no flow value: {exc}"])
             checks.append({"name": c["flow"], "passed": False, "kind": "reference", "detail": f"missing: {exc}"})

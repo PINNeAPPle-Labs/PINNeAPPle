@@ -1967,6 +1967,98 @@
    "status": "done"
   }
  },
+ "non_hermitian/ep_tuning": {
+  "full": {
+   "commit": "475bf159",
+   "comparisons": [
+    {
+     "flow": "laws.reciprocal_linear.degree",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/non_hermitian.md|degree in lam: (\\d+)",
+     "reference": 2.0,
+     "rel_diff": 0.0,
+     "value": 2.0
+    },
+    {
+     "flow": "figure.chain2.kappa2",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|2|\u03ba_N\u00b2",
+     "reference": 1.0,
+     "rel_diff": 1.1641532182693481e-10,
+     "value": 1.0000000001164153
+    },
+    {
+     "flow": "figure.chain2.ep_order",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|2|EP order",
+     "reference": 2.0,
+     "rel_diff": 0.0,
+     "value": 2.0
+    },
+    {
+     "flow": "figure.chain3.kappa2",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|3|\u03ba_N\u00b2",
+     "reference": 2.0,
+     "rel_diff": 8.074082513687131e-10,
+     "value": 1.9999999983851835
+    },
+    {
+     "flow": "figure.chain3.ep_order",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|3|EP order",
+     "reference": 3.0,
+     "rel_diff": 0.0,
+     "value": 3.0
+    },
+    {
+     "flow": "figure.chain4.kappa2",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|4|\u03ba_N\u00b2",
+     "reference": 1.0,
+     "rel_diff": 1.1641532182693481e-10,
+     "value": 1.0000000001164153
+    },
+    {
+     "flow": "figure.chain4.ep_order",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|4|EP order",
+     "reference": 2.0,
+     "rel_diff": 0.0,
+     "value": 2.0
+    },
+    {
+     "flow": "figure.chain5.kappa2",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|5|\u03ba_N\u00b2",
+     "reference": 1.5,
+     "rel_diff": 4.0705409413514343e-10,
+     "value": 1.4999999993894189
+    },
+    {
+     "flow": "figure.chain5.ep_order",
+     "outcome": "match",
+     "ref": "doc:docs/core_concepts/non_hermitian.md|5|EP order",
+     "reference": 3.0,
+     "rel_diff": 0.0,
+     "value": 3.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentA/example.non_hermitian.ep_tuning.experiment.json, Lab item manifest/flow/example.non_hermitian.ep_tuning",
+   "matched": 9,
+   "nodes": {
+    "compare": "done",
+    "figure": "cached",
+    "hmap": "cached",
+    "laws": "done",
+    "numeric": "cached"
+   },
+   "seconds": 11.0,
+   "status": "done"
+  }
+ },
  "numerical_solvers/12_molecular_dynamics_lj_gas": {
   "full": {
    "commit": "5d9bf73a",
@@ -3328,6 +3420,36 @@
     "fdi": "done"
    },
    "seconds": 164.3,
+   "status": "done"
+  }
+ },
+ "solvers/02_sph_box": {
+  "full": {
+   "commit": "475bf159",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentA/example.solvers.02_sph_box.experiment.json, Lab item manifest/flow/example.solvers.02_sph_box",
+   "matched": 0,
+   "nodes": {
+    "sph": "done"
+   },
+   "seconds": 9.8,
+   "status": "done"
+  }
+ },
+ "solvers/03_poisson_solvers": {
+  "full": {
+   "commit": "475bf159",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentA/example.solvers.03_poisson_solvers.experiment.json, Lab item manifest/flow/example.solvers.03_poisson_solvers",
+   "matched": 0,
+   "nodes": {
+    "poisson": "done"
+   },
+   "seconds": 8.6,
    "status": "done"
   }
  },

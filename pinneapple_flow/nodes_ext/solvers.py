@@ -162,7 +162,7 @@ def _register_capabilities():
     register_capability(Capability(
         id="newton.rigid_body", title="Rigid bodies with NVIDIA Newton (validation and a small scene)",
         domain="multibody", example="rigid_body",
-        keywords={"rigid body": 3, "rigid-body": 3, "newton": 1.5, "friction": 1.5, "pendulum": 1.5, "crate": 2,
+        keywords={"rigid body": 3, "rigid bodies": 3, "rigid-body": 3, "newton": 1.5, "friction": 1.5, "pendulum": 1.5, "crate": 2,
                   "sliding": 1.5, "contact": 1}, min_score=3, nodes=("solver.newton", "newton.crate_and_pendulum"),
         uncited="closed forms (Coulomb friction, pendulum period) are the checks", template="rigid_body/newton_quickstart",
         description="examples/rigid_body/newton_quickstart.py"))

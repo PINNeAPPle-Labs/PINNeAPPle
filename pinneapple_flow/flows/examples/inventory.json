@@ -21,7 +21,7 @@
  },
  "bricks": {
   "domain": "design",
-  "reason": "not converted yet (a later batch of this PR): bricks validation and references (deterministic); the committed search numbers are from --full (400 x 5 seeds)"
+  "notes": "compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes"
  },
  "calculix_cantilever": {
   "domain": "structures",
@@ -129,7 +129,7 @@
  },
  "meshgraphnet": {
   "domain": "neural operators",
-  "notes": "02_cylinder_flow_deepmind.py needs the DeepMind TFRecords (download + tfrecord) and is a later flow; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"
+  "notes": "02_cylinder_flow_deepmind: a 400 MB prefix of the DeepMind TFRecords (storage.googleapis.com, needs pip install tfrecord) in the committed configuration of _out/cylinder_flow/metrics.json (3000 steps, hidden 64, 6 layers); the frozen-velocity baseline moved from the script into mgn_dynamics.frozen_ic_rmse; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers)"
  },
  "model_zoo": {
   "domain": "validation",
@@ -293,6 +293,6 @@
  },
  "worldmodel": {
   "domain": "world model",
-  "reason": "not converted yet (a later batch of this PR): generate_datasets / train_specialist / PhysicsBenchmark with --fast sizes"
+  "notes": "nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder"
  }
 }

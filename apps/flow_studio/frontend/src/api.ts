@@ -59,3 +59,4 @@ export const api = {
 
 export const artifactUrl = (path: string) => `/api/artifact?path=${encodeURIComponent(path)}`;
 export const htmlArtifactUrl = (path: string) => `/api/artifact/html?path=${encodeURIComponent(path)}`;
+export const runFileUrl = (path: string) => `/api/runfile${path.split("/").map(encodeURIComponent).join("/")}`;

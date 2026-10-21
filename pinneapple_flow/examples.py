@@ -296,6 +296,13 @@ def markdown() -> str:
         same = f"{r['matched']} / {r['compared']} match" if r["compared"] else ""
         note = "; ".join(x for x in (r["reason"], r["notes"]) if x)
         L.append(f"| `{r['example']}` | {r['domain']} | {fl} | {st} | {same} | {note} |")
+    L += ["", "## From a description (planner)", "",
+          "Each example with a flow and the planner capabilities that build it from text "
+          "(`pinneapple_flow.planner.extensions`): **first** when the heuristic planner, given the capability's title "
+          "as the description, proposes that capability first; the examples without a capability are where the "
+          "planner falls short (it proposes generic flows only).", "",
+          "| example | capability | from its title |", "|---|---|---|"]
+    L += planner_rows(rows)
     L += ["", "## Measured comparisons", "",
           "Per flow run: the flow's number, the example's committed number (results file or manifest metric) and the "
           "relative difference; the tolerance of each comparison is in the flow (`examples.compare` node).", ""]
@@ -331,6 +338,29 @@ def markdown() -> str:
                      f"{', '.join(f'`{c}`' for c in d['uncovered']) or '-'} |")
         L += ["", "</details>", ""]
     return "\n".join(L) + "\n"
+
+
+def planner_rows(rows: list[dict[str, Any]]) -> list[str]:
+    """The planner table of :func:`markdown`: per example with a flow, its capabilities and whether the heuristic
+    planner proposes each first from the capability's title."""
+    from .planner import extensions as X
+    from .planner.heuristic import plan_heuristic
+    by_ex: dict[str, list[Any]] = {}
+    for c in X.capabilities():
+        by_ex.setdefault(c.example, []).append(c)
+    out = []
+    for r in rows:
+        if not r["flows"]:
+            continue
+        caps = by_ex.get(r["example"], [])
+        if not caps:
+            out.append(f"| `{r['example']}` | - | falls short: no capability registered, generic flows only |")
+        for c in caps:
+            props = plan_heuristic(c.title, max_proposals=3)["proposals"]
+            got = props[0]["flow"].get("meta", {}).get("capability") if props else None
+            verdict = "first" if got == c.id else (f"falls short: `{got}` first" if got else "falls short: generic flow")
+            out.append(f"| `{r['example']}` | `{c.id}` | {verdict} |")
+    return out
 
 
 def main(argv: list[str]) -> int:

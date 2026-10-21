@@ -7,10 +7,10 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 5 |
-| no flow | 15 |
-| not yet run | 8 |
+| no flow | 13 |
+| not yet run | 11 |
 | not_convertible | 13 |
-| runs | 25 |
+| runs | 24 |
 | runs-quick | 1 |
 
 | example | domain | flow(s) | status | same numbers | notes |
@@ -20,7 +20,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `benchmark` | benchmarks | - |  |  | not converted yet (a later batch of this PR): pp.benchmark.run in smoke mode (a harness that writes a results tree; no committed numbers) |
 | `benchmark_suite` | benchmarks | - |  |  | not converted yet (a later batch of this PR): 03 (Burgers PINN), 12 (benchmark.arena --fast), 16/17; 01, 04, 05, 07, 08, 09 import pinneapple_arena.* / pinneapple_digital_twin modules that no longer exist; 14 and 15 hold their solvers in the script |
 | `black_hole_weather` | astrophysics | `black_hole_weather/accretion_run` | runs | 1 / 1 match | the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows |
-| `bricks` | design | - |  |  | not converted yet (a later batch of this PR): bricks validation and references (deterministic); the committed search numbers are from --full (400 x 5 seeds) |
+| `bricks` | design | `bricks/self_modifying_bricks` | not yet run |  | compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes |
 | `calculix_cantilever` | structures | `calculix_cantilever/beam` | runs | 4 / 4 match | no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd |
 | `core_primitives` | core | - | not_convertible |  | demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate) |
 | `data_api` | core | - | not_convertible |  | demonstrates the pinneapple_core.data loaders with hand-written loops; the same three problems are equations + train.pinn, surrogate.train and inverse.discover flows |
@@ -33,7 +33,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 127 / 127 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
 | `flow_studio` | flows | - | not_convertible |  | already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step |
 | `free_surface` | CFD | `free_surface/01_runner_slope_study` | runs | 12 / 12 match | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
-| `geomechanics` | geomechanics | `geomechanics/01_granular_column_collapse` | runs |  | no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md) |
+| `geomechanics` | geomechanics | `geomechanics/01_granular_column_collapse` | runs | 8 / 8 match | no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md) |
 | `geometry` | geometry | - | not_convertible |  | small demos of geometry I/O and sampling with no numbers (trimesh, meshio, gmsh optional; 08 downloads STL / STEP files); the CSG domains of 07 are geometry.domain / auto.design.geometry.* nodes |
 | `geometry_library` | geometry | `geometry_library/03_airliner_vlm` | runs |  | 03_airliner_vlm: the friction-drag build-up moved from the script into pinneapple_design.aero.buildup.friction_drag (same printed numbers); nothing committed to compare, the published A320-class values (CL_alpha 5.5-6 /rad, L/D 16-18) are in the metric notes. 01 needs OpenFOAM and hours of CPU; 02's BEM lives in the script |
 | `geophysics` | geophysics | `geophysics/01_sphere_and_assimilation` | runs |  | nothing committed to compare: the script prints the drifts, RMSEs and the mass-balance ratio |
@@ -43,7 +43,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `inspection` | inspection | `inspection/01_eddy_current_pinn` | runs |  | nothing committed to compare: the script prints the losses |
 | `latent` | reduced-order models | - |  |  | not converted yet (a later batch of this PR): TrustedLatentSurrogate; the advection-diffusion-reaction solver and sampling are in the script |
 | `lbm` | numerical solvers | - |  |  | not converted yet (a later batch of this PR): WindTunnelLBM sphere drag (60 min full); no committed numbers |
-| `meshgraphnet` | neural operators | `meshgraphnet/01_synthetic_diffusion` | runs | 1 / 3 match | 02_cylinder_flow_deepmind.py needs the DeepMind TFRecords (download + tfrecord) and is a later flow; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers) |
+| `meshgraphnet` | neural operators | `meshgraphnet/01_synthetic_diffusion`<br>`meshgraphnet/02_cylinder_flow_deepmind` | not yet run | 1 / 3 match | 02_cylinder_flow_deepmind: a 400 MB prefix of the DeepMind TFRecords (storage.googleapis.com, needs pip install tfrecord) in the committed configuration of _out/cylinder_flow/metrics.json (3000 steps, hidden 64, 6 layers); the frozen-velocity baseline moved from the script into mgn_dynamics.frozen_ic_rmse; physicsnemo_parity/* were never run (multi-GB datasets, no reference numbers) |
 | `model_zoo` | validation | `model_zoo/quickstart` | runs | 5 / 5 match | compared with the model card's validation metrics (pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json); the pp.zoo.benchmark step needs pp.benchmark and is not a node |
 | `modelica` | systems | - | needs OpenModelica (omc) + fmpy |  | every script builds its FMU with omc; 02 / 03 train hand-written torch models in the script; fmi_compatibility.py downloads the Reference-FMUs |
 | `molecular` | molecular | - | needs OpenMM + pdbfixer + an input PDB |  | protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled) |
@@ -81,7 +81,67 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `visualizations` | visualization | - | not_convertible |  | hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows |
 | `vs_physicsnemo` | validation | `vs_physicsnemo/07_check_replay` | runs | 2 / 2 match | the flow replays 07's committed predictions through pinneapple check against check/expected.json; training (07 run.py train) needs NVIDIA PhysicsNeMo and a dataset download; 01-06 hold their models and training loops in the scripts (02 uses no library call at all) |
 | `weather_forecasting` | weather | - | needs ERA5 store (5 GB) + a trained model |  | score_baselines.py needs the 1990-2022 ERA5 64x32 store (weather.data.download, about 35 min and 5 GB) and WeatherBench2 forecasts; run_use_cases.py also needs a model trained for 4.5 h (only phase-1 weights are committed) |
-| `worldmodel` | world model | - |  |  | not converted yet (a later batch of this PR): generate_datasets / train_specialist / PhysicsBenchmark with --fast sizes |
+| `worldmodel` | world model | `worldmodel/01_generate_train_evaluate` | not yet run |  | nothing committed to compare; the flow benchmarks the specialists with the library's PhysicsBenchmark tasks (the script's own one-step / rollout loops are not library calls). The checkpoint save of pinneapple_worldmodel.trainer now creates its folder: the script failed on a fresh output folder |
+
+## From a description (planner)
+
+Each example with a flow and the planner capabilities that build it from text (`pinneapple_flow.planner.extensions`): **first** when the heuristic planner, given the capability's title as the description, proposes that capability first; the examples without a capability are where the planner falls short (it proposes generic flows only).
+
+| example | capability | from its title |
+|---|---|---|
+| `black_hole_weather` | `blackhole.accretion` | first |
+| `bricks` | `bricks.self_modifying` | first |
+| `calculix_cantilever` | `calculix.cantilever` | first |
+| `design_from_intent` | `design.from_intent` | first |
+| `electrodynamics` | `em.prius_drive` | first |
+| `electrodynamics` | `em.prius_end_effects` | first |
+| `electrodynamics` | `em.prius_getdp` | first |
+| `electrodynamics` | `em.prius_machine` | first |
+| `electrodynamics` | `em.prius_rotor_design` | first |
+| `electrodynamics` | `em.prius_skew` | first |
+| `electrodynamics` | `em.prius_thermal` | first |
+| `electrodynamics` | `em.prius_tolerances` | first |
+| `electrodynamics` | `em.verification` | first |
+| `enso_forecasting` | `enso.forecast` | first |
+| `enso_forecasting` | `enso.solver_checks` | first |
+| `first_example` | `pinn.burgers_first` | first |
+| `flight_dynamics` | `flight.full_study` | first |
+| `flight_dynamics` | `flight.render` | first |
+| `flight_dynamics` | `flight.same_gust` | first |
+| `flight_dynamics` | `flight.takeoff` | first |
+| `flight_dynamics` | `flight.trim_stability` | first |
+| `flight_dynamics` | `flight.turbulence` | first |
+| `flight_dynamics` | `flight.verification` | first |
+| `free_surface` | `cfd.trough_jet` | first |
+| `geomechanics` | `geo.column_collapse` | first |
+| `geometry_library` | `aero.airliner_vlm` | first |
+| `geophysics` | `geo.earth_system` | first |
+| `inspection` | `inspection.eddy_current` | first |
+| `meshgraphnet` | `gnn.mgn_cylinder_flow` | first |
+| `model_zoo` | `zoo.evaluate` | first |
+| `motor_magnetics` | `em.spm_machine` | first |
+| `near_random_forecasting` | `forecast_lab.case` | first |
+| `numerical_solvers` | `md.lj_gas` | first |
+| `numerical_solvers` | `swe.dam_break` | first |
+| `openfoam_campaign` | `cfd.campaign` | first |
+| `physics_check` | `check.physics` | first |
+| `physics_module` | `core.hybrid_fem` | first |
+| `physics_optimizer` | `core.torsion_optimizer` | first |
+| `problem_designer` | `problemdesign.offline_report` | first |
+| `proof_graph` | `proof.pt_chain` | first |
+| `qualitative` | `qualitative.ahmed_slant` | first |
+| `rigid_body` | `newton.rigid_body` | first |
+| `security` | `security.fdi_benchmark` | first |
+| `solver_api` | `pinn.poisson_fem_vs_pinn` | first |
+| `studio` | `viz.any_result_3d` | first |
+| `systems` | `systems.component` | first |
+| `time_series` | `ts.adaptive` | first |
+| `topology_optimization` | `design.reluctance_rotor` | first |
+| `topology_optimization` | `design.topology` | first |
+| `use_cases` | `inverse.pin_fin` | first |
+| `validation_arena` | `validate.arena` | first |
+| `vs_physicsnemo` | `check.physicsnemo_replay` | first |
+| `worldmodel` | `worldmodel.specialists` | first |
 
 ## Measured comparisons
 
@@ -353,7 +413,18 @@ done in 434 s (commit 3f2296e8, 2026-10-21); 12 of 12 numbers match.
 
 ### `geomechanics/01_granular_column_collapse` (full)
 
-done in 298 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+done in 856 s (commit 3f2296e8, 2026-10-21); 8 of 8 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `mpm.a=0.5.runout_dL_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|0.5|MPM (L∞ − L0)/L0` | 0.444444 | 0.44 | 0.0100995 | match |
+| `mpm.a=0.5.final_height_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|0.5|Final height / L0` | 0.470167 | 0.47 | 0.00035464 | match |
+| `mpm.a=1.runout_dL_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|1|MPM (L∞ − L0)/L0` | 1.31706 | 1.32 | 0.0022268 | match |
+| `mpm.a=1.final_height_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|1|Final height / L0` | 0.77374 | 0.77 | 0.00485724 | match |
+| `mpm.a=2.runout_dL_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|2|MPM (L∞ − L0)/L0` | 3.70872 | 3.71 | 0.000345794 | match |
+| `mpm.a=2.final_height_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|2|Final height / L0` | 1.02821 | 1.03 | 0.00174038 | match |
+| `mpm.a=3.runout_dL_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|3|MPM (L∞ − L0)/L0` | 6.20467 | 6.2 | 0.000752785 | match |
+| `mpm.a=3.final_height_over_L0` | `doc:docs/core_concepts/geomechanics_mpm.md|3|Final height / L0` | 1.0669 | 1.07 | 0.00289345 | match |
 
 ### `geometry_library/03_airliner_vlm` (full)
 
@@ -774,7 +845,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `self_modifying_bricks.py` | `pinneapple_design.bricks.compare`, `pinneapple_design.bricks.dynamics`, `pinneapple_design.bricks.mesh`, `pinneapple_design.bricks.reference_cantilever`, `pinneapple_design.bricks.report`, `pinneapple_design.bricks.validation`, `pinneapple_design.bricks.visuals` | `pinneapple_design.bricks.BridgeGoal`, `pinneapple_design.bricks.CantileverGoal`, `pinneapple_design.bricks.TowerGoal`, `pinneapple_design.bricks.ldraw`, `pinneapple_design.bricks.statics`, `pp.to_jsonable` |
+| `self_modifying_bricks.py` | `pinneapple_design.bricks.BridgeGoal`, `pinneapple_design.bricks.CantileverGoal`, `pinneapple_design.bricks.TowerGoal`, `pinneapple_design.bricks.compare`, `pinneapple_design.bricks.dynamics`, `pinneapple_design.bricks.mesh`, `pinneapple_design.bricks.reference_cantilever`, `pinneapple_design.bricks.report`, `pinneapple_design.bricks.validation`, `pinneapple_design.bricks.visuals` | `pinneapple_design.bricks.ldraw`, `pinneapple_design.bricks.statics`, `pp.to_jsonable` |
 
 </details>
 
@@ -1026,11 +1097,11 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | script | covered by a node | not covered |
 |---|---|---|
 | `01_synthetic_diffusion.py` | `pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.eval_rollout`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.train_dynamics` | `pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshGraph`, `pinneapple_neural.trainer.parallel.best_device` |
-| `02_cylinder_flow_deepmind.py` | `pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.eval_rollout`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.train_dynamics` | `pinneapple_data.datasets.deepmind_mgn.CYLINDER_TYPE_MAP`, `pinneapple_data.datasets.deepmind_mgn.cylinder_flow_to_tensors`, `pinneapple_data.datasets.deepmind_mgn.download_prefix`, `pinneapple_data.datasets.deepmind_mgn.read_trajectories`, `pinneapple_neural.trainer.parallel.best_device` |
-| `_common.py` | `pinneapple_neural.architectures.graphnn.mgn_dynamics.eval_rollout`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.train_dynamics` | `pinneapple_data.datasets.deepmind_mgn.CYLINDER_TYPE_MAP`, `pinneapple_data.datasets.deepmind_mgn.DM_URL`, `pinneapple_data.datasets.deepmind_mgn.cylinder_flow_to_tensors`, `pinneapple_data.datasets.deepmind_mgn.download_prefix`, `pinneapple_data.datasets.deepmind_mgn.read_trajectories`, `pinneapple_neural.trainer.parallel.best_device` |
+| `02_cylinder_flow_deepmind.py` | `pinneapple_data.datasets.deepmind_mgn.cylinder_flow_to_tensors`, `pinneapple_data.datasets.deepmind_mgn.download_prefix`, `pinneapple_data.datasets.deepmind_mgn.read_trajectories`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.eval_rollout`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.frozen_ic_rmse`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.train_dynamics` | `pinneapple_data.datasets.deepmind_mgn.CYLINDER_TYPE_MAP`, `pinneapple_neural.trainer.parallel.best_device` |
+| `_common.py` | `pinneapple_data.datasets.deepmind_mgn.cylinder_flow_to_tensors`, `pinneapple_data.datasets.deepmind_mgn.download_prefix`, `pinneapple_data.datasets.deepmind_mgn.read_trajectories`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.eval_rollout`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.train_dynamics` | `pinneapple_data.datasets.deepmind_mgn.CYLINDER_TYPE_MAP`, `pinneapple_data.datasets.deepmind_mgn.DM_URL`, `pinneapple_neural.trainer.parallel.best_device` |
 | `physicsnemo_parity/lagrangian_mgn.py` | - | `pinneapple_neural.architectures.graphnn.base.GraphBatch`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.trainer.parallel.best_device` |
 | `physicsnemo_parity/stokes_mgn.py` | - | `pinneapple_neural.architectures.graphnn.base.GraphBatch`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.Normalizer`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.edge_features`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.triangles_to_edges`, `pinneapple_neural.trainer.parallel.best_device` |
-| `physicsnemo_parity/vortex_shedding_mgn.py` | `pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.eval_rollout` | `pinneapple_data.datasets.deepmind_mgn.CYLINDER_TYPE_MAP`, `pinneapple_data.datasets.deepmind_mgn.cylinder_flow_to_tensors`, `pinneapple_data.datasets.deepmind_mgn.download_prefix`, `pinneapple_data.datasets.deepmind_mgn.read_trajectories`, `pinneapple_neural.trainer.parallel.best_device` |
+| `physicsnemo_parity/vortex_shedding_mgn.py` | `pinneapple_data.datasets.deepmind_mgn.cylinder_flow_to_tensors`, `pinneapple_data.datasets.deepmind_mgn.download_prefix`, `pinneapple_data.datasets.deepmind_mgn.read_trajectories`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.MeshDynamicsMGN`, `pinneapple_neural.architectures.graphnn.mgn_dynamics.eval_rollout` | `pinneapple_data.datasets.deepmind_mgn.CYLINDER_TYPE_MAP`, `pinneapple_neural.trainer.parallel.best_device` |
 
 </details>
 
@@ -1473,7 +1544,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_generate_train_evaluate.py` | - | `pinneapple_worldmodel.benchmark.BUILTIN_TASKS`, `pinneapple_worldmodel.benchmark.PhysicsBenchmark`, `pinneapple_worldmodel.dataset.WorldModelDataset`, `pinneapple_worldmodel.generate_datasets`, `pinneapple_worldmodel.model_zoo.ModelZoo`, `pinneapple_worldmodel.scenario.BUILTIN_SCENARIOS`, `pinneapple_worldmodel.simulator.PhysicsSimulator`, `pinneapple_worldmodel.train_specialist` |
+| `01_generate_train_evaluate.py` | `pinneapple_worldmodel.benchmark.BUILTIN_TASKS`, `pinneapple_worldmodel.benchmark.PhysicsBenchmark`, `pinneapple_worldmodel.generate_datasets`, `pinneapple_worldmodel.train_specialist` | `pinneapple_worldmodel.dataset.WorldModelDataset`, `pinneapple_worldmodel.model_zoo.ModelZoo`, `pinneapple_worldmodel.scenario.BUILTIN_SCENARIOS`, `pinneapple_worldmodel.simulator.PhysicsSimulator` |
 
 </details>
 

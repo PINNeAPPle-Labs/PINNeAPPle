@@ -534,7 +534,7 @@ def _register_capabilities():
         description="the aircraft through the same severe turbulence, stick fixed and with the autopilot "
                     "(examples/flight_dynamics/04_turbulence_encounters.py)", **common))
     register_capability(Capability(
-        id="flight.same_gust", title="The aircraft through the same 1-cosine gust (Blender 2 x 2 clip)",
+        id="flight.same_gust", title="The four aircraft through the same 1-cosine gust",
         keywords={"same gust": 4, "1-cosine": 3, "one-cosine": 3, "1 - cos": 3, "discrete gust": 3,
                   "side by side": 1, "pratt": 1.5}, requires_all=(_FLYING,), min_score=3,
         nodes=("flight.aircraft", "flight.same_gust", "flight.scene", "render.blender_clip", "render.clip_grid"),
@@ -544,7 +544,7 @@ def _register_capabilities():
         description="peak load factors at the CG and in the cabin for one vertical gust "
                     "(examples/flight_dynamics/07_same_gust.py)", **common))
     register_capability(Capability(
-        id="flight.trim_stability", title="Trim, stability derivatives and dynamic modes",
+        id="flight.trim_stability", title="Aircraft trim, stability derivatives and dynamic modes",
         keywords={"trim": 2.5, "stability derivative": 3, "static margin": 2.5, "dynamic modes": 2.5, "phugoid": 2,
                   "dutch roll": 2, "short period": 2, "eigenvalue": 1, "linearis": 1, "lineariz": 1},
         requires_all=(_FLYING,), min_score=2.5,
@@ -554,7 +554,7 @@ def _register_capabilities():
         description="trim at cruise, non-dimensional derivatives, 12-state modes "
                     "(examples/flight_dynamics/02_trim_and_stability.py)", **common))
     register_capability(Capability(
-        id="flight.verification", title="Verify the flight-dynamics library",
+        id="flight.verification", title="Verify the aircraft flight-dynamics library: conservation and turbulence spectra",
         keywords={"verification": 2, "verify": 1.5, "conservation": 1.5, "turbulence spectra": 2, "psd": 1.5},
         requires_all=(_FLYING,), min_score=3.5, nodes=("flight.verification", "examples.compare"),
         uncited="checks against MIL-F-8785C spectra, energy conservation and the steady lattice",
@@ -571,7 +571,7 @@ def _register_capabilities():
         description="Cycles clips of the take-off, the turbulence encounter and the same-gust grid "
                     "(examples/flight_dynamics/05_render_clips.py, 08_viewers.py)", **common))
     register_capability(Capability(
-        id="flight.full_study", title="The whole flight-dynamics study",
+        id="flight.full_study", title="The whole flight-dynamics study of the four aircraft",
         keywords={"flight dynamics": 3, "flight-dynamics": 3, "whole study": 1.5, "full study": 1.5,
                   "complete study": 1.5, "dinâmica de voo": 3, "four aircraft": 1}, min_score=4,
         nodes=("flight.aircraft", "flight.verification", "flight.trim_stability", "flight.takeoff_cases",

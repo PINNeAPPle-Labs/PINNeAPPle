@@ -244,9 +244,9 @@ def _register_capabilities():
         references=("evensen1994enkf",), template="geophysics/01_sphere_and_assimilation",
         description="examples/geophysics/01_sphere_and_assimilation.py"))
     register_capability(Capability(
-        id="core.torsion_optimizer", title="Constrained shape optimization compared across six methods",
+        id="core.torsion_optimizer", title="Constrained shape optimization of a torsion section compared across six methods",
         domain="optimization", example="physics_optimizer",
-        keywords={"torsional rigidity": 3, "shape optimization": 2.5, "constrained optimization": 2.5,
+        keywords={"torsional rigidity": 3, "torsion": 1.5, "shape optimization": 2.5, "constrained optimization": 2.5,
                   "augmented lagrangian": 2, "slsqp": 2, "adjoint": 1.5}, min_score=3,
         nodes=("core.torsion_optimizer",), references=("brenner2008fem",),
         template="physics_optimizer/01_constrained_shape_six_methods",

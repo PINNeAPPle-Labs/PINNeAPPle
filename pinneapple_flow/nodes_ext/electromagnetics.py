@@ -500,6 +500,7 @@ def _register_capabilities():
     register_capability(Capability(
         id="em.verification", title="Electromagnetics solvers against independent references",
         keywords={"electromagnetic": 1.5, "electromagnetics": 1.5, "maxwell": 1, "mie": 1.5, "biot-savart": 2,
+                  "independent reference": 1.5,
                   "fresnel": 1.5, "verification": 2, "verify": 1.5}, min_score=3.5,
         requires_all=(("electromagnetic", "electromagnetics", "maxwell", "mie", "biot", "fresnel"),),
         nodes=("em.verification", "examples.compare"), references=("brenner2008fem",),

@@ -1,6 +1,6 @@
 // What a node produced in the last run: summary, warnings, metrics, tables, figures, the 3-D scene, the
 // architecture, the parsed equations, the log.
-import { artifactUrl, htmlArtifactUrl } from "../api";
+import { artifactUrl, htmlArtifactUrl, runFileUrl } from "../api";
 import type { NodeResult } from "../types";
 import { LayerGraph } from "./LayerGraph";
 import { Viewer3D } from "./Viewer3D";

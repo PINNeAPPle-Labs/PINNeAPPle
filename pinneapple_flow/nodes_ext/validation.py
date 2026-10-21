@@ -176,6 +176,13 @@ def audit(ctx, inputs, params):
 def _register_capabilities():
     from ..planner.extensions import Capability, register_capability
     register_capability(Capability(
+        id="check.physicsnemo_replay", title="Replay PhysicsNeMo predictions through the physics checks",
+        domain="validation", example="vs_physicsnemo",
+        keywords={"physicsnemo": 3, "modulus": 1.5, "replay": 1.5, "predictions": 1, "physics checks": 1.5},
+        requires_all=(("physicsnemo", "modulus"),), min_score=3, nodes=("check.physics", "examples.compare"),
+        references=("oberkampf2010vv",), template="vs_physicsnemo/07_check_replay",
+        description="examples/vs_physicsnemo/07_physicsnemo_trains_pinneapple_checks"))
+    register_capability(Capability(
         id="check.physics", title="Lint results and models for physics (pinneapple check)", domain="validation",
         example="physics_check", keywords={"pinneapple check": 4, "physics linter": 3, "lint": 2, "physics checks": 2,
                                            "ci gate": 2, "conservation check": 1.5}, min_score=3,

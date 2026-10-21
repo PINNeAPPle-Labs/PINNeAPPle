@@ -87,7 +87,7 @@ def _register_capabilities():
         nodes=("pinn.burgers_first",), references=("raissi2019pinn", "cole1951burgers"),
         template="first_example/first_example", quick=True, description="examples/first_example/first_example.py"))
     register_capability(Capability(
-        id="pinn.poisson_fem_vs_pinn", title="A classical solver and a PINN on the same problem, one call",
+        id="pinn.poisson_fem_vs_pinn", title="A classical solver and a PINN on the same manufactured problem, one call",
         domain="PINN", example="solver_api",
         keywords={"manufactured": 3, "fem vs pinn": 3, "classical vs pinn": 3, "pp.compare": 2, "solver api": 3},
         min_score=3, nodes=("pinn.poisson_fem_vs_pinn",), references=("brenner2008fem", "raissi2019pinn"),

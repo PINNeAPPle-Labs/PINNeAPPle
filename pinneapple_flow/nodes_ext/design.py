@@ -285,6 +285,13 @@ def ahmed_slant(ctx, inputs, params):
 def _register_capabilities():
     from ..planner.extensions import Capability, register_capability
     register_capability(Capability(
+        id="design.from_intent", title="Design a part from a plain-language goal and verify it", domain="design",
+        example="design_from_intent",
+        keywords={"design from intent": 4, "plain-language goal": 3, "from a goal": 2, "design a bracket": 3,
+                  "bracket": 1.5, "design a part": 2.5, "requirements to design": 2},
+        min_score=3, nodes=("design.from_intent", "examples.compare"), references=("brenner2008fem",),
+        template="design_from_intent/design_from_intent", description="examples/design_from_intent"))
+    register_capability(Capability(
         id="design.topology", title="Topology optimization (SIMP): MBB beam, cantilever, heat, Stokes pipes",
         domain="design", example="topology_optimization",
         keywords={"topology optimization": 4, "topology optimisation": 4, "otimização topológica": 4, "simp": 3,

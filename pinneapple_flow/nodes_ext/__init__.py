@@ -6,6 +6,7 @@ from ..examples import register_hook  # noqa: E402
 from . import (  # noqa: F401
     aero,
     astro,
+    bricks,
     cfd,
     core_ts,
     design,
@@ -15,6 +16,7 @@ from . import (  # noqa: F401
     flight,
     forecasting,
     geomechanics,
+    learned_sim,
     pinn_examples,
     problemdesign,
     render,
@@ -24,6 +26,7 @@ from . import (  # noqa: F401
     use_cases,
     validation,
     viz,
+    worldmodel,
 )
 
 register_hook()                         # example-flow runs become Lab experiments (pinneapple_flow.examples)

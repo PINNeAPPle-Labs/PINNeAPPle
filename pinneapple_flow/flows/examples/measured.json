@@ -1869,6 +1869,48 @@
    "status": "done"
   }
  },
+ "lbm/01_sphere_wind_tunnel": {
+  "quick": {
+   "commit": "c49301d7",
+   "comparisons": [
+    {
+     "flow": "drag.Cd_schiller_naumann",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|Schiller & Naumann \\(1933\\) gives (\\d[\\d.]*)",
+     "reference": 2.61,
+     "rel_diff": 0.00017287860707358658,
+     "value": 2.609548786835538
+    },
+    {
+     "flow": "drag.fp32.bytes_per_cell",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|instead of (\\d+) B/cell",
+     "reference": 76.0,
+     "rel_diff": 0.0,
+     "value": 76.0
+    },
+    {
+     "flow": "drag.fp16s.bytes_per_cell",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/lbm_wind_tunnel.md|\\((\\d+) instead of",
+     "reference": 38.0,
+     "rel_diff": 0.0,
+     "value": 38.0
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentA/example.lbm.01_sphere_wind_tunnel-quick.experiment.json, Lab item manifest/flow/example.lbm.01_sphere_wind_tunnel-quick",
+   "matched": 3,
+   "nodes": {
+    "compare": "done",
+    "drag": "done",
+    "stokes": "done"
+   },
+   "seconds": 585.8,
+   "status": "done"
+  }
+ },
  "meshgraphnet/01_synthetic_diffusion": {
   "full": {
    "commit": "5e891c36",
@@ -3423,6 +3465,21 @@
    "status": "done"
   }
  },
+ "solvers/01_time_series_decompositions": {
+  "full": {
+   "commit": "475bf159",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentA/example.solvers.01_time_series_decompositions.experiment.json, Lab item manifest/flow/example.solvers.01_time_series_decompositions",
+   "matched": 0,
+   "nodes": {
+    "decompose": "done"
+   },
+   "seconds": 55.5,
+   "status": "done"
+  }
+ },
  "solvers/02_sph_box": {
   "full": {
    "commit": "475bf159",
@@ -3449,7 +3506,7 @@
    "nodes": {
     "poisson": "done"
    },
-   "seconds": 8.6,
+   "seconds": 9.2,
    "status": "done"
   }
  },
@@ -3842,6 +3899,36 @@
     "fin": "done"
    },
    "seconds": 210.9,
+   "status": "done"
+  }
+ },
+ "validation/06_opinf_weather_advection": {
+  "full": {
+   "commit": "c49301d7",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentC/example.validation.06_opinf_weather_advection.experiment.json, Lab item manifest/flow/example.validation.06_opinf_weather_advection",
+   "matched": 0,
+   "nodes": {
+    "gallery": "done"
+   },
+   "seconds": 16.1,
+   "status": "done"
+  }
+ },
+ "validation/07_mlp_zoo_heatsink_convection": {
+  "quick": {
+   "commit": "c49301d7",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentC/example.validation.07_mlp_zoo_heatsink_convection-quick.experiment.json, Lab item manifest/flow/example.validation.07_mlp_zoo_heatsink_convection-quick",
+   "matched": 0,
+   "nodes": {
+    "gallery": "done"
+   },
+   "seconds": 16.7,
    "status": "done"
   }
  },

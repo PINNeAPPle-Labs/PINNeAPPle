@@ -120,12 +120,13 @@
   "notes": "nothing committed to compare: the script prints the losses"
  },
  "latent": {
-  "domain": "reduced-order models",
-  "reason": "not converted yet (a later batch of this PR): TrustedLatentSurrogate; the advection-diffusion-reaction solver and sampling are in the script"
+  "domain": "physics AI",
+  "reason": "the study's full-order model (upwind finite-difference advection-diffusion-reaction operator, solve and residual), the envelope / hole / beyond-box samplers and the gate / AUC / coverage statistics (about 130 lines) exist only in trusted_latent_surrogate.py; the library has ParametricPOD and TrustedLatentSurrogate but no function that runs this study",
+  "status": "not_convertible"
  },
  "lbm": {
-  "domain": "numerical solvers",
-  "reason": "not converted yet (a later batch of this PR): WindTunnelLBM sphere drag (60 min full); no committed numbers"
+  "domain": "fluid dynamics",
+  "notes": "lbm.sphere_stokes and lbm.sphere_drag (FP32 / FP16 storage) wrap pinneapple_simulation.numerical_solvers.lbm_tunnel, compared with docs/core_concepts/lbm_wind_tunnel.md (Stokes error, Cd FP32 / FP16, Schiller-Naumann, bytes per cell); the full run is about an hour on 4 idle cores, so the quick configuration (smaller sphere and tunnel, fewer steps) compares only the configuration-independent numbers (Schiller-Naumann, bytes per cell); the full configuration has not been run here"
  },
  "meshgraphnet": {
   "domain": "neural operators",
@@ -155,8 +156,8 @@
   "notes": "one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet"
  },
  "non_hermitian": {
-  "domain": "physics",
-  "reason": "not converted yet (a later batch of this PR): analyze_ep_tuning takes sympy expressions: needs named presets"
+  "domain": "non-Hermitian physics",
+  "notes": "ep_laws / ep_numeric / hypothesis_map / ep_figure wrap pinneapple_physics.non_hermitian (coupling_classes moved from the script into ep_tuning.py, the script prints the same output); compared with docs/core_concepts/non_hermitian.md (EP-law degree, kappa_N^2 and EP order for N = 2-5)"
  },
  "numerical_solvers": {
   "domain": "numerical solvers",
@@ -242,7 +243,7 @@
  },
  "solvers": {
   "domain": "numerical solvers",
-  "reason": "not converted yet (a later batch of this PR): SolverRegistry.build (decompositions, SPH, FDM vs spectral)"
+  "notes": "three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation"
  },
  "studio": {
   "domain": "visualization",

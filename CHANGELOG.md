@@ -1351,6 +1351,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Immersed-boundary FDM, `channel` mode: mass is conserved. The divergence-penalty pressure step is replaced
+  by an exact pressure-Poisson projection on cell faces, so every cross-section carries the inlet flux (pipe
+  R=0.5, L=3, Re=10: flow rate 1.0 of the inlet value along the pipe, was 0.85 / 0.53 / 0.39). The result has a
+  new `face_divergence_rms`; catalog item S12 is now validated (`tests/test_immersed_boundary_fdm.py`) (#627).
 - Form Compiler (`pinneapple_data.formfill`): a `Label | Unit | Value` row and a unit named in the column header
   (`Value (MPa g)`) now give the value its unit; "Design press." and "Shell MOC" / "MOC - Nozzles" are recognised; a
   quantity found without any unit is kept but flagged "No unit was found with this value" (#732).

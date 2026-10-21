@@ -81,15 +81,19 @@ exactly. Convergence ratio > 3.8 at each of two halvings (2nd order FDM, as expe
 head scales as `N^2`) verified in closed form; `required_speed_for_head` checked against the
 closed-form inversion of `H = n_stages * psi(phi) * U^2` at fixed Q.
 
-## 4. Open scientific limitation, not fixed this session
+## 4. Immersed boundary "channel" mode: mass conservation (fixed, #627)
 
-**Immersed boundary "channel" mode does not conserve mass** (`immersed_boundary_fdm.py`
-docstring, measured 2026-09-27): pipe R=0.5, L=3, Re=10, 60x22x22 grid, 1500 steps — flow rate
-falls to 0.71 / 0.45 / 0.34 of the inlet value along the pipe (divergence_rms 0.86). Root cause:
-the solver uses a divergence-penalty relaxation for the pressure step, not a true pressure-Poisson
-projection. Fixing this is a real, separate piece of numerical-methods work (swap in a projection
-step like `solve_ibm_external_flow` already has), not a quick patch — flagged here so the next
-session doesn't have to re-derive that it's a projection problem, not a boundary-condition bug.
+`immersed_boundary_fdm.py` "channel" mode used a divergence-penalty relaxation for the pressure
+step and lost mass: pipe R=0.5, L=3, Re=10, 60x22x22 grid, 1500 steps, flow rate 0.85 / 0.53 / 0.39
+of the inlet value at x = 0.5 / 1.5 / 2.5. A cell-centred central-difference projection does not
+help, because div of a central grad is a stride-2 Laplacian that decouples odd and even grid points
+(the 2026-10-02 attempts in `docs/dev/AUDIT_REPORT.md`). The fix projects on cell faces
+(`_MACProjection`): compact 7-point Laplacian over the open faces, `p = 0` on the outlet cells,
+factorised once. Same case now: flow rate 1.0 at every section, face divergence 6e-15. The
+cell-centred `divergence_rms` stays O(1) because of the cells next to the masked wall; check
+`face_divergence_rms` instead. Still open: the 1.5-cell wall band shrinks the effective radius
+(u_max/u_mean 1.84 against the Hagen-Poiseuille 2 on that grid), and `solve_ibm_external_flow`
+keeps its Jacobi projection, not re-checked for mass conservation.
 
 ## 5. Key references for this batch
 

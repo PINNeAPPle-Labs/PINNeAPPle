@@ -42,8 +42,8 @@ Ordered by dependency, not importance — do them roughly top to bottom. Updated
 
 - [ ] Continue validation batches. Still untested (42) / tested-without-reference (53) as of this
   branch — regenerate `pinneapple_catalog/method_status.json` rather than trusting a cached number.
-- [ ] `immersed_boundary_fdm.py`'s channel mode needs a real pressure-Poisson projection step to
-  conserve mass (see SCIENTIFIC_CONTEXT.md §4) before S12 can be validated — nontrivial, not a quick fix.
+- [x] `immersed_boundary_fdm.py`'s channel mode conserves mass: exact pressure-Poisson projection on
+  cell faces (#627). S12 validated by `tests/test_immersed_boundary_fdm.py`; see SCIENTIFIC_CONTEXT.md §4.
 
 ## Explicitly out of scope (don't pick up casually)
 

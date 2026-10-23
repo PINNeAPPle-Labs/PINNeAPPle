@@ -1,0 +1,128 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia",
+ "title": "PINNeAPPle with the NVIDIA stack",
+ "description": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each run.py writes an architecture figure, result figures, summary.json and run_info.json (what ran here and what needs a GPU or an API key).",
+ "domain": "physics AI",
+ "methods": [
+  "FNO (PhysicsNeMo)",
+  "FVM",
+  "MOC",
+  "spectral"
+ ],
+ "modules": [
+  "pinneapple_tools.nvidia",
+  "pinneapple_neural.physicsnemo_bridge",
+  "pinneapple_systems.process_components.water_hammer"
+ ],
+ "params": {},
+ "scripts": [
+  "01_coldplate_physicsnemo_omniverse/run.py",
+  "02_pump_pipeline_twin_omniverse/run.py",
+  "03_plume_rollout_physicsnemo/run.py"
+ ],
+ "metrics": [
+  {
+   "name": "coldplate_fno_test_rel_l2",
+   "value": 0.01733513153822296,
+   "unit": "",
+   "how": "01: mean relative L2 of T - T_c over 50 held-out layouts (01_coldplate_physicsnemo_omniverse/results/summary.json)"
+  },
+  {
+   "name": "pipeline_max_pressure_60s_closure",
+   "value": 14.65695471406468,
+   "unit": "bar",
+   "how": "02: max gauge pressure over pipe and time, MOC, 60 s linear closure (02_pump_pipeline_twin_omniverse/results/summary.json)"
+  },
+  {
+   "name": "plume_fno_one_step_rel_l2",
+   "value": 0.017878443673275186,
+   "unit": "",
+   "how": "03: mean one-step relative L2 on 8 held-out plumes (03_plume_rollout_physicsnemo/results/summary.json)"
+  },
+  {
+   "name": "plume_fno_trust_horizon",
+   "value": 10.0,
+   "unit": "steps",
+   "how": "03: median validate_rollout trust horizon over 8 plumes (same file)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "01 cold plate FNO decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REJECT",
+   "kind": "physics"
+  },
+  {
+   "name": "02 pipeline: a closure time within PN16",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "safe closures [60.0]",
+   "kind": "physics"
+  },
+  {
+   "name": "03 plume FNO rollout decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [
+   "01_coldplate_physicsnemo_omniverse/results/architecture.png",
+   "01_coldplate_physicsnemo_omniverse/results/checks.png",
+   "01_coldplate_physicsnemo_omniverse/results/fields.png",
+   "01_coldplate_physicsnemo_omniverse/results/training.png",
+   "01_coldplate_physicsnemo_omniverse/results/usd_preview.png",
+   "02_pump_pipeline_twin_omniverse/results/architecture.png",
+   "02_pump_pipeline_twin_omniverse/results/checks.png",
+   "02_pump_pipeline_twin_omniverse/results/transients.png",
+   "02_pump_pipeline_twin_omniverse/results/usd_preview.png",
+   "03_plume_rollout_physicsnemo/results/architecture.png",
+   "03_plume_rollout_physicsnemo/results/checks.png",
+   "03_plume_rollout_physicsnemo/results/rollout_checks.png",
+   "03_plume_rollout_physicsnemo/results/snapshots.png"
+  ],
+  "videos": [
+   "02_pump_pipeline_twin_omniverse/results/usd_timeline.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "01_coldplate_physicsnemo_omniverse/results/run_info.json",
+   "01_coldplate_physicsnemo_omniverse/results/summary.json",
+   "02_pump_pipeline_twin_omniverse/results/run_info.json",
+   "02_pump_pipeline_twin_omniverse/results/summary.json",
+   "03_plume_rollout_physicsnemo/results/run_info.json",
+   "03_plume_rollout_physicsnemo/results/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "examples/nvidia/README.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "41765939"
+ }
+}

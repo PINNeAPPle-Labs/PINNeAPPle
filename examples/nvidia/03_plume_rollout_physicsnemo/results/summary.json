@@ -1,0 +1,69 @@
+{
+ "decision": "REVIEW",
+ "one_step_rel_l2": 0.017878443673275186,
+ "trust_horizon_steps": 10.0,
+ "mass_drift": 0.0219705005129194,
+ "first_crossing": {
+  "spectrum": 8
+ },
+ "variance_growth": -0.007389050530193514,
+ "min_c": 0.05394558981060982,
+ "checks": [
+  {
+   "name": "one-step relative L2 <= 2 %",
+   "value": 0.017878443673275186,
+   "limit": 0.02,
+   "passed": true
+  },
+  {
+   "name": "total mass conserved over the rollout (<= 1 %)",
+   "value": 0.0219705005129194,
+   "limit": 0.01,
+   "passed": false
+  },
+  {
+   "name": "variance never grows (diffusion only)",
+   "value": 0.0,
+   "limit": 0.001,
+   "passed": true,
+   "detail": "largest step-to-step relative growth -0.00739"
+  },
+  {
+   "name": "concentration non-negative",
+   "value": 0.0,
+   "limit": 0.001,
+   "passed": true,
+   "detail": "min c = 0.0539"
+  },
+  {
+   "name": "every rollout state finite",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "trust horizon >= 1 time unit (20 steps)",
+   "value": 0.5,
+   "limit": 1.0,
+   "passed": false,
+   "detail": "median over 8 plumes, 10 steps; first criterion crossed: {'spectrum': 8} (error > 10 %, high-frequency spectrum bias > 25 %, invariant deviation > 5 %)"
+  }
+ ],
+ "training": {
+  "epochs": 27.991666666666667,
+  "final_loss": 0.0026373707223683596,
+  "steps": 3359,
+  "wall_s": 150.02767349501278,
+  "flops": 0.0,
+  "flops_per_step": 0.0,
+  "stopped_by": "wall_s",
+  "budget": {
+   "wall_s": 150.0,
+   "flops": null,
+   "steps": null
+  },
+  "history": null,
+  "eval_wall_s": 0.0
+ },
+ "fno_parameters": 925609
+}

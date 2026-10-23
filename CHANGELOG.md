@@ -14,6 +14,18 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- PINNeAPPle with the NVIDIA stack (`pinneapple_tools.nvidia`, `examples/nvidia`): OpenUSD stages for Omniverse with
+  the fields as primvars (`FieldStage`: meshes, curves, sensor points, time samples on the Omniverse timeline, trust
+  decision as `pinneapple:trust:*`), `validate_stage` (topology, primvar sizes, every `pxr.UsdValidation` validator),
+  a read-back preview (`render_stage_png` / `render_stage_gif`) and the Omniverse Kit RTX capture script; code-drawn
+  architecture figures (`diagram.architecture_diagram`, steps that need a GPU or an API key hatched); `RunInfo`
+  (versions, hardware, timings, which NVIDIA components ran). Examples 01 (cold plate: PhysicsNeMo FNO, PINNeAPPle
+  checks, USD scene), 02 (pump and pipeline water-hammer twin in USD) and 03 (plume forecast: PhysicsNeMo FNO rollout
+  with `validate_rollout`), each with its architecture and result figures from a recorded CPU run.
+- Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
+  curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
+  Joukowsky's head rise and the 4L/a period.
+- `operator_benchmarks.advection_diffusion_2d`: periodic advection-diffusion, exact in time per Fourier mode.
 - Antennas in 3-D (`pinneapple_simulation.electromagnetics.antenna.scene3d`, `study.render_3d`, `--3d` of
   `examples/use_cases/antennas/vivaldi_2to4ghz.py`, Flow Studio node `lib.antenna.render_3d`): the AVA's laminate and
   copper as glTF / USD with materials, the gain balloon (dBi, jet) per solved frequency in the antenna's frame, |E| and

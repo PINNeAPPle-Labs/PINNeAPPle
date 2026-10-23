@@ -314,7 +314,10 @@
      "cost": {
       "quantity": 40.0,
       "unit": "vias",
-      "what": "vias drilled",
+      "what": {
+       "pt": "{q} vias furadas",
+       "en": "{q} vias drilled"
+      },
       "unit_cost": 0.005,
       "index": 0.2,
       "note": "relative index per via (premise)"
@@ -348,7 +351,10 @@
      "cost": {
       "quantity": 0.028382400000000002,
       "unit": "kg",
-      "what": "heat-sink mass",
+      "what": {
+       "pt": "dissipador de {q} kg de alum\u00ednio",
+       "en": "{q} kg aluminium heat sink"
+      },
       "unit_cost": 10.0,
       "index": 0.283824,
       "note": "relative index per kg of extruded aluminium (premise)"
@@ -758,7 +764,10 @@
      "cost": {
       "quantity": 1.0,
       "unit": "fan",
-      "what": "one fan for 0.5 m/s through the fins",
+      "what": {
+       "pt": "1 ventilador (0,5 m/s nas aletas)",
+       "en": "1 fan (0.5 m/s through the fins)"
+      },
       "unit_cost": 0.5,
       "index": 0.5,
       "note": "relative index per fan (premise)"
@@ -985,7 +994,7 @@
  "notes": [],
  "meta": {
   "evaluations": 4,
-  "wall_s": 31.131428266000057,
+  "wall_s": 32.631344946000354,
   "advisor": null
  },
  "path": [

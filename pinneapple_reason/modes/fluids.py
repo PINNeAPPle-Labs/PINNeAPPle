@@ -114,7 +114,7 @@ register_countermeasure(Countermeasure(
        "every metre less of suction lift gives back a metre of available NPSH"),
     ("pump_cavitation",), _lower_pump,
     lambda b, a: ((b["suction_lift"] - a["suction_lift"]) * float(b.get("pump_pit_area", 12.0)), "m3",
-                  "extra excavation of the pump pit"),
+                  tr("{q} m³ de escavação do poço da bomba", "{q} m^3 of pump-pit excavation")),
     unit_cost=1.0, unit_cost_note="relative index per m3 of excavation and concrete (premise)", repeatable=True))
 
 _NOMINAL = (0.05, 0.065, 0.08, 0.1, 0.125, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.6)
@@ -138,7 +138,7 @@ register_countermeasure(Countermeasure(
        "lower suction velocity: the loss falls with ~V^2 (D^-5 at the same flow)"),
     ("pump_cavitation",), _larger_suction,
     lambda b, a: (math.pi * (a["suction_d"] - b["suction_d"]) * float(b.get("suction_wall", 0.006))
-                  * b["suction_length"] * STEEL["rho"], "kg", "extra suction-pipe steel"),
+                  * b["suction_length"] * STEEL["rho"], "kg", tr("+{q} kg de aço na sucção", "+{q} kg of suction-pipe steel")),
     unit_cost=1.0, unit_cost_note="relative index per kg of installed pipe (premise)", repeatable=True))
 
 
@@ -303,7 +303,7 @@ register_countermeasure(Countermeasure(
        "sobrepressão (Michaud)",
        "the flow falls over several wave round trips: the negative reflections from the reservoir cancel part of the "
        "surge (Michaud)"),
-    ("water_hammer", "column_separation"), _slow_close, lambda b, a: (1.0, "actuator", "timed actuator"),
+    ("water_hammer", "column_separation"), _slow_close, lambda b, a: (1.0, "actuator", tr("1 atuador temporizado", "1 timed actuator")),
     unit_cost=40.0, unit_cost_note="relative index per actuator (premise)", repeatable=True))
 
 _PN = (1.0e6, 1.6e6, 2.5e6, 4.0e6)
@@ -323,5 +323,5 @@ register_countermeasure(Countermeasure(
        "a thicker wall holds the peak (Barlow), but it also stiffens the pipe and speeds up the wave"),
     ("water_hammer",), _pn,
     lambda b, a: (math.pi * b["main_d"] * (a["main_wall"] - b["main_wall"]) * b["main_length"] * STEEL["rho"], "kg",
-                  "extra pipe-wall steel"),
+                  tr("+{q} kg de aço na parede da adutora", "+{q} kg of main pipe-wall steel")),
     unit_cost=1.0, unit_cost_note="relative index per kg of installed pipe (premise)"))

@@ -368,7 +368,7 @@ def _steel_cost(b, a):
     n = int(b.get("n_girders", 2))
     dA = i_section(a["girder_h"], a["girder_b"], a["girder_tf"], a["girder_tw"])["A"] - \
         i_section(b["girder_h"], b["girder_b"], b["girder_tf"], b["girder_tw"])["A"]
-    return n * dA * STEEL["rho"] * b["span"], "kg", "added girder steel"
+    return n * dA * STEEL["rho"] * b["span"], "kg", tr("+{q} kg de aço nas vigas", "+{q} kg of girder steel")
 
 
 register_countermeasure(Countermeasure(
@@ -388,7 +388,7 @@ def _bracing_cost(b, a):
     n_new = a["lateral_braces"] - b.get("lateral_braces", 0)
     s = b["deck_width"] / max(int(b.get("n_girders", 2)) - 1, 1)
     length = 2 * math.hypot(s, a["girder_h"]) * (int(b.get("n_girders", 2)) - 1)
-    return n_new * length * float(b.get("brace_mass_per_m", 3.77)), "kg", "cross-frame steel"
+    return n_new * length * float(b.get("brace_mass_per_m", 3.77)), "kg", tr("{q} kg de aço em travamentos", "{q} kg of cross-frame steel")
 
 
 register_countermeasure(Countermeasure(
@@ -426,7 +426,7 @@ def _tmd(p, v):
 
 
 def _tmd_cost(b, a):
-    return a["tmd_mass_ratio"] * frequency(a)["M"], "kg", "tuned mass"
+    return a["tmd_mass_ratio"] * frequency(a)["M"], "kg", tr("massa sintonizada de {q} kg", "{q} kg tuned mass")
 
 
 register_countermeasure(Countermeasure(
@@ -478,7 +478,7 @@ register_countermeasure(Countermeasure(
     tr("o comprimento de flambagem cai à metade e a carga crítica quadruplica",
        "the buckling length halves and the critical load quadruples"),
     ("flexural_buckling",), lambda p, v: ({"column_L_cr": p["column_L_cr"] / 2}, (), ()),
-    lambda b, a: (1.0, "brace", "one brace"), unit_cost=0.5, unit_cost_note="relative index per brace (premise)"))
+    lambda b, a: (1.0, "brace", tr("1 travamento", "1 brace")), unit_cost=0.5, unit_cost_note="relative index per brace (premise)"))
 
 
 # ------------------------------------------------------------------------------------------------ fatigue
@@ -522,7 +522,7 @@ register_countermeasure(Countermeasure(
     "thicker_section", "section", tr("seção mais espessa", "thicker section"),
     tr("tensão de flexão cai com o quadrado da espessura", "bending stress falls with the square of the thickness"),
     ("fatigue",), _thicker, lambda b, a: (a.get("section_scale", 1.0) - b.get("section_scale", 1.0), "1",
-                                          "relative extra section mass"), unit_cost=1.0, repeatable=True))
+                                          tr("+{pct} de massa da seção", "+{pct} section mass")), unit_cost=1.0, repeatable=True))
 
 
 # ------------------------------------------------------------------------------------------------ wind uplift
@@ -566,5 +566,5 @@ register_countermeasure(Countermeasure(
        "its weight"),
     ("wind_uplift",), lambda p, v: ({"fixings_per_m2": float(p.get("pieces_per_m2", 15.0)),
                                      "fixing_capacity": float(p.get("clip_capacity", 100.0))}, (), ()),
-    lambda b, a: (a["fixings_per_m2"] - b.get("fixings_per_m2", 0.0), "clips/m2", "clips per m2"),
+    lambda b, a: (a["fixings_per_m2"] - b.get("fixings_per_m2", 0.0), "clips/m2", tr("{q} grampos por m²", "{q} clips per m^2")),
     unit_cost=0.02, unit_cost_note="relative index per clip (premise)"))

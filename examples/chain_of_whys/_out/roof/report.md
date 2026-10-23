@@ -12,7 +12,7 @@
 
 ![timeline](figures/timeline.png)
 
-### Versão 0 — tiles
+### Versão 0 — telhas
 
 **✗ R1 falha: infiltração de chuva pela sobreposição.** A água sobe pela fresta de 1 mm da sobreposição por capilaridade até 14 mm, o vento empurra mais 6.15 mm e sem inclinação nada tira a água do telhado: a chuva de projeto empoça 25 mm: a carga total (14 + 6.15 + 25 = 45.1 mm) é maior que os 0 mm que a sobreposição de 75 mm levanta a 0°. A água passa por cima da sobreposição e pinga dentro.
 
@@ -22,12 +22,12 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-| **→** increase_slope | sim | -1 → 0.358 | 0.079 m2/m2 × 1 = 0.079 | slope_deg = 22.0 |
+| **→** increase_slope | sim | -1 → 0.358 | +7,9 % de área de telhado (índice 0.079) | inclinação = 22° |
 |  longer_lap | inviável: sem inclinação nenhuma sobreposição levanta a água (L·sen 0 = 0) | | | |
 
 **Escolhida: inclinar o telhado até a inclinação mínima do material.** a gravidade passa a tirar a água (lâmina fina em vez de poça) e a sobreposição ganha altura (L·sen α) contra a capilaridade e o vento. *Por quê:* resolve a falha sem quebrar nenhum requisito que passava.
 
-### Versão 1 — tiles, pitch
+### Versão 1 — telhas, inclinação
 
 **✗ R2 falha: condensação sob a cobertura.** À noite de céu limpo a telha irradia para o céu a -1.74 °C e esfria até 14.2 °C; a face inferior da telha, em contato com o ar do ambiente, fica a 14.9 °C, abaixo do ponto de orvalho do ar interno (16.4 °C a 21 °C e 75 %): o vapor condensa e pinga no ambiente.
 
@@ -37,12 +37,12 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-| **→** ceiling_ventilated_attic | sim | -0.316 → 0.37 | 1 m2/m2 × 1.5 = 1.5 |  |
+| **→** ceiling_ventilated_attic | sim | -0.316 → 0.37 | 1 m² de forro por m² de planta (índice 1.5) |  |
 |  ceiling_insulation | inviável: precisa antes de: ceiling | | | |
 
 **Escolhida: forro com ático ventilado.** o ar do ambiente deixa de tocar a telha fria (ou quente): entre os dois fica um ático ventilado e o forro, que recebe a radiação da telha e a devolve ao ambiente bem mais perto da temperatura do ar. *Por quê:* resolve a falha sem quebrar nenhum requisito que passava.
 
-### Versão 2 — tiles, pitch, ceiling
+### Versão 2 — telhas, inclinação, forro
 
 **✗ R3 falha: ganho térmico radiante do telhado.** O sol de 900 W/m² aquece a telha até 59.1 °C; o forro sobre as pessoas fica a 39 °C, 12 K acima do ar do ambiente (27 °C), mais que os 5 K de assimetria radiante aceitáveis para teto quente: irradia 78.7 W/m² para dentro e incomoda.
 
@@ -53,12 +53,12 @@ Opções testadas:
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
 |  ceiling_ventilated_attic | inviável: o conceito já tem 'ceiling' | | | |
-| **→** radiant_barrier | sim | -1.402 → 0.482 | 1 m2/m2 × 0.4 = 0.4 | tile_under_emissivity = 0.05 |
-|  ceiling_insulation | sim | -1.402 → 0.438 | 0.05 m3/m2 × 8 = 0.4 | ceiling_R = 1.3, insulation_thickness = 0.05 |
+| **→** radiant_barrier | sim | -1.402 → 0.482 | 1 m² de manta por m² de telhado (índice 0.4) | emissividade sob a telha = 0,05 |
+|  ceiling_insulation | sim | -1.402 → 0.438 | 50 mm de lã mineral sobre o forro (índice 0.4) | R do forro = 1,3 m²K/W, isolante = 50 mm |
 
 **Escolhida: barreira radiante (manta de baixa emissividade sob a telha).** a face inferior da telha passa a ter emissividade ~0,05: a troca radiante telha-forro, a parcela dominante, cai uma ordem de grandeza. *Por quê:* resolve a falha sem quebrar nenhum requisito que passava; entre 2 opções que resolvem, é a de menor custo (0.4, 3 verificações passando; contra ceiling_insulation: 3 passando, custo 0.4).
 
-### Versão 3 — tiles, pitch, ceiling, radiant_barrier
+### Versão 3 — telhas, inclinação, forro, barreira radiante
 
 ✓ todos os requisitos passam.
 

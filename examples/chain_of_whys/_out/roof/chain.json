@@ -523,7 +523,10 @@
      "cost": {
       "quantity": 0.07853474267758331,
       "unit": "m2/m2",
-      "what": "extra covering area per m2 of plan",
+      "what": {
+       "pt": "+{pct} de \u00e1rea de telhado",
+       "en": "+{pct} roof area"
+      },
       "unit_cost": 1.0,
       "index": 0.07853474267758331,
       "note": "relative index per m2 of covering (premise)"
@@ -1075,7 +1078,10 @@
      "cost": {
       "quantity": 1.0,
       "unit": "m2/m2",
-      "what": "ceiling area per m2 of plan",
+      "what": {
+       "pt": "1 m\u00b2 de forro por m\u00b2 de planta",
+       "en": "1 m^2 of ceiling per m^2 of plan"
+      },
       "unit_cost": 1.5,
       "index": 1.5,
       "note": "relative index per m2 of ceiling (premise; roof covering = 1)"
@@ -1708,7 +1714,10 @@
      "cost": {
       "quantity": 1.0,
       "unit": "m2/m2",
-      "what": "foil per m2 of roof",
+      "what": {
+       "pt": "1 m\u00b2 de manta por m\u00b2 de telhado",
+       "en": "1 m^2 of foil per m^2 of roof"
+      },
       "unit_cost": 0.4,
       "index": 0.4,
       "note": "relative index per m2 of foil (premise)"
@@ -1740,7 +1749,10 @@
      "cost": {
       "quantity": 0.05,
       "unit": "m3/m2",
-      "what": "insulation volume per m2",
+      "what": {
+       "pt": "{mm} mm de l\u00e3 mineral sobre o forro",
+       "en": "{mm} mm of mineral wool on the ceiling"
+      },
       "unit_cost": 8.0,
       "index": 0.4,
       "note": "relative index per m3 of insulation (premise)"
@@ -2194,7 +2206,7 @@
  "notes": [],
  "meta": {
   "evaluations": 15,
-  "wall_s": 0.8541902669999217,
+  "wall_s": 0.0038393609993363498,
   "advisor": null
  },
  "path": [

@@ -18,7 +18,7 @@ from typing import Any
 from pinneapple_analysis.trust import Check
 
 __all__ = ["Requirement", "Concept", "Verification", "Validity", "Finding", "Option", "Step", "Chain", "tr",
-           "text_of", "RESOLVED", "UNRESOLVED", "MAX_STEPS"]
+           "text_of", "element_label", "cost_text", "param_text", "ELEMENTS", "PARAMS", "RESOLVED", "UNRESOLVED", "MAX_STEPS"]
 
 RESOLVED, UNRESOLVED, MAX_STEPS = "resolved", "unresolved", "max_steps"
 
@@ -33,6 +33,76 @@ def text_of(t: Any, lang: str = "pt") -> str:
     if isinstance(t, dict):
         return t.get(lang) or t.get("en") or t.get("pt") or ""
     return "" if t is None else str(t)
+
+
+#: names of the elements of the built-in cases and countermeasures, for figures and reports
+ELEMENTS = {
+    "tiles": ("telhas", "tiles"), "pitch": ("inclinação", "pitch"), "lap": ("sobreposição", "lap"),
+    "ceiling": ("forro", "ceiling"), "radiant_barrier": ("barreira radiante", "radiant barrier"),
+    "insulation": ("isolante", "insulation"), "clips": ("grampos", "clips"),
+    "girders": ("vigas", "girders"), "girder_depth": ("vigas mais altas", "deeper girders"),
+    "lateral_bracing": ("travamento lateral", "lateral bracing"), "flange_width": ("mesas largas", "wide flanges"),
+    "tmd": ("amortecedor sintonizado", "tuned mass damper"), "column_brace": ("travamento da coluna", "column brace"),
+    "section": ("seção reforçada", "thicker section"),
+    "board": ("placa", "board"), "thermal_vias": ("vias térmicas", "thermal vias"), "heatsink": ("dissipador",
+                                                                                               "heat sink"),
+    "fan": ("ventilador", "fan"), "pump": ("bomba", "pump"), "main": ("adutora", "main"), "valve": ("válvula", "valve"),
+    "pump_level": ("bomba rebaixada", "lowered pump"), "suction_pipe": ("sucção maior", "larger suction pipe"),
+    "valve_actuator": ("atuador lento", "slow actuator"), "pipe_class": ("classe de pressão", "pressure class"),
+    "insulating_kit": ("kit isolante", "insulating kit"), "cathode_coating": ("cátodo revestido", "coated cathode"),
+}
+
+
+#: parameters countermeasures change: (pt, en, unit, scale to the shown unit)
+PARAMS = {
+    "slope_deg": ("inclinação", "pitch", "°", 1), "lap_length": ("sobreposição", "lap", "mm", 1e3),
+    "tile_under_emissivity": ("emissividade sob a telha", "tile underside emissivity", "", 1),
+    "insulation_thickness": ("isolante", "insulation", "mm", 1e3), "ceiling_R": ("R do forro", "ceiling R",
+                                                                                 "m²K/W", 1),
+    "girder_h": ("altura da viga", "girder depth", "mm", 1e3), "girder_tw": ("alma", "web", "mm", 1e3),
+    "girder_b": ("mesa", "flange", "mm", 1e3), "girder_tf": ("espessura da mesa", "flange thickness", "mm", 1e3),
+    "lateral_braces": ("travamentos", "braces", "", 1), "tmd_mass_ratio": ("massa do TMD", "TMD mass ratio", "%", 100),
+    "hs_base_w": ("base do dissipador", "heat-sink base", "mm", 1e3), "hs_base_d": ("profundidade", "depth", "mm",
+                                                                                      1e3),
+    "hs_n_fins": ("aletas", "fins", "", 1), "hs_fin_h": ("altura da aleta", "fin height", "mm", 1e3),
+    "fan_velocity": ("ar nas aletas", "air through the fins", "m/s", 1), "thermal_vias": ("vias", "vias", "", 1),
+    "suction_lift": ("altura de sucção", "suction lift", "m", 1), "suction_d": ("diâmetro da sucção",
+                                                                               "suction diameter", "mm", 1e3),
+    "valve_close_time": ("fechamento da válvula", "valve closure", "s", 1),
+    "pressure_rating": ("classe de pressão", "pressure class", "MPa", 1e-6), "main_wall": ("parede", "wall", "mm",
+                                                                                           1e3),
+}
+
+
+def param_text(name: str, value: Any, lang: str = "pt") -> str:
+    """``name = value unit`` with the parameter's name in ``lang`` (raw name and value when unknown)."""
+    if name not in PARAMS or not isinstance(value, (int, float)):
+        return f"{name} = {_fmt(value) if isinstance(value, float) else value}"
+    pt, en, unit, k = PARAMS[name]
+    x = float(value) * k
+    v = str(int(round(x))) if abs(x - round(x)) < 1e-9 else _fmt(x)
+    if lang == "pt":
+        v = v.replace(".", ",")
+    return f"{pt if lang == 'pt' else en} = {v}{'' if unit in ('°', '%', '') else ' '}{unit}"
+
+
+def element_label(name: str, lang: str = "pt") -> str:
+    """The name of an element in ``lang`` (the raw name when it is not a built-in one)."""
+    pair = ELEMENTS.get(name)
+    return name if pair is None else pair[0 if lang == "pt" else 1]
+
+
+def cost_text(cost: dict[str, Any], lang: str = "pt") -> str:
+    """What a countermeasure costs, in words: its ``what`` template filled with the quantity ({q}; {pct} as a
+    percentage, {mm} in millimetres), or ``quantity unit``."""
+    qty = float(cost.get("quantity", 0.0))
+    what = cost.get("what")
+    if isinstance(what, dict):
+        def num(x, nd=3):
+            s = f"{x:.0f}" if abs(x) >= 100 else f"{x:.{nd}g}"
+            return s.replace(".", ",") if lang == "pt" else s
+        return text_of(what, lang).format(q=num(qty), pct=num(100 * qty, 2) + " %", mm=num(1000 * qty))
+    return f"{_fmt(qty)} {cost.get('unit', '')}" + (f" ({what})" if what else "")
 
 
 def _num(x: Any) -> Any:

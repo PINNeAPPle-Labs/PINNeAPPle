@@ -13,7 +13,7 @@
 
 ![timeline](figures/timeline.png)
 
-### Versão 0 — girders
+### Versão 0 — vigas
 
 **✗ R2 falha: flecha excessiva.** Sob a multidão (4 kN/m²) cada viga flecha 133 mm, mais que L/360 = 83.3 mm: a passarela resiste, mas balança e assusta quem passa — a rigidez (E·I), não a resistência, governa.
 
@@ -23,11 +23,11 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-| **→** deepen_girders | sim | -0.597 → 0.162 | 1653.2 kg × 1 = 1653.2 | girder_h = 1.05, girder_tw = 0.011 |
+| **→** deepen_girders | sim | -0.597 → 0.162 | +1653 kg de aço nas vigas (índice 1653.2) | altura da viga = 1050 mm, alma = 11 mm |
 
 **Escolhida: vigas mais altas.** I cresce com o cubo da altura: menos flecha e frequência natural mais alta (f ∝ √(EI/m)). *Por quê:* resolve a falha (mas quebra R4/pedestrian_resonance, tratado no passo seguinte).
 
-### Versão 1 — girders, girder_depth
+### Versão 1 — vigas, vigas mais altas
 
 **✗ R3 falha: flambagem lateral com torção.** A mesa comprimida, travada só a cada 30 m, tende a sair do plano e torcer: momento crítico elástico 146 kN·m, esbeltez λ_LT = 4.08, fator χ_LT = 0.0505 (curva d); resistência à flambagem lateral 123 kN·m contra 1.66e+03 kN·m de cálculo — a viga alta e estreita que resolveu a flecha flamba de lado antes de escoar.
 
@@ -37,12 +37,12 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-| **→** lateral_bracing | sim | -12.5 → 0.071 | 204.5 kg × 1.5 = 306.7 | lateral_braces = 10 |
-|  wider_flanges | sim | -12.5 → 0.077 | 1.56e+04 kg × 1 = 1.56e+04 | girder_b = 0.7, girder_tf = 0.031 |
+| **→** lateral_bracing | sim | -12.5 → 0.071 | 204 kg de aço em travamentos (índice 306.7) | travamentos = 10 |
+|  wider_flanges | sim | -12.5 → 0.077 | +15617 kg de aço nas vigas (índice 1.56e+04) | mesa = 700 mm, espessura da mesa = 31 mm |
 
 **Escolhida: contraventamento lateral (quadros transversais).** trava a mesa comprimida: o comprimento destravado cai e o momento crítico sobe com 1/L². *Por quê:* resolve a falha sem quebrar nenhum requisito que passava; entre 2 opções que resolvem, é a de menor custo (307, 3 verificações passando; contra wider_flanges: 4 passando, custo 1.56e+04).
 
-### Versão 2 — girders, girder_depth, lateral_bracing
+### Versão 2 — vigas, vigas mais altas, travamento lateral
 
 **✗ R4 falha: ressonância com o passo de pedestres.** Frequência natural vertical 2.05 Hz dentro da faixa do 1º harmônico do passo (1.6-2.4 Hz): um pedestre a 2.05 Hz entra em ressonância; com amortecimento de 0.5 % e massa modal 16.4 t a aceleração chega a 1.7 m/s², acima de 0.7 m/s² de conforto.
 
@@ -52,12 +52,12 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-| **→** tuned_mass_damper | sim | -1.433 → 0.655 | 164.4 kg × 3 = 493.3 | tmd_mass_ratio = 0.01 |
-|  deepen_girders | sim | -1.433 → 0.685 | 1606.1 kg × 1 = 1606.1 | girder_h = 1.25, girder_tw = 0.012 |
+| **→** tuned_mass_damper | sim | -1.433 → 0.655 | massa sintonizada de 164 kg (índice 493.3) | massa do TMD = 1% |
+|  deepen_girders | sim | -1.433 → 0.685 | +1606 kg de aço nas vigas (índice 1606.1) | altura da viga = 1250 mm, alma = 12 mm |
 
 **Escolhida: amortecedor de massa sintonizada.** uma massa pequena sintonizada no 1º modo absorve a energia na ressonância: amplificação limitada a √(1 + 2/μ) (Den Hartog). *Por quê:* resolve a falha sem quebrar nenhum requisito que passava; entre 2 opções que resolvem, é a de menor custo (493, 4 verificações passando; contra deepen_girders: 4 passando, custo 1.61e+03).
 
-### Versão 3 — girders, girder_depth, lateral_bracing, tmd
+### Versão 3 — vigas, vigas mais altas, travamento lateral, amortecedor sintonizado
 
 ✓ todos os requisitos passam.
 

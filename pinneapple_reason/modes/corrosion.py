@@ -77,7 +77,7 @@ register_countermeasure(Countermeasure(
                                            "insulating kit (dielectric gasket and sleeves)"),
     tr("abre o circuito elétrico entre os metais: sem corrente galvânica", "opens the electrical path between the "
        "metals: no galvanic current"),
-    ("galvanic_corrosion",), lambda p, v: ({}, (), ()), lambda b, a: (1.0, "kit", "insulating kit"),
+    ("galvanic_corrosion",), lambda p, v: ({}, (), ()), lambda b, a: (1.0, "kit", tr("1 kit isolante", "1 insulating kit")),
     unit_cost=0.3, unit_cost_note="relative index per kit (premise)"))
 
 register_countermeasure(Countermeasure(
@@ -86,5 +86,5 @@ register_countermeasure(Countermeasure(
        "the effective cathode area falls with the coating efficiency, and so does the anode current"),
     ("galvanic_corrosion",), lambda p, v: ({"cathode_coating_efficiency": float(p.get("coating_efficiency", 0.95))},
                                            (), ()),
-    lambda b, a: (float(b.get("cathode_area", 1.0)), "m2", "coated cathode area"), unit_cost=0.05,
+    lambda b, a: (float(b.get("cathode_area", 1.0)), "m2", tr("{q} m² de cátodo revestido", "{q} m^2 of cathode coated")), unit_cost=0.05,
     unit_cost_note="relative index per m2 of coating (premise)"))

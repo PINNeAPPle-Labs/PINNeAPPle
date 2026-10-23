@@ -1,7 +1,7 @@
 """The chain told in words: one paragraph per version, each claim followed by the number that proves it."""
 from __future__ import annotations
 
-from .chain import RESOLVED, Chain, _fmt, text_of
+from .chain import RESOLVED, Chain, _fmt, cost_text, element_label, text_of
 
 _L = {
     "pt": {"v": "Versão", "fails": "falha", "proof": "prova", "because": "Por isso", "chosen": "escolhida",
@@ -22,8 +22,7 @@ def option_line(o, lang: str) -> str:
     c = o.cost
     return (f"{o.countermeasure}: {L['fixes'] if o.fixes_target else L['not_fix']} "
             f"(margin {_fmt(o.target_margin_before)} -> {_fmt(o.target_margin_after)}), "
-            f"{L['cost']} {_fmt(c.get('quantity', 0))} {c.get('unit', '')} x {_fmt(c.get('unit_cost', 0))} = "
-            f"{_fmt(c.get('index', 0))}" + (f"; breaks {', '.join(o.regressions)}" if o.regressions else ""))
+            f"{L['cost']}: {cost_text(c, lang)} (index {_fmt(c.get('index', 0))})" + (f"; breaks {', '.join(o.regressions)}" if o.regressions else ""))
 
 
 def explain(chain: Chain, lang: str = "pt") -> str:
@@ -31,7 +30,7 @@ def explain(chain: Chain, lang: str = "pt") -> str:
     lines = [text_of(chain.title, lang), "", L["req"] + ":"]
     lines += [f"  {r.id}: {text_of(r.text, lang)} [{', '.join(r.modes)}]" for r in chain.requirements]
     for s in chain.steps:
-        els = ", ".join(s.concept.elements) or "-"
+        els = ", ".join(element_label(e, lang) for e in s.concept.elements) or "-"
         lines += ["", f"{L['v']} {s.version} ({els}):"]
         if s.finding is None:
             lines.append(f"  {L['ok']}")

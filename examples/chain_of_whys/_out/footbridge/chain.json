@@ -493,7 +493,10 @@
      "cost": {
       "quantity": 1653.2099999999996,
       "unit": "kg",
-      "what": "added girder steel",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o nas vigas",
+       "en": "+{q} kg of girder steel"
+      },
       "unit_cost": 1.0,
       "index": 1653.2099999999996,
       "note": "relative index per kg of girder steel (premise)"
@@ -952,7 +955,10 @@
      "cost": {
       "quantity": 204.45082269338022,
       "unit": "kg",
-      "what": "cross-frame steel",
+      "what": {
+       "pt": "{q} kg de a\u00e7o em travamentos",
+       "en": "{q} kg of cross-frame steel"
+      },
       "unit_cost": 1.5,
       "index": 306.6762340400703,
       "note": "relative index per kg of fabricated bracing steel (premise; girder steel = 1)"
@@ -984,7 +990,10 @@
      "cost": {
       "quantity": 15617.417999999996,
       "unit": "kg",
-      "what": "added girder steel",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o nas vigas",
+       "en": "+{q} kg of girder steel"
+      },
       "unit_cost": 1.0,
       "index": 15617.417999999996,
       "note": "relative index per kg of girder steel (premise)"
@@ -1474,7 +1483,10 @@
      "cost": {
       "quantity": 164.43212396001695,
       "unit": "kg",
-      "what": "tuned mass",
+      "what": {
+       "pt": "massa sintonizada de {q} kg",
+       "en": "{q} kg tuned mass"
+      },
       "unit_cost": 3.0,
       "index": 493.29637188005086,
       "note": "relative index per kg of damper mass (premise; girder steel = 1)"
@@ -1506,7 +1518,10 @@
      "cost": {
       "quantity": 1606.11,
       "unit": "kg",
-      "what": "added girder steel",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o nas vigas",
+       "en": "+{q} kg of girder steel"
+      },
       "unit_cost": 1.0,
       "index": 1606.11,
       "note": "relative index per kg of girder steel (premise)"
@@ -1886,7 +1901,7 @@
  "notes": [],
  "meta": {
   "evaluations": 24,
-  "wall_s": 0.11236801999984891,
+  "wall_s": 0.09190629600016109,
   "advisor": null
  },
  "path": [

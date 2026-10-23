@@ -170,7 +170,7 @@ def _increase_slope(p, v):
 
 def _slope_cost(before, after):
     a0, a1 = math.radians(before["slope_deg"]), math.radians(after["slope_deg"])
-    return 1 / math.cos(a1) - 1 / math.cos(a0), "m2/m2", "extra covering area per m2 of plan"
+    return 1 / math.cos(a1) - 1 / math.cos(a0), "m2/m2", tr("+{pct} de área de telhado", "+{pct} roof area")
 
 
 register_countermeasure(Countermeasure(
@@ -201,7 +201,7 @@ def _longer_lap(p, v):
 
 def _lap_cost(before, after):
     u = float(before.get("unit_length", 0.4))
-    return u / (u - after["lap_length"]) - u / (u - before["lap_length"]), "m2/m2", "extra covering per m2 of roof"
+    return u / (u - after["lap_length"]) - u / (u - before["lap_length"]), "m2/m2", tr("+{pct} de telhas", "+{pct} covering")
 
 
 register_countermeasure(Countermeasure(

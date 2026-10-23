@@ -10,7 +10,7 @@
 
 ![timeline](figures/timeline.png)
 
-### Versão 0 — board
+### Versão 0 — placa
 
 **✗ R1 falha: aquecimento Joule da junção.** Com 20 A o MOSFET dissipa 36.8 W (eram 8 W a 25 °C: R_on sobe com a temperatura, ganho de realimentação 0.763); pelo caminho térmico (só a placa, 15.9 K/W da junção ao ar) a junção chega a 626 °C, acima do limite de 125 °C (muito além do que o silício suporta: o número mede o tamanho do problema).
 
@@ -20,13 +20,13 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-|  thermal_vias | não | -5.892 → -2.014 | 40.0 vias × 0.005 = 0.2 | thermal_vias = 40 |
-| **→** heatsink_natural | não | -5.892 → -1.092 | 0.028 kg × 10.0 = 0.284 | hs_base_w = 0.04, hs_base_d = 0.04, hs_n_fins = 7, hs_fin_h = 0.017 |
+|  thermal_vias | não | -5.892 → -2.014 | 40 vias furadas (índice 0.2) | vias = 40 |
+| **→** heatsink_natural | não | -5.892 → -1.092 | dissipador de 0,0284 kg de alumínio (índice 0.284) | base do dissipador = 40 mm, profundidade = 40 mm, aletas = 7, altura da aleta = 17 mm |
 |  forced_air | inviável: precisa antes de: heatsink | | | |
 
 **Escolhida: dissipador aletado (melhor número de aletas no envelope disponível), convecção natural.** o calor sai pela aba do componente para uma área de aletas muito maior que a placa, e o ar sobe entre as aletas por empuxo. *Por quê:* nenhuma opção resolve sozinha; esta é a que mais melhora a margem (-5.89 → -1.09), e o passo seguinte continua.
 
-### Versão 1 — board, heatsink
+### Versão 1 — placa, dissipador
 
 **✗ R1 falha: aquecimento Joule da junção.** Com 20 A o MOSFET dissipa 17.3 W (eram 8 W a 25 °C: R_on sobe com a temperatura, ganho de realimentação 0.495); pelo caminho térmico (dissipador em convecção natural, 10.3 K/W da junção ao ar) a junção chega a 218 °C, acima do limite de 125 °C (muito além do que o silício suporta: o número mede o tamanho do problema).
 
@@ -38,11 +38,11 @@ Opções testadas:
 |---|---|---|---|---|
 |  thermal_vias | inviável: incompatível com: heatsink | | | |
 |  heatsink_natural | inviável: o conceito já tem 'heatsink' | | | |
-| **→** forced_air | sim | -1.092 → 0.185 | 1 fan × 0.5 = 0.5 | fan_velocity = 0.5 |
+| **→** forced_air | sim | -1.092 → 0.185 | 1 ventilador (0,5 m/s nas aletas) (índice 0.5) | ar nas aletas = 0,5 m/s |
 
 **Escolhida: ventilação forçada nas aletas.** o coeficiente de convecção nas aletas sobe várias vezes com a velocidade do ar (canais em desenvolvimento). *Por quê:* resolve a falha sem quebrar nenhum requisito que passava.
 
-### Versão 2 — board, heatsink, fan
+### Versão 2 — placa, dissipador, ventilador
 
 ✓ todos os requisitos passam.
 

@@ -276,7 +276,7 @@ register_countermeasure(Countermeasure(
        "room air no longer touches the cold (or hot) tile: a ventilated attic and the ceiling sit in between, and "
        "the ceiling, fed by the tile's radiation, faces the room much closer to the air temperature"),
     ("underside_condensation", "radiant_heat_gain"), _ceiling,
-    lambda b, a: (1.0, "m2/m2", "ceiling area per m2 of plan"), unit_cost=1.5,
+    lambda b, a: (1.0, "m2/m2", tr("1 m² de forro por m² de planta", "1 m^2 of ceiling per m^2 of plan")), unit_cost=1.5,
     unit_cost_note="relative index per m2 of ceiling (premise; roof covering = 1)"))
 
 
@@ -292,7 +292,7 @@ register_countermeasure(Countermeasure(
        "cai uma ordem de grandeza",
        "the tile underside gets an emissivity of ~0.05: tile-to-ceiling radiation, the dominant path, drops by an "
        "order of magnitude"),
-    ("radiant_heat_gain",), _barrier, lambda b, a: (1.0, "m2/m2", "foil per m2 of roof"), unit_cost=0.4,
+    ("radiant_heat_gain",), _barrier, lambda b, a: (1.0, "m2/m2", tr("1 m² de manta por m² de telhado", "1 m^2 of foil per m^2 of roof")), unit_cost=0.4,
     unit_cost_note="relative index per m2 of foil (premise)", requires=("ceiling",)))
 
 
@@ -311,7 +311,7 @@ register_countermeasure(Countermeasure(
        "the ceiling's thermal resistance rises: its underside follows the room air"),
     ("radiant_heat_gain", "underside_condensation"), _insulation,
     lambda b, a: (a.get("insulation_thickness", 0.0) - b.get("insulation_thickness", 0.0), "m3/m2",
-                  "insulation volume per m2"),
+                  tr("{mm} mm de lã mineral sobre o forro", "{mm} mm of mineral wool on the ceiling")),
     unit_cost=8.0, unit_cost_note="relative index per m3 of insulation (premise)", requires=("ceiling",)))
 
 
@@ -482,7 +482,7 @@ register_countermeasure(Countermeasure(
     tr("vias térmicas sob o componente", "thermal vias under the part"),
     tr("cobre em paralelo através do laminado leva o calor às camadas internas e à face inferior da placa",
        "copper in parallel through the laminate carries the heat to the inner planes and the bottom face"),
-    ("joule_heating",), _vias, lambda b, a: (a["thermal_vias"] - b.get("thermal_vias", 0), "vias", "vias drilled"),
+    ("joule_heating",), _vias, lambda b, a: (a["thermal_vias"] - b.get("thermal_vias", 0), "vias", tr("{q} vias furadas", "{q} vias drilled")),
     unit_cost=0.005, unit_cost_note="relative index per via (premise)", excludes=("heatsink",)))
 
 
@@ -508,7 +508,7 @@ def _best_heatsink(p, v):
 
 
 def _hs_cost(b, a):
-    return _heatsink_geometry(a).mass_kg(), "kg", "heat-sink mass"
+    return _heatsink_geometry(a).mass_kg(), "kg", tr("dissipador de {q} kg de alumínio", "{q} kg aluminium heat sink")
 
 
 register_countermeasure(Countermeasure(
@@ -530,7 +530,8 @@ def _fan(p, v):
 
 
 def _fan_cost(b, a):
-    return 1.0, "fan", f"one fan for {a['fan_velocity']:g} m/s through the fins"
+    return 1.0, "fan", tr(f"1 ventilador ({a['fan_velocity']:g} m/s nas aletas)".replace(".", ","),
+                          f"1 fan ({a['fan_velocity']:g} m/s through the fins)")
 
 
 register_countermeasure(Countermeasure(

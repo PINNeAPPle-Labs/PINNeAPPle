@@ -19,7 +19,7 @@ import textwrap
 from pathlib import Path
 from typing import Any
 
-from .chain import Chain, _fmt, text_of
+from .chain import Chain, _fmt, cost_text, element_label, param_text, text_of
 from .library import LIBRARY
 
 __all__ = ["write_report", "timeline_figure", "margins_figure", "demand_capacity_figure"]
@@ -79,10 +79,10 @@ def timeline_figure(chain: Chain, path: str | Path, lang: str = "pt") -> Path:
     n = len(steps)
     card_w, gap, card_h = 3.0, 2.1, 2.9
     W = n * card_w + (n - 1) * gap + 0.4
-    fig = plt.figure(figsize=(max(W, 6.0), card_h + 0.95))
+    fig = plt.figure(figsize=(max(W, 6.0), card_h + 1.2))
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_xlim(0, max(W, 6.0))
-    ax.set_ylim(0, card_h + 0.95)
+    ax.set_ylim(-0.25, card_h + 0.95)
     ax.axis("off")
     ax.text(0.2, card_h + 0.62, text_of(chain.title, lang), fontsize=12, color=INK, weight="bold", va="center")
     seen: list[str] = []
@@ -93,11 +93,11 @@ def timeline_figure(chain: Chain, path: str | Path, lang: str = "pt") -> Path:
                                     fc=GOOD_BG if ok else CRITICAL_BG, ec=GOOD if ok else CRITICAL, lw=1.4))
         ax.text(x0 + 0.15, card_h + 0.02, f"v{s.version}", fontsize=13, weight="bold", color=INK, va="top")
         new = [e for e in s.concept.elements if e not in seen]
-        lines = [("+ " if e in new and i > 0 else "· ") + e for e in s.concept.elements]
+        lines = [("+ " if e in new and i > 0 else "· ") + element_label(e, lang) for e in s.concept.elements]
         seen = list(s.concept.elements)
         prev = steps[i - 1].countermeasure if i > 0 else None
         if prev is not None:
-            lines += [f"  {k} = {_fmt(x) if isinstance(x, float) else x}" for k, x in list(prev.changes.items())[:4]]
+            lines += [f"  {param_text(k, x, lang)}" for k, x in list(prev.changes.items())[:4]]
         ax.text(x0 + 0.15, card_h - 0.42, "\n".join(lines[:9]), fontsize=8, color=INK, va="top", family="monospace")
         states = "  ".join(f"{v.requirement} {'✓' if v.passed else '✗'}" for v in s.verifications)
         ax.text(x0 + 0.15, 1.15, _wrap(states, 40), fontsize=8, color=INK2, va="bottom")
@@ -117,9 +117,14 @@ def timeline_figure(chain: Chain, path: str | Path, lang: str = "pt") -> Path:
             label = _wrap(text_of(s.countermeasure.title, lang), 24)
             ax.text((xa + xb) / 2, card_h * 0.55 + 0.12, label, fontsize=7.5, color=INK, ha="center", va="bottom")
             c = s.countermeasure.cost
-            ax.text((xa + xb) / 2, card_h * 0.55 - 0.12, _wrap(f"{T['cost']}: {_fmt(c.get('quantity', 0))} "
-                                                               f"{c.get('unit', '')}", 22),
+            ax.text((xa + xb) / 2, card_h * 0.55 - 0.12, _wrap(f"{T['cost']}: {cost_text(c, lang)}", 26),
                     fontsize=7, color=INK2, ha="center", va="top")
+    ax.text(0.2, 0.06, ("Custo: a quantidade física que a mudança acrescenta. Entre opções do mesmo passo, o motor "
+                        "compara índices relativos = quantidade × custo unitário (premissa, ver relatório)."
+                        if lang == "pt" else
+                        "Cost: the physical quantity the change adds. Among options of the same step the engine "
+                        "compares relative indices = quantity x unit cost (a premise, see the report)."),
+            fontsize=7, color=INK2, va="bottom")
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150)
@@ -324,7 +329,7 @@ def _md(chain: Chain, figs: dict[str, Path], trust: dict[str, Any], card: dict[s
     L += [f"- **{r.id}** — {text_of(r.text, lang)} (`{'`, `'.join(r.modes)}`)" for r in chain.requirements]
     L += ["", f"## {T['timeline']}", "", f"![timeline](figures/{figs['timeline'].name})", ""]
     for s in chain.steps:
-        L.append(f"### {T['version']} {s.version} — {', '.join(s.concept.elements)}")
+        L.append(f"### {T['version']} {s.version} — {', '.join(element_label(e, lang) for e in s.concept.elements)}")
         L.append("")
         if s.finding is None:
             L += [f"✓ {T['all_pass']}.", ""]
@@ -343,11 +348,11 @@ def _md(chain: Chain, figs: dict[str, Path], trust: dict[str, Any], card: dict[s
                     L.append(f"| {mark} {o.countermeasure} | {T['infeasible']}: {text_of(o.reason, lang)} | | | |")
                     continue
                 c = o.cost
-                ch = ", ".join(f"{k} = {_fmt(x) if isinstance(x, float) else x}" for k, x in o.changes.items())
+                ch = ", ".join(param_text(k, x, lang) for k, x in o.changes.items())
                 L.append(f"| {mark} {o.countermeasure} | {T['yes'] if o.fixes_target else T['no']} | "
                          f"{_fmt(o.target_margin_before)} → {_fmt(o.target_margin_after)} | "
-                         f"{_fmt(c.get('quantity', 0))} {c.get('unit', '')} × {_fmt(c.get('unit_cost', 0))} = "
-                         f"{_fmt(c.get('index', 0))} | {ch} |")
+                         f"{cost_text(c, lang)} ({'índice' if lang == 'pt' else 'index'} "
+                         f"{_fmt(c.get('index', 0))}) | {ch} |")
             L.append("")
         cm = s.countermeasure
         if cm is not None:

@@ -11,7 +11,7 @@
 
 ![timeline](figures/timeline.png)
 
-### Versão 0 — pump, main, valve
+### Versão 0 — bomba, adutora, válvula
 
 **✗ R1 falha: cavitação na bomba.** Na sucção sobram 2.41 m de NPSH: 9.41 m de pressão atmosférica a 800 m de altitude, menos 0.238 m de pressão de vapor, 5 m de altura de sucção e 1.76 m de perda na tubulação (2.83 m/s); a bomba precisa de 4.5 m (NPSH requerido + margem): a pressão na entrada do rotor cai abaixo da de vapor, formam-se bolhas que implodem — cavitação, ruído e erosão.
 
@@ -21,12 +21,12 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-| **→** lower_pump | sim | -0.466 → 0.157 | 33.6 m3 × 1 = 33.6 | suction_lift = 2.2 |
-|  larger_suction_pipe | não | -0.466 → -0.095 | 266.3 kg × 1 = 266.3 | suction_d = 0.3 |
+| **→** lower_pump | sim | -0.466 → 0.157 | 33,6 m³ de escavação do poço da bomba (índice 33.6) | altura de sucção = 2,2 m |
+|  larger_suction_pipe | não | -0.466 → -0.095 | +266 kg de aço na sucção (índice 266.3) | diâmetro da sucção = 300 mm |
 
 **Escolhida: baixar a bomba (poço / sucção afogada).** cada metro a menos de altura de sucção devolve um metro de NPSH disponível. *Por quê:* resolve a falha sem quebrar nenhum requisito que passava.
 
-### Versão 1 — pump, main, valve, pump_level
+### Versão 1 — bomba, adutora, válvula, bomba rebaixada
 
 **✗ R2 falha: golpe de aríete.** Fechar a válvula em 2 s para 1.02 m/s de água numa tubulação onde a onda de pressão corre a 1.22e+03 m/s (ida e volta 2L/a = 3.94 s): o fechamento é mais rápido que a ida e volta da onda, e o golpe é o de Joukowsky, a carga máxima no MOC é 184 m (1.81 MPa), acima da classe de pressão do tubo (1 MPa): o tubo ou as juntas rompem.
 
@@ -36,12 +36,12 @@ Opções testadas:
 
 | | Resolve | Margem | Custo | Mudanças |
 |---|---|---|---|---|
-| **→** slow_valve_closure | sim | -0.805 → 0.205 | 1 actuator × 40.0 = 40.0 | valve_close_time = 15.0 |
-|  higher_pressure_class | sim | -0.805 → 0.223 | 1.11e+05 kg × 1 = 1.11e+05 | main_wall = 0.013, pressure_rating = 2.5e+06 |
+| **→** slow_valve_closure | sim | -0.805 → 0.205 | 1 atuador temporizado (índice 40.0) | fechamento da válvula = 15 s |
+|  higher_pressure_class | sim | -0.805 → 0.223 | +110977 kg de aço na parede da adutora (índice 1.11e+05) | parede = 12,5 mm, classe de pressão = 2,5 MPa |
 
 **Escolhida: fechamento lento da válvula (atuador temporizado).** a vazão cai durante várias idas e voltas da onda: as reflexões negativas do reservatório cancelam parte da sobrepressão (Michaud). *Por quê:* resolve a falha sem quebrar nenhum requisito que passava; entre 2 opções que resolvem, é a de menor custo (40, 3 verificações passando; contra higher_pressure_class: 2 passando, custo 1.11e+05).
 
-### Versão 2 — pump, main, valve, pump_level, valve_actuator
+### Versão 2 — bomba, adutora, válvula, bomba rebaixada, atuador lento
 
 ✓ todos os requisitos passam.
 

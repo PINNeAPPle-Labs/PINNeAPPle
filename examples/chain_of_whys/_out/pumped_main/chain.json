@@ -767,7 +767,10 @@
      "cost": {
       "quantity": 33.599999999999994,
       "unit": "m3",
-      "what": "extra excavation of the pump pit",
+      "what": {
+       "pt": "{q} m\u00b3 de escava\u00e7\u00e3o do po\u00e7o da bomba",
+       "en": "{q} m^3 of pump-pit excavation"
+      },
       "unit_cost": 1.0,
       "index": 33.599999999999994,
       "note": "relative index per m3 of excavation and concrete (premise)"
@@ -798,7 +801,10 @@
      "cost": {
       "quantity": 266.34422517134266,
       "unit": "kg",
-      "what": "extra suction-pipe steel",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o na suc\u00e7\u00e3o",
+       "en": "+{q} kg of suction-pipe steel"
+      },
       "unit_cost": 1.0,
       "index": 266.34422517134266,
       "note": "relative index per kg of installed pipe (premise)"
@@ -1943,7 +1949,10 @@
      "cost": {
       "quantity": 1.0,
       "unit": "actuator",
-      "what": "timed actuator",
+      "what": {
+       "pt": "1 atuador temporizado",
+       "en": "1 timed actuator"
+      },
       "unit_cost": 40.0,
       "index": 40.0,
       "note": "relative index per actuator (premise)"
@@ -1975,7 +1984,10 @@
      "cost": {
       "quantity": 110976.76048805946,
       "unit": "kg",
-      "what": "extra pipe-wall steel",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o na parede da adutora",
+       "en": "+{q} kg of main pipe-wall steel"
+      },
       "unit_cost": 1.0,
       "index": 110976.76048805946,
       "note": "relative index per kg of installed pipe (premise)"
@@ -2779,7 +2791,7 @@
  "notes": [],
  "meta": {
   "evaluations": 15,
-  "wall_s": 0.1376385029998346,
+  "wall_s": 0.0826536690001376,
   "advisor": null
  },
  "path": [

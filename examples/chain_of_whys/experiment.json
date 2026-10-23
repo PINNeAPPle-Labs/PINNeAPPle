@@ -17,6 +17,18 @@
  "scripts": [],
  "metrics": [
   {
+   "name": "power_board_versions",
+   "value": 3.0,
+   "unit": "versions",
+   "how": "versions until every requirement passes"
+  },
+  {
+   "name": "power_board_evaluations",
+   "value": 4.0,
+   "unit": "checks",
+   "how": "failure-mode evaluations the engine ran"
+  },
+  {
    "name": "roof_versions",
    "value": 4.0,
    "unit": "versions",
@@ -41,18 +53,6 @@
    "how": "failure-mode evaluations the engine ran"
   },
   {
-   "name": "power_board_versions",
-   "value": 3.0,
-   "unit": "versions",
-   "how": "versions until every requirement passes"
-  },
-  {
-   "name": "power_board_evaluations",
-   "value": 4.0,
-   "unit": "checks",
-   "how": "failure-mode evaluations the engine ran"
-  },
-  {
    "name": "pumped_main_versions",
    "value": 3.0,
    "unit": "versions",
@@ -66,6 +66,30 @@
   }
  ],
  "checks": [
+  {
+   "name": "power_board: every requirement passes on the final version",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "joule_heating:heatsink_natural -> joule_heating:forced_air",
+   "kind": "physics"
+  },
+  {
+   "name": "power_board: trust report decision",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED []",
+   "kind": "sanity"
+  },
   {
    "name": "roof: every requirement passes on the final version",
    "passed": true,
@@ -199,30 +223,6 @@
    "kind": "sanity"
   },
   {
-   "name": "power_board: every requirement passes on the final version",
-   "passed": true,
-   "value": null,
-   "reference": null,
-   "rtol": null,
-   "atol": null,
-   "max": null,
-   "min": null,
-   "detail": "joule_heating:heatsink_natural -> joule_heating:forced_air",
-   "kind": "physics"
-  },
-  {
-   "name": "power_board: trust report decision",
-   "passed": true,
-   "value": null,
-   "reference": null,
-   "rtol": null,
-   "atol": null,
-   "max": null,
-   "min": null,
-   "detail": "APPROVED []",
-   "kind": "sanity"
-  },
-  {
    "name": "pumped_main: every requirement passes on the final version",
    "passed": true,
    "value": null,
@@ -285,6 +285,9 @@
  ],
  "files": {
   "figures": [
+   "_out/power_board/figures/timeline.png",
+   "_out/power_board/figures/margins.png",
+   "_out/power_board/figures/demand_capacity.png",
    "_out/roof/figures/timeline.png",
    "_out/roof/figures/margins.png",
    "_out/roof/figures/demand_capacity.png",
@@ -293,9 +296,6 @@
    "_out/footbridge/figures/margins.png",
    "_out/footbridge/figures/demand_capacity.png",
    "_out/footbridge/figures/resonance.png",
-   "_out/power_board/figures/timeline.png",
-   "_out/power_board/figures/margins.png",
-   "_out/power_board/figures/demand_capacity.png",
    "_out/pumped_main/figures/timeline.png",
    "_out/pumped_main/figures/margins.png",
    "_out/pumped_main/figures/demand_capacity.png",
@@ -304,15 +304,15 @@
   "videos": [],
   "viewers": [],
   "data": [
+   "_out/power_board/chain.json",
+   "_out/power_board/trust.json",
+   "_out/power_board/report.md",
    "_out/roof/chain.json",
    "_out/roof/trust.json",
    "_out/roof/report.md",
    "_out/footbridge/chain.json",
    "_out/footbridge/trust.json",
    "_out/footbridge/report.md",
-   "_out/power_board/chain.json",
-   "_out/power_board/trust.json",
-   "_out/power_board/report.md",
    "_out/pumped_main/chain.json",
    "_out/pumped_main/trust.json",
    "_out/pumped_main/report.md"
@@ -327,9 +327,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "9f37025e",
-  "created": "2026-10-23T21:25:44Z",
-  "seconds": 34.883,
+  "git": "b6db2b48",
+  "created": "2026-10-23T21:43:40Z",
+  "seconds": 35.445,
   "error": null,
   "environment": {
    "python": "3.13.17",

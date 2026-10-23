@@ -68,6 +68,19 @@ add(
     LibCall("design.intent", f"{W}:design_intent", "Design from a goal (text)", "Design",
             "pinneapple_design.intent.design: a plain-language goal to a verified design package, or the questions "
             "it still needs"),
+    # ---- antennas (end-fire limits, external FEM study packages)
+    LibCall("antenna.limits", "pinneapple_simulation.electromagnetics.antenna.study:limits_report",
+            "End-fire gain limits (antenna length)", "Design",
+            "shortest end-fire antenna (Hansen-Woodyard 7.28 L/lambda, ordinary 4 L/lambda) for a target gain over a "
+            "band, and the lowest frequency a given length can reach it"),
+    LibCall("antenna.package", "pinneapple_simulation.electromagnetics.antenna.study:package_study",
+            "Reproduce an antenna study package", "Validation",
+            "an external (design, frequency) results table + CLI script: consistency checks, end-fire limits, "
+            "leave-one-design-out surrogate errors, a re-run of one design", exclude=("log",)),
+    LibCall("antenna.open_study", "pinneapple_simulation.electromagnetics.antenna.study:open_study",
+            "Open Vivaldi study (EMerge)", "Solvers",
+            "open antipodal Vivaldi model in EMerge: DOE, checks, surrogates with LODO, NSGA-II, active learning, "
+            "multi-fidelity", requires=("emerge",), exclude=("log", "ranges")),
     LibCall("export.geometry", f"{W}:geometry_export", "Export a library geometry", "Export",
             "pinneapple_design.geometry_library: build a parametric geometry and write STL / OBJ / glTF / USD / STEP"),
 )

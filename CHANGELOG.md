@@ -33,6 +33,21 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   chain of whys, report), port types `requirement`, `concept`, `chain`, and the flow `reason_roof`.
 - MCP tools `reason` (job), `reason_library`, `reason_check`; agent-workbench tools `reason_chain`,
   `reason_library`, `reason_check` (given to the physics agent).
+- Printed end-fire antennas with an external FEM solver (`pinneapple_simulation.electromagnetics.antenna`):
+  end-fire directivity limits (Hansen-Woodyard 7.28 L/λ, ordinary 4 L/λ), broadside aperture gain, the shortest
+  length for a target gain and the feasibility frequency (`bounds`); consistency checks of a result row as a
+  `TrustReport` (realized gain = G(1-|S11|²), e = G/D, e <= 1 critical, peak >= boresight, D below the HW limit,
+  vector-fitted S11 from too few solved frequencies, far-field power closure) (`checks`); an open parametric
+  antipodal Vivaldi model for EMerge with its CLI (`ava`; `InvalidGeometry` for unbuildable designs); a runner for
+  any parametric CLI simulator, one process per design and frequency with timeout, peak memory and the SuperLU
+  fallback after SIGBUS, and the (design, frequency) table reader (`runner`); surrogates (frequency mean, HW +
+  offset, linear physical features, Gaussian process) with leave-one-design-out and held-out validation
+  (`surrogates`); DOE, NSGA-II on the surrogates, variance-driven active learning verified by the solver,
+  multi-fidelity bias correction and a trust card per prediction (`design`); external study packages read from a
+  local folder and re-run (`package`); end-to-end studies (`study`) used by
+  `examples/use_cases/antennas/vivaldi_2to4ghz.py` (`--quick`, full, `--package <dir>`), the Flow Studio nodes
+  `lib.antenna.limits` / `lib.antenna.package` / `lib.antenna.open_study` and the flow `antenna_vivaldi_limits`.
+  Guide: `docs/guides/antenna_design.md`.
 - Flow Studio rover nodes and the lunar rover dashboard as a flow (`lunar_rover_dashboard`, and a quick variant
   matching `examples/studio/07_lunar_rover_dashboard.py --quick`): vehicle, soil and site presets, the multibody
   traverse, the Wong-Reece wheel model, the model zoo's wheel-contact PINN with its physics check, and the animated

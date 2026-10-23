@@ -1,0 +1,2229 @@
+{
+ "schema": "pinneapple.reason.chain/1",
+ "title": {
+  "pt": "Telhado: da telha plana ao telhado que funciona",
+  "en": "Roof: from flat tiles to a working roof"
+ },
+ "status": "resolved",
+ "requirements": [
+  {
+   "id": "R1",
+   "text": {
+    "pt": "manter a chuva de projeto fora do ambiente",
+    "en": "keep the design rain out of the room"
+   },
+   "modes": [
+    "lap_water_ingress"
+   ],
+   "limits": {},
+   "source": ""
+  },
+  {
+   "id": "R2",
+   "text": {
+    "pt": "n\u00e3o pingar condensa\u00e7\u00e3o no ambiente",
+    "en": "no condensation dripping into the room"
+   },
+   "modes": [
+    "underside_condensation"
+   ],
+   "limits": {},
+   "source": ""
+  },
+  {
+   "id": "R3",
+   "text": {
+    "pt": "teto sem desconforto radiante num dia de sol",
+    "en": "no radiant discomfort from the ceiling on a sunny day"
+   },
+   "modes": [
+    "radiant_heat_gain"
+   ],
+   "limits": {},
+   "source": "ANSI/ASHRAE 55 (warm ceiling < 5 \u00b0C asymmetry)"
+  }
+ ],
+ "steps": [
+  {
+   "version": 0,
+   "concept": {
+    "name": "roof",
+    "params": {
+     "slope_deg": 0.0,
+     "lap_length": 0.075,
+     "lap_gap": 0.001,
+     "contact_angle_deg": 20.0,
+     "unit_length": 0.4,
+     "rain_intensity": 4.1666666666666665e-05,
+     "roof_run": 5.0,
+     "wind_speed_rain": 10.0,
+     "wind_cp": 1.0,
+     "storm_duration": 600.0,
+     "tile_thickness": 0.012,
+     "tile_k": 1.0,
+     "tile_emissivity": 0.9,
+     "tile_absorptance": 0.65,
+     "t_out_night": 16.0,
+     "rh_out_night": 0.9,
+     "wind_night": 1.0,
+     "t_room_night": 21.0,
+     "rh_room_night": 0.75,
+     "t_out_day": 32.0,
+     "wind_day": 2.0,
+     "solar_irradiance": 900.0,
+     "t_room_day": 27.0,
+     "ceiling_R": 0.05,
+     "ceiling_emissivity": 0.9,
+     "attic_vent": 0.003,
+     "barrier_emissivity": 0.05,
+     "insulation_k": 0.04,
+     "design_margin": 0.35
+    },
+    "elements": [
+     "tiles"
+    ],
+    "description": {
+     "pt": "telhas cer\u00e2micas assentadas planas sobre a estrutura, sem forro",
+     "en": "clay tiles laid flat on the structure, no ceiling"
+    },
+    "sources": {
+     "slope_deg": "premise",
+     "lap_length": "premise",
+     "lap_gap": "premise",
+     "contact_angle_deg": "premise",
+     "unit_length": "premise",
+     "rain_intensity": "150 mm/h: intensity ABNT NBR 10844:1989 allows for small roofs without local rainfall data (premise; use the local 5-year intensity)",
+     "roof_run": "premise",
+     "wind_speed_rain": "premise",
+     "wind_cp": "premise",
+     "storm_duration": "premise",
+     "tile_thickness": "premise",
+     "tile_k": "premise",
+     "tile_emissivity": "premise",
+     "tile_absorptance": "premise",
+     "t_out_night": "premise",
+     "rh_out_night": "premise",
+     "wind_night": "premise",
+     "t_room_night": "premise",
+     "rh_room_night": "premise",
+     "t_out_day": "premise",
+     "wind_day": "premise",
+     "solar_irradiance": "premise",
+     "t_room_day": "premise",
+     "ceiling_R": "premise: 12.5 mm gypsum board, lambda 0.25 W/(m K)",
+     "ceiling_emissivity": "premise",
+     "attic_vent": "premise: ~10 air changes per hour of a 1.1 m-high attic",
+     "barrier_emissivity": "premise",
+     "insulation_k": "premise",
+     "design_margin": "premise: covers the spread of the lap gap, wind and rain premises"
+    },
+    "version": 0
+   },
+   "verifications": [
+    {
+     "mode": "lap_water_ingress",
+     "requirement": "R1",
+     "passed": false,
+     "demand": 45.12720411234561,
+     "capacity": 0.0,
+     "unit": "mm",
+     "margin": -1.0,
+     "demand_label": {
+      "pt": "carga capilar + vento + l\u00e2mina",
+      "en": "capillary + wind + film head"
+     },
+     "capacity_label": {
+      "pt": "altura que a sobreposi\u00e7\u00e3o levanta",
+      "en": "height the lap rises"
+     },
+     "mechanism": {
+      "pt": "A \u00e1gua sobe pela fresta de 1 mm da sobreposi\u00e7\u00e3o por capilaridade at\u00e9 14 mm, o vento empurra mais 6.15 mm e sem inclina\u00e7\u00e3o nada tira a \u00e1gua do telhado: a chuva de projeto empo\u00e7a 25 mm: a carga total (14 + 6.15 + 25 = 45.1 mm) \u00e9 maior que os 0 mm que a sobreposi\u00e7\u00e3o de 75 mm levanta a 0\u00b0. A \u00e1gua passa por cima da sobreposi\u00e7\u00e3o e pinga dentro.",
+      "en": "Water climbs the 1 mm gap of the lap by capillarity up to 14 mm, the wind pushes it 6.15 mm further and with no slope nothing drives the water off: the design storm ponds 25 mm: the total head (14 + 6.15 + 25 = 45.1 mm) exceeds the 0 mm the 75 mm lap rises at 0\u00b0. Water gets over the lap and drips inside."
+     },
+     "method": "hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise",
+     "quantities": {
+      "h_capillary": [
+       0.013976838606681002,
+       "m",
+       "capillary rise in the lap gap"
+      ],
+      "h_wind": [
+       0.006150365505664605,
+       "m",
+       "wind pressure head"
+      ],
+      "h_film": [
+       0.024999999999999998,
+       "m",
+       "ponded depth of the design storm"
+      ],
+      "lap_rise": [
+       0.0,
+       "m",
+       "vertical rise of the lap"
+      ],
+      "runoff_per_width": [
+       0.00020833333333333332,
+       "m^2/s",
+       "run-off per unit width at the eaves"
+      ],
+      "film_reynolds": [
+       830.172987358616,
+       "1",
+       "film Reynolds number 4q/nu"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "fresta da sobreposi\u00e7\u00e3o como duas placas paralelas, molhamento pelo \u00e2ngulo de contato dado",
+       "en": "lap gap modelled as two parallel plates wetted at the given contact angle"
+      },
+      {
+       "pt": "press\u00e3o do vento integral atrav\u00e9s da cobertura (Cp dado)",
+       "en": "full wind pressure across the covering (given Cp)"
+      },
+      {
+       "pt": "l\u00e2mina somada \u00e0 carga sobre a junta (conservador)",
+       "en": "film depth added to the head on the joint (conservative)"
+      }
+     ],
+     "sources": [
+      "Garden (1963), 'Rain penetration and its control', NRC Canada, Canadian Building Digest CBD-40",
+      "de Gennes, Brochard-Wyart & Quere (2004), Capillarity and Wetting Phenomena, ch. 1 (rise between plates)",
+      "Bird, Stewart & Lightfoot, Transport Phenomena, 2nd ed., sec. 2.2 (laminar falling film)",
+      "CRC Handbook of Chemistry and Physics (properties of water at 20 \u00b0C)"
+     ],
+     "validity": [
+      {
+       "name": "gap much smaller than capillary length (plates model)",
+       "value": 0.37037037037037035,
+       "lo": null,
+       "hi": 1.0,
+       "note": "capillary length of water sqrt(sigma/(rho g)) = 2.7 mm",
+       "ok": true
+      }
+     ],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "underside_condensation",
+     "requirement": "R2",
+     "passed": false,
+     "demand": 16.399430218505504,
+     "capacity": 14.946180819586402,
+     "unit": "\u00b0C",
+     "margin": -0.3158846551496092,
+     "demand_label": {
+      "pt": "ponto de orvalho do ar interno",
+      "en": "dew point of the room air"
+     },
+     "capacity_label": {
+      "pt": "temperatura da superf\u00edcie voltada ao ambiente",
+      "en": "temperature of the surface facing the room"
+     },
+     "mechanism": {
+      "pt": "\u00c0 noite de c\u00e9u limpo a telha irradia para o c\u00e9u a -1.74 \u00b0C e esfria at\u00e9 14.2 \u00b0C; a face inferior da telha, em contato com o ar do ambiente, fica a 14.9 \u00b0C, abaixo do ponto de orvalho do ar interno (16.4 \u00b0C a 21 \u00b0C e 75 %): o vapor condensa e pinga no ambiente.",
+      "en": "On a clear night the tile radiates to the sky at -1.74 \u00b0C and cools to 14.2 \u00b0C; the tile underside, in contact with the room air, sits at 14.9 \u00b0C, below the dew point of the room air (16.4 \u00b0C at 21 \u00b0C and 75 %): vapour condenses and drips into the room."
+     },
+     "method": "steady roof heat-balance network (clear night) + Magnus dew point",
+     "quantities": {
+      "t_tile_top": [
+       14.217058006533932,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       14.946180819586402,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_sky": [
+       -1.7412326053107563,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       -60.760234421039215,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       71.10129798314186,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       0.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ],
+      "t_dew_room": [
+       16.399430218505504,
+       "\u00b0C",
+       "dew point of the room air"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      }
+     ],
+     "sources": [
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Alduchov & Eskridge (1996), 'Improved Magnus form approximation of saturation vapor pressure', J. Appl. Meteor. 35, 601-609 (a = 17.625, b = 243.04 \u00b0C)",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "room temperature within Magnus range",
+       "value": 21.0,
+       "lo": -40,
+       "hi": 50,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 7.694907435656082e-15,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "radiant_heat_gain",
+     "requirement": "R3",
+     "passed": false,
+     "demand": 25.58069521125816,
+     "capacity": 5.0,
+     "unit": "K",
+     "margin": -4.116139042251632,
+     "demand_label": {
+      "pt": "assimetria radiante do teto",
+      "en": "ceiling radiant asymmetry"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto (teto quente)",
+      "en": "comfort limit (warm ceiling)"
+     },
+     "mechanism": {
+      "pt": "O sol de 900 W/m\u00b2 aquece a telha at\u00e9 54.7 \u00b0C; a telha sobre as pessoas fica a 52.6 \u00b0C, 25.6 K acima do ar do ambiente (27 \u00b0C), mais que os 5 K de assimetria radiante aceit\u00e1veis para teto quente: irradia 178 W/m\u00b2 para dentro e incomoda.",
+      "en": "The 900 W/m^2 sun heats the tile to 54.7 \u00b0C; the tile above the occupants sits at 52.6 \u00b0C, 25.6 K above the room air (27 \u00b0C), more than the 5 K of radiant asymmetry acceptable for a warm ceiling: it pours 178 W/m^2 into the room."
+     },
+     "method": "steady roof heat-balance network (clear day, sun on the roof)",
+     "quantities": {
+      "t_tile_top": [
+       54.71597663823434,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       52.58069521125816,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_sky": [
+       21.095032115105994,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       177.94011891468205,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       207.1592866688552,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       585.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      },
+      {
+       "pt": "assimetria = temperatura da superf\u00edcie do teto - ar (teto grande sobre o ocupante, piso \u00e0 temperatura do ar)",
+       "en": "asymmetry = ceiling surface - air temperature (large ceiling over the occupant, floor at air temperature)"
+      }
+     ],
+     "sources": [
+      "ANSI/ASHRAE Standard 55, Thermal Environmental Conditions for Human Occupancy: allowable radiant temperature asymmetry, warm ceiling < 5 \u00b0C",
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "solar irradiance on the plane",
+       "value": 900.0,
+       "lo": 0,
+       "hi": 1361,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 9.71682373689026e-16,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    }
+   ],
+   "finding": {
+    "requirement": "R1",
+    "mode": "lap_water_ingress",
+    "title": {
+     "pt": "infiltra\u00e7\u00e3o de chuva pela sobreposi\u00e7\u00e3o",
+     "en": "rain ingress through the lap"
+    },
+    "verification": {
+     "mode": "lap_water_ingress",
+     "requirement": "R1",
+     "passed": false,
+     "demand": 45.12720411234561,
+     "capacity": 0.0,
+     "unit": "mm",
+     "margin": -1.0,
+     "demand_label": {
+      "pt": "carga capilar + vento + l\u00e2mina",
+      "en": "capillary + wind + film head"
+     },
+     "capacity_label": {
+      "pt": "altura que a sobreposi\u00e7\u00e3o levanta",
+      "en": "height the lap rises"
+     },
+     "mechanism": {
+      "pt": "A \u00e1gua sobe pela fresta de 1 mm da sobreposi\u00e7\u00e3o por capilaridade at\u00e9 14 mm, o vento empurra mais 6.15 mm e sem inclina\u00e7\u00e3o nada tira a \u00e1gua do telhado: a chuva de projeto empo\u00e7a 25 mm: a carga total (14 + 6.15 + 25 = 45.1 mm) \u00e9 maior que os 0 mm que a sobreposi\u00e7\u00e3o de 75 mm levanta a 0\u00b0. A \u00e1gua passa por cima da sobreposi\u00e7\u00e3o e pinga dentro.",
+      "en": "Water climbs the 1 mm gap of the lap by capillarity up to 14 mm, the wind pushes it 6.15 mm further and with no slope nothing drives the water off: the design storm ponds 25 mm: the total head (14 + 6.15 + 25 = 45.1 mm) exceeds the 0 mm the 75 mm lap rises at 0\u00b0. Water gets over the lap and drips inside."
+     },
+     "method": "hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise",
+     "quantities": {
+      "h_capillary": [
+       0.013976838606681002,
+       "m",
+       "capillary rise in the lap gap"
+      ],
+      "h_wind": [
+       0.006150365505664605,
+       "m",
+       "wind pressure head"
+      ],
+      "h_film": [
+       0.024999999999999998,
+       "m",
+       "ponded depth of the design storm"
+      ],
+      "lap_rise": [
+       0.0,
+       "m",
+       "vertical rise of the lap"
+      ],
+      "runoff_per_width": [
+       0.00020833333333333332,
+       "m^2/s",
+       "run-off per unit width at the eaves"
+      ],
+      "film_reynolds": [
+       830.172987358616,
+       "1",
+       "film Reynolds number 4q/nu"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "fresta da sobreposi\u00e7\u00e3o como duas placas paralelas, molhamento pelo \u00e2ngulo de contato dado",
+       "en": "lap gap modelled as two parallel plates wetted at the given contact angle"
+      },
+      {
+       "pt": "press\u00e3o do vento integral atrav\u00e9s da cobertura (Cp dado)",
+       "en": "full wind pressure across the covering (given Cp)"
+      },
+      {
+       "pt": "l\u00e2mina somada \u00e0 carga sobre a junta (conservador)",
+       "en": "film depth added to the head on the joint (conservative)"
+      }
+     ],
+     "sources": [
+      "Garden (1963), 'Rain penetration and its control', NRC Canada, Canadian Building Digest CBD-40",
+      "de Gennes, Brochard-Wyart & Quere (2004), Capillarity and Wetting Phenomena, ch. 1 (rise between plates)",
+      "Bird, Stewart & Lightfoot, Transport Phenomena, 2nd ed., sec. 2.2 (laminar falling film)",
+      "CRC Handbook of Chemistry and Physics (properties of water at 20 \u00b0C)"
+     ],
+     "validity": [
+      {
+       "name": "gap much smaller than capillary length (plates model)",
+       "value": 0.37037037037037035,
+       "lo": null,
+       "hi": 1.0,
+       "note": "capillary length of water sqrt(sigma/(rho g)) = 2.7 mm",
+       "ok": true
+      }
+     ],
+     "self_checks": [],
+     "series": {}
+    },
+    "proof": "capillary + wind + film head = 45.1 mm > height the lap rises = 0 mm"
+   },
+   "options": [
+    {
+     "countermeasure": "increase_slope",
+     "element": "pitch",
+     "title": {
+      "pt": "inclinar o telhado at\u00e9 a inclina\u00e7\u00e3o m\u00ednima do material",
+      "en": "pitch the roof to the material's minimum slope"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "slope_deg": 22.0
+     },
+     "cost": {
+      "quantity": 0.07853474267758331,
+      "unit": "m2/m2",
+      "what": {
+       "pt": "+{pct} de \u00e1rea de telhado",
+       "en": "+{pct} roof area"
+      },
+      "unit_cost": 1.0,
+      "index": 0.07853474267758331,
+      "note": "relative index per m2 of covering (premise)"
+     },
+     "effect": {
+      "pt": "a gravidade passa a tirar a \u00e1gua (l\u00e2mina fina em vez de po\u00e7a) e a sobreposi\u00e7\u00e3o ganha altura (L\u00b7sen \u03b1) contra a capilaridade e o vento",
+      "en": "gravity now drains the water (thin film instead of a pond) and the lap gains height (L sin(alpha)) against capillarity and wind"
+     },
+     "target_margin_before": -1.0,
+     "target_margin_after": 0.3584505665820005,
+     "fixes_target": true,
+     "passing_after": 1,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "longer_lap",
+     "element": "lap",
+     "title": {
+      "pt": "aumentar a sobreposi\u00e7\u00e3o das pe\u00e7as",
+      "en": "lengthen the lap of the pieces"
+     },
+     "feasible": false,
+     "reason": {
+      "pt": "sem inclina\u00e7\u00e3o nenhuma sobreposi\u00e7\u00e3o levanta a \u00e1gua (L\u00b7sen 0 = 0)",
+      "en": "with no slope no lap lifts the water (L sin 0 = 0)"
+     },
+     "changes": {},
+     "cost": {},
+     "effect": {
+      "pt": "a sobreposi\u00e7\u00e3o sobe mais na mesma inclina\u00e7\u00e3o",
+      "en": "the lap rises higher at the same pitch"
+     },
+     "target_margin_before": -1.0,
+     "target_margin_after": null,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 0,
+   "why": {
+    "pt": "resolve a falha sem quebrar nenhum requisito que passava",
+    "en": "fixes the failure without breaking any requirement that passed"
+   },
+   "passed": false
+  },
+  {
+   "version": 1,
+   "concept": {
+    "name": "roof",
+    "params": {
+     "slope_deg": 22.0,
+     "lap_length": 0.075,
+     "lap_gap": 0.001,
+     "contact_angle_deg": 20.0,
+     "unit_length": 0.4,
+     "rain_intensity": 4.1666666666666665e-05,
+     "roof_run": 5.0,
+     "wind_speed_rain": 10.0,
+     "wind_cp": 1.0,
+     "storm_duration": 600.0,
+     "tile_thickness": 0.012,
+     "tile_k": 1.0,
+     "tile_emissivity": 0.9,
+     "tile_absorptance": 0.65,
+     "t_out_night": 16.0,
+     "rh_out_night": 0.9,
+     "wind_night": 1.0,
+     "t_room_night": 21.0,
+     "rh_room_night": 0.75,
+     "t_out_day": 32.0,
+     "wind_day": 2.0,
+     "solar_irradiance": 900.0,
+     "t_room_day": 27.0,
+     "ceiling_R": 0.05,
+     "ceiling_emissivity": 0.9,
+     "attic_vent": 0.003,
+     "barrier_emissivity": 0.05,
+     "insulation_k": 0.04,
+     "design_margin": 0.35
+    },
+    "elements": [
+     "tiles",
+     "pitch"
+    ],
+    "description": {
+     "pt": "telhas cer\u00e2micas assentadas planas sobre a estrutura, sem forro",
+     "en": "clay tiles laid flat on the structure, no ceiling"
+    },
+    "sources": {
+     "slope_deg": "countermeasure:increase_slope",
+     "lap_length": "premise",
+     "lap_gap": "premise",
+     "contact_angle_deg": "premise",
+     "unit_length": "premise",
+     "rain_intensity": "150 mm/h: intensity ABNT NBR 10844:1989 allows for small roofs without local rainfall data (premise; use the local 5-year intensity)",
+     "roof_run": "premise",
+     "wind_speed_rain": "premise",
+     "wind_cp": "premise",
+     "storm_duration": "premise",
+     "tile_thickness": "premise",
+     "tile_k": "premise",
+     "tile_emissivity": "premise",
+     "tile_absorptance": "premise",
+     "t_out_night": "premise",
+     "rh_out_night": "premise",
+     "wind_night": "premise",
+     "t_room_night": "premise",
+     "rh_room_night": "premise",
+     "t_out_day": "premise",
+     "wind_day": "premise",
+     "solar_irradiance": "premise",
+     "t_room_day": "premise",
+     "ceiling_R": "premise: 12.5 mm gypsum board, lambda 0.25 W/(m K)",
+     "ceiling_emissivity": "premise",
+     "attic_vent": "premise: ~10 air changes per hour of a 1.1 m-high attic",
+     "barrier_emissivity": "premise",
+     "insulation_k": "premise",
+     "design_margin": "premise: covers the spread of the lap gap, wind and rain premises"
+    },
+    "version": 1
+   },
+   "verifications": [
+    {
+     "mode": "lap_water_ingress",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 20.68201464031519,
+     "capacity": 28.0954945061934,
+     "unit": "mm",
+     "margin": 0.3584505665820005,
+     "demand_label": {
+      "pt": "carga capilar + vento + l\u00e2mina",
+      "en": "capillary + wind + film head"
+     },
+     "capacity_label": {
+      "pt": "altura que a sobreposi\u00e7\u00e3o levanta",
+      "en": "height the lap rises"
+     },
+     "mechanism": {
+      "pt": "A sobreposi\u00e7\u00e3o levanta 28.1 mm, acima da carga de capilaridade + vento + l\u00e2mina (14 + 6.15 + 0.555 = 20.7 mm): a \u00e1gua escorre antes de vencer a sobreposi\u00e7\u00e3o.",
+      "en": "The lap rises 28.1 mm, above the capillary + wind + film head (14 + 6.15 + 0.555 = 20.7 mm): the water runs off before it gets over the lap."
+     },
+     "method": "hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise",
+     "quantities": {
+      "h_capillary": [
+       0.013976838606681002,
+       "m",
+       "capillary rise in the lap gap"
+      ],
+      "h_wind": [
+       0.006150365505664605,
+       "m",
+       "wind pressure head"
+      ],
+      "h_film": [
+       0.0005548105279695852,
+       "m",
+       "run-off film depth"
+      ],
+      "lap_rise": [
+       0.028095494506193402,
+       "m",
+       "vertical rise of the lap"
+      ],
+      "runoff_per_width": [
+       0.00020833333333333332,
+       "m^2/s",
+       "run-off per unit width at the eaves"
+      ],
+      "film_reynolds": [
+       830.172987358616,
+       "1",
+       "film Reynolds number 4q/nu"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "fresta da sobreposi\u00e7\u00e3o como duas placas paralelas, molhamento pelo \u00e2ngulo de contato dado",
+       "en": "lap gap modelled as two parallel plates wetted at the given contact angle"
+      },
+      {
+       "pt": "press\u00e3o do vento integral atrav\u00e9s da cobertura (Cp dado)",
+       "en": "full wind pressure across the covering (given Cp)"
+      },
+      {
+       "pt": "l\u00e2mina somada \u00e0 carga sobre a junta (conservador)",
+       "en": "film depth added to the head on the joint (conservative)"
+      }
+     ],
+     "sources": [
+      "Garden (1963), 'Rain penetration and its control', NRC Canada, Canadian Building Digest CBD-40",
+      "de Gennes, Brochard-Wyart & Quere (2004), Capillarity and Wetting Phenomena, ch. 1 (rise between plates)",
+      "Bird, Stewart & Lightfoot, Transport Phenomena, 2nd ed., sec. 2.2 (laminar falling film)",
+      "CRC Handbook of Chemistry and Physics (properties of water at 20 \u00b0C)"
+     ],
+     "validity": [
+      {
+       "name": "film Reynolds number 4q/nu (laminar film)",
+       "value": 830.172987358616,
+       "lo": null,
+       "hi": 1800,
+       "note": "Incropera et al., sec. 10.6: falling film wave-free for Re_f < 30, wavy-laminar up to 1800",
+       "ok": true
+      },
+      {
+       "name": "gap much smaller than capillary length (plates model)",
+       "value": 0.37037037037037035,
+       "lo": null,
+       "hi": 1.0,
+       "note": "capillary length of water sqrt(sigma/(rho g)) = 2.7 mm",
+       "ok": true
+      }
+     ],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "underside_condensation",
+     "requirement": "R2",
+     "passed": false,
+     "demand": 16.399430218505504,
+     "capacity": 14.946180819586402,
+     "unit": "\u00b0C",
+     "margin": -0.3158846551496092,
+     "demand_label": {
+      "pt": "ponto de orvalho do ar interno",
+      "en": "dew point of the room air"
+     },
+     "capacity_label": {
+      "pt": "temperatura da superf\u00edcie voltada ao ambiente",
+      "en": "temperature of the surface facing the room"
+     },
+     "mechanism": {
+      "pt": "\u00c0 noite de c\u00e9u limpo a telha irradia para o c\u00e9u a -1.74 \u00b0C e esfria at\u00e9 14.2 \u00b0C; a face inferior da telha, em contato com o ar do ambiente, fica a 14.9 \u00b0C, abaixo do ponto de orvalho do ar interno (16.4 \u00b0C a 21 \u00b0C e 75 %): o vapor condensa e pinga no ambiente.",
+      "en": "On a clear night the tile radiates to the sky at -1.74 \u00b0C and cools to 14.2 \u00b0C; the tile underside, in contact with the room air, sits at 14.9 \u00b0C, below the dew point of the room air (16.4 \u00b0C at 21 \u00b0C and 75 %): vapour condenses and drips into the room."
+     },
+     "method": "steady roof heat-balance network (clear night) + Magnus dew point",
+     "quantities": {
+      "t_tile_top": [
+       14.217058006533932,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       14.946180819586402,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_sky": [
+       -1.7412326053107563,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       -60.760234421039215,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       71.10129798314186,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       0.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ],
+      "t_dew_room": [
+       16.399430218505504,
+       "\u00b0C",
+       "dew point of the room air"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      }
+     ],
+     "sources": [
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Alduchov & Eskridge (1996), 'Improved Magnus form approximation of saturation vapor pressure', J. Appl. Meteor. 35, 601-609 (a = 17.625, b = 243.04 \u00b0C)",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "room temperature within Magnus range",
+       "value": 21.0,
+       "lo": -40,
+       "hi": 50,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 7.694907435656082e-15,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "radiant_heat_gain",
+     "requirement": "R3",
+     "passed": false,
+     "demand": 25.58069521125816,
+     "capacity": 5.0,
+     "unit": "K",
+     "margin": -4.116139042251632,
+     "demand_label": {
+      "pt": "assimetria radiante do teto",
+      "en": "ceiling radiant asymmetry"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto (teto quente)",
+      "en": "comfort limit (warm ceiling)"
+     },
+     "mechanism": {
+      "pt": "O sol de 900 W/m\u00b2 aquece a telha at\u00e9 54.7 \u00b0C; a telha sobre as pessoas fica a 52.6 \u00b0C, 25.6 K acima do ar do ambiente (27 \u00b0C), mais que os 5 K de assimetria radiante aceit\u00e1veis para teto quente: irradia 178 W/m\u00b2 para dentro e incomoda.",
+      "en": "The 900 W/m^2 sun heats the tile to 54.7 \u00b0C; the tile above the occupants sits at 52.6 \u00b0C, 25.6 K above the room air (27 \u00b0C), more than the 5 K of radiant asymmetry acceptable for a warm ceiling: it pours 178 W/m^2 into the room."
+     },
+     "method": "steady roof heat-balance network (clear day, sun on the roof)",
+     "quantities": {
+      "t_tile_top": [
+       54.71597663823434,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       52.58069521125816,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_sky": [
+       21.095032115105994,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       177.94011891468205,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       207.1592866688552,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       585.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      },
+      {
+       "pt": "assimetria = temperatura da superf\u00edcie do teto - ar (teto grande sobre o ocupante, piso \u00e0 temperatura do ar)",
+       "en": "asymmetry = ceiling surface - air temperature (large ceiling over the occupant, floor at air temperature)"
+      }
+     ],
+     "sources": [
+      "ANSI/ASHRAE Standard 55, Thermal Environmental Conditions for Human Occupancy: allowable radiant temperature asymmetry, warm ceiling < 5 \u00b0C",
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "solar irradiance on the plane",
+       "value": 900.0,
+       "lo": 0,
+       "hi": 1361,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 9.71682373689026e-16,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    }
+   ],
+   "finding": {
+    "requirement": "R2",
+    "mode": "underside_condensation",
+    "title": {
+     "pt": "condensa\u00e7\u00e3o sob a cobertura",
+     "en": "condensation under the roof"
+    },
+    "verification": {
+     "mode": "underside_condensation",
+     "requirement": "R2",
+     "passed": false,
+     "demand": 16.399430218505504,
+     "capacity": 14.946180819586402,
+     "unit": "\u00b0C",
+     "margin": -0.3158846551496092,
+     "demand_label": {
+      "pt": "ponto de orvalho do ar interno",
+      "en": "dew point of the room air"
+     },
+     "capacity_label": {
+      "pt": "temperatura da superf\u00edcie voltada ao ambiente",
+      "en": "temperature of the surface facing the room"
+     },
+     "mechanism": {
+      "pt": "\u00c0 noite de c\u00e9u limpo a telha irradia para o c\u00e9u a -1.74 \u00b0C e esfria at\u00e9 14.2 \u00b0C; a face inferior da telha, em contato com o ar do ambiente, fica a 14.9 \u00b0C, abaixo do ponto de orvalho do ar interno (16.4 \u00b0C a 21 \u00b0C e 75 %): o vapor condensa e pinga no ambiente.",
+      "en": "On a clear night the tile radiates to the sky at -1.74 \u00b0C and cools to 14.2 \u00b0C; the tile underside, in contact with the room air, sits at 14.9 \u00b0C, below the dew point of the room air (16.4 \u00b0C at 21 \u00b0C and 75 %): vapour condenses and drips into the room."
+     },
+     "method": "steady roof heat-balance network (clear night) + Magnus dew point",
+     "quantities": {
+      "t_tile_top": [
+       14.217058006533932,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       14.946180819586402,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_sky": [
+       -1.7412326053107563,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       -60.760234421039215,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       71.10129798314186,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       0.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ],
+      "t_dew_room": [
+       16.399430218505504,
+       "\u00b0C",
+       "dew point of the room air"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      }
+     ],
+     "sources": [
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Alduchov & Eskridge (1996), 'Improved Magnus form approximation of saturation vapor pressure', J. Appl. Meteor. 35, 601-609 (a = 17.625, b = 243.04 \u00b0C)",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "room temperature within Magnus range",
+       "value": 21.0,
+       "lo": -40,
+       "hi": 50,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 7.694907435656082e-15,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    "proof": "dew point of the room air = 16.4 \u00b0C > temperature of the surface facing the room = 14.9 \u00b0C"
+   },
+   "options": [
+    {
+     "countermeasure": "ceiling_ventilated_attic",
+     "element": "ceiling",
+     "title": {
+      "pt": "forro com \u00e1tico ventilado",
+      "en": "ceiling with a ventilated attic"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {},
+     "cost": {
+      "quantity": 1.0,
+      "unit": "m2/m2",
+      "what": {
+       "pt": "1 m\u00b2 de forro por m\u00b2 de planta",
+       "en": "1 m^2 of ceiling per m^2 of plan"
+      },
+      "unit_cost": 1.5,
+      "index": 1.5,
+      "note": "relative index per m2 of ceiling (premise; roof covering = 1)"
+     },
+     "effect": {
+      "pt": "o ar do ambiente deixa de tocar a telha fria (ou quente): entre os dois fica um \u00e1tico ventilado e o forro, que recebe a radia\u00e7\u00e3o da telha e a devolve ao ambiente bem mais perto da temperatura do ar",
+      "en": "room air no longer touches the cold (or hot) tile: a ventilated attic and the ceiling sit in between, and the ceiling, fed by the tile's radiation, faces the room much closer to the air temperature"
+     },
+     "target_margin_before": -0.3158846551496092,
+     "target_margin_after": 0.370043006413256,
+     "fixes_target": true,
+     "passing_after": 2,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "ceiling_insulation",
+     "element": "insulation",
+     "title": {
+      "pt": "isolante (l\u00e3 mineral) sobre o forro",
+      "en": "insulation (mineral wool) on the ceiling"
+     },
+     "feasible": false,
+     "reason": {
+      "pt": "precisa antes de: ceiling",
+      "en": "needs first: ceiling"
+     },
+     "changes": {},
+     "cost": {},
+     "effect": {
+      "pt": "a resist\u00eancia t\u00e9rmica do forro aumenta: a face inferior do forro acompanha o ar do ambiente",
+      "en": "the ceiling's thermal resistance rises: its underside follows the room air"
+     },
+     "target_margin_before": -0.3158846551496092,
+     "target_margin_after": null,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 0,
+   "why": {
+    "pt": "resolve a falha sem quebrar nenhum requisito que passava",
+    "en": "fixes the failure without breaking any requirement that passed"
+   },
+   "passed": false
+  },
+  {
+   "version": 2,
+   "concept": {
+    "name": "roof",
+    "params": {
+     "slope_deg": 22.0,
+     "lap_length": 0.075,
+     "lap_gap": 0.001,
+     "contact_angle_deg": 20.0,
+     "unit_length": 0.4,
+     "rain_intensity": 4.1666666666666665e-05,
+     "roof_run": 5.0,
+     "wind_speed_rain": 10.0,
+     "wind_cp": 1.0,
+     "storm_duration": 600.0,
+     "tile_thickness": 0.012,
+     "tile_k": 1.0,
+     "tile_emissivity": 0.9,
+     "tile_absorptance": 0.65,
+     "t_out_night": 16.0,
+     "rh_out_night": 0.9,
+     "wind_night": 1.0,
+     "t_room_night": 21.0,
+     "rh_room_night": 0.75,
+     "t_out_day": 32.0,
+     "wind_day": 2.0,
+     "solar_irradiance": 900.0,
+     "t_room_day": 27.0,
+     "ceiling_R": 0.05,
+     "ceiling_emissivity": 0.9,
+     "attic_vent": 0.003,
+     "barrier_emissivity": 0.05,
+     "insulation_k": 0.04,
+     "design_margin": 0.35
+    },
+    "elements": [
+     "tiles",
+     "pitch",
+     "ceiling"
+    ],
+    "description": {
+     "pt": "telhas cer\u00e2micas assentadas planas sobre a estrutura, sem forro",
+     "en": "clay tiles laid flat on the structure, no ceiling"
+    },
+    "sources": {
+     "slope_deg": "countermeasure:increase_slope",
+     "lap_length": "premise",
+     "lap_gap": "premise",
+     "contact_angle_deg": "premise",
+     "unit_length": "premise",
+     "rain_intensity": "150 mm/h: intensity ABNT NBR 10844:1989 allows for small roofs without local rainfall data (premise; use the local 5-year intensity)",
+     "roof_run": "premise",
+     "wind_speed_rain": "premise",
+     "wind_cp": "premise",
+     "storm_duration": "premise",
+     "tile_thickness": "premise",
+     "tile_k": "premise",
+     "tile_emissivity": "premise",
+     "tile_absorptance": "premise",
+     "t_out_night": "premise",
+     "rh_out_night": "premise",
+     "wind_night": "premise",
+     "t_room_night": "premise",
+     "rh_room_night": "premise",
+     "t_out_day": "premise",
+     "wind_day": "premise",
+     "solar_irradiance": "premise",
+     "t_room_day": "premise",
+     "ceiling_R": "countermeasure:ceiling_ventilated_attic",
+     "ceiling_emissivity": "premise",
+     "attic_vent": "countermeasure:ceiling_ventilated_attic",
+     "barrier_emissivity": "premise",
+     "insulation_k": "premise",
+     "design_margin": "premise: covers the spread of the lap gap, wind and rain premises"
+    },
+    "version": 2
+   },
+   "verifications": [
+    {
+     "mode": "lap_water_ingress",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 20.68201464031519,
+     "capacity": 28.0954945061934,
+     "unit": "mm",
+     "margin": 0.3584505665820005,
+     "demand_label": {
+      "pt": "carga capilar + vento + l\u00e2mina",
+      "en": "capillary + wind + film head"
+     },
+     "capacity_label": {
+      "pt": "altura que a sobreposi\u00e7\u00e3o levanta",
+      "en": "height the lap rises"
+     },
+     "mechanism": {
+      "pt": "A sobreposi\u00e7\u00e3o levanta 28.1 mm, acima da carga de capilaridade + vento + l\u00e2mina (14 + 6.15 + 0.555 = 20.7 mm): a \u00e1gua escorre antes de vencer a sobreposi\u00e7\u00e3o.",
+      "en": "The lap rises 28.1 mm, above the capillary + wind + film head (14 + 6.15 + 0.555 = 20.7 mm): the water runs off before it gets over the lap."
+     },
+     "method": "hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise",
+     "quantities": {
+      "h_capillary": [
+       0.013976838606681002,
+       "m",
+       "capillary rise in the lap gap"
+      ],
+      "h_wind": [
+       0.006150365505664605,
+       "m",
+       "wind pressure head"
+      ],
+      "h_film": [
+       0.0005548105279695852,
+       "m",
+       "run-off film depth"
+      ],
+      "lap_rise": [
+       0.028095494506193402,
+       "m",
+       "vertical rise of the lap"
+      ],
+      "runoff_per_width": [
+       0.00020833333333333332,
+       "m^2/s",
+       "run-off per unit width at the eaves"
+      ],
+      "film_reynolds": [
+       830.172987358616,
+       "1",
+       "film Reynolds number 4q/nu"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "fresta da sobreposi\u00e7\u00e3o como duas placas paralelas, molhamento pelo \u00e2ngulo de contato dado",
+       "en": "lap gap modelled as two parallel plates wetted at the given contact angle"
+      },
+      {
+       "pt": "press\u00e3o do vento integral atrav\u00e9s da cobertura (Cp dado)",
+       "en": "full wind pressure across the covering (given Cp)"
+      },
+      {
+       "pt": "l\u00e2mina somada \u00e0 carga sobre a junta (conservador)",
+       "en": "film depth added to the head on the joint (conservative)"
+      }
+     ],
+     "sources": [
+      "Garden (1963), 'Rain penetration and its control', NRC Canada, Canadian Building Digest CBD-40",
+      "de Gennes, Brochard-Wyart & Quere (2004), Capillarity and Wetting Phenomena, ch. 1 (rise between plates)",
+      "Bird, Stewart & Lightfoot, Transport Phenomena, 2nd ed., sec. 2.2 (laminar falling film)",
+      "CRC Handbook of Chemistry and Physics (properties of water at 20 \u00b0C)"
+     ],
+     "validity": [
+      {
+       "name": "film Reynolds number 4q/nu (laminar film)",
+       "value": 830.172987358616,
+       "lo": null,
+       "hi": 1800,
+       "note": "Incropera et al., sec. 10.6: falling film wave-free for Re_f < 30, wavy-laminar up to 1800",
+       "ok": true
+      },
+      {
+       "name": "gap much smaller than capillary length (plates model)",
+       "value": 0.37037037037037035,
+       "lo": null,
+       "hi": 1.0,
+       "note": "capillary length of water sqrt(sigma/(rho g)) = 2.7 mm",
+       "ok": true
+      }
+     ],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "underside_condensation",
+     "requirement": "R2",
+     "passed": true,
+     "demand": 16.399430218505504,
+     "capacity": 18.101838891663704,
+     "unit": "\u00b0C",
+     "margin": 0.370043006413256,
+     "demand_label": {
+      "pt": "ponto de orvalho do ar interno",
+      "en": "dew point of the room air"
+     },
+     "capacity_label": {
+      "pt": "temperatura da superf\u00edcie voltada ao ambiente",
+      "en": "temperature of the surface facing the room"
+     },
+     "mechanism": {
+      "pt": "A face inferior do forro fica a 18.1 \u00b0C, acima do ponto de orvalho do ar interno (16.4 \u00b0C): n\u00e3o condensa (a telha, a 12.1 \u00b0C, agora fica do outro lado do forro, no \u00e1tico ventilado)",
+      "en": "The ceiling underside sits at 18.1 \u00b0C, above the dew point of the room air (16.4 \u00b0C): no condensation (the tile, at 12.1 \u00b0C, is now on the other side of the ceiling, in the ventilated attic)"
+     },
+     "method": "steady roof heat-balance network (clear night) + Magnus dew point",
+     "quantities": {
+      "t_tile_top": [
+       11.665443192716623,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       12.070610055031295,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_attic": [
+       14.7967976200228,
+       "\u00b0C",
+       "attic air"
+      ],
+      "t_ceiling_top": [
+       16.635511942618223,
+       "\u00b0C",
+       "ceiling top surface"
+      ],
+      "t_ceiling_under": [
+       18.101838891663704,
+       "\u00b0C",
+       "ceiling underside"
+      ],
+      "t_sky": [
+       -1.7412326053107563,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       -29.326538980909426,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       58.90433467513344,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       0.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ],
+      "t_dew_room": [
+       16.399430218505504,
+       "\u00b0C",
+       "dew point of the room air"
+      ],
+      "t_dew_attic": [
+       14.359990501917554,
+       "\u00b0C",
+       "dew point of the attic (outdoor) air"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      },
+      {
+       "pt": "condensa\u00e7\u00e3o no \u00e1tico (telha abaixo do orvalho do ar externo) n\u00e3o avaliada: o requisito \u00e9 o ambiente",
+       "en": "condensation inside the attic (tile below the outdoor dew point) not assessed: the requirement is the room"
+      }
+     ],
+     "sources": [
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Alduchov & Eskridge (1996), 'Improved Magnus form approximation of saturation vapor pressure', J. Appl. Meteor. 35, 601-609 (a = 17.625, b = 243.04 \u00b0C)",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "room temperature within Magnus range",
+       "value": 21.0,
+       "lo": -40,
+       "hi": 50,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 3.317230445122329e-15,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "radiant_heat_gain",
+     "requirement": "R3",
+     "passed": false,
+     "demand": 12.007818968614572,
+     "capacity": 5.0,
+     "unit": "K",
+     "margin": -1.4015637937229144,
+     "demand_label": {
+      "pt": "assimetria radiante do teto",
+      "en": "ceiling radiant asymmetry"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto (teto quente)",
+      "en": "comfort limit (warm ceiling)"
+     },
+     "mechanism": {
+      "pt": "O sol de 900 W/m\u00b2 aquece a telha at\u00e9 59.1 \u00b0C; o forro sobre as pessoas fica a 39 \u00b0C, 12 K acima do ar do ambiente (27 \u00b0C), mais que os 5 K de assimetria radiante aceit\u00e1veis para teto quente: irradia 78.7 W/m\u00b2 para dentro e incomoda.",
+      "en": "The 900 W/m^2 sun heats the tile to 59.1 \u00b0C; the ceiling above the occupants sits at 39 \u00b0C, 12 K above the room air (27 \u00b0C), more than the 5 K of radiant asymmetry acceptable for a warm ceiling: it pours 78.7 W/m^2 into the room."
+     },
+     "method": "steady roof heat-balance network (clear day, sun on the roof)",
+     "quantities": {
+      "t_tile_top": [
+       59.14633367356953,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       57.86921359577423,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_attic": [
+       39.92136638778294,
+       "\u00b0C",
+       "attic air"
+      ],
+      "t_ceiling_top": [
+       42.94505565660887,
+       "\u00b0C",
+       "ceiling top surface"
+      ],
+      "t_ceiling_under": [
+       39.00781896861457,
+       "\u00b0C",
+       "ceiling underside"
+      ],
+      "t_sky": [
+       21.095032115105994,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       78.74473375988559,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       239.68559052297908,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       585.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      },
+      {
+       "pt": "assimetria = temperatura da superf\u00edcie do teto - ar (teto grande sobre o ocupante, piso \u00e0 temperatura do ar)",
+       "en": "asymmetry = ceiling surface - air temperature (large ceiling over the occupant, floor at air temperature)"
+      }
+     ],
+     "sources": [
+      "ANSI/ASHRAE Standard 55, Thermal Environmental Conditions for Human Occupancy: allowable radiant temperature asymmetry, warm ceiling < 5 \u00b0C",
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "solar irradiance on the plane",
+       "value": 900.0,
+       "lo": 0,
+       "hi": 1361,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 1.2146029671112825e-16,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    }
+   ],
+   "finding": {
+    "requirement": "R3",
+    "mode": "radiant_heat_gain",
+    "title": {
+     "pt": "ganho t\u00e9rmico radiante do telhado",
+     "en": "radiant heat gain from the roof"
+    },
+    "verification": {
+     "mode": "radiant_heat_gain",
+     "requirement": "R3",
+     "passed": false,
+     "demand": 12.007818968614572,
+     "capacity": 5.0,
+     "unit": "K",
+     "margin": -1.4015637937229144,
+     "demand_label": {
+      "pt": "assimetria radiante do teto",
+      "en": "ceiling radiant asymmetry"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto (teto quente)",
+      "en": "comfort limit (warm ceiling)"
+     },
+     "mechanism": {
+      "pt": "O sol de 900 W/m\u00b2 aquece a telha at\u00e9 59.1 \u00b0C; o forro sobre as pessoas fica a 39 \u00b0C, 12 K acima do ar do ambiente (27 \u00b0C), mais que os 5 K de assimetria radiante aceit\u00e1veis para teto quente: irradia 78.7 W/m\u00b2 para dentro e incomoda.",
+      "en": "The 900 W/m^2 sun heats the tile to 59.1 \u00b0C; the ceiling above the occupants sits at 39 \u00b0C, 12 K above the room air (27 \u00b0C), more than the 5 K of radiant asymmetry acceptable for a warm ceiling: it pours 78.7 W/m^2 into the room."
+     },
+     "method": "steady roof heat-balance network (clear day, sun on the roof)",
+     "quantities": {
+      "t_tile_top": [
+       59.14633367356953,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       57.86921359577423,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_attic": [
+       39.92136638778294,
+       "\u00b0C",
+       "attic air"
+      ],
+      "t_ceiling_top": [
+       42.94505565660887,
+       "\u00b0C",
+       "ceiling top surface"
+      ],
+      "t_ceiling_under": [
+       39.00781896861457,
+       "\u00b0C",
+       "ceiling underside"
+      ],
+      "t_sky": [
+       21.095032115105994,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       78.74473375988559,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       239.68559052297908,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       585.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      },
+      {
+       "pt": "assimetria = temperatura da superf\u00edcie do teto - ar (teto grande sobre o ocupante, piso \u00e0 temperatura do ar)",
+       "en": "asymmetry = ceiling surface - air temperature (large ceiling over the occupant, floor at air temperature)"
+      }
+     ],
+     "sources": [
+      "ANSI/ASHRAE Standard 55, Thermal Environmental Conditions for Human Occupancy: allowable radiant temperature asymmetry, warm ceiling < 5 \u00b0C",
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "solar irradiance on the plane",
+       "value": 900.0,
+       "lo": 0,
+       "hi": 1361,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 1.2146029671112825e-16,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    "proof": "ceiling radiant asymmetry = 12.0 K > comfort limit (warm ceiling) = 5 K"
+   },
+   "options": [
+    {
+     "countermeasure": "ceiling_ventilated_attic",
+     "element": "ceiling",
+     "title": {
+      "pt": "forro com \u00e1tico ventilado",
+      "en": "ceiling with a ventilated attic"
+     },
+     "feasible": false,
+     "reason": {
+      "pt": "o conceito j\u00e1 tem 'ceiling'",
+      "en": "the concept already has 'ceiling'"
+     },
+     "changes": {},
+     "cost": {},
+     "effect": {
+      "pt": "o ar do ambiente deixa de tocar a telha fria (ou quente): entre os dois fica um \u00e1tico ventilado e o forro, que recebe a radia\u00e7\u00e3o da telha e a devolve ao ambiente bem mais perto da temperatura do ar",
+      "en": "room air no longer touches the cold (or hot) tile: a ventilated attic and the ceiling sit in between, and the ceiling, fed by the tile's radiation, faces the room much closer to the air temperature"
+     },
+     "target_margin_before": -1.4015637937229144,
+     "target_margin_after": null,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "radiant_barrier",
+     "element": "radiant_barrier",
+     "title": {
+      "pt": "barreira radiante (manta de baixa emissividade sob a telha)",
+      "en": "radiant barrier (low-emissivity foil under the tiles)"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "tile_under_emissivity": 0.05
+     },
+     "cost": {
+      "quantity": 1.0,
+      "unit": "m2/m2",
+      "what": {
+       "pt": "1 m\u00b2 de manta por m\u00b2 de telhado",
+       "en": "1 m^2 of foil per m^2 of roof"
+      },
+      "unit_cost": 0.4,
+      "index": 0.4,
+      "note": "relative index per m2 of foil (premise)"
+     },
+     "effect": {
+      "pt": "a face inferior da telha passa a ter emissividade ~0,05: a troca radiante telha-forro, a parcela dominante, cai uma ordem de grandeza",
+      "en": "the tile underside gets an emissivity of ~0.05: tile-to-ceiling radiation, the dominant path, drops by an order of magnitude"
+     },
+     "target_margin_before": -1.4015637937229144,
+     "target_margin_after": 0.48174518883396333,
+     "fixes_target": true,
+     "passing_after": 3,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "ceiling_insulation",
+     "element": "insulation",
+     "title": {
+      "pt": "isolante (l\u00e3 mineral) sobre o forro",
+      "en": "insulation (mineral wool) on the ceiling"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "ceiling_R": 1.3,
+      "insulation_thickness": 0.05
+     },
+     "cost": {
+      "quantity": 0.05,
+      "unit": "m3/m2",
+      "what": {
+       "pt": "{mm} mm de l\u00e3 mineral sobre o forro",
+       "en": "{mm} mm of mineral wool on the ceiling"
+      },
+      "unit_cost": 8.0,
+      "index": 0.4,
+      "note": "relative index per m3 of insulation (premise)"
+     },
+     "effect": {
+      "pt": "a resist\u00eancia t\u00e9rmica do forro aumenta: a face inferior do forro acompanha o ar do ambiente",
+      "en": "the ceiling's thermal resistance rises: its underside follows the room air"
+     },
+     "target_margin_before": -1.4015637937229144,
+     "target_margin_after": 0.43849817602008445,
+     "fixes_target": true,
+     "passing_after": 3,
+     "regressions": [],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 1,
+   "why": {
+    "pt": "resolve a falha sem quebrar nenhum requisito que passava; entre 2 op\u00e7\u00f5es que resolvem, \u00e9 a de menor custo (0.4, 3 verifica\u00e7\u00f5es passando; contra ceiling_insulation: 3 passando, custo 0.4)",
+    "en": "fixes the failure without breaking any requirement that passed; of 2 options that fix it, it is the cheapest (0.4, 3 checks passing; vs ceiling_insulation: 3 passing, cost 0.4)"
+   },
+   "passed": false
+  },
+  {
+   "version": 3,
+   "concept": {
+    "name": "roof",
+    "params": {
+     "slope_deg": 22.0,
+     "lap_length": 0.075,
+     "lap_gap": 0.001,
+     "contact_angle_deg": 20.0,
+     "unit_length": 0.4,
+     "rain_intensity": 4.1666666666666665e-05,
+     "roof_run": 5.0,
+     "wind_speed_rain": 10.0,
+     "wind_cp": 1.0,
+     "storm_duration": 600.0,
+     "tile_thickness": 0.012,
+     "tile_k": 1.0,
+     "tile_emissivity": 0.9,
+     "tile_absorptance": 0.65,
+     "t_out_night": 16.0,
+     "rh_out_night": 0.9,
+     "wind_night": 1.0,
+     "t_room_night": 21.0,
+     "rh_room_night": 0.75,
+     "t_out_day": 32.0,
+     "wind_day": 2.0,
+     "solar_irradiance": 900.0,
+     "t_room_day": 27.0,
+     "ceiling_R": 0.05,
+     "ceiling_emissivity": 0.9,
+     "attic_vent": 0.003,
+     "barrier_emissivity": 0.05,
+     "insulation_k": 0.04,
+     "design_margin": 0.35,
+     "tile_under_emissivity": 0.05
+    },
+    "elements": [
+     "tiles",
+     "pitch",
+     "ceiling",
+     "radiant_barrier"
+    ],
+    "description": {
+     "pt": "telhas cer\u00e2micas assentadas planas sobre a estrutura, sem forro",
+     "en": "clay tiles laid flat on the structure, no ceiling"
+    },
+    "sources": {
+     "slope_deg": "countermeasure:increase_slope",
+     "lap_length": "premise",
+     "lap_gap": "premise",
+     "contact_angle_deg": "premise",
+     "unit_length": "premise",
+     "rain_intensity": "150 mm/h: intensity ABNT NBR 10844:1989 allows for small roofs without local rainfall data (premise; use the local 5-year intensity)",
+     "roof_run": "premise",
+     "wind_speed_rain": "premise",
+     "wind_cp": "premise",
+     "storm_duration": "premise",
+     "tile_thickness": "premise",
+     "tile_k": "premise",
+     "tile_emissivity": "premise",
+     "tile_absorptance": "premise",
+     "t_out_night": "premise",
+     "rh_out_night": "premise",
+     "wind_night": "premise",
+     "t_room_night": "premise",
+     "rh_room_night": "premise",
+     "t_out_day": "premise",
+     "wind_day": "premise",
+     "solar_irradiance": "premise",
+     "t_room_day": "premise",
+     "ceiling_R": "countermeasure:ceiling_ventilated_attic",
+     "ceiling_emissivity": "premise",
+     "attic_vent": "countermeasure:ceiling_ventilated_attic",
+     "barrier_emissivity": "premise",
+     "insulation_k": "premise",
+     "design_margin": "premise: covers the spread of the lap gap, wind and rain premises",
+     "tile_under_emissivity": "countermeasure:radiant_barrier"
+    },
+    "version": 3
+   },
+   "verifications": [
+    {
+     "mode": "lap_water_ingress",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 20.68201464031519,
+     "capacity": 28.0954945061934,
+     "unit": "mm",
+     "margin": 0.3584505665820005,
+     "demand_label": {
+      "pt": "carga capilar + vento + l\u00e2mina",
+      "en": "capillary + wind + film head"
+     },
+     "capacity_label": {
+      "pt": "altura que a sobreposi\u00e7\u00e3o levanta",
+      "en": "height the lap rises"
+     },
+     "mechanism": {
+      "pt": "A sobreposi\u00e7\u00e3o levanta 28.1 mm, acima da carga de capilaridade + vento + l\u00e2mina (14 + 6.15 + 0.555 = 20.7 mm): a \u00e1gua escorre antes de vencer a sobreposi\u00e7\u00e3o.",
+      "en": "The lap rises 28.1 mm, above the capillary + wind + film head (14 + 6.15 + 0.555 = 20.7 mm): the water runs off before it gets over the lap."
+     },
+     "method": "hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise",
+     "quantities": {
+      "h_capillary": [
+       0.013976838606681002,
+       "m",
+       "capillary rise in the lap gap"
+      ],
+      "h_wind": [
+       0.006150365505664605,
+       "m",
+       "wind pressure head"
+      ],
+      "h_film": [
+       0.0005548105279695852,
+       "m",
+       "run-off film depth"
+      ],
+      "lap_rise": [
+       0.028095494506193402,
+       "m",
+       "vertical rise of the lap"
+      ],
+      "runoff_per_width": [
+       0.00020833333333333332,
+       "m^2/s",
+       "run-off per unit width at the eaves"
+      ],
+      "film_reynolds": [
+       830.172987358616,
+       "1",
+       "film Reynolds number 4q/nu"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "fresta da sobreposi\u00e7\u00e3o como duas placas paralelas, molhamento pelo \u00e2ngulo de contato dado",
+       "en": "lap gap modelled as two parallel plates wetted at the given contact angle"
+      },
+      {
+       "pt": "press\u00e3o do vento integral atrav\u00e9s da cobertura (Cp dado)",
+       "en": "full wind pressure across the covering (given Cp)"
+      },
+      {
+       "pt": "l\u00e2mina somada \u00e0 carga sobre a junta (conservador)",
+       "en": "film depth added to the head on the joint (conservative)"
+      }
+     ],
+     "sources": [
+      "Garden (1963), 'Rain penetration and its control', NRC Canada, Canadian Building Digest CBD-40",
+      "de Gennes, Brochard-Wyart & Quere (2004), Capillarity and Wetting Phenomena, ch. 1 (rise between plates)",
+      "Bird, Stewart & Lightfoot, Transport Phenomena, 2nd ed., sec. 2.2 (laminar falling film)",
+      "CRC Handbook of Chemistry and Physics (properties of water at 20 \u00b0C)"
+     ],
+     "validity": [
+      {
+       "name": "film Reynolds number 4q/nu (laminar film)",
+       "value": 830.172987358616,
+       "lo": null,
+       "hi": 1800,
+       "note": "Incropera et al., sec. 10.6: falling film wave-free for Re_f < 30, wavy-laminar up to 1800",
+       "ok": true
+      },
+      {
+       "name": "gap much smaller than capillary length (plates model)",
+       "value": 0.37037037037037035,
+       "lo": null,
+       "hi": 1.0,
+       "note": "capillary length of water sqrt(sigma/(rho g)) = 2.7 mm",
+       "ok": true
+      }
+     ],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "underside_condensation",
+     "requirement": "R2",
+     "passed": true,
+     "demand": 16.399430218505504,
+     "capacity": 19.174681701008296,
+     "unit": "\u00b0C",
+     "margin": 0.6032408189233577,
+     "demand_label": {
+      "pt": "ponto de orvalho do ar interno",
+      "en": "dew point of the room air"
+     },
+     "capacity_label": {
+      "pt": "temperatura da superf\u00edcie voltada ao ambiente",
+      "en": "temperature of the surface facing the room"
+     },
+     "mechanism": {
+      "pt": "A face inferior do forro fica a 19.2 \u00b0C, acima do ponto de orvalho do ar interno (16.4 \u00b0C): n\u00e3o condensa (a telha, a 10.9 \u00b0C, agora fica do outro lado do forro, no \u00e1tico ventilado)",
+      "en": "The ceiling underside sits at 19.2 \u00b0C, above the dew point of the room air (16.4 \u00b0C): no condensation (the tile, at 10.9 \u00b0C, is now on the other side of the ceiling, in the ventilated attic)"
+     },
+     "method": "steady roof heat-balance network (clear night) + Magnus dew point",
+     "quantities": {
+      "t_tile_top": [
+       10.584533418182446,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       10.85364111271008,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_attic": [
+       14.941489062156961,
+       "\u00b0C",
+       "attic air"
+      ],
+      "t_ceiling_top": [
+       18.248587114701934,
+       "\u00b0C",
+       "ceiling top surface"
+      ],
+      "t_ceiling_under": [
+       19.174681701008296,
+       "\u00b0C",
+       "ceiling underside"
+      ],
+      "t_sky": [
+       -1.7412326053107563,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       -18.52189172612724,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       53.83534738517871,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       0.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ],
+      "t_dew_room": [
+       16.399430218505504,
+       "\u00b0C",
+       "dew point of the room air"
+      ],
+      "t_dew_attic": [
+       14.359990501917554,
+       "\u00b0C",
+       "dew point of the attic (outdoor) air"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      },
+      {
+       "pt": "condensa\u00e7\u00e3o no \u00e1tico (telha abaixo do orvalho do ar externo) n\u00e3o avaliada: o requisito \u00e9 o ambiente",
+       "en": "condensation inside the attic (tile below the outdoor dew point) not assessed: the requirement is the room"
+      }
+     ],
+     "sources": [
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Alduchov & Eskridge (1996), 'Improved Magnus form approximation of saturation vapor pressure', J. Appl. Meteor. 35, 601-609 (a = 17.625, b = 243.04 \u00b0C)",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "room temperature within Magnus range",
+       "value": 21.0,
+       "lo": -40,
+       "hi": 50,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 2.4417118584769802e-15,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "radiant_heat_gain",
+     "requirement": "R3",
+     "passed": true,
+     "demand": 2.5912740558301834,
+     "capacity": 5.0,
+     "unit": "K",
+     "margin": 0.48174518883396333,
+     "demand_label": {
+      "pt": "assimetria radiante do teto",
+      "en": "ceiling radiant asymmetry"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto (teto quente)",
+      "en": "comfort limit (warm ceiling)"
+     },
+     "mechanism": {
+      "pt": "O forro fica a 29.6 \u00b0C, 2.59 K acima do ar (limite 5 K); entram 16.3 W/m\u00b2.",
+      "en": "The ceiling sits at 29.6 \u00b0C, 2.59 K above the air (limit 5 K); 16.3 W/m^2 enter."
+     },
+     "method": "steady roof heat-balance network (clear day, sun on the roof)",
+     "quantities": {
+      "t_tile_top": [
+       63.72199465657593,
+       "\u00b0C",
+       "outer tile surface"
+      ],
+      "t_tile_under": [
+       63.347906274281456,
+       "\u00b0C",
+       "tile underside"
+      ],
+      "t_attic": [
+       36.255318646351895,
+       "\u00b0C",
+       "attic air"
+      ],
+      "t_ceiling_top": [
+       30.406445637071215,
+       "\u00b0C",
+       "ceiling top surface"
+      ],
+      "t_ceiling_under": [
+       29.591274055830183,
+       "\u00b0C",
+       "ceiling underside"
+      ],
+      "t_sky": [
+       21.095032115105994,
+       "\u00b0C",
+       "effective sky temperature"
+      ],
+      "q_room": [
+       16.30343162481956,
+       "W/m^2",
+       "heat flux into the room (negative: out of the room)"
+      ],
+      "q_sky": [
+       274.67241516425804,
+       "W/m^2",
+       "net long-wave loss to the sky"
+      ],
+      "absorbed_solar": [
+       585.0,
+       "W/m^2",
+       "absorbed solar flux"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "regime permanente, uma dimens\u00e3o, por m\u00b2 de telhado",
+       "en": "steady state, one-dimensional, per m^2 of roof"
+      },
+      {
+       "pt": "c\u00e9u limpo (temperatura de c\u00e9u de Swinbank)",
+       "en": "clear sky (Swinbank sky temperature)"
+      },
+      {
+       "pt": "\u00e1tico ventilado com a vaz\u00e3o dada; placas paralelas cinzas entre telha e forro",
+       "en": "attic ventilated at the given rate; tile and ceiling as parallel grey plates"
+      },
+      {
+       "pt": "assimetria = temperatura da superf\u00edcie do teto - ar (teto grande sobre o ocupante, piso \u00e0 temperatura do ar)",
+       "en": "asymmetry = ceiling surface - air temperature (large ceiling over the occupant, floor at air temperature)"
+      }
+     ],
+     "sources": [
+      "ANSI/ASHRAE Standard 55, Thermal Environmental Conditions for Human Occupancy: allowable radiant temperature asymmetry, warm ceiling < 5 \u00b0C",
+      "Swinbank (1963), 'Long-wave radiation from clear skies', Q. J. R. Meteorol. Soc. 89, 339-348",
+      "Watmuff, Charters & Proctor (1977), wind heat-transfer coefficient h = 2.8 + 3.0 V, as given in Duffie & Beckman, Solar Engineering of Thermal Processes, sec. 3.15",
+      "ISO 6946:2017, Building components and building elements - Thermal resistance, Table 7 and Annex C",
+      "Incropera et al., eq. 13.24 (radiation between large parallel grey plates)"
+     ],
+     "validity": [
+      {
+       "name": "solar irradiance on the plane",
+       "value": 900.0,
+       "lo": 0,
+       "hi": 1361,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "roof energy balance closes",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 1.0931426704001542e-16,
+       "limit": 1e-06,
+       "source": "steady network: sun = sky + wind + ventilation + room",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    }
+   ],
+   "finding": null,
+   "options": [],
+   "chosen": null,
+   "why": {},
+   "passed": true
+  }
+ ],
+ "notes": [],
+ "meta": {
+  "evaluations": 15,
+  "wall_s": 0.0038393609993363498,
+  "advisor": null
+ },
+ "path": [
+  [
+   0,
+   "lap_water_ingress",
+   "increase_slope"
+  ],
+  [
+   1,
+   "underside_condensation",
+   "ceiling_ventilated_attic"
+  ],
+  [
+   2,
+   "radiant_heat_gain",
+   "radiant_barrier"
+  ]
+ ]
+}

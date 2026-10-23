@@ -14,6 +14,25 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
+  with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
+  chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,
+  wind and film / ponding; condensation under a roof and radiant heat from it, through a steady roof network; Joule
+  heating coupled to the 3-D board model or a plate-fin heat sink; bending, deflection, lateral-torsional and
+  flexural buckling, fatigue, pedestrian resonance, wind uplift; pump cavitation; water hammer and column separation;
+  galvanic corrosion) with 21 countermeasures that size themselves and compute their cost; an engine that finds the
+  first failure, tries every countermeasure, keeps the cheapest clean fix and re-checks until every requirement
+  passes; an optional LLM advisor that may only add library candidates; reports (Markdown, self-contained HTML,
+  timeline version 0 -> N, margins, domain figures) with a `TrustReport` and the six-stage trust card; four worked
+  cases (roof, footbridge, power board, pumped main) in `examples/chain_of_whys/`; guide
+  `docs/guides/chain_of_whys.md`.
+- `pinneapple_simulation.numerical_solvers.water_hammer_moc`: water hammer in a reservoir-pipe-valve system by the
+  method of characteristics (Korteweg wave speed, valve closure law, Joukowsky and Michaud references; verified
+  against Joukowsky for an instantaneous closure).
+- Flow Studio: `reason.*` node types (requirement, concept, check requirements, failure-mode check, countermeasure,
+  chain of whys, report), port types `requirement`, `concept`, `chain`, and the flow `reason_roof`.
+- MCP tools `reason` (job), `reason_library`, `reason_check`; agent-workbench tools `reason_chain`,
+  `reason_library`, `reason_check` (given to the physics agent).
 - Antennas in 3-D (`pinneapple_simulation.electromagnetics.antenna.scene3d`, `study.render_3d`, `--3d` of
   `examples/use_cases/antennas/vivaldi_2to4ghz.py`, Flow Studio node `lib.antenna.render_3d`): the AVA's laminate and
   copper as glTF / USD with materials, the gain balloon (dBi, jet) per solved frequency in the antenna's frame, |E| and

@@ -1,0 +1,206 @@
+{
+ "report": {
+  "modelo": "Pumping station and main: from a cavitating pump to a closure that holds",
+  "decisao": "APPROVED",
+  "score": 1.0,
+  "cobertura": 1.0,
+  "motivos": [],
+  "checagens": [
+   {
+    "name": "inputs recorded and finite",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 20.0,
+    "limit": null,
+    "source": "concept parameters with their sources",
+    "reason": ""
+   },
+   {
+    "name": "R1/pump_cavitation",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 4.5,
+    "limit": 5.205140671613127,
+    "source": "NPSH_a = (p_atm - p_v)/(rho g) - z_s - h_f, Darcy-Colebrook suction loss + minor losses",
+    "reason": ""
+   },
+   {
+    "name": "applicability: pump_cavitation: suction Reynolds number (turbulent Colebrook)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 422803.6305903657,
+    "limit": 4000,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "R2/water_hammer",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.7946411101389708,
+    "limit": 1.0,
+    "source": "method of characteristics, reservoir-pipe-valve, Korteweg wave speed, Colebrook friction",
+    "reason": ""
+   },
+   {
+    "name": "solver vs closed form: MOC instantaneous closure vs Joukowsky",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.123374024676542e-16,
+    "limit": 1e-06,
+    "source": "pinneapple_simulation.numerical_solvers.water_hammer_moc.valve_closure_moc (method of characteristics); Joukowsky (1898) dH = a dV/g; Michaud (1878) for slow closure; Wylie & Streeter (1993) ch. 1-3",
+    "reason": ""
+   },
+   {
+    "name": "energy: surge decays after closure (friction)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.9715106696549037,
+    "limit": 1.0,
+    "source": "pinneapple_simulation.numerical_solvers.water_hammer_moc.valve_closure_moc (method of characteristics)",
+    "reason": ""
+   },
+   {
+    "name": "applicability: water_hammer: main Reynolds number (turbulent Colebrook)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 253682.17835421945,
+    "limit": 4000,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "R2/column_separation",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 2.333440623099358,
+    "limit": 476.04500157993454,
+    "source": "method of characteristics (no cavity model: a minimum below vapour pressure flags column separation)",
+    "reason": ""
+   },
+   {
+    "name": "known answer: pump_cavitation.h_atm",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-09,
+    "source": "sea-level standard atmosphere 101325 Pa = 10.35 m of water",
+    "reason": ""
+   },
+   {
+    "name": "known answer: water_hammer.wave_speed",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-12,
+    "source": "Korteweg wave speed, Wylie & Streeter eq. 2.29, c1 = 1 - nu^2",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R1/pump_cavitation worst margin (npsh_required +10 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.06227360645165849,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R2/water_hammer worst margin (main_q +10 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.17664384791939913,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R2/column_separation worst margin (main_q +10 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 4.841093825487003,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   }
+  ],
+  "min_coverage": 0.6,
+  "min_score": 0.8
+ },
+ "card": {
+  "data_geometry": {
+   "title": "Data and geometry",
+   "question": "Was the physical problem represented correctly?",
+   "status": "answered",
+   "evidence": [
+    "inputs recorded: v0, v1, v2",
+    "PASS inputs recorded and finite (concept parameters with their sources)"
+   ],
+   "next": ""
+  },
+  "model": {
+   "title": "Model",
+   "question": "Can the model (or solver) represent the relevant dynamics?",
+   "status": "answered",
+   "evidence": [
+    "PASS known answer: pump_cavitation.h_atm (sea-level standard atmosphere 101325 Pa = 10.35 m of water)",
+    "PASS known answer: water_hammer.wave_speed (Korteweg wave speed, Wylie & Streeter eq. 2.29, c1 = 1 - nu^2)"
+   ],
+   "next": ""
+  },
+  "physics": {
+   "title": "Physical constraints",
+   "question": "Are the equations and the boundary conditions respected?",
+   "status": "answered",
+   "evidence": [
+    "PASS energy: surge decays after closure (friction) (pinneapple_simulation.numerical_solvers.water_hammer_moc.valve_closure_moc (method of char)"
+   ],
+   "next": ""
+  },
+  "benchmark": {
+   "title": "Benchmark",
+   "question": "How does the result compare with a solver or reference data?",
+   "status": "answered",
+   "evidence": [
+    "PASS solver vs closed form: MOC instantaneous closure vs Joukowsky (pinneapple_simulation.numerical_solvers.water_hammer_moc.valve_closure_moc (method of char)"
+   ],
+   "next": ""
+  },
+  "uncertainty": {
+   "title": "Uncertainty",
+   "question": "Where may the prediction not be reliable?",
+   "status": "answered",
+   "evidence": [
+    "PASS applicability: pump_cavitation: suction Reynolds number (turbulent Colebrook)",
+    "PASS applicability: water_hammer: main Reynolds number (turbulent Colebrook)",
+    "PASS uncertainty: R1/pump_cavitation worst margin (npsh_required +10 %) (one-at-a-time spread of the mode's uncertain premises)",
+    "PASS uncertainty: R2/water_hammer worst margin (main_q +10 %) (one-at-a-time spread of the mode's uncertain premises)",
+    "PASS uncertainty: R2/column_separation worst margin (main_q +10 %) (one-at-a-time spread of the mode's uncertain premises)"
+   ],
+   "next": ""
+  },
+  "decision": {
+   "title": "Engineering decision",
+   "question": "Is the result adequate for the intended use?",
+   "status": "answered",
+   "evidence": [
+    "tier B (solid), ready for design screening",
+    "3 limitations bound the use"
+   ],
+   "next": ""
+  }
+ }
+}

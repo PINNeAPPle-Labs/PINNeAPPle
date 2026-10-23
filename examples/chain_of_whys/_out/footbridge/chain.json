@@ -1,0 +1,1924 @@
+{
+ "schema": "pinneapple.reason.chain/1",
+ "title": {
+  "pt": "Passarela de 30 m: da viga que resiste \u00e0 que n\u00e3o incomoda",
+  "en": "30 m footbridge: from a girder that holds to one nobody minds walking on"
+ },
+ "status": "resolved",
+ "requirements": [
+  {
+   "id": "R1",
+   "text": {
+    "pt": "resistir \u00e0 multid\u00e3o com seguran\u00e7a (ELU)",
+    "en": "carry the crowd safely (ULS)"
+   },
+   "modes": [
+    "bending_strength"
+   ],
+   "limits": {},
+   "source": ""
+  },
+  {
+   "id": "R2",
+   "text": {
+    "pt": "n\u00e3o flechar a ponto de assustar (ELS)",
+    "en": "no alarming deflection (SLS)"
+   },
+   "modes": [
+    "deflection"
+   ],
+   "limits": {},
+   "source": ""
+  },
+  {
+   "id": "R3",
+   "text": {
+    "pt": "n\u00e3o flambar de lado",
+    "en": "no lateral buckling"
+   },
+   "modes": [
+    "lateral_torsional_buckling"
+   ],
+   "limits": {},
+   "source": ""
+  },
+  {
+   "id": "R4",
+   "text": {
+    "pt": "n\u00e3o vibrar de forma desconfort\u00e1vel",
+    "en": "no uncomfortable vibration"
+   },
+   "modes": [
+    "pedestrian_resonance"
+   ],
+   "limits": {},
+   "source": ""
+  }
+ ],
+ "steps": [
+  {
+   "version": 0,
+   "concept": {
+    "name": "footbridge",
+    "params": {
+     "span": 30.0,
+     "deck_width": 2.5,
+     "n_girders": 2,
+     "deck_dead_load": 3000.0,
+     "girder_h": 0.8,
+     "girder_b": 0.25,
+     "girder_tf": 0.02,
+     "girder_tw": 0.01,
+     "section_type": "welded",
+     "fy": 355000000.0,
+     "lateral_braces": 0,
+     "damping_ratio": 0.005,
+     "pedestrian_weight": 700.0,
+     "brace_mass_per_m": 3.77,
+     "design_margin": 0.05
+    },
+    "elements": [
+     "girders"
+    ],
+    "description": {
+     "pt": "duas vigas soldadas dimensionadas s\u00f3 pela resist\u00eancia",
+     "en": "two welded girders sized for strength only"
+    },
+    "sources": {
+     "span": "premise",
+     "deck_width": "premise",
+     "n_girders": "premise",
+     "deck_dead_load": "premise: 100 mm precast concrete planks (25 kN/m3, EN 1991-1-1 Table A.1) + 0.5 kN/m2 finishes, on cross-beams",
+     "girder_h": "premise",
+     "girder_b": "premise",
+     "girder_tf": "premise",
+     "girder_tw": "premise",
+     "section_type": "premise",
+     "fy": "EN 10025-2 S355, t <= 16 mm (premise grade)",
+     "lateral_braces": "premise",
+     "damping_ratio": "premise: welded steel footbridge",
+     "pedestrian_weight": "Bachmann & Ammann (1987)",
+     "brace_mass_per_m": "premise: L50x50x5 angle",
+     "design_margin": "premise"
+    },
+    "version": 0
+   },
+   "verifications": [
+    {
+     "mode": "bending_strength",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 1619.0546772825,
+     "capacity": 1674.842666666669,
+     "unit": "kN m",
+     "margin": 0.033309391081611336,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "momento resistente el\u00e1stico",
+      "en": "elastic moment resistance"
+     },
+     "mechanism": {
+      "pt": "Momento de c\u00e1lculo por viga 1.62e+03 kN\u00b7m (1,35\u00b75.1 + 1,5\u00b75 kN/m em 30 m) contra o momento resistente el\u00e1stico 1.67e+03 kN\u00b7m: a se\u00e7\u00e3o resiste.",
+      "en": "Design moment per girder 1.62e+03 kN m (1.35 x 5.1 + 1.5 x 5 kN/m over 30 m) against the elastic moment resistance 1.67e+03 kN m: the section resists."
+     },
+     "method": "simply supported girder, M = w L^2/8, M_Rd = W_el f_y / gamma_M0",
+     "quantities": {
+      "M_Ed": [
+       1619054.6772825,
+       "N m",
+       "design moment per girder"
+      ],
+      "M_Rd": [
+       1674842.6666666688,
+       "N m",
+       "elastic moment resistance"
+      ],
+      "q_fk": [
+       4000.0,
+       "Pa",
+       "footbridge crowd load (EN 1991-2)"
+      ],
+      "W_el": [
+       0.004717866666666673,
+       "m^3",
+       "elastic section modulus"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "se\u00e7\u00e3o classe 3 ou melhor (resist\u00eancia el\u00e1stica)",
+       "en": "class 3 section or better (elastic resistance)"
+      }
+     ],
+     "sources": [
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "deflection",
+     "requirement": "R2",
+     "passed": false,
+     "demand": 133.06653683262797,
+     "capacity": 83.33333333333333,
+     "unit": "mm",
+     "margin": -0.5967984419915358,
+     "demand_label": {
+      "pt": "flecha sob carga de pedestres",
+      "en": "deflection under pedestrian load"
+     },
+     "capacity_label": {
+      "pt": "limite L/360",
+      "en": "limit L/360"
+     },
+     "mechanism": {
+      "pt": "Sob a multid\u00e3o (4 kN/m\u00b2) cada viga flecha 133 mm, mais que L/360 = 83.3 mm: a passarela resiste, mas balan\u00e7a e assusta quem passa \u2014 a rigidez (E\u00b7I), n\u00e3o a resist\u00eancia, governa.",
+      "en": "Under the crowd (4 kN/m^2) each girder deflects 133 mm, more than L/360 = 83.3 mm: the bridge is strong enough but sags visibly \u2014 stiffness (E I), not strength, governs."
+     },
+     "method": "Euler-Bernoulli 5 q L^4 / (384 E I), checked by a finite-difference solve of E I w'''' = q",
+     "quantities": {
+      "deflection": [
+       0.13306653683262798,
+       "m",
+       "mid-span deflection (live load)"
+      ],
+      "I_y": [
+       0.001887146666666669,
+       "m^4",
+       "second moment of area per girder"
+      ],
+      "q_k": [
+       5000.0,
+       "N/m",
+       "live load per girder"
+      ]
+     },
+     "assumptions": [],
+     "sources": [
+      "AASHTO LRFD Guide Specifications for the Design of Pedestrian Bridges (2009), sec. 5: deflection under pedestrian live load <= span/360",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)"
+     ],
+     "validity": [],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: FD beam deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 5.0661012653284865e-06,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      },
+      {
+       "name": "equilibrium: FD support reactions = applied load",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.007499946919012,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "lateral_torsional_buckling",
+     "requirement": "R3",
+     "passed": false,
+     "demand": 1619.0546772825,
+     "capacity": 109.36463916005526,
+     "unit": "kN m",
+     "margin": -13.804187987243408,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "resist\u00eancia \u00e0 flambagem lateral",
+      "en": "lateral-torsional buckling resistance"
+     },
+     "mechanism": {
+      "pt": "A mesa comprimida, travada s\u00f3 a cada 30 m, tende a sair do plano e torcer: momento cr\u00edtico el\u00e1stico 133 kN\u00b7m, esbeltez \u03bb_LT = 3.55, fator \u03c7_LT = 0.0653 (curva d); resist\u00eancia \u00e0 flambagem lateral 109 kN\u00b7m contra 1.62e+03 kN\u00b7m de c\u00e1lculo \u2014 a viga alta e estreita que resolveu a flecha flamba de lado antes de escoar.",
+      "en": "The compression flange, restrained only every 30 m, tends to move sideways and twist: elastic critical moment 133 kN m, slenderness 3.55, reduction chi_LT = 0.0653 (curve d); buckling resistance 109 kN m against 1.62e+03 kN m design \u2014 the deep, narrow girder that cured the deflection buckles sideways before it yields."
+     },
+     "method": "EN 1993-1-1 6.3.2.2 general case with the elastic critical moment of Timoshenko & Gere (C1 given, load at the shear centre)",
+     "quantities": {
+      "M_cr": [
+       133011.91583548186,
+       "N m",
+       "elastic critical moment"
+      ],
+      "lambda_LT": [
+       3.5484748670869446,
+       "1",
+       "non-dimensional slenderness"
+      ],
+      "chi_LT": [
+       0.06529845539325592,
+       "1",
+       "reduction factor"
+      ],
+      "L_cr": [
+       30.0,
+       "m",
+       "unbraced length"
+      ],
+      "M_b_Rd": [
+       109364.63916005526,
+       "N m",
+       "buckling resistance moment"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "o tabuleiro n\u00e3o trava a mesa comprimida",
+       "en": "the deck does not restrain the compression flange"
+      },
+      {
+       "pt": "C1 = 1 (momento uniforme: conservador para carga distribu\u00edda)",
+       "en": "C1 = 1 (uniform moment: conservative for a distributed load)"
+      }
+     ],
+     "sources": [
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "Timoshenko & Gere, Theory of Elastic Stability, 2nd ed., 1961, ch. 6 (lateral buckling of beams)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "pedestrian_resonance",
+     "requirement": "R4",
+     "passed": true,
+     "demand": 0.1895459552100568,
+     "capacity": 0.7,
+     "unit": "m/s^2",
+     "margin": 0.7292200639856331,
+     "demand_label": {
+      "pt": "acelera\u00e7\u00e3o vertical de pico",
+      "en": "peak vertical acceleration"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto",
+      "en": "comfort limit"
+     },
+     "mechanism": {
+      "pt": "f1 = 1.52 Hz; pior caso 0.19 m/s\u00b2 (1\u00ba harm\u00f4nico a 1.6 Hz), abaixo de 0.7 m/s\u00b2.",
+      "en": "f1 = 1.52 Hz; worst case 0.19 m/s^2 (harmonic 1 at 1.6 Hz), below 0.7 m/s^2."
+     },
+     "method": "first vertical mode of a simply supported beam, steady resonant response to one walking pedestrian (harmonics 1-3); tuned mass damper as Den Hartog's optimum amplification",
+     "quantities": {
+      "f1": [
+       1.5228499849995847,
+       "Hz",
+       "first vertical natural frequency"
+      ],
+      "modal_mass": [
+       15616.607396001693,
+       "kg",
+       "modal mass m L/2"
+      ],
+      "acceleration": [
+       0.1895459552100568,
+       "m/s^2",
+       "peak vertical acceleration"
+      ],
+      "pace": [
+       1.6,
+       "Hz",
+       "governing pacing frequency"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "um pedestre em regime permanente no meio do v\u00e3o (limite superior)",
+       "en": "one pedestrian in steady state at mid-span (upper bound)"
+      },
+      {
+       "pt": "amortecimento estrutural 0.5 % (premissa)",
+       "en": "structural damping 0.5 % (premise)"
+      }
+     ],
+     "sources": [
+      "Bachmann & Ammann (1987), Vibrations in Structures Induced by Man and Machines, IABSE: walking pace 1.6-2.4 Hz, body weight 700 N, dynamic load factors 0.4 / 0.1 / 0.1 for harmonics 1-3",
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "Den Hartog, Mechanical Vibrations, 4th ed., 1956, sec. 3.3 (optimum vibration absorber)"
+     ],
+     "validity": [
+      {
+       "name": "first mode below 5 Hz (EN 1990 A2.4.3.2 asks for the check)",
+       "value": 1.5228499849995847,
+       "lo": null,
+       "hi": 1000000000.0,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.000709572229514663,
+       "limit": 0.005,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+       "reason": ""
+      }
+     ],
+     "series": {
+      "f1": 1.5228499849995847,
+      "bands": [
+       [
+        1.6,
+        2.4
+       ],
+       [
+        3.2,
+        4.8
+       ],
+       [
+        4.800000000000001,
+        7.199999999999999
+       ]
+      ]
+     }
+    }
+   ],
+   "finding": {
+    "requirement": "R2",
+    "mode": "deflection",
+    "title": {
+     "pt": "flecha excessiva",
+     "en": "excessive deflection"
+    },
+    "verification": {
+     "mode": "deflection",
+     "requirement": "R2",
+     "passed": false,
+     "demand": 133.06653683262797,
+     "capacity": 83.33333333333333,
+     "unit": "mm",
+     "margin": -0.5967984419915358,
+     "demand_label": {
+      "pt": "flecha sob carga de pedestres",
+      "en": "deflection under pedestrian load"
+     },
+     "capacity_label": {
+      "pt": "limite L/360",
+      "en": "limit L/360"
+     },
+     "mechanism": {
+      "pt": "Sob a multid\u00e3o (4 kN/m\u00b2) cada viga flecha 133 mm, mais que L/360 = 83.3 mm: a passarela resiste, mas balan\u00e7a e assusta quem passa \u2014 a rigidez (E\u00b7I), n\u00e3o a resist\u00eancia, governa.",
+      "en": "Under the crowd (4 kN/m^2) each girder deflects 133 mm, more than L/360 = 83.3 mm: the bridge is strong enough but sags visibly \u2014 stiffness (E I), not strength, governs."
+     },
+     "method": "Euler-Bernoulli 5 q L^4 / (384 E I), checked by a finite-difference solve of E I w'''' = q",
+     "quantities": {
+      "deflection": [
+       0.13306653683262798,
+       "m",
+       "mid-span deflection (live load)"
+      ],
+      "I_y": [
+       0.001887146666666669,
+       "m^4",
+       "second moment of area per girder"
+      ],
+      "q_k": [
+       5000.0,
+       "N/m",
+       "live load per girder"
+      ]
+     },
+     "assumptions": [],
+     "sources": [
+      "AASHTO LRFD Guide Specifications for the Design of Pedestrian Bridges (2009), sec. 5: deflection under pedestrian live load <= span/360",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)"
+     ],
+     "validity": [],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: FD beam deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 5.0661012653284865e-06,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      },
+      {
+       "name": "equilibrium: FD support reactions = applied load",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.007499946919012,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    "proof": "deflection under pedestrian load = 133.1 mm > limit L/360 = 83.3 mm"
+   },
+   "options": [
+    {
+     "countermeasure": "deepen_girders",
+     "element": "girder_depth",
+     "title": {
+      "pt": "vigas mais altas",
+      "en": "deeper girders"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "girder_h": 1.05,
+      "girder_tw": 0.011
+     },
+     "cost": {
+      "quantity": 1653.2099999999996,
+      "unit": "kg",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o nas vigas",
+       "en": "+{q} kg of girder steel"
+      },
+      "unit_cost": 1.0,
+      "index": 1653.2099999999996,
+      "note": "relative index per kg of girder steel (premise)"
+     },
+     "effect": {
+      "pt": "I cresce com o cubo da altura: menos flecha e frequ\u00eancia natural mais alta (f \u221d \u221a(EI/m))",
+      "en": "I grows with the cube of the depth: less deflection and a higher natural frequency (f ~ sqrt(EI/m))"
+     },
+     "target_margin_before": -0.5967984419915358,
+     "target_margin_after": 0.1622543381796532,
+     "fixes_target": true,
+     "passing_after": 2,
+     "regressions": [
+      "R4/pedestrian_resonance"
+     ],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 0,
+   "why": {
+    "pt": "resolve a falha (mas quebra R4/pedestrian_resonance, tratado no passo seguinte)",
+    "en": "fixes the failure (but breaks R4/pedestrian_resonance, handled next)"
+   },
+   "passed": false
+  },
+  {
+   "version": 1,
+   "concept": {
+    "name": "footbridge",
+    "params": {
+     "span": 30.0,
+     "deck_width": 2.5,
+     "n_girders": 2,
+     "deck_dead_load": 3000.0,
+     "girder_h": 1.05,
+     "girder_b": 0.25,
+     "girder_tf": 0.02,
+     "girder_tw": 0.011,
+     "section_type": "welded",
+     "fy": 355000000.0,
+     "lateral_braces": 0,
+     "damping_ratio": 0.005,
+     "pedestrian_weight": 700.0,
+     "brace_mass_per_m": 3.77,
+     "design_margin": 0.05
+    },
+    "elements": [
+     "girders",
+     "girder_depth"
+    ],
+    "description": {
+     "pt": "duas vigas soldadas dimensionadas s\u00f3 pela resist\u00eancia",
+     "en": "two welded girders sized for strength only"
+    },
+    "sources": {
+     "span": "premise",
+     "deck_width": "premise",
+     "n_girders": "premise",
+     "deck_dead_load": "premise: 100 mm precast concrete planks (25 kN/m3, EN 1991-1-1 Table A.1) + 0.5 kN/m2 finishes, on cross-beams",
+     "girder_h": "countermeasure:deepen_girders",
+     "girder_b": "premise",
+     "girder_tf": "premise",
+     "girder_tw": "countermeasure:deepen_girders",
+     "section_type": "premise",
+     "fy": "EN 10025-2 S355, t <= 16 mm (premise grade)",
+     "lateral_braces": "premise",
+     "damping_ratio": "premise: welded steel footbridge",
+     "pedestrian_weight": "Bachmann & Ammann (1987)",
+     "brace_mass_per_m": "premise: L50x50x5 angle",
+     "design_margin": "premise"
+    },
+    "version": 1
+   },
+   "verifications": [
+    {
+     "mode": "bending_strength",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 1660.092446018953,
+     "capacity": 2432.274667460318,
+     "unit": "kN m",
+     "margin": 0.31747328201532693,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "momento resistente el\u00e1stico",
+      "en": "elastic moment resistance"
+     },
+     "mechanism": {
+      "pt": "Momento de c\u00e1lculo por viga 1.66e+03 kN\u00b7m (1,35\u00b75.38 + 1,5\u00b75 kN/m em 30 m) contra o momento resistente el\u00e1stico 2.43e+03 kN\u00b7m: a se\u00e7\u00e3o resiste.",
+      "en": "Design moment per girder 1.66e+03 kN m (1.35 x 5.38 + 1.5 x 5 kN/m over 30 m) against the elastic moment resistance 2.43e+03 kN m: the section resists."
+     },
+     "method": "simply supported girder, M = w L^2/8, M_Rd = W_el f_y / gamma_M0",
+     "quantities": {
+      "M_Ed": [
+       1660092.446018953,
+       "N m",
+       "design moment per girder"
+      ],
+      "M_Rd": [
+       2432274.667460318,
+       "N m",
+       "elastic moment resistance"
+      ],
+      "q_fk": [
+       4000.0,
+       "Pa",
+       "footbridge crowd load (EN 1991-2)"
+      ],
+      "W_el": [
+       0.006851477936507938,
+       "m^3",
+       "elastic section modulus"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "se\u00e7\u00e3o classe 3 ou melhor (resist\u00eancia el\u00e1stica)",
+       "en": "class 3 section or better (elastic resistance)"
+      }
+     ],
+     "sources": [
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "deflection",
+     "requirement": "R2",
+     "passed": true,
+     "demand": 69.8121384850289,
+     "capacity": 83.33333333333333,
+     "unit": "mm",
+     "margin": 0.1622543381796532,
+     "demand_label": {
+      "pt": "flecha sob carga de pedestres",
+      "en": "deflection under pedestrian load"
+     },
+     "capacity_label": {
+      "pt": "limite L/360",
+      "en": "limit L/360"
+     },
+     "mechanism": {
+      "pt": "Sob a multid\u00e3o (4 kN/m\u00b2) cada viga flecha 69.8 mm, dentro de L/360 = 83.3 mm.",
+      "en": "Under the crowd (4 kN/m^2) each girder deflects 69.8 mm, within L/360 = 83.3 mm."
+     },
+     "method": "Euler-Bernoulli 5 q L^4 / (384 E I), checked by a finite-difference solve of E I w'''' = q",
+     "quantities": {
+      "deflection": [
+       0.0698121384850289,
+       "m",
+       "mid-span deflection (live load)"
+      ],
+      "I_y": [
+       0.0035970259166666677,
+       "m^4",
+       "second moment of area per girder"
+      ],
+      "q_k": [
+       5000.0,
+       "N/m",
+       "live load per girder"
+      ]
+     },
+     "assumptions": [],
+     "sources": [
+      "AASHTO LRFD Guide Specifications for the Design of Pedestrian Bridges (2009), sec. 5: deflection under pedestrian live load <= span/360",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)"
+     ],
+     "validity": [],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: FD beam deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 5.066095561017488e-06,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      },
+      {
+       "name": "equilibrium: FD support reactions = applied load",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.007499946929916041,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "lateral_torsional_buckling",
+     "requirement": "R3",
+     "passed": false,
+     "demand": 1660.092446018953,
+     "capacity": 122.90916143023134,
+     "unit": "kN m",
+     "margin": -12.506661559653507,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "resist\u00eancia \u00e0 flambagem lateral",
+      "en": "lateral-torsional buckling resistance"
+     },
+     "mechanism": {
+      "pt": "A mesa comprimida, travada s\u00f3 a cada 30 m, tende a sair do plano e torcer: momento cr\u00edtico el\u00e1stico 146 kN\u00b7m, esbeltez \u03bb_LT = 4.08, fator \u03c7_LT = 0.0505 (curva d); resist\u00eancia \u00e0 flambagem lateral 123 kN\u00b7m contra 1.66e+03 kN\u00b7m de c\u00e1lculo \u2014 a viga alta e estreita que resolveu a flecha flamba de lado antes de escoar.",
+      "en": "The compression flange, restrained only every 30 m, tends to move sideways and twist: elastic critical moment 146 kN m, slenderness 4.08, reduction chi_LT = 0.0505 (curve d); buckling resistance 123 kN m against 1.66e+03 kN m design \u2014 the deep, narrow girder that cured the deflection buckles sideways before it yields."
+     },
+     "method": "EN 1993-1-1 6.3.2.2 general case with the elastic critical moment of Timoshenko & Gere (C1 given, load at the shear centre)",
+     "quantities": {
+      "M_cr": [
+       145818.4695845798,
+       "N m",
+       "elastic critical moment"
+      ],
+      "lambda_LT": [
+       4.084134541306482,
+       "1",
+       "non-dimensional slenderness"
+      ],
+      "chi_LT": [
+       0.0505325994117959,
+       "1",
+       "reduction factor"
+      ],
+      "L_cr": [
+       30.0,
+       "m",
+       "unbraced length"
+      ],
+      "M_b_Rd": [
+       122909.16143023134,
+       "N m",
+       "buckling resistance moment"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "o tabuleiro n\u00e3o trava a mesa comprimida",
+       "en": "the deck does not restrain the compression flange"
+      },
+      {
+       "pt": "C1 = 1 (momento uniforme: conservador para carga distribu\u00edda)",
+       "en": "C1 = 1 (uniform moment: conservative for a distributed load)"
+      }
+     ],
+     "sources": [
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "Timoshenko & Gere, Theory of Elastic Stability, 2nd ed., 1961, ch. 6 (lateral buckling of beams)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "pedestrian_resonance",
+     "requirement": "R4",
+     "passed": false,
+     "demand": 1.702847039034327,
+     "capacity": 0.7,
+     "unit": "m/s^2",
+     "margin": -1.432638627191896,
+     "demand_label": {
+      "pt": "acelera\u00e7\u00e3o vertical de pico",
+      "en": "peak vertical acceleration"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto",
+      "en": "comfort limit"
+     },
+     "mechanism": {
+      "pt": "Frequ\u00eancia natural vertical 2.05 Hz dentro da faixa do 1\u00ba harm\u00f4nico do passo (1.6-2.4 Hz): um pedestre a 2.05 Hz entra em resson\u00e2ncia; com amortecimento de 0.5 % e massa modal 16.4 t a acelera\u00e7\u00e3o chega a 1.7 m/s\u00b2, acima de 0.7 m/s\u00b2 de conforto.",
+      "en": "Vertical natural frequency 2.05 Hz inside the band of walking harmonic 1 (1.6-2.4 Hz): a pedestrian at 2.05 Hz drives it at resonance; with 0.5 % damping and 16.4 t modal mass the acceleration reaches 1.7 m/s^2, above the 0.7 m/s^2 comfort limit."
+     },
+     "method": "first vertical mode of a simply supported beam, steady resonant response to one walking pedestrian (harmonics 1-3); tuned mass damper as Den Hartog's optimum amplification",
+     "quantities": {
+      "f1": [
+       2.048925146057629,
+       "Hz",
+       "first vertical natural frequency"
+      ],
+      "modal_mass": [
+       16443.212396001694,
+       "kg",
+       "modal mass m L/2"
+      ],
+      "acceleration": [
+       1.702847039034327,
+       "m/s^2",
+       "peak vertical acceleration"
+      ],
+      "pace": [
+       2.049,
+       "Hz",
+       "governing pacing frequency"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "um pedestre em regime permanente no meio do v\u00e3o (limite superior)",
+       "en": "one pedestrian in steady state at mid-span (upper bound)"
+      },
+      {
+       "pt": "amortecimento estrutural 0.5 % (premissa)",
+       "en": "structural damping 0.5 % (premise)"
+      }
+     ],
+     "sources": [
+      "Bachmann & Ammann (1987), Vibrations in Structures Induced by Man and Machines, IABSE: walking pace 1.6-2.4 Hz, body weight 700 N, dynamic load factors 0.4 / 0.1 / 0.1 for harmonics 1-3",
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "Den Hartog, Mechanical Vibrations, 4th ed., 1956, sec. 3.3 (optimum vibration absorber)"
+     ],
+     "validity": [
+      {
+       "name": "first mode below 5 Hz (EN 1990 A2.4.3.2 asks for the check)",
+       "value": 2.048925146057629,
+       "lo": null,
+       "hi": 1000000000.0,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0007095722444364569,
+       "limit": 0.005,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+       "reason": ""
+      }
+     ],
+     "series": {
+      "f1": 2.048925146057629,
+      "bands": [
+       [
+        1.6,
+        2.4
+       ],
+       [
+        3.2,
+        4.8
+       ],
+       [
+        4.800000000000001,
+        7.199999999999999
+       ]
+      ]
+     }
+    }
+   ],
+   "finding": {
+    "requirement": "R3",
+    "mode": "lateral_torsional_buckling",
+    "title": {
+     "pt": "flambagem lateral com tor\u00e7\u00e3o",
+     "en": "lateral-torsional buckling"
+    },
+    "verification": {
+     "mode": "lateral_torsional_buckling",
+     "requirement": "R3",
+     "passed": false,
+     "demand": 1660.092446018953,
+     "capacity": 122.90916143023134,
+     "unit": "kN m",
+     "margin": -12.506661559653507,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "resist\u00eancia \u00e0 flambagem lateral",
+      "en": "lateral-torsional buckling resistance"
+     },
+     "mechanism": {
+      "pt": "A mesa comprimida, travada s\u00f3 a cada 30 m, tende a sair do plano e torcer: momento cr\u00edtico el\u00e1stico 146 kN\u00b7m, esbeltez \u03bb_LT = 4.08, fator \u03c7_LT = 0.0505 (curva d); resist\u00eancia \u00e0 flambagem lateral 123 kN\u00b7m contra 1.66e+03 kN\u00b7m de c\u00e1lculo \u2014 a viga alta e estreita que resolveu a flecha flamba de lado antes de escoar.",
+      "en": "The compression flange, restrained only every 30 m, tends to move sideways and twist: elastic critical moment 146 kN m, slenderness 4.08, reduction chi_LT = 0.0505 (curve d); buckling resistance 123 kN m against 1.66e+03 kN m design \u2014 the deep, narrow girder that cured the deflection buckles sideways before it yields."
+     },
+     "method": "EN 1993-1-1 6.3.2.2 general case with the elastic critical moment of Timoshenko & Gere (C1 given, load at the shear centre)",
+     "quantities": {
+      "M_cr": [
+       145818.4695845798,
+       "N m",
+       "elastic critical moment"
+      ],
+      "lambda_LT": [
+       4.084134541306482,
+       "1",
+       "non-dimensional slenderness"
+      ],
+      "chi_LT": [
+       0.0505325994117959,
+       "1",
+       "reduction factor"
+      ],
+      "L_cr": [
+       30.0,
+       "m",
+       "unbraced length"
+      ],
+      "M_b_Rd": [
+       122909.16143023134,
+       "N m",
+       "buckling resistance moment"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "o tabuleiro n\u00e3o trava a mesa comprimida",
+       "en": "the deck does not restrain the compression flange"
+      },
+      {
+       "pt": "C1 = 1 (momento uniforme: conservador para carga distribu\u00edda)",
+       "en": "C1 = 1 (uniform moment: conservative for a distributed load)"
+      }
+     ],
+     "sources": [
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "Timoshenko & Gere, Theory of Elastic Stability, 2nd ed., 1961, ch. 6 (lateral buckling of beams)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    "proof": "design moment = 1660.1 kN m > lateral-torsional buckling resistance = 122.9 kN m"
+   },
+   "options": [
+    {
+     "countermeasure": "lateral_bracing",
+     "element": "lateral_bracing",
+     "title": {
+      "pt": "contraventamento lateral (quadros transversais)",
+      "en": "lateral bracing (cross-frames)"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "lateral_braces": 10
+     },
+     "cost": {
+      "quantity": 204.45082269338022,
+      "unit": "kg",
+      "what": {
+       "pt": "{q} kg de a\u00e7o em travamentos",
+       "en": "{q} kg of cross-frame steel"
+      },
+      "unit_cost": 1.5,
+      "index": 306.6762340400703,
+      "note": "relative index per kg of fabricated bracing steel (premise; girder steel = 1)"
+     },
+     "effect": {
+      "pt": "trava a mesa comprimida: o comprimento destravado cai e o momento cr\u00edtico sobe com 1/L\u00b2",
+      "en": "restrains the compression flange: the unbraced length falls and the critical moment rises as 1/L^2"
+     },
+     "target_margin_before": -12.506661559653507,
+     "target_margin_after": 0.07053657990711852,
+     "fixes_target": true,
+     "passing_after": 3,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "wider_flanges",
+     "element": "flange_width",
+     "title": {
+      "pt": "mesas mais largas",
+      "en": "wider flanges"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "girder_b": 0.7,
+      "girder_tf": 0.031
+     },
+     "cost": {
+      "quantity": 15617.417999999996,
+      "unit": "kg",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o nas vigas",
+       "en": "+{q} kg of girder steel"
+      },
+      "unit_cost": 1.0,
+      "index": 15617.417999999996,
+      "note": "relative index per kg of girder steel (premise)"
+     },
+     "effect": {
+      "pt": "I_z e a rigidez \u00e0 tor\u00e7\u00e3o crescem: a viga resiste a sair do plano",
+      "en": "I_z and the torsional stiffness grow: the girder resists moving out of plane"
+     },
+     "target_margin_before": -12.506661559653507,
+     "target_margin_after": 0.0771943552486832,
+     "fixes_target": true,
+     "passing_after": 4,
+     "regressions": [],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 0,
+   "why": {
+    "pt": "resolve a falha sem quebrar nenhum requisito que passava; entre 2 op\u00e7\u00f5es que resolvem, \u00e9 a de menor custo (307, 3 verifica\u00e7\u00f5es passando; contra wider_flanges: 4 passando, custo 1.56e+04)",
+    "en": "fixes the failure without breaking any requirement that passed; of 2 options that fix it, it is the cheapest (307, 3 checks passing; vs wider_flanges: 4 passing, cost 1.56e+04)"
+   },
+   "passed": false
+  },
+  {
+   "version": 2,
+   "concept": {
+    "name": "footbridge",
+    "params": {
+     "span": 30.0,
+     "deck_width": 2.5,
+     "n_girders": 2,
+     "deck_dead_load": 3000.0,
+     "girder_h": 1.05,
+     "girder_b": 0.25,
+     "girder_tf": 0.02,
+     "girder_tw": 0.011,
+     "section_type": "welded",
+     "fy": 355000000.0,
+     "lateral_braces": 10,
+     "damping_ratio": 0.005,
+     "pedestrian_weight": 700.0,
+     "brace_mass_per_m": 3.77,
+     "design_margin": 0.05
+    },
+    "elements": [
+     "girders",
+     "girder_depth",
+     "lateral_bracing"
+    ],
+    "description": {
+     "pt": "duas vigas soldadas dimensionadas s\u00f3 pela resist\u00eancia",
+     "en": "two welded girders sized for strength only"
+    },
+    "sources": {
+     "span": "premise",
+     "deck_width": "premise",
+     "n_girders": "premise",
+     "deck_dead_load": "premise: 100 mm precast concrete planks (25 kN/m3, EN 1991-1-1 Table A.1) + 0.5 kN/m2 finishes, on cross-beams",
+     "girder_h": "countermeasure:deepen_girders",
+     "girder_b": "premise",
+     "girder_tf": "premise",
+     "girder_tw": "countermeasure:deepen_girders",
+     "section_type": "premise",
+     "fy": "EN 10025-2 S355, t <= 16 mm (premise grade)",
+     "lateral_braces": "countermeasure:lateral_bracing",
+     "damping_ratio": "premise: welded steel footbridge",
+     "pedestrian_weight": "Bachmann & Ammann (1987)",
+     "brace_mass_per_m": "premise: L50x50x5 angle",
+     "design_margin": "premise"
+    },
+    "version": 2
+   },
+   "verifications": [
+    {
+     "mode": "bending_strength",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 1660.092446018953,
+     "capacity": 2432.274667460318,
+     "unit": "kN m",
+     "margin": 0.31747328201532693,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "momento resistente el\u00e1stico",
+      "en": "elastic moment resistance"
+     },
+     "mechanism": {
+      "pt": "Momento de c\u00e1lculo por viga 1.66e+03 kN\u00b7m (1,35\u00b75.38 + 1,5\u00b75 kN/m em 30 m) contra o momento resistente el\u00e1stico 2.43e+03 kN\u00b7m: a se\u00e7\u00e3o resiste.",
+      "en": "Design moment per girder 1.66e+03 kN m (1.35 x 5.38 + 1.5 x 5 kN/m over 30 m) against the elastic moment resistance 2.43e+03 kN m: the section resists."
+     },
+     "method": "simply supported girder, M = w L^2/8, M_Rd = W_el f_y / gamma_M0",
+     "quantities": {
+      "M_Ed": [
+       1660092.446018953,
+       "N m",
+       "design moment per girder"
+      ],
+      "M_Rd": [
+       2432274.667460318,
+       "N m",
+       "elastic moment resistance"
+      ],
+      "q_fk": [
+       4000.0,
+       "Pa",
+       "footbridge crowd load (EN 1991-2)"
+      ],
+      "W_el": [
+       0.006851477936507938,
+       "m^3",
+       "elastic section modulus"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "se\u00e7\u00e3o classe 3 ou melhor (resist\u00eancia el\u00e1stica)",
+       "en": "class 3 section or better (elastic resistance)"
+      }
+     ],
+     "sources": [
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "deflection",
+     "requirement": "R2",
+     "passed": true,
+     "demand": 69.8121384850289,
+     "capacity": 83.33333333333333,
+     "unit": "mm",
+     "margin": 0.1622543381796532,
+     "demand_label": {
+      "pt": "flecha sob carga de pedestres",
+      "en": "deflection under pedestrian load"
+     },
+     "capacity_label": {
+      "pt": "limite L/360",
+      "en": "limit L/360"
+     },
+     "mechanism": {
+      "pt": "Sob a multid\u00e3o (4 kN/m\u00b2) cada viga flecha 69.8 mm, dentro de L/360 = 83.3 mm.",
+      "en": "Under the crowd (4 kN/m^2) each girder deflects 69.8 mm, within L/360 = 83.3 mm."
+     },
+     "method": "Euler-Bernoulli 5 q L^4 / (384 E I), checked by a finite-difference solve of E I w'''' = q",
+     "quantities": {
+      "deflection": [
+       0.0698121384850289,
+       "m",
+       "mid-span deflection (live load)"
+      ],
+      "I_y": [
+       0.0035970259166666677,
+       "m^4",
+       "second moment of area per girder"
+      ],
+      "q_k": [
+       5000.0,
+       "N/m",
+       "live load per girder"
+      ]
+     },
+     "assumptions": [],
+     "sources": [
+      "AASHTO LRFD Guide Specifications for the Design of Pedestrian Bridges (2009), sec. 5: deflection under pedestrian live load <= span/360",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)"
+     ],
+     "validity": [],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: FD beam deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 5.066095561017488e-06,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      },
+      {
+       "name": "equilibrium: FD support reactions = applied load",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.007499946929916041,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "lateral_torsional_buckling",
+     "requirement": "R3",
+     "passed": true,
+     "demand": 1660.092446018953,
+     "capacity": 1786.0761490248424,
+     "unit": "kN m",
+     "margin": 0.07053657990711852,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "resist\u00eancia \u00e0 flambagem lateral",
+      "en": "lateral-torsional buckling resistance"
+     },
+     "mechanism": {
+      "pt": "A mesa comprimida, travada s\u00f3 a cada 2.73 m, tende a sair do plano e torcer: momento cr\u00edtico el\u00e1stico 7.63e+03 kN\u00b7m, esbeltez \u03bb_LT = 0.565, fator \u03c7_LT = 0.734 (curva d); resist\u00eancia \u00e0 flambagem lateral 1.79e+03 kN\u00b7m contra 1.66e+03 kN\u00b7m de c\u00e1lculo.",
+      "en": "The compression flange, restrained only every 2.73 m, tends to move sideways and twist: elastic critical moment 7.63e+03 kN m, slenderness 0.565, reduction chi_LT = 0.734 (curve d); buckling resistance 1.79e+03 kN m against 1.66e+03 kN m design."
+     },
+     "method": "EN 1993-1-1 6.3.2.2 general case with the elastic critical moment of Timoshenko & Gere (C1 given, load at the shear centre)",
+     "quantities": {
+      "M_cr": [
+       7629823.668960451,
+       "N m",
+       "elastic critical moment"
+      ],
+      "lambda_LT": [
+       0.564610639471707,
+       "1",
+       "non-dimensional slenderness"
+      ],
+      "chi_LT": [
+       0.7343233775853901,
+       "1",
+       "reduction factor"
+      ],
+      "L_cr": [
+       2.727272727272727,
+       "m",
+       "unbraced length"
+      ],
+      "M_b_Rd": [
+       1786076.1490248423,
+       "N m",
+       "buckling resistance moment"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "o tabuleiro n\u00e3o trava a mesa comprimida",
+       "en": "the deck does not restrain the compression flange"
+      },
+      {
+       "pt": "C1 = 1 (momento uniforme: conservador para carga distribu\u00edda)",
+       "en": "C1 = 1 (uniform moment: conservative for a distributed load)"
+      }
+     ],
+     "sources": [
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "Timoshenko & Gere, Theory of Elastic Stability, 2nd ed., 1961, ch. 6 (lateral buckling of beams)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "pedestrian_resonance",
+     "requirement": "R4",
+     "passed": false,
+     "demand": 1.702847039034327,
+     "capacity": 0.7,
+     "unit": "m/s^2",
+     "margin": -1.432638627191896,
+     "demand_label": {
+      "pt": "acelera\u00e7\u00e3o vertical de pico",
+      "en": "peak vertical acceleration"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto",
+      "en": "comfort limit"
+     },
+     "mechanism": {
+      "pt": "Frequ\u00eancia natural vertical 2.05 Hz dentro da faixa do 1\u00ba harm\u00f4nico do passo (1.6-2.4 Hz): um pedestre a 2.05 Hz entra em resson\u00e2ncia; com amortecimento de 0.5 % e massa modal 16.4 t a acelera\u00e7\u00e3o chega a 1.7 m/s\u00b2, acima de 0.7 m/s\u00b2 de conforto.",
+      "en": "Vertical natural frequency 2.05 Hz inside the band of walking harmonic 1 (1.6-2.4 Hz): a pedestrian at 2.05 Hz drives it at resonance; with 0.5 % damping and 16.4 t modal mass the acceleration reaches 1.7 m/s^2, above the 0.7 m/s^2 comfort limit."
+     },
+     "method": "first vertical mode of a simply supported beam, steady resonant response to one walking pedestrian (harmonics 1-3); tuned mass damper as Den Hartog's optimum amplification",
+     "quantities": {
+      "f1": [
+       2.048925146057629,
+       "Hz",
+       "first vertical natural frequency"
+      ],
+      "modal_mass": [
+       16443.212396001694,
+       "kg",
+       "modal mass m L/2"
+      ],
+      "acceleration": [
+       1.702847039034327,
+       "m/s^2",
+       "peak vertical acceleration"
+      ],
+      "pace": [
+       2.049,
+       "Hz",
+       "governing pacing frequency"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "um pedestre em regime permanente no meio do v\u00e3o (limite superior)",
+       "en": "one pedestrian in steady state at mid-span (upper bound)"
+      },
+      {
+       "pt": "amortecimento estrutural 0.5 % (premissa)",
+       "en": "structural damping 0.5 % (premise)"
+      }
+     ],
+     "sources": [
+      "Bachmann & Ammann (1987), Vibrations in Structures Induced by Man and Machines, IABSE: walking pace 1.6-2.4 Hz, body weight 700 N, dynamic load factors 0.4 / 0.1 / 0.1 for harmonics 1-3",
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "Den Hartog, Mechanical Vibrations, 4th ed., 1956, sec. 3.3 (optimum vibration absorber)"
+     ],
+     "validity": [
+      {
+       "name": "first mode below 5 Hz (EN 1990 A2.4.3.2 asks for the check)",
+       "value": 2.048925146057629,
+       "lo": null,
+       "hi": 1000000000.0,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0007095722444364569,
+       "limit": 0.005,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+       "reason": ""
+      }
+     ],
+     "series": {
+      "f1": 2.048925146057629,
+      "bands": [
+       [
+        1.6,
+        2.4
+       ],
+       [
+        3.2,
+        4.8
+       ],
+       [
+        4.800000000000001,
+        7.199999999999999
+       ]
+      ]
+     }
+    }
+   ],
+   "finding": {
+    "requirement": "R4",
+    "mode": "pedestrian_resonance",
+    "title": {
+     "pt": "resson\u00e2ncia com o passo de pedestres",
+     "en": "resonance with pedestrian footfall"
+    },
+    "verification": {
+     "mode": "pedestrian_resonance",
+     "requirement": "R4",
+     "passed": false,
+     "demand": 1.702847039034327,
+     "capacity": 0.7,
+     "unit": "m/s^2",
+     "margin": -1.432638627191896,
+     "demand_label": {
+      "pt": "acelera\u00e7\u00e3o vertical de pico",
+      "en": "peak vertical acceleration"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto",
+      "en": "comfort limit"
+     },
+     "mechanism": {
+      "pt": "Frequ\u00eancia natural vertical 2.05 Hz dentro da faixa do 1\u00ba harm\u00f4nico do passo (1.6-2.4 Hz): um pedestre a 2.05 Hz entra em resson\u00e2ncia; com amortecimento de 0.5 % e massa modal 16.4 t a acelera\u00e7\u00e3o chega a 1.7 m/s\u00b2, acima de 0.7 m/s\u00b2 de conforto.",
+      "en": "Vertical natural frequency 2.05 Hz inside the band of walking harmonic 1 (1.6-2.4 Hz): a pedestrian at 2.05 Hz drives it at resonance; with 0.5 % damping and 16.4 t modal mass the acceleration reaches 1.7 m/s^2, above the 0.7 m/s^2 comfort limit."
+     },
+     "method": "first vertical mode of a simply supported beam, steady resonant response to one walking pedestrian (harmonics 1-3); tuned mass damper as Den Hartog's optimum amplification",
+     "quantities": {
+      "f1": [
+       2.048925146057629,
+       "Hz",
+       "first vertical natural frequency"
+      ],
+      "modal_mass": [
+       16443.212396001694,
+       "kg",
+       "modal mass m L/2"
+      ],
+      "acceleration": [
+       1.702847039034327,
+       "m/s^2",
+       "peak vertical acceleration"
+      ],
+      "pace": [
+       2.049,
+       "Hz",
+       "governing pacing frequency"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "um pedestre em regime permanente no meio do v\u00e3o (limite superior)",
+       "en": "one pedestrian in steady state at mid-span (upper bound)"
+      },
+      {
+       "pt": "amortecimento estrutural 0.5 % (premissa)",
+       "en": "structural damping 0.5 % (premise)"
+      }
+     ],
+     "sources": [
+      "Bachmann & Ammann (1987), Vibrations in Structures Induced by Man and Machines, IABSE: walking pace 1.6-2.4 Hz, body weight 700 N, dynamic load factors 0.4 / 0.1 / 0.1 for harmonics 1-3",
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "Den Hartog, Mechanical Vibrations, 4th ed., 1956, sec. 3.3 (optimum vibration absorber)"
+     ],
+     "validity": [
+      {
+       "name": "first mode below 5 Hz (EN 1990 A2.4.3.2 asks for the check)",
+       "value": 2.048925146057629,
+       "lo": null,
+       "hi": 1000000000.0,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0007095722444364569,
+       "limit": 0.005,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+       "reason": ""
+      }
+     ],
+     "series": {
+      "f1": 2.048925146057629,
+      "bands": [
+       [
+        1.6,
+        2.4
+       ],
+       [
+        3.2,
+        4.8
+       ],
+       [
+        4.800000000000001,
+        7.199999999999999
+       ]
+      ]
+     }
+    },
+    "proof": "peak vertical acceleration = 1.703 m/s^2 > comfort limit = 0.7 m/s^2"
+   },
+   "options": [
+    {
+     "countermeasure": "tuned_mass_damper",
+     "element": "tmd",
+     "title": {
+      "pt": "amortecedor de massa sintonizada",
+      "en": "tuned mass damper"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "tmd_mass_ratio": 0.01
+     },
+     "cost": {
+      "quantity": 164.43212396001695,
+      "unit": "kg",
+      "what": {
+       "pt": "massa sintonizada de {q} kg",
+       "en": "{q} kg tuned mass"
+      },
+      "unit_cost": 3.0,
+      "index": 493.29637188005086,
+      "note": "relative index per kg of damper mass (premise; girder steel = 1)"
+     },
+     "effect": {
+      "pt": "uma massa pequena sintonizada no 1\u00ba modo absorve a energia na resson\u00e2ncia: amplifica\u00e7\u00e3o limitada a \u221a(1 + 2/\u03bc) (Den Hartog)",
+      "en": "a small mass tuned to the first mode absorbs the energy at resonance: amplification capped at sqrt(1 + 2/mu) (Den Hartog)"
+     },
+     "target_margin_before": -1.432638627191896,
+     "target_margin_after": 0.6551173447785619,
+     "fixes_target": true,
+     "passing_after": 4,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "deepen_girders",
+     "element": "girder_depth",
+     "title": {
+      "pt": "vigas mais altas",
+      "en": "deeper girders"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "girder_h": 1.25,
+      "girder_tw": 0.012
+     },
+     "cost": {
+      "quantity": 1606.11,
+      "unit": "kg",
+      "what": {
+       "pt": "+{q} kg de a\u00e7o nas vigas",
+       "en": "+{q} kg of girder steel"
+      },
+      "unit_cost": 1.0,
+      "index": 1606.11,
+      "note": "relative index per kg of girder steel (premise)"
+     },
+     "effect": {
+      "pt": "I cresce com o cubo da altura: menos flecha e frequ\u00eancia natural mais alta (f \u221d \u221a(EI/m))",
+      "en": "I grows with the cube of the depth: less deflection and a higher natural frequency (f ~ sqrt(EI/m))"
+     },
+     "target_margin_before": -1.432638627191896,
+     "target_margin_after": 0.6853820773257688,
+     "fixes_target": true,
+     "passing_after": 4,
+     "regressions": [],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 0,
+   "why": {
+    "pt": "resolve a falha sem quebrar nenhum requisito que passava; entre 2 op\u00e7\u00f5es que resolvem, \u00e9 a de menor custo (493, 4 verifica\u00e7\u00f5es passando; contra deepen_girders: 4 passando, custo 1.61e+03)",
+    "en": "fixes the failure without breaking any requirement that passed; of 2 options that fix it, it is the cheapest (493, 4 checks passing; vs deepen_girders: 4 passing, cost 1.61e+03)"
+   },
+   "passed": false
+  },
+  {
+   "version": 3,
+   "concept": {
+    "name": "footbridge",
+    "params": {
+     "span": 30.0,
+     "deck_width": 2.5,
+     "n_girders": 2,
+     "deck_dead_load": 3000.0,
+     "girder_h": 1.05,
+     "girder_b": 0.25,
+     "girder_tf": 0.02,
+     "girder_tw": 0.011,
+     "section_type": "welded",
+     "fy": 355000000.0,
+     "lateral_braces": 10,
+     "damping_ratio": 0.005,
+     "pedestrian_weight": 700.0,
+     "brace_mass_per_m": 3.77,
+     "design_margin": 0.05,
+     "tmd_mass_ratio": 0.01
+    },
+    "elements": [
+     "girders",
+     "girder_depth",
+     "lateral_bracing",
+     "tmd"
+    ],
+    "description": {
+     "pt": "duas vigas soldadas dimensionadas s\u00f3 pela resist\u00eancia",
+     "en": "two welded girders sized for strength only"
+    },
+    "sources": {
+     "span": "premise",
+     "deck_width": "premise",
+     "n_girders": "premise",
+     "deck_dead_load": "premise: 100 mm precast concrete planks (25 kN/m3, EN 1991-1-1 Table A.1) + 0.5 kN/m2 finishes, on cross-beams",
+     "girder_h": "countermeasure:deepen_girders",
+     "girder_b": "premise",
+     "girder_tf": "premise",
+     "girder_tw": "countermeasure:deepen_girders",
+     "section_type": "premise",
+     "fy": "EN 10025-2 S355, t <= 16 mm (premise grade)",
+     "lateral_braces": "countermeasure:lateral_bracing",
+     "damping_ratio": "premise: welded steel footbridge",
+     "pedestrian_weight": "Bachmann & Ammann (1987)",
+     "brace_mass_per_m": "premise: L50x50x5 angle",
+     "design_margin": "premise",
+     "tmd_mass_ratio": "countermeasure:tuned_mass_damper"
+    },
+    "version": 3
+   },
+   "verifications": [
+    {
+     "mode": "bending_strength",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 1660.092446018953,
+     "capacity": 2432.274667460318,
+     "unit": "kN m",
+     "margin": 0.31747328201532693,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "momento resistente el\u00e1stico",
+      "en": "elastic moment resistance"
+     },
+     "mechanism": {
+      "pt": "Momento de c\u00e1lculo por viga 1.66e+03 kN\u00b7m (1,35\u00b75.38 + 1,5\u00b75 kN/m em 30 m) contra o momento resistente el\u00e1stico 2.43e+03 kN\u00b7m: a se\u00e7\u00e3o resiste.",
+      "en": "Design moment per girder 1.66e+03 kN m (1.35 x 5.38 + 1.5 x 5 kN/m over 30 m) against the elastic moment resistance 2.43e+03 kN m: the section resists."
+     },
+     "method": "simply supported girder, M = w L^2/8, M_Rd = W_el f_y / gamma_M0",
+     "quantities": {
+      "M_Ed": [
+       1660092.446018953,
+       "N m",
+       "design moment per girder"
+      ],
+      "M_Rd": [
+       2432274.667460318,
+       "N m",
+       "elastic moment resistance"
+      ],
+      "q_fk": [
+       4000.0,
+       "Pa",
+       "footbridge crowd load (EN 1991-2)"
+      ],
+      "W_el": [
+       0.006851477936507938,
+       "m^3",
+       "elastic section modulus"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "se\u00e7\u00e3o classe 3 ou melhor (resist\u00eancia el\u00e1stica)",
+       "en": "class 3 section or better (elastic resistance)"
+      }
+     ],
+     "sources": [
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "deflection",
+     "requirement": "R2",
+     "passed": true,
+     "demand": 69.8121384850289,
+     "capacity": 83.33333333333333,
+     "unit": "mm",
+     "margin": 0.1622543381796532,
+     "demand_label": {
+      "pt": "flecha sob carga de pedestres",
+      "en": "deflection under pedestrian load"
+     },
+     "capacity_label": {
+      "pt": "limite L/360",
+      "en": "limit L/360"
+     },
+     "mechanism": {
+      "pt": "Sob a multid\u00e3o (4 kN/m\u00b2) cada viga flecha 69.8 mm, dentro de L/360 = 83.3 mm.",
+      "en": "Under the crowd (4 kN/m^2) each girder deflects 69.8 mm, within L/360 = 83.3 mm."
+     },
+     "method": "Euler-Bernoulli 5 q L^4 / (384 E I), checked by a finite-difference solve of E I w'''' = q",
+     "quantities": {
+      "deflection": [
+       0.0698121384850289,
+       "m",
+       "mid-span deflection (live load)"
+      ],
+      "I_y": [
+       0.0035970259166666677,
+       "m^4",
+       "second moment of area per girder"
+      ],
+      "q_k": [
+       5000.0,
+       "N/m",
+       "live load per girder"
+      ]
+     },
+     "assumptions": [],
+     "sources": [
+      "AASHTO LRFD Guide Specifications for the Design of Pedestrian Bridges (2009), sec. 5: deflection under pedestrian live load <= span/360",
+      "EN 1991-2:2003, 5.3.2.1: footbridge crowd load q_fk = 2.0 + 120/(L + 30) kN/m^2, 2.5 <= q_fk <= 5.0",
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)"
+     ],
+     "validity": [],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: FD beam deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 5.066095561017488e-06,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      },
+      {
+       "name": "equilibrium: FD support reactions = applied load",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.007499946929916041,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    {
+     "mode": "lateral_torsional_buckling",
+     "requirement": "R3",
+     "passed": true,
+     "demand": 1660.092446018953,
+     "capacity": 1786.0761490248424,
+     "unit": "kN m",
+     "margin": 0.07053657990711852,
+     "demand_label": {
+      "pt": "momento de c\u00e1lculo",
+      "en": "design moment"
+     },
+     "capacity_label": {
+      "pt": "resist\u00eancia \u00e0 flambagem lateral",
+      "en": "lateral-torsional buckling resistance"
+     },
+     "mechanism": {
+      "pt": "A mesa comprimida, travada s\u00f3 a cada 2.73 m, tende a sair do plano e torcer: momento cr\u00edtico el\u00e1stico 7.63e+03 kN\u00b7m, esbeltez \u03bb_LT = 0.565, fator \u03c7_LT = 0.734 (curva d); resist\u00eancia \u00e0 flambagem lateral 1.79e+03 kN\u00b7m contra 1.66e+03 kN\u00b7m de c\u00e1lculo.",
+      "en": "The compression flange, restrained only every 2.73 m, tends to move sideways and twist: elastic critical moment 7.63e+03 kN m, slenderness 0.565, reduction chi_LT = 0.734 (curve d); buckling resistance 1.79e+03 kN m against 1.66e+03 kN m design."
+     },
+     "method": "EN 1993-1-1 6.3.2.2 general case with the elastic critical moment of Timoshenko & Gere (C1 given, load at the shear centre)",
+     "quantities": {
+      "M_cr": [
+       7629823.668960451,
+       "N m",
+       "elastic critical moment"
+      ],
+      "lambda_LT": [
+       0.564610639471707,
+       "1",
+       "non-dimensional slenderness"
+      ],
+      "chi_LT": [
+       0.7343233775853901,
+       "1",
+       "reduction factor"
+      ],
+      "L_cr": [
+       2.727272727272727,
+       "m",
+       "unbraced length"
+      ],
+      "M_b_Rd": [
+       1786076.1490248423,
+       "N m",
+       "buckling resistance moment"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "o tabuleiro n\u00e3o trava a mesa comprimida",
+       "en": "the deck does not restrain the compression flange"
+      },
+      {
+       "pt": "C1 = 1 (momento uniforme: conservador para carga distribu\u00edda)",
+       "en": "C1 = 1 (uniform moment: conservative for a distributed load)"
+      }
+     ],
+     "sources": [
+      "EN 1993-1-1:2005, Eurocode 3 - Design of steel structures, 3.2.6 (E, G, nu) and 6.3.2 (lateral-torsional buckling, Tables 6.3 and 6.4)",
+      "Timoshenko & Gere, Theory of Elastic Stability, 2nd ed., 1961, ch. 6 (lateral buckling of beams)"
+     ],
+     "validity": [],
+     "self_checks": [],
+     "series": {}
+    },
+    {
+     "mode": "pedestrian_resonance",
+     "requirement": "R4",
+     "passed": true,
+     "demand": 0.2414178586550067,
+     "capacity": 0.7,
+     "unit": "m/s^2",
+     "margin": 0.6551173447785619,
+     "demand_label": {
+      "pt": "acelera\u00e7\u00e3o vertical de pico",
+      "en": "peak vertical acceleration"
+     },
+     "capacity_label": {
+      "pt": "limite de conforto",
+      "en": "comfort limit"
+     },
+     "mechanism": {
+      "pt": "f1 = 2.05 Hz; pior caso 0.241 m/s\u00b2 (1\u00ba harm\u00f4nico a 1.98 Hz), limitado pelo amortecedor sintonizado (\u03bc = 0.01), abaixo de 0.7 m/s\u00b2.",
+      "en": "f1 = 2.05 Hz; worst case 0.241 m/s^2 (harmonic 1 at 1.98 Hz), capped by the tuned mass damper (mu = 0.01), below 0.7 m/s^2."
+     },
+     "method": "first vertical mode of a simply supported beam, steady resonant response to one walking pedestrian (harmonics 1-3); tuned mass damper as Den Hartog's optimum amplification",
+     "quantities": {
+      "f1": [
+       2.048925146057629,
+       "Hz",
+       "first vertical natural frequency"
+      ],
+      "modal_mass": [
+       16443.212396001694,
+       "kg",
+       "modal mass m L/2"
+      ],
+      "acceleration": [
+       0.2414178586550067,
+       "m/s^2",
+       "peak vertical acceleration"
+      ],
+      "pace": [
+       1.981,
+       "Hz",
+       "governing pacing frequency"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "um pedestre em regime permanente no meio do v\u00e3o (limite superior)",
+       "en": "one pedestrian in steady state at mid-span (upper bound)"
+      },
+      {
+       "pt": "amortecimento estrutural 0.5 % (premissa)",
+       "en": "structural damping 0.5 % (premise)"
+      }
+     ],
+     "sources": [
+      "Bachmann & Ammann (1987), Vibrations in Structures Induced by Man and Machines, IABSE: walking pace 1.6-2.4 Hz, body weight 700 N, dynamic load factors 0.4 / 0.1 / 0.1 for harmonics 1-3",
+      "EN 1990:2002, Table A1.2(B): gamma_G = 1.35, gamma_Q = 1.5; Annex A2, A2.4.3.2: vertical acceleration of footbridge decks <= 0.7 m/s^2 (recommended)",
+      "Den Hartog, Mechanical Vibrations, 4th ed., 1956, sec. 3.3 (optimum vibration absorber)"
+     ],
+     "validity": [
+      {
+       "name": "first mode below 5 Hz (EN 1990 A2.4.3.2 asks for the check)",
+       "value": 2.048925146057629,
+       "lo": null,
+       "hi": 1000000000.0,
+       "note": "",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0007095722444364569,
+       "limit": 0.005,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+       "reason": ""
+      }
+     ],
+     "series": {
+      "f1": 2.048925146057629,
+      "bands": [
+       [
+        1.6,
+        2.4
+       ],
+       [
+        3.2,
+        4.8
+       ],
+       [
+        4.800000000000001,
+        7.199999999999999
+       ]
+      ]
+     }
+    }
+   ],
+   "finding": null,
+   "options": [],
+   "chosen": null,
+   "why": {},
+   "passed": true
+  }
+ ],
+ "notes": [],
+ "meta": {
+  "evaluations": 24,
+  "wall_s": 0.09190629600016109,
+  "advisor": null
+ },
+ "path": [
+  [
+   0,
+   "deflection",
+   "deepen_girders"
+  ],
+  [
+   1,
+   "lateral_torsional_buckling",
+   "lateral_bracing"
+  ],
+  [
+   2,
+   "pedestrian_resonance",
+   "tuned_mass_damper"
+  ]
+ ]
+}

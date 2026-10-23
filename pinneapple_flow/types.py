@@ -29,6 +29,9 @@ PORT_TYPES: dict[str, str] = {
     "soil": "a terramechanics soil: preset and its Bekker / Wong-Reece parameters",
     "site": "a terrain scenario (craters, rocks, slope) for a vehicle run",
     "vehicle_run": "a simulated vehicle traverse (time histories per wheel and the rutted terrain artifact)",
+    "requirement": "requirements of a design: function, failure modes to check, limits (pinneapple_reason)",
+    "concept": "one version of a design: parameters (SI), elements and their sources (pinneapple_reason)",
+    "chain": "a chain of whys: every version of a design, the failure found and the countermeasure taken",
     "any": "accepts every type",
 }
 

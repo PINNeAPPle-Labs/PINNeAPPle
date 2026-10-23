@@ -58,6 +58,8 @@ single-valued input, missing required inputs, cycles. `check_flow` raises when t
 | `metrics`, `params` | JSON |
 | `figure`, `scene`, `report` | artifacts (PNG; glTF + `pinneapple-field-view/v1` meta; HTML / Markdown / JSON) |
 | `twin` | artifact JSON: snapshot, alerts, forecast |
+| `requirement`, `concept` | JSON: `pinneapple_reason.Requirement` list / `Concept` (`to_dict`) |
+| `chain` | artifact JSON: `pinneapple_reason.Chain` (`chain.json`, schema `pinneapple.reason.chain/1`) |
 | `any` | accepts every type |
 
 An artifact value is `{"$artifact": "<absolute path in the run folder>", "kind": "npz" | "json" | "pt" | "png" | ...}`;

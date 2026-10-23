@@ -48,6 +48,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | Flight dynamics: 6-DOF aircraft on the vortex lattice, MIL-F-8785C turbulence, take-off, gust encounters, animated 3-D scenes | `pinneapple_simulation.flight`: `catalog.build("a320")`, `trim(ac, V, h)`, `stability_derivatives`, `simulate_takeoff(ac)` + `takeoff_metrics` + `raymer_takeoff`, `turbulence_encounter(ac, V, h, turbulence_spec(h, "severe"))`, `pratt_check`, `visuals.flight_scene(ac, hist, wind=...)`, `verification.run()` ([docs](docs/guides/flight_dynamics.md)) |
 | Interlocking-brick builds: statics with stud clutch, Newton replay, self-modifying search | `pinneapple_design.bricks`: `Assembly`, `analyse_assembly`, `CantileverGoal` / `BridgeGoal` / `TowerGoal`, `evolve`, `surrogate_search`, `compare`, `visuals` ([docs](docs/guides/interlocking_bricks.md)) |
 | A plain-language goal to a verified, buildable design (or the questions it needs, or a refusal saying what is missing) | `pp.design(text, answers=..., out_dir=...)`, `pinneapple design "<goal>"`, MCP `design`; templates in `pinneapple_design.intent` ([docs](docs/guides/design_from_intent.md)) |
+| Why a design needs each of its elements, computed (naive concept -> failure mode with its mechanism and numbers -> countermeasure -> check again), for any scale | `pinneapple_reason`: `reason(*cases.roof())`, `chain.explain()`, `write_report(chain, out)`, `LIBRARY.mode(name).evaluate(params)`, `register_mode` / `register_countermeasure`; MCP `reason`; Flow nodes `reason.*` ([docs](docs/guides/chain_of_whys.md)) |
 | Forecast a noisy or near-random series without fooling yourself (predictability first, purged walk-forward, untouched test, DM tests) | `pinneapple_systems.time_series.predictability.predictability_report(y)`, `pinneapple_systems.time_series.forecast_lab` (`study.run_zoo(data, specs, Protocol(horizons))`, `presets.case(name)`) ([docs](docs/guides/near_random_forecasting.md)) |
 | A problem description to a runnable flow of library calls (node graph, GUI or headless) | `pinneapple_flow.plan(text)`, `pinneapple_flow.run(flow)`, `python -m pinneapple_flow run flow.json` / `studio`; equations as safe text `pinneapple_physics.symbolic_pde.text.parse_system`, any parsed system by finite differences `pinneapple_simulation.numerical_solvers.symbolic_fd.solve_fd` ([schema](docs/guides/flow_schema.md), [app](apps/flow_studio/README.md)) |
 | Predict El Niño: ENSO data (OISST, WOD thermocline, ERA5), recharge / delayed oscillators, an intermediate coupled model with checks against theory, PINNs, LIM / CNN, EnKF, the forecast_lab protocol | `pinneapple_systems.time_series.enso`: `dataset.build_dataset()`, `dataset.to_series(ds)`, `study.protocol(ds.months)`, `study.run_model(name, data, prot)`, `pipeline.solver_checks()` ([docs](docs/guides/enso_forecasting.md)) |
@@ -141,6 +142,16 @@ cmp = pp.compare(problem, runs, reference="analytic")
 print(cmp)                                     # same points, same reference, same budget for every run
 ```
 
+### Why each element of a design exists
+
+```python
+from pinneapple_reason import cases, reason
+
+chain = reason(*cases.roof())                  # flat tiles -> pitch -> ventilated ceiling -> radiant barrier
+print(chain.explain("en"))                     # every step: the failure, its mechanism and numbers, the fix, why
+assert chain.resolved and chain.path()[0][1:] == ("lap_water_ingress", "increase_slope")
+```
+
 ### Dashboard of a time-dependent result
 
 ```python
@@ -182,6 +193,7 @@ assert status["S2"]["status"] == "validated"   # linear finite elements: compare
 | `pinneapple_lab/` | experiment runner, database, trust card per run |
 | `pinneapple_mcp/` | the MCP server for agents |
 | `pinneapple_flow/` | engineering flows: schema, node catalog, planner, runtime, store (Flow Studio's library) |
+| `pinneapple_reason/` | chain of whys: requirements, failure-mode library by physical domain, reasoning engine, reports |
 | `tests/`, `examples/`, `notebooks/colab/`, `docs/` | tests, runnable scripts, Colab notebooks, documentation (mkdocs) |
 
 ## Tests and lint

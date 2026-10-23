@@ -20,7 +20,9 @@ your own). solve and benchmark start a job: poll job_status with the job_id (or 
 wait_seconds). Never report a result without its trust card: every solve/benchmark result carries the physics checks
 (PDE residual, boundary conditions, conservation, reference error, applicability) and a decision APPROVED / REVIEW /
 REJECT. Use trust_card to check any field you have (a file or inline values). design turns a plain-language goal into
-a verified design package, or says what is missing / out of scope. Results are saved under the working
+a verified design package, or says what is missing / out of scope. reason builds the chain of whys of a design
+(naive concept -> computed failure -> countermeasure -> ...); reason_library lists its failure modes, reason_check runs
+one. Results are saved under the working
 directory; the paths are in each result."""
 
 Problem = Annotated[dict[str, Any], Field(description=(
@@ -152,6 +154,44 @@ def _register(server) -> None:
         design, margins per failure mode, full-solver verification, operating window, bill of materials, limits and
         the files (report.html, STEP / STL / glTF). Poll job_status."""
         return T.design(text, answers, verify, seed, max_seconds, wait_seconds)
+
+    @server.tool()
+    def reason(
+        case: Annotated[str | None, Field(description="A worked case: roof, footbridge, power_board, pumped_main")
+                        ] = None,
+        requirements: Annotated[list[dict[str, Any]] | None, Field(description=(
+            "Your own requirements: [{'id', 'text', 'modes': [failure modes from reason_library], 'limits': {}}]"))
+                                ] = None,
+        concept: Annotated[dict[str, Any] | None, Field(description=(
+            "Your naive concept: {'name', 'params': {SI values the modes need}, 'elements': [...]}"))] = None,
+        lang: Annotated[Literal["pt", "en"], Field(description="Language of the explanation and report")] = "pt",
+        max_steps: Annotated[int, Field(ge=1, le=40)] = 12,
+        max_seconds: MaxSeconds = None,
+        wait_seconds: Wait = 0.0,
+    ) -> dict[str, Any]:
+        """Chain of whys: from a naive concept, check every requirement with computed physics, find the first
+        failure mode (mechanism + the number that proves it), apply the best countermeasure, check again, until all
+        pass. Starts a job; the result has the path, the explanation, the trust decision and report files."""
+        return T.reason(case, requirements, concept, lang, max_steps, max_seconds, wait_seconds)
+
+    @server.tool()
+    def reason_library(
+        domain: Annotated[str | None, Field(description="Filter by physical domain, e.g. 'structures'")] = None,
+        lang: Annotated[Literal["pt", "en"], Field(description="Language")] = "pt",
+    ) -> dict[str, Any]:
+        """Failure modes (with the parameters each needs and its sources) and countermeasures of pinneapple_reason."""
+        return T.reason_library(domain, lang)
+
+    @server.tool()
+    def reason_check(
+        mode: Annotated[str, Field(description="Failure mode name from reason_library")],
+        params: Annotated[dict[str, Any], Field(description="Parameters in SI units")],
+        elements: Annotated[list[str], Field(description="Elements of the concept (e.g. 'ceiling')")] = [],  # noqa: B006
+        limits: Annotated[dict[str, float] | None, Field(description="Acceptance-limit overrides")] = None,
+        lang: Annotated[Literal["pt", "en"], Field(description="Language")] = "pt",
+    ) -> dict[str, Any]:
+        """One failure-mode check: demand, capacity, margin, mechanism, measured numbers, sources, applicability."""
+        return T.reason_check(mode, params, elements, limits, lang)
 
     @server.tool()
     def zoo_list(task: Annotated[str | None, Field(description="Filter by task")] = None) -> dict[str, Any]:

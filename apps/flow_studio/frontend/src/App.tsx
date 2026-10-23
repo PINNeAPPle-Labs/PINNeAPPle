@@ -82,6 +82,26 @@ function Studio() {
     setTimeout(fitReadable, 60);
   }, [catalog, specs]);
 
+  // ---- deep links (the PINNeAPPle Hub): ?example=<bundled flow> or ?flow=<base64url flow JSON>, once the catalog is in
+  const linked = useRef(false);
+  useEffect(() => {
+    if (!catalog || linked.current) return;
+    linked.current = true;
+    const q = new URLSearchParams(window.location.search);
+    const ex = q.get("example"), fl = q.get("flow");
+    if (!ex && !fl) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    if (ex) api.example(ex).then(load).catch((e) => say(`example ${ex}: ${e}`));
+    else if (fl) {
+      try {
+        const b = fl.replace(/-/g, "+").replace(/_/g, "/");
+        load(JSON.parse(decodeURIComponent(escape(atob(b + "=".repeat((4 - (b.length % 4)) % 4))))) as FlowDoc);
+        say("flow opened from the link");
+      } catch (e) { say(`could not read the flow in the link: ${e}`); }
+    }
+  });
+
+
   // fit the flow, but never below a zoom where node titles and port labels stay readable; a flow wider than the
   // canvas then starts at its first column (pan or use the minimap for the rest)
   const fitReadable = useCallback(() => {

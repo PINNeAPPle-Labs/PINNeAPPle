@@ -111,6 +111,7 @@
     * [Surrogate Studio](apps/surrogate_studio.md)
     * [Physics AI Benchmark Arena](apps/benchmark_arena.md)
     * [Physics AI Model Gateway](apps/model_gateway.md)
+    * [PINNeAPPle Hub](apps/hub.md)
     * [Digital Twin Runtime (day 20)](apps/twin_runtime.md)
     * [Physics Anomaly Detector (day 28)](apps/anomaly_detector.md)
     * [Physics-Based Control Lab (day 29)](apps/control_lab.md)

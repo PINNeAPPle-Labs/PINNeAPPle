@@ -81,6 +81,11 @@ add(
             "Open Vivaldi study (EMerge)", "Solvers",
             "open antipodal Vivaldi model in EMerge: DOE, checks, surrogates with LODO, NSGA-II, active learning, "
             "multi-fidelity", requires=("emerge",), exclude=("log", "ranges")),
+    LibCall("antenna.render_3d", "pinneapple_simulation.electromagnetics.antenna.study:render_3d",
+            "Vivaldi in 3-D: balloon, near field, renders", "Visualisation",
+            "named AVA designs re-solved in EMerge with their near field: glTF / USD per frequency, gain balloons, "
+            "|E| and E_x(wt) cut planes, self-contained three.js viewers, Blender stills and GIF / MP4",
+            requires=("emerge",), exclude=("log",)),
     LibCall("export.geometry", f"{W}:geometry_export", "Export a library geometry", "Export",
             "pinneapple_design.geometry_library: build a parametric geometry and write STL / OBJ / glTF / USD / STEP"),
 )

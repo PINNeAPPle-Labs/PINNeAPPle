@@ -13,6 +13,8 @@
   multi-fidelity bias correction, a trust card per prediction;
 * :mod:`.package` -- read an external study package (table + script) from a local folder and re-run a design;
 * :mod:`.plots` -- directivity against ``L/lambda`` with the limits, LODO RMSE per model, layout.
+* :mod:`.scene3d` -- the antenna in 3-D on the studio scene: copper and laminate (glTF / USD), the gain balloon per
+  solved frequency, near-field cuts, self-contained viewers, Blender renders (``study.render_3d``).
 
 Guide: docs/guides/antenna_design.md. Example: examples/use_cases/antennas/vivaldi_2to4ghz.py.
 """

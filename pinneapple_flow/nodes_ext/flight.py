@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import importlib.util
 import math
+import multiprocessing
 import time
 from concurrent.futures import ProcessPoolExecutor
 from typing import Any
@@ -298,7 +299,8 @@ def turbulence_encounter(ctx, inputs, params):
     t0 = time.perf_counter()
     workers = min(int(params["workers"]), len(jobs))
     if workers > 1:
-        with ProcessPoolExecutor(max_workers=workers) as ex:
+        # spawn, not fork: the flow engine runs nodes next to other threads, and a forked child can inherit a held lock
+        with ProcessPoolExecutor(max_workers=workers, mp_context=multiprocessing.get_context("spawn")) as ex:
             done = list(ex.map(_encounter_job, *zip(*jobs, strict=True)))
     else:
         done = [_encounter_job(*j) for j in jobs]

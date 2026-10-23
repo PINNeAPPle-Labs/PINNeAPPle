@@ -1,0 +1,29 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "antenna-vivaldi-endfire-limits",
+ "name": "Vivaldi 2-4 GHz: end-fire limits for 10 dBi",
+ "description": "How long must an end-fire antenna be for 10 dBi between 2 and 4 GHz (Hansen-Woodyard and ordinary end-fire limits), and from which frequency can boards of 150, 206 and 260 mm reach it. Add the 'Reproduce an antenna study package' node to check and re-run an external package, or the 'Open Vivaldi study (EMerge)' node to run the open model.",
+ "nodes": [
+  {
+   "id": "limits",
+   "type": "lib.antenna.limits",
+   "params": {
+    "target_dbi": 10.0,
+    "f_min_ghz": 2.0,
+    "f_max_ghz": 4.0,
+    "n": 5,
+    "lengths_mm": [
+     150.0,
+     206.0,
+     260.0
+    ]
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "End-fire limits"
+  }
+ ],
+ "edges": []
+}

@@ -48,7 +48,7 @@
  },
  "electrodynamics": {
   "domain": "electromagnetics",
-  "notes": "01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12 + GetDP 3.2 from apt"
+  "notes": "01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12.1 + GetDP 3.2.0 from apt; in 14 every PINNeAPPle-side number matches and the GetDP-side ones differ by 1e-5 to 3e-4 relative (0.6 % on the small GetDP-minus-PINNeAPPle torque difference); the committed results do not record the gmsh / GetDP versions they were made with"
  },
  "end_to_end": {
   "domain": "data",

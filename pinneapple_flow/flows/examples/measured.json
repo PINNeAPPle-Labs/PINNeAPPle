@@ -1,4 +1,134 @@
 {
+ "architectures/00_registry_tour": {
+  "full": {
+   "commit": "483932f3",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.architectures.00_registry_tour.experiment.json, Lab item manifest/flow/example.architectures.00_registry_tour",
+   "matched": 0,
+   "nodes": {
+    "fno": "done",
+    "pinn": "done",
+    "pod": "done",
+    "registry": "done",
+    "transformer": "done"
+   },
+   "seconds": 7.6,
+   "status": "done"
+  }
+ },
+ "architectures/01_list_models": {
+  "full": {
+   "commit": "483932f3",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.architectures.01_list_models.experiment.json, Lab item manifest/flow/example.architectures.01_list_models",
+   "matched": 0,
+   "nodes": {
+    "registry": "done"
+   },
+   "seconds": 8.4,
+   "status": "done"
+  }
+ },
+ "architectures/30_rom_pod_dmd": {
+  "full": {
+   "commit": "483932f3",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.architectures.30_rom_pod_dmd.experiment.json, Lab item manifest/flow/example.architectures.30_rom_pod_dmd",
+   "matched": 0,
+   "nodes": {
+    "rom": "done"
+   },
+   "seconds": 7.8,
+   "status": "done"
+  }
+ },
+ "architectures/60_new_architectures_demo": {
+  "full": {
+   "commit": "483932f3",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.architectures.60_new_architectures_demo.experiment.json, Lab item manifest/flow/example.architectures.60_new_architectures_demo",
+   "matched": 0,
+   "nodes": {
+    "afno": "done",
+    "hash": "done",
+    "mlp": "done",
+    "registry": "done",
+    "siren": "done"
+   },
+   "seconds": 8.3,
+   "status": "done"
+  }
+ },
+ "arena_pipelines/00_list_datasets": {
+  "full": {
+   "commit": "483932f3",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentC/example.arena_pipelines.00_list_datasets.experiment.json, Lab item manifest/flow/example.arena_pipelines.00_list_datasets",
+   "matched": 0,
+   "nodes": {
+    "local": "done",
+    "real": "done",
+    "sim": "done"
+   },
+   "seconds": 24.0,
+   "status": "done"
+  }
+ },
+ "arena_pipelines/04_arena_from_yaml": {
+  "quick": {
+   "commit": "38ecd2bf",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentC/example.arena_pipelines.04_arena_from_yaml-quick.experiment.json, Lab item manifest/flow/example.arena_pipelines.04_arena_from_yaml-quick",
+   "matched": 0,
+   "nodes": {
+    "arena": "done"
+   },
+   "seconds": 1918.0,
+   "status": "done"
+  }
+ },
+ "benchmark_suite/02_arena_from_yaml": {
+  "quick": {
+   "commit": "38ecd2bf",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentC/example.benchmark_suite.02_arena_from_yaml-quick.experiment.json, Lab item manifest/flow/example.benchmark_suite.02_arena_from_yaml-quick",
+   "matched": 0,
+   "nodes": {
+    "arena": "done"
+   },
+   "seconds": 541.6,
+   "status": "done"
+  }
+ },
+ "benchmark_suite/09_full_pipeline_yaml": {
+  "quick": {
+   "commit": "38ecd2bf",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentC/example.benchmark_suite.09_full_pipeline_yaml-quick.experiment.json, Lab item manifest/flow/example.benchmark_suite.09_full_pipeline_yaml-quick",
+   "matched": 0,
+   "nodes": {
+    "pipeline": "done"
+   },
+   "seconds": 4.1,
+   "status": "done"
+  }
+ },
  "black_hole_weather/accretion_run": {
   "full": {
    "commit": "5d9bf73a",
@@ -22,6 +152,146 @@
     "stats": "done"
    },
    "seconds": 315.1,
+   "status": "done"
+  }
+ },
+ "bricks/self_modifying_bricks": {
+  "quick": {
+   "commit": "fd43aca8",
+   "comparisons": [
+    {
+     "flow": "val.check.0",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.0.simulated",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "val.check.1",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.1.simulated",
+     "reference": 0.5,
+     "rel_diff": 0.0,
+     "value": 0.5
+    },
+    {
+     "flow": "val.check.2",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.2.simulated",
+     "reference": 0.030803399999999998,
+     "rel_diff": 0.0,
+     "value": 0.030803399999999998
+    },
+    {
+     "flow": "val.check.3",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.3.simulated",
+     "reference": 0.029724300000000006,
+     "rel_diff": 0.0,
+     "value": 0.029724300000000006
+    },
+    {
+     "flow": "val.check.4",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.4.simulated",
+     "reference": 0.00940125,
+     "rel_diff": 0.0,
+     "value": 0.00940125
+    },
+    {
+     "flow": "val.check.5",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.5.simulated",
+     "reference": 0.11435100851534816,
+     "rel_diff": 0.0,
+     "value": 0.11435100851534816
+    },
+    {
+     "flow": "val.check.6",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.6.simulated",
+     "reference": 0.032660874732303814,
+     "rel_diff": 0.0,
+     "value": 0.032660874732303814
+    },
+    {
+     "flow": "val.check.7",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.7.simulated",
+     "reference": 7.0,
+     "rel_diff": 0.0,
+     "value": 7.0
+    },
+    {
+     "flow": "val.check.8",
+     "outcome": "match",
+     "ref": "_out/summary.json:validation.8.simulated",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    },
+    {
+     "flow": "cantilever.cantilever.evolution.seed0",
+     "outcome": "match",
+     "ref": "_out/summary.json:comparison.cantilever.evolution.per_seed.0",
+     "reference": 127.9,
+     "rel_diff": 0.0,
+     "value": 127.9
+    },
+    {
+     "flow": "cantilever.cantilever.surrogate.seed0",
+     "outcome": "match",
+     "ref": "_out/summary.json:comparison.cantilever.surrogate.per_seed.0",
+     "reference": 103.9,
+     "rel_diff": 0.0,
+     "value": 103.9
+    },
+    {
+     "flow": "bridge.bridge.evolution.seed0",
+     "outcome": "match",
+     "ref": "_out/summary.json:comparison.bridge.evolution.per_seed.0",
+     "reference": -5.0,
+     "rel_diff": 0.0,
+     "value": -5.0
+    },
+    {
+     "flow": "bridge.bridge.surrogate.seed0",
+     "outcome": "match",
+     "ref": "_out/summary.json:comparison.bridge.surrogate.per_seed.0",
+     "reference": -3.0,
+     "rel_diff": 0.0,
+     "value": -3.0
+    },
+    {
+     "flow": "tower.tower.evolution.seed0",
+     "outcome": "match",
+     "ref": "_out/summary.json:comparison.tower.evolution.per_seed.0",
+     "reference": 118.4,
+     "rel_diff": 0.0,
+     "value": 118.4
+    },
+    {
+     "flow": "tower.tower.surrogate.seed0",
+     "outcome": "match",
+     "ref": "_out/summary.json:comparison.tower.surrogate.per_seed.0",
+     "reference": 153.60000000000002,
+     "rel_diff": 0.0,
+     "value": 153.60000000000002
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/qf/example.bricks.self_modifying_bricks-quick.experiment.json, Lab item manifest/flow/example.bricks.self_modifying_bricks-quick",
+   "matched": 15,
+   "nodes": {
+    "bridge": "done",
+    "cantilever": "done",
+    "compare": "done",
+    "tower": "done",
+    "val": "done"
+   },
+   "seconds": 4276.0,
    "status": "done"
   }
  },
@@ -417,6 +687,95 @@
     "fluxmap": "done"
    },
    "seconds": 927.6,
+   "status": "done"
+  }
+ },
+ "electromagnetics/14_prius_getdp_crosscheck": {
+  "full": {
+   "commit": "fd43aca8",
+   "comparisons": [
+    {
+     "flow": "xcheck.torque_difference_getdp_minus_pinneapple.max_abs_Nm",
+     "outcome": "differs",
+     "ref": "results/14_prius_getdp_crosscheck.json:torque_difference_getdp_minus_pinneapple.max_abs_Nm",
+     "reference": 1.0859378706751954,
+     "rel_diff": 0.005830042173898306,
+     "value": 1.0796068070909257
+    },
+    {
+     "flow": "xcheck.torque_difference_getdp_minus_pinneapple.rms_Nm",
+     "outcome": "differs",
+     "ref": "results/14_prius_getdp_crosscheck.json:torque_difference_getdp_minus_pinneapple.rms_Nm",
+     "reference": 0.8100383858407868,
+     "rel_diff": 0.005541887908407852,
+     "value": 0.8055492439049495
+    },
+    {
+     "flow": "xcheck.vs_yang.pinneapple_rms_Nm",
+     "outcome": "match",
+     "ref": "results/14_prius_getdp_crosscheck.json:vs_yang.pinneapple_rms_Nm",
+     "reference": 13.294253492288997,
+     "rel_diff": 0.0,
+     "value": 13.294253492288997
+    },
+    {
+     "flow": "xcheck.vs_yang.getdp_rms_Nm",
+     "outcome": "differs",
+     "ref": "results/14_prius_getdp_crosscheck.json:vs_yang.getdp_rms_Nm",
+     "reference": 12.866653822295579,
+     "rel_diff": 0.0002953646226348701,
+     "value": 12.870454176646374
+    },
+    {
+     "flow": "xcheck.cogging.pinneapple_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/14_prius_getdp_crosscheck.json:cogging.pinneapple_pkpk_Nm",
+     "reference": 1.3530931228632959,
+     "rel_diff": 0.0,
+     "value": 1.3530931228632959
+    },
+    {
+     "flow": "xcheck.cogging.getdp_pkpk_Nm",
+     "outcome": "differs",
+     "ref": "results/14_prius_getdp_crosscheck.json:cogging.getdp_pkpk_Nm",
+     "reference": 1.045574169725277,
+     "rel_diff": 0.00019098996909801857,
+     "value": 1.0453744755469114
+    },
+    {
+     "flow": "xcheck.back_emf_1000rpm.getdp_fundamental_peak_V",
+     "outcome": "match",
+     "ref": "results/14_prius_getdp_crosscheck.json:back_emf_1000rpm.getdp_fundamental_peak_V",
+     "reference": 87.64089961842387,
+     "rel_diff": 8.201894161184172e-08,
+     "value": 87.6409068066377
+    },
+    {
+     "flow": "xcheck.inductances.getdp.L_d_mH",
+     "outcome": "differs",
+     "ref": "results/14_prius_getdp_crosscheck.json:inductances_apparent_250A_50deg.getdp.L_d_mH",
+     "reference": 1.3851177491507616,
+     "rel_diff": 1.1742348813912625e-05,
+     "value": 1.3851014846150027
+    },
+    {
+     "flow": "xcheck.inductances.pinneapple.L_d_mH",
+     "outcome": "match",
+     "ref": "results/14_prius_getdp_crosscheck.json:inductances_apparent_250A_50deg.pinneapple.L_d_mH",
+     "reference": 1.3698646417328222,
+     "rel_diff": 0.0,
+     "value": 1.3698646417328222
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/qb/example-em-prius-getdp.experiment.json, Lab item manifest/flow/example-em-prius-getdp",
+   "matched": 4,
+   "nodes": {
+    "compare": "done",
+    "xcheck": "done"
+   },
+   "seconds": 6811.5,
    "status": "done"
   }
  },
@@ -1412,6 +1771,530 @@
    "status": "done"
   }
  },
+ "flight_dynamics/04_turbulence_encounters": {
+  "full": {
+   "commit": "38ecd2bf",
+   "comparisons": [
+    {
+     "flow": "severe.light_ga.stick_fixed.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].dnz_cg_rms",
+     "reference": 0.586311317439059,
+     "rel_diff": 0.008924606834251825,
+     "value": 0.5810787194484431
+    },
+    {
+     "flow": "severe.light_ga.stick_fixed.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].phi_rms_deg",
+     "reference": 22.594463307487416,
+     "rel_diff": 0.00412982868573942,
+     "value": 22.501152044781268
+    },
+    {
+     "flow": "severe.light_ga.stick_fixed.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].theta_rms_deg",
+     "reference": 13.080409722297238,
+     "rel_diff": 0.0009269049315185483,
+     "value": 13.068285426019358
+    },
+    {
+     "flow": "severe.light_ga.autopilot.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].dnz_cg_rms",
+     "reference": 0.3683073798959428,
+     "rel_diff": 3.1136997603753397e-09,
+     "value": 0.3683073787491442
+    },
+    {
+     "flow": "severe.light_ga.autopilot.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].phi_rms_deg",
+     "reference": 6.9509656178254104,
+     "rel_diff": 2.6725511832932503e-07,
+     "value": 6.950963760144272
+    },
+    {
+     "flow": "severe.light_ga.autopilot.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].theta_rms_deg",
+     "reference": 4.412171088707807,
+     "rel_diff": 1.7565189041249521e-09,
+     "value": 4.412171080957745
+    },
+    {
+     "flow": "severe.regional_turboprop.stick_fixed.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].dnz_cg_rms",
+     "reference": 0.5660982373743716,
+     "rel_diff": 2.3743778178327914e-07,
+     "value": 0.5660981029612618
+    },
+    {
+     "flow": "severe.regional_turboprop.stick_fixed.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].phi_rms_deg",
+     "reference": 14.93560905036746,
+     "rel_diff": 2.3001996975145955e-06,
+     "value": 14.935574695484041
+    },
+    {
+     "flow": "severe.regional_turboprop.stick_fixed.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].theta_rms_deg",
+     "reference": 12.703728111814693,
+     "rel_diff": 9.696478366608823e-07,
+     "value": 12.703715793672211
+    },
+    {
+     "flow": "severe.regional_turboprop.autopilot.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].dnz_cg_rms",
+     "reference": 0.3135848861597588,
+     "rel_diff": 8.851056552989793e-16,
+     "value": 0.31358488615975855
+    },
+    {
+     "flow": "severe.regional_turboprop.autopilot.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].phi_rms_deg",
+     "reference": 4.463698517815057,
+     "rel_diff": 1.1938688280429132e-15,
+     "value": 4.463698517815052
+    },
+    {
+     "flow": "severe.regional_turboprop.autopilot.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].theta_rms_deg",
+     "reference": 2.9294879537468446,
+     "rel_diff": 5.154154368714954e-15,
+     "value": 2.9294879537468295
+    },
+    {
+     "flow": "severe.a320.stick_fixed.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].dnz_cg_rms",
+     "reference": 0.28748156277099995,
+     "rel_diff": 1.113046598345754e-09,
+     "value": 0.2874815624510196
+    },
+    {
+     "flow": "severe.a320.stick_fixed.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].phi_rms_deg",
+     "reference": 14.65125355907548,
+     "rel_diff": 2.3497274592099682e-09,
+     "value": 14.651253593501933
+    },
+    {
+     "flow": "severe.a320.stick_fixed.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].theta_rms_deg",
+     "reference": 6.407909035451496,
+     "rel_diff": 2.1066760154054308e-10,
+     "value": 6.407909034101557
+    },
+    {
+     "flow": "severe.a320.autopilot.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].dnz_cg_rms",
+     "reference": 0.21370917520716584,
+     "rel_diff": 1.1688790633275732e-15,
+     "value": 0.2137091752071656
+    },
+    {
+     "flow": "severe.a320.autopilot.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].phi_rms_deg",
+     "reference": 3.098386386703458,
+     "rel_diff": 1.7199502751077602e-15,
+     "value": 3.0983863867034525
+    },
+    {
+     "flow": "severe.a320.autopilot.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=a320,controller=autopilot].theta_rms_deg",
+     "reference": 2.7323607077444803,
+     "rel_diff": 6.501179856544652e-16,
+     "value": 2.7323607077444785
+    },
+    {
+     "flow": "severe.motor_glider.stick_fixed.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].dnz_cg_rms",
+     "reference": 0.9346708357285061,
+     "rel_diff": 0.02731853244839858,
+     "value": 0.909137000174085
+    },
+    {
+     "flow": "severe.motor_glider.stick_fixed.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].phi_rms_deg",
+     "reference": 29.501746486996208,
+     "rel_diff": 0.0033023737203630257,
+     "value": 29.40432069469274
+    },
+    {
+     "flow": "severe.motor_glider.stick_fixed.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].theta_rms_deg",
+     "reference": 24.755488435571646,
+     "rel_diff": 0.0033716536474100124,
+     "value": 24.672021502694435
+    },
+    {
+     "flow": "severe.motor_glider.autopilot.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].dnz_cg_rms",
+     "reference": 68.93464599476482,
+     "rel_diff": 0.41304069404334154,
+     "value": 40.461831969455105
+    },
+    {
+     "flow": "severe.motor_glider.autopilot.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].phi_rms_deg",
+     "reference": 29.883486107403584,
+     "rel_diff": 0.04831968542428006,
+     "value": 31.32744675549417
+    },
+    {
+     "flow": "severe.motor_glider.autopilot.theta_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].theta_rms_deg",
+     "reference": 16.11908434421044,
+     "rel_diff": 0.042554435676995774,
+     "value": 15.433145806312666
+    },
+    {
+     "flow": "pratt.light_ga.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_sim",
+     "reference": 1.2826038686352326,
+     "rel_diff": 1.038721044064681e-15,
+     "value": 1.2826038686352312
+    },
+    {
+     "flow": "pratt.light_ga.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_pratt",
+     "reference": 1.176969378429993,
+     "rel_diff": 1.1319475714205525e-15,
+     "value": 1.1769693784299917
+    },
+    {
+     "flow": "pratt.light_ga.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=light_ga].K_g",
+     "reference": 0.6932757160954035,
+     "rel_diff": 3.2028325782937877e-16,
+     "value": 0.6932757160954037
+    },
+    {
+     "flow": "pratt.regional_turboprop.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim",
+     "reference": 0.6733006343725072,
+     "rel_diff": 2.63828184426969e-15,
+     "value": 0.6733006343725054
+    },
+    {
+     "flow": "pratt.regional_turboprop.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt",
+     "reference": 0.6070682029725192,
+     "rel_diff": 1.280179250753461e-15,
+     "value": 0.60706820297252
+    },
+    {
+     "flow": "pratt.regional_turboprop.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].K_g",
+     "reference": 0.8115678646103993,
+     "rel_diff": 0.0,
+     "value": 0.8115678646103993
+    },
+    {
+     "flow": "pratt.a320.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=a320].dn_sim",
+     "reference": 0.40726984915125564,
+     "rel_diff": 2.180810638330031e-15,
+     "value": 0.4072698491512565
+    },
+    {
+     "flow": "pratt.a320.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=a320].dn_pratt",
+     "reference": 0.37312246885841116,
+     "rel_diff": 0.0,
+     "value": 0.37312246885841116
+    },
+    {
+     "flow": "pratt.a320.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=a320].K_g",
+     "reference": 0.8107615220547204,
+     "rel_diff": 0.0,
+     "value": 0.8107615220547204
+    },
+    {
+     "flow": "pratt.motor_glider.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_sim",
+     "reference": 1.7940134779209815,
+     "rel_diff": 2.475395058707707e-16,
+     "value": 1.794013477920982
+    },
+    {
+     "flow": "pratt.motor_glider.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt",
+     "reference": 1.506007212260588,
+     "rel_diff": 3.243663953652719e-15,
+     "value": 1.5060072122605832
+    },
+    {
+     "flow": "pratt.motor_glider.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=motor_glider].K_g",
+     "reference": 0.6891137973591258,
+     "rel_diff": 9.666528479445666e-16,
+     "value": 0.6891137973591265
+    },
+    {
+     "flow": "line.light_ga.stick_fixed.seed0.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:line_field[aircraft=light_ga].phi_rms_deg",
+     "reference": 12.21017941868511,
+     "rel_diff": 9.886614328556464e-09,
+     "value": 12.210179539402445
+    },
+    {
+     "flow": "line.regional_turboprop.stick_fixed.seed0.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:line_field[aircraft=regional_turboprop].phi_rms_deg",
+     "reference": 2.4149864291282386,
+     "rel_diff": 1.9087668330739397e-13,
+     "value": 2.4149864291286995
+    },
+    {
+     "flow": "line.a320.stick_fixed.seed0.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:line_field[aircraft=a320].phi_rms_deg",
+     "reference": 8.272703416863697,
+     "rel_diff": 3.779161272687931e-14,
+     "value": 8.27270341686401
+    },
+    {
+     "flow": "line.motor_glider.stick_fixed.seed0.phi_rms_deg",
+     "outcome": "match",
+     "ref": "results/turbulence.json:line_field[aircraft=motor_glider].phi_rms_deg",
+     "reference": 34.92987909659899,
+     "rel_diff": 3.8373083807508537e-07,
+     "value": 34.92989250027077
+    },
+    {
+     "flow": "light.light_ga.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=light].dnz_cg_rms",
+     "reference": 0.10131544498542404,
+     "rel_diff": 2.191616539383272e-15,
+     "value": 0.10131544498542426
+    },
+    {
+     "flow": "light.regional_turboprop.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=light].dnz_cg_rms",
+     "reference": 0.0765054113458033,
+     "rel_diff": 0.0,
+     "value": 0.0765054113458033
+    },
+    {
+     "flow": "light.a320.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=a320,severity=light].dnz_cg_rms",
+     "reference": 0.05146030765517406,
+     "rel_diff": 6.741986416408025e-16,
+     "value": 0.05146030765517409
+    },
+    {
+     "flow": "light.motor_glider.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=light].dnz_cg_rms",
+     "reference": 0.11180907430863363,
+     "rel_diff": 9.557271337852399e-15,
+     "value": 0.1118090743086347
+    },
+    {
+     "flow": "moderate.light_ga.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=light_ga,severity=moderate].dnz_cg_rms",
+     "reference": 0.15228328220156248,
+     "rel_diff": 3.0196569703616185e-11,
+     "value": 0.1522832822061609
+    },
+    {
+     "flow": "moderate.regional_turboprop.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=regional_turboprop,severity=moderate].dnz_cg_rms",
+     "reference": 0.12743915880849957,
+     "rel_diff": 0.0,
+     "value": 0.12743915880849957
+    },
+    {
+     "flow": "moderate.a320.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=a320,severity=moderate].dnz_cg_rms",
+     "reference": 0.08036365212011048,
+     "rel_diff": 6.907494839618734e-16,
+     "value": 0.08036365212011043
+    },
+    {
+     "flow": "moderate.motor_glider.autopilot.seed0.dnz_cg_rms",
+     "outcome": "match",
+     "ref": "results/turbulence.json:intensity[aircraft=motor_glider,severity=moderate].dnz_cg_rms",
+     "reference": 0.15900033164632543,
+     "rel_diff": 7.226908388109597e-14,
+     "value": 0.15900033164633692
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/turb/example-flight-turbulence.experiment.json, Lab item manifest/flow/example-flight-turbulence",
+   "matched": 48,
+   "nodes": {
+    "aircraft": "done",
+    "compare": "done",
+    "light": "done",
+    "line": "done",
+    "moderate": "done",
+    "pratt": "done",
+    "severe": "done",
+    "viewers": "done"
+   },
+   "seconds": 2751.2,
+   "status": "done"
+  },
+  "quick": {
+   "commit": "483932f3",
+   "comparisons": [
+    {
+     "flow": "pratt.light_ga.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_sim",
+     "reference": 1.2826038686352326,
+     "rel_diff": 1.038721044064681e-15,
+     "value": 1.2826038686352312
+    },
+    {
+     "flow": "pratt.light_ga.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=light_ga].dn_pratt",
+     "reference": 1.176969378429993,
+     "rel_diff": 1.1319475714205525e-15,
+     "value": 1.1769693784299917
+    },
+    {
+     "flow": "pratt.light_ga.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=light_ga].K_g",
+     "reference": 0.6932757160954035,
+     "rel_diff": 3.2028325782937877e-16,
+     "value": 0.6932757160954037
+    },
+    {
+     "flow": "pratt.regional_turboprop.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim",
+     "reference": 0.6733006343725072,
+     "rel_diff": 2.63828184426969e-15,
+     "value": 0.6733006343725054
+    },
+    {
+     "flow": "pratt.regional_turboprop.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt",
+     "reference": 0.6070682029725192,
+     "rel_diff": 1.280179250753461e-15,
+     "value": 0.60706820297252
+    },
+    {
+     "flow": "pratt.regional_turboprop.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=regional_turboprop].K_g",
+     "reference": 0.8115678646103993,
+     "rel_diff": 0.0,
+     "value": 0.8115678646103993
+    },
+    {
+     "flow": "pratt.a320.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=a320].dn_sim",
+     "reference": 0.40726984915125564,
+     "rel_diff": 2.180810638330031e-15,
+     "value": 0.4072698491512565
+    },
+    {
+     "flow": "pratt.a320.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=a320].dn_pratt",
+     "reference": 0.37312246885841116,
+     "rel_diff": 0.0,
+     "value": 0.37312246885841116
+    },
+    {
+     "flow": "pratt.a320.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=a320].K_g",
+     "reference": 0.8107615220547204,
+     "rel_diff": 0.0,
+     "value": 0.8107615220547204
+    },
+    {
+     "flow": "pratt.motor_glider.dn_sim",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_sim",
+     "reference": 1.7940134779209815,
+     "rel_diff": 2.475395058707707e-16,
+     "value": 1.794013477920982
+    },
+    {
+     "flow": "pratt.motor_glider.dn_pratt",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt",
+     "reference": 1.506007212260588,
+     "rel_diff": 3.243663953652719e-15,
+     "value": 1.5060072122605832
+    },
+    {
+     "flow": "pratt.motor_glider.K_g",
+     "outcome": "match",
+     "ref": "results/turbulence.json:pratt[aircraft=motor_glider].K_g",
+     "reference": 0.6891137973591258,
+     "rel_diff": 9.666528479445666e-16,
+     "value": 0.6891137973591265
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/turbq/example-flight-turbulence-quick.experiment.json, Lab item manifest/flow/example-flight-turbulence-quick",
+   "matched": 12,
+   "nodes": {
+    "aircraft": "done",
+    "compare": "done",
+    "light": "done",
+    "line": "done",
+    "moderate": "done",
+    "pratt": "done",
+    "severe": "done",
+    "viewers": "done"
+   },
+   "seconds": 454.0,
+   "status": "done"
+  }
+ },
  "flight_dynamics/07_same_gust": {
   "quick": {
    "commit": "57c66c1a",
@@ -2301,6 +3184,99 @@
     "opt": "done"
    },
    "seconds": 1423.8,
+   "status": "done"
+  }
+ },
+ "pinn_solver/01_symbolic_loss_basic": {
+  "full": {
+   "commit": "483932f3",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.pinn_solver.01_symbolic_loss_basic.experiment.json, Lab item manifest/flow/example.pinn_solver.01_symbolic_loss_basic",
+   "matched": 0,
+   "nodes": {
+    "loss": "done"
+   },
+   "seconds": 4.8,
+   "status": "done"
+  }
+ },
+ "pinn_solver/02_compiler_poisson_2d": {
+  "quick": {
+   "commit": "38ecd2bf",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.pinn_solver.02_compiler_poisson_2d-quick.experiment.json, Lab item manifest/flow/example.pinn_solver.02_compiler_poisson_2d-quick",
+   "matched": 0,
+   "nodes": {
+    "eq_poisson": "done",
+    "geo": "done",
+    "mesh": "done",
+    "pinn_poisson": "done",
+    "val_poisson": "done"
+   },
+   "seconds": 1353.0,
+   "status": "done"
+  }
+ },
+ "pinn_solver/03_compiler_burgers_1d": {
+  "quick": {
+   "commit": "38ecd2bf",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.pinn_solver.03_compiler_burgers_1d-quick.experiment.json, Lab item manifest/flow/example.pinn_solver.03_compiler_burgers_1d-quick",
+   "matched": 0,
+   "nodes": {
+    "eq_burgers": "done",
+    "geo": "done",
+    "mesh": "done",
+    "pinn_burgers": "done",
+    "val_burgers": "done"
+   },
+   "seconds": 415.8,
+   "status": "done"
+  }
+ },
+ "pinn_solver/04_factory_inverse_parameter_heat_1d": {
+  "quick": {
+   "commit": "38ecd2bf",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.pinn_solver.04_factory_inverse_parameter_heat_1d-quick.experiment.json, Lab item manifest/flow/example.pinn_solver.04_factory_inverse_parameter_heat_1d-quick",
+   "matched": 0,
+   "nodes": {
+    "discover": "done",
+    "fd": "done",
+    "geo": "done",
+    "inv_eq": "done",
+    "mesh": "done",
+    "sensors": "done",
+    "true_eq": "done"
+   },
+   "seconds": 474.2,
+   "status": "done"
+  }
+ },
+ "pinn_solver/06_compiler_wave_1d": {
+  "quick": {
+   "commit": "38ecd2bf",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.pinn_solver.06_compiler_wave_1d-quick.experiment.json, Lab item manifest/flow/example.pinn_solver.06_compiler_wave_1d-quick",
+   "matched": 0,
+   "nodes": {
+    "eq_wave": "done",
+    "geo": "done",
+    "mesh": "done",
+    "pinn_wave": "done",
+    "val_wave": "done"
+   },
+   "seconds": 737.9,
    "status": "done"
   }
  },
@@ -3902,6 +4878,21 @@
    "status": "done"
   }
  },
+ "validation/01_pinn_heat_conduction": {
+  "quick": {
+   "commit": "fd43aca8",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentC/example.validation.01_pinn_heat_conduction-quick.experiment.json, Lab item manifest/flow/example.validation.01_pinn_heat_conduction-quick",
+   "matched": 0,
+   "nodes": {
+    "gallery": "done"
+   },
+   "seconds": 2599.5,
+   "status": "done"
+  }
+ },
  "validation/06_opinf_weather_advection": {
   "full": {
    "commit": "c49301d7",
@@ -3918,6 +4909,19 @@
   }
  },
  "validation/07_mlp_zoo_heatsink_convection": {
+  "full": {
+   "commit": "c49301d7",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-21",
+   "manifest": "manifest /home/user/flowhome/agentC/example.validation.07_mlp_zoo_heatsink_convection.experiment.json, Lab item manifest/flow/example.validation.07_mlp_zoo_heatsink_convection",
+   "matched": 0,
+   "nodes": {
+    "gallery": "done"
+   },
+   "seconds": 15.5,
+   "status": "done"
+  },
   "quick": {
    "commit": "c49301d7",
    "comparisons": [],

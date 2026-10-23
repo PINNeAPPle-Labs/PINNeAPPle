@@ -8,10 +8,10 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 |---|---|
 | needs | 5 |
 | no flow | 9 |
-| not yet run | 11 |
+| not yet run | 10 |
 | not_convertible | 14 |
 | runs | 26 |
-| runs-quick | 2 |
+| runs-quick | 3 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -20,17 +20,17 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `benchmark` | benchmarks | - |  |  | not converted yet (a later batch of this PR): pp.benchmark.run in smoke mode (a harness that writes a results tree; no committed numbers) |
 | `benchmark_suite` | benchmarks | - |  |  | not converted yet (a later batch of this PR): 03 (Burgers PINN), 12 (benchmark.arena --fast), 16/17; 01, 04, 05, 07, 08, 09 import pinneapple_arena.* / pinneapple_digital_twin modules that no longer exist; 14 and 15 hold their solvers in the script |
 | `black_hole_weather` | astrophysics | `black_hole_weather/accretion_run` | runs | 1 / 1 match | the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows |
-| `bricks` | design | `bricks/self_modifying_bricks` | not yet run |  | compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes |
+| `bricks` | design | `bricks/self_modifying_bricks` | runs-quick | 15 / 15 match | compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes |
 | `calculix_cantilever` | structures | `calculix_cantilever/beam` | runs | 4 / 4 match | no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd |
 | `core_primitives` | core | - | not_convertible |  | demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate) |
 | `data_api` | core | - | not_convertible |  | demonstrates the pinneapple_core.data loaders with hand-written loops; the same three problems are equations + train.pinn, surrogate.train and inverse.discover flows |
 | `data_pipeline` | data | - | not_convertible |  | API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed |
 | `design_from_intent` | design | `design_from_intent/design_from_intent` | runs | 21 / 30 match | the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run |
-| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run | 8 / 8 match | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12 + GetDP 3.2 from apt |
+| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run | 12 / 17 match | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12.1 + GetDP 3.2.0 from apt; in 14 every PINNeAPPle-side number matches and the GetDP-side ones differ by 1e-5 to 3e-4 relative (0.6 % on the small GetDP-minus-PINNeAPPle torque difference); the committed results do not record the gmsh / GetDP versions they were made with |
 | `end_to_end` | data | - | not_convertible |  | legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh |
 | `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 12 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
 | `first_example` | PINN | `first_example/first_example` | not yet run |  | nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75 |
-| `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 127 / 127 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
+| `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 175 / 175 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
 | `flow_studio` | flows | - | not_convertible |  | already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step |
 | `free_surface` | CFD | `free_surface/01_runner_slope_study` | runs | 12 / 12 match | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
 | `geomechanics` | geomechanics | `geomechanics/01_granular_column_collapse` | runs | 8 / 8 match | no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md) |
@@ -160,6 +160,28 @@ done in 315 s (commit 5d9bf73a, 2026-10-19); 1 of 1 numbers match.
 |---|---|---|---|---|---|
 | `stats.mdot_mean` | `results/convergence.json:scalars.mdot_mean.by_level.90.per_seed.0` | 2.19621 | 2.19621 | 0 | match |
 
+### `bricks/self_modifying_bricks` (quick)
+
+done in 4276 s (commit fd43aca8, 2026-10-21); 15 of 15 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `val.check.0` | `_out/summary.json:validation.0.simulated` | 1 | 1 | 0 | match |
+| `val.check.1` | `_out/summary.json:validation.1.simulated` | 0.5 | 0.5 | 0 | match |
+| `val.check.2` | `_out/summary.json:validation.2.simulated` | 0.0308034 | 0.0308034 | 0 | match |
+| `val.check.3` | `_out/summary.json:validation.3.simulated` | 0.0297243 | 0.0297243 | 0 | match |
+| `val.check.4` | `_out/summary.json:validation.4.simulated` | 0.00940125 | 0.00940125 | 0 | match |
+| `val.check.5` | `_out/summary.json:validation.5.simulated` | 0.114351 | 0.114351 | 0 | match |
+| `val.check.6` | `_out/summary.json:validation.6.simulated` | 0.0326609 | 0.0326609 | 0 | match |
+| `val.check.7` | `_out/summary.json:validation.7.simulated` | 7 | 7 | 0 | match |
+| `val.check.8` | `_out/summary.json:validation.8.simulated` | 1 | 1 | 0 | match |
+| `cantilever.cantilever.evolution.seed0` | `_out/summary.json:comparison.cantilever.evolution.per_seed.0` | 127.9 | 127.9 | 0 | match |
+| `cantilever.cantilever.surrogate.seed0` | `_out/summary.json:comparison.cantilever.surrogate.per_seed.0` | 103.9 | 103.9 | 0 | match |
+| `bridge.bridge.evolution.seed0` | `_out/summary.json:comparison.bridge.evolution.per_seed.0` | -5 | -5 | 0 | match |
+| `bridge.bridge.surrogate.seed0` | `_out/summary.json:comparison.bridge.surrogate.per_seed.0` | -3 | -3 | 0 | match |
+| `tower.tower.evolution.seed0` | `_out/summary.json:comparison.tower.evolution.per_seed.0` | 118.4 | 118.4 | 0 | match |
+| `tower.tower.surrogate.seed0` | `_out/summary.json:comparison.tower.surrogate.per_seed.0` | 153.6 | 153.6 | 0 | match |
+
 ### `calculix_cantilever/beam` (full)
 
 done in 7 s (commit 5d9bf73a, 2026-10-19); 4 of 4 numbers match.
@@ -222,6 +244,22 @@ done in 928 s (commit 5e891c36, 2026-10-19); 8 of 8 numbers match.
 | `drive.envelope.torque_0rpm_Nm` | `results/11_prius_drive.json:envelope.torque_Nm.0` | 343.556 | 343.556 | 0 | match |
 | `drive.envelope.torque_3000rpm_Nm` | `results/11_prius_drive.json:envelope.torque_Nm.12` | 239.261 | 239.261 | 0 | match |
 | `drive.envelope.torque_6000rpm_Nm` | `results/11_prius_drive.json:envelope.torque_Nm.24` | 104.386 | 104.386 | 0 | match |
+
+### `electromagnetics/14_prius_getdp_crosscheck` (full)
+
+done in 6812 s (commit fd43aca8, 2026-10-21); 4 of 9 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `xcheck.torque_difference_getdp_minus_pinneapple.max_abs_Nm` | `results/14_prius_getdp_crosscheck.json:torque_difference_getdp_minus_pinneapple.max_abs_Nm` | 1.07961 | 1.08594 | 0.00583004 | differs |
+| `xcheck.torque_difference_getdp_minus_pinneapple.rms_Nm` | `results/14_prius_getdp_crosscheck.json:torque_difference_getdp_minus_pinneapple.rms_Nm` | 0.805549 | 0.810038 | 0.00554189 | differs |
+| `xcheck.vs_yang.pinneapple_rms_Nm` | `results/14_prius_getdp_crosscheck.json:vs_yang.pinneapple_rms_Nm` | 13.2943 | 13.2943 | 0 | match |
+| `xcheck.vs_yang.getdp_rms_Nm` | `results/14_prius_getdp_crosscheck.json:vs_yang.getdp_rms_Nm` | 12.8705 | 12.8667 | 0.000295365 | differs |
+| `xcheck.cogging.pinneapple_pkpk_Nm` | `results/14_prius_getdp_crosscheck.json:cogging.pinneapple_pkpk_Nm` | 1.35309 | 1.35309 | 0 | match |
+| `xcheck.cogging.getdp_pkpk_Nm` | `results/14_prius_getdp_crosscheck.json:cogging.getdp_pkpk_Nm` | 1.04537 | 1.04557 | 0.00019099 | differs |
+| `xcheck.back_emf_1000rpm.getdp_fundamental_peak_V` | `results/14_prius_getdp_crosscheck.json:back_emf_1000rpm.getdp_fundamental_peak_V` | 87.6409 | 87.6409 | 8.20189e-08 | match |
+| `xcheck.inductances.getdp.L_d_mH` | `results/14_prius_getdp_crosscheck.json:inductances_apparent_250A_50deg.getdp.L_d_mH` | 1.3851 | 1.38512 | 1.17423e-05 | differs |
+| `xcheck.inductances.pinneapple.L_d_mH` | `results/14_prius_getdp_crosscheck.json:inductances_apparent_250A_50deg.pinneapple.L_d_mH` | 1.36986 | 1.36986 | 0 | match |
 
 ### `enso_forecasting/solver_checks` (full)
 
@@ -365,6 +403,80 @@ done in 283 s (commit 57c66c1a, 2026-10-19); 44 of 44 numbers match.
 | `takeoff.motor_glider.crosswind_max_bank_deg` | `results/takeoff.json:crosswind.motor_glider.max_bank_deg` | 5.63927 | 5.63927 | 9.76492e-15 | match |
 | `takeoff.motor_glider.crosswind_max_rudder_deg` | `results/takeoff.json:crosswind.motor_glider.max_rudder_deg` | 11.149 | 11.149 | 3.18658e-16 | match |
 | `takeoff.motor_glider.gust_delta_distance_35ft_m` | `results/takeoff.json:gust_at_rotation.motor_glider.delta_distance_35ft_m` | -1.84107 | -1.84107 | 9.26256e-14 | match |
+
+### `flight_dynamics/04_turbulence_encounters` (full)
+
+done in 2751 s (commit 38ecd2bf, 2026-10-23); 48 of 48 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `severe.light_ga.stick_fixed.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].dnz_cg_rms` | 0.581079 | 0.586311 | 0.00892461 | match |
+| `severe.light_ga.stick_fixed.phi_rms_deg` | `results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].phi_rms_deg` | 22.5012 | 22.5945 | 0.00412983 | match |
+| `severe.light_ga.stick_fixed.theta_rms_deg` | `results/turbulence.json:summary[aircraft=light_ga,controller=stick_fixed].theta_rms_deg` | 13.0683 | 13.0804 | 0.000926905 | match |
+| `severe.light_ga.autopilot.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].dnz_cg_rms` | 0.368307 | 0.368307 | 3.1137e-09 | match |
+| `severe.light_ga.autopilot.phi_rms_deg` | `results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].phi_rms_deg` | 6.95096 | 6.95097 | 2.67255e-07 | match |
+| `severe.light_ga.autopilot.theta_rms_deg` | `results/turbulence.json:summary[aircraft=light_ga,controller=autopilot].theta_rms_deg` | 4.41217 | 4.41217 | 1.75652e-09 | match |
+| `severe.regional_turboprop.stick_fixed.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].dnz_cg_rms` | 0.566098 | 0.566098 | 2.37438e-07 | match |
+| `severe.regional_turboprop.stick_fixed.phi_rms_deg` | `results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].phi_rms_deg` | 14.9356 | 14.9356 | 2.3002e-06 | match |
+| `severe.regional_turboprop.stick_fixed.theta_rms_deg` | `results/turbulence.json:summary[aircraft=regional_turboprop,controller=stick_fixed].theta_rms_deg` | 12.7037 | 12.7037 | 9.69648e-07 | match |
+| `severe.regional_turboprop.autopilot.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].dnz_cg_rms` | 0.313585 | 0.313585 | 8.85106e-16 | match |
+| `severe.regional_turboprop.autopilot.phi_rms_deg` | `results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].phi_rms_deg` | 4.4637 | 4.4637 | 1.19387e-15 | match |
+| `severe.regional_turboprop.autopilot.theta_rms_deg` | `results/turbulence.json:summary[aircraft=regional_turboprop,controller=autopilot].theta_rms_deg` | 2.92949 | 2.92949 | 5.15415e-15 | match |
+| `severe.a320.stick_fixed.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].dnz_cg_rms` | 0.287482 | 0.287482 | 1.11305e-09 | match |
+| `severe.a320.stick_fixed.phi_rms_deg` | `results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].phi_rms_deg` | 14.6513 | 14.6513 | 2.34973e-09 | match |
+| `severe.a320.stick_fixed.theta_rms_deg` | `results/turbulence.json:summary[aircraft=a320,controller=stick_fixed].theta_rms_deg` | 6.40791 | 6.40791 | 2.10668e-10 | match |
+| `severe.a320.autopilot.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=a320,controller=autopilot].dnz_cg_rms` | 0.213709 | 0.213709 | 1.16888e-15 | match |
+| `severe.a320.autopilot.phi_rms_deg` | `results/turbulence.json:summary[aircraft=a320,controller=autopilot].phi_rms_deg` | 3.09839 | 3.09839 | 1.71995e-15 | match |
+| `severe.a320.autopilot.theta_rms_deg` | `results/turbulence.json:summary[aircraft=a320,controller=autopilot].theta_rms_deg` | 2.73236 | 2.73236 | 6.50118e-16 | match |
+| `severe.motor_glider.stick_fixed.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].dnz_cg_rms` | 0.909137 | 0.934671 | 0.0273185 | match |
+| `severe.motor_glider.stick_fixed.phi_rms_deg` | `results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].phi_rms_deg` | 29.4043 | 29.5017 | 0.00330237 | match |
+| `severe.motor_glider.stick_fixed.theta_rms_deg` | `results/turbulence.json:summary[aircraft=motor_glider,controller=stick_fixed].theta_rms_deg` | 24.672 | 24.7555 | 0.00337165 | match |
+| `severe.motor_glider.autopilot.dnz_cg_rms` | `results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].dnz_cg_rms` | 40.4618 | 68.9346 | 0.413041 | match |
+| `severe.motor_glider.autopilot.phi_rms_deg` | `results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].phi_rms_deg` | 31.3274 | 29.8835 | 0.0483197 | match |
+| `severe.motor_glider.autopilot.theta_rms_deg` | `results/turbulence.json:summary[aircraft=motor_glider,controller=autopilot].theta_rms_deg` | 15.4331 | 16.1191 | 0.0425544 | match |
+| `pratt.light_ga.dn_sim` | `results/turbulence.json:pratt[aircraft=light_ga].dn_sim` | 1.2826 | 1.2826 | 1.03872e-15 | match |
+| `pratt.light_ga.dn_pratt` | `results/turbulence.json:pratt[aircraft=light_ga].dn_pratt` | 1.17697 | 1.17697 | 1.13195e-15 | match |
+| `pratt.light_ga.K_g` | `results/turbulence.json:pratt[aircraft=light_ga].K_g` | 0.693276 | 0.693276 | 3.20283e-16 | match |
+| `pratt.regional_turboprop.dn_sim` | `results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim` | 0.673301 | 0.673301 | 2.63828e-15 | match |
+| `pratt.regional_turboprop.dn_pratt` | `results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt` | 0.607068 | 0.607068 | 1.28018e-15 | match |
+| `pratt.regional_turboprop.K_g` | `results/turbulence.json:pratt[aircraft=regional_turboprop].K_g` | 0.811568 | 0.811568 | 0 | match |
+| `pratt.a320.dn_sim` | `results/turbulence.json:pratt[aircraft=a320].dn_sim` | 0.40727 | 0.40727 | 2.18081e-15 | match |
+| `pratt.a320.dn_pratt` | `results/turbulence.json:pratt[aircraft=a320].dn_pratt` | 0.373122 | 0.373122 | 0 | match |
+| `pratt.a320.K_g` | `results/turbulence.json:pratt[aircraft=a320].K_g` | 0.810762 | 0.810762 | 0 | match |
+| `pratt.motor_glider.dn_sim` | `results/turbulence.json:pratt[aircraft=motor_glider].dn_sim` | 1.79401 | 1.79401 | 2.4754e-16 | match |
+| `pratt.motor_glider.dn_pratt` | `results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt` | 1.50601 | 1.50601 | 3.24366e-15 | match |
+| `pratt.motor_glider.K_g` | `results/turbulence.json:pratt[aircraft=motor_glider].K_g` | 0.689114 | 0.689114 | 9.66653e-16 | match |
+| `line.light_ga.stick_fixed.seed0.phi_rms_deg` | `results/turbulence.json:line_field[aircraft=light_ga].phi_rms_deg` | 12.2102 | 12.2102 | 9.88661e-09 | match |
+| `line.regional_turboprop.stick_fixed.seed0.phi_rms_deg` | `results/turbulence.json:line_field[aircraft=regional_turboprop].phi_rms_deg` | 2.41499 | 2.41499 | 1.90877e-13 | match |
+| `line.a320.stick_fixed.seed0.phi_rms_deg` | `results/turbulence.json:line_field[aircraft=a320].phi_rms_deg` | 8.2727 | 8.2727 | 3.77916e-14 | match |
+| `line.motor_glider.stick_fixed.seed0.phi_rms_deg` | `results/turbulence.json:line_field[aircraft=motor_glider].phi_rms_deg` | 34.9299 | 34.9299 | 3.83731e-07 | match |
+| `light.light_ga.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=light_ga,severity=light].dnz_cg_rms` | 0.101315 | 0.101315 | 2.19162e-15 | match |
+| `light.regional_turboprop.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=regional_turboprop,severity=light].dnz_cg_rms` | 0.0765054 | 0.0765054 | 0 | match |
+| `light.a320.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=a320,severity=light].dnz_cg_rms` | 0.0514603 | 0.0514603 | 6.74199e-16 | match |
+| `light.motor_glider.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=motor_glider,severity=light].dnz_cg_rms` | 0.111809 | 0.111809 | 9.55727e-15 | match |
+| `moderate.light_ga.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=light_ga,severity=moderate].dnz_cg_rms` | 0.152283 | 0.152283 | 3.01966e-11 | match |
+| `moderate.regional_turboprop.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=regional_turboprop,severity=moderate].dnz_cg_rms` | 0.127439 | 0.127439 | 0 | match |
+| `moderate.a320.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=a320,severity=moderate].dnz_cg_rms` | 0.0803637 | 0.0803637 | 6.90749e-16 | match |
+| `moderate.motor_glider.autopilot.seed0.dnz_cg_rms` | `results/turbulence.json:intensity[aircraft=motor_glider,severity=moderate].dnz_cg_rms` | 0.159 | 0.159 | 7.22691e-14 | match |
+
+### `flight_dynamics/04_turbulence_encounters` (quick)
+
+done in 454 s (commit 483932f3, 2026-10-23); 12 of 12 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `pratt.light_ga.dn_sim` | `results/turbulence.json:pratt[aircraft=light_ga].dn_sim` | 1.2826 | 1.2826 | 1.03872e-15 | match |
+| `pratt.light_ga.dn_pratt` | `results/turbulence.json:pratt[aircraft=light_ga].dn_pratt` | 1.17697 | 1.17697 | 1.13195e-15 | match |
+| `pratt.light_ga.K_g` | `results/turbulence.json:pratt[aircraft=light_ga].K_g` | 0.693276 | 0.693276 | 3.20283e-16 | match |
+| `pratt.regional_turboprop.dn_sim` | `results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim` | 0.673301 | 0.673301 | 2.63828e-15 | match |
+| `pratt.regional_turboprop.dn_pratt` | `results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt` | 0.607068 | 0.607068 | 1.28018e-15 | match |
+| `pratt.regional_turboprop.K_g` | `results/turbulence.json:pratt[aircraft=regional_turboprop].K_g` | 0.811568 | 0.811568 | 0 | match |
+| `pratt.a320.dn_sim` | `results/turbulence.json:pratt[aircraft=a320].dn_sim` | 0.40727 | 0.40727 | 2.18081e-15 | match |
+| `pratt.a320.dn_pratt` | `results/turbulence.json:pratt[aircraft=a320].dn_pratt` | 0.373122 | 0.373122 | 0 | match |
+| `pratt.a320.K_g` | `results/turbulence.json:pratt[aircraft=a320].K_g` | 0.810762 | 0.810762 | 0 | match |
+| `pratt.motor_glider.dn_sim` | `results/turbulence.json:pratt[aircraft=motor_glider].dn_sim` | 1.79401 | 1.79401 | 2.4754e-16 | match |
+| `pratt.motor_glider.dn_pratt` | `results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt` | 1.50601 | 1.50601 | 3.24366e-15 | match |
+| `pratt.motor_glider.K_g` | `results/turbulence.json:pratt[aircraft=motor_glider].K_g` | 0.689114 | 0.689114 | 9.66653e-16 | match |
 
 ### `flight_dynamics/07_same_gust` (quick)
 

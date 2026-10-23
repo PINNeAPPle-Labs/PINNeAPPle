@@ -1,0 +1,339 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/chain_of_whys",
+ "title": "Chain of whys",
+ "description": "Engineering reasoning from physics: naive concept -> computed failure mode -> countermeasure -> check again, for a roof, a footbridge, a power board and a pumped main.",
+ "domain": "design and geometry",
+ "methods": [
+  "closed-form checks",
+  "FD beam",
+  "3-D board FV",
+  "MOC"
+ ],
+ "modules": [
+  "pinneapple_reason"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "roof_versions",
+   "value": 4.0,
+   "unit": "versions",
+   "how": "versions until every requirement passes"
+  },
+  {
+   "name": "roof_evaluations",
+   "value": 15.0,
+   "unit": "checks",
+   "how": "failure-mode evaluations the engine ran"
+  },
+  {
+   "name": "footbridge_versions",
+   "value": 4.0,
+   "unit": "versions",
+   "how": "versions until every requirement passes"
+  },
+  {
+   "name": "footbridge_evaluations",
+   "value": 24.0,
+   "unit": "checks",
+   "how": "failure-mode evaluations the engine ran"
+  },
+  {
+   "name": "power_board_versions",
+   "value": 3.0,
+   "unit": "versions",
+   "how": "versions until every requirement passes"
+  },
+  {
+   "name": "power_board_evaluations",
+   "value": 4.0,
+   "unit": "checks",
+   "how": "failure-mode evaluations the engine ran"
+  },
+  {
+   "name": "pumped_main_versions",
+   "value": 3.0,
+   "unit": "versions",
+   "how": "versions until every requirement passes"
+  },
+  {
+   "name": "pumped_main_evaluations",
+   "value": 15.0,
+   "unit": "checks",
+   "how": "failure-mode evaluations the engine ran"
+  }
+ ],
+ "checks": [
+  {
+   "name": "roof: every requirement passes on the final version",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "lap_water_ingress:increase_slope -> underside_condensation:ceiling_ventilated_attic -> radiant_heat_gain:radiant_barrier",
+   "kind": "physics"
+  },
+  {
+   "name": "roof: known answer: lap_water_ingress.h_capillary",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "h = 2 sigma / (rho g w) for w = 1 mm, sigma = 0.0728 N/m (14.87 mm)",
+   "kind": "verification"
+  },
+  {
+   "name": "roof: known answer: lap_water_ingress.h_film",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "flat roof: 150 mm/h for 10 min ponds 25 mm",
+   "kind": "verification"
+  },
+  {
+   "name": "roof: trust report decision",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED []",
+   "kind": "sanity"
+  },
+  {
+   "name": "footbridge: every requirement passes on the final version",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "deflection:deepen_girders -> lateral_torsional_buckling:lateral_bracing -> pedestrian_resonance:tuned_mass_damper",
+   "kind": "physics"
+  },
+  {
+   "name": "footbridge: solver vs closed form: FD beam deflection",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+   "kind": "verification"
+  },
+  {
+   "name": "footbridge: solver vs closed form: Rayleigh frequency from FD deflection",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (s",
+   "kind": "verification"
+  },
+  {
+   "name": "footbridge: known answer: deflection.deflection",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "5 q L^4/(384 E I) (Timoshenko, Strength of Materials)",
+   "kind": "verification"
+  },
+  {
+   "name": "footbridge: known answer: lateral_torsional_buckling.M_cr",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "M_cr formula, Timoshenko & Gere (1961), ch. 6, with C1 = 1",
+   "kind": "verification"
+  },
+  {
+   "name": "footbridge: known answer: pedestrian_resonance.f1",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "f1 = pi/(2 L^2) sqrt(EI/m) (simply supported beam)",
+   "kind": "verification"
+  },
+  {
+   "name": "footbridge: trust report decision",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED []",
+   "kind": "sanity"
+  },
+  {
+   "name": "power_board: every requirement passes on the final version",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "joule_heating:heatsink_natural -> joule_heating:forced_air",
+   "kind": "physics"
+  },
+  {
+   "name": "power_board: trust report decision",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED []",
+   "kind": "sanity"
+  },
+  {
+   "name": "pumped_main: every requirement passes on the final version",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pump_cavitation:lower_pump -> water_hammer:slow_valve_closure",
+   "kind": "physics"
+  },
+  {
+   "name": "pumped_main: solver vs closed form: MOC instantaneous closure vs Joukowsky",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "pinneapple_simulation.numerical_solvers.water_hammer_moc.valve_closure_moc (method of characteristics); Joukowsky (1898)",
+   "kind": "verification"
+  },
+  {
+   "name": "pumped_main: known answer: pump_cavitation.h_atm",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "sea-level standard atmosphere 101325 Pa = 10.35 m of water",
+   "kind": "verification"
+  },
+  {
+   "name": "pumped_main: known answer: water_hammer.wave_speed",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Korteweg wave speed, Wylie & Streeter eq. 2.29, c1 = 1 - nu^2",
+   "kind": "verification"
+  },
+  {
+   "name": "pumped_main: trust report decision",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED []",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "_out/roof/figures/timeline.png",
+   "_out/roof/figures/margins.png",
+   "_out/roof/figures/demand_capacity.png",
+   "_out/roof/figures/roof_min_slope.png",
+   "_out/footbridge/figures/timeline.png",
+   "_out/footbridge/figures/margins.png",
+   "_out/footbridge/figures/demand_capacity.png",
+   "_out/footbridge/figures/resonance.png",
+   "_out/power_board/figures/timeline.png",
+   "_out/power_board/figures/margins.png",
+   "_out/power_board/figures/demand_capacity.png",
+   "_out/pumped_main/figures/timeline.png",
+   "_out/pumped_main/figures/margins.png",
+   "_out/pumped_main/figures/demand_capacity.png",
+   "_out/pumped_main/figures/water_hammer.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/roof/chain.json",
+   "_out/roof/trust.json",
+   "_out/roof/report.md",
+   "_out/footbridge/chain.json",
+   "_out/footbridge/trust.json",
+   "_out/footbridge/report.md",
+   "_out/power_board/chain.json",
+   "_out/power_board/trust.json",
+   "_out/power_board/report.md",
+   "_out/pumped_main/chain.json",
+   "_out/pumped_main/trust.json",
+   "_out/pumped_main/report.md"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/chain_of_whys.md",
+  "script": "examples/chain_of_whys/chain_of_whys.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9f37025e",
+  "created": "2026-10-23T21:25:44Z",
+  "seconds": 34.883,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

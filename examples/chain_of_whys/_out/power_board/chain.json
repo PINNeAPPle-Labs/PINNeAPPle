@@ -1,0 +1,1003 @@
+{
+ "schema": "pinneapple.reason.chain/1",
+ "title": {
+  "pt": "Placa de pot\u00eancia: do componente na placa \u00e0 convec\u00e7\u00e3o for\u00e7ada",
+  "en": "Power board: from a part on the board to forced air"
+ },
+ "status": "resolved",
+ "requirements": [
+  {
+   "id": "R1",
+   "text": {
+    "pt": "conduzir 20 A sem passar do limite de jun\u00e7\u00e3o",
+    "en": "carry 20 A without exceeding the junction limit"
+   },
+   "modes": [
+    "joule_heating"
+   ],
+   "limits": {
+    "tj_max": 125.0
+   },
+   "source": "premise: design limit 125 \u00b0C (derated from the 175 \u00b0C rating)"
+  }
+ ],
+ "steps": [
+  {
+   "version": 0,
+   "concept": {
+    "name": "power_board",
+    "params": {
+     "current": 20.0,
+     "r_on_25": 0.02,
+     "r_on_tc": 0.006,
+     "t_ambient": 40.0,
+     "tj_max": 125.0,
+     "package": "TO-263 D2PAK",
+     "theta_jb": 1.0,
+     "board_w_mm": 100.0,
+     "board_d_mm": 80.0,
+     "board_layers": 4,
+     "thermal_vias": 0,
+     "max_vias": 40,
+     "theta_jc_tab": 0.8,
+     "tab_w": 0.01,
+     "tab_d": 0.015,
+     "tim_r": 1e-05,
+     "hs_max_w": 0.04,
+     "hs_max_d": 0.04,
+     "hs_max_h": 0.02,
+     "hs_base_t": 0.003,
+     "hs_fin_t": 0.0012,
+     "hs_material": "al6063",
+     "design_margin": 0.05
+    },
+    "elements": [
+     "board"
+    ],
+    "description": {
+     "pt": "MOSFET D2PAK soldado numa placa de 4 camadas, sem dissipador",
+     "en": "D2PAK MOSFET soldered on a 4-layer board, no heat sink"
+    },
+    "sources": {
+     "current": "premise",
+     "r_on_25": "premise: datasheet-style R_DS(on) at 25 \u00b0C",
+     "r_on_tc": "premise: R_DS(on) about x1.75 at 150 \u00b0C",
+     "t_ambient": "premise",
+     "tj_max": "premise",
+     "package": "premise",
+     "theta_jb": "premise: junction-to-board through the soldered tab",
+     "board_w_mm": "premise",
+     "board_d_mm": "premise",
+     "board_layers": "premise",
+     "thermal_vias": "premise",
+     "max_vias": "premise",
+     "theta_jc_tab": "premise: junction to mounting tab, tab-mount package on the heat sink",
+     "tab_w": "premise",
+     "tab_d": "premise",
+     "tim_r": "premise: thin grease, K m^2/W",
+     "hs_max_w": "premise",
+     "hs_max_d": "premise",
+     "hs_max_h": "premise",
+     "hs_base_t": "premise",
+     "hs_fin_t": "premise",
+     "hs_material": "premise",
+     "design_margin": "premise"
+    },
+    "version": 0
+   },
+   "verifications": [
+    {
+     "mode": "joule_heating",
+     "requirement": "R1",
+     "passed": false,
+     "demand": 625.8110718939647,
+     "capacity": 125.0,
+     "unit": "\u00b0C",
+     "margin": -5.891894963458408,
+     "demand_label": {
+      "pt": "temperatura de jun\u00e7\u00e3o",
+      "en": "junction temperature"
+     },
+     "capacity_label": {
+      "pt": "limite de jun\u00e7\u00e3o",
+      "en": "junction limit"
+     },
+     "mechanism": {
+      "pt": "Com 20 A o MOSFET dissipa 36.8 W (eram 8 W a 25 \u00b0C: R_on sobe com a temperatura, ganho de realimenta\u00e7\u00e3o 0.763); pelo caminho t\u00e9rmico (s\u00f3 a placa, 15.9 K/W da jun\u00e7\u00e3o ao ar) a jun\u00e7\u00e3o chega a 626 \u00b0C, acima do limite de 125 \u00b0C (muito al\u00e9m do que o sil\u00edcio suporta: o n\u00famero mede o tamanho do problema).",
+      "en": "At 20 A the MOSFET dissipates 36.8 W (8 W at 25 \u00b0C: R_on rises with temperature, loop gain 0.763); through the thermal path (the board alone, 15.9 K/W junction to air) the junction reaches 626 \u00b0C, above the 125 \u00b0C limit (far beyond what silicon survives: the number measures the size of the problem)."
+     },
+     "method": "Joule loss I^2 R_on(T) coupled to the thermal path: board: 3-D finite-volume PCB model (pinneapple_physics.pcb.solve), JEDEC two-resistor package",
+     "quantities": {
+      "t_junction": [
+       625.8110718939647,
+       "\u00b0C",
+       "junction temperature (electrothermal fixed point)"
+      ],
+      "power": [
+       36.83893145091031,
+       "W",
+       "conduction loss at T_j"
+      ],
+      "power_25": [
+       8.0,
+       "W",
+       "conduction loss at 25 \u00b0C"
+      ],
+      "r_th": [
+       15.901956132321233,
+       "K/W",
+       "junction-to-ambient resistance"
+      ],
+      "loop_gain": [
+       0.7632938943514193,
+       "1",
+       "electrothermal loop gain a I^2 R_25 R_th"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "s\u00f3 perdas de condu\u00e7\u00e3o (sem chaveamento)",
+       "en": "conduction losses only (no switching)"
+      },
+      {
+       "pt": "R_on linear na temperatura",
+       "en": "R_on linear in temperature"
+      },
+      {
+       "pt": "no dissipador, o caminho pela placa \u00e9 desprezado (conservador)",
+       "en": "on the heat sink, the path through the board is neglected (conservative)"
+      }
+     ],
+     "sources": [
+      "Incropera et al., ch. 3 and 9",
+      "pinneapple_physics.pcb (3-D finite-volume board model)",
+      "pinneapple_physics.closed_form.plate_fin_heatsink (Teertstra et al. 2000; Bar-Cohen & Rohsenow 1984; Lee et al. 1995)"
+     ],
+     "validity": [
+      {
+       "name": "junction below the silicon model limit",
+       "value": 625.8110718939647,
+       "lo": null,
+       "hi": 200,
+       "note": "R_on(T) linear fit",
+       "ok": false
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "electrothermal fixed point converged",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0,
+       "limit": 0.01,
+       "source": "T_j iteration",
+       "reason": ""
+      },
+      {
+       "name": "board model energy balance",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 1.292285270189679e-14,
+       "limit": 1e-06,
+       "source": "pinneapple_physics.pcb.solve",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    }
+   ],
+   "finding": {
+    "requirement": "R1",
+    "mode": "joule_heating",
+    "title": {
+     "pt": "aquecimento Joule da jun\u00e7\u00e3o",
+     "en": "Joule heating of the junction"
+    },
+    "verification": {
+     "mode": "joule_heating",
+     "requirement": "R1",
+     "passed": false,
+     "demand": 625.8110718939647,
+     "capacity": 125.0,
+     "unit": "\u00b0C",
+     "margin": -5.891894963458408,
+     "demand_label": {
+      "pt": "temperatura de jun\u00e7\u00e3o",
+      "en": "junction temperature"
+     },
+     "capacity_label": {
+      "pt": "limite de jun\u00e7\u00e3o",
+      "en": "junction limit"
+     },
+     "mechanism": {
+      "pt": "Com 20 A o MOSFET dissipa 36.8 W (eram 8 W a 25 \u00b0C: R_on sobe com a temperatura, ganho de realimenta\u00e7\u00e3o 0.763); pelo caminho t\u00e9rmico (s\u00f3 a placa, 15.9 K/W da jun\u00e7\u00e3o ao ar) a jun\u00e7\u00e3o chega a 626 \u00b0C, acima do limite de 125 \u00b0C (muito al\u00e9m do que o sil\u00edcio suporta: o n\u00famero mede o tamanho do problema).",
+      "en": "At 20 A the MOSFET dissipates 36.8 W (8 W at 25 \u00b0C: R_on rises with temperature, loop gain 0.763); through the thermal path (the board alone, 15.9 K/W junction to air) the junction reaches 626 \u00b0C, above the 125 \u00b0C limit (far beyond what silicon survives: the number measures the size of the problem)."
+     },
+     "method": "Joule loss I^2 R_on(T) coupled to the thermal path: board: 3-D finite-volume PCB model (pinneapple_physics.pcb.solve), JEDEC two-resistor package",
+     "quantities": {
+      "t_junction": [
+       625.8110718939647,
+       "\u00b0C",
+       "junction temperature (electrothermal fixed point)"
+      ],
+      "power": [
+       36.83893145091031,
+       "W",
+       "conduction loss at T_j"
+      ],
+      "power_25": [
+       8.0,
+       "W",
+       "conduction loss at 25 \u00b0C"
+      ],
+      "r_th": [
+       15.901956132321233,
+       "K/W",
+       "junction-to-ambient resistance"
+      ],
+      "loop_gain": [
+       0.7632938943514193,
+       "1",
+       "electrothermal loop gain a I^2 R_25 R_th"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "s\u00f3 perdas de condu\u00e7\u00e3o (sem chaveamento)",
+       "en": "conduction losses only (no switching)"
+      },
+      {
+       "pt": "R_on linear na temperatura",
+       "en": "R_on linear in temperature"
+      },
+      {
+       "pt": "no dissipador, o caminho pela placa \u00e9 desprezado (conservador)",
+       "en": "on the heat sink, the path through the board is neglected (conservative)"
+      }
+     ],
+     "sources": [
+      "Incropera et al., ch. 3 and 9",
+      "pinneapple_physics.pcb (3-D finite-volume board model)",
+      "pinneapple_physics.closed_form.plate_fin_heatsink (Teertstra et al. 2000; Bar-Cohen & Rohsenow 1984; Lee et al. 1995)"
+     ],
+     "validity": [
+      {
+       "name": "junction below the silicon model limit",
+       "value": 625.8110718939647,
+       "lo": null,
+       "hi": 200,
+       "note": "R_on(T) linear fit",
+       "ok": false
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "electrothermal fixed point converged",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0,
+       "limit": 0.01,
+       "source": "T_j iteration",
+       "reason": ""
+      },
+      {
+       "name": "board model energy balance",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 1.292285270189679e-14,
+       "limit": 1e-06,
+       "source": "pinneapple_physics.pcb.solve",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    "proof": "junction temperature = 625.8 \u00b0C > junction limit = 125.0 \u00b0C"
+   },
+   "options": [
+    {
+     "countermeasure": "thermal_vias",
+     "element": "thermal_vias",
+     "title": {
+      "pt": "vias t\u00e9rmicas sob o componente",
+      "en": "thermal vias under the part"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "thermal_vias": 40
+     },
+     "cost": {
+      "quantity": 40.0,
+      "unit": "vias",
+      "what": "vias drilled",
+      "unit_cost": 0.005,
+      "index": 0.2,
+      "note": "relative index per via (premise)"
+     },
+     "effect": {
+      "pt": "cobre em paralelo atrav\u00e9s do laminado leva o calor \u00e0s camadas internas e \u00e0 face inferior da placa",
+      "en": "copper in parallel through the laminate carries the heat to the inner planes and the bottom face"
+     },
+     "target_margin_before": -5.891894963458408,
+     "target_margin_after": -2.013556269047936,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "heatsink_natural",
+     "element": "heatsink",
+     "title": {
+      "pt": "dissipador aletado (melhor n\u00famero de aletas no envelope dispon\u00edvel), convec\u00e7\u00e3o natural",
+      "en": "finned heat sink (best fin count in the available envelope), natural convection"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "hs_base_w": 0.04,
+      "hs_base_d": 0.04,
+      "hs_n_fins": 7,
+      "hs_fin_h": 0.017
+     },
+     "cost": {
+      "quantity": 0.028382400000000002,
+      "unit": "kg",
+      "what": "heat-sink mass",
+      "unit_cost": 10.0,
+      "index": 0.283824,
+      "note": "relative index per kg of extruded aluminium (premise)"
+     },
+     "effect": {
+      "pt": "o calor sai pela aba do componente para uma \u00e1rea de aletas muito maior que a placa, e o ar sobe entre as aletas por empuxo",
+      "en": "the heat leaves through the device tab into a fin area far larger than the board, with air rising between the fins by buoyancy"
+     },
+     "target_margin_before": -5.891894963458408,
+     "target_margin_after": -1.0921405442695826,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "forced_air",
+     "element": "fan",
+     "title": {
+      "pt": "ventila\u00e7\u00e3o for\u00e7ada nas aletas",
+      "en": "forced air through the fins"
+     },
+     "feasible": false,
+     "reason": {
+      "pt": "precisa antes de: heatsink",
+      "en": "needs first: heatsink"
+     },
+     "changes": {},
+     "cost": {},
+     "effect": {
+      "pt": "o coeficiente de convec\u00e7\u00e3o nas aletas sobe v\u00e1rias vezes com a velocidade do ar (canais em desenvolvimento)",
+      "en": "the fin heat-transfer coefficient rises several-fold with the air speed (developing channel flow)"
+     },
+     "target_margin_before": -5.891894963458408,
+     "target_margin_after": null,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 1,
+   "why": {
+    "pt": "nenhuma op\u00e7\u00e3o resolve sozinha; esta \u00e9 a que mais melhora a margem (-5.89 \u2192 -1.09), e o passo seguinte continua",
+    "en": "no option fixes it alone; this one improves the margin most (-5.89 -> -1.09), and the next step goes on"
+   },
+   "passed": false
+  },
+  {
+   "version": 1,
+   "concept": {
+    "name": "power_board",
+    "params": {
+     "current": 20.0,
+     "r_on_25": 0.02,
+     "r_on_tc": 0.006,
+     "t_ambient": 40.0,
+     "tj_max": 125.0,
+     "package": "TO-263 D2PAK",
+     "theta_jb": 1.0,
+     "board_w_mm": 100.0,
+     "board_d_mm": 80.0,
+     "board_layers": 4,
+     "thermal_vias": 0,
+     "max_vias": 40,
+     "theta_jc_tab": 0.8,
+     "tab_w": 0.01,
+     "tab_d": 0.015,
+     "tim_r": 1e-05,
+     "hs_max_w": 0.04,
+     "hs_max_d": 0.04,
+     "hs_max_h": 0.02,
+     "hs_base_t": 0.003,
+     "hs_fin_t": 0.0012,
+     "hs_material": "al6063",
+     "design_margin": 0.05,
+     "hs_base_w": 0.04,
+     "hs_base_d": 0.04,
+     "hs_n_fins": 7,
+     "hs_fin_h": 0.017
+    },
+    "elements": [
+     "board",
+     "heatsink"
+    ],
+    "description": {
+     "pt": "MOSFET D2PAK soldado numa placa de 4 camadas, sem dissipador",
+     "en": "D2PAK MOSFET soldered on a 4-layer board, no heat sink"
+    },
+    "sources": {
+     "current": "premise",
+     "r_on_25": "premise: datasheet-style R_DS(on) at 25 \u00b0C",
+     "r_on_tc": "premise: R_DS(on) about x1.75 at 150 \u00b0C",
+     "t_ambient": "premise",
+     "tj_max": "premise",
+     "package": "premise",
+     "theta_jb": "premise: junction-to-board through the soldered tab",
+     "board_w_mm": "premise",
+     "board_d_mm": "premise",
+     "board_layers": "premise",
+     "thermal_vias": "premise",
+     "max_vias": "premise",
+     "theta_jc_tab": "premise: junction to mounting tab, tab-mount package on the heat sink",
+     "tab_w": "premise",
+     "tab_d": "premise",
+     "tim_r": "premise: thin grease, K m^2/W",
+     "hs_max_w": "premise",
+     "hs_max_d": "premise",
+     "hs_max_h": "premise",
+     "hs_base_t": "countermeasure:heatsink_natural",
+     "hs_fin_t": "countermeasure:heatsink_natural",
+     "hs_material": "premise",
+     "design_margin": "premise",
+     "hs_base_w": "countermeasure:heatsink_natural",
+     "hs_base_d": "countermeasure:heatsink_natural",
+     "hs_n_fins": "countermeasure:heatsink_natural",
+     "hs_fin_h": "countermeasure:heatsink_natural"
+    },
+    "version": 1
+   },
+   "verifications": [
+    {
+     "mode": "joule_heating",
+     "requirement": "R1",
+     "passed": false,
+     "demand": 217.83194626291453,
+     "capacity": 125.0,
+     "unit": "\u00b0C",
+     "margin": -1.0921405442695826,
+     "demand_label": {
+      "pt": "temperatura de jun\u00e7\u00e3o",
+      "en": "junction temperature"
+     },
+     "capacity_label": {
+      "pt": "limite de jun\u00e7\u00e3o",
+      "en": "junction limit"
+     },
+     "mechanism": {
+      "pt": "Com 20 A o MOSFET dissipa 17.3 W (eram 8 W a 25 \u00b0C: R_on sobe com a temperatura, ganho de realimenta\u00e7\u00e3o 0.495); pelo caminho t\u00e9rmico (dissipador em convec\u00e7\u00e3o natural, 10.3 K/W da jun\u00e7\u00e3o ao ar) a jun\u00e7\u00e3o chega a 218 \u00b0C, acima do limite de 125 \u00b0C (muito al\u00e9m do que o sil\u00edcio suporta: o n\u00famero mede o tamanho do problema).",
+      "en": "At 20 A the MOSFET dissipates 17.3 W (8 W at 25 \u00b0C: R_on rises with temperature, loop gain 0.495); through the thermal path (heat sink in natural convection, 10.3 K/W junction to air) the junction reaches 218 \u00b0C, above the 125 \u00b0C limit (far beyond what silicon survives: the number measures the size of the problem)."
+     },
+     "method": "Joule loss I^2 R_on(T) coupled to the thermal path: plate-fin heat sink, natural convection (Bar-Cohen & Rohsenow 1984) (pinneapple_physics.closed_form.plate_fin_heatsink.evaluate)",
+     "quantities": {
+      "t_junction": [
+       217.83194626291453,
+       "\u00b0C",
+       "junction temperature (electrothermal fixed point)"
+      ],
+      "power": [
+       17.255933420619897,
+       "W",
+       "conduction loss at T_j"
+      ],
+      "power_25": [
+       8.0,
+       "W",
+       "conduction loss at 25 \u00b0C"
+      ],
+      "r_th": [
+       10.305553569789222,
+       "K/W",
+       "junction-to-ambient resistance"
+      ],
+      "loop_gain": [
+       0.4946665713498827,
+       "1",
+       "electrothermal loop gain a I^2 R_25 R_th"
+      ],
+      "r_heatsink": [
+       9.505568055374296,
+       "K/W",
+       "heat-sink resistance (TIM + spreading + fins)"
+      ],
+      "heatsink_mass": [
+       0.028382400000000002,
+       "kg",
+       "heat-sink mass"
+      ],
+      "h_fins": [
+       9.880810831010589,
+       "W/(m^2 K)",
+       "fin heat-transfer coefficient"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "s\u00f3 perdas de condu\u00e7\u00e3o (sem chaveamento)",
+       "en": "conduction losses only (no switching)"
+      },
+      {
+       "pt": "R_on linear na temperatura",
+       "en": "R_on linear in temperature"
+      },
+      {
+       "pt": "no dissipador, o caminho pela placa \u00e9 desprezado (conservador)",
+       "en": "on the heat sink, the path through the board is neglected (conservative)"
+      }
+     ],
+     "sources": [
+      "Incropera et al., ch. 3 and 9",
+      "pinneapple_physics.pcb (3-D finite-volume board model)",
+      "pinneapple_physics.closed_form.plate_fin_heatsink (Teertstra et al. 2000; Bar-Cohen & Rohsenow 1984; Lee et al. 1995)"
+     ],
+     "validity": [
+      {
+       "name": "junction below the silicon model limit",
+       "value": 217.83194626291453,
+       "lo": null,
+       "hi": 200,
+       "note": "R_on(T) linear fit",
+       "ok": false
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "electrothermal fixed point converged",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0,
+       "limit": 0.01,
+       "source": "T_j iteration",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    }
+   ],
+   "finding": {
+    "requirement": "R1",
+    "mode": "joule_heating",
+    "title": {
+     "pt": "aquecimento Joule da jun\u00e7\u00e3o",
+     "en": "Joule heating of the junction"
+    },
+    "verification": {
+     "mode": "joule_heating",
+     "requirement": "R1",
+     "passed": false,
+     "demand": 217.83194626291453,
+     "capacity": 125.0,
+     "unit": "\u00b0C",
+     "margin": -1.0921405442695826,
+     "demand_label": {
+      "pt": "temperatura de jun\u00e7\u00e3o",
+      "en": "junction temperature"
+     },
+     "capacity_label": {
+      "pt": "limite de jun\u00e7\u00e3o",
+      "en": "junction limit"
+     },
+     "mechanism": {
+      "pt": "Com 20 A o MOSFET dissipa 17.3 W (eram 8 W a 25 \u00b0C: R_on sobe com a temperatura, ganho de realimenta\u00e7\u00e3o 0.495); pelo caminho t\u00e9rmico (dissipador em convec\u00e7\u00e3o natural, 10.3 K/W da jun\u00e7\u00e3o ao ar) a jun\u00e7\u00e3o chega a 218 \u00b0C, acima do limite de 125 \u00b0C (muito al\u00e9m do que o sil\u00edcio suporta: o n\u00famero mede o tamanho do problema).",
+      "en": "At 20 A the MOSFET dissipates 17.3 W (8 W at 25 \u00b0C: R_on rises with temperature, loop gain 0.495); through the thermal path (heat sink in natural convection, 10.3 K/W junction to air) the junction reaches 218 \u00b0C, above the 125 \u00b0C limit (far beyond what silicon survives: the number measures the size of the problem)."
+     },
+     "method": "Joule loss I^2 R_on(T) coupled to the thermal path: plate-fin heat sink, natural convection (Bar-Cohen & Rohsenow 1984) (pinneapple_physics.closed_form.plate_fin_heatsink.evaluate)",
+     "quantities": {
+      "t_junction": [
+       217.83194626291453,
+       "\u00b0C",
+       "junction temperature (electrothermal fixed point)"
+      ],
+      "power": [
+       17.255933420619897,
+       "W",
+       "conduction loss at T_j"
+      ],
+      "power_25": [
+       8.0,
+       "W",
+       "conduction loss at 25 \u00b0C"
+      ],
+      "r_th": [
+       10.305553569789222,
+       "K/W",
+       "junction-to-ambient resistance"
+      ],
+      "loop_gain": [
+       0.4946665713498827,
+       "1",
+       "electrothermal loop gain a I^2 R_25 R_th"
+      ],
+      "r_heatsink": [
+       9.505568055374296,
+       "K/W",
+       "heat-sink resistance (TIM + spreading + fins)"
+      ],
+      "heatsink_mass": [
+       0.028382400000000002,
+       "kg",
+       "heat-sink mass"
+      ],
+      "h_fins": [
+       9.880810831010589,
+       "W/(m^2 K)",
+       "fin heat-transfer coefficient"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "s\u00f3 perdas de condu\u00e7\u00e3o (sem chaveamento)",
+       "en": "conduction losses only (no switching)"
+      },
+      {
+       "pt": "R_on linear na temperatura",
+       "en": "R_on linear in temperature"
+      },
+      {
+       "pt": "no dissipador, o caminho pela placa \u00e9 desprezado (conservador)",
+       "en": "on the heat sink, the path through the board is neglected (conservative)"
+      }
+     ],
+     "sources": [
+      "Incropera et al., ch. 3 and 9",
+      "pinneapple_physics.pcb (3-D finite-volume board model)",
+      "pinneapple_physics.closed_form.plate_fin_heatsink (Teertstra et al. 2000; Bar-Cohen & Rohsenow 1984; Lee et al. 1995)"
+     ],
+     "validity": [
+      {
+       "name": "junction below the silicon model limit",
+       "value": 217.83194626291453,
+       "lo": null,
+       "hi": 200,
+       "note": "R_on(T) linear fit",
+       "ok": false
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "electrothermal fixed point converged",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0,
+       "limit": 0.01,
+       "source": "T_j iteration",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    },
+    "proof": "junction temperature = 217.8 \u00b0C > junction limit = 125.0 \u00b0C"
+   },
+   "options": [
+    {
+     "countermeasure": "thermal_vias",
+     "element": "thermal_vias",
+     "title": {
+      "pt": "vias t\u00e9rmicas sob o componente",
+      "en": "thermal vias under the part"
+     },
+     "feasible": false,
+     "reason": {
+      "pt": "incompat\u00edvel com: heatsink",
+      "en": "incompatible with: heatsink"
+     },
+     "changes": {},
+     "cost": {},
+     "effect": {
+      "pt": "cobre em paralelo atrav\u00e9s do laminado leva o calor \u00e0s camadas internas e \u00e0 face inferior da placa",
+      "en": "copper in parallel through the laminate carries the heat to the inner planes and the bottom face"
+     },
+     "target_margin_before": -1.0921405442695826,
+     "target_margin_after": null,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "heatsink_natural",
+     "element": "heatsink",
+     "title": {
+      "pt": "dissipador aletado (melhor n\u00famero de aletas no envelope dispon\u00edvel), convec\u00e7\u00e3o natural",
+      "en": "finned heat sink (best fin count in the available envelope), natural convection"
+     },
+     "feasible": false,
+     "reason": {
+      "pt": "o conceito j\u00e1 tem 'heatsink'",
+      "en": "the concept already has 'heatsink'"
+     },
+     "changes": {},
+     "cost": {},
+     "effect": {
+      "pt": "o calor sai pela aba do componente para uma \u00e1rea de aletas muito maior que a placa, e o ar sobe entre as aletas por empuxo",
+      "en": "the heat leaves through the device tab into a fin area far larger than the board, with air rising between the fins by buoyancy"
+     },
+     "target_margin_before": -1.0921405442695826,
+     "target_margin_after": null,
+     "fixes_target": false,
+     "passing_after": 0,
+     "regressions": [],
+     "proposed_by": "library"
+    },
+    {
+     "countermeasure": "forced_air",
+     "element": "fan",
+     "title": {
+      "pt": "ventila\u00e7\u00e3o for\u00e7ada nas aletas",
+      "en": "forced air through the fins"
+     },
+     "feasible": true,
+     "reason": {},
+     "changes": {
+      "fan_velocity": 0.5
+     },
+     "cost": {
+      "quantity": 1.0,
+      "unit": "fan",
+      "what": "one fan for 0.5 m/s through the fins",
+      "unit_cost": 0.5,
+      "index": 0.5,
+      "note": "relative index per fan (premise)"
+     },
+     "effect": {
+      "pt": "o coeficiente de convec\u00e7\u00e3o nas aletas sobe v\u00e1rias vezes com a velocidade do ar (canais em desenvolvimento)",
+      "en": "the fin heat-transfer coefficient rises several-fold with the air speed (developing channel flow)"
+     },
+     "target_margin_before": -1.0921405442695826,
+     "target_margin_after": 0.18509037703792214,
+     "fixes_target": true,
+     "passing_after": 1,
+     "regressions": [],
+     "proposed_by": "library"
+    }
+   ],
+   "chosen": 2,
+   "why": {
+    "pt": "resolve a falha sem quebrar nenhum requisito que passava",
+    "en": "fixes the failure without breaking any requirement that passed"
+   },
+   "passed": false
+  },
+  {
+   "version": 2,
+   "concept": {
+    "name": "power_board",
+    "params": {
+     "current": 20.0,
+     "r_on_25": 0.02,
+     "r_on_tc": 0.006,
+     "t_ambient": 40.0,
+     "tj_max": 125.0,
+     "package": "TO-263 D2PAK",
+     "theta_jb": 1.0,
+     "board_w_mm": 100.0,
+     "board_d_mm": 80.0,
+     "board_layers": 4,
+     "thermal_vias": 0,
+     "max_vias": 40,
+     "theta_jc_tab": 0.8,
+     "tab_w": 0.01,
+     "tab_d": 0.015,
+     "tim_r": 1e-05,
+     "hs_max_w": 0.04,
+     "hs_max_d": 0.04,
+     "hs_max_h": 0.02,
+     "hs_base_t": 0.003,
+     "hs_fin_t": 0.0012,
+     "hs_material": "al6063",
+     "design_margin": 0.05,
+     "hs_base_w": 0.04,
+     "hs_base_d": 0.04,
+     "hs_n_fins": 7,
+     "hs_fin_h": 0.017,
+     "fan_velocity": 0.5
+    },
+    "elements": [
+     "board",
+     "heatsink",
+     "fan"
+    ],
+    "description": {
+     "pt": "MOSFET D2PAK soldado numa placa de 4 camadas, sem dissipador",
+     "en": "D2PAK MOSFET soldered on a 4-layer board, no heat sink"
+    },
+    "sources": {
+     "current": "premise",
+     "r_on_25": "premise: datasheet-style R_DS(on) at 25 \u00b0C",
+     "r_on_tc": "premise: R_DS(on) about x1.75 at 150 \u00b0C",
+     "t_ambient": "premise",
+     "tj_max": "premise",
+     "package": "premise",
+     "theta_jb": "premise: junction-to-board through the soldered tab",
+     "board_w_mm": "premise",
+     "board_d_mm": "premise",
+     "board_layers": "premise",
+     "thermal_vias": "premise",
+     "max_vias": "premise",
+     "theta_jc_tab": "premise: junction to mounting tab, tab-mount package on the heat sink",
+     "tab_w": "premise",
+     "tab_d": "premise",
+     "tim_r": "premise: thin grease, K m^2/W",
+     "hs_max_w": "premise",
+     "hs_max_d": "premise",
+     "hs_max_h": "premise",
+     "hs_base_t": "countermeasure:heatsink_natural",
+     "hs_fin_t": "countermeasure:heatsink_natural",
+     "hs_material": "premise",
+     "design_margin": "premise",
+     "hs_base_w": "countermeasure:heatsink_natural",
+     "hs_base_d": "countermeasure:heatsink_natural",
+     "hs_n_fins": "countermeasure:heatsink_natural",
+     "hs_fin_h": "countermeasure:heatsink_natural",
+     "fan_velocity": "countermeasure:forced_air"
+    },
+    "version": 2
+   },
+   "verifications": [
+    {
+     "mode": "joule_heating",
+     "requirement": "R1",
+     "passed": true,
+     "demand": 109.26731795177662,
+     "capacity": 125.0,
+     "unit": "\u00b0C",
+     "margin": 0.18509037703792214,
+     "demand_label": {
+      "pt": "temperatura de jun\u00e7\u00e3o",
+      "en": "junction temperature"
+     },
+     "capacity_label": {
+      "pt": "limite de jun\u00e7\u00e3o",
+      "en": "junction limit"
+     },
+     "mechanism": {
+      "pt": "Pelo caminho t\u00e9rmico (dissipador com ventila\u00e7\u00e3o for\u00e7ada, 5.75 K/W) a jun\u00e7\u00e3o fica em 109 \u00b0C com 12 W dissipados (limite 125 \u00b0C).",
+      "en": "Through the thermal path (heat sink with forced air, 5.75 K/W) the junction sits at 109 \u00b0C with 12 W dissipated (limit 125 \u00b0C)."
+     },
+     "method": "Joule loss I^2 R_on(T) coupled to the thermal path: plate-fin heat sink, forced convection (Teertstra et al. 2000) (pinneapple_physics.closed_form.plate_fin_heatsink.evaluate)",
+     "quantities": {
+      "t_junction": [
+       109.26731795177662,
+       "\u00b0C",
+       "junction temperature (electrothermal fixed point)"
+      ],
+      "power": [
+       12.044831261685278,
+       "W",
+       "conduction loss at T_j"
+      ],
+      "power_25": [
+       8.0,
+       "W",
+       "conduction loss at 25 \u00b0C"
+      ],
+      "r_th": [
+       5.750791891300015,
+       "K/W",
+       "junction-to-ambient resistance"
+      ],
+      "loop_gain": [
+       0.2760380107824007,
+       "1",
+       "electrothermal loop gain a I^2 R_25 R_th"
+      ],
+      "r_heatsink": [
+       4.950799405676872,
+       "K/W",
+       "heat-sink resistance (TIM + spreading + fins)"
+      ],
+      "heatsink_mass": [
+       0.028382400000000002,
+       "kg",
+       "heat-sink mass"
+      ],
+      "h_fins": [
+       19.77693827355701,
+       "W/(m^2 K)",
+       "fin heat-transfer coefficient"
+      ],
+      "fan_air_power": [
+       0.0001853853391186835,
+       "W",
+       "air power through the fins (dp x flow)"
+      ],
+      "pressure_drop": [
+       0.5452509974078926,
+       "Pa",
+       "fin-channel pressure drop the fan must supply"
+      ]
+     },
+     "assumptions": [
+      {
+       "pt": "s\u00f3 perdas de condu\u00e7\u00e3o (sem chaveamento)",
+       "en": "conduction losses only (no switching)"
+      },
+      {
+       "pt": "R_on linear na temperatura",
+       "en": "R_on linear in temperature"
+      },
+      {
+       "pt": "no dissipador, o caminho pela placa \u00e9 desprezado (conservador)",
+       "en": "on the heat sink, the path through the board is neglected (conservative)"
+      }
+     ],
+     "sources": [
+      "Incropera et al., ch. 3 and 9",
+      "pinneapple_physics.pcb (3-D finite-volume board model)",
+      "pinneapple_physics.closed_form.plate_fin_heatsink (Teertstra et al. 2000; Bar-Cohen & Rohsenow 1984; Lee et al. 1995)"
+     ],
+     "validity": [
+      {
+       "name": "junction below the silicon model limit",
+       "value": 109.26731795177662,
+       "lo": null,
+       "hi": 200,
+       "note": "R_on(T) linear fit",
+       "ok": true
+      }
+     ],
+     "self_checks": [
+      {
+       "name": "electrothermal fixed point converged",
+       "status": "supports",
+       "critical": false,
+       "weight": 1.0,
+       "value": 0.0,
+       "limit": 0.01,
+       "source": "T_j iteration",
+       "reason": ""
+      }
+     ],
+     "series": {}
+    }
+   ],
+   "finding": null,
+   "options": [],
+   "chosen": null,
+   "why": {},
+   "passed": true
+  }
+ ],
+ "notes": [],
+ "meta": {
+  "evaluations": 4,
+  "wall_s": 31.131428266000057,
+  "advisor": null
+ },
+ "path": [
+  [
+   0,
+   "joule_heating",
+   "heatsink_natural"
+  ],
+  [
+   1,
+   "joule_heating",
+   "forced_air"
+  ]
+ ]
+}

@@ -18,7 +18,7 @@ def _tfrecord_available():
     return True, ""
 
 
-@node("gnn.mgn_cylinder_flow", "MeshGraphNet on DeepMind cylinder_flow (vortex shedding)", category="Neural operators",
+@node("gnn.mgn_cylinder_flow", "MeshGraphNet on DeepMind cylinder flow (vortex shedding)", category="Neural operators",
       outputs=[Port("metrics", "metrics"), Port("figure", "figure")],
       params=[Param("train_mb", "int", 400, minimum=1, help="byte prefix of train.tfrecord (whole trajectories)"),
               Param("valid_mb", "int", 60, minimum=1), Param("steps", "int", 3000, minimum=1),

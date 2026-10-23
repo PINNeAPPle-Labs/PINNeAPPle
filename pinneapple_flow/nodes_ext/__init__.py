@@ -33,3 +33,15 @@ from . import (  # noqa: F401
 )
 
 register_hook()                         # example-flow runs become Lab experiments (pinneapple_flow.examples)
+
+
+def _place_in_palette() -> None:
+    """Every example-domain node in the palette section of its category (pinneapple_flow.palette.place)."""
+    from .. import palette
+    from ..registry import REGISTRY
+    for spec in REGISTRY.specs():
+        if spec.fn.__module__.startswith(__name__ + "."):
+            palette.place(spec.type, palette.section_of(spec))
+
+
+_place_in_palette()

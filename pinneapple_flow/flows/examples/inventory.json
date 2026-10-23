@@ -1,7 +1,7 @@
 {
  "architectures": {
   "domain": "neural architectures",
-  "reason": "not converted yet (a later batch of this PR): 00/01/60 build registry models (lib.model.architecture), 10/20/30 map onto surrogate / inverse / rom nodes; 02-05 and 40 are per-class demos with training loops in the script; 50 imports pinneapple_models.transformers, which does not exist"
+  "notes": "00_registry_tour, 01_list_models and 60_new_architectures_demo are flows of architectures.registry + architectures.forward (output shapes as in the scripts; the GraphBatch GNN / MeshGraphNet parts and the non-registry layers are left out); 30_rom_pod_dmd is architectures.pod_dmd (the data generator moved to rom.toy_systems; POD and rollout MSE equal the script's). 02-05 are per-class demos with training loops in the scripts, 10 (FNO), 20 (inverse ODE PINN) and 40 (GNN) train in the scripts, and 50 imports pinneapple_models.transformers.transformer, which does not exist"
  },
  "arena_pipelines": {
   "domain": "benchmarks",
@@ -102,7 +102,7 @@
  },
  "getting_started": {
   "domain": "PINN",
-  "reason": "not converted yet (a later batch of this PR): pure-torch ODE / PDE PINN scripts (no pinneapple imports); 03 and 04 are the heat_1d flow"
+  "notes": "03_heat_diffusion_1d and 04_wave_equation_1d are flows of equations.system + train.pinn + validate.compare for the script's three diffusivities / wave speeds against the exact solutions (the script trains its own torch loop with a hard x(1-x) factor); nothing committed to compare. 01, 02 and 05-10 are pure-torch ODE PINNs without pinneapple calls, and no node trains a PINN on an ODE (geometry.domain needs a spatial dimension)"
  },
  "handoff_cases": {
   "domain": "CFD",
@@ -169,7 +169,7 @@
  },
  "pde_environment": {
   "domain": "PINN",
-  "reason": "not converted yet (a later batch of this PR): compile_problem loss evaluations (01, 02, 03_ns, 07); 03_elasticity / 04 need trimesh; 05 / 06 train in the script"
+  "notes": "07_tagged_presets_real_geometry is a flow (pde_env.tagged_preset: build_tag_batch + per_tag_losses, moved from the script into presets.tag_geometry, + solve_pde); nothing committed to compare, the before-training losses equal the script's. 01, 02 and 03_ns2d evaluate compile_problem once on a batch the script samples and assembles by hand; 03_elasticity3d and 04_heat3d need trimesh and STL files; 05_kepler and 06_space_debris train with a nondimensionalisation wrapper and a loop written in the script"
  },
  "physics_audit": {
   "domain": "physics audit",
@@ -201,7 +201,7 @@
  },
  "pinn_solver": {
   "domain": "PINN",
-  "reason": "not converted yet (a later batch of this PR): compiler / factory PINNs; the same problems run as train.pinn / inverse.discover flows"
+  "notes": "01 is a flow (pinn_solver.factory_loss: the PINNFactory loss, as the script); 02 Poisson, 03 Burgers, 06 wave and 04 inverse heat are flows of equations.system + train.pinn / inverse.discover + validate.compare (the same problem and error metric, trained by train.pinn instead of the script's compile_problem / PINNFactory loop); nothing committed to compare, and the quick configurations are far from converged. 03_symbolic_pde_hard_bc (hard-BC ansatz and loop), 05_upd_dataset (synthetic Zarr and loop), 06_domino (residuals and BCs), 06_open_meteo (three training pipelines, network) and 07_interface_bc (two-region batch and loop) hold their method in the scripts"
  },
  "pinneapple_and_physicsnemo": {
   "domain": "PINN",

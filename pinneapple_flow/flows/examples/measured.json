@@ -779,6 +779,143 @@
    "status": "done"
   }
  },
+ "electromagnetics/motor_spm_cogging_and_torque": {
+  "full": {
+   "commit": "c94c53c7",
+   "comparisons": [
+    {
+     "flow": "spm.cogging.period_deg",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:cogging.period_deg",
+     "reference": 14.999999999999998,
+     "rel_diff": 0.0,
+     "value": 14.999999999999998
+    },
+    {
+     "flow": "spm.cogging.peak_to_peak_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:cogging.peak_to_peak_Nm",
+     "reference": 0.7446724562016853,
+     "rel_diff": 1.314529125747738e-10,
+     "value": 0.7446724562995747
+    },
+    {
+     "flow": "spm.cogging.maxwell_1.3deg_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:cogging.maxwell_vs_coenergy_Nm.0.1",
+     "reference": 0.08282924645564792,
+     "rel_diff": 1.303418111930757e-10,
+     "value": 0.08282924646644403
+    },
+    {
+     "flow": "spm.cogging.coenergy_1.3deg_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:cogging.maxwell_vs_coenergy_Nm.0.2",
+     "reference": 0.08157464924885945,
+     "rel_diff": 1.3142062123775005e-10,
+     "value": 0.08157464925958004
+    },
+    {
+     "flow": "spm.torque_vs_gamma.gamma0_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:torque_vs_gamma.torque_Nm.6",
+     "reference": 16.696721757046888,
+     "rel_diff": 1.480091523912845e-12,
+     "value": 16.6967217570716
+    },
+    {
+     "flow": "spm.torque_vs_gamma.gamma-90_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:torque_vs_gamma.torque_Nm.0",
+     "reference": 0.4910229206356716,
+     "rel_diff": 1.4453705492461539e-11,
+     "value": 0.4910229206427687
+    },
+    {
+     "flow": "spm.torque_vs_gamma.gamma45_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:torque_vs_gamma.torque_Nm.9",
+     "reference": 11.519473642355674,
+     "rel_diff": 1.9915535460318813e-12,
+     "value": 11.519473642378616
+    },
+    {
+     "flow": "spm.torque_vs_gamma.coenergy_gamma0_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:torque_vs_gamma.maxwell_vs_coenergy_Nm.1.2",
+     "reference": 16.71133552037746,
+     "rel_diff": 1.2821486451946877e-12,
+     "value": 16.711335520398887
+    },
+    {
+     "flow": "spm.back_emf.psi_peak_Wb",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:back_emf.psi_peak_Wb",
+     "reference": 0.18705913222094628,
+     "rel_diff": 4.611755841411752e-12,
+     "value": 0.1870591322200836
+    },
+    {
+     "flow": "spm.back_emf.emf_peak_V",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:back_emf.emf_peak_V",
+     "reference": 51.66050110767278,
+     "rel_diff": 4.132675074640196e-11,
+     "value": 51.66050110553782
+    },
+    {
+     "flow": "spm.back_emf.emf_rms_V",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:back_emf.emf_rms_V",
+     "reference": 40.3577944066253,
+     "rel_diff": 2.4983033807171135e-13,
+     "value": 40.35779440661522
+    },
+    {
+     "flow": "spm.losses.stator_iron_W",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:losses_1500rpm_rated.stator_iron_W",
+     "reference": 9.702922174709514,
+     "rel_diff": 4.4199107747530036e-11,
+     "value": 9.702922174280653
+    },
+    {
+     "flow": "spm.losses.rotor_iron_W",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:losses_1500rpm_rated.rotor_iron_W",
+     "reference": 0.020587386870509674,
+     "rel_diff": 1.0599216574994592e-10,
+     "value": 0.020587386868327572
+    },
+    {
+     "flow": "spm.losses.magnet_eddy_W",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:losses_1500rpm_rated.magnet_eddy_W",
+     "reference": 0.1719196155961802,
+     "rel_diff": 1.7707925705335985e-10,
+     "value": 0.1719196155657368
+    },
+    {
+     "flow": "spm.losses.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/spm_summary.json:losses_1500rpm_rated.torque_mean_Nm",
+     "reference": 16.04691446928091,
+     "rel_diff": 3.7039456999733016e-13,
+     "value": 16.046914469286854
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/r2/example-motor-spm.experiment.json, Lab item manifest/flow/example-motor-spm",
+   "matched": 15,
+   "nodes": {
+    "compare": "done",
+    "spm": "done"
+   },
+   "seconds": 593.4,
+   "status": "done"
+  }
+ },
  "enso_forecasting/solver_checks": {
   "full": {
    "commit": "b25e808a",
@@ -2736,6 +2873,56 @@
    "status": "done"
   }
  },
+ "getting_started/03_heat_diffusion_1d": {
+  "quick": {
+   "commit": "c94c53c7",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.getting_started.03_heat_diffusion_1d-quick.experiment.json, Lab item manifest/flow/example.getting_started.03_heat_diffusion_1d-quick",
+   "matched": 0,
+   "nodes": {
+    "eq_a001": "done",
+    "eq_a01": "done",
+    "eq_a05": "done",
+    "geo": "done",
+    "mesh": "done",
+    "pinn_a001": "done",
+    "pinn_a01": "done",
+    "pinn_a05": "done",
+    "val_a001": "done",
+    "val_a01": "done",
+    "val_a05": "done"
+   },
+   "seconds": 804.8,
+   "status": "done"
+  }
+ },
+ "getting_started/04_wave_equation_1d": {
+  "quick": {
+   "commit": "c94c53c7",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.getting_started.04_wave_equation_1d-quick.experiment.json, Lab item manifest/flow/example.getting_started.04_wave_equation_1d-quick",
+   "matched": 0,
+   "nodes": {
+    "eq_c1": "done",
+    "eq_c2": "done",
+    "eq_c4": "done",
+    "geo": "done",
+    "mesh": "done",
+    "pinn_c1": "done",
+    "pinn_c2": "done",
+    "pinn_c4": "done",
+    "val_c1": "done",
+    "val_c2": "done",
+    "val_c4": "done"
+   },
+   "seconds": 1411.5,
+   "status": "done"
+  }
+ },
  "inspection/01_eddy_current_pinn": {
   "full": {
    "commit": "b25e808a",
@@ -3029,6 +3216,22 @@
     "report": "done"
    },
    "seconds": 269.9,
+   "status": "done"
+  }
+ },
+ "pde_environment/07_tagged_presets_real_geometry": {
+  "quick": {
+   "commit": "c94c53c7",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentB/example.pde_environment.07_tagged_presets_real_geometry-quick.experiment.json, Lab item manifest/flow/example.pde_environment.07_tagged_presets_real_geometry-quick",
+   "matched": 0,
+   "nodes": {
+    "laplace": "done",
+    "pipe": "done"
+   },
+   "seconds": 743.3,
    "status": "done"
   }
  },

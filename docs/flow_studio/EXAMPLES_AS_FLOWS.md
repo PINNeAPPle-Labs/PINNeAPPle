@@ -7,15 +7,15 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 5 |
-| no flow | 9 |
-| not yet run | 10 |
+| no flow | 5 |
+| not yet run | 9 |
 | not_convertible | 14 |
-| runs | 26 |
-| runs-quick | 3 |
+| runs | 28 |
+| runs-quick | 6 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
-| `architectures` | neural architectures | - |  |  | not converted yet (a later batch of this PR): 00/01/60 build registry models (lib.model.architecture), 10/20/30 map onto surrogate / inverse / rom nodes; 02-05 and 40 are per-class demos with training loops in the script; 50 imports pinneapple_models.transformers, which does not exist |
+| `architectures` | neural architectures | `architectures/00_registry_tour`<br>`architectures/01_list_models`<br>`architectures/30_rom_pod_dmd`<br>`architectures/60_new_architectures_demo` | runs |  | 00_registry_tour, 01_list_models and 60_new_architectures_demo are flows of architectures.registry + architectures.forward (output shapes as in the scripts; the GraphBatch GNN / MeshGraphNet parts and the non-registry layers are left out); 30_rom_pod_dmd is architectures.pod_dmd (the data generator moved to rom.toy_systems; POD and rollout MSE equal the script's). 02-05 are per-class demos with training loops in the scripts, 10 (FNO), 20 (inverse ODE PINN) and 40 (GNN) train in the scripts, and 50 imports pinneapple_models.transformers.transformer, which does not exist |
 | `arena_pipelines` | benchmarks | - |  |  | not converted yet (a later batch of this PR): pinneapple_arena.Arena from the YAML configs (04, 05, 07, 09); 03, 06, 08 hold custom training or subclass the API |
 | `benchmark` | benchmarks | - |  |  | not converted yet (a later batch of this PR): pp.benchmark.run in smoke mode (a harness that writes a results tree; no committed numbers) |
 | `benchmark_suite` | benchmarks | - |  |  | not converted yet (a later batch of this PR): 03 (Burgers PINN), 12 (benchmark.arena --fast), 16/17; 01, 04, 05, 07, 08, 09 import pinneapple_arena.* / pinneapple_digital_twin modules that no longer exist; 14 and 15 hold their solvers in the script |
@@ -37,7 +37,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `geometry` | geometry | - | not_convertible |  | small demos of geometry I/O and sampling with no numbers (trimesh, meshio, gmsh optional; 08 downloads STL / STEP files); the CSG domains of 07 are geometry.domain / auto.design.geometry.* nodes |
 | `geometry_library` | geometry | `geometry_library/03_airliner_vlm` | runs |  | 03_airliner_vlm: the friction-drag build-up moved from the script into pinneapple_design.aero.buildup.friction_drag (same printed numbers); nothing committed to compare, the published A320-class values (CL_alpha 5.5-6 /rad, L/D 16-18) are in the metric notes. 01 needs OpenFOAM and hours of CPU; 02's BEM lives in the script |
 | `geophysics` | geophysics | `geophysics/01_sphere_and_assimilation` | runs |  | nothing committed to compare: the script prints the drifts, RMSEs and the mass-balance ratio |
-| `getting_started` | PINN | - |  |  | not converted yet (a later batch of this PR): pure-torch ODE / PDE PINN scripts (no pinneapple imports); 03 and 04 are the heat_1d flow |
+| `getting_started` | PINN | `getting_started/03_heat_diffusion_1d`<br>`getting_started/04_wave_equation_1d` | runs-quick |  | 03_heat_diffusion_1d and 04_wave_equation_1d are flows of equations.system + train.pinn + validate.compare for the script's three diffusivities / wave speeds against the exact solutions (the script trains its own torch loop with a hard x(1-x) factor); nothing committed to compare. 01, 02 and 05-10 are pure-torch ODE PINNs without pinneapple calls, and no node trains a PINN on an ODE (geometry.domain needs a spatial dimension) |
 | `handoff_cases` | CFD | - | needs OpenFOAM (+ xfoil) |  | the airfoil and trough packages run simpleFoam / interFoam campaigns (hours); make_zips.py packs folders |
 | `hpo_experiments` | tools | - | not_convertible |  | imports pinneapple_researcher, which no longer exists (now pinneapple_tools.hpo_experiments); arXiv / GitHub discovery and Gemini extraction need network and an API key, and the output is not deterministic |
 | `inspection` | inspection | `inspection/01_eddy_current_pinn` | runs |  | nothing committed to compare: the script prints the losses |
@@ -47,19 +47,19 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `model_zoo` | validation | `model_zoo/quickstart` | runs | 5 / 5 match | compared with the model card's validation metrics (pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json); the pp.zoo.benchmark step needs pp.benchmark and is not a node |
 | `modelica` | systems | - | needs OpenModelica (omc) + fmpy |  | every script builds its FMU with omc; 02 / 03 train hand-written torch models in the script; fmi_compatibility.py downloads the Reference-FMUs |
 | `molecular` | molecular | - | needs OpenMM + pdbfixer + an input PDB |  | protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled) |
-| `motor_magnetics` | electromagnetics | `electromagnetics/motor_spm_cogging_and_torque` | not yet run |  |  |
+| `motor_magnetics` | electromagnetics | `electromagnetics/motor_spm_cogging_and_torque` | runs | 15 / 15 match |  |
 | `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | not yet run |  | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet |
 | `non_hermitian` | non-Hermitian physics | `non_hermitian/ep_tuning` | runs | 9 / 9 match | ep_laws / ep_numeric / hypothesis_map / ep_figure wrap pinneapple_physics.non_hermitian (coupling_classes moved from the script into ep_tuning.py, the script prints the same output); compared with docs/core_concepts/non_hermitian.md (EP-law degree, kappa_N^2 and EP order for N = 2-5) |
 | `numerical_solvers` | numerical solvers | `numerical_solvers/12_molecular_dynamics_lj_gas`<br>`numerical_solvers/13_shallow_water_dam_break` | runs |  | flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate |
 | `openfoam_campaign` | CFD | `openfoam_campaign/campaign` | runs |  | no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt |
-| `pde_environment` | PINN | - |  |  | not converted yet (a later batch of this PR): compile_problem loss evaluations (01, 02, 03_ns, 07); 03_elasticity / 04 need trimesh; 05 / 06 train in the script |
+| `pde_environment` | PINN | `pde_environment/07_tagged_presets_real_geometry` | runs-quick |  | 07_tagged_presets_real_geometry is a flow (pde_env.tagged_preset: build_tag_batch + per_tag_losses, moved from the script into presets.tag_geometry, + solve_pde); nothing committed to compare, the before-training losses equal the script's. 01, 02 and 03_ns2d evaluate compile_problem once on a batch the script samples and assembles by hand; 03_elasticity3d and 04_heat3d need trimesh and STL files; 05_kepler and 06_space_debris train with a nondimensionalisation wrapper and a loop written in the script |
 | `physics_audit` | physics audit | - | not_convertible |  | the case study (Churchill truth, model lambdas, profiles, 160-case stream) is built in the script; PhysicsEnsemble / PhysicsAwareRouter have no case generator to call |
 | `physics_check` | validation | `physics_check/fail_and_pass` | runs | 3 / 3 match | the torch/ fixtures (a zoo model) and generate.py (regenerates the fixtures with OpenFOAM) are not flows; workflow.yml is a GitHub Action template |
 | `physics_db` | data | - | needs earthaccess + NASA Earthdata login / network |  | 00-02 query NASA Earthdata or NASA POWER; 03-06 write shards with the private PhysicalDatasetBuilder._write_upd from a dataset built in the script |
 | `physics_ensemble` | ensembles | - | not_convertible |  | the expert training loops, ring-graph adapters, ParametricPINN and FD schemes are in the scripts (docs/dev/LIBRARY_CONSOLIDATION.md lists them for a later pass); multiscale_turbulence takes hours |
 | `physics_module` | hybrid models | `physics_module/01_coarse_fem_plus_neural_correction` | not yet run |  | compared with the numbers of docs/core_concepts/model.md |
 | `physics_optimizer` | optimization | `physics_optimizer/01_constrained_shape_six_methods` | runs | 12 / 12 match | compared with the table of docs/core_concepts/physics_optimizer.md |
-| `pinn_solver` | PINN | - |  |  | not converted yet (a later batch of this PR): compiler / factory PINNs; the same problems run as train.pinn / inverse.discover flows |
+| `pinn_solver` | PINN | `pinn_solver/01_symbolic_loss_basic`<br>`pinn_solver/02_compiler_poisson_2d`<br>`pinn_solver/03_compiler_burgers_1d`<br>`pinn_solver/04_factory_inverse_parameter_heat_1d`<br>`pinn_solver/06_compiler_wave_1d` | runs-quick |  | 01 is a flow (pinn_solver.factory_loss: the PINNFactory loss, as the script); 02 Poisson, 03 Burgers, 06 wave and 04 inverse heat are flows of equations.system + train.pinn / inverse.discover + validate.compare (the same problem and error metric, trained by train.pinn instead of the script's compile_problem / PINNFactory loop); nothing committed to compare, and the quick configurations are far from converged. 03_symbolic_pde_hard_bc (hard-BC ansatz and loop), 05_upd_dataset (synthetic Zarr and loop), 06_domino (residuals and BCs), 06_open_meteo (three training pipelines, network) and 07_interface_bc (two-region batch and loop) hold their method in the scripts |
 | `pinneapple_and_physicsnemo` | PINN | - |  |  | not converted yet (a later batch of this PR): the pinneapple/ benchmark (training loop in the script) against the committed JSON; physicsnemo/ and both/ need NVIDIA PhysicsNeMo-Sym |
 | `pinneapple_benchmark` | benchmarks | - | not_convertible |  | two hand-written PINN benchmarks (760 lines of sampling, residuals and training loops around the architecture classes); nothing committed |
 | `pinneapple_cosim` | co-simulation | - | not_convertible |  | imports pinneapple_cosim, which no longer exists (moved to pinneapple_systems.cosimulation without a shim), and trains in the script |
@@ -89,6 +89,8 @@ Each example with a flow and the planner capabilities that build it from text (`
 
 | example | capability | from its title |
 |---|---|---|
+| `architectures` | `architectures.pod_dmd` | first |
+| `architectures` | `architectures.registry_tour` | first |
 | `black_hole_weather` | `blackhole.accretion` | first |
 | `bricks` | `bricks.self_modifying` | first |
 | `calculix_cantilever` | `calculix.cantilever` | first |
@@ -116,6 +118,7 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `geomechanics` | `geo.column_collapse` | first |
 | `geometry_library` | `aero.airliner_vlm` | first |
 | `geophysics` | `geo.earth_system` | first |
+| `getting_started` | - | falls short: no capability registered, generic flows only |
 | `inspection` | `inspection.eddy_current` | first |
 | `lbm` | `lbm.sphere_drag` | first |
 | `meshgraphnet` | `gnn.mgn_cylinder_flow` | first |
@@ -126,9 +129,11 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `numerical_solvers` | `md.lj_gas` | first |
 | `numerical_solvers` | `swe.dam_break` | first |
 | `openfoam_campaign` | `cfd.campaign` | first |
+| `pde_environment` | `pde_env.tagged_preset` | first |
 | `physics_check` | `check.physics` | first |
 | `physics_module` | `core.hybrid_fem` | first |
 | `physics_optimizer` | `core.torsion_optimizer` | first |
+| `pinn_solver` | `pinn_solver.factory_loss` | first |
 | `problem_designer` | `problemdesign.offline_report` | first |
 | `proof_graph` | `proof.pt_chain` | first |
 | `qualitative` | `qualitative.ahmed_slant` | first |
@@ -151,6 +156,22 @@ Each example with a flow and the planner capabilities that build it from text (`
 ## Measured comparisons
 
 Per flow run: the flow's number, the example's committed number (results file or manifest metric) and the relative difference; the tolerance of each comparison is in the flow (`examples.compare` node).
+
+### `architectures/00_registry_tour` (full)
+
+done in 8 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
+
+### `architectures/01_list_models` (full)
+
+done in 8 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
+
+### `architectures/30_rom_pod_dmd` (full)
+
+done in 8 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
+
+### `architectures/60_new_architectures_demo` (full)
+
+done in 8 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
 
 ### `black_hole_weather/accretion_run` (full)
 
@@ -551,6 +572,14 @@ done in 8 s (commit 3f2296e8, 2026-10-21); 0 of 0 numbers match.
 
 done in 44 s (commit 5e891c36, 2026-10-19); 0 of 0 numbers match.
 
+### `getting_started/03_heat_diffusion_1d` (quick)
+
+done in 805 s (commit c94c53c7, 2026-10-23); 0 of 0 numbers match.
+
+### `getting_started/04_wave_equation_1d` (quick)
+
+done in 1412 s (commit c94c53c7, 2026-10-23); 0 of 0 numbers match.
+
 ### `inspection/01_eddy_current_pinn` (full)
 
 done in 444 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
@@ -587,6 +616,28 @@ done in 106 s (commit 5e891c36, 2026-10-19); 5 of 5 numbers match.
 | `zoo.eval.xfoil_naca2412/Cd_mape_pct` | `repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.xfoil_naca2412/Cd_mape_pct` | 2.81272 | 2.81272 | 0 | match |
 | `zoo.eval.test/Cm_mae` | `repo:pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json:validation_metrics.test/Cm_mae` | 0.000453944 | 0.000453944 | 0 | match |
 
+### `electromagnetics/motor_spm_cogging_and_torque` (full)
+
+done in 593 s (commit c94c53c7, 2026-10-23); 15 of 15 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `spm.cogging.period_deg` | `results/spm_summary.json:cogging.period_deg` | 15 | 15 | 0 | match |
+| `spm.cogging.peak_to_peak_Nm` | `results/spm_summary.json:cogging.peak_to_peak_Nm` | 0.744672 | 0.744672 | 1.31453e-10 | match |
+| `spm.cogging.maxwell_1.3deg_Nm` | `results/spm_summary.json:cogging.maxwell_vs_coenergy_Nm.0.1` | 0.0828292 | 0.0828292 | 1.30342e-10 | match |
+| `spm.cogging.coenergy_1.3deg_Nm` | `results/spm_summary.json:cogging.maxwell_vs_coenergy_Nm.0.2` | 0.0815746 | 0.0815746 | 1.31421e-10 | match |
+| `spm.torque_vs_gamma.gamma0_Nm` | `results/spm_summary.json:torque_vs_gamma.torque_Nm.6` | 16.6967 | 16.6967 | 1.48009e-12 | match |
+| `spm.torque_vs_gamma.gamma-90_Nm` | `results/spm_summary.json:torque_vs_gamma.torque_Nm.0` | 0.491023 | 0.491023 | 1.44537e-11 | match |
+| `spm.torque_vs_gamma.gamma45_Nm` | `results/spm_summary.json:torque_vs_gamma.torque_Nm.9` | 11.5195 | 11.5195 | 1.99155e-12 | match |
+| `spm.torque_vs_gamma.coenergy_gamma0_Nm` | `results/spm_summary.json:torque_vs_gamma.maxwell_vs_coenergy_Nm.1.2` | 16.7113 | 16.7113 | 1.28215e-12 | match |
+| `spm.back_emf.psi_peak_Wb` | `results/spm_summary.json:back_emf.psi_peak_Wb` | 0.187059 | 0.187059 | 4.61176e-12 | match |
+| `spm.back_emf.emf_peak_V` | `results/spm_summary.json:back_emf.emf_peak_V` | 51.6605 | 51.6605 | 4.13268e-11 | match |
+| `spm.back_emf.emf_rms_V` | `results/spm_summary.json:back_emf.emf_rms_V` | 40.3578 | 40.3578 | 2.4983e-13 | match |
+| `spm.losses.stator_iron_W` | `results/spm_summary.json:losses_1500rpm_rated.stator_iron_W` | 9.70292 | 9.70292 | 4.41991e-11 | match |
+| `spm.losses.rotor_iron_W` | `results/spm_summary.json:losses_1500rpm_rated.rotor_iron_W` | 0.0205874 | 0.0205874 | 1.05992e-10 | match |
+| `spm.losses.magnet_eddy_W` | `results/spm_summary.json:losses_1500rpm_rated.magnet_eddy_W` | 0.17192 | 0.17192 | 1.77079e-10 | match |
+| `spm.losses.torque_mean_Nm` | `results/spm_summary.json:losses_1500rpm_rated.torque_mean_Nm` | 16.0469 | 16.0469 | 3.70395e-13 | match |
+
 ### `non_hermitian/ep_tuning` (full)
 
 done in 11 s (commit 475bf159, 2026-10-21); 9 of 9 numbers match.
@@ -614,6 +665,10 @@ done in 2 s (commit 5d9bf73a, 2026-10-19); 0 of 0 numbers match.
 ### `openfoam_campaign/campaign` (full)
 
 done in 270 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
+### `pde_environment/07_tagged_presets_real_geometry` (quick)
+
+done in 743 s (commit c94c53c7, 2026-10-23); 0 of 0 numbers match.
 
 ### `physics_check/fail_and_pass` (full)
 
@@ -643,6 +698,26 @@ done in 1424 s (commit 5e891c36, 2026-10-19); 12 of 12 numbers match.
 | `opt.differential_evolution.evaluations` | `doc:docs/core_concepts/physics_optimizer.md|differential_evolution|evaluations` | 605 | 605 | 0 | match |
 | `opt.bayesian.value` | `doc:docs/core_concepts/physics_optimizer.md|bayesian|value` | -0.0340975 | -0.0340975 | 1.46103e-06 | match |
 | `opt.bayesian.evaluations` | `doc:docs/core_concepts/physics_optimizer.md|bayesian|evaluations` | 61 | 61 | 0 | match |
+
+### `pinn_solver/01_symbolic_loss_basic` (full)
+
+done in 5 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
+
+### `pinn_solver/02_compiler_poisson_2d` (quick)
+
+done in 1353 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
+
+### `pinn_solver/03_compiler_burgers_1d` (quick)
+
+done in 416 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
+
+### `pinn_solver/04_factory_inverse_parameter_heat_1d` (quick)
+
+done in 474 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
+
+### `pinn_solver/06_compiler_wave_1d` (quick)
+
+done in 738 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
 
 ### `problem_designer/03_offline_spec_to_report` (full)
 
@@ -917,18 +992,18 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `00_registry_tour.py` | `pinneapple_models.register_all` | `pinneapple_models.GraphBatch`, `pinneapple_models.ModelCatalog`, `pinneapple_models.ModelRegistry` |
-| `01_list_models.py` | `pinneapple_models.register_all` | `pinneapple_models.ModelRegistry` |
+| `00_registry_tour.py` | `pinneapple_models.ModelCatalog`, `pinneapple_models.ModelRegistry`, `pinneapple_models.register_all` | `pinneapple_models.GraphBatch` |
+| `01_list_models.py` | `pinneapple_models.ModelRegistry`, `pinneapple_models.register_all` | - |
 | `02_autoencoders.py` | - | `pinneapple_neural.architectures.autoencoders.ae_2d.Autoencoder2D`, `pinneapple_neural.architectures.autoencoders.ae_rom_hybrid.AEROMHybrid`, `pinneapple_neural.architectures.autoencoders.dense_ae.DenseAutoencoder`, `pinneapple_neural.architectures.autoencoders.kae.KAEAutoencoder`, `pinneapple_neural.architectures.autoencoders.koopman_pi_ae.PhysicsInformedKoopmanAutoencoder`, `pinneapple_neural.architectures.autoencoders.vae.VariationalAutoencoder` |
 | `03_classical_ts.py` | `pinneapple_neural.architectures.classical_ts.ekf.ExtendedKalmanFilter`, `pinneapple_neural.architectures.classical_ts.enkf.EnsembleKalmanFilter`, `pinneapple_neural.architectures.classical_ts.kalman.KalmanFilter` | `pinneapple_neural.architectures.classical_ts.arima.ARIMA`, `pinneapple_neural.architectures.classical_ts.tcn.TCN`, `pinneapple_neural.architectures.classical_ts.ukf.UnscentedKalmanFilter`, `pinneapple_neural.architectures.classical_ts.var.VAR` |
-| `04_pinns.py` | `pinneapple_physics.metrics.relative_l2`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_models.VanillaPINN`, `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pielm.PIELMFactoryAdapter`, `pinneapple_neural.architectures.pinns.pinn_lstm.PINNLSTM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vpinn.VPINN`, `pinneapple_neural.architectures.pinns.vpinn.pinn_factory_adapter`, `pinneapple_neural.architectures.pinns.xpinn.XPINN`, `pinneapple_neural.architectures.pinns.xtfc.XTFC`, `pinneapple_neural.architectures.pinns.xtfc.XTFCConfig`, `pinneapple_neural.architectures.pinns.xtfc.XTFCFactoryModel`, `pinneapple_neural.trainer.parallel.best_device`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `04_pinns.py` | `pinneapple_physics.metrics.relative_l2`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | `pinneapple_models.VanillaPINN`, `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pielm.PIELMFactoryAdapter`, `pinneapple_neural.architectures.pinns.pinn_lstm.PINNLSTM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vpinn.VPINN`, `pinneapple_neural.architectures.pinns.vpinn.pinn_factory_adapter`, `pinneapple_neural.architectures.pinns.xpinn.XPINN`, `pinneapple_neural.architectures.pinns.xtfc.XTFC`, `pinneapple_neural.architectures.pinns.xtfc.XTFCConfig`, `pinneapple_neural.architectures.pinns.xtfc.XTFCFactoryModel`, `pinneapple_neural.trainer.parallel.best_device` |
 | `05_continuous.py` | - | `pinneapple_neural.architectures.continuous.bayesian_rnn.BayesianRNN`, `pinneapple_neural.architectures.continuous.deep_state_space.DeepStateSpaceModel`, `pinneapple_neural.architectures.continuous.hamiltonian.HamiltonianNeuralNetwork`, `pinneapple_neural.architectures.continuous.latent_ode.LatentODE`, `pinneapple_neural.architectures.continuous.neural_cde.NeuralCDE`, `pinneapple_neural.architectures.continuous.neural_gp.NeuralGaussianProcess`, `pinneapple_neural.architectures.continuous.neural_ode.NeuralODE`, `pinneapple_neural.architectures.continuous.neural_sde.NeuralSDE`, `pinneapple_neural.architectures.continuous.ode_rnn.ODERNN`, `pinneapple_neural.architectures.continuous.symplectic_ode.SymplecticODENet`, `pinneapple_neural.architectures.continuous.symplectic_rnn.SymplecticRNN` |
 | `10_operator_learning_fno_toy.py` | `pinneapple_models.FourierNeuralOperator` | - |
 | `20_pinn_inverse_parameter_ode.py` | - | `pinneapple_models.VanillaPINN` |
-| `30_rom_pod_dmd.py` | `pinneapple_neural.architectures.rom.pod.POD` | `pinneapple_neural.architectures.rom.dmd.DynamicModeDecomposition` |
+| `30_rom_pod_dmd.py` | `pinneapple_neural.architectures.rom.dmd.DynamicModeDecomposition`, `pinneapple_neural.architectures.rom.pod.POD`, `pinneapple_neural.architectures.rom.toy_systems.generate_sequences`, `pinneapple_neural.architectures.rom.toy_systems.make_linear_system` | - |
 | `40_graph_gnn_message_passing.py` | - | `pinneapple_models.GraphBatch`, `pinneapple_neural.architectures.graphnn.gnn.GraphNeuralNetwork` |
 | `50_timeseries_transformer_forecast_toy.py` | - | `pinneapple_models.transformers.transformer.VanillaTransformer` |
-| `60_new_architectures_demo.py` | `pinneapple_models.register_all` | `pinneapple_models.GraphBatch`, `pinneapple_models.ModelRegistry`, `pinneapple_models.ModifiedMLP`, `pinneapple_neural.architectures.HashGridEncoding`, `pinneapple_neural.architectures.HashGridMLP`, `pinneapple_neural.architectures.afno.AFNO`, `pinneapple_neural.architectures.afno.AFNOLayer`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.architectures.modified_mlp.FourierFeatureEmbedding`, `pinneapple_neural.architectures.siren.SIREN` |
+| `60_new_architectures_demo.py` | `pinneapple_models.ModelRegistry`, `pinneapple_models.register_all` | `pinneapple_models.GraphBatch`, `pinneapple_models.ModifiedMLP`, `pinneapple_neural.architectures.HashGridEncoding`, `pinneapple_neural.architectures.HashGridMLP`, `pinneapple_neural.architectures.afno.AFNO`, `pinneapple_neural.architectures.afno.AFNOLayer`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.architectures.modified_mlp.FourierFeatureEmbedding`, `pinneapple_neural.architectures.siren.SIREN` |
 
 </details>
 
@@ -967,7 +1042,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `04_custom_task_poisson_bundle.py` | `pinneapple_arena.runner.run_benchmark.run_benchmark` | `pinneapple_arena.bundle.loader.BundleData`, `pinneapple_arena.bundle.loader.load_bundle`, `pinneapple_arena.bundle.schema.load_bundle_schema`, `pinneapple_arena.registry.register_backend`, `pinneapple_arena.registry.register_task`, `pinneapple_physics.pinn_solver.compiler.autograd_ops.laplacian` |
 | `04_digital_twin_flow.py` | `pinneapple_digital_twin.EnsembleKalmanFilter` | `pinneapple_digital_twin.DigitalTwin`, `pinneapple_digital_twin.DigitalTwinConfig`, `pinneapple_digital_twin.MockStream`, `pinneapple_digital_twin.Sensor`, `pinneapple_digital_twin.SensorRegistry`, `pinneapple_digital_twin.ThresholdDetector`, `pinneapple_digital_twin.ZScoreDetector`, `pinneapple_digital_twin.build_digital_twin`, `pinneapple_digital_twin.monitoring.AnomalyMonitor`, `pinneapple_train.batched_inference`, `pinneapple_train.best_device` |
 | `05_surrogate_deeponet_multifield.py` | `pinneapple_neural.architectures.neural_operators.deeponet.DeepONet` | `pinneapple_train.AMPContext`, `pinneapple_train.GradAccumConfig`, `pinneapple_train.GradAccumTrainer`, `pinneapple_train.ThroughputMonitor`, `pinneapple_train.batched_inference`, `pinneapple_train.best_device`, `pinneapple_train.maybe_compile` |
-| `06_end_to_end_generic_pinn_and_digital_twin.py` | `pinneapple_models.register_all`, `pinneapple_physics.pde_environment.DataConstraint`, `pinneapple_physics.pde_environment.DirichletBC`, `pinneapple_physics.pde_environment.InitialCondition`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_train.Trainer` | `pinneapple_models.ModelRegistry`, `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem`, `pinneapple_physics.pde_environment.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.dataset.SingleBatchDataset`, `pinneapple_physics.pinn_solver.compiler.dataset.dict_collate`, `pinneapple_train.TrainConfig` |
+| `06_end_to_end_generic_pinn_and_digital_twin.py` | `pinneapple_models.ModelRegistry`, `pinneapple_models.register_all`, `pinneapple_physics.pde_environment.DataConstraint`, `pinneapple_physics.pde_environment.DirichletBC`, `pinneapple_physics.pde_environment.InitialCondition`, `pinneapple_physics.pde_environment.ProblemSpec`, `pinneapple_train.Trainer` | `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem`, `pinneapple_physics.pde_environment.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.dataset.SingleBatchDataset`, `pinneapple_physics.pinn_solver.compiler.dataset.dict_collate`, `pinneapple_train.TrainConfig` |
 | `06_engineering_presets_showcase.py` | `pinneapple_physics.pde_environment.get_preset`, `pinneapple_physics.pde_environment.list_presets` | `pinneapple_neural.best_device` |
 | `07_end_to_end_genetic_sdf_fdm_sweep.py` | - | `pinneapple_arena.runner.compare.compare_runs`, `pinneapple_arena.runner.run_sweep.run_sweep` |
 | `07_xtfc_1d_ode.py` | - | `pinneapple_models.VanillaPINN`, `pinneapple_neural.architectures.pinns.xtfc.XTFC`, `pinneapple_neural.architectures.pinns.xtfc.XTFCConfig`, `pinneapple_neural.architectures.pinns.xtfc.build_xtfc`, `pinneapple_neural.architectures.pinns.xtfc.tfc_available` |
@@ -1074,9 +1149,9 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 |---|---|---|
 | `01_upd_zarr_train_with_solvers.py` | `pinneapple_data.collate.collate_upd_supervised`, `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_data.physical_sample.PhysicalSample`, `pinneapple_data.zarr_iterable.ZarrUPDIterable`, `pinneapple_data.zarr_store.UPDZarrStore`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.preprocess.PreprocessPipeline`, `pinneapple_neural.trainer.trainer.TrainConfig` |
 | `02_mesh_to_train_points.py` | `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_data.physical_sample.PhysicalSample`, `pinneapple_design.geometry.io.stl.load_stl`, `pinneapple_design.geometry.ops.repair.repair_mesh`, `pinneapple_design.geometry.ops.simplify.simplify_mesh`, `pinneapple_design.geometry.sample.points.sample_surface_points`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig` |
-| `03_pinn_physics_loss_training.py` | `pinneapple_neural.trainer.trainer.Trainer`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.PhysicsLossHook`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `03_pinn_physics_loss_training.py` | `pinneapple_neural.trainer.trainer.Trainer`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.PhysicsLossHook`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig` |
 | `04_cadquery_to_upd_zarr_train.py` | `pinneapple_data.collate.collate_upd_supervised`, `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_data.physical_sample.PhysicalSample`, `pinneapple_data.zarr_iterable.ZarrUPDIterable`, `pinneapple_data.zarr_store.UPDZarrStore`, `pinneapple_design.geometry.gen.cadquery_gen.build_mesh_from_cadquery_object`, `pinneapple_design.geometry.sample.points.sample_surface_points`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig` |
-| `05_registry_train_and_infer.py` | `pinneapple_neural.architectures.register_all.register_all`, `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_neural.trainer.checkpoint.load_checkpoint`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig`, `pinneapple_neural.utils.as_tensor` |
+| `05_registry_train_and_infer.py` | `pinneapple_neural.architectures.register_all.register_all`, `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_neural.trainer.trainer.Trainer` | `pinneapple_neural.trainer.checkpoint.load_checkpoint`, `pinneapple_neural.trainer.losses.CombinedLoss`, `pinneapple_neural.trainer.losses.SupervisedLoss`, `pinneapple_neural.trainer.metrics.default_metrics`, `pinneapple_neural.trainer.trainer.TrainConfig`, `pinneapple_neural.utils.as_tensor` |
 | `06_stl_pipeline_heat.py` | `pinneapple_physics.pde_environment.presets.industry.steady_heat_conduction_3d_default` | `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchBuilder`, `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchConfig`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_physics.pinn_solver.compiler.LossWeights`, `pinneapple_physics.pinn_solver.compiler.compile_problem` |
 
 </details>
@@ -1349,9 +1424,9 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `03_elasticity3d_stl_fixed.py` | `pinneapple_physics.linear_elasticity_3d_default` | `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchBuilder`, `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchConfig`, `pinneapple_design.geometry.builders.stl_domain_batch_builder.TagHeuristics`, `pinneapple_models.VanillaPINN`, `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem` |
 | `03_ns2d_channel_tags.py` | `pinneapple_physics.ns_incompressible_2d_default` | `pinneapple_models.VanillaPINN`, `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem` |
 | `04_heat3d_stl_box.py` | `pinneapple_physics.steady_heat_conduction_3d_default` | `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchBuilder`, `pinneapple_design.geometry.builders.stl_domain_batch_builder.STLDomainBatchConfig`, `pinneapple_models.VanillaPINN`, `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem` |
-| `05_kepler_orbit_validation.py` | `pinneapple_physics.pde_environment.conditions.DataConstraint` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_physics.pde_environment.presets.astrophysics.kepler_exact_state`, `pinneapple_physics.pde_environment.presets.astrophysics.kepler_two_body_orbit`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem` |
-| `06_space_debris_cw_validation.py` | `pinneapple_physics.pde_environment.conditions.DataConstraint` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_physics.pde_environment.presets.astrophysics._cw_exact_state`, `pinneapple_physics.pde_environment.presets.astrophysics.space_debris_cw_relative_motion`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem` |
-| `07_tagged_presets_real_geometry.py` | `pp.get_preset` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_physics.LossWeights`, `pinneapple_physics.compile_problem`, `pinneapple_physics.pde_environment.presets.tag_geometry.build_tag_batch`, `pinneapple_physics.pde_environment.presets.tag_geometry.solve_pde_kwargs_from_batch`, `pp.solve_pde` |
+| `05_kepler_orbit_validation.py` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_physics.pde_environment.conditions.DataConstraint` | `pinneapple_physics.pde_environment.presets.astrophysics.kepler_exact_state`, `pinneapple_physics.pde_environment.presets.astrophysics.kepler_two_body_orbit`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem` |
+| `06_space_debris_cw_validation.py` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_physics.pde_environment.conditions.DataConstraint` | `pinneapple_physics.pde_environment.presets.astrophysics._cw_exact_state`, `pinneapple_physics.pde_environment.presets.astrophysics.space_debris_cw_relative_motion`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem` |
+| `07_tagged_presets_real_geometry.py` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_physics.pde_environment.presets.tag_geometry.build_tag_batch`, `pinneapple_physics.pde_environment.presets.tag_geometry.per_tag_losses`, `pinneapple_physics.pde_environment.presets.tag_geometry.solve_pde_kwargs_from_batch`, `pp.get_preset`, `pp.solve_pde` | - |
 | `_utils.py` | - | - |
 
 </details>
@@ -1371,7 +1446,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `fail/models/drag_surrogate.py` | - | - |
 | `fail/models/kovasznay_pinn.py` | - | - |
 | `fail/surrogates/peak_temperature.py` | - | - |
-| `generate.py` | `pinneapple_simulation.numerical_solvers.operator_benchmarks` | `pinneapple_check.fields.load_openfoam`, `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_security.integrity.build_manifest`, `pinneapple_security.signing.generate_key`, `pinneapple_security.signing.sign_file` |
+| `generate.py` | `pinneapple_neural.architectures.registry.ModelRegistry`, `pinneapple_simulation.numerical_solvers.operator_benchmarks` | `pinneapple_check.fields.load_openfoam`, `pinneapple_security.integrity.build_manifest`, `pinneapple_security.signing.generate_key`, `pinneapple_security.signing.sign_file` |
 | `pass/models/drag_surrogate.py` | - | - |
 | `pass/models/kovasznay_pinn.py` | - | - |
 | `pass/surrogates/peak_temperature.py` | - | - |
@@ -1424,15 +1499,15 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `01_symbolic_loss_basic.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `01_symbolic_loss_basic.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | - |
 | `02_compiler_poisson_2d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
 | `03_compiler_burgers_1d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.conditions.InitialCondition`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
 | `03_symbolic_pde_hard_bc.py` | - | `pinneapple_physics.symbolic_pde.HardBC`, `pinneapple_physics.symbolic_pde.SymbolicPDE` |
-| `04_factory_inverse_parameter_heat_1d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
-| `05_upd_dataset_data_only_regression.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_physics.pinn_solver.io.SamplingSpec`, `pinneapple_physics.pinn_solver.io.UPDDataset`, `pinneapple_physics.pinn_solver.io.UPDItem`, `pinneapple_physics.pinn_solver.io.build_default_mapping_atmosphere` |
+| `04_factory_inverse_parameter_heat_1d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | - |
+| `05_upd_dataset_data_only_regression.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | `pinneapple_physics.pinn_solver.io.SamplingSpec`, `pinneapple_physics.pinn_solver.io.UPDDataset`, `pinneapple_physics.pinn_solver.io.UPDItem`, `pinneapple_physics.pinn_solver.io.build_default_mapping_atmosphere` |
 | `06_compiler_wave_1d.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.conditions.InitialCondition`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
 | `06_domino_time_marching_demo.py` | - | `pinneapple_physics.pinn_solver.domino.DoMINO`, `pinneapple_train.TimeMarchingTrainer` |
-| `06_open_meteo_climate_twin.py` | `pinneapple_physics.pinn_solver.factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.PINN`, `pinneapple_physics.pinn_solver.factory.PINNFactory` | `pinneapple_data.datasets.external_sources.OpenMeteoClient`, `pinneapple_neural.trainer.self_scaled_qn.SelfScaledQuasiNewton`, `pinneapple_physics.pinn_solver.factory.PINNProblemSpec`, `pinneapple_physics.pinn_solver.factory.TabulatedSignal` |
+| `06_open_meteo_climate_twin.py` | `pinneapple_physics.pinn_solver.factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.PINN`, `pinneapple_physics.pinn_solver.factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.PINNProblemSpec` | `pinneapple_data.datasets.external_sources.OpenMeteoClient`, `pinneapple_neural.trainer.self_scaled_qn.SelfScaledQuasiNewton`, `pinneapple_physics.pinn_solver.factory.TabulatedSignal` |
 | `07_interface_bc_conjugate_heat_transfer.py` | `pinneapple_physics.pde_environment.conditions.DirichletBC`, `pinneapple_physics.pde_environment.spec.ProblemSpec` | `pinneapple_physics.pde_environment.conditions.InterfaceBC`, `pinneapple_physics.pde_environment.spec.PDETermSpec`, `pinneapple_physics.pinn_solver.compiler.compile.compile_problem`, `pinneapple_physics.pinn_solver.compiler.loss.LossWeights` |
 
 </details>
@@ -1441,10 +1516,10 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
-| `both/bench_ode_geom_sampling.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `both/bench_ode_geom_sampling.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | `pinneapple_neural.architectures.pinns.inverse.InversePINN`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN` |
 | `physicsnemo/wave_1d.py` | - | - |
 | `physicsnemo/wave_equation.py` | - | - |
-| `pinneapple/pinneapple.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_neural.architectures.pinns.vpinn.VPINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
+| `pinneapple/pinneapple.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | `pinneapple_neural.architectures.pinns.pielm.PIELM`, `pinneapple_neural.architectures.pinns.pinnsformer.PINNsFormer`, `pinneapple_neural.architectures.pinns.vanilla.VanillaPINN`, `pinneapple_neural.architectures.pinns.vpinn.VPINN` |
 
 </details>
 
@@ -1562,7 +1637,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `03_audit_and_features.py` | - | `pinneapple_timeseries.ForecastProblemSpec`, `pinneapple_timeseries.TSAuditor`, `pinneapple_timeseries.TSFeatureEngineer` |
 | `04_backtest_baselines.py` | `pinneapple_timeseries.DriftForecaster`, `pinneapple_timeseries.NaiveForecaster`, `pinneapple_timeseries.SeasonalNaiveForecaster`, `pinneapple_timeseries.metrics_ext.point.mae`, `pinneapple_timeseries.metrics_ext.point.rmse`, `pinneapple_timeseries.metrics_ext.point.smape` | `pinneapple_timeseries.BacktestConfig`, `pinneapple_timeseries.BacktestRunner`, `pinneapple_timeseries.ExpandingWindowSplitter` |
 | `05_quantile_uncertainty.py` | `pinneapple_timeseries.TSDataModule`, `pinneapple_timeseries.TimeSeriesSpec` | `pinneapple_timeseries.uncertainty.quantile.QuantileConfig`, `pinneapple_timeseries.uncertainty.quantile.QuantileHead`, `pinneapple_timeseries.uncertainty.quantile.pinball_loss_torch` |
-| `06_custom_model_registry.py` | `pinneapple_systems.TSDataModule`, `pinneapple_systems.TimeSeriesSpec` | `pinneapple_models.ModelRegistry`, `pinneapple_systems.TSModelCatalog` |
+| `06_custom_model_registry.py` | `pinneapple_models.ModelRegistry`, `pinneapple_systems.TSDataModule`, `pinneapple_systems.TimeSeriesSpec` | `pinneapple_systems.TSModelCatalog` |
 | `07_fft_lstm_hybrid.py` | `pinneapple_timeseries.datamodule.TSDataModule`, `pinneapple_timeseries.metrics_ext.point.mae`, `pinneapple_timeseries.metrics_ext.point.rmse`, `pinneapple_timeseries.metrics_ext.point.smape`, `pinneapple_timeseries.spec.TimeSeriesSpec`, `pinneapple_train.trainer.Trainer` | `pinneapple_neural.trainer.audit.set_seed`, `pinneapple_neural.trainer.parallel.best_device`, `pinneapple_timeseries.csv_loader.generate_synthetic_csv`, `pinneapple_timeseries.csv_loader.load_timeseries_csv`, `pinneapple_timeseries.decomposition.fft_lstm.FFTLSTMPipeline`, `pinneapple_train.callbacks.EarlyStopping`, `pinneapple_train.callbacks.ModelCheckpoint`, `pinneapple_train.losses.CombinedLoss`, `pinneapple_train.losses.SupervisedLoss`, `pinneapple_train.metrics.regression_metrics_bundle`, `pinneapple_train.preprocess.MissingValueStep`, `pinneapple_train.preprocess.PreprocessPipeline`, `pinneapple_train.preprocess.RobustScaleStep`, `pinneapple_train.trainer.TrainConfig` |
 | `08_hht_lstm_hybrid.py` | `pinneapple_timeseries.datamodule.TSDataModule`, `pinneapple_timeseries.metrics_ext.point.mae`, `pinneapple_timeseries.metrics_ext.point.rmse`, `pinneapple_timeseries.metrics_ext.point.smape`, `pinneapple_timeseries.spec.TimeSeriesSpec`, `pinneapple_train.trainer.Trainer` | `pinneapple_neural.trainer.audit.set_seed`, `pinneapple_neural.trainer.parallel.best_device`, `pinneapple_timeseries.csv_loader.generate_synthetic_csv`, `pinneapple_timeseries.csv_loader.load_timeseries_csv`, `pinneapple_timeseries.decomposition.hht_lstm.HHTLSTMPipeline`, `pinneapple_train.callbacks.EarlyStopping`, `pinneapple_train.callbacks.ModelCheckpoint`, `pinneapple_train.losses.CombinedLoss`, `pinneapple_train.losses.SupervisedLoss`, `pinneapple_train.metrics.regression_metrics_bundle`, `pinneapple_train.preprocess.MissingValueStep`, `pinneapple_train.preprocess.PreprocessPipeline`, `pinneapple_train.preprocess.RobustScaleStep`, `pinneapple_train.trainer.TrainConfig` |
 | `adaptive_forecasting.py` | `pinneapple_systems.time_series.AdaptiveForecaster`, `pinneapple_systems.time_series.default_experts` | - |
@@ -1599,9 +1674,9 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `concorde_high_aoa/concorde_high_aoa_pipeline.py` | - | `pinneapple_design.geometry.csg.CSGEllipse`, `pinneapple_design.geometry.csg.CSGPolygon`, `pinneapple_design.geometry.csg.CSGUnion`, `pinneapple_design.geometry.gen.primitives._boolean_or_fallback`, `pinneapple_design.geometry.gen.primitives.build_mesh`, `pinneapple_design.geometry.ops.lbm_bridge._aoa_rotation_matrix`, `pinneapple_design.geometry.ops.lbm_bridge.mesh_to_obstacle_mask`, `pinneapple_pdb.benchmarks.get_benchmark`, `pinneapple_physics.pde_environment.turbulence_selector.TurbulenceModel`, `pinneapple_physics.pde_environment.turbulence_selector.get_turbulence_closure`, `pinneapple_simulation.numerical_solvers.lbm.LBMSolver3D`, `pinneapple_tools.aero_coefficients.compute_cp`, `pinneapple_tools.aero_coefficients.force_to_coefficients`, `pinneapple_tools.aero_coefficients.integrate_surface_forces`, `pinneapple_tools.visualization.style.make_figure`, `pinneapple_tools.visualization.style.use_cfd_style`, `pinneapple_tools.visualization.vortex.compute_dissipation_rate`, `pinneapple_tools.visualization.vortex.compute_enstrophy`, `pinneapple_tools.visualization.vortex.compute_q_criterion_3d`, `pinneapple_tools.visualization.vortex.compute_strain_rate_tensor_3d`, `pinneapple_tools.visualization.vortex.compute_vorticity_3d`, `pinneapple_tools.visualization.vortex.plot_lbm_flow`, `pinneapple_tools.visualization.vortex.plot_q_criterion_3d`, `pinneapple_train.best_device` |
 | `crash_surrogate/__init__.py` | - | - |
 | `crash_surrogate/crash_surrogate_pipeline.py` | - | `pinneapple_adaptation.transfer_learning.freeze_layers`, `pinneapple_adaptation.transfer_learning.layer_lr_groups`, `pinneapple_analysis.uncertainty.EnsembleUQ`, `pinneapple_neural.architectures.rom.parametric.latin_hypercube`, `pinneapple_tools.visualization.style.make_figure`, `pinneapple_tools.visualization.style.use_cfd_style`, `pinneapple_train.best_device`, `pinneapple_train.maybe_compile` |
-| `fin_convection_inverse/block_3d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.block_3d`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area` |
-| `fin_convection_inverse/fin_convection_inverse.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` |
-| `fin_convection_inverse/plate_2d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.interp_grid`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.plate_2d` |
+| `fin_convection_inverse/block_3d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_simulation.numerical_solvers.heat_fv_reference.block_3d`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area` |
+| `fin_convection_inverse/fin_convection_inverse.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec` | - |
+| `fin_convection_inverse/plate_2d.py` | `pinneapple_physics.pinn_solver.factory.pinn_factory.NeuralNetwork`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINN`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNFactory`, `pinneapple_physics.pinn_solver.factory.pinn_factory.PINNProblemSpec`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.convergence` | `pinneapple_simulation.numerical_solvers.heat_fv_reference.footprint_area`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.interp_grid`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.plate_2d` |
 | `fin_convection_inverse/plots.py` | - | - |
 | `fin_convection_inverse/plots_2d3d.py` | - | - |
 | `heated_channel_twin/__init__.py` | - | - |
@@ -1637,14 +1712,14 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `02_fno_darcy_onnx.py` | `pinneapple_simulation.numerical_solvers.operator_benchmarks`, `pp.validate` | `pinneapple_analysis.benchmark.builtin.fields._operator_model`, `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.architectures.neural_operators.fno_export.export_onnx`, `pinneapple_neural.utils.fit_supervised` |
 | `03_deeponet_fno_reaction_diffusion.py` | `pp.validate` | `pinneapple_analysis.benchmark.builtin.fields._operator_model`, `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.utils.fit_supervised`, `pinneapple_simulation.numerical_solvers.reaction_diffusion.ReactionDiffusion1D` |
 | `04_meshgraphnet_elasticity.py` | `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.architectures.graphnn.base.GraphBatch`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.utils.fit_supervised`, `pinneapple_simulation.numerical_solvers.solid_fem.SolidFEM`, `pinneapple_simulation.numerical_solvers.solid_fem.box_mesh` |
-| `05_pod_dmd_cylinder_wake.py` | `pinneapple_neural.architectures.rom.POD`, `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_lab.experiments.rom._wake`, `pinneapple_neural.architectures.rom.DynamicModeDecomposition` |
+| `05_pod_dmd_cylinder_wake.py` | `pinneapple_neural.architectures.rom.DynamicModeDecomposition`, `pinneapple_neural.architectures.rom.POD`, `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_lab.experiments.rom._wake` |
 | `06_opinf_weather_advection.py` | `pinneapple_neural.architectures.rom.POD`, `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.architectures.rom.OperatorInference`, `pinneapple_physics.advection_diffusion_1d.AdvectionDiffusion1D` |
 | `07_mlp_zoo_heatsink_convection.py` | `pp.datasets`, `pp.validate`, `pp.zoo` | `pinneapple_analysis.validation.gallery.conclude` |
 | `08_gaussian_process_fin_convection.py` | `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.workflows.hybrid_surrogate_physics.GaussianProcessSurrogate`, `pinneapple_simulation.numerical_solvers.heat_fv_reference.plate_2d` |
 | `09_neural_ode_molecular_dynamics.py` | `pinneapple_simulation.particle_dynamics.molecular_dynamics.MDState`, `pinneapple_simulation.particle_dynamics.molecular_dynamics.MolecularDynamicsSimulator`, `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.architectures.continuous.hamiltonian.HamiltonianNeuralNetwork`, `pinneapple_neural.architectures.continuous.neural_ode.NeuralODE`, `pinneapple_neural.utils.fit_supervised` |
 | `10_diffusion_darcy_generative.py` | `pinneapple_simulation.numerical_solvers.operator_benchmarks`, `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.architectures.pinns.physics_diffusion.PhysicsInformedDiffusion` |
 | `11_physicsnemo_fno_magnetostatics.py` | `pinneapple_simulation.numerical_solvers.operator_benchmarks`, `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.utils.fit_supervised` |
-| `12_regression_cantilever_modal.py` | `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_analysis.validation.pinn.mlp`, `pinneapple_neural.utils.fit_supervised`, `pinneapple_simulation.numerical_solvers.nonlinear_beam_fem.cantilever_frequency_roots` |
+| `12_regression_cantilever_modal.py` | `pinneapple_analysis.validation.pinn.mlp`, `pp.validate` | `pinneapple_analysis.validation.gallery.conclude`, `pinneapple_neural.utils.fit_supervised`, `pinneapple_simulation.numerical_solvers.nonlinear_beam_fem.cantilever_frequency_roots` |
 
 </details>
 

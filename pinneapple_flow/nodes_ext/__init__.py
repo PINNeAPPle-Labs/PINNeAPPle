@@ -5,6 +5,7 @@ is :mod:`pinneapple_flow.examples` (``docs/flow_studio/EXAMPLES_AS_FLOWS.md``)."
 from ..examples import register_hook  # noqa: E402
 from . import (  # noqa: F401
     aero,
+    architectures,
     astro,
     bricks,
     cfd,
@@ -19,7 +20,9 @@ from . import (  # noqa: F401
     lbm,
     learned_sim,
     non_hermitian,
+    pde_env,
     pinn_examples,
+    pinn_solver,
     problemdesign,
     render,
     security,

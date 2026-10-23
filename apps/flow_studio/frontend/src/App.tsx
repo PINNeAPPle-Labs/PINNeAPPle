@@ -26,7 +26,7 @@ function compatibleFn(cat: Catalog) {
 function Studio() {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [added, setAdded] = useState({ type: "", n: 0 });
-  const [info, setInfo] = useState<{ version: string; planners: string[] } | null>(null);
+  const [info, setInfo] = useState<{ version: string; planners: string[]; hub_url?: string } | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [meta, setMeta] = useState({ id: "untitled", name: "Untitled flow", description: "", meta: {} as Record<string, any> });
@@ -270,6 +270,7 @@ function Studio() {
       <header className="h-12 shrink-0 flex items-center gap-2 px-3 bg-white border-b border-slate-200">
         <div className="font-bold text-[15px] mr-2">🍍 PINNeAPPle <span className="text-brand-600">Flow Studio</span></div>
         <input className="text-sm border border-slate-200 rounded px-2 py-1 w-56" value={meta.name} onChange={(e) => setMeta({ ...meta, name: e.target.value })} data-testid="flow-name" />
+        {info?.hub_url && <a className="btn" href={info.hub_url} target="_blank" rel="noopener" data-testid="open-hub" title="Ready-made tools, models, geometries, datasets, flows and examples">🍍 Hub</a>}
         <button className="btn-primary" onClick={() => setShowPlanner(true)} data-testid="open-planner">✨ Plan from text</button>
         <button className="btn" onClick={openLists} data-testid="open-lists">Open…</button>
         <button className="btn" onClick={save} data-testid="save">Save</button>

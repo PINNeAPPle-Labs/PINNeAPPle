@@ -5,6 +5,9 @@
 * :func:`open_study` -- the open AVA model of :mod:`.ava` in EMerge: DOE, coarse and fine runs (one frequency per
   process), checks of every row, multi-fidelity bias, LODO of four surrogates, NSGA-II on the GP, verification of
   the best predicted design, active learning, figures, ``summary.json`` and CSV tables;
+* :func:`render_3d` -- named designs re-solved with their near field, then every 3-D output of :mod:`.scene3d`
+  (glTF / USD per frequency, self-contained viewers, Blender stills and GIF / MP4) and the balloon-against-table
+  consistency;
 * :func:`package_study` -- an external package (results table + CLI script, :mod:`.package`): checks, limits, LODO,
   figures, and a re-run of one of its designs compared with the table.
 
@@ -26,7 +29,7 @@ from .checks import antenna_checks
 from .package import load_package
 
 __all__ = ["TARGETS", "limits_report", "check_summary", "validate_targets", "study_figure", "open_study",
-           "package_study"]
+           "package_study", "render_3d"]
 
 TARGETS = ("Greal_bore_dBi", "D_peak_dBi", "S11_dB")
 
@@ -190,3 +193,35 @@ def package_study(path: str, out: str, *, rerun: str | None = None, rerun_freqs:
         summary["rerun"] = {"tag": tag, "runs": [x.to_dict() for x in sim.records], "rerun_minus_table": diff}
     _dump(summary, out)
     return summary
+
+
+def render_3d(designs: Mapping[str, Mapping[str, Any]], out: str, *, freqs: Sequence[float] = (2.0, 2.5, 3.0, 3.5, 4.0),
+              res: float = 0.25, nf_step: float = 2.0, timeout: float = 3600.0, render: bool = True,
+              samples: int = 32, size: tuple[int, int] = (960, 540), log: Callable[[str], None] = print) -> dict[str, Any]:
+    """Solve each named design at ``freqs`` with its near field (``nf_step`` mm on the two cut planes; one EMerge
+    process per frequency) and write its 3-D outputs into ``out`` (:func:`.scene3d.build_3d`). Returns, per design,
+    the files, the run cost, the checks of its rows and the largest difference between the balloon's peak
+    directivity and the table's ``D_peak_dBi`` (zero up to rounding: both come from the same far-field grid)."""
+    from . import scene3d
+    os.makedirs(out, exist_ok=True)
+    runs = os.path.join(out, "runs")
+    res_all: dict[str, Any] = {}
+    for name, d in designs.items():
+        sim = runner.ava_simulator(runs, timeout=timeout, log=log)
+        t = sim.run([dict(d) | {"res": res, "nf_step": nf_step}], freqs, tags=[name])
+        b = scene3d.build_3d(d, os.path.join(runs, name), out, rows=t.rows, name=name, render=render,
+                             samples=samples, size=size, log=log)
+        bal = {round(m["f_GHz"], 6): m["D_peak_dBi"] for m in b["info"]["balloon"]}
+        diff = [abs(bal[round(float(r["f_GHz"]), 6)] - float(r["D_peak_dBi"])) for r in t.rows
+                if round(float(r["f_GHz"]), 6) in bal]
+        res_all[name] = {"design": dict(d), "runs": sim.summary(), "checks": check_summary(t),
+                         "rows": [{k: r[k] for k in runner.RESULT_COLUMNS if k in r} for r in t.rows],
+                         "balloon_vs_table_max_abs_dB": max(diff) if diff else None,
+                         **{k: v for k, v in b.items() if k not in ("info", "files")},
+                         "files": {k: os.path.relpath(v, out) for k, v in b["files"].items() if v},
+                         "balloon": b["info"]["balloon"],
+                         "gain_scale_dBi": [b["info"]["g_max_dBi"] - b["info"]["dyn_db"], b["info"]["g_max_dBi"]]}
+        runner.write_table(t, os.path.join(out, f"{name}_rows.csv"))
+    with open(os.path.join(out, "summary_3d.json"), "w") as fh:
+        json.dump(res_all, fh, indent=1, default=float)
+    return res_all

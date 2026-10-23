@@ -65,7 +65,7 @@ SECTION_OF: dict[str, str] = {
     "lib.antenna.limits": "optimization",
     "data.stream": "twin", "twin.connect": "twin", "twin.auto": "twin", "assimilate.filter": "twin",
     "forecast.lab": "twin", "forecast.enso": "twin", "lib.ts.predictability": "twin",
-    "viz.plot": "viz", "viz.field3d": "viz", "viz.render": "viz", "vehicle.dashboard": "viz",
+    "viz.plot": "viz", "lib.antenna.render_3d": "viz", "viz.field3d": "viz", "viz.render": "viz", "vehicle.dashboard": "viz",
     "export.report": "export", "lib.export.geometry": "export",
 }
 

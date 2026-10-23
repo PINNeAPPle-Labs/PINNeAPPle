@@ -196,7 +196,64 @@ the repository, `package.json` naming them): 80 rows, 16 designs, 5 frequencies,
 errors as above, and design `d05` re-run at 2 and 2.5 GHz (9.6 s and 10.4 s, 0.96 and 1.03 GB) reproduced every
 column of the table exactly (difference 0.0). Whole `--package` run: 59 s.
 
-## 9. What PINNeAPPle adds to a manual study of variants
+## 9. The antenna in 3-D (`scene3d`)
+
+`study.render_3d({"base": {}, "best": best_design}, "results/3d")` (or `vivaldi_2to4ghz.py --3d`, also run at the
+end of the full mode) re-solves each design at the five frequencies with its near field (`AVAParams.nf_step`, mm,
+on two cut planes: the substrate mid-plane and the vertical plane through the end-fire axis, 15 mm beyond the board,
+inside the air box up to 4 GHz) and builds, on the generic studio scene (`pinneapple_tools.visualization.studio`):
+
+* **geometry**: the laminate (translucent) and the 35 µm copper of both faces (flares, slots, director, feed line)
+  extruded from `ava.layout`, `<name>_antenna.glb`, and per solved frequency `<name>_<f>GHz.glb` / `.usda` with the
+  balloon (fields `gain_dBi`, `directivity_dBi`) and the cuts (`E_dB`);
+* **radiation balloon** in the antenna's frame, centred on the board, radius `0.6 Lb (G - G_max + 30 dB) / 30 dB`,
+  coloured by the IEEE gain `4πU/P_acc` in dBi on jet, one gain scale for all frequencies; the far field is the
+  37 × 73 (θ, φ) grid that `ava` already computes (`ff_<f>GHz.npz`, now with `P_rad`, `P_acc`, `S11`);
+* **near field**: `|E|` in dB below the plane's 99.5th percentile (the singular feed gap would otherwise set the
+  whole scale; clipped at 0 dB, shown down to −40 dB), and the instantaneous `Re(E_x e^{jωt})` over one period
+  (ωt 0–345° in 24 steps), `E_x` being the polarisation of the aperture field;
+* **viewers** (one self-contained HTML each, three.js from the library, opens from disk): `<name>_viewer.html`
+  (orbit / zoom, frequency slider stepping through the solved frequencies only, layers antenna / balloon / cuts,
+  head-up D peak, G peak, realized gain at +y and S11) and `<name>_phase_viewer.html` (ωt slider, play);
+* **Blender Cycles** (`pip install bpy`): `<name>_beauty.png` (copper on the laminate), `<name>_balloon.png`
+  (balloon at 3 GHz with the jet gain bar), `<name>_sweep/<name>_sweep.gif` / `.mp4` (2 → 4 GHz, one frame per
+  solved frequency) and `<name>_phase/<name>_phase.gif` / `.mp4` (one period at 3 GHz).
+
+The balloon is checked against the table: its maximum directivity equals the row's `D_peak_dBi` (same far-field
+grid and the same `P_rad`); `render_3d` records the largest difference and the example turns it into a check
+(`< 1e-6 dB`). A short dipole's `sin²θ` pattern gives 1.76 dBi on the same grid (test).
+
+Measured (`vivaldi_2to4ghz.py --3d`, the base design `AVAParams()` and the best design of section 7, 4 cores,
+EMerge 2.8.9 + SuperLU, bpy 5.2.3, CPU Cycles):
+
+| | base | best |
+|---|---|---|
+| EMerge processes with near field (`nf_step` 2 mm) | 5, all ok, median 9.4 s, peak 1.40 GB | 5, all ok, median 11.8 s, peak 1.61 GB |
+| peak directivity of the balloon, 2 → 4 GHz | 5.12, 6.92, 7.61, 8.13, 8.72 dBi | 7.09, 8.43, 9.69, 10.64, 11.27 dBi |
+| balloon peak − table `D_peak_dBi` (5 frequencies) | 0.0 dB | 0.0 dB |
+| S11, 2 → 4 GHz | −7.0, −16.7, −19.4, −22.3, −25.5 dB | −16.9, −24.0, −9.8, −12.4, −12.2 dB |
+| `power_closure` failures (section 7) | 3 of 5 | 5 of 5 |
+| Blender: beauty + balloon + 5-frame sweep + 24-frame phase, 960 × 540 | 169 s | 166 s |
+| self-contained viewers (sweep, phase) | 3.0 MB, 3.8 MB | 3.3 MB, 4.4 MB |
+
+The whole `--3d` run took 460 s. Re-solving the best design for the 3-D views reproduced the rows of the study table
+to the last digit (the near-field sampling does not change the solve), and the base design at 3 GHz gave the same
+S11 (−19.43 dB) as its first run. Each viewer loads and draws in about 10 s in headless Chromium with software
+WebGL (screenshots below); a GPU browser is faster.
+
+![sweep viewer: best design at 4 GHz, antenna, balloon and cuts](../../examples/use_cases/antennas/results/3d/best_viewer.png)
+
+![sweep viewer from the top, balloon layer off: |E| on the substrate mid-plane at 3 GHz](../../examples/use_cases/antennas/results/3d/best_viewer_cuts.png)
+
+![Blender beauty render of the best design](../../examples/use_cases/antennas/results/3d/best_beauty.png)
+
+![balloon of the best design at 3 GHz](../../examples/use_cases/antennas/results/3d/best_balloon.png)
+
+![frequency sweep, base design](../../examples/use_cases/antennas/results/3d/base_sweep/base_sweep.gif)
+
+![E_x over one period at 3 GHz, best design](../../examples/use_cases/antennas/results/3d/best_phase/best_phase.gif)
+
+## 10. What PINNeAPPle adds to a manual study of variants
 
 * **The right physical limit.** The end-fire bound `7.28 L/λ` (and `4 L/λ`), not the broadside aperture formula: it
   says before any simulation that 10 dBi at 2 GHz needs 206 mm, and from which frequency a given board can reach it.
@@ -211,6 +268,9 @@ column of the table exactly (difference 0.0). Whole `--package` run: 59 s.
 * **Multi-fidelity.** Coarse meshes for many designs, fine ones for a few, the bias between them measured.
 * **A trust card per prediction.** Domain, buildability, uncertainty, physical limit, known error: a prediction
   outside them says so.
+* **Seeing it in 3-D, from the solved fields.** The copper and the laminate, the gain balloon at every solved
+  frequency in the antenna's frame, the near field on two cuts, in a viewer that is one HTML file and in Cycles
+  renders, with the balloon tied to the table it came from.
 * **Reproducibility on another machine.** One command, an open model, the solver called with recorded settings,
   per-process time and memory, tables and figures written next to the script, and the same flow as a Flow Studio
-  node (`lib.antenna.limits`, `lib.antenna.package`, `lib.antenna.open_study`; flow `antenna_vivaldi_limits`).
+  node (`lib.antenna.limits`, `lib.antenna.package`, `lib.antenna.open_study`, `lib.antenna.render_3d`; flow `antenna_vivaldi_limits`).

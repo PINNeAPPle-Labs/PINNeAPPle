@@ -79,6 +79,8 @@ class AVAParams:
     wf: float = 0.0          # microstrip width; 0 = the 50-ohm width from er and h
     air: float = 0.25        # air margin around the board [wavelengths]
     n_flare: int = 40        # points per flare curve
+    nf_step: float = 0.0     # near-field sample spacing on the two cut planes [mm]; 0 = no near field
+    nf_margin: float = 15.0  # near-field planes extend this far beyond the board [mm] (inside the air box to 4 GHz)
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> AVAParams:
@@ -244,6 +246,41 @@ def _farfield(ds, faces, n_theta: int = 37, n_phi: int = 73):
     return th, ph, Et, Ep, U, prad, Ub, float(ff.Ptot)
 
 
+def nearfield_planes(p: AVAParams) -> dict[str, dict[str, np.ndarray]]:
+    """The two near-field cut planes of design ``p`` (mm): ``board`` (z = h/2, the substrate mid-plane) and ``axis``
+    (x = 0, through the end-fire axis), each ``{"origin", "u", "v", "nu", "nv"}``: points
+    ``origin + i/(nu-1) u + j/(nv-1) v``. The extent is the board plus ``nf_margin`` on every side, the spacing
+    ``nf_step``; it does not depend on the frequency, so the planes of every frequency share one grid."""
+    m, st = p.nf_margin, p.nf_step
+    nx = int(round((p.W + 2 * m) / st)) + 1
+    ny = int(round((p.Lb + 2 * m) / st)) + 1
+    nz = int(round((p.h + 2 * m) / st)) + 1
+    return {"board": {"origin": np.array([-p.W / 2 - m, -m, p.h / 2]), "u": np.array([p.W + 2 * m, 0, 0.0]),
+                      "v": np.array([0, p.Lb + 2 * m, 0.0]), "nu": nx, "nv": ny},
+            "axis": {"origin": np.array([0.0, -m, -m]), "u": np.array([0, p.Lb + 2 * m, 0.0]),
+                     "v": np.array([0, 0, p.h + 2 * m]), "nu": ny, "nv": nz}}
+
+
+def plane_points(pl: dict[str, np.ndarray]) -> np.ndarray:
+    """``(nv, nu, 3)`` points of a plane of :func:`nearfield_planes` (mm)."""
+    a = np.linspace(0, 1, int(pl["nu"]))
+    b = np.linspace(0, 1, int(pl["nv"]))
+    return pl["origin"] + a[None, :, None] * pl["u"] + b[:, None, None] * pl["v"]
+
+
+def _nearfield(ds, p: AVAParams) -> dict[str, np.ndarray]:
+    """Complex E (V/m for 1 W incident) on the planes of :func:`nearfield_planes`; NaN outside the mesh."""
+    out = {}
+    for name, pl in nearfield_planes(p).items():
+        P = plane_points(pl) * 1e-3
+        E = ds.interpolate(P[..., 0], P[..., 1], P[..., 2]).E                 # (3, nv, nu) complex
+        out[f"{name}_E"] = np.asarray(E, dtype=np.complex64)
+        for k in ("origin", "u", "v"):
+            out[f"{name}_{k}"] = pl[k]
+        out[f"{name}_shape"] = np.array([pl["nv"], pl["nu"]])
+    return out
+
+
 def simulate(params: AVAParams | dict, freqs_ghz, out_dir: str | None = None, *, superlu: bool = True,
              log: str = "WARNING") -> list[dict[str, Any]]:
     """Build the design in EMerge, solve each frequency (one mesh per frequency, size ``res * lambda``) and return
@@ -297,6 +334,7 @@ def _solve_one(em, p: AVAParams, lay: Layout, f_ghz: float, out_dir: str | None)
         ds = data.field[0]
         th, ph, Et, Ep, U, prad, Ub, ptot = _farfield(ds, abc.selection if hasattr(abc, "selection") else
                                                        air.boundary())
+        nf = _nearfield(ds, p) if p.nf_step > 0 else None
     pinc = 1.0                                                        # LumpedPort(power=1): 1 W incident
     pacc = pinc * (1 - abs(s11) ** 2)
     umax = float(U.max())
@@ -311,7 +349,9 @@ def _solve_one(em, p: AVAParams, lay: Layout, f_ghz: float, out_dir: str | None)
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
         np.savez_compressed(os.path.join(out_dir, f"ff_{f_ghz:g}GHz.npz"), theta=th, phi=ph, E_theta=Et, E_phi=Ep,
-                            f_GHz=f_ghz)
+                            f_GHz=f_ghz, P_rad=prad, P_acc=pacc, P_inc=pinc, S11=s11)
+        if nf is not None:
+            np.savez_compressed(os.path.join(out_dir, f"nf_{f_ghz:g}GHz.npz"), f_GHz=f_ghz, **nf)
     return row
 
 

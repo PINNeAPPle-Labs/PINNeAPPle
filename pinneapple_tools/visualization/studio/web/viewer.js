@@ -3,7 +3,10 @@
 // CFD colours: jet scale, blue = low, red = high, with a colour bar. Controls: colour range (auto, full or typed),
 // slice position (slices of one group), streamline density, edges (feature or wireframe).
 // scene.json "animation" (pinneapple_tools.visualization.studio.animation): rigid tracks, arrows, trails, per-vertex
-// fields and head-up values per frame, with a bottom bar (play, time slider, speed, follow camera).
+// fields, per-frame vertex positions and head-up values per frame, with a bottom bar (play, time slider, speed,
+// follow camera); the animated axis may be a frequency or a phase (time_label / time_unit), stepped when it must not
+// be blended (interpolate: false). scene.json "groups": layers switched on and off in the panel.
+// A self-contained page (web_viewer(..., single_file=True)) carries scene.json and scene.glb in window.STUDIO_EMBED.
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/three/OrbitControls.js";
 import { GLTFLoader } from "./vendor/three/loaders/GLTFLoader.js";
@@ -27,7 +30,8 @@ const camera = new THREE.PerspectiveCamera(35, 1, 0.001, 1e6);
 const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
 
 // state: mode real | field | lines | slice; arg = field name or slice group
-const S = { mode: "real", arg: null, range: {}, data: {}, stackPos: {}, density: 1, edges: "off" };
+const S = { mode: "real", arg: null, range: {}, data: {}, stackPos: {}, density: 1, edges: "off", hidden: {} };
+const layers = {};                                            // group name -> three.js objects of its surfaces
 let META = {}, label = (f) => f, model = null, centre = new THREE.Vector3(), radius = 1, ax = AX.z_up, stacks = {};
 const lineGroup = new THREE.Group(), sliceGroup = new THREE.Group(); scene.add(lineGroup, sliceGroup);
 const meshes = [];
@@ -125,6 +129,7 @@ function panel() {
     const n = lineGroup.userData.n || 0;
     parts.push(`<div class="row"><span>Line density</span><input id="dens" type="range" min="0.05" max="1" step="0.05" value="${S.density}"><span>${core.thin(n, S.density).length} / ${n}</span></div>`);
   }
+  if (Object.keys(layers).length) parts.push(`<div class="row"><span>Layers</span>${Object.keys(layers).map((g, i) => `<label><input type="checkbox" data-layer="${i}" ${S.hidden[g] ? "" : "checked"}> ${g}</label>`).join(" ")}</div>`);
   parts.push(`<div class="row"><span>Edges</span><select id="edges">${[["off", "Off"], ["feature", "Feature edges"], ["wire", "Wireframe"]].map(([v, t]) => `<option value="${v}" ${S.edges === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>`);
   P.innerHTML = parts.join("");
   const num = (id) => parseFloat($(id).value);
@@ -136,7 +141,14 @@ function panel() {
   }
   if ($("#pos")) $("#pos").oninput = (e) => { S.stackPos[S.arg] = +e.target.value; paint(); };
   if ($("#dens")) $("#dens").oninput = (e) => { S.density = +e.target.value; paint(); };
+  document.querySelectorAll("[data-layer]").forEach((c) => (c.onchange = (e) => { setLayer(Object.keys(layers)[+e.target.dataset.layer], e.target.checked); }));
   $("#edges").onchange = (e) => { S.edges = e.target.value; meshes.forEach((o) => core.setEdges(THREE, o, S.edges)); };
+}
+
+function setLayer(g, on) {
+  if (!(g in layers)) return;
+  S.hidden[g] = !on; layers[g].forEach((o) => (o.visible = !!on));
+  const c = [...document.querySelectorAll("[data-layer]")].find((x) => Object.keys(layers)[+x.dataset.layer] === g); if (c) c.checked = !!on;
 }
 
 function setMode(m, arg) {
@@ -174,9 +186,11 @@ function buildSlices() {
 }
 
 async function main() {
-  META = await (await fetch("scene.json")).json();
+  const EMB = window.STUDIO_EMBED;
+  META = EMB ? EMB.meta : await (await fetch("scene.json")).json();
   document.title = META.title || "PINNeAPPle"; $("#title").textContent = META.title || "";
-  const gltf = await new GLTFLoader().loadAsync("scene.glb");
+  const gltf = EMB ? await new GLTFLoader().parseAsync(Uint8Array.from(atob(EMB.glb), (c) => c.charCodeAt(0)).buffer, "")
+    : await new GLTFLoader().loadAsync("scene.glb");
   model = gltf.scene; scene.add(model);
   const fields = new Set();
   model.traverse((o) => { if (o.isMesh) { o.userData.mat = o.material; meshes.push(o); Object.keys(o.geometry.attributes).filter((k) => k.startsWith("_")).forEach((k) => fields.add(k.slice(1))); } });
@@ -187,6 +201,10 @@ async function main() {
     return (META.fields || []).find((x) => x.toLowerCase() === f) || k || f;
   };
   ax = AX[META.axes] || AX.z_up;
+  if (META.groups) {
+    const byNode = nodeMap(gltf);
+    for (const G of META.groups) layers[G.name] = G.surfaces.map((i) => byNode[i]).filter(Boolean);
+  }
   if (META.animation) buildAnimation(gltf);
   const box = new THREE.Box3().setFromObject(model);            // static scene, bodies at frame 0, trajectories
   for (const P of A.paths) for (const p of P) box.expandByPoint(ax(p));
@@ -204,21 +222,26 @@ async function main() {
   setMode(first ? "field" : "real", first);
   if (A.on && META.animation.camera === "follow") setFollow(true);
   $("#load").style.display = "none";
-  window.studio = { S, setMode, fit, paint, setFrame, play, setFollow, anim: A };   // for scripted screenshots and tests
+  window.studio = { S, setMode, fit, paint, setFrame, play, setFollow, setLayer, layers, anim: A };   // for scripted screenshots and tests
 }
 
 
 // ---------------------------------------------------------------- animation
-const A = { on: false, f: 0, t: 0, playing: false, speed: 1, follow: false, vectors: true, groups: {}, arrows: [], trails: [], fields: [], paths: [], prev: null, followGroup: null };
+const A = { on: false, f: 0, t: 0, playing: false, speed: 1, follow: false, vectors: true, groups: {}, arrows: [], trails: [], fields: [], shapes: [], paths: [], prev: null, followGroup: null };
 const UP = new THREE.Vector3(0, 1, 0), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _s = new THREE.Vector3(), _p = new THREE.Vector3();
 const toQ = (q) => new THREE.Quaternion(...core.quatToThree(q, META.axes));
 const sRGB = (rgb) => new THREE.Color().setRGB(rgb[0], rgb[1], rgb[2], THREE.SRGBColorSpace);
 function groupCentre(G) { return G.local.clone().applyMatrix4(G.g.matrixWorld); }
 
+function nodeMap(gltf) {                                      // glTF node index -> three.js object
+  const byNode = {};
+  model.traverse((o) => { const a = gltf.parser.associations.get(o); if (a && a.nodes !== undefined && !(a.nodes in byNode)) byNode[a.nodes] = o; });
+  return byNode;
+}
+
 function buildAnimation(gltf) {
   const an = META.animation; A.on = true; A.followGroup = an.follow_group || (an.tracks[0] || {}).group || null;
-  const byNode = {};                                          // glTF node index -> three.js object
-  model.traverse((o) => { const a = gltf.parser.associations.get(o); if (a && a.nodes !== undefined && !(a.nodes in byNode)) byNode[a.nodes] = o; });
+  const byNode = nodeMap(gltf);
   for (const tr of an.tracks) {
     const g = new THREE.Group(); g.name = "track:" + tr.group; model.add(g);
     for (const i of tr.surfaces || []) if (byNode[i]) g.add(byNode[i]);
@@ -263,13 +286,20 @@ function buildAnimation(gltf) {
     o.userData.mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.6, metalness: 0, envMapIntensity: 0.4, side: THREE.DoubleSide });
     o.userData.animField = true; A.fields.push({ fd, o, n });
   }
+  for (const sh of an.shapes || []) {                          // vertex positions per frame (scene axes -> three.js)
+    const o = byNode[sh.index] || meshes.find((m) => m.name === sh.surface);
+    if (!o || !o.isMesh || o.geometry.attributes.position.count !== sh.vertices[0].length) continue;
+    A.shapes.push({ sh, o });
+  }
   applyFrame(0);
 }
 function hexRGB(h) { const c = new THREE.Color(h); c.convertLinearToSRGB(); return [c.r, c.g, c.b]; }
 
 // put everything at fractional frame f (between frames: positions linear, rotations slerp, values linear)
 function applyFrame(f) {
-  const an = META.animation, n = an.times.length, [k0, k1, w] = core.bracket(f, n);
+  const an = META.animation, n = an.times.length;
+  if (an.interpolate === false) f = Math.min(n - 1, Math.round(f));   // stepped axis (solved frequencies): no blends
+  const [k0, k1, w] = core.bracket(f, n);
   A.f = f; A.t = core.lerp(an.times[k0], an.times[k1], w);
   for (const G of Object.values(A.groups)) {
     G.g.position.copy(ax(core.lerp3(G.tr.positions[k0], G.tr.positions[k1], w)));
@@ -299,6 +329,11 @@ function applyFrame(f) {
     const v0 = fd.values[k0], v1 = fd.values[k1], v = new Float32Array(n);
     for (let i = 0; i < n; i++) v[i] = core.lerp(v0[i], v1[i], w) ?? NaN;
     o.geometry.attributes.color.array.set(core.colorArray(v, fd.range[0], fd.range[1], core.cmapStops(fd.cmap))); o.geometry.attributes.color.needsUpdate = true;
+  }
+  for (const { sh, o } of A.shapes) {
+    const p = o.geometry.attributes.position, V0 = sh.vertices[k0], V1 = sh.vertices[k1], v = new THREE.Vector3();
+    for (let i = 0; i < p.count; i++) { v.copy(ax(core.lerp3(V0[i], V1[i], w))); p.setXYZ(i, v.x, v.y, v.z); }
+    p.needsUpdate = true; o.geometry.computeVertexNormals(); o.geometry.computeBoundingSphere();
   }
   if (A.follow) chase();
   hud();
@@ -372,15 +407,18 @@ function animBar() {
   const bars = [...an.vectors.filter((v) => v.values && v.range && v.range[1] - v.range[0] > 1e-12).map((v) => [v.label || v.name, v.range, v.cmap]),
     ...(an.trails || []).filter((t) => t.values && t.range).map((t) => [t.label || t.name, t.range, t.cmap]),
     ...an.fields.map((f) => [f.label || f.surface, f.range, f.cmap])];
-  if (bars.length) { $("#alegend").innerHTML = bars.map(([t, [lo, hi], c]) => core.colorbarHTML({ title: t, lo, hi, width: 220, stops: core.cmapStops(c) })).join('<div style="height:8px"></div>'); $("#alegend").style.display = "block"; }
+  const seen = new Set(), uniq = bars.filter(([t, r, c]) => { const k = JSON.stringify([t, r, c]); return !seen.has(k) && seen.add(k); });
+  if (uniq.length) { $("#alegend").innerHTML = uniq.map(([t, [lo, hi], c]) => core.colorbarHTML({ title: t, lo, hi, width: 220, stops: core.cmapStops(c) })).join('<div style="height:8px"></div>'); $("#alegend").style.display = "block"; }
   hud();
 }
 function hud() {
   if (!$("#hud") || !A.on) return;
   const an = META.animation, [k0, k1, w] = core.bracket(A.f, an.times.length);
-  const lines = [`t = ${A.t.toFixed(2)} s`, ...an.hud.map((h) => core.hudLine(h, core.lerp(h.values[k0], h.values[k1], w)))];
+  const tl = an.time_label || "t", tu = an.time_unit === undefined ? "s" : an.time_unit, nd = an.time_decimals ?? 2;
+  const tShown = an.interpolate === false ? an.times[Math.round(A.f)] : A.t;
+  const lines = [`${tl} = ${tShown.toFixed(nd)}${tu ? " " + tu : ""}`, ...an.hud.map((h) => core.hudLine(h, core.lerp(h.values[k0], h.values[k1], w)))];
   $("#hud").innerHTML = lines.map((l, i) => `<div${i ? "" : ' style="font-weight:700"'}>${l}</div>`).join(""); $("#hud").style.display = "block";
-  if ($("#atime")) $("#atime").textContent = `${A.t.toFixed(2)} / ${an.times[an.times.length - 1].toFixed(2)} s`;
+  if ($("#atime")) $("#atime").textContent = `${tShown.toFixed(nd)} / ${an.times[an.times.length - 1].toFixed(nd)}${tu ? " " + tu : ""}`;
   const sl = $("#aslider"); if (sl && document.activeElement !== sl) sl.value = Math.round(A.f);
 }
 

@@ -94,6 +94,14 @@ The file grows by about 28 bytes per triangle, plus about 2 bytes per triangle f
 
 Slices are stored as JSON grids, about 7 bytes per value. Keep them to a few hundred cells a side.
 
+**One self-contained page.** `web_viewer(scene, folder, single_file=True, filename="view.html")` writes a single
+HTML file with scene.json, scene.glb, the viewer and the vendored three.js inlined (ES modules as `data:` URLs in
+an import map). It opens from disk (`file://`) with no server and can be mailed; `screenshot("folder/view.html",
+...)` takes its picture. Size: the glb in base64 plus about 1 MB of three.js.
+
+**Layers.** When the surfaces carry two or more `group` names, scene.json lists them and the panel gets a *Layers*
+row with one checkbox per group (`window.studio.setLayer(name, on)` from scripts).
+
 ## Fields, errors and deformed shapes in the apps: `pp.viz.field_view`
 
 The apps show a result on its mesh with one shared page module, `apps/_shared/static/shared/fieldview3d.js`, served at
@@ -194,6 +202,11 @@ render_animation(sc, "frames/", camera="chase", samples=16, gif=True)   # Cycles
   (yuv420p) and optionally a GIF with ffmpeg. Cameras: `"chase"`, `"follow"`, `"side"`, `"tower"`, `"fixed"`.
 - `Animation.at(t)`, `pose(group, k)`, `frame(k)`, `transform(group, k, points)` give the transforms; `to_dict` /
   `from_dict` round-trip the JSON.
+- **Shapes and other axes.** `add_surface_shape(surface, vertices)` gives a surface's vertex positions per frame
+  `(T, n, 3)` (a radiation balloon that changes with frequency, a deforming body), in the viewer and in Blender. The
+  animated axis need not be time: `Animation(f, time_label="f", time_unit="GHz", interpolate=False)` labels the
+  slider and the HUD `f = 2.50 GHz` and steps between frames (no blend between solved frequencies, also in
+  `resample`); `Animation(wt, time_label="ωt", time_unit="°", time_decimals=0)` animates a phase.
 - **Colours:** arrows, trails (`add_trail(..., values=nz, label="n_z [g]", radius=..., alpha=...)`), animated
   surface fields and static `Lines` (`cmap`, `alpha`, `radius`, `color_range`) take `cmap="jet"` or the diverging
   `"coolwarm"` / `"bwr"` (neutral midpoint, range symmetric about zero by default); the viewer and the Blender

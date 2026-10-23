@@ -3,6 +3,11 @@
     python examples/use_cases/antennas/vivaldi_2to4ghz.py --quick            # 3 designs x 2 frequencies (minutes)
     python examples/use_cases/antennas/vivaldi_2to4ghz.py                    # 16 designs x 5 frequencies + fine runs
     python examples/use_cases/antennas/vivaldi_2to4ghz.py --package <dir>    # reproduce an external study package
+    python examples/use_cases/antennas/vivaldi_2to4ghz.py --3d               # 3-D of the base and the best design
+
+``--3d`` (also run at the end of the full mode) re-solves the base design (``AVAParams()`` defaults) and the best
+design of ``results/summary.json`` with their near field and writes results/3d/: glTF / USD per frequency, two
+self-contained viewers (frequency sweep; one period of E_x), Blender renders and GIF / MP4.
 
 The work is done by pinneapple_simulation.electromagnetics.antenna.study; this script picks the mode and records the
 experiment. EMerge (``pip install emerge``) runs one frequency per process with SuperLU; without it only the limits
@@ -46,6 +51,33 @@ def record(ex, s):
                  detail=json.dumps(chk["failed"]), kind="physics")
 
 
+RESULTS = os.path.join(HERE, "results")
+
+
+def run_3d(results_dir, a):
+    """The base design and the best design of the study in ``results_dir``, in 3-D (results_dir/3d)."""
+    designs = {"base": {}}
+    p = os.path.join(results_dir, "summary.json")
+    if os.path.exists(p):
+        with open(p) as fh:
+            best = json.load(fh).get("best", {}).get("design")
+        if best:
+            designs["best"] = {k: v for k, v in best.items() if k != "res"}
+    return study.render_3d(designs, os.path.join(results_dir, "3d"), render=not a.no_render)
+
+
+def record_3d(ex, s):
+    for name, r in s.items():
+        if r["balloon_vs_table_max_abs_dB"] is not None:
+            ex.check(f"{name}_balloon_matches_table", r["balloon_vs_table_max_abs_dB"] < 1e-6,
+                     value=r["balloon_vs_table_max_abs_dB"], max=1e-6, kind="consistency",
+                     detail="peak directivity of the 3-D balloon vs D_peak_dBi of the table")
+        ex.log_metric(f"{name}_3d_emerge_wall_s_median", r["runs"]["wall_s_median_ok"] or 0.0, "s",
+                      "median EMerge process time with the near field")
+        if "render_s" in r:
+            ex.log_metric(f"{name}_blender_render_s", r["render_s"], "s", "all Blender stills and animations")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--quick", action="store_true", help="3 designs x 2 frequencies")
@@ -56,12 +88,20 @@ def main():
     ap.add_argument("--timeout", type=float, default=None, help="seconds per EMerge process")
     ap.add_argument("--out", help="output folder (default: outputs/<mode> next to this script)")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--3d", dest="three_d", action="store_true", help="only the 3-D outputs (results/3d)")
+    ap.add_argument("--no-render", action="store_true", help="3-D without the Blender renders")
     a = ap.parse_args()
-    mode = "package" if a.package else ("quick" if a.quick else "full")
+    mode = "package" if a.package else ("3d" if a.three_d else ("quick" if a.quick else "full"))
     out = a.out or os.path.join(HERE, "outputs", mode)
+    if a.three_d:                                   # the 3-D outputs sit next to the study they come from
+        out = os.path.join(a.out or RESULTS, "3d")
     with experiment("vivaldi_2to4ghz", title="Antipodal Vivaldi 2-4 GHz, 10 dBi target", domain="electromagnetics",
                     methods=["FEM (EMerge)", "end-fire limits", "Gaussian process", "NSGA-II", "active learning"],
                     params={"mode": mode}, out_dir=out, register=False) as ex:
+        if a.three_d:
+            s = run_3d(os.path.dirname(out), a)
+            record_3d(ex, s)
+            return
         if a.package:
             s = study.package_study(a.package, out, rerun=a.rerun, rerun_freqs=a.rerun_freqs,
                                     interpolated=a.interpolated, timeout=a.timeout or 3600)
@@ -72,6 +112,8 @@ def main():
                                                       "multi_fidelity", "active_learning", "wall_s")},
                          indent=1, default=float)[:6000])
         record(ex, s)
+        if mode == "full":
+            record_3d(ex, run_3d(out, a))
 
 
 if __name__ == "__main__":

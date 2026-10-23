@@ -14,6 +14,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Antennas in 3-D (`pinneapple_simulation.electromagnetics.antenna.scene3d`, `study.render_3d`, `--3d` of
+  `examples/use_cases/antennas/vivaldi_2to4ghz.py`, Flow Studio node `lib.antenna.render_3d`): the AVA's laminate and
+  copper as glTF / USD with materials, the gain balloon (dBi, jet) per solved frequency in the antenna's frame, |E| and
+  `Re(E_x e^{jωt})` on two cut planes, self-contained three.js viewers (frequency slider, layers) and Blender Cycles
+  stills, GIF and MP4; the balloon's peak directivity is checked against the table. `ava` saves the near field on
+  the two planes (`AVAParams.nf_step`) and the powers with the far field.
+- Studio scene: `Animation.add_surface_shape` (vertex positions per frame, in the viewer and in Blender), a labelled
+  animated axis (`time_label`, `time_unit`, `time_decimals`) and stepped frames (`interpolate=False`) for
+  frequencies and phases; layers (surface groups) switched on and off in the viewer; `web_viewer(...,
+  single_file=True)` writes one self-contained HTML page (three.js and the scene inlined) and `screenshot` takes it;
+  colour bars with the same title and range are drawn once (viewer and Blender).
 - Printed end-fire antennas with an external FEM solver (`pinneapple_simulation.electromagnetics.antenna`):
   end-fire directivity limits (Hansen-Woodyard 7.28 L/λ, ordinary 4 L/λ), broadside aperture gain, the shortest
   length for a target gain and the feasibility frequency (`bounds`); consistency checks of a result row as a

@@ -278,10 +278,15 @@ class Scene:
         return write_stl(self.surfaces, self.title)
 
     def extras(self) -> Dict[str, Any]:
-        """Lines, slices and the animation as JSON (scene axes, same as the surfaces), with the field labels."""
+        """Lines, slices and the animation as JSON (scene axes, same as the surfaces), with the field labels and,
+        when the surfaces have two or more groups, those groups as layers."""
         r = lambda a, nd=4: np.round(np.asarray(a, float), nd).tolist()  # noqa: E731
+        groups = list(dict.fromkeys(sf.group for sf in self.surfaces if sf.group))
         return {"axes": self.axes, "title": self.title, "labels": self.labels, "fields": self.field_names(),
                 **({"lighting": self.lighting} if self.lighting else {}),
+                # layers the viewer can switch on and off: the surfaces (glTF node indices) of each group
+                **({"groups": [{"name": g, "surfaces": [i for i, sf in enumerate(self.surfaces) if sf.group == g]}
+                               for g in groups]} if len(groups) > 1 else {}),
                 "lines": [{"name": L.name, "label": L.label, "points": [r(p) for p in L.points],
                            "values": None if L.values is None else [r(v) for v in L.values],
                            "cmap": getattr(L, "cmap", "jet"), "alpha": float(getattr(L, "alpha", 1.0)),

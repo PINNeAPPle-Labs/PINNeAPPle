@@ -8,7 +8,7 @@ its free-flight acceleration equals g, no frame-to-frame jump exceeds what the f
 never grow (restitution <= 1). They are run on the ground truth, on four kinds of non-physical edits (time warp,
 teleport, fade-out, time reversal), on the world model's reconstructions and on its rollouts.
 
-    python examples/nvidia/04_worldmodel_physics_video/run.py         # ~12 min on 4 CPU cores
+    python examples/nvidia/04_worldmodel_physics_video/run.py         # ~16 min on 4 CPU cores
 """
 import argparse
 import json

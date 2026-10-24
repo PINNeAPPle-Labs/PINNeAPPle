@@ -29,7 +29,7 @@
   },
   {
    "name": "rollout_pixel_mae",
-   "value": 0.0734968788921833,
+   "value": 0.020704112015664577,
    "unit": "",
    "how": "mean |frame - truth| over the rollout horizon"
   }
@@ -42,8 +42,8 @@
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 1.0,
-   "min": null,
+   "max": null,
+   "min": 1.0,
    "detail": "24 videos, 4 with an occluder",
    "kind": "sanity"
   },
@@ -78,8 +78,8 @@
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.9,
-   "min": null,
+   "max": null,
+   "min": 0.9,
    "detail": "",
    "kind": "sanity"
   },
@@ -90,8 +90,8 @@
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.9,
-   "min": null,
+   "max": null,
+   "min": 0.9,
    "detail": "",
    "kind": "sanity"
   },
@@ -102,8 +102,8 @@
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.9,
-   "min": null,
+   "max": null,
+   "min": 0.9,
    "detail": "",
    "kind": "sanity"
   },
@@ -114,20 +114,20 @@
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.9,
-   "min": null,
+   "max": null,
+   "min": 0.9,
    "detail": "",
    "kind": "sanity"
   },
   {
    "name": "world-model reconstructions pass",
    "passed": false,
-   "value": 0.65,
+   "value": 0.4,
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.9,
-   "min": null,
+   "max": null,
+   "min": 0.9,
    "detail": "",
    "kind": "sanity"
   },
@@ -138,8 +138,8 @@
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.9,
-   "min": null,
+   "max": null,
+   "min": 0.9,
    "detail": "",
    "kind": "sanity"
   }
@@ -160,9 +160,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "3a56ab71",
-  "created": "2026-10-24T01:53:44Z",
-  "seconds": 239.255,
+  "git": "59d37592",
+  "created": "2026-10-24T12:26:07Z",
+  "seconds": 935.644,
   "error": null,
   "environment": {
    "python": "3.13.17",

@@ -7,59 +7,59 @@
   "fade": 1.0,
   "gravity_flip": 1.0
  },
- "reconstruction_pass": 0.65,
+ "reconstruction_pass": 0.4,
  "rollout_pass": 0.0,
  "failures": {
   "reconstructions": {
    "object visible in every frame": 2,
-   "object area conserved (no growth, fading, vanishing)": 7,
+   "object area conserved (no growth, fading, vanishing)": 12,
    "free-flight acceleration = g (fitted between bounces)": 1,
    "no teleport (speed within what the fall height allows)": 0,
    "energy never increases across a bounce (apex heights)": 0
   },
   "rollouts": {
-   "object visible in every frame": 0,
+   "object visible in every frame": 10,
    "object area conserved (no growth, fading, vanishing)": 20,
    "free-flight acceleration = g (fitted between bounces)": 20,
-   "no teleport (speed within what the fall height allows)": 20,
+   "no teleport (speed within what the fall height allows)": 5,
    "energy never increases across a bounce (apex heights)": 0
   }
  },
  "rollout_g_fit": [
+  4.429634697598763,
+  4.548988937460244,
+  5.617460482558141,
+  4.9572575413407565,
   NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  21.047122999069753,
-  NaN,
-  NaN,
-  NaN,
-  NaN,
-  34.884917921276276,
-  NaN,
-  41.165314561912744
+  17.20587086335309,
+  1.442798889660807,
+  6.490731588059964,
+  4.474742301783764,
+  4.044825231254691,
+  5.050950037729803,
+  6.160280455915543,
+  4.886938039225541,
+  5.897156982372485,
+  6.633804086000819,
+  4.613515223375652,
+  2.469513627191973,
+  4.3534783589245505,
+  4.847839073541969,
+  3.8485970411226558
  ],
- "rollout_pixel_mae": 0.0734968788921833,
+ "rollout_pixel_mae": 0.020704112015664577,
  "tracker_max_err_px": 0.2439131303897167,
  "g_err_gt_max": 0.01853266261113731,
  "train": {
   "videos": 200,
   "steps": 3000,
   "parameters": 548321,
-  "wall_s": 227.53594645800058,
+  "wall_s": 926.2469508550003,
   "final_loss": {
    "step": 2999,
-   "loss_pred": 0.0008333103032782674,
-   "loss_recon": 0.0005651192041113973,
-   "wall_s": 227.53594645800058
+   "loss_pred": 0.0010286591714248061,
+   "loss_recon": 0.0006682887324132025,
+   "wall_s": 926.2469508550003
   }
  },
  "checks": [
@@ -67,6 +67,7 @@
    "name": "ground-truth videos pass every check",
    "value": 1.0,
    "limit": 1.0,
+   "kind": "min",
    "passed": true,
    "detail": "24 videos, 4 with an occluder"
   },
@@ -86,36 +87,42 @@
    "name": "edit detected: time_warp",
    "value": 1.0,
    "limit": 0.9,
+   "kind": "min",
    "passed": true
   },
   {
    "name": "edit detected: teleport",
    "value": 0.95,
    "limit": 0.9,
+   "kind": "min",
    "passed": true
   },
   {
    "name": "edit detected: fade",
    "value": 1.0,
    "limit": 0.9,
+   "kind": "min",
    "passed": true
   },
   {
    "name": "edit detected: gravity_flip",
    "value": 1.0,
    "limit": 0.9,
+   "kind": "min",
    "passed": true
   },
   {
    "name": "world-model reconstructions pass",
-   "value": 0.65,
+   "value": 0.4,
    "limit": 0.9,
+   "kind": "min",
    "passed": false
   },
   {
    "name": "world-model rollouts pass",
    "value": 0.0,
    "limit": 0.9,
+   "kind": "min",
    "passed": false
   }
  ]

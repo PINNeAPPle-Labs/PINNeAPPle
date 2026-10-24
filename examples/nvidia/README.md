@@ -20,7 +20,7 @@ hardware, timings, which components ran).
 | 01 | O | [Pump and pipeline water-hammer twin](01_omniverse_pump_pipeline/README.md) | APPROVED (60 s closure only) | done |
 | 02 | P | [Plume forecast, FNO rollout](02_physicsnemo_plume_rollout/README.md) | REVIEW (10-step horizon) | done |
 | 03 | I | [Pick-and-place arm in the robot sim, structural checks](03_robotsim_pick_and_place/README.md) | APPROVED (shoulder motor at 95 %) | done |
-| 04 | C | Physics-consistent synthetic video and world model | | planned |
+| 04 | C | [Physics-consistent synthetic video, a world model judged by physics](04_worldmodel_physics_video/README.md) | REVIEW (checks sound; model rollouts 0/20) | done |
 | 05 | B | [Strap with a hole: exact geometry, FEM, Heywood](05_brep_plate_with_hole/README.md) | APPROVED (Kt 2.320 vs 2.296) | done |
 | 06 | N | [Zoo surrogates as NIM-style services with a trust report per answer](06_model_services_zoo/README.md) | APPROVED (out-of-range answers flagged) | done |
 | 07 | O + P | [Cold plate surrogate in a USD scene](07_omniverse_physicsnemo_coldplate/README.md) | REJECT (energy balance) | done |

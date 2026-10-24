@@ -22,12 +22,6 @@
    "value": 0.2288505947426688,
    "unit": "rad",
    "how": "test frames where the label check keeps the frame"
-  },
-  {
-   "name": "angle_rms_hidden",
-   "value": NaN,
-   "unit": "rad",
-   "how": "test frames the label check drops"
   }
  ],
  "checks": [

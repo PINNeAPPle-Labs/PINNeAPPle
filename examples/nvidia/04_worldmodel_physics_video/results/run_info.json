@@ -1,12 +1,12 @@
 {
  "name": "04_worldmodel_physics_video",
- "started": "2026-10-24T01:53:44Z",
- "wall_s": 239.506,
+ "started": "2026-10-24T12:26:07Z",
+ "wall_s": 935.884,
  "steps_s": {
-  "synthetic videos (exact physics + randomization)": 6.495,
-  "checks on ground truth and edits": 1.646,
-  "train the world model (CPU)": 229.123,
-  "reconstructions and rollouts, judged": 1.027
+  "synthetic videos (exact physics + randomization)": 3.08,
+  "checks on ground truth and edits": 1.93,
+  "train the world model (CPU)": 928.129,
+  "reconstructions and rollouts, judged": 1.23
  },
  "components": [
   {

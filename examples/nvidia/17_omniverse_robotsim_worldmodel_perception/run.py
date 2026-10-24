@@ -138,7 +138,8 @@ def main(smoke=False, base=None):
             for c in checks:
                 ex.check(c["name"], c["passed"], value=c["value"], max=c["limit"], detail=c.get("detail", ""))
             ex.log_metric("angle_rms_visible", rms_vis, "rad", "test frames where the label check keeps the frame")
-            ex.log_metric("angle_rms_hidden", rms_hidden, "rad", "test frames the label check drops")
+            if np.isfinite(rms_hidden):
+                ex.log_metric("angle_rms_hidden", rms_hidden, "rad", "test frames the label check drops")
             info.mark("PINNeAPPle Robot Sim on NVIDIA Newton", ran=True)
             info.mark("OpenUSD timelines (usd-core)", ran=True)
             info.mark("PINNeAPPle World Model (synthetic camera, CNN)", ran=True)

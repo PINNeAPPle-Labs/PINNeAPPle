@@ -387,7 +387,7 @@ def write_mp4(path: str, images: Sequence[np.ndarray], fps: float = 8.0) -> str:
         import imageio.v2 as iio
         iio.mimsave(path, imgs, fps=fps, codec="libx264", macro_block_size=1, pixelformat="yuv420p")
         return path
-    except ImportError:
+    except (ImportError, ValueError):       # no imageio, or imageio without its FFmpeg plugin
         pass
     import shutil
     import subprocess

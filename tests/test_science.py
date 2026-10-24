@@ -190,7 +190,8 @@ def test_fdtd_3d_t_research_study(tmp_path):
     assert r.passed, r
     assert r.values["observed_order_vacuum"]["value"] > 1.5
     paths = r.save(str(tmp_path))
-    assert os.path.getsize(paths["fdtd_viewer_html"]) > 10_000 and os.path.isfile(paths["fdtd_3d_t_mp4"])
+    assert os.path.getsize(paths["fdtd_viewer_html"]) > 10_000 and os.path.isfile(paths["fdtd_3d_t_gif"])
+    assert "fdtd_3d_t_mp4" in paths or any("mp4 not written" in n for n in r.notes)   # MP4 needs an encoder
 
 
 def test_fdtd_config_rejects_unknown_keys():

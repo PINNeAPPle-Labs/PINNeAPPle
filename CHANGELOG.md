@@ -35,6 +35,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   check of their coverage (mu0 from a solenoid against CODATA 2022, C from an RC discharge on an oscilloscope).
   `python -m pinneapple_science atlas | list | run | report`, Flow Studio nodes `science.run` and
   `science.atlas`, results in `examples/science/`, guide `docs/guides/science.md`.
+- AGENTS.md: `pp.science` in the API table and the "Science by area" example (run by `tests/test_agents_md.py`);
+  Hub: `pp.science` API and recipe entries in the verification category.
 - `pp.science` electromagnetism, research level: `em.research_fdtd_3d` (a configurable 3-D + time FDTD study,
   `pinneapple_science.em.fdtd_study.FDTDConfig` / `run_fdtd`: sources and materials from a dict, refinement
   ladder with observed order, Richardson extrapolation and GCI, radiated power by the near-to-far-field transform,

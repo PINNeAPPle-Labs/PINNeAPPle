@@ -143,6 +143,8 @@ def _pointer_text(p: dict[str, str]) -> str:
 
 
 def load(path: str = ATLAS_PATH) -> Atlas:
+    """The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned
+    data file ``pinneapple_science/data/atlas.json``."""
     with open(path, encoding="utf-8") as fh:
         d = json.load(fh)
     if d.get("schema") != "pinneapple.science.atlas/1":

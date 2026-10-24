@@ -1452,6 +1452,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Small scikit-learn fits no longer oversubscribe a loaded machine. `ParametricPOD(regressor="gpr")` fits each
+  per-coefficient GP with one BLAS thread (the ROM Lab beam example: 182 s -> about 30 s on a loaded 4-CPU host), and
+  `run_regime_arena(threads=...)` holds the numpy / scikit-learn pools to the declared thread count as it does torch,
+  so the one-shot fits (GP, ridge) are timed on the compute the protocol records.
 - Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs
   existing cases". `ParameterSpace` constants and categories match numbers by value (`4000000 == 4000000.0`, as
   JSON from the page drops the `.0`), so the 436 preset runs count as inside the space again.

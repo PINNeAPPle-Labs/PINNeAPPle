@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 423,
+  "tool": 424,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 172
+  "example": 177
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 423,
+   "tool": 424,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 172
+   "example": 177
   },
   "subkind": {
    "library call": 249,
-   "flow node": 91,
+   "flow node": 92,
    "recipe": 46,
    "function": 20,
    "agent tool (MCP)": 17
@@ -138,7 +138,7 @@
   "domain": {
    "physics AI": 94,
    "general": 79,
-   "fluid dynamics": 60,
+   "fluid dynamics": 61,
    "design and geometry": 58,
    "structural mechanics": 54,
    "numerical methods": 46,
@@ -155,6 +155,11 @@
    "astrophysics": 4,
    "robotics": 4,
    "physical AI": 3,
+   "external aerodynamics": 2,
+   "Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica": 1,
+   "Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás)": 1,
+   "Eletromagnetismo / mobilidade elétrica": 1,
+   "Eletromagnetismo / máquinas elétricas": 1,
    "Estrutural / caldeiraria e processo": 1,
    "Estrutural / construção": 1,
    "Fluidos / bombeamento (saneamento, processo, utilidades)": 1,
@@ -166,7 +171,6 @@
    "Térmica / processo e energia": 1,
    "engineering": 1,
    "engineering design": 1,
-   "external aerodynamics": 1,
    "geometry": 1,
    "hydraulics": 1,
    "molecular dynamics": 1,
@@ -187,7 +191,7 @@
    "benchmarks": 14,
    "uq": 13,
    "inverse": 6,
-   "design": 27,
+   "design": 28,
    "systems": 33,
    "vehicles": 11,
    "electromagnetics": 9,
@@ -197,7 +201,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 553,
+   "not graded": 559,
    "B": 63,
    "A": 18,
    "approved": 4,
@@ -7241,7 +7245,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=preset.run",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L17"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L18"
    },
    "extra": {
     "calls": "pinneapple_presets.load(name).run(**overrides)",
@@ -7273,11 +7277,15 @@
       "default": "water_hammer_valve_closure",
       "help": "the engineering case",
       "choices": [
+       "airfoil_section_re4e6",
+       "eddy_current_skin_inspection",
+       "ipm_traction_motor",
        "plate_fin_heatsink_forced",
        "power_pcb_junction",
        "pressure_vessel_asme",
        "pump_npsh_cavitation",
        "shell_tube_cooler",
+       "spm_servo_motor",
        "steam_pipe_insulation",
        "steel_footbridge_pedestrian",
        "water_distribution_network",
@@ -7321,11 +7329,15 @@
        "x-kind": "enum",
        "default": "water_hammer_valve_closure",
        "enum": [
+        "airfoil_section_re4e6",
+        "eddy_current_skin_inspection",
+        "ipm_traction_motor",
         "plate_fin_heatsink_forced",
         "power_pcb_junction",
         "pressure_vessel_asme",
         "pump_npsh_cavitation",
         "shell_tube_cooler",
+        "spm_servo_motor",
         "steam_pipe_insulation",
         "steel_footbridge_pedestrian",
         "water_distribution_network",
@@ -16034,6 +16046,163 @@
    }
   },
   {
+   "id": "node:autolab.aerodynamicist",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "autolab.aerodynamicist",
+   "title": "The AI Aerodynamicist (race-car CFD lab)",
+   "summary": "The Autonomous Physics Lab on a parametric racing car: lower drag at 70 m/s keeping the downforce and the aero balance, OpenFOAM as the reference, surrogates compared on held-out…",
+   "description": "The Autonomous Physics Lab on a parametric racing car: lower drag at 70 m/s keeping the downforce and the\naero balance, OpenFOAM as the reference, surrogates compared on held-out runs, every candidate triaged\n(favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the answer audited. Returns the\nfour-area dashboard (geometry, physics, models, decisions) with the replay of the session.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Design",
+    "aero",
+    "agent",
+    "cfd",
+    "controller",
+    "design",
+    "mission",
+    "openfoam",
+    "optimization",
+    "pareto",
+    "surrogate",
+    "verification"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"autolab.aerodynamicist\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=autolab.aerodynamicist",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/autolab.py#L83"
+   },
+   "extra": {
+    "calls": "pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "source",
+      "kind": "enum",
+      "default": "recorded",
+      "help": "recorded: the committed session (20 OpenFOAM runs) replayed in the dashboard; run: the mission now (OpenFOAM, about 10 min per CFD run on 4 cores)",
+      "choices": [
+       "recorded",
+       "run"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "mission",
+      "kind": "text",
+      "default": "",
+      "help": "run only: the request in plain language (empty: the flagship one)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "budget",
+      "kind": "int",
+      "default": 20,
+      "help": "run only: reference simulations",
+      "choices": null,
+      "minimum": 6,
+      "maximum": 60,
+      "advanced": false
+     },
+     {
+      "name": "procs",
+      "kind": "int",
+      "default": 4,
+      "help": "",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 64,
+      "advanced": true
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "source": {
+       "title": "source",
+       "description": "recorded: the committed session (20 OpenFOAM runs) replayed in the dashboard; run: the mission now (OpenFOAM, about 10 min per CFD run on 4 cores)",
+       "x-kind": "enum",
+       "default": "recorded",
+       "enum": [
+        "recorded",
+        "run"
+       ]
+      },
+      "mission": {
+       "title": "mission",
+       "description": "run only: the request in plain language (empty: the flagship one)",
+       "x-kind": "text",
+       "default": "",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "budget": {
+       "title": "budget",
+       "description": "run only: reference simulations",
+       "x-kind": "int",
+       "default": 20,
+       "type": "integer",
+       "minimum": 6,
+       "maximum": 60
+      },
+      "procs": {
+       "title": "procs",
+       "description": "",
+       "x-kind": "int",
+       "default": 4,
+       "x-advanced": true,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 64
+      }
+     }
+    }
+   },
+   "category": "design",
+   "run": {
+    "code_hash": "cca02ed6e82bcd6b",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 6.37,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "The AI Aerodynamicist (race-car CFD lab) -> pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'source': 'recorded', 'mission': '', 'budget': 20, 'procs': 4}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "node:transfer.pinn",
    "kind": "tool",
    "subkind": "flow node",
@@ -16359,7 +16528,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=preset.validate",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L46"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L47"
    },
    "extra": {
     "calls": "pinneapple_presets.load(name).validate()",
@@ -16381,11 +16550,15 @@
       "default": "water_hammer_valve_closure",
       "help": "the engineering case",
       "choices": [
+       "airfoil_section_re4e6",
+       "eddy_current_skin_inspection",
+       "ipm_traction_motor",
        "plate_fin_heatsink_forced",
        "power_pcb_junction",
        "pressure_vessel_asme",
        "pump_npsh_cavitation",
        "shell_tube_cooler",
+       "spm_servo_motor",
        "steam_pipe_insulation",
        "steel_footbridge_pedestrian",
        "water_distribution_network",
@@ -16406,11 +16579,15 @@
        "x-kind": "enum",
        "default": "water_hammer_valve_closure",
        "enum": [
+        "airfoil_section_re4e6",
+        "eddy_current_skin_inspection",
+        "ipm_traction_motor",
         "plate_fin_heatsink_forced",
         "power_pcb_junction",
         "pressure_vessel_asme",
         "pump_npsh_cavitation",
         "shell_tube_cooler",
+        "spm_servo_motor",
         "steam_pipe_insulation",
         "steel_footbridge_pedestrian",
         "water_distribution_network",
@@ -17683,7 +17860,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/industrial_presets.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_presets/registry.py#L39"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_presets/registry.py#L43"
    },
    "extra": {
     "functions": [
@@ -70912,6 +71089,84 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/eddy_current_skin_inspection",
+   "kind": "example",
+   "name": "examples/industrial_presets/eddy_current_skin_inspection",
+   "title": "Inspeção por correntes parasitas de chapa de alumínio aeronáutico: impedância e afinamento",
+   "summary": "Nesta frequência a sonda distingue 10 % de perda de espessura da variação de lift-off do operador? Qual frequência de ensaio separa melhor os dois sinais, e quanto de espessura…",
+   "description": "Nesta frequência a sonda distingue 10 % de perda de espessura da variação de lift-off do operador? Qual frequência de ensaio separa melhor os dois sinais, e quanto de espessura se lê de uma medição em várias frequências?",
+   "domain": "Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás)",
+   "tags": [
+    "pinneapple_physics.closed_form.eddy_coil.coil_impedance",
+    "pinneapple_simulation.numerical_solvers.eddy_current_fdm.solve_axisymmetric_eddy_current"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/eddy_current_skin_inspection"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/eddy_current_skin_inspection\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[dZ da sonda: Dodd & Deeds vs FDM axissimétrico da lib (h = 0,1 mm)]",
+      "value": 0.004556780826434239,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: solve_axisymmetric_eddy_current (diferenças finitas, A = 0 a 0,05 m); a analítica é Dodd & Deeds, J. Appl. Phys. 39(6):2829-2838 (1968), solução analítica bobina sobre placa"
+     },
+     {
+      "name": "rel_error[placa de 10 delta = semi-espaço]",
+      "value": 3.5127381771509463e-10,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Dodd & Deeds, J. Appl. Phys. 39(6):2829-2838 (1968), solução analítica bobina sobre placa (limite c -> infinito)"
+     },
+     {
+      "name": "rel_error[indutância da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)]",
+      "value": 0.007164850368795491,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Wheeler, Proc. IRE 16 (1928): L = 0,8 a2 N2/(6a + 9b + 10c) uH em polegadas, ~1 %"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.0008745368406067657,
+      "unit": "-",
+      "how": "Gauss-Newton ponderado sobre Dodd & Deeds, covariância (J^T J)^-1"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/eddy_current_skin_inspection/results/eddy.png",
+     "examples/industrial_presets/eddy_current_skin_inspection/results/variants.png",
+     "examples/industrial_presets/eddy_current_skin_inspection/results/3d/eddy_current_skin_inspection_3d_J.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/eddy_current_skin_inspection"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "d8c85855f4abdcf8",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 1.15,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Inspeção por correntes parasitas de chapa de alumínio aeronáutico: impedância e afinamento | Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás) | not curated\nrel_error[dZ da sonda: Dodd & Deeds vs FDM axissimétrico da lib (h = 0,1 mm)] 0.004556780826434239 -\nrel_error[placa de 10 delta = semi-espaço] 3.5127381771509463e-10 -\nrel_error[indutância da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)] 0.007164850368795491 -\ninversion_rel_err 0.0008745368406067657 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/industrial_presets/steam_pipe_insulation",
    "kind": "example",
    "name": "examples/industrial_presets/steam_pipe_insulation",
@@ -74142,6 +74397,181 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/ipm_traction_motor",
+   "kind": "example",
+   "name": "examples/industrial_presets/ipm_traction_motor",
+   "title": "Motor de tração de ímãs internos (geometria do Toyota Prius 2004): torque, MTPA e tensão",
+   "summary": "Que torque o motor dá nesta corrente e neste ângulo, quanto falta para o MTPA, e a tensão nesta rotação cabe no barramento CC (ou é preciso enfraquecimento de campo)?",
+   "description": "Que torque o motor dá nesta corrente e neste ângulo, quanto falta para o MTPA, e a tensão nesta rotação cabe no barramento CC (ou é preciso enfraquecimento de campo)?",
+   "domain": "Eletromagnetismo / mobilidade elétrica",
+   "tags": [
+    "pinneapple_simulation.electromagnetics.machines.pmsm.IPMMachine",
+    "pinneapple_simulation.electromagnetics.machines.verification"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/ipm_traction_motor"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/ipm_traction_motor\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[torque máximo da curva T(ângulo) a 250 A]",
+      "value": 0.03511391427243841,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, benchmark: Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na suíte de testes do pyleecan"
+     },
+     {
+      "name": "rel_error[curva T(ângulo) a 250 A, 13 pontos: erro médio / torque máximo]",
+      "value": 0.03376705963443254,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, benchmark: Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na suíte de testes do pyleecan"
+     },
+     {
+      "name": "rel_error[ângulo de torque máximo (Phi0)]",
+      "value": 0.0,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, benchmark: Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na suíte de testes do pyleecan"
+     },
+     {
+      "name": "rel_error[torque: tensor de Maxwell vs co-energia (250 A, 50°)]",
+      "value": 0.009883900864553579,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: trabalho virtual dW'/dtheta (diferenças de 4a ordem)"
+     },
+     {
+      "name": "surrogate_holdout_max_rel_err",
+      "value": 0.058393295555846436,
+      "unit": "-",
+      "how": "15 held-out solver runs (Latin hypercube)"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.015344047058465371,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent) sobre o FEA, IC pela sensibilidade"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/ipm_traction_motor/results/ipm.png",
+     "examples/industrial_presets/ipm_traction_motor/results/surrogate_parity.png",
+     "examples/industrial_presets/ipm_traction_motor/results/variants.png",
+     "examples/industrial_presets/ipm_traction_motor/results/3d/ipm_traction_motor_3d_B.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/ipm_traction_motor"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "fc4db2be66323b2d",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 1.03,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Motor de tração de ímãs internos (geometria do Toyota Prius 2004): torque, MTPA e tensão | Eletromagnetismo / mobilidade elétrica | not curated\nrel_error[torque máximo da curva T(ângulo) a 250 A] 0.03511391427243841 -\nrel_error[curva T(ângulo) a 250 A, 13 pontos: erro médio / torque máximo] 0.03376705963443254 -\nrel_error[ângulo de torque máximo (Phi0)] 0.0 -\nrel_error[torque: tensor de Maxwell vs co-energia (250 A, 50°)] 0.009883900864553579 -\nsurrogate_holdout_max_rel_err 0.058393295555846436 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/industrial_presets/spm_servo_motor",
+   "kind": "example",
+   "name": "examples/industrial_presets/spm_servo_motor",
+   "title": "Motor síncrono de ímãs superficiais (servo 4 polos, 24 ranhuras): torque, ondulação e cogging",
+   "summary": "Que torque o motor entrega na corrente nominal (limite térmico de densidade de corrente), com quanta ondulação e cogging? Qual a menor espessura de ímã que mantém o torque?",
+   "description": "Que torque o motor entrega na corrente nominal (limite térmico de densidade de corrente), com quanta ondulação e cogging? Qual a menor espessura de ímã que mantém o torque?",
+   "domain": "Eletromagnetismo / máquinas elétricas",
+   "tags": [
+    "pinneapple_simulation.electromagnetics.machine.SPMMachine"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/spm_servo_motor"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/spm_servo_motor\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[torque: tensor de Maxwell vs co-energia]",
+      "value": 0.00015335654237919993,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: duas integrações independentes do mesmo campo (lib, tests/test_motor_magnetics.py mede 0,09 %)"
+     },
+     {
+      "name": "rel_error[torque - cogging vs i.e/w (balanço de potência)]",
+      "value": 0.020903837001168817,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: conservação de energia: P_mec = sum i_k e_k"
+     },
+     {
+      "name": "rel_error[kt (FEM) vs 3/2 ke1 (fundamental da FEM, máquina senoidal)]",
+      "value": 0.028223139241408575,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Pyrhönen, Jokinen & Hrabovcová, Design of Rotating Electrical Machines, 2a ed. (2014), eq. de torque da máquina síncrona de ímãs"
+     },
+     {
+      "name": "surrogate_holdout_max_rel_err",
+      "value": 0.010298457639493648,
+      "unit": "-",
+      "how": "15 held-out solver runs (Latin hypercube)"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.000972648928707076,
+      "unit": "-",
+      "how": "bisseção sobre o FEM (FEM a vazio é monótona em Br), IC pela sensibilidade dE/dBr"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/spm_servo_motor/results/motor.png",
+     "examples/industrial_presets/spm_servo_motor/results/surrogate_parity.png",
+     "examples/industrial_presets/spm_servo_motor/results/variants.png",
+     "examples/industrial_presets/spm_servo_motor/results/3d/spm_servo_motor_3d_B.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/spm_servo_motor"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "f8e193cfffbbbae9",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 1.19,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Motor síncrono de ímãs superficiais (servo 4 polos, 24 ranhuras): torque, ondulação e cogging | Eletromagnetismo / máquinas elétricas | not curated\nrel_error[torque: tensor de Maxwell vs co-energia] 0.00015335654237919993 -\nrel_error[torque - cogging vs i.e/w (balanço de potência)] 0.020903837001168817 -\nrel_error[kt (FEM) vs 3/2 ke1 (fundamental da FEM, máquina senoidal)] 0.028223139241408575 -\nsurrogate_holdout_max_rel_err 0.010298457639493648 -\ninversion_rel_err 0.000972648928707076 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/physics_ensemble",
    "kind": "example",
    "name": "examples/physics_ensemble",
@@ -75767,6 +76197,103 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "B - g within 2pct",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/industrial_presets/airfoil_section_re4e6",
+   "kind": "example",
+   "name": "examples/industrial_presets/airfoil_section_re4e6",
+   "title": "Perfil de asa / pá a Re 4e6: sustentação, arrasto e momento (surrogate verificado de RANS)",
+   "summary": "Qual a sustentação, o arrasto e a eficiência L/D deste perfil no ângulo de ataque de operação? Que perfil maximiza L/D com espessura estrutural >= 12 % e Cm >= -0,12?",
+   "description": "Qual a sustentação, o arrasto e a eficiência L/D deste perfil no ângulo de ataque de operação? Que perfil maximiza L/D com espessura estrutural >= 12 % e Cm >= -0,12?",
+   "domain": "Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica",
+   "tags": [
+    "pinneapple_design.aero.geometry",
+    "pinneapple_design.aero.panel.panel_solve",
+    "pinneapple_hub.zoo (airfoil_cst_rans_mlp)"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/airfoil_section_re4e6"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/airfoil_section_re4e6\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl]",
+      "value": 0.003231396365459536,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo); erro absoluto médio em Cl, medido aqui"
+     },
+     {
+      "name": "rel_error[Cd vs naca_reference: erro = erro relativo médio]",
+      "value": 0.0061563188229423905,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo)"
+     },
+     {
+      "name": "rel_error[Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl]",
+      "value": 0.010092481383557984,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: XFOIL 6.99 com transição forçada, NACA 2412, 9 ângulos (dados do zoo); erro absoluto médio em Cl, medido aqui"
+     },
+     {
+      "name": "rel_error[Cd vs xfoil_naca2412: erro = erro relativo médio]",
+      "value": 0.02812720929821659,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: XFOIL 6.99 com transição forçada, NACA 2412, 9 ângulos (dados do zoo)"
+     },
+     {
+      "name": "rel_error[ângulo de sustentação nula do NACA 2412]",
+      "value": 0.03635566045042856,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: teoria do aerofólio fino (Anderson, Fundamentals of Aerodynamics, cap. 4): alpha_L0 = -(1/pi) int dz/dx (cos t - 1) dt"
+     },
+     {
+      "name": "rel_error[inclinação dCl/dalpha: RANS vs painéis (viscoso ~5-10 % menor)]",
+      "value": 0.09432880750469669,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: Hess-Smith (Moran 1984), invíscido"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.0038385312822229413,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent) sobre o ensemble do zoo, IC pela sensibilidade dCl/dalpha"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/airfoil_section_re4e6/results/airfoil.png",
+     "examples/industrial_presets/airfoil_section_re4e6/results/variants.png",
+     "examples/industrial_presets/airfoil_section_re4e6/results/3d/airfoil_section_re4e6_3d_cp.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/airfoil_section_re4e6"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "cfaf27e490f8e51e",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 1.15,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Perfil de asa / pá a Re 4e6: sustentação, arrasto e momento (surrogate verificado de RANS) | Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica | not curated\nrel_error[Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl] 0.003231396365459536 -\nrel_error[Cd vs naca_reference: erro = erro relativo médio] 0.0061563188229423905 -\nrel_error[Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl] 0.010092481383557984 -\nrel_error[Cd vs xfoil_naca2412: erro = erro relativo médio] 0.02812720929821659 -\nrel_error[ângulo de sustentação nula do NACA 2412] 0.03635566045042856 -",
     "timed_out": false,
     "status": "ok"
    }
@@ -83558,7 +84085,9 @@
      "examples/autolab_aero/_out/figures/baseline_cp_bottom.png",
      "examples/autolab_aero/_out/figures/baseline_streamlines.png"
     ],
-    "videos": []
+    "videos": [
+     "examples/autolab_aero/_out/figures/dashboard_replay.mp4"
+    ]
    },
    "examples": [],
    "files": [],
@@ -83581,6 +84110,90 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/autolab_aero_agent",
+   "kind": "example",
+   "name": "examples/autolab_aero_agent",
+   "title": "The AI Aerodynamicist, driven by an agent",
+   "summary": "The mission in words is read into objectives, limits and a budget (or refused with the reason), then an agent drives the Autonomous Physics Lab one controlled tool call at a…",
+   "description": "The mission in words is read into objectives, limits and a budget (or refused with the reason), then an agent drives the Autonomous Physics Lab one controlled tool call at a time; its answer is audited against the ledger of OpenFOAM runs.",
+   "domain": "external aerodynamics",
+   "tags": [
+    "MLP ensemble / GP surrogates",
+    "NSGA-II",
+    "OpenFOAM simpleFoam",
+    "active learning",
+    "agent over controlled tools"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_aero_agent"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_aero_agent\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "agent_steps",
+      "value": 31.0,
+      "unit": "tool calls",
+      "how": "tool calls of the agent session"
+     },
+     {
+      "name": "replayed_runs",
+      "value": 21.0,
+      "unit": "runs",
+      "how": "designs answered from the stage-1 ledger"
+     },
+     {
+      "name": "new_cfd_runs",
+      "value": 0.0,
+      "unit": "runs",
+      "how": "designs simulated in OpenFOAM in this session"
+     },
+     {
+      "name": "drag_change",
+      "value": -15.667219882799474,
+      "unit": "%",
+      "how": "recommended (simulated) vs baseline, campaign mesh"
+     },
+     {
+      "name": "agent_refused_calls",
+      "value": 0.0,
+      "unit": "calls",
+      "how": "tool calls the toolbox refused or that failed"
+     }
+    ],
+    "figures": [],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/autonomous_lab.md",
+    "lab": "lab/index.html#examples/autolab_aero_agent"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "3f0f030410fd8957",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.89,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
     "timed_out": false,
     "status": "ok"
    }

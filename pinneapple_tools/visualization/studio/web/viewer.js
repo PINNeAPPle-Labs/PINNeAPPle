@@ -56,7 +56,7 @@ function fit(view = "iso") {
 function clip() {
   const d = Math.max(camera.position.distanceTo(controls.target), 1e-6);
   const n = d / 1000, f = Math.max(d * 100, (camera.position.distanceTo(centre) + radius) * 2);
-  if (Math.abs(camera.near - n) > 1e-3 * n || Math.abs(camera.far - f) > 1e-3 * f) { camera.near = n; camera.far = f; camera.updateProjectionMatrix(); }
+  if (Math.abs(camera.near - n) > 1e-3 * n || Math.abs(camera.far - f) > 1e-3 * f) { camera.near = n; camera.far = f; camera.updateProjectionMatrix(); placeLegend(); }
 }
 
 // ---------------------------------------------------------------- colour range per field / lines / slice group
@@ -110,7 +110,17 @@ function paint() {
       cur.mesh.material.needsUpdate = true; if (old) old.dispose(); cur.mesh.userData.tk = tk;
     }
   }
-  legend(); panel();
+  legend(); panel(); placeLegend();
+}
+
+// a narrow window puts the control panel under the colour bar: lift the bar above the panel
+function placeLegend() {
+  const L = $("#legend"), C = $("#ctl");
+  L.style.bottom = "";
+  if (L.style.display === "none") return;
+  const l = L.getBoundingClientRect(), c = C.getBoundingClientRect();
+  if (c.height && l.left < c.right && l.top < c.bottom && c.top < l.bottom)
+    L.style.bottom = `${$("#stage").clientHeight - c.top + 8}px`;
 }
 
 // ---------------------------------------------------------------- control panel

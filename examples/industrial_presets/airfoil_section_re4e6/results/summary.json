@@ -1,0 +1,372 @@
+{
+ "preset": "airfoil_section_re4e6",
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "Cl 0.662 ± 0.001, Cd 0.01016, L/D 65.1, Cm -0.047 (limite -0,12)",
+   "espessura 12.0 %, sustentação 972 N/m"
+  ]
+ },
+ "outputs": {
+  "Cl": 0.6615020538712943,
+  "Cd": 0.010156366843188538,
+  "Cm": -0.04726119573753353,
+  "LD": 65.13189125810673,
+  "Cl_std": 0.0008502448703480278,
+  "Cd_std": 1.2994763717287724e-05,
+  "Cl_inviscid": 0.7305685185489313,
+  "Cl_inviscid_pressure": 0.7287755415798558,
+  "thickness": 0.12022942993822824,
+  "camber": 0.02016993513372012,
+  "reynolds": 4109589.04109589,
+  "lift_per_span": 972.4080191908029,
+  "shape_valid": true,
+  "shape_issue": ""
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "shape valid (no crossing / waviness)",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "Reynolds within 25 % of the trained 4e6",
+    "status": "supports",
+    "value": 4109589.04109589,
+    "limit": 4000000.0,
+    "source": "zoo airfoil_cst_rans_mlp: ensemble de 5 MLPs treinados em OpenFOAM simpleFoam k-omega SST, Re 4e6; cartão com hold-out, grade verificada (GCI), XFOIL e NASA TMR",
+    "reason": ""
+   },
+   {
+    "name": "ensemble spread small (Cl std < 0.01)",
+    "status": "supports",
+    "value": 0.0008502448703480278,
+    "limit": 0.01,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "viscous Cl below inviscid Cl (boundary-layer decambering)",
+    "status": "supports",
+    "value": 0.6615020538712943,
+    "limit": 0.7305685185489313,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "panel method: Kutta-Joukowski lift = pressure integral",
+    "status": "supports",
+    "value": 0.7287755415798558,
+    "limit": 0.7305685185489313,
+    "source": "Hess-Smith",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "airfoil_section_re4e6",
+  "references": [
+   {
+    "case": "Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl",
+    "output": "Cl",
+    "unit": "-",
+    "computed": 0.003231396365459536,
+    "reference": 0.0,
+    "rel_error": 0.003231396365459536,
+    "tol": 0.01,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo); erro absoluto médio em Cl, medido aqui"
+   },
+   {
+    "case": "Cd vs naca_reference: erro = erro relativo médio",
+    "output": "Cd",
+    "unit": "-",
+    "computed": 0.0061563188229423905,
+    "reference": 0.0,
+    "rel_error": 0.0061563188229423905,
+    "tol": 0.02,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo)"
+   },
+   {
+    "case": "Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl",
+    "output": "Cl",
+    "unit": "-",
+    "computed": 0.010092481383557984,
+    "reference": 0.0,
+    "rel_error": 0.010092481383557984,
+    "tol": 0.03,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "XFOIL 6.99 com transição forçada, NACA 2412, 9 ângulos (dados do zoo); erro absoluto médio em Cl, medido aqui"
+   },
+   {
+    "case": "Cd vs xfoil_naca2412: erro = erro relativo médio",
+    "output": "Cd",
+    "unit": "-",
+    "computed": 0.02812720929821659,
+    "reference": 0.0,
+    "rel_error": 0.02812720929821659,
+    "tol": 0.08,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "XFOIL 6.99 com transição forçada, NACA 2412, 9 ângulos (dados do zoo)"
+   },
+   {
+    "case": "ângulo de sustentação nula do NACA 2412",
+    "output": "alpha_L0",
+    "unit": "deg",
+    "computed": -2.001720958073466,
+    "reference": -2.07724040490822,
+    "rel_error": 0.03635566045042856,
+    "tol": 0.1,
+    "pass": true,
+    "kind": "analytic",
+    "source": "teoria do aerofólio fino (Anderson, Fundamentals of Aerodynamics, cap. 4): alpha_L0 = -(1/pi) int dz/dx (cos t - 1) dt"
+   },
+   {
+    "case": "inclinação dCl/dalpha: RANS vs painéis (viscoso ~5-10 % menor)",
+    "output": "Cl_alpha",
+    "unit": "1/deg",
+    "computed": 0.11043981109018641,
+    "reference": 0.1219425018763188,
+    "rel_error": 0.09432880750469669,
+    "tol": 0.12,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "Hess-Smith (Moran 1984), invíscido"
+   }
+  ],
+  "convergence": {
+   "parameter": "painéis por face (Hess-Smith)",
+   "values": [
+    50,
+    100,
+    200,
+    400
+   ],
+   "Cl": [
+    0.7450317380365247,
+    0.7336926279449272,
+    0.7305685185489313,
+    0.7295900854259161
+   ],
+   "rel_change_last": 0.0013410723947051462,
+   "pass": true,
+   "note": "bordo de fuga fechado (close_te); aberto, o Cl não converge"
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/airfoil.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 1.6793179919995964,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T02:19:27Z"
+ },
+ "inversion": {
+  "description": "Erro de calagem (incidência) de um perfil no túnel de vento a partir do Cl medido pela balança em 5 ângulos nominais (ruído 0,01 em Cl). Verdade sintética: +1,3°.",
+  "parameter": "offset de ângulo",
+  "unit": "deg",
+  "true": 1.3,
+  "recovered": 1.3049900906668899,
+  "ci95": [
+   1.2215699969378175,
+   1.3884101843959622
+  ],
+  "rel_error": 0.0038385312822229413,
+  "true_inside_ci95": true,
+  "noise": "0.01 em Cl",
+  "how": "mínimos quadrados (Brent) sobre o ensemble do zoo, IC pela sensibilidade dCl/dalpha"
+ },
+ "optimization": {
+  "objective": "L/D máximo no alpha dado com t/c >= 12 %, Cm >= -0,12, forma válida",
+  "method": "evolução diferencial (scipy) no ensemble do zoo",
+  "evaluations": 5490,
+  "T0": 0.21425,
+  "T1": 0.08363,
+  "T2": 0.08023,
+  "M0": 0.07976,
+  "M1": 0.13966,
+  "M2": 0.11915,
+  "LD_opt": 82.32969485797463,
+  "LD_base": 65.13189125810673,
+  "Cl_opt": 0.9273143642464777,
+  "Cl_std_opt": 0.00438411250398775,
+  "Cm_opt": -0.08904958927089872,
+  "thickness_opt": 0.12006082810467203,
+  "trust_at_opt": "APPROVED",
+  "panel_Cl_opt": 0.9888651443599076
+ },
+ "variants": {
+  "rows": {
+   "NACA 0012": {
+    "params": {
+     "T0": 0.16884793174362853,
+     "T1": 0.14578920644459822,
+     "T2": 0.1307308023715651,
+     "M0": 0.0,
+     "M1": 0.0,
+     "M2": 0.0
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "Cl": 0.44551964239595543,
+     "Cd": 0.009566489829673173,
+     "Cm": -0.0005773988816451497,
+     "LD": 46.570879984096806,
+     "Cl_std": 0.0012810566355926595,
+     "Cd_std": 1.781888658154275e-05,
+     "Cl_inviscid": 0.48832112707124725,
+     "Cl_inviscid_pressure": 0.4879833234082526,
+     "thickness": 0.12016765735783869,
+     "camber": 0.0,
+     "reynolds": 4109589.04109589,
+     "lift_per_span": 654.9138743220545,
+     "shape_valid": true
+    }
+   },
+   "NACA 2412": {
+    "params": {
+     "T0": 0.1695912146244289,
+     "T1": 0.14495873416070895,
+     "T2": 0.13143323808820245,
+     "M0": 0.02492222636259679,
+     "M1": 0.07108767218761686,
+     "M2": 0.05895967523554786
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "Cl": 0.6615020538712943,
+     "Cd": 0.010156366843188538,
+     "Cm": -0.04726119573753353,
+     "LD": 65.13189125810673,
+     "Cl_std": 0.0008502448703480278,
+     "Cd_std": 1.2994763717287724e-05,
+     "Cl_inviscid": 0.7305685185489313,
+     "Cl_inviscid_pressure": 0.7287755415798558,
+     "thickness": 0.12022942993822824,
+     "camber": 0.02016993513372012,
+     "reynolds": 4109589.04109589,
+     "lift_per_span": 972.4080191908029,
+     "shape_valid": true
+    }
+   },
+   "NACA 4412": {
+    "params": {
+     "T0": 0.1717796874680488,
+     "T1": 0.142522827363271,
+     "T2": 0.13350098998316845,
+     "M0": 0.04977357717505065,
+     "M1": 0.14225871164978887,
+     "M2": 0.1178595807981071
+    },
+    "verdict": "OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "Cl": 0.8698445774772555,
+     "Cd": 0.011049110478060885,
+     "Cm": -0.0932545767746266,
+     "LD": 78.72560113072372,
+     "Cl_std": 0.001845776635630962,
+     "Cd_std": 2.3549619548796195e-05,
+     "Cl_inviscid": 0.972120837978291,
+     "Cl_inviscid_pressure": 0.9688754783662668,
+     "thickness": 0.12042009641681159,
+     "camber": 0.04034275173233129,
+     "reynolds": 4109589.04109589,
+     "lift_per_span": 1278.671528891566,
+     "shape_valid": true
+    }
+   },
+   "NACA 4415": {
+    "params": {
+     "T0": 0.21514704409095592,
+     "T1": 0.17728325873125672,
+     "T2": 0.1698975175261915,
+     "M0": 0.05501330125579129,
+     "M1": 0.13585083867566644,
+     "M2": 0.12314259806560625
+    },
+    "verdict": "OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "Cl": 0.855131276132673,
+     "Cd": 0.011842848729866766,
+     "Cm": -0.0880771907619781,
+     "LD": 72.20709239609249,
+     "Cl_std": 0.0019313064403823237,
+     "Cd_std": 2.5756937444889793e-05,
+     "Cl_inviscid": 1.003925173490641,
+     "Cl_inviscid_pressure": 1.000733452248772,
+     "thickness": 0.15042567290672854,
+     "camber": 0.0401507710997876,
+     "reynolds": 4109589.04109589,
+     "lift_per_span": 1257.0429759150295,
+     "shape_valid": true
+    }
+   }
+  },
+  "compared": [
+   "Cl",
+   "Cd",
+   "LD"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/airfoil_section_re4e6_naca_0012_3d_cp.png",
+   "results/3d/variants/airfoil_section_re4e6_naca_2412_3d_cp.png",
+   "results/3d/variants/airfoil_section_re4e6_naca_4412_3d_cp.png",
+   "results/3d/variants/airfoil_section_re4e6_naca_4415_3d_cp.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/airfoil_section_re4e6_3d_cp.png"
+ ],
+ "wall_time_total_s": 70.22496018200036,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

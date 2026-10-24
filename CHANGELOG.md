@@ -167,6 +167,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   model (e.g. a PhysicsNeMo FNO) and the finite-volume solver with residual-based checks. One `ModelServiceClient` for
   these services and for NVIDIA NIM. `python -m pinneapple_tools.model_services serve`, `docker/model_services`, the
   Flow Studio node `lib.services.infer`. Examples 06 (N), 11 (N + P) and 15 (N + B).
+- PINNeAPPle World Model as the Cosmos alternative (`pinneapple_worldmodel.physical_world`,
+  `.inspection_data`, `.robot_perception`): synthetic bouncing-ball videos with exact labels and domain
+  randomization, video physics checks from the pixels (visibility, area, fitted g, a speed bound from the fall height,
+  apex energy), non-physical edits to test them, a CPU world model (conv encoder, GRU, decoder, free-running loss), a
+  state encoder, and the optional `CosmosAdapter` (Cosmos NIM `/v1/infer`). Thermal-inspection samples as OpenUSD
+  stages (temperature primvar, camera, label attributes) with a label check against the defect-free plate. Robot
+  perception data: Newton arm moves as USD timelines with a side camera, exact joint-angle labels, a visibility check,
+  and perception checks (forward kinematics, implied joint speed, rate-limit jumps). `rasterize_topdown(view=)` gives
+  top and side synthetic cameras of a USD stage; `heatsink.surrogate_service` serves a heat-sink surrogate as a model
+  service. Flow Studio nodes `lib.worldmodel.video_check`, `.inspection_sample`, `.arm_camera`. Examples 04 (C),
+  09 (C + P), 13 (O + C), 17 (O + I + C) and 18 (all six stacks).
 - Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
   curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
   Joukowsky's head rise and the 4L/a period.

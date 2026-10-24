@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 418,
+  "tool": 421,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 150
+  "example": 155
  },
  "kinds": {
   "tool": "Tools",
@@ -106,7 +106,7 @@
   {
    "slug": "data",
    "title": "Data and datasets",
-   "description": "Datasets, ingestion, observation, adapters, units"
+   "description": "Datasets, ingestion, observation, adapters, units, checked synthetic data"
   },
   {
    "slug": "reports",
@@ -121,26 +121,26 @@
  ],
  "facets": {
   "kind": {
-   "tool": 418,
+   "tool": 421,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 150
+   "example": 155
   },
   "subkind": {
    "library call": 249,
-   "flow node": 86,
+   "flow node": 89,
    "recipe": 46,
    "function": 20,
    "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 92,
+   "physics AI": 94,
    "general": 78,
    "fluid dynamics": 60,
    "design and geometry": 58,
-   "structural mechanics": 53,
+   "structural mechanics": 54,
    "numerical methods": 46,
    "validation and benchmarks": 46,
    "data": 41,
@@ -152,7 +152,8 @@
    "flight dynamics": 8,
    "geophysics and climate": 8,
    "astrophysics": 4,
-   "robotics": 3,
+   "robotics": 4,
+   "physical AI": 3,
    "Estrutural / caldeiraria e processo": 1,
    "Estrutural / construção": 1,
    "Fluidos / bombeamento (saneamento, processo, utilidades)": 1,
@@ -163,6 +164,7 @@
    "Térmica / eletrônica de potência": 1,
    "Térmica / processo e energia": 1,
    "engineering": 1,
+   "engineering design": 1,
    "external aerodynamics": 1,
    "geometry": 1,
    "hydraulics": 1,
@@ -188,12 +190,12 @@
    "vehicles": 11,
    "electromagnetics": 9,
    "time-series": 9,
-   "data": 53,
+   "data": 56,
    "reports": 10,
    "automation": 28
   },
   "quality": {
-   "not graded": 543,
+   "not graded": 551,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -7747,6 +7749,138 @@
    }
   },
   {
+   "id": "node:lib.worldmodel.arm_camera",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "lib.worldmodel.arm_camera",
+   "title": "Labelled robot camera sample (USD)",
+   "summary": "PINNeAPPle World Model + Robot Sim: a random arm move in Newton written as a USD timeline with a side camera, the rendered frames, and the label checks (kinematics vs simulator,…",
+   "description": "PINNeAPPle World Model + Robot Sim: a random arm move in Newton written as a USD timeline with a side camera, the rendered frames, and the label checks (kinematics vs simulator, joints visible)",
+   "domain": "physics AI",
+   "tags": [
+    "Learning",
+    "machine learning",
+    "reduced order",
+    "regression",
+    "rom",
+    "surrogates"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"lib.worldmodel.arm_camera\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=lib.worldmodel.arm_camera",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/libcalls.py#L242"
+   },
+   "extra": {
+    "calls": "pinneapple_worldmodel.robot_perception:arm_camera_sample",
+    "category": "Learning",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "result",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "payload",
+      "kind": "float",
+      "default": 5.0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "occluder",
+      "kind": "bool",
+      "default": false,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "usd_path",
+      "kind": "str",
+      "default": "arm_camera_sample.usda",
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "payload": {
+       "title": "payload",
+       "description": "",
+       "x-kind": "float",
+       "default": 5.0,
+       "type": "number"
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      },
+      "occluder": {
+       "title": "occluder",
+       "description": "",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      },
+      "usd_path": {
+       "title": "usd path",
+       "description": "",
+       "x-kind": "str",
+       "default": "arm_camera_sample.usda",
+       "type": "string",
+       "maxLength": 4000
+      }
+     }
+    }
+   },
+   "category": "data",
+   "run": {
+    "code_hash": "b86b6007198f3deb",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 5.51,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Labelled robot camera sample (USD) -> pinneapple_worldmodel.robot_perception:arm_camera_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'seed': 0, 'occluder': False, 'usd_path': 'arm_camera_sample.usda'}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "node:lib.solver.lbm",
    "kind": "tool",
    "subkind": "flow node",
@@ -10860,6 +10994,104 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Parametric sweep (solver runs) -> pinneapple_simulation.numerical_solvers.symbolic_fd.solve_fd per Latin-hypercube sample\ninputs: [('problem', 'problem')]\noutputs: [('data', 'dataset')]\ndefaults: {'vary': {'alpha': [0.05, 0.5]}, 'n_samples': 64, 'n': 41, 'output': 'final', 'n_t': 11, 'seed': 0}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:lib.worldmodel.video_check",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "lib.worldmodel.video_check",
+   "title": "Physics check of a synthetic video",
+   "summary": "PINNeAPPle World Model: a bouncing-ball video with exact physics (optionally edited to break it), judged from its pixels: visibility, area, fitted g, speed bound, apex energy",
+   "description": "PINNeAPPle World Model: a bouncing-ball video with exact physics (optionally edited to break it), judged from its pixels: visibility, area, fitted g, speed bound, apex energy",
+   "domain": "physics AI",
+   "tags": [
+    "Learning",
+    "machine learning",
+    "reduced order",
+    "regression",
+    "rom",
+    "surrogates"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"lib.worldmodel.video_check\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=lib.worldmodel.video_check",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/libcalls.py#L242"
+   },
+   "extra": {
+    "calls": "pinneapple_worldmodel.physical_world:video_check",
+    "category": "Learning",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "result",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "edit",
+      "kind": "str",
+      "default": "none",
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      },
+      "edit": {
+       "title": "edit",
+       "description": "",
+       "x-kind": "str",
+       "default": "none",
+       "type": "string",
+       "maxLength": 4000
+      }
+     }
+    }
+   },
+   "category": "data",
+   "run": {
+    "code_hash": "716a93f13970d35b",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 5.5,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Physics check of a synthetic video -> pinneapple_worldmodel.physical_world:video_check\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'seed': 0, 'edit': 'none'}",
     "timed_out": false,
     "status": "ok"
    }
@@ -15135,6 +15367,172 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Solve a library preset -> pinneapple_flow.wrappers:solve_preset pinneapple pinneapple.list_presets pinneapple.solve\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'preset': 'burgers_1d', 'method': 'analytic', 'architecture': 'modified_mlp', 'epochs': 50, 'hidden_dim': 32, 'n_layers': 3, 'n_collocation': 512, 'seed': 0}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:lib.worldmodel.inspection_sample",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "lib.worldmodel.inspection_sample",
+   "title": "Synthetic inspection sample (USD)",
+   "summary": "PINNeAPPle World Model: a heated plate with a subsurface void (finite volume), a random thermal camera written as an OpenUSD stage, and the check that the image still shows the…",
+   "description": "PINNeAPPle World Model: a heated plate with a subsurface void (finite volume), a random thermal camera written as an OpenUSD stage, and the check that the image still shows the physical label",
+   "domain": "structural mechanics",
+   "tags": [
+    "Learning",
+    "machine learning",
+    "reduced order",
+    "regression",
+    "rom",
+    "surrogates"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"lib.worldmodel.inspection_sample\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=lib.worldmodel.inspection_sample",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/libcalls.py#L242"
+   },
+   "extra": {
+    "calls": "pinneapple_worldmodel.inspection_data:inspection_sample",
+    "category": "Learning",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "result",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "x",
+      "kind": "float",
+      "default": 0.4,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "y",
+      "kind": "float",
+      "default": 0.6,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "r",
+      "kind": "float",
+      "default": 0.08,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "glint",
+      "kind": "bool",
+      "default": false,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "usd_path",
+      "kind": "str",
+      "default": "inspection_sample.usda",
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "x": {
+       "title": "x",
+       "description": "",
+       "x-kind": "float",
+       "default": 0.4,
+       "type": "number"
+      },
+      "y": {
+       "title": "y",
+       "description": "",
+       "x-kind": "float",
+       "default": 0.6,
+       "type": "number"
+      },
+      "r": {
+       "title": "r",
+       "description": "",
+       "x-kind": "float",
+       "default": 0.08,
+       "type": "number"
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      },
+      "glint": {
+       "title": "glint",
+       "description": "",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      },
+      "usd_path": {
+       "title": "usd path",
+       "description": "",
+       "x-kind": "str",
+       "default": "inspection_sample.usda",
+       "type": "string",
+       "maxLength": 4000
+      }
+     }
+    }
+   },
+   "category": "data",
+   "run": {
+    "code_hash": "53a7ac067fe8f181",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 5.33,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Synthetic inspection sample (USD) -> pinneapple_worldmodel.inspection_data:inspection_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'x': 0.4, 'y': 0.6, 'r': 0.08, 'seed': 0, 'glint': False, 'usd_path': 'inspection_sample.usda'}",
     "timed_out": false,
     "status": "ok"
    }
@@ -67364,6 +67762,76 @@
    }
   },
   {
+   "id": "example:examples/nvidia/18_all_stacks_heatsink_cell",
+   "kind": "example",
+   "name": "examples/nvidia/18_all_stacks_heatsink_cell",
+   "title": "Heat-sink work cell: B-rep design, PhysicsNeMo surrogate served as a model service, Newton robot move, synthetic camera, USD scene",
+   "summary": "",
+   "description": "",
+   "domain": "engineering design",
+   "tags": [
+    "B-rep (SMLib)",
+    "FullyConnected (PhysicsNeMo)",
+    "Newton Featherstone",
+    "OpenUSD",
+    "model service",
+    "synthetic camera"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/18_all_stacks_heatsink_cell"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/18_all_stacks_heatsink_cell\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "part_mass",
+      "value": 0.20063699999999995,
+      "unit": "kg",
+      "how": "exact B-rep mass of the accepted design"
+     },
+     {
+      "name": "move_time",
+      "value": 0.5,
+      "unit": "s",
+      "how": "shortest move passing every robot check"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/18_all_stacks_heatsink_cell/results/cell.png",
+     "examples/nvidia/18_all_stacks_heatsink_cell/results/usd_cell.png",
+     "examples/nvidia/18_all_stacks_heatsink_cell/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/18_all_stacks_heatsink_cell"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "4467b4aecc860ef0",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.86,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Heat-sink work cell: B-rep design, PhysicsNeMo surrogate served as a model service, Newton robot move, synthetic camera, USD scene | engineering design | not curated\npart_mass 0.20063699999999995 kg\nmove_time 0.5 s",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:benchmark_case/heated_channel",
    "kind": "example",
    "name": "benchmark_case/heated_channel",
@@ -73048,14 +73516,14 @@
    "tags": [
     "B-rep (SMLib)",
     "CEM",
+    "CNN",
+    "CNN detector",
     "FEM (CST)",
     "FNO (PhysicsNeMo)",
     "FVM",
     "FullyConnected (PhysicsNeMo)",
     "MOC",
-    "Newton Featherstone",
-    "OpenUSD",
-    "closed-form heat sink"
+    "Newton Featherstone"
    ],
    "quality": {
     "letter": null,
@@ -73144,6 +73612,24 @@
       "value": 369.9879538393715,
       "unit": "g",
       "how": "15: exact B-rep mass of the bracket built from the approved request"
+     },
+     {
+      "name": "rollout_pixel_mae",
+      "value": 0.020704112015664577,
+      "unit": "",
+      "how": "04: mean |frame - truth| over the rollout horizon (04_worldmodel_physics_video/results/summary.json)"
+     },
+     {
+      "name": "rollout_pass_rate",
+      "value": 0.9,
+      "unit": "",
+      "how": "09: fraction of 20 rendered rollouts passing every check (09_worldmodel_physicsnemo_state/results/summary.json)"
+     },
+     {
+      "name": "rollout_g_median",
+      "value": 9.860008494247328,
+      "unit": "m/s^2",
+      "how": "09: fitted from the rendered rollout pixels (09_worldmodel_physicsnemo_state/results/summary.json)"
      }
     ],
     "figures": [
@@ -75476,6 +75962,69 @@
    }
   },
   {
+   "id": "example:examples/nvidia/17_omniverse_robotsim_worldmodel_perception",
+   "kind": "example",
+   "name": "examples/nvidia/17_omniverse_robotsim_worldmodel_perception",
+   "title": "Robot perception from synthetic camera data: Newton motions, USD timelines, checked joint-angle CNN",
+   "summary": "",
+   "description": "",
+   "domain": "robotics",
+   "tags": [
+    "CNN",
+    "Newton Featherstone",
+    "OpenUSD",
+    "synthetic camera"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/17_omniverse_robotsim_worldmodel_perception"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/17_omniverse_robotsim_worldmodel_perception\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "angle_rms_visible",
+      "value": 0.2288505947426688,
+      "unit": "rad",
+      "how": "test frames where the label check keeps the frame"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/17_omniverse_robotsim_worldmodel_perception/results/usd_preview.png",
+     "examples/nvidia/17_omniverse_robotsim_worldmodel_perception/results/frames.png",
+     "examples/nvidia/17_omniverse_robotsim_worldmodel_perception/results/angles.png",
+     "examples/nvidia/17_omniverse_robotsim_worldmodel_perception/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/17_omniverse_robotsim_worldmodel_perception"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "eec2510014e55f95",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.67,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Robot perception from synthetic camera data: Newton motions, USD timelines, checked joint-angle CNN | robotics | not curated\nangle_rms_visible 0.2288505947426688 rad",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/visualizations",
    "kind": "example",
    "name": "examples/visualizations",
@@ -77114,6 +77663,73 @@
    }
   },
   {
+   "id": "example:examples/nvidia/09_worldmodel_physicsnemo_state",
+   "kind": "example",
+   "name": "examples/nvidia/09_worldmodel_physicsnemo_state",
+   "title": "State-space world model: CNN encoder, PhysicsNeMo dynamics, video physics checks",
+   "summary": "",
+   "description": "",
+   "domain": "physical AI",
+   "tags": [
+    "FullyConnected (PhysicsNeMo)",
+    "synthetic video",
+    "video physics checks"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/09_worldmodel_physicsnemo_state"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/09_worldmodel_physicsnemo_state\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rollout_pass_rate",
+      "value": 0.9,
+      "unit": "",
+      "how": "fraction of 20 rendered rollouts passing every check"
+     },
+     {
+      "name": "rollout_g_median",
+      "value": 9.860008494247328,
+      "unit": "m/s^2",
+      "how": "fitted from the rendered rollout pixels"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/09_worldmodel_physicsnemo_state/results/rollouts.png",
+     "examples/nvidia/09_worldmodel_physicsnemo_state/results/rollout_frames.png",
+     "examples/nvidia/09_worldmodel_physicsnemo_state/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/09_worldmodel_physicsnemo_state"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "cceeb3b4b24b2539",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.84,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "State-space world model: CNN encoder, PhysicsNeMo dynamics, video physics checks | physical AI | not curated\nrollout_pass_rate 0.9 \nrollout_g_median 9.860008494247328 m/s^2",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:bar_wear/stellite",
    "kind": "example",
    "name": "bar_wear/stellite",
@@ -77742,6 +78358,82 @@
    }
   },
   {
+   "id": "example:examples/nvidia/13_omniverse_worldmodel_inspection",
+   "kind": "example",
+   "name": "examples/nvidia/13_omniverse_worldmodel_inspection",
+   "title": "Synthetic thermal-inspection data as USD scene variations, with a physics label check",
+   "summary": "",
+   "description": "",
+   "domain": "physical AI",
+   "tags": [
+    "CNN detector",
+    "OpenUSD",
+    "finite volume",
+    "label check",
+    "synthetic camera"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/13_omniverse_worldmodel_inspection"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/13_omniverse_worldmodel_inspection\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "within_4px_all_samples",
+      "value": 0.2,
+      "unit": "",
+      "how": "fraction of test images (defect visible) located within the tolerance"
+     },
+     {
+      "name": "within_4px_accepted_samples",
+      "value": 0.26,
+      "unit": "",
+      "how": "fraction of test images (defect visible) located within the tolerance"
+     },
+     {
+      "name": "within_4px_brightest_pixel",
+      "value": 0.44,
+      "unit": "",
+      "how": "fraction of test images (defect visible) located within the tolerance"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/13_omniverse_worldmodel_inspection/results/usd_preview.png",
+     "examples/nvidia/13_omniverse_worldmodel_inspection/results/samples.png",
+     "examples/nvidia/13_omniverse_worldmodel_inspection/results/detector.png",
+     "examples/nvidia/13_omniverse_worldmodel_inspection/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/13_omniverse_worldmodel_inspection"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "24640eefa28db282",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.77,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Synthetic thermal-inspection data as USD scene variations, with a physics label check | physical AI | not curated\nwithin_4px_all_samples 0.2 \nwithin_4px_accepted_samples 0.26 \nwithin_4px_brightest_pixel 0.44",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/industrial_presets/power_pcb_junction",
    "kind": "example",
    "name": "examples/industrial_presets/power_pcb_junction",
@@ -78281,15 +78973,15 @@
     "items": []
    },
    "run": {
-    "ok": true,
-    "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
-    "stderr": "",
-    "seconds": 0.99,
-    "timed_out": false,
     "code_hash": "dc2d0c36e9e9dec7",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 0.99,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -78948,6 +79640,73 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Weather forecasting on ERA5: how many days a model is good for, and extreme events | geophysics and climate | curated",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/04_worldmodel_physics_video",
+   "kind": "example",
+   "name": "examples/nvidia/04_worldmodel_physics_video",
+   "title": "World model on physics-labelled video, judged by physics checks",
+   "summary": "",
+   "description": "",
+   "domain": "physical AI",
+   "tags": [
+    "synthetic video",
+    "video physics checks",
+    "world model"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/04_worldmodel_physics_video"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/04_worldmodel_physics_video\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rollout_pass_rate",
+      "value": 0.0,
+      "unit": "",
+      "how": "fraction of 20 rollouts passing every check"
+     },
+     {
+      "name": "rollout_pixel_mae",
+      "value": 0.020704112015664577,
+      "unit": "",
+      "how": "mean |frame - truth| over the rollout horizon"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/04_worldmodel_physics_video/results/rollout.png",
+     "examples/nvidia/04_worldmodel_physics_video/results/physics_verdicts.png",
+     "examples/nvidia/04_worldmodel_physics_video/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/04_worldmodel_physics_video"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "c343ca471ede6220",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.74,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "World model on physics-labelled video, judged by physics checks | physical AI | not curated\nrollout_pass_rate 0.0 \nrollout_pixel_mae 0.020704112015664577",
     "timed_out": false,
     "status": "ok"
    }

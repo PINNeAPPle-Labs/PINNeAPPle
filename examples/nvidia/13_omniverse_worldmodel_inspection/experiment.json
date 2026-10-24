@@ -1,0 +1,128 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/13_omniverse_worldmodel_inspection",
+ "title": "Synthetic thermal-inspection data as USD scene variations, with a physics label check",
+ "description": "",
+ "domain": "physical AI",
+ "methods": [
+  "finite volume",
+  "OpenUSD",
+  "synthetic camera",
+  "label check",
+  "CNN detector"
+ ],
+ "modules": [
+  "pinneapple_worldmodel.inspection_data",
+  "pinneapple_tools.nvidia.omniverse"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "within_4px_all_samples",
+   "value": 0.2,
+   "unit": "",
+   "how": "fraction of test images (defect visible) located within the tolerance"
+  },
+  {
+   "name": "within_4px_accepted_samples",
+   "value": 0.26,
+   "unit": "",
+   "how": "fraction of test images (defect visible) located within the tolerance"
+  },
+  {
+   "name": "within_4px_brightest_pixel",
+   "value": 0.44,
+   "unit": "",
+   "how": "fraction of test images (defect visible) located within the tolerance"
+  }
+ ],
+ "checks": [
+  {
+   "name": "label independent of the mesh (48 vs 96 cells, max shift)",
+   "passed": true,
+   "value": 0.016470196146710303,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03125,
+   "min": null,
+   "detail": "plate units; one 48-cell = 0.021",
+   "kind": "sanity"
+  },
+  {
+   "name": "USD stages valid (primvars, camera, UsdValidation)",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "label check rejects glint samples",
+   "passed": true,
+   "value": 0.9863013698630136,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.5,
+   "detail": "146 samples with a glint",
+   "kind": "sanity"
+  },
+  {
+   "name": "label check keeps glint-free, unsaturated samples (false rejections)",
+   "passed": true,
+   "value": 0.003389830508474523,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "295 samples; 35% of glint-free samples saturate at the label and are dropped",
+   "kind": "sanity"
+  },
+  {
+   "name": "detector (accepted samples) within 4 px on test images showing the defect",
+   "passed": false,
+   "value": 0.26,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.9,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/usd_preview.png",
+   "results/samples.png",
+   "results/detector.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "6aaa3da5",
+  "created": "2026-10-24T11:01:57Z",
+  "seconds": 5029.477,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

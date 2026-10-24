@@ -135,6 +135,12 @@ def _figures(OUT, rep, answers, checks, decision, t, P, arm):
     ax.set_ylim(-10, 90)
     ax.set_zlim(0, 130)
     ax.set_box_aspect((80, 100, 130))
+    ax.set_xticks([0, 30, 60])
+    ax.set_yticks([0, 40, 80])
+    ax.set_zticks([0, 40, 80, 120])
+    ax.tick_params(labelsize=7, pad=1)
+    for setl, lab in ((ax.set_xlabel, "x [mm]"), (ax.set_ylabel, "y [mm]"), (ax.set_zlabel, "z [mm]")):
+        setl(lab, fontsize=8, labelpad=2)
     ax.view_init(22, -55)
     ax.set_title(f"USD BRep: {t * 1e3:g} mm plate, fillet r = t, 2 x M6 holes ({rep.raw['mass']['mass'] * 1e3:.0f} g)",
                  fontsize=9)

@@ -1,10 +1,11 @@
 {
  "name": "11_model_services_physicsnemo_operator",
- "started": "2026-10-24T01:36:59Z",
- "wall_s": 161.254,
+ "started": "2026-10-24T16:40:45Z",
+ "wall_s": 187.355,
  "steps_s": {
-  "data + train (PhysicsNeMo FNO)": 158.692,
-  "requests: surrogate first, solver fallback": 1.19
+  "data + train (PhysicsNeMo FNO)": 181.558,
+  "requests: surrogate first, solver fallback": 1.459,
+  "cost against grid size (FV solve vs FNO inference, same architecture)": 2.826
  },
  "components": [
   {
@@ -17,7 +18,7 @@
    "component": "PINNeAPPle Model Services",
    "ran": true,
    "why": "",
-   "how": "http://127.0.0.1:35761/v1"
+   "how": "http://127.0.0.1:37101/v1"
   }
  ],
  "environment": {

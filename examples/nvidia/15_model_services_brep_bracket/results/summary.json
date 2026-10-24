@@ -28,7 +28,7 @@
     ]
    },
    "unsupported": [],
-   "latency_ms": 34.94719099944632
+   "latency_ms": 35.650213000053554
   },
   {
    "text": "A bracket in aluminium holding 1.5 kN on a 120 mm arm, 50 mm wide, safety factor 2",
@@ -59,7 +59,7 @@
    "unsupported": [
     "'120 mm' was not used: no value of that kind in the Load-bearing angle bracket template"
    ],
-   "latency_ms": 3.4783199998855707
+   "latency_ms": 3.122540000049412
   }
  ],
  "load_N": 1500.0,
@@ -67,9 +67,9 @@
  "safety_factor": 2.0,
  "thickness_mm": 10.0,
  "sigma_beam_MPa": 123.74999999999999,
- "sigma_fe_MPa": 125.14639021295167,
+ "sigma_fe_MPa": 125.14639021281769,
  "deflection_beam_mm": 1.4488388969521042,
- "deflection_fe_mm": 1.5472741413160338,
+ "deflection_fe_mm": 1.547274141314348,
  "fe_nodes": 1040,
  "mass_g": 369.9879538393715,
  "min_radius_mm": 3.2999999999627123,
@@ -150,13 +150,13 @@
   },
   {
    "name": "FE root stress vs beam",
-   "value": 0.011283961316781334,
+   "value": 0.011283961315698697,
    "limit": 0.1,
    "passed": 1.0
   },
   {
    "name": "FE tip deflection vs beam (FE includes the leg's rotation)",
-   "value": 1.0679407797312772,
+   "value": 1.0679407797301137,
    "limit": null,
    "passed": true,
    "detail": "1.547 vs 1.449 mm"

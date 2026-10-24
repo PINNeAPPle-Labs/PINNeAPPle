@@ -1,11 +1,11 @@
 {
  "name": "15_model_services_brep_bracket",
- "started": "2026-10-24T01:41:50Z",
- "wall_s": 5.063,
+ "started": "2026-10-24T16:44:38Z",
+ "wall_s": 5.862,
  "steps_s": {
   "extraction (Model Services)": 0.039,
-  "USD BRep: exact bracket": 1.823,
-  "hexahedral FE (C3D8I)": 0.865
+  "USD BRep: exact bracket": 2.221,
+  "hexahedral FE (C3D8I)": 1.043
  },
  "components": [
   {

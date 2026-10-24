@@ -68,11 +68,14 @@ class ParametricPOD:
 
             from sklearn.gaussian_process import GaussianProcessRegressor
             from sklearn.gaussian_process.kernels import RBF, ConstantKernel, WhiteKernel
+            from threadpoolctl import threadpool_limits  # a dependency of scikit-learn
             self._model = []
             for j in range(A.shape[1]):                               # one GP per coefficient, own length scales
                 k = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(np.full(P.shape[1], 0.3), (1e-2, 1e2)) \
                     + WhiteKernel(1e-8, (1e-12, 1e-3))
-                with warnings.catch_warnings():
+                # the kernel matrices are n_train x n_train (tens to hundreds): multithreaded BLAS only adds overhead,
+                # and on a loaded machine it made each fit ~15x slower (the 100-design example timed out)
+                with warnings.catch_warnings(), threadpool_limits(1, user_api="blas"):
                     warnings.simplefilter("ignore")
                     self._model.append(GaussianProcessRegressor(k, normalize_y=True, n_restarts_optimizer=2,
                                                                 random_state=self.seed).fit(Ps, A[:, j]))

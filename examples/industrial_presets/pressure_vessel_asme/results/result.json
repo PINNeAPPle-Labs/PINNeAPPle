@@ -1,0 +1,117 @@
+{
+ "preset": "pressure_vessel_asme",
+ "fidelity": "solver",
+ "params": {
+  "p_design": 1000000.0,
+  "d_inner": 1.5,
+  "length": 4.5,
+  "S": 138000000.0,
+  "E_joint": 0.85,
+  "ca": 0.003,
+  "mill_tol": 0.0003,
+  "E_steel": 200000000000.0,
+  "nu_steel": 0.3,
+  "rho_steel": 7850.0,
+  "head": "ellipsoidal_2_1",
+  "fem_nr": 4
+ },
+ "outputs": {
+  "t_shell_req": 0.009452442159383033,
+  "t_head_req": 0.009424914675767919,
+  "t_shell": 0.01,
+  "t_head": 0.01,
+  "mawp": 1038162.7962273123,
+  "p_test": 1349611.635095506,
+  "hoop_lame": 112890274.28468676,
+  "hoop_fem": 112457377.70932262,
+  "ur_lame": 0.00038824736324047956,
+  "ur_fem": 0.0003882470377175049,
+  "hoop_asme": 112988059.70149253,
+  "mass": 1976.4961042923387,
+  "fem_reaction_err": 2.831803950727411e-12,
+  "t_over_r": 0.008897742363877822,
+  "p_over_se": 0.008525149190110827
+ },
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "casco 10 mm (m\u00edn. 9.45 mm), tampo 10 mm (m\u00edn. 9.42 mm)",
+   "MAWP 1.038 MPa, teste hidrost\u00e1tico 1.350 MPa",
+   "tens\u00e3o circunferencial (Lam\u00e9) 112.9 MPa vs S E = 117.3 MPa"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "UG-27 limits: t <= R/2 and P <= 0.385 S E",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.008525149190110827,
+    "limit": 0.385,
+    "source": "ASME BPVC Section VIII Div. 1 (2023) UG-27(c)(1)",
+    "reason": ""
+   },
+   {
+    "name": "FEM equilibrium: symmetry reaction = P r h",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.831803950727411e-12,
+    "limit": 1e-06,
+    "source": "SolidFEM reactions",
+    "reason": ""
+   },
+   {
+    "name": "FEM bore displacement = Lam\u00e9 (plane strain)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 8.384422033447177e-07,
+    "limit": 0.01,
+    "source": "Lam\u00e9 (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+    "reason": ""
+   },
+   {
+    "name": "MAWP >= design pressure",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1038162.7962273123,
+    "limit": 1000000.0,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 0.07909793899989381,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:16:02Z"
+ }
+}

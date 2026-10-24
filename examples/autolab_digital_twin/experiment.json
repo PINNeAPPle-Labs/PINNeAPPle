@@ -1,0 +1,99 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/autolab_digital_twin",
+ "title": "Digital twin that knows when it is wrong",
+ "description": "A pipe-loop twin that tells a changed process from a wrong sensor from a model outside its domain, with physics residuals, a Kalman filter and its domain of validity; confusion matrix on controlled cases.",
+ "domain": "system dynamics",
+ "methods": [
+  "Darcy-Weisbach / Colebrook network",
+  "POD-GPR",
+  "structured residuals",
+  "EKF"
+ ],
+ "modules": [
+  "pinneapple_autolab",
+  "pinneapple_systems.digital_twin.pipe_loop"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "cause_accuracy",
+   "value": 0.9625,
+   "unit": "fraction",
+   "how": "80 controlled cases"
+  },
+  {
+   "name": "cases_with_false_alarm",
+   "value": 1.0,
+   "unit": "cases",
+   "how": "alarm before the fault, or any alarm on a healthy case"
+  },
+  {
+   "name": "fast_model_holdout_max",
+   "value": 0.7827623466462263,
+   "unit": "sensor sigmas",
+   "how": "40 held-out operating points"
+  }
+ ],
+ "checks": [
+  {
+   "name": "showcase events diagnosed right",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "trust report decision",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED []",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "_out/figures/control_room_obstruction_B.png",
+   "_out/figures/control_room_drift_Q_B.png",
+   "_out/figures/control_room_overspeed.png",
+   "_out/figures/control_room_healthy.png",
+   "_out/figures/confusion_matrix.png",
+   "_out/figures/request_simulation.png",
+   "_out/figures/control_room_after_new_simulation.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/report.md"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/autonomous_physics_lab.md",
+  "script": "examples/autolab_digital_twin/twin_knows_when_wrong.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "534a86c3",
+  "created": "2026-10-24T01:49:42Z",
+  "seconds": 245.667,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

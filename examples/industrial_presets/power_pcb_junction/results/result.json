@@ -1,0 +1,162 @@
+{
+ "preset": "power_pcb_junction",
+ "fidelity": "solver",
+ "params": {
+  "p_mosfet": 2.0,
+  "p_inductor": 1.2,
+  "p_controller": 0.3,
+  "p_ldo": 0.25,
+  "t_ambient": 50.0,
+  "velocity": 0.0,
+  "n_copper": 4,
+  "outer_oz": 1.0,
+  "vias": 9,
+  "tj_max": 125.0,
+  "board_w": 0.1,
+  "board_d": 0.08
+ },
+ "outputs": {
+  "tj_max_c": 118.86508807261424,
+  "tj_max_hot_c": 126.41755646837277,
+  "critical": "Q2",
+  "tj_mosfet_c": 118.86508807261424,
+  "board_max_c": 99.11548555531277,
+  "energy_balance": 1.1677615396405125e-13,
+  "total_power": 5.75,
+  "tj": {
+   "Q1": 117.37000615170429,
+   "Q2": 118.86508807261424,
+   "L1": 108.27389467425647,
+   "U1": 77.3182294093115,
+   "U2": 96.56282582088497
+  },
+  "checks_engine": [
+   {
+    "name": "energy_balance",
+    "status": "pass",
+    "value": 1.1677615396405125e-13,
+    "detail": "Heat to air + chassis vs. total component power - 1.",
+    "law": "energy conservation"
+   },
+   {
+    "name": "grid_convergence",
+    "status": "pass",
+    "value": 0.012896712640457672,
+    "detail": "Largest junction-temperature-rise change between coarse and fine grids (U2). Small packages need a fine grid.",
+    "law": "numerical accuracy"
+   },
+   {
+    "name": "surface_coefficients_converged",
+    "status": "pass",
+    "value": null,
+    "detail": "Convection + radiation fixed point reached in 10 iterations (h top 13.3, bottom 13.3 W/m\u00b2K).",
+    "law": "nonlinear coupling"
+   },
+   {
+    "name": "correlation_in_range",
+    "status": "pass",
+    "value": null,
+    "detail": "Correlations used inside their range.",
+    "law": "surface heat-transfer model"
+   },
+   {
+    "name": "temperatures_above_ambient",
+    "status": "pass",
+    "value": 17.631470056322087,
+    "detail": "No point colder than ambient (2nd law).",
+    "law": "2nd law"
+   }
+  ]
+ },
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "Tj m\u00e1x 118.9 \u00b0C (Q2); com h -20 %: 126.4 \u00b0C > 125 \u00b0C",
+   "placa at\u00e9 99.1 \u00b0C"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "energy_balance",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 1.1677615396405125e-13,
+    "limit": null,
+    "source": "energy conservation",
+    "reason": ""
+   },
+   {
+    "name": "grid_convergence",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.012896712640457672,
+    "limit": null,
+    "source": "numerical accuracy",
+    "reason": ""
+   },
+   {
+    "name": "surface_coefficients_converged",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "nonlinear coupling",
+    "reason": ""
+   },
+   {
+    "name": "correlation_in_range",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "surface heat-transfer model",
+    "reason": ""
+   },
+   {
+    "name": "temperatures_above_ambient",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 17.631470056322087,
+    "limit": null,
+    "source": "2nd law",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 2.8503774599998906,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:08:39Z"
+ }
+}

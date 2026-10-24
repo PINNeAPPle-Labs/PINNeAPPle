@@ -38,6 +38,7 @@ SECTION_IDS = [s[0] for s in SECTIONS]
 
 #: curated node type -> section
 SECTION_OF: dict[str, str] = {
+    "autolab.board_cooling": "optimization", "autolab.pipe_twin": "optimization",
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
     "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
     "reason.report": "optimization",
@@ -48,7 +49,9 @@ SECTION_OF: dict[str, str] = {
     "solver.newton": "solvers", "lib.solve.preset": "solvers", "lib.solver.beam": "solvers",
     "lib.solver.lbm": "solvers", "lib.solver.meshless": "solvers", "lib.solver.terramechanics": "solvers",
     "lib.solver.xtfc": "solvers", "lib.tools.availability": "solvers", "flight.takeoff": "solvers",
-    "vehicle.simulate": "solvers", "terramechanics.wheel_model": "solvers", "lib.antenna.open_study": "solvers",
+    "preset.run": "solvers", "preset.validate": "validation",
+    "vehicle.simulate": "solvers", "rover.learn_planet": "solvers", "terramechanics.wheel_model": "solvers",
+    "lib.antenna.open_study": "solvers",
     "train.pinn": "physics_ai", "train.finetune": "physics_ai", "transfer.pinn": "physics_ai",
     "meta.learn": "physics_ai", "gnn.meshgraphnet": "physics_ai", "surrogate.train": "physics_ai",
     "lib.model.architecture": "physics_ai", "terramechanics.zoo_surrogate": "physics_ai",
@@ -79,7 +82,8 @@ KEYWORDS: dict[str, list[str]] = {
     "twin.auto": ["twin"], "assimilate.filter": ["kalman", "enkf", "ekf"], "viz.plot": ["plot"],
     "export.report": ["report"], "inverse.discover": ["inverse"], "optimize.nsga2": ["optimize", "pareto"],
     "data.ingest": ["csv", "data"], "solver.openfoam": ["openfoam", "cfd"], "gnn.meshgraphnet": ["gnn", "graph"],
-    "vehicle.simulate": ["rover", "vehicle"], "vehicle.dashboard": ["dashboard"], "terramechanics.soil": ["soil"],
+    "vehicle.simulate": ["rover", "vehicle"], "rover.learn_planet": ["mission", "autonomous", "stuck"],
+    "vehicle.dashboard": ["dashboard"], "terramechanics.soil": ["soil"],
 }
 
 _ORDER = {t: i for i, t in enumerate(SECTION_OF)}

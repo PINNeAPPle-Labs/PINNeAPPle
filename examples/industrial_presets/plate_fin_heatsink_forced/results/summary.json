@@ -1,0 +1,515 @@
+{
+ "preset": "plate_fin_heatsink_forced",
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "T fonte 64.1 °C (h -15 %: 67.4 °C) <= limite 85 °C",
+   "perda de carga 11.4 Pa, massa 348 g"
+  ]
+ },
+ "outputs": {
+  "t_source_max_c": 64.14820799956901,
+  "t_source_pessimistic_c": 67.3775150095181,
+  "r_total_k_w": 0.4858034666594835,
+  "pressure_drop_pa": 11.393460693182304,
+  "h_w_m2k": 28.867889712512117,
+  "fin_efficiency": 0.9282861596337412,
+  "mass_g": 347.625,
+  "air_rise_c": 4.953767181245153,
+  "re_dh": 2123.9993629243595,
+  "re_star": 68.0875706855809,
+  "fin_gap_mm": 5.535714285714287,
+  "airflow_m3_h": 37.80000000000001,
+  "checks_engine": [
+   {
+    "name": "energy_balance",
+    "status": "pass",
+    "value": 9.509430280256007e-14,
+    "detail": "Heat leaving through the fins / heat injected by the source - 1 (FVM).",
+    "law": "energy conservation"
+   },
+   {
+    "name": "spreading_methods_agree",
+    "status": "pass",
+    "value": 0.023678552647287184,
+    "detail": "3D finite-volume base solve vs Lee et al. closed form: 0.1519 vs 0.1484 K/W (independent methods).",
+    "law": "conduction in the base"
+   },
+   {
+    "name": "grid_convergence",
+    "status": "pass",
+    "value": 0.0011404512461086942,
+    "detail": "Hotspot change between the coarse and fine finite-volume grids.",
+    "law": "numerical accuracy"
+   },
+   {
+    "name": "correlation_in_range",
+    "status": "pass",
+    "value": null,
+    "detail": "Convection correlation used inside its validated range.",
+    "law": "convection model validity"
+   },
+   {
+    "name": "temperature_above_ambient",
+    "status": "pass",
+    "value": 28.481541332902335,
+    "detail": "Hotspot rise above ambient must be positive (2nd law).",
+    "law": "2nd law"
+   }
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "laminar channel flow (Re_Dh < 2300)",
+    "status": "supports",
+    "value": 2123.9993629243595,
+    "limit": 2300,
+    "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+    "reason": ""
+   },
+   {
+    "name": "Teertstra range 0.1 < Re* < 100",
+    "status": "supports",
+    "value": 68.0875706855809,
+    "limit": 100,
+    "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+    "reason": ""
+   },
+   {
+    "name": "air outlet colder than the source (2nd law)",
+    "status": "supports",
+    "value": 39.953767181245155,
+    "limit": 64.14820799956901,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "engine: energy_balance",
+    "status": "supports",
+    "value": 9.509430280256007e-14,
+    "limit": null,
+    "source": "energy conservation",
+    "reason": "Heat leaving through the fins / heat injected by the source - 1 (FVM)."
+   },
+   {
+    "name": "engine: spreading_methods_agree",
+    "status": "supports",
+    "value": 0.023678552647287184,
+    "limit": null,
+    "source": "conduction in the base",
+    "reason": "3D finite-volume base solve vs Lee et al. closed form: 0.1519 vs 0.1484 K/W (independent methods)."
+   },
+   {
+    "name": "engine: grid_convergence",
+    "status": "supports",
+    "value": 0.0011404512461086942,
+    "limit": null,
+    "source": "numerical accuracy",
+    "reason": "Hotspot change between the coarse and fine finite-volume grids."
+   },
+   {
+    "name": "engine: correlation_in_range",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "convection model validity",
+    "reason": "Convection correlation used inside its validated range."
+   },
+   {
+    "name": "engine: temperature_above_ambient",
+    "status": "supports",
+    "value": 28.481541332902335,
+    "limit": null,
+    "source": "2nd law",
+    "reason": "Hotspot rise above ambient must be positive (2nd law)."
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "plate_fin_heatsink_forced",
+  "references": [
+   {
+    "case": "R convecção das aletas a 1 m/s vs correlação independente",
+    "output": "r_fins",
+    "unit": "K/W",
+    "computed": 0.5064913264511306,
+    "reference": 0.5361120531317798,
+    "rel_error": 0.05525099931556328,
+    "tol": 0.08,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "Stephan (1959) Nusselt de entrada para placas paralelas + epsilon-NTU do aquecimento do ar (Shah & London)",
+    "params": {}
+   },
+   {
+    "case": "R convecção das aletas a 3 m/s vs correlação independente",
+    "output": "r_fins",
+    "unit": "K/W",
+    "computed": 0.3228122946356873,
+    "reference": 0.34884286047417384,
+    "rel_error": 0.07461974656182968,
+    "tol": 0.08,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "Stephan (1959) Nusselt de entrada para placas paralelas + epsilon-NTU do aquecimento do ar (Shah & London)",
+    "params": {}
+   },
+   {
+    "case": "R convecção das aletas a 6 m/s vs correlação independente",
+    "output": "r_fins",
+    "unit": "K/W",
+    "computed": 0.24396248706851617,
+    "reference": 0.26330839287552427,
+    "rel_error": 0.07347242370718365,
+    "tol": 0.08,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "Stephan (1959) Nusselt de entrada para placas paralelas + epsilon-NTU do aquecimento do ar (Shah & London)",
+    "params": {}
+   },
+   {
+    "case": "limite plenamente desenvolvido Nu = Re* Pr / 2 (Re* pequeno)",
+    "output": "nu_b",
+    "unit": "-",
+    "computed": 0.13975220572739586,
+    "reference": 0.13989160652162205,
+    "rel_error": 0.0009964914814574696,
+    "tol": 0.02,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+    "params": {}
+   },
+   {
+    "case": "espalhamento + base: FVM 3-D vs teoria",
+    "output": "r_spreading",
+    "unit": "K/W",
+    "computed": 0.15188006091268497,
+    "reference": 0.148366946362132,
+    "rel_error": 0.023678552647287184,
+    "tol": 0.05,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Lee, Song, Au & Moran (1995), resistência de espalhamento",
+    "params": {}
+   }
+  ],
+  "convergence": {
+   "parameter": "FVM grid n x n",
+   "values": [
+    24,
+    36,
+    48,
+    64
+   ],
+   "theta_max": [
+    28.37935441631036,
+    28.449373055503674,
+    28.481541332902335,
+    28.48418860851517
+   ],
+   "rel_change_last": 9.29384245139468e-05,
+   "pass": true
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/heatsink.png",
+  "results/surrogate_parity.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 0.177780483999868,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:07:57Z"
+ },
+ "surrogate": {
+  "model": "ARD Gaussian process (squared exponential)",
+  "inputs": [
+   "velocity",
+   "n_fins",
+   "fin_height",
+   "power"
+  ],
+  "outputs": [
+   "t_source_max_c",
+   "pressure_drop_pa"
+  ],
+  "bounds": {
+   "velocity": [
+    1.0,
+    6.0
+   ],
+   "n_fins": [
+    8,
+    26
+   ],
+   "fin_height": [
+    0.02,
+    0.06
+   ],
+   "power": [
+    20.0,
+    120.0
+   ]
+  },
+  "n_train": 80,
+  "n_test": 25,
+  "holdout": {
+   "per_output": {
+    "t_source_max_c": {
+     "max_rel_err": 0.03645676177305686,
+     "mean_rel_err": 0.012850953039925419,
+     "rmse": 1.4223452650595796,
+     "r2": 0.9963571135292841,
+     "coverage_2sigma": 0.92
+    },
+    "pressure_drop_pa": {
+     "max_rel_err": 0.054797003805104674,
+     "mean_rel_err": 0.030558207509193202,
+     "rmse": 0.6937450951713889,
+     "r2": 0.9981389994230151,
+     "coverage_2sigma": 1.0
+    }
+   },
+   "max_rel_err": 0.054797003805104674
+  },
+  "timing_s": {
+   "doe_solver_runs": 18.949568690999968,
+   "fit": 1.104169422999803
+  },
+  "default_case": {
+   "t_source_max_c": {
+    "surrogate": 63.82166280111555,
+    "std": 0.7014661063006333,
+    "solver": 64.14820799956901
+   },
+   "pressure_drop_pa": {
+    "surrogate": 11.291156111569864,
+    "std": 0.46702478148094445,
+    "solver": 11.393460693182304
+   }
+  }
+ },
+ "inversion": {
+  "description": "Multiplicador efetivo do h (desvio de ar de um dissipador sem shroud) a partir de termopares na fonte em 4 potências (20-80 W). Medição sintética do solver com h_scale real = 0.72 e ruído de 0.3 K.",
+  "parameter": "h_scale",
+  "true": 0.72,
+  "recovered": 0.7181209122994766,
+  "ci95": [
+   0.708987644240921,
+   0.7272541803580322
+  ],
+  "rel_error": 0.002609844028504671,
+  "true_inside_ci95": true,
+  "noise": "0.3 K (1 sigma)",
+  "how": "mínimos quadrados (Brent) sobre o modelo; IC 95 % pela sensibilidade dT/dh_scale"
+ },
+ "optimization": {
+  "objective": "massa mínima com T(h -15 %) <= limite e perda de carga <= 25 Pa",
+  "search": "grade de 210 geometrias (n aletas x altura x espessura) na forma fechada (espalhamento de Lee); as mais leves são conferidas no solver (FVM 3-D) até uma passar",
+  "n_fins": 16,
+  "fin_height_m": 0.02,
+  "fin_thickness_m": 0.001,
+  "mass_g": 221.40000000000003,
+  "verified_t_pessimistic_c": 80.14243272028178,
+  "verified_dp_pa": 9.881773703556822,
+  "verified_ok": true,
+  "closed_form_picks_rejected_by_solver": 1,
+  "base_mass_g": 347.625,
+  "surrogate_choice": {
+   "n_fins": 14,
+   "fin_height_m": 0.02,
+   "fin_thickness_m": 0.0015,
+   "mass_g": 248.40000000000003
+  },
+  "surrogate_t_pred_c": 77.82996422592217,
+  "solver_t_at_surrogate_choice_c": 77.81162692429366,
+  "surrogate_vs_solver_diff_c": 0.018337301628505998,
+  "surrogate_choice_ok_on_solver": true
+ },
+ "variants": {
+  "rows": {
+   "8 aletas 35 mm": {
+    "params": {
+     "n_fins": 8
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "t_source_max_c": 83.60214692134362,
+     "t_source_pessimistic_c": 90.07008045421738,
+     "r_total_k_w": 0.8100357820223937,
+     "pressure_drop_pa": 4.394396780986763,
+     "h_w_m2k": 24.894167905568164,
+     "fin_efficiency": 0.9374178970306264,
+     "mass_g": 248.40000000000003,
+     "air_rise_c": 4.953767181245153,
+     "re_dh": 3436.575727908368,
+     "re_star": 293.6017933837517,
+     "fin_gap_mm": 12.571428571428571,
+     "airflow_m3_h": 37.80000000000001
+    }
+   },
+   "15 aletas 35 mm (base)": {
+    "params": {},
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_source_max_c": 64.14820799956901,
+     "t_source_pessimistic_c": 67.3775150095181,
+     "r_total_k_w": 0.4858034666594835,
+     "pressure_drop_pa": 11.393460693182304,
+     "h_w_m2k": 28.867889712512117,
+     "fin_efficiency": 0.9282861596337412,
+     "mass_g": 347.625,
+     "air_rise_c": 4.953767181245153,
+     "re_dh": 2123.9993629243595,
+     "re_star": 68.0875706855809,
+     "fin_gap_mm": 5.535714285714287,
+     "airflow_m3_h": 37.80000000000001
+    }
+   },
+   "22 aletas 35 mm": {
+    "params": {
+     "n_fins": 22
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_source_max_c": 56.506409034980145,
+     "t_source_pessimistic_c": 58.51680383167851,
+     "r_total_k_w": 0.35844015058300244,
+     "pressure_drop_pa": 25.602517247626974,
+     "h_w_m2k": 33.14969741722989,
+     "fin_efficiency": 0.918684732187616,
+     "mass_g": 446.8500000000001,
+     "air_rise_c": 4.953767181245153,
+     "re_dh": 1534.3954850283055,
+     "re_star": 26.708521863463222,
+     "fin_gap_mm": 3.1904761904761907,
+     "airflow_m3_h": 37.80000000000001
+    }
+   },
+   "15 aletas 55 mm": {
+    "params": {
+     "fin_height": 0.055
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_source_max_c": 58.57437073441312,
+     "t_source_pessimistic_c": 60.732274651744916,
+     "r_total_k_w": 0.3929061789068854,
+     "pressure_drop_pa": 10.99932820626183,
+     "h_w_m2k": 28.86172808851664,
+     "fin_efficiency": 0.8446975574008657,
+     "mass_g": 469.12500000000006,
+     "air_rise_c": 3.1523972971560066,
+     "re_dh": 2269.040932657701,
+     "re_star": 69.12497437760837,
+     "fin_gap_mm": 5.535714285714287,
+     "airflow_m3_h": 59.40000000000001
+    }
+   },
+   "22 aletas 25 mm 1 mm": {
+    "params": {
+     "n_fins": 22,
+     "fin_height": 0.025,
+     "fin_thickness": 0.001
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_source_max_c": 62.11712497327336,
+     "t_source_pessimistic_c": 65.060799426182,
+     "r_total_k_w": 0.4519520828878894,
+     "pressure_drop_pa": 16.375141180522053,
+     "h_w_m2k": 30.43180782464947,
+     "fin_efficiency": 0.9413201859590999,
+     "mass_g": 283.50000000000006,
+     "air_rise_c": 6.935274053743216,
+     "re_dh": 1435.716584443083,
+     "re_star": 30.624713756324713,
+     "fin_gap_mm": 3.7142857142857153,
+     "airflow_m3_h": 27.000000000000004
+    }
+   },
+   "cobre C110, 15 aletas": {
+    "params": {
+     "material": "cu110"
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_source_max_c": 59.45418284150569,
+     "t_source_pessimistic_c": 62.65414162482592,
+     "r_total_k_w": 0.40756971402509484,
+     "pressure_drop_pa": 11.395953891139625,
+     "h_w_m2k": 28.867144426667014,
+     "fin_efficiency": 0.9597774150240739,
+     "mass_g": 1151.025,
+     "air_rise_c": 4.953767181245153,
+     "re_dh": 2127.478745988223,
+     "re_star": 68.1991068491214,
+     "fin_gap_mm": 5.535714285714287,
+     "airflow_m3_h": 37.80000000000001
+    }
+   }
+  },
+  "compared": [
+   "t_source_max_c",
+   "pressure_drop_pa",
+   "mass_g"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/plate_fin_heatsink_forced_8_aletas_35_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_22_aletas_35_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_15_aletas_55_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_temperature.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/plate_fin_heatsink_forced_3d_temperature.png"
+ ],
+ "wall_time_total_s": 39.21519143500018,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

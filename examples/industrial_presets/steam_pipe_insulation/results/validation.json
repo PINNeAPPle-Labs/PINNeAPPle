@@ -1,0 +1,101 @@
+{
+ "preset": "steam_pipe_insulation",
+ "references": [
+  {
+   "case": "perda com 30 mm: Kirchhoff vs volumes finitos com k(T)",
+   "output": "q",
+   "unit": "W/m",
+   "computed": 148.46486995014587,
+   "reference": 148.4648773078601,
+   "rel_error": 4.955861856334466e-08,
+   "tol": 0.0001,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente",
+   "params": {}
+  },
+  {
+   "case": "perda com 60 mm: Kirchhoff vs volumes finitos com k(T)",
+   "output": "q",
+   "unit": "W/m",
+   "computed": 87.15636198690117,
+   "reference": 87.15637611883044,
+   "rel_error": 1.621445256408362e-07,
+   "tol": 0.0001,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente",
+   "params": {}
+  },
+  {
+   "case": "perda com 120 mm: Kirchhoff vs volumes finitos com k(T)",
+   "output": "q",
+   "unit": "W/m",
+   "computed": 53.88511793633764,
+   "reference": 53.88514466389179,
+   "rel_error": 4.960096946394748e-07,
+   "tol": 0.0001,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente",
+   "params": {}
+  },
+  {
+   "case": "k constante: resist\u00eancias em s\u00e9rie (Incropera eq. 3.27)",
+   "output": "q",
+   "unit": "W/m",
+   "computed": 85.61095406918896,
+   "reference": 85.61095406918898,
+   "rel_error": 1.6599341602614414e-16,
+   "tol": 1e-06,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, eq. 3.27",
+   "params": {}
+  },
+  {
+   "case": "h for\u00e7ado (Re 55000): Churchill-Bernstein misto vs Hilpert",
+   "output": "h_cv",
+   "unit": "W/m2 K",
+   "computed": 13.399478168165762,
+   "reference": 14.286414474815093,
+   "rel_error": 0.06208249860123212,
+   "tol": 0.15,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "Hilpert (1933) com as constantes da Tabela 7.2 de Incropera (incerteza ~\u00b120 %)",
+   "params": {}
+  },
+  {
+   "case": "h natural (sem vento): Churchill-Chu vs McAdams 1,32 (dT/D)^0,25",
+   "output": "h_cv",
+   "unit": "W/m2 K",
+   "computed": 4.551380738186164,
+   "reference": 4.215927018970073,
+   "rel_error": 0.07956819881052872,
+   "tol": 0.15,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "McAdams, Heat Transmission (1954): cilindro horizontal laminar em ar",
+   "params": {}
+  }
+ ],
+ "convergence": {
+  "parameter": "volumes radiais",
+  "values": [
+   25,
+   50,
+   100,
+   200
+  ],
+  "q": [
+   87.15997923472703,
+   87.15726640010428,
+   87.15658809653209,
+   87.15641851472309
+  ],
+  "rel_change_last": 1.9457179619596715e-06,
+  "pass": true
+ },
+ "all_pass": true
+}

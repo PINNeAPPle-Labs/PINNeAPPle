@@ -67,11 +67,20 @@ title, category and parameter schema, and `tests/test_hub_flow_link.py` fails wh
   with its error.
 - A public function of the AGENTS.md table links to the node that wraps it.
 
+- **The Flow Studio canvas in "Create your own"** (`/create?mode=canvas`, or the "Flow Studio canvas" tab): the
+  Flow Studio editor itself, embedded. It posts its flow to the Hub on every change and loads the flow the Hub
+  sends (a flow opened with `?flow=`); the tick boxes, the generated Python, the sandbox validation and "Save to My
+  Hub" work on that flow. Messages go only between the two configured origins (checked on both sides), and Flow
+  Studio can be embedded only by the origins in `FLOW_FRAME_ANCESTORS` (its CSP `frame-ancestors`; unset, nobody
+  may embed it). The Hub frames only `HUB_FLOW_STUDIO_URL`'s origin (`frame-src`). Serve both on one site (e.g.
+  `hub.pinneapple.org` and `flow.pinneapple.org`) so a Flow Studio login also works inside the frame.
+
 Flow Studio's "🍍 Hub" button and links go to `FLOW_HUB_URL` (default `http://127.0.0.1:8116`); the Hub's go to
 `HUB_FLOW_STUDIO_URL` (default `http://127.0.0.1:8765`).
 
 ![A library call run with the visitor's values](../assets/apps/hub-node-run.jpg)
 ![A flow published from Flow Studio, a parameter exposed and validated](../assets/apps/hub-publish.jpg)
+![The Flow Studio canvas inside "Create your own"](../assets/apps/hub-canvas.jpg)
 
 ## Using it
 

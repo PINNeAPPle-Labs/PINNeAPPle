@@ -17,6 +17,9 @@ the later peaks; the first peak, which sizes the pipe, is not affected).
 
 Verification: instantaneous closure of a frictionless pipe gives the Joukowsky surge ``a V_0 / g`` exactly
 (``tests/test_reason.py``).
+
+See also :func:`pinneapple_systems.process_components.water_hammer.moc_valve_closure`: the same MOC scheme with a
+fixed-speed pump curve upstream instead of a constant-head reservoir (a pumped line rather than a gravity main).
 """
 from __future__ import annotations
 

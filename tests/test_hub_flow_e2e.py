@@ -1,6 +1,7 @@
 """Playwright round trip between the PINNeAPPle Hub (apps/hub) and Flow Studio (apps/flow_studio): run a library call
 live from its Hub page, open a node as a ready flow in Flow Studio, add a node to an existing flow, publish a flow
-from Flow Studio to the Hub, expose a parameter, validate and save it to My Hub. Skipped without Playwright, a
+from Flow Studio to the Hub, expose a parameter, validate and save it to My Hub, and build a tool on the Flow Studio
+canvas embedded in the Hub's "Create your own". Skipped without Playwright, a
 Chromium build or the built Flow Studio frontend. HUB_SCREENSHOTS=<folder> saves the screenshots."""
 from __future__ import annotations
 
@@ -48,10 +49,13 @@ def servers(tmp_path_factory):
         pytest.skip("Flow Studio frontend not built (apps/flow_studio/frontend: npm run build)")
     hub_port, fs_port = _port(), _port()
     hub_url, fs_url = f"http://127.0.0.1:{hub_port}", f"http://127.0.0.1:{fs_port}"
+    keys = ("HUB_DATA_DIR", "HUB_FLOW_STUDIO_URL", "PINNEAPPLE_FLOW_HOME", "FLOW_HUB_URL", "FLOW_FRAME_ANCESTORS")
+    saved = {k: os.environ.get(k) for k in keys}          # restored at teardown: later tests build their own apps
     os.environ["HUB_DATA_DIR"] = str(tmp_path_factory.mktemp("hub_rt"))
     os.environ["HUB_FLOW_STUDIO_URL"] = fs_url
     os.environ["PINNEAPPLE_FLOW_HOME"] = str(tmp_path_factory.mktemp("flow_rt"))
     os.environ["FLOW_HUB_URL"] = hub_url
+    os.environ["FLOW_FRAME_ANCESTORS"] = hub_url          # the Hub embeds the Flow Studio canvas
     sys.path.insert(0, str(ROOT / "apps" / "hub"))
     from hub.api import app as hub_app
 
@@ -61,6 +65,11 @@ def servers(tmp_path_factory):
     for srv, th in started:
         srv.should_exit = True
         th.join(5)
+    for k, v in saved.items():
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = v
 
 
 @pytest.fixture(scope="module")
@@ -82,11 +91,11 @@ def context(servers):
         b.close()
 
 
-def _shot(pg, name):
+def _shot(pg, name, full_page=True):
     if SHOTS:
         Path(SHOTS).mkdir(parents=True, exist_ok=True)
         pg.add_style_tag(content=".hub-top { position: static !important; }")
-        pg.screenshot(path=str(Path(SHOTS) / f"{name}.png"), full_page=True)
+        pg.screenshot(path=str(Path(SHOTS) / f"{name}.png"), full_page=full_page)
 
 
 def test_library_call_runs_live_with_the_users_values(servers, context):
@@ -148,4 +157,27 @@ def test_publish_a_flow_to_the_hub_validate_and_save(servers, context):
     pg.wait_for_selector("h1")
     assert "Vivaldi" in pg.inner_text("h1")
     assert "recorded run passed" in pg.inner_text(".runhead").lower()
+    assert not context.errors, context.errors
+
+
+def test_build_on_the_embedded_flow_studio_canvas(servers, context):
+    import base64
+    import json
+    hub_url, _ = servers
+    flow = json.loads((ROOT / "pinneapple_flow" / "flows" / "antenna_vivaldi_limits.json").read_text())
+    b64 = base64.urlsafe_b64encode(json.dumps(flow).encode()).decode().rstrip("=")
+    pg = context.new_page()
+    pg.goto(f"{hub_url}/create?mode=canvas&flow={b64}")
+    frame = pg.frame_locator("#c-frame")
+    frame.locator(".react-flow__node").first.wait_for(timeout=60000)      # the Hub sent its flow to the canvas
+    assert frame.locator(".react-flow__node").count() == len(flow["nodes"])
+    frame.locator("text=Domain").first.dblclick()                          # edit on the canvas ...
+    pg.wait_for_function("document.querySelector('#c-code pre')?.textContent.includes('geometry.domain')")
+    assert f"{len(flow['nodes']) + 1} nodes" in pg.inner_text("#c-chain")  # ... and the Hub has the new flow
+    _shot(pg, "hub_canvas_mode", full_page=False)                          # a full-page capture blanks the iframe
+    pg.click("#c-validate")
+    pg.wait_for_selector("#c-run .badge.ok", timeout=300000)
+    _shot(pg, "hub_canvas_validated")
+    pg.click("#c-save")
+    pg.wait_for_selector("h1")
     assert not context.errors, context.errors

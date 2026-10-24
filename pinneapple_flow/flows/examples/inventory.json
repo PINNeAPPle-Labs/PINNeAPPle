@@ -9,23 +9,24 @@
  },
  "autolab": {
   "domain": "design",
-  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+  "notes": "self_optimizing_engineer: autolab.board_cooling (#867) + examples.flatten, compared with the committed _out/self_optimizing_engineer/summary.json (heat-sink mass, fan power, pessimistic junction temperatures)"
  },
  "autolab_aero": {
   "domain": "aerodynamics",
-  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+  "notes": "autolab.aerodynamicist (#881): the full configuration runs the OpenFOAM campaign (20 simpleFoam runs, hours) and is compared with _out/summary.json (drag improvement); the quick configuration shows the dashboard of the recorded session, which recomputes nothing and so compares nothing"
  },
  "autolab_aero_agent": {
   "domain": "aerodynamics",
-  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+  "reason": "agent_mission.py drives pinneapple_autolab.agent.run_agent with a ReplaySimulator over stage 1's ledger and two refusal cases, arranged in the script; no node wraps the replayed agent session (autolab.aerodynamicist runs the agent on live OpenFOAM instead, see autolab_aero), and an LLM provider is optional",
+  "status": "not_convertible"
  },
  "autolab_digital_twin": {
   "domain": "digital twin",
-  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+  "notes": "twin_knows_when_wrong: autolab.pipe_twin (#869) + examples.flatten, compared with the committed _out/summary.json (diagnosis accuracy, cases with a false alarm)"
  },
  "autolab_rover": {
   "domain": "vehicles",
-  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+  "notes": "rover_learns_planet: rover.learn_planet (#871), compared with results/summary.json (learned soil-parameter errors, multibody distance, energy, slip and sinkage of routes A and B)"
  },
  "benchmark": {
   "domain": "benchmarks",
@@ -141,7 +142,7 @@
  },
  "industrial_presets": {
   "domain": "engineering presets",
-  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+  "notes": "one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs"
  },
  "inspection": {
   "domain": "inspection",
@@ -193,8 +194,8 @@
  },
  "nvidia": {
   "domain": "NVIDIA stack",
-  "needs": "usd-core (pxr) and nvidia-physicsnemo",
-  "reason": "01 writes OpenUSD stages with usd-core, 02 and 07 train NVIDIA PhysicsNeMo models (07 also writes USD); neither package is installed on this machine, so the three run.py studies (#860) are not flows yet",
+  "needs": "usd-core (pxr), nvidia-physicsnemo and usd-brep",
+  "reason": "01, 07, 12-14 and 16-18 write USD stages (usd-core); 02, 07-11, 16 and 18 train NVIDIA PhysicsNeMo models; 05, 10 and 14-16 build B-rep geometry with usd-brep: none of the three is installed here. 03 (robot sim), 04 (world model physics video) and 06 (model services) run on PINNeAPPle alone, but each study is arranged in its run.py main() (datasets, training, verdict rates) with no library entry point a node could call",
   "status": "needs"
  },
  "openfoam_campaign": {
@@ -270,7 +271,7 @@
  },
  "science": {
   "domain": "science",
-  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+  "notes": "one flow per pp.science experiment (science.run in every committed dimension at the committed resolution, #882-#884), compared with the relative error of each quantity in its result.json; the quick configuration uses the reduced sizes and compares nothing. science.atlas (the atlas page) is the bundled side of the same nodes"
  },
  "security": {
   "domain": "security",

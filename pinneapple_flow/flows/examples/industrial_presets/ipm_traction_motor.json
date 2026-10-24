@@ -1,0 +1,112 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.ipm_traction_motor",
+ "name": "Industrial preset: ipm traction motor",
+ "description": "pinneapple_presets.load('ipm_traction_motor').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/ipm_traction_motor), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "ipm_traction_motor"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "ipm_traction_motor"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.torque",
+      "ref": "ipm_traction_motor/results/result.json:outputs.torque"
+     },
+     {
+      "flow": "run.torque_dq",
+      "ref": "ipm_traction_motor/results/result.json:outputs.torque_dq"
+     },
+     {
+      "flow": "run.ripple",
+      "ref": "ipm_traction_motor/results/result.json:outputs.ripple"
+     },
+     {
+      "flow": "run.psi_d",
+      "ref": "ipm_traction_motor/results/result.json:outputs.psi_d"
+     },
+     {
+      "flow": "run.psi_q",
+      "ref": "ipm_traction_motor/results/result.json:outputs.psi_q"
+     },
+     {
+      "flow": "run.v_phase_peak",
+      "ref": "ipm_traction_motor/results/result.json:outputs.v_phase_peak"
+     },
+     {
+      "flow": "run.v_limit",
+      "ref": "ipm_traction_motor/results/result.json:outputs.v_limit"
+     },
+     {
+      "flow": "run.i_d",
+      "ref": "ipm_traction_motor/results/result.json:outputs.i_d"
+     },
+     {
+      "flow": "run.i_q",
+      "ref": "ipm_traction_motor/results/result.json:outputs.i_q"
+     },
+     {
+      "flow": "run.pole_pairs",
+      "ref": "ipm_traction_motor/results/result.json:outputs.pole_pairs"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "ipm_traction_motor/README.md"
+  ],
+  "quick": {}
+ }
+}

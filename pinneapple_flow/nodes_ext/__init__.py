@@ -8,6 +8,7 @@ from . import (  # noqa: F401
     architectures,
     arena_pipelines,
     astro,
+    autolab_caps,
     benchmarks,
     bricks,
     cfd,

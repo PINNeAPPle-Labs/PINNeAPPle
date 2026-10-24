@@ -7,21 +7,20 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 6 |
-| no flow | 7 |
-| not yet run | 4 |
-| not_convertible | 15 |
-| runs | 34 |
+| not yet run | 7 |
+| not_convertible | 16 |
+| runs | 37 |
 | runs-quick | 10 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
 | `architectures` | neural architectures | `architectures/00_registry_tour`<br>`architectures/01_list_models`<br>`architectures/30_rom_pod_dmd`<br>`architectures/60_new_architectures_demo` | runs |  | 00_registry_tour, 01_list_models and 60_new_architectures_demo are flows of architectures.registry + architectures.forward (output shapes as in the scripts; the GraphBatch GNN / MeshGraphNet parts and the non-registry layers are left out); 30_rom_pod_dmd is architectures.pod_dmd (the data generator moved to rom.toy_systems; POD and rollout MSE equal the script's). 02-05 are per-class demos with training loops in the scripts, 10 (FNO), 20 (inverse ODE PINN) and 40 (GNN) train in the scripts, and 50 imports pinneapple_models.transformers.transformer, which does not exist |
 | `arena_pipelines` | benchmarks | `arena_pipelines/00_list_datasets`<br>`arena_pipelines/01_physics_benchmark`<br>`arena_pipelines/02_timeseries_benchmark`<br>`arena_pipelines/04_arena_from_yaml` | runs-quick |  | flows for 00 (dataset registry: 24 / 24 load), 01 (PhysicsBenchmarkSpec: Burgers, heat, inverse heat, Kovasznay), 02 (TimeSeriesBenchmarkSpec x 4) and 04 (pinneapple_arena.Arena on the built-in Kovasznay config; configs/*.yaml through config_file); 05's config dicts run through the same arena.run node. 03, 06 and 08 hold custom training or ArenaProblem subclasses; 07 passes Python lambdas to define_problem; 09's benchmark_dataset returns the problem, not results. Nothing committed to compare |
-| `autolab` | design | - |  |  | merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR |
-| `autolab_aero` | aerodynamics | - |  |  | merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR |
-| `autolab_aero_agent` | aerodynamics | - |  |  | merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR |
-| `autolab_digital_twin` | digital twin | - |  |  | merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR |
-| `autolab_rover` | vehicles | - |  |  | merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR |
+| `autolab` | design | `autolab/self_optimizing_engineer` | not yet run |  | self_optimizing_engineer: autolab.board_cooling (#867) + examples.flatten, compared with the committed _out/self_optimizing_engineer/summary.json (heat-sink mass, fan power, pessimistic junction temperatures) |
+| `autolab_aero` | aerodynamics | `autolab_aero/autolab_aero` | not yet run |  | autolab.aerodynamicist (#881): the full configuration runs the OpenFOAM campaign (20 simpleFoam runs, hours) and is compared with _out/summary.json (drag improvement); the quick configuration shows the dashboard of the recorded session, which recomputes nothing and so compares nothing |
+| `autolab_aero_agent` | aerodynamics | - | not_convertible |  | agent_mission.py drives pinneapple_autolab.agent.run_agent with a ReplaySimulator over stage 1's ledger and two refusal cases, arranged in the script; no node wraps the replayed agent session (autolab.aerodynamicist runs the agent on live OpenFOAM instead, see autolab_aero), and an LLM provider is optional |
+| `autolab_digital_twin` | digital twin | `autolab_digital_twin/twin_knows_when_wrong` | runs | 2 / 2 match | twin_knows_when_wrong: autolab.pipe_twin (#869) + examples.flatten, compared with the committed _out/summary.json (diagnosis accuracy, cases with a false alarm) |
+| `autolab_rover` | vehicles | `autolab_rover/rover_learns_planet` | runs | 12 / 12 match | rover_learns_planet: rover.learn_planet (#871), compared with results/summary.json (learned soil-parameter errors, multibody distance, energy, slip and sinkage of routes A and B) |
 | `benchmark` | benchmarks | `benchmark/01_equal_budget` | runs-quick |  | 01_equal_budget: pp.benchmark.run (benchmark.equal_budget), quick = the script's smoke sizes; nothing committed to compare |
 | `benchmark_suite` | benchmarks | `benchmark_suite/02_arena_from_yaml`<br>`benchmark_suite/12_physics_benchmark_suite`<br>`benchmark_suite/13_transfer_meta_benchmark` | not yet run |  | flows for 02 (run_arena_experiment on configs/experiment_burgers_1d.yaml: the library's rel_l2 / r2 on the reference points come out degenerate, about 1e12), 12 (PINNArenaBenchmark through benchmark.arena with the registry's bench_* models: the script's VanillaPINN_S... names are no longer registered) and 13 (transfer + meta pipelines, quick = --fast; the Burgers reference solver overflows for nu = 0.005 / pi). 12 and 13 import pinneapple_arena.benchmark / transfer_benchmark / meta_benchmark, now in pinneapple_tools.benchmark_suite. Not convertible: 01, 04, 07 (genetic) and 08 import pinneapple_arena.runner / bundle / registry or pinneapple_digital_twin modules that no longer exist; 09 calls run_full_pipeline, broken in the library (ThroughputMonitor(log_every=...), missing pinneapple_environment); 03, 05, 06, 07_xtfc, 10 and 14-17 write their losses, loops or solvers in the scripts; 11 builds its ProblemSpec in script code around Arena.from_spec. Nothing committed to compare |
 | `black_hole_weather` | astrophysics | `black_hole_weather/accretion_run` | runs | 1 / 1 match | the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows |
@@ -46,7 +45,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `getting_started` | PINN | `getting_started/03_heat_diffusion_1d`<br>`getting_started/04_wave_equation_1d` | runs-quick |  | 03_heat_diffusion_1d and 04_wave_equation_1d are flows of equations.system + train.pinn + validate.compare for the script's three diffusivities / wave speeds against the exact solutions (the script trains its own torch loop with a hard x(1-x) factor); nothing committed to compare. 01, 02 and 05-10 are pure-torch ODE PINNs without pinneapple calls, and no node trains a PINN on an ODE (geometry.domain needs a spatial dimension) |
 | `handoff_cases` | CFD | - | needs OpenFOAM (+ xfoil) |  | the airfoil and trough packages run simpleFoam / interFoam campaigns (hours); make_zips.py packs folders |
 | `hpo_experiments` | tools | - | not_convertible |  | imports pinneapple_researcher, which no longer exists (now pinneapple_tools.hpo_experiments); arXiv / GitHub discovery and Gemini extraction need network and an API key, and the output is not deterministic |
-| `industrial_presets` | engineering presets | - |  |  | merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR |
+| `industrial_presets` | engineering presets | `industrial_presets/airfoil_section_re4e6`<br>`industrial_presets/eddy_current_skin_inspection`<br>`industrial_presets/ipm_traction_motor`<br>`industrial_presets/plate_fin_heatsink_forced`<br>`industrial_presets/power_pcb_junction`<br>`industrial_presets/pressure_vessel_asme`<br>`industrial_presets/pump_npsh_cavitation`<br>`industrial_presets/shell_tube_cooler`<br>`industrial_presets/spm_servo_motor`<br>`industrial_presets/steam_pipe_insulation`<br>`industrial_presets/steel_footbridge_pedestrian`<br>`industrial_presets/water_distribution_network`<br>`industrial_presets/water_hammer_valve_closure` | runs | 173 / 173 match | one flow per preset (preset.run + preset.validate, #863 / #864 / #874), each compared with its committed results/result.json outputs at the data-sheet inputs |
 | `inspection` | inspection | `inspection/01_eddy_current_pinn` | runs |  | nothing committed to compare: the script prints the losses |
 | `latent` | physics AI | - | not_convertible |  | the study's full-order model (upwind finite-difference advection-diffusion-reaction operator, solve and residual), the envelope / hole / beyond-box samplers and the gate / AUC / coverage statistics (about 130 lines) exist only in trusted_latent_surrogate.py; the library has ParametricPOD and TrustedLatentSurrogate but no function that runs this study |
 | `lbm` | fluid dynamics | `lbm/01_sphere_wind_tunnel` | runs-quick | 3 / 3 match | lbm.sphere_stokes and lbm.sphere_drag (FP32 / FP16 storage) wrap pinneapple_simulation.numerical_solvers.lbm_tunnel, compared with docs/core_concepts/lbm_wind_tunnel.md (Stokes error, Cd FP32 / FP16, Schiller-Naumann, bytes per cell); the full run is about an hour on 4 idle cores, so the quick configuration (smaller sphere and tunnel, fewer steps) compares only the configuration-independent numbers (Schiller-Naumann, bytes per cell); the full configuration has not been run here |
@@ -58,7 +57,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | runs-quick | 30 / 36 match | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet. In random_walk the baselines match; the two learned models (scikit-learn HistGradientBoosting, torch MLP) differ by 0.1-3 % on the test RMSE, and the committed results do not record the scikit-learn / torch versions (here scikit-learn 1.9.1) |
 | `non_hermitian` | non-Hermitian physics | `non_hermitian/ep_tuning` | runs | 9 / 9 match | ep_laws / ep_numeric / hypothesis_map / ep_figure wrap pinneapple_physics.non_hermitian (coupling_classes moved from the script into ep_tuning.py, the script prints the same output); compared with docs/core_concepts/non_hermitian.md (EP-law degree, kappa_N^2 and EP order for N = 2-5) |
 | `numerical_solvers` | numerical solvers | `numerical_solvers/12_molecular_dynamics_lj_gas`<br>`numerical_solvers/13_shallow_water_dam_break` | runs |  | flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate |
-| `nvidia` | NVIDIA stack | - | needs usd-core (pxr) and nvidia-physicsnemo |  | 01 writes OpenUSD stages with usd-core, 02 and 07 train NVIDIA PhysicsNeMo models (07 also writes USD); neither package is installed on this machine, so the three run.py studies (#860) are not flows yet |
+| `nvidia` | NVIDIA stack | - | needs usd-core (pxr), nvidia-physicsnemo and usd-brep |  | 01, 07, 12-14 and 16-18 write USD stages (usd-core); 02, 07-11, 16 and 18 train NVIDIA PhysicsNeMo models; 05, 10 and 14-16 build B-rep geometry with usd-brep: none of the three is installed here. 03 (robot sim), 04 (world model physics video) and 06 (model services) run on PINNeAPPle alone, but each study is arranged in its run.py main() (datasets, training, verdict rates) with no library entry point a node could call |
 | `openfoam_campaign` | CFD | `openfoam_campaign/campaign` | runs |  | no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt |
 | `pde_environment` | PINN | `pde_environment/07_tagged_presets_real_geometry` | runs-quick |  | 07_tagged_presets_real_geometry is a flow (pde_env.tagged_preset: build_tag_batch + per_tag_losses, moved from the script into presets.tag_geometry, + solve_pde); nothing committed to compare, the before-training losses equal the script's. 01, 02 and 03_ns2d evaluate compile_problem once on a batch the script samples and assembles by hand; 03_elasticity3d and 04_heat3d need trimesh and STL files; 05_kepler and 06_space_debris train with a nondimensionalisation wrapper and a loop written in the script |
 | `physics_audit` | physics audit | - | not_convertible |  | the case study (Churchill truth, model lambdas, profiles, 160-case stream) is built in the script; PhysicsEnsemble / PhysicsAwareRouter have no case generator to call |
@@ -75,7 +74,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `proof_graph` | validation | `proof_graph/pt_chain_no_go` | runs | 4 / 4 match | status counts compared with the committed report docs/assets/proof_graph/pt_chain_no_go_report.md |
 | `qualitative` | design | `qualitative/03_ahmed_slant` | runs |  | 03_ahmed_slant: nothing numeric committed; the flow reproduces the guide's reading (docs/core_concepts/qualitative_preview.md): right direction at 12.5 and 40 degrees, wrong at 25, 30 and 35 with low confidence (direction agreement 0.4, rank correlation -0.60, the same as the script). 01 and 02 build their variants (heat sinks, beams) in the scripts |
 | `rigid_body` | multibody | `rigid_body/newton_quickstart` | runs |  | NVIDIA Newton 1.7 (warp, CPU) installed with pip here |
-| `science` | science | - |  |  | merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR |
+| `science` | science | `science/ampere_law`<br>`science/bench_mu0_solenoid`<br>`science/bench_rc_discharge`<br>`science/biot_savart`<br>`science/cavity_resonance`<br>`science/circuits_rc_rl_rlc`<br>`science/coulomb_superposition`<br>`science/dipole_radiation`<br>`science/faraday_induction`<br>`science/fresnel_snell`<br>`science/gauss_law`<br>`science/hall_effect`<br>`science/lossy_plane_wave`<br>`science/mie_scattering`<br>`science/parallel_plate_capacitor`<br>`science/research_fdtd_3d`<br>`science/research_inverse_permittivity`<br>`science/research_surrogate_hall`<br>`science/research_uq_waveguide`<br>`science/waveguide_modes` | not yet run | 66 / 67 match | one flow per pp.science experiment (science.run in every committed dimension at the committed resolution, #882-#884), compared with the relative error of each quantity in its result.json; the quick configuration uses the reduced sizes and compares nothing. science.atlas (the atlas page) is the bundled side of the same nodes |
 | `security` | security | `security/02_physics_residual_fdi` | runs | 131 / 131 match | 02_physics_residual_fdi compared with the tables of docs/guides/physics_residual_attack_detection.md (mean of seeds 0 1 2; the isolation forest needs scikit-learn). 01 chains a dozen primitives with a DP-SGD loop written in the script |
 | `solver_api` | PINN | `solver_api/01_classical_vs_pinn` | runs | 2 / 2 match | compared with the FEM and PINN errors quoted in docs/core_concepts/solver.md |
 | `solvers` | numerical solvers | `solvers/01_time_series_decompositions`<br>`solvers/02_sph_box`<br>`solvers/03_poisson_solvers` | runs |  | three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation |
@@ -104,6 +103,10 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `arena_pipelines` | `arena.physics_spec` | first |
 | `arena_pipelines` | `arena.run` | first |
 | `arena_pipelines` | `arena.timeseries_spec` | first |
+| `autolab` | `autolab.board_cooling` | first |
+| `autolab_aero` | `autolab.aerodynamicist` | first |
+| `autolab_digital_twin` | `autolab.pipe_twin` | first |
+| `autolab_rover` | `autolab.rover` | first |
 | `benchmark` | `benchmark.equal_budget` | first |
 | `benchmark_suite` | `benchmark.arena_suite` | first |
 | `benchmark_suite` | `benchmark.arena_yaml` | first |
@@ -137,6 +140,7 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `geometry_library` | `aero.airliner_vlm` | first |
 | `geophysics` | `geo.earth_system` | first |
 | `getting_started` | - | falls short: no capability registered, generic flows only |
+| `industrial_presets` | `presets.water_hammer` | first |
 | `inspection` | `inspection.eddy_current` | first |
 | `lbm` | `lbm.sphere_drag` | first |
 | `meshgraphnet` | `gnn.mgn_cylinder_flow` | first |
@@ -156,6 +160,7 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `proof_graph` | `proof.pt_chain` | first |
 | `qualitative` | `qualitative.ahmed_slant` | first |
 | `rigid_body` | `newton.rigid_body` | first |
+| `science` | `science.em_experiment` | first |
 | `security` | `security.fdi_benchmark` | first |
 | `solver_api` | `pinn.poisson_fem_vs_pinn` | first |
 | `solvers` | `solvers.decompose` | first |
@@ -210,6 +215,34 @@ done in 1952 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
 ### `arena_pipelines/04_arena_from_yaml` (quick)
 
 done in 1918 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
+
+### `autolab_digital_twin/twin_knows_when_wrong` (full)
+
+done in 255 s (commit 3bd6a5ad, 2026-10-24); 2 of 2 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `flat.accuracy` | `_out/summary.json:benchmark.accuracy` | 0.9625 | 0.9625 | 0 | match |
+| `flat.cases_with_false_alarm` | `_out/summary.json:benchmark.cases_with_false_alarm` | 1 | 1 | 0 | match |
+
+### `autolab_rover/rover_learns_planet` (full)
+
+done in 628 s (commit 3bd6a5ad, 2026-10-24); 12 of 12 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `rover.learned_log10_k_phi_error` | `results/summary.json:recovery.log10_k_phi.error` | 0.072262 | 0.072262 | 0 | match |
+| `rover.learned_n0_error` | `results/summary.json:recovery.n0.error` | 0.057183 | 0.057183 | 0 | match |
+| `rover.learned_n1_error` | `results/summary.json:recovery.n1.error` | 0.014512 | 0.014512 | 0 | match |
+| `rover.learned_phi_deg_error` | `results/summary.json:recovery.phi_deg.error` | -1.31387 | -1.31387 | 0 | match |
+| `rover.route_A_distance_m` | `results/summary.json:routes[name=A].measured_multibody.distance_m` | 12.9259 | 12.9259 | 0 | match |
+| `rover.route_A_energy_J` | `results/summary.json:routes[name=A].measured_multibody.energy_J` | 2957.96 | 2957.96 | 0 | match |
+| `rover.route_A_max_slip_2s_front` | `results/summary.json:routes[name=A].measured_multibody.max_slip_2s_front` | 0.420399 | 0.420399 | 0 | match |
+| `rover.route_A_max_sinkage_mm` | `results/summary.json:routes[name=A].measured_multibody.max_sinkage_mm` | 319.368 | 319.368 | 0 | match |
+| `rover.route_B_distance_m` | `results/summary.json:routes[name=B].measured_multibody.distance_m` | 28.5599 | 28.5599 | 0 | match |
+| `rover.route_B_energy_J` | `results/summary.json:routes[name=B].measured_multibody.energy_J` | 2869.08 | 2869.08 | 0 | match |
+| `rover.route_B_max_slip_2s_front` | `results/summary.json:routes[name=B].measured_multibody.max_slip_2s_front` | 0.214524 | 0.214524 | 0 | match |
+| `rover.route_B_max_sinkage_mm` | `results/summary.json:routes[name=B].measured_multibody.max_sinkage_mm` | 30.7335 | 30.7335 | 0 | match |
 
 ### `benchmark/01_equal_budget` (quick)
 
@@ -798,6 +831,270 @@ done in 805 s (commit c94c53c7, 2026-10-23); 0 of 0 numbers match.
 
 done in 1412 s (commit c94c53c7, 2026-10-23); 0 of 0 numbers match.
 
+### `industrial_presets/airfoil_section_re4e6` (full)
+
+done in 15 s (commit 3bd6a5ad, 2026-10-24); 12 of 12 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.Cl` | `airfoil_section_re4e6/results/result.json:outputs.Cl` | 0.661502 | 0.661502 | 0 | match |
+| `run.Cd` | `airfoil_section_re4e6/results/result.json:outputs.Cd` | 0.0101564 | 0.0101564 | 0 | match |
+| `run.Cm` | `airfoil_section_re4e6/results/result.json:outputs.Cm` | -0.0472612 | -0.0472612 | 0 | match |
+| `run.LD` | `airfoil_section_re4e6/results/result.json:outputs.LD` | 65.1319 | 65.1319 | 0 | match |
+| `run.Cl_std` | `airfoil_section_re4e6/results/result.json:outputs.Cl_std` | 0.000850245 | 0.000850245 | 0 | match |
+| `run.Cd_std` | `airfoil_section_re4e6/results/result.json:outputs.Cd_std` | 1.29948e-05 | 1.29948e-05 | 0 | match |
+| `run.Cl_inviscid` | `airfoil_section_re4e6/results/result.json:outputs.Cl_inviscid` | 0.730569 | 0.730569 | 3.03934e-16 | match |
+| `run.Cl_inviscid_pressure` | `airfoil_section_re4e6/results/result.json:outputs.Cl_inviscid_pressure` | 0.728776 | 0.728776 | 4.57023e-16 | match |
+| `run.thickness` | `airfoil_section_re4e6/results/result.json:outputs.thickness` | 0.120229 | 0.120229 | 2.30855e-16 | match |
+| `run.camber` | `airfoil_section_re4e6/results/result.json:outputs.camber` | 0.0201699 | 0.0201699 | 3.44022e-16 | match |
+| `run.reynolds` | `airfoil_section_re4e6/results/result.json:outputs.reynolds` | 4.10959e+06 | 4.10959e+06 | 0 | match |
+| `run.lift_per_span` | `airfoil_section_re4e6/results/result.json:outputs.lift_per_span` | 972.408 | 972.408 | 0 | match |
+
+### `industrial_presets/eddy_current_skin_inspection` (full)
+
+done in 99 s (commit 3bd6a5ad, 2026-10-24); 13 of 13 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.dR` | `eddy_current_skin_inspection/results/result.json:outputs.dR` | 1.01695 | 1.01695 | 0 | match |
+| `run.dX` | `eddy_current_skin_inspection/results/result.json:outputs.dX` | -1.97483 | -1.97483 | 0 | match |
+| `run.R_norm` | `eddy_current_skin_inspection/results/result.json:outputs.R_norm` | 0.0793689 | 0.0793689 | 0 | match |
+| `run.X_norm` | `eddy_current_skin_inspection/results/result.json:outputs.X_norm` | 0.845873 | 0.845873 | 0 | match |
+| `run.delta` | `eddy_current_skin_inspection/results/result.json:outputs.delta` | 0.00120655 | 0.00120655 | 0 | match |
+| `run.X0` | `eddy_current_skin_inspection/results/result.json:outputs.X0` | 12.813 | 12.813 | 0 | match |
+| `run.t_over_delta` | `eddy_current_skin_inspection/results/result.json:outputs.t_over_delta` | 1.65762 | 1.65762 | 0 | match |
+| `run.signal_loss` | `eddy_current_skin_inspection/results/result.json:outputs.signal_loss` | 0.0242362 | 0.0242362 | 0 | match |
+| `run.signal_liftoff` | `eddy_current_skin_inspection/results/result.json:outputs.signal_liftoff` | 0.0903077 | 0.0903077 | 0 | match |
+| `run.phase_angle_deg` | `eddy_current_skin_inspection/results/result.json:outputs.phase_angle_deg` | 26.6354 | 26.6354 | 0 | match |
+| `run.phase_lag_rad` | `eddy_current_skin_inspection/results/result.json:outputs.phase_lag_rad` | -2.67672 | -2.67672 | 0 | match |
+| `run.signal_perp` | `eddy_current_skin_inspection/results/result.json:outputs.signal_perp` | 0.0108654 | 0.0108654 | 0 | match |
+| `run.separation` | `eddy_current_skin_inspection/results/result.json:outputs.separation` | 2.44573 | 2.44573 | 0 | match |
+
+### `industrial_presets/ipm_traction_motor` (full)
+
+done in 44 s (commit 3bd6a5ad, 2026-10-24); 10 of 10 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.torque` | `ipm_traction_motor/results/result.json:outputs.torque` | 334.863 | 334.863 | 0 | match |
+| `run.torque_dq` | `ipm_traction_motor/results/result.json:outputs.torque_dq` | 338.724 | 338.724 | 0 | match |
+| `run.ripple` | `ipm_traction_motor/results/result.json:outputs.ripple` | 0.217271 | 0.217271 | 0 | match |
+| `run.psi_d` | `ipm_traction_motor/results/result.json:outputs.psi_d` | 0.0147132 | 0.0147132 | 0 | match |
+| `run.psi_q` | `ipm_traction_motor/results/result.json:outputs.psi_q` | 0.333773 | 0.333773 | 0 | match |
+| `run.v_phase_peak` | `ipm_traction_motor/results/result.json:outputs.v_phase_peak` | 209.919 | 209.919 | 0 | match |
+| `run.v_limit` | `ipm_traction_motor/results/result.json:outputs.v_limit` | 288.675 | 288.675 | 0 | match |
+| `run.i_d` | `ipm_traction_motor/results/result.json:outputs.i_d` | -160.697 | -160.697 | 0 | match |
+| `run.i_q` | `ipm_traction_motor/results/result.json:outputs.i_q` | 191.511 | 191.511 | 0 | match |
+| `run.pole_pairs` | `ipm_traction_motor/results/result.json:outputs.pole_pairs` | 4 | 4 | 0 | match |
+
+### `industrial_presets/plate_fin_heatsink_forced` (full)
+
+done in 6 s (commit 3bd6a5ad, 2026-10-24); 12 of 12 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.t_source_max_c` | `plate_fin_heatsink_forced/results/result.json:outputs.t_source_max_c` | 64.1482 | 64.1482 | 0 | match |
+| `run.t_source_pessimistic_c` | `plate_fin_heatsink_forced/results/result.json:outputs.t_source_pessimistic_c` | 67.3775 | 67.3775 | 0 | match |
+| `run.r_total_k_w` | `plate_fin_heatsink_forced/results/result.json:outputs.r_total_k_w` | 0.485803 | 0.485803 | 0 | match |
+| `run.pressure_drop_pa` | `plate_fin_heatsink_forced/results/result.json:outputs.pressure_drop_pa` | 11.3935 | 11.3935 | 0 | match |
+| `run.h_w_m2k` | `plate_fin_heatsink_forced/results/result.json:outputs.h_w_m2k` | 28.8679 | 28.8679 | 0 | match |
+| `run.fin_efficiency` | `plate_fin_heatsink_forced/results/result.json:outputs.fin_efficiency` | 0.928286 | 0.928286 | 0 | match |
+| `run.mass_g` | `plate_fin_heatsink_forced/results/result.json:outputs.mass_g` | 347.625 | 347.625 | 0 | match |
+| `run.air_rise_c` | `plate_fin_heatsink_forced/results/result.json:outputs.air_rise_c` | 4.95377 | 4.95377 | 0 | match |
+| `run.re_dh` | `plate_fin_heatsink_forced/results/result.json:outputs.re_dh` | 2124 | 2124 | 0 | match |
+| `run.re_star` | `plate_fin_heatsink_forced/results/result.json:outputs.re_star` | 68.0876 | 68.0876 | 0 | match |
+| `run.fin_gap_mm` | `plate_fin_heatsink_forced/results/result.json:outputs.fin_gap_mm` | 5.53571 | 5.53571 | 0 | match |
+| `run.airflow_m3_h` | `plate_fin_heatsink_forced/results/result.json:outputs.airflow_m3_h` | 37.8 | 37.8 | 0 | match |
+
+### `industrial_presets/power_pcb_junction` (full)
+
+done in 19 s (commit 3bd6a5ad, 2026-10-24); 6 of 6 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.tj_max_c` | `power_pcb_junction/results/result.json:outputs.tj_max_c` | 118.865 | 118.865 | 0 | match |
+| `run.tj_max_hot_c` | `power_pcb_junction/results/result.json:outputs.tj_max_hot_c` | 126.418 | 126.418 | 0 | match |
+| `run.tj_mosfet_c` | `power_pcb_junction/results/result.json:outputs.tj_mosfet_c` | 118.865 | 118.865 | 0 | match |
+| `run.board_max_c` | `power_pcb_junction/results/result.json:outputs.board_max_c` | 99.1155 | 99.1155 | 0 | match |
+| `run.energy_balance` | `power_pcb_junction/results/result.json:outputs.energy_balance` | 1.16776e-13 | 1.16776e-13 | 0 | match |
+| `run.total_power` | `power_pcb_junction/results/result.json:outputs.total_power` | 5.75 | 5.75 | 0 | match |
+
+### `industrial_presets/pressure_vessel_asme` (full)
+
+done in 7 s (commit 3bd6a5ad, 2026-10-24); 15 of 15 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.t_shell_req` | `pressure_vessel_asme/results/result.json:outputs.t_shell_req` | 0.00945244 | 0.00945244 | 0 | match |
+| `run.t_head_req` | `pressure_vessel_asme/results/result.json:outputs.t_head_req` | 0.00942491 | 0.00942491 | 0 | match |
+| `run.t_shell` | `pressure_vessel_asme/results/result.json:outputs.t_shell` | 0.01 | 0.01 | 0 | match |
+| `run.t_head` | `pressure_vessel_asme/results/result.json:outputs.t_head` | 0.01 | 0.01 | 0 | match |
+| `run.mawp` | `pressure_vessel_asme/results/result.json:outputs.mawp` | 1.03816e+06 | 1.03816e+06 | 0 | match |
+| `run.p_test` | `pressure_vessel_asme/results/result.json:outputs.p_test` | 1.34961e+06 | 1.34961e+06 | 0 | match |
+| `run.hoop_lame` | `pressure_vessel_asme/results/result.json:outputs.hoop_lame` | 1.1289e+08 | 1.1289e+08 | 0 | match |
+| `run.hoop_fem` | `pressure_vessel_asme/results/result.json:outputs.hoop_fem` | 1.12457e+08 | 1.12457e+08 | 0 | match |
+| `run.ur_lame` | `pressure_vessel_asme/results/result.json:outputs.ur_lame` | 0.000388247 | 0.000388247 | 0 | match |
+| `run.ur_fem` | `pressure_vessel_asme/results/result.json:outputs.ur_fem` | 0.000388247 | 0.000388247 | 0 | match |
+| `run.hoop_asme` | `pressure_vessel_asme/results/result.json:outputs.hoop_asme` | 1.12988e+08 | 1.12988e+08 | 0 | match |
+| `run.mass` | `pressure_vessel_asme/results/result.json:outputs.mass` | 1976.5 | 1976.5 | 0 | match |
+| `run.fem_reaction_err` | `pressure_vessel_asme/results/result.json:outputs.fem_reaction_err` | 2.8318e-12 | 2.8318e-12 | 0 | match |
+| `run.t_over_r` | `pressure_vessel_asme/results/result.json:outputs.t_over_r` | 0.00889774 | 0.00889774 | 0 | match |
+| `run.p_over_se` | `pressure_vessel_asme/results/result.json:outputs.p_over_se` | 0.00852515 | 0.00852515 | 0 | match |
+
+### `industrial_presets/pump_npsh_cavitation` (full)
+
+done in 5 s (commit 3bd6a5ad, 2026-10-24); 15 of 15 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.q` | `pump_npsh_cavitation/results/result.json:outputs.q` | 103.727 | 103.727 | 1.37002e-16 | match |
+| `run.head` | `pump_npsh_cavitation/results/result.json:outputs.head` | 43.1127 | 43.1127 | 0 | match |
+| `run.npsha` | `pump_npsh_cavitation/results/result.json:outputs.npsha` | 4.18474 | 4.18474 | 2.12242e-16 | match |
+| `run.npsh3` | `pump_npsh_cavitation/results/result.json:outputs.npsh3` | 3.68335 | 3.68335 | 4.82267e-16 | match |
+| `run.ratio` | `pump_npsh_cavitation/results/result.json:outputs.ratio` | 1.13612 | 1.13612 | 7.81761e-16 | match |
+| `run.margin` | `pump_npsh_cavitation/results/result.json:outputs.margin` | 0.501395 | 0.501395 | 5.31425e-15 | match |
+| `run.v_suction` | `pump_npsh_cavitation/results/result.json:outputs.v_suction` | 1.54489 | 1.54489 | 2.87458e-16 | match |
+| `run.max_lift` | `pump_npsh_cavitation/results/result.json:outputs.max_lift` | 3.39639 | 3.39639 | 1.04603e-15 | match |
+| `run.h_suction_loss` | `pump_npsh_cavitation/results/result.json:outputs.h_suction_loss` | 0.522767 | 0.522767 | 6.37123e-16 | match |
+| `run.h_discharge_loss` | `pump_npsh_cavitation/results/result.json:outputs.h_discharge_loss` | 12.5899 | 12.5899 | 2.82187e-16 | match |
+| `run.p_atm` | `pump_npsh_cavitation/results/result.json:outputs.p_atm` | 92076.4 | 92076.4 | 0 | match |
+| `run.p_vapour` | `pump_npsh_cavitation/results/result.json:outputs.p_vapour` | 7384.43 | 7384.43 | 0 | match |
+| `run.rho` | `pump_npsh_cavitation/results/result.json:outputs.rho` | 991.808 | 991.808 | 0 | match |
+| `run.re_suction` | `pump_npsh_cavitation/results/result.json:outputs.re_suction` | 358932 | 358932 | 1.62169e-16 | match |
+| `run.system_balance` | `pump_npsh_cavitation/results/result.json:outputs.system_balance` | 3.55271e-15 | 7.10543e-15 | 0.5 | match |
+
+### `industrial_presets/shell_tube_cooler` (full)
+
+done in 4 s (commit 3bd6a5ad, 2026-10-24); 18 of 18 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.q` | `shell_tube_cooler/results/result.json:outputs.q` | 652398 | 652398 | 0 | match |
+| `run.t_hot_out` | `shell_tube_cooler/results/result.json:outputs.t_hot_out` | 37.1943 | 37.1943 | 0 | match |
+| `run.t_cold_out` | `shell_tube_cooler/results/result.json:outputs.t_cold_out` | 35.246 | 35.246 | 0 | match |
+| `run.U` | `shell_tube_cooler/results/result.json:outputs.U` | 1405.15 | 1405.15 | 0 | match |
+| `run.area` | `shell_tube_cooler/results/result.json:outputs.area` | 58.3751 | 58.3751 | 0 | match |
+| `run.ntu` | `shell_tube_cooler/results/result.json:outputs.ntu` | 0.981402 | 0.981402 | 0 | match |
+| `run.cr` | `shell_tube_cooler/results/result.json:outputs.cr` | 0.800191 | 0.800191 | 0 | match |
+| `run.effectiveness` | `shell_tube_cooler/results/result.json:outputs.effectiveness` | 0.487854 | 0.487854 | 0 | match |
+| `run.F` | `shell_tube_cooler/results/result.json:outputs.F` | 0.888519 | 0.888519 | 0 | match |
+| `run.lmtd` | `shell_tube_cooler/results/result.json:outputs.lmtd` | 8.95152 | 8.95152 | 0 | match |
+| `run.q_lmtd` | `shell_tube_cooler/results/result.json:outputs.q_lmtd` | 652398 | 652398 | 0 | match |
+| `run.h_shell` | `shell_tube_cooler/results/result.json:outputs.h_shell` | 5258.19 | 5258.19 | 0 | match |
+| `run.h_tube` | `shell_tube_cooler/results/result.json:outputs.h_tube` | 6560.11 | 6560.11 | 0 | match |
+| `run.h_tube_dittus_boelter` | `shell_tube_cooler/results/result.json:outputs.h_tube_dittus_boelter` | 6002.81 | 6002.81 | 0 | match |
+| `run.v_tube` | `shell_tube_cooler/results/result.json:outputs.v_tube` | 1.28963 | 1.28963 | 0 | match |
+| `run.dp_tube` | `shell_tube_cooler/results/result.json:outputs.dp_tube` | 16649.3 | 16649.3 | 0 | match |
+| `run.re_tube` | `shell_tube_cooler/results/result.json:outputs.re_tube` | 26281.1 | 26281.1 | 0 | match |
+| `run.re_shell` | `shell_tube_cooler/results/result.json:outputs.re_shell` | 14875.8 | 14875.8 | 0 | match |
+
+### `industrial_presets/spm_servo_motor` (full)
+
+done in 352 s (commit 3bd6a5ad, 2026-10-24); 15 of 15 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.torque` | `spm_servo_motor/results/result.json:outputs.torque` | 7.04539 | 7.04539 | 0 | match |
+| `run.ripple` | `spm_servo_motor/results/result.json:outputs.ripple` | 0.156529 | 0.156529 | 0 | match |
+| `run.cogging_pp` | `spm_servo_motor/results/result.json:outputs.cogging_pp` | 0.707427 | 0.707427 | 0 | match |
+| `run.kt` | `spm_servo_motor/results/result.json:outputs.kt` | 0.525776 | 0.525776 | 0 | match |
+| `run.ke` | `spm_servo_motor/results/result.json:outputs.ke` | 0.326706 | 0.326706 | 0 | match |
+| `run.emf_peak` | `spm_servo_motor/results/result.json:outputs.emf_peak` | 102.638 | 102.638 | 0 | match |
+| `run.p_copper` | `spm_servo_motor/results/result.json:outputs.p_copper` | 62.8345 | 62.8345 | 0 | match |
+| `run.j_rms` | `spm_servo_motor/results/result.json:outputs.j_rms` | 5.95765 | 5.95765 | 0 | match |
+| `run.t_mst` | `spm_servo_motor/results/result.json:outputs.t_mst` | 7.52697 | 7.52697 | 0 | match |
+| `run.t_coe` | `spm_servo_motor/results/result.json:outputs.t_coe` | 7.52581 | 7.52581 | 0 | match |
+| `run.t_power` | `spm_servo_motor/results/result.json:outputs.t_power` | 7.63261 | 7.63261 | 0 | match |
+| `run.t_minus_cog` | `spm_servo_motor/results/result.json:outputs.t_minus_cog` | 7.47306 | 7.47306 | 0 | match |
+| `run.kt_from_ke` | `spm_servo_motor/results/result.json:outputs.kt_from_ke` | 0.541046 | 0.541046 | 0 | match |
+| `run.ke1` | `spm_servo_motor/results/result.json:outputs.ke1` | 0.360697 | 0.360697 | 0 | match |
+| `run.cogging_mean_over_pp` | `spm_servo_motor/results/result.json:outputs.cogging_mean_over_pp` | 0.00280485 | 0.00280485 | 0 | match |
+
+### `industrial_presets/steam_pipe_insulation` (full)
+
+done in 80 s (commit 3bd6a5ad, 2026-10-24); 11 of 11 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.q` | `steam_pipe_insulation/results/result.json:outputs.q` | 87.1564 | 87.1564 | 0 | match |
+| `run.t_surface` | `steam_pipe_insulation/results/result.json:outputs.t_surface` | 17.0488 | 17.0488 | 0 | match |
+| `run.h_surface` | `steam_pipe_insulation/results/result.json:outputs.h_surface` | 13.6518 | 13.6518 | 0 | match |
+| `run.re` | `steam_pipe_insulation/results/result.json:outputs.re` | 58820.6 | 58820.6 | 0 | match |
+| `run.q_bare` | `steam_pipe_insulation/results/result.json:outputs.q_bare` | 2402.49 | 2402.49 | 0 | match |
+| `run.saving` | `steam_pipe_insulation/results/result.json:outputs.saving` | 0.963723 | 0.963723 | 0 | match |
+| `run.annual_cost` | `steam_pipe_insulation/results/result.json:outputs.annual_cost` | 50.7876 | 50.7876 | 0 | match |
+| `run.t_economic` | `steam_pipe_insulation/results/result.json:outputs.t_economic` | 0.1 | 0.1 | 0 | match |
+| `run.t_safe` | `steam_pipe_insulation/results/result.json:outputs.t_safe` | 0.02 | 0.02 | 0 | match |
+| `run.q_fd` | `steam_pipe_insulation/results/result.json:outputs.q_fd` | 87.1564 | 87.1564 | 0 | match |
+| `run.fd_balance` | `steam_pipe_insulation/results/result.json:outputs.fd_balance` | 3.47134e-13 | 3.47134e-13 | 0 | match |
+
+### `industrial_presets/steel_footbridge_pedestrian` (full)
+
+done in 4 s (commit 3bd6a5ad, 2026-10-24); 17 of 17 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.f1` | `steel_footbridge_pedestrian/results/result.json:outputs.f1` | 1.52285 | 1.52285 | 0 | match |
+| `run.acceleration` | `steel_footbridge_pedestrian/results/result.json:outputs.acceleration` | 0.189546 | 0.189546 | 0 | match |
+| `run.deflection` | `steel_footbridge_pedestrian/results/result.json:outputs.deflection` | 0.133067 | 0.133067 | 0 | match |
+| `run.deflection_limit` | `steel_footbridge_pedestrian/results/result.json:outputs.deflection_limit` | 0.0833333 | 0.0833333 | 0 | match |
+| `run.util_bending` | `steel_footbridge_pedestrian/results/result.json:outputs.util_bending` | 0.966691 | 0.966691 | 0 | match |
+| `run.util_ltb` | `steel_footbridge_pedestrian/results/result.json:outputs.util_ltb` | 14.8042 | 14.8042 | 0 | match |
+| `run.M_cr` | `steel_footbridge_pedestrian/results/result.json:outputs.M_cr` | 133012 | 133012 | 0 | match |
+| `run.M_Ed` | `steel_footbridge_pedestrian/results/result.json:outputs.M_Ed` | 1.61905e+06 | 1.61905e+06 | 0 | match |
+| `run.steel_mass` | `steel_footbridge_pedestrian/results/result.json:outputs.steel_mass` | 8289.6 | 8289.6 | 0 | match |
+| `run.mass_per_m` | `steel_footbridge_pedestrian/results/result.json:outputs.mass_per_m` | 1041.11 | 1041.11 | 0 | match |
+| `run.modal_mass` | `steel_footbridge_pedestrian/results/result.json:outputs.modal_mass` | 15616.6 | 15616.6 | 0 | match |
+| `run.EI_total` | `steel_footbridge_pedestrian/results/result.json:outputs.EI_total` | 7.92602e+08 | 7.92602e+08 | 0 | match |
+| `run.qk` | `steel_footbridge_pedestrian/results/result.json:outputs.qk` | 5000 | 5000 | 0 | match |
+| `run.f1_fe` | `steel_footbridge_pedestrian/results/result.json:outputs.f1_fe` | 1.52285 | 1.52285 | 0 | match |
+| `run.f2_fe` | `steel_footbridge_pedestrian/results/result.json:outputs.f2_fe` | 6.0914 | 6.0914 | 0 | match |
+| `run.deflection_fe` | `steel_footbridge_pedestrian/results/result.json:outputs.deflection_fe` | 0.133067 | 0.133067 | 0 | match |
+| `run.fe_equilibrium` | `steel_footbridge_pedestrian/results/result.json:outputs.fe_equilibrium` | 1.8836e-12 | 1.8836e-12 | 0 | match |
+
+### `industrial_presets/water_distribution_network` (full)
+
+done in 8 s (commit 3bd6a5ad, 2026-10-24); 11 of 11 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.min_pressure` | `water_distribution_network/results/result.json:outputs.min_pressure` | 30.4447 | 30.4447 | 0 | match |
+| `run.supply` | `water_distribution_network/results/result.json:outputs.supply` | 0.311111 | 0.311111 | 0 | match |
+| `run.max_velocity` | `water_distribution_network/results/result.json:outputs.max_velocity` | 1.89502 | 1.89502 | 0 | match |
+| `run.max_gradient` | `water_distribution_network/results/result.json:outputs.max_gradient` | 14.6461 | 14.6461 | 0 | match |
+| `run.cost` | `water_distribution_network/results/result.json:outputs.cost` | 419000 | 419000 | 0 | match |
+| `run.p_node3` | `water_distribution_network/results/result.json:outputs.p_node3` | 30.4622 | 30.4622 | 0 | match |
+| `run.p_node6` | `water_distribution_network/results/result.json:outputs.p_node6` | 30.4447 | 30.4447 | 0 | match |
+| `run.iterations` | `water_distribution_network/results/result.json:outputs.iterations` | 11 | 11 | 0 | match |
+| `run.continuity_residual` | `water_distribution_network/results/result.json:outputs.continuity_residual` | 2.08167e-17 | 2.08167e-17 | 0 | match |
+| `run.energy_residual` | `water_distribution_network/results/result.json:outputs.energy_residual` | 2.84217e-14 | 2.84217e-14 | 0 | match |
+| `run.total_demand` | `water_distribution_network/results/result.json:outputs.total_demand` | 0.311111 | 0.311111 | 0 | match |
+
+### `industrial_presets/water_hammer_valve_closure` (full)
+
+done in 4 s (commit 3bd6a5ad, 2026-10-24); 18 of 18 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run.inner_diameter` | `water_hammer_valve_closure/results/result.json:outputs.inner_diameter` | 0.48894 | 0.48894 | 0 | match |
+| `run.wave_speed` | `water_hammer_valve_closure/results/result.json:outputs.wave_speed` | 1211.84 | 1211.84 | 0 | match |
+| `run.period` | `water_hammer_valve_closure/results/result.json:outputs.period` | 1.98046 | 1.98046 | 0 | match |
+| `run.reynolds` | `water_hammer_valve_closure/results/result.json:outputs.reynolds` | 730629 | 730629 | 0 | match |
+| `run.friction_factor` | `water_hammer_valve_closure/results/result.json:outputs.friction_factor` | 0.0137365 | 0.0137365 | 0 | match |
+| `run.max_head` | `water_hammer_valve_closure/results/result.json:outputs.max_head` | 82.2931 | 82.2931 | 0 | match |
+| `run.max_head_x` | `water_hammer_valve_closure/results/result.json:outputs.max_head_x` | 1200 | 1200 | 0 | match |
+| `run.max_head_t` | `water_hammer_valve_closure/results/result.json:outputs.max_head_t` | 9.97655 | 9.97655 | 0 | match |
+| `run.surge_head` | `water_hammer_valve_closure/results/result.json:outputs.surge_head` | 26.1607 | 26.1607 | 0 | match |
+| `run.min_head` | `water_hammer_valve_closure/results/result.json:outputs.min_head` | 37.7732 | 37.7732 | 0 | match |
+| `run.drawdown` | `water_hammer_valve_closure/results/result.json:outputs.drawdown` | 18.3593 | 18.3593 | 0 | match |
+| `run.p_max` | `water_hammer_valve_closure/results/result.json:outputs.p_max` | 805567 | 805567 | 0 | match |
+| `run.p_min_abs` | `water_hammer_valve_closure/results/result.json:outputs.p_min_abs` | 471087 | 471087 | 0 | match |
+| `run.joukowsky_head` | `water_hammer_valve_closure/results/result.json:outputs.joukowsky_head` | 185.36 | 185.36 | 0 | match |
+| `run.michaud_head` | `water_hammer_valve_closure/results/result.json:outputs.michaud_head` | 36.7098 | 36.7098 | 0 | match |
+| `run.h_static_valve` | `water_hammer_valve_closure/results/result.json:outputs.h_static_valve` | 56.1325 | 56.1325 | 0 | match |
+| `run.h_allow` | `water_hammer_valve_closure/results/result.json:outputs.h_allow` | 163.449 | 163.449 | 0 | match |
+| `run.t_close_safe` | `water_hammer_valve_closure/results/result.json:outputs.t_close_safe` | 3.37008 | 3.37008 | 0 | match |
+
 ### `inspection/01_eddy_current_pinn` (full)
 
 done in 444 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
@@ -1025,6 +1322,171 @@ done in 11 s (commit 3f2296e8, 2026-10-21); 0 of 0 numbers match.
 ### `rigid_body/newton_quickstart` (full)
 
 done in 113 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
+### `science/ampere_law` (full)
+
+done in 6 s (commit 3bd6a5ad, 2026-10-24); 7 of 7 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[circle around the conductor / mu0]` | `electromagnetism/ampere_law/2D/result.json:comparisons.0.rel_error` | 7.6119e-05 | 7.6119e-05 | 0 | match |
+| `run_2d.rel_error[square around the conductor / mu0]` | `electromagnetism/ampere_law/2D/result.json:comparisons.1.rel_error` | 8.14609e-05 | 8.14609e-05 | 0 | match |
+| `run_2d.rel_error[circle enclosing nothing / mu0]` | `electromagnetism/ampere_law/2D/result.json:comparisons.2.rel_error` | 3.80556e-05 | 3.80556e-05 | 0 | match |
+| `run_3d.rel_error[circle around one side]` | `electromagnetism/ampere_law/3D/result.json:comparisons.0.rel_error` | 0 | 0 | 0 | match |
+| `run_3d.rel_error[tilted ellipse, linking once]` | `electromagnetism/ampere_law/3D/result.json:comparisons.1.rel_error` | 1.77636e-16 | 1.77636e-16 | 0 | match |
+| `run_3d.rel_error[path winding twice]` | `electromagnetism/ampere_law/3D/result.json:comparisons.2.rel_error` | 0 | 0 | 0 | match |
+| `run_3d.rel_error[path not linked (a circle inside the loop, above it)]` | `electromagnetism/ampere_law/3D/result.json:comparisons.3.rel_error` | 7.94093e-18 | 7.94093e-18 | 0 | match |
+
+### `science/bench_mu0_solenoid` (full)
+
+done in 4 s (commit 3bd6a5ad, 2026-10-24); 1 of 1 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_3d.rel_error[mu0 (bench) vs CODATA 2022]` | `electromagnetism/bench_mu0_solenoid/3D/result.json:comparisons.0.rel_error` | 0.00393771 | 0.00393771 | 0 | match |
+
+### `science/bench_rc_discharge` (full)
+
+done in 4 s (commit 3bd6a5ad, 2026-10-24); 2 of 2 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_0d.rel_error[C (bench) vs the capacitor's true value]` | `electromagnetism/bench_rc_discharge/0D/result.json:comparisons.0.rel_error` | 0.00157823 | 0.00157823 | 0 | match |
+| `run_0d.rel_error[C vs the nominal label (470 nF +- 10 %)]` | `electromagnetism/bench_rc_discharge/0D/result.json:comparisons.1.rel_error` | 0.0843176 | 0.0843176 | 0 | match |
+
+### `science/biot_savart` (full)
+
+done in 12 s (commit 3bd6a5ad, 2026-10-24); 6 of 6 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_3d.rel_error[finite wire B (midpoint rule)]` | `electromagnetism/biot_savart/3D/result.json:comparisons.0.rel_error` | 4.37806e-08 | 4.37806e-08 | 0 | match |
+| `run_3d.rel_error[loop B, 5 points on and off axis (worst)]` | `electromagnetism/biot_savart/3D/result.json:comparisons.1.rel_error` | 0.000171342 | 0.000171342 | 0 | match |
+| `run_3d.rel_error[loop centre B]` | `electromagnetism/biot_savart/3D/result.json:comparisons.2.rel_error` | 5.02024e-05 | 5.02024e-05 | 0 | match |
+| `run_3d.rel_error[solenoid centre B (helix)]` | `electromagnetism/biot_savart/3D/result.json:comparisons.3.rel_error` | 8.39345e-05 | 8.39345e-05 | 0 | match |
+| `run_3d.rel_error[solenoid end B (helix)]` | `electromagnetism/biot_savart/3D/result.json:comparisons.4.rel_error` | 2.19497e-05 | 2.19497e-05 | 0 | match |
+| `run_3d.rel_error[long-solenoid limit mu0 n I]` | `electromagnetism/biot_savart/3D/result.json:comparisons.5.rel_error` | 0.0298575 | 0.0298575 | 0 | match |
+
+### `science/cavity_resonance` (full)
+
+done in 19 s (commit 3bd6a5ad, 2026-10-24); 9 of 9 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[TM11 resonance]` | `electromagnetism/cavity_resonance/2D/result.json:comparisons.0.rel_error` | 1.35e-05 | 1.35e-05 | 0 | match |
+| `run_2d.rel_error[TM21 resonance]` | `electromagnetism/cavity_resonance/2D/result.json:comparisons.1.rel_error` | 2.37772e-05 | 2.37772e-05 | 0 | match |
+| `run_2d.rel_error[TM12 resonance]` | `electromagnetism/cavity_resonance/2D/result.json:comparisons.2.rel_error` | 0.000186001 | 0.000186001 | 0 | match |
+| `run_2d.rel_error[TM31 resonance]` | `electromagnetism/cavity_resonance/2D/result.json:comparisons.3.rel_error` | 0.000146981 | 0.000146981 | 0 | match |
+| `run_2d.rel_error[TM22 resonance]` | `electromagnetism/cavity_resonance/2D/result.json:comparisons.4.rel_error` | 5.35518e-05 | 5.35518e-05 | 0 | match |
+| `run_3d.rel_error[(110) resonance]` | `electromagnetism/cavity_resonance/3D/result.json:comparisons.0.rel_error` | 0.000298549 | 0.000298549 | 0 | match |
+| `run_3d.rel_error[(101) resonance]` | `electromagnetism/cavity_resonance/3D/result.json:comparisons.1.rel_error` | 0.000701555 | 0.000701555 | 0 | match |
+| `run_3d.rel_error[(011) resonance]` | `electromagnetism/cavity_resonance/3D/result.json:comparisons.2.rel_error` | 0.000550699 | 0.000550699 | 0 | match |
+| `run_3d.rel_error[(111) resonance]` | `electromagnetism/cavity_resonance/3D/result.json:comparisons.3.rel_error` | 0.000269076 | 0.000269076 | 0 | match |
+
+### `science/circuits_rc_rl_rlc` (full)
+
+done in 5 s (commit 3bd6a5ad, 2026-10-24); 6 of 6 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_0d.rel_error[RC time constant (fit of ln(1 - V/V0))]` | `electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.0.rel_error` | 1.5176e-11 | 1.5176e-11 | 0 | match |
+| `run_0d.rel_error[RL time constant]` | `electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.1.rel_error` | 1.86469e-11 | 1.86469e-11 | 0 | match |
+| `run_0d.rel_error[RL final current]` | `electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.2.rel_error` | 2.28723e-12 | 2.28723e-12 | 0 | match |
+| `run_0d.rel_error[RLC damped angular frequency (zero crossings)]` | `electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.3.rel_error` | 1.96151e-11 | 1.96151e-11 | 0 | match |
+| `run_0d.rel_error[RLC decay rate (log decrement of extrema)]` | `electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.4.rel_error` | 7.95714e-11 | 7.95714e-11 | 0 | match |
+| `run_0d.rel_error[energy dissipated in R (free decay)]` | `electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.5.rel_error` | 5.85343e-11 | 5.85343e-11 | 0 | match |
+
+### `science/coulomb_superposition` (full)
+
+done in 5 s (commit 3bd6a5ad, 2026-10-24); 5 of 5 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[line-pair field E_x at (0, d/2)]` | `electromagnetism/coulomb_superposition/2D/result.json:comparisons.0.rel_error` | 3.80858e-10 | 3.80858e-10 | 0 | match |
+| `run_2d.rel_error[finite line -> infinite line (s = 0.01 m, L = 1 m)]` | `electromagnetism/coulomb_superposition/2D/result.json:comparisons.1.rel_error` | 4.99963e-05 | 4.99963e-05 | 0 | match |
+| `run_3d.rel_error[ring potential at s = 0.6 R, z = 0.3 R]` | `electromagnetism/coulomb_superposition/3D/result.json:comparisons.0.rel_error` | 6.20702e-16 | 6.20702e-16 | 0 | match |
+| `run_3d.rel_error[axial field E_z(z = 0.75 R)]` | `electromagnetism/coulomb_superposition/3D/result.json:comparisons.1.rel_error` | 6.58821e-16 | 6.58821e-16 | 0 | match |
+| `run_3d.rel_error[far field -> point charge (r = 40 R)]` | `electromagnetism/coulomb_superposition/3D/result.json:comparisons.2.rel_error` | 0.000936768 | 0.000936768 | 0 | match |
+
+### `science/dipole_radiation` (full)
+
+done in 19 s (commit 3bd6a5ad, 2026-10-24); 6 of 6 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_3d.rel_error[radiated power through the sphere kr = 0.3]` | `electromagnetism/dipole_radiation/3D/result.json:comparisons.0.rel_error` | 3.95196e-16 | 3.95196e-16 | 0 | match |
+| `run_3d.rel_error[radiated power through the sphere kr = 1]` | `electromagnetism/dipole_radiation/3D/result.json:comparisons.1.rel_error` | 9.8799e-16 | 9.8799e-16 | 0 | match |
+| `run_3d.rel_error[radiated power through the sphere kr = 3]` | `electromagnetism/dipole_radiation/3D/result.json:comparisons.2.rel_error` | 9.8799e-16 | 9.8799e-16 | 0 | match |
+| `run_3d.rel_error[radiated power through the sphere kr = 30]` | `electromagnetism/dipole_radiation/3D/result.json:comparisons.3.rel_error` | 5.92794e-16 | 5.92794e-16 | 0 | match |
+| `run_3d.rel_error[directivity]` | `electromagnetism/dipole_radiation/3D/result.json:comparisons.4.rel_error` | 4.44089e-16 | 4.44089e-16 | 0 | match |
+| `run_3d_plus_t.rel_error[energy through the sphere r = lambda in one period]` | `electromagnetism/dipole_radiation/3D_plus_t/result.json:comparisons.0.rel_error` | 9.20137e-16 | 9.20137e-16 | 0 | match |
+
+### `science/faraday_induction` (full)
+
+done in 218 s (commit 3bd6a5ad, 2026-10-24); 3 of 3 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_3d_plus_t.rel_error[peak EMF]` | `electromagnetism/faraday_induction/3D_plus_t/result.json:comparisons.0.rel_error` | 0.00398186 | 0.00398186 | 0 | match |
+| `run_3d_plus_t.rel_error[flux at the centre crossing]` | `electromagnetism/faraday_induction/3D_plus_t/result.json:comparisons.1.rel_error` | 0.00236483 | 0.00236483 | 0 | match |
+| `run_3d_plus_t.rel_error[time of the EMF sign change]` | `electromagnetism/faraday_induction/3D_plus_t/result.json:comparisons.2.rel_error` | 3.82404e-05 | 3.82404e-05 | 0 | match |
+
+### `science/fresnel_snell` (full)
+
+done in 76 s (commit 3bd6a5ad, 2026-10-24); 12 of 12 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[|r_s| at 0 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.0.rel_error` | 0.00934247 | 0.00934247 | 0 | match |
+| `run_2d.rel_error[|r_p| at 0 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.1.rel_error` | 0.00934053 | 0.00934053 | 0 | match |
+| `run_2d.rel_error[|r_s| at 30 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.2.rel_error` | 0.00770283 | 0.00770283 | 0 | match |
+| `run_2d.rel_error[|r_p| at 30 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.3.rel_error` | 0.0117496 | 0.0117496 | 0 | match |
+| `run_2d.rel_error[|r_s| at 45 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.4.rel_error` | 0.00574521 | 0.00574521 | 0 | match |
+| `run_2d.rel_error[|r_p| at 45 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.5.rel_error` | 0.0209357 | 0.0209357 | 0 | match |
+| `run_2d.rel_error[|r_s| at 60 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.6.rel_error` | 0.00330093 | 0.00330093 | 0 | match |
+| `run_2d.rel_error[|r_p| at 60 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.7.rel_error` | 0.0533523 | 0.0533523 | 0 | match |
+| `run_2d.rel_error[|r_p| at Brewster's angle 56.31 deg]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.8.rel_error` | 0.00212959 | 0.00212959 | 0 | match |
+| `run_2d.rel_error[transmitted angle for 30 deg incidence]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.9.rel_error` | 0.0014125 | 0.0014125 | 0 | match |
+| `run_2d.rel_error[transmitted angle for 45 deg incidence]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.10.rel_error` | 0.00110505 | 0.00110505 | 0 | match |
+| `run_2d.rel_error[transmitted angle for 60 deg incidence]` | `electromagnetism/fresnel_snell/2D/result.json:comparisons.11.rel_error` | 0.000900305 | 0.000900305 | 0 | match |
+
+### `science/gauss_law` (full)
+
+done in 8 s (commit 3bd6a5ad, 2026-10-24); 2 of 2 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[flux per unit length x eps0]` | `electromagnetism/gauss_law/2D/result.json:comparisons.0.rel_error` | 2.06795e-16 | 2.06795e-16 | 0 | match |
+| `run_3d.rel_error[flux through the cube x eps0]` | `electromagnetism/gauss_law/3D/result.json:comparisons.0.rel_error` | 0 | 0 | 0 | match |
+
+### `science/hall_effect` (full)
+
+done in 7 s (commit 3bd6a5ad, 2026-10-24); 0 of 1 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_2d.rel_error[Hall coefficient R_H = E_y / (J_x B)]` | `electromagnetism/hall_effect/2D/result.json:comparisons.0.rel_error` | 0.000631143 | 0.000631159 | 2.56597e-05 | differs |
+
+### `science/lossy_plane_wave` (full)
+
+done in 8 s (commit 3bd6a5ad, 2026-10-24); 2 of 2 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_1d.rel_error[attenuation constant alpha]` | `electromagnetism/lossy_plane_wave/1D/result.json:comparisons.0.rel_error` | 0.00248463 | 0.00248463 | 0 | match |
+| `run_1d.rel_error[phase constant beta]` | `electromagnetism/lossy_plane_wave/1D/result.json:comparisons.1.rel_error` | 0.000629498 | 0.000629498 | 0 | match |
+
+### `science/mie_scattering` (full)
+
+done in 7 s (commit 3bd6a5ad, 2026-10-24); 5 of 5 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `run_3d.rel_error[Q_sca, BHMIE sample]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.0.rel_error` | 1.43894e-06 | 1.43894e-06 | 0 | match |
+| `run_3d.rel_error[Q_back, BHMIE sample]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.1.rel_error` | 2.2208e-07 | 2.2208e-07 | 0 | match |
+| `run_3d.rel_error[Q_sca at x = 0.02 (Rayleigh)]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.2.rel_error` | 2.94454e-05 | 2.94454e-05 | 0 | match |
+| `run_3d.rel_error[optical theorem: 4 Re S(0) / x^2 (absorbing sphere)]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.3.rel_error` | 2.2352e-16 | 2.2352e-16 | 0 | match |
+| `run_3d.rel_error[Q_ext at x = 3000 (absorbing)]` | `electromagnetism/mie_scattering/3D/result.json:comparisons.4.rel_error` | 0.00477543 | 0.00477543 | 0 | match |
 
 ### `security/02_physics_residual_fdi` (full)
 

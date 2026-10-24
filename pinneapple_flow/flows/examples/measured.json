@@ -135,6 +135,235 @@
    "status": "done"
   }
  },
+ "autolab/self_optimizing_engineer": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "flat.mass_g",
+     "outcome": "match",
+     "ref": "_out/self_optimizing_engineer/summary.json:mass_g",
+     "reference": 29.62702070224298,
+     "rel_diff": 0.0,
+     "value": 29.62702070224298
+    },
+    {
+     "flow": "flat.fan_power_w",
+     "outcome": "match",
+     "ref": "_out/self_optimizing_engineer/summary.json:fan_power_w",
+     "reference": 0.01921130728955254,
+     "rel_diff": 0.0,
+     "value": 0.01921130728955254
+    },
+    {
+     "flow": "flat.tj_pessimistic_c.SoC",
+     "outcome": "match",
+     "ref": "_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.SoC",
+     "reference": 88.52504297676208,
+     "rel_diff": 6.194821996342889e-13,
+     "value": 88.52504297681692
+    },
+    {
+     "flow": "flat.tj_pessimistic_c.VRM1",
+     "outcome": "match",
+     "ref": "_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.VRM1",
+     "reference": 101.61341076923854,
+     "rel_diff": 7.697602594560511e-12,
+     "value": 101.61341077002072
+    },
+    {
+     "flow": "flat.tj_pessimistic_c.VRM2",
+     "outcome": "match",
+     "ref": "_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.VRM2",
+     "reference": 101.61341077239766,
+     "rel_diff": 2.3392231251912946e-11,
+     "value": 101.61341077002069
+    },
+    {
+     "flow": "flat.tj_pessimistic_c.DDR",
+     "outcome": "match",
+     "ref": "_out/self_optimizing_engineer/summary.json:tj_fine_pessimistic_c.DDR",
+     "reference": 83.56413338143176,
+     "rel_diff": 1.3578211583927134e-11,
+     "value": 83.56413338256641
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n2/example.autolab.self_optimizing_engineer.experiment.json, Lab item manifest/flow/example.autolab.self_optimizing_engineer",
+   "matched": 6,
+   "nodes": {
+    "compare": "done",
+    "flat": "done",
+    "lab": "done"
+   },
+   "seconds": 462.0,
+   "status": "done"
+  }
+ },
+ "autolab_aero/autolab_aero": {
+  "quick": {
+   "commit": "3bd6a5ad",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n2/example.autolab_aero.autolab_aero-quick.experiment.json, Lab item manifest/flow/example.autolab_aero.autolab_aero-quick",
+   "matched": 0,
+   "nodes": {
+    "compare": "done",
+    "lab": "done"
+   },
+   "seconds": 9.1,
+   "status": "done"
+  }
+ },
+ "autolab_digital_twin/twin_knows_when_wrong": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "flat.accuracy",
+     "outcome": "match",
+     "ref": "_out/summary.json:benchmark.accuracy",
+     "reference": 0.9625,
+     "rel_diff": 0.0,
+     "value": 0.9625
+    },
+    {
+     "flow": "flat.cases_with_false_alarm",
+     "outcome": "match",
+     "ref": "_out/summary.json:benchmark.cases_with_false_alarm",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n3/example.autolab_digital_twin.twin_knows_when_wrong.experiment.json, Lab item manifest/flow/example.autolab_digital_twin.twin_knows_when_wrong",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "flat": "done",
+    "lab": "done"
+   },
+   "seconds": 254.9,
+   "status": "done"
+  }
+ },
+ "autolab_rover/rover_learns_planet": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "rover.learned_log10_k_phi_error",
+     "outcome": "match",
+     "ref": "results/summary.json:recovery.log10_k_phi.error",
+     "reference": 0.072262,
+     "rel_diff": 0.0,
+     "value": 0.072262
+    },
+    {
+     "flow": "rover.learned_n0_error",
+     "outcome": "match",
+     "ref": "results/summary.json:recovery.n0.error",
+     "reference": 0.057183,
+     "rel_diff": 0.0,
+     "value": 0.057183
+    },
+    {
+     "flow": "rover.learned_n1_error",
+     "outcome": "match",
+     "ref": "results/summary.json:recovery.n1.error",
+     "reference": 0.014512,
+     "rel_diff": 0.0,
+     "value": 0.014512
+    },
+    {
+     "flow": "rover.learned_phi_deg_error",
+     "outcome": "match",
+     "ref": "results/summary.json:recovery.phi_deg.error",
+     "reference": -1.313871,
+     "rel_diff": 0.0,
+     "value": -1.313871
+    },
+    {
+     "flow": "rover.route_A_distance_m",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=A].measured_multibody.distance_m",
+     "reference": 12.925884,
+     "rel_diff": 0.0,
+     "value": 12.925884
+    },
+    {
+     "flow": "rover.route_A_energy_J",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=A].measured_multibody.energy_J",
+     "reference": 2957.959341,
+     "rel_diff": 0.0,
+     "value": 2957.959341
+    },
+    {
+     "flow": "rover.route_A_max_slip_2s_front",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=A].measured_multibody.max_slip_2s_front",
+     "reference": 0.420399,
+     "rel_diff": 0.0,
+     "value": 0.420399
+    },
+    {
+     "flow": "rover.route_A_max_sinkage_mm",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=A].measured_multibody.max_sinkage_mm",
+     "reference": 319.367895,
+     "rel_diff": 0.0,
+     "value": 319.367895
+    },
+    {
+     "flow": "rover.route_B_distance_m",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=B].measured_multibody.distance_m",
+     "reference": 28.559919,
+     "rel_diff": 0.0,
+     "value": 28.559919
+    },
+    {
+     "flow": "rover.route_B_energy_J",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=B].measured_multibody.energy_J",
+     "reference": 2869.080658,
+     "rel_diff": 0.0,
+     "value": 2869.080658
+    },
+    {
+     "flow": "rover.route_B_max_slip_2s_front",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=B].measured_multibody.max_slip_2s_front",
+     "reference": 0.214524,
+     "rel_diff": 0.0,
+     "value": 0.214524
+    },
+    {
+     "flow": "rover.route_B_max_sinkage_mm",
+     "outcome": "match",
+     "ref": "results/summary.json:routes[name=B].measured_multibody.max_sinkage_mm",
+     "reference": 30.733466,
+     "rel_diff": 0.0,
+     "value": 30.733466
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n2/example.autolab_rover.rover_learns_planet.experiment.json, Lab item manifest/flow/example.autolab_rover.rover_learns_planet",
+   "matched": 12,
+   "nodes": {
+    "compare": "done",
+    "rover": "done"
+   },
+   "seconds": 627.7,
+   "status": "done"
+  }
+ },
  "benchmark/01_equal_budget": {
   "quick": {
    "commit": "aef34625",
@@ -4044,6 +4273,1624 @@
    "status": "done"
   }
  },
+ "industrial_presets/airfoil_section_re4e6": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.Cl",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl",
+     "reference": 0.6615020538712943,
+     "rel_diff": 0.0,
+     "value": 0.6615020538712943
+    },
+    {
+     "flow": "run.Cd",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.Cd",
+     "reference": 0.010156366843188538,
+     "rel_diff": 0.0,
+     "value": 0.010156366843188538
+    },
+    {
+     "flow": "run.Cm",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.Cm",
+     "reference": -0.04726119573753353,
+     "rel_diff": 0.0,
+     "value": -0.04726119573753353
+    },
+    {
+     "flow": "run.LD",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.LD",
+     "reference": 65.13189125810673,
+     "rel_diff": 0.0,
+     "value": 65.13189125810673
+    },
+    {
+     "flow": "run.Cl_std",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl_std",
+     "reference": 0.0008502448703480278,
+     "rel_diff": 0.0,
+     "value": 0.0008502448703480278
+    },
+    {
+     "flow": "run.Cd_std",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.Cd_std",
+     "reference": 1.2994763717287724e-05,
+     "rel_diff": 0.0,
+     "value": 1.2994763717287724e-05
+    },
+    {
+     "flow": "run.Cl_inviscid",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl_inviscid",
+     "reference": 0.7305685185489313,
+     "rel_diff": 3.0393399015613264e-16,
+     "value": 0.7305685185489311
+    },
+    {
+     "flow": "run.Cl_inviscid_pressure",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.Cl_inviscid_pressure",
+     "reference": 0.7287755415798558,
+     "rel_diff": 4.570226199764019e-16,
+     "value": 0.7287755415798555
+    },
+    {
+     "flow": "run.thickness",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.thickness",
+     "reference": 0.12022942993822824,
+     "rel_diff": 2.3085508789228427e-16,
+     "value": 0.12022942993822827
+    },
+    {
+     "flow": "run.camber",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.camber",
+     "reference": 0.02016993513372012,
+     "rel_diff": 3.440216271348725e-16,
+     "value": 0.02016993513372013
+    },
+    {
+     "flow": "run.reynolds",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.reynolds",
+     "reference": 4109589.04109589,
+     "rel_diff": 0.0,
+     "value": 4109589.04109589
+    },
+    {
+     "flow": "run.lift_per_span",
+     "outcome": "match",
+     "ref": "airfoil_section_re4e6/results/result.json:outputs.lift_per_span",
+     "reference": 972.4080191908029,
+     "rel_diff": 0.0,
+     "value": 972.4080191908029
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.airfoil_section_re4e6.experiment.json, Lab item manifest/flow/example.industrial_presets.airfoil_section_re4e6",
+   "matched": 12,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 15.3,
+   "status": "done"
+  }
+ },
+ "industrial_presets/eddy_current_skin_inspection": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.dR",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.dR",
+     "reference": 1.016954302254925,
+     "rel_diff": 0.0,
+     "value": 1.016954302254925
+    },
+    {
+     "flow": "run.dX",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.dX",
+     "reference": -1.974827269036844,
+     "rel_diff": 0.0,
+     "value": -1.974827269036844
+    },
+    {
+     "flow": "run.R_norm",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.R_norm",
+     "reference": 0.07936888236010123,
+     "rel_diff": 0.0,
+     "value": 0.07936888236010123
+    },
+    {
+     "flow": "run.X_norm",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.X_norm",
+     "reference": 0.8458732778354336,
+     "rel_diff": 0.0,
+     "value": 0.8458732778354336
+    },
+    {
+     "flow": "run.delta",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.delta",
+     "reference": 0.0012065505098387756,
+     "rel_diff": 0.0,
+     "value": 0.0012065505098387756
+    },
+    {
+     "flow": "run.X0",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.X0",
+     "reference": 12.813010237953765,
+     "rel_diff": 0.0,
+     "value": 12.813010237953765
+    },
+    {
+     "flow": "run.t_over_delta",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.t_over_delta",
+     "reference": 1.6576181301081614,
+     "rel_diff": 0.0,
+     "value": 1.6576181301081614
+    },
+    {
+     "flow": "run.signal_loss",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.signal_loss",
+     "reference": 0.024236246531877618,
+     "rel_diff": 0.0,
+     "value": 0.024236246531877618
+    },
+    {
+     "flow": "run.signal_liftoff",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.signal_liftoff",
+     "reference": 0.09030770775821091,
+     "rel_diff": 0.0,
+     "value": 0.09030770775821091
+    },
+    {
+     "flow": "run.phase_angle_deg",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.phase_angle_deg",
+     "reference": 26.635382653296546,
+     "rel_diff": 0.0,
+     "value": 26.635382653296546
+    },
+    {
+     "flow": "run.phase_lag_rad",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.phase_lag_rad",
+     "reference": -2.676717528761185,
+     "rel_diff": 0.0,
+     "value": -2.676717528761185
+    },
+    {
+     "flow": "run.signal_perp",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.signal_perp",
+     "reference": 0.010865380325790902,
+     "rel_diff": 0.0,
+     "value": 0.010865380325790902
+    },
+    {
+     "flow": "run.separation",
+     "outcome": "match",
+     "ref": "eddy_current_skin_inspection/results/result.json:outputs.separation",
+     "reference": 2.4457341975664506,
+     "rel_diff": 0.0,
+     "value": 2.4457341975664506
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.eddy_current_skin_inspection.experiment.json, Lab item manifest/flow/example.industrial_presets.eddy_current_skin_inspection",
+   "matched": 13,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 98.9,
+   "status": "done"
+  }
+ },
+ "industrial_presets/ipm_traction_motor": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.torque",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.torque",
+     "reference": 334.86285399739717,
+     "rel_diff": 0.0,
+     "value": 334.86285399739717
+    },
+    {
+     "flow": "run.torque_dq",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.torque_dq",
+     "reference": 338.7240938572967,
+     "rel_diff": 0.0,
+     "value": 338.7240938572967
+    },
+    {
+     "flow": "run.ripple",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.ripple",
+     "reference": 0.21727144695228587,
+     "rel_diff": 0.0,
+     "value": 0.21727144695228587
+    },
+    {
+     "flow": "run.psi_d",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.psi_d",
+     "reference": 0.014713236418553594,
+     "rel_diff": 0.0,
+     "value": 0.014713236418553594
+    },
+    {
+     "flow": "run.psi_q",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.psi_q",
+     "reference": 0.3337728766698336,
+     "rel_diff": 0.0,
+     "value": 0.3337728766698336
+    },
+    {
+     "flow": "run.v_phase_peak",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.v_phase_peak",
+     "reference": 209.91934284990265,
+     "rel_diff": 0.0,
+     "value": 209.91934284990265
+    },
+    {
+     "flow": "run.v_limit",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.v_limit",
+     "reference": 288.6751345948129,
+     "rel_diff": 0.0,
+     "value": 288.6751345948129
+    },
+    {
+     "flow": "run.i_d",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.i_d",
+     "reference": -160.6969024216348,
+     "rel_diff": 0.0,
+     "value": -160.6969024216348
+    },
+    {
+     "flow": "run.i_q",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.i_q",
+     "reference": 191.5111107797445,
+     "rel_diff": 0.0,
+     "value": 191.5111107797445
+    },
+    {
+     "flow": "run.pole_pairs",
+     "outcome": "match",
+     "ref": "ipm_traction_motor/results/result.json:outputs.pole_pairs",
+     "reference": 4.0,
+     "rel_diff": 0.0,
+     "value": 4.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.ipm_traction_motor.experiment.json, Lab item manifest/flow/example.industrial_presets.ipm_traction_motor",
+   "matched": 10,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 43.8,
+   "status": "done"
+  }
+ },
+ "industrial_presets/plate_fin_heatsink_forced": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.t_source_max_c",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.t_source_max_c",
+     "reference": 64.14820799956901,
+     "rel_diff": 0.0,
+     "value": 64.14820799956901
+    },
+    {
+     "flow": "run.t_source_pessimistic_c",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.t_source_pessimistic_c",
+     "reference": 67.3775150095181,
+     "rel_diff": 0.0,
+     "value": 67.3775150095181
+    },
+    {
+     "flow": "run.r_total_k_w",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.r_total_k_w",
+     "reference": 0.4858034666594835,
+     "rel_diff": 0.0,
+     "value": 0.4858034666594835
+    },
+    {
+     "flow": "run.pressure_drop_pa",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.pressure_drop_pa",
+     "reference": 11.393460693182304,
+     "rel_diff": 0.0,
+     "value": 11.393460693182304
+    },
+    {
+     "flow": "run.h_w_m2k",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.h_w_m2k",
+     "reference": 28.867889712512117,
+     "rel_diff": 0.0,
+     "value": 28.867889712512117
+    },
+    {
+     "flow": "run.fin_efficiency",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.fin_efficiency",
+     "reference": 0.9282861596337412,
+     "rel_diff": 0.0,
+     "value": 0.9282861596337412
+    },
+    {
+     "flow": "run.mass_g",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.mass_g",
+     "reference": 347.625,
+     "rel_diff": 0.0,
+     "value": 347.625
+    },
+    {
+     "flow": "run.air_rise_c",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.air_rise_c",
+     "reference": 4.953767181245153,
+     "rel_diff": 0.0,
+     "value": 4.953767181245153
+    },
+    {
+     "flow": "run.re_dh",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.re_dh",
+     "reference": 2123.9993629243595,
+     "rel_diff": 0.0,
+     "value": 2123.9993629243595
+    },
+    {
+     "flow": "run.re_star",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.re_star",
+     "reference": 68.0875706855809,
+     "rel_diff": 0.0,
+     "value": 68.0875706855809
+    },
+    {
+     "flow": "run.fin_gap_mm",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.fin_gap_mm",
+     "reference": 5.535714285714287,
+     "rel_diff": 0.0,
+     "value": 5.535714285714287
+    },
+    {
+     "flow": "run.airflow_m3_h",
+     "outcome": "match",
+     "ref": "plate_fin_heatsink_forced/results/result.json:outputs.airflow_m3_h",
+     "reference": 37.80000000000001,
+     "rel_diff": 0.0,
+     "value": 37.80000000000001
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.plate_fin_heatsink_forced.experiment.json, Lab item manifest/flow/example.industrial_presets.plate_fin_heatsink_forced",
+   "matched": 12,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 5.5,
+   "status": "done"
+  }
+ },
+ "industrial_presets/power_pcb_junction": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.tj_max_c",
+     "outcome": "match",
+     "ref": "power_pcb_junction/results/result.json:outputs.tj_max_c",
+     "reference": 118.86508807261424,
+     "rel_diff": 0.0,
+     "value": 118.86508807261424
+    },
+    {
+     "flow": "run.tj_max_hot_c",
+     "outcome": "match",
+     "ref": "power_pcb_junction/results/result.json:outputs.tj_max_hot_c",
+     "reference": 126.41755646837277,
+     "rel_diff": 0.0,
+     "value": 126.41755646837277
+    },
+    {
+     "flow": "run.tj_mosfet_c",
+     "outcome": "match",
+     "ref": "power_pcb_junction/results/result.json:outputs.tj_mosfet_c",
+     "reference": 118.86508807261424,
+     "rel_diff": 0.0,
+     "value": 118.86508807261424
+    },
+    {
+     "flow": "run.board_max_c",
+     "outcome": "match",
+     "ref": "power_pcb_junction/results/result.json:outputs.board_max_c",
+     "reference": 99.11548555531277,
+     "rel_diff": 0.0,
+     "value": 99.11548555531277
+    },
+    {
+     "flow": "run.energy_balance",
+     "outcome": "match",
+     "ref": "power_pcb_junction/results/result.json:outputs.energy_balance",
+     "reference": 1.1677615396405125e-13,
+     "rel_diff": 0.0,
+     "value": 1.1677615396405125e-13
+    },
+    {
+     "flow": "run.total_power",
+     "outcome": "match",
+     "ref": "power_pcb_junction/results/result.json:outputs.total_power",
+     "reference": 5.75,
+     "rel_diff": 0.0,
+     "value": 5.75
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.power_pcb_junction.experiment.json, Lab item manifest/flow/example.industrial_presets.power_pcb_junction",
+   "matched": 6,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 18.7,
+   "status": "done"
+  }
+ },
+ "industrial_presets/pressure_vessel_asme": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.t_shell_req",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.t_shell_req",
+     "reference": 0.009452442159383033,
+     "rel_diff": 0.0,
+     "value": 0.009452442159383033
+    },
+    {
+     "flow": "run.t_head_req",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.t_head_req",
+     "reference": 0.009424914675767919,
+     "rel_diff": 0.0,
+     "value": 0.009424914675767919
+    },
+    {
+     "flow": "run.t_shell",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.t_shell",
+     "reference": 0.01,
+     "rel_diff": 0.0,
+     "value": 0.01
+    },
+    {
+     "flow": "run.t_head",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.t_head",
+     "reference": 0.01,
+     "rel_diff": 0.0,
+     "value": 0.01
+    },
+    {
+     "flow": "run.mawp",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.mawp",
+     "reference": 1038162.7962273123,
+     "rel_diff": 0.0,
+     "value": 1038162.7962273123
+    },
+    {
+     "flow": "run.p_test",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.p_test",
+     "reference": 1349611.635095506,
+     "rel_diff": 0.0,
+     "value": 1349611.635095506
+    },
+    {
+     "flow": "run.hoop_lame",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.hoop_lame",
+     "reference": 112890274.28468676,
+     "rel_diff": 0.0,
+     "value": 112890274.28468676
+    },
+    {
+     "flow": "run.hoop_fem",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.hoop_fem",
+     "reference": 112457377.70932262,
+     "rel_diff": 0.0,
+     "value": 112457377.70932262
+    },
+    {
+     "flow": "run.ur_lame",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.ur_lame",
+     "reference": 0.00038824736324047956,
+     "rel_diff": 0.0,
+     "value": 0.00038824736324047956
+    },
+    {
+     "flow": "run.ur_fem",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.ur_fem",
+     "reference": 0.0003882470377175049,
+     "rel_diff": 0.0,
+     "value": 0.0003882470377175049
+    },
+    {
+     "flow": "run.hoop_asme",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.hoop_asme",
+     "reference": 112988059.70149253,
+     "rel_diff": 0.0,
+     "value": 112988059.70149253
+    },
+    {
+     "flow": "run.mass",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.mass",
+     "reference": 1976.4961042923387,
+     "rel_diff": 0.0,
+     "value": 1976.4961042923387
+    },
+    {
+     "flow": "run.fem_reaction_err",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.fem_reaction_err",
+     "reference": 2.831803950727411e-12,
+     "rel_diff": 0.0,
+     "value": 2.831803950727411e-12
+    },
+    {
+     "flow": "run.t_over_r",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.t_over_r",
+     "reference": 0.008897742363877822,
+     "rel_diff": 0.0,
+     "value": 0.008897742363877822
+    },
+    {
+     "flow": "run.p_over_se",
+     "outcome": "match",
+     "ref": "pressure_vessel_asme/results/result.json:outputs.p_over_se",
+     "reference": 0.008525149190110827,
+     "rel_diff": 0.0,
+     "value": 0.008525149190110827
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.pressure_vessel_asme.experiment.json, Lab item manifest/flow/example.industrial_presets.pressure_vessel_asme",
+   "matched": 15,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 7.0,
+   "status": "done"
+  }
+ },
+ "industrial_presets/pump_npsh_cavitation": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.q",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.q",
+     "reference": 103.72748341444783,
+     "rel_diff": 1.370018267812581e-16,
+     "value": 103.72748341444785
+    },
+    {
+     "flow": "run.head",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.head",
+     "reference": 43.11271119746721,
+     "rel_diff": 0.0,
+     "value": 43.11271119746721
+    },
+    {
+     "flow": "run.npsha",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.npsha",
+     "reference": 4.184743523051699,
+     "rel_diff": 2.122420202833426e-16,
+     "value": 4.184743523051698
+    },
+    {
+     "flow": "run.npsh3",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.npsh3",
+     "reference": 3.68334889647989,
+     "rel_diff": 4.822667874601514e-16,
+     "value": 3.6833488964798917
+    },
+    {
+     "flow": "run.ratio",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.ratio",
+     "reference": 1.1361246628173027,
+     "rel_diff": 7.817614111973123e-16,
+     "value": 1.1361246628173018
+    },
+    {
+     "flow": "run.margin",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.margin",
+     "reference": 0.501394626571809,
+     "rel_diff": 5.314247735997157e-15,
+     "value": 0.5013946265718063
+    },
+    {
+     "flow": "run.v_suction",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.v_suction",
+     "reference": 1.5448850902866968,
+     "rel_diff": 2.87457761513932e-16,
+     "value": 1.5448850902866973
+    },
+    {
+     "flow": "run.max_lift",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.max_lift",
+     "reference": 3.396389957627842,
+     "rel_diff": 1.0460264348684628e-15,
+     "value": 3.3963899576278385
+    },
+    {
+     "flow": "run.h_suction_loss",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.h_suction_loss",
+     "reference": 0.5227670754109276,
+     "rel_diff": 6.371229617430202e-16,
+     "value": 0.5227670754109279
+    },
+    {
+     "flow": "run.h_discharge_loss",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.h_discharge_loss",
+     "reference": 12.589944122056279,
+     "rel_diff": 2.8218661213726235e-16,
+     "value": 12.589944122056282
+    },
+    {
+     "flow": "run.p_atm",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.p_atm",
+     "reference": 92076.38076342038,
+     "rel_diff": 0.0,
+     "value": 92076.38076342038
+    },
+    {
+     "flow": "run.p_vapour",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.p_vapour",
+     "reference": 7384.42748706953,
+     "rel_diff": 0.0,
+     "value": 7384.42748706953
+    },
+    {
+     "flow": "run.rho",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.rho",
+     "reference": 991.8076686568941,
+     "rel_diff": 0.0,
+     "value": 991.8076686568941
+    },
+    {
+     "flow": "run.re_suction",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.re_suction",
+     "reference": 358932.3539028939,
+     "rel_diff": 1.6216888859569063e-16,
+     "value": 358932.35390289396
+    },
+    {
+     "flow": "run.system_balance",
+     "outcome": "match",
+     "ref": "pump_npsh_cavitation/results/result.json:outputs.system_balance",
+     "reference": 7.105427357601002e-15,
+     "rel_diff": 0.5,
+     "value": 3.552713678800501e-15
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n3/example.industrial_presets.pump_npsh_cavitation.experiment.json, Lab item manifest/flow/example.industrial_presets.pump_npsh_cavitation",
+   "matched": 15,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 5.0,
+   "status": "done"
+  }
+ },
+ "industrial_presets/shell_tube_cooler": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.q",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.q",
+     "reference": 652397.9054778272,
+     "rel_diff": 0.0,
+     "value": 652397.9054778272
+    },
+    {
+     "flow": "run.t_hot_out",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.t_hot_out",
+     "reference": 37.19432991770965,
+     "rel_diff": 0.0,
+     "value": 37.19432991770965
+    },
+    {
+     "flow": "run.t_cold_out",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.t_cold_out",
+     "reference": 35.24603068911276,
+     "rel_diff": 0.0,
+     "value": 35.24603068911276
+    },
+    {
+     "flow": "run.U",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.U",
+     "reference": 1405.1463507583537,
+     "rel_diff": 0.0,
+     "value": 1405.1463507583537
+    },
+    {
+     "flow": "run.area",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.area",
+     "reference": 58.37509548563378,
+     "rel_diff": 0.0,
+     "value": 58.37509548563378
+    },
+    {
+     "flow": "run.ntu",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.ntu",
+     "reference": 0.981401679789528,
+     "rel_diff": 0.0,
+     "value": 0.981401679789528
+    },
+    {
+     "flow": "run.cr",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.cr",
+     "reference": 0.8001914791766396,
+     "rel_diff": 0.0,
+     "value": 0.8001914791766396
+    },
+    {
+     "flow": "run.effectiveness",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.effectiveness",
+     "reference": 0.48785438014314664,
+     "rel_diff": 0.0,
+     "value": 0.48785438014314664
+    },
+    {
+     "flow": "run.F",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.F",
+     "reference": 0.8885191540392299,
+     "rel_diff": 0.0,
+     "value": 0.8885191540392299
+    },
+    {
+     "flow": "run.lmtd",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.lmtd",
+     "reference": 8.951516155871884,
+     "rel_diff": 0.0,
+     "value": 8.951516155871884
+    },
+    {
+     "flow": "run.q_lmtd",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.q_lmtd",
+     "reference": 652397.9054778268,
+     "rel_diff": 0.0,
+     "value": 652397.9054778268
+    },
+    {
+     "flow": "run.h_shell",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.h_shell",
+     "reference": 5258.186695561676,
+     "rel_diff": 0.0,
+     "value": 5258.186695561676
+    },
+    {
+     "flow": "run.h_tube",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.h_tube",
+     "reference": 6560.106791412207,
+     "rel_diff": 0.0,
+     "value": 6560.106791412207
+    },
+    {
+     "flow": "run.h_tube_dittus_boelter",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.h_tube_dittus_boelter",
+     "reference": 6002.812597422104,
+     "rel_diff": 0.0,
+     "value": 6002.812597422104
+    },
+    {
+     "flow": "run.v_tube",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.v_tube",
+     "reference": 1.2896323843811275,
+     "rel_diff": 0.0,
+     "value": 1.2896323843811275
+    },
+    {
+     "flow": "run.dp_tube",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.dp_tube",
+     "reference": 16649.26040996207,
+     "rel_diff": 0.0,
+     "value": 16649.26040996207
+    },
+    {
+     "flow": "run.re_tube",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.re_tube",
+     "reference": 26281.08127923634,
+     "rel_diff": 0.0,
+     "value": 26281.08127923634
+    },
+    {
+     "flow": "run.re_shell",
+     "outcome": "match",
+     "ref": "shell_tube_cooler/results/result.json:outputs.re_shell",
+     "reference": 14875.804865476255,
+     "rel_diff": 0.0,
+     "value": 14875.804865476255
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.shell_tube_cooler.experiment.json, Lab item manifest/flow/example.industrial_presets.shell_tube_cooler",
+   "matched": 18,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 3.7,
+   "status": "done"
+  }
+ },
+ "industrial_presets/spm_servo_motor": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.torque",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.torque",
+     "reference": 7.045391991567424,
+     "rel_diff": 0.0,
+     "value": 7.045391991567424
+    },
+    {
+     "flow": "run.ripple",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.ripple",
+     "reference": 0.1565293992439787,
+     "rel_diff": 0.0,
+     "value": 0.1565293992439787
+    },
+    {
+     "flow": "run.cogging_pp",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.cogging_pp",
+     "reference": 0.7074273753250284,
+     "rel_diff": 0.0,
+     "value": 0.7074273753250284
+    },
+    {
+     "flow": "run.kt",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.kt",
+     "reference": 0.525775521758763,
+     "rel_diff": 0.0,
+     "value": 0.525775521758763
+    },
+    {
+     "flow": "run.ke",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.ke",
+     "reference": 0.326706012827922,
+     "rel_diff": 0.0,
+     "value": 0.326706012827922
+    },
+    {
+     "flow": "run.emf_peak",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.emf_peak",
+     "reference": 102.63772097838125,
+     "rel_diff": 0.0,
+     "value": 102.63772097838125
+    },
+    {
+     "flow": "run.p_copper",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.p_copper",
+     "reference": 62.83452962148446,
+     "rel_diff": 0.0,
+     "value": 62.83452962148446
+    },
+    {
+     "flow": "run.j_rms",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.j_rms",
+     "reference": 5.9576487093852935,
+     "rel_diff": 0.0,
+     "value": 5.9576487093852935
+    },
+    {
+     "flow": "run.t_mst",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.t_mst",
+     "reference": 7.52696905751996,
+     "rel_diff": 0.0,
+     "value": 7.52696905751996
+    },
+    {
+     "flow": "run.t_coe",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.t_coe",
+     "reference": 7.525814924564543,
+     "rel_diff": 0.0,
+     "value": 7.525814924564543
+    },
+    {
+     "flow": "run.t_power",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.t_power",
+     "reference": 7.632613896484088,
+     "rel_diff": 0.0,
+     "value": 7.632613896484088
+    },
+    {
+     "flow": "run.t_minus_cog",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.t_minus_cog",
+     "reference": 7.473062979699129,
+     "rel_diff": 0.0,
+     "value": 7.473062979699129
+    },
+    {
+     "flow": "run.kt_from_ke",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.kt_from_ke",
+     "reference": 0.5410455249452333,
+     "rel_diff": 0.0,
+     "value": 0.5410455249452333
+    },
+    {
+     "flow": "run.ke1",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.ke1",
+     "reference": 0.3606970166301555,
+     "rel_diff": 0.0,
+     "value": 0.3606970166301555
+    },
+    {
+     "flow": "run.cogging_mean_over_pp",
+     "outcome": "match",
+     "ref": "spm_servo_motor/results/result.json:outputs.cogging_mean_over_pp",
+     "reference": 0.0028048545618743082,
+     "rel_diff": 0.0,
+     "value": 0.0028048545618743082
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.spm_servo_motor.experiment.json, Lab item manifest/flow/example.industrial_presets.spm_servo_motor",
+   "matched": 15,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 351.8,
+   "status": "done"
+  }
+ },
+ "industrial_presets/steam_pipe_insulation": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.q",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.q",
+     "reference": 87.15636198690117,
+     "rel_diff": 0.0,
+     "value": 87.15636198690117
+    },
+    {
+     "flow": "run.t_surface",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.t_surface",
+     "reference": 17.048783137066117,
+     "rel_diff": 0.0,
+     "value": 17.048783137066117
+    },
+    {
+     "flow": "run.h_surface",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.h_surface",
+     "reference": 13.65181610762672,
+     "rel_diff": 0.0,
+     "value": 13.65181610762672
+    },
+    {
+     "flow": "run.re",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.re",
+     "reference": 58820.64564833374,
+     "rel_diff": 0.0,
+     "value": 58820.64564833374
+    },
+    {
+     "flow": "run.q_bare",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.q_bare",
+     "reference": 2402.4939215349427,
+     "rel_diff": 0.0,
+     "value": 2402.4939215349427
+    },
+    {
+     "flow": "run.saving",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.saving",
+     "reference": 0.9637225463067073,
+     "rel_diff": 0.0,
+     "value": 0.9637225463067073
+    },
+    {
+     "flow": "run.annual_cost",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.annual_cost",
+     "reference": 50.787633945908695,
+     "rel_diff": 0.0,
+     "value": 50.787633945908695
+    },
+    {
+     "flow": "run.t_economic",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.t_economic",
+     "reference": 0.1,
+     "rel_diff": 0.0,
+     "value": 0.1
+    },
+    {
+     "flow": "run.t_safe",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.t_safe",
+     "reference": 0.02,
+     "rel_diff": 0.0,
+     "value": 0.02
+    },
+    {
+     "flow": "run.q_fd",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.q_fd",
+     "reference": 87.15637611883044,
+     "rel_diff": 0.0,
+     "value": 87.15637611883044
+    },
+    {
+     "flow": "run.fd_balance",
+     "outcome": "match",
+     "ref": "steam_pipe_insulation/results/result.json:outputs.fd_balance",
+     "reference": 3.4713363537987196e-13,
+     "rel_diff": 0.0,
+     "value": 3.4713363537987196e-13
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.steam_pipe_insulation.experiment.json, Lab item manifest/flow/example.industrial_presets.steam_pipe_insulation",
+   "matched": 11,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 79.7,
+   "status": "done"
+  }
+ },
+ "industrial_presets/steel_footbridge_pedestrian": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.f1",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.f1",
+     "reference": 1.5228499849995847,
+     "rel_diff": 0.0,
+     "value": 1.5228499849995847
+    },
+    {
+     "flow": "run.acceleration",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.acceleration",
+     "reference": 0.1895459552100568,
+     "rel_diff": 0.0,
+     "value": 0.1895459552100568
+    },
+    {
+     "flow": "run.deflection",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.deflection",
+     "reference": 0.13306653683262798,
+     "rel_diff": 0.0,
+     "value": 0.13306653683262798
+    },
+    {
+     "flow": "run.deflection_limit",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.deflection_limit",
+     "reference": 0.08333333333333333,
+     "rel_diff": 0.0,
+     "value": 0.08333333333333333
+    },
+    {
+     "flow": "run.util_bending",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.util_bending",
+     "reference": 0.9666906089183886,
+     "rel_diff": 0.0,
+     "value": 0.9666906089183886
+    },
+    {
+     "flow": "run.util_ltb",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.util_ltb",
+     "reference": 14.804187987243408,
+     "rel_diff": 0.0,
+     "value": 14.804187987243408
+    },
+    {
+     "flow": "run.M_cr",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.M_cr",
+     "reference": 133011.91583548186,
+     "rel_diff": 0.0,
+     "value": 133011.91583548186
+    },
+    {
+     "flow": "run.M_Ed",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.M_Ed",
+     "reference": 1619054.6772825,
+     "rel_diff": 0.0,
+     "value": 1619054.6772825
+    },
+    {
+     "flow": "run.steel_mass",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.steel_mass",
+     "reference": 8289.6,
+     "rel_diff": 0.0,
+     "value": 8289.6
+    },
+    {
+     "flow": "run.mass_per_m",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.mass_per_m",
+     "reference": 1041.1071597334462,
+     "rel_diff": 0.0,
+     "value": 1041.1071597334462
+    },
+    {
+     "flow": "run.modal_mass",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.modal_mass",
+     "reference": 15616.607396001693,
+     "rel_diff": 0.0,
+     "value": 15616.607396001693
+    },
+    {
+     "flow": "run.EI_total",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.EI_total",
+     "reference": 792601600.000001,
+     "rel_diff": 0.0,
+     "value": 792601600.000001
+    },
+    {
+     "flow": "run.qk",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.qk",
+     "reference": 5000.0,
+     "rel_diff": 0.0,
+     "value": 5000.0
+    },
+    {
+     "flow": "run.f1_fe",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.f1_fe",
+     "reference": 1.522850026136681,
+     "rel_diff": 0.0,
+     "value": 1.522850026136681
+    },
+    {
+     "flow": "run.f2_fe",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.f2_fe",
+     "reference": 6.091402514330896,
+     "rel_diff": 0.0,
+     "value": 6.091402514330896
+    },
+    {
+     "flow": "run.deflection_fe",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.deflection_fe",
+     "reference": 0.13306653683267058,
+     "rel_diff": 0.0,
+     "value": 0.13306653683267058
+    },
+    {
+     "flow": "run.fe_equilibrium",
+     "outcome": "match",
+     "ref": "steel_footbridge_pedestrian/results/result.json:outputs.fe_equilibrium",
+     "reference": 1.8835999071598053e-12,
+     "rel_diff": 0.0,
+     "value": 1.8835999071598053e-12
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.steel_footbridge_pedestrian.experiment.json, Lab item manifest/flow/example.industrial_presets.steel_footbridge_pedestrian",
+   "matched": 17,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 4.1,
+   "status": "done"
+  }
+ },
+ "industrial_presets/water_distribution_network": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.min_pressure",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.min_pressure",
+     "reference": 30.44473804477977,
+     "rel_diff": 0.0,
+     "value": 30.44473804477977
+    },
+    {
+     "flow": "run.supply",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.supply",
+     "reference": 0.3111111111111111,
+     "rel_diff": 0.0,
+     "value": 0.3111111111111111
+    },
+    {
+     "flow": "run.max_velocity",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.max_velocity",
+     "reference": 1.8950173785637716,
+     "rel_diff": 0.0,
+     "value": 1.8950173785637716
+    },
+    {
+     "flow": "run.max_gradient",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.max_gradient",
+     "reference": 14.646065636532798,
+     "rel_diff": 0.0,
+     "value": 14.646065636532798
+    },
+    {
+     "flow": "run.cost",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.cost",
+     "reference": 419000.0,
+     "rel_diff": 0.0,
+     "value": 419000.0
+    },
+    {
+     "flow": "run.p_node3",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.p_node3",
+     "reference": 30.462166034859024,
+     "rel_diff": 0.0,
+     "value": 30.462166034859024
+    },
+    {
+     "flow": "run.p_node6",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.p_node6",
+     "reference": 30.44473804477977,
+     "rel_diff": 0.0,
+     "value": 30.44473804477977
+    },
+    {
+     "flow": "run.iterations",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.iterations",
+     "reference": 11.0,
+     "rel_diff": 0.0,
+     "value": 11.0
+    },
+    {
+     "flow": "run.continuity_residual",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.continuity_residual",
+     "reference": 2.0816681711721685e-17,
+     "rel_diff": 0.0,
+     "value": 2.0816681711721685e-17
+    },
+    {
+     "flow": "run.energy_residual",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.energy_residual",
+     "reference": 2.842170943040401e-14,
+     "rel_diff": 0.0,
+     "value": 2.842170943040401e-14
+    },
+    {
+     "flow": "run.total_demand",
+     "outcome": "match",
+     "ref": "water_distribution_network/results/result.json:outputs.total_demand",
+     "reference": 0.3111111111111111,
+     "rel_diff": 0.0,
+     "value": 0.3111111111111111
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.water_distribution_network.experiment.json, Lab item manifest/flow/example.industrial_presets.water_distribution_network",
+   "matched": 11,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 7.8,
+   "status": "done"
+  }
+ },
+ "industrial_presets/water_hammer_valve_closure": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run.inner_diameter",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.inner_diameter",
+     "reference": 0.48894,
+     "rel_diff": 0.0,
+     "value": 0.48894
+    },
+    {
+     "flow": "run.wave_speed",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.wave_speed",
+     "reference": 1211.84226863267,
+     "rel_diff": 0.0,
+     "value": 1211.84226863267
+    },
+    {
+     "flow": "run.period",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.period",
+     "reference": 1.9804557590716294,
+     "rel_diff": 0.0,
+     "value": 1.9804557590716294
+    },
+    {
+     "flow": "run.reynolds",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.reynolds",
+     "reference": 730628.6047904191,
+     "rel_diff": 0.0,
+     "value": 730628.6047904191
+    },
+    {
+     "flow": "run.friction_factor",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.friction_factor",
+     "reference": 0.013736482429651782,
+     "rel_diff": 0.0,
+     "value": 0.013736482429651782
+    },
+    {
+     "flow": "run.max_head",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.max_head",
+     "reference": 82.29313707607015,
+     "rel_diff": 0.0,
+     "value": 82.29313707607015
+    },
+    {
+     "flow": "run.max_head_x",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.max_head_x",
+     "reference": 1200.0,
+     "rel_diff": 0.0,
+     "value": 1200.0
+    },
+    {
+     "flow": "run.max_head_t",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.max_head_t",
+     "reference": 9.976545886323333,
+     "rel_diff": 0.0,
+     "value": 9.976545886323333
+    },
+    {
+     "flow": "run.surge_head",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.surge_head",
+     "reference": 26.160661452840962,
+     "rel_diff": 0.0,
+     "value": 26.160661452840962
+    },
+    {
+     "flow": "run.min_head",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.min_head",
+     "reference": 37.77319406150569,
+     "rel_diff": 0.0,
+     "value": 37.77319406150569
+    },
+    {
+     "flow": "run.drawdown",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.drawdown",
+     "reference": 18.3592815617235,
+     "rel_diff": 0.0,
+     "value": 18.3592815617235
+    },
+    {
+     "flow": "run.p_max",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.p_max",
+     "reference": 805567.3567201707,
+     "rel_diff": 0.0,
+     "value": 805567.3567201707
+    },
+    {
+     "flow": "run.p_min_abs",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.p_min_abs",
+     "reference": 471086.72225488693,
+     "rel_diff": 0.0,
+     "value": 471086.72225488693
+    },
+    {
+     "flow": "run.joukowsky_head",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.joukowsky_head",
+     "reference": 185.36028133450313,
+     "rel_diff": 0.0,
+     "value": 185.36028133450313
+    },
+    {
+     "flow": "run.michaud_head",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.michaud_head",
+     "reference": 36.709783667205414,
+     "rel_diff": 0.0,
+     "value": 36.709783667205414
+    },
+    {
+     "flow": "run.h_static_valve",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.h_static_valve",
+     "reference": 56.13247562322919,
+     "rel_diff": 0.0,
+     "value": 56.13247562322919
+    },
+    {
+     "flow": "run.h_allow",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.h_allow",
+     "reference": 163.44880191992436,
+     "rel_diff": 0.0,
+     "value": 163.44880191992436
+    },
+    {
+     "flow": "run.t_close_safe",
+     "outcome": "match",
+     "ref": "water_hammer_valve_closure/results/result.json:outputs.t_close_safe",
+     "reference": 3.3700777661063785,
+     "rel_diff": 0.0,
+     "value": 3.3700777661063785
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.industrial_presets.water_hammer_valve_closure.experiment.json, Lab item manifest/flow/example.industrial_presets.water_hammer_valve_closure",
+   "matched": 18,
+   "nodes": {
+    "compare": "done",
+    "run": "done",
+    "val": "done"
+   },
+   "seconds": 4.4,
+   "status": "done"
+  }
+ },
  "inspection/01_eddy_current_pinn": {
   "full": {
    "commit": "b25e808a",
@@ -5069,6 +6916,785 @@
     "validate": "done"
    },
    "seconds": 113.3,
+   "status": "done"
+  }
+ },
+ "science/ampere_law": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[circle around the conductor / mu0]",
+     "outcome": "match",
+     "ref": "electromagnetism/ampere_law/2D/result.json:comparisons.0.rel_error",
+     "reference": 7.611895146119556e-05,
+     "rel_diff": 0.0,
+     "value": 7.611895146119556e-05
+    },
+    {
+     "flow": "run_2d.rel_error[square around the conductor / mu0]",
+     "outcome": "match",
+     "ref": "electromagnetism/ampere_law/2D/result.json:comparisons.1.rel_error",
+     "reference": 8.146090524811754e-05,
+     "rel_diff": 0.0,
+     "value": 8.146090524811754e-05
+    },
+    {
+     "flow": "run_2d.rel_error[circle enclosing nothing / mu0]",
+     "outcome": "match",
+     "ref": "electromagnetism/ampere_law/2D/result.json:comparisons.2.rel_error",
+     "reference": 3.805556177511095e-05,
+     "rel_diff": 0.0,
+     "value": 3.805556177511095e-05
+    },
+    {
+     "flow": "run_3d.rel_error[circle around one side]",
+     "outcome": "match",
+     "ref": "electromagnetism/ampere_law/3D/result.json:comparisons.0.rel_error",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    },
+    {
+     "flow": "run_3d.rel_error[tilted ellipse, linking once]",
+     "outcome": "match",
+     "ref": "electromagnetism/ampere_law/3D/result.json:comparisons.1.rel_error",
+     "reference": 1.7763568394002506e-16,
+     "rel_diff": 0.0,
+     "value": 1.7763568394002506e-16
+    },
+    {
+     "flow": "run_3d.rel_error[path winding twice]",
+     "outcome": "match",
+     "ref": "electromagnetism/ampere_law/3D/result.json:comparisons.2.rel_error",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    },
+    {
+     "flow": "run_3d.rel_error[path not linked (a circle inside the loop, above it)]",
+     "outcome": "match",
+     "ref": "electromagnetism/ampere_law/3D/result.json:comparisons.3.rel_error",
+     "reference": 7.940933881557528e-18,
+     "rel_diff": 0.0,
+     "value": 7.940933881557528e-18
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.ampere_law.experiment.json, Lab item manifest/flow/example.science.ampere_law",
+   "matched": 7,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done",
+    "run_3d": "done"
+   },
+   "seconds": 5.7,
+   "status": "done"
+  }
+ },
+ "science/bench_mu0_solenoid": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_3d.rel_error[mu0 (bench) vs CODATA 2022]",
+     "outcome": "match",
+     "ref": "electromagnetism/bench_mu0_solenoid/3D/result.json:comparisons.0.rel_error",
+     "reference": 0.003937714596454831,
+     "rel_diff": 0.0,
+     "value": 0.003937714596454831
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.bench_mu0_solenoid.experiment.json, Lab item manifest/flow/example.science.bench_mu0_solenoid",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "run_3d": "done"
+   },
+   "seconds": 4.2,
+   "status": "done"
+  }
+ },
+ "science/bench_rc_discharge": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_0d.rel_error[C (bench) vs the capacitor's true value]",
+     "outcome": "match",
+     "ref": "electromagnetism/bench_rc_discharge/0D/result.json:comparisons.0.rel_error",
+     "reference": 0.0015782317619964959,
+     "rel_diff": 0.0,
+     "value": 0.0015782317619964959
+    },
+    {
+     "flow": "run_0d.rel_error[C vs the nominal label (470 nF +- 10 %)]",
+     "outcome": "match",
+     "ref": "electromagnetism/bench_rc_discharge/0D/result.json:comparisons.1.rel_error",
+     "reference": 0.08431761000426682,
+     "rel_diff": 0.0,
+     "value": 0.08431761000426682
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.bench_rc_discharge.experiment.json, Lab item manifest/flow/example.science.bench_rc_discharge",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "run_0d": "done"
+   },
+   "seconds": 4.2,
+   "status": "done"
+  }
+ },
+ "science/biot_savart": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_3d.rel_error[finite wire B (midpoint rule)]",
+     "outcome": "match",
+     "ref": "electromagnetism/biot_savart/3D/result.json:comparisons.0.rel_error",
+     "reference": 4.378055846970315e-08,
+     "rel_diff": 0.0,
+     "value": 4.378055846970315e-08
+    },
+    {
+     "flow": "run_3d.rel_error[loop B, 5 points on and off axis (worst)]",
+     "outcome": "match",
+     "ref": "electromagnetism/biot_savart/3D/result.json:comparisons.1.rel_error",
+     "reference": 0.00017134170173127572,
+     "rel_diff": 0.0,
+     "value": 0.00017134170173127572
+    },
+    {
+     "flow": "run_3d.rel_error[loop centre B]",
+     "outcome": "match",
+     "ref": "electromagnetism/biot_savart/3D/result.json:comparisons.2.rel_error",
+     "reference": 5.020242805417446e-05,
+     "rel_diff": 0.0,
+     "value": 5.020242805417446e-05
+    },
+    {
+     "flow": "run_3d.rel_error[solenoid centre B (helix)]",
+     "outcome": "match",
+     "ref": "electromagnetism/biot_savart/3D/result.json:comparisons.3.rel_error",
+     "reference": 8.393451798928599e-05,
+     "rel_diff": 0.0,
+     "value": 8.393451798928599e-05
+    },
+    {
+     "flow": "run_3d.rel_error[solenoid end B (helix)]",
+     "outcome": "match",
+     "ref": "electromagnetism/biot_savart/3D/result.json:comparisons.4.rel_error",
+     "reference": 2.1949656525125107e-05,
+     "rel_diff": 0.0,
+     "value": 2.1949656525125107e-05
+    },
+    {
+     "flow": "run_3d.rel_error[long-solenoid limit mu0 n I]",
+     "outcome": "match",
+     "ref": "electromagnetism/biot_savart/3D/result.json:comparisons.5.rel_error",
+     "reference": 0.029857499854668314,
+     "rel_diff": 0.0,
+     "value": 0.029857499854668314
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.biot_savart.experiment.json, Lab item manifest/flow/example.science.biot_savart",
+   "matched": 6,
+   "nodes": {
+    "compare": "done",
+    "run_3d": "done"
+   },
+   "seconds": 12.3,
+   "status": "done"
+  }
+ },
+ "science/cavity_resonance": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[TM11 resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/2D/result.json:comparisons.0.rel_error",
+     "reference": 1.3500026653198006e-05,
+     "rel_diff": 0.0,
+     "value": 1.3500026653198006e-05
+    },
+    {
+     "flow": "run_2d.rel_error[TM21 resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/2D/result.json:comparisons.1.rel_error",
+     "reference": 2.377721133063262e-05,
+     "rel_diff": 0.0,
+     "value": 2.377721133063262e-05
+    },
+    {
+     "flow": "run_2d.rel_error[TM12 resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/2D/result.json:comparisons.2.rel_error",
+     "reference": 0.0001860008917885323,
+     "rel_diff": 0.0,
+     "value": 0.0001860008917885323
+    },
+    {
+     "flow": "run_2d.rel_error[TM31 resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/2D/result.json:comparisons.3.rel_error",
+     "reference": 0.00014698089431982415,
+     "rel_diff": 0.0,
+     "value": 0.00014698089431982415
+    },
+    {
+     "flow": "run_2d.rel_error[TM22 resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/2D/result.json:comparisons.4.rel_error",
+     "reference": 5.355178179144305e-05,
+     "rel_diff": 0.0,
+     "value": 5.355178179144305e-05
+    },
+    {
+     "flow": "run_3d.rel_error[(110) resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/3D/result.json:comparisons.0.rel_error",
+     "reference": 0.00029854936435145765,
+     "rel_diff": 0.0,
+     "value": 0.00029854936435145765
+    },
+    {
+     "flow": "run_3d.rel_error[(101) resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/3D/result.json:comparisons.1.rel_error",
+     "reference": 0.00070155531321106,
+     "rel_diff": 0.0,
+     "value": 0.00070155531321106
+    },
+    {
+     "flow": "run_3d.rel_error[(011) resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/3D/result.json:comparisons.2.rel_error",
+     "reference": 0.0005506992852480457,
+     "rel_diff": 0.0,
+     "value": 0.0005506992852480457
+    },
+    {
+     "flow": "run_3d.rel_error[(111) resonance]",
+     "outcome": "match",
+     "ref": "electromagnetism/cavity_resonance/3D/result.json:comparisons.3.rel_error",
+     "reference": 0.00026907579525413156,
+     "rel_diff": 0.0,
+     "value": 0.00026907579525413156
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.cavity_resonance.experiment.json, Lab item manifest/flow/example.science.cavity_resonance",
+   "matched": 9,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done",
+    "run_3d": "done"
+   },
+   "seconds": 19.0,
+   "status": "done"
+  }
+ },
+ "science/circuits_rc_rl_rlc": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_0d.rel_error[RC time constant (fit of ln(1 - V/V0))]",
+     "outcome": "match",
+     "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.0.rel_error",
+     "reference": 1.51760114891486e-11,
+     "rel_diff": 0.0,
+     "value": 1.51760114891486e-11
+    },
+    {
+     "flow": "run_0d.rel_error[RL time constant]",
+     "outcome": "match",
+     "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.1.rel_error",
+     "reference": 1.864692211403507e-11,
+     "rel_diff": 0.0,
+     "value": 1.864692211403507e-11
+    },
+    {
+     "flow": "run_0d.rel_error[RL final current]",
+     "outcome": "match",
+     "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.2.rel_error",
+     "reference": 2.28723290307542e-12,
+     "rel_diff": 0.0,
+     "value": 2.28723290307542e-12
+    },
+    {
+     "flow": "run_0d.rel_error[RLC damped angular frequency (zero crossings)]",
+     "outcome": "match",
+     "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.3.rel_error",
+     "reference": 1.9615106678979766e-11,
+     "rel_diff": 0.0,
+     "value": 1.9615106678979766e-11
+    },
+    {
+     "flow": "run_0d.rel_error[RLC decay rate (log decrement of extrema)]",
+     "outcome": "match",
+     "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.4.rel_error",
+     "reference": 7.957135039760033e-11,
+     "rel_diff": 0.0,
+     "value": 7.957135039760033e-11
+    },
+    {
+     "flow": "run_0d.rel_error[energy dissipated in R (free decay)]",
+     "outcome": "match",
+     "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.5.rel_error",
+     "reference": 5.85343134639621e-11,
+     "rel_diff": 0.0,
+     "value": 5.85343134639621e-11
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.circuits_rc_rl_rlc.experiment.json, Lab item manifest/flow/example.science.circuits_rc_rl_rlc",
+   "matched": 6,
+   "nodes": {
+    "compare": "done",
+    "run_0d": "done"
+   },
+   "seconds": 5.0,
+   "status": "done"
+  }
+ },
+ "science/coulomb_superposition": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[line-pair field E_x at (0, d/2)]",
+     "outcome": "match",
+     "ref": "electromagnetism/coulomb_superposition/2D/result.json:comparisons.0.rel_error",
+     "reference": 3.8085783611433454e-10,
+     "rel_diff": 0.0,
+     "value": 3.8085783611433454e-10
+    },
+    {
+     "flow": "run_2d.rel_error[finite line -> infinite line (s = 0.01 m, L = 1 m)]",
+     "outcome": "match",
+     "ref": "electromagnetism/coulomb_superposition/2D/result.json:comparisons.1.rel_error",
+     "reference": 4.999625031209285e-05,
+     "rel_diff": 0.0,
+     "value": 4.999625031209285e-05
+    },
+    {
+     "flow": "run_3d.rel_error[ring potential at s = 0.6 R, z = 0.3 R]",
+     "outcome": "match",
+     "ref": "electromagnetism/coulomb_superposition/3D/result.json:comparisons.0.rel_error",
+     "reference": 6.207024832406532e-16,
+     "rel_diff": 0.0,
+     "value": 6.207024832406532e-16
+    },
+    {
+     "flow": "run_3d.rel_error[axial field E_z(z = 0.75 R)]",
+     "outcome": "match",
+     "ref": "electromagnetism/coulomb_superposition/3D/result.json:comparisons.1.rel_error",
+     "reference": 6.588211790636253e-16,
+     "rel_diff": 0.0,
+     "value": 6.588211790636253e-16
+    },
+    {
+     "flow": "run_3d.rel_error[far field -> point charge (r = 40 R)]",
+     "outcome": "match",
+     "ref": "electromagnetism/coulomb_superposition/3D/result.json:comparisons.2.rel_error",
+     "reference": 0.0009367681118060166,
+     "rel_diff": 0.0,
+     "value": 0.0009367681118060166
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.coulomb_superposition.experiment.json, Lab item manifest/flow/example.science.coulomb_superposition",
+   "matched": 5,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done",
+    "run_3d": "done"
+   },
+   "seconds": 5.2,
+   "status": "done"
+  }
+ },
+ "science/dipole_radiation": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_3d.rel_error[radiated power through the sphere kr = 0.3]",
+     "outcome": "match",
+     "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.0.rel_error",
+     "reference": 3.9519594232013053e-16,
+     "rel_diff": 0.0,
+     "value": 3.9519594232013053e-16
+    },
+    {
+     "flow": "run_3d.rel_error[radiated power through the sphere kr = 1]",
+     "outcome": "match",
+     "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.1.rel_error",
+     "reference": 9.879898558003263e-16,
+     "rel_diff": 0.0,
+     "value": 9.879898558003263e-16
+    },
+    {
+     "flow": "run_3d.rel_error[radiated power through the sphere kr = 3]",
+     "outcome": "match",
+     "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.2.rel_error",
+     "reference": 9.879898558003263e-16,
+     "rel_diff": 0.0,
+     "value": 9.879898558003263e-16
+    },
+    {
+     "flow": "run_3d.rel_error[radiated power through the sphere kr = 30]",
+     "outcome": "match",
+     "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.3.rel_error",
+     "reference": 5.927939134801958e-16,
+     "rel_diff": 0.0,
+     "value": 5.927939134801958e-16
+    },
+    {
+     "flow": "run_3d.rel_error[directivity]",
+     "outcome": "match",
+     "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.4.rel_error",
+     "reference": 4.440892098500626e-16,
+     "rel_diff": 0.0,
+     "value": 4.440892098500626e-16
+    },
+    {
+     "flow": "run_3d_plus_t.rel_error[energy through the sphere r = lambda in one period]",
+     "outcome": "match",
+     "ref": "electromagnetism/dipole_radiation/3D_plus_t/result.json:comparisons.0.rel_error",
+     "reference": 9.20137256197935e-16,
+     "rel_diff": 0.0,
+     "value": 9.20137256197935e-16
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.dipole_radiation.experiment.json, Lab item manifest/flow/example.science.dipole_radiation",
+   "matched": 6,
+   "nodes": {
+    "compare": "done",
+    "run_3d": "done",
+    "run_3d_plus_t": "done"
+   },
+   "seconds": 19.4,
+   "status": "done"
+  }
+ },
+ "science/faraday_induction": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_3d_plus_t.rel_error[peak EMF]",
+     "outcome": "match",
+     "ref": "electromagnetism/faraday_induction/3D_plus_t/result.json:comparisons.0.rel_error",
+     "reference": 0.003981860555201304,
+     "rel_diff": 0.0,
+     "value": 0.003981860555201304
+    },
+    {
+     "flow": "run_3d_plus_t.rel_error[flux at the centre crossing]",
+     "outcome": "match",
+     "ref": "electromagnetism/faraday_induction/3D_plus_t/result.json:comparisons.1.rel_error",
+     "reference": 0.0023648267292750167,
+     "rel_diff": 0.0,
+     "value": 0.0023648267292750167
+    },
+    {
+     "flow": "run_3d_plus_t.rel_error[time of the EMF sign change]",
+     "outcome": "match",
+     "ref": "electromagnetism/faraday_induction/3D_plus_t/result.json:comparisons.2.rel_error",
+     "reference": 3.82404292119666e-05,
+     "rel_diff": 0.0,
+     "value": 3.82404292119666e-05
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.faraday_induction.experiment.json, Lab item manifest/flow/example.science.faraday_induction",
+   "matched": 3,
+   "nodes": {
+    "compare": "done",
+    "run_3d_plus_t": "done"
+   },
+   "seconds": 217.9,
+   "status": "done"
+  }
+ },
+ "science/fresnel_snell": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[|r_s| at 0 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.0.rel_error",
+     "reference": 0.009342468310234442,
+     "rel_diff": 0.0,
+     "value": 0.009342468310234442
+    },
+    {
+     "flow": "run_2d.rel_error[|r_p| at 0 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.1.rel_error",
+     "reference": 0.009340533038225823,
+     "rel_diff": 0.0,
+     "value": 0.009340533038225823
+    },
+    {
+     "flow": "run_2d.rel_error[|r_s| at 30 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.2.rel_error",
+     "reference": 0.007702825806827807,
+     "rel_diff": 0.0,
+     "value": 0.007702825806827807
+    },
+    {
+     "flow": "run_2d.rel_error[|r_p| at 30 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.3.rel_error",
+     "reference": 0.01174960093498128,
+     "rel_diff": 0.0,
+     "value": 0.01174960093498128
+    },
+    {
+     "flow": "run_2d.rel_error[|r_s| at 45 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.4.rel_error",
+     "reference": 0.005745213438298207,
+     "rel_diff": 0.0,
+     "value": 0.005745213438298207
+    },
+    {
+     "flow": "run_2d.rel_error[|r_p| at 45 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.5.rel_error",
+     "reference": 0.020935695135200855,
+     "rel_diff": 0.0,
+     "value": 0.020935695135200855
+    },
+    {
+     "flow": "run_2d.rel_error[|r_s| at 60 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.6.rel_error",
+     "reference": 0.0033009296923069975,
+     "rel_diff": 0.0,
+     "value": 0.0033009296923069975
+    },
+    {
+     "flow": "run_2d.rel_error[|r_p| at 60 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.7.rel_error",
+     "reference": 0.05335230670124658,
+     "rel_diff": 0.0,
+     "value": 0.05335230670124658
+    },
+    {
+     "flow": "run_2d.rel_error[|r_p| at Brewster's angle 56.31 deg]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.8.rel_error",
+     "reference": 0.0021295927053455715,
+     "rel_diff": 0.0,
+     "value": 0.0021295927053455715
+    },
+    {
+     "flow": "run_2d.rel_error[transmitted angle for 30 deg incidence]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.9.rel_error",
+     "reference": 0.0014124986435389646,
+     "rel_diff": 0.0,
+     "value": 0.0014124986435389646
+    },
+    {
+     "flow": "run_2d.rel_error[transmitted angle for 45 deg incidence]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.10.rel_error",
+     "reference": 0.0011050530110487313,
+     "rel_diff": 0.0,
+     "value": 0.0011050530110487313
+    },
+    {
+     "flow": "run_2d.rel_error[transmitted angle for 60 deg incidence]",
+     "outcome": "match",
+     "ref": "electromagnetism/fresnel_snell/2D/result.json:comparisons.11.rel_error",
+     "reference": 0.0009003051691173667,
+     "rel_diff": 0.0,
+     "value": 0.0009003051691173667
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.fresnel_snell.experiment.json, Lab item manifest/flow/example.science.fresnel_snell",
+   "matched": 12,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done"
+   },
+   "seconds": 75.5,
+   "status": "done"
+  }
+ },
+ "science/gauss_law": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[flux per unit length x eps0]",
+     "outcome": "match",
+     "ref": "electromagnetism/gauss_law/2D/result.json:comparisons.0.rel_error",
+     "reference": 2.0679515313825694e-16,
+     "rel_diff": 0.0,
+     "value": 2.0679515313825694e-16
+    },
+    {
+     "flow": "run_3d.rel_error[flux through the cube x eps0]",
+     "outcome": "match",
+     "ref": "electromagnetism/gauss_law/3D/result.json:comparisons.0.rel_error",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.gauss_law.experiment.json, Lab item manifest/flow/example.science.gauss_law",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done",
+    "run_3d": "done"
+   },
+   "seconds": 7.6,
+   "status": "done"
+  }
+ },
+ "science/hall_effect": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_2d.rel_error[Hall coefficient R_H = E_y / (J_x B)]",
+     "outcome": "differs",
+     "ref": "electromagnetism/hall_effect/2D/result.json:comparisons.0.rel_error",
+     "reference": 0.0006311593065709672,
+     "rel_diff": 2.565973541647771e-05,
+     "value": 0.000631143111190155
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.hall_effect.experiment.json, Lab item manifest/flow/example.science.hall_effect",
+   "matched": 0,
+   "nodes": {
+    "compare": "done",
+    "run_2d": "done"
+   },
+   "seconds": 7.4,
+   "status": "done"
+  }
+ },
+ "science/lossy_plane_wave": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_1d.rel_error[attenuation constant alpha]",
+     "outcome": "match",
+     "ref": "electromagnetism/lossy_plane_wave/1D/result.json:comparisons.0.rel_error",
+     "reference": 0.0024846262581074657,
+     "rel_diff": 0.0,
+     "value": 0.0024846262581074657
+    },
+    {
+     "flow": "run_1d.rel_error[phase constant beta]",
+     "outcome": "match",
+     "ref": "electromagnetism/lossy_plane_wave/1D/result.json:comparisons.1.rel_error",
+     "reference": 0.0006294979019896493,
+     "rel_diff": 0.0,
+     "value": 0.0006294979019896493
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.lossy_plane_wave.experiment.json, Lab item manifest/flow/example.science.lossy_plane_wave",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "run_1d": "done"
+   },
+   "seconds": 8.3,
+   "status": "done"
+  }
+ },
+ "science/mie_scattering": {
+  "full": {
+   "commit": "3bd6a5ad",
+   "comparisons": [
+    {
+     "flow": "run_3d.rel_error[Q_sca, BHMIE sample]",
+     "outcome": "match",
+     "ref": "electromagnetism/mie_scattering/3D/result.json:comparisons.0.rel_error",
+     "reference": 1.4389421505961307e-06,
+     "rel_diff": 0.0,
+     "value": 1.4389421505961307e-06
+    },
+    {
+     "flow": "run_3d.rel_error[Q_back, BHMIE sample]",
+     "outcome": "match",
+     "ref": "electromagnetism/mie_scattering/3D/result.json:comparisons.1.rel_error",
+     "reference": 2.220798293268544e-07,
+     "rel_diff": 0.0,
+     "value": 2.220798293268544e-07
+    },
+    {
+     "flow": "run_3d.rel_error[Q_sca at x = 0.02 (Rayleigh)]",
+     "outcome": "match",
+     "ref": "electromagnetism/mie_scattering/3D/result.json:comparisons.2.rel_error",
+     "reference": 2.944537737401958e-05,
+     "rel_diff": 0.0,
+     "value": 2.944537737401958e-05
+    },
+    {
+     "flow": "run_3d.rel_error[optical theorem: 4 Re S(0) / x^2 (absorbing sphere)]",
+     "outcome": "match",
+     "ref": "electromagnetism/mie_scattering/3D/result.json:comparisons.3.rel_error",
+     "reference": 2.2352020346932984e-16,
+     "rel_diff": 0.0,
+     "value": 2.2352020346932984e-16
+    },
+    {
+     "flow": "run_3d.rel_error[Q_ext at x = 3000 (absorbing)]",
+     "outcome": "match",
+     "ref": "electromagnetism/mie_scattering/3D/result.json:comparisons.4.rel_error",
+     "reference": 0.004775434620209129,
+     "rel_diff": 0.0,
+     "value": 0.004775434620209129
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/n1/example.science.mie_scattering.experiment.json, Lab item manifest/flow/example.science.mie_scattering",
+   "matched": 5,
+   "nodes": {
+    "compare": "done",
+    "run_3d": "done"
+   },
+   "seconds": 7.0,
    "status": "done"
   }
  },

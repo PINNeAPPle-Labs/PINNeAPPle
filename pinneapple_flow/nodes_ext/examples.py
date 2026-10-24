@@ -278,3 +278,30 @@ def compare(ctx, inputs, params):
     if params["strict"] and n_ok < len(checks):
         raise StepFailed(f"{len(checks) - n_ok} comparison(s) differ from examples/{params['example']}")
     return {"metrics": {"comparisons": len(checks), "matched": n_ok, "rows": rows, "checks": checks}}
+
+
+@node("examples.flatten", "Numbers of an upstream result", category="Examples",
+      inputs=[Port("value", "any", help="a result dict (e.g. the metrics output of a node that returns it)")],
+      outputs=[Port("metrics", "metrics")],
+      params=[Param("max_items", "int", 400, minimum=1, maximum=10000)])
+def flatten(ctx, inputs, params):
+    """Every number of a nested result as a metric (``a.b.0.c``), so ``examples.compare`` can check the result of a
+    node that returns its numbers in an output instead of recording them; strings and booleans are kept too."""
+    n = 0
+
+    def walk(v, key):
+        nonlocal n
+        if n >= int(params["max_items"]):
+            return
+        if isinstance(v, dict):
+            for k, x in v.items():
+                walk(x, f"{key}.{k}" if key else str(k))
+        elif isinstance(v, (list, tuple)):
+            for i, x in enumerate(v):
+                walk(x, f"{key}.{i}")
+        elif isinstance(v, (bool, int, float, str)) and key:
+            ctx.metric(key, v)
+            n += 1
+    walk(inputs["value"], "")
+    ctx.summary(f"{n} values")
+    return {"metrics": ctx.report["metrics"]}

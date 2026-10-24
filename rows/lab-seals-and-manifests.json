@@ -1,0 +1,51 @@
+{
+ "slug": "lab-seals-and-manifests",
+ "theme": "PINNeAPPle Lab: A-F quality seals computed from each experiment's own checks, experiment manifests with a CI gate, the experiments page and the animated showcase panel",
+ "prs": [
+  849,
+  835,
+  851,
+  852,
+  836
+ ],
+ "media": [
+  "media/lab-seals-and-manifests/lab_seals_and_manifests.mp4"
+ ],
+ "numbers": [
+  {
+   "value": "85",
+   "meaning": "Lab items graded",
+   "source": "lab/curation.json items (count); reproduced by re-curation run"
+  },
+  {
+   "value": "19 A / 53 B / 0 C / 7 D / 1 E / 5 F",
+   "meaning": "items per letter",
+   "source": "lab/curation.json items[*].tier"
+  },
+  {
+   "value": "212",
+   "meaning": "committed Lab runs",
+   "source": "lab/curation.json runs; lab/runs/*/*/run.json"
+  },
+  {
+   "value": "0 problems",
+   "meaning": "CI gate result over 68 example folders and 212 run folders",
+   "source": "run of scripts/check_experiment_manifests.py at e716a065"
+  },
+  {
+   "value": "68",
+   "meaning": "examples/ folders the gate requires a manifest for",
+   "source": "pinneapple_lab.manifest.example_dirs() at e716a065"
+  },
+  {
+   "value": "1.33 vs 0.05",
+   "meaning": "EM cavity PINN relative L2 error vs tolerance (tier F)",
+   "source": "lab/curation.json items['em_pinn/em_tm_cavity'].next_steps[0].measured"
+  },
+  {
+   "value": "122 / 52",
+   "meaning": "entries on the experiments page / not curated",
+   "source": "experiments page built locally with python -m pinneapple_lab site at e716a065"
+  }
+ ]
+}

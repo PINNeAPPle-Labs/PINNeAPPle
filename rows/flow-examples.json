@@ -1,0 +1,67 @@
+{
+ "slug": "flow-examples",
+ "theme": "Every example as a flow: library examples as JSON node graphs, run headless (python -m pinneapple_flow run), each finished run written as a Lab manifest with an A-F seal (note: PR #854 merged into feat/flow-studio after that branch reached main, so its content is NOT on main; the post uses only what #850 brought)",
+ "prs": [
+  850
+ ],
+ "media": [
+  "media/flow-examples/flow_examples.mp4"
+ ],
+ "numbers": [
+  {
+   "value": "14",
+   "meaning": "example flows run headless, all status done",
+   "source": "examples/flow_studio/results/RESULTS.md; */summary.json status"
+  },
+  {
+   "value": "95",
+   "meaning": "nodes, all done, none cached",
+   "source": "sum of nodes over results/*/summary.json; cached_nodes == []"
+  },
+  {
+   "value": "4.6 s",
+   "meaning": "shortest wall time (sensor twin)",
+   "source": "examples/flow_studio/results/planned_digital_twin/summary.json wall_seconds"
+  },
+  {
+   "value": "3768.5 s",
+   "meaning": "longest wall time (Burgers PINN)",
+   "source": "examples/flow_studio/results/burgers_1d/summary.json wall_seconds"
+  },
+  {
+   "value": "403 m",
+   "meaning": "take-off distance to 35 ft, light GA",
+   "source": "examples/flow_studio/results/aircraft_takeoff/summary.json nodes.takeoff.metrics.distance_35ft_m = 402.94"
+  },
+  {
+   "value": "410 m (-2 %)",
+   "meaning": "Raymer 17.8 with simulated V_LOF",
+   "source": "examples/flow_studio/results/aircraft_takeoff/summary.json nodes.takeoff.metrics.raymer_sim_VLOF_total_35ft_m, sim_over_raymer_sim_VLOF = 0.9831"
+  },
+  {
+   "value": "0.099983 (true 0.1)",
+   "meaning": "calibrated diffusivity, inverse heat",
+   "source": "examples/flow_studio/results/inverse_heat/summary.json nodes.calibrate.summary; pinneapple_flow/flows/inverse_heat.json true_eq alpha"
+  },
+  {
+   "value": "3.35e-04",
+   "meaning": "heat 1-D PINN rel. L2 vs exact",
+   "source": "examples/flow_studio/results/heat_1d/summary.json nodes.validate.metrics.PINN_rel_l2"
+  },
+  {
+   "value": "5 B / 2 F",
+   "meaning": "Lab seals of the 7 flows with a validate.lab node",
+   "source": "examples/flow_studio/results/*/summary.json nodes.lab.metrics.seal.value"
+  },
+  {
+   "value": "7.29e-03",
+   "meaning": "Burgers PINN rel. L2 vs Cole-Hopf",
+   "source": "examples/flow_studio/results/burgers_1d/summary.json nodes.validate.metrics.PINN_rel_l2"
+  },
+  {
+   "value": "max 1.10 vs limit 0.3",
+   "meaning": "Burgers PINN residual check that fails -> F",
+   "source": "examples/flow_studio/results/burgers_1d/summary.json nodes.validate.warnings[0]"
+  }
+ ]
+}

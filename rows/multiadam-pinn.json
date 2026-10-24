@@ -1,0 +1,14 @@
+{"slug":"multiadam-pinn",
+ "theme":"MultiAdam optimiser for multi-term PINN losses: per-loss-term Adam moments (Yao et al. ICML 2023), contributed by @F123Dash (PR #848)",
+ "prs":[848],
+ "media":["media/multiadam-pinn/01_method.png","media/multiadam-pinn/02_poisson_weighted.png","media/multiadam-pinn/03_term_balance.png","media/multiadam-pinn/04_weight_invariance.png","media/multiadam-pinn/05_helmholtz_honest.png","media/multiadam-pinn/06_summary.png"],
+ "numbers":[
+  {"value":"2.12","meaning":"median rel-L2, Adam, 1-D Poisson with BC term x1e-3 (3 seeds, 2000 steps)","source":"media/multiadam-pinn/multiadam_bench.json problems['poisson1d_wbc1e-3'].summary.adam.rel_l2_median"},
+  {"value":"0.00375","meaning":"median rel-L2, MultiAdam, same case","source":"media/multiadam-pinn/multiadam_bench.json problems['poisson1d_wbc1e-3'].summary.multiadam.rel_l2_median"},
+  {"value":"0.000212","meaning":"median rel-L2, Adam, Poisson with BC weight 1","source":"media/multiadam-pinn/multiadam_bench.json problems['poisson1d_wbc1'].summary.adam.rel_l2_median"},
+  {"value":"0.0037","meaning":"median rel-L2, MultiAdam, Poisson with BC weight 1","source":"media/multiadam-pinn/multiadam_bench.json problems['poisson1d_wbc1'].summary.multiadam.rel_l2_median"},
+  {"value":"1.04","meaning":"median rel-L2, MultiAdam, 2-D Helmholtz a1=1 a2=4, 3000 steps","source":"media/multiadam-pinn/multiadam_bench.json problems['helmholtz2d'].summary.multiadam.rel_l2_median"},
+  {"value":"0.997","meaning":"median rel-L2, Adam (0.9,0.999), 2-D Helmholtz","source":"media/multiadam-pinn/multiadam_bench.json problems['helmholtz2d'].summary.adam.rel_l2_median"},
+  {"value":"0.119","meaning":"median rel-L2, Adam betas (0.99,0.99), 2-D Helmholtz (best)","source":"media/multiadam-pinn/multiadam_bench.json problems['helmholtz2d'].summary.adam_b99.rel_l2_median"},
+  {"value":"351 s","meaning":"total CPU wall time of the benchmark (4 threads)","source":"media/multiadam-pinn/multiadam_bench.json total_seconds"}
+ ]}

@@ -1,0 +1,47 @@
+{
+ "slug": "agent-workbench-local",
+ "theme": "Agent Workbench: coding and engineering agents on a local model (web app, VS Code extension, terminal), editable role prompts, approval policies, eval command with pass conditions, sessions stored with secrets masked for fine-tuning",
+ "prs": [
+  853
+ ],
+ "media": [
+  "media/agent-workbench-local/01_team.png",
+  "media/agent-workbench-local/02_session.png",
+  "media/agent-workbench-local/03_approvals.png",
+  "media/agent-workbench-local/04_eval.png",
+  "media/agent-workbench-local/05_training.png",
+  "media/agent-workbench-local/06_try.png"
+ ],
+ "numbers": [
+  {
+   "value": "8",
+   "meaning": "agents (lead + 7 specialists), each a Markdown prompt",
+   "source": "pinneapple_llm/workbench/prompts/*.md (excluding _common.md)"
+  },
+  {
+   "value": "3",
+   "meaning": "approval policies: ask, auto, yolo",
+   "source": "pinneapple_llm/workbench/tools.py ApprovalPolicy"
+  },
+  {
+   "value": "29",
+   "meaning": "command prefixes that run without asking under auto",
+   "source": "pinneapple_llm/workbench/tools.py len(SAFE_COMMANDS), line 30"
+  },
+  {
+   "value": "3",
+   "meaning": "eval tasks with mechanical pass conditions",
+   "source": "pinneapple_llm/workbench/evaluate.py TASKS, line 85"
+  },
+  {
+   "value": "7",
+   "meaning": "secret patterns masked in the fine-tuning export",
+   "source": "pinneapple_llm/workbench/finetune.py len(_SECRETS), line 40"
+  },
+  {
+   "value": "30 passed",
+   "meaning": "tests/test_llm_workbench.py with a scripted model (fastapi installed)",
+   "source": "my run: python -m pytest tests/test_llm_workbench.py, 2026-10-24 (work_awb/pytest.txt)"
+  }
+ ]
+}

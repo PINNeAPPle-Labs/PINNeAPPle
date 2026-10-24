@@ -157,3 +157,41 @@ ledger, 0 new runs), and answered run019 (drag 2795.5 N against 3314.8 N); the a
 in a tool result. "Lower drag at 80 m/s" and "Make the car look fast" were refused with their reasons. A scripted
 careless planner (`rogue_session.json`, not a real model) had its speed change and its invented tool refused before
 anything ran, and the "40 %" and "1990 N" of its answer flagged.
+
+## The dashboard (stage 3)
+
+`pinneapple_autolab.dashboard` shows a session in four synchronised areas, from its files only:
+
+| Area | What it shows |
+|---|---|
+| Geometry | the original and the recommended design: the studio 3-D viewer (skin Cp and Cf, streamlines, slices), Blender Cycles and PyVista renders (surface Cp in jet, Cp ±0.5 in a diverging map, the surface mesh), the design space (every simulated design as a line over the variables), the variables that changed |
+| Physics | drag, downforce and balance of the selected run with their iteration noise; downforce per component against the original; the force history with its averaging window; streamlines on black, mid-plane Cp, wake vorticity |
+| Models | every surrogate family's held-out error and 95 % coverage per output; cross-validated predictions against CFD with their intervals; the error of each prediction measured by the simulation that followed it; surface Cp numerical / prediction / error |
+| Decisions | drag x downforce (surrogate candidates as crosses, the surrogate front as circles, every CFD run by purpose, the original and the best simulated design, the downforce limit); the budget; the validation criteria; the timeline (judged before -> outcome); the three trust cases |
+
+Selecting a run anywhere selects it everywhere. What it shows is what the files say: a simulation in progress is
+"running", a failed run is red and has no outputs, training is shown as training, candidates are "predicted, not
+simulated", and in a replay a design, a render or a figure appears only once the run it belongs to exists.
+
+```python
+from pinneapple_autolab.dashboard import build_dashboard, serve
+build_dashboard("runs/aero", "runs/aero/dashboard", replay=True)   # static page, replay of the recorded events
+serve("runs/aero", "runs/aero/dashboard", port=8120)              # live: polls state.json while the lab runs
+```
+
+The lab writes `snapshot_live.json` after every assessment and every simulation, so the live page shows the
+candidates and the models between events. For the race car, `domains.racecar.build_dashboard(work, out, summary)`
+adds the renders and the 3-D viewers from the saved flow files, and `recorded_dashboard(results_dir, out)` builds it
+from the committed session only (no OpenFOAM, no flow files, no 3-D viewer).
+`python examples/autolab_aero/autolab_aero.py --report-only --dashboard` writes the page to `_work/dashboard`, a
+screenshot to `_out/figures/dashboard.png` and the replay to `_out/figures/dashboard_replay.mp4` (Playwright, ffmpeg;
+Blender Cycles renders when `bpy` is installed).
+
+**Flow Studio**: node `autolab.aerodynamicist` (palette section "optimization"). `source=recorded` replays the
+committed session in the dashboard inside the app (the app's sandbox runs the page but not the 3-D viewer, which
+needs `serve` or the files); `source=run` runs the mission with the agent on OpenFOAM and returns its dashboard.
+**Hub**: the node and both examples (`examples/autolab_aero`, `examples/autolab_aero_agent`) are items of the Hub
+index, with their measured metrics, figures and the replay video.
+
+Remaining limitation: the wing elements of the parametric car have vertices only at their span ends, so the surface
+Cp field (and its surrogate) is sparse on the wings; forces are not affected (they come from every CFD wall face).

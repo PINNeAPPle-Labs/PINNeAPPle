@@ -52,8 +52,9 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
                  view: str | Sequence[float] = "iso", size=(1600, 900), background: str = "#11151C",
                  zoom: float = 1.0, ground: bool = False, title: str = "", line_width: float = 2.0,
                  max_lines: int | None = None, hide: Sequence[str] = (),
-                 slice_crop: tuple[float, float, float, float] | None = None) -> str:
-    """``slice_crop``: (s0, s1, t0, t1), the part of the slice to show as fractions of its ``u`` and ``v`` edges."""
+                 slice_crop: tuple[float, float, float, float] | None = None, wireframe: str | None = None) -> str:
+    """``slice_crop``: (s0, s1, t0, t1), the part of the slice to show as fractions of its ``u`` and ``v`` edges.
+    ``wireframe``: a colour (e.g. "#3B82F6") draws every surface as its mesh edges in that colour instead."""
     import pyvista as pv
 
     pv.OFF_SCREEN = True
@@ -67,6 +68,9 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
         if s.name in hide:
             continue
         mesh = _poly(s.vertices, s.faces)
+        if wireframe:
+            p.add_mesh(mesh, style="wireframe", color=wireframe, line_width=line_width * 0.5, opacity=0.9)
+            continue
         if field and field in s.fields and not lines and slice_name is None:
             v = np.asarray(s.fields[field], float)
             mesh[field] = np.linalg.norm(v, axis=1) if v.ndim > 1 else v

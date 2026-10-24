@@ -30,6 +30,7 @@
   "no_qualify": false,
   "seed": 0,
   "report_only": true,
+  "dashboard": true,
   "confirm_fine": false
  },
  "scripts": [],
@@ -307,11 +308,26 @@
    "_out/figures/baseline_cp_top.png",
    "_out/figures/baseline_cp_bottom.png",
    "_out/figures/baseline_streamlines.png",
+   "_out/figures/baseline_cp_paraview.png",
+   "_out/figures/baseline_wireframe.png",
+   "_out/figures/baseline_midplane_cp.png",
+   "_out/figures/baseline_wake_vorticity.png",
+   "_out/figures/baseline_cycles_streamlines.png",
+   "_out/figures/baseline_cycles_cp.png",
    "_out/figures/best_cp_top.png",
    "_out/figures/best_cp_bottom.png",
-   "_out/figures/best_streamlines.png"
+   "_out/figures/best_streamlines.png",
+   "_out/figures/best_cp_paraview.png",
+   "_out/figures/best_wireframe.png",
+   "_out/figures/best_midplane_cp.png",
+   "_out/figures/best_wake_vorticity.png",
+   "_out/figures/best_cycles_streamlines.png",
+   "_out/figures/best_cycles_cp.png",
+   "_out/figures/dashboard.png"
   ],
-  "videos": [],
+  "videos": [
+   "_out/figures/dashboard_replay.mp4"
+  ],
   "viewers": [],
   "data": []
  },
@@ -324,9 +340,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "33d7bedb",
-  "created": "2026-10-24T13:53:48Z",
-  "seconds": 10.459,
+  "git": "969c6196",
+  "created": "2026-10-24T14:39:21Z",
+  "seconds": 242.735,
   "error": null,
   "environment": {
    "python": "3.13.17",

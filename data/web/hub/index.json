@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 416,
+  "tool": 417,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 137
+  "example": 139
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 416,
+   "tool": 417,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 137
+   "example": 139
   },
   "subkind": {
    "library call": 249,
-   "flow node": 84,
+   "flow node": 85,
    "recipe": 46,
    "function": 20,
    "agent tool (MCP)": 17
@@ -138,7 +138,7 @@
   "domain": {
    "physics AI": 90,
    "general": 78,
-   "fluid dynamics": 59,
+   "fluid dynamics": 60,
    "design and geometry": 58,
    "structural mechanics": 51,
    "numerical methods": 46,
@@ -153,6 +153,7 @@
    "geophysics and climate": 8,
    "astrophysics": 4,
    "robotics": 3,
+   "external aerodynamics": 2,
    "Estrutural / construção": 1,
    "Fluidos / saneamento": 1,
    "Fluidos / saneamento e óleo e gás": 1,
@@ -177,7 +178,7 @@
    "benchmarks": 14,
    "uq": 13,
    "inverse": 6,
-   "design": 27,
+   "design": 28,
    "systems": 33,
    "vehicles": 11,
    "electromagnetics": 9,
@@ -187,7 +188,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 528,
+   "not graded": 531,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -9667,8 +9668,8 @@
    "extra": {
     "calls": "pinneapple_core.workflows.OpenFOAMAdapter",
     "category": "Solvers",
-    "available": false,
-    "install": "needs OpenFOAM (blockMesh, icoFoam on PATH)",
+    "available": true,
+    "install": "",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -12859,7 +12860,7 @@
     "calls": "pinneapple_simulation.vehicle.dashboard.render_frames + vehicle_dashboard (to_html / to_png / to_video); pinneapple_simulation.vehicle.viz.frame_view + follow_camera; pinneapple_tools.visualization.studio.planetary.border_visibility",
     "category": "Visualization",
     "available": false,
-    "install": "pip install pyvista",
+    "install": "pip install imageio",
     "auto": false,
     "inputs": [
      {
@@ -15084,6 +15085,163 @@
     "stderr": "",
     "stdout": "Terrain scenario -> pinneapple_simulation.vehicle.scenarios.crater_site / flat_site\ninputs: []\noutputs: [('site', 'site')]\ndefaults: {'scenario': 'crater_site', 'depth_ratio': 0.08, 'scenery_craters': 60, 'scenery_rocks': 5, 'slope_deg': 0.0, 'cell': 0.01, 'seed': 5}",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:autolab.aerodynamicist",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "autolab.aerodynamicist",
+   "title": "The AI Aerodynamicist (race-car CFD lab)",
+   "summary": "The Autonomous Physics Lab on a parametric racing car: lower drag at 70 m/s keeping the downforce and the aero balance, OpenFOAM as the reference, surrogates compared on held-out…",
+   "description": "The Autonomous Physics Lab on a parametric racing car: lower drag at 70 m/s keeping the downforce and the\naero balance, OpenFOAM as the reference, surrogates compared on held-out runs, every candidate triaged\n(favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the answer audited. Returns the\nfour-area dashboard (geometry, physics, models, decisions) with the replay of the session.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Design",
+    "aero",
+    "agent",
+    "cfd",
+    "controller",
+    "design",
+    "mission",
+    "openfoam",
+    "optimization",
+    "pareto",
+    "surrogate",
+    "verification"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"autolab.aerodynamicist\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=autolab.aerodynamicist",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/autolab.py#L51"
+   },
+   "extra": {
+    "calls": "pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "source",
+      "kind": "enum",
+      "default": "recorded",
+      "help": "recorded: the committed session (20 OpenFOAM runs) replayed in the dashboard; run: the mission now (OpenFOAM, about 10 min per CFD run on 4 cores)",
+      "choices": [
+       "recorded",
+       "run"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "mission",
+      "kind": "text",
+      "default": "",
+      "help": "run only: the request in plain language (empty: the flagship one)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "budget",
+      "kind": "int",
+      "default": 20,
+      "help": "run only: reference simulations",
+      "choices": null,
+      "minimum": 6,
+      "maximum": 60,
+      "advanced": false
+     },
+     {
+      "name": "procs",
+      "kind": "int",
+      "default": 4,
+      "help": "",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 64,
+      "advanced": true
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "source": {
+       "title": "source",
+       "description": "recorded: the committed session (20 OpenFOAM runs) replayed in the dashboard; run: the mission now (OpenFOAM, about 10 min per CFD run on 4 cores)",
+       "x-kind": "enum",
+       "default": "recorded",
+       "enum": [
+        "recorded",
+        "run"
+       ]
+      },
+      "mission": {
+       "title": "mission",
+       "description": "run only: the request in plain language (empty: the flagship one)",
+       "x-kind": "text",
+       "default": "",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "budget": {
+       "title": "budget",
+       "description": "run only: reference simulations",
+       "x-kind": "int",
+       "default": 20,
+       "type": "integer",
+       "minimum": 6,
+       "maximum": 60
+      },
+      "procs": {
+       "title": "procs",
+       "description": "",
+       "x-kind": "int",
+       "default": 4,
+       "x-advanced": true,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 64
+      }
+     }
+    }
+   },
+   "category": "design",
+   "run": {
+    "ok": true,
+    "stdout": "The AI Aerodynamicist (race-car CFD lab) -> pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'source': 'recorded', 'mission': '', 'budget': 20, 'procs': 4}",
+    "stderr": "",
+    "seconds": 4.78,
+    "timed_out": false,
+    "code_hash": "cca02ed6e82bcd6b",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -77103,6 +77261,236 @@
     "stderr": "",
     "stdout": "B - hard constraints hold · Mohr-Coulomb and torque, built in",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/autolab_aero",
+   "kind": "example",
+   "name": "examples/autolab_aero",
+   "title": "The AI Aerodynamicist (Autonomous Physics Lab)",
+   "summary": "Lower drag at 70 m/s keeping the downforce and the aero balance: OpenFOAM 3-D on a parametric racing car, surrogates compared on held-out CFD, NSGA-II on the surrogate, every…",
+   "description": "Lower drag at 70 m/s keeping the downforce and the aero balance: OpenFOAM 3-D on a parametric racing car, surrogates compared on held-out CFD, NSGA-II on the surrogate, every candidate triaged (favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the recommendation verified by CFD.",
+   "domain": "external aerodynamics",
+   "tags": [
+    "Gaussian process",
+    "MLP ensemble",
+    "NSGA-II",
+    "OpenFOAM simpleFoam k-omega SST",
+    "POD + GP surface field",
+    "active learning",
+    "quadratic response surface",
+    "snappyHexMesh"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_aero"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_aero\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/autolab_aero/autolab_aero.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "cfd_runs",
+      "value": 20.0,
+      "unit": "runs",
+      "how": "OpenFOAM runs charged to the mission budget"
+     },
+     {
+      "name": "cfd_wall",
+      "value": 11840.2,
+      "unit": "s",
+      "how": "summed wall time of the mission's OpenFOAM runs, 4 cores"
+     },
+     {
+      "name": "failed_runs",
+      "value": 0.0,
+      "unit": "runs",
+      "how": "runs that did not finish"
+     },
+     {
+      "name": "mesh_drag_N_vs_fine",
+      "value": -0.2274348209939454,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "mesh_downforce_N_vs_fine",
+      "value": -8.40857266320646,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "mesh_balance_front_vs_fine",
+      "value": 9.60069709783955,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "drag_change",
+      "value": -15.667219882799474,
+      "unit": "%",
+      "how": "best simulated feasible vs baseline (CFD)"
+     },
+     {
+      "name": "drag_best",
+      "value": 2795.476711173259,
+      "unit": "N",
+      "how": "CFD of the recommended design"
+     },
+     {
+      "name": "downforce_best",
+      "value": 7318.832880603657,
+      "unit": "N",
+      "how": "CFD of the recommended design"
+     },
+     {
+      "name": "drag_change_fine",
+      "value": -13.945206047386797,
+      "unit": "%",
+      "how": "recommended vs baseline, both on the fine mesh"
+     },
+     {
+      "name": "cv_rel_error_drag_N",
+      "value": 2.352359865034112,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     },
+     {
+      "name": "cv_rel_error_downforce_N",
+      "value": 10.206190374761313,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     },
+     {
+      "name": "cv_rel_error_balance_front",
+      "value": 4.3139069742995,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     }
+    ],
+    "figures": [
+     "examples/autolab_aero/_out/figures/pareto.png",
+     "examples/autolab_aero/_out/figures/models.png",
+     "examples/autolab_aero/_out/figures/learning.png",
+     "examples/autolab_aero/_out/figures/trust_abc.png",
+     "examples/autolab_aero/_out/figures/cp_numerical_prediction_error.png",
+     "examples/autolab_aero/_out/figures/baseline_cp_top.png",
+     "examples/autolab_aero/_out/figures/baseline_cp_bottom.png",
+     "examples/autolab_aero/_out/figures/baseline_streamlines.png"
+    ],
+    "videos": [
+     "examples/autolab_aero/_out/figures/dashboard_replay.mp4"
+    ]
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/autolab_aero/autolab_aero.py",
+    "lab": "lab/index.html#examples/autolab_aero"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+    "stderr": "",
+    "seconds": 0.65,
+    "timed_out": false,
+    "code_hash": "dc2d0c36e9e9dec7",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/autolab_aero_agent",
+   "kind": "example",
+   "name": "examples/autolab_aero_agent",
+   "title": "The AI Aerodynamicist, driven by an agent",
+   "summary": "The mission in words is read into objectives, limits and a budget (or refused with the reason), then an agent drives the Autonomous Physics Lab one controlled tool call at a…",
+   "description": "The mission in words is read into objectives, limits and a budget (or refused with the reason), then an agent drives the Autonomous Physics Lab one controlled tool call at a time; its answer is audited against the ledger of OpenFOAM runs.",
+   "domain": "external aerodynamics",
+   "tags": [
+    "MLP ensemble / GP surrogates",
+    "NSGA-II",
+    "OpenFOAM simpleFoam",
+    "active learning",
+    "agent over controlled tools"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_aero_agent"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_aero_agent\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "agent_steps",
+      "value": 31.0,
+      "unit": "tool calls",
+      "how": "tool calls of the agent session"
+     },
+     {
+      "name": "replayed_runs",
+      "value": 21.0,
+      "unit": "runs",
+      "how": "designs answered from the stage-1 ledger"
+     },
+     {
+      "name": "new_cfd_runs",
+      "value": 0.0,
+      "unit": "runs",
+      "how": "designs simulated in OpenFOAM in this session"
+     },
+     {
+      "name": "drag_change",
+      "value": -15.667219882799474,
+      "unit": "%",
+      "how": "recommended (simulated) vs baseline, campaign mesh"
+     },
+     {
+      "name": "agent_refused_calls",
+      "value": 0.0,
+      "unit": "calls",
+      "how": "tool calls the toolbox refused or that failed"
+     }
+    ],
+    "figures": [],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/autonomous_lab.md",
+    "lab": "lab/index.html#examples/autolab_aero_agent"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
+    "stderr": "",
+    "seconds": 0.72,
+    "timed_out": false,
+    "code_hash": "3f0f030410fd8957",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },

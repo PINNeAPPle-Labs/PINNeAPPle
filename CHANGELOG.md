@@ -29,6 +29,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   here: drag -15.7 % with the downforce and balance limits met, -13.95 % on the fine mesh where the balance limit is
   missed by 1 %, within the solver's iteration noise; 3 of 4 "uncertain" designs rejected by CFD); guide
   `docs/guides/autonomous_lab.md`.
+- `pinneapple_autolab.dashboard`: four synchronised areas (geometry, physics, models, decisions) over a lab session,
+  read from its files (`ledger.json`, `events.jsonl`, `snapshot_live.json` written by the lab after every assessment
+  and simulation): static page with a replay of the recorded events, live server (`serve`, `/state.json`),
+  screenshot and replay video (`capture`, `record_replay`). In a replay a design, render or figure appears only once
+  its run exists; failed runs, training and unverified candidates are shown as such. Race car:
+  `domains.racecar.build_dashboard`, `recorded_dashboard`, `cycles_renders` (Blender Cycles), `render_run` adds the
+  surface mesh, Cp ±0.5, mid-plane Cp and wake vorticity. Flow Studio node `autolab.aerodynamicist` (recorded session
+  or a live run), listed in the Hub with both examples. `render_scene(wireframe=...)` in the PyVista bridge.
 - `pinneapple_autolab.agent`: a mission in words read into objectives, limits and a budget with what was read from
   which words and what was assumed (refusing operating points the solver is not set up for and requests with no
   objective); the lab as a closed toolbox (`lab_toolbox`); a deterministic step planner (`LabPlanner`) and a language

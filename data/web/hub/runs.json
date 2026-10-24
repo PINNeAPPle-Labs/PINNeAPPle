@@ -1110,6 +1110,50 @@
   "stdout": "pinneapple_solvers examples | numerical methods | not curated",
   "timed_out": false
  },
+ "example:examples/nvidia": {
+  "code_hash": "919bba4381b00794",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.13,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "PINNeAPPle with the NVIDIA stack | physics AI | not curated\ncoldplate_fno_test_rel_l2 0.017551220805002144 \npipeline_max_pressure_60s_closure 14.65695471406468 bar\nplume_fno_one_step_rel_l2 0.01804893909474389 \nplume_fno_trust_horizon 10.0 steps",
+  "timed_out": false
+ },
+ "example:examples/nvidia/01_omniverse_pump_pipeline": {
+  "code_hash": "dfae5d4caaf8fc15",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.86,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Pump and pipeline water hammer twin in OpenUSD | hydraulics | not curated\nflow_m3_s 0.5764952765862256 m^3/s\nvelocity_m_s 2.0389349541739374 m/s\nmax_pressure_bar_closure_0s 26.33736760656158 bar\nmax_pressure_bar_closure_6s 25.48263329314509 bar\nmax_pressure_bar_closure_20s 23.148129867493747 bar",
+  "timed_out": false
+ },
+ "example:examples/nvidia/02_physicsnemo_plume_rollout": {
+  "code_hash": "8d93628fde1c445b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.13,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Plume forecast: PhysicsNeMo FNO rollout with PINNeAPPle rollout validation | transport | not curated\none_step_rel_l2 0.01804893909474389 \ntrust_horizon_steps 10.0 steps\nmass_drift 0.04480531539697272",
+  "timed_out": false
+ },
+ "example:examples/nvidia/07_omniverse_physicsnemo_coldplate": {
+  "code_hash": "6c1a74ed563c5c29",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.03,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene | heat transfer | not curated\ntest_rel_l2 0.017551220805002144 \nmax_hotspot_error_K 0.23619471814862428 K\ntrain_wall_s 153.67537451800104 s",
+  "timed_out": false
+ },
  "example:examples/openfoam_campaign": {
   "code_hash": "8dc7cb4592319fdf",
   "figures": [],
@@ -5321,6 +5365,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Export a library geometry -> pinneapple_flow.wrappers:geometry_export pinneapple_design\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': 'caarc_building', 'fmt': 'stl', 'lod': 'light'}",
+  "timed_out": false
+ },
+ "node:lib.export.usd_validate": {
+  "code_hash": "d8be8544c2f86269",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.25,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Check a USD stage (Omniverse) -> pinneapple_tools.nvidia.omniverse:validate_stage\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'path': None, 'compliance': True}",
   "timed_out": false
  },
  "node:lib.model.architecture": {

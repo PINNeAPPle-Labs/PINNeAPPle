@@ -31,7 +31,7 @@ import scipy.sparse.linalg as spla
 from .etdrk4 import ETDRK4
 
 __all__ = ["periodic_grf", "threshold_coefficient", "burgers_1d", "navier_stokes_2d_vorticity", "li_forcing",
-           "darcy_2d", "darcy_matrix", "darcy_operator", "spectral_downsample", "FourierInterpolant"]
+           "darcy_2d", "darcy_matrix", "advection_diffusion_2d", "darcy_operator", "spectral_downsample", "FourierInterpolant"]
 
 
 # --------------------------------------------------------------------------- random inputs
@@ -150,6 +150,28 @@ def navier_stokes_2d_vorticity(w0: np.ndarray, nu: float, t_end: float, *, forci
     if not np.all(np.isfinite(out[-1])):
         raise FloatingPointError("navier_stokes_2d_vorticity blew up: reduce dt")
     return np.linspace(0.0, t_end, n_save + 1), np.stack(out, axis=1)
+
+
+# --------------------------------------------------------------------------- advection-diffusion 2-D
+def advection_diffusion_2d(u0: np.ndarray, velocity: Sequence[float], kappa: float, dt: float,
+                           n_steps: int) -> np.ndarray:
+    """``u_t + c . grad u = kappa lap u`` on the periodic unit square, exact in time for the resolved modes: each
+    Fourier mode is multiplied by ``exp((-i k . c - kappa |k|^2) dt)`` per step. ``u0``: ``(n, n)`` or
+    ``(batch, n, n)`` (axis 0 is x). Returns ``(n_steps + 1, ...)`` states, the first one ``u0``.
+
+    The mean (total mass) is conserved exactly, the L2 norm never grows, and the maximum principle holds for the
+    continuous solution (the discrete one up to Gibbs effects of unresolved data)."""
+    u0 = np.asarray(u0, dtype=np.float64)
+    n = u0.shape[-1]
+    k = 2 * np.pi * np.fft.fftfreq(n, d=1.0 / n)
+    KX, KY = np.meshgrid(k, k, indexing="ij")
+    g = np.exp((-1j * (KX * velocity[0] + KY * velocity[1]) - kappa * (KX ** 2 + KY ** 2)) * dt)
+    uh = np.fft.fft2(u0, axes=(-2, -1))
+    out = [u0]
+    for _ in range(int(n_steps)):
+        uh = uh * g
+        out.append(np.real(np.fft.ifft2(uh, axes=(-2, -1))))
+    return np.stack(out)
 
 
 # --------------------------------------------------------------------------- Darcy 2-D

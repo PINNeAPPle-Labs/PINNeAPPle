@@ -1,0 +1,166 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/12_omniverse_robotsim_arm",
+ "title": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton)",
+ "description": "",
+ "domain": "robotics",
+ "methods": [
+  "Newton Featherstone",
+  "OpenUSD"
+ ],
+ "modules": [
+  "pinneapple_simulation.robot_sim",
+  "pinneapple_tools.nvidia.isaac",
+  "pinneapple_tools.nvidia.omniverse"
+ ],
+ "params": {
+  "payload_kg": 5.0,
+  "kp": [
+   350.0,
+   110.0
+  ],
+  "kd": [
+   5.0,
+   2.5
+  ]
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "usd_vs_urdf_motion",
+   "value": 0.0,
+   "unit": "rad",
+   "how": "max |q_USD - q_URDF| over the move, Newton"
+  },
+  {
+   "name": "tracking_error_mrad",
+   "value": 0.4794181231414507,
+   "unit": "mrad",
+   "how": "max |q - q_plan|, Newton from the USD"
+  }
+ ],
+ "checks": [
+  {
+   "name": "UsdPhysics stage valid (parser + validators)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "{'Scene': 1, 'CubeShape': 4, 'Articulation': 1, 'RigidBody': 3, 'FixedJoint': 1, 'RevoluteJoint': 2}",
+   "kind": "sanity"
+  },
+  {
+   "name": "Newton reads the USD masses / com / inertia exactly",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-06,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "same motion from USD and URDF (rad)",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-09,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "tracking error (rad)",
+   "passed": true,
+   "value": 0.0004794181231414507,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.002,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "energy balance: actuator work = dE",
+   "passed": true,
+   "value": 0.0013825636032303893,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "shoulder link root: peak stress x SF 3 <= yield",
+   "passed": true,
+   "value": 0.14901661681666123,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "13.7 MPa",
+   "kind": "sanity"
+  },
+  {
+   "name": "elbow link root: peak stress x SF 3 <= yield",
+   "passed": true,
+   "value": 0.05458315454839868,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "5.0 MPa",
+   "kind": "sanity"
+  },
+  {
+   "name": "timeline stage valid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "392 time samples",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/usd_physics_preview.png",
+   "results/usd_timeline_peak.png",
+   "results/robotsim.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "00347f7a",
+  "created": "2026-10-24T00:59:43Z",
+  "seconds": 16.126,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

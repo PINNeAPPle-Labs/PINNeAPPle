@@ -22,7 +22,8 @@ from typing import Any
 __all__ = ["RunInfo", "environment"]
 
 PACKAGES = ("pinneapple", "torch", "numpy", "scipy", "matplotlib", "nvidia-physicsnemo", "nvidia-physicsnemo.sym",
-            "usd-core", "isaacsim", "isaaclab", "torch_geometric", "torch_scatter", "openai", "requests")
+            "usd-core", "usd-brep", "newton", "newton-usd-schemas", "warp-lang", "isaacsim", "isaaclab",
+            "torch_geometric", "torch_scatter", "requests")
 
 
 def _cpu() -> str:

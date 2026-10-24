@@ -328,6 +328,7 @@ class AutonomousLab:
         counts = {lab: int(sum(c.label == lab for c in self.candidates)) for lab in
                   ("favourable", "uncertain", "out_of_domain", "unlikely")}
         self.ledger.event("assess", "candidates: " + ", ".join(f"{v} {k}" for k, v in counts.items()), counts=counts)
+        self._write_live()
         return self.candidates
 
     def choose_next(self) -> NextExperiment:
@@ -378,7 +379,19 @@ class AutonomousLab:
         msg = (f"{entry['run']}: predicted {self._fmt(c.predicted)} -> simulated {self._fmt(c.reference)}; "
                f"{label_before} -> {c.label}") if ok else f"run failed or refused; {label_before} -> {c.label}"
         self.ledger.event("verify" if verification else "update", msg, outcome=entry)
+        self._write_live()
         return entry
+
+    def _write_live(self) -> None:
+        """``snapshot_live.json`` in the session folder: what a live dashboard shows between events."""
+        import json
+        try:
+            path = os.path.join(self.folder, "snapshot_live.json")
+            with open(path + ".tmp", "w") as f:
+                json.dump(self.snapshot(max_candidates=1500), f, default=float, separators=(",", ":"))
+            os.replace(path + ".tmp", path)
+        except Exception as e:  # noqa: BLE001 - a dashboard file must never stop a campaign
+            self.ledger.event("deliver", f"live snapshot not written: {type(e).__name__}: {e}")
 
     def _fmt(self, d: dict[str, float]) -> str:
         return ", ".join(f"{k} {v:.4g}" for k, v in d.items() if k in self.mission.outputs())

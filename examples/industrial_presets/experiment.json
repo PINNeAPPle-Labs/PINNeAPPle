@@ -13,6 +13,42 @@
  "metrics": [],
  "checks": [
   {
+   "name": "airfoil_section_re4e6: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "eddy_current_skin_inspection: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "ipm_traction_motor: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
    "name": "plate_fin_heatsink_forced: validation",
    "passed": true,
    "value": null,
@@ -62,6 +98,18 @@
   },
   {
    "name": "shell_tube_cooler: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "spm_servo_motor: validation",
    "passed": true,
    "value": null,
    "reference": null,
@@ -133,9 +181,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "4e59c29f",
-  "created": "2026-10-24T01:23:13Z",
-  "seconds": 0.013,
+  "git": "b5a379e1",
+  "created": "2026-10-24T17:03:59Z",
+  "seconds": 0.007,
   "error": null,
   "environment": {
    "python": "3.13.17",

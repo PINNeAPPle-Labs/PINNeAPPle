@@ -14,6 +14,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Fixed
+- `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
+  system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
+  0.08 s), so a 0.1 mm probe model took minutes; same solution to round-off.
+- `pinneapple_design.aero.panel`: `airfoil_nodes` / `panel_solve(..., close_te=True)` close the blunt CST trailing
+  edge. With the gap open the Kutta condition acts on panels smaller than the gap and Cl does not converge with
+  the panel count (NACA 2412 at 4 deg: 0.728 to 0.706 for 50 to 800 panels per side); closed it converges
+  (0.7296, 0.7292 at 400 and 800). The default is unchanged.
 - `SolidFEM` (8-node hexahedra) mapped the shape-function gradients with the transposed inverse Jacobian, so
   strains and stresses were wrong on elements not aligned with the axes (a patch test gave 0.5-0.75 of the imposed
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
@@ -63,6 +70,22 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   here: drag -15.7 % with the downforce and balance limits met, -13.95 % on the fine mesh where the balance limit is
   missed by 1 %, within the solver's iteration noise; 3 of 4 "uncertain" designs rejected by CFD); guide
   `docs/guides/autonomous_lab.md`.
+- `pinneapple_autolab.dashboard`: four synchronised areas (geometry, physics, models, decisions) over a lab session,
+  read from its files (`ledger.json`, `events.jsonl`, `snapshot_live.json` written by the lab after every assessment
+  and simulation): static page with a replay of the recorded events, live server (`serve`, `/state.json`),
+  screenshot and replay video (`capture`, `record_replay`). In a replay a design, render or figure appears only once
+  its run exists; failed runs, training and unverified candidates are shown as such. Race car:
+  `domains.racecar.build_dashboard`, `recorded_dashboard`, `cycles_renders` (Blender Cycles), `render_run` adds the
+  surface mesh, Cp ±0.5, mid-plane Cp and wake vorticity. Flow Studio node `autolab.aerodynamicist` (recorded session
+  or a live run), listed in the Hub with both examples. `render_scene(wireframe=...)` in the PyVista bridge.
+- `pinneapple_autolab.agent`: a mission in words read into objectives, limits and a budget with what was read from
+  which words and what was assumed (refusing operating points the solver is not set up for and requests with no
+  objective); the lab as a closed toolbox (`lab_toolbox`); a deterministic step planner (`LabPlanner`) and a language
+  model one (`core.LLMStepPlanner`) over `core.act`, a decide-check-run-record loop next to `execute`; an audit of the
+  final answer (every number from a tool result, the recommended run simulated and feasible);
+  `pinneapple_autolab.replay.ReplaySimulator` (answers exact repeats from a ledger, labelled, simulates the rest).
+  Example `examples/autolab_aero_agent/` (the stage-1 mission reproduced decision for decision, refusals, a scripted
+  careless planner refused and flagged).
 - `ExternalFlow`: `body_levels` (surface refinement per body, e.g. thin wing elements), `refine_boxes`,
   `write_every` + `force_history()` (forces at every written iteration), `FlowResult.load()`.
 >>>>>>> origin/main
@@ -102,6 +125,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   thickness, k(T) by the Kirchhoff transform checked by finite volumes), ASME VIII Div. 1 pressure vessel (UG-27 /
   UG-32, Lamé and a 3-D C3D8I ring), centrifugal pump NPSH (IAPWS-IF97 saturation pressure, ISO 2533 atmosphere,
   ANSI/HI 9.6.1 margin). New closed forms: `heat_exchanger`, `pipe_insulation`, `pump_npsh`.
+- Industrial presets, batch 3: wing / blade section at Re 4e6 (zoo RANS surrogate checked against held-out
+  OpenFOAM and XFOIL data, thin-airfoil zero-lift angle and the panel method), surface-PM servo motor (Maxwell
+  stress vs co-energy, power balance, kt vs ke), Prius 2004 IPM traction motor (torque against current angle vs
+  Yang et al. 2013, MTPA, resolver-offset inversion), eddy-current inspection of aircraft skin (Dodd & Deeds
+  closed form `pinneapple_physics.closed_form.eddy_coil`, checked against the axisymmetric FDM and Wheeler's
+  formula; frequency choice and multi-frequency thickness / lift-off inversion).
 - `pinneapple_simulation.numerical_solvers.pipe_network`: looped pipe networks by the global gradient algorithm
   (Hazen-Williams, Darcy-Weisbach/Colebrook) and least-cost discrete sizing by a genetic algorithm.
 - `pinneapple_simulation.numerical_solvers.beam_fe`: Euler-Bernoulli Hermite beam elements (static and modes).

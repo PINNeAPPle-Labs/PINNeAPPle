@@ -1,0 +1,58 @@
+{
+ "preset": "spm_servo_motor",
+ "references": [
+  {
+   "case": "torque: tensor de Maxwell vs co-energia",
+   "output": "torque",
+   "unit": "N m",
+   "computed": 7.52696905751996,
+   "reference": 7.525814924564543,
+   "rel_error": 0.00015335654237919993,
+   "tol": 0.01,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "duas integra\u00e7\u00f5es independentes do mesmo campo (lib, tests/test_motor_magnetics.py mede 0,09 %)",
+   "params": {}
+  },
+  {
+   "case": "torque - cogging vs i.e/w (balan\u00e7o de pot\u00eancia)",
+   "output": "torque",
+   "unit": "N m",
+   "computed": 7.473062979699129,
+   "reference": 7.632613896484088,
+   "rel_error": 0.020903837001168817,
+   "tol": 0.03,
+   "pass": true,
+   "kind": "analytic",
+   "source": "conserva\u00e7\u00e3o de energia: P_mec = sum i_k e_k",
+   "params": {}
+  },
+  {
+   "case": "kt (FEM) vs 3/2 ke1 (fundamental da FEM, m\u00e1quina senoidal)",
+   "output": "kt",
+   "unit": "N m/A",
+   "computed": 0.525775521758763,
+   "reference": 0.5410455249452333,
+   "rel_error": 0.028223139241408575,
+   "tol": 0.05,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Pyrh\u00f6nen, Jokinen & Hrabovcov\u00e1, Design of Rotating Electrical Machines, 2a ed. (2014), eq. de torque da m\u00e1quina s\u00edncrona de \u00edm\u00e3s",
+   "params": {}
+  }
+ ],
+ "convergence": {
+  "parameter": "n_theta (12 posi\u00e7\u00f5es por passo de ranhura)",
+  "values": [
+   360,
+   720
+  ],
+  "torque": [
+   7.041840666997937,
+   7.020089525723287
+  ],
+  "rel_change_last": 0.0030984136591063883,
+  "pass": true
+ },
+ "all_pass": true
+}

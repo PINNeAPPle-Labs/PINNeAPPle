@@ -758,6 +758,17 @@
   "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
   "timed_out": false
  },
+ "example:examples/autolab_aero_agent": {
+  "code_hash": "3f0f030410fd8957",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.89,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
+  "timed_out": false
+ },
  "example:examples/autolab_digital_twin": {
   "code_hash": "b8c6879d1ad7fbc7",
   "figures": [],
@@ -1055,6 +1066,39 @@
   "stdout": "Presets industriais | engineering | not curated",
   "timed_out": false
  },
+ "example:examples/industrial_presets/airfoil_section_re4e6": {
+  "code_hash": "cfaf27e490f8e51e",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Perfil de asa / pá a Re 4e6: sustentação, arrasto e momento (surrogate verificado de RANS) | Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica | not curated\nrel_error[Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl] 0.003231396365459536 -\nrel_error[Cd vs naca_reference: erro = erro relativo médio] 0.0061563188229423905 -\nrel_error[Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl] 0.010092481383557984 -\nrel_error[Cd vs xfoil_naca2412: erro = erro relativo médio] 0.02812720929821659 -\nrel_error[ângulo de sustentação nula do NACA 2412] 0.03635566045042856 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/eddy_current_skin_inspection": {
+  "code_hash": "d8c85855f4abdcf8",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Inspeção por correntes parasitas de chapa de alumínio aeronáutico: impedância e afinamento | Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás) | not curated\nrel_error[dZ da sonda: Dodd & Deeds vs FDM axissimétrico da lib (h = 0,1 mm)] 0.004556780826434239 -\nrel_error[placa de 10 delta = semi-espaço] 3.5127381771509463e-10 -\nrel_error[indutância da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)] 0.007164850368795491 -\ninversion_rel_err 0.0008745368406067657 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/ipm_traction_motor": {
+  "code_hash": "fc4db2be66323b2d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.03,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Motor de tração de ímãs internos (geometria do Toyota Prius 2004): torque, MTPA e tensão | Eletromagnetismo / mobilidade elétrica | not curated\nrel_error[torque máximo da curva T(ângulo) a 250 A] 0.03511391427243841 -\nrel_error[curva T(ângulo) a 250 A, 13 pontos: erro médio / torque máximo] 0.03376705963443254 -\nrel_error[ângulo de torque máximo (Phi0)] 0.0 -\nrel_error[torque: tensor de Maxwell vs co-energia (250 A, 50°)] 0.009883900864553579 -\nsurrogate_holdout_max_rel_err 0.058393295555846436 -",
+  "timed_out": false
+ },
  "example:examples/industrial_presets/plate_fin_heatsink_forced": {
   "code_hash": "5c02f81d956057e8",
   "figures": [],
@@ -1108,6 +1152,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos) | Térmica / processo e energia | not curated\nrel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto] 3.277045816399516e-14 -\nrel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto] 4.189200564160273e-14 -\nrel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto] 9.398982902295129e-15 -\nrel_error[Cr -> 0: epsilon = 1 - exp(-NTU)] 0.0 -\nrel_error[h tubos: Gnielinski vs Dittus-Boelter] 0.09283884594855282 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/spm_servo_motor": {
+  "code_hash": "f8e193cfffbbbae9",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.19,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Motor síncrono de ímãs superficiais (servo 4 polos, 24 ranhuras): torque, ondulação e cogging | Eletromagnetismo / máquinas elétricas | not curated\nrel_error[torque: tensor de Maxwell vs co-energia] 0.00015335654237919993 -\nrel_error[torque - cogging vs i.e/w (balanço de potência)] 0.020903837001168817 -\nrel_error[kt (FEM) vs 3/2 ke1 (fundamental da FEM, máquina senoidal)] 0.028223139241408575 -\nsurrogate_holdout_max_rel_err 0.010298457639493648 -\ninversion_rel_err 0.000972648928707076 -",
   "timed_out": false
  },
  "example:examples/industrial_presets/steam_pipe_insulation": {
@@ -5640,6 +5695,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "str\n''",
+  "timed_out": false
+ },
+ "node:autolab.aerodynamicist": {
+  "code_hash": "cca02ed6e82bcd6b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 6.37,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist (race-car CFD lab) -> pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'source': 'recorded', 'mission': '', 'budget': 20, 'procs': 4}",
   "timed_out": false
  },
  "node:autolab.board_cooling": {

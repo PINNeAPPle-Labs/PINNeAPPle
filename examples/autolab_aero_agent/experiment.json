@@ -1,0 +1,136 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/autolab_aero_agent",
+ "title": "The AI Aerodynamicist, driven by an agent",
+ "description": "The mission in words is read into objectives, limits and a budget (or refused with the reason), then an agent drives the Autonomous Physics Lab one controlled tool call at a time; its answer is audited against the ledger of OpenFOAM runs.",
+ "domain": "external aerodynamics",
+ "methods": [
+  "agent over controlled tools",
+  "OpenFOAM simpleFoam",
+  "MLP ensemble / GP surrogates",
+  "NSGA-II",
+  "active learning"
+ ],
+ "modules": [
+  "pinneapple_autolab.agent",
+  "pinneapple_autolab.core",
+  "pinneapple_autolab.replay"
+ ],
+ "params": {
+  "provider": null,
+  "model": null,
+  "no_replay": false,
+  "mission": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD. Use at most 20 CFD runs."
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "agent_steps",
+   "value": 31.0,
+   "unit": "tool calls",
+   "how": "tool calls of the agent session"
+  },
+  {
+   "name": "replayed_runs",
+   "value": 21.0,
+   "unit": "runs",
+   "how": "designs answered from the stage-1 ledger"
+  },
+  {
+   "name": "new_cfd_runs",
+   "value": 0.0,
+   "unit": "runs",
+   "how": "designs simulated in OpenFOAM in this session"
+  },
+  {
+   "name": "drag_change",
+   "value": -15.667219882799474,
+   "unit": "%",
+   "how": "recommended (simulated) vs baseline, campaign mesh"
+  },
+  {
+   "name": "agent_refused_calls",
+   "value": 0.0,
+   "unit": "calls",
+   "how": "tool calls the toolbox refused or that failed"
+  }
+ ],
+ "checks": [
+  {
+   "name": "rogue_steps_refused",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "the speed change and the unknown tool are refused before anything runs",
+   "kind": "physical"
+  },
+  {
+   "name": "rogue_answer_flagged",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "numbers no tool returned are flagged in the audit",
+   "kind": "reference"
+  },
+  {
+   "name": "agent_answer_supported",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "every number in the agent's answer comes from a tool result",
+   "kind": "reference"
+  },
+  {
+   "name": "agent_refuses_other_speed",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "a mission at a speed the solver was not qualified for is refused",
+   "kind": "physical"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "stage 1": "examples/autolab_aero",
+  "guide": "docs/guides/autonomous_lab.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "a0d0b620",
+  "created": "2026-10-24T14:05:58Z",
+  "seconds": 94.88,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

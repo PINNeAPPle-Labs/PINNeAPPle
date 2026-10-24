@@ -1452,6 +1452,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Benchmark Arena: the result of a private benchmark stays inside its column at 1440 px (the page no longer
+  scrolls sideways): grid items may shrink, cost and regimes stack, the seed spread wraps under each mean.
 - Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs
   existing cases". `ParameterSpace` constants and categories match numbers by value (`4000000 == 4000000.0`, as
   JSON from the page drops the `.0`), so the 436 preset runs count as inside the space again.

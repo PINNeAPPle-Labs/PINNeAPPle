@@ -69,3 +69,10 @@ def test_private_benchmark(client):
     assert "a >=" in next(g for g in r["regimes"] if g["id"] == "extrapolation")["description"]
     assert client.get(f"/api/benchmarks/{job['id']}/files/report.md").text.startswith("# Private benchmark")
     assert client.get("/api/usage").json()["units"]["benchmarks"]["used"] == 1
+
+
+def test_private_result_stays_inside_its_column():
+    """The private result renders beside the form: grid items must be allowed to shrink, or the wide ranking table
+    pushes the page into a horizontal scroll at 1440 px."""
+    css = (ROOT / "apps" / "benchmark_arena" / "benchmark_arena" / "static" / "style.css").read_text()
+    assert ".layout > * { min-width: 0; }" in css and "#runview { overflow-x: auto; }" in css

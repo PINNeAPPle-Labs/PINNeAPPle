@@ -37,6 +37,18 @@
    "kind": "sanity"
   },
   {
+   "name": "ipm_traction_motor: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
    "name": "plate_fin_heatsink_forced: validation",
    "passed": true,
    "value": null,
@@ -157,9 +169,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "6847fe99",
-  "created": "2026-10-24T02:22:44Z",
-  "seconds": 0.005,
+  "git": "9e9034de",
+  "created": "2026-10-24T10:26:53Z",
+  "seconds": 0.006,
   "error": null,
   "environment": {
    "python": "3.13.17",

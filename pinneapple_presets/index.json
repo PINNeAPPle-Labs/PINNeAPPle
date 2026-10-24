@@ -1311,7 +1311,395 @@
     }
    },
    "results": {
-    "folder": "examples/industrial_presets/ipm_traction_motor"
+    "folder": "examples/industrial_presets/ipm_traction_motor",
+    "decision": {
+     "verdict": "OK",
+     "reasons": [
+      "torque 334.9 N m a 250 A, gamma 40°",
+      "tensão de fase 210 V <= limite 289 V a 1500 rpm"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "Maxwell-stress torque = dq-flux torque (within 5 %)",
+       "status": "supports",
+       "value": 0.011530809744366348,
+       "limit": 0.05,
+       "source": "two post-processings of the same fields",
+       "reason": ""
+      },
+      {
+       "name": "current within the 300 A inverter peak rating",
+       "status": "supports",
+       "value": 250.0,
+       "limit": 300,
+       "source": "Staunton et al., ORNL/TM-2004/247, 'Evaluation of the 2004 Toyota Prius hybrid electric drive system' (2005)",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "ipm_traction_motor",
+     "references": [
+      {
+       "case": "torque máximo da curva T(ângulo) a 250 A",
+       "output": "torque",
+       "unit": "N m",
+       "computed": 340.60478826182924,
+       "reference": 353.0,
+       "rel_error": 0.03511391427243841,
+       "tol": 0.05,
+       "pass": true,
+       "kind": "benchmark",
+       "source": "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na suíte de testes do pyleecan",
+       "params": {
+        "I_peak": 250
+       }
+      },
+      {
+       "case": "curva T(ângulo) a 250 A, 13 pontos: erro médio / torque máximo",
+       "output": "torque",
+       "unit": "-",
+       "computed": 0.03376705963443254,
+       "reference": 0.0,
+       "rel_error": 0.03376705963443254,
+       "tol": 0.05,
+       "pass": true,
+       "kind": "benchmark",
+       "source": "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na suíte de testes do pyleecan",
+       "params": {}
+      },
+      {
+       "case": "ângulo de torque máximo (Phi0)",
+       "output": "phi0",
+       "unit": "deg",
+       "computed": 140.0,
+       "reference": 140.0,
+       "rel_error": 0.0,
+       "tol": 0.1,
+       "pass": true,
+       "kind": "benchmark",
+       "source": "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na suíte de testes do pyleecan",
+       "params": {}
+      },
+      {
+       "case": "torque: tensor de Maxwell vs co-energia (250 A, 50°)",
+       "output": "torque",
+       "unit": "N m",
+       "computed": 357.2541653157217,
+       "reference": 360.82047916165624,
+       "rel_error": 0.009883900864553579,
+       "tol": 0.02,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "trabalho virtual dW'/dtheta (diferenças de 4a ordem)",
+       "params": {}
+      }
+     ],
+     "convergence": {
+      "parameter": "nós no entreferro",
+      "values": [
+       480,
+       960
+      ],
+      "torque": [
+       334.86285399739717,
+       339.2918623358118
+      ],
+      "rel_change_last": 0.013053682773066488,
+      "pass": true
+     },
+     "yang_curve": {
+      "phi0": [
+       60.0,
+       70.0,
+       80.0,
+       90.0,
+       100.0,
+       110.0,
+       120.0,
+       130.0,
+       140.0,
+       150.0,
+       160.0,
+       170.0,
+       180.0
+      ],
+      "fem": [
+       93.21694967794379,
+       134.19193919244586,
+       175.6466466614797,
+       216.41358025912527,
+       254.373290457617,
+       288.9592125128451,
+       316.5516701140269,
+       334.86285399739717,
+       340.60478826182924,
+       324.68201360254983,
+       264.65054960342337,
+       151.4927065348385,
+       -1.5019158361440077e-08
+      ],
+      "ref": [
+       79.0,
+       125.0,
+       160.0,
+       192.0,
+       237.0,
+       281.0,
+       319.0,
+       343.0,
+       353.0,
+       332.0,
+       266.0,
+       164.0,
+       22.0
+      ]
+     },
+     "all_pass": true
+    },
+    "surrogate": {
+     "model": "ARD Gaussian process (squared exponential)",
+     "inputs": [
+      "I_peak",
+      "gamma_deg"
+     ],
+     "outputs": [
+      "torque",
+      "psi_d",
+      "psi_q"
+     ],
+     "bounds": {
+      "I_peak": [
+       40.0,
+       250.0
+      ],
+      "gamma_deg": [
+       0.0,
+       80.0
+      ]
+     },
+     "n_train": 40,
+     "n_test": 15,
+     "holdout": {
+      "per_output": {
+       "torque": {
+        "max_rel_err": 0.058393295555846436,
+        "mean_rel_err": 0.004784926229118737,
+        "rmse": 0.6346312071594342,
+        "r2": 0.999942588043737,
+        "coverage_2sigma": 0.9333333333333333
+       },
+       "psi_d": {
+        "max_rel_err": 0.011360387500214454,
+        "mean_rel_err": 0.0020746781632784562,
+        "rmse": 0.00028911226568048044,
+        "r2": 0.9999753225799025,
+        "coverage_2sigma": 0.9333333333333333
+       },
+       "psi_q": {
+        "max_rel_err": 0.03233846097049715,
+        "mean_rel_err": 0.003182835641776514,
+        "rmse": 0.0006291258709237409,
+        "r2": 0.9999372603925142,
+        "coverage_2sigma": 1.0
+       }
+      },
+      "max_rel_err": 0.058393295555846436
+     },
+     "timing_s": {
+      "doe_solver_runs": 82.72693586599962,
+      "fit": 2.046308346999467
+     },
+     "default_case": {
+      "torque": {
+       "surrogate": 335.2045904749241,
+       "std": 0.47562578071137007,
+       "solver": 334.86285399739717
+      },
+      "psi_d": {
+       "surrogate": 0.014314972825717143,
+       "std": 0.00022434311068673262,
+       "solver": 0.014713236418553594
+      },
+      "psi_q": {
+       "surrogate": 0.3340180161934967,
+       "std": 0.0009325807180859995,
+       "solver": 0.3337728766698336
+      }
+     }
+    },
+    "inversion": {
+     "description": "Erro de offset do resolver (ângulo de corrente injetado diferente do comandado) a partir de uma varredura de torque no dinamômetro a 150 A em 5 ângulos, ruído de 1 % no torquímetro. Verdade sintética: +5°.",
+     "parameter": "offset do ângulo",
+     "unit": "deg",
+     "true": 5.0,
+     "recovered": 5.076720235292327,
+     "ci95": [
+      4.758000968519201,
+      5.395439502065453
+     ],
+     "rel_error": 0.015344047058465371,
+     "true_inside_ci95": true,
+     "noise": "1.0 %",
+     "how": "mínimos quadrados (Brent) sobre o FEA, IC pela sensibilidade"
+    },
+    "optimization": {
+     "objective": "ângulo de máximo torque por ampère (MTPA) na corrente dada",
+     "gamma_mtpa_fea_deg": 49.94870654264855,
+     "torque_mtpa_fea": 340.61812724915814,
+     "torque_at_given_gamma": 334.86285399739717,
+     "gamma_mtpa_surrogate_deg": 48.5,
+     "torque_surrogate_pred": 341.53778583802176,
+     "torque_fea_at_surrogate_gamma": 340.7899826812947,
+     "surrogate_vs_fea_torque_rel": 0.0021943225878983696,
+     "torque_loss_vs_fea_mtpa": -0.0005045398890671989
+    },
+    "figures": [
+     "results/ipm.png",
+     "results/surrogate_parity.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/ipm_traction_motor_3d_B.png"
+    ],
+    "variants": {
+     "rows": {
+      "250 A, 40°": {
+       "params": {},
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "torque": 334.86285399739717,
+        "torque_dq": 338.7240938572967,
+        "ripple": 0.21727144695228587,
+        "psi_d": 0.014713236418553594,
+        "psi_q": 0.3337728766698336,
+        "v_phase_peak": 209.91934284990265,
+        "v_limit": 288.6751345948129,
+        "i_d": -160.6969024216348,
+        "i_q": 191.5111107797445,
+        "pole_pairs": 4
+       }
+      },
+      "250 A, 20°": {
+       "params": {
+        "gamma_deg": 20.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "torque": 288.9592125128451,
+        "torque_dq": 290.13667910294794,
+        "ripple": 0.1984101104598844,
+        "psi_d": 0.07989740934186461,
+        "psi_q": 0.34601893796690747,
+        "v_phase_peak": 223.1306768041455,
+        "v_limit": 288.6751345948129,
+        "i_d": -85.50503583141717,
+        "i_q": 234.9231551964771,
+        "pole_pairs": 4
+       }
+      },
+      "250 A, 60°": {
+       "params": {
+        "gamma_deg": 60.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "torque": 324.68201360254983,
+        "torque_dq": 331.24614501383564,
+        "ripple": 0.1207183413987974,
+        "psi_d": -0.04884873083623692,
+        "psi_q": 0.28319622922022475,
+        "v_phase_peak": 180.5651280928738,
+        "v_limit": 288.6751345948129,
+        "i_d": -216.50635094610965,
+        "i_q": 125.00000000000003,
+        "pole_pairs": 4
+       }
+      },
+      "150 A, 40°": {
+       "params": {
+        "I_peak": 150.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "torque": 217.77435642156806,
+        "torque_dq": 220.96766518801073,
+        "ripple": 0.1858935064136742,
+        "psi_d": 0.082213776504013,
+        "psi_q": 0.28398217171138546,
+        "v_phase_peak": 185.75818306590148,
+        "v_limit": 288.6751345948129,
+        "i_d": -96.41814145298089,
+        "i_q": 114.9066664678467,
+        "pole_pairs": 4
+       }
+      },
+      "250 A, 40°, 3000 rpm": {
+       "params": {
+        "rpm": 3000.0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "torque": 334.86285399739717,
+        "torque_dq": 338.7240938572967,
+        "ripple": 0.21727144695228587,
+        "psi_d": 0.014713236418553594,
+        "psi_q": 0.3337728766698336,
+        "v_phase_peak": 419.8386856998053,
+        "v_limit": 288.6751345948129,
+        "i_d": -160.6969024216348,
+        "i_q": 191.5111107797445,
+        "pole_pairs": 4
+       }
+      }
+     },
+     "compared": [
+      "torque",
+      "ripple",
+      "v_phase_peak"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/ipm_traction_motor_250_a_40_3d_B.png",
+      "results/3d/variants/ipm_traction_motor_250_a_20_3d_B.png",
+      "results/3d/variants/ipm_traction_motor_250_a_60_3d_B.png",
+      "results/3d/variants/ipm_traction_motor_150_a_40_3d_B.png",
+      "results/3d/variants/ipm_traction_motor_250_a_40_3000_rpm_3d_B.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 2.309884459000159,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T10:23:13Z"
+    }
    }
   },
   {

@@ -1,0 +1,80 @@
+{
+  "slug": "science-by-area",
+  "theme": "pp.science: atlas of science areas (available / partial / planned, pointers to existing code), one experiment abstraction (area, academic / research, theory / virtual bench, 0D to 3D+t), electromagnetism academic and research level, FDTD in 3-D + time with its viewer",
+  "prs": [
+    882,
+    883,
+    884
+  ],
+  "media": [
+    "media/science-by-area/01_atlas.png",
+    "media/science-by-area/02_faraday_3d_t.png",
+    "media/science-by-area/03_capacitor_edge.png",
+    "media/science-by-area/04_bench_mu0.png",
+    "media/science-by-area/05_fdtd_3d_t.png",
+    "media/science-by-area/06_research.png",
+    "media/science-by-area/science_em_3d_t.mp4"
+  ],
+  "numbers": [
+    {
+      "value": "20 areas, 77 subareas (13 physics + 7 other)",
+      "meaning": "atlas",
+      "source": "pinneapple_science/data/atlas.json"
+    },
+    {
+      "value": "20 experiments",
+      "meaning": "pp.science experiments (all electromagnetism)",
+      "source": "pinneapple_science.names()"
+    },
+    {
+      "value": "89 / 89",
+      "meaning": "comparisons within tolerance of a cited reference",
+      "source": "examples/science/electromagnetism/*/*/result.json comparisons[*].passed"
+    },
+    {
+      "value": "5.25 vs 5.27 mV, 0.40 %",
+      "meaning": "Faraday peak EMF vs Maxwell's coaxial-circle formula",
+      "source": "examples/science/electromagnetism/faraday_induction/3D_plus_t/result.json 'peak EMF'"
+    },
+    {
+      "value": "127.73 ms vs 127.73 ms",
+      "meaning": "EMF sign change vs free fall",
+      "source": "same file, 'time of the EMF sign change'"
+    },
+    {
+      "value": "0.39 %",
+      "meaning": "2-D strip capacitor vs Palmer (1937)",
+      "source": "examples/science/electromagnetism/parallel_plate_capacitor/2D/result.json"
+    },
+    {
+      "value": "0.82 %",
+      "meaning": "3-D disc capacitor vs Kirchhoff (1877)",
+      "source": "examples/science/electromagnetism/parallel_plate_capacitor/3D/result.json"
+    },
+    {
+      "value": "(1.2517 +- 0.0129) e-6 N/A^2, k = 2",
+      "meaning": "mu0 from the virtual solenoid bench, CODATA 2022 inside",
+      "source": "examples/science/electromagnetism/bench_mu0_solenoid/3D/result.json values.mu0_measured / expanded_uncertainty_k2"
+    },
+    {
+      "value": "96.7 % of 300",
+      "meaning": "coverage of the stated U over fresh benches",
+      "source": "same file, values.coverage_k2"
+    },
+    {
+      "value": "1.50 / 0.68 / 0.33 %, order 2.65",
+      "meaning": "3-D FDTD dipole power error at 10 / 14 / 20 cells per wavelength",
+      "source": "examples/science/electromagnetism/research_fdtd_3d/3D_plus_t/result.json values"
+    },
+    {
+      "value": "order 1.05, GCI 2.8 %",
+      "meaning": "dipole beside a dielectric sphere (no closed form)",
+      "source": "same file, values.observed_order_configured / gci_fine_configured"
+    },
+    {
+      "value": "80 % (threshold 80 %)",
+      "meaning": "surrogate +-2 sigma hold-out coverage",
+      "source": "examples/science/electromagnetism/research_surrogate_hall/2D/result.json values.coverage_2sigma"
+    }
+  ]
+}

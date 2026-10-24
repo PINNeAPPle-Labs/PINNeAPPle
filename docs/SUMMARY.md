@@ -90,6 +90,7 @@
     * [Self-modifying brick builds](guides/interlocking_bricks.md)
     * [Design from intent: a goal in words to a verified design](guides/design_from_intent.md)
     * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)
+    * [The rover that learns the planet: drive, stall, learn the soil, replan, verify](guides/rover_learns_the_planet.md)
     * [Flow Studio and the flow schema (pinneapple-flow/1)](guides/flow_schema.md)
 * Apps
     * [Inverse Model Studio (day 21)](apps/inverse_studio.md)

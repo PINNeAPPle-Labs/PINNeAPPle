@@ -30,6 +30,23 @@ copy its code in one click, read the output its code printed when it was run, an
 ![A geometry](../assets/apps/hub-geometry.jpg)
 ![A zoo model run in the browser and on the server](../assets/apps/hub-model.jpg)
 
+## Tools by task
+
+Every tool (flow nodes, generated library calls, public functions, recipes and the MCP agent tools) is in exactly
+one of 20 task categories: problem setup, geometry and meshing, equations, classical solvers, PINNs, surrogates, the
+model zoo, physics checks, verification, benchmarks, uncertainty, inverse problems, design, process and system
+components, vehicles, electromagnetics, time series and twins, data, visualisation, and automation. The home page
+lists them with their counts; the **Task** filter (`/?kind=tool&category=uq`) and `hub.search(index, q,
+category="uq")` select one, and an item page links back to its task.
+
+The assignment is generated, not hand-tagged per item: `pinneapple_hub/library/categories.py` maps where a tool comes
+from (`node:<flow node type>`, `lib:<module>:<function>`, `fn:<dotted name>`, `mcp:<tool>`) to a category by the
+longest matching prefix, and lists recipes one by one (their ids follow README order). `tests/test_hub_library.py`
+fails when a tool matches nothing, a category is empty, a rule places no tool, or a listed recipe is gone, so a new
+node or module has to be given a task before the index builds clean.
+
+![Tools by task](../assets/apps/hub-tasks.jpg)
+
 ## Create your own
 
 Pick blocks (every curated Flow Studio node type), optionally start from a bundled flow and add a library

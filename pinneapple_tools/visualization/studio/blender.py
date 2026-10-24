@@ -800,7 +800,8 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
                      hud: bool = True, hud_keys: Sequence[str] | None = None, sparkline: str | None = None,
                      fps: float = 24, gif: bool = False, mp4: bool = True,
                      sun_elevation: float = 35.0, ground: bool | float | None = None,
-                     background: str = "sky", vectors: bool = True, trails: bool | dict = True, lines: bool = True,
+                     background: str = "sky", vectors: bool = True, trails: bool | dict = True,
+                     lines: bool | Sequence[bool] = True,
                      colorbars: bool | dict | Sequence[str] = True, colorbar_on: bool = True,
                      motion_blur: bool | float = False, dof: float | None = None, haze: float | None = None,
                      exposure: float | None = None, crf: int = 27, smooth: bool = True,
@@ -821,7 +822,8 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
     trails: False, True, or ``{"radius": r, "alpha": a, "seconds": s}`` overriding every trail's tube radius,
     opacity and time window (defaults: 0.003 x the tracked body's size, ``add_trail``'s alpha and trail_seconds);
     a trail is the path of its last seconds behind the body, fading to transparent at its tail.
-    lines: draw the scene's static Lines as translucent glowing tubes (brighter when there is haze).
+    lines: draw the scene's static Lines as translucent glowing tubes (brighter when there is haze); a sequence of
+    booleans, one per animation frame, shows them only on those frames (e.g. airflow only once the fans run).
     colorbars: True / False, a dict ``{"field": bool, "vectors": bool, "trails": bool, "lines": bool}`` or the
     kinds to show; ``colorbar_on=False`` turns them all off.
     hud_keys: only these HUD entries in the caption; sparkline: a HUD key drawn as an inset chart (bottom-left).
@@ -1038,7 +1040,11 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
             trail_objs.append((ob, ti, toB(tr["points"]), r, ov.get("seconds")))
 
     # the scene's static Lines (streamlines, gust wisps): soft translucent tubes
-    if lines and scene.lines:
+    line_objs = []
+    lines_on = None if isinstance(lines, bool) else [bool(x) for x in lines]
+    if lines_on is not None and len(lines_on) != anim.n_frames:
+        raise ValueError(f"lines: {len(lines_on)} flags for {anim.n_frames} frames")
+    if (any(lines_on) if lines_on is not None else lines) and scene.lines:
         for li, L in enumerate(scene.lines):
             cm = getattr(L, "cmap", "jet") or "jet"
             alpha = float(getattr(L, "alpha", 1.0))
@@ -1060,7 +1066,8 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
             for m in mats:
                 cu.materials.append(m)
             _fill_curve(cu, P, S, rng[0], rng[1], len(mats), step=2)
-            bs.collection.objects.link(bpy.data.objects.new(f"lines{li}", cu))
+            line_objs.append(bpy.data.objects.new(f"lines{li}", cu))
+            bs.collection.objects.link(line_objs[-1])
 
     if ground is not None and ground is not False:
         # Blender z is the scene's up axis; the automatic level sits a little below everything (no z-fighting with
@@ -1199,6 +1206,9 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
         if _render_mask is not None and not _render_mask[j]:
             continue
         bs.frame_set(j + 1)
+        if lines_on is not None:
+            for ob in line_objs:
+                ob.hide_render = not lines_on[k]
         for vs, i, (shaft, head), m, L in arrows:
             o, v = vs["origins"][k, i], vs["vectors"][k, i]
             o, v = B @ o, B @ v                                  # attached arrows: body coordinates under the Empty

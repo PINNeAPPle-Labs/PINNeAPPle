@@ -1,0 +1,188 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/18_all_stacks_heatsink_cell",
+ "title": "Heat-sink work cell: B-rep design, PhysicsNeMo surrogate served as a model service, Newton robot move, synthetic camera, USD scene",
+ "description": "",
+ "domain": "engineering design",
+ "methods": [
+  "B-rep (SMLib)",
+  "FullyConnected (PhysicsNeMo)",
+  "model service",
+  "Newton Featherstone",
+  "synthetic camera",
+  "OpenUSD"
+ ],
+ "modules": [
+  "pinneapple_tools.nvidia.heatsink",
+  "pinneapple_tools.model_services",
+  "pinneapple_simulation.robot_sim",
+  "pinneapple_worldmodel.robot_perception"
+ ],
+ "params": {
+  "T_max_C": 75.0,
+  "dp_max_Pa": 30.0,
+  "gripper_kg": 2.0
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "part_mass",
+   "value": 0.20063699999999995,
+   "unit": "kg",
+   "how": "exact B-rep mass of the accepted design"
+  },
+  {
+   "name": "move_time",
+   "value": 0.5,
+   "unit": "s",
+   "how": "shortest move passing every robot check"
+  }
+ ],
+ "checks": [
+  {
+   "name": "B-rep solids manifold (all designs)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "surrogate held-out error: T rise",
+   "passed": true,
+   "value": 0.003324070084641708,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "kind": "generalization"
+  },
+  {
+   "name": "surrogate held-out error: dp",
+   "passed": true,
+   "value": 0.027392230215679277,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "kind": "generalization"
+  },
+  {
+   "name": "surrogate held-out error: mass",
+   "passed": true,
+   "value": 0.0009005622258477451,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "kind": "generalization"
+  },
+  {
+   "name": "service trust: every queried design inside the envelope and physical",
+   "passed": false,
+   "value": 0.8463901689708141,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 1.0,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "served proposal verified: T_source (C)",
+   "passed": true,
+   "value": 73.98854174438128,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 75.0,
+   "min": null,
+   "detail": "1 proposal(s) verified",
+   "kind": "sanity"
+  },
+  {
+   "name": "served proposal verified: dp (Pa)",
+   "passed": true,
+   "value": 8.148105661487309,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 30.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "a move passes every robot check",
+   "passed": true,
+   "value": 0.5,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.8,
+   "min": null,
+   "detail": "shortest passing move 0.5 s",
+   "kind": "sanity"
+  },
+  {
+   "name": "part in the pixels at the kinematic tool point (max, px)",
+   "passed": true,
+   "value": 0.9503407713111596,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 2.0,
+   "min": null,
+   "detail": "4 camera variations",
+   "kind": "sanity"
+  },
+  {
+   "name": "cell USD stage valid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "144 time samples",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/cell.png",
+   "results/usd_cell.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "db118d8b",
+  "created": "2026-10-24T11:11:29Z",
+  "seconds": 2345.155,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

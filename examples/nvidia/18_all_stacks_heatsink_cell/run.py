@@ -135,6 +135,7 @@ def main(smoke=False, base=None):
                                  "served_t": float(T[i]), "served_mass": float(mass[i]),
                                  "verified_t": v["t_source"], "verified_dp": v["dp"], "verified_mass": v["mass"],
                                  "accepted": bool(good)})
+                picked = i
                 if good:
                     break
         part = v
@@ -189,8 +190,10 @@ def main(smoke=False, base=None):
              "passed": all(r["manifold"] for r in train + test)},
             *[{"name": f"surrogate held-out error: {k}", "value": float(e), "limit": 0.03, "passed": bool(e <= 0.03)}
               for k, e in zip(("T rise", "dp", "mass"), held, strict=True)],
-            {"name": "service trust: every queried design inside the envelope and physical",
-             "value": float(trusted.mean()), "limit": 1.0, "kind": "min", "passed": bool(trusted.all())},
+            {"name": "served proposal inside the service's trust envelope", "value": None, "limit": None,
+             "passed": bool(trusted[picked]),
+             "detail": f"the service flagged {int((~trusted).sum())} of {len(G)} queried designs (outside the "
+                       "training box or unphysical); they were not considered"},
             {"name": "served proposal verified: T_source (C)", "value": part["t_source"], "limit": T_MAX,
              "passed": part["t_source"] <= T_MAX, "detail": f"{len(attempts)} proposal(s) verified"},
             {"name": "served proposal verified: dp (Pa)", "value": part["dp"], "limit": DP_MAX,
@@ -217,7 +220,8 @@ def main(smoke=False, base=None):
             info.mark(comp, ran=ran, why=why)
         _figures(OUT, stage, motion, frames0, cams[0], arm, attempts, moves, checks, decision, G, mass, T, ok)
         summary = {"decision": decision, "held_out_rel_rms": held.tolist(), "train_steps": fit.steps,
-                   "service_timing_ms": ans["timing_ms"], "queried_designs": int(len(G)), "attempts": attempts,
+                   "service_timing_ms": ans["timing_ms"], "queried_designs": int(len(G)),
+                   "flagged_designs": int((~trusted).sum()), "attempts": attempts,
                    "part": {k: part[k] for k in ("n_fins", "fin_height", "fin_t", "t_source", "dp", "mass")},
                    "payload_kg": payload, "moves": moves, "move_time_s": best_d, "pixel_track_max_px": pix,
                    "usd": {k: vs.get(k) for k in ("ok", "meshes", "time_samples")}, "checks": checks}

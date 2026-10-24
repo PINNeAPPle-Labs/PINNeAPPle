@@ -1,0 +1,122 @@
+{
+ "decision": "REVIEW",
+ "ground_truth_pass": 1.0,
+ "edits_detected": {
+  "time_warp": 1.0,
+  "teleport": 0.95,
+  "fade": 1.0,
+  "gravity_flip": 1.0
+ },
+ "reconstruction_pass": 0.65,
+ "rollout_pass": 0.0,
+ "failures": {
+  "reconstructions": {
+   "object visible in every frame": 2,
+   "object area conserved (no growth, fading, vanishing)": 7,
+   "free-flight acceleration = g (fitted between bounces)": 1,
+   "no teleport (speed within what the fall height allows)": 0,
+   "energy never increases across a bounce (apex heights)": 0
+  },
+  "rollouts": {
+   "object visible in every frame": 0,
+   "object area conserved (no growth, fading, vanishing)": 20,
+   "free-flight acceleration = g (fitted between bounces)": 20,
+   "no teleport (speed within what the fall height allows)": 20,
+   "energy never increases across a bounce (apex heights)": 0
+  }
+ },
+ "rollout_g_fit": [
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  21.047122999069753,
+  NaN,
+  NaN,
+  NaN,
+  NaN,
+  34.884917921276276,
+  NaN,
+  41.165314561912744
+ ],
+ "rollout_pixel_mae": 0.0734968788921833,
+ "tracker_max_err_px": 0.2439131303897167,
+ "g_err_gt_max": 0.01853266261113731,
+ "train": {
+  "videos": 200,
+  "steps": 3000,
+  "parameters": 548321,
+  "wall_s": 227.53594645800058,
+  "final_loss": {
+   "step": 2999,
+   "loss_pred": 0.0008333103032782674,
+   "loss_recon": 0.0005651192041113973,
+   "wall_s": 227.53594645800058
+  }
+ },
+ "checks": [
+  {
+   "name": "ground-truth videos pass every check",
+   "value": 1.0,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "24 videos, 4 with an occluder"
+  },
+  {
+   "name": "tracker vs exact labels (max error, px)",
+   "value": 0.2439131303897167,
+   "limit": 1.0,
+   "passed": true
+  },
+  {
+   "name": "g from the pixels of ground truth (worst)",
+   "value": 0.01853266261113731,
+   "limit": 0.03,
+   "passed": true
+  },
+  {
+   "name": "edit detected: time_warp",
+   "value": 1.0,
+   "limit": 0.9,
+   "passed": true
+  },
+  {
+   "name": "edit detected: teleport",
+   "value": 0.95,
+   "limit": 0.9,
+   "passed": true
+  },
+  {
+   "name": "edit detected: fade",
+   "value": 1.0,
+   "limit": 0.9,
+   "passed": true
+  },
+  {
+   "name": "edit detected: gravity_flip",
+   "value": 1.0,
+   "limit": 0.9,
+   "passed": true
+  },
+  {
+   "name": "world-model reconstructions pass",
+   "value": 0.65,
+   "limit": 0.9,
+   "passed": false
+  },
+  {
+   "name": "world-model rollouts pass",
+   "value": 0.0,
+   "limit": 0.9,
+   "passed": false
+  }
+ ]
+}

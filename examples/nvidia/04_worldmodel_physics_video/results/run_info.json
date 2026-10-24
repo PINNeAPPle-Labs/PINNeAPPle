@@ -1,0 +1,51 @@
+{
+ "name": "04_worldmodel_physics_video",
+ "started": "2026-10-24T01:53:44Z",
+ "wall_s": 239.506,
+ "steps_s": {
+  "synthetic videos (exact physics + randomization)": 6.495,
+  "checks on ground truth and edits": 1.646,
+  "train the world model (CPU)": 229.123,
+  "reconstructions and rollouts, judged": 1.027
+ },
+ "components": [
+  {
+   "component": "PINNeAPPle World Model",
+   "ran": true,
+   "why": "",
+   "how": "548321 parameters, 3000 steps on CPU"
+  },
+  {
+   "component": "NVIDIA Cosmos",
+   "ran": false,
+   "why": "needs a Cosmos NIM on a GPU or a hosted endpoint and key",
+   "how": ""
+  }
+ ],
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "gpu": null,
+  "packages": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": "1.7.0",
+   "newton-usd-schemas": "0.6.0",
+   "warp-lang": "1.18.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": "2.8.1",
+   "torch_scatter": "2.1.2",
+   "requests": "2.34.2"
+  }
+ }
+}

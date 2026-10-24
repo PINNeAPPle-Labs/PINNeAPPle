@@ -1,0 +1,49 @@
+{
+ "name": "09_worldmodel_physicsnemo_state",
+ "started": "2026-10-24T02:09:40Z",
+ "wall_s": 2153.098,
+ "steps_s": {
+  "state encoder (CNN, exact labels)": 440.451,
+  "state dynamics (PhysicsNeMo FullyConnected)": 1684.132
+ },
+ "components": [
+  {
+   "component": "PINNeAPPle World Model (state encoder, renderer)",
+   "ran": true,
+   "why": "",
+   "how": ""
+  },
+  {
+   "component": "PhysicsNeMo FullyConnected",
+   "ran": true,
+   "why": "",
+   "how": "20000 steps on CPU"
+  }
+ ],
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "gpu": null,
+  "packages": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": "1.7.0",
+   "newton-usd-schemas": "0.6.0",
+   "warp-lang": "1.18.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": "2.8.1",
+   "torch_scatter": "2.1.2",
+   "requests": "2.34.2"
+  }
+ }
+}

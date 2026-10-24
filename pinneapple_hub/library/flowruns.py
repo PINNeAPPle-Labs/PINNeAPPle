@@ -36,7 +36,8 @@ for n in flow.nodes:
     rep = res.report(n.id)
     m = {{k: v for k, v in (rep.get("metrics") or {{}}).items()
           if isinstance(v, (int, float, str, bool)) and not (isinstance(v, str) and len(v) > 120)}}
-    out["nodes"][n.id] = {{"type": n.type, "status": (res.nodes.get(n.id) or {{}}).get("status"),
+    st = res.nodes.get(n.id) or {{}}
+    out["nodes"][n.id] = {{"type": n.type, "status": st.get("status"), "error": (st.get("error") or "")[:300],
                          "metrics": dict(list(m.items())[:12]), "summary": (rep.get("summary") or "")[:300]}}
 print("{mark}" + json.dumps(out, default=str))
 '''
@@ -75,6 +76,8 @@ def record(names: list[str] | None = None, *, timeout: float = 900.0, workers: i
                                "source": "python -m pinneapple_hub.library flowruns"}
         if r["ok"] and line:
             rec.update(json.loads(line[len(MARK):]))
+            if rec["status"] != "done":
+                rec["error"] = next((n["error"] for n in rec["nodes"].values() if n.get("error")), "")
         else:
             rec.update({"status": "timed out" if r["timed_out"] else "failed", "seconds": r["seconds"], "nodes": {},
                         "error": (r["stderr"].splitlines() or [""])[-1][:300]})
@@ -95,7 +98,8 @@ def runs_for_node(runs: dict[str, Any], type_: str) -> list[dict[str, Any]]:
         r = current(runs, name)
         for nid, n in ((r or {}).get("nodes") or {}).items():
             if n.get("type") == type_:
-                out.append({"flow": name, "node": nid, "status": n.get("status"), "metrics": n.get("metrics", {}),
+                out.append({"flow": name, "node": nid, "status": n.get("status"), "error": n.get("error", ""),
+                            "metrics": n.get("metrics", {}),
                             "summary": n.get("summary", ""), "flow_status": r.get("status"),
                             "seconds": r.get("seconds")})
     return out

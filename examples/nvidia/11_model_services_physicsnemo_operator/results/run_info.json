@@ -1,0 +1,50 @@
+{
+ "name": "11_model_services_physicsnemo_operator",
+ "started": "2026-10-24T16:40:45Z",
+ "wall_s": 187.355,
+ "steps_s": {
+  "data + train (PhysicsNeMo FNO)": 181.558,
+  "requests: surrogate first, solver fallback": 1.459,
+  "cost against grid size (FV solve vs FNO inference, same architecture)": 2.826
+ },
+ "components": [
+  {
+   "component": "PhysicsNeMo FNO",
+   "ran": true,
+   "why": "",
+   "how": "2700 steps, CPU"
+  },
+  {
+   "component": "PINNeAPPle Model Services",
+   "ran": true,
+   "why": "",
+   "how": "http://127.0.0.1:37101/v1"
+  }
+ ],
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "gpu": null,
+  "packages": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": "1.7.0",
+   "newton-usd-schemas": "0.6.0",
+   "warp-lang": "1.18.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": "2.8.1",
+   "torch_scatter": "2.1.2",
+   "requests": "2.34.2"
+  }
+ }
+}

@@ -72,6 +72,10 @@ SECTION_OF: dict[str, str] = {
     "viz.plot": "viz", "lib.antenna.render_3d": "viz", "viz.field3d": "viz", "viz.render": "viz", "vehicle.dashboard": "viz",
     "export.report": "export", "lib.export.geometry": "export", "lib.export.usd_validate": "export",
     "lib.robot.arm_check": "solvers",
+    "lib.services.infer": "surrogates",
+    "lib.worldmodel.video_check": "surrogates",
+    "lib.worldmodel.inspection_sample": "surrogates",
+    "lib.worldmodel.arm_camera": "surrogates",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)

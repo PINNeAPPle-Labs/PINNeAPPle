@@ -7,11 +7,11 @@
   "path": "examples/science/electromagnetism/research_inverse_permittivity/experiment.json"
  },
  "status": "completed",
- "started": 1792862932.8382607,
+ "started": 1792876623.4944315,
  "tags": [
   "manifest"
  ],
- "git": "204e481e",
+ "git": "a60bed28",
  "environment": {
   "python": "3.13.17",
   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
@@ -28,7 +28,7 @@
   ],
   "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
  },
- "finished": 1792862932.8602483,
+ "finished": 1792876623.5084677,
  "error": null,
  "stages": [],
  "files": {
@@ -42,9 +42,9 @@
   ]
  },
  "validation": {
-  "total": 5,
+  "total": 7,
   "failed": 0
  },
- "seconds": 0.022,
+ "seconds": 0.014,
  "datasets": {}
 }

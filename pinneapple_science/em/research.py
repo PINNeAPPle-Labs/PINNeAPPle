@@ -308,22 +308,28 @@ class InversePermittivity(Experiment):
     description = ("A dielectric slab of unknown permittivity and loss is measured in reflection: the 'measurement' "
                    "is a 1-D FDTD run (with the CPML, the scheme's dispersion and added receiver noise), the model "
                    "is the transfer-matrix reflection of pp.em.waves.multilayer. Least squares recovers eps_r and "
-                   "the conductivity with their covariance; the recovered values are compared with the truth the "
-                   "measurement was generated from (hidden from the fit), and the fit is repeated on noise "
-                   "realisations to check the stated uncertainty.")
+                   "the conductivity with their covariance. The model lacks the scheme's dispersion, which biases the "
+                   "fit by about one standard uncertainty: the instrument is simulated at the fitted point and the "
+                   "bias of that noiseless refit is removed, with its own uncertainty. The recovered values are "
+                   "compared with the truth the measurement was generated from (hidden from the fit), and the fit "
+                   "is repeated on noise realisations to check the stated uncertainty (coverage, centring).")
     references = ("Baker-Jarvis et al., NIST Technical Note 1536 (2004), transmission/reflection methods",
                   "Born & Wolf, Principles of Optics, 7th ed., sec. 1.6 (characteristic matrices)",
                   "Tarantola, Inverse Problem Theory (2005), sec. 3.2")
-    params = {"eps_true": 3.7, "sigma_true": 0.02, "thickness": 10e-3, "f_min": 2e9, "f_max": 12e9, "n_freq": 41,
+    params = {"eps_true": 3.7, "sigma_true": 0.02, "eps_design": 4.0, "thickness": 10e-3, "f_min": 2e9, "f_max": 12e9, "n_freq": 41,
               "noise": 0.004, "cells_per_wavelength": 60, "repeats": 100, "seed": 5}
     quick = {"repeats": 20}
 
-    def _measure(self, p):
+    def _measure(self, p, eps, sigma, empty=None):
+        """``(freqs, r, empty)``: the FDTD reflection of a slab ``(eps, sigma)``, referred to the slab's face.
+        The grid depends only on the design permittivity ``eps_design``, never on the slab simulated, so the
+        measurement and the bias simulations at the fitted point share one discretisation; ``empty`` (the run
+        without the slab) is reused when given."""
         from pinneapple_simulation.electromagnetics.fdtd import FDTD, YeeGrid, modulated_gaussian
         from pinneapple_simulation.electromagnetics.media import Medium
 
         fmax = p["f_max"]
-        lam = C0 / fmax / math.sqrt(p["eps_true"])
+        lam = C0 / fmax / math.sqrt(p["eps_design"])
         dx = lam / p["cells_per_wavelength"]
         nd = int(round(p["thickness"] / dx))
         dx = p["thickness"] / nd
@@ -333,22 +339,31 @@ class InversePermittivity(Experiment):
         i0 = N // 2
         im = i0 - int(0.5 * C0 / p["f_min"] / dx)
         f0 = 0.5 * (p["f_min"] + p["f_max"])
-        out = []
-        for slab in (True, False):
+
+        def run(slab):
             s = FDTD(g, {"x": "cpml", "y": "periodic", "z": "periodic"}, npml=30)
             if slab:
                 m = np.zeros(g.shape, bool)
                 m[i0:i0 + nd] = True
-                s.set_material(m, Medium(p["eps_true"], sigma=p["sigma_true"]))
+                s.set_material(m, Medium(eps, sigma=sigma))
             s.add_source("Ey", (40, 0, 0), modulated_gaussian(f0, 1.2 * (p["f_max"] - p["f_min"])), "soft")
             mon = s.add_dft(["Ey"], freqs, (slice(im, im + 1), slice(None), slice(None)))
             s.run_until(30 / p["f_min"])
-            out.append(mon.phasor("Ey").ravel())
-        r = (out[0] - out[1]) / out[1]
+            return mon.phasor("Ey").ravel()
+
+        empty = run(False) if empty is None else empty
+        r = (run(True) - empty) / empty
         # refer the phase to the slab's face, half a cell before its first node (the E_y nodes i0 .. i0+nd-1 carry
         # the slab, so it spans nd cells): the reflected wave has travelled 2 D more than at the face
         k0 = 2 * math.pi * freqs / C0
-        return freqs, r * np.exp(2j * k0 * (i0 - 0.5 - im) * dx)
+        return freqs, r * np.exp(2j * k0 * (i0 - 0.5 - im) * dx), empty
+
+    def _bias(self, p, x, empty):
+        """Bias of the fit at ``x``: the noiseless FDTD spectrum of the slab ``x`` refitted with the
+        transfer-matrix model, minus ``x`` (the scheme's dispersion and the CPML, which the model lacks)."""
+        f, r, _ = self._measure(p, float(x[0]), float(x[1]), empty)
+        xb, _, _ = self._fit(f, r, p["thickness"], list(x))
+        return xb - np.asarray(x, float)
 
     @staticmethod
     def _model(freqs, eps, sigma, d):
@@ -371,13 +386,27 @@ class InversePermittivity(Experiment):
         return sol.x, np.sqrt(np.diag(cov)), cov
 
     def _run(self, res: Result, dim: str, p):
-        freqs, r_meas = self._measure(p)
+        from pinneapple_analysis.uncertainty.tolerance import wilson_interval
+
+        freqs, r_meas, empty = self._measure(p, p["eps_true"], p["sigma_true"])
         rng = np.random.default_rng(p["seed"])
         noisy = r_meas + p["noise"] * (rng.standard_normal(len(freqs)) + 1j * rng.standard_normal(len(freqs))) / math.sqrt(2)
-        x, u, cov = self._fit(freqs, noisy, p["thickness"], [2.5, 0.0])
-        res.value("eps_r_recovered", x[0], "", "least squares on the noisy FDTD reflection spectrum", uncertainty=u[0])
-        res.value("sigma_recovered", x[1], "S/m", "same fit", uncertainty=u[1])
-        res.value("eps_sigma_correlation", cov[0, 1] / (u[0] * u[1]), "", "from the Jacobian covariance")
+        x_raw, u_fit, cov = self._fit(freqs, noisy, p["thickness"], [2.5, 0.0])
+        # the transfer-matrix model lacks the scheme's dispersion: simulate the instrument at the fitted point,
+        # refit, and remove that bias; its own uncertainty is how much it moves over +-u(eps) around the fit
+        b = self._bias(p, x_raw, empty)
+        db = [self._bias(p, x_raw + s_ * np.array([u_fit[0], 0.0]), empty) for s_ in (1.0, -1.0)]
+        u_b = 0.5 * np.abs(db[0] - db[1])
+        x = x_raw - b
+        u = np.hypot(u_fit, u_b)
+        res.value("eps_r_fit_uncorrected", x_raw[0], "", "least squares on the noisy FDTD reflection spectrum",
+                  uncertainty=u_fit[0])
+        res.value("eps_r_model_bias", b[0], "", "fit of the noiseless FDTD spectrum simulated at the fitted point, "
+                  "minus that point (the transfer-matrix model lacks the FDTD dispersion)", uncertainty=u_b[0])
+        res.value("eps_r_recovered", x[0], "", "fit minus the model bias; u combines the fit and the bias",
+                  uncertainty=u[0])
+        res.value("sigma_recovered", x[1], "S/m", "same, for the conductivity", uncertainty=u[1])
+        res.value("eps_sigma_correlation", cov[0, 1] / (u_fit[0] * u_fit[1]), "", "from the Jacobian covariance")
         res.compare("eps_r recovered vs truth", x[0], p["eps_true"], tol=2 * u[0] / p["eps_true"],
                     kind="ground_truth", unit="", source="the permittivity the FDTD measurement was generated with "
                     "(hidden from the fit)", how="compatibility within 2 u (k = 2)")
@@ -389,19 +418,32 @@ class InversePermittivity(Experiment):
         res.value("model_error_max", merr, "", "max |r_FDTD - r_model| at the true parameters (no noise)")
         res.check("FDTD measurement and transfer-matrix model agree below the noise", merr < p["noise"],
                   value=merr, limit=p["noise"])
-        # repeat on noise realisations: is the stated u right?
-        z = []
+        # repeat on noise realisations: is the stated u right? (with and without the bias correction)
+        z_raw, z = [], []
         for _ in range(p["repeats"]):
             nz = r_meas + p["noise"] * (rng.standard_normal(len(freqs)) + 1j * rng.standard_normal(len(freqs))) / math.sqrt(2)
             xx, uu, _ = self._fit(freqs, nz, p["thickness"], [2.5, 0.0])
-            z.append((xx[0] - p["eps_true"]) / uu[0])
-        z = np.asarray(z)
-        cover = float(np.mean(np.abs(z) <= 2))
-        res.value("coverage_2u_eps", cover, "", f"fraction of {p['repeats']} noise realisations within 2 u")
+            z_raw.append((xx[0] - p["eps_true"]) / uu[0])
+            z.append((xx[0] - b[0] - p["eps_true"]) / math.hypot(uu[0], u_b[0]))
+        z_raw, z = np.asarray(z_raw), np.asarray(z)
+        n = p["repeats"]
+        hits = int(np.sum(np.abs(z) <= 2))
+        cover = hits / n
+        lo, hi = wilson_interval(hits, n)
+        res.value("coverage_2u_eps_uncorrected", float(np.mean(np.abs(z_raw) <= 2)), "",
+                  f"fraction of {n} noise realisations within 2 u, fit alone (no bias correction)")
+        res.value("mean_z_uncorrected", float(np.mean(z_raw)), "", "mean of (eps_fit - eps_true) / u_fit")
+        res.value("coverage_2u_eps", cover, "", f"fraction of {n} noise realisations within 2 u, bias corrected")
+        res.value("mean_z", float(np.mean(z)), "", "mean of (eps_corrected - eps_true) / u, bias corrected")
+        res.check("bias-corrected z centred (|mean z| < 0.3)", abs(float(np.mean(z))) < 0.3,
+                  value=float(np.mean(z)), limit=0.3,
+                  detail=f"without the correction mean z = {np.mean(z_raw):.2f}")
         res.check("stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5)",
                   0.7 <= float(np.std(z)) <= 1.5, value=float(np.std(z)),
-                  detail="z = (eps_fit - eps_true) / u(eps_fit); its std is 1 when u is right (a bias from the "
-                         "FDTD-vs-model difference shows as a shift)")
+                  detail="z = (eps_corrected - eps_true) / u; its std is 1 when u is right")
+        res.check("2 u covers the truth about 95 % of the time", lo <= 0.9545 <= hi, value=cover,
+                  detail=f"{hits}/{n}, Wilson 95 % interval {lo:.3f}-{hi:.3f}; without the bias correction "
+                         f"{np.mean(np.abs(z_raw) <= 2):.2f}")
         res.data("spectrum", f=freqs, abs_r=np.abs(noisy), abs_r_fit=np.abs(self._model(freqs, x[0], x[1], p["thickness"])))
         fig, ax = P.figure(2, width=4.5)
         ax[0].plot(freqs / 1e9, np.abs(noisy), "o", color=P.COMPUTED, ms=4, label="measured (FDTD + noise)")
@@ -410,11 +452,16 @@ class InversePermittivity(Experiment):
                    label=f"fit: eps = {x[0]:.3f} +- {u[0]:.3f}")
         ax[0].set(xlabel="f (GHz)", ylabel="|r|", title=f"slab {p['thickness'] * 1e3:g} mm, truth eps = {p['eps_true']}")
         ax[0].legend(fontsize=8)
-        ax[1].hist(z, bins=20, color=P.COMPUTED, alpha=0.85, density=True, label="(eps_fit - eps_true) / u")
+        bins = np.linspace(-4, 4, 25)
+        ax[1].hist(z_raw, bins=bins, color=P.INK2, alpha=0.35, density=True,
+                   label=f"fit alone: mean {np.mean(z_raw):+.2f}, {100 * np.mean(np.abs(z_raw) <= 2):.0f} % in 2u")
+        ax[1].hist(z, bins=bins, color=P.COMPUTED, alpha=0.75, density=True,
+                   label=f"bias corrected: mean {np.mean(z):+.2f}, {100 * cover:.0f} % in 2u")
         zz = np.linspace(-4, 4, 100)
         ax[1].plot(zz, np.exp(-zz ** 2 / 2) / math.sqrt(2 * math.pi), color=P.REFERENCE, lw=1.5, label="N(0, 1)")
-        ax[1].set(xlabel="z", ylabel="density", title=f"{p['repeats']} noise realisations")
-        ax[1].legend(fontsize=8)
+        ax[1].set(xlabel="z = (eps - eps_true) / u", ylabel="density", title=f"{n} noise realisations")
+        ax[1].set_ylim(0, 1.5 * ax[1].get_ylim()[1])            # room for the legend above the bars
+        ax[1].legend(fontsize=7.5, loc="upper left")
         fig.tight_layout()
         res.figure("inverse_permittivity", fig)
 

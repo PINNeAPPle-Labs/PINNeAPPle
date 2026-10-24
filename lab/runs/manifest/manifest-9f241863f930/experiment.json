@@ -14,43 +14,73 @@
  "metrics": [
   {
    "name": "rel_error[1D: eps_r recovered vs truth]",
-   "value": 0.00046638233769686537,
+   "value": 4.777263580172056e-05,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   },
   {
    "name": "rel_error[1D: sigma recovered vs truth]",
-   "value": 0.05813692688169756,
+   "value": 0.05262612022736198,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "1D: eps_r_fit_uncorrected",
+   "value": 3.7015707000741167,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "1D: eps_r_model_bias",
+   "value": 0.0017474588265828928,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   },
   {
    "name": "1D: eps_r_recovered",
-   "value": 3.7017256146494786,
+   "value": 3.699823241247534,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   },
   {
    "name": "1D: sigma_recovered",
-   "value": 0.01883726146236605,
+   "value": 0.01894747759545276,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   },
   {
    "name": "1D: eps_sigma_correlation",
-   "value": -2.4858965827697875e-08,
+   "value": -2.5400064232097324e-08,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   },
   {
    "name": "1D: model_error_max",
-   "value": 0.0009722857259360915,
+   "value": 0.0008928066603502518,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "1D: coverage_2u_eps_uncorrected",
+   "value": 0.9,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "1D: mean_z_uncorrected",
+   "value": 0.8621961011818255,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   },
   {
    "name": "1D: coverage_2u_eps",
-   "value": 0.89,
+   "value": 0.97,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "1D: mean_z",
+   "value": -0.10833509202789741,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   }
@@ -59,9 +89,9 @@
   {
    "name": "[1D] eps_r recovered vs truth",
    "passed": true,
-   "value": 3.7017256146494786,
+   "value": 3.699823241247534,
    "reference": 3.7,
-   "rtol": 0.0009079930595608081,
+   "rtol": 0.0009068407733868872,
    "atol": null,
    "max": null,
    "min": null,
@@ -72,9 +102,9 @@
   {
    "name": "[1D] sigma recovered vs truth",
    "passed": true,
-   "value": 0.01883726146236605,
+   "value": 0.01894747759545276,
    "reference": 0.02,
-   "rtol": 0.06462095151510955,
+   "rtol": 0.06453877203767755,
    "atol": null,
    "max": null,
    "min": null,
@@ -85,7 +115,7 @@
   {
    "name": "[1D] FDTD measurement and transfer-matrix model agree below the noise",
    "passed": true,
-   "value": 0.0009722857259360915,
+   "value": 0.0008928066603502518,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -95,15 +125,39 @@
    "kind": "physics"
   },
   {
-   "name": "[1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5)",
+   "name": "[1D] bias-corrected z centred (|mean z| < 0.3)",
    "passed": true,
-   "value": 0.9240935018083376,
+   "value": -0.10833509202789741,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": null,
    "min": null,
-   "detail": "z = (eps_fit - eps_true) / u(eps_fit); its std is 1 when u is right (a bias from the FDTD-vs-model difference shows as a shift)",
+   "detail": "without the correction mean z = 0.86",
+   "kind": "physics"
+  },
+  {
+   "name": "[1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5)",
+   "passed": true,
+   "value": 0.9177316565494786,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "z = (eps_corrected - eps_true) / u; its std is 1 when u is right",
+   "kind": "physics"
+  },
+  {
+   "name": "[1D] 2 u covers the truth about 95 % of the time",
+   "passed": true,
+   "value": 0.97,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "97/100, Wilson 95 % interval 0.915-0.990; without the bias correction 0.90",
    "kind": "physics"
   },
   {
@@ -137,9 +191,9 @@
  },
  "provenance": {
   "source": "lab-run",
-  "git": "204e481e",
-  "seconds": 0.022,
-  "created": "2026-10-24T17:28:52Z",
+  "git": "a60bed28",
+  "seconds": 0.014,
+  "created": "2026-10-24T21:17:03Z",
   "environment": {
    "python": "3.13.17",
    "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",

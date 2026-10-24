@@ -1,6 +1,6 @@
 # Inverse problem: permittivity of a slab from its reflection spectrum
 
-A dielectric slab of unknown permittivity and loss is measured in reflection: the 'measurement' is a 1-D FDTD run (with the CPML, the scheme's dispersion and added receiver noise), the model is the transfer-matrix reflection of pp.em.waves.multilayer. Least squares recovers eps_r and the conductivity with their covariance; the recovered values are compared with the truth the measurement was generated from (hidden from the fit), and the fit is repeated on noise realisations to check the stated uncertainty.
+A dielectric slab of unknown permittivity and loss is measured in reflection: the 'measurement' is a 1-D FDTD run (with the CPML, the scheme's dispersion and added receiver noise), the model is the transfer-matrix reflection of pp.em.waves.multilayer. Least squares recovers eps_r and the conductivity with their covariance. The model lacks the scheme's dispersion, which biases the fit by about one standard uncertainty: the instrument is simulated at the fitted point and the bias of that noiseless refit is removed, with its own uncertainty. The recovered values are compared with the truth the measurement was generated from (hidden from the fit), and the fit is repeated on noise realisations to check the stated uncertainty (coverage, centring).
 
 **Area:** `physics.electromagnetism` (inverse problems) · **level:** research · **kind:** theory · **dimensions:** 1D
 
@@ -13,17 +13,19 @@ print(r)                     # comparisons with their references, checks, trust 
 
 ## 1D
 
-Trust report: **APPROVED** (score 1.00, coverage 100%); run time 14.6 s.
+Trust report: **APPROVED** (score 1.00, coverage 100%); run time 26.9 s.
 
 | quantity | computed | reference | rel. error | tolerance | reference kind | source |
 |---|---|---|---|---|---|---|
-| eps_r recovered vs truth | 3.70173  | 3.7  | 4.66e-04 | 0.00091 | ground_truth | the permittivity the FDTD measurement was generated with (hidden from the fit) |
-| sigma recovered vs truth | 0.0188373 S/m | 0.02 S/m | 5.81e-02 | 0.065 | ground_truth | as above |
+| eps_r recovered vs truth | 3.69982  | 3.7  | 4.78e-05 | 0.00091 | ground_truth | the permittivity the FDTD measurement was generated with (hidden from the fit) |
+| sigma recovered vs truth | 0.0189475 S/m | 0.02 S/m | 5.26e-02 | 0.065 | ground_truth | as above |
 
 | physics check | result | value | limit |
 |---|---|---|---|
-| FDTD measurement and transfer-matrix model agree below the noise | pass | 0.000972 | 0.004 |
-| stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5) | pass | 0.924 |  |
+| FDTD measurement and transfer-matrix model agree below the noise | pass | 0.000893 | 0.004 |
+| bias-corrected z centred (|mean z| < 0.3) | pass | -0.108 | 0.3 |
+| stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5) | pass | 0.918 |  |
+| 2 u covers the truth about 95 % of the time | pass | 0.97 |  |
 
 ![inverse_permittivity.sealed.png](1D/inverse_permittivity.sealed.png)
 

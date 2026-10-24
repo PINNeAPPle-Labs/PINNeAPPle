@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 416,
+  "tool": 417,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 137
+  "example": 138
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 416,
+   "tool": 417,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 137
+   "example": 138
   },
   "subkind": {
    "library call": 249,
-   "flow node": 84,
+   "flow node": 85,
    "recipe": 46,
    "function": 20,
    "agent tool (MCP)": 17
@@ -138,13 +138,13 @@
   "domain": {
    "physics AI": 90,
    "general": 78,
-   "fluid dynamics": 59,
+   "fluid dynamics": 60,
    "design and geometry": 58,
    "structural mechanics": 51,
    "numerical methods": 46,
    "validation and benchmarks": 46,
    "data": 41,
-   "system dynamics": 40,
+   "system dynamics": 41,
    "heat transfer": 25,
    "vehicle dynamics": 14,
    "electromagnetics": 12,
@@ -181,13 +181,13 @@
    "systems": 33,
    "vehicles": 11,
    "electromagnetics": 9,
-   "time-series": 8,
+   "time-series": 9,
    "data": 53,
    "reports": 10,
    "automation": 28
   },
   "quality": {
-   "not graded": 528,
+   "not graded": 530,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -4436,6 +4436,177 @@
     "stderr": "",
     "stdout": "Digital twin (stream -> twin runtime) -> pinneapple_systems.operations.live.replay / LiveTwin + TwinRuntime (ensemble Kalman filter)\ninputs: [('stream', 'series')]\noutputs: [('twin', 'twin'), ('series', 'series'), ('metrics', 'metrics')]\ndefaults: {'source': 'simulated', 'duration_s': 7200.0, 'fault': 'leak', 'fault_magnitude': 0.0005, 'fault_start_frac': 0.5, 'broker': '127.0.0.1:1883', 'topic': 'pinneapple/tank-1/sensors', 'listen_s': 30.0, 'seed': 4}",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:autolab.pipe_twin",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "autolab.pipe_twin",
+   "title": "Digital twin that knows when it is wrong (pipe loop)",
+   "summary": "Fit the twin's fast model, calibrate its alarms on healthy runs, tell a changed process from a wrong sensor from a model outside its domain on three events, ask the physics where…",
+   "description": "Fit the twin's fast model, calibrate its alarms on healthy runs, tell a changed process from a wrong sensor from\na model outside its domain on three events, ask the physics where the model is out of its domain, and measure the\ndiagnosis on controlled cases (confusion matrix) with its trust report.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Design",
+    "agent",
+    "controller",
+    "design",
+    "digital twin",
+    "fault diagnosis",
+    "kalman",
+    "optimization",
+    "pareto",
+    "verification"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"autolab.pipe_twin\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=autolab.pipe_twin",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/autolab.py#L48"
+   },
+   "extra": {
+    "calls": "pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "mission",
+      "kind": "text",
+      "default": "",
+      "help": "the request in plain language (empty: the built-in example)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "n_per_kind",
+      "kind": "int",
+      "default": 20,
+      "help": "controlled cases per kind",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 200,
+      "advanced": false
+     },
+     {
+      "name": "planner",
+      "kind": "enum",
+      "default": "template",
+      "help": "",
+      "choices": [
+       "template",
+       "llm"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "render",
+      "kind": "bool",
+      "default": false,
+      "help": "Blender renders (needs bpy)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "workers",
+      "kind": "int",
+      "default": 4,
+      "help": "",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 32,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mission": {
+       "title": "mission",
+       "description": "the request in plain language (empty: the built-in example)",
+       "x-kind": "text",
+       "default": "",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "n_per_kind": {
+       "title": "n per kind",
+       "description": "controlled cases per kind",
+       "x-kind": "int",
+       "default": 20,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200
+      },
+      "planner": {
+       "title": "planner",
+       "description": "",
+       "x-kind": "enum",
+       "default": "template",
+       "enum": [
+        "template",
+        "llm"
+       ]
+      },
+      "render": {
+       "title": "render",
+       "description": "Blender renders (needs bpy)",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      },
+      "workers": {
+       "title": "workers",
+       "description": "",
+       "x-kind": "int",
+       "default": 4,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 32
+      }
+     }
+    }
+   },
+   "category": "time-series",
+   "run": {
+    "ok": true,
+    "stdout": "Digital twin that knows when it is wrong (pipe loop) -> pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n_per_kind': 20, 'planner': 'template', 'render': False, 'workers': 4}",
+    "stderr": "",
+    "seconds": 8.62,
+    "timed_out": false,
+    "code_hash": "91131ee998dce031",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -16572,7 +16743,8 @@
    "description": "Plan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the\ntemplate, with the reason in ``run.plan.notes``, when no model answers or its plan is not valid).",
    "domain": "heat transfer",
    "tags": [
-    "pinneapple_design.thermal.board_cooling.run_mission"
+    "pinneapple_design.thermal.board_cooling.run_mission",
+    "pinneapple_systems.digital_twin.pipe_loop.run_mission"
    ],
    "quality": null,
    "code": "import inspect\nimport pinneapple_design.thermal.board_cooling\n\nprint(\"pinneapple_design.thermal.board_cooling.run_mission\" + str(inspect.signature(pinneapple_design.thermal.board_cooling.run_mission)))\nprint(inspect.getdoc(pinneapple_design.thermal.board_cooling.run_mission).splitlines()[0])\n",
@@ -16589,9 +16761,14 @@
       "name": "pinneapple_design.thermal.board_cooling.run_mission",
       "signature": "(text: 'str', *, out_dir: 'str' = 'out', planner: 'str' = 'template', n: 'int' = 64, render: 'bool' = True, workers: 'int' = 4, llm: 'Callable[[str, str], str] | None' = None, provider: 'str' = 'anthropic', log: 'Callable[[str], None] | None' = <built-in function print>) -> 'Run'",
       "summary": "Plan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the template, with the reason in ``run.plan.notes``, when no model answers or its…"
+     },
+     {
+      "name": "pinneapple_systems.digital_twin.pipe_loop.run_mission",
+      "signature": "(text: 'str' = 'Acompanhe a linha de água quente (bomba, aquecedor, cotovelo, junção em T, ramais B e C) com o gêmeo digital. Diga quando a previsão deixar de ser confiável e por quê: o processo mudou, um sensor está errado ou o modelo saiu do domínio. Mostre a evidência, peça nova simulação quan...",
+      "summary": ""
      }
     ],
-    "table_row": "`pinneapple_autolab` (`Tool`, `Toolbox`, `TemplatePlanner`, `LLMPlanner`, `execute`), `pinneapple_design.thermal.board_cooling.run_mission(text, out_dir=...)`; Flow node `autolab.board_cooling` ([docs](docs/guides/autonomous_physics_lab.md))"
+    "table_row": "`pinneapple_autolab` (`Tool`, `Toolbox`, `TemplatePlanner`, `LLMPlanner`, `execute`), `pinneapple_design.thermal.board_cooling.run_mission(text, out_dir=...)`; a twin that tells a changed process from a wrong sensor from a model out of its domain (confusion matrix on controlled cases): `pinneapple_systems.digital_twin.pipe_loop.run_mission(out_dir=...)`; Flow nodes `autolab.board_cooling`, `autolab.pipe_twin` ([docs](docs/guides/autonomous_physics_lab.md))"
    },
    "category": "design",
    "run": {
@@ -62489,6 +62666,86 @@
     "stderr": "",
     "stdout": "Design from intent | design and geometry | curated",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/autolab_digital_twin",
+   "kind": "example",
+   "name": "examples/autolab_digital_twin",
+   "title": "Digital twin that knows when it is wrong",
+   "summary": "A pipe-loop twin that tells a changed process from a wrong sensor from a model outside its domain, with physics residuals, a Kalman filter and its domain of validity; confusion…",
+   "description": "A pipe-loop twin that tells a changed process from a wrong sensor from a model outside its domain, with physics residuals, a Kalman filter and its domain of validity; confusion matrix on controlled cases.",
+   "domain": "system dynamics",
+   "tags": [
+    "Darcy-Weisbach / Colebrook network",
+    "EKF",
+    "POD-GPR",
+    "structured residuals"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_digital_twin"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_digital_twin\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/autolab_digital_twin/twin_knows_when_wrong.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "cause_accuracy",
+      "value": 0.9625,
+      "unit": "fraction",
+      "how": "80 controlled cases"
+     },
+     {
+      "name": "cases_with_false_alarm",
+      "value": 1.0,
+      "unit": "cases",
+      "how": "alarm before the fault, or any alarm on a healthy case"
+     },
+     {
+      "name": "fast_model_holdout_max",
+      "value": 0.7827623466462263,
+      "unit": "sensor sigmas",
+      "how": "40 held-out operating points"
+     }
+    ],
+    "figures": [
+     "examples/autolab_digital_twin/_out/figures/control_room_obstruction_B.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_drift_Q_B.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_overspeed.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_healthy.png",
+     "examples/autolab_digital_twin/_out/figures/confusion_matrix.png",
+     "examples/autolab_digital_twin/_out/figures/request_simulation.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_after_new_simulation.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/autonomous_physics_lab.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/autolab_digital_twin/twin_knows_when_wrong.py",
+    "lab": "lab/index.html#examples/autolab_digital_twin"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Digital twin that knows when it is wrong | system dynamics | not curated\ncause_accuracy 0.9625 fraction\ncases_with_false_alarm 1.0 cases\nfast_model_holdout_max 0.7827623466462263 sensor sigmas",
+    "stderr": "",
+    "seconds": 1.22,
+    "timed_out": false,
+    "code_hash": "b8c6879d1ad7fbc7",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },

@@ -99,3 +99,8 @@ services:
   design:
     command: ["uvicorn", "physics_design.api:app", "--host", "0.0.0.0", "--port", "8106", "--workers", "1"]
     mem_limit: 800m     # torch + the zoo models; heavy runs are jobs (PDO_MAX_JOBS)
+  hub:
+    command: ["uvicorn", "hub.api:app", "--host", "0.0.0.0", "--port", "8116", "--workers", "1"]
+    mem_limit: 1500m    # torch for zoo inference; each validation run is its own interpreter (HUB_MAX_JOBS=1 here)
+    environment:
+      HUB_MAX_JOBS: ${HUB_MAX_JOBS:-1}

@@ -3,14 +3,16 @@
 // blocks by port type, checks every parameter and returns the flow JSON and the Python; validation runs that
 // Python in the sandbox as a job. URL: /create?blocks=type1,type2&name=...&start=<flow>&geometry=<name>, or
 // /create?flow=<base64url flow JSON> (Flow Studio's "Publish to Hub"): the whole flow is the start, and the parameters
-// ticked under "Parameters of this tool" become variables of the generated Python.
+// ticked under "Parameters of this tool" become variables of the generated Python. /create?mode=canvas embeds the
+// Flow Studio canvas instead of the block list: it posts its flow here on every change (window.postMessage, origin
+// checked both ways), and the code, validation and My Hub work on that flow.
 import { api, codeBlock, copyText, emptyState, esc, fileUrl, go, itemUrl, num, state, toast } from "./app.js";
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 let catalog = null;
 
-const S = { name: "My tool", description: "", start: "", geometry: "", blocks: [], flow: null, expose: [], out: null, tab: "py", job: null, run: null };
+const S = { mode: "blocks", name: "My tool", description: "", start: "", geometry: "", blocks: [], flow: null, expose: [], out: null, tab: "py", job: null, run: null };
 
 function body() {
   return { name: S.name || "My tool", description: S.description, start: S.flow ? null : S.start || null, geometry: S.geometry || null,
@@ -22,6 +24,7 @@ const unb64 = (t) => JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g, "
 export async function createView(view, sp) {
   catalog ??= await api("/api/compose/blocks");
   const types = new Map(catalog.blocks.map((b) => [b.type, b]));
+  if (sp.get("mode") === "canvas" || sp.get("mode") === "blocks") S.mode = sp.get("mode");
   if (sp.get("flow")) {
     try {
       S.flow = unb64(sp.get("flow")); S.blocks = []; S.expose = []; S.start = ""; S.run = null; S.job = null;
@@ -45,9 +48,9 @@ export async function createView(view, sp) {
   const btn = (b) => `<button type="button" data-add="${esc(b.type)}" ${b.available ? "" : "disabled"} title="${esc(b.install || b.summary)}" data-text="${esc((b.title + " " + b.type + " " + b.summary).toLowerCase())}">${esc(b.title)}<small>${esc(b.available ? b.summary : b.install || "not installed here")}</small></button>`;
   const secHTML = (s) => `<div data-sec><h4>${esc(s.title)}</h4>${s.items.map(btn).join("")}</div>`;
   const nAuto = catalog.blocks.filter((b) => b.auto).length;
-  view.innerHTML = `<main><section class="block"><h2>Create your own tool <small>compose existing blocks; get the Python and the flow JSON, validated in a sandbox</small></h2>
-    <div class="create">
-      <aside class="panel"><h2>1 · Blocks</h2>
+  const fsBase = (state.config.flow_studio || "").replace(/\/$/, "");
+  const canvas = S.mode === "canvas";
+  const blocksHTML = `<aside class="panel"><h2>1 · Blocks</h2>
         <label>Name<input id="c-name" maxlength="80" value="${esc(S.name)}"></label>
         <label>Description<input id="c-desc" maxlength="500" value="${esc(S.description)}" placeholder="what the tool does"></label>
         <label>Start from a flow <select id="c-start"><option value="">— empty —</option>${catalog.flows.map((f) => `<option value="${esc(f.name)}" ${S.start === f.name ? "selected" : ""}>${esc(f.title)}</option>`).join("")}</select></label>
@@ -59,8 +62,20 @@ export async function createView(view, sp) {
       <section class="panel" aria-label="Your tool"><h2>2 · Your tool <span class="badge" id="c-count"></span></h2>
         <div class="chain" id="c-chain"></div>
         <ul class="issues" id="c-issues" aria-live="polite"></ul>
-      </section>
-      <section class="panel out" aria-label="Generated code"><div class="outtabs"><h2 style="margin:0">3 · Code</h2>
+      </section>`;
+  const canvasHTML = `<section class="panel canvaspanel" aria-label="Flow Studio canvas"><h2>1 · Build it on the Flow Studio canvas <span class="badge" id="c-count"></span></h2>
+        <div class="row2"><label>Name<input id="c-name" maxlength="80" value="${esc(S.name)}"></label>
+          <label>Description<input id="c-desc" maxlength="500" value="${esc(S.description)}" placeholder="what the tool does"></label></div>
+        <div class="fsframe"><iframe id="c-frame" title="Flow Studio canvas" src="${esc(fsBase)}/?embed=hub&amp;origin=${encodeURIComponent(location.origin)}"></iframe></div>
+        <p class="hint" id="c-frame-note">Drag nodes from the palette, connect them, set their parameters: the flow comes here as you edit it.</p>
+        <div class="chain" id="c-chain"></div>
+        <ul class="issues" id="c-issues" aria-live="polite"></ul>
+      </section>`;
+  view.innerHTML = `<main><section class="block"><h2>Create your own tool <small>compose existing blocks or build it on the Flow Studio canvas; get the Python and the flow JSON, validated in a sandbox</small></h2>
+    <div class="seg2" role="tablist" aria-label="How to build it" style="margin-bottom:12px"><button type="button" role="tab" data-mode="blocks" aria-selected="${!canvas}" class="${canvas ? "" : "on"}">Blocks</button><button type="button" role="tab" data-mode="canvas" aria-selected="${canvas}" class="${canvas ? "on" : ""}">Flow Studio canvas</button></div>
+    <div class="create${canvas ? " canvas-mode" : ""}">
+      ${canvas ? canvasHTML : blocksHTML}
+      <section class="panel out" aria-label="Generated code"><div class="outtabs"><h2 style="margin:0">${canvas ? 2 : 3} · Code</h2>
         <div class="seg2" role="tablist"><button type="button" role="tab" data-tab="py">Python</button><button type="button" role="tab" data-tab="json">Flow JSON</button></div></div>
         <div id="c-code"></div>
         <div class="row" style="margin-top:10px">
@@ -70,8 +85,13 @@ export async function createView(view, sp) {
           <button class="btn" id="c-save" type="button">Save to My Hub</button></div>
         <div id="c-run" aria-live="polite"></div>
       </section></div></section></main>`;
+  $$("[data-mode]").forEach((b) => (b.onclick = () => { if (b.dataset.mode !== S.mode) { S.mode = b.dataset.mode; S.run = null; createView(view, new URLSearchParams()); } }));
   $("#c-name").oninput = (e) => { S.name = e.target.value; refresh(); };
   $("#c-desc").oninput = (e) => { S.description = e.target.value; refresh(); };
+  $$("[data-tab]").forEach((b) => (b.onclick = () => { S.tab = b.dataset.tab; renderCode(); }));
+  $("#c-validate").onclick = validate;
+  $("#c-save").onclick = save;
+  if (canvas) { wireCanvas(types, fsBase); renderChain(types); refresh(true); return; }
   $("#c-start").onchange = (e) => { S.start = e.target.value; S.flow = null; S.expose = []; renderChain(types); refresh(true); };
   $("#c-geo").onchange = (e) => { S.geometry = e.target.value; refresh(); };
   $("#c-filter").oninput = (e) => {
@@ -81,11 +101,34 @@ export async function createView(view, sp) {
     $("#c-auto").open = !!q && $$("#c-auto [data-add]").some((b) => !b.hidden);
   };
   $$("[data-add]").forEach((b) => (b.onclick = () => { S.blocks.push({ type: b.dataset.add, params: {} }); renderChain(types); refresh(true); toast(`Added ${types.get(b.dataset.add).title}`); }));
-  $$("[data-tab]").forEach((b) => (b.onclick = () => { S.tab = b.dataset.tab; renderCode(); }));
-  $("#c-validate").onclick = validate;
-  $("#c-save").onclick = save;
   renderChain(types);
   refresh(true);
+}
+
+let onCanvasMessage = null;
+/** The embedded Flow Studio: accept messages only from its origin and its frame; send it the current flow when it
+ *  is ready; take every flow it posts as this tool's flow (blocks are not mixed with a canvas flow). */
+function wireCanvas(types, fsBase) {
+  const frame = $("#c-frame"), fsOrigin = new URL(fsBase, location.href).origin;
+  let ready = false;
+  if (onCanvasMessage) window.removeEventListener("message", onCanvasMessage);
+  onCanvasMessage = (e) => {
+    if (e.origin !== fsOrigin || e.source !== frame?.contentWindow) return;
+    if (e.data?.type === "pinneapple-flow/ready") {
+      ready = true;
+      $("#c-frame-note").textContent = "Drag nodes from the palette, connect them, set their parameters: the flow comes here as you edit it.";
+      if (S.flow?.nodes?.length) frame.contentWindow.postMessage({ type: "pinneapple-flow/load", flow: S.flow }, fsOrigin);
+    } else if (e.data?.type === "pinneapple-flow/changed" && Array.isArray(e.data.flow?.nodes)) {
+      const ids = new Set(e.data.flow.nodes.map((n) => n.id));
+      S.flow = e.data.flow.nodes.length ? e.data.flow : null; S.blocks = []; S.start = "";
+      S.expose = S.expose.filter((x) => ids.has(x.node)); S.run = null;
+      renderChain(types); refresh();
+    }
+  };
+  window.addEventListener("message", onCanvasMessage);
+  setTimeout(() => {
+    if (!ready && $("#c-frame-note")) $("#c-frame-note").innerHTML = `The canvas did not answer. Is Flow Studio running at <code>${esc(fsBase)}</code>, and does it allow this Hub (<code>FLOW_FRAME_ANCESTORS=${esc(location.origin)}</code>)? Or <a href="${esc(fsBase)}" target="_blank" rel="noopener">open it in a tab</a> and use “Publish to Hub”.`;
+  }, 10000);
 }
 
 export function field(type, key, schema, value) {
@@ -117,7 +160,7 @@ export function readInput(inp) {
 /** The flow published from Flow Studio: its nodes, and a tick box per parameter to expose. */
 function flowCard(types) {
   const f = S.flow, on = (n, p) => S.expose.some((e) => e.node === n && e.param === p);
-  return `<article class="blk"><header><span class="num">⇢</span><b>From Flow Studio: ${esc(f.name || "flow")}</b><button type="button" data-drop aria-label="Drop the Flow Studio flow">✕</button></header>
+  return `<article class="blk"><header><span class="num">⇢</span><b>${S.mode === "canvas" ? "On the canvas" : "From Flow Studio"}: ${esc(f.name || "flow")}</b>${S.mode === "canvas" ? "" : '<button type="button" data-drop aria-label="Drop the Flow Studio flow">✕</button>'}</header>
     <div class="ports">${f.nodes.length} nodes, ${f.edges.length} connections · tick the parameters that this tool takes</div>
     <div class="params" style="display:block">${f.nodes.map((n) => {
       const t = types.get(n.type), props = t?.params_schema?.properties || {};
@@ -127,9 +170,14 @@ function flowCard(types) {
 
 function renderChain(types) {
   const host = $("#c-chain");
+  if (S.mode === "canvas" && !S.flow) {
+    $("#c-count").textContent = "empty";
+    host.innerHTML = '<p class="hint">The canvas is empty: add nodes there. Its parameters appear here to tick the ones this tool takes.</p>';
+    return;
+  }
   if (S.flow) {
-    host.innerHTML = flowCard(types) + (S.blocks.length ? "" : '<p class="hint">Blocks you add are appended to this flow.</p>');
-    $("[data-drop]", host).onclick = () => { S.flow = null; S.expose = []; renderChain(types); refresh(true); };
+    host.innerHTML = flowCard(types) + (S.blocks.length || S.mode === "canvas" ? "" : '<p class="hint">Blocks you add are appended to this flow.</p>');
+    if ($("[data-drop]", host)) $("[data-drop]", host).onclick = () => { S.flow = null; S.expose = []; renderChain(types); refresh(true); };
     $$("[data-expose]", host).forEach((cb) => (cb.onchange = () => {
       const [node, param] = cb.dataset.expose.split("|");
       S.expose = S.expose.filter((e) => !(e.node === node && e.param === param));

@@ -62,7 +62,7 @@ STUDIO = os.path.dirname(VENDOR)                      # studio-core.js: colour s
 SHARED = os.path.join(os.path.dirname(__file__), "static", "shared")
 
 
-def install(app: FastAPI, prefix: str, *, max_body_mb: float | None = None) -> None:
+def install(app: FastAPI, prefix: str, *, max_body_mb: float | None = None, frame_src: list[str] | None = None) -> None:
     """Login, security middleware and the shared static files: ``/vendor`` (three.js), ``/studio`` (the studio viewer
     core) and ``/shared`` (UI pieces common to every app).
 
@@ -164,8 +164,14 @@ def install(app: FastAPI, prefix: str, *, max_body_mb: float | None = None) -> N
         app.add_middleware(CORSMiddleware, allow_origins=web.check_cors_origins(cors, credentials),
                            allow_credentials=credentials, allow_methods=["GET", "POST", "DELETE"],
                            allow_headers=["Content-Type", "X-API-Key", "Authorization"], max_age=600)
-    app.add_middleware(web.SecurityHeaders, csp=_csp_for(app, prefix),
-                       hsts=env.get(f"{prefix}_HSTS", "max-age=31536000; includeSubDomains"))
+    # framing, off by default: <PREFIX>_FRAME_ANCESTORS lists the origins that may embed this app (Flow Studio's canvas
+    # in the Hub); frame_src the origins this app's pages embed. X-Frame-Options can not name origins, so it is left
+    # out only when an allow-list is set (the CSP frame-ancestors then decides).
+    ancestors = web.check_frame_origins((env.get(f"{prefix}_FRAME_ANCESTORS") or "").split(","))
+    app.add_middleware(web.SecurityHeaders,
+                       csp=_csp_for(app, prefix, frame_ancestors=ancestors, frame_src=web.check_frame_origins(frame_src or [])),
+                       hsts=env.get(f"{prefix}_HSTS", "max-age=31536000; includeSubDomains"),
+                       frame_options="" if ancestors else "DENY")
     body_mb = float(env.get(f"{prefix}_MAX_BODY_MB") or max_body_mb or DEFAULT_MAX_BODY_MB)
     app.add_middleware(web.BodyLimit, max_bytes=int(body_mb * 2**20))
 
@@ -258,9 +264,10 @@ class _Verifier:
         return False
 
 
-def _csp_for(app: FastAPI, prefix: str):
+def _csp_for(app: FastAPI, prefix: str, *, frame_ancestors: list[str] | None = None, frame_src: list[str] | None = None):
     """The CSP (``<PREFIX>_CSP`` overrides it): hashes of the inline scripts and handlers of the HTML files in the
-    app's static mounts, collected on first use (the mounts are added after ``install``)."""
+    app's static mounts, collected on first use (the mounts are added after ``install``); framing from
+    ``frame_ancestors`` / ``frame_src`` (validated origins)."""
     fixed = os.environ.get(f"{prefix}_CSP")
     cache: dict[str, str] = {}
 
@@ -276,7 +283,9 @@ def _csp_for(app: FastAPI, prefix: str):
                         s, h = web.inline_hashes(page.read_text(encoding="utf-8", errors="replace"))
                         scripts |= s
                         handlers |= h
-            cache["v"] = web.build_csp(scripts, handlers)
+            cache["v"] = web.build_csp(scripts, handlers, frame_src=frame_src or (),
+                                       frame_ancestors=" ".join(["'self'", *frame_ancestors]) if frame_ancestors
+                                       else "'none'")
         return cache["v"]
 
     return csp

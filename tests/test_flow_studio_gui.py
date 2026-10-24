@@ -221,3 +221,19 @@ def test_palette_favourites_are_stored_for_the_user(page, server):
         time.sleep(0.1)
     assert "viz.plot" in prefs["favourites"]
     shot(page, "palette.png", clip={"x": 0, "y": 0, "width": 640, "height": 920})
+
+
+@pytest.mark.parametrize("width", [1280, 1440])
+def test_top_bar_stays_on_one_line(page, server, width):
+    page.set_viewport_size({"width": width, "height": 900})
+    try:
+        page.goto(server + "/?example=antenna_vivaldi_limits")
+        page.wait_for_selector("[data-testid=publish-hub]")         # the longest bar: Hub links and a loaded flow
+        wrapped = page.evaluate("""() => [...document.querySelector('header').children]
+            .filter((e) => e.getBoundingClientRect().width && e.getClientRects().length
+                    && e.getBoundingClientRect().height > 1.6 * (parseFloat(getComputedStyle(e).lineHeight) || 20) + 8)
+            .map((e) => e.textContent.trim())""")
+        assert wrapped == [], f"top bar labels on two lines at {width}px: {wrapped}"
+        assert page.evaluate("(() => { const h = document.querySelector('header'); return h.scrollWidth <= h.clientWidth })()")
+    finally:
+        page.set_viewport_size({"width": 1500, "height": 920})

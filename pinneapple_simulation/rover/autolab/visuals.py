@@ -140,25 +140,27 @@ def plot_traverse(runs, site, path, slip_limit=0.4, front=(0, 1)):
     fig, axs = plt.subplots(4, 1, figsize=(10, 9), sharex=True, constrained_layout=True)
     for i, run in enumerate(runs):
         c = ROUTE_COLORS[i % 3]
-        d = run.distance() + (0.0 if i == 0 else 0.0)
+        d = run.distance()
         lab = f"route {chr(65 + i)}: {run.meta['ended'].split(':')[0]}"
         axs[0].plot(d, monitor_slip(run, list(front)), color=c, lw=1.5, label=lab)
         axs[1].plot(d, 1e3 * run.wheel["sinkage"][:, list(front)].mean(1), color=c, lw=1.2)
         axs[2].plot(d, run.energy(), color=c, lw=1.5)
         z = site.height(run.q[:, 0], run.q[:, 1])
-        axs[3].plot(d, z, color=c, lw=1.0)
         u = run.wheel["soil_idx"][:, list(front)].max(1)
-        for k, unit in enumerate(site.units):
+        for k, unit in enumerate(site.units):            # soil under the front wheels, a band under the route line
             mk = u == k
-            axs[3].scatter(d[mk], z[mk], s=3, color=unit.color, zorder=3)
+            axs[3].scatter(d[mk], z[mk] - 0.12, s=4, color=unit.color, marker="s", linewidths=0, zorder=2)
+        axs[3].plot(d, z, color=c, lw=2.0, zorder=3, label=lab)
     axs[0].axhline(slip_limit, color="k", ls="--", lw=1, label=f"mission limit {slip_limit:g}")
     axs[0].set_ylabel("slip (2-s mean, front)")
     axs[0].legend(fontsize=8)
-    axs[1].set_ylabel("sinkage, front [mm]")
+    axs[1].set_ylabel("sinkage, mean of the\nfront wheels [mm]")
     axs[2].set_ylabel("drive energy [J]")
     axs[3].set_ylabel("elevation [m]")
     axs[3].set_xlabel("distance driven on the route [m]")
-    axs[3].set_title("dots: soil unit under the front wheels (colours as in the site map)", fontsize=8)
+    axs[3].legend(fontsize=8)
+    axs[3].set_title("line: route; band below it: soil unit under the front wheels (colours as in the site map)",
+                     fontsize=8)
     fig.savefig(path)
     plt.close(fig)
     return path

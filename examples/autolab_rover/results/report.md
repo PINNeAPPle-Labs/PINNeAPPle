@@ -10,10 +10,10 @@ All numbers below were measured in this run (multibody simulation on the true te
 
 ## Routes
 
-| Route | Planned with | Predicted max risk (then) | Predicted max risk (learned) | Measured outcome | Distance [m] | Drive energy [J] | Max 2-s slip | Max sinkage [mm] |
-|---|---|---|---|---|---|---|---|---|
-| A | orbital prior | 0.042 | 1.000 | stalled: mean slip 0.42 over 2 s > limit 0.4 | 12.9 | 2958 | 0.42 | 319 |
-| B | learned belief #1 | 0.000 | 0.000 | goal | 28.6 | 2869 | 0.21 | 31 |
+| Route | Planned with | Predicted max risk (then) | Predicted max risk (learned) | Measured outcome | Distance [m] | Drive energy [J] | Max 2-s slip | Max sinkage, any wheel [mm] | Max sinkage, front mean [mm] |
+|---|---|---|---|---|---|---|---|---|---|
+| A | orbital prior | 0.042 | 1.000 | stalled: mean slip 0.42 over 2 s > limit 0.4 | 12.9 | 2958 | 0.42 | 319 (RL) | 210 |
+| B | learned belief #1 | 0.000 | 0.000 | goal | 28.6 | 2869 | 0.21 | 31 (RL) | 18 |
 
 After the stall the rover backs out on its own ruts to (11.63, 6.06) (the reversal is not simulated) and drives route B from there.
 

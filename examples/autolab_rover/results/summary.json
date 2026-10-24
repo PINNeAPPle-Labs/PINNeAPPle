@@ -91,6 +91,8 @@
     "max_slip_2s_front": 0.420399,
     "max_slip_instant": 0.99,
     "max_sinkage_mm": 319.367895,
+    "max_sinkage_front_mean_mm": 210.122977,
+    "max_sinkage_wheel": "RL",
     "sim_time_s": 71.336,
     "wall_time_s": 99.218469,
     "end_xy": [
@@ -164,6 +166,8 @@
     "max_slip_2s_front": 0.214524,
     "max_slip_instant": 0.99,
     "max_sinkage_mm": 30.733466,
+    "max_sinkage_front_mean_mm": 18.063711,
+    "max_sinkage_wheel": "RL",
     "sim_time_s": 146.168,
     "wall_time_s": 191.812421,
     "end_xy": [

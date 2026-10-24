@@ -62,7 +62,12 @@ def mission_numbers(mission, res) -> dict:
             "measured_multibody": {"ended": run.meta["ended"], "distance_m": s["distance_m"],
                                    "energy_J": s["energy_J"], "energy_per_m_J": s["energy_per_metre_J_m"],
                                    "max_slip_2s_front": float(np.nanmax(ms)), "max_slip_instant": s["max_slip"],
-                                   "max_sinkage_mm": s["max_sinkage_mm"], "sim_time_s": float(run.t[-1]),
+                                   "max_sinkage_mm": s["max_sinkage_mm"],
+                                   "max_sinkage_front_mean_mm": float(
+                                       1e3 * run.wheel["sinkage"][:, mission.front].mean(1).max()),
+                                   "max_sinkage_wheel": run.model.spec.corners[
+                                       int(np.argmax(run.wheel["sinkage"].max(0)))].name,
+                                   "sim_time_s": float(run.t[-1]),
                                    "wall_time_s": float(run.meta.get("wall_s", np.nan)),
                                    "end_xy": run.q[-1, :2]}})
     if res.retreat is not None:
@@ -136,13 +141,14 @@ def report_markdown(n: dict) -> str:
          "All numbers below were measured in this run (multibody simulation on the true terrain, or the planner's "
          "prediction where marked).", "", "## Routes", "",
          "| Route | Planned with | Predicted max risk (then) | Predicted max risk (learned) | Measured outcome | "
-         "Distance [m] | Drive energy [J] | Max 2-s slip | Max sinkage [mm] |",
-         "|---|---|---|---|---|---|---|---|---|"]
+         "Distance [m] | Drive energy [J] | Max 2-s slip | Max sinkage, any wheel [mm] | Max sinkage, front mean [mm] |",
+         "|---|---|---|---|---|---|---|---|---|---|"]
     for r in n["routes"]:
         m = r["measured_multibody"]
         L.append(f"| {r['name']} | {r['planned_with']} | {r['predicted_when_planned']['max_risk']:.3f} | "
                  f"{r['predicted_with_learned_belief']['max_risk']:.3f} | {m['ended']} | {m['distance_m']:.1f} | "
-                 f"{m['energy_J']:.0f} | {m['max_slip_2s_front']:.2f} | {m['max_sinkage_mm']:.0f} |")
+                 f"{m['energy_J']:.0f} | {m['max_slip_2s_front']:.2f} | {m['max_sinkage_mm']:.0f} "
+                 f"({m['max_sinkage_wheel']}) | {m['max_sinkage_front_mean_mm']:.0f} |")
     if n.get("retreat_point"):
         L += ["", f"After the stall the rover backs out on its own ruts to {tuple(round(v, 2) for v in n['retreat_point'])}"
               " (the reversal is not simulated) and drives route B from there."]

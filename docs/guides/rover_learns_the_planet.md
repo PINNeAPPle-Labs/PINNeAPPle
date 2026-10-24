@@ -32,7 +32,8 @@ Python 3.13.17, NumPy 2.5.3, Blender 5.1.2); mission 389 s:
 | distance driven | 12.9 m | 28.6 m |
 | drive energy | 2958 J | 2869 J |
 | largest 2-s slip | 0.42 | 0.21 |
-| largest sinkage | 319 mm | 31 mm |
+| largest sinkage, any wheel | 319 mm (rear left) | 31 mm (rear left) |
+| largest sinkage, mean of the front wheels | 210 mm | 18 mm |
 | risk under the learned belief | 1.00 | 0.00 |
 
 Learned soft sand against the hidden truth: log10 k_phi 4.85 (true 4.78),

@@ -169,6 +169,8 @@ def main():
     slide(os.path.join(OUT, "06_research.png"), "Inverse problem, uncertainty, surrogate",
           [f"• eps_r from a noisy FDTD reflection spectrum: {eps['value']:.4f} +- {eps['uncertainty']:.4f} "
            "(truth 3.7)",
+           f"• model bias removed: 2u covers the truth in {100 * iv['values']['coverage_2u_eps']['value']:.0f} % "
+           f"of noise runs ({100 * iv['values']['coverage_2u_eps_uncorrected']['value']:.0f} % before)",
            f"• waveguide tolerances, Monte Carlo vs GUM std: {100 * gum['rel_error']:.1f} % apart",
            f"• GP surrogate, worst hold-out error {100 * s['values']['holdout_max_rel_error']['value']:.3f} %; "
            f"+-2 sigma covers {100 * s['values']['coverage_2sigma']['value']:.0f} % (stated)",

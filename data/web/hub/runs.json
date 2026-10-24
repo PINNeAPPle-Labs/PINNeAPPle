@@ -1319,6 +1319,17 @@
   "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
   "timed_out": false
  },
+ "example:examples/nvidia/04_worldmodel_physics_video": {
+  "code_hash": "c343ca471ede6220",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.74,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "World model on physics-labelled video, judged by physics checks | physical AI | not curated\nrollout_pass_rate 0.0 \nrollout_pixel_mae 0.020704112015664577",
+  "timed_out": false
+ },
  "example:examples/nvidia/05_brep_plate_with_hole": {
   "code_hash": "b948a3860baab4a0",
   "figures": [],
@@ -1363,6 +1374,17 @@
   "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
   "timed_out": false
  },
+ "example:examples/nvidia/09_worldmodel_physicsnemo_state": {
+  "code_hash": "cceeb3b4b24b2539",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.84,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "State-space world model: CNN encoder, PhysicsNeMo dynamics, video physics checks | physical AI | not curated\nrollout_pass_rate 0.9 \nrollout_g_median 9.860008494247328 m/s^2",
+  "timed_out": false
+ },
  "example:examples/nvidia/10_brep_physicsnemo_heatsink": {
   "code_hash": "1ab4a238d5c929aa",
   "figures": [],
@@ -1396,6 +1418,17 @@
   "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
   "timed_out": false
  },
+ "example:examples/nvidia/13_omniverse_worldmodel_inspection": {
+  "code_hash": "24640eefa28db282",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Synthetic thermal-inspection data as USD scene variations, with a physics label check | physical AI | not curated\nwithin_4px_all_samples 0.2 \nwithin_4px_accepted_samples 0.26 \nwithin_4px_brightest_pixel 0.44",
+  "timed_out": false
+ },
  "example:examples/nvidia/14_brep_omniverse_bracket": {
   "code_hash": "b42ed8f06b195d4c",
   "figures": [],
@@ -1427,6 +1460,28 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle | heat transfer | not curated\naccepted_mass 195.09650445308407 g\naccepted_t_source 74.20348259023478 C",
+  "timed_out": false
+ },
+ "example:examples/nvidia/17_omniverse_robotsim_worldmodel_perception": {
+  "code_hash": "eec2510014e55f95",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.67,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Robot perception from synthetic camera data: Newton motions, USD timelines, checked joint-angle CNN | robotics | not curated\nangle_rms_visible 0.2288505947426688 rad",
+  "timed_out": false
+ },
+ "example:examples/nvidia/18_all_stacks_heatsink_cell": {
+  "code_hash": "4467b4aecc860ef0",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.86,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Heat-sink work cell: B-rep design, PhysicsNeMo surrogate served as a model service, Newton robot move, synthetic camera, USD scene | engineering design | not curated\npart_mass 0.20063699999999995 kg\nmove_time 0.5 s",
   "timed_out": false
  },
  "example:examples/openfoam_campaign": {
@@ -6058,6 +6113,39 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Sobol indices (any surrogate) -> pinneapple_analysis.sensitivity:sobol_indices\ninputs: [('model', 'model')]\noutputs: [('result', 'metrics')]\ndefaults: {'n': 1024, 'second_order': False, 'n_boot': 200, 'level': 0.95, 'seed': 0}",
+  "timed_out": false
+ },
+ "node:lib.worldmodel.arm_camera": {
+  "code_hash": "b86b6007198f3deb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.51,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Labelled robot camera sample (USD) -> pinneapple_worldmodel.robot_perception:arm_camera_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'seed': 0, 'occluder': False, 'usd_path': 'arm_camera_sample.usda'}",
+  "timed_out": false
+ },
+ "node:lib.worldmodel.inspection_sample": {
+  "code_hash": "53a7ac067fe8f181",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.33,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Synthetic inspection sample (USD) -> pinneapple_worldmodel.inspection_data:inspection_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'x': 0.4, 'y': 0.6, 'r': 0.08, 'seed': 0, 'glint': False, 'usd_path': 'inspection_sample.usda'}",
+  "timed_out": false
+ },
+ "node:lib.worldmodel.video_check": {
+  "code_hash": "716a93f13970d35b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.5,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Physics check of a synthetic video -> pinneapple_worldmodel.physical_world:video_check\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'seed': 0, 'edit': 'none'}",
   "timed_out": false
  },
  "node:meta.learn": {

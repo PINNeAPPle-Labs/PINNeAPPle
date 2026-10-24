@@ -49,13 +49,29 @@ Pilot on 4 CPU cores (EMerge 2.8.9, SuperLU, `res` 0.1 λ), generic cell ranges,
   | training cells | held-out RMSE, every (f, θ) | max abs error | RMSE of the worst case per cell |
   |---|---|---|---|
   | 12 | 4.58 dB | 26.0 dB | 0.49 dB |
-  | 24 | 3.09 dB | 17.9 dB | 0.34 dB |
-  | 48 | 2.30 dB | 15.1 dB | 0.21 dB |
+  | 24 | 3.11 dB | 18.3 dB | 0.27 dB |
+  | 48 | 2.26 dB | 14.6 dB | 0.22 dB |
 
   The pointwise error is dominated by the deep resonant nulls (their depth moves with the parameters); the worst-case
   active reflection over the band and scans, the quantity optimised below, is predicted to 0.2–0.5 dB.
 * **Equal budget, 24 solver calls each, minimising the worst-case |Γ| over the band and scans:**
-  DOE + FNO + optimiser + verification of the 4 best candidates reached −6.54 dB. Bayesian optimisation on the solver with the same 24 calls: running when this was written; its result is added to this page and `results/unit_cell/summary.json` when it finishes.
+
+
+  | strategy (24 solver calls each) | best worst-case \|Γ\| (solver value) | reached at call |
+  |---|---|---|
+  | LHS of 20 cells alone (random search) | −3.10 dB | 3 |
+  | LHS of 20 + FNO + optimiser over 4 000 candidates + 4 verifications | −6.54 dB | 21 (first verification) |
+  | Bayesian optimisation on the solver | −6.72 dB | 19 |
+
+  On this 5-parameter problem the two strategies end within 0.2 dB of each other; Bayesian optimisation got there
+  two calls earlier. The FNO ranked well but was pessimistic: its predictions for the 4 verified candidates were
+  −4.31 to −4.38 dB, the solver gave −4.56 to −6.54 dB. What the FNO buys is the rest of the map: one trained model
+  predicts the whole (frequency × scan) response of any cell in milliseconds, for other objectives too, while the
+  Bayesian run answers only the question it was run for. A single seed and a 24-call budget: the ranking between
+  the two is not established by this pilot. The run was interrupted once by a machine restart and resumed from the
+  saved results (`CLISimulator(resume=True)`), with the same designs and the same values.
+
+![FNO learning curve and equal-budget convergence](../../examples/use_cases/antennas/results/unit_cell/unit_cell_benchmark.png)
 
 A one-thread FNO matters: with four threads competing with each other (or with a solver) the same FNO took 26 steps
 in 20 s instead of 2 421; `fit_fno` trains on one thread by default.

@@ -1,0 +1,127 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/17_omniverse_robotsim_worldmodel_perception",
+ "title": "Robot perception from synthetic camera data: Newton motions, USD timelines, checked joint-angle CNN",
+ "description": "",
+ "domain": "robotics",
+ "methods": [
+  "Newton Featherstone",
+  "OpenUSD",
+  "synthetic camera",
+  "CNN"
+ ],
+ "modules": [
+  "pinneapple_worldmodel.robot_perception",
+  "pinneapple_simulation.robot_sim"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "angle_rms_visible",
+   "value": 0.2288505947426688,
+   "unit": "rad",
+   "how": "test frames where the label check keeps the frame"
+  }
+ ],
+ "checks": [
+  {
+   "name": "labels: forward kinematics = Newton link poses (m)",
+   "passed": true,
+   "value": 1.4408098591989216e-07,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-06,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "USD timelines valid (time samples, camera, UsdValidation)",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "joint angle error on visible test frames (RMS, rad)",
+   "passed": false,
+   "value": 0.2288505947426688,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.035,
+   "min": null,
+   "detail": "500 frames; 0.035 rad = 2 deg",
+   "kind": "sanity"
+  },
+  {
+   "name": "tool point error through the kinematics (RMS, m)",
+   "passed": false,
+   "value": 0.1816874267362624,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "joint speed implied by the predictions vs Newton (median rel. RMS)",
+   "passed": false,
+   "value": 0.6046924763385435,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.25,
+   "min": null,
+   "detail": "20 fully visible test motions",
+   "kind": "sanity"
+  },
+  {
+   "name": "frame-to-frame jumps beyond the joint rate limit",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "limit 12 rad/s",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/usd_preview.png",
+   "results/frames.png",
+   "results/angles.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "6aaa3da5",
+  "created": "2026-10-24T11:06:45Z",
+  "seconds": 4726.135,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

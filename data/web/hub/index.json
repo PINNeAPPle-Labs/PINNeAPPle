@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 415,
+  "tool": 417,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 144
+  "example": 146
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 415,
+   "tool": 417,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 144
+   "example": 146
   },
   "subkind": {
    "library call": 249,
-   "flow node": 83,
+   "flow node": 85,
    "recipe": 46,
    "function": 20,
    "agent tool (MCP)": 17
@@ -138,16 +138,16 @@
   "domain": {
    "physics AI": 90,
    "general": 78,
-   "fluid dynamics": 59,
+   "fluid dynamics": 60,
    "design and geometry": 58,
    "structural mechanics": 51,
    "numerical methods": 46,
    "validation and benchmarks": 46,
    "data": 41,
-   "system dynamics": 40,
+   "system dynamics": 41,
    "heat transfer": 25,
+   "vehicle dynamics": 14,
    "electromagnetics": 12,
-   "vehicle dynamics": 12,
    "time series": 9,
    "flight dynamics": 8,
    "geophysics and climate": 8,
@@ -187,15 +187,15 @@
    "inverse": 6,
    "design": 27,
    "systems": 33,
-   "vehicles": 10,
+   "vehicles": 11,
    "electromagnetics": 9,
-   "time-series": 8,
+   "time-series": 9,
    "data": 53,
    "reports": 10,
    "automation": 28
   },
   "quality": {
-   "not graded": 534,
+   "not graded": 538,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -4443,6 +4443,177 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Digital twin (stream -> twin runtime) -> pinneapple_systems.operations.live.replay / LiveTwin + TwinRuntime (ensemble Kalman filter)\ninputs: [('stream', 'series')]\noutputs: [('twin', 'twin'), ('series', 'series'), ('metrics', 'metrics')]\ndefaults: {'source': 'simulated', 'duration_s': 7200.0, 'fault': 'leak', 'fault_magnitude': 0.0005, 'fault_start_frac': 0.5, 'broker': '127.0.0.1:1883', 'topic': 'pinneapple/tank-1/sensors', 'listen_s': 30.0, 'seed': 4}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:autolab.pipe_twin",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "autolab.pipe_twin",
+   "title": "Digital twin that knows when it is wrong (pipe loop)",
+   "summary": "Fit the twin's fast model, calibrate its alarms on healthy runs, tell a changed process from a wrong sensor from a model outside its domain on three events, ask the physics where…",
+   "description": "Fit the twin's fast model, calibrate its alarms on healthy runs, tell a changed process from a wrong sensor from\na model outside its domain on three events, ask the physics where the model is out of its domain, and measure the\ndiagnosis on controlled cases (confusion matrix) with its trust report.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Design",
+    "agent",
+    "controller",
+    "design",
+    "digital twin",
+    "fault diagnosis",
+    "kalman",
+    "optimization",
+    "pareto",
+    "verification"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"autolab.pipe_twin\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=autolab.pipe_twin",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/autolab.py#L48"
+   },
+   "extra": {
+    "calls": "pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "mission",
+      "kind": "text",
+      "default": "",
+      "help": "the request in plain language (empty: the built-in example)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "n_per_kind",
+      "kind": "int",
+      "default": 20,
+      "help": "controlled cases per kind",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 200,
+      "advanced": false
+     },
+     {
+      "name": "planner",
+      "kind": "enum",
+      "default": "template",
+      "help": "",
+      "choices": [
+       "template",
+       "llm"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "render",
+      "kind": "bool",
+      "default": false,
+      "help": "Blender renders (needs bpy)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "workers",
+      "kind": "int",
+      "default": 4,
+      "help": "",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 32,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mission": {
+       "title": "mission",
+       "description": "the request in plain language (empty: the built-in example)",
+       "x-kind": "text",
+       "default": "",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "n_per_kind": {
+       "title": "n per kind",
+       "description": "controlled cases per kind",
+       "x-kind": "int",
+       "default": 20,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200
+      },
+      "planner": {
+       "title": "planner",
+       "description": "",
+       "x-kind": "enum",
+       "default": "template",
+       "enum": [
+        "template",
+        "llm"
+       ]
+      },
+      "render": {
+       "title": "render",
+       "description": "Blender renders (needs bpy)",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      },
+      "workers": {
+       "title": "workers",
+       "description": "",
+       "x-kind": "int",
+       "default": 4,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 32
+      }
+     }
+    }
+   },
+   "category": "time-series",
+   "run": {
+    "code_hash": "91131ee998dce031",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 8.62,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Digital twin that knows when it is wrong (pipe loop) -> pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n_per_kind': 20, 'planner': 'template', 'render': False, 'workers': 4}",
     "timed_out": false,
     "status": "ok"
    }
@@ -13279,6 +13450,156 @@
    }
   },
   {
+   "id": "node:rover.learn_planet",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "rover.learn_planet",
+   "title": "Rover that learns the planet (autonomous lab)",
+   "summary": "Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil learned from the wheels (iterated EKF) -> replanned route -> drive ->…",
+   "description": "Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil\nlearned from the wheels (iterated EKF) -> replanned route -> drive -> trust report, on a synthetic site whose\ntrue soils are known (so the error of the learned soil is measured).",
+   "domain": "vehicle dynamics",
+   "tags": [
+    "Solvers",
+    "cfd",
+    "fd",
+    "fem",
+    "kalman",
+    "mission",
+    "numerical",
+    "planning",
+    "rover",
+    "simulation",
+    "solvers",
+    "terramechanics",
+    "trust"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"rover.learn_planet\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=rover.learn_planet",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/vehicle.py#L432"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)",
+    "category": "Solvers",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "mission",
+      "kind": "str",
+      "default": "Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy",
+      "help": "plain-language mission on the synthetic demo site",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "max_time",
+      "kind": "float",
+      "default": 400.0,
+      "help": "drive budget per route [s]; a full mission takes about 10 min on 4 CPU cores",
+      "choices": null,
+      "minimum": 10.0,
+      "maximum": 1200.0,
+      "advanced": true
+     },
+     {
+      "name": "n_samples",
+      "kind": "int",
+      "default": 24,
+      "help": "belief samples for the risk",
+      "choices": null,
+      "minimum": 3,
+      "maximum": 64,
+      "advanced": true
+     },
+     {
+      "name": "figures",
+      "kind": "bool",
+      "default": true,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": true
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mission": {
+       "title": "mission",
+       "description": "plain-language mission on the synthetic demo site",
+       "x-kind": "str",
+       "default": "Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "max_time": {
+       "title": "max time",
+       "description": "drive budget per route [s]; a full mission takes about 10 min on 4 CPU cores",
+       "x-kind": "float",
+       "default": 400.0,
+       "x-advanced": true,
+       "type": "number",
+       "minimum": 10.0,
+       "maximum": 1200.0
+      },
+      "n_samples": {
+       "title": "n samples",
+       "description": "belief samples for the risk",
+       "x-kind": "int",
+       "default": 24,
+       "x-advanced": true,
+       "type": "integer",
+       "minimum": 3,
+       "maximum": 64
+      },
+      "figures": {
+       "title": "figures",
+       "description": "",
+       "x-kind": "bool",
+       "default": true,
+       "x-advanced": true,
+       "type": "boolean"
+      }
+     }
+    }
+   },
+   "category": "vehicles",
+   "run": {
+    "code_hash": "bd7c780ec4d0fd49",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 7.97,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Rover that learns the planet (autonomous lab) -> pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)\ninputs: []\noutputs: [('report', 'report'), ('metrics', 'metrics')]\ndefaults: {'mission': 'Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy', 'max_time': 400.0, 'n_samples': 24, 'figures': True}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "node:vehicle.simulate",
    "kind": "tool",
    "subkind": "flow node",
@@ -16462,7 +16783,8 @@
    "description": "Plan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the\ntemplate, with the reason in ``run.plan.notes``, when no model answers or its plan is not valid).",
    "domain": "heat transfer",
    "tags": [
-    "pinneapple_design.thermal.board_cooling.run_mission"
+    "pinneapple_design.thermal.board_cooling.run_mission",
+    "pinneapple_systems.digital_twin.pipe_loop.run_mission"
    ],
    "quality": null,
    "code": "import inspect\nimport pinneapple_design.thermal.board_cooling\n\nprint(\"pinneapple_design.thermal.board_cooling.run_mission\" + str(inspect.signature(pinneapple_design.thermal.board_cooling.run_mission)))\nprint(inspect.getdoc(pinneapple_design.thermal.board_cooling.run_mission).splitlines()[0])\n",
@@ -16479,9 +16801,14 @@
       "name": "pinneapple_design.thermal.board_cooling.run_mission",
       "signature": "(text: 'str', *, out_dir: 'str' = 'out', planner: 'str' = 'template', n: 'int' = 64, render: 'bool' = True, workers: 'int' = 4, llm: 'Callable[[str, str], str] | None' = None, provider: 'str' = 'anthropic', log: 'Callable[[str], None] | None' = <built-in function print>) -> 'Run'",
       "summary": "Plan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the template, with the reason in ``run.plan.notes``, when no model answers or its…"
+     },
+     {
+      "name": "pinneapple_systems.digital_twin.pipe_loop.run_mission",
+      "signature": "(text: 'str' = 'Acompanhe a linha de água quente (bomba, aquecedor, cotovelo, junção em T, ramais B e C) com o gêmeo digital. Diga quando a previsão deixar de ser confiável e por quê: o processo mudou, um sensor está errado ou o modelo saiu do domínio. Mostre a evidência, peça nova simulação quan...",
+      "summary": ""
      }
     ],
-    "table_row": "`pinneapple_autolab` (`Tool`, `Toolbox`, `TemplatePlanner`, `LLMPlanner`, `execute`), `pinneapple_design.thermal.board_cooling.run_mission(text, out_dir=...)`; Flow node `autolab.board_cooling` ([docs](docs/guides/autonomous_physics_lab.md))"
+    "table_row": "`pinneapple_autolab` (`Tool`, `Toolbox`, `TemplatePlanner`, `LLMPlanner`, `execute`), `pinneapple_design.thermal.board_cooling.run_mission(text, out_dir=...)`; a twin that tells a changed process from a wrong sensor from a model out of its domain (confusion matrix on controlled cases): `pinneapple_systems.digital_twin.pipe_loop.run_mission(out_dir=...)`; Flow nodes `autolab.board_cooling`, `autolab.pipe_twin` ([docs](docs/guides/autonomous_physics_lab.md))"
    },
    "category": "design",
    "run": {
@@ -58193,6 +58520,168 @@
    }
   },
   {
+   "id": "example:examples/autolab_rover",
+   "kind": "example",
+   "name": "examples/autolab_rover",
+   "title": "Autonomous Physics Lab: the rover that learns the planet",
+   "summary": "Mission in plain language -> route on the orbital map -> multibody VIPER drive -> stall in soft sand mapped as regolith -> soil learned from the wheels (iterated EKF) ->…",
+   "description": "Mission in plain language -> route on the orbital map -> multibody VIPER drive -> stall in soft sand mapped as regolith -> soil learned from the wheels (iterated EKF) -> replanned route -> trust report against the physics and the known truth of a synthetic site.",
+   "domain": "vehicle dynamics",
+   "tags": [
+    "Blender Cycles",
+    "Wong-Reece terramechanics",
+    "iterated EKF",
+    "multibody dynamics",
+    "risk-aware Dijkstra"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_rover"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_rover\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/autolab_rover/rover_learns_planet.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "route_A_distance",
+      "value": 12.925884,
+      "unit": "m",
+      "how": "multibody run on the true terrain"
+     },
+     {
+      "name": "route_A_energy",
+      "value": 2957.959341,
+      "unit": "J",
+      "how": "sum of motor torque x wheel speed"
+     },
+     {
+      "name": "route_A_max_slip",
+      "value": 0.420399,
+      "unit": "-",
+      "how": "2-s mean front-wheel slip, maximum over the run"
+     },
+     {
+      "name": "route_A_max_sinkage",
+      "value": 319.367895,
+      "unit": "mm",
+      "how": "max wheel sinkage"
+     },
+     {
+      "name": "route_A_learned_risk",
+      "value": 1.0,
+      "unit": "-",
+      "how": "largest share of learned-belief samples above the slip limit along the route"
+     },
+     {
+      "name": "route_B_distance",
+      "value": 28.559919,
+      "unit": "m",
+      "how": "multibody run on the true terrain"
+     },
+     {
+      "name": "route_B_energy",
+      "value": 2869.080658,
+      "unit": "J",
+      "how": "sum of motor torque x wheel speed"
+     },
+     {
+      "name": "route_B_max_slip",
+      "value": 0.214524,
+      "unit": "-",
+      "how": "2-s mean front-wheel slip, maximum over the run"
+     },
+     {
+      "name": "route_B_max_sinkage",
+      "value": 30.733466,
+      "unit": "mm",
+      "how": "max wheel sinkage"
+     },
+     {
+      "name": "route_B_learned_risk",
+      "value": 0.0,
+      "unit": "-",
+      "how": "largest share of learned-belief samples above the slip limit along the route"
+     },
+     {
+      "name": "learned_log10_k_phi_error",
+      "value": 0.072262,
+      "unit": "",
+      "how": "learned minus true (synthetic site)"
+     },
+     {
+      "name": "learned_log10_k_phi_z",
+      "value": 1.137944,
+      "unit": "sd",
+      "how": "error in posterior standard deviations"
+     },
+     {
+      "name": "learned_n0_error",
+      "value": 0.057183,
+      "unit": "",
+      "how": "learned minus true (synthetic site)"
+     },
+     {
+      "name": "learned_n0_z",
+      "value": 1.018548,
+      "unit": "sd",
+      "how": "error in posterior standard deviations"
+     },
+     {
+      "name": "learned_n1_error",
+      "value": 0.014512,
+      "unit": "",
+      "how": "learned minus true (synthetic site)"
+     },
+     {
+      "name": "learned_n1_z",
+      "value": 0.289003,
+      "unit": "sd",
+      "how": "error in posterior standard deviations"
+     }
+    ],
+    "figures": [
+     "examples/autolab_rover/results/site_map.png",
+     "examples/autolab_rover/results/traverse.png",
+     "examples/autolab_rover/results/route_risk.png",
+     "examples/autolab_rover/results/wheel_models.png",
+     "examples/autolab_rover/results/soil_learning.png",
+     "examples/autolab_rover/results/render_overview.jpg",
+     "examples/autolab_rover/results/render_stall.jpg",
+     "examples/autolab_rover/results/traverse.gif"
+    ],
+    "videos": [
+     "examples/autolab_rover/results/traverse.mp4"
+    ]
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/rover_learns_the_planet.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/autolab_rover/rover_learns_planet.py",
+    "lab": "lab/index.html#examples/autolab_rover"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "91af0919ac3497cb",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.95,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Autonomous Physics Lab: the rover that learns the planet | vehicle dynamics | not curated\nroute_A_distance 12.925884 m\nroute_A_energy 2957.959341 J\nroute_A_max_slip 0.420399 -\nroute_A_max_sinkage 319.367895 mm\nroute_A_learned_risk 1.0 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:bar_wear_ranking",
    "kind": "example",
    "name": "bar_wear_ranking",
@@ -62312,6 +62801,86 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Design from intent | design and geometry | curated",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/autolab_digital_twin",
+   "kind": "example",
+   "name": "examples/autolab_digital_twin",
+   "title": "Digital twin that knows when it is wrong",
+   "summary": "A pipe-loop twin that tells a changed process from a wrong sensor from a model outside its domain, with physics residuals, a Kalman filter and its domain of validity; confusion…",
+   "description": "A pipe-loop twin that tells a changed process from a wrong sensor from a model outside its domain, with physics residuals, a Kalman filter and its domain of validity; confusion matrix on controlled cases.",
+   "domain": "system dynamics",
+   "tags": [
+    "Darcy-Weisbach / Colebrook network",
+    "EKF",
+    "POD-GPR",
+    "structured residuals"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_digital_twin"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_digital_twin\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/autolab_digital_twin/twin_knows_when_wrong.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "cause_accuracy",
+      "value": 0.9625,
+      "unit": "fraction",
+      "how": "80 controlled cases"
+     },
+     {
+      "name": "cases_with_false_alarm",
+      "value": 1.0,
+      "unit": "cases",
+      "how": "alarm before the fault, or any alarm on a healthy case"
+     },
+     {
+      "name": "fast_model_holdout_max",
+      "value": 0.7827623466462263,
+      "unit": "sensor sigmas",
+      "how": "40 held-out operating points"
+     }
+    ],
+    "figures": [
+     "examples/autolab_digital_twin/_out/figures/control_room_obstruction_B.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_drift_Q_B.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_overspeed.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_healthy.png",
+     "examples/autolab_digital_twin/_out/figures/confusion_matrix.png",
+     "examples/autolab_digital_twin/_out/figures/request_simulation.png",
+     "examples/autolab_digital_twin/_out/figures/control_room_after_new_simulation.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/autonomous_physics_lab.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/autolab_digital_twin/twin_knows_when_wrong.py",
+    "lab": "lab/index.html#examples/autolab_digital_twin"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "b8c6879d1ad7fbc7",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 1.22,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Digital twin that knows when it is wrong | system dynamics | not curated\ncause_accuracy 0.9625 fraction\ncases_with_false_alarm 1.0 cases\nfast_model_holdout_max 0.7827623466462263 sensor sigmas",
     "timed_out": false,
     "status": "ok"
    }

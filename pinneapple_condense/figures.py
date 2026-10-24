@@ -175,9 +175,10 @@ def meshless_fields(res: dict, method: str, path: str) -> str:
     f = res["fields"][method]
     fig, (a, b) = plt.subplots(1, 2, figsize=(11, 4.2), gridspec_kw={"width_ratios": [1.2, 1]})
     x, z, T = (np.asarray(f[k]) * s for k, s in (("slice_x", 1e6), ("slice_z", 1e6), ("slice_T", 1.0)))
-    sc = a.scatter(x, z, c=T, s=3, cmap="Blues")
+    keep = (z > 150) & (z < 520)                                     # C4 top to die top: the features
+    sc = a.scatter(x[keep], z[keep], c=T[keep], s=6, cmap="Blues")
     fig.colorbar(sc, ax=a, label="temperature rise [K]")
-    _ax(a, "x [um]", "z [um]", f"{'RBF-FD' if method == 'rbf_fd' else 'GFDM'} point cloud, slice y = W/2")
+    _ax(a, "x [um]", "z [um]", f"{'RBF-FD' if method == 'rbf_fd' else 'GFDM'} nodes near y = W/2 (interposer to die)")
     d = np.asarray(f["Tj"]) - np.asarray(res["Tj_ref"])
     lim = max(np.abs(d).max(), 1e-9)
     im = b.imshow(d.T, origin="lower", cmap="RdBu_r", vmin=-lim, vmax=lim)

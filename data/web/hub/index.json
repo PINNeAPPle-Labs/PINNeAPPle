@@ -51,7 +51,7 @@
   {
    "slug": "zoo",
    "title": "Model zoo",
-   "description": "Pre-trained, verified models and their cards"
+   "description": "Pre-trained, verified models and their cards, served as model services"
   },
   {
    "slug": "checks",
@@ -166,7 +166,7 @@
    "classical": 17,
    "pinn": 16,
    "surrogates": 10,
-   "zoo": 8,
+   "zoo": 9,
    "checks": 33,
    "verification": 32,
    "benchmarks": 14,
@@ -1700,6 +1700,7 @@
      }
     }
    },
+   "category": "zoo",
    "run": {
     "code_hash": "6e46e4e3c1ef610b",
     "figures": [],

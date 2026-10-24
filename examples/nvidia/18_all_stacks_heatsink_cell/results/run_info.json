@@ -1,14 +1,14 @@
 {
  "name": "18_all_stacks_heatsink_cell",
- "started": "2026-10-24T11:11:28Z",
- "wall_s": 2345.539,
+ "started": "2026-10-24T11:51:04Z",
+ "wall_s": 1967.403,
  "steps_s": {
-  "designs: USD BRep + closed form": 56.908,
-  "surrogate (PhysicsNeMo FullyConnected)": 2255.402,
-  "model service query (HTTP /v1/infer)": 0.374,
-  "verify proposals (USD BRep + closed form)": 0.641,
-  "robot sim: shortest passing move (Newton)": 23.863,
-  "synthetic camera frames of the move": 1.225
+  "designs: USD BRep + closed form": 57.194,
+  "surrogate (PhysicsNeMo FullyConnected)": 1877.089,
+  "model service query (HTTP /v1/infer)": 0.284,
+  "verify proposals (USD BRep + closed form)": 0.555,
+  "robot sim: shortest passing move (Newton)": 24.108,
+  "synthetic camera frames of the move": 1.462
  },
  "components": [
   {

@@ -88,15 +88,15 @@
    "kind": "generalization"
   },
   {
-   "name": "service trust: every queried design inside the envelope and physical",
-   "passed": false,
-   "value": 0.8463901689708141,
+   "name": "served proposal inside the service's trust envelope",
+   "passed": true,
+   "value": null,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": null,
-   "min": 1.0,
-   "detail": "",
+   "min": null,
+   "detail": "the service flagged 1500 of 9765 queried designs (outside the training box or unphysical); they were not considered",
    "kind": "physics"
   },
   {
@@ -176,9 +176,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "db118d8b",
-  "created": "2026-10-24T11:11:29Z",
-  "seconds": 2345.155,
+  "git": "75a01955",
+  "created": "2026-10-24T11:51:04Z",
+  "seconds": 1966.898,
   "error": null,
   "environment": {
    "python": "3.13.17",

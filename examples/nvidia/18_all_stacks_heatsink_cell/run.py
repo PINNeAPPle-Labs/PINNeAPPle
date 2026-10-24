@@ -13,7 +13,7 @@ in one OpenUSD scene, and PINNeAPPle checks each hand-off.
    is where the kinematics put it.
 6. O (Omniverse / OpenUSD): the move with the exact part mesh, the camera and every decision in one validated stage.
 
-    python examples/nvidia/18_all_stacks_heatsink_cell/run.py      # ~15 min on 4 CPU cores
+    python examples/nvidia/18_all_stacks_heatsink_cell/run.py      # ~33 min on 4 CPU cores (31 min of it training)
 """
 import argparse
 import json

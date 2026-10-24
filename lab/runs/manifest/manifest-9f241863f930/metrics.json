@@ -1,0 +1,9 @@
+{
+ "rel_error[1D: eps_r recovered vs truth]": 0.00046638233769686537,
+ "rel_error[1D: sigma recovered vs truth]": 0.05813692688169756,
+ "1D: eps_r_recovered": 3.7017256146494786,
+ "1D: sigma_recovered": 0.01883726146236605,
+ "1D: eps_sigma_correlation": -2.4858965827697875e-08,
+ "1D: model_error_max": 0.0009722857259360915,
+ "1D: coverage_2u_eps": 0.89
+}

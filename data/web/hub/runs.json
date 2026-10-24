@@ -1825,6 +1825,50 @@
   "stdout": "Parallel-plate capacitor with edge effect (2D, 3D) | science / physics.electromagnetism | not curated\nrel_error[2D: C per unit length (extrapolated)] 0.003927955814044814 -\n2D: C_per_length_fine 1.0359258574773179e-10 F/m\n2D: observed_order 1.026059908461316 -\n2D: gci_fine 0.0019096326452605714 -\n2D: fringe_excess 0.16819666397174937 -",
   "timed_out": false
  },
+ "example:examples/science/electromagnetism/research_fdtd_3d": {
+  "code_hash": "66a7fcae3001864c",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.85,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "FDTD in 3-D + time: configurable sources and materials, mesh convergence (3D+t) | science / physics.electromagnetism | not curated\nrel_error[3D+t: radiated power, dipole in vacuum (finest grid)] 0.0032881391345897406 -\nrel_error[3D+t: P / P_closed_form, Richardson-extrapolated] 0.0010628076372023454 -\nrel_error[3D+t: far-field pattern max |U/Umax - sin^2|] 0.008562273035930712 -\n3D+t: observed_order_vacuum 2.6470695868421656 -\n3D+t: gci_fine_vacuum 0.0027725478486505992 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/research_inverse_permittivity": {
+  "code_hash": "a24dde2773f1dfcf",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.83,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Inverse problem: permittivity of a slab from its reflection spectrum (1D) | science / physics.electromagnetism | not curated\nrel_error[1D: eps_r recovered vs truth] 0.00046638233769686537 -\nrel_error[1D: sigma recovered vs truth] 0.05813692688169756 -\n1D: eps_r_recovered 3.7017256146494786 -\n1D: sigma_recovered 0.01883726146236605 S/m\n1D: eps_sigma_correlation -2.4858965827697875e-08 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/research_surrogate_hall": {
+  "code_hash": "c546277a863b9679",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.01,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Surrogate of the Hall geometrical factor with hold-out error (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: hold-out: worst surrogate G vs solver G] 0.0007898725588408868 -\nrel_error[2D: solver: long bar G(L/W = 8) -> 1] 5.743298456928336e-06 -\n2D: holdout_max_rel_error 0.0007898725588408873 -\n2D: holdout_mean_rel_error 0.00011898346609119 -\n2D: coverage_2sigma 0.8 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/research_uq_waveguide": {
+  "code_hash": "9d0aadabae329c9d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.89,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Uncertainty of waveguide cut-offs by Monte Carlo (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: TE10: Monte Carlo std vs first-order GUM] 0.02524542009758375 -\nrel_error[2D: TE10: Monte Carlo mean vs nominal] 0.00035193953006807717 -\nrel_error[2D: TE20: Monte Carlo std vs first-order GUM] 0.0248116901071461 -\nrel_error[2D: TE20: Monte Carlo mean vs nominal] 0.0007748405598485373 -\n2D: TE10_mean 4419267277.369885 Hz",
+  "timed_out": false
+ },
  "example:examples/science/electromagnetism/waveguide_modes": {
   "code_hash": "08b6af0ef33bd4ab",
   "figures": [],

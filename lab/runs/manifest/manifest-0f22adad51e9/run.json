@@ -7,11 +7,11 @@
   "path": "examples/science/experiment.json"
  },
  "status": "completed",
- "started": 1792864359.910923,
+ "started": 1792864546.2433412,
  "tags": [
   "manifest"
  ],
- "git": "204e481e",
+ "git": "ea977414",
  "environment": {
   "python": "3.13.17",
   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
@@ -28,7 +28,7 @@
   ],
   "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
  },
- "finished": 1792864359.925735,
+ "finished": 1792864546.2563455,
  "error": null,
  "stages": [],
  "files": {
@@ -40,9 +40,9 @@
   "figures": []
  },
  "validation": {
-  "total": 16,
+  "total": 20,
   "failed": 0
  },
- "seconds": 0.015,
+ "seconds": 0.013,
  "datasets": {}
 }

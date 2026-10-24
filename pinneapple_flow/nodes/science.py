@@ -11,7 +11,9 @@ from ..registry import Param, Port, node
 EXPERIMENTS = ["em.ampere_law", "em.bench_mu0_solenoid", "em.bench_rc_discharge", "em.biot_savart",
                "em.cavity_resonance", "em.circuits_rc_rl_rlc", "em.coulomb_superposition", "em.dipole_radiation",
                "em.faraday_induction", "em.fresnel_snell", "em.gauss_law", "em.hall_effect", "em.lossy_plane_wave",
-               "em.mie_scattering", "em.parallel_plate_capacitor", "em.waveguide_modes"]
+               "em.mie_scattering", "em.parallel_plate_capacitor", "em.research_fdtd_3d",
+               "em.research_inverse_permittivity", "em.research_surrogate_hall", "em.research_uq_waveguide",
+               "em.waveguide_modes"]
 DIMS = ["first", "0D", "1D", "2D", "3D", "3D+t"]
 _TAGS = ("section:validation", "science", "electromagnetism", "academic", "laboratory")
 

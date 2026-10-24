@@ -1,4 +1,4 @@
-# Science atlas 1.0.0
+# Science atlas 1.1.0
 
 | Area | Subarea | Status | Covered by |
 |---|---|---|---|
@@ -15,6 +15,7 @@
 | Electromagnetism and optics | Optics: interfaces and scattering | available | pp.science `em.fresnel_snell`; pp.science `em.mie_scattering`; module `pinneapple_simulation.electromagnetics.mie` (Mie series); preset `em_cylinder_scattering` (cylinder scattering) |
 | Electromagnetism and optics | Waveguides and resonators | available | pp.science `em.waveguide_modes`; pp.science `em.cavity_resonance`; preset `em_tm_cavity` (TM cavity) |
 | Electromagnetism and optics | Laboratory (virtual bench) | available | pp.science `em.bench_mu0_solenoid`; pp.science `em.bench_rc_discharge` |
+| Electromagnetism and optics | Research: FDTD 3D+t, convergence, UQ, inverse problems, surrogates | available | pp.science `em.research_fdtd_3d`; pp.science `em.research_uq_waveguide`; pp.science `em.research_inverse_permittivity`; pp.science `em.research_surrogate_hall` |
 | Electromagnetism and optics | Machines and antennas | partial | module `pinneapple_simulation.electromagnetics.machines` (interior-PM machine FEA and drive); module `pinneapple_simulation.electromagnetics.antenna` (end-fire antennas with EMerge); module `pinneapple_physics.pcb` (PCB physics) |
 | Electromagnetism and optics | Physics checks of any field | available | pp.science `em.gauss_law`; pp.science `em.dipole_radiation`; module `pinneapple_physics.maxwell_checks` (Gauss, Faraday, Ampere-Maxwell, Poynting residuals) |
 | Thermodynamics and statistical physics | Equations of state and processes | partial | module `pinneapple_systems.process_components.real_gas_eos` (multi-component real-gas Helmholtz EOS); module `pinneapple_systems.process_components.polytropic_path` (polytropic compression and expansion) |
@@ -75,6 +76,6 @@
 | Earth and climate sciences | Atmosphere and ocean | partial | preset `climate_atmosphere_2d` (atmosphere 2-D); preset `climate_ocean_gyre` (ocean gyre); module `pinneapple_physics.weather.model` (global forecast network) |
 | Applied mathematics and numerical methods | Time integrators | partial | module `pinneapple_simulation.numerical_solvers.irk_gauss_legendre` (Gauss-Legendre IRK); module `pinneapple_simulation.numerical_solvers.etdrk4` (ETDRK4) |
 | Applied mathematics and numerical methods | Discretisations | partial | module `pinneapple_simulation.numerical_solvers.fvm` (finite volumes); module `pinneapple_simulation.numerical_solvers.meshfree` (RBF and MLS); module `pinneapple_simulation.numerical_solvers.xtfc_pde` (X-TFC) |
-| Applied mathematics and numerical methods | Verification and convergence | partial | module `pinneapple_analysis.verification.convergence` (Richardson, GCI) |
-| Applied mathematics and numerical methods | Uncertainty quantification | partial | module `pinneapple_analysis.uncertainty` (propagation, calibration, conformal) |
-| Applied mathematics and numerical methods | Inverse problems | partial | module `pinneapple_analysis.inverse_problems` (EKI, sensitivity, misfits) |
+| Applied mathematics and numerical methods | Verification and convergence | partial | module `pinneapple_analysis.verification.convergence` (Richardson, GCI); pp.science `em.research_fdtd_3d` |
+| Applied mathematics and numerical methods | Uncertainty quantification | partial | module `pinneapple_analysis.uncertainty` (propagation, calibration, conformal); pp.science `em.research_uq_waveguide` |
+| Applied mathematics and numerical methods | Inverse problems | partial | module `pinneapple_analysis.inverse_problems` (EKI, sensitivity, misfits); pp.science `em.research_inverse_permittivity` |

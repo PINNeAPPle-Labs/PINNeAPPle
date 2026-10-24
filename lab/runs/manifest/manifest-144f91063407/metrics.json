@@ -1,0 +1,14 @@
+{
+ "rel_error[2D: TE10: Monte Carlo std vs first-order GUM]": 0.02524542009758375,
+ "rel_error[2D: TE10: Monte Carlo mean vs nominal]": 0.00035193953006807717,
+ "rel_error[2D: TE20: Monte Carlo std vs first-order GUM]": 0.0248116901071461,
+ "rel_error[2D: TE20: Monte Carlo mean vs nominal]": 0.0007748405598485373,
+ "2D: TE10_mean": 4419267277.369885,
+ "2D: TE10_std": 22862999.485815544,
+ "2D: TE10_ci95_low": 4374297584.528993,
+ "2D: TE10_ci95_high": 4467254288.742698,
+ "2D: TE20_mean": 8834795413.423183,
+ "2D: TE20_std": 45706654.59153639,
+ "2D: TE20_ci95_low": 8744894076.59139,
+ "2D: TE20_ci95_high": 8930728834.366755
+}

@@ -1,0 +1,78 @@
+[
+ {
+  "name": "[2D] TE10: Monte Carlo std vs first-order GUM",
+  "passed": true,
+  "value": 22862999.485815544,
+  "reference": 22300025.962212466,
+  "rtol": 0.06711560552140243,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84)",
+  "label": "TE10: Monte Carlo std vs first-order GUM vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] TE10: Monte Carlo mean vs nominal",
+  "passed": true,
+  "value": 4419267277.369885,
+  "reference": 4420823139.788217,
+  "rtol": 0.002,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included)",
+  "label": "TE10: Monte Carlo mean vs nominal vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] TE20: Monte Carlo std vs first-order GUM",
+  "passed": true,
+  "value": 45706654.59153639,
+  "reference": 44600051.92442493,
+  "rtol": 0.06711560552140243,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84)",
+  "label": "TE20: Monte Carlo std vs first-order GUM vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] TE20: Monte Carlo mean vs nominal",
+  "passed": true,
+  "value": 8834795413.423183,
+  "reference": 8841646279.576433,
+  "rtol": 0.002,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included)",
+  "label": "TE20: Monte Carlo mean vs nominal vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] b does not enter TE10 or TE20 (sensitivity ~ 0)",
+  "passed": true,
+  "value": 0.01671073313226244,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "correlation of b with f_TE10 over the samples",
+  "kind": "physics"
+ },
+ {
+  "name": "[2D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

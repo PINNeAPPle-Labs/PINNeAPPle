@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-24 17:52 UTC",
+ "generated": "2026-10-24 17:55 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -4143,16 +4143,16 @@
    "tier_name": "solid",
    "best_run": "manifest-74bb64b79576",
    "best_score": 91.9,
-   "runs": 21,
+   "runs": 25,
    "tier_counts": {
     "A": 0,
-    "B": 20,
+    "B": 24,
     "C": 0,
     "D": 1,
     "E": 0,
     "F": 0
    },
-   "usable_fraction": 0.95,
+   "usable_fraction": 0.96,
    "readiness": {
     "product": {
      "ready": false,
@@ -25763,6 +25763,1106 @@
    "story": "",
    "description": "An experiment described by its manifest (experiment.json), imported for curation.",
    "title": "waveguide modes"
+  },
+  "manifest/examples/science/electromagnetism/research_fdtd_3d": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "manifest-6fecdaae216a",
+   "best_score": 86.5,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0,
+    "E": 0,
+    "F": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: manifest, params",
+      "PASS [3D+t] error falls with the grid (1.50e-02, 6.78e-03, 3.29e-03)",
+      "PASS [3D+t] configured case: GCI of the finest grid within the target 0.05 (no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; ob)",
+      "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)",
+      "PASS [3D+t] discrete energy bounded after the source (CPML absorbs, no growth) (final / max energy 6.63e-09)"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D+t] trust report (decision APPROVED)",
+      "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D+t] error falls with the grid (1.50e-02, 6.78e-03, 3.29e-03)",
+      "PASS [3D+t] configured case: GCI of the finest grid within the target 0.05 (no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; ob)",
+      "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)",
+      "PASS [3D+t] Gauss's law div D = rho (x, y, z, t block 7^3 x 24, FDTD) (div D - rho: ||sum of terms|| / sum of ||term|| = 0.0215; r(2h)/r(h) = 3.81: discretisatio)",
+      "PASS [3D+t] Gauss's law for B, div B = 0 (x, y, z, t block 7^3 x 24, FDTD) (div B: ||sum of terms|| / sum of ||term|| = 2.38e-14; r(2h)/r(h) = 2554791058411.38: discr)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D+t] radiated power, dipole in vacuum (finest grid) (Balanis eq. 4-16 with the current moment the grid actually drove)",
+      "PASS [3D+t] P / P_closed_form, Richardson-extrapolated (Balanis eq. 4-16)",
+      "PASS [3D+t] far-field pattern max |U/Umax - sin^2| (Hertzian dipole pattern sin^2(theta) (Balanis eq. 4-26a))"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "open",
+     "evidence": [
+      "no uncertainty and no declared limitation"
+     ],
+     "next": "declare the limitations and quantify the spread"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "radiated power, dipole in vacuum (finest grid) vs closed form",
+    "check": "[3D+t] radiated power, dipole in vacuum (finest grid)",
+    "missing": "flagship gates (see gaps)",
+    "label": "radiated power, dipole in vacuum (finest grid) vs closed form"
+   },
+   "next_steps": [
+    {
+     "type": "documentation",
+     "to": "A",
+     "stage": "decision",
+     "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+     "why_pt": "documentation pontua\u00e7\u00e3o 0.4 < 0.6: documentar: refer\u00eancias e uma p\u00e1gina",
+     "short": "document it: references and a docs page",
+     "short_pt": "documentar: refer\u00eancias e uma p\u00e1gina",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "experiment_references",
+       "kind": "python",
+       "target": "pinneapple_lab.spec.Experiment.references",
+       "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+       "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+       "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa p\u00e1gina da documenta\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    }
+   ],
+   "plan": {
+    "limitations": [
+     "detected: evidence only inferred (not measured by a check) for generalization, documentation"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "data",
+      "action": "Save the fields as a dataset with a card (ctx.dataset)",
+      "effort": "S",
+      "unlocks": [
+       "training_data"
+      ]
+     },
+     {
+      "gap": "documentation",
+      "action": "Write a docs page and cite the reference papers (Experiment.references)",
+      "effort": "S",
+      "unlocks": [
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "manifest-6fecdaae216a",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "manifest-6fecdaae216a",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "manifest-6fecdaae216a",
+      "distance": 1,
+      "missing": [
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "manifest-6fecdaae216a",
+      "distance": 1,
+      "missing": [
+       "a documented dataset"
+      ]
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "manifest",
+   "case": "examples/science/electromagnetism/research_fdtd_3d",
+   "story": "",
+   "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+   "title": "research fdtd 3d"
+  },
+  "manifest/examples/science/electromagnetism/research_uq_waveguide": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "manifest-144f91063407",
+   "best_score": 88.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0,
+    "E": 0,
+    "F": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] trust report (decision APPROVED)",
+      "PASS [2D] TE10: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE20: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] b does not enter TE10 or TE20 (sensitivity ~ 0) (correlation of b with f_TE10 over the samples)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] TE10: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE10: Monte Carlo mean vs nominal (Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))",
+      "PASS [2D] TE20: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE20: Monte Carlo mean vs nominal (Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "reported: rel_error[2D: TE10: Monte Carlo std vs first-order GUM], rel_error[2D: TE20: Monte Carlo std vs first-order GUM], 2D: TE10_std, 2D: TE10_ci95_low"
+     ],
+     "next": "calibrate it (coverage check)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "TE10: Monte Carlo std vs first-order GUM vs closed form",
+    "check": "[2D] TE10: Monte Carlo std vs first-order GUM",
+    "missing": "flagship gates (see gaps)",
+    "label": "TE10: Monte Carlo std vs first-order GUM vs closed form"
+   },
+   "next_steps": [
+    {
+     "type": "assets",
+     "to": "A",
+     "stage": "decision",
+     "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+     "why_pt": "assets pontua\u00e7\u00e3o 0.4 < 0.6: adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "short": "add figures: three plots, a movie, a render or a 3-D view",
+     "short_pt": "adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "ctx_figure",
+       "kind": "python",
+       "target": "pinneapple_lab.context.RunContext.figure",
+       "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+       "text": "save the key plots, a movie or a render with the run",
+       "text_pt": "salvar os gr\u00e1ficos principais, um v\u00eddeo ou um render com a execu\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      },
+      {
+       "id": "field_view",
+       "kind": "python",
+       "target": "pinneapple.viz.field_view",
+       "command": "pp.viz.field_view(mesh, fields)",
+       "text": "a 3-D view of the field on its mesh",
+       "text_pt": "uma vista 3-D do campo na malha",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    },
+    {
+     "type": "documentation",
+     "to": "A",
+     "stage": "decision",
+     "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+     "why_pt": "documentation pontua\u00e7\u00e3o 0.4 < 0.6: documentar: refer\u00eancias e uma p\u00e1gina",
+     "short": "document it: references and a docs page",
+     "short_pt": "documentar: refer\u00eancias e uma p\u00e1gina",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "experiment_references",
+       "kind": "python",
+       "target": "pinneapple_lab.spec.Experiment.references",
+       "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+       "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+       "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa p\u00e1gina da documenta\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    }
+   ],
+   "plan": {
+    "limitations": [
+     "detected: evidence only inferred (not measured by a check) for uncertainty, documentation"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "data",
+      "action": "Save the fields as a dataset with a card (ctx.dataset)",
+      "effort": "S",
+      "unlocks": [
+       "training_data"
+      ]
+     },
+     {
+      "gap": "documentation",
+      "action": "Write a docs page and cite the reference papers (Experiment.references)",
+      "effort": "S",
+      "unlocks": [
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "manifest-144f91063407",
+      "distance": 3,
+      "missing": [
+       "generalization evidence"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "manifest-144f91063407",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "manifest-144f91063407",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "manifest-144f91063407",
+      "distance": 1,
+      "missing": [
+       "a documented dataset"
+      ]
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "manifest",
+   "case": "examples/science/electromagnetism/research_uq_waveguide",
+   "story": "",
+   "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+   "title": "research uq waveguide"
+  },
+  "manifest/examples/science/electromagnetism/research_inverse_permittivity": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "manifest-9f241863f930",
+   "best_score": 88.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0,
+    "E": 0,
+    "F": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [1D] trust report (decision APPROVED)",
+      "PASS [1D] eps_r recovered vs truth (the permittivity the FDTD measurement was generated with (hidden from the fit))",
+      "PASS [1D] sigma recovered vs truth (as above)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [1D] FDTD measurement and transfer-matrix model agree below the noise",
+      "PASS [1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5) (z = (eps_fit - eps_true) / u(eps_fit); its std is 1 when u is right (a bias from the FDTD-)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [1D] eps_r recovered vs truth (the permittivity the FDTD measurement was generated with (hidden from the fit))",
+      "PASS [1D] sigma recovered vs truth (as above)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "reported: rel_error[1D: sigma recovered vs truth], 1D: sigma_recovered, 1D: eps_sigma_correlation"
+     ],
+     "next": "calibrate it (coverage check)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "eps_r recovered vs truth vs ground truth",
+    "check": "[1D] eps_r recovered vs truth",
+    "missing": "flagship gates (see gaps)",
+    "label": "eps_r recovered vs truth vs ground truth"
+   },
+   "next_steps": [
+    {
+     "type": "assets",
+     "to": "A",
+     "stage": "decision",
+     "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+     "why_pt": "assets pontua\u00e7\u00e3o 0.4 < 0.6: adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "short": "add figures: three plots, a movie, a render or a 3-D view",
+     "short_pt": "adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "ctx_figure",
+       "kind": "python",
+       "target": "pinneapple_lab.context.RunContext.figure",
+       "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+       "text": "save the key plots, a movie or a render with the run",
+       "text_pt": "salvar os gr\u00e1ficos principais, um v\u00eddeo ou um render com a execu\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      },
+      {
+       "id": "field_view",
+       "kind": "python",
+       "target": "pinneapple.viz.field_view",
+       "command": "pp.viz.field_view(mesh, fields)",
+       "text": "a 3-D view of the field on its mesh",
+       "text_pt": "uma vista 3-D do campo na malha",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    },
+    {
+     "type": "documentation",
+     "to": "A",
+     "stage": "decision",
+     "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+     "why_pt": "documentation pontua\u00e7\u00e3o 0.4 < 0.6: documentar: refer\u00eancias e uma p\u00e1gina",
+     "short": "document it: references and a docs page",
+     "short_pt": "documentar: refer\u00eancias e uma p\u00e1gina",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "experiment_references",
+       "kind": "python",
+       "target": "pinneapple_lab.spec.Experiment.references",
+       "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+       "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+       "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa p\u00e1gina da documenta\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    }
+   ],
+   "plan": {
+    "limitations": [
+     "detected: evidence only inferred (not measured by a check) for uncertainty, documentation"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "data",
+      "action": "Save the fields as a dataset with a card (ctx.dataset)",
+      "effort": "S",
+      "unlocks": [
+       "training_data"
+      ]
+     },
+     {
+      "gap": "documentation",
+      "action": "Write a docs page and cite the reference papers (Experiment.references)",
+      "effort": "S",
+      "unlocks": [
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "manifest-9f241863f930",
+      "distance": 3,
+      "missing": [
+       "generalization evidence"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "manifest-9f241863f930",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "manifest-9f241863f930",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "manifest-9f241863f930",
+      "distance": 1,
+      "missing": [
+       "a documented dataset"
+      ]
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "manifest",
+   "case": "examples/science/electromagnetism/research_inverse_permittivity",
+   "story": "",
+   "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+   "title": "research inverse permittivity"
+  },
+  "manifest/examples/science/electromagnetism/research_surrogate_hall": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "manifest-ac53fcd12442",
+   "best_score": 88.0,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0,
+    "E": 0,
+    "F": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] trust report (decision APPROVED)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] +-2 sigma coverage of the hold-out at least 80 %"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] hold-out: worst surrogate G vs solver G (the finite-difference solver on held-out inputs)",
+      "PASS [2D] solver: long bar G(L/W = 8) -> 1 (Popovic sec. 4.2: G -> 1 for L/W >> 1)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] +-2 sigma coverage of the hold-out at least 80 %"
+     ],
+     "next": ""
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "hold-out: worst surrogate G vs solver G vs convergence",
+    "check": "[2D] hold-out: worst surrogate G vs solver G",
+    "missing": "flagship gates (see gaps)",
+    "label": "hold-out: worst surrogate G vs solver G vs convergence"
+   },
+   "next_steps": [
+    {
+     "type": "assets",
+     "to": "A",
+     "stage": "decision",
+     "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+     "why_pt": "assets pontua\u00e7\u00e3o 0.4 < 0.6: adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "short": "add figures: three plots, a movie, a render or a 3-D view",
+     "short_pt": "adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "ctx_figure",
+       "kind": "python",
+       "target": "pinneapple_lab.context.RunContext.figure",
+       "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+       "text": "save the key plots, a movie or a render with the run",
+       "text_pt": "salvar os gr\u00e1ficos principais, um v\u00eddeo ou um render com a execu\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      },
+      {
+       "id": "field_view",
+       "kind": "python",
+       "target": "pinneapple.viz.field_view",
+       "command": "pp.viz.field_view(mesh, fields)",
+       "text": "a 3-D view of the field on its mesh",
+       "text_pt": "uma vista 3-D do campo na malha",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    },
+    {
+     "type": "documentation",
+     "to": "A",
+     "stage": "decision",
+     "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+     "why_pt": "documentation pontua\u00e7\u00e3o 0.4 < 0.6: documentar: refer\u00eancias e uma p\u00e1gina",
+     "short": "document it: references and a docs page",
+     "short_pt": "documentar: refer\u00eancias e uma p\u00e1gina",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "experiment_references",
+       "kind": "python",
+       "target": "pinneapple_lab.spec.Experiment.references",
+       "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+       "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+       "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa p\u00e1gina da documenta\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    }
+   ],
+   "plan": {
+    "limitations": [
+     "detected: evidence only inferred (not measured by a check) for uncertainty, documentation"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "data",
+      "action": "Save the fields as a dataset with a card (ctx.dataset)",
+      "effort": "S",
+      "unlocks": [
+       "training_data"
+      ]
+     },
+     {
+      "gap": "documentation",
+      "action": "Write a docs page and cite the reference papers (Experiment.references)",
+      "effort": "S",
+      "unlocks": [
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "manifest-ac53fcd12442",
+      "distance": 3,
+      "missing": [
+       "generalization evidence"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "manifest-ac53fcd12442",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "manifest-ac53fcd12442",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "manifest-ac53fcd12442",
+      "distance": 1,
+      "missing": [
+       "a documented dataset"
+      ]
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "manifest",
+   "case": "examples/science/electromagnetism/research_surrogate_hall",
+   "story": "",
+   "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+   "title": "research surrogate hall"
   },
   "manifest/examples/science/electromagnetism/coulomb_superposition": {
    "tier": "B",
@@ -65361,6 +66461,889 @@
    },
    "tier_name": "solid"
   },
+  "manifest-6fecdaae216a": {
+   "run_id": "manifest-6fecdaae216a",
+   "experiment": "manifest",
+   "status": "completed",
+   "tier": "B",
+   "score": 86.5,
+   "coverage": 0.8,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "12/12 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [3D+t] radiated power, dipole in vacuum (finest grid) (Balanis eq. 4-16 with the current moment the grid actually drove)",
+      "PASS [3D+t] P / P_closed_form, Richardson-extrapolated (Balanis eq. 4-16)",
+      "PASS [3D+t] far-field pattern max |U/Umax - sin^2| (Hertzian dipole pattern sin^2(theta) (Balanis eq. 4-26a))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [3D+t] error falls with the grid (1.50e-02, 6.78e-03, 3.29e-03)",
+      "PASS [3D+t] configured case: GCI of the finest grid within the target 0.05 (no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; observed order 1.05)",
+      "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)",
+      "PASS [3D+t] Gauss's law div D = rho (x, y, z, t block 7^3 x 24, FDTD) (div D - rho: ||sum of terms|| / sum of ||term|| = 0.0215; r(2h)/r(h) = 3.81: discretisation error (the field obeys the law); extrapolated residual 0.00136)",
+      "PASS [3D+t] Gauss's law for B, div B = 0 (x, y, z, t block 7^3 x 24, FDTD) (div B: ||sum of terms|| / sum of ||term|| = 2.38e-14; r(2h)/r(h) = 2554791058411.38: discretisation error (the field obeys the law); extrapolated residual 0)",
+      "PASS [3D+t] Faraday's law curl E = -dB/dt (x, y, z, t block 7^3 x 24, FDTD) (curl E + dB/dt: ||sum of terms|| / sum of ||term|| = 0.00578; r(2h)/r(h) = 13.39: discretisation error (the field obeys the law); extrapolated residual 0)",
+      "PASS [3D+t] Ampere-Maxwell law curl H = J + dD/dt (x, y, z, t block 7^3 x 24, FDTD) (curl H - J - dD/dt: ||sum of terms|| / sum of ||term|| = 0.0135; r(2h)/r(h) = 5.30: discretisation error (the field obeys the law); extrapolated residual 0)",
+      "PASS [3D+t] discrete energy bounded after the source (CPML absorbs, no growth) (final / max energy 6.63e-09)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": 0.5,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "metrics on unseen data, no check: rel_error[3D+t: P / P_closed_form, Richardson-extrapolated], 3D+t: power_ratio_configured_extrapolated"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 204e481e"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no dataset"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.8,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "3 figures, 2 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "description 81 chars",
+      "docs: none",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "answered",
+     "evidence": [
+      "inputs recorded: manifest, params",
+      "PASS [3D+t] error falls with the grid (1.50e-02, 6.78e-03, 3.29e-03)",
+      "PASS [3D+t] configured case: GCI of the finest grid within the target 0.05 (no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; ob)",
+      "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)",
+      "PASS [3D+t] discrete energy bounded after the source (CPML absorbs, no growth) (final / max energy 6.63e-09)"
+     ],
+     "next": ""
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D+t] trust report (decision APPROVED)",
+      "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D+t] error falls with the grid (1.50e-02, 6.78e-03, 3.29e-03)",
+      "PASS [3D+t] configured case: GCI of the finest grid within the target 0.05 (no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; ob)",
+      "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)",
+      "PASS [3D+t] Gauss's law div D = rho (x, y, z, t block 7^3 x 24, FDTD) (div D - rho: ||sum of terms|| / sum of ||term|| = 0.0215; r(2h)/r(h) = 3.81: discretisatio)",
+      "PASS [3D+t] Gauss's law for B, div B = 0 (x, y, z, t block 7^3 x 24, FDTD) (div B: ||sum of terms|| / sum of ||term|| = 2.38e-14; r(2h)/r(h) = 2554791058411.38: discr)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D+t] radiated power, dipole in vacuum (finest grid) (Balanis eq. 4-16 with the current moment the grid actually drove)",
+      "PASS [3D+t] P / P_closed_form, Richardson-extrapolated (Balanis eq. 4-16)",
+      "PASS [3D+t] far-field pattern max |U/Umax - sin^2| (Hertzian dipole pattern sin^2(theta) (Balanis eq. 4-26a))"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "open",
+     "evidence": [
+      "no uncertainty and no declared limitation"
+     ],
+     "next": "declare the limitations and quantify the spread"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "radiated power, dipole in vacuum (finest grid) vs closed form",
+    "check": "[3D+t] radiated power, dipole in vacuum (finest grid)",
+    "missing": "flagship gates (see gaps)",
+    "label": "radiated power, dipole in vacuum (finest grid) vs closed form"
+   },
+   "tier_name": "solid"
+  },
+  "manifest-144f91063407": {
+   "run_id": "manifest-144f91063407",
+   "experiment": "manifest",
+   "status": "completed",
+   "tier": "B",
+   "score": 88.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "6/6 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [2D] TE10: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE10: Monte Carlo mean vs nominal (Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))",
+      "PASS [2D] TE20: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE20: Monte Carlo mean vs nominal (Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [2D] b does not enter TE10 or TE20 (sensitivity ~ 0) (correlation of b with f_TE10 over the samples)"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: rel_error[2D: TE10: Monte Carlo std vs first-order GUM], rel_error[2D: TE20: Monte Carlo std vs first-order GUM], 2D: TE10_std, 2D: TE10_ci95_low"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 204e481e"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no dataset"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "description 81 chars",
+      "docs: none",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] trust report (decision APPROVED)",
+      "PASS [2D] TE10: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE20: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] b does not enter TE10 or TE20 (sensitivity ~ 0) (correlation of b with f_TE10 over the samples)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] TE10: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE10: Monte Carlo mean vs nominal (Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))",
+      "PASS [2D] TE20: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+      "PASS [2D] TE20: Monte Carlo mean vs nominal (Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "reported: rel_error[2D: TE10: Monte Carlo std vs first-order GUM], rel_error[2D: TE20: Monte Carlo std vs first-order GUM], 2D: TE10_std, 2D: TE10_ci95_low"
+     ],
+     "next": "calibrate it (coverage check)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "TE10: Monte Carlo std vs first-order GUM vs closed form",
+    "check": "[2D] TE10: Monte Carlo std vs first-order GUM",
+    "missing": "flagship gates (see gaps)",
+    "label": "TE10: Monte Carlo std vs first-order GUM vs closed form"
+   },
+   "tier_name": "solid"
+  },
+  "manifest-9f241863f930": {
+   "run_id": "manifest-9f241863f930",
+   "experiment": "manifest",
+   "status": "completed",
+   "tier": "B",
+   "score": 88.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "5/5 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [1D] eps_r recovered vs truth (the permittivity the FDTD measurement was generated with (hidden from the fit))",
+      "PASS [1D] sigma recovered vs truth (as above)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [1D] FDTD measurement and transfer-matrix model agree below the noise",
+      "PASS [1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5) (z = (eps_fit - eps_true) / u(eps_fit); its std is 1 when u is right (a bias from the FDTD-vs-model difference shows as a shift))"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: rel_error[1D: sigma recovered vs truth], 1D: sigma_recovered, 1D: eps_sigma_correlation"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 204e481e"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no dataset"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "description 81 chars",
+      "docs: none",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [1D] trust report (decision APPROVED)",
+      "PASS [1D] eps_r recovered vs truth (the permittivity the FDTD measurement was generated with (hidden from the fit))",
+      "PASS [1D] sigma recovered vs truth (as above)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [1D] FDTD measurement and transfer-matrix model agree below the noise",
+      "PASS [1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5) (z = (eps_fit - eps_true) / u(eps_fit); its std is 1 when u is right (a bias from the FDTD-)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [1D] eps_r recovered vs truth (the permittivity the FDTD measurement was generated with (hidden from the fit))",
+      "PASS [1D] sigma recovered vs truth (as above)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "partial",
+     "evidence": [
+      "reported: rel_error[1D: sigma recovered vs truth], 1D: sigma_recovered, 1D: eps_sigma_correlation"
+     ],
+     "next": "calibrate it (coverage check)"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "eps_r recovered vs truth vs ground truth",
+    "check": "[1D] eps_r recovered vs truth",
+    "missing": "flagship gates (see gaps)",
+    "label": "eps_r recovered vs truth vs ground truth"
+   },
+   "tier_name": "solid"
+  },
+  "manifest-ac53fcd12442": {
+   "run_id": "manifest-ac53fcd12442",
+   "experiment": "manifest",
+   "status": "completed",
+   "tier": "B",
+   "score": 88.0,
+   "coverage": 0.75,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "4/4 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [2D] hold-out: worst surrogate G vs solver G (the finite-difference solver on held-out inputs)",
+      "PASS [2D] solver: long bar G(L/W = 8) -> 1 (Popovic sec. 4.2: G -> 1 for L/W >> 1)"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [2D] +-2 sigma coverage of the hold-out at least 80 %"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "reported: 2D: coverage_2sigma, 2D: loo_sigma_scale"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 204e481e"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no dataset"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "1 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "description 81 chars",
+      "docs: none",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] trust report (decision APPROVED)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] +-2 sigma coverage of the hold-out at least 80 %"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] hold-out: worst surrogate G vs solver G (the finite-difference solver on held-out inputs)",
+      "PASS [2D] solver: long bar G(L/W = 8) -> 1 (Popovic sec. 4.2: G -> 1 for L/W >> 1)"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "answered",
+     "evidence": [
+      "PASS [2D] +-2 sigma coverage of the hold-out at least 80 %"
+     ],
+     "next": ""
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "hold-out: worst surrogate G vs solver G vs convergence",
+    "check": "[2D] hold-out: worst surrogate G vs solver G",
+    "missing": "flagship gates (see gaps)",
+    "label": "hold-out: worst surrogate G vs solver G vs convergence"
+   },
+   "tier_name": "solid"
+  },
   "manifest-9fd937e93a24": {
    "run_id": "manifest-9fd937e93a24",
    "experiment": "manifest",
@@ -65599,7 +67582,7 @@
      "status": "PASS",
      "tier": "VERIFIED",
      "evidence": [
-      "16/16 checks pass"
+      "20/20 checks pass"
      ]
     },
     "reference": {
@@ -65623,6 +67606,10 @@
       "PASS em.lossy_plane_wave: every comparison passes (2 comparisons)",
       "PASS em.mie_scattering: every comparison passes (5 comparisons)",
       "PASS em.parallel_plate_capacitor: every comparison passes (3 comparisons)",
+      "PASS em.research_fdtd_3d: every comparison passes (3 comparisons)",
+      "PASS em.research_inverse_permittivity: every comparison passes (2 comparisons)",
+      "PASS em.research_surrogate_hall: every comparison passes (2 comparisons)",
+      "PASS em.research_uq_waveguide: every comparison passes (4 comparisons)",
       "PASS em.waveguide_modes: every comparison passes (8 comparisons)"
      ]
     },
@@ -65669,7 +67656,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "code snapshot: 1 files",
-      "git 204e481e"
+      "git ea977414"
      ]
     },
     "data": {

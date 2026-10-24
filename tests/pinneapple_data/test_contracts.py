@@ -69,6 +69,14 @@ def test_feasible_applies_bounds_and_constraints():
     assert space.feasible(cases).tolist() == [True, False, True, False]
 
 
+def test_constant_and_categorical_match_numbers_by_value():
+    # JSON from a browser turns 4000000.0 into 4000000: the same constant, the same category
+    p = Parameter(name="re", kind="constant", value=4000000)
+    assert p.contains(np.array([4e6, 4e6 + 1])).tolist() == [True, False]
+    c = Parameter(name="n", kind="categorical", values=[1, 2, "a"])
+    assert c.contains(np.array([1.0, 2.0, 3.0, "a"], dtype=object)).tolist() == [True, True, False, True]
+
+
 @pytest.mark.parametrize("bad", [
     dict(name="x", low=1.0, high=0.0),
     dict(name="x", low=0.0, high=1.0, log=True),

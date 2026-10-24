@@ -78,6 +78,12 @@ section.block > h2 small { color: var(--muted); font-weight: 500; font-size: 12.
 .cat ul { list-style: none; margin: 0 0 10px; padding: 0; }
 .cat li a { display: block; padding: 5px 0; border-top: 1px solid var(--line); text-decoration: none; color: var(--ink); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cat li a:hover { color: var(--link); }
+.tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.task { display: flex; flex-direction: column; gap: 4px; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; text-decoration: none; color: var(--ink); }
+.task:hover, .task:focus-visible { border-color: var(--link); }
+.task h3 { margin: 0; display: flex; justify-content: space-between; gap: 8px; align-items: center; font-size: 14px; }
+.task p { margin: 0; color: var(--muted); font-size: 12.5px; }
+.task .eg { color: var(--muted); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .domains { display: flex; flex-wrap: wrap; gap: 6px; }
 .domains button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 99px; padding: 5px 11px; font: inherit; font-size: 12.5px; cursor: pointer; }
 .domains button b { color: var(--muted); font-weight: 600; margin-left: 4px; }

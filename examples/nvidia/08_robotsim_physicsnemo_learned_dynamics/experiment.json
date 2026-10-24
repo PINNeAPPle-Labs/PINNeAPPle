@@ -1,0 +1,182 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/08_robotsim_physicsnemo_learned_dynamics",
+ "title": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks",
+ "description": "",
+ "domain": "robotics",
+ "methods": [
+  "Newton Featherstone",
+  "FullyConnected (PhysicsNeMo)",
+  "multibody tree"
+ ],
+ "modules": [
+  "pinneapple_simulation.robot_sim",
+  "pinneapple_tools.nvidia.physicsnemo"
+ ],
+ "params": {
+  "runs": 120,
+  "run_s": 1.0,
+  "dt": 0.001
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "heldout_torque_rel_rms",
+   "value": 0.04878147024380754,
+   "unit": "",
+   "how": "worst joint, 2 held-out Newton runs"
+  },
+  {
+   "name": "tracking_mrad_PD_only",
+   "value": 961.534435280865,
+   "unit": "mrad",
+   "how": "max |q - q_plan| in Newton, dt 1 ms"
+  },
+  {
+   "name": "tracking_mrad_PD_plus_rigid-body_feedforward",
+   "value": 1.9323260549942711,
+   "unit": "mrad",
+   "how": "max |q - q_plan| in Newton, dt 1 ms"
+  },
+  {
+   "name": "tracking_mrad_PD_plus_PhysicsNeMo_feedforward",
+   "value": 4.633960296031803,
+   "unit": "mrad",
+   "how": "max |q - q_plan| in Newton, dt 1 ms"
+  }
+ ],
+ "checks": [
+  {
+   "name": "held-out Newton runs: torque error (worst joint)",
+   "passed": true,
+   "value": 0.04878147024380754,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "kind": "generalization"
+  },
+  {
+   "name": "vs independent rigid-body model (worst joint)",
+   "passed": true,
+   "value": 0.048781889247224944,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "Newton itself vs rigid body: 8.66e-06",
+   "kind": "sanity"
+  },
+  {
+   "name": "gravity torques at rest vs rigid body",
+   "passed": true,
+   "value": 0.0056982008845876874,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "implied mass matrix vs rigid body",
+   "passed": true,
+   "value": 0.0066083837934479295,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "implied mass matrix symmetric",
+   "passed": true,
+   "value": 0.010304826997997797,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "implied mass matrix positive definite",
+   "passed": true,
+   "value": 0.11472401963651757,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "smallest eigenvalue 0.115 kg m2",
+   "kind": "physics"
+  },
+  {
+   "name": "torque linear in acceleration (2x step)",
+   "passed": true,
+   "value": 0.004191551268870788,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "pick-and-place inside the training envelope",
+   "passed": false,
+   "value": 0.9987515605493134,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "3x faster motion inside the training envelope",
+   "passed": false,
+   "value": 0.9962546816479401,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "a use outside the envelope is flagged, not trusted",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/dynamics.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "00347f7a",
+  "created": "2026-10-24T01:01:05Z",
+  "seconds": 162.566,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

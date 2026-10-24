@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 411,
+  "tool": 412,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 128
+  "example": 131
  },
  "kinds": {
   "tool": "Tools",
@@ -19,16 +19,16 @@
  },
  "facets": {
   "kind": {
-   "tool": 411,
+   "tool": 412,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 128
+   "example": 131
   },
   "subkind": {
    "library call": 249,
-   "flow node": 81,
+   "flow node": 82,
    "recipe": 45,
    "function": 19,
    "agent tool (MCP)": 17
@@ -44,19 +44,20 @@
    "data": 41,
    "system dynamics": 41,
    "heat transfer": 24,
+   "electromagnetics": 12,
    "vehicle dynamics": 12,
-   "electromagnetics": 11,
    "time series": 9,
    "flight dynamics": 8,
    "geophysics and climate": 8,
    "astrophysics": 4,
+   "robotics": 3,
    "hydraulics": 1,
    "molecular dynamics": 1,
    "security": 1,
    "transport": 1
   },
   "quality": {
-   "not graded": 514,
+   "not graded": 518,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -1243,6 +1244,229 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Any registry model: build + size -> pinneapple_flow.wrappers:model_architecture pinneapple_neural.architectures.registry\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': 'fno', 'in_dim': 1, 'out_dim': 1, 'hidden': 64}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:lib.robot.arm_check",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "lib.robot.arm_check",
+   "title": "Arm move in the robot sim (Newton), checked",
+   "summary": "PINNeAPPle Robot Sim on NVIDIA Newton: a two-link arm pick-and-place with model feedforward, checked for replay convergence, tracking, energy balance, motor limits and link stress",
+   "description": "PINNeAPPle Robot Sim on NVIDIA Newton: a two-link arm pick-and-place with model feedforward, checked for replay convergence, tracking, energy balance, motor limits and link stress",
+   "domain": "electromagnetics",
+   "tags": [
+    "Solvers",
+    "cfd",
+    "fd",
+    "fem",
+    "numerical",
+    "simulation",
+    "solvers"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"lib.robot.arm_check\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=lib.robot.arm_check",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/libcalls.py#L242"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.robot_sim.checks:arm_pick_and_place",
+    "category": "Solvers",
+    "available": false,
+    "install": "pip install newton-physics",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "result",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "payload",
+      "kind": "float",
+      "default": 5.0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "duration",
+      "kind": "float",
+      "default": 0.8,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "q_start",
+      "kind": "list",
+      "default": [
+       -0.6,
+       1.2
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "q_end",
+      "kind": "list",
+      "default": [
+       0.9,
+       -0.4
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "dt",
+      "kind": "float",
+      "default": 0.0005,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "kp",
+      "kind": "list",
+      "default": [
+       350.0,
+       110.0
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "kd",
+      "kind": "list",
+      "default": [
+       5.0,
+       2.5
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "safety",
+      "kind": "float",
+      "default": 3.0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "payload": {
+       "title": "payload",
+       "description": "",
+       "x-kind": "float",
+       "default": 5.0,
+       "type": "number"
+      },
+      "duration": {
+       "title": "duration",
+       "description": "",
+       "x-kind": "float",
+       "default": 0.8,
+       "type": "number"
+      },
+      "q_start": {
+       "title": "q start",
+       "description": "",
+       "x-kind": "list",
+       "default": [
+        -0.6,
+        1.2
+       ],
+       "type": "array"
+      },
+      "q_end": {
+       "title": "q end",
+       "description": "",
+       "x-kind": "list",
+       "default": [
+        0.9,
+        -0.4
+       ],
+       "type": "array"
+      },
+      "dt": {
+       "title": "dt",
+       "description": "",
+       "x-kind": "float",
+       "default": 0.0005,
+       "type": "number"
+      },
+      "kp": {
+       "title": "kp",
+       "description": "",
+       "x-kind": "list",
+       "default": [
+        350.0,
+        110.0
+       ],
+       "type": "array"
+      },
+      "kd": {
+       "title": "kd",
+       "description": "",
+       "x-kind": "list",
+       "default": [
+        5.0,
+        2.5
+       ],
+       "type": "array"
+      },
+      "safety": {
+       "title": "safety",
+       "description": "",
+       "x-kind": "float",
+       "default": 3.0,
+       "type": "number"
+      }
+     }
+    }
+   },
+   "run": {
+    "code_hash": "fd93966a4c5b982a",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 5.85,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Arm move in the robot sim (Newton), checked -> pinneapple_simulation.robot_sim.checks:arm_pick_and_place\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'duration': 0.8, 'q_start': [-0.6, 1.2], 'q_end': [0.9, -0.4], 'dt': 0.0005, 'kp': [350.0, 110.0], 'kd': [5.0, 2.5], 'safety': 3.0}",
     "timed_out": false,
     "status": "ok"
    }
@@ -56632,6 +56856,73 @@
    }
   },
   {
+   "id": "example:examples/nvidia/12_omniverse_robotsim_arm",
+   "kind": "example",
+   "name": "examples/nvidia/12_omniverse_robotsim_arm",
+   "title": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton)",
+   "summary": "",
+   "description": "",
+   "domain": "robotics",
+   "tags": [
+    "Newton Featherstone",
+    "OpenUSD"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/12_omniverse_robotsim_arm"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/12_omniverse_robotsim_arm\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "usd_vs_urdf_motion",
+      "value": 0.0,
+      "unit": "rad",
+      "how": "max |q_USD - q_URDF| over the move, Newton"
+     },
+     {
+      "name": "tracking_error_mrad",
+      "value": 0.4794181231414507,
+      "unit": "mrad",
+      "how": "max |q - q_plan|, Newton from the USD"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/12_omniverse_robotsim_arm/results/usd_physics_preview.png",
+     "examples/nvidia/12_omniverse_robotsim_arm/results/usd_timeline_peak.png",
+     "examples/nvidia/12_omniverse_robotsim_arm/results/robotsim.png",
+     "examples/nvidia/12_omniverse_robotsim_arm/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/12_omniverse_robotsim_arm"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "99b67289e7218c39",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.8,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/motor_magnetics",
    "kind": "example",
    "name": "examples/motor_magnetics",
@@ -67322,6 +67613,84 @@
    }
   },
   {
+   "id": "example:examples/nvidia/08_robotsim_physicsnemo_learned_dynamics",
+   "kind": "example",
+   "name": "examples/nvidia/08_robotsim_physicsnemo_learned_dynamics",
+   "title": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks",
+   "summary": "",
+   "description": "",
+   "domain": "robotics",
+   "tags": [
+    "FullyConnected (PhysicsNeMo)",
+    "Newton Featherstone",
+    "multibody tree"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/08_robotsim_physicsnemo_learned_dynamics"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/08_robotsim_physicsnemo_learned_dynamics\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "heldout_torque_rel_rms",
+      "value": 0.04878147024380754,
+      "unit": "",
+      "how": "worst joint, 2 held-out Newton runs"
+     },
+     {
+      "name": "tracking_mrad_PD_only",
+      "value": 961.534435280865,
+      "unit": "mrad",
+      "how": "max |q - q_plan| in Newton, dt 1 ms"
+     },
+     {
+      "name": "tracking_mrad_PD_plus_rigid-body_feedforward",
+      "value": 1.9323260549942711,
+      "unit": "mrad",
+      "how": "max |q - q_plan| in Newton, dt 1 ms"
+     },
+     {
+      "name": "tracking_mrad_PD_plus_PhysicsNeMo_feedforward",
+      "value": 4.633960296031803,
+      "unit": "mrad",
+      "how": "max |q - q_plan| in Newton, dt 1 ms"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/08_robotsim_physicsnemo_learned_dynamics/results/dynamics.png",
+     "examples/nvidia/08_robotsim_physicsnemo_learned_dynamics/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/08_robotsim_physicsnemo_learned_dynamics"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "9f4599ce134dbf5b",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 1.09,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:lorenz_discovery",
    "kind": "example",
    "name": "lorenz_discovery",
@@ -69943,6 +70312,81 @@
    }
   },
   {
+   "id": "example:examples/nvidia/03_robotsim_pick_and_place",
+   "kind": "example",
+   "name": "examples/nvidia/03_robotsim_pick_and_place",
+   "title": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized",
+   "summary": "",
+   "description": "",
+   "domain": "robotics",
+   "tags": [
+    "CEM",
+    "Newton Featherstone",
+    "beam FDM",
+    "multibody tree"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/03_robotsim_pick_and_place"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/03_robotsim_pick_and_place\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "tracking_error_mrad",
+      "value": 0.4807320864886888,
+      "unit": "mrad",
+      "how": "max |q_sim - q_plan| over the move, Newton dt 0.25 ms"
+     },
+     {
+      "name": "peak_shoulder_torque",
+      "value": 114.33340694103825,
+      "unit": "N m",
+      "how": "joint-torque sensor, final Newton run"
+     },
+     {
+      "name": "replay_order",
+      "value": 1.007934460942717,
+      "unit": "",
+      "how": "slope of log(max replay error) vs log(dt)"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/03_robotsim_pick_and_place/results/tracking.png",
+     "examples/nvidia/03_robotsim_pick_and_place/results/verification.png",
+     "examples/nvidia/03_robotsim_pick_and_place/results/motion.png",
+     "examples/nvidia/03_robotsim_pick_and_place/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/03_robotsim_pick_and_place"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "f8dd6d4d33f66f90",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.87,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/pinneapple_and_physicsnemo",
    "kind": "example",
    "name": "examples/pinneapple_and_physicsnemo",
@@ -70626,9 +71070,13 @@
    "description": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each run.py writes an architecture figure, result figures, summary.json and run_info.json (what ran here and what needs a GPU or an API key).",
    "domain": "physics AI",
    "tags": [
+    "CEM",
     "FNO (PhysicsNeMo)",
     "FVM",
+    "FullyConnected (PhysicsNeMo)",
     "MOC",
+    "Newton Featherstone",
+    "multibody tree",
     "spectral"
    ],
    "quality": {
@@ -70664,6 +71112,30 @@
       "value": 10.0,
       "unit": "steps",
       "how": "02: median validate_rollout trust horizon over 8 plumes (same file)"
+     },
+     {
+      "name": "arm_tracking_error",
+      "value": 0.4807320864886888,
+      "unit": "mrad",
+      "how": "03: max |q - q_plan| in Newton, dt 0.25 ms (03_robotsim_pick_and_place/results/summary.json)"
+     },
+     {
+      "name": "arm_replay_order",
+      "value": 1.007934460942717,
+      "unit": "",
+      "how": "03: observed order of the open-loop torque replay error in dt"
+     },
+     {
+      "name": "learned_dynamics_heldout_error",
+      "value": 0.04878147024380754,
+      "unit": "",
+      "how": "08: worst-joint relative RMS torque error on 2 held-out Newton runs"
+     },
+     {
+      "name": "usd_vs_urdf_motion",
+      "value": 0.0,
+      "unit": "rad",
+      "how": "12: max |q_USD - q_URDF| in Newton"
      }
     ],
     "figures": [

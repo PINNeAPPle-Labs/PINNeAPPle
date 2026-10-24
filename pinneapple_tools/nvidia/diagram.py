@@ -8,8 +8,8 @@
               Block("kit", "Omniverse Kit / RTX", "omniverse", col=3, ran=False)]
     architecture_diagram("Cold plate", blocks, [("data", "fno", "a, T pairs"), ("fno", "usd", "T field")], "arch.png")
 
-Each block has an owner (``pinneapple`` or one NVIDIA product: ``physicsnemo``, ``omniverse``, ``isaac``, ``cosmos``,
-``nim``) that sets its colour, a column (left to right is the data flow) and an optional row. ``ran=False`` draws a
+Each block has an owner (``pinneapple``, an NVIDIA product: ``physicsnemo``, ``omniverse``, ``brep``, ``isaac``,
+``cosmos``, ``nim``, or a PINNeAPPle stack: ``robotsim``, ``services``, ``worldmodel``) that sets its colour, a column (left to right is the data flow) and an optional row. ``ran=False`` draws a
 dashed, hatched block: the step needs a GPU, an API key or a download and was not executed where the figure was made.
 """
 from __future__ import annotations
@@ -24,6 +24,10 @@ OWNERS = {
     "pinneapple": ("#ffe08a", "#b88a00", "PINNeAPPle (physics, checks, trust)"),
     "physicsnemo": ("#c9e8a0", "#4f7d00", "NVIDIA PhysicsNeMo"),
     "omniverse": ("#a9d8f0", "#1f6f99", "NVIDIA Omniverse / OpenUSD"),
+    "brep": ("#f3d6b0", "#8a5a12", "NVIDIA USD BRep (B-rep kernel)"),
+    "robotsim": ("#e2d4f5", "#5b3a8c", "PINNeAPPle Robot Sim (on NVIDIA Newton)"),
+    "services": ("#c4ecd9", "#1d7a50", "PINNeAPPle Model Services (NIM-compatible)"),
+    "worldmodel": ("#f6d0d0", "#9a2b2b", "PINNeAPPle World Model (Cosmos alternative)"),
     "isaac": ("#d7c4ef", "#5b3a8c", "NVIDIA Isaac Sim / Isaac Lab"),
     "cosmos": ("#f6c0c0", "#9a2b2b", "NVIDIA Cosmos"),
     "nim": ("#c4ecd9", "#1d7a50", "NVIDIA NIM (build.nvidia.com)"),

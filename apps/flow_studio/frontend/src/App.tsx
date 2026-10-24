@@ -26,7 +26,7 @@ function compatibleFn(cat: Catalog) {
 function Studio() {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [added, setAdded] = useState({ type: "", n: 0 });
-  const [info, setInfo] = useState<{ version: string; planners: string[] } | null>(null);
+  const [info, setInfo] = useState<{ version: string; planners: string[]; hub_url?: string } | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [meta, setMeta] = useState({ id: "untitled", name: "Untitled flow", description: "", meta: {} as Record<string, any> });
@@ -81,6 +81,26 @@ function Studio() {
     setResult(null);
     setTimeout(fitReadable, 60);
   }, [catalog, specs]);
+
+  // ---- deep links (the PINNeAPPle Hub): ?example=<bundled flow> or ?flow=<base64url flow JSON>, once the catalog is in
+  const linked = useRef(false);
+  useEffect(() => {
+    if (!catalog || linked.current) return;
+    linked.current = true;
+    const q = new URLSearchParams(window.location.search);
+    const ex = q.get("example"), fl = q.get("flow");
+    if (!ex && !fl) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    if (ex) api.example(ex).then(load).catch((e) => say(`example ${ex}: ${e}`));
+    else if (fl) {
+      try {
+        const b = fl.replace(/-/g, "+").replace(/_/g, "/");
+        load(JSON.parse(decodeURIComponent(escape(atob(b + "=".repeat((4 - (b.length % 4)) % 4))))) as FlowDoc);
+        say("flow opened from the link");
+      } catch (e) { say(`could not read the flow in the link: ${e}`); }
+    }
+  });
+
 
   // fit the flow, but never below a zoom where node titles and port labels stay readable; a flow wider than the
   // canvas then starts at its first column (pan or use the minimap for the rest)
@@ -250,6 +270,7 @@ function Studio() {
       <header className="h-12 shrink-0 flex items-center gap-2 px-3 bg-white border-b border-slate-200">
         <div className="font-bold text-[15px] mr-2">🍍 PINNeAPPle <span className="text-brand-600">Flow Studio</span></div>
         <input className="text-sm border border-slate-200 rounded px-2 py-1 w-56" value={meta.name} onChange={(e) => setMeta({ ...meta, name: e.target.value })} data-testid="flow-name" />
+        {info?.hub_url && <a className="btn" href={info.hub_url} target="_blank" rel="noopener" data-testid="open-hub" title="Ready-made tools, models, geometries, datasets, flows and examples">🍍 Hub</a>}
         <button className="btn-primary" onClick={() => setShowPlanner(true)} data-testid="open-planner">✨ Plan from text</button>
         <button className="btn" onClick={openLists} data-testid="open-lists">Open…</button>
         <button className="btn" onClick={save} data-testid="save">Save</button>

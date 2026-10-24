@@ -1,0 +1,265 @@
+"""The PINNeAPPle Hub index: every ready-made thing in the repository -- tools (public functions, Flow Studio nodes,
+recipes, MCP tools), trained models, geometries, datasets, flows and examples -- as one generated list, each item
+with a runnable snippet whose recorded run is checked by a test.
+
+    from pinneapple_hub import library as hub
+    index = hub.load_index()                              # data/web/hub/index.json (generated, committed)
+    hits = hub.search(index, "airfoil", kind="model")     # ranked items
+    item = hub.get(index, "geometry:f1_car")
+    item["code"], item["run"]["stdout"], item["files"], item["links"]["guide"]
+
+    python -m pinneapple_hub.library build              # regenerate index.json from the sources
+    python -m pinneapple_hub.library run [--stale]      # run every snippet, record output and figures (runs.json)
+    python -m pinneapple_hub.library check              # index is current, every run ok, files and links exist
+
+An item: ``id`` (``<kind-prefix>:<name>``), ``kind`` (tool, model, geometry, dataset, flow, example; tools have a
+``subkind``), ``title``, ``summary``, ``description``, ``domain`` (``pinneapple_lab.manifest.domain_of``), ``tags``,
+``quality`` (a Lab A-F seal with its six-stage trust card, a zoo decision, or None), ``code`` (the snippet),
+``run`` (its recorded run: ok, stdout, seconds, figures), ``results`` (measured numbers and figures of the source),
+``examples`` (ids of related items), ``files`` (repo paths and download URLs), ``links`` (guide, reference, source,
+Flow Studio). Where each kind comes from: :mod:`.sources`. "Create your own": :mod:`.compose`. Saved items:
+:mod:`.myhub`. Snippet runner: :mod:`.sandbox`.
+"""
+from __future__ import annotations
+
+import json
+import re
+import time
+from pathlib import Path
+from typing import Any
+
+from .sandbox import code_hash, run_snippet
+
+ROOT = Path(__file__).resolve().parents[2]
+WEB = ROOT / "data" / "web" / "hub"
+INDEX = WEB / "index.json"
+RUNS = WEB / "runs.json"
+FIGURES = WEB / "figures"
+SCHEMA = "pinneapple-hub/1"
+KINDS = {"tool": "Tools", "model": "Trained models", "geometry": "Geometries", "dataset": "Datasets",
+         "flow": "Flows", "example": "Examples"}
+LETTERS = ("A", "B", "C", "D", "E", "F")
+SLOW_S = 90.0                     # snippets recorded slower than this run in the test only with PINNEAPPLE_HUB_SLOW=1
+
+
+def collect(only: list[str] | None = None) -> list[dict[str, Any]]:
+    """Items from every source (:data:`.sources.COLLECTORS`), ids unique, sorted by kind then title."""
+    from .sources import COLLECTORS
+    items: dict[str, dict[str, Any]] = {}
+    for name, fn in COLLECTORS.items():
+        if only and name not in only:
+            continue
+        for it in fn():
+            items.setdefault(it["id"], it)
+    for it in list(items.values()):                    # related items link both ways
+        for rid in it.get("examples", []):
+            other = items.get(rid)
+            if other is not None and it["id"] not in other["examples"]:
+                other["examples"].append(it["id"])
+    order = list(KINDS)
+    return sorted(items.values(), key=lambda i: (order.index(i["kind"]), i.get("subkind", ""), i["title"].lower()))
+
+
+def read_runs(path: Path = RUNS) -> dict[str, Any]:
+    try:
+        return json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def attach_runs(items: list[dict[str, Any]], runs: dict[str, Any]) -> None:
+    """Set ``run`` on each item: the recorded run of its current snippet (same code hash), else the module
+    reference's own run of a recipe, else ``{"status": "not run"}``."""
+    for it in items:
+        h = code_hash(it["code"])
+        rec = runs.get(it["id"])
+        ref = (it.get("extra") or {}).get("reference_run")
+        if rec and rec.get("code_hash") == h:
+            it["run"] = {**rec, "status": "ok" if rec.get("ok") else "failed"}
+        elif ref and ref.get("code_hash") == h:
+            it["run"] = {"ok": ref["ok"], "stdout": ref["stdout"], "seconds": ref["seconds"], "code_hash": h,
+                         "figures": ref["figures"], "status": "ok" if ref["ok"] else "failed",
+                         "source": "scripts/reference/run_examples.py"}
+        else:
+            it["run"] = {"status": "not run", "code_hash": h}
+
+
+def facets(items: list[dict[str, Any]]) -> dict[str, Any]:
+    def count(key):
+        out: dict[str, int] = {}
+        for it in items:
+            v = key(it)
+            if v:
+                out[v] = out.get(v, 0) + 1
+        return dict(sorted(out.items(), key=lambda kv: (-kv[1], kv[0])))
+    return {"kind": {k: sum(i["kind"] == k for i in items) for k in KINDS},
+            "subkind": count(lambda i: i.get("subkind")), "domain": count(lambda i: i.get("domain")),
+            "quality": count(quality_key)}
+
+
+def quality_key(it: dict[str, Any]) -> str:
+    """The filter value of an item's quality: a Lab letter, a zoo decision, or "not graded"."""
+    q = it.get("quality") or {}
+    if q.get("letter"):
+        return q["letter"]
+    if q.get("decision"):
+        return q["decision"].lower()
+    return "not graded"
+
+
+def featured(items: list[dict[str, Any]], n: int = 8) -> list[str]:
+    """Highlights, by a fixed rule: approved zoo models, A-sealed examples with figures, geometries with a
+    thumbnail, then flows; each with a passing recorded run."""
+    ok = [i for i in items if i.get("run", {}).get("ok")]
+    picks = [i for i in ok if i["kind"] == "model" and (i.get("quality") or {}).get("decision") == "APPROVED"][:2]
+    picks += [i for i in ok if i["kind"] == "example" and quality_key(i) == "A" and i["results"].get("figures")][:3]
+    picks += [i for i in ok if i["kind"] == "geometry" and i.get("thumbnail")][:2]
+    picks += [i for i in ok if i["kind"] == "flow"][:1]
+    return [i["id"] for i in picks][:n]
+
+
+def build(only: list[str] | None = None, runs: dict[str, Any] | None = None) -> dict[str, Any]:
+    """The whole index (not written; see :func:`write_index`)."""
+    items = collect(only)
+    attach_runs(items, read_runs() if runs is None else runs)
+    return {"schema": SCHEMA, "generator": "python -m pinneapple_hub.library build",
+            "counts": {k: sum(i["kind"] == k for i in items) for k in KINDS}, "kinds": KINDS,
+            "facets": facets(items), "featured": featured(items), "items": items}
+
+
+def write_index(index: dict[str, Any], path: Path = INDEX) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(index, indent=1, ensure_ascii=False, sort_keys=False, default=str) + "\n")
+    return path
+
+
+def load_index(path: Path | str = INDEX) -> dict[str, Any]:
+    return json.loads(Path(path).read_text())
+
+
+def get(index: dict[str, Any], item_id: str) -> dict[str, Any]:
+    for it in index["items"]:
+        if it["id"] == item_id:
+            return it
+    raise KeyError(item_id)
+
+
+def _words(s: str) -> list[str]:
+    return [w for w in re.split(r"[^a-z0-9]+", s.lower()) if w]
+
+
+def score(it: dict[str, Any], query: str) -> float:
+    """Relevance of an item to a query; 0 = no match. Every query word must match: title weighs most, then name
+    and tags, then summary, domain and description."""
+    q = _words(query)
+    if not q:
+        return 1.0
+    fields = [(it["title"], 8.0), (it.get("name", ""), 5.0), (" ".join(it.get("tags", [])), 4.0),
+              (it.get("summary", ""), 2.0), (it.get("domain", ""), 2.0), (it.get("subkind", "") or it["kind"], 2.0),
+              ((it.get("description") or "")[:2000], 1.0)]
+    total = 0.0
+    for w in q:
+        best = 0.0
+        for text, weight in fields:
+            words = _words(text)
+            if w in words:
+                best = max(best, weight)
+            elif any(x.startswith(w) for x in words):
+                best = max(best, 0.7 * weight)
+            elif len(w) > 3 and any(w in x for x in words):
+                best = max(best, 0.3 * weight)
+        if best == 0.0:
+            return 0.0
+        total += best
+    return total
+
+
+def search(index: dict[str, Any], query: str = "", *, kind: str | None = None, domain: str | None = None,
+           quality: str | None = None, subkind: str | None = None, limit: int | None = None) -> list[dict[str, Any]]:
+    """Items matching ``query`` and the filters (``quality``: a letter, a comma list of letters, a zoo decision in
+    lower case, or "not graded"), best first; without a query, in index order."""
+    quals = {q.strip() for q in (quality or "").split(",") if q.strip()}
+    rows = []
+    for k, it in enumerate(index["items"]):
+        if kind and it["kind"] != kind or subkind and it.get("subkind") != subkind:
+            continue
+        if domain and it.get("domain") != domain or quals and quality_key(it) not in quals:
+            continue
+        s = score(it, query)
+        if s > 0:
+            rows.append((-s, k, it))
+    rows.sort(key=lambda r: (r[0], r[1]))
+    return [r[2] for r in rows[:limit]]
+
+
+def record_runs(items: list[dict[str, Any]], *, stale_only: bool = False, timeout: float = 300.0,
+                ids: list[str] | None = None, workers: int = 4, log=print) -> dict[str, Any]:
+    """Run the snippets (all, the ones not recorded for their current code, or ``ids``) in ``workers`` parallel
+    interpreters, save their figures under ``data/web/hub/figures`` and write ``runs.json``. Recipes the module
+    reference already ran are reused."""
+    from concurrent.futures import ThreadPoolExecutor
+    runs = read_runs()
+    FIGURES.mkdir(parents=True, exist_ok=True)
+    todo = []
+    for it in items:
+        h = code_hash(it["code"])
+        ref = (it.get("extra") or {}).get("reference_run")
+        if ids and it["id"] not in ids:
+            continue
+        if not ids and ref and ref.get("code_hash") == h and ref.get("ok"):
+            continue
+        if stale_only and runs.get(it["id"], {}).get("code_hash") == h:
+            continue
+        todo.append(it)
+
+    def one(it):
+        r = run_snippet(it["code"], timeout=timeout)
+        stem = re.sub(r"[^A-Za-z0-9_.-]+", "_", it["id"])
+        for old in FIGURES.glob(f"{stem}_*.png"):
+            old.unlink()
+        figs = []
+        for k, png in enumerate(r.pop("figures")):
+            p = FIGURES / f"{stem}_{k}.png"
+            p.write_bytes(png)
+            figs.append(p.relative_to(ROOT).as_posix())
+        runs[it["id"]] = {**r, "figures": figs, "recorded": time.strftime("%Y-%m-%d", time.gmtime()),
+                          "source": "python -m pinneapple_hub.library run"}
+        log(f"{'ok  ' if r['ok'] else 'FAIL'} {r['seconds']:7.1f}s {it['id']}")
+        if not r["ok"]:
+            log("     " + (r["stderr"].splitlines() or [""])[-1])
+
+    with ThreadPoolExecutor(max(1, workers)) as pool:
+        list(pool.map(one, todo))
+    RUNS.write_text(json.dumps(runs, indent=1, sort_keys=True, ensure_ascii=False) + "\n")
+    return runs
+
+
+def check(index: dict[str, Any]) -> list[str]:
+    """Problems of an index: a snippet without a passing run of its current code, a file or link path that does
+    not exist in the repository, an example id that is not an item."""
+    ids = {i["id"] for i in index["items"]}
+    out = []
+    for it in index["items"]:
+        r = it.get("run") or {}
+        if r.get("code_hash") != code_hash(it["code"]) or not r.get("ok"):
+            out.append(f"{it['id']}: snippet has no passing recorded run ({r.get('status', 'not run')})")
+        for f in it.get("files", []):
+            if f.get("path") and not (ROOT / f["path"]).exists():
+                out.append(f"{it['id']}: missing file {f['path']}")
+        res = it.get("results") if isinstance(it.get("results"), dict) else {}
+        paths = [*res.get("figures", []), *res.get("videos", []), *r.get("figures", []), it.get("thumbnail") or ""]
+        for p in paths:
+            if p and not (ROOT / p).exists():
+                out.append(f"{it['id']}: missing figure {p}")
+        for k, v in (it.get("links") or {}).items():
+            if v and not v.startswith(("http", "?")) and not (ROOT / v.split("#")[0]).exists():
+                out.append(f"{it['id']}: link {k} -> {v} does not exist")
+        for e in it.get("examples", []):
+            if e not in ids:
+                out.append(f"{it['id']}: related item {e} is not in the index")
+    return out
+
+
+__all__ = ["build", "collect", "write_index", "load_index", "get", "search", "score", "facets", "featured",
+           "record_runs", "read_runs", "attach_runs", "check", "quality_key", "run_snippet", "code_hash", "KINDS",
+           "INDEX", "RUNS"]

@@ -1595,6 +1595,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ### Fixed
 - Benchmark Arena: the result of a private benchmark stays inside its column at 1440 px (the page no longer
   scrolls sideways): grid items may shrink, cost and regimes stack, the seed spread wraps under each mean.
+- Small scikit-learn fits no longer oversubscribe a loaded machine. `ParametricPOD(regressor="gpr")` fits each
+  per-coefficient GP with one BLAS thread (the ROM Lab beam example: 182 s -> about 30 s on a loaded 4-CPU host), and
+  `run_regime_arena(threads=...)` holds the numpy / scikit-learn pools to the declared thread count as it does torch,
+  so the one-shot fits (GP, ridge) are timed on the compute the protocol records.
 - `external_flow.run_case`: a step made of two commands (`reconstructParMesh; reconstructPar`) wrote the first one's
   output to the terminal instead of its log.
 - Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs

@@ -1,0 +1,3 @@
+# self-contained HTML reports (figures inlined) and per-version inputs: regenerate with the script
+_out/*/report.html
+_out/*/inputs/

@@ -758,6 +758,17 @@
   "stdout": "Viga em balanço (CalculiX) | structural mechanics | not curated",
   "timed_out": false
  },
+ "example:examples/chain_of_whys": {
+  "code_hash": "c71e3f6003ce1ba7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.59,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Chain of whys | design and geometry | not curated\npower_board_versions 3.0 versions\npower_board_evaluations 4.0 checks\nroof_versions 4.0 versions\nroof_evaluations 15.0 checks\nfootbridge_versions 4.0 versions",
+  "timed_out": false
+ },
  "example:examples/core_primitives": {
   "code_hash": "f51d7ac2120da226",
   "figures": [],
@@ -1825,6 +1836,17 @@
   "stdout": "Poisson 2D: FEM, FD and PINN with the trust card - 9 nodes\nissues: []",
   "timed_out": false
  },
+ "flow:reason_roof": {
+  "code_hash": "56342b91f1f6cbc9",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 4.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Roof: chain of whys - 7 nodes\nissues: []",
+  "timed_out": false
+ },
  "geometry:airliner_a320": {
   "code_hash": "f08697e88e995ad2",
   "figures": [],
@@ -2109,6 +2131,39 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "{\"presets\": [\"aircraft_wing_aerodynamics\", \"aircraft_wing_structural\", \"axial_compressor_cascade_2d\", \"axial_compressor_meanline\", \"axial_compressor_stage_3d\", \"axisymmetric_linear_elasticity_2d\", \"bekker_wong_surrogate_2d\", \"black_scholes_1d\", \"burgers_1d\", \"car_brake_thermal\", \"car_external_aero\", \"car_suspension_fatigue\", \"channel_flow_3d\", \"climate_atmosphere_2d\", \"climate_ocean_gyre\", \"cpu_heatsink_thermal\", \"cr3bp_planar_synodic\", \"crystal_phonon\", \"darcy_pressure_only_3d\", \"datacenter_airflow_2d\", \"datacenter_cfd_3d\", \"datacenter_server_thermal\", \"drug_diffusion_tissue\", \"em_cylinder_scattering\", \"em_skin_effect\", \"em_tm_cavity\", \"em_tm_cavity_integral\", \"em_two_dielectric_capacitor\", \"em_two_dielectric_capacitor_differential\", \"em_wire_az\", \"fan_cooler_cfd\", \"furnace_combustion_zon",
+  "timed_out": false
+ },
+ "mcp:reason": {
+  "code_hash": "1d9d990b2edc1455",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.94,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "reason(case: 'str | None' = None, requirements: 'Sequence[Mapping[str, Any]] | None' = None, concept: 'Mapping[str, Any] | None' = None, lang: 'str' = 'pt', max_steps: 'int' = 12, max_seconds: 'float | None' = None, wait_seconds: 'float' = 0.0) -> 'dict[str, Any]'",
+  "timed_out": false
+ },
+ "mcp:reason_check": {
+  "code_hash": "a8b539ccc9327924",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.96,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "reason_check(mode: 'str', params: 'Mapping[str, Any]', elements: 'Sequence[str]' = (), limits: 'Mapping[str, float] | None' = None, lang: 'str' = 'pt') -> 'dict[str, Any]'",
+  "timed_out": false
+ },
+ "mcp:reason_library": {
+  "code_hash": "b48065e4341c57b7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.9,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "reason_library(domain: 'str | None' = None, lang: 'str' = 'pt') -> 'dict[str, Any]'",
   "timed_out": false
  },
  "mcp:solve": {
@@ -2441,6 +2496,17 @@
   "stdout": "Reproduce an antenna study package -> pinneapple_simulation.electromagnetics.antenna.study:package_study\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'path': None, 'out': None, 'rerun': None, 'rerun_freqs': 1, 'interpolated': False, 'timeout': 3600.0, 'target_dbi': 10.0}",
   "timed_out": false
  },
+ "node:lib.antenna.render_3d": {
+  "code_hash": "50de6c823ab423eb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 4.52,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Vivaldi in 3-D: balloon, near field, renders -> pinneapple_simulation.electromagnetics.antenna.study:render_3d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'out': None, 'freqs': [2.0, 2.5, 3.0, 3.5, 4.0], 'res': 0.25, 'nf_step': 2.0, 'timeout': 3600.0, 'render': True, 'samples': 32, 'size': [960, 540]}",
+  "timed_out": false
+ },
  "node:lib.compare.preset": {
   "code_hash": "f655cce55f1bf408",
   "figures": [],
@@ -2659,6 +2725,83 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Generic problem (identify the equations) -> pinneapple_flow.identify.identify (+ discover_pde: SINDyIdentifier STRidge) -> parse_system\ninputs: [('data', 'solution')]\noutputs: [('problem', 'problem'), ('geometry', 'geometry'), ('equations', 'equations')]\ndefaults: {'description': '', 'units': {}, 'dimension': 0, 'candidate': 0, 'use_llm': True, 'discover': True, 'fields': [], 'pdes': [], 'conditions': [], 'coefficients': {}, 'time_dependent': 'auto', 'x_range': [], 't_range': []}",
+  "timed_out": false
+ },
+ "node:reason.chain": {
+  "code_hash": "294321dfbd79a9eb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 16.33,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Chain of whys -> pinneapple_reason.engine.reason\ninputs: [('requirement', 'requirement'), ('concept', 'concept')]\noutputs: [('chain', 'chain'), ('metrics', 'metrics')]\ndefaults: {'max_steps': 12}",
+  "timed_out": false
+ },
+ "node:reason.concept": {
+  "code_hash": "fe2c185ed1322c9d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 15.37,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Concept -> pinneapple_reason.cases / pinneapple_reason.chain.Concept\ninputs: []\noutputs: [('concept', 'concept')]\ndefaults: {'case': 'roof', 'overrides': {}, 'elements': []}",
+  "timed_out": false
+ },
+ "node:reason.countermeasure": {
+  "code_hash": "48f88b7667058cdf",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 15.37,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Countermeasure -> pinneapple_reason.engine.Reasoner.evaluate_options / choose\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('concept', 'concept'), ('metrics', 'metrics')]\ndefaults: {'countermeasure': 'auto'}",
+  "timed_out": false
+ },
+ "node:reason.failure_mode": {
+  "code_hash": "718e1bb096de318b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 4.73,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Failure mode check -> pinneapple_reason.library.LIBRARY.mode(name).evaluate (pinneapple_reason.modes)\ninputs: [('concept', 'concept')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'mode': 'lap_water_ingress', 'limits': {}}",
+  "timed_out": false
+ },
+ "node:reason.report": {
+  "code_hash": "764f57d0bfb9c547",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 4.61,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Reasoning report -> pinneapple_reason.report.write_report (timeline, margins; pinneapple_reason.trust card)\ninputs: [('chain', 'chain')]\noutputs: [('report', 'report'), ('figure', 'figure')]\ndefaults: {'lang': 'pt'}",
+  "timed_out": false
+ },
+ "node:reason.requirement": {
+  "code_hash": "d14e858dd2d812a1",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 4.58,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Requirement -> pinneapple_reason.cases / pinneapple_reason.chain.Requirement\ninputs: []\noutputs: [('requirement', 'requirement')]\ndefaults: {'case': 'roof', 'custom': []}",
+  "timed_out": false
+ },
+ "node:reason.verify": {
+  "code_hash": "859dd97e3f8126da",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 15.41,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Check requirements -> pinneapple_reason.engine.Reasoner.verify / first_failure\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('metrics', 'metrics'), ('finding', 'params')]\ndefaults: {}",
   "timed_out": false
  },
  "node:rom.fit": {
@@ -3044,6 +3187,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "32 validated solvers, e.g. ['S1', 'S2', 'S3', 'S4', 'S5']",
+  "timed_out": false
+ },
+ "recipe:agents-why-each-element-of-a-design-exists": {
+  "code_hash": "558a22f59c0f73f2",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 3.43,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Roof: from flat tiles to a working roof\n\nRequirements:\n  R1: keep the design rain out of the room [lap_water_ingress]\n  R2: no condensation dripping into the room [underside_condensation]\n  R3: no radiant discomfort from the ceiling on a sunny day [radiant_heat_gain]\n\nVersion 0 (tiles):\n  rain ingress through the lap fails: Water climbs the 1 mm gap of the lap by capillarity up to 14 mm, the wind pushes it 6.15 mm further and with no slope nothing drives the water off: the design storm ponds 25 mm: the total head (14 + 6.15 + 25 = 45.1 mm) exceeds the 0 mm the 75 mm lap rises at 0°. Water gets over the lap and drips inside.\n  [proof: capillary + wind + film head 45.1 mm > height the lap rises 0 mm; hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise]\n  Options tried:\n    - increase_slope: fixes (margin -1 -> 0.358), cost: +7.9 % roof area (index 0.079)\n    - longer_lap: infeasible (with no slope no lap lifts the water (L sin 0 = 0))\n  So: pitch the roof to the material's minimum slope — gravity now drains the water (thin film instead of a pond) and the lap gains height (L sin(alpha)) against capillarity and wind\n  -> slope_deg = 22.0\n  (chosen: fixes the failure without breaking any requirement that passed)\n\nVersion 1 (tiles, pitch):\n  condensation under the roof fails: On a clear night the tile radiates to the sky at -1.74 °C and cools to 14.2 °C; the tile underside, in contact with the room air, sits at 14.9 °C, below the dew point of the room air (16.4 °C at 21 °C and 75 %): vapour condenses and drips into the room.\n  [proof: dew point of the room air 16.4 °C > temperature of the surface facing the room 14.9 °C; steady roof heat-balance network (clear night) + Magnus dew point]\n  Options tried:\n    - ceiling_ventilated_attic: fixes (margin -0.316 -> 0.37), cost: 1 m^2 of ceiling per m^2 of plan (index 1.5)\n    - ceiling_insulation: infeasible (needs first: ceiling)\n  So: ceiling with a ventilated attic — room air no longer touches the cold (or hot) tile: a ventilated attic and the ceiling sit in between, and the ceiling, fed by the tile's radiation, faces the room much closer to the air temperature\n  (chosen: fixes the failure without breaking any requirement that passed)\n\nVersion 2 (tiles, pitch, ceiling):\n  radiant heat gain from the roof fails: The 900 W/m^2 sun heats the tile to 59.1 °C; the ceiling above the occupants sits at 39 °C, 12 K above the room air (27 °C), more than the 5 K of radiant asymmetry acceptable for a warm ceiling: it pours 78.7 W/m^2 into the room.\n  [proof: ceiling radiant asymmetry 12.0 K > comfort limit (warm ceiling) 5 K; steady roof heat-balance network (clear day, sun on the roof)]\n  Options tried:\n    - ceiling_ventilated_attic: infeasible (the concept already has 'ceiling')\n    - radiant_barrier: fixes (margin -1.402 -> 0.482), cost: 1 m^2 of foil per m^2 of roof (index 0.4)\n    - ceiling_insulation: fixes (margin -1.402 -> 0.438), cost: 50 mm of mineral wool on the ceiling (index 0.4)\n  So: radiant barrier (low-emissivity foil under the tiles) — the tile underside gets an emissivity of ~0.05: tile-to-ceiling radiation, the dominant path, drops by an order of magnitude\n  -> tile_under_emissivity = 0.05\n  (chosen: fixes the failure without breaking any requirement that passed; of 2 options that fix it, it is the cheapest (0.4, 3 checks passing; vs ceiling_insulation: 3 passing, cost 0.4))\n\nVersion 3 (tiles, pitch, ceiling, radiant barrier):\n  Every requirement passes.\n  - R1/lap_water_ingress: 20.7 <= 28.1 mm\n  - R2/underside_condensation: 16.4 <= 19.2 °C\n  - R3/radiant_heat_gain: 2.591 <= 5 K",
   "timed_out": false
  },
  "recipe:pinneapple_llm__0": {

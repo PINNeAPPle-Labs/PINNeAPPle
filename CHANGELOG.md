@@ -26,6 +26,36 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   inference in the browser (ONNX) or on the server, "Create your own" with sandbox validation and My Hub, light and
   dark themes, phone layout), deployed as `hub` (`HUB_DOMAIN`, port 8116) in `apps/deploy`; docs
   `docs/apps/hub.md`. Flow Studio opens `?example=<flow>` and `?flow=<base64url JSON>` links.
+- `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
+  with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
+  chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,
+  wind and film / ponding; condensation under a roof and radiant heat from it, through a steady roof network; Joule
+  heating coupled to the 3-D board model or a plate-fin heat sink; bending, deflection, lateral-torsional and
+  flexural buckling, fatigue, pedestrian resonance, wind uplift; pump cavitation; water hammer and column separation;
+  galvanic corrosion) with 21 countermeasures that size themselves and compute their cost; an engine that finds the
+  first failure, tries every countermeasure, keeps the cheapest clean fix and re-checks until every requirement
+  passes; an optional LLM advisor that may only add library candidates; reports (Markdown, self-contained HTML,
+  timeline version 0 -> N, margins, domain figures) with a `TrustReport` and the six-stage trust card; four worked
+  cases (roof, footbridge, power board, pumped main) in `examples/chain_of_whys/`; guide
+  `docs/guides/chain_of_whys.md`.
+- `pinneapple_simulation.numerical_solvers.water_hammer_moc`: water hammer in a reservoir-pipe-valve system by the
+  method of characteristics (Korteweg wave speed, valve closure law, Joukowsky and Michaud references; verified
+  against Joukowsky for an instantaneous closure).
+- Flow Studio: `reason.*` node types (requirement, concept, check requirements, failure-mode check, countermeasure,
+  chain of whys, report), port types `requirement`, `concept`, `chain`, and the flow `reason_roof`.
+- MCP tools `reason` (job), `reason_library`, `reason_check`; agent-workbench tools `reason_chain`,
+  `reason_library`, `reason_check` (given to the physics agent).
+- Antennas in 3-D (`pinneapple_simulation.electromagnetics.antenna.scene3d`, `study.render_3d`, `--3d` of
+  `examples/use_cases/antennas/vivaldi_2to4ghz.py`, Flow Studio node `lib.antenna.render_3d`): the AVA's laminate and
+  copper as glTF / USD with materials, the gain balloon (dBi, jet) per solved frequency in the antenna's frame, |E| and
+  `Re(E_x e^{jωt})` on two cut planes, self-contained three.js viewers (frequency slider, layers) and Blender Cycles
+  stills, GIF and MP4; the balloon's peak directivity is checked against the table. `ava` saves the near field on
+  the two planes (`AVAParams.nf_step`) and the powers with the far field.
+- Studio scene: `Animation.add_surface_shape` (vertex positions per frame, in the viewer and in Blender), a labelled
+  animated axis (`time_label`, `time_unit`, `time_decimals`) and stepped frames (`interpolate=False`) for
+  frequencies and phases; layers (surface groups) switched on and off in the viewer; `web_viewer(...,
+  single_file=True)` writes one self-contained HTML page (three.js and the scene inlined) and `screenshot` takes it;
+  colour bars with the same title and range are drawn once (viewer and Blender).
 - Printed end-fire antennas with an external FEM solver (`pinneapple_simulation.electromagnetics.antenna`):
   end-fire directivity limits (Hansen-Woodyard 7.28 L/λ, ordinary 4 L/λ), broadside aperture gain, the shortest
   length for a target gain and the feasibility frequency (`bounds`); consistency checks of a result row as a

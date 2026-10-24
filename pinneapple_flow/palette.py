@@ -38,6 +38,9 @@ SECTION_IDS = [s[0] for s in SECTIONS]
 
 #: curated node type -> section
 SECTION_OF: dict[str, str] = {
+    "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
+    "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
+    "reason.report": "optimization",
     "geometry.domain": "problem", "geometry.mesh": "problem", "problem.generic": "problem",
     "vehicle.spec": "problem", "terramechanics.soil": "problem", "scenario.site": "problem",
     "equations.system": "equations",
@@ -62,7 +65,7 @@ SECTION_OF: dict[str, str] = {
     "lib.antenna.limits": "optimization",
     "data.stream": "twin", "twin.connect": "twin", "twin.auto": "twin", "assimilate.filter": "twin",
     "forecast.lab": "twin", "forecast.enso": "twin", "lib.ts.predictability": "twin",
-    "viz.plot": "viz", "viz.field3d": "viz", "viz.render": "viz", "vehicle.dashboard": "viz",
+    "viz.plot": "viz", "lib.antenna.render_3d": "viz", "viz.field3d": "viz", "viz.render": "viz", "vehicle.dashboard": "viz",
     "export.report": "export", "lib.export.geometry": "export",
 }
 

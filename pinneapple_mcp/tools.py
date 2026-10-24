@@ -137,7 +137,8 @@ def capabilities() -> dict[str, Any]:
     return _clean({"pinneapple_version": pp.__version__, "device": device, "optional_apis": opt,
                    "limits": cfg.to_dict(), "jobs_running": jobs.running(),
                    "tools": ["capabilities", "list_methods", "describe_method", "list_presets", "solve",
-                             "trust_card", "benchmark", "design", "job_status", "list_jobs", "cancel_job"]
+                             "trust_card", "benchmark", "design", "reason", "reason_library", "reason_check",
+                             "job_status", "list_jobs", "cancel_job"]
                    + (["zoo_list", "zoo_predict", "zoo_validate"] if opt.get("zoo") else [])})
 
 
@@ -601,4 +602,65 @@ def _run_design(args: dict[str, Any], jd: Path) -> dict[str, Any]:
                                           "operating_window", "bill_of_materials", "limits", "savings", "files")})
 
 
-JOB_KINDS = {"solve": _run_solve, "benchmark": _run_benchmark, "design": _run_design}
+def _reason_inputs(case, requirements, concept):
+    from pinneapple_reason import Concept, Requirement, cases
+    if case:
+        reqs, c, title = cases.get(case)
+    else:
+        if not requirements or not concept:
+            raise ValueError("give a case, or both requirements and a concept")
+        reqs, c, title = [Requirement.from_dict(r) for r in requirements], Concept.from_dict(
+            {"name": concept.get("name", "concept"), **concept}), concept.get("name", "concept")
+    return reqs, c, title
+
+
+def reason(case: str | None = None, requirements: Sequence[Mapping[str, Any]] | None = None,
+           concept: Mapping[str, Any] | None = None, lang: str = "pt", max_steps: int = 12,
+           max_seconds: float | None = None, wait_seconds: float = 0.0) -> dict[str, Any]:
+    """Chain of whys (pinneapple_reason): from a naive concept, check every requirement's failure modes, apply the
+    best countermeasure for the first failure, repeat. Starts a job; its result is the path (version, failure found,
+    countermeasure), the explanation and the report files."""
+    _reason_inputs(case, requirements, concept)           # fail now on bad input, not inside the job
+    cfg = get_config()
+    args = {"case": case, "requirements": [dict(r) for r in requirements or []],
+            "concept": dict(concept) if concept else None, "lang": lang, "max_steps": int(max_steps)}
+    jid = jobs.submit("reason", args, cfg, max_seconds)
+    return jobs.status(jid, cfg, wait_seconds)
+
+
+def _run_reason(args: dict[str, Any], jd: Path) -> dict[str, Any]:
+    from pinneapple_reason import reason as run_reason
+    from pinneapple_reason import trust_report, write_report
+    reqs, c, title = _reason_inputs(args.get("case"), args.get("requirements"), args.get("concept"))
+    ch = run_reason(reqs, c, title, max_steps=int(args.get("max_steps", 12)))
+    paths = write_report(ch, jd / "reason", lang=args.get("lang", "pt"))
+    rep = trust_report(ch)
+    return _clean({"status": ch.status, "path": [list(x) for x in ch.path()], "explanation": ch.explain(
+        args.get("lang", "pt")), "decision": rep.decisao, "reasons": rep.motivos,
+        "final": [{"check": f"{v.requirement}/{v.mode}", "passed": v.passed, "demand": v.demand,
+                   "capacity": v.capacity, "unit": v.unit} for v in ch.final.verifications],
+        "files": {k: str(v) for k, v in paths.items()}})
+
+
+def reason_library(domain: str | None = None, lang: str = "pt") -> dict[str, Any]:
+    """The failure modes (by physical domain) and countermeasures pinneapple_reason knows, and the worked cases."""
+    from pinneapple_reason import cases, describe_library
+    d = describe_library(lang)
+    if domain:
+        d["modes"] = [m for m in d["modes"] if domain.lower() in m["domain"].lower()]
+    d["cases"] = sorted(cases.CASES)
+    return _clean(d)
+
+
+def reason_check(mode: str, params: Mapping[str, Any], elements: Sequence[str] = (),
+                 limits: Mapping[str, float] | None = None, lang: str = "pt") -> dict[str, Any]:
+    """Run one failure mode of the library on the given parameters (SI units): demand, capacity, margin, the
+    mechanism in words, every measured number, sources, applicability and self-checks."""
+    from pinneapple_reason import LIBRARY, text_of
+    v = LIBRARY.mode(mode).evaluate({**dict(params), "_elements": tuple(elements)}, "", dict(limits or {}))
+    d = v.to_dict()
+    d["mechanism_text"] = text_of(v.mechanism, lang)
+    return _clean(d)
+
+
+JOB_KINDS = {"solve": _run_solve, "benchmark": _run_benchmark, "design": _run_design, "reason": _run_reason}

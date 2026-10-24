@@ -12,6 +12,11 @@ per-vertex fields and head-up numbers, for the browser viewer (:mod:`.web`) and 
     sc.animation = anim.resample(200)                     # scene.json stays small
     web_viewer(sc, "viewer/")                             # play / pause, time slider, follow camera
 
+The animated axis need not be time: ``Animation(f_ghz, time_label="f", time_unit="GHz", interpolate=False)`` steps
+through solved frequencies (the viewer shows only those frames, never a blend), and
+``add_surface_shape(surface, vertices)`` moves a surface's vertices frame by frame (a radiation pattern that changes
+shape with frequency, a deforming body).
+
 Every array is in the scene's axes (``Scene.axes``, e.g. ``"z_up"``). A track moves the surfaces whose
 ``Surface.group`` equals its group: their vertices are given in the body frame and sit at frame k at
 ``p_world = R(q_k) v + positions[k]``. Quaternions are scalar first, ``[w, x, y, z]``, rotating body to scene axes.
@@ -110,6 +115,11 @@ class Animation:
     follow_group: str | None = None          # default: the first track
     follow_offset: Sequence[float] | None = None   # camera position relative to the body (None: from its size)
     follow_frame: str = "body"                  # "body": the offset turns with the body; "world": fixed direction
+    surface_shapes: dict[str, dict[str, Any]] = field(default_factory=dict)  # surface name -> {"vertices": (T, n, 3)}
+    time_label: str = "t"                       # the animated axis: "t" [s], "f" [GHz], "ωt" [deg], ...
+    time_unit: str = "s"
+    time_decimals: int = 2
+    interpolate: bool = True                    # False: the viewer and resample() step between frames, never blend
 
     def __post_init__(self):
         self.times = np.asarray(self.times, float).ravel()
@@ -119,6 +129,8 @@ class Animation:
             raise ValueError("camera must be 'fixed' or 'follow'")
         if self.follow_frame not in ("body", "world"):
             raise ValueError("follow_frame must be 'body' or 'world'")
+        if self.time_decimals < 0:
+            raise ValueError("time_decimals must be >= 0")
 
     @property
     def n_frames(self) -> int:
@@ -198,6 +210,20 @@ class Animation:
         rng = color_range or default_range(a, cmap)
         self.surface_fields[surface] = {"values": a, "label": label, "range": tuple(map(float, rng)), "cmap": cmap}
         return self
+
+    def add_surface_shape(self, surface: str, vertices) -> Animation:
+        """Vertex positions per frame (T, n_vertices, 3) of the Surface named ``surface`` (same vertex order and
+        count as the surface; its faces stay). The surface's own vertices are what a static view shows."""
+        V = np.asarray(vertices, float)
+        if V.ndim != 3 or V.shape[0] != self.n_frames or V.shape[2] != 3:
+            raise ValueError(f"vertices: expected ({self.n_frames}, n_vertices, 3), got {V.shape}")
+        self.surface_shapes[surface] = {"vertices": V}
+        return self
+
+    def time_text(self, k: int) -> str:
+        """``"t = 1.25 s"`` (or ``"f = 2.50 GHz"``) of frame k."""
+        u = f" {self.time_unit}" if self.time_unit else ""
+        return f"{self.time_label} = {self.times[k]:.{self.time_decimals}f}{u}"
 
     def add_hud(self, key: str, values, label: str = "", unit: str = "", fmt: str = "{:.1f}") -> Animation:
         """A number per frame (T,) shown in the overlay as ``label: value unit``."""
@@ -296,8 +322,11 @@ class Animation:
             w = a.reshape((-1,) + (1,) * (A.ndim - 1))
             return (1 - w) * A[k0] + w * A[k1]
 
+        if not self.interpolate:                          # step: the nearest earlier frame, no blends
+            a = np.zeros_like(a)
         out = Animation(tn, camera=self.camera, follow_group=self.follow_group, follow_offset=self.follow_offset,
-                        follow_frame=self.follow_frame)
+                        follow_frame=self.follow_frame, time_label=self.time_label, time_unit=self.time_unit,
+                        time_decimals=self.time_decimals, interpolate=self.interpolate)
         for g, tr in self.tracks.items():
             Q = tr["quaternions"]
             q = np.array([slerp(Q[i], Q[j], w) for i, j, w in zip(k0, k1, a, strict=False)])
@@ -312,6 +341,8 @@ class Animation:
             out.surface_fields[s] = {**sf, "values": lerp(sf["values"])}
         for h in self.hud:
             out.hud.append({**h, "values": lerp(h["values"])})
+        for s, sh in self.surface_shapes.items():
+            out.surface_shapes[s] = {"vertices": lerp(sh["vertices"])}
         return out
 
     # ------------------------------------------------------------------ export
@@ -351,6 +382,10 @@ class Animation:
             "camera": self.camera, "follow_group": self.follow_group,
             "follow_offset": None if self.follow_offset is None else r(self.follow_offset),
             "follow_frame": self.follow_frame,
+            "shapes": [{"surface": s, **({"index": names.index(s)} if names is not None and s in names else {}),
+                        "vertices": r(sh["vertices"])} for s, sh in self.surface_shapes.items()],
+            "time_label": self.time_label, "time_unit": self.time_unit, "time_decimals": self.time_decimals,
+            "interpolate": self.interpolate,
         }
         return d
 
@@ -358,7 +393,9 @@ class Animation:
     def from_dict(cls, d: dict[str, Any]) -> Animation:
         """Inverse of :meth:`to_dict` (up to the rounding)."""
         a = cls(d["times"], camera=d.get("camera", "fixed"), follow_group=d.get("follow_group"),
-                follow_offset=d.get("follow_offset"), follow_frame=d.get("follow_frame", "body"))
+                follow_offset=d.get("follow_offset"), follow_frame=d.get("follow_frame", "body"),
+                time_label=d.get("time_label", "t"), time_unit=d.get("time_unit", "s"),
+                time_decimals=int(d.get("time_decimals", 2)), interpolate=bool(d.get("interpolate", True)))
         for tr in d.get("tracks", []):
             a.tracks[tr["group"]] = {"positions": np.asarray(tr["positions"], float),
                                      "quaternions": np.asarray(tr["quaternions"], float)}
@@ -378,15 +415,17 @@ class Animation:
         for f in d.get("fields", []):
             a.surface_fields[f["surface"]] = {"values": nan(f["values"]), "label": f.get("label", ""),
                                               "range": tuple(f["range"]), "cmap": f.get("cmap", "jet")}
+        for sh in d.get("shapes", []):
+            a.surface_shapes[sh["surface"]] = {"vertices": np.asarray(sh["vertices"], float)}
         for h in d.get("hud", []):
             a.hud.append({"key": h["key"], "label": h["label"], "unit": h.get("unit", ""), "fmt": h.get("fmt", "{:.1f}"),
                           "values": nan(h["values"])})
         return a
 
-    def hud_lines(self, k: int, time_fmt: str = "t = {:.2f} s", keys: Sequence[str] | None = None) -> list[str]:
-        """The overlay text of frame k: the time, then ``label: value unit`` per HUD entry (only ``keys``, in that
-        order, when given)."""
-        out = [time_fmt.format(self.times[k])]
+    def hud_lines(self, k: int, time_fmt: str | None = None, keys: Sequence[str] | None = None) -> list[str]:
+        """The overlay text of frame k: the time (:meth:`time_text`, or ``time_fmt``), then ``label: value unit``
+        per HUD entry (only ``keys``, in that order, when given)."""
+        out = [time_fmt.format(self.times[k]) if time_fmt else self.time_text(k)]
         hs = self.hud if keys is None else [h for key in keys for h in self.hud if h["key"] == key]
         for h in hs:
             v = h["values"][k]

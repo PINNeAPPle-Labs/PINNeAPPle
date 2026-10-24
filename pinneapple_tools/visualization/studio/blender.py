@@ -817,7 +817,7 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
     default from the 3/4 view), "side" (alongside the path, tracking the body), "tower" (fixed at ``camera_offset``
     in scene axes, default beside the middle of the path, looking at the body) or "fixed" (the whole scene and path
     in the 3/4 view). ``lens`` in mm.
-    field: colour the surfaces by this static per-vertex field; animated surface fields are always shown.
+    field: colour the surfaces by this static per-vertex field; animated surface fields and shapes are always shown.
     trails: False, True, or ``{"radius": r, "alpha": a, "seconds": s}`` overriding every trail's tube radius,
     opacity and time window (defaults: 0.003 x the tracked body's size, ``add_trail``'s alpha and trail_seconds);
     a trail is the path of its last seconds behind the body, fading to transparent at its tail.
@@ -909,6 +909,7 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
 
     # extent of the static scene and of the paths (for the ground, the fixed camera and the clip planes)
     static = [toB(s.vertices) for i, s in enumerate(scene.surfaces) if s.group not in anim.tracks]
+    static += [toB(sh["vertices"].reshape(-1, 3)) for sh in anim.surface_shapes.values()]   # every frame's shape
     lo_p, hi_p = anim.bounds()
     pts = np.concatenate(static + [toB(np.array([lo_p, hi_p]))]) if (static or anim.tracks or anim.trails) else np.zeros((1, 3))
     s_lo, s_hi = pts.min(0), pts.max(0)
@@ -967,6 +968,23 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
         me.materials.append(_ramp_material(bpy, f"anim_{sname}", "anim_field", *sf["range"], cmap=cm))
         afields.append((sf, at, order, me))
         bars.append(("field", sf["label"] or sname, *sf["range"], cm))
+
+    # per-frame vertex positions (Animation.add_surface_shape)
+    ashapes = []
+    for sname, sh in anim.surface_shapes.items():
+        idx = next((i for i, s in enumerate(scene.surfaces) if s.name == sname), None)
+        if idx is None or idx not in objs:
+            continue
+        me = objs[idx].data
+        nv = len(me.vertices)
+        if nv == len(scene.surfaces[idx].vertices):
+            order = None
+        else:                                                   # the importer split or merged vertices: nearest
+            from scipy.spatial import cKDTree
+            co = np.empty(nv * 3)
+            me.vertices.foreach_get("co", co)
+            order = cKDTree(toB(scene.surfaces[idx].vertices)).query(co.reshape(-1, 3))[1]
+        ashapes.append((sh, order, me))
 
     # arrows: one shaft and one head object per arrow, parented to the track when attached
     arrows = []
@@ -1213,6 +1231,10 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
                 idx, fade = idx[len(idx) - n_keep:], fade[len(fade) - n_keep:] * np.linspace(0.0, 1.0, n_keep)
             vals = anim.trails[ti].get("values")
             _set_tube(ob.data, P[idx], np.zeros(len(idx)) if vals is None else vals[idx], fade, r)
+        for sh, order, me in ashapes:
+            V = toB(sh["vertices"][k])
+            me.vertices.foreach_set("co", (V if order is None else V[order]).astype(np.float32).ravel())
+            me.update()
         for sf, at, order, me in afields:
             vals = np.asarray(sf["values"][k], float)
             vals = np.where(np.isfinite(vals), vals, sf["range"][0])
@@ -1222,7 +1244,7 @@ def render_animation(scene, out_dir: str, *, frames: int | Sequence[int] | None 
         path_png = os.path.join(out_dir, f"frame_{j:05d}.png")
         bs.render.filepath = os.path.abspath(path_png)
         bpy.ops.render.render(write_still=True)
-        shown = [b[1:] for b in bars if cb_on.get(b[0], True)]
+        shown = list(dict.fromkeys(tuple(b[1:]) for b in bars if cb_on.get(b[0], True)))   # one bar per scale
         if shown:
             draw_colorbars(path_png, shown)
         if hud:

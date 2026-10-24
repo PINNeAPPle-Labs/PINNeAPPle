@@ -1,0 +1,124 @@
+{
+ "report": {
+  "modelo": "Power board: from a part on the board to forced air",
+  "decisao": "APPROVED",
+  "score": 1.0,
+  "cobertura": 1.0,
+  "motivos": [],
+  "checagens": [
+   {
+    "name": "inputs recorded and finite",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 28.0,
+    "limit": null,
+    "source": "concept parameters with their sources",
+    "reason": ""
+   },
+   {
+    "name": "R1/joule_heating",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 109.26731795177662,
+    "limit": 125.0,
+    "source": "Joule loss I^2 R_on(T) coupled to the thermal path: plate-fin heat sink, forced convection (Teertstra et al. 2000) (pinneapple_physics.closed_form.plate_fin_heatsink.evaluate)",
+    "reason": ""
+   },
+   {
+    "name": "electrothermal fixed point converged",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 0.01,
+    "source": "T_j iteration",
+    "reason": ""
+   },
+   {
+    "name": "applicability: joule_heating: junction below the silicon model limit",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 109.26731795177662,
+    "limit": 200,
+    "source": "R_on(T) linear fit",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R1/joule_heating worst margin (r_on_tc +20 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.10346626622466318,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   }
+  ],
+  "min_coverage": 0.6,
+  "min_score": 0.8
+ },
+ "card": {
+  "data_geometry": {
+   "title": "Data and geometry",
+   "question": "Was the physical problem represented correctly?",
+   "status": "answered",
+   "evidence": [
+    "inputs recorded: v0, v1, v2",
+    "PASS inputs recorded and finite (concept parameters with their sources)",
+    "PASS electrothermal fixed point converged (T_j iteration)"
+   ],
+   "next": ""
+  },
+  "model": {
+   "title": "Model",
+   "question": "Can the model (or solver) represent the relevant dynamics?",
+   "status": "answered",
+   "evidence": [
+    "PASS electrothermal fixed point converged (T_j iteration)"
+   ],
+   "next": ""
+  },
+  "physics": {
+   "title": "Physical constraints",
+   "question": "Are the equations and the boundary conditions respected?",
+   "status": "answered",
+   "evidence": [
+    "PASS electrothermal fixed point converged (T_j iteration)"
+   ],
+   "next": ""
+  },
+  "benchmark": {
+   "title": "Benchmark",
+   "question": "How does the result compare with a solver or reference data?",
+   "status": "open",
+   "evidence": [
+    "no comparison with a solver, data or baseline"
+   ],
+   "next": "compare with a reference or a simple baseline"
+  },
+  "uncertainty": {
+   "title": "Uncertainty",
+   "question": "Where may the prediction not be reliable?",
+   "status": "answered",
+   "evidence": [
+    "PASS applicability: joule_heating: junction below the silicon model limit (R_on(T) linear fit)",
+    "PASS uncertainty: R1/joule_heating worst margin (r_on_tc +20 %) (one-at-a-time spread of the mode's uncertain premises)",
+    "PASS uncertainty: R1/joule_heating worst margin (r_on_tc +20 %) (one-at-a-time spread of the mode's uncertain premises)"
+   ],
+   "next": ""
+  },
+  "decision": {
+   "title": "Engineering decision",
+   "question": "Is the result adequate for the intended use?",
+   "status": "answered",
+   "evidence": [
+    "tier B (solid), ready for design screening",
+    "3 limitations bound the use"
+   ],
+   "next": ""
+  }
+ }
+}

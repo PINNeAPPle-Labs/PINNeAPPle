@@ -1,0 +1,147 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "roof-chain-of-whys",
+ "name": "Roof: chain of whys",
+ "description": "Why a roof slopes and has a ceiling, computed: requirements and the naive flat-tile concept, the checks of version 0, one failure mode on its own, the engine's first countermeasure, the whole chain (flat -> pitch -> ventilated ceiling -> radiant barrier) and its report with the timeline and the trust card.",
+ "nodes": [
+  {
+   "id": "req",
+   "type": "reason.requirement",
+   "params": {
+    "case": "roof"
+   },
+   "position": {
+    "x": 40,
+    "y": 60
+   },
+   "label": ""
+  },
+  {
+   "id": "c0",
+   "type": "reason.concept",
+   "params": {
+    "case": "roof"
+   },
+   "position": {
+    "x": 40,
+    "y": 260
+   },
+   "label": ""
+  },
+  {
+   "id": "chk",
+   "type": "reason.verify",
+   "params": {},
+   "position": {
+    "x": 340,
+    "y": 40
+   },
+   "label": ""
+  },
+  {
+   "id": "fm",
+   "type": "reason.failure_mode",
+   "params": {
+    "mode": "underside_condensation"
+   },
+   "position": {
+    "x": 340,
+    "y": 220
+   },
+   "label": ""
+  },
+  {
+   "id": "cm",
+   "type": "reason.countermeasure",
+   "params": {
+    "countermeasure": "auto"
+   },
+   "position": {
+    "x": 340,
+    "y": 380
+   },
+   "label": ""
+  },
+  {
+   "id": "ch",
+   "type": "reason.chain",
+   "params": {},
+   "position": {
+    "x": 640,
+    "y": 160
+   },
+   "label": ""
+  },
+  {
+   "id": "rep",
+   "type": "reason.report",
+   "params": {
+    "lang": "pt"
+   },
+   "position": {
+    "x": 920,
+    "y": 160
+   },
+   "label": ""
+  }
+ ],
+ "edges": [
+  {
+   "source": "req",
+   "source_port": "requirement",
+   "target": "chk",
+   "target_port": "requirement",
+   "id": "req.requirement->chk.requirement"
+  },
+  {
+   "source": "c0",
+   "source_port": "concept",
+   "target": "chk",
+   "target_port": "concept",
+   "id": "c0.concept->chk.concept"
+  },
+  {
+   "source": "c0",
+   "source_port": "concept",
+   "target": "fm",
+   "target_port": "concept",
+   "id": "c0.concept->fm.concept"
+  },
+  {
+   "source": "req",
+   "source_port": "requirement",
+   "target": "cm",
+   "target_port": "requirement",
+   "id": "req.requirement->cm.requirement"
+  },
+  {
+   "source": "c0",
+   "source_port": "concept",
+   "target": "cm",
+   "target_port": "concept",
+   "id": "c0.concept->cm.concept"
+  },
+  {
+   "source": "req",
+   "source_port": "requirement",
+   "target": "ch",
+   "target_port": "requirement",
+   "id": "req.requirement->ch.requirement"
+  },
+  {
+   "source": "c0",
+   "source_port": "concept",
+   "target": "ch",
+   "target_port": "concept",
+   "id": "c0.concept->ch.concept"
+  },
+  {
+   "source": "ch",
+   "source_port": "chain",
+   "target": "rep",
+   "target_port": "chain",
+   "id": "ch.chain->rep.chain"
+  }
+ ],
+ "meta": {}
+}

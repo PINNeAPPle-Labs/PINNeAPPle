@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 146,
+  "tool": 158,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
-  "flow": 15,
-  "example": 121
+  "flow": 16,
+  "example": 122
  },
  "kinds": {
   "tool": "Tools",
@@ -19,28 +19,28 @@
  },
  "facets": {
   "kind": {
-   "tool": 146,
+   "tool": 158,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
-   "flow": 15,
-   "example": 121
+   "flow": 16,
+   "example": 122
   },
   "subkind": {
-   "flow node": 70,
-   "recipe": 44,
+   "flow node": 78,
+   "recipe": 45,
    "function": 18,
-   "agent tool (MCP)": 14
+   "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 72,
+   "physics AI": 73,
    "fluid dynamics": 43,
-   "general": 38,
+   "general": 42,
    "structural mechanics": 31,
+   "design and geometry": 24,
    "validation and benchmarks": 19,
    "heat transfer": 17,
    "numerical methods": 16,
-   "design and geometry": 15,
    "system dynamics": 12,
    "vehicle dynamics": 12,
    "time series": 9,
@@ -53,7 +53,7 @@
    "security": 1
   },
   "quality": {
-   "not graded": 241,
+   "not graded": 255,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -93,7 +93,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L122"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L124"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -131,7 +131,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L194"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L234"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -169,7 +169,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L38"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L40"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -207,7 +207,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L54"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L56"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -245,7 +245,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L140"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L142"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -283,7 +283,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L182"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L222"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -321,7 +321,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L189"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L229"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -359,7 +359,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L44"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L46"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -397,7 +397,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L63"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L65"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -412,6 +412,120 @@
     "stderr": "",
     "stdout": "{\"presets\": [\"aircraft_wing_aerodynamics\", \"aircraft_wing_structural\", \"axial_compressor_cascade_2d\", \"axial_compressor_meanline\", \"axial_compressor_stage_3d\", \"axisymmetric_linear_elasticity_2d\", \"bekker_wong_surrogate_2d\", \"black_scholes_1d\", \"burgers_1d\", \"car_brake_thermal\", \"car_external_aero\", \"car_suspension_fatigue\", \"channel_flow_3d\", \"climate_atmosphere_2d\", \"climate_ocean_gyre\", \"cpu_heatsink_thermal\", \"cr3bp_planar_synodic\", \"crystal_phonon\", \"darcy_pressure_only_3d\", \"datacenter_airflow_2d\", \"datacenter_cfd_3d\", \"datacenter_server_thermal\", \"drug_diffusion_tissue\", \"em_cylinder_scattering\", \"em_skin_effect\", \"em_tm_cavity\", \"em_tm_cavity_integral\", \"em_two_dielectric_capacitor\", \"em_two_dielectric_capacitor_differential\", \"em_wire_az\", \"fan_cooler_cfd\", \"furnace_combustion_zon",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "mcp:reason",
+   "kind": "tool",
+   "subkind": "agent tool (MCP)",
+   "name": "reason",
+   "title": "MCP tool · reason",
+   "summary": "Chain of whys: from a naive concept, check every requirement with computed physics, find the first failure mode (mechanism + the number that proves it), apply the best…",
+   "description": "Chain of whys: from a naive concept, check every requirement with computed physics, find the first\nfailure mode (mechanism + the number that proves it), apply the best countermeasure, check again, until all\npass. Starts a job; the result has the path, the explanation, the trust decision and report files.",
+   "domain": "general",
+   "tags": [
+    "MCP",
+    "agents"
+   ],
+   "quality": null,
+   "code": "import inspect\nfrom pinneapple_mcp import tools as T     # what the MCP tool \"reason\" runs\n\nprint(\"reason\" + str(inspect.signature(T.reason)))\n# start the server for an agent: pinneapple-mcp   (pip install \"pinneapple[mcp]\")\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/mcp_server.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L159"
+   },
+   "extra": {
+    "server": "pinneapple-mcp"
+   },
+   "run": {
+    "ok": true,
+    "stdout": "reason(case: 'str | None' = None, requirements: 'Sequence[Mapping[str, Any]] | None' = None, concept: 'Mapping[str, Any] | None' = None, lang: 'str' = 'pt', max_steps: 'int' = 12, max_seconds: 'float | None' = None, wait_seconds: 'float' = 0.0) -> 'dict[str, Any]'",
+    "stderr": "",
+    "seconds": 0.94,
+    "timed_out": false,
+    "code_hash": "1d9d990b2edc1455",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
+   "id": "mcp:reason_check",
+   "kind": "tool",
+   "subkind": "agent tool (MCP)",
+   "name": "reason_check",
+   "title": "MCP tool · reason_check",
+   "summary": "One failure-mode check: demand, capacity, margin, mechanism, measured numbers, sources, applicability.",
+   "description": "One failure-mode check: demand, capacity, margin, mechanism, measured numbers, sources, applicability.",
+   "domain": "general",
+   "tags": [
+    "MCP",
+    "agents"
+   ],
+   "quality": null,
+   "code": "import inspect\nfrom pinneapple_mcp import tools as T     # what the MCP tool \"reason_check\" runs\n\nprint(\"reason_check\" + str(inspect.signature(T.reason_check)))\n# start the server for an agent: pinneapple-mcp   (pip install \"pinneapple[mcp]\")\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/mcp_server.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L186"
+   },
+   "extra": {
+    "server": "pinneapple-mcp"
+   },
+   "run": {
+    "ok": true,
+    "stdout": "reason_check(mode: 'str', params: 'Mapping[str, Any]', elements: 'Sequence[str]' = (), limits: 'Mapping[str, float] | None' = None, lang: 'str' = 'pt') -> 'dict[str, Any]'",
+    "stderr": "",
+    "seconds": 0.96,
+    "timed_out": false,
+    "code_hash": "a8b539ccc9327924",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
+   "id": "mcp:reason_library",
+   "kind": "tool",
+   "subkind": "agent tool (MCP)",
+   "name": "reason_library",
+   "title": "MCP tool · reason_library",
+   "summary": "Failure modes (with the parameters each needs and its sources) and countermeasures of pinneapple_reason.",
+   "description": "Failure modes (with the parameters each needs and its sources) and countermeasures of pinneapple_reason.",
+   "domain": "general",
+   "tags": [
+    "MCP",
+    "agents"
+   ],
+   "quality": null,
+   "code": "import inspect\nfrom pinneapple_mcp import tools as T     # what the MCP tool \"reason_library\" runs\n\nprint(\"reason_library\" + str(inspect.signature(T.reason_library)))\n# start the server for an agent: pinneapple-mcp   (pip install \"pinneapple[mcp]\")\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/mcp_server.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L178"
+   },
+   "extra": {
+    "server": "pinneapple-mcp"
+   },
+   "run": {
+    "ok": true,
+    "stdout": "reason_library(domain: 'str | None' = None, lang: 'str' = 'pt') -> 'dict[str, Any]'",
+    "stderr": "",
+    "seconds": 0.9,
+    "timed_out": false,
+    "code_hash": "b48065e4341c57b7",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -435,7 +549,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L70"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L72"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -473,7 +587,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L92"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L94"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -511,7 +625,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L157"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L197"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -549,7 +663,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L163"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L203"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -587,7 +701,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/mcp_server.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L172"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_mcp/server.py#L212"
    },
    "extra": {
     "server": "pinneapple-mcp"
@@ -1286,6 +1400,161 @@
    }
   },
   {
+   "id": "node:reason.chain",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "reason.chain",
+   "title": "Chain of whys",
+   "summary": "From the naive concept, check, find the first failure, apply the best countermeasure, check again, until every requirement passes.",
+   "description": "From the naive concept, check, find the first failure, apply the best countermeasure, check again, until every\nrequirement passes.",
+   "domain": "design and geometry",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "failure modes",
+    "optimization",
+    "pareto",
+    "reasoning"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"reason.chain\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:reason_roof"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=reason.chain",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/reason.py#L151"
+   },
+   "extra": {
+    "calls": "pinneapple_reason.engine.reason",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "inputs": [
+     {
+      "name": "requirement",
+      "type": "requirement",
+      "required": true
+     },
+     {
+      "name": "concept",
+      "type": "concept",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "chain",
+      "type": "chain"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "max_steps",
+      "kind": "int",
+      "default": 12,
+      "help": "",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 40,
+      "advanced": false
+     }
+    ]
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Chain of whys -> pinneapple_reason.engine.reason\ninputs: [('requirement', 'requirement'), ('concept', 'concept')]\noutputs: [('chain', 'chain'), ('metrics', 'metrics')]\ndefaults: {'max_steps': 12}",
+    "stderr": "",
+    "seconds": 16.33,
+    "timed_out": false,
+    "code_hash": "294321dfbd79a9eb",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:reason.verify",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "reason.verify",
+   "title": "Check requirements",
+   "summary": "Every failure mode of every requirement on the concept, and the first one that fails.",
+   "description": "Every failure mode of every requirement on the concept, and the first one that fails.",
+   "domain": "design and geometry",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "failure modes",
+    "optimization",
+    "pareto",
+    "reasoning"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"reason.verify\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:reason_roof"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=reason.verify",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/reason.py#L102"
+   },
+   "extra": {
+    "calls": "pinneapple_reason.engine.Reasoner.verify / first_failure",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "inputs": [
+     {
+      "name": "concept",
+      "type": "concept",
+      "required": true
+     },
+     {
+      "name": "requirement",
+      "type": "requirement",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     },
+     {
+      "name": "finding",
+      "type": "params"
+     }
+    ],
+    "params": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Check requirements -> pinneapple_reason.engine.Reasoner.verify / first_failure\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('metrics', 'metrics'), ('finding', 'params')]\ndefaults: {}",
+    "stderr": "",
+    "seconds": 15.41,
+    "timed_out": false,
+    "code_hash": "859dd97e3f8126da",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "node:surrogate.study",
    "kind": "tool",
    "subkind": "flow node",
@@ -1644,6 +1913,99 @@
    }
   },
   {
+   "id": "node:reason.concept",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "reason.concept",
+   "title": "Concept",
+   "summary": "A version of the design: parameters, elements and where each value came from.",
+   "description": "A version of the design: parameters, elements and where each value came from.",
+   "domain": "design and geometry",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "failure modes",
+    "optimization",
+    "pareto",
+    "reasoning"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"reason.concept\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:reason_roof"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=reason.concept",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/reason.py#L66"
+   },
+   "extra": {
+    "calls": "pinneapple_reason.cases / pinneapple_reason.chain.Concept",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "concept",
+      "type": "concept"
+     }
+    ],
+    "params": [
+     {
+      "name": "case",
+      "kind": "enum",
+      "default": "roof",
+      "help": "the naive concept of a worked case",
+      "choices": [
+       "roof",
+       "footbridge",
+       "power_board",
+       "pumped_main"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "overrides",
+      "kind": "dict",
+      "default": {},
+      "help": "parameter values to change (SI units)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "elements",
+      "kind": "list",
+      "default": [],
+      "help": "replace the element list (empty: keep the case's)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ]
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Concept -> pinneapple_reason.cases / pinneapple_reason.chain.Concept\ninputs: []\noutputs: [('concept', 'concept')]\ndefaults: {'case': 'roof', 'overrides': {}, 'elements': []}",
+    "stderr": "",
+    "seconds": 15.37,
+    "timed_out": false,
+    "code_hash": "fe2c185ed1322c9d",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "node:control.compare",
    "kind": "tool",
    "subkind": "flow node",
@@ -1708,6 +2070,112 @@
     "stderr": "",
     "stdout": "Controllers: PID, rules, MPC -> pinneapple_systems.operations.control.compare_controllers\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'controllers': ['pid', 'rules', 'lmpc']}",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:reason.countermeasure",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "reason.countermeasure",
+   "title": "Countermeasure",
+   "summary": "Try the countermeasures for the first failure, apply the chosen one (or the one you name) and report all.",
+   "description": "Try the countermeasures for the first failure, apply the chosen one (or the one you name) and report all.",
+   "domain": "design and geometry",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "failure modes",
+    "optimization",
+    "pareto",
+    "reasoning"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"reason.countermeasure\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:reason_roof"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=reason.countermeasure",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/reason.py#L117"
+   },
+   "extra": {
+    "calls": "pinneapple_reason.engine.Reasoner.evaluate_options / choose",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "inputs": [
+     {
+      "name": "concept",
+      "type": "concept",
+      "required": true
+     },
+     {
+      "name": "requirement",
+      "type": "requirement",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "concept",
+      "type": "concept"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "countermeasure",
+      "kind": "enum",
+      "default": "auto",
+      "help": "auto: the engine's choice for the first failure",
+      "choices": [
+       "auto",
+       "ceiling_insulation",
+       "ceiling_ventilated_attic",
+       "coat_cathode",
+       "column_midheight_brace",
+       "deepen_girders",
+       "forced_air",
+       "heatsink_natural",
+       "higher_pressure_class",
+       "increase_slope",
+       "insulating_kit",
+       "larger_suction_pipe",
+       "lateral_bracing",
+       "longer_lap",
+       "lower_pump",
+       "radiant_barrier",
+       "slow_valve_closure",
+       "thermal_vias",
+       "thicker_section",
+       "tile_clips",
+       "tuned_mass_damper",
+       "wider_flanges"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ]
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Countermeasure -> pinneapple_reason.engine.Reasoner.evaluate_options / choose\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('concept', 'concept'), ('metrics', 'metrics')]\ndefaults: {'countermeasure': 'auto'}",
+    "stderr": "",
+    "seconds": 15.37,
+    "timed_out": false,
+    "code_hash": "48f88b7667058cdf",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -3040,6 +3508,106 @@
     "stderr": "",
     "stdout": "External tools available? -> pinneapple_flow.wrappers:openfoam_available\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:reason.failure_mode",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "reason.failure_mode",
+   "title": "Failure mode check",
+   "summary": "One failure mode of the library on the concept: demand, capacity, mechanism and every measured number.",
+   "description": "One failure mode of the library on the concept: demand, capacity, mechanism and every measured number.",
+   "domain": "design and geometry",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "failure modes",
+    "optimization",
+    "pareto",
+    "reasoning"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"reason.failure_mode\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:reason_roof"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=reason.failure_mode",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/reason.py#L85"
+   },
+   "extra": {
+    "calls": "pinneapple_reason.library.LIBRARY.mode(name).evaluate (pinneapple_reason.modes)",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "inputs": [
+     {
+      "name": "concept",
+      "type": "concept",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "mode",
+      "kind": "enum",
+      "default": "lap_water_ingress",
+      "help": "failure mode of the library",
+      "choices": [
+       "bending_strength",
+       "column_separation",
+       "deflection",
+       "fatigue",
+       "flexural_buckling",
+       "galvanic_corrosion",
+       "joule_heating",
+       "lap_water_ingress",
+       "lateral_torsional_buckling",
+       "pedestrian_resonance",
+       "pump_cavitation",
+       "radiant_heat_gain",
+       "underside_condensation",
+       "water_hammer",
+       "wind_uplift"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "limits",
+      "kind": "dict",
+      "default": {},
+      "help": "acceptance-limit overrides",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ]
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Failure mode check -> pinneapple_reason.library.LIBRARY.mode(name).evaluate (pinneapple_reason.modes)\ninputs: [('concept', 'concept')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'mode': 'lap_water_ingress', 'limits': {}}",
+    "stderr": "",
+    "seconds": 4.73,
+    "timed_out": false,
+    "code_hash": "718e1bb096de318b",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -6465,6 +7033,87 @@
    }
   },
   {
+   "id": "node:reason.report",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "reason.report",
+   "title": "Reasoning report",
+   "summary": "The chain as a report: timeline version 0 -> N and why, margins, figures, trust report and six-stage card.",
+   "description": "The chain as a report: timeline version 0 -> N and why, margins, figures, trust report and six-stage card.",
+   "domain": "design and geometry",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "failure modes",
+    "optimization",
+    "pareto",
+    "reasoning"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"reason.report\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:reason_roof"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=reason.report",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/reason.py#L169"
+   },
+   "extra": {
+    "calls": "pinneapple_reason.report.write_report (timeline, margins; pinneapple_reason.trust card)",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "inputs": [
+     {
+      "name": "chain",
+      "type": "chain",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     }
+    ],
+    "params": [
+     {
+      "name": "lang",
+      "kind": "enum",
+      "default": "pt",
+      "help": "",
+      "choices": [
+       "pt",
+       "en"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ]
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Reasoning report -> pinneapple_reason.report.write_report (timeline, margins; pinneapple_reason.trust card)\ninputs: [('chain', 'chain')]\noutputs: [('report', 'report'), ('figure', 'figure')]\ndefaults: {'lang': 'pt'}",
+    "stderr": "",
+    "seconds": 4.61,
+    "timed_out": false,
+    "code_hash": "764f57d0bfb9c547",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "node:rom.fit",
    "kind": "tool",
    "subkind": "flow node",
@@ -6891,6 +7540,90 @@
     "stderr": "",
     "stdout": "Reproduce an antenna study package -> pinneapple_simulation.electromagnetics.antenna.study:package_study\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'path': None, 'out': None, 'rerun': None, 'rerun_freqs': 1, 'interpolated': False, 'timeout': 3600.0, 'target_dbi': 10.0}",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:reason.requirement",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "reason.requirement",
+   "title": "Requirement",
+   "summary": "What the design must do and which failure modes would stop it.",
+   "description": "What the design must do and which failure modes would stop it.",
+   "domain": "design and geometry",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "failure modes",
+    "optimization",
+    "pareto",
+    "reasoning"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"reason.requirement\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:reason_roof"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=reason.requirement",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/reason.py#L44"
+   },
+   "extra": {
+    "calls": "pinneapple_reason.cases / pinneapple_reason.chain.Requirement",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "requirement",
+      "type": "requirement"
+     }
+    ],
+    "params": [
+     {
+      "name": "case",
+      "kind": "enum",
+      "default": "roof",
+      "help": "a worked case, or your own",
+      "choices": [
+       "roof",
+       "footbridge",
+       "power_board",
+       "pumped_main",
+       "custom"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "custom",
+      "kind": "list",
+      "default": [],
+      "help": "[{'id', 'text', 'modes': [...], 'limits': {...}}] (case = custom)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ]
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Requirement -> pinneapple_reason.cases / pinneapple_reason.chain.Requirement\ninputs: []\noutputs: [('requirement', 'requirement')]\ndefaults: {'case': 'roof', 'custom': []}",
+    "stderr": "",
+    "seconds": 4.58,
+    "timed_out": false,
+    "code_hash": "d14e858dd2d812a1",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -8766,6 +9499,151 @@
    }
   },
   {
+   "id": "node:lib.antenna.render_3d",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "lib.antenna.render_3d",
+   "title": "Vivaldi in 3-D: balloon, near field, renders",
+   "summary": "named AVA designs re-solved in EMerge with their near field: glTF / USD per frequency, gain balloons, |E| and E_x(wt) cut planes, self-contained three.js viewers, Blender stills…",
+   "description": "named AVA designs re-solved in EMerge with their near field: glTF / USD per frequency, gain balloons, |E| and E_x(wt) cut planes, self-contained three.js viewers, Blender stills and GIF / MP4 (not exposed: designs)",
+   "domain": "design and geometry",
+   "tags": [
+    "3d",
+    "Visualisation",
+    "dashboard",
+    "figure",
+    "plot",
+    "render",
+    "viz"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"lib.antenna.render_3d\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=lib.antenna.render_3d",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/libcalls.py#L242"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.electromagnetics.antenna.study:render_3d",
+    "category": "Visualisation",
+    "available": false,
+    "install": "pip install emerge",
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "result",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "out",
+      "kind": "str",
+      "default": null,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "freqs",
+      "kind": "list",
+      "default": [
+       2.0,
+       2.5,
+       3.0,
+       3.5,
+       4.0
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "res",
+      "kind": "float",
+      "default": 0.25,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "nf_step",
+      "kind": "float",
+      "default": 2.0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "timeout",
+      "kind": "float",
+      "default": 3600.0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "render",
+      "kind": "bool",
+      "default": true,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "samples",
+      "kind": "int",
+      "default": 32,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "size",
+      "kind": "list",
+      "default": [
+       960,
+       540
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ]
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Vivaldi in 3-D: balloon, near field, renders -> pinneapple_simulation.electromagnetics.antenna.study:render_3d\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'out': None, 'freqs': [2.0, 2.5, 3.0, 3.5, 4.0], 'res': 0.25, 'nf_step': 2.0, 'timeout': 3600.0, 'render': True, 'samples': 32, 'size': [960, 540]}",
+    "stderr": "",
+    "seconds": 4.52,
+    "timed_out": false,
+    "code_hash": "50de6c823ab423eb",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "node:lib.solver.terramechanics",
    "kind": "tool",
    "subkind": "flow node",
@@ -9622,15 +10500,15 @@
     "table_row": "`pinneapple_hub.library.search(load_index(), q, kind=...)`, `pinneapple_hub.library.compose.compose({...})`; the Hub app `apps/hub` ([docs](docs/apps/hub.md))"
    },
    "run": {
-    "ok": true,
-    "stdout": "pinneapple_hub.library.search(index: 'dict[str, Any]', query: 'str' = '', *, kind: 'str | None' = None, domain: 'str | None' = None, quality: 'str | None' = None, subkind: 'str | None' = None, limit: 'int | None' = None) -> 'list[dict[str, Any]]'\nItems matching ``query`` and the filters (``quality``: a letter, a comma list of letters, a zoo decision in",
-    "stderr": "",
-    "seconds": 0.27,
-    "timed_out": false,
     "code_hash": "c5a98afc57f46acf",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-23",
+    "seconds": 0.27,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "pinneapple_hub.library.search(index: 'dict[str, Any]', query: 'str' = '', *, kind: 'str | None' = None, domain: 'str | None' = None, quality: 'str | None' = None, subkind: 'str | None' = None, limit: 'int | None' = None) -> 'list[dict[str, Any]]'\nItems matching ``query`` and the filters (``quality``: a letter, a comma list of letters, a zoo decision in",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -10566,7 +11444,7 @@
    "id": "recipe:agents-dashboard-of-a-time-dependent-result",
    "kind": "tool",
    "subkind": "recipe",
-   "name": "agents_md_4",
+   "name": "agents_md_5",
    "title": "Dashboard of a time-dependent result",
    "summary": "From AGENTS.md: dashboard of a time-dependent result.",
    "description": "",
@@ -11710,7 +12588,7 @@
    "id": "recipe:agents-validation-status-of-a-method",
    "kind": "tool",
    "subkind": "recipe",
-   "name": "agents_md_5",
+   "name": "agents_md_6",
    "title": "Validation status of a method",
    "summary": "From AGENTS.md: validation status of a method.",
    "description": "",
@@ -11875,6 +12753,44 @@
     "figures": [],
     "status": "ok",
     "source": "scripts/reference/run_examples.py"
+   }
+  },
+  {
+   "id": "recipe:agents-why-each-element-of-a-design-exists",
+   "kind": "tool",
+   "subkind": "recipe",
+   "name": "agents_md_4",
+   "title": "Why each element of a design exists",
+   "summary": "From AGENTS.md: why each element of a design exists.",
+   "description": "",
+   "domain": "physics AI",
+   "tags": [],
+   "quality": {
+    "label": "runs in CI",
+    "source": "tests/test_agents_md.py"
+   },
+   "code": "from pinneapple_reason import cases, reason\n\nchain = reason(*cases.roof())                  # flat tiles -> pitch -> ventilated ceiling -> radiant barrier\nprint(chain.explain(\"en\"))                     # every step: the failure, its mechanism and numbers, the fix, why\nassert chain.resolved and chain.path()[0][1:] == (\"lap_water_ingress\", \"increase_slope\")\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "AGENTS.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/AGENTS.md"
+   },
+   "extra": {
+    "origin": "AGENTS.md"
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Roof: from flat tiles to a working roof\n\nRequirements:\n  R1: keep the design rain out of the room [lap_water_ingress]\n  R2: no condensation dripping into the room [underside_condensation]\n  R3: no radiant discomfort from the ceiling on a sunny day [radiant_heat_gain]\n\nVersion 0 (tiles):\n  rain ingress through the lap fails: Water climbs the 1 mm gap of the lap by capillarity up to 14 mm, the wind pushes it 6.15 mm further and with no slope nothing drives the water off: the design storm ponds 25 mm: the total head (14 + 6.15 + 25 = 45.1 mm) exceeds the 0 mm the 75 mm lap rises at 0°. Water gets over the lap and drips inside.\n  [proof: capillary + wind + film head 45.1 mm > height the lap rises 0 mm; hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise]\n  Options tried:\n    - increase_slope: fixes (margin -1 -> 0.358), cost: +7.9 % roof area (index 0.079)\n    - longer_lap: infeasible (with no slope no lap lifts the water (L sin 0 = 0))\n  So: pitch the roof to the material's minimum slope — gravity now drains the water (thin film instead of a pond) and the lap gains height (L sin(alpha)) against capillarity and wind\n  -> slope_deg = 22.0\n  (chosen: fixes the failure without breaking any requirement that passed)\n\nVersion 1 (tiles, pitch):\n  condensation under the roof fails: On a clear night the tile radiates to the sky at -1.74 °C and cools to 14.2 °C; the tile underside, in contact with the room air, sits at 14.9 °C, below the dew point of the room air (16.4 °C at 21 °C and 75 %): vapour condenses and drips into the room.\n  [proof: dew point of the room air 16.4 °C > temperature of the surface facing the room 14.9 °C; steady roof heat-balance network (clear night) + Magnus dew point]\n  Options tried:\n    - ceiling_ventilated_attic: fixes (margin -0.316 -> 0.37), cost: 1 m^2 of ceiling per m^2 of plan (index 1.5)\n    - ceiling_insulation: infeasible (needs first: ceiling)\n  So: ceiling with a ventilated attic — room air no longer touches the cold (or hot) tile: a ventilated attic and the ceiling sit in between, and the ceiling, fed by the tile's radiation, faces the room much closer to the air temperature\n  (chosen: fixes the failure without breaking any requirement that passed)\n\nVersion 2 (tiles, pitch, ceiling):\n  radiant heat gain from the roof fails: The 900 W/m^2 sun heats the tile to 59.1 °C; the ceiling above the occupants sits at 39 °C, 12 K above the room air (27 °C), more than the 5 K of radiant asymmetry acceptable for a warm ceiling: it pours 78.7 W/m^2 into the room.\n  [proof: ceiling radiant asymmetry 12.0 K > comfort limit (warm ceiling) 5 K; steady roof heat-balance network (clear day, sun on the roof)]\n  Options tried:\n    - ceiling_ventilated_attic: infeasible (the concept already has 'ceiling')\n    - radiant_barrier: fixes (margin -1.402 -> 0.482), cost: 1 m^2 of foil per m^2 of roof (index 0.4)\n    - ceiling_insulation: fixes (margin -1.402 -> 0.438), cost: 50 mm of mineral wool on the ceiling (index 0.4)\n  So: radiant barrier (low-emissivity foil under the tiles) — the tile underside gets an emissivity of ~0.05: tile-to-ceiling radiation, the dominant path, drops by an order of magnitude\n  -> tile_under_emissivity = 0.05\n  (chosen: fixes the failure without breaking any requirement that passed; of 2 options that fix it, it is the cheapest (0.4, 3 checks passing; vs ceiling_insulation: 3 passing, cost 0.4))\n\nVersion 3 (tiles, pitch, ceiling, radiant barrier):\n  Every requirement passes.\n  - R1/lap_water_ingress: 20.7 <= 28.1 mm\n  - R2/underside_condensation: 16.4 <= 19.2 °C\n  - R3/radiant_heat_gain: 2.591 <= 5 K",
+    "stderr": "",
+    "seconds": 3.43,
+    "timed_out": false,
+    "code_hash": "558a22f59c0f73f2",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
    }
   },
   {
@@ -19103,6 +20019,71 @@
    }
   },
   {
+   "id": "flow:reason_roof",
+   "kind": "flow",
+   "name": "reason_roof",
+   "title": "Roof: chain of whys",
+   "summary": "Why a roof slopes and has a ceiling, computed: requirements and the naive flat-tile concept, the checks of version 0, one failure mode on its own, the engine's first…",
+   "description": "Why a roof slopes and has a ceiling, computed: requirements and the naive flat-tile concept, the checks of version 0, one failure mode on its own, the engine's first countermeasure, the whole chain (flat -> pitch -> ventilated ceiling -> radiant barrier) and its report with the timeline and the trust card.",
+   "domain": "general",
+   "tags": [
+    "reason"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"reason_roof.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run reason_roof\n",
+   "run_cmd": "python -m pinneapple_flow run reason_roof",
+   "results": {
+    "nodes": 7,
+    "edges": 8,
+    "node_types": [
+     "reason.requirement",
+     "reason.concept",
+     "reason.verify",
+     "reason.failure_mode",
+     "reason.countermeasure",
+     "reason.chain",
+     "reason.report"
+    ]
+   },
+   "examples": [
+    "node:reason.chain",
+    "node:reason.concept",
+    "node:reason.countermeasure",
+    "node:reason.failure_mode",
+    "node:reason.report",
+    "node:reason.requirement",
+    "node:reason.verify"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/reason_roof.json",
+     "bytes": 2726
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=reason_roof",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/reason_roof.json"
+   },
+   "extra": {
+    "flow": "reason_roof"
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Roof: chain of whys - 7 nodes\nissues: []",
+    "stderr": "",
+    "seconds": 4.15,
+    "timed_out": false,
+    "code_hash": "56342b91f1f6cbc9",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "flow:antenna_vivaldi_limits",
    "kind": "flow",
    "name": "antenna_vivaldi_limits",
@@ -24587,6 +25568,117 @@
     "stderr": "",
     "stdout": "B - drag in bluff body range · 2-D bluff bodies near a moving ground",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/chain_of_whys",
+   "kind": "example",
+   "name": "examples/chain_of_whys",
+   "title": "Chain of whys",
+   "summary": "Engineering reasoning from physics: naive concept -> computed failure mode -> countermeasure -> check again, for a roof, a footbridge, a power board and a pumped main.",
+   "description": "Engineering reasoning from physics: naive concept -> computed failure mode -> countermeasure -> check again, for a roof, a footbridge, a power board and a pumped main.",
+   "domain": "design and geometry",
+   "tags": [
+    "3-D board FV",
+    "FD beam",
+    "MOC",
+    "closed-form checks"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/chain_of_whys"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/chain_of_whys\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/chain_of_whys/chain_of_whys.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "power_board_versions",
+      "value": 3.0,
+      "unit": "versions",
+      "how": "versions until every requirement passes"
+     },
+     {
+      "name": "power_board_evaluations",
+      "value": 4.0,
+      "unit": "checks",
+      "how": "failure-mode evaluations the engine ran"
+     },
+     {
+      "name": "roof_versions",
+      "value": 4.0,
+      "unit": "versions",
+      "how": "versions until every requirement passes"
+     },
+     {
+      "name": "roof_evaluations",
+      "value": 15.0,
+      "unit": "checks",
+      "how": "failure-mode evaluations the engine ran"
+     },
+     {
+      "name": "footbridge_versions",
+      "value": 4.0,
+      "unit": "versions",
+      "how": "versions until every requirement passes"
+     },
+     {
+      "name": "footbridge_evaluations",
+      "value": 24.0,
+      "unit": "checks",
+      "how": "failure-mode evaluations the engine ran"
+     },
+     {
+      "name": "pumped_main_versions",
+      "value": 3.0,
+      "unit": "versions",
+      "how": "versions until every requirement passes"
+     },
+     {
+      "name": "pumped_main_evaluations",
+      "value": 15.0,
+      "unit": "checks",
+      "how": "failure-mode evaluations the engine ran"
+     }
+    ],
+    "figures": [
+     "examples/chain_of_whys/_out/power_board/figures/timeline.png",
+     "examples/chain_of_whys/_out/power_board/figures/margins.png",
+     "examples/chain_of_whys/_out/power_board/figures/demand_capacity.png",
+     "examples/chain_of_whys/_out/roof/figures/timeline.png",
+     "examples/chain_of_whys/_out/roof/figures/margins.png",
+     "examples/chain_of_whys/_out/roof/figures/demand_capacity.png",
+     "examples/chain_of_whys/_out/roof/figures/roof_min_slope.png",
+     "examples/chain_of_whys/_out/footbridge/figures/timeline.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/chain_of_whys.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/chain_of_whys/chain_of_whys.py",
+    "lab": "lab/index.html#examples/chain_of_whys"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Chain of whys | design and geometry | not curated\npower_board_versions 3.0 versions\npower_board_evaluations 4.0 checks\nroof_versions 4.0 versions\nroof_evaluations 15.0 checks\nfootbridge_versions 4.0 versions",
+    "stderr": "",
+    "seconds": 0.59,
+    "timed_out": false,
+    "code_hash": "c71e3f6003ce1ba7",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },

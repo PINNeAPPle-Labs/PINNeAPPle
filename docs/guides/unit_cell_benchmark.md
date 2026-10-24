@@ -33,11 +33,40 @@ SuperLU is used.
 
 ## Measured
 
-PILOT_RESULTS
+Pilot on 4 CPU cores (EMerge 2.8.9, SuperLU, `res` 0.1 λ), generic cell ranges, 3.0–6.0 GHz in 7 steps × scan
+θ = 0, 15, 30, 45° in the E-plane, LHS of 64 cells (`results/unit_cell/campaign.csv`):
+
+* **Cost per cell** (one process: one mesh, 4 scan solves of 7 frequencies): median 93 s, 35–327 s, peak memory
+  2.04 GB; 64 cells in 7 490 s of process time, all solved. About half of the cells ran while another study shared
+  the cores.
+* **Mesh error at this resolution** (default cell, broadside): |Γ| at 3/4/5/6 GHz is −3.53/−6.65/−10.69/−18.35 dB at
+  `res` 0.1 λ, −3.13/−6.19/−10.29/−21.94 dB at 0.07 λ and −2.77/−5.73/−9.80/−26.83 dB at 0.05 λ (52 s and 462 s for
+  that run): about 0.5 dB per step away from deep nulls, more in them. The pilot compares methods on the same solver
+  settings; its absolute |Γ| carries this mesh error.
+* **FNO** (from the 5 parameters to the 7 × 4 map of |Γ| in dB, 60 s of training on one thread, the last 16 cells
+  never seen):
+
+  | training cells | held-out RMSE, every (f, θ) | max abs error | RMSE of the worst case per cell |
+  |---|---|---|---|
+  | 12 | 4.58 dB | 26.0 dB | 0.49 dB |
+  | 24 | 3.09 dB | 17.9 dB | 0.34 dB |
+  | 48 | 2.30 dB | 15.1 dB | 0.21 dB |
+
+  The pointwise error is dominated by the deep resonant nulls (their depth moves with the parameters); the worst-case
+  active reflection over the band and scans, the quantity optimised below, is predicted to 0.2–0.5 dB.
+* **Equal budget, 24 solver calls each, minimising the worst-case |Γ| over the band and scans:**
+  DOE + FNO + optimiser + verification of the 4 best candidates reached −6.54 dB. Bayesian optimisation on the solver with the same 24 calls: running when this was written; its result is added to this page and `results/unit_cell/summary.json` when it finishes.
+
+A one-thread FNO matters: with four threads competing with each other (or with a solver) the same FNO took 26 steps
+in 20 s instead of 2 421; `fit_fno` trains on one thread by default.
 
 ## What it would take to run 1,000 cells
 
-COST_PROJECTION
+Measured here: a median of 93 s per cell for 7 frequencies × 4 scans at `res` 0.1 λ on 4 cores, one cell per process
+(peak 2.04 GB). At that rate 1,000 cells are about 26 hours of one 4-core machine, and the cells are independent:
+the runner's one-process-per-cell layout spreads over as many machines (or preemptible instances) as are available, a
+cell lost to a preemption costing one rerun. A finer mesh (0.05 λ, 462 s for one broadside run of 4 frequencies)
+multiplies the cost several times. No cloud price is quoted here.
 
 ## API
 

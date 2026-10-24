@@ -33,6 +33,7 @@ def register(cls: type) -> type:
 
 
 def names() -> list[str]:
+    """Names of every industrial preset (built in and registered), sorted."""
     return sorted(set(_BUILTIN) | set(_EXTRA))
 
 

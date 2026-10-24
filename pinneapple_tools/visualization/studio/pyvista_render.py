@@ -54,9 +54,12 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
                  view: str | Sequence[float] = "iso", size=(1600, 900), background: str = "#11151C",
                  zoom: float = 1.0, ground: bool = False, title: str = "", line_width: float = 2.0,
                  max_lines: int | None = None, hide: Sequence[str] = (),
-                 slice_crop: tuple[float, float, float, float] | None = None, wireframe: str | None = None) -> str:
+                 slice_crop: tuple[float, float, float, float] | None = None, wireframe: str | None = None,
+                 bar_title: str | None = None) -> str:
     """``slice_crop``: (s0, s1, t0, t1), the part of the slice to show as fractions of its ``u`` and ``v`` edges.
-    ``wireframe``: a colour (e.g. "#3B82F6") draws every surface as its mesh edges in that colour instead."""
+    ``wireframe``: a colour (e.g. "#3B82F6") draws every surface as its mesh edges in that colour instead.
+    ``bar_title``: a short colour-bar title with its units (e.g. "Cp"); by default the field's label, which goes
+    under the title when too long for the bar."""
     import pyvista as pv
 
     pv.OFF_SCREEN = True
@@ -138,11 +141,14 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
     p.camera.focal_point = tuple(ctr)
     p.camera.up = (0, 0, 1) if abs(d[2]) < 0.95 else (1, 0, 0)
     p.camera.zoom(zoom)
+    if bar_title:
+        corner.clear()
+        above[:] = [bar_title]
     if above:                                           # right-aligned just above the bar, inside the window
         w, h = int(size[0]), int(size[1])
         p.add_text(above[0], position=(int(min(0.86 * w, 0.985 * w - 11 * len(above[0]))), int(0.875 * h)),
                    font_size=11, color="#E8E8E8")
-    title = title or (corner[0] if corner else "")
+    title = "\n".join(filter(None, (title, corner[0] if corner else "")))
     if title:
         p.add_text(title, position="upper_left", font_size=12, color="#E8E8E8")
     p.screenshot(path)

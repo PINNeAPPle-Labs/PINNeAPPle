@@ -71,8 +71,8 @@ img.fig { width: 100%; border-radius: 6px; border: 1px solid var(--line); }
   <div class="chips" id="chips"></div>
   <div id="replay" style="display:none;width:100%;align-items:center;gap:10px">
     <button id="play" class="chip" style="cursor:pointer">▶ replay</button>
-    <input id="slider" type="range" min="0" value="0" style="flex:1">
-    <span class="muted" id="when"></span>
+    <input id="slider" type="range" min="0" value="0" style="flex:1 1 240px;min-width:120px">
+    <span class="muted" id="when" style="flex:0 1 auto;min-width:0;max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
   </div>
 </header>
 <main>
@@ -416,7 +416,7 @@ function stateAt(k) {
 if (CFG.replay && STATE0.events && STATE0.events.length) {
   const box = document.getElementById("replay"), sl = document.getElementById("slider"), when = document.getElementById("when"), play = document.getElementById("play");
   box.style.display = "flex"; sl.max = STATE0.events.length - 1; sl.value = sl.max;
-  const show = () => { const k = +sl.value; S = stateAt(k); sel = null; const e = STATE0.events[k]; when.textContent = `replay of the recorded session · ${e.time} · ${e.stage}: ${e.message.slice(0, 90)}`; renderAll(); };
+  const show = () => { const k = +sl.value; S = stateAt(k); sel = null; const e = STATE0.events[k]; when.textContent = when.title = `replay of the recorded session · ${e.time} · ${e.stage}: ${e.message}`; renderAll(); };
   sl.oninput = show;
   let timer = null;
   play.onclick = () => { if (timer) { clearInterval(timer); timer = null; play.textContent = "▶ replay"; return; } if (+sl.value >= +sl.max) sl.value = 0; play.textContent = "❚❚ pause"; timer = setInterval(() => { if (+sl.value >= +sl.max) { clearInterval(timer); timer = null; play.textContent = "▶ replay"; return; } sl.value = +sl.value + 1; show(); }, CFG.replay_ms || 350); };

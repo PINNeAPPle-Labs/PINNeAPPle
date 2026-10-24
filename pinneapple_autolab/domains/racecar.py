@@ -323,19 +323,21 @@ def render_run(params: Mapping[str, float], flow_npz: str, out_prefix: str, titl
            "wireframe": f"{out_prefix}_wireframe.png", "midplane_cp": f"{out_prefix}_midplane_cp.png",
            "wake_vorticity": f"{out_prefix}_wake_vorticity.png"}
     render_scene(sc, out["cp_top"], field="cp", clim=(-2.0, 1.0), view="iso", zoom=1.6, hide=("halo",), title=title,
-                 size=size)
+                 size=size, bar_title="Cp")
     render_scene(sc, out["cp_bottom"], field="cp", clim=(-2.0, 1.0), view=(-0.25, -0.35, -1.0), zoom=1.35,
-                 title=title, size=size)
+                 title=title, size=size, bar_title="Cp")
     render_scene(sc, out["streamlines"], lines=True, view="iso", zoom=1.4, background="#000000", title=title,
-                 size=size)
+                 size=size, bar_title="Speed |U|/U∞")
     render_scene(sc, out["cp_paraview"], field="cp", cmap="coolwarm", clim=(-0.5, 0.5), view="side", zoom=1.5,
-                 hide=("halo",), title=title, size=size)
+                 hide=("halo",), title=title, size=size, bar_title="Cp")
     render_scene(Scene.from_parts(car.parts(), axes="z_up"), out["wireframe"], wireframe="#3B82F6", view="iso",
                  zoom=1.6, background="#05070C", title=title, size=size)
     render_scene(sc, out["midplane_cp"], slice_name="mid plane: Cp", view="side", zoom=1.3, cmap="RdBu_r",
-                 clim=(-1.5, 1.5), slice_crop=(0.12, 0.62, 0.0, 0.45), title=title, size=size)
+                 clim=(-1.5, 1.5), slice_crop=(0.12, 0.62, 0.0, 0.45), title=title, size=size,
+                 bar_title="Cp")
     render_scene(sc, out["wake_vorticity"], slice_name="wake: vorticity", view="back", zoom=1.5, cmap="RdBu_r",
-                 clim=(-6.0, 6.0), slice_crop=(0.27, 0.73, 0.0, 0.55), title=title, size=size)
+                 clim=(-6.0, 6.0), slice_crop=(0.27, 0.73, 0.0, 0.55), title=title, size=size,
+                 bar_title="vort_x L/U_inf")
     from ..report import shrink_png
     for p in out.values():
         shrink_png(p)

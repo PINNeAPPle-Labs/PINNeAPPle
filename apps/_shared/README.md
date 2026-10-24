@@ -96,6 +96,7 @@ All optional; `<PREFIX>` is the app's prefix (`CAMPAIGN`, `RUNNER`, ...).
 | `<PREFIX>_RATE_LIMIT_READ` | `1200/min` | every request per caller |
 | `<PREFIX>_MAX_BODY_MB` | `max_body_mb` argument, else 600 | request body limit, counted while streaming (413) |
 | `<PREFIX>_CORS_ORIGINS` | unset (no CORS headers: same origin only) | comma-separated allow-list of origins; `<PREFIX>_CORS_CREDENTIALS=1` allows credentials and then refuses `*` |
+| `<PREFIX>_FRAME_ANCESTORS` | unset (`frame-ancestors 'none'`, `X-Frame-Options: DENY`: nobody may embed the app) | comma-separated origins allowed to embed the app in a frame (Flow Studio's canvas in the Hub: `FLOW_FRAME_ANCESTORS=https://hub.pinneapple.org`); `X-Frame-Options` is then left out, the CSP decides. `install(app, prefix, frame_src=[...])` lists the origins an app's pages embed |
 | `<PREFIX>_ALLOWED_ORIGINS` | unset | other origins whose pages may POST to this app (all other cross-site POST/PUT/DELETE from browsers get 403) |
 | `<PREFIX>_TRUSTED_PROXIES` / `PINNEAPPLE_TRUSTED_PROXIES` | loopback and private ranges | peers whose `X-Forwarded-For` is believed (the Docker network Caddy is on) |
 | `<PREFIX>_CSP`, `<PREFIX>_HSTS` | built from the app's pages / one year | override the Content-Security-Policy or Strict-Transport-Security value (`""` drops HSTS) |

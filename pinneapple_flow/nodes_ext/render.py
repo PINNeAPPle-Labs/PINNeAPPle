@@ -4,11 +4,13 @@ clips with one colour bar (:mod:`pinneapple_tools.visualization.studio.compose`)
 scene node (e.g. ``flight.scene``) and skip with the reason when bpy or ffmpeg is not installed."""
 from __future__ import annotations
 
+import functools
+import json
 import os
 import shutil
+import subprocess
+import sys
 import time
-
-import numpy as np
 
 from pinneapple_core.workflows import StepFailed
 
@@ -16,14 +18,17 @@ from ..registry import Param, Port, node
 from .examples import load_object
 
 
+@functools.lru_cache(maxsize=1)
 def _bpy_available():
+    # in a subprocess: importing bpy here could crash the flow engine or the Studio server (render_worker.py)
     try:
-        import bpy
-
-        from pinneapple_tools.visualization.studio.blender import _check_bpy
-        _check_bpy(bpy)
-    except Exception as exc:  # noqa: BLE001 - bpy missing or too old
+        r = subprocess.run([sys.executable, "-m", "pinneapple_flow.nodes_ext.render_worker", "--check"],
+                           capture_output=True, text=True, timeout=300)
+    except (OSError, subprocess.TimeoutExpired) as exc:
         return False, f"needs Blender's bpy >= 4.2 (pip install bpy): {type(exc).__name__}: {exc}"
+    if r.returncode != 0:
+        last = (r.stderr.strip().splitlines() or ["bpy did not import"])[-1]
+        return False, f"needs Blender's bpy >= 4.2 (pip install bpy): {last}"
     return True, ""
 
 
@@ -71,38 +76,37 @@ def _preset(key: str, name: str, haze: float) -> dict:
       available=_bpy_available)
 def blender_clip(ctx, inputs, params):
     """Cycles (CPU, denoised) clip of each scene with the HUD burnt in, encoded to MP4, plus a still."""
-    from pinneapple_tools.visualization.studio.blender import render_animation, render_still
     scenes = load_object(inputs["scene"])
-    if params["only"]:
-        scenes = [s for s in scenes if s["key"] in params["only"]]
-    if not scenes:
+    keys = [s["key"] for s in scenes if not params["only"] or s["key"] in params["only"]]
+    if not keys:
         raise StepFailed("no scenes to render (check 'only')")
     size = (int(params["width"]), int(params["height"]))
-    clips, t0 = [], time.perf_counter()
-    for e in scenes:
-        ctx.check_stop()
-        key, sc0 = e["key"], e["scene"]
-        opts = _preset(key, params["preset"], float(params["haze"]))
-        ctx.log(f"render {key}: {opts}")
-        out = ctx.path(f"frames_{key}")
-        r = render_animation(sc0, str(out), frames=int(params["frames"]), size=size, samples=int(params["samples"]),
-                             fps=int(params["fps"]), mp4=True, name=key, log=ctx.log, **opts)
-        frames = list(r.get("frames") or [])
-        # the scene was resampled to `frames` frames: the marked time (35 ft screen, gust peak) on that clock
-        times = np.asarray(sc0.animation.times, float)
-        tk = np.linspace(times[0], times[-1], len(frames)) if frames else times
-        mark = e.get("t_mark")
-        k = int(np.argmin(np.abs(tk - mark))) if mark is not None else int(len(tk) * 2 // 3)
-        still = None
-        if params["still"]:
-            kk = int(np.argmin(np.abs(times - tk[min(k, len(tk) - 1)])))
-            still = render_still(sc0, str(ctx.path(f"{key}_still.png")), kk,
-                                 size=(int(params["still_width"]), int(params["still_height"])),
-                                 samples=int(params["still_samples"]), **opts)
-            ctx.report["figures"].append({"path": still, "name": f"{key}_still",
-                                          "caption": f"Blender Cycles still: {e.get('title') or key}"})
-        clips.append({"key": key, "mp4": r.get("mp4"), "still": still,
-                      "mark_frame": frames[min(k, len(frames) - 1)] if frames else None, "title": e.get("title")})
+    opts = {k: _preset(k, params["preset"], float(params["haze"])) for k in keys}
+    o = {k: params[k] for k in ("frames", "width", "height", "samples", "fps", "still", "still_width",
+                                "still_height", "still_samples", "only")}
+    o["presets"] = opts
+    oj = ctx.path("render_options.json")
+    oj.write_text(json.dumps(o))
+    t0 = time.perf_counter()
+    proc = subprocess.Popen([sys.executable, "-m", "pinneapple_flow.nodes_ext.render_worker",
+                             inputs["scene"]["$artifact"], str(oj), str(ctx.path("."))],
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    try:
+        for line in proc.stdout:
+            ctx.log(line.rstrip())
+            if ctx.should_stop():
+                proc.kill()
+                ctx.check_stop()
+    finally:
+        proc.wait()
+    cj = ctx.path("clips.json")
+    if proc.returncode != 0 or not cj.is_file():
+        raise StepFailed(f"the Blender worker failed (exit {proc.returncode}); see the node log")
+    clips = json.loads(cj.read_text())
+    for c in clips:
+        if c["still"]:
+            ctx.report["figures"].append({"path": c["still"], "name": f"{c['key']}_still",
+                                          "caption": f"Blender Cycles still: {c.get('title') or c['key']}"})
     secs = time.perf_counter() - t0
     ctx.metric("render_seconds", round(secs, 1), f"Cycles on this machine's CPU ({os.cpu_count()} cores)")
     ctx.metric("clips", len(clips))

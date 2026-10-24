@@ -3,7 +3,12 @@ or zip, CalculiX .frd, Abaqus .inp, Gmsh, VTK) or STL / OBJ geometry, as a :clas
 glTF and USD, an interactive three.js viewer and, when bpy is installed, a Blender Cycles render."""
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
 from pathlib import Path
+
+from pinneapple_core.workflows import StepFailed
 
 from ..registry import Param, Port, node
 from .examples import examples_root
@@ -50,7 +55,15 @@ def any_result_3d(ctx, inputs, params):
         ok, why = _bpy_available()
         if ok:
             jpg = ctx.path("render.jpg")
-            pp.viz.render(scene, str(jpg), field=str(params["render_field"]), samples=int(params["samples"]))
+            # in a subprocess, as render_worker.py: importing bpy could crash the flow engine or the Studio server
+            code = ("import os, sys, pinneapple as pp; s = pp.viz.Scene.from_file(sys.argv[1]); "
+                    "s.labels.update(__import__('json').loads(sys.argv[2])); "
+                    "pp.viz.render(s, sys.argv[3], field=sys.argv[4], samples=int(sys.argv[5])); os._exit(0)")
+            r = subprocess.run([sys.executable, "-c", code, str(src), json.dumps(dict(params["labels"] or {})),
+                                str(jpg), str(params["render_field"]), str(int(params["samples"]))],
+                               capture_output=True, text=True)
+            if r.returncode != 0 or not jpg.is_file():
+                raise StepFailed(f"the Blender render failed (exit {r.returncode}): {r.stderr.strip()[-300:]}")
             ctx.report["figures"].append({"path": str(jpg), "name": "render", "caption": "Blender Cycles"})
             from ..runtime import artifact
             out["figure"] = artifact(str(jpg), "jpg")

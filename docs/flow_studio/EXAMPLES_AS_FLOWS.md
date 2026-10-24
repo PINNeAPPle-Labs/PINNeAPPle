@@ -9,8 +9,8 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | needs | 5 |
 | not yet run | 9 |
 | not_convertible | 15 |
-| runs | 31 |
-| runs-quick | 8 |
+| runs | 32 |
+| runs-quick | 7 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -70,7 +70,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `security` | security | `security/02_physics_residual_fdi` | runs | 131 / 131 match | 02_physics_residual_fdi compared with the tables of docs/guides/physics_residual_attack_detection.md (mean of seeds 0 1 2; the isolation forest needs scikit-learn). 01 chains a dozen primitives with a DP-SGD loop written in the script |
 | `solver_api` | PINN | `solver_api/01_classical_vs_pinn` | runs | 2 / 2 match | compared with the FEM and PINN errors quoted in docs/core_concepts/solver.md |
 | `solvers` | numerical solvers | `solvers/01_time_series_decompositions`<br>`solvers/02_sph_box`<br>`solvers/03_poisson_solvers` | runs |  | three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation |
-| `studio` | visualization | `studio/01_any_result_in_3d` | runs-quick |  | 01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes) |
+| `studio` | visualization | `studio/01_any_result_in_3d` | runs |  | 01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes) |
 | `systems` | systems | `systems/01_component_library_toolbox` | runs |  | the example fits random targets (an API demonstration); nothing to compare |
 | `time_series` | time series | `time_series/adaptive_forecasting` | not yet run |  | flows for adaptive_forecasting.py and 00_quickstart.py (nothing committed to compare); 01-05, 07 and 08 import pinneapple_timeseries, which no longer exists (now pinneapple_systems.time_series, without a shim); 06 registers a model class defined in the script |
 | `topology_optimization` | design | `topology_optimization/01_mbb_beam`<br>`topology_optimization/02_heat_and_stokes_flow`<br>`topology_optimization/03_reluctance_rotor` | runs | 30 / 30 match |  |
@@ -682,6 +682,10 @@ done in 454 s (commit 483932f3, 2026-10-23); 12 of 12 numbers match.
 | `pratt.motor_glider.dn_pratt` | `results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt` | 1.50601 | 1.50601 | 3.24366e-15 | match |
 | `pratt.motor_glider.K_g` | `results/turbulence.json:pratt[aircraft=motor_glider].K_g` | 0.689114 | 0.689114 | 9.66653e-16 | match |
 
+### `flight_dynamics/05_render_clips` (quick)
+
+done in 755 s (commit 345465ba, 2026-10-24); 0 of 0 numbers match.
+
 ### `flight_dynamics/07_same_gust` (quick)
 
 done in 121 s (commit 57c66c1a, 2026-10-19); 24 of 24 numbers match.
@@ -1114,6 +1118,10 @@ done in 10 s (commit 475bf159, 2026-10-21); 0 of 0 numbers match.
 ### `solvers/03_poisson_solvers` (full)
 
 done in 9 s (commit 475bf159, 2026-10-21); 0 of 0 numbers match.
+
+### `studio/01_any_result_in_3d` (full)
+
+done in 50 s (commit 345465ba, 2026-10-24); 0 of 0 numbers match.
 
 ### `studio/01_any_result_in_3d` (quick)
 

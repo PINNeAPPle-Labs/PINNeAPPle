@@ -3421,6 +3421,31 @@
    "status": "done"
   }
  },
+ "flight_dynamics/05_render_clips": {
+  "quick": {
+   "commit": "345465ba",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/rc/example-flight-render-clips-quick.experiment.json, Lab item manifest/flow/example-flight-render-clips-quick",
+   "matched": 0,
+   "nodes": {
+    "aircraft": "done",
+    "grid": "done",
+    "gust": "done",
+    "r_g": "done",
+    "r_to": "done",
+    "r_tu": "done",
+    "sc_g": "done",
+    "sc_to": "done",
+    "sc_tu": "done",
+    "takeoff": "done",
+    "turb": "done"
+   },
+   "seconds": 755.0,
+   "status": "done"
+  }
+ },
  "flight_dynamics/07_same_gust": {
   "quick": {
    "commit": "57c66c1a",
@@ -5882,6 +5907,19 @@
   }
  },
  "studio/01_any_result_in_3d": {
+  "full": {
+   "commit": "345465ba",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/v3/example.studio.01_any_result_in_3d.experiment.json, Lab item manifest/flow/example.studio.01_any_result_in_3d",
+   "matched": 0,
+   "nodes": {
+    "scene": "done"
+   },
+   "seconds": 49.8,
+   "status": "done"
+  },
   "quick": {
    "commit": "3f2296e8",
    "comparisons": [],

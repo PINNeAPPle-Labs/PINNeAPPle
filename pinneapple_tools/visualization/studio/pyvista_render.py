@@ -38,13 +38,15 @@ def _poly(V, F):
 _BAR_CHARS = 16                         # longer colour-bar titles are cut by the window edge: shown in the corner
 
 
-def _bar(title: str | None, corner: list) -> dict:
-    """Colour-bar options; a title too long for the bar goes to ``corner``."""
+def _bar(title: str | None, corner: list, above: list | None = None) -> dict:
+    """Colour-bar options; a title too long for the bar goes to ``corner``, a short one to ``above`` (drawn as its
+    own text over the bar: VTK puts a vertical bar's title on top of its highest label and clips it at the edge)."""
     t = title or ""
     if len(t) > _BAR_CHARS:
         corner.append(t)
-        t = ""
-    return dict(title=t, color="#E8E8E8", vertical=True, position_x=0.9, position_y=0.15, height=0.7)
+    elif t and above is not None:
+        above.append(t)
+    return dict(title="", color="#E8E8E8", vertical=True, position_x=0.9, position_y=0.12, height=0.66)
 
 
 def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str = "jet",
@@ -63,6 +65,7 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
     label = scene.labels.get(field, field) if field else None
     bar_done = False
     corner: list[str] = []
+    above: list[str] = []
     lo_all, hi_all = scene.bounds()
     for s in scene.surfaces:
         if s.name in hide:
@@ -75,7 +78,7 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
             v = np.asarray(s.fields[field], float)
             mesh[field] = np.linalg.norm(v, axis=1) if v.ndim > 1 else v
             p.add_mesh(mesh, scalars=field, cmap=cmap, clim=clim or scene.field_range(field), smooth_shading=True,
-                       show_scalar_bar=not bar_done, scalar_bar_args=_bar(label, corner))
+                       show_scalar_bar=not bar_done, scalar_bar_args=_bar(label, corner, above))
             bar_done = True
         else:
             rgb, metal, rough = _rgb(s.material)
@@ -97,7 +100,7 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
                     poly["speed"] = np.asarray(val, float)
                     p.add_mesh(poly, scalars="speed", cmap=cmap, clim=clim or (0.0, 1.4), line_width=line_width,
                                show_scalar_bar=not bar_done, render_lines_as_tubes=False,
-                               scalar_bar_args=_bar(ln.label or "speed", corner))
+                               scalar_bar_args=_bar(ln.label or "speed", corner, above))
                     bar_done = True
                 else:
                     p.add_mesh(poly, color="#9CC9FF", line_width=line_width)
@@ -120,7 +123,7 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
             rng = clim or (float(np.nanpercentile(G[fin], 2)), float(np.nanpercentile(G[fin], 98)))
             p.add_mesh(grid.threshold(value=(-1e30, 1e30), scalars="v"), scalars="v", cmap=cmap, clim=rng,
                        opacity=0.95, show_scalar_bar=not bar_done,
-                       scalar_bar_args=_bar(sl.label or sl.name, corner))
+                       scalar_bar_args=_bar(sl.label or sl.name, corner, above))
             bar_done = True
     if ground:
         L = hi_all - lo_all
@@ -135,6 +138,10 @@ def render_scene(scene: Scene, path: str, *, field: str | None = None, cmap: str
     p.camera.focal_point = tuple(ctr)
     p.camera.up = (0, 0, 1) if abs(d[2]) < 0.95 else (1, 0, 0)
     p.camera.zoom(zoom)
+    if above:                                           # right-aligned just above the bar, inside the window
+        w, h = int(size[0]), int(size[1])
+        p.add_text(above[0], position=(int(min(0.86 * w, 0.985 * w - 11 * len(above[0]))), int(0.875 * h)),
+                   font_size=11, color="#E8E8E8")
     title = title or (corner[0] if corner else "")
     if title:
         p.add_text(title, position="upper_left", font_size=12, color="#E8E8E8")

@@ -53,9 +53,10 @@ CONDITIONS = {"speed_m_s": 70.0, "rho_kg_m3": 1.225, "nu_m2_s": 1.5e-5, "ground"
               "wheels": "static walls", "solver": "OpenFOAM simpleFoam"}
 FIELD_BODIES = ("front_wing", "rear_wing", "floor", "body")
 X_RAMP = 4.15                     # where FormulaCar's floor starts to rise into the diffuser
-# Meshes. "medium" (0.21 M cells) leaves the 1-3 cm thick wing elements a cell or two thick and under-predicts the
-# baseline's downforce by 42 % against "fine" (0.82 M); "campaign" refines only the wings, the floor and the gap under
-# it to the "fine" levels (measured: -3.8 % downforce, +0.8 % drag against "fine" at the baseline).
+# Meshes, qualified on the baseline against "fine" (0.82 M cells; forces averaged over iterations 400-800, see
+# examples/autolab_aero/_out/qualification.json): "medium" (0.21 M) leaves the 1-3 cm thick wing elements a cell or
+# two thick and under-predicts the downforce by 44 % (drag -8.8 %); "campaign" (0.42 M) refines only the wings, the
+# floor and the gap under it to the fine levels: drag -0.2 %, downforce -8.4 %, front balance +9.6 %.
 MESHES: dict[str, dict[str, Any]] = {
     "coarse": {"resolution": "coarse"},
     "medium": {"resolution": "medium"},

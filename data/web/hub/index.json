@@ -17,6 +17,108 @@
   "flow": "Flows",
   "example": "Examples"
  },
+ "categories": [
+  {
+   "slug": "problem",
+   "title": "Problem setup",
+   "description": "Describe the physical problem: presets, generic problems, requirements"
+  },
+  {
+   "slug": "geometry",
+   "title": "Geometry and meshing",
+   "description": "Domains, meshes, shapes from parameters, geometry exports"
+  },
+  {
+   "slug": "equations",
+   "title": "Equations and PDE environments",
+   "description": "PDE systems, boundary and initial conditions, test environments"
+  },
+  {
+   "slug": "classical",
+   "title": "Classical solvers",
+   "description": "Finite differences, FEM, LBM, meshless, OpenFOAM, CalculiX, FMU"
+  },
+  {
+   "slug": "pinn",
+   "title": "PINNs and neural training",
+   "description": "Train, fine-tune and transfer physics-informed networks"
+  },
+  {
+   "slug": "surrogates",
+   "title": "Surrogates and reduced models",
+   "description": "Surrogates, ROM / POD, hyper-parameter search"
+  },
+  {
+   "slug": "zoo",
+   "title": "Model zoo",
+   "description": "Pre-trained, verified models and their cards"
+  },
+  {
+   "slug": "checks",
+   "title": "Physics checks and trust cards",
+   "description": "Residuals, conservation, boundary checks, trust cards"
+  },
+  {
+   "slug": "verification",
+   "title": "Verification and convergence",
+   "description": "Convergence studies, reference comparisons, Lab seals"
+  },
+  {
+   "slug": "benchmarks",
+   "title": "Benchmarks",
+   "description": "Equal-budget comparisons of methods"
+  },
+  {
+   "slug": "uq",
+   "title": "Uncertainty and sensitivity",
+   "description": "Propagation, Sobol / Morris sensitivity, sampling"
+  },
+  {
+   "slug": "inverse",
+   "title": "Inverse problems and assimilation",
+   "description": "Calibration, equation discovery, data assimilation"
+  },
+  {
+   "slug": "design",
+   "title": "Design and optimisation",
+   "description": "Design from intent, optimisers, topology, the chain of whys"
+  },
+  {
+   "slug": "systems",
+   "title": "Process and system components",
+   "description": "Pumps, valves, fatigue, excitation, controllers"
+  },
+  {
+   "slug": "vehicles",
+   "title": "Vehicles, contact and wear",
+   "description": "Rovers, soils, wheels, take-off, contact and wear"
+  },
+  {
+   "slug": "electromagnetics",
+   "title": "Electromagnetics and antennas",
+   "description": "Antennas, PCBs, Maxwell checks"
+  },
+  {
+   "slug": "time-series",
+   "title": "Time series and digital twins",
+   "description": "Forecasts, predictability, live twins"
+  },
+  {
+   "slug": "data",
+   "title": "Data and datasets",
+   "description": "Datasets, ingestion, observation, adapters, units"
+  },
+  {
+   "slug": "reports",
+   "title": "Visualisation and reports",
+   "description": "Plots, 3-D fields, renders, dashboards, reports"
+  },
+  {
+   "slug": "automation",
+   "title": "Automation, agents and compute",
+   "description": "Agent tools, jobs, compute backends, security, the library itself"
+  }
+ ],
  "facets": {
   "kind": {
    "tool": 411,
@@ -55,6 +157,28 @@
    "molecular dynamics": 1,
    "security": 1,
    "transport": 1
+  },
+  "category": {
+   "problem": 7,
+   "geometry": 41,
+   "equations": 35,
+   "classical": 18,
+   "pinn": 16,
+   "surrogates": 10,
+   "zoo": 8,
+   "checks": 33,
+   "verification": 32,
+   "benchmarks": 14,
+   "uq": 13,
+   "inverse": 6,
+   "design": 27,
+   "systems": 33,
+   "vehicles": 10,
+   "electromagnetics": 9,
+   "time-series": 8,
+   "data": 53,
+   "reports": 10,
+   "automation": 28
   },
   "quality": {
    "not graded": 516,
@@ -102,6 +226,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "05df92b6b381f6e5",
     "figures": [],
@@ -140,6 +265,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "automation",
    "run": {
     "code_hash": "b66dba94d0e6814b",
     "figures": [],
@@ -178,6 +304,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "automation",
    "run": {
     "code_hash": "67968f8af8d973d9",
     "figures": [],
@@ -216,6 +343,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "verification",
    "run": {
     "code_hash": "653dbed36f88aef6",
     "figures": [],
@@ -254,6 +382,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "design",
    "run": {
     "code_hash": "b7c8debcfa16f833",
     "figures": [],
@@ -292,6 +421,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "automation",
    "run": {
     "code_hash": "571baa7ad04af309",
     "figures": [],
@@ -330,6 +460,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "automation",
    "run": {
     "code_hash": "d26da8a6b2cbcbe0",
     "figures": [],
@@ -368,6 +499,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "verification",
    "run": {
     "code_hash": "69fe76b0a59e9c52",
     "figures": [],
@@ -406,6 +538,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "problem",
    "run": {
     "code_hash": "9b36a49fba1b828e",
     "figures": [],
@@ -444,6 +577,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "design",
    "run": {
     "code_hash": "1d9d990b2edc1455",
     "figures": [],
@@ -482,6 +616,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "design",
    "run": {
     "code_hash": "a8b539ccc9327924",
     "figures": [],
@@ -520,6 +655,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "design",
    "run": {
     "code_hash": "b48065e4341c57b7",
     "figures": [],
@@ -558,6 +694,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "classical",
    "run": {
     "code_hash": "5656ba480b55a9ab",
     "figures": [],
@@ -596,6 +733,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "checks",
    "run": {
     "code_hash": "b300bf509be1b1c0",
     "figures": [],
@@ -634,6 +772,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "zoo",
    "run": {
     "code_hash": "2f42bb9be8ae7e0b",
     "figures": [],
@@ -672,6 +811,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "zoo",
    "run": {
     "code_hash": "2d4a3ddde3ae23c9",
     "figures": [],
@@ -710,6 +850,7 @@
    "extra": {
     "server": "pinneapple-mcp"
    },
+   "category": "zoo",
    "run": {
     "code_hash": "e9162d950a2711bc",
     "figures": [],
@@ -873,6 +1014,7 @@
      }
     }
    },
+   "category": "reports",
    "run": {
     "code_hash": "b48f90b420031c5e",
     "figures": [],
@@ -1104,6 +1246,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "f80835aba8539059",
     "figures": [],
@@ -1235,6 +1378,7 @@
      }
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "0b6dced5ba1ad4ab",
     "figures": [],
@@ -1458,6 +1602,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "fd93966a4c5b982a",
     "figures": [],
@@ -1623,6 +1768,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "b35ab6bf007a64e9",
     "figures": [],
@@ -1796,6 +1942,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "deff0189e68cf05b",
     "figures": [],
@@ -1984,6 +2131,7 @@
      }
     }
    },
+   "category": "inverse",
    "run": {
     "code_hash": "8c0a41822458b9fe",
     "figures": [],
@@ -2096,6 +2244,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "294321dfbd79a9eb",
     "figures": [],
@@ -2192,6 +2341,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "d8be8544c2f86269",
     "figures": [],
@@ -2285,6 +2435,7 @@
      "properties": {}
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "859dd97e3f8126da",
     "figures": [],
@@ -2437,6 +2588,7 @@
      }
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "f8f3155d3bd5fba9",
     "figures": [],
@@ -2725,6 +2877,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "22fafd208f1c2a9c",
     "figures": [],
@@ -2924,6 +3077,7 @@
      }
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "f655cce55f1bf408",
     "figures": [],
@@ -3063,6 +3217,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "fe2c185ed1322c9d",
     "figures": [],
@@ -3149,6 +3304,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "4f37bd9f65ac7f0e",
     "figures": [],
@@ -3305,6 +3461,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "48f88b7667058cdf",
     "figures": [],
@@ -3474,6 +3631,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "8cbce4befaaa6a23",
     "figures": [],
@@ -3604,6 +3762,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "991daf71cd8fd60b",
     "figures": [],
@@ -3749,6 +3908,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "5b1f4f5beda2eda9",
     "figures": [],
@@ -3976,6 +4136,7 @@
      }
     }
    },
+   "category": "time-series",
    "run": {
     "code_hash": "1c08c8db774429e2",
     "figures": [],
@@ -4258,6 +4419,7 @@
      }
     }
    },
+   "category": "time-series",
    "run": {
     "code_hash": "d63c24909d46da61",
     "figures": [],
@@ -4588,6 +4750,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "f747e7bc62d4d2c7",
     "figures": [],
@@ -4765,6 +4928,7 @@
      }
     }
    },
+   "category": "time-series",
    "run": {
     "code_hash": "6bb918b4cd21ba82",
     "figures": [],
@@ -4944,6 +5108,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "035eafaa4037263e",
     "figures": [],
@@ -5298,6 +5463,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "560a42ebad01df21",
     "figures": [],
@@ -5425,6 +5591,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "ca5eddebb4898ac4",
     "figures": [],
@@ -5486,6 +5653,7 @@
      "properties": {}
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "50e4c51bb9fe50a9",
     "figures": [],
@@ -5636,6 +5804,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "718e1bb096de318b",
     "figures": [],
@@ -5790,6 +5959,7 @@
      }
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "8f777f17222ef1b9",
     "figures": [],
@@ -6007,6 +6177,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "c0c9a3767d64db4d",
     "figures": [],
@@ -6346,6 +6517,7 @@
      }
     }
    },
+   "category": "problem",
    "run": {
     "code_hash": "63acfae7d2fa41b2",
     "figures": [],
@@ -6482,6 +6654,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "8d5d2fc10f271037",
     "figures": [],
@@ -6741,6 +6914,7 @@
      }
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "4a6103954f9eed3e",
     "figures": [],
@@ -6918,6 +7092,7 @@
      }
     }
    },
+   "category": "inverse",
    "run": {
     "code_hash": "e2650550ae523e0d",
     "figures": [],
@@ -7123,6 +7298,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "912a226f46548d6f",
     "figures": [],
@@ -7288,6 +7464,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "92ca9a38b8edeb69",
     "figures": [],
@@ -7662,6 +7839,7 @@
      }
     }
    },
+   "category": "time-series",
    "run": {
     "code_hash": "a1c771f408f51521",
     "figures": [],
@@ -7877,6 +8055,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "451a229272f98929",
     "figures": [],
@@ -8076,6 +8255,7 @@
      }
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "814b994b3ea28b43",
     "figures": [],
@@ -8272,6 +8452,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "8b00674fa48fac5e",
     "figures": [],
@@ -8478,6 +8659,7 @@
      }
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "8a299191f8f637d0",
     "figures": [],
@@ -8632,6 +8814,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "fe1cf29c8ec06d4c",
     "figures": [],
@@ -8782,6 +8965,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "6c65c13142697bf4",
     "figures": [],
@@ -9006,6 +9190,7 @@
      }
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "3efe8f8d76e04516",
     "figures": [],
@@ -9285,6 +9470,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "a7f4a5baf7b6464e",
     "figures": [],
@@ -9384,6 +9570,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "f4f6212293f434dd",
     "figures": [],
@@ -9613,6 +9800,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "e152deb33354f218",
     "figures": [],
@@ -9868,6 +10056,7 @@
      }
     }
    },
+   "category": "inverse",
    "run": {
     "code_hash": "fd071a82960f8f51",
     "figures": [],
@@ -10014,6 +10203,7 @@
      }
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "42ec5e3496721995",
     "figures": [],
@@ -10226,6 +10416,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "b1eb19606fd5aa87",
     "figures": [],
@@ -10373,6 +10564,7 @@
      }
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "052bc2cf35d19967",
     "figures": [],
@@ -10667,6 +10859,7 @@
      }
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "d15af47e2b0fd76b",
     "figures": [],
@@ -10792,6 +10985,7 @@
      }
     }
    },
+   "category": "reports",
    "run": {
     "code_hash": "e0a3180181ac2bb3",
     "figures": [],
@@ -11043,6 +11237,7 @@
      }
     }
    },
+   "category": "time-series",
    "run": {
     "code_hash": "cd41f39f5b863e18",
     "figures": [],
@@ -11154,6 +11349,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "764f57d0bfb9c547",
     "figures": [],
@@ -11297,6 +11493,7 @@
      }
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "a85a1c8023e57891",
     "figures": [],
@@ -11458,6 +11655,7 @@
      }
     }
    },
+   "category": "reports",
    "run": {
     "code_hash": "057d61b9ad7fab57",
     "figures": [],
@@ -11690,6 +11888,7 @@
      }
     }
    },
+   "category": "reports",
    "run": {
     "code_hash": "75ea2e9db6e80b41",
     "figures": [],
@@ -11872,6 +12071,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "3722c2934690600e",
     "figures": [],
@@ -11996,6 +12196,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "d14e858dd2d812a1",
     "figures": [],
@@ -12111,6 +12312,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "68e352547941a352",
     "figures": [],
@@ -12247,6 +12449,7 @@
      }
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "c4637ceb479ba7d7",
     "figures": [],
@@ -12428,6 +12631,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "03c30303286e7343",
     "figures": [],
@@ -12884,6 +13088,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "0cd4a42852b17748",
     "figures": [],
@@ -13096,6 +13301,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "6779093da486f4d3",
     "figures": [],
@@ -13266,6 +13472,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "60a3ee7873e3261f",
     "figures": [],
@@ -13417,6 +13624,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "dbb66c478cdd4b19",
     "figures": [],
@@ -13565,6 +13773,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "eac3816a0f0f9cce",
     "figures": [],
@@ -13680,6 +13889,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "88fbe53ef40e34cd",
     "figures": [],
@@ -13834,6 +14044,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "36b6781e3681341a",
     "figures": [],
@@ -14093,6 +14304,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "b389f82bc39648fd",
     "figures": [],
@@ -14329,6 +14541,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "28f0d28da8ac7a85",
     "figures": [],
@@ -14558,6 +14771,7 @@
      }
     }
    },
+   "category": "problem",
    "run": {
     "code_hash": "ce41a86719c2bd47",
     "figures": [],
@@ -14717,6 +14931,7 @@
      }
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "9d71b1a04bbca54d",
     "figures": [],
@@ -14855,6 +15070,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "a5f71f4fb02d8dfd",
     "figures": [],
@@ -15068,6 +15284,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "1d49d4e9b18804b7",
     "figures": [],
@@ -15285,6 +15502,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "50de6c823ab423eb",
     "figures": [],
@@ -15464,6 +15682,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "f940725244f16ea9",
     "figures": [],
@@ -15585,6 +15804,7 @@
      }
     }
    },
+   "category": "zoo",
    "run": {
     "code_hash": "80ab1d81a9c339b9",
     "figures": [],
@@ -15765,6 +15985,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "4f40ad6eba6584f8",
     "figures": [],
@@ -15880,6 +16101,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "8a39cc25fc8ae4f2",
     "figures": [],
@@ -15930,6 +16152,7 @@
     ],
     "table_row": "`pp.viz.field_view(mesh, fields, deform=..., markers=...)` + `pinneapple_analysis.validation.error_map.error_map(points, pred, ref, regions=...)`; page module `/shared/fieldview3d.js` ([docs](docs/core_concepts/studio.md))"
    },
+   "category": "reports",
    "run": {
     "code_hash": "fb5ecec0dc695018",
     "figures": [],
@@ -15974,6 +16197,7 @@
     ],
     "table_row": "`pinneapple_autolab` (`Tool`, `Toolbox`, `TemplatePlanner`, `LLMPlanner`, `execute`), `pinneapple_design.thermal.board_cooling.run_mission(text, out_dir=...)`; Flow node `autolab.board_cooling` ([docs](docs/guides/autonomous_physics_lab.md))"
    },
+   "category": "design",
    "run": {
     "code_hash": "ed8ec6ee86ff7f4d",
     "figures": [],
@@ -16018,6 +16242,7 @@
     ],
     "table_row": "`pp.design(text, answers=..., out_dir=...)`, `pinneapple design \"<goal>\"`, MCP `design`; templates in `pinneapple_design.intent` ([docs](docs/guides/design_from_intent.md))"
    },
+   "category": "design",
    "run": {
     "code_hash": "b2cda11c82525432",
     "figures": [],
@@ -16068,6 +16293,7 @@
     ],
     "table_row": "`pinneapple_flow.plan(text)`, `pinneapple_flow.run(flow)`, `python -m pinneapple_flow run flow.json` / `studio`; equations as safe text `pinneapple_physics.symbolic_pde.text.parse_system`, any parsed system by finite differences `pinneapple_simulation.numerical_solvers.symbolic_fd.solve_fd` ([schema](docs/guides/flow_schema.md), [app](apps/flow_studio/README.md))"
    },
+   "category": "automation",
    "run": {
     "code_hash": "7cb9921117ba5c3f",
     "figures": [],
@@ -16112,6 +16338,7 @@
     ],
     "table_row": "`pp.dashboard.Dashboard(...)`: `.to_png`, `.to_html`, `.to_video(gif=...)`"
    },
+   "category": "reports",
    "run": {
     "code_hash": "509369b0c5749a04",
     "figures": [],
@@ -16156,6 +16383,7 @@
     ],
     "table_row": "`pp.trust_card(grid, values, pde=..., dirichlet=..., reference=..., train_bounds=...)` (decision APPROVED / REVIEW / REJECT)"
    },
+   "category": "checks",
    "run": {
     "code_hash": "0cb09a44c3310f79",
     "figures": [],
@@ -16200,6 +16428,7 @@
     ],
     "table_row": "`pp.compare(problem, methods, reference=...)`"
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "f87ebb760fb28ffa",
     "figures": [],
@@ -16250,6 +16479,7 @@
     ],
     "table_row": "`pp.PhysicalProblem.from_preset(name)`, `ProblemBuilder(...)...build()` + `pp.PhysicalProblem.from_pde_spec`, `pp.list_presets()`"
    },
+   "category": "problem",
    "run": {
     "code_hash": "dcb8ae7fe6f5cb0f",
     "figures": [],
@@ -16294,6 +16524,7 @@
     ],
     "table_row": "`pp.em` (statics, waves, Mie, media, FEM), `pp.maxwell.maxwell_checks(grid, fields, ...)`, `pinneapple check` with `physics = \"maxwell\"`, `pp.em.verification.run()` ([docs](docs/guides/electromagnetics.md))"
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "c614cd0552c300eb",
     "figures": [],
@@ -16338,6 +16569,7 @@
     ],
     "table_row": "`pp.compare` with the same epochs / collocation / seeds per method (below); `pp.benchmark.run(...)` where installed"
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "bc51e752fb22fe34",
     "figures": [],
@@ -16371,13 +16603,13 @@
    "files": [],
    "links": {
     "guide": "docs/apps/hub.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_hub/library/__init__.py#L177"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_hub/library/__init__.py#L185"
    },
    "extra": {
     "functions": [
      {
       "name": "pinneapple_hub.library.search",
-      "signature": "(index: 'dict[str, Any]', query: 'str' = '', *, kind: 'str | None' = None, domain: 'str | None' = None, quality: 'str | None' = None, subkind: 'str | None' = None, limit: 'int | None' = None) -> 'list[dict[str, Any]]'",
+      "signature": "(index: 'dict[str, Any]', query: 'str' = '', *, kind: 'str | None' = None, domain: 'str | None' = None, quality: 'str | None' = None, subkind: 'str | None' = None, category: 'str | None' = None, limit: 'int | None' = None) -> 'list[dict[str, Any]]'",
       "summary": "Items matching ``query`` and the filters (``quality``: a letter, a comma list of letters, a zoo decision in lower case, or \"not graded\"), best first; without a query, in index…"
      },
      {
@@ -16388,6 +16620,7 @@
     ],
     "table_row": "`pinneapple_hub.library.search(load_index(), q, kind=...)`, `pinneapple_hub.library.compose.compose({...})`; the Hub app `apps/hub` ([docs](docs/apps/hub.md))"
    },
+   "category": "automation",
    "run": {
     "code_hash": "c5a98afc57f46acf",
     "figures": [],
@@ -16435,6 +16668,7 @@
     ],
     "table_row": "`pinneapple_systems.time_series.predictability.predictability_report(y)`, `pinneapple_systems.time_series.forecast_lab` (`study.run_zoo(data, specs, Protocol(horizons))`, `presets.case(name)`) ([docs](docs/guides/near_random_forecasting.md))"
    },
+   "category": "time-series",
    "run": {
     "code_hash": "b21f59ac2e1ccd6f",
     "figures": [],
@@ -16479,6 +16713,7 @@
     ],
     "table_row": "`pinneapple_neural.callbacks.PhysicsMonitor(problem, reference=..., every=N)` with `PhysicsValidationCallback` / `PhysicsNeMoHook` / `PhysicsTrainerCallback` ([docs](docs/guides/training_callbacks.md))"
    },
+   "category": "pinn",
    "run": {
     "code_hash": "c076836e3ba499f8",
     "figures": [],
@@ -16529,6 +16764,7 @@
     ],
     "table_row": "`pp.solve(problem, method, **options)`: `\"pinn\"`, `\"fem\"`, `\"analytic\"`, `\"reference\"`, `\"exact\"`, `\"external\"` (`pp.list_methods()`)"
    },
+   "category": "classical",
    "run": {
     "code_hash": "433427f98d2c72d8",
     "figures": [],
@@ -16594,6 +16830,7 @@
     ],
     "table_row": "`pp.zoo.list()`, `pp.zoo.load(name).predict(...)`, `pp.zoo.validate(name, inputs)`, `pp.datasets.load(name, split=...)`"
    },
+   "category": "zoo",
    "run": {
     "code_hash": "6e800fea9b525c37",
     "figures": [],
@@ -16638,6 +16875,7 @@
     ],
     "table_row": "`pp.validate(model, problem, data=..., query=..., level=\"quick\" / \"standard\" / \"thorough\")` (credibility per factor, decision pass / warn / fail; [docs](docs/guides/pp_validate.md))"
    },
+   "category": "checks",
    "run": {
     "code_hash": "9d7ca349bbee8dbc",
     "figures": [],
@@ -16688,6 +16926,7 @@
     ],
     "table_row": "`pinneapple_analysis.validation.pinn.validate_pinn(net, problem)` or `pp.validate(net, {\"pinn\": \"burgers_1d\"})`; `PINNMonitor` during training ([docs](docs/guides/pinn_validation.md))"
    },
+   "category": "checks",
    "run": {
     "code_hash": "a368e2811b5442ab",
     "figures": [],
@@ -16738,6 +16977,7 @@
     ],
     "table_row": "`pinneapple_analysis.validation.rollout.validate_rollout(pred, ndim, ref, long_ref=...)` or `pp.validate(step, {\"rollout\": {...}}, data=...)` ([docs](docs/guides/rollout_validation.md))"
    },
+   "category": "checks",
    "run": {
     "code_hash": "bb810770829fdb3f",
     "figures": [],
@@ -16782,6 +17022,7 @@
     ],
     "table_row": "`pinneapple_catalog.validated_methods()`, `pinneapple_catalog.methods.method_status()`"
    },
+   "category": "verification",
    "run": {
     "code_hash": "4786827a23a8cd00",
     "figures": [],
@@ -16883,6 +17124,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "757758433f968c44",
     "figures": [],
@@ -17049,6 +17291,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "890b26279a740402",
     "figures": [],
@@ -17133,6 +17376,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "f6ae0a0c4a5d6b6e",
     "figures": [],
@@ -17217,6 +17461,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "02d178f6cc8f0f7b",
     "figures": [],
@@ -17301,6 +17546,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "ae9a5120b3750b67",
     "figures": [],
@@ -17425,6 +17671,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "e196989c6f812886",
     "figures": [],
@@ -17561,6 +17808,7 @@
      }
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "74c689efacb24938",
     "figures": [],
@@ -17622,6 +17870,7 @@
      "properties": {}
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "e182032ce5be6390",
     "figures": [],
@@ -17753,6 +18002,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "ead6d075f0893045",
     "figures": [],
@@ -17837,6 +18087,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "229864727a522c3a",
     "figures": [],
@@ -18018,6 +18269,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "bb6e6f1f0573235c",
     "figures": [],
@@ -18115,6 +18367,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "1aac60f86e3af0e8",
     "figures": [],
@@ -18180,6 +18433,7 @@
      "properties": {}
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "44a877ce8be0564e",
     "figures": [],
@@ -18281,6 +18535,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "3792db5e319181a2",
     "figures": [],
@@ -18450,6 +18705,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "ec55baeb0f33103e",
     "figures": [],
@@ -18547,6 +18803,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "ab30942dc196701d",
     "figures": [],
@@ -18665,6 +18922,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "84982468cfae59a9",
     "figures": [],
@@ -18816,6 +19074,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "390ed864fcbb47b6",
     "figures": [],
@@ -18900,6 +19159,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "316396c296357b31",
     "figures": [],
@@ -19017,6 +19277,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "506f9feb77384c54",
     "figures": [],
@@ -19116,6 +19377,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "eebeba9728c6753a",
     "figures": [],
@@ -19264,6 +19526,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "4837d06550442e6e",
     "figures": [],
@@ -19391,6 +19654,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "f8911e62653ed217",
     "figures": [],
@@ -19492,6 +19756,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "62e45366f00983ee",
     "figures": [],
@@ -19607,6 +19872,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "c680a1bac206b6f1",
     "figures": [],
@@ -19687,6 +19953,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "d1e887653cf3466f",
     "figures": [],
@@ -19767,6 +20034,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "50d5487d1eb3de6a",
     "figures": [],
@@ -19832,6 +20100,7 @@
      "properties": {}
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "5eff01f843fab543",
     "figures": [],
@@ -19933,6 +20202,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "b07d882358c9debc",
     "figures": [],
@@ -20014,6 +20284,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "b64d23e0f69bd5e2",
     "figures": [],
@@ -20098,6 +20369,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "616f4d07c5fee40d",
     "figures": [],
@@ -20199,6 +20471,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "5a2c09f3e60e368a",
     "figures": [],
@@ -20347,6 +20620,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "5fdf362b8591963c",
     "figures": [],
@@ -20412,6 +20686,7 @@
      "properties": {}
     }
    },
+   "category": "surrogates",
    "run": {
     "code_hash": "0329ec500927c026",
     "figures": [],
@@ -20515,6 +20790,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "aaf3c237169022bd",
     "figures": [],
@@ -20645,6 +20921,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "c40ce86973a5ddc4",
     "figures": [],
@@ -20710,6 +20987,7 @@
      "properties": {}
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "b6bc3df06f6dfd96",
     "figures": [],
@@ -20862,6 +21140,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "e8081f6f856633db",
     "figures": [],
@@ -21014,6 +21293,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "f08eecb7f27175b1",
     "figures": [],
@@ -21133,6 +21413,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "8fdefb5b6afd634e",
     "figures": [],
@@ -21240,6 +21521,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "8a166d051db9eeea",
     "figures": [],
@@ -21342,6 +21624,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "3c0ad76f6556adb4",
     "figures": [],
@@ -21443,6 +21726,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "25a9f12f952e8eda",
     "figures": [],
@@ -21527,6 +21811,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "1a60902188310e7e",
     "figures": [],
@@ -21611,6 +21896,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "96db5be3476fd6cb",
     "figures": [],
@@ -21780,6 +22066,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "020f34ae115c2181",
     "figures": [],
@@ -22072,6 +22359,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "f2d26488b490f8bb",
     "figures": [],
@@ -22137,6 +22425,7 @@
      "properties": {}
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "ac2fbd2f9f7bcbed",
     "figures": [],
@@ -22221,6 +22510,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "47036bb20d700323",
     "figures": [],
@@ -22305,6 +22595,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "68ef7cead94cbf5e",
     "figures": [],
@@ -22389,6 +22680,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "c98ff94ecf906a49",
     "figures": [],
@@ -22473,6 +22765,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "1e852060e1af9127",
     "figures": [],
@@ -22593,6 +22886,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "197d2f014d02c2e6",
     "figures": [],
@@ -22711,6 +23005,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "3bb7896d28b4b70e",
     "figures": [],
@@ -22795,6 +23090,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "c08c17592d1d672a",
     "figures": [],
@@ -22926,6 +23222,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "9977077ca436ccaf",
     "figures": [],
@@ -23069,6 +23366,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "9ede4425cff0e622",
     "figures": [],
@@ -23134,6 +23432,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "9d5a370b82cd3d5a",
     "figures": [],
@@ -23293,6 +23592,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "6d95cbe4d4600bc7",
     "figures": [],
@@ -23377,6 +23677,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "05ffd2f3bfa76771",
     "figures": [],
@@ -23458,6 +23759,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "c1258e5027cdc812",
     "figures": [],
@@ -23542,6 +23844,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "ad4bafd6eb2aa1d3",
     "figures": [],
@@ -23603,6 +23906,7 @@
      "properties": {}
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "5c15db079d6d31c1",
     "figures": [],
@@ -23704,6 +24008,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "74efcf47dade73e6",
     "figures": [],
@@ -23806,6 +24111,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "de0d7299cf597c83",
     "figures": [],
@@ -23890,6 +24196,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "8afb0878736d133d",
     "figures": [],
@@ -23974,6 +24281,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "50d74f7d4117804b",
     "figures": [],
@@ -24092,6 +24400,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "3989652b678305f9",
     "figures": [],
@@ -24251,6 +24560,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "99e82bcc8be07013",
     "figures": [],
@@ -24335,6 +24645,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "11cdb88e9fe051ab",
     "figures": [],
@@ -24470,6 +24781,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "678a20780f203d8c",
     "figures": [],
@@ -24583,6 +24895,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "330c8b95a5a01afa",
     "figures": [],
@@ -24718,6 +25031,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "51819e90ba3c21b5",
     "figures": [],
@@ -24836,6 +25150,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "133508558907424f",
     "figures": [],
@@ -24920,6 +25235,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "1e809eff65ed27a7",
     "figures": [],
@@ -25038,6 +25354,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "c4c4786f986ee3e4",
     "figures": [],
@@ -25139,6 +25456,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "862a3e42e2f5102e",
     "figures": [],
@@ -25220,6 +25538,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "41c3fe633c89b789",
     "figures": [],
@@ -25304,6 +25623,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "a0f7c7d30657e882",
     "figures": [],
@@ -25384,6 +25704,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "295c8677857f9cfa",
     "figures": [],
@@ -25469,6 +25790,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "3562e751a2d1221d",
     "figures": [],
@@ -25637,6 +25959,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "31d0950d8489895d",
     "figures": [],
@@ -25738,6 +26061,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "54f9cbdb63a462a2",
     "figures": [],
@@ -25822,6 +26146,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "f4e317a085cd49cc",
     "figures": [],
@@ -25974,6 +26299,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "e6b03c98f935712e",
     "figures": [],
@@ -26245,6 +26571,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "0938369c6da39254",
     "figures": [],
@@ -26647,6 +26974,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "c51f22199aeb104c",
     "figures": [],
@@ -27003,6 +27331,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "cb7a640d9c36479d",
     "figures": [],
@@ -27291,6 +27620,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "512610f864e258ed",
     "figures": [],
@@ -27596,6 +27926,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "0863d9a301163c52",
     "figures": [],
@@ -27923,6 +28254,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "9a4a621834e9803b",
     "figures": [],
@@ -28004,6 +28336,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "c533e11c4536e409",
     "figures": [],
@@ -28085,6 +28418,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "565ba3f909ecb915",
     "figures": [],
@@ -28166,6 +28500,7 @@
      }
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "26b1e43b4ecac12e",
     "figures": [],
@@ -28231,6 +28566,7 @@
      "properties": {}
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "e99f491975be5d22",
     "figures": [],
@@ -28312,6 +28648,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "3ed8ac472e9c8e76",
     "figures": [],
@@ -28393,6 +28730,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "2fda5358db378374",
     "figures": [],
@@ -28478,6 +28816,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "913671f54bac51fa",
     "figures": [],
@@ -28562,6 +28901,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "3efcbf062f8ee6d3",
     "figures": [],
@@ -28663,6 +29003,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "89e55284ead9d73d",
     "figures": [],
@@ -28744,6 +29085,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "c627d19e91f1b7c5",
     "figures": [],
@@ -28829,6 +29171,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "d0683abe60cc2009",
     "figures": [],
@@ -28910,6 +29253,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "a809a7183e355457",
     "figures": [],
@@ -28991,6 +29335,7 @@
      }
     }
    },
+   "category": "problem",
    "run": {
     "code_hash": "df8495947351f8ba",
     "figures": [],
@@ -29072,6 +29417,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "f9303b9597a0d941",
     "figures": [],
@@ -29153,6 +29499,7 @@
      }
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "d5c3ca94cee296f2",
     "figures": [],
@@ -29254,6 +29601,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "5883cb31749ccf83",
     "figures": [],
@@ -29372,6 +29720,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "0200be890a49c18d",
     "figures": [],
@@ -29507,6 +29856,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "cd00c9ab36dbeb3e",
     "figures": [],
@@ -29572,6 +29922,7 @@
      "properties": {}
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "8648affde2ddca18",
     "figures": [],
@@ -29637,6 +29988,7 @@
      "properties": {}
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "33482ed4c1124891",
     "figures": [],
@@ -29702,6 +30054,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "37144f10fc79bb5c",
     "figures": [],
@@ -29837,6 +30190,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "b7275b3456af01fd",
     "figures": [],
@@ -29921,6 +30275,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "b7618be8079fea9e",
     "figures": [],
@@ -30006,6 +30361,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "77dab064d17e0922",
     "figures": [],
@@ -30124,6 +30480,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "fb22518b1e79b552",
     "figures": [],
@@ -30208,6 +30565,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "7fa798668cbbdca4",
     "figures": [],
@@ -30343,6 +30701,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "bb676b05a7078e1e",
     "figures": [],
@@ -30428,6 +30787,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "1a642cfd5c24c1be",
     "figures": [],
@@ -30509,6 +30869,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "dd2d848693034188",
     "figures": [],
@@ -30668,6 +31029,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "a42fae4e1d7ddd27",
     "figures": [],
@@ -30905,6 +31267,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "47ac1fd7d6248f84",
     "figures": [],
@@ -31020,6 +31383,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "e09e8e11a1db36c4",
     "figures": [],
@@ -31085,6 +31449,7 @@
      "properties": {}
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "7fe52f1c95e474ac",
     "figures": [],
@@ -31150,6 +31515,7 @@
      "properties": {}
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "1f32f71cb7b08058",
     "figures": [],
@@ -31215,6 +31581,7 @@
      "properties": {}
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "38d36d63a1705331",
     "figures": [],
@@ -31295,6 +31662,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "bd5b6a4577d74743",
     "figures": [],
@@ -31360,6 +31728,7 @@
      "properties": {}
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "a83bf4b8e6c4347c",
     "figures": [],
@@ -31478,6 +31847,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "9c6cf0f0b542dc89",
     "figures": [],
@@ -31596,6 +31966,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "c064e80ea36b4aa8",
     "figures": [],
@@ -31697,6 +32068,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "7134cfa8d05f1ad2",
     "figures": [],
@@ -31817,6 +32189,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "a90ed3dae286c77a",
     "figures": [],
@@ -31882,6 +32255,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "0bd0124fbbe9f5d3",
     "figures": [],
@@ -32000,6 +32374,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "57b4b6c50202d3ef",
     "figures": [],
@@ -32118,6 +32493,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "e660fab7cf8b5037",
     "figures": [],
@@ -32202,6 +32578,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "494d28913f08addf",
     "figures": [],
@@ -32303,6 +32680,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "6cb8841764a089fe",
     "figures": [],
@@ -32368,6 +32746,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "8f35c37e60ff6edb",
     "figures": [],
@@ -32452,6 +32831,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "229116dbead6e321",
     "figures": [],
@@ -32517,6 +32897,7 @@
      "properties": {}
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "9877faca0cafe774",
     "figures": [],
@@ -32582,6 +32963,7 @@
      "properties": {}
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "8ac933484853101b",
     "figures": [],
@@ -32647,6 +33029,7 @@
      "properties": {}
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "fcaddfe0917fd7e8",
     "figures": [],
@@ -32730,6 +33113,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "4e4753f403551ced",
     "figures": [],
@@ -32831,6 +33215,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "2c941f61333fa6a6",
     "figures": [],
@@ -32896,6 +33281,7 @@
      "properties": {}
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "a052877f0ea29863",
     "figures": [],
@@ -32961,6 +33347,7 @@
      "properties": {}
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "753941beaa2aaba6",
     "figures": [],
@@ -33026,6 +33413,7 @@
      "properties": {}
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "3e8c246583abe8d7",
     "figures": [],
@@ -33091,6 +33479,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "cbb265c3f4d02d8e",
     "figures": [],
@@ -33156,6 +33545,7 @@
      "properties": {}
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "e174d1d5a415f7ca",
     "figures": [],
@@ -33221,6 +33611,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "4d7f521678beb1db",
     "figures": [],
@@ -33286,6 +33677,7 @@
      "properties": {}
     }
    },
+   "category": "problem",
    "run": {
     "code_hash": "584712e67f51f204",
     "figures": [],
@@ -33351,6 +33743,7 @@
      "properties": {}
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "617c821e558fbfab",
     "figures": [],
@@ -33416,6 +33809,7 @@
      "properties": {}
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "6f7e4275b3c03683",
     "figures": [],
@@ -33551,6 +33945,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "86a756088ee02b17",
     "figures": [],
@@ -33635,6 +34030,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "c4f9199d392845d5",
     "figures": [],
@@ -33732,6 +34128,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "484d198c9517eeb8",
     "figures": [],
@@ -33829,6 +34226,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "cc4f14768debf5e2",
     "figures": [],
@@ -34080,6 +34478,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "3ed166524e000375",
     "figures": [],
@@ -34160,6 +34559,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "809f614bd2fbf3da",
     "figures": [],
@@ -34307,6 +34707,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "2baaa49317f73c0f",
     "figures": [],
@@ -34372,6 +34773,7 @@
      "properties": {}
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "98a5defb8f3b8e17",
     "figures": [],
@@ -34456,6 +34858,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "46efa7086737abcd",
     "figures": [],
@@ -34642,6 +35045,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "690a201ec8c034c9",
     "figures": [],
@@ -34740,6 +35144,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "2b887e27ffa638f8",
     "figures": [],
@@ -34875,6 +35280,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "6dc885a7fa681d30",
     "figures": [],
@@ -35010,6 +35416,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "0f9d6f2ac7cacf27",
     "figures": [],
@@ -35252,6 +35659,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "e7f2882ec4588d1e",
     "figures": [],
@@ -35387,6 +35795,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "ab61f13b47ce2dbe",
     "figures": [],
@@ -35556,6 +35965,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "c8db88675ed75969",
     "figures": [],
@@ -35657,6 +36067,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "1587db65b23a2378",
     "figures": [],
@@ -35758,6 +36169,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "c0ff0d823522a521",
     "figures": [],
@@ -35823,6 +36235,7 @@
      "properties": {}
     }
    },
+   "category": "problem",
    "run": {
     "code_hash": "b40c58b4fa3b4f03",
     "figures": [],
@@ -35907,6 +36320,7 @@
      }
     }
    },
+   "category": "electromagnetics",
    "run": {
     "code_hash": "7aead828ab5c3d54",
     "figures": [],
@@ -35992,6 +36406,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "244056a5d192053c",
     "figures": [],
@@ -36154,6 +36569,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "9f579554106b062d",
     "figures": [],
@@ -36235,6 +36651,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "cf77c4920ef8efc6",
     "figures": [],
@@ -36338,6 +36755,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "9e5a47d3e4b50286",
     "figures": [],
@@ -36423,6 +36841,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "c7860eb96e123f5e",
     "figures": [],
@@ -36504,6 +36923,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "91730eb0495835c0",
     "figures": [],
@@ -36585,6 +37005,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "b74c8528d31fb4bb",
     "figures": [],
@@ -36720,6 +37141,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "8d5aef3a0d5976d7",
     "figures": [],
@@ -36821,6 +37243,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "c8e9008b0b7e0135",
     "figures": [],
@@ -36956,6 +37379,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "e98a9cfa68e362b6",
     "figures": [],
@@ -37071,6 +37495,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "bf79a3e951f7496d",
     "figures": [],
@@ -37168,6 +37593,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "8add4631133bcbc2",
     "figures": [],
@@ -37233,6 +37659,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "3093557aa57dc485",
     "figures": [],
@@ -37313,6 +37740,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "480f9768c82a7af8",
     "figures": [],
@@ -37378,6 +37806,7 @@
      "properties": {}
     }
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "90804860a59e751d",
     "figures": [],
@@ -37443,6 +37872,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "d60b6baf58f7b10a",
     "figures": [],
@@ -37677,6 +38107,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "c28146db65c041ca",
     "figures": [],
@@ -37790,6 +38221,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "25d68a181888c9b0",
     "figures": [],
@@ -37891,6 +38323,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "a172a36b969b3ab3",
     "figures": [],
@@ -37992,6 +38425,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "89cb4acc5c477f51",
     "figures": [],
@@ -38110,6 +38544,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "3e1ddef7d5e49b9e",
     "figures": [],
@@ -38171,6 +38606,7 @@
      "properties": {}
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "1af1b436c8276d09",
     "figures": [],
@@ -38352,6 +38788,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "7164a68770a9937b",
     "figures": [],
@@ -38511,6 +38948,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "5a8e3ce4c247a638",
     "figures": [],
@@ -38629,6 +39067,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "5ebc241782cddee5",
     "figures": [],
@@ -38781,6 +39220,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "9c1927dc6b4aa8e6",
     "figures": [],
@@ -38898,6 +39338,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "ad8227bd71490c34",
     "figures": [],
@@ -39016,6 +39457,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "7a483a1974f84f52",
     "figures": [],
@@ -39117,6 +39559,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "dce11252d0d55ec9",
     "figures": [],
@@ -39250,6 +39693,7 @@
      }
     }
    },
+   "category": "verification",
    "run": {
     "code_hash": "e6a6afda3b73c5c0",
     "figures": [],
@@ -39381,6 +39825,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "e5c9bb4751bae514",
     "figures": [],
@@ -39532,6 +39977,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "c371e07bb317d008",
     "figures": [],
@@ -39717,6 +40163,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "225fb0513c3cb6d6",
     "figures": [],
@@ -39902,6 +40349,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "ecbbbee7a1c9c80d",
     "figures": [],
@@ -40003,6 +40451,7 @@
      }
     }
    },
+   "category": "pinn",
    "run": {
     "code_hash": "35d7497096487921",
     "figures": [],
@@ -40148,6 +40597,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "79d2fe52f6f03426",
     "figures": [],
@@ -40233,6 +40683,7 @@
      }
     }
    },
+   "category": "reports",
    "run": {
     "code_hash": "6a56a2f997eb0fd3",
     "figures": [],
@@ -40330,6 +40781,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "e3b96f2a81d6f0a4",
     "figures": [],
@@ -40395,6 +40847,7 @@
      "properties": {}
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "abdd96cf5f016499",
     "figures": [],
@@ -40479,6 +40932,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "e214b9587e3048b5",
     "figures": [],
@@ -40560,6 +41014,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "01c9708660a86970",
     "figures": [],
@@ -40688,6 +41143,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "ff608fcd983aee3c",
     "figures": [],
@@ -40772,6 +41228,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "7fdf4f40c21981aa",
     "figures": [],
@@ -40856,6 +41313,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "4260279347bcd388",
     "figures": [],
@@ -40990,6 +41448,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "2148e945c111abe6",
     "figures": [],
@@ -41108,6 +41567,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "fe576987f83e247f",
     "figures": [],
@@ -41205,6 +41665,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "2b136a42ceb28fc6",
     "figures": [],
@@ -41506,6 +41967,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "04ad6181bcc128b7",
     "figures": [],
@@ -41615,6 +42077,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "0ee87b0338c0652e",
     "figures": [],
@@ -41700,6 +42163,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "3a4e2cc99f0a7ac9",
     "figures": [],
@@ -41852,6 +42316,7 @@
      }
     }
    },
+   "category": "classical",
    "run": {
     "code_hash": "20f30b2dfb3d82ab",
     "figures": [],
@@ -41971,6 +42436,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "9313f7934df4a52f",
     "figures": [],
@@ -42036,6 +42502,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "853d261bedd375ad",
     "figures": [],
@@ -42171,6 +42638,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "a25dddb08cbc5a0e",
     "figures": [],
@@ -42256,6 +42724,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "f933b54a46e951b3",
     "figures": [],
@@ -42386,6 +42855,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "eff9b0c10a15976c",
     "figures": [],
@@ -42451,6 +42921,7 @@
      "properties": {}
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "37ac51b9c678733c",
     "figures": [],
@@ -42603,6 +43074,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "8054ac36aa97183e",
     "figures": [],
@@ -42668,6 +43140,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "80695903ac0c7641",
     "figures": [],
@@ -42749,6 +43222,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "a7750a9a94b57434",
     "figures": [],
@@ -42829,6 +43303,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "292989afaf566f12",
     "figures": [],
@@ -42947,6 +43422,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "0a91a61e011ba85f",
     "figures": [],
@@ -43090,6 +43566,7 @@
      }
     }
    },
+   "category": "geometry",
    "run": {
     "code_hash": "5c3e05c8c694a234",
     "figures": [],
@@ -43155,6 +43632,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "c3a378f428abd567",
     "figures": [],
@@ -43235,6 +43713,7 @@
      }
     }
    },
+   "category": "design",
    "run": {
     "code_hash": "05b45325c0c2f378",
     "figures": [],
@@ -43320,6 +43799,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "4ed0850f18ce7fdf",
     "figures": [],
@@ -43422,6 +43902,7 @@
      }
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "b8cdcb722dac1be2",
     "figures": [],
@@ -43659,6 +44140,7 @@
      }
     }
    },
+   "category": "inverse",
    "run": {
     "code_hash": "a6f8d037c63274af",
     "figures": [],
@@ -43771,6 +44253,7 @@
      }
     }
    },
+   "category": "data",
    "run": {
     "code_hash": "789fd0c6d241c2d5",
     "figures": [],
@@ -43856,6 +44339,7 @@
      }
     }
    },
+   "category": "automation",
    "run": {
     "code_hash": "7b70b08f88d713b6",
     "figures": [],
@@ -43940,6 +44424,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "8b9aa93df1477c08",
     "figures": [],
@@ -44041,6 +44526,7 @@
      }
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "05156362928a0a98",
     "figures": [],
@@ -44176,6 +44662,7 @@
      }
     }
    },
+   "category": "systems",
    "run": {
     "code_hash": "5b458ce1ecaa1f70",
     "figures": [],
@@ -44241,6 +44728,7 @@
      "properties": {}
     }
    },
+   "category": "equations",
    "run": {
     "code_hash": "60ea23fb53864ae7",
     "figures": [],
@@ -44359,6 +44847,7 @@
      }
     }
    },
+   "category": "uq",
    "run": {
     "code_hash": "661fb0c6bc942357",
     "figures": [],
@@ -44494,6 +44983,7 @@
      }
     }
    },
+   "category": "vehicles",
    "run": {
     "code_hash": "bed5407302482aec",
     "figures": [],
@@ -44542,6 +45032,7 @@
      ]
     }
    },
+   "category": "classical",
    "run": {
     "ok": true,
     "stdout": "tip deflection 1.911 mm, Timoshenko 1.920 mm\nmax von Mises 31.0 MPa, beam theory at the root 30.0 MPa",
@@ -44589,6 +45080,7 @@
      ]
     }
    },
+   "category": "geometry",
    "run": {
     "ok": true,
     "stdout": "area of the part: 1.147\nsigned distance at the centre of the big hole: 0.193 (radius 0.2 -> +0.2)",
@@ -44634,6 +45126,7 @@
      "figures": []
     }
    },
+   "category": "verification",
    "run": {
     "ok": true,
     "stdout": "completed {'period_s': 2.8374}\n[('period_matches_small_angle', True, 'reference')]\nrun folder: ['code', 'datasets', 'figures', 'inputs', 'log.txt', 'metrics.json', 'metrics_log.jsonl', 'outputs', 'run.json', 'validation.json']",
@@ -44677,6 +45170,7 @@
      "figures": []
     }
    },
+   "category": "zoo",
    "run": {
     "ok": true,
     "stdout": "problems: ['validation_metrics is empty -- a model card with no computed validation metric makes no checkable physical claim at all']\nproblems after adding evidence: []\n# plate-heat-pinn\n\n\n\n## Architecture\n- `modified_mlp` — `{}`\n\n## Physics\n\n## Validation\nReference: FEniCS P2 solution on a 256 x 256 mesh\n\n| Metric | Value |\n|---|---|\n| rel_l2 | 0.012 |\n\n## Citation\n(none provided)",
@@ -44720,6 +45214,7 @@
      "figures": []
     }
    },
+   "category": "time-series",
    "run": {
     "ok": true,
     "stdout": "files: ['fields.bin', 'geometry.glb', 'index.html', 'scene.json', 'vendor', 'viewer.js']\nparts: ['bend', 'inlet', 'outlet']  times: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]\nopen it with: pinneapple_twin3d.serve(folder)",
@@ -44765,6 +45260,7 @@
      ]
     }
    },
+   "category": "time-series",
    "run": {
     "ok": true,
     "stdout": "NaiveForecaster            MAE over 24 h: 1.98\nSeasonalNaiveForecaster    MAE over 24 h: 0.64\nDriftForecaster            MAE over 24 h: 2.11",
@@ -44812,6 +45308,7 @@
      ]
     }
    },
+   "category": "geometry",
    "run": {
     "ok": true,
     "stdout": "domains: ['annulus', 'cavity', 'channel', 'channel_with_cylinder', 'l_shaped', 'unit_square']\nscenarios: 6 e.g. ['advection_2d', 'burgers_1d', 'heat_2d', 'heat_multiscale', 'ns2d_cavity']\n{'interior': (3000, 2), 'boundary': (600, 2), 'inlet': (150, 2), 'outlet': (150, 2), 'walls': (150, 2), 'cylinder': (150, 2)}",
@@ -44859,6 +45356,7 @@
      ]
     }
    },
+   "category": "pinn",
    "run": {
     "ok": true,
     "stdout": "Comparison on 'burgers_1d_default' against 'analytic' at 4096 points\nmethod          kind       status     train [s]  infer [us/pt]  ref sims  relL2(u)\ntrained_pinn    neural     ok               142          0.442         0  2.092e-03",
@@ -44904,6 +45402,7 @@
      "figures": []
     }
    },
+   "category": "checks",
    "run": {
     "ok": true,
     "stdout": "root bending stress: 168.8 MPa\nBasquin life at that amplitude: 5.98e+07 cycles\nbass-reflex tuning of a 40 L box with a 70 mm x 120 mm port: 40.0 Hz",
@@ -44949,6 +45448,7 @@
      ]
     }
    },
+   "category": "uq",
    "run": {
     "ok": true,
     "stdout": "uniform : empty cells of a 10x10 grid = 13\nlhs     : empty cells of a 10x10 grid = 12",
@@ -44994,6 +45494,7 @@
      "figures": []
     }
    },
+   "category": "uq",
    "run": {
     "ok": true,
     "stdout": "interval half-width 0.346\nempirical coverage on 2000 unseen points: 0.908  (target 0.90)",
@@ -45037,6 +45538,7 @@
      "figures": []
     }
    },
+   "category": "automation",
    "run": {
     "ok": true,
     "stdout": "autonomy levels: ['SUPERVISED', 'SEMI_AUTONOMOUS', 'FULL_AUTONOMOUS']\nread_geometry        consequential = False\nrun_openfoam_case    consequential = False\nrun_fluent_case      consequential = True\npush_to_hub          consequential = True\nsend_report_email    consequential = True\nrules are plain data you can read and extend: ['abaqus', 'ansys', 'buy', 'checkout', 'comsol', 'delete_production', 'deploy', 'email'] ...",
@@ -45072,6 +45574,7 @@
    "extra": {
     "origin": "AGENTS.md"
    },
+   "category": "reports",
    "run": {
     "code_hash": "f8e0107241dcbaee",
     "figures": [],
@@ -45118,6 +45621,7 @@
      "figures": []
     }
    },
+   "category": "data",
    "run": {
     "ok": true,
     "stdout": "62 resources, 37 usable commercially\n- PDEBench [dataset, cfd] CC-BY-4.0 (data), MIT (code)\n- AirfRANS [dataset, cfd] ODbL-1.0 (data), MIT (code)\n- The Well [dataset, multiphysics] CC-BY-4.0 (data on HF), BSD-3-Clause (code)\n- DrivAerML [dataset, cfd] CC-BY-SA-4.0\n- PLAID Rotor37 [benchmark, turbomachinery] CC-BY-SA-4.0\n- PLAID VKI-LS59 [benchmark, turbomachinery] CC-BY-SA-4.0",
@@ -45161,6 +45665,7 @@
      "figures": []
     }
    },
+   "category": "pinn",
    "run": {
     "ok": true,
     "stdout": "output: (8, 100, 1)  parameters: 23041",
@@ -45204,6 +45709,7 @@
      "figures": []
     }
    },
+   "category": "automation",
    "run": {
     "ok": true,
     "stdout": "payload verified: {'field_sha256': 'd5f4b01385b63cd4488a8f866799c34448f08a152d955ce9b790a911fec3465e', 'result': 'Kt = 2.59'}\ntampered envelope rejected: VerificationError\nrun by [EMAIL], CPF [CPF], phone [PHONE]",
@@ -45243,6 +45749,7 @@
    "extra": {
     "origin": "AGENTS.md"
    },
+   "category": "benchmarks",
    "run": {
     "code_hash": "8df6ecc6936a5651",
     "figures": [],
@@ -45291,6 +45798,7 @@
      ]
     }
    },
+   "category": "verification",
    "run": {
     "ok": true,
     "stdout": "n = 0: E = 0.50 (hbar omega (n + 1/2)), norm = 1.0000\nn = 1: E = 1.50 (hbar omega (n + 1/2)), norm = 1.0000\nn = 2: E = 2.50 (hbar omega (n + 1/2)), norm = 1.0000\nn = 3: E = 3.50 (hbar omega (n + 1/2)), norm = 1.0000",
@@ -45336,6 +45844,7 @@
      "figures": []
     }
    },
+   "category": "automation",
    "run": {
     "ok": true,
     "stdout": "exported: model.pt 7.4 kB\nmax difference after reload: 0.0",
@@ -45381,6 +45890,7 @@
      ]
     }
    },
+   "category": "inverse",
    "run": {
     "ok": true,
     "stdout": "angle RMS error: raw readings 0.137 rad, filter 0.018 rad (after spin-up)\nangular velocity is never measured; filter RMS error 0.048 rad/s",
@@ -45426,6 +45936,7 @@
      "figures": []
     }
    },
+   "category": "automation",
    "run": {
     "ok": true,
     "stdout": "Prefect available: False\nflows: ['flow_01_data_generation', 'flow_02_training', 'flow_03_benchmark', 'flow_04_registry_publish', 'flow_05_digital_twin_prep', 'flow_benchmark', 'flow_data_generation', 'flow_digital_twin_prep', 'flow_registry_publish', 'flow_training']\ntasks: ['annotations', 'benchmark_component_type_task', 'benchmark_tasks', 'data_generation_tasks', 'digital_twin_tasks', 'generate_scenarios_task', 'prepare_digital_twin_task', 'publish_model_task', 'registry_tasks', 'train_component_task']",
@@ -45469,6 +45980,7 @@
      "figures": []
     }
    },
+   "category": "pinn",
    "run": {
     "ok": true,
     "stdout": "trainable before: {'trainable': 4417, 'frozen': 0, 'total': 4417}\ntrainable after:  {'trainable': 65, 'frozen': 4352, 'total': 4417}",
@@ -45514,6 +46026,7 @@
      ]
     }
    },
+   "category": "verification",
    "run": {
     "ok": true,
     "stdout": "max |du/dx - exact| = 0.0010331855701966042\nintegral = 0.405218069547683  exact 4/pi^2 = 0.4052847345693511\nu at random points: [0.6813 0.0067 0.1498 0.7093 0.2006]",
@@ -45559,6 +46072,7 @@
      "figures": []
     }
    },
+   "category": "verification",
    "run": {
     "ok": true,
     "stdout": "observed order 1.56, extrapolated 2.6013, GCI 0.49 %\ncoverage of a calibrated 90 % interval: 0.904\ncoverage of an over-confident one:      0.593",
@@ -45604,6 +46118,7 @@
      ]
     }
    },
+   "category": "geometry",
    "run": {
     "ok": true,
     "stdout": "NACA 0012: 120 points, max thickness 0.120 c\nNACA 2412: 120 points, max thickness 0.122 c\nNACA 4415: 120 points, max thickness 0.156 c",
@@ -45649,6 +46164,7 @@
      "figures": []
     }
    },
+   "category": "surrogates",
    "run": {
     "ok": true,
     "stdout": "modes kept: 2  energy: 1.0\nmedian error  POD-GPR 4.77e-07   nearest design 7.08e-02\npredictive std available: (1, 200)",
@@ -45692,6 +46208,7 @@
      "figures": []
     }
    },
+   "category": "checks",
    "run": {
     "ok": true,
     "stdout": "Re    1e+04: Darcy f = 0.0309, 90 deg bend (R/r = 3) K = 0.336\nRe    1e+05: Darcy f = 0.0180, 90 deg bend (R/r = 3) K = 0.227\nRe    1e+06: Darcy f = 0.0116, 90 deg bend (R/r = 3) K = 0.154\nterminal velocity of a 3 mm, 1200 kg/m3 bead in water: 11.0 cm/s\nZwietering just-suspended speed: 336 rpm",
@@ -45737,6 +46254,7 @@
      ]
     }
    },
+   "category": "data",
    "run": {
     "ok": true,
     "stdout": "49 windows, median displacement u = 4.00 px, v = -2.00 px  (imposed 4, -2)",
@@ -45784,6 +46302,7 @@
      ]
     }
    },
+   "category": "surrogates",
    "run": {
     "ok": true,
     "stdout": "POD energy in 4 modes: 1.0\nDMD forecast error over 80 unseen steps: 1.57e-14\nDMD frequencies (Hz): [0.2069 0.2069 0.3342 0.3342]",
@@ -45827,6 +46346,7 @@
    "extra": {
     "origin": "AGENTS.md"
    },
+   "category": "zoo",
    "run": {
     "code_hash": "93310ca77c0e9b71",
     "figures": [],
@@ -45873,6 +46393,7 @@
      "figures": []
     }
    },
+   "category": "benchmarks",
    "run": {
     "ok": true,
     "stdout": "21 problems\nDiffusion / Heat       heat_1d, heat_2d, convection_diffusion_1d, darcy_flow_2d\nElliptic               laplace_2d, poisson_2d, helmholtz_2d, biharmonic_2d\nFinance                black_scholes_1d\nFluid Mechanics        kovasznay_ns, stokes_2d\nNonlinear / Solitons   burgers_1d, kdv_1d\nReaction-Diffusion     allen_cahn, fisher_kpp_1d, fitzhugh_nagumo_1d\nStructural             linear_elasticity_2d\nTransport              advection_diffusion_1d\nWaves                  wave_1d, klein_gordon_1d, nls_1d",
@@ -45916,6 +46437,7 @@
      "figures": []
     }
    },
+   "category": "benchmarks",
    "run": {
     "ok": true,
     "stdout": "8 benchmarks: ['blasius_flat_plate', 'concorde_high_aoa', 'lane_emden_n1.5', 'lane_emden_n3', 'pdebench_advection_1d', 'pdebench_darcy_2d', 'pdebench_diffusion_reaction_1d', 'planewall_transient_conduction_bi1']\nBlasius laminar flat-plate boundary-layer similarity solution: f(eta), f'(eta)=u/U_inf (the velocity profile), and f''(eta) (proportional to local shear stress), for eta=y*sqrt(U_inf/(nu*x)) from the wall (eta=0) out to the freestream (eta=10, where f'->1 to within integration tolerance). The classical zero-pressure-gradient laminar boundary-layer benchmark.\nsource: Blasius, H. (1908); high-precision integration by Howarth, L. (1938); tabulated in Schlichting, H. & Gersten, K., 'Boundary-Layer Theory', 8th/9th ed. (wall-shear parameter f''(0)=0.332057).\nx: ('eta',) (200, 1)  y: ('f', 'f_prime', 'f_pprime') (200, 3)",
@@ -45959,6 +46481,7 @@
      "figures": []
     }
    },
+   "category": "zoo",
    "run": {
     "ok": true,
     "stdout": "versions: 2  latest: True\nmetadata: {'width': 32, 'val_rel_l2': 0.02, 'stage': 'staging'}",
@@ -46004,6 +46527,7 @@
      ]
     }
    },
+   "category": "inverse",
    "run": {
     "ok": true,
     "stdout": "a + 4x = -0.009466 * x  -0.2 * v\ntrue:  a + 4x = -0.2 v - 0.01 x   (x = exp(-0.1 t) cos 2t solves x'' + 0.2 x' + 4.01 x = 0)",
@@ -46051,6 +46575,7 @@
      ]
     }
    },
+   "category": "vehicles",
    "run": {
     "ok": true,
     "stdout": "specific wear rate K = 6.32e-04 mm^3/(N m)\nworn volume 12.632 mm^3  vs  K F s = 12.632 mm^3\npeak pressure 6.2 -> 0.27 MPa (flat punch F/A = 0.25 MPa)",
@@ -46092,6 +46617,7 @@
    "extra": {
     "origin": "AGENTS.md"
    },
+   "category": "classical",
    "run": {
     "code_hash": "cc1fa88ce1a0d893",
     "figures": [],
@@ -46138,6 +46664,7 @@
      "figures": []
     }
    },
+   "category": "checks",
    "run": {
     "code_hash": "98fbc155d7fbb072",
     "figures": [],
@@ -46178,6 +46705,7 @@
    "extra": {
     "origin": "AGENTS.md"
    },
+   "category": "checks",
    "run": {
     "code_hash": "8cde986505af8c8a",
     "figures": [],
@@ -46216,6 +46744,7 @@
    "extra": {
     "origin": "AGENTS.md"
    },
+   "category": "verification",
    "run": {
     "code_hash": "da895637a1805b93",
     "figures": [],
@@ -46264,6 +46793,7 @@
      ]
     }
    },
+   "category": "reports",
    "run": {
     "ok": true,
     "stdout": "max |vorticity| 1.999 (exact 2), Q > 0 in 51 % of the box",
@@ -46309,6 +46839,7 @@
      "figures": []
     }
    },
+   "category": "automation",
    "run": {
     "ok": true,
     "stdout": "197 public names, e.g.:\nAFNO, ActiveLearningConfig, AdaptiveCollocationTrainer, Backend, BenchmarkConfig, BenchmarkResult, BenchmarkTaskBase, BoxConstraint, CADToCFDPipeline, CFDMesh, CSGCircle, CSGDifference, CSGEllipse, CSGIntersection, CSGPolygon, CSGRectangle, CSGUnion, CauchyMisfit, CausalPINNTrainer, CausalWeightScheduler, ChannelDomain2D, ChannelWithObstacleDomain2D, CollocationConfig, CollocationSampler, Comparison, ComposedObsOperator, CompositeObjective, CompositeRegularizer, ConformalPredictor, ConstraintSet, ContinuousAdjointSolver, DDPPINNTrainer, DDPTrainerConfig, DEFAULT_MODELS, DesignOptConfig, DesignOptLoop, DesignOptResult, DesignOptimizerConfig, DigitalTwin, DigitalTwinConfig\npp.fea -> pinneapple_simulation.external_solvers.calculix.study",
@@ -46352,6 +46883,7 @@
      "figures": []
     }
    },
+   "category": "design",
    "run": {
     "ok": true,
     "stdout": "selected: deeponet\nprobabilities: {'pinn': 0.04, 'xpinn': 0.04, 'deeponet': 0.51, 'mesh_graph_net': 0.07, 'inverse_pinn': 0.07, 'kpi_regressor': 0.07, 'pod_rom': 0.07, 'point_cloud_operator': 0.07, 'hybrid_surrogate_physics': 0.07}\nexcluded fno -> must_support_geometry: fno supports ['structured_grid'], problem representation is 'unstru\nexcluded pino -> must_support_geometry: pino supports ['structured_grid'], problem representation is 'unstr\nrequires validation: True",
@@ -46387,6 +46919,7 @@
    "extra": {
     "origin": "AGENTS.md"
    },
+   "category": "design",
    "run": {
     "code_hash": "558a22f59c0f73f2",
     "figures": [],
@@ -46433,6 +46966,7 @@
      "figures": []
     }
    },
+   "category": "verification",
    "run": {
     "ok": true,
     "stdout": "3 cases: ['axial_compressor_meanline', 'axial_compressor_stage_3d', 'burgers_1d']\naxial_compressor_meanline - Axial Compressor 1D (mean-line)\n{'preset': 'axial_compressor_meanline', 'preset_kwargs': \"{'num_stages': 5, 'pressure_ratio': 3.0, 'mass_flow_rate': 4...\", 'description': '1D mean-line thermodynamic analysis of a multi-stage axial c...', 'physical_parameters': \"{'velocity': 136.0, 'length': 1.0, 'kinematic_viscosity': 1....\", 'flow_geometry': 'internal_pipe', 'epochs': 2000, 'n_collocation': 1024, 'residual_threshold': 10000.0, 'notes': 'The cheapest genuinely-3rd-industry-relevant example: dim=1,...'}",
@@ -46476,6 +47010,7 @@
      "figures": []
     }
    },
+   "category": "reports",
    "run": {
     "ok": true,
     "stdout": "ply\nformat ascii 1.0\nelement vertex 1000\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nproperty float speed",

@@ -1,0 +1,11 @@
+{
+ "rel_error[2D: TE10 cut-off frequency]": 1.9831744946407245e-05,
+ "rel_error[2D: TE20 cut-off frequency]": 7.932556515358469e-05,
+ "rel_error[2D: TE01 cut-off frequency]": 0.0001003957837956847,
+ "rel_error[2D: TE11 cut-off frequency]": 8.71064231790586e-05,
+ "rel_error[2D: TE30 cut-off frequency]": 0.00017847721235471602,
+ "rel_error[2D: TM mode 1 cut-off frequency]": 8.710642322702264e-05,
+ "rel_error[2D: TM mode 2 cut-off frequency]": 9.109577055333111e-05,
+ "rel_error[2D: TM mode 3 cut-off frequency]": 0.00015036719567064556,
+ "2D: observed_order_TE": 1.9997682470537366
+}

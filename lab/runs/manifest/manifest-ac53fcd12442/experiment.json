@@ -1,0 +1,135 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-ac53fcd12442",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science/electromagnetism/research_surrogate_hall",
+  "path": "examples/science/electromagnetism/research_surrogate_hall/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[2D: hold-out: worst surrogate G vs solver G]",
+   "value": 0.0007898725588408868,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[2D: solver: long bar G(L/W = 8) -> 1]",
+   "value": 5.743298456928336e-06,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: holdout_max_rel_error",
+   "value": 0.0007898725588408873,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: holdout_mean_rel_error",
+   "value": 0.00011898346609119,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: coverage_2sigma",
+   "value": 0.8,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "2D: loo_sigma_scale",
+   "value": 0.9617591762202485,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[2D] hold-out: worst surrogate G vs solver G",
+   "passed": true,
+   "value": 0.5103575989461944,
+   "reference": 0.5099547996437066,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the finite-difference solver on held-out inputs",
+   "label": "hold-out: worst surrogate G vs solver G vs convergence",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] solver: long bar G(L/W = 8) -> 1",
+   "passed": true,
+   "value": 0.9999942567015431,
+   "reference": 1.0,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Popovic sec. 4.2: G -> 1 for L/W >> 1",
+   "label": "solver: long bar G(L/W = 8) -> 1 vs limit",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] +-2 sigma coverage of the hold-out at least 80 %",
+   "passed": true,
+   "value": 0.8,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/2D__surrogate_hall.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-ac53fcd12442",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "204e481e",
+  "seconds": 0.017,
+  "created": "2026-10-24T17:28:55Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

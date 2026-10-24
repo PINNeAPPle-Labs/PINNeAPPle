@@ -1,0 +1,162 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.hall_effect",
+ "title": "Hall effect",
+ "area": "physics.electromagnetism",
+ "topic": "transport in a magnetic field",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "2D",
+ "params": {
+  "n_carriers": 1e+22,
+  "mobility": 0.14,
+  "carrier": "electron",
+  "B": 0.5,
+  "L": 0.005,
+  "W": 0.001,
+  "t": 0.0001,
+  "V": 1.0,
+  "cells": [
+   10,
+   20,
+   40
+  ]
+ },
+ "values": {
+  "current": {
+   "value": -0.004483704244207688,
+   "unit": "A",
+   "how": "integral of J_x across the mid-section x thickness"
+  },
+  "hall_voltage": {
+   "value": -0.013983708841637132,
+   "unit": "V",
+   "how": "phi(top) - phi(bottom) at mid-length"
+  },
+  "hall_angle_deg": {
+   "value": 4.004172940709388,
+   "unit": "deg",
+   "how": "atan(mu B)"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "Hall coefficient R_H = E_y / (J_x B)",
+   "computed": -0.000623756968792137,
+   "reference": -0.0006241509074460763,
+   "rel_error": 0.0006311593065709672,
+   "tol": 0.002,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Drude: R_H = 1/(n q) (Ashcroft & Mermin eq. 1.15)",
+   "unit": "m^3/C",
+   "how": "finite differences, 40 cells across, L/W = 5",
+   "abs_error": 3.939386539393054e-07,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "R_H error falls with the grid",
+   "passed": true,
+   "value": null,
+   "limit": null,
+   "critical": false,
+   "detail": "10 cells: 6.8e-04, 20 cells: 6.4e-04, 40 cells: 6.3e-04",
+   "source": "physics"
+  },
+  {
+   "name": "sign of V_H gives the carrier sign",
+   "passed": true,
+   "value": null,
+   "limit": null,
+   "critical": false,
+   "detail": "electrons: R_H < 0",
+   "source": "physics"
+  },
+  {
+   "name": "contacts short the Hall voltage in short bars (G rises with L/W)",
+   "passed": true,
+   "value": null,
+   "limit": null,
+   "critical": false,
+   "detail": "L/W=0.5: G=0.369, L/W=1: G=0.675, L/W=1.5: G=0.848, L/W=2: G=0.930, L/W=3: G=0.985, L/W=5: G=0.999",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "Hall coefficient R_H = E_y / (J_x B) vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0006311593065709672,
+    "limit": 0.002,
+    "source": "Drude: R_H = 1/(n q) (Ashcroft & Mermin eq. 1.15)",
+    "reason": "computed -0.000623757, reference -0.000624151 m^3/C"
+   },
+   {
+    "name": "R_H error falls with the grid",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "physics",
+    "reason": "10 cells: 6.8e-04, 20 cells: 6.4e-04, 40 cells: 6.3e-04"
+   },
+   {
+    "name": "sign of V_H gives the carrier sign",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "physics",
+    "reason": "electrons: R_H < 0"
+   },
+   {
+    "name": "contacts short the Hall voltage in short bars (G rises with L/W)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "physics",
+    "reason": "L/W=0.5: G=0.369, L/W=1: G=0.675, L/W=1.5: G=0.848, L/W=2: G=0.930, L/W=3: G=0.985, L/W=5: G=0.999"
+   }
+  ]
+ },
+ "data": {
+  "geometric_factor": {
+   "L_over_W": [
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0
+   ],
+   "G": [
+    0.36948351288699344,
+    0.6753409480456974,
+    0.8475423863043943,
+    0.9300258789452025,
+    0.9854191227447655,
+    0.9993688406934289
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "hall_effect.png"
+ ],
+ "movies": [],
+ "wall_time_s": 0.31179311699997925
+}

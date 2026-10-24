@@ -1,0 +1,7 @@
+[16:45:13] check [0D] RC time constant (fit of ln(1 - V/V0)): PASS tau = R C (Nilsson & Riedel sec. 7.2)
+[16:45:13] check [0D] RL time constant: PASS tau = L / R (Nilsson & Riedel sec. 7.1)
+[16:45:13] check [0D] RL final current: PASS I(inf) = V0 / R; the value at 6 tau divided by (1 - e^-6)
+[16:45:13] check [0D] RLC damped angular frequency (zero crossings): PASS omega_d = sqrt(1/(L C) - (R/2L)^2) (Nilsson & Riedel sec. 8.3)
+[16:45:13] check [0D] RLC decay rate (log decrement of extrema): PASS alpha = R / (2 L) (Nilsson & Riedel sec. 8.3)
+[16:45:13] check [0D] energy dissipated in R (free decay): PASS energy conservation: 1/2 C V0^2 stored at t = 0
+[16:45:13] check [0D] trust report: PASS decision APPROVED

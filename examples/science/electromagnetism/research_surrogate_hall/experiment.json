@@ -1,0 +1,143 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/research_surrogate_hall",
+ "title": "Surrogate of the Hall geometrical factor with hold-out error (2D)",
+ "description": "A Gaussian process (anisotropic kernel) trained on finite-difference Hall-bar solutions over the aspect ratio L/W and the Hall parameter mu B (Latin hypercube), its error measured on held-out solver runs it never saw, its +-2 sigma coverage (variance calibrated by leave-one-out on the training runs) and the long-bar limit G -> 1.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.research_surrogate_hall"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "research",
+  "kind": "theory",
+  "dims": [
+   "2D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[2D: hold-out: worst surrogate G vs solver G]",
+   "value": 0.0007898725588408868,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (convergence: the finite-difference solver on held-out inputs)"
+  },
+  {
+   "name": "rel_error[2D: solver: long bar G(L/W = 8) -> 1]",
+   "value": 5.743298456928336e-06,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (limit: Popovic sec. 4.2: G -> 1 for L/W >> 1)"
+  },
+  {
+   "name": "2D: holdout_max_rel_error",
+   "value": 0.0007898725588408873,
+   "unit": "-",
+   "how": "30 held-out solver runs"
+  },
+  {
+   "name": "2D: holdout_mean_rel_error",
+   "value": 0.00011898346609119,
+   "unit": "-",
+   "how": "same"
+  },
+  {
+   "name": "2D: coverage_2sigma",
+   "value": 0.8,
+   "unit": "-",
+   "how": "fraction of held-out runs inside the GP's +-2 sigma (LOO-calibrated)"
+  },
+  {
+   "name": "2D: loo_sigma_scale",
+   "value": 0.9617591762202485,
+   "unit": "-",
+   "how": "leave-one-out calibration factor of the GP's standard deviation (Rasmussen & Williams eqs. 5.10-5.12), from the training runs only"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[2D] hold-out: worst surrogate G vs solver G",
+   "passed": true,
+   "value": 0.5103575989461944,
+   "reference": 0.5099547996437066,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the finite-difference solver on held-out inputs",
+   "label": "hold-out: worst surrogate G vs solver G vs convergence",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] solver: long bar G(L/W = 8) -> 1",
+   "passed": true,
+   "value": 0.9999942567015431,
+   "reference": 1.0,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Popovic sec. 4.2: G -> 1 for L/W >> 1",
+   "label": "solver: long bar G(L/W = 8) -> 1 vs limit",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] +-2 sigma coverage of the hold-out at least 80 %",
+   "passed": true,
+   "value": 0.8,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "2D/surrogate_hall.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "2D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Rasmussen & Williams, Gaussian Processes for Machine Learning (2006), ch. 2 and 5",
+  "Popovic, Hall Effect Devices, 2nd ed. (2004), sec. 4.2"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "204e481e",
+  "created": "2026-10-24T17:28:55Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

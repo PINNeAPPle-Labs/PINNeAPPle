@@ -39,6 +39,7 @@ SECTION_IDS = [s[0] for s in SECTIONS]
 #: curated node type -> section
 SECTION_OF: dict[str, str] = {
     "autolab.board_cooling": "optimization", "autolab.pipe_twin": "optimization",
+    "autolab.aerodynamicist": "optimization",
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
     "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
     "reason.report": "optimization",
@@ -49,7 +50,8 @@ SECTION_OF: dict[str, str] = {
     "solver.newton": "solvers", "lib.solve.preset": "solvers", "lib.solver.beam": "solvers",
     "lib.solver.lbm": "solvers", "lib.solver.meshless": "solvers", "lib.solver.terramechanics": "solvers",
     "lib.solver.xtfc": "solvers", "lib.tools.availability": "solvers", "flight.takeoff": "solvers",
-    "preset.run": "solvers", "preset.validate": "validation",
+    "preset.run": "solvers", "preset.validate": "validation", "science.run": "validation",
+    "science.atlas": "validation",
     "vehicle.simulate": "solvers", "rover.learn_planet": "solvers", "terramechanics.wheel_model": "solvers",
     "lib.antenna.open_study": "solvers",
     "train.pinn": "physics_ai", "train.finetune": "physics_ai", "transfer.pinn": "physics_ai",

@@ -7,10 +7,10 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 5 |
-| not yet run | 9 |
+| not yet run | 6 |
 | not_convertible | 15 |
-| runs | 32 |
-| runs-quick | 7 |
+| runs | 34 |
+| runs-quick | 8 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -26,7 +26,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `data_api` | core | - | not_convertible |  | demonstrates the pinneapple_core.data loaders with hand-written loops; the same three problems are equations + train.pinn, surrogate.train and inverse.discover flows |
 | `data_pipeline` | data | - | not_convertible |  | API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed |
 | `design_from_intent` | design | `design_from_intent/design_from_intent` | runs | 21 / 30 match | the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run |
-| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run | 115 / 120 match | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12.1 + GetDP 3.2.0 from apt; in 14 every PINNeAPPle-side number matches and the GetDP-side ones differ by 1e-5 to 3e-4 relative (0.6 % on the small GetDP-minus-PINNeAPPle torque difference); the committed results do not record the gmsh / GetDP versions they were made with |
+| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run | 122 / 127 match | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12.1 + GetDP 3.2.0 from apt; in 14 every PINNeAPPle-side number matches and the GetDP-side ones differ by 1e-5 to 3e-4 relative (0.6 % on the small GetDP-minus-PINNeAPPle torque difference); the committed results do not record the gmsh / GetDP versions they were made with |
 | `end_to_end` | data | - | not_convertible |  | legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh |
 | `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 12 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
 | `first_example` | PINN | `first_example/first_example` | runs |  | nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75 |
@@ -48,7 +48,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `modelica` | systems | - | needs OpenModelica (omc) + fmpy |  | every script builds its FMU with omc; 02 / 03 train hand-written torch models in the script; fmi_compatibility.py downloads the Reference-FMUs |
 | `molecular` | molecular | - | needs OpenMM + pdbfixer + an input PDB |  | protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled) |
 | `motor_magnetics` | electromagnetics | `electromagnetics/motor_spm_cogging_and_torque` | runs | 15 / 15 match |  |
-| `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | not yet run | 12 / 17 match | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet. In random_walk the baselines match; the two learned models (scikit-learn HistGradientBoosting, torch MLP) differ by 0.1-3 % on the test RMSE, and the committed results do not record the scikit-learn / torch versions (here scikit-learn 1.9.1) |
+| `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | runs-quick | 30 / 36 match | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet. In random_walk the baselines match; the two learned models (scikit-learn HistGradientBoosting, torch MLP) differ by 0.1-3 % on the test RMSE, and the committed results do not record the scikit-learn / torch versions (here scikit-learn 1.9.1) |
 | `non_hermitian` | non-Hermitian physics | `non_hermitian/ep_tuning` | runs | 9 / 9 match | ep_laws / ep_numeric / hypothesis_map / ep_figure wrap pinneapple_physics.non_hermitian (coupling_classes moved from the script into ep_tuning.py, the script prints the same output); compared with docs/core_concepts/non_hermitian.md (EP-law degree, kappa_N^2 and EP order for N = 2-5) |
 | `numerical_solvers` | numerical solvers | `numerical_solvers/12_molecular_dynamics_lj_gas`<br>`numerical_solvers/13_shallow_water_dam_break` | runs |  | flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate |
 | `openfoam_campaign` | CFD | `openfoam_campaign/campaign` | runs |  | no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt |
@@ -57,7 +57,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `physics_check` | validation | `physics_check/fail_and_pass` | runs | 3 / 3 match | the torch/ fixtures (a zoo model) and generate.py (regenerates the fixtures with OpenFOAM) are not flows; workflow.yml is a GitHub Action template |
 | `physics_db` | data | - | needs earthaccess + NASA Earthdata login / network |  | 00-02 query NASA Earthdata or NASA POWER; 03-06 write shards with the private PhysicalDatasetBuilder._write_upd from a dataset built in the script |
 | `physics_ensemble` | ensembles | - | not_convertible |  | the expert training loops, ring-graph adapters, ParametricPINN and FD schemes are in the scripts (docs/dev/LIBRARY_CONSOLIDATION.md lists them for a later pass); multiscale_turbulence takes hours |
-| `physics_module` | hybrid models | `physics_module/01_coarse_fem_plus_neural_correction` | not yet run |  | compared with the numbers of docs/core_concepts/model.md |
+| `physics_module` | hybrid models | `physics_module/01_coarse_fem_plus_neural_correction` | runs | 2 / 2 match | compared with the numbers of docs/core_concepts/model.md |
 | `physics_optimizer` | optimization | `physics_optimizer/01_constrained_shape_six_methods` | runs | 12 / 12 match | compared with the table of docs/core_concepts/physics_optimizer.md |
 | `pinn_solver` | PINN | `pinn_solver/01_symbolic_loss_basic`<br>`pinn_solver/02_compiler_poisson_2d`<br>`pinn_solver/03_compiler_burgers_1d`<br>`pinn_solver/04_factory_inverse_parameter_heat_1d`<br>`pinn_solver/06_compiler_wave_1d` | runs-quick |  | 01 is a flow (pinn_solver.factory_loss: the PINNFactory loss, as the script); 02 Poisson, 03 Burgers, 06 wave and 04 inverse heat are flows of equations.system + train.pinn / inverse.discover + validate.compare (the same problem and error metric, trained by train.pinn instead of the script's compile_problem / PINNFactory loop); nothing committed to compare, and the quick configurations are far from converged. 03_symbolic_pde_hard_bc (hard-BC ansatz and loop), 05_upd_dataset (synthetic Zarr and loop), 06_domino (residuals and BCs), 06_open_meteo (three training pipelines, network) and 07_interface_bc (two-region batch and loop) hold their method in the scripts |
 | `pinneapple_and_physicsnemo` | PINN | - | not_convertible |  | pinneapple/pinneapple.py writes its own sampling, Adam loop, test metrics, PIELM gradient wrapper and output adapter (about 200 lines) around PINNFactory, so no library call reproduces the committed JSON; physicsnemo/ and both/ need NVIDIA PhysicsNeMo-Sym, which is not installed |
@@ -72,7 +72,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `solvers` | numerical solvers | `solvers/01_time_series_decompositions`<br>`solvers/02_sph_box`<br>`solvers/03_poisson_solvers` | runs |  | three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation |
 | `studio` | visualization | `studio/01_any_result_in_3d` | runs |  | 01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes) |
 | `systems` | systems | `systems/01_component_library_toolbox` | runs |  | the example fits random targets (an API demonstration); nothing to compare |
-| `time_series` | time series | `time_series/adaptive_forecasting` | not yet run |  | flows for adaptive_forecasting.py and 00_quickstart.py (nothing committed to compare); 01-05, 07 and 08 import pinneapple_timeseries, which no longer exists (now pinneapple_systems.time_series, without a shim); 06 registers a model class defined in the script |
+| `time_series` | time series | `time_series/adaptive_forecasting` | runs |  | flows for adaptive_forecasting.py and 00_quickstart.py (nothing committed to compare); 01-05, 07 and 08 import pinneapple_timeseries, which no longer exists (now pinneapple_systems.time_series, without a shim); 06 registers a model class defined in the script |
 | `topology_optimization` | design | `topology_optimization/01_mbb_beam`<br>`topology_optimization/02_heat_and_stokes_flow`<br>`topology_optimization/03_reluctance_rotor` | runs | 30 / 30 match |  |
 | `trainer` | training | - | not_convertible |  | demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch |
 | `use_cases` | use cases | `use_cases/fin_convection_inverse` | runs | 6 / 6 match | fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas (#857 / #859) has its own bundled flow antenna_vivaldi_limits (lib.antenna.limits), and its EMerge full-wave runs are not a flow here |
@@ -446,6 +446,20 @@ done in 2217 s (commit e1b27365, 2026-10-23); 23 of 23 numbers match.
 | `skew.back_emf.fundamental_ratio` | `results/15_prius_skew.json:back_emf.fundamental_ratio` | 0.965926 | 0.965926 | 0 | match |
 | `skew.back_emf.factor_fundamental` | `results/15_prius_skew.json:back_emf.factor_fundamental` | 0.965926 | 0.965926 | 0 | match |
 | `skew.back_emf.thd_skewed` | `results/15_prius_skew.json:back_emf.thd_skewed` | 0.0721945 | 0.0721945 | 0 | match |
+
+### `electromagnetics/16_prius_end_effects` (full)
+
+done in 5877 s (commit ee5fd359, 2026-10-24); 7 of 7 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `ends.flux_correction.ratio_finest` | `results/16_prius_end_effects.json:flux_correction.ratio_finest` | 0.948236 | 0.948236 | 4.41052e-13 | match |
+| `ends.efficiency.4000rpm_100Nm.2d` | `results/16_prius_end_effects.json:efficiency_points.4000rpm_100Nm.2d` | 0.942654 | 0.942654 | 0 | match |
+| `ends.efficiency.4000rpm_100Nm.with_end_winding` | `results/16_prius_end_effects.json:efficiency_points.4000rpm_100Nm.with_end_winding` | 0.943597 | 0.943597 | 0 | match |
+| `ends.envelope.2d.3000rpm_Nm` | `results/16_prius_end_effects.json:envelope_Nm.2d.2` | 239.261 | 239.261 | 0 | match |
+| `ends.envelope.air.3000rpm_Nm` | `results/16_prius_end_effects.json:envelope_Nm.air.2` | 213.348 | 213.348 | 0 | match |
+| `ends.corrected_2d.2d.torque_Nm` | `results/16_prius_end_effects.json:corrected_2d.2d.torque_Nm` | 345.672 | 345.672 | 0 | match |
+| `ends.corrected_2d.end_leakage.torque_Nm` | `results/16_prius_end_effects.json:corrected_2d.end_leakage.torque_Nm` | 336.687 | 336.687 | 2.18806e-13 | match |
 
 ### `electromagnetics/17_prius_tolerances` (full)
 
@@ -825,6 +839,32 @@ done in 593 s (commit c94c53c7, 2026-10-23); 15 of 15 numbers match.
 | `spm.losses.magnet_eddy_W` | `results/spm_summary.json:losses_1500rpm_rated.magnet_eddy_W` | 0.17192 | 0.17192 | 1.77079e-10 | match |
 | `spm.losses.torque_mean_Nm` | `results/spm_summary.json:losses_1500rpm_rated.torque_mean_Nm` | 16.0469 | 16.0469 | 3.70395e-13 | match |
 
+### `near_random_forecasting/lorenz63_case` (full)
+
+done in 3307 s (commit ee5fd359, 2026-10-24); 18 of 19 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `case.predictability.ar1_coefficient` | `results/cases/lorenz63_noise0.1.json:predictability.ar1_coefficient` | 0.9553 | 0.9553 | 0 | match |
+| `case.zoo.persistence.test_rmse_h1` | `results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.0` | 2.417 | 2.417 | 0 | match |
+| `case.zoo.persistence.test_rmse_h8` | `results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.3` | 9.7379 | 9.7379 | 0 | match |
+| `case.zoo.persistence.test_rmse_h64` | `results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.6` | 10.7389 | 10.7389 | 0 | match |
+| `case.zoo.climatology.test_rmse_h1` | `results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.0` | 8.0047 | 8.0047 | 0 | match |
+| `case.zoo.climatology.test_rmse_h8` | `results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.3` | 7.9081 | 7.9081 | 0 | match |
+| `case.zoo.climatology.test_rmse_h64` | `results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.6` | 7.931 | 7.931 | 0 | match |
+| `case.zoo.ar.test_rmse_h1` | `results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.0` | 1.8327 | 1.8327 | 0 | match |
+| `case.zoo.ar.test_rmse_h8` | `results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.3` | 7.5799 | 7.5799 | 0 | match |
+| `case.zoo.ar.test_rmse_h64` | `results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.6` | 7.9289 | 7.9289 | 0 | match |
+| `case.zoo.gbm.test_rmse_h1` | `results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.0` | 0.9824 | 0.9824 | 0 | match |
+| `case.zoo.gbm.test_rmse_h8` | `results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.3` | 2.0774 | 2.0774 | 0 | match |
+| `case.zoo.gbm.test_rmse_h64` | `results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.6` | 8.2538 | 8.2538 | 0 | match |
+| `case.zoo.enkf.test_rmse_h1` | `results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.0` | 0.8461 | 0.8461 | 0 | match |
+| `case.zoo.enkf.test_rmse_h8` | `results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.3` | 1.5629 | 1.5629 | 0 | match |
+| `case.zoo.enkf.test_rmse_h64` | `results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.6` | 7.4545 | 7.4545 | 0 | match |
+| `case.zoo.sindy.test_rmse_h1` | `results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.0` | 1.0219 | 1.0219 | 0 | match |
+| `case.zoo.sindy.test_rmse_h8` | `results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.3` | 3.0292 | 3.0292 | 0 | match |
+| `case.zoo.sindy.test_rmse_h64` | `results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.6` | 11.3128 | 11.3129 | 8.83947e-06 | differs |
+
 ### `near_random_forecasting/lyapunov_mackey_glass` (quick)
 
 done in 15 s (commit e9aa069f, 2026-10-24); 1 of 1 numbers match.
@@ -898,6 +938,15 @@ done in 7 s (commit 5e891c36, 2026-10-19); 3 of 3 numbers match.
 | `failing.targets_with_violations` | `node:failing.targets_expected_to_fail` | 23 | 23 | 0 | match |
 | `passing.violations` | `node:passing.targets_expected_to_fail` | 0 | 0 | 0 | match |
 
+### `physics_module/01_coarse_fem_plus_neural_correction` (full)
+
+done in 80 s (commit ee5fd359, 2026-10-24); 2 of 2 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `hybrid.coarse_fem_rel_l2` | `text:docs/core_concepts/model.md|held-out relative error (\d\.\d+) for the coarse` | 0.309436 | 0.31 | 0.00181809 | match |
+| `hybrid.hybrid_rel_l2` | `text:docs/core_concepts/model.md|and (\d\.\d+) for the hybrid` | 0.10419 | 0.1 | 0.0418998 | match |
+
 ### `physics_optimizer/01_constrained_shape_six_methods` (full)
 
 done in 1424 s (commit 5e891c36, 2026-10-19); 12 of 12 numbers match.
@@ -923,7 +972,7 @@ done in 5 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
 
 ### `pinn_solver/02_compiler_poisson_2d` (quick)
 
-done in 1353 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
+done in 9 s (commit ee5fd359, 2026-10-24); 0 of 0 numbers match.
 
 ### `pinn_solver/03_compiler_burgers_1d` (quick)
 
@@ -1130,6 +1179,10 @@ done in 23 s (commit 3f2296e8, 2026-10-21); 0 of 0 numbers match.
 ### `systems/01_component_library_toolbox` (full)
 
 done in 15 s (commit b25e808a, 2026-10-19); 0 of 0 numbers match.
+
+### `time_series/adaptive_forecasting` (full)
+
+done in 6 s (commit ee5fd359, 2026-10-24); 0 of 0 numbers match.
 
 ### `topology_optimization/01_mbb_beam` (full)
 

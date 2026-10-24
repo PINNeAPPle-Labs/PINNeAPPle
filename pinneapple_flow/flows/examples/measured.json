@@ -1680,6 +1680,80 @@
    "status": "done"
   }
  },
+ "electromagnetics/16_prius_end_effects": {
+  "full": {
+   "commit": "ee5fd359",
+   "comparisons": [
+    {
+     "flow": "ends.flux_correction.ratio_finest",
+     "outcome": "match",
+     "ref": "results/16_prius_end_effects.json:flux_correction.ratio_finest",
+     "reference": 0.9482361699711926,
+     "rel_diff": 4.4105152979874413e-13,
+     "value": 0.9482361699716109
+    },
+    {
+     "flow": "ends.efficiency.4000rpm_100Nm.2d",
+     "outcome": "match",
+     "ref": "results/16_prius_end_effects.json:efficiency_points.4000rpm_100Nm.2d",
+     "reference": 0.942653610098788,
+     "rel_diff": 0.0,
+     "value": 0.942653610098788
+    },
+    {
+     "flow": "ends.efficiency.4000rpm_100Nm.with_end_winding",
+     "outcome": "match",
+     "ref": "results/16_prius_end_effects.json:efficiency_points.4000rpm_100Nm.with_end_winding",
+     "reference": 0.9435973598913726,
+     "rel_diff": 0.0,
+     "value": 0.9435973598913726
+    },
+    {
+     "flow": "ends.envelope.2d.3000rpm_Nm",
+     "outcome": "match",
+     "ref": "results/16_prius_end_effects.json:envelope_Nm.2d.2",
+     "reference": 239.2605203918924,
+     "rel_diff": 0.0,
+     "value": 239.2605203918924
+    },
+    {
+     "flow": "ends.envelope.air.3000rpm_Nm",
+     "outcome": "match",
+     "ref": "results/16_prius_end_effects.json:envelope_Nm.air.2",
+     "reference": 213.34833961936945,
+     "rel_diff": 0.0,
+     "value": 213.34833961936945
+    },
+    {
+     "flow": "ends.corrected_2d.2d.torque_Nm",
+     "outcome": "match",
+     "ref": "results/16_prius_end_effects.json:corrected_2d.2d.torque_Nm",
+     "reference": 345.67213358560895,
+     "rel_diff": 0.0,
+     "value": 345.67213358560895
+    },
+    {
+     "flow": "ends.corrected_2d.end_leakage.torque_Nm",
+     "outcome": "match",
+     "ref": "results/16_prius_end_effects.json:corrected_2d.end_leakage.torque_Nm",
+     "reference": 336.68743608581536,
+     "rel_diff": 2.1880552390089873e-13,
+     "value": 336.68743608588903
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-em-prius-end-effects.experiment.json, Lab item manifest/flow/example-em-prius-end-effects",
+   "matched": 7,
+   "nodes": {
+    "compare": "done",
+    "ends": "done",
+    "fluxmap": "done"
+   },
+   "seconds": 5877.0,
+   "status": "done"
+  }
+ },
  "electromagnetics/17_prius_tolerances": {
   "full": {
    "commit": "dbd3bc50",
@@ -4093,6 +4167,175 @@
    "status": "done"
   }
  },
+ "near_random_forecasting/lorenz63_case": {
+  "full": {
+   "commit": "ee5fd359",
+   "comparisons": [
+    {
+     "flow": "case.predictability.ar1_coefficient",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:predictability.ar1_coefficient",
+     "reference": 0.9553,
+     "rel_diff": 0.0,
+     "value": 0.9553
+    },
+    {
+     "flow": "case.zoo.persistence.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.0",
+     "reference": 2.417,
+     "rel_diff": 0.0,
+     "value": 2.417
+    },
+    {
+     "flow": "case.zoo.persistence.test_rmse_h8",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.3",
+     "reference": 9.7379,
+     "rel_diff": 0.0,
+     "value": 9.7379
+    },
+    {
+     "flow": "case.zoo.persistence.test_rmse_h64",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.6",
+     "reference": 10.7389,
+     "rel_diff": 0.0,
+     "value": 10.7389
+    },
+    {
+     "flow": "case.zoo.climatology.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.0",
+     "reference": 8.0047,
+     "rel_diff": 0.0,
+     "value": 8.0047
+    },
+    {
+     "flow": "case.zoo.climatology.test_rmse_h8",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.3",
+     "reference": 7.9081,
+     "rel_diff": 0.0,
+     "value": 7.9081
+    },
+    {
+     "flow": "case.zoo.climatology.test_rmse_h64",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.6",
+     "reference": 7.931,
+     "rel_diff": 0.0,
+     "value": 7.931
+    },
+    {
+     "flow": "case.zoo.ar.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.0",
+     "reference": 1.8327,
+     "rel_diff": 0.0,
+     "value": 1.8327
+    },
+    {
+     "flow": "case.zoo.ar.test_rmse_h8",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.3",
+     "reference": 7.5799,
+     "rel_diff": 0.0,
+     "value": 7.5799
+    },
+    {
+     "flow": "case.zoo.ar.test_rmse_h64",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.6",
+     "reference": 7.9289,
+     "rel_diff": 0.0,
+     "value": 7.9289
+    },
+    {
+     "flow": "case.zoo.gbm.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.0",
+     "reference": 0.9824,
+     "rel_diff": 0.0,
+     "value": 0.9824
+    },
+    {
+     "flow": "case.zoo.gbm.test_rmse_h8",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.3",
+     "reference": 2.0774,
+     "rel_diff": 0.0,
+     "value": 2.0774
+    },
+    {
+     "flow": "case.zoo.gbm.test_rmse_h64",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.6",
+     "reference": 8.2538,
+     "rel_diff": 0.0,
+     "value": 8.2538
+    },
+    {
+     "flow": "case.zoo.enkf.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.0",
+     "reference": 0.8461,
+     "rel_diff": 0.0,
+     "value": 0.8461
+    },
+    {
+     "flow": "case.zoo.enkf.test_rmse_h8",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.3",
+     "reference": 1.5629,
+     "rel_diff": 0.0,
+     "value": 1.5629
+    },
+    {
+     "flow": "case.zoo.enkf.test_rmse_h64",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.6",
+     "reference": 7.4545,
+     "rel_diff": 0.0,
+     "value": 7.4545
+    },
+    {
+     "flow": "case.zoo.sindy.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.0",
+     "reference": 1.0219,
+     "rel_diff": 0.0,
+     "value": 1.0219
+    },
+    {
+     "flow": "case.zoo.sindy.test_rmse_h8",
+     "outcome": "match",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.3",
+     "reference": 3.0292,
+     "rel_diff": 0.0,
+     "value": 3.0292
+    },
+    {
+     "flow": "case.zoo.sindy.test_rmse_h64",
+     "outcome": "differs",
+     "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.6",
+     "reference": 11.3129,
+     "rel_diff": 8.839466449941509e-06,
+     "value": 11.3128
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-near-random-lorenz63_case.experiment.json, Lab item manifest/flow/example-near-random-lorenz63_case",
+   "matched": 18,
+   "nodes": {
+    "case": "done",
+    "compare": "done"
+   },
+   "seconds": 3306.9,
+   "status": "done"
+  }
+ },
  "near_random_forecasting/lyapunov_mackey_glass": {
   "quick": {
    "commit": "e9aa069f",
@@ -4461,6 +4704,39 @@
    "status": "done"
   }
  },
+ "physics_module/01_coarse_fem_plus_neural_correction": {
+  "full": {
+   "commit": "ee5fd359",
+   "comparisons": [
+    {
+     "flow": "hybrid.coarse_fem_rel_l2",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/model.md|held-out relative error (\\d\\.\\d+) for the coarse",
+     "reference": 0.31,
+     "rel_diff": 0.0018180917643885867,
+     "value": 0.30943639155303954
+    },
+    {
+     "flow": "hybrid.hybrid_rel_l2",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/model.md|and (\\d\\.\\d+) for the hybrid",
+     "reference": 0.1,
+     "rel_diff": 0.041899792862961915,
+     "value": 0.1041899792862962
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-physics-module.experiment.json, Lab item manifest/flow/example-physics-module",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "hybrid": "done"
+   },
+   "seconds": 80.3,
+   "status": "done"
+  }
+ },
  "physics_optimizer/01_constrained_shape_six_methods": {
   "full": {
    "commit": "5e891c36",
@@ -4591,11 +4867,11 @@
  },
  "pinn_solver/02_compiler_poisson_2d": {
   "quick": {
-   "commit": "38ecd2bf",
+   "commit": "ee5fd359",
    "comparisons": [],
    "configuration": "quick",
-   "date": "2026-10-23",
-   "manifest": "manifest /home/user/flowhome/agentB/example.pinn_solver.02_compiler_poisson_2d-quick.experiment.json, Lab item manifest/flow/example.pinn_solver.02_compiler_poisson_2d-quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example.pinn_solver.02_compiler_poisson_2d-quick.experiment.json, Lab item manifest/flow/example.pinn_solver.02_compiler_poisson_2d-quick",
    "matched": 0,
    "nodes": {
     "eq_poisson": "done",
@@ -4604,7 +4880,7 @@
     "pinn_poisson": "done",
     "val_poisson": "done"
    },
-   "seconds": 1353.0,
+   "seconds": 8.6,
    "status": "done"
   }
  },
@@ -5946,6 +6222,23 @@
     "comp": "done"
    },
    "seconds": 14.7,
+   "status": "done"
+  }
+ },
+ "time_series/adaptive_forecasting": {
+  "full": {
+   "commit": "ee5fd359",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-ts-adaptive.experiment.json, Lab item manifest/flow/example-ts-adaptive",
+   "matched": 0,
+   "nodes": {
+    "adaptive": "done",
+    "baselines": "done",
+    "report": "done"
+   },
+   "seconds": 5.7,
    "status": "done"
   }
  },

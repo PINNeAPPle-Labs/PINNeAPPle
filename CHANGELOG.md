@@ -1452,6 +1452,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs
+  existing cases". `ParameterSpace` constants and categories match numbers by value (`4000000 == 4000000.0`, as
+  JSON from the page drops the `.0`), so the 436 preset runs count as inside the space again.
 - Immersed-boundary FDM, `channel` mode: mass is conserved. The divergence-penalty pressure step is replaced
   by an exact pressure-Poisson projection on cell faces, so every cross-section carries the inlet flux (pipe
   R=0.5, L=3, Re=10: flow rate 1.0 of the inlet value along the pipe, was 0.85 / 0.53 / 0.39). The result has a

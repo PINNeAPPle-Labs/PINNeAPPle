@@ -1,0 +1,120 @@
+{
+ "decision": "APPROVED",
+ "safe_closure_times_s": [
+  60.0
+ ],
+ "operating_point": {
+  "flow": 0.5764952765862256,
+  "velocity": 2.0389349541739374,
+  "reynolds": 1223360.9725043625,
+  "friction_factor": 0.01282109812773762,
+  "pump_head": 30.118383528852554,
+  "valve_head": 21.059805271767694,
+  "friction_loss": 9.058578257084859,
+  "valve_cv": 0.5599931512436706,
+  "tank_head": 20.0
+ },
+ "max_pressure_bar": {
+  "0": 26.33736760656158,
+  "6": 25.48263329314509,
+  "20": 23.148129867493747,
+  "60": 14.65695471406468
+ },
+ "min_pressure_bar": {
+  "0": -8.064411066291772,
+  "6": -7.468237126348536,
+  "20": -6.099090258731976,
+  "60": -0.11582638842543336
+ },
+ "checks": [
+  {
+   "name": "Joukowsky head rise a V0 / g (instant closure, no friction)",
+   "value": 1.188692873869594e-16,
+   "limit": 1e-06,
+   "passed": 1.0,
+   "detail": "239.101 m vs 239.101 m"
+  },
+  {
+   "name": "wave period 4L/a",
+   "value": 0.0,
+   "limit": 0.01,
+   "passed": true
+  },
+  {
+   "name": "steady state kept (valve open, 20 s)",
+   "value": 3.915090474038152e-12,
+   "limit": 1e-08,
+   "passed": true,
+   "detail": "max |H(t) - H(0)| [m]"
+  },
+  {
+   "name": "Courant number = 1",
+   "value": 0.0,
+   "limit": 1e-12,
+   "passed": true
+  },
+  {
+   "name": "max pressure <= PN16, closure 0 s",
+   "value": 2633736.760656158,
+   "limit": 1600000.0,
+   "passed": false,
+   "detail": "26.3 bar"
+  },
+  {
+   "name": "no column separation, closure 0 s",
+   "value": 8.064411066291772,
+   "limit": 0.9,
+   "passed": false,
+   "detail": "min gauge -8.06 bar (vapour at about -0.98 bar)"
+  },
+  {
+   "name": "max pressure <= PN16, closure 6 s",
+   "value": 2548263.329314509,
+   "limit": 1600000.0,
+   "passed": false,
+   "detail": "25.5 bar"
+  },
+  {
+   "name": "no column separation, closure 6 s",
+   "value": 7.468237126348536,
+   "limit": 0.9,
+   "passed": false,
+   "detail": "min gauge -7.47 bar (vapour at about -0.98 bar)"
+  },
+  {
+   "name": "max pressure <= PN16, closure 20 s",
+   "value": 2314812.986749375,
+   "limit": 1600000.0,
+   "passed": false,
+   "detail": "23.1 bar"
+  },
+  {
+   "name": "no column separation, closure 20 s",
+   "value": 6.099090258731976,
+   "limit": 0.9,
+   "passed": false,
+   "detail": "min gauge -6.10 bar (vapour at about -0.98 bar)"
+  },
+  {
+   "name": "max pressure <= PN16, closure 60 s",
+   "value": 1465695.471406468,
+   "limit": 1600000.0,
+   "passed": true,
+   "detail": "14.7 bar"
+  },
+  {
+   "name": "no column separation, closure 60 s",
+   "value": 0.11582638842543336,
+   "limit": 0.9,
+   "passed": true,
+   "detail": "min gauge -0.12 bar (vapour at about -0.98 bar)"
+  }
+ ],
+ "usd": {
+  "ok": true,
+  "problems": [],
+  "meshes": 3,
+  "points": 1,
+  "time_samples": 270
+ }
+}

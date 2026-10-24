@@ -1,0 +1,248 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/01_omniverse_pump_pipeline",
+ "title": "Pump and pipeline water hammer twin in OpenUSD",
+ "description": "",
+ "domain": "hydraulics",
+ "methods": [
+  "MOC",
+  "Colebrook"
+ ],
+ "modules": [
+  "pinneapple_systems.process_components.water_hammer",
+  "pinneapple_tools.nvidia.omniverse"
+ ],
+ "params": {
+  "length_m": 2000.0,
+  "diameter_m": 0.6,
+  "wave_speed_m_s": 1150.0,
+  "closures_s": [
+   0.0,
+   6.0,
+   20.0,
+   60.0
+  ]
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "flow_m3_s",
+   "value": 0.5764952765862256,
+   "unit": "m^3/s",
+   "how": "pump curve = friction + valve loss (brentq)"
+  },
+  {
+   "name": "velocity_m_s",
+   "value": 2.0389349541739374,
+   "unit": "m/s",
+   "how": "Q / A at the operating point"
+  },
+  {
+   "name": "max_pressure_bar_closure_0s",
+   "value": 26.33736760656158,
+   "unit": "bar",
+   "how": "max over pipe and time, MOC"
+  },
+  {
+   "name": "max_pressure_bar_closure_6s",
+   "value": 25.48263329314509,
+   "unit": "bar",
+   "how": "max over pipe and time, MOC"
+  },
+  {
+   "name": "max_pressure_bar_closure_20s",
+   "value": 23.148129867493747,
+   "unit": "bar",
+   "how": "max over pipe and time, MOC"
+  },
+  {
+   "name": "max_pressure_bar_closure_60s",
+   "value": 14.65695471406468,
+   "unit": "bar",
+   "how": "max over pipe and time, MOC"
+  }
+ ],
+ "checks": [
+  {
+   "name": "Joukowsky head rise a V0 / g (instant closure, no friction)",
+   "passed": true,
+   "value": 1.188692873869594e-16,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-06,
+   "min": null,
+   "detail": "239.101 m vs 239.101 m",
+   "kind": "sanity"
+  },
+  {
+   "name": "wave period 4L/a",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "steady state kept (valve open, 20 s)",
+   "passed": true,
+   "value": 3.915090474038152e-12,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-08,
+   "min": null,
+   "detail": "max |H(t) - H(0)| [m]",
+   "kind": "physics"
+  },
+  {
+   "name": "Courant number = 1",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-12,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "max pressure <= PN16, closure 0 s",
+   "passed": false,
+   "value": 2633736.760656158,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1600000.0,
+   "min": null,
+   "detail": "26.3 bar",
+   "kind": "sanity"
+  },
+  {
+   "name": "no column separation, closure 0 s",
+   "passed": false,
+   "value": 8.064411066291772,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.9,
+   "min": null,
+   "detail": "min gauge -8.06 bar (vapour at about -0.98 bar)",
+   "kind": "sanity"
+  },
+  {
+   "name": "max pressure <= PN16, closure 6 s",
+   "passed": false,
+   "value": 2548263.329314509,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1600000.0,
+   "min": null,
+   "detail": "25.5 bar",
+   "kind": "sanity"
+  },
+  {
+   "name": "no column separation, closure 6 s",
+   "passed": false,
+   "value": 7.468237126348536,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.9,
+   "min": null,
+   "detail": "min gauge -7.47 bar (vapour at about -0.98 bar)",
+   "kind": "sanity"
+  },
+  {
+   "name": "max pressure <= PN16, closure 20 s",
+   "passed": false,
+   "value": 2314812.986749375,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1600000.0,
+   "min": null,
+   "detail": "23.1 bar",
+   "kind": "sanity"
+  },
+  {
+   "name": "no column separation, closure 20 s",
+   "passed": false,
+   "value": 6.099090258731976,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.9,
+   "min": null,
+   "detail": "min gauge -6.10 bar (vapour at about -0.98 bar)",
+   "kind": "sanity"
+  },
+  {
+   "name": "max pressure <= PN16, closure 60 s",
+   "passed": true,
+   "value": 1465695.471406468,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1600000.0,
+   "min": null,
+   "detail": "14.7 bar",
+   "kind": "sanity"
+  },
+  {
+   "name": "no column separation, closure 60 s",
+   "passed": true,
+   "value": 0.11582638842543336,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.9,
+   "min": null,
+   "detail": "min gauge -0.12 bar (vapour at about -0.98 bar)",
+   "kind": "sanity"
+  },
+  {
+   "name": "usd_stage_valid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "UsdValidation clean",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/checks.png",
+   "results/transients.png",
+   "results/usd_preview.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "486dcc50",
+  "created": "2026-10-24T00:32:57Z",
+  "seconds": 5.772,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

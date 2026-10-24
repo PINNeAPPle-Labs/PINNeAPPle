@@ -16,7 +16,11 @@ ITEMS = INDEX["items"]
 
 
 def test_index_is_generated_and_current():
+    from pinneapple_flow import REGISTRY
+    test_nodes = {f"node:{s.type}" for s in REGISTRY.specs()     # registered by other test modules in this process
+                  if getattr(s.fn, "__module__", "").startswith(("test_", "tests."))}
     fresh = hub.build()
+    fresh["items"] = [i for i in fresh["items"] if i["id"] not in test_nodes]
     assert [i["id"] for i in fresh["items"]] == [i["id"] for i in ITEMS], "python -m pinneapple_hub.library build"
     for a, b in zip(fresh["items"], ITEMS, strict=True):
         assert a["code"] == b["code"], f"{a['id']}: snippet changed; rebuild and re-run the index"

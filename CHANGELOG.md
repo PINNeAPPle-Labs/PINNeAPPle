@@ -34,6 +34,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   rover then fight each other).
 - `WongReeceModel.sinkage_for_load` / `steady_state`: `sinkage_slip=` (the slip that sets the sinkage exponent, e.g.
   a lagged slip), as `forces` already had.
+- The Flow Studio canvas inside the Hub's "Create your own" (`/create?mode=canvas`): Flow Studio's editor embedded,
+  syncing its flow with the Hub through `postMessage` between the two configured origins, so the generated Python,
+  the sandbox validation and My Hub work on a flow drawn on the canvas. Apps can now be embedded only by the
+  origins in `<PREFIX>_FRAME_ANCESTORS` (CSP `frame-ancestors`; default still nobody) and embed only the origins
+  they declare (`install(app, prefix, frame_src=...)`, `pinneapple_security.web.check_frame_origins`).
+- Flow Studio's top bar stays on one line from 1280 px up: labels no longer wrap ("Export", "Decisions"; the
+  full names are in the tooltips) and only the flow name field shrinks.
 - Hub and Flow Studio on one registry: every Flow Studio node type (the curated nodes and the generated library
   calls) is a Hub tool with the palette's title and parameter schema; a node page runs the node with the visitor's
   values in the sandbox, opens it in Flow Studio as a ready flow (`pinneapple_hub.library.flowlink.flow_for_node`:
@@ -54,6 +61,19 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   inference in the browser (ONNX) or on the server, "Create your own" with sandbox validation and My Hub, light and
   dark themes, phone layout), deployed as `hub` (`HUB_DOMAIN`, port 8116) in `apps/deploy`; docs
   `docs/apps/hub.md`. Flow Studio opens `?example=<flow>` and `?flow=<base64url JSON>` links.
+- PINNeAPPle with the NVIDIA stack (`pinneapple_tools.nvidia`, `examples/nvidia`): OpenUSD stages for Omniverse with
+  the fields as primvars (`FieldStage`: meshes, curves, sensor points, time samples on the Omniverse timeline, trust
+  decision as `pinneapple:trust:*`), `validate_stage` (topology, primvar sizes, every `pxr.UsdValidation` validator),
+  a read-back preview (`render_stage_png` / `render_stage_gif`) and the Omniverse Kit RTX capture script; code-drawn
+  architecture figures (`diagram.architecture_diagram`, steps that need a GPU or an API key hatched); `RunInfo`
+  (versions, hardware, timings, which NVIDIA components ran). Examples 01 (pump and pipeline water-hammer twin in USD),
+  02 (plume forecast: PhysicsNeMo FNO rollout with `validate_rollout`) and 07 (cold plate: PhysicsNeMo FNO, PINNeAPPle
+  checks, USD scene), numbered by the stack combination they cover, each with its architecture and result figures
+  from a recorded CPU run.
+- Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
+  curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
+  Joukowsky's head rise and the 4L/a period.
+- `operator_benchmarks.advection_diffusion_2d`: periodic advection-diffusion, exact in time per Fourier mode.
 - `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
   with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
   chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,

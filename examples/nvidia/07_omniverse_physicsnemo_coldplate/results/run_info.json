@@ -1,0 +1,54 @@
+{
+ "name": "07_omniverse_physicsnemo_coldplate",
+ "started": "2026-10-24T00:26:53Z",
+ "wall_s": 162.318,
+ "steps_s": {
+  "data (PINNeAPPle finite volumes)": 1.12,
+  "train (PhysicsNeMo FNO)": 154.983,
+  "checks (PINNeAPPle)": 0.116,
+  "OpenUSD stage": 0.357
+ },
+ "components": [
+  {
+   "component": "PhysicsNeMo FNO training",
+   "ran": true,
+   "why": "",
+   "how": "CPU, 2700 steps, 54.0 epochs"
+  },
+  {
+   "component": "OpenUSD stage (usd-core)",
+   "ran": true,
+   "why": "",
+   "how": "authored and validated with pxr"
+  },
+  {
+   "component": "Omniverse Kit RTX render",
+   "ran": false,
+   "why": "needs Omniverse Kit with an RTX GPU",
+   "how": "results/kit_render.py inside USD Composer"
+  }
+ ],
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "gpu": null,
+  "packages": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": "2.8.1",
+   "torch_scatter": "2.1.2",
+   "openai": null,
+   "requests": "2.34.2"
+  }
+ }
+}

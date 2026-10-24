@@ -154,7 +154,7 @@ class IPMTraction(Preset):
         the FEA."""
         p = self.resolve(**kw)
         m = machine(int(p["n_gap"]))
-        g = m.mtpa(p["I_peak"], n_positions=4)
+        g, _ = m.mtpa(p["I_peak"], n_positions=4)
         gdeg = math.degrees(g)
         t_fea = self.run(**{**kw, "gamma_deg": gdeg}).outputs["torque"]
         out = {"objective": "ângulo de máximo torque por ampère (MTPA) na corrente dada", "gamma_mtpa_fea_deg": gdeg,

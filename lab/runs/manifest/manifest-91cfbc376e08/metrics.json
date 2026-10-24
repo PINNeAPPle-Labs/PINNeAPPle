@@ -1,0 +1,13 @@
+{
+ "rel_error[2D: TM11 resonance]": 1.3500026653198006e-05,
+ "rel_error[2D: TM21 resonance]": 2.377721133063262e-05,
+ "rel_error[2D: TM12 resonance]": 0.0001860008917885323,
+ "rel_error[2D: TM31 resonance]": 0.00014698089431982415,
+ "rel_error[2D: TM22 resonance]": 5.355178179144305e-05,
+ "2D: observed_order": 2.001352308265214,
+ "rel_error[3D: (110) resonance]": 0.00029854936435145765,
+ "rel_error[3D: (101) resonance]": 0.00070155531321106,
+ "rel_error[3D: (011) resonance]": 0.0005506992852480457,
+ "rel_error[3D: (111) resonance]": 0.00026907579525413156,
+ "3D: observed_order": 2.0064511091064676
+}

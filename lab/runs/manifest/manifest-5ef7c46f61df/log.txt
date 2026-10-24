@@ -1,0 +1,7 @@
+[16:51:18] check [2D] C per unit length (extrapolated): PASS Palmer (1937): eps0 (w/d) [1 + d/(pi w)(1 + ln(2 pi w/d))]
+[16:51:18] check [2D] solution in the asymptotic range (Roache): PASS asymptotic ratio 0.998; a thin plate edge (phi ~ r^1/2) limits the order to about 1
+[16:51:18] check [2D] trust report: PASS decision APPROVED
+[16:51:18] check [3D] C, 3-D Cartesian (finest) vs axisymmetric: PASS this experiment: axisymmetric solution, Richardson extrapolated (independent discretisation of the same 3-D problem)
+[16:51:18] check [3D] C, axisymmetric (extrapolated): PASS Kirchhoff (1877): eps0 [pi a^2/d + a (ln(16 pi a/d) - 1)], asymptotic d << a
+[16:51:18] check [3D] Kirchhoff's error falls as a/d grows (asymptotic formula): PASS a/d=2.5: +6.19 %, a/d=5: +2.33 %, a/d=10: +0.82 %
+[16:51:18] check [3D] trust report: PASS decision APPROVED

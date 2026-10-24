@@ -1,0 +1,16 @@
+[17:52:39] check em.ampere_law: every comparison passes: PASS 7 comparisons
+[17:52:39] check em.bench_mu0_solenoid: every comparison passes: PASS 1 comparisons
+[17:52:39] check em.bench_rc_discharge: every comparison passes: PASS 2 comparisons
+[17:52:39] check em.biot_savart: every comparison passes: PASS 6 comparisons
+[17:52:39] check em.cavity_resonance: every comparison passes: PASS 9 comparisons
+[17:52:39] check em.circuits_rc_rl_rlc: every comparison passes: PASS 6 comparisons
+[17:52:39] check em.coulomb_superposition: every comparison passes: PASS 5 comparisons
+[17:52:39] check em.dipole_radiation: every comparison passes: PASS 6 comparisons
+[17:52:39] check em.faraday_induction: every comparison passes: PASS 3 comparisons
+[17:52:39] check em.fresnel_snell: every comparison passes: PASS 12 comparisons
+[17:52:39] check em.gauss_law: every comparison passes: PASS 2 comparisons
+[17:52:39] check em.hall_effect: every comparison passes: PASS 1 comparisons
+[17:52:39] check em.lossy_plane_wave: every comparison passes: PASS 2 comparisons
+[17:52:39] check em.mie_scattering: every comparison passes: PASS 5 comparisons
+[17:52:39] check em.parallel_plate_capacitor: every comparison passes: PASS 3 comparisons
+[17:52:39] check em.waveguide_modes: every comparison passes: PASS 8 comparisons

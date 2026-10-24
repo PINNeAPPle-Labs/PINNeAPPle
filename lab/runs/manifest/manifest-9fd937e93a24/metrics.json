@@ -1,0 +1,10 @@
+{
+ "rel_error[3D: ring potential at s = 0.6 R, z = 0.3 R]": 6.207024832406532e-16,
+ "rel_error[3D: axial field E_z(z = 0.75 R)]": 6.588211790636253e-16,
+ "rel_error[3D: far field -> point charge (r = 40 R)]": 0.0009367681118060166,
+ "3D: max_rel_error_potential": 2.886579864025407e-15,
+ "3D: convergence_rate": -1.3785116232537298,
+ "rel_error[2D: line-pair field E_x at (0, d/2)]": 3.8085783611433454e-10,
+ "rel_error[2D: finite line -> infinite line (s = 0.01 m, L = 1 m)]": 4.999625031209285e-05,
+ "2D: max_rel_error_field": 6.080898865734387e-09
+}

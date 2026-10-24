@@ -1,0 +1,10 @@
+{
+ "rel_error[2D: circle around the conductor / mu0]": 7.611895146119556e-05,
+ "rel_error[2D: square around the conductor / mu0]": 8.146090524811754e-05,
+ "rel_error[2D: circle enclosing nothing / mu0]": 3.805556177511095e-05,
+ "2D: imposed_current": 10.208333333333341,
+ "rel_error[3D: circle around one side]": 0.0,
+ "rel_error[3D: tilted ellipse, linking once]": 1.7763568394002506e-16,
+ "rel_error[3D: path winding twice]": 0.0,
+ "rel_error[3D: path not linked (a circle inside the loop, above it)]": 7.940933881557528e-18
+}

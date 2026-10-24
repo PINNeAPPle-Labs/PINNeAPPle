@@ -1,0 +1,135 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.coulomb_superposition",
+ "title": "Coulomb's law and superposition",
+ "area": "physics.electromagnetism",
+ "topic": "electrostatics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "2D",
+ "params": {
+  "Q": 1e-09,
+  "R": 0.05,
+  "ladder": [
+   16,
+   32,
+   64,
+   128,
+   256
+  ],
+  "lam": 1e-09,
+  "half_length": 1.0,
+  "separation": 0.04
+ },
+ "values": {
+  "max_rel_error_field": {
+   "value": 6.080898865734387e-09,
+   "unit": "",
+   "how": "max over 55 points, 1024 charges per line"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "line-pair field E_x at (0, d/2)",
+   "computed": 898.3958924464091,
+   "reference": 898.395892104248,
+   "rel_error": 3.8085783611433454e-10,
+   "tol": 1e-06,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed",
+   "unit": "V/m",
+   "how": "1024 point charges per line (midpoint rule along z)",
+   "abs_error": 3.4216111544083105e-07,
+   "atol": 0.0
+  },
+  {
+   "quantity": "finite line -> infinite line (s = 0.01 m, L = 1 m)",
+   "computed": 1797.4204884585458,
+   "reference": 1797.5103572363048,
+   "rel_error": 4.999625031209285e-05,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "limit",
+   "source": "Gauss's law for an infinite line: lam / (2 pi eps0 s)",
+   "unit": "V/m",
+   "how": "",
+   "abs_error": 0.08986877775896573,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "worst error over the 55 points below 1e-6",
+   "passed": true,
+   "value": 6.080898865734387e-09,
+   "limit": 1e-06,
+   "critical": false,
+   "detail": "64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any power until the charges are closer than the points are to the line)",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "line-pair field E_x at (0, d/2) vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 3.8085783611433454e-10,
+    "limit": 1e-06,
+    "source": "Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed",
+    "reason": "computed 898.396, reference 898.396 V/m"
+   },
+   {
+    "name": "finite line -> infinite line (s = 0.01 m, L = 1 m) vs limit",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 4.999625031209285e-05,
+    "limit": 0.001,
+    "source": "Gauss's law for an infinite line: lam / (2 pi eps0 s)",
+    "reason": "computed 1797.42, reference 1797.51 V/m"
+   },
+   {
+    "name": "worst error over the 55 points below 1e-6",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 6.080898865734387e-09,
+    "limit": 1e-06,
+    "source": "physics",
+    "reason": "64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any power until the charges are closer than the points are to the line)"
+   }
+  ]
+ },
+ "data": {
+  "convergence": {
+   "N": [
+    16,
+    32,
+    64,
+    128,
+    256
+   ],
+   "max_rel_error": [
+    0.37030398107253054,
+    0.0489711074429215,
+    0.0005429852490660361,
+    4.855211421602105e-08,
+    6.080898865734387e-09
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "coulomb_lines_2d.png"
+ ],
+ "movies": [],
+ "wall_time_s": 0.49313818300015555
+}

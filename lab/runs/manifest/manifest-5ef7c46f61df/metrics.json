@@ -1,0 +1,15 @@
+{
+ "rel_error[2D: C per unit length (extrapolated)]": 0.003927955814044814,
+ "2D: C_per_length_fine": 1.0359258574773179e-10,
+ "2D: observed_order": 1.026059908461316,
+ "2D: gci_fine": 0.0019096326452605714,
+ "2D: fringe_excess": 0.16819666397174937,
+ "rel_error[3D: C, 3-D Cartesian (finest) vs axisymmetric]": 0.0023933094036951204,
+ "rel_error[3D: C, axisymmetric (extrapolated)]": 0.008166506876191646,
+ "3D: C_cartesian_4_cells": 3.262481569788474e-10,
+ "3D: C_cartesian_6_cells": 3.25962419114377e-10,
+ "3D: C_cartesian_8_cells": 3.262468946141227e-10,
+ "3D: C_cartesian_fine": 3.262468946141227e-10,
+ "3D: C_axisymmetric_extrapolated": 3.270295775774252e-10,
+ "3D: fringe_excess": 0.175678105636071
+}

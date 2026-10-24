@@ -1,0 +1,170 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/mie_scattering",
+ "title": "Mie scattering by a sphere (3D)",
+ "description": "Scattering and extinction efficiencies of a dielectric sphere from the Mie series (pp.em.mie): against the published BHMIE sample of Bohren & Huffman, the Rayleigh law for small spheres, the optical theorem (extinction from the forward amplitude) and the extinction paradox Q_ext -> 2 for large spheres.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.mie_scattering"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "theory",
+  "dims": [
+   "3D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D: Q_sca, BHMIE sample]",
+   "value": 1.4389421505961307e-06,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (published: Bohren & Huffman (1983) app. A, BHMIE sample output (m = 1.55, x = 5.213))"
+  },
+  {
+   "name": "rel_error[3D: Q_back, BHMIE sample]",
+   "value": 2.220798293268544e-07,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (published: Bohren & Huffman (1983) app. A, BHMIE sample output (m = 1.55, x = 5.213))"
+  },
+  {
+   "name": "rel_error[3D: Q_sca at x = 0.02 (Rayleigh)]",
+   "value": 2.944537737401958e-05,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (limit: Rayleigh: Q_sca = 8/3 x^4 |(m^2 - 1)/(m^2 + 2)|^2 (B&H eq. 5.8))"
+  },
+  {
+   "name": "rel_error[3D: optical theorem: 4 Re S(0) / x^2 (absorbing sphere)]",
+   "value": 2.2352020346932984e-16,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (conservation: B&H eq. 4.76 (optical theorem))"
+  },
+  {
+   "name": "rel_error[3D: Q_ext at x = 3000 (absorbing)]",
+   "value": 0.004775434620209129,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (limit: van de Hulst sec. 8.22: Q_ext -> 2 (extinction paradox); correction ~ x^(-2/3))"
+  },
+  {
+   "name": "3D: first_extinction_peak_x",
+   "value": 6.499999999999999,
+   "unit": "-",
+   "how": "size parameter of the first maximum of Q_ext for m = 1.33"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D] Q_sca, BHMIE sample",
+   "passed": true,
+   "value": 3.1054255314658774,
+   "reference": 3.10543,
+   "rtol": 2e-05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Bohren & Huffman (1983) app. A, BHMIE sample output (m = 1.55, x = 5.213)",
+   "label": "Q_sca, BHMIE sample vs published",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] Q_back, BHMIE sample",
+   "passed": true,
+   "value": 2.9253406496590078,
+   "reference": 2.92534,
+   "rtol": 2e-05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Bohren & Huffman (1983) app. A, BHMIE sample output (m = 1.55, x = 5.213)",
+   "label": "Q_back, BHMIE sample vs published",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] Q_sca at x = 0.02 (Rayleigh)",
+   "passed": true,
+   "value": 1.7757687933307338e-08,
+   "reference": 1.775821083052673e-08,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Rayleigh: Q_sca = 8/3 x^4 |(m^2 - 1)/(m^2 + 2)|^2 (B&H eq. 5.8)",
+   "label": "Q_sca at x = 0.02 (Rayleigh) vs limit",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] optical theorem: 4 Re S(0) / x^2 (absorbing sphere)",
+   "passed": true,
+   "value": 1.9867967322739033,
+   "reference": 1.9867967322739037,
+   "rtol": 1e-10,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "B&H eq. 4.76 (optical theorem)",
+   "label": "optical theorem: 4 Re S(0) / x^2 (absorbing sphere) vs conservation",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] Q_ext at x = 3000 (absorbing)",
+   "passed": true,
+   "value": 2.0095508692404183,
+   "reference": 2.0,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "van de Hulst sec. 8.22: Q_ext -> 2 (extinction paradox); correction ~ x^(-2/3)",
+   "label": "Q_ext at x = 3000 (absorbing) vs limit",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "3D/mie.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "3D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Bohren & Huffman, Absorption and Scattering of Light by Small Particles (1983), sec. 4.4 and app. A",
+  "van de Hulst, Light Scattering by Small Particles (1957), sec. 8.22 (Q_ext -> 2)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9847a3ef",
+  "created": "2026-10-24T16:48:42Z",
+  "seconds": 0.004,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

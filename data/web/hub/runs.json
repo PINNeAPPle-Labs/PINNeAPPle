@@ -1594,6 +1594,193 @@
   "stdout": "Rigid bodies with NVIDIA Newton: check the solver, then run a small scene | system dynamics | not curated",
   "timed_out": false
  },
+ "example:examples/science": {
+  "code_hash": "32e61852e453fd6d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.73,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Science experiments and atlas | science | not curated\ncomparisons 78.0 \ncomparisons_passed 78.0",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/ampere_law": {
+  "code_hash": "d3a5dc9c2bcba7d1",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.83,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Ampere's law (2D, 3D) | science / physics.electromagnetism | not curated\nrel_error[2D: circle around the conductor / mu0] 7.611895146119556e-05 -\nrel_error[2D: square around the conductor / mu0] 8.146090524811754e-05 -\nrel_error[2D: circle enclosing nothing / mu0] 3.805556177511095e-05 -\n2D: imposed_current 10.208333333333341 A\nrel_error[3D: circle around one side] 0.0 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/bench_mu0_solenoid": {
+  "code_hash": "71adca4d243791bc",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.75,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Bench: measuring mu0 with a solenoid (3D) | science / physics.electromagnetism | not curated\nrel_error[3D: mu0 (bench) vs CODATA 2022] 0.003937714596454831 -\n3D: mu0_measured 1.251688783171391e-06 N/A^2\n3D: expanded_uncertainty_k2 1.2947988192723286e-08 N/A^2\n3D: earth_field_intercept 2.772951635444727e-05 T\n3D: reduced_chi2 2.040666467076056 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/bench_rc_discharge": {
+  "code_hash": "658ac5cb04bdeda2",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.81,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Bench: capacitance from an RC discharge on an oscilloscope (0D) | science / physics.electromagnetism | not curated\nrel_error[0D: C (bench) vs the capacitor's true value] 0.0015782317619964959 -\nrel_error[0D: C vs the nominal label (470 nF +- 10 %)] 0.08431761000426682 -\n0D: C_measured 4.303707232979946e-07 F\n0D: expanded_uncertainty_k2 1.2442809558116788e-09 F\n0D: tau_fit 0.004200150233336449 s",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/biot_savart": {
+  "code_hash": "7be940d46e563171",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.73,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Biot-Savart: wire, loop and solenoid (3D) | science / physics.electromagnetism | not curated\nrel_error[3D: finite wire B (midpoint rule)] 4.378055846970315e-08 -\nrel_error[3D: loop B, 5 points on and off axis (worst)] 0.00017134170173127572 -\nrel_error[3D: loop centre B] 5.020242805417446e-05 -\nrel_error[3D: solenoid centre B (helix)] 8.393451798928599e-05 -\nrel_error[3D: solenoid end B (helix)] 2.1949656525125107e-05 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/cavity_resonance": {
+  "code_hash": "ec3cbe5c550368ec",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Resonant cavity (2D, 3D) | science / physics.electromagnetism | not curated\nrel_error[2D: TM11 resonance] 1.3500026653198006e-05 -\nrel_error[2D: TM21 resonance] 2.377721133063262e-05 -\nrel_error[2D: TM12 resonance] 0.0001860008917885323 -\nrel_error[2D: TM31 resonance] 0.00014698089431982415 -\nrel_error[2D: TM22 resonance] 5.355178179144305e-05 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/circuits_rc_rl_rlc": {
+  "code_hash": "6d14d2501c5f312b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "RC, RL and RLC circuits (0D) | science / physics.electromagnetism | not curated\nrel_error[0D: RC time constant (fit of ln(1 - V/V0))] 1.51760114891486e-11 -\nrel_error[0D: RL time constant] 1.864692211403507e-11 -\nrel_error[0D: RL final current] 2.28723290307542e-12 -\nrel_error[0D: RLC damped angular frequency (zero crossings)] 1.9615106678979766e-11 -\nrel_error[0D: RLC decay rate (log decrement of extrema)] 7.957135039760033e-11 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/coulomb_superposition": {
+  "code_hash": "a272e950cee52983",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.71,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Coulomb's law and superposition (3D, 2D) | science / physics.electromagnetism | not curated\nrel_error[3D: ring potential at s = 0.6 R, z = 0.3 R] 6.207024832406532e-16 -\nrel_error[3D: axial field E_z(z = 0.75 R)] 6.588211790636253e-16 -\nrel_error[3D: far field -> point charge (r = 40 R)] 0.0009367681118060166 -\n3D: max_rel_error_potential 2.886579864025407e-15 -\n3D: convergence_rate -1.3785116232537298 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/dipole_radiation": {
+  "code_hash": "c35197b30f788a43",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.68,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Oscillating dipole and radiation (3D, 3D+t) | science / physics.electromagnetism | not curated\nrel_error[3D: radiated power through the sphere kr = 0.3] 3.9519594232013053e-16 -\nrel_error[3D: radiated power through the sphere kr = 1] 9.879898558003263e-16 -\nrel_error[3D: radiated power through the sphere kr = 3] 9.879898558003263e-16 -\nrel_error[3D: radiated power through the sphere kr = 30] 5.927939134801958e-16 -\nrel_error[3D: directivity] 4.440892098500626e-16 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/faraday_induction": {
+  "code_hash": "c0b85daf5e162b0d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.79,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Faraday's law: a magnet falling through a loop (3D+t) | science / physics.electromagnetism | not curated\nrel_error[3D+t: peak EMF] 0.003981860555201304 -\nrel_error[3D+t: flux at the centre crossing] 0.0023648267292750167 -\nrel_error[3D+t: time of the EMF sign change] 3.82404292119666e-05 -\n3D+t: peak_emf 0.0052489614422669036 V\n3D+t: max_flux 7.724194246135024e-05 Wb",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/fresnel_snell": {
+  "code_hash": "cf78ddbcc58dd02d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Fresnel reflection and Snell's law (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: |r_s| at 0 deg] 0.009342468310234442 -\nrel_error[2D: |r_p| at 0 deg] 0.009340533038225823 -\nrel_error[2D: |r_s| at 30 deg] 0.007702825806827807 -\nrel_error[2D: |r_p| at 30 deg] 0.01174960093498128 -\nrel_error[2D: |r_s| at 45 deg] 0.005745213438298207 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/gauss_law": {
+  "code_hash": "af71dd783cc4d31b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.81,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Gauss's law (3D, 2D) | science / physics.electromagnetism | not curated\nrel_error[3D: flux through the cube x eps0] 0.0 -\n3D: flux_times_eps0 1.5000000000000002e-09 C\nrel_error[2D: flux per unit length x eps0] 2.0679515313825694e-16 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/hall_effect": {
+  "code_hash": "f8a41ea82f9e5cf4",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.72,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Hall effect (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: Hall coefficient R_H = E_y / (J_x B)] 0.0006311593065709672 -\n2D: current -0.004483704244207688 A\n2D: hall_voltage -0.013983708841637132 V\n2D: hall_angle_deg 4.004172940709388 deg",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/lossy_plane_wave": {
+  "code_hash": "7b0e47e8073ec1b1",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Plane wave in a lossy medium (1D) | science / physics.electromagnetism | not curated\nrel_error[1D: attenuation constant alpha] 0.0024846262581074657 -\nrel_error[1D: phase constant beta] 0.0006294979019896493 -\n1D: skin_depth 0.09795905204560379 m\n1D: observed_order 2.0163082553332172 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/mie_scattering": {
+  "code_hash": "00b84dc0000916fc",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.68,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Mie scattering by a sphere (3D) | science / physics.electromagnetism | not curated\nrel_error[3D: Q_sca, BHMIE sample] 1.4389421505961307e-06 -\nrel_error[3D: Q_back, BHMIE sample] 2.220798293268544e-07 -\nrel_error[3D: Q_sca at x = 0.02 (Rayleigh)] 2.944537737401958e-05 -\nrel_error[3D: optical theorem: 4 Re S(0) / x^2 (absorbing sphere)] 2.2352020346932984e-16 -\nrel_error[3D: Q_ext at x = 3000 (absorbing)] 0.004775434620209129 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/parallel_plate_capacitor": {
+  "code_hash": "1f36370e96b4c6f6",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.76,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Parallel-plate capacitor with edge effect (2D, 3D) | science / physics.electromagnetism | not curated\nrel_error[2D: C per unit length (extrapolated)] 0.003927955814044814 -\n2D: C_per_length_fine 1.0359258574773179e-10 F/m\n2D: observed_order 1.026059908461316 -\n2D: gci_fine 0.0019096326452605714 -\n2D: fringe_excess 0.16819666397174937 -",
+  "timed_out": false
+ },
+ "example:examples/science/electromagnetism/waveguide_modes": {
+  "code_hash": "08b6af0ef33bd4ab",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Rectangular waveguide modes (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: TE10 cut-off frequency] 1.9831744946407245e-05 -\nrel_error[2D: TE20 cut-off frequency] 7.932556515358469e-05 -\nrel_error[2D: TE01 cut-off frequency] 0.0001003957837956847 -\nrel_error[2D: TE11 cut-off frequency] 8.71064231790586e-05 -\nrel_error[2D: TE30 cut-off frequency] 0.00017847721235471602 -",
+  "timed_out": false
+ },
  "example:examples/security": {
   "code_hash": "8767280abbcbb9fe",
   "figures": [],
@@ -5981,6 +6168,28 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Terrain scenario -> pinneapple_simulation.vehicle.scenarios.crater_site / flat_site\ninputs: []\noutputs: [('site', 'site')]\ndefaults: {'scenario': 'crater_site', 'depth_ratio': 0.08, 'scenery_craters': 60, 'scenery_rocks': 5, 'slope_deg': 0.0, 'cell': 0.01, 'seed': 5}",
+  "timed_out": false
+ },
+ "node:science.atlas": {
+  "code_hash": "07cb65b66b265c4a",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.22,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Science atlas -> pinneapple_science.atlas.load().to_html(path)\ninputs: []\noutputs: [('report', 'report')]\ndefaults: {'status': 'any'}",
+  "timed_out": false
+ },
+ "node:science.run": {
+  "code_hash": "f34e15e27dee4ae5",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.08,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Science experiment -> pinneapple_science.registry.run(name, dim) over the pinneapple_science.em experiments (pinneapple_science.core.Result, pinneapple_science.instruments, pinneapple_science.numerics, pinneapple_science.plots)\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'experiment': 'em.faraday_induction', 'dim': 'first', 'quick': True}",
   "timed_out": false
  },
  "node:solver.calculix": {

@@ -1,0 +1,155 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.ampere_law",
+ "title": "Ampere's law",
+ "area": "physics.electromagnetism",
+ "topic": "magnetostatics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "2D",
+ "params": {
+  "I": 10.0,
+  "cells": [
+   40,
+   80,
+   160
+  ],
+  "n_path": 400
+ },
+ "values": {
+  "imposed_current": {
+   "value": 10.208333333333341,
+   "unit": "A",
+   "how": "sum of J over the conductor's control volumes"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "circle around the conductor / mu0",
+   "computed": 10.207556285703841,
+   "reference": 10.208333333333341,
+   "rel_error": 7.611895146119556e-05,
+   "tol": 0.002,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Ampere's law: oint B.dl = mu0 I_enc (Griffiths eq. 5.55)",
+   "unit": "A",
+   "how": "finite volumes 320^2 cells, cubic interpolation, 400 points",
+   "abs_error": 0.0007770476294997053,
+   "atol": 0.0
+  },
+  {
+   "quantity": "square around the conductor / mu0",
+   "computed": 10.207501753258933,
+   "reference": 10.208333333333341,
+   "rel_error": 8.146090524811754e-05,
+   "tol": 0.002,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Ampere's law (the path shape does not matter)",
+   "unit": "A",
+   "how": "",
+   "abs_error": 0.0008315800744078672,
+   "atol": 0.0
+  },
+  {
+   "quantity": "circle enclosing nothing / mu0",
+   "computed": 3.805556177511095e-05,
+   "reference": 0.0,
+   "rel_error": 3.805556177511095e-05,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "conservation",
+   "source": "Ampere's law: I_enc = 0",
+   "unit": "A",
+   "how": "",
+   "abs_error": 3.805556177511095e-05,
+   "atol": 0.02
+  }
+ ],
+ "checks": [
+  {
+   "name": "circulation error decreases with the grid",
+   "passed": true,
+   "value": null,
+   "limit": null,
+   "critical": false,
+   "detail": "80^2: 1.7e-04, 160^2: 2.8e-04, 320^2: 7.6e-05",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "circle around the conductor / mu0 vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 7.611895146119556e-05,
+    "limit": 0.002,
+    "source": "Ampere's law: oint B.dl = mu0 I_enc (Griffiths eq. 5.55)",
+    "reason": "computed 10.2076, reference 10.2083 A"
+   },
+   {
+    "name": "square around the conductor / mu0 vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 8.146090524811754e-05,
+    "limit": 0.002,
+    "source": "Ampere's law (the path shape does not matter)",
+    "reason": "computed 10.2075, reference 10.2083 A"
+   },
+   {
+    "name": "circle enclosing nothing / mu0 vs conservation",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 3.805556177511095e-05,
+    "limit": 0.0,
+    "source": "Ampere's law: I_enc = 0",
+    "reason": "computed 3.80556e-05, reference 0 A"
+   },
+   {
+    "name": "circulation error decreases with the grid",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "physics",
+    "reason": "80^2: 1.7e-04, 160^2: 2.8e-04, 320^2: 7.6e-05"
+   }
+  ]
+ },
+ "data": {
+  "circulation": {
+   "cells": [
+    40,
+    80,
+    160
+   ],
+   "rel_error": [
+    0.00016574985651862661,
+    0.00028227068550279455,
+    7.611895146120151e-05
+   ],
+   "values_over_mu0": [
+    10.207556285703841,
+    10.207501753258933,
+    3.805556177511095e-05
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "ampere_2d.png"
+ ],
+ "movies": [],
+ "wall_time_s": 1.5375752979998651
+}

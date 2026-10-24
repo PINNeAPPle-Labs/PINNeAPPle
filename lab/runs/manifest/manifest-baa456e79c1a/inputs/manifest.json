@@ -1,0 +1,219 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/biot_savart",
+ "title": "Biot-Savart: wire, loop and solenoid (3D)",
+ "description": "The Biot-Savart integral evaluated numerically (midpoint rule along a straight wire; polygonal filaments for a loop and a helical coil) against the closed forms: finite wire, loop (elliptic integrals, on and off the axis) and the finite solenoid on its axis.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.biot_savart"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "theory",
+  "dims": [
+   "3D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D: finite wire B (midpoint rule)]",
+   "value": 4.378055846970315e-08,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Griffiths eq. 5.37: B = mu0 I/(4 pi s) (sin t2 - sin t1))"
+  },
+  {
+   "name": "rel_error[3D: loop B, 5 points on and off axis (worst)]",
+   "value": 0.00017134170173127572,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Jackson sec. 5.5: loop field with complete elliptic integrals (pp.em.statics.loop_field))"
+  },
+  {
+   "name": "rel_error[3D: loop centre B]",
+   "value": 5.020242805417446e-05,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Griffiths ex. 5.6: B = mu0 I / (2 R))"
+  },
+  {
+   "name": "rel_error[3D: solenoid centre B (helix)]",
+   "value": 8.393451798928599e-05,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Griffiths prob. 5.11: mu0 n I / 2 (cos a2 - cos a1), current sheet)"
+  },
+  {
+   "name": "rel_error[3D: solenoid end B (helix)]",
+   "value": 2.1949656525125107e-05,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Griffiths prob. 5.11 at z = L/2 (about half the centre value))"
+  },
+  {
+   "name": "rel_error[3D: long-solenoid limit mu0 n I]",
+   "value": 0.029857499854668314,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (limit: Ampere's law for an infinite solenoid (Griffiths ex. 5.9); L/R = 8 gives a finite-length deficit)"
+  },
+  {
+   "name": "3D: wire_observed_order",
+   "value": 1.9999277134775242,
+   "unit": "-",
+   "how": "midpoint rule, pieces doubled"
+  },
+  {
+   "name": "3D: loop_observed_order",
+   "value": 1.9995110543652364,
+   "unit": "-",
+   "how": "inscribed polygon, sides doubled"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D] finite wire B (midpoint rule)",
+   "passed": true,
+   "value": 1.9951867000470555e-05,
+   "reference": 1.9951866126966713e-05,
+   "rtol": 0.0001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Griffiths eq. 5.37: B = mu0 I/(4 pi s) (sin t2 - sin t1)",
+   "label": "finite wire B (midpoint rule) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] loop B, 5 points on and off axis (worst)",
+   "passed": true,
+   "value": 1.0001713417017313,
+   "reference": 1.0,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Jackson sec. 5.5: loop field with complete elliptic integrals (pp.em.statics.loop_field)",
+   "label": "loop B, 5 points on and off axis (worst) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] loop centre B",
+   "passed": true,
+   "value": 2.5134002950033173e-05,
+   "reference": 2.51327412254e-05,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Griffiths ex. 5.6: B = mu0 I / (2 R)",
+   "label": "loop centre B vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] solenoid centre B (helix)",
+   "passed": true,
+   "value": 0.0024384386927904793,
+   "reference": 0.0024382340407915204,
+   "rtol": 0.002,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Griffiths prob. 5.11: mu0 n I / 2 (cos a2 - cos a1), current sheet",
+   "label": "solenoid centre B (helix) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] solenoid end B (helix)",
+   "passed": true,
+   "value": 0.0012469605247111596,
+   "reference": 0.0012469331549566985,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Griffiths prob. 5.11 at z = L/2 (about half the centre value)",
+   "label": "solenoid end B (helix) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] long-solenoid limit mu0 n I",
+   "passed": true,
+   "value": 0.0024382340407915204,
+   "reference": 0.00251327412254,
+   "rtol": 0.05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Ampere's law for an infinite solenoid (Griffiths ex. 5.9); L/R = 8 gives a finite-length deficit",
+   "label": "long-solenoid limit mu0 n I vs limit",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] polygon loop converges at second order",
+   "passed": true,
+   "value": 1.9995110543652364,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] div B = 0 near the loop (pp.maxwell.gauss_magnetic)",
+   "passed": true,
+   "value": 0.000625182163396665,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div B: ||sum of terms|| / sum of ||term|| = 0.000625; r(2h)/r(h) = 3.99: discretisation error (the field obeys the law); extrapolated residual 2.86e-06",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "3D/biot_savart.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "3D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Griffiths, Introduction to Electrodynamics, 4th ed., ex. 5.5 (finite wire), ex. 5.6 (loop), prob. 5.11 (finite solenoid)",
+  "Jackson, Classical Electrodynamics, 3rd ed., sec. 5.5 (loop, elliptic integrals)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9847a3ef",
+  "created": "2026-10-24T16:44:53Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

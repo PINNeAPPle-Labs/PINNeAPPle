@@ -628,6 +628,8 @@ _SUBMODULES = {
     "maxwell":    "pinneapple_physics.maxwell_checks",
     # industrial presets: engineering cases set up, solved and validated (pp.presets.load(name).run(...))
     "presets":    "pinneapple_presets",
+    # science by area: experiments (academic / research, theory / practice, 0-D to 3-D + time) and the atlas
+    "science":    "pinneapple_science",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

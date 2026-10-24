@@ -1,0 +1,9 @@
+{
+ "rel_error[0D: RC time constant (fit of ln(1 - V/V0))]": 1.51760114891486e-11,
+ "rel_error[0D: RL time constant]": 1.864692211403507e-11,
+ "rel_error[0D: RL final current]": 2.28723290307542e-12,
+ "rel_error[0D: RLC damped angular frequency (zero crossings)]": 1.9615106678979766e-11,
+ "rel_error[0D: RLC decay rate (log decrement of extrema)]": 7.957135039760033e-11,
+ "rel_error[0D: energy dissipated in R (free decay)]": 5.85343134639621e-11,
+ "0D: quality_factor": 6.324555320336758
+}

@@ -1,0 +1,13 @@
+{
+ "processes": 64,
+ "status": {
+  "ok": 64
+ },
+ "wall_s_total": 7490.0,
+ "wall_s_median_ok": 93.0,
+ "wall_s_min": 35.0,
+ "wall_s_max": 327.0,
+ "max_rss_mb": 2039.0,
+ "source": "runner log of the campaign (wall seconds rounded to 1 s)",
+ "note": "about half of the cells ran while another PO study shared the 4 cores"
+}

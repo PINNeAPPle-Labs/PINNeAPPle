@@ -1,0 +1,12 @@
+# docker compose -f docker/model_services/compose.yaml up --build
+services:
+  model-services:
+    build:
+      context: ../..
+      dockerfile: docker/model_services/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      # optional: require "Authorization: Bearer <key>" (the server reads --api-key; set it in command to use it)
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

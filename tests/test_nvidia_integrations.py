@@ -399,3 +399,86 @@ def test_example_brep_smoke(tmp_path, name):
     s = _example(name)["main"](True, str(tmp_path))
     assert s["decision"] in ("APPROVED", "REVIEW", "REJECT")
     assert os.path.exists(tmp_path / "results" / "architecture.png")
+
+
+# ------------------------------------------------------------------------------------------------ Model Services (N)
+def test_model_services_routes_and_trust():
+    from pinneapple_tools.model_services import (
+        ModelServiceClient,
+        ServiceError,
+        default_registry,
+        serve_in_thread,
+    )
+    srv, url = serve_in_thread(default_registry())
+    try:
+        c = ModelServiceClient(url)
+        assert c.ready()
+        ids = {m["id"] for m in c.models()}
+        assert {"pinneapple-intent", "pinneapple-trust-card", "airfoil_cst_rans_mlp"} <= ids
+        x = dict(T0=0.169591, T1=0.144959, T2=0.131433, M0=0.024922, M1=0.071088, M2=0.058960)
+        ok = c.infer("airfoil_cst_rans_mlp", {**x, "alpha_deg": [4.0]})
+        assert ok["trust"]["decision"] == "APPROVED" and abs(ok["outputs"]["Cl"][0] - 0.6625) < 0.02
+        out = c.infer("airfoil_cst_rans_mlp", {**x, "alpha_deg": [25.0]})
+        assert out["trust"]["decision"] != "APPROVED" and not out["trust"]["in_validity_range"] and out["warnings"]
+        with pytest.raises(ServiceError) as e:
+            c.infer("nope", {})
+        assert e.value.status == 404
+        with pytest.raises(ServiceError) as e:
+            c.chat("airfoil_cst_rans_mlp", [{"role": "user", "content": "hi"}])
+        assert e.value.status == 400
+        good = c.chat("pinneapple-intent", [{"role": "user", "content": "An aluminium shelf bracket that holds 1.5 kN "
+                                                                         "at 120 mm from the wall, safety factor 2"}],
+                      guided_json={"type": "object", "required": ["template", "values"]})
+        assert good["object"] == "chat.completion" and good["pinneapple"]["trust"]["decision"] == "APPROVED"
+        assert ModelServiceClient.content_json(good)["values"]["arm_length"]["value"] == pytest.approx(0.12)
+        bad = c.chat("pinneapple-intent", [{"role": "user", "content": "A bracket holding 1.5 kN on a 120 mm arm, "
+                                                                        "50 mm wide"}],
+                     guided_json={"type": "object", "required": ["nonexistent"]})
+        assert bad["pinneapple"]["trust"]["decision"] != "APPROVED" and bad["pinneapple"]["guided_json_errors"]
+    finally:
+        srv.shutdown()
+
+
+def test_model_services_api_key_and_grid_services():
+    from pinneapple_simulation.numerical_solvers import operator_benchmarks as ob
+    from pinneapple_tools.model_services import (
+        ModelServiceClient,
+        Registry,
+        ServiceError,
+        serve_in_thread,
+    )
+    from pinneapple_tools.model_services.grid import darcy_solver_service, grid_operator_service
+
+    class Exact:                                         # a "surrogate" that returns the solver's answer
+        def predict(self, a):
+            return ob.darcy_2d(a)
+
+    class Scaled:                                        # one that is 20 % off: breaks the flux balance
+        def predict(self, a):
+            return 1.2 * ob.darcy_2d(a)
+
+    reg = Registry([grid_operator_service(Exact(), "exact"), grid_operator_service(Scaled(), "scaled"),
+                    darcy_solver_service()])
+    srv, url = serve_in_thread(reg, api_key="k")
+    try:
+        with pytest.raises(ServiceError) as e:
+            ModelServiceClient(url).models()
+        assert e.value.status == 401
+        c = ModelServiceClient(url, api_key="k")
+        a = ob.threshold_coefficient(ob.periodic_grf(1, (32, 32), alpha=2.0, tau=3.0, seed=0))[0]
+        assert c.infer("exact", {"a": a.tolist()})["trust"]["decision"] == "APPROVED"
+        assert c.infer("pinneapple-darcy-fv", {"a": a.tolist()})["trust"]["decision"] == "APPROVED"
+        assert c.infer("scaled", {"a": a.tolist()})["trust"]["decision"] == "REJECT"
+    finally:
+        srv.shutdown()
+
+
+def test_example_06_model_services_smoke(tmp_path):
+    s = _example("06_model_services_zoo")["main"](True, str(tmp_path))
+    assert s["decision"] == "APPROVED" and os.path.exists(tmp_path / "results" / "sweep.png")
+
+
+@needs_brep
+def test_example_15_request_to_bracket_smoke(tmp_path):
+    s = _example("15_model_services_brep_bracket")["main"](True, str(tmp_path))
+    assert s["answers"][0]["decision"] == "APPROVED" and s["answers"][1]["decision"] != "APPROVED"

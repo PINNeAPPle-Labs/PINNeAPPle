@@ -159,6 +159,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   with root fillets, closed-form volumes) and `.heatsink` (designs rated by the closed-form heat-sink model on exact
   solids, verification of surrogate proposals). `numerical_solvers.plane_stress_fem` (constant-strain triangles on any
   mesh, patch test, Heywood's net-section Kt). Examples 05 (B), 10 (B + P), 14 (B + O) and 16 (O + P + B).
+- PINNeAPPle Model Services (`pinneapple_tools.model_services`): PINNeAPPle models as local microservices on NVIDIA
+  NIM's routes (`/v1/health/ready`, `/v1/models`, `/v1/infer`, `/v1/chat/completions` with `nvext.guided_json`),
+  standard library only; every answer carries the trust report of that query. Built-ins: the zoo (trust from
+  `pp.zoo.validate`), `pp.trust_card` as a service, and `pinneapple-intent` (the deterministic extractor of
+  `pinneapple_design.intent`, values with their quotes). `grid_operator_service` / `darcy_solver_service` serve a field
+  model (e.g. a PhysicsNeMo FNO) and the finite-volume solver with residual-based checks. One `ModelServiceClient` for
+  these services and for NVIDIA NIM. `python -m pinneapple_tools.model_services serve`, `docker/model_services`, the
+  Flow Studio node `lib.services.infer`. Examples 06 (N), 11 (N + P) and 15 (N + B).
 - Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
   curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
   Joukowsky's head rise and the 4L/a period.

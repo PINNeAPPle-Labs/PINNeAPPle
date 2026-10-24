@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 417,
+  "tool": 418,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 146
+  "example": 150
  },
  "kinds": {
   "tool": "Tools",
@@ -51,7 +51,7 @@
   {
    "slug": "zoo",
    "title": "Model zoo",
-   "description": "Pre-trained, verified models and their cards"
+   "description": "Pre-trained, verified models and their cards, served as model services"
   },
   {
    "slug": "checks",
@@ -121,31 +121,31 @@
  ],
  "facets": {
   "kind": {
-   "tool": 417,
+   "tool": 418,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 146
+   "example": 150
   },
   "subkind": {
    "library call": 249,
-   "flow node": 85,
+   "flow node": 86,
    "recipe": 46,
    "function": 20,
    "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 90,
+   "physics AI": 92,
    "general": 78,
    "fluid dynamics": 60,
    "design and geometry": 58,
-   "structural mechanics": 52,
+   "structural mechanics": 53,
    "numerical methods": 46,
    "validation and benchmarks": 46,
    "data": 41,
    "system dynamics": 41,
-   "heat transfer": 27,
+   "heat transfer": 28,
    "vehicle dynamics": 14,
    "electromagnetics": 12,
    "time series": 9,
@@ -163,6 +163,7 @@
    "Térmica / eletrônica de potência": 1,
    "Térmica / processo e energia": 1,
    "engineering": 1,
+   "external aerodynamics": 1,
    "geometry": 1,
    "hydraulics": 1,
    "molecular dynamics": 1,
@@ -176,7 +177,7 @@
    "classical": 18,
    "pinn": 16,
    "surrogates": 10,
-   "zoo": 8,
+   "zoo": 9,
    "checks": 33,
    "verification": 32,
    "benchmarks": 14,
@@ -192,7 +193,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 538,
+   "not graded": 543,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -1623,6 +1624,103 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Arm move in the robot sim (Newton), checked -> pinneapple_simulation.robot_sim.checks:arm_pick_and_place\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'duration': 0.8, 'q_start': [-0.6, 1.2], 'q_end': [0.9, -0.4], 'dt': 0.0005, 'kp': [350.0, 110.0], 'kd': [5.0, 2.5], 'safety': 3.0}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:lib.services.infer",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "lib.services.infer",
+   "title": "Ask a PINNeAPPle model service",
+   "summary": "a zoo surrogate, the physics-check service or the intent extractor of PINNeAPPle Model Services (the NIM-compatible microservices), answered with its trust report; inputs as the…",
+   "description": "a zoo surrogate, the physics-check service or the intent extractor of PINNeAPPle Model Services (the NIM-compatible microservices), answered with its trust report; inputs as the JSON of /v1/infer",
+   "domain": "physics AI",
+   "tags": [
+    "Learning",
+    "machine learning",
+    "reduced order",
+    "regression",
+    "rom",
+    "surrogates"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"lib.services.infer\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=lib.services.infer",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/libcalls.py#L242"
+   },
+   "extra": {
+    "calls": "pinneapple_tools.model_services.registry:infer",
+    "category": "Learning",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "result",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "model",
+      "kind": "str",
+      "default": null,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "inputs_json",
+      "kind": "str",
+      "default": null,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "model": {
+       "title": "model",
+       "description": "",
+       "x-kind": "str",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "inputs_json": {
+       "title": "inputs json",
+       "description": "",
+       "x-kind": "str",
+       "type": "string",
+       "maxLength": 4000
+      }
+     }
+    }
+   },
+   "category": "zoo",
+   "run": {
+    "code_hash": "6e46e4e3c1ef610b",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 5.62,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Ask a PINNeAPPle model service -> pinneapple_tools.model_services.registry:infer\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'model': None, 'inputs_json': None}",
     "timed_out": false,
     "status": "ok"
    }
@@ -47970,6 +48068,7 @@
    },
    "examples": [
     "example:examples/model_zoo",
+    "example:examples/nvidia",
     "dataset:airfoil_rans_cst_re4e6"
    ],
    "files": [
@@ -48271,6 +48370,7 @@
     ]
    },
    "examples": [
+    "example:examples/nvidia",
     "example:examples/validation",
     "dataset:heatsink_forced_convection"
    ],
@@ -72066,6 +72166,78 @@
    }
   },
   {
+   "id": "example:examples/nvidia/11_model_services_physicsnemo_operator",
+   "kind": "example",
+   "name": "examples/nvidia/11_model_services_physicsnemo_operator",
+   "title": "PhysicsNeMo FNO served with per-answer physics checks and solver fallback",
+   "summary": "",
+   "description": "",
+   "domain": "heat transfer",
+   "tags": [
+    "FNO (PhysicsNeMo)",
+    "FVM",
+    "model serving"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/11_model_services_physicsnemo_operator"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/11_model_services_physicsnemo_operator\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "surrogate_rel_l2_in-distribution",
+      "value": 0.01893316941816208,
+      "unit": "",
+      "how": "mean over the requests of the group, against the FV solution"
+     },
+     {
+      "name": "surrogate_rel_l2_higher",
+      "value": 0.25346193616601387,
+      "unit": "",
+      "how": "mean over the requests of the group, against the FV solution"
+     },
+     {
+      "name": "surrogate_rel_l2_finer",
+      "value": 0.019041764851127442,
+      "unit": "",
+      "how": "mean over the requests of the group, against the FV solution"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/11_model_services_physicsnemo_operator/results/routing.png",
+     "examples/nvidia/11_model_services_physicsnemo_operator/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/11_model_services_physicsnemo_operator"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "e8e585ebbf2d5baa",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.77,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "PhysicsNeMo FNO served with per-answer physics checks and solver fallback | heat transfer | not curated\nsurrogate_rel_l2_in-distribution 0.01893316941816208 \nsurrogate_rel_l2_higher 0.25346193616601387 \nsurrogate_rel_l2_finer 0.019041764851127442",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/physics_optimizer",
    "kind": "example",
    "name": "examples/physics_optimizer",
@@ -72960,6 +73132,18 @@
       "value": 105.37090558663354,
       "unit": "g",
       "how": "14: USD BRep mass properties, 6061 density"
+     },
+     {
+      "name": "service_latency_median",
+      "value": 35.379128999920795,
+      "unit": "ms",
+      "how": "06: client round trip per /v1/infer (prediction + trust report)"
+     },
+     {
+      "name": "service_bracket_mass",
+      "value": 369.9879538393715,
+      "unit": "g",
+      "how": "15: exact B-rep mass of the bracket built from the approved request"
      }
     ],
     "figures": [
@@ -72974,7 +73158,10 @@
     ],
     "videos": []
    },
-   "examples": [],
+   "examples": [
+    "model:airfoil_cst_rans_mlp",
+    "model:heatsink_forced_mlp"
+   ],
    "files": [],
    "links": {
     "guide": "examples/nvidia/README.md",
@@ -75078,6 +75265,73 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Rede de distribuição de água: pressões, vazões e dimensionamento de menor custo | Fluidos / saneamento | not curated\nrel_error[pressão no nó 3, Hazen-Williams] 1.0963156043483382e-05 -\nrel_error[pressão no nó 6, Hazen-Williams] 8.604211536602683e-06 -\nrel_error[pressão no nó 3, Darcy-Weisbach] 0.004225301457298413 -\nrel_error[pressão no nó 6, Darcy-Weisbach] 0.002865155312762607 -\nrel_error[custo da solução publicada] 0.0 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/15_model_services_brep_bracket",
+   "kind": "example",
+   "name": "examples/nvidia/15_model_services_brep_bracket",
+   "title": "Request to exact bracket: model service, USD BRep, PINNeAPPle sizing and verification",
+   "summary": "",
+   "description": "",
+   "domain": "structural mechanics",
+   "tags": [
+    "B-rep (SMLib)",
+    "FEM (C3D8I)",
+    "beam theory",
+    "intent extraction"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/15_model_services_brep_bracket"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/15_model_services_brep_bracket\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "thickness_mm",
+      "value": 10.0,
+      "unit": "mm",
+      "how": "smallest stock plate with beam stress <= yield / SF"
+     },
+     {
+      "name": "bracket_mass",
+      "value": 369.9879538393715,
+      "unit": "g",
+      "how": "exact B-rep mass, 6061 density"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/15_model_services_brep_bracket/results/request_to_part.png",
+     "examples/nvidia/15_model_services_brep_bracket/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/15_model_services_brep_bracket"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "17b57b9c8721d115",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.93,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Request to exact bracket: model service, USD BRep, PINNeAPPle sizing and verification | structural mechanics | not curated\nthickness_mm 10.0 mm\nbracket_mass 369.9879538393715 g",
     "timed_out": false,
     "status": "ok"
    }
@@ -77896,6 +78150,150 @@
    }
   },
   {
+   "id": "example:examples/autolab_aero",
+   "kind": "example",
+   "name": "examples/autolab_aero",
+   "title": "The AI Aerodynamicist (Autonomous Physics Lab)",
+   "summary": "Lower drag at 70 m/s keeping the downforce and the aero balance: OpenFOAM 3-D on a parametric racing car, surrogates compared on held-out CFD, NSGA-II on the surrogate, every…",
+   "description": "Lower drag at 70 m/s keeping the downforce and the aero balance: OpenFOAM 3-D on a parametric racing car, surrogates compared on held-out CFD, NSGA-II on the surrogate, every candidate triaged (favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the recommendation verified by CFD.",
+   "domain": "external aerodynamics",
+   "tags": [
+    "Gaussian process",
+    "MLP ensemble",
+    "NSGA-II",
+    "OpenFOAM simpleFoam k-omega SST",
+    "POD + GP surface field",
+    "active learning",
+    "quadratic response surface",
+    "snappyHexMesh"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_aero"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_aero\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/autolab_aero/autolab_aero.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "cfd_runs",
+      "value": 20.0,
+      "unit": "runs",
+      "how": "OpenFOAM runs charged to the mission budget"
+     },
+     {
+      "name": "cfd_wall",
+      "value": 11840.2,
+      "unit": "s",
+      "how": "summed wall time of the mission's OpenFOAM runs, 4 cores"
+     },
+     {
+      "name": "failed_runs",
+      "value": 0.0,
+      "unit": "runs",
+      "how": "runs that did not finish"
+     },
+     {
+      "name": "mesh_drag_N_vs_fine",
+      "value": -0.2274348209939454,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "mesh_downforce_N_vs_fine",
+      "value": -8.40857266320646,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "mesh_balance_front_vs_fine",
+      "value": 9.60069709783955,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "drag_change",
+      "value": -15.667219882799474,
+      "unit": "%",
+      "how": "best simulated feasible vs baseline (CFD)"
+     },
+     {
+      "name": "drag_best",
+      "value": 2795.476711173259,
+      "unit": "N",
+      "how": "CFD of the recommended design"
+     },
+     {
+      "name": "downforce_best",
+      "value": 7318.832880603657,
+      "unit": "N",
+      "how": "CFD of the recommended design"
+     },
+     {
+      "name": "drag_change_fine",
+      "value": -13.945206047386797,
+      "unit": "%",
+      "how": "recommended vs baseline, both on the fine mesh"
+     },
+     {
+      "name": "cv_rel_error_drag_N",
+      "value": 2.352359865034112,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     },
+     {
+      "name": "cv_rel_error_downforce_N",
+      "value": 10.206190374761313,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     },
+     {
+      "name": "cv_rel_error_balance_front",
+      "value": 4.3139069742995,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     }
+    ],
+    "figures": [
+     "examples/autolab_aero/_out/figures/pareto.png",
+     "examples/autolab_aero/_out/figures/models.png",
+     "examples/autolab_aero/_out/figures/learning.png",
+     "examples/autolab_aero/_out/figures/trust_abc.png",
+     "examples/autolab_aero/_out/figures/cp_numerical_prediction_error.png",
+     "examples/autolab_aero/_out/figures/baseline_cp_top.png",
+     "examples/autolab_aero/_out/figures/baseline_cp_bottom.png",
+     "examples/autolab_aero/_out/figures/baseline_streamlines.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/autolab_aero/autolab_aero.py",
+    "lab": "lab/index.html#examples/autolab_aero"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+    "stderr": "",
+    "seconds": 0.99,
+    "timed_out": false,
+    "code_hash": "dc2d0c36e9e9dec7",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:bricks/tower",
    "kind": "example",
    "name": "bricks/tower",
@@ -78601,6 +78999,71 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Your first PINNeAPPle result in about a minute on a laptop CPU: solve Burgers' equation with a… | general | not curated",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/06_model_services_zoo",
+   "kind": "example",
+   "name": "examples/nvidia/06_model_services_zoo",
+   "title": "Zoo surrogates as NIM-compatible services with a trust report per answer",
+   "summary": "",
+   "description": "",
+   "domain": "physics AI",
+   "tags": [
+    "model serving",
+    "zoo validation"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/06_model_services_zoo"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/06_model_services_zoo\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "latency_median_ms",
+      "value": 35.379128999920795,
+      "unit": "ms",
+      "how": "client round trip per /v1/infer request"
+     },
+     {
+      "name": "cl_naca2412_4deg",
+      "value": 0.6615029102991399,
+      "unit": "",
+      "how": "airfoil service, alpha 4 deg"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/06_model_services_zoo/results/sweep.png",
+     "examples/nvidia/06_model_services_zoo/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/06_model_services_zoo"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "14bf80c381610546",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.8,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Zoo surrogates as NIM-compatible services with a trust report per answer | physics AI | not curated\nlatency_median_ms 35.379128999920795 ms\ncl_naca2412_4deg 0.6615029102991399",
     "timed_out": false,
     "status": "ok"
    }

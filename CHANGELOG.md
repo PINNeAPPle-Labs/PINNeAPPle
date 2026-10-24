@@ -14,6 +14,26 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Hub and Flow Studio on one registry: every Flow Studio node type (the curated nodes and the generated library
+  calls) is a Hub tool with the palette's title and parameter schema; a node page runs the node with the visitor's
+  values in the sandbox, opens it in Flow Studio as a ready flow (`pinneapple_hub.library.flowlink.flow_for_node`:
+  inputs -> node -> report, valid for every node type) or adds it to a flow the visitor picks (Flow Studio
+  `?add=`); Flow Studio's "Publish to Hub" turns the flow on the canvas into a Hub tool whose exposed parameters
+  are variables of its Python (`compose(flow=..., expose=...)`); recorded headless runs of the bundled flows
+  (`python -m pinneapple_hub.library flowruns`) appear on each flow's page and on the pages of the nodes they use;
+  AGENTS.md functions link to the node that wraps them.
+- PINNeAPPle Hub: one catalogue of everything ready-made. `pinneapple_hub.library` generates the index
+  (`data/web/hub/index.json`, `python -m pinneapple_hub.library build | run | check`) from the zoo manifest and
+  model cards, the geometry library, the zoo datasets, Flow Studio's bundled flows and curated nodes, AGENTS.md (API
+  table and Python blocks), the module reference's examples, the MCP server's tools and the Lab's experiments page
+  (A-F seal, six-stage trust card); each item has a runnable snippet whose recorded run (output, figures, code hash)
+  is checked by a test, its measured results, files, links and related items. `compose` builds a custom tool from
+  node types (wired by port type, parameters checked) into a flow JSON and Python, `sandbox.run_snippet` runs code
+  in a separate interpreter with time, memory, CPU and file-size limits, `myhub.MyHub` saves composed tools. The app
+  `apps/hub` (search, filters, `/` and Ctrl+K, item pages with copy-the-code, 3-D geometry preview, downloads, zoo
+  inference in the browser (ONNX) or on the server, "Create your own" with sandbox validation and My Hub, light and
+  dark themes, phone layout), deployed as `hub` (`HUB_DOMAIN`, port 8116) in `apps/deploy`; docs
+  `docs/apps/hub.md`. Flow Studio opens `?example=<flow>` and `?flow=<base64url JSON>` links.
 - PINNeAPPle with the NVIDIA stack (`pinneapple_tools.nvidia`, `examples/nvidia`): OpenUSD stages for Omniverse with
   the fields as primvars (`FieldStage`: meshes, curves, sensor points, time samples on the Omniverse timeline, trust
   decision as `pinneapple:trust:*`), `validate_stage` (topology, primvar sizes, every `pxr.UsdValidation` validator),

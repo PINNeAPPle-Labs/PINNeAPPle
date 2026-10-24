@@ -119,6 +119,31 @@ def test_home_search_filters_and_shortcuts(browser, server):
     assert not pg.errors, pg.errors
 
 
+def test_tools_by_task_category(browser, server):
+    pg = _page(browser, server, color_scheme="light")
+    pg.goto(server + "/")
+    pg.wait_for_selector(".task")
+    assert pg.locator(".task").count() == 20
+    pg.locator(".tasks").scroll_into_view_if_needed()
+    _shot(pg, "hub_home_tasks", full=False)
+    n = int(pg.inner_text("[data-task=uq] .badge"))
+    pg.click("[data-task=uq]")
+    pg.wait_for_selector(".resultbar")
+    assert pg.is_checked("input[name=category][value=uq]")
+    assert "Uncertainty and sensitivity" in pg.inner_text(".activefilters")
+    assert pg.locator(".card").count() == n
+    pg.check("input[name=category][value=vehicles]")                        # another task, same filters
+    pg.wait_for_function("location.search.includes('category=vehicles')")
+    pg.wait_for_selector(".card")
+    titles = pg.locator(".card h3").all_inner_texts()
+    assert any("Wheel" in t or "Rover" in t or "wheel" in t for t in titles), titles
+    _shot(pg, "hub_browse_task")
+    pg.click(".card >> nth=0")
+    pg.wait_for_selector("h1")
+    pg.click("text=Vehicles, contact and wear")                             # the item page links back to its task
+    pg.wait_for_function("location.search.includes('category=vehicles')")
+    assert not pg.errors, pg.errors
+
 def test_item_page_copy_code_preview_and_downloads(browser, server):
     pg = _page(browser, server)
     pg.goto(server + "/item/geometry%3Awind_turbine_nrel5mw")

@@ -14,6 +14,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Hub tools by task: every one of the 408 tools is in exactly one of 20 task categories
+  (`pinneapple_hub.library.categories`, longest-prefix rules on where the tool comes from, recipes listed by id),
+  shown as "Tools by task" on the home page, a **Task** filter (`/?kind=tool&category=...`,
+  `hub.search(..., category=...)`, `/api/search?category=`) and a link on each item page. A test fails when a tool
+  has no category, a category is empty or a rule places nothing.
 - The Flow Studio canvas inside the Hub's "Create your own" (`/create?mode=canvas`): Flow Studio's editor embedded,
   syncing its flow with the Hub through `postMessage` between the two configured origins, so the generated Python,
   the sandbox validation and My Hub work on a flow drawn on the canvas. Apps can now be embedded only by the

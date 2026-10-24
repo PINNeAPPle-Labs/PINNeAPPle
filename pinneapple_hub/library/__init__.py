@@ -13,7 +13,8 @@ with a runnable snippet whose recorded run is checked by a test.
     python -m pinneapple_hub.library check              # index is current, every run ok, files and links exist
 
 An item: ``id`` (``<kind-prefix>:<name>``), ``kind`` (tool, model, geometry, dataset, flow, example; tools have a
-``subkind``), ``title``, ``summary``, ``description``, ``domain`` (``pinneapple_lab.manifest.domain_of``), ``tags``,
+``subkind`` and one of 20 task ``category`` slugs, :mod:`.categories`), ``title``, ``summary``, ``description``,
+``domain`` (``pinneapple_lab.manifest.domain_of``), ``tags``,
 ``quality`` (a Lab A-F seal with its six-stage trust card, a zoo decision, or None), ``code`` (the snippet),
 ``run`` (its recorded run: ok, stdout, seconds, figures), ``results`` (measured numbers and figures of the source),
 ``examples`` (ids of related items), ``files`` (repo paths and download URLs), ``links`` (guide, reference, source,
@@ -28,6 +29,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from .categories import table
 from .sandbox import code_hash, run_snippet
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -39,11 +41,13 @@ SCHEMA = "pinneapple-hub/1"
 KINDS = {"tool": "Tools", "model": "Trained models", "geometry": "Geometries", "dataset": "Datasets",
          "flow": "Flows", "example": "Examples"}
 LETTERS = ("A", "B", "C", "D", "E", "F")
+CATEGORY_TITLES = {c["slug"]: c["title"] for c in table()}
 SLOW_S = 90.0                     # snippets recorded slower than this run in the test only with PINNEAPPLE_HUB_SLOW=1
 
 
 def collect(only: list[str] | None = None) -> list[dict[str, Any]]:
     """Items from every source (:data:`.sources.COLLECTORS`), ids unique, sorted by kind then title."""
+    from .categories import category_of
     from .sources import COLLECTORS
     items: dict[str, dict[str, Any]] = {}
     for name, fn in COLLECTORS.items():
@@ -56,6 +60,9 @@ def collect(only: list[str] | None = None) -> list[dict[str, Any]]:
             other = items.get(rid)
             if other is not None and it["id"] not in other["examples"]:
                 other["examples"].append(it["id"])
+    for it in items.values():
+        if it["kind"] == "tool":
+            it["category"] = category_of(it)
     order = list(KINDS)
     return sorted(items.values(), key=lambda i: (order.index(i["kind"]), i.get("subkind", ""), i["title"].lower()))
 
@@ -94,6 +101,7 @@ def facets(items: list[dict[str, Any]]) -> dict[str, Any]:
         return dict(sorted(out.items(), key=lambda kv: (-kv[1], kv[0])))
     return {"kind": {k: sum(i["kind"] == k for i in items) for k in KINDS},
             "subkind": count(lambda i: i.get("subkind")), "domain": count(lambda i: i.get("domain")),
+            "category": {c["slug"]: n for c in table() if (n := sum(i.get("category") == c["slug"] for i in items))},
             "quality": count(quality_key)}
 
 
@@ -124,7 +132,7 @@ def build(only: list[str] | None = None, runs: dict[str, Any] | None = None) -> 
     attach_runs(items, read_runs() if runs is None else runs)
     return {"schema": SCHEMA, "generator": "python -m pinneapple_hub.library build",
             "counts": {k: sum(i["kind"] == k for i in items) for k in KINDS}, "kinds": KINDS,
-            "facets": facets(items), "featured": featured(items), "items": items}
+            "categories": table(), "facets": facets(items), "featured": featured(items), "items": items}
 
 
 def write_index(index: dict[str, Any], path: Path = INDEX) -> Path:
@@ -155,7 +163,7 @@ def score(it: dict[str, Any], query: str) -> float:
     if not q:
         return 1.0
     fields = [(it["title"], 8.0), (it.get("name", ""), 5.0), (" ".join(it.get("tags", [])), 4.0),
-              (it.get("summary", ""), 2.0), (it.get("domain", ""), 2.0), (it.get("subkind", "") or it["kind"], 2.0),
+              (it.get("summary", ""), 2.0), (it.get("domain", ""), 2.0), (CATEGORY_TITLES.get(it.get("category"), ""), 2.0), (it.get("subkind", "") or it["kind"], 2.0),
               ((it.get("description") or "")[:2000], 1.0)]
     total = 0.0
     for w in q:
@@ -175,13 +183,16 @@ def score(it: dict[str, Any], query: str) -> float:
 
 
 def search(index: dict[str, Any], query: str = "", *, kind: str | None = None, domain: str | None = None,
-           quality: str | None = None, subkind: str | None = None, limit: int | None = None) -> list[dict[str, Any]]:
+           quality: str | None = None, subkind: str | None = None, category: str | None = None,
+           limit: int | None = None) -> list[dict[str, Any]]:
     """Items matching ``query`` and the filters (``quality``: a letter, a comma list of letters, a zoo decision in
     lower case, or "not graded"), best first; without a query, in index order."""
     quals = {q.strip() for q in (quality or "").split(",") if q.strip()}
     rows = []
     for k, it in enumerate(index["items"]):
         if kind and it["kind"] != kind or subkind and it.get("subkind") != subkind:
+            continue
+        if category and it.get("category") != category:
             continue
         if domain and it.get("domain") != domain or quals and quality_key(it) not in quals:
             continue

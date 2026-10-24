@@ -14,6 +14,18 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- PINNeAPPle Hub: one catalogue of everything ready-made. `pinneapple_hub.library` generates the index
+  (`data/web/hub/index.json`, `python -m pinneapple_hub.library build | run | check`) from the zoo manifest and
+  model cards, the geometry library, the zoo datasets, Flow Studio's bundled flows and curated nodes, AGENTS.md (API
+  table and Python blocks), the module reference's examples, the MCP server's tools and the Lab's experiments page
+  (A-F seal, six-stage trust card); each item has a runnable snippet whose recorded run (output, figures, code hash)
+  is checked by a test, its measured results, files, links and related items. `compose` builds a custom tool from
+  node types (wired by port type, parameters checked) into a flow JSON and Python, `sandbox.run_snippet` runs code
+  in a separate interpreter with time, memory, CPU and file-size limits, `myhub.MyHub` saves composed tools. The app
+  `apps/hub` (search, filters, `/` and Ctrl+K, item pages with copy-the-code, 3-D geometry preview, downloads, zoo
+  inference in the browser (ONNX) or on the server, "Create your own" with sandbox validation and My Hub, light and
+  dark themes, phone layout), deployed as `hub` (`HUB_DOMAIN`, port 8116) in `apps/deploy`; docs
+  `docs/apps/hub.md`. Flow Studio opens `?example=<flow>` and `?flow=<base64url JSON>` links.
 - `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
   with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
   chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,

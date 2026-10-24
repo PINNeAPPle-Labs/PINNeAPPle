@@ -17,7 +17,7 @@ SEQUENTIAL = "Blues"
 DIVERGING = "RdBu_r"
 
 __all__ = ["figure", "SERIES", "COMPUTED", "REFERENCE", "THIRD", "SEQUENTIAL", "DIVERGING", "style", "badge", "to_rgb",
-           "close"]
+           "close", "integer_ticks"]
 
 
 def style(ax) -> None:
@@ -70,3 +70,13 @@ def to_rgb(fig) -> np.ndarray:
     """The figure as an RGB array (for animation frames)."""
     fig.canvas.draw()
     return np.asarray(fig.canvas.buffer_rgba())[..., :3].copy()
+
+
+def integer_ticks(ax, values) -> None:
+    """Plain integer labels at ``values`` on a log x axis (no minor labels like 3x10^1)."""
+    from matplotlib.ticker import FixedLocator, NullFormatter, NullLocator
+
+    ax.xaxis.set_major_locator(FixedLocator(list(values)))
+    ax.set_xticklabels([str(int(v)) for v in values])
+    ax.xaxis.set_minor_locator(NullLocator())
+    ax.xaxis.set_minor_formatter(NullFormatter())

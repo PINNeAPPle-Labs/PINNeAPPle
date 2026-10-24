@@ -67,12 +67,12 @@ def main(smoke=False, base=None):
         [Block("rec", "Part recipe (data):\nstrap - cylinder", "pinneapple", 0, 0),
          Block("brep", "USD BRep (SMLib NURBS):\nexact solid, mass, curvature", "brep", 1, 0),
          Block("tess", "USD BRep tessellation at\nchord tolerances / edge sizes", "brep", 2, 0),
-         Block("geo", "Geometry checks: chord error,\nvolume / area, radius resolved", "pinneapple", 1, 1),
-         Block("fem", "Plane-stress FEM on the B-rep\nface mesh (patch test first)", "pinneapple", 2, 1),
-         Block("conv", "Mesh convergence, Richardson,\nHeywood Kt_net", "pinneapple", 3, 1),
-         Block("dec", "Stress result usable?\ntrust decision", "pinneapple", 3, 0)],
+         Block("geo", "Geometry checks: chord error,\nvolume / area, radius resolved", "pinneapple", 2, 1),
+         Block("fem", "Plane-stress FEM on the B-rep\nface mesh (patch test first)", "pinneapple", 3, 1),
+         Block("conv", "Mesh convergence, Richardson,\nHeywood Kt_net", "pinneapple", 4, 1),
+         Block("dec", "Stress result usable?\ntrust decision", "pinneapple", 4, 0)],
         [("rec", "brep", "ops"), ("brep", "tess", "B-rep"), ("brep", "geo", "exact values"), ("tess", "geo", "meshes"),
-         ("tess", "fem", "top-face triangles"), ("fem", "conv", "Kt(h)"), ("conv", "dec", "checks"), ("geo", "dec", "checks")],
+         ("geo", "fem", "checked meshes"), ("fem", "conv", "Kt(h)"), ("conv", "dec", "all checks")],
         os.path.join(OUT, "architecture.png"),
         subtitle="The exact solid is the reference for the mesh; the closed form is the reference for the stress")
     al = materials.get("al6061_t6")

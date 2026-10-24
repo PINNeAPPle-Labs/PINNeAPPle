@@ -1,0 +1,453 @@
+{
+ "decision": "APPROVED",
+ "services": [
+  "pinneapple-trust-card",
+  "pinneapple-intent",
+  "airfoil_cst_rans_mlp",
+  "heatsink_forced_mlp",
+  "heatsink_natural_mlp",
+  "rover_contact_grc1_viper"
+ ],
+ "validity_alpha": [
+  -2.0,
+  14.0
+ ],
+ "sweep": [
+  {
+   "alpha": -6.0,
+   "Cl": -0.4475981717802693,
+   "Cd": 0.010476087097401282,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 2.0406789999469765,
+    "trust": 39.31998400003067
+   }
+  },
+  {
+   "alpha": -5.0,
+   "Cl": -0.33578777364497214,
+   "Cd": 0.009866965718586088,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 1.3546310001402162,
+    "trust": 34.999387000425486
+   }
+  },
+  {
+   "alpha": -4.0,
+   "Cl": -0.22391857323147585,
+   "Cd": 0.009394434197574119,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 0.8986189995994209,
+    "trust": 58.39812100020936
+   }
+  },
+  {
+   "alpha": -3.0,
+   "Cl": -0.11219802793006903,
+   "Cd": 0.009059546918889284,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 1.087410999389249,
+    "trust": 32.56324800076982
+   }
+  },
+  {
+   "alpha": -2.0,
+   "Cl": -0.0007421736212312568,
+   "Cd": 0.008859130648692901,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8518289996573003,
+    "trust": 32.99742099989089
+   }
+  },
+  {
+   "alpha": -1.0,
+   "Cl": 0.11045746746562919,
+   "Cd": 0.008786524524962869,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8881959993232158,
+    "trust": 36.73862100004044
+   }
+  },
+  {
+   "alpha": 0.0,
+   "Cl": 0.22144231529540312,
+   "Cd": 0.008834358382886624,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 1.1427279996496509,
+    "trust": 34.06411100058904
+   }
+  },
+  {
+   "alpha": 1.0,
+   "Cl": 0.3321879919522463,
+   "Cd": 0.00899700268221344,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.9229540000887937,
+    "trust": 50.194657999782066
+   }
+  },
+  {
+   "alpha": 2.0,
+   "Cl": 0.4425788594918497,
+   "Cd": 0.009271469016580314,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8711290001883754,
+    "trust": 32.64319299978524
+   }
+  },
+  {
+   "alpha": 3.0,
+   "Cl": 0.5524300736793603,
+   "Cd": 0.009657289604448116,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8850329995766515,
+    "trust": 32.71978700013278
+   }
+  },
+  {
+   "alpha": 4.0,
+   "Cl": 0.6615029102991399,
+   "Cd": 0.010156368965465134,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8482370003548567,
+    "trust": 30.89912199993705
+   }
+  },
+  {
+   "alpha": 5.0,
+   "Cl": 0.7694967811998941,
+   "Cd": 0.010773291926280872,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.9014000006573042,
+    "trust": 33.116573999905086
+   }
+  },
+  {
+   "alpha": 6.0,
+   "Cl": 0.8760288999005319,
+   "Cd": 0.0115161348040874,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8227989992519724,
+    "trust": 36.31246700024349
+   }
+  },
+  {
+   "alpha": 7.0,
+   "Cl": 0.9806130352589684,
+   "Cd": 0.012397700452025713,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 1.2031969999952707,
+    "trust": 33.198378000633966
+   }
+  },
+  {
+   "alpha": 8.0,
+   "Cl": 1.0826408791201938,
+   "Cd": 0.01343723949131154,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8468539999739733,
+    "trust": 32.99003499978426
+   }
+  },
+  {
+   "alpha": 9.0,
+   "Cl": 1.1813625625827886,
+   "Cd": 0.014662923515328035,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8040009997785091,
+    "trust": 31.882115000371414
+   }
+  },
+  {
+   "alpha": 10.0,
+   "Cl": 1.2758599402080766,
+   "Cd": 0.01611564222677674,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8035830005610478,
+    "trust": 30.812005999905523
+   }
+  },
+  {
+   "alpha": 11.0,
+   "Cl": 1.3650040728471695,
+   "Cd": 0.017855151070555804,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.837016000332369,
+    "trust": 33.80987600030494
+   }
+  },
+  {
+   "alpha": 12.0,
+   "Cl": 1.447384865028652,
+   "Cd": 0.019970479801134422,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.8730800000193994,
+    "trust": 31.706105999546708
+   }
+  },
+  {
+   "alpha": 13.0,
+   "Cl": 1.5212039047848618,
+   "Cd": 0.02259802489050734,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 0.7583050000903313,
+    "trust": 30.96885899958579
+   }
+  },
+  {
+   "alpha": 14.0,
+   "Cl": 1.5841461609564158,
+   "Cd": 0.025953019480107125,
+   "decision": "APPROVED",
+   "inside": true,
+   "warnings": [],
+   "server_ms": {
+    "inference": 1.0099259998241905,
+    "trust": 36.241486000108125
+   }
+  },
+  {
+   "alpha": 15.0,
+   "Cl": 1.6333343128076365,
+   "Cd": 0.030382071882591278,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 0.9689589996924042,
+    "trust": 36.46370299975388
+   }
+  },
+  {
+   "alpha": 16.0,
+   "Cl": 1.6656002232355984,
+   "Cd": 0.03644389734459631,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 0.8014519999051117,
+    "trust": 39.7382880000805
+   }
+  },
+  {
+   "alpha": 17.0,
+   "Cl": 1.6782353195097364,
+   "Cd": 0.04502393212867514,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 1.1001450002368074,
+    "trust": 30.866947000504297
+   }
+  },
+  {
+   "alpha": 18.0,
+   "Cl": 1.6698493510624473,
+   "Cd": 0.05749914752192975,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 0.8851920001688995,
+    "trust": 33.04886499972781
+   }
+  },
+  {
+   "alpha": 19.0,
+   "Cl": 1.6407192007278184,
+   "Cd": 0.07598581150586521,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 0.867617999574577,
+    "trust": 30.5728530001943
+   }
+  },
+  {
+   "alpha": 20.0,
+   "Cl": 1.5926578541648602,
+   "Cd": 0.10369079620180713,
+   "decision": "REVIEW",
+   "inside": false,
+   "warnings": [
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range",
+    "airfoil_cst_rans_mlp: 1 of 1 inputs are outside the validity range (see info('airfoil_cst_rans_mlp').validity_range); those predictions are extrapolations"
+   ],
+   "server_ms": {
+    "inference": 0.8160799998222501,
+    "trust": 31.26888400038297
+   }
+  }
+ ],
+ "latency_ms": {
+  "median": 35.379128999920795,
+  "p95": 49.759226499918434
+ },
+ "naca2412_4deg": {
+  "Cl": [
+   0.6615029102991399
+  ],
+  "Cd": [
+   0.010156368965465134
+  ],
+  "Cm": [
+   -0.04726151714387696
+  ],
+  "Cl_std": [
+   0.0008502527861112138
+  ],
+  "Cd_std": [
+   1.2994883847825746e-05
+  ],
+  "Cm_std": [
+   6.673400876294736e-05
+  ],
+  "LD": [
+   65.13196197501784
+  ],
+  "LD_std": [
+   0.1307017050656119
+  ]
+ },
+ "heatsink": {
+  "outputs": {
+   "r_base_k_w": [
+    0.5819728766503609
+   ],
+   "pressure_drop_pa": [
+    8.023840202054757
+   ],
+   "r_base_upper95_k_w": [
+    0.5940519535052692
+   ]
+  },
+  "decision": "APPROVED"
+ },
+ "checks": [
+  {
+   "name": "service ready, every zoo model listed",
+   "value": 6.0,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "in-range queries APPROVED",
+   "value": 1.0,
+   "limit": 1.0,
+   "passed": true
+  },
+  {
+   "name": "out-of-range queries flagged (not APPROVED)",
+   "value": 1.0,
+   "limit": 1.0,
+   "passed": true
+  },
+  {
+   "name": "NACA 2412, 4 deg: Cl vs OpenFOAM 0.6625",
+   "value": 0.001505041057902036,
+   "limit": 0.02,
+   "passed": true
+  },
+  {
+   "name": "heat-sink service answers with its trust report",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "unknown model -> 404, missing inputs -> 400",
+   "value": null,
+   "limit": null,
+   "passed": true
+  }
+ ]
+}

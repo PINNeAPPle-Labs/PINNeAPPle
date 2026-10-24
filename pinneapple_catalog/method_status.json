@@ -1509,9 +1509,13 @@
    "status": "validated"
   },
   "S12": {
-   "other_tests": [],
-   "reference_tests": [],
-   "status": "untested"
+   "other_tests": [
+    "PINNeAPPle/tests/test_immersed_boundary_fdm.py::test_projection_pins_a_fluid_pocket_that_has_no_outlet"
+   ],
+   "reference_tests": [
+    "PINNeAPPle/tests/test_immersed_boundary_fdm.py::test_channel_flow_rate_equals_the_inlet_flux_at_every_cross_section"
+   ],
+   "status": "validated"
   },
   "S13": {
    "other_tests": [],

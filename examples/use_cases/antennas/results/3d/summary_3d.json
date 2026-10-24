@@ -1,0 +1,302 @@
+{
+ "base": {
+  "design": {},
+  "runs": {
+   "processes": 5,
+   "status": {
+    "ok": 5
+   },
+   "wall_s_total": 52.5,
+   "wall_s_median_ok": 9.41,
+   "max_rss_mb": 1404.9
+  },
+  "checks": {
+   "rows": 5,
+   "supports": 27,
+   "contradicts": 3,
+   "not_run": 5,
+   "decisions": {
+    "APPROVED": 2,
+    "REVIEW": 3
+   },
+   "failed": {
+    "power_closure": 3
+   }
+  },
+  "rows": [
+   {
+    "f_GHz": 2.0,
+    "S11_dB": -7.0414057938398,
+    "D_bore_dBi": 5.009562445533071,
+    "G_bore_dBi": 4.248194695752636,
+    "Greal_bore_dBi": 3.291925386285409,
+    "D_peak_dBi": 5.124693604945697,
+    "Greal_peak_dBi": 3.4070565456980355,
+    "rad_eff": 0.8391956519540686
+   },
+   {
+    "f_GHz": 2.5,
+    "S11_dB": -16.660042449861145,
+    "D_bore_dBi": 5.061679395466444,
+    "G_bore_dBi": 4.497842317516049,
+    "Greal_bore_dBi": 4.403107814493462,
+    "D_peak_dBi": 6.918934230360748,
+    "Greal_peak_dBi": 6.260362649387766,
+    "rad_eff": 0.878246225974302
+   },
+   {
+    "f_GHz": 3.0,
+    "S11_dB": -19.431049921886647,
+    "D_bore_dBi": 7.179585039203569,
+    "G_bore_dBi": 6.133911572728734,
+    "Greal_bore_dBi": 6.084118769065331,
+    "D_peak_dBi": 7.60841358035943,
+    "Greal_peak_dBi": 6.512947310221192,
+    "rad_eff": 0.7860182927503787
+   },
+   {
+    "f_GHz": 3.5,
+    "S11_dB": -22.31634141665594,
+    "D_bore_dBi": 7.903077280341034,
+    "G_bore_dBi": 6.810630900433898,
+    "Greal_bore_dBi": 6.7850787679913935,
+    "D_peak_dBi": 8.130842963551402,
+    "Greal_peak_dBi": 7.012844451201762,
+    "rad_eff": 0.7775984066284395
+   },
+   {
+    "f_GHz": 4.0,
+    "S11_dB": -25.45241954210619,
+    "D_bore_dBi": 8.547220125539475,
+    "G_bore_dBi": 7.308920702125819,
+    "Greal_bore_dBi": 7.296528119051537,
+    "D_peak_dBi": 8.721782252260128,
+    "Greal_peak_dBi": 7.4710902457721895,
+    "rad_eff": 0.7519172663009699
+   }
+  ],
+  "balloon_vs_table_max_abs_dB": 0.0,
+  "files": {
+   "antenna_glb": "base_antenna.glb",
+   "glb_2": "base_2GHz.glb",
+   "usda_2": "base_2GHz.usda",
+   "glb_2.5": "base_2.5GHz.glb",
+   "usda_2.5": "base_2.5GHz.usda",
+   "glb_3": "base_3GHz.glb",
+   "usda_3": "base_3GHz.usda",
+   "glb_3.5": "base_3.5GHz.glb",
+   "usda_3.5": "base_3.5GHz.usda",
+   "glb_4": "base_4GHz.glb",
+   "usda_4": "base_4GHz.usda",
+   "viewer": "base_viewer.html",
+   "phase_viewer": "base_phase_viewer.html",
+   "beauty_png": "base_beauty.png",
+   "balloon_png": "base_balloon.png",
+   "sweep_gif": "base_sweep/base_sweep.gif",
+   "sweep_mp4": "base_sweep/base_sweep.mp4",
+   "phase_gif": "base_phase/base_phase.gif",
+   "phase_mp4": "base_phase/base_phase.mp4"
+  },
+  "skipped": [],
+  "phase_freq": 3.0,
+  "render_s": 168.9,
+  "balloon": [
+   {
+    "f_GHz": 2.0,
+    "D_peak_dBi": 5.124693604945697,
+    "G_peak_dBi": 4.363325855165262,
+    "D_bore_grid_dBi": 5.009562445533071,
+    "G_bore_grid_dBi": 4.248194695752636
+   },
+   {
+    "f_GHz": 2.5,
+    "D_peak_dBi": 6.918934230360748,
+    "G_peak_dBi": 6.355097152410355,
+    "D_bore_grid_dBi": 5.061679395466444,
+    "G_bore_grid_dBi": 4.497842317516049
+   },
+   {
+    "f_GHz": 3.0,
+    "D_peak_dBi": 7.60841358035943,
+    "G_peak_dBi": 6.562740113884596,
+    "D_bore_grid_dBi": 7.179585039203569,
+    "G_bore_grid_dBi": 6.133911572728734
+   },
+   {
+    "f_GHz": 3.5,
+    "D_peak_dBi": 8.130842963551402,
+    "G_peak_dBi": 7.038396583644266,
+    "D_bore_grid_dBi": 7.903077280341034,
+    "G_bore_grid_dBi": 6.810630900433898
+   },
+   {
+    "f_GHz": 4.0,
+    "D_peak_dBi": 8.721782252260128,
+    "G_peak_dBi": 7.483482828846473,
+    "D_bore_grid_dBi": 8.547220125539475,
+    "G_bore_grid_dBi": 7.308920702125819
+   }
+  ],
+  "gain_scale_dBi": [
+   -22.516517171153527,
+   7.483482828846473
+  ]
+ },
+ "best": {
+  "design": {
+   "Lb": 249.1910763978786,
+   "W": 129.5745798439686,
+   "Wa": 104.06937495439742,
+   "R": 0.016677472213700036,
+   "xs": 38.88089876035804,
+   "Wg": 34.68184017840727,
+   "Lo": 14.333265252492598,
+   "nslot": 2,
+   "Ls": 8.029588973736255,
+   "ws": 3.847800395876641,
+   "ps": 8.36234501536731,
+   "dir_a": 12.194233325618026,
+   "dir_b": 4.2701747532354,
+   "dir_x": 200.34104328841275
+  },
+  "runs": {
+   "processes": 5,
+   "status": {
+    "ok": 5
+   },
+   "wall_s_total": 64.3,
+   "wall_s_median_ok": 11.82,
+   "max_rss_mb": 1608.9
+  },
+  "checks": {
+   "rows": 5,
+   "supports": 30,
+   "contradicts": 5,
+   "not_run": 0,
+   "decisions": {
+    "REVIEW": 5
+   },
+   "failed": {
+    "power_closure": 5
+   }
+  },
+  "rows": [
+   {
+    "f_GHz": 2.0,
+    "S11_dB": -16.85612675361679,
+    "D_bore_dBi": 6.568698489480328,
+    "G_bore_dBi": 5.458173312288224,
+    "Greal_bore_dBi": 5.367664847182928,
+    "D_peak_dBi": 7.085868589437162,
+    "Greal_peak_dBi": 5.884834947139764,
+    "rad_eff": 0.7743681504968083
+   },
+   {
+    "f_GHz": 2.5,
+    "S11_dB": -23.98895074185374,
+    "D_bore_dBi": 8.328712201897995,
+    "G_bore_dBi": 6.858920297984163,
+    "Greal_bore_dBi": 6.841551995952992,
+    "D_peak_dBi": 8.425249463542661,
+    "Greal_peak_dBi": 6.938089257597659,
+    "rad_eff": 0.7128871879355153
+   },
+   {
+    "f_GHz": 3.0,
+    "S11_dB": -9.8096232437833,
+    "D_bore_dBi": 9.503377254132964,
+    "G_bore_dBi": 7.8915571480286095,
+    "Greal_bore_dBi": 7.4123047798511585,
+    "D_peak_dBi": 9.687714834612656,
+    "Greal_peak_dBi": 7.596642360330851,
+    "rad_eff": 0.6899505884545883
+   },
+   {
+    "f_GHz": 3.5,
+    "S11_dB": -12.356936498715843,
+    "D_bore_dBi": 10.543339290131959,
+    "G_bore_dBi": 8.55274783725135,
+    "Greal_bore_dBi": 8.292715470150387,
+    "D_peak_dBi": 10.635153018617778,
+    "Greal_peak_dBi": 8.384529198636208,
+    "rad_eff": 0.6323257309307287
+   },
+   {
+    "f_GHz": 4.0,
+    "S11_dB": -12.216911176795136,
+    "D_bore_dBi": 11.142772759771766,
+    "G_bore_dBi": 8.959258245157743,
+    "Greal_bore_dBi": 8.690436145596793,
+    "D_peak_dBi": 11.274506160542812,
+    "Greal_peak_dBi": 8.822169546367839,
+    "rad_eff": 0.6048512026895579
+   }
+  ],
+  "balloon_vs_table_max_abs_dB": 0.0,
+  "files": {
+   "antenna_glb": "best_antenna.glb",
+   "glb_2": "best_2GHz.glb",
+   "usda_2": "best_2GHz.usda",
+   "glb_2.5": "best_2.5GHz.glb",
+   "usda_2.5": "best_2.5GHz.usda",
+   "glb_3": "best_3GHz.glb",
+   "usda_3": "best_3GHz.usda",
+   "glb_3.5": "best_3.5GHz.glb",
+   "usda_3.5": "best_3.5GHz.usda",
+   "glb_4": "best_4GHz.glb",
+   "usda_4": "best_4GHz.usda",
+   "viewer": "best_viewer.html",
+   "phase_viewer": "best_phase_viewer.html",
+   "beauty_png": "best_beauty.png",
+   "balloon_png": "best_balloon.png",
+   "sweep_gif": "best_sweep/best_sweep.gif",
+   "sweep_mp4": "best_sweep/best_sweep.mp4",
+   "phase_gif": "best_phase/best_phase.gif",
+   "phase_mp4": "best_phase/best_phase.mp4"
+  },
+  "skipped": [],
+  "phase_freq": 3.0,
+  "render_s": 165.6,
+  "balloon": [
+   {
+    "f_GHz": 2.0,
+    "D_peak_dBi": 7.085868589437162,
+    "G_peak_dBi": 5.975343412245058,
+    "D_bore_grid_dBi": 6.568698489480328,
+    "G_bore_grid_dBi": 5.458173312288224
+   },
+   {
+    "f_GHz": 2.5,
+    "D_peak_dBi": 8.425249463542661,
+    "G_peak_dBi": 6.9554575596288295,
+    "D_bore_grid_dBi": 8.328712201897995,
+    "G_bore_grid_dBi": 6.858920297984165
+   },
+   {
+    "f_GHz": 3.0,
+    "D_peak_dBi": 9.687714834612656,
+    "G_peak_dBi": 8.075894728508302,
+    "D_bore_grid_dBi": 9.503377254132964,
+    "G_bore_grid_dBi": 7.8915571480286095
+   },
+   {
+    "f_GHz": 3.5,
+    "D_peak_dBi": 10.635153018617778,
+    "G_peak_dBi": 8.64456156573717,
+    "D_bore_grid_dBi": 10.543339290131959,
+    "G_bore_grid_dBi": 8.552747837251351
+   },
+   {
+    "f_GHz": 4.0,
+    "D_peak_dBi": 11.274506160542812,
+    "G_peak_dBi": 9.090991645928789,
+    "D_bore_grid_dBi": 11.142772759771766,
+    "G_bore_grid_dBi": 8.959258245157743
+   }
+  ],
+  "gain_scale_dBi": [
+   -20.90900835407121,
+   9.090991645928789
+  ]
+ }
+}

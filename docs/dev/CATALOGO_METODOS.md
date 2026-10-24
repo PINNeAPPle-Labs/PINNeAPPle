@@ -8,7 +8,7 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 
 | Categoria | ✅ | 🟡 | ⚪ |
 |---|---|---|---|
-| A. Solvers (S) | 31 | 8 | 2 |
+| A. Solvers (S) | 32 | 8 | 1 |
 | B. Métodos de treino (T) | 3 | 12 | 8 |
 | C. Equações físicas (E) | 50 | 18 | 3 |
 | D. Problemas físicos (P) | 27 | 9 | 30 |
@@ -84,7 +84,8 @@ Referências: "no código" = já citadas no docstring do módulo; "adicionadas" 
 - **Referências adicionadas:** Harten, High resolution schemes for hyperbolic conservation laws, J. Comput. Phys. 49 (1983) 357-393 · Sweby, High resolution schemes using flux limiters, SIAM J. Numer. Anal. 21(5) (1984) 995-1011
 
 ### S12 — Immersed boundary (FDM)
-- **Estado:** ⚪ sem teste
+- **Estado:** ✅ validado
+- **Evidência:** `PINNeAPPle/tests/test_immersed_boundary_fdm.py::test_channel_flow_rate_equals_the_inlet_flux_at_every_cross_section`
 - **Código:** `pinneapple_simulation/numerical_solvers/immersed_boundary_fdm.py`
 - **Referências adicionadas:** Peskin, The immersed boundary method, Acta Numerica 11 (2002) 479-517 · Mittal & Iaccarino, Immersed boundary methods, Annu. Rev. Fluid Mech. 37 (2005) 239-261
 

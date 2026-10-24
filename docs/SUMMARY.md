@@ -89,6 +89,7 @@
     * [Identifiability, calibration and inverse problems](guides/identifiability_calibration_inversion.md)
     * [Self-modifying brick builds](guides/interlocking_bricks.md)
     * [Design from intent: a goal in words to a verified design](guides/design_from_intent.md)
+    * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)
     * [Flow Studio and the flow schema (pinneapple-flow/1)](guides/flow_schema.md)
 * Apps
     * [Inverse Model Studio (day 21)](apps/inverse_studio.md)
@@ -96,6 +97,7 @@
     * [Model Calibration Lab (day 18)](apps/calibration_lab.md)
     * [PhysicsNeMo trains, PINNeAPPle says when to trust](guides/physicsnemo_trust.md)
     * [Electromagnetics and electrodynamics](guides/electromagnetics.md)
+    * [Antenna design: end-fire Vivaldi with an external FEM solver](guides/antenna_design.md)
     * [Flight dynamics, turbulence and take-off](guides/flight_dynamics.md)
     * [Topology optimisation](guides/topology_optimization.md)
     * [Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models](guides/enso_forecasting.md)

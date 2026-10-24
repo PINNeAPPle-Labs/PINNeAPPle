@@ -25,10 +25,11 @@ Method
      - Predictor: first-order upwind convection + explicit viscous diffusion
        (second-order Adams-Bashforth in time once two steps are available),
        plus the previous pressure gradient.
-     - Pressure correction: either (a) a fast multi-step divergence-penalty
-       relaxation (``solve_ibm_internal_flow``) or (b) a Jacobi/SOR pressure-
-       Poisson solve of ``div(u*)`` (``solve_ibm_external_flow``), each
-       driving the predicted velocity field toward zero divergence.
+     - Pressure correction: (a) "channel" mode of ``solve_ibm_internal_flow``:
+       an exact pressure-Poisson projection on cell faces (``_MACProjection``);
+       (b) "lid_driven" mode: a multi-step divergence-penalty relaxation;
+       (c) ``solve_ibm_external_flow``: a Jacobi/SOR pressure-Poisson solve of
+       ``div(u*)``. (b) and (c) only drive the divergence down; (a) removes it.
      - The IBM wall mask and exterior mask are re-applied after every
        sub-step so solid/outside cells stay at rest.
 
@@ -52,46 +53,25 @@ classes:
   the geometry bounding box -- the generic setup for external/aerodynamic
   flow around an arbitrary immersed body.
 
-KNOWN LIMITATION (measured 2026-09-27, validation batch 4; investigated further 2026-10-02 -- see
-below): ``solve_ibm_internal_flow`` in "channel" mode does not conserve mass. Pipe R=0.5, L=3,
-Re=10, 60x22x22 grid, 1500 steps: the flow rate falls to 0.71, 0.45 and 0.34 of the inlet value at
-x = 0.5, 1.5, 2.5 (divergence_rms 0.86; a flow-rate-integral measurement on the same case gives
-ratios 1.0, 0.64, 0.49 -- a different but equally bad symptom of the same problem). The ~1.5-cell
-wall band also shrinks the effective radius (profile vanishes near r = 0.45, not 0.5) -- a separate,
-minor IBM-resolution effect, not the mass-conservation issue below.
+Mass conservation in "channel" mode: each step averages the predicted velocity to cell faces,
+closes the faces that touch a wall, exterior or box-boundary cell, fixes the inlet faces, solves the
+compact 7-point pressure-Poisson equation over the open faces (``p = 0`` on the outlet cells; the
+matrix is factorised once because the masks do not change) and corrects the face velocities. The
+face divergence of every solved cell is then at round-off, so every cross-section carries the inlet
+flux. Pipe R=0.5, L=3, Re=10, 60x22x22 grid, 1500 steps: flow rate 1.0, 1.0, 1.0 of the inlet value
+at x = 0.5, 1.5, 2.5 and ``face_divergence_rms`` 6e-15 (it was 0.85, 0.53, 0.39 with the earlier
+divergence-penalty step). The corrected faces are averaged back to the cells, so the cell-centred
+``divergence_rms`` (central differences over the whole box) stays O(1): almost all of it sits in the
+cells next to the masked wall, and it is 0.05 two or more cells away from the wall. Use
+``face_divergence_rms`` to check mass conservation.
 
-NOT A QUICK FIX -- replacing the pressure step is not enough on its own (investigated 2026-10-02,
-two real attempts, both measured WORSE than the status quo on the exact case above, not better):
-1. Pairing this function's existing CENTRAL divergence/gradient with a converged Jacobi solve of
-   the natural COMPACT 3-point Laplacian does essentially nothing (confirmed: 20000 Jacobi sweeps
-   on a random test field reduce central divergence by only ~12%) -- composing two central
-   differences (div of grad) algebraically reduces to a STRIDE-2 Laplacian, not the compact one.
-2. Solving the matching STRIDE-2 ("wide") Laplacian instead is algebraically consistent and drives
-   divergence to float64 round-off on an open, unmasked test cube -- but on THIS function's masked,
-   elongated pipe-in-a-box geometry it gets stuck at a nonzero fixed point (unchanged from 60 to
-   30000 Jacobi sweeps): the stride-2 stencil decouples the even/odd grid-index sublattices into two
-   independent problems, and this geometry's mask does not constrain them equally. Flow-rate ratios
-   with this fix: 1.0, 0.55, 0.36 -- worse than the status quo.
-3. Pairing a BACKWARD-difference divergence with a FORWARD-difference gradient correction and the
-   compact Laplacian IS algebraically well-posed (no stride mismatch, no parity decoupling -- a
-   single-shot test confirmed it conserves a cross-sectional flow-rate integral to ~0.6% on this
-   exact masked geometry). But run through the actual 1500-step time integration, it is WORSE than
-   the status quo (flow-rate ratios 1.0, 0.35, 0.05) and gets there by converging smoothly (not by
-   diverging/instability -- checked at 100/300/700/1500 steps, monotonically approaching that bad
-   state) -- most likely the one-sided forward/backward pairing introduces a directional bias in
-   the pressure force that compounds with the (also one-sided) upwind convection scheme over many
-   repeated applications, net effect extra numerical dissipation of exactly the velocity component
-   that matters (axial, along the channel).
+The faces matter: projecting with cell-centred central differences (div of a central grad) gives a
+stride-2 Laplacian that decouples odd and even grid points, and on this masked geometry it stalls
+at a nonzero divergence (attempts recorded in ``docs/dev/AUDIT_REPORT.md``, 2026-10-02).
 
-The real, standard fix for this class of problem (collocated-grid pressure-velocity decoupling on
-an embedded/IBM boundary) is a staggered (MAC) grid -- store u/v/w at cell FACES and p at cell
-CENTRES, so divergence and the pressure gradient naturally use consistent, non-decoupled finite
-differences -- or, short of a full MAC rewrite, Rhie-Chow momentum interpolation (the standard
-collocated-grid patch for exactly this issue in finite-volume CFD). Either is a substantial,
-dedicated piece of numerical-methods work, not a pressure-step swap; use a pressure-Poisson
-projection (as in ``solve_ibm_external_flow``, which likely has the SAME underlying issue, not
-independently re-checked here) or a body-fitted solver when quantitative flow rates/pressure drops
-from THIS function's "channel" mode matter.
+The ~1.5-cell IBM wall band shrinks the effective radius (the profile vanishes near r = 0.45, not
+0.5). On the case above the developed centreline-to-mean velocity ratio is 1.84 against the
+Hagen-Poiseuille value 2; this is a wall-resolution effect, not a mass leak.
 
 Both functions take only plain arrays / scalars (wall point cloud, bbox,
 Reynolds number, inlet velocity, density, grid resolution, iteration count)
@@ -187,6 +167,115 @@ def _grid_operators(dx: float, dy: float, dz: float):
         return cx + cy + cz
 
     return laplacian, divergence, upwind_convection
+
+
+def _axis_slice(axis: int, part: slice) -> tuple:
+    s = [slice(None)] * 3
+    s[axis] = part
+    return tuple(s)
+
+
+_LO, _HI = slice(None, -1), slice(1, None)
+
+
+class _MACProjection:
+    """Exact pressure-Poisson projection on cell faces (MAC staggering) for a masked
+    cell-centred grid.
+
+    Cell-centred velocities are averaged to faces; faces touching a non-fluid cell or
+    the box boundary are closed (zero normal flux), and faces touching a ``fixed`` cell
+    take that cell's velocity. The compact 7-point Laplacian over the open faces
+    (``phi = 0`` on ``dirichlet`` cells, Neumann on closed and fixed faces) is factorised
+    once, so each projection is one back-substitution and leaves the face divergence of
+    every solved cell at round-off. The corrected face velocities are averaged back to
+    the cells. Unlike a collocated central-difference projection, the compact stencil
+    does not decouple odd and even grid points (Harlow & Welch, Phys. Fluids 8 (1965)
+    2182; Almgren, Bell & Szymczak, SIAM J. Sci. Comput. 17 (1996) 358 for the
+    cell-centred approximate projection).
+    """
+
+    def __init__(self, fluid: np.ndarray, fixed: np.ndarray, dirichlet: np.ndarray,
+                 spacing: tuple[float, float, float]):
+        from scipy import ndimage, sparse
+        from scipy.sparse.linalg import splu
+
+        self.spacing = spacing
+        self.fluid = fluid
+        self.fixed = fixed
+        self.solve = fluid & ~fixed & ~dirichlet
+        free = self.solve | (fluid & dirichlet)
+        idx = -np.ones(fluid.shape, dtype=np.int64)
+        idx[self.solve] = np.arange(int(self.solve.sum()))
+
+        rows, cols, vals = [], [], []
+        anchored = np.zeros(fluid.shape, bool)
+        self.open_faces, self.corr_faces = [], []
+        for a, d in enumerate(spacing):
+            lo, hi = _axis_slice(a, _LO), _axis_slice(a, _HI)
+            self.open_faces.append(fluid[lo] & fluid[hi])
+            corr = free[lo] & free[hi] & (self.solve[lo] | self.solve[hi])
+            self.corr_faces.append(corr)
+            i, j = idx[lo][corr], idx[hi][corr]
+            both = (i >= 0) & (j >= 0)
+            one = np.concatenate([i[~both & (i >= 0)], j[~both & (j >= 0)]])
+            rows += [i[both], j[both], i[both], j[both], one]
+            cols += [j[both], i[both], i[both], j[both], one]
+            w = 1.0 / d ** 2
+            vals += [np.full(both.sum(), w)] * 2 + [np.full(both.sum(), -w)] * 2 + [np.full(len(one), -w)]
+            anchored[lo] |= corr & dirichlet[hi]
+            anchored[hi] |= corr & dirichlet[lo]
+
+        n = int(self.solve.sum())
+        A = sparse.csr_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))),
+                              shape=(n, n)).tolil()
+        # A fluid pocket with no Dirichlet cell is singular up to a constant: pin one cell.
+        labels, n_lab = ndimage.label(self.solve)
+        has_anchor = np.zeros(n_lab + 1, bool)
+        has_anchor[labels[anchored & self.solve]] = True
+        self.pinned = np.array([idx[labels == lab][0] for lab in np.flatnonzero(~has_anchor[1:]) + 1],
+                               dtype=np.int64)
+        for k in self.pinned:
+            A.rows[k], A.data[k] = [k], [1.0]
+        # shortcut: direct LU of the 3-D Laplacian, fine to ~1e5 fluid cells; switch to
+        # multigrid or preconditioned CG for larger grids.
+        self.lu = splu(A.tocsc())
+
+    def _divergence(self, faces) -> np.ndarray:
+        div = np.zeros(self.fluid.shape)
+        for a, (F, d) in enumerate(zip(faces, self.spacing, strict=True)):
+            Fp = np.pad(F, [(1, 1) if k == a else (0, 0) for k in range(3)])  # box faces closed
+            div += (Fp[_axis_slice(a, _HI)] - Fp[_axis_slice(a, _LO)]) / d
+        return div
+
+    def project(self, vel, fixed_vel):
+        """Project the cell-centred velocity ``vel = (u, v, w)``; ``fixed_vel`` holds the
+        prescribed components on the ``fixed`` cells. Returns ``(u, v, w, phi, face_div)``,
+        with ``phi`` the pressure times ``dt / rho`` and ``face_div`` the face divergence
+        of the solved (unpinned) cells after projection."""
+        faces = []
+        for a, (c, cf) in enumerate(zip(vel, fixed_vel, strict=True)):
+            lo, hi = _axis_slice(a, _LO), _axis_slice(a, _HI)
+            F = 0.5 * (c[lo] + c[hi]) * self.open_faces[a]
+            fx = self.open_faces[a] & (self.fixed[lo] | self.fixed[hi])
+            F[fx] = np.where(self.fixed[lo], cf[lo], cf[hi])[fx]
+            faces.append(F)
+
+        rhs = self._divergence(faces)[self.solve]
+        rhs[self.pinned] = 0.0
+        phi = np.zeros(self.fluid.shape)
+        phi[self.solve] = self.lu.solve(rhs)
+
+        out = []
+        for a, (F, d, cf) in enumerate(zip(faces, self.spacing, fixed_vel, strict=True)):
+            lo, hi = _axis_slice(a, _LO), _axis_slice(a, _HI)
+            corr = self.corr_faces[a]
+            F[corr] -= ((phi[hi] - phi[lo]) / d)[corr]
+            Fp = np.pad(F, [(1, 1) if k == a else (0, 0) for k in range(3)])
+            c = 0.5 * (Fp[_axis_slice(a, _LO)] + Fp[_axis_slice(a, _HI)]) * self.fluid
+            c[self.fixed] = cf[self.fixed]
+            out.append(c)
+        face_div = np.delete(self._divergence(faces)[self.solve], self.pinned)
+        return out[0], out[1], out[2], phi, face_div
 
 
 def field_divergence(u: np.ndarray, v: np.ndarray, w: np.ndarray,
@@ -303,8 +392,9 @@ def solve_ibm_internal_flow(
     Returns
     -------
     dict with keys: coords, u, v, w, p, speed, divergence_rms,
-    surf_p, surf_speed, grid_axes, wall_mask_fraction, dt, nu, frames (list,
-    possibly empty), bc_info.
+    face_divergence_rms ("channel" mode; NaN otherwise), surf_p, surf_speed,
+    grid_axes, wall_mask_fraction, dt, nu, frames (list, possibly empty),
+    bc_info.
     """
     from scipy.spatial import cKDTree
 
@@ -424,6 +514,9 @@ def solve_ibm_internal_flow(
             else: u_[:, :, 0] = u_[:, :, 1]; v_[:, :, 0] = v_[:, :, 1]; w_[:, :, 0] = w_[:, :, 1]
 
         _apply_inlet_vel(u, v, w)
+        fixed_vel = (np.zeros_like(u), np.zeros_like(u), np.zeros_like(u))
+        _apply_inlet_vel(*fixed_vel)
+        projection = _MACProjection(fluid_mask, inlet_fl, outlet_fl, (dx, dy, dz))
     else:
         u[lid_mask3d] = U_in
 
@@ -450,8 +543,6 @@ def solve_ibm_internal_flow(
             v_ = v_ - (dt / rho) * np.gradient(dp, dy, axis=1)
             w_ = w_ - (dt / rho) * np.gradient(dp, dz, axis=2)
             p_[wall_mask3d] = 0.0
-            if bc_mode == "channel":
-                p_[outlet_mask3d] = 0.0
         return u_, v_, w_, p_
 
     snap_iters = ({int(round(n_iter * (fi + 1) / n_frames)) - 1 for fi in range(n_frames)}
@@ -462,14 +553,18 @@ def solve_ibm_internal_flow(
 
     rhs_u_prev = rhs_v_prev = rhs_w_prev = None
     div_rms_final = float("nan")
+    face_div = None
 
     for it in range(n_iter):
         u_max_cur = max(float(np.max(np.abs(u))), U_in, 1e-12)
         dt = min(0.20 * h / u_max_cur, dt_diff)
 
-        dp_dx = (np.roll(p, -1, 0) - np.roll(p, 1, 0)) / (2 * dx)
-        dp_dy = (np.roll(p, -1, 1) - np.roll(p, 1, 1)) / (2 * dy)
-        dp_dz = (np.roll(p, -1, 2) - np.roll(p, 1, 2)) / (2 * dz)
+        if bc_mode == "channel":  # non-incremental projection: the solve below returns the whole p
+            dp_dx = dp_dy = dp_dz = 0.0
+        else:
+            dp_dx = (np.roll(p, -1, 0) - np.roll(p, 1, 0)) / (2 * dx)
+            dp_dy = (np.roll(p, -1, 1) - np.roll(p, 1, 1)) / (2 * dy)
+            dp_dz = (np.roll(p, -1, 2) - np.roll(p, 1, 2)) / (2 * dz)
 
         rhs_u = -upwind_convection(u, v, w, u) - dp_dx / rho + nu * laplacian(u)
         rhs_v = -upwind_convection(u, v, w, v) - dp_dy / rho + nu * laplacian(v)
@@ -493,7 +588,12 @@ def solve_ibm_internal_flow(
             _apply_inlet_vel(u_star, v_star, w_star)
             _apply_outlet_bc(u_star, v_star, w_star)
 
-        u_new, v_new, w_new, p = _apply_pressure_penalty(u_star, v_star, w_star, p)
+        if bc_mode == "channel":
+            u_new, v_new, w_new, phi, face_div = projection.project((u_star, v_star, w_star), fixed_vel)
+            p = (rho / dt) * phi
+            _apply_outlet_bc(u_new, v_new, w_new)
+        else:
+            u_new, v_new, w_new, p = _apply_pressure_penalty(u_star, v_star, w_star, p)
 
         u_new[wall_mask3d] = v_new[wall_mask3d] = w_new[wall_mask3d] = 0.0
         u_new[exterior_mask3d] = v_new[exterior_mask3d] = w_new[exterior_mask3d] = 0.0
@@ -553,6 +653,8 @@ def solve_ibm_internal_flow(
         "surf_p": surf_p,
         "surf_speed": surf_speed,
         "divergence_rms": div_rms_final,
+        "face_divergence_rms": (float(np.sqrt(np.mean(face_div ** 2))) if face_div is not None
+                                else float("nan")),
         "grid_axes": grid_axes,
         "grid_fields": {"u": u, "v": v, "w": w, "p": p,
                          "wall_mask": wall_mask3d, "exterior_mask": exterior_mask3d},

@@ -6,6 +6,7 @@ from . import (  # noqa: F401
     data,
     methods,
     problem,
+    reason,
     solvers,
     surrogates,
     systems,

@@ -67,8 +67,6 @@ were untouched). If this matters to you, the cheap way to get equivalent confide
 
 ## Known, unfixed, documented (not blocking this branch)
 
-- `immersed_boundary_fdm.py`'s "channel" mode doesn't conserve mass (documented in its own
-  docstring). Catalog item S12 stays untested. See SCIENTIFIC_CONTEXT.md §4.
 - The MPS test-isolation leak (FAILED_APPROACHES.md #7) — pre-existing, not caused by this branch,
   root cause not found, ~74 tests fail under a full-suite run but pass in isolation.
 

@@ -23,6 +23,7 @@ searches, when you allow them.
 | `web_search`, `fetch_url` | search the internet, read pages and raw files | never (can be turned off per session) |
 | `github` | GitHub REST API: pull requests, issues, CI (needs `GITHUB_TOKEN`) | writes ask |
 | `show_file` | put a figure, screenshot, HTML report, PDF or video in the chat | never |
+| `reason_chain`, `reason_library`, `reason_check` | the chain of whys of a design with `pinneapple_reason` (report and timeline written in the project), its library of failure modes, one computed check ([guide](chain_of_whys.md)); the physics agent has them | `reason_chain` asks under `ask` |
 | `todo` | the plan shown beside the chat | never |
 | `delegate` | hand a self-contained task to a specialist | never |
 | `ask_user` | a question to you, with choices | it waits for you |

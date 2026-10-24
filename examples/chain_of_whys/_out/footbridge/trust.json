@@ -1,0 +1,238 @@
+{
+ "report": {
+  "modelo": "30 m footbridge: from a girder that holds to one nobody minds walking on",
+  "decisao": "APPROVED",
+  "score": 1.0,
+  "cobertura": 1.0,
+  "motivos": [],
+  "checagens": [
+   {
+    "name": "inputs recorded and finite",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 16.0,
+    "limit": null,
+    "source": "concept parameters with their sources",
+    "reason": ""
+   },
+   {
+    "name": "R1/bending_strength",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 1660.092446018953,
+    "limit": 2432.274667460318,
+    "source": "simply supported girder, M = w L^2/8, M_Rd = W_el f_y / gamma_M0",
+    "reason": ""
+   },
+   {
+    "name": "R2/deflection",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 69.8121384850289,
+    "limit": 83.33333333333333,
+    "source": "Euler-Bernoulli 5 q L^4 / (384 E I), checked by a finite-difference solve of E I w'''' = q",
+    "reason": ""
+   },
+   {
+    "name": "solver vs closed form: FD beam deflection",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 5.066095561017488e-06,
+    "limit": 0.01,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+    "reason": ""
+   },
+   {
+    "name": "equilibrium: FD support reactions = applied load",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.007499946929916041,
+    "limit": 0.01,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+    "reason": ""
+   },
+   {
+    "name": "R3/lateral_torsional_buckling",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 1660.092446018953,
+    "limit": 1786.0761490248424,
+    "source": "EN 1993-1-1 6.3.2.2 general case with the elastic critical moment of Timoshenko & Gere (C1 given, load at the shear centre)",
+    "reason": ""
+   },
+   {
+    "name": "R4/pedestrian_resonance",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.2414178586550067,
+    "limit": 0.7,
+    "source": "first vertical mode of a simply supported beam, steady resonant response to one walking pedestrian (harmonics 1-3); tuned mass damper as Den Hartog's optimum amplification",
+    "reason": ""
+   },
+   {
+    "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0007095722444364569,
+    "limit": 0.005,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+    "reason": ""
+   },
+   {
+    "name": "applicability: pedestrian_resonance: first mode below 5 Hz (EN 1990 A2.4.3.2 asks for the check)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.048925146057629,
+    "limit": 1000000000.0,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "known answer: deflection.deflection",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-12,
+    "source": "5 q L^4/(384 E I) (Timoshenko, Strength of Materials)",
+    "reason": ""
+   },
+   {
+    "name": "known answer: lateral_torsional_buckling.M_cr",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-12,
+    "source": "M_cr formula, Timoshenko & Gere (1961), ch. 6, with C1 = 1",
+    "reason": ""
+   },
+   {
+    "name": "known answer: pedestrian_resonance.f1",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-12,
+    "source": "f1 = pi/(2 L^2) sqrt(EI/m) (simply supported beam)",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R1/bending_strength worst margin (fy -5 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.28155082317402824,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R2/deflection worst margin (nominal)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.1622543381796532,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R3/lateral_torsional_buckling worst margin (fy -5 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.03461746501972255,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R4/pedestrian_resonance worst margin (deck_dead_load -10 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.6292516334372401,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   }
+  ],
+  "min_coverage": 0.6,
+  "min_score": 0.8
+ },
+ "card": {
+  "data_geometry": {
+   "title": "Data and geometry",
+   "question": "Was the physical problem represented correctly?",
+   "status": "answered",
+   "evidence": [
+    "inputs recorded: v0, v1, v2, v3",
+    "PASS inputs recorded and finite (concept parameters with their sources)"
+   ],
+   "next": ""
+  },
+  "model": {
+   "title": "Model",
+   "question": "Can the model (or solver) represent the relevant dynamics?",
+   "status": "answered",
+   "evidence": [
+    "PASS known answer: deflection.deflection (5 q L^4/(384 E I) (Timoshenko, Strength of Materials))",
+    "PASS known answer: lateral_torsional_buckling.M_cr (M_cr formula, Timoshenko & Gere (1961), ch. 6, with C1 = 1)",
+    "PASS known answer: pedestrian_resonance.f1 (f1 = pi/(2 L^2) sqrt(EI/m) (simply supported beam))"
+   ],
+   "next": ""
+  },
+  "physics": {
+   "title": "Physical constraints",
+   "question": "Are the equations and the boundary conditions respected?",
+   "status": "answered",
+   "evidence": [
+    "PASS equilibrium: FD support reactions = applied load (pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-or)"
+   ],
+   "next": ""
+  },
+  "benchmark": {
+   "title": "Benchmark",
+   "question": "How does the result compare with a solver or reference data?",
+   "status": "answered",
+   "evidence": [
+    "PASS solver vs closed form: FD beam deflection (pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-or)",
+    "PASS solver vs closed form: Rayleigh frequency from FD deflection (pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-or)"
+   ],
+   "next": ""
+  },
+  "uncertainty": {
+   "title": "Uncertainty",
+   "question": "Where may the prediction not be reliable?",
+   "status": "answered",
+   "evidence": [
+    "PASS applicability: pedestrian_resonance: first mode below 5 Hz (EN 1990 A2.4.3.2 asks for the check)",
+    "PASS uncertainty: R1/bending_strength worst margin (fy -5 %) (one-at-a-time spread of the mode's uncertain premises)",
+    "PASS uncertainty: R2/deflection worst margin (nominal) (one-at-a-time spread of the mode's uncertain premises)",
+    "PASS uncertainty: R3/lateral_torsional_buckling worst margin (fy -5 %) (one-at-a-time spread of the mode's uncertain premises)",
+    "PASS uncertainty: R4/pedestrian_resonance worst margin (deck_dead_load -10 %) (one-at-a-time spread of the mode's uncertain premises)"
+   ],
+   "next": ""
+  },
+  "decision": {
+   "title": "Engineering decision",
+   "question": "Is the result adequate for the intended use?",
+   "status": "answered",
+   "evidence": [
+    "tier B (solid), ready for design screening",
+    "5 limitations bound the use"
+   ],
+   "next": ""
+  }
+ }
+}

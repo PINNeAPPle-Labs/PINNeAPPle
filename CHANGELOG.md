@@ -19,6 +19,51 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
   finish; `python -m pinneapple_flow example-flows list|run|doc|check`; the inventory with measured comparisons against
   the examples' committed results is `docs/flow_studio/EXAMPLES_AS_FLOWS.md` (CI gate `tests/test_flow_examples.py`).
+- `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
+  with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
+  chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,
+  wind and film / ponding; condensation under a roof and radiant heat from it, through a steady roof network; Joule
+  heating coupled to the 3-D board model or a plate-fin heat sink; bending, deflection, lateral-torsional and
+  flexural buckling, fatigue, pedestrian resonance, wind uplift; pump cavitation; water hammer and column separation;
+  galvanic corrosion) with 21 countermeasures that size themselves and compute their cost; an engine that finds the
+  first failure, tries every countermeasure, keeps the cheapest clean fix and re-checks until every requirement
+  passes; an optional LLM advisor that may only add library candidates; reports (Markdown, self-contained HTML,
+  timeline version 0 -> N, margins, domain figures) with a `TrustReport` and the six-stage trust card; four worked
+  cases (roof, footbridge, power board, pumped main) in `examples/chain_of_whys/`; guide
+  `docs/guides/chain_of_whys.md`.
+- `pinneapple_simulation.numerical_solvers.water_hammer_moc`: water hammer in a reservoir-pipe-valve system by the
+  method of characteristics (Korteweg wave speed, valve closure law, Joukowsky and Michaud references; verified
+  against Joukowsky for an instantaneous closure).
+- Flow Studio: `reason.*` node types (requirement, concept, check requirements, failure-mode check, countermeasure,
+  chain of whys, report), port types `requirement`, `concept`, `chain`, and the flow `reason_roof`.
+- MCP tools `reason` (job), `reason_library`, `reason_check`; agent-workbench tools `reason_chain`,
+  `reason_library`, `reason_check` (given to the physics agent).
+- Antennas in 3-D (`pinneapple_simulation.electromagnetics.antenna.scene3d`, `study.render_3d`, `--3d` of
+  `examples/use_cases/antennas/vivaldi_2to4ghz.py`, Flow Studio node `lib.antenna.render_3d`): the AVA's laminate and
+  copper as glTF / USD with materials, the gain balloon (dBi, jet) per solved frequency in the antenna's frame, |E| and
+  `Re(E_x e^{jωt})` on two cut planes, self-contained three.js viewers (frequency slider, layers) and Blender Cycles
+  stills, GIF and MP4; the balloon's peak directivity is checked against the table. `ava` saves the near field on
+  the two planes (`AVAParams.nf_step`) and the powers with the far field.
+- Studio scene: `Animation.add_surface_shape` (vertex positions per frame, in the viewer and in Blender), a labelled
+  animated axis (`time_label`, `time_unit`, `time_decimals`) and stepped frames (`interpolate=False`) for
+  frequencies and phases; layers (surface groups) switched on and off in the viewer; `web_viewer(...,
+  single_file=True)` writes one self-contained HTML page (three.js and the scene inlined) and `screenshot` takes it;
+  colour bars with the same title and range are drawn once (viewer and Blender).
+- Printed end-fire antennas with an external FEM solver (`pinneapple_simulation.electromagnetics.antenna`):
+  end-fire directivity limits (Hansen-Woodyard 7.28 L/λ, ordinary 4 L/λ), broadside aperture gain, the shortest
+  length for a target gain and the feasibility frequency (`bounds`); consistency checks of a result row as a
+  `TrustReport` (realized gain = G(1-|S11|²), e = G/D, e <= 1 critical, peak >= boresight, D below the HW limit,
+  vector-fitted S11 from too few solved frequencies, far-field power closure) (`checks`); an open parametric
+  antipodal Vivaldi model for EMerge with its CLI (`ava`; `InvalidGeometry` for unbuildable designs); a runner for
+  any parametric CLI simulator, one process per design and frequency with timeout, peak memory and the SuperLU
+  fallback after SIGBUS, and the (design, frequency) table reader (`runner`); surrogates (frequency mean, HW +
+  offset, linear physical features, Gaussian process) with leave-one-design-out and held-out validation
+  (`surrogates`); DOE, NSGA-II on the surrogates, variance-driven active learning verified by the solver,
+  multi-fidelity bias correction and a trust card per prediction (`design`); external study packages read from a
+  local folder and re-run (`package`); end-to-end studies (`study`) used by
+  `examples/use_cases/antennas/vivaldi_2to4ghz.py` (`--quick`, full, `--package <dir>`), the Flow Studio nodes
+  `lib.antenna.limits` / `lib.antenna.package` / `lib.antenna.open_study` and the flow `antenna_vivaldi_limits`.
+  Guide: `docs/guides/antenna_design.md`.
 - Flow Studio rover nodes and the lunar rover dashboard as a flow (`lunar_rover_dashboard`, and a quick variant
   matching `examples/studio/07_lunar_rover_dashboard.py --quick`): vehicle, soil and site presets, the multibody
   traverse, the Wong-Reece wheel model, the model zoo's wheel-contact PINN with its physics check, and the animated
@@ -1356,6 +1401,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Immersed-boundary FDM, `channel` mode: mass is conserved. The divergence-penalty pressure step is replaced
+  by an exact pressure-Poisson projection on cell faces, so every cross-section carries the inlet flux (pipe
+  R=0.5, L=3, Re=10: flow rate 1.0 of the inlet value along the pipe, was 0.85 / 0.53 / 0.39). The result has a
+  new `face_divergence_rms`; catalog item S12 is now validated (`tests/test_immersed_boundary_fdm.py`) (#627).
 - Form Compiler (`pinneapple_data.formfill`): a `Label | Unit | Value` row and a unit named in the column header
   (`Value (MPa g)`) now give the value its unit; "Design press." and "Shell MOC" / "MOC - Nozzles" are recognised; a
   quantity found without any unit is kept but flagged "No unit was found with this value" (#732).

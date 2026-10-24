@@ -1,10 +1,10 @@
 {
  "name": "05_brep_plate_with_hole",
- "started": "2026-10-24T01:14:26Z",
- "wall_s": 9.861,
+ "started": "2026-10-24T16:33:02Z",
+ "wall_s": 10.419,
  "steps_s": {
-  "USD BRep: exact solid and tessellations": 0.242,
-  "plane-stress FEM at four element sizes": 7.672
+  "USD BRep: exact solid and tessellations": 0.349,
+  "plane-stress FEM at four element sizes": 7.901
  },
  "components": [
   {

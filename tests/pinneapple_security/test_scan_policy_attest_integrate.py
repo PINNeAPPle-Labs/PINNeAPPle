@@ -32,7 +32,8 @@ def test_secret_scan_ignores_lockfiles_integrity_hashes_blobs_and_paths(tmp_path
     (tmp_path / "x.md").write_text("see https://example.org/Ab3dEf/Gh5iJk/LmNoPq7RsTuVwXyZ012345 for details")
     (tmp_path / "deps.txt").write_text('"integrity": "sha384-' + base64.b64encode(_os.urandom(48)).decode() + '"')
     assert secrets_scan.scan_path(str(tmp_path), exts={".json", ".html", ".md", ".txt"}) == []
-    live = base64.b64encode(_os.urandom(30)).decode().replace("/", "x").replace("+", "y")
+    # a fixed token: 40 random base64 characters fall below the entropy threshold in about 3 % of draws
+    live = base64.b64encode(bytes(range(7, 247, 8))).decode().replace("/", "x").replace("+", "y")
     assert [f.rule for f in secrets_scan.scan_text(f"token: {live}")] == ["high_entropy_string"]
 
 

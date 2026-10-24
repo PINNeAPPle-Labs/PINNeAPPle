@@ -56,6 +56,15 @@ REASONS: dict[str, str] = {
     "pinneapple_presets.report": "writes the committed preset folders (python -m pinneapple_presets report)",
     "pinneapple_presets.surrogate": "the surrogate behind preset.run with fidelity = surrogate",
     "pinneapple_presets.viz3d": "3-D stills of the committed preset folders",
+    "pinneapple_condense.benchmark": "the measured studies of the condensation report (subprocesses, up to an hour; "
+                                     "run by examples/physics_condensation)",
+    "pinneapple_condense.figures": "figures of the condensation report, drawn from the benchmark JSON",
+    "pinneapple_condense.homogenize": "the Keff baseline, compared in the condensation benchmark",
+    "pinneapple_condense.learned": "learned block operators (training is a campaign of block condensations); "
+                                   "measured in the condensation benchmark",
+    "pinneapple_condense.package": "the package description behind condense.package_thermal",
+    "pinneapple_condense.substructure": "block condensation behind condense.package_thermal (via the hierarchy)",
+    "pinneapple_condense.transient": "Craig-Bampton transient, measured in the condensation benchmark",
 }
 
 

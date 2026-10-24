@@ -467,6 +467,7 @@ packages = [
   "pinneapple_reason",       # chain of whys: naive concept -> computed failure modes -> countermeasures -> verified design
   "pinneapple_presets",      # industrial presets: engineering cases set up, solved, validated (pp.presets)
   "pinneapple_autolab",      # Autonomous Physics Lab: mission -> plan of controlled library calls -> evidence
+  "pinneapple_condense",     # Adaptive Physics Condensation: repeated-block static condensation, reduced interfaces
 
   # ── arena + compatibility shims ───────────────────────────────────────────
   "pinneapple_arena",     # YAML/JSON-driven multi-model benchmark runner
@@ -523,6 +524,7 @@ include = [
   "pinneapple_reason/**",
   "pinneapple_presets/**",
   "pinneapple_autolab/**",
+  "pinneapple_condense/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

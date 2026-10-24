@@ -26,6 +26,7 @@
   "signal_loss": 0.024236246531877618,
   "signal_liftoff": 0.09030770775821091,
   "phase_angle_deg": 26.635382653296546,
+  "phase_lag_rad": -2.676717528761185,
   "signal_perp": 0.010865380325790902,
   "separation": 2.4457341975664506
  },
@@ -96,7 +97,7 @@
  },
  "warnings": [],
  "meta": {
-  "wall_time_s": 0.06875726999987819,
+  "wall_time_s": 0.07168110899999647,
   "versions": {
    "python": "3.13.17",
    "pinneapple": "0.7.0",
@@ -109,6 +110,6 @@
    "cores": 4,
    "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
   },
-  "date_utc": "2026-10-24T02:20:40Z"
+  "date_utc": "2026-10-24T17:01:36Z"
  }
 }

@@ -287,6 +287,11 @@ def test_batch3_default_runs_and_inversions():
         assert inv["true_inside_ci95"] and inv["rel_error"] < 0.02, (name, inv["rel_error"])
     opt = P.load("eddy_current_skin_inspection").optimize()
     assert 0.6 < opt["t_over_delta_best"] < 1.6 and opt["verified_ok"]       # the classic t ~ delta rule
+    # the folded angle saws; the unwrapped back-wall phase lag is smooth and turns ~2 rad per unit of t/delta
+    lag, tod = np.array(opt["scan_phase_lag_deg"]), np.array(opt["scan_t_over_delta"])
+    assert np.all(np.diff(lag) < 0) and np.abs(np.diff(lag)).max() < 45          # monotonic, no fold jumps
+    slope = np.polyfit(tod[tod > 1.5], lag[tod > 1.5], 1)[0]
+    assert abs(abs(slope) - np.degrees(2.0)) < 0.1 * np.degrees(2.0), slope
 
 
 @SLOW

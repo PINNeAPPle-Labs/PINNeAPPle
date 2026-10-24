@@ -93,10 +93,10 @@ Espessura remanescente e lift-off a partir da impedância medida em 5 frequênci
 ## Otimização
 
 - **objective:** frequência de maior ângulo afinamento/lift-off com sinal perpendicular >= 3x ruído
-- **f_best_hz:** 3891
-- **angle_best_deg:** 89.68
-- **separation_best:** 12.17
-- **t_over_delta_best:** 1.034
+- **f_best_hz:** 3803
+- **angle_best_deg:** 89.2
+- **separation_best:** 12.34
+- **t_over_delta_best:** 1.022
 - **angle_at_given_f:** 26.64
 - **verified_ok:** True
 
@@ -142,6 +142,10 @@ Visualizador 3-D interativo (arquivo único, abre do disco): regenere com `pytho
 
 **Domínio de validade.** Bobina de núcleo de ar, chapa plana infinita não magnética (mu_r = 1) com ar abaixo, regime harmônico quase estático (f << ressonância da bobina), sem trincas (um defeito localizado precisa do FDM ou de um modelo 3-D).
 
+**Limitações.**
+
+- O ângulo entre afinamento e lift-off é o ângulo entre duas linhas, dobrado em 0-90°. O sinal do afinamento gira cerca de 2 t/delta rad atrás do lift-off conforme a frequência sobe (atraso de fase da parede de fundo), então o ângulo dobrado sobe e desce em dente de serra acima de ~4 kHz. Isso é físico: o atraso desdobrado é suave e linear em t/delta (figura, eixo da direita). Acima de ~12 kHz o sinal de afinamento cai abaixo de 3x o ruído e essas frequências não servem (faixa cinza).
+
 ## Proveniência
 
-Rodado em 2026-10-24T02:20:40Z · solver 0.0688 s · relatório completo 123 s · Intel(R) Xeon(R) Processor @ 2.10GHz (4 núcleos) · python 3.13.17, pinneapple 0.7.0, numpy 2.5.3, scipy 1.18.1, torch 2.14.1
+Rodado em 2026-10-24T17:01:36Z · solver 0.0717 s · relatório completo 143 s · Intel(R) Xeon(R) Processor @ 2.10GHz (4 núcleos) · python 3.13.17, pinneapple 0.7.0, numpy 2.5.3, scipy 1.18.1, torch 2.14.1

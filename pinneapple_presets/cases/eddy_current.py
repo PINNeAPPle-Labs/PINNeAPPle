@@ -70,6 +70,12 @@ class EddyCurrentInspection(Preset):
     has_inversion = True
     has_variants = True
     variant_outputs = ("phase_angle_deg", "separation", "t_over_delta")
+    limitations = ("O ângulo entre afinamento e lift-off é o ângulo entre duas linhas, dobrado em 0-90°. O sinal do "
+                   "afinamento gira cerca de 2 t/delta rad atrás do lift-off conforme a frequência sobe (atraso de "
+                   "fase da parede de fundo), então o ângulo dobrado sobe e desce em dente de serra acima de ~4 kHz. "
+                   "Isso é físico: o atraso desdobrado é suave e linear em t/delta (figura, eixo da direita). Acima "
+                   "de ~12 kHz o sinal de afinamento cai abaixo de 3x o ruído e essas frequências não servem "
+                   "(faixa cinza).",)
     missing = {"surrogate": "a solução analítica leva ~10 ms; um surrogate não economiza tempo",
                "reason": "não há caso de ensaio não destrutivo no pinneapple_reason"}
 
@@ -84,11 +90,12 @@ class EddyCurrentInspection(Preset):
         zo = self._z(p, liftoff=p["liftoff"] + p["liftoff_noise"])["dZ"]
         s_loss, s_lift = zl - z["dZ"], zo - z["dZ"]
         perp = abs((s_loss * np.conj(s_lift)).imag) / max(abs(s_lift), 1e-30)
-        ang = float(np.degrees(abs(np.angle(s_loss / s_lift))))
-        ang = min(ang, 180 - ang)
+        lag = float(np.angle(s_loss / s_lift))
+        ang = float(np.degrees(abs(lag)))
+        ang = min(ang, 180 - ang)  # angle between the two signal lines, in [0, 90]
         return {**{k: z[k] for k in ("dR", "dX", "R_norm", "X_norm", "delta", "X0")},
                 "t_over_delta": p["thickness"] / z["delta"], "signal_loss": abs(s_loss), "signal_liftoff": abs(s_lift),
-                "phase_angle_deg": ang, "signal_perp": perp,
+                "phase_angle_deg": ang, "phase_lag_rad": lag, "signal_perp": perp,
                 "separation": perp / (p["noise_frac"] * abs(z["dZ"]))}
 
     def checks(self, p, out):
@@ -171,9 +178,12 @@ class EddyCurrentInspection(Preset):
     def optimize(self, **kw):
         """Test frequency with the largest phase angle between the thinning and lift-off signals among those whose
         perpendicular thinning signal is at least 3x the instrument noise, scanned 1-200 kHz; the pick re-run."""
-        fs = np.geomspace(1e3, 2e5, 40)
+        fs = np.geomspace(1e3, 2e5, 120)
         runs = [self.run(**{**kw, "f": float(f)}).outputs for f in fs]
         sep = [o["separation"] for o in runs]
+        # the thinning signal turns ~2 t/delta rad behind lift-off as f rises (back-wall phase lag); unwrapped here, the
+        # folded line angle in [0, 90] deg is what separates them, so it saws as the lag passes multiples of 90 deg
+        lag = np.degrees(np.unwrap([o["phase_lag_rad"] for o in runs])).tolist()
         ang = [o["phase_angle_deg"] if o["separation"] >= 3 else -1 for o in runs]
         k = int(np.argmax(ang))
         ver = self.run(**{**kw, "f": float(fs[k])})
@@ -181,7 +191,8 @@ class EddyCurrentInspection(Preset):
                 "f_best_hz": float(fs[k]), "angle_best_deg": runs[k]["phase_angle_deg"], "separation_best": sep[k], "t_over_delta_best": ver.outputs["t_over_delta"],
                 "angle_at_given_f": self.run(**kw).outputs["phase_angle_deg"], "verified_ok":
                     ver.decision["verdict"] == "OK", "scan_hz": fs.tolist(), "scan_separation": sep,
-                "scan_angle_deg": [o["phase_angle_deg"] for o in runs]}
+                "scan_angle_deg": [o["phase_angle_deg"] for o in runs], "scan_phase_lag_deg": lag,
+                "scan_t_over_delta": [o["t_over_delta"] for o in runs]}
 
     def invert(self, true_t: float = 0.0017, true_lo: float = 0.0006, noise: float = 0.005, seed: int = 0, **kw):
         """Remaining thickness and lift-off from a multi-frequency measurement (2, 5, 10, 20, 50 kHz), 0.5 % noise
@@ -244,11 +255,19 @@ class EddyCurrentInspection(Preset):
         ax[0].legend(fontsize=7)
         o = self.optimize(**{k: v for k, v in p.items() if k != "f"})
 
-        ax[1].semilogx(o["scan_hz"], o["scan_angle_deg"])
-        ax[1].axhline(p["angle_min"], color="r", ls="--", lw=1)
-        ax[1].axvline(p["f"], color="k", lw=0.8)
-        ax[1].set(xlabel="frequência [Hz]", ylabel="ângulo afinamento / lift-off [graus]",
-                  title="Escolha da frequência")
+        hz, sep = np.array(o["scan_hz"]), np.array(o["scan_separation"])
+        ax[1].semilogx(hz, o["scan_angle_deg"], label="ângulo entre as linhas (0-90°)")
+        ax[1].axhline(p["angle_min"], color="r", ls="--", lw=1, label=f"mínimo {p['angle_min']:.0f}°")
+        bad = sep < 3
+        ax[1].fill_between(hz, 0, 90, where=bad, color="0.85", step="mid", label="afinamento < 3x ruído")
+        ax[1].axvline(o["f_best_hz"], color="g", lw=1, label=f"escolhida {o['f_best_hz'] / 1e3:.1f} kHz")
+        ax[1].axvline(p["f"], color="k", lw=0.8, ls=":", label=f"dada {p['f'] / 1e3:.0f} kHz")
+        ax[1].set(xlabel="frequência [Hz]", ylabel="ângulo afinamento / lift-off [graus]", ylim=(0, 92),
+                  title="Escolha da frequência (atraso de fase ~ 2 t/delta, dobrado em 0-90°)")
+        tw = ax[1].twinx()
+        tw.semilogx(hz, -np.array(o["scan_phase_lag_deg"]), color="C1", lw=0.8, ls="--")
+        tw.set_ylabel("atraso de fase desdobrado [graus]", color="C1")
+        ax[1].legend(fontsize=6, loc="upper right")
         fig.tight_layout()
         path = os.path.join(out_dir, "eddy.png")
         fig.savefig(path, dpi=90)

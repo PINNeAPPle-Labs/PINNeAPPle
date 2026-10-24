@@ -1,0 +1,153 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/shell_tube_cooler",
+ "title": "Resfriador casco-tubo de \u00e1gua de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos)",
+ "description": "O trocador leva a \u00e1gua do circuito \u00e0 temperatura de retorno exigida com a \u00e1gua de torre dispon\u00edvel, com velocidade de tubo na faixa recomendada? Quanta incrusta\u00e7\u00e3o ele tolera, e qual o menor trocador que atende?",
+ "domain": "T\u00e9rmica / processo e energia",
+ "methods": [
+  "pinneapple_physics.closed_form.heat_exchanger.effectiveness",
+  "pinneapple_physics.closed_form.heat_exchanger.kern_shell",
+  "pinneapple_physics.closed_form.heat_exchanger.gnielinski",
+  "pinneapple_physics.closed_form.heat_exchanger.one_two_exchanger_ode"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 0.0068008509997525834
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto]",
+   "value": 3.277045816399516e-14,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: integra\u00e7\u00e3o direta das 3 equa\u00e7\u00f5es de energia do trocador 1-2 (scipy solve_bvp)"
+  },
+  {
+   "name": "rel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto]",
+   "value": 4.189200564160273e-14,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: integra\u00e7\u00e3o direta das 3 equa\u00e7\u00f5es de energia do trocador 1-2 (scipy solve_bvp)"
+  },
+  {
+   "name": "rel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto]",
+   "value": 9.398982902295129e-15,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: integra\u00e7\u00e3o direta das 3 equa\u00e7\u00f5es de energia do trocador 1-2 (scipy solve_bvp)"
+  },
+  {
+   "name": "rel_error[Cr -> 0: epsilon = 1 - exp(-NTU)]",
+   "value": 0.0,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. eq. 11.35a"
+  },
+  {
+   "name": "rel_error[h tubos: Gnielinski vs Dittus-Boelter]",
+   "value": 0.09283884594855282,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: Dittus & Boelter (1930), incerteza \u00b125 % (Incropera sec. 8.5)"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.0006205914317426842,
+   "unit": "-",
+   "how": "m\u00ednimos quadrados (Brent), IC por sensibilidade"
+  }
+ ],
+ "checks": [
+  {
+   "name": "epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto",
+   "passed": true,
+   "value": 0.48785438014314664,
+   "reference": 0.48785438014313065,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto",
+   "passed": true,
+   "value": 0.3710283646414162,
+   "reference": 0.37102836464140065,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto",
+   "passed": true,
+   "value": 0.5787959056011164,
+   "reference": 0.5787959056011109,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "Cr -> 0: epsilon = 1 - exp(-NTU)",
+   "passed": true,
+   "value": 0.8173164759472653,
+   "reference": 0.8173164759472653,
+   "rtol": 1e-12,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "h tubos: Gnielinski vs Dittus-Boelter",
+   "passed": true,
+   "value": 6560.106791412207,
+   "reference": 6002.812597422104,
+   "rtol": 0.25,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/exchanger.png",
+   "results/variants.png",
+   "results/3d/shell_tube_cooler_3d_temperature.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "integra\u00e7\u00e3o direta das 3 equa\u00e7\u00f5es de energia do trocador 1-2 (scipy solve_bvp)",
+  "integra\u00e7\u00e3o direta das 3 equa\u00e7\u00f5es de energia do trocador 1-2 (scipy solve_bvp)",
+  "integra\u00e7\u00e3o direta das 3 equa\u00e7\u00f5es de energia do trocador 1-2 (scipy solve_bvp)",
+  "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. eq. 11.35a",
+  "Dittus & Boelter (1930), incerteza \u00b125 % (Incropera sec. 8.5)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "4e59c29f",
+  "created": "2026-10-24T01:17:16Z",
+  "seconds": 0.01,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

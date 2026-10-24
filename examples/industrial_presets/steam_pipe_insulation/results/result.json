@@ -1,0 +1,127 @@
+{
+ "preset": "steam_pipe_insulation",
+ "fidelity": "solver",
+ "params": {
+  "d_pipe": 0.1683,
+  "t_fluid": 179.9,
+  "t_amb": 10.0,
+  "wind": 3.0,
+  "thickness": 0.06,
+  "k0": 0.036,
+  "k1": 0.0001,
+  "eps": 0.05,
+  "hours": 8000.0,
+  "energy_price": 0.05,
+  "efficiency": 0.88,
+  "cost_per_m3": 900.0,
+  "cost_per_m2": 40.0,
+  "rate": 0.08,
+  "years": 10.0,
+  "t_surface_max": 60.0
+ },
+ "outputs": {
+  "q": 87.15636198690117,
+  "t_surface": 17.048783137066117,
+  "h_surface": 13.65181610762672,
+  "regime": "forced",
+  "re": 58820.64564833374,
+  "q_bare": 2402.4939215349427,
+  "saving": 0.9637225463067073,
+  "annual_cost": 50.787633945908695,
+  "t_economic": 0.1,
+  "t_safe": 0.02,
+  "q_fd": 87.15637611883044,
+  "fd_balance": 3.4713363537987196e-13
+ },
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "perda 87.2 W/m (nu: 2402 W/m, 96.4 % evitado), superf\u00edcie 17.0 \u00b0C",
+   "espessura econ\u00f4mica 100 mm; menor segura (<= 60 \u00b0C) 20 mm; dada 60 mm"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "Kirchhoff closed form = finite volumes with k(T)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.6214455193168763e-07,
+    "limit": 0.0001,
+    "source": "radial_fd (Picard, 400 volumes)",
+    "reason": ""
+   },
+   {
+    "name": "FV energy balance: inner flow = outer flow",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 3.4713363537987196e-13,
+    "limit": 1e-08,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "surface between ambient and fluid",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "Churchill-Bernstein range Re Pr > 0.2",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 58820.64564833374,
+    "limit": null,
+    "source": "Incropera eq. 7.54",
+    "reason": ""
+   },
+   {
+    "name": "insulation thicker than the critical radius (adds resistance)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 87.15636198690117,
+    "limit": 2402.4939215349427,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 0.0732124199998907,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:17:20Z"
+ }
+}

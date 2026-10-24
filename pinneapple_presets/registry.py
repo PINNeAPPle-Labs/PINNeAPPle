@@ -20,6 +20,10 @@ _BUILTIN: dict[str, str] = {
     "plate_fin_heatsink_forced": "pinneapple_presets.cases.heatsink:PlateFinHeatsink",
     "power_pcb_junction": "pinneapple_presets.cases.pcb:PowerPCB",
     "steel_footbridge_pedestrian": "pinneapple_presets.cases.footbridge:SteelFootbridge",
+    "shell_tube_cooler": "pinneapple_presets.cases.shell_tube:ShellTubeCooler",
+    "steam_pipe_insulation": "pinneapple_presets.cases.insulation:SteamLineInsulation",
+    "pressure_vessel_asme": "pinneapple_presets.cases.pressure_vessel:PressureVessel",
+    "pump_npsh_cavitation": "pinneapple_presets.cases.pump_npsh:PumpNPSH",
 }
 _EXTRA: dict[str, type] = {}
 

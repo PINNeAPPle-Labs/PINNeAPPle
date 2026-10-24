@@ -151,3 +151,59 @@ def test_exact_correction_converges_to_reference(case):
     o = c.observables_fine(r["U"], r["pb"])
     assert r["history"][-1] <= 1e-10 and r["iterations"] < 300
     assert abs(o["Tj"].max() - ref["Tj"].max()) < 1e-6
+
+
+# --------------------------------------------------------------------------------- track 1b: meshless, 1c: prior
+def _slab():
+    from pinneapple_condense.package import BASE, Layer, Package, Stack
+    st = Stack(layers=(Layer("die", 100e-6, 4, "silicon"), Layer("tim", 30e-6, 2, "silicon")), contact=(),
+               active="die", h_top=2e4, h_bottom=1e3)
+    return Package(st, np.zeros((1, 1), int), [BASE], np.full((8, 8), 1e-3 / 64))
+
+
+@pytest.mark.parametrize("method", ["gfdm", "rbf_fd"])
+def test_meshless_exact_on_a_quadratic_through_an_interface(method, monkeypatch):
+    """Uniform source, Robin top and bottom: the exact field is quadratic in z, which degree-2 stencils reproduce;
+    with the sides as mirror planes the collocation is stable under refinement (it was not with side nodes)."""
+    from pinneapple_condense import meshless as ML
+    pkg = _slab()
+    q, k, H, hT, hB = 1e10, 148.0, 130e-6, 2e4, 1e3
+    C1, C0 = np.linalg.solve([[-k, hB], [-k - hT * H, -hT]], [0.0, -hT * q * H ** 2 / (2 * k) - q * H])
+    monkeypatch.setattr(ML.Geometry, "source", lambda self, X: np.full(len(X), q))
+    for hf in (6, 12):
+        cl = ML.point_cloud(pkg, h_xy=pkg.stack.pitch / hf)
+        sol = ML.solve(pkg, cl, method=method, oversample=True)
+        exact = -q / (2 * k) * cl.X[:, 2] ** 2 + C1 * cl.X[:, 2] + C0
+        assert np.abs(sol.T - exact).max() < 1e-3 * exact.max()
+
+
+def test_meshless_layers_with_contact_resistance_against_fv():
+    from pinneapple_condense import meshless as ML
+    from pinneapple_condense.package import BASE, Package, Stack
+    L = {x.name: x for x in reference_stack().layers}
+    st = Stack(layers=(L["die"], L["tim"], L["lid"]), contact=(("die", "tim", 5e-6), ("tim", "lid", 5e-6)),
+               active="die", h_top=2e4, h_bottom=1e3)
+    pkg = Package(st, np.zeros((1, 1), int), [BASE], np.full((8, 8), 1.6e-3 / 64))
+    T, _ = fv.solve_package(pkg, method="direct")
+    o = ML.observables(ML.solve(pkg, method="gfdm", h_xy=st.pitch / 6), pkg)
+    assert abs(o["Tmax"] / T[:, :, st.active_k].max() - 1) < 0.01 and abs(o["energy_balance"]) < 0.01
+
+
+def test_prior_and_exception_patches():
+    from pinneapple_condense import exceptions as EX
+    pkg = uniform_package((6, 6), ST, seed=1)
+    p = pkg.power.copy()
+    p[10, 12] += 0.2 * p.sum()                                   # a sub-pitch hotspot the prior misses
+    pkg.power = p
+    T, _ = fv.solve_package(pkg, method="direct")
+    ref = reference_observables(pkg, T)
+    full = EX.run(pkg, budget=1.0, halo=0)                         # every block solved: the reference itself
+    assert np.abs(full["T"] - T).max() < 1e-6 * T.max()
+    err = {}
+    for sel in ("residual", "random"):
+        r = EX.run(pkg, budget=0.1, halo=1, select=sel, seed=3)
+        o = reference_observables(pkg, r["T"])
+        assert abs((o["q_top"].sum() + o["q_bottom"].sum()) / pkg.power.sum() - 1) < 1e-9    # energy corrected
+        err[sel] = abs(o["Tj"].max() - ref["Tj"].max())
+    assert err["residual"] < err["random"]
+    assert EX.run(pkg, budget=0.0)["eta"].argmax() == np.ravel_multi_index((10 // ST.n, 12 // ST.n), (6, 6))

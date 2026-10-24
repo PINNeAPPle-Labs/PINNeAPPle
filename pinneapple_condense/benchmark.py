@@ -334,3 +334,44 @@ def root_compressibility(nb: int = 64, m: int = 12, tol: float = 1e-8) -> dict:
 
 if __name__ == "__main__":
     print(json.dumps(isolated(sys.argv[1], **json.loads(sys.argv[2] if len(sys.argv) > 2 else "{}")), indent=1))
+
+
+def meshless_study(nb: int = 2, hfs=(6, 8, 10, 12), methods=("gfdm", "rbf_fd"), interfaces=("pairs", "naive"),
+                   ls_hfs=(8, 10), seed: int = 1, keep_fields: int = 8) -> dict:
+    """Track 1b: RBF-FD and GFDM point clouds from the implicit geometry against the fine FV reference, for a range
+    of spacings ``pitch / hf``, interface treatments (node pairs with flux continuity and the contact law, or the
+    naive single-node collocation), and least-squares collocation (``ls_hfs``). Keeps the junction map and a
+    vertical slice of the point cloud for ``hf = keep_fields`` (figures)."""
+    from . import meshless as ML
+    pkg = uniform_package((nb, nb), seed=seed)
+    st = pkg.stack
+    t0 = time.perf_counter()
+    T, info = fv.solve_package(pkg, method="direct")
+    t_ref = time.perf_counter() - t0
+    ref = reference_observables(pkg, T)
+    tj_ref = T[:, :, st.active_k]
+    qref = float(ref["q_tim"].sum())
+    rows, fields = [], {}
+    configs = [(hf, m, itf, False) for hf in hfs for m in methods for itf in interfaces]
+    configs += [(hf, m, "pairs", True) for hf in ls_hfs for m in methods]
+    for hf, m, itf, ls in configs:
+        row = {"hf": hf, "method": m, "interface": itf, "least_squares": ls}
+        try:
+            cl = ML.point_cloud(pkg, h_xy=st.pitch / hf, interface=itf)
+            sol = ML.solve(pkg, cl, method=m, interface=itf, oversample=ls, condition=cl.n <= 60_000 and not ls)
+            o = ML.observables(sol, pkg)
+            row.update({"nodes": cl.n, "Tmax": o["Tmax"], "err_Tmax": o["Tmax"] - float(tj_ref.max()),
+                        "err_Tj_max": float(np.abs(o["Tj"] - tj_ref).max()),
+                        "err_q_tim": (o["q_tim"] - qref) / qref, "energy_balance": o["energy_balance"],
+                        "points_s": sol.timings["points_s"], "assemble_s": sol.timings["assemble_s"],
+                        "solve_s": sol.timings["solve_s"], "cond1_est": sol.timings.get("cond1_est")})
+            if hf == keep_fields and itf == "pairs" and not ls:
+                X = cl.X
+                sl = np.abs(X[:, 1] - st.pitch * nb / 2) < st.pitch / hf / 2
+                fields[m] = {"Tj": o["Tj"].tolist(), "slice_x": X[sl, 0].tolist(), "slice_z": X[sl, 2].tolist(),
+                             "slice_T": sol.T[sl].tolist(), "slice_kind": cl.kind[sl].tolist()}
+        except Exception as e:                       # a failed solve is a result
+            row.update({"failed": repr(e)[:200]})
+        rows.append(row)
+    return {"blocks": nb * nb, "fv_cells": int(T.size), "fv_s": t_ref, "Tmax_ref": float(tj_ref.max()),
+            "q_tim_ref": qref, "Tj_ref": tj_ref.tolist(), "rows": rows, "fields": fields}

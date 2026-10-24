@@ -1556,15 +1556,15 @@
     }
    },
    "run": {
-    "ok": true,
-    "stdout": "Ask a PINNeAPPle model service -> pinneapple_tools.model_services.registry:infer\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'model': None, 'inputs_json': None}",
-    "stderr": "",
-    "seconds": 5.62,
-    "timed_out": false,
     "code_hash": "6e46e4e3c1ef610b",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 5.62,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Ask a PINNeAPPle model service -> pinneapple_tools.model_services.registry:infer\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'model': None, 'inputs_json': None}",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -69989,15 +69989,15 @@
     "items": []
    },
    "run": {
-    "ok": true,
-    "stdout": "PhysicsNeMo FNO served with per-answer physics checks and solver fallback | heat transfer | not curated\nsurrogate_rel_l2_in-distribution 0.01893316941816208 \nsurrogate_rel_l2_higher 0.25346193616601387 \nsurrogate_rel_l2_finer 0.019041764851127442",
-    "stderr": "",
-    "seconds": 0.77,
-    "timed_out": false,
     "code_hash": "e8e585ebbf2d5baa",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 0.77,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "PhysicsNeMo FNO served with per-answer physics checks and solver fallback | heat transfer | not curated\nsurrogate_rel_l2_in-distribution 0.01893316941816208 \nsurrogate_rel_l2_higher 0.25346193616601387 \nsurrogate_rel_l2_finer 0.019041764851127442",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -72945,15 +72945,15 @@
     "items": []
    },
    "run": {
-    "ok": true,
-    "stdout": "Request to exact bracket: model service, USD BRep, PINNeAPPle sizing and verification | structural mechanics | not curated\nthickness_mm 10.0 mm\nbracket_mass 369.9879538393715 g",
-    "stderr": "",
-    "seconds": 0.93,
-    "timed_out": false,
     "code_hash": "17b57b9c8721d115",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 0.93,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Request to exact bracket: model service, USD BRep, PINNeAPPle sizing and verification | structural mechanics | not curated\nthickness_mm 10.0 mm\nbracket_mass 369.9879538393715 g",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -76272,15 +76272,15 @@
     "items": []
    },
    "run": {
-    "ok": true,
-    "stdout": "Zoo surrogates as NIM-compatible services with a trust report per answer | physics AI | not curated\nlatency_median_ms 35.379128999920795 ms\ncl_naca2412_4deg 0.6615029102991399",
-    "stderr": "",
-    "seconds": 0.8,
-    "timed_out": false,
     "code_hash": "14bf80c381610546",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 0.8,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Zoo surrogates as NIM-compatible services with a trust report per answer | physics AI | not curated\nlatency_median_ms 35.379128999920795 ms\ncl_naca2412_4deg 0.6615029102991399",
+    "timed_out": false,
     "status": "ok"
    }
   }

@@ -1,0 +1,23 @@
+{
+  "slug": "securing-physics-apps",
+  "theme": "Hardening open-source engineering web apps and their deployment: audit -> app layer -> deploy -> supply chain",
+  "prs": [829, 830, 831, 832],
+  "media": [
+    "media/securing-physics-apps/01_scope.png",
+    "media/securing-physics-apps/02_findings.png",
+    "media/securing-physics-apps/03_app_layer.png",
+    "media/securing-physics-apps/04_compose.png",
+    "media/securing-physics-apps/05_ci.png",
+    "media/securing-physics-apps/06_measured.png"
+  ],
+  "numbers": [
+    {"value": "34", "meaning": "FastAPI apps in the audit scope", "source": "docs/security/audit.md (Scope)"},
+    {"value": "1 critical + 5 high, all fixed", "meaning": "C1, H1-H5 status Fixed", "source": "docs/security/audit.md (Findings, ranked)"},
+    {"value": "3/15 -> 15/15", "meaning": "behaviour probe properties passing, main vs changed", "source": "docs/security/audit.md (After the changes, row total)"},
+    {"value": "33 -> 0", "meaning": "Trivy DS-0002 image runs as root", "source": "docs/security/audit.md (Tools table, trivy config)"},
+    {"value": "2 -> 0", "meaning": "bandit high-severity findings", "source": "docs/security/audit.md (Tools table, bandit)"},
+    {"value": "4 -> 0", "meaning": "semgrep eval-detected", "source": "docs/security/audit.md (Tools table, semgrep)"},
+    {"value": "7 -> 0", "meaning": "critical CVEs in the Playground base image", "source": "docs/security/audit.md (Tools table, trivy Playground base image)"},
+    {"value": "169 passed, 1 skipped", "meaning": "app-wiring, deployment and web-hardening security tests", "source": "local pytest run on main e716a065 (tests/test_app_security.py, tests/test_deploy_security.py, tests/pinneapple_security/test_web_hardening.py)"}
+  ]
+}

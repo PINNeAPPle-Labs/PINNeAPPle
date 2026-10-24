@@ -736,6 +736,17 @@
   "stdout": "Autonomous Physics Lab | design and geometry | not curated\nbaseline_tj_soc 323.2144491142498 °C\nverified_tj_soc_pessimistic 88.52504297676208 °C\nholdout_tj_max_abs_error 2.2030649404285896 K\nholdout_map_rmse 0.2031511632505125 K\nreference_solves 224.0 solves",
   "timed_out": false
  },
+ "example:examples/autolab_digital_twin": {
+  "code_hash": "b8c6879d1ad7fbc7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.22,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Digital twin that knows when it is wrong | system dynamics | not curated\ncause_accuracy 0.9625 fraction\ncases_with_false_alarm 1.0 cases\nfast_model_holdout_max 0.7827623466462263 sensor sigmas",
+  "timed_out": false
+ },
  "example:examples/autolab_rover": {
   "code_hash": "91af0919ac3497cb",
   "figures": [],
@@ -5211,6 +5222,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Self-optimizing engineer (board cooling) -> pinneapple_design.thermal.board_cooling.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n': 64, 'planner': 'template', 'render': False, 'workers': 4}",
+  "timed_out": false
+ },
+ "node:autolab.pipe_twin": {
+  "code_hash": "91131ee998dce031",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.62,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Digital twin that knows when it is wrong (pipe loop) -> pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n_per_kind': 20, 'planner': 'template', 'render': False, 'workers': 4}",
   "timed_out": false
  },
  "node:benchmark.arena": {

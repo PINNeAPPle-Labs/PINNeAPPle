@@ -78,6 +78,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   with a `TrustReport` -> figures, glTF / USD, three.js viewer, Blender stills and animation, report. Example
   `examples/autolab/self_optimizing_engineer.py`, Flow node `autolab.board_cooling`, guide
   `docs/guides/autonomous_physics_lab.md`.
+- `pinneapple_systems.digital_twin.pipe_loop`, demo 3 of the lab (the digital twin that knows when it is wrong): a
+  pumped, heated water loop with an elbow and a T junction simulated quasi-steadily (pump affinity curve,
+  Darcy-Weisbach / Colebrook, minor and valve losses, heater and branch heat loss) with controlled faults; a POD +
+  Gaussian-process fast model of its ten sensors; ten physics residuals with fault directions (sensor bias,
+  obstruction per pipe), an EKF on the extra loss coefficient of each pipe and the training envelope, combined into
+  a diagnosis (normal / process / sensor / domain, with location and size) calibrated on healthy runs; a reference
+  simulation and model extension where the model is out of its domain; a benchmark of controlled cases with the
+  confusion matrix; control-room figures, 3-D scene, viewer, Blender animation, report and trust report. Example
+  `examples/autolab_digital_twin/twin_knows_when_wrong.py`, Flow node `autolab.pipe_twin`.
 - `pinneapple_physics.pcb.Component.r_top_k_w`: case-top-to-air resistance of an attached heat sink.
 - Studio: `blender.render_animation(..., lines=[bool per frame])` shows the static lines only on chosen frames.
 - Hub tools by task: every one of the 408 tools is in exactly one of 20 task categories

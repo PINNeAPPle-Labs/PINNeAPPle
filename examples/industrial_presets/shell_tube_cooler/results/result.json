@@ -1,0 +1,150 @@
+{
+ "preset": "shell_tube_cooler",
+ "fidelity": "solver",
+ "params": {
+  "m_hot": 20.0,
+  "t_hot_in": 45.0,
+  "m_cold": 25.0,
+  "t_cold_in": 29.0,
+  "cp_hot": 4179.0,
+  "mu_hot": 0.000631,
+  "k_hot": 0.634,
+  "cp_cold": 4178.0,
+  "mu_cold": 0.000769,
+  "k_cold": 0.62,
+  "n_tubes": 200,
+  "tube_od": 0.01905,
+  "tube_wall": 0.00165,
+  "tube_length": 4.877,
+  "pitch": 0.02381,
+  "shell_id": 0.489,
+  "baffle_spacing": 0.3,
+  "k_wall": 50.0,
+  "rf_hot": 8.8e-05,
+  "rf_cold": 0.000176,
+  "t_hot_target": 36.0
+ },
+ "outputs": {
+  "q": 652397.9054778272,
+  "t_hot_out": 37.19432991770965,
+  "t_cold_out": 35.24603068911276,
+  "U": 1405.1463507583537,
+  "area": 58.37509548563378,
+  "ntu": 0.981401679789528,
+  "cr": 0.8001914791766396,
+  "effectiveness": 0.48785438014314664,
+  "F": 0.8885191540392299,
+  "lmtd": 8.951516155871884,
+  "q_lmtd": 652397.9054778268,
+  "h_shell": 5258.186695561676,
+  "h_tube": 6560.106791412207,
+  "h_tube_dittus_boelter": 6002.812597422104,
+  "v_tube": 1.2896323843811275,
+  "dp_tube": 16649.26040996207,
+  "re_tube": 26281.08127923634,
+  "re_shell": 14875.804865476255,
+  "tube_regime": "turbulent"
+ },
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "circuito sai a 37.2 \u00b0C > alvo 36 \u00b0C (Q = 652.4 kW, U = 1405 W/m2K)",
+   "velocidade nos tubos 1.29 m/s dentro de 1-2,5 m/s (incrusta\u00e7\u00e3o abaixo, eros\u00e3o acima)",
+   "perda de carga nos tubos 16.6 kPa <= 70 kPa (Sinnott, Coulson & Richardson vol. 6, sec. 12.8: 35-70 kPa t\u00edpico para l\u00edquidos)"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "epsilon-NTU = U A F LMTD (two independent routes)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 5.353266197643765e-16,
+    "limit": 1e-06,
+    "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. sec. 11.3-11.4",
+    "reason": ""
+   },
+   {
+    "name": "energy balance: hot side = cold side",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "by construction of Q",
+    "reason": ""
+   },
+   {
+    "name": "2nd law: hot out > cold in, cold out < hot in",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "Kern range 2e3 < Re_shell < 1e6",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 14875.804865476255,
+    "limit": 2000.0,
+    "source": "Kern (1950) eq. 7.3",
+    "reason": ""
+   },
+   {
+    "name": "Gnielinski range Re_tube >= 3000",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 26281.08127923634,
+    "limit": 3000,
+    "source": "Gnielinski (1976)",
+    "reason": ""
+   },
+   {
+    "name": "LMTD factor F >= 0.75 (1-2 shell usable)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.8885191540392299,
+    "limit": 0.75,
+    "source": "Kern (1950) ch. 7: below F ~ 0.75 use more shells",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 0.0068008509997525834,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:16:34Z"
+ }
+}

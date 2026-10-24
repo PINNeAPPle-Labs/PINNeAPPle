@@ -241,7 +241,8 @@ class Result:
                                                       "checks": [c.__dict__ for c in self.trust.checks]},
             "data": small, "data_files": sorted(f"{n}.npz" for n in big), "notes": self.notes,
             "figures": sorted(f"{n}.png" for n in self.figures),
-            "movies": sorted(f"{n}.{e}" for n in self.movies for e in ("mp4", "gif")),
+            "movies": sorted(f"{n}.{e}" for n in self.movies for e in ("mp4", "gif")
+                             if not any(x.startswith(f"{n}.{e} not written") for x in self.notes)),
             "viewers": sorted(f"{n}.html" for n in self.viewers),
             "wall_time_s": self.wall_time_s,
         })
@@ -265,10 +266,14 @@ class Result:
             from pinneapple_design.bricks.visuals import write_mp4
             from pinneapple_tools.visualization.dashboard.static import write_gif
 
-            paths[name + "_mp4"] = write_mp4(os.path.join(folder, f"{name}.mp4"), frames, fps)
+            try:
+                paths[name + "_mp4"] = write_mp4(os.path.join(folder, f"{name}.mp4"), frames, fps)
+            except RuntimeError as e:       # no H.264 encoder here: the GIF still carries the animation
+                self.notes.append(f"{name}.mp4 not written: {e}")
             paths[name + "_gif"] = write_gif(os.path.join(folder, f"{name}.gif"), frames[::2], fps / 2)
         for name, write in self.viewers.items():
             paths[name + "_html"] = write(os.path.join(folder, f"{name}.html"))
+        d = self.to_dict()                  # again: saving may have added notes (an MP4 it could not write)
         p = os.path.join(folder, "result.json")
         with open(p, "w", encoding="utf-8") as fh:
             json.dump(d, fh, indent=1)

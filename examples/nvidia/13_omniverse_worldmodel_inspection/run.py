@@ -10,7 +10,7 @@ zoom, rotation, offset, and sometimes a specular glint). The label check compare
 sees on the defect-free plate: if the strongest anomaly is not at the label (a glint outshines the defect), the
 sample is dropped. A small CNN detector is trained with and without the check and tested on fresh samples.
 
-    python examples/nvidia/13_omniverse_worldmodel_inspection/run.py        # ~10 min on 4 CPU cores
+    python examples/nvidia/13_omniverse_worldmodel_inspection/run.py        # ~84 min on 4 CPU cores shared with other runs
 """
 import argparse
 import json

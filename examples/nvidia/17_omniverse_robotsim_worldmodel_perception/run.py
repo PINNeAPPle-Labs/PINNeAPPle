@@ -10,7 +10,7 @@ the tool point are visible. A small CNN reads both joint angles from a frame; th
 the tool point through the forward kinematics, the joint speed the predicted sequence implies against Newton's, and
 frame-to-frame jumps the motors cannot make.
 
-    python examples/nvidia/17_omniverse_robotsim_worldmodel_perception/run.py      # ~15 min on 4 CPU cores
+    python examples/nvidia/17_omniverse_robotsim_worldmodel_perception/run.py      # ~80 min on 4 CPU cores shared with other runs
 """
 import argparse
 import json

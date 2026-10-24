@@ -1,27 +1,29 @@
 {
  "decision": "REVIEW",
  "label_shift_max": 0.016470196146710303,
- "train": 300,
- "train_accepted": 207,
- "train_glint": 78,
- "rejected_glint": 0.9743589743589743,
- "rejected_clean": 0.07657657657657657,
+ "train": 600,
+ "train_accepted": 296,
+ "train_glint": 146,
+ "rejected_glint": 0.9863013698630136,
+ "rejected_clean": 0.35242290748898675,
+ "saturated_clean": 0.3502202643171806,
+ "rejected_unsaturated_clean": 0.003389830508474523,
  "test": 80,
- "test_defect_visible": 59,
+ "test_defect_visible": 50,
  "detector": {
   "all samples": {
-   "median_px": 8.7802425756057,
-   "within_tol": 0.13559322033898305,
-   "within_tol_all_test": 0.125
+   "median_px": 8.65861387004859,
+   "within_tol": 0.2,
+   "within_tol_all_test": 0.175
   },
   "accepted samples": {
-   "median_px": 5.613411341107828,
-   "within_tol": 0.3050847457627119,
-   "within_tol_all_test": 0.225
+   "median_px": 6.101817264338952,
+   "within_tol": 0.26,
+   "within_tol_all_test": 0.175
   },
   "brightest pixel": {
-   "median_px": 5.676549406084056,
-   "within_tol": 0.4576271186440678,
+   "median_px": 5.686270886226744,
+   "within_tol": 0.44,
    "within_tol_all_test": 0.3625
   }
  },
@@ -64,22 +66,22 @@
   },
   {
    "name": "label check rejects glint samples",
-   "value": 0.9743589743589743,
+   "value": 0.9863013698630136,
    "limit": 0.5,
    "kind": "min",
    "passed": true,
-   "detail": "78 samples with a glint"
+   "detail": "146 samples with a glint"
   },
   {
-   "name": "label check keeps glint-free samples (false rejections)",
-   "value": 0.07657657657657657,
+   "name": "label check keeps glint-free, unsaturated samples (false rejections)",
+   "value": 0.003389830508474523,
    "limit": 0.1,
    "passed": true,
-   "detail": "222 samples without a glint"
+   "detail": "295 samples; 35% of glint-free samples saturate at the label and are dropped"
   },
   {
    "name": "detector (accepted samples) within 4 px on test images showing the defect",
-   "value": 0.3050847457627119,
+   "value": 0.26,
    "limit": 0.9,
    "kind": "min",
    "passed": false

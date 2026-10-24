@@ -25,16 +25,16 @@ hardware, timings, which components ran).
 | 06 | N | [Zoo surrogates as NIM-style services with a trust report per answer](06_model_services_zoo/README.md) | APPROVED (out-of-range answers flagged) | done |
 | 07 | O + P | [Cold plate surrogate in a USD scene](07_omniverse_physicsnemo_coldplate/README.md) | REJECT (energy balance) | done |
 | 08 | I + P | [Learned arm dynamics, checked physics](08_robotsim_physicsnemo_learned_dynamics/README.md) | REVIEW (start pose at the envelope edge) | done |
-| 09 | C + P | PhysicsNeMo world model on PINNeAPPle-generated data | | planned |
+| 09 | C + P | [A world model that keeps the physics: CNN state, PhysicsNeMo dynamics](09_worldmodel_physicsnemo_state/README.md) | REVIEW (18/20 rollouts physical; encoder worst case) | done |
 | 10 | B + P | [Heat-sink design from exact geometry](10_brep_physicsnemo_heatsink/README.md) | APPROVED (first proposal rejected by verification) | done |
 | 11 | N + P | [PhysicsNeMo FNO served with per-answer physics and solver fallback](11_model_services_physicsnemo_operator/README.md) | APPROVED system; no FNO answer approved | done |
 | 12 | O + I | [One USD scene for Omniverse and the robot sim](12_omniverse_robotsim_arm/README.md) | APPROVED (USD = URDF to the bit) | done |
-| 13 | O + C | Synthetic inspection data as USD scene variations | | planned |
+| 13 | O + C | [Synthetic inspection data as USD scene variations](13_omniverse_worldmodel_inspection/README.md) | REVIEW (label check works; detector below baseline) | done |
 | 14 | B + O | [Exact CAD into Omniverse: curvature, wall thickness](14_brep_omniverse_bracket/README.md) | APPROVED (native B-rep layer lacks stage metadata) | done |
 | 15 | N + B | [From a sentence to an exact, checked bracket](15_model_services_brep_bracket/README.md) | APPROVED (ambiguous request stopped) | done |
 | 16 | O + P + B | [Verified heat sink with its temperature field in USD](16_omniverse_physicsnemo_brep_heatsink/README.md) | APPROVED | done |
-| 17 | O + I + C | Robot perception with synthetic camera data | | planned |
-| 18 | all six | End to end | | planned |
+| 17 | O + I + C | [Robot perception from synthetic camera data](17_omniverse_robotsim_worldmodel_perception/README.md) | REVIEW (exact labels; CNN 13 deg RMS) | done |
+| 18 | all six | [Heat-sink work cell: design, serve, handle, see, one USD scene](18_all_stacks_heatsink_cell/README.md) | APPROVED (200.6 g part, 0.5 s move) | done |
 
 What runs where: PINNeAPPle, PhysicsNeMo (CPU), OpenUSD (`usd-core`) and USD BRep run on a laptop and were run for
 the numbers in each README. Omniverse Kit RTX rendering, Isaac Sim, NVIDIA Cosmos and NVIDIA NIM need an NVIDIA GPU

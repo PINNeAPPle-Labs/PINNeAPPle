@@ -20,19 +20,19 @@
  "metrics": [
   {
    "name": "within_4px_all_samples",
-   "value": 0.13559322033898305,
+   "value": 0.2,
    "unit": "",
    "how": "fraction of test images (defect visible) located within the tolerance"
   },
   {
    "name": "within_4px_accepted_samples",
-   "value": 0.3050847457627119,
+   "value": 0.26,
    "unit": "",
    "how": "fraction of test images (defect visible) located within the tolerance"
   },
   {
    "name": "within_4px_brightest_pixel",
-   "value": 0.4576271186440678,
+   "value": 0.44,
    "unit": "",
    "how": "fraction of test images (defect visible) located within the tolerance"
   }
@@ -65,31 +65,31 @@
   {
    "name": "label check rejects glint samples",
    "passed": true,
-   "value": 0.9743589743589743,
+   "value": 0.9863013698630136,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": null,
    "min": 0.5,
-   "detail": "78 samples with a glint",
+   "detail": "146 samples with a glint",
    "kind": "sanity"
   },
   {
-   "name": "label check keeps glint-free samples (false rejections)",
+   "name": "label check keeps glint-free, unsaturated samples (false rejections)",
    "passed": true,
-   "value": 0.07657657657657657,
+   "value": 0.003389830508474523,
    "reference": null,
    "rtol": null,
    "atol": null,
    "max": 0.1,
    "min": null,
-   "detail": "222 samples without a glint",
+   "detail": "295 samples; 35% of glint-free samples saturate at the label and are dropped",
    "kind": "sanity"
   },
   {
    "name": "detector (accepted samples) within 4 px on test images showing the defect",
    "passed": false,
-   "value": 0.3050847457627119,
+   "value": 0.26,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -116,9 +116,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "559c8720",
-  "created": "2026-10-24T10:20:58Z",
-  "seconds": 2346.139,
+  "git": "6aaa3da5",
+  "created": "2026-10-24T11:01:57Z",
+  "seconds": 5029.477,
   "error": null,
   "environment": {
    "python": "3.13.17",

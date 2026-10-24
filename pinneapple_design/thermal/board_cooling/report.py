@@ -50,15 +50,18 @@ def figure_maps(state, path: str) -> str:
             rc = c.resolved()
             a.add_patch(plt.Rectangle((rc.x_mm - rc.w_mm / 2, rc.y_mm - rc.d_mm / 2), rc.w_mm, rc.d_mm, fill=False,
                                       ec="white", lw=0.8))
-            a.text(rc.x_mm, rc.y_mm, f"{c.name}\n{r['tj_c'][c.name]:.0f} °C", color="white", fontsize=7,
-                   ha="center", va="center")
+            big = min(rc.w_mm, rc.d_mm) >= 15                  # small parts: label beside the box, not over it
+            above = rc.y_mm < 0.5 * m.board.depth_mm
+            a.text(rc.x_mm, rc.y_mm if big else (rc.y_mm + rc.d_mm / 2 + 1.5 if above else rc.y_mm - rc.d_mm / 2 - 1.5),
+                   f"{c.name}\n{r['tj_c'][c.name]:.0f} °C" if big else f"{c.name} {r['tj_c'][c.name]:.0f} °C",
+                   color="white", fontsize=7, ha="center", va="center" if big else ("bottom" if above else "top"))
         a.set_title(lab, fontsize=10)
         a.set_aspect("equal")
         a.set_xlabel("x [mm]")
     ax[0].set_ylabel("y [mm] (air flows +y)")
     fig.colorbar(im, ax=ax, label="board top temperature [°C]", shrink=0.9)
-    fig.suptitle(f"{m.hot} at {m.hot_component().power_w:g} W: board-top temperature (junction temperatures in the "
-                 f"boxes; contour = {m.tj_limit_c:.0f} °C)", fontsize=11)
+    fig.suptitle(f"{m.hot} at {m.hot_component().power_w:g} W: board-top temperature (nominal junction temperatures "
+                 f"at the parts; contour = {m.tj_limit_c:.0f} °C)", fontsize=11)
     fig.savefig(path, dpi=130)
     plt.close(fig)
     return path
@@ -72,9 +75,9 @@ def figure_evolution(state, path: str) -> str:
     loop = state["optimize"]["loop"]
     fig, ax = plt.subplots(1, 2, figsize=(13, 4.2), constrained_layout=True)
     a = ax[0]
-    pts = [("bare board", state["baseline"]["tj_hot_c"])]
+    pts = [("bare board\n(nominal)", state["baseline"]["tj_hot_c"])]
     if "screen_natural" in state:
-        pts.append(("still-air sink", state["screen_natural"]["tj_hot_pessimistic_c"]))
+        pts.append(("still-air sink\n(pessimistic)", state["screen_natural"]["tj_hot_pessimistic_c"]))
     for i, (_, v) in enumerate(pts):
         a.bar(i, v, color="#ef4444" if v > m.tj_limit_c else "#22c55e")
         a.text(i, v, f"{v:.0f} °C", ha="center", va="bottom", fontsize=9)
@@ -88,9 +91,9 @@ def figure_evolution(state, path: str) -> str:
     a.text(k0 + len(loop["rounds"]), vf, f"{vf:.1f} °C", ha="center", va="bottom", fontsize=9)
     a.axhline(m.tj_limit_c, color=T_LIM_COLOR, ls="--", lw=1)
     a.set_xticks(range(k0 + len(loop["rounds"]) + 1),
-                 [p[0] for p in pts] + [f"round {r['round']}\n(reference)" for r in loop["rounds"]]
-                 + ["verified\n(fine grids)"], fontsize=8)
-    a.set_ylabel(f"Tj {m.hot} [°C] (pessimistic cooling where a sink is fitted)")
+                 [p[0] for p in pts] + [f"round {r['round']}\n(reference,\npessimistic)" for r in loop["rounds"]]
+                 + ["verified\n(fine grids,\npessimistic)"], fontsize=8)
+    a.set_ylabel(f"Tj {m.hot} [°C]")
     a.set_title("Hot-spot temperature, measured at each stage")
     b = ax[1]
     b2 = b.twinx()

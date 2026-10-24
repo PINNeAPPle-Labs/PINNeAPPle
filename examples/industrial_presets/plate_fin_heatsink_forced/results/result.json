@@ -1,0 +1,192 @@
+{
+ "preset": "plate_fin_heatsink_forced",
+ "fidelity": "solver",
+ "params": {
+  "power": 60.0,
+  "t_ambient": 35.0,
+  "velocity": 3.0,
+  "base_width": 0.1,
+  "base_depth": 0.1,
+  "base_thickness": 0.005,
+  "n_fins": 15,
+  "fin_thickness": 0.0015,
+  "fin_height": 0.035,
+  "material": "al6063",
+  "source_size": 0.03,
+  "tim": 1e-05,
+  "t_limit": 85.0,
+  "h_scale": 1.0
+ },
+ "outputs": {
+  "t_source_max_c": 64.14820799956901,
+  "t_source_pessimistic_c": 67.3775150095181,
+  "r_total_k_w": 0.4858034666594835,
+  "pressure_drop_pa": 11.393460693182304,
+  "h_w_m2k": 28.867889712512117,
+  "fin_efficiency": 0.9282861596337412,
+  "mass_g": 347.625,
+  "air_rise_c": 4.953767181245153,
+  "re_dh": 2123.9993629243595,
+  "re_star": 68.0875706855809,
+  "fin_gap_mm": 5.535714285714287,
+  "airflow_m3_h": 37.80000000000001,
+  "checks_engine": [
+   {
+    "name": "energy_balance",
+    "status": "pass",
+    "value": 9.509430280256007e-14,
+    "detail": "Heat leaving through the fins / heat injected by the source - 1 (FVM).",
+    "law": "energy conservation"
+   },
+   {
+    "name": "spreading_methods_agree",
+    "status": "pass",
+    "value": 0.023678552647287184,
+    "detail": "3D finite-volume base solve vs Lee et al. closed form: 0.1519 vs 0.1484 K/W (independent methods).",
+    "law": "conduction in the base"
+   },
+   {
+    "name": "grid_convergence",
+    "status": "pass",
+    "value": 0.0011404512461086942,
+    "detail": "Hotspot change between the coarse and fine finite-volume grids.",
+    "law": "numerical accuracy"
+   },
+   {
+    "name": "correlation_in_range",
+    "status": "pass",
+    "value": null,
+    "detail": "Convection correlation used inside its validated range.",
+    "law": "convection model validity"
+   },
+   {
+    "name": "temperature_above_ambient",
+    "status": "pass",
+    "value": 28.481541332902335,
+    "detail": "Hotspot rise above ambient must be positive (2nd law).",
+    "law": "2nd law"
+   }
+  ]
+ },
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "T fonte 64.1 \u00b0C (h -15 %: 67.4 \u00b0C) <= limite 85 \u00b0C",
+   "perda de carga 11.4 Pa, massa 348 g"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "laminar channel flow (Re_Dh < 2300)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2123.9993629243595,
+    "limit": 2300,
+    "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+    "reason": ""
+   },
+   {
+    "name": "Teertstra range 0.1 < Re* < 100",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 68.0875706855809,
+    "limit": 100,
+    "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+    "reason": ""
+   },
+   {
+    "name": "air outlet colder than the source (2nd law)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 39.953767181245155,
+    "limit": 64.14820799956901,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "engine: energy_balance",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 9.509430280256007e-14,
+    "limit": null,
+    "source": "energy conservation",
+    "reason": "Heat leaving through the fins / heat injected by the source - 1 (FVM)."
+   },
+   {
+    "name": "engine: spreading_methods_agree",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.023678552647287184,
+    "limit": null,
+    "source": "conduction in the base",
+    "reason": "3D finite-volume base solve vs Lee et al. closed form: 0.1519 vs 0.1484 K/W (independent methods)."
+   },
+   {
+    "name": "engine: grid_convergence",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0011404512461086942,
+    "limit": null,
+    "source": "numerical accuracy",
+    "reason": "Hotspot change between the coarse and fine finite-volume grids."
+   },
+   {
+    "name": "engine: correlation_in_range",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "convection model validity",
+    "reason": "Convection correlation used inside its validated range."
+   },
+   {
+    "name": "engine: temperature_above_ambient",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 28.481541332902335,
+    "limit": null,
+    "source": "2nd law",
+    "reason": "Hotspot rise above ambient must be positive (2nd law)."
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 0.16957618800006458,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T00:57:02Z"
+ }
+}

@@ -1,0 +1,3179 @@
+{
+ "schema": "pinneapple.presets/1",
+ "presets": [
+  {
+   "name": "plate_fin_heatsink_forced",
+   "title": "Dissipador de aletas planas com ventilação forçada (módulo de potência)",
+   "sector": "Térmica / eletrônica de potência",
+   "problem": "Dissipador de alumínio extrudado com aletas retas, ar forçado canalizado (shroud), fonte de calor concentrada (módulo/transistor 30 x 30 mm) no centro da base. Rede de resistências com correlações publicadas e base resolvida por volumes finitos 3-D.",
+   "question": "A temperatura da fonte fica abaixo do limite (85 °C) com a vazão de ar disponível? Qual o dissipador mais leve que atende, e quanto pesa a incerteza da correlação de convecção?",
+   "inputs": [
+    {
+     "name": "power",
+     "unit": "W",
+     "default": 60.0,
+     "source": "premissa: perdas de um módulo MOSFET/IGBT de ~1 kW (eficiência ~94 %)",
+     "lo": 1,
+     "hi": 300,
+     "help": ""
+    },
+    {
+     "name": "t_ambient",
+     "unit": "degC",
+     "default": 35.0,
+     "source": "premissa: ar interno de gabinete eletrônico (40 °C máx. típico de projeto)",
+     "lo": -20,
+     "hi": 70,
+     "help": ""
+    },
+    {
+     "name": "velocity",
+     "unit": "m/s",
+     "default": 3.0,
+     "source": "premissa: ventilador axial de 80 mm canalizado (1-5 m/s típico)",
+     "lo": 0.5,
+     "hi": 8.0,
+     "help": ""
+    },
+    {
+     "name": "base_width",
+     "unit": "m",
+     "default": 0.1,
+     "source": "perfil extrudado comercial 100 x 100 mm (premissa de catálogo)",
+     "lo": 0.03,
+     "hi": 0.3,
+     "help": ""
+    },
+    {
+     "name": "base_depth",
+     "unit": "m",
+     "default": 0.1,
+     "source": "comprimento na direção do ar, 100 mm",
+     "lo": 0.03,
+     "hi": 0.3,
+     "help": ""
+    },
+    {
+     "name": "base_thickness",
+     "unit": "m",
+     "default": 0.005,
+     "source": "base de 5 mm (perfis extrudados típicos 3-10 mm)",
+     "lo": 0.002,
+     "hi": 0.02,
+     "help": ""
+    },
+    {
+     "name": "n_fins",
+     "unit": "-",
+     "default": 15,
+     "source": "15 aletas (passo ~7 mm, típico de extrudado para ar forçado)",
+     "lo": 4,
+     "hi": 40,
+     "help": ""
+    },
+    {
+     "name": "fin_thickness",
+     "unit": "m",
+     "default": 0.0015,
+     "source": "1,5 mm (limite prático de extrusão de Al ~1 mm)",
+     "lo": 0.0008,
+     "hi": 0.005,
+     "help": ""
+    },
+    {
+     "name": "fin_height",
+     "unit": "m",
+     "default": 0.035,
+     "source": "35 mm",
+     "lo": 0.01,
+     "hi": 0.08,
+     "help": ""
+    },
+    {
+     "name": "material",
+     "unit": "-",
+     "default": "al6063",
+     "source": "Al 6063-T5, k = 209 W/m K (Incropera Tabela A.1 / ASM)",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      "al6063",
+      "al6061",
+      "al1050",
+      "cu110"
+     ]
+    },
+    {
+     "name": "source_size",
+     "unit": "m",
+     "default": 0.03,
+     "source": "encapsulamento de 30 x 30 mm (módulo de potência pequeno)",
+     "lo": 0.005,
+     "hi": 0.2,
+     "help": ""
+    },
+    {
+     "name": "tim",
+     "unit": "K m2/W",
+     "default": 1e-05,
+     "source": "pasta térmica fina, R'' = 10 K mm2/W (5-20 típico)",
+     "lo": 1e-06,
+     "hi": 0.0001,
+     "help": ""
+    },
+    {
+     "name": "t_limit",
+     "unit": "degC",
+     "default": 85.0,
+     "source": "premissa: limite de temperatura de case/base do componente",
+     "lo": 40,
+     "hi": 175,
+     "help": ""
+    },
+    {
+     "name": "h_scale",
+     "unit": "-",
+     "default": 1.0,
+     "source": "multiplicador do h (1 = correlação; < 1 = desvio de ar pelo lado, sem shroud)",
+     "lo": 0.3,
+     "hi": 1.5,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "t_source_max_c",
+     "unit": "degC",
+     "help": "temperatura máxima na fonte (FVM 3-D da base + TIM)"
+    },
+    {
+     "name": "t_source_pessimistic_c",
+     "unit": "degC",
+     "help": "a mesma com h 15 % menor (incerteza típica da correlação)"
+    },
+    {
+     "name": "r_total_k_w",
+     "unit": "K/W",
+     "help": "resistência fonte-ar"
+    },
+    {
+     "name": "pressure_drop_pa",
+     "unit": "Pa",
+     "help": "perda de carga do ar nas aletas"
+    },
+    {
+     "name": "h_w_m2k",
+     "unit": "W/m2 K",
+     "help": "coeficiente de convecção médio"
+    },
+    {
+     "name": "fin_efficiency",
+     "unit": "-",
+     "help": "eficiência da aleta"
+    },
+    {
+     "name": "mass_g",
+     "unit": "g",
+     "help": "massa do dissipador"
+    },
+    {
+     "name": "air_rise_c",
+     "unit": "K",
+     "help": "aquecimento do ar (balanço de energia)"
+    }
+   ],
+   "validity": "Escoamento laminar canalizado entre aletas (Re_Dh < 2300), aletas finas (t << b), base isotrópica, sem radiação (conservador), fonte retangular única. Correlações de Teertstra: 0,1 < Re* < 100.",
+   "pipeline": [
+    "geometria: HeatSinkGeometry / DesignInput (perfil extrudado parametrizado)",
+    "modelo: correlação de Teertstra (h), eficiência de aleta (Incropera), espalhamento (Lee 1995)",
+    "solver: evaluate_design: rede de resistências + base por volumes finitos 3-D (malha 48 e 28)",
+    "pós: T máx da fonte com banda de ±15 % no h, perda de carga (Muzychka-Yovanovich), massa",
+    "decisão: T pessimista <= limite; otimização de massa com o solver"
+   ],
+   "library": [
+    "pinneapple_design.thermal.heatsink.engine.evaluate_design",
+    "pinneapple_physics.closed_form.plate_fin_heatsink.evaluate"
+   ],
+   "limitations": [
+    "Sem dado experimental público acessível desta geometria: a validação usa os limites analíticos da correlação, uma correlação independente (Stephan + epsilon-NTU) e o FVM contra a teoria de espalhamento.",
+    "Escoamento canalizado: sem shroud, o desvio lateral do ar reduz o desempenho em 20-50 % (use h_scale ou a inversão abaixo)."
+   ],
+   "capabilities": {
+    "3d": true,
+    "surrogate": true,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": true
+   },
+   "missing": {},
+   "reason_case": "power_board",
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"plate_fin_heatsink_forced\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run plate_fin_heatsink_forced",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "plate_fin_heatsink_forced"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/plate_fin_heatsink_forced",
+    "decision": {
+     "verdict": "OK",
+     "reasons": [
+      "T fonte 64.1 °C (h -15 %: 67.4 °C) <= limite 85 °C",
+      "perda de carga 11.4 Pa, massa 348 g"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "laminar channel flow (Re_Dh < 2300)",
+       "status": "supports",
+       "value": 2123.9993629243595,
+       "limit": 2300,
+       "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+       "reason": ""
+      },
+      {
+       "name": "Teertstra range 0.1 < Re* < 100",
+       "status": "supports",
+       "value": 68.0875706855809,
+       "limit": 100,
+       "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+       "reason": ""
+      },
+      {
+       "name": "air outlet colder than the source (2nd law)",
+       "status": "supports",
+       "value": 39.953767181245155,
+       "limit": 64.14820799956901,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "engine: energy_balance",
+       "status": "supports",
+       "value": 9.509430280256007e-14,
+       "limit": null,
+       "source": "energy conservation",
+       "reason": "Heat leaving through the fins / heat injected by the source - 1 (FVM)."
+      },
+      {
+       "name": "engine: spreading_methods_agree",
+       "status": "supports",
+       "value": 0.023678552647287184,
+       "limit": null,
+       "source": "conduction in the base",
+       "reason": "3D finite-volume base solve vs Lee et al. closed form: 0.1519 vs 0.1484 K/W (independent methods)."
+      },
+      {
+       "name": "engine: grid_convergence",
+       "status": "supports",
+       "value": 0.0011404512461086942,
+       "limit": null,
+       "source": "numerical accuracy",
+       "reason": "Hotspot change between the coarse and fine finite-volume grids."
+      },
+      {
+       "name": "engine: correlation_in_range",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "convection model validity",
+       "reason": "Convection correlation used inside its validated range."
+      },
+      {
+       "name": "engine: temperature_above_ambient",
+       "status": "supports",
+       "value": 28.481541332902335,
+       "limit": null,
+       "source": "2nd law",
+       "reason": "Hotspot rise above ambient must be positive (2nd law)."
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "plate_fin_heatsink_forced",
+     "references": [
+      {
+       "case": "R convecção das aletas a 1 m/s vs correlação independente",
+       "output": "r_fins",
+       "unit": "K/W",
+       "computed": 0.5064913264511306,
+       "reference": 0.5361120531317798,
+       "rel_error": 0.05525099931556328,
+       "tol": 0.08,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Stephan (1959) Nusselt de entrada para placas paralelas + epsilon-NTU do aquecimento do ar (Shah & London)",
+       "params": {}
+      },
+      {
+       "case": "R convecção das aletas a 3 m/s vs correlação independente",
+       "output": "r_fins",
+       "unit": "K/W",
+       "computed": 0.3228122946356873,
+       "reference": 0.34884286047417384,
+       "rel_error": 0.07461974656182968,
+       "tol": 0.08,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Stephan (1959) Nusselt de entrada para placas paralelas + epsilon-NTU do aquecimento do ar (Shah & London)",
+       "params": {}
+      },
+      {
+       "case": "R convecção das aletas a 6 m/s vs correlação independente",
+       "output": "r_fins",
+       "unit": "K/W",
+       "computed": 0.24396248706851617,
+       "reference": 0.26330839287552427,
+       "rel_error": 0.07347242370718365,
+       "tol": 0.08,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Stephan (1959) Nusselt de entrada para placas paralelas + epsilon-NTU do aquecimento do ar (Shah & London)",
+       "params": {}
+      },
+      {
+       "case": "limite plenamente desenvolvido Nu = Re* Pr / 2 (Re* pequeno)",
+       "output": "nu_b",
+       "unit": "-",
+       "computed": 0.13975220572739586,
+       "reference": 0.13989160652162205,
+       "rel_error": 0.0009964914814574696,
+       "tol": 0.02,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Teertstra, Yovanovich & Culham, Analytical forced convection modeling of plate fin heat sinks, IEEE SEMI-THERM XV (1999) / J. Electronics Manufacturing 10(4) 2000",
+       "params": {}
+      },
+      {
+       "case": "espalhamento + base: FVM 3-D vs teoria",
+       "output": "r_spreading",
+       "unit": "K/W",
+       "computed": 0.15188006091268497,
+       "reference": 0.148366946362132,
+       "rel_error": 0.023678552647287184,
+       "tol": 0.05,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Lee, Song, Au & Moran (1995), resistência de espalhamento",
+       "params": {}
+      }
+     ],
+     "convergence": {
+      "parameter": "FVM grid n x n",
+      "values": [
+       24,
+       36,
+       48,
+       64
+      ],
+      "theta_max": [
+       28.37935441631036,
+       28.449373055503674,
+       28.481541332902335,
+       28.48418860851517
+      ],
+      "rel_change_last": 9.29384245139468e-05,
+      "pass": true
+     },
+     "all_pass": true
+    },
+    "surrogate": {
+     "model": "ARD Gaussian process (squared exponential)",
+     "inputs": [
+      "velocity",
+      "n_fins",
+      "fin_height",
+      "power"
+     ],
+     "outputs": [
+      "t_source_max_c",
+      "pressure_drop_pa"
+     ],
+     "bounds": {
+      "velocity": [
+       1.0,
+       6.0
+      ],
+      "n_fins": [
+       8,
+       26
+      ],
+      "fin_height": [
+       0.02,
+       0.06
+      ],
+      "power": [
+       20.0,
+       120.0
+      ]
+     },
+     "n_train": 80,
+     "n_test": 25,
+     "holdout": {
+      "per_output": {
+       "t_source_max_c": {
+        "max_rel_err": 0.03645676177305686,
+        "mean_rel_err": 0.012850953039925419,
+        "rmse": 1.4223452650595796,
+        "r2": 0.9963571135292841,
+        "coverage_2sigma": 0.92
+       },
+       "pressure_drop_pa": {
+        "max_rel_err": 0.054797003805104674,
+        "mean_rel_err": 0.030558207509193202,
+        "rmse": 0.6937450951713889,
+        "r2": 0.9981389994230151,
+        "coverage_2sigma": 1.0
+       }
+      },
+      "max_rel_err": 0.054797003805104674
+     },
+     "timing_s": {
+      "doe_solver_runs": 18.949568690999968,
+      "fit": 1.104169422999803
+     },
+     "default_case": {
+      "t_source_max_c": {
+       "surrogate": 63.82166280111555,
+       "std": 0.7014661063006333,
+       "solver": 64.14820799956901
+      },
+      "pressure_drop_pa": {
+       "surrogate": 11.291156111569864,
+       "std": 0.46702478148094445,
+       "solver": 11.393460693182304
+      }
+     }
+    },
+    "inversion": {
+     "description": "Multiplicador efetivo do h (desvio de ar de um dissipador sem shroud) a partir de termopares na fonte em 4 potências (20-80 W). Medição sintética do solver com h_scale real = 0.72 e ruído de 0.3 K.",
+     "parameter": "h_scale",
+     "true": 0.72,
+     "recovered": 0.7181209122994766,
+     "ci95": [
+      0.708987644240921,
+      0.7272541803580322
+     ],
+     "rel_error": 0.002609844028504671,
+     "true_inside_ci95": true,
+     "noise": "0.3 K (1 sigma)",
+     "how": "mínimos quadrados (Brent) sobre o modelo; IC 95 % pela sensibilidade dT/dh_scale"
+    },
+    "optimization": {
+     "objective": "massa mínima com T(h -15 %) <= limite e perda de carga <= 25 Pa",
+     "search": "grade de 210 geometrias (n aletas x altura x espessura) na forma fechada (espalhamento de Lee); as mais leves são conferidas no solver (FVM 3-D) até uma passar",
+     "n_fins": 16,
+     "fin_height_m": 0.02,
+     "fin_thickness_m": 0.001,
+     "mass_g": 221.40000000000003,
+     "verified_t_pessimistic_c": 80.14243272028178,
+     "verified_dp_pa": 9.881773703556822,
+     "verified_ok": true,
+     "closed_form_picks_rejected_by_solver": 1,
+     "base_mass_g": 347.625,
+     "surrogate_choice": {
+      "n_fins": 14,
+      "fin_height_m": 0.02,
+      "fin_thickness_m": 0.0015,
+      "mass_g": 248.40000000000003
+     },
+     "surrogate_t_pred_c": 77.82996422592217,
+     "solver_t_at_surrogate_choice_c": 77.81162692429366,
+     "surrogate_vs_solver_diff_c": 0.018337301628505998,
+     "surrogate_choice_ok_on_solver": true
+    },
+    "figures": [
+     "results/heatsink.png",
+     "results/surrogate_parity.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/plate_fin_heatsink_forced_3d_T.png"
+    ],
+    "variants": {
+     "rows": {
+      "8 aletas 35 mm": {
+       "params": {
+        "n_fins": 8
+       },
+       "verdict": "NOT OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "t_source_max_c": 83.60214692134362,
+        "t_source_pessimistic_c": 90.07008045421738,
+        "r_total_k_w": 0.8100357820223937,
+        "pressure_drop_pa": 4.394396780986763,
+        "h_w_m2k": 24.894167905568164,
+        "fin_efficiency": 0.9374178970306264,
+        "mass_g": 248.40000000000003,
+        "air_rise_c": 4.953767181245153,
+        "re_dh": 3436.575727908368,
+        "re_star": 293.6017933837517,
+        "fin_gap_mm": 12.571428571428571,
+        "airflow_m3_h": 37.80000000000001
+       }
+      },
+      "15 aletas 35 mm (base)": {
+       "params": {},
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_source_max_c": 64.14820799956901,
+        "t_source_pessimistic_c": 67.3775150095181,
+        "r_total_k_w": 0.4858034666594835,
+        "pressure_drop_pa": 11.393460693182304,
+        "h_w_m2k": 28.867889712512117,
+        "fin_efficiency": 0.9282861596337412,
+        "mass_g": 347.625,
+        "air_rise_c": 4.953767181245153,
+        "re_dh": 2123.9993629243595,
+        "re_star": 68.0875706855809,
+        "fin_gap_mm": 5.535714285714287,
+        "airflow_m3_h": 37.80000000000001
+       }
+      },
+      "22 aletas 35 mm": {
+       "params": {
+        "n_fins": 22
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_source_max_c": 56.506409034980145,
+        "t_source_pessimistic_c": 58.51680383167851,
+        "r_total_k_w": 0.35844015058300244,
+        "pressure_drop_pa": 25.602517247626974,
+        "h_w_m2k": 33.14969741722989,
+        "fin_efficiency": 0.918684732187616,
+        "mass_g": 446.8500000000001,
+        "air_rise_c": 4.953767181245153,
+        "re_dh": 1534.3954850283055,
+        "re_star": 26.708521863463222,
+        "fin_gap_mm": 3.1904761904761907,
+        "airflow_m3_h": 37.80000000000001
+       }
+      },
+      "15 aletas 55 mm": {
+       "params": {
+        "fin_height": 0.055
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_source_max_c": 58.57437073441312,
+        "t_source_pessimistic_c": 60.732274651744916,
+        "r_total_k_w": 0.3929061789068854,
+        "pressure_drop_pa": 10.99932820626183,
+        "h_w_m2k": 28.86172808851664,
+        "fin_efficiency": 0.8446975574008657,
+        "mass_g": 469.12500000000006,
+        "air_rise_c": 3.1523972971560066,
+        "re_dh": 2269.040932657701,
+        "re_star": 69.12497437760837,
+        "fin_gap_mm": 5.535714285714287,
+        "airflow_m3_h": 59.40000000000001
+       }
+      },
+      "22 aletas 25 mm 1 mm": {
+       "params": {
+        "n_fins": 22,
+        "fin_height": 0.025,
+        "fin_thickness": 0.001
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_source_max_c": 62.11712497327336,
+        "t_source_pessimistic_c": 65.060799426182,
+        "r_total_k_w": 0.4519520828878894,
+        "pressure_drop_pa": 16.375141180522053,
+        "h_w_m2k": 30.43180782464947,
+        "fin_efficiency": 0.9413201859590999,
+        "mass_g": 283.50000000000006,
+        "air_rise_c": 6.935274053743216,
+        "re_dh": 1435.716584443083,
+        "re_star": 30.624713756324713,
+        "fin_gap_mm": 3.7142857142857153,
+        "airflow_m3_h": 27.000000000000004
+       }
+      },
+      "cobre C110, 15 aletas": {
+       "params": {
+        "material": "cu110"
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_source_max_c": 59.45418284150569,
+        "t_source_pessimistic_c": 62.65414162482592,
+        "r_total_k_w": 0.40756971402509484,
+        "pressure_drop_pa": 11.395953891139625,
+        "h_w_m2k": 28.867144426667014,
+        "fin_efficiency": 0.9597774150240739,
+        "mass_g": 1151.025,
+        "air_rise_c": 4.953767181245153,
+        "re_dh": 2127.478745988223,
+        "re_star": 68.1991068491214,
+        "fin_gap_mm": 5.535714285714287,
+        "airflow_m3_h": 37.80000000000001
+       }
+      }
+     },
+     "compared": [
+      "t_source_max_c",
+      "pressure_drop_pa",
+      "mass_g"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/plate_fin_heatsink_forced_8_aletas_35_mm_3d_T.png",
+      "results/3d/variants/plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_T.png",
+      "results/3d/variants/plate_fin_heatsink_forced_22_aletas_35_mm_3d_T.png",
+      "results/3d/variants/plate_fin_heatsink_forced_15_aletas_55_mm_3d_T.png",
+      "results/3d/variants/plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_T.png",
+      "results/3d/variants/plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_T.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.16957618800006458,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T00:57:02Z"
+    }
+   }
+  },
+  {
+   "name": "power_pcb_junction",
+   "title": "Temperatura de junção numa placa de potência (conversor DC-DC 4 camadas)",
+   "sector": "Térmica / eletrônica",
+   "problem": "Placa de 4 camadas 100 x 80 mm, montada na vertical em gabinete sem ventilação, com dois MOSFETs D2PAK (meia-ponte), o indutor de saída, o controlador QFN e um regulador SOIC-8. Volumes finitos 3-D por camada de cobre/dielétrico, modelos de 2 resistências JEDEC, convecção natural + radiação.",
+   "question": "Todas as junções ficam abaixo do Tj máximo derrateado com 20 % de incerteza na convecção? Quantas vias térmicas sob os MOSFETs (ou que cobre) bastam, sem ventilador?",
+   "inputs": [
+    {
+     "name": "p_mosfet",
+     "unit": "W",
+     "default": 2.0,
+     "source": "premissa: perdas de condução + chaveamento por MOSFET de um buck de ~150 W",
+     "lo": 0.1,
+     "hi": 6.0,
+     "help": ""
+    },
+    {
+     "name": "p_inductor",
+     "unit": "W",
+     "default": 1.2,
+     "source": "premissa: perdas no cobre + núcleo do indutor (~0,8 % de 150 W)",
+     "lo": 0.0,
+     "hi": 4.0,
+     "help": ""
+    },
+    {
+     "name": "p_controller",
+     "unit": "W",
+     "default": 0.3,
+     "source": "premissa: controlador + drivers de gate",
+     "lo": 0.0,
+     "hi": 1.5,
+     "help": ""
+    },
+    {
+     "name": "p_ldo",
+     "unit": "W",
+     "default": 0.25,
+     "source": "premissa: LDO 5 V -> 3,3 V a 75 mA",
+     "lo": 0.0,
+     "hi": 1.0,
+     "help": ""
+    },
+    {
+     "name": "t_ambient",
+     "unit": "degC",
+     "default": 50.0,
+     "source": "premissa: ar interno de gabinete fechado (IEC 60068 classe industrial)",
+     "lo": -20,
+     "hi": 85,
+     "help": ""
+    },
+    {
+     "name": "velocity",
+     "unit": "m/s",
+     "default": 0.0,
+     "source": "0 = convecção natural (sem ventilador)",
+     "lo": 0.0,
+     "hi": 5.0,
+     "help": ""
+    },
+    {
+     "name": "n_copper",
+     "unit": "-",
+     "default": 4,
+     "source": "placa de 4 camadas (FR-4 1,6 mm)",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      2,
+      4,
+      6,
+      8
+     ]
+    },
+    {
+     "name": "outer_oz",
+     "unit": "oz",
+     "default": 1.0,
+     "source": "cobre externo 1 oz = 35 um (IPC-2221)",
+     "lo": 0.5,
+     "hi": 3.0,
+     "help": ""
+    },
+    {
+     "name": "vias",
+     "unit": "-",
+     "default": 9,
+     "source": "premissa: 3 x 3 vias de 0,3 mm sob cada D2PAK",
+     "lo": 0,
+     "hi": 49,
+     "help": ""
+    },
+    {
+     "name": "tj_max",
+     "unit": "degC",
+     "default": 125.0,
+     "source": "Tj 175 °C do datasheet derratado para 125 °C (prática de projeto)",
+     "lo": 80,
+     "hi": 175,
+     "help": ""
+    },
+    {
+     "name": "board_w",
+     "unit": "m",
+     "default": 0.1,
+     "source": "placa 100 mm",
+     "lo": 0.03,
+     "hi": 0.3,
+     "help": ""
+    },
+    {
+     "name": "board_d",
+     "unit": "m",
+     "default": 0.08,
+     "source": "placa 80 mm (altura, montada na vertical)",
+     "lo": 0.03,
+     "hi": 0.3,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "tj_max_c",
+     "unit": "degC",
+     "help": "maior temperatura de junção"
+    },
+    {
+     "name": "tj_max_hot_c",
+     "unit": "degC",
+     "help": "a mesma com convecção 20 % menor"
+    },
+    {
+     "name": "critical",
+     "unit": "-",
+     "help": "componente crítico"
+    },
+    {
+     "name": "tj_mosfet_c",
+     "unit": "degC",
+     "help": "junção do MOSFET mais quente"
+    },
+    {
+     "name": "board_max_c",
+     "unit": "degC",
+     "help": "temperatura máxima da placa"
+    },
+    {
+     "name": "energy_balance",
+     "unit": "-",
+     "help": "erro relativo do balanço de energia"
+    }
+   ],
+   "validity": "Placa plana isolada no ar (sem gabinete radiante próximo), componentes como modelos de 2 resistências JEDEC (theta_JB, theta_JC), cobre como frações por camada, convecção natural (Churchill-Chu) ou forçada laminar de placa plana. theta dos encapsulamentos: valores típicos; para aprovação final use os do datasheet.",
+   "pipeline": [
+    "geometria: Board(stack-up) + Component(x, y, encapsulamento, vias)",
+    "modelo: condutividade anisotrópica do stack-up, vias como cobre paralelo, JEDEC 2R",
+    "solver: pinneapple_physics.pcb.engine.evaluate (FVM 3-D + ponto fixo convecção/radiação)",
+    "pós: Tj por componente com banda de ±20 % no h, mapas das faces",
+    "decisão: Tj(h -20 %) <= Tj máx; menor alteração de projeto que atende"
+   ],
+   "library": [
+    "pinneapple_physics.pcb.engine.evaluate",
+    "pinneapple_physics.pcb.engine.calibrate",
+    "pinneapple_physics.pcb.solver.solve"
+   ],
+   "limitations": [],
+   "capabilities": {
+    "3d": true,
+    "surrogate": true,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": true
+   },
+   "missing": {},
+   "reason_case": "power_board",
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"power_pcb_junction\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run power_pcb_junction",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "power_pcb_junction"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/power_pcb_junction",
+    "decision": {
+     "verdict": "NOT OK",
+     "reasons": [
+      "Tj máx 118.9 °C (Q2); com h -20 %: 126.4 °C > 125 °C",
+      "placa até 99.1 °C"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "energy_balance",
+       "status": "supports",
+       "value": 1.1677615396405125e-13,
+       "limit": null,
+       "source": "energy conservation",
+       "reason": ""
+      },
+      {
+       "name": "grid_convergence",
+       "status": "supports",
+       "value": 0.012896712640457672,
+       "limit": null,
+       "source": "numerical accuracy",
+       "reason": ""
+      },
+      {
+       "name": "surface_coefficients_converged",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "nonlinear coupling",
+       "reason": ""
+      },
+      {
+       "name": "correlation_in_range",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "surface heat-transfer model",
+       "reason": ""
+      },
+      {
+       "name": "temperatures_above_ambient",
+       "status": "supports",
+       "value": 17.631470056322087,
+       "limit": null,
+       "source": "2nd law",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "power_pcb_junction",
+     "references": [
+      {
+       "case": "theta_JA TO-263 D2PAK na placa JEDEC 2s2p",
+       "output": "theta_ja",
+       "unit": "K/W",
+       "computed": 30.225418621647506,
+       "reference": 30.0,
+       "rel_error": 0.0075139540549168755,
+       "tol": 0.08,
+       "pass": true,
+       "kind": "standard (consistência)",
+       "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Atenção: os theta típicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convecção+encapsulamento, não é uma validação independente",
+       "params": {}
+      },
+      {
+       "case": "theta_JA QFN-32 5x5 na placa JEDEC 2s2p",
+       "output": "theta_ja",
+       "unit": "K/W",
+       "computed": 33.19063697151085,
+       "reference": 33.0,
+       "rel_error": 0.005776877924571159,
+       "tol": 0.08,
+       "pass": true,
+       "kind": "standard (consistência)",
+       "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Atenção: os theta típicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convecção+encapsulamento, não é uma validação independente",
+       "params": {}
+      },
+      {
+       "case": "theta_JA SOIC-8 na placa JEDEC 2s2p",
+       "output": "theta_ja",
+       "unit": "K/W",
+       "computed": 120.11101782292627,
+       "reference": 120.0,
+       "rel_error": 0.0009251485243855958,
+       "tol": 0.08,
+       "pass": true,
+       "kind": "standard (consistência)",
+       "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Atenção: os theta típicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convecção+encapsulamento, não é uma validação independente",
+       "params": {}
+      }
+     ],
+     "convergence": {
+      "parameter": "células por lado",
+      "values": [
+       24,
+       36,
+       48,
+       60,
+       80
+      ],
+      "tj_max": [
+       118.42757723178994,
+       119.36542396361942,
+       119.06424940189318,
+       118.86508807261424,
+       118.93142018030261
+      ],
+      "rel_change_last": 0.0009622913254197285,
+      "pass": true
+     },
+     "all_pass": true
+    },
+    "surrogate": {
+     "model": "ARD Gaussian process (squared exponential)",
+     "inputs": [
+      "p_mosfet",
+      "t_ambient",
+      "vias"
+     ],
+     "outputs": [
+      "tj_max_c"
+     ],
+     "bounds": {
+      "p_mosfet": [
+       0.5,
+       4.0
+      ],
+      "t_ambient": [
+       20.0,
+       70.0
+      ],
+      "vias": [
+       0,
+       36
+      ]
+     },
+     "n_train": 60,
+     "n_test": 20,
+     "holdout": {
+      "per_output": {
+       "tj_max_c": {
+        "max_rel_err": 0.021588065186892432,
+        "mean_rel_err": 0.004724432617218991,
+        "rmse": 0.9651998100615389,
+        "r2": 0.9980396102931528,
+        "coverage_2sigma": 0.9
+       }
+      },
+      "max_rel_err": 0.021588065186892432
+     },
+     "timing_s": {
+      "doe_solver_runs": 241.6095442809999,
+      "fit": 0.2435455259999344
+     },
+     "default_case": {
+      "tj_max_c": {
+       "surrogate": 118.0359806337711,
+       "std": 0.5056083067388211,
+       "solver": 118.86508807261424
+      }
+     }
+    },
+    "inversion": {
+     "description": "Fatores de convecção (h_scale) e de espalhamento no cobre (k_inplane_scale) a partir de 6 termopares na face superior e o sensor de junção de Q1, por Ensemble Kalman Inversion da lib. Medição sintética do solver com (0,75; 0,6) e ruído de 0.3 K.",
+     "parameter": "h_scale, k_inplane_scale",
+     "true": [
+      0.75,
+      0.6
+     ],
+     "recovered": [
+      0.7495558012908454,
+      0.5928174882295252
+     ],
+     "ci95": [
+      [
+       0.7442306729256448,
+       0.75491903207931
+      ],
+      [
+       0.5742457902333614,
+       0.6119898139922775
+      ]
+     ],
+     "rel_error": 0.01197085295079133,
+     "noise": "0.3 K (1 sigma)",
+     "how": "pinneapple_physics.pcb.engine.calibrate (EKI, 16 membros)",
+     "fit_rms_after_c": 0.14045768630904124
+    },
+    "optimization": {
+     "objective": "menor mudança que atende Tj(h -20 %) <= Tj máx (sem ventilador > menos vias > cobre 1 oz > menos camadas)",
+     "velocity": 0.0,
+     "outer_oz": 1.0,
+     "n_copper": 4,
+     "vias": 16,
+     "tj_max_hot_c": 124.9252243123593,
+     "designs_tried": 4,
+     "surrogate_question": "menos vias com Tj nominal <= Tj máx (sem a banda de h)",
+     "surrogate_vias_nominal": 0,
+     "surrogate_tj_pred_c": 120.15973128104561,
+     "solver_tj_at_surrogate_choice_c": 123.93981486738804,
+     "surrogate_vs_solver_diff_c": -3.7800835863424282
+    },
+    "figures": [
+     "results/pcb_maps.png",
+     "results/surrogate_parity.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/power_pcb_junction_3d_T.png"
+    ],
+    "variants": {
+     "rows": {
+      "base (4 cam., 9 vias)": {
+       "params": {},
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "tj_max_c": 118.86508807261424,
+        "tj_max_hot_c": 126.41755646837277,
+        "tj_mosfet_c": 118.86508807261424,
+        "board_max_c": 99.11548555531277,
+        "energy_balance": 1.1677615396405125e-13,
+        "total_power": 5.75
+       }
+      },
+      "sem vias": {
+       "params": {
+        "vias": 0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "tj_max_c": 123.93981486738804,
+        "tj_max_hot_c": 131.57555273150803,
+        "tj_mosfet_c": 123.93981486738804,
+        "board_max_c": 105.75129904819636,
+        "energy_balance": 1.0642694455189326e-13,
+        "total_power": 5.75
+       }
+      },
+      "25 vias": {
+       "params": {
+        "vias": 25
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "tj_max_c": 116.3715845416808,
+        "tj_max_hot_c": 123.88925648057496,
+        "tj_mosfet_c": 116.3715845416808,
+        "board_max_c": 96.04543041941676,
+        "energy_balance": 1.3654777791563663e-13,
+        "total_power": 5.75
+       }
+      },
+      "2 camadas": {
+       "params": {
+        "n_copper": 2
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "tj_max_c": 139.86478411417028,
+        "tj_max_hot_c": 149.31547805676752,
+        "tj_mosfet_c": 139.86478411417028,
+        "board_max_c": 123.71536113326418,
+        "energy_balance": 8.974463684274309e-14,
+        "total_power": 5.75
+       }
+      },
+      "6 camadas, 2 oz": {
+       "params": {
+        "n_copper": 6,
+        "outer_oz": 2.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "tj_max_c": 111.54020727127096,
+        "tj_max_hot_c": 118.68985903848562,
+        "tj_mosfet_c": 111.54020727127096,
+        "board_max_c": 90.73136030677276,
+        "energy_balance": 3.4121497897696984e-13,
+        "total_power": 5.75
+       }
+      },
+      "ventilador 1 m/s": {
+       "params": {
+        "velocity": 1.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "tj_max_c": 106.95109109126054,
+        "tj_max_hot_c": 112.12733004765502,
+        "tj_mosfet_c": 106.95109109126054,
+        "board_max_c": 87.56399283932899,
+        "energy_balance": 9.669559838822232e-14,
+        "total_power": 5.75
+       }
+      }
+     },
+     "compared": [
+      "tj_max_c",
+      "tj_max_hot_c",
+      "board_max_c"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/power_pcb_junction_base_4_cam_9_vias_3d_T.png",
+      "results/3d/variants/power_pcb_junction_sem_vias_3d_T.png",
+      "results/3d/variants/power_pcb_junction_25_vias_3d_T.png",
+      "results/3d/variants/power_pcb_junction_2_camadas_3d_T.png",
+      "results/3d/variants/power_pcb_junction_6_camadas_2_oz_3d_T.png",
+      "results/3d/variants/power_pcb_junction_ventilador_1_m_s_3d_T.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 2.8137310580000303,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T00:48:00Z"
+    }
+   }
+  },
+  {
+   "name": "steel_footbridge_pedestrian",
+   "title": "Passarela de aço de 30 m: resistência, flecha, flambagem lateral e vibração de pedestres",
+   "sector": "Estrutural / construção",
+   "problem": "Passarela biapoiada de 30 m com duas vigas I soldadas e tabuleiro de 2,5 m (placas pré-moldadas). Verifica ELU de flexão sob multidão (EN 1991-2), flecha L/360, flambagem lateral com torção (EN 1993-1-1) e conforto à vibração por pedestres (EN 1990 A2, Bachmann & Ammann).",
+   "question": "A seção das vigas atende os quatro modos de falha? Qual a seção soldada mais leve que atende? O primeiro modo vertical cai na faixa de passo de caminhada (1,6-2,4 Hz)?",
+   "inputs": [
+    {
+     "name": "span",
+     "unit": "m",
+     "default": 30.0,
+     "source": "premissa: travessia típica de 30 m (via ou rio pequeno)",
+     "lo": 8,
+     "hi": 60,
+     "help": ""
+    },
+    {
+     "name": "deck_width",
+     "unit": "m",
+     "default": 2.5,
+     "source": "largura útil de 2,5 m (passarela de pedestres e bicicletas)",
+     "lo": 1.5,
+     "hi": 6,
+     "help": ""
+    },
+    {
+     "name": "deck_dead_load",
+     "unit": "Pa",
+     "default": 3000.0,
+     "source": "placas de concreto de 100 mm (25 kN/m3, EN 1991-1-1 Tab. A.1) + 0,5 kN/m2 de acabamentos",
+     "lo": 500,
+     "hi": 8000,
+     "help": ""
+    },
+    {
+     "name": "girder_h",
+     "unit": "m",
+     "default": 0.8,
+     "source": "premissa: L/37 (viga dimensionada só pela resistência)",
+     "lo": 0.3,
+     "hi": 2.0,
+     "help": ""
+    },
+    {
+     "name": "girder_b",
+     "unit": "m",
+     "default": 0.25,
+     "source": "mesa de 250 mm",
+     "lo": 0.1,
+     "hi": 0.8,
+     "help": ""
+    },
+    {
+     "name": "girder_tf",
+     "unit": "m",
+     "default": 0.02,
+     "source": "mesa de 20 mm (S355, t <= 40 mm)",
+     "lo": 0.008,
+     "hi": 0.06,
+     "help": ""
+    },
+    {
+     "name": "girder_tw",
+     "unit": "m",
+     "default": 0.01,
+     "source": "alma de 10 mm",
+     "lo": 0.006,
+     "hi": 0.03,
+     "help": ""
+    },
+    {
+     "name": "fy",
+     "unit": "Pa",
+     "default": 355000000.0,
+     "source": "EN 10025-2 S355, t <= 16 mm",
+     "lo": 235000000.0,
+     "hi": 460000000.0,
+     "help": ""
+    },
+    {
+     "name": "lateral_braces",
+     "unit": "-",
+     "default": 0,
+     "source": "sem travamento lateral intermediário",
+     "lo": 0,
+     "hi": 10,
+     "help": ""
+    },
+    {
+     "name": "damping_ratio",
+     "unit": "-",
+     "default": 0.005,
+     "source": "aço soldado: 0,5 % (Sétra 2006 / HiVoSS 2008, valor mínimo)",
+     "lo": 0.002,
+     "hi": 0.05,
+     "help": ""
+    },
+    {
+     "name": "pedestrian_weight",
+     "unit": "N",
+     "default": 700.0,
+     "source": "Bachmann & Ammann (1987)",
+     "lo": 500,
+     "hi": 1000,
+     "help": ""
+    },
+    {
+     "name": "acc_max",
+     "unit": "m/s2",
+     "default": 0.7,
+     "source": "EN 1990:2002 Anexo A2, A2.4.3.2: aceleração vertical <= 0,7 m/s2 (recomendado)",
+     "lo": 0.2,
+     "hi": 2.5,
+     "help": ""
+    },
+    {
+     "name": "deflection_ratio",
+     "unit": "-",
+     "default": 360.0,
+     "source": "AASHTO LRFD Pedestrian Bridges (2009) sec. 5: L/360 sob carga de pedestres",
+     "lo": 200,
+     "hi": 1000,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "f1",
+     "unit": "Hz",
+     "help": "1ª frequência vertical"
+    },
+    {
+     "name": "acceleration",
+     "unit": "m/s2",
+     "help": "aceleração de pico, um pedestre em ressonância"
+    },
+    {
+     "name": "deflection",
+     "unit": "m",
+     "help": "flecha sob a multidão"
+    },
+    {
+     "name": "util_bending",
+     "unit": "-",
+     "help": "M_Ed / M_Rd"
+    },
+    {
+     "name": "util_ltb",
+     "unit": "-",
+     "help": "M_Ed / M_b,Rd (flambagem lateral)"
+    },
+    {
+     "name": "M_cr",
+     "unit": "N m",
+     "help": "momento crítico elástico"
+    },
+    {
+     "name": "steel_mass",
+     "unit": "kg",
+     "help": "massa de aço das vigas"
+    }
+   ],
+   "validity": "Vigas biapoiadas de seção I duplamente simétrica, Euler-Bernoulli, carga no centro de cisalhamento, C1 = 1 (conservador para carga distribuída), tabuleiro sem ação composta e sem travar a mesa comprimida. Vibração: um pedestre em regime permanente (limite superior); multidões e modos laterais (lock-in) não modelados.",
+   "pipeline": [
+    "geometria: i_section(h, b, tf, tw) das vigas + tabuleiro",
+    "modelo: cargas EN 1991-2 (multidão), combinações EN 1990 (1,35 G + 1,5 Q)",
+    "solver: modos de falha do pinneapple_reason (bending_strength, deflection, lateral_torsional_buckling, pedestrian_resonance) + FE de viga Hermite (modos e flecha)",
+    "pós: utilizações, f1, aceleração, M_cr",
+    "decisão: todas as utilizações <= 1 e a <= 0,7 m/s2; seção mais leve por varredura"
+   ],
+   "library": [
+    "pinneapple_reason.LIBRARY.mode(...).evaluate",
+    "pinneapple_reason.modes.structural",
+    "pinneapple_simulation.numerical_solvers.beam_fe.beam_modes"
+   ],
+   "limitations": [
+    "M_cr pela fórmula fechada de Timoshenko & Gere com C1 = 1; sem verificação independente (FE de flambagem lateral não implementado)."
+   ],
+   "capabilities": {
+    "3d": true,
+    "surrogate": true,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": true
+   },
+   "missing": {},
+   "reason_case": "footbridge",
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"steel_footbridge_pedestrian\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run steel_footbridge_pedestrian",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "steel_footbridge_pedestrian"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/steel_footbridge_pedestrian",
+    "decision": {
+     "verdict": "NOT OK",
+     "reasons": [
+      "f1 = 1.52 Hz, aceleração 0.19 m/s2 (limite 0.7)",
+      "utilização flambagem lateral 14.80",
+      "utilização flexão 0.97; flecha 133 mm (limite 83 mm)",
+      "não atende: flecha (ELS), flambagem lateral"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "solver vs closed form: FD beam deflection",
+       "status": "supports",
+       "value": 5.0661012653284865e-06,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      },
+      {
+       "name": "equilibrium: FD support reactions = applied load",
+       "status": "supports",
+       "value": 0.007499946919012,
+       "limit": 0.01,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+       "reason": ""
+      },
+      {
+       "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+       "status": "supports",
+       "value": 0.000709572229514663,
+       "limit": 0.005,
+       "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+       "reason": ""
+      },
+      {
+       "name": "FE beam: 1st frequency = closed form",
+       "status": "supports",
+       "value": 2.7013229668832024e-08,
+       "limit": 0.001,
+       "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+       "reason": ""
+      },
+      {
+       "name": "FE beam: crowd deflection = closed form",
+       "status": "supports",
+       "value": 3.2017672950772745e-13,
+       "limit": 0.001,
+       "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+       "reason": ""
+      },
+      {
+       "name": "FE equilibrium: reactions = applied load",
+       "status": "supports",
+       "value": 1.8835999071598053e-12,
+       "limit": 1e-09,
+       "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+       "reason": ""
+      },
+      {
+       "name": "cross-section class <= 3 (the elastic checks above hold)",
+       "status": "supports",
+       "value": 76.0,
+       "limit": 100.88844766988656,
+       "source": "EN 1993-1-1 Table 5.2",
+       "reason": "web c/t 76 (<= 101), flange c/t 6.0 (<= 11.4)"
+      },
+      {
+       "name": "EN 1990 A2 needs the comfort check (f1 < 5 Hz)",
+       "status": "supports",
+       "value": 1.5228499849995847,
+       "limit": 5.0,
+       "source": "EN 1990:2002 Anexo A2, A2.4.3.2: aceleração vertical <= 0,7 m/s2 (recomendado)",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "steel_footbridge_pedestrian",
+     "references": [
+      {
+       "case": "1ª frequência: fórmula fechada vs FE de viga",
+       "output": "f1",
+       "unit": "Hz",
+       "computed": 1.5228499849995847,
+       "reference": 1.522850026136681,
+       "rel_error": 2.7013228939117467e-08,
+       "tol": 0.001,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+       "params": {}
+      },
+      {
+       "case": "flecha da multidão: 5qL^4/384EI vs FE de viga",
+       "output": "deflection",
+       "unit": "m",
+       "computed": 0.13306653683262798,
+       "reference": 0.13306653683267058,
+       "rel_error": 3.2017672950762496e-13,
+       "tol": 0.001,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+       "params": {}
+      },
+      {
+       "case": "2ª frequência = 4 x f1 (Euler-Bernoulli biapoiada)",
+       "output": "f2",
+       "unit": "Hz",
+       "computed": 6.091402514330896,
+       "reference": 6.091399939998339,
+       "rel_error": 4.2261755626976134e-07,
+       "tol": 0.002,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Clough & Penzien, Dynamics of Structures, eq. 18-21: f_n = n^2 f_1",
+       "params": {}
+      },
+      {
+       "case": "aceleração em ressonância exata (vão 24 m, f1 na faixa de passo)",
+       "output": "acceleration",
+       "unit": "m/s2",
+       "computed": 2.2412038103078022,
+       "reference": 2.241203810307802,
+       "rel_error": 1.981476239722582e-16,
+       "tol": 1e-06,
+       "pass": true,
+       "kind": "analytic",
+       "source": "oscilador de 1 GL em ressonância: a = alpha G / (M_modal 2 xi), Bachmann & Ammann (1987)",
+       "params": {}
+      }
+     ],
+     "convergence": {
+      "parameter": "elementos de viga",
+      "values": [
+       4,
+       8,
+       16,
+       32
+      ],
+      "f1": [
+       1.5232454116500111,
+       1.5228750244623044,
+       1.5228515551059532,
+       1.522850082470512
+      ],
+      "rel_change_last": 9.670258800245518e-07,
+      "pass": true
+     },
+     "all_pass": true
+    },
+    "surrogate": {
+     "model": "ARD Gaussian process (squared exponential)",
+     "inputs": [
+      "span",
+      "girder_h",
+      "girder_b"
+     ],
+     "outputs": [
+      "f1",
+      "util_ltb",
+      "util_bending"
+     ],
+     "bounds": {
+      "span": [
+       20.0,
+       45.0
+      ],
+      "girder_h": [
+       0.6,
+       1.6
+      ],
+      "girder_b": [
+       0.2,
+       0.5
+      ]
+     },
+     "n_train": 70,
+     "n_test": 25,
+     "holdout": {
+      "per_output": {
+       "f1": {
+        "max_rel_err": 0.019316979809516785,
+        "mean_rel_err": 0.0015621658709863485,
+        "rmse": 0.0030032224805181845,
+        "r2": 0.9999952904625733,
+        "coverage_2sigma": 0.96
+       },
+       "util_ltb": {
+        "max_rel_err": 0.07439044276002937,
+        "mean_rel_err": 0.015818134643997492,
+        "rmse": 0.23126438971393729,
+        "r2": 0.9996718968423431,
+        "coverage_2sigma": 0.92
+       },
+       "util_bending": {
+        "max_rel_err": 0.0057020006660263274,
+        "mean_rel_err": 0.0006114008218465076,
+        "rmse": 0.002814678449919126,
+        "r2": 0.9999732380901618,
+        "coverage_2sigma": 1.0
+       }
+      },
+      "max_rel_err": 0.07439044276002937
+     },
+     "timing_s": {
+      "doe_solver_runs": 1.640368128999853,
+      "fit": 1.3365191749999212
+     },
+     "default_case": {
+      "f1": {
+       "surrogate": 1.5226122264946125,
+       "std": 0.0010230236625941786,
+       "solver": 1.5228499849995847
+      },
+      "util_ltb": {
+       "surrogate": 14.943328710954823,
+       "std": 0.23181325562760646,
+       "solver": 14.804187987243408
+      },
+      "util_bending": {
+       "surrogate": 0.9669983760154978,
+       "std": 0.0004110395595904809,
+       "solver": 0.9666906089183886
+      }
+     }
+    },
+    "inversion": {
+     "description": "Rigidez efetiva EI e massa por metro a partir de ensaio de vibração ambiente: f1 e f2 medidas com a passarela vazia e com 6 t de sacos de areia distribuídos. Verdade sintética: EI x1,25 (ação composta do tabuleiro), massa x1,10; ruído de 0.5 % nas frequências.",
+     "parameter": "fator de EI, fator de massa",
+     "true": [
+      1.25,
+      1.1
+     ],
+     "recovered": [
+      1.2822351769351834,
+      1.1284047979430165
+     ],
+     "ci95": [
+      [
+       1.1215575738888741,
+       1.4429127799814927
+      ],
+      [
+       0.9763787940907289,
+       1.280430801795304
+      ]
+     ],
+     "rel_error": 0.025822543584560383,
+     "true_inside_ci95": true,
+     "noise": "0.5 % (1 sigma) nas frequências",
+     "how": "Gauss-Newton sobre o FE de viga (beam_modes), covariância sigma^2 (J^T J)^-1"
+    },
+    "optimization": {
+     "objective": "massa mínima de aço (vigas + contraventamentos) com os 4 modos atendidos e seção classe <= 3",
+     "designs_scanned": 24570,
+     "girder_h": 1.2000000000000006,
+     "girder_b": 0.35,
+     "girder_tf": 0.015,
+     "girder_tw": 0.012,
+     "lateral_braces": 5,
+     "steel_mass_kg": 11718.739402570829,
+     "girder_mass_kg": 11558.340000000002,
+     "base_girder_mass_kg": 8289.6,
+     "verified_ok": true,
+     "util_ltb": 0.9017107477884426,
+     "util_bending": 0.5434233894812026,
+     "acceleration": 0.6891399801035555,
+     "surrogate_question": "seção (h, b) mais leve com util_ltb <= 1 e a <= limite, sem travamentos, tf e tw padrão",
+     "surrogate_choice": "nenhuma seção do domínio do surrogate atende sem travamentos"
+    },
+    "figures": [
+     "results/footbridge.png",
+     "results/surrogate_parity.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/steel_footbridge_pedestrian_3d_sigma.png",
+     "results/3d/steel_footbridge_pedestrian_3d_mode1.png"
+    ],
+    "variants": {
+     "rows": {
+      "base (h 0,80, b 0,25)": {
+       "params": {},
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "f1": 1.5228499849995847,
+        "acceleration": 0.1895459552100568,
+        "deflection": 0.13306653683262798,
+        "deflection_limit": 0.08333333333333333,
+        "util_bending": 0.9666906089183886,
+        "util_ltb": 14.804187987243408,
+        "M_cr": 133011.91583548186,
+        "M_Ed": 1619054.6772825,
+        "steel_mass": 8289.6,
+        "mass_per_m": 1041.1071597334462,
+        "modal_mass": 15616.607396001693,
+        "EI_total": 792601600.000001,
+        "qk": 5000.0,
+        "f1_fe": 1.522850026136681,
+        "f2_fe": 6.091402514330896,
+        "deflection_fe": 0.13306653683267058,
+        "fe_equilibrium": 1.8835999071598053e-12
+       }
+      },
+      "viga alta h 1,10": {
+       "params": {
+        "girder_h": 1.1
+       },
+       "verdict": "NOT OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "f1": 2.1437322457211416,
+        "acceleration": 1.7153596628824814,
+        "deflection": 0.06424300895965161,
+        "deflection_limit": 0.08333333333333333,
+        "util_bending": 0.6556246287167312,
+        "util_ltb": 13.588111237479872,
+        "M_cr": 143835.32111595265,
+        "M_Ed": 1654129.6932965624,
+        "steel_mass": 9702.6,
+        "mass_per_m": 1088.2071597334461,
+        "modal_mass": 16323.107396001691,
+        "EI_total": 1641715600.000003,
+        "qk": 5000.0,
+        "f1_fe": 2.143732304021772,
+        "f2_fe": 8.574932606256708,
+        "deflection_fe": 0.06424300895909411,
+        "fe_equilibrium": 7.171183824539184e-13
+       }
+      },
+      "mesa larga b 0,40": {
+       "params": {
+        "girder_b": 0.4
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "f1": 1.7763159028289195,
+        "acceleration": 1.6441952740833001,
+        "deflection": 0.08968601952962356,
+        "deflection_limit": 0.08333333333333333,
+        "util_bending": 0.6797733944673215,
+        "util_ltb": 5.565764085827507,
+        "M_cr": 363321.1580656251,
+        "M_Ed": 1689204.709310625,
+        "steel_mass": 11115.599999999999,
+        "mass_per_m": 1135.3071597334463,
+        "modal_mass": 17029.607396001695,
+        "EI_total": 1175977600.0000017,
+        "qk": 5000.0,
+        "f1_fe": 1.7763159487343076,
+        "f2_fe": 7.105266613425678,
+        "deflection_fe": 0.08968601952954709,
+        "fe_equilibrium": 3.251867989699046e-12
+       }
+      },
+      "2 travamentos": {
+       "params": {
+        "lateral_braces": 2
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "f1": 1.5228499849995847,
+        "acceleration": 0.1895459552100568,
+        "deflection": 0.13306653683262798,
+        "deflection_limit": 0.08333333333333333,
+        "util_bending": 0.9666906089183886,
+        "util_ltb": 4.318008696939612,
+        "M_cr": 563170.2287861198,
+        "M_Ed": 1619054.6772825,
+        "steel_mass": 8289.6,
+        "mass_per_m": 1041.1071597334462,
+        "modal_mass": 15616.607396001693,
+        "EI_total": 792601600.000001,
+        "qk": 5000.0,
+        "f1_fe": 1.522850026136681,
+        "f2_fe": 6.091402514330896,
+        "deflection_fe": 0.13306653683267058,
+        "fe_equilibrium": 1.8835999071598053e-12
+       }
+      },
+      "alta + larga": {
+       "params": {
+        "girder_h": 1.1,
+        "girder_b": 0.4
+       },
+       "verdict": "NOT OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "f1": 2.4744277403566564,
+        "acceleration": 0.2473556554209167,
+        "deflection": 0.04437740792472833,
+        "deflection_limit": 0.08333333333333333,
+        "util_bending": 0.4720950874160522,
+        "util_ltb": 5.28011287713439,
+        "M_cr": 411947.95379224233,
+        "M_Ed": 1724279.7253246875,
+        "steel_mass": 12528.6,
+        "mass_per_m": 1182.4071597334462,
+        "modal_mass": 17736.10739600169,
+        "EI_total": 2376631600.0000052,
+        "qk": 5000.0,
+        "f1_fe": 2.4744278063612724,
+        "f2_fe": 9.897715142813764,
+        "deflection_fe": 0.04437740792470878,
+        "fe_equilibrium": 1.0047418375809988e-11
+       }
+      }
+     },
+     "compared": [
+      "util_ltb",
+      "acceleration",
+      "steel_mass"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/steel_footbridge_pedestrian_base_h_0_80_b_0_25_3d_sigma.png",
+      "results/3d/variants/steel_footbridge_pedestrian_viga_alta_h_1_10_3d_sigma.png",
+      "results/3d/variants/steel_footbridge_pedestrian_mesa_larga_b_0_40_3d_sigma.png",
+      "results/3d/variants/steel_footbridge_pedestrian_2_travamentos_3d_sigma.png",
+      "results/3d/variants/steel_footbridge_pedestrian_alta_larga_3d_sigma.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.01638795899998513,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T00:56:11Z"
+    }
+   }
+  },
+  {
+   "name": "water_distribution_network",
+   "title": "Rede de distribuição de água: pressões, vazões e dimensionamento de menor custo",
+   "sector": "Fluidos / saneamento",
+   "problem": "Rede malhada de distribuição (duas malhas, um reservatório, seis nós de consumo, oito tubos de 1 km; rede de referência de Alperovits & Shamir 1977). Resolve pressões e vazões em regime permanente (Hazen-Williams ou Darcy-Weisbach/Colebrook) e dimensiona os diâmetros de menor custo.",
+   "question": "Todos os nós têm pressão mínima de serviço (30 m) na demanda de projeto? Qual o conjunto de diâmetros comerciais de menor custo que garante isso?",
+   "inputs": [
+    {
+     "name": "reservoir_head",
+     "unit": "m",
+     "default": 210.0,
+     "source": "Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas): nível do reservatório 210 m",
+     "lo": 160,
+     "hi": 300,
+     "help": ""
+    },
+    {
+     "name": "demand_factor",
+     "unit": "-",
+     "default": 1.0,
+     "source": "1,0 = demandas de projeto de Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas) (100-330 m3/h por nó)",
+     "lo": 0.1,
+     "hi": 2.5,
+     "help": ""
+    },
+    {
+     "name": "headloss",
+     "unit": "-",
+     "default": "HW",
+     "source": "Hazen-Williams como em Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas); 'DW' = Darcy-Weisbach/Colebrook",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      "HW",
+      "DW"
+     ]
+    },
+    {
+     "name": "hw_c",
+     "unit": "-",
+     "default": 130.0,
+     "source": "Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas): C = 130 (tubo novo)",
+     "lo": 60,
+     "hi": 150,
+     "help": ""
+    },
+    {
+     "name": "roughness_dw",
+     "unit": "m",
+     "default": 0.00026,
+     "source": "ferro fundido, e = 0,26 mm (White, Fluid Mechanics, Tabela 6.1)",
+     "lo": 1e-06,
+     "hi": 0.005,
+     "help": ""
+    },
+    {
+     "name": "p_min",
+     "unit": "m",
+     "default": 30.0,
+     "source": "Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas): pressão mínima de serviço 30 m",
+     "lo": 5,
+     "hi": 60,
+     "help": ""
+    },
+    {
+     "name": "d1",
+     "unit": "m",
+     "default": 0.4572,
+     "source": "tubo 1: 18 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    },
+    {
+     "name": "d2",
+     "unit": "m",
+     "default": 0.254,
+     "source": "tubo 2: 10 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    },
+    {
+     "name": "d3",
+     "unit": "m",
+     "default": 0.4064,
+     "source": "tubo 3: 16 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    },
+    {
+     "name": "d4",
+     "unit": "m",
+     "default": 0.1016,
+     "source": "tubo 4: 4 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    },
+    {
+     "name": "d5",
+     "unit": "m",
+     "default": 0.4064,
+     "source": "tubo 5: 16 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    },
+    {
+     "name": "d6",
+     "unit": "m",
+     "default": 0.254,
+     "source": "tubo 6: 10 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    },
+    {
+     "name": "d7",
+     "unit": "m",
+     "default": 0.254,
+     "source": "tubo 7: 10 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    },
+    {
+     "name": "d8",
+     "unit": "m",
+     "default": 0.0254,
+     "source": "tubo 8: 1 pol, solução de menor custo de Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "lo": 0.0254,
+     "hi": 0.6096,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "min_pressure",
+     "unit": "m",
+     "help": "menor pressão nos nós"
+    },
+    {
+     "name": "critical_node",
+     "unit": "-",
+     "help": "nó com a menor pressão"
+    },
+    {
+     "name": "supply",
+     "unit": "m3/s",
+     "help": "vazão fornecida pelo reservatório"
+    },
+    {
+     "name": "max_velocity",
+     "unit": "m/s",
+     "help": "maior velocidade nos tubos"
+    },
+    {
+     "name": "max_gradient",
+     "unit": "m/km",
+     "help": "maior perda de carga unitária"
+    },
+    {
+     "name": "cost",
+     "unit": "US$",
+     "help": "custo dos tubos (tabela de Alperovits & Shamir (1977), Water Resources Research 13(6):885-900 (rede de duas malhas))"
+    },
+    {
+     "name": "p_node3",
+     "unit": "m",
+     "help": "pressão no nó 3"
+    },
+    {
+     "name": "p_node6",
+     "unit": "m",
+     "help": "pressão no nó 6"
+    }
+   ],
+   "validity": "Regime permanente, escoamento incompressível, sem bombas nem válvulas, perdas localizadas desprezadas (tubos de 1 km). Hazen-Williams: água à temperatura ambiente, regime turbulento.",
+   "pipeline": [
+    "topologia e cotas: two_loop_network(diâmetros, headloss)",
+    "modelo: perda de carga Hazen-Williams (constante EPANET 10,667) ou Darcy-Weisbach com Colebrook",
+    "solver: solve_network (algoritmo do gradiente global, Todini & Pilati 1988)",
+    "pós: pressões nos nós, velocidades, gradientes, custo",
+    "decisão: pressão mínima >= p_min; velocidade <= 3 m/s (faixa usual de projeto)",
+    "otimização: optimize_diameters (algoritmo genético, 14 diâmetros comerciais)"
+   ],
+   "library": [
+    "pinneapple_simulation.numerical_solvers.pipe_network.solve_network",
+    "pinneapple_simulation.numerical_solvers.pipe_network.optimize_diameters"
+   ],
+   "limitations": [],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "surrogate": "o solver leva ~5 ms por rede; um surrogate não economiza tempo e só acrescentaria erro"
+   },
+   "reason_case": null,
+   "references": [
+    {
+     "name": "pressão no nó 3, Hazen-Williams",
+     "params": {},
+     "output": "p_node3",
+     "value": 30.4625,
+     "unit": "m",
+     "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina",
+     "kind": "independent_solver",
+     "tol": 0.0001
+    },
+    {
+     "name": "pressão no nó 6, Hazen-Williams",
+     "params": {},
+     "output": "p_node6",
+     "value": 30.445,
+     "unit": "m",
+     "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina",
+     "kind": "independent_solver",
+     "tol": 0.0001
+    },
+    {
+     "name": "pressão no nó 3, Darcy-Weisbach",
+     "params": {
+      "headloss": "DW"
+     },
+     "output": "p_node3",
+     "value": 28.797,
+     "unit": "m",
+     "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina (EPANET usa Swamee-Jain e interpolação de Dunlop na transição; aqui Colebrook)",
+     "kind": "independent_solver",
+     "tol": 0.01
+    },
+    {
+     "name": "pressão no nó 6, Darcy-Weisbach",
+     "params": {
+      "headloss": "DW"
+     },
+     "output": "p_node6",
+     "value": 29.8895,
+     "unit": "m",
+     "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina (EPANET usa Swamee-Jain e interpolação de Dunlop na transição; aqui Colebrook)",
+     "kind": "independent_solver",
+     "tol": 0.01
+    },
+    {
+     "name": "custo da solução publicada",
+     "params": {},
+     "output": "cost",
+     "value": 419000.0,
+     "unit": "US$",
+     "source": "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+     "kind": "benchmark",
+     "tol": 1e-09
+    }
+   ],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"water_distribution_network\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run water_distribution_network",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "water_distribution_network"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/water_distribution_network",
+    "decision": {
+     "verdict": "OK",
+     "reasons": [
+      "pressão mínima 30.44 m no nó 6 >= 30 m",
+      "velocidade máxima 1.90 m/s <= 3 m/s",
+      "custo dos tubos US$ 419,000"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "continuity at every junction (m3/s)",
+       "status": "supports",
+       "value": 2.0816681711721685e-17,
+       "limit": 1e-09,
+       "source": "solve_network",
+       "reason": ""
+      },
+      {
+       "name": "energy along every pipe (m)",
+       "status": "supports",
+       "value": 2.842170943040401e-14,
+       "limit": 1e-06,
+       "source": "solve_network",
+       "reason": ""
+      },
+      {
+       "name": "supply = total demand (mass balance)",
+       "status": "supports",
+       "value": 0.3111111111111111,
+       "limit": 0.3111111111111111,
+       "source": "global mass balance",
+       "reason": ""
+      },
+      {
+       "name": "Newton converged",
+       "status": "supports",
+       "value": 11,
+       "limit": 100,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "water_distribution_network",
+     "references": [
+      {
+       "case": "pressão no nó 3, Hazen-Williams",
+       "output": "p_node3",
+       "unit": "m",
+       "computed": 30.462166034859024,
+       "reference": 30.4625,
+       "rel_error": 1.0963156043483382e-05,
+       "tol": 0.0001,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina",
+       "params": {}
+      },
+      {
+       "case": "pressão no nó 6, Hazen-Williams",
+       "output": "p_node6",
+       "unit": "m",
+       "computed": 30.44473804477977,
+       "reference": 30.445,
+       "rel_error": 8.604211536602683e-06,
+       "tol": 0.0001,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina",
+       "params": {}
+      },
+      {
+       "case": "pressão no nó 3, Darcy-Weisbach",
+       "output": "p_node3",
+       "unit": "m",
+       "computed": 28.918676006065823,
+       "reference": 28.797,
+       "rel_error": 0.004225301457298413,
+       "tol": 0.01,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina (EPANET usa Swamee-Jain e interpolação de Dunlop na transição; aqui Colebrook)",
+       "params": {
+        "headloss": "DW"
+       }
+      },
+      {
+       "case": "pressão no nó 6, Darcy-Weisbach",
+       "output": "p_node6",
+       "unit": "m",
+       "computed": 29.97513805972082,
+       "reference": 29.8895,
+       "rel_error": 0.002865155312762607,
+       "tol": 0.01,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina (EPANET usa Swamee-Jain e interpolação de Dunlop na transição; aqui Colebrook)",
+       "params": {
+        "headloss": "DW"
+       }
+      },
+      {
+       "case": "custo da solução publicada",
+       "output": "cost",
+       "unit": "US$",
+       "computed": 419000.0,
+       "reference": 419000.0,
+       "rel_error": 0.0,
+       "tol": 1e-09,
+       "pass": true,
+       "kind": "benchmark",
+       "source": "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+       "params": {}
+      },
+      {
+       "case": "otimização por AG vs ótimo publicado",
+       "output": "cost",
+       "unit": "US$",
+       "computed": 419000.0,
+       "reference": 419000.0,
+       "rel_error": 0.0,
+       "tol": 0.0,
+       "pass": true,
+       "kind": "benchmark",
+       "source": "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+       "params": {}
+      }
+     ],
+     "convergence": null,
+     "all_pass": true,
+     "epanet_live": {
+      "HW": {
+       "pressures": {
+        "2": 53.2467155456543,
+        "3": 30.46245574951172,
+        "4": 43.449188232421875,
+        "5": 33.803348541259766,
+        "6": 30.444963455200195,
+        "7": 30.552255630493164
+       },
+       "max_diff_vs_stored": 4.8541259765499944e-05,
+       "wntr": "1.5.0"
+      },
+      "DW": {
+       "pressures": {
+        "2": 52.86430358886719,
+        "3": 28.79695701599121,
+        "4": 42.91191864013672,
+        "5": 31.743453979492188,
+        "6": 29.88947868347168,
+        "7": 29.815017700195312
+       },
+       "max_diff_vs_stored": 4.6020507813437916e-05,
+       "wntr": "1.5.0"
+      }
+     }
+    },
+    "inversion": {
+     "description": "Calibração do C de Hazen-Williams de dois grupos de tubos (tronco 1-3-5 envelhecido e tubos das malhas) a partir de pressões registradas nos nós 3, 5 e 7 na demanda de projeto e a 1,5x (teste de vazão de incêndio). Medições sintéticas da própria rede com C real = (95, 120) e ruído de 0.05 m.",
+     "parameter": "C (tronco, malhas)",
+     "true": [
+      95.0,
+      120.0
+     ],
+     "recovered": [
+      95.037260475322,
+      119.94709837805027
+     ],
+     "ci95": [
+      [
+       94.93646732717433,
+       95.13805362346967
+      ],
+      [
+       119.7966933409024,
+       120.09750341519815
+      ]
+     ],
+     "rel_error": 0.000440846849581078,
+     "true_inside_ci95": true,
+     "noise": "0.05 m (1 sigma)",
+     "how": "Gauss-Newton sobre solve_network, covariância sigma^2 (J^T J)^-1",
+     "n_measurements": 6
+    },
+    "optimization": {
+     "objective": "custo mínimo dos tubos com pressão >= p_min em todos os nós",
+     "method": "algoritmo genético (pop 100, torneio, cruzamento uniforme, mutação ±1/±2 classes)",
+     "cost_ga": 419000.0,
+     "diameters_in": [
+      18,
+      10,
+      16,
+      4,
+      16,
+      10,
+      10,
+      1
+     ],
+     "min_pressure_ga": 30.44473804477977,
+     "feasible": true,
+     "hydraulic_solves": 6744,
+     "published_cost": 419000.0,
+     "published_diameters_in": [
+      18,
+      10,
+      16,
+      4,
+      16,
+      10,
+      10,
+      1
+     ],
+     "verified_min_pressure": 30.44473804477977,
+     "verified_cost": 419000.0
+    },
+    "figures": [
+     "results/network.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/water_distribution_network_3d_pressure.png",
+     "results/3d/water_distribution_network_3d_velocity.png"
+    ],
+    "variants": {
+     "rows": {
+      "ótimo publicado": {
+       "params": {},
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "min_pressure": 30.44473804477977,
+        "supply": 0.3111111111111111,
+        "max_velocity": 1.8950173785637716,
+        "max_gradient": 14.646065636532798,
+        "cost": 419000.0,
+        "p_node3": 30.462166034859024,
+        "p_node6": 30.44473804477977,
+        "iterations": 11,
+        "continuity_residual": 2.0816681711721685e-17,
+        "energy_residual": 2.842170943040401e-14,
+        "total_demand": 0.3111111111111111
+       }
+      },
+      "uniforme 12 pol": {
+       "params": {
+        "d1": 0.30479999999999996,
+        "d2": 0.30479999999999996,
+        "d3": 0.30479999999999996,
+        "d4": 0.30479999999999996,
+        "d5": 0.30479999999999996,
+        "d6": 0.30479999999999996,
+        "d7": 0.30479999999999996,
+        "d8": 0.30479999999999996
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "min_pressure": -21.451025399747834,
+        "supply": 0.3111111111111111,
+        "max_velocity": 4.263789101768487,
+        "max_gradient": 48.67005869900254,
+        "cost": 400000.0,
+        "p_node3": -7.830695783212661,
+        "p_node6": -21.451025399747834,
+        "iterations": 5,
+        "continuity_residual": 1.3877787807814457e-17,
+        "energy_residual": 1.0186296250935811e-14,
+        "total_demand": 0.3111111111111111
+       }
+      },
+      "uniforme 16 pol": {
+       "params": {
+        "d1": 0.4064,
+        "d2": 0.4064,
+        "d3": 0.4064,
+        "d4": 0.4064,
+        "d5": 0.4064,
+        "d6": 0.4064,
+        "d7": 0.4064,
+        "d8": 0.4064
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "min_pressure": 28.63465742260192,
+        "supply": 0.3111111111111111,
+        "max_velocity": 2.3983813697447736,
+        "max_gradient": 11.986303884398335,
+        "cost": 720000.0,
+        "p_node3": 35.75764418550031,
+        "p_node6": 28.63465742260192,
+        "iterations": 5,
+        "continuity_residual": 1.3877787807814457e-17,
+        "energy_residual": 1.942890293094024e-14,
+        "total_demand": 0.3111111111111111
+       }
+      },
+      "ótimo, tubos velhos C=100": {
+       "params": {
+        "hw_c": 100.0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "min_pressure": 17.41315935174046,
+        "supply": 0.3111111111111111,
+        "max_velocity": 1.8950173785637716,
+        "max_gradient": 23.80915950890355,
+        "cost": 419000.0,
+        "p_node3": 18.23860981653786,
+        "p_node6": 21.338454149673368,
+        "iterations": 11,
+        "continuity_residual": 2.0816681711721685e-17,
+        "energy_residual": 1.865174681370263e-14,
+        "total_demand": 0.3111111111111111
+       }
+      },
+      "ótimo, pico 1,3x": {
+       "params": {
+        "demand_factor": 1.3
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "min_pressure": 17.41315935174046,
+        "supply": 0.40444444444444444,
+        "max_velocity": 2.4635225921329034,
+        "max_gradient": 23.809159508903544,
+        "cost": 419000.0,
+        "p_node3": 18.23860981653786,
+        "p_node6": 21.338454149673368,
+        "iterations": 10,
+        "continuity_residual": 2.7755575615628914e-17,
+        "energy_residual": 1.9539925233402755e-14,
+        "total_demand": 0.40444444444444444
+       }
+      }
+     },
+     "compared": [
+      "min_pressure",
+      "cost",
+      "max_velocity"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/water_distribution_network_otimo_publicado_3d_pressure.png",
+      "results/3d/variants/water_distribution_network_uniforme_12_pol_3d_pressure.png",
+      "results/3d/variants/water_distribution_network_uniforme_16_pol_3d_pressure.png",
+      "results/3d/variants/water_distribution_network_otimo_tubos_velhos_c_100_3d_pressure.png",
+      "results/3d/variants/water_distribution_network_otimo_pico_1_3x_3d_pressure.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.0009922460001234867,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T00:50:17Z"
+    }
+   }
+  },
+  {
+   "name": "water_hammer_valve_closure",
+   "title": "Golpe de aríete no fechamento de válvula de adutora de aço",
+   "sector": "Fluidos / saneamento e óleo e gás",
+   "problem": "Adutora de aço DN500 (reservatório a montante, válvula na ponta) fecha a válvula em t_c segundos. Calcula a sobrepressão e a subpressão ao longo da linha pelo método das características.",
+   "question": "Com este tempo de fechamento, a pressão máxima fica abaixo da classe PN da linha e a mínima acima da pressão de vapor (sem separação de coluna)? Qual o tempo mínimo de fechamento seguro?",
+   "inputs": [
+    {
+     "name": "length",
+     "unit": "m",
+     "default": 1200.0,
+     "source": "premissa: adutora típica de 1,2 km entre reservatório e válvula",
+     "lo": 100,
+     "hi": 20000,
+     "help": ""
+    },
+    {
+     "name": "od",
+     "unit": "m",
+     "default": 0.508,
+     "source": "ASME B36.10M, tubo NPS 20 (508 mm de diâmetro externo)",
+     "lo": 0.05,
+     "hi": 2.0,
+     "help": ""
+    },
+    {
+     "name": "wall",
+     "unit": "m",
+     "default": 0.00953,
+     "source": "ASME B36.10M, NPS 20 parede STD (9,53 mm)",
+     "lo": 0.002,
+     "hi": 0.05,
+     "help": ""
+    },
+    {
+     "name": "velocity",
+     "unit": "m/s",
+     "default": 1.5,
+     "source": "AWWA M11 (4a ed.) cap. 5: velocidades de projeto típicas 0,9-1,8 m/s",
+     "lo": 0.2,
+     "hi": 4.0,
+     "help": ""
+    },
+    {
+     "name": "h_reservoir",
+     "unit": "m",
+     "default": 60.0,
+     "source": "premissa: nível do reservatório 60 m acima do eixo da válvula",
+     "lo": 5,
+     "hi": 500,
+     "help": ""
+    },
+    {
+     "name": "t_close",
+     "unit": "s",
+     "default": 10.0,
+     "source": "premissa: atuador de válvula borboleta de 10 s",
+     "lo": 0.0,
+     "hi": 120.0,
+     "help": ""
+    },
+    {
+     "name": "closure_exponent",
+     "unit": "-",
+     "default": 1.0,
+     "source": "lei de fechamento tau=(1-t/tc)^Em; Em=1 linear (Wylie & Streeter 1993)",
+     "lo": 0.5,
+     "hi": 4.0,
+     "help": ""
+    },
+    {
+     "name": "roughness",
+     "unit": "m",
+     "default": 4.5e-05,
+     "source": "aço comercial, e = 0,045 mm (White, Fluid Mechanics, Tabela 6.1)",
+     "lo": 0.0,
+     "hi": 0.003,
+     "help": ""
+    },
+    {
+     "name": "friction",
+     "unit": "-",
+     "default": "colebrook",
+     "source": "atrito de Darcy por Colebrook; 'none' só para o caso de referência",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      "colebrook",
+      "none"
+     ]
+    },
+    {
+     "name": "E_pipe",
+     "unit": "Pa",
+     "default": 207000000000.0,
+     "source": "aço carbono, E = 207 GPa (ASME B31.3 Tabela C-6, temperatura ambiente)",
+     "lo": 1000000000.0,
+     "hi": 250000000000.0,
+     "help": ""
+    },
+    {
+     "name": "nu_pipe",
+     "unit": "-",
+     "default": 0.3,
+     "source": "aço, coeficiente de Poisson 0,3",
+     "lo": 0.2,
+     "hi": 0.5,
+     "help": ""
+    },
+    {
+     "name": "K_water",
+     "unit": "Pa",
+     "default": 2190000000.0,
+     "source": "água a 20 °C, módulo volumétrico 2,19 GPa (Wylie & Streeter 1993, Tab. 2.1)",
+     "lo": 1500000000.0,
+     "hi": 2500000000.0,
+     "help": ""
+    },
+    {
+     "name": "rho",
+     "unit": "kg/m3",
+     "default": 998.2,
+     "source": "água a 20 °C (Incropera, Tabela A.6)",
+     "lo": 950,
+     "hi": 1050,
+     "help": ""
+    },
+    {
+     "name": "pn_rating",
+     "unit": "Pa",
+     "default": 1600000.0,
+     "source": "classe PN16 (EN 1092-1): 1,6 MPa manométrica",
+     "lo": 400000.0,
+     "hi": 10000000.0,
+     "help": ""
+    },
+    {
+     "name": "p_vapour_abs",
+     "unit": "Pa",
+     "default": 2339.0,
+     "source": "pressão de vapor da água a 20 °C (Incropera, Tabela A.6)",
+     "lo": 600,
+     "hi": 100000.0,
+     "help": ""
+    },
+    {
+     "name": "n_reaches",
+     "unit": "-",
+     "default": 40,
+     "source": "malha do MOC (Courant 1); convergência verificada em 10-160",
+     "lo": 10,
+     "hi": 400,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "wave_speed",
+     "unit": "m/s",
+     "help": "celeridade da onda (Korteweg, tubo ancorado)"
+    },
+    {
+     "name": "period",
+     "unit": "s",
+     "help": "2L/a"
+    },
+    {
+     "name": "max_head",
+     "unit": "m",
+     "help": "carga piezométrica máxima (envoltória)"
+    },
+    {
+     "name": "surge_head",
+     "unit": "m",
+     "help": "sobrepressão máxima acima da carga estática na válvula"
+    },
+    {
+     "name": "min_head",
+     "unit": "m",
+     "help": "carga mínima (envoltória)"
+    },
+    {
+     "name": "drawdown",
+     "unit": "m",
+     "help": "subpressão máxima abaixo da carga estática na válvula"
+    },
+    {
+     "name": "p_max",
+     "unit": "Pa",
+     "help": "pressão manométrica máxima"
+    },
+    {
+     "name": "p_min_abs",
+     "unit": "Pa",
+     "help": "pressão absoluta mínima"
+    },
+    {
+     "name": "joukowsky_head",
+     "unit": "m",
+     "help": "aV/g"
+    },
+    {
+     "name": "michaud_head",
+     "unit": "m",
+     "help": "estimativa de Michaud"
+    },
+    {
+     "name": "t_close_safe",
+     "unit": "s",
+     "help": "menor tempo de fechamento (lei atual) com p_max <= PN"
+    }
+   ],
+   "validity": "Escoamento 1-D, líquido levemente compressível, tubo elástico de parede fina (D/e > 25), atrito permanente. Sem modelo de cavitação: depois que a carga cai à pressão de vapor a história não é física (o preset avisa). Sem bolsões de ar nem ventosas.",
+   "pipeline": [
+    "geometria: D = od - 2 wall, A",
+    "modelo: wave_speed(K, rho, D, e, E, 1-nu^2) (Korteweg); f = colebrook(Re, e/D)",
+    "solver: valve_closure_moc(...) (MOC, Courant 1)",
+    "pós: envoltórias h_max/h_min, p = rho g h",
+    "decisão: p_max <= PN e p_min_abs > p_vapor; t_c seguro por bisseção do MOC"
+   ],
+   "library": [
+    "pinneapple_simulation.numerical_solvers.water_hammer_moc.valve_closure_moc",
+    "pinneapple_physics.closed_form.pipe_flow.colebrook"
+   ],
+   "limitations": [
+    "Atrito permanente: picos posteriores ficam pouco amortecidos (o primeiro pico, que dimensiona, não muda)."
+   ],
+   "capabilities": {
+    "3d": true,
+    "surrogate": true,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": true
+   },
+   "missing": {},
+   "reason_case": "pumped_main",
+   "references": [
+    {
+     "name": "fechamento instantâneo sem atrito = Joukowsky",
+     "params": {
+      "t_close": 0.0,
+      "friction": "none"
+     },
+     "output": "surge_head",
+     "value": 185.36028133450313,
+     "unit": "m",
+     "source": "Joukowsky (1898); Wylie & Streeter, Fluid Transients in Systems (1993) eq. 1.11: dH = a dV / g",
+     "kind": "analytic",
+     "tol": 0.005
+    },
+    {
+     "name": "fechamento lento (60 s = 30·2L/a) = teoria da coluna rígida",
+     "params": {
+      "t_close": 60.0
+     },
+     "output": "surge_head",
+     "value": 7.1147630905274895,
+     "unit": "m",
+     "source": "Wylie & Streeter, Fluid Transients in Systems (1993) sec. 1.3 (rigid-column theory), integrada com scipy solve_ivp",
+     "kind": "independent_solver",
+     "tol": 0.05
+    }
+   ],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"water_hammer_valve_closure\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run water_hammer_valve_closure",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "water_hammer_valve_closure"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/water_hammer_valve_closure",
+    "decision": {
+     "verdict": "OK",
+     "reasons": [
+      "p_max = 0.81 MPa <= PN 1.60 MPa",
+      "p_min_abs = 471.1 kPa > p_vapour 2.34 kPa",
+      "tempo de fechamento seguro (mesma lei) >= 3.4 s"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "Courant = 1 (MOC grid dt = dx/a)",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "valve_closure_moc",
+       "reason": ""
+      },
+      {
+       "name": "thin wall D/e > 25 (Korteweg)",
+       "status": "supports",
+       "value": 51.305351521511014,
+       "limit": 25,
+       "source": "Wylie & Streeter, Fluid Transients in Systems (1993) eq. 2.29",
+       "reason": ""
+      },
+      {
+       "name": "surge does not exceed Joukowsky",
+       "status": "supports",
+       "value": 26.160661452840962,
+       "limit": 185.36028133450313,
+       "source": "Joukowsky (1898): the largest surge of a single velocity change",
+       "reason": ""
+      },
+      {
+       "name": "no column separation (p_min > p_vapour)",
+       "status": "supports",
+       "value": 471086.72225488693,
+       "limit": 2339.0,
+       "source": "",
+       "reason": "below vapour pressure the MOC history after that instant is not physical"
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "water_hammer_valve_closure",
+     "references": [
+      {
+       "case": "fechamento instantâneo sem atrito = Joukowsky",
+       "output": "surge_head",
+       "unit": "m",
+       "computed": 185.36028133450316,
+       "reference": 185.36028133450313,
+       "rel_error": 1.533322523346514e-16,
+       "tol": 0.005,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Joukowsky (1898); Wylie & Streeter, Fluid Transients in Systems (1993) eq. 1.11: dH = a dV / g",
+       "params": {
+        "t_close": 0.0,
+        "friction": "none"
+       }
+      },
+      {
+       "case": "fechamento lento (60 s = 30·2L/a) = teoria da coluna rígida",
+       "output": "surge_head",
+       "unit": "m",
+       "computed": 7.115642994142966,
+       "reference": 7.1147630905274895,
+       "rel_error": 0.00012367293250402893,
+       "tol": 0.05,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Wylie & Streeter, Fluid Transients in Systems (1993) sec. 1.3 (rigid-column theory), integrada com scipy solve_ivp",
+       "params": {
+        "t_close": 60.0
+       }
+      }
+     ],
+     "convergence": {
+      "parameter": "n_reaches",
+      "values": [
+       10,
+       20,
+       40,
+       80,
+       160
+      ],
+      "max_head": [
+       82.29141319794398,
+       82.29279932087573,
+       82.29313707607015,
+       82.29321678329488,
+       82.29323432898343
+      ],
+      "rel_change_last": 2.1320936882752297e-07,
+      "pass": true
+     },
+     "all_pass": true
+    },
+    "surrogate": {
+     "model": "ARD Gaussian process (squared exponential)",
+     "inputs": [
+      "t_close",
+      "velocity",
+      "length"
+     ],
+     "outputs": [
+      "surge_head",
+      "drawdown"
+     ],
+     "bounds": {
+      "t_close": [
+       0.5,
+       30.0
+      ],
+      "velocity": [
+       0.5,
+       3.0
+      ],
+      "length": [
+       300.0,
+       4000.0
+      ]
+     },
+     "n_train": 120,
+     "n_test": 30,
+     "holdout": {
+      "per_output": {
+       "surge_head": {
+        "max_rel_err": 0.1193819511408222,
+        "mean_rel_err": 0.04687649968442064,
+        "rmse": 13.146442396534832,
+        "r2": 0.9861129027959322,
+        "coverage_2sigma": 1.0
+       },
+       "drawdown": {
+        "max_rel_err": 0.18029097004132608,
+        "mean_rel_err": 0.0636667425624196,
+        "rmse": 12.91125044397624,
+        "r2": 0.9824501929605756,
+        "coverage_2sigma": 1.0
+       }
+      },
+      "max_rel_err": 0.18029097004132608
+     },
+     "timing_s": {
+      "doe_solver_runs": 32.908119602,
+      "fit": 14.218752107
+     },
+     "default_case": {
+      "surge_head": {
+       "surrogate": 25.14243835212235,
+       "std": 1.204779048403701,
+       "solver": 26.160661452840962
+      },
+      "drawdown": {
+       "surrogate": 17.713712008956563,
+       "std": 1.2125765571400384,
+       "solver": 18.3592815617235
+      }
+     }
+    },
+    "inversion": {
+     "description": "Celeridade efetiva da onda a partir do histórico de pressão medido na válvula (ar dissolvido ou parede degradada reduzem a). Medição sintética: MOC com a_real = 0.82 x a_projeto + ruído branco de 5.0 kPa.",
+     "parameter": "wave_speed",
+     "unit": "m/s",
+     "true": 993.7106602787894,
+     "recovered": 993.6961642784462,
+     "ci95": [
+      993.664182749714,
+      993.7281458071784
+     ],
+     "rel_error": 1.45877476439288e-05,
+     "true_inside_ci95": true,
+     "noise": "5.0 kPa (1 sigma)",
+     "how": "mínimos quadrados sobre o MOC (varredura + Brent), IC 95 % por Gauss-Newton",
+     "n_samples": 400
+    },
+    "optimization": {
+     "objective": "menor tempo de fechamento (operação mais rápida) com p_max <= PN",
+     "t_close_opt_solver": 3.3700777661063785,
+     "p_max_at_opt_solver": 1599996.8522624534,
+     "pn_rating": 1600000.0,
+     "t_close_opt_surrogate": 3.2614757857058976,
+     "p_max_at_surrogate_opt_solver": 1648613.3550593425,
+     "surrogate_opt_rel_diff_t": 0.03222536331140938,
+     "surrogate_opt_feasible_on_solver": false
+    },
+    "figures": [
+     "results/pressure.png",
+     "results/surrogate_parity.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/water_hammer_valve_closure_3d_p_max.png",
+     "results/3d/water_hammer_valve_closure_3d_p_min.png"
+    ],
+    "variants": {
+     "rows": {
+      "linear 10 s": {
+       "params": {
+        "closure_exponent": 1.0,
+        "t_close": 10.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "inner_diameter": 0.48894,
+        "wave_speed": 1211.84226863267,
+        "period": 1.9804557590716294,
+        "reynolds": 730628.6047904191,
+        "friction_factor": 0.013736482429651782,
+        "max_head": 82.29313707607015,
+        "max_head_x": 1200.0,
+        "max_head_t": 9.976545886323333,
+        "surge_head": 26.160661452840962,
+        "min_head": 37.77319406150569,
+        "drawdown": 18.3592815617235,
+        "p_max": 805567.3567201707,
+        "p_min_abs": 471086.72225488693,
+        "joukowsky_head": 185.36028133450313,
+        "michaud_head": 36.709783667205414,
+        "h_static_valve": 56.13247562322919,
+        "h_allow": 163.44880191992436,
+        "t_close_safe": 3.3700777661063785
+       }
+      },
+      "linear 2 s": {
+       "params": {
+        "closure_exponent": 1.0,
+        "t_close": 2.0
+       },
+       "verdict": "NOT OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "inner_diameter": 0.48894,
+        "wave_speed": 1211.84226863267,
+        "period": 1.9804557590716294,
+        "reynolds": 730628.6047904191,
+        "friction_factor": 0.013736482429651782,
+        "max_head": 241.76432049772643,
+        "max_head_x": 1200.0,
+        "max_head_t": 2.0052114560600245,
+        "surge_head": 185.63184487449723,
+        "min_head": -119.190364054852,
+        "drawdown": 175.32283967808118,
+        "p_max": 2366630.4570765328,
+        "p_min_abs": -1065429.2389279292,
+        "joukowsky_head": 185.36028133450313,
+        "michaud_head": 183.5489183360271,
+        "h_static_valve": 56.13247562322919,
+        "h_allow": 163.44880191992436,
+        "t_close_safe": 3.3700777661063785
+       }
+      },
+      "Em=2 (rápido no início) 10 s": {
+       "params": {
+        "closure_exponent": 2.0,
+        "t_close": 10.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "inner_diameter": 0.48894,
+        "wave_speed": 1211.84226863267,
+        "period": 1.9804557590716294,
+        "reynolds": 730628.6047904191,
+        "friction_factor": 0.013736482429651782,
+        "max_head": 94.3848598608504,
+        "max_head_x": 1200.0,
+        "max_head_t": 3.094462123549421,
+        "surge_head": 38.25238423762121,
+        "min_head": 56.13247562322919,
+        "drawdown": 0.0,
+        "p_max": 923933.2072396907,
+        "p_min_abs": 650805.6932948136,
+        "joukowsky_head": 185.36028133450313,
+        "michaud_head": 36.709783667205414,
+        "h_static_valve": 56.13247562322919,
+        "h_allow": 163.44880191992436,
+        "t_close_safe": 4.006059237016138
+       }
+      },
+      "Em=0.5 (rápido no fim) 10 s": {
+       "params": {
+        "closure_exponent": 0.5,
+        "t_close": 10.0
+       },
+       "verdict": "NOT OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "inner_diameter": 0.48894,
+        "wave_speed": 1211.84226863267,
+        "period": 1.9804557590716294,
+        "reynolds": 730628.6047904191,
+        "friction_factor": 0.013736482429651782,
+        "max_head": 137.4929285654041,
+        "max_head_x": 1200.0,
+        "max_head_t": 10.001301583311728,
+        "surge_head": 81.3604529421749,
+        "min_head": -17.01905780639345,
+        "drawdown": 73.15153342962265,
+        "p_max": 1345918.0068656716,
+        "p_min_abs": -65274.52333924163,
+        "joukowsky_head": 185.36028133450313,
+        "michaud_head": 36.709783667205414,
+        "h_static_valve": 56.13247562322919,
+        "h_allow": 163.44880191992436,
+        "t_close_safe": 6.040396109039806
+       }
+      },
+      "linear 30 s": {
+       "params": {
+        "closure_exponent": 1.0,
+        "t_close": 30.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "inner_diameter": 0.48894,
+        "wave_speed": 1211.84226863267,
+        "period": 1.9804557590716294,
+        "reynolds": 730628.6047904191,
+        "friction_factor": 0.013736482429651782,
+        "max_head": 66.67191722365087,
+        "max_head_x": 1200.0,
+        "max_head_t": 29.979149052946788,
+        "surge_head": 10.539441600421675,
+        "min_head": 53.357690549064266,
+        "drawdown": 2.7747850741649245,
+        "p_max": 652651.2663586414,
+        "p_min_abs": 623643.3276701397,
+        "joukowsky_head": 185.36028133450313,
+        "michaud_head": 12.236594555735138,
+        "h_static_valve": 56.13247562322919,
+        "h_allow": 163.44880191992436,
+        "t_close_safe": 3.3700777661063785
+       }
+      }
+     },
+     "compared": [
+      "p_max",
+      "p_min_abs",
+      "t_close_safe"
+     ],
+     "gallery_3d": []
+    },
+    "meta": {
+     "wall_time_s": 0.25076469300006465,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T00:50:53Z"
+    }
+   }
+  }
+ ]
+}

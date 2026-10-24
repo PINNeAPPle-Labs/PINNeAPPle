@@ -1,0 +1,121 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/power_pcb_junction",
+ "title": "Temperatura de jun\u00e7\u00e3o numa placa de pot\u00eancia (conversor DC-DC 4 camadas)",
+ "description": "Todas as jun\u00e7\u00f5es ficam abaixo do Tj m\u00e1ximo derrateado com 20 % de incerteza na convec\u00e7\u00e3o? Quantas vias t\u00e9rmicas sob os MOSFETs (ou que cobre) bastam, sem ventilador?",
+ "domain": "T\u00e9rmica / eletr\u00f4nica",
+ "methods": [
+  "pinneapple_physics.pcb.engine.evaluate",
+  "pinneapple_physics.pcb.engine.calibrate",
+  "pinneapple_physics.pcb.solver.solve"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 2.8137310580000303
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[theta_JA TO-263 D2PAK na placa JEDEC 2s2p]",
+   "value": 0.0075139540549168755,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard (consist\u00eancia): JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente"
+  },
+  {
+   "name": "rel_error[theta_JA QFN-32 5x5 na placa JEDEC 2s2p]",
+   "value": 0.005776877924571159,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard (consist\u00eancia): JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente"
+  },
+  {
+   "name": "rel_error[theta_JA SOIC-8 na placa JEDEC 2s2p]",
+   "value": 0.0009251485243855958,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard (consist\u00eancia): JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente"
+  },
+  {
+   "name": "surrogate_holdout_max_rel_err",
+   "value": 0.021588065186892432,
+   "unit": "-",
+   "how": "20 held-out solver runs (Latin hypercube)"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.01197085295079133,
+   "unit": "-",
+   "how": "pinneapple_physics.pcb.engine.calibrate (EKI, 16 membros)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "theta_JA TO-263 D2PAK na placa JEDEC 2s2p",
+   "passed": true,
+   "value": 30.225418621647506,
+   "reference": 30.0,
+   "rtol": 0.08,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "theta_JA QFN-32 5x5 na placa JEDEC 2s2p",
+   "passed": true,
+   "value": 33.19063697151085,
+   "reference": 33.0,
+   "rtol": 0.08,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "theta_JA SOIC-8 na placa JEDEC 2s2p",
+   "passed": true,
+   "value": 120.11101782292627,
+   "reference": 120.0,
+   "rtol": 0.08,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/pcb_maps.png",
+   "results/surrogate_parity.png",
+   "results/variants.png",
+   "results/3d/power_pcb_junction_3d_T.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente",
+  "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente",
+  "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "f33fa445",
+  "created": "2026-10-24T00:49:25Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

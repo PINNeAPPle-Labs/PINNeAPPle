@@ -45,6 +45,12 @@ REASONS: dict[str, str] = {
     "pinneapple_reason.llm": "optional LLM advisor of the reasoning engine; flows reason without an LLM",
     "pinneapple_reason.narrative": "the text of Chain.explain, shown in the summary of reason.chain",
     "pinneapple_reason.props": "physical constants and properties read by the failure modes",
+    "pinneapple_presets.cases": "the preset classes, run by preset.run / preset.validate",
+    "pinneapple_presets.core": "the Preset base class behind preset.run",
+    "pinneapple_presets.registry": "the catalogue preset.run chooses from (and the Hub index)",
+    "pinneapple_presets.report": "writes the committed preset folders (python -m pinneapple_presets report)",
+    "pinneapple_presets.surrogate": "the surrogate behind preset.run with fidelity = surrogate",
+    "pinneapple_presets.viz3d": "3-D stills of the committed preset folders",
 }
 
 

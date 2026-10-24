@@ -5,6 +5,7 @@ from . import (  # noqa: F401
     analysis,
     data,
     methods,
+    presets,
     problem,
     reason,
     solvers,

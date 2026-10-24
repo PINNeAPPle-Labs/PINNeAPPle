@@ -5455,6 +5455,17 @@
   "stdout": "str\n''",
   "timed_out": false
  },
+ "node:autolab.aerodynamicist": {
+  "code_hash": "cca02ed6e82bcd6b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 6.37,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist (race-car CFD lab) -> pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'source': 'recorded', 'mission': '', 'budget': 20, 'procs': 4}",
+  "timed_out": false
+ },
  "node:autolab.board_cooling": {
   "code_hash": "60a3ee7873e3261f",
   "figures": [],

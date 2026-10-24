@@ -3,8 +3,10 @@ from ..libcalls import auto_specs, library_specs
 from ..registry import REGISTRY
 from . import (  # noqa: F401
     analysis,
+    autolab,
     data,
     methods,
+    presets,
     problem,
     reason,
     solvers,

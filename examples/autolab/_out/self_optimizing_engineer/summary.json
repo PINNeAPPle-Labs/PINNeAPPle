@@ -1,0 +1,463 @@
+{
+ "mission": {
+  "board": {
+   "width_mm": 160.0,
+   "depth_mm": 100.0,
+   "n_copper": 4,
+   "thickness_mm": 1.6,
+   "outer_oz": 1.0,
+   "inner_oz": 1.0,
+   "outer_coverage": 0.3,
+   "inner_coverage": 0.9,
+   "chassis_edges": false,
+   "chassis_t_c": null,
+   "edge_h_w_m2k": 2000.0
+  },
+  "components": [
+   {
+    "name": "SoC",
+    "x_mm": 60.0,
+    "y_mm": 50.0,
+    "power_w": 40.0,
+    "package": "BGA 35x35",
+    "side": "top",
+    "tj_max_c": 90.0,
+    "theta_jb": null,
+    "theta_jc": null,
+    "w_mm": null,
+    "d_mm": null,
+    "h_mm": null,
+    "vias": 0,
+    "via_drill_mm": 0.3,
+    "via_plating_um": 25.0,
+    "r_top_k_w": null
+   },
+   {
+    "name": "VRM1",
+    "x_mm": 118.0,
+    "y_mm": 25.0,
+    "power_w": 2.0,
+    "package": "QFN-32 5x5",
+    "side": "top",
+    "tj_max_c": 125.0,
+    "theta_jb": null,
+    "theta_jc": null,
+    "w_mm": null,
+    "d_mm": null,
+    "h_mm": null,
+    "vias": 9,
+    "via_drill_mm": 0.3,
+    "via_plating_um": 25.0,
+    "r_top_k_w": null
+   },
+   {
+    "name": "VRM2",
+    "x_mm": 118.0,
+    "y_mm": 75.0,
+    "power_w": 2.0,
+    "package": "QFN-32 5x5",
+    "side": "top",
+    "tj_max_c": 125.0,
+    "theta_jb": null,
+    "theta_jc": null,
+    "w_mm": null,
+    "d_mm": null,
+    "h_mm": null,
+    "vias": 9,
+    "via_drill_mm": 0.3,
+    "via_plating_um": 25.0,
+    "r_top_k_w": null
+   },
+   {
+    "name": "DDR",
+    "x_mm": 18.0,
+    "y_mm": 50.0,
+    "power_w": 1.5,
+    "package": "BGA 17x17",
+    "side": "top",
+    "tj_max_c": 95.0,
+    "theta_jb": null,
+    "theta_jc": null,
+    "w_mm": null,
+    "d_mm": null,
+    "h_mm": null,
+    "vias": 0,
+    "via_drill_mm": 0.3,
+    "via_plating_um": 25.0,
+    "r_top_k_w": null
+   }
+  ],
+  "hot": "SoC",
+  "t_ambient_c": 35.0,
+  "tj_limit_c": 90.0,
+  "envelope_mm": [
+   70.0,
+   70.0,
+   30.0
+  ],
+  "fan_power_budget_w": 0.02,
+  "velocity_range_m_s": [
+   0.5,
+   4.0
+  ],
+  "material": "al6063",
+  "tim_k_mm2_w": 10.0,
+  "text": "Placa de controle 160 x 100 mm com um SoC de 40 W superaquecendo. Temperatura de jun\u00e7\u00e3o m\u00e1xima 90 \u00b0C, ar a 35 \u00b0C dentro da caixa. Cabe um dissipador de at\u00e9 70 x 70 x 30 mm sobre o SoC e as ventoinhas podem gastar no m\u00e1ximo 0.02 W de pot\u00eancia de ar.",
+  "provenance": {
+   "power_w": "40 W",
+   "tj_limit_c": "jun\u00e7\u00e3o m\u00e1xima 90 \u00b0C",
+   "t_ambient_c": "ar a 35 \u00b0C",
+   "envelope": "70 x 70 x 30 mm",
+   "board": "160 x 100 mm",
+   "fan_power_budget_w": "ventoinhas podem gastar no m\u00e1ximo 0.02 W"
+  }
+ },
+ "decision": "APPROVED",
+ "design": {
+  "base_width_mm": 37.76313761985725,
+  "base_depth_mm": 35.32018629032839,
+  "base_thickness_mm": 2.0276438671667307,
+  "n_fins": 15,
+  "fin_thickness_mm": 0.6000264917954775,
+  "height_mm": 28.03773707321711,
+  "air_velocity_m_s": 1.9856197692046054,
+  "material": "al6063",
+  "fin_height_mm": 26.010093206050378,
+  "fin_gap_mm": 2.05448144592322
+ },
+ "tj_fine_c": {
+  "SoC": 83.7612440628063,
+  "VRM1": 97.6351302645625,
+  "VRM2": 97.63513026576271,
+  "DDR": 78.60240597399098
+ },
+ "tj_fine_pessimistic_c": {
+  "SoC": 88.52504297676208,
+  "VRM1": 101.61341076923854,
+  "VRM2": 101.61341077239766,
+  "DDR": 83.56413338143176
+ },
+ "grid_max_dtj_k": 1.4668273840149908,
+ "mass_g": 29.62702070224298,
+ "fan_power_w": 0.01921130728955254,
+ "baseline_tj_hot_c": 323.2144491142498,
+ "natural_best_tj_hot_c": 145.14828530208507,
+ "holdout": {
+  "n_train": 179,
+  "n_test": 45,
+  "surrogate": {
+   "tj_mae_k": 0.19649924721490117,
+   "tj_max_abs_k": 2.2030649404285896,
+   "tj_mae_by_output_k": [
+    0.4974887643815922,
+    0.059133243022143095,
+    0.05913324313115709,
+    0.10283779824939611,
+    0.5696816050411975,
+    0.07413339092369553,
+    0.07413339105678618,
+    0.1354525419132418
+   ],
+   "map_rmse_k": 0.2031511632505125,
+   "map_max_abs_k": 1.5080752820835528,
+   "map_rel_l2": 0.0025453305207535095
+  },
+  "nearest_snapshot": {
+   "tj_mae_k": 5.16533657072145,
+   "tj_max_abs_k": 38.702366605119266,
+   "tj_mae_by_output_k": [
+    10.660173473391817,
+    2.287926356551171,
+    2.2879263572774424,
+    3.5824518955556646,
+    12.243263095242375,
+    2.893512727228877,
+    2.893512727305838,
+    4.473925933218419
+   ],
+   "map_rmse_k": 5.488616497975209,
+   "map_max_abs_k": 30.760706085413972,
+   "map_rel_l2": 0.06852705646826752
+  },
+  "coverage_2std": 0.9861111111111112,
+  "map_modes": 5,
+  "fit_seconds": 13.119983962000333,
+  "predict_seconds_per_design": 0.00015577395554121015,
+  "reference_seconds_per_design": 2.1556435635002344,
+  "speedup": 13838.279679108211
+ },
+ "rounds": [
+  {
+   "round": 1,
+   "n_snapshots": 224,
+   "design": {
+    "base_width_mm": 37.76313761985725,
+    "base_depth_mm": 35.32018629032839,
+    "base_thickness_mm": 2.0276438671667307,
+    "n_fins": 15,
+    "fin_thickness_mm": 0.6000264917954775,
+    "height_mm": 28.03773707321711,
+    "air_velocity_m_s": 1.9856197692046054,
+    "material": "al6063",
+    "fin_height_mm": 26.010093206050378,
+    "fin_gap_mm": 2.05448144592322
+   },
+   "mass_g": 29.62702070224298,
+   "fan_power_w": 0.01921130728955254,
+   "pred_tj_c": {
+    "SoC": 83.65608901147121,
+    "VRM1": 96.09614764592118,
+    "VRM2": 96.09614765379895,
+    "DDR": 78.55397449104451
+   },
+   "pred_tj_pessimistic_c": {
+    "SoC": 88.35005959821513,
+    "VRM1": 100.0675787722488,
+    "VRM2": 100.06757877806055,
+    "DDR": 83.51525578077249
+   },
+   "pred_std_k": {
+    "SoC": 0.7267047255036189,
+    "VRM1": 0.22024684803017522,
+    "VRM2": 0.22024684804677994,
+    "DDR": 0.3184594294502233
+   },
+   "ref_tj_c": {
+    "SoC": 83.76108488576122,
+    "VRM1": 96.16830288061695,
+    "VRM2": 96.16830288886169,
+    "DDR": 78.61541975373794
+   },
+   "ref_tj_pessimistic_c": {
+    "SoC": 88.5251577159228,
+    "VRM1": 100.14838649515323,
+    "VRM2": 100.1483865115323,
+    "DDR": 83.58020552455474
+   },
+   "max_abs_error_k": 0.1750981177076767,
+   "inside_2std": true,
+   "meets_limits": true,
+   "optimizer_seconds": 2.709869623000486,
+   "optimizer_evaluations": 121,
+   "reference_seconds": 1.8734660399995846,
+   "fit_seconds": 17.609523103000356
+  }
+ ],
+ "evidence": [
+  {
+   "step": 0,
+   "tool": "read_mission",
+   "args": {
+    "text": "Placa de controle 160 x 100 mm com um SoC de 40 W superaquecendo. Temperatura de jun\u00e7\u00e3o m\u00e1xima 90 \u00b0C, ar a 35 \u00b0C dentro da caixa. Cabe um dissipador de at\u00e9 70 x 70 x 30 mm sobre o SoC e as ventoinhas podem gastar no m\u00e1ximo 0.02 W de pot\u00eancia de ar."
+   },
+   "why": "turn the request into numbers with their source",
+   "summary": {
+    "hot": "SoC",
+    "power_w": 40.0,
+    "tj_limit_c": 90.0,
+    "t_ambient_c": 35.0,
+    "envelope_mm": "70 x 70 x 30",
+    "fan_power_budget_w": 0.02,
+    "from_text": 6
+   },
+   "seconds": 0.001,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 1,
+   "tool": "baseline",
+   "args": {},
+   "why": "how hot is it today",
+   "summary": {
+    "tj_hot_c": 323.2144491142498,
+    "board_max_c": 293.9109201954755,
+    "over_limit_k": 233.21444911424982,
+    "seconds_solve": 1.2852524509999057
+   },
+   "seconds": 1.285,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 2,
+   "tool": "screen_natural",
+   "args": {},
+   "why": "is a passive heat sink enough",
+   "summary": {
+    "tj_hot_c": 145.14828530208507,
+    "tj_hot_pessimistic_c": 156.8581880965712,
+    "feasible": false
+   },
+   "seconds": 47.407,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 3,
+   "tool": "sample",
+   "args": {
+    "n": 64,
+    "seed": 0,
+    "workers": 4
+   },
+   "why": "reference solves to learn from",
+   "summary": {
+    "n": 64,
+    "median_seconds": 2.559630752999965,
+    "max_energy_balance": 8.441278933477715e-11,
+    "all_converged": true
+   },
+   "seconds": 49.907,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 4,
+   "tool": "learn",
+   "args": {
+    "test_fraction": 0.2,
+    "seed": 0,
+    "workers": 4
+   },
+   "why": "fast approximation, measured on unseen designs, more solves until it is good enough",
+   "summary": {
+    "accepted": true,
+    "n_solves": 224,
+    "tj_mae_k": 0.19649924721490117,
+    "tj_max_abs_k": 2.2030649404285896,
+    "map_rmse_k": 0.2031511632505125,
+    "coverage_2std": 0.9861111111111112,
+    "nearest_tj_mae_k": 5.16533657072145,
+    "speedup": 13838.279679108211
+   },
+   "seconds": 185.219,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 5,
+   "tool": "optimize",
+   "args": {
+    "rounds": 5,
+    "k_sigma": 2.0,
+    "seed": 0
+   },
+   "why": "search on the surrogate, confirm on physics",
+   "summary": {
+    "confirmed": true,
+    "rounds": 1,
+    "mass_g": 29.62702070224298,
+    "fan_power_w": 0.01921130728955254,
+    "tj_hot_pessimistic_ref_c": 88.5251577159228,
+    "max_abs_error_k": 0.1750981177076767
+   },
+   "seconds": 22.196,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 6,
+   "tool": "verify",
+   "args": {},
+   "why": "independent finer solve and trust report",
+   "summary": {
+    "decision_str": "APPROVED",
+    "tj_hot_fine_pessimistic_c": 88.52504297676208,
+    "grid_max_dtj_k": 1.4668273840149908
+   },
+   "seconds": 6.686,
+   "ok": true,
+   "error": ""
+  }
+ ],
+ "plan": {
+  "mission": "Placa de controle 160 x 100 mm com um SoC de 40 W superaquecendo. Temperatura de jun\u00e7\u00e3o m\u00e1xima 90 \u00b0C, ar a 35 \u00b0C dentro da caixa. Cabe um dissipador de at\u00e9 70 x 70 x 30 mm sobre o SoC e as ventoinhas podem gastar no m\u00e1ximo 0.02 W de pot\u00eancia de ar.",
+  "planner": "template",
+  "notes": [],
+  "steps": [
+   {
+    "tool": "read_mission",
+    "args": {
+     "text": "Placa de controle 160 x 100 mm com um SoC de 40 W superaquecendo. Temperatura de jun\u00e7\u00e3o m\u00e1xima 90 \u00b0C, ar a 35 \u00b0C dentro da caixa. Cabe um dissipador de at\u00e9 70 x 70 x 30 mm sobre o SoC e as ventoinhas podem gastar no m\u00e1ximo 0.02 W de pot\u00eancia de ar."
+    },
+    "why": "turn the request into numbers with their source"
+   },
+   {
+    "tool": "baseline",
+    "args": {},
+    "why": "how hot is it today"
+   },
+   {
+    "tool": "screen_natural",
+    "args": {},
+    "why": "is a passive heat sink enough"
+   },
+   {
+    "tool": "sample",
+    "args": {
+     "n": 64,
+     "seed": 0,
+     "workers": 4
+    },
+    "why": "reference solves to learn from"
+   },
+   {
+    "tool": "learn",
+    "args": {
+     "test_fraction": 0.2,
+     "seed": 0,
+     "workers": 4
+    },
+    "why": "fast approximation, measured on unseen designs, more solves until it is good enough"
+   },
+   {
+    "tool": "optimize",
+    "args": {
+     "rounds": 5,
+     "k_sigma": 2.0,
+     "seed": 0
+    },
+    "why": "search on the surrogate, confirm on physics"
+   },
+   {
+    "tool": "verify",
+    "args": {},
+    "why": "independent finer solve and trust report"
+   },
+   {
+    "tool": "deliver",
+    "args": {
+     "out_dir": "/home/user/PINNeAPPle/examples/autolab/_out/self_optimizing_engineer",
+     "render": true
+    },
+    "why": "evidence a person can check"
+   }
+  ]
+ },
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "cpus": 4,
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "scikit-learn": "1.9.1",
+  "blender": "5.2.3 LTS"
+ },
+ "skipped": [],
+ "render_seconds": 68.5,
+ "files": {
+  "maps": "figures/maps_before_after.png",
+  "evolution": "figures/tmax_evolution.png",
+  "holdout": "figures/surrogate_holdout.png",
+  "impact_gif_2d": "figures/impact_2d.gif",
+  "glb": "3d/verified_design.glb",
+  "usda": "3d/verified_design.usda",
+  "viewer": "3d/thermal_viewer.html",
+  "bare_png": "3d/bare_board.png",
+  "verified_png": "3d/verified_board.png",
+  "impact_gif_3d": "3d/impact/impact.gif",
+  "impact_mp4_3d": "3d/impact/impact.mp4"
+ }
+}

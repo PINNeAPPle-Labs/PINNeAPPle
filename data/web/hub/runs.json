@@ -32,6 +32,17 @@
   "stdout": "pinneapple_catalog.methods.method_status() -> 'Dict[str, Dict]'\n``{id: {\"status\": ..., \"reference_tests\": [...], \"other_tests\": [...]}}`` from the last scan.",
   "timed_out": false
  },
+ "api:pinneapple-design-thermal-board-cooling-run-mission": {
+  "code_hash": "ed8ec6ee86ff7f4d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 6.95,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "pinneapple_design.thermal.board_cooling.run_mission(text: 'str', *, out_dir: 'str' = 'out', planner: 'str' = 'template', n: 'int' = 64, render: 'bool' = True, workers: 'int' = 4, llm: 'Callable[[str, str], str] | None' = None, provider: 'str' = 'anthropic', log: 'Callable[[str], None] | None' = <built-in function print>) -> 'Run'\nPlan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the",
+  "timed_out": false
+ },
  "api:pinneapple-flow-plan": {
   "code_hash": "7cb9921117ba5c3f",
   "figures": [],
@@ -140,6 +151,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "pp.PhysicalProblem.from_preset(name: 'str', **overrides: 'Any') -> \"'PhysicalProblem'\"\nFrom a named preset (``pp.list_presets()``); keyword overrides go to the preset, e.g. ``nu=0.01``.",
+  "timed_out": false
+ },
+ "api:pp-presets-names": {
+  "code_hash": "40da71791426ddda",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 4.83,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "pp.presets.names() -> 'list[str]'\nNames of every industrial preset (built in and registered), sorted.",
   "timed_out": false
  },
  "api:pp-solve": {
@@ -703,15 +725,26 @@
   "stdout": "00_list_datasets.py — List and inspect all available PINNeAPPle datasets | fluid dynamics | not curated",
   "timed_out": false
  },
+ "example:examples/autolab": {
+  "code_hash": "3f1cfb0dac467747",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.11,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Autonomous Physics Lab | design and geometry | not curated\nbaseline_tj_soc 323.2144491142498 °C\nverified_tj_soc_pessimistic 88.52504297676208 °C\nholdout_tj_max_abs_error 2.2030649404285896 K\nholdout_map_rmse 0.2031511632505125 K\nreference_solves 224.0 solves",
+  "timed_out": false
+ },
  "example:examples/autolab_rover": {
   "code_hash": "91af0919ac3497cb",
   "figures": [],
   "ok": true,
   "recorded": "2026-10-24",
-  "seconds": 0.75,
+  "seconds": 0.95,
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
-  "stdout": "Autonomous Physics Lab: the rover that learns the planet | terramechanics and robotics | not curated\nroute_A_distance 12.925884 m\nroute_A_energy 2957.959341 J\nroute_A_max_slip 0.420399 -\nroute_A_max_sinkage 319.367895 mm\nroute_A_learned_risk 1.0 -",
+  "stdout": "Autonomous Physics Lab: the rover that learns the planet | vehicle dynamics | not curated\nroute_A_distance 12.925884 m\nroute_A_energy 2957.959341 J\nroute_A_max_slip 0.420399 -\nroute_A_max_sinkage 319.367895 mm\nroute_A_learned_risk 1.0 -",
   "timed_out": false
  },
  "example:examples/benchmark": {
@@ -976,6 +1009,72 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "pinneapple_researcher examples | validation and benchmarks | not curated",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets": {
+  "code_hash": "275330fba17d1c96",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.76,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Presets industriais | engineering | not curated",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/plate_fin_heatsink_forced": {
+  "code_hash": "5c02f81d956057e8",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Dissipador de aletas planas com ventilação forçada (módulo de potência) | Térmica / eletrônica de potência | not curated\nrel_error[R convecção das aletas a 1 m/s vs correlação independente] 0.05525099931556328 -\nrel_error[R convecção das aletas a 3 m/s vs correlação independente] 0.07461974656182968 -\nrel_error[R convecção das aletas a 6 m/s vs correlação independente] 0.07347242370718365 -\nrel_error[limite plenamente desenvolvido Nu = Re* Pr / 2 (Re* pequeno)] 0.0009964914814574696 -\nrel_error[espalhamento + base: FVM 3-D vs teoria] 0.023678552647287184 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/power_pcb_junction": {
+  "code_hash": "53da7db601d6cde2",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.67,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Temperatura de junção numa placa de potência (conversor DC-DC 4 camadas) | Térmica / eletrônica | not curated\nrel_error[theta_JA TO-263 D2PAK na placa JEDEC 2s2p] 0.0075139540549168755 -\nrel_error[theta_JA QFN-32 5x5 na placa JEDEC 2s2p] 0.005776877924571159 -\nrel_error[theta_JA SOIC-8 na placa JEDEC 2s2p] 0.0009251485243855958 -\nsurrogate_holdout_max_rel_err 0.021588065186892432 -\ninversion_rel_err 0.01197085295079133 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/steel_footbridge_pedestrian": {
+  "code_hash": "e3f441027f200aa6",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.73,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Passarela de aço de 30 m: resistência, flecha, flambagem lateral e vibração de pedestres | Estrutural / construção | not curated\nrel_error[1ª frequência: fórmula fechada vs FE de viga] 2.7013228939117467e-08 -\nrel_error[flecha da multidão: 5qL^4/384EI vs FE de viga] 3.2017672950762496e-13 -\nrel_error[2ª frequência = 4 x f1 (Euler-Bernoulli biapoiada)] 4.2261755626976134e-07 -\nrel_error[aceleração em ressonância exata (vão 24 m, f1 na faixa de passo)] 1.981476239722582e-16 -\nsurrogate_holdout_max_rel_err 0.07439044276002937 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/water_distribution_network": {
+  "code_hash": "89d5ec2af555f898",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.78,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Rede de distribuição de água: pressões, vazões e dimensionamento de menor custo | Fluidos / saneamento | not curated\nrel_error[pressão no nó 3, Hazen-Williams] 1.0963156043483382e-05 -\nrel_error[pressão no nó 6, Hazen-Williams] 8.604211536602683e-06 -\nrel_error[pressão no nó 3, Darcy-Weisbach] 0.004225301457298413 -\nrel_error[pressão no nó 6, Darcy-Weisbach] 0.002865155312762607 -\nrel_error[custo da solução publicada] 0.0 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/water_hammer_valve_closure": {
+  "code_hash": "b300bfe0552abc16",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Golpe de aríete no fechamento de válvula de adutora de aço | Fluidos / saneamento e óleo e gás | not curated\nrel_error[fechamento instantâneo sem atrito = Joukowsky] 1.533322523346514e-16 -\nrel_error[fechamento lento (60 s = 30·2L/a) = teoria da coluna rígida] 0.00012367293250402893 -\nsurrogate_holdout_max_rel_err 0.18029097004132608 -\ninversion_rel_err 1.45877476439288e-05 -",
   "timed_out": false
  },
  "example:examples/inspection": {
@@ -5103,6 +5202,17 @@
   "stdout": "str\n''",
   "timed_out": false
  },
+ "node:autolab.board_cooling": {
+  "code_hash": "60a3ee7873e3261f",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 9.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Self-optimizing engineer (board cooling) -> pinneapple_design.thermal.board_cooling.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n': 64, 'planner': 'template', 'render': False, 'workers': 4}",
+  "timed_out": false
+ },
  "node:benchmark.arena": {
   "code_hash": "052bc2cf35d19967",
   "figures": [],
@@ -5565,6 +5675,28 @@
   "stdout": "Multi-objective design (NSGA-II) -> pinneapple_design.design_optimizer.methods.run + presets\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'problem': 'heatsink', 'method': 'nsga2', 'budget': 400, 'seed': 0}",
   "timed_out": false
  },
+ "node:preset.run": {
+  "code_hash": "bba0de31568ad645",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.11,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Industrial preset -> pinneapple_presets.load(name).run(**overrides)\ninputs: [('params', 'params')]\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'preset': 'water_hammer_valve_closure', 'overrides': {}, 'fidelity': 'solver'}",
+  "timed_out": false
+ },
+ "node:preset.validate": {
+  "code_hash": "5321d12a0ac61f4c",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Validate preset -> pinneapple_presets.load(name).validate()\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'preset': 'water_hammer_valve_closure'}",
+  "timed_out": false
+ },
  "node:problem.generic": {
   "code_hash": "63acfae7d2fa41b2",
   "figures": [],
@@ -5669,7 +5801,7 @@
   "figures": [],
   "ok": true,
   "recorded": "2026-10-24",
-  "seconds": 5.24,
+  "seconds": 7.97,
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Rover that learns the planet (autonomous lab) -> pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)\ninputs: []\noutputs: [('report', 'report'), ('metrics', 'metrics')]\ndefaults: {'mission': 'Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy', 'max_time': 400.0, 'n_samples': 24, 'figures': True}",
@@ -5981,6 +6113,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Render (Blender-style) -> pinneapple_blender.cycles.CyclesScene when Blender (bpy) is installed, else matplotlib shaded surface + pinneapple_tools.visualization.animation\ninputs: [('solution', 'solution')]\noutputs: [('figure', 'figure')]\ndefaults: {'field': 0, 'animate': True, 'frames': 24, 'samples': 32}",
+  "timed_out": false
+ },
+ "recipe:agents-a-ready-made-industrial-case": {
+  "code_hash": "b00c6c2c10ca72cd",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 9.84,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "water_hammer_valve_closure (solver): OK | trust APPROVED\n  inner_diameter = 0.48894\n  wave_speed = 1211.84\n  period = 1.98046\n  reynolds = 730629\n  friction_factor = 0.0137365\n  max_head = 82.2931\n  max_head_x = 1200\n  max_head_t = 9.97655\n  surge_head = 26.1607\n  min_head = 37.7732\n  drawdown = 18.3593\n  p_max = 805567\n  p_min_abs = 471087\n  joukowsky_head = 185.36\n  michaud_head = 36.7098\n  h_static_valve = 56.1325\n  h_allow = 163.449\n  t_close_safe = 3.37008",
   "timed_out": false
  },
  "recipe:agents-dashboard-of-a-time-dependent-result": {

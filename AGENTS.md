@@ -51,9 +51,11 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | A plain-language goal to a verified, buildable design (or the questions it needs, or a refusal saying what is missing) | `pp.design(text, answers=..., out_dir=...)`, `pinneapple design "<goal>"`, MCP `design`; templates in `pinneapple_design.intent` ([docs](docs/guides/design_from_intent.md)) |
 | A rover mission in plain language: drive, get stuck, learn the soil from the wheels, replan with the learned risk, verify (multibody VIPER, several soils, Wong-Reece, EKF, risk-aware routes, trust report, Cycles renders) | `pinneapple_simulation.rover.autolab`: `RoverMission(demo_site(), text).run(out_dir)`, `SoilBelief`, `RiskPlanner`, `grade_table`, `compare_contact_models`; `VehicleSimulator(model, terrain, [soils], soil_map=...).run(route=..., stop=...)`; Flow node `rover.learn_planet` ([docs](docs/guides/rover_learns_the_planet.md)) |
 | Why a design needs each of its elements, computed (naive concept -> failure mode with its mechanism and numbers -> countermeasure -> check again), for any scale | `pinneapple_reason`: `reason(*cases.roof())`, `chain.explain()`, `write_report(chain, out)`, `LIBRARY.mode(name).evaluate(params)`, `register_mode` / `register_countermeasure`; MCP `reason`; Flow nodes `reason.*` ([docs](docs/guides/chain_of_whys.md)) |
+| A mission in plain language planned and run through controlled library tools, with evidence and a trust report (board cooling: learn the temperature field, optimise a heat sink + fans, verify on physics) | `pinneapple_autolab` (`Tool`, `Toolbox`, `TemplatePlanner`, `LLMPlanner`, `execute`), `pinneapple_design.thermal.board_cooling.run_mission(text, out_dir=...)`; Flow node `autolab.board_cooling` ([docs](docs/guides/autonomous_physics_lab.md)) |
 | Forecast a noisy or near-random series without fooling yourself (predictability first, purged walk-forward, untouched test, DM tests) | `pinneapple_systems.time_series.predictability.predictability_report(y)`, `pinneapple_systems.time_series.forecast_lab` (`study.run_zoo(data, specs, Protocol(horizons))`, `presets.case(name)`) ([docs](docs/guides/near_random_forecasting.md)) |
 | A problem description to a runnable flow of library calls (node graph, GUI or headless) | `pinneapple_flow.plan(text)`, `pinneapple_flow.run(flow)`, `python -m pinneapple_flow run flow.json` / `studio`; equations as safe text `pinneapple_physics.symbolic_pde.text.parse_system`, any parsed system by finite differences `pinneapple_simulation.numerical_solvers.symbolic_fd.solve_fd` ([schema](docs/guides/flow_schema.md), [app](apps/flow_studio/README.md)) |
 | Predict El Niño: ENSO data (OISST, WOD thermocline, ERA5), recharge / delayed oscillators, an intermediate coupled model with checks against theory, PINNs, LIM / CNN, EnKF, the forecast_lab protocol | `pinneapple_systems.time_series.enso`: `dataset.build_dataset()`, `dataset.to_series(ds)`, `study.protocol(ds.months)`, `study.run_model(name, data, prot)`, `pipeline.solver_checks()` ([docs](docs/guides/enso_forecasting.md)) |
+| A ready-made industrial case (water hammer, pipe network, heat sink, power PCB, footbridge, ...): data sheet with sourced defaults, solve with your parameters, references with measured error, surrogate, inversion, optimisation | `pp.presets.names()`, `pp.presets.load(name).card()` / `.run(**params)` / `.run(fidelity="surrogate")` / `.validate()` / `.invert()` / `.optimize()`; `python -m pinneapple_presets list`; Flow node `preset.run` ([docs](docs/guides/industrial_presets.md)) |
 | Record an experiment so the Lab, the site and the Flow Studio see it (manifest, A-F grade, next steps) | `with pinneapple_lab.experiment("name", title=..., domain=...) as ex:` + `ex.log_metric` / `ex.check` (figures saved with `savefig` are recorded); `python -m pinneapple_lab scaffold <name>`, `register <folder>`, `seal --explain <item>`; format `pinneapple_lab.manifest` ([docs](docs/guides/adding_an_experiment.md)) |
 | Results to NVIDIA Omniverse (OpenUSD with fields, timeline, trust decision), PhysicsNeMo surrogates checked by PINNeAPPle, architecture figures | `pinneapple_tools.nvidia`: `omniverse.FieldStage(path).add_mesh(..., fields=, color_by=)`, `.add_time_samples`, `.set_trust`, `omniverse.validate_stage(path)`, `diagram.architecture_diagram(...)`; worked examples in `examples/nvidia` ([README](examples/nvidia/README.md)) |
 | Everything from an agent tool call | the MCP server `pinneapple-mcp` ([docs](docs/guides/mcp_server.md)) |
@@ -153,6 +155,19 @@ from pinneapple_reason import cases, reason
 chain = reason(*cases.roof())                  # flat tiles -> pitch -> ventilated ceiling -> radiant barrier
 print(chain.explain("en"))                     # every step: the failure, its mechanism and numbers, the fix, why
 assert chain.resolved and chain.path()[0][1:] == ("lap_water_ingress", "increase_slope")
+```
+
+### A ready-made industrial case
+
+```python
+import pinneapple as pp
+
+p = pp.presets.load("water_hammer_valve_closure")      # pp.presets.names() lists them; p.card() is the data sheet
+r = p.run(t_close=10.0)                                # SI inputs; the defaults carry their sources
+print(r)                                               # outputs, decision (pressure vs PN16), trust report
+assert r.trust.decisao == "APPROVED" and p.validate()["all_pass"]   # Joukowsky, rigid-column theory, convergence
+fast = p.run(t_close=2.0)                              # too fast: over PN16 and the line cavitates
+assert fast.decision["verdict"] == "NOT OK" and fast.trust.decisao != "APPROVED"
 ```
 
 ### Dashboard of a time-dependent result

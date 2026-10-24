@@ -34,6 +34,35 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   rover then fight each other).
 - `WongReeceModel.sinkage_for_load` / `steady_state`: `sinkage_slip=` (the slip that sets the sinkage exponent, e.g.
   a lagged slip), as `forces` already had.
+- `pinneapple_presets` (`pp.presets`): industrial presets, engineering cases already set up, solved and validated.
+  Each has a data sheet (sector, question, SI inputs with realistic defaults and the source of each value, outputs,
+  validity domain), `run(**params)` with its trust report and decision, `validate()` against citable references
+  with the measured error, and where it fits a 3-D scene, an ARD Gaussian-process surrogate (Latin-hypercube DOE on
+  the real solver, hold-out error, out-of-box flag; `run(fidelity="surrogate")`), inversion from synthetic
+  measurements with known noise, optimisation confirmed on the solver and design variants. First batch: water
+  hammer of a valve closure (MOC vs Joukowsky and rigid-column theory), water distribution network (vs EPANET 2.2,
+  GA finds the published US$ 419,000 optimum of the two-loop network), plate-fin heat sink, power PCB junction
+  temperatures (JEDEC theta_JA), steel footbridge (strength, deflection, lateral-torsional buckling, pedestrian
+  vibration). CLI `python -m pinneapple_presets`, Flow Studio nodes `preset.run` / `preset.validate`, results in
+  `examples/industrial_presets/`, Hub index `pinneapple_presets/index.json`.
+- `pinneapple_simulation.numerical_solvers.pipe_network`: looped pipe networks by the global gradient algorithm
+  (Hazen-Williams, Darcy-Weisbach/Colebrook) and least-cost discrete sizing by a genetic algorithm.
+- `pinneapple_simulation.numerical_solvers.beam_fe`: Euler-Bernoulli Hermite beam elements (static and modes).
+- `water_hammer_moc.valve_closure_moc(record_field=True)` returns the head along the pipe at every step.
+- `pinneapple_autolab`: the agent loop of the Autonomous Physics Lab. A mission in plain language -> a plan of
+  controlled library calls (`Tool`, `Toolbox` with declared arguments) -> `execute` with evidence per call; a
+  deterministic `TemplatePlanner` and an `LLMPlanner` (via `pinneapple_llm.call_llm`) that falls back to it, with the
+  reason, on any invalid plan or failure.
+- `pinneapple_design.thermal.board_cooling`, demo 2 of the lab (the self-optimizing engineer): a board with an
+  overheating SoC -> coupled reference (3-D board finite volumes + plate-fin heat sink through the case-top
+  resistance, nominal and pessimistic cooling) -> POD + Gaussian-process surrogate of the junction temperatures and
+  the board-top map, measured on held-out designs and grown until accepted -> minimum-mass heat sink and fan speed
+  under junction, fan-power, envelope and fin-gap constraints, confirmed on the reference -> fine-grid verification
+  with a `TrustReport` -> figures, glTF / USD, three.js viewer, Blender stills and animation, report. Example
+  `examples/autolab/self_optimizing_engineer.py`, Flow node `autolab.board_cooling`, guide
+  `docs/guides/autonomous_physics_lab.md`.
+- `pinneapple_physics.pcb.Component.r_top_k_w`: case-top-to-air resistance of an attached heat sink.
+- Studio: `blender.render_animation(..., lines=[bool per frame])` shows the static lines only on chosen frames.
 - Hub tools by task: every one of the 408 tools is in exactly one of 20 task categories
   (`pinneapple_hub.library.categories`, longest-prefix rules on where the tool comes from, recipes listed by id),
   shown as "Tools by task" on the home page, a **Task** filter (`/?kind=tool&category=...`,

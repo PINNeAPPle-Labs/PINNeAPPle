@@ -2,6 +2,876 @@
  "schema": "pinneapple.presets/1",
  "presets": [
   {
+   "name": "airfoil_section_re4e6",
+   "title": "Perfil de asa / pá a Re 4e6: sustentação, arrasto e momento (surrogate verificado de RANS)",
+   "sector": "Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica",
+   "problem": "Seção de asa ou pá descrita por 6 parâmetros CST (3 de espessura, 3 de arqueamento), escoamento subsônico incompressível a Re = 4e6. Cl, Cd e Cm pelo modelo do zoo (ensemble de MLPs treinado em OpenFOAM RANS k-omega SST), com o desvio do ensemble; o método de painéis de Hess-Smith dá a referência invíscida.",
+   "question": "Qual a sustentação, o arrasto e a eficiência L/D deste perfil no ângulo de ataque de operação? Que perfil maximiza L/D com espessura estrutural >= 12 % e Cm >= -0,12?",
+   "inputs": [
+    {
+     "name": "T0",
+     "unit": "-",
+     "default": 0.1695912146244289,
+     "source": "CST de espessura, ajuste do NACA 2412 (pinneapple_design.aero.naca4)",
+     "lo": 0.1,
+     "hi": 0.24,
+     "help": ""
+    },
+    {
+     "name": "T1",
+     "unit": "-",
+     "default": 0.14495873416070895,
+     "source": "idem",
+     "lo": 0.08,
+     "hi": 0.22,
+     "help": ""
+    },
+    {
+     "name": "T2",
+     "unit": "-",
+     "default": 0.13143323808820245,
+     "source": "idem",
+     "lo": 0.08,
+     "hi": 0.22,
+     "help": ""
+    },
+    {
+     "name": "M0",
+     "unit": "-",
+     "default": 0.02492222636259679,
+     "source": "CST de arqueamento, ajuste do NACA 2412",
+     "lo": -0.03,
+     "hi": 0.08,
+     "help": ""
+    },
+    {
+     "name": "M1",
+     "unit": "-",
+     "default": 0.07108767218761686,
+     "source": "idem",
+     "lo": -0.02,
+     "hi": 0.14,
+     "help": ""
+    },
+    {
+     "name": "M2",
+     "unit": "-",
+     "default": 0.05895967523554786,
+     "source": "idem",
+     "lo": -0.04,
+     "hi": 0.12,
+     "help": ""
+    },
+    {
+     "name": "alpha_deg",
+     "unit": "deg",
+     "default": 4.0,
+     "source": "premissa: cruzeiro de aeronave leve (Cl ~0,6)",
+     "lo": -2.0,
+     "hi": 14.0,
+     "help": ""
+    },
+    {
+     "name": "chord",
+     "unit": "m",
+     "default": 1.5,
+     "source": "premissa: corda média de aeronave leve (V ~ 40 m/s dá Re 4e6)",
+     "lo": 0.1,
+     "hi": 5.0,
+     "help": ""
+    },
+    {
+     "name": "velocity",
+     "unit": "m/s",
+     "default": 40.0,
+     "source": "premissa; Re = V c / nu, nu do ar a 15 °C = 1,46e-5 m2/s (ISA)",
+     "lo": 5,
+     "hi": 120,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "Cl",
+     "unit": "-",
+     "help": "coeficiente de sustentação (RANS, ensemble)"
+    },
+    {
+     "name": "Cd",
+     "unit": "-",
+     "help": "arrasto"
+    },
+    {
+     "name": "Cm",
+     "unit": "-",
+     "help": "momento em c/4"
+    },
+    {
+     "name": "LD",
+     "unit": "-",
+     "help": "Cl/Cd"
+    },
+    {
+     "name": "Cl_std",
+     "unit": "-",
+     "help": "desvio do ensemble"
+    },
+    {
+     "name": "Cl_inviscid",
+     "unit": "-",
+     "help": "Cl pelo método de painéis"
+    },
+    {
+     "name": "thickness",
+     "unit": "-",
+     "help": "espessura máxima / corda"
+    },
+    {
+     "name": "reynolds",
+     "unit": "-",
+     "help": "Re da condição dada"
+    },
+    {
+     "name": "lift_per_span",
+     "unit": "N/m",
+     "help": "sustentação por metro de envergadura"
+    }
+   ],
+   "validity": "Re = 4e6 (a condição dada é avisada se o Re diferir mais de 25 %), Mach < 0,3, ângulo -2 a 14° (sem estol profundo), formas dentro da caixa CST do treino; transição livre não modelada (RANS totalmente turbulento).",
+   "pipeline": [
+    "geometria: CST de 6 parâmetros (pinneapple_design.aero.geometry), propriedades e validade da forma",
+    "modelo: RANS k-omega SST (OpenFOAM) aprendido pelo zoo; painéis de Hess-Smith (invíscido)",
+    "solver: pp.zoo.load('airfoil_cst_rans_mlp').predict + panel_solve",
+    "pós: Cl, Cd, Cm, L/D, incerteza do ensemble, sustentação por envergadura",
+    "decisão: forma válida, dentro do domínio, L/D e Cm aceitáveis"
+   ],
+   "library": [
+    "pinneapple_hub.zoo (airfoil_cst_rans_mlp)",
+    "pinneapple_design.aero.panel.panel_solve",
+    "pinneapple_design.aero.geometry"
+   ],
+   "limitations": [
+    "Os ótimos são conferidos com o mesmo surrogate (ensemble, domínio) e com o método de painéis, não com uma nova rodada de OpenFOAM (não instalado aqui)."
+   ],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "surrogate": "o solver deste preset já é um surrogate verificado do zoo (erros de hold-out no cartão e medidos aqui); o OpenFOAM não está instalado neste container para conferir ótimos",
+    "reason": "não há caso aerodinâmico no pinneapple_reason"
+   },
+   "reason_case": null,
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"airfoil_section_re4e6\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run airfoil_section_re4e6",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "airfoil_section_re4e6"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/airfoil_section_re4e6",
+    "decision": {
+     "verdict": "OK",
+     "reasons": [
+      "Cl 0.662 ± 0.001, Cd 0.01016, L/D 65.1, Cm -0.047 (limite -0,12)",
+      "espessura 12.0 %, sustentação 972 N/m"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "shape valid (no crossing / waviness)",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "Reynolds within 25 % of the trained 4e6",
+       "status": "supports",
+       "value": 4109589.04109589,
+       "limit": 4000000.0,
+       "source": "zoo airfoil_cst_rans_mlp: ensemble de 5 MLPs treinados em OpenFOAM simpleFoam k-omega SST, Re 4e6; cartão com hold-out, grade verificada (GCI), XFOIL e NASA TMR",
+       "reason": ""
+      },
+      {
+       "name": "ensemble spread small (Cl std < 0.01)",
+       "status": "supports",
+       "value": 0.0008502448703480278,
+       "limit": 0.01,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "viscous Cl below inviscid Cl (boundary-layer decambering)",
+       "status": "supports",
+       "value": 0.6615020538712943,
+       "limit": 0.7305685185489313,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "panel method: Kutta-Joukowski lift = pressure integral",
+       "status": "supports",
+       "value": 0.7287755415798558,
+       "limit": 0.7305685185489313,
+       "source": "Hess-Smith",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "airfoil_section_re4e6",
+     "references": [
+      {
+       "case": "Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl",
+       "output": "Cl",
+       "unit": "-",
+       "computed": 0.003231396365459536,
+       "reference": 0.0,
+       "rel_error": 0.003231396365459536,
+       "tol": 0.01,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo); erro absoluto médio em Cl, medido aqui"
+      },
+      {
+       "case": "Cd vs naca_reference: erro = erro relativo médio",
+       "output": "Cd",
+       "unit": "-",
+       "computed": 0.0061563188229423905,
+       "reference": 0.0,
+       "rel_error": 0.0061563188229423905,
+       "tol": 0.02,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo)"
+      },
+      {
+       "case": "Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl",
+       "output": "Cl",
+       "unit": "-",
+       "computed": 0.010092481383557984,
+       "reference": 0.0,
+       "rel_error": 0.010092481383557984,
+       "tol": 0.03,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "XFOIL 6.99 com transição forçada, NACA 2412, 9 ângulos (dados do zoo); erro absoluto médio em Cl, medido aqui"
+      },
+      {
+       "case": "Cd vs xfoil_naca2412: erro = erro relativo médio",
+       "output": "Cd",
+       "unit": "-",
+       "computed": 0.02812720929821659,
+       "reference": 0.0,
+       "rel_error": 0.02812720929821659,
+       "tol": 0.08,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "XFOIL 6.99 com transição forçada, NACA 2412, 9 ângulos (dados do zoo)"
+      },
+      {
+       "case": "ângulo de sustentação nula do NACA 2412",
+       "output": "alpha_L0",
+       "unit": "deg",
+       "computed": -2.001720958073466,
+       "reference": -2.07724040490822,
+       "rel_error": 0.03635566045042856,
+       "tol": 0.1,
+       "pass": true,
+       "kind": "analytic",
+       "source": "teoria do aerofólio fino (Anderson, Fundamentals of Aerodynamics, cap. 4): alpha_L0 = -(1/pi) int dz/dx (cos t - 1) dt"
+      },
+      {
+       "case": "inclinação dCl/dalpha: RANS vs painéis (viscoso ~5-10 % menor)",
+       "output": "Cl_alpha",
+       "unit": "1/deg",
+       "computed": 0.11043981109018641,
+       "reference": 0.1219425018763188,
+       "rel_error": 0.09432880750469669,
+       "tol": 0.12,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Hess-Smith (Moran 1984), invíscido"
+      }
+     ],
+     "convergence": {
+      "parameter": "painéis por face (Hess-Smith)",
+      "values": [
+       50,
+       100,
+       200,
+       400
+      ],
+      "Cl": [
+       0.7450317380365247,
+       0.7336926279449272,
+       0.7305685185489313,
+       0.7295900854259161
+      ],
+      "rel_change_last": 0.0013410723947051462,
+      "pass": true,
+      "note": "bordo de fuga fechado (close_te); aberto, o Cl não converge"
+     },
+     "all_pass": true
+    },
+    "inversion": {
+     "description": "Erro de calagem (incidência) de um perfil no túnel de vento a partir do Cl medido pela balança em 5 ângulos nominais (ruído 0,01 em Cl). Verdade sintética: +1,3°.",
+     "parameter": "offset de ângulo",
+     "unit": "deg",
+     "true": 1.3,
+     "recovered": 1.3049900906668899,
+     "ci95": [
+      1.2215699969378175,
+      1.3884101843959622
+     ],
+     "rel_error": 0.0038385312822229413,
+     "true_inside_ci95": true,
+     "noise": "0.01 em Cl",
+     "how": "mínimos quadrados (Brent) sobre o ensemble do zoo, IC pela sensibilidade dCl/dalpha"
+    },
+    "optimization": {
+     "objective": "L/D máximo no alpha dado com t/c >= 12 %, Cm >= -0,12, forma válida",
+     "method": "evolução diferencial (scipy) no ensemble do zoo",
+     "evaluations": 5490,
+     "T0": 0.21425,
+     "T1": 0.08363,
+     "T2": 0.08023,
+     "M0": 0.07976,
+     "M1": 0.13966,
+     "M2": 0.11915,
+     "LD_opt": 82.32969485797463,
+     "LD_base": 65.13189125810673,
+     "Cl_opt": 0.9273143642464777,
+     "Cl_std_opt": 0.00438411250398775,
+     "Cm_opt": -0.08904958927089872,
+     "thickness_opt": 0.12006082810467203,
+     "trust_at_opt": "APPROVED",
+     "panel_Cl_opt": 0.9888651443599076
+    },
+    "figures": [
+     "results/airfoil.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/airfoil_section_re4e6_3d_cp.png"
+    ],
+    "variants": {
+     "rows": {
+      "NACA 0012": {
+       "params": {
+        "T0": 0.16884793174362853,
+        "T1": 0.14578920644459822,
+        "T2": 0.1307308023715651,
+        "M0": 0.0,
+        "M1": 0.0,
+        "M2": 0.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "Cl": 0.44551964239595543,
+        "Cd": 0.009566489829673173,
+        "Cm": -0.0005773988816451497,
+        "LD": 46.570879984096806,
+        "Cl_std": 0.0012810566355926595,
+        "Cd_std": 1.781888658154275e-05,
+        "Cl_inviscid": 0.48832112707124725,
+        "Cl_inviscid_pressure": 0.4879833234082526,
+        "thickness": 0.12016765735783869,
+        "camber": 0.0,
+        "reynolds": 4109589.04109589,
+        "lift_per_span": 654.9138743220545,
+        "shape_valid": true
+       }
+      },
+      "NACA 2412": {
+       "params": {
+        "T0": 0.1695912146244289,
+        "T1": 0.14495873416070895,
+        "T2": 0.13143323808820245,
+        "M0": 0.02492222636259679,
+        "M1": 0.07108767218761686,
+        "M2": 0.05895967523554786
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "Cl": 0.6615020538712943,
+        "Cd": 0.010156366843188538,
+        "Cm": -0.04726119573753353,
+        "LD": 65.13189125810673,
+        "Cl_std": 0.0008502448703480278,
+        "Cd_std": 1.2994763717287724e-05,
+        "Cl_inviscid": 0.7305685185489313,
+        "Cl_inviscid_pressure": 0.7287755415798558,
+        "thickness": 0.12022942993822824,
+        "camber": 0.02016993513372012,
+        "reynolds": 4109589.04109589,
+        "lift_per_span": 972.4080191908029,
+        "shape_valid": true
+       }
+      },
+      "NACA 4412": {
+       "params": {
+        "T0": 0.1717796874680488,
+        "T1": 0.142522827363271,
+        "T2": 0.13350098998316845,
+        "M0": 0.04977357717505065,
+        "M1": 0.14225871164978887,
+        "M2": 0.1178595807981071
+       },
+       "verdict": "OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "Cl": 0.8698445774772555,
+        "Cd": 0.011049110478060885,
+        "Cm": -0.0932545767746266,
+        "LD": 78.72560113072372,
+        "Cl_std": 0.001845776635630962,
+        "Cd_std": 2.3549619548796195e-05,
+        "Cl_inviscid": 0.972120837978291,
+        "Cl_inviscid_pressure": 0.9688754783662668,
+        "thickness": 0.12042009641681159,
+        "camber": 0.04034275173233129,
+        "reynolds": 4109589.04109589,
+        "lift_per_span": 1278.671528891566,
+        "shape_valid": true
+       }
+      },
+      "NACA 4415": {
+       "params": {
+        "T0": 0.21514704409095592,
+        "T1": 0.17728325873125672,
+        "T2": 0.1698975175261915,
+        "M0": 0.05501330125579129,
+        "M1": 0.13585083867566644,
+        "M2": 0.12314259806560625
+       },
+       "verdict": "OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "Cl": 0.855131276132673,
+        "Cd": 0.011842848729866766,
+        "Cm": -0.0880771907619781,
+        "LD": 72.20709239609249,
+        "Cl_std": 0.0019313064403823237,
+        "Cd_std": 2.5756937444889793e-05,
+        "Cl_inviscid": 1.003925173490641,
+        "Cl_inviscid_pressure": 1.000733452248772,
+        "thickness": 0.15042567290672854,
+        "camber": 0.0401507710997876,
+        "reynolds": 4109589.04109589,
+        "lift_per_span": 1257.0429759150295,
+        "shape_valid": true
+       }
+      }
+     },
+     "compared": [
+      "Cl",
+      "Cd",
+      "LD"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/airfoil_section_re4e6_naca_0012_3d_cp.png",
+      "results/3d/variants/airfoil_section_re4e6_naca_2412_3d_cp.png",
+      "results/3d/variants/airfoil_section_re4e6_naca_4412_3d_cp.png",
+      "results/3d/variants/airfoil_section_re4e6_naca_4415_3d_cp.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 1.6793179919995964,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T02:19:27Z"
+    }
+   }
+  },
+  {
+   "name": "eddy_current_skin_inspection",
+   "title": "Inspeção por correntes parasitas de chapa de alumínio aeronáutico: impedância e afinamento",
+   "sector": "Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás)",
+   "problem": "Sonda absoluta tipo pancake (bobina com núcleo de ar) sobre chapa de Al 2024-T3. Variação de impedância pela solução analítica de Dodd & Deeds, conferida pelo FDM axissimétrico da lib; profundidade de penetração; sensibilidade ao afinamento por corrosão frente ao lift-off.",
+   "question": "Nesta frequência a sonda distingue 10 % de perda de espessura da variação de lift-off do operador? Qual frequência de ensaio separa melhor os dois sinais, e quanto de espessura se lê de uma medição em várias frequências?",
+   "inputs": [
+    {
+     "name": "f",
+     "unit": "Hz",
+     "default": 10000.0,
+     "source": "premissa: ensaio de corrosão em chapa fina, 1-100 kHz típico (ASM Handbook vol. 17)",
+     "lo": 100,
+     "hi": 1000000.0,
+     "help": ""
+    },
+    {
+     "name": "sigma",
+     "unit": "S/m",
+     "default": 17400000.0,
+     "source": "Al 2024-T3: ~30 % IACS (ASM / MIL-HDBK-5): 17,4 MS/m",
+     "lo": 500000.0,
+     "hi": 60000000.0,
+     "help": ""
+    },
+    {
+     "name": "thickness",
+     "unit": "m",
+     "default": 0.002,
+     "source": "premissa: revestimento de fuselagem de 2,0 mm",
+     "lo": 0.0002,
+     "hi": 0.02,
+     "help": ""
+    },
+    {
+     "name": "liftoff",
+     "unit": "m",
+     "default": 0.0005,
+     "source": "premissa: 0,5 mm (camada de tinta + desgaste da face da sonda)",
+     "lo": 0.0,
+     "hi": 0.003,
+     "help": ""
+    },
+    {
+     "name": "r1",
+     "unit": "m",
+     "default": 0.002,
+     "source": "premissa: bobina pancake, raio interno 2 mm",
+     "lo": 0.0002,
+     "hi": 0.02,
+     "help": ""
+    },
+    {
+     "name": "r2",
+     "unit": "m",
+     "default": 0.004,
+     "source": "raio externo 4 mm",
+     "lo": 0.0005,
+     "hi": 0.03,
+     "help": ""
+    },
+    {
+     "name": "height",
+     "unit": "m",
+     "default": 0.002,
+     "source": "altura da bobina 2 mm",
+     "lo": 0.0002,
+     "hi": 0.02,
+     "help": ""
+    },
+    {
+     "name": "turns",
+     "unit": "-",
+     "default": 200.0,
+     "source": "premissa: 200 espiras",
+     "lo": 1,
+     "hi": 5000,
+     "help": ""
+    },
+    {
+     "name": "loss",
+     "unit": "-",
+     "default": 0.1,
+     "source": "afinamento a detectar: 10 % da espessura (critério típico de corrosão)",
+     "lo": 0.01,
+     "hi": 0.5,
+     "help": ""
+    },
+    {
+     "name": "liftoff_noise",
+     "unit": "m",
+     "default": 5e-05,
+     "source": "premissa: variação de lift-off do operador ±0,05 mm (define a direção do lift-off no plano de impedância)",
+     "lo": 1e-06,
+     "hi": 0.0005,
+     "help": ""
+    },
+    {
+     "name": "noise_frac",
+     "unit": "-",
+     "default": 0.002,
+     "source": "premissa: ruído do instrumento 0,2 % de |dZ|",
+     "lo": 0.0001,
+     "hi": 0.05,
+     "help": ""
+    },
+    {
+     "name": "angle_min",
+     "unit": "deg",
+     "default": 20.0,
+     "source": "premissa: separação de fase mínima entre afinamento e lift-off para girar o lift-off para a horizontal e ler o afinamento na vertical (prática de ajuste de fase)",
+     "lo": 5,
+     "hi": 60,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "dR",
+     "unit": "ohm",
+     "help": "variação de resistência da sonda"
+    },
+    {
+     "name": "dX",
+     "unit": "ohm",
+     "help": "variação de reatância"
+    },
+    {
+     "name": "R_norm",
+     "unit": "-",
+     "help": "dR / X0 (plano de impedância normalizado)"
+    },
+    {
+     "name": "X_norm",
+     "unit": "-",
+     "help": "(X0 + dX) / X0"
+    },
+    {
+     "name": "delta",
+     "unit": "m",
+     "help": "profundidade padrão de penetração"
+    },
+    {
+     "name": "t_over_delta",
+     "unit": "-",
+     "help": "espessura / delta"
+    },
+    {
+     "name": "signal_loss",
+     "unit": "ohm",
+     "help": "|dZ| causado pelo afinamento"
+    },
+    {
+     "name": "signal_liftoff",
+     "unit": "ohm",
+     "help": "|dZ| causado pelo ruído de lift-off"
+    },
+    {
+     "name": "phase_angle_deg",
+     "unit": "deg",
+     "help": "ângulo entre os sinais de afinamento e de lift-off no plano de impedância"
+    },
+    {
+     "name": "separation",
+     "unit": "-",
+     "help": "componente do sinal de afinamento perpendicular ao lift-off / ruído do instrumento"
+    }
+   ],
+   "validity": "Bobina de núcleo de ar, chapa plana infinita não magnética (mu_r = 1) com ar abaixo, regime harmônico quase estático (f << ressonância da bobina), sem trincas (um defeito localizado precisa do FDM ou de um modelo 3-D).",
+   "pipeline": [
+    "geometria: bobina retangular (r1, r2, altura, lift-off), chapa de espessura c",
+    "modelo: potencial vetor A_theta, regime harmônico, sigma da liga (% IACS)",
+    "solver: coil_impedance (Dodd & Deeds, quadratura de Gauss em log alpha); FDM axissimétrico para conferir",
+    "pós: plano de impedância, delta, sinal de afinamento vs lift-off",
+    "decisão: ângulo entre afinamento e lift-off >= mínimo e componente perpendicular >= 3x ruído"
+   ],
+   "library": [
+    "pinneapple_physics.closed_form.eddy_coil.coil_impedance",
+    "pinneapple_simulation.numerical_solvers.eddy_current_fdm.solve_axisymmetric_eddy_current"
+   ],
+   "limitations": [],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "surrogate": "a solução analítica leva ~10 ms; um surrogate não economiza tempo",
+    "reason": "não há caso de ensaio não destrutivo no pinneapple_reason"
+   },
+   "reason_case": null,
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"eddy_current_skin_inspection\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run eddy_current_skin_inspection",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "eddy_current_skin_inspection"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/eddy_current_skin_inspection"
+   }
+  },
+  {
+   "name": "ipm_traction_motor",
+   "title": "Motor de tração de ímãs internos (geometria do Toyota Prius 2004): torque, MTPA e tensão",
+   "sector": "Eletromagnetismo / mobilidade elétrica",
+   "problem": "Motor síncrono de ímãs internos em V (8 polos, 48 ranhuras) com a geometria publicada do Prius 2004. FEM magnetostático não linear por posição de rotor com correntes senoidais fixas no referencial dq: torque médio (Arkkio), ondulação, fluxos dq, ângulo de máximo torque por ampère (MTPA) e a tensão de fase na rotação pedida contra o limite do inversor.",
+   "question": "Que torque o motor dá nesta corrente e neste ângulo, quanto falta para o MTPA, e a tensão nesta rotação cabe no barramento CC (ou é preciso enfraquecimento de campo)?",
+   "inputs": [
+    {
+     "name": "I_peak",
+     "unit": "A",
+     "default": 250.0,
+     "source": "250 A de pico, o ponto publicado de Yang et al. (2013)",
+     "lo": 10,
+     "hi": 300,
+     "help": ""
+    },
+    {
+     "name": "gamma_deg",
+     "unit": "deg",
+     "default": 40.0,
+     "source": "ângulo da corrente a partir do eixo q (0 = só i_q)",
+     "lo": 0,
+     "hi": 85,
+     "help": ""
+    },
+    {
+     "name": "rpm",
+     "unit": "rpm",
+     "default": 1500.0,
+     "source": "premissa: rotação de base em torno de 1200-1500 rpm (Staunton et al., ORNL/TM-2004/247, 'Evaluation of the 2004 Toyota Prius hybrid electric drive system' (2005))",
+     "lo": 0,
+     "hi": 6000,
+     "help": ""
+    },
+    {
+     "name": "v_dc",
+     "unit": "V",
+     "default": 500.0,
+     "source": "barramento CC do Prius 2004 com o conversor elevador: até 500 V (Staunton et al., ORNL/TM-2004/247, 'Evaluation of the 2004 Toyota Prius hybrid electric drive system' (2005))",
+     "lo": 100,
+     "hi": 800,
+     "help": ""
+    },
+    {
+     "name": "n_positions",
+     "unit": "-",
+     "default": 6,
+     "source": "posições do rotor por média de torque",
+     "lo": 3,
+     "hi": 24,
+     "help": ""
+    },
+    {
+     "name": "n_gap",
+     "unit": "-",
+     "default": 480,
+     "source": "nós no entreferro (malha); 960 na verificação de convergência",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      480,
+      960
+     ]
+    }
+   ],
+   "outputs": [
+    {
+     "name": "torque",
+     "unit": "N m",
+     "help": "torque médio (tensor de Maxwell, Arkkio)"
+    },
+    {
+     "name": "torque_dq",
+     "unit": "N m",
+     "help": "torque pelos fluxos dq: 1,5 p (psi_d i_q - psi_q i_d)"
+    },
+    {
+     "name": "ripple",
+     "unit": "-",
+     "help": "ondulação pico-a-pico / média"
+    },
+    {
+     "name": "psi_d",
+     "unit": "Wb",
+     "help": "fluxo de eixo d"
+    },
+    {
+     "name": "psi_q",
+     "unit": "Wb",
+     "help": "fluxo de eixo q"
+    },
+    {
+     "name": "v_phase_peak",
+     "unit": "V",
+     "help": "tensão de fase de pico (sem resistência) na rotação dada"
+    },
+    {
+     "name": "v_limit",
+     "unit": "V",
+     "help": "limite de tensão de fase com modulação senoidal: V_dc / sqrt(3)"
+    }
+   ],
+   "validity": "2-D, magnetostático (sem correntes nos ímãs e laminações), aço do rotor/estator conforme a geometria da lib, 20 °C nos ímãs; perdas e temperatura não acopladas; a tensão desconsidera a queda resistiva e o efeito de extremidade.",
+   "pipeline": [
+    "geometria: prius_2004() (estator de 48 ranhuras, ímãs em V)",
+    "modelo: magnetostática não linear, correntes dq senoidais",
+    "solver: IPMMachine.operating_point (média em posições de rotor), mtpa (seção áurea)",
+    "pós: torque, ondulação, psi_d, psi_q, tensão de fase omega_e |psi|",
+    "decisão: tensão <= V_dc / sqrt(3)"
+   ],
+   "library": [
+    "pinneapple_simulation.electromagnetics.machines.pmsm.IPMMachine",
+    "pinneapple_simulation.electromagnetics.machines.verification"
+   ],
+   "limitations": [],
+   "capabilities": {
+    "3d": true,
+    "surrogate": true,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "reason": "não há caso de máquina elétrica no pinneapple_reason"
+   },
+   "reason_case": null,
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"ipm_traction_motor\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run ipm_traction_motor",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "ipm_traction_motor"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/ipm_traction_motor"
+   }
+  },
+  {
    "name": "plate_fin_heatsink_forced",
    "title": "Dissipador de aletas planas com ventilação forçada (módulo de potência)",
    "sector": "Térmica / eletrônica de potência",
@@ -3104,6 +3974,182 @@
      },
      "date_utc": "2026-10-24T01:16:34Z"
     }
+   }
+  },
+  {
+   "name": "spm_servo_motor",
+   "title": "Motor síncrono de ímãs superficiais (servo 4 polos, 24 ranhuras): torque, ondulação e cogging",
+   "sector": "Eletromagnetismo / máquinas elétricas",
+   "problem": "Servo-motor de ímãs de NdFeB na superfície do rotor, 4 polos, 24 ranhuras, enrolamento distribuído trifásico, ferro não linear (curva BH). FEM magnetostático 2-D com banda deslizante, torque por tensor de Maxwell e por co-energia, fluxo concatenado e força contra-eletromotriz.",
+   "question": "Que torque o motor entrega na corrente nominal (limite térmico de densidade de corrente), com quanta ondulação e cogging? Qual a menor espessura de ímã que mantém o torque?",
+   "inputs": [
+    {
+     "name": "I_peak",
+     "unit": "A",
+     "default": 13.4,
+     "source": "corrente nominal: J_rms = 6 A/mm2 na área de cobre da ranhura (fator de enchimento 0,45, 20 espiras); J típico de motor TEFC 3-6,5 A/mm2 (Pyrhönen, Jokinen & Hrabovcová, Design of Rotating Electrical Machines, 2a ed. (2014), Tab. 6.2)",
+     "lo": 1,
+     "hi": 60,
+     "help": ""
+    },
+    {
+     "name": "magnet_thickness",
+     "unit": "m",
+     "default": 0.004,
+     "source": "ímã de 4 mm (servo-motores pequenos 3-6 mm)",
+     "lo": 0.0015,
+     "hi": 0.008,
+     "help": ""
+    },
+    {
+     "name": "magnet_arc",
+     "unit": "-",
+     "default": 0.8,
+     "source": "arco do ímã = 80 % do passo polar",
+     "lo": 0.5,
+     "hi": 0.98,
+     "help": ""
+    },
+    {
+     "name": "Br",
+     "unit": "T",
+     "default": 1.2,
+     "source": "NdFeB N38-N42 a 20 °C, Br 1,2-1,3 T (catálogos de ímãs sinterizados)",
+     "lo": 0.9,
+     "hi": 1.45,
+     "help": ""
+    },
+    {
+     "name": "magnetization",
+     "unit": "-",
+     "default": "parallel",
+     "source": "magnetização paralela (bloco)",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      "parallel",
+      "radial"
+     ]
+    },
+    {
+     "name": "slot_opening",
+     "unit": "-",
+     "default": 0.13333333333333333,
+     "source": "abertura da ranhura = 2/15 do passo de ranhura",
+     "lo": 0.05,
+     "hi": 0.5,
+     "help": ""
+    },
+    {
+     "name": "rpm",
+     "unit": "rpm",
+     "default": 3000.0,
+     "source": "rotação nominal de servo-motor",
+     "lo": 100,
+     "hi": 12000,
+     "help": ""
+    },
+    {
+     "name": "n_positions",
+     "unit": "-",
+     "default": 6,
+     "source": "posições do rotor por passo de ranhura (ondulação, cogging)",
+     "lo": 3,
+     "hi": 24,
+     "help": ""
+    },
+    {
+     "name": "n_theta",
+     "unit": "-",
+     "default": 360,
+     "source": "divisões angulares da malha (múltiplo de 24 e de 4); convergência 240-480",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      240,
+      360,
+      480
+     ]
+    }
+   ],
+   "outputs": [
+    {
+     "name": "torque",
+     "unit": "N m",
+     "help": "torque médio na corrente nominal (eixo q)"
+    },
+    {
+     "name": "ripple",
+     "unit": "-",
+     "help": "ondulação pico-a-pico / média"
+    },
+    {
+     "name": "cogging_pp",
+     "unit": "N m",
+     "help": "cogging pico-a-pico (sem corrente)"
+    },
+    {
+     "name": "kt",
+     "unit": "N m/A",
+     "help": "constante de torque (por A de pico)"
+    },
+    {
+     "name": "ke",
+     "unit": "V s/rad",
+     "help": "constante de FEM (fase, pico, por rad/s mecânico)"
+    },
+    {
+     "name": "emf_peak",
+     "unit": "V",
+     "help": "FEM de fase de pico na rotação dada"
+    },
+    {
+     "name": "p_copper",
+     "unit": "W",
+     "help": "perdas no cobre (3 fases, 20 °C)"
+    }
+   ],
+   "validity": "2-D (sem efeitos de extremidade nem skew), magnetostática (sem correntes induzidas nos ímãs), ferro com a curva BH ilustrativa da lib, enrolamento de camada única distribuído. Desmagnetização não verificada.",
+   "pipeline": [
+    "geometria: SPMMachine (rotor, ímãs, entreferro, 24 ranhuras, banda deslizante)",
+    "modelo: magnetostática não linear em A_z, ímãs por Br e mu_r",
+    "solver: SPMMachine.solve por posição (Newton); torque por tensor de Maxwell e por co-energia",
+    "pós: torque médio e ondulação num passo de ranhura, cogging, fluxo concatenado e FEM",
+    "decisão: torque >= alvo e ondulação <= 5 %"
+   ],
+   "library": [
+    "pinneapple_simulation.electromagnetics.machine.SPMMachine"
+   ],
+   "limitations": [
+    "Sem referência experimental pública desta geometria ilustrativa: a validação é interna (dois métodos de torque, balanço de potência, periodicidade, convergência de malha); a verificação contra a solução exata de subdomínio da máquina sem ranhuras está em tests/test_motor_magnetics.py."
+   ],
+   "capabilities": {
+    "3d": true,
+    "surrogate": true,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "reason": "não há caso de máquina elétrica no pinneapple_reason"
+   },
+   "reason_case": null,
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"spm_servo_motor\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run spm_servo_motor",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "spm_servo_motor"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/spm_servo_motor"
    }
   },
   {

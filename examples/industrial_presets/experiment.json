@@ -13,6 +13,18 @@
  "metrics": [],
  "checks": [
   {
+   "name": "airfoil_section_re4e6: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
    "name": "plate_fin_heatsink_forced: validation",
    "passed": true,
    "value": null,
@@ -133,9 +145,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "4e59c29f",
-  "created": "2026-10-24T01:23:13Z",
-  "seconds": 0.013,
+  "git": "a273f086",
+  "created": "2026-10-24T02:20:36Z",
+  "seconds": 0.005,
   "error": null,
   "environment": {
    "python": "3.13.17",

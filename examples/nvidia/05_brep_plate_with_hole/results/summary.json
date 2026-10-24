@@ -1,0 +1,169 @@
+{
+ "decision": "APPROVED",
+ "kt_net": [
+  1.8939966392612837,
+  2.092967184737266,
+  2.219958851488772,
+  2.275980554438024
+ ],
+ "element_sizes": [
+  0.004,
+  0.002,
+  0.001,
+  0.0005
+ ],
+ "kt_richardson": 2.3202025186774162,
+ "observed_order": 1.1806760855516178,
+ "kt_heywood": 2.2962962962962963,
+ "elements": [
+  1208,
+  4590,
+  17832,
+  70388
+ ],
+ "brep": {
+  "faces": 7,
+  "edges": 15,
+  "manifold": true,
+  "volume": 4.3429203675653e-05,
+  "area": 0.019785841161019047,
+  "mass": {
+   "area": 0.01978584078403191,
+   "volume": 4.3429203675653e-05,
+   "mass": 0.11725884992426311,
+   "centroid": [
+    0.07500000000122299,
+    0.030000000002305946,
+    0.0024999999999496866
+   ],
+   "moments_of_inertia": [
+    3.658826052021298e-05,
+    0.00022795076051882675,
+    0.00026405044249768866
+   ],
+   "products_of_inertia": [
+    -2.479699384797045e-16,
+    3.362333848198423e-16,
+    -9.176897746047701e-15
+   ]
+  }
+ },
+ "min_radius": 0.009999999999957654,
+ "tessellations": [
+  {
+   "chord_tolerance": 0.001,
+   "triangles": 80,
+   "points": 40,
+   "max_deviation": 0.00018450026727468707,
+   "rms_deviation": 0.00010841702321332466,
+   "mesh_volume": 4.346945588587812e-05,
+   "mesh_area": 0.019799917202921232,
+   "manifold": true
+  },
+  {
+   "chord_tolerance": 0.0001,
+   "triangles": 144,
+   "points": 72,
+   "max_deviation": 4.726664881339781e-05,
+   "rms_deviation": 2.8700113074499884e-05,
+   "mesh_volume": 4.3439338958349705e-05,
+   "mesh_area": 0.019789387340951797,
+   "manifold": true
+  },
+  {
+   "chord_tolerance": 1e-05,
+   "triangles": 528,
+   "points": 264,
+   "max_deviation": 2.979525441694593e-06,
+   "rms_deviation": 1.876317180075698e-06,
+   "mesh_volume": 4.342983855617421e-05,
+   "mesh_area": 0.019786062940769,
+   "manifold": true
+  }
+ ],
+ "brep_worker_s": 0.2389810539998507,
+ "checks": [
+  {
+   "name": "B-rep volume = analytic",
+   "value": 5.636525437883903e-11,
+   "limit": 1e-06,
+   "passed": true
+  },
+  {
+   "name": "B-rep area = analytic",
+   "value": 2.154965423779469e-08,
+   "limit": 1e-06,
+   "passed": true
+  },
+  {
+   "name": "smallest radius = hole radius",
+   "value": 4.234633477206984e-12,
+   "limit": 1e-06,
+   "passed": true
+  },
+  {
+   "name": "B-rep is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "mesh is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "chord error <= tolerance",
+   "value": 2.979525441694593e-06,
+   "limit": 1e-05,
+   "passed": true,
+   "detail": "largest distance from a triangle centroid to the exact surface"
+  },
+  {
+   "name": "mesh volume vs exact",
+   "value": 1.461874654569497e-05,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "mesh area vs exact",
+   "value": 1.1209012957744817e-05,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "element size resolves the smallest radius (10.00 mm)",
+   "value": 0.0005,
+   "limit": 0.003926990816970612,
+   "passed": true,
+   "detail": "4 elements per quarter circle"
+  },
+  {
+   "name": "patch test on every B-rep mesh",
+   "value": 4.0400009529365714e-12,
+   "limit": 1e-09,
+   "passed": true
+  },
+  {
+   "name": "force balance (reaction = applied)",
+   "value": 2.2355787776540126e-08,
+   "limit": 1e-06,
+   "passed": 1.0,
+   "detail": "round-off of the sparse direct solve"
+  },
+  {
+   "name": "mesh converged (last two sizes)",
+   "value": 0.024614315284905704,
+   "limit": 0.03,
+   "passed": 1.0
+  },
+  {
+   "name": "Kt_net (Richardson) vs Heywood 2 + (1 - d/W)^3",
+   "value": 0.010410774262745783,
+   "limit": 0.03,
+   "passed": 1.0,
+   "detail": "2.320 vs 2.296; observed order 1.18"
+  }
+ ]
+}

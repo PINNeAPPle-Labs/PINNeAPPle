@@ -21,18 +21,18 @@ hardware, timings, which components ran).
 | 02 | P | [Plume forecast, FNO rollout](02_physicsnemo_plume_rollout/README.md) | REVIEW (10-step horizon) | done |
 | 03 | I | [Pick-and-place arm in the robot sim, structural checks](03_robotsim_pick_and_place/README.md) | APPROVED (shoulder motor at 95 %) | done |
 | 04 | C | Physics-consistent synthetic video and world model | | planned |
-| 05 | B | Exact bracket geometry, mesh error, stress concentration | | planned |
+| 05 | B | [Strap with a hole: exact geometry, FEM, Heywood](05_brep_plate_with_hole/README.md) | APPROVED (Kt 2.320 vs 2.296) | done |
 | 06 | N | Zoo surrogate served NIM-style with its trust report | | planned |
 | 07 | O + P | [Cold plate surrogate in a USD scene](07_omniverse_physicsnemo_coldplate/README.md) | REJECT (energy balance) | done |
 | 08 | I + P | [Learned arm dynamics, checked physics](08_robotsim_physicsnemo_learned_dynamics/README.md) | REVIEW (start pose at the envelope edge) | done |
 | 09 | C + P | PhysicsNeMo world model on PINNeAPPle-generated data | | planned |
-| 10 | B + P | Exact heat-sink geometry feeding a PhysicsNeMo surrogate | | planned |
+| 10 | B + P | [Heat-sink design from exact geometry](10_brep_physicsnemo_heatsink/README.md) | APPROVED (first proposal rejected by verification) | done |
 | 11 | N + P | PhysicsNeMo model served NIM-style | | planned |
 | 12 | O + I | [One USD scene for Omniverse and the robot sim](12_omniverse_robotsim_arm/README.md) | APPROVED (USD = URDF to the bit) | done |
 | 13 | O + C | Synthetic inspection data as USD scene variations | | planned |
-| 14 | B + O | B-rep part to USD with curvature and thickness | | planned |
+| 14 | B + O | [Exact CAD into Omniverse: curvature, wall thickness](14_brep_omniverse_bracket/README.md) | APPROVED (native B-rep layer lacks stage metadata) | done |
 | 15 | N + B | Specification extracted by a model service, part built in B-rep, verified | | planned |
-| 16 | O + P + B | Exact geometry, surrogate and USD scene | | planned |
+| 16 | O + P + B | [Verified heat sink with its temperature field in USD](16_omniverse_physicsnemo_brep_heatsink/README.md) | APPROVED | done |
 | 17 | O + I + C | Robot perception with synthetic camera data | | planned |
 | 18 | all six | End to end | | planned |
 
@@ -42,6 +42,8 @@ and/or an `NVIDIA_API_KEY`; their adapters are written against the official APIs
 architecture figures, and nothing in the results comes from them.
 
 ```bash
-pip install nvidia-physicsnemo usd-core
+pip install nvidia-physicsnemo usd-core newton newton-usd-schemas
+python3.12 -m venv /opt/brep && /opt/brep/bin/pip install usd-brep numpy   # USD BRep ships a CPython 3.12 wheel
+export PINNEAPPLE_BREP_PYTHON=/opt/brep/bin/python
 pytest tests/test_nvidia_integrations.py -q
 ```

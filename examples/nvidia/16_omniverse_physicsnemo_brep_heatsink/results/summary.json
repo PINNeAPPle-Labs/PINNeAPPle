@@ -1,0 +1,132 @@
+{
+ "decision": "APPROVED",
+ "design": {
+  "n_fins": 14,
+  "fin_height_mm": 15.5,
+  "fin_t_mm": 1.0
+ },
+ "attempts": [
+  {
+   "design": [
+    14.0,
+    0.015,
+    0.001
+   ],
+   "predicted_t": 74.55250144227462,
+   "verified_t": 75.2956686251172,
+   "verified_dp": 8.790267596954099,
+   "mass": 0.19320650446646548,
+   "accepted": false
+  },
+  {
+   "design": [
+    14.0,
+    0.0155,
+    0.001
+   ],
+   "predicted_t": 73.60758962139116,
+   "verified_t": 74.20348259023478,
+   "verified_dp": 8.715583753463099,
+   "mass": 0.19509650445308407,
+   "accepted": true
+  }
+ ],
+ "heldout_rel_rms": [
+  0.0023537873481611635,
+  0.004076233606744702,
+  0.001004100777742924
+ ],
+ "t_source": 74.20348259023478,
+ "dp": 8.715583753463099,
+ "fin_efficiency": 0.9785589340719802,
+ "fin_tip_c": 66.09142214826323,
+ "mass": 0.19509650445308407,
+ "tessellation": {
+  "chord_tolerance": 2e-05,
+  "triangles": 57262,
+  "points": 28633,
+  "max_deviation": 7.666890582589929e-06,
+  "rms_deviation": 2.6251305011131946e-06,
+  "mesh_volume": 7.227114064585825e-05,
+  "mesh_area": 0.06472289566186107,
+  "manifold": true
+ },
+ "stage": {
+  "ok": true,
+  "problems": [],
+  "meshes": 1,
+  "prims": 4
+ },
+ "checks": [
+  {
+   "name": "B-rep is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "mesh is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "chord error <= tolerance",
+   "value": 7.666890582589929e-06,
+   "limit": 2e-05,
+   "passed": true,
+   "detail": "largest distance from a triangle centroid to the exact surface"
+  },
+  {
+   "name": "mesh volume vs exact",
+   "value": 0.00018234714575045003,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "mesh area vs exact",
+   "value": 9.785591566302747e-05,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "accepted design verified (T_source <= 75 C)",
+   "value": 74.20348259023478,
+   "limit": 75.0,
+   "passed": true,
+   "detail": "2 proposal(s) verified"
+  },
+  {
+   "name": "surrogate held-out error (worst output)",
+   "value": 0.004076233606744702,
+   "limit": 0.03,
+   "passed": 1.0
+  },
+  {
+   "name": "field fin-average = fin efficiency of the rating",
+   "value": 1.3459536818416495e-09,
+   "limit": 0.001,
+   "passed": true,
+   "detail": "0.9786 vs 0.9786"
+  },
+  {
+   "name": "field at the fin root = model root temperature",
+   "value": 0.0,
+   "limit": 1e-09,
+   "passed": 1.0
+  },
+  {
+   "name": "field at the fin tips = cosh solution (K)",
+   "value": 3.0003661777300294e-09,
+   "limit": 1e-09,
+   "passed": true
+  },
+  {
+   "name": "Omniverse stage valid",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "UsdValidation clean"
+  }
+ ]
+}

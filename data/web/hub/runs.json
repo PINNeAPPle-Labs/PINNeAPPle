@@ -741,7 +741,7 @@
   "figures": [],
   "ok": true,
   "recorded": "2026-10-24",
-  "seconds": 0.65,
+  "seconds": 0.74,
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
@@ -752,10 +752,21 @@
   "figures": [],
   "ok": true,
   "recorded": "2026-10-24",
-  "seconds": 0.72,
+  "seconds": 0.68,
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
+  "timed_out": false
+ },
+ "example:examples/autolab_digital_twin": {
+  "code_hash": "b8c6879d1ad7fbc7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.22,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Digital twin that knows when it is wrong | system dynamics | not curated\ncause_accuracy 0.9625 fraction\ncases_with_false_alarm 1.0 cases\nfast_model_holdout_max 0.7827623466462263 sensor sigmas",
   "timed_out": false
  },
  "example:examples/autolab_rover": {
@@ -5229,7 +5240,7 @@
   "figures": [],
   "ok": true,
   "recorded": "2026-10-24",
-  "seconds": 4.78,
+  "seconds": 5.27,
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "The AI Aerodynamicist (race-car CFD lab) -> pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'source': 'recorded', 'mission': '', 'budget': 20, 'procs': 4}",
@@ -5244,6 +5255,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Self-optimizing engineer (board cooling) -> pinneapple_design.thermal.board_cooling.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n': 64, 'planner': 'template', 'render': False, 'workers': 4}",
+  "timed_out": false
+ },
+ "node:autolab.pipe_twin": {
+  "code_hash": "91131ee998dce031",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.62,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Digital twin that knows when it is wrong (pipe loop) -> pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n_per_kind': 20, 'planner': 'template', 'render': False, 'workers': 4}",
   "timed_out": false
  },
  "node:benchmark.arena": {

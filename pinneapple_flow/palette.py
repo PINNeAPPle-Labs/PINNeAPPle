@@ -38,7 +38,7 @@ SECTION_IDS = [s[0] for s in SECTIONS]
 
 #: curated node type -> section
 SECTION_OF: dict[str, str] = {
-    "autolab.board_cooling": "optimization",
+    "autolab.board_cooling": "optimization", "autolab.pipe_twin": "optimization",
     "autolab.aerodynamicist": "optimization",
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
     "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",

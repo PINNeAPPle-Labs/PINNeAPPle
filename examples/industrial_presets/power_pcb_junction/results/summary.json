@@ -1,0 +1,417 @@
+{
+ "preset": "power_pcb_junction",
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "Tj máx 118.9 °C (Q2); com h -20 %: 126.4 °C > 125 °C",
+   "placa até 99.1 °C"
+  ]
+ },
+ "outputs": {
+  "tj_max_c": 118.86508807261424,
+  "tj_max_hot_c": 126.41755646837277,
+  "critical": "Q2",
+  "tj_mosfet_c": 118.86508807261424,
+  "board_max_c": 99.11548555531277,
+  "energy_balance": 1.1677615396405125e-13,
+  "total_power": 5.75,
+  "tj": {
+   "Q1": 117.37000615170429,
+   "Q2": 118.86508807261424,
+   "L1": 108.27389467425647,
+   "U1": 77.3182294093115,
+   "U2": 96.56282582088497
+  },
+  "checks_engine": [
+   {
+    "name": "energy_balance",
+    "status": "pass",
+    "value": 1.1677615396405125e-13,
+    "detail": "Heat to air + chassis vs. total component power - 1.",
+    "law": "energy conservation"
+   },
+   {
+    "name": "grid_convergence",
+    "status": "pass",
+    "value": 0.012896712640457672,
+    "detail": "Largest junction-temperature-rise change between coarse and fine grids (U2). Small packages need a fine grid.",
+    "law": "numerical accuracy"
+   },
+   {
+    "name": "surface_coefficients_converged",
+    "status": "pass",
+    "value": null,
+    "detail": "Convection + radiation fixed point reached in 10 iterations (h top 13.3, bottom 13.3 W/m²K).",
+    "law": "nonlinear coupling"
+   },
+   {
+    "name": "correlation_in_range",
+    "status": "pass",
+    "value": null,
+    "detail": "Correlations used inside their range.",
+    "law": "surface heat-transfer model"
+   },
+   {
+    "name": "temperatures_above_ambient",
+    "status": "pass",
+    "value": 17.631470056322087,
+    "detail": "No point colder than ambient (2nd law).",
+    "law": "2nd law"
+   }
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "energy_balance",
+    "status": "supports",
+    "value": 1.1677615396405125e-13,
+    "limit": null,
+    "source": "energy conservation",
+    "reason": ""
+   },
+   {
+    "name": "grid_convergence",
+    "status": "supports",
+    "value": 0.012896712640457672,
+    "limit": null,
+    "source": "numerical accuracy",
+    "reason": ""
+   },
+   {
+    "name": "surface_coefficients_converged",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "nonlinear coupling",
+    "reason": ""
+   },
+   {
+    "name": "correlation_in_range",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "surface heat-transfer model",
+    "reason": ""
+   },
+   {
+    "name": "temperatures_above_ambient",
+    "status": "supports",
+    "value": 17.631470056322087,
+    "limit": null,
+    "source": "2nd law",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "power_pcb_junction",
+  "references": [
+   {
+    "case": "theta_JA TO-263 D2PAK na placa JEDEC 2s2p",
+    "output": "theta_ja",
+    "unit": "K/W",
+    "computed": 30.225418621647506,
+    "reference": 30.0,
+    "rel_error": 0.0075139540549168755,
+    "tol": 0.08,
+    "pass": true,
+    "kind": "standard (consistência)",
+    "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Atenção: os theta típicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convecção+encapsulamento, não é uma validação independente",
+    "params": {}
+   },
+   {
+    "case": "theta_JA QFN-32 5x5 na placa JEDEC 2s2p",
+    "output": "theta_ja",
+    "unit": "K/W",
+    "computed": 33.19063697151085,
+    "reference": 33.0,
+    "rel_error": 0.005776877924571159,
+    "tol": 0.08,
+    "pass": true,
+    "kind": "standard (consistência)",
+    "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Atenção: os theta típicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convecção+encapsulamento, não é uma validação independente",
+    "params": {}
+   },
+   {
+    "case": "theta_JA SOIC-8 na placa JEDEC 2s2p",
+    "output": "theta_ja",
+    "unit": "K/W",
+    "computed": 120.11101782292627,
+    "reference": 120.0,
+    "rel_error": 0.0009251485243855958,
+    "tol": 0.08,
+    "pass": true,
+    "kind": "standard (consistência)",
+    "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Atenção: os theta típicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convecção+encapsulamento, não é uma validação independente",
+    "params": {}
+   }
+  ],
+  "convergence": {
+   "parameter": "células por lado",
+   "values": [
+    24,
+    36,
+    48,
+    60,
+    80
+   ],
+   "tj_max": [
+    118.42757723178994,
+    119.36542396361942,
+    119.06424940189318,
+    118.86508807261424,
+    118.93142018030261
+   ],
+   "rel_change_last": 0.0009622913254197285,
+   "pass": true
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/pcb_maps.png",
+  "results/surrogate_parity.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 2.8503774599998906,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:08:39Z"
+ },
+ "surrogate": {
+  "model": "ARD Gaussian process (squared exponential)",
+  "inputs": [
+   "p_mosfet",
+   "t_ambient",
+   "vias"
+  ],
+  "outputs": [
+   "tj_max_c"
+  ],
+  "bounds": {
+   "p_mosfet": [
+    0.5,
+    4.0
+   ],
+   "t_ambient": [
+    20.0,
+    70.0
+   ],
+   "vias": [
+    0,
+    36
+   ]
+  },
+  "n_train": 60,
+  "n_test": 20,
+  "holdout": {
+   "per_output": {
+    "tj_max_c": {
+     "max_rel_err": 0.021588065186892432,
+     "mean_rel_err": 0.004724432617218991,
+     "rmse": 0.9651998100615389,
+     "r2": 0.9980396102931528,
+     "coverage_2sigma": 0.9
+    }
+   },
+   "max_rel_err": 0.021588065186892432
+  },
+  "timing_s": {
+   "doe_solver_runs": 241.6095442809999,
+   "fit": 0.2435455259999344
+  },
+  "default_case": {
+   "tj_max_c": {
+    "surrogate": 118.0359806337711,
+    "std": 0.5056083067388211,
+    "solver": 118.86508807261424
+   }
+  }
+ },
+ "inversion": {
+  "description": "Fatores de convecção (h_scale) e de espalhamento no cobre (k_inplane_scale) a partir de 6 termopares na face superior e o sensor de junção de Q1, por Ensemble Kalman Inversion da lib. Medição sintética do solver com (0,75; 0,6) e ruído de 0.3 K.",
+  "parameter": "h_scale, k_inplane_scale",
+  "true": [
+   0.75,
+   0.6
+  ],
+  "recovered": [
+   0.7495558012908454,
+   0.5928174882295252
+  ],
+  "ci95": [
+   [
+    0.7442306729256448,
+    0.75491903207931
+   ],
+   [
+    0.5742457902333614,
+    0.6119898139922775
+   ]
+  ],
+  "rel_error": 0.01197085295079133,
+  "noise": "0.3 K (1 sigma)",
+  "how": "pinneapple_physics.pcb.engine.calibrate (EKI, 16 membros)",
+  "fit_rms_after_c": 0.14045768630904124
+ },
+ "optimization": {
+  "objective": "menor mudança que atende Tj(h -20 %) <= Tj máx (sem ventilador > menos vias > cobre 1 oz > menos camadas)",
+  "velocity": 0.0,
+  "outer_oz": 1.0,
+  "n_copper": 4,
+  "vias": 16,
+  "tj_max_hot_c": 124.9252243123593,
+  "designs_tried": 4,
+  "surrogate_question": "menos vias com Tj nominal <= Tj máx (sem a banda de h)",
+  "surrogate_vias_nominal": 0,
+  "surrogate_tj_pred_c": 120.15973128104561,
+  "solver_tj_at_surrogate_choice_c": 123.93981486738804,
+  "surrogate_vs_solver_diff_c": -3.7800835863424282
+ },
+ "variants": {
+  "rows": {
+   "base (4 cam., 9 vias)": {
+    "params": {},
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "tj_max_c": 118.86508807261424,
+     "tj_max_hot_c": 126.41755646837277,
+     "tj_mosfet_c": 118.86508807261424,
+     "board_max_c": 99.11548555531277,
+     "energy_balance": 1.1677615396405125e-13,
+     "total_power": 5.75
+    }
+   },
+   "sem vias": {
+    "params": {
+     "vias": 0
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "tj_max_c": 123.93981486738804,
+     "tj_max_hot_c": 131.57555273150803,
+     "tj_mosfet_c": 123.93981486738804,
+     "board_max_c": 105.75129904819636,
+     "energy_balance": 1.0642694455189326e-13,
+     "total_power": 5.75
+    }
+   },
+   "25 vias": {
+    "params": {
+     "vias": 25
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "tj_max_c": 116.3715845416808,
+     "tj_max_hot_c": 123.88925648057496,
+     "tj_mosfet_c": 116.3715845416808,
+     "board_max_c": 96.04543041941676,
+     "energy_balance": 1.3654777791563663e-13,
+     "total_power": 5.75
+    }
+   },
+   "2 camadas": {
+    "params": {
+     "n_copper": 2
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "tj_max_c": 139.86478411417028,
+     "tj_max_hot_c": 149.31547805676752,
+     "tj_mosfet_c": 139.86478411417028,
+     "board_max_c": 123.71536113326418,
+     "energy_balance": 8.974463684274309e-14,
+     "total_power": 5.75
+    }
+   },
+   "6 camadas, 2 oz": {
+    "params": {
+     "n_copper": 6,
+     "outer_oz": 2.0
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "tj_max_c": 111.54020727127096,
+     "tj_max_hot_c": 118.68985903848562,
+     "tj_mosfet_c": 111.54020727127096,
+     "board_max_c": 90.73136030677276,
+     "energy_balance": 3.4121497897696984e-13,
+     "total_power": 5.75
+    }
+   },
+   "ventilador 1 m/s": {
+    "params": {
+     "velocity": 1.0
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "tj_max_c": 106.95109109126054,
+     "tj_max_hot_c": 112.12733004765502,
+     "tj_mosfet_c": 106.95109109126054,
+     "board_max_c": 87.56399283932899,
+     "energy_balance": 9.669559838822232e-14,
+     "total_power": 5.75
+    }
+   }
+  },
+  "compared": [
+   "tj_max_c",
+   "tj_max_hot_c",
+   "board_max_c"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/power_pcb_junction_base_4_cam_9_vias_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_sem_vias_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_25_vias_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_2_camadas_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_6_camadas_2_oz_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_ventilador_1_m_s_3d_temperature.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/power_pcb_junction_3d_temperature.png"
+ ],
+ "wall_time_total_s": 90.03235793000022,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

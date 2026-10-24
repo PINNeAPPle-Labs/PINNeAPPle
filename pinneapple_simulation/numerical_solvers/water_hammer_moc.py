@@ -17,6 +17,9 @@ the later peaks; the first peak, which sizes the pipe, is not affected).
 
 Verification: instantaneous closure of a frictionless pipe gives the Joukowsky surge ``a V_0 / g`` exactly
 (``tests/test_reason.py``).
+
+See also :func:`pinneapple_systems.process_components.water_hammer.moc_valve_closure`: the same MOC scheme with a
+fixed-speed pump curve upstream instead of a constant-head reservoir (a pumped line rather than a gravity main).
 """
 from __future__ import annotations
 
@@ -48,12 +51,14 @@ def michaud_head(a: float, dv: float, length: float, t_close: float) -> float:
 
 def valve_closure_moc(*, length: float, diameter: float, wave_speed: float, friction_factor: float, q0: float,
                       h_reservoir: float, h_downstream: float = 0.0, t_close: float, closure_exponent: float = 1.0,
-                      n_reaches: int = 20, t_end: float | None = None, record_every: int = 1) -> dict:
+                      n_reaches: int = 20, t_end: float | None = None, record_every: int = 1,
+                      record_field: bool = False) -> dict:
     """Transient heads and flows after the valve at the end of the pipe starts closing at t = 0.
 
     Returns time ``t``, the head and flow at the valve, the head envelopes ``h_max`` / ``h_min`` along ``x``, the
     steady line ``h_steady``, the overall ``max_head`` / ``min_head`` with their position and time, and the closed-form
-    references (``joukowsky``, ``michaud``, ``period`` 2L/a)."""
+    references (``joukowsky``, ``michaud``, ``period`` 2L/a). ``record_field``: also return ``history`` with the head
+    along the pipe at every recorded step (``{"t": (T,), "h": (T, n_reaches + 1)}``)."""
     if min(length, diameter, wave_speed, q0) <= 0 or n_reaches < 2 or t_close < 0 or friction_factor < 0:
         raise ValueError("length, diameter, wave speed and flow must be positive, n_reaches >= 2, t_close >= 0")
     A = math.pi * diameter ** 2 / 4
@@ -74,6 +79,7 @@ def valve_closure_moc(*, length: float, diameter: float, wave_speed: float, fric
     n_steps = int(math.ceil(t_end / dt))
     hmax, hmin = H.copy(), H.copy()
     ts, hv, qv = [0.0], [H[-1]], [Q[-1]]
+    hf = [H.copy()] if record_field else None
     imax = (float(H.max()), float(x[int(H.argmax())]), 0.0)
     imin = (float(H.min()), float(x[int(H.argmin())]), 0.0)
     for n in range(1, n_steps + 1):
@@ -110,9 +116,14 @@ def valve_closure_moc(*, length: float, diameter: float, wave_speed: float, fric
             ts.append(t)
             hv.append(float(H[-1]))
             qv.append(float(Q[-1]))
-    return {"t": np.array(ts), "h_valve": np.array(hv), "q_valve": np.array(qv), "x": x, "h_max": hmax,
+            if hf is not None:
+                hf.append(H.copy())
+    out = {"t": np.array(ts), "h_valve": np.array(hv), "q_valve": np.array(qv), "x": x, "h_max": hmax,
             "h_min": hmin, "h_steady": h_steady, "max_head": imax[0], "max_head_at": imax[1], "max_head_time": imax[2],
             "min_head": imin[0], "min_head_at": imin[1], "min_head_time": imin[2], "v0": v0, "dt": dt,
             "period": period, "joukowsky": joukowsky_head(wave_speed, v0),
             "michaud": michaud_head(wave_speed, v0, length, t_close) if t_close > 0 else joukowsky_head(wave_speed, v0),
             "valve_head_steady": float(h_steady[-1])}
+    if hf is not None:
+        out["history"] = {"t": np.array(ts), "h": np.array(hf)}
+    return out

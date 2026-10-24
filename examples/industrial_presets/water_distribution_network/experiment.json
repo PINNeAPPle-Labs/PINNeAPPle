@@ -1,0 +1,171 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/water_distribution_network",
+ "title": "Rede de distribui\u00e7\u00e3o de \u00e1gua: press\u00f5es, vaz\u00f5es e dimensionamento de menor custo",
+ "description": "Todos os n\u00f3s t\u00eam press\u00e3o m\u00ednima de servi\u00e7o (30 m) na demanda de projeto? Qual o conjunto de di\u00e2metros comerciais de menor custo que garante isso?",
+ "domain": "Fluidos / saneamento",
+ "methods": [
+  "pinneapple_simulation.numerical_solvers.pipe_network.solve_network",
+  "pinneapple_simulation.numerical_solvers.pipe_network.optimize_diameters"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 0.0009922460001234867
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[press\u00e3o no n\u00f3 3, Hazen-Williams]",
+   "value": 1.0963156043483382e-05,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina"
+  },
+  {
+   "name": "rel_error[press\u00e3o no n\u00f3 6, Hazen-Williams]",
+   "value": 8.604211536602683e-06,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina"
+  },
+  {
+   "name": "rel_error[press\u00e3o no n\u00f3 3, Darcy-Weisbach]",
+   "value": 0.004225301457298413,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina (EPANET usa Swamee-Jain e interpola\u00e7\u00e3o de Dunlop na transi\u00e7\u00e3o; aqui Colebrook)"
+  },
+  {
+   "name": "rel_error[press\u00e3o no n\u00f3 6, Darcy-Weisbach]",
+   "value": 0.002865155312762607,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina (EPANET usa Swamee-Jain e interpola\u00e7\u00e3o de Dunlop na transi\u00e7\u00e3o; aqui Colebrook)"
+  },
+  {
+   "name": "rel_error[custo da solu\u00e7\u00e3o publicada]",
+   "value": 0.0,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, benchmark: Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo m\u00ednimo US$ 419.000"
+  },
+  {
+   "name": "rel_error[otimiza\u00e7\u00e3o por AG vs \u00f3timo publicado]",
+   "value": 0.0,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, benchmark: Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo m\u00ednimo US$ 419.000"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.000440846849581078,
+   "unit": "-",
+   "how": "Gauss-Newton sobre solve_network, covari\u00e2ncia sigma^2 (J^T J)^-1"
+  }
+ ],
+ "checks": [
+  {
+   "name": "press\u00e3o no n\u00f3 3, Hazen-Williams",
+   "passed": true,
+   "value": 30.462166034859024,
+   "reference": 30.4625,
+   "rtol": 0.0001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "press\u00e3o no n\u00f3 6, Hazen-Williams",
+   "passed": true,
+   "value": 30.44473804477977,
+   "reference": 30.445,
+   "rtol": 0.0001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "press\u00e3o no n\u00f3 3, Darcy-Weisbach",
+   "passed": true,
+   "value": 28.918676006065823,
+   "reference": 28.797,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "press\u00e3o no n\u00f3 6, Darcy-Weisbach",
+   "passed": true,
+   "value": 29.97513805972082,
+   "reference": 29.8895,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "custo da solu\u00e7\u00e3o publicada",
+   "passed": true,
+   "value": 419000.0,
+   "reference": 419000.0,
+   "rtol": 1e-09,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "otimiza\u00e7\u00e3o por AG vs \u00f3timo publicado",
+   "passed": true,
+   "value": 419000.0,
+   "reference": 419000.0,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/network.png",
+   "results/variants.png",
+   "results/3d/water_distribution_network_3d_pressure.png",
+   "results/3d/water_distribution_network_3d_velocity.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina",
+  "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina",
+  "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina (EPANET usa Swamee-Jain e interpola\u00e7\u00e3o de Dunlop na transi\u00e7\u00e3o; aqui Colebrook)",
+  "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina (EPANET usa Swamee-Jain e interpola\u00e7\u00e3o de Dunlop na transi\u00e7\u00e3o; aqui Colebrook)",
+  "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo m\u00ednimo US$ 419.000",
+  "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo m\u00ednimo US$ 419.000"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "f33fa445",
+  "created": "2026-10-24T00:50:53Z",
+  "seconds": 0.002,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

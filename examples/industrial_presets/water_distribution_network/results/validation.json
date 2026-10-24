@@ -1,0 +1,115 @@
+{
+ "preset": "water_distribution_network",
+ "references": [
+  {
+   "case": "press\u00e3o no n\u00f3 3, Hazen-Williams",
+   "output": "p_node3",
+   "unit": "m",
+   "computed": 30.462166034859024,
+   "reference": 30.4625,
+   "rel_error": 1.0963156043483382e-05,
+   "tol": 0.0001,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina",
+   "params": {}
+  },
+  {
+   "case": "press\u00e3o no n\u00f3 6, Hazen-Williams",
+   "output": "p_node6",
+   "unit": "m",
+   "computed": 30.44473804477977,
+   "reference": 30.445,
+   "rel_error": 8.604211536602683e-06,
+   "tol": 0.0001,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina",
+   "params": {}
+  },
+  {
+   "case": "press\u00e3o no n\u00f3 3, Darcy-Weisbach",
+   "output": "p_node3",
+   "unit": "m",
+   "computed": 28.918676006065823,
+   "reference": 28.797,
+   "rel_error": 0.004225301457298413,
+   "tol": 0.01,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina (EPANET usa Swamee-Jain e interpola\u00e7\u00e3o de Dunlop na transi\u00e7\u00e3o; aqui Colebrook)",
+   "params": {
+    "headloss": "DW"
+   }
+  },
+  {
+   "case": "press\u00e3o no n\u00f3 6, Darcy-Weisbach",
+   "output": "p_node6",
+   "unit": "m",
+   "computed": 29.97513805972082,
+   "reference": 29.8895,
+   "rel_error": 0.002865155312762607,
+   "tol": 0.01,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta m\u00e1quina (EPANET usa Swamee-Jain e interpola\u00e7\u00e3o de Dunlop na transi\u00e7\u00e3o; aqui Colebrook)",
+   "params": {
+    "headloss": "DW"
+   }
+  },
+  {
+   "case": "custo da solu\u00e7\u00e3o publicada",
+   "output": "cost",
+   "unit": "US$",
+   "computed": 419000.0,
+   "reference": 419000.0,
+   "rel_error": 0.0,
+   "tol": 1e-09,
+   "pass": true,
+   "kind": "benchmark",
+   "source": "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo m\u00ednimo US$ 419.000",
+   "params": {}
+  },
+  {
+   "case": "otimiza\u00e7\u00e3o por AG vs \u00f3timo publicado",
+   "output": "cost",
+   "unit": "US$",
+   "computed": 419000.0,
+   "reference": 419000.0,
+   "rel_error": 0.0,
+   "tol": 0.0,
+   "pass": true,
+   "kind": "benchmark",
+   "source": "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo m\u00ednimo US$ 419.000",
+   "params": {}
+  }
+ ],
+ "convergence": null,
+ "all_pass": true,
+ "epanet_live": {
+  "HW": {
+   "pressures": {
+    "2": 53.2467155456543,
+    "3": 30.46245574951172,
+    "4": 43.449188232421875,
+    "5": 33.803348541259766,
+    "6": 30.444963455200195,
+    "7": 30.552255630493164
+   },
+   "max_diff_vs_stored": 4.8541259765499944e-05,
+   "wntr": "1.5.0"
+  },
+  "DW": {
+   "pressures": {
+    "2": 52.86430358886719,
+    "3": 28.79695701599121,
+    "4": 42.91191864013672,
+    "5": 31.743453979492188,
+    "6": 29.88947868347168,
+    "7": 29.815017700195312
+   },
+   "max_diff_vs_stored": 4.6020507813437916e-05,
+   "wntr": "1.5.0"
+  }
+ }
+}

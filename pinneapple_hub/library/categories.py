@@ -11,7 +11,7 @@ from typing import Any
 #: specific rule (``node:lib.solver.terramechanics``) beats a general one (``node:lib.solver.``)
 CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("problem", "Problem setup", "Describe the physical problem: presets, generic problems, requirements",
-     ("node:problem.", "node:scenario.", "fn:pp.PhysicalProblem", "mcp:list_presets",
+     ("node:problem.", "node:scenario.", "node:preset.", "fn:pp.PhysicalProblem", "fn:pp.presets", "mcp:list_presets",
       "lib:pinneapple_data.formfill")),
     ("geometry", "Geometry and meshing", "Domains, meshes, shapes from parameters, geometry exports",
      ("node:geometry.", "node:lib.export.geometry", "node:lib.export.usd_validate", "lib:pinneapple_design.geometry",
@@ -110,6 +110,7 @@ RECIPES: dict[str, str] = {
     "recipe:pinneapple_twin3d__0": "time-series",               # pipe bend with five years of wear
     "recipe:pinneapple_veriphysics__0": "verification",
     "recipe:pinneapple_worldmodel__0": "geometry",              # built-in domains and collocation sets
+    "recipe:agents-a-ready-made-industrial-case": "problem",
     "recipe:agents-dashboard-of-a-time-dependent-result": "reports",
     "recipe:agents-equal-budget-comparison": "benchmarks",
     "recipe:agents-pre-trained-models-and-datasets": "zoo",

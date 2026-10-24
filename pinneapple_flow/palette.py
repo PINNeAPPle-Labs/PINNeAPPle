@@ -49,6 +49,7 @@ SECTION_OF: dict[str, str] = {
     "solver.newton": "solvers", "lib.solve.preset": "solvers", "lib.solver.beam": "solvers",
     "lib.solver.lbm": "solvers", "lib.solver.meshless": "solvers", "lib.solver.terramechanics": "solvers",
     "lib.solver.xtfc": "solvers", "lib.tools.availability": "solvers", "flight.takeoff": "solvers",
+    "preset.run": "solvers", "preset.validate": "validation",
     "vehicle.simulate": "solvers", "terramechanics.wheel_model": "solvers", "lib.antenna.open_study": "solvers",
     "train.pinn": "physics_ai", "train.finetune": "physics_ai", "transfer.pinn": "physics_ai",
     "meta.learn": "physics_ai", "gnn.meshgraphnet": "physics_ai", "surrogate.train": "physics_ai",

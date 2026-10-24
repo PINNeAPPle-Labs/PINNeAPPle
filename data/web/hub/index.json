@@ -175,7 +175,7 @@
    "systems": 33,
    "vehicles": 10,
    "electromagnetics": 9,
-   "time-series": 8,
+   "time-series": 9,
    "data": 53,
    "reports": 10,
    "automation": 28
@@ -4590,6 +4590,7 @@
      }
     }
    },
+   "category": "time-series",
    "run": {
     "code_hash": "91131ee998dce031",
     "figures": [],

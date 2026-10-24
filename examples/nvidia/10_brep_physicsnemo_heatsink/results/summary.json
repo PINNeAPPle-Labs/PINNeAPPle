@@ -1,0 +1,146 @@
+{
+ "decision": "APPROVED",
+ "heldout_rel_rms": {
+  "t_rise": 0.0019379836395997047,
+  "dp": 0.0036878032304429736,
+  "mass": 0.0007992565542855192
+ },
+ "trend_violations": {
+  "T falls with fin height": 0.0,
+  "mass grows with fin count": 0.0,
+  "mass grows with fin height": 0.0,
+  "dp grows with fin count": 0.0
+ },
+ "proposal": {
+  "n_fins": 14,
+  "fin_height_mm": 15.5,
+  "fin_t_mm": 1.0,
+  "gap_mm": 6.615384615384616
+ },
+ "proposal_surrogate": {
+  "t_source": 73.98217327285823,
+  "dp": 8.648066558578389,
+  "mass": 0.1946683324378936
+ },
+ "proposal_verified": {
+  "t_source": 74.20348259023478,
+  "dp": 8.715583753463099,
+  "mass": 0.19509650445308407,
+  "mass_closed_form": 0.19359,
+  "fin_efficiency": 0.9785589340719802,
+  "warnings": [
+   "Assumes ducted flow (shroud): all air passes between the fins. Without a shroud, bypass can cut performance by 20-50%."
+  ]
+ },
+ "attempts": [
+  {
+   "n_fins": 14,
+   "fin_height_mm": 15.0,
+   "fin_t_mm": 1.0,
+   "predicted_t": 74.9893682655478,
+   "verified_t": 75.2956686251172,
+   "verified_dp": 8.790267596954099,
+   "verified_mass": 0.19320650446646548,
+   "accepted": false
+  },
+  {
+   "n_fins": 14,
+   "fin_height_mm": 15.5,
+   "fin_t_mm": 1.0,
+   "predicted_t": 73.98217383353548,
+   "verified_t": 74.20348259023478,
+   "verified_dp": 8.715583753463099,
+   "verified_mass": 0.19509650445308407,
+   "accepted": true
+  }
+ ],
+ "fillet_mass_share_max": 0.008069088092368129,
+ "train_designs": 120,
+ "train_steps": 15000,
+ "train_wall_s": 14.792379847011944,
+ "checks": [
+  {
+   "name": "B-rep volume = closed form incl. fillets (all designs)",
+   "value": 6.526788272760909e-09,
+   "limit": 1e-06,
+   "passed": 1.0
+  },
+  {
+   "name": "B-rep solids manifold (all designs)",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "held-out error: t_rise",
+   "value": 0.0019379836395997047,
+   "limit": 0.03,
+   "passed": true
+  },
+  {
+   "name": "held-out error: dp",
+   "value": 0.0036878032304429736,
+   "limit": 0.03,
+   "passed": true
+  },
+  {
+   "name": "held-out error: mass",
+   "value": 0.0007992565542855192,
+   "limit": 0.03,
+   "passed": true
+  },
+  {
+   "name": "trend: T falls with fin height",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "fraction of grid cells with the wrong sign"
+  },
+  {
+   "name": "trend: mass grows with fin count",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "fraction of grid cells with the wrong sign"
+  },
+  {
+   "name": "trend: mass grows with fin height",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "fraction of grid cells with the wrong sign"
+  },
+  {
+   "name": "trend: dp grows with fin count",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "fraction of grid cells with the wrong sign"
+  },
+  {
+   "name": "first surrogate proposal survives verification",
+   "value": 75.2956686251172,
+   "limit": 75.0,
+   "passed": false,
+   "detail": "2 proposal(s) verified before one was accepted"
+  },
+  {
+   "name": "accepted design meets T_source <= 75 C (verified)",
+   "value": 74.20348259023478,
+   "limit": 75.0,
+   "passed": true
+  },
+  {
+   "name": "accepted design meets dp <= 30 Pa (verified)",
+   "value": 8.715583753463099,
+   "limit": 30.0,
+   "passed": true
+  },
+  {
+   "name": "surrogate vs verified at the proposal (T rise)",
+   "value": 0.0044978384806539425,
+   "limit": 0.03,
+   "passed": 1.0
+  }
+ ]
+}

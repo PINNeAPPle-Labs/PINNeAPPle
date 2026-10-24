@@ -84,6 +84,24 @@
    "status": "done"
   }
  },
+ "arena_pipelines/02_timeseries_benchmark": {
+  "quick": {
+   "commit": "e1b27365",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentC/example.arena_pipelines.02_timeseries_benchmark-quick.experiment.json, Lab item manifest/flow/example.arena_pipelines.02_timeseries_benchmark-quick",
+   "matched": 0,
+   "nodes": {
+    "air_passengers": "done",
+    "lorenz63": "done",
+    "spring_mass": "done",
+    "sunspots": "done"
+   },
+   "seconds": 1951.7,
+   "status": "done"
+  }
+ },
  "arena_pipelines/04_arena_from_yaml": {
   "quick": {
    "commit": "38ecd2bf",
@@ -126,6 +144,21 @@
     "pipeline": "done"
    },
    "seconds": 4.1,
+   "status": "done"
+  }
+ },
+ "benchmark_suite/12_physics_benchmark_suite": {
+  "quick": {
+   "commit": "e1b27365",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/agentC/example.benchmark_suite.12_physics_benchmark_suite-quick.experiment.json, Lab item manifest/flow/example.benchmark_suite.12_physics_benchmark_suite-quick",
+   "matched": 0,
+   "nodes": {
+    "arena": "done"
+   },
+   "seconds": 772.4,
    "status": "done"
   }
  },
@@ -344,6 +377,37 @@
     "solve": "done"
    },
    "seconds": 6.9,
+   "status": "done"
+  }
+ },
+ "chain_of_whys/roof": {
+  "full": {
+   "commit": "87cf4b45",
+   "comparisons": [
+    {
+     "flow": "fm.margin",
+     "outcome": "match",
+     "ref": "_out/roof/chain.json:steps.0.verifications[mode=underside_condensation].margin",
+     "reference": -0.3158846551496092,
+     "rel_diff": 0.0,
+     "value": -0.3158846551496092
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/cw/example.chain_of_whys.roof.experiment.json, Lab item manifest/flow/example.chain_of_whys.roof",
+   "matched": 1,
+   "nodes": {
+    "c0": "cached",
+    "ch": "cached",
+    "chk": "cached",
+    "cm": "cached",
+    "compare": "done",
+    "fm": "cached",
+    "rep": "cached",
+    "req": "cached"
+   },
+   "seconds": 4.9,
    "status": "done"
   }
  },
@@ -608,6 +672,536 @@
    "status": "done"
   }
  },
+ "electromagnetics/07_em_verification": {
+  "full": {
+   "commit": "e1b27365",
+   "comparisons": [
+    {
+     "flow": "verif.case0.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:0.error",
+     "reference": 0.0003871336440759432,
+     "rel_diff": 0.0,
+     "value": 0.0003871336440759432
+    },
+    {
+     "flow": "verif.case1.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:1.error",
+     "reference": 3.1086244689504383e-15,
+     "rel_diff": 0.0,
+     "value": 3.1086244689504383e-15
+    },
+    {
+     "flow": "verif.case2.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:2.error",
+     "reference": 5.0818584404964295e-05,
+     "rel_diff": 0.0,
+     "value": 5.0818584404964295e-05
+    },
+    {
+     "flow": "verif.case3.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:3.error",
+     "reference": 0.0005324486548349272,
+     "rel_diff": 0.0,
+     "value": 0.0005324486548349272
+    },
+    {
+     "flow": "verif.case4.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:4.error",
+     "reference": 2.220446049250313e-16,
+     "rel_diff": 0.0,
+     "value": 2.220446049250313e-16
+    },
+    {
+     "flow": "verif.case5.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:5.error",
+     "reference": 0.0003689490923149963,
+     "rel_diff": 0.0,
+     "value": 0.0003689490923149963
+    },
+    {
+     "flow": "verif.case6.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:6.error",
+     "reference": 1.4389421505961307e-06,
+     "rel_diff": 0.0,
+     "value": 1.4389421505961307e-06
+    },
+    {
+     "flow": "verif.case7.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:7.error",
+     "reference": 4.407712653264895e-05,
+     "rel_diff": 0.0,
+     "value": 4.407712653264895e-05
+    },
+    {
+     "flow": "verif.case8.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:8.error",
+     "reference": 6.661338147750939e-16,
+     "rel_diff": 0.0,
+     "value": 6.661338147750939e-16
+    },
+    {
+     "flow": "verif.case9.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:9.error",
+     "reference": 2.220446049250313e-16,
+     "rel_diff": 0.0,
+     "value": 2.220446049250313e-16
+    },
+    {
+     "flow": "verif.case10.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:10.error",
+     "reference": 1.3278267374516872e-13,
+     "rel_diff": 0.0,
+     "value": 1.3278267374516872e-13
+    },
+    {
+     "flow": "verif.case11.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:11.error",
+     "reference": 0.0,
+     "rel_diff": 0.0,
+     "value": 0.0
+    },
+    {
+     "flow": "verif.case12.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:12.error",
+     "reference": 9.016577251275436e-06,
+     "rel_diff": 0.0,
+     "value": 9.016577251275436e-06
+    },
+    {
+     "flow": "verif.case13.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:13.error",
+     "reference": 4.440892098500626e-16,
+     "rel_diff": 0.0,
+     "value": 4.440892098500626e-16
+    },
+    {
+     "flow": "verif.case14.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:14.error",
+     "reference": 0.0005182930132406415,
+     "rel_diff": 0.0,
+     "value": 0.0005182930132406415
+    },
+    {
+     "flow": "verif.case15.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:15.error",
+     "reference": 0.0008552688084515481,
+     "rel_diff": 0.0,
+     "value": 0.0008552688084515481
+    },
+    {
+     "flow": "verif.case16.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:16.error",
+     "reference": 0.0005082179153015343,
+     "rel_diff": 0.0,
+     "value": 0.0005082179153015343
+    },
+    {
+     "flow": "verif.case17.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:17.error",
+     "reference": 1.276778639294207e-09,
+     "rel_diff": 0.0,
+     "value": 1.276778639294207e-09
+    },
+    {
+     "flow": "verif.case18.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:18.error",
+     "reference": 0.00023308706076705503,
+     "rel_diff": 0.0,
+     "value": 0.00023308706076705503
+    },
+    {
+     "flow": "verif.case19.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:19.error",
+     "reference": 0.0020237232724983345,
+     "rel_diff": 0.0,
+     "value": 0.0020237232724983345
+    },
+    {
+     "flow": "verif.case20.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:20.error",
+     "reference": 0.0008743142142669802,
+     "rel_diff": 0.0,
+     "value": 0.0008743142142669802
+    },
+    {
+     "flow": "verif.case21.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:21.error",
+     "reference": 1.3550764831338213e-05,
+     "rel_diff": 0.0,
+     "value": 1.3550764831338213e-05
+    },
+    {
+     "flow": "verif.case22.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:22.error",
+     "reference": 0.00023733203871345587,
+     "rel_diff": 0.0,
+     "value": 0.00023733203871345587
+    },
+    {
+     "flow": "verif.case23.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:23.error",
+     "reference": 3.8924365947323736e-05,
+     "rel_diff": 0.0,
+     "value": 3.8924365947323736e-05
+    },
+    {
+     "flow": "verif.case24.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:24.error",
+     "reference": 9.889781850658252e-05,
+     "rel_diff": 0.0,
+     "value": 9.889781850658252e-05
+    },
+    {
+     "flow": "verif.case25.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:25.error",
+     "reference": 0.004232606690565246,
+     "rel_diff": 0.0,
+     "value": 0.004232606690565246
+    },
+    {
+     "flow": "verif.case26.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:26.error",
+     "reference": 0.011748799880753207,
+     "rel_diff": 0.0,
+     "value": 0.011748799880753207
+    },
+    {
+     "flow": "verif.case27.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:27.error",
+     "reference": 0.001014913502586201,
+     "rel_diff": 0.0,
+     "value": 0.001014913502586201
+    },
+    {
+     "flow": "verif.case28.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:28.error",
+     "reference": 4.245235491095233e-05,
+     "rel_diff": 0.0,
+     "value": 4.245235491095233e-05
+    },
+    {
+     "flow": "verif.case29.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:29.error",
+     "reference": 0.0017761033478869515,
+     "rel_diff": 0.0,
+     "value": 0.0017761033478869515
+    },
+    {
+     "flow": "verif.case30.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:30.error",
+     "reference": 0.002898738361211767,
+     "rel_diff": 0.0,
+     "value": 0.002898738361211767
+    },
+    {
+     "flow": "verif.case31.error",
+     "outcome": "match",
+     "ref": "results/em_verification.json:31.error",
+     "reference": 0.024085037243478213,
+     "rel_diff": 0.0,
+     "value": 0.024085037243478213
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/r2/example-em-verification.experiment.json, Lab item manifest/flow/example-em-verification",
+   "matched": 32,
+   "nodes": {
+    "compare": "done",
+    "verif": "done"
+   },
+   "seconds": 3755.0,
+   "status": "done"
+  }
+ },
+ "electromagnetics/10_pmsm_prius": {
+  "full": {
+   "commit": "e1b27365",
+   "comparisons": [
+    {
+     "flow": "prius.elements",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:elements",
+     "reference": 29936.0,
+     "rel_diff": 0.0,
+     "value": 29936.0
+    },
+    {
+     "flow": "prius.no_load.cogging_peak_to_peak_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:no_load.cogging_peak_to_peak_Nm",
+     "reference": 1.3834824883859076,
+     "rel_diff": 0.0,
+     "value": 1.3834824883859076
+    },
+    {
+     "flow": "prius.no_load.psi_pm_peak_Wb",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:no_load.psi_pm_peak_Wb",
+     "reference": 0.20905618722165656,
+     "rel_diff": 0.0,
+     "value": 0.20905618722165656
+    },
+    {
+     "flow": "prius.no_load.emf_phase_fundamental_peak_V_at_1000rpm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:no_load.emf_phase_fundamental_peak_V_at_1000rpm",
+     "reference": 87.60380740851626,
+     "rel_diff": 0.0,
+     "value": 87.60380740851626
+    },
+    {
+     "flow": "prius.no_load.emf_thd_phase",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:no_load.emf_thd_phase",
+     "reference": 0.09343974477646026,
+     "rel_diff": 0.0,
+     "value": 0.09343974477646026
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi60_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.0",
+     "reference": 91.97170074647859,
+     "rel_diff": 0.0,
+     "value": 91.97170074647859
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi70_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.1",
+     "reference": 133.64175281173831,
+     "rel_diff": 0.0,
+     "value": 133.64175281173831
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi80_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.2",
+     "reference": 175.84496076220321,
+     "rel_diff": 0.0,
+     "value": 175.84496076220321
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi90_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.3",
+     "reference": 217.25804456685069,
+     "rel_diff": 0.0,
+     "value": 217.25804456685069
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi100_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.4",
+     "reference": 255.96725917892945,
+     "rel_diff": 0.0,
+     "value": 255.96725917892945
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi110_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.5",
+     "reference": 289.93740642014023,
+     "rel_diff": 0.0,
+     "value": 289.93740642014023
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi120_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.6",
+     "reference": 318.1518896334787,
+     "rel_diff": 0.0,
+     "value": 318.1518896334787
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi130_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.7",
+     "reference": 338.143908350457,
+     "rel_diff": 0.0,
+     "value": 338.143908350457
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi140_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.8",
+     "reference": 345.64594736544115,
+     "rel_diff": 0.0,
+     "value": 345.64594736544115
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi150_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.9",
+     "reference": 330.1385375838317,
+     "rel_diff": 0.0,
+     "value": 330.1385375838317
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi160_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.10",
+     "reference": 267.12893650023966,
+     "rel_diff": 0.0,
+     "value": 267.12893650023966
+    },
+    {
+     "flow": "prius.torque_vs_angle.phi170_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.11",
+     "reference": 151.39642609125139,
+     "rel_diff": 0.0,
+     "value": 151.39642609125139
+    },
+    {
+     "flow": "prius.mtpa_50A.torque_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.0.torque_Nm",
+     "reference": 70.44809424701212,
+     "rel_diff": 0.0,
+     "value": 70.44809424701212
+    },
+    {
+     "flow": "prius.mtpa_100A.torque_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.1.torque_Nm",
+     "reference": 147.7913650765863,
+     "rel_diff": 0.0,
+     "value": 147.7913650765863
+    },
+    {
+     "flow": "prius.mtpa_150A.torque_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.2.torque_Nm",
+     "reference": 221.31199841062656,
+     "rel_diff": 0.0,
+     "value": 221.31199841062656
+    },
+    {
+     "flow": "prius.mtpa_200A.torque_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.3.torque_Nm",
+     "reference": 287.9167349906041,
+     "rel_diff": 0.0,
+     "value": 287.9167349906041
+    },
+    {
+     "flow": "prius.mtpa_250A.torque_Nm",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.4.torque_Nm",
+     "reference": 345.60497177686904,
+     "rel_diff": 0.0,
+     "value": 345.60497177686904
+    },
+    {
+     "flow": "prius.mtpa_50A.L_d_mH",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.0.L_d_mH",
+     "reference": 1.9449447064351377,
+     "rel_diff": 0.0,
+     "value": 1.9449447064351377
+    },
+    {
+     "flow": "prius.mtpa_100A.L_d_mH",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.1.L_d_mH",
+     "reference": 1.740546953569513,
+     "rel_diff": 0.0,
+     "value": 1.740546953569513
+    },
+    {
+     "flow": "prius.mtpa_150A.L_d_mH",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.2.L_d_mH",
+     "reference": 1.6229832404737123,
+     "rel_diff": 0.0,
+     "value": 1.6229832404737123
+    },
+    {
+     "flow": "prius.mtpa_200A.L_d_mH",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.3.L_d_mH",
+     "reference": 1.5108941721887035,
+     "rel_diff": 0.0,
+     "value": 1.5108941721887035
+    },
+    {
+     "flow": "prius.mtpa_250A.L_d_mH",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:mtpa.4.L_d_mH",
+     "reference": 1.3859573864874903,
+     "rel_diff": 0.0,
+     "value": 1.3859573864874903
+    },
+    {
+     "flow": "prius.bertotti_fit.rms_rel_error",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:bertotti_fit.rms_rel_error",
+     "reference": 0.08166038585255912,
+     "rel_diff": 0.0,
+     "value": 0.08166038585255912
+    },
+    {
+     "flow": "prius.losses_1500rpm.stator_iron_W_table",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:losses.1500rpm_250A.stator_iron_W_table",
+     "reference": 390.905495756811,
+     "rel_diff": 0.0,
+     "value": 390.905495756811
+    },
+    {
+     "flow": "prius.losses_1500rpm.magnet_W_table",
+     "outcome": "match",
+     "ref": "results/10_pmsm_prius.json:losses.1500rpm_250A.magnet_W",
+     "reference": 37.85684928427405,
+     "rel_diff": 0.0,
+     "value": 37.85684928427405
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/r2/example-em-prius-machine.experiment.json, Lab item manifest/flow/example-em-prius-machine",
+   "matched": 30,
+   "nodes": {
+    "compare": "done",
+    "prius": "done"
+   },
+   "seconds": 2615.2,
+   "status": "done"
+  }
+ },
  "electromagnetics/11_prius_drive": {
   "full": {
    "commit": "5e891c36",
@@ -687,6 +1281,112 @@
     "fluxmap": "done"
    },
    "seconds": 927.6,
+   "status": "done"
+  }
+ },
+ "electromagnetics/13_prius_thermal": {
+  "full": {
+   "commit": "e1b27365",
+   "comparisons": [
+    {
+     "flow": "thermal.peak_temperatures_C.yoke",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_temperatures_C.yoke",
+     "reference": 71.88097558900056,
+     "rel_diff": 0.0,
+     "value": 71.88097558900056
+    },
+    {
+     "flow": "thermal.peak_temperatures_C.teeth",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_temperatures_C.teeth",
+     "reference": 82.50518740460485,
+     "rel_diff": 0.0,
+     "value": 82.50518740460485
+    },
+    {
+     "flow": "thermal.peak_temperatures_C.winding",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_temperatures_C.winding",
+     "reference": 80.33684193660206,
+     "rel_diff": 0.0,
+     "value": 80.33684193660206
+    },
+    {
+     "flow": "thermal.peak_temperatures_C.end_winding",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_temperatures_C.end_winding",
+     "reference": 75.110256029819,
+     "rel_diff": 0.0,
+     "value": 75.110256029819
+    },
+    {
+     "flow": "thermal.peak_temperatures_C.rotor",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_temperatures_C.rotor",
+     "reference": 78.48675200497999,
+     "rel_diff": 0.0,
+     "value": 78.48675200497999
+    },
+    {
+     "flow": "thermal.peak_temperatures_C.magnets",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_temperatures_C.magnets",
+     "reference": 78.48668955294256,
+     "rel_diff": 0.0,
+     "value": 78.48668955294256
+    },
+    {
+     "flow": "thermal.peak_load.torque_Nm",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_load.torque_Nm",
+     "reference": 343.2127035990886,
+     "rel_diff": 0.0,
+     "value": 343.2127035990886
+    },
+    {
+     "flow": "thermal.peak_load.time_to_180C_winding_s",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:peak_load.time_to_180C_winding_s",
+     "reference": 237.0,
+     "rel_diff": 0.0,
+     "value": 237.0
+    },
+    {
+     "flow": "thermal.demagnetisation.magnet_temperature_C",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:demagnetisation.magnet_temperature_C",
+     "reference": 127.40719109020533,
+     "rel_diff": 0.0,
+     "value": 127.40719109020533
+    },
+    {
+     "flow": "thermal.demagnetisation.short_circuit_peak_estimate_A",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:demagnetisation.short_circuit_peak_estimate_A",
+     "reference": 165.43982061321339,
+     "rel_diff": 0.0,
+     "value": 165.43982061321339
+    },
+    {
+     "flow": "thermal.sweep_20C.torque_Nm",
+     "outcome": "match",
+     "ref": "results/13_prius_thermal.json:magnet_temperature_sweep.0.torque_Nm",
+     "reference": 345.60497177686904,
+     "rel_diff": 0.0,
+     "value": 345.60497177686904
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/r2/example-em-prius-thermal.experiment.json, Lab item manifest/flow/example-em-prius-thermal",
+   "matched": 11,
+   "nodes": {
+    "compare": "done",
+    "fluxmap": "done",
+    "thermal": "done"
+   },
+   "seconds": 1711.4,
    "status": "done"
   }
  },
@@ -777,6 +1477,223 @@
    },
    "seconds": 6811.5,
    "status": "done"
+  }
+ },
+ "electromagnetics/15_prius_skew": {
+  "full": {
+   "commit": "e1b27365",
+   "comparisons": [
+    {
+     "flow": "skew.sweep.K2_skew0.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.0.cogging_pkpk_Nm",
+     "reference": 1.3530931164044118,
+     "rel_diff": 0.0,
+     "value": 1.3530931164044118
+    },
+    {
+     "flow": "skew.sweep.K2_skew0.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.0.torque_mean_Nm",
+     "reference": 345.6056779652419,
+     "rel_diff": 0.0,
+     "value": 345.6056779652419
+    },
+    {
+     "flow": "skew.sweep.K2_skew0.25.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.1.cogging_pkpk_Nm",
+     "reference": 0.6390829059416137,
+     "rel_diff": 0.0,
+     "value": 0.6390829059416137
+    },
+    {
+     "flow": "skew.sweep.K2_skew0.25.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.1.torque_mean_Nm",
+     "reference": 343.8938983548185,
+     "rel_diff": 0.0,
+     "value": 343.8938983548185
+    },
+    {
+     "flow": "skew.sweep.K2_skew0.5.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.2.cogging_pkpk_Nm",
+     "reference": 0.623988394718637,
+     "rel_diff": 0.0,
+     "value": 0.623988394718637
+    },
+    {
+     "flow": "skew.sweep.K2_skew0.5.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.2.torque_mean_Nm",
+     "reference": 338.7945300653924,
+     "rel_diff": 0.0,
+     "value": 338.7945300653924
+    },
+    {
+     "flow": "skew.sweep.K2_skew0.75.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.3.cogging_pkpk_Nm",
+     "reference": 0.6390829059387617,
+     "rel_diff": 0.0,
+     "value": 0.6390829059387617
+    },
+    {
+     "flow": "skew.sweep.K2_skew0.75.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.3.torque_mean_Nm",
+     "reference": 330.13254016651257,
+     "rel_diff": 0.0,
+     "value": 330.13254016651257
+    },
+    {
+     "flow": "skew.sweep.K2_skew1.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.4.cogging_pkpk_Nm",
+     "reference": 1.3530931164049858,
+     "rel_diff": 0.0,
+     "value": 1.3530931164049858
+    },
+    {
+     "flow": "skew.sweep.K2_skew1.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.4.torque_mean_Nm",
+     "reference": 317.02818987879374,
+     "rel_diff": 0.0,
+     "value": 317.02818987879374
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.5.cogging_pkpk_Nm",
+     "reference": 1.3530931164044118,
+     "rel_diff": 0.0,
+     "value": 1.3530931164044118
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.5.torque_mean_Nm",
+     "reference": 345.6056779652419,
+     "rel_diff": 0.0,
+     "value": 345.6056779652419
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.25.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.6.cogging_pkpk_Nm",
+     "reference": 0.8770863094292131,
+     "rel_diff": 0.0,
+     "value": 0.8770863094292131
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.25.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.6.torque_mean_Nm",
+     "reference": 344.464491558293,
+     "rel_diff": 0.0,
+     "value": 344.464491558293
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.5.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.7.cogging_pkpk_Nm",
+     "reference": 0.472058407491763,
+     "rel_diff": 0.0,
+     "value": 0.472058407491763
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.5.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.7.torque_mean_Nm",
+     "reference": 341.0649126986756,
+     "rel_diff": 0.0,
+     "value": 341.0649126986756
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.75.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.8.cogging_pkpk_Nm",
+     "reference": 0.4195147559101333,
+     "rel_diff": 0.0,
+     "value": 0.4195147559101333
+    },
+    {
+     "flow": "skew.sweep.K3_skew0.75.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.8.torque_mean_Nm",
+     "reference": 335.290252766089,
+     "rel_diff": 0.0,
+     "value": 335.290252766089
+    },
+    {
+     "flow": "skew.sweep.K3_skew1.cogging_pkpk_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.9.cogging_pkpk_Nm",
+     "reference": 0.8459959332564214,
+     "rel_diff": 0.0,
+     "value": 0.8459959332564214
+    },
+    {
+     "flow": "skew.sweep.K3_skew1.torque_mean_Nm",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:sweep.9.torque_mean_Nm",
+     "reference": 326.55401924094315,
+     "rel_diff": 0.0,
+     "value": 326.55401924094315
+    },
+    {
+     "flow": "skew.back_emf.fundamental_ratio",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:back_emf.fundamental_ratio",
+     "reference": 0.9659258262753376,
+     "rel_diff": 0.0,
+     "value": 0.9659258262753376
+    },
+    {
+     "flow": "skew.back_emf.factor_fundamental",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:back_emf.factor_fundamental",
+     "reference": 0.9659258262890683,
+     "rel_diff": 0.0,
+     "value": 0.9659258262890683
+    },
+    {
+     "flow": "skew.back_emf.thd_skewed",
+     "outcome": "match",
+     "ref": "results/15_prius_skew.json:back_emf.thd_skewed",
+     "reference": 0.07219446106991396,
+     "rel_diff": 0.0,
+     "value": 0.07219446106991396
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/r2/example-em-prius-skew.experiment.json, Lab item manifest/flow/example-em-prius-skew",
+   "matched": 23,
+   "nodes": {
+    "compare": "done",
+    "skew": "done"
+   },
+   "seconds": 2217.2,
+   "status": "done"
+  }
+ },
+ "electromagnetics/17_prius_tolerances": {
+  "full": {
+   "commit": "e1b27365",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "skipped: the run is failed",
+   "matched": 0,
+   "nodes": {
+    "compare": "cancelled",
+    "tol": "failed: ImportError: cannot import name 'src' from 'pinneapple_analysis.uncertainty.tolerance' (/home/user/PINNeAPPle/pinneapple_analysis/uncertainty/tolerance.py)"
+   },
+   "seconds": 8.9,
+   "status": "failed"
   }
  },
  "electromagnetics/motor_spm_cogging_and_torque": {
@@ -1026,6 +1943,21 @@
     "compare": "done"
    },
    "seconds": 10.8,
+   "status": "done"
+  }
+ },
+ "first_example/first_example": {
+  "full": {
+   "commit": "e1b27365",
+   "comparisons": [],
+   "configuration": "full",
+   "date": "2026-10-23",
+   "manifest": "manifest /home/user/flowhome/r1/example-first-example.experiment.json, Lab item manifest/flow/example-first-example",
+   "matched": 0,
+   "nodes": {
+    "burgers": "done"
+   },
+   "seconds": 12261.3,
    "status": "done"
   }
  },

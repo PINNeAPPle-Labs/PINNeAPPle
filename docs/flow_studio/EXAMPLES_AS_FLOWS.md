@@ -8,9 +8,9 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 |---|---|
 | needs | 5 |
 | no flow | 5 |
-| not yet run | 9 |
+| not yet run | 8 |
 | not_convertible | 14 |
-| runs | 28 |
+| runs | 30 |
 | runs-quick | 6 |
 
 | example | domain | flow(s) | status | same numbers | notes |
@@ -22,14 +22,15 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `black_hole_weather` | astrophysics | `black_hole_weather/accretion_run` | runs | 1 / 1 match | the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows |
 | `bricks` | design | `bricks/self_modifying_bricks` | runs-quick | 15 / 15 match | compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes |
 | `calculix_cantilever` | structures | `calculix_cantilever/beam` | runs | 4 / 4 match | no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd |
+| `chain_of_whys` | design reasoning | `chain_of_whys/roof` | runs | 1 / 1 match | chain_of_whys/roof is the roof case (the bundled flow reason_roof of #858: reason.* nodes), compared with the committed _out/roof/chain.json; the footbridge, power_board and pumped_main cases have no flow of their own yet |
 | `core_primitives` | core | - | not_convertible |  | demonstrates the pinneapple_core Field / FunctionField API with hand-written training loops; the same physics is the poisson_2d flow (equations + train.pinn + validate) |
 | `data_api` | core | - | not_convertible |  | demonstrates the pinneapple_core.data loaders with hand-written loops; the same three problems are equations + train.pinn, surrogate.train and inverse.discover flows |
 | `data_pipeline` | data | - | not_convertible |  | API demos of pinneapple_data that write Zarr stores and stream them (loaders, prefetch threads, GPU pinning); 05 needs cadquery; nothing is computed or committed |
 | `design_from_intent` | design | `design_from_intent/design_from_intent` | runs | 21 / 30 match | the loop's full check needs NVIDIA Newton and the bracket's CalculiX + gmsh; without Newton that verification does not run |
-| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run | 12 / 17 match | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12.1 + GetDP 3.2.0 from apt; in 14 every PINNeAPPle-side number matches and the GetDP-side ones differ by 1e-5 to 3e-4 relative (0.6 % on the small GetDP-minus-PINNeAPPle torque difference); the committed results do not record the gmsh / GetDP versions they were made with |
+| `electrodynamics` | electromagnetics | `electromagnetics/07_em_verification`<br>`electromagnetics/10_pmsm_prius`<br>`electromagnetics/11_prius_drive`<br>`electromagnetics/12_prius_rotor_design`<br>`electromagnetics/13_prius_thermal`<br>`electromagnetics/14_prius_getdp_crosscheck`<br>`electromagnetics/15_prius_skew`<br>`electromagnetics/16_prius_end_effects`<br>`electromagnetics/17_prius_tolerances` | not yet run | 108 / 113 match | 01-06 are hand-written torch PINN scripts with no library entry point and nothing committed to compare (the presets em_tm_cavity_mode / em_wire_az run as lib.solve.preset flows); 08 holds its FDTD set-up inline (no library entry point yet); 18 builds PPTX slides from the JSON (a document build step). 13_prius_thermal: the iron-loss split moved from the script into machines.thermal.iron_split. 14 and 16 use gmsh 4.12.1 + GetDP 3.2.0 from apt; in 14 every PINNeAPPle-side number matches and the GetDP-side ones differ by 1e-5 to 3e-4 relative (0.6 % on the small GetDP-minus-PINNeAPPle torque difference); the committed results do not record the gmsh / GetDP versions they were made with |
 | `end_to_end` | data | - | not_convertible |  | legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh |
 | `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 12 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
-| `first_example` | PINN | `first_example/first_example` | not yet run |  | nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75 |
+| `first_example` | PINN | `first_example/first_example` | runs |  | nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75 |
 | `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 175 / 175 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
 | `flow_studio` | flows | - | not_convertible |  | already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step |
 | `free_surface` | CFD | `free_surface/01_runner_slope_study` | runs | 12 / 12 match | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
@@ -75,7 +76,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `time_series` | time series | `time_series/adaptive_forecasting` | not yet run |  | flows for adaptive_forecasting.py and 00_quickstart.py (nothing committed to compare); 01-05, 07 and 08 import pinneapple_timeseries, which no longer exists (now pinneapple_systems.time_series, without a shim); 06 registers a model class defined in the script |
 | `topology_optimization` | design | `topology_optimization/01_mbb_beam`<br>`topology_optimization/02_heat_and_stokes_flow`<br>`topology_optimization/03_reluctance_rotor` | runs | 30 / 30 match |  |
 | `trainer` | training | - | not_convertible |  | demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch |
-| `use_cases` | use cases | `use_cases/fin_convection_inverse` | runs | 6 / 6 match | fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes) |
+| `use_cases` | use cases | `use_cases/fin_convection_inverse` | runs | 6 / 6 match | fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas (#857 / #859) has its own bundled flow antenna_vivaldi_limits (lib.antenna.limits), and its EMerge full-wave runs are not a flow here |
 | `validation` | validation | - |  |  | not converted yet (a later batch of this PR): the gallery's run(smoke=True) through pp.validate; 11 needs PhysicsNeMo, 02 onnx |
 | `validation_arena` | validation | `validation_arena/run_arena` | runs | 4 / 4 match | compared with the table of docs/guides/validation_arena.md (full budget, seed 0, alpha 1 %, 2 rounds) |
 | `visualizations` | visualization | - | not_convertible |  | hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows |
@@ -94,6 +95,7 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `black_hole_weather` | `blackhole.accretion` | first |
 | `bricks` | `bricks.self_modifying` | first |
 | `calculix_cantilever` | `calculix.cantilever` | first |
+| `chain_of_whys` | - | falls short: no capability registered, generic flows only |
 | `design_from_intent` | `design.from_intent` | first |
 | `electrodynamics` | `em.prius_drive` | first |
 | `electrodynamics` | `em.prius_end_effects` | first |
@@ -214,6 +216,14 @@ done in 7 s (commit 5d9bf73a, 2026-10-19); 4 of 4 numbers match.
 | `results.max_abs_sxx_Pa` | `node:committed.max_abs_sxx_Pa` | 6.59687e+06 | 6.59687e+06 | 0 | match |
 | `results.nodes` | `node:committed.nodes` | 621 | 621 | 0 | match |
 
+### `chain_of_whys/roof` (full)
+
+done in 5 s (commit 87cf4b45, 2026-10-24); 1 of 1 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `fm.margin` | `_out/roof/chain.json:steps.0.verifications[mode=underside_condensation].margin` | -0.315885 | -0.315885 | 0 | match |
+
 ### `design_from_intent/design_from_intent` (full)
 
 done in 624 s (commit 5e891c36, 2026-10-19); 21 of 30 numbers match.
@@ -251,6 +261,82 @@ done in 624 s (commit 5e891c36, 2026-10-19); 21 of 30 numbers match.
 | `glider.sink_m_s.full` | `_out/summary.json:glider.verification.comparison[output=sink_m_s].full` | 0.440853 | 0.440853 | 2.51835e-16 | match |
 | `glider.span_eff.full` | `_out/summary.json:glider.verification.comparison[output=span_eff].full` | 0.989427 | 0.989427 | 3.36626e-16 | match |
 
+### `electromagnetics/07_em_verification` (full)
+
+done in 3755 s (commit e1b27365, 2026-10-23); 32 of 32 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `verif.case0.error` | `results/em_verification.json:0.error` | 0.000387134 | 0.000387134 | 0 | match |
+| `verif.case1.error` | `results/em_verification.json:1.error` | 3.10862e-15 | 3.10862e-15 | 0 | match |
+| `verif.case2.error` | `results/em_verification.json:2.error` | 5.08186e-05 | 5.08186e-05 | 0 | match |
+| `verif.case3.error` | `results/em_verification.json:3.error` | 0.000532449 | 0.000532449 | 0 | match |
+| `verif.case4.error` | `results/em_verification.json:4.error` | 2.22045e-16 | 2.22045e-16 | 0 | match |
+| `verif.case5.error` | `results/em_verification.json:5.error` | 0.000368949 | 0.000368949 | 0 | match |
+| `verif.case6.error` | `results/em_verification.json:6.error` | 1.43894e-06 | 1.43894e-06 | 0 | match |
+| `verif.case7.error` | `results/em_verification.json:7.error` | 4.40771e-05 | 4.40771e-05 | 0 | match |
+| `verif.case8.error` | `results/em_verification.json:8.error` | 6.66134e-16 | 6.66134e-16 | 0 | match |
+| `verif.case9.error` | `results/em_verification.json:9.error` | 2.22045e-16 | 2.22045e-16 | 0 | match |
+| `verif.case10.error` | `results/em_verification.json:10.error` | 1.32783e-13 | 1.32783e-13 | 0 | match |
+| `verif.case11.error` | `results/em_verification.json:11.error` | 0 | 0 | 0 | match |
+| `verif.case12.error` | `results/em_verification.json:12.error` | 9.01658e-06 | 9.01658e-06 | 0 | match |
+| `verif.case13.error` | `results/em_verification.json:13.error` | 4.44089e-16 | 4.44089e-16 | 0 | match |
+| `verif.case14.error` | `results/em_verification.json:14.error` | 0.000518293 | 0.000518293 | 0 | match |
+| `verif.case15.error` | `results/em_verification.json:15.error` | 0.000855269 | 0.000855269 | 0 | match |
+| `verif.case16.error` | `results/em_verification.json:16.error` | 0.000508218 | 0.000508218 | 0 | match |
+| `verif.case17.error` | `results/em_verification.json:17.error` | 1.27678e-09 | 1.27678e-09 | 0 | match |
+| `verif.case18.error` | `results/em_verification.json:18.error` | 0.000233087 | 0.000233087 | 0 | match |
+| `verif.case19.error` | `results/em_verification.json:19.error` | 0.00202372 | 0.00202372 | 0 | match |
+| `verif.case20.error` | `results/em_verification.json:20.error` | 0.000874314 | 0.000874314 | 0 | match |
+| `verif.case21.error` | `results/em_verification.json:21.error` | 1.35508e-05 | 1.35508e-05 | 0 | match |
+| `verif.case22.error` | `results/em_verification.json:22.error` | 0.000237332 | 0.000237332 | 0 | match |
+| `verif.case23.error` | `results/em_verification.json:23.error` | 3.89244e-05 | 3.89244e-05 | 0 | match |
+| `verif.case24.error` | `results/em_verification.json:24.error` | 9.88978e-05 | 9.88978e-05 | 0 | match |
+| `verif.case25.error` | `results/em_verification.json:25.error` | 0.00423261 | 0.00423261 | 0 | match |
+| `verif.case26.error` | `results/em_verification.json:26.error` | 0.0117488 | 0.0117488 | 0 | match |
+| `verif.case27.error` | `results/em_verification.json:27.error` | 0.00101491 | 0.00101491 | 0 | match |
+| `verif.case28.error` | `results/em_verification.json:28.error` | 4.24524e-05 | 4.24524e-05 | 0 | match |
+| `verif.case29.error` | `results/em_verification.json:29.error` | 0.0017761 | 0.0017761 | 0 | match |
+| `verif.case30.error` | `results/em_verification.json:30.error` | 0.00289874 | 0.00289874 | 0 | match |
+| `verif.case31.error` | `results/em_verification.json:31.error` | 0.024085 | 0.024085 | 0 | match |
+
+### `electromagnetics/10_pmsm_prius` (full)
+
+done in 2615 s (commit e1b27365, 2026-10-23); 30 of 30 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `prius.elements` | `results/10_pmsm_prius.json:elements` | 29936 | 29936 | 0 | match |
+| `prius.no_load.cogging_peak_to_peak_Nm` | `results/10_pmsm_prius.json:no_load.cogging_peak_to_peak_Nm` | 1.38348 | 1.38348 | 0 | match |
+| `prius.no_load.psi_pm_peak_Wb` | `results/10_pmsm_prius.json:no_load.psi_pm_peak_Wb` | 0.209056 | 0.209056 | 0 | match |
+| `prius.no_load.emf_phase_fundamental_peak_V_at_1000rpm` | `results/10_pmsm_prius.json:no_load.emf_phase_fundamental_peak_V_at_1000rpm` | 87.6038 | 87.6038 | 0 | match |
+| `prius.no_load.emf_thd_phase` | `results/10_pmsm_prius.json:no_load.emf_thd_phase` | 0.0934397 | 0.0934397 | 0 | match |
+| `prius.torque_vs_angle.phi60_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.0` | 91.9717 | 91.9717 | 0 | match |
+| `prius.torque_vs_angle.phi70_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.1` | 133.642 | 133.642 | 0 | match |
+| `prius.torque_vs_angle.phi80_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.2` | 175.845 | 175.845 | 0 | match |
+| `prius.torque_vs_angle.phi90_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.3` | 217.258 | 217.258 | 0 | match |
+| `prius.torque_vs_angle.phi100_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.4` | 255.967 | 255.967 | 0 | match |
+| `prius.torque_vs_angle.phi110_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.5` | 289.937 | 289.937 | 0 | match |
+| `prius.torque_vs_angle.phi120_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.6` | 318.152 | 318.152 | 0 | match |
+| `prius.torque_vs_angle.phi130_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.7` | 338.144 | 338.144 | 0 | match |
+| `prius.torque_vs_angle.phi140_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.8` | 345.646 | 345.646 | 0 | match |
+| `prius.torque_vs_angle.phi150_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.9` | 330.139 | 330.139 | 0 | match |
+| `prius.torque_vs_angle.phi160_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.10` | 267.129 | 267.129 | 0 | match |
+| `prius.torque_vs_angle.phi170_Nm` | `results/10_pmsm_prius.json:torque_vs_angle.torque_Nm.11` | 151.396 | 151.396 | 0 | match |
+| `prius.mtpa_50A.torque_Nm` | `results/10_pmsm_prius.json:mtpa.0.torque_Nm` | 70.4481 | 70.4481 | 0 | match |
+| `prius.mtpa_100A.torque_Nm` | `results/10_pmsm_prius.json:mtpa.1.torque_Nm` | 147.791 | 147.791 | 0 | match |
+| `prius.mtpa_150A.torque_Nm` | `results/10_pmsm_prius.json:mtpa.2.torque_Nm` | 221.312 | 221.312 | 0 | match |
+| `prius.mtpa_200A.torque_Nm` | `results/10_pmsm_prius.json:mtpa.3.torque_Nm` | 287.917 | 287.917 | 0 | match |
+| `prius.mtpa_250A.torque_Nm` | `results/10_pmsm_prius.json:mtpa.4.torque_Nm` | 345.605 | 345.605 | 0 | match |
+| `prius.mtpa_50A.L_d_mH` | `results/10_pmsm_prius.json:mtpa.0.L_d_mH` | 1.94494 | 1.94494 | 0 | match |
+| `prius.mtpa_100A.L_d_mH` | `results/10_pmsm_prius.json:mtpa.1.L_d_mH` | 1.74055 | 1.74055 | 0 | match |
+| `prius.mtpa_150A.L_d_mH` | `results/10_pmsm_prius.json:mtpa.2.L_d_mH` | 1.62298 | 1.62298 | 0 | match |
+| `prius.mtpa_200A.L_d_mH` | `results/10_pmsm_prius.json:mtpa.3.L_d_mH` | 1.51089 | 1.51089 | 0 | match |
+| `prius.mtpa_250A.L_d_mH` | `results/10_pmsm_prius.json:mtpa.4.L_d_mH` | 1.38596 | 1.38596 | 0 | match |
+| `prius.bertotti_fit.rms_rel_error` | `results/10_pmsm_prius.json:bertotti_fit.rms_rel_error` | 0.0816604 | 0.0816604 | 0 | match |
+| `prius.losses_1500rpm.stator_iron_W_table` | `results/10_pmsm_prius.json:losses.1500rpm_250A.stator_iron_W_table` | 390.905 | 390.905 | 0 | match |
+| `prius.losses_1500rpm.magnet_W_table` | `results/10_pmsm_prius.json:losses.1500rpm_250A.magnet_W` | 37.8568 | 37.8568 | 0 | match |
+
 ### `electromagnetics/11_prius_drive` (full)
 
 done in 928 s (commit 5e891c36, 2026-10-19); 8 of 8 numbers match.
@@ -265,6 +351,24 @@ done in 928 s (commit 5e891c36, 2026-10-19); 8 of 8 numbers match.
 | `drive.envelope.torque_0rpm_Nm` | `results/11_prius_drive.json:envelope.torque_Nm.0` | 343.556 | 343.556 | 0 | match |
 | `drive.envelope.torque_3000rpm_Nm` | `results/11_prius_drive.json:envelope.torque_Nm.12` | 239.261 | 239.261 | 0 | match |
 | `drive.envelope.torque_6000rpm_Nm` | `results/11_prius_drive.json:envelope.torque_Nm.24` | 104.386 | 104.386 | 0 | match |
+
+### `electromagnetics/13_prius_thermal` (full)
+
+done in 1711 s (commit e1b27365, 2026-10-23); 11 of 11 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `thermal.peak_temperatures_C.yoke` | `results/13_prius_thermal.json:peak_temperatures_C.yoke` | 71.881 | 71.881 | 0 | match |
+| `thermal.peak_temperatures_C.teeth` | `results/13_prius_thermal.json:peak_temperatures_C.teeth` | 82.5052 | 82.5052 | 0 | match |
+| `thermal.peak_temperatures_C.winding` | `results/13_prius_thermal.json:peak_temperatures_C.winding` | 80.3368 | 80.3368 | 0 | match |
+| `thermal.peak_temperatures_C.end_winding` | `results/13_prius_thermal.json:peak_temperatures_C.end_winding` | 75.1103 | 75.1103 | 0 | match |
+| `thermal.peak_temperatures_C.rotor` | `results/13_prius_thermal.json:peak_temperatures_C.rotor` | 78.4868 | 78.4868 | 0 | match |
+| `thermal.peak_temperatures_C.magnets` | `results/13_prius_thermal.json:peak_temperatures_C.magnets` | 78.4867 | 78.4867 | 0 | match |
+| `thermal.peak_load.torque_Nm` | `results/13_prius_thermal.json:peak_load.torque_Nm` | 343.213 | 343.213 | 0 | match |
+| `thermal.peak_load.time_to_180C_winding_s` | `results/13_prius_thermal.json:peak_load.time_to_180C_winding_s` | 237 | 237 | 0 | match |
+| `thermal.demagnetisation.magnet_temperature_C` | `results/13_prius_thermal.json:demagnetisation.magnet_temperature_C` | 127.407 | 127.407 | 0 | match |
+| `thermal.demagnetisation.short_circuit_peak_estimate_A` | `results/13_prius_thermal.json:demagnetisation.short_circuit_peak_estimate_A` | 165.44 | 165.44 | 0 | match |
+| `thermal.sweep_20C.torque_Nm` | `results/13_prius_thermal.json:magnet_temperature_sweep.0.torque_Nm` | 345.605 | 345.605 | 0 | match |
 
 ### `electromagnetics/14_prius_getdp_crosscheck` (full)
 
@@ -281,6 +385,42 @@ done in 6812 s (commit fd43aca8, 2026-10-21); 4 of 9 numbers match.
 | `xcheck.back_emf_1000rpm.getdp_fundamental_peak_V` | `results/14_prius_getdp_crosscheck.json:back_emf_1000rpm.getdp_fundamental_peak_V` | 87.6409 | 87.6409 | 8.20189e-08 | match |
 | `xcheck.inductances.getdp.L_d_mH` | `results/14_prius_getdp_crosscheck.json:inductances_apparent_250A_50deg.getdp.L_d_mH` | 1.3851 | 1.38512 | 1.17423e-05 | differs |
 | `xcheck.inductances.pinneapple.L_d_mH` | `results/14_prius_getdp_crosscheck.json:inductances_apparent_250A_50deg.pinneapple.L_d_mH` | 1.36986 | 1.36986 | 0 | match |
+
+### `electromagnetics/15_prius_skew` (full)
+
+done in 2217 s (commit e1b27365, 2026-10-23); 23 of 23 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `skew.sweep.K2_skew0.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.0.cogging_pkpk_Nm` | 1.35309 | 1.35309 | 0 | match |
+| `skew.sweep.K2_skew0.torque_mean_Nm` | `results/15_prius_skew.json:sweep.0.torque_mean_Nm` | 345.606 | 345.606 | 0 | match |
+| `skew.sweep.K2_skew0.25.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.1.cogging_pkpk_Nm` | 0.639083 | 0.639083 | 0 | match |
+| `skew.sweep.K2_skew0.25.torque_mean_Nm` | `results/15_prius_skew.json:sweep.1.torque_mean_Nm` | 343.894 | 343.894 | 0 | match |
+| `skew.sweep.K2_skew0.5.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.2.cogging_pkpk_Nm` | 0.623988 | 0.623988 | 0 | match |
+| `skew.sweep.K2_skew0.5.torque_mean_Nm` | `results/15_prius_skew.json:sweep.2.torque_mean_Nm` | 338.795 | 338.795 | 0 | match |
+| `skew.sweep.K2_skew0.75.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.3.cogging_pkpk_Nm` | 0.639083 | 0.639083 | 0 | match |
+| `skew.sweep.K2_skew0.75.torque_mean_Nm` | `results/15_prius_skew.json:sweep.3.torque_mean_Nm` | 330.133 | 330.133 | 0 | match |
+| `skew.sweep.K2_skew1.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.4.cogging_pkpk_Nm` | 1.35309 | 1.35309 | 0 | match |
+| `skew.sweep.K2_skew1.torque_mean_Nm` | `results/15_prius_skew.json:sweep.4.torque_mean_Nm` | 317.028 | 317.028 | 0 | match |
+| `skew.sweep.K3_skew0.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.5.cogging_pkpk_Nm` | 1.35309 | 1.35309 | 0 | match |
+| `skew.sweep.K3_skew0.torque_mean_Nm` | `results/15_prius_skew.json:sweep.5.torque_mean_Nm` | 345.606 | 345.606 | 0 | match |
+| `skew.sweep.K3_skew0.25.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.6.cogging_pkpk_Nm` | 0.877086 | 0.877086 | 0 | match |
+| `skew.sweep.K3_skew0.25.torque_mean_Nm` | `results/15_prius_skew.json:sweep.6.torque_mean_Nm` | 344.464 | 344.464 | 0 | match |
+| `skew.sweep.K3_skew0.5.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.7.cogging_pkpk_Nm` | 0.472058 | 0.472058 | 0 | match |
+| `skew.sweep.K3_skew0.5.torque_mean_Nm` | `results/15_prius_skew.json:sweep.7.torque_mean_Nm` | 341.065 | 341.065 | 0 | match |
+| `skew.sweep.K3_skew0.75.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.8.cogging_pkpk_Nm` | 0.419515 | 0.419515 | 0 | match |
+| `skew.sweep.K3_skew0.75.torque_mean_Nm` | `results/15_prius_skew.json:sweep.8.torque_mean_Nm` | 335.29 | 335.29 | 0 | match |
+| `skew.sweep.K3_skew1.cogging_pkpk_Nm` | `results/15_prius_skew.json:sweep.9.cogging_pkpk_Nm` | 0.845996 | 0.845996 | 0 | match |
+| `skew.sweep.K3_skew1.torque_mean_Nm` | `results/15_prius_skew.json:sweep.9.torque_mean_Nm` | 326.554 | 326.554 | 0 | match |
+| `skew.back_emf.fundamental_ratio` | `results/15_prius_skew.json:back_emf.fundamental_ratio` | 0.965926 | 0.965926 | 0 | match |
+| `skew.back_emf.factor_fundamental` | `results/15_prius_skew.json:back_emf.factor_fundamental` | 0.965926 | 0.965926 | 0 | match |
+| `skew.back_emf.thd_skewed` | `results/15_prius_skew.json:back_emf.thd_skewed` | 0.0721945 | 0.0721945 | 0 | match |
+
+### `electromagnetics/17_prius_tolerances` (full)
+
+failed in 9 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
+
+Nodes not done: `compare` cancelled; `tol` failed: ImportError: cannot import name 'src' from 'pinneapple_analysis.uncertainty.tolerance' (/home/user/PINNeAPPle/pinneapple_analysis/uncertainty/tolerance.py)
 
 ### `enso_forecasting/solver_checks` (full)
 
@@ -300,6 +440,10 @@ done in 11 s (commit b25e808a, 2026-10-19); 12 of 12 numbers match.
 | `checks.recharge_period_rel_error_sub4` | `manifest:recharge_period_rel_error_sub4` | -2.82564e-06 | -2.8256e-06 | 1.25994e-05 | match |
 | `checks.recharge_period_rel_error_sub8` | `manifest:recharge_period_rel_error_sub8` | -2.8394e-06 | -2.8394e-06 | 1.13349e-06 | match |
 | `checks.recharge_period_rel_error_sub16` | `manifest:recharge_period_rel_error_sub16` | -2.84023e-06 | -2.8402e-06 | 1.00579e-05 | match |
+
+### `first_example/first_example` (full)
+
+done in 12261 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
 
 ### `flight_dynamics/01_verification` (full)
 
@@ -1079,6 +1223,14 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 </details>
 
+<details><summary><code>chain_of_whys</code></summary>
+
+| script | covered by a node | not covered |
+|---|---|---|
+| `chain_of_whys.py` | `pinneapple_reason.cases`, `pinneapple_reason.run_case`, `pinneapple_reason.write_report` | `pinneapple_reason.trust_report` |
+
+</details>
+
 <details><summary><code>core_primitives</code></summary>
 
 | script | covered by a node | not covered |
@@ -1138,7 +1290,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `14_prius_getdp_crosscheck.py` | `pinneapple_simulation.electromagnetics.machine.belt_winding`, `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.M400_50A`, `pinneapple_simulation.electromagnetics.machines.getdp`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.verification` | `pinneapple_simulation.electromagnetics.constants.MU0` |
 | `15_prius_skew.py` | `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.robustness.skewed_no_load`, `pinneapple_simulation.electromagnetics.machines.robustness.skewed_torque`, `pinneapple_simulation.electromagnetics.machines.robustness.step_skew_factor` | `pinneapple_simulation.electromagnetics.machines.export.write_vtu`, `pinneapple_simulation.electromagnetics.machines.robustness.skewed_field_3d` |
 | `16_prius_end_effects.py` | `pinneapple_simulation.electromagnetics.machine.belt_winding`, `pinneapple_simulation.electromagnetics.machines.IPMMachine`, `pinneapple_simulation.electromagnetics.machines.M400_50A`, `pinneapple_simulation.electromagnetics.machines.drive.Drive`, `pinneapple_simulation.electromagnetics.machines.drive.FluxMap`, `pinneapple_simulation.electromagnetics.machines.drive.prius_phase_resistance`, `pinneapple_simulation.electromagnetics.machines.drive.v_max_svpwm`, `pinneapple_simulation.electromagnetics.machines.endwinding.end_winding_inductance`, `pinneapple_simulation.electromagnetics.machines.getdp`, `pinneapple_simulation.electromagnetics.machines.prius_2004` | `pinneapple_simulation.electromagnetics.machines.MAGNET_PRIUS` |
-| `17_prius_tolerances.py` | `pinneapple_analysis.uncertainty.tolerance.propagate`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.robustness.tolerance_model` | `pinneapple_simulation.electromagnetics.machines.robustness.TOLERANCE_VARIABLES` |
+| `17_prius_tolerances.py` | `pinneapple_analysis.uncertainty.tolerance.propagate`, `pinneapple_analysis.uncertainty.tolerance.src`, `pinneapple_simulation.electromagnetics.machines.prius_2004`, `pinneapple_simulation.electromagnetics.machines.robustness.tolerance_model` | `pinneapple_simulation.electromagnetics.machines.robustness.TOLERANCE_VARIABLES` |
 | `18_emachine_slides.py` | - | - |
 
 </details>
@@ -1670,6 +1822,7 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
+| `antennas/vivaldi_2to4ghz.py` | `pinneapple_lab.experiment`, `pinneapple_simulation.electromagnetics.antenna.study` | - |
 | `concorde_high_aoa/__init__.py` | - | - |
 | `concorde_high_aoa/concorde_high_aoa_pipeline.py` | - | `pinneapple_design.geometry.csg.CSGEllipse`, `pinneapple_design.geometry.csg.CSGPolygon`, `pinneapple_design.geometry.csg.CSGUnion`, `pinneapple_design.geometry.gen.primitives._boolean_or_fallback`, `pinneapple_design.geometry.gen.primitives.build_mesh`, `pinneapple_design.geometry.ops.lbm_bridge._aoa_rotation_matrix`, `pinneapple_design.geometry.ops.lbm_bridge.mesh_to_obstacle_mask`, `pinneapple_pdb.benchmarks.get_benchmark`, `pinneapple_physics.pde_environment.turbulence_selector.TurbulenceModel`, `pinneapple_physics.pde_environment.turbulence_selector.get_turbulence_closure`, `pinneapple_simulation.numerical_solvers.lbm.LBMSolver3D`, `pinneapple_tools.aero_coefficients.compute_cp`, `pinneapple_tools.aero_coefficients.force_to_coefficients`, `pinneapple_tools.aero_coefficients.integrate_surface_forces`, `pinneapple_tools.visualization.style.make_figure`, `pinneapple_tools.visualization.style.use_cfd_style`, `pinneapple_tools.visualization.vortex.compute_dissipation_rate`, `pinneapple_tools.visualization.vortex.compute_enstrophy`, `pinneapple_tools.visualization.vortex.compute_q_criterion_3d`, `pinneapple_tools.visualization.vortex.compute_strain_rate_tensor_3d`, `pinneapple_tools.visualization.vortex.compute_vorticity_3d`, `pinneapple_tools.visualization.vortex.plot_lbm_flow`, `pinneapple_tools.visualization.vortex.plot_q_criterion_3d`, `pinneapple_train.best_device` |
 | `crash_surrogate/__init__.py` | - | - |

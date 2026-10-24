@@ -21,15 +21,23 @@ from .geometry import surfaces
 __all__ = ["PanelResult", "panel_solve", "airfoil_nodes"]
 
 
-def airfoil_nodes(shape: np.ndarray, n_per_side: int = 100) -> np.ndarray:
+def airfoil_nodes(shape: np.ndarray, n_per_side: int = 100, close_te: bool = False) -> np.ndarray:
     """Clockwise panel nodes: lower surface trailing edge -> leading edge, then upper leading edge -> trailing edge,
-    cosine-clustered at both ends. The blunt trailing edge of the CST shapes stays open (a gap of 0.25 % chord)."""
+    cosine-clustered at both ends. The blunt trailing edge of the CST shapes stays open (a gap of 0.25 % chord)
+    unless ``close_te``: then both end nodes move to the mid-point of the gap. With the gap open the Kutta condition
+    acts on panels that shrink below the gap as the panels are refined and Cl drifts down by about 0.8 % per
+    doubling (NACA 2412, 4 deg: 0.728, 0.723, 0.717, 0.712, 0.706 for 50-800 panels per side); closed, it converges
+    (0.745, 0.734, 0.731, 0.7296, 0.7292)."""
     b = np.linspace(0, np.pi, n_per_side + 1)
     x = 0.5 * (1 - np.cos(b))
     yu, yl = surfaces(shape, x)
     lower = np.stack([x[::-1], yl[::-1]], 1)
     upper = np.stack([x[1:], yu[1:]], 1)
-    return np.concatenate([lower, upper])
+    nodes = np.concatenate([lower, upper])
+    if close_te:
+        te = 0.5 * (nodes[0] + nodes[-1])
+        nodes[0] = nodes[-1] = te
+    return nodes
 
 
 def _influence(px, py, x1, y1, x2, y2):
@@ -77,9 +85,10 @@ class PanelResult:
 
 
 def panel_solve(shape: np.ndarray | None = None, alpha_deg: float = 0.0, *, nodes: np.ndarray | None = None,
-                n_per_side: int = 100) -> PanelResult:
-    """Solve the potential flow around an airfoil given by CST ``shape`` (or by clockwise ``nodes``)."""
-    n = airfoil_nodes(shape, n_per_side) if nodes is None else np.asarray(nodes, float)
+                n_per_side: int = 100, close_te: bool = False) -> PanelResult:
+    """Solve the potential flow around an airfoil given by CST ``shape`` (or by clockwise ``nodes``);
+    ``close_te``: close the blunt CST trailing edge (see :func:`airfoil_nodes`), needed for a grid-converged Cl."""
+    n = airfoil_nodes(shape, n_per_side, close_te) if nodes is None else np.asarray(nodes, float)
     x1, y1, x2, y2 = n[:-1, 0], n[:-1, 1], n[1:, 0], n[1:, 1]
     xm, ym = 0.5 * (x1 + x2), 0.5 * (y1 + y2)
     L = np.hypot(x2 - x1, y2 - y1)

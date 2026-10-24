@@ -8,8 +8,9 @@ from ..registry import Param, Port, node
 
 #: kept literal so registering the nodes imports nothing heavy; tests/test_presets.py checks it equals
 #: pinneapple_presets.names()
-PRESETS = ["plate_fin_heatsink_forced", "power_pcb_junction", "pressure_vessel_asme", "pump_npsh_cavitation",
-           "shell_tube_cooler", "steam_pipe_insulation", "steel_footbridge_pedestrian", "water_distribution_network",
+PRESETS = ["airfoil_section_re4e6", "eddy_current_skin_inspection", "ipm_traction_motor", "plate_fin_heatsink_forced",
+           "power_pcb_junction", "pressure_vessel_asme", "pump_npsh_cavitation", "shell_tube_cooler",
+           "spm_servo_motor", "steam_pipe_insulation", "steel_footbridge_pedestrian", "water_distribution_network",
            "water_hammer_valve_closure"]
 _TAGS = ("section:solvers", "industrial presets", "validated cases", "engineering")
 

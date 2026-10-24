@@ -725,7 +725,450 @@
     }
    },
    "results": {
-    "folder": "examples/industrial_presets/eddy_current_skin_inspection"
+    "folder": "examples/industrial_presets/eddy_current_skin_inspection",
+    "decision": {
+     "verdict": "NOT OK",
+     "reasons": [
+      "delta = 1.21 mm, t/delta = 1.66",
+      "sinal do afinamento de 10 %: 24.24 mohm, lift-off ±50 um: 90.31 mohm, ângulo de fase entre eles 27°",
+      "componente perpendicular / ruído = 2.4 (mín. 3); ângulo 27° (mín. 20°)"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "passive load: dR >= 0 (eddy losses)",
+       "status": "supports",
+       "value": 1.016954302254925,
+       "limit": 0.0,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "conductor lowers the inductance: dX <= 0",
+       "status": "supports",
+       "value": -1.974827269036844,
+       "limit": 0.0,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "coil geometry r2 > r1",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "quasi-static: probe much smaller than the wavelength",
+       "status": "supports",
+       "value": 0.008,
+       "limit": 300.0,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "eddy_current_skin_inspection",
+     "references": [
+      {
+       "case": "dZ da sonda: Dodd & Deeds vs FDM axissimétrico da lib (h = 0,1 mm)",
+       "output": "dZ",
+       "unit": "ohm",
+       "computed": 2.2212921454429,
+       "reference": 2.2123778918273667,
+       "rel_error": 0.004556780826434239,
+       "tol": 0.02,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "solve_axisymmetric_eddy_current (diferenças finitas, A = 0 a 0,05 m); a analítica é Dodd & Deeds, J. Appl. Phys. 39(6):2829-2838 (1968), solução analítica bobina sobre placa",
+       "params": {}
+      },
+      {
+       "case": "placa de 10 delta = semi-espaço",
+       "output": "dZ",
+       "unit": "ohm",
+       "computed": 2.1813435697242287,
+       "reference": 2.1813435701185653,
+       "rel_error": 3.5127381771509463e-10,
+       "tol": 1e-06,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Dodd & Deeds, J. Appl. Phys. 39(6):2829-2838 (1968), solução analítica bobina sobre placa (limite c -> infinito)",
+       "params": {}
+      },
+      {
+       "case": "indutância da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)",
+       "output": "L0",
+       "unit": "H",
+       "computed": 0.0002039253915257404,
+       "reference": 0.00020247469066366706,
+       "rel_error": 0.007164850368795491,
+       "tol": 0.05,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Wheeler, Proc. IRE 16 (1928): L = 0,8 a2 N2/(6a + 9b + 10c) uH em polegadas, ~1 %",
+       "params": {}
+      }
+     ],
+     "convergence": {
+      "parameter": "passo h do FDM [m]",
+      "values": [
+       0.0002,
+       0.0001
+      ],
+      "dZ_abs": [
+       2.3745748567233544,
+       2.2123778918273667
+      ],
+      "rel_change_last": 0.07334540965353262,
+      "error_vs_analytic": [
+       0.06900610987466346,
+       0.004538494037800618
+      ],
+      "pass": true
+     },
+     "all_pass": true
+    },
+    "inversion": {
+     "description": "Espessura remanescente e lift-off a partir da impedância medida em 5 frequências (2 a 50 kHz), ruído de 0,5 % em cada componente. Verdade sintética: 1,70 mm (de 2,0) e lift-off de 0,6 mm.",
+     "parameter": "espessura, lift-off",
+     "unit": "m",
+     "true": [
+      0.0017,
+      0.0006
+     ],
+     "recovered": [
+      0.0017014867126290314,
+      0.000599472264170281
+     ],
+     "ci95": [
+      [
+       0.0016806934593528722,
+       0.0017222799659051906
+      ],
+      [
+       0.000595851626121388,
+       0.000603092902219174
+      ]
+     ],
+     "rel_error": 0.0008745368406067657,
+     "true_inside_ci95": true,
+     "noise": "0.5 %",
+     "how": "Gauss-Newton ponderado sobre Dodd & Deeds, covariância (J^T J)^-1"
+    },
+    "optimization": {
+     "objective": "frequência de maior ângulo afinamento/lift-off com sinal perpendicular >= 3x ruído",
+     "f_best_hz": 3890.5203490203116,
+     "angle_best_deg": 89.67990489209261,
+     "separation_best": 12.169885121260817,
+     "t_over_delta_best": 1.0339233268364947,
+     "angle_at_given_f": 26.635382653296546,
+     "verified_ok": true,
+     "scan_hz": [
+      1000.0,
+      1145.5149701087116,
+      1312.2045467431637,
+      1503.1499521390106,
+      1721.8807724934316,
+      1972.4402016335785,
+      2259.459778615512,
+      2588.2450007625844,
+      2964.873394682577,
+      3396.3068580859263,
+      3890.5203490203116,
+      4456.649301315341,
+      5105.158491181253,
+      5848.0354764257345,
+      6699.01218397251,
+      7673.818741681172,
+      8790.474246496578,
+      10069.619843716926,
+      11534.900274281496,
+      13213.40094290055,
+      15136.14858614113,
+      17338.68479521449,
+      19861.72299491452,
+      22751.90102282699,
+      26062.643220080052,
+      29855.147969204045,
+      34199.51893353397,
+      39176.06090887952,
+      44876.76424101213,
+      51407.00524811877,
+      58887.49408017721,
+      67456.50602103105,
+      77272.43747831958,
+      88516.73390820464,
+      101397.24379697771,
+      116152.06069720077,
+      133053.92433761933,
+      152415.26216045461,
+      174593.96447784515,
+      200000.0
+     ],
+     "scan_separation": [
+      14.548521367865572,
+      14.929599183748175,
+      15.20389923717776,
+      15.357534218197015,
+      15.377508644474462,
+      15.252050010193434,
+      14.970975114119078,
+      14.526120278642269,
+      13.911875407887706,
+      13.125872392911276,
+      12.169885121260817,
+      11.050995002592648,
+      9.783051116595601,
+      8.388389674423522,
+      6.899649256071866,
+      5.3613039172625205,
+      3.830237721480191,
+      2.3743698129892516,
+      1.0681934024615922,
+      0.015576577528129007,
+      0.8179388176777743,
+      1.3069370280579653,
+      1.4882549261216544,
+      1.4082668018291382,
+      1.146490616046211,
+      0.7983707129721044,
+      0.453591266092302,
+      0.1772264501183851,
+      0.00021115647945334613,
+      0.08152473731304008,
+      0.09237732789209423,
+      0.06661457474999884,
+      0.03314031857914061,
+      0.008623327590520933,
+      0.002771515992886142,
+      0.0046908759236902265,
+      0.0027528092614608275,
+      0.0007548610856777209,
+      0.00011719000268604334,
+      0.00019948134656500981
+     ],
+     "scan_angle_deg": [
+      42.22855585839113,
+      45.74908587721353,
+      49.494201589754894,
+      53.480681024074684,
+      57.72839968003149,
+      62.260786428378694,
+      67.10529070184523,
+      72.29385334987012,
+      77.86336788297675,
+      83.85610948294291,
+      89.67990489209261,
+      82.69068131003854,
+      75.11621860239345,
+      66.89078865677793,
+      57.943652402256504,
+      48.20033579468367,
+      37.58454738699339,
+      26.020709778076196,
+      13.436886727504742,
+      0.2323650792766898,
+      15.043928663897333,
+      31.045640906403435,
+      48.277984992699686,
+      66.77803336907805,
+      86.58501602062327,
+      72.25368157264258,
+      49.67745697131406,
+      25.609431877135513,
+      0.0441579758058637,
+      27.392376666077244,
+      56.556634162431514,
+      87.66750791490394,
+      59.13756141873624,
+      23.7150268843273,
+      14.085563082261928,
+      54.42332408863477,
+      82.53207203513469,
+      36.59897970512063,
+      12.417030712080107,
+      64.72363700639826
+     ]
+    },
+    "figures": [
+     "results/eddy.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/eddy_current_skin_inspection_3d_J.png"
+    ],
+    "variants": {
+     "rows": {
+      "1 kHz": {
+       "params": {
+        "f": 1000.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "dR": 0.06389823707662677,
+        "dX": -0.02845744966187616,
+        "R_norm": 0.04986980880367369,
+        "X_norm": 0.9777901920521521,
+        "delta": 0.003815447723127929,
+        "X0": 1.2813010237953764,
+        "t_over_delta": 0.524184878193112,
+        "signal_loss": 0.003028313459226609,
+        "signal_liftoff": 0.0022797790692339424,
+        "phase_angle_deg": 42.22855585839113,
+        "signal_perp": 0.0020352983396198765,
+        "separation": 14.548521367865572
+       }
+      },
+      "3 kHz": {
+       "params": {
+        "f": 3000.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "dR": 0.31355142466925134,
+        "dX": -0.2946192409730383,
+        "R_norm": 0.08157110594263325,
+        "X_norm": 0.9233541440817868,
+        "delta": 0.002202849770026854,
+        "X0": 3.8439030713861295,
+        "t_over_delta": 0.9079148415897734,
+        "signal_loss": 0.01216839753521433,
+        "signal_liftoff": 0.015695228238276508,
+        "phase_angle_deg": 78.36550791900832,
+        "signal_perp": 0.011918385920797326,
+        "separation": 13.850538240652378
+       }
+      },
+      "10 kHz (base)": {
+       "params": {},
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "dR": 1.016954302254925,
+        "dX": -1.974827269036844,
+        "R_norm": 0.07936888236010123,
+        "X_norm": 0.8458732778354336,
+        "delta": 0.0012065505098387756,
+        "X0": 12.813010237953765,
+        "t_over_delta": 1.6576181301081614,
+        "signal_loss": 0.024236246531877618,
+        "signal_liftoff": 0.09030770775821091,
+        "phase_angle_deg": 26.635382653296546,
+        "signal_perp": 0.010865380325790902,
+        "separation": 2.4457341975664506
+       }
+      },
+      "100 kHz": {
+       "params": {
+        "f": 100000.0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "dR": 5.584706680577327,
+        "dX": -31.898670837435898,
+        "R_norm": 0.04358621882650742,
+        "X_norm": 0.7510446784554344,
+        "delta": 0.00038154477231279287,
+        "X0": 128.13010237953765,
+        "t_over_delta": 5.241848781931121,
+        "signal_loss": 0.0007884969267071694,
+        "signal_liftoff": 1.4370440560645623,
+        "phase_angle_deg": 10.111154940073675,
+        "signal_perp": 0.00013842725579570089,
+        "separation": 0.0021372880123419788
+       }
+      },
+      "titânio Ti-6Al-4V (1 % IACS)": {
+       "params": {
+        "sigma": 603200.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "dR": 0.27594057439454617,
+        "dX": -0.05498871508774021,
+        "R_norm": 0.02153596768206546,
+        "X_norm": 0.9957083687543731,
+        "delta": 0.006480215747815563,
+        "X0": 12.813010237953765,
+        "t_over_delta": 0.3086316995964504,
+        "signal_loss": 0.014791137193293988,
+        "signal_liftoff": 0.008539414742001795,
+        "phase_angle_deg": 21.24067835769826,
+        "signal_perp": 0.005358627875325448,
+        "separation": 9.522514020174944
+       }
+      },
+      "inox 304 (2,4 % IACS)": {
+       "params": {
+        "sigma": 1392000.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "dR": 0.5473313275946694,
+        "dX": -0.2074872355060366,
+        "R_norm": 0.04271684150953103,
+        "X_norm": 0.9838065191822424,
+        "delta": 0.004265800236755423,
+        "X0": 12.813010237953765,
+        "t_over_delta": 0.4688452081668983,
+        "signal_loss": 0.02677031642372453,
+        "signal_liftoff": 0.01871965586492066,
+        "phase_angle_deg": 36.89715783020696,
+        "signal_perp": 0.016072377460194076,
+        "separation": 13.729103073108657
+       }
+      }
+     },
+     "compared": [
+      "phase_angle_deg",
+      "separation",
+      "t_over_delta"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/eddy_current_skin_inspection_1_khz_3d_J.png",
+      "results/3d/variants/eddy_current_skin_inspection_3_khz_3d_J.png",
+      "results/3d/variants/eddy_current_skin_inspection_10_khz_base_3d_J.png",
+      "results/3d/variants/eddy_current_skin_inspection_100_khz_3d_J.png",
+      "results/3d/variants/eddy_current_skin_inspection_titanio_ti_6al_4v_1_iacs_3d_J.png",
+      "results/3d/variants/eddy_current_skin_inspection_inox_304_2_4_iacs_3d_J.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.06875726999987819,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T02:20:40Z"
+    }
    }
   },
   {

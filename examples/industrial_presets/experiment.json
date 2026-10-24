@@ -25,6 +25,18 @@
    "kind": "sanity"
   },
   {
+   "name": "eddy_current_skin_inspection: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
    "name": "plate_fin_heatsink_forced: validation",
    "passed": true,
    "value": null,
@@ -145,8 +157,8 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "a273f086",
-  "created": "2026-10-24T02:20:36Z",
+  "git": "6847fe99",
+  "created": "2026-10-24T02:22:44Z",
   "seconds": 0.005,
   "error": null,
   "environment": {

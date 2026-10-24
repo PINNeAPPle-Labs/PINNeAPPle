@@ -34,12 +34,12 @@ CELL_RANGES: dict[str, tuple[float, float]] = {"h": (6.0, 14.0), "w": (1.0, 4.0)
 
 
 def cell_simulator(workdir: str, scans: Sequence[float], *, phi: float = 0.0, timeout: float = 3600.0,
-                   log=None) -> CLISimulator:
+                   log=None, resume: bool = False) -> CLISimulator:
     """Runner of :mod:`.tcda` with every frequency and the scan angles ``scans`` (deg) in one process per cell."""
     from . import tcda
     return CLISimulator([sys.executable, tcda.__file__], workdir, per_frequency=False, timeout=timeout,
                         extra_args=["--scan", *[f"{t:g}" for t in scans], "--phi", f"{phi:g}"],
-                        env={"EMERGE_STD_LOGLEVEL": "WARNING"}, log=log)
+                        env={"EMERGE_STD_LOGLEVEL": "WARNING"}, log=log, resume=resume)
 
 
 def campaign(n: int, freqs: Sequence[float], scans: Sequence[float], workdir: str, *,

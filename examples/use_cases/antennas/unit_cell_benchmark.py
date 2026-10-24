@@ -69,8 +69,8 @@ def main():
             curve.append({"n_train": n_tr, **bm.heldout(pred, X[-n_test:], Y[-n_test:]), "fno": info})
             print("FNO", curve[-1])
         summary["learning_curve"] = curve
-        solve = bm.solver_from(bm.cell_simulator(os.path.join(out, "bench_runs"), scans, log=print), names, freqs,
-                               scans)
+        solve = bm.solver_from(bm.cell_simulator(os.path.join(out, "bench_runs"), scans, log=print, resume=a.reuse),
+                               names, freqs, scans)
         eb = bm.equal_budget(solve, bm.CELL_RANGES, budget, n_verify=nv, seed=1, fno_wall_s=fno_s)
         summary["equal_budget"] = eb
         with open(os.path.join(out, "summary.json"), "w") as fh:

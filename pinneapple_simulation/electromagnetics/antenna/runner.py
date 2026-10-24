@@ -72,7 +72,10 @@ class CLISimulator:
     ``argv``: the command (e.g. ``[sys.executable, "script.py"]``); ``per_frequency``: one process per frequency;
     ``timeout``: seconds per process; ``fallback_args``: appended for one retry after a SIGBUS; ``parse(out_dir)``
     returns ``(status, rows, message)``; ``env``: extra environment variables (thread counts, log levels);
-    ``extra_args``: arguments added to every command (e.g. ``["--scan", "0", "30"]``).
+    ``extra_args``: arguments added to every command (e.g. ``["--scan", "0", "30"]``); ``resume``: reuse the
+    ``result.json`` an earlier (interrupted) run left in the same folder when its status is ``ok`` and the
+    parameters it was run with (``runner_params.json``, written by the runner) match, instead of solving again
+    (recorded with ``message="reused"``).
     Rows get the design's ``tag`` and parameters prepended, so they form a :class:`ResultTable`.
     """
 
@@ -81,7 +84,7 @@ class CLISimulator:
                  tag_flag: str | None = "--tag", fallback_args: Sequence[str] = (),
                  parse: Callable[[str], tuple[str, list[dict[str, Any]], str]] | None = None,
                  env: Mapping[str, str] | None = None, log: Callable[[str], None] | None = None,
-                 extra_args: Sequence[str] = ()):
+                 extra_args: Sequence[str] = (), resume: bool = False):
         self.argv, self.workdir = list(argv), os.path.abspath(workdir)
         self.per_frequency, self.timeout = per_frequency, float(timeout)
         self.params_flag, self.freq_flag, self.out_flag, self.tag_flag = params_flag, freq_flag, out_flag, tag_flag
@@ -89,6 +92,7 @@ class CLISimulator:
         self.parse = parse or _default_parse
         self.env = dict(env or {})
         self.extra_args = list(extra_args)
+        self.resume = bool(resume)
         self.log = log or (lambda s: None)
         self.records: list[RunRecord] = []
 
@@ -118,14 +122,39 @@ class CLISimulator:
                     return None, time.perf_counter() - t0, ru.ru_maxrss / 1024.0, f"timeout after {self.timeout:g} s"
                 time.sleep(0.2)
 
+    def _reusable(self, out: str, params: Mapping[str, Any]) -> list[dict[str, Any]] | None:
+        p, q = os.path.join(out, "result.json"), os.path.join(out, "runner_params.json")
+        if not (self.resume and os.path.exists(p) and os.path.exists(q)):
+            return None
+        try:
+            with open(p) as fh:
+                res = json.load(fh)
+            with open(q) as fh:
+                saved = json.load(fh)
+        except (OSError, ValueError):
+            return None
+        same = res.get("status") == "ok" and all(
+            k in saved and np.isclose(float(saved[k]), float(v)) if isinstance(v, (int, float)) else saved.get(k) == v
+            for k, v in params.items())
+        return list(res.get("rows", [])) if same else None
+
     def run_one(self, params: Mapping[str, Any], freqs: Sequence[float], tag: str) -> RunRecord:
         """One process for ``freqs`` of design ``params`` (retried once with ``fallback_args`` after a SIGBUS)."""
         sub = tag if len(freqs) != 1 else f"{tag}/f{freqs[0]:g}"
         out = os.path.join(self.workdir, sub)
+        old = self._reusable(out, params)
+        if old is not None:
+            rec = RunRecord(tag, list(freqs), "ok", 0, 0.0, 0.0, [{"tag": tag, **dict(params)} | r for r in old],
+                            "reused")
+            self.records.append(rec)
+            self.log(f"{sub}: reused")
+            return rec
         retried = False
         extra: list[str] = []
         while True:
             rc, wall, rss, msg = self._run(self._cmd(params, freqs, out, tag, extra), out)
+            with open(os.path.join(out, "runner_params.json"), "w") as fh:      # what this folder was solved for
+                json.dump(dict(params), fh)
             if rc is None:
                 status = "timeout"
             elif rc == -signal.SIGKILL:
@@ -169,8 +198,8 @@ class CLISimulator:
         by: dict[str, int] = {}
         for r in recs:
             by[r.status] = by.get(r.status, 0) + 1
-        ok = [r for r in recs if r.status == "ok"]
-        return {"processes": len(recs), "status": by,
+        ok = [r for r in recs if r.status == "ok" and r.message != "reused"]
+        return {"processes": len(recs), "status": by, "reused": sum(r.message == "reused" for r in recs),
                 "wall_s_total": round(sum(r.wall_s for r in recs), 1),
                 "wall_s_median_ok": float(np.median([r.wall_s for r in ok])) if ok else None,
                 "max_rss_mb": max((r.max_rss_mb for r in recs), default=None)}

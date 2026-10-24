@@ -1,0 +1,177 @@
+{
+ "variants": {
+  "medium": {
+   "ok": true,
+   "outputs": {
+    "drag_N": 3031.2352797419835,
+    "downforce_N": 4327.305467044064,
+    "CD": 0.6006587860872366,
+    "CL": -0.8574834379351097,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 4349.551804419238,
+    "drag_front_wing_N": 756.3969425470821,
+    "downforce_rear_wing_N": 1769.2970435956365,
+    "drag_rear_wing_N": 482.36766569047575,
+    "downforce_floor_N": 1285.7165850627102,
+    "downforce_body_N": -1991.8534705505874,
+    "downforce_wheels_N": -1050.829954360143,
+    "drag_wheels_N": 867.7652434213558,
+    "balance_front": 0.89388749777237
+   },
+   "cost_s": 427.7495551080001,
+   "options": {
+    "resolution": "medium"
+   },
+   "cells": 212869,
+   "residuals": {
+    "omega": 4.2437352e-05,
+    "k": 0.00023308473,
+    "Ux": 0.00018046832,
+    "Uy": 0.0029813173,
+    "Uz": 0.0011017085,
+    "p": 0.00022079311
+   },
+   "message": "",
+   "rel_diff_vs_reference": {
+    "drag_N": -0.08762931203974271,
+    "downforce_N": -0.4368817083070419,
+    "balance_front": -0.034444384060991096
+   },
+   "iteration_std": {
+    "drag_N": 16.73907101082808,
+    "downforce_N": 48.68692729575582,
+    "CD": 0.003316954688666695,
+    "CL": 0.009647628095129413,
+    "frontal_area_m2": 0.0,
+    "downforce_front_wing_N": 5.5508775052676835,
+    "drag_front_wing_N": 0.902107494809506,
+    "downforce_rear_wing_N": 50.88558460314491,
+    "drag_rear_wing_N": 10.11988957161713,
+    "downforce_floor_N": 88.57448463906466,
+    "downforce_body_N": 67.73329212776886,
+    "downforce_wheels_N": 34.56195119440408,
+    "drag_wheels_N": 41.28009875467565,
+    "balance_front": 0.016413139018393204
+   }
+  },
+  "campaign": {
+   "ok": true,
+   "outputs": {
+    "drag_N": 3314.816263958424,
+    "downforce_N": 7038.380569334864,
+    "CD": 0.6568521838334417,
+    "CL": -1.3947004236360456,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 7015.795871181443,
+    "drag_front_wing_N": 749.6156145595195,
+    "downforce_rear_wing_N": 1964.0226565266116,
+    "drag_rear_wing_N": 495.88681950076415,
+    "downforce_floor_N": 923.8478442764026,
+    "downforce_body_N": -1524.598188140137,
+    "downforce_wheels_N": -1297.779661128756,
+    "drag_wheels_N": 1383.6582968476196,
+    "balance_front": 1.0146561344124971
+   },
+   "cost_s": 678.6801571940005,
+   "options": {},
+   "cells": 424842,
+   "residuals": {
+    "omega": 2.7975888e-05,
+    "k": 0.0001577202,
+    "Ux": 0.00012670291,
+    "Uy": 0.0016648196,
+    "Uz": 0.00077102468,
+    "p": 0.00011187093
+   },
+   "message": "",
+   "rel_diff_vs_reference": {
+    "drag_N": -0.002274348209939454,
+    "downforce_N": -0.0840857266320646,
+    "balance_front": 0.0960069709783955
+   },
+   "iteration_std": {
+    "drag_N": 57.51139597306582,
+    "downforce_N": 109.52220727701508,
+    "CD": 0.011396253376380769,
+    "CL": 0.021702530487242917,
+    "frontal_area_m2": 0.0,
+    "downforce_front_wing_N": 27.674639570135895,
+    "drag_front_wing_N": 10.22558891689977,
+    "downforce_rear_wing_N": 27.08398751594633,
+    "drag_rear_wing_N": 11.575517433767999,
+    "downforce_floor_N": 80.17624118337498,
+    "downforce_body_N": 79.31068203576504,
+    "downforce_wheels_N": 48.75528342888344,
+    "drag_wheels_N": 52.64228765466952,
+    "balance_front": 0.012812117529110602
+   }
+  },
+  "fine": {
+   "ok": true,
+   "outputs": {
+    "drag_N": 3322.37249589722,
+    "downforce_N": 7684.540763246136,
+    "CD": 0.6583494998399171,
+    "CL": -1.5227412261057487,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 7289.791357504146,
+    "drag_front_wing_N": 748.4529519436003,
+    "downforce_rear_wing_N": 2540.0908288740793,
+    "drag_rear_wing_N": 664.910208700179,
+    "downforce_floor_N": 849.5388406024433,
+    "downforce_body_N": -1661.7391843440996,
+    "downforce_wheels_N": -1288.0511559064294,
+    "drag_wheels_N": 1489.4946476289058,
+    "balance_front": 0.9257752562529076
+   },
+   "cost_s": 1528.592504827,
+   "options": {
+    "resolution": "fine"
+   },
+   "cells": 818620,
+   "residuals": {
+    "omega": 2.4885385e-05,
+    "k": 0.00017411571,
+    "Ux": 0.0001194646,
+    "Uy": 0.0017171218,
+    "Uz": 0.00061702043,
+    "p": 8.9443297e-05
+   },
+   "message": "",
+   "rel_diff_vs_reference": {
+    "drag_N": 0.0,
+    "downforce_N": 0.0,
+    "balance_front": 0.0
+   },
+   "iteration_std": {
+    "drag_N": 64.89984834490254,
+    "downforce_N": 279.89634866403776,
+    "CD": 0.012860322781481043,
+    "CL": 0.055463263489431654,
+    "frontal_area_m2": 0.0,
+    "downforce_front_wing_N": 18.961602454232562,
+    "drag_front_wing_N": 9.898587971022822,
+    "downforce_rear_wing_N": 106.68349930588259,
+    "drag_rear_wing_N": 13.543707214220396,
+    "downforce_floor_N": 161.63351039055112,
+    "downforce_body_N": 61.10731510070114,
+    "downforce_wheels_N": 34.38447051338615,
+    "drag_wheels_N": 42.810581927833496,
+    "balance_front": 0.031880843398910653
+   }
+  }
+ },
+ "reference": "fine",
+ "campaign": "campaign",
+ "outputs": [
+  "drag_N",
+  "downforce_N",
+  "balance_front"
+ ],
+ "campaign_vs_reference": {
+  "drag_N": -0.002274348209939454,
+  "downforce_N": -0.0840857266320646,
+  "balance_front": 0.0960069709783955
+ },
+ "ledger": "qualification_ledger.json"
+}

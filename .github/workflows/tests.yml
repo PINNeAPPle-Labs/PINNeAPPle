@@ -47,6 +47,11 @@ jobs:
           pip install scikit-learn statsmodels
           pytest tests/test_near_random_forecasting.py tests/test_near_random_visuals.py -q -p no:warnings
 
+      - name: Autonomous Physics Lab — mission, ledger, surrogates, triage, full cycle, race-car checks (must pass)
+        run: |
+          pip install scikit-learn
+          pytest tests/test_autolab.py tests/test_autolab_racecar.py -q -p no:warnings
+
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |
           python scripts/check_experiment_manifests.py

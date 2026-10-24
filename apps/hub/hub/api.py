@@ -55,7 +55,15 @@ TYPES = {".glb": "model/gltf-binary", ".stl": "model/stl", ".onnx": "application
 app = FastAPI(title="PINNeAPPle Hub", version=VERSION,
               description="Ready-made tools, trained models, geometries, datasets, flows and examples of PINNeAPPle: "
                           "search, copy the code, download, open in Flow Studio, run a zoo model, compose your own.")
-install(app, prefix="HUB")
+def _origin(url: str) -> str:
+    from urllib.parse import urlsplit
+    u = urlsplit(url)
+    return f"{u.scheme}://{u.netloc}" if u.scheme in ("http", "https") and u.netloc else ""
+
+
+# the Flow Studio canvas is embedded in "Create your own" (Flow Studio allows it with FLOW_FRAME_ANCESTORS)
+install(app, prefix="HUB", frame_src=[o for o in [_origin(os.environ.get("HUB_FLOW_STUDIO_URL")
+                                                                          or "http://127.0.0.1:8765")] if o])
 rt = install_runtime(app, prefix="HUB", name=NAME, units={"validations": 200, "inferences": 5000})
 
 _INDEX: dict[str, Any] = {}
@@ -94,7 +102,7 @@ def config():
     from pinneapple_lab.seal import SEALABLE, TIER_COLOURS, TIER_INK, TIER_TEXT
     idx = index()
     return {"tiers": {t: {"colour": TIER_COLOURS[t], "ink": TIER_INK[t], "en": TIER_TEXT["en"][t]} for t in SEALABLE},
-            "version": VERSION, "flow_studio": os.environ.get("HUB_FLOW_STUDIO_URL", "http://127.0.0.1:8765"),
+            "version": VERSION, "flow_studio": (os.environ.get("HUB_FLOW_STUDIO_URL") or "http://127.0.0.1:8765"),
             "counts": idx["counts"], "kinds": idx["kinds"], "facets": idx["facets"],
             "sandbox_s": float(os.environ.get("HUB_SANDBOX_S") or 60),
             "github": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main"}
@@ -214,7 +222,7 @@ def _compose(body: ComposeBody) -> dict[str, Any]:
 
 
 def _flow_studio() -> str:
-    return os.environ.get("HUB_FLOW_STUDIO_URL", "http://127.0.0.1:8765")
+    return (os.environ.get("HUB_FLOW_STUDIO_URL") or "http://127.0.0.1:8765")
 
 
 class NodeFlowBody(BaseModel):

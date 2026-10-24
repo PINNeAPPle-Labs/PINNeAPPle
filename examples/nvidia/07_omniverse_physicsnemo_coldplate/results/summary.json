@@ -1,0 +1,102 @@
+{
+ "decision": "REJECT",
+ "test_rel_l2": 0.017551220805002144,
+ "max_hotspot_error_K": 0.23619471814862428,
+ "reference_solver_decision": "APPROVED",
+ "fno_parameters": 2366305,
+ "training": {
+  "epochs": 54.0,
+  "final_loss": 0.009350636042654514,
+  "steps": 2700,
+  "wall_s": 153.67537451800104,
+  "flops": 0.0,
+  "flops_per_step": 0.0,
+  "stopped_by": "steps",
+  "budget": {
+   "wall_s": null,
+   "flops": null,
+   "steps": 2700
+  },
+  "history": null,
+  "eval_wall_s": 1.2692620329999045
+ },
+ "usd": {
+  "ok": true,
+  "problems": [],
+  "meshes": 1,
+  "prims": 2,
+  "validators": 30
+ },
+ "checks": [
+  {
+   "name": "PDE residual (certified energy-error bound)",
+   "kind": "physics",
+   "value": 0.19559467296819275,
+   "limit": 0.1,
+   "passed": false,
+   "critical": true,
+   "failing_fraction": 1.0,
+   "detail": "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u); bounds the relative energy-norm distance to the discrete solution"
+  },
+  {
+   "name": "PDE residual (certified L2 error bound)",
+   "kind": "physics",
+   "value": 0.2931874348286704,
+   "limit": 0.05,
+   "passed": false,
+   "critical": true,
+   "failing_fraction": 1.0,
+   "detail": "the energy bound with the discrete Poincare inequality: bounds the relative L2 distance of u to the discrete solution"
+  },
+  {
+   "name": "boundary condition u = 0",
+   "kind": "physics",
+   "value": 0.0177943810412789,
+   "limit": 0.02,
+   "passed": true,
+   "critical": true,
+   "failing_fraction": 0.02,
+   "detail": "RMS of u on the boundary (linear extrapolation from the first two cells) over max |u|"
+  },
+  {
+   "name": "flux balance (net boundary flux = source)",
+   "kind": "physics",
+   "value": 0.08915458931801368,
+   "limit": 0.02,
+   "passed": false,
+   "critical": true,
+   "failing_fraction": 0.66,
+   "detail": "|outflow - integral of f| / |integral of f|, outflow = sum of 2 a u over the boundary faces"
+  },
+  {
+   "name": "positivity (maximum principle)",
+   "kind": "physics",
+   "value": 0.004056653792823986,
+   "limit": 0.01,
+   "passed": true,
+   "critical": true,
+   "failing_fraction": 0.0,
+   "detail": "most negative value over max |u| (f >= 0 and u = 0 on the boundary give u >= 0)"
+  },
+  {
+   "name": "reference (relative L2)",
+   "kind": "reference",
+   "value": 0.023806921586688852,
+   "limit": 0.05,
+   "passed": true,
+   "critical": true,
+   "failing_fraction": 0.0,
+   "detail": "relative L2 error against the reference solution (needs labels: evaluation only)"
+  },
+  {
+   "name": "applicability (coefficient inside the training envelope)",
+   "kind": "applicability",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "critical": true,
+   "failing_fraction": 0.08,
+   "detail": "4 of 50 coefficients outside the training envelope, e.g. high_fraction 0.382 outside [0.4, 0.605]"
+  }
+ ]
+}

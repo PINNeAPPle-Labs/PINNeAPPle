@@ -102,9 +102,11 @@ def inline_hashes(page: str) -> tuple[set[str], set[str]]:
 
 
 def build_csp(script_hashes: Iterable[str] = (), handler_hashes: Iterable[str] = (), *,
-              connect_src: Iterable[str] = (), img_src: Iterable[str] = (), frame_ancestors: str = "'none'") -> str:
+              connect_src: Iterable[str] = (), img_src: Iterable[str] = (), frame_ancestors: str = "'none'",
+              frame_src: Iterable[str] = ()) -> str:
     """The Content-Security-Policy of an app page: everything from the app's own origin, the app's own inline
-    scripts by hash (no ``'unsafe-inline'`` for scripts), WebGL/three.js friendly (``blob:`` workers and images)."""
+    scripts by hash (no ``'unsafe-inline'`` for scripts), WebGL/three.js friendly (``blob:`` workers and images).
+    ``frame_src``: other origins the page may embed; ``frame_ancestors``: who may embed it (default nobody)."""
     script = ["'self'", *sorted(script_hashes)]
     if handler_hashes:
         script += ["'unsafe-hashes'", *sorted(handler_hashes)]
@@ -117,7 +119,7 @@ def build_csp(script_hashes: Iterable[str] = (), handler_hashes: Iterable[str] =
         "connect-src " + " ".join(["'self'", *connect_src]),
         "worker-src 'self' blob:",
         "media-src 'self' blob:",
-        "frame-src 'self'",
+        "frame-src " + " ".join(["'self'", *frame_src]),
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
@@ -409,6 +411,20 @@ def check_cors_origins(origins: Iterable[str], allow_credentials: bool) -> list[
             continue
         if _origin_of(o) != o.lower().rstrip("/") or not o.lower().startswith(("https://", "http://")):
             raise ValueError(f"CORS: {o!r} is not an origin (scheme://host[:port], no path)")
+        out.append(o.rstrip("/"))
+    return out
+
+
+def check_frame_origins(origins: Iterable[str]) -> list[str]:
+    """Validate origins allowed to embed an app (``frame-ancestors``) or to be embedded by it (``frame-src``): full
+    ``scheme://host[:port]`` origins only; no ``*``, no scheme wildcards, no paths."""
+    out = []
+    for o in origins:
+        o = o.strip()
+        if not o:
+            continue
+        if "*" in o or _origin_of(o) != o.lower().rstrip("/") or not o.lower().startswith(("https://", "http://")):
+            raise ValueError(f"frame origin: {o!r} is not an origin (scheme://host[:port], no path, no wildcard)")
         out.append(o.rstrip("/"))
     return out
 

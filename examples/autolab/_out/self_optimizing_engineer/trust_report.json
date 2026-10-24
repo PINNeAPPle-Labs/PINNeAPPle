@@ -1,0 +1,221 @@
+{
+ "modelo": "cooling design for SoC",
+ "decisao": "APPROVED",
+ "score": 1.0,
+ "cobertura": 1.0,
+ "motivos": [],
+ "checagens": [
+  {
+   "name": "limit_tj_SoC",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 88.52504297676208,
+   "limit": 90.0,
+   "source": "fine coupled solve, pessimistic cooling",
+   "reason": "SoC: 88.53 \u00b0C vs 90 \u00b0C"
+  },
+  {
+   "name": "limit_tj_VRM1",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 101.61341076923854,
+   "limit": 125.0,
+   "source": "fine coupled solve, pessimistic cooling",
+   "reason": "VRM1: 101.61 \u00b0C vs 125 \u00b0C"
+  },
+  {
+   "name": "limit_tj_VRM2",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 101.61341077239766,
+   "limit": 125.0,
+   "source": "fine coupled solve, pessimistic cooling",
+   "reason": "VRM2: 101.61 \u00b0C vs 125 \u00b0C"
+  },
+  {
+   "name": "limit_tj_DDR",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 83.56413338143176,
+   "limit": 95.0,
+   "source": "fine coupled solve, pessimistic cooling",
+   "reason": "DDR: 83.56 \u00b0C vs 95 \u00b0C"
+  },
+  {
+   "name": "fan_power_budget",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 0.01921130728955254,
+   "limit": 0.02,
+   "source": "closed form (dp x flow)",
+   "reason": ""
+  },
+  {
+   "name": "envelope",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 28.03773707321711,
+   "limit": 30.0,
+   "source": "geometry",
+   "reason": "37.8 x 35.3 x 28.0 mm in 70 x 70 x 30 mm"
+  },
+  {
+   "name": "energy_balance_board",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 1.3851835429594867e-11,
+   "limit": 1e-06,
+   "source": "pcb.solve: heat out / heat in - 1",
+   "reason": ""
+  },
+  {
+   "name": "coupling_converged",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": null,
+   "limit": null,
+   "source": "fixed point board <-> heat sink",
+   "reason": "2 iterations"
+  },
+  {
+   "name": "heat_sink_energy_balance",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 8.426427476593704e-13,
+   "limit": null,
+   "source": "heatsink engine",
+   "reason": "Heat leaving through the fins / heat injected by the source - 1 (FVM)."
+  },
+  {
+   "name": "heat_sink_spreading_methods_agree",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.0018307930708294203,
+   "limit": null,
+   "source": "heatsink engine",
+   "reason": "3D finite-volume base solve vs Lee et al. closed form: 0.0160 vs 0.0160 K/W (independent methods)."
+  },
+  {
+   "name": "heat_sink_grid_convergence",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 1.4129914745342178e-05,
+   "limit": null,
+   "source": "heatsink engine",
+   "reason": "Hotspot change between the coarse and fine finite-volume grids."
+  },
+  {
+   "name": "heat_sink_correlation_in_range",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": null,
+   "limit": null,
+   "source": "heatsink engine",
+   "reason": "Convection correlation used inside its validated range."
+  },
+  {
+   "name": "heat_sink_temperature_above_ambient",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 31.574573516487828,
+   "limit": null,
+   "source": "heatsink engine",
+   "reason": "Hotspot rise above ambient must be positive (2nd law)."
+  },
+  {
+   "name": "grid_convergence_tj",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 1.4668273840149908,
+   "limit": 2.0,
+   "source": "train grid vs verify grid (max |dTj| over parts, nominal and pessimistic)",
+   "reason": ""
+  },
+  {
+   "name": "surrogate_within_band",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 1.5458319969897474,
+   "limit": 1.9573210800753413,
+   "source": "surrogate vs fine solve, 2 std + grid difference",
+   "reason": ""
+  },
+  {
+   "name": "surrogate_map_max_error",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 3.2313179312442486,
+   "limit": 3.466827384014991,
+   "source": "board-top map, surrogate vs fine solve [K]",
+   "reason": ""
+  },
+  {
+   "name": "holdout_tj_max_error",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 2.2030649404285896,
+   "limit": 3.0,
+   "source": "45 unseen designs [K]",
+   "reason": ""
+  },
+  {
+   "name": "holdout_beats_nearest",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.19649924721490117,
+   "limit": 5.16533657072145,
+   "source": "mean |error| vs nearest-snapshot baseline [K]",
+   "reason": ""
+  },
+  {
+   "name": "holdout_coverage_2std",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.9861111111111112,
+   "limit": 0.9,
+   "source": "fraction of unseen errors inside +-2 std",
+   "reason": ""
+  },
+  {
+   "name": "inside_design_space",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": null,
+   "limit": null,
+   "source": "box the snapshots were drawn from",
+   "reason": ""
+  },
+  {
+   "name": "nearest_snapshot_distance",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.5503191494238582,
+   "limit": 0.6020760126535045,
+   "source": "scaled distance to the nearest training design vs the held-out designs",
+   "reason": ""
+  }
+ ],
+ "min_coverage": 0.6,
+ "min_score": 0.8
+}

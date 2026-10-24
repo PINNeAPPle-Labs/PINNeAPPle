@@ -81,7 +81,7 @@
    "manifold": true
   }
  ],
- "brep_worker_s": 0.2389810539998507,
+ "brep_worker_s": 0.34286003099987283,
  "checks": [
   {
    "name": "B-rep volume = analytic",

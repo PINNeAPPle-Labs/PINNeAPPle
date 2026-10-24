@@ -29,7 +29,7 @@ Trust report: **APPROVED** (score 1.00, coverage 100%); run time 0.4 s.
 
 ## 2D
 
-Trust report: **APPROVED** (score 1.00, coverage 100%); run time 0.8 s.
+Trust report: **APPROVED** (score 1.00, coverage 100%); run time 0.5 s.
 
 | quantity | computed | reference | rel. error | tolerance | reference kind | source |
 |---|---|---|---|---|---|---|

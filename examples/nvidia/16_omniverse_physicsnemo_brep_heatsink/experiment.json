@@ -84,7 +84,7 @@
   {
    "name": "mesh volume vs exact",
    "passed": true,
-   "value": 0.00018234714575045003,
+   "value": 0.00018234714575082514,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -193,9 +193,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "bc118b44",
-  "created": "2026-10-24T01:27:19Z",
-  "seconds": 61.099,
+  "git": "544a044b",
+  "created": "2026-10-24T16:33:18Z",
+  "seconds": 76.03,
   "error": null,
   "environment": {
    "python": "3.13.17",

@@ -75,6 +75,11 @@
       "value": "80 % (threshold 80 %)",
       "meaning": "surrogate +-2 sigma hold-out coverage",
       "source": "examples/science/electromagnetism/research_surrogate_hall/2D/result.json values.coverage_2sigma"
+    },
+    {
+      "value": "eps_r = 3.6998 +- 0.0017; 2u coverage 97 % (90 % before the bias correction)",
+      "meaning": "permittivity recovered from a noisy FDTD reflection spectrum, model bias removed (carousel slide 6)",
+      "source": "examples/science/electromagnetism/research_inverse_permittivity/1D/result.json values.eps_r_recovered, values.coverage_2u_eps, values.coverage_2u_eps_uncorrected"
     }
   ]
 }

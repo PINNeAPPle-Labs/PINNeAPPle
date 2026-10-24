@@ -19,6 +19,23 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- `pinneapple_autolab`: the Autonomous Physics Lab, an engine that manages evidence for engineering decisions on any
+  reference simulator. A mission (variables, objectives, limits absolute or relative to a simulated baseline, budget,
+  acceptance tolerances, fixed conditions, hypotheses) goes through plan -> checked build -> simulate -> learn
+  (Gaussian process, MLP ensemble and quadratic response surface compared by k-fold cross-validation, with 95 %
+  coverage; POD + GP surface fields with errors per region) -> NSGA-II on the surrogate -> triage of every candidate
+  (validated domain, probability of meeting the limits, constrained expected improvement, field error in the
+  critical region, a `TrustReport`; favourable / uncertain / out of domain) -> the next simulation chosen by a
+  written rule -> final verification. A ledger of every run (purpose, reason, prediction before the run, outputs,
+  cost, environment) and an event stream; solver qualification; figures and a Markdown report. Domain
+  `domains.racecar`: `RaceCarAero` (FormulaCar in OpenFOAM: geometry and boundary-condition checks, forces averaged
+  over the last half of the iterations with their spread, aero balance from face moments, surface Cp on the
+  parametric vertices) and the flagship mission; worked example `examples/autolab_aero/` (20 OpenFOAM runs measured
+  here: drag -15.7 % with the downforce and balance limits met, -13.95 % on the fine mesh where the balance limit is
+  missed by 1 %, within the solver's iteration noise; 3 of 4 "uncertain" designs rejected by CFD); guide
+  `docs/guides/autonomous_lab.md`.
+- `ExternalFlow`: `body_levels` (surface refinement per body, e.g. thin wing elements), `refine_boxes`,
+  `write_every` + `force_history()` (forces at every written iteration), `FlowResult.load()`.
 - `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
   A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
   (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)
@@ -1536,6 +1553,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- `external_flow.run_case`: a step made of two commands (`reconstructParMesh; reconstructPar`) wrote the first one's
+  output to the terminal instead of its log.
 - Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs
   existing cases". `ParameterSpace` constants and categories match numbers by value (`4000000 == 4000000.0`, as
   JSON from the page drops the `.0`), so the 436 preset runs count as inside the space again.

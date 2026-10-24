@@ -8,7 +8,7 @@ from .core import Experiment, Result
 
 #: modules that define experiments (each class with a ``name`` registers itself through :func:`register`)
 MODULES = ("pinneapple_science.em.statics", "pinneapple_science.em.induction", "pinneapple_science.em.waves",
-           "pinneapple_science.em.bench")
+           "pinneapple_science.em.bench", "pinneapple_science.em.research")
 
 _REGISTRY: dict[str, type[Experiment]] = {}
 _loaded = False

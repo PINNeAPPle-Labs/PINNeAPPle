@@ -42,6 +42,16 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   check of their coverage (mu0 from a solenoid against CODATA 2022, C from an RC discharge on an oscilloscope).
   `python -m pinneapple_science atlas | list | run | report`, Flow Studio nodes `science.run` and
   `science.atlas`, results in `examples/science/`, guide `docs/guides/science.md`.
+- `pp.science` electromagnetism, research level: `em.research_fdtd_3d` (a configurable 3-D + time FDTD study,
+  `pinneapple_science.em.fdtd_study.FDTDConfig` / `run_fdtd`: sources and materials from a dict, refinement
+  ladder with observed order, Richardson extrapolation and GCI, radiated power by the near-to-far-field transform,
+  Maxwell residuals of the field in x, y, z, t, an MP4 of the 3-D field in time and a single-file three.js
+  viewer), `em.research_uq_waveguide` (Monte Carlo tolerances vs first-order GUM), `em.research_inverse_permittivity`
+  (eps_r and sigma from an FDTD reflection spectrum with noise, with the covariance; the transfer-matrix model's
+  bias, about one standard uncertainty, is removed by simulating the instrument at the fitted point, and the coverage
+  and centring of the stated u are checked) and
+  `em.research_surrogate_hall` (Gaussian process with hold-out error and leave-one-out calibrated variance,
+  `pinneapple_science.numerics.gp_loo_scale`).
 - `pp.em.statics.vector_potential` (exact A of straight filaments) and `pp.em.statics.flux_through_path` (flux by
   Stokes' theorem, accurate when a filament pierces the spanning surface).
 =======

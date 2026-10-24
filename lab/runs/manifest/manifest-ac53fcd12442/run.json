@@ -1,0 +1,50 @@
+{
+ "run_id": "manifest-ac53fcd12442",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/science/electromagnetism/research_surrogate_hall",
+  "path": "examples/science/electromagnetism/research_surrogate_hall/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792862935.1535428,
+ "tags": [
+  "manifest"
+ ],
+ "git": "204e481e",
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1792862935.1703572,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/2D__surrogate_hall.png"
+  ]
+ },
+ "validation": {
+  "total": 4,
+  "failed": 0
+ },
+ "seconds": 0.017,
+ "datasets": {}
+}

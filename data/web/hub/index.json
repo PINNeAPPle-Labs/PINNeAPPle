@@ -7,7 +7,7 @@
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 177
+  "example": 181
  },
  "kinds": {
   "tool": "Tools",
@@ -126,7 +126,7 @@
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 177
+   "example": 181
   },
   "subkind": {
    "library call": 249,
@@ -146,7 +146,7 @@
    "data": 41,
    "system dynamics": 41,
    "heat transfer": 28,
-   "science / physics.electromagnetism": 16,
+   "science / physics.electromagnetism": 20,
    "vehicle dynamics": 14,
    "electromagnetics": 13,
    "time series": 9,
@@ -202,7 +202,7 @@
   },
   "quality": {
    "not graded": 559,
-   "B": 63,
+   "B": 67,
    "A": 18,
    "approved": 4,
    "D": 3,
@@ -14173,7 +14173,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=science.atlas",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/science.py#L47"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/science.py#L49"
    },
    "extra": {
     "calls": "pinneapple_science.atlas.load().to_html(path)",
@@ -14268,7 +14268,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=science.run",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/science.py#L19"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/science.py#L21"
    },
    "extra": {
     "calls": "pinneapple_science.registry.run(name, dim) over the pinneapple_science.em experiments (pinneapple_science.core.Result, pinneapple_science.instruments, pinneapple_science.numerics, pinneapple_science.plots)",
@@ -14309,6 +14309,10 @@
        "em.lossy_plane_wave",
        "em.mie_scattering",
        "em.parallel_plate_capacitor",
+       "em.research_fdtd_3d",
+       "em.research_inverse_permittivity",
+       "em.research_surrogate_hall",
+       "em.research_uq_waveguide",
        "em.waveguide_modes"
       ],
       "minimum": null,
@@ -14368,6 +14372,10 @@
         "em.lossy_plane_wave",
         "em.mie_scattering",
         "em.parallel_plate_capacitor",
+        "em.research_fdtd_3d",
+        "em.research_inverse_permittivity",
+        "em.research_surrogate_hall",
+        "em.research_uq_waveguide",
         "em.waveguide_modes"
        ]
       },
@@ -67360,6 +67368,243 @@
    }
   },
   {
+   "id": "example:examples/science/electromagnetism/research_fdtd_3d",
+   "kind": "example",
+   "name": "examples/science/electromagnetism/research_fdtd_3d",
+   "title": "FDTD in 3-D + time: configurable sources and materials, mesh convergence (3D+t)",
+   "summary": "A 3-D FDTD study configured by a plain dict (domain, cells per wavelength, sources, materials). The default runs a Hertzian dipole in vacuum on a refinement ladder: the radiated…",
+   "description": "A 3-D FDTD study configured by a plain dict (domain, cells per wavelength, sources, materials). The default runs a Hertzian dipole in vacuum on a refinement ladder: the radiated power (near-to-far-field transform) against the closed form, with the observed order, the Richardson-extrapolated value and the GCI; the Maxwell residuals of the field in x, y, z and t (pp.maxwell); then the configured case (the dipole beside a dielectric sphere) on the same ladder: no closed form exists, so it reports its extrapolated value, observed order and GCI against a declared accuracy target. The 3-D field in time is the animation and an interactive three.js viewer.",
+   "domain": "science / physics.electromagnetism",
+   "tags": [
+    "pinneapple_science: em.research_fdtd_3d"
+   ],
+   "quality": {
+    "letter": "B",
+    "label": "Lab seal B · solid",
+    "reason": "radiated power, dipole in vacuum (finest grid) vs closed form",
+    "stages": {
+     "data_geometry": {
+      "title": "Data and geometry",
+      "title_pt": "Dados e geometria",
+      "question": "Was the physical problem represented correctly?",
+      "status": "answered",
+      "evidence": [
+       "inputs recorded: manifest, params",
+       "PASS [3D+t] error falls with the grid (1.50e-02, 6.78e-03, 3.29e-03)",
+       "PASS [3D+t] configured case: GCI of the finest grid within the target 0.05 (no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; ob)"
+      ],
+      "next": ""
+     },
+     "model": {
+      "title": "Model",
+      "title_pt": "Modelo",
+      "question": "Can the model (or solver) represent the relevant dynamics?",
+      "status": "answered",
+      "evidence": [
+       "PASS [3D+t] trust report (decision APPROVED)",
+       "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)"
+      ],
+      "next": ""
+     },
+     "physics": {
+      "title": "Physical constraints",
+      "title_pt": "Restrições físicas",
+      "question": "Are the equations and the boundary conditions respected?",
+      "status": "answered",
+      "evidence": [
+       "PASS [3D+t] error falls with the grid (1.50e-02, 6.78e-03, 3.29e-03)",
+       "PASS [3D+t] configured case: GCI of the finest grid within the target 0.05 (no closed form with the sphere: the reference is the study's own extrapolation, 1.0399; ob)",
+       "PASS [3D+t] configured case: ratios converge monotonically (10: 1.0900, 14: 1.0751, 20: 1.0641)"
+      ],
+      "next": ""
+     },
+     "benchmark": {
+      "title": "Benchmark",
+      "title_pt": "Benchmark",
+      "question": "How does the result compare with a solver or reference data?",
+      "status": "answered",
+      "evidence": [
+       "PASS [3D+t] radiated power, dipole in vacuum (finest grid) (Balanis eq. 4-16 with the current moment the grid actually drove)",
+       "PASS [3D+t] P / P_closed_form, Richardson-extrapolated (Balanis eq. 4-16)",
+       "PASS [3D+t] far-field pattern max |U/Umax - sin^2| (Hertzian dipole pattern sin^2(theta) (Balanis eq. 4-26a))"
+      ],
+      "next": ""
+     },
+     "uncertainty": {
+      "title": "Uncertainty",
+      "title_pt": "Incerteza",
+      "question": "Where may the prediction not be reliable?",
+      "status": "open",
+      "evidence": [
+       "no uncertainty and no declared limitation"
+      ],
+      "next": "declare the limitations and quantify the spread"
+     },
+     "decision": {
+      "title": "Engineering decision",
+      "title_pt": "Decisão de engenharia",
+      "question": "Is the result adequate for the intended use?",
+      "status": "partial",
+      "evidence": [
+       "tier B (solid)"
+      ],
+      "next": "generalization evidence"
+     }
+    },
+    "next_steps": [
+     {
+      "type": "documentation",
+      "to": "A",
+      "stage": "decision",
+      "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+      "why_pt": "documentation pontuação 0.4 < 0.6: documentar: referências e uma página",
+      "short": "document it: references and a docs page",
+      "short_pt": "documentar: referências e uma página",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "experiment_references",
+        "kind": "python",
+        "target": "pinneapple_lab.spec.Experiment.references",
+        "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+        "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+        "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa página da documentação",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     }
+    ],
+    "ready": [],
+    "source": "pinneapple_lab curation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/science/electromagnetism/research_fdtd_3d\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[3D+t: radiated power, dipole in vacuum (finest grid)]",
+      "value": 0.0032881391345897406,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (closed_form: Balanis eq. 4-16 with the current moment the grid actually drove)"
+     },
+     {
+      "name": "rel_error[3D+t: P / P_closed_form, Richardson-extrapolated]",
+      "value": 0.0010628076372023454,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (closed_form: Balanis eq. 4-16)"
+     },
+     {
+      "name": "rel_error[3D+t: far-field pattern max |U/Umax - sin^2|]",
+      "value": 0.008562273035930712,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (closed_form: Hertzian dipole pattern sin^2(theta) (Balanis eq. 4-26a))"
+     },
+     {
+      "name": "3D+t: observed_order_vacuum",
+      "value": 2.6470695868421656,
+      "unit": "-",
+      "how": "Roache three-grid observed order of P/P_ref"
+     },
+     {
+      "name": "3D+t: gci_fine_vacuum",
+      "value": 0.0027725478486505992,
+      "unit": "-",
+      "how": "grid convergence index of the finest grid (Fs = 1.25)"
+     },
+     {
+      "name": "3D+t: power_error_10cpw",
+      "value": 0.015002142821609832,
+      "unit": "-",
+      "how": "|P_FDTD / P_closed - 1|"
+     },
+     {
+      "name": "3D+t: power_error_14cpw",
+      "value": 0.006783268019676436,
+      "unit": "-",
+      "how": "|P_FDTD / P_closed - 1|"
+     },
+     {
+      "name": "3D+t: power_error_20cpw",
+      "value": 0.003288139134589807,
+      "unit": "-",
+      "how": "|P_FDTD / P_closed - 1|"
+     },
+     {
+      "name": "3D+t: power_ratio_configured",
+      "value": 1.0640679545249574,
+      "unit": "-",
+      "how": "P with the materials / P of the same dipole in vacuum (closed form), finest grid"
+     },
+     {
+      "name": "3D+t: power_ratio_configured_extrapolated",
+      "value": 1.0398748138061105,
+      "unit": "-",
+      "how": "Richardson extrapolation of the three grids (Roache)"
+     },
+     {
+      "name": "3D+t: observed_order_configured",
+      "value": 1.0502456678085508,
+      "unit": "-",
+      "how": "Roache observed order (the sphere is a staircase with fill-fraction averaging: first order is expected)"
+     },
+     {
+      "name": "3D+t: gci_fine_configured",
+      "value": 0.028420577623784925,
+      "unit": "-",
+      "how": "grid convergence index of the finest grid (Fs = 1.25)"
+     }
+    ],
+    "figures": [
+     "examples/science/electromagnetism/research_fdtd_3d/3D_plus_t/fdtd_convergence.png",
+     "examples/science/electromagnetism/research_fdtd_3d/3D_plus_t/fdtd_3d_t.gif"
+    ],
+    "videos": [
+     "examples/science/electromagnetism/research_fdtd_3d/3D_plus_t/fdtd_3d_t.mp4"
+    ]
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/science.md",
+    "lab": "lab/index.html#examples/science/electromagnetism/research_fdtd_3d"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": [
+     {
+      "key": "manifest/examples/science/electromagnetism/research_fdtd_3d",
+      "tier": "B",
+      "title": "Examples/science/electromagnetism/research FDTD 3-D",
+      "title_pt": "Examples/science/electromagnetism/research FDTD 3-D",
+      "reason": "radiated power, dipole in vacuum (finest grid) vs closed form"
+     }
+    ]
+   },
+   "run": {
+    "code_hash": "66a7fcae3001864c",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.85,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "FDTD in 3-D + time: configurable sources and materials, mesh convergence (3D+t) | science / physics.electromagnetism | not curated\nrel_error[3D+t: radiated power, dipole in vacuum (finest grid)] 0.0032881391345897406 -\nrel_error[3D+t: P / P_closed_form, Richardson-extrapolated] 0.0010628076372023454 -\nrel_error[3D+t: far-field pattern max |U/Umax - sin^2|] 0.008562273035930712 -\n3D+t: observed_order_vacuum 2.6470695868421656 -\n3D+t: gci_fine_vacuum 0.0027725478486505992 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:bar_wear/ferritic stainless steel",
    "kind": "example",
    "name": "bar_wear/ferritic stainless steel",
@@ -71162,6 +71407,250 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Inspeção por correntes parasitas de chapa de alumínio aeronáutico: impedância e afinamento | Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás) | not curated\nrel_error[dZ da sonda: Dodd & Deeds vs FDM axissimétrico da lib (h = 0,1 mm)] 0.004556780826434239 -\nrel_error[placa de 10 delta = semi-espaço] 3.5127381771509463e-10 -\nrel_error[indutância da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)] 0.007164850368795491 -\ninversion_rel_err 0.0008745368406067657 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/science/electromagnetism/research_inverse_permittivity",
+   "kind": "example",
+   "name": "examples/science/electromagnetism/research_inverse_permittivity",
+   "title": "Inverse problem: permittivity of a slab from its reflection spectrum (1D)",
+   "summary": "A dielectric slab of unknown permittivity and loss is measured in reflection: the 'measurement' is a 1-D FDTD run (with the CPML, the scheme's dispersion and added receiver…",
+   "description": "A dielectric slab of unknown permittivity and loss is measured in reflection: the 'measurement' is a 1-D FDTD run (with the CPML, the scheme's dispersion and added receiver noise), the model is the transfer-matrix reflection of pp.em.waves.multilayer. Least squares recovers eps_r and the conductivity with their covariance; the recovered values are compared with the truth the measurement was generated from (hidden from the fit), and the fit is repeated on noise realisations to check the stated uncertainty.",
+   "domain": "science / physics.electromagnetism",
+   "tags": [
+    "pinneapple_science: em.research_inverse_permittivity"
+   ],
+   "quality": {
+    "letter": "B",
+    "label": "Lab seal B · solid",
+    "reason": "eps_r recovered vs truth vs ground truth",
+    "stages": {
+     "data_geometry": {
+      "title": "Data and geometry",
+      "title_pt": "Dados e geometria",
+      "question": "Was the physical problem represented correctly?",
+      "status": "partial",
+      "evidence": [
+       "inputs recorded: manifest, params"
+      ],
+      "next": "add a mesh-convergence or domain check"
+     },
+     "model": {
+      "title": "Model",
+      "title_pt": "Modelo",
+      "question": "Can the model (or solver) represent the relevant dynamics?",
+      "status": "answered",
+      "evidence": [
+       "PASS [1D] trust report (decision APPROVED)",
+       "PASS [1D] eps_r recovered vs truth (the permittivity the FDTD measurement was generated with (hidden from the fit))",
+       "PASS [1D] sigma recovered vs truth (as above)"
+      ],
+      "next": ""
+     },
+     "physics": {
+      "title": "Physical constraints",
+      "title_pt": "Restrições físicas",
+      "question": "Are the equations and the boundary conditions respected?",
+      "status": "answered",
+      "evidence": [
+       "PASS [1D] FDTD measurement and transfer-matrix model agree below the noise",
+       "PASS [1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5) (z = (eps_fit - eps_true) / u(eps_fit); its std is 1 when u is right (a bias from the FDTD-)"
+      ],
+      "next": ""
+     },
+     "benchmark": {
+      "title": "Benchmark",
+      "title_pt": "Benchmark",
+      "question": "How does the result compare with a solver or reference data?",
+      "status": "answered",
+      "evidence": [
+       "PASS [1D] eps_r recovered vs truth (the permittivity the FDTD measurement was generated with (hidden from the fit))",
+       "PASS [1D] sigma recovered vs truth (as above)"
+      ],
+      "next": ""
+     },
+     "uncertainty": {
+      "title": "Uncertainty",
+      "title_pt": "Incerteza",
+      "question": "Where may the prediction not be reliable?",
+      "status": "partial",
+      "evidence": [
+       "reported: rel_error[1D: sigma recovered vs truth], 1D: sigma_recovered, 1D: eps_sigma_correlation"
+      ],
+      "next": "calibrate it (coverage check)"
+     },
+     "decision": {
+      "title": "Engineering decision",
+      "title_pt": "Decisão de engenharia",
+      "question": "Is the result adequate for the intended use?",
+      "status": "partial",
+      "evidence": [
+       "tier B (solid)"
+      ],
+      "next": "generalization evidence"
+     }
+    },
+    "next_steps": [
+     {
+      "type": "assets",
+      "to": "A",
+      "stage": "decision",
+      "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+      "why_pt": "assets pontuação 0.4 < 0.6: adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "short": "add figures: three plots, a movie, a render or a 3-D view",
+      "short_pt": "adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "ctx_figure",
+        "kind": "python",
+        "target": "pinneapple_lab.context.RunContext.figure",
+        "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+        "text": "save the key plots, a movie or a render with the run",
+        "text_pt": "salvar os gráficos principais, um vídeo ou um render com a execução",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       },
+       {
+        "id": "field_view",
+        "kind": "python",
+        "target": "pinneapple.viz.field_view",
+        "command": "pp.viz.field_view(mesh, fields)",
+        "text": "a 3-D view of the field on its mesh",
+        "text_pt": "uma vista 3-D do campo na malha",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     },
+     {
+      "type": "documentation",
+      "to": "A",
+      "stage": "decision",
+      "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+      "why_pt": "documentation pontuação 0.4 < 0.6: documentar: referências e uma página",
+      "short": "document it: references and a docs page",
+      "short_pt": "documentar: referências e uma página",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "experiment_references",
+        "kind": "python",
+        "target": "pinneapple_lab.spec.Experiment.references",
+        "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+        "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+        "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa página da documentação",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     }
+    ],
+    "ready": [],
+    "source": "pinneapple_lab curation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/science/electromagnetism/research_inverse_permittivity\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[1D: eps_r recovered vs truth]",
+      "value": 0.00046638233769686537,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (ground_truth: the permittivity the FDTD measurement was generated with (hidden from the fit))"
+     },
+     {
+      "name": "rel_error[1D: sigma recovered vs truth]",
+      "value": 0.05813692688169756,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (ground_truth: as above)"
+     },
+     {
+      "name": "1D: eps_r_recovered",
+      "value": 3.7017256146494786,
+      "unit": "-",
+      "how": "least squares on the noisy FDTD reflection spectrum"
+     },
+     {
+      "name": "1D: sigma_recovered",
+      "value": 0.01883726146236605,
+      "unit": "S/m",
+      "how": "same fit"
+     },
+     {
+      "name": "1D: eps_sigma_correlation",
+      "value": -2.4858965827697875e-08,
+      "unit": "-",
+      "how": "from the Jacobian covariance"
+     },
+     {
+      "name": "1D: model_error_max",
+      "value": 0.0009722857259360915,
+      "unit": "-",
+      "how": "max |r_FDTD - r_model| at the true parameters (no noise)"
+     },
+     {
+      "name": "1D: coverage_2u_eps",
+      "value": 0.89,
+      "unit": "-",
+      "how": "fraction of 100 noise realisations within 2 u"
+     }
+    ],
+    "figures": [
+     "examples/science/electromagnetism/research_inverse_permittivity/1D/inverse_permittivity.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/science.md",
+    "lab": "lab/index.html#examples/science/electromagnetism/research_inverse_permittivity"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": [
+     {
+      "key": "manifest/examples/science/electromagnetism/research_inverse_permittivity",
+      "tier": "B",
+      "title": "Examples/science/electromagnetism/research inverse permittivity",
+      "title_pt": "Examples/science/electromagnetism/research inverse permittivity",
+      "reason": "eps_r recovered vs truth vs ground truth"
+     }
+    ]
+   },
+   "run": {
+    "code_hash": "a24dde2773f1dfcf",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.83,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Inverse problem: permittivity of a slab from its reflection spectrum (1D) | science / physics.electromagnetism | not curated\nrel_error[1D: eps_r recovered vs truth] 0.00046638233769686537 -\nrel_error[1D: sigma recovered vs truth] 0.05813692688169756 -\n1D: eps_r_recovered 3.7017256146494786 -\n1D: sigma_recovered 0.01883726146236605 S/m\n1D: eps_sigma_correlation -2.4858965827697875e-08 -",
     "timed_out": false,
     "status": "ok"
    }
@@ -81205,13 +81694,13 @@
     "metrics": [
      {
       "name": "comparisons",
-      "value": 78.0,
+      "value": 89.0,
       "unit": "",
       "how": "rows of the catalogue (committed results)"
      },
      {
       "name": "comparisons_passed",
-      "value": 78.0,
+      "value": 89.0,
       "unit": "",
       "how": "rows within tolerance"
      }
@@ -83485,6 +83974,241 @@
    }
   },
   {
+   "id": "example:examples/science/electromagnetism/research_surrogate_hall",
+   "kind": "example",
+   "name": "examples/science/electromagnetism/research_surrogate_hall",
+   "title": "Surrogate of the Hall geometrical factor with hold-out error (2D)",
+   "summary": "A Gaussian process (anisotropic kernel) trained on finite-difference Hall-bar solutions over the aspect ratio L/W and the Hall parameter mu B (Latin hypercube), its error…",
+   "description": "A Gaussian process (anisotropic kernel) trained on finite-difference Hall-bar solutions over the aspect ratio L/W and the Hall parameter mu B (Latin hypercube), its error measured on held-out solver runs it never saw, its +-2 sigma coverage (variance calibrated by leave-one-out on the training runs) and the long-bar limit G -> 1.",
+   "domain": "science / physics.electromagnetism",
+   "tags": [
+    "pinneapple_science: em.research_surrogate_hall"
+   ],
+   "quality": {
+    "letter": "B",
+    "label": "Lab seal B · solid",
+    "reason": "hold-out: worst surrogate G vs solver G vs convergence",
+    "stages": {
+     "data_geometry": {
+      "title": "Data and geometry",
+      "title_pt": "Dados e geometria",
+      "question": "Was the physical problem represented correctly?",
+      "status": "partial",
+      "evidence": [
+       "inputs recorded: manifest, params"
+      ],
+      "next": "add a mesh-convergence or domain check"
+     },
+     "model": {
+      "title": "Model",
+      "title_pt": "Modelo",
+      "question": "Can the model (or solver) represent the relevant dynamics?",
+      "status": "answered",
+      "evidence": [
+       "PASS [2D] trust report (decision APPROVED)"
+      ],
+      "next": ""
+     },
+     "physics": {
+      "title": "Physical constraints",
+      "title_pt": "Restrições físicas",
+      "question": "Are the equations and the boundary conditions respected?",
+      "status": "answered",
+      "evidence": [
+       "PASS [2D] +-2 sigma coverage of the hold-out at least 80 %"
+      ],
+      "next": ""
+     },
+     "benchmark": {
+      "title": "Benchmark",
+      "title_pt": "Benchmark",
+      "question": "How does the result compare with a solver or reference data?",
+      "status": "answered",
+      "evidence": [
+       "PASS [2D] hold-out: worst surrogate G vs solver G (the finite-difference solver on held-out inputs)",
+       "PASS [2D] solver: long bar G(L/W = 8) -> 1 (Popovic sec. 4.2: G -> 1 for L/W >> 1)"
+      ],
+      "next": ""
+     },
+     "uncertainty": {
+      "title": "Uncertainty",
+      "title_pt": "Incerteza",
+      "question": "Where may the prediction not be reliable?",
+      "status": "answered",
+      "evidence": [
+       "PASS [2D] +-2 sigma coverage of the hold-out at least 80 %"
+      ],
+      "next": ""
+     },
+     "decision": {
+      "title": "Engineering decision",
+      "title_pt": "Decisão de engenharia",
+      "question": "Is the result adequate for the intended use?",
+      "status": "partial",
+      "evidence": [
+       "tier B (solid)"
+      ],
+      "next": "generalization evidence"
+     }
+    },
+    "next_steps": [
+     {
+      "type": "assets",
+      "to": "A",
+      "stage": "decision",
+      "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+      "why_pt": "assets pontuação 0.4 < 0.6: adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "short": "add figures: three plots, a movie, a render or a 3-D view",
+      "short_pt": "adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "ctx_figure",
+        "kind": "python",
+        "target": "pinneapple_lab.context.RunContext.figure",
+        "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+        "text": "save the key plots, a movie or a render with the run",
+        "text_pt": "salvar os gráficos principais, um vídeo ou um render com a execução",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       },
+       {
+        "id": "field_view",
+        "kind": "python",
+        "target": "pinneapple.viz.field_view",
+        "command": "pp.viz.field_view(mesh, fields)",
+        "text": "a 3-D view of the field on its mesh",
+        "text_pt": "uma vista 3-D do campo na malha",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     },
+     {
+      "type": "documentation",
+      "to": "A",
+      "stage": "decision",
+      "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+      "why_pt": "documentation pontuação 0.4 < 0.6: documentar: referências e uma página",
+      "short": "document it: references and a docs page",
+      "short_pt": "documentar: referências e uma página",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "experiment_references",
+        "kind": "python",
+        "target": "pinneapple_lab.spec.Experiment.references",
+        "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+        "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+        "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa página da documentação",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     }
+    ],
+    "ready": [],
+    "source": "pinneapple_lab curation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/science/electromagnetism/research_surrogate_hall\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[2D: hold-out: worst surrogate G vs solver G]",
+      "value": 0.0007898725588408868,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (convergence: the finite-difference solver on held-out inputs)"
+     },
+     {
+      "name": "rel_error[2D: solver: long bar G(L/W = 8) -> 1]",
+      "value": 5.743298456928336e-06,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (limit: Popovic sec. 4.2: G -> 1 for L/W >> 1)"
+     },
+     {
+      "name": "2D: holdout_max_rel_error",
+      "value": 0.0007898725588408873,
+      "unit": "-",
+      "how": "30 held-out solver runs"
+     },
+     {
+      "name": "2D: holdout_mean_rel_error",
+      "value": 0.00011898346609119,
+      "unit": "-",
+      "how": "same"
+     },
+     {
+      "name": "2D: coverage_2sigma",
+      "value": 0.8,
+      "unit": "-",
+      "how": "fraction of held-out runs inside the GP's +-2 sigma (LOO-calibrated)"
+     },
+     {
+      "name": "2D: loo_sigma_scale",
+      "value": 0.9617591762202485,
+      "unit": "-",
+      "how": "leave-one-out calibration factor of the GP's standard deviation (Rasmussen & Williams eqs. 5.10-5.12), from the training runs only"
+     }
+    ],
+    "figures": [
+     "examples/science/electromagnetism/research_surrogate_hall/2D/surrogate_hall.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/science.md",
+    "lab": "lab/index.html#examples/science/electromagnetism/research_surrogate_hall"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": [
+     {
+      "key": "manifest/examples/science/electromagnetism/research_surrogate_hall",
+      "tier": "B",
+      "title": "Examples/science/electromagnetism/research surrogate hall",
+      "title_pt": "Examples/science/electromagnetism/research surrogate hall",
+      "reason": "hold-out: worst surrogate G vs solver G vs convergence"
+     }
+    ]
+   },
+   "run": {
+    "code_hash": "c546277a863b9679",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 1.01,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Surrogate of the Hall geometrical factor with hold-out error (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: hold-out: worst surrogate G vs solver G] 0.0007898725588408868 -\nrel_error[2D: solver: long bar G(L/W = 8) -> 1] 5.743298456928336e-06 -\n2D: holdout_max_rel_error 0.0007898725588408873 -\n2D: holdout_mean_rel_error 0.00011898346609119 -\n2D: coverage_2sigma 0.8 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/nvidia/13_omniverse_worldmodel_inspection",
    "kind": "example",
    "name": "examples/nvidia/13_omniverse_worldmodel_inspection",
@@ -84462,6 +85186,280 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Training Pipeline | data | not curated",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/science/electromagnetism/research_uq_waveguide",
+   "kind": "example",
+   "name": "examples/science/electromagnetism/research_uq_waveguide",
+   "title": "Uncertainty of waveguide cut-offs by Monte Carlo (2D)",
+   "summary": "Manufacturing tolerances of a dielectric-filled rectangular guide (a, b, eps_r with stated standard deviations) propagated through the finite-difference eigen-solver by Monte…",
+   "description": "Manufacturing tolerances of a dielectric-filled rectangular guide (a, b, eps_r with stated standard deviations) propagated through the finite-difference eigen-solver by Monte Carlo: mean, standard deviation and 95 % interval of the TE10 and TE20 cut-offs, the sampling error of the Monte Carlo itself, against first-order (GUM) propagation with the closed-form sensitivities.",
+   "domain": "science / physics.electromagnetism",
+   "tags": [
+    "pinneapple_science: em.research_uq_waveguide"
+   ],
+   "quality": {
+    "letter": "B",
+    "label": "Lab seal B · solid",
+    "reason": "TE10: Monte Carlo std vs first-order GUM vs closed form",
+    "stages": {
+     "data_geometry": {
+      "title": "Data and geometry",
+      "title_pt": "Dados e geometria",
+      "question": "Was the physical problem represented correctly?",
+      "status": "partial",
+      "evidence": [
+       "inputs recorded: manifest, params"
+      ],
+      "next": "add a mesh-convergence or domain check"
+     },
+     "model": {
+      "title": "Model",
+      "title_pt": "Modelo",
+      "question": "Can the model (or solver) represent the relevant dynamics?",
+      "status": "answered",
+      "evidence": [
+       "PASS [2D] trust report (decision APPROVED)",
+       "PASS [2D] TE10: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+       "PASS [2D] TE20: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+      ],
+      "next": ""
+     },
+     "physics": {
+      "title": "Physical constraints",
+      "title_pt": "Restrições físicas",
+      "question": "Are the equations and the boundary conditions respected?",
+      "status": "answered",
+      "evidence": [
+       "PASS [2D] b does not enter TE10 or TE20 (sensitivity ~ 0) (correlation of b with f_TE10 over the samples)"
+      ],
+      "next": ""
+     },
+     "benchmark": {
+      "title": "Benchmark",
+      "title_pt": "Benchmark",
+      "question": "How does the result compare with a solver or reference data?",
+      "status": "answered",
+      "evidence": [
+       "PASS [2D] TE10: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))",
+       "PASS [2D] TE10: Monte Carlo mean vs nominal (Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))",
+       "PASS [2D] TE20: Monte Carlo std vs first-order GUM (JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+      ],
+      "next": ""
+     },
+     "uncertainty": {
+      "title": "Uncertainty",
+      "title_pt": "Incerteza",
+      "question": "Where may the prediction not be reliable?",
+      "status": "partial",
+      "evidence": [
+       "reported: rel_error[2D: TE10: Monte Carlo std vs first-order GUM], rel_error[2D: TE20: Monte Carlo std vs first-order GUM], 2D: TE10_std, 2D: TE10_ci95_low"
+      ],
+      "next": "calibrate it (coverage check)"
+     },
+     "decision": {
+      "title": "Engineering decision",
+      "title_pt": "Decisão de engenharia",
+      "question": "Is the result adequate for the intended use?",
+      "status": "partial",
+      "evidence": [
+       "tier B (solid)"
+      ],
+      "next": "generalization evidence"
+     }
+    },
+    "next_steps": [
+     {
+      "type": "assets",
+      "to": "A",
+      "stage": "decision",
+      "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+      "why_pt": "assets pontuação 0.4 < 0.6: adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "short": "add figures: three plots, a movie, a render or a 3-D view",
+      "short_pt": "adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "ctx_figure",
+        "kind": "python",
+        "target": "pinneapple_lab.context.RunContext.figure",
+        "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+        "text": "save the key plots, a movie or a render with the run",
+        "text_pt": "salvar os gráficos principais, um vídeo ou um render com a execução",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       },
+       {
+        "id": "field_view",
+        "kind": "python",
+        "target": "pinneapple.viz.field_view",
+        "command": "pp.viz.field_view(mesh, fields)",
+        "text": "a 3-D view of the field on its mesh",
+        "text_pt": "uma vista 3-D do campo na malha",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     },
+     {
+      "type": "documentation",
+      "to": "A",
+      "stage": "decision",
+      "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+      "why_pt": "documentation pontuação 0.4 < 0.6: documentar: referências e uma página",
+      "short": "document it: references and a docs page",
+      "short_pt": "documentar: referências e uma página",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "experiment_references",
+        "kind": "python",
+        "target": "pinneapple_lab.spec.Experiment.references",
+        "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+        "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+        "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa página da documentação",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     }
+    ],
+    "ready": [],
+    "source": "pinneapple_lab curation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/science/electromagnetism/research_uq_waveguide\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[2D: TE10: Monte Carlo std vs first-order GUM]",
+      "value": 0.02524542009758375,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (closed_form: JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+     },
+     {
+      "name": "rel_error[2D: TE10: Monte Carlo mean vs nominal]",
+      "value": 0.00035193953006807717,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (closed_form: Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))"
+     },
+     {
+      "name": "rel_error[2D: TE20: Monte Carlo std vs first-order GUM]",
+      "value": 0.0248116901071461,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (closed_form: JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+     },
+     {
+      "name": "rel_error[2D: TE20: Monte Carlo mean vs nominal]",
+      "value": 0.0007748405598485373,
+      "unit": "-",
+      "how": "|computed - reference| / |reference| (closed_form: Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))"
+     },
+     {
+      "name": "2D: TE10_mean",
+      "value": 4419267277.369885,
+      "unit": "Hz",
+      "how": "1000 Monte Carlo samples through the FD eigen-solver"
+     },
+     {
+      "name": "2D: TE10_std",
+      "value": 22862999.485815544,
+      "unit": "Hz",
+      "how": "sample standard deviation"
+     },
+     {
+      "name": "2D: TE10_ci95_low",
+      "value": 4374297584.528993,
+      "unit": "Hz",
+      "how": "2.5 % quantile"
+     },
+     {
+      "name": "2D: TE10_ci95_high",
+      "value": 4467254288.742698,
+      "unit": "Hz",
+      "how": "97.5 % quantile"
+     },
+     {
+      "name": "2D: TE20_mean",
+      "value": 8834795413.423183,
+      "unit": "Hz",
+      "how": "1000 Monte Carlo samples through the FD eigen-solver"
+     },
+     {
+      "name": "2D: TE20_std",
+      "value": 45706654.59153639,
+      "unit": "Hz",
+      "how": "sample standard deviation"
+     },
+     {
+      "name": "2D: TE20_ci95_low",
+      "value": 8744894076.59139,
+      "unit": "Hz",
+      "how": "2.5 % quantile"
+     },
+     {
+      "name": "2D: TE20_ci95_high",
+      "value": 8930728834.366755,
+      "unit": "Hz",
+      "how": "97.5 % quantile"
+     }
+    ],
+    "figures": [
+     "examples/science/electromagnetism/research_uq_waveguide/2D/uq_waveguide.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/science.md",
+    "lab": "lab/index.html#examples/science/electromagnetism/research_uq_waveguide"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": [
+     {
+      "key": "manifest/examples/science/electromagnetism/research_uq_waveguide",
+      "tier": "B",
+      "title": "Examples/science/electromagnetism/research UQ waveguide",
+      "title_pt": "Examples/science/electromagnetism/research UQ waveguide",
+      "reason": "TE10: Monte Carlo std vs first-order GUM vs closed form"
+     }
+    ]
+   },
+   "run": {
+    "code_hash": "9d0aadabae329c9d",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.89,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Uncertainty of waveguide cut-offs by Monte Carlo (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: TE10: Monte Carlo std vs first-order GUM] 0.02524542009758375 -\nrel_error[2D: TE10: Monte Carlo mean vs nominal] 0.00035193953006807717 -\nrel_error[2D: TE20: Monte Carlo std vs first-order GUM] 0.0248116901071461 -\nrel_error[2D: TE20: Monte Carlo mean vs nominal] 0.0007748405598485373 -\n2D: TE10_mean 4419267277.369885 Hz",
     "timed_out": false,
     "status": "ok"
    }

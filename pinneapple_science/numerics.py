@@ -227,3 +227,17 @@ def spectral_peaks(signal, dt: float, f_max: float, *, n_peaks: int = 8, min_rel
 
 def refine_ladder(base: int, levels: int, ratio: int = 2) -> Sequence[int]:
     return [base * ratio ** i for i in range(levels)]
+
+
+def gp_loo_scale(gp) -> float:
+    """Factor for the predictive standard deviation of a fitted Gaussian process (an object with ``L``, the
+    Cholesky factor of its training covariance, and ``alpha = K^-1 z``, as
+    :class:`pinneapple_presets.surrogate.ARDGP`) from its leave-one-out residuals on the training data:
+    ``sqrt(mean(z_i^2))`` with ``z_i = alpha_i / sqrt([K^-1]_ii)`` (Rasmussen & Williams, *Gaussian Processes for
+    Machine Learning*, 2006, eqs. 5.10-5.12). 1 when the GP's variance matches its own cross-validation."""
+    import scipy.linalg as sla
+
+    Kinv = sla.cho_solve((gp.L, True), np.eye(len(gp.L)))
+    d = np.diag(Kinv)
+    z = gp.alpha / np.sqrt(d)
+    return float(np.sqrt(np.mean(z * z)))

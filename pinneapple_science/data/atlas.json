@@ -1,6 +1,6 @@
 {
  "schema": "pinneapple.science.atlas/1",
- "version": "1.0.0",
+ "version": "1.1.0",
  "statuses": {
   "available": "pp.science experiments in every dimension listed, each checked against its reference",
   "partial": "library code covers part of the area; no pp.science experiment yet (or not for every subarea)",
@@ -245,6 +245,25 @@
       },
       {
        "experiment": "em.bench_rc_discharge"
+      }
+     ]
+    },
+    {
+     "id": "research",
+     "title": "Research: FDTD 3D+t, convergence, UQ, inverse problems, surrogates",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.research_fdtd_3d"
+      },
+      {
+       "experiment": "em.research_uq_waveguide"
+      },
+      {
+       "experiment": "em.research_inverse_permittivity"
+      },
+      {
+       "experiment": "em.research_surrogate_hall"
       }
      ]
     },
@@ -1156,6 +1175,9 @@
       {
        "module": "pinneapple_analysis.verification.convergence",
        "what": "Richardson, GCI"
+      },
+      {
+       "experiment": "em.research_fdtd_3d"
       }
      ]
     },
@@ -1167,6 +1189,9 @@
       {
        "module": "pinneapple_analysis.uncertainty",
        "what": "propagation, calibration, conformal"
+      },
+      {
+       "experiment": "em.research_uq_waveguide"
       }
      ]
     },
@@ -1178,6 +1203,9 @@
       {
        "module": "pinneapple_analysis.inverse_problems",
        "what": "EKI, sensitivity, misfits"
+      },
+      {
+       "experiment": "em.research_inverse_permittivity"
       }
      ]
     }

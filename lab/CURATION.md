@@ -1,6 +1,6 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-10-24 17:52 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-10-24 21:17 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D/E/F) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|
@@ -16,7 +16,7 @@ Generated 2026-10-24 17:52 UTC. Tiers: **A flagship** (product / paper / marketi
 | `vehicle_cfd` | **B** solid | 93.8 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `pendulum_video` | **B** solid | 92.9 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `bar_wear_ranking` | **B** solid | 92.0 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
-| `manifest` | **B** solid | 91.9 | 0/20/0/1/0/0 | 95 % | - | - | - | - | no |
+| `manifest` | **B** solid | 91.9 | 0/24/0/1/0/0 | 96 % | - | - | - | - | no |
 | `bricks` | **B** solid | 91.2 | 0/3/0/0/0/0 | 100 % | - | - | - | - | no |
 | `kepler_law` | **B** solid | 89.4 | 0/1/0/0/0/0 | 100 % | - | - | - | ready | no |
 | `lorenz_discovery` | **B** solid | 89.4 | 0/1/0/0/0/0 | 100 % | - | - | - | - | no |
@@ -96,6 +96,10 @@ Data and geometry (was the physical problem represented correctly?), model (can 
 | `manifest/examples/science/electromagnetism/lossy_plane_wave` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/mie_scattering` | B | ~ | ✓ | ? | ✓ | ? | ~ |
 | `manifest/examples/science/electromagnetism/parallel_plate_capacitor` | B | ~ | ✓ | ✓ | ✓ | ? | ~ |
+| `manifest/examples/science/electromagnetism/research_fdtd_3d` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
+| `manifest/examples/science/electromagnetism/research_inverse_permittivity` | B | ~ | ✓ | ✓ | ✓ | ~ | ~ |
+| `manifest/examples/science/electromagnetism/research_surrogate_hall` | B | ~ | ✓ | ✓ | ✓ | ✓ | ~ |
+| `manifest/examples/science/electromagnetism/research_uq_waveguide` | B | ~ | ✓ | ✓ | ✓ | ~ | ~ |
 | `manifest/examples/science/electromagnetism/waveguide_modes` | B | ✓ | ✓ | ✓ | ✓ | ? | ~ |
 | `oscillator` | B | ✓ | ✓ | ? | ✓ | ? | ~ |
 | `oscillator_discovery` | B | ? | ✓ | ? | ✓ | ? | ~ |

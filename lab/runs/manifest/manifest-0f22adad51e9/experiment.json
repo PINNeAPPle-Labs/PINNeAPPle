@@ -14,13 +14,13 @@
  "metrics": [
   {
    "name": "comparisons",
-   "value": 78.0,
+   "value": 89.0,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   },
   {
    "name": "comparisons_passed",
-   "value": 78.0,
+   "value": 89.0,
    "unit": "",
    "how": "recorded by the Lab run (ctx.metric)"
   }
@@ -207,6 +207,54 @@
    "kind": "reference"
   },
   {
+   "name": "em.research_fdtd_3d: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "3 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.research_inverse_permittivity: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.research_surrogate_hall: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.research_uq_waveguide: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "4 comparisons",
+   "kind": "reference"
+  },
+  {
    "name": "em.waveguide_modes: every comparison passes",
    "passed": true,
    "value": null,
@@ -235,9 +283,9 @@
  },
  "provenance": {
   "source": "lab-run",
-  "git": "204e481e",
-  "seconds": 0.015,
-  "created": "2026-10-24T17:52:39Z",
+  "git": "a60bed28",
+  "seconds": 0.021,
+  "created": "2026-10-24T21:17:04Z",
   "environment": {
    "python": "3.13.17",
    "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",

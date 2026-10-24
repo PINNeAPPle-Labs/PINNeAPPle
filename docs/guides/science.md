@@ -74,10 +74,35 @@ and sealed figures.
 | `em.bench_mu0_solenoid` | 3D | **bench**: Hall probe, ammeter, caliper; mu0 from the slope of B(I) with a GUM budget; coverage of U checked by Monte Carlo | CODATA 2022 |
 | `em.bench_rc_discharge` | 0D | **bench**: 8-bit oscilloscope with noise and time-base error; C = tau / R with its uncertainty; coverage by Monte Carlo | the capacitor's true value (hidden from the fit) |
 
+### Research level
+
+| experiment | dims | what is computed | reference / evidence |
+|---|---|---|---|
+| `em.research_fdtd_3d` | 3D+t | a 3-D FDTD study configured by a dict (domain, cells per wavelength, `sources`, `materials`: spheres, boxes, cylinders of any medium); a Hertzian dipole on a refinement ladder, radiated power by the near-to-far-field transform; then the dipole beside a dielectric sphere on the same ladder | closed-form dipole power and pattern, observed order, Richardson and Roache's GCI; for the configured case (no closed form) its own extrapolation and GCI against a declared target; Faraday, Ampere-Maxwell and Gauss residuals of a block of the field in x, y, z and t |
+| `em.research_uq_waveguide` | 2D | Monte Carlo of a, b, eps_r tolerances through the finite-difference eigen-solver: mean, std, 95 % interval of the TE10 and TE20 cut-offs | first-order GUM propagation with closed-form sensitivities, tolerance from the sampling error of the std |
+| `em.research_inverse_permittivity` | 1D | eps_r and sigma of a slab recovered by least squares from a reflection spectrum measured by FDTD with receiver noise, with the Jacobian covariance; the model's bias is removed by simulating the instrument at the fitted point; repeated on noise realisations | the truth the measurement was generated with (hidden from the fit); coverage (95 %) and centring of the stated u |
+| `em.research_surrogate_hall` | 2D | a Gaussian process of the Hall geometrical factor G(L/W, mu B) trained on solver runs (Latin hypercube), variance calibrated by leave-one-out on the training runs | error on held-out solver runs; +-2 sigma coverage; the long-bar limit |
+
+The FDTD study writes the fourth dimension two ways: an MP4 / GIF of E_z r on the three central planes in time,
+and a single-file three.js page (the Studio viewer, `pinneapple_tools.visualization.studio.web_viewer`) with play,
+pause and a time slider.
+
+```python
+from pinneapple_science.em.fdtd_study import FDTDConfig, run_fdtd
+
+cfg = FDTDConfig.from_dict({"f0": 1e9, "size": 2.4, "cells_per_wavelength": 14,
+                            "sources": [{"kind": "dipole", "component": "Ez", "at": [0, 0, 0]}],
+                            "materials": [{"shape": "box", "center": [0.5, 0, 0], "size": [0.2, 0.6, 0.6],
+                                           "eps_r": 6.0, "sigma": 0.01}]})
+run = run_fdtd(cfg, snapshots=24)            # run.power (W at f0), run.pattern(theta), run.slices, run.volume
+```
+
 Limits stated by the experiments themselves: Palmer's and Kirchhoff's formulas are asymptotic (the capacitor
 experiment measures how Kirchhoff's error falls with a/d: +6.2 %, +2.3 %, +0.8 % at a/d = 2.5, 5, 10 in the
 committed run); the thin-plate edge limits the finite-volume order to about 1; the Fresnel comparisons use an
-absolute tolerance of 5e-3 on abs(r) at 40 cells per wavelength.
+absolute tolerance of 5e-3 on abs(r) at 40 cells per wavelength. The dipole beside a sphere converges at first
+order (staircase sphere with fill-fraction averaging), so its finest grid carries a GCI of a few percent; the
+surrogate's +-2 sigma band covers 80 % of the held-out runs, at the threshold the experiment declares.
 
 ## The atlas
 

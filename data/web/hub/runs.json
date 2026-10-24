@@ -1077,6 +1077,50 @@
   "stdout": "Temperatura de junção numa placa de potência (conversor DC-DC 4 camadas) | Térmica / eletrônica | not curated\nrel_error[theta_JA TO-263 D2PAK na placa JEDEC 2s2p] 0.0075139540549168755 -\nrel_error[theta_JA QFN-32 5x5 na placa JEDEC 2s2p] 0.005776877924571159 -\nrel_error[theta_JA SOIC-8 na placa JEDEC 2s2p] 0.0009251485243855958 -\nsurrogate_holdout_max_rel_err 0.021588065186892432 -\ninversion_rel_err 0.01197085295079133 -",
   "timed_out": false
  },
+ "example:examples/industrial_presets/pressure_vessel_asme": {
+  "code_hash": "48a3ab3fd7941dc7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1 | Estrutural / caldeiraria e processo | not curated\nrel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé] 0.0038346666983239304 -\nrel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)] 8.384422033447177e-07 -\nrel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé] 0.000866198770668044 -\nrel_error[caso espesso (t/R 0,26): UG-27 vs Lamé] 0.00962774901909099 -\ninversion_rel_err 0.002553325026595152 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/pump_npsh_cavitation": {
+  "code_hash": "8d02c774cfec0dd2",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.78,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação | Fluidos / bombeamento (saneamento, processo, utilidades) | not curated\nrel_error[pressão de saturação a 300 K] 8.519538172126368e-10 -\nrel_error[pressão de saturação a 500 K] 1.4122479672402738e-09 -\nrel_error[pressão de saturação a 600 K] 1.7516852474095862e-09 -\nrel_error[pressão atmosférica a 1000 m] 4.4030956171667256e-07 -\nrel_error[pressão atmosférica a 2000 m] 3.226243583987093e-08 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/shell_tube_cooler": {
+  "code_hash": "bf54384818e18b33",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.81,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos) | Térmica / processo e energia | not curated\nrel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto] 3.277045816399516e-14 -\nrel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto] 4.189200564160273e-14 -\nrel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto] 9.398982902295129e-15 -\nrel_error[Cr -> 0: epsilon = 1 - exp(-NTU)] 0.0 -\nrel_error[h tubos: Gnielinski vs Dittus-Boelter] 0.09283884594855282 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/steam_pipe_insulation": {
+  "code_hash": "b0b0f52ff9ad8365",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.74,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica | Processo e energia / utilidades | not curated\nrel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)] 4.955861856334466e-08 -\nrel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)] 1.621445256408362e-07 -\nrel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)] 4.960096946394748e-07 -\nrel_error[k constante: resistências em série (Incropera eq. 3.27)] 1.6599341602614414e-16 -\nrel_error[h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert] 0.06208249860123212 -",
+  "timed_out": false
+ },
  "example:examples/industrial_presets/steel_footbridge_pedestrian": {
   "code_hash": "e3f441027f200aa6",
   "figures": [],
@@ -1275,6 +1319,17 @@
   "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
   "timed_out": false
  },
+ "example:examples/nvidia/05_brep_plate_with_hole": {
+  "code_hash": "b948a3860baab4a0",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.89,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks | structural mechanics | not curated\nkt_net_richardson 2.3202025186774162 \nkt_net_finest 2.275980554438024 \nbrep_volume 43429.203675653 mm^3",
+  "timed_out": false
+ },
  "example:examples/nvidia/07_omniverse_physicsnemo_coldplate": {
   "code_hash": "6c1a74ed563c5c29",
   "figures": [],
@@ -1297,6 +1352,17 @@
   "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
   "timed_out": false
  },
+ "example:examples/nvidia/10_brep_physicsnemo_heatsink": {
+  "code_hash": "1ab4a238d5c929aa",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.85,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification | heat transfer | not curated\nproposal_mass 195.09650445308407 g\nproposal_t_source 74.20348259023478 C",
+  "timed_out": false
+ },
  "example:examples/nvidia/12_omniverse_robotsim_arm": {
   "code_hash": "99b67289e7218c39",
   "figures": [],
@@ -1306,6 +1372,28 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
+  "timed_out": false
+ },
+ "example:examples/nvidia/14_brep_omniverse_bracket": {
+  "code_hash": "b42ed8f06b195d4c",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.84,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness | geometry | not curated\nbracket_mass 105.37090558663354 g\nchord_error_max 7.060322879633735 um",
+  "timed_out": false
+ },
+ "example:examples/nvidia/16_omniverse_physicsnemo_brep_heatsink": {
+  "code_hash": "ea4511928dbf7efb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.78,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle | heat transfer | not curated\naccepted_mass 195.09650445308407 g\naccepted_t_source 74.20348259023478 C",
   "timed_out": false
  },
  "example:examples/openfoam_campaign": {

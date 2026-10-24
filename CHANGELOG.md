@@ -13,6 +13,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Fixed
+- `SolidFEM` (8-node hexahedra) mapped the shape-function gradients with the transposed inverse Jacobian, so
+  strains and stresses were wrong on elements not aligned with the axes (a patch test gave 0.5-0.75 of the imposed
+  strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
+
 ### Added
 - `pinneapple_autolab`: the Autonomous Physics Lab, an engine that manages evidence for engineering decisions on any
   reference simulator. A mission (variables, objectives, limits absolute or relative to a simulated baseline, budget,
@@ -78,6 +83,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   temperatures (JEDEC theta_JA), steel footbridge (strength, deflection, lateral-torsional buckling, pedestrian
   vibration). CLI `python -m pinneapple_presets`, Flow Studio nodes `preset.run` / `preset.validate`, results in
   `examples/industrial_presets/`, Hub index `pinneapple_presets/index.json`.
+- Industrial presets, batch 2: shell-and-tube cooler (epsilon-NTU of the 1-2 exchanger, checked against direct
+  integration of its energy equations; Kern / Gnielinski; fouling inversion), steam-line insulation (economic
+  thickness, k(T) by the Kirchhoff transform checked by finite volumes), ASME VIII Div. 1 pressure vessel (UG-27 /
+  UG-32, Lamé and a 3-D C3D8I ring), centrifugal pump NPSH (IAPWS-IF97 saturation pressure, ISO 2533 atmosphere,
+  ANSI/HI 9.6.1 margin). New closed forms: `heat_exchanger`, `pipe_insulation`, `pump_npsh`.
 - `pinneapple_simulation.numerical_solvers.pipe_network`: looped pipe networks by the global gradient algorithm
   (Hazen-Williams, Darcy-Weisbach/Colebrook) and least-cost discrete sizing by a genetic algorithm.
 - `pinneapple_simulation.numerical_solvers.beam_fe`: Euler-Bernoulli Hermite beam elements (static and modes).
@@ -157,6 +167,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `pinneapple_tools.nvidia.physicsnemo.MLPSurrogate` (PhysicsNeMo `FullyConnected` with its training box) and
   `sign_violations`. Examples 03 (arm in the robot sim), 08 (learned dynamics: Newton data, PhysicsNeMo network,
   PINNeAPPle physics checks) and 12 (one USD scene for Omniverse and the robot sim).
+- NVIDIA USD BRep in PINNeAPPle (`pinneapple_tools.nvidia.brep`): parts as data (`PartRecipe`: boxes, cylinders,
+  booleans, edge fillets, sweeps), built and measured by the SMLib kernel in a worker process (`usd-brep` is a
+  CPython 3.12 wheel; `PINNEAPPLE_BREP_PYTHON`): exact volume, area, mass properties, face curvature, tessellations
+  with their measured chord error, exact curvature at mesh vertices, native B-rep USD export; `geometry_checks`,
+  `planar_face_mesh`, `mesh_thickness` (ray casting). `pinneapple_tools.nvidia.parts` (L bracket, plate-fin heat sink
+  with root fillets, closed-form volumes) and `.heatsink` (designs rated by the closed-form heat-sink model on exact
+  solids, verification of surrogate proposals). `numerical_solvers.plane_stress_fem` (constant-strain triangles on any
+  mesh, patch test, Heywood's net-section Kt). Examples 05 (B), 10 (B + P), 14 (B + O) and 16 (O + P + B).
 - Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
   curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
   Joukowsky's head rise and the 4L/a period.

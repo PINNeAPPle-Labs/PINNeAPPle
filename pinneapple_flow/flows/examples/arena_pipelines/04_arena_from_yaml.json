@@ -1,0 +1,101 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.arena_pipelines.04_arena_from_yaml",
+ "name": "Arena: VanillaPINN, FNO-2D and MeshGraphNet on Kovasznay flow",
+ "description": "pinneapple_arena.Arena with the script's default built-in config (Kovasznay Navier-Stokes, Re 40: a 4 x 128 PINN for 2000 epochs, an FNO-2D and a MeshGraphNet for 600); relative L2 per field and the physics residual (examples/arena_pipelines/04_arena_from_yaml.py; its --config takes the YAML files of configs/, the same node's config_file). Quick: 100 epochs per model.",
+ "nodes": [
+  {
+   "id": "arena",
+   "type": "arena.run",
+   "params": {
+    "config": {
+     "problem": {
+      "name": "kovasznay_ns",
+      "params": {
+       "re": 40.0
+      },
+      "grid_n": 40,
+      "n_col": 2000,
+      "n_bc": 500,
+      "n_train_supervised": 200,
+      "n_mesh_nodes": 600
+     },
+     "models": [
+      {
+       "name": "VanillaPINN",
+       "type": "vanilla_pinn",
+       "network": {
+        "hidden": [
+         128,
+         128,
+         128,
+         128
+        ],
+        "activation": "tanh"
+       },
+       "training": {
+        "epochs": 2000,
+        "lr": 0.0005,
+        "grad_clip": 1.0
+       }
+      },
+      {
+       "name": "FNO-2D",
+       "type": "fno2d",
+       "network": {
+        "width": 32,
+        "modes": 12,
+        "layers": 4
+       },
+       "training": {
+        "epochs": 600,
+        "lr": 0.001
+       }
+      },
+      {
+       "name": "MeshGraphNet",
+       "type": "meshgraphnet",
+       "network": {
+        "hidden_dim": 128,
+        "n_message_passing": 6
+       },
+       "training": {
+        "epochs": 600,
+        "lr": 0.001
+       }
+      }
+     ],
+     "output": {
+      "dir": "outputs/kovasznay",
+      "prefix": "benchmark",
+      "save_figures": true,
+      "dpi": 150,
+      "dark_theme": true
+     }
+    },
+    "config_file": "",
+    "epochs": 0,
+    "physics_aware": false
+   },
+   "label": "Arena: Kovasznay",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "arena_pipelines",
+  "domain": "benchmarks",
+  "scripts": [
+   "04_arena_from_yaml.py"
+  ],
+  "quick": {
+   "arena": {
+    "epochs": 100
+   }
+  }
+ }
+}

@@ -1682,18 +1682,75 @@
  },
  "electromagnetics/17_prius_tolerances": {
   "full": {
-   "commit": "e1b27365",
-   "comparisons": [],
+   "commit": "dbd3bc50",
+   "comparisons": [
+    {
+     "flow": "tol.nominal_outputs.torque_Nm",
+     "outcome": "match",
+     "ref": "results/17_prius_tolerances.json:nominal_outputs.torque_Nm",
+     "reference": 343.351887569755,
+     "rel_diff": 0.0,
+     "value": 343.351887569755
+    },
+    {
+     "flow": "tol.nominal_outputs.ripple",
+     "outcome": "match",
+     "ref": "results/17_prius_tolerances.json:nominal_outputs.ripple",
+     "reference": 0.2013778017905786,
+     "rel_diff": 0.0,
+     "value": 0.2013778017905786
+    },
+    {
+     "flow": "tol.outputs.torque_Nm.mean",
+     "outcome": "match",
+     "ref": "results/17_prius_tolerances.json:outputs.torque_Nm.mean",
+     "reference": 343.3147251337859,
+     "rel_diff": 0.0,
+     "value": 343.3147251337859
+    },
+    {
+     "flow": "tol.outputs.torque_Nm.std",
+     "outcome": "match",
+     "ref": "results/17_prius_tolerances.json:outputs.torque_Nm.std",
+     "reference": 1.9611826570469055,
+     "rel_diff": 0.0,
+     "value": 1.9611826570469055
+    },
+    {
+     "flow": "tol.outputs.torque_Nm.src_r2",
+     "outcome": "match",
+     "ref": "results/17_prius_tolerances.json:outputs.torque_Nm.src_r2",
+     "reference": 0.9992120924025514,
+     "rel_diff": 0.0,
+     "value": 0.9992120924025514
+    },
+    {
+     "flow": "tol.outputs.ripple.mean",
+     "outcome": "match",
+     "ref": "results/17_prius_tolerances.json:outputs.ripple.mean",
+     "reference": 0.20207288845477706,
+     "rel_diff": 0.0,
+     "value": 0.20207288845477706
+    },
+    {
+     "flow": "tol.p_within_spec_joint",
+     "outcome": "match",
+     "ref": "results/17_prius_tolerances.json:p_within_spec_joint",
+     "reference": 1.0,
+     "rel_diff": 0.0,
+     "value": 1.0
+    }
+   ],
    "configuration": "full",
-   "date": "2026-10-23",
-   "manifest": "skipped: the run is failed",
-   "matched": 0,
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-em-prius-tolerances.experiment.json, Lab item manifest/flow/example-em-prius-tolerances",
+   "matched": 7,
    "nodes": {
-    "compare": "cancelled",
-    "tol": "failed: ImportError: cannot import name 'src' from 'pinneapple_analysis.uncertainty.tolerance' (/home/user/PINNeAPPle/pinneapple_analysis/uncertainty/tolerance.py)"
+    "compare": "done",
+    "tol": "done"
    },
-   "seconds": 8.9,
-   "status": "failed"
+   "seconds": 623.9,
+   "status": "done"
   }
  },
  "electromagnetics/motor_spm_cogging_and_torque": {
@@ -5576,6 +5633,39 @@
    "status": "done"
   }
  },
+ "solver_api/01_classical_vs_pinn": {
+  "full": {
+   "commit": "dbd3bc50",
+   "comparisons": [
+    {
+     "flow": "compare_methods.fem.relative_l2",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/solver.md|FEM relative L2 (\\d\\.\\de-\\d)",
+     "reference": 0.0042,
+     "rel_diff": 0.011288626940944643,
+     "value": 0.004247412233151967
+    },
+    {
+     "flow": "compare_methods.pinn.relative_l2",
+     "outcome": "match",
+     "ref": "text:docs/core_concepts/solver.md|PINN (\\d\\.\\de-\\d) in",
+     "reference": 0.0013,
+     "rel_diff": 0.011127716071487461,
+     "value": 0.0013144660308929336
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-solver-api.experiment.json, Lab item manifest/flow/example-solver-api",
+   "matched": 2,
+   "nodes": {
+    "compare": "done",
+    "compare_methods": "done"
+   },
+   "seconds": 1893.2,
+   "status": "done"
+  }
+ },
  "solvers/01_time_series_decompositions": {
   "full": {
    "commit": "475bf159",
@@ -6028,6 +6118,31 @@
    "status": "done"
   }
  },
+ "validation/05_pod_dmd_cylinder_wake": {
+  "quick": {
+   "commit": "dbd3bc50",
+   "comparisons": [
+    {
+     "flow": "gallery.dmd_max_abs_eig_transient",
+     "outcome": "match",
+     "ref": "text:docs/guides/validation_gallery.md|\u03bb\\\\\\| = ([0-9.]+)",
+     "reference": 1.008,
+     "rel_diff": 0.0002281929609554599,
+     "value": 1.007769981495357
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/agentC/example.validation.05_pod_dmd_cylinder_wake-quick.experiment.json, Lab item manifest/flow/example.validation.05_pod_dmd_cylinder_wake-quick",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "gallery": "done"
+   },
+   "seconds": 2293.7,
+   "status": "done"
+  }
+ },
  "validation/06_opinf_weather_advection": {
   "full": {
    "commit": "c49301d7",
@@ -6152,6 +6267,21 @@
     "compare": "done"
    },
    "seconds": 0.4,
+   "status": "done"
+  }
+ },
+ "worldmodel/01_generate_train_evaluate": {
+  "quick": {
+   "commit": "dbd3bc50",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example.worldmodel.01_generate_train_evaluate-quick.experiment.json, Lab item manifest/flow/example.worldmodel.01_generate_train_evaluate-quick",
+   "matched": 0,
+   "nodes": {
+    "wm": "done"
+   },
+   "seconds": 22.0,
    "status": "done"
   }
  }

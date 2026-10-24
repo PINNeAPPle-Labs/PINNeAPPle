@@ -1,0 +1,139 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/ipm_traction_motor",
+ "title": "Motor de tra\u00e7\u00e3o de \u00edm\u00e3s internos (geometria do Toyota Prius 2004): torque, MTPA e tens\u00e3o",
+ "description": "Que torque o motor d\u00e1 nesta corrente e neste \u00e2ngulo, quanto falta para o MTPA, e a tens\u00e3o nesta rota\u00e7\u00e3o cabe no barramento CC (ou \u00e9 preciso enfraquecimento de campo)?",
+ "domain": "Eletromagnetismo / mobilidade el\u00e9trica",
+ "methods": [
+  "pinneapple_simulation.electromagnetics.machines.pmsm.IPMMachine",
+  "pinneapple_simulation.electromagnetics.machines.verification"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 2.309884459000159
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[torque m\u00e1ximo da curva T(\u00e2ngulo) a 250 A]",
+   "value": 0.03511391427243841,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, benchmark: Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan"
+  },
+  {
+   "name": "rel_error[curva T(\u00e2ngulo) a 250 A, 13 pontos: erro m\u00e9dio / torque m\u00e1ximo]",
+   "value": 0.03376705963443254,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, benchmark: Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan"
+  },
+  {
+   "name": "rel_error[\u00e2ngulo de torque m\u00e1ximo (Phi0)]",
+   "value": 0.0,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, benchmark: Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan"
+  },
+  {
+   "name": "rel_error[torque: tensor de Maxwell vs co-energia (250 A, 50\u00b0)]",
+   "value": 0.009883900864553579,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: trabalho virtual dW'/dtheta (diferen\u00e7as de 4a ordem)"
+  },
+  {
+   "name": "surrogate_holdout_max_rel_err",
+   "value": 0.058393295555846436,
+   "unit": "-",
+   "how": "15 held-out solver runs (Latin hypercube)"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.015344047058465371,
+   "unit": "-",
+   "how": "m\u00ednimos quadrados (Brent) sobre o FEA, IC pela sensibilidade"
+  }
+ ],
+ "checks": [
+  {
+   "name": "torque m\u00e1ximo da curva T(\u00e2ngulo) a 250 A",
+   "passed": true,
+   "value": 340.60478826182924,
+   "reference": 353.0,
+   "rtol": 0.05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "curva T(\u00e2ngulo) a 250 A, 13 pontos: erro m\u00e9dio / torque m\u00e1ximo",
+   "passed": true,
+   "value": 0.03376705963443254,
+   "reference": 0.0,
+   "rtol": 0.05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "\u00e2ngulo de torque m\u00e1ximo (Phi0)",
+   "passed": true,
+   "value": 140.0,
+   "reference": 140.0,
+   "rtol": 0.1,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "torque: tensor de Maxwell vs co-energia (250 A, 50\u00b0)",
+   "passed": true,
+   "value": 357.2541653157217,
+   "reference": 360.82047916165624,
+   "rtol": 0.02,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/ipm.png",
+   "results/surrogate_parity.png",
+   "results/variants.png",
+   "results/3d/ipm_traction_motor_3d_B.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan",
+  "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan",
+  "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan",
+  "trabalho virtual dW'/dtheta (diferen\u00e7as de 4a ordem)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9e9034de",
+  "created": "2026-10-24T10:26:52Z",
+  "seconds": 0.014,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

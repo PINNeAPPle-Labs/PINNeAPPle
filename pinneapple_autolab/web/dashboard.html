@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autonomous Physics Lab</title>
+<style>
+:root {
+  --bg: #07090d; --panel: #0f131b; --panel2: #151a24; --line: #232a38; --ink: #e8e6e1; --muted: #9a988f;
+  --cand: #9085e9; --front: #19c79a; --doe: #c3c2b7; --acq: #eb6834; --ver: #3987e5; --best: #eda100;
+  --limit: #e87ba4; --fail: #ff4d4f; --fav: #19c79a; --unc: #eda100; --ood: #e87ba4;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+header h1 { font-size: 15px; margin: 0; letter-spacing: .02em; }
+header .mission { color: var(--muted); max-width: 70ch; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.chip { padding: 2px 9px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel2); white-space: nowrap; }
+.chip.run { border-color: var(--acq); color: var(--acq); }
+.chip.train { border-color: var(--cand); color: var(--cand); }
+.chip.fail { border-color: var(--fail); color: var(--fail); }
+.chip.ok { border-color: var(--front); color: var(--front); }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 5px; animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+main { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px 16px 16px; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+section h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin: 0 0 8px; display: flex; gap: 8px; align-items: center; }
+section h2 .sub { text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; margin-left: auto; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.col { flex: 1 1 260px; min-width: 0; }
+iframe { width: 100%; height: 380px; border: 1px solid var(--line); border-radius: 8px; background: #000; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 500; }
+tr.sel td { background: #1d2433; }
+tr.click { cursor: pointer; }
+.tabs { display: flex; gap: 4px; }
+.tabs button, select { background: var(--panel2); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; font: inherit; cursor: pointer; }
+.tabs button.on { border-color: var(--front); color: var(--front); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.tile { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.tile .k { color: var(--muted); font-size: 11px; }
+.tile .v { font-size: 18px; font-weight: 600; }
+.tile .s { color: var(--muted); font-size: 11px; }
+svg { width: 100%; display: block; }
+svg text { fill: var(--muted); font-size: 10px; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 11px; margin-top: 4px; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.timeline { max-height: 270px; overflow: auto; }
+.lab { padding: 1px 6px; border-radius: 4px; font-size: 11px; border: 1px solid; }
+.lab.favourable { color: var(--fav); } .lab.uncertain { color: var(--unc); } .lab.out_of_domain { color: var(--ood); }
+.lab.verified { color: var(--front); } .lab.rejected { color: var(--fail); } .lab.failed { color: var(--fail); }
+.lab.predicted { color: var(--muted); border-style: dashed; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.card { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 8px; font-size: 12px; }
+.card b { font-size: 13px; }
+.muted { color: var(--muted); }
+.crit li { margin: 2px 0; }
+.pass { color: var(--front); } .failc { color: var(--fail); } .na { color: var(--muted); }
+img.fig { width: 100%; border-radius: 6px; border: 1px solid var(--line); }
+.empty { color: var(--muted); padding: 30px 8px; text-align: center; border: 1px dashed var(--line); border-radius: 8px; }
+@media (max-width: 1000px) { main { grid-template-columns: 1fr; } .cards, .tiles { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Autonomous Physics Lab</h1>
+  <span class="mission" id="mission"></span>
+  <div class="chips" id="chips"></div>
+  <div id="replay" style="display:none;width:100%;align-items:center;gap:10px">
+    <button id="play" class="chip" style="cursor:pointer">▶ replay</button>
+    <input id="slider" type="range" min="0" value="0" style="flex:1 1 240px;min-width:120px">
+    <span class="muted" id="when" style="flex:0 1 auto;min-width:0;max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+  </div>
+</header>
+<main>
+  <section id="geo"><h2>Geometry <span class="sub" id="geo-sub"></span></h2><div id="geo-view"></div><div id="geo-body"></div></section>
+  <section id="phy"><h2>Physics <span class="sub" id="phy-sub"></span></h2><div id="phy-body"></div></section>
+  <section id="mod"><h2>Models <span class="sub" id="mod-sub"></span></h2><div id="mod-body"></div></section>
+  <section id="dec"><h2>Decisions <span class="sub" id="dec-sub"></span></h2><div id="dec-body"></div></section>
+</main>
+<script>
+const STATE0 = /*__STATE__*/null;
+const CFG = /*__CONFIG__*/null;
+let S = STATE0, sel = null, viewer = null, modOut = null;
+const OUT = ["drag_N", "downforce_N", "balance_front"];
+const LBL = { drag_N: "drag [N]", downforce_N: "downforce [N]", balance_front: "front balance" };
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const fmt = (v, d = 4) => (v === null || v === undefined || !isFinite(v)) ? "—" : Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en") : (+v.toPrecision(d)).toString();
+const pct = (v, d = 1) => (v === null || v === undefined || !isFinite(v)) ? "—" : (v >= 0 ? "+" : "") + (100 * v).toFixed(d) + " %";
+
+function runs() { return (S.ledger && S.ledger.runs) || []; }
+function okRuns() { return runs().filter((r) => r.ok && r.purpose !== "probe"); }
+function baseline() { return runs().find((r) => r.purpose === "baseline" && r.ok); }
+function feasible(r) {
+  const lim = CFG.limits || {};
+  return r.ok && r.purpose !== "probe" && Object.keys(lim).every((k) => { const [lo, hi] = lim[k]; const v = r.outputs[k]; return isFinite(v) && (lo === null || v >= lo) && (hi === null || v <= hi); });
+}
+function bestRun() {
+  const b = S.summary && S.summary.best; if (b) return runs().find((r) => r.id === b.id);
+  if (!baseline() || !CFG.limits) return (S.snapshot && S.snapshot.best) || null;      // limits exist once the baseline is measured
+  const ok = runs().filter(feasible); return ok.length ? ok.reduce((a, r) => (r.outputs[CFG.objective] < a.outputs[CFG.objective] ? r : a)) : null;
+}
+function selRun() { return runs().find((r) => r.id === sel) || bestRun() || baseline() || runs()[runs().length - 1]; }
+function decisionsById() {
+  const m = {};
+  const ds = (S.summary && S.summary.decisions) || (S.snapshot && S.snapshot.decisions) || [];
+  ds.forEach((d) => d.run && (m[d.run] = d));
+  (S.events || []).forEach((e) => { if (e.outcome && e.outcome.run) m[e.outcome.run] = m[e.outcome.run] || e.outcome; });
+  return m;
+}
+function latestBoard() {
+  if (S.snapshot && S.snapshot.board) return { board: S.snapshot.board, cv: S.snapshot.cv_pred };
+  const ev = (S.events || []).filter((e) => e.board).pop();
+  return ev ? { board: ev.board, cv: null } : null;
+}
+function select(id) { sel = id; renderAll(); }
+
+// ---------------------------------------------------------------- svg helpers
+function scale(d0, d1, r0, r1) { const k = (r1 - r0) / ((d1 - d0) || 1); const f = (v) => r0 + (v - d0) * k; f.inv = (p) => d0 + (p - r0) / k; return f; }
+function ext(a, pad = 0.06) { const v = a.filter((x) => isFinite(x)); let lo = Math.min(...v), hi = Math.max(...v); if (!v.length) return [0, 1]; const p = (hi - lo || Math.abs(hi) || 1) * pad; return [lo - p, hi + p]; }
+function ticks(lo, hi, n = 5) { const st = Math.pow(10, Math.floor(Math.log10((hi - lo) / n || 1))); const m = [1, 2, 5, 10].find((k) => (hi - lo) / (k * st) <= n) * st; const out = []; for (let v = Math.ceil(lo / m) * m; v <= hi + 1e-9; v += m) out.push(+v.toPrecision(10)); return out; }
+function axes(W, H, M, X, Y, xl, yl, xs = 1, ys = 1) {
+  let s = "";
+  ticks(X.inv(M.l), X.inv(W - M.r)).forEach((t) => { s += `<line x1="${X(t)}" x2="${X(t)}" y1="${M.t}" y2="${H - M.b}" stroke="${css("--line")}"/><text x="${X(t)}" y="${H - M.b + 12}" text-anchor="middle">${fmt(t / xs, 4)}</text>`; });
+  ticks(Y.inv(H - M.b), Y.inv(M.t)).forEach((t) => { s += `<line x1="${M.l}" x2="${W - M.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="${css("--line")}"/><text x="${M.l - 4}" y="${Y(t) + 3}" text-anchor="end">${fmt(t / ys, 4)}</text>`; });
+  s += `<text x="${(M.l + W - M.r) / 2}" y="${H - 4}" text-anchor="middle" style="fill:${css("--ink")}">${esc(xl)}</text>`;
+  s += `<text transform="translate(11 ${(M.t + H - M.b) / 2}) rotate(-90)" text-anchor="middle" style="fill:${css("--ink")}">${esc(yl)}</text>`;
+  return s;
+}
+function star(x, y, r, c, extra = "") { let p = ""; for (let i = 0; i < 10; i++) { const a = Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; p += `${x + rr * Math.cos(a)},${y - rr * Math.sin(a)} `; } return `<polygon points="${p}" fill="${c}" stroke="${css("--bg")}" stroke-width="1" ${extra}/>`; }
+
+// ---------------------------------------------------------------- header
+function renderHeader() {
+  const st = S.status || {};
+  document.getElementById("title").textContent = CFG.title;
+  const m = S.summary ? S.summary.mission : ((S.events || []).find((e) => e.plan) || {}).plan?.mission;
+  document.getElementById("mission").textContent = m ? m.statement : "";
+  const b = (S.ledger && S.ledger.budget) || {};
+  const used = runs().filter((r) => r.purpose !== "probe").length;
+  let c = `<span class="chip">CFD ${used} / ${b.max_runs ?? "?"}</span>`;
+  c += `<span class="chip">solver ${fmt((b.used_wall_s || 0) / 60, 3)} min</span>`;
+  if (st.running) c += `<span class="chip run"><span class="dot"></span>simulating ${esc(st.running.id)}</span>`;
+  if (st.training) c += `<span class="chip train"><span class="dot"></span>training surrogates</span>`;
+  if (st.failed && st.failed.length) c += `<span class="chip fail">${st.failed.length} solver run(s) failed</span>`;
+  c += st.finished ? `<span class="chip ok">finished</span>` : `<span class="chip">${esc(st.phase || "")}</span>`;
+  if (CFG.live) c += `<span class="chip">live</span>`;
+  document.getElementById("chips").innerHTML = c;
+}
+
+// ---------------------------------------------------------------- geometry
+let design = "best", geoView = null, phyView = null;
+const GEO_VIEWS = { cycles_cp: "Cp (Cycles)", cp_top: "Cp, from above", cp_bottom: "Cp, from below", cp_paraview: "Cp ±0.5", wireframe: "surface mesh" };
+const PHY_VIEWS = { cycles_streamlines: "streamlines (Cycles)", streamlines: "streamlines", midplane_cp: "mid-plane Cp", wake_vorticity: "wake vorticity" };
+function exists(d) { const id = (CFG.designs || {})[d]; return !!id && runs().some((r) => r.id === id && r.ok); }
+function fig(k) {
+  const d = k.split("_")[0]; if ((d === "best" || d === "baseline") && !exists(d)) return null;
+  const owner = (CFG.figure_runs || {})[k]; if (owner && !runs().some((r) => r.id === owner)) return null;
+  return CFG.figures && CFG.figures[k];
+}
+function designTabs() {
+  const names = { baseline: "Original", best: "Optimised" };
+  if (!exists(design)) design = exists("best") ? "best" : "baseline";
+  return `<span class="tabs">${Object.keys(names).map((d) => `<button data-d="${d}" class="${d === design ? "on" : ""}" ${exists(d) ? "" : 'disabled title="not simulated yet" style="opacity:.35"'}>${names[d]}${exists(d) ? "" : " (not yet)"}</button>`).join("")}</span>`;
+}
+function renderGeometry() {
+  const host = document.getElementById("geo-body"), view = document.getElementById("geo-view");
+  const names = Object.keys(CFG.viewers || {}).filter((n) => exists(n));
+  const r = selRun(), b = baseline(), best = bestRun();
+  const vars = r ? Object.keys(r.params) : [];
+  if (!exists(design)) design = exists("best") ? "best" : "baseline";
+  const imgs = Object.keys(GEO_VIEWS).filter((k) => fig(`${design}_${k}`));
+  const opts = [...(names.length ? ["3d"] : []), ...imgs, "space"];
+  geoView = opts.includes(geoView) ? geoView : opts[0];
+  const key = `${design}|${geoView}`;
+  if (view.dataset.key !== key || geoView === "space") {
+    view.dataset.key = key;
+    let h = `<div class="row" style="justify-content:space-between;margin-bottom:6px">${designTabs()}<span class="tabs">${opts.map((o) => `<button data-g="${o}" class="${o === geoView ? "on" : ""}">${o === "3d" ? "3-D" : o === "space" ? "design space" : GEO_VIEWS[o]}</button>`).join("")}</span></div>`;
+    if (geoView === "3d") h += names.includes(design) ? `<iframe src="${esc(CFG.viewers[design])}" title="3-D viewer"></iframe>` : `<div class="empty">this design has not been simulated yet</div>`;
+    else if (geoView === "space") h += parallel(vars);
+    else h += fig(`${design}_${geoView}`) ? `<img class="fig" src="${fig(`${design}_${geoView}`)}" alt="${esc(GEO_VIEWS[geoView])}">` : `<div class="empty">no render of this design</div>`;
+    view.innerHTML = h;
+    view.querySelectorAll("[data-g]").forEach((bt) => (bt.onclick = () => { geoView = bt.dataset.g; renderAll(); }));
+    view.querySelectorAll("[data-d]").forEach((bt) => (bt.onclick = () => { design = bt.dataset.d; const run = design === "best" ? bestRun() : baseline(); if (run) sel = run.id; renderAll(); }));
+  }
+  if (!r) { host.innerHTML = ""; return; }
+  let h = `<table style="margin-top:8px"><tr><th>variable</th><th>original</th><th>${esc(r.id)}</th><th>change</th>${best && best.id !== r.id ? `<th>best ${esc(best.id)}</th>` : ""}</tr>`;
+  vars.forEach((k) => {
+    const v0 = b ? b.params[k] : NaN, v1 = r.params[k];
+    h += `<tr><td>${esc(k)}</td><td>${fmt(v0)}</td><td>${fmt(v1)}</td><td>${isFinite(v0) ? fmt(v1 - v0, 3) : "—"}</td>${best && best.id !== r.id ? `<td>${fmt(best.params[k])}</td>` : ""}</tr>`;
+  });
+  host.innerHTML = h + `</table>`;
+  document.getElementById("geo-sub").textContent = geoView === "3d" ? "studio viewer: skin Cp, streamlines, slices (CFD)" : geoView === "space" ? "simulated designs in the variable space" : `CFD render · ${design === "best" ? "recommended design" : "original design"}`;
+}
+function parallel(vars) {
+  const W = 620, H = 300, M = { l: 46, r: 46, t: 18, b: 40 };
+  const rs = runs().filter((r) => r.purpose !== "probe");
+  if (!rs.length || !vars.length) return `<div class="empty">no design simulated yet</div>`;
+  const X = (i) => M.l + i * (W - M.l - M.r) / (vars.length - 1 || 1);
+  const ranges = vars.map((k) => ext(rs.map((r) => r.params[k]), 0.02));
+  const Y = (i, v) => H - M.b - (v - ranges[i][0]) / (ranges[i][1] - ranges[i][0] || 1) * (H - M.t - M.b);
+  let s = `<svg viewBox="0 0 ${W} ${H}">`;
+  vars.forEach((k, i) => { s += `<line x1="${X(i)}" x2="${X(i)}" y1="${M.t}" y2="${H - M.b}" stroke="${css("--line")}"/><text x="${X(i)}" y="${H - M.b + 14}" text-anchor="middle">${esc(k.replace(/_aoa/, "").replace(/_/g, " "))}</text><text x="${X(i)}" y="${M.t - 5}" text-anchor="middle">${fmt(ranges[i][1], 3)}</text><text x="${X(i)}" y="${H - M.b + 26}" text-anchor="middle">${fmt(ranges[i][0], 3)}</text>`; });
+  const col = { baseline: css("--ink"), doe: css("--doe"), acquisition: css("--acq"), verification: css("--ver") };
+  rs.forEach((r) => {
+    const pts = vars.map((k, i) => `${X(i)},${Y(i, r.params[k])}`).join(" ");
+    const on = selRun() && r.id === selRun().id;
+    s += `<polyline points="${pts}" fill="none" stroke="${r.ok ? col[r.purpose] || css("--doe") : css("--fail")}" stroke-width="${on ? 3 : 1}" opacity="${on ? 1 : 0.45}" data-id="${r.id}" style="cursor:pointer" ${r.ok ? "" : 'stroke-dasharray="4 3"'}/>`;
+  });
+  return s + `</svg>`;
+}
+
+// ---------------------------------------------------------------- physics
+function renderPhysics() {
+  const host = document.getElementById("phy-body");
+  const r = selRun(), b = baseline();
+  if (!r) { host.innerHTML = `<div class="empty">no simulation finished yet${S.status?.running ? " — " + esc(S.status.running.id) + " is running" : ""}</div>`; return; }
+  if (!r.ok) { host.innerHTML = `<div class="empty" style="color:${css("--fail")}">${esc(r.id)} failed: ${esc(r.message)}<br><span class="muted">no outputs: a failed run is not evidence</span></div>`; return; }
+  const sd = (r.meta && r.meta.iteration_std) || {};
+  let h = `<div class="tiles">` + OUT.map((k) => `<div class="tile"><div class="k">${LBL[k]} · ${esc(r.id)}</div><div class="v">${fmt(r.outputs[k])}</div><div class="s">± ${fmt(sd[k], 2)} iteration noise · ${b && r.id !== b.id ? pct((r.outputs[k] - b.outputs[k]) / Math.abs(b.outputs[k])) + " vs original" : "original"}</div></div>`).join("") + `</div>`;
+  h += `<div class="row"><div class="col">${components(r, b)}</div><div class="col">${history(r)}</div></div>`;
+  const pv = Object.keys(PHY_VIEWS).filter((k) => fig(`${design}_${k}`));
+  if (pv.length) {
+    phyView = pv.includes(phyView) ? phyView : pv[0];
+    h += `<div class="row" style="justify-content:space-between;margin:8px 0 6px">${designTabs()}<span class="tabs">${pv.map((k) => `<button data-p="${k}" class="${k === phyView ? "on" : ""}">${PHY_VIEWS[k]}</button>`).join("")}</span></div><img class="fig" src="${fig(`${design}_${phyView}`)}" alt="${PHY_VIEWS[phyView]}">`;
+  }
+  host.innerHTML = h;
+  host.querySelectorAll("[data-p]").forEach((bt) => (bt.onclick = () => { phyView = bt.dataset.p; renderPhysics(); wire(); }));
+  host.querySelectorAll("[data-d]").forEach((bt) => (bt.onclick = () => { design = bt.dataset.d; const run = design === "best" ? bestRun() : baseline(); if (run) sel = run.id; renderAll(); }));
+  document.getElementById("phy-sub").textContent = `CFD, ${r.meta?.cells ? (r.meta.cells / 1e6).toFixed(2) + " M cells, " : ""}forces averaged over iterations ${(r.meta?.averaged_iterations || []).join(", ")}`;
+}
+function components(r, b) {
+  const parts = ["front_wing", "rear_wing", "floor", "body", "wheels"];
+  const W = 320, H = 210, M = { l: 70, r: 10, t: 16, b: 28 };
+  const vals = parts.flatMap((p) => [r.outputs[`downforce_${p}_N`], b ? b.outputs[`downforce_${p}_N`] : 0]);
+  const X = scale(...ext([0, ...vals], 0.05), M.l, W - M.r);
+  const bh = (H - M.t - M.b) / parts.length;
+  let s = `<svg viewBox="0 0 ${W} ${H}"><text x="${M.l}" y="11" style="fill:${css("--ink")}">downforce per component [N]</text>`;
+  ticks(X.inv(M.l), X.inv(W - M.r), 4).forEach((t) => (s += `<line x1="${X(t)}" x2="${X(t)}" y1="${M.t}" y2="${H - M.b}" stroke="${css("--line")}"/><text x="${X(t)}" y="${H - M.b + 12}" text-anchor="middle">${fmt(t)}</text>`));
+  parts.forEach((p, i) => {
+    const y = M.t + i * bh;
+    const v1 = r.outputs[`downforce_${p}_N`], v0 = b ? b.outputs[`downforce_${p}_N`] : null;
+    s += `<text x="${M.l - 4}" y="${y + bh / 2 + 3}" text-anchor="end">${p.replace("_", " ")}</text>`;
+    if (v0 !== null) s += `<rect x="${Math.min(X(0), X(v0))}" y="${y + 3}" width="${Math.abs(X(v0) - X(0))}" height="${bh / 2 - 3}" fill="${css("--doe")}" opacity=".55" rx="2"><title>original ${fmt(v0)} N</title></rect>`;
+    s += `<rect x="${Math.min(X(0), X(v1))}" y="${y + bh / 2}" width="${Math.abs(X(v1) - X(0))}" height="${bh / 2 - 3}" fill="${css("--best")}" rx="2"><title>${esc(r.id)} ${fmt(v1)} N</title></rect>`;
+  });
+  s += `<line x1="${X(0)}" x2="${X(0)}" y1="${M.t}" y2="${H - M.b}" stroke="${css("--muted")}"/></svg>`;
+  return s + `<div class="legend"><span><span class="sw" style="background:${css("--doe")}"></span>original</span><span><span class="sw" style="background:${css("--best")}"></span>${esc(r.id)}</span></div>`;
+}
+function history(r) {
+  const hs = (r.meta && r.meta.force_history) || [];
+  if (!hs.length) return `<div class="empty">no force history recorded</div>`;
+  const W = 320, H = 210, M = { l: 44, r: 8, t: 16, b: 28 };
+  const it = hs.map((h) => h.iteration);
+  const X = scale(...ext(it, 0.02), M.l, W - M.r);
+  const ys = hs.flatMap((h) => [h.drag_N, h.downforce_N]);
+  const Y = scale(...ext(ys, 0.08), H - M.b, M.t);
+  let s = `<svg viewBox="0 0 ${W} ${H}"><text x="${M.l}" y="11" style="fill:${css("--ink")}">force history (CFD iterations)</text>` + axes(W, H, M, X, Y, "iteration", "N");
+  const av = r.meta.averaged_iterations || [];
+  if (av.length) s += `<rect x="${X(Math.min(...av))}" y="${M.t}" width="${X(Math.max(...av)) - X(Math.min(...av))}" height="${H - M.t - M.b}" fill="${css("--front")}" opacity=".08"/>`;
+  [["drag_N", css("--acq")], ["downforce_N", css("--ver")]].forEach(([k, c]) => {
+    s += `<polyline fill="none" stroke="${c}" stroke-width="2" points="${hs.map((h) => `${X(h.iteration)},${Y(h[k])}`).join(" ")}"/>`;
+    s += `<line x1="${X(av[0] || it[0])}" x2="${X(it[it.length - 1])}" y1="${Y(r.outputs[k])}" y2="${Y(r.outputs[k])}" stroke="${c}" stroke-dasharray="3 3"/>`;
+  });
+  return s + `</svg><div class="legend"><span><span class="sw" style="background:${css("--acq")}"></span>drag</span><span><span class="sw" style="background:${css("--ver")}"></span>downforce</span><span><span class="sw" style="background:${css("--front")};opacity:.3"></span>averaging window (dashed: mean)</span></div>`;
+}
+
+// ---------------------------------------------------------------- models
+function renderModels() {
+  const host = document.getElementById("mod-body");
+  const lb = latestBoard();
+  if (!lb) { host.innerHTML = `<div class="empty">${S.status?.training ? "training the surrogates…" : "no surrogate trained yet (it needs the space-filling simulations first)"}</div>`; return; }
+  const B = lb.board;
+  modOut = modOut || "drag_N";
+  const fams = Object.keys(B.table[Object.keys(B.table)[0]] || {});
+  let h = `<table><tr><th>held-out (k-fold)</th>${Object.keys(B.table).map((o) => `<th>${LBL[o] || o}</th>`).join("")}</tr>`;
+  fams.forEach((f) => {
+    h += `<tr><td>${esc(f)}</td>` + Object.keys(B.table).map((o) => { const v = B.table[o][f]; if (!v || v.skipped) return `<td class="na">skipped</td>`; const ch = B.chosen[o] === f; return `<td style="${ch ? `color:${css("--front")};font-weight:600` : ""}">${(100 * v.rel_mae).toFixed(1)} % · cov ${(100 * v.coverage95).toFixed(0)} %</td>`; }).join("") + `</tr>`;
+  });
+  h += `</table><div class="muted" style="margin:3px 0 8px">mean relative error on held-out CFD · cov = share inside the 95 % interval · green = chosen · ${B.n_train} simulations</div>`;
+  h += `<div class="row"><div class="col">${lb.cv ? parity(lb.cv, B) : `<div class="empty">cross-validated predictions appear at the end of the session</div>`}</div><div class="col">${learning()}</div></div>`;
+  if (fig("cp")) h += `<img class="fig" style="margin-top:8px" src="${fig("cp")}" alt="surface Cp: numerical, prediction, error">`;
+  host.innerHTML = h;
+  host.querySelectorAll("[data-o]").forEach((b) => (b.onclick = () => { modOut = b.dataset.o; renderModels(); }));
+  document.getElementById("mod-sub").textContent = "GP · MLP ensemble · quadratic RSM, compared on data they did not see";
+}
+function parity(cv, B) {
+  const o = modOut, d = cv[o]; if (!d) return "";
+  const f = B.chosen[o], P = d.families[f] || [];
+  const W = 300, H = 230, M = { l: 46, r: 8, t: 22, b: 30 };
+  const all = [...d.y, ...P.map((p) => p[0])];
+  const [lo, hi] = ext(all, 0.08);
+  const X = scale(lo, hi, M.l, W - M.r), Y = scale(lo, hi, H - M.b, M.t);
+  let s = `<div class="tabs">${Object.keys(cv).map((k) => `<button data-o="${k}" class="${k === o ? "on" : ""}">${LBL[k] || k}</button>`).join("")}</div><svg viewBox="0 0 ${W} ${H}">` + axes(W, H, M, X, Y, "CFD", "prediction (held out)");
+  s += `<line x1="${X(lo)}" y1="${Y(lo)}" x2="${X(hi)}" y2="${Y(hi)}" stroke="${css("--muted")}" stroke-dasharray="3 3"/>`;
+  d.y.forEach((y, i) => { const [m, sd] = P[i]; s += `<line x1="${X(y)}" x2="${X(y)}" y1="${Y(m - 1.96 * sd)}" y2="${Y(m + 1.96 * sd)}" stroke="${css("--front")}" opacity=".5"/><circle cx="${X(y)}" cy="${Y(m)}" r="3.2" fill="${css("--front")}"><title>CFD ${fmt(y)} · predicted ${fmt(m)} ± ${fmt(1.96 * sd, 2)}</title></circle>`; });
+  return s + `</svg>`;
+}
+function learning() {
+  const ds = Object.values(decisionsById()).filter((d) => d.rel_error && Object.keys(d.rel_error).length);
+  if (!ds.length) return `<div class="empty">no prediction has been checked by a simulation yet</div>`;
+  const W = 300, H = 230, M = { l: 40, r: 8, t: 22, b: 30 };
+  const order = {}; runs().filter((r) => r.purpose !== "probe").forEach((r, i) => (order[r.id] = i + 1));
+  ds.forEach((d) => (d.n_train = order[d.run] || d.n_train));
+  const X = scale(...ext(ds.map((d) => d.n_train), 0.1), M.l, W - M.r);
+  const ys = ds.flatMap((d) => OUT.map((k) => 100 * (d.rel_error[k] || 0)));
+  const Y = scale(0, Math.max(...ys, 6) * 1.1, H - M.b, M.t);
+  let s = `<svg viewBox="0 0 ${W} ${H}"><text x="${M.l}" y="12" style="fill:${css("--ink")}">error of each prediction, before its CFD</text>` + axes(W, H, M, X, Y, "simulation number (trained on every earlier one)", "% error");
+  const cols = { drag_N: css("--acq"), downforce_N: css("--ver"), balance_front: css("--cand") };
+  const acc = (S.summary && S.summary.mission.acceptance) || { drag_N: 0.03, downforce_N: 0.05, balance_front: 0.05 };
+  OUT.forEach((k) => {
+    s += `<line x1="${M.l}" x2="${W - M.r}" y1="${Y(100 * acc[k])}" y2="${Y(100 * acc[k])}" stroke="${cols[k]}" stroke-dasharray="2 3" opacity=".7"/>`;
+    ds.forEach((d) => { if (d.rel_error[k] !== undefined) s += `<circle cx="${X(d.n_train)}" cy="${Y(100 * d.rel_error[k])}" r="${d.run === sel ? 5 : 3.2}" fill="${cols[k]}" data-id="${d.run}" style="cursor:pointer"><title>${esc(d.run)} ${LBL[k]}: ${(100 * d.rel_error[k]).toFixed(1)} % (judged ${esc(d.label_before)})</title></circle>`; });
+  });
+  return s + `</svg><div class="legend">${OUT.map((k) => `<span><span class="sw" style="background:${cols[k]}"></span>${LBL[k]}</span>`).join("")}<span>dashed: acceptance</span></div>`;
+}
+
+// ---------------------------------------------------------------- decisions
+function renderDecisions() {
+  const host = document.getElementById("dec-body");
+  let h = `<div class="row"><div class="col">${pareto()}</div><div class="col">${budget()}${criteria()}</div></div>`;
+  h += `<div class="timeline" style="margin-top:8px">${timeline()}</div>`;
+  const sc = S.summary && S.summary.showcase;
+  if (sc && Object.keys(sc).length) h += `<div class="cards" style="margin-top:8px">${Object.keys(sc).sort().map((k) => card(sc[k])).join("")}</div>`;
+  host.innerHTML = h;
+  document.getElementById("dec-sub").textContent = "every point is CFD unless marked as a prediction";
+}
+function pareto() {
+  const W = 330, H = 260, M = { l: 46, r: 8, t: 14, b: 32 };
+  const c = S.snapshot && S.snapshot.candidates;
+  const rs = okRuns();
+  const xs = rs.map((r) => r.outputs.drag_N), ys = rs.map((r) => r.outputs.downforce_N);
+  if (c) { xs.push(...c.drag_N_mean); ys.push(...c.downforce_N_mean); }
+  if (!xs.length) return `<div class="empty">nothing simulated yet</div>`;
+  const X = scale(...ext(xs), M.l, W - M.r), Y = scale(...ext(ys), H - M.b, M.t);
+  let s = `<svg viewBox="0 0 ${W} ${H}">` + axes(W, H, M, X, Y, "D [kN]", "−L [kN]", 1000, 1000);
+  if (c) {
+    c.drag_N_mean.forEach((x, i) => { const px = X(x), py = Y(c.downforce_N_mean[i]); s += `<path d="M${px - 2.2},${py - 2.2}L${px + 2.2},${py + 2.2}M${px - 2.2},${py + 2.2}L${px + 2.2},${py - 2.2}" stroke="${css("--cand")}" stroke-width=".8" opacity=".45"/>`; });
+    const fr = S.snapshot.front_idx || [];
+    s += `<polyline fill="none" stroke="${css("--front")}" opacity=".8" points="${fr.map((i) => `${X(c.drag_N_mean[i])},${Y(c.downforce_N_mean[i])}`).join(" ")}"/>`;
+    fr.forEach((i) => (s += `<circle cx="${X(c.drag_N_mean[i])}" cy="${Y(c.downforce_N_mean[i])}" r="3.3" fill="none" stroke="${css("--front")}" stroke-width="1.3"><title>predicted, not simulated: drag ${fmt(c.drag_N_mean[i])} N, downforce ${fmt(c.downforce_N_mean[i])} N</title></circle>`));
+  }
+  const b = baseline();
+  if (b) { const lim = S.snapshot?.limits?.downforce_N ?? b.outputs.downforce_N; s += `<line x1="${M.l}" x2="${W - M.r}" y1="${Y(lim)}" y2="${Y(lim)}" stroke="${css("--limit")}" stroke-dasharray="4 3"/><text x="${W - M.r - 2}" y="${Y(lim) - 3}" text-anchor="end" style="fill:${css("--limit")}">downforce limit</text>`; }
+  const col = { doe: css("--doe"), acquisition: css("--acq"), verification: css("--ver") };
+  rs.filter((r) => r.purpose !== "baseline").forEach((r) => {
+    const on = r.id === (selRun() || {}).id;
+    s += `<circle cx="${X(r.outputs.drag_N)}" cy="${Y(r.outputs.downforce_N)}" r="${on ? 6 : 4}" fill="${col[r.purpose] || css("--doe")}" stroke="${on ? css("--ink") : css("--bg")}" stroke-width="${on ? 2 : 1}" data-id="${r.id}" style="cursor:pointer"><title>${esc(r.id)} (CFD, ${esc(r.purpose)}): drag ${fmt(r.outputs.drag_N)} N, downforce ${fmt(r.outputs.downforce_N)} N</title></circle>`;
+  });
+  if (b) s += star(X(b.outputs.drag_N), Y(b.outputs.downforce_N), 9, css("--ink"), `data-id="${b.id}" style="cursor:pointer"`);
+  const best = bestRun();
+  if (best && best.outputs) s += star(X(best.outputs.drag_N), Y(best.outputs.downforce_N), 10, css("--best"), `data-id="${best.id}" style="cursor:pointer"`);
+  return s + `</svg><div class="legend"><span><span class="sw" style="background:${css("--cand")}"></span>surrogate candidates</span><span><span class="sw" style="border:1.5px solid ${css("--front")}"></span>surrogate front</span><span><span class="sw" style="background:${css("--doe")}"></span>CFD space-filling</span><span><span class="sw" style="background:${css("--acq")}"></span>CFD chosen</span><span><span class="sw" style="background:${css("--ver")}"></span>CFD verification</span><span>☆ original · <span style="color:${css("--best")}">★</span> best simulated</span></div>`;
+}
+function budget() {
+  const b = (S.ledger && S.ledger.budget) || {}; const n = b.max_runs || 1;
+  const rs = runs().filter((r) => r.purpose !== "probe");
+  const seg = (k, c) => { const m = rs.filter((r) => (k === "fail" ? !r.ok : r.ok && r.purpose === k)).length; return m ? `<div title="${m} ${k}" style="width:${100 * m / n}%;background:${c}"></div>` : ""; };
+  const running = S.status?.running ? `<div title="running" style="width:${100 / n}%;background:repeating-linear-gradient(45deg,${css("--acq")} 0 4px,transparent 4px 8px)"></div>` : "";
+  return `<div class="muted">simulation budget: ${rs.length} of ${n} used${S.summary ? "" : ", " + (n - rs.length) + " left"}</div><div style="display:flex;height:14px;border-radius:4px;overflow:hidden;border:1px solid ${css("--line")};margin:4px 0 10px">${seg("baseline", css("--ink"))}${seg("doe", css("--doe"))}${seg("acquisition", css("--acq"))}${seg("verification", css("--ver"))}${seg("fail", css("--fail"))}${running}</div>`;
+}
+function criteria() {
+  const best = bestRun(), b = baseline();
+  const acc = (S.summary && S.summary.mission.acceptance) || {};
+  const ds = Object.values(decisionsById()).filter((d) => d.verification);
+  let li = [];
+  if (b && best && best.outputs) {
+    li.push([best.outputs.drag_N < b.outputs.drag_N, `drag below the original (CFD): ${fmt(best.outputs.drag_N)} vs ${fmt(b.outputs.drag_N)} N`]);
+    li.push([best.outputs.downforce_N >= b.outputs.downforce_N, `downforce kept (CFD): ${fmt(best.outputs.downforce_N)} ≥ ${fmt(b.outputs.downforce_N)} N`]);
+    li.push([Math.abs(best.outputs.balance_front / b.outputs.balance_front - 1) <= 0.1, `aero balance within ±10 % of the original: ${fmt(best.outputs.balance_front, 3)}`]);
+  } else li.push([null, "no simulated design meets every limit yet"]);
+  ds.forEach((d) => Object.keys(acc).forEach((k) => d.rel_error[k] !== undefined && li.push([d.rel_error[k] <= acc[k], `${d.run}: predicted ${LBL[k]} within ${(100 * acc[k]).toFixed(0)} % of CFD (${(100 * d.rel_error[k]).toFixed(1)} %)`])));
+  return `<div class="muted">validation criteria</div><ul class="crit" style="padding-left:16px;margin:4px 0">${li.map(([p, t]) => `<li class="${p === null ? "na" : p ? "pass" : "failc"}">${p === null ? "·" : p ? "✓" : "✗"} ${esc(t)}</li>`).join("")}</ul>`;
+}
+function timeline() {
+  const dm = decisionsById();
+  const rs = runs().filter((r) => r.purpose !== "probe");
+  let h = `<table><tr><th>run</th><th>why</th><th>judged before</th><th>outcome</th><th>drag [N]</th><th>downforce [N]</th></tr>`;
+  rs.forEach((r) => {
+    const d = dm[r.id];
+    const after = !r.ok ? `<span class="lab failed">solver failed</span>` : d ? `<span class="lab ${d.label_after === "verified" ? "verified" : "rejected"}">${esc(d.label_after)}</span>` : `<span class="muted">evidence</span>`;
+    h += `<tr class="click ${r.id === (selRun() || {}).id ? "sel" : ""}" data-id="${r.id}"><td>${esc(r.id)}</td><td style="text-align:left;white-space:normal">${esc(d && d.rule ? d.rule : r.reason || r.purpose)}</td><td>${d ? `<span class="lab ${esc(d.label_before)}">${esc(d.label_before.replace(/_/g, " "))}</span>` : ""}</td><td>${after}</td><td>${r.ok ? fmt(r.outputs.drag_N) : "—"}</td><td>${r.ok ? fmt(r.outputs.downforce_N) : "—"}</td></tr>`;
+  });
+  if (S.status?.running) h += `<tr><td>${esc(S.status.running.id)}</td><td style="text-align:left">${esc(S.status.running.purpose || "")}</td><td></td><td><span class="lab predicted"><span class="dot" style="color:${css("--acq")}"></span>running</span></td><td>—</td><td>—</td></tr>`;
+  return h + `</table>`;
+}
+function card(c) {
+  const sim = c.reference && Object.keys(c.reference).length;
+  const col = { uncertain: css("--unc"), favourable: css("--fav"), out_of_domain: css("--ood") }[c.label];
+  return `<div class="card" ${c.run ? `data-id="${c.run}" style="cursor:pointer"` : ""}><b style="color:${col}">${esc(c.tag)} · ${esc(c.label.replace(/_/g, " "))}</b><div class="muted">${esc((c.reasons || [])[0] || "")}</div>` +
+    OUT.map((k) => `<div>${LBL[k]}: predicted ${fmt(c.predicted[k])} ± ${fmt(1.96 * c.std[k], 2)}${sim ? ` → CFD ${fmt(c.reference[k])}` : ""}</div>`).join("") +
+    `<div style="margin-top:3px">${sim ? `<span class="lab ${c.after === "verified" ? "verified" : "rejected"}">${esc(c.action)}</span>` : `<span class="lab predicted">predicted, not simulated</span>`}</div></div>`;
+}
+
+// ---------------------------------------------------------------- wiring
+function wire() { document.querySelectorAll("[data-id]").forEach((el) => (el.onclick = (e) => { e.stopPropagation(); select(el.dataset.id); })); }
+function renderAll() { renderHeader(); renderGeometry(); renderPhysics(); renderModels(); renderDecisions(); wire(); }
+async function poll() {
+  try { const r = await fetch("state.json", { cache: "no-store" }); if (r.ok) { S = await r.json(); renderAll(); } } catch (e) { /* static page */ }
+}
+// replay: the recorded session, event by event (every number is the recorded one; nothing is re-computed)
+function stateAt(k) {
+  const ev = STATE0.events.slice(0, k + 1);
+  const done = new Set(ev.filter((e) => e.stage === "run" && e.run).map((e) => e.run.id));
+  const runs = STATE0.ledger.runs.filter((r) => done.has(r.id));
+  const last = k >= STATE0.events.length - 1;
+  let running = null, training = false;
+  ev.forEach((e) => { if (e.stage === "simulate" && e.running) running = { id: e.message.split(":")[0], purpose: e.purpose, params: e.params }; if (e.stage === "run" && running && e.run.id === running.id) running = null; if (e.stage === "learn") training = !!e.training; });
+  const ledger = Object.assign({}, STATE0.ledger, { runs, budget: Object.assign({}, STATE0.ledger.budget, { used_wall_s: runs.reduce((a, r) => a + r.cost_s, 0) }) });
+  return { ledger, events: ev, snapshot: last ? STATE0.snapshot : null, summary: last ? STATE0.summary : null,
+           status: { phase: ev[ev.length - 1].stage, running, training: training && ev[ev.length - 1].stage === "learn", failed: runs.filter((r) => !r.ok).map((r) => r.id), finished: last, last_event: ev[ev.length - 1] } };
+}
+if (CFG.replay && STATE0.events && STATE0.events.length) {
+  const box = document.getElementById("replay"), sl = document.getElementById("slider"), when = document.getElementById("when"), play = document.getElementById("play");
+  box.style.display = "flex"; sl.max = STATE0.events.length - 1; sl.value = sl.max;
+  const show = () => { const k = +sl.value; S = stateAt(k); sel = null; const e = STATE0.events[k]; when.textContent = when.title = `replay of the recorded session · ${e.time} · ${e.stage}: ${e.message}`; renderAll(); };
+  sl.oninput = show;
+  let timer = null;
+  play.onclick = () => { if (timer) { clearInterval(timer); timer = null; play.textContent = "▶ replay"; return; } if (+sl.value >= +sl.max) sl.value = 0; play.textContent = "❚❚ pause"; timer = setInterval(() => { if (+sl.value >= +sl.max) { clearInterval(timer); timer = null; play.textContent = "▶ replay"; return; } sl.value = +sl.value + 1; show(); }, CFG.replay_ms || 350); };
+  window.replayTo = (k) => { sl.value = k; show(); };
+  show();
+} else {
+  renderAll();
+}
+if (CFG.live) setInterval(poll, 3000);
+</script>
+</body>
+</html>

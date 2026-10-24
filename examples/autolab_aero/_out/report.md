@@ -119,11 +119,37 @@ margin = distance to the limit in the CFD (negative: violated); noise = standard
 
 ![baseline_streamlines](figures/baseline_streamlines.png)
 
+![baseline_cp_paraview](figures/baseline_cp_paraview.png)
+
+![baseline_wireframe](figures/baseline_wireframe.png)
+
+![baseline_midplane_cp](figures/baseline_midplane_cp.png)
+
+![baseline_wake_vorticity](figures/baseline_wake_vorticity.png)
+
+![baseline_cycles_streamlines](figures/baseline_cycles_streamlines.png)
+
+![baseline_cycles_cp](figures/baseline_cycles_cp.png)
+
 ![best_cp_top](figures/best_cp_top.png)
 
 ![best_cp_bottom](figures/best_cp_bottom.png)
 
 ![best_streamlines](figures/best_streamlines.png)
+
+![best_cp_paraview](figures/best_cp_paraview.png)
+
+![best_wireframe](figures/best_wireframe.png)
+
+![best_midplane_cp](figures/best_midplane_cp.png)
+
+![best_wake_vorticity](figures/best_wake_vorticity.png)
+
+![best_cycles_streamlines](figures/best_cycles_streamlines.png)
+
+![best_cycles_cp](figures/best_cycles_cp.png)
+
+![dashboard](figures/dashboard.png)
 
 ## Environment
 

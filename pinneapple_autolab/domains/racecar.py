@@ -35,7 +35,7 @@ from pinneapple_design.design_optimizer.study import Objective, Variable
 from ..mission import Budget, Limit, Mission
 from ..simulator import SimOutcome, Simulator
 
-__all__ = ["VARIABLES", "BASELINE", "CONDITIONS", "MESHES", "RaceCarAero", "force_convergence", "render_run", "flagship_mission", "make_car",
+__all__ = ["VARIABLES", "BASELINE", "CONDITIONS", "MESHES", "RaceCarAero", "force_convergence", "render_run", "racecar_domain", "flow_scene", "build_dashboard", "recorded_dashboard", "cycles_renders", "flagship_mission", "make_car",
            "solver_log_summary"]
 
 VARIABLES = [
@@ -317,18 +317,126 @@ def render_run(params: Mapping[str, float], flow_npz: str, out_prefix: str, titl
     from pinneapple_tools.visualization.studio.scene import Scene
     car = make_car(params)
     sc = FlowResult.load(flow_npz).to_scene(Scene.from_parts(car.parts(), axes="z_up", title=title))
+    os.makedirs(os.path.dirname(os.path.abspath(out_prefix)), exist_ok=True)
     out = {"cp_top": f"{out_prefix}_cp_top.png", "cp_bottom": f"{out_prefix}_cp_bottom.png",
-           "streamlines": f"{out_prefix}_streamlines.png"}
+           "streamlines": f"{out_prefix}_streamlines.png", "cp_paraview": f"{out_prefix}_cp_paraview.png",
+           "wireframe": f"{out_prefix}_wireframe.png", "midplane_cp": f"{out_prefix}_midplane_cp.png",
+           "wake_vorticity": f"{out_prefix}_wake_vorticity.png"}
     render_scene(sc, out["cp_top"], field="cp", clim=(-2.0, 1.0), view="iso", zoom=1.6, hide=("halo",), title=title,
-                 size=size)
+                 size=size, bar_title="Cp")
     render_scene(sc, out["cp_bottom"], field="cp", clim=(-2.0, 1.0), view=(-0.25, -0.35, -1.0), zoom=1.35,
-                 title=title, size=size)
+                 title=title, size=size, bar_title="Cp")
     render_scene(sc, out["streamlines"], lines=True, view="iso", zoom=1.4, background="#000000", title=title,
-                 size=size)
+                 size=size, bar_title="Speed |U|/U∞")
+    render_scene(sc, out["cp_paraview"], field="cp", cmap="coolwarm", clim=(-0.5, 0.5), view="side", zoom=1.5,
+                 hide=("halo",), title=title, size=size, bar_title="Cp")
+    render_scene(Scene.from_parts(car.parts(), axes="z_up"), out["wireframe"], wireframe="#3B82F6", view="iso",
+                 zoom=1.6, background="#05070C", title=title, size=size)
+    render_scene(sc, out["midplane_cp"], slice_name="mid plane: Cp", view="side", zoom=1.3, cmap="RdBu_r",
+                 clim=(-1.5, 1.5), slice_crop=(0.12, 0.62, 0.0, 0.45), title=title, size=size,
+                 bar_title="Cp")
+    render_scene(sc, out["wake_vorticity"], slice_name="wake: vorticity", view="back", zoom=1.5, cmap="RdBu_r",
+                 clim=(-6.0, 6.0), slice_crop=(0.27, 0.73, 0.0, 0.55), title=title, size=size,
+                 bar_title="vort_x L/U_inf")
     from ..report import shrink_png
     for p in out.values():
         shrink_png(p)
     return out
+
+
+def cycles_renders(params: Mapping[str, float], flow_npz: str, out_prefix: str, title: str = "",
+                   samples: int = 64, size: tuple[int, int] = (1600, 900)) -> dict[str, str]:
+    """Blender Cycles renders of a simulated design (needs ``bpy``): the streamlines coloured by speed on black,
+    and the surface Cp in the studio, each with its jet colour bar. Returns {} without ``bpy``."""
+    from pinneapple_blender.cycles import available
+    if not available():
+        return {}
+    from pinneapple_tools.visualization.studio.blender import render
+    sc = flow_scene(params, flow_npz, title)
+    os.makedirs(os.path.dirname(os.path.abspath(out_prefix)), exist_ok=True)
+    out = {"cycles_streamlines": f"{out_prefix}_cycles_streamlines.png", "cycles_cp": f"{out_prefix}_cycles_cp.png"}
+    render(sc, out["cycles_streamlines"], lines=True, background="lunar_day", samples=samples, size=size, view="iso",
+           title=f"{title}: streamlines, |U|/U∞")
+    render(sc, out["cycles_cp"], field="cp", field_range=(-2.0, 1.0), background="studio", samples=samples,
+           size=size, view="iso", title=f"{title}: surface Cp")
+    from ..report import shrink_png
+    for p in out.values():
+        shrink_png(p)
+    return out
+
+
+def flow_scene(params: Mapping[str, float], flow_npz: str, title: str = ""):
+    """The studio Scene of a simulated design (car parts + skin Cp/Cf, streamlines, slices) from its flow file."""
+    from pinneapple_simulation.numerical_solvers.external_flow import FlowResult
+    from pinneapple_tools.visualization.studio.scene import Scene
+    return FlowResult.load(flow_npz).to_scene(Scene.from_parts(make_car(params).parts(), axes="z_up", title=title))
+
+
+def build_dashboard(work: str, out_dir: str, summary: Mapping[str, Any], *, figures: Mapping[str, str] | None = None,
+                    figure_runs: Mapping[str, str] | None = None, viewers: bool = True, replay: bool = True,
+                    renders: bool = True, results_dir: str | None = None) -> str:
+    """The lab dashboard of a race-car session: renders of the original and the recommended design (surface Cp,
+    surface mesh, streamlines, mid-plane Cp, wake vorticity) from their saved flow files, their 3-D studio viewers,
+    and the recorded session (``work``: the lab folder with ledger.json and events.jsonl; ``results_dir``: where
+    snapshot.json and summary.json were written, if not in ``work``)."""
+    from ..dashboard import build_dashboard as _build
+    from ..dashboard import live_state
+    figs = dict(figures or {})
+    scenes = {}
+    for tag in ("baseline", "best"):
+        run = summary.get(tag)
+        npz = os.path.join(work, "cases", f"{run['id']}.flow.npz") if run else ""
+        if not run or not os.path.exists(npz):
+            continue
+        title = f"{'original' if tag == 'baseline' else 'recommended'}: {run['id']} (CFD)"
+        if renders:
+            for k, v in render_run(run["params"], npz, os.path.join(out_dir, "renders", tag), title).items():
+                figs[f"{tag}_{k}"] = v
+            if f"{tag}_cycles_cp" not in figs:                     # not given by the caller
+                for k, v in cycles_renders(run["params"], npz, os.path.join(out_dir, "renders", tag), title).items():
+                    figs[f"{tag}_{k}"] = v
+        if viewers:
+            scenes[tag] = flow_scene(run["params"], npz, title)
+    state = live_state(work, results_dir or out_dir, tail=100000 if replay else 120)
+    return _build(work, out_dir, scenes=scenes, figures=figs, replay=replay, state=state, figure_runs=figure_runs,
+                  title="PINNeAPPle Autonomous Physics Lab · The AI Aerodynamicist")
+
+
+def recorded_dashboard(results_dir: str, out_dir: str) -> str:
+    """The dashboard of a recorded session from its committed files only (``ledger.json``, ``events.jsonl``,
+    ``summary.json``, ``snapshot.json`` and the renders in ``figures/``): no OpenFOAM, no flow files, so no 3-D
+    viewer; the replay steps through the recorded events."""
+    import glob
+    import json
+
+    from ..dashboard import build_dashboard as _build
+    from ..dashboard import live_state
+    figs_dir = os.path.join(results_dir, "figures")
+    figs = {os.path.splitext(os.path.basename(p))[0]: p for p in glob.glob(os.path.join(figs_dir, "*.png"))
+            if os.path.basename(p).startswith(("baseline_", "best_"))}
+    owners: dict[str, str] = {}
+    meta = os.path.join(figs_dir, "figures.json")
+    if os.path.exists(meta):
+        owners = {k: v for k, v in json.load(open(meta)).items() if v}
+    if os.path.exists(os.path.join(figs_dir, "cp_numerical_prediction_error.png")):
+        figs["cp"] = os.path.join(figs_dir, "cp_numerical_prediction_error.png")
+    state = live_state(results_dir, results_dir, tail=100000)
+    return _build(results_dir, out_dir, figures=figs, figure_runs=owners, replay=True, state=state,
+                  title="PINNeAPPle Autonomous Physics Lab · The AI Aerodynamicist")
+
+
+def racecar_domain():
+    """What the race-car simulator can be asked, for :func:`pinneapple_autolab.agent.interpret_mission`."""
+    from ..agent import MissionDomain
+    m = flagship_mission()
+    return MissionDomain(
+        "The AI Aerodynamicist", list(VARIABLES), dict(BASELINE),
+        {"drag_N": ["drag"], "downforce_N": ["downforce", "down force"], "balance_front": ["balance"]},
+        {"drag_N": "N", "downforce_N": "N", "balance_front": ""},
+        {"speed": (CONDITIONS["speed_m_s"], "m/s", r"(\d+(?:\.\d+)?)\s*m/s")},
+        dict(m.acceptance), dict(CONDITIONS),
+        extra_limits=[next(c for c in m.constraints if c.name == "balance_front")],
+        hypotheses=list(m.hypotheses), default_budget=24, default_reserve=3, domain="external aerodynamics")
 
 
 def flagship_mission(budget: int = 30, reserve_verify: int = 3) -> Mission:

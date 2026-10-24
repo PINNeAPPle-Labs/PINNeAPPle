@@ -32,7 +32,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["require_pxr", "FieldStage", "validate_stage", "render_stage_png", "render_stage_gif", "read_stage_geometry", "usd_validators", "kit_render_script", "grid_surface",
+__all__ = ["require_pxr", "FieldStage", "validate_stage", "render_stage_png", "render_stage_gif", "rasterize_topdown", "read_stage_geometry", "usd_validators", "kit_render_script", "grid_surface",
            "extrude_profile", "tube", "field_colors"]
 
 
@@ -543,7 +543,8 @@ def render_stage_png(path: str, png: str, *, time: float | None = None, elev: fl
         import matplotlib.cm as cm
         from matplotlib.colors import Normalize
         lab, a, b, cmap = colorbar
-        fig.colorbar(cm.ScalarMappable(Normalize(a, b), cmap), ax=ax, shrink=0.6, label=lab)
+        # pad: the 3-D axes draw the z label outside their box, where a default colorbar would sit
+        fig.colorbar(cm.ScalarMappable(Normalize(a, b), cmap), ax=ax, shrink=0.6, label=lab, pad=0.12 if not flat else 0.05)
     fig.savefig(png, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     return png
@@ -592,3 +593,53 @@ def render_stage_gif(path: str, gif: str, times: Sequence[float], *, fps: float 
         frames[0].save(gif, save_all=True, append_images=frames[1:], duration=int(1000 / fps), loop=0,
                        optimize=True)
     return gif
+
+
+def rasterize_topdown(path: str, H: int, W: int, *, bounds=None, time: float | None = None,
+                      exclude: Sequence[str] = (), background=(0.0, 0.0, 0.0), view: str = "top") -> np.ndarray:
+    """An orthographic view of the meshes of a USD file, ``(H, W, 3)`` sRGB in [0, 1]: every triangle is filled
+    with its vertices' ``displayColor`` interpolated (barycentric), nearest on top. ``view``: ``"top"`` (looking down
+    -z: x right, y up) or ``"side"`` (looking along +y: x right, z up). ``bounds``: ``(left, right, bottom, top)`` of
+    the view in those two axes (default: the meshes' extent). A camera for synthetic data, not an RTX render."""
+    geo = [g for g in read_stage_geometry(path, time, exclude) if g["kind"] == "mesh"]
+    if view == "side":
+        geo = [dict(g, points=g["points"][:, [0, 2, 1]] * [1, 1, -1]) for g in geo]
+    elif view != "top":
+        raise ValueError(f"view must be 'top' or 'side', got {view!r}")
+    P = np.concatenate([g["points"] for g in geo])
+    xmin, xmax, ymin, ymax = bounds if bounds is not None else (P[:, 0].min(), P[:, 0].max(), P[:, 1].min(),
+                                                                 P[:, 1].max())
+    img = np.tile(np.asarray(background, float), (H, W, 1))
+    zbuf = np.full((H, W), -np.inf)
+    for g in geo:
+        V, F = g["points"], g["faces"]
+        C = g["colors"]
+        C = np.tile(C[0] if C is not None else [0.6, 0.6, 0.6], (len(V), 1)) if C is None or len(C) != len(V) else C
+        C = np.clip(C, 0, 1) ** (1 / 2.2)
+        u = (V[:, 0] - xmin) / (xmax - xmin) * (W - 1)
+        v = (ymax - V[:, 1]) / (ymax - ymin) * (H - 1)
+        for f in F:
+            x0, x1, x2 = u[f]
+            y0, y1, y2 = v[f]
+            den = (y1 - y2) * (x0 - x2) + (x2 - x1) * (y0 - y2)
+            if abs(den) < 1e-12:
+                continue
+            ia, ib = int(max(np.floor(min(x0, x1, x2)), 0)), int(min(np.ceil(max(x0, x1, x2)), W - 1))
+            ja, jb = int(max(np.floor(min(y0, y1, y2)), 0)), int(min(np.ceil(max(y0, y1, y2)), H - 1))
+            if ia > ib or ja > jb:
+                continue
+            xx, yy = np.meshgrid(np.arange(ia, ib + 1), np.arange(ja, jb + 1))
+            l0 = ((y1 - y2) * (xx - x2) + (x2 - x1) * (yy - y2)) / den
+            l1 = ((y2 - y0) * (xx - x2) + (x0 - x2) * (yy - y2)) / den
+            l2 = 1 - l0 - l1
+            inside = (l0 >= -1e-9) & (l1 >= -1e-9) & (l2 >= -1e-9)
+            if not inside.any():
+                continue
+            z = l0 * V[f[0], 2] + l1 * V[f[1], 2] + l2 * V[f[2], 2]
+            top = inside & (z > zbuf[yy, xx])
+            if not top.any():
+                continue
+            col = l0[..., None] * C[f[0]] + l1[..., None] * C[f[1]] + l2[..., None] * C[f[2]]
+            img[yy[top], xx[top]] = col[top]
+            zbuf[yy[top], xx[top]] = z[top]
+    return img

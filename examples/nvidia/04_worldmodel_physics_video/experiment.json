@@ -1,0 +1,172 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/04_worldmodel_physics_video",
+ "title": "World model on physics-labelled video, judged by physics checks",
+ "description": "",
+ "domain": "physical AI",
+ "methods": [
+  "synthetic video",
+  "world model",
+  "video physics checks"
+ ],
+ "modules": [
+  "pinneapple_worldmodel.physical_world"
+ ],
+ "params": {
+  "n_train": 200,
+  "n_test": 20,
+  "steps": 3000,
+  "context": 8,
+  "horizon": 24
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rollout_pass_rate",
+   "value": 0.0,
+   "unit": "",
+   "how": "fraction of 20 rollouts passing every check"
+  },
+  {
+   "name": "rollout_pixel_mae",
+   "value": 0.020704112015664577,
+   "unit": "",
+   "how": "mean |frame - truth| over the rollout horizon"
+  }
+ ],
+ "checks": [
+  {
+   "name": "ground-truth videos pass every check",
+   "passed": true,
+   "value": 1.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 1.0,
+   "detail": "24 videos, 4 with an occluder",
+   "kind": "sanity"
+  },
+  {
+   "name": "tracker vs exact labels (max error, px)",
+   "passed": true,
+   "value": 0.2439131303897167,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "g from the pixels of ground truth (worst)",
+   "passed": true,
+   "value": 0.01853266261113731,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "edit detected: time_warp",
+   "passed": true,
+   "value": 1.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.9,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "edit detected: teleport",
+   "passed": true,
+   "value": 0.95,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.9,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "edit detected: fade",
+   "passed": true,
+   "value": 1.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.9,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "edit detected: gravity_flip",
+   "passed": true,
+   "value": 1.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.9,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "world-model reconstructions pass",
+   "passed": false,
+   "value": 0.4,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.9,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "world-model rollouts pass",
+   "passed": false,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.9,
+   "detail": "",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/rollout.png",
+   "results/physics_verdicts.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "59d37592",
+  "created": "2026-10-24T12:26:07Z",
+  "seconds": 935.644,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

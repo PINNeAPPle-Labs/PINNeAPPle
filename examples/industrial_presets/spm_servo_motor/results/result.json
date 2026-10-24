@@ -1,0 +1,113 @@
+{
+ "preset": "spm_servo_motor",
+ "fidelity": "solver",
+ "params": {
+  "I_peak": 13.4,
+  "magnet_thickness": 0.004,
+  "magnet_arc": 0.8,
+  "Br": 1.2,
+  "magnetization": "parallel",
+  "slot_opening": 0.13333333333333333,
+  "rpm": 3000.0,
+  "n_positions": 6,
+  "n_theta": 360
+ },
+ "outputs": {
+  "torque": 7.045391991567424,
+  "ripple": 0.1565293992439787,
+  "cogging_pp": 0.7074273753250284,
+  "kt": 0.525775521758763,
+  "ke": 0.326706012827922,
+  "emf_peak": 102.63772097838125,
+  "p_copper": 62.83452962148446,
+  "j_rms": 5.9576487093852935,
+  "t_mst": 7.52696905751996,
+  "t_coe": 7.525814924564543,
+  "t_power": 7.632613896484088,
+  "t_minus_cog": 7.473062979699129,
+  "kt_from_ke": 0.5410455249452333,
+  "ke1": 0.3606970166301555,
+  "cogging_mean_over_pp": 0.0028048545618743082
+ },
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "torque m\u00e9dio 7.05 N m a 13.4 A de pico (kt 0.526 N m/A)",
+   "ondula\u00e7\u00e3o 15.7 % > 5 %, cogging 0.707 N m p-p"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "Maxwell stress = co-energy torque",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.00015335654237919993,
+    "limit": 0.01,
+    "source": "two independent torque integrations",
+    "reason": ""
+   },
+   {
+    "name": "power balance T - T_cog = i.e / w",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.020903837001168817,
+    "limit": 0.03,
+    "source": "flux linkage derivative vs field torque",
+    "reason": ""
+   },
+   {
+    "name": "cogging has zero mean over a slot pitch",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0028048545618743082,
+    "limit": 0.05,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "current density within the TEFC range (<= 6.5 A/mm2)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 5.9576487093852935,
+    "limit": 6.5,
+    "source": "Pyrh\u00f6nen, Jokinen & Hrabovcov\u00e1, Design of Rotating Electrical Machines, 2a ed. (2014)",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 37.661699786999634,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T11:05:23Z"
+ }
+}

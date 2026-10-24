@@ -42,11 +42,20 @@ REASONS: dict[str, str] = {
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
+    "pinneapple_autolab": "mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by "
+                          "examples/autolab_aero, not as one flow step",
     "pinneapple_llm": "LLM drafting: used by the LLM planner, problem.generic and twin.auto",
     "pinneapple_app": "a separate web application (not a library package)",
+    "pinneapple_autolab.core": "the agent loop (toolbox, planners, execute) run inside autolab.* nodes",
     "pinneapple_reason.llm": "optional LLM advisor of the reasoning engine; flows reason without an LLM",
     "pinneapple_reason.narrative": "the text of Chain.explain, shown in the summary of reason.chain",
     "pinneapple_reason.props": "physical constants and properties read by the failure modes",
+    "pinneapple_presets.cases": "the preset classes, run by preset.run / preset.validate",
+    "pinneapple_presets.core": "the Preset base class behind preset.run",
+    "pinneapple_presets.registry": "the catalogue preset.run chooses from (and the Hub index)",
+    "pinneapple_presets.report": "writes the committed preset folders (python -m pinneapple_presets report)",
+    "pinneapple_presets.surrogate": "the surrogate behind preset.run with fidelity = surrogate",
+    "pinneapple_presets.viz3d": "3-D stills of the committed preset folders",
 }
 
 

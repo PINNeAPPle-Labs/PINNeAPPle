@@ -1,0 +1,165 @@
+{
+ "decision": "APPROVED",
+ "answers": [
+  {
+   "text": "An aluminium shelf bracket that holds 1.5 kN at 120 mm from the wall, safety factor 2",
+   "decision": "APPROVED",
+   "schema_errors": [],
+   "values": {
+    "material": [
+     "al6061_t6",
+     "",
+     "al6061_t6"
+    ],
+    "load": [
+     1500.0,
+     "N",
+     "1.5 kN"
+    ],
+    "arm_length": [
+     0.12,
+     "m",
+     "120 mm"
+    ],
+    "safety_factor": [
+     2.0,
+     "",
+     "2"
+    ]
+   },
+   "unsupported": [],
+   "latency_ms": 35.650213000053554
+  },
+  {
+   "text": "A bracket in aluminium holding 1.5 kN on a 120 mm arm, 50 mm wide, safety factor 2",
+   "decision": "REVIEW",
+   "schema_errors": [],
+   "values": {
+    "material": [
+     "al6061_t6",
+     "",
+     "al6061_t6"
+    ],
+    "load": [
+     1500.0,
+     "N",
+     "1.5 kN"
+    ],
+    "arm_length": [
+     0.05,
+     "m",
+     "50 mm"
+    ],
+    "safety_factor": [
+     2.0,
+     "",
+     "2"
+    ]
+   },
+   "unsupported": [
+    "'120 mm' was not used: no value of that kind in the Load-bearing angle bracket template"
+   ],
+   "latency_ms": 3.122540000049412
+  }
+ ],
+ "load_N": 1500.0,
+ "arm_m": 0.12,
+ "safety_factor": 2.0,
+ "thickness_mm": 10.0,
+ "sigma_beam_MPa": 123.74999999999999,
+ "sigma_fe_MPa": 125.14639021281769,
+ "deflection_beam_mm": 1.4488388969521042,
+ "deflection_fe_mm": 1.547274141314348,
+ "fe_nodes": 1040,
+ "mass_g": 369.9879538393715,
+ "min_radius_mm": 3.2999999999627123,
+ "tessellation": {
+  "chord_tolerance": 2e-05,
+  "triangles": 48100,
+  "points": 24048,
+  "max_deviation": 1.3014323235136927e-05,
+  "rms_deviation": 2.568227729551199e-06,
+  "mesh_volume": 0.00013704454442798418,
+  "mesh_area": 0.03217723484124248,
+  "manifold": true
+ },
+ "checks": [
+  {
+   "name": "request 1: extraction APPROVED, schema satisfied",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "request 2 (ambiguous): not APPROVED, nothing built",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "'120 mm' was not used: no value of that kind in the Load-bearing angle bracket template"
+  },
+  {
+   "name": "nominal root stress <= yield / SF (beam)",
+   "value": 123.74999999999999,
+   "limit": 138.0,
+   "passed": true,
+   "detail": "t = 10 mm from stock"
+  },
+  {
+   "name": "exact volume = closed form",
+   "value": 2.311895630168799e-09,
+   "limit": 1e-06,
+   "passed": true
+  },
+  {
+   "name": "B-rep is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "mesh is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "chord error <= tolerance",
+   "value": 1.3014323235136927e-05,
+   "limit": 2e-05,
+   "passed": true,
+   "detail": "largest distance from a triangle centroid to the exact surface"
+  },
+  {
+   "name": "mesh volume vs exact",
+   "value": 8.734369822139873e-05,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "mesh area vs exact",
+   "value": 5.137831997449299e-06,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "element size resolves the smallest radius (3.30 mm)",
+   "value": 0.0012,
+   "limit": 0.0012959069695911468,
+   "passed": true,
+   "detail": "4 elements per quarter circle"
+  },
+  {
+   "name": "FE root stress vs beam",
+   "value": 0.011283961315698697,
+   "limit": 0.1,
+   "passed": 1.0
+  },
+  {
+   "name": "FE tip deflection vs beam (FE includes the leg's rotation)",
+   "value": 1.0679407797301137,
+   "limit": null,
+   "passed": true,
+   "detail": "1.547 vs 1.449 mm"
+  }
+ ]
+}

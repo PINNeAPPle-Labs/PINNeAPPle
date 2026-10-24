@@ -1,0 +1,170 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/pump_npsh_cavitation",
+ "title": "Bomba centr\u00edfuga em po\u00e7o: ponto de opera\u00e7\u00e3o, NPSH dispon\u00edvel e margem contra cavita\u00e7\u00e3o",
+ "description": "A bomba opera sem cavitar nesta instala\u00e7\u00e3o (altitude, temperatura, altura de suc\u00e7\u00e3o, tubula\u00e7\u00e3o)? Qual a maior altura de suc\u00e7\u00e3o ou temperatura admiss\u00edvel, e que di\u00e2metro de suc\u00e7\u00e3o resolve?",
+ "domain": "Fluidos / bombeamento (saneamento, processo, utilidades)",
+ "methods": [
+  "pinneapple_physics.closed_form.pump_npsh",
+  "pinneapple_physics.closed_form.pipe_flow.friction_factor"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 0.00519004700026926
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[press\u00e3o de satura\u00e7\u00e3o a 300 K]",
+   "value": 8.519538172126368e-10,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verifica\u00e7\u00e3o)"
+  },
+  {
+   "name": "rel_error[press\u00e3o de satura\u00e7\u00e3o a 500 K]",
+   "value": 1.4122479672402738e-09,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verifica\u00e7\u00e3o)"
+  },
+  {
+   "name": "rel_error[press\u00e3o de satura\u00e7\u00e3o a 600 K]",
+   "value": 1.7516852474095862e-09,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verifica\u00e7\u00e3o)"
+  },
+  {
+   "name": "rel_error[press\u00e3o atmosf\u00e9rica a 1000 m]",
+   "value": 4.4030956171667256e-07,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard: ISO 2533:1975 / ICAO Doc 7488 (atmosfera padr\u00e3o), tabela"
+  },
+  {
+   "name": "rel_error[press\u00e3o atmosf\u00e9rica a 2000 m]",
+   "value": 3.226243583987093e-08,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, standard: ISO 2533:1975 / ICAO Doc 7488 (atmosfera padr\u00e3o), tabela"
+  },
+  {
+   "name": "rel_error[perda na suc\u00e7\u00e3o: Colebrook vs Haaland]",
+   "value": 0.002821511534507409,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: Haaland (1983), expl\u00edcita, \u00b12 % de Colebrook"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.03145715079568924,
+   "unit": "-",
+   "how": "m\u00ednimos quadrados lineares (p \u00e9 afim em K), IC exato"
+  }
+ ],
+ "checks": [
+  {
+   "name": "press\u00e3o de satura\u00e7\u00e3o a 300 K",
+   "passed": true,
+   "value": 0.0035365894130130106,
+   "reference": 0.00353658941,
+   "rtol": 1e-08,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "press\u00e3o de satura\u00e7\u00e3o a 500 K",
+   "passed": true,
+   "value": 2.638897756273222,
+   "reference": 2.63889776,
+   "rtol": 1e-08,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "press\u00e3o de satura\u00e7\u00e3o a 600 K",
+   "passed": true,
+   "value": 12.344314578376647,
+   "reference": 12.3443146,
+   "rtol": 1e-08,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "press\u00e3o atmosf\u00e9rica a 1000 m",
+   "passed": true,
+   "value": 89874.56042735427,
+   "reference": 89874.6,
+   "rtol": 1e-05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "press\u00e3o atmosf\u00e9rica a 2000 m",
+   "passed": true,
+   "value": 79495.19743529121,
+   "reference": 79495.2,
+   "rtol": 1e-05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "perda na suc\u00e7\u00e3o: Colebrook vs Haaland",
+   "passed": true,
+   "value": 0.5227670754109276,
+   "reference": 0.5212962320792208,
+   "rtol": 0.02,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/pump.png",
+   "results/variants.png",
+   "results/3d/pump_npsh_cavitation_3d_pressure.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verifica\u00e7\u00e3o)",
+  "IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verifica\u00e7\u00e3o)",
+  "IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verifica\u00e7\u00e3o)",
+  "ISO 2533:1975 / ICAO Doc 7488 (atmosfera padr\u00e3o), tabela",
+  "ISO 2533:1975 / ICAO Doc 7488 (atmosfera padr\u00e3o), tabela",
+  "Haaland (1983), expl\u00edcita, \u00b12 % de Colebrook"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "4e59c29f",
+  "created": "2026-10-24T01:18:17Z",
+  "seconds": 0.01,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

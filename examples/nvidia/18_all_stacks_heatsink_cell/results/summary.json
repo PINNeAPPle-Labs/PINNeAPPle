@@ -1,0 +1,193 @@
+{
+ "decision": "APPROVED",
+ "held_out_rel_rms": [
+  0.003324070084641708,
+  0.027392230215679277,
+  0.0009005622258477451
+ ],
+ "train_steps": 12000,
+ "service_timing_ms": {
+  "inference": 19.20096600042598,
+  "trust": 101.5798509997694
+ },
+ "queried_designs": 9765,
+ "flagged_designs": 1500,
+ "attempts": [
+  {
+   "n_fins": 13,
+   "fin_height_mm": 17.0,
+   "fin_t_mm": 1.1,
+   "served_t": 73.76448382896713,
+   "served_mass": 0.19982743107238443,
+   "verified_t": 73.98854174438128,
+   "verified_dp": 8.148105661487309,
+   "verified_mass": 0.20063699999999995,
+   "accepted": true
+  }
+ ],
+ "part": {
+  "n_fins": 13,
+  "fin_height": 0.017,
+  "fin_t": 0.0011,
+  "t_source": 73.98854174438128,
+  "dp": 8.148105661487309,
+  "mass": 0.20063699999999995
+ },
+ "payload_kg": 2.200637,
+ "moves": [
+  {
+   "duration": 0.8,
+   "decision": "APPROVED",
+   "peak_torque_Nm": [
+    66.54848166233808,
+    20.093673455067947
+   ],
+   "failed": []
+  },
+  {
+   "duration": 0.6,
+   "decision": "APPROVED",
+   "peak_torque_Nm": [
+    89.41240235228305,
+    27.465512515729863
+   ],
+   "failed": []
+  },
+  {
+   "duration": 0.5,
+   "decision": "APPROVED",
+   "peak_torque_Nm": [
+    112.4849966772795,
+    34.88303888453138
+   ],
+   "failed": []
+  },
+  {
+   "duration": 0.4,
+   "decision": "REJECT",
+   "peak_torque_Nm": [
+    120.0,
+    35.79582988458903
+   ],
+   "failed": [
+    "torque replay converges (order in dt)",
+    "tracking error (rad)",
+    "no actuator saturation"
+   ]
+  },
+  {
+   "duration": 0.35,
+   "decision": "REJECT",
+   "peak_torque_Nm": [
+    120.0,
+    36.50319639546205
+   ],
+   "failed": [
+    "torque replay converges (order in dt)",
+    "tracking error (rad)",
+    "no actuator saturation"
+   ]
+  },
+  {
+   "duration": 0.3,
+   "decision": "REJECT",
+   "peak_torque_Nm": [
+    120.0,
+    60.0
+   ],
+   "failed": [
+    "torque replay converges (order in dt)",
+    "tracking error (rad)",
+    "no actuator saturation"
+   ]
+  },
+  {
+   "duration": 0.25,
+   "decision": "REJECT",
+   "peak_torque_Nm": [
+    120.0,
+    60.0
+   ],
+   "failed": [
+    "torque replay converges (order in dt)",
+    "tracking error (rad)",
+    "energy balance",
+    "no actuator saturation"
+   ]
+  }
+ ],
+ "move_time_s": 0.5,
+ "pixel_track_max_px": 0.9503407713111596,
+ "usd": {
+  "ok": true,
+  "meshes": 4,
+  "time_samples": 144
+ },
+ "checks": [
+  {
+   "name": "B-rep solids manifold (all designs)",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "surrogate held-out error: T rise",
+   "value": 0.003324070084641708,
+   "limit": 0.03,
+   "passed": true
+  },
+  {
+   "name": "surrogate held-out error: dp",
+   "value": 0.027392230215679277,
+   "limit": 0.03,
+   "passed": true
+  },
+  {
+   "name": "surrogate held-out error: mass",
+   "value": 0.0009005622258477451,
+   "limit": 0.03,
+   "passed": true
+  },
+  {
+   "name": "served proposal inside the service's trust envelope",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "the service flagged 1500 of 9765 queried designs (outside the training box or unphysical); they were not considered"
+  },
+  {
+   "name": "served proposal verified: T_source (C)",
+   "value": 73.98854174438128,
+   "limit": 75.0,
+   "passed": true,
+   "detail": "1 proposal(s) verified"
+  },
+  {
+   "name": "served proposal verified: dp (Pa)",
+   "value": 8.148105661487309,
+   "limit": 30.0,
+   "passed": true
+  },
+  {
+   "name": "a move passes every robot check",
+   "value": 0.5,
+   "limit": 0.8,
+   "passed": true,
+   "detail": "shortest passing move 0.5 s"
+  },
+  {
+   "name": "part in the pixels at the kinematic tool point (max, px)",
+   "value": 0.9503407713111596,
+   "limit": 2.0,
+   "passed": true,
+   "detail": "4 camera variations"
+  },
+  {
+   "name": "cell USD stage valid",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "144 time samples"
+  }
+ ]
+}

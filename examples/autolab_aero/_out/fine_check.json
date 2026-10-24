@@ -1,0 +1,71 @@
+{
+ "variants": {
+  "fine": {
+   "ok": true,
+   "outputs": {
+    "drag_N": 2859.060805682645,
+    "downforce_N": 7745.2585965023445,
+    "CD": 0.5728149516121596,
+    "CL": -1.5517683007514234,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7779.717679740963,
+    "drag_front_wing_N": 785.4651980960591,
+    "downforce_rear_wing_N": 1666.601996564393,
+    "drag_rear_wing_N": 330.788367613597,
+    "downforce_floor_N": 1080.1172946033143,
+    "downforce_body_N": -1554.6540215458583,
+    "downforce_wheels_N": -1181.9316556552149,
+    "drag_wheels_N": 1292.7409587154518,
+    "balance_front": 1.0292937835763079
+   },
+   "cost_s": 1208.6555796369994,
+   "options": {
+    "resolution": "fine"
+   },
+   "cells": 803259,
+   "residuals": {
+    "omega": 1.5529925e-05,
+    "k": 0.00014139431,
+    "Ux": 7.903167e-05,
+    "Uy": 0.0017360046,
+    "Uz": 0.00041799632,
+    "p": 6.8542627e-05
+   },
+   "message": "",
+   "rel_diff_vs_reference": {
+    "drag_N": 0.0,
+    "downforce_N": 0.0,
+    "balance_front": 0.0
+   },
+   "iteration_std": {
+    "drag_N": 52.972131624293574,
+    "downforce_N": 249.49012547192314,
+    "CD": 0.010613005834941588,
+    "CL": 0.04998553156542219,
+    "frontal_area_m2": 2.220446049250313e-16,
+    "downforce_front_wing_N": 46.314644973004015,
+    "drag_front_wing_N": 2.774615787835495,
+    "downforce_rear_wing_N": 102.7566721648194,
+    "drag_rear_wing_N": 13.468802248498807,
+    "downforce_floor_N": 178.24251269408313,
+    "downforce_body_N": 155.37651687452723,
+    "downforce_wheels_N": 43.46266585505637,
+    "drag_wheels_N": 89.93538345892385,
+    "balance_front": 0.016253051084565037
+   }
+  }
+ },
+ "reference": "fine",
+ "campaign": "fine",
+ "outputs": [
+  "drag_N",
+  "downforce_N",
+  "balance_front"
+ ],
+ "campaign_vs_reference": {
+  "drag_N": 0.0,
+  "downforce_N": 0.0,
+  "balance_front": 0.0
+ },
+ "ledger": "fine_check_ledger.json"
+}

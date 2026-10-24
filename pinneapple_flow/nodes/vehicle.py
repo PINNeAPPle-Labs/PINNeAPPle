@@ -427,3 +427,52 @@ def dashboard(ctx, inputs, params):
         k for k, p in files.items() if p is not None and p.is_file()))
     return {"report": artifact(html, "html"), "figure": fig,
             "metrics": {"frames": len(frames), "checks": checks}}
+
+
+@node("rover.learn_planet", "Rover that learns the planet (autonomous lab)", category="Solvers",
+      tags=("section:solvers", "rover", "mission", "terramechanics", "kalman", "planning", "trust"),
+      inputs=[],
+      outputs=[Port("report", "report"), Port("metrics", "metrics")],
+      params=[Param("mission", "str", "Drive the rover to (37, 15) without getting stuck, slip at most 40 %, "
+                    "minimum energy", help="plain-language mission on the synthetic demo site"),
+              Param("max_time", "float", 400.0, minimum=10.0, maximum=1200.0, advanced=True,
+                    help="drive budget per route [s]; a full mission takes about 10 min on 4 CPU cores"),
+              Param("n_samples", "int", 24, minimum=3, maximum=64, advanced=True, help="belief samples for the risk"),
+              Param("figures", "bool", True, advanced=True)],
+      calls="pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)",
+      available=_vehicle_available)
+def learn_planet(ctx, inputs, params):
+    """Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil
+    learned from the wheels (iterated EKF) -> replanned route -> drive -> trust report, on a synthetic site whose
+    true soils are known (so the error of the learned soil is measured)."""
+    from pinneapple_simulation.rover.autolab import RoverMission, demo_site
+    from pinneapple_simulation.rover.autolab.report import write_report
+    t0 = time.perf_counter()
+    m = RoverMission(demo_site(), params["mission"], max_time=params["max_time"], n_samples=params["n_samples"],
+                     progress=lambda *_: ctx.check_stop())
+    res = m.run()
+    nums = write_report(m, res, str(Path(ctx.workdir) / "rover_mission"), figures=params["figures"])
+    for r in nums["routes"]:
+        mm = r["measured_multibody"]
+        for k in ("distance_m", "energy_J", "max_slip_2s_front", "max_sinkage_mm"):
+            ctx.metric(f"route_{r['name']}_{k}", float(mm[k]), "multibody VehicleSimulator run on the true terrain")
+    for p, v in (nums.get("recovery") or {}).items():
+        ctx.metric(f"learned_{p}_error", float(v["error"]), "learned - true soil parameter (synthetic site)")
+    ctx.metric("mission_seconds", round(time.perf_counter() - t0, 1), "wall time on this machine")
+    t = nums["trust"]
+    ctx.table("trust report", ["check", "status", "value", "limit"],
+              [[c["name"], c["status"], c["value"], c["limit"]] for c in t["checagens"]])
+    ctx.summary(f"{len(nums['routes'])} route(s): " + ", ".join(f"{r['name']} {r['measured_multibody']['ended']}"
+                                                                for r in nums["routes"]) + f"; trust {t['decisao']}")
+    out = artifact(Path(ctx.workdir) / "rover_mission" / "report.md", "report")
+    return {"report": out, "metrics": {k: v for k, v in ctx_metrics(nums).items()}}
+
+
+def ctx_metrics(nums: dict) -> dict[str, float]:
+    """Flat numeric metrics of a rover mission summary."""
+    out = {}
+    for r in nums["routes"]:
+        for k, v in r["measured_multibody"].items():
+            if isinstance(v, (int, float)) and v is not None:
+                out[f"route_{r['name']}_{k}"] = float(v)
+    return out

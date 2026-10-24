@@ -1,0 +1,10 @@
+[
+ {
+  "mission": "Find a lower-drag design at 80 m/s and keep the downforce.",
+  "refused": "the request asks for speed = 80 m/s, but the reference simulator is set up at 70 m/s; changing it needs a new solver qualification (mesh and convergence) before any design can be compared"
+ },
+ {
+  "mission": "Make the car look fast.",
+  "refused": "no objective found: say what to lower or raise (e.g. 'lower drag'); outputs this simulator computes: drag, downforce, balance"
+ }
+]

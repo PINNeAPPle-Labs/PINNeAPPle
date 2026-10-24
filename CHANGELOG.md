@@ -13,7 +13,121 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Fixed
+- `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
+  system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
+  0.08 s), so a 0.1 mm probe model took minutes; same solution to round-off.
+- `pinneapple_design.aero.panel`: `airfoil_nodes` / `panel_solve(..., close_te=True)` close the blunt CST trailing
+  edge. With the gap open the Kutta condition acts on panels smaller than the gap and Cl does not converge with
+  the panel count (NACA 2412 at 4 deg: 0.728 to 0.706 for 50 to 800 panels per side); closed it converges
+  (0.7296, 0.7292 at 400 and 800). The default is unchanged.
+- `SolidFEM` (8-node hexahedra) mapped the shape-function gradients with the transposed inverse Jacobian, so
+  strains and stresses were wrong on elements not aligned with the axes (a patch test gave 0.5-0.75 of the imposed
+  strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
+
 ### Added
+- `pinneapple_autolab`: the Autonomous Physics Lab, an engine that manages evidence for engineering decisions on any
+  reference simulator. A mission (variables, objectives, limits absolute or relative to a simulated baseline, budget,
+  acceptance tolerances, fixed conditions, hypotheses) goes through plan -> checked build -> simulate -> learn
+  (Gaussian process, MLP ensemble and quadratic response surface compared by k-fold cross-validation, with 95 %
+  coverage; POD + GP surface fields with errors per region) -> NSGA-II on the surrogate -> triage of every candidate
+  (validated domain, probability of meeting the limits, constrained expected improvement, field error in the
+  critical region, a `TrustReport`; favourable / uncertain / out of domain) -> the next simulation chosen by a
+  written rule -> final verification. A ledger of every run (purpose, reason, prediction before the run, outputs,
+  cost, environment) and an event stream; solver qualification; figures and a Markdown report. Domain
+  `domains.racecar`: `RaceCarAero` (FormulaCar in OpenFOAM: geometry and boundary-condition checks, forces averaged
+  over the last half of the iterations with their spread, aero balance from face moments, surface Cp on the
+  parametric vertices) and the flagship mission; worked example `examples/autolab_aero/` (20 OpenFOAM runs measured
+  here: drag -15.7 % with the downforce and balance limits met, -13.95 % on the fine mesh where the balance limit is
+  missed by 1 %, within the solver's iteration noise; 3 of 4 "uncertain" designs rejected by CFD); guide
+  `docs/guides/autonomous_lab.md`.
+- `pinneapple_autolab.dashboard`: four synchronised areas (geometry, physics, models, decisions) over a lab session,
+  read from its files (`ledger.json`, `events.jsonl`, `snapshot_live.json` written by the lab after every assessment
+  and simulation): static page with a replay of the recorded events, live server (`serve`, `/state.json`),
+  screenshot and replay video (`capture`, `record_replay`). In a replay a design, render or figure appears only once
+  its run exists; failed runs, training and unverified candidates are shown as such. Race car:
+  `domains.racecar.build_dashboard`, `recorded_dashboard`, `cycles_renders` (Blender Cycles), `render_run` adds the
+  surface mesh, Cp ±0.5, mid-plane Cp and wake vorticity. Flow Studio node `autolab.aerodynamicist` (recorded session
+  or a live run), listed in the Hub with both examples. `render_scene(wireframe=...)` in the PyVista bridge.
+- `pinneapple_autolab.agent`: a mission in words read into objectives, limits and a budget with what was read from
+  which words and what was assumed (refusing operating points the solver is not set up for and requests with no
+  objective); the lab as a closed toolbox (`lab_toolbox`); a deterministic step planner (`LabPlanner`) and a language
+  model one (`core.LLMStepPlanner`) over `core.act`, a decide-check-run-record loop next to `execute`; an audit of the
+  final answer (every number from a tool result, the recommended run simulated and feasible);
+  `pinneapple_autolab.replay.ReplaySimulator` (answers exact repeats from a ledger, labelled, simulates the rest).
+  Example `examples/autolab_aero_agent/` (the stage-1 mission reproduced decision for decision, refusals, a scripted
+  careless planner refused and flagged).
+- `ExternalFlow`: `body_levels` (surface refinement per body, e.g. thin wing elements), `refine_boxes`,
+  `write_every` + `force_history()` (forces at every written iteration), `FlowResult.load()`.
+- `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
+  A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
+  (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)
+  and a comparison of the analytic Wong-Reece law, the zoo surrogate and measured operating points; sensors with
+  stated noise and a soil belief per mapped unit updated by an iterated EKF (sinkage and torque from load and slip,
+  input noise carried through the model, the simulator's slip-sinkage lag in the observation model); a risk-aware
+  planner (share of belief samples above the slip limit, wheels on both sides checked, energy-optimal Dijkstra); a
+  mission agent (plain-language request -> `MissionSpec` through a rule parser with the `extract(text, schema)`
+  interface of `CallLLM`, fixed tool set, plan -> drive -> learn -> replan -> verify); a trust report (goal, slip
+  limit, energy balance, time-step check, planner vs multibody, route risks, held-out prediction, recovery of the
+  known truth); figures and Blender Cycles renders (overview, stall close-up, traverse MP4/GIF) with the repository's
+  VIPER model. Flow Studio node `rover.learn_planet`; example `examples/autolab_rover/`; guide
+  `docs/guides/rover_learns_the_planet.md`.
+- `VehicleSimulator`: ground made of several soils (`soil=[...]`, `soil_map(x, y) -> index`), route following by
+  pure pursuit (`run(route=[...])`, ends at the goal) and an early stop rule (`run(stop=...)`, `meta["ended"]`);
+  `run.wheel["soil_idx"]` records the soil under each wheel; `wheel_speeds="kinematic"` gives each wheel the speed
+  of its distance to the turning centre (default `"equal"`, unchanged: in turns the wheels of an all-wheel-steered
+  rover then fight each other).
+- `WongReeceModel.sinkage_for_load` / `steady_state`: `sinkage_slip=` (the slip that sets the sinkage exponent, e.g.
+  a lagged slip), as `forces` already had.
+- `pinneapple_presets` (`pp.presets`): industrial presets, engineering cases already set up, solved and validated.
+  Each has a data sheet (sector, question, SI inputs with realistic defaults and the source of each value, outputs,
+  validity domain), `run(**params)` with its trust report and decision, `validate()` against citable references
+  with the measured error, and where it fits a 3-D scene, an ARD Gaussian-process surrogate (Latin-hypercube DOE on
+  the real solver, hold-out error, out-of-box flag; `run(fidelity="surrogate")`), inversion from synthetic
+  measurements with known noise, optimisation confirmed on the solver and design variants. First batch: water
+  hammer of a valve closure (MOC vs Joukowsky and rigid-column theory), water distribution network (vs EPANET 2.2,
+  GA finds the published US$ 419,000 optimum of the two-loop network), plate-fin heat sink, power PCB junction
+  temperatures (JEDEC theta_JA), steel footbridge (strength, deflection, lateral-torsional buckling, pedestrian
+  vibration). CLI `python -m pinneapple_presets`, Flow Studio nodes `preset.run` / `preset.validate`, results in
+  `examples/industrial_presets/`, Hub index `pinneapple_presets/index.json`.
+- Industrial presets, batch 2: shell-and-tube cooler (epsilon-NTU of the 1-2 exchanger, checked against direct
+  integration of its energy equations; Kern / Gnielinski; fouling inversion), steam-line insulation (economic
+  thickness, k(T) by the Kirchhoff transform checked by finite volumes), ASME VIII Div. 1 pressure vessel (UG-27 /
+  UG-32, Lamé and a 3-D C3D8I ring), centrifugal pump NPSH (IAPWS-IF97 saturation pressure, ISO 2533 atmosphere,
+  ANSI/HI 9.6.1 margin). New closed forms: `heat_exchanger`, `pipe_insulation`, `pump_npsh`.
+- Industrial presets, batch 3: wing / blade section at Re 4e6 (zoo RANS surrogate checked against held-out
+  OpenFOAM and XFOIL data, thin-airfoil zero-lift angle and the panel method), surface-PM servo motor (Maxwell
+  stress vs co-energy, power balance, kt vs ke), Prius 2004 IPM traction motor (torque against current angle vs
+  Yang et al. 2013, MTPA, resolver-offset inversion), eddy-current inspection of aircraft skin (Dodd & Deeds
+  closed form `pinneapple_physics.closed_form.eddy_coil`, checked against the axisymmetric FDM and Wheeler's
+  formula; frequency choice and multi-frequency thickness / lift-off inversion).
+- `pinneapple_simulation.numerical_solvers.pipe_network`: looped pipe networks by the global gradient algorithm
+  (Hazen-Williams, Darcy-Weisbach/Colebrook) and least-cost discrete sizing by a genetic algorithm.
+- `pinneapple_simulation.numerical_solvers.beam_fe`: Euler-Bernoulli Hermite beam elements (static and modes).
+- `water_hammer_moc.valve_closure_moc(record_field=True)` returns the head along the pipe at every step.
+- `pinneapple_autolab`: the agent loop of the Autonomous Physics Lab. A mission in plain language -> a plan of
+  controlled library calls (`Tool`, `Toolbox` with declared arguments) -> `execute` with evidence per call; a
+  deterministic `TemplatePlanner` and an `LLMPlanner` (via `pinneapple_llm.call_llm`) that falls back to it, with the
+  reason, on any invalid plan or failure.
+- `pinneapple_design.thermal.board_cooling`, demo 2 of the lab (the self-optimizing engineer): a board with an
+  overheating SoC -> coupled reference (3-D board finite volumes + plate-fin heat sink through the case-top
+  resistance, nominal and pessimistic cooling) -> POD + Gaussian-process surrogate of the junction temperatures and
+  the board-top map, measured on held-out designs and grown until accepted -> minimum-mass heat sink and fan speed
+  under junction, fan-power, envelope and fin-gap constraints, confirmed on the reference -> fine-grid verification
+  with a `TrustReport` -> figures, glTF / USD, three.js viewer, Blender stills and animation, report. Example
+  `examples/autolab/self_optimizing_engineer.py`, Flow node `autolab.board_cooling`, guide
+  `docs/guides/autonomous_physics_lab.md`.
+- `pinneapple_systems.digital_twin.pipe_loop`, demo 3 of the lab (the digital twin that knows when it is wrong): a
+  pumped, heated water loop with an elbow and a T junction simulated quasi-steadily (pump affinity curve,
+  Darcy-Weisbach / Colebrook, minor and valve losses, heater and branch heat loss) with controlled faults; a POD +
+  Gaussian-process fast model of its ten sensors; ten physics residuals with fault directions (sensor bias,
+  obstruction per pipe), an EKF on the extra loss coefficient of each pipe and the training envelope, combined into
+  a diagnosis (normal / process / sensor / domain, with location and size) calibrated on healthy runs; a reference
+  simulation and model extension where the model is out of its domain; a benchmark of controlled cases with the
+  confusion matrix; control-room figures, 3-D scene, viewer, Blender animation, report and trust report. Example
+  `examples/autolab_digital_twin/twin_knows_when_wrong.py`, Flow node `autolab.pipe_twin`.
+- `pinneapple_physics.pcb.Component.r_top_k_w`: case-top-to-air resistance of an attached heat sink.
+- Studio: `blender.render_animation(..., lines=[bool per frame])` shows the static lines only on chosen frames.
 - Hub tools by task: every one of the 408 tools is in exactly one of 20 task categories
   (`pinneapple_hub.library.categories`, longest-prefix rules on where the tool comes from, recipes listed by id),
   shown as "Tools by task" on the home page, a **Task** filter (`/?kind=tool&category=...`,
@@ -66,6 +180,33 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `pinneapple_tools.nvidia.physicsnemo.MLPSurrogate` (PhysicsNeMo `FullyConnected` with its training box) and
   `sign_violations`. Examples 03 (arm in the robot sim), 08 (learned dynamics: Newton data, PhysicsNeMo network,
   PINNeAPPle physics checks) and 12 (one USD scene for Omniverse and the robot sim).
+- NVIDIA USD BRep in PINNeAPPle (`pinneapple_tools.nvidia.brep`): parts as data (`PartRecipe`: boxes, cylinders,
+  booleans, edge fillets, sweeps), built and measured by the SMLib kernel in a worker process (`usd-brep` is a
+  CPython 3.12 wheel; `PINNEAPPLE_BREP_PYTHON`): exact volume, area, mass properties, face curvature, tessellations
+  with their measured chord error, exact curvature at mesh vertices, native B-rep USD export; `geometry_checks`,
+  `planar_face_mesh`, `mesh_thickness` (ray casting). `pinneapple_tools.nvidia.parts` (L bracket, plate-fin heat sink
+  with root fillets, closed-form volumes) and `.heatsink` (designs rated by the closed-form heat-sink model on exact
+  solids, verification of surrogate proposals). `numerical_solvers.plane_stress_fem` (constant-strain triangles on any
+  mesh, patch test, Heywood's net-section Kt). Examples 05 (B), 10 (B + P), 14 (B + O) and 16 (O + P + B).
+- PINNeAPPle Model Services (`pinneapple_tools.model_services`): PINNeAPPle models as local microservices on NVIDIA
+  NIM's routes (`/v1/health/ready`, `/v1/models`, `/v1/infer`, `/v1/chat/completions` with `nvext.guided_json`),
+  standard library only; every answer carries the trust report of that query. Built-ins: the zoo (trust from
+  `pp.zoo.validate`), `pp.trust_card` as a service, and `pinneapple-intent` (the deterministic extractor of
+  `pinneapple_design.intent`, values with their quotes). `grid_operator_service` / `darcy_solver_service` serve a field
+  model (e.g. a PhysicsNeMo FNO) and the finite-volume solver with residual-based checks. One `ModelServiceClient` for
+  these services and for NVIDIA NIM. `python -m pinneapple_tools.model_services serve`, `docker/model_services`, the
+  Flow Studio node `lib.services.infer`. Examples 06 (N), 11 (N + P) and 15 (N + B).
+- PINNeAPPle World Model as the Cosmos alternative (`pinneapple_worldmodel.physical_world`,
+  `.inspection_data`, `.robot_perception`): synthetic bouncing-ball videos with exact labels and domain
+  randomization, video physics checks from the pixels (visibility, area, fitted g, a speed bound from the fall height,
+  apex energy), non-physical edits to test them, a CPU world model (conv encoder, GRU, decoder, free-running loss), a
+  state encoder, and the optional `CosmosAdapter` (Cosmos NIM `/v1/infer`). Thermal-inspection samples as OpenUSD
+  stages (temperature primvar, camera, label attributes) with a label check against the defect-free plate. Robot
+  perception data: Newton arm moves as USD timelines with a side camera, exact joint-angle labels, a visibility check,
+  and perception checks (forward kinematics, implied joint speed, rate-limit jumps). `rasterize_topdown(view=)` gives
+  top and side synthetic cameras of a USD stage; `heatsink.surrogate_service` serves a heat-sink surrogate as a model
+  service. Flow Studio nodes `lib.worldmodel.video_check`, `.inspection_sample`, `.arm_camera`. Examples 04 (C),
+  09 (C + P), 13 (O + C), 17 (O + I + C) and 18 (all six stacks).
 - Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
   curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
   Joukowsky's head rise and the 4L/a period.
@@ -1454,6 +1595,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ### Fixed
 - Benchmark Arena: the result of a private benchmark stays inside its column at 1440 px (the page no longer
   scrolls sideways): grid items may shrink, cost and regimes stack, the seed spread wraps under each mean.
+- `external_flow.run_case`: a step made of two commands (`reconstructParMesh; reconstructPar`) wrote the first one's
+  output to the terminal instead of its log.
 - Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs
   existing cases". `ParameterSpace` constants and categories match numbers by value (`4000000 == 4000000.0`, as
   JSON from the page drops the `.0`), so the 436 preset runs count as inside the space again.

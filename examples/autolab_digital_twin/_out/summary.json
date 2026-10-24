@@ -1,0 +1,2663 @@
+{
+ "decision": "APPROVED",
+ "benchmark": {
+  "kinds": [
+   "normal",
+   "process",
+   "sensor",
+   "domain"
+  ],
+  "confusion": [
+   [
+    20,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    20,
+    0,
+    0
+   ],
+   [
+    3,
+    0,
+    17,
+    0
+   ],
+   [
+    0,
+    0,
+    0,
+    20
+   ]
+  ],
+  "accuracy": 0.9625,
+  "n_cases": 80,
+  "isolation": {
+   "process": {
+    "correct_kind": 20,
+    "correct_target": 20
+   },
+   "sensor": {
+    "correct_kind": 17,
+    "correct_target": 17,
+    "correct_mode": 16
+   },
+   "domain": {
+    "correct_kind": 20,
+    "correct_target": 20
+   }
+  },
+  "kalman_k_abs_error": {
+   "mean": 0.052254582248551895,
+   "max": 0.20468451806739552,
+   "inside_2std": 18,
+   "n": 20
+  },
+  "cases_with_false_alarm": 1,
+  "false_alarm_steps": 1,
+  "delay_s_median": {
+   "process": 71.06239787747029,
+   "sensor": 160.20270974545372,
+   "domain": 181.033374774231
+  },
+  "delay_s_max": {
+   "process": 173.47402602826742,
+   "sensor": 685.7551585240024,
+   "domain": 283.5350317938123
+  },
+  "thresholds": {
+   "shift": 55.763204979938116,
+   "spread": 5.0387964909971705,
+   "model": 43.1285878272456
+  },
+  "n_calibration": 12,
+  "newton_max_residual_m": 1.7763568394002505e-14,
+  "seconds": {
+   "fit_fast_model": 2.7323335390001375,
+   "calibration": 17.74690038999961,
+   "cases": 29.670949518999805,
+   "per_case": 1.4461373754998021
+  }
+ },
+ "cases": [
+  {
+   "name": "normal_0",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 9.304744702550474,
+    "spread": 0.8689011927409784,
+    "model": 8.026003900672384,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.5712172020002981
+  },
+  {
+   "name": "process_0",
+   "truth": {
+    "kind": "process",
+    "target": "B",
+    "magnitude": 1.4507087632981417,
+    "mode": "",
+    "onset_s": 1855.4425309821813
+   },
+   "kind": "process",
+   "target": "B",
+   "mode": "",
+   "size": 1.3668059256990357,
+   "size_std": 0.07004256037072347,
+   "action": "pipe B: extra loss coefficient 1.37 +- 0.14 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1990.0,
+   "false_alarm_steps": 0,
+   "delay_s": 134.55746901781868,
+   "statistics_final": {
+    "shift": 423.32902335605155,
+    "spread": 0.959064408189845,
+    "model": 573.1807024500523,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.5120702120002534
+  },
+  {
+   "name": "sensor_0",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_B",
+    "magnitude": -0.055637778863886087,
+    "mode": "drift",
+    "onset_s": 1855.4425309821813
+   },
+   "kind": "sensor",
+   "target": "P_B",
+   "mode": "drift",
+   "size": -0.05505025703058318,
+   "size_std": null,
+   "action": "P_B: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1970.0,
+   "false_alarm_steps": 0,
+   "delay_s": 114.55746901781868,
+   "statistics_final": {
+    "shift": 2686.827139811312,
+    "spread": 0.3175975773176054,
+    "model": 2114.776045024783,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.7438315339995825
+  },
+  {
+   "name": "domain_0",
+   "truth": {
+    "kind": "domain",
+    "target": "Q_heat_kW",
+    "magnitude": 1162.322521518513,
+    "mode": "",
+    "onset_s": 1855.4425309821813
+   },
+   "kind": "domain",
+   "target": "Q_heat_kW",
+   "mode": "",
+   "size": 1162.322521518513,
+   "size_std": null,
+   "action": "run the reference simulation at Q_heat_kW = 1.16e+03 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2030.0,
+   "false_alarm_steps": 0,
+   "delay_s": 174.55746901781868,
+   "statistics_final": {
+    "shift": 8.734988510840353,
+    "spread": 1.4738672999717757,
+    "model": 12.92434695260349,
+    "ood": 0.43720420253085496
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4569737539995913
+  },
+  {
+   "name": "normal_1",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 7.56436900297855,
+    "spread": 1.4284054638952584,
+    "model": 13.673442154854607,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.4756309600006716
+  },
+  {
+   "name": "process_1",
+   "truth": {
+    "kind": "process",
+    "target": "B",
+    "magnitude": 11.28579666166545,
+    "mode": "",
+    "onset_s": 1994.2448414759976
+   },
+   "kind": "process",
+   "target": "B",
+   "mode": "",
+   "size": 11.254128149174019,
+   "size_std": 0.08369995767206663,
+   "action": "pipe B: extra loss coefficient 11.25 +- 0.17 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2050.0,
+   "false_alarm_steps": 0,
+   "delay_s": 55.755158524002354,
+   "statistics_final": {
+    "shift": 16047.830720972368,
+    "spread": 0.5546201855728539,
+    "model": 26750.203161535985,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.494173924000279
+  },
+  {
+   "name": "sensor_1",
+   "truth": {
+    "kind": "sensor",
+    "target": "Q_B",
+    "magnitude": 2.0164310010208886,
+    "mode": "noise",
+    "onset_s": 1994.2448414759976
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": 2680.0,
+   "false_alarm_steps": 0,
+   "delay_s": 685.7551585240024,
+   "statistics_final": {
+    "shift": 7.3812000480071625,
+    "spread": 1.3299289427457812,
+    "model": 12.198185938123045,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.5987211554602254e-14,
+   "seconds": 1.5250006280002708
+  },
+  {
+   "name": "domain_1",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.12705297081414751,
+    "mode": "",
+    "onset_s": 1994.2448414759976
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.12705297081414751,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.127 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2150.0,
+   "false_alarm_steps": 0,
+   "delay_s": 155.75515852400235,
+   "statistics_final": {
+    "shift": 13.72711840469784,
+    "spread": 0.7347037961129625,
+    "model": 1225.950008462716,
+    "ood": 0.3429954295166961
+   },
+   "newton_max_residual_m": 1.5987211554602254e-14,
+   "seconds": 1.6507928630007882
+  },
+  {
+   "name": "normal_2",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 4.077937961531698,
+    "spread": 0.9021014927771698,
+    "model": 6.795689109430467,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.4642751729998054
+  },
+  {
+   "name": "process_2",
+   "truth": {
+    "kind": "process",
+    "target": "C",
+    "magnitude": 2.932211826628149,
+    "mode": "",
+    "onset_s": 1994.4831696449162
+   },
+   "kind": "process",
+   "target": "C",
+   "mode": "",
+   "size": 2.9751189030410674,
+   "size_std": 0.061159237532118695,
+   "action": "pipe C: extra loss coefficient 2.98 +- 0.12 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2090.0,
+   "false_alarm_steps": 0,
+   "delay_s": 95.51683035508381,
+   "statistics_final": {
+    "shift": 3550.6159489773077,
+    "spread": 1.5855978009245324,
+    "model": 4649.425124325697,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.4020671750004112
+  },
+  {
+   "name": "sensor_2",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_pump",
+    "magnitude": 0.02498559452686924,
+    "mode": "drift",
+    "onset_s": 1994.4831696449162
+   },
+   "kind": "sensor",
+   "target": "P_pump",
+   "mode": "drift",
+   "size": 0.02301151439707688,
+   "size_std": null,
+   "action": "P_pump: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 2160.0,
+   "false_alarm_steps": 0,
+   "delay_s": 165.5168303550838,
+   "statistics_final": {
+    "shift": 385.23098303390935,
+    "spread": 1.993263993333667,
+    "model": 399.4780812484846,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4377306619999217
+  },
+  {
+   "name": "domain_2",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.12594713094054721,
+    "mode": "",
+    "onset_s": 1994.4831696449162
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.12594713094054721,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.126 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2190.0,
+   "false_alarm_steps": 0,
+   "delay_s": 195.5168303550838,
+   "statistics_final": {
+    "shift": 7.142150228818643,
+    "spread": 0.2350738308352549,
+    "model": 1546.1553367646648,
+    "ood": 0.3446967216299273
+   },
+   "newton_max_residual_m": 1.5987211554602254e-14,
+   "seconds": 1.520988471000237
+  },
+  {
+   "name": "normal_3",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 8.638474558830147,
+    "spread": 1.3227424720334924,
+    "model": 8.144539858492783,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.5987211554602254e-14,
+   "seconds": 1.4436931379996167
+  },
+  {
+   "name": "process_3",
+   "truth": {
+    "kind": "process",
+    "target": "B",
+    "magnitude": 8.376868561629934,
+    "mode": "",
+    "onset_s": 1086.4249147493458
+   },
+   "kind": "process",
+   "target": "B",
+   "mode": "",
+   "size": 8.172184043562538,
+   "size_std": 0.08245073672047604,
+   "action": "pipe B: extra loss coefficient 8.17 +- 0.16 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1140.0,
+   "false_alarm_steps": 0,
+   "delay_s": 53.57508525065418,
+   "statistics_final": {
+    "shift": 8940.107723227251,
+    "spread": 3.7221140970856244,
+    "model": 13887.852267749746,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.7381334319998132
+  },
+  {
+   "name": "sensor_3",
+   "truth": {
+    "kind": "sensor",
+    "target": "Q_B",
+    "magnitude": 4.3020653255713,
+    "mode": "noise",
+    "onset_s": 1086.4249147493458
+   },
+   "kind": "sensor",
+   "target": "Q_B",
+   "mode": "noise",
+   "size": 4.320261225009511,
+   "size_std": null,
+   "action": "Q_B: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1250.0,
+   "false_alarm_steps": 0,
+   "delay_s": 163.57508525065418,
+   "statistics_final": {
+    "shift": 8.129418304734793,
+    "spread": 15.463823109085757,
+    "model": 7.891484228733592,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.429475721000017
+  },
+  {
+   "name": "domain_3",
+   "truth": {
+    "kind": "domain",
+    "target": "T_in",
+    "magnitude": 59.93861858736264,
+    "mode": "",
+    "onset_s": 1086.4249147493458
+   },
+   "kind": "domain",
+   "target": "T_in",
+   "mode": "",
+   "size": 59.93861858736264,
+   "size_std": null,
+   "action": "run the reference simulation at T_in = 59.9 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1210.0,
+   "false_alarm_steps": 0,
+   "delay_s": 123.57508525065418,
+   "statistics_final": {
+    "shift": 8.232635312593526,
+    "spread": 1.9579956499412976,
+    "model": 82.18551990074532,
+    "ood": 1.246930929368132
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.406072705999577
+  },
+  {
+   "name": "normal_4",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 9.575525495739727,
+    "spread": 0.09970836719888676,
+    "model": 8.85574536241031,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4765755630005515
+  },
+  {
+   "name": "process_4",
+   "truth": {
+    "kind": "process",
+    "target": "B",
+    "magnitude": 8.155052038945978,
+    "mode": "",
+    "onset_s": 2371.2530081643454
+   },
+   "kind": "process",
+   "target": "B",
+   "mode": "",
+   "size": 7.980853110723314,
+   "size_std": 0.07261205130022043,
+   "action": "pipe B: extra loss coefficient 7.98 +- 0.15 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2440.0,
+   "false_alarm_steps": 0,
+   "delay_s": 68.74699183565463,
+   "statistics_final": {
+    "shift": 13245.45762041222,
+    "spread": 2.3730053500631074,
+    "model": 17713.007017172164,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.577269463000448
+  },
+  {
+   "name": "sensor_4",
+   "truth": {
+    "kind": "sensor",
+    "target": "Q_C",
+    "magnitude": 4.333528543874623,
+    "mode": "noise",
+    "onset_s": 2371.2530081643454
+   },
+   "kind": "sensor",
+   "target": "Q_C",
+   "mode": "noise",
+   "size": 3.9926265768133,
+   "size_std": null,
+   "action": "Q_C: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 2630.0,
+   "false_alarm_steps": 0,
+   "delay_s": 258.7469918356546,
+   "statistics_final": {
+    "shift": 22.065727029363508,
+    "spread": 13.736876820133437,
+    "model": 31.457618782032764,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.5806595240001116
+  },
+  {
+   "name": "domain_4",
+   "truth": {
+    "kind": "domain",
+    "target": "Q_heat_kW",
+    "magnitude": 1202.5209190679286,
+    "mode": "",
+    "onset_s": 2371.2530081643454
+   },
+   "kind": "domain",
+   "target": "Q_heat_kW",
+   "mode": "",
+   "size": 1202.5209190679286,
+   "size_std": null,
+   "action": "run the reference simulation at Q_heat_kW = 1.2e+03 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2500.0,
+   "false_alarm_steps": 0,
+   "delay_s": 128.74699183565463,
+   "statistics_final": {
+    "shift": 11.689916403230262,
+    "spread": 1.2274628512449555,
+    "model": 8.829929451427965,
+    "ood": 0.504201531779881
+   },
+   "newton_max_residual_m": 1.1546319456101628e-14,
+   "seconds": 1.3755944069998804
+  },
+  {
+   "name": "normal_5",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 7.128901878681583,
+    "spread": 0.358701376758813,
+    "model": 13.237801630454966,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.3781736529999762
+  },
+  {
+   "name": "process_5",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 4.412660631148512,
+    "mode": "",
+    "onset_s": 1688.0314837135888
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 4.363738042549983,
+   "size_std": 0.047267737362296315,
+   "action": "pipe A: extra loss coefficient 4.36 +- 0.09 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1760.0,
+   "false_alarm_steps": 0,
+   "delay_s": 71.96851628641116,
+   "statistics_final": {
+    "shift": 18941.33696823057,
+    "spread": 1.7827058048674145,
+    "model": 25976.89460647812,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.423439346000123
+  },
+  {
+   "name": "sensor_5",
+   "truth": {
+    "kind": "sensor",
+    "target": "Q_A",
+    "magnitude": 7.604261095737498,
+    "mode": "noise",
+    "onset_s": 1688.0314837135888
+   },
+   "kind": "sensor",
+   "target": "Q_A",
+   "mode": "noise",
+   "size": 6.259636134907957,
+   "size_std": null,
+   "action": "Q_A: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1800.0,
+   "false_alarm_steps": 0,
+   "delay_s": 111.96851628641116,
+   "statistics_final": {
+    "shift": 10.700555372077668,
+    "spread": 43.809431285492764,
+    "model": 11.469588317175887,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.4288852589997987
+  },
+  {
+   "name": "domain_5",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.19513699130890474,
+    "mode": "",
+    "onset_s": 1688.0314837135888
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.19513699130890472,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.195 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1920.0,
+   "false_alarm_steps": 0,
+   "delay_s": 231.96851628641116,
+   "statistics_final": {
+    "shift": 14.395187316727528,
+    "spread": 0.3095070814292946,
+    "model": 231.79058029101182,
+    "ood": 0.238250782601685
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.5560298579994196
+  },
+  {
+   "name": "normal_6",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 14.1271914497205,
+    "spread": 2.105904381641806,
+    "model": 10.246542865483574,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4158309050008029
+  },
+  {
+   "name": "process_6",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 7.537300332196665,
+    "mode": "",
+    "onset_s": 1757.2947460946414
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 7.506039404113062,
+   "size_std": 0.049970211047747785,
+   "action": "pipe A: extra loss coefficient 7.51 +- 0.10 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1800.0,
+   "false_alarm_steps": 0,
+   "delay_s": 42.70525390535863,
+   "statistics_final": {
+    "shift": 46596.27377560282,
+    "spread": 3.8317505954379283,
+    "model": 64195.62607283604,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.3826232049996179
+  },
+  {
+   "name": "sensor_6",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_C",
+    "magnitude": 0.05451371760023962,
+    "mode": "drift",
+    "onset_s": 1757.2947460946414
+   },
+   "kind": "sensor",
+   "target": "P_C",
+   "mode": "drift",
+   "size": 0.052729159913084356,
+   "size_std": null,
+   "action": "P_C: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1890.0,
+   "false_alarm_steps": 0,
+   "delay_s": 132.70525390535863,
+   "statistics_final": {
+    "shift": 1635.3186244106644,
+    "spread": 1.7108464430296384,
+    "model": 2044.34511797873,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4101273280002715
+  },
+  {
+   "name": "domain_6",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.16770309464200975,
+    "mode": "",
+    "onset_s": 1757.2947460946414
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.16770309464200978,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.168 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1900.0,
+   "false_alarm_steps": 0,
+   "delay_s": 142.70525390535863,
+   "statistics_final": {
+    "shift": 6.7125950519402835,
+    "spread": 1.0269194940864865,
+    "model": 429.80674115542394,
+    "ood": 0.2804567774738311
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.6084886259995983
+  },
+  {
+   "name": "normal_7",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 3.3414282647707325,
+    "spread": 1.8483293036078379,
+    "model": 5.466604060688431,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.6059574519995294
+  },
+  {
+   "name": "process_7",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 10.159085624187375,
+    "mode": "",
+    "onset_s": 1834.7807170290637
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 10.10939117422247,
+   "size_std": 0.049521571012552404,
+   "action": "pipe A: extra loss coefficient 10.11 +- 0.10 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1870.0,
+   "false_alarm_steps": 0,
+   "delay_s": 35.21928297093632,
+   "statistics_final": {
+    "shift": 91810.4346858429,
+    "spread": 1.565700286933453,
+    "model": 127078.07397705226,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.3831192990001
+  },
+  {
+   "name": "sensor_7",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_pump",
+    "magnitude": 3.436216657957713,
+    "mode": "noise",
+    "onset_s": 1834.7807170290637
+   },
+   "kind": "sensor",
+   "target": "P_pump",
+   "mode": "noise",
+   "size": 2.5338852937387393,
+   "size_std": null,
+   "action": "P_pump: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 2080.0,
+   "false_alarm_steps": 0,
+   "delay_s": 245.21928297093632,
+   "statistics_final": {
+    "shift": 14.081788318635855,
+    "spread": 6.029056475837955,
+    "model": 10.583172615798071,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.384366773999318
+  },
+  {
+   "name": "domain_7",
+   "truth": {
+    "kind": "domain",
+    "target": "Q_heat_kW",
+    "magnitude": 970.498812181818,
+    "mode": "",
+    "onset_s": 1834.7807170290637
+   },
+   "kind": "domain",
+   "target": "Q_heat_kW",
+   "mode": "",
+   "size": 970.498812181818,
+   "size_std": null,
+   "action": "run the reference simulation at Q_heat_kW = 970 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2090.0,
+   "false_alarm_steps": 0,
+   "delay_s": 255.21928297093632,
+   "statistics_final": {
+    "shift": 12.369589583669455,
+    "spread": 0.5744908193258733,
+    "model": 12.44033314187924,
+    "ood": 0.11749802030303007
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.5204250720007622
+  },
+  {
+   "name": "normal_8",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 19.758081517155784,
+    "spread": 1.167562687089226,
+    "model": 13.715458658707695,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.3269909520004148
+  },
+  {
+   "name": "process_8",
+   "truth": {
+    "kind": "process",
+    "target": "C",
+    "magnitude": 2.6530741358432297,
+    "mode": "",
+    "onset_s": 1404.1755908184905
+   },
+   "kind": "process",
+   "target": "C",
+   "mode": "",
+   "size": 2.640179691430873,
+   "size_std": 0.04944264147764119,
+   "action": "pipe C: extra loss coefficient 2.64 +- 0.10 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1510.0,
+   "false_alarm_steps": 0,
+   "delay_s": 105.82440918150951,
+   "statistics_final": {
+    "shift": 5176.213364728218,
+    "spread": 1.6779845182142359,
+    "model": 6646.703913551491,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.5057083390001935
+  },
+  {
+   "name": "sensor_8",
+   "truth": {
+    "kind": "sensor",
+    "target": "T_B",
+    "magnitude": 3.3838532539624846,
+    "mode": "noise",
+    "onset_s": 1404.1755908184905
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": 1720.0,
+   "false_alarm_steps": 0,
+   "delay_s": 315.8244091815095,
+   "statistics_final": {
+    "shift": 23.485803503514155,
+    "spread": 5.008750641598153,
+    "model": 25.04863230935905,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4341319200002545
+  },
+  {
+   "name": "domain_8",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.13092447322352602,
+    "mode": "",
+    "onset_s": 1404.1755908184905
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.13092447322352596,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.131 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1610.0,
+   "false_alarm_steps": 0,
+   "delay_s": 205.8244091815095,
+   "statistics_final": {
+    "shift": 9.706131398387768,
+    "spread": 2.038522820504281,
+    "model": 1219.373081541152,
+    "ood": 0.3370392719638062
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.5031201900001179
+  },
+  {
+   "name": "normal_9",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 13.469777957875882,
+    "spread": 0.8478332876073553,
+    "model": 12.272716405051195,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.3848948639997616
+  },
+  {
+   "name": "process_9",
+   "truth": {
+    "kind": "process",
+    "target": "C",
+    "magnitude": 1.9982835018103409,
+    "mode": "",
+    "onset_s": 1506.8277597322922
+   },
+   "kind": "process",
+   "target": "C",
+   "mode": "",
+   "size": 1.9947523723985048,
+   "size_std": 0.0556920935448509,
+   "action": "pipe C: extra loss coefficient 1.99 +- 0.11 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1610.0,
+   "false_alarm_steps": 0,
+   "delay_s": 103.17224026770782,
+   "statistics_final": {
+    "shift": 2135.1748138264898,
+    "spread": 1.171022325433448,
+    "model": 2735.2495489062517,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.3601883830006045
+  },
+  {
+   "name": "sensor_9",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_tee",
+    "magnitude": 0.043599743897817976,
+    "mode": "drift",
+    "onset_s": 1506.8277597322922
+   },
+   "kind": "sensor",
+   "target": "P_tee",
+   "mode": "drift",
+   "size": 0.04451473736832989,
+   "size_std": null,
+   "action": "P_tee: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1660.0,
+   "false_alarm_steps": 0,
+   "delay_s": 153.17224026770782,
+   "statistics_final": {
+    "shift": 1511.6236216394193,
+    "spread": 2.5167619512230583,
+    "model": 1438.0060678777797,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4788989540002149
+  },
+  {
+   "name": "domain_9",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.1618982432333248,
+    "mode": "",
+    "onset_s": 1506.8277597322922
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.1618982432333248,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.162 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1690.0,
+   "false_alarm_steps": 0,
+   "delay_s": 183.17224026770782,
+   "statistics_final": {
+    "shift": 4.137225542700782,
+    "spread": 0.9319021684539572,
+    "model": 608.9313529386083,
+    "ood": 0.2893873181025772
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.459270574000584
+  },
+  {
+   "name": "normal_10",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 7.534682238346584,
+    "spread": 0.5036418443380881,
+    "model": 9.325911168753422,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.5987211554602254e-14,
+   "seconds": 1.45789971800059
+  },
+  {
+   "name": "process_10",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 2.160448075272525,
+    "mode": "",
+    "onset_s": 2313.1696657597467
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 2.1905565335869883,
+   "size_std": 0.052453627433319924,
+   "action": "pipe A: extra loss coefficient 2.19 +- 0.10 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2390.0,
+   "false_alarm_steps": 0,
+   "delay_s": 76.83033424025325,
+   "statistics_final": {
+    "shift": 3141.9570448570926,
+    "spread": 0.8426490576245869,
+    "model": 4926.836763194536,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.5442255059997478
+  },
+  {
+   "name": "sensor_10",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_C",
+    "magnitude": 7.562927318407205,
+    "mode": "noise",
+    "onset_s": 2313.1696657597467
+   },
+   "kind": "sensor",
+   "target": "P_C",
+   "mode": "drift",
+   "size": 0.01846228667118285,
+   "size_std": null,
+   "action": "P_C: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 2470.0,
+   "false_alarm_steps": 0,
+   "delay_s": 156.83033424025325,
+   "statistics_final": {
+    "shift": 293.1541072353783,
+    "spread": 46.52182472734657,
+    "model": 241.7861850292487,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.1546319456101628e-14,
+   "seconds": 1.4015170250004303
+  },
+  {
+   "name": "domain_10",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.32046400367505484,
+    "mode": "",
+    "onset_s": 2313.1696657597467
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.3204640036750548,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.32 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2580.0,
+   "false_alarm_steps": 0,
+   "delay_s": 266.83033424025325,
+   "statistics_final": {
+    "shift": 13.535522383323844,
+    "spread": 1.0876682112306832,
+    "model": 11.63511624770212,
+    "ood": 0.045439994346069525
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.50648839600035
+  },
+  {
+   "name": "normal_11",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 15.246121546611228,
+    "spread": 1.755415415891027,
+    "model": 16.449535278725545,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.3322676295501878e-14,
+   "seconds": 1.4816575939994436
+  },
+  {
+   "name": "process_11",
+   "truth": {
+    "kind": "process",
+    "target": "B",
+    "magnitude": 5.677514873339831,
+    "mode": "",
+    "onset_s": 1649.8437205314706
+   },
+   "kind": "process",
+   "target": "B",
+   "mode": "",
+   "size": 5.61229787788888,
+   "size_std": 0.092731325026316,
+   "action": "pipe B: extra loss coefficient 5.61 +- 0.19 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1720.0,
+   "false_alarm_steps": 0,
+   "delay_s": 70.15627946852942,
+   "statistics_final": {
+    "shift": 2615.5430898652867,
+    "spread": 0.6678498564751365,
+    "model": 3333.6164580636137,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.5469684859999688
+  },
+  {
+   "name": "sensor_11",
+   "truth": {
+    "kind": "sensor",
+    "target": "T_C",
+    "magnitude": 7.693662049626592,
+    "mode": "noise",
+    "onset_s": 1649.8437205314706
+   },
+   "kind": "sensor",
+   "target": "T_C",
+   "mode": "noise",
+   "size": 7.476468937811314,
+   "size_std": null,
+   "action": "T_C: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1790.0,
+   "false_alarm_steps": 0,
+   "delay_s": 140.15627946852942,
+   "statistics_final": {
+    "shift": 20.905682032329786,
+    "spread": 28.295364307322053,
+    "model": 17.28595309382304,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4449580399996194
+  },
+  {
+   "name": "domain_11",
+   "truth": {
+    "kind": "domain",
+    "target": "T_in",
+    "magnitude": 48.12099306480012,
+    "mode": "",
+    "onset_s": 1649.8437205314706
+   },
+   "kind": "domain",
+   "target": "T_in",
+   "mode": "",
+   "size": 48.12099306480012,
+   "size_std": null,
+   "action": "run the reference simulation at T_in = 48.1 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1830.0,
+   "false_alarm_steps": 0,
+   "delay_s": 180.15627946852942,
+   "statistics_final": {
+    "shift": 23.736739654272604,
+    "spread": 0.6721305422496309,
+    "model": 29.57792198736091,
+    "ood": 0.6560496532400059
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.4162517490003665
+  },
+  {
+   "name": "normal_12",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 29.67791580928408,
+    "spread": 1.4418756701393107,
+    "model": 18.000636551596237,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4958431699997163
+  },
+  {
+   "name": "process_12",
+   "truth": {
+    "kind": "process",
+    "target": "B",
+    "magnitude": 6.822433762164475,
+    "mode": "",
+    "onset_s": 2036.593267962437
+   },
+   "kind": "process",
+   "target": "B",
+   "mode": "",
+   "size": 6.8594486060285265,
+   "size_std": 0.08161509433503236,
+   "action": "pipe B: extra loss coefficient 6.86 +- 0.16 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2110.0,
+   "false_alarm_steps": 0,
+   "delay_s": 73.40673203756296,
+   "statistics_final": {
+    "shift": 6378.728570123913,
+    "spread": 0.4700883034153913,
+    "model": 9011.101866274194,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 8.881784197001252e-15,
+   "seconds": 1.4570605110002361
+  },
+  {
+   "name": "sensor_12",
+   "truth": {
+    "kind": "sensor",
+    "target": "Q_A",
+    "magnitude": 4.4879350961340245,
+    "mode": "noise",
+    "onset_s": 2036.593267962437
+   },
+   "kind": "sensor",
+   "target": "Q_A",
+   "mode": "noise",
+   "size": 3.9237027802393456,
+   "size_std": null,
+   "action": "Q_A: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 2300.0,
+   "false_alarm_steps": 0,
+   "delay_s": 263.40673203756296,
+   "statistics_final": {
+    "shift": 5.285650231176019,
+    "spread": 16.185280595001007,
+    "model": 12.143873105041495,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.1546319456101628e-14,
+   "seconds": 1.4548251779997372
+  },
+  {
+   "name": "domain_12",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.26934000437784744,
+    "mode": "",
+    "onset_s": 2036.593267962437
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.26934000437784744,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.269 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2260.0,
+   "false_alarm_steps": 0,
+   "delay_s": 223.40673203756296,
+   "statistics_final": {
+    "shift": 6.672943269062907,
+    "spread": 0.7069695714868494,
+    "model": 568.8072258314421,
+    "ood": 0.12409230095715774
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.4420599629993376
+  },
+  {
+   "name": "normal_13",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 10.019208666124003,
+    "spread": 0.42966595835067745,
+    "model": 10.072222378006433,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.3725827739999659
+  },
+  {
+   "name": "process_13",
+   "truth": {
+    "kind": "process",
+    "target": "C",
+    "magnitude": 2.2642589660899572,
+    "mode": "",
+    "onset_s": 2298.0895299200674
+   },
+   "kind": "process",
+   "target": "C",
+   "mode": "",
+   "size": 2.259960930392946,
+   "size_std": 0.054289521181368684,
+   "action": "pipe C: extra loss coefficient 2.26 +- 0.11 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2390.0,
+   "false_alarm_steps": 0,
+   "delay_s": 91.91047007993257,
+   "statistics_final": {
+    "shift": 3037.2698292449827,
+    "spread": 0.8193965061502475,
+    "model": 4255.980454880133,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4392176940000354
+  },
+  {
+   "name": "sensor_13",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_tee",
+    "magnitude": 7.807557139547878,
+    "mode": "noise",
+    "onset_s": 2298.0895299200674
+   },
+   "kind": "sensor",
+   "target": "P_tee",
+   "mode": "noise",
+   "size": 8.413467255157007,
+   "size_std": null,
+   "action": "P_tee: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 2440.0,
+   "false_alarm_steps": 0,
+   "delay_s": 141.91047007993257,
+   "statistics_final": {
+    "shift": 9.737672908539771,
+    "spread": 78.03729463761401,
+    "model": 13.902631880857424,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.687538997430238e-14,
+   "seconds": 1.5040218080002887
+  },
+  {
+   "name": "domain_13",
+   "truth": {
+    "kind": "domain",
+    "target": "T_in",
+    "magnitude": 38.32353870923812,
+    "mode": "",
+    "onset_s": 2298.0895299200674
+   },
+   "kind": "domain",
+   "target": "T_in",
+   "mode": "",
+   "size": 38.32353870923812,
+   "size_std": null,
+   "action": "run the reference simulation at T_in = 38.3 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2480.0,
+   "false_alarm_steps": 0,
+   "delay_s": 181.91047007993257,
+   "statistics_final": {
+    "shift": 12.08990489382238,
+    "spread": 1.6056676107372803,
+    "model": 14.195945809023044,
+    "ood": 0.1661769354619061
+   },
+   "newton_max_residual_m": 1.5987211554602254e-14,
+   "seconds": 1.418448735000311
+  },
+  {
+   "name": "normal_14",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 9.630642710715426,
+    "spread": 0.6701046926731853,
+    "model": 8.740135637999833,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.1546319456101628e-14,
+   "seconds": 1.401209296000161
+  },
+  {
+   "name": "process_14",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 11.5293119757206,
+    "mode": "",
+    "onset_s": 2195.460135368364
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 11.509287546136239,
+   "size_std": 0.049139980696239496,
+   "action": "pipe A: extra loss coefficient 11.51 +- 0.10 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2220.0,
+   "false_alarm_steps": 0,
+   "delay_s": 24.539864631636192,
+   "statistics_final": {
+    "shift": 115775.7695910212,
+    "spread": 1.2540806989501476,
+    "model": 150614.7793264886,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.7763568394002505e-14,
+   "seconds": 1.447316710999985
+  },
+  {
+   "name": "sensor_14",
+   "truth": {
+    "kind": "sensor",
+    "target": "T_C",
+    "magnitude": 0.5449677778602603,
+    "mode": "drift",
+    "onset_s": 2195.460135368364
+   },
+   "kind": "sensor",
+   "target": "T_C",
+   "mode": "drift",
+   "size": 0.5556631208199361,
+   "size_std": null,
+   "action": "T_C: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 2320.0,
+   "false_alarm_steps": 0,
+   "delay_s": 124.53986463163619,
+   "statistics_final": {
+    "shift": 1130.730228612526,
+    "spread": 0.2896788965357191,
+    "model": 2223.0287888265507,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.3475822820000758
+  },
+  {
+   "name": "domain_14",
+   "truth": {
+    "kind": "domain",
+    "target": "Q_heat_kW",
+    "magnitude": 1237.8308396400746,
+    "mode": "",
+    "onset_s": 2195.460135368364
+   },
+   "kind": "domain",
+   "target": "Q_heat_kW",
+   "mode": "",
+   "size": 1237.8308396400746,
+   "size_std": null,
+   "action": "run the reference simulation at Q_heat_kW = 1.24e+03 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2350.0,
+   "false_alarm_steps": 0,
+   "delay_s": 154.5398646316362,
+   "statistics_final": {
+    "shift": 4.5528920336313,
+    "spread": 0.6681712090201526,
+    "model": 14.174553663273265,
+    "ood": 0.5630513994001244
+   },
+   "newton_max_residual_m": 1.3322676295501878e-14,
+   "seconds": 1.3892710669997541
+  },
+  {
+   "name": "normal_15",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 12.789792106835947,
+    "spread": 0.43217097517901437,
+    "model": 12.514214917108044,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.3322676295501878e-14,
+   "seconds": 1.3989284640001642
+  },
+  {
+   "name": "process_15",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 9.820686365901386,
+    "mode": "",
+    "onset_s": 1619.9818857117484
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 9.740600657945622,
+   "size_std": 0.05124248398886256,
+   "action": "pipe A: extra loss coefficient 9.74 +- 0.10 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1660.0,
+   "false_alarm_steps": 0,
+   "delay_s": 40.01811428825158,
+   "statistics_final": {
+    "shift": 72988.8093883943,
+    "spread": 0.57389727717347,
+    "model": 102220.31595218877,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.3322676295501878e-14,
+   "seconds": 1.361064683999757
+  },
+  {
+   "name": "sensor_15",
+   "truth": {
+    "kind": "sensor",
+    "target": "P_B",
+    "magnitude": 3.5967816337537553,
+    "mode": "noise",
+    "onset_s": 1619.9818857117484
+   },
+   "kind": "sensor",
+   "target": "P_B",
+   "mode": "noise",
+   "size": 4.0128915646004835,
+   "size_std": null,
+   "action": "P_B: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1860.0,
+   "false_alarm_steps": 0,
+   "delay_s": 240.01811428825158,
+   "statistics_final": {
+    "shift": 39.91759419920749,
+    "spread": 19.623143875091348,
+    "model": 36.85667761739755,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.5415737350003837
+  },
+  {
+   "name": "domain_15",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.21297809408465163,
+    "mode": "",
+    "onset_s": 1619.9818857117484
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.21297809408465163,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.213 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1780.0,
+   "false_alarm_steps": 0,
+   "delay_s": 160.01811428825158,
+   "statistics_final": {
+    "shift": 18.848594267274255,
+    "spread": 0.29155300838050335,
+    "model": 476.67605415260016,
+    "ood": 0.210802932177459
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.437688762000107
+  },
+  {
+   "name": "normal_16",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 18.88167027734967,
+    "spread": 0.0,
+    "model": 18.75125796314329,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4342120009996506
+  },
+  {
+   "name": "process_16",
+   "truth": {
+    "kind": "process",
+    "target": "B",
+    "magnitude": 1.445617823072781,
+    "mode": "",
+    "onset_s": 2296.5259739717326
+   },
+   "kind": "process",
+   "target": "B",
+   "mode": "",
+   "size": 1.4606114337893015,
+   "size_std": 0.06983150363307873,
+   "action": "pipe B: extra loss coefficient 1.46 +- 0.14 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 2470.0,
+   "false_alarm_steps": 0,
+   "delay_s": 173.47402602826742,
+   "statistics_final": {
+    "shift": 470.9661357916968,
+    "spread": 2.414243319629868,
+    "model": 630.0940940388934,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.4223324419999699
+  },
+  {
+   "name": "sensor_16",
+   "truth": {
+    "kind": "sensor",
+    "target": "T_B",
+    "magnitude": 2.170192190681126,
+    "mode": "noise",
+    "onset_s": 2296.5259739717326
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": 1280.0,
+   "false_alarm_steps": 1,
+   "delay_s": 143.47402602826742,
+   "statistics_final": {
+    "shift": 6.178546060308871,
+    "spread": 2.801088860013781,
+    "model": 5.700304173701634,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4912786889999552
+  },
+  {
+   "name": "domain_16",
+   "truth": {
+    "kind": "domain",
+    "target": "T_in",
+    "magnitude": 53.822835002188285,
+    "mode": "",
+    "onset_s": 2296.5259739717326
+   },
+   "kind": "domain",
+   "target": "T_in",
+   "mode": "",
+   "size": 53.822835002188285,
+   "size_std": null,
+   "action": "run the reference simulation at T_in = 53.8 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 2400.0,
+   "false_alarm_steps": 0,
+   "delay_s": 103.47402602826742,
+   "statistics_final": {
+    "shift": 12.230562210601558,
+    "spread": 0.011464503674546433,
+    "model": 65.5046053723315,
+    "ood": 0.9411417501094143
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.5243409709992193
+  },
+  {
+   "name": "normal_17",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 11.28292551575268,
+    "spread": 0.7450023085277668,
+    "model": 20.84156030831708,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4716802840002856
+  },
+  {
+   "name": "process_17",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 6.640345955882859,
+    "mode": "",
+    "onset_s": 923.987594285358
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 6.695882820118947,
+   "size_std": 0.05237829044567561,
+   "action": "pipe A: extra loss coefficient 6.70 +- 0.10 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 960.0,
+   "false_alarm_steps": 0,
+   "delay_s": 36.012405714642,
+   "statistics_final": {
+    "shift": 31613.40842177687,
+    "spread": 1.561857304372119,
+    "model": 47082.611682790404,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.4122096740002235
+  },
+  {
+   "name": "sensor_17",
+   "truth": {
+    "kind": "sensor",
+    "target": "T_A",
+    "magnitude": 2.3964949803444484,
+    "mode": "noise",
+    "onset_s": 923.987594285358
+   },
+   "kind": "sensor",
+   "target": "T_A",
+   "mode": "noise",
+   "size": 2.686338245494002,
+   "size_std": null,
+   "action": "T_A: noise -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1160.0,
+   "false_alarm_steps": 0,
+   "delay_s": 236.012405714642,
+   "statistics_final": {
+    "shift": 2.787694280279069,
+    "spread": 12.656346015004218,
+    "model": 6.0746662162324805,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.3322676295501878e-14,
+   "seconds": 1.5244340110002668
+  },
+  {
+   "name": "domain_17",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.1340049018410913,
+    "mode": "",
+    "onset_s": 923.987594285358
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.13400490184109126,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.134 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1150.0,
+   "false_alarm_steps": 0,
+   "delay_s": 226.012405714642,
+   "statistics_final": {
+    "shift": 7.69471973687416,
+    "spread": 2.282441648358775,
+    "model": 1235.2896701051238,
+    "ood": 0.3323001510137057
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.4636587049999434
+  },
+  {
+   "name": "normal_18",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 4.250837081041604,
+    "spread": 0.15779908336578186,
+    "model": 6.68867437678248,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.5283770859996366
+  },
+  {
+   "name": "process_18",
+   "truth": {
+    "kind": "process",
+    "target": "C",
+    "magnitude": 5.733286051426166,
+    "mode": "",
+    "onset_s": 1416.4649682061877
+   },
+   "kind": "process",
+   "target": "C",
+   "mode": "",
+   "size": 5.763641444737076,
+   "size_std": 0.05898350523256583,
+   "action": "pipe C: extra loss coefficient 5.76 +- 0.12 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1470.0,
+   "false_alarm_steps": 0,
+   "delay_s": 53.53503179381232,
+   "statistics_final": {
+    "shift": 14761.400490999307,
+    "spread": 1.306486783301649,
+    "model": 19214.944904998945,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.4210854715202004e-14,
+   "seconds": 1.3715955030002078
+  },
+  {
+   "name": "sensor_18",
+   "truth": {
+    "kind": "sensor",
+    "target": "T_B",
+    "magnitude": 0.22943229658546616,
+    "mode": "drift",
+    "onset_s": 1416.4649682061877
+   },
+   "kind": "sensor",
+   "target": "T_B",
+   "mode": "drift",
+   "size": 0.22657364055911075,
+   "size_std": null,
+   "action": "T_B: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1600.0,
+   "false_alarm_steps": 0,
+   "delay_s": 183.53503179381232,
+   "statistics_final": {
+    "shift": 192.35287032056252,
+    "spread": 0.539488880082261,
+    "model": 367.1739300071277,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.398716892000266
+  },
+  {
+   "name": "domain_18",
+   "truth": {
+    "kind": "domain",
+    "target": "u_C",
+    "magnitude": 0.30650484733842775,
+    "mode": "",
+    "onset_s": 1416.4649682061877
+   },
+   "kind": "domain",
+   "target": "u_C",
+   "mode": "",
+   "size": 0.30650484733842775,
+   "size_std": null,
+   "action": "run the reference simulation at u_C = 0.307 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1700.0,
+   "false_alarm_steps": 0,
+   "delay_s": 283.5350317938123,
+   "statistics_final": {
+    "shift": 20.00658832774858,
+    "spread": 0.2383245590633467,
+    "model": 15.942063977902592,
+    "ood": 0.06691561947934188
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.461838883999917
+  },
+  {
+   "name": "normal_19",
+   "truth": {
+    "kind": "normal",
+    "target": "",
+    "magnitude": 0.0,
+    "mode": "",
+    "onset_s": 1800.0
+   },
+   "kind": "normal",
+   "target": "",
+   "mode": "",
+   "size": null,
+   "size_std": null,
+   "action": "none: physics, model and domain agree",
+   "first_alarm_s": null,
+   "false_alarm_steps": 0,
+   "delay_s": null,
+   "statistics_final": {
+    "shift": 5.999529198924853,
+    "spread": 0.27812495961120276,
+    "model": 5.7951207643019025,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.4421377979997487
+  },
+  {
+   "name": "process_19",
+   "truth": {
+    "kind": "process",
+    "target": "A",
+    "magnitude": 2.3701017641881186,
+    "mode": "",
+    "onset_s": 1238.8041426259865
+   },
+   "kind": "process",
+   "target": "A",
+   "mode": "",
+   "size": 2.393893656764289,
+   "size_std": 0.04414516562369777,
+   "action": "pipe A: extra loss coefficient 2.39 +- 0.09 (Kalman); inspect it for a partial obstruction",
+   "first_alarm_s": 1320.0,
+   "false_alarm_steps": 0,
+   "delay_s": 81.19585737401349,
+   "statistics_final": {
+    "shift": 6879.875326072039,
+    "spread": 1.3361020542305606,
+    "model": 9771.225710495122,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.2434497875801753e-14,
+   "seconds": 1.4300242049994267
+  },
+  {
+   "name": "sensor_19",
+   "truth": {
+    "kind": "sensor",
+    "target": "T_A",
+    "magnitude": -0.37704525108663395,
+    "mode": "drift",
+    "onset_s": 1238.8041426259865
+   },
+   "kind": "sensor",
+   "target": "T_A",
+   "mode": "drift",
+   "size": -0.37887153220898273,
+   "size_std": null,
+   "action": "T_A: bias -- check / recalibrate it; meanwhile estimate it from the other sensors",
+   "first_alarm_s": 1380.0,
+   "false_alarm_steps": 0,
+   "delay_s": 141.19585737401349,
+   "statistics_final": {
+    "shift": 1918.442391074273,
+    "spread": 0.5666151205253145,
+    "model": 1032.01941804527,
+    "ood": 0.0
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.375200257999495
+  },
+  {
+   "name": "domain_19",
+   "truth": {
+    "kind": "domain",
+    "target": "Q_heat_kW",
+    "magnitude": 1146.166583202165,
+    "mode": "",
+    "onset_s": 1238.8041426259865
+   },
+   "kind": "domain",
+   "target": "Q_heat_kW",
+   "mode": "",
+   "size": 1146.166583202165,
+   "size_std": null,
+   "action": "run the reference simulation at Q_heat_kW = 1.15e+03 and add it to the model; until then trust the physics residuals, not the fast model",
+   "first_alarm_s": 1340.0,
+   "false_alarm_steps": 0,
+   "delay_s": 101.19585737401349,
+   "statistics_final": {
+    "shift": 11.87401299802845,
+    "spread": 1.167454687553506,
+    "model": 11.847415977618674,
+    "ood": 0.4102776386702749
+   },
+   "newton_max_residual_m": 1.0658141036401503e-14,
+   "seconds": 1.3474897599999167
+  }
+ ],
+ "showcase": {
+  "obstruction_B": {
+   "first_alarm_s": 1570.0,
+   "statistics_final": {
+    "shift": 5906.469154380012,
+    "spread": 0.09565137375928212,
+    "model": 6998.426413240316,
+    "ood": 0.0
+   },
+   "thresholds": {
+    "shift": 55.763204979938116,
+    "spread": 5.0387964909971705,
+    "model": 43.1285878272456
+   },
+   "kind": "process",
+   "target": "B",
+   "size": 6.1776839019583,
+   "size_std": 0.07921265510882122,
+   "action": "pipe B: extra loss coefficient 6.18 +- 0.16 (Kalman); inspect it for a partial obstruction"
+  },
+  "drift_Q_B": {
+   "first_alarm_s": 1620.0,
+   "statistics_final": {
+    "shift": 808.4724613220496,
+    "spread": 0.7949955916912856,
+    "model": 1175.4627796060051,
+    "ood": 0.0
+   },
+   "thresholds": {
+    "shift": 55.763204979938116,
+    "spread": 5.0387964909971705,
+    "model": 43.1285878272456
+   },
+   "kind": "sensor",
+   "target": "Q_B",
+   "mode": "drift",
+   "size": 2.2594806972451944,
+   "action": "Q_B: bias -- check / recalibrate it; meanwhile estimate it from the other sensors"
+  },
+  "overspeed": {
+   "first_alarm_s": 1560.0,
+   "statistics_final": {
+    "shift": 6.277095906843476,
+    "spread": 1.909967918572763,
+    "model": 392.9807942435335,
+    "ood": 0.7499999999999997
+   },
+   "thresholds": {
+    "shift": 55.763204979938116,
+    "spread": 5.0387964909971705,
+    "model": 43.1285878272456
+   },
+   "kind": "domain",
+   "target": "n",
+   "size": 1.15,
+   "action": "run the reference simulation at n = 1.15 and add it to the model; until then trust the physics residuals, not the fast model"
+  },
+  "healthy": {
+   "first_alarm_s": null,
+   "statistics_final": {
+    "shift": 5.438715532806453,
+    "spread": 1.4647590980619438,
+    "model": 5.233744155955165,
+    "ood": 0.0
+   },
+   "thresholds": {
+    "shift": 55.763204979938116,
+    "spread": 5.0387964909971705,
+    "model": 43.1285878272456
+   },
+   "kind": "normal",
+   "target": "",
+   "size": null,
+   "action": "none: physics, model and domain agree"
+  }
+ },
+ "request_simulation": {
+  "overspeed": {
+   "u": {
+    "n": 1.15,
+    "u_B": 0.6305186299413824,
+    "u_C": 0.6105339440179846,
+    "T_in": 20.373865148598725,
+    "Q_heat_kW": 620.8358600105324
+   },
+   "reference": [
+    2.9218202639658104,
+    1.6227983208874261,
+    1.0173718841906367,
+    0.9415749664185049,
+    133.9051444979653,
+    61.19468122390229,
+    72.71046327406302,
+    24.376832274027848,
+    24.346842342947724,
+    24.357158010411183
+   ],
+   "z_reference_vs_readings": [
+    0.6965414547422485,
+    1.6740275757030327,
+    -0.6010736614350737,
+    -0.21513522932027032,
+    -0.39168214531013507,
+    1.002189092442712,
+    -1.3342385889131727,
+    0.5814746236018961,
+    1.6659283369413174,
+    -1.0855204272940686
+   ],
+   "max_abs_z_reference": 1.6740275757030327,
+   "old_prediction": [
+    2.903904824105193,
+    1.6165882759274703,
+    1.0210655741781434,
+    0.9469375714994619,
+    134.29184817874983,
+    61.43236156451279,
+    72.85948661423703,
+    24.280688557358623,
+    24.278220476497108,
+    24.27027628045923
+   ],
+   "old_std": [
+    0.00732449391908019,
+    0.0034579568997849253,
+    0.0025803829074121957,
+    0.0035919893968378866,
+    0.18891052478236028,
+    0.10444440300968737,
+    0.11413504633164928,
+    0.03395518221568613,
+    0.03313668181052306,
+    0.03349398475017972
+   ],
+   "new_prediction": [
+    2.9218263944488347,
+    1.622590286462205,
+    1.016983081548859,
+    0.9414109560063711,
+    133.90333372665538,
+    61.19954514760513,
+    72.70378857905024,
+    24.37889758308671,
+    24.34940020204899,
+    24.358971569115877
+   ],
+   "old_error_over_sigma": 3.583087972123522,
+   "new_error_over_sigma": 0.0777605283555527,
+   "envelope_before": {
+    "n": [
+     0.8,
+     1.0
+    ],
+    "u_B": [
+     0.35,
+     1.0
+    ],
+    "u_C": [
+     0.35,
+     1.0
+    ],
+    "T_in": [
+     15.0,
+     35.0
+    ],
+    "Q_heat_kW": [
+     300.0,
+     900.0
+    ]
+   },
+   "envelope_after": {
+    "n": [
+     0.8,
+     1.2
+    ],
+    "u_B": [
+     0.35,
+     1.0
+    ],
+    "u_C": [
+     0.35,
+     1.0
+    ],
+    "T_in": [
+     15.0,
+     35.0
+    ],
+    "Q_heat_kW": [
+     300.0,
+     900.0
+    ]
+   }
+  }
+ },
+ "fast_model": {
+  "holdout_max_abs": {
+   "P_pump": 0.003913811733231132,
+   "P_tee": 0.0018314332995146287,
+   "P_B": 0.0012065744470657336,
+   "P_C": 0.000852347042606949,
+   "Q_A": 0.08401355988394243,
+   "Q_B": 0.052604669242434454,
+   "Q_C": 0.03140889064150798,
+   "T_A": 0.011287068106817344,
+   "T_B": 0.014392831830136288,
+   "T_C": 0.011673287640135754
+  },
+  "holdout_max_over_sigma": 0.7827623466462263,
+  "holdout_median_over_sigma": 0.027813979167881087,
+  "coverage_2std": 0.9,
+  "n_train": 120,
+  "n_test": 40
+ },
+ "evidence": [
+  {
+   "step": 0,
+   "tool": "read_mission",
+   "args": {
+    "text": "Acompanhe a linha de \u00e1gua quente (bomba, aquecedor, cotovelo, jun\u00e7\u00e3o em T, ramais B e C) com o g\u00eameo digital. Diga quando a previs\u00e3o deixar de ser confi\u00e1vel e por qu\u00ea: o processo mudou, um sensor est\u00e1 errado ou o modelo saiu do dom\u00ednio. Mostre a evid\u00eancia, pe\u00e7a nova simula\u00e7\u00e3o quando precisar e me\u00e7a quantas vezes voc\u00ea acerta a causa em casos controlados."
+   },
+   "why": "what to watch and what to answer",
+   "summary": {
+    "n_sensors": 10,
+    "n_inputs": 5,
+    "hypotheses": "normal / process / sensor / domain"
+   },
+   "seconds": 0.0,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 1,
+   "tool": "build_twin",
+   "args": {
+    "n_train": 120,
+    "n_test": 40
+   },
+   "why": "a fast model, measured before it is trusted",
+   "summary": {
+    "holdout_max_over_sigma": 0.7827623466462263,
+    "holdout_median_over_sigma": 0.027813979167881087,
+    "coverage_2std": 0.9,
+    "n_train": 120
+   },
+   "seconds": 3.202,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 2,
+   "tool": "calibrate",
+   "args": {
+    "n_runs": 12
+   },
+   "why": "alarm thresholds from healthy operation, not guessed",
+   "summary": {
+    "n_runs": 12,
+    "threshold_shift": 55.763204979938116,
+    "threshold_spread": 5.0387964909971705,
+    "threshold_model": 43.1285878272456
+   },
+   "seconds": 18.157,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 3,
+   "tool": "monitor",
+   "args": {},
+   "why": "three events and a healthy hour",
+   "summary": {
+    "correct": 4,
+    "n": 4
+   },
+   "seconds": 5.753,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 4,
+   "tool": "request_simulation",
+   "args": {
+    "n_new": 40
+   },
+   "why": "where the model is out of its domain, ask the physics",
+   "summary": {
+    "n": 1,
+    "physics_consistent": true,
+    "old_error_over_sigma": 3.583087972123522,
+    "new_error_over_sigma": 0.0777605283555527,
+    "after": "normal"
+   },
+   "seconds": 7.144,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 5,
+   "tool": "benchmark",
+   "args": {
+    "n_per_kind": 20,
+    "workers": 4
+   },
+   "why": "how often the cause is right",
+   "summary": {
+    "accuracy": 0.9625,
+    "n_cases": 80,
+    "cases_with_false_alarm": 1
+   },
+   "seconds": 50.152,
+   "ok": true,
+   "error": ""
+  },
+  {
+   "step": 6,
+   "tool": "trust",
+   "args": {},
+   "why": "can the twin be trusted, and where",
+   "summary": {
+    "decision": "APPROVED"
+   },
+   "seconds": 0.007,
+   "ok": true,
+   "error": ""
+  }
+ ],
+ "plan": {
+  "mission": "Acompanhe a linha de \u00e1gua quente (bomba, aquecedor, cotovelo, jun\u00e7\u00e3o em T, ramais B e C) com o g\u00eameo digital. Diga quando a previs\u00e3o deixar de ser confi\u00e1vel e por qu\u00ea: o processo mudou, um sensor est\u00e1 errado ou o modelo saiu do dom\u00ednio. Mostre a evid\u00eancia, pe\u00e7a nova simula\u00e7\u00e3o quando precisar e me\u00e7a quantas vezes voc\u00ea acerta a causa em casos controlados.",
+  "planner": "template",
+  "notes": [],
+  "steps": [
+   {
+    "tool": "read_mission",
+    "args": {
+     "text": "Acompanhe a linha de \u00e1gua quente (bomba, aquecedor, cotovelo, jun\u00e7\u00e3o em T, ramais B e C) com o g\u00eameo digital. Diga quando a previs\u00e3o deixar de ser confi\u00e1vel e por qu\u00ea: o processo mudou, um sensor est\u00e1 errado ou o modelo saiu do dom\u00ednio. Mostre a evid\u00eancia, pe\u00e7a nova simula\u00e7\u00e3o quando precisar e me\u00e7a quantas vezes voc\u00ea acerta a causa em casos controlados."
+    },
+    "why": "what to watch and what to answer"
+   },
+   {
+    "tool": "build_twin",
+    "args": {
+     "n_train": 120,
+     "n_test": 40
+    },
+    "why": "a fast model, measured before it is trusted"
+   },
+   {
+    "tool": "calibrate",
+    "args": {
+     "n_runs": 12
+    },
+    "why": "alarm thresholds from healthy operation, not guessed"
+   },
+   {
+    "tool": "monitor",
+    "args": {},
+    "why": "three events and a healthy hour"
+   },
+   {
+    "tool": "request_simulation",
+    "args": {
+     "n_new": 40
+    },
+    "why": "where the model is out of its domain, ask the physics"
+   },
+   {
+    "tool": "benchmark",
+    "args": {
+     "n_per_kind": 20,
+     "workers": 4
+    },
+    "why": "how often the cause is right"
+   },
+   {
+    "tool": "trust",
+    "args": {},
+    "why": "can the twin be trusted, and where"
+   },
+   {
+    "tool": "deliver",
+    "args": {
+     "out_dir": "/home/user/PINNeAPPle/examples/autolab_digital_twin/_out",
+     "render": true
+    },
+    "why": "evidence a person can check"
+   }
+  ]
+ },
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "cpus": 4,
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "scikit-learn": "1.9.1",
+  "blender": "5.2.3 LTS"
+ },
+ "skipped": [],
+ "render_seconds": 141.6,
+ "files": {
+  "control_room_obstruction_B": "figures/control_room_obstruction_B.png",
+  "control_room_drift_Q_B": "figures/control_room_drift_Q_B.png",
+  "control_room_overspeed": "figures/control_room_overspeed.png",
+  "control_room_healthy": "figures/control_room_healthy.png",
+  "confusion": "figures/confusion_matrix.png",
+  "request_simulation": "figures/request_simulation.png",
+  "control_room_after_new_simulation": "figures/control_room_after_new_simulation.png",
+  "impact_gif_2d": "figures/impact_overspeed.gif",
+  "viewer": "3d/twin_viewer.html",
+  "glb": "3d/loop_twin.glb",
+  "usda": "3d/loop_twin.usda",
+  "impact_gif_3d": "3d/obstruction/obstruction.gif",
+  "impact_mp4_3d": "3d/obstruction/obstruction.mp4",
+  "still_png": "3d/obstruction_last_frame.png"
+ }
+}

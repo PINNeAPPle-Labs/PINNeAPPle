@@ -1,0 +1,378 @@
+{
+ "preset": "steam_pipe_insulation",
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "perda 87.2 W/m (nu: 2402 W/m, 96.4 % evitado), superfície 17.0 °C",
+   "espessura econômica 100 mm; menor segura (<= 60 °C) 20 mm; dada 60 mm"
+  ]
+ },
+ "outputs": {
+  "q": 87.15636198690117,
+  "t_surface": 17.048783137066117,
+  "h_surface": 13.65181610762672,
+  "regime": "forced",
+  "re": 58820.64564833374,
+  "q_bare": 2402.4939215349427,
+  "saving": 0.9637225463067073,
+  "annual_cost": 50.787633945908695,
+  "t_economic": 0.1,
+  "t_safe": 0.02,
+  "q_fd": 87.15637611883044,
+  "fd_balance": 3.4713363537987196e-13
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "Kirchhoff closed form = finite volumes with k(T)",
+    "status": "supports",
+    "value": 1.6214455193168763e-07,
+    "limit": 0.0001,
+    "source": "radial_fd (Picard, 400 volumes)",
+    "reason": ""
+   },
+   {
+    "name": "FV energy balance: inner flow = outer flow",
+    "status": "supports",
+    "value": 3.4713363537987196e-13,
+    "limit": 1e-08,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "surface between ambient and fluid",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "Churchill-Bernstein range Re Pr > 0.2",
+    "status": "supports",
+    "value": 58820.64564833374,
+    "limit": null,
+    "source": "Incropera eq. 7.54",
+    "reason": ""
+   },
+   {
+    "name": "insulation thicker than the critical radius (adds resistance)",
+    "status": "supports",
+    "value": 87.15636198690117,
+    "limit": 2402.4939215349427,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "steam_pipe_insulation",
+  "references": [
+   {
+    "case": "perda com 30 mm: Kirchhoff vs volumes finitos com k(T)",
+    "output": "q",
+    "unit": "W/m",
+    "computed": 148.46486995014587,
+    "reference": 148.4648773078601,
+    "rel_error": 4.955861856334466e-08,
+    "tol": 0.0001,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "radial_fd: equação de calor radial com k(T) resolvida numericamente",
+    "params": {}
+   },
+   {
+    "case": "perda com 60 mm: Kirchhoff vs volumes finitos com k(T)",
+    "output": "q",
+    "unit": "W/m",
+    "computed": 87.15636198690117,
+    "reference": 87.15637611883044,
+    "rel_error": 1.621445256408362e-07,
+    "tol": 0.0001,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "radial_fd: equação de calor radial com k(T) resolvida numericamente",
+    "params": {}
+   },
+   {
+    "case": "perda com 120 mm: Kirchhoff vs volumes finitos com k(T)",
+    "output": "q",
+    "unit": "W/m",
+    "computed": 53.88511793633764,
+    "reference": 53.88514466389179,
+    "rel_error": 4.960096946394748e-07,
+    "tol": 0.0001,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "radial_fd: equação de calor radial com k(T) resolvida numericamente",
+    "params": {}
+   },
+   {
+    "case": "k constante: resistências em série (Incropera eq. 3.27)",
+    "output": "q",
+    "unit": "W/m",
+    "computed": 85.61095406918896,
+    "reference": 85.61095406918898,
+    "rel_error": 1.6599341602614414e-16,
+    "tol": 1e-06,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, eq. 3.27",
+    "params": {}
+   },
+   {
+    "case": "h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert",
+    "output": "h_cv",
+    "unit": "W/m2 K",
+    "computed": 13.399478168165762,
+    "reference": 14.286414474815093,
+    "rel_error": 0.06208249860123212,
+    "tol": 0.15,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "Hilpert (1933) com as constantes da Tabela 7.2 de Incropera (incerteza ~±20 %)",
+    "params": {}
+   },
+   {
+    "case": "h natural (sem vento): Churchill-Chu vs McAdams 1,32 (dT/D)^0,25",
+    "output": "h_cv",
+    "unit": "W/m2 K",
+    "computed": 4.551380738186164,
+    "reference": 4.215927018970073,
+    "rel_error": 0.07956819881052872,
+    "tol": 0.15,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "McAdams, Heat Transmission (1954): cilindro horizontal laminar em ar",
+    "params": {}
+   }
+  ],
+  "convergence": {
+   "parameter": "volumes radiais",
+   "values": [
+    25,
+    50,
+    100,
+    200
+   ],
+   "q": [
+    87.15997923472703,
+    87.15726640010428,
+    87.15658809653209,
+    87.15641851472309
+   ],
+   "rel_change_last": 1.9457179619596715e-06,
+   "pass": true
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/insulation.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 0.0732124199998907,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:17:20Z"
+ },
+ "inversion": {
+  "description": "Fator de condutividade efetiva do isolamento envelhecido/úmido a partir de termografia da superfície (5 leituras, ventos de 0,5 a 8 m/s). Medição sintética com fator real 1.6 e ruído de 0.5 K.",
+  "parameter": "k_eff / k_novo",
+  "true": 1.6,
+  "recovered": 1.6050597430764229,
+  "ci95": [
+   1.5484372792961427,
+   1.661682206856703
+  ],
+  "rel_error": 0.0031623394227642265,
+  "true_inside_ci95": true,
+  "noise": "0.5 K",
+  "how": "mínimos quadrados (Brent) sobre o modelo de perda, IC por sensibilidade"
+ },
+ "optimization": {
+  "objective": "custo anual mínimo por metro (energia + isolamento anualizado), superfície <= limite",
+  "economic_thickness_m": 0.1,
+  "economic_annual_cost": 45.82248908920926,
+  "recommended_thickness_m": 0.1,
+  "verified_t_surface": 14.190282565014513,
+  "verified_annual_cost": 45.82248908920926,
+  "base_annual_cost": 50.787633945908695,
+  "bare_annual_energy_cost": 678.4926404044119,
+  "payback_years_vs_bare": 0.18765872604162695
+ },
+ "variants": {
+  "rows": {
+   "40 mm": {
+    "params": {
+     "thickness": 0.04
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 118.49423252026222,
+     "t_surface": 20.540508456338657,
+     "h_surface": 14.411495787985402,
+     "re": 50129.87525361417,
+     "q_bare": 2402.4939215349427,
+     "saving": 0.9506786546021491,
+     "annual_cost": 62.02194010764679,
+     "t_economic": 0.1,
+     "t_safe": 0.02,
+     "q_fd": 118.49424221207416,
+     "fd_balance": 2.6959960925864224e-13
+    }
+   },
+   "60 mm (base)": {
+    "params": {},
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 87.15636198690117,
+     "t_surface": 17.048783137066117,
+     "h_surface": 13.65181610762672,
+     "re": 58820.64564833374,
+     "q_bare": 2402.4939215349427,
+     "saving": 0.9637225463067073,
+     "annual_cost": 50.787633945908695,
+     "t_economic": 0.1,
+     "t_safe": 0.02,
+     "q_fd": 87.15637611883044,
+     "fd_balance": 3.4713363537987196e-13
+    }
+   },
+   "100 mm": {
+    "params": {
+     "thickness": 0.1
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 60.76341071961418,
+     "t_surface": 14.190282565014513,
+     "h_surface": 12.532774970573913,
+     "re": 75798.43778520693,
+     "q_bare": 2402.4939215349427,
+     "saving": 0.9747081937752448,
+     "annual_cost": 45.82248908920926,
+     "t_economic": 0.1,
+     "t_safe": 0.02,
+     "q_fd": 60.76343329494307,
+     "fd_balance": 6.852444316869617e-14
+    }
+   },
+   "60 mm, chapa pintada eps 0,9": {
+    "params": {
+     "eps": 0.9
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 87.90357956282445,
+     "t_surface": 15.347261140841972,
+     "h_surface": 18.150168092165917,
+     "re": 59125.107872021144,
+     "q_bare": 2402.4939215349427,
+     "saving": 0.9634115288388896,
+     "annual_cost": 51.12727829860109,
+     "t_economic": 0.1,
+     "t_safe": 0.02,
+     "q_fd": 87.90359381594692,
+     "fd_balance": 4.0011862875331383e-13
+    }
+   },
+   "60 mm, abrigado (sem vento)": {
+    "params": {
+     "wind": 0.0
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 81.13263709512306,
+     "t_surface": 30.49496506652877,
+     "h_surface": 4.37072915317286,
+     "re": 0.0,
+     "q_bare": 1609.3665136077125,
+     "saving": 0.9495872217986888,
+     "annual_cost": 48.04957717691864,
+     "t_economic": 0.1,
+     "t_safe": 0.02,
+     "q_fd": 81.13265025035675,
+     "fd_balance": 3.960272764654381e-13
+    }
+   },
+   "60 mm, vapor 20 bar (212 °C)": {
+    "params": {
+     "t_fluid": 212.4
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 107.529873775278,
+     "t_surface": 18.694216436174806,
+     "h_surface": 13.655392053810461,
+     "re": 58529.18718148482,
+     "q_bare": 3035.2936501859544,
+     "saving": 0.9645734857420829,
+     "annual_cost": 60.04832112244362,
+     "t_economic": 0.1,
+     "t_safe": 0.02,
+     "q_fd": 107.52989121073243,
+     "fd_balance": 2.045794229998911e-13
+    }
+   }
+  },
+  "compared": [
+   "q",
+   "t_surface",
+   "annual_cost"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/steam_pipe_insulation_40_mm_3d_temperature.png",
+   "results/3d/variants/steam_pipe_insulation_60_mm_base_3d_temperature.png",
+   "results/3d/variants/steam_pipe_insulation_100_mm_3d_temperature.png",
+   "results/3d/variants/steam_pipe_insulation_60_mm_chapa_pintada_eps_0_9_3d_temperature.png",
+   "results/3d/variants/steam_pipe_insulation_60_mm_abrigado_sem_vento_3d_temperature.png",
+   "results/3d/variants/steam_pipe_insulation_60_mm_vapor_20_bar_212_c_3d_temperature.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/steam_pipe_insulation_3d_temperature.png"
+ ],
+ "wall_time_total_s": 26.944010912000067,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -32,6 +32,17 @@
   "stdout": "pinneapple_catalog.methods.method_status() -> 'Dict[str, Dict]'\n``{id: {\"status\": ..., \"reference_tests\": [...], \"other_tests\": [...]}}`` from the last scan.",
   "timed_out": false
  },
+ "api:pinneapple-design-thermal-board-cooling-run-mission": {
+  "code_hash": "ed8ec6ee86ff7f4d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 6.95,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "pinneapple_design.thermal.board_cooling.run_mission(text: 'str', *, out_dir: 'str' = 'out', planner: 'str' = 'template', n: 'int' = 64, render: 'bool' = True, workers: 'int' = 4, llm: 'Callable[[str, str], str] | None' = None, provider: 'str' = 'anthropic', log: 'Callable[[str], None] | None' = <built-in function print>) -> 'Run'\nPlan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the",
+  "timed_out": false
+ },
  "api:pinneapple-flow-plan": {
   "code_hash": "7cb9921117ba5c3f",
   "figures": [],
@@ -140,6 +151,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "pp.PhysicalProblem.from_preset(name: 'str', **overrides: 'Any') -> \"'PhysicalProblem'\"\nFrom a named preset (``pp.list_presets()``); keyword overrides go to the preset, e.g. ``nu=0.01``.",
+  "timed_out": false
+ },
+ "api:pp-presets-names": {
+  "code_hash": "40da71791426ddda",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 4.83,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "pp.presets.names() -> 'list[str]'\nNames of every industrial preset (built in and registered), sorted.",
   "timed_out": false
  },
  "api:pp-solve": {
@@ -703,6 +725,61 @@
   "stdout": "00_list_datasets.py — List and inspect all available PINNeAPPle datasets | fluid dynamics | not curated",
   "timed_out": false
  },
+ "example:examples/autolab": {
+  "code_hash": "3f1cfb0dac467747",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.11,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Autonomous Physics Lab | design and geometry | not curated\nbaseline_tj_soc 323.2144491142498 °C\nverified_tj_soc_pessimistic 88.52504297676208 °C\nholdout_tj_max_abs_error 2.2030649404285896 K\nholdout_map_rmse 0.2031511632505125 K\nreference_solves 224.0 solves",
+  "timed_out": false
+ },
+ "example:examples/autolab_aero": {
+  "code_hash": "dc2d0c36e9e9dec7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.99,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+  "timed_out": false
+ },
+ "example:examples/autolab_aero_agent": {
+  "code_hash": "3f0f030410fd8957",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.89,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
+  "timed_out": false
+ },
+ "example:examples/autolab_digital_twin": {
+  "code_hash": "b8c6879d1ad7fbc7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.22,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Digital twin that knows when it is wrong | system dynamics | not curated\ncause_accuracy 0.9625 fraction\ncases_with_false_alarm 1.0 cases\nfast_model_holdout_max 0.7827623466462263 sensor sigmas",
+  "timed_out": false
+ },
+ "example:examples/autolab_rover": {
+  "code_hash": "91af0919ac3497cb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.95,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Autonomous Physics Lab: the rover that learns the planet | vehicle dynamics | not curated\nroute_A_distance 12.925884 m\nroute_A_energy 2957.959341 J\nroute_A_max_slip 0.420399 -\nroute_A_max_sinkage 319.367895 mm\nroute_A_learned_risk 1.0 -",
+  "timed_out": false
+ },
  "example:examples/benchmark": {
   "code_hash": "a13b003b54d2ca30",
   "figures": [],
@@ -967,6 +1044,160 @@
   "stdout": "pinneapple_researcher examples | validation and benchmarks | not curated",
   "timed_out": false
  },
+ "example:examples/industrial_presets": {
+  "code_hash": "275330fba17d1c96",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.76,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Presets industriais | engineering | not curated",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/airfoil_section_re4e6": {
+  "code_hash": "cfaf27e490f8e51e",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Perfil de asa / pá a Re 4e6: sustentação, arrasto e momento (surrogate verificado de RANS) | Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica | not curated\nrel_error[Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl] 0.003231396365459536 -\nrel_error[Cd vs naca_reference: erro = erro relativo médio] 0.0061563188229423905 -\nrel_error[Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl] 0.010092481383557984 -\nrel_error[Cd vs xfoil_naca2412: erro = erro relativo médio] 0.02812720929821659 -\nrel_error[ângulo de sustentação nula do NACA 2412] 0.03635566045042856 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/eddy_current_skin_inspection": {
+  "code_hash": "d8c85855f4abdcf8",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Inspeção por correntes parasitas de chapa de alumínio aeronáutico: impedância e afinamento | Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás) | not curated\nrel_error[dZ da sonda: Dodd & Deeds vs FDM axissimétrico da lib (h = 0,1 mm)] 0.004556780826434239 -\nrel_error[placa de 10 delta = semi-espaço] 3.5127381771509463e-10 -\nrel_error[indutância da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)] 0.007164850368795491 -\ninversion_rel_err 0.0008745368406067657 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/ipm_traction_motor": {
+  "code_hash": "fc4db2be66323b2d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.03,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Motor de tração de ímãs internos (geometria do Toyota Prius 2004): torque, MTPA e tensão | Eletromagnetismo / mobilidade elétrica | not curated\nrel_error[torque máximo da curva T(ângulo) a 250 A] 0.03511391427243841 -\nrel_error[curva T(ângulo) a 250 A, 13 pontos: erro médio / torque máximo] 0.03376705963443254 -\nrel_error[ângulo de torque máximo (Phi0)] 0.0 -\nrel_error[torque: tensor de Maxwell vs co-energia (250 A, 50°)] 0.009883900864553579 -\nsurrogate_holdout_max_rel_err 0.058393295555846436 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/plate_fin_heatsink_forced": {
+  "code_hash": "5c02f81d956057e8",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Dissipador de aletas planas com ventilação forçada (módulo de potência) | Térmica / eletrônica de potência | not curated\nrel_error[R convecção das aletas a 1 m/s vs correlação independente] 0.05525099931556328 -\nrel_error[R convecção das aletas a 3 m/s vs correlação independente] 0.07461974656182968 -\nrel_error[R convecção das aletas a 6 m/s vs correlação independente] 0.07347242370718365 -\nrel_error[limite plenamente desenvolvido Nu = Re* Pr / 2 (Re* pequeno)] 0.0009964914814574696 -\nrel_error[espalhamento + base: FVM 3-D vs teoria] 0.023678552647287184 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/power_pcb_junction": {
+  "code_hash": "53da7db601d6cde2",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.67,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Temperatura de junção numa placa de potência (conversor DC-DC 4 camadas) | Térmica / eletrônica | not curated\nrel_error[theta_JA TO-263 D2PAK na placa JEDEC 2s2p] 0.0075139540549168755 -\nrel_error[theta_JA QFN-32 5x5 na placa JEDEC 2s2p] 0.005776877924571159 -\nrel_error[theta_JA SOIC-8 na placa JEDEC 2s2p] 0.0009251485243855958 -\nsurrogate_holdout_max_rel_err 0.021588065186892432 -\ninversion_rel_err 0.01197085295079133 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/pressure_vessel_asme": {
+  "code_hash": "48a3ab3fd7941dc7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1 | Estrutural / caldeiraria e processo | not curated\nrel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé] 0.0038346666983239304 -\nrel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)] 8.384422033447177e-07 -\nrel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé] 0.000866198770668044 -\nrel_error[caso espesso (t/R 0,26): UG-27 vs Lamé] 0.00962774901909099 -\ninversion_rel_err 0.002553325026595152 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/pump_npsh_cavitation": {
+  "code_hash": "8d02c774cfec0dd2",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.78,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação | Fluidos / bombeamento (saneamento, processo, utilidades) | not curated\nrel_error[pressão de saturação a 300 K] 8.519538172126368e-10 -\nrel_error[pressão de saturação a 500 K] 1.4122479672402738e-09 -\nrel_error[pressão de saturação a 600 K] 1.7516852474095862e-09 -\nrel_error[pressão atmosférica a 1000 m] 4.4030956171667256e-07 -\nrel_error[pressão atmosférica a 2000 m] 3.226243583987093e-08 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/shell_tube_cooler": {
+  "code_hash": "bf54384818e18b33",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.81,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos) | Térmica / processo e energia | not curated\nrel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto] 3.277045816399516e-14 -\nrel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto] 4.189200564160273e-14 -\nrel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto] 9.398982902295129e-15 -\nrel_error[Cr -> 0: epsilon = 1 - exp(-NTU)] 0.0 -\nrel_error[h tubos: Gnielinski vs Dittus-Boelter] 0.09283884594855282 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/spm_servo_motor": {
+  "code_hash": "f8e193cfffbbbae9",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.19,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Motor síncrono de ímãs superficiais (servo 4 polos, 24 ranhuras): torque, ondulação e cogging | Eletromagnetismo / máquinas elétricas | not curated\nrel_error[torque: tensor de Maxwell vs co-energia] 0.00015335654237919993 -\nrel_error[torque - cogging vs i.e/w (balanço de potência)] 0.020903837001168817 -\nrel_error[kt (FEM) vs 3/2 ke1 (fundamental da FEM, máquina senoidal)] 0.028223139241408575 -\nsurrogate_holdout_max_rel_err 0.010298457639493648 -\ninversion_rel_err 0.000972648928707076 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/steam_pipe_insulation": {
+  "code_hash": "b0b0f52ff9ad8365",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.74,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica | Processo e energia / utilidades | not curated\nrel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)] 4.955861856334466e-08 -\nrel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)] 1.621445256408362e-07 -\nrel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)] 4.960096946394748e-07 -\nrel_error[k constante: resistências em série (Incropera eq. 3.27)] 1.6599341602614414e-16 -\nrel_error[h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert] 0.06208249860123212 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/steel_footbridge_pedestrian": {
+  "code_hash": "e3f441027f200aa6",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.73,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Passarela de aço de 30 m: resistência, flecha, flambagem lateral e vibração de pedestres | Estrutural / construção | not curated\nrel_error[1ª frequência: fórmula fechada vs FE de viga] 2.7013228939117467e-08 -\nrel_error[flecha da multidão: 5qL^4/384EI vs FE de viga] 3.2017672950762496e-13 -\nrel_error[2ª frequência = 4 x f1 (Euler-Bernoulli biapoiada)] 4.2261755626976134e-07 -\nrel_error[aceleração em ressonância exata (vão 24 m, f1 na faixa de passo)] 1.981476239722582e-16 -\nsurrogate_holdout_max_rel_err 0.07439044276002937 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/water_distribution_network": {
+  "code_hash": "89d5ec2af555f898",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.78,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Rede de distribuição de água: pressões, vazões e dimensionamento de menor custo | Fluidos / saneamento | not curated\nrel_error[pressão no nó 3, Hazen-Williams] 1.0963156043483382e-05 -\nrel_error[pressão no nó 6, Hazen-Williams] 8.604211536602683e-06 -\nrel_error[pressão no nó 3, Darcy-Weisbach] 0.004225301457298413 -\nrel_error[pressão no nó 6, Darcy-Weisbach] 0.002865155312762607 -\nrel_error[custo da solução publicada] 0.0 -",
+  "timed_out": false
+ },
+ "example:examples/industrial_presets/water_hammer_valve_closure": {
+  "code_hash": "b300bfe0552abc16",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Golpe de aríete no fechamento de válvula de adutora de aço | Fluidos / saneamento e óleo e gás | not curated\nrel_error[fechamento instantâneo sem atrito = Joukowsky] 1.533322523346514e-16 -\nrel_error[fechamento lento (60 s = 30·2L/a) = teoria da coluna rígida] 0.00012367293250402893 -\nsurrogate_holdout_max_rel_err 0.18029097004132608 -\ninversion_rel_err 1.45877476439288e-05 -",
+  "timed_out": false
+ },
  "example:examples/inspection": {
   "code_hash": "1f2725b2e2427b47",
   "figures": [],
@@ -1132,6 +1363,39 @@
   "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
   "timed_out": false
  },
+ "example:examples/nvidia/04_worldmodel_physics_video": {
+  "code_hash": "c343ca471ede6220",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.74,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "World model on physics-labelled video, judged by physics checks | physical AI | not curated\nrollout_pass_rate 0.0 \nrollout_pixel_mae 0.020704112015664577",
+  "timed_out": false
+ },
+ "example:examples/nvidia/05_brep_plate_with_hole": {
+  "code_hash": "b948a3860baab4a0",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.89,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks | structural mechanics | not curated\nkt_net_richardson 2.3202025186774162 \nkt_net_finest 2.275980554438024 \nbrep_volume 43429.203675653 mm^3",
+  "timed_out": false
+ },
+ "example:examples/nvidia/06_model_services_zoo": {
+  "code_hash": "14bf80c381610546",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Zoo surrogates as NIM-compatible services with a trust report per answer | physics AI | not curated\nlatency_median_ms 35.379128999920795 ms\ncl_naca2412_4deg 0.6615029102991399",
+  "timed_out": false
+ },
  "example:examples/nvidia/07_omniverse_physicsnemo_coldplate": {
   "code_hash": "6c1a74ed563c5c29",
   "figures": [],
@@ -1154,6 +1418,39 @@
   "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
   "timed_out": false
  },
+ "example:examples/nvidia/09_worldmodel_physicsnemo_state": {
+  "code_hash": "cceeb3b4b24b2539",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.84,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "State-space world model: CNN encoder, PhysicsNeMo dynamics, video physics checks | physical AI | not curated\nrollout_pass_rate 0.9 \nrollout_g_median 9.860008494247328 m/s^2",
+  "timed_out": false
+ },
+ "example:examples/nvidia/10_brep_physicsnemo_heatsink": {
+  "code_hash": "1ab4a238d5c929aa",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.85,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification | heat transfer | not curated\nproposal_mass 195.09650445308407 g\nproposal_t_source 74.20348259023478 C",
+  "timed_out": false
+ },
+ "example:examples/nvidia/11_model_services_physicsnemo_operator": {
+  "code_hash": "e8e585ebbf2d5baa",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "PhysicsNeMo FNO served with per-answer physics checks and solver fallback | heat transfer | not curated\nsurrogate_rel_l2_in-distribution 0.01893316941816208 \nsurrogate_rel_l2_higher 0.25346193616601387 \nsurrogate_rel_l2_finer 0.019041764851127442",
+  "timed_out": false
+ },
  "example:examples/nvidia/12_omniverse_robotsim_arm": {
   "code_hash": "99b67289e7218c39",
   "figures": [],
@@ -1163,6 +1460,72 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
+  "timed_out": false
+ },
+ "example:examples/nvidia/13_omniverse_worldmodel_inspection": {
+  "code_hash": "24640eefa28db282",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.77,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Synthetic thermal-inspection data as USD scene variations, with a physics label check | physical AI | not curated\nwithin_4px_all_samples 0.2 \nwithin_4px_accepted_samples 0.26 \nwithin_4px_brightest_pixel 0.44",
+  "timed_out": false
+ },
+ "example:examples/nvidia/14_brep_omniverse_bracket": {
+  "code_hash": "b42ed8f06b195d4c",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.84,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness | geometry | not curated\nbracket_mass 105.37090558663354 g\nchord_error_max 7.060322879633735 um",
+  "timed_out": false
+ },
+ "example:examples/nvidia/15_model_services_brep_bracket": {
+  "code_hash": "17b57b9c8721d115",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.93,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Request to exact bracket: model service, USD BRep, PINNeAPPle sizing and verification | structural mechanics | not curated\nthickness_mm 10.0 mm\nbracket_mass 369.9879538393715 g",
+  "timed_out": false
+ },
+ "example:examples/nvidia/16_omniverse_physicsnemo_brep_heatsink": {
+  "code_hash": "ea4511928dbf7efb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.78,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle | heat transfer | not curated\naccepted_mass 195.09650445308407 g\naccepted_t_source 74.20348259023478 C",
+  "timed_out": false
+ },
+ "example:examples/nvidia/17_omniverse_robotsim_worldmodel_perception": {
+  "code_hash": "eec2510014e55f95",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.67,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Robot perception from synthetic camera data: Newton motions, USD timelines, checked joint-angle CNN | robotics | not curated\nangle_rms_visible 0.2288505947426688 rad",
+  "timed_out": false
+ },
+ "example:examples/nvidia/18_all_stacks_heatsink_cell": {
+  "code_hash": "4467b4aecc860ef0",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.86,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Heat-sink work cell: B-rep design, PhysicsNeMo surrogate served as a model service, Newton robot move, synthetic camera, USD scene | engineering design | not curated\npart_mass 0.20063699999999995 kg\nmove_time 0.5 s",
   "timed_out": false
  },
  "example:examples/openfoam_campaign": {
@@ -5092,6 +5455,39 @@
   "stdout": "str\n''",
   "timed_out": false
  },
+ "node:autolab.aerodynamicist": {
+  "code_hash": "cca02ed6e82bcd6b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 6.37,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist (race-car CFD lab) -> pinneapple_autolab.agent.run_agent (pinneapple_autolab.domains.racecar) + pinneapple_autolab.dashboard.build_dashboard\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'source': 'recorded', 'mission': '', 'budget': 20, 'procs': 4}",
+  "timed_out": false
+ },
+ "node:autolab.board_cooling": {
+  "code_hash": "60a3ee7873e3261f",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 9.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Self-optimizing engineer (board cooling) -> pinneapple_design.thermal.board_cooling.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n': 64, 'planner': 'template', 'render': False, 'workers': 4}",
+  "timed_out": false
+ },
+ "node:autolab.pipe_twin": {
+  "code_hash": "91131ee998dce031",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.62,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Digital twin that knows when it is wrong (pipe loop) -> pinneapple_systems.digital_twin.pipe_loop.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n_per_kind': 20, 'planner': 'template', 'render': False, 'workers': 4}",
+  "timed_out": false
+ },
  "node:benchmark.arena": {
   "code_hash": "052bc2cf35d19967",
   "figures": [],
@@ -5422,6 +5818,17 @@
   "stdout": "Parametric POD -> pinneapple_flow.wrappers:parametric_pod pinneapple_neural.architectures.rom\ninputs: [('data', 'dataset')]\noutputs: [('result', 'metrics')]\ndefaults: {'r': 16, 'regressor': 'rbf', 'test_fraction': 0.2, 'seed': 0}",
   "timed_out": false
  },
+ "node:lib.services.infer": {
+  "code_hash": "6e46e4e3c1ef610b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.62,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Ask a PINNeAPPle model service -> pinneapple_tools.model_services.registry:infer\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'model': None, 'inputs_json': None}",
+  "timed_out": false
+ },
  "node:lib.solve.preset": {
   "code_hash": "28f0d28da8ac7a85",
   "figures": [],
@@ -5532,6 +5939,39 @@
   "stdout": "Sobol indices (any surrogate) -> pinneapple_analysis.sensitivity:sobol_indices\ninputs: [('model', 'model')]\noutputs: [('result', 'metrics')]\ndefaults: {'n': 1024, 'second_order': False, 'n_boot': 200, 'level': 0.95, 'seed': 0}",
   "timed_out": false
  },
+ "node:lib.worldmodel.arm_camera": {
+  "code_hash": "b86b6007198f3deb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.51,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Labelled robot camera sample (USD) -> pinneapple_worldmodel.robot_perception:arm_camera_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'seed': 0, 'occluder': False, 'usd_path': 'arm_camera_sample.usda'}",
+  "timed_out": false
+ },
+ "node:lib.worldmodel.inspection_sample": {
+  "code_hash": "53a7ac067fe8f181",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.33,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Synthetic inspection sample (USD) -> pinneapple_worldmodel.inspection_data:inspection_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'x': 0.4, 'y': 0.6, 'r': 0.08, 'seed': 0, 'glint': False, 'usd_path': 'inspection_sample.usda'}",
+  "timed_out": false
+ },
+ "node:lib.worldmodel.video_check": {
+  "code_hash": "716a93f13970d35b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.5,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Physics check of a synthetic video -> pinneapple_worldmodel.physical_world:video_check\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'seed': 0, 'edit': 'none'}",
+  "timed_out": false
+ },
  "node:meta.learn": {
   "code_hash": "8a299191f8f637d0",
   "figures": [],
@@ -5552,6 +5992,28 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Multi-objective design (NSGA-II) -> pinneapple_design.design_optimizer.methods.run + presets\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'problem': 'heatsink', 'method': 'nsga2', 'budget': 400, 'seed': 0}",
+  "timed_out": false
+ },
+ "node:preset.run": {
+  "code_hash": "bba0de31568ad645",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.11,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Industrial preset -> pinneapple_presets.load(name).run(**overrides)\ninputs: [('params', 'params')]\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'preset': 'water_hammer_valve_closure', 'overrides': {}, 'fidelity': 'solver'}",
+  "timed_out": false
+ },
+ "node:preset.validate": {
+  "code_hash": "5321d12a0ac61f4c",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 8.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Validate preset -> pinneapple_presets.load(name).validate()\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'preset': 'water_hammer_valve_closure'}",
   "timed_out": false
  },
  "node:problem.generic": {
@@ -5651,6 +6113,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Reduced-order models (POD, DMD, OpInf) -> pinneapple_neural.architectures.rom.study.rom_study + pinneapple_data.snapshots.snapshots_from_arrays\ninputs: [('solution', 'solution')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'methods': ['persistence', 'pod_rbf', 'dmd', 'opinf'], 'ranks': [2, 4, 8], 'test_fraction': 0.25}",
+  "timed_out": false
+ },
+ "node:rover.learn_planet": {
+  "code_hash": "bd7c780ec4d0fd49",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 7.97,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Rover that learns the planet (autonomous lab) -> pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)\ninputs: []\noutputs: [('report', 'report'), ('metrics', 'metrics')]\ndefaults: {'mission': 'Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy', 'max_time': 400.0, 'n_samples': 24, 'figures': True}",
   "timed_out": false
  },
  "node:scenario.site": {
@@ -5959,6 +6432,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Render (Blender-style) -> pinneapple_blender.cycles.CyclesScene when Blender (bpy) is installed, else matplotlib shaded surface + pinneapple_tools.visualization.animation\ninputs: [('solution', 'solution')]\noutputs: [('figure', 'figure')]\ndefaults: {'field': 0, 'animate': True, 'frames': 24, 'samples': 32}",
+  "timed_out": false
+ },
+ "recipe:agents-a-ready-made-industrial-case": {
+  "code_hash": "b00c6c2c10ca72cd",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 9.84,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "water_hammer_valve_closure (solver): OK | trust APPROVED\n  inner_diameter = 0.48894\n  wave_speed = 1211.84\n  period = 1.98046\n  reynolds = 730629\n  friction_factor = 0.0137365\n  max_head = 82.2931\n  max_head_x = 1200\n  max_head_t = 9.97655\n  surge_head = 26.1607\n  min_head = 37.7732\n  drawdown = 18.3593\n  p_max = 805567\n  p_min_abs = 471087\n  joukowsky_head = 185.36\n  michaud_head = 36.7098\n  h_static_valve = 56.1325\n  h_allow = 163.449\n  t_close_safe = 3.37008",
   "timed_out": false
  },
  "recipe:agents-dashboard-of-a-time-dependent-result": {

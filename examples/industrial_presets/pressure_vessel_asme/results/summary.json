@@ -1,0 +1,453 @@
+{
+ "preset": "pressure_vessel_asme",
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "casco 10 mm (mín. 9.45 mm), tampo 10 mm (mín. 9.42 mm)",
+   "MAWP 1.038 MPa, teste hidrostático 1.350 MPa",
+   "tensão circunferencial (Lamé) 112.9 MPa vs S E = 117.3 MPa"
+  ]
+ },
+ "outputs": {
+  "t_shell_req": 0.009452442159383033,
+  "t_head_req": 0.009424914675767919,
+  "t_shell": 0.01,
+  "t_head": 0.01,
+  "mawp": 1038162.7962273123,
+  "p_test": 1349611.635095506,
+  "hoop_lame": 112890274.28468676,
+  "hoop_fem": 112457377.70932262,
+  "ur_lame": 0.00038824736324047956,
+  "ur_fem": 0.0003882470377175049,
+  "hoop_asme": 112988059.70149253,
+  "mass": 1976.4961042923387,
+  "fem_reaction_err": 2.831803950727411e-12,
+  "t_over_r": 0.008897742363877822,
+  "p_over_se": 0.008525149190110827
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "UG-27 limits: t <= R/2 and P <= 0.385 S E",
+    "status": "supports",
+    "value": 0.008525149190110827,
+    "limit": 0.385,
+    "source": "ASME BPVC Section VIII Div. 1 (2023) UG-27(c)(1)",
+    "reason": ""
+   },
+   {
+    "name": "FEM equilibrium: symmetry reaction = P r h",
+    "status": "supports",
+    "value": 2.831803950727411e-12,
+    "limit": 1e-06,
+    "source": "SolidFEM reactions",
+    "reason": ""
+   },
+   {
+    "name": "FEM bore displacement = Lamé (plane strain)",
+    "status": "supports",
+    "value": 8.384422033447177e-07,
+    "limit": 0.01,
+    "source": "Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+    "reason": ""
+   },
+   {
+    "name": "MAWP >= design pressure",
+    "status": "supports",
+    "value": 1038162.7962273123,
+    "limit": 1000000.0,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "pressure_vessel_asme",
+  "references": [
+   {
+    "case": "tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé",
+    "output": "hoop",
+    "unit": "Pa",
+    "computed": 112457377.70932262,
+    "reference": 112890274.28468676,
+    "rel_error": 0.0038346666983239304,
+    "tol": 0.02,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+    "params": {}
+   },
+   {
+    "case": "deslocamento radial no furo: FEM vs Lamé (deformação plana)",
+    "output": "u_r",
+    "unit": "m",
+    "computed": 0.0003882470377175049,
+    "reference": 0.00038824736324047956,
+    "rel_error": 8.384422033447177e-07,
+    "tol": 0.005,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+    "params": {}
+   },
+   {
+    "case": "fórmula UG-27(c)(1) vs tensão máxima de Lamé",
+    "output": "hoop",
+    "unit": "Pa",
+    "computed": 112988059.70149253,
+    "reference": 112890274.28468676,
+    "rel_error": 0.000866198770668044,
+    "tol": 0.02,
+    "pass": true,
+    "kind": "analytic",
+    "source": "ASME BPVC Section VIII Div. 1 (2023) App. 1-1: a fórmula aproxima Lamé para t <= R/2",
+    "params": {}
+   },
+   {
+    "case": "caso espesso (t/R 0,26): UG-27 vs Lamé",
+    "output": "hoop",
+    "unit": "Pa",
+    "computed": 66375000.0,
+    "reference": 65742052.023121364,
+    "rel_error": 0.00962774901909099,
+    "tol": 0.03,
+    "pass": true,
+    "kind": "analytic",
+    "source": "ASME BPVC Section VIII Div. 1 (2023) UG-27 / Lamé",
+    "params": {}
+   }
+  ],
+  "convergence": {
+   "parameter": "elementos na espessura",
+   "values": [
+    1,
+    2,
+    4,
+    8
+   ],
+   "hoop": [
+    112616394.90373127,
+    112511016.73233432,
+    112457377.70932262,
+    112430319.18824252
+   ],
+   "rel_change_last": 0.00024066925430308,
+   "pass": true
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/vessel_stress.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 0.07909793899989381,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:16:02Z"
+ },
+ "inversion": {
+  "description": "Espessura remanescente do casco a partir de extensômetros circunferenciais lidos no teste hidrostático (4 patamares até 1,3 MAWP). Verdade sintética: chapa nominal menos 2.5 mm de corrosão; ruído de 5.0 microdeformações.",
+  "parameter": "espessura remanescente",
+  "unit": "m",
+  "true": 0.0075,
+  "recovered": 0.007480850062300536,
+  "ci95": [
+   0.007387743770877931,
+   0.007573956353723141
+  ],
+  "rel_error": 0.002553325026595152,
+  "true_inside_ci95": true,
+  "noise": "5.0 microstrain",
+  "how": "mínimos quadrados (Brent) sobre Lamé com tampos fechados; IC por sensibilidade",
+  "remaining_mawp": 1116670.0376562257
+ },
+ "optimization": {
+  "objective": "massa mínima de aço (casco + tampos) com MAWP >= P de projeto",
+  "best_head": "ellipsoidal_2_1",
+  "best_E_joint": 0.85,
+  "best_mass_kg": 1976.4961042923387,
+  "base_mass_kg": 1976.4961042923387,
+  "table": [
+   {
+    "head": "ellipsoidal_2_1",
+    "E_joint": 0.7,
+    "t_shell": 0.012,
+    "t_head": 0.012,
+    "mass": 2374.458767402525,
+    "mawp": 1108411.8065996678,
+    "ok": true
+   },
+   {
+    "head": "ellipsoidal_2_1",
+    "E_joint": 0.85,
+    "t_shell": 0.01,
+    "t_head": 0.01,
+    "mass": 1976.4961042923387,
+    "mawp": 1038162.7962273123,
+    "ok": true
+   },
+   {
+    "head": "ellipsoidal_2_1",
+    "E_joint": 1.0,
+    "t_shell": 0.01,
+    "t_head": 0.01,
+    "mass": 1976.4961042923387,
+    "mawp": 1221367.9955615439,
+    "ok": true
+   },
+   {
+    "head": "hemispherical",
+    "E_joint": 0.7,
+    "t_shell": 0.012,
+    "t_head": 0.008,
+    "mass": 2457.4693842475936,
+    "mawp": 1108411.8065996678,
+    "ok": true
+   },
+   {
+    "head": "hemispherical",
+    "E_joint": 0.85,
+    "t_shell": 0.01,
+    "t_head": 0.008,
+    "mass": 2119.6561253219356,
+    "mawp": 1038162.7962273123,
+    "ok": true
+   },
+   {
+    "head": "hemispherical",
+    "E_joint": 1.0,
+    "t_shell": 0.01,
+    "t_head": 0.008,
+    "mass": 2119.6561253219356,
+    "mawp": 1221367.9955615439,
+    "ok": true
+   },
+   {
+    "head": "torispherical",
+    "E_joint": 0.7,
+    "t_shell": 0.012,
+    "t_head": 0.018,
+    "mass": 2604.012652295356,
+    "mawp": 1064259.3758431512,
+    "ok": true
+   },
+   {
+    "head": "torispherical",
+    "E_joint": 0.85,
+    "t_shell": 0.01,
+    "t_head": 0.016,
+    "mass": 2200.5938033696975,
+    "mawp": 1038162.7962273123,
+    "ok": true
+   },
+   {
+    "head": "torispherical",
+    "E_joint": 1.0,
+    "t_shell": 0.01,
+    "t_head": 0.014,
+    "mass": 2134.988213369698,
+    "mawp": 1106996.1315860497,
+    "ok": true
+   }
+  ]
+ },
+ "variants": {
+  "rows": {
+   "2:1 E=0,85 (base)": {
+    "params": {},
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_shell_req": 0.009452442159383033,
+     "t_head_req": 0.009424914675767919,
+     "t_shell": 0.01,
+     "t_head": 0.01,
+     "mawp": 1038162.7962273123,
+     "p_test": 1349611.635095506,
+     "hoop_lame": 112890274.28468676,
+     "hoop_fem": 112457377.70932262,
+     "ur_lame": 0.00038824736324047956,
+     "ur_fem": 0.0003882470377175049,
+     "hoop_asme": 112988059.70149253,
+     "mass": 1976.4961042923387,
+     "fem_reaction_err": 2.831803950727411e-12,
+     "t_over_r": 0.008897742363877822,
+     "p_over_se": 0.008525149190110827
+    }
+   },
+   "hemisférico": {
+    "params": {
+     "head": "hemispherical"
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_shell_req": 0.009452442159383033,
+     "t_head_req": 0.00621245733788396,
+     "t_shell": 0.01,
+     "t_head": 0.008,
+     "mawp": 1038162.7962273123,
+     "p_test": 1349611.635095506,
+     "hoop_lame": 112890274.28468676,
+     "hoop_fem": 112457377.70932262,
+     "ur_lame": 0.00038824736324047956,
+     "ur_fem": 0.0003882470377175049,
+     "hoop_asme": 112988059.70149253,
+     "mass": 2119.6561253219356,
+     "fem_reaction_err": 2.831803950727411e-12,
+     "t_over_r": 0.008897742363877822,
+     "p_over_se": 0.008525149190110827
+    }
+   },
+   "torisférico": {
+    "params": {
+     "head": "torispherical"
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_shell_req": 0.009452442159383033,
+     "t_head_req": 0.014372098976109214,
+     "t_shell": 0.01,
+     "t_head": 0.016,
+     "mawp": 1038162.7962273123,
+     "p_test": 1349611.635095506,
+     "hoop_lame": 112890274.28468676,
+     "hoop_fem": 112457377.70932262,
+     "ur_lame": 0.00038824736324047956,
+     "ur_fem": 0.0003882470377175049,
+     "hoop_asme": 112988059.70149253,
+     "mass": 2200.5938033696975,
+     "fem_reaction_err": 2.831803950727411e-12,
+     "t_over_r": 0.008897742363877822,
+     "p_over_se": 0.008525149190110827
+    }
+   },
+   "radiografia total E=1,0": {
+    "params": {
+     "E_joint": 1.0
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_shell_req": 0.008480349344978166,
+     "t_head_req": 0.00846047860768673,
+     "t_shell": 0.01,
+     "t_head": 0.01,
+     "mawp": 1221367.9955615439,
+     "p_test": 1587778.394230007,
+     "hoop_lame": 112890274.28468676,
+     "hoop_fem": 112457377.70932262,
+     "ur_lame": 0.00038824736324047956,
+     "ur_fem": 0.0003882470377175049,
+     "hoop_asme": 112988059.70149253,
+     "mass": 1976.4961042923387,
+     "fem_reaction_err": 2.831803950727411e-12,
+     "t_over_r": 0.008897742363877822,
+     "p_over_se": 0.007246376811594203
+    }
+   },
+   "sem radiografia E=0,70": {
+    "params": {
+     "E_joint": 0.7
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_shell_req": 0.01084375,
+     "t_head_req": 0.010803108808290156,
+     "t_shell": 0.012,
+     "t_head": 0.012,
+     "mawp": 1108411.8065996678,
+     "p_test": 1440935.348579568,
+     "hoop_lame": 87054595.99374318,
+     "hoop_fem": 86732332.04207744,
+     "ur_lame": 0.0002997304540639632,
+     "ur_fem": 0.000299730030832164,
+     "hoop_asme": 87151724.13793102,
+     "mass": 2374.458767402525,
+     "fem_reaction_err": 2.3729254421266666e-12,
+     "t_over_r": 0.01155378486055777,
+     "p_over_se": 0.010351966873706004
+    }
+   },
+   "16 bar": {
+    "params": {
+     "p_design": 1600000.0
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "t_shell_req": 0.013355853532748839,
+     "t_head_req": 0.013285128905583064,
+     "t_shell": 0.014,
+     "t_head": 0.014,
+     "mawp": 1652721.8140159596,
+     "p_test": 2148538.3582207477,
+     "hoop_lame": 113403774.67312486,
+     "hoop_fem": 112999060.60076039,
+     "ur_lame": 0.00039088770259632685,
+     "ur_fem": 0.00039088686869425575,
+     "hoop_asme": 113558130.8411215,
+     "mass": 2773.3092445966045,
+     "fem_reaction_err": 4.305194061396802e-13,
+     "t_over_r": 0.014209827357237715,
+     "p_over_se": 0.013640238704177323
+    }
+   }
+  },
+  "compared": [
+   "t_shell",
+   "t_head",
+   "mass"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/pressure_vessel_asme_2_1_e_0_85_base_3d_sigma.png",
+   "results/3d/variants/pressure_vessel_asme_hemisferico_3d_sigma.png",
+   "results/3d/variants/pressure_vessel_asme_torisferico_3d_sigma.png",
+   "results/3d/variants/pressure_vessel_asme_radiografia_total_e_1_0_3d_sigma.png",
+   "results/3d/variants/pressure_vessel_asme_sem_radiografia_e_0_70_3d_sigma.png",
+   "results/3d/variants/pressure_vessel_asme_16_bar_3d_sigma.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/pressure_vessel_asme_3d_sigma.png"
+ ],
+ "wall_time_total_s": 27.92535266999994,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

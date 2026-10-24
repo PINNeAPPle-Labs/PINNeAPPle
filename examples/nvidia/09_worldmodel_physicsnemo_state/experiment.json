@@ -1,0 +1,107 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/09_worldmodel_physicsnemo_state",
+ "title": "State-space world model: CNN encoder, PhysicsNeMo dynamics, video physics checks",
+ "description": "",
+ "domain": "physical AI",
+ "methods": [
+  "synthetic video",
+  "FullyConnected (PhysicsNeMo)",
+  "video physics checks"
+ ],
+ "modules": [
+  "pinneapple_worldmodel.physical_world",
+  "pinneapple_tools.nvidia.physicsnemo"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rollout_pass_rate",
+   "value": 0.9,
+   "unit": "",
+   "how": "fraction of 20 rendered rollouts passing every check"
+  },
+  {
+   "name": "rollout_g_median",
+   "value": 9.860008494247328,
+   "unit": "m/s^2",
+   "how": "fitted from the rendered rollout pixels"
+  }
+ ],
+ "checks": [
+  {
+   "name": "state encoder error on test frames (max, px)",
+   "passed": false,
+   "value": 15.824746673403336,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.5,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "one-step state error (worst component, rel. RMS)",
+   "passed": false,
+   "value": 0.11047502288061606,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "rendered rollouts pass every video physics check",
+   "passed": true,
+   "value": 0.9,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "min": 0.9,
+   "detail": "failures per check: {'object visible in every frame': 1, 'object area conserved (no growth, fading, vanishing)': 1, 'free-flight acceleration = g (fitted between bounces)': 2, 'no teleport (speed within what the fall height allows)': 0, 'energy never increases across a bounce (apex heights)': 0}",
+   "kind": "reference",
+   "max": null
+  },
+  {
+   "name": "g fitted from the rollout pixels (median)",
+   "passed": true,
+   "value": 0.005097705835609334,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "median g 9.86 m/s2",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/rollouts.png",
+   "results/rollout_frames.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "3a56ab71",
+  "created": "2026-10-24T02:09:40Z",
+  "seconds": 2152.857,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -19,16 +19,16 @@ hardware, timings, which components ran).
 |---|---|---|---|---|
 | 01 | O | [Pump and pipeline water-hammer twin](01_omniverse_pump_pipeline/README.md) | APPROVED (60 s closure only) | done |
 | 02 | P | [Plume forecast, FNO rollout](02_physicsnemo_plume_rollout/README.md) | REVIEW (10-step horizon) | done |
-| 03 | I | Pick-and-place arm in the robot sim, structural checks | | next batch |
+| 03 | I | [Pick-and-place arm in the robot sim, structural checks](03_robotsim_pick_and_place/README.md) | APPROVED (shoulder motor at 95 %) | done |
 | 04 | C | Physics-consistent synthetic video and world model | | planned |
 | 05 | B | Exact bracket geometry, mesh error, stress concentration | | planned |
 | 06 | N | Zoo surrogate served NIM-style with its trust report | | planned |
 | 07 | O + P | [Cold plate surrogate in a USD scene](07_omniverse_physicsnemo_coldplate/README.md) | REJECT (energy balance) | done |
-| 08 | I + P | Lunar rover with a PhysicsNeMo wheel-soil surrogate | | next batch |
+| 08 | I + P | [Learned arm dynamics, checked physics](08_robotsim_physicsnemo_learned_dynamics/README.md) | REVIEW (start pose at the envelope edge) | done |
 | 09 | C + P | PhysicsNeMo world model on PINNeAPPle-generated data | | planned |
 | 10 | B + P | Exact heat-sink geometry feeding a PhysicsNeMo surrogate | | planned |
 | 11 | N + P | PhysicsNeMo model served NIM-style | | planned |
-| 12 | O + I | Robot arm with its USD scene for Omniverse | | next batch |
+| 12 | O + I | [One USD scene for Omniverse and the robot sim](12_omniverse_robotsim_arm/README.md) | APPROVED (USD = URDF to the bit) | done |
 | 13 | O + C | Synthetic inspection data as USD scene variations | | planned |
 | 14 | B + O | B-rep part to USD with curvature and thickness | | planned |
 | 15 | N + B | Specification extracted by a model service, part built in B-rep, verified | | planned |

@@ -73,6 +73,14 @@ class SectionProps:
         return cls(I, c, Q, b, b * h)
 
     @classmethod
+    def hollow_rectangular(cls, b: float, h: float, t: float) -> "SectionProps":
+        """Rectangular tube ``b`` wide, ``h`` deep (bending about the width axis), wall ``t``."""
+        bi, hi = b - 2 * t, h - 2 * t
+        i_m4 = (b * h ** 3 - bi * hi ** 3) / 12
+        q_m3 = (b * h ** 2 - bi * hi ** 2) / 8
+        return cls(i_m4, h / 2, q_m3, 2 * t, b * h - bi * hi)
+
+    @classmethod
     def hollow_circle(cls, OD: float, ID: float) -> "SectionProps":
         ro, ri = OD / 2.0, ID / 2.0
         I = math.pi * (OD ** 4 - ID ** 4) / 64.0

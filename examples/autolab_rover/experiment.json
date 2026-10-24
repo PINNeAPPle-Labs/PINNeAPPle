@@ -1,0 +1,342 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/autolab_rover",
+ "title": "Autonomous Physics Lab: the rover that learns the planet",
+ "description": "Mission in plain language -> route on the orbital map -> multibody VIPER drive -> stall in soft sand mapped as regolith -> soil learned from the wheels (iterated EKF) -> replanned route -> trust report against the physics and the known truth of a synthetic site.",
+ "domain": "vehicle dynamics",
+ "methods": [
+  "multibody dynamics",
+  "Wong-Reece terramechanics",
+  "iterated EKF",
+  "risk-aware Dijkstra",
+  "Blender Cycles"
+ ],
+ "modules": [
+  "pinneapple_simulation.rover.autolab",
+  "pinneapple_simulation.vehicle",
+  "pinneapple_simulation.terramechanics"
+ ],
+ "params": {
+  "mission": "Leve o rover at\u00e9 (37, 15) sem atolar, escorregamento m\u00e1ximo de 40%, minimizando a energia."
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "route_A_distance",
+   "value": 12.925884,
+   "unit": "m",
+   "how": "multibody run on the true terrain"
+  },
+  {
+   "name": "route_A_energy",
+   "value": 2957.959341,
+   "unit": "J",
+   "how": "sum of motor torque x wheel speed"
+  },
+  {
+   "name": "route_A_max_slip",
+   "value": 0.420399,
+   "unit": "-",
+   "how": "2-s mean front-wheel slip, maximum over the run"
+  },
+  {
+   "name": "route_A_max_sinkage",
+   "value": 319.367895,
+   "unit": "mm",
+   "how": "max wheel sinkage"
+  },
+  {
+   "name": "route_A_learned_risk",
+   "value": 1.0,
+   "unit": "-",
+   "how": "largest share of learned-belief samples above the slip limit along the route"
+  },
+  {
+   "name": "route_B_distance",
+   "value": 28.559919,
+   "unit": "m",
+   "how": "multibody run on the true terrain"
+  },
+  {
+   "name": "route_B_energy",
+   "value": 2869.080658,
+   "unit": "J",
+   "how": "sum of motor torque x wheel speed"
+  },
+  {
+   "name": "route_B_max_slip",
+   "value": 0.214524,
+   "unit": "-",
+   "how": "2-s mean front-wheel slip, maximum over the run"
+  },
+  {
+   "name": "route_B_max_sinkage",
+   "value": 30.733466,
+   "unit": "mm",
+   "how": "max wheel sinkage"
+  },
+  {
+   "name": "route_B_learned_risk",
+   "value": 0.0,
+   "unit": "-",
+   "how": "largest share of learned-belief samples above the slip limit along the route"
+  },
+  {
+   "name": "learned_log10_k_phi_error",
+   "value": 0.072262,
+   "unit": "",
+   "how": "learned minus true (synthetic site)"
+  },
+  {
+   "name": "learned_log10_k_phi_z",
+   "value": 1.137944,
+   "unit": "sd",
+   "how": "error in posterior standard deviations"
+  },
+  {
+   "name": "learned_n0_error",
+   "value": 0.057183,
+   "unit": "",
+   "how": "learned minus true (synthetic site)"
+  },
+  {
+   "name": "learned_n0_z",
+   "value": 1.018548,
+   "unit": "sd",
+   "how": "error in posterior standard deviations"
+  },
+  {
+   "name": "learned_n1_error",
+   "value": 0.014512,
+   "unit": "",
+   "how": "learned minus true (synthetic site)"
+  },
+  {
+   "name": "learned_n1_z",
+   "value": 0.289003,
+   "unit": "sd",
+   "how": "error in posterior standard deviations"
+  },
+  {
+   "name": "learned_phi_deg_error",
+   "value": -1.313871,
+   "unit": "",
+   "how": "learned minus true (synthetic site)"
+  },
+  {
+   "name": "learned_phi_deg_z",
+   "value": -1.98296,
+   "unit": "sd",
+   "how": "error in posterior standard deviations"
+  },
+  {
+   "name": "mission_wall_time",
+   "value": 389.835246328,
+   "unit": "s",
+   "how": "RoverMission.run on Intel(R) Xeon(R) Processor @ 2.10GHz"
+  },
+  {
+   "name": "render_wall_time",
+   "value": 905.824521456,
+   "unit": "s",
+   "how": "Blender Cycles (CPU) stills + frames"
+  }
+ ],
+ "checks": [
+  {
+   "name": "trust: goal_reached",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 1.0, limit 1.0; multibody run of the final route",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: slip_within_limit",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 0.21452400527682192, limit 0.4; 2-s mean front-wheel slip after the 2-s start-up, final run",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: energy_covers_climb",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 2869.0806575776037, limit 1364.8569802355032; drive energy (sum of max(tau omega, 0)) vs m g x total climb of the final run (no regeneration; kinetic energy at 0.2 m/s is negligible)",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: time_step_converged",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 0.006166270407500244, limit 0.05; first seconds of the final route at dt = 0.004 s and dt/2",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: planner_vs_multibody_energy",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 0.13084577470647302, limit 0.25; quasi-static planner (learned belief) vs multibody, final route",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: planner_vs_multibody_slip",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 0.05406886326826235, limit 0.05; RMS of predicted slip - 2-s mean front-wheel slip along the final route",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: replanned_route_risk",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 0.0, limit 0.05; share of belief samples that exceed the slip limit",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: failed_route_risk_learned",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 1.0, limit 0.05; first route re-evaluated with the learned belief",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: learned_soil_predictive",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 0.03553438349838536, limit 0.2; held-out last quarter of the stall unit's measurements",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: learned_soil_calibrated",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value 1.9829600485051218, limit 3.0; known truth of the synthetic site: max |error| / posterior sd",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: learned_soil_closer_to_truth",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value None, limit None; known truth: |error| vs prior's",
+   "kind": "verification"
+  },
+  {
+   "name": "trust: models_used_in_validity",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "value None, limit None; planner uses the analytic Wong-Reece law; zoo surrogate only compared",
+   "kind": "verification"
+  },
+  {
+   "name": "first route stalls, final route reaches the goal",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "stalled: mean slip 0.42 over 2 s > limit 0.4 -> goal",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/site_map.png",
+   "results/traverse.png",
+   "results/route_risk.png",
+   "results/wheel_models.png",
+   "results/soil_learning.png",
+   "results/render_overview.jpg",
+   "results/render_stall.jpg"
+  ],
+  "videos": [
+   "results/traverse.mp4",
+   "results/traverse.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "results/report.md",
+   "results/summary.json",
+   "results/trust_report.md"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/rover_learns_the_planet.md",
+  "script": "examples/autolab_rover/rover_learns_planet.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "1b21aa6e",
+  "created": "2026-10-24T09:55:34Z",
+  "seconds": 1318.336,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

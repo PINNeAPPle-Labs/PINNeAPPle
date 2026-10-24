@@ -6,6 +6,7 @@ from . import (  # noqa: F401
     autolab,
     data,
     methods,
+    presets,
     problem,
     reason,
     solvers,

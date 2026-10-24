@@ -14,6 +14,41 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
+  A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
+  (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)
+  and a comparison of the analytic Wong-Reece law, the zoo surrogate and measured operating points; sensors with
+  stated noise and a soil belief per mapped unit updated by an iterated EKF (sinkage and torque from load and slip,
+  input noise carried through the model, the simulator's slip-sinkage lag in the observation model); a risk-aware
+  planner (share of belief samples above the slip limit, wheels on both sides checked, energy-optimal Dijkstra); a
+  mission agent (plain-language request -> `MissionSpec` through a rule parser with the `extract(text, schema)`
+  interface of `CallLLM`, fixed tool set, plan -> drive -> learn -> replan -> verify); a trust report (goal, slip
+  limit, energy balance, time-step check, planner vs multibody, route risks, held-out prediction, recovery of the
+  known truth); figures and Blender Cycles renders (overview, stall close-up, traverse MP4/GIF) with the repository's
+  VIPER model. Flow Studio node `rover.learn_planet`; example `examples/autolab_rover/`; guide
+  `docs/guides/rover_learns_the_planet.md`.
+- `VehicleSimulator`: ground made of several soils (`soil=[...]`, `soil_map(x, y) -> index`), route following by
+  pure pursuit (`run(route=[...])`, ends at the goal) and an early stop rule (`run(stop=...)`, `meta["ended"]`);
+  `run.wheel["soil_idx"]` records the soil under each wheel; `wheel_speeds="kinematic"` gives each wheel the speed
+  of its distance to the turning centre (default `"equal"`, unchanged: in turns the wheels of an all-wheel-steered
+  rover then fight each other).
+- `WongReeceModel.sinkage_for_load` / `steady_state`: `sinkage_slip=` (the slip that sets the sinkage exponent, e.g.
+  a lagged slip), as `forces` already had.
+- `pinneapple_presets` (`pp.presets`): industrial presets, engineering cases already set up, solved and validated.
+  Each has a data sheet (sector, question, SI inputs with realistic defaults and the source of each value, outputs,
+  validity domain), `run(**params)` with its trust report and decision, `validate()` against citable references
+  with the measured error, and where it fits a 3-D scene, an ARD Gaussian-process surrogate (Latin-hypercube DOE on
+  the real solver, hold-out error, out-of-box flag; `run(fidelity="surrogate")`), inversion from synthetic
+  measurements with known noise, optimisation confirmed on the solver and design variants. First batch: water
+  hammer of a valve closure (MOC vs Joukowsky and rigid-column theory), water distribution network (vs EPANET 2.2,
+  GA finds the published US$ 419,000 optimum of the two-loop network), plate-fin heat sink, power PCB junction
+  temperatures (JEDEC theta_JA), steel footbridge (strength, deflection, lateral-torsional buckling, pedestrian
+  vibration). CLI `python -m pinneapple_presets`, Flow Studio nodes `preset.run` / `preset.validate`, results in
+  `examples/industrial_presets/`, Hub index `pinneapple_presets/index.json`.
+- `pinneapple_simulation.numerical_solvers.pipe_network`: looped pipe networks by the global gradient algorithm
+  (Hazen-Williams, Darcy-Weisbach/Colebrook) and least-cost discrete sizing by a genetic algorithm.
+- `pinneapple_simulation.numerical_solvers.beam_fe`: Euler-Bernoulli Hermite beam elements (static and modes).
+- `water_hammer_moc.valve_closure_moc(record_field=True)` returns the head along the pipe at every step.
 - `pinneapple_autolab`: the agent loop of the Autonomous Physics Lab. A mission in plain language -> a plan of
   controlled library calls (`Tool`, `Toolbox` with declared arguments) -> `execute` with evidence per call; a
   deterministic `TemplatePlanner` and an `LLMPlanner` (via `pinneapple_llm.call_llm`) that falls back to it, with the

@@ -626,6 +626,8 @@ _SUBMODULES = {
     "em":         "pinneapple_simulation.electromagnetics",
     # physics checks of electromagnetic fields (Gauss, Faraday, Ampere-Maxwell, Poynting, passivity)
     "maxwell":    "pinneapple_physics.maxwell_checks",
+    # industrial presets: engineering cases set up, solved and validated (pp.presets.load(name).run(...))
+    "presets":    "pinneapple_presets",
 }
 
 # Lazy functions: resolved on first access, so ``import pinneapple`` does not

@@ -1,0 +1,412 @@
+{
+ "preset": "water_distribution_network",
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "pressão mínima 30.44 m no nó 6 >= 30 m",
+   "velocidade máxima 1.90 m/s <= 3 m/s",
+   "custo dos tubos US$ 419,000"
+  ]
+ },
+ "outputs": {
+  "min_pressure": 30.44473804477977,
+  "critical_node": "6",
+  "supply": 0.3111111111111111,
+  "max_velocity": 1.8950173785637716,
+  "max_gradient": 14.646065636532798,
+  "cost": 419000.0,
+  "p_node3": 30.462166034859024,
+  "p_node6": 30.44473804477977,
+  "iterations": 11,
+  "continuity_residual": 2.0816681711721685e-17,
+  "energy_residual": 2.842170943040401e-14,
+  "total_demand": 0.3111111111111111
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "continuity at every junction (m3/s)",
+    "status": "supports",
+    "value": 2.0816681711721685e-17,
+    "limit": 1e-09,
+    "source": "solve_network",
+    "reason": ""
+   },
+   {
+    "name": "energy along every pipe (m)",
+    "status": "supports",
+    "value": 2.842170943040401e-14,
+    "limit": 1e-06,
+    "source": "solve_network",
+    "reason": ""
+   },
+   {
+    "name": "supply = total demand (mass balance)",
+    "status": "supports",
+    "value": 0.3111111111111111,
+    "limit": 0.3111111111111111,
+    "source": "global mass balance",
+    "reason": ""
+   },
+   {
+    "name": "Newton converged",
+    "status": "supports",
+    "value": 11,
+    "limit": 100,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "water_distribution_network",
+  "references": [
+   {
+    "case": "pressão no nó 3, Hazen-Williams",
+    "output": "p_node3",
+    "unit": "m",
+    "computed": 30.462166034859024,
+    "reference": 30.4625,
+    "rel_error": 1.0963156043483382e-05,
+    "tol": 0.0001,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina",
+    "params": {}
+   },
+   {
+    "case": "pressão no nó 6, Hazen-Williams",
+    "output": "p_node6",
+    "unit": "m",
+    "computed": 30.44473804477977,
+    "reference": 30.445,
+    "rel_error": 8.604211536602683e-06,
+    "tol": 0.0001,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina",
+    "params": {}
+   },
+   {
+    "case": "pressão no nó 3, Darcy-Weisbach",
+    "output": "p_node3",
+    "unit": "m",
+    "computed": 28.918676006065823,
+    "reference": 28.797,
+    "rel_error": 0.004225301457298413,
+    "tol": 0.01,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina (EPANET usa Swamee-Jain e interpolação de Dunlop na transição; aqui Colebrook)",
+    "params": {
+     "headloss": "DW"
+    }
+   },
+   {
+    "case": "pressão no nó 6, Darcy-Weisbach",
+    "output": "p_node6",
+    "unit": "m",
+    "computed": 29.97513805972082,
+    "reference": 29.8895,
+    "rel_error": 0.002865155312762607,
+    "tol": 0.01,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "EPANET 2.2 (Rossman et al. 2020) via WNTR 1.5.0, accuracy 1e-6, rodado nesta máquina (EPANET usa Swamee-Jain e interpolação de Dunlop na transição; aqui Colebrook)",
+    "params": {
+     "headloss": "DW"
+    }
+   },
+   {
+    "case": "custo da solução publicada",
+    "output": "cost",
+    "unit": "US$",
+    "computed": 419000.0,
+    "reference": 419000.0,
+    "rel_error": 0.0,
+    "tol": 1e-09,
+    "pass": true,
+    "kind": "benchmark",
+    "source": "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+    "params": {}
+   },
+   {
+    "case": "otimização por AG vs ótimo publicado",
+    "output": "cost",
+    "unit": "US$",
+    "computed": 419000.0,
+    "reference": 419000.0,
+    "rel_error": 0.0,
+    "tol": 0.0,
+    "pass": true,
+    "kind": "benchmark",
+    "source": "Savic & Walters (1997), J. Water Resour. Plann. Manage. 123(2):67-77: custo mínimo US$ 419.000",
+    "params": {}
+   }
+  ],
+  "convergence": null,
+  "all_pass": true,
+  "epanet_live": {
+   "HW": {
+    "pressures": {
+     "2": 53.2467155456543,
+     "3": 30.46245574951172,
+     "4": 43.449188232421875,
+     "5": 33.803348541259766,
+     "6": 30.444963455200195,
+     "7": 30.552255630493164
+    },
+    "max_diff_vs_stored": 4.8541259765499944e-05,
+    "wntr": "1.5.0"
+   },
+   "DW": {
+    "pressures": {
+     "2": 52.86430358886719,
+     "3": 28.79695701599121,
+     "4": 42.91191864013672,
+     "5": 31.743453979492188,
+     "6": 29.88947868347168,
+     "7": 29.815017700195312
+    },
+    "max_diff_vs_stored": 4.6020507813437916e-05,
+    "wntr": "1.5.0"
+   }
+  }
+ },
+ "figures": [
+  "results/network.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 0.0009922460001234867,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T00:50:17Z"
+ },
+ "inversion": {
+  "description": "Calibração do C de Hazen-Williams de dois grupos de tubos (tronco 1-3-5 envelhecido e tubos das malhas) a partir de pressões registradas nos nós 3, 5 e 7 na demanda de projeto e a 1,5x (teste de vazão de incêndio). Medições sintéticas da própria rede com C real = (95, 120) e ruído de 0.05 m.",
+  "parameter": "C (tronco, malhas)",
+  "true": [
+   95.0,
+   120.0
+  ],
+  "recovered": [
+   95.037260475322,
+   119.94709837805027
+  ],
+  "ci95": [
+   [
+    94.93646732717433,
+    95.13805362346967
+   ],
+   [
+    119.7966933409024,
+    120.09750341519815
+   ]
+  ],
+  "rel_error": 0.000440846849581078,
+  "true_inside_ci95": true,
+  "noise": "0.05 m (1 sigma)",
+  "how": "Gauss-Newton sobre solve_network, covariância sigma^2 (J^T J)^-1",
+  "n_measurements": 6
+ },
+ "optimization": {
+  "objective": "custo mínimo dos tubos com pressão >= p_min em todos os nós",
+  "method": "algoritmo genético (pop 100, torneio, cruzamento uniforme, mutação ±1/±2 classes)",
+  "cost_ga": 419000.0,
+  "diameters_in": [
+   18,
+   10,
+   16,
+   4,
+   16,
+   10,
+   10,
+   1
+  ],
+  "min_pressure_ga": 30.44473804477977,
+  "feasible": true,
+  "hydraulic_solves": 6744,
+  "published_cost": 419000.0,
+  "published_diameters_in": [
+   18,
+   10,
+   16,
+   4,
+   16,
+   10,
+   10,
+   1
+  ],
+  "verified_min_pressure": 30.44473804477977,
+  "verified_cost": 419000.0
+ },
+ "variants": {
+  "rows": {
+   "ótimo publicado": {
+    "params": {},
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "min_pressure": 30.44473804477977,
+     "supply": 0.3111111111111111,
+     "max_velocity": 1.8950173785637716,
+     "max_gradient": 14.646065636532798,
+     "cost": 419000.0,
+     "p_node3": 30.462166034859024,
+     "p_node6": 30.44473804477977,
+     "iterations": 11,
+     "continuity_residual": 2.0816681711721685e-17,
+     "energy_residual": 2.842170943040401e-14,
+     "total_demand": 0.3111111111111111
+    }
+   },
+   "uniforme 12 pol": {
+    "params": {
+     "d1": 0.30479999999999996,
+     "d2": 0.30479999999999996,
+     "d3": 0.30479999999999996,
+     "d4": 0.30479999999999996,
+     "d5": 0.30479999999999996,
+     "d6": 0.30479999999999996,
+     "d7": 0.30479999999999996,
+     "d8": 0.30479999999999996
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "min_pressure": -21.451025399747834,
+     "supply": 0.3111111111111111,
+     "max_velocity": 4.263789101768487,
+     "max_gradient": 48.67005869900254,
+     "cost": 400000.0,
+     "p_node3": -7.830695783212661,
+     "p_node6": -21.451025399747834,
+     "iterations": 5,
+     "continuity_residual": 1.3877787807814457e-17,
+     "energy_residual": 1.0186296250935811e-14,
+     "total_demand": 0.3111111111111111
+    }
+   },
+   "uniforme 16 pol": {
+    "params": {
+     "d1": 0.4064,
+     "d2": 0.4064,
+     "d3": 0.4064,
+     "d4": 0.4064,
+     "d5": 0.4064,
+     "d6": 0.4064,
+     "d7": 0.4064,
+     "d8": 0.4064
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "min_pressure": 28.63465742260192,
+     "supply": 0.3111111111111111,
+     "max_velocity": 2.3983813697447736,
+     "max_gradient": 11.986303884398335,
+     "cost": 720000.0,
+     "p_node3": 35.75764418550031,
+     "p_node6": 28.63465742260192,
+     "iterations": 5,
+     "continuity_residual": 1.3877787807814457e-17,
+     "energy_residual": 1.942890293094024e-14,
+     "total_demand": 0.3111111111111111
+    }
+   },
+   "ótimo, tubos velhos C=100": {
+    "params": {
+     "hw_c": 100.0
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "min_pressure": 17.41315935174046,
+     "supply": 0.3111111111111111,
+     "max_velocity": 1.8950173785637716,
+     "max_gradient": 23.80915950890355,
+     "cost": 419000.0,
+     "p_node3": 18.23860981653786,
+     "p_node6": 21.338454149673368,
+     "iterations": 11,
+     "continuity_residual": 2.0816681711721685e-17,
+     "energy_residual": 1.865174681370263e-14,
+     "total_demand": 0.3111111111111111
+    }
+   },
+   "ótimo, pico 1,3x": {
+    "params": {
+     "demand_factor": 1.3
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "min_pressure": 17.41315935174046,
+     "supply": 0.40444444444444444,
+     "max_velocity": 2.4635225921329034,
+     "max_gradient": 23.809159508903544,
+     "cost": 419000.0,
+     "p_node3": 18.23860981653786,
+     "p_node6": 21.338454149673368,
+     "iterations": 10,
+     "continuity_residual": 2.7755575615628914e-17,
+     "energy_residual": 1.9539925233402755e-14,
+     "total_demand": 0.40444444444444444
+    }
+   }
+  },
+  "compared": [
+   "min_pressure",
+   "cost",
+   "max_velocity"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/water_distribution_network_otimo_publicado_3d_pressure.png",
+   "results/3d/variants/water_distribution_network_uniforme_12_pol_3d_pressure.png",
+   "results/3d/variants/water_distribution_network_uniforme_16_pol_3d_pressure.png",
+   "results/3d/variants/water_distribution_network_otimo_tubos_velhos_c_100_3d_pressure.png",
+   "results/3d/variants/water_distribution_network_otimo_pico_1_3x_3d_pressure.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/water_distribution_network_3d_pressure.png",
+  "results/3d/water_distribution_network_3d_velocity.png"
+ ],
+ "wall_time_total_s": 36.43194209700005,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -453,8 +453,7 @@ class AutonomousLab:
         if self.mission.resolved:
             cons = self.mission.constraints_absolute()
             snap["limits"] = {c.name: c.lower for c in cons if c.lower is not None and c.upper is None}
-            snap["limits_all"] = {c.name: (-np.inf if c.lower is None else c.lower,
-                                           np.inf if c.upper is None else c.upper) for c in cons}
+            snap["limits_all"] = {c.name: (c.lower, c.upper) for c in cons}     # None: no bound (valid JSON)
         if self.pool:
             n = len(self.pool["X"])
             keep = np.arange(n) if n <= max_candidates else np.sort(

@@ -182,7 +182,8 @@ def fig_learning(snap: Mapping[str, Any], path: str, outputs: Sequence[str], obj
     xs, ys, best = [], [], np.inf
     lim = snap.get("limits_all", {})
     for k, r in enumerate([r for r in snap["runs"] if r["purpose"] != "probe"], 1):
-        if r["ok"] and all(lo <= r["outputs"].get(n, np.nan) <= hi for n, (lo, hi) in lim.items()):
+        if r["ok"] and all((-np.inf if lo is None else lo) <= r["outputs"].get(n, np.nan) <= (np.inf if hi is None else hi)
+                           for n, (lo, hi) in lim.items()):
             best = min(best, r["outputs"][objective])
         xs.append(k)
         ys.append(best if np.isfinite(best) else np.nan)

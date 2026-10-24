@@ -88,6 +88,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   02 (plume forecast: PhysicsNeMo FNO rollout with `validate_rollout`) and 07 (cold plate: PhysicsNeMo FNO, PINNeAPPle
   checks, USD scene), numbered by the stack combination they cover, each with its architecture and result figures
   from a recorded CPU run.
+- PINNeAPPle Robot Sim (`pinneapple_simulation.robot_sim`): robots on NVIDIA Newton (CPU) from URDF, MJCF, UsdPhysics
+  or a plain `ArticulationSpec` (`TwoLinkArm`), effort-limited torque control (`pd_tracking`, `torque_trajectory`),
+  recorded joint-torque sensors, body poses, energy, actuator work and an IMU; `convergence_order`; a CEM learning
+  loop on rollouts (`robot_sim.learn.cem`); an `IsaacSimBackend` with the same interface (writes the Isaac Sim script);
+  `robot_sim.checks.arm_pick_and_place` and the Flow Studio nodes `lib.robot.arm_check` and `lib.export.usd_validate`.
+  `pinneapple_tools.nvidia.isaac`: Isaac Sim-ready UsdPhysics articulations and `validate_physics` (UsdPhysics parser,
+  masses, inertias, joints). `multibody.arm`: fixed-base inverse / forward dynamics, the closed-form two-link
+  reference, quintic motions, energy balance, `lumped_link`, `link_root_checks` (yield and fatigue).
+  `pinneapple_tools.nvidia.physicsnemo.MLPSurrogate` (PhysicsNeMo `FullyConnected` with its training box) and
+  `sign_violations`. Examples 03 (arm in the robot sim), 08 (learned dynamics: Newton data, PhysicsNeMo network,
+  PINNeAPPle physics checks) and 12 (one USD scene for Omniverse and the robot sim).
 - Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
   curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
   Joukowsky's head rise and the 4L/a period.

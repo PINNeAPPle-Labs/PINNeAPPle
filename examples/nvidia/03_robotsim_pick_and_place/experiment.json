@@ -1,0 +1,215 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/03_robotsim_pick_and_place",
+ "title": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized",
+ "description": "",
+ "domain": "robotics",
+ "methods": [
+  "Newton Featherstone",
+  "multibody tree",
+  "CEM",
+  "beam FDM"
+ ],
+ "modules": [
+  "pinneapple_simulation.robot_sim",
+  "pinneapple_simulation.multibody.arm"
+ ],
+ "params": {
+  "payload_kg": 5.0,
+  "duration_s": 0.8,
+  "section": "50x50x3 6061-T6"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "tracking_error_mrad",
+   "value": 0.4807320864886888,
+   "unit": "mrad",
+   "how": "max |q_sim - q_plan| over the move, Newton dt 0.25 ms"
+  },
+  {
+   "name": "peak_shoulder_torque",
+   "value": 114.33340694103825,
+   "unit": "N m",
+   "how": "joint-torque sensor, final Newton run"
+  },
+  {
+   "name": "replay_order",
+   "value": 1.007934460942717,
+   "unit": "",
+   "how": "slope of log(max replay error) vs log(dt)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "free swing: energy conserved, first order in dt",
+   "passed": true,
+   "value": 1.0000057932037347,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.8,
+   "min": null,
+   "detail": "max |dE|/E 3.08e-04 at dt 0.00025 s",
+   "kind": "physics"
+  },
+  {
+   "name": "torque replay converges to the planned motion",
+   "passed": true,
+   "value": 1.007934460942717,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.8,
+   "min": null,
+   "detail": "errors 24.98, 12.44, 6.18 mrad; Richardson -0.084 mrad",
+   "kind": "sanity"
+  },
+  {
+   "name": "closed-loop tracking error (rad)",
+   "passed": true,
+   "value": 0.0004807320864886888,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.002,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "energy balance: actuator work = dE",
+   "passed": true,
+   "value": 0.0013823100787848548,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "no actuator saturation",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "shoulder peak torque <= motor (N m)",
+   "passed": true,
+   "value": 114.33340694103825,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 120.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "elbow peak torque <= motor (N m)",
+   "passed": true,
+   "value": 41.87897358494441,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 60.0,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "shoulder link root: peak stress x SF 3 <= yield",
+   "passed": true,
+   "value": 0.14901703941543978,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "13.7 MPa",
+   "kind": "sanity"
+  },
+  {
+   "name": "shoulder link root: stress amplitude x SF 3 <= fatigue strength",
+   "passed": true,
+   "value": 0.21625162062440179,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "amplitude 7.0 MPa per cycle",
+   "kind": "sanity"
+  },
+  {
+   "name": "elbow link root: peak stress x SF 3 <= yield",
+   "passed": true,
+   "value": 0.05458317760621044,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "5.0 MPa",
+   "kind": "sanity"
+  },
+  {
+   "name": "elbow link root: stress amplitude x SF 3 <= fatigue strength",
+   "passed": true,
+   "value": 0.07444072991416172,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "amplitude 2.4 MPa per cycle",
+   "kind": "sanity"
+  },
+  {
+   "name": "forearm tip deflection <= 1 mm",
+   "passed": true,
+   "value": 0.00027106373810386063,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.001,
+   "min": null,
+   "detail": "peak payload acceleration 17.7 m/s2 (IMU)",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/tracking.png",
+   "results/verification.png",
+   "results/motion.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "00347f7a",
+  "created": "2026-10-24T01:00:06Z",
+  "seconds": 51.605,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

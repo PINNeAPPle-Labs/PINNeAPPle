@@ -1242,6 +1242,17 @@
   "stdout": "Plume forecast: PhysicsNeMo FNO rollout with PINNeAPPle rollout validation | transport | not curated\none_step_rel_l2 0.01804893909474389 \ntrust_horizon_steps 10.0 steps\nmass_drift 0.04480531539697272",
   "timed_out": false
  },
+ "example:examples/nvidia/03_robotsim_pick_and_place": {
+  "code_hash": "f8dd6d4d33f66f90",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.87,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
+  "timed_out": false
+ },
  "example:examples/nvidia/07_omniverse_physicsnemo_coldplate": {
   "code_hash": "6c1a74ed563c5c29",
   "figures": [],
@@ -1251,6 +1262,28 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene | heat transfer | not curated\ntest_rel_l2 0.017551220805002144 \nmax_hotspot_error_K 0.23619471814862428 K\ntrain_wall_s 153.67537451800104 s",
+  "timed_out": false
+ },
+ "example:examples/nvidia/08_robotsim_physicsnemo_learned_dynamics": {
+  "code_hash": "9f4599ce134dbf5b",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.09,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
+  "timed_out": false
+ },
+ "example:examples/nvidia/12_omniverse_robotsim_arm": {
+  "code_hash": "99b67289e7218c39",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.8,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
   "timed_out": false
  },
  "example:examples/openfoam_campaign": {
@@ -5475,6 +5508,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Any registry model: build + size -> pinneapple_flow.wrappers:model_architecture pinneapple_neural.architectures.registry\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': 'fno', 'in_dim': 1, 'out_dim': 1, 'hidden': 64}",
+  "timed_out": false
+ },
+ "node:lib.robot.arm_check": {
+  "code_hash": "fd93966a4c5b982a",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.85,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Arm move in the robot sim (Newton), checked -> pinneapple_simulation.robot_sim.checks:arm_pick_and_place\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'duration': 0.8, 'q_start': [-0.6, 1.2], 'q_end': [0.9, -0.4], 'dt': 0.0005, 'kp': [350.0, 110.0], 'kd': [5.0, 2.5], 'safety': 3.0}",
   "timed_out": false
  },
  "node:lib.rom.compare": {

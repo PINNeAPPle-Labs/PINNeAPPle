@@ -84,21 +84,22 @@ def main(smoke=False, base=None):
         for grp, rs in (("reconstructions", recon), ("rollouts", roll)):
             fail_by[grp] = {c["name"]: int(sum(not r["checks"][i]["passed"] for r in rs))
                             for i, c in enumerate(rs[0]["checks"])}
-        checks = [{"name": "ground-truth videos pass every check", "value": rate(gt), "limit": 1.0, "passed": rate(gt) == 1.0,
+        checks = [{"name": "ground-truth videos pass every check", "value": rate(gt), "limit": 1.0, "kind": "min", "passed": rate(gt) == 1.0,
                    "detail": f"{len(gt)} videos, {len(test_def)} with an occluder"},
                   {"name": "tracker vs exact labels (max error, px)", "value": max(track_err), "limit": 1.0,
                    "passed": max(track_err) <= 1.0},
                   {"name": "g from the pixels of ground truth (worst)", "value": max(g_err), "limit": 0.03,
                    "passed": max(g_err) <= 0.03},
-                  *[{"name": f"edit detected: {k}", "value": detected[k], "limit": 0.9, "passed": detected[k] >= 0.9}
+                  *[{"name": f"edit detected: {k}", "value": detected[k], "limit": 0.9, "kind": "min", "passed": detected[k] >= 0.9}
                     for k in KINDS],
-                  {"name": "world-model reconstructions pass", "value": rate(recon), "limit": 0.9,
+                  {"name": "world-model reconstructions pass", "value": rate(recon), "limit": 0.9, "kind": "min",
                    "passed": rate(recon) >= 0.9},
-                  {"name": "world-model rollouts pass", "value": rate(roll), "limit": 0.9, "passed": rate(roll) >= 0.9}]
+                  {"name": "world-model rollouts pass", "value": rate(roll), "limit": 0.9, "kind": "min", "passed": rate(roll) >= 0.9}]
         decision = "APPROVED" if all(c["passed"] for c in checks) else (
             "REVIEW" if all(c["passed"] for c in checks[:3]) else "REJECT")
         for c in checks:
-            ex.check(c["name"], c["passed"], value=c["value"], max=c["limit"], detail=c.get("detail", ""))
+            lim = {"min": c["limit"]} if c.get("kind") == "min" else {"max": c["limit"]}
+            ex.check(c["name"], c["passed"], value=c["value"], detail=c.get("detail", ""), **lim)
         ex.log_metric("rollout_pass_rate", rate(roll), "", f"fraction of {len(roll)} rollouts passing every check")
         ex.log_metric("rollout_pixel_mae", float(np.mean(pix)), "", "mean |frame - truth| over the rollout horizon")
         info.mark("PINNeAPPle World Model", ran=True, how=f"{wm.n_parameters()} parameters, {steps} steps on CPU")

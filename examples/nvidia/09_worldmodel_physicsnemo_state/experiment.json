@@ -61,10 +61,10 @@
    "reference": null,
    "rtol": null,
    "atol": null,
-   "max": 0.9,
-   "min": null,
+   "min": 0.9,
    "detail": "failures per check: {'object visible in every frame': 1, 'object area conserved (no growth, fading, vanishing)': 1, 'free-flight acceleration = g (fitted between bounces)': 2, 'no teleport (speed within what the fall height allows)': 0, 'energy never increases across a bounce (apex heights)': 0}",
-   "kind": "reference"
+   "kind": "reference",
+   "max": null
   },
   {
    "name": "g fitted from the rollout pixels (median)",

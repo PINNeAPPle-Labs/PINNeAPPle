@@ -482,3 +482,57 @@ def test_example_06_model_services_smoke(tmp_path):
 def test_example_15_request_to_bracket_smoke(tmp_path):
     s = _example("15_model_services_brep_bracket")["main"](True, str(tmp_path))
     assert s["answers"][0]["decision"] == "APPROVED" and s["answers"][1]["decision"] != "APPROVED"
+
+
+def test_physical_world_ground_truth_passes_and_edits_are_caught():
+    from pinneapple_worldmodel.physical_world import bouncing_ball_scene, corrupt, physics_checks, video_check
+    for seed in range(4):
+        v = bouncing_ball_scene(seed=seed)
+        r = physics_checks(v)
+        assert r["passed"], [c for c in r["checks"] if not c["passed"]]
+        assert abs(r["g_fit"] - 9.81) / 9.81 < 0.05
+        for kind in ("time_warp", "fade", "gravity_flip"):
+            assert not physics_checks(corrupt(v, kind, seed=seed))["passed"], kind
+    assert video_check(1)["decision"] == "APPROVED" and video_check(1, "fade")["decision"] == "REJECT"
+
+
+def test_physical_world_state_encoder_reads_positions():
+    from pinneapple_worldmodel.physical_world import StateEncoder, dataset
+    train, test = dataset(16, seed=1), dataset(2, seed=99)
+    enc = StateEncoder().fit(train, steps=300)
+    c = enc.predict(test[0].frames)
+    err = np.hypot(c[:, 0] - test[0].labels["cx_px"], c[:, 1] - test[0].labels["cy_px"])
+    assert np.median(err) < 4.0
+
+
+@needs_pxr
+def test_inspection_label_follows_physics_and_glint_is_rejected(tmp_path):
+    from pinneapple_tools.nvidia.omniverse import validate_stage
+    from pinneapple_worldmodel.inspection_data import inspection_sample, thermal_plate
+    p = thermal_plate((0.4, 0.6, 0.1))
+    assert p["rise"] > 0.05 and np.hypot(p["label_xy"][0] - 0.4, p["label_xy"][1] - 0.6) < 0.1
+    a, b = thermal_plate((0.4, 0.6, 0.1), 48)["label_xy"], thermal_plate((0.4, 0.6, 0.1), 96)["label_xy"]
+    assert np.hypot(a[0] - b[0], a[1] - b[1]) < 1.5 / 48
+    ok = inspection_sample(0.4, 0.6, 0.1, seed=3, usd_path=str(tmp_path / "a.usda"))
+    assert ok["decision"] == "ACCEPTED"
+    assert validate_stage(ok["usd"], required_primvars={"/World/Plate": ["temperature", "radiance"]})["ok"]
+    rejected = [inspection_sample(0.4, 0.6, 0.07, seed=s, glint=True, usd_path=str(tmp_path / f"g{s}.usda"))
+                ["decision"] == "REJECTED" for s in range(4)]
+    assert sum(rejected) >= 2
+
+
+def test_example_04_world_model_video_smoke(tmp_path):
+    s = _example("04_worldmodel_physics_video")["main"](True, str(tmp_path))
+    assert os.path.exists(tmp_path / "results" / "architecture.png") and "decision" in s
+
+
+@needs_pnemo
+def test_example_09_state_world_model_smoke(tmp_path):
+    s = _example("09_worldmodel_physicsnemo_state")["main"](True, str(tmp_path))
+    assert os.path.exists(tmp_path / "results" / "rollouts.png") and "decision" in s
+
+
+@needs_pxr
+def test_example_13_inspection_smoke(tmp_path):
+    s = _example("13_omniverse_worldmodel_inspection")["main"](True, str(tmp_path))
+    assert all(u["ok"] for u in s["usd"]) and os.path.exists(tmp_path / "results" / "samples.png")

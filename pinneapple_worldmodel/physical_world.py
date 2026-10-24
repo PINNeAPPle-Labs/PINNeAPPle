@@ -37,7 +37,7 @@ from typing import Any
 import numpy as np
 
 __all__ = ["Video", "bouncing_ball_scene", "dataset", "track_object", "physics_checks", "corrupt", "WorldModel",
-           "StateEncoder", "render_like", "state_pairs", "CosmosAdapter", "G"]
+           "StateEncoder", "render_like", "state_pairs", "CosmosAdapter", "G", "video_check"]
 
 G = 9.81
 
@@ -234,6 +234,17 @@ def physics_checks(video, *, dt: float | None = None, px_per_m: float | None = N
     return {"checks": checks, "passed": all(c["passed"] for c in checks), "track": tr, "g_fit": g_fit}
 
 
+def video_check(seed: int = 0, edit: str = "none") -> dict[str, Any]:
+    """A synthetic bouncing-ball video (exact physics, randomized camera), optionally edited (``"time_warp"``,
+    ``"teleport"``, ``"fade"``, ``"gravity_flip"``), judged by :func:`physics_checks` from its pixels alone."""
+    v = bouncing_ball_scene(seed=seed)
+    if edit != "none":
+        v = corrupt(v, edit, seed=seed)
+    r = physics_checks(v)
+    return {"decision": "APPROVED" if r["passed"] else "REJECT", "edit": edit, "g_fit": r["g_fit"],
+            "checks": [{k: c[k] for k in ("name", "passed", "value") if k in c} for c in r["checks"]]}
+
+
 def corrupt(video: Video, kind: str, seed: int = 0) -> Video:
     """Non-physical edits: ``"time_warp"`` (motion played at a varying rate), ``"teleport"`` (frames swapped in the
     middle), ``"fade"`` (the object fades out), ``"gravity_flip"`` (the video played backwards in time after the
@@ -378,10 +389,15 @@ class StateEncoder:
                                  nn.Linear(32 * (H // 8) * (W // 8), 64), nn.SiLU(), nn.Linear(64, 2))
 
     def fit(self, videos, *, steps: int = 1500, batch: int = 64, lr: float = 2e-3, seed: int = 0):
+        return self.fit_points(np.concatenate([v.frames for v in videos]),
+                               np.concatenate([np.c_[v.labels["cx_px"], v.labels["cy_px"]] for v in videos]),
+                               steps=steps, batch=batch, lr=lr, seed=seed)
+
+    def fit_points(self, frames, points_px, *, steps: int = 1500, batch: int = 64, lr: float = 2e-3, seed: int = 0):
+        """Train on any images ``(N, H, W)`` with a labelled point ``(N, 2)`` (column, row in pixels)."""
         import torch
-        X = torch.tensor(np.concatenate([v.frames for v in videos])[:, None])
-        Y = torch.tensor(np.concatenate([np.c_[v.labels["cx_px"] / self.W, v.labels["cy_px"] / self.H]
-                                         for v in videos]), dtype=torch.float32)
+        X = torch.tensor(np.asarray(frames, np.float32)[:, None])
+        Y = torch.tensor(np.asarray(points_px, float) / [self.W, self.H], dtype=torch.float32)
         opt = torch.optim.Adam(self.net.parameters(), lr=lr)
         rng = np.random.default_rng(seed)
         for k in range(steps):

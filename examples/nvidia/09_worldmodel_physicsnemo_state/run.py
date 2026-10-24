@@ -7,7 +7,7 @@ what they are worth: a small CNN (``StateEncoder``) reads the ball's position fr
 labelled transitions, and the rollout is rendered with each test video's own camera and appearance. The checks read
 only the rendered pixels, exactly as for any other video.
 
-    python examples/nvidia/09_worldmodel_physicsnemo_state/run.py        # ~3 min on 4 CPU cores
+    python examples/nvidia/09_worldmodel_physicsnemo_state/run.py        # ~36 min on 4 CPU cores
 """
 import argparse
 import json
@@ -21,7 +21,13 @@ from pinneapple_tools.nvidia.diagram import Block, architecture_diagram
 from pinneapple_tools.nvidia.figures import checks_figure
 from pinneapple_tools.nvidia.physicsnemo import MLPSurrogate, relative_errors
 from pinneapple_tools.nvidia.runinfo import RunInfo
-from pinneapple_worldmodel.physical_world import StateEncoder, dataset, physics_checks, render_like, state_pairs
+from pinneapple_worldmodel.physical_world import (
+    StateEncoder,
+    dataset,
+    physics_checks,
+    render_like,
+    state_pairs,
+)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONTEXT, HORIZON = 8, 40
@@ -87,14 +93,15 @@ def main(smoke=False, base=None):
                    "passed": max(enc_err) <= 1.5},
                   {"name": "one-step state error (worst component, rel. RMS)", "value": float(step_err.max()),
                    "limit": 0.05, "passed": step_err.max() <= 0.05},
-                  {"name": "rendered rollouts pass every video physics check", "value": rate, "limit": 0.9,
+                  {"name": "rendered rollouts pass every video physics check", "value": rate, "limit": 0.9, "kind": "min",
                    "passed": rate >= 0.9, "detail": f"failures per check: {fails}"},
                   {"name": "g fitted from the rollout pixels (median)", "value": float(abs(np.nanmedian(g_fit) - 9.81) / 9.81),
                    "limit": 0.05, "passed": abs(np.nanmedian(g_fit) - 9.81) / 9.81 <= 0.05,
                    "detail": f"median g {np.nanmedian(g_fit):.2f} m/s2"}]
         decision = "APPROVED" if all(c["passed"] for c in checks) else "REVIEW"
         for c in checks:
-            ex.check(c["name"], c["passed"], value=c["value"], max=c["limit"], detail=c.get("detail", ""))
+            lim = {"min": c["limit"]} if c.get("kind") == "min" else {"max": c["limit"]}
+            ex.check(c["name"], c["passed"], value=c["value"], detail=c.get("detail", ""), **lim)
         ex.log_metric("rollout_pass_rate", rate, "", f"fraction of {len(res)} rendered rollouts passing every check")
         ex.log_metric("rollout_g_median", float(np.nanmedian(g_fit)), "m/s^2", "fitted from the rendered rollout pixels")
         info.mark("PINNeAPPle World Model (state encoder, renderer)", ran=True)
@@ -118,7 +125,7 @@ def _figures(OUT, traj, res, checks, decision):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     fig, axs = plt.subplots(1, 2, figsize=(11.5, 3.8))
-    for j, (v, states, ref) in enumerate(traj[:3]):
+    for j, (v, states, _ref) in enumerate(traj[:3]):
         t = (np.arange(len(states)) + CONTEXT - 1) * v.dt
         line, = axs[0].plot(t, states[:, 1], "-", lw=1.5, label=f"rollout {j}")
         axs[0].plot(v.labels["t"], v.labels["y_m"], "--", lw=1, color=line.get_color(), label=f"exact {j}")

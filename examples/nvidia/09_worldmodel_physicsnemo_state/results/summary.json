@@ -58,7 +58,8 @@
    "value": 0.9,
    "limit": 0.9,
    "passed": true,
-   "detail": "failures per check: {'object visible in every frame': 1, 'object area conserved (no growth, fading, vanishing)': 1, 'free-flight acceleration = g (fitted between bounces)': 2, 'no teleport (speed within what the fall height allows)': 0, 'energy never increases across a bounce (apex heights)': 0}"
+   "detail": "failures per check: {'object visible in every frame': 1, 'object area conserved (no growth, fading, vanishing)': 1, 'free-flight acceleration = g (fitted between bounces)': 2, 'no teleport (speed within what the fall height allows)': 0, 'energy never increases across a bounce (apex heights)': 0}",
+   "kind": "min"
   },
   {
    "name": "g fitted from the rollout pixels (median)",

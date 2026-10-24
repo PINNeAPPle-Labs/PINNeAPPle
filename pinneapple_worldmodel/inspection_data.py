@@ -27,7 +27,7 @@ from dataclasses import asdict, dataclass
 import numpy as np
 
 __all__ = ["thermal_plate", "Variation", "sample_variation", "write_variation_stage", "thermal_image", "label_check",
-           "camera_transform"]
+           "nominal_image", "camera_transform", "inspection_dataset", "inspection_sample"]
 
 
 def thermal_plate(defect: tuple[float, float, float], n: int = 48, *, k: float = 1.0, k_void: float = 0.15,
@@ -89,8 +89,9 @@ def camera_transform(var: Variation, H: int, W: int):
 
 
 def write_variation_stage(path: str, plate: dict, var: Variation, *, cmap: str = "gray") -> str:
-    from pinneapple_tools.nvidia.omniverse import FieldStage, grid_surface
     from pxr import Gf, Sdf, UsdGeom
+
+    from pinneapple_tools.nvidia.omniverse import FieldStage, grid_surface
     c = plate["x"]
     X, Y = np.meshgrid(c, c, indexing="ij")
     T = plate["T"]
@@ -134,16 +135,80 @@ def thermal_image(stage_path: str, var: Variation, H: int = 64, W: int = 64, see
     return np.clip(img, 0, 1).astype(np.float32)
 
 
-def label_check(image: np.ndarray, var: Variation, label_xy, *, tol: float = 0.08) -> dict:
-    """Does the image still show the physical hot spot where the label says? Brightest point after a 2-px Gaussian,
-    mapped back to the plate; ``tol`` in plate units (0.08 = about 4 cells)."""
+def nominal_image(stage_path: str, plate: dict, var: Variation, H: int = 64, W: int = 64) -> np.ndarray:
+    """What the same camera would see on the defect-free plate (the inspector's reference): the nominal field through
+    the variation's gain, offset, pose and blur, no glint, no noise."""
+    from dataclasses import replace
+    ref = dict(plate, T=plate["T0"])
+    clean = replace(var, glint=None, noise=0.0)
+    path = stage_path.replace(".usd", ".nominal.usd")
+    write_variation_stage(path, ref, clean)
+    try:
+        return thermal_image(path, clean, H, W)
+    finally:
+        cleanup([path])
+
+
+def label_check(image: np.ndarray, nominal: np.ndarray, var: Variation, label_xy, *, tol: float = 0.08) -> dict:
+    """Does the image still show the physical anomaly where the label says? The residual against the nominal image,
+    smoothed (2 px), its maximum mapped back to the plate; ``tol`` in plate units (0.08 = about 4 cells). A glint or
+    saturation that outshines the defect moves the maximum and fails."""
     from scipy import ndimage
-    sm = ndimage.gaussian_filter(image, 2.0)
+    sm = ndimage.gaussian_filter(image - nominal, 2.0)
     r, c = np.unravel_index(int(np.argmax(sm)), sm.shape)
     _, inv = camera_transform(var, *image.shape)
     u, v = inv(np.array([[c, r]], float))[0]
     err = float(np.hypot(u - label_xy[0], v - label_xy[1]))
     return {"found_xy": (float(u), float(v)), "error": err, "passed": err <= tol}
+
+
+def inspection_dataset(n: int, seed: int, workdir: str, *, glint_p: float = 0.25, H: int = 64, W: int = 64,
+                       keep_stages: int = 0) -> dict:
+    """``n`` samples: a random subsurface void, its steady temperature field, a random camera variation written as a
+    USD stage and rendered from it, the physical label in pixels, and the label check. Stages beyond the first
+    ``keep_stages`` are deleted after rendering."""
+    rng = np.random.default_rng(seed)
+    os.makedirs(workdir, exist_ok=True)
+    out = {"images": [], "label_px": [], "label_xy": [], "accepted": [], "found_error": [], "variations": [],
+           "rise": [], "stages": []}
+    for i in range(n):
+        defect = (rng.uniform(0.25, 0.75), rng.uniform(0.25, 0.75), rng.uniform(0.06, 0.12))
+        plate = thermal_plate(defect)
+        var = sample_variation(rng, glint_p=glint_p)
+        path = write_variation_stage(os.path.join(workdir, f"sample_{seed}_{i:04d}.usda"), plate, var)
+        img = thermal_image(path, var, H, W, seed=seed * 100003 + i)
+        chk = label_check(img, nominal_image(path, plate, var, H, W), var, plate["label_xy"])
+        fwd, _ = camera_transform(var, H, W)
+        out["images"].append(img)
+        out["label_px"].append(fwd(plate["label_xy"])[0])
+        out["label_xy"].append(plate["label_xy"])
+        out["accepted"].append(chk["passed"])
+        out["found_error"].append(chk["error"])
+        out["variations"].append(var)
+        out["rise"].append(plate["rise"])
+        if i < keep_stages:
+            out["stages"].append(path)
+        else:
+            cleanup([path])
+    for k in ("images", "label_px", "label_xy", "accepted", "found_error", "rise"):
+        out[k] = np.asarray(out[k])
+    return out
+
+
+def inspection_sample(x: float = 0.4, y: float = 0.6, r: float = 0.08, seed: int = 0, glint: bool = False,
+                      usd_path: str = "inspection_sample.usda") -> dict:
+    """One synthetic thermal-inspection sample: the plate with a void at ``(x, y)``, radius ``r`` (plate units), a
+    random camera variation (with a specular glint if asked) written as a USD stage at ``usd_path``, and the label
+    check of its image."""
+    rng = np.random.default_rng(seed)
+    plate = thermal_plate((x, y, r))
+    var = sample_variation(rng, glint_p=1.0 if glint else 0.0)
+    path = write_variation_stage(usd_path, plate, var)
+    img = thermal_image(path, var, seed=seed)
+    chk = label_check(img, nominal_image(path, plate, var), var, plate["label_xy"])
+    return {"decision": "ACCEPTED" if chk["passed"] else "REJECTED", "label_xy": plate["label_xy"],
+            "found_xy": chk["found_xy"], "error": chk["error"], "surface_rise": plate["rise"],
+            "variation": var.to_dict(), "usd": path}
 
 
 def cleanup(paths) -> None:

@@ -167,6 +167,12 @@
   "domain": "numerical solvers",
   "notes": "flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate"
  },
+ "nvidia": {
+  "domain": "NVIDIA stack",
+  "needs": "usd-core (pxr) and nvidia-physicsnemo",
+  "reason": "01 writes OpenUSD stages with usd-core, 02 and 07 train NVIDIA PhysicsNeMo models (07 also writes USD); neither package is installed on this machine, so the three run.py studies (#860) are not flows yet",
+  "status": "needs"
+ },
  "openfoam_campaign": {
   "domain": "CFD",
   "notes": "no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt"

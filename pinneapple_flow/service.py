@@ -83,7 +83,7 @@ class FlowService:
 
         from . import __version__
         return {"version": __version__, "settings": self.settings.public(),
-                "hub_url": os.environ.get("FLOW_HUB_URL", "http://127.0.0.1:8116"),   # the PINNeAPPle Hub (apps/hub)
+                "hub_url": os.environ.get("FLOW_HUB_URL") or "http://127.0.0.1:8116",   # the PINNeAPPle Hub (apps/hub)
                 "planners": ["heuristic"] + ([f"llm:{self.settings.llm_provider}"]
                                              if self.settings.llm_provider not in ("", "none") else [])}
 

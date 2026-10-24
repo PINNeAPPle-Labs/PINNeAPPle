@@ -56,6 +56,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | A problem description to a runnable flow of library calls (node graph, GUI or headless) | `pinneapple_flow.plan(text)`, `pinneapple_flow.run(flow)`, `python -m pinneapple_flow run flow.json` / `studio`; equations as safe text `pinneapple_physics.symbolic_pde.text.parse_system`, any parsed system by finite differences `pinneapple_simulation.numerical_solvers.symbolic_fd.solve_fd` ([schema](docs/guides/flow_schema.md), [app](apps/flow_studio/README.md)) |
 | Predict El Niño: ENSO data (OISST, WOD thermocline, ERA5), recharge / delayed oscillators, an intermediate coupled model with checks against theory, PINNs, LIM / CNN, EnKF, the forecast_lab protocol | `pinneapple_systems.time_series.enso`: `dataset.build_dataset()`, `dataset.to_series(ds)`, `study.protocol(ds.months)`, `study.run_model(name, data, prot)`, `pipeline.solver_checks()` ([docs](docs/guides/enso_forecasting.md)) |
 | A ready-made industrial case (water hammer, pipe network, heat sink, power PCB, footbridge, ...): data sheet with sourced defaults, solve with your parameters, references with measured error, surrogate, inversion, optimisation | `pp.presets.names()`, `pp.presets.load(name).card()` / `.run(**params)` / `.run(fidelity="surrogate")` / `.validate()` / `.invert()` / `.optimize()`; `python -m pinneapple_presets list`; Flow node `preset.run` ([docs](docs/guides/industrial_presets.md)) |
+| Science by area: an atlas of every area (available / partial / planned, pointing to the code that covers it) and experiments at academic or research level, theory or virtual bench, in 0D to 3D + time, each checked against cited references with a trust report and a Lab seal (electromagnetism first) | `pp.science.atlas()`, `pp.science.experiments(area=, level=, kind=, dim=)`, `pp.science.run(name, dim=...)` -> `Result` (`.comparisons`, `.trust`, `.save(dir)`), `pinneapple_science.em.fdtd_study.run_fdtd(FDTDConfig.from_dict({...}))`; `python -m pinneapple_science atlas \| list \| run \| report`; Flow nodes `science.run`, `science.atlas` ([docs](docs/guides/science.md)) |
 | Record an experiment so the Lab, the site and the Flow Studio see it (manifest, A-F grade, next steps) | `with pinneapple_lab.experiment("name", title=..., domain=...) as ex:` + `ex.log_metric` / `ex.check` (figures saved with `savefig` are recorded); `python -m pinneapple_lab scaffold <name>`, `register <folder>`, `seal --explain <item>`; format `pinneapple_lab.manifest` ([docs](docs/guides/adding_an_experiment.md)) |
 | A mission (objectives, limits, variables, simulation budget) on any simulator: plan, checked build, simulate, surrogates compared on held-out data, NSGA-II, triage (favourable / uncertain / out of domain), next simulation chosen by what is unknown, verified recommendation, ledger | `pinneapple_autolab`: `AutonomousLab(mission, simulator, folder).run()`, `Mission`, `Limit(lower_frac_of_baseline=...)`, `Simulator` / `FunctionSimulator`, `compare_models`, `ValidatedDomain`, `assess_candidates`, `choose_next`; racing-car OpenFOAM domain `domains.racecar.RaceCarAero`, `flagship_mission()` ([docs](docs/guides/autonomous_lab.md)) |
 | Results to NVIDIA Omniverse (OpenUSD with fields, timeline, trust decision), PhysicsNeMo surrogates checked by PINNeAPPle, architecture figures | `pinneapple_tools.nvidia`: `omniverse.FieldStage(path).add_mesh(..., fields=, color_by=)`, `.add_time_samples`, `.set_trust`, `omniverse.validate_stage(path)`, `diagram.architecture_diagram(...)`; worked examples in `examples/nvidia` ([README](examples/nvidia/README.md)) |
@@ -170,6 +171,19 @@ print(r)                                               # outputs, decision (pres
 assert r.trust.decisao == "APPROVED" and p.validate()["all_pass"]   # Joukowsky, rigid-column theory, convergence
 fast = p.run(t_close=2.0)                              # too fast: over PN16 and the line cavitates
 assert fast.decision["verdict"] == "NOT OK" and fast.trust.decisao != "APPROVED"
+```
+
+### Science by area
+
+```python
+import pinneapple as pp
+
+atlas = pp.science.atlas()                             # 20 areas; each subarea available / partial / planned
+assert pp.science.validate() == []                     # every pointer names code that exists
+print([e["name"] for e in pp.science.experiments(dim="3D+t")])
+r = pp.science.run("em.hall_effect")                   # 2-D Hall bar vs the Drude coefficient 1/(n q)
+print(r)                                               # computed vs reference with its source, checks, trust
+assert r.passed and r.trust.decisao == "APPROVED"
 ```
 
 ### Dashboard of a time-dependent result

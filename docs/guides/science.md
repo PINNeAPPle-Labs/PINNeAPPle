@@ -23,7 +23,9 @@ python -m pinneapple_science run em.hall_effect
 python -m pinneapple_science report all                          # rewrites examples/science/ (manifests, seals)
 ```
 
-Flow Studio: node `science.run` (choose the experiment and the dimension) and `science.atlas`.
+Flow Studio: node `science.run` (choose the experiment and the dimension) and `science.atlas`. Hub: the two
+nodes, the `pp.science` API and recipe, and one example entry per experiment folder (with its Lab seal), under
+*Verification and convergence*. Agents: the row and the example in `AGENTS.md`.
 
 ## What every experiment declares
 

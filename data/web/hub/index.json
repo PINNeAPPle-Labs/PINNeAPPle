@@ -2,7 +2,7 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 423,
+  "tool": 425,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
@@ -121,7 +121,7 @@
  ],
  "facets": {
   "kind": {
-   "tool": 423,
+   "tool": 425,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
@@ -131,12 +131,12 @@
   "subkind": {
    "library call": 249,
    "flow node": 91,
-   "recipe": 46,
-   "function": 20,
+   "recipe": 47,
+   "function": 21,
    "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 94,
+   "physics AI": 95,
    "general": 79,
    "fluid dynamics": 60,
    "design and geometry": 58,
@@ -147,8 +147,8 @@
    "system dynamics": 41,
    "heat transfer": 28,
    "science / physics.electromagnetism": 20,
+   "electromagnetics": 14,
    "vehicle dynamics": 14,
-   "electromagnetics": 13,
    "time series": 9,
    "flight dynamics": 8,
    "geophysics and climate": 8,
@@ -183,7 +183,7 @@
    "surrogates": 10,
    "zoo": 9,
    "checks": 33,
-   "verification": 34,
+   "verification": 36,
    "benchmarks": 14,
    "uq": 13,
    "inverse": 6,
@@ -197,7 +197,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 553,
+   "not graded": 555,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -14156,7 +14156,9 @@
    "quality": null,
    "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"science.atlas\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
    "results": null,
-   "examples": [],
+   "examples": [
+    "api:pp-science-atlas"
+   ],
    "files": [],
    "links": {
     "guide": "apps/flow_studio/README.md",
@@ -14251,7 +14253,9 @@
    "quality": null,
    "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"science.run\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
    "results": null,
-   "examples": [],
+   "examples": [
+    "api:pp-science-atlas"
+   ],
    "files": [],
    "links": {
     "guide": "apps/flow_studio/README.md",
@@ -18138,6 +18142,73 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "pinneapple_neural.callbacks.PhysicsMonitor(problem, data=None, *, reference=None, query=None, level: 'str' = 'quick', every: 'int' = 100, patience: 'int' = 3, action: 'str' = 'warn', watch: 'Sequence[str] | None' = None, model_fn: 'Callable[[Any], Any] | None' = None, tolerances: 'Mapping[str, float] | None' = None, report_path: 'str | Path | None' = None, seed: 'int' = 0)\nThe checks of ``pp.validate(model, problem, data, reference, query, level)`` as training metrics.",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "api:pp-science-atlas",
+   "kind": "tool",
+   "subkind": "function",
+   "name": "pp.science.atlas",
+   "title": "Science by area: an atlas of every area (available / partial / planned, pointing to the code that covers it) and experiments at academic or research level, theory or virtual bench, in 0D to 3D + time, each checked against cited references with a trust report and a Lab seal (electromagnetism first)",
+   "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``.",
+   "description": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned\ndata file ``pinneapple_science/data/atlas.json``.",
+   "domain": "electromagnetics",
+   "tags": [
+    "pinneapple_science.em.fdtd_study.run_fdtd",
+    "pp.science.atlas",
+    "pp.science.experiments",
+    "pp.science.run"
+   ],
+   "quality": null,
+   "code": "import inspect\nimport pinneapple as pp\n\nprint(\"pp.science.atlas\" + str(inspect.signature(pp.science.atlas)))\nprint(inspect.getdoc(pp.science.atlas).splitlines()[0])\n",
+   "results": null,
+   "examples": [
+    "node:science.atlas",
+    "node:science.run"
+   ],
+   "files": [],
+   "links": {
+    "guide": "",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_science/atlas.py#L145",
+    "flow_studio": "?node=science.atlas"
+   },
+   "extra": {
+    "functions": [
+     {
+      "name": "pp.science.atlas",
+      "signature": "(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'",
+      "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``."
+     },
+     {
+      "name": "pp.science.experiments",
+      "signature": "(area: 'str | None' = None, *, level: 'str | None' = None, kind: 'str | None' = None, dim: 'str | None' = None) -> 'list[dict[str, Any]]'",
+      "summary": "Cards of the experiments matching every filter given (``area`` matches the area id or its prefix)."
+     },
+     {
+      "name": "pp.science.run",
+      "signature": "(name: 'str', dim: 'str | None' = None, *, quick: 'bool' = False, **params) -> 'Result'",
+      "summary": "Run one experiment in one dimension (its first by default) with parameters over its defaults."
+     },
+     {
+      "name": "pinneapple_science.em.fdtd_study.run_fdtd",
+      "signature": "(cfg: 'FDTDConfig', *, snapshots: 'int' = 24, volume_half: 'int' = 3, volume_steps: 'int' = 24, maxwell_block: 'bool' = True, snap_window: 'tuple[float, float]' = (2.0, 7.0)) -> 'FDTDRun'",
+      "summary": "Run the configured study: returns power at f0 (near-to-far-field box two cells inside the CPML), the snapshots of E_z on the three central planes during ``snap_window`` (periods…"
+     }
+    ],
+    "table_row": "`pp.science.atlas()`, `pp.science.experiments(area=, level=, kind=, dim=)`, `pp.science.run(name, dim=...)` -> `Result` (`.comparisons`, `.trust`, `.save(dir)`), `pinneapple_science.em.fdtd_study.run_fdtd(FDTDConfig.from_dict({...}))`; `python -m pinneapple_science atlas \\"
+   },
+   "category": "verification",
+   "run": {
+    "code_hash": "801ddf3e9f309c34",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 5.34,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "pp.science.atlas(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'\nThe atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned",
     "timed_out": false,
     "status": "ok"
    }
@@ -47010,7 +47081,7 @@
    "id": "recipe:agents-dashboard-of-a-time-dependent-result",
    "kind": "tool",
    "subkind": "recipe",
-   "name": "agents_md_6",
+   "name": "agents_md_7",
    "title": "Dashboard of a time-dependent result",
    "summary": "From AGENTS.md: dashboard of a time-dependent result.",
    "description": "",
@@ -47950,6 +48021,52 @@
    }
   },
   {
+   "id": "recipe:agents-science-by-area",
+   "kind": "tool",
+   "subkind": "recipe",
+   "name": "agents_md_6",
+   "title": "Science by area",
+   "summary": "From AGENTS.md: science by area.",
+   "description": "",
+   "domain": "physics AI",
+   "tags": [
+    "pp.science.atlas",
+    "pp.science.experiments",
+    "pp.science.run",
+    "pp.science.validate"
+   ],
+   "quality": {
+    "label": "runs in CI",
+    "source": "tests/test_agents_md.py"
+   },
+   "code": "import pinneapple as pp\n\natlas = pp.science.atlas()                             # 20 areas; each subarea available / partial / planned\nassert pp.science.validate() == []                     # every pointer names code that exists\nprint([e[\"name\"] for e in pp.science.experiments(dim=\"3D+t\")])\nr = pp.science.run(\"em.hall_effect\")                   # 2-D Hall bar vs the Drude coefficient 1/(n q)\nprint(r)                                               # computed vs reference with its source, checks, trust\nassert r.passed and r.trust.decisao == \"APPROVED\"\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "AGENTS.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/AGENTS.md"
+   },
+   "extra": {
+    "origin": "AGENTS.md"
+   },
+   "category": "verification",
+   "run": {
+    "code_hash": "1ad403bb2a093839",
+    "figures": [
+     "data/web/hub/figures/recipe_agents-science-by-area_0.png"
+    ],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 6.11,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "['em.dipole_radiation', 'em.faraday_induction', 'em.research_fdtd_3d']\nHall effect [2D, academic, theory]: PASS, trust APPROVED\n  ok  Hall coefficient R_H = E_y / (J_x B): -0.000623757 vs -0.000624151 m^3/C (rel. error 6.31e-04, tol 0.002; closed_form)\n  ok  R_H error falls with the grid\n  ok  sign of V_H gives the carrier sign\n  ok  contacts short the Hall voltage in short bars (G rises with L/W)",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "recipe:pinneapple_analysis__1",
    "kind": "tool",
    "subkind": "recipe",
@@ -48180,7 +48297,7 @@
    "id": "recipe:agents-validation-status-of-a-method",
    "kind": "tool",
    "subkind": "recipe",
-   "name": "agents_md_7",
+   "name": "agents_md_8",
    "title": "Validation status of a method",
    "summary": "From AGENTS.md: validation status of a method.",
    "description": "",

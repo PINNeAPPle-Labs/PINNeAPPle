@@ -1,0 +1,91 @@
+{
+ "decision": "REVIEW",
+ "samples": 120000,
+ "train_steps": 40000,
+ "train_wall_s": 88.63861638995695,
+ "heldout_rel_rms": [
+  0.04878147024380754,
+  0.023253155396004255
+ ],
+ "vs_rigid_body_rel_rms": [
+  0.048781889247224944,
+  0.02325366613389532
+ ],
+ "newton_vs_rigid_body": [
+  8.664357845023025e-06,
+  8.288654422837868e-06
+ ],
+ "gravity_rel_rms": [
+  0.0056982008845876874,
+  0.004103834907621858
+ ],
+ "mass_matrix_rel": 0.0066083837934479295,
+ "mass_matrix_min_eig": 0.11472401963651757,
+ "tracking_mrad": {
+  "PD only": 961.534435280865,
+  "PD + rigid-body feedforward": 1.9323260549942711,
+  "PD + PhysicsNeMo feedforward": 4.633960296031803
+ },
+ "envelope_fraction": 0.9987515605493134,
+ "envelope_fraction_fast": 0.9962546816479401,
+ "parameters": 51202,
+ "checks": [
+  {
+   "name": "held-out Newton runs: torque error (worst joint)",
+   "value": 0.04878147024380754,
+   "limit": 0.05,
+   "passed": 1.0
+  },
+  {
+   "name": "vs independent rigid-body model (worst joint)",
+   "value": 0.048781889247224944,
+   "limit": 0.05,
+   "passed": 1.0,
+   "detail": "Newton itself vs rigid body: 8.66e-06"
+  },
+  {
+   "name": "gravity torques at rest vs rigid body",
+   "value": 0.0056982008845876874,
+   "limit": 0.05,
+   "passed": 1.0
+  },
+  {
+   "name": "implied mass matrix vs rigid body",
+   "value": 0.0066083837934479295,
+   "limit": 0.1,
+   "passed": true
+  },
+  {
+   "name": "implied mass matrix symmetric",
+   "value": 0.010304826997997797,
+   "limit": 0.1,
+   "passed": 1.0
+  },
+  {
+   "name": "implied mass matrix positive definite",
+   "value": 0.11472401963651757,
+   "limit": null,
+   "passed": true,
+   "detail": "smallest eigenvalue 0.115 kg m2"
+  },
+  {
+   "name": "torque linear in acceleration (2x step)",
+   "value": 0.004191551268870788,
+   "limit": 0.1,
+   "passed": 1.0
+  },
+  {
+   "name": "pick-and-place inside the training envelope",
+   "value": 0.9987515605493134,
+   "limit": 1.0,
+   "passed": false
+  },
+  {
+   "name": "3x faster motion inside the training envelope",
+   "value": 0.9962546816479401,
+   "limit": 1.0,
+   "passed": false,
+   "detail": "a use outside the envelope is flagged, not trusted"
+  }
+ ]
+}

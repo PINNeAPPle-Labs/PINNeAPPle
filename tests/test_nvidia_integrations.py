@@ -485,7 +485,12 @@ def test_example_15_request_to_bracket_smoke(tmp_path):
 
 
 def test_physical_world_ground_truth_passes_and_edits_are_caught():
-    from pinneapple_worldmodel.physical_world import bouncing_ball_scene, corrupt, physics_checks, video_check
+    from pinneapple_worldmodel.physical_world import (
+        bouncing_ball_scene,
+        corrupt,
+        physics_checks,
+        video_check,
+    )
     for seed in range(4):
         v = bouncing_ball_scene(seed=seed)
         r = physics_checks(v)
@@ -536,3 +541,49 @@ def test_example_09_state_world_model_smoke(tmp_path):
 def test_example_13_inspection_smoke(tmp_path):
     s = _example("13_omniverse_worldmodel_inspection")["main"](True, str(tmp_path))
     assert all(u["ok"] for u in s["usd"]) and os.path.exists(tmp_path / "results" / "samples.png")
+
+
+@needs_newton
+@needs_pxr
+def test_robot_perception_labels_frames_and_payload(tmp_path):
+    from pinneapple_simulation.robot_sim import TwoLinkArm
+    from pinneapple_tools.nvidia.omniverse import validate_stage
+    from pinneapple_worldmodel.robot_perception import (
+        CameraVariation,
+        arm_motions,
+        camera_frames,
+        forward_points,
+        payload_track_check,
+        visibility,
+        write_motion_stage,
+    )
+    arm = TwoLinkArm(payload=2.2)
+    m = arm_motions(arm, 1, 0, moves=[((-0.6, 1.2), (0.9, -0.4))])[0]
+    assert np.abs(forward_points(arm, m["q"])["elbow"] - m["body_pos"][:, 2][:, [0, 2]]).max() < 1e-6
+    cam = CameraVariation(albedo=(0.5, 0.5))
+    V = np.array([[x, y, z] for x in (-0.05, 0.05) for y in (-0.05, 0.05) for z in (-0.05, 0.05)])
+    F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6],
+                  [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+    p = write_motion_stage(str(tmp_path / "m.usda"), arm, m, cam, payload=(V, F, 1.0))
+    assert validate_stage(p)["ok"]
+    fr = camera_frames(p, arm, m, cam, 96, 96)
+    assert fr.shape == (len(m["t"]), 96, 96) and visibility(arm, m, cam).all()
+    assert payload_track_check(fr, arm, m, cam)["max_px"] <= 2.0
+    occluded = CameraVariation(occluder=(*forward_points(arm, m["q"][:1])["elbow"][0], 0.3, 0.3))
+    assert not visibility(arm, m, occluded)[0]
+
+
+@needs_newton
+@needs_pxr
+def test_example_17_perception_smoke(tmp_path):
+    s = _example("17_omniverse_robotsim_worldmodel_perception")["main"](True, str(tmp_path))
+    assert s["label_error"] < 1e-6 and os.path.exists(tmp_path / "results" / "frames.png")
+
+
+@needs_newton
+@needs_pxr
+@needs_pnemo
+@needs_brep
+def test_example_18_work_cell_smoke(tmp_path):
+    s = _example("18_all_stacks_heatsink_cell")["main"](True, str(tmp_path))
+    assert s["part"]["t_source"] <= 75.0 and s["pixel_track_max_px"] <= 2.0 and s["usd"]["ok"]

@@ -595,12 +595,16 @@ def render_stage_gif(path: str, gif: str, times: Sequence[float], *, fps: float 
 
 
 def rasterize_topdown(path: str, H: int, W: int, *, bounds=None, time: float | None = None,
-                      exclude: Sequence[str] = (), background=(0.0, 0.0, 0.0)) -> np.ndarray:
-    """An orthographic top view (looking down -z) of the meshes of a USD file, ``(H, W, 3)`` sRGB in [0, 1]: every
-    triangle is filled with its vertices' ``displayColor`` interpolated (barycentric), nearest-z on top. ``bounds``:
-    ``(xmin, xmax, ymin, ymax)`` of the view (default: the meshes' extent). A camera for synthetic data, not an RTX
-    render."""
+                      exclude: Sequence[str] = (), background=(0.0, 0.0, 0.0), view: str = "top") -> np.ndarray:
+    """An orthographic view of the meshes of a USD file, ``(H, W, 3)`` sRGB in [0, 1]: every triangle is filled
+    with its vertices' ``displayColor`` interpolated (barycentric), nearest on top. ``view``: ``"top"`` (looking down
+    -z: x right, y up) or ``"side"`` (looking along +y: x right, z up). ``bounds``: ``(left, right, bottom, top)`` of
+    the view in those two axes (default: the meshes' extent). A camera for synthetic data, not an RTX render."""
     geo = [g for g in read_stage_geometry(path, time, exclude) if g["kind"] == "mesh"]
+    if view == "side":
+        geo = [dict(g, points=g["points"][:, [0, 2, 1]] * [1, 1, -1]) for g in geo]
+    elif view != "top":
+        raise ValueError(f"view must be 'top' or 'side', got {view!r}")
     P = np.concatenate([g["points"] for g in geo])
     xmin, xmax, ymin, ymax = bounds if bounds is not None else (P[:, 0].min(), P[:, 0].max(), P[:, 1].min(),
                                                                  P[:, 1].max())

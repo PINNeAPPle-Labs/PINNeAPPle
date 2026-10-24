@@ -52,7 +52,7 @@ def main(smoke=False, base=None):
          ("cam", "chk", "image"), ("chk", "det", "accepted"), ("usd", "rtx", ""), ("cam", "cos", "")],
         os.path.join(OUT, "architecture.png"),
         subtitle="Physics gives the label; the check drops augmentations that no longer show it. Hatched: not run here")
-    n_train, n_test, steps = (24, 8, 60) if smoke else (300, 80, 2500)
+    n_train, n_test, steps = (24, 8, 60) if smoke else (600, 80, 3000)
     work = tempfile.mkdtemp(prefix="insp13_")
     try:
         with experiment("examples/nvidia/13_omniverse_worldmodel_inspection", title="Synthetic thermal-inspection "
@@ -77,6 +77,8 @@ def main(smoke=False, base=None):
             acc = tr["accepted"]
             rej_glint = float(1 - acc[glint].mean()) if glint.any() else float("nan")
             rej_clean = float(1 - acc[~glint].mean())
+            sat_clean = float(tr["saturated"][~glint].mean())
+            rej_unsat = float(1 - acc[~glint & ~tr["saturated"]].mean())
             dets, errs = {}, {}
             for name, mask in (("all samples", np.ones(len(acc), bool)), ("accepted samples", acc)):
                 with info.step(f"detector on {name}"):
@@ -98,8 +100,10 @@ def main(smoke=False, base=None):
                  "detail": "; ".join(sum((v["problems"] for v in val), []))[:300]},
                 {"name": "label check rejects glint samples", "value": rej_glint, "limit": 0.5, "kind": "min",
                  "passed": rej_glint >= 0.5, "detail": f"{int(glint.sum())} samples with a glint"},
-                {"name": "label check keeps glint-free samples (false rejections)", "value": rej_clean, "limit": 0.1,
-                 "passed": rej_clean <= 0.1, "detail": f"{int((~glint).sum())} samples without a glint"},
+                {"name": "label check keeps glint-free, unsaturated samples (false rejections)",
+                 "value": rej_unsat, "limit": 0.1, "passed": rej_unsat <= 0.1,
+                 "detail": f"{int((~glint & ~tr['saturated']).sum())} samples; {sat_clean:.0%} of glint-free samples "
+                           "saturate at the label and are dropped"},
                 {"name": f"detector (accepted samples) within {TOL_PX:.0f} px on test images showing the defect",
                  "value": best, "limit": 0.9, "kind": "min", "passed": best >= 0.9}]
             decision = "APPROVED" if all(c["passed"] for c in checks) else "REVIEW"
@@ -117,7 +121,8 @@ def main(smoke=False, base=None):
             _figures(OUT, tr, te, errs, checks, decision)
             summary = {"decision": decision, "label_shift_max": max(shifts), "train": int(len(acc)),
                        "train_accepted": int(acc.sum()), "train_glint": int(glint.sum()),
-                       "rejected_glint": rej_glint, "rejected_clean": rej_clean, "test": int(len(vis)),
+                       "rejected_glint": rej_glint, "rejected_clean": rej_clean, "saturated_clean": sat_clean,
+                       "rejected_unsaturated_clean": rej_unsat, "test": int(len(vis)),
                        "test_defect_visible": int(vis.sum()), "detector": score,
                        "usd": [{k: v[k] for k in ("ok", "meshes", "prims")} for v in val], "checks": checks}
             with open(os.path.join(OUT, "summary.json"), "w") as f:
@@ -135,16 +140,18 @@ def _figures(OUT, tr, te, errs, checks, decision):
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    render_stage_png(tr["stages"][0], os.path.join(OUT, "usd_preview.png"), elev=60, azim=-90,
+    render_stage_png(tr["stages"][0], os.path.join(OUT, "usd_preview.png"), elev=90, azim=-90, flat=True,
                      title="Sample stage read back from USD (displayColor = camera radiance)")
     acc = tr["accepted"]
-    order = list(np.flatnonzero(acc)[:6]) + list(np.flatnonzero(~acc)[:4])
-    fig, axs = plt.subplots(2, 5, figsize=(12.5, 5.4))
+    sat = tr["saturated"]
+    order = (list(np.flatnonzero(acc)[:5]) + list(np.flatnonzero(~acc & sat)[:2])
+             + list(np.flatnonzero(~acc & ~sat)[:3]))
+    fig, axs = plt.subplots(2, 5, figsize=(12.5, 5.9))
     for a, i in zip(axs.ravel(), order, strict=False):
         a.imshow(tr["images"][i], cmap="inferno", vmin=0, vmax=1)
         a.plot(*tr["label_px"][i], "c+", ms=12, mew=2)
         v = tr["variations"][i]
-        tag = "glint" if v.glint is not None else "no glint"
+        tag = "glint" if v.glint is not None else ("saturated" if tr["saturated"][i] else "no glint")
         a.set_title(f"{'accepted' if acc[i] else 'REJECTED'} ({tag})", fontsize=8,
                     color="k" if acc[i] else "#b00020")
         a.set_xticks([])
@@ -152,7 +159,7 @@ def _figures(OUT, tr, te, errs, checks, decision):
     for a in axs.ravel()[len(order):]:
         a.axis("off")
     fig.suptitle("Synthetic camera images of USD scene variations (+ = physical label)", fontsize=10)
-    fig.tight_layout()
+    fig.tight_layout(h_pad=1.6)
     fig.savefig(os.path.join(OUT, "samples.png"), dpi=120)
     plt.close(fig)
     fig, ax = plt.subplots(figsize=(6.5, 3.8))

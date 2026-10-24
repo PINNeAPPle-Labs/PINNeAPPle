@@ -103,6 +103,11 @@ add(
             "PINNeAPPle World Model: a heated plate with a subsurface void (finite volume), a random thermal camera "
             "written as an OpenUSD stage, and the check that the image still shows the physical label",
             requires=("pxr",)),
+    LibCall("worldmodel.arm_camera", "pinneapple_worldmodel.robot_perception:arm_camera_sample",
+            "Labelled robot camera sample (USD)", "Learning",
+            "PINNeAPPle World Model + Robot Sim: a random arm move in Newton written as a USD timeline with a side "
+            "camera, the rendered frames, and the label checks (kinematics vs simulator, joints visible)",
+            requires=("pxr", "newton")),
     LibCall("export.usd_validate", "pinneapple_tools.nvidia.omniverse:validate_stage",
             "Check a USD stage (Omniverse)", "Export",
             "re-open an OpenUSD file and check it before Omniverse / Isaac Sim opens it: topology, primvar sizes, "

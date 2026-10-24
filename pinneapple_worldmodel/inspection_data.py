@@ -151,15 +151,20 @@ def nominal_image(stage_path: str, plate: dict, var: Variation, H: int = 64, W: 
 
 def label_check(image: np.ndarray, nominal: np.ndarray, var: Variation, label_xy, *, tol: float = 0.08) -> dict:
     """Does the image still show the physical anomaly where the label says? The residual against the nominal image,
-    smoothed (2 px), its maximum mapped back to the plate; ``tol`` in plate units (0.08 = about 4 cells). A glint or
-    saturation that outshines the defect moves the maximum and fails."""
+    smoothed (2 px), its maximum mapped back to the plate; ``tol`` in plate units (0.08 = about 4 cells). A glint that
+    outshines the defect moves the maximum and fails; so does a label on saturated pixels (the camera cannot show it)."""
     from scipy import ndimage
     sm = ndimage.gaussian_filter(image - nominal, 2.0)
     r, c = np.unravel_index(int(np.argmax(sm)), sm.shape)
     _, inv = camera_transform(var, *image.shape)
     u, v = inv(np.array([[c, r]], float))[0]
     err = float(np.hypot(u - label_xy[0], v - label_xy[1]))
-    return {"found_xy": (float(u), float(v)), "error": err, "passed": err <= tol}
+    fwd, _ = camera_transform(var, *image.shape)
+    lc, lr = np.round(fwd(label_xy)[0]).astype(int)
+    patch = image[max(lr - 2, 0):lr + 3, max(lc - 2, 0):lc + 3]
+    saturated = bool(patch.size and np.mean(patch >= 0.98) > 0.5)
+    return {"found_xy": (float(u), float(v)), "error": err, "saturated": saturated,
+            "passed": err <= tol and not saturated}
 
 
 def inspection_dataset(n: int, seed: int, workdir: str, *, glint_p: float = 0.25, H: int = 64, W: int = 64,
@@ -170,7 +175,7 @@ def inspection_dataset(n: int, seed: int, workdir: str, *, glint_p: float = 0.25
     rng = np.random.default_rng(seed)
     os.makedirs(workdir, exist_ok=True)
     out = {"images": [], "label_px": [], "label_xy": [], "accepted": [], "found_error": [], "variations": [],
-           "rise": [], "stages": []}
+           "rise": [], "saturated": [], "stages": []}
     for i in range(n):
         defect = (rng.uniform(0.25, 0.75), rng.uniform(0.25, 0.75), rng.uniform(0.06, 0.12))
         plate = thermal_plate(defect)
@@ -184,13 +189,14 @@ def inspection_dataset(n: int, seed: int, workdir: str, *, glint_p: float = 0.25
         out["label_xy"].append(plate["label_xy"])
         out["accepted"].append(chk["passed"])
         out["found_error"].append(chk["error"])
+        out["saturated"].append(chk["saturated"])
         out["variations"].append(var)
         out["rise"].append(plate["rise"])
         if i < keep_stages:
             out["stages"].append(path)
         else:
             cleanup([path])
-    for k in ("images", "label_px", "label_xy", "accepted", "found_error", "rise"):
+    for k in ("images", "label_px", "label_xy", "accepted", "found_error", "rise", "saturated"):
         out[k] = np.asarray(out[k])
     return out
 

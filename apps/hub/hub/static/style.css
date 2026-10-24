@@ -263,3 +263,6 @@ table.metrics td.num { font-family: var(--mono); }
 .rel a:first-of-type { border-top: 0; }
 .rel a small { color: var(--muted); margin-left: auto; white-space: nowrap; }
 .blocklist [hidden] { display: none; }
+table.kv td { overflow-wrap: anywhere; }
+.side code, .ihead code { word-break: break-all; }
+.code pre { max-width: 100%; }

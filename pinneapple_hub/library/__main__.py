@@ -17,11 +17,19 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--stale", action="store_true", help="only snippets without a run of their current code")
     r.add_argument("--timeout", type=float, default=300.0)
     r.add_argument("--workers", type=int, default=4)
+    f = sub.add_parser("flowruns", help="run the bundled flows headless and record each node's metrics")
+    f.add_argument("names", nargs="*", help="only these flows")
+    f.add_argument("--timeout", type=float, default=900.0)
     sub.add_parser("check", help="the committed index is current and every snippet has a passing run")
     a = ap.parse_args(argv)
     if a.cmd == "build":
         idx = build(a.only)
         print(write_index(idx), idx["counts"])
+        return 0
+    if a.cmd == "flowruns":
+        from .flowruns import record
+        record(a.names or None, timeout=a.timeout)
+        write_index(build())
         return 0
     if a.cmd == "run":
         items = collect()

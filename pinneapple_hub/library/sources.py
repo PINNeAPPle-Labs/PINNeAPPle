@@ -260,6 +260,8 @@ def _flows_dir() -> Path:
 
 
 def flows() -> list[dict[str, Any]]:
+    from .flowruns import current, read_flow_runs
+    runs = read_flow_runs()
     out = []
     for p in sorted(_flows_dir().glob("*.json")):
         d = _json(p, {})
@@ -271,7 +273,8 @@ def flows() -> list[dict[str, Any]]:
             "domain": domain(text, types), "tags": sorted({t.split(".")[0] for t in types}),
             "quality": None,
             "code": S.flow(p.stem), "run_cmd": f"python -m pinneapple_flow run {p.stem}",
-            "results": {"nodes": len(types), "edges": len(d.get("edges", [])), "node_types": types},
+            "results": {"nodes": len(types), "edges": len(d.get("edges", [])), "node_types": types,
+                        "flow_run": current(runs, p.stem)},
             "examples": used_by_examples(p.stem, f"{p.stem}.json"),
             "files": [_file("Flow JSON (pinneapple-flow/1)", p)],
             "links": {"guide": "docs/guides/flow_schema.md", "flow_studio": f"?example={p.stem}",
@@ -281,40 +284,90 @@ def flows() -> list[dict[str, Any]]:
     return out
 
 
+def _autocalls() -> dict[str, dict[str, Any]]:
+    """The generated library-call nodes (``pinneapple_flow/autocalls.json``) by node type, with the check the
+    generator ran on each (``runs with its defaults ...`` or ``needs input: ...``)."""
+    from pinneapple_flow.autocalls import DATA
+    return {c["key"]: c for c in _json(DATA, {}).get("calls", [])}
+
+
+def _target_source(target: str) -> str:
+    try:
+        from pinneapple_flow.libcalls import resolve
+        return _source_link(resolve(target))
+    except Exception:  # noqa: BLE001 - a module that does not import here has no source link
+        return ""
+
+
 def nodes() -> list[dict[str, Any]]:
+    """Every node type of Flow Studio's palette (``pinneapple_flow.REGISTRY``: the curated nodes and the generated
+    library calls), so the palette and the Hub list the same tools from the same registry."""
     from pinneapple_flow import REGISTRY
     from pinneapple_flow.palette import is_auto
     used: dict[str, list[str]] = {}
     for p in sorted(_flows_dir().glob("*.json")):
         for n in _json(p, {}).get("nodes", []):
             used.setdefault(n["type"], []).append(p.stem)
+    auto_info = _autocalls()
+    from .flowruns import read_flow_runs, runs_for_node
+    flow_runs = read_flow_runs()
     out = []
     for spec in REGISTRY.specs():
-        if is_auto(spec) or spec.type.startswith("custom."):
+        if spec.type.startswith("custom."):
             continue
         d = spec.to_dict()
         pal = d["palette"]
+        auto = is_auto(spec)
+        info = auto_info.get(spec.type, {})
+        check = info.get("check", "")
+        runs = check.startswith("runs with its defaults")
+        target = info.get("target", "")
+        text = info.get("description") or spec.description
+        if auto:
+            code = S.auto_call(target, spec.type, spec.defaults()) if runs else S.node(spec.type)
+            summary = _first_line(info.get("description", "")) or f"{target.replace(':', '.')}: {check}"
+            title = f"{pal.get('title') or spec.title} ({target.split(':')[0].removeprefix('pinneapple_')})"
+        else:
+            code, summary, title = S.node(spec.type), _first_line(spec.description), pal.get("title") or spec.title
         out.append({
-            "id": f"node:{spec.type}", "kind": "tool", "subkind": "flow node", "name": spec.type,
-            "title": pal.get("title") or spec.title, "summary": _first_line(spec.description),
-            "description": spec.description,
-            "domain": domain(" ".join([spec.type, spec.title, spec.category, spec.description]), pal.get("tags", [])),
-            "tags": sorted({spec.category, pal.get("section", ""), *pal.get("tags", [])} - {""}),
-            "quality": None,
-            "code": S.node(spec.type),
-            "results": None,
+            "id": f"node:{spec.type}", "kind": "tool", "subkind": "library call" if auto else "flow node",
+            "name": spec.type, "title": title, "summary": summary, "description": text,
+            "domain": domain(" ".join([spec.type, spec.title, spec.category, text]), pal.get("tags", [])),
+            "tags": sorted({spec.category, pal.get("section", ""), pal.get("group", ""), *pal.get("tags", [])} - {""}),
+            "quality": {"label": "runs with its defaults", "check": check, "source": "pinneapple_flow.autocalls"}
+            if runs else None,
+            "code": code,
+            "results": {k: v for k, v in {"check": check, "flow_runs": runs_for_node(flow_runs, spec.type)}.items()
+                        if v} or None,
             "examples": [f"flow:{f}" for f in dict.fromkeys(used.get(spec.type, []))] + used_by_examples(spec.type),
             "files": [],
             "links": {"guide": "apps/flow_studio/README.md", "flow_studio": f"?node={spec.type}",
-                      "source": _source_link(spec.fn)},
-            "extra": {"calls": spec.calls, "category": spec.category, "available": d["available"],
-                      "install": pal.get("install", ""),
+                      "source": _target_source(target) if auto else _source_link(spec.fn)},
+            "extra": {"calls": target or spec.calls, "category": spec.category, "available": d["available"],
+                      "install": pal.get("install", ""), "auto": auto,
                       "inputs": [{"name": p.name, "type": p.type, "required": p.required} for p in spec.inputs],
                       "outputs": [{"name": p.name, "type": p.type} for p in spec.outputs],
                       "params": [{"name": p.name, "kind": p.kind, "default": p.default, "help": p.help,
                                   "choices": p.choices, "minimum": p.minimum, "maximum": p.maximum,
-                                  "advanced": p.advanced} for p in spec.params]},
+                                  "advanced": p.advanced} for p in spec.params],
+                      "params_schema": d["params_schema"]},
         })
+    return out
+
+
+def node_for_callable() -> dict[str, str]:
+    """``module:function`` -> the node type that wraps it (generated library calls by their target, curated nodes by
+    the ``module:function`` or ``module.function`` they declare in ``calls``)."""
+    from pinneapple_flow import REGISTRY
+    from pinneapple_flow.palette import is_auto
+    out: dict[str, str] = {}
+    for key, c in _autocalls().items():
+        out.setdefault(c["target"], key)
+    for spec in REGISTRY.specs():
+        if is_auto(spec) or not spec.calls:
+            continue
+        for ref in re.findall(r"(pinneapple\w*(?:\.\w+)*)[:.](\w+)", spec.calls):
+            out.setdefault(f"{ref[0]}:{ref[1]}", spec.type)
     return out
 
 
@@ -413,6 +466,7 @@ def apis() -> list[dict[str, Any]]:
     """One item per row of AGENTS.md's "Use these APIs first" table, for the functions that row names."""
     text = (ROOT / "AGENTS.md").read_text()
     table = text.split("## Use these APIs first", 1)[-1].split("\n\n", 2)[1]
+    node_map = node_for_callable()
     out = []
     for line in table.splitlines()[2:]:
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
@@ -426,14 +480,18 @@ def apis() -> list[dict[str, Any]]:
             continue
         main, obj = resolved[0]
         doc = inspect.getdoc(obj) or ""
+        wraps = [w for w in (node_map.get(f"{getattr(o, '__module__', '')}:{getattr(o, '__name__', '')}")
+                             for _, o in resolved) if w]
         links = dict(re.findall(r"\[([^\]]+)\]\(([^)]+)\)", api))
         guide = next((v for v in links.values() if v.endswith(".md")), "")
         out.append({
             "id": f"api:{_slug(main)}", "kind": "tool", "subkind": "function", "name": main, "title": task,
             "summary": _first_line(doc) or task, "description": doc[:3000],
             "domain": domain(task + " " + main), "tags": sorted({n.split("(")[0] for n, _ in resolved})[:10],
-            "quality": None, "code": S.api(main), "results": None, "examples": [], "files": [],
-            "links": {"guide": guide, "source": _source_link(obj)},
+            "quality": None, "code": S.api(main), "results": None,
+            "examples": [f"node:{w}" for w in dict.fromkeys(wraps)], "files": [],
+            "links": {"guide": guide, "source": _source_link(obj),
+                      **({"flow_studio": f"?node={wraps[0]}"} if wraps else {})},
             "extra": {"functions": [{"name": n, "signature": _signature(o), "summary": _first_line(inspect.getdoc(o))}
                                     for n, o in resolved], "table_row": api},
         })

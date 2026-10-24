@@ -1,7 +1,7 @@
 // PINNeAPPle Hub UI. Everything shown comes from the API (apps/hub/hub/api.py), which reads the generated index
 // of pinneapple_hub.library; this file only renders it. Routes: /  (home, or results with ?q= & filters),
 // /item/<id>, /create (create.js), /mine.
-import { createView } from "./create.js";
+import { b64, createView, field, readInput } from "./create.js";
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -192,10 +192,7 @@ function flowStudioUrl(it) {
   const base = (state.config.flow_studio || "").replace(/\/$/, "");
   const l = it.links?.flow_studio;
   if (!l) return "";
-  if (l.startsWith("?node=")) {
-    const spec = { name: it.title, blocks: [{ type: it.name }] };
-    return `/create?blocks=${encodeURIComponent(it.name)}&name=${encodeURIComponent(spec.name)}`;
-  }
+  if (l.startsWith("?node=")) return it.id.startsWith("node:") ? "" : itemUrl(`node:${l.slice(6)}`);
   return `${base}/${l}`;
 }
 async function itemView(id) {
@@ -209,13 +206,21 @@ async function itemView(id) {
   parts.push(`<div class="panel"><h2>Use it</h2>${codeBlock(it.code)}
     ${it.run_cmd ? `<p class="hint" style="margin:10px 0 0">Run the full study: <code>${esc(it.run_cmd)}</code></p>` : ""}
     <div class="runbox"><div class="runhead">${r.status === "ok" ? '<span class="badge ok">recorded run passed</span>' : r.status === "failed" ? '<span class="badge bad">recorded run failed</span>' : '<span class="badge">not run yet</span>'}
-      ${r.seconds != null ? `<span>${num(r.seconds)} s</span>` : ""}${r.recorded ? `<span>recorded ${esc(r.recorded)}</span>` : ""}${r.source ? `<span>by <code>${esc(r.source)}</code></span>` : ""}</div>
+      ${r.seconds != null ? `<span>${num(r.seconds)} s</span>` : ""}${it.subkind === "library call" && r.status === "ok" ? '<span title="the node form\'s default values, not a physical case">with the form\'s default values</span>' : ""}${r.recorded ? `<span>recorded ${esc(r.recorded)}</span>` : ""}${r.source ? `<span>by <code>${esc(r.source)}</code></span>` : ""}</div>
       ${r.stdout ? `<pre aria-label="Output of the recorded run">${esc(r.stdout)}</pre>` : r.status === "ok" ? '<pre class="hint">(no printed output)</pre>' : ""}${figuresHTML(r.figures, false)}</div></div>`);
   if (it.kind === "geometry") parts.push(`<div class="panel"><h2>3-D preview <span class="badge">${num(res.triangles)} triangles · light level of detail</span></h2><div class="viewer3d" id="v3d"><div class="vmsg">loading the mesh…</div></div></div>`);
   if (it.kind === "model") parts.push(tryPanel(it));
+  if (it.id.startsWith("node:")) parts.push(nodePanel(it));
   if (it.description && it.description !== it.summary) parts.push(`<div class="panel"><h2>Description</h2><p class="desc">${esc(it.description)}</p></div>`);
   if (ex.functions?.length) parts.push(`<div class="panel"><h2>Functions</h2><table><tbody>${ex.functions.map((f) => `<tr><td><code>${esc(f.name)}${esc(f.signature)}</code><div class="hint">${esc(f.summary)}</div></td></tr>`).join("")}</tbody></table></div>`);
   if (ex.reference_run?.figures?.length && r.source !== "scripts/reference/run_examples.py") parts.push(`<div class="panel"><h2>In the module reference</h2>${figuresHTML(ex.reference_run.figures)}</div>`);
+  if (res.flow_runs?.length) parts.push(`<div class="panel"><h2>In the bundled flows <span class="badge">already run</span></h2>
+    <p class="hint">What this node measured when each flow that uses it ran headless (<code>python -m pinneapple_hub.library flowruns</code>).</p>
+    ${res.flow_runs.map((f) => `<h3><a href="${itemUrl(`flow:${f.flow}`)}" data-link>${esc(f.flow)}</a> · node <code>${esc(f.node)}</code> <span class="badge ${f.status === "done" ? "ok" : "bad"}">${esc(f.status || f.flow_status)}</span></h3>${f.summary ? `<p class="hint">${esc(f.summary)}</p>` : ""}${Object.keys(f.metrics).length ? `<table class="kv"><tbody>${Object.entries(f.metrics).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${num(v)}</td></tr>`).join("")}</tbody></table>` : ""}`).join("")}</div>`);
+  const fr = res.flow_run;
+  if (fr) parts.push(`<div class="panel"><h2>Recorded run <span class="badge ${fr.status === "done" ? "ok" : "bad"}">${esc(fr.status)}</span> <span class="badge">${num(fr.seconds)} s</span></h2>
+    ${fr.error ? `<pre class="hint">${esc(fr.error)}</pre>` : ""}<table><thead><tr><th>Node</th><th>Status</th><th>Measured</th></tr></thead><tbody>${Object.entries(fr.nodes || {}).map(([id, n]) => `<tr><td><a href="${itemUrl(`node:${n.type}`)}" data-link><code>${esc(id)}</code></a><div class="hint">${esc(n.type)}</div></td><td><span class="badge ${n.status === "done" ? "ok" : ""}">${esc(n.status)}</span></td><td class="hint">${Object.entries(n.metrics || {}).map(([k, v]) => `${esc(k)} = ${num(v)}`).join(" · ")}</td></tr>`).join("")}</tbody></table>
+    <p class="hint">recorded ${esc(fr.recorded)} by <code>${esc(fr.source)}</code></p></div>`);
   const metrics = res.metrics || [];
   if (metrics.length || res.figures?.length || res.videos?.length || res.reference_row) {
     parts.push(`<div class="panel"><h2>Results already run</h2>
@@ -244,7 +249,7 @@ async function itemView(id) {
   if (q.how && !q.letter) side.push(`<div class="panel"><h2>Not curated yet</h2><p class="hint">Curate it with</p>${codeBlock(q.how, { lang: "sh", label: "Copy" })}</div>`);
   if (it.files?.length) side.push(`<div class="panel files"><h2>Download</h2>${it.files.map((f) => `<a class="btn" href="${esc(f.path ? fileUrl(f.path) : f.url)}" ${f.path ? "download" : 'rel="noopener" target="_blank"'}>${f.path ? ICON.down : ICON.ext}<span>${esc(f.label)}</span><small>${bytes(f.bytes)}${!f.path && f.url ? " · Hub" : ""}</small></a>`).join("")}</div>`);
   const links = [];
-  if (fs) links.push(`<a href="${esc(fs)}" ${fs.startsWith("/") ? "data-link" : 'target="_blank" rel="noopener"'}>${ICON.flow} ${it.links.flow_studio.startsWith("?node") ? "Compose a flow with this node" : "Open in Flow Studio"}</a>`);
+  if (fs) links.push(`<a href="${esc(fs)}" ${fs.startsWith("/") ? "data-link" : 'target="_blank" rel="noopener"'}>${ICON.flow} ${it.links.flow_studio.startsWith("?node") ? "Its Flow Studio node" : "Open in Flow Studio"}</a>`);
   for (const [k, v] of Object.entries(it.links || {})) {
     if (!v || k === "flow_studio") continue;
     const href = v.startsWith("http") ? v : `${gh}/${v}`;
@@ -257,7 +262,7 @@ async function itemView(id) {
   view.innerHTML = `<main><nav class="crumbs" aria-label="Breadcrumb"><a href="/" data-link>Hub</a> / ${crumbKind} / <span>${esc(it.title)}</span></nav>
     <div class="ihead"><div><span class="badge kind" style="${kindVar(it.kind)}"><span class="dot"></span>${esc(kind)}</span> ${q.letter ? sealHTML(q.letter) : ""}
       <h1>${esc(it.title)}</h1><p class="lead">${esc(it.summary)}</p></div>
-      <div class="actions"><button class="btn primary" id="copymain" type="button">${ICON.copy} Copy code</button>${fs ? `<a class="btn" href="${esc(fs)}" ${fs.startsWith("/") ? "data-link" : 'target="_blank" rel="noopener"'}>${ICON.flow} ${it.links.flow_studio.startsWith("?node") ? "Compose" : "Open in Flow Studio"}</a>` : ""}${it.kind === "flow" || it.flow ? `<button class="btn" id="dlflow" type="button">${ICON.down} Flow JSON</button>` : ""}</div></div>
+      <div class="actions"><button class="btn primary" id="copymain" type="button">${ICON.copy} Copy code</button>${fs ? `<a class="btn" href="${esc(fs)}" ${fs.startsWith("/") ? "data-link" : 'target="_blank" rel="noopener"'}>${ICON.flow} ${it.links.flow_studio.startsWith("?node") ? "Flow Studio node" : "Open in Flow Studio"}</a>` : ""}${it.id.startsWith("node:") ? `<button class="btn" id="node-open-top" type="button">${ICON.flow} Open in Flow Studio</button>` : ""}${it.kind === "flow" || it.flow ? `<button class="btn" id="dlflow" type="button">${ICON.down} Flow JSON</button>` : ""}</div></div>
     <div class="cols"><div>${parts.join("")}</div><aside class="side">${side.join("")}</aside></div></main>`;
   $("#copymain").onclick = () => copyText(it.code);
   if ($("#dlflow")) $("#dlflow").onclick = async () => {
@@ -266,6 +271,7 @@ async function itemView(id) {
   };
   if (it.kind === "geometry") import("./viewer.js").then((m) => m.showGeometry($("#v3d"), fileUrl(ex.glb), res.dimensions_m)).catch((e) => { $("#v3d .vmsg").textContent = `3-D preview unavailable: ${e.message}`; });
   if (it.kind === "model") wireTry(it);
+  if (it.id.startsWith("node:")) wireNode(it);
 }
 
 // ---------------------------------------------------------------- zoo inference
@@ -304,6 +310,69 @@ function wireTry(it) {
       const r = await m.run([row], row);
       show({ outputs: r.rows[0], verdict: r.query.verdict, checks: r.query.checks }, "in your browser · ONNX (onnx.js)", m.lastMs);
     } catch (err) { out.innerHTML = emptyState("Browser inference failed", `${esc(err.message)} — try the server.`, true); }
+    finally { e.target.disabled = false; }
+  };
+}
+
+// ---------------------------------------------------------------- a Flow Studio node: run it, open it as a flow, add it to a flow
+function nodePanel(it) {
+  const ex = it.extra, props = ex.params_schema?.properties || {};
+  const basic = Object.entries(props).filter(([, s]) => !s["x-advanced"]), adv = Object.entries(props).filter(([, s]) => s["x-advanced"]);
+  const needs = (ex.inputs || []).filter((p) => p.required);
+  return `<div class="panel" id="node"><h2>Run it <span class="badge">${esc(it.subkind)}</span></h2>
+    <p class="hint">${needs.length ? `Needs ${needs.map((p) => `<code>${esc(p.name)}: ${esc(p.type)}</code>`).join(", ")} from other nodes: “Open in Flow Studio” builds the flow with inputs → this node → a report.` : "No inputs needed: run it here with these parameters (a sandboxed job), or open it in Flow Studio as inputs → node → report."}${ex.available ? "" : ` <b>Not runnable on this server:</b> ${esc(ex.install)}`}</p>
+    ${Object.keys(props).length ? `<form class="params" id="node-form" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0 12px" onsubmit="return false">${basic.map(([k, sc]) => field(it.name, k, sc, sc.default)).join("")}</form>
+      ${adv.length ? `<details><summary class="hint">${adv.length} advanced parameter${adv.length > 1 ? "s" : ""}</summary><form class="params" id="node-form-adv" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0 12px" onsubmit="return false">${adv.map(([k, sc]) => field(it.name, k, sc, sc.default)).join("")}</form></details>` : ""}` : '<p class="hint">No parameters.</p>'}
+    <div class="row" style="margin-top:12px">${!needs.length && ex.available ? '<button class="btn primary" id="node-run" type="button">Run in a sandbox</button>' : ""}
+      <button class="btn ${needs.length || !ex.available ? "primary" : ""}" id="node-open" type="button">${ICON.flow} Open in Flow Studio</button>
+      <button class="btn" id="node-add" type="button">Add to a flow</button>
+      <a class="btn" id="node-compose" href="#" data-link>Compose with it</a></div>
+    <div id="node-out" aria-live="polite"></div></div>`;
+}
+function wireNode(it) {
+  const out = $("#node-out");
+  const params = () => {
+    const p = {}, defaults = Object.fromEntries((it.extra.params || []).map((x) => [x.name, x.default]));
+    for (const inp of $$("#node [data-k]")) {
+      const r = readInput(inp);
+      if (!r.ok) return null;
+      if (JSON.stringify(r.value) !== JSON.stringify(defaults[inp.dataset.k])) p[inp.dataset.k] = r.value;
+    }
+    return p;
+  };
+  const composeHref = () => { const p = params() || {}; return `/create?blocks=${encodeURIComponent(it.name)}&name=${encodeURIComponent(it.title)}${Object.keys(p).length ? `&params=${b64(p)}` : ""}`; };
+  $("#node-compose").onclick = (e) => { e.preventDefault(); go(composeHref()); };
+  const link = async () => { const p = params(); if (!p) return null; return api("/api/flowlink/node", { method: "POST", body: JSON.stringify({ type: it.name, params: p }) }); };
+  const open = async () => {
+    try {
+      const r = await link(); if (!r) return;
+      window.open(r.open, "_blank", "noopener");
+      out.innerHTML = `<p class="hint">Opened in Flow Studio: ${esc(r.source)} · ${r.flow.nodes.length} nodes${r.issues.length ? ` · ${r.issues.length} issue(s): ${esc(r.issues.map((i) => i.message).join("; "))}` : ""}</p>`;
+    } catch (err) { out.innerHTML = emptyState("Could not build the flow", esc(err.message), true); }
+  };
+  $("#node-open").onclick = open;
+  if ($("#node-open-top")) $("#node-open-top").onclick = open;
+  $("#node-add").onclick = async () => {
+    try { const r = await link(); if (!r) return; window.open(r.add, "_blank", "noopener"); out.innerHTML = '<p class="hint">Flow Studio is asking which flow to add it to.</p>'; }
+    catch (err) { out.innerHTML = emptyState("Could not add it", esc(err.message), true); }
+  };
+  if ($("#node-run")) $("#node-run").onclick = async (e) => {
+    const p = params(); if (!p) return;
+    e.target.disabled = true;
+    try {
+      const job = await api("/api/compose/validate", { method: "POST", body: JSON.stringify({ name: it.title, blocks: [{ type: it.name, params: p }] }) });
+      for (;;) {
+        const j = await api(`/api/jobs/${job.id}`);
+        out.innerHTML = `<div class="runbox"><div class="runhead">${esc(j.status)} · ${esc(j.message || "")}</div><div class="progress" style="margin:8px 12px 12px"><div style="width:${Math.round((j.progress || 0) * 100)}%"></div></div></div>`;
+        if (["done", "failed", "cancelled"].includes(j.status)) {
+          const x = j.result || {};
+          out.innerHTML = j.status !== "done" ? emptyState("The run did not finish", esc(j.error || j.status), true)
+            : `<div class="runbox"><div class="runhead">${x.ok ? '<span class="badge ok">ran</span>' : `<span class="badge bad">${x.timed_out ? "time limit reached" : "failed"}</span>`}<span>${num(x.seconds)} s in the sandbox</span></div>${x.stdout ? `<pre>${esc(x.stdout)}</pre>` : ""}${x.stderr && !x.ok ? `<pre style="color:var(--bad)">${esc(x.stderr)}</pre>` : ""}${(x.figures_png_b64 || []).map((f) => `<img src="data:image/png;base64,${f}" alt="figure from the run" data-zoom style="max-width:100%">`).join("")}</div>`;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 700));
+      }
+    } catch (err) { out.innerHTML = emptyState(err.status === 429 ? "Limit reached" : "Could not run it", esc(err.message), true); }
     finally { e.target.disabled = false; }
   };
 }

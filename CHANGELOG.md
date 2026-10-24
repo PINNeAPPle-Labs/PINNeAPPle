@@ -26,9 +26,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
-<<<<<<< HEAD
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
-  `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 76 subareas with a
+  `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that
   already cover them; `pp.science.validate()` checks every pointer. A common **experiment** abstraction: area,
   level (academic / research), kind (theory / practice), dimensions (0D, 1D, 2D, 3D, 3D+t); every result carries
@@ -42,8 +41,6 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   check of their coverage (mu0 from a solenoid against CODATA 2022, C from an RC discharge on an oscilloscope).
   `python -m pinneapple_science atlas | list | run | report`, Flow Studio nodes `science.run` and
   `science.atlas`, results in `examples/science/`, guide `docs/guides/science.md`.
-- AGENTS.md: `pp.science` in the API table and the "Science by area" example (run by `tests/test_agents_md.py`);
-  Hub: `pp.science` API and recipe entries in the verification category.
 - `pp.science` electromagnetism, research level: `em.research_fdtd_3d` (a configurable 3-D + time FDTD study,
   `pinneapple_science.em.fdtd_study.FDTDConfig` / `run_fdtd`: sources and materials from a dict, refinement
   ladder with observed order, Richardson extrapolation and GCI, radiated power by the near-to-far-field transform,
@@ -56,7 +53,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `pinneapple_science.numerics.gp_loo_scale`).
 - `pp.em.statics.vector_potential` (exact A of straight filaments) and `pp.em.statics.flux_through_path` (flux by
   Stokes' theorem, accurate when a filament pierces the spanning surface).
-=======
+- AGENTS.md: `pp.science` in the API table and the "Science by area" example (run by `tests/test_agents_md.py`);
+  Hub: `pp.science` API and recipe entries in the verification category.
 - `pinneapple_autolab`: the Autonomous Physics Lab, an engine that manages evidence for engineering decisions on any
   reference simulator. A mission (variables, objectives, limits absolute or relative to a simulated baseline, budget,
   acceptance tolerances, fixed conditions, hypotheses) goes through plan -> checked build -> simulate -> learn
@@ -90,7 +88,6 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   careless planner refused and flagged).
 - `ExternalFlow`: `body_levels` (surface refinement per body, e.g. thin wing elements), `refine_boxes`,
   `write_every` + `force_history()` (forces at every written iteration), `FlowResult.load()`.
->>>>>>> origin/main
 - `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
   A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
   (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)
@@ -1625,6 +1622,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Benchmark Arena: the result of a private benchmark stays inside its column at 1440 px (the page no longer
+  scrolls sideways): grid items may shrink, cost and regimes stack, the seed spread wraps under each mean.
 - Small scikit-learn fits no longer oversubscribe a loaded machine. `ParametricPOD(regressor="gpr")` fits each
   per-coefficient GP with one BLAS thread (the ROM Lab beam example: 182 s -> about 30 s on a loaded 4-CPU host), and
   `run_regime_arena(threads=...)` holds the numpy / scikit-learn pools to the declared thread count as it does torch,

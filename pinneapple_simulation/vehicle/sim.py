@@ -20,10 +20,15 @@ Per step (``dt``, linearly implicit Euler, :meth:`MultibodyTree.step`):
    load-levelling loop (an assumed control law: the arm angles move to equalise the wheel loads), all torque-limited.
 7. The terrain records the plastic trace of every wheel (ruts) and a grouser mark each time a grouser passes the
    bottom of a loaded wheel.
+
+Ground made of several soils: pass a list of soils and ``soil_map(x, y) -> index`` (each wheel gets the Wong-Reece
+law of the soil under its contact point). A route: ``run(..., route=[(x, y), ...])`` steers by pure pursuit along the
+polyline and stops at its end; ``stop(sample) -> reason or None`` ends a run early (e.g. a traction monitor).
 """
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -109,20 +114,31 @@ class VehicleRun:
 
 class VehicleSimulator:
     """``model`` from :func:`~.build.build_vehicle`, ``terrain`` a :class:`DeformableTerrain` (rocks included),
-    ``soil`` one :class:`Soil` (or ``soil_map(x, y) -> Soil``... not needed for uniform ground)."""
+    ``soil`` one :class:`Soil`, or a list of soils with ``soil_map(x, y) -> index`` into it (arrays in, int array
+    out) for ground made of several soils. ``wheel_speeds``: "equal" (every wheel gets the speed command) or
+    "kinematic" (each wheel at the speed its distance to the turning centre asks for)."""
 
-    def __init__(self, model: VehicleModel, terrain: DeformableTerrain, soil: Soil, g: float = 1.62,
+    def __init__(self, model: VehicleModel, terrain: DeformableTerrain, soil: Soil | Sequence[Soil], g: float = 1.62,
                  soil_damping: float = 0.7, rock_stiffness: float = 3e5, rock_damping: float = 4e3,
                  rock_friction: float = 0.6, stamp_every: int = 5, imprint_ratio: float = 0.6, n_gl: int = 16,
                  level_gain: float = 0.6, v_eps: float = 0.02, multipass_shear: bool = True,
-                 sink_length: float = 0.15):
+                 sink_length: float = 0.15, soil_map: Callable | None = None, wheel_speeds: str = "equal"):
         self.m = model
         self.spec = model.spec
         self.tree = model.tree
         self.terrain = terrain
-        self.soil = soil
+        soils = list(soil) if isinstance(soil, (list, tuple)) else [soil]
+        if len(soils) > 1 and soil_map is None:
+            raise ValueError("several soils need soil_map(x, y) -> index")
+        self.soils = soils
+        self.soil = soils[0]
+        self.soil_map = soil_map
+        if wheel_speeds not in ("equal", "kinematic"):
+            raise ValueError("wheel_speeds must be 'equal' or 'kinematic'")
+        self.wheel_speeds = wheel_speeds
         self.g = float(g)
-        self.wr = WongReeceModel(soil, self.spec.wheel, g=g, n_gl=n_gl)
+        self.wrs = [WongReeceModel(sl, self.spec.wheel, g=g, n_gl=n_gl) for sl in soils]
+        self.wr = self.wrs[0]
         self.terrain.rebound = self.wr.rebound
         self.zeta = soil_damping
         self.k_rock, self.c_rock, self.mu_rock = rock_stiffness, rock_damping, rock_friction
@@ -155,6 +171,33 @@ class VehicleSimulator:
         return z, p, nw, t
 
     # ------------------------------------------------------------------ forces
+    def _soil_index(self, P) -> np.ndarray:
+        if self.soil_map is None:
+            return np.zeros(len(P), int)
+        return np.clip(np.asarray(self.soil_map(P[:, 0], P[:, 1]), int).reshape(len(P)), 0, len(self.soils) - 1)
+
+    def _forces(self, idx, slip, sinkage, beta, zu, j0, *, sinkage_slip, stresses: bool = False):
+        """Wong-Reece forces of each sample on its own soil (``idx``), merged into one result."""
+        groups = np.unique(idx)
+        if len(groups) == 1:
+            return self.wrs[groups[0]].forces(slip, sinkage, beta, zu, j0, stresses=stresses,
+                                              sinkage_slip=sinkage_slip)
+        parts = {g: self.wrs[g].forces(slip[idx == g], sinkage[idx == g], beta[idx == g], zu[idx == g],
+                                       j0[idx == g], stresses=stresses, sinkage_slip=sinkage_slip[idx == g])
+                 for g in groups}
+        out = parts[groups[0]]
+        merged = {}
+        for name, val in vars(out).items():
+            if not isinstance(val, np.ndarray):
+                continue
+            full = np.zeros((len(idx),) + val.shape[1:], val.dtype)
+            for g, r in parts.items():
+                full[idx == g] = getattr(r, name)
+            merged[name] = full
+        for name, val in merged.items():
+            setattr(out, name, val)
+        return out
+
     def _wheel_forces(self, kin, v, dt, rec):
         tree, M = self.tree, self.m
         nv = tree.nv
@@ -181,7 +224,9 @@ class VehicleSimulator:
         s_all = slip_ratio(Us[:, 0], Us[:, 2], R, self.v_eps)
         b_all = slip_angle(Us[:, 0], Us[:, 1], self.v_eps)
         s_sink = np.tile(self.s_sink, 4)                       # lagged state: no derivative w.r.t. the velocities
-        res = self.wr.forces(s_all, np.tile(z, 4), b_all, np.tile(zu, 4), np.tile(j0, 4), sinkage_slip=s_sink)
+        sidx = self._soil_index(P)
+        res = self._forces(np.tile(sidx, 4), s_all, np.tile(z, 4), b_all, np.tile(zu, 4), np.tile(j0, 4),
+                           sinkage_slip=s_sink)
         F0 = np.stack([res.Fx, res.Fy, res.Fz, res.My], 1).reshape(4, self.nw, 4)
         base = F0[0]
         dF = np.stack([(F0[k + 1] - base) / du[k] for k in range(3)], -1)        # (w, 4 quantities, 3 inputs)
@@ -198,7 +243,7 @@ class VehicleSimulator:
             dFw = np.outer(t[i], dF[i, 0] @ Ju) + np.outer(a[i], dF[i, 1] @ Ju) + np.outer(nw[i], dF[i, 2] @ Ju)
             D += Jc[i].T @ dFw - Jw[i].T @ np.outer(a[i], dF[i, 3] @ Ju)
             if on[i]:
-                n_exp = float(self.wr.sinkage_exponent(s_sink[i]))
+                n_exp = float(self.wrs[sidx[i]].sinkage_exponent(s_sink[i]))
                 k = (n_exp + 0.5) * max(Fz, 0.0) / max(res.z_eff[i], 2e-3)
                 cz = self.zeta * 2.0 * math.sqrt(max(k, 0.0) * mshare)
                 Jn = nw[i] @ Jc[i]
@@ -240,7 +285,7 @@ class VehicleSimulator:
                 rock_f[i] = fn
         if rec is not None:
             rec.update(z=z, P=P, nw=nw, t=t, a=a, c=c, zu=zu, j0=j0, j_exit=res.j_exit[: self.nw],
-                       slip=s_all[: self.nw], s_sink=s_sink[: self.nw], beta=b_all[: self.nw],
+                       slip=s_all[: self.nw], s_sink=s_sink[: self.nw], beta=b_all[: self.nw], soil_idx=sidx,
                        F=base, z_eff=res.z_eff[: self.nw], om=om, rock=rock_f, v_long=v_long, damp=ndamp)
         return Q, D
 
@@ -261,11 +306,12 @@ class VehicleSimulator:
                 hd = math.radians(0)  # noqa: F841
                 err += -cmd.get("k_path", 0.8) * (q[1] - cmd["path_y"]) * math.cos(heading)
             delta_cmd = float(np.clip(cmd.get("k_heading", 1.5) * err, -0.35, 0.35))
+        scale = self._wheel_speed_scale(delta_cmd)
         for i, c in enumerate(spec.corners):
             # drive: PI on the joint rate with torque saturation and anti-windup
             j = self.m.wheel[i]
             w = v[6 + j]
-            w_cmd = min(cmd["speed"] / R, c.drive.speed_limit)
+            w_cmd = min(cmd["speed"] * scale[i] / R, c.drive.speed_limit)
             e = w_cmd - w
             u = c.drive.kp * e + state["I"][i]
             tau = float(np.clip(u, -c.drive.torque_limit, c.drive.torque_limit))
@@ -291,6 +337,19 @@ class VehicleSimulator:
             rec["tau_drive"] = tau_drive
             rec["delta_cmd"] = delta_cmd
         return Q, np.diag(D)
+
+    def _wheel_speed_scale(self, delta: float) -> np.ndarray:
+        """Wheel speed / chassis speed per corner. ``wheel_speeds="equal"``: 1 for every wheel. ``"kinematic"``: each
+        wheel at the speed of its distance to the instantaneous centre of rotation the steering command sets (front
+        wheels at +delta, rear wheels at -delta about the mid-wheelbase point), so wheels do not fight in a turn."""
+        if self.wheel_speeds == "equal" or abs(delta) < 1e-4:
+            return np.ones(self.nw)
+        P = np.array([c.wheel_centre[:2] for c in self.spec.corners], float)
+        P = P - P.mean(0)
+        xf = np.abs(P[:, 0]).max()
+        Rc = xf / math.tan(delta)                                    # signed: > 0 turning left
+        d = np.hypot(P[:, 0], Rc - P[:, 1])
+        return d / abs(Rc)
 
     def _level(self, state, Fz, dt):
         """Load-levelling of the warp mode: with four wheels the front/rear and left/right load split is fixed by
@@ -326,10 +385,27 @@ class VehicleSimulator:
 
     def run(self, duration: float, speed=0.1, *, dt: float = 2e-3, output_dt: float = 0.05, start=(0.0, 0.0),
             yaw_deg: float = 0.0, settle: float = 2.0, ramp: float = 2.0, heading_hold: bool = True,
-            path_y: float | None = None, record_stresses: bool = True, progress=None, q0=None, v0=None) -> VehicleRun:
+            path_y: float | None = None, record_stresses: bool = True, progress=None, q0=None, v0=None,
+            route=None, lookahead: float = 1.5, goal_tol: float = 0.3, stop=None) -> VehicleRun:
         """Settle at rest for ``settle`` s, then drive at the wheel-speed command ``speed`` [m/s] (a float or a
-        function of time) for ``duration`` s, ramping over ``ramp`` s. Samples every ``output_dt`` s."""
+        function of time) for ``duration`` s, ramping over ``ramp`` s. Samples every ``output_dt`` s.
+
+        ``route``: waypoints (x, y) [m]; the rover starts at the first one facing the second (``start`` and
+        ``yaw_deg`` are ignored), steers towards the point ``lookahead`` metres ahead on the polyline (pure pursuit)
+        and the run ends within ``goal_tol`` of the last one or once its progress along the route passes the end. ``stop(sample)`` is called at every output sample with
+        ``{"t", "x", "y", "speed", "slip", "sinkage", "soil_idx"}`` (wheel arrays) and ends the run when it returns
+        a reason; ``meta["ended"]`` records why the run ended ("duration", "goal" or that reason)."""
         tree = self.tree
+        path = None
+        if route is not None:
+            path = np.asarray(route, float)
+            if path.ndim != 2 or len(path) < 2:
+                raise ValueError("route needs at least two (x, y) waypoints")
+            seg = np.diff(path, axis=0)
+            start = tuple(path[0])
+            yaw_deg = math.degrees(math.atan2(seg[0, 1], seg[0, 0]))
+            s_cum = np.r_[0.0, np.cumsum(np.linalg.norm(seg, axis=1))]
+        ended = "duration"
         if q0 is None:
             q, v = self.initial_state(start[0], start[1], yaw_deg, lift=0.002)
         else:
@@ -345,7 +421,7 @@ class VehicleSimulator:
         rec_all = {k: [] for k in ("t", "q", "v")}
         W = {k: [] for k in ("sinkage", "z_eff", "slip", "slip_angle", "drawbar_pull", "lateral", "load",
                              "soil_torque", "drive_torque", "omega", "omega_joint", "precompaction", "rock_force",
-                             "contact_point", "normal", "tangent", "spin", "centre")}
+                             "contact_point", "normal", "tangent", "spin", "centre", "soil_idx")}
         J = {k: [] for k in ("susp", "steer")}
         C = {k: [] for k in ("speed", "pitch", "roll", "yaw", "com")}
         S = {k: [] for k in ("theta", "sigma", "tau_x")}
@@ -354,6 +430,8 @@ class VehicleSimulator:
         for k in range(n + 1):
             tt = k * dt
             drive_t = tt - settle
+            if path is not None:
+                heading = _pursuit_heading(path, s_cum, q[0], q[1], lookahead)
             cmd = {"speed": 0.0 if drive_t < 0 else spd(drive_t) * min(1.0, drive_t / max(ramp, 1e-9)),
                    "heading": heading, "path_y": path_y}
             info = {}
@@ -372,7 +450,7 @@ class VehicleSimulator:
                     if info["z_eff"][i] > 0:
                         args = (float(info["P"][i, 0]), float(info["P"][i, 1]), info["t"][i][:2].copy(),
                                 self.spec.wheel.radius, self.spec.wheel.width, float(info["z"][i]),
-                                *_peak_stress(self.wr, info, i), float(info["j_exit"][i]))
+                                *_peak_stress(self.wrs[info["soil_idx"][i]], info, i), float(info["j_exit"][i]))
                         self.terrain.record_wheel(*args)
                         events.append((tt, "rut", args))
             if pitch_g is not None:
@@ -410,6 +488,7 @@ class VehicleSimulator:
                 W["tangent"].append(info["t"])
                 W["spin"].append(spin)
                 W["centre"].append(info["c"])
+                W["soil_idx"].append(info["soil_idx"])
                 J["susp"].append(np.array([q[7 + j] for j in self.m.susp]))
                 J["steer"].append(np.array([q[7 + j] for j in self.m.steer]))
                 Rb = quat_to_matrix(q[3:7])
@@ -420,13 +499,25 @@ class VehicleSimulator:
                 C["speed"].append(float(v[:2] @ hd + (cross(v[3:6], kin.c[0] - kin.p[0])[:2] @ hd)))
                 C["com"].append(kin.c[0].copy())
                 if record_stresses:
-                    r = self.wr.forces(info["slip"], info["z"], info["beta"], info["zu"], info["j0"], stresses=True,
-                                       sinkage_slip=info["s_sink"])
+                    r = self._forces(info["soil_idx"], info["slip"], info["z"], info["beta"], info["zu"], info["j0"],
+                                     stresses=True, sinkage_slip=info["s_sink"])
                     S["theta"].append(r.theta)
                     S["sigma"].append(r.sigma)
                     S["tau_x"].append(r.tau_x)
                 if progress:
                     progress(tt - settle, duration)
+                if path is not None and drive_t > 0 and (
+                        math.hypot(q[0] - path[-1, 0], q[1] - path[-1, 1]) < goal_tol
+                        or _route_progress(path, s_cum, q[0], q[1]) >= s_cum[-1] - 1e-3):
+                    ended = "goal"
+                if stop is not None and drive_t > 0 and ended == "duration":
+                    why = stop({"t": tt - settle, "x": float(q[0]), "y": float(q[1]), "speed": C["speed"][-1],
+                                "slip": info["slip"], "sinkage": np.clip(info["z"], 0, None),
+                                "soil_idx": info["soil_idx"]})
+                    if why:
+                        ended = str(why)
+                if ended != "duration":
+                    break
             # slip-sinkage state: first-order lag over the rim travel of this step
             a = np.clip(np.abs(info["om"]) * self.spec.wheel.radius * dt / max(self.sink_length, 1e-9), 0.0, 1.0)
             self.s_sink = self.s_sink + a * (np.clip(info["slip"], -0.99, 0.99) - self.s_sink)
@@ -435,7 +526,8 @@ class VehicleSimulator:
         return VehicleRun(self.m, np.array(rec_all["t"]), np.array(rec_all["q"]), np.array(rec_all["v"]), arr(W),
                           arr(J), arr(C), arr(S) if record_stresses else {}, events,
                           {"dt": dt, "speed_cmd": speed if not callable(speed) else None, "soil": self.soil.name,
-                           "g": self.g, "settle_s": settle, "soil_damping": self.zeta})
+                           "soils": [sl.name for sl in self.soils], "g": self.g, "settle_s": settle,
+                           "soil_damping": self.zeta, "ended": ended})
 
 
 def _peak_stress(wr, info, i):
@@ -443,6 +535,26 @@ def _peak_stress(wr, info, i):
     r = wr.forces(info["slip"][i:i + 1], info["z"][i:i + 1], info["beta"][i:i + 1], info["zu"][i:i + 1],
                   info["j0"][i:i + 1], stresses=True, sinkage_slip=info["s_sink"][i:i + 1])
     return float(r.sigma.max()), float(np.abs(r.tau_x).max())
+
+
+def _route_progress(path, s_cum, x, y, extend: float = 5.0):
+    """Arc length [m] of the point of ``path`` closest to (x, y); the last segment is extended by ``extend`` metres
+    so a vehicle that passed the end has progress beyond the route length."""
+    a, d = path[:-1], np.diff(path, axis=0)
+    L = np.sqrt(np.maximum((d ** 2).sum(1), 1e-12))
+    hi = np.ones(len(d))
+    hi[-1] = 1.0 + extend / L[-1]
+    u = np.clip(((np.array([x, y]) - a) * d).sum(1) / L ** 2, 0.0, hi)
+    foot = a + u[:, None] * d
+    k = int(np.argmin(((foot - [x, y]) ** 2).sum(1)))
+    return float(s_cum[k] + u[k] * L[k])
+
+
+def _pursuit_heading(path, s_cum, x, y, lookahead):
+    """Heading [rad] from (x, y) to the point ``lookahead`` metres along ``path`` past the closest point on it."""
+    s_t = min(min(_route_progress(path, s_cum, x, y, extend=0.0), s_cum[-1]) + lookahead, s_cum[-1])
+    target = np.array([np.interp(s_t, s_cum, path[:, 0]), np.interp(s_t, s_cum, path[:, 1])])
+    return math.atan2(target[1] - y, target[0] - x)
 
 
 def _yaw(q):

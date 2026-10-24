@@ -51,7 +51,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
     ("systems", "Process and system components", "Pumps, valves, fatigue, excitation, controllers",
      ("node:control.", "lib:pinneapple_systems.")),
     ("vehicles", "Vehicles, contact and wear", "Rovers, soils, wheels, take-off, contact and wear",
-     ("node:vehicle.", "node:terramechanics.", "node:flight.", "lib:pinneapple_physics.tribology",
+     ("node:vehicle.", "node:rover.", "node:terramechanics.", "node:flight.", "lib:pinneapple_physics.tribology",
       "node:lib.solver.terramechanics", "lib:pinneapple_simulation.vehicle")),
     ("electromagnetics", "Electromagnetics and antennas", "Antennas, PCBs, Maxwell checks",
      ("node:lib.antenna.", "lib:pinneapple_physics.pcb", "fn:pp.maxwell", "lib:pinneapple_simulation.electromagnetics")),

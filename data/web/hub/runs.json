@@ -736,6 +736,17 @@
   "stdout": "Autonomous Physics Lab | design and geometry | not curated\nbaseline_tj_soc 323.2144491142498 °C\nverified_tj_soc_pessimistic 88.52504297676208 °C\nholdout_tj_max_abs_error 2.2030649404285896 K\nholdout_map_rmse 0.2031511632505125 K\nreference_solves 224.0 solves",
   "timed_out": false
  },
+ "example:examples/autolab_rover": {
+  "code_hash": "91af0919ac3497cb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.95,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Autonomous Physics Lab: the rover that learns the planet | vehicle dynamics | not curated\nroute_A_distance 12.925884 m\nroute_A_energy 2957.959341 J\nroute_A_max_slip 0.420399 -\nroute_A_max_sinkage 319.367895 mm\nroute_A_learned_risk 1.0 -",
+  "timed_out": false
+ },
  "example:examples/benchmark": {
   "code_hash": "a13b003b54d2ca30",
   "figures": [],
@@ -5783,6 +5794,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Reduced-order models (POD, DMD, OpInf) -> pinneapple_neural.architectures.rom.study.rom_study + pinneapple_data.snapshots.snapshots_from_arrays\ninputs: [('solution', 'solution')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'methods': ['persistence', 'pod_rbf', 'dmd', 'opinf'], 'ranks': [2, 4, 8], 'test_fraction': 0.25}",
+  "timed_out": false
+ },
+ "node:rover.learn_planet": {
+  "code_hash": "bd7c780ec4d0fd49",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 7.97,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Rover that learns the planet (autonomous lab) -> pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)\ninputs: []\noutputs: [('report', 'report'), ('metrics', 'metrics')]\ndefaults: {'mission': 'Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy', 'max_time': 400.0, 'n_samples': 24, 'figures': True}",
   "timed_out": false
  },
  "node:scenario.site": {

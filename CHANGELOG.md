@@ -14,6 +14,26 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
+  A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
+  (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)
+  and a comparison of the analytic Wong-Reece law, the zoo surrogate and measured operating points; sensors with
+  stated noise and a soil belief per mapped unit updated by an iterated EKF (sinkage and torque from load and slip,
+  input noise carried through the model, the simulator's slip-sinkage lag in the observation model); a risk-aware
+  planner (share of belief samples above the slip limit, wheels on both sides checked, energy-optimal Dijkstra); a
+  mission agent (plain-language request -> `MissionSpec` through a rule parser with the `extract(text, schema)`
+  interface of `CallLLM`, fixed tool set, plan -> drive -> learn -> replan -> verify); a trust report (goal, slip
+  limit, energy balance, time-step check, planner vs multibody, route risks, held-out prediction, recovery of the
+  known truth); figures and Blender Cycles renders (overview, stall close-up, traverse MP4/GIF) with the repository's
+  VIPER model. Flow Studio node `rover.learn_planet`; example `examples/autolab_rover/`; guide
+  `docs/guides/rover_learns_the_planet.md`.
+- `VehicleSimulator`: ground made of several soils (`soil=[...]`, `soil_map(x, y) -> index`), route following by
+  pure pursuit (`run(route=[...])`, ends at the goal) and an early stop rule (`run(stop=...)`, `meta["ended"]`);
+  `run.wheel["soil_idx"]` records the soil under each wheel; `wheel_speeds="kinematic"` gives each wheel the speed
+  of its distance to the turning centre (default `"equal"`, unchanged: in turns the wheels of an all-wheel-steered
+  rover then fight each other).
+- `WongReeceModel.sinkage_for_load` / `steady_state`: `sinkage_slip=` (the slip that sets the sinkage exponent, e.g.
+  a lagged slip), as `forces` already had.
 - `pinneapple_presets` (`pp.presets`): industrial presets, engineering cases already set up, solved and validated.
   Each has a data sheet (sector, question, SI inputs with realistic defaults and the source of each value, outputs,
   validity domain), `run(**params)` with its trust report and decision, `validate()` against citable references

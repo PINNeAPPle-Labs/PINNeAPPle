@@ -240,3 +240,61 @@ def test_batch2_inversions_and_decisions():
         assert inv["rel_error"] < 0.05, (name, inv["rel_error"])
     opt = P.load("pump_npsh_cavitation").optimize()
     assert opt["verified_ok"] and opt["smallest_ok_suction"] is None          # lowering the pump is the fix
+
+
+def test_panel_method_converges_with_a_closed_trailing_edge():
+    from pinneapple_design.aero.geometry import naca4
+    from pinneapple_design.aero.panel import panel_solve
+    s = naca4("2412")
+    cl = [panel_solve(s, 4.0, n_per_side=n, close_te=True).cl_kutta_joukowski for n in (100, 200, 400)]
+    assert abs(cl[2] - cl[1]) < abs(cl[1] - cl[0]) and abs(cl[2] - cl[1]) / cl[2] < 0.002
+
+
+def test_eddy_fdm_block_solve_equals_complex_solve_and_dodd_deeds_limits():
+    from scipy.sparse.linalg import spsolve
+
+    from pinneapple_physics.closed_form.eddy_coil import MU0, coil_impedance
+    from pinneapple_simulation.numerical_solvers.eddy_current_fdm import (
+        annular_current_source,
+        build_axisymmetric_helmholtz_system,
+        solve_axisymmetric_eddy_current,
+    )
+    r = np.linspace(0, 0.02, 41)
+    z = np.linspace(-0.02, 0.02, 81)
+    RR, ZZ = np.meshgrid(r, z, indexing="ij")
+    J = annular_current_source(r, z, 0.003, 0.002, 0.002, 0.001, 100, 1.0)
+    sg = np.where(ZZ < 0, 1.7e7, 0.0)
+    A = solve_axisymmetric_eddy_current(r, z, 2 * np.pi * 1e4, MU0 * np.ones_like(RR), sg, J)
+    M, b = build_axisymmetric_helmholtz_system(r, z, 1j * 2 * np.pi * 1e4 * MU0 * sg, -MU0 * J + 0j)
+    ref = spsolve(M.tocsc(), b)
+    # both solves leave round-off residuals of the same size (cond(M) ~ 1e8 with 1/h^2 ~ 4e6): compare residuals
+    assert np.abs(M @ A.ravel() - b).max() <= 2 * np.abs(M @ ref - b).max() + 1e-30
+    assert np.abs(A.ravel() - ref).max() <= 1e-7 * np.abs(ref).max()
+    kw = dict(r1=2e-3, r2=4e-3, l1=5e-4, l2=2.5e-3, turns=200, sigma=1.74e7)
+    thick = coil_impedance(1e4, thickness=0.02, **kw)
+    half = coil_impedance(1e4, **kw)
+    assert abs(thick["dZ"] - half["dZ"]) < 1e-6 * abs(half["dZ"])
+    assert half["dR"] > 0 and half["dX"] < 0
+
+
+def test_batch3_default_runs_and_inversions():
+    import warnings as _w
+    for name in ("airfoil_section_re4e6", "eddy_current_skin_inspection"):
+        with _w.catch_warnings():
+            _w.simplefilter("ignore")
+            p = P.load(name)
+            inv = p.invert()
+        assert inv["true_inside_ci95"] and inv["rel_error"] < 0.02, (name, inv["rel_error"])
+    opt = P.load("eddy_current_skin_inspection").optimize()
+    assert 0.6 < opt["t_over_delta_best"] < 1.6 and opt["verified_ok"]       # the classic t ~ delta rule
+    # the folded angle saws; the unwrapped back-wall phase lag is smooth and turns ~2 rad per unit of t/delta
+    lag, tod = np.array(opt["scan_phase_lag_deg"]), np.array(opt["scan_t_over_delta"])
+    assert np.all(np.diff(lag) < 0) and np.abs(np.diff(lag)).max() < 45          # monotonic, no fold jumps
+    slope = np.polyfit(tod[tod > 1.5], lag[tod > 1.5], 1)[0]
+    assert abs(abs(slope) - np.degrees(2.0)) < 0.1 * np.degrees(2.0), slope
+
+
+@SLOW
+def test_ipm_matches_the_published_prius_torque_curve():
+    v = P.load("ipm_traction_motor").validate()
+    assert v["all_pass"], v["references"]

@@ -1,0 +1,171 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/airfoil_section_re4e6",
+ "title": "Perfil de asa / p\u00e1 a Re 4e6: sustenta\u00e7\u00e3o, arrasto e momento (surrogate verificado de RANS)",
+ "description": "Qual a sustenta\u00e7\u00e3o, o arrasto e a efici\u00eancia L/D deste perfil no \u00e2ngulo de ataque de opera\u00e7\u00e3o? Que perfil maximiza L/D com espessura estrutural >= 12 % e Cm >= -0,12?",
+ "domain": "Aerodin\u00e2mica / aeronaves leves, VANTs, p\u00e1s de turbina e\u00f3lica",
+ "methods": [
+  "pinneapple_hub.zoo (airfoil_cst_rans_mlp)",
+  "pinneapple_design.aero.panel.panel_solve",
+  "pinneapple_design.aero.geometry"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 1.6793179919995964
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl]",
+   "value": 0.003231396365459536,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo); erro absoluto m\u00e9dio em Cl, medido aqui"
+  },
+  {
+   "name": "rel_error[Cd vs naca_reference: erro = erro relativo m\u00e9dio]",
+   "value": 0.0061563188229423905,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo)"
+  },
+  {
+   "name": "rel_error[Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl]",
+   "value": 0.010092481383557984,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: XFOIL 6.99 com transi\u00e7\u00e3o for\u00e7ada, NACA 2412, 9 \u00e2ngulos (dados do zoo); erro absoluto m\u00e9dio em Cl, medido aqui"
+  },
+  {
+   "name": "rel_error[Cd vs xfoil_naca2412: erro = erro relativo m\u00e9dio]",
+   "value": 0.02812720929821659,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: XFOIL 6.99 com transi\u00e7\u00e3o for\u00e7ada, NACA 2412, 9 \u00e2ngulos (dados do zoo)"
+  },
+  {
+   "name": "rel_error[\u00e2ngulo de sustenta\u00e7\u00e3o nula do NACA 2412]",
+   "value": 0.03635566045042856,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: teoria do aerof\u00f3lio fino (Anderson, Fundamentals of Aerodynamics, cap. 4): alpha_L0 = -(1/pi) int dz/dx (cos t - 1) dt"
+  },
+  {
+   "name": "rel_error[inclina\u00e7\u00e3o dCl/dalpha: RANS vs pain\u00e9is (viscoso ~5-10 % menor)]",
+   "value": 0.09432880750469669,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: Hess-Smith (Moran 1984), inv\u00edscido"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.0038385312822229413,
+   "unit": "-",
+   "how": "m\u00ednimos quadrados (Brent) sobre o ensemble do zoo, IC pela sensibilidade dCl/dalpha"
+  }
+ ],
+ "checks": [
+  {
+   "name": "Cl vs naca_reference (36 pontos): erro = MAE absoluto em Cl",
+   "passed": true,
+   "value": 0.003231396365459536,
+   "reference": 0.0,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "Cd vs naca_reference: erro = erro relativo m\u00e9dio",
+   "passed": true,
+   "value": 0.0061563188229423905,
+   "reference": 0.0,
+   "rtol": 0.02,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "Cl vs xfoil_naca2412 (9 pontos): erro = MAE absoluto em Cl",
+   "passed": true,
+   "value": 0.010092481383557984,
+   "reference": 0.0,
+   "rtol": 0.03,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "Cd vs xfoil_naca2412: erro = erro relativo m\u00e9dio",
+   "passed": true,
+   "value": 0.02812720929821659,
+   "reference": 0.0,
+   "rtol": 0.08,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "\u00e2ngulo de sustenta\u00e7\u00e3o nula do NACA 2412",
+   "passed": true,
+   "value": -2.001720958073466,
+   "reference": -2.07724040490822,
+   "rtol": 0.1,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "inclina\u00e7\u00e3o dCl/dalpha: RANS vs pain\u00e9is (viscoso ~5-10 % menor)",
+   "passed": true,
+   "value": 0.11043981109018641,
+   "reference": 0.1219425018763188,
+   "rtol": 0.12,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/airfoil.png",
+   "results/variants.png",
+   "results/3d/airfoil_section_re4e6_3d_cp.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo); erro absoluto m\u00e9dio em Cl, medido aqui",
+  "OpenFOAM RANS, 36 rodadas NACA 0012/2412/4412/4415 fora do treino (dados do zoo)",
+  "XFOIL 6.99 com transi\u00e7\u00e3o for\u00e7ada, NACA 2412, 9 \u00e2ngulos (dados do zoo); erro absoluto m\u00e9dio em Cl, medido aqui",
+  "XFOIL 6.99 com transi\u00e7\u00e3o for\u00e7ada, NACA 2412, 9 \u00e2ngulos (dados do zoo)",
+  "teoria do aerof\u00f3lio fino (Anderson, Fundamentals of Aerodynamics, cap. 4): alpha_L0 = -(1/pi) int dz/dx (cos t - 1) dt",
+  "Hess-Smith (Moran 1984), inv\u00edscido"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "a273f086",
+  "created": "2026-10-24T02:20:36Z",
+  "seconds": 0.018,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

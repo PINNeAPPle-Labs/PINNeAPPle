@@ -1,0 +1,382 @@
+{
+ "preset": "spm_servo_motor",
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "torque médio 7.05 N m a 13.4 A de pico (kt 0.526 N m/A)",
+   "ondulação 15.7 % > 5 %, cogging 0.707 N m p-p"
+  ]
+ },
+ "outputs": {
+  "torque": 7.045391991567424,
+  "ripple": 0.1565293992439787,
+  "cogging_pp": 0.7074273753250284,
+  "kt": 0.525775521758763,
+  "ke": 0.326706012827922,
+  "emf_peak": 102.63772097838125,
+  "p_copper": 62.83452962148446,
+  "j_rms": 5.9576487093852935,
+  "t_mst": 7.52696905751996,
+  "t_coe": 7.525814924564543,
+  "t_power": 7.632613896484088,
+  "t_minus_cog": 7.473062979699129,
+  "kt_from_ke": 0.5410455249452333,
+  "ke1": 0.3606970166301555,
+  "cogging_mean_over_pp": 0.0028048545618743082
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "Maxwell stress = co-energy torque",
+    "status": "supports",
+    "value": 0.00015335654237919993,
+    "limit": 0.01,
+    "source": "two independent torque integrations",
+    "reason": ""
+   },
+   {
+    "name": "power balance T - T_cog = i.e / w",
+    "status": "supports",
+    "value": 0.020903837001168817,
+    "limit": 0.03,
+    "source": "flux linkage derivative vs field torque",
+    "reason": ""
+   },
+   {
+    "name": "cogging has zero mean over a slot pitch",
+    "status": "supports",
+    "value": 0.0028048545618743082,
+    "limit": 0.05,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "current density within the TEFC range (<= 6.5 A/mm2)",
+    "status": "supports",
+    "value": 5.9576487093852935,
+    "limit": 6.5,
+    "source": "Pyrhönen, Jokinen & Hrabovcová, Design of Rotating Electrical Machines, 2a ed. (2014)",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "spm_servo_motor",
+  "references": [
+   {
+    "case": "torque: tensor de Maxwell vs co-energia",
+    "output": "torque",
+    "unit": "N m",
+    "computed": 7.52696905751996,
+    "reference": 7.525814924564543,
+    "rel_error": 0.00015335654237919993,
+    "tol": 0.01,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "duas integrações independentes do mesmo campo (lib, tests/test_motor_magnetics.py mede 0,09 %)",
+    "params": {}
+   },
+   {
+    "case": "torque - cogging vs i.e/w (balanço de potência)",
+    "output": "torque",
+    "unit": "N m",
+    "computed": 7.473062979699129,
+    "reference": 7.632613896484088,
+    "rel_error": 0.020903837001168817,
+    "tol": 0.03,
+    "pass": true,
+    "kind": "analytic",
+    "source": "conservação de energia: P_mec = sum i_k e_k",
+    "params": {}
+   },
+   {
+    "case": "kt (FEM) vs 3/2 ke1 (fundamental da FEM, máquina senoidal)",
+    "output": "kt",
+    "unit": "N m/A",
+    "computed": 0.525775521758763,
+    "reference": 0.5410455249452333,
+    "rel_error": 0.028223139241408575,
+    "tol": 0.05,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Pyrhönen, Jokinen & Hrabovcová, Design of Rotating Electrical Machines, 2a ed. (2014), eq. de torque da máquina síncrona de ímãs",
+    "params": {}
+   }
+  ],
+  "convergence": {
+   "parameter": "n_theta (12 posições por passo de ranhura)",
+   "values": [
+    360,
+    720
+   ],
+   "torque": [
+    7.041840666997937,
+    7.020089525723287
+   ],
+   "rel_change_last": 0.0030984136591063883,
+   "pass": true
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/motor.png",
+  "results/surrogate_parity.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 37.661699786999634,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T11:05:23Z"
+ },
+ "surrogate": {
+  "model": "ARD Gaussian process (squared exponential)",
+  "inputs": [
+   "I_peak",
+   "magnet_thickness",
+   "magnet_arc"
+  ],
+  "outputs": [
+   "torque"
+  ],
+  "bounds": {
+   "I_peak": [
+    5.0,
+    30.0
+   ],
+   "magnet_thickness": [
+    0.0025,
+    0.006
+   ],
+   "magnet_arc": [
+    0.65,
+    0.92
+   ]
+  },
+  "n_train": 40,
+  "n_test": 15,
+  "holdout": {
+   "per_output": {
+    "torque": {
+     "max_rel_err": 0.010298457639493648,
+     "mean_rel_err": 0.0033963899722326374,
+     "rmse": 0.037122532618675194,
+     "r2": 0.9999014398341597,
+     "coverage_2sigma": 1.0
+    }
+   },
+   "max_rel_err": 0.010298457639493648
+  },
+  "timing_s": {
+   "doe_solver_runs": 2365.796396403,
+   "fit": 0.959394617000271
+  },
+  "default_case": {
+   "torque": {
+    "surrogate": 7.03026068383638,
+    "std": 0.03759884239752352,
+    "solver": 7.045391991567424
+   }
+  }
+ },
+ "inversion": {
+  "description": "Remanência dos ímãs (aquecidos ou parcialmente desmagnetizados) a partir da FEM a vazio medida na rotação nominal (4 leituras, ruído de 0,5 %). Verdade sintética Br = 1.12 T.",
+  "parameter": "Br",
+  "unit": "T",
+  "true": 1.12,
+  "recovered": 1.121089366800152,
+  "ci95": [
+   1.1153048116809055,
+   1.1268739219193986
+  ],
+  "rel_error": 0.000972648928707076,
+  "true_inside_ci95": true,
+  "noise": "0.5 %",
+  "how": "bisseção sobre o FEM (FEM a vazio é monótona em Br), IC pela sensibilidade dE/dBr"
+ },
+ "optimization": {
+  "objective": "menor volume de ímã (espessura x arco) com torque >= base (surrogate, conferido no FEM) e cogging <= 2 % do torque (FEM: o surrogate de cogging foi descartado)",
+  "magnet_thickness_m": 0.0032500000000000003,
+  "magnet_arc": 0.8954545454545455,
+  "magnet_volume_vs_base": 0.9094460227272728,
+  "surrogate_torque": 7.126259021314885,
+  "fem_torque": 7.088566576772287,
+  "surrogate_vs_fem_torque_rel": 0.005317357766816804,
+  "fem_cogging": 0.08948474113962922,
+  "verified_ok": true,
+  "fem_checks": 2
+ },
+ "variants": {
+  "rows": {
+   "base (4 mm, arco 0,80)": {
+    "params": {},
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "torque": 7.045391991567424,
+     "ripple": 0.1565293992439787,
+     "cogging_pp": 0.7074273753250284,
+     "kt": 0.525775521758763,
+     "ke": 0.326706012827922,
+     "emf_peak": 102.63772097838125,
+     "p_copper": 62.83452962148446,
+     "j_rms": 5.9576487093852935,
+     "t_mst": 7.52696905751996,
+     "t_coe": 7.525814924564543,
+     "t_power": 7.632613896484088,
+     "t_minus_cog": 7.473062979699129,
+     "kt_from_ke": 0.5410455249452333,
+     "ke1": 0.3606970166301555,
+     "cogging_mean_over_pp": 0.0028048545618743082
+    }
+   },
+   "arco 0,67": {
+    "params": {
+     "magnet_arc": 0.67
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "torque": 6.261934360654625,
+     "ripple": 0.09745633317904001,
+     "cogging_pp": 0.6294470895505719,
+     "kt": 0.4673085343772108,
+     "ke": 0.3279374713192922,
+     "emf_peak": 103.02459507335018,
+     "p_copper": 62.83452962148446,
+     "j_rms": 5.9576487093852935,
+     "t_mst": 5.875606685865833,
+     "t_coe": 5.894888883413477,
+     "t_power": 6.341655766023751,
+     "t_minus_cog": 6.103773431534874,
+     "kt_from_ke": 0.4937039451187968,
+     "ke1": 0.3291359634125312,
+     "cogging_mean_over_pp": 0.003418233946198405
+    }
+   },
+   "arco 0,90": {
+    "params": {
+     "magnet_arc": 0.9
+    },
+    "verdict": "OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "torque": 7.579295135438076,
+     "ripple": 0.0493584611052755,
+     "cogging_pp": 0.23072073992664016,
+     "kt": 0.5656190399580654,
+     "ke": 0.3291280082460291,
+     "emf_peak": 103.39861327963659,
+     "p_copper": 62.83452962148446,
+     "j_rms": 5.9576487093852935,
+     "t_mst": 7.574913966985339,
+     "t_coe": 7.566948320394487,
+     "t_power": 7.599484838085266,
+     "t_minus_cog": 7.629134636739384,
+     "kt_from_ke": 0.5631242001724095,
+     "ke1": 0.37541613344827296,
+     "cogging_mean_over_pp": 0.00828723805177394
+    }
+   },
+   "ímã 3 mm": {
+    "params": {
+     "magnet_thickness": 0.003
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "torque": 6.482285602976554,
+     "ripple": 0.15659840445438805,
+     "cogging_pp": 0.6675441042741586,
+     "kt": 0.4837526569385488,
+     "ke": 0.2987757195386377,
+     "emf_peak": 93.86316055735887,
+     "p_copper": 63.36413416742731,
+     "j_rms": 6.0930498164167775,
+     "t_mst": 6.923158080093391,
+     "t_coe": 6.923721203014482,
+     "t_power": 7.027679142136269,
+     "t_minus_cog": 6.878082853334721,
+     "kt_from_ke": 0.4972544055599498,
+     "ke1": 0.3315029370399665,
+     "cogging_mean_over_pp": 0.003419992298163107
+    }
+   },
+   "magnetização radial": {
+    "params": {
+     "magnetization": "radial"
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "torque": 7.303986139822129,
+     "ripple": 0.15661372972405832,
+     "cogging_pp": 1.1308345755926381,
+     "kt": 0.5450735925240394,
+     "ke": 0.32459387989141847,
+     "emf_peak": 101.97417484670879,
+     "p_copper": 62.83452962148446,
+     "j_rms": 5.9576487093852935,
+     "t_mst": 7.725603962613451,
+     "t_coe": 7.714598018976707,
+     "t_power": 7.7872532519331115,
+     "t_minus_cog": 7.61855413962184,
+     "kt_from_ke": 0.5529752906102898,
+     "ke1": 0.3686501937401932,
+     "cogging_mean_over_pp": 0.002935052530000748
+    }
+   }
+  },
+  "compared": [
+   "torque",
+   "ripple",
+   "cogging_pp"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/spm_servo_motor_base_4_mm_arco_0_80_3d_B.png",
+   "results/3d/variants/spm_servo_motor_arco_0_67_3d_B.png",
+   "results/3d/variants/spm_servo_motor_arco_0_90_3d_B.png",
+   "results/3d/variants/spm_servo_motor_ima_3_mm_3d_B.png",
+   "results/3d/variants/spm_servo_motor_magnetizacao_radial_3d_B.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/spm_servo_motor_3d_B.png"
+ ],
+ "wall_time_total_s": 1142.0812237700002,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

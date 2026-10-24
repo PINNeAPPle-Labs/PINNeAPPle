@@ -28,6 +28,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `docs/guides/autonomous_physics_lab.md`.
 - `pinneapple_physics.pcb.Component.r_top_k_w`: case-top-to-air resistance of an attached heat sink.
 - Studio: `blender.render_animation(..., lines=[bool per frame])` shows the static lines only on chosen frames.
+- Hub and Flow Studio on one registry: every Flow Studio node type (the curated nodes and the generated library
+  calls) is a Hub tool with the palette's title and parameter schema; a node page runs the node with the visitor's
+  values in the sandbox, opens it in Flow Studio as a ready flow (`pinneapple_hub.library.flowlink.flow_for_node`:
+  inputs -> node -> report, valid for every node type) or adds it to a flow the visitor picks (Flow Studio
+  `?add=`); Flow Studio's "Publish to Hub" turns the flow on the canvas into a Hub tool whose exposed parameters
+  are variables of its Python (`compose(flow=..., expose=...)`); recorded headless runs of the bundled flows
+  (`python -m pinneapple_hub.library flowruns`) appear on each flow's page and on the pages of the nodes they use;
+  AGENTS.md functions link to the node that wraps them.
 - PINNeAPPle Hub: one catalogue of everything ready-made. `pinneapple_hub.library` generates the index
   (`data/web/hub/index.json`, `python -m pinneapple_hub.library build | run | check`) from the zoo manifest and
   model cards, the geometry library, the zoo datasets, Flow Studio's bundled flows and curated nodes, AGENTS.md (API

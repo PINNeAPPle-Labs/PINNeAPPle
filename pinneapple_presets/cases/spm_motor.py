@@ -32,8 +32,9 @@ class SPMMotor(Preset):
         Param("slot_opening", "-", 2 / 15, "abertura da ranhura = 2/15 do passo de ranhura", 0.05, 0.5),
         Param("rpm", "rpm", 3000.0, "rotação nominal de servo-motor", 100, 12000),
         Param("n_positions", "-", 6, "posições do rotor por passo de ranhura (ondulação, cogging)", 3, 24),
-        Param("n_theta", "-", 360, "divisões angulares da malha (múltiplo de 24 e de 4); convergência 240-480",
-              choices=(240, 360, 480)),
+        Param("n_theta", "-", 360, "divisões angulares da malha: 15 por passo de ranhura, para que a abertura de 2/15 "
+              "caia em nós (com 240 ou 480 a geometria da abertura muda com a malha); convergência 360 -> 720",
+              choices=(360, 720)),
     )
     outputs = (
         Output("torque", "N m", "torque médio na corrente nominal (eixo q)"),
@@ -54,9 +55,11 @@ class SPMMotor(Preset):
                 "decisão: torque >= alvo e ondulação <= 5 %")
     library = ("pinneapple_simulation.electromagnetics.machine.SPMMachine",)
     surrogate_spec = SurrogateSpec(inputs=("I_peak", "magnet_thickness", "magnet_arc"),
-                                   outputs=("torque", "cogging_pp"), n_train=40, n_test=15,
+                                   outputs=("torque",), n_train=40, n_test=15,
                                    bounds={"I_peak": (5.0, 30.0), "magnet_thickness": (0.0025, 0.006),
-                                           "magnet_arc": (0.65, 0.92)}, log_outputs=("cogging_pp",))
+                                           "magnet_arc": (0.65, 0.92)})
+    # cogging was trained too and dropped: hold-out max error 146 %, R2 -0.33 (it jumps with the magnet arc); the
+    # FEM computes it
     has_3d = True
     has_optimization = True
     has_inversion = True
@@ -148,12 +151,15 @@ class SPMMotor(Preset):
                           o["t_power"], 0.03, "analytic", "conservação de energia: P_mec = sum i_k e_k"),
                 self._row("kt (FEM) vs 3/2 ke1 (fundamental da FEM, máquina senoidal)", "kt", "N m/A", o["kt"], o["kt_from_ke"], 0.05,
                           "analytic", PYR + ", eq. de torque da máquina síncrona de ímãs")]
+        p = self.defaults()
         ts = []
-        for n in (240, 360, 480):
-            ts.append(self.run(n_theta=n, n_positions=3).outputs["torque"])
+        for n in (360, 720):                                 # same slot-opening geometry on both meshes
+            m = self.machine({**p, "n_theta": n})
+            th = np.arange(12) * m.cogging_period() / 12     # 12 positions: the 16 % ripple averages out
+            ts.append(float(np.mean([m.torque(m.solve(t, m.phase_currents(t, p["I_peak"], 0.0))) for t in th])))
         rel = abs(ts[-1] - ts[-2]) / abs(ts[-1])
-        conv = {"parameter": "n_theta", "values": [240, 360, 480], "torque": ts, "rel_change_last": rel,
-                "pass": rel < 0.01}
+        conv = {"parameter": "n_theta (12 posições por passo de ranhura)", "values": [360, 720], "torque": ts,
+                "rel_change_last": rel, "pass": rel < 0.01}
         return {"preset": self.name, "references": rows, "convergence": conv,
                 "all_pass": all(r["pass"] for r in rows) and conv["pass"]}
 
@@ -172,26 +178,28 @@ class SPMMotor(Preset):
         sur = load_surrogate(self.name)
         if sur is None:
             return None
-        best = None
+        cands = []
         for h in np.linspace(0.0025, 0.006, 15):
             for a in np.linspace(0.65, 0.92, 12):
                 pr, ood = sur.predict_one({**p, "magnet_thickness": h, "magnet_arc": a})
-                if ood or pr["torque"] < base["torque"] or pr["cogging_pp"] > 0.02 * base["torque"]:
-                    continue
-                vol = h * a
-                if best is None or vol < best[0]:
-                    best = (vol, h, a, pr)
-        if best is None:
-            return {"objective": "menos ímã com torque >= base e cogging <= 2 %", "feasible": False}
-        vol, h, a, pr = best
-        ver = self.run(**{**kw, "magnet_thickness": float(h), "magnet_arc": float(a)}).outputs
-        return {"objective": "menor volume de ímã (espessura x arco) com torque >= base e cogging <= 2 % do torque",
-                "magnet_thickness_m": float(h), "magnet_arc": float(a), "magnet_volume_vs_base":
-                    vol / (p["magnet_thickness"] * p["magnet_arc"]),
-                "surrogate_torque": pr["torque"], "fem_torque": ver["torque"],
-                "surrogate_vs_fem_torque_rel": abs(pr["torque"] - ver["torque"]) / ver["torque"],
-                "surrogate_cogging": pr["cogging_pp"], "fem_cogging": ver["cogging_pp"],
-                "verified_ok": ver["torque"] >= 0.99 * base["torque"] and ver["cogging_pp"] <= 0.02 * base["torque"]}
+                if not ood and pr["torque"] >= base["torque"]:
+                    cands.append((h * a, float(h), float(a), pr["torque"]))
+        out = {"objective": "menor volume de ímã (espessura x arco) com torque >= base (surrogate, conferido no FEM) e "
+                            "cogging <= 2 % do torque (FEM: o surrogate de cogging foi descartado)"}
+        tried = []
+        for vol, h, a, tq in sorted(cands)[:8]:
+            ver = self.run(**{**kw, "magnet_thickness": h, "magnet_arc": a}).outputs
+            ok = ver["torque"] >= 0.99 * base["torque"] and ver["cogging_pp"] <= 0.02 * base["torque"]
+            tried.append({"magnet_thickness_m": h, "magnet_arc": a, "surrogate_torque": tq, "fem_torque": ver["torque"],
+                          "fem_cogging": ver["cogging_pp"], "ok": ok})
+            if ok:
+                out.update({"magnet_thickness_m": h, "magnet_arc": a,
+                            "magnet_volume_vs_base": vol / (p["magnet_thickness"] * p["magnet_arc"]),
+                            "surrogate_torque": tq, "fem_torque": ver["torque"],
+                            "surrogate_vs_fem_torque_rel": abs(tq - ver["torque"]) / ver["torque"],
+                            "fem_cogging": ver["cogging_pp"], "verified_ok": True, "fem_checks": len(tried)})
+                return out
+        return {**out, "feasible": False, "fem_checks": len(tried), "tried": tried}
 
     def invert(self, true_br: float = 1.12, noise: float = 0.005, seed: int = 0, **kw):
         """Magnet remanence of a motor on the bench (hot or partly demagnetised magnets) from the open-circuit

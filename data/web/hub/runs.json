@@ -32,6 +32,17 @@
   "stdout": "pinneapple_catalog.methods.method_status() -> 'Dict[str, Dict]'\n``{id: {\"status\": ..., \"reference_tests\": [...], \"other_tests\": [...]}}`` from the last scan.",
   "timed_out": false
  },
+ "api:pinneapple-design-thermal-board-cooling-run-mission": {
+  "code_hash": "ed8ec6ee86ff7f4d",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 6.95,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "pinneapple_design.thermal.board_cooling.run_mission(text: 'str', *, out_dir: 'str' = 'out', planner: 'str' = 'template', n: 'int' = 64, render: 'bool' = True, workers: 'int' = 4, llm: 'Callable[[str, str], str] | None' = None, provider: 'str' = 'anthropic', log: 'Callable[[str], None] | None' = <built-in function print>) -> 'Run'\nPlan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the",
+  "timed_out": false
+ },
  "api:pinneapple-flow-plan": {
   "code_hash": "7cb9921117ba5c3f",
   "figures": [],
@@ -712,6 +723,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "00_list_datasets.py — List and inspect all available PINNeAPPle datasets | fluid dynamics | not curated",
+  "timed_out": false
+ },
+ "example:examples/autolab": {
+  "code_hash": "3f1cfb0dac467747",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 1.11,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Autonomous Physics Lab | design and geometry | not curated\nbaseline_tj_soc 323.2144491142498 °C\nverified_tj_soc_pessimistic 88.52504297676208 °C\nholdout_tj_max_abs_error 2.2030649404285896 K\nholdout_map_rmse 0.2031511632505125 K\nreference_solves 224.0 solves",
   "timed_out": false
  },
  "example:examples/benchmark": {
@@ -5211,6 +5233,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "str\n''",
+  "timed_out": false
+ },
+ "node:autolab.board_cooling": {
+  "code_hash": "60a3ee7873e3261f",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 9.15,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Self-optimizing engineer (board cooling) -> pinneapple_design.thermal.board_cooling.run_mission (pinneapple_autolab.execute)\ninputs: []\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'mission': '', 'n': 64, 'planner': 'template', 'render': False, 'workers': 4}",
   "timed_out": false
  },
  "node:benchmark.arena": {

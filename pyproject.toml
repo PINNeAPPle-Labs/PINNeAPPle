@@ -466,6 +466,7 @@ packages = [
   "pinneapple_flow",         # engineering flows: typed node graphs, planner, runtime on pinneapple_core.workflows, Flow Studio
   "pinneapple_reason",       # chain of whys: naive concept -> computed failure modes -> countermeasures -> verified design
   "pinneapple_presets",      # industrial presets: engineering cases set up, solved, validated (pp.presets)
+  "pinneapple_autolab",      # Autonomous Physics Lab: mission -> plan of controlled library calls -> evidence
 
   # ── arena + compatibility shims ───────────────────────────────────────────
   "pinneapple_arena",     # YAML/JSON-driven multi-model benchmark runner
@@ -521,6 +522,7 @@ include = [
   "pinneapple_flow/**",
   "pinneapple_reason/**",
   "pinneapple_presets/**",
+  "pinneapple_autolab/**",
   "pinneapple_arena/**",
   "pinneapple_models/**",
   "pinneapple_train/**",

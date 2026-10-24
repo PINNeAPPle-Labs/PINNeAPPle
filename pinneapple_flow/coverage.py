@@ -44,6 +44,7 @@ REASONS: dict[str, str] = {
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
     "pinneapple_llm": "LLM drafting: used by the LLM planner, problem.generic and twin.auto",
     "pinneapple_app": "a separate web application (not a library package)",
+    "pinneapple_autolab.core": "the agent loop (toolbox, planners, execute) run inside autolab.* nodes",
     "pinneapple_reason.llm": "optional LLM advisor of the reasoning engine; flows reason without an LLM",
     "pinneapple_reason.narrative": "the text of Chain.explain, shown in the summary of reason.chain",
     "pinneapple_reason.props": "physical constants and properties read by the failure modes",

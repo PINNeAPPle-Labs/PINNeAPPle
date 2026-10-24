@@ -202,3 +202,95 @@ def execute(plan: Plan, toolbox: Toolbox, state: dict[str, Any] | None = None, *
         if stop_on_error and not ev[-1].ok:
             break
     return Run(plan, state, ev)
+
+
+# ================================================================================================ step-by-step loop
+class StepPlanner(Protocol):
+    """Chooses the next step after seeing every result so far (``None``: done)."""
+    name: str
+
+    def next(self, mission: str, toolbox: Toolbox, state: dict[str, Any], evidence: list[Evidence]) -> Step | None: ...
+
+
+class LLMStepPlanner:
+    """A language model chooses each next step from the toolbox, seeing the mission, the tools and the evidence so
+    far (summaries only: the numbers the tools returned). It answers ``{"tool", "args", "why"}`` or
+    ``{"done": true}``. An unknown tool or argument is not run: the refusal is recorded as evidence and shown to the
+    model on the next turn. ``llm``: ``(prompt, system) -> str``; default :func:`pinneapple_llm.call_llm`."""
+
+    name = "llm-step"
+
+    def __init__(self, *, provider: str = "anthropic", model: str | None = None,
+                 llm: Callable[[str, str], str] | None = None, rules: str = ""):
+        self.provider, self.model, self._llm, self.rules = provider, model, llm, rules
+        self.name = f"llm-step:{provider}" if llm is None else "llm-step:custom"
+
+    def _ask(self, prompt: str, system: str) -> str:
+        if self._llm is not None:
+            return self._llm(prompt, system)
+        from pinneapple_llm import call_llm
+        out = call_llm(prompt, provider=self.provider, model=self.model, system=system, json_mode=True)
+        return out if isinstance(out, str) else json.dumps(out)
+
+    def next(self, mission, toolbox, state, evidence):
+        system = ("You run an engineering study one tool call at a time. Use only these tools with only their listed "
+                  "inputs; never state a number a tool did not return. " + self.rules + " Answer with JSON "
+                  '{"tool": name, "args": {...}, "why": text} or {"done": true}. Tools: '
+                  + json.dumps(toolbox.describe()))
+        hist = [{"step": e.step, "tool": e.tool, "args": e.args, "ok": e.ok, "result": e.summary, "error": e.error}
+                for e in evidence[-30:]]
+        raw = self._ask(json.dumps({"mission": mission, "history": hist}, default=str), system)
+        d = json.loads(raw[raw.find("{"):raw.rfind("}") + 1])
+        if d.get("done"):
+            return None
+        return Step(str(d["tool"]), dict(d.get("args") or {}), str(d.get("why", "")))
+
+
+def act(mission: str, toolbox: Toolbox, planner: StepPlanner, state: dict[str, Any] | None = None, *,
+        max_steps: int = 200, max_refusals: int = 5, log: Callable[[str], None] | None = None) -> Run:
+    """Decide-then-act loop: ask ``planner`` for one step, check it against the toolbox, run it, record the
+    evidence, repeat until the planner is done, ``max_steps`` or ``max_refusals`` consecutive refused / failed
+    steps. Same :class:`Tool` / :class:`Evidence` contract as :func:`execute`; the returned plan lists the steps
+    taken."""
+    state = {} if state is None else state
+    ev: list[Evidence] = []
+    taken: list[Step] = []
+    plan = Plan(mission, taken, getattr(planner, "name", "step"))
+    state["_plan"], state["_evidence"] = plan, ev
+    bad = 0
+    for i in range(max_steps):
+        t0 = time.perf_counter()
+        try:
+            s = planner.next(mission, toolbox, state, ev)
+        except Exception as e:  # noqa: BLE001 - an unreadable answer is a refused step
+            ev.append(Evidence(i, "?", {}, "", {}, round(time.perf_counter() - t0, 3), False,
+                               f"planner answer not usable: {type(e).__name__}: {e}"))
+            bad += 1
+            if bad >= max_refusals:
+                plan.notes.append(f"stopped after {bad} unusable planner answers")
+                break
+            continue
+        if s is None:
+            break
+        taken.append(s)
+        err = toolbox.check(s)
+        if err:
+            ev.append(Evidence(i, s.tool, s.args, s.why, {}, 0.0, False, f"refused: {err}"))
+        else:
+            tool = toolbox.tools[s.tool]
+            try:
+                out = tool.fn(state, **s.args) or {}
+                state[s.tool] = out
+                ev.append(Evidence(i, s.tool, s.args, s.why, (tool.summary or _scalars)(out),
+                                   round(time.perf_counter() - t0, 3), True))
+            except Exception as e:  # noqa: BLE001 - recorded as evidence, the planner sees it
+                ev.append(Evidence(i, s.tool, s.args, s.why, {}, round(time.perf_counter() - t0, 3), False,
+                                   f"{type(e).__name__}: {e}"))
+        e = ev[-1]
+        if log:
+            log(f"[{i + 1}] {e.tool} {'ok' if e.ok else 'FAILED'} in {e.seconds:.1f} s" + (f": {e.error}" if e.error else ""))
+        bad = 0 if e.ok else bad + 1
+        if bad >= max_refusals:
+            plan.notes.append(f"stopped after {bad} refused or failed steps in a row")
+            break
+    return Run(plan, state, ev)

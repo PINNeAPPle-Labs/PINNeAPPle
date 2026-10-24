@@ -29,6 +29,14 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   here: drag -15.7 % with the downforce and balance limits met, -13.95 % on the fine mesh where the balance limit is
   missed by 1 %, within the solver's iteration noise; 3 of 4 "uncertain" designs rejected by CFD); guide
   `docs/guides/autonomous_lab.md`.
+- `pinneapple_autolab.agent`: a mission in words read into objectives, limits and a budget with what was read from
+  which words and what was assumed (refusing operating points the solver is not set up for and requests with no
+  objective); the lab as a closed toolbox (`lab_toolbox`); a deterministic step planner (`LabPlanner`) and a language
+  model one (`core.LLMStepPlanner`) over `core.act`, a decide-check-run-record loop next to `execute`; an audit of the
+  final answer (every number from a tool result, the recommended run simulated and feasible);
+  `pinneapple_autolab.replay.ReplaySimulator` (answers exact repeats from a ledger, labelled, simulates the rest).
+  Example `examples/autolab_aero_agent/` (the stage-1 mission reproduced decision for decision, refusals, a scripted
+  careless planner refused and flagged).
 - `ExternalFlow`: `body_levels` (surface refinement per body, e.g. thin wing elements), `refine_boxes`,
   `write_every` + `force_history()` (forces at every written iteration), `FlowResult.load()`.
 - `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.

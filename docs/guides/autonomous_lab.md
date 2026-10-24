@@ -117,3 +117,43 @@ Surrogates (5-fold cross-validation, 20 runs): MLP ensemble chosen for every out
 drag 2.4 %, downforce 10.2 %, balance 4.3 %; the quadratic response surface needs more runs than its 28
 coefficients and is skipped. Surface Cp (POD + GP): held-out RMSE 0.07 on the body, 0.12 on the diffuser, 0.21-0.24
 on the wings (the wings have vertices only at their span ends).
+
+## The agent (stage 2)
+
+`pinneapple_autolab.agent` puts an agent in front of the same lab:
+
+```
+mission in words ─► interpret_mission ─► Mission (+ what was read from which words, what was assumed)
+                         │  refuses: an operating point the solver is not set up for, a request with no objective
+                         ▼
+              act(planner, lab_toolbox) ─► one controlled tool call at a time ─► evidence
+                         │  LabPlanner (deterministic) or LLMStepPlanner (a language model), same tools
+                         ▼
+              answer ─► audit_claims: every number must come from a tool result; the recommended run must be a
+                         successful simulation that meets every limit
+```
+
+- **Tools** (`lab_toolbox`): `read_mission`, `plan`, `simulate_baseline`, `space_filling`, `check_design`,
+  `learn`, `optimize_and_assess`, `recommend_next`, `simulate_candidate`, `verify_best`, `status`, `answer`. None
+  changes the operating conditions, the bounds, the limits or the solver settings; a step with an argument a tool
+  does not declare (`simulate_baseline(speed=90)`) or a tool that does not exist is refused and recorded.
+- **Planners** share :func:`pinneapple_autolab.core.act` (decide, check, run, record, repeat), added next to the
+  plan-then-execute loop of the other missions: `LabPlanner` needs no network; `LLMStepPlanner` asks a model
+  (`pinneapple_llm.call_llm`: Anthropic, OpenAI or any OpenAI-compatible server, Ollama) for each next step and sees
+  the evidence so far.
+- **Plugging in a real model**: `python examples/autolab_aero_agent/agent_mission.py --provider anthropic` with
+  `ANTHROPIC_API_KEY` set (needs the `anthropic` package), or `--provider ollama --model <name>` with an Ollama
+  server on the machine, or `--provider openai_compatible` for vLLM / llama.cpp / LM Studio. The container these
+  results come from has no key and no route to model downloads, so the session below used `LabPlanner`.
+- **Replay** (`pinneapple_autolab.replay.ReplaySimulator`): a design already simulated is answered from its
+  recorded measurement (exact parameter match, labelled `replayed_from` in the new ledger); any other design is
+  simulated for real. Nothing is interpolated.
+
+Measured (`examples/autolab_aero_agent/_out/`): the mission text was read into drag minimised, downforce >= baseline
+(from "Preserve the required downforce"), 20 simulations (from "at most 20 CFD runs"), 3 kept for verification
+(from "validate the final design using CFD"); the balance limit was added and stated as an assumption. The agent took
+31 tool calls and reproduced the stage-1 campaign decision for decision (all 20 designs answered from the stage-1
+ledger, 0 new runs), and answered run019 (drag 2795.5 N against 3314.8 N); the audit found every number in the answer
+in a tool result. "Lower drag at 80 m/s" and "Make the car look fast" were refused with their reasons. A scripted
+careless planner (`rogue_session.json`, not a real model) had its speed change and its invented tool refused before
+anything ran, and the "40 %" and "1990 N" of its answer flagged.

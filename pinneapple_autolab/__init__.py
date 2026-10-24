@@ -22,13 +22,16 @@ Only the ledger's runs are evidence; predictions are labelled as predictions unt
 from .core import (
     Evidence,
     LLMPlanner,
+    LLMStepPlanner,
     Plan,
     Planner,
     Run,
     Step,
+    StepPlanner,
     TemplatePlanner,
     Tool,
     Toolbox,
+    act,
     execute,
 )
 from .domain import DomainVerdict, ValidatedDomain
@@ -57,6 +60,7 @@ from .trust import (
 
 __all__ = [
     "Tool", "Toolbox", "Step", "Plan", "Planner", "TemplatePlanner", "LLMPlanner", "Evidence", "Run", "execute",
+    "StepPlanner", "LLMStepPlanner", "act",
     "AutonomousLab", "Budget", "BudgetExhaustedError", "CandidateAssessment", "DomainVerdict", "FAMILIES",
     "FieldSurrogate", "FunctionSimulator", "GPModel", "Ledger", "Limit", "MLPEnsemble", "Mission", "ModelBoard",
     "NextExperiment", "QuadraticRSM", "RunRecord", "SimOutcome", "Simulator", "UnresolvedLimitError",

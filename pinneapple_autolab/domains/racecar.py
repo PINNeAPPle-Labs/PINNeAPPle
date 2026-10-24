@@ -35,7 +35,7 @@ from pinneapple_design.design_optimizer.study import Objective, Variable
 from ..mission import Budget, Limit, Mission
 from ..simulator import SimOutcome, Simulator
 
-__all__ = ["VARIABLES", "BASELINE", "CONDITIONS", "MESHES", "RaceCarAero", "force_convergence", "render_run", "flagship_mission", "make_car",
+__all__ = ["VARIABLES", "BASELINE", "CONDITIONS", "MESHES", "RaceCarAero", "force_convergence", "render_run", "racecar_domain", "flagship_mission", "make_car",
            "solver_log_summary"]
 
 VARIABLES = [
@@ -329,6 +329,20 @@ def render_run(params: Mapping[str, float], flow_npz: str, out_prefix: str, titl
     for p in out.values():
         shrink_png(p)
     return out
+
+
+def racecar_domain():
+    """What the race-car simulator can be asked, for :func:`pinneapple_autolab.agent.interpret_mission`."""
+    from ..agent import MissionDomain
+    m = flagship_mission()
+    return MissionDomain(
+        "The AI Aerodynamicist", list(VARIABLES), dict(BASELINE),
+        {"drag_N": ["drag"], "downforce_N": ["downforce", "down force"], "balance_front": ["balance"]},
+        {"drag_N": "N", "downforce_N": "N", "balance_front": ""},
+        {"speed": (CONDITIONS["speed_m_s"], "m/s", r"(\d+(?:\.\d+)?)\s*m/s")},
+        dict(m.acceptance), dict(CONDITIONS),
+        extra_limits=[next(c for c in m.constraints if c.name == "balance_front")],
+        hypotheses=list(m.hypotheses), default_budget=24, default_reserve=3, domain="external aerodynamics")
 
 
 def flagship_mission(budget: int = 30, reserve_verify: int = 3) -> Mission:

@@ -119,7 +119,7 @@ async function route() {
     if (p.startsWith("/item/")) { setNav("explore"); await itemView(p.slice(6)); }
     else if (p === "/create") { setNav("create"); document.title = "Create your own · PINNeAPPle Hub"; await createView(view, u.searchParams); }
     else if (p === "/mine") { setNav("mine"); await mineView(); }
-    else if (p === "/" && [...u.searchParams.keys()].some((k) => ["q", "kind", "domain", "quality", "subkind"].includes(k))) { setNav("explore"); await browseView(u.searchParams); }
+    else if (p === "/" && [...u.searchParams.keys()].some((k) => ["q", "kind", "domain", "quality", "subkind", "category"].includes(k))) { setNav("explore"); await browseView(u.searchParams); }
     else if (p === "/") { setNav("explore"); await homeView(); }
     else view.innerHTML = `<main>${emptyState("Page not found", `Nothing lives at <code>${esc(p)}</code>. <a href="/" data-link>Back to the Hub</a>.`, true)}</main>`;
   } catch (e) {
@@ -148,11 +148,15 @@ async function homeView() {
       <h3><span class="dot"></span>${esc(c.title)} <span class="badge">${c.count}</span></h3><p>${esc(CAT_TEXT[c.kind] || "")}</p>
       <ul>${c.sample.map((s) => `<li><a href="${itemUrl(s.id)}" data-link>${esc(s.title)}</a></li>`).join("")}</ul>
       <a class="btn" href="/?kind=${c.kind}" data-link>See all ${c.count} →</a></div>`).join("")}</div></section>
+    <section class="block"><h2>Tools by task <small>${h.tasks.length} categories; every tool is in exactly one</small></h2><div class="tasks">${h.tasks.map((t) => `<a class="task" href="/?kind=tool&amp;category=${esc(t.slug)}" data-link data-task="${esc(t.slug)}">
+      <h3>${esc(t.title)} <span class="badge">${t.count}</span></h3><p>${esc(t.description)}</p>
+      <span class="eg">${t.sample.map((s) => esc(s.title)).join(" · ")}</span></a>`).join("")}</div></section>
     <section class="block"><h2>By physical domain</h2><div class="domains">${Object.entries(h.domains).map(([d, n]) => `<button type="button" data-domain="${esc(d)}">${esc(d)}<b>${n}</b></button>`).join("")}</div></section>
   </main>`;
   $("#heroform").onsubmit = (e) => { e.preventDefault(); go(`/?q=${encodeURIComponent($("#heroq").value.trim())}`); };
   $$("[data-domain]").forEach((b) => (b.onclick = () => go(`/?domain=${encodeURIComponent(b.dataset.domain)}`)));
 }
+const catTitle = (slug) => state.config.categories.find((c) => c.slug === slug)?.title || slug;
 const CAT_TEXT = {
   tool: "Public functions, Flow Studio nodes, recipes that run and the MCP server's agent tools.",
   model: "Pre-trained zoo models with held-out errors, physics checks and a validity range; run them here.",
@@ -164,7 +168,7 @@ const CAT_TEXT = {
 
 // ---------------------------------------------------------------- results
 async function browseView(sp) {
-  const f = { q: sp.get("q") || "", kind: sp.get("kind") || "", domain: sp.get("domain") || "", quality: sp.get("quality") || "", subkind: sp.get("subkind") || "" };
+  const f = { q: sp.get("q") || "", kind: sp.get("kind") || "", category: sp.get("category") || "", domain: sp.get("domain") || "", quality: sp.get("quality") || "", subkind: sp.get("subkind") || "" };
   $("#q").value = f.q;
   document.title = `${f.q ? `“${f.q}”` : "Browse"} · PINNeAPPle Hub`;
   const qs = new URLSearchParams(Object.entries(f).filter(([, v]) => v)); qs.set("limit", "500");
@@ -172,10 +176,12 @@ async function browseView(sp) {
   const fc = state.config.facets, kinds = state.config.kinds;
   const group = (name, title, entries, label = (k) => k) => `<div class="fgroup" role="group" aria-label="${title}"><h3>${title}</h3>${entries.map(([k, n]) => `<label><input type="radio" name="${name}" value="${esc(k)}" ${f[name] === k ? "checked" : ""}> ${label(k)} <span class="n">${n}</span></label>`).join("")}<label><input type="radio" name="${name}" value="" ${!f[name] ? "checked" : ""}> any</label></div>`;
   const qual = Object.entries(fc.quality).sort(([a], [b]) => (a.length === 1 ? a : "Z" + a).localeCompare(b.length === 1 ? b : "Z" + b));
-  const chips = Object.entries(f).filter(([, v]) => v).map(([k, v]) => `<button type="button" data-clear="${k}" aria-label="Remove filter ${k} ${esc(v)}">${esc(k === "q" ? `“${v}”` : v)} ✕</button>`).join("");
+  const chips = Object.entries(f).filter(([, v]) => v).map(([k, v]) => { const t = k === "q" ? `“${v}”` : k === "category" ? catTitle(v) : v; return `<button type="button" data-clear="${k}" aria-label="Remove filter ${k} ${esc(t)}">${esc(t)} ✕</button>`; }).join("");
+  const cats = state.config.categories.filter((c) => c.count).map((c) => [c.slug, c.count]);
   view.innerHTML = `<main><div class="browse">
     <aside class="filters"><details open id="fdet"><summary><h2>Filters</h2><span aria-hidden="true">▾</span></summary><div class="fgroups">
       ${group("kind", "Type", Object.entries(fc.kind), (k) => esc(kinds[k]))}
+      ${f.kind === "tool" || f.category ? group("category", "Task", cats, (k) => esc(catTitle(k))) : ""}
       ${f.kind === "tool" ? group("subkind", "Tool type", Object.entries(fc.subkind)) : ""}
       ${group("quality", "Quality", qual, (k) => (state.config.tiers[k] ? `${sealHTML(k)} ${esc(state.config.tiers[k].en.toLowerCase())}` : esc(k)))}
       ${group("domain", "Domain", Object.entries(fc.domain), esc)}</div></details></aside>
@@ -183,7 +189,7 @@ async function browseView(sp) {
       ${res.total ? `<div class="grid">${res.items.map(cardHTML).join("")}</div>` : emptyState("No matches", `Nothing in the Hub matches these filters. Try fewer words, ${chips ? '<a href="/" data-link>clear the filters</a>, ' : ""}or <a href="/create" data-link>create your own tool</a>.`)}
     </section></div></main>`;
   if (matchMedia("(max-width: 860px)").matches) $("#fdet").open = false;
-  $$(".filters input").forEach((i) => (i.onchange = () => { const u = new URLSearchParams(location.search); i.value ? u.set(i.name, i.value) : u.delete(i.name); if (i.name === "kind") u.delete("subkind"); go(`/?${u}`); }));
+  $$(".filters input").forEach((i) => (i.onchange = () => { const u = new URLSearchParams(location.search); i.value ? u.set(i.name, i.value) : u.delete(i.name); if (i.name === "kind") { u.delete("subkind"); if (i.value !== "tool") u.delete("category"); } go(`/?${u}`); }));
   $$("[data-clear]").forEach((b) => (b.onclick = () => { const u = new URLSearchParams(location.search); u.delete(b.dataset.clear); go([...u.keys()].length ? `/?${u}` : "/?q="); }));
 }
 
@@ -237,6 +243,7 @@ async function itemView(id) {
   const side = [];
   side.push(`<div class="panel"><h2>About</h2><table class="kv"><tbody>
     <tr><td>Type</td><td><span class="badge kind" style="${kindVar(it.kind)}"><span class="dot"></span>${esc(kind)}</span></td></tr>
+    ${it.category ? `<tr><td>Task</td><td><a href="/?kind=tool&amp;category=${esc(it.category)}" data-link>${esc(catTitle(it.category))}</a></td></tr>` : ""}
     <tr><td>Domain</td><td>${esc(it.domain)}</td></tr>
     ${q.letter ? `<tr><td>Lab seal</td><td>${sealHTML(q.letter)} ${esc(state.config.tiers[q.letter]?.en || "")}</td></tr>` : ""}
     ${q.decision ? `<tr><td>Zoo validation</td><td><span class="badge ${q.decision === "APPROVED" ? "ok" : "bad"}">${esc(q.decision)}</span> score ${num(q.score)}</td></tr>` : ""}

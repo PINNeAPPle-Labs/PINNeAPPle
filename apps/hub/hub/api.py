@@ -79,7 +79,8 @@ def card(it: dict[str, Any]) -> dict[str, Any]:
     """What a result card shows."""
     q = it.get("quality") or {}
     return {"id": it["id"], "kind": it["kind"], "subkind": it.get("subkind", ""), "title": it["title"],
-            "summary": it.get("summary", ""), "domain": it.get("domain", ""), "tags": it.get("tags", [])[:5],
+            "summary": it.get("summary", ""), "domain": it.get("domain", ""), "category": it.get("category", ""),
+            "tags": it.get("tags", [])[:5],
             "quality": hub.quality_key(it), "quality_label": q.get("label", ""),
             "thumbnail": it.get("thumbnail") or next(iter((it.get("results") or {}).get("figures") or []), "")
             or next(iter((it.get("run") or {}).get("figures") or []), ""),
@@ -104,6 +105,7 @@ def config():
     return {"tiers": {t: {"colour": TIER_COLOURS[t], "ink": TIER_INK[t], "en": TIER_TEXT["en"][t]} for t in SEALABLE},
             "version": VERSION, "flow_studio": (os.environ.get("HUB_FLOW_STUDIO_URL") or "http://127.0.0.1:8765"),
             "counts": idx["counts"], "kinds": idx["kinds"], "facets": idx["facets"],
+            "categories": [{**c, "count": idx["facets"]["category"].get(c["slug"], 0)} for c in idx["categories"]],
             "sandbox_s": float(os.environ.get("HUB_SANDBOX_S") or 60),
             "github": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main"}
 
@@ -127,14 +129,18 @@ def home():
         rows = [i for i in idx["items"] if i["kind"] == k]
         cats.append({"kind": k, "title": title, "count": len(rows),
                      "sample": [card(i) for i in sorted(rows, key=sample_rank)[:4]]})
-    return {"featured": feat, "categories": cats, "domains": idx["facets"]["domain"]}
+    tools = [i for i in idx["items"] if i["kind"] == "tool"]
+    tasks = [{**c, "count": idx["facets"]["category"].get(c["slug"], 0),
+              "sample": [card(i) for i in sorted((i for i in tools if i.get("category") == c["slug"]),
+                                                 key=sample_rank)[:3]]} for c in idx["categories"]]
+    return {"featured": feat, "categories": cats, "tasks": tasks, "domains": idx["facets"]["domain"]}
 
 
 @app.get("/api/search")
 def search(q: str = "", kind: str | None = None, domain: str | None = None, quality: str | None = None,
-           subkind: str | None = None, limit: int = Query(60, ge=1, le=500), offset: int = Query(0, ge=0)):
+           subkind: str | None = None, category: str | None = None, limit: int = Query(60, ge=1, le=500), offset: int = Query(0, ge=0)):
     rows = hub.search(index(), q, kind=kind or None, domain=domain or None, quality=quality or None,
-                      subkind=subkind or None)
+                      subkind=subkind or None, category=category or None)
     return {"total": len(rows), "items": [card(i) for i in rows[offset:offset + limit]]}
 
 

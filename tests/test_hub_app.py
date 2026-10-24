@@ -52,6 +52,11 @@ def test_pages_and_catalogue(client):
     a = client.get("/api/search", params={"quality": "A", "limit": 500}).json()
     assert a["total"] and all(i["quality"] == "A" for i in a["items"])
     assert client.get("/api/search", params={"q": "zzzz-nothing"}).json()["total"] == 0
+    assert len(cfg["categories"]) == 20 and sum(c["count"] for c in cfg["categories"]) == cfg["counts"]["tool"]
+    assert len(home["tasks"]) == 20 and all(t["sample"] and t["count"] for t in home["tasks"])
+    v = client.get("/api/search", params={"kind": "tool", "category": "vehicles", "limit": 500}).json()
+    assert v["total"] == next(c["count"] for c in cfg["categories"] if c["slug"] == "vehicles")
+    assert all(i["category"] == "vehicles" for i in v["items"])
 
 
 def test_item_page_data_and_files(client):

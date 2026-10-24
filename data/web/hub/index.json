@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 407,
+  "tool": 408,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 122
+  "example": 126
  },
  "kinds": {
   "tool": "Tools",
@@ -19,42 +19,44 @@
  },
  "facets": {
   "kind": {
-   "tool": 407,
+   "tool": 408,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 122
+   "example": 126
   },
   "subkind": {
    "library call": 249,
-   "flow node": 78,
+   "flow node": 79,
    "recipe": 45,
    "function": 18,
    "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 88,
+   "physics AI": 89,
    "general": 78,
    "fluid dynamics": 59,
    "design and geometry": 57,
-   "structural mechanics": 49,
+   "structural mechanics": 50,
    "numerical methods": 46,
    "validation and benchmarks": 45,
    "data": 41,
    "system dynamics": 40,
-   "heat transfer": 21,
+   "heat transfer": 22,
    "vehicle dynamics": 12,
    "electromagnetics": 11,
    "time series": 9,
    "flight dynamics": 8,
    "geophysics and climate": 8,
    "astrophysics": 4,
+   "hydraulics": 1,
    "molecular dynamics": 1,
-   "security": 1
+   "security": 1,
+   "transport": 1
   },
   "quality": {
-   "not graded": 504,
+   "not graded": 509,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -1880,6 +1882,102 @@
     "stderr": "",
     "stdout": "Chain of whys -> pinneapple_reason.engine.reason\ninputs: [('requirement', 'requirement'), ('concept', 'concept')]\noutputs: [('chain', 'chain'), ('metrics', 'metrics')]\ndefaults: {'max_steps': 12}",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:lib.export.usd_validate",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "lib.export.usd_validate",
+   "title": "Check a USD stage (Omniverse)",
+   "summary": "re-open an OpenUSD file and check it before Omniverse / Isaac Sim opens it: topology, primvar sizes, extents, time samples and every pxr.UsdValidation validator",
+   "description": "re-open an OpenUSD file and check it before Omniverse / Isaac Sim opens it: topology, primvar sizes, extents, time samples and every pxr.UsdValidation validator",
+   "domain": "structural mechanics",
+   "tags": [
+    "Export",
+    "export",
+    "file",
+    "geometry",
+    "html",
+    "report"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"lib.export.usd_validate\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=lib.export.usd_validate",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/libcalls.py#L242"
+   },
+   "extra": {
+    "calls": "pinneapple_tools.nvidia.omniverse:validate_stage",
+    "category": "Export",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "result",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "path",
+      "kind": "str",
+      "default": null,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "compliance",
+      "kind": "bool",
+      "default": true,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "title": "path",
+       "description": "",
+       "x-kind": "str",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "compliance": {
+       "title": "compliance",
+       "description": "",
+       "x-kind": "bool",
+       "default": true,
+       "type": "boolean"
+      }
+     }
+    }
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Check a USD stage (Omniverse) -> pinneapple_tools.nvidia.omniverse:validate_stage\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'path': None, 'compliance': True}",
+    "stderr": "",
+    "seconds": 8.25,
+    "timed_out": false,
+    "code_hash": "d8be8544c2f86269",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -11718,8 +11816,8 @@
    "extra": {
     "calls": "pinneapple_flow.wrappers:newton_validate pinneapple_simulation.external_solvers",
     "category": "Solvers",
-    "available": false,
-    "install": "pip install newton-physics",
+    "available": true,
+    "install": "",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -59779,6 +59877,79 @@
    }
   },
   {
+   "id": "example:examples/nvidia/07_omniverse_physicsnemo_coldplate",
+   "kind": "example",
+   "name": "examples/nvidia/07_omniverse_physicsnemo_coldplate",
+   "title": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene",
+   "summary": "",
+   "description": "",
+   "domain": "heat transfer",
+   "tags": [
+    "FNO (PhysicsNeMo)",
+    "FVM"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/07_omniverse_physicsnemo_coldplate"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/07_omniverse_physicsnemo_coldplate\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "test_rel_l2",
+      "value": 0.017551220805002144,
+      "unit": "",
+      "how": "mean relative L2 of T - T_c over 50 held-out layouts"
+     },
+     {
+      "name": "max_hotspot_error_K",
+      "value": 0.23619471814862428,
+      "unit": "K",
+      "how": "max over test layouts of |max T_FNO - max T_FV|"
+     },
+     {
+      "name": "train_wall_s",
+      "value": 153.67537451800104,
+      "unit": "s",
+      "how": "wall clock of FNO training on this CPU"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/07_omniverse_physicsnemo_coldplate/results/fields.png",
+     "examples/nvidia/07_omniverse_physicsnemo_coldplate/results/training.png",
+     "examples/nvidia/07_omniverse_physicsnemo_coldplate/results/checks.png",
+     "examples/nvidia/07_omniverse_physicsnemo_coldplate/results/usd_preview.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/07_omniverse_physicsnemo_coldplate"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene | heat transfer | not curated\ntest_rel_l2 0.017551220805002144 \nmax_hotspot_error_K 0.23619471814862428 K\ntrain_wall_s 153.67537451800104 s",
+    "stderr": "",
+    "seconds": 1.03,
+    "timed_out": false,
+    "code_hash": "6c1a74ed563c5c29",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/systems",
    "kind": "example",
    "name": "examples/systems",
@@ -69883,6 +70054,92 @@
    }
   },
   {
+   "id": "example:examples/nvidia",
+   "kind": "example",
+   "name": "examples/nvidia",
+   "title": "PINNeAPPle with the NVIDIA stack",
+   "summary": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each…",
+   "description": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each run.py writes an architecture figure, result figures, summary.json and run_info.json (what ran here and what needs a GPU or an API key).",
+   "domain": "physics AI",
+   "tags": [
+    "FNO (PhysicsNeMo)",
+    "FVM",
+    "MOC",
+    "spectral"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "coldplate_fno_test_rel_l2",
+      "value": 0.017551220805002144,
+      "unit": "",
+      "how": "07: mean relative L2 of T - T_c over 50 held-out layouts (07_omniverse_physicsnemo_coldplate/results/summary.json)"
+     },
+     {
+      "name": "pipeline_max_pressure_60s_closure",
+      "value": 14.65695471406468,
+      "unit": "bar",
+      "how": "01: max gauge pressure over pipe and time, MOC, 60 s linear closure (01_omniverse_pump_pipeline/results/summary.json)"
+     },
+     {
+      "name": "plume_fno_one_step_rel_l2",
+      "value": 0.01804893909474389,
+      "unit": "",
+      "how": "02: mean one-step relative L2 on 8 held-out plumes (02_physicsnemo_plume_rollout/results/summary.json)"
+     },
+     {
+      "name": "plume_fno_trust_horizon",
+      "value": 10.0,
+      "unit": "steps",
+      "how": "02: median validate_rollout trust horizon over 8 plumes (same file)"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/01_omniverse_pump_pipeline/results/architecture.png",
+     "examples/nvidia/01_omniverse_pump_pipeline/results/checks.png",
+     "examples/nvidia/01_omniverse_pump_pipeline/results/transients.png",
+     "examples/nvidia/01_omniverse_pump_pipeline/results/usd_preview.png",
+     "examples/nvidia/02_physicsnemo_plume_rollout/results/architecture.png",
+     "examples/nvidia/02_physicsnemo_plume_rollout/results/checks.png",
+     "examples/nvidia/02_physicsnemo_plume_rollout/results/rollout_checks.png",
+     "examples/nvidia/02_physicsnemo_plume_rollout/results/snapshots.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "examples/nvidia/README.md",
+    "lab": "lab/index.html#examples/nvidia"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "PINNeAPPle with the NVIDIA stack | physics AI | not curated\ncoldplate_fno_test_rel_l2 0.017551220805002144 \npipeline_max_pressure_60s_closure 14.65695471406468 bar\nplume_fno_one_step_rel_l2 0.01804893909474389 \nplume_fno_trust_horizon 10.0 steps",
+    "stderr": "",
+    "seconds": 1.13,
+    "timed_out": false,
+    "code_hash": "919bba4381b00794",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/inspection",
    "kind": "example",
    "name": "examples/inspection",
@@ -70455,6 +70712,78 @@
     "stderr": "",
     "stdout": "A - stress vs Heywood",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/02_physicsnemo_plume_rollout",
+   "kind": "example",
+   "name": "examples/nvidia/02_physicsnemo_plume_rollout",
+   "title": "Plume forecast: PhysicsNeMo FNO rollout with PINNeAPPle rollout validation",
+   "summary": "",
+   "description": "",
+   "domain": "transport",
+   "tags": [
+    "FNO (PhysicsNeMo)",
+    "spectral"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/02_physicsnemo_plume_rollout"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/02_physicsnemo_plume_rollout\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "one_step_rel_l2",
+      "value": 0.01804893909474389,
+      "unit": "",
+      "how": "mean over 8 held-out plumes, first step"
+     },
+     {
+      "name": "trust_horizon_steps",
+      "value": 10.0,
+      "unit": "steps",
+      "how": "median first step where validate_rollout's error, spectrum or invariant criterion is crossed"
+     },
+     {
+      "name": "mass_drift",
+      "value": 0.04480531539697272,
+      "unit": "",
+      "how": "max |M(t) - M(0)| / M(0) over the rollouts"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/02_physicsnemo_plume_rollout/results/rollout_checks.png",
+     "examples/nvidia/02_physicsnemo_plume_rollout/results/checks.png",
+     "examples/nvidia/02_physicsnemo_plume_rollout/results/snapshots.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/02_physicsnemo_plume_rollout"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Plume forecast: PhysicsNeMo FNO rollout with PINNeAPPle rollout validation | transport | not curated\none_step_rel_l2 0.01804893909474389 \ntrust_horizon_steps 10.0 steps\nmass_drift 0.04480531539697272",
+    "stderr": "",
+    "seconds": 1.13,
+    "timed_out": false,
+    "code_hash": "8d93628fde1c445b",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },
@@ -71453,6 +71782,96 @@
     "stderr": "",
     "stdout": "A - contact vs Winkler · Archard",
     "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/01_omniverse_pump_pipeline",
+   "kind": "example",
+   "name": "examples/nvidia/01_omniverse_pump_pipeline",
+   "title": "Pump and pipeline water hammer twin in OpenUSD",
+   "summary": "",
+   "description": "",
+   "domain": "hydraulics",
+   "tags": [
+    "Colebrook",
+    "MOC"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/01_omniverse_pump_pipeline"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/01_omniverse_pump_pipeline\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "flow_m3_s",
+      "value": 0.5764952765862256,
+      "unit": "m^3/s",
+      "how": "pump curve = friction + valve loss (brentq)"
+     },
+     {
+      "name": "velocity_m_s",
+      "value": 2.0389349541739374,
+      "unit": "m/s",
+      "how": "Q / A at the operating point"
+     },
+     {
+      "name": "max_pressure_bar_closure_0s",
+      "value": 26.33736760656158,
+      "unit": "bar",
+      "how": "max over pipe and time, MOC"
+     },
+     {
+      "name": "max_pressure_bar_closure_6s",
+      "value": 25.48263329314509,
+      "unit": "bar",
+      "how": "max over pipe and time, MOC"
+     },
+     {
+      "name": "max_pressure_bar_closure_20s",
+      "value": 23.148129867493747,
+      "unit": "bar",
+      "how": "max over pipe and time, MOC"
+     },
+     {
+      "name": "max_pressure_bar_closure_60s",
+      "value": 14.65695471406468,
+      "unit": "bar",
+      "how": "max over pipe and time, MOC"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/01_omniverse_pump_pipeline/results/checks.png",
+     "examples/nvidia/01_omniverse_pump_pipeline/results/transients.png",
+     "examples/nvidia/01_omniverse_pump_pipeline/results/usd_preview.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/01_omniverse_pump_pipeline"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "Pump and pipeline water hammer twin in OpenUSD | hydraulics | not curated\nflow_m3_s 0.5764952765862256 m^3/s\nvelocity_m_s 2.0389349541739374 m/s\nmax_pressure_bar_closure_0s 26.33736760656158 bar\nmax_pressure_bar_closure_6s 25.48263329314509 bar\nmax_pressure_bar_closure_20s 23.148129867493747 bar",
+    "stderr": "",
+    "seconds": 0.86,
+    "timed_out": false,
+    "code_hash": "dfae5d4caaf8fc15",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
     "status": "ok"
    }
   },

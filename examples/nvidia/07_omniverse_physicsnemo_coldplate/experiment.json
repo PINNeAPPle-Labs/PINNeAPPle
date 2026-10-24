@@ -1,0 +1,177 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/07_omniverse_physicsnemo_coldplate",
+ "title": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene",
+ "description": "",
+ "domain": "heat transfer",
+ "methods": [
+  "FNO (PhysicsNeMo)",
+  "FVM"
+ ],
+ "modules": [
+  "pinneapple_neural.physicsnemo_bridge",
+  "pinneapple_physics.darcy_checks",
+  "pinneapple_tools.nvidia.omniverse"
+ ],
+ "params": {
+  "n": 32,
+  "n_train": 400,
+  "n_test": 50,
+  "budget": {
+   "wall_s": null,
+   "flops": null,
+   "steps": 2700
+  },
+  "k_W_mK": [
+   100,
+   400
+  ],
+  "q_W_m3": 2000000.0,
+  "L_m": 0.1
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "test_rel_l2",
+   "value": 0.017551220805002144,
+   "unit": "",
+   "how": "mean relative L2 of T - T_c over 50 held-out layouts"
+  },
+  {
+   "name": "max_hotspot_error_K",
+   "value": 0.23619471814862428,
+   "unit": "K",
+   "how": "max over test layouts of |max T_FNO - max T_FV|"
+  },
+  {
+   "name": "train_wall_s",
+   "value": 153.67537451800104,
+   "unit": "s",
+   "how": "wall clock of FNO training on this CPU"
+  }
+ ],
+ "checks": [
+  {
+   "name": "PDE residual (certified energy-error bound)",
+   "passed": false,
+   "value": 0.19559467296819275,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "||r||_{L^-1} / sqrt(min a) / ||u||_A from the finite-volume residual f + div(a grad u); bounds the relative energy-norm distance to the discrete solution",
+   "kind": "physics"
+  },
+  {
+   "name": "PDE residual (certified L2 error bound)",
+   "passed": false,
+   "value": 0.2931874348286704,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "the energy bound with the discrete Poincare inequality: bounds the relative L2 distance of u to the discrete solution",
+   "kind": "physics"
+  },
+  {
+   "name": "boundary condition u = 0",
+   "passed": true,
+   "value": 0.0177943810412789,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.02,
+   "min": null,
+   "detail": "RMS of u on the boundary (linear extrapolation from the first two cells) over max |u|",
+   "kind": "physics"
+  },
+  {
+   "name": "flux balance (net boundary flux = source)",
+   "passed": false,
+   "value": 0.08915458931801368,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.02,
+   "min": null,
+   "detail": "|outflow - integral of f| / |integral of f|, outflow = sum of 2 a u over the boundary faces",
+   "kind": "physics"
+  },
+  {
+   "name": "positivity (maximum principle)",
+   "passed": true,
+   "value": 0.004056653792823986,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "most negative value over max |u| (f >= 0 and u = 0 on the boundary give u >= 0)",
+   "kind": "physics"
+  },
+  {
+   "name": "reference (relative L2)",
+   "passed": true,
+   "value": 0.023806921586688852,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "relative L2 error against the reference solution (needs labels: evaluation only)",
+   "kind": "reference"
+  },
+  {
+   "name": "applicability (coefficient inside the training envelope)",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0,
+   "min": null,
+   "detail": "4 of 50 coefficients outside the training envelope, e.g. high_fraction 0.382 outside [0.4, 0.605]",
+   "kind": "applicability"
+  },
+  {
+   "name": "usd_stage_valid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "UsdValidation clean, primvars sized",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/fields.png",
+   "results/training.png",
+   "results/checks.png",
+   "results/usd_preview.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "486dcc50",
+  "created": "2026-10-24T00:26:53Z",
+  "seconds": 162.064,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

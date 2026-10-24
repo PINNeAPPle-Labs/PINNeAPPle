@@ -34,6 +34,19 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   inference in the browser (ONNX) or on the server, "Create your own" with sandbox validation and My Hub, light and
   dark themes, phone layout), deployed as `hub` (`HUB_DOMAIN`, port 8116) in `apps/deploy`; docs
   `docs/apps/hub.md`. Flow Studio opens `?example=<flow>` and `?flow=<base64url JSON>` links.
+- PINNeAPPle with the NVIDIA stack (`pinneapple_tools.nvidia`, `examples/nvidia`): OpenUSD stages for Omniverse with
+  the fields as primvars (`FieldStage`: meshes, curves, sensor points, time samples on the Omniverse timeline, trust
+  decision as `pinneapple:trust:*`), `validate_stage` (topology, primvar sizes, every `pxr.UsdValidation` validator),
+  a read-back preview (`render_stage_png` / `render_stage_gif`) and the Omniverse Kit RTX capture script; code-drawn
+  architecture figures (`diagram.architecture_diagram`, steps that need a GPU or an API key hatched); `RunInfo`
+  (versions, hardware, timings, which NVIDIA components ran). Examples 01 (pump and pipeline water-hammer twin in USD),
+  02 (plume forecast: PhysicsNeMo FNO rollout with `validate_rollout`) and 07 (cold plate: PhysicsNeMo FNO, PINNeAPPle
+  checks, USD scene), numbered by the stack combination they cover, each with its architecture and result figures
+  from a recorded CPU run.
+- Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
+  curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
+  Joukowsky's head rise and the 4L/a period.
+- `operator_benchmarks.advection_diffusion_2d`: periodic advection-diffusion, exact in time per Fourier mode.
 - `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
   with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
   chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,

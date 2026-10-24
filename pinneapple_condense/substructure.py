@@ -153,13 +153,27 @@ def face_weights(stack: Stack) -> np.ndarray:
 _SNAPSHOTS: dict[tuple, dict[str, np.ndarray]] = {}
 
 
-def trace_snapshots(stack: Stack, patch: int = 4, shifts: tuple[float, ...] = (0.0,)) -> dict[str, np.ndarray]:
-    """Port traces of the interior faces of a ``patch x patch`` array of base blocks under every unit load (one
-    active cell at a time), solved exactly: the space of interface fields that any local power map can produce.
-    With ``shifts``, the same for ``K + s C`` at each rate ``s`` (transient traces, Laplace domain); each shift's
-    snapshots are scaled to unit Frobenius norm. Returns ``{"x": (n_face, n_snap), "y": ...}`` (cached)."""
-    key = (stack, patch, tuple(float(x) for x in shifts))
+def trace_snapshots(stack: Stack, patch: int = 4, shifts: tuple[float, ...] = (0.0,), *, global_size: int = 16,
+                    global_maps: int = 24) -> dict[str, np.ndarray]:
+    """Interface traces the face modes are built from (cached per stack), two groups of equal weight:
+
+    * *local*: the interior faces of a ``patch x patch`` array of base blocks under every unit load (one active cell
+      at a time), solved exactly -- every near-field trace a power map can produce; with ``shifts``, also for
+      ``K + s C`` at each rate ``s`` (transient traces, Laplace domain), each shift with equal weight;
+    * *global*: the interior faces of a ``global_size x global_size`` package under ``global_maps`` random hotspot
+      maps (background, number and width of the hotspots drawn at random), solved exactly by the unreduced
+      hierarchy -- the far-field traces where the lid, die, interposer and substrate spread heat laterally at
+      different rates. Without them the modes fit the near field only and the error grows with the package
+      (measured: 8.8 K on Tmax at 64 x 64 blocks with 6 modes, see the report).
+
+    Returns ``{"x": (n_face, n_snap), "y": ...}``."""
+    key = (stack, patch, tuple(float(x) for x in shifts), global_size, global_maps)
     if key in _SNAPSHOTS:
+        return _SNAPSHOTS[key]
+    path = _disk_cache(key)
+    if path is not None and path.exists():
+        with np.load(path) as z:
+            _SNAPSHOTS[key] = {"x": z["x"], "y": z["y"]}
         return _SNAPSHOTS[key]
     n2 = stack.n ** 2
     pkg = Package(stack, np.zeros((patch, patch), int), [BASE], np.zeros((patch * stack.n,) * 2))
@@ -170,16 +184,87 @@ def trace_snapshots(stack: Stack, patch: int = 4, shifts: tuple[float, ...] = (0
     nxf = (patch + 1) * patch
     fx = np.arange(nxf).reshape(patch + 1, patch)[1:-1].ravel()
     fy = nxf + np.arange(patch * (patch + 1)).reshape(patch, patch + 1)[:, 1:-1].ravel()
-    out = {"x": [], "y": []}
+    groups = {"x": [], "y": []}
     for s in shifts:
         c = Condensed(pkg, m=10 ** 9, shift=s).prepare()
         X = c.lu.solve(np.stack([c.rhs(pb) for pb in pbs], 1))
         for o, faces in (("x", fx), ("y", fy)):
             Xo = np.concatenate([X[c.face_off[f]:c.face_off[f + 1]] for f in faces], 1)
-            out[o].append(Xo / np.linalg.norm(Xo))
-    out = {o: np.concatenate(v, 1) for o, v in out.items()}
+            groups[o].append(Xo / np.linalg.norm(Xo) / np.sqrt(len(shifts)))
+    if global_maps:
+        from .hierarchy import Hierarchy
+        from .package import hotspot_power
+        G = global_size
+        gp = Package(stack, np.zeros((G, G), int), [BASE], np.zeros((G * stack.n,) * 2))
+        h = Hierarchy(gp, stack.n * stack.nz).prepare()
+        bm = block_model(stack, BASE)
+        tx, ty = [], []
+        for i in range(global_maps):
+            rng = np.random.default_rng(1000 + i)
+            pw = hotspot_power(stack, (G, G), 1.0, seed=1000 + i, hotspots=int(rng.integers(1, 5)),
+                               width=float(rng.uniform(0.03, 0.3)), background=float(rng.uniform(0.0, 0.6)))
+            tb = h.solve(pw)["tb"]
+            tx.append(tb[1:, :, bm.ports["x-"]].reshape(-1, bm.ports["x-"].stop - bm.ports["x-"].start))
+            ty.append(tb[:, 1:, bm.ports["y-"]].reshape(-1, bm.ports["y-"].stop - bm.ports["y-"].start))
+        for o, t in (("x", tx), ("y", ty)):
+            Xo = np.concatenate(t).T
+            groups[o].append(Xo / np.linalg.norm(Xo))
+    out = {o: np.concatenate(v, 1) for o, v in groups.items()}
     _SNAPSHOTS[key] = out
+    if path is not None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        np.savez(path, **out)
     return out
+
+
+def _disk_cache(key):
+    """File of a snapshot set: ``$PINNEAPPLE_CONDENSE_CACHE`` (default ``~/.cache/pinneapple_condense``; empty
+    disables it), named by a hash of the stack and the snapshot parameters."""
+    import hashlib
+    import os
+    from pathlib import Path
+    root = os.environ.get("PINNEAPPLE_CONDENSE_CACHE", str(Path.home() / ".cache" / "pinneapple_condense"))
+    if not root:
+        return None
+    h = hashlib.sha256(repr(key).encode()).hexdigest()[:20]
+    return Path(root) / f"traces_{h}.npz"
+
+
+def layered_modes(stack: Stack, orient: str, m: int, shifts: tuple[float, ...] = (0.0,), *,
+                  groups: str = "layer") -> np.ndarray:
+    """``m`` face modes that never tie two layers together: each layer gets its own constant, and the remaining
+    ``m - n_layers`` modes are the leading per-layer POD modes of the traces (:func:`trace_snapshots`), allotted
+    greedily by singular value across layers. A mode spanning several layers would fix the ratio of, say, lid and die
+    temperatures at every face, a thermal short across the low-conductivity TIM and underfill that grows with the heat
+    flux crossing them (measured, see the report). Columns are orthonormal in the area-weighted inner product."""
+    n, nz = stack.n, stack.nz
+    nf = n * nz
+    rows = np.arange(nf).reshape(n, nz)                      # node (lateral, k)
+    slices = list(stack.layer_slices().values()) if groups == "layer" else [slice(k, k + 1) for k in range(nz)]
+    L = len(slices)
+    if m >= nf:
+        return np.eye(nf)
+    if m < L:
+        raise ValueError(f"layered modes need m >= {L} (one constant per layer)")
+    w = face_weights(stack)
+    s = np.sqrt(w)
+    X = trace_snapshots(stack, shifts=shifts)[orient] * s[:, None]
+    cand, base = [], []
+    for sl in slices:
+        r = rows[:, sl].ravel()
+        c = np.zeros(nf)
+        c[r] = s[r]
+        c /= np.linalg.norm(c)
+        base.append(c)
+        Xr = X[r] - np.outer(c[r], c[r] @ X[r])
+        U, sv, _ = np.linalg.svd(Xr, full_matrices=False)
+        for j in range(min(len(sv), len(r) - 1)):
+            v = np.zeros(nf)
+            v[r] = U[:, j]
+            cand.append((sv[j], v))
+    cand.sort(key=lambda t: -t[0])
+    cols = base + [v for _, v in cand[: m - L]]
+    return np.column_stack(cols) / s[:, None]
 
 
 def interface_modes(bm: BlockModel, orient: str, m: int, method: str = "pod",
@@ -205,6 +290,8 @@ def interface_modes(bm: BlockModel, orient: str, m: int, method: str = "pod",
     elif method == "pod":
         X = trace_snapshots(bm.stack, shifts=shifts)[orient] * s[:, None]
         V = np.linalg.svd(P @ X, full_matrices=False)[0][:, : m - 1]
+    elif method in ("layered", "rows"):
+        return layered_modes(bm.stack, orient, m, shifts, groups="layer" if method == "layered" else "row")
     else:
         raise ValueError(f"unknown interface-mode method {method!r}")
     return np.column_stack([c, V]) / s[:, None]
@@ -385,8 +472,18 @@ class Condensed:
                 np.add.at(r, faces[:, i], rb[:, bm.ports[name]])
         return r
 
-    def estimate(self, state: CondensedState) -> np.ndarray:
-        """Per-face error indicator ``eta_F`` (sqrt(W K)); ``sqrt(sum eta^2)`` estimates the energy-norm error."""
+    def _sides(self) -> np.ndarray:
+        nbx, nby = self.pkg.shape
+        nxf = (nbx + 1) * nby
+        sides = np.full(len(self.face_off) - 1, 2)
+        fx = np.arange(nxf).reshape(nbx + 1, nby)
+        fy = nxf + np.arange(nbx * (nby + 1)).reshape(nbx, nby + 1)
+        sides[np.r_[fx[0], fx[-1], fy[:, 0], fy[:, -1]]] = 1
+        return sides
+
+    def _face_solve(self, r: np.ndarray) -> np.ndarray:
+        """``S_FF^-1 r_F`` on every face (two-sided face Schur complement of the base block; one side on the
+        package edge): the local solve of the estimate and of the preconditioner of :meth:`correct`."""
         if not hasattr(self, "_face_inv"):
             base = block_model(self.pkg.stack, BASE)
             self._face_inv = {}
@@ -394,21 +491,101 @@ class Condensed:
                 lo, hi = base.ports[o + "-"], base.ports[o + "+"]
                 self._face_inv[o, 2] = sla.cho_factor(base.S[lo, lo] + base.S[hi, hi])
                 self._face_inv[o, 1] = sla.cho_factor(base.S[lo, lo])
-        r = self.residual(state)
-        nbx, nby = self.pkg.shape
-        nxf = (nbx + 1) * nby
-        sides = np.full(len(r), 2)
-        fx = np.arange(nxf).reshape(nbx + 1, nby)
-        fy = nxf + np.arange(nbx * (nby + 1)).reshape(nbx, nby + 1)
-        sides[np.r_[fx[0], fx[-1], fy[:, 0], fy[:, -1]]] = 1
-        eta = np.empty(len(r))
+        nxf = self.refined_x.size
+        sides = self._sides()
+        z = np.empty_like(r)
         for o, sl in (("x", slice(0, nxf)), ("y", slice(nxf, len(r)))):
-            for s in (1, 2):
-                sel = np.nonzero(sides[sl] == s)[0] + sl.start
+            for sd in (1, 2):
+                sel = np.nonzero(sides[sl] == sd)[0] + sl.start
                 if len(sel):
-                    eta[sel] = np.sqrt(np.maximum(0.0, np.einsum("ij,ji->i", r[sel],
-                                                                 sla.cho_solve(self._face_inv[o, s], r[sel].T))))
-        return eta
+                    z[sel] = sla.cho_solve(self._face_inv[o, sd], r[sel].T).T
+        return z
+
+    def estimate(self, state: CondensedState) -> np.ndarray:
+        """Per-face error indicator ``eta_F`` (sqrt(W K)); ``sqrt(sum eta^2)`` estimates the energy-norm error."""
+        r = self.residual(state)
+        return np.sqrt(np.maximum(0.0, np.einsum("ij,ij->i", r, self._face_solve(r))))
+
+    # -- exact correction -----------------------------------------------------------------------------------------
+    def _face_bases(self) -> list[np.ndarray]:
+        nxf = self.refined_x.size
+        return [self._basis("x" if f < nxf else "y", k) for f, k in enumerate(self.face_m)]
+
+    def expand(self, t: np.ndarray) -> np.ndarray:
+        """Reduced interface dofs -> fine port values ``(n_faces, n_face)``."""
+        B = self._face_bases()
+        return np.stack([B[f] @ t[self.face_off[f]:self.face_off[f + 1]] for f in range(len(B))])
+
+    def _restrict(self, R: np.ndarray) -> np.ndarray:
+        B = self._face_bases()
+        return np.concatenate([B[f].T @ R[f] for f in range(len(B))])
+
+    def _apply_exact(self, U: np.ndarray) -> np.ndarray:
+        """The exact (unreduced) interface operator on fine port values: ``sum_b S_b U_b``."""
+        out = np.zeros_like(U)
+        nf = self.n_face
+        for v, bm in enumerate(self.models):
+            sel = np.argwhere(self.pkg.layout == v)
+            faces = self.block_faces[sel[:, 0], sel[:, 1]]                       # (nb, 4)
+            Y = U[faces].reshape(len(sel), 4 * nf) @ bm.S.T
+            np.add.at(out, faces.ravel(), Y.reshape(-1, nf))
+        return out
+
+    def _exact_rhs(self, pb: np.ndarray) -> np.ndarray:
+        out = np.zeros((len(self.face_off) - 1, self.n_face))
+        for v, bm in enumerate(self.models):
+            sel = np.argwhere(self.pkg.layout == v)
+            faces = self.block_faces[sel[:, 0], sel[:, 1]]
+            np.add.at(out, faces.ravel(), (pb[sel[:, 0], sel[:, 1]] @ bm.W.T).reshape(-1, self.n_face))
+        return out
+
+    def correct(self, state: CondensedState, rtol: float = 1e-8, maxiter: int = 300) -> dict:
+        """Solve the *exact* interface problem by conjugate gradients, preconditioned by this reduced model (coarse
+        space: the interface modes, solved with the factorised reduced matrix) plus face-block Jacobi, starting
+        from the reduced solution. The answer converges to the fine solution whatever ``m``; the reduced model sets
+        how many iterations it takes. Returns the fine port values ``U``, the relative residual per iteration and
+        the time."""
+        t0 = time.perf_counter()
+        g = self._exact_rhs(state.pb)
+        U = self.expand(state.t)
+        r = g - self._apply_exact(U)
+
+        def prec(R):
+            return self.expand(self.lu.solve(self._restrict(R))) + self._face_solve(R)
+        z = prec(r)
+        d = z.copy()
+        rz = float((r * z).sum())
+        gn = float(np.linalg.norm(g))
+        hist = [float(np.linalg.norm(r)) / gn]
+        for _ in range(maxiter):
+            if hist[-1] <= rtol:
+                break
+            Ad = self._apply_exact(d)
+            alpha = rz / float((d * Ad).sum())
+            U += alpha * d
+            r -= alpha * Ad
+            hist.append(float(np.linalg.norm(r)) / gn)
+            z = prec(r)
+            rz_new = float((r * z).sum())
+            d = z + (rz_new / rz) * d
+            rz = rz_new
+        return {"U": U, "history": hist, "iterations": len(hist) - 1, "seconds": time.perf_counter() - t0,
+                "pb": state.pb}
+
+    def observables_fine(self, U: np.ndarray, pb: np.ndarray) -> dict[str, np.ndarray]:
+        """Observables from fine port values (after :meth:`correct`)."""
+        n2 = self.pkg.stack.n ** 2
+        nbx, nby = self.pkg.shape
+        out = np.empty((nbx, nby, n2 + len(FLUXES)))
+        for v, bm in enumerate(self.models):
+            sel = np.argwhere(self.pkg.layout == v)
+            faces = self.block_faces[sel[:, 0], sel[:, 1]]
+            Ub = U[faces].reshape(len(sel), -1)
+            out[sel[:, 0], sel[:, 1]] = Ub @ bm.O_t.T + pb[sel[:, 0], sel[:, 1]] @ bm.O_p.T
+        res = {"Tj": out[..., :n2]}
+        for i, name in enumerate(FLUXES):
+            res[name] = out[..., n2 + i]
+        return res
 
     def refine(self, eta: np.ndarray, fraction: float = 0.5, mode: str = "p") -> Condensed:
         """A new model refined on the faces holding ``fraction`` of ``sum eta^2`` (Doerfler marking): ``mode="p"``

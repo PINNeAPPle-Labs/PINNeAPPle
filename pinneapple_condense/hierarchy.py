@@ -310,3 +310,46 @@ class Hierarchy:
         """Cell temperatures of block ``(I, J)`` (path-only downward pass unless ``tb`` is given)."""
         t = self.block_ports(sol, I, J) if tb is None else tb
         return self.models[self.pkg.layout[I, J]].recover(self.Phi @ t, sol["pb"][I, J])
+
+
+def _face_layout(shape: tuple[int, int]):
+    nbx, nby = shape
+    I, J = np.meshgrid(np.arange(nbx), np.arange(nby), indexing="ij")
+    nxf = (nbx + 1) * nby
+    faces = np.stack([I * nby + J, (I + 1) * nby + J, nxf + I * (nby + 1) + J, nxf + I * (nby + 1) + J + 1], -1)
+    n = nxf + nbx * (nby + 1)
+    sides = np.full(n, 2)
+    fx = np.arange(nxf).reshape(nbx + 1, nby)
+    fy = nxf + np.arange(nbx * (nby + 1)).reshape(nbx, nby + 1)
+    sides[np.r_[fx[0], fx[-1], fy[:, 0], fy[:, -1]]] = 1
+    return faces, nxf, sides
+
+
+def estimate(h: Hierarchy, sol: dict, chunk: int = 4096) -> np.ndarray:
+    """Per-face error indicator of a hierarchical solution, as :meth:`.substructure.Condensed.estimate`: the fine
+    residual on the port nodes (interiors are exact) measured in the inverse two-sided face Schur complement."""
+    pkg = h.pkg
+    base = block_model(pkg.stack, BASE)
+    nf = base.ports["x-"].stop - base.ports["x-"].start
+    faces, nxf, sides = _face_layout(pkg.shape)
+    r = np.zeros((len(sides), nf))
+    tb, pb = sol["tb"], sol["pb"]
+    for v, bm in enumerate(h.models):
+        sel = np.argwhere(pkg.layout == v)
+        for c0 in range(0, len(sel), chunk):
+            s = sel[c0:c0 + chunk]
+            rb = (tb[s[:, 0], s[:, 1]] @ h.Phi.T) @ bm.S.T - pb[s[:, 0], s[:, 1]] @ bm.W.T
+            f = faces[s[:, 0], s[:, 1]]
+            for i, name in enumerate(("x-", "x+", "y-", "y+")):
+                np.add.at(r, f[:, i], rb[:, bm.ports[name]])
+    eta = np.empty(len(sides))
+    for o, sl in (("x", slice(0, nxf)), ("y", slice(nxf, len(sides)))):
+        lo, hi = base.ports[o + "-"], base.ports[o + "+"]
+        for sd, M in ((2, base.S[lo, lo] + base.S[hi, hi]), (1, base.S[lo, lo])):
+            idx = np.nonzero(sides[sl] == sd)[0] + sl.start
+            if len(idx):
+                cf = sla.cho_factor(M)
+                for c0 in range(0, len(idx), chunk * 4):
+                    ii = idx[c0:c0 + chunk * 4]
+                    eta[ii] = np.sqrt(np.maximum(0.0, np.einsum("ij,ji->i", r[ii], sla.cho_solve(cf, r[ii].T))))
+    return eta

@@ -141,6 +141,33 @@ def refinement_study(shape=(12, 12), m0: int = 2, steps: int = 6, seed: int = 1,
     return {"shape": list(shape), "adaptive": adaptive, "uniform": uniform, "Tmax_ref": float(ref["Tj"].max())}
 
 
+def correction_study(nb: int = 32, ms=(6, 12), seed: int = 0, power_scale: float = 4.0, rtol: float = 1e-9,
+                     every: int = 10) -> dict:
+    """The exact correction (:meth:`.substructure.Condensed.correct`) on a large hotspot case: iterations to the
+    fine solution from each reduced model, and the Tmax error along the way (every ``every`` iterations)."""
+    pkg = uniform_package((nb, nb), seed=seed)
+    pkg.power = hotspot_power(pkg.stack, pkg.shape, power_scale * pkg.power.sum(), seed=100, hotspots=1)
+    t0 = time.perf_counter()
+    T, ref, info = _ref(pkg)
+    tref = time.perf_counter() - t0
+    tm = float(ref["Tj"].max())
+    rows = []
+    for m in ms:
+        c = Condensed(pkg, m).prepare()
+        st = c.solve()
+        e0 = abs(float(c.observables(st)["Tj"].max()) - tm)
+        trail = []
+        for it in (every, 2 * every, 4 * every, 8 * every):
+            r = c.correct(st, rtol=0.0, maxiter=it)
+            trail.append({"iterations": it, "err_Tmax": abs(float(c.observables_fine(r["U"], r["pb"])["Tj"].max()) - tm),
+                          "rel_residual": r["history"][-1], "seconds": r["seconds"]})
+        r = c.correct(st, rtol=rtol)
+        rows.append({"m": m, "prepare_s": c.timings["prepare"], "err_Tmax_reduced": e0, "trail": trail,
+                     "iterations_to_rtol": r["iterations"], "seconds_to_rtol": r["seconds"],
+                     "err_Tmax_corrected": abs(float(c.observables_fine(r["U"], r["pb"])["Tj"].max()) - tm)})
+    return {"blocks": nb * nb, "cells": int(T.size), "Tmax_ref": tm, "reference_s": tref, "rtol": rtol, "rows": rows}
+
+
 def homogenization_study(shape=(12, 12), seed: int = 1) -> dict:
     out = {}
     base = uniform_package(shape, seed=seed)
@@ -176,7 +203,7 @@ def homogenization_study(shape=(12, 12), seed: int = 1) -> dict:
     return out
 
 
-def scaling_point(nb: int, m: int = 6, reference: bool = True, flat: bool = True, hier: bool = True,
+def scaling_point(nb: int, m: int = 12, reference: bool = True, flat: bool = True, hier: bool = True,
                   seed: int = 2) -> dict:
     """One ``nb x nb`` package: wall time and result of each method that is asked for (call through
     :func:`isolated` per method for its own peak memory)."""
@@ -203,7 +230,7 @@ def scaling_point(nb: int, m: int = 6, reference: bool = True, flat: bool = True
     return out
 
 
-def configurations(nb: int = 64, m: int = 6, n_configs: int = 20, seed: int = 0, check: int = 2) -> dict:
+def configurations(nb: int = 64, m: int = 12, n_configs: int = 20, seed: int = 0, check: int = 2) -> dict:
     """Build once, then solve ``n_configs`` new power maps; the first ``check`` are also solved by the reference."""
     pkg = uniform_package((nb, nb), seed=seed)
     t0 = time.perf_counter()
@@ -224,7 +251,7 @@ def configurations(nb: int = 64, m: int = 6, n_configs: int = 20, seed: int = 0,
             "errors": err, "timings": h.timings}
 
 
-def learned_study(nb: int = 32, m: int = 6, n_train: int = 48, seed: int = 1, defects: int = 4,
+def learned_study(nb: int = 32, m: int = 12, n_train: int = 48, seed: int = 1, defects: int = 4,
                   exact_reference: bool = True, tol_T: float = 0.01) -> dict:
     from .learned import LearnedBlocks, solve_adaptive, solve_exact, variant_field
     st = reference_stack()
@@ -283,7 +310,7 @@ def transient_study(shape=(6, 6), dt: float = 2e-4, steps: int = 150, mk=((8, 8)
             "Tmax_ref": ref["Tmax"].tolist(), "q_tim_ref": ref["q_tim"].tolist(), "rows": rows}
 
 
-def root_compressibility(nb: int = 64, m: int = 6, tol: float = 1e-8) -> dict:
+def root_compressibility(nb: int = 64, m: int = 12, tol: float = 1e-8) -> dict:
     """Numerical rank (relative ``tol``) of the off-diagonal blocks between the four sides of the root Schur
     complement: how much an H-matrix representation of the top operator could save."""
     pkg = uniform_package((nb, nb))

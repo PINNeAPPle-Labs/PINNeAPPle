@@ -80,6 +80,8 @@ def test_hierarchy_matches_flat_and_path_query(case):
     assert max(np.abs(a[k] - b[k]).max() for k in a) < 1e-8
     assert np.abs(h.block_ports(sol, 2, 1) - sol["tb"][2, 1]).max() < 1e-10
     assert np.abs(h.recover(sol, 2, 1) - flat.recover(flat.solve(), 2, 1)).max() < 1e-8
+    from pinneapple_condense.hierarchy import estimate
+    assert np.allclose(estimate(h, sol), flat.estimate(flat.solve()), rtol=1e-6, atol=1e-12)
 
 
 def test_hierarchy_reuses_identical_subtrees():
@@ -139,3 +141,13 @@ def test_p_refinement_follows_the_estimate(case):
         c = c.refine(c.estimate(st), 0.5).prepare()
     assert all(b < a for a, b in zip(errs, errs[1:])) and errs[-1] < 0.8 * errs[0]
     assert c.face_m.max() >= 16 and (c.face_m == 2).any()                 # local: some faces never refined
+
+
+def test_exact_correction_converges_to_reference(case):
+    pkg, T, ref = case
+    c = Condensed(pkg, 2).prepare()
+    st = c.solve()
+    r = c.correct(st, rtol=1e-10)
+    o = c.observables_fine(r["U"], r["pb"])
+    assert r["history"][-1] <= 1e-10 and r["iterations"] < 300
+    assert abs(o["Tj"].max() - ref["Tj"].max()) < 1e-6

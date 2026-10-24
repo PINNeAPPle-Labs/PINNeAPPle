@@ -1,0 +1,364 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.fresnel_snell",
+ "title": "Fresnel reflection and Snell's law",
+ "area": "physics.electromagnetism",
+ "topic": "optics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "2D",
+ "params": {
+  "n2": 1.5,
+  "angles_deg": [
+   0.0,
+   30.0,
+   45.0,
+   60.0
+  ],
+  "cells_per_wavelength": [
+   20,
+   40
+  ]
+ },
+ "values": {},
+ "comparisons": [
+  {
+   "quantity": "|r_s| at 0 deg",
+   "computed": 0.2018684936620469,
+   "reference": 0.2,
+   "rel_error": 0.009342468310234442,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.0018684936620468884,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_p| at 0 deg",
+   "computed": 0.20186810660764518,
+   "reference": 0.2,
+   "rel_error": 0.009340533038225823,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.0018681066076451647,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_s| at 30 deg",
+   "computed": 0.24226002830506238,
+   "reference": 0.24040820577345742,
+   "rel_error": 0.007702825806827807,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.0018518225316049575,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_p| at 30 deg",
+   "computed": 0.16076680958371967,
+   "reference": 0.15889980034106396,
+   "rel_error": 0.01174960093498128,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.001867009242655704,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_s| at 45 deg",
+   "computed": 0.30507978135935965,
+   "reference": 0.30333704529042343,
+   "rel_error": 0.005745213438298207,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.0017427360689362126,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_p| at 45 deg",
+   "computed": 0.09393972676261005,
+   "reference": 0.09201336304552439,
+   "rel_error": 0.020935695135200855,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.0019263637170856551,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_s| at 60 deg",
+   "computed": 0.4215911670867767,
+   "reference": 0.42020410288672866,
+   "rel_error": 0.0033009296923069975,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.001387064200048027,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_p| at 60 deg",
+   "computed": 0.040184470054958774,
+   "reference": 0.04244923464074498,
+   "rel_error": 0.05335230670124658,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "unit": "",
+   "how": "2-D FDTD, 40 cells per wavelength, two runs",
+   "abs_error": 0.0022647645857862067,
+   "atol": 0.005
+  },
+  {
+   "quantity": "|r_p| at Brewster's angle 56.31 deg",
+   "computed": 0.0021295927053455715,
+   "reference": 0.0,
+   "rel_error": 0.0021295927053455715,
+   "tol": 0.0,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Brewster: tan(theta_B) = n2 / n1 (Hecht eq. 4.65)",
+   "unit": "",
+   "how": "",
+   "abs_error": 0.0021295927053455715,
+   "atol": 0.005
+  },
+  {
+   "quantity": "transmitted angle for 30 deg incidence",
+   "computed": 19.443717561756426,
+   "reference": 19.47122063449069,
+   "rel_error": 0.0014124986435389646,
+   "tol": 0.005,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Snell's law n1 sin(t1) = n2 sin(t2)",
+   "unit": "deg",
+   "how": "atan(k_y / k_x) with k_x from the phase gradient of the DFT field in the medium",
+   "abs_error": 0.027503072734266,
+   "atol": 0.0
+  },
+  {
+   "quantity": "transmitted angle for 45 deg incidence",
+   "computed": 28.09442552729238,
+   "reference": 28.125505702055705,
+   "rel_error": 0.0011050530110487313,
+   "tol": 0.005,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Snell's law n1 sin(t1) = n2 sin(t2)",
+   "unit": "deg",
+   "how": "atan(k_y / k_x) with k_x from the phase gradient of the DFT field in the medium",
+   "abs_error": 0.03108017476332492,
+   "atol": 0.0
+  },
+  {
+   "quantity": "transmitted angle for 60 deg incidence",
+   "computed": 35.2326409704375,
+   "reference": 35.264389682754654,
+   "rel_error": 0.0009003051691173667,
+   "tol": 0.005,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Snell's law n1 sin(t1) = n2 sin(t2)",
+   "unit": "deg",
+   "how": "atan(k_y / k_x) with k_x from the phase gradient of the DFT field in the medium",
+   "abs_error": 0.03174871231715315,
+   "atol": 0.0
+  }
+ ],
+ "checks": [],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "|r_s| at 0 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.009342468310234442,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.201868, reference 0.2"
+   },
+   {
+    "name": "|r_p| at 0 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.009340533038225823,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.201868, reference 0.2"
+   },
+   {
+    "name": "|r_s| at 30 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.007702825806827807,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.24226, reference 0.240408"
+   },
+   {
+    "name": "|r_p| at 30 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.01174960093498128,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.160767, reference 0.1589"
+   },
+   {
+    "name": "|r_s| at 45 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.005745213438298207,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.30508, reference 0.303337"
+   },
+   {
+    "name": "|r_p| at 45 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.020935695135200855,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.0939397, reference 0.0920134"
+   },
+   {
+    "name": "|r_s| at 60 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0033009296923069975,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.421591, reference 0.420204"
+   },
+   {
+    "name": "|r_p| at 60 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.05335230670124658,
+    "limit": 0.0,
+    "source": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+    "reason": "computed 0.0401845, reference 0.0424492"
+   },
+   {
+    "name": "|r_p| at Brewster's angle 56.31 deg vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0021295927053455715,
+    "limit": 0.0,
+    "source": "Brewster: tan(theta_B) = n2 / n1 (Hecht eq. 4.65)",
+    "reason": "computed 0.00212959, reference 0"
+   },
+   {
+    "name": "transmitted angle for 30 deg incidence vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0014124986435389646,
+    "limit": 0.005,
+    "source": "Snell's law n1 sin(t1) = n2 sin(t2)",
+    "reason": "computed 19.4437, reference 19.4712 deg"
+   },
+   {
+    "name": "transmitted angle for 45 deg incidence vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0011050530110487313,
+    "limit": 0.005,
+    "source": "Snell's law n1 sin(t1) = n2 sin(t2)",
+    "reason": "computed 28.0944, reference 28.1255 deg"
+   },
+   {
+    "name": "transmitted angle for 60 deg incidence vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0009003051691173667,
+    "limit": 0.005,
+    "source": "Snell's law n1 sin(t1) = n2 sin(t2)",
+    "reason": "computed 35.2326, reference 35.2644 deg"
+   }
+  ]
+ },
+ "data": {
+  "reflection": {
+   "angles": [
+    0.0,
+    30.0,
+    45.0,
+    60.0
+   ],
+   "rs": [
+    0.2018684936620469,
+    0.24226002830506238,
+    0.30507978135935965,
+    0.4215911670867767
+   ],
+   "rp": [
+    0.20186810660764518,
+    0.16076680958371967,
+    0.09393972676261005,
+    0.040184470054958774
+   ],
+   "rs_ref": [
+    0.2,
+    0.24040820577345742,
+    0.30333704529042343,
+    0.42020410288672866
+   ],
+   "rp_ref": [
+    0.2,
+    0.15889980034106396,
+    0.09201336304552439,
+    0.04244923464074498
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "fresnel_snell.png"
+ ],
+ "movies": [],
+ "wall_time_s": 52.278294339999775
+}

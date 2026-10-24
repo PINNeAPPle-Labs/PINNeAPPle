@@ -1,0 +1,6 @@
+[16:48:42] check [3D] Q_sca, BHMIE sample: PASS Bohren & Huffman (1983) app. A, BHMIE sample output (m = 1.55, x = 5.213)
+[16:48:42] check [3D] Q_back, BHMIE sample: PASS Bohren & Huffman (1983) app. A, BHMIE sample output (m = 1.55, x = 5.213)
+[16:48:42] check [3D] Q_sca at x = 0.02 (Rayleigh): PASS Rayleigh: Q_sca = 8/3 x^4 |(m^2 - 1)/(m^2 + 2)|^2 (B&H eq. 5.8)
+[16:48:42] check [3D] optical theorem: 4 Re S(0) / x^2 (absorbing sphere): PASS B&H eq. 4.76 (optical theorem)
+[16:48:42] check [3D] Q_ext at x = 3000 (absorbing): PASS van de Hulst sec. 8.22: Q_ext -> 2 (extinction paradox); correction ~ x^(-2/3)
+[16:48:42] check [3D] trust report: PASS decision APPROVED

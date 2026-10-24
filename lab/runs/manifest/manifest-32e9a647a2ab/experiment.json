@@ -1,0 +1,164 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-32e9a647a2ab",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science/electromagnetism/bench_mu0_solenoid",
+  "path": "examples/science/electromagnetism/bench_mu0_solenoid/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D: mu0 (bench) vs CODATA 2022]",
+   "value": 0.003937714596454831,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: mu0_measured",
+   "value": 1.251688783171391e-06,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: expanded_uncertainty_k2",
+   "value": 1.2947988192723286e-08,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: earth_field_intercept",
+   "value": 2.772951635444727e-05,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: reduced_chi2",
+   "value": 2.040666467076056,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: u_rel[fit slope (type A)]",
+   "value": 0.0005312108045381583,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: u_rel[Hall probe gain (type B)]",
+   "value": 0.005,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: u_rel[ammeter gain (type B)]",
+   "value": 0.001,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: u_rel[length L (caliper)]",
+   "value": 0.0006495264137160462,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: u_rel[radius R (caliper)]",
+   "value": 0.00021831356569546802,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: coverage_k2",
+   "value": 0.9666666666666667,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D] mu0 (bench) vs CODATA 2022",
+   "passed": true,
+   "value": 1.251688783171391e-06,
+   "reference": 1.25663706127e-06,
+   "rtol": 0.010344414975036447,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "CODATA 2022 (Mohr et al., Rev. Mod. Phys. 97, 025002, 2025)",
+   "label": "mu0 (bench) vs CODATA 2022 vs codata",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] stated uncertainty covers the truth about 95 % of the time",
+   "passed": true,
+   "value": 0.9666666666666667,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "290/300, Wilson 95 % interval 0.940-0.982; std of the normalised errors 0.99 (1 if the budget is right)",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] the helix is close to a current sheet at the centre (systematic below 0.1 %)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Biot-Savart of the helix vs Griffiths prob. 5.11",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/3D__bench_mu0.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-32e9a647a2ab",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "9847a3ef",
+  "seconds": 0.02,
+  "created": "2026-10-24T16:44:41Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

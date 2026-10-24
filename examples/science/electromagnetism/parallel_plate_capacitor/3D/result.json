@@ -1,0 +1,185 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.parallel_plate_capacitor",
+ "title": "Parallel-plate capacitor with edge effect",
+ "area": "physics.electromagnetism",
+ "topic": "electrostatics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "3D",
+ "params": {
+  "w_over_d": 10.0,
+  "a_over_d": 10.0,
+  "d": 0.1,
+  "cells_per_gap": [
+   10,
+   20,
+   40
+  ],
+  "cells_per_gap_3d": [
+   4,
+   6,
+   8
+  ]
+ },
+ "values": {
+  "C_cartesian_4_cells": {
+   "value": 3.262481569788474e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes (one eighth, staircase edge)"
+  },
+  "C_cartesian_6_cells": {
+   "value": 3.25962419114377e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes (one eighth, staircase edge)"
+  },
+  "C_cartesian_8_cells": {
+   "value": 3.262468946141227e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes (one eighth, staircase edge)"
+  },
+  "C_cartesian_fine": {
+   "value": 3.262468946141227e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes, 8 cells across the gap (staircase disc edge)"
+  },
+  "C_axisymmetric_extrapolated": {
+   "value": 3.270295775774252e-10,
+   "unit": "F",
+   "how": "(r, z) finite volumes [8, 16, 32] cells per gap, Richardson"
+  },
+  "fringe_excess": {
+   "value": 0.175678105636071,
+   "unit": "",
+   "how": "C / (eps0 pi a^2 / d) - 1"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "C, 3-D Cartesian (finest) vs axisymmetric",
+   "computed": 3.262468946141227e-10,
+   "reference": 3.270295775774252e-10,
+   "rel_error": 0.0023933094036951204,
+   "tol": 0.01,
+   "passed": true,
+   "kind": "convergence",
+   "source": "this experiment: axisymmetric solution, Richardson extrapolated (independent discretisation of the same 3-D problem)",
+   "unit": "F",
+   "how": "",
+   "abs_error": 7.826829633024946e-13,
+   "atol": 0.0
+  },
+  {
+   "quantity": "C, axisymmetric (extrapolated)",
+   "computed": 3.270295775774252e-10,
+   "reference": 3.2438052181551613e-10,
+   "rel_error": 0.008166506876191646,
+   "tol": 0.015,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Kirchhoff (1877): eps0 [pi a^2/d + a (ln(16 pi a/d) - 1)], asymptotic d << a",
+   "unit": "F",
+   "how": "",
+   "abs_error": 2.6490557619090465e-12,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "Kirchhoff's error falls as a/d grows (asymptotic formula)",
+   "passed": true,
+   "value": null,
+   "limit": null,
+   "critical": false,
+   "detail": "a/d=2.5: +6.19 %, a/d=5: +2.33 %, a/d=10: +0.82 %",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "C, 3-D Cartesian (finest) vs axisymmetric vs convergence",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0023933094036951204,
+    "limit": 0.01,
+    "source": "this experiment: axisymmetric solution, Richardson extrapolated (independent discretisation of the same 3-D problem)",
+    "reason": "computed 3.26247e-10, reference 3.2703e-10 F"
+   },
+   {
+    "name": "C, axisymmetric (extrapolated) vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.008166506876191646,
+    "limit": 0.015,
+    "source": "Kirchhoff (1877): eps0 [pi a^2/d + a (ln(16 pi a/d) - 1)], asymptotic d << a",
+    "reason": "computed 3.2703e-10, reference 3.24381e-10 F"
+   },
+   {
+    "name": "Kirchhoff's error falls as a/d grows (asymptotic formula)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "physics",
+    "reason": "a/d=2.5: +6.19 %, a/d=5: +2.33 %, a/d=10: +0.82 %"
+   }
+  ]
+ },
+ "data": {
+  "scaling": {
+   "a_over_d": [
+    2.5,
+    5.0,
+    10.0
+   ],
+   "deviation_from_kirchhoff": [
+    0.06194187231254289,
+    0.02326697782611209,
+    0.008166506876191582
+   ]
+  },
+  "ladder": {
+   "cells_per_gap": [
+    4,
+    6,
+    8
+   ],
+   "C": [
+    3.262481569788474e-10,
+    3.25962419114377e-10,
+    3.262468946141227e-10
+   ],
+   "axisym_cells": [
+    8,
+    16,
+    32
+   ],
+   "C_axisym": [
+    3.2979884539094155e-10,
+    3.283849952454696e-10,
+    3.276929865282966e-10
+   ],
+   "kirchhoff": 3.2438052181551613e-10,
+   "ideal": 2.7816251405013117e-10,
+   "ratios": [
+    1.5,
+    1.3333333333333333
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "capacitor_3d.png"
+ ],
+ "movies": [],
+ "wall_time_s": 154.38089567499992
+}

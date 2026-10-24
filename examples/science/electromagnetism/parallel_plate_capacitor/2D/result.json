@@ -1,0 +1,125 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.parallel_plate_capacitor",
+ "title": "Parallel-plate capacitor with edge effect",
+ "area": "physics.electromagnetism",
+ "topic": "electrostatics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "2D",
+ "params": {
+  "w_over_d": 10.0,
+  "a_over_d": 10.0,
+  "d": 0.1,
+  "cells_per_gap": [
+   10,
+   20,
+   40
+  ],
+  "cells_per_gap_3d": [
+   4,
+   6,
+   8
+  ]
+ },
+ "values": {
+  "C_per_length_fine": {
+   "value": 1.0359258574773179e-10,
+   "unit": "F/m",
+   "how": "field energy, 40 cells across the gap"
+  },
+  "observed_order": {
+   "value": 1.026059908461316,
+   "unit": "",
+   "how": "Roache three-grid observed order"
+  },
+  "gci_fine": {
+   "value": 0.0019096326452605714,
+   "unit": "",
+   "how": "grid convergence index of the fine grid (Fs = 1.25)"
+  },
+  "fringe_excess": {
+   "value": 0.16819666397174937,
+   "unit": "",
+   "how": "C / (eps0 w / d) - 1, extrapolated"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "C per unit length (extrapolated)",
+   "computed": 1.0343432672089114e-10,
+   "reference": 1.030296308832444e-10,
+   "rel_error": 0.003927955814044814,
+   "tol": 0.01,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Palmer (1937): eps0 (w/d) [1 + d/(pi w)(1 + ln(2 pi w/d))]",
+   "unit": "F/m",
+   "how": "finite volumes, [10, 20, 40] cells per gap, Richardson",
+   "abs_error": 4.0469583764673096e-13,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "solution in the asymptotic range (Roache)",
+   "passed": true,
+   "value": 1.026059908461316,
+   "limit": null,
+   "critical": false,
+   "detail": "asymptotic ratio 0.998; a thin plate edge (phi ~ r^1/2) limits the order to about 1",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "C per unit length (extrapolated) vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.003927955814044814,
+    "limit": 0.01,
+    "source": "Palmer (1937): eps0 (w/d) [1 + d/(pi w)(1 + ln(2 pi w/d))]",
+    "reason": "computed 1.03434e-10, reference 1.0303e-10 F/m"
+   },
+   {
+    "name": "solution in the asymptotic range (Roache)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.026059908461316,
+    "limit": null,
+    "source": "physics",
+    "reason": "asymptotic ratio 0.998; a thin plate edge (phi ~ r^1/2) limits the order to about 1"
+   }
+  ]
+ },
+ "data": {
+  "ladder": {
+   "cells_per_gap": [
+    10,
+    20,
+    40
+   ],
+   "C": [
+    1.0409065045630222e-10,
+    1.0375661410143617e-10,
+    1.0359258574773179e-10
+   ],
+   "palmer": 1.030296308832444e-10,
+   "ideal": 8.854187818789432e-11
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "capacitor_2d.png"
+ ],
+ "movies": [],
+ "wall_time_s": 1.3207126709994554
+}

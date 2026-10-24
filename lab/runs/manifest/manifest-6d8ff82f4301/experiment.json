@@ -1,0 +1,311 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-6d8ff82f4301",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science/electromagnetism/dipole_radiation",
+  "path": "examples/science/electromagnetism/dipole_radiation/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D: radiated power through the sphere kr = 0.3]",
+   "value": 3.9519594232013053e-16,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[3D: radiated power through the sphere kr = 1]",
+   "value": 9.879898558003263e-16,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[3D: radiated power through the sphere kr = 3]",
+   "value": 9.879898558003263e-16,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[3D: radiated power through the sphere kr = 30]",
+   "value": 5.927939134801958e-16,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[3D: directivity]",
+   "value": 4.440892098500626e-16,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[3D+t: energy through the sphere r = lambda in one period]",
+   "value": 9.20137256197935e-16,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D] radiated power through the sphere kr = 0.3",
+   "passed": true,
+   "value": 0.004389527548771202,
+   "reference": 0.0043895275487712,
+   "rtol": 1e-09,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-16: P = eta k^2 |I l|^2 / (12 pi)",
+   "label": "radiated power through the sphere kr = 0.3 vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] radiated power through the sphere kr = 1",
+   "passed": true,
+   "value": 0.004389527548771196,
+   "reference": 0.0043895275487712,
+   "rtol": 1e-09,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-16: P = eta k^2 |I l|^2 / (12 pi)",
+   "label": "radiated power through the sphere kr = 1 vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] radiated power through the sphere kr = 3",
+   "passed": true,
+   "value": 0.004389527548771196,
+   "reference": 0.0043895275487712,
+   "rtol": 1e-09,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-16: P = eta k^2 |I l|^2 / (12 pi)",
+   "label": "radiated power through the sphere kr = 3 vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] radiated power through the sphere kr = 30",
+   "passed": true,
+   "value": 0.004389527548771198,
+   "reference": 0.0043895275487712,
+   "rtol": 1e-09,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-16: P = eta k^2 |I l|^2 / (12 pi)",
+   "label": "radiated power through the sphere kr = 30 vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] directivity",
+   "passed": true,
+   "value": 1.5000000000000007,
+   "reference": 1.5,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-31: D0 = 3/2",
+   "label": "directivity vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] Gauss's law div D = rho (phasors, 26^3 grid)",
+   "passed": true,
+   "value": 0.0006979487157336337,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div D - rho: ||sum of terms|| / sum of ||term|| = 0.000698; r(2h)/r(h) = 3.97: discretisation error (the field obeys the law); extrapolated residual 5.96e-06",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] Gauss's law for B, div B = 0 (phasors, 26^3 grid)",
+   "passed": true,
+   "value": 0.0008398717883219721,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div B: ||sum of terms|| / sum of ||term|| = 0.00084; r(2h)/r(h) = 4.02: discretisation error (the field obeys the law); extrapolated residual 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] Faraday's law curl E = -dB/dt (phasors, 26^3 grid)",
+   "passed": true,
+   "value": 0.0007656808734376414,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "curl E + dB/dt: ||sum of terms|| / sum of ||term|| = 0.000766; r(2h)/r(h) = 3.92: discretisation error (the field obeys the law); extrapolated residual 2.05e-05",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] Ampere-Maxwell law curl H = J + dD/dt (phasors, 26^3 grid)",
+   "passed": true,
+   "value": 0.0009817324719865548,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "curl H - J - dD/dt: ||sum of terms|| / sum of ||term|| = 0.000982; r(2h)/r(h) = 4.01: discretisation error (the field obeys the law); extrapolated residual 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  },
+  {
+   "name": "[3D+t] energy through the sphere r = lambda in one period",
+   "passed": true,
+   "value": 4.3895275487711965e-12,
+   "reference": 4.3895275487712006e-12,
+   "rtol": 1e-09,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Balanis eq. 4-16: P T",
+   "label": "energy through the sphere r = lambda in one period vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D+t] Gauss's law div D = rho (x, y, z, t grid 21^3 x 64)",
+   "passed": true,
+   "value": 0.0011312000918067726,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div D - rho: ||sum of terms|| / sum of ||term|| = 0.00113; r(2h)/r(h) = 3.84: discretisation error (the field obeys the law); extrapolated residual 6.22e-05",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Gauss's law for B, div B = 0 (x, y, z, t grid 21^3 x 64)",
+   "passed": true,
+   "value": 0.0013347509835881558,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div B: ||sum of terms|| / sum of ||term|| = 0.00133; r(2h)/r(h) = 3.97: discretisation error (the field obeys the law); extrapolated residual 1.24e-05",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Faraday's law curl E = -dB/dt (x, y, z, t grid 21^3 x 64)",
+   "passed": true,
+   "value": 0.0009347798469183973,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "curl E + dB/dt: ||sum of terms|| / sum of ||term|| = 0.000935; r(2h)/r(h) = 4.96: discretisation error (the field obeys the law); extrapolated residual 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Ampere-Maxwell law curl H = J + dD/dt (x, y, z, t grid 21^3 x 64)",
+   "passed": true,
+   "value": 0.0008776644404321459,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "curl H - J - dD/dt: ||sum of terms|| / sum of ||term|| = 0.000878; r(2h)/r(h) = 5.31: discretisation error (the field obeys the law); extrapolated residual 0",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Poynting energy balance (x, y, z, t grid 21^3 x 64)",
+   "passed": true,
+   "value": 3.732624546635961e-05,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "U(t1) - U(t0) = -2.531e-14, outflow 2.53e-14, dissipated 0 (J per unit length along absent axes)",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] the checks reject H scaled by 1.3",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "faraday residual 0.13 > 0.05; ampere_maxwell residual 0.13 > 0.05",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/3D__dipole_power.png",
+   "figures/3D_plus_t__dipole_time.png"
+  ],
+  "videos": [
+   "figures/3D_plus_t__dipole_3d_t.gif",
+   "figures/3D_plus_t__dipole_3d_t.mp4"
+  ],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-6d8ff82f4301",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "9847a3ef",
+  "seconds": 0.02,
+  "created": "2026-10-24T16:45:25Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

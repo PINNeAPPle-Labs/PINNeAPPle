@@ -33,7 +33,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
      ("lib:pinneapple_physics.physics_audit", "lib:pinneapple_physics.darcy_checks", "fn:pp.trust_card",
       "fn:pp.validate", "mcp:trust_card", "fn:pinneapple_analysis.validation", "lib:pinneapple.check")),
     ("verification", "Verification and convergence", "Convergence studies, reference comparisons, Lab seals",
-     ("node:verify.", "node:validate.", "node:forecast.lab", "lib:pinneapple_analysis.verification",
+     ("node:verify.", "node:validate.", "node:forecast.lab", "node:science.", "lib:pinneapple_analysis.verification",
       "lib:pinneapple_analysis.inspection", "fn:pinneapple_catalog.", "mcp:describe_method",
       "mcp:list_methods")),
     ("benchmarks", "Benchmarks", "Equal-budget comparisons of methods",

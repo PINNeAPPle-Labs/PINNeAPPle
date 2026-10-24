@@ -67,6 +67,7 @@ SECTION_OF: dict[str, str] = {
     "forecast.lab": "twin", "forecast.enso": "twin", "lib.ts.predictability": "twin",
     "viz.plot": "viz", "lib.antenna.render_3d": "viz", "viz.field3d": "viz", "viz.render": "viz", "vehicle.dashboard": "viz",
     "export.report": "export", "lib.export.geometry": "export", "lib.export.usd_validate": "export",
+    "lib.robot.arm_check": "solvers",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)

@@ -252,6 +252,31 @@ class FieldStage:
         self.stage.SetStartTimeCode(min(self._times))
         self.stage.SetEndTimeCode(max(self._times))
 
+    def add_rigid_animation(self, name: str, V, F, times: Sequence[float], positions, quats_xyzw, *,
+                            color=(0.7, 0.7, 0.72), colors_over_time=None, parent: str = "/World") -> str:
+        """A rigid part moving over time: an ``Xform`` with time-sampled translate and orient ops (a recorded
+        simulation, e.g. a robot link from the robot sim) and the mesh ``V, F`` in its local frame. ``colors_over_time``
+        (one RGB per time, linear) keys the part's ``displayColor`` (e.g. a stress utilisation)."""
+        from pxr import Gf, UsdGeom, Vt
+        x = UsdGeom.Xform.Define(self.stage, self._prim_path(name, parent))
+        top, oop = x.AddTranslateOp(), x.AddOrientOp(UsdGeom.XformOp.PrecisionDouble)
+        fps = self.stage.GetTimeCodesPerSecond()
+        for k, t in enumerate(times):
+            tc = float(t) * fps
+            top.Set(Gf.Vec3d(*map(float, positions[k])), tc)
+            qx, qy, qz, qw = map(float, quats_xyzw[k])
+            oop.Set(Gf.Quatd(qw, qx, qy, qz), tc)
+            self._times.append(tc)
+        mp = self.add_mesh("geom", V, F, color=color, parent=str(x.GetPath()))
+        if colors_over_time is not None:
+            g = UsdGeom.Mesh(self.stage.GetPrimAtPath(mp))
+            attr = g.GetDisplayColorAttr()
+            for k, t in enumerate(times):
+                attr.Set(Vt.Vec3fArray([Gf.Vec3f(*map(float, colors_over_time[k]))]), float(t) * fps)
+        self.stage.SetStartTimeCode(min(self._times))
+        self.stage.SetEndTimeCode(max(self._times))
+        return str(x.GetPath())
+
     def set_trust(self, prim_path: str, decision: str, checks: Sequence[Mapping[str, Any]] = (),
                   **info: Any) -> None:
         """Store a trust decision (APPROVED / REVIEW / REJECT) and its checks on a prim."""
@@ -301,6 +326,7 @@ def validate_stage(path: str, *, required_primvars: Mapping[str, Sequence[str]] 
     tsamples = 0
     for prim in stage.Traverse():
         counts["prims"] += 1
+        tsamples += sum(len(a.GetTimeSamples()) for a in prim.GetAttributes())   # fields, colours, poses
         if not prim.IsA(UsdGeom.PointBased):
             continue
         pb = UsdGeom.PointBased(prim)
@@ -332,7 +358,6 @@ def validate_stage(path: str, *, required_primvars: Mapping[str, Sequence[str]] 
                 continue
             attr = pv.GetAttr()
             times = attr.GetTimeSamples() or [Usd.TimeCode.Default()]
-            tsamples += len(attr.GetTimeSamples())
             for t in times:
                 v = attr.Get(t)
                 if v is None:
@@ -382,14 +407,48 @@ def usd_validators(stage) -> dict[str, Any]:
         return {"run": False, "why": f"{type(e).__name__}: {e}"}
 
 
-def read_stage_geometry(path: str, time: float | None = None) -> list[dict[str, Any]]:
+def read_stage_geometry(path: str, time: float | None = None, exclude: Sequence[str] = ()) -> list[dict[str, Any]]:
     """Meshes and curves of a USD file as arrays: ``[{"path", "kind", "points", "faces" or "counts", "colors"}]``
-    (colours from ``displayColor`` at ``time``, a time code; default: the first sample)."""
+    (colours from ``displayColor`` at ``time``, a time code; default: the first sample). ``exclude``: prim path
+    prefixes to leave out (e.g. a ground plane)."""
     require_pxr()
     from pxr import Usd, UsdGeom
     stage = Usd.Stage.Open(os.fspath(path))
+    when = Usd.TimeCode(time) if time is not None else Usd.TimeCode.Default()
     out = []
     for prim in stage.Traverse():
+        if any(str(prim.GetPath()).startswith(e) for e in exclude):
+            continue
+        if prim.IsA(UsdGeom.Cube):                              # boxes (Isaac Sim colliders / visuals)
+            xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(when), float)
+            h = UsdGeom.Cube(prim).GetSizeAttr().Get() / 2.0
+            c = np.array([[x, y, z] for x in (-h, h) for y in (-h, h) for z in (-h, h)])
+            P = (np.c_[c, np.ones(8)] @ xf)[:, :3]
+            F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6],
+                          [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+            col = UsdGeom.Gprim(prim).GetDisplayColorAttr().Get()
+            out.append({"path": str(prim.GetPath()), "kind": "mesh", "points": P, "faces": F,
+                        "colors": None if col is None else np.asarray(col, float)})
+            continue
+        if prim.IsA(UsdGeom.Cylinder):                          # wheels (Isaac Sim colliders / visuals)
+            cy = UsdGeom.Cylinder(prim)
+            r, h, ax = cy.GetRadiusAttr().Get(), cy.GetHeightAttr().Get(), cy.GetAxisAttr().Get()
+            a = np.linspace(0, 2 * np.pi, 24, endpoint=False)
+            ring = np.stack([r * np.cos(a), r * np.sin(a)], 1)
+            k = {"X": 0, "Y": 1, "Z": 2}[ax]
+            o = [i for i in range(3) if i != k]
+            c = np.zeros((48, 3))
+            c[:24, o], c[24:, o] = ring, ring
+            c[:24, k], c[24:, k] = -h / 2, h / 2
+            xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(when), float)
+            P = (np.c_[c, np.ones(48)] @ xf)[:, :3]
+            F = [[i, (i + 1) % 24, 24 + (i + 1) % 24] for i in range(24)] + \
+                [[i, 24 + (i + 1) % 24, 24 + i] for i in range(24)] + \
+                [[0, i, i + 1] for i in range(1, 23)] + [[24, 24 + i + 1, 24 + i] for i in range(1, 23)]
+            col = UsdGeom.Gprim(prim).GetDisplayColorAttr().Get()
+            out.append({"path": str(prim.GetPath()), "kind": "mesh", "points": P, "faces": np.asarray(F),
+                        "colors": None if col is None else np.asarray(col, float)})
+            continue
         if not prim.IsA(UsdGeom.PointBased) or prim.IsA(UsdGeom.Points):
             continue
         g = UsdGeom.Gprim(prim)
@@ -397,8 +456,8 @@ def read_stage_geometry(path: str, time: float | None = None) -> list[dict[str, 
         ts = dc.GetTimeSamples()
         tc = Usd.TimeCode(time if time is not None else (ts[0] if ts else Usd.TimeCode.Default().GetValue())) \
             if ts else Usd.TimeCode.Default()
-        cols = dc.Get(tc)
-        xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(Usd.TimeCode.Default()), float)
+        cols = dc.Get(tc if ts else when)
+        xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(when), float)
         P = np.asarray(UsdGeom.PointBased(prim).GetPointsAttr().Get(), float)
         P = (np.c_[P, np.ones(len(P))] @ xf)[:, :3]
         rec = {"path": str(prim.GetPath()), "points": P, "colors": None if cols is None else np.asarray(cols, float)}
@@ -419,7 +478,8 @@ def read_stage_geometry(path: str, time: float | None = None) -> list[dict[str, 
 
 def render_stage_png(path: str, png: str, *, time: float | None = None, elev: float = 28, azim: float = -60,
                      title: str = "", colorbar: tuple[str, float, float, str] | None = None,
-                     size: tuple[float, float] = (7.5, 5.5), dpi: int = 130, flat: bool = False) -> str:
+                     size: tuple[float, float] = (7.5, 5.5), dpi: int = 130, flat: bool = False,
+                     exclude: Sequence[str] = ()) -> str:
     """Draw the meshes and curves of a USD file (read back from disk) in their ``displayColor``; ``colorbar``:
     ``(label, lo, hi, cmap)``; ``flat``: axes scaled to the data in x, y and a squashed z (long, low scenes such
     as a pipeline). A file check, not an Omniverse RTX render."""
@@ -429,7 +489,7 @@ def render_stage_png(path: str, png: str, *, time: float | None = None, elev: fl
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
-    geo = read_stage_geometry(path, time)
+    geo = read_stage_geometry(path, time, exclude)
     fig = plt.figure(figsize=size)
     ax = fig.add_subplot(projection="3d")
     allp = []

@@ -13,13 +13,13 @@
  "metrics": [
   {
    "name": "comparisons",
-   "value": 78.0,
+   "value": 89.0,
    "unit": "",
    "how": "rows of the catalogue (committed results)"
   },
   {
    "name": "comparisons_passed",
-   "value": 78.0,
+   "value": 89.0,
    "unit": "",
    "how": "rows within tolerance"
   }
@@ -206,6 +206,54 @@
    "kind": "reference"
   },
   {
+   "name": "em.research_fdtd_3d: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "3 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.research_inverse_permittivity: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.research_surrogate_hall: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.research_uq_waveguide: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "4 comparisons",
+   "kind": "reference"
+  },
+  {
    "name": "em.waveguide_modes: every comparison passes",
    "passed": true,
    "value": null,
@@ -234,8 +282,8 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "9847a3ef",
-  "created": "2026-10-24T16:51:21Z",
+  "git": "204e481e",
+  "created": "2026-10-24T17:28:55Z",
   "seconds": 0.003,
   "error": null,
   "environment": {

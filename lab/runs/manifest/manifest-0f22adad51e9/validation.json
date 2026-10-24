@@ -180,6 +180,54 @@
   "kind": "reference"
  },
  {
+  "name": "em.research_fdtd_3d: every comparison passes",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "3 comparisons",
+  "kind": "reference"
+ },
+ {
+  "name": "em.research_inverse_permittivity: every comparison passes",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "2 comparisons",
+  "kind": "reference"
+ },
+ {
+  "name": "em.research_surrogate_hall: every comparison passes",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "2 comparisons",
+  "kind": "reference"
+ },
+ {
+  "name": "em.research_uq_waveguide: every comparison passes",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "4 comparisons",
+  "kind": "reference"
+ },
+ {
   "name": "em.waveguide_modes: every comparison passes",
   "passed": true,
   "value": null,

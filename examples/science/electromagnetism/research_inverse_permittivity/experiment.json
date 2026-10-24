@@ -1,0 +1,162 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/research_inverse_permittivity",
+ "title": "Inverse problem: permittivity of a slab from its reflection spectrum (1D)",
+ "description": "A dielectric slab of unknown permittivity and loss is measured in reflection: the 'measurement' is a 1-D FDTD run (with the CPML, the scheme's dispersion and added receiver noise), the model is the transfer-matrix reflection of pp.em.waves.multilayer. Least squares recovers eps_r and the conductivity with their covariance; the recovered values are compared with the truth the measurement was generated from (hidden from the fit), and the fit is repeated on noise realisations to check the stated uncertainty.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.research_inverse_permittivity"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "research",
+  "kind": "theory",
+  "dims": [
+   "1D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[1D: eps_r recovered vs truth]",
+   "value": 0.00046638233769686537,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (ground_truth: the permittivity the FDTD measurement was generated with (hidden from the fit))"
+  },
+  {
+   "name": "rel_error[1D: sigma recovered vs truth]",
+   "value": 0.05813692688169756,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (ground_truth: as above)"
+  },
+  {
+   "name": "1D: eps_r_recovered",
+   "value": 3.7017256146494786,
+   "unit": "-",
+   "how": "least squares on the noisy FDTD reflection spectrum"
+  },
+  {
+   "name": "1D: sigma_recovered",
+   "value": 0.01883726146236605,
+   "unit": "S/m",
+   "how": "same fit"
+  },
+  {
+   "name": "1D: eps_sigma_correlation",
+   "value": -2.4858965827697875e-08,
+   "unit": "-",
+   "how": "from the Jacobian covariance"
+  },
+  {
+   "name": "1D: model_error_max",
+   "value": 0.0009722857259360915,
+   "unit": "-",
+   "how": "max |r_FDTD - r_model| at the true parameters (no noise)"
+  },
+  {
+   "name": "1D: coverage_2u_eps",
+   "value": 0.89,
+   "unit": "-",
+   "how": "fraction of 100 noise realisations within 2 u"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[1D] eps_r recovered vs truth",
+   "passed": true,
+   "value": 3.7017256146494786,
+   "reference": 3.7,
+   "rtol": 0.0009079930595608081,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the permittivity the FDTD measurement was generated with (hidden from the fit)",
+   "label": "eps_r recovered vs truth vs ground truth",
+   "kind": "reference"
+  },
+  {
+   "name": "[1D] sigma recovered vs truth",
+   "passed": true,
+   "value": 0.01883726146236605,
+   "reference": 0.02,
+   "rtol": 0.06462095151510955,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "as above",
+   "label": "sigma recovered vs truth vs ground truth",
+   "kind": "reference"
+  },
+  {
+   "name": "[1D] FDTD measurement and transfer-matrix model agree below the noise",
+   "passed": true,
+   "value": 0.0009722857259360915,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "[1D] stated u(eps) consistent with the scatter (std of z between 0.7 and 1.5)",
+   "passed": true,
+   "value": 0.9240935018083376,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "z = (eps_fit - eps_true) / u(eps_fit); its std is 1 when u is right (a bias from the FDTD-vs-model difference shows as a shift)",
+   "kind": "physics"
+  },
+  {
+   "name": "[1D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "1D/inverse_permittivity.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "1D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Baker-Jarvis et al., NIST Technical Note 1536 (2004), transmission/reflection methods",
+  "Born & Wolf, Principles of Optics, 7th ed., sec. 1.6 (characteristic matrices)",
+  "Tarantola, Inverse Problem Theory (2005), sec. 3.2"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "204e481e",
+  "created": "2026-10-24T17:28:52Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

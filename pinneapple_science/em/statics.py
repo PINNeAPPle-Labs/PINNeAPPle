@@ -771,16 +771,17 @@ class AmpereLaw(Experiment):
 
 
 # ===================================================================================== Hall
-def hall_bar(L: float, W: float, beta: float, n: int, V: float = 1.0):
+def hall_bar(L: float, W: float, beta: float, n: int, V: float = 1.0, nx: int | None = None):
     """Potential in a Hall bar ``[0, L] x [0, W]`` (contacts at x = 0 and x = L held at 0 and ``V``; insulating
     edges y = 0, W) for Hall parameter ``beta = mu B``: Laplace inside, ``d phi/dy = beta d phi/dx`` on the
     edges (``J_y = 0`` with the Drude conductivity tensor ``sigma0/(1+beta^2) [[1, beta], [-beta, 1]]``).
     Second-order finite differences with ghost nodes (``n`` cells across the width, about as many per unit length
-    along it); returns ``(x, y, phi)``."""
+    along it, or ``nx`` along it: a fixed ``nx`` makes the solution a smooth function of ``L``); returns
+    ``(x, y, phi)``."""
     import scipy.sparse as sp
     import scipy.sparse.linalg as spla
 
-    nx = max(int(round(n * L / W)), 2)
+    nx = nx or max(int(round(n * L / W)), 2)
     ny = n
     x = np.linspace(0, L, nx + 1)
     y = np.linspace(0, W, ny + 1)

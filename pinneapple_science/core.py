@@ -117,6 +117,7 @@ class Result:
     arrays: dict[str, Any] = field(default_factory=dict)
     files: list[str] = field(default_factory=list)
     movies: dict[str, tuple[list, float]] = field(default_factory=dict)
+    viewers: dict[str, Callable[[str], str]] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
     wall_time_s: float = 0.0
     trust: Any = None
@@ -171,6 +172,10 @@ class Result:
         """An animation (RGB frames), written as MP4 and GIF by :meth:`save`; for 3D+t results it is the
         fourth dimension: the 3-D field in time."""
         self.movies[name] = (list(frames), float(fps))
+
+    def viewer(self, name: str, write: Callable[[str], str]) -> None:
+        """An interactive page written by ``write(path)`` when the result is saved (``<name>.html``)."""
+        self.viewers[name] = write
 
     def data(self, name: str, **arrays) -> None:
         """Arrays behind a figure (saved in ``result.json`` when small, in ``<name>.npz`` otherwise)."""
@@ -237,6 +242,7 @@ class Result:
             "data": small, "data_files": sorted(f"{n}.npz" for n in big), "notes": self.notes,
             "figures": sorted(f"{n}.png" for n in self.figures),
             "movies": sorted(f"{n}.{e}" for n in self.movies for e in ("mp4", "gif")),
+            "viewers": sorted(f"{n}.html" for n in self.viewers),
             "wall_time_s": self.wall_time_s,
         })
 
@@ -261,6 +267,8 @@ class Result:
 
             paths[name + "_mp4"] = write_mp4(os.path.join(folder, f"{name}.mp4"), frames, fps)
             paths[name + "_gif"] = write_gif(os.path.join(folder, f"{name}.gif"), frames[::2], fps / 2)
+        for name, write in self.viewers.items():
+            paths[name + "_html"] = write(os.path.join(folder, f"{name}.html"))
         p = os.path.join(folder, "result.json")
         with open(p, "w", encoding="utf-8") as fh:
             json.dump(d, fh, indent=1)

@@ -1,0 +1,14 @@
+{
+ "rel_error[3D+t: radiated power, dipole in vacuum (finest grid)]": 0.0032881391345897406,
+ "rel_error[3D+t: P / P_closed_form, Richardson-extrapolated]": 0.0010628076372023454,
+ "rel_error[3D+t: far-field pattern max |U/Umax - sin^2|]": 0.008562273035930712,
+ "3D+t: observed_order_vacuum": 2.6470695868421656,
+ "3D+t: gci_fine_vacuum": 0.0027725478486505992,
+ "3D+t: power_error_10cpw": 0.015002142821609832,
+ "3D+t: power_error_14cpw": 0.006783268019676436,
+ "3D+t: power_error_20cpw": 0.003288139134589807,
+ "3D+t: power_ratio_configured": 1.0640679545249574,
+ "3D+t: power_ratio_configured_extrapolated": 1.0398748138061105,
+ "3D+t: observed_order_configured": 1.0502456678085508,
+ "3D+t: gci_fine_configured": 0.028420577623784925
+}

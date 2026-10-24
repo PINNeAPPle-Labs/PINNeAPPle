@@ -13,7 +13,8 @@ from pinneapple_science.core import Experiment, Reference, Result
 
 FAST = ["em.coulomb_superposition", "em.gauss_law", "em.biot_savart", "em.ampere_law", "em.hall_effect",
         "em.circuits_rc_rl_rlc", "em.dipole_radiation", "em.lossy_plane_wave", "em.waveguide_modes",
-        "em.mie_scattering", "em.bench_mu0_solenoid", "em.bench_rc_discharge", "em.cavity_resonance"]
+        "em.mie_scattering", "em.bench_mu0_solenoid", "em.bench_rc_discharge", "em.cavity_resonance",
+        "em.research_uq_waveguide", "em.research_inverse_permittivity", "em.research_surrogate_hall"]
 
 
 # ------------------------------------------------------------------------------------------------ atlas
@@ -180,3 +181,30 @@ def test_flow_nodes_list_every_experiment_and_run(tmp_path, monkeypatch):
     r = pf.run(f, workdir=tmp_path / "w")
     assert r.status == "done", {k: v["error"] for k, v in r.nodes.items()}
     assert any(k.startswith("rel_error[") for k in r.report("e")["metrics"])
+
+
+def test_fdtd_3d_t_research_study(tmp_path):
+    """The 3D+t FDTD study at its committed ladder (about two minutes): order, Richardson, 4-D Maxwell checks,
+    the animation frames and the three.js viewer."""
+    r = S.run("em.research_fdtd_3d", quick=True, snapshots=3, viewer=True)
+    assert r.passed, r
+    assert r.values["observed_order_vacuum"]["value"] > 1.5
+    paths = r.save(str(tmp_path))
+    assert os.path.getsize(paths["fdtd_viewer_html"]) > 10_000 and os.path.isfile(paths["fdtd_3d_t_mp4"])
+
+
+def test_fdtd_config_rejects_unknown_keys():
+    from pinneapple_science.em.fdtd_study import FDTDConfig
+    with pytest.raises(ValueError):
+        FDTDConfig.from_dict({"cells": 10})
+    with pytest.raises(ValueError):
+        FDTDConfig.from_dict({"materials": [{"shape": "torus"}]})
+
+
+def test_gp_loo_scale_is_one_for_a_well_specified_gp():
+    from pinneapple_presets.surrogate import ARDGP
+    from pinneapple_science.numerics import gp_loo_scale
+    rng = np.random.default_rng(0)
+    X = rng.uniform(0, 1, (30, 1))
+    gp = ARDGP().fit(X, np.sin(4 * X[:, 0]) + 0.01 * rng.standard_normal(30))   # noise the GP can learn
+    assert 0.8 < gp_loo_scale(gp) < 1.25

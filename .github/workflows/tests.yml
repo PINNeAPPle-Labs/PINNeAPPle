@@ -57,6 +57,11 @@ jobs:
           python scripts/check_experiment_manifests.py
           pytest tests/test_experiment_manifests.py tests/test_experiments_site.py -q -p no:warnings
 
+      - name: NVIDIA integrations — OpenUSD stages, diagrams, water hammer, examples/nvidia smoke (must pass)
+        run: |
+          pip install usd-core newton newton-usd-schemas
+          pytest tests/test_nvidia_integrations.py -q -p no:warnings
+
       - name: Agents — AGENTS.md examples and the MCP server (must pass)
         run: pytest tests/test_agents_md.py tests/test_mcp_server.py -q
 

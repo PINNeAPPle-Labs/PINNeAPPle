@@ -86,6 +86,15 @@ add(
             "named AVA designs re-solved in EMerge with their near field: glTF / USD per frequency, gain balloons, "
             "|E| and E_x(wt) cut planes, self-contained three.js viewers, Blender stills and GIF / MP4",
             requires=("emerge",), exclude=("log",)),
+    LibCall("robot.arm_check", "pinneapple_simulation.robot_sim.checks:arm_pick_and_place",
+            "Arm move in the robot sim (Newton), checked", "Solvers",
+            "PINNeAPPle Robot Sim on NVIDIA Newton: a two-link arm pick-and-place with model feedforward, checked for "
+            "replay convergence, tracking, energy balance, motor limits and link stress", requires=("newton",)),
+    LibCall("export.usd_validate", "pinneapple_tools.nvidia.omniverse:validate_stage",
+            "Check a USD stage (Omniverse)", "Export",
+            "re-open an OpenUSD file and check it before Omniverse / Isaac Sim opens it: topology, primvar sizes, "
+            "extents, time samples and every pxr.UsdValidation validator", requires=("pxr",),
+            exclude=("required_primvars",)),
     LibCall("export.geometry", f"{W}:geometry_export", "Export a library geometry", "Export",
             "pinneapple_design.geometry_library: build a parametric geometry and write STL / OBJ / glTF / USD / STEP"),
 )

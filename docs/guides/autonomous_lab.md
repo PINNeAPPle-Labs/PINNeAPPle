@@ -1,5 +1,9 @@
 # Autonomous Physics Lab: an AI that manages evidence for engineering decisions
 
+This page is the scientific cycle on a costly reference simulator (`AutonomousLab`, the AI Aerodynamicist). The
+agent loop every mission shares (controlled tools, planners, evidence) is in
+[Autonomous Physics Lab: missions planned and run through controlled tools](autonomous_physics_lab.md).
+
 `pinneapple_autolab` runs one scientific cycle on any reference simulator:
 
 ```

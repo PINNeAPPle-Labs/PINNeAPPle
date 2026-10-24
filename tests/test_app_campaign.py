@@ -65,6 +65,21 @@ def test_cantilever_example_writes_calculix_decks(client):
     assert usage["campaigns"]["used"] >= 1 and usage["cases_planned"]["used"] >= 30
 
 
+def test_airfoil_plan_button_with_space_from_the_page(client):
+    """The page sends the edited space back as JSON, where the constant Re = 4e6 arrives as 4000000 (no ".0").
+    The 436 preset runs (reynolds 4000000.0) must still count as inside the space, or infill has nothing to fill."""
+    space = client.get("/api/meta").json()["presets"]["airfoil"]["space"]
+    for p in space["parameters"]:
+        if p["kind"] == "constant":
+            p["value"] = int(p["value"])
+    body = {"preset": "airfoil", "space": space, "n": 6, "method": "infill", "use_preset_existing": True,
+            "outputs": ["Cl", "Cd"], "openfoam": "airfoil", "case_limit": 1}
+    job = _wait(client, client.post("/api/campaigns", json=body).json())
+    red = job["result"]["summary"]["redundancy"]
+    assert job["result"]["n_cases"] == 6
+    assert red["n_existing"] == 418 and red["n_existing_outside_space"] == 18
+
+
 def test_custom_space_with_uploaded_runs_drops_repeats(client):
     space = {"kind": "ParameterSpace", "name": "plate", "budget": 8, "parameters": [
         {"name": "t", "low": 1.0, "high": 5.0, "unit": "mm"}, {"name": "q", "low": 10.0, "high": 1000.0, "log": True}]}

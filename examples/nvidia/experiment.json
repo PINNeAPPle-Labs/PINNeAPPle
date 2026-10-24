@@ -1,0 +1,218 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia",
+ "title": "PINNeAPPle with the NVIDIA stack",
+ "description": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each run.py writes an architecture figure, result figures, summary.json and run_info.json (what ran here and what needs a GPU or an API key).",
+ "domain": "physics AI",
+ "methods": [
+  "CEM",
+  "FNO (PhysicsNeMo)",
+  "FVM",
+  "FullyConnected (PhysicsNeMo)",
+  "MOC",
+  "Newton Featherstone",
+  "multibody tree",
+  "spectral"
+ ],
+ "modules": [
+  "pinneapple_neural.physicsnemo_bridge",
+  "pinneapple_simulation.multibody.arm",
+  "pinneapple_simulation.robot_sim",
+  "pinneapple_systems.process_components.water_hammer",
+  "pinneapple_tools.nvidia",
+  "pinneapple_tools.nvidia.isaac"
+ ],
+ "params": {},
+ "scripts": [
+  "01_omniverse_pump_pipeline/run.py",
+  "02_physicsnemo_plume_rollout/run.py",
+  "03_robotsim_pick_and_place/run.py",
+  "07_omniverse_physicsnemo_coldplate/run.py",
+  "08_robotsim_physicsnemo_learned_dynamics/run.py",
+  "12_omniverse_robotsim_arm/run.py"
+ ],
+ "metrics": [
+  {
+   "name": "coldplate_fno_test_rel_l2",
+   "value": 0.017551220805002144,
+   "unit": "",
+   "how": "07: mean relative L2 of T - T_c over 50 held-out layouts (07_omniverse_physicsnemo_coldplate/results/summary.json)"
+  },
+  {
+   "name": "pipeline_max_pressure_60s_closure",
+   "value": 14.65695471406468,
+   "unit": "bar",
+   "how": "01: max gauge pressure over pipe and time, MOC, 60 s linear closure (01_omniverse_pump_pipeline/results/summary.json)"
+  },
+  {
+   "name": "plume_fno_one_step_rel_l2",
+   "value": 0.01804893909474389,
+   "unit": "",
+   "how": "02: mean one-step relative L2 on 8 held-out plumes (02_physicsnemo_plume_rollout/results/summary.json)"
+  },
+  {
+   "name": "plume_fno_trust_horizon",
+   "value": 10.0,
+   "unit": "steps",
+   "how": "02: median validate_rollout trust horizon over 8 plumes (same file)"
+  },
+  {
+   "name": "arm_tracking_error",
+   "value": 0.4807320864886888,
+   "unit": "mrad",
+   "how": "03: max |q - q_plan| in Newton, dt 0.25 ms (03_robotsim_pick_and_place/results/summary.json)"
+  },
+  {
+   "name": "arm_replay_order",
+   "value": 1.007934460942717,
+   "unit": "",
+   "how": "03: observed order of the open-loop torque replay error in dt"
+  },
+  {
+   "name": "learned_dynamics_heldout_error",
+   "value": 0.04878147024380754,
+   "unit": "",
+   "how": "08: worst-joint relative RMS torque error on 2 held-out Newton runs"
+  },
+  {
+   "name": "usd_vs_urdf_motion",
+   "value": 0.0,
+   "unit": "rad",
+   "how": "12: max |q_USD - q_URDF| in Newton"
+  }
+ ],
+ "checks": [
+  {
+   "name": "07 cold plate FNO decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REJECT",
+   "kind": "physics"
+  },
+  {
+   "name": "01 pipeline: a closure time within PN16",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "safe closures [60.0]",
+   "kind": "physics"
+  },
+  {
+   "name": "02 plume FNO rollout decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  },
+  {
+   "name": "03 arm decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "08 learned dynamics decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  },
+  {
+   "name": "12 USD scene decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  }
+ ],
+ "files": {
+  "figures": [
+   "01_omniverse_pump_pipeline/results/architecture.png",
+   "01_omniverse_pump_pipeline/results/checks.png",
+   "01_omniverse_pump_pipeline/results/transients.png",
+   "01_omniverse_pump_pipeline/results/usd_preview.png",
+   "02_physicsnemo_plume_rollout/results/architecture.png",
+   "02_physicsnemo_plume_rollout/results/checks.png",
+   "02_physicsnemo_plume_rollout/results/rollout_checks.png",
+   "02_physicsnemo_plume_rollout/results/snapshots.png",
+   "03_robotsim_pick_and_place/results/architecture.png",
+   "03_robotsim_pick_and_place/results/checks.png",
+   "03_robotsim_pick_and_place/results/motion.png",
+   "03_robotsim_pick_and_place/results/tracking.png",
+   "03_robotsim_pick_and_place/results/verification.png",
+   "07_omniverse_physicsnemo_coldplate/results/architecture.png",
+   "07_omniverse_physicsnemo_coldplate/results/checks.png",
+   "07_omniverse_physicsnemo_coldplate/results/fields.png",
+   "07_omniverse_physicsnemo_coldplate/results/training.png",
+   "07_omniverse_physicsnemo_coldplate/results/usd_preview.png",
+   "08_robotsim_physicsnemo_learned_dynamics/results/architecture.png",
+   "08_robotsim_physicsnemo_learned_dynamics/results/checks.png",
+   "08_robotsim_physicsnemo_learned_dynamics/results/dynamics.png",
+   "12_omniverse_robotsim_arm/results/architecture.png",
+   "12_omniverse_robotsim_arm/results/checks.png",
+   "12_omniverse_robotsim_arm/results/robotsim.png",
+   "12_omniverse_robotsim_arm/results/usd_physics_preview.png",
+   "12_omniverse_robotsim_arm/results/usd_timeline_peak.png"
+  ],
+  "videos": [
+   "01_omniverse_pump_pipeline/results/usd_timeline.gif",
+   "12_omniverse_robotsim_arm/results/usd_timeline.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "01_omniverse_pump_pipeline/results/run_info.json",
+   "01_omniverse_pump_pipeline/results/summary.json",
+   "02_physicsnemo_plume_rollout/results/run_info.json",
+   "02_physicsnemo_plume_rollout/results/summary.json",
+   "03_robotsim_pick_and_place/results/run_info.json",
+   "03_robotsim_pick_and_place/results/summary.json",
+   "07_omniverse_physicsnemo_coldplate/results/run_info.json",
+   "07_omniverse_physicsnemo_coldplate/results/summary.json",
+   "08_robotsim_physicsnemo_learned_dynamics/results/run_info.json",
+   "08_robotsim_physicsnemo_learned_dynamics/results/summary.json",
+   "12_omniverse_robotsim_arm/results/run_info.json",
+   "12_omniverse_robotsim_arm/results/summary.json"
+  ]
+ },
+ "links": {
+  "guide": "examples/nvidia/README.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "register",
+  "methods": "inferred from names",
+  "git": "41765939"
+ }
+}

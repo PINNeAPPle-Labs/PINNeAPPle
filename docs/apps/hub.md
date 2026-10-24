@@ -30,6 +30,23 @@ copy its code in one click, read the output its code printed when it was run, an
 ![A geometry](../assets/apps/hub-geometry.jpg)
 ![A zoo model run in the browser and on the server](../assets/apps/hub-model.jpg)
 
+## Tools by task
+
+Every tool (flow nodes, generated library calls, public functions, recipes and the MCP agent tools) is in exactly
+one of 20 task categories: problem setup, geometry and meshing, equations, classical solvers, PINNs, surrogates, the
+model zoo, physics checks, verification, benchmarks, uncertainty, inverse problems, design, process and system
+components, vehicles, electromagnetics, time series and twins, data, visualisation, and automation. The home page
+lists them with their counts; the **Task** filter (`/?kind=tool&category=uq`) and `hub.search(index, q,
+category="uq")` select one, and an item page links back to its task.
+
+The assignment is generated, not hand-tagged per item: `pinneapple_hub/library/categories.py` maps where a tool comes
+from (`node:<flow node type>`, `lib:<module>:<function>`, `fn:<dotted name>`, `mcp:<tool>`) to a category by the
+longest matching prefix, and lists recipes one by one (their ids follow README order). `tests/test_hub_library.py`
+fails when a tool matches nothing, a category is empty, a rule places no tool, or a listed recipe is gone, so a new
+node or module has to be given a task before the index builds clean.
+
+![Tools by task](../assets/apps/hub-tasks.jpg)
+
 ## Create your own
 
 Pick blocks (every curated Flow Studio node type), optionally start from a bundled flow and add a library
@@ -67,11 +84,20 @@ title, category and parameter schema, and `tests/test_hub_flow_link.py` fails wh
   with its error.
 - A public function of the AGENTS.md table links to the node that wraps it.
 
+- **The Flow Studio canvas in "Create your own"** (`/create?mode=canvas`, or the "Flow Studio canvas" tab): the
+  Flow Studio editor itself, embedded. It posts its flow to the Hub on every change and loads the flow the Hub
+  sends (a flow opened with `?flow=`); the tick boxes, the generated Python, the sandbox validation and "Save to My
+  Hub" work on that flow. Messages go only between the two configured origins (checked on both sides), and Flow
+  Studio can be embedded only by the origins in `FLOW_FRAME_ANCESTORS` (its CSP `frame-ancestors`; unset, nobody
+  may embed it). The Hub frames only `HUB_FLOW_STUDIO_URL`'s origin (`frame-src`). Serve both on one site (e.g.
+  `hub.pinneapple.org` and `flow.pinneapple.org`) so a Flow Studio login also works inside the frame.
+
 Flow Studio's "🍍 Hub" button and links go to `FLOW_HUB_URL` (default `http://127.0.0.1:8116`); the Hub's go to
 `HUB_FLOW_STUDIO_URL` (default `http://127.0.0.1:8765`).
 
 ![A library call run with the visitor's values](../assets/apps/hub-node-run.jpg)
 ![A flow published from Flow Studio, a parameter exposed and validated](../assets/apps/hub-publish.jpg)
+![The Flow Studio canvas inside "Create your own"](../assets/apps/hub-canvas.jpg)
 
 ## Using it
 

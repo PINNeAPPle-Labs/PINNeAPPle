@@ -1,0 +1,503 @@
+{
+ "preset": "steel_footbridge_pedestrian",
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "f1 = 1.52 Hz, aceleração 0.19 m/s2 (limite 0.7)",
+   "utilização flambagem lateral 14.80",
+   "utilização flexão 0.97; flecha 133 mm (limite 83 mm)",
+   "não atende: flecha (ELS), flambagem lateral"
+  ]
+ },
+ "outputs": {
+  "f1": 1.5228499849995847,
+  "acceleration": 0.1895459552100568,
+  "deflection": 0.13306653683262798,
+  "deflection_limit": 0.08333333333333333,
+  "util_bending": 0.9666906089183886,
+  "util_ltb": 14.804187987243408,
+  "M_cr": 133011.91583548186,
+  "M_Ed": 1619054.6772825,
+  "steel_mass": 8289.6,
+  "mass_per_m": 1041.1071597334462,
+  "modal_mass": 15616.607396001693,
+  "EI_total": 792601600.000001,
+  "qk": 5000.0,
+  "passed": {
+   "bending_strength": true,
+   "deflection": false,
+   "lateral_torsional_buckling": false,
+   "pedestrian_resonance": true
+  },
+  "section_class3": [
+   true,
+   76.0,
+   100.88844766988656,
+   6.0,
+   11.390631188535579
+  ],
+  "f1_fe": 1.522850026136681,
+  "f2_fe": 6.091402514330896,
+  "deflection_fe": 0.13306653683267058,
+  "fe_equilibrium": 1.8835999071598053e-12
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "solver vs closed form: FD beam deflection",
+    "status": "supports",
+    "value": 5.0661012653284865e-06,
+    "limit": 0.01,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+    "reason": ""
+   },
+   {
+    "name": "equilibrium: FD support reactions = applied load",
+    "status": "supports",
+    "value": 0.007499946919012,
+    "limit": 0.01,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+    "reason": ""
+   },
+   {
+    "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+    "status": "supports",
+    "value": 0.000709572229514663,
+    "limit": 0.005,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+    "reason": ""
+   },
+   {
+    "name": "FE beam: 1st frequency = closed form",
+    "status": "supports",
+    "value": 2.7013229668832024e-08,
+    "limit": 0.001,
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "reason": ""
+   },
+   {
+    "name": "FE beam: crowd deflection = closed form",
+    "status": "supports",
+    "value": 3.2017672950772745e-13,
+    "limit": 0.001,
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "reason": ""
+   },
+   {
+    "name": "FE equilibrium: reactions = applied load",
+    "status": "supports",
+    "value": 1.8835999071598053e-12,
+    "limit": 1e-09,
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "reason": ""
+   },
+   {
+    "name": "cross-section class <= 3 (the elastic checks above hold)",
+    "status": "supports",
+    "value": 76.0,
+    "limit": 100.88844766988656,
+    "source": "EN 1993-1-1 Table 5.2",
+    "reason": "web c/t 76 (<= 101), flange c/t 6.0 (<= 11.4)"
+   },
+   {
+    "name": "EN 1990 A2 needs the comfort check (f1 < 5 Hz)",
+    "status": "supports",
+    "value": 1.5228499849995847,
+    "limit": 5.0,
+    "source": "EN 1990:2002 Anexo A2, A2.4.3.2: aceleração vertical <= 0,7 m/s2 (recomendado)",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "steel_footbridge_pedestrian",
+  "references": [
+   {
+    "case": "1ª frequência: fórmula fechada vs FE de viga",
+    "output": "f1",
+    "unit": "Hz",
+    "computed": 1.5228499849995847,
+    "reference": 1.522850026136681,
+    "rel_error": 2.7013228939117467e-08,
+    "tol": 0.001,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "params": {}
+   },
+   {
+    "case": "flecha da multidão: 5qL^4/384EI vs FE de viga",
+    "output": "deflection",
+    "unit": "m",
+    "computed": 0.13306653683262798,
+    "reference": 0.13306653683267058,
+    "rel_error": 3.2017672950762496e-13,
+    "tol": 0.001,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "params": {}
+   },
+   {
+    "case": "2ª frequência = 4 x f1 (Euler-Bernoulli biapoiada)",
+    "output": "f2",
+    "unit": "Hz",
+    "computed": 6.091402514330896,
+    "reference": 6.091399939998339,
+    "rel_error": 4.2261755626976134e-07,
+    "tol": 0.002,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Clough & Penzien, Dynamics of Structures, eq. 18-21: f_n = n^2 f_1",
+    "params": {}
+   },
+   {
+    "case": "aceleração em ressonância exata (vão 24 m, f1 na faixa de passo)",
+    "output": "acceleration",
+    "unit": "m/s2",
+    "computed": 2.2412038103078022,
+    "reference": 2.241203810307802,
+    "rel_error": 1.981476239722582e-16,
+    "tol": 1e-06,
+    "pass": true,
+    "kind": "analytic",
+    "source": "oscilador de 1 GL em ressonância: a = alpha G / (M_modal 2 xi), Bachmann & Ammann (1987)",
+    "params": {}
+   }
+  ],
+  "convergence": {
+   "parameter": "elementos de viga",
+   "values": [
+    4,
+    8,
+    16,
+    32
+   ],
+   "f1": [
+    1.5232454116500111,
+    1.5228750244623044,
+    1.5228515551059532,
+    1.522850082470512
+   ],
+   "rel_change_last": 9.670258800245518e-07,
+   "pass": true
+  },
+  "all_pass": true
+ },
+ "figures": [
+  "results/footbridge.png",
+  "results/surrogate_parity.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 0.01638795899998513,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T00:56:11Z"
+ },
+ "surrogate": {
+  "model": "ARD Gaussian process (squared exponential)",
+  "inputs": [
+   "span",
+   "girder_h",
+   "girder_b"
+  ],
+  "outputs": [
+   "f1",
+   "util_ltb",
+   "util_bending"
+  ],
+  "bounds": {
+   "span": [
+    20.0,
+    45.0
+   ],
+   "girder_h": [
+    0.6,
+    1.6
+   ],
+   "girder_b": [
+    0.2,
+    0.5
+   ]
+  },
+  "n_train": 70,
+  "n_test": 25,
+  "holdout": {
+   "per_output": {
+    "f1": {
+     "max_rel_err": 0.019316979809516785,
+     "mean_rel_err": 0.0015621658709863485,
+     "rmse": 0.0030032224805181845,
+     "r2": 0.9999952904625733,
+     "coverage_2sigma": 0.96
+    },
+    "util_ltb": {
+     "max_rel_err": 0.07439044276002937,
+     "mean_rel_err": 0.015818134643997492,
+     "rmse": 0.23126438971393729,
+     "r2": 0.9996718968423431,
+     "coverage_2sigma": 0.92
+    },
+    "util_bending": {
+     "max_rel_err": 0.0057020006660263274,
+     "mean_rel_err": 0.0006114008218465076,
+     "rmse": 0.002814678449919126,
+     "r2": 0.9999732380901618,
+     "coverage_2sigma": 1.0
+    }
+   },
+   "max_rel_err": 0.07439044276002937
+  },
+  "timing_s": {
+   "doe_solver_runs": 1.640368128999853,
+   "fit": 1.3365191749999212
+  },
+  "default_case": {
+   "f1": {
+    "surrogate": 1.5226122264946125,
+    "std": 0.0010230236625941786,
+    "solver": 1.5228499849995847
+   },
+   "util_ltb": {
+    "surrogate": 14.943328710954823,
+    "std": 0.23181325562760646,
+    "solver": 14.804187987243408
+   },
+   "util_bending": {
+    "surrogate": 0.9669983760154978,
+    "std": 0.0004110395595904809,
+    "solver": 0.9666906089183886
+   }
+  }
+ },
+ "inversion": {
+  "description": "Rigidez efetiva EI e massa por metro a partir de ensaio de vibração ambiente: f1 e f2 medidas com a passarela vazia e com 6 t de sacos de areia distribuídos. Verdade sintética: EI x1,25 (ação composta do tabuleiro), massa x1,10; ruído de 0.5 % nas frequências.",
+  "parameter": "fator de EI, fator de massa",
+  "true": [
+   1.25,
+   1.1
+  ],
+  "recovered": [
+   1.2822351769351834,
+   1.1284047979430165
+  ],
+  "ci95": [
+   [
+    1.1215575738888741,
+    1.4429127799814927
+   ],
+   [
+    0.9763787940907289,
+    1.280430801795304
+   ]
+  ],
+  "rel_error": 0.025822543584560383,
+  "true_inside_ci95": true,
+  "noise": "0.5 % (1 sigma) nas frequências",
+  "how": "Gauss-Newton sobre o FE de viga (beam_modes), covariância sigma^2 (J^T J)^-1"
+ },
+ "optimization": {
+  "objective": "massa mínima de aço (vigas + contraventamentos) com os 4 modos atendidos e seção classe <= 3",
+  "designs_scanned": 24570,
+  "girder_h": 1.2000000000000006,
+  "girder_b": 0.35,
+  "girder_tf": 0.015,
+  "girder_tw": 0.012,
+  "lateral_braces": 5,
+  "steel_mass_kg": 11718.739402570829,
+  "girder_mass_kg": 11558.340000000002,
+  "base_girder_mass_kg": 8289.6,
+  "verified_ok": true,
+  "util_ltb": 0.9017107477884426,
+  "util_bending": 0.5434233894812026,
+  "acceleration": 0.6891399801035555,
+  "surrogate_question": "seção (h, b) mais leve com util_ltb <= 1 e a <= limite, sem travamentos, tf e tw padrão",
+  "surrogate_choice": "nenhuma seção do domínio do surrogate atende sem travamentos"
+ },
+ "variants": {
+  "rows": {
+   "base (h 0,80, b 0,25)": {
+    "params": {},
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "f1": 1.5228499849995847,
+     "acceleration": 0.1895459552100568,
+     "deflection": 0.13306653683262798,
+     "deflection_limit": 0.08333333333333333,
+     "util_bending": 0.9666906089183886,
+     "util_ltb": 14.804187987243408,
+     "M_cr": 133011.91583548186,
+     "M_Ed": 1619054.6772825,
+     "steel_mass": 8289.6,
+     "mass_per_m": 1041.1071597334462,
+     "modal_mass": 15616.607396001693,
+     "EI_total": 792601600.000001,
+     "qk": 5000.0,
+     "f1_fe": 1.522850026136681,
+     "f2_fe": 6.091402514330896,
+     "deflection_fe": 0.13306653683267058,
+     "fe_equilibrium": 1.8835999071598053e-12
+    }
+   },
+   "viga alta h 1,10": {
+    "params": {
+     "girder_h": 1.1
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "f1": 2.1437322457211416,
+     "acceleration": 1.7153596628824814,
+     "deflection": 0.06424300895965161,
+     "deflection_limit": 0.08333333333333333,
+     "util_bending": 0.6556246287167312,
+     "util_ltb": 13.588111237479872,
+     "M_cr": 143835.32111595265,
+     "M_Ed": 1654129.6932965624,
+     "steel_mass": 9702.6,
+     "mass_per_m": 1088.2071597334461,
+     "modal_mass": 16323.107396001691,
+     "EI_total": 1641715600.000003,
+     "qk": 5000.0,
+     "f1_fe": 2.143732304021772,
+     "f2_fe": 8.574932606256708,
+     "deflection_fe": 0.06424300895909411,
+     "fe_equilibrium": 7.171183824539184e-13
+    }
+   },
+   "mesa larga b 0,40": {
+    "params": {
+     "girder_b": 0.4
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "f1": 1.7763159028289195,
+     "acceleration": 1.6441952740833001,
+     "deflection": 0.08968601952962356,
+     "deflection_limit": 0.08333333333333333,
+     "util_bending": 0.6797733944673215,
+     "util_ltb": 5.565764085827507,
+     "M_cr": 363321.1580656251,
+     "M_Ed": 1689204.709310625,
+     "steel_mass": 11115.599999999999,
+     "mass_per_m": 1135.3071597334463,
+     "modal_mass": 17029.607396001695,
+     "EI_total": 1175977600.0000017,
+     "qk": 5000.0,
+     "f1_fe": 1.7763159487343076,
+     "f2_fe": 7.105266613425678,
+     "deflection_fe": 0.08968601952954709,
+     "fe_equilibrium": 3.251867989699046e-12
+    }
+   },
+   "2 travamentos": {
+    "params": {
+     "lateral_braces": 2
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "f1": 1.5228499849995847,
+     "acceleration": 0.1895459552100568,
+     "deflection": 0.13306653683262798,
+     "deflection_limit": 0.08333333333333333,
+     "util_bending": 0.9666906089183886,
+     "util_ltb": 4.318008696939612,
+     "M_cr": 563170.2287861198,
+     "M_Ed": 1619054.6772825,
+     "steel_mass": 8289.6,
+     "mass_per_m": 1041.1071597334462,
+     "modal_mass": 15616.607396001693,
+     "EI_total": 792601600.000001,
+     "qk": 5000.0,
+     "f1_fe": 1.522850026136681,
+     "f2_fe": 6.091402514330896,
+     "deflection_fe": 0.13306653683267058,
+     "fe_equilibrium": 1.8835999071598053e-12
+    }
+   },
+   "alta + larga": {
+    "params": {
+     "girder_h": 1.1,
+     "girder_b": 0.4
+    },
+    "verdict": "NOT OK",
+    "trust": "REVIEW",
+    "outputs": {
+     "f1": 2.4744277403566564,
+     "acceleration": 0.2473556554209167,
+     "deflection": 0.04437740792472833,
+     "deflection_limit": 0.08333333333333333,
+     "util_bending": 0.4720950874160522,
+     "util_ltb": 5.28011287713439,
+     "M_cr": 411947.95379224233,
+     "M_Ed": 1724279.7253246875,
+     "steel_mass": 12528.6,
+     "mass_per_m": 1182.4071597334462,
+     "modal_mass": 17736.10739600169,
+     "EI_total": 2376631600.0000052,
+     "qk": 5000.0,
+     "f1_fe": 2.4744278063612724,
+     "f2_fe": 9.897715142813764,
+     "deflection_fe": 0.04437740792470878,
+     "fe_equilibrium": 1.0047418375809988e-11
+    }
+   }
+  },
+  "compared": [
+   "util_ltb",
+   "acceleration",
+   "steel_mass"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/steel_footbridge_pedestrian_base_h_0_80_b_0_25_3d_sigma.png",
+   "results/3d/variants/steel_footbridge_pedestrian_viga_alta_h_1_10_3d_sigma.png",
+   "results/3d/variants/steel_footbridge_pedestrian_mesa_larga_b_0_40_3d_sigma.png",
+   "results/3d/variants/steel_footbridge_pedestrian_2_travamentos_3d_sigma.png",
+   "results/3d/variants/steel_footbridge_pedestrian_alta_larga_3d_sigma.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/steel_footbridge_pedestrian_3d_sigma.png",
+  "results/3d/steel_footbridge_pedestrian_3d_mode1.png"
+ ],
+ "wall_time_total_s": 51.098703978999765,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

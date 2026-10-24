@@ -1,0 +1,56 @@
+{
+ "preset": "water_hammer_valve_closure",
+ "references": [
+  {
+   "case": "fechamento instant\u00e2neo sem atrito = Joukowsky",
+   "output": "surge_head",
+   "unit": "m",
+   "computed": 185.36028133450316,
+   "reference": 185.36028133450313,
+   "rel_error": 1.533322523346514e-16,
+   "tol": 0.005,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Joukowsky (1898); Wylie & Streeter, Fluid Transients in Systems (1993) eq. 1.11: dH = a dV / g",
+   "params": {
+    "t_close": 0.0,
+    "friction": "none"
+   }
+  },
+  {
+   "case": "fechamento lento (60 s = 30\u00b72L/a) = teoria da coluna r\u00edgida",
+   "output": "surge_head",
+   "unit": "m",
+   "computed": 7.115642994142966,
+   "reference": 7.1147630905274895,
+   "rel_error": 0.00012367293250402893,
+   "tol": 0.05,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "Wylie & Streeter, Fluid Transients in Systems (1993) sec. 1.3 (rigid-column theory), integrada com scipy solve_ivp",
+   "params": {
+    "t_close": 60.0
+   }
+  }
+ ],
+ "convergence": {
+  "parameter": "n_reaches",
+  "values": [
+   10,
+   20,
+   40,
+   80,
+   160
+  ],
+  "max_head": [
+   82.29141319794398,
+   82.29279932087573,
+   82.29313707607015,
+   82.29321678329488,
+   82.29323432898343
+  ],
+  "rel_change_last": 2.1320936882752297e-07,
+  "pass": true
+ },
+ "all_pass": true
+}

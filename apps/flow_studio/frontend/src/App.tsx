@@ -84,6 +84,23 @@ function Studio() {
     setTimeout(fitReadable, 60);
   }, [catalog, specs]);
 
+  // ---- embedded in the Hub: post every change, load what the Hub sends
+  useEffect(() => {
+    if (!EMBED || !catalog) return;
+    const t = setTimeout(() => window.parent.postMessage({ type: "pinneapple-flow/changed", flow: toDoc() }, EMBED), 250);
+    return () => clearTimeout(t);
+  }, [nodes, edges, meta, catalog]);
+  useEffect(() => {
+    if (!EMBED || !catalog) return;
+    const on = (e: MessageEvent) => {
+      if (e.origin !== EMBED || e.source !== window.parent || e.data?.type !== "pinneapple-flow/load") return;
+      if (e.data.flow && Array.isArray(e.data.flow.nodes)) load(e.data.flow as FlowDoc);
+    };
+    window.addEventListener("message", on);
+    window.parent.postMessage({ type: "pinneapple-flow/ready" }, EMBED);
+    return () => window.removeEventListener("message", on);
+  }, [catalog, load]);
+
   // ---- deep links (the PINNeAPPle Hub): ?example=<bundled flow> or ?flow=<base64url flow JSON>, once the catalog is in
   const linked = useRef(false);
   useEffect(() => {
@@ -287,8 +304,8 @@ function Studio() {
       <header className="h-12 shrink-0 flex items-center gap-2 px-3 bg-white border-b border-slate-200">
         <div className="font-bold text-[15px] mr-2">🍍 PINNeAPPle <span className="text-brand-600">Flow Studio</span></div>
         <input className="text-sm border border-slate-200 rounded px-2 py-1 w-56" value={meta.name} onChange={(e) => setMeta({ ...meta, name: e.target.value })} data-testid="flow-name" />
-        {info?.hub_url && <a className="btn" href={info.hub_url} target="_blank" rel="noopener" data-testid="open-hub" title="Ready-made tools, models, geometries, datasets, flows and examples">🍍 Hub</a>}
-        {info?.hub_url && nodes.length > 0 && <a className="btn" href={`${info.hub_url.replace(/\/$/, "")}/create?flow=${toB64url(toDoc())}`} target="_blank" rel="noopener" data-testid="publish-hub" title="Publish this flow to the Hub as a tool: choose its parameters, validate, save">Publish to Hub</a>}
+        {info?.hub_url && !EMBED && <a className="btn" href={info.hub_url} target="_blank" rel="noopener" data-testid="open-hub" title="Ready-made tools, models, geometries, datasets, flows and examples">🍍 Hub</a>}
+        {info?.hub_url && !EMBED && nodes.length > 0 && <a className="btn" href={`${info.hub_url.replace(/\/$/, "")}/create?flow=${toB64url(toDoc())}`} target="_blank" rel="noopener" data-testid="publish-hub" title="Publish this flow to the Hub as a tool: choose its parameters, validate, save">Publish to Hub</a>}
         <button className="btn-primary" onClick={() => setShowPlanner(true)} data-testid="open-planner">✨ Plan from text</button>
         <button className="btn" onClick={openLists} data-testid="open-lists">Open…</button>
         <button className="btn" onClick={save} data-testid="save">Save</button>
@@ -426,6 +443,15 @@ function Studio() {
     </div>
   );
 }
+
+// embedded in the PINNeAPPle Hub's "Create your own" (?embed=hub&origin=<hub origin>): the canvas posts the flow to that
+// origin on every change and loads a flow the Hub sends; nothing is accepted from or sent to any other origin. Which
+// origins may embed Flow Studio at all is the server's FLOW_FRAME_ANCESTORS (the CSP frame-ancestors).
+const EMBED = (() => {
+  const q = new URLSearchParams(window.location.search);
+  const origin = q.get("origin") || "";
+  return q.get("embed") === "hub" && window.parent !== window && /^https?:\/\/[^/]+$/.test(origin) ? origin : "";
+})();
 
 // base64url JSON, the encoding of the Hub <-> Flow Studio links (pinneapple_hub.library.flowlink.b64url)
 const fromB64url = (t: string) => {

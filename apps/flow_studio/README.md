@@ -128,6 +128,7 @@ generated end to end from the text).
 | `/?example=<name>` | opens a bundled flow |
 | `/?flow=<flow JSON>` | opens that flow (the Hub's "Open in Flow Studio": inputs -> the node -> report) |
 | `/?add=<node type>&params=<JSON>` | asks which flow to add the node to, and wires it in by port type |
+| `/?embed=hub&origin=<Hub origin>` | the canvas inside the Hub's "Create your own": posts the flow to that origin on every change, loads the flow it sends; needs `FLOW_FRAME_ANCESTORS=<Hub origin>` |
 
 The toolbar's "🍍 Hub" opens the Hub (`FLOW_HUB_URL`, default `http://127.0.0.1:8116`) and "Publish to Hub" sends the
 flow on the canvas to the Hub's "Create your own" to become a tool ([docs](../../docs/apps/hub.md#with-flow-studio)).

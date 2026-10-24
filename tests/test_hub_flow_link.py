@@ -30,7 +30,9 @@ INDEX = hub.load_index()
 
 def _specs():
     from pinneapple_flow import REGISTRY
-    return [s for s in REGISTRY.specs() if not s.type.startswith("custom.")]
+    # nodes registered by other test modules (tests/test_flow_extensions.py) are not in the library's index
+    return [s for s in REGISTRY.specs() if not s.type.startswith("custom.")
+            and not getattr(s.fn, "__module__", "").startswith(("test_", "tests."))]
 
 
 def test_palette_and_index_list_the_same_node_types():
@@ -128,6 +130,7 @@ def test_bundled_flow_runs_are_recorded_and_shown_on_node_pages():
 @pytest.fixture(scope="module")
 def client(tmp_path_factory):
     pytest.importorskip("fastapi")
+    saved = {k: os.environ.get(k) for k in ("HUB_DATA_DIR", "HUB_FLOW_STUDIO_URL")}
     os.environ["HUB_DATA_DIR"] = str(tmp_path_factory.mktemp("hubfl"))
     os.environ["HUB_FLOW_STUDIO_URL"] = "http://fs.example"
     sys.path.insert(0, str(ROOT / "apps" / "hub"))
@@ -135,6 +138,8 @@ def client(tmp_path_factory):
     from hub.api import app
     with TestClient(app) as c:
         yield c
+    for k, v in saved.items():
+        os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
 
 
 def test_api_flowlink_and_publish(client):

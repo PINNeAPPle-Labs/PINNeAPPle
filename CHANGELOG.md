@@ -14,6 +14,21 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_autolab`: the Autonomous Physics Lab, an engine that manages evidence for engineering decisions on any
+  reference simulator. A mission (variables, objectives, limits absolute or relative to a simulated baseline, budget,
+  acceptance tolerances, fixed conditions, hypotheses) goes through plan -> checked build -> simulate -> learn
+  (Gaussian process, MLP ensemble and quadratic response surface compared by k-fold cross-validation, with 95 %
+  coverage; POD + GP surface fields with errors per region) -> NSGA-II on the surrogate -> triage of every candidate
+  (validated domain, probability of meeting the limits, constrained expected improvement, field error in the
+  critical region, a `TrustReport`; favourable / uncertain / out of domain) -> the next simulation chosen by a
+  written rule -> final verification. A ledger of every run (purpose, reason, prediction before the run, outputs,
+  cost, environment) and an event stream; solver qualification; figures and a Markdown report. Domain
+  `domains.racecar`: `RaceCarAero` (FormulaCar in OpenFOAM: geometry and boundary-condition checks, forces averaged
+  over the last half of the iterations with their spread, aero balance from face moments, surface Cp on the
+  parametric vertices) and the flagship mission; worked example `examples/autolab_aero/`; guide
+  `docs/guides/autonomous_lab.md`.
+- `ExternalFlow`: `body_levels` (surface refinement per body, e.g. thin wing elements), `refine_boxes`,
+  `write_every` + `force_history()` (forces at every written iteration), `FlowResult.load()`.
 - `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
   with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
   chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,
@@ -1396,6 +1411,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- `external_flow.run_case`: a step made of two commands (`reconstructParMesh; reconstructPar`) wrote the first one's
+  output to the terminal instead of its log.
 - Immersed-boundary FDM, `channel` mode: mass is conserved. The divergence-penalty pressure step is replaced
   by an exact pressure-Poisson projection on cell faces, so every cross-section carries the inlet flux (pipe
   R=0.5, L=3, Re=10: flow rate 1.0 of the inlet value along the pipe, was 0.85 / 0.53 / 0.39). The result has a

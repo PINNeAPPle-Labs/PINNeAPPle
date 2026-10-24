@@ -67,7 +67,7 @@
  },
  "warnings": [],
  "meta": {
-  "wall_time_s": 2.270489663999797,
+  "wall_time_s": 2.096867153000062,
   "versions": {
    "python": "3.13.17",
    "pinneapple": "0.7.0",
@@ -80,6 +80,6 @@
    "cores": 4,
    "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
   },
-  "date_utc": "2026-10-24T02:22:50Z"
+  "date_utc": "2026-10-24T10:06:55Z"
  }
 }

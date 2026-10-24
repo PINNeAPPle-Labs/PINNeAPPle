@@ -1,0 +1,1027 @@
+{
+ "aircraft_takeoff": {
+  "flow_hash": "842ae067669f564f",
+  "nodes": {
+   "report": {
+    "metrics": {
+     "decisions": 1,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "takeoff": {
+    "metrics": {
+     "V_LOF": 32.112160901687766,
+     "V_LOF_kt": 62.42110103662938,
+     "V_R": 28.67832007979312,
+     "V_R_kt": 55.74624270045548,
+     "alpha_LOF_deg": 6.5073754907102055,
+     "ground_roll_m": 244.22102440714593,
+     "lifted_off": true,
+     "mass_kg": 1100.0,
+     "rotation_distance_m": 64.62175075225971,
+     "rotation_time_s": 2.119999999999999,
+     "t_LOF": 13.51,
+     "theta_LOF_deg": 6.7807320828397275
+    },
+    "status": "done",
+    "summary": "ground roll 244 m, 35 ft at 403 m; Raymer 17.8: 311 m with V_LOF = 1.1 V_s (+30%), 410 m with the simulated V_LOF and rotation (-2%)",
+    "type": "flight.takeoff"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 15.78,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "antenna_vivaldi_limits": {
+  "flow_hash": "1ed2100a09ed6e73",
+  "nodes": {
+   "limits": {
+    "metrics": {
+     "150 mm": 2.7453521794871794,
+     "2 GHz": 374.7405725,
+     "2.5 GHz": 299.792458,
+     "206 mm": 1.99904284914115,
+     "260 mm": 1.583857026627219,
+     "3 GHz": 249.82704833333335,
+     "3.5 GHz": 214.13747,
+     "4 GHz": 187.37028625,
+     "target_dbi": 10.0
+    },
+    "status": "done",
+    "summary": "",
+    "type": "lib.antenna.limits"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 3.19,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "burgers_1d": {
+  "flow_hash": "8d44f18307232a14",
+  "nodes": {
+   "eq": {
+    "metrics": {
+     "family": "burgers",
+     "linear": false
+    },
+    "status": "done",
+    "summary": "burgers (nonlinear), 1 PDE(s), 2 condition(s)",
+    "type": "equations.system"
+   },
+   "fd": {
+    "metrics": {
+     "method": "method of lines + BDF",
+     "n_unknowns": 513,
+     "nfev": 310
+    },
+    "status": "done",
+    "summary": "FD on 513x51 points in 0.24 s",
+    "type": "solver.classical"
+   },
+   "geo": {
+    "metrics": {
+     "dimension": 1
+    },
+    "status": "done",
+    "summary": "interval in 1-D, coordinates ['x', 't']",
+    "type": "geometry.domain"
+   },
+   "lab": {
+    "metrics": {
+     "lab_run_id": "flow_burgers_1d_pinn_vs_finite_differences_vs_cole_ho_lab-46db6bd426b8",
+     "lab_status": "failed_validation"
+    },
+    "status": "done",
+    "summary": "tier F (PINN pinn.residual \u00b7 PINN's own check (+3 more)), sealed",
+    "type": "validate.lab"
+   },
+   "mesh": {
+    "metrics": {
+     "nodes": 513
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   },
+   "pinn": {
+    "metrics": {
+     "final_loss": 7.206671580206603e-05,
+     "n_parameters": 4353,
+     "validation": "fail"
+    },
+    "status": "done",
+    "summary": "PINN trained in 167.9 s; validation failed",
+    "type": "train.pinn"
+   },
+   "render": {
+    "metrics": {
+     "renderer": "matplotlib (Blender's bpy is not installed)"
+    },
+    "status": "done",
+    "summary": "",
+    "type": "viz.render"
+   },
+   "validate": {
+    "metrics": {
+     "best": "FD"
+    },
+    "status": "done",
+    "summary": "FD: 5.09e-03, PINN: 1.31e-01 (vs exact solution)",
+    "type": "validate.compare"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 183.58,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "elnino_forecast": {
+  "error": "StepFailed: ENSO observations unavailable (ModuleNotFoundError: No module named 'netCDF4'); they are downloaded once from the NOAA / ERA5 buckets into the data cache",
+  "flow_hash": "feb5ea7b1c064ea5",
+  "nodes": {
+   "forecast": {
+    "error": "StepFailed: ENSO observations unavailable (ModuleNotFoundError: No module named 'netCDF4'); they are downloaded once from the NOAA / ERA5 buckets into the data cache",
+    "metrics": {},
+    "status": "failed",
+    "summary": "",
+    "type": "forecast.enso"
+   },
+   "report": {
+    "error": "a step it needs did not finish",
+    "metrics": {},
+    "status": "cancelled",
+    "summary": "",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 4.02,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "failed"
+ },
+ "heat_1d": {
+  "flow_hash": "060ba5ae6131e843",
+  "nodes": {
+   "eq": {
+    "metrics": {
+     "family": "heat",
+     "linear": true
+    },
+    "status": "done",
+    "summary": "heat (linear), 1 PDE(s), 2 condition(s)",
+    "type": "equations.system"
+   },
+   "fd": {
+    "metrics": {
+     "method": "method of lines + BDF",
+     "n_unknowns": 201,
+     "nfev": 44
+    },
+    "status": "done",
+    "summary": "FD on 201x41 points in 0.03 s",
+    "type": "solver.classical"
+   },
+   "geo": {
+    "metrics": {
+     "dimension": 1
+    },
+    "status": "done",
+    "summary": "interval in 1-D, coordinates ['x', 't']",
+    "type": "geometry.domain"
+   },
+   "lab": {
+    "metrics": {
+     "lab_run_id": "flow_heat_1d_pinn_vs_finite_differences_vs_exact_lab-c8d1ac57e19f",
+     "lab_status": "completed"
+    },
+    "status": "done",
+    "summary": "tier B, sealed",
+    "type": "validate.lab"
+   },
+   "mesh": {
+    "metrics": {
+     "nodes": 201
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   },
+   "pinn": {
+    "metrics": {
+     "final_loss": 4.757920578413177e-06,
+     "n_parameters": 3297,
+     "validation": "pass"
+    },
+    "status": "done",
+    "summary": "PINN trained in 23.4 s; validation passed",
+    "type": "train.pinn"
+   },
+   "plot": {
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "viz.plot"
+   },
+   "validate": {
+    "metrics": {
+     "best": "FD"
+    },
+    "status": "done",
+    "summary": "FD: 6.58e-06, PINN: 2.21e-04 (vs exact solution)",
+    "type": "validate.compare"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 27.46,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "inverse_heat": {
+  "flow_hash": "a9628f875f89ae81",
+  "nodes": {
+   "calibrate": {
+    "metrics": {
+     "alpha_estimate": 0.09998336456072479,
+     "alpha_relative_error": 0.0001663543927521438,
+     "calibration_seconds": 0.78,
+     "forward_solves": 31
+    },
+    "status": "done",
+    "summary": "alpha = 0.099983",
+    "type": "inverse.calibrate"
+   },
+   "discover": {
+    "metrics": {
+     "alpha_estimate": 0.10017634183168411,
+     "final_loss": 7.5651376391761e-05,
+     "n_parameters": 3297,
+     "validation": "pass"
+    },
+    "status": "done",
+    "summary": "alpha = 0.10018",
+    "type": "inverse.discover"
+   },
+   "fd": {
+    "metrics": {
+     "method": "method of lines + BDF",
+     "n_unknowns": 101,
+     "nfev": 44
+    },
+    "status": "done",
+    "summary": "FD on 101x41 points in 0.03 s",
+    "type": "solver.classical"
+   },
+   "inv_eq": {
+    "metrics": {
+     "family": "heat",
+     "linear": true
+    },
+    "status": "done",
+    "summary": "heat (linear), 1 PDE(s), 2 condition(s)",
+    "type": "equations.system"
+   },
+   "inv_geo": {
+    "metrics": {
+     "dimension": 1
+    },
+    "status": "cached",
+    "summary": "interval in 1-D, coordinates ['x', 't']",
+    "type": "geometry.domain"
+   },
+   "inv_mesh": {
+    "metrics": {
+     "nodes": 101
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   },
+   "sensors": {
+    "metrics": {
+     "n_points": 400,
+     "noise_sigma": 0.002599070109145527
+    },
+    "status": "done",
+    "summary": "",
+    "type": "data.observe"
+   },
+   "true_eq": {
+    "metrics": {
+     "family": "heat",
+     "linear": true
+    },
+    "status": "done",
+    "summary": "heat (linear), 1 PDE(s), 2 condition(s)",
+    "type": "equations.system"
+   },
+   "true_geo": {
+    "metrics": {
+     "dimension": 1
+    },
+    "status": "done",
+    "summary": "interval in 1-D, coordinates ['x', 't']",
+    "type": "geometry.domain"
+   },
+   "true_mesh": {
+    "metrics": {
+     "nodes": 101
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 29.0,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "lunar_rover_dashboard": {
+  "flow_hash": "fd65653c2698bd1b",
+  "nodes": {
+   "dashboard": {
+    "metrics": {},
+    "status": "not_run",
+    "summary": "not run: needs pyvista (No module named 'pyvista')",
+    "type": "vehicle.dashboard"
+   },
+   "lab": {
+    "metrics": {},
+    "status": "not_run",
+    "summary": "not run: upstream node 'dashboard' did not run: needs pyvista (No module named 'pyvista')",
+    "type": "validate.lab"
+   },
+   "pinn": {
+    "metrics": {},
+    "status": "done",
+    "summary": "rover_contact_grc1_viper v1.1.0: same physics as the run yes",
+    "type": "terramechanics.zoo_surrogate"
+   },
+   "simulate": {
+    "metrics": {},
+    "status": "done",
+    "summary": "8.63 m in 45 s, mean slip 0.018, max sinkage 36.6 mm, 92 J/m (102 s)",
+    "type": "vehicle.simulate"
+   },
+   "site": {
+    "metrics": {},
+    "status": "done",
+    "summary": "crater_site",
+    "type": "scenario.site"
+   },
+   "soil": {
+    "metrics": {},
+    "status": "done",
+    "summary": "GRC-1: c 250 Pa, phi 38 deg, k_c 700, k_phi 505000, n 0.8",
+    "type": "terramechanics.soil"
+   },
+   "vehicle": {
+    "metrics": {
+     "total_mass_kg": 450.0,
+     "wheel_radius_m": 0.25,
+     "wheel_width_m": 0.2,
+     "wheels": 4
+    },
+    "status": "done",
+    "summary": "NASA VIPER: 450 kg, 4 wheels R 0.250 m, b 0.200 m",
+    "type": "vehicle.spec"
+   },
+   "wheel": {
+    "metrics": {
+     "static_wheel_load_N": 182.25
+    },
+    "status": "done",
+    "summary": "Wong-Reece on GRC-1: drawbar pull 56.9 N at 20 % slip, static load 182 N",
+    "type": "terramechanics.wheel_model"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 111.25,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "lunar_rover_dashboard_quick": {
+  "flow_hash": "68e1a77d37f2f64d",
+  "nodes": {
+   "dashboard": {
+    "metrics": {},
+    "status": "not_run",
+    "summary": "not run: needs pyvista (No module named 'pyvista')",
+    "type": "vehicle.dashboard"
+   },
+   "lab": {
+    "metrics": {},
+    "status": "not_run",
+    "summary": "not run: upstream node 'dashboard' did not run: needs pyvista (No module named 'pyvista')",
+    "type": "validate.lab"
+   },
+   "pinn": {
+    "metrics": {},
+    "status": "done",
+    "summary": "rover_contact_grc1_viper v1.1.0: same physics as the run yes",
+    "type": "terramechanics.zoo_surrogate"
+   },
+   "simulate": {
+    "metrics": {},
+    "status": "done",
+    "summary": "2.10 m in 12 s, mean slip 0.048, max sinkage 36.6 mm, 120 J/m (30 s)",
+    "type": "vehicle.simulate"
+   },
+   "site": {
+    "metrics": {},
+    "status": "done",
+    "summary": "crater_site",
+    "type": "scenario.site"
+   },
+   "soil": {
+    "metrics": {},
+    "status": "done",
+    "summary": "GRC-1: c 250 Pa, phi 38 deg, k_c 700, k_phi 505000, n 0.8",
+    "type": "terramechanics.soil"
+   },
+   "vehicle": {
+    "metrics": {
+     "total_mass_kg": 450.0,
+     "wheel_radius_m": 0.25,
+     "wheel_width_m": 0.2,
+     "wheels": 4
+    },
+    "status": "done",
+    "summary": "NASA VIPER: 450 kg, 4 wheels R 0.250 m, b 0.200 m",
+    "type": "vehicle.spec"
+   },
+   "wheel": {
+    "metrics": {
+     "static_wheel_load_N": 182.25
+    },
+    "status": "done",
+    "summary": "Wong-Reece on GRC-1: drawbar pull 56.9 N at 20 % slip, static load 182 N",
+    "type": "terramechanics.wheel_model"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 39.69,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "operator_burgers": {
+  "flow_hash": "f8cd0986e79d8ac8",
+  "nodes": {
+   "data": {
+    "metrics": {
+     "generation_seconds": 12.89,
+     "samples": 512
+    },
+    "status": "done",
+    "summary": "",
+    "type": "data.grf_burgers"
+   },
+   "deeponet": {
+    "metrics": {
+     "n_parameters": 99329
+    },
+    "status": "done",
+    "summary": "deeponet: test rel. L2 0.0474, 99329 parameters",
+    "type": "surrogate.train"
+   },
+   "fno": {
+    "metrics": {
+     "n_parameters": 69889
+    },
+    "status": "done",
+    "summary": "fno: test rel. L2 0.00473, 69889 parameters",
+    "type": "surrogate.train"
+   },
+   "report": {
+    "metrics": {
+     "decisions": 2,
+     "decisions_without_reference": 0,
+     "items": 2
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 129.55,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "planned_digital_twin": {
+  "flow_hash": "666703f9a35d478f",
+  "nodes": {
+   "report": {
+    "metrics": {
+     "decisions": 7,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "twin": {
+    "metrics": {
+     "alerts": 1,
+     "assimilation_seconds": 2.89,
+     "readings": 721
+    },
+    "status": "done",
+    "summary": "721 readings assimilated, 1 alert(s)",
+    "type": "twin.connect"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 6.61,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "planned_hybrid_surrogate_hpo": {
+  "flow_hash": "d799db7bf4d3996d",
+  "nodes": {
+   "eq": {
+    "metrics": {
+     "family": "wave",
+     "linear": true
+    },
+    "status": "done",
+    "summary": "wave (linear), 1 PDE(s), 3 condition(s)",
+    "type": "equations.system"
+   },
+   "geo": {
+    "metrics": {
+     "dimension": 1
+    },
+    "status": "done",
+    "summary": "interval in 1-D, coordinates ['x', 't']",
+    "type": "geometry.domain"
+   },
+   "hpo": {
+    "metrics": {
+     "best_trial_val_rel_l2": 0.05673176795244217,
+     "n_parameters": 39328,
+     "search_backend": "random-search",
+     "trials": 10
+    },
+    "status": "done",
+    "summary": "best of 10 trials (random-search): test rel. L2 0.015",
+    "type": "surrogate.hpo"
+   },
+   "mesh": {
+    "metrics": {
+     "nodes": 201
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   },
+   "report": {
+    "metrics": {
+     "decisions": 18,
+     "decisions_without_reference": 4,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "sobol": {
+    "metrics": {
+     "S1_c": 1.000151595281674,
+     "ST_c": 1.0001516737499476,
+     "model_evaluations": 3072
+    },
+    "status": "done",
+    "summary": "",
+    "type": "uq.sensitivity"
+   },
+   "sweep": {
+    "metrics": {
+     "generation_seconds": 4.18,
+     "outputs_per_sample": 81,
+     "samples": 96
+    },
+    "status": "done",
+    "summary": "",
+    "type": "data.parametric"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 18.64,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "planned_pde_twin": {
+  "flow_hash": "fc055bcfd54c687b",
+  "nodes": {
+   "live": {
+    "metrics": {
+     "plant_grid": 81,
+     "readings": 150,
+     "sensors": 5
+    },
+    "status": "done",
+    "summary": "150 readings from 5 sensors (simulated)",
+    "type": "data.stream"
+   },
+   "problem": {
+    "metrics": {
+     "accepted": "#0 heat (confidence 0.92)",
+     "conservation_law": "energy conservation",
+     "constitutive_relation": "Fourier's law q = -k grad(T)"
+    },
+    "status": "done",
+    "summary": "identified heat (0.92), 1-D",
+    "type": "problem.generic"
+   },
+   "report": {
+    "metrics": {
+     "decisions": 16,
+     "decisions_without_reference": 3,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "twin": {
+    "metrics": {
+     "alerts": 2,
+     "alpha_final_sd": 0.0035499195067633547,
+     "readings": 150
+    },
+    "status": "done",
+    "summary": "150 readings, alpha 0.1511, 2 alert(s)",
+    "type": "twin.auto"
+   },
+   "view3d": {
+    "metrics": {
+     "points": 3150
+    },
+    "status": "done",
+    "summary": "",
+    "type": "viz.field3d"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 6.0,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "planned_plate_2d_to_3d": {
+  "flow_hash": "b1b0c0943d425fa7",
+  "nodes": {
+   "eq": {
+    "metrics": {
+     "family": "poisson",
+     "linear": true
+    },
+    "status": "done",
+    "summary": "poisson (linear), 1 PDE(s), 1 condition(s)",
+    "type": "equations.system"
+   },
+   "fd": {
+    "metrics": {
+     "iterations": 2,
+     "method": "newton",
+     "n_unknowns": 4225,
+     "residual_inf": 1.6981971384666394e-12
+    },
+    "status": "done",
+    "summary": "FD on 65x65 points in 0.30 s",
+    "type": "solver.classical"
+   },
+   "fem": {
+    "metrics": {
+     "n_dof": 625
+    },
+    "status": "done",
+    "summary": "FEM on 25x25 points in 0.07 s",
+    "type": "solver.classical"
+   },
+   "geo": {
+    "metrics": {
+     "dimension": 2
+    },
+    "status": "done",
+    "summary": "rectangle in 2-D, coordinates ['x', 'y']",
+    "type": "geometry.domain"
+   },
+   "lab": {
+    "metrics": {
+     "lab_run_id": "flow_poisson_2d_classical_vs_pinn_lab-35ae52dbb922",
+     "lab_status": "completed"
+    },
+    "status": "done",
+    "summary": "tier B, sealed",
+    "type": "validate.lab"
+   },
+   "mesh": {
+    "metrics": {
+     "nodes": 4225
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   },
+   "pinn": {
+    "metrics": {
+     "final_loss": 3.218426718376577e-05,
+     "n_parameters": 3297,
+     "validation": "pass"
+    },
+    "status": "done",
+    "summary": "PINN trained in 48.8 s; validation passed",
+    "type": "train.pinn"
+   },
+   "plot": {
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "viz.plot"
+   },
+   "report": {
+    "metrics": {
+     "decisions": 20,
+     "decisions_without_reference": 2,
+     "items": 2
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "validate": {
+    "metrics": {
+     "best": "FD"
+    },
+    "status": "done",
+    "summary": "FD: 2.01e-04, FEM: 7.15e-03, PINN: 5.82e-04 (vs exact solution)",
+    "type": "validate.compare"
+   },
+   "view3d": {
+    "metrics": {
+     "points": 4225
+    },
+    "status": "done",
+    "summary": "",
+    "type": "viz.field3d"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 53.91,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "planned_plate_2d_to_3d_edited": {
+  "flow_hash": "d324426707593534",
+  "nodes": {
+   "eq": {
+    "metrics": {
+     "family": "poisson",
+     "linear": true
+    },
+    "status": "done",
+    "summary": "poisson (linear), 1 PDE(s), 1 condition(s)",
+    "type": "equations.system"
+   },
+   "fd": {
+    "metrics": {
+     "iterations": 3,
+     "method": "newton",
+     "n_unknowns": 9261,
+     "residual_inf": 2.4513724383723456e-13
+    },
+    "status": "done",
+    "summary": "FD on 21x21x21 points in 19.49 s",
+    "type": "solver.classical"
+   },
+   "fem": {
+    "metrics": {
+     "n_dof": 1331
+    },
+    "status": "done",
+    "summary": "FEM on 11x11x11 points in 0.16 s",
+    "type": "solver.classical"
+   },
+   "geo": {
+    "metrics": {
+     "dimension": 3
+    },
+    "status": "done",
+    "summary": "box in 3-D, coordinates ['x', 'y', 'z']",
+    "type": "geometry.domain"
+   },
+   "lab": {
+    "metrics": {
+     "lab_run_id": "flow_poisson_2d_classical_vs_pinn_3d_lab-7b9ef8846042",
+     "lab_status": "failed_validation"
+    },
+    "status": "done",
+    "summary": "tier F (PINN pinn.residual \u00b7 PINN's own check (+4 more)), sealed",
+    "type": "validate.lab"
+   },
+   "mesh": {
+    "metrics": {
+     "nodes": 9261
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   },
+   "pinn": {
+    "metrics": {
+     "final_loss": 0.002923318650573492,
+     "n_parameters": 3329,
+     "validation": "fail"
+    },
+    "status": "done",
+    "summary": "PINN trained in 68.0 s; validation failed",
+    "type": "train.pinn"
+   },
+   "plot": {
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "viz.plot"
+   },
+   "report": {
+    "metrics": {
+     "decisions": 20,
+     "decisions_without_reference": 2,
+     "items": 2
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   },
+   "validate": {
+    "metrics": {
+     "best": "FD"
+    },
+    "status": "done",
+    "summary": "FD: 2.06e-03, FEM: 5.87e-02, PINN: 2.95e-02 (vs exact solution)",
+    "type": "validate.compare"
+   },
+   "view3d": {
+    "metrics": {
+     "points": 9261
+    },
+    "status": "done",
+    "summary": "",
+    "type": "viz.field3d"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 93.57,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "poisson_2d": {
+  "flow_hash": "f4da471b1d412982",
+  "nodes": {
+   "eq": {
+    "metrics": {
+     "family": "poisson",
+     "linear": true
+    },
+    "status": "done",
+    "summary": "poisson (linear), 1 PDE(s), 1 condition(s)",
+    "type": "equations.system"
+   },
+   "fd": {
+    "metrics": {
+     "iterations": 2,
+     "method": "newton",
+     "n_unknowns": 1681,
+     "residual_inf": 6.217248937900877e-13
+    },
+    "status": "done",
+    "summary": "FD on 41x41 points in 0.14 s",
+    "type": "solver.classical"
+   },
+   "fem": {
+    "metrics": {
+     "n_dof": 1681
+    },
+    "status": "done",
+    "summary": "FEM on 41x41 points in 0.15 s",
+    "type": "solver.classical"
+   },
+   "geo": {
+    "metrics": {
+     "dimension": 2
+    },
+    "status": "done",
+    "summary": "rectangle in 2-D, coordinates ['x', 'y']",
+    "type": "geometry.domain"
+   },
+   "lab": {
+    "metrics": {
+     "lab_run_id": "flow_poisson_2d_fem_fd_and_pinn_with_the_trust_card_lab-d39397f812c1",
+     "lab_status": "completed"
+    },
+    "status": "done",
+    "summary": "tier B, sealed",
+    "type": "validate.lab"
+   },
+   "mesh": {
+    "metrics": {
+     "nodes": 1681
+    },
+    "status": "done",
+    "summary": "",
+    "type": "geometry.mesh"
+   },
+   "pinn": {
+    "metrics": {
+     "final_loss": 3.0426668672589585e-05,
+     "n_parameters": 3297,
+     "validation": "pass"
+    },
+    "status": "done",
+    "summary": "PINN trained in 30.4 s; validation passed",
+    "type": "train.pinn"
+   },
+   "validate": {
+    "metrics": {
+     "best": "FD"
+    },
+    "status": "done",
+    "summary": "FD: 5.14e-04, FEM: 1.55e-03, PINN: 7.31e-04 (vs exact solution)",
+    "type": "validate.compare"
+   },
+   "view3d": {
+    "metrics": {
+     "points": 1681
+    },
+    "status": "done",
+    "summary": "",
+    "type": "viz.field3d"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 35.59,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "reason_roof": {
+  "flow_hash": "c2f01a23265ceeb7",
+  "nodes": {
+   "c0": {
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "reason.concept"
+   },
+   "ch": {
+    "metrics": {},
+    "status": "done",
+    "summary": "flow\n\nRequirements:\n  R1: keep the design rain out of the room [lap_water_ingress]\n  R2: no condensation dripping into the room [underside_condensation]\n  R3: no radiant discomfort from the ceiling on a sunny day [radiant_heat_gain]\n\nVersion 0 (tiles):\n  rain ingress through the lap fails: Water cli",
+    "type": "reason.chain"
+   },
+   "chk": {
+    "metrics": {
+     "passing": 0
+    },
+    "status": "done",
+    "summary": "lap_water_ingress fails: capillary + wind + film head = 45.1 mm > height the lap rises = 0 mm",
+    "type": "reason.verify"
+   },
+   "cm": {
+    "metrics": {},
+    "status": "done",
+    "summary": "lap_water_ingress fails (capillary + wind + film head = 45.1 mm > height the lap rises = 0 mm); applied increase_slope: fixes the failure without breaking any requirement that passed",
+    "type": "reason.countermeasure"
+   },
+   "fm": {
+    "metrics": {},
+    "status": "done",
+    "summary": "On a clear night the tile radiates to the sky at -1.74 \u00b0C and cools to 14.2 \u00b0C; the tile underside, in contact with the room air, sits at 14.9 \u00b0C, below the dew point of the room air (16.4 \u00b0C at 21 \u00b0C and 75 %): vapour condenses and drips into the room.",
+    "type": "reason.failure_mode"
+   },
+   "rep": {
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "reason.report"
+   },
+   "req": {
+    "metrics": {},
+    "status": "done",
+    "summary": "",
+    "type": "reason.requirement"
+   }
+  },
+  "recorded": "2026-10-24",
+  "seconds": 3.92,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ }
+}

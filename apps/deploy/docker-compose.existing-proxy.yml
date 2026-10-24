@@ -3,7 +3,7 @@
 #
 #   PROXY_NETWORK=<network of the existing proxy> \
 #   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta udr inverse \
-#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design
+#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design hub
 #
 # Then point the proxy at pinneapple-heatsink:8080, pinneapple-pcb:8081, pinneapple-datahealth:8082,
 # pinneapple-standardizer:8083, pinneapple-simmeta:8084 pinneapple-udr:8085, pinneapple-inverse:8086,
@@ -12,6 +12,7 @@
 # and pinneapple-playground:8095, pinneapple-campaign:8096, pinneapple-evidence:8113, pinneapple-validate:8107 and pinneapple-campaign:8096 and pinneapple-uncertainty:8098 and pinneapple-sensitivity:8099 (see pinneapple-runner:8110README.md).
 # The Engineering Design Optimizer answers on pinneapple-optimize:8100.
 # The Physics Design Optimizer answers on pinneapple-design:8106.
+# The PINNeAPPle Hub answers on pinneapple-hub:8116.
 # The optional Engineering GUI Agent (heavy image) is started by name and answers on pinneapple-guiagent:8115.
 services:
   caddy:                       # the server already has a proxy on 80/443: never start this project's own
@@ -197,6 +198,11 @@ services:
       default: {}
       proxy:
         aliases: [pinneapple-design]
+  hub:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-hub]
 
 networks:
   proxy:

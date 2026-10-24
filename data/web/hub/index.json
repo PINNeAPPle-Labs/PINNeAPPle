@@ -7,7 +7,7 @@
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 142
+  "example": 146
  },
  "kinds": {
   "tool": "Tools",
@@ -126,7 +126,7 @@
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 142
+   "example": 146
   },
   "subkind": {
    "library call": 249,
@@ -140,12 +140,12 @@
    "general": 78,
    "fluid dynamics": 60,
    "design and geometry": 58,
-   "structural mechanics": 51,
+   "structural mechanics": 52,
    "numerical methods": 46,
    "validation and benchmarks": 46,
    "data": 41,
    "system dynamics": 41,
-   "heat transfer": 25,
+   "heat transfer": 27,
    "vehicle dynamics": 14,
    "electromagnetics": 12,
    "time series": 9,
@@ -163,6 +163,7 @@
    "Térmica / eletrônica de potência": 1,
    "Térmica / processo e energia": 1,
    "engineering": 1,
+   "geometry": 1,
    "hydraulics": 1,
    "molecular dynamics": 1,
    "security": 1,
@@ -191,7 +192,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 534,
+   "not graded": 538,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -1433,8 +1434,8 @@
    "extra": {
     "calls": "pinneapple_simulation.robot_sim.checks:arm_pick_and_place",
     "category": "Solvers",
-    "available": false,
-    "install": "pip install newton-physics",
+    "available": true,
+    "install": "",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -2298,8 +2299,8 @@
    "extra": {
     "calls": "pinneapple_tools.nvidia.omniverse:validate_stage",
     "category": "Export",
-    "available": false,
-    "install": "pip install pxr",
+    "available": true,
+    "install": "",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -12576,8 +12577,8 @@
    "extra": {
     "calls": "pinneapple_flow.wrappers:newton_validate pinneapple_simulation.external_solvers",
     "category": "Solvers",
-    "available": false,
-    "install": "pip install newton-physics",
+    "available": true,
+    "install": "",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -67196,6 +67197,73 @@
    }
   },
   {
+   "id": "example:examples/nvidia/10_brep_physicsnemo_heatsink",
+   "kind": "example",
+   "name": "examples/nvidia/10_brep_physicsnemo_heatsink",
+   "title": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification",
+   "summary": "",
+   "description": "",
+   "domain": "heat transfer",
+   "tags": [
+    "B-rep (SMLib)",
+    "FullyConnected (PhysicsNeMo)",
+    "closed-form heat sink"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/10_brep_physicsnemo_heatsink"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/10_brep_physicsnemo_heatsink\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "proposal_mass",
+      "value": 195.09650445308407,
+      "unit": "g",
+      "how": "exact B-rep mass of the verified design"
+     },
+     {
+      "name": "proposal_t_source",
+      "value": 74.20348259023478,
+      "unit": "C",
+      "how": "closed-form source temperature of the verified design"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/10_brep_physicsnemo_heatsink/results/parity.png",
+     "examples/nvidia/10_brep_physicsnemo_heatsink/results/design_space.png",
+     "examples/nvidia/10_brep_physicsnemo_heatsink/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/10_brep_physicsnemo_heatsink"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "1ab4a238d5c929aa",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.85,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification | heat transfer | not curated\nproposal_mass 195.09650445308407 g\nproposal_t_source 74.20348259023478 C",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:benchmark_case/heated_channel",
    "kind": "example",
    "name": "benchmark_case/heated_channel",
@@ -68339,6 +68407,72 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "B - Sun exponent is 3/2",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/14_brep_omniverse_bracket",
+   "kind": "example",
+   "name": "examples/nvidia/14_brep_omniverse_bracket",
+   "title": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness",
+   "summary": "",
+   "description": "",
+   "domain": "geometry",
+   "tags": [
+    "B-rep (SMLib)",
+    "OpenUSD"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/14_brep_omniverse_bracket"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/14_brep_omniverse_bracket\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "bracket_mass",
+      "value": 105.37090558663354,
+      "unit": "g",
+      "how": "USD BRep mass properties, 6061-T6 density"
+     },
+     {
+      "name": "chord_error_max",
+      "value": 7.060322879633735,
+      "unit": "um",
+      "how": "largest triangle-centroid distance to the exact surface"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/14_brep_omniverse_bracket/results/usd_curvature.png",
+     "examples/nvidia/14_brep_omniverse_bracket/results/usd_thickness.png",
+     "examples/nvidia/14_brep_omniverse_bracket/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/14_brep_omniverse_bracket"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "b42ed8f06b195d4c",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.84,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness | geometry | not curated\nbracket_mass 105.37090558663354 g\nchord_error_max 7.060322879633735 um",
     "timed_out": false,
     "status": "ok"
    }
@@ -72740,14 +72874,16 @@
    "description": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each run.py writes an architecture figure, result figures, summary.json and run_info.json (what ran here and what needs a GPU or an API key).",
    "domain": "physics AI",
    "tags": [
+    "B-rep (SMLib)",
     "CEM",
+    "FEM (CST)",
     "FNO (PhysicsNeMo)",
     "FVM",
     "FullyConnected (PhysicsNeMo)",
     "MOC",
     "Newton Featherstone",
-    "multibody tree",
-    "spectral"
+    "OpenUSD",
+    "closed-form heat sink"
    ],
    "quality": {
     "letter": null,
@@ -72806,6 +72942,24 @@
       "value": 0.0,
       "unit": "rad",
       "how": "12: max |q_USD - q_URDF| in Newton"
+     },
+     {
+      "name": "strap_kt_net_richardson",
+      "value": 2.3202025186774162,
+      "unit": "",
+      "how": "05: plane-stress FEM on USD BRep face meshes, Richardson from 1, 0.5 mm and 2 mm sizes"
+     },
+     {
+      "name": "heatsink_accepted_mass",
+      "value": 195.09650445308407,
+      "unit": "g",
+      "how": "10: exact B-rep mass of the verified design"
+     },
+     {
+      "name": "bracket_mass",
+      "value": 105.37090558663354,
+      "unit": "g",
+      "how": "14: USD BRep mass properties, 6061 density"
      }
     ],
     "figures": [
@@ -77261,6 +77415,79 @@
    }
   },
   {
+   "id": "example:examples/nvidia/05_brep_plate_with_hole",
+   "kind": "example",
+   "name": "examples/nvidia/05_brep_plate_with_hole",
+   "title": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks",
+   "summary": "",
+   "description": "",
+   "domain": "structural mechanics",
+   "tags": [
+    "B-rep (SMLib)",
+    "FEM (CST)"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/05_brep_plate_with_hole"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/05_brep_plate_with_hole\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "kt_net_richardson",
+      "value": 2.3202025186774162,
+      "unit": "",
+      "how": "FEM on B-rep meshes, Richardson from the three finest sizes"
+     },
+     {
+      "name": "kt_net_finest",
+      "value": 2.275980554438024,
+      "unit": "",
+      "how": "FEM, element size 0.5 mm"
+     },
+     {
+      "name": "brep_volume",
+      "value": 43429.203675653,
+      "unit": "mm^3",
+      "how": "USD BRep, relative accuracy 1e-6"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/05_brep_plate_with_hole/results/convergence.png",
+     "examples/nvidia/05_brep_plate_with_hole/results/stress.png",
+     "examples/nvidia/05_brep_plate_with_hole/results/brep_part.png",
+     "examples/nvidia/05_brep_plate_with_hole/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/05_brep_plate_with_hole"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "b948a3860baab4a0",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.89,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks | structural mechanics | not curated\nkt_net_richardson 2.3202025186774162 \nkt_net_finest 2.275980554438024 \nbrep_volume 43429.203675653 mm^3",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/industrial_presets/power_pcb_junction",
    "kind": "example",
    "name": "examples/industrial_presets/power_pcb_junction",
@@ -78015,6 +78242,73 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1 | Estrutural / caldeiraria e processo | not curated\nrel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé] 0.0038346666983239304 -\nrel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)] 8.384422033447177e-07 -\nrel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé] 0.000866198770668044 -\nrel_error[caso espesso (t/R 0,26): UG-27 vs Lamé] 0.00962774901909099 -\ninversion_rel_err 0.002553325026595152 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/16_omniverse_physicsnemo_brep_heatsink",
+   "kind": "example",
+   "name": "examples/nvidia/16_omniverse_physicsnemo_brep_heatsink",
+   "title": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle",
+   "summary": "",
+   "description": "",
+   "domain": "heat transfer",
+   "tags": [
+    "B-rep (SMLib)",
+    "FullyConnected (PhysicsNeMo)",
+    "OpenUSD",
+    "closed-form heat sink"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/16_omniverse_physicsnemo_brep_heatsink"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/16_omniverse_physicsnemo_brep_heatsink\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "accepted_mass",
+      "value": 195.09650445308407,
+      "unit": "g",
+      "how": "exact B-rep mass, 6063 density"
+     },
+     {
+      "name": "accepted_t_source",
+      "value": 74.20348259023478,
+      "unit": "C",
+      "how": "closed-form source temperature"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/16_omniverse_physicsnemo_brep_heatsink/results/usd_temperature.png",
+     "examples/nvidia/16_omniverse_physicsnemo_brep_heatsink/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/16_omniverse_physicsnemo_brep_heatsink"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "ea4511928dbf7efb",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.78,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle | heat transfer | not curated\naccepted_mass 195.09650445308407 g\naccepted_t_source 74.20348259023478 C",
     "timed_out": false,
     "status": "ok"
    }

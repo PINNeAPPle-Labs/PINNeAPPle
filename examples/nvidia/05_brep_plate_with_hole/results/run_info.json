@@ -1,0 +1,43 @@
+{
+ "name": "05_brep_plate_with_hole",
+ "started": "2026-10-24T01:14:26Z",
+ "wall_s": 9.861,
+ "steps_s": {
+  "USD BRep: exact solid and tessellations": 0.242,
+  "plane-stress FEM at four element sizes": 7.672
+ },
+ "components": [
+  {
+   "component": "NVIDIA USD BRep",
+   "ran": true,
+   "why": "",
+   "how": "usd-brep 1.0.1 (CPython 3.12 worker)"
+  }
+ ],
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "gpu": null,
+  "packages": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": "1.7.0",
+   "newton-usd-schemas": "0.6.0",
+   "warp-lang": "1.18.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": "2.8.1",
+   "torch_scatter": "2.1.2",
+   "requests": "2.34.2"
+  }
+ }
+}

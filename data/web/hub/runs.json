@@ -1297,6 +1297,17 @@
   "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
   "timed_out": false
  },
+ "example:examples/nvidia/05_brep_plate_with_hole": {
+  "code_hash": "b948a3860baab4a0",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.89,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks | structural mechanics | not curated\nkt_net_richardson 2.3202025186774162 \nkt_net_finest 2.275980554438024 \nbrep_volume 43429.203675653 mm^3",
+  "timed_out": false
+ },
  "example:examples/nvidia/07_omniverse_physicsnemo_coldplate": {
   "code_hash": "6c1a74ed563c5c29",
   "figures": [],
@@ -1319,6 +1330,17 @@
   "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
   "timed_out": false
  },
+ "example:examples/nvidia/10_brep_physicsnemo_heatsink": {
+  "code_hash": "1ab4a238d5c929aa",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.85,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification | heat transfer | not curated\nproposal_mass 195.09650445308407 g\nproposal_t_source 74.20348259023478 C",
+  "timed_out": false
+ },
  "example:examples/nvidia/12_omniverse_robotsim_arm": {
   "code_hash": "99b67289e7218c39",
   "figures": [],
@@ -1328,6 +1350,28 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
+  "timed_out": false
+ },
+ "example:examples/nvidia/14_brep_omniverse_bracket": {
+  "code_hash": "b42ed8f06b195d4c",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.84,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness | geometry | not curated\nbracket_mass 105.37090558663354 g\nchord_error_max 7.060322879633735 um",
+  "timed_out": false
+ },
+ "example:examples/nvidia/16_omniverse_physicsnemo_brep_heatsink": {
+  "code_hash": "ea4511928dbf7efb",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.78,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle | heat transfer | not curated\naccepted_mass 195.09650445308407 g\naccepted_t_source 74.20348259023478 C",
   "timed_out": false
  },
  "example:examples/openfoam_campaign": {

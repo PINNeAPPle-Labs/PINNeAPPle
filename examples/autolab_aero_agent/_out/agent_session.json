@@ -1,0 +1,5245 @@
+{
+ "planner": "deterministic",
+ "refused": null,
+ "answer": "Recommended design: run019-verification (simulated). drag_N 2795.5 against the baseline's 3314.8. Limits checked on its simulation: downforce >= 7038.38 N; 0.913191 <= aero balance (front share) <= 1.11612. Its simulated values: drag_N 2795.5, downforce_N 7318.8, balance_front 1.0726.",
+ "audit": {
+  "supported": true,
+  "unsupported_numbers": [],
+  "recommended_run": "run019-verification",
+  "recommendation_ok": true,
+  "recommendation_check": "simulated and meets every limit",
+  "n_numbers_checked": 8
+ },
+ "reading": {
+  "mission": {
+   "title": "The AI Aerodynamicist",
+   "statement": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD. Use at most 20 CFD runs.",
+   "domain": "external aerodynamics",
+   "variables": [
+    {
+     "name": "front_wing_aoa",
+     "lower": 0.0,
+     "upper": 5.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "front wing main plane angle"
+    },
+    {
+     "name": "front_flap_aoa",
+     "lower": 12.0,
+     "upper": 30.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "front wing flap angle"
+    },
+    {
+     "name": "rear_wing_aoa",
+     "lower": 0.0,
+     "upper": 7.5,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "rear wing main plane angle"
+    },
+    {
+     "name": "rear_flap_aoa",
+     "lower": 16.0,
+     "upper": 40.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "rear wing flap angle"
+    },
+    {
+     "name": "diffuser_angle",
+     "lower": 7.0,
+     "upper": 18.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "diffuser ramp angle"
+    },
+    {
+     "name": "ride_height",
+     "lower": 0.025,
+     "upper": 0.06,
+     "kind": "continuous",
+     "unit": "m",
+     "description": "floor height above the road"
+    }
+   ],
+   "objectives": [
+    {
+     "name": "drag_N",
+     "sense": "min",
+     "unit": "N",
+     "label": "drag"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "downforce_N",
+     "lower": null,
+     "upper": null,
+     "lower_frac_of_baseline": 1.0,
+     "upper_frac_of_baseline": null,
+     "unit": "N",
+     "kind": "physical",
+     "label": "downforce",
+     "text": "downforce >= 1 x baseline"
+    },
+    {
+     "name": "balance_front",
+     "lower": null,
+     "upper": null,
+     "lower_frac_of_baseline": 0.9,
+     "upper_frac_of_baseline": 1.1,
+     "unit": "",
+     "kind": "physical",
+     "label": "aero balance (front share)",
+     "text": "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+    }
+   ],
+   "baseline": {
+    "front_wing_aoa": 4.0,
+    "front_flap_aoa": 22.0,
+    "rear_wing_aoa": 6.0,
+    "rear_flap_aoa": 32.0,
+    "diffuser_angle": 13.0,
+    "ride_height": 0.035
+   },
+   "budget": {
+    "max_runs": 20,
+    "reserve_verify": 3,
+    "max_wall_s": null
+   },
+   "acceptance": {
+    "drag_N": 0.03,
+    "downforce_N": 0.05,
+    "balance_front": 0.05
+   },
+   "conditions": {
+    "speed_m_s": 70.0,
+    "rho_kg_m3": 1.225,
+    "nu_m2_s": 1.5e-05,
+    "ground": "moving road at the flow speed",
+    "model": "half model, symmetry plane y = 0",
+    "turbulence": "steady RANS k-omega SST, wall functions",
+    "wheels": "static walls",
+    "solver": "OpenFOAM simpleFoam"
+   },
+   "hypotheses": [
+    "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+    "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+    "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+    "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+   ],
+   "baseline_outputs": {
+    "drag_N": 3314.8,
+    "downforce_N": 7038.4,
+    "CD": 0.65685,
+    "CL": -1.3947,
+    "frontal_area_m2": 1.6815,
+    "downforce_front_wing_N": 7015.8,
+    "drag_front_wing_N": 749.62,
+    "downforce_rear_wing_N": 1964.0,
+    "drag_rear_wing_N": 495.89,
+    "downforce_floor_N": 923.85,
+    "downforce_body_N": -1524.6,
+    "downforce_wheels_N": -1297.8,
+    "drag_wheels_N": 1383.7,
+    "balance_front": 1.0147
+   },
+   "constraints_absolute": [
+    {
+     "name": "downforce_N",
+     "upper": null,
+     "lower": 7038.4,
+     "unit": "N",
+     "kind": "physical",
+     "label": "downforce"
+    },
+    {
+     "name": "balance_front",
+     "upper": 1.1161,
+     "lower": 0.91319,
+     "unit": "",
+     "kind": "physical",
+     "label": "aero balance (front share)"
+    }
+   ]
+  },
+  "readings": [
+   {
+    "what": "speed = 70 m/s",
+    "from": "70 m/s"
+   },
+   {
+    "what": "objective: minimise drag_N",
+    "from": "Find a lower-drag aerodynamic design at 70 m/s."
+   },
+   {
+    "what": "limit: downforce_N >= baseline",
+    "from": "Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD."
+   },
+   {
+    "what": "budget = 20 simulations",
+    "from": "20 cfd"
+   },
+   {
+    "what": "final verification: 3 simulations kept for it",
+    "from": "validate the final design using cfd"
+   },
+   {
+    "what": "geometry constraints: variable bounds and the simulator's geometry checks",
+    "from": "preserve the required downforce, stay within the geometry constraints, and validate the final design using cfd"
+   }
+  ],
+  "assumptions": [
+   "added by engineering practice (not in the request): aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+  ]
+ },
+ "run": {
+  "plan": {
+   "mission": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD. Use at most 20 CFD runs.",
+   "planner": "deterministic",
+   "notes": [],
+   "steps": [
+    {
+     "tool": "read_mission",
+     "args": {},
+     "why": "start from what the request asks and what was assumed"
+    },
+    {
+     "tool": "plan",
+     "args": {
+      "n_doe": 10
+     },
+     "why": "split the budget"
+    },
+    {
+     "tool": "simulate_baseline",
+     "args": {},
+     "why": "the limits are relative to the baseline: measure it first"
+    },
+    {
+     "tool": "space_filling",
+     "args": {
+      "n": 10
+     },
+     "why": "10 space-filling designs before any model is trusted"
+    },
+    {
+     "tool": "learn",
+     "args": {},
+     "why": "retrain on every simulation so far and measure the held-out errors"
+    },
+    {
+     "tool": "optimize_and_assess",
+     "args": {
+      "top": 3
+     },
+     "why": "search the surrogate and triage the candidates"
+    },
+    {
+     "tool": "recommend_next",
+     "args": {},
+     "why": "ask the written rule which simulation teaches the most"
+    },
+    {
+     "tool": "simulate_candidate",
+     "args": {
+      "index": 1041,
+      "reason": "best prediction is out of domain: the model's best design (drag_N 2894 +- 51) lies outside the validated domain (diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982): its value is not evidence until simulated"
+     },
+     "why": "best prediction is out of domain"
+    },
+    {
+     "tool": "learn",
+     "args": {},
+     "why": "retrain on every simulation so far and measure the held-out errors"
+    },
+    {
+     "tool": "optimize_and_assess",
+     "args": {
+      "top": 3
+     },
+     "why": "search the surrogate and triage the candidates"
+    },
+    {
+     "tool": "recommend_next",
+     "args": {},
+     "why": "ask the written rule which simulation teaches the most"
+    },
+    {
+     "tool": "simulate_candidate",
+     "args": {
+      "index": 2959,
+      "reason": "best prediction is out of domain: the model's best design (drag_N 2843 +- 29) lies outside the validated domain (front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51): its value is not evidence until simulated"
+     },
+     "why": "best prediction is out of domain"
+    },
+    {
+     "tool": "learn",
+     "args": {},
+     "why": "retrain on every simulation so far and measure the held-out errors"
+    },
+    {
+     "tool": "optimize_and_assess",
+     "args": {
+      "top": 3
+     },
+     "why": "search the surrogate and triage the candidates"
+    },
+    {
+     "tool": "recommend_next",
+     "args": {},
+     "why": "ask the written rule which simulation teaches the most"
+    },
+    {
+     "tool": "simulate_candidate",
+     "args": {
+      "index": 2781,
+      "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (20.23) is an uncertain design: P(feasible) = 0.82: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-3.2 % > 3.0 %; balance_front: 95 % interval +-12.8 % > 5.0 %"
+     },
+     "why": "resolve uncertainty where the decision changes"
+    },
+    {
+     "tool": "learn",
+     "args": {},
+     "why": "retrain on every simulation so far and measure the held-out errors"
+    },
+    {
+     "tool": "optimize_and_assess",
+     "args": {
+      "top": 3
+     },
+     "why": "search the surrogate and triage the candidates"
+    },
+    {
+     "tool": "recommend_next",
+     "args": {},
+     "why": "ask the written rule which simulation teaches the most"
+    },
+    {
+     "tool": "simulate_candidate",
+     "args": {
+      "index": 990,
+      "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (5.846) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold"
+     },
+     "why": "resolve uncertainty where the decision changes"
+    },
+    {
+     "tool": "learn",
+     "args": {},
+     "why": "retrain on every simulation so far and measure the held-out errors"
+    },
+    {
+     "tool": "optimize_and_assess",
+     "args": {
+      "top": 3
+     },
+     "why": "search the surrogate and triage the candidates"
+    },
+    {
+     "tool": "recommend_next",
+     "args": {},
+     "why": "ask the written rule which simulation teaches the most"
+    },
+    {
+     "tool": "simulate_candidate",
+     "args": {
+      "index": 1837,
+      "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (16.69) is an uncertain design: P(feasible) = 0.73: the prediction cannot tell whether the constraints hold; downforce_N: 95 % interval +-7.8 % > 5.0 %; balance_front: 95 % interval +-5.7 % > 5.0 %; expected Cp error in the critical region 0.078 > 0.05"
+     },
+     "why": "resolve uncertainty where the decision changes"
+    },
+    {
+     "tool": "learn",
+     "args": {},
+     "why": "retrain on every simulation so far and measure the held-out errors"
+    },
+    {
+     "tool": "optimize_and_assess",
+     "args": {
+      "top": 3
+     },
+     "why": "search the surrogate and triage the candidates"
+    },
+    {
+     "tool": "recommend_next",
+     "args": {},
+     "why": "ask the written rule which simulation teaches the most"
+    },
+    {
+     "tool": "simulate_candidate",
+     "args": {
+      "index": 362,
+      "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (72.44) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-5.7 % > 3.0 %; downforce_N: 95 % interval +-7.8 % > 5.0 %; expected Cp error in the critical region 0.075 > 0.05"
+     },
+     "why": "resolve uncertainty where the decision changes"
+    },
+    {
+     "tool": "verify_best",
+     "args": {
+      "n": 3
+     },
+     "why": "spend the reserve on confirming the best favourable designs"
+    },
+    {
+     "tool": "status",
+     "args": {},
+     "why": "read the best simulated design before answering"
+    },
+    {
+     "tool": "answer",
+     "args": {
+      "text": "Recommended design: run019-verification (simulated). drag_N 2795.5 against the baseline's 3314.8. Limits checked on its simulation: downforce >= 7038.38 N; 0.913191 <= aero balance (front share) <= 1.11612. Its simulated values: drag_N 2795.5, downforce_N 7318.8, balance_front 1.0726.",
+      "recommended_run": "run019-verification"
+     },
+     "why": "budget spent: the best simulated design"
+    }
+   ]
+  },
+  "ok": true,
+  "evidence": [
+   {
+    "step": 0,
+    "tool": "read_mission",
+    "args": {},
+    "why": "start from what the request asks and what was assumed",
+    "summary": {
+     "mission": {
+      "title": "The AI Aerodynamicist",
+      "statement": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD. Use at most 20 CFD runs.",
+      "domain": "external aerodynamics",
+      "variables": [
+       {
+        "name": "front_wing_aoa",
+        "lower": 0.0,
+        "upper": 5.0,
+        "kind": "continuous",
+        "unit": "deg",
+        "description": "front wing main plane angle"
+       },
+       {
+        "name": "front_flap_aoa",
+        "lower": 12.0,
+        "upper": 30.0,
+        "kind": "continuous",
+        "unit": "deg",
+        "description": "front wing flap angle"
+       },
+       {
+        "name": "rear_wing_aoa",
+        "lower": 0.0,
+        "upper": 7.5,
+        "kind": "continuous",
+        "unit": "deg",
+        "description": "rear wing main plane angle"
+       },
+       {
+        "name": "rear_flap_aoa",
+        "lower": 16.0,
+        "upper": 40.0,
+        "kind": "continuous",
+        "unit": "deg",
+        "description": "rear wing flap angle"
+       },
+       {
+        "name": "diffuser_angle",
+        "lower": 7.0,
+        "upper": 18.0,
+        "kind": "continuous",
+        "unit": "deg",
+        "description": "diffuser ramp angle"
+       },
+       {
+        "name": "ride_height",
+        "lower": 0.025,
+        "upper": 0.06,
+        "kind": "continuous",
+        "unit": "m",
+        "description": "floor height above the road"
+       }
+      ],
+      "objectives": [
+       {
+        "name": "drag_N",
+        "sense": "min",
+        "unit": "N",
+        "label": "drag"
+       }
+      ],
+      "constraints": [
+       {
+        "name": "downforce_N",
+        "lower": null,
+        "upper": null,
+        "lower_frac_of_baseline": 1.0,
+        "upper_frac_of_baseline": null,
+        "unit": "N",
+        "kind": "physical",
+        "label": "downforce",
+        "text": "downforce >= 1 x baseline"
+       },
+       {
+        "name": "balance_front",
+        "lower": null,
+        "upper": null,
+        "lower_frac_of_baseline": 0.9,
+        "upper_frac_of_baseline": 1.1,
+        "unit": "",
+        "kind": "physical",
+        "label": "aero balance (front share)",
+        "text": "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+       }
+      ],
+      "baseline": {
+       "front_wing_aoa": 4.0,
+       "front_flap_aoa": 22.0,
+       "rear_wing_aoa": 6.0,
+       "rear_flap_aoa": 32.0,
+       "diffuser_angle": 13.0,
+       "ride_height": 0.035
+      },
+      "budget": {
+       "max_runs": 20,
+       "reserve_verify": 3,
+       "max_wall_s": null
+      },
+      "acceptance": {
+       "drag_N": 0.03,
+       "downforce_N": 0.05,
+       "balance_front": 0.05
+      },
+      "conditions": {
+       "speed_m_s": 70.0,
+       "rho_kg_m3": 1.225,
+       "nu_m2_s": 1.5e-05,
+       "ground": "moving road at the flow speed",
+       "model": "half model, symmetry plane y = 0",
+       "turbulence": "steady RANS k-omega SST, wall functions",
+       "wheels": "static walls",
+       "solver": "OpenFOAM simpleFoam"
+      },
+      "hypotheses": [
+       "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+       "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+       "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+       "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+      ]
+     },
+     "readings": [
+      {
+       "what": "speed = 70 m/s",
+       "from": "70 m/s"
+      },
+      {
+       "what": "objective: minimise drag_N",
+       "from": "Find a lower-drag aerodynamic design at 70 m/s."
+      },
+      {
+       "what": "limit: downforce_N >= baseline",
+       "from": "Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD."
+      },
+      {
+       "what": "budget = 20 simulations",
+       "from": "20 cfd"
+      },
+      {
+       "what": "final verification: 3 simulations kept for it",
+       "from": "validate the final design using cfd"
+      },
+      {
+       "what": "geometry constraints: variable bounds and the simulator's geometry checks",
+       "from": "preserve the required downforce, stay within the geometry constraints, and validate the final design using cfd"
+      }
+     ],
+     "assumptions": [
+      "added by engineering practice (not in the request): aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+     ]
+    },
+    "seconds": 0.0,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 1,
+    "tool": "plan",
+    "args": {
+     "n_doe": 10
+    },
+    "why": "split the budget",
+    "summary": {
+     "allocation": {
+      "baseline": 1,
+      "doe": 10,
+      "acquisition": 6,
+      "verification": 3,
+      "total": 20
+     },
+     "objectives": [
+      "min drag [N]"
+     ],
+     "limits": [
+      "downforce >= 1 x baseline",
+      "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+     ]
+    },
+    "seconds": 0.0,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 2,
+    "tool": "simulate_baseline",
+    "args": {},
+    "why": "the limits are relative to the baseline: measure it first",
+    "summary": {
+     "run": "run001-baseline",
+     "outputs": {
+      "drag_N": 3314.8,
+      "downforce_N": 7038.4,
+      "balance_front": 1.0147
+     },
+     "limits": [
+      "downforce >= 7038.38 N",
+      "0.913191 <= aero balance (front share) <= 1.11612"
+     ],
+     "cost_s": 714.45
+    },
+    "seconds": 0.443,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 3,
+    "tool": "space_filling",
+    "args": {
+     "n": 10
+    },
+    "why": "10 space-filling designs before any model is trusted",
+    "summary": {
+     "runs": [
+      {
+       "run": "run002-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3537.4,
+        "downforce_N": 7617.8,
+        "balance_front": 1.0945
+       }
+      },
+      {
+       "run": "run003-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3134.5,
+        "downforce_N": 5967.7,
+        "balance_front": 0.85414
+       }
+      },
+      {
+       "run": "run004-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3159.3,
+        "downforce_N": 6540.8,
+        "balance_front": 1.1042
+       }
+      },
+      {
+       "run": "run005-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3354.3,
+        "downforce_N": 8300.4,
+        "balance_front": 0.9746
+       }
+      },
+      {
+       "run": "run006-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3190.9,
+        "downforce_N": 6726.7,
+        "balance_front": 1.1715
+       }
+      },
+      {
+       "run": "run007-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 2998.2,
+        "downforce_N": 4556.2,
+        "balance_front": 1.0682
+       }
+      },
+      {
+       "run": "run008-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 2939.6,
+        "downforce_N": 7336.2,
+        "balance_front": 1.1068
+       }
+      },
+      {
+       "run": "run009-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3142.9,
+        "downforce_N": 7464.8,
+        "balance_front": 1.1037
+       }
+      },
+      {
+       "run": "run010-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3072.0,
+        "downforce_N": 8172.0,
+        "balance_front": 1.0184
+       }
+      },
+      {
+       "run": "run011-doe",
+       "ok": true,
+       "outputs": {
+        "drag_N": 3218.3,
+        "downforce_N": 4745.1,
+        "balance_front": 1.0474
+       }
+      }
+     ],
+     "budget_left": 9
+    },
+    "seconds": 4.137,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 4,
+    "tool": "learn",
+    "args": {},
+    "why": "retrain on every simulation so far and measure the held-out errors",
+    "summary": {
+     "n_train": 11,
+     "chosen": {
+      "drag_N": "mlp_ensemble",
+      "downforce_N": "mlp_ensemble",
+      "balance_front": "mlp_ensemble"
+     },
+     "held_out_rel_error": {
+      "drag_N": {
+       "gp": 0.029542,
+       "mlp_ensemble": 0.025607
+      },
+      "downforce_N": {
+       "gp": 0.15224,
+       "mlp_ensemble": 0.10114
+      },
+      "balance_front": {
+       "gp": 0.071294,
+       "mlp_ensemble": 0.076708
+      }
+     },
+     "coverage95": {
+      "drag_N": 0.72727,
+      "downforce_N": 0.72727,
+      "balance_front": 0.81818
+     },
+     "field_rmse": {
+      "all": 0.10458,
+      "front_wing": 0.24319,
+      "rear_wing": 0.25031,
+      "floor": 0.11275,
+      "body": 0.072969,
+      "diffuser": 0.13012
+     }
+    },
+    "seconds": 7.059,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 5,
+    "tool": "optimize_and_assess",
+    "args": {
+     "top": 3
+    },
+    "why": "search the surrogate and triage the candidates",
+    "summary": {
+     "counts": {
+      "favourable": 1,
+      "uncertain": 1680,
+      "out_of_domain": 2975,
+      "unlikely": 344
+     },
+     "best": {
+      "favourable": [
+       {
+        "index": 4551,
+        "predicted": {
+         "drag_N": 3106.9,
+         "downforce_N": 7513.0,
+         "balance_front": 1.0554
+        },
+        "std": {
+         "drag_N": 33.494,
+         "downforce_N": 124.36,
+         "balance_front": 0.023239
+        },
+        "p_feasible": 0.99544,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.63), P(feasible) = 1.00, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "uncertain": [
+       {
+        "index": 760,
+        "predicted": {
+         "drag_N": 2889.3,
+         "downforce_N": 6451.7,
+         "balance_front": 1.0948
+        },
+        "std": {
+         "drag_N": 81.591,
+         "downforce_N": 665.84,
+         "balance_front": 0.10352
+        },
+        "p_feasible": 0.10566,
+        "reasons": [
+         "P(feasible) = 0.11: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-5.5 % > 3.0 %",
+         "downforce_N: 95 % interval +-20.2 % > 5.0 %",
+         "balance_front: 95 % interval +-18.5 % > 5.0 %",
+         "expected Cp error in the critical region 0.075 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 619,
+        "predicted": {
+         "drag_N": 2893.0,
+         "downforce_N": 6350.1,
+         "balance_front": 1.0887
+        },
+        "std": {
+         "drag_N": 81.997,
+         "downforce_N": 659.4,
+         "balance_front": 0.10402
+        },
+        "p_feasible": 0.085485,
+        "reasons": [
+         "P(feasible) = 0.09: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-5.6 % > 3.0 %",
+         "downforce_N: 95 % interval +-20.4 % > 5.0 %",
+         "balance_front: 95 % interval +-18.7 % > 5.0 %",
+         "expected Cp error in the critical region 0.065 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 306,
+        "predicted": {
+         "drag_N": 2893.8,
+         "downforce_N": 6355.2,
+         "balance_front": 1.116
+        },
+        "std": {
+         "drag_N": 88.076,
+         "downforce_N": 673.93,
+         "balance_front": 0.092803
+        },
+        "p_feasible": 0.076641,
+        "reasons": [
+         "P(feasible) = 0.08: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-6.0 % > 3.0 %",
+         "downforce_N: 95 % interval +-20.8 % > 5.0 %",
+         "balance_front: 95 % interval +-16.3 % > 5.0 %",
+         "expected Cp error in the critical region 0.072 > 0.05"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "out_of_domain": [
+       {
+        "index": 2701,
+        "predicted": {
+         "drag_N": 2878.5,
+         "downforce_N": 5980.1,
+         "balance_front": 0.95594
+        },
+        "std": {
+         "drag_N": 54.189,
+         "downforce_N": 839.13,
+         "balance_front": 0.13701
+        },
+        "p_feasible": 0.056695,
+        "reasons": [
+         "the model is extrapolating: diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.025 is below the simulated range 0.0283 to 0.05982"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2717,
+        "predicted": {
+         "drag_N": 2878.6,
+         "downforce_N": 5966.1,
+         "balance_front": 0.97434
+        },
+        "std": {
+         "drag_N": 56.9,
+         "downforce_N": 795.5,
+         "balance_front": 0.13587
+        },
+        "p_feasible": 0.050966,
+        "reasons": [
+         "the model is extrapolating: diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.025 is below the simulated range 0.0283 to 0.05982"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2755,
+        "predicted": {
+         "drag_N": 2879.1,
+         "downforce_N": 6006.8,
+         "balance_front": 0.9456
+        },
+        "std": {
+         "drag_N": 52.533,
+         "downforce_N": 862.54,
+         "balance_front": 0.13761
+        },
+        "p_feasible": 0.061311,
+        "reasons": [
+         "the model is extrapolating: diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.025 is below the simulated range 0.0283 to 0.05982"
+        ],
+        "trust": "REJECT"
+       }
+      ]
+     },
+     "note": "predictions, not simulations"
+    },
+    "seconds": 2.832,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 6,
+    "tool": "recommend_next",
+    "args": {},
+    "why": "ask the written rule which simulation teaches the most",
+    "summary": {
+     "index": 1041,
+     "label": "out_of_domain",
+     "rule": "best prediction is out of domain",
+     "reason": "the model's best design (drag_N 2894 +- 51) lies outside the validated domain (diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982): its value is not evidence until simulated",
+     "alternatives": [
+      {
+       "index": 4551,
+       "label": "favourable",
+       "drag_N": 3106.9,
+       "std": 33.494,
+       "p_feasible": 0.995,
+       "cei": 1.8452e-06
+      },
+      {
+       "index": 440,
+       "label": "uncertain",
+       "drag_N": 2904.7,
+       "std": 51.646,
+       "p_feasible": 0.697,
+       "cei": 29.654
+      },
+      {
+       "index": 567,
+       "label": "uncertain",
+       "drag_N": 2905.7,
+       "std": 58.003,
+       "p_feasible": 0.675,
+       "cei": 29.649
+      }
+     ]
+    },
+    "seconds": 0.003,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 7,
+    "tool": "simulate_candidate",
+    "args": {
+     "index": 1041,
+     "reason": "best prediction is out of domain: the model's best design (drag_N 2894 +- 51) lies outside the validated domain (diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982): its value is not evidence until simulated"
+    },
+    "why": "best prediction is out of domain",
+    "summary": {
+     "run": "run012-acquisition",
+     "judged_before": "out_of_domain",
+     "predicted": {
+      "drag_N": 2893.8,
+      "downforce_N": 7279.3,
+      "balance_front": 1.051
+     },
+     "simulated": {
+      "drag_N": 2869.9,
+      "downforce_N": 7337.5,
+      "CD": 0.57498,
+      "CL": -1.4701,
+      "frontal_area_m2": 1.6631,
+      "downforce_front_wing_N": 7631.2,
+      "drag_front_wing_N": 808.18,
+      "downforce_rear_wing_N": 1269.1,
+      "drag_rear_wing_N": 237.86,
+      "downforce_floor_N": 1201.2,
+      "downforce_body_N": -1543.6,
+      "downforce_wheels_N": -1176.5,
+      "drag_wheels_N": 1213.5,
+      "balance_front": 1.1001
+     },
+     "rel_error": {
+      "drag_N": 0.0083273,
+      "downforce_N": 0.0079347,
+      "balance_front": 0.044645
+     },
+     "after": "verified",
+     "budget_left": 8
+    },
+    "seconds": 0.411,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 8,
+    "tool": "learn",
+    "args": {},
+    "why": "retrain on every simulation so far and measure the held-out errors",
+    "summary": {
+     "n_train": 12,
+     "chosen": {
+      "drag_N": "mlp_ensemble",
+      "downforce_N": "mlp_ensemble",
+      "balance_front": "mlp_ensemble"
+     },
+     "held_out_rel_error": {
+      "drag_N": {
+       "gp": 0.017698,
+       "mlp_ensemble": 0.025527
+      },
+      "downforce_N": {
+       "gp": 0.13613,
+       "mlp_ensemble": 0.098871
+      },
+      "balance_front": {
+       "gp": 0.074959,
+       "mlp_ensemble": 0.07593
+      }
+     },
+     "coverage95": {
+      "drag_N": 0.83333,
+      "downforce_N": 0.91667,
+      "balance_front": 0.83333
+     },
+     "field_rmse": {
+      "all": 0.10829,
+      "front_wing": 0.2533,
+      "rear_wing": 0.23821,
+      "floor": 0.11972,
+      "body": 0.077644,
+      "diffuser": 0.15035
+     }
+    },
+    "seconds": 8.038,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 9,
+    "tool": "optimize_and_assess",
+    "args": {
+     "top": 3
+    },
+    "why": "search the surrogate and triage the candidates",
+    "summary": {
+     "counts": {
+      "favourable": 19,
+      "uncertain": 2057,
+      "out_of_domain": 2180,
+      "unlikely": 744
+     },
+     "best": {
+      "favourable": [
+       {
+        "index": 871,
+        "predicted": {
+         "drag_N": 2911.9,
+         "downforce_N": 8292.7,
+         "balance_front": 1.0786
+        },
+        "std": {
+         "drag_N": 14.925,
+         "downforce_N": 205.71,
+         "balance_front": 0.018317
+        },
+        "p_feasible": 0.97967,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.70), P(feasible) = 0.98, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 382,
+        "predicted": {
+         "drag_N": 2916.5,
+         "downforce_N": 7652.3,
+         "balance_front": 1.103
+        },
+        "std": {
+         "drag_N": 18.988,
+         "downforce_N": 128.44,
+         "balance_front": 0.0078351
+        },
+        "p_feasible": 0.95359,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.52), P(feasible) = 0.95, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 783,
+        "predicted": {
+         "drag_N": 2918.2,
+         "downforce_N": 8038.6,
+         "balance_front": 1.0639
+        },
+        "std": {
+         "drag_N": 12.676,
+         "downforce_N": 152.54,
+         "balance_front": 0.016877
+        },
+        "p_feasible": 0.99902,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.54), P(feasible) = 1.00, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "uncertain": [
+       {
+        "index": 1836,
+        "predicted": {
+         "drag_N": 2823.8,
+         "downforce_N": 6100.4,
+         "balance_front": 1.0748
+        },
+        "std": {
+         "drag_N": 60.538,
+         "downforce_N": 677.85,
+         "balance_front": 0.05191
+        },
+        "p_feasible": 0.06543,
+        "reasons": [
+         "P(feasible) = 0.07: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-4.2 % > 3.0 %",
+         "downforce_N: 95 % interval +-21.8 % > 5.0 %",
+         "balance_front: 95 % interval +-9.5 % > 5.0 %",
+         "expected Cp error in the critical region 0.070 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 2527,
+        "predicted": {
+         "drag_N": 2824.0,
+         "downforce_N": 6108.0,
+         "balance_front": 1.0739
+        },
+        "std": {
+         "drag_N": 60.18,
+         "downforce_N": 679.52,
+         "balance_front": 0.051919
+        },
+        "p_feasible": 0.067638,
+        "reasons": [
+         "P(feasible) = 0.07: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-4.2 % > 3.0 %",
+         "downforce_N: 95 % interval +-21.8 % > 5.0 %",
+         "balance_front: 95 % interval +-9.5 % > 5.0 %",
+         "expected Cp error in the critical region 0.070 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 2287,
+        "predicted": {
+         "drag_N": 2828.3,
+         "downforce_N": 6185.4,
+         "balance_front": 1.0813
+        },
+        "std": {
+         "drag_N": 57.95,
+         "downforce_N": 635.17,
+         "balance_front": 0.047462
+        },
+        "p_feasible": 0.068873,
+        "reasons": [
+         "P(feasible) = 0.07: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-4.0 % > 3.0 %",
+         "downforce_N: 95 % interval +-20.1 % > 5.0 %",
+         "balance_front: 95 % interval +-8.6 % > 5.0 %",
+         "expected Cp error in the critical region 0.069 > 0.05"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "out_of_domain": [
+       {
+        "index": 2784,
+        "predicted": {
+         "drag_N": 2822.3,
+         "downforce_N": 6117.4,
+         "balance_front": 1.0605
+        },
+        "std": {
+         "drag_N": 61.687,
+         "downforce_N": 788.71,
+         "balance_front": 0.052342
+        },
+        "p_feasible": 0.10373,
+        "reasons": [
+         "the model is extrapolating: front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2586,
+        "predicted": {
+         "drag_N": 2823.6,
+         "downforce_N": 6092.4,
+         "balance_front": 1.0769
+        },
+        "std": {
+         "drag_N": 62.794,
+         "downforce_N": 725.68,
+         "balance_front": 0.048649
+        },
+        "p_feasible": 0.075973,
+        "reasons": [
+         "the model is extrapolating: front_wing_aoa = 0 is below the simulated range 0.458 to 4.832"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2314,
+        "predicted": {
+         "drag_N": 2824.1,
+         "downforce_N": 6163.7,
+         "balance_front": 1.0629
+        },
+        "std": {
+         "drag_N": 71.134,
+         "downforce_N": 599.9,
+         "balance_front": 0.082559
+        },
+        "p_feasible": 0.051737,
+        "reasons": [
+         "the model is extrapolating: front_flap_aoa = 12 is below the simulated range 13.1 to 29.51"
+        ],
+        "trust": "REJECT"
+       }
+      ]
+     },
+     "note": "predictions, not simulations"
+    },
+    "seconds": 2.421,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 10,
+    "tool": "recommend_next",
+    "args": {},
+    "why": "ask the written rule which simulation teaches the most",
+    "summary": {
+     "index": 2959,
+     "label": "out_of_domain",
+     "rule": "best prediction is out of domain",
+     "reason": "the model's best design (drag_N 2843 +- 29) lies outside the validated domain (front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51): its value is not evidence until simulated",
+     "alternatives": [
+      {
+       "index": 382,
+       "label": "favourable",
+       "drag_N": 2916.5,
+       "std": 18.988,
+       "p_feasible": 0.954,
+       "cei": 0.041262
+      },
+      {
+       "index": 871,
+       "label": "favourable",
+       "drag_N": 2911.9,
+       "std": 14.925,
+       "p_feasible": 0.98,
+       "cei": 0.010612
+      },
+      {
+       "index": 1199,
+       "label": "uncertain",
+       "drag_N": 2851.7,
+       "std": 29.198,
+       "p_feasible": 0.644,
+       "cei": 14.732
+      },
+      {
+       "index": 825,
+       "label": "uncertain",
+       "drag_N": 2849.6,
+       "std": 37.564,
+       "p_feasible": 0.538,
+       "cei": 14.676
+      }
+     ]
+    },
+    "seconds": 0.003,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 11,
+    "tool": "simulate_candidate",
+    "args": {
+     "index": 2959,
+     "reason": "best prediction is out of domain: the model's best design (drag_N 2843 +- 29) lies outside the validated domain (front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51): its value is not evidence until simulated"
+    },
+    "why": "best prediction is out of domain",
+    "summary": {
+     "run": "run013-acquisition",
+     "judged_before": "out_of_domain",
+     "predicted": {
+      "drag_N": 2842.9,
+      "downforce_N": 7357.1,
+      "balance_front": 0.97539
+     },
+     "simulated": {
+      "drag_N": 2878.6,
+      "downforce_N": 7389.6,
+      "CD": 0.57834,
+      "CL": -1.4847,
+      "frontal_area_m2": 1.6584,
+      "downforce_front_wing_N": 6784.2,
+      "drag_front_wing_N": 526.17,
+      "downforce_rear_wing_N": 1796.8,
+      "drag_rear_wing_N": 271.47,
+      "downforce_floor_N": 1765.0,
+      "downforce_body_N": -1833.6,
+      "downforce_wheels_N": -1087.9,
+      "drag_wheels_N": 1207.4,
+      "balance_front": 0.95588
+     },
+     "rel_error": {
+      "drag_N": 0.012397,
+      "downforce_N": 0.0044042,
+      "balance_front": 0.020413
+     },
+     "after": "verified",
+     "budget_left": 7
+    },
+    "seconds": 0.445,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 12,
+    "tool": "learn",
+    "args": {},
+    "why": "retrain on every simulation so far and measure the held-out errors",
+    "summary": {
+     "n_train": 13,
+     "chosen": {
+      "drag_N": "mlp_ensemble",
+      "downforce_N": "mlp_ensemble",
+      "balance_front": "mlp_ensemble"
+     },
+     "held_out_rel_error": {
+      "drag_N": {
+       "gp": 0.014836,
+       "mlp_ensemble": 0.017612
+      },
+      "downforce_N": {
+       "gp": 0.14643,
+       "mlp_ensemble": 0.11867
+      },
+      "balance_front": {
+       "gp": 0.078834,
+       "mlp_ensemble": 0.06349
+      }
+     },
+     "coverage95": {
+      "drag_N": 0.76923,
+      "downforce_N": 0.76923,
+      "balance_front": 0.76923
+     },
+     "field_rmse": {
+      "all": 0.10203,
+      "front_wing": 0.2379,
+      "rear_wing": 0.24696,
+      "floor": 0.10194,
+      "body": 0.07409,
+      "diffuser": 0.11574
+     }
+    },
+    "seconds": 8.405,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 13,
+    "tool": "optimize_and_assess",
+    "args": {
+     "top": 3
+    },
+    "why": "search the surrogate and triage the candidates",
+    "summary": {
+     "counts": {
+      "favourable": 5,
+      "uncertain": 3701,
+      "out_of_domain": 18,
+      "unlikely": 1276
+     },
+     "best": {
+      "favourable": [
+       {
+        "index": 305,
+        "predicted": {
+         "drag_N": 2872.3,
+         "downforce_N": 7306.2,
+         "balance_front": 1.072
+        },
+        "std": {
+         "drag_N": 25.171,
+         "downforce_N": 106.11,
+         "balance_front": 0.01663
+        },
+        "p_feasible": 0.99026,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.14), P(feasible) = 0.99, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 616,
+        "predicted": {
+         "drag_N": 2893.2,
+         "downforce_N": 7254.1,
+         "balance_front": 1.0533
+        },
+        "std": {
+         "drag_N": 29.142,
+         "downforce_N": 133.81,
+         "balance_front": 0.023439
+        },
+        "p_feasible": 0.94303,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.29), P(feasible) = 0.94, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 241,
+        "predicted": {
+         "drag_N": 2912.5,
+         "downforce_N": 7836.4,
+         "balance_front": 1.0724
+        },
+        "std": {
+         "drag_N": 12.542,
+         "downforce_N": 176.25,
+         "balance_front": 0.023848
+        },
+        "p_feasible": 0.9667,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.64), P(feasible) = 0.97, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "uncertain": [
+       {
+        "index": 904,
+        "predicted": {
+         "drag_N": 2852.4,
+         "downforce_N": 6771.7,
+         "balance_front": 1.0748
+        },
+        "std": {
+         "drag_N": 40.231,
+         "downforce_N": 193.61,
+         "balance_front": 0.022375
+        },
+        "p_feasible": 0.081449,
+        "reasons": [
+         "P(feasible) = 0.08: the prediction cannot tell whether the constraints hold",
+         "downforce_N: 95 % interval +-5.6 % > 5.0 %"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 916,
+        "predicted": {
+         "drag_N": 2852.5,
+         "downforce_N": 6929.7,
+         "balance_front": 1.1581
+        },
+        "std": {
+         "drag_N": 20.07,
+         "downforce_N": 147.85,
+         "balance_front": 0.072506
+        },
+        "p_feasible": 0.064999,
+        "reasons": [
+         "P(feasible) = 0.06: the prediction cannot tell whether the constraints hold",
+         "balance_front: 95 % interval +-12.3 % > 5.0 %",
+         "expected Cp error in the critical region 0.065 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 1914,
+        "predicted": {
+         "drag_N": 2853.2,
+         "downforce_N": 6975.5,
+         "balance_front": 1.1578
+        },
+        "std": {
+         "drag_N": 18.419,
+         "downforce_N": 163.03,
+         "balance_front": 0.070412
+        },
+        "p_feasible": 0.096873,
+        "reasons": [
+         "P(feasible) = 0.10: the prediction cannot tell whether the constraints hold",
+         "balance_front: 95 % interval +-11.9 % > 5.0 %",
+         "expected Cp error in the critical region 0.064 > 0.05"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "out_of_domain": [
+       {
+        "index": 1755,
+        "predicted": {
+         "drag_N": 3254.8,
+         "downforce_N": 9257.5,
+         "balance_front": 1.0497
+        },
+        "std": {
+         "drag_N": 94.586,
+         "downforce_N": 840.97,
+         "balance_front": 0.051205
+        },
+        "p_feasible": 0.89544,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.51 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2045,
+        "predicted": {
+         "drag_N": 3261.8,
+         "downforce_N": 9363.8,
+         "balance_front": 1.0454
+        },
+        "std": {
+         "drag_N": 99.552,
+         "downforce_N": 850.56,
+         "balance_front": 0.05123
+        },
+        "p_feasible": 0.90903,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.52 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2691,
+        "predicted": {
+         "drag_N": 3263.2,
+         "downforce_N": 9405.2,
+         "balance_front": 1.0451
+        },
+        "std": {
+         "drag_N": 101.7,
+         "downforce_N": 856.52,
+         "balance_front": 0.050823
+        },
+        "p_feasible": 0.91185,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.52 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       }
+      ]
+     },
+     "note": "predictions, not simulations"
+    },
+    "seconds": 3.166,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 14,
+    "tool": "recommend_next",
+    "args": {},
+    "why": "ask the written rule which simulation teaches the most",
+    "summary": {
+     "index": 2781,
+     "label": "uncertain",
+     "rule": "resolve uncertainty where the decision changes",
+     "reason": "highest constrained expected improvement (20.23) is an uncertain design: P(feasible) = 0.82: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-3.2 % > 3.0 %; balance_front: 95 % interval +-12.8 % > 5.0 %",
+     "alternatives": [
+      {
+       "index": 305,
+       "label": "favourable",
+       "drag_N": 2872.3,
+       "std": 25.171,
+       "p_feasible": 0.99,
+       "cei": 8.7824
+      },
+      {
+       "index": 616,
+       "label": "favourable",
+       "drag_N": 2893.2,
+       "std": 29.142,
+       "p_feasible": 0.943,
+       "cei": 3.2916
+      },
+      {
+       "index": 2781,
+       "label": "uncertain",
+       "drag_N": 2859.2,
+       "std": 47.124,
+       "p_feasible": 0.822,
+       "cei": 20.231
+      },
+      {
+       "index": 1618,
+       "label": "uncertain",
+       "drag_N": 2860.4,
+       "std": 44.839,
+       "p_feasible": 0.866,
+       "cei": 19.907
+      }
+     ]
+    },
+    "seconds": 0.005,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 15,
+    "tool": "simulate_candidate",
+    "args": {
+     "index": 2781,
+     "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (20.23) is an uncertain design: P(feasible) = 0.82: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-3.2 % > 3.0 %; balance_front: 95 % interval +-12.8 % > 5.0 %"
+    },
+    "why": "resolve uncertainty where the decision changes",
+    "summary": {
+     "run": "run014-acquisition",
+     "judged_before": "uncertain",
+     "predicted": {
+      "drag_N": 2859.2,
+      "downforce_N": 7290.6,
+      "balance_front": 1.0068
+     },
+     "simulated": {
+      "drag_N": 2896.6,
+      "downforce_N": 7810.5,
+      "CD": 0.58033,
+      "CL": -1.5648,
+      "frontal_area_m2": 1.6631,
+      "downforce_front_wing_N": 7583.9,
+      "drag_front_wing_N": 663.86,
+      "downforce_rear_wing_N": 1652.1,
+      "drag_rear_wing_N": 248.43,
+      "downforce_floor_N": 1574.5,
+      "downforce_body_N": -1941.7,
+      "downforce_wheels_N": -1018.7,
+      "drag_wheels_N": 1033.5,
+      "balance_front": 1.0175
+     },
+     "rel_error": {
+      "drag_N": 0.012891,
+      "downforce_N": 0.06657,
+      "balance_front": 0.010447
+     },
+     "after": "verified",
+     "budget_left": 6
+    },
+    "seconds": 0.408,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 16,
+    "tool": "learn",
+    "args": {},
+    "why": "retrain on every simulation so far and measure the held-out errors",
+    "summary": {
+     "n_train": 14,
+     "chosen": {
+      "drag_N": "gp",
+      "downforce_N": "mlp_ensemble",
+      "balance_front": "mlp_ensemble"
+     },
+     "held_out_rel_error": {
+      "drag_N": {
+       "gp": 0.01161,
+       "mlp_ensemble": 0.014461
+      },
+      "downforce_N": {
+       "gp": 0.1259,
+       "mlp_ensemble": 0.090507
+      },
+      "balance_front": {
+       "gp": 0.084068,
+       "mlp_ensemble": 0.047
+      }
+     },
+     "coverage95": {
+      "drag_N": 0.57143,
+      "downforce_N": 0.78571,
+      "balance_front": 0.78571
+     },
+     "field_rmse": {
+      "all": 0.097458,
+      "front_wing": 0.22717,
+      "rear_wing": 0.19494,
+      "floor": 0.10886,
+      "body": 0.071317,
+      "diffuser": 0.11849
+     }
+    },
+    "seconds": 7.977,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 17,
+    "tool": "optimize_and_assess",
+    "args": {
+     "top": 3
+    },
+    "why": "search the surrogate and triage the candidates",
+    "summary": {
+     "counts": {
+      "favourable": 20,
+      "uncertain": 3388,
+      "out_of_domain": 28,
+      "unlikely": 1564
+     },
+     "best": {
+      "favourable": [
+       {
+        "index": 471,
+        "predicted": {
+         "drag_N": 2888.0,
+         "downforce_N": 7793.7,
+         "balance_front": 1.0119
+        },
+        "std": {
+         "drag_N": 13.417,
+         "downforce_N": 75.154,
+         "balance_front": 0.020843
+        },
+        "p_feasible": 1.0,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.29), P(feasible) = 1.00, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 455,
+        "predicted": {
+         "drag_N": 2891.5,
+         "downforce_N": 7443.1,
+         "balance_front": 1.0995
+        },
+        "std": {
+         "drag_N": 13.984,
+         "downforce_N": 82.919,
+         "balance_front": 0.0018108
+        },
+        "p_feasible": 1.0,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.26), P(feasible) = 1.00, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 2779,
+        "predicted": {
+         "drag_N": 2901.7,
+         "downforce_N": 7698.0,
+         "balance_front": 1.1023
+        },
+        "std": {
+         "drag_N": 13.401,
+         "downforce_N": 162.67,
+         "balance_front": 0.0055733
+        },
+        "p_feasible": 0.99328,
+        "reasons": [
+         "inside the validated domain (spacing ratio 0.20), P(feasible) = 0.99, uncertainty within the acceptance tolerances"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "uncertain": [
+       {
+        "index": 384,
+        "predicted": {
+         "drag_N": 2861.5,
+         "downforce_N": 6107.8,
+         "balance_front": 1.0084
+        },
+        "std": {
+         "drag_N": 21.071,
+         "downforce_N": 610.78,
+         "balance_front": 0.03855
+        },
+        "p_feasible": 0.063214,
+        "reasons": [
+         "P(feasible) = 0.06: the prediction cannot tell whether the constraints hold",
+         "downforce_N: 95 % interval +-19.6 % > 5.0 %",
+         "balance_front: 95 % interval +-7.5 % > 5.0 %",
+         "expected Cp error in the critical region 0.054 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 1326,
+        "predicted": {
+         "drag_N": 2861.6,
+         "downforce_N": 7024.8,
+         "balance_front": 1.1281
+        },
+        "std": {
+         "drag_N": 19.201,
+         "downforce_N": 161.85,
+         "balance_front": 0.0098726
+        },
+        "p_feasible": 0.052913,
+        "reasons": [
+         "P(feasible) = 0.05: the prediction cannot tell whether the constraints hold"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 746,
+        "predicted": {
+         "drag_N": 2865.1,
+         "downforce_N": 6503.7,
+         "balance_front": 1.0878
+        },
+        "std": {
+         "drag_N": 22.013,
+         "downforce_N": 509.69,
+         "balance_front": 0.019608
+        },
+        "p_feasible": 0.13612,
+        "reasons": [
+         "P(feasible) = 0.14: the prediction cannot tell whether the constraints hold",
+         "downforce_N: 95 % interval +-15.4 % > 5.0 %",
+         "expected Cp error in the critical region 0.050 > 0.05"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "out_of_domain": [
+       {
+        "index": 2152,
+        "predicted": {
+         "drag_N": 2935.5,
+         "downforce_N": 6871.7,
+         "balance_front": 1.15
+        },
+        "std": {
+         "drag_N": 34.22,
+         "downforce_N": 576.61,
+         "balance_front": 0.064735
+        },
+        "p_feasible": 0.11604,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.59 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 222,
+        "predicted": {
+         "drag_N": 2944.1,
+         "downforce_N": 6168.2,
+         "balance_front": 1.0917
+        },
+        "std": {
+         "drag_N": 34.37,
+         "downforce_N": 887.78,
+         "balance_front": 0.041975
+        },
+        "p_feasible": 0.11773,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.51 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2455,
+        "predicted": {
+         "drag_N": 2949.8,
+         "downforce_N": 6960.7,
+         "balance_front": 1.1383
+        },
+        "std": {
+         "drag_N": 30.621,
+         "downforce_N": 568.02,
+         "balance_front": 0.07016
+        },
+        "p_feasible": 0.16754,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.56 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       }
+      ]
+     },
+     "note": "predictions, not simulations"
+    },
+    "seconds": 2.679,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 18,
+    "tool": "recommend_next",
+    "args": {},
+    "why": "ask the written rule which simulation teaches the most",
+    "summary": {
+     "index": 990,
+     "label": "uncertain",
+     "rule": "resolve uncertainty where the decision changes",
+     "reason": "highest constrained expected improvement (5.846) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold",
+     "alternatives": [
+      {
+       "index": 471,
+       "label": "favourable",
+       "drag_N": 2888.0,
+       "std": 13.417,
+       "p_feasible": 1.0,
+       "cei": 0.54742
+      },
+      {
+       "index": 455,
+       "label": "favourable",
+       "drag_N": 2891.5,
+       "std": 13.984,
+       "p_feasible": 1.0,
+       "cei": 0.36858
+      },
+      {
+       "index": 990,
+       "label": "uncertain",
+       "drag_N": 2868.9,
+       "std": 16.213,
+       "p_feasible": 0.84,
+       "cei": 5.8458
+      },
+      {
+       "index": 859,
+       "label": "uncertain",
+       "drag_N": 2874.2,
+       "std": 15.056,
+       "p_feasible": 0.801,
+       "cei": 3.2612
+      }
+     ]
+    },
+    "seconds": 0.003,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 19,
+    "tool": "simulate_candidate",
+    "args": {
+     "index": 990,
+     "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (5.846) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold"
+    },
+    "why": "resolve uncertainty where the decision changes",
+    "summary": {
+     "run": "run015-acquisition",
+     "judged_before": "uncertain",
+     "predicted": {
+      "drag_N": 2868.9,
+      "downforce_N": 7223.3,
+      "balance_front": 1.1122
+     },
+     "simulated": {
+      "drag_N": 2829.6,
+      "downforce_N": 6946.6,
+      "CD": 0.56691,
+      "CL": -1.3917,
+      "frontal_area_m2": 1.6631,
+      "downforce_front_wing_N": 7406.2,
+      "drag_front_wing_N": 823.66,
+      "downforce_rear_wing_N": 1296.2,
+      "drag_rear_wing_N": 197.96,
+      "downforce_floor_N": 1184.6,
+      "downforce_body_N": -1788.9,
+      "downforce_wheels_N": -1103.2,
+      "drag_wheels_N": 983.63,
+      "balance_front": 1.1043
+     },
+     "rel_error": {
+      "drag_N": 0.013889,
+      "downforce_N": 0.039845,
+      "balance_front": 0.0072215
+     },
+     "after": "rejected by reference",
+     "budget_left": 5
+    },
+    "seconds": 0.587,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 20,
+    "tool": "learn",
+    "args": {},
+    "why": "retrain on every simulation so far and measure the held-out errors",
+    "summary": {
+     "n_train": 15,
+     "chosen": {
+      "drag_N": "gp",
+      "downforce_N": "gp",
+      "balance_front": "mlp_ensemble"
+     },
+     "held_out_rel_error": {
+      "drag_N": {
+       "gp": 0.011917,
+       "mlp_ensemble": 0.01815
+      },
+      "downforce_N": {
+       "gp": 0.090584,
+       "mlp_ensemble": 0.082954
+      },
+      "balance_front": {
+       "gp": 0.053318,
+       "mlp_ensemble": 0.034583
+      }
+     },
+     "coverage95": {
+      "drag_N": 0.8,
+      "downforce_N": 0.53333,
+      "balance_front": 0.93333
+     },
+     "field_rmse": {
+      "all": 0.10175,
+      "front_wing": 0.2277,
+      "rear_wing": 0.21662,
+      "floor": 0.11748,
+      "body": 0.073592,
+      "diffuser": 0.12214
+     }
+    },
+    "seconds": 9.501,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 21,
+    "tool": "optimize_and_assess",
+    "args": {
+     "top": 3
+    },
+    "why": "search the surrogate and triage the candidates",
+    "summary": {
+     "counts": {
+      "favourable": 0,
+      "uncertain": 3210,
+      "out_of_domain": 990,
+      "unlikely": 800
+     },
+     "best": {
+      "favourable": [],
+      "uncertain": [
+       {
+        "index": 2888,
+        "predicted": {
+         "drag_N": 2821.3,
+         "downforce_N": 6164.6,
+         "balance_front": 1.0415
+        },
+        "std": {
+         "drag_N": 29.625,
+         "downforce_N": 596.38,
+         "balance_front": 0.034337
+        },
+        "p_feasible": 0.070381,
+        "reasons": [
+         "P(feasible) = 0.07: the prediction cannot tell whether the constraints hold",
+         "downforce_N: 95 % interval +-19.0 % > 5.0 %",
+         "balance_front: 95 % interval +-6.5 % > 5.0 %",
+         "expected Cp error in the critical region 0.075 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 1553,
+        "predicted": {
+         "drag_N": 2821.3,
+         "downforce_N": 6295.9,
+         "balance_front": 1.0908
+        },
+        "std": {
+         "drag_N": 29.898,
+         "downforce_N": 503.16,
+         "balance_front": 0.028501
+        },
+        "p_feasible": 0.056916,
+        "reasons": [
+         "P(feasible) = 0.06: the prediction cannot tell whether the constraints hold",
+         "downforce_N: 95 % interval +-15.7 % > 5.0 %",
+         "balance_front: 95 % interval +-5.1 % > 5.0 %",
+         "expected Cp error in the critical region 0.078 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 2206,
+        "predicted": {
+         "drag_N": 2821.4,
+         "downforce_N": 6164.9,
+         "balance_front": 1.0332
+        },
+        "std": {
+         "drag_N": 29.581,
+         "downforce_N": 596.29,
+         "balance_front": 0.043365
+        },
+        "p_feasible": 0.069285,
+        "reasons": [
+         "P(feasible) = 0.07: the prediction cannot tell whether the constraints hold",
+         "downforce_N: 95 % interval +-19.0 % > 5.0 %",
+         "balance_front: 95 % interval +-8.2 % > 5.0 %",
+         "expected Cp error in the critical region 0.067 > 0.05"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "out_of_domain": [
+       {
+        "index": 2102,
+        "predicted": {
+         "drag_N": 2820.7,
+         "downforce_N": 6066.6,
+         "balance_front": 1.0535
+        },
+        "std": {
+         "drag_N": 30.725,
+         "downforce_N": 610.36,
+         "balance_front": 0.035007
+        },
+        "p_feasible": 0.053624,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.91 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2329,
+        "predicted": {
+         "drag_N": 2820.7,
+         "downforce_N": 6066.6,
+         "balance_front": 1.0535
+        },
+        "std": {
+         "drag_N": 30.725,
+         "downforce_N": 610.36,
+         "balance_front": 0.035007
+        },
+        "p_feasible": 0.053624,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.91 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2646,
+        "predicted": {
+         "drag_N": 2820.7,
+         "downforce_N": 6066.6,
+         "balance_front": 1.0535
+        },
+        "std": {
+         "drag_N": 30.725,
+         "downforce_N": 610.36,
+         "balance_front": 0.035007
+        },
+        "p_feasible": 0.053624,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.91 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       }
+      ]
+     },
+     "note": "predictions, not simulations"
+    },
+    "seconds": 2.89,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 22,
+    "tool": "recommend_next",
+    "args": {},
+    "why": "ask the written rule which simulation teaches the most",
+    "summary": {
+     "index": 1837,
+     "label": "uncertain",
+     "rule": "resolve uncertainty where the decision changes",
+     "reason": "highest constrained expected improvement (16.69) is an uncertain design: P(feasible) = 0.73: the prediction cannot tell whether the constraints hold; downforce_N: 95 % interval +-7.8 % > 5.0 %; balance_front: 95 % interval +-5.7 % > 5.0 %; expected Cp error in the critical region 0.078 > 0.05",
+     "alternatives": [
+      {
+       "index": 1837,
+       "label": "uncertain",
+       "drag_N": 2849.4,
+       "std": 23.223,
+       "p_feasible": 0.73,
+       "cei": 16.693
+      },
+      {
+       "index": 1974,
+       "label": "uncertain",
+       "drag_N": 2849.4,
+       "std": 23.223,
+       "p_feasible": 0.73,
+       "cei": 16.693
+      }
+     ]
+    },
+    "seconds": 0.003,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 23,
+    "tool": "simulate_candidate",
+    "args": {
+     "index": 1837,
+     "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (16.69) is an uncertain design: P(feasible) = 0.73: the prediction cannot tell whether the constraints hold; downforce_N: 95 % interval +-7.8 % > 5.0 %; balance_front: 95 % interval +-5.7 % > 5.0 %; expected Cp error in the critical region 0.078 > 0.05"
+    },
+    "why": "resolve uncertainty where the decision changes",
+    "summary": {
+     "run": "run016-acquisition",
+     "judged_before": "uncertain",
+     "predicted": {
+      "drag_N": 2849.4,
+      "downforce_N": 7256.0,
+      "balance_front": 1.0674
+     },
+     "simulated": {
+      "drag_N": 3035.8,
+      "downforce_N": 6776.5,
+      "CD": 0.61335,
+      "CL": -1.3691,
+      "frontal_area_m2": 1.6491,
+      "downforce_front_wing_N": 7249.2,
+      "drag_front_wing_N": 729.78,
+      "downforce_rear_wing_N": 1261.4,
+      "drag_rear_wing_N": 277.2,
+      "downforce_floor_N": 1219.2,
+      "downforce_body_N": -1762.9,
+      "downforce_wheels_N": -1149.8,
+      "drag_wheels_N": 1326.2,
+      "balance_front": 1.1114
+     },
+     "rel_error": {
+      "drag_N": 0.061395,
+      "downforce_N": 0.07075,
+      "balance_front": 0.039597
+     },
+     "after": "rejected by reference",
+     "budget_left": 4
+    },
+    "seconds": 0.399,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 24,
+    "tool": "learn",
+    "args": {},
+    "why": "retrain on every simulation so far and measure the held-out errors",
+    "summary": {
+     "n_train": 16,
+     "chosen": {
+      "drag_N": "mlp_ensemble",
+      "downforce_N": "mlp_ensemble",
+      "balance_front": "mlp_ensemble"
+     },
+     "held_out_rel_error": {
+      "drag_N": {
+       "gp": 0.020234,
+       "mlp_ensemble": 0.017718
+      },
+      "downforce_N": {
+       "gp": 0.11975,
+       "mlp_ensemble": 0.086313
+      },
+      "balance_front": {
+       "gp": 0.051544,
+       "mlp_ensemble": 0.039438
+      }
+     },
+     "coverage95": {
+      "drag_N": 0.9375,
+      "downforce_N": 0.8125,
+      "balance_front": 0.9375
+     },
+     "field_rmse": {
+      "all": 0.10071,
+      "front_wing": 0.23462,
+      "rear_wing": 0.21044,
+      "floor": 0.10803,
+      "body": 0.074374,
+      "diffuser": 0.11596
+     }
+    },
+    "seconds": 11.201,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 25,
+    "tool": "optimize_and_assess",
+    "args": {
+     "top": 3
+    },
+    "why": "search the surrogate and triage the candidates",
+    "summary": {
+     "counts": {
+      "favourable": 0,
+      "uncertain": 3397,
+      "out_of_domain": 131,
+      "unlikely": 1472
+     },
+     "best": {
+      "favourable": [],
+      "uncertain": [
+       {
+        "index": 2968,
+        "predicted": {
+         "drag_N": 2703.4,
+         "downforce_N": 6668.9,
+         "balance_front": 1.1157
+        },
+        "std": {
+         "drag_N": 94.875,
+         "downforce_N": 513.98,
+         "balance_front": 0.013831
+        },
+        "p_feasible": 0.12076,
+        "reasons": [
+         "P(feasible) = 0.12: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-6.9 % > 3.0 %",
+         "downforce_N: 95 % interval +-15.1 % > 5.0 %",
+         "expected Cp error in the critical region 0.077 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 1847,
+        "predicted": {
+         "drag_N": 2710.1,
+         "downforce_N": 7132.9,
+         "balance_front": 1.1388
+        },
+        "std": {
+         "drag_N": 97.105,
+         "downforce_N": 521.91,
+         "balance_front": 0.01752
+        },
+        "p_feasible": 0.055657,
+        "reasons": [
+         "P(feasible) = 0.06: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-7.0 % > 3.0 %",
+         "downforce_N: 95 % interval +-14.3 % > 5.0 %",
+         "expected Cp error in the critical region 0.083 > 0.05"
+        ],
+        "trust": "REVIEW"
+       },
+       {
+        "index": 1823,
+        "predicted": {
+         "drag_N": 2721.2,
+         "downforce_N": 7482.9,
+         "balance_front": 1.1491
+        },
+        "std": {
+         "drag_N": 100.18,
+         "downforce_N": 502.74,
+         "balance_front": 0.02157
+        },
+        "p_feasible": 0.051291,
+        "reasons": [
+         "P(feasible) = 0.05: the prediction cannot tell whether the constraints hold",
+         "drag_N: 95 % interval +-7.2 % > 3.0 %",
+         "downforce_N: 95 % interval +-13.2 % > 5.0 %",
+         "expected Cp error in the critical region 0.084 > 0.05"
+        ],
+        "trust": "REVIEW"
+       }
+      ],
+      "out_of_domain": [
+       {
+        "index": 170,
+        "predicted": {
+         "drag_N": 2886.4,
+         "downforce_N": 6438.5,
+         "balance_front": 1.0596
+        },
+        "std": {
+         "drag_N": 53.079,
+         "downforce_N": 540.82,
+         "balance_front": 0.046093
+        },
+        "p_feasible": 0.11889,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.55 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 206,
+        "predicted": {
+         "drag_N": 2928.1,
+         "downforce_N": 6611.8,
+         "balance_front": 1.0507
+        },
+        "std": {
+         "drag_N": 50.438,
+         "downforce_N": 511.04,
+         "balance_front": 0.044623
+        },
+        "p_feasible": 0.18737,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.52 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       },
+       {
+        "index": 2946,
+        "predicted": {
+         "drag_N": 3071.1,
+         "downforce_N": 7970.8,
+         "balance_front": 1.071
+        },
+        "std": {
+         "drag_N": 124.18,
+         "downforce_N": 945.45,
+         "balance_front": 0.023545
+        },
+        "p_feasible": 0.81491,
+        "reasons": [
+         "the model is extrapolating: nearest simulated design is 1.51 x the typical spacing away (limit 1.5)"
+        ],
+        "trust": "REJECT"
+       }
+      ]
+     },
+     "note": "predictions, not simulations"
+    },
+    "seconds": 2.949,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 26,
+    "tool": "recommend_next",
+    "args": {},
+    "why": "ask the written rule which simulation teaches the most",
+    "summary": {
+     "index": 362,
+     "label": "uncertain",
+     "rule": "resolve uncertainty where the decision changes",
+     "reason": "highest constrained expected improvement (72.44) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-5.7 % > 3.0 %; downforce_N: 95 % interval +-7.8 % > 5.0 %; expected Cp error in the critical region 0.075 > 0.05",
+     "alternatives": [
+      {
+       "index": 362,
+       "label": "uncertain",
+       "drag_N": 2790.4,
+       "std": 81.504,
+       "p_feasible": 0.837,
+       "cei": 72.444
+      },
+      {
+       "index": 326,
+       "label": "uncertain",
+       "drag_N": 2740.4,
+       "std": 88.607,
+       "p_feasible": 0.527,
+       "cei": 69.748
+      }
+     ]
+    },
+    "seconds": 0.003,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 27,
+    "tool": "simulate_candidate",
+    "args": {
+     "index": 362,
+     "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (72.44) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-5.7 % > 3.0 %; downforce_N: 95 % interval +-7.8 % > 5.0 %; expected Cp error in the critical region 0.075 > 0.05"
+    },
+    "why": "resolve uncertainty where the decision changes",
+    "summary": {
+     "run": "run017-acquisition",
+     "judged_before": "uncertain",
+     "predicted": {
+      "drag_N": 2790.4,
+      "downforce_N": 7672.0,
+      "balance_front": 1.1023
+     },
+     "simulated": {
+      "drag_N": 2902.2,
+      "downforce_N": 7384.5,
+      "CD": 0.58146,
+      "CL": -1.4795,
+      "frontal_area_m2": 1.6631,
+      "downforce_front_wing_N": 8165.1,
+      "drag_front_wing_N": 832.05,
+      "downforce_rear_wing_N": 1595.7,
+      "drag_rear_wing_N": 219.12,
+      "downforce_floor_N": 602.58,
+      "downforce_body_N": -1641.6,
+      "downforce_wheels_N": -1294.0,
+      "drag_wheels_N": 1160.4,
+      "balance_front": 1.1632
+     },
+     "rel_error": {
+      "drag_N": 0.038529,
+      "downforce_N": 0.038931,
+      "balance_front": 0.052355
+     },
+     "after": "rejected by reference",
+     "budget_left": 3
+    },
+    "seconds": 0.428,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 28,
+    "tool": "verify_best",
+    "args": {
+     "n": 3
+    },
+    "why": "spend the reserve on confirming the best favourable designs",
+    "summary": {
+     "verified": [
+      {
+       "run": "run018-verification",
+       "params": {
+        "front_wing_aoa": 2.699,
+        "front_flap_aoa": 22.837,
+        "rear_wing_aoa": 0.30268,
+        "rear_flap_aoa": 16.0,
+        "diffuser_angle": 18.0,
+        "ride_height": 0.025335
+       },
+       "predicted": {
+        "drag_N": 2875.1,
+        "downforce_N": 7328.4,
+        "balance_front": 1.0777
+       },
+       "simulated": {
+        "drag_N": 2883.6,
+        "downforce_N": 7257.0,
+        "CD": 0.57773,
+        "CL": -1.454,
+        "frontal_area_m2": 1.6631,
+        "downforce_front_wing_N": 7426.6,
+        "drag_front_wing_N": 784.32,
+        "downforce_rear_wing_N": 1271.6,
+        "drag_rear_wing_N": 234.21,
+        "downforce_floor_N": 1365.5,
+        "downforce_body_N": -1597.6,
+        "downforce_wheels_N": -1165.1,
+        "drag_wheels_N": 1211.5,
+        "balance_front": 1.0784
+       },
+       "rel_error": {
+        "drag_N": 0.0029463,
+        "downforce_N": 0.0098396,
+        "balance_front": 0.00064786
+       },
+       "label": "verified"
+      },
+      {
+       "run": "run019-verification",
+       "params": {
+        "front_wing_aoa": 1.6948,
+        "front_flap_aoa": 23.837,
+        "rear_wing_aoa": 0.30835,
+        "rear_flap_aoa": 16.0,
+        "diffuser_angle": 18.0,
+        "ride_height": 0.025
+       },
+       "predicted": {
+        "drag_N": 2897.7,
+        "downforce_N": 7984.6,
+        "balance_front": 1.0975
+       },
+       "simulated": {
+        "drag_N": 2795.5,
+        "downforce_N": 7318.8,
+        "CD": 0.56008,
+        "CL": -1.4663,
+        "frontal_area_m2": 1.6631,
+        "downforce_front_wing_N": 7616.6,
+        "drag_front_wing_N": 770.07,
+        "downforce_rear_wing_N": 1488.6,
+        "drag_rear_wing_N": 219.71,
+        "downforce_floor_N": 1189.8,
+        "downforce_body_N": -1858.4,
+        "downforce_wheels_N": -1072.9,
+        "drag_wheels_N": 956.42,
+        "balance_front": 1.0726
+       },
+       "rel_error": {
+        "drag_N": 0.036559,
+        "downforce_N": 0.090966,
+        "balance_front": 0.023154
+       },
+       "label": "verified"
+      },
+      {
+       "run": "run020-verification",
+       "params": {
+        "front_wing_aoa": 1.6948,
+        "front_flap_aoa": 26.646,
+        "rear_wing_aoa": 0.0,
+        "rear_flap_aoa": 21.307,
+        "diffuser_angle": 18.0,
+        "ride_height": 0.025
+       },
+       "predicted": {
+        "drag_N": 2975.3,
+        "downforce_N": 7949.7,
+        "balance_front": 1.0898
+       },
+       "simulated": {
+        "drag_N": 2867.4,
+        "downforce_N": 7565.7,
+        "CD": 0.57316,
+        "CL": -1.5123,
+        "frontal_area_m2": 1.6669,
+        "downforce_front_wing_N": 7726.0,
+        "drag_front_wing_N": 832.87,
+        "downforce_rear_wing_N": 1569.2,
+        "drag_rear_wing_N": 253.79,
+        "downforce_floor_N": 1221.7,
+        "downforce_body_N": -1824.4,
+        "downforce_wheels_N": -1079.1,
+        "drag_wheels_N": 957.77,
+        "balance_front": 1.0555
+       },
+       "rel_error": {
+        "drag_N": 0.037626,
+        "downforce_N": 0.050752,
+        "balance_front": 0.032517
+       },
+       "label": "verified"
+      }
+     ],
+     "budget_left": 0
+    },
+    "seconds": 17.37,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 29,
+    "tool": "status",
+    "args": {},
+    "why": "read the best simulated design before answering",
+    "summary": {
+     "used": 20,
+     "left": 0,
+     "reserve_verify": 3,
+     "best": {
+      "run": "run019-verification",
+      "params": {
+       "front_wing_aoa": 1.6948,
+       "front_flap_aoa": 23.837,
+       "rear_wing_aoa": 0.30835,
+       "rear_flap_aoa": 16.0,
+       "diffuser_angle": 18.0,
+       "ride_height": 0.025
+      },
+      "outputs": {
+       "drag_N": 2795.5,
+       "downforce_N": 7318.8,
+       "balance_front": 1.0726
+      }
+     },
+     "runs": [
+      {
+       "run": "run001-baseline",
+       "purpose": "baseline",
+       "ok": true
+      },
+      {
+       "run": "run002-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run003-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run004-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run005-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run006-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run007-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run008-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run009-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run010-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run011-doe",
+       "purpose": "doe",
+       "ok": true
+      },
+      {
+       "run": "run012-acquisition",
+       "purpose": "acquisition",
+       "ok": true
+      },
+      {
+       "run": "run013-acquisition",
+       "purpose": "acquisition",
+       "ok": true
+      },
+      {
+       "run": "run014-acquisition",
+       "purpose": "acquisition",
+       "ok": true
+      },
+      {
+       "run": "run015-acquisition",
+       "purpose": "acquisition",
+       "ok": true
+      },
+      {
+       "run": "run016-acquisition",
+       "purpose": "acquisition",
+       "ok": true
+      },
+      {
+       "run": "run017-acquisition",
+       "purpose": "acquisition",
+       "ok": true
+      },
+      {
+       "run": "run018-verification",
+       "purpose": "verification",
+       "ok": true
+      },
+      {
+       "run": "run019-verification",
+       "purpose": "verification",
+       "ok": true
+      },
+      {
+       "run": "run020-verification",
+       "purpose": "verification",
+       "ok": true
+      }
+     ]
+    },
+    "seconds": 0.0,
+    "ok": true,
+    "error": ""
+   },
+   {
+    "step": 30,
+    "tool": "answer",
+    "args": {
+     "text": "Recommended design: run019-verification (simulated). drag_N 2795.5 against the baseline's 3314.8. Limits checked on its simulation: downforce >= 7038.38 N; 0.913191 <= aero balance (front share) <= 1.11612. Its simulated values: drag_N 2795.5, downforce_N 7318.8, balance_front 1.0726.",
+     "recommended_run": "run019-verification"
+    },
+    "why": "budget spent: the best simulated design",
+    "summary": {
+     "text": "Recommended design: run019-verification (simulated). drag_N 2795.5 against the baseline's 3314.8. Limits checked on its simulation: downforce >= 7038.38 N; 0.913191 <= aero balance (front share) <= 1.11612. Its simulated values: drag_N 2795.5, downforce_N 7318.8, balance_front 1.0726.",
+     "recommended_run": "run019-verification"
+    },
+    "seconds": 0.0,
+    "ok": true,
+    "error": ""
+   }
+  ]
+ },
+ "wall_s": 93.961,
+ "summary": {
+  "mission": {
+   "title": "The AI Aerodynamicist",
+   "statement": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD. Use at most 20 CFD runs.",
+   "domain": "external aerodynamics",
+   "variables": [
+    {
+     "name": "front_wing_aoa",
+     "lower": 0.0,
+     "upper": 5.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "front wing main plane angle"
+    },
+    {
+     "name": "front_flap_aoa",
+     "lower": 12.0,
+     "upper": 30.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "front wing flap angle"
+    },
+    {
+     "name": "rear_wing_aoa",
+     "lower": 0.0,
+     "upper": 7.5,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "rear wing main plane angle"
+    },
+    {
+     "name": "rear_flap_aoa",
+     "lower": 16.0,
+     "upper": 40.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "rear wing flap angle"
+    },
+    {
+     "name": "diffuser_angle",
+     "lower": 7.0,
+     "upper": 18.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "diffuser ramp angle"
+    },
+    {
+     "name": "ride_height",
+     "lower": 0.025,
+     "upper": 0.06,
+     "kind": "continuous",
+     "unit": "m",
+     "description": "floor height above the road"
+    }
+   ],
+   "objectives": [
+    {
+     "name": "drag_N",
+     "sense": "min",
+     "unit": "N",
+     "label": "drag"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "downforce_N",
+     "lower": null,
+     "upper": null,
+     "lower_frac_of_baseline": 1.0,
+     "upper_frac_of_baseline": null,
+     "unit": "N",
+     "kind": "physical",
+     "label": "downforce",
+     "text": "downforce >= 1 x baseline"
+    },
+    {
+     "name": "balance_front",
+     "lower": null,
+     "upper": null,
+     "lower_frac_of_baseline": 0.9,
+     "upper_frac_of_baseline": 1.1,
+     "unit": "",
+     "kind": "physical",
+     "label": "aero balance (front share)",
+     "text": "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+    }
+   ],
+   "baseline": {
+    "front_wing_aoa": 4.0,
+    "front_flap_aoa": 22.0,
+    "rear_wing_aoa": 6.0,
+    "rear_flap_aoa": 32.0,
+    "diffuser_angle": 13.0,
+    "ride_height": 0.035
+   },
+   "budget": {
+    "max_runs": 20,
+    "reserve_verify": 3,
+    "max_wall_s": null
+   },
+   "acceptance": {
+    "drag_N": 0.03,
+    "downforce_N": 0.05,
+    "balance_front": 0.05
+   },
+   "conditions": {
+    "speed_m_s": 70.0,
+    "rho_kg_m3": 1.225,
+    "nu_m2_s": 1.5e-05,
+    "ground": "moving road at the flow speed",
+    "model": "half model, symmetry plane y = 0",
+    "turbulence": "steady RANS k-omega SST, wall functions",
+    "wheels": "static walls",
+    "solver": "OpenFOAM simpleFoam"
+   },
+   "hypotheses": [
+    "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+    "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+    "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+    "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+   ],
+   "baseline_outputs": {
+    "drag_N": 3314.8,
+    "downforce_N": 7038.4,
+    "CD": 0.65685,
+    "CL": -1.3947,
+    "frontal_area_m2": 1.6815,
+    "downforce_front_wing_N": 7015.8,
+    "drag_front_wing_N": 749.62,
+    "downforce_rear_wing_N": 1964.0,
+    "drag_rear_wing_N": 495.89,
+    "downforce_floor_N": 923.85,
+    "downforce_body_N": -1524.6,
+    "downforce_wheels_N": -1297.8,
+    "drag_wheels_N": 1383.7,
+    "balance_front": 1.0147
+   },
+   "constraints_absolute": [
+    {
+     "name": "downforce_N",
+     "upper": null,
+     "lower": 7038.4,
+     "unit": "N",
+     "kind": "physical",
+     "label": "downforce"
+    },
+    {
+     "name": "balance_front",
+     "upper": 1.1161,
+     "lower": 0.91319,
+     "unit": "",
+     "kind": "physical",
+     "label": "aero balance (front share)"
+    }
+   ]
+  },
+  "plan": {
+   "mission": {
+    "title": "The AI Aerodynamicist",
+    "statement": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD. Use at most 20 CFD runs.",
+    "domain": "external aerodynamics",
+    "variables": [
+     {
+      "name": "front_wing_aoa",
+      "lower": 0.0,
+      "upper": 5.0,
+      "kind": "continuous",
+      "unit": "deg",
+      "description": "front wing main plane angle"
+     },
+     {
+      "name": "front_flap_aoa",
+      "lower": 12.0,
+      "upper": 30.0,
+      "kind": "continuous",
+      "unit": "deg",
+      "description": "front wing flap angle"
+     },
+     {
+      "name": "rear_wing_aoa",
+      "lower": 0.0,
+      "upper": 7.5,
+      "kind": "continuous",
+      "unit": "deg",
+      "description": "rear wing main plane angle"
+     },
+     {
+      "name": "rear_flap_aoa",
+      "lower": 16.0,
+      "upper": 40.0,
+      "kind": "continuous",
+      "unit": "deg",
+      "description": "rear wing flap angle"
+     },
+     {
+      "name": "diffuser_angle",
+      "lower": 7.0,
+      "upper": 18.0,
+      "kind": "continuous",
+      "unit": "deg",
+      "description": "diffuser ramp angle"
+     },
+     {
+      "name": "ride_height",
+      "lower": 0.025,
+      "upper": 0.06,
+      "kind": "continuous",
+      "unit": "m",
+      "description": "floor height above the road"
+     }
+    ],
+    "objectives": [
+     {
+      "name": "drag_N",
+      "sense": "min",
+      "unit": "N",
+      "label": "drag"
+     }
+    ],
+    "constraints": [
+     {
+      "name": "downforce_N",
+      "lower": null,
+      "upper": null,
+      "lower_frac_of_baseline": 1.0,
+      "upper_frac_of_baseline": null,
+      "unit": "N",
+      "kind": "physical",
+      "label": "downforce",
+      "text": "downforce >= 1 x baseline"
+     },
+     {
+      "name": "balance_front",
+      "lower": null,
+      "upper": null,
+      "lower_frac_of_baseline": 0.9,
+      "upper_frac_of_baseline": 1.1,
+      "unit": "",
+      "kind": "physical",
+      "label": "aero balance (front share)",
+      "text": "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+     }
+    ],
+    "baseline": {
+     "front_wing_aoa": 4.0,
+     "front_flap_aoa": 22.0,
+     "rear_wing_aoa": 6.0,
+     "rear_flap_aoa": 32.0,
+     "diffuser_angle": 13.0,
+     "ride_height": 0.035
+    },
+    "budget": {
+     "max_runs": 20,
+     "reserve_verify": 3,
+     "max_wall_s": null
+    },
+    "acceptance": {
+     "drag_N": 0.03,
+     "downforce_N": 0.05,
+     "balance_front": 0.05
+    },
+    "conditions": {
+     "speed_m_s": 70.0,
+     "rho_kg_m3": 1.225,
+     "nu_m2_s": 1.5e-05,
+     "ground": "moving road at the flow speed",
+     "model": "half model, symmetry plane y = 0",
+     "turbulence": "steady RANS k-omega SST, wall functions",
+     "wheels": "static walls",
+     "solver": "OpenFOAM simpleFoam"
+    },
+    "hypotheses": [
+     "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+     "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+     "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+     "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+    ]
+   },
+   "simulator": {
+    "name": "OpenFOAM simpleFoam (snappyHexMesh, k-omega SST), FormulaCar half model (replaying ledger.json where it holds the design)",
+    "fidelity": "reference",
+    "outputs": [
+     "drag_N",
+     "downforce_N",
+     "balance_front",
+     "CD",
+     "CL",
+     "downforce_front_wing_N",
+     "downforce_rear_wing_N",
+     "downforce_floor_N",
+     "downforce_body_N",
+     "downforce_wheels_N",
+     "drag_front_wing_N",
+     "drag_rear_wing_N",
+     "drag_wheels_N",
+     "frontal_area_m2"
+    ],
+    "fields": [
+     "cp"
+    ]
+   },
+   "allocation": {
+    "baseline": 1,
+    "doe": 10,
+    "acquisition": 6,
+    "verification": 3,
+    "total": 20
+   },
+   "objectives": [
+    "min drag [N]"
+   ],
+   "limits": [
+    "downforce >= 1 x baseline",
+    "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+   ],
+   "hypotheses": [
+    "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+    "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+    "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+    "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+   ],
+   "acceptance": {
+    "drag_N": 0.03,
+    "downforce_N": 0.05,
+    "balance_front": 0.05
+   },
+   "conditions": {
+    "speed_m_s": 70.0,
+    "rho_kg_m3": 1.225,
+    "nu_m2_s": 1.5e-05,
+    "ground": "moving road at the flow speed",
+    "model": "half model, symmetry plane y = 0",
+    "turbulence": "steady RANS k-omega SST, wall functions",
+    "wheels": "static walls",
+    "solver": "OpenFOAM simpleFoam"
+   },
+   "surrogates": [
+    "gp",
+    "mlp_ensemble",
+    "quadratic"
+   ],
+   "critical_region": "diffuser"
+  },
+  "budget": {
+   "used_runs": 20,
+   "max_runs": 20,
+   "solver_wall_s": 11840.0,
+   "failed_runs": 0
+  },
+  "baseline": {
+   "id": "run001-baseline",
+   "params": {
+    "front_wing_aoa": 4.0,
+    "front_flap_aoa": 22.0,
+    "rear_wing_aoa": 6.0,
+    "rear_flap_aoa": 32.0,
+    "diffuser_angle": 13.0,
+    "ride_height": 0.035
+   },
+   "outputs": {
+    "drag_N": 3314.8,
+    "downforce_N": 7038.4,
+    "CD": 0.65685,
+    "CL": -1.3947,
+    "frontal_area_m2": 1.6815,
+    "downforce_front_wing_N": 7015.8,
+    "drag_front_wing_N": 749.62,
+    "downforce_rear_wing_N": 1964.0,
+    "drag_rear_wing_N": 495.89,
+    "downforce_floor_N": 923.85,
+    "downforce_body_N": -1524.6,
+    "downforce_wheels_N": -1297.8,
+    "drag_wheels_N": 1383.7,
+    "balance_front": 1.0147
+   }
+  },
+  "best": {
+   "id": "run019-verification",
+   "purpose": "verification",
+   "params": {
+    "front_wing_aoa": 1.6948,
+    "front_flap_aoa": 23.837,
+    "rear_wing_aoa": 0.30835,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025
+   },
+   "outputs": {
+    "drag_N": 2795.5,
+    "downforce_N": 7318.8,
+    "CD": 0.56008,
+    "CL": -1.4663,
+    "frontal_area_m2": 1.6631,
+    "downforce_front_wing_N": 7616.6,
+    "drag_front_wing_N": 770.07,
+    "downforce_rear_wing_N": 1488.6,
+    "drag_rear_wing_N": 219.71,
+    "downforce_floor_N": 1189.8,
+    "downforce_body_N": -1858.4,
+    "downforce_wheels_N": -1072.9,
+    "drag_wheels_N": 956.42,
+    "balance_front": 1.0726
+   }
+  },
+  "board": {
+   "n_train": 17,
+   "chosen": {
+    "drag_N": "mlp_ensemble",
+    "downforce_N": "mlp_ensemble",
+    "balance_front": "mlp_ensemble"
+   },
+   "names": {
+    "gp": "GP (Matern 5/2, ARD)",
+    "mlp_ensemble": "MLP ensemble (5 x 32-32, bootstrap)",
+    "quadratic": "Quadratic response surface (ridge)"
+   },
+   "table": {
+    "drag_N": {
+     "gp": {
+      "rmse": 105.19,
+      "mae": 82.735,
+      "max_abs": 210.49,
+      "rel_mae": 0.026585,
+      "r2": 0.6988,
+      "coverage95": 0.64706,
+      "mean_std": 45.648,
+      "n": 17,
+      "fit_s": 0.056964,
+      "k": 5
+     },
+     "mlp_ensemble": {
+      "rmse": 90.272,
+      "mae": 72.29,
+      "max_abs": 192.0,
+      "rel_mae": 0.023524,
+      "r2": 0.77818,
+      "coverage95": 0.94118,
+      "mean_std": 139.4,
+      "n": 17,
+      "fit_s": 0.35019,
+      "k": 5
+     },
+     "quadratic": {
+      "skipped": 1.0
+     }
+    },
+    "downforce_N": {
+     "gp": {
+      "rmse": 941.88,
+      "mae": 659.55,
+      "max_abs": 2898.0,
+      "rel_mae": 0.11105,
+      "r2": 0.12628,
+      "coverage95": 0.64706,
+      "mean_std": 402.27,
+      "n": 17,
+      "fit_s": 0.09428,
+      "k": 5
+     },
+     "mlp_ensemble": {
+      "rmse": 829.85,
+      "mae": 648.85,
+      "max_abs": 1963.0,
+      "rel_mae": 0.10206,
+      "r2": 0.32178,
+      "coverage95": 0.82353,
+      "mean_std": 625.79,
+      "n": 17,
+      "fit_s": 0.33791,
+      "k": 5
+     },
+     "quadratic": {
+      "skipped": 1.0
+     }
+    },
+    "balance_front": {
+     "gp": {
+      "rmse": 0.080096,
+      "mae": 0.061177,
+      "max_abs": 0.21685,
+      "rel_mae": 0.059427,
+      "r2": -0.060251,
+      "coverage95": 0.52941,
+      "mean_std": 0.03754,
+      "n": 17,
+      "fit_s": 0.074297,
+      "k": 5
+     },
+     "mlp_ensemble": {
+      "rmse": 0.056545,
+      "mae": 0.045523,
+      "max_abs": 0.12755,
+      "rel_mae": 0.043139,
+      "r2": 0.47158,
+      "coverage95": 0.82353,
+      "mean_std": 0.050041,
+      "n": 17,
+      "fit_s": 0.33394,
+      "k": 5
+     },
+     "quadratic": {
+      "skipped": 1.0
+     }
+    }
+   }
+  },
+  "field_cv": {
+   "field": "cp",
+   "family": "gp",
+   "n": 17,
+   "k": 5,
+   "per_region": {
+    "all": {
+     "rmse": 0.097702,
+     "max_abs": 1.362,
+     "n": 4490.0,
+     "coverage95": 0.72773,
+     "mean_std": 0.038699
+    },
+    "front_wing": {
+     "rmse": 0.23488,
+     "max_abs": 1.0256,
+     "n": 166.0,
+     "coverage95": 0.75089,
+     "mean_std": 0.11966
+    },
+    "rear_wing": {
+     "rmse": 0.20716,
+     "max_abs": 0.79244,
+     "n": 170.0,
+     "coverage95": 0.73599,
+     "mean_std": 0.10891
+    },
+    "floor": {
+     "rmse": 0.10844,
+     "max_abs": 1.1755,
+     "n": 600.0,
+     "coverage95": 0.7399,
+     "mean_std": 0.043423
+    },
+    "body": {
+     "rmse": 0.069974,
+     "max_abs": 0.93616,
+     "n": 3554.0,
+     "coverage95": 0.7242,
+     "mean_std": 0.030762
+    },
+    "diffuser": {
+     "rmse": 0.11555,
+     "max_abs": 0.66894,
+     "n": 160.0,
+     "coverage95": 0.72794,
+     "mean_std": 0.054365
+    }
+   },
+   "n_modes": 12,
+   "energy": 0.94703
+  },
+  "decisions": [
+   {
+    "run": "run012-acquisition",
+    "label_before": "out_of_domain",
+    "label_after": "verified",
+    "rule": "agent's choice",
+    "reason": "best prediction is out of domain: the model's best design (drag_N 2894 +- 51) lies outside the validated domain (diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982): its value is not evidence until simulated",
+    "params": {
+     "front_wing_aoa": 2.5529,
+     "front_flap_aoa": 24.587,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025322
+    },
+    "predicted": {
+     "drag_N": 2893.8,
+     "downforce_N": 7279.3,
+     "balance_front": 1.051
+    },
+    "std": {
+     "drag_N": 51.206,
+     "downforce_N": 603.64,
+     "balance_front": 0.061865
+    },
+    "reference": {
+     "drag_N": 2869.9,
+     "downforce_N": 7337.5,
+     "CD": 0.57498,
+     "CL": -1.4701,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7631.2,
+     "drag_front_wing_N": 808.18,
+     "downforce_rear_wing_N": 1269.1,
+     "drag_rear_wing_N": 237.86,
+     "downforce_floor_N": 1201.2,
+     "downforce_body_N": -1543.6,
+     "downforce_wheels_N": -1176.5,
+     "drag_wheels_N": 1213.5,
+     "balance_front": 1.1001
+    },
+    "rel_error": {
+     "drag_N": 0.0083273,
+     "downforce_N": 0.0079347,
+     "balance_front": 0.044645
+    },
+    "p_feasible": 0.5521,
+    "domain_ratio": 0.78822,
+    "trust_before": "REJECT",
+    "reasons_before": [
+     "the model is extrapolating: diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982"
+    ],
+    "trust_after": "REJECT",
+    "verification": false,
+    "critical_field_std": 0.072812,
+    "n_train": 11,
+    "cv": {
+     "drag_N": 0.025607,
+     "downforce_N": 0.10114,
+     "balance_front": 0.076708
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.10099,
+      "max_abs": 1.712,
+      "n": 4490,
+      "coverage95": 0.7608,
+      "mean_std": 0.037753
+     },
+     "front_wing": {
+      "rmse": 0.336,
+      "max_abs": 1.712,
+      "n": 166,
+      "coverage95": 0.40361,
+      "mean_std": 0.11059
+     },
+     "rear_wing": {
+      "rmse": 0.16964,
+      "max_abs": 0.38734,
+      "n": 170,
+      "coverage95": 0.55294,
+      "mean_std": 0.10729
+     },
+     "floor": {
+      "rmse": 0.12125,
+      "max_abs": 1.0555,
+      "n": 600,
+      "coverage95": 0.78667,
+      "mean_std": 0.042083
+     },
+     "body": {
+      "rmse": 0.061263,
+      "max_abs": 0.65794,
+      "n": 3554,
+      "coverage95": 0.78306,
+      "mean_std": 0.030294
+     },
+     "diffuser": {
+      "rmse": 0.13626,
+      "max_abs": 0.83872,
+      "n": 160,
+      "coverage95": 0.79375,
+      "mean_std": 0.054795
+     }
+    }
+   },
+   {
+    "run": "run013-acquisition",
+    "label_before": "out_of_domain",
+    "label_after": "verified",
+    "rule": "agent's choice",
+    "reason": "best prediction is out of domain: the model's best design (drag_N 2843 +- 29) lies outside the validated domain (front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51): its value is not evidence until simulated",
+    "params": {
+     "front_wing_aoa": 0.0,
+     "front_flap_aoa": 12.0,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 16.536,
+     "ride_height": 0.026076
+    },
+    "predicted": {
+     "drag_N": 2842.9,
+     "downforce_N": 7357.1,
+     "balance_front": 0.97539
+    },
+    "std": {
+     "drag_N": 28.88,
+     "downforce_N": 597.56,
+     "balance_front": 0.065714
+    },
+    "reference": {
+     "drag_N": 2878.6,
+     "downforce_N": 7389.6,
+     "CD": 0.57834,
+     "CL": -1.4847,
+     "frontal_area_m2": 1.6584,
+     "downforce_front_wing_N": 6784.2,
+     "drag_front_wing_N": 526.17,
+     "downforce_rear_wing_N": 1796.8,
+     "drag_rear_wing_N": 271.47,
+     "downforce_floor_N": 1765.0,
+     "downforce_body_N": -1833.6,
+     "downforce_wheels_N": -1087.9,
+     "drag_wheels_N": 1207.4,
+     "balance_front": 0.95588
+    },
+    "rel_error": {
+     "drag_N": 0.012397,
+     "downforce_N": 0.0044042,
+     "balance_front": 0.020413
+    },
+    "p_feasible": 0.57282,
+    "domain_ratio": 0.945,
+    "trust_before": "REJECT",
+    "reasons_before": [
+     "the model is extrapolating: front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51"
+    ],
+    "trust_after": "REJECT",
+    "verification": false,
+    "critical_field_std": 0.051052,
+    "n_train": 12,
+    "cv": {
+     "drag_N": 0.025527,
+     "downforce_N": 0.098871,
+     "balance_front": 0.07593
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.1029,
+      "max_abs": 1.0096,
+      "n": 4490,
+      "coverage95": 0.67884,
+      "mean_std": 0.039528
+     },
+     "front_wing": {
+      "rmse": 0.24975,
+      "max_abs": 0.85685,
+      "n": 166,
+      "coverage95": 0.63253,
+      "mean_std": 0.12763
+     },
+     "rear_wing": {
+      "rmse": 0.21798,
+      "max_abs": 0.57663,
+      "n": 170,
+      "coverage95": 0.4,
+      "mean_std": 0.071564
+     },
+     "floor": {
+      "rmse": 0.1032,
+      "max_abs": 1.0096,
+      "n": 600,
+      "coverage95": 0.55,
+      "mean_std": 0.033492
+     },
+     "body": {
+      "rmse": 0.079947,
+      "max_abs": 0.892,
+      "n": 3554,
+      "coverage95": 0.71609,
+      "mean_std": 0.034899
+     },
+     "diffuser": {
+      "rmse": 0.096435,
+      "max_abs": 0.61724,
+      "n": 160,
+      "coverage95": 0.73125,
+      "mean_std": 0.038086
+     }
+    }
+   },
+   {
+    "run": "run014-acquisition",
+    "label_before": "uncertain",
+    "label_after": "verified",
+    "rule": "agent's choice",
+    "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (20.23) is an uncertain design: P(feasible) = 0.82: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-3.2 % > 3.0 %; balance_front: 95 % interval +-12.8 % > 5.0 %",
+    "params": {
+     "front_wing_aoa": 0.93448,
+     "front_flap_aoa": 17.649,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 16.787,
+     "ride_height": 0.025
+    },
+    "predicted": {
+     "drag_N": 2859.2,
+     "downforce_N": 7290.6,
+     "balance_front": 1.0068
+    },
+    "std": {
+     "drag_N": 47.124,
+     "downforce_N": 165.67,
+     "balance_front": 0.0657
+    },
+    "reference": {
+     "drag_N": 2896.6,
+     "downforce_N": 7810.5,
+     "CD": 0.58033,
+     "CL": -1.5648,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7583.9,
+     "drag_front_wing_N": 663.86,
+     "downforce_rear_wing_N": 1652.1,
+     "drag_rear_wing_N": 248.43,
+     "downforce_floor_N": 1574.5,
+     "downforce_body_N": -1941.7,
+     "downforce_wheels_N": -1018.7,
+     "drag_wheels_N": 1033.5,
+     "balance_front": 1.0175
+    },
+    "rel_error": {
+     "drag_N": 0.012891,
+     "downforce_N": 0.06657,
+     "balance_front": 0.010447
+    },
+    "p_feasible": 0.82234,
+    "domain_ratio": 0.54287,
+    "trust_before": "REVIEW",
+    "reasons_before": [
+     "P(feasible) = 0.82: the prediction cannot tell whether the constraints hold",
+     "drag_N: 95 % interval +-3.2 % > 3.0 %",
+     "balance_front: 95 % interval +-12.8 % > 5.0 %"
+    ],
+    "trust_after": "REVIEW",
+    "verification": false,
+    "critical_field_std": 0.045321,
+    "n_train": 13,
+    "cv": {
+     "drag_N": 0.017612,
+     "downforce_N": 0.11867,
+     "balance_front": 0.06349
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.08965,
+      "max_abs": 1.4463,
+      "n": 4490,
+      "coverage95": 0.47283,
+      "mean_std": 0.022879
+     },
+     "front_wing": {
+      "rmse": 0.21777,
+      "max_abs": 1.2215,
+      "n": 166,
+      "coverage95": 0.6506,
+      "mean_std": 0.076104
+     },
+     "rear_wing": {
+      "rmse": 0.087091,
+      "max_abs": 0.31199,
+      "n": 170,
+      "coverage95": 0.83529,
+      "mean_std": 0.060757
+     },
+     "floor": {
+      "rmse": 0.12427,
+      "max_abs": 1.4463,
+      "n": 600,
+      "coverage95": 0.285,
+      "mean_std": 0.025791
+     },
+     "body": {
+      "rmse": 0.07049,
+      "max_abs": 0.72508,
+      "n": 3554,
+      "coverage95": 0.4789,
+      "mean_std": 0.018089
+     },
+     "diffuser": {
+      "rmse": 0.094619,
+      "max_abs": 0.30893,
+      "n": 160,
+      "coverage95": 0.46875,
+      "mean_std": 0.033294
+     }
+    }
+   },
+   {
+    "run": "run015-acquisition",
+    "label_before": "uncertain",
+    "label_after": "rejected by reference",
+    "rule": "agent's choice",
+    "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (5.846) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold",
+    "params": {
+     "front_wing_aoa": 2.8166,
+     "front_flap_aoa": 25.66,
+     "rear_wing_aoa": 0.002664,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025
+    },
+    "predicted": {
+     "drag_N": 2868.9,
+     "downforce_N": 7223.3,
+     "balance_front": 1.1122
+    },
+    "std": {
+     "drag_N": 16.213,
+     "downforce_N": 66.001,
+     "balance_front": 0.0038578
+    },
+    "reference": {
+     "drag_N": 2829.6,
+     "downforce_N": 6946.6,
+     "CD": 0.56691,
+     "CL": -1.3917,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7406.2,
+     "drag_front_wing_N": 823.66,
+     "downforce_rear_wing_N": 1296.2,
+     "drag_rear_wing_N": 197.96,
+     "downforce_floor_N": 1184.6,
+     "downforce_body_N": -1788.9,
+     "downforce_wheels_N": -1103.2,
+     "drag_wheels_N": 983.63,
+     "balance_front": 1.1043
+    },
+    "rel_error": {
+     "drag_N": 0.013889,
+     "downforce_N": 0.039845,
+     "balance_front": 0.0072215
+    },
+    "p_feasible": 0.84039,
+    "domain_ratio": 0.12892,
+    "trust_before": "REVIEW",
+    "reasons_before": [
+     "P(feasible) = 0.84: the prediction cannot tell whether the constraints hold"
+    ],
+    "trust_after": "REJECT",
+    "verification": false,
+    "critical_field_std": 0.03047,
+    "n_train": 14,
+    "cv": {
+     "drag_N": 0.01161,
+     "downforce_N": 0.090507,
+     "balance_front": 0.047
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.09022,
+      "max_abs": 1.1625,
+      "n": 4490,
+      "coverage95": 0.33363,
+      "mean_std": 0.01563
+     },
+     "front_wing": {
+      "rmse": 0.23277,
+      "max_abs": 1.1625,
+      "n": 166,
+      "coverage95": 0.50602,
+      "mean_std": 0.05268
+     },
+     "rear_wing": {
+      "rmse": 0.080564,
+      "max_abs": 0.23296,
+      "n": 170,
+      "coverage95": 0.68824,
+      "mean_std": 0.040905
+     },
+     "floor": {
+      "rmse": 0.11177,
+      "max_abs": 0.94902,
+      "n": 600,
+      "coverage95": 0.23167,
+      "mean_std": 0.0182
+     },
+     "body": {
+      "rmse": 0.073028,
+      "max_abs": 0.89143,
+      "n": 3554,
+      "coverage95": 0.32583,
+      "mean_std": 0.012257
+     },
+     "diffuser": {
+      "rmse": 0.11705,
+      "max_abs": 0.4033,
+      "n": 160,
+      "coverage95": 0.24375,
+      "mean_std": 0.021227
+     }
+    }
+   },
+   {
+    "run": "run016-acquisition",
+    "label_before": "uncertain",
+    "label_after": "rejected by reference",
+    "rule": "agent's choice",
+    "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (16.69) is an uncertain design: P(feasible) = 0.73: the prediction cannot tell whether the constraints hold; downforce_N: 95 % interval +-7.8 % > 5.0 %; balance_front: 95 % interval +-5.7 % > 5.0 %; expected Cp error in the critical region 0.078 > 0.05",
+    "params": {
+     "front_wing_aoa": 2.9334,
+     "front_flap_aoa": 20.778,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.05502
+    },
+    "predicted": {
+     "drag_N": 2849.4,
+     "downforce_N": 7256.0,
+     "balance_front": 1.0674
+    },
+    "std": {
+     "drag_N": 23.223,
+     "downforce_N": 289.57,
+     "balance_front": 0.030862
+    },
+    "reference": {
+     "drag_N": 3035.8,
+     "downforce_N": 6776.5,
+     "CD": 0.61335,
+     "CL": -1.3691,
+     "frontal_area_m2": 1.6491,
+     "downforce_front_wing_N": 7249.2,
+     "drag_front_wing_N": 729.78,
+     "downforce_rear_wing_N": 1261.4,
+     "drag_rear_wing_N": 277.2,
+     "downforce_floor_N": 1219.2,
+     "downforce_body_N": -1762.9,
+     "downforce_wheels_N": -1149.8,
+     "drag_wheels_N": 1326.2,
+     "balance_front": 1.1114
+    },
+    "rel_error": {
+     "drag_N": 0.061395,
+     "downforce_N": 0.07075,
+     "balance_front": 0.039597
+    },
+    "p_feasible": 0.72965,
+    "domain_ratio": 1.3143,
+    "trust_before": "REVIEW",
+    "reasons_before": [
+     "P(feasible) = 0.73: the prediction cannot tell whether the constraints hold",
+     "downforce_N: 95 % interval +-7.8 % > 5.0 %",
+     "balance_front: 95 % interval +-5.7 % > 5.0 %",
+     "expected Cp error in the critical region 0.078 > 0.05"
+    ],
+    "trust_after": "REJECT",
+    "verification": false,
+    "critical_field_std": 0.077707,
+    "n_train": 15,
+    "cv": {
+     "drag_N": 0.011917,
+     "downforce_N": 0.090584,
+     "balance_front": 0.034583
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.086337,
+      "max_abs": 1.1424,
+      "n": 4490,
+      "coverage95": 0.82205,
+      "mean_std": 0.043768
+     },
+     "front_wing": {
+      "rmse": 0.22587,
+      "max_abs": 0.98823,
+      "n": 166,
+      "coverage95": 0.92169,
+      "mean_std": 0.1356
+     },
+     "rear_wing": {
+      "rmse": 0.18293,
+      "max_abs": 0.86283,
+      "n": 170,
+      "coverage95": 0.81765,
+      "mean_std": 0.13055
+     },
+     "floor": {
+      "rmse": 0.10247,
+      "max_abs": 1.1424,
+      "n": 600,
+      "coverage95": 0.84167,
+      "mean_std": 0.048619
+     },
+     "body": {
+      "rmse": 0.060504,
+      "max_abs": 0.58521,
+      "n": 3554,
+      "coverage95": 0.81429,
+      "mean_std": 0.034509
+     },
+     "diffuser": {
+      "rmse": 0.1443,
+      "max_abs": 1.1424,
+      "n": 160,
+      "coverage95": 0.79375,
+      "mean_std": 0.058696
+     }
+    }
+   },
+   {
+    "run": "run017-acquisition",
+    "label_before": "uncertain",
+    "label_after": "rejected by reference",
+    "rule": "agent's choice",
+    "reason": "resolve uncertainty where the decision changes: highest constrained expected improvement (72.44) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-5.7 % > 3.0 %; downforce_N: 95 % interval +-7.8 % > 5.0 %; expected Cp error in the critical region 0.075 > 0.05",
+    "params": {
+     "front_wing_aoa": 0.59929,
+     "front_flap_aoa": 24.983,
+     "rear_wing_aoa": 0.57966,
+     "rear_flap_aoa": 16.656,
+     "diffuser_angle": 10.054,
+     "ride_height": 0.025
+    },
+    "predicted": {
+     "drag_N": 2790.4,
+     "downforce_N": 7672.0,
+     "balance_front": 1.1023
+    },
+    "std": {
+     "drag_N": 81.504,
+     "downforce_N": 305.11,
+     "balance_front": 0.013213
+    },
+    "reference": {
+     "drag_N": 2902.2,
+     "downforce_N": 7384.5,
+     "CD": 0.58146,
+     "CL": -1.4795,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 8165.1,
+     "drag_front_wing_N": 832.05,
+     "downforce_rear_wing_N": 1595.7,
+     "drag_rear_wing_N": 219.12,
+     "downforce_floor_N": 602.58,
+     "downforce_body_N": -1641.6,
+     "downforce_wheels_N": -1294.0,
+     "drag_wheels_N": 1160.4,
+     "balance_front": 1.1632
+    },
+    "rel_error": {
+     "drag_N": 0.038529,
+     "downforce_N": 0.038931,
+     "balance_front": 0.052355
+    },
+    "p_feasible": 0.83655,
+    "domain_ratio": 0.95734,
+    "trust_before": "REVIEW",
+    "reasons_before": [
+     "P(feasible) = 0.84: the prediction cannot tell whether the constraints hold",
+     "drag_N: 95 % interval +-5.7 % > 3.0 %",
+     "downforce_N: 95 % interval +-7.8 % > 5.0 %",
+     "expected Cp error in the critical region 0.075 > 0.05"
+    ],
+    "trust_after": "REJECT",
+    "verification": false,
+    "critical_field_std": 0.074905,
+    "n_train": 16,
+    "cv": {
+     "drag_N": 0.017718,
+     "downforce_N": 0.086313,
+     "balance_front": 0.039438
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.092998,
+      "max_abs": 1.8509,
+      "n": 4490,
+      "coverage95": 0.85813,
+      "mean_std": 0.0428
+     },
+     "front_wing": {
+      "rmse": 0.28609,
+      "max_abs": 1.8509,
+      "n": 166,
+      "coverage95": 0.71687,
+      "mean_std": 0.12445
+     },
+     "rear_wing": {
+      "rmse": 0.14037,
+      "max_abs": 0.64271,
+      "n": 170,
+      "coverage95": 0.91176,
+      "mean_std": 0.12413
+     },
+     "floor": {
+      "rmse": 0.12661,
+      "max_abs": 1.2733,
+      "n": 600,
+      "coverage95": 0.77167,
+      "mean_std": 0.046648
+     },
+     "body": {
+      "rmse": 0.058777,
+      "max_abs": 0.62441,
+      "n": 3554,
+      "coverage95": 0.87676,
+      "mean_std": 0.034446
+     },
+     "diffuser": {
+      "rmse": 0.14989,
+      "max_abs": 0.58264,
+      "n": 160,
+      "coverage95": 0.4625,
+      "mean_std": 0.0573
+     }
+    }
+   },
+   {
+    "run": "run018-verification",
+    "label_before": "favourable",
+    "label_after": "verified",
+    "rule": null,
+    "reason": null,
+    "params": {
+     "front_wing_aoa": 2.699,
+     "front_flap_aoa": 22.837,
+     "rear_wing_aoa": 0.30268,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025335
+    },
+    "predicted": {
+     "drag_N": 2875.1,
+     "downforce_N": 7328.4,
+     "balance_front": 1.0777
+    },
+    "std": {
+     "drag_N": 5.9093,
+     "downforce_N": 123.43,
+     "balance_front": 0.0092236
+    },
+    "reference": {
+     "drag_N": 2883.6,
+     "downforce_N": 7257.0,
+     "CD": 0.57773,
+     "CL": -1.454,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7426.6,
+     "drag_front_wing_N": 784.32,
+     "downforce_rear_wing_N": 1271.6,
+     "drag_rear_wing_N": 234.21,
+     "downforce_floor_N": 1365.5,
+     "downforce_body_N": -1597.6,
+     "downforce_wheels_N": -1165.1,
+     "drag_wheels_N": 1211.5,
+     "balance_front": 1.0784
+    },
+    "rel_error": {
+     "drag_N": 0.0029463,
+     "downforce_N": 0.0098396,
+     "balance_front": 0.00064786
+    },
+    "p_feasible": 0.9906,
+    "domain_ratio": 0.18366,
+    "trust_before": "REVIEW",
+    "reasons_before": [
+     "inside the validated domain (spacing ratio 0.18), P(feasible) = 0.99, uncertainty within the acceptance tolerances"
+    ],
+    "trust_after": "REVIEW",
+    "verification": true,
+    "critical_field_std": 0.040721,
+    "n_train": 17,
+    "cv": {
+     "drag_N": 0.023524,
+     "downforce_N": 0.10206,
+     "balance_front": 0.043139
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.066529,
+      "max_abs": 1.0062,
+      "n": 4490,
+      "coverage95": 0.73697,
+      "mean_std": 0.023578
+     },
+     "front_wing": {
+      "rmse": 0.21133,
+      "max_abs": 0.98883,
+      "n": 166,
+      "coverage95": 0.75301,
+      "mean_std": 0.072009
+     },
+     "rear_wing": {
+      "rmse": 0.086297,
+      "max_abs": 0.35685,
+      "n": 170,
+      "coverage95": 0.93529,
+      "mean_std": 0.068192
+     },
+     "floor": {
+      "rmse": 0.075829,
+      "max_abs": 1.0062,
+      "n": 600,
+      "coverage95": 0.76833,
+      "mean_std": 0.02732
+     },
+     "body": {
+      "rmse": 0.046677,
+      "max_abs": 0.89449,
+      "n": 3554,
+      "coverage95": 0.72144,
+      "mean_std": 0.01855
+     },
+     "diffuser": {
+      "rmse": 0.06332,
+      "max_abs": 0.40373,
+      "n": 160,
+      "coverage95": 0.825,
+      "mean_std": 0.030219
+     }
+    }
+   },
+   {
+    "run": "run019-verification",
+    "label_before": "favourable",
+    "label_after": "verified",
+    "rule": null,
+    "reason": null,
+    "params": {
+     "front_wing_aoa": 1.6948,
+     "front_flap_aoa": 23.837,
+     "rear_wing_aoa": 0.30835,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025
+    },
+    "predicted": {
+     "drag_N": 2897.7,
+     "downforce_N": 7984.6,
+     "balance_front": 1.0975
+    },
+    "std": {
+     "drag_N": 27.971,
+     "downforce_N": 195.48,
+     "balance_front": 0.006367
+    },
+    "reference": {
+     "drag_N": 2795.5,
+     "downforce_N": 7318.8,
+     "CD": 0.56008,
+     "CL": -1.4663,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7616.6,
+     "drag_front_wing_N": 770.07,
+     "downforce_rear_wing_N": 1488.6,
+     "drag_rear_wing_N": 219.71,
+     "downforce_floor_N": 1189.8,
+     "downforce_body_N": -1858.4,
+     "downforce_wheels_N": -1072.9,
+     "drag_wheels_N": 956.42,
+     "balance_front": 1.0726
+    },
+    "rel_error": {
+     "drag_N": 0.036559,
+     "downforce_N": 0.090966,
+     "balance_front": 0.023154
+    },
+    "p_feasible": 0.99829,
+    "domain_ratio": 0.30512,
+    "trust_before": "REVIEW",
+    "reasons_before": [
+     "inside the validated domain (spacing ratio 0.31), P(feasible) = 1.00, uncertainty within the acceptance tolerances"
+    ],
+    "trust_after": "REVIEW",
+    "verification": true,
+    "critical_field_std": 0.040465,
+    "n_train": 17,
+    "cv": {
+     "drag_N": 0.023524,
+     "downforce_N": 0.10206,
+     "balance_front": 0.043139
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.062059,
+      "max_abs": 1.0641,
+      "n": 4490,
+      "coverage95": 0.64076,
+      "mean_std": 0.023434
+     },
+     "front_wing": {
+      "rmse": 0.19734,
+      "max_abs": 1.0641,
+      "n": 166,
+      "coverage95": 0.74096,
+      "mean_std": 0.071227
+     },
+     "rear_wing": {
+      "rmse": 0.073781,
+      "max_abs": 0.21142,
+      "n": 170,
+      "coverage95": 0.81765,
+      "mean_std": 0.067601
+     },
+     "floor": {
+      "rmse": 0.073232,
+      "max_abs": 0.56902,
+      "n": 600,
+      "coverage95": 0.60667,
+      "mean_std": 0.027129
+     },
+     "body": {
+      "rmse": 0.043369,
+      "max_abs": 0.76448,
+      "n": 3554,
+      "coverage95": 0.63337,
+      "mean_std": 0.018466
+     },
+     "diffuser": {
+      "rmse": 0.089359,
+      "max_abs": 0.31318,
+      "n": 160,
+      "coverage95": 0.71875,
+      "mean_std": 0.029997
+     }
+    }
+   },
+   {
+    "run": "run020-verification",
+    "label_before": "favourable",
+    "label_after": "verified",
+    "rule": null,
+    "reason": null,
+    "params": {
+     "front_wing_aoa": 1.6948,
+     "front_flap_aoa": 26.646,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 21.307,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025
+    },
+    "predicted": {
+     "drag_N": 2975.3,
+     "downforce_N": 7949.7,
+     "balance_front": 1.0898
+    },
+    "std": {
+     "drag_N": 24.112,
+     "downforce_N": 188.58,
+     "balance_front": 0.015682
+    },
+    "reference": {
+     "drag_N": 2867.4,
+     "downforce_N": 7565.7,
+     "CD": 0.57316,
+     "CL": -1.5123,
+     "frontal_area_m2": 1.6669,
+     "downforce_front_wing_N": 7726.0,
+     "drag_front_wing_N": 832.87,
+     "downforce_rear_wing_N": 1569.2,
+     "drag_rear_wing_N": 253.79,
+     "downforce_floor_N": 1221.7,
+     "downforce_body_N": -1824.4,
+     "downforce_wheels_N": -1079.1,
+     "drag_wheels_N": 957.77,
+     "balance_front": 1.0555
+    },
+    "rel_error": {
+     "drag_N": 0.037626,
+     "downforce_N": 0.050752,
+     "balance_front": 0.032517
+    },
+    "p_feasible": 0.95331,
+    "domain_ratio": 0.50838,
+    "trust_before": "REVIEW",
+    "reasons_before": [
+     "inside the validated domain (spacing ratio 0.51), P(feasible) = 0.95, uncertainty within the acceptance tolerances"
+    ],
+    "trust_after": "REVIEW",
+    "verification": true,
+    "critical_field_std": 0.047393,
+    "n_train": 17,
+    "cv": {
+     "drag_N": 0.023524,
+     "downforce_N": 0.10206,
+     "balance_front": 0.043139
+    },
+    "field_error": {
+     "all": {
+      "rmse": 0.075739,
+      "max_abs": 1.3772,
+      "n": 4490,
+      "coverage95": 0.58552,
+      "mean_std": 0.026223
+     },
+     "front_wing": {
+      "rmse": 0.2383,
+      "max_abs": 1.3772,
+      "n": 166,
+      "coverage95": 0.80723,
+      "mean_std": 0.083521
+     },
+     "rear_wing": {
+      "rmse": 0.11977,
+      "max_abs": 0.49458,
+      "n": 170,
+      "coverage95": 0.78824,
+      "mean_std": 0.076443
+     },
+     "floor": {
+      "rmse": 0.092668,
+      "max_abs": 0.6927,
+      "n": 600,
+      "coverage95": 0.525,
+      "mean_std": 0.030473
+     },
+     "body": {
+      "rmse": 0.049588,
+      "max_abs": 0.69688,
+      "n": 3554,
+      "coverage95": 0.57569,
+      "mean_std": 0.020427
+     },
+     "diffuser": {
+      "rmse": 0.1125,
+      "max_abs": 0.41895,
+      "n": 160,
+      "coverage95": 0.5875,
+      "mean_std": 0.034638
+     }
+    }
+   }
+  ],
+  "held_out": [
+   {
+    "run": "run012-acquisition",
+    "n_train": 11,
+    "rel_error_drag_N": 0.0083273,
+    "rel_error_downforce_N": 0.0079347,
+    "rel_error_balance_front": 0.044645
+   },
+   {
+    "run": "run013-acquisition",
+    "n_train": 12,
+    "rel_error_drag_N": 0.012397,
+    "rel_error_downforce_N": 0.0044042,
+    "rel_error_balance_front": 0.020413
+   },
+   {
+    "run": "run014-acquisition",
+    "n_train": 13,
+    "rel_error_drag_N": 0.012891,
+    "rel_error_downforce_N": 0.06657,
+    "rel_error_balance_front": 0.010447
+   },
+   {
+    "run": "run015-acquisition",
+    "n_train": 14,
+    "rel_error_drag_N": 0.013889,
+    "rel_error_downforce_N": 0.039845,
+    "rel_error_balance_front": 0.0072215
+   },
+   {
+    "run": "run016-acquisition",
+    "n_train": 15,
+    "rel_error_drag_N": 0.061395,
+    "rel_error_downforce_N": 0.07075,
+    "rel_error_balance_front": 0.039597
+   },
+   {
+    "run": "run017-acquisition",
+    "n_train": 16,
+    "rel_error_drag_N": 0.038529,
+    "rel_error_downforce_N": 0.038931,
+    "rel_error_balance_front": 0.052355
+   },
+   {
+    "run": "run018-verification",
+    "n_train": 17,
+    "rel_error_drag_N": 0.0029463,
+    "rel_error_downforce_N": 0.0098396,
+    "rel_error_balance_front": 0.00064786
+   },
+   {
+    "run": "run019-verification",
+    "n_train": 17,
+    "rel_error_drag_N": 0.036559,
+    "rel_error_downforce_N": 0.090966,
+    "rel_error_balance_front": 0.023154
+   },
+   {
+    "run": "run020-verification",
+    "n_train": 17,
+    "rel_error_drag_N": 0.037626,
+    "rel_error_downforce_N": 0.050752,
+    "rel_error_balance_front": 0.032517
+   }
+  ],
+  "verified": [
+   {
+    "index": 1176,
+    "params": {
+     "front_wing_aoa": 2.699,
+     "front_flap_aoa": 22.837,
+     "rear_wing_aoa": 0.30268,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025335
+    },
+    "predicted": {
+     "drag_N": 2875.1,
+     "downforce_N": 7328.4,
+     "balance_front": 1.0777
+    },
+    "std": {
+     "drag_N": 5.9093,
+     "downforce_N": 123.43,
+     "balance_front": 0.0092236
+    },
+    "p_feasible": 0.9906,
+    "cei": 0.60153,
+    "label": "verified",
+    "reasons": [
+     "the reference confirms the constraints"
+    ],
+    "domain": {
+     "inside": true,
+     "ratio": 0.18366,
+     "reasons": []
+    },
+    "critical_field_std": 0.040721,
+    "trust_decision": "REVIEW",
+    "trust_score": 0.90909,
+    "checks": [
+     {
+      "name": "inside validated domain",
+      "status": "supports",
+      "critical": true,
+      "value": 0.18366,
+      "limit": null,
+      "reason": "within the simulated designs"
+     },
+     {
+      "name": "constraints met (probability)",
+      "status": "supports",
+      "critical": false,
+      "value": 0.9906,
+      "limit": 0.9,
+      "reason": "P(feasible) = 0.99"
+     },
+     {
+      "name": "drag_N uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.0040284,
+      "limit": 0.03,
+      "reason": "+-0.4 % (95 %)"
+     },
+     {
+      "name": "downforce_N uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.03301,
+      "limit": 0.05,
+      "reason": "+-3.3 % (95 %)"
+     },
+     {
+      "name": "balance_front uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.016774,
+      "limit": 0.05,
+      "reason": "+-1.7 % (95 %)"
+     },
+     {
+      "name": "drag_N cross-validated error within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.023524,
+      "limit": 0.03,
+      "reason": "held-out mean relative error 2.4 %"
+     },
+     {
+      "name": "downforce_N cross-validated error within acceptance",
+      "status": "contradicts",
+      "critical": false,
+      "value": 0.10206,
+      "limit": 0.05,
+      "reason": "held-out mean relative error 10.2 %"
+     },
+     {
+      "name": "balance_front cross-validated error within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.043139,
+      "limit": 0.05,
+      "reason": "held-out mean relative error 4.3 %"
+     },
+     {
+      "name": "field error in the critical region",
+      "status": "supports",
+      "critical": false,
+      "value": 0.040721,
+      "limit": 0.05,
+      "reason": "predicted Cp std 0.041 (limit 0.05)"
+     },
+     {
+      "name": "confirmed by the reference solver",
+      "status": "supports",
+      "critical": false,
+      "value": null,
+      "limit": null,
+      "reason": "every prediction within its acceptance tolerance"
+     },
+     {
+      "name": "constraints met (reference)",
+      "status": "supports",
+      "critical": true,
+      "value": null,
+      "limit": null,
+      "reason": "all constraints met"
+     }
+    ],
+    "reference": {
+     "drag_N": 2883.6,
+     "downforce_N": 7257.0,
+     "CD": 0.57773,
+     "CL": -1.454,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7426.6,
+     "drag_front_wing_N": 784.32,
+     "downforce_rear_wing_N": 1271.6,
+     "drag_rear_wing_N": 234.21,
+     "downforce_floor_N": 1365.5,
+     "downforce_body_N": -1597.6,
+     "downforce_wheels_N": -1165.1,
+     "drag_wheels_N": 1211.5,
+     "balance_front": 1.0784
+    },
+    "rel_error": {
+     "drag_N": 0.0029463,
+     "downforce_N": 0.0098396,
+     "balance_front": 0.00064786
+    }
+   },
+   {
+    "index": 1203,
+    "params": {
+     "front_wing_aoa": 1.6948,
+     "front_flap_aoa": 23.837,
+     "rear_wing_aoa": 0.30835,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025
+    },
+    "predicted": {
+     "drag_N": 2897.7,
+     "downforce_N": 7984.6,
+     "balance_front": 1.0975
+    },
+    "std": {
+     "drag_N": 27.971,
+     "downforce_N": 195.48,
+     "balance_front": 0.006367
+    },
+    "p_feasible": 0.99829,
+    "cei": 2.3515,
+    "label": "verified",
+    "reasons": [
+     "the reference confirms the constraints",
+     "prediction error beyond tolerance on ['drag_N', 'downforce_N']"
+    ],
+    "domain": {
+     "inside": true,
+     "ratio": 0.30512,
+     "reasons": []
+    },
+    "critical_field_std": 0.040465,
+    "trust_decision": "REVIEW",
+    "trust_score": 0.81818,
+    "checks": [
+     {
+      "name": "inside validated domain",
+      "status": "supports",
+      "critical": true,
+      "value": 0.30512,
+      "limit": null,
+      "reason": "within the simulated designs"
+     },
+     {
+      "name": "constraints met (probability)",
+      "status": "supports",
+      "critical": false,
+      "value": 0.99829,
+      "limit": 0.9,
+      "reason": "P(feasible) = 1.00"
+     },
+     {
+      "name": "drag_N uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.01892,
+      "limit": 0.03,
+      "reason": "+-1.9 % (95 %)"
+     },
+     {
+      "name": "downforce_N uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.047985,
+      "limit": 0.05,
+      "reason": "+-4.8 % (95 %)"
+     },
+     {
+      "name": "balance_front uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.011371,
+      "limit": 0.05,
+      "reason": "+-1.1 % (95 %)"
+     },
+     {
+      "name": "drag_N cross-validated error within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.023524,
+      "limit": 0.03,
+      "reason": "held-out mean relative error 2.4 %"
+     },
+     {
+      "name": "downforce_N cross-validated error within acceptance",
+      "status": "contradicts",
+      "critical": false,
+      "value": 0.10206,
+      "limit": 0.05,
+      "reason": "held-out mean relative error 10.2 %"
+     },
+     {
+      "name": "balance_front cross-validated error within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.043139,
+      "limit": 0.05,
+      "reason": "held-out mean relative error 4.3 %"
+     },
+     {
+      "name": "field error in the critical region",
+      "status": "supports",
+      "critical": false,
+      "value": 0.040465,
+      "limit": 0.05,
+      "reason": "predicted Cp std 0.040 (limit 0.05)"
+     },
+     {
+      "name": "confirmed by the reference solver",
+      "status": "contradicts",
+      "critical": false,
+      "value": null,
+      "limit": null,
+      "reason": "prediction off by drag_N 3.7 %, downforce_N 9.1 %"
+     },
+     {
+      "name": "constraints met (reference)",
+      "status": "supports",
+      "critical": true,
+      "value": null,
+      "limit": null,
+      "reason": "all constraints met"
+     }
+    ],
+    "reference": {
+     "drag_N": 2795.5,
+     "downforce_N": 7318.8,
+     "CD": 0.56008,
+     "CL": -1.4663,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7616.6,
+     "drag_front_wing_N": 770.07,
+     "downforce_rear_wing_N": 1488.6,
+     "drag_rear_wing_N": 219.71,
+     "downforce_floor_N": 1189.8,
+     "downforce_body_N": -1858.4,
+     "downforce_wheels_N": -1072.9,
+     "drag_wheels_N": 956.42,
+     "balance_front": 1.0726
+    },
+    "rel_error": {
+     "drag_N": 0.036559,
+     "downforce_N": 0.090966,
+     "balance_front": 0.023154
+    }
+   },
+   {
+    "index": 2000,
+    "params": {
+     "front_wing_aoa": 1.6948,
+     "front_flap_aoa": 26.646,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 21.307,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025
+    },
+    "predicted": {
+     "drag_N": 2975.3,
+     "downforce_N": 7949.7,
+     "balance_front": 1.0898
+    },
+    "std": {
+     "drag_N": 24.112,
+     "downforce_N": 188.58,
+     "balance_front": 0.015682
+    },
+    "p_feasible": 0.95331,
+    "cei": 2.9377e-05,
+    "label": "verified",
+    "reasons": [
+     "the reference confirms the constraints",
+     "prediction error beyond tolerance on ['drag_N', 'downforce_N']"
+    ],
+    "domain": {
+     "inside": true,
+     "ratio": 0.50838,
+     "reasons": []
+    },
+    "critical_field_std": 0.047393,
+    "trust_decision": "REVIEW",
+    "trust_score": 0.81818,
+    "checks": [
+     {
+      "name": "inside validated domain",
+      "status": "supports",
+      "critical": true,
+      "value": 0.50838,
+      "limit": null,
+      "reason": "within the simulated designs"
+     },
+     {
+      "name": "constraints met (probability)",
+      "status": "supports",
+      "critical": false,
+      "value": 0.95331,
+      "limit": 0.9,
+      "reason": "P(feasible) = 0.95"
+     },
+     {
+      "name": "drag_N uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.015884,
+      "limit": 0.03,
+      "reason": "+-1.6 % (95 %)"
+     },
+     {
+      "name": "downforce_N uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.046495,
+      "limit": 0.05,
+      "reason": "+-4.6 % (95 %)"
+     },
+     {
+      "name": "balance_front uncertainty within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.028204,
+      "limit": 0.05,
+      "reason": "+-2.8 % (95 %)"
+     },
+     {
+      "name": "drag_N cross-validated error within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.023524,
+      "limit": 0.03,
+      "reason": "held-out mean relative error 2.4 %"
+     },
+     {
+      "name": "downforce_N cross-validated error within acceptance",
+      "status": "contradicts",
+      "critical": false,
+      "value": 0.10206,
+      "limit": 0.05,
+      "reason": "held-out mean relative error 10.2 %"
+     },
+     {
+      "name": "balance_front cross-validated error within acceptance",
+      "status": "supports",
+      "critical": false,
+      "value": 0.043139,
+      "limit": 0.05,
+      "reason": "held-out mean relative error 4.3 %"
+     },
+     {
+      "name": "field error in the critical region",
+      "status": "supports",
+      "critical": false,
+      "value": 0.047393,
+      "limit": 0.05,
+      "reason": "predicted Cp std 0.047 (limit 0.05)"
+     },
+     {
+      "name": "confirmed by the reference solver",
+      "status": "contradicts",
+      "critical": false,
+      "value": null,
+      "limit": null,
+      "reason": "prediction off by drag_N 3.8 %, downforce_N 5.1 %"
+     },
+     {
+      "name": "constraints met (reference)",
+      "status": "supports",
+      "critical": true,
+      "value": null,
+      "limit": null,
+      "reason": "all constraints met"
+     }
+    ],
+    "reference": {
+     "drag_N": 2867.4,
+     "downforce_N": 7565.7,
+     "CD": 0.57316,
+     "CL": -1.5123,
+     "frontal_area_m2": 1.6669,
+     "downforce_front_wing_N": 7726.0,
+     "drag_front_wing_N": 832.87,
+     "downforce_rear_wing_N": 1569.2,
+     "drag_rear_wing_N": 253.79,
+     "downforce_floor_N": 1221.7,
+     "downforce_body_N": -1824.4,
+     "downforce_wheels_N": -1079.1,
+     "drag_wheels_N": 957.77,
+     "balance_front": 1.0555
+    },
+    "rel_error": {
+     "drag_N": 0.037626,
+     "downforce_N": 0.050752,
+     "balance_front": 0.032517
+    }
+   }
+  ],
+  "showcase": {
+   "A": {
+    "tag": "A",
+    "label": "uncertain",
+    "run": "run016-acquisition",
+    "params": {
+     "front_wing_aoa": 2.9334,
+     "front_flap_aoa": 20.778,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.05502
+    },
+    "predicted": {
+     "drag_N": 2849.4,
+     "downforce_N": 7256.0,
+     "balance_front": 1.0674
+    },
+    "std": {
+     "drag_N": 23.223,
+     "downforce_N": 289.57,
+     "balance_front": 0.030862
+    },
+    "reference": {
+     "drag_N": 3035.8,
+     "downforce_N": 6776.5,
+     "CD": 0.61335,
+     "CL": -1.3691,
+     "frontal_area_m2": 1.6491,
+     "downforce_front_wing_N": 7249.2,
+     "drag_front_wing_N": 729.78,
+     "downforce_rear_wing_N": 1261.4,
+     "drag_rear_wing_N": 277.2,
+     "downforce_floor_N": 1219.2,
+     "downforce_body_N": -1762.9,
+     "downforce_wheels_N": -1149.8,
+     "drag_wheels_N": 1326.2,
+     "balance_front": 1.1114
+    },
+    "rel_error": {
+     "drag_N": 0.061395,
+     "downforce_N": 0.07075,
+     "balance_front": 0.039597
+    },
+    "reasons": [
+     "P(feasible) = 0.73: the prediction cannot tell whether the constraints hold",
+     "downforce_N: 95 % interval +-7.8 % > 5.0 %",
+     "balance_front: 95 % interval +-5.7 % > 5.0 %",
+     "expected Cp error in the critical region 0.078 > 0.05"
+    ],
+    "decision": "REVIEW",
+    "rule": "agent's choice",
+    "after": "rejected by reference",
+    "field_error": {
+     "all": {
+      "rmse": 0.086337,
+      "max_abs": 1.1424,
+      "n": 4490,
+      "coverage95": 0.82205,
+      "mean_std": 0.043768
+     },
+     "front_wing": {
+      "rmse": 0.22587,
+      "max_abs": 0.98823,
+      "n": 166,
+      "coverage95": 0.92169,
+      "mean_std": 0.1356
+     },
+     "rear_wing": {
+      "rmse": 0.18293,
+      "max_abs": 0.86283,
+      "n": 170,
+      "coverage95": 0.81765,
+      "mean_std": 0.13055
+     },
+     "floor": {
+      "rmse": 0.10247,
+      "max_abs": 1.1424,
+      "n": 600,
+      "coverage95": 0.84167,
+      "mean_std": 0.048619
+     },
+     "body": {
+      "rmse": 0.060504,
+      "max_abs": 0.58521,
+      "n": 3554,
+      "coverage95": 0.81429,
+      "mean_std": 0.034509
+     },
+     "diffuser": {
+      "rmse": 0.1443,
+      "max_abs": 1.1424,
+      "n": 160,
+      "coverage95": 0.79375,
+      "mean_std": 0.058696
+     }
+    },
+    "baseline": {
+     "drag_N": 3314.8,
+     "downforce_N": 7038.4,
+     "CD": 0.65685,
+     "CL": -1.3947,
+     "frontal_area_m2": 1.6815,
+     "downforce_front_wing_N": 7015.8,
+     "drag_front_wing_N": 749.62,
+     "downforce_rear_wing_N": 1964.0,
+     "drag_rear_wing_N": 495.89,
+     "downforce_floor_N": 923.85,
+     "downforce_body_N": -1524.6,
+     "downforce_wheels_N": -1297.8,
+     "drag_wheels_N": 1383.7,
+     "balance_front": 1.0147
+    },
+    "action": "simulated (run016-acquisition): rejected by reference"
+   },
+   "B": {
+    "tag": "B",
+    "label": "favourable",
+    "run": "run018-verification",
+    "params": {
+     "front_wing_aoa": 2.699,
+     "front_flap_aoa": 22.837,
+     "rear_wing_aoa": 0.30268,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025335
+    },
+    "predicted": {
+     "drag_N": 2875.1,
+     "downforce_N": 7328.4,
+     "balance_front": 1.0777
+    },
+    "std": {
+     "drag_N": 5.9093,
+     "downforce_N": 123.43,
+     "balance_front": 0.0092236
+    },
+    "reference": {
+     "drag_N": 2883.6,
+     "downforce_N": 7257.0,
+     "CD": 0.57773,
+     "CL": -1.454,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7426.6,
+     "drag_front_wing_N": 784.32,
+     "downforce_rear_wing_N": 1271.6,
+     "drag_rear_wing_N": 234.21,
+     "downforce_floor_N": 1365.5,
+     "downforce_body_N": -1597.6,
+     "downforce_wheels_N": -1165.1,
+     "drag_wheels_N": 1211.5,
+     "balance_front": 1.0784
+    },
+    "rel_error": {
+     "drag_N": 0.0029463,
+     "downforce_N": 0.0098396,
+     "balance_front": 0.00064786
+    },
+    "reasons": [
+     "inside the validated domain (spacing ratio 0.18), P(feasible) = 0.99, uncertainty within the acceptance tolerances"
+    ],
+    "decision": "REVIEW",
+    "rule": null,
+    "after": "verified",
+    "field_error": {
+     "all": {
+      "rmse": 0.066529,
+      "max_abs": 1.0062,
+      "n": 4490,
+      "coverage95": 0.73697,
+      "mean_std": 0.023578
+     },
+     "front_wing": {
+      "rmse": 0.21133,
+      "max_abs": 0.98883,
+      "n": 166,
+      "coverage95": 0.75301,
+      "mean_std": 0.072009
+     },
+     "rear_wing": {
+      "rmse": 0.086297,
+      "max_abs": 0.35685,
+      "n": 170,
+      "coverage95": 0.93529,
+      "mean_std": 0.068192
+     },
+     "floor": {
+      "rmse": 0.075829,
+      "max_abs": 1.0062,
+      "n": 600,
+      "coverage95": 0.76833,
+      "mean_std": 0.02732
+     },
+     "body": {
+      "rmse": 0.046677,
+      "max_abs": 0.89449,
+      "n": 3554,
+      "coverage95": 0.72144,
+      "mean_std": 0.01855
+     },
+     "diffuser": {
+      "rmse": 0.06332,
+      "max_abs": 0.40373,
+      "n": 160,
+      "coverage95": 0.825,
+      "mean_std": 0.030219
+     }
+    },
+    "baseline": {
+     "drag_N": 3314.8,
+     "downforce_N": 7038.4,
+     "CD": 0.65685,
+     "CL": -1.3947,
+     "frontal_area_m2": 1.6815,
+     "downforce_front_wing_N": 7015.8,
+     "drag_front_wing_N": 749.62,
+     "downforce_rear_wing_N": 1964.0,
+     "drag_rear_wing_N": 495.89,
+     "downforce_floor_N": 923.85,
+     "downforce_body_N": -1524.6,
+     "downforce_wheels_N": -1297.8,
+     "drag_wheels_N": 1383.7,
+     "balance_front": 1.0147
+    },
+    "action": "simulated (run018-verification): verified"
+   },
+   "C": {
+    "tag": "C",
+    "label": "out_of_domain",
+    "run": "run012-acquisition",
+    "params": {
+     "front_wing_aoa": 2.5529,
+     "front_flap_aoa": 24.587,
+     "rear_wing_aoa": 0.0,
+     "rear_flap_aoa": 16.0,
+     "diffuser_angle": 18.0,
+     "ride_height": 0.025322
+    },
+    "predicted": {
+     "drag_N": 2893.8,
+     "downforce_N": 7279.3,
+     "balance_front": 1.051
+    },
+    "std": {
+     "drag_N": 51.206,
+     "downforce_N": 603.64,
+     "balance_front": 0.061865
+    },
+    "reference": {
+     "drag_N": 2869.9,
+     "downforce_N": 7337.5,
+     "CD": 0.57498,
+     "CL": -1.4701,
+     "frontal_area_m2": 1.6631,
+     "downforce_front_wing_N": 7631.2,
+     "drag_front_wing_N": 808.18,
+     "downforce_rear_wing_N": 1269.1,
+     "drag_rear_wing_N": 237.86,
+     "downforce_floor_N": 1201.2,
+     "downforce_body_N": -1543.6,
+     "downforce_wheels_N": -1176.5,
+     "drag_wheels_N": 1213.5,
+     "balance_front": 1.1001
+    },
+    "rel_error": {
+     "drag_N": 0.0083273,
+     "downforce_N": 0.0079347,
+     "balance_front": 0.044645
+    },
+    "reasons": [
+     "the model is extrapolating: diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982"
+    ],
+    "decision": "REJECT",
+    "rule": "agent's choice",
+    "after": "verified",
+    "field_error": {
+     "all": {
+      "rmse": 0.10099,
+      "max_abs": 1.712,
+      "n": 4490,
+      "coverage95": 0.7608,
+      "mean_std": 0.037753
+     },
+     "front_wing": {
+      "rmse": 0.336,
+      "max_abs": 1.712,
+      "n": 166,
+      "coverage95": 0.40361,
+      "mean_std": 0.11059
+     },
+     "rear_wing": {
+      "rmse": 0.16964,
+      "max_abs": 0.38734,
+      "n": 170,
+      "coverage95": 0.55294,
+      "mean_std": 0.10729
+     },
+     "floor": {
+      "rmse": 0.12125,
+      "max_abs": 1.0555,
+      "n": 600,
+      "coverage95": 0.78667,
+      "mean_std": 0.042083
+     },
+     "body": {
+      "rmse": 0.061263,
+      "max_abs": 0.65794,
+      "n": 3554,
+      "coverage95": 0.78306,
+      "mean_std": 0.030294
+     },
+     "diffuser": {
+      "rmse": 0.13626,
+      "max_abs": 0.83872,
+      "n": 160,
+      "coverage95": 0.79375,
+      "mean_std": 0.054795
+     }
+    },
+    "baseline": {
+     "drag_N": 3314.8,
+     "downforce_N": 7038.4,
+     "CD": 0.65685,
+     "CL": -1.3947,
+     "frontal_area_m2": 1.6815,
+     "downforce_front_wing_N": 7015.8,
+     "drag_front_wing_N": 749.62,
+     "downforce_rear_wing_N": 1964.0,
+     "drag_rear_wing_N": 495.89,
+     "downforce_floor_N": 923.85,
+     "downforce_body_N": -1524.6,
+     "downforce_wheels_N": -1297.8,
+     "drag_wheels_N": 1383.7,
+     "balance_front": 1.0147
+    },
+    "action": "simulated (run012-acquisition): verified"
+   }
+  },
+  "environment": {
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "python": "3.13.17",
+   "cpu_count": 4,
+   "machine": "x86_64",
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "mem_gb": 15.7,
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "sklearn": "1.9.1",
+   "torch": "2.14.1+cu130",
+   "pinneapple": "0.7.0",
+   "git_commit": "a0d0b620a1a285c72f0609378b608b03bbeb3708"
+  },
+  "improvement": {
+   "drag_N": {
+    "baseline": 3314.8,
+    "best": 2795.5,
+    "change": -519.34,
+    "change_pct": -15.667
+   },
+   "downforce_N": {
+    "baseline": 7038.4,
+    "best": 7318.8,
+    "limit": "downforce >= 7038.38 N"
+   },
+   "balance_front": {
+    "baseline": 1.0147,
+    "best": 1.0726,
+    "limit": "0.913191 <= aero balance (front share) <= 1.11612"
+   }
+  },
+  "conclusion": "best simulated design run019-verification: drag_N 2795 N vs baseline 3315 (-15.7 %), every limit met in the reference simulation"
+ },
+ "replay": {
+  "hits": [
+   "run001-baseline",
+   "run002-doe",
+   "run003-doe",
+   "run004-doe",
+   "run005-doe",
+   "run006-doe",
+   "run007-doe",
+   "run008-doe",
+   "run009-doe",
+   "run010-doe",
+   "run011-doe",
+   "run012-acquisition",
+   "run013-acquisition",
+   "run014-acquisition",
+   "run015-acquisition",
+   "run016-acquisition",
+   "run017-acquisition",
+   "run018-verification",
+   "run019-verification",
+   "run020-verification"
+  ],
+  "misses": 0
+ }
+}

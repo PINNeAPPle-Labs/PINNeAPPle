@@ -7,7 +7,7 @@
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 159
+  "example": 160
  },
  "kinds": {
   "tool": "Tools",
@@ -126,7 +126,7 @@
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 159
+   "example": 160
   },
   "subkind": {
    "library call": 249,
@@ -154,6 +154,7 @@
    "astrophysics": 4,
    "robotics": 4,
    "physical AI": 3,
+   "external aerodynamics": 2,
    "Aerodinâmica / aeronaves leves, VANTs, pás de turbina eólica": 1,
    "Eletromagnetismo / ensaios não destrutivos (aeronáutica, óleo e gás)": 1,
    "Eletromagnetismo / mobilidade elétrica": 1,
@@ -169,7 +170,6 @@
    "Térmica / processo e energia": 1,
    "engineering": 1,
    "engineering design": 1,
-   "external aerodynamics": 1,
    "geometry": 1,
    "hydraulics": 1,
    "molecular dynamics": 1,
@@ -199,7 +199,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 555,
+   "not graded": 556,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -10095,8 +10095,8 @@
    "extra": {
     "calls": "pinneapple_core.workflows.OpenFOAMAdapter",
     "category": "Solvers",
-    "available": false,
-    "install": "needs OpenFOAM (blockMesh, icoFoam on PATH)",
+    "available": true,
+    "install": "",
     "auto": false,
     "inputs": [],
     "outputs": [
@@ -13385,7 +13385,7 @@
     "calls": "pinneapple_simulation.vehicle.dashboard.render_frames + vehicle_dashboard (to_html / to_png / to_video); pinneapple_simulation.vehicle.viz.frame_view + follow_camera; pinneapple_tools.visualization.studio.planetary.border_visibility",
     "category": "Visualization",
     "available": false,
-    "install": "pip install pyvista",
+    "install": "pip install imageio",
     "auto": false,
     "inputs": [
      {
@@ -79351,6 +79351,90 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/autolab_aero_agent",
+   "kind": "example",
+   "name": "examples/autolab_aero_agent",
+   "title": "The AI Aerodynamicist, driven by an agent",
+   "summary": "The mission in words is read into objectives, limits and a budget (or refused with the reason), then an agent drives the Autonomous Physics Lab one controlled tool call at a…",
+   "description": "The mission in words is read into objectives, limits and a budget (or refused with the reason), then an agent drives the Autonomous Physics Lab one controlled tool call at a time; its answer is audited against the ledger of OpenFOAM runs.",
+   "domain": "external aerodynamics",
+   "tags": [
+    "MLP ensemble / GP surrogates",
+    "NSGA-II",
+    "OpenFOAM simpleFoam",
+    "active learning",
+    "agent over controlled tools"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_aero_agent"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_aero_agent\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "agent_steps",
+      "value": 31.0,
+      "unit": "tool calls",
+      "how": "tool calls of the agent session"
+     },
+     {
+      "name": "replayed_runs",
+      "value": 21.0,
+      "unit": "runs",
+      "how": "designs answered from the stage-1 ledger"
+     },
+     {
+      "name": "new_cfd_runs",
+      "value": 0.0,
+      "unit": "runs",
+      "how": "designs simulated in OpenFOAM in this session"
+     },
+     {
+      "name": "drag_change",
+      "value": -15.667219882799474,
+      "unit": "%",
+      "how": "recommended (simulated) vs baseline, campaign mesh"
+     },
+     {
+      "name": "agent_refused_calls",
+      "value": 0.0,
+      "unit": "calls",
+      "how": "tool calls the toolbox refused or that failed"
+     }
+    ],
+    "figures": [],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/autonomous_lab.md",
+    "lab": "lab/index.html#examples/autolab_aero_agent"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "3f0f030410fd8957",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.89,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
     "timed_out": false,
     "status": "ok"
    }

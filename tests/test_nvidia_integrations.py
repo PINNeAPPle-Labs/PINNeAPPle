@@ -303,3 +303,10 @@ def test_example_12_omniverse_robotsim_smoke(tmp_path):
 def test_example_08_learned_dynamics_smoke(tmp_path):
     s = _example("08_robotsim_physicsnemo_learned_dynamics")["main"](True, str(tmp_path))
     assert s["decision"] in ("APPROVED", "REVIEW", "REJECT") and s["samples"] > 0
+
+
+@needs_newton
+def test_arm_pick_and_place_check_for_flow_node():
+    from pinneapple_simulation.robot_sim.checks import arm_pick_and_place
+    r = arm_pick_and_place(dt=2e-3)
+    assert r["replay_order"] > 0.8 and r["decision"] in ("APPROVED", "REJECT") and len(r["checks"]) == 8

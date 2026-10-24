@@ -26,7 +26,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 - PINNeAPPle Robot Sim (`pinneapple_simulation.robot_sim`): robots on NVIDIA Newton (CPU) from URDF, MJCF, UsdPhysics
   or a plain `ArticulationSpec` (`TwoLinkArm`), effort-limited torque control (`pd_tracking`, `torque_trajectory`),
   recorded joint-torque sensors, body poses, energy, actuator work and an IMU; `convergence_order`; a CEM learning
-  loop on rollouts (`robot_sim.learn.cem`); an `IsaacSimBackend` with the same interface (writes the Isaac Sim script).
+  loop on rollouts (`robot_sim.learn.cem`); an `IsaacSimBackend` with the same interface (writes the Isaac Sim script);
+  `robot_sim.checks.arm_pick_and_place` and the Flow Studio nodes `lib.robot.arm_check` and `lib.export.usd_validate`.
   `pinneapple_tools.nvidia.isaac`: Isaac Sim-ready UsdPhysics articulations and `validate_physics` (UsdPhysics parser,
   masses, inertias, joints). `multibody.arm`: fixed-base inverse / forward dynamics, the closed-form two-link
   reference, quintic motions, energy balance, `lumped_link`, `link_root_checks` (yield and fatigue).

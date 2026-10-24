@@ -21,7 +21,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["pareto_front", "fig_pareto", "fig_models", "fig_learning", "fig_field_triptych", "fig_trust_cards",
+__all__ = ["shrink_png", "pareto_front", "fig_pareto", "fig_models", "fig_learning", "fig_field_triptych", "fig_trust_cards",
            "write_report", "STYLE"]
 
 STYLE = {"bg": "#0d0f14", "panel": "#151821", "ink": "#e8e6e1", "muted": "#9a988f", "grid": "#2a2e3a",
@@ -53,11 +53,19 @@ def _fig(w, h, n=1, m=1, **kw):
     return fig, axes
 
 
-def _save(fig, path: str) -> str:
+def _save(fig, path: str, dpi: int = 150) -> str:
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    fig.savefig(path, dpi=150, facecolor=fig.get_facecolor())
+    fig.savefig(path, dpi=dpi, facecolor=fig.get_facecolor())
     import matplotlib.pyplot as plt
     plt.close(fig)
+    return path
+
+
+def shrink_png(path: str, colors: int = 256) -> str:
+    """Re-save a PNG with an adaptive palette of ``colors`` (renders and dense scatter plots shrink 3-4x)."""
+    from PIL import Image
+    img = Image.open(path).convert("RGB")
+    img.quantize(colors, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.FLOYDSTEINBERG).save(path, optimize=True)
     return path
 
 
@@ -156,13 +164,18 @@ def fig_learning(snap: Mapping[str, Any], path: str, outputs: Sequence[str], obj
     _ax_style(a1, "Error of each prediction, measured by the simulation that followed it")
     dec = [d for d in snap["decisions"] if d.get("rel_error")]
     cols = [STYLE["front"], STYLE["acquisition"], STYLE["candidate"], STYLE["best"]]
+    order = {r["id"]: k for k, r in enumerate([r for r in snap["runs"] if r["purpose"] != "probe"], 1)}
     for c, o in zip(cols, outputs, strict=False):
-        xs = [d["n_train"] for d in dec if o in d["rel_error"]]
+        xs = [order.get(d["run"], d["n_train"] + 1) for d in dec if o in d["rel_error"]]
         ys = [100 * d["rel_error"][o] for d in dec if o in d["rel_error"]]
         a1.plot(xs, ys, "-o", ms=4, lw=1, color=c, label=o)
+    ver = [order[d["run"]] for d in dec if d.get("verification") and d["run"] in order]
+    if ver:
+        a1.axvspan(min(ver) - 0.5, max(ver) + 0.5, color=STYLE["verification"], alpha=0.12, lw=0)
+        a1.text(min(ver) - 0.4, a1.get_ylim()[1] * 0.95, "final verification", color=STYLE["muted"], fontsize=7)
         if o in acceptance:
             a1.axhline(100 * acceptance[o], color=c, ls="--", lw=0.7, alpha=0.7)
-    a1.set_xlabel("simulations in the training set")
+    a1.set_xlabel("simulation number (the model was trained on every earlier one)")
     a1.set_ylabel("|prediction - CFD| / CFD [%]")
     a1.legend(fontsize=7, facecolor=STYLE["panel"], edgecolor=STYLE["grid"], labelcolor=STYLE["ink"])
     _ax_style(a2, f"Best simulated feasible {objective} vs simulations spent")
@@ -217,7 +230,7 @@ def fig_field_triptych(points: np.ndarray, ref: np.ndarray, pred: np.ndarray, pa
                 cb.set_label(label if col < 2 else f"|{label} error|", color=STYLE["ink"], fontsize=8)
     if title:
         fig.suptitle(title, color=STYLE["ink"], fontsize=11)
-    return _save(fig, path)
+    return shrink_png(_save(fig, path, dpi=110))
 
 
 def fig_trust_cards(cards: Sequence[Mapping[str, Any]], path: str, outputs: Sequence[str],
@@ -295,6 +308,9 @@ def write_report(summary: Mapping[str, Any], path: str, figures: Mapping[str, st
         for o, fams in bd["table"].items():
             for f, v in fams.items():
                 if "skipped" in v:
+                    L.append(f"| {o} | {f} | skipped: a full quadratic in {len(m['variables'])} variables has "
+                             f"{(len(m['variables']) + 1) * (len(m['variables']) + 2) // 2} coefficients, more than "
+                             f"the simulations | | | | |")
                     continue
                 star = " **(chosen)**" if bd["chosen"][o] == f else ""
                 L.append(f"| {o} | {f}{star} | {v['rmse']:.4g} | {100 * v['rel_mae']:.2f} % | {v['r2']:.3f} | "

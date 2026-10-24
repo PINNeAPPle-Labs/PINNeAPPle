@@ -25,7 +25,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   cost, environment) and an event stream; solver qualification; figures and a Markdown report. Domain
   `domains.racecar`: `RaceCarAero` (FormulaCar in OpenFOAM: geometry and boundary-condition checks, forces averaged
   over the last half of the iterations with their spread, aero balance from face moments, surface Cp on the
-  parametric vertices) and the flagship mission; worked example `examples/autolab_aero/`; guide
+  parametric vertices) and the flagship mission; worked example `examples/autolab_aero/` (20 OpenFOAM runs measured
+  here: drag -15.7 % with the downforce and balance limits met, -13.95 % on the fine mesh where the balance limit is
+  missed by 1 %, within the solver's iteration noise; 3 of 4 "uncertain" designs rejected by CFD); guide
   `docs/guides/autonomous_lab.md`.
 - `ExternalFlow`: `body_levels` (surface refinement per body, e.g. thin wing elements), `refine_boxes`,
   `write_every` + `force_history()` (forces at every written iteration), `FlowResult.load()`.

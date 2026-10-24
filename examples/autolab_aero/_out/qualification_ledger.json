@@ -1,0 +1,438 @@
+{
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.13.17",
+  "cpu_count": 4,
+  "machine": "x86_64",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "mem_gb": 15.7,
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "sklearn": "1.9.1",
+  "torch": "2.14.1+cu130",
+  "pinneapple": "0.7.0",
+  "git_commit": "f33fa445ba8f16cae25adbade9d501f6c86018aa"
+ },
+ "budget": {
+  "max_runs": null,
+  "max_wall_s": null,
+  "used_runs": 3,
+  "used_wall_s": 2635.0
+ },
+ "runs": [
+  {
+   "id": "qual-medium",
+   "purpose": "probe",
+   "params": {
+    "front_wing_aoa": 4.0,
+    "front_flap_aoa": 22.0,
+    "rear_wing_aoa": 6.0,
+    "rear_flap_aoa": 32.0,
+    "diffuser_angle": 13.0,
+    "ride_height": 0.035
+   },
+   "ok": true,
+   "outputs": {
+    "drag_N": 3031.2352797419835,
+    "downforce_N": 4327.305467044064,
+    "CD": 0.6006587860872366,
+    "CL": -0.8574834379351097,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 4349.551804419238,
+    "drag_front_wing_N": 756.3969425470821,
+    "downforce_rear_wing_N": 1769.2970435956365,
+    "drag_rear_wing_N": 482.36766569047575,
+    "downforce_floor_N": 1285.7165850627102,
+    "downforce_body_N": -1991.8534705505874,
+    "downforce_wheels_N": -1050.829954360143,
+    "drag_wheels_N": 867.7652434213558,
+    "balance_front": 0.89388749777237
+   },
+   "message": "",
+   "cost_s": 427.7495551080001,
+   "started": "",
+   "reason": "solver qualification: medium",
+   "predicted": {},
+   "meta": {
+    "resolution": "medium",
+    "iterations_requested": 800,
+    "frontal_area_m2": 1.681472,
+    "procs": 4,
+    "timings_s": {
+     "blockMesh": 0.1,
+     "surfaceFeatureExtract": 0.1,
+     "decomposePar": 0.1,
+     "snappyHexMesh": 22.1,
+     "checkMesh": 0.7,
+     "fields": 0.0,
+     "simpleFoam": 389.7,
+     "reconstruct": 1.6
+    },
+    "iterations": 800,
+    "final_residuals": {
+     "omega": 4.2437352e-05,
+     "k": 0.00023308473,
+     "Ux": 0.00018046832,
+     "Uy": 0.0029813173,
+     "Uz": 0.0011017085,
+     "p": 0.00022079311
+    },
+    "simpleFoam_end": true,
+    "fatal": false,
+    "mesh_ok": true,
+    "cells": 212869,
+    "mesh_failed_checks": 0,
+    "iteration_std": {
+     "drag_N": 16.73907101082808,
+     "downforce_N": 48.68692729575582,
+     "CD": 0.003316954688666695,
+     "CL": 0.009647628095129413,
+     "frontal_area_m2": 0.0,
+     "downforce_front_wing_N": 5.5508775052676835,
+     "drag_front_wing_N": 0.902107494809506,
+     "downforce_rear_wing_N": 50.88558460314491,
+     "drag_rear_wing_N": 10.11988957161713,
+     "downforce_floor_N": 88.57448463906466,
+     "downforce_body_N": 67.73329212776886,
+     "downforce_wheels_N": 34.56195119440408,
+     "drag_wheels_N": 41.28009875467565,
+     "balance_front": 0.016413139018393204
+    },
+    "averaged_iterations": [
+     400.0,
+     500.0,
+     600.0,
+     700.0,
+     800.0
+    ],
+    "force_history": [
+     {
+      "iteration": 100.0,
+      "drag_N": 3448.057757972487,
+      "downforce_N": 5262.697052288031
+     },
+     {
+      "iteration": 200.0,
+      "drag_N": 3611.9952061004046,
+      "downforce_N": 5222.362245656476
+     },
+     {
+      "iteration": 300.0,
+      "drag_N": 3473.8260919792046,
+      "downforce_N": 4689.555533113625
+     },
+     {
+      "iteration": 400.0,
+      "drag_N": 3060.7894537580537,
+      "downforce_N": 4338.221449851544
+     },
+     {
+      "iteration": 500.0,
+      "drag_N": 3024.65271043896,
+      "downforce_N": 4330.0039952521
+     },
+     {
+      "iteration": 600.0,
+      "drag_N": 3026.615816706327,
+      "downforce_N": 4369.413423469337
+     },
+     {
+      "iteration": 700.0,
+      "drag_N": 3034.1931093544044,
+      "downforce_N": 4234.636567769314
+     },
+     {
+      "iteration": 800.0,
+      "drag_N": 3009.925308452173,
+      "downforce_N": 4364.251898878028
+     }
+    ],
+    "convergence": {
+     "drag_N_rel_change": 0.005545156953657857,
+     "downforce_N_rel_change": 0.0011826825561182491,
+     "over_iterations": 200.0
+    },
+    "cd_pressure": 0.5746963381852486,
+    "cd_friction": 0.021739739895111854,
+    "flow_npz": "/tmp/claude-0/work/aero/qualification/cases/medium.flow.npz"
+   },
+   "fields_path": ""
+  },
+  {
+   "id": "qual-campaign",
+   "purpose": "probe",
+   "params": {
+    "front_wing_aoa": 4.0,
+    "front_flap_aoa": 22.0,
+    "rear_wing_aoa": 6.0,
+    "rear_flap_aoa": 32.0,
+    "diffuser_angle": 13.0,
+    "ride_height": 0.035
+   },
+   "ok": true,
+   "outputs": {
+    "drag_N": 3314.816263958424,
+    "downforce_N": 7038.380569334864,
+    "CD": 0.6568521838334417,
+    "CL": -1.3947004236360456,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 7015.795871181443,
+    "drag_front_wing_N": 749.6156145595195,
+    "downforce_rear_wing_N": 1964.0226565266116,
+    "drag_rear_wing_N": 495.88681950076415,
+    "downforce_floor_N": 923.8478442764026,
+    "downforce_body_N": -1524.598188140137,
+    "downforce_wheels_N": -1297.779661128756,
+    "drag_wheels_N": 1383.6582968476196,
+    "balance_front": 1.0146561344124971
+   },
+   "message": "",
+   "cost_s": 678.6801571940005,
+   "started": "",
+   "reason": "solver qualification: campaign",
+   "predicted": {},
+   "meta": {
+    "resolution": "campaign",
+    "iterations_requested": 800,
+    "frontal_area_m2": 1.681472,
+    "procs": 4,
+    "timings_s": {
+     "blockMesh": 0.1,
+     "surfaceFeatureExtract": 0.1,
+     "decomposePar": 0.1,
+     "snappyHexMesh": 64.2,
+     "checkMesh": 0.8,
+     "fields": 0.0,
+     "simpleFoam": 584.1,
+     "reconstruct": 3.5
+    },
+    "iterations": 800,
+    "final_residuals": {
+     "omega": 2.7975888e-05,
+     "k": 0.0001577202,
+     "Ux": 0.00012670291,
+     "Uy": 0.0016648196,
+     "Uz": 0.00077102468,
+     "p": 0.00011187093
+    },
+    "simpleFoam_end": true,
+    "fatal": false,
+    "mesh_ok": true,
+    "cells": 424842,
+    "mesh_failed_checks": 0,
+    "iteration_std": {
+     "drag_N": 57.51139597306582,
+     "downforce_N": 109.52220727701508,
+     "CD": 0.011396253376380769,
+     "CL": 0.021702530487242917,
+     "frontal_area_m2": 0.0,
+     "downforce_front_wing_N": 27.674639570135895,
+     "drag_front_wing_N": 10.22558891689977,
+     "downforce_rear_wing_N": 27.08398751594633,
+     "drag_rear_wing_N": 11.575517433767999,
+     "downforce_floor_N": 80.17624118337498,
+     "downforce_body_N": 79.31068203576504,
+     "downforce_wheels_N": 48.75528342888344,
+     "drag_wheels_N": 52.64228765466952,
+     "balance_front": 0.012812117529110602
+    },
+    "averaged_iterations": [
+     400.0,
+     500.0,
+     600.0,
+     700.0,
+     800.0
+    ],
+    "force_history": [
+     {
+      "iteration": 100.0,
+      "drag_N": 3624.1557972594373,
+      "downforce_N": 9174.867954572635
+     },
+     {
+      "iteration": 200.0,
+      "drag_N": 3566.119050041015,
+      "downforce_N": 7769.909959652765
+     },
+     {
+      "iteration": 300.0,
+      "drag_N": 3511.349569412707,
+      "downforce_N": 7289.02084777969
+     },
+     {
+      "iteration": 400.0,
+      "drag_N": 3376.596148779681,
+      "downforce_N": 6924.425768864693
+     },
+     {
+      "iteration": 500.0,
+      "drag_N": 3301.54958413975,
+      "downforce_N": 6978.680369482647
+     },
+     {
+      "iteration": 600.0,
+      "drag_N": 3282.594691391688,
+      "downforce_N": 7245.426773987171
+     },
+     {
+      "iteration": 700.0,
+      "drag_N": 3231.257895769594,
+      "downforce_N": 7021.951329075861
+     },
+     {
+      "iteration": 800.0,
+      "drag_N": 3382.082999711405,
+      "downforce_N": 7021.418605263948
+     }
+    ],
+    "convergence": {
+     "drag_N_rel_change": 0.029416282311287675,
+     "downforce_N_rel_change": 0.031903548458894704,
+     "over_iterations": 200.0
+    },
+    "cd_pressure": 0.6433760251069092,
+    "cd_friction": 0.02680549548619036,
+    "flow_npz": "/tmp/claude-0/work/aero/qualification/cases/campaign.flow.npz"
+   },
+   "fields_path": ""
+  },
+  {
+   "id": "qual-fine",
+   "purpose": "probe",
+   "params": {
+    "front_wing_aoa": 4.0,
+    "front_flap_aoa": 22.0,
+    "rear_wing_aoa": 6.0,
+    "rear_flap_aoa": 32.0,
+    "diffuser_angle": 13.0,
+    "ride_height": 0.035
+   },
+   "ok": true,
+   "outputs": {
+    "drag_N": 3322.37249589722,
+    "downforce_N": 7684.540763246136,
+    "CD": 0.6583494998399171,
+    "CL": -1.5227412261057487,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 7289.791357504146,
+    "drag_front_wing_N": 748.4529519436003,
+    "downforce_rear_wing_N": 2540.0908288740793,
+    "drag_rear_wing_N": 664.910208700179,
+    "downforce_floor_N": 849.5388406024433,
+    "downforce_body_N": -1661.7391843440996,
+    "downforce_wheels_N": -1288.0511559064294,
+    "drag_wheels_N": 1489.4946476289058,
+    "balance_front": 0.9257752562529076
+   },
+   "message": "",
+   "cost_s": 1528.592504827,
+   "started": "",
+   "reason": "solver qualification: fine",
+   "predicted": {},
+   "meta": {
+    "resolution": "fine",
+    "iterations_requested": 800,
+    "frontal_area_m2": 1.681472,
+    "procs": 4,
+    "timings_s": {
+     "blockMesh": 0.1,
+     "surfaceFeatureExtract": 0.1,
+     "decomposePar": 0.1,
+     "snappyHexMesh": 149.0,
+     "checkMesh": 1.1,
+     "fields": 0.1,
+     "simpleFoam": 1320.2,
+     "reconstruct": 6.7
+    },
+    "iterations": 800,
+    "final_residuals": {
+     "omega": 2.4885385e-05,
+     "k": 0.00017411571,
+     "Ux": 0.0001194646,
+     "Uy": 0.0017171218,
+     "Uz": 0.00061702043,
+     "p": 8.9443297e-05
+    },
+    "simpleFoam_end": true,
+    "fatal": false,
+    "mesh_ok": false,
+    "cells": 818620,
+    "mesh_failed_checks": 1,
+    "iteration_std": {
+     "drag_N": 64.89984834490254,
+     "downforce_N": 279.89634866403776,
+     "CD": 0.012860322781481043,
+     "CL": 0.055463263489431654,
+     "frontal_area_m2": 0.0,
+     "downforce_front_wing_N": 18.961602454232562,
+     "drag_front_wing_N": 9.898587971022822,
+     "downforce_rear_wing_N": 106.68349930588259,
+     "drag_rear_wing_N": 13.543707214220396,
+     "downforce_floor_N": 161.63351039055112,
+     "downforce_body_N": 61.10731510070114,
+     "downforce_wheels_N": 34.38447051338615,
+     "drag_wheels_N": 42.810581927833496,
+     "balance_front": 0.031880843398910653
+    },
+    "averaged_iterations": [
+     400.0,
+     500.0,
+     600.0,
+     700.0,
+     800.0
+    ],
+    "force_history": [
+     {
+      "iteration": 100.0,
+      "drag_N": 3703.6620762289695,
+      "downforce_N": 9481.602571108775
+     },
+     {
+      "iteration": 200.0,
+      "drag_N": 3396.9650437051478,
+      "downforce_N": 8807.887796604844
+     },
+     {
+      "iteration": 300.0,
+      "drag_N": 3391.1309435202734,
+      "downforce_N": 8110.1880418858245
+     },
+     {
+      "iteration": 400.0,
+      "drag_N": 3446.7595821464333,
+      "downforce_N": 8040.072581373136
+     },
+     {
+      "iteration": 500.0,
+      "drag_N": 3299.3733754433433,
+      "downforce_N": 7277.978639670436
+     },
+     {
+      "iteration": 600.0,
+      "drag_N": 3255.776510584953,
+      "downforce_N": 7527.776395878317
+     },
+     {
+      "iteration": 700.0,
+      "drag_N": 3308.0243406296204,
+      "downforce_N": 7624.3499891031815
+     },
+     {
+      "iteration": 800.0,
+      "drag_N": 3301.9286706817484,
+      "downforce_N": 7952.52621020561
+     }
+    ],
+    "convergence": {
+     "drag_N_rel_change": 0.013977334067385022,
+     "downforce_N_rel_change": 0.05341067770165972,
+     "over_iterations": 200.0
+    },
+    "cd_pressure": 0.6233708971221247,
+    "cd_friction": 0.030927527131884725,
+    "flow_npz": "/tmp/claude-0/work/aero/qualification/cases/fine.flow.npz"
+   },
+   "fields_path": ""
+  }
+ ]
+}

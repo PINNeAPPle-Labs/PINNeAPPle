@@ -35,6 +35,7 @@ def solver_qualification(sim: Simulator, params: Mapping[str, float], variants: 
         led.add(rec)
         rows[name] = {"ok": rec.ok, "outputs": rec.outputs, "cost_s": rec.cost_s, "options": dict(opts),
                       "cells": out.meta.get("cells"), "residuals": out.meta.get("final_residuals"),
+                      "iteration_std": out.meta.get("iteration_std", {}),
                       "message": rec.message}
     led.save()
     ref = rows.get(reference, {}).get("outputs") or {}

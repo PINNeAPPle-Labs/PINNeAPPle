@@ -26,6 +26,7 @@ import pinneapple_lab
 from pinneapple_autolab import AutonomousLab
 from pinneapple_autolab import report as R
 from pinneapple_autolab.domains.racecar import BASELINE, RaceCarAero, flagship_mission, render_run
+from pinneapple_autolab.lab import showcase
 from pinneapple_autolab.qualification import solver_qualification
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -61,7 +62,7 @@ def main() -> None:
             modules=["pinneapple_autolab", "pinneapple_simulation.numerical_solvers.external_flow",
                      "pinneapple_design.geometry.vehicles3d", "pinneapple_design.design_optimizer",
                      "pinneapple_analysis.trust"],
-            params=vars(a), out_dir=HERE, register=False,
+            params={k: v for k, v in vars(a).items() if k not in ("work", "out")}, out_dir=HERE, register=False,
             links={"script": "examples/autolab_aero/autolab_aero.py", "report": "examples/autolab_aero/_out/report.md"}
     ) as ex:
         sim = RaceCarAero(resolution=a.mesh, iterations=a.iterations)
@@ -108,7 +109,8 @@ def main() -> None:
                                    {"drag_N": "drag [N]", "downforce_N": "downforce [N]",
                                     "balance_front": "front share"})
         F["learning"] = R.fig_learning(snap, os.path.join(figs, "learning.png"), OUTS, "drag_N", mission.acceptance)
-        sc = summary["showcase"]
+        sc = summary["showcase"] = showcase(summary["decisions"], summary["baseline"]["outputs"])
+        json.dump(summary, open(os.path.join(a.out, "summary.json"), "w"), indent=1, default=float)
         if sc:
             F["abc"] = R.fig_trust_cards([sc[k] for k in sorted(sc)], os.path.join(figs, "trust_abc.png"), OUTS)
         held = [d for d in summary["decisions"] if d.get("run") and os.path.exists(
@@ -125,15 +127,54 @@ def main() -> None:
             if os.path.exists(npz):
                 for k, v in render_run(run["params"], npz, os.path.join(figs, tag),
                                        f"{tag}: {run['id']} (CFD)").items():
-                    F[f"{tag}_{k}"] = v
+                    F[f"{tag}_{k}"] = ex.add_file(v)
         extra = ""
         if fine and summary.get("improvement"):
+            def fine_noise(q):            # iteration std of the fine run, from its ledger (older files lack it inline)
+                v = q["variants"]["fine"]
+                if v.get("iteration_std"):
+                    return v["iteration_std"]
+                led_q = json.load(open(q["ledger"])) if os.path.exists(q["ledger"]) else {"runs": []}
+                return next((r["meta"].get("iteration_std", {}) for r in led_q["runs"] if r["id"] == "qual-fine"), {})
             bf, wf = qual["variants"]["fine"]["outputs"], fine["variants"]["fine"]["outputs"]
-            extra = ("## The recommendation on the fine mesh (outside the budget)\n\n| output | baseline (fine) | "
-                     "recommended (fine) | change (fine) | change (campaign mesh) |\n|---|---|---|---|---|\n" + "\n".join(
-                         f"| {k} | {bf[k]:.4g} | {wf[k]:.4g} | {100 * (wf[k] - bf[k]) / abs(bf[k]):+.2f} % | "
-                         f"{100 * (summary['best']['outputs'][k] - summary['baseline']['outputs'][k]) / abs(summary['baseline']['outputs'][k]):+.2f} % |"
-                         for k in OUTS))
+            nb, nw = fine_noise(qual), fine_noise(fine)
+            b0, w0 = summary["baseline"]["outputs"], summary["best"]["outputs"]
+            extra = ("## The recommendation on the fine mesh (outside the budget)\n\nBoth designs on the fine mesh "
+                     f"({fine['variants']['fine']['cells']:,} cells for the recommendation). Noise = standard deviation of "
+                     "the output over the averaged iterations of each fine run.\n\n| output | baseline (fine) | "
+                     "recommended (fine) | change (fine) | change / noise | change (campaign mesh) |\n"
+                     "|---|---|---|---|---|---|\n" + "\n".join(
+                         f"| {k} | {bf[k]:.4g} ± {nb.get(k, float('nan')):.2g} | {wf[k]:.4g} ± {nw.get(k, float('nan')):.2g} | "
+                         f"{100 * (wf[k] - bf[k]) / abs(bf[k]):+.2f} % | "
+                         f"{(wf[k] - bf[k]) / max((nb.get(k, 0) ** 2 + nw.get(k, 0) ** 2) ** 0.5, 1e-12):+.1f} | "
+                         f"{100 * (w0[k] - b0[k]) / abs(b0[k]):+.2f} % |" for k in OUTS))
+            lim_b = summary["mission"]["constraints"][1]
+            extra += (f"\n\nOn the fine mesh the balance limit ({lim_b['text']}) of the fine baseline is "
+                      f"{bf['balance_front'] * lim_b['lower_frac_of_baseline']:.4g} to "
+                      f"{bf['balance_front'] * lim_b['upper_frac_of_baseline']:.4g}; the recommendation's "
+                      f"{wf['balance_front']:.4g} is " + ("inside it" if bf['balance_front'] * lim_b['lower_frac_of_baseline']
+                                                          <= wf['balance_front'] <= bf['balance_front'] * lim_b['upper_frac_of_baseline']
+                                                          else "outside it") +
+                      ". The campaign mesh moves the baseline's balance by "
+                      f"{100 * qual['campaign_vs_reference'].get('balance_front', 0):+.1f} % against the fine mesh, so the "
+                      "balance limit is the least resolved of the three outputs.")
+        led = json.load(open(os.path.join(a.out, "ledger.json")))
+        noise = {r["id"]: r["meta"].get("iteration_std", {}) for r in led["runs"] if r["ok"]}
+        lim = {c["name"]: c for c in summary["mission"].get("constraints_absolute", [])}
+        rows = []
+        for d in summary["decisions"]:
+            for k, c in lim.items():
+                v, sd = d["reference"].get(k), noise.get(d["run"], {}).get(k)
+                if v is None or not sd:
+                    continue
+                m = min(v - c["lower"] if c["lower"] is not None else float("inf"),
+                        c["upper"] - v if c["upper"] is not None else float("inf"))
+                rows.append(f"| {d['run']} | {k} | {m:+.4g} | {sd:.3g} | {m / sd:+.1f} | {d['label_after']} |")
+        extra += ("\n\n## Limit margins against the solver's own iteration noise\n\nmargin = distance to the limit in "
+                  "the CFD (negative: violated); noise = standard deviation of the output over the averaged "
+                  "iterations of that run. A verdict with |margin / noise| < 2 is within the solver's noise.\n\n"
+                  "| run | output | margin | noise | margin / noise | verdict |\n|---|---|---|---|---|---|\n"
+                  + "\n".join(rows))
         R.write_report(summary, os.path.join(a.out, "report.md"), F, qual, extra)
 
         # ------------------------------------------------------------------ evidence for the lab manifest
@@ -160,7 +201,13 @@ def main() -> None:
                 ex.check("fine_mesh_confirms_lower_drag", passed=wf["drag_N"] < bf["drag_N"], kind="reference",
                          label="the drag reduction holds on the fine mesh")
                 ex.check("fine_mesh_confirms_downforce", passed=wf["downforce_N"] >= bf["downforce_N"],
-                         kind="reference", label="the downforce limit holds on the fine mesh")
+                         kind="reference", label="the downforce limit holds on the fine mesh (margin within the "
+                                                 "iteration noise of the fine runs)")
+                lb = summary["mission"]["constraints"][1]
+                ex.check("fine_mesh_balance_limit", value=wf["balance_front"],
+                         min=bf["balance_front"] * lb["lower_frac_of_baseline"],
+                         max=bf["balance_front"] * lb["upper_frac_of_baseline"], kind="reference",
+                         label="the aero-balance limit holds on the fine mesh")
         for k, v in summary["board"]["table"].items():
             fam = summary["board"]["chosen"][k]
             ex.log_metric(f"cv_rel_error_{k}", 100 * v[fam]["rel_mae"], "%",

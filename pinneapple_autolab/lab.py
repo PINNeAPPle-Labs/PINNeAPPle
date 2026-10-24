@@ -46,7 +46,35 @@ from .trust import (
     verification_checks,
 )
 
-__all__ = ["AutonomousLab"]
+__all__ = ["AutonomousLab", "showcase", "SHOWCASE"]
+
+SHOWCASE = {"A": "uncertain", "B": "favourable", "C": "out_of_domain"}
+
+
+def showcase(decisions: list[dict[str, Any]], baseline: dict[str, float]) -> dict[str, dict[str, Any]]:
+    """Three simulated designs the lab judged differently before simulating them, by a fixed rule:
+
+    * A, "uncertain": the one the reference contradicted most (rejected by the reference first, then the largest
+      relative error of any output): what an unsettled prediction would have cost if it had been believed;
+    * B, "favourable": the first one;
+    * C, "out_of_domain": the first one (the model's optimum without evidence).
+
+    Each with its prediction and std, the reasons and the trust decision before the run, what the reference said."""
+    out: dict[str, dict[str, Any]] = {}
+    for tag, lab in SHOWCASE.items():
+        ds = [d for d in decisions if d["label_before"] == lab and d.get("run")]
+        if not ds:
+            continue
+        if tag == "A":
+            d = max(ds, key=lambda d: (d["label_after"] != "verified", max(d["rel_error"].values(), default=0)))
+        else:
+            d = ds[0]
+        out[tag] = {"tag": tag, "label": lab, "run": d["run"], "params": d["params"], "predicted": d["predicted"],
+                    "std": d["std"], "reference": d["reference"], "rel_error": d["rel_error"],
+                    "reasons": d.get("reasons_before", []), "decision": d.get("trust_before"), "rule": d["rule"],
+                    "after": d["label_after"], "field_error": d.get("field_error"), "baseline": baseline,
+                    "action": f"simulated ({d['run']}): {d['label_after']}"}
+    return out
 
 
 class AutonomousLab:
@@ -432,7 +460,8 @@ class AutonomousLab:
             keep = np.arange(n) if n <= max_candidates else np.sort(
                 np.random.default_rng(0).choice(n, max_candidates, replace=False))
             cand = {k: np.asarray(v)[keep] for k, v in self.pool.items()}
-            snap["candidates"] = {k: v.tolist() for k, v in cand.items()}
+            snap["candidates"] = {k: (np.round(v, 5).tolist() if v.dtype.kind == "f" else v.tolist())
+                                  for k, v in cand.items()}
             snap["candidates"]["names"] = self.names
             axes = self.pareto_axes()
             ok = np.ones(len(keep), bool)
@@ -455,26 +484,13 @@ class AutonomousLab:
         return snap
 
     def showcase(self) -> dict[str, dict[str, Any]]:
-        """Three designs the lab judged differently, from what actually happened: A = the first acquisition judged
-        "uncertain" (the prediction could not settle the decision), B = the first judged "favourable", C = the first
-        judged "out_of_domain" (the model's optimum without evidence). Each with its prediction, the reasons, the
-        trust decision before the run and what the reference said. A label never simulated falls back to the best
-        current candidate with that label, marked "not simulated"."""
-        tags = {"A": "uncertain", "B": "favourable", "C": "out_of_domain"}
+        """Three designs the lab judged differently; see :func:`showcase`. A label never simulated falls back to
+        the best current candidate with that label, marked "not simulated"."""
         base = next((r.outputs for r in self.ledger.runs if r.purpose == "baseline" and r.ok), {})
-        out: dict[str, dict[str, Any]] = {}
-        for tag, lab in tags.items():
-            d = next((d for d in self.decisions if d["label_before"] == lab), None)
-            if d is not None:
-                out[tag] = {"tag": tag, "label": lab, "run": d["run"], "params": d["params"],
-                            "predicted": d["predicted"], "std": d["std"], "reference": d["reference"],
-                            "rel_error": d["rel_error"], "reasons": d.get("reasons_before", []),
-                            "decision": d.get("trust_before"), "rule": d["rule"], "after": d["label_after"],
-                            "field_error": d.get("field_error"), "baseline": base,
-                            "action": f"simulated ({d['run']}): {d['label_after']}"}
-                continue
+        out = showcase(self.decisions, base)
+        for tag, lab in SHOWCASE.items():
             pool = sorted([c for c in self.candidates if c.label == lab], key=lambda c: -c.cei)
-            if pool:
+            if tag not in out and pool:
                 c = pool[0]
                 out[tag] = {"tag": tag, "label": lab, "run": None, "params": c.params, "predicted": c.predicted,
                             "std": c.std, "reference": {}, "rel_error": {}, "reasons": c.reasons,

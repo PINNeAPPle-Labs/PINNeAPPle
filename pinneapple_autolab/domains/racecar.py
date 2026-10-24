@@ -308,7 +308,8 @@ class RaceCarAero(Simulator):
         return cp
 
 
-def render_run(params: Mapping[str, float], flow_npz: str, out_prefix: str, title: str = "") -> dict[str, str]:
+def render_run(params: Mapping[str, float], flow_npz: str, out_prefix: str, title: str = "",
+               size: tuple[int, int] = (1200, 675)) -> dict[str, str]:
     """PyVista renders of one simulated design from its saved flow scene: surface Cp (jet, from above and below)
     and the streamlines coloured by speed. Returns {name: path}."""
     from pinneapple_simulation.numerical_solvers.external_flow import FlowResult
@@ -318,10 +319,15 @@ def render_run(params: Mapping[str, float], flow_npz: str, out_prefix: str, titl
     sc = FlowResult.load(flow_npz).to_scene(Scene.from_parts(car.parts(), axes="z_up", title=title))
     out = {"cp_top": f"{out_prefix}_cp_top.png", "cp_bottom": f"{out_prefix}_cp_bottom.png",
            "streamlines": f"{out_prefix}_streamlines.png"}
-    render_scene(sc, out["cp_top"], field="cp", clim=(-2.0, 1.0), view="iso", zoom=1.6, hide=("halo",), title=title)
+    render_scene(sc, out["cp_top"], field="cp", clim=(-2.0, 1.0), view="iso", zoom=1.6, hide=("halo",), title=title,
+                 size=size)
     render_scene(sc, out["cp_bottom"], field="cp", clim=(-2.0, 1.0), view=(-0.25, -0.35, -1.0), zoom=1.35,
-                 title=title)
-    render_scene(sc, out["streamlines"], lines=True, view="iso", zoom=1.4, background="#000000", title=title)
+                 title=title, size=size)
+    render_scene(sc, out["streamlines"], lines=True, view="iso", zoom=1.4, background="#000000", title=title,
+                 size=size)
+    from ..report import shrink_png
+    for p in out.values():
+        shrink_png(p)
     return out
 
 

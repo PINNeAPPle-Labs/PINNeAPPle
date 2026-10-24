@@ -81,5 +81,35 @@ check. `pinneapple_autolab/domains/racecar.py` is the reference.
 `examples/autolab_aero/autolab_aero.py`: *"Find a lower-drag aerodynamic design at 70 m/s. Preserve the required
 downforce, stay within the geometry constraints, and validate the final design using CFD."* on a parametric
 open-wheel car (front and rear wing angles, diffuser angle, ride height), OpenFOAM simpleFoam k-ω SST on
-snappyHexMesh, half model over a moving road. Results, mesh qualification and figures:
-[`examples/autolab_aero/_out/report.md`](../../examples/autolab_aero/_out/report.md).
+snappyHexMesh, half model over a moving road. Full report, ledger and figures:
+[`examples/autolab_aero/_out/report.md`](../../examples/autolab_aero/_out/report.md). Measured on this repository's
+4-core container (OpenFOAM v1912), 2026-10-24:
+
+**Solver qualification** (baseline, forces averaged over iterations 400-800 because the steady RANS forces keep
+oscillating by about 2 % after 500 iterations):
+
+| mesh | cells | drag vs fine | downforce vs fine | balance vs fine |
+|---|---|---|---|---|
+| medium | 0.21 M | -8.8 % | **-43.7 %** (wing elements one or two cells thick) | -3.4 % |
+| campaign (wings and floor at the fine levels) | 0.42 M | -0.2 % | -8.4 % | +9.6 % |
+| fine | 0.82 M | 0 | 0 | 0 |
+
+**Campaign**: 20 CFD runs (1 baseline, 10 space-filling, 6 chosen one at a time, 3 final verifications), 3.3 h
+of solver time, no failed run.
+
+| | judged before its CFD | CFD said |
+|---|---|---|
+| run012, run013 | out of domain (the model's optimum, extrapolating) | verified; drag predicted within 0.8 % and 1.2 % |
+| run014 - run017 | uncertain (P(feasible) 0.73 - 0.84) | 1 verified, **3 rejected** (downforce or balance limit violated; run016's drag 3036 N against 2849 ± 46 N predicted) |
+| run018 - run020 | favourable | 3 verified |
+
+**Recommendation**: run019 (simulated), drag 2795 N against 3315 N (**-15.7 %**), downforce 7319 N (limit
+7038 N), balance 1.073 (limit 0.913 - 1.116). **On the fine mesh** (outside the budget): drag **-13.95 %**
+(5.5 x the iteration noise), downforce +0.8 % (within the noise), balance 1.029 against a fine-mesh limit of 1.018:
+**outside by 1 %, within 1.4 x the noise**. The drag reduction is resolved by the solver on both meshes; the balance
+limit is not resolved on the campaign mesh (+9.6 % bias), which the report flags.
+
+Surrogates (5-fold cross-validation, 20 runs): MLP ensemble chosen for every output, held-out mean relative error
+drag 2.4 %, downforce 10.2 %, balance 4.3 %; the quadratic response surface needs more runs than its 28
+coefficients and is skipped. Surface Cp (POD + GP): held-out RMSE 0.07 on the body, 0.12 on the diffuser, 0.21-0.24
+on the wings (the wings have vertices only at their span ends).

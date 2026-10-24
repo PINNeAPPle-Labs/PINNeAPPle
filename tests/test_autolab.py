@@ -148,3 +148,15 @@ def test_full_cycle_on_an_analytic_simulator(tmp_path):
     assert all(h["n_train"] >= 7 for h in s["held_out"])
     assert s["field_cv"]["per_region"]["tail"]["rmse"] < 0.2
     assert os.path.exists(os.path.join(str(tmp_path), "ledger.json"))
+
+
+def test_showcase_rule_picks_the_most_contradicted_uncertain_design():
+    from pinneapple_autolab.lab import showcase
+    d = lambda run, lab, after, err: {"run": run, "label_before": lab, "label_after": after,  # noqa: E731
+                                      "rel_error": {"drag": err}, "params": {}, "predicted": {}, "std": {},
+                                      "reference": {"drag": 1.0}, "rule": "r"}
+    ds = [d("r1", "uncertain", "verified", 0.20), d("r2", "uncertain", "rejected by reference", 0.01),
+          d("r3", "favourable", "verified", 0.0), d("r4", "out_of_domain", "verified", 0.0),
+          d("r5", "favourable", "verified", 0.0)]
+    sc = showcase(ds, {"drag": 1.0})
+    assert (sc["A"]["run"], sc["B"]["run"], sc["C"]["run"]) == ("r2", "r3", "r4")

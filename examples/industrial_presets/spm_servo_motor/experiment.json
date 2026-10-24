@@ -1,0 +1,119 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/spm_servo_motor",
+ "title": "Motor s\u00edncrono de \u00edm\u00e3s superficiais (servo 4 polos, 24 ranhuras): torque, ondula\u00e7\u00e3o e cogging",
+ "description": "Que torque o motor entrega na corrente nominal (limite t\u00e9rmico de densidade de corrente), com quanta ondula\u00e7\u00e3o e cogging? Qual a menor espessura de \u00edm\u00e3 que mant\u00e9m o torque?",
+ "domain": "Eletromagnetismo / m\u00e1quinas el\u00e9tricas",
+ "methods": [
+  "pinneapple_simulation.electromagnetics.machine.SPMMachine"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 37.661699786999634
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[torque: tensor de Maxwell vs co-energia]",
+   "value": 0.00015335654237919993,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: duas integra\u00e7\u00f5es independentes do mesmo campo (lib, tests/test_motor_magnetics.py mede 0,09 %)"
+  },
+  {
+   "name": "rel_error[torque - cogging vs i.e/w (balan\u00e7o de pot\u00eancia)]",
+   "value": 0.020903837001168817,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: conserva\u00e7\u00e3o de energia: P_mec = sum i_k e_k"
+  },
+  {
+   "name": "rel_error[kt (FEM) vs 3/2 ke1 (fundamental da FEM, m\u00e1quina senoidal)]",
+   "value": 0.028223139241408575,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: Pyrh\u00f6nen, Jokinen & Hrabovcov\u00e1, Design of Rotating Electrical Machines, 2a ed. (2014), eq. de torque da m\u00e1quina s\u00edncrona de \u00edm\u00e3s"
+  },
+  {
+   "name": "surrogate_holdout_max_rel_err",
+   "value": 0.010298457639493648,
+   "unit": "-",
+   "how": "15 held-out solver runs (Latin hypercube)"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.000972648928707076,
+   "unit": "-",
+   "how": "bisse\u00e7\u00e3o sobre o FEM (FEM a vazio \u00e9 mon\u00f3tona em Br), IC pela sensibilidade dE/dBr"
+  }
+ ],
+ "checks": [
+  {
+   "name": "torque: tensor de Maxwell vs co-energia",
+   "passed": true,
+   "value": 7.52696905751996,
+   "reference": 7.525814924564543,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "torque - cogging vs i.e/w (balan\u00e7o de pot\u00eancia)",
+   "passed": true,
+   "value": 7.473062979699129,
+   "reference": 7.632613896484088,
+   "rtol": 0.03,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "kt (FEM) vs 3/2 ke1 (fundamental da FEM, m\u00e1quina senoidal)",
+   "passed": true,
+   "value": 0.525775521758763,
+   "reference": 0.5410455249452333,
+   "rtol": 0.05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/motor.png",
+   "results/surrogate_parity.png",
+   "results/variants.png",
+   "results/3d/spm_servo_motor_3d_B.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "duas integra\u00e7\u00f5es independentes do mesmo campo (lib, tests/test_motor_magnetics.py mede 0,09 %)",
+  "conserva\u00e7\u00e3o de energia: P_mec = sum i_k e_k",
+  "Pyrh\u00f6nen, Jokinen & Hrabovcov\u00e1, Design of Rotating Electrical Machines, 2a ed. (2014), eq. de torque da m\u00e1quina s\u00edncrona de \u00edm\u00e3s"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "4ca4fd00",
+  "created": "2026-10-24T11:23:48Z",
+  "seconds": 0.01,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

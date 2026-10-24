@@ -24,6 +24,10 @@ _BUILTIN: dict[str, str] = {
     "steam_pipe_insulation": "pinneapple_presets.cases.insulation:SteamLineInsulation",
     "pressure_vessel_asme": "pinneapple_presets.cases.pressure_vessel:PressureVessel",
     "pump_npsh_cavitation": "pinneapple_presets.cases.pump_npsh:PumpNPSH",
+    "airfoil_section_re4e6": "pinneapple_presets.cases.airfoil:AirfoilSection",
+    "spm_servo_motor": "pinneapple_presets.cases.spm_motor:SPMMotor",
+    "ipm_traction_motor": "pinneapple_presets.cases.ipm_traction:IPMTraction",
+    "eddy_current_skin_inspection": "pinneapple_presets.cases.eddy_current:EddyCurrentInspection",
 }
 _EXTRA: dict[str, type] = {}
 

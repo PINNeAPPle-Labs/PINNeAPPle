@@ -1,0 +1,85 @@
+{
+ "preset": "ipm_traction_motor",
+ "fidelity": "solver",
+ "params": {
+  "I_peak": 250.0,
+  "gamma_deg": 40.0,
+  "rpm": 1500.0,
+  "v_dc": 500.0,
+  "n_positions": 6,
+  "n_gap": 480
+ },
+ "outputs": {
+  "torque": 334.86285399739717,
+  "torque_dq": 338.7240938572967,
+  "ripple": 0.21727144695228587,
+  "psi_d": 0.014713236418553594,
+  "psi_q": 0.3337728766698336,
+  "v_phase_peak": 209.91934284990265,
+  "v_limit": 288.6751345948129,
+  "i_d": -160.6969024216348,
+  "i_q": 191.5111107797445,
+  "pole_pairs": 4
+ },
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "torque 334.9 N m a 250 A, gamma 40\u00b0",
+   "tens\u00e3o de fase 210 V <= limite 289 V a 1500 rpm"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "Maxwell-stress torque = dq-flux torque (within 5 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.011530809744366348,
+    "limit": 0.05,
+    "source": "two post-processings of the same fields",
+    "reason": ""
+   },
+   {
+    "name": "current within the 300 A inverter peak rating",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 250.0,
+    "limit": 300,
+    "source": "Staunton et al., ORNL/TM-2004/247, 'Evaluation of the 2004 Toyota Prius hybrid electric drive system' (2005)",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 2.309884459000159,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T10:23:13Z"
+ }
+}

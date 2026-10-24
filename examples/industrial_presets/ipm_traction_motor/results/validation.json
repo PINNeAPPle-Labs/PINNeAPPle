@@ -1,0 +1,120 @@
+{
+ "preset": "ipm_traction_motor",
+ "references": [
+  {
+   "case": "torque m\u00e1ximo da curva T(\u00e2ngulo) a 250 A",
+   "output": "torque",
+   "unit": "N m",
+   "computed": 340.60478826182924,
+   "reference": 353.0,
+   "rel_error": 0.03511391427243841,
+   "tol": 0.05,
+   "pass": true,
+   "kind": "benchmark",
+   "source": "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan",
+   "params": {
+    "I_peak": 250
+   }
+  },
+  {
+   "case": "curva T(\u00e2ngulo) a 250 A, 13 pontos: erro m\u00e9dio / torque m\u00e1ximo",
+   "output": "torque",
+   "unit": "-",
+   "computed": 0.03376705963443254,
+   "reference": 0.0,
+   "rel_error": 0.03376705963443254,
+   "tol": 0.05,
+   "pass": true,
+   "kind": "benchmark",
+   "source": "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan",
+   "params": {}
+  },
+  {
+   "case": "\u00e2ngulo de torque m\u00e1ximo (Phi0)",
+   "output": "phi0",
+   "unit": "deg",
+   "computed": 140.0,
+   "reference": 140.0,
+   "rel_error": 0.0,
+   "tol": 0.1,
+   "pass": true,
+   "kind": "benchmark",
+   "source": "Yang, Krishnamurthy & Brown, 'Electromagnetic and vibrational characteristic of IPM over full torque-speed range', IEEE IEMDC 2013, pp. 295-302 (Prius 2004, 250 A); valores tabulados na su\u00edte de testes do pyleecan",
+   "params": {}
+  },
+  {
+   "case": "torque: tensor de Maxwell vs co-energia (250 A, 50\u00b0)",
+   "output": "torque",
+   "unit": "N m",
+   "computed": 357.2541653157217,
+   "reference": 360.82047916165624,
+   "rel_error": 0.009883900864553579,
+   "tol": 0.02,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "trabalho virtual dW'/dtheta (diferen\u00e7as de 4a ordem)",
+   "params": {}
+  }
+ ],
+ "convergence": {
+  "parameter": "n\u00f3s no entreferro",
+  "values": [
+   480,
+   960
+  ],
+  "torque": [
+   334.86285399739717,
+   339.2918623358118
+  ],
+  "rel_change_last": 0.013053682773066488,
+  "pass": true
+ },
+ "yang_curve": {
+  "phi0": [
+   60.0,
+   70.0,
+   80.0,
+   90.0,
+   100.0,
+   110.0,
+   120.0,
+   130.0,
+   140.0,
+   150.0,
+   160.0,
+   170.0,
+   180.0
+  ],
+  "fem": [
+   93.21694967794379,
+   134.19193919244586,
+   175.6466466614797,
+   216.41358025912527,
+   254.373290457617,
+   288.9592125128451,
+   316.5516701140269,
+   334.86285399739717,
+   340.60478826182924,
+   324.68201360254983,
+   264.65054960342337,
+   151.4927065348385,
+   -1.5019158361440077e-08
+  ],
+  "ref": [
+   79.0,
+   125.0,
+   160.0,
+   192.0,
+   237.0,
+   281.0,
+   319.0,
+   343.0,
+   353.0,
+   332.0,
+   266.0,
+   164.0,
+   22.0
+  ]
+ },
+ "all_pass": true
+}

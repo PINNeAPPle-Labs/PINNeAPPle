@@ -1,0 +1,13 @@
+[16:48:36] check [2D] |r_s| at 0 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_p| at 0 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_s| at 30 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_p| at 30 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_s| at 45 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_p| at 45 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_s| at 60 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_p| at 60 deg: PASS Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel
+[16:48:36] check [2D] |r_p| at Brewster's angle 56.31 deg: PASS Brewster: tan(theta_B) = n2 / n1 (Hecht eq. 4.65)
+[16:48:36] check [2D] transmitted angle for 30 deg incidence: PASS Snell's law n1 sin(t1) = n2 sin(t2)
+[16:48:36] check [2D] transmitted angle for 45 deg incidence: PASS Snell's law n1 sin(t1) = n2 sin(t2)
+[16:48:36] check [2D] transmitted angle for 60 deg incidence: PASS Snell's law n1 sin(t1) = n2 sin(t2)
+[16:48:36] check [2D] trust report: PASS decision APPROVED

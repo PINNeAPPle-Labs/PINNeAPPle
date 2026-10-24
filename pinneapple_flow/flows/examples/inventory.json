@@ -7,6 +7,26 @@
   "domain": "benchmarks",
   "notes": "flows for 00 (dataset registry: 24 / 24 load), 01 (PhysicsBenchmarkSpec: Burgers, heat, inverse heat, Kovasznay), 02 (TimeSeriesBenchmarkSpec x 4) and 04 (pinneapple_arena.Arena on the built-in Kovasznay config; configs/*.yaml through config_file); 05's config dicts run through the same arena.run node. 03, 06 and 08 hold custom training or ArenaProblem subclasses; 07 passes Python lambdas to define_problem; 09's benchmark_dataset returns the problem, not results. Nothing committed to compare"
  },
+ "autolab": {
+  "domain": "design",
+  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+ },
+ "autolab_aero": {
+  "domain": "aerodynamics",
+  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+ },
+ "autolab_aero_agent": {
+  "domain": "aerodynamics",
+  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+ },
+ "autolab_digital_twin": {
+  "domain": "digital twin",
+  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+ },
+ "autolab_rover": {
+  "domain": "vehicles",
+  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
+ },
  "benchmark": {
   "domain": "benchmarks",
   "notes": "01_equal_budget: pp.benchmark.run (benchmark.equal_budget), quick = the script's smoke sizes; nothing committed to compare"
@@ -118,6 +138,10 @@
   "domain": "tools",
   "reason": "imports pinneapple_researcher, which no longer exists (now pinneapple_tools.hpo_experiments); arXiv / GitHub discovery and Gemini extraction need network and an API key, and the output is not deterministic",
   "status": "not_convertible"
+ },
+ "industrial_presets": {
+  "domain": "engineering presets",
+  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
  },
  "inspection": {
   "domain": "inspection",
@@ -243,6 +267,10 @@
  "rigid_body": {
   "domain": "multibody",
   "notes": "NVIDIA Newton 1.7 (warp, CPU) installed with pip here"
+ },
+ "science": {
+  "domain": "science",
+  "reason": "merged into main on 2026-10-24 (after this PR's last batch); its flow is being added on this PR"
  },
  "security": {
   "domain": "security",

@@ -1,0 +1,68 @@
+{
+ "name": "17_omniverse_robotsim_worldmodel_perception",
+ "started": "2026-10-24T11:06:45Z",
+ "wall_s": 4726.438,
+ "steps_s": {
+  "Newton motions": 190.99,
+  "USD stages and camera frames": 18.852,
+  "joint-angle CNN": 4512.066
+ },
+ "components": [
+  {
+   "component": "PINNeAPPle Robot Sim on NVIDIA Newton",
+   "ran": true,
+   "why": "",
+   "how": ""
+  },
+  {
+   "component": "OpenUSD timelines (usd-core)",
+   "ran": true,
+   "why": "",
+   "how": ""
+  },
+  {
+   "component": "PINNeAPPle World Model (synthetic camera, CNN)",
+   "ran": true,
+   "why": "",
+   "how": ""
+  },
+  {
+   "component": "Isaac Sim camera / Omniverse Replicator",
+   "ran": false,
+   "why": "needs Isaac Sim and an RTX GPU",
+   "how": ""
+  },
+  {
+   "component": "NVIDIA Cosmos Transfer",
+   "ran": false,
+   "why": "needs a GPU or NVIDIA_API_KEY",
+   "how": ""
+  }
+ ],
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "gpu": null,
+  "packages": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": "1.7.0",
+   "newton-usd-schemas": "0.6.0",
+   "warp-lang": "1.18.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": "2.8.1",
+   "torch_scatter": "2.1.2",
+   "requests": "2.34.2"
+  }
+ }
+}

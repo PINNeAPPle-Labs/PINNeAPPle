@@ -1,0 +1,141 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/steel_footbridge_pedestrian",
+ "title": "Passarela de a\u00e7o de 30 m: resist\u00eancia, flecha, flambagem lateral e vibra\u00e7\u00e3o de pedestres",
+ "description": "A se\u00e7\u00e3o das vigas atende os quatro modos de falha? Qual a se\u00e7\u00e3o soldada mais leve que atende? O primeiro modo vertical cai na faixa de passo de caminhada (1,6-2,4 Hz)?",
+ "domain": "Estrutural / constru\u00e7\u00e3o",
+ "methods": [
+  "pinneapple_reason.LIBRARY.mode(...).evaluate",
+  "pinneapple_reason.modes.structural",
+  "pinneapple_simulation.numerical_solvers.beam_fe.beam_modes"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 0.01638795899998513
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[1\u00aa frequ\u00eancia: f\u00f3rmula fechada vs FE de viga]",
+   "value": 2.7013228939117467e-08,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)"
+  },
+  {
+   "name": "rel_error[flecha da multid\u00e3o: 5qL^4/384EI vs FE de viga]",
+   "value": 3.2017672950762496e-13,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)"
+  },
+  {
+   "name": "rel_error[2\u00aa frequ\u00eancia = 4 x f1 (Euler-Bernoulli biapoiada)]",
+   "value": 4.2261755626976134e-07,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: Clough & Penzien, Dynamics of Structures, eq. 18-21: f_n = n^2 f_1"
+  },
+  {
+   "name": "rel_error[acelera\u00e7\u00e3o em resson\u00e2ncia exata (v\u00e3o 24 m, f1 na faixa de passo)]",
+   "value": 1.981476239722582e-16,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: oscilador de 1 GL em resson\u00e2ncia: a = alpha G / (M_modal 2 xi), Bachmann & Ammann (1987)"
+  },
+  {
+   "name": "surrogate_holdout_max_rel_err",
+   "value": 0.07439044276002937,
+   "unit": "-",
+   "how": "25 held-out solver runs (Latin hypercube)"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.025822543584560383,
+   "unit": "-",
+   "how": "Gauss-Newton sobre o FE de viga (beam_modes), covari\u00e2ncia sigma^2 (J^T J)^-1"
+  }
+ ],
+ "checks": [
+  {
+   "name": "1\u00aa frequ\u00eancia: f\u00f3rmula fechada vs FE de viga",
+   "passed": true,
+   "value": 1.5228499849995847,
+   "reference": 1.522850026136681,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "flecha da multid\u00e3o: 5qL^4/384EI vs FE de viga",
+   "passed": true,
+   "value": 0.13306653683262798,
+   "reference": 0.13306653683267058,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "2\u00aa frequ\u00eancia = 4 x f1 (Euler-Bernoulli biapoiada)",
+   "passed": true,
+   "value": 6.091402514330896,
+   "reference": 6.091399939998339,
+   "rtol": 0.002,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "acelera\u00e7\u00e3o em resson\u00e2ncia exata (v\u00e3o 24 m, f1 na faixa de passo)",
+   "passed": true,
+   "value": 2.2412038103078022,
+   "reference": 2.241203810307802,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/footbridge.png",
+   "results/surrogate_parity.png",
+   "results/variants.png",
+   "results/3d/steel_footbridge_pedestrian_3d_sigma.png",
+   "results/3d/steel_footbridge_pedestrian_3d_mode1.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+  "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+  "Clough & Penzien, Dynamics of Structures, eq. 18-21: f_n = n^2 f_1",
+  "oscilador de 1 GL em resson\u00e2ncia: a = alpha G / (M_modal 2 xi), Bachmann & Ammann (1987)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "f33fa445",
+  "created": "2026-10-24T00:57:02Z",
+  "seconds": 0.01,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -236,9 +236,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "486dcc50",
-  "created": "2026-10-24T00:32:57Z",
-  "seconds": 5.772,
+  "git": "00347f7a",
+  "created": "2026-10-24T00:59:34Z",
+  "seconds": 5.047,
   "error": null,
   "environment": {
    "python": "3.13.17",

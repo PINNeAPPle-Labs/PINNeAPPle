@@ -1,0 +1,122 @@
+{
+ "preset": "airfoil_section_re4e6",
+ "fidelity": "solver",
+ "params": {
+  "T0": 0.1695912146244289,
+  "T1": 0.14495873416070895,
+  "T2": 0.13143323808820245,
+  "M0": 0.02492222636259679,
+  "M1": 0.07108767218761686,
+  "M2": 0.05895967523554786,
+  "alpha_deg": 4.0,
+  "chord": 1.5,
+  "velocity": 40.0
+ },
+ "outputs": {
+  "Cl": 0.6615020538712943,
+  "Cd": 0.010156366843188538,
+  "Cm": -0.04726119573753353,
+  "LD": 65.13189125810673,
+  "Cl_std": 0.0008502448703480278,
+  "Cd_std": 1.2994763717287724e-05,
+  "Cl_inviscid": 0.7305685185489313,
+  "Cl_inviscid_pressure": 0.7287755415798558,
+  "thickness": 0.12022942993822824,
+  "camber": 0.02016993513372012,
+  "reynolds": 4109589.04109589,
+  "lift_per_span": 972.4080191908029,
+  "shape_valid": true,
+  "shape_issue": ""
+ },
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "Cl 0.662 \u00b1 0.001, Cd 0.01016, L/D 65.1, Cm -0.047 (limite -0,12)",
+   "espessura 12.0 %, sustenta\u00e7\u00e3o 972 N/m"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "shape valid (no crossing / waviness)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "Reynolds within 25 % of the trained 4e6",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 4109589.04109589,
+    "limit": 4000000.0,
+    "source": "zoo airfoil_cst_rans_mlp: ensemble de 5 MLPs treinados em OpenFOAM simpleFoam k-omega SST, Re 4e6; cart\u00e3o com hold-out, grade verificada (GCI), XFOIL e NASA TMR",
+    "reason": ""
+   },
+   {
+    "name": "ensemble spread small (Cl std < 0.01)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0008502448703480278,
+    "limit": 0.01,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "viscous Cl below inviscid Cl (boundary-layer decambering)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.6615020538712943,
+    "limit": 0.7305685185489313,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "panel method: Kutta-Joukowski lift = pressure integral",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.7287755415798558,
+    "limit": 0.7305685185489313,
+    "source": "Hess-Smith",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 1.6793179919995964,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T02:19:27Z"
+ }
+}

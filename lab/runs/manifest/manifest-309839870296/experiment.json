@@ -1,0 +1,166 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-309839870296",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science/electromagnetism/gauss_law",
+  "path": "examples/science/electromagnetism/gauss_law/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D: flux through the cube x eps0]",
+   "value": 0.0,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "3D: flux_times_eps0",
+   "value": 1.5000000000000002e-09,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[2D: flux per unit length x eps0]",
+   "value": 2.0679515313825694e-16,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D] flux through the cube x eps0",
+   "passed": true,
+   "value": 1.5000000000000002e-09,
+   "reference": 1.5000000000000002e-09,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Gauss's law: oint E.dA = Q_enc / eps0 (Griffiths eq. 2.13)",
+   "label": "flux through the cube x eps0 vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] charges outside contribute zero flux",
+   "passed": true,
+   "value": 0.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the outside charges are summed into every face",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] div E = rho/eps0, Gaussian cloud on a 41^3 grid (pp.maxwell.gauss_electric)",
+   "passed": true,
+   "value": 0.004823425444233279,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div D - rho: ||sum of terms|| / sum of ||term|| = 0.00482; r(2h)/r(h) = 3.98: discretisation error (the field obeys the law); extrapolated residual 2.77e-05",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] the same check rejects a 20 % wrong charge density",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "residual 0.0912 > limit 0.05: rejected",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  },
+  {
+   "name": "[2D] flux per unit length x eps0",
+   "passed": true,
+   "value": 2e-09,
+   "reference": 1.9999999999999997e-09,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Gauss's law in 2-D: oint E.n dl = lam_enc / eps0",
+   "label": "flux per unit length x eps0 vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] error decreases with quadrature points",
+   "passed": true,
+   "value": 2.220446049250313e-16,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/2D__gauss_square_2d.png",
+   "figures/3D__gauss_cube.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-309839870296",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "9847a3ef",
+  "seconds": 0.016,
+  "created": "2026-10-24T16:48:37Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

@@ -32,7 +32,7 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["require_pxr", "FieldStage", "validate_stage", "render_stage_png", "render_stage_gif", "read_stage_geometry", "usd_validators", "kit_render_script", "grid_surface",
+__all__ = ["require_pxr", "FieldStage", "validate_stage", "render_stage_png", "render_stage_gif", "rasterize_topdown", "read_stage_geometry", "usd_validators", "kit_render_script", "grid_surface",
            "extrude_profile", "tube", "field_colors"]
 
 
@@ -252,6 +252,31 @@ class FieldStage:
         self.stage.SetStartTimeCode(min(self._times))
         self.stage.SetEndTimeCode(max(self._times))
 
+    def add_rigid_animation(self, name: str, V, F, times: Sequence[float], positions, quats_xyzw, *,
+                            color=(0.7, 0.7, 0.72), colors_over_time=None, parent: str = "/World") -> str:
+        """A rigid part moving over time: an ``Xform`` with time-sampled translate and orient ops (a recorded
+        simulation, e.g. a robot link from the robot sim) and the mesh ``V, F`` in its local frame. ``colors_over_time``
+        (one RGB per time, linear) keys the part's ``displayColor`` (e.g. a stress utilisation)."""
+        from pxr import Gf, UsdGeom, Vt
+        x = UsdGeom.Xform.Define(self.stage, self._prim_path(name, parent))
+        top, oop = x.AddTranslateOp(), x.AddOrientOp(UsdGeom.XformOp.PrecisionDouble)
+        fps = self.stage.GetTimeCodesPerSecond()
+        for k, t in enumerate(times):
+            tc = float(t) * fps
+            top.Set(Gf.Vec3d(*map(float, positions[k])), tc)
+            qx, qy, qz, qw = map(float, quats_xyzw[k])
+            oop.Set(Gf.Quatd(qw, qx, qy, qz), tc)
+            self._times.append(tc)
+        mp = self.add_mesh("geom", V, F, color=color, parent=str(x.GetPath()))
+        if colors_over_time is not None:
+            g = UsdGeom.Mesh(self.stage.GetPrimAtPath(mp))
+            attr = g.GetDisplayColorAttr()
+            for k, t in enumerate(times):
+                attr.Set(Vt.Vec3fArray([Gf.Vec3f(*map(float, colors_over_time[k]))]), float(t) * fps)
+        self.stage.SetStartTimeCode(min(self._times))
+        self.stage.SetEndTimeCode(max(self._times))
+        return str(x.GetPath())
+
     def set_trust(self, prim_path: str, decision: str, checks: Sequence[Mapping[str, Any]] = (),
                   **info: Any) -> None:
         """Store a trust decision (APPROVED / REVIEW / REJECT) and its checks on a prim."""
@@ -301,6 +326,7 @@ def validate_stage(path: str, *, required_primvars: Mapping[str, Sequence[str]] 
     tsamples = 0
     for prim in stage.Traverse():
         counts["prims"] += 1
+        tsamples += sum(len(a.GetTimeSamples()) for a in prim.GetAttributes())   # fields, colours, poses
         if not prim.IsA(UsdGeom.PointBased):
             continue
         pb = UsdGeom.PointBased(prim)
@@ -332,7 +358,6 @@ def validate_stage(path: str, *, required_primvars: Mapping[str, Sequence[str]] 
                 continue
             attr = pv.GetAttr()
             times = attr.GetTimeSamples() or [Usd.TimeCode.Default()]
-            tsamples += len(attr.GetTimeSamples())
             for t in times:
                 v = attr.Get(t)
                 if v is None:
@@ -382,14 +407,48 @@ def usd_validators(stage) -> dict[str, Any]:
         return {"run": False, "why": f"{type(e).__name__}: {e}"}
 
 
-def read_stage_geometry(path: str, time: float | None = None) -> list[dict[str, Any]]:
+def read_stage_geometry(path: str, time: float | None = None, exclude: Sequence[str] = ()) -> list[dict[str, Any]]:
     """Meshes and curves of a USD file as arrays: ``[{"path", "kind", "points", "faces" or "counts", "colors"}]``
-    (colours from ``displayColor`` at ``time``, a time code; default: the first sample)."""
+    (colours from ``displayColor`` at ``time``, a time code; default: the first sample). ``exclude``: prim path
+    prefixes to leave out (e.g. a ground plane)."""
     require_pxr()
     from pxr import Usd, UsdGeom
     stage = Usd.Stage.Open(os.fspath(path))
+    when = Usd.TimeCode(time) if time is not None else Usd.TimeCode.Default()
     out = []
     for prim in stage.Traverse():
+        if any(str(prim.GetPath()).startswith(e) for e in exclude):
+            continue
+        if prim.IsA(UsdGeom.Cube):                              # boxes (Isaac Sim colliders / visuals)
+            xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(when), float)
+            h = UsdGeom.Cube(prim).GetSizeAttr().Get() / 2.0
+            c = np.array([[x, y, z] for x in (-h, h) for y in (-h, h) for z in (-h, h)])
+            P = (np.c_[c, np.ones(8)] @ xf)[:, :3]
+            F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6],
+                          [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+            col = UsdGeom.Gprim(prim).GetDisplayColorAttr().Get()
+            out.append({"path": str(prim.GetPath()), "kind": "mesh", "points": P, "faces": F,
+                        "colors": None if col is None else np.asarray(col, float)})
+            continue
+        if prim.IsA(UsdGeom.Cylinder):                          # wheels (Isaac Sim colliders / visuals)
+            cy = UsdGeom.Cylinder(prim)
+            r, h, ax = cy.GetRadiusAttr().Get(), cy.GetHeightAttr().Get(), cy.GetAxisAttr().Get()
+            a = np.linspace(0, 2 * np.pi, 24, endpoint=False)
+            ring = np.stack([r * np.cos(a), r * np.sin(a)], 1)
+            k = {"X": 0, "Y": 1, "Z": 2}[ax]
+            o = [i for i in range(3) if i != k]
+            c = np.zeros((48, 3))
+            c[:24, o], c[24:, o] = ring, ring
+            c[:24, k], c[24:, k] = -h / 2, h / 2
+            xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(when), float)
+            P = (np.c_[c, np.ones(48)] @ xf)[:, :3]
+            F = [[i, (i + 1) % 24, 24 + (i + 1) % 24] for i in range(24)] + \
+                [[i, 24 + (i + 1) % 24, 24 + i] for i in range(24)] + \
+                [[0, i, i + 1] for i in range(1, 23)] + [[24, 24 + i + 1, 24 + i] for i in range(1, 23)]
+            col = UsdGeom.Gprim(prim).GetDisplayColorAttr().Get()
+            out.append({"path": str(prim.GetPath()), "kind": "mesh", "points": P, "faces": np.asarray(F),
+                        "colors": None if col is None else np.asarray(col, float)})
+            continue
         if not prim.IsA(UsdGeom.PointBased) or prim.IsA(UsdGeom.Points):
             continue
         g = UsdGeom.Gprim(prim)
@@ -397,8 +456,8 @@ def read_stage_geometry(path: str, time: float | None = None) -> list[dict[str, 
         ts = dc.GetTimeSamples()
         tc = Usd.TimeCode(time if time is not None else (ts[0] if ts else Usd.TimeCode.Default().GetValue())) \
             if ts else Usd.TimeCode.Default()
-        cols = dc.Get(tc)
-        xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(Usd.TimeCode.Default()), float)
+        cols = dc.Get(tc if ts else when)
+        xf = np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(when), float)
         P = np.asarray(UsdGeom.PointBased(prim).GetPointsAttr().Get(), float)
         P = (np.c_[P, np.ones(len(P))] @ xf)[:, :3]
         rec = {"path": str(prim.GetPath()), "points": P, "colors": None if cols is None else np.asarray(cols, float)}
@@ -419,7 +478,8 @@ def read_stage_geometry(path: str, time: float | None = None) -> list[dict[str, 
 
 def render_stage_png(path: str, png: str, *, time: float | None = None, elev: float = 28, azim: float = -60,
                      title: str = "", colorbar: tuple[str, float, float, str] | None = None,
-                     size: tuple[float, float] = (7.5, 5.5), dpi: int = 130, flat: bool = False) -> str:
+                     size: tuple[float, float] = (7.5, 5.5), dpi: int = 130, flat: bool = False,
+                     exclude: Sequence[str] = ()) -> str:
     """Draw the meshes and curves of a USD file (read back from disk) in their ``displayColor``; ``colorbar``:
     ``(label, lo, hi, cmap)``; ``flat``: axes scaled to the data in x, y and a squashed z (long, low scenes such
     as a pipeline). A file check, not an Omniverse RTX render."""
@@ -429,7 +489,7 @@ def render_stage_png(path: str, png: str, *, time: float | None = None, elev: fl
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
-    geo = read_stage_geometry(path, time)
+    geo = read_stage_geometry(path, time, exclude)
     fig = plt.figure(figsize=size)
     ax = fig.add_subplot(projection="3d")
     allp = []
@@ -483,7 +543,8 @@ def render_stage_png(path: str, png: str, *, time: float | None = None, elev: fl
         import matplotlib.cm as cm
         from matplotlib.colors import Normalize
         lab, a, b, cmap = colorbar
-        fig.colorbar(cm.ScalarMappable(Normalize(a, b), cmap), ax=ax, shrink=0.6, label=lab)
+        # pad: the 3-D axes draw the z label outside their box, where a default colorbar would sit
+        fig.colorbar(cm.ScalarMappable(Normalize(a, b), cmap), ax=ax, shrink=0.6, label=lab, pad=0.12 if not flat else 0.05)
     fig.savefig(png, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     return png
@@ -532,3 +593,53 @@ def render_stage_gif(path: str, gif: str, times: Sequence[float], *, fps: float 
         frames[0].save(gif, save_all=True, append_images=frames[1:], duration=int(1000 / fps), loop=0,
                        optimize=True)
     return gif
+
+
+def rasterize_topdown(path: str, H: int, W: int, *, bounds=None, time: float | None = None,
+                      exclude: Sequence[str] = (), background=(0.0, 0.0, 0.0), view: str = "top") -> np.ndarray:
+    """An orthographic view of the meshes of a USD file, ``(H, W, 3)`` sRGB in [0, 1]: every triangle is filled
+    with its vertices' ``displayColor`` interpolated (barycentric), nearest on top. ``view``: ``"top"`` (looking down
+    -z: x right, y up) or ``"side"`` (looking along +y: x right, z up). ``bounds``: ``(left, right, bottom, top)`` of
+    the view in those two axes (default: the meshes' extent). A camera for synthetic data, not an RTX render."""
+    geo = [g for g in read_stage_geometry(path, time, exclude) if g["kind"] == "mesh"]
+    if view == "side":
+        geo = [dict(g, points=g["points"][:, [0, 2, 1]] * [1, 1, -1]) for g in geo]
+    elif view != "top":
+        raise ValueError(f"view must be 'top' or 'side', got {view!r}")
+    P = np.concatenate([g["points"] for g in geo])
+    xmin, xmax, ymin, ymax = bounds if bounds is not None else (P[:, 0].min(), P[:, 0].max(), P[:, 1].min(),
+                                                                 P[:, 1].max())
+    img = np.tile(np.asarray(background, float), (H, W, 1))
+    zbuf = np.full((H, W), -np.inf)
+    for g in geo:
+        V, F = g["points"], g["faces"]
+        C = g["colors"]
+        C = np.tile(C[0] if C is not None else [0.6, 0.6, 0.6], (len(V), 1)) if C is None or len(C) != len(V) else C
+        C = np.clip(C, 0, 1) ** (1 / 2.2)
+        u = (V[:, 0] - xmin) / (xmax - xmin) * (W - 1)
+        v = (ymax - V[:, 1]) / (ymax - ymin) * (H - 1)
+        for f in F:
+            x0, x1, x2 = u[f]
+            y0, y1, y2 = v[f]
+            den = (y1 - y2) * (x0 - x2) + (x2 - x1) * (y0 - y2)
+            if abs(den) < 1e-12:
+                continue
+            ia, ib = int(max(np.floor(min(x0, x1, x2)), 0)), int(min(np.ceil(max(x0, x1, x2)), W - 1))
+            ja, jb = int(max(np.floor(min(y0, y1, y2)), 0)), int(min(np.ceil(max(y0, y1, y2)), H - 1))
+            if ia > ib or ja > jb:
+                continue
+            xx, yy = np.meshgrid(np.arange(ia, ib + 1), np.arange(ja, jb + 1))
+            l0 = ((y1 - y2) * (xx - x2) + (x2 - x1) * (yy - y2)) / den
+            l1 = ((y2 - y0) * (xx - x2) + (x0 - x2) * (yy - y2)) / den
+            l2 = 1 - l0 - l1
+            inside = (l0 >= -1e-9) & (l1 >= -1e-9) & (l2 >= -1e-9)
+            if not inside.any():
+                continue
+            z = l0 * V[f[0], 2] + l1 * V[f[1], 2] + l2 * V[f[2], 2]
+            top = inside & (z > zbuf[yy, xx])
+            if not top.any():
+                continue
+            col = l0[..., None] * C[f[0]] + l1[..., None] * C[f[1]] + l2[..., None] * C[f[2]]
+            img[yy[top], xx[top]] = col[top]
+            zbuf[yy[top], xx[top]] = z[top]
+    return img

@@ -1,0 +1,149 @@
+{
+ "decision": "APPROVED",
+ "volume_m3": 3.902626132838278e-05,
+ "volume_closed_form_m3": 3.902626126775548e-05,
+ "mass": {
+  "area": 0.015596252180461397,
+  "volume": 3.902626132838278e-05,
+  "mass": 0.10537090558663353,
+  "centroid": [
+   0.024862822371250964,
+   0.025000000043183656,
+   0.01492503847096699
+  ],
+  "moments_of_inertia": [
+   5.5849225514614815e-05,
+   0.00010179958809942749,
+   9.101105748985423e-05
+  ],
+  "products_of_inertia": [
+   8.720640245174231e-15,
+   -2.7459874661853493e-05,
+   6.257599541799152e-14
+  ]
+ },
+ "radii_mm": [
+  4.5,
+  5.0,
+  6.0
+ ],
+ "thinnest_wall_mm": 5.999900052154054,
+ "tessellations": [
+  {
+   "chord_tolerance": 0.0001,
+   "triangles": 15788,
+   "points": 7890,
+   "max_deviation": 2.7772430847913388e-05,
+   "rms_deviation": 6.6745740723229495e-06,
+   "mesh_volume": 3.904187964328485e-05,
+   "mesh_area": 0.015598056708717556,
+   "manifold": true
+  },
+  {
+   "chord_tolerance": 2e-05,
+   "triangles": 17500,
+   "points": 8746,
+   "max_deviation": 7.060322879633735e-06,
+   "rms_deviation": 2.245847823371066e-06,
+   "mesh_volume": 3.9030172924303915e-05,
+   "mesh_area": 0.01559670454878084,
+   "manifold": true
+  }
+ ],
+ "faces": 12,
+ "mesh_vertices": 8746,
+ "native_brep_validation": {
+  "ok": false,
+  "problems": [
+   "no default prim",
+   "validator usdValidation:StageMetadataChecker: Stage with root layer </home/user/PINNeAPPle/examples/nvidia/14_brep_omniverse_bracket/results/bracket_brep.usda> has an invalid or missing defaultPrim.",
+   "validator usdGeomValidators:StageMetadataChecker: Stage with root layer </home/user/PINNeAPPle/examples/nvidia/14_brep_omniverse_bracket/results/bracket_brep.usda> does not specify its linear scale in metersPerUnit.",
+   "validator usdGeomValidators:StageMetadataChecker: Stage with root layer </home/user/PINNeAPPle/examples/nvidia/14_brep_omniverse_bracket/results/bracket_brep.usda> does not specify an upAxis."
+  ]
+ },
+ "stage": {
+  "ok": true,
+  "problems": [],
+  "meshes": 1,
+  "prims": 4
+ },
+ "checks": [
+  {
+   "name": "exact volume = closed form (holes, fillet)",
+   "value": 1.5535000285923224e-09,
+   "limit": 1e-06,
+   "passed": true
+  },
+  {
+   "name": "radii in the mesh are the CAD radii",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "[4.5, 5.0, 6.0] mm"
+  },
+  {
+   "name": "thinnest wall = plate thickness",
+   "value": 0.0059999000521540535,
+   "limit": 0.006,
+   "passed": 1.0
+  },
+  {
+   "name": "B-rep is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "mesh is a manifold solid",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "chord error <= tolerance",
+   "value": 7.060322879633735e-06,
+   "limit": 2e-05,
+   "passed": true,
+   "detail": "largest distance from a triangle centroid to the exact surface"
+  },
+  {
+   "name": "mesh volume vs exact",
+   "value": 0.00010022983980515861,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "mesh area vs exact",
+   "value": 2.9016535755674503e-05,
+   "limit": 0.001,
+   "passed": true
+  },
+  {
+   "name": "element size resolves the smallest radius (4.50 mm)",
+   "value": 0.0015,
+   "limit": 0.001767145867628676,
+   "passed": true,
+   "detail": "4 elements per quarter circle"
+  },
+  {
+   "name": "native B-rep USD opens with OpenUSD",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "Omniverse stage valid (with the B-rep referenced)",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "UsdValidation clean"
+  },
+  {
+   "name": "native B-rep layer has stage metadata",
+   "value": null,
+   "limit": null,
+   "passed": false,
+   "detail": "no default prim; StageMetadataChecker: Stage with root layer <layer> has an invalid or missing defaultPrim.; StageMetadataChecker: Stage with root layer <layer> does not specify its linear scale in metersPerUnit.; StageMetadataChecker: Stage with root layer <layer> does not specify an upAxis."
+  }
+ ]
+}

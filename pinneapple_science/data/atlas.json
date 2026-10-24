@@ -1,0 +1,1215 @@
+{
+ "schema": "pinneapple.science.atlas/1",
+ "version": "1.1.0",
+ "statuses": {
+  "available": "pp.science experiments in every dimension listed, each checked against its reference",
+  "partial": "library code covers part of the area; no pp.science experiment yet (or not for every subarea)",
+  "planned": "mapped, nothing in the library yet"
+ },
+ "dims": [
+  "0D",
+  "1D",
+  "2D",
+  "3D",
+  "3D+t"
+ ],
+ "areas": [
+  {
+   "id": "physics.classical_mechanics",
+   "branch": "physics",
+   "title": "Classical mechanics",
+   "status": "partial",
+   "description": "Particles, rigid bodies, oscillators, central forces, Lagrangian and Hamiltonian dynamics.",
+   "subareas": [
+    {
+     "id": "oscillators",
+     "title": "Oscillators and resonance",
+     "status": "partial",
+     "covered_by": [
+      {
+       "lab": "oscillator",
+       "what": "damped oscillator, integrators against the exact solution"
+      }
+     ]
+    },
+    {
+     "id": "central_forces",
+     "title": "Central forces, Kepler and N-body",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.astro.nbody",
+       "what": "Sun-planet N-body with conservation diagnostics"
+      },
+      {
+       "preset": "kepler_two_body_orbit",
+       "what": "two-body orbit problem"
+      },
+      {
+       "preset": "cr3bp_planar_synodic",
+       "what": "circular restricted three-body problem"
+      },
+      {
+       "lab": "kepler_law",
+       "what": "law discovery from orbits"
+      }
+     ]
+    },
+    {
+     "id": "rigid_bodies",
+     "title": "Rigid bodies and multibody systems",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.multibody.tree",
+       "what": "floating-base multibody: kinematics, mass matrix, implicit step"
+      },
+      {
+       "module": "pinneapple_simulation.particle_dynamics.rigid_body",
+       "what": "differentiable rigid-body dynamics"
+      },
+      {
+       "preset": "spacecraft_attitude_euler_rotation",
+       "what": "Euler rotation equations"
+      }
+     ]
+    },
+    {
+     "id": "analytical_mechanics",
+     "title": "Lagrangian and Hamiltonian mechanics, chaos",
+     "status": "planned",
+     "covered_by": []
+    },
+    {
+     "id": "flight",
+     "title": "Flight dynamics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.flight",
+       "what": "6-DOF aircraft on the vortex lattice"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.electromagnetism",
+   "branch": "physics",
+   "title": "Electromagnetism and optics",
+   "status": "available",
+   "description": "Electrostatics, magnetostatics, induction, circuits, waves, radiation, guided waves, optics.",
+   "subareas": [
+    {
+     "id": "electrostatics",
+     "title": "Electrostatics",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.coulomb_superposition"
+      },
+      {
+       "experiment": "em.gauss_law"
+      },
+      {
+       "experiment": "em.parallel_plate_capacitor"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.electrostatics",
+       "what": "2-D FEM electrostatics"
+      },
+      {
+       "preset": "em_two_dielectric_capacitor",
+       "what": "two-dielectric capacitor"
+      }
+     ]
+    },
+    {
+     "id": "magnetostatics",
+     "title": "Magnetostatics",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.biot_savart"
+      },
+      {
+       "experiment": "em.ampere_law"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.fem",
+       "what": "A_z magnetostatics FEM"
+      },
+      {
+       "preset": "em_wire_az",
+       "what": "wire, vector potential"
+      }
+     ]
+    },
+    {
+     "id": "induction",
+     "title": "Induction and circuits",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.faraday_induction"
+      },
+      {
+       "experiment": "em.circuits_rc_rl_rlc"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.eddy",
+       "what": "time-harmonic eddy currents"
+      },
+      {
+       "preset": "em_skin_effect",
+       "what": "skin effect"
+      }
+     ]
+    },
+    {
+     "id": "transport",
+     "title": "Charge transport in fields (Hall effect)",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.hall_effect"
+      }
+     ]
+    },
+    {
+     "id": "waves",
+     "title": "Waves, radiation and media",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.dipole_radiation"
+      },
+      {
+       "experiment": "em.lossy_plane_wave"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.fdtd",
+       "what": "FDTD on the Yee grid, 1-D to 3-D"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.media",
+       "what": "Drude, Debye, Lorentz and anisotropic media"
+      }
+     ]
+    },
+    {
+     "id": "optics",
+     "title": "Optics: interfaces and scattering",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.fresnel_snell"
+      },
+      {
+       "experiment": "em.mie_scattering"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.mie",
+       "what": "Mie series"
+      },
+      {
+       "preset": "em_cylinder_scattering",
+       "what": "cylinder scattering"
+      }
+     ]
+    },
+    {
+     "id": "guided",
+     "title": "Waveguides and resonators",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.waveguide_modes"
+      },
+      {
+       "experiment": "em.cavity_resonance"
+      },
+      {
+       "preset": "em_tm_cavity",
+       "what": "TM cavity"
+      }
+     ]
+    },
+    {
+     "id": "laboratory",
+     "title": "Laboratory (virtual bench)",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.bench_mu0_solenoid"
+      },
+      {
+       "experiment": "em.bench_rc_discharge"
+      }
+     ]
+    },
+    {
+     "id": "research",
+     "title": "Research: FDTD 3D+t, convergence, UQ, inverse problems, surrogates",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.research_fdtd_3d"
+      },
+      {
+       "experiment": "em.research_uq_waveguide"
+      },
+      {
+       "experiment": "em.research_inverse_permittivity"
+      },
+      {
+       "experiment": "em.research_surrogate_hall"
+      }
+     ]
+    },
+    {
+     "id": "engineering",
+     "title": "Machines and antennas",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.electromagnetics.machines",
+       "what": "interior-PM machine FEA and drive"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.antenna",
+       "what": "end-fire antennas with EMerge"
+      },
+      {
+       "module": "pinneapple_physics.pcb",
+       "what": "PCB physics"
+      }
+     ]
+    },
+    {
+     "id": "checks",
+     "title": "Physics checks of any field",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.gauss_law"
+      },
+      {
+       "experiment": "em.dipole_radiation"
+      },
+      {
+       "module": "pinneapple_physics.maxwell_checks",
+       "what": "Gauss, Faraday, Ampere-Maxwell, Poynting residuals"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.thermodynamics",
+   "branch": "physics",
+   "title": "Thermodynamics and statistical physics",
+   "status": "partial",
+   "description": "Equations of state, heat transfer, kinetic theory, ensembles, phase transitions.",
+   "subareas": [
+    {
+     "id": "equations_of_state",
+     "title": "Equations of state and processes",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_systems.process_components.real_gas_eos",
+       "what": "multi-component real-gas Helmholtz EOS"
+      },
+      {
+       "module": "pinneapple_systems.process_components.polytropic_path",
+       "what": "polytropic compression and expansion"
+      }
+     ]
+    },
+    {
+     "id": "heat_transfer",
+     "title": "Heat conduction",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.closed_form.heat",
+       "what": "closed-form heat conduction"
+      },
+      {
+       "preset": "transient_heat_3d",
+       "what": "transient heat 3-D"
+      },
+      {
+       "lab": "heat_xtfc",
+       "what": "heat equation by X-TFC"
+      }
+     ]
+    },
+    {
+     "id": "statistical",
+     "title": "Statistical mechanics (ensembles, Ising)",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_quantum.data.quantum_dataset",
+       "what": "1-D Ising spin-chain energies"
+      }
+     ]
+    },
+    {
+     "id": "kinetic",
+     "title": "Kinetic theory and transport",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "crystal_phonon",
+       "what": "phonon Boltzmann transport"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.fluids",
+   "branch": "physics",
+   "title": "Fluid mechanics",
+   "status": "partial",
+   "description": "Incompressible and compressible flow, turbulence, multiphase, porous media.",
+   "subareas": [
+    {
+     "id": "incompressible",
+     "title": "Incompressible flow",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.numerical_solvers.lbm",
+       "what": "lattice Boltzmann"
+      },
+      {
+       "module": "pinneapple_simulation.numerical_solvers.ns3d_spectral",
+       "what": "3-D spectral Navier-Stokes"
+      },
+      {
+       "preset": "ns_incompressible_2d",
+       "what": "2-D Navier-Stokes"
+      },
+      {
+       "lab": "cylinder_lbm",
+       "what": "cylinder wake"
+      }
+     ]
+    },
+    {
+     "id": "compressible",
+     "title": "Compressible flow and shocks",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.numerical_solvers.compressible_fv",
+       "what": "Euler / Navier-Stokes finite volumes"
+      },
+      {
+       "module": "pinneapple_physics.closed_form.compressible",
+       "what": "isentropic and shock relations"
+      }
+     ]
+    },
+    {
+     "id": "turbulence",
+     "title": "Turbulence",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.multiscale.turbulence",
+       "what": "decaying 2-D turbulence"
+      }
+     ]
+    },
+    {
+     "id": "pipe_networks",
+     "title": "Pipe flow and transients",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.closed_form.pipe_flow",
+       "what": "pipe flow closed forms"
+      },
+      {
+       "module": "pinneapple_simulation.numerical_solvers.water_hammer_moc",
+       "what": "water hammer, method of characteristics"
+      }
+     ]
+    },
+    {
+     "id": "nonlinear_waves",
+     "title": "Burgers and nonlinear waves",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "burgers_1d",
+       "what": "viscous Burgers"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.continuum_mechanics",
+   "branch": "physics",
+   "title": "Continuum and solid mechanics",
+   "status": "partial",
+   "description": "Elasticity, plasticity, fracture, contact and wear, structural dynamics.",
+   "subareas": [
+    {
+     "id": "elasticity",
+     "title": "Linear elasticity",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.numerical_solvers.solid_fem",
+       "what": "solid FEM"
+      },
+      {
+       "module": "pinneapple_simulation.numerical_solvers.elasticity3d_fdm",
+       "what": "3-D elasticity FD"
+      },
+      {
+       "module": "pinneapple_physics.solid.axisymmetric",
+       "what": "axisymmetric elasticity"
+      },
+      {
+       "preset": "thick_walled_cylinder_lame",
+       "what": "Lame cylinder"
+      }
+     ]
+    },
+    {
+     "id": "fracture",
+     "title": "Fracture and fatigue",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "material_fracture_2d",
+       "what": "phase-field fracture"
+      },
+      {
+       "module": "pinneapple_physics.closed_form.cantilever_fatigue",
+       "what": "cantilever fatigue"
+      }
+     ]
+    },
+    {
+     "id": "contact_wear",
+     "title": "Contact, friction and wear",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.tribology.archard",
+       "what": "Archard wear"
+      }
+     ]
+    },
+    {
+     "id": "granular",
+     "title": "Soft and granular matter",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.particle_dynamics.mpm",
+       "what": "material point method"
+      },
+      {
+       "module": "pinneapple_simulation.terramechanics.wong_reece",
+       "what": "wheel-soil terramechanics"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.acoustics",
+   "branch": "physics",
+   "title": "Acoustics and waves",
+   "status": "partial",
+   "description": "Sound, resonators, ultrasound, elastic and water waves.",
+   "subareas": [
+    {
+     "id": "resonators",
+     "title": "Acoustic resonators",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.closed_form.helmholtz_resonator",
+       "what": "Helmholtz resonator"
+      },
+      {
+       "preset": "helmholtz_acoustics_3d",
+       "what": "3-D Helmholtz acoustics"
+      }
+     ]
+    },
+    {
+     "id": "ultrasound",
+     "title": "Ultrasound",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "wave_ultrasound_3d",
+       "what": "3-D ultrasound wave"
+      },
+      {
+       "module": "pinneapple_analysis.inspection.phased_array_ultrasonic",
+       "what": "phased-array inspection"
+      }
+     ]
+    },
+    {
+     "id": "pressure_waves",
+     "title": "Pressure waves in pipes",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_systems.process_components.water_hammer",
+       "what": "water hammer"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.quantum_mechanics",
+   "branch": "physics",
+   "title": "Quantum mechanics",
+   "status": "partial",
+   "description": "Schrodinger equation, bound states, scattering, spin, open and non-Hermitian systems.",
+   "subareas": [
+    {
+     "id": "schrodinger",
+     "title": "Schrodinger equation and bound states",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_quantum.loss.schrodinger",
+       "what": "harmonic, well, Coulomb and double-well potentials"
+      },
+      {
+       "module": "pinneapple_quantum.pipeline.presets",
+       "what": "variational and hybrid PINNs"
+      }
+     ]
+    },
+    {
+     "id": "non_hermitian",
+     "title": "Non-Hermitian and PT-symmetric systems",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.non_hermitian.pt_dimer",
+       "what": "PT dimers and exceptional points"
+      }
+     ]
+    },
+    {
+     "id": "scattering_spin",
+     "title": "Scattering, spin and angular momentum",
+     "status": "planned",
+     "covered_by": []
+    }
+   ]
+  },
+  {
+   "id": "physics.relativity",
+   "branch": "physics",
+   "title": "Special and general relativity",
+   "status": "partial",
+   "description": "Lorentz transformations and kinematics; geodesics, lensing, black holes.",
+   "subareas": [
+    {
+     "id": "special",
+     "title": "Special relativity",
+     "status": "planned",
+     "covered_by": [],
+     "note": "no Lorentz-transformation code yet"
+    },
+    {
+     "id": "general",
+     "title": "General relativity: geodesics and lensing",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.blackhole.raytrace",
+       "what": "Schwarzschild geodesic ray tracing"
+      },
+      {
+       "module": "pinneapple_physics.astro.lensing",
+       "what": "gravitational lensing"
+      },
+      {
+       "preset": "schwarzschild_light_bending_weak_field",
+       "what": "weak-field light bending"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.nuclear_particle",
+   "branch": "physics",
+   "title": "Nuclear and particle physics",
+   "status": "planned",
+   "description": "Radioactive decay chains, cross-sections, detectors, relativistic kinematics.",
+   "subareas": [
+    {
+     "id": "decay",
+     "title": "Radioactive decay and chains",
+     "status": "planned",
+     "covered_by": []
+    },
+    {
+     "id": "kinematics",
+     "title": "Relativistic kinematics and scattering",
+     "status": "planned",
+     "covered_by": []
+    },
+    {
+     "id": "detectors",
+     "title": "Detector response",
+     "status": "planned",
+     "covered_by": []
+    }
+   ]
+  },
+  {
+   "id": "physics.condensed_matter",
+   "branch": "physics",
+   "title": "Condensed matter",
+   "status": "partial",
+   "description": "Lattices, phonons, bands, magnetism, transport.",
+   "subareas": [
+    {
+     "id": "phonons",
+     "title": "Phonons and thermal transport",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "crystal_phonon",
+       "what": "phonon Boltzmann transport"
+      }
+     ]
+    },
+    {
+     "id": "magnetism",
+     "title": "Spin models",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_quantum.data.quantum_dataset",
+       "what": "Ising spin chains"
+      }
+     ]
+    },
+    {
+     "id": "transport",
+     "title": "Electronic transport (Drude, Hall)",
+     "status": "available",
+     "covered_by": [
+      {
+       "experiment": "em.hall_effect"
+      }
+     ]
+    },
+    {
+     "id": "bands",
+     "title": "Band structure",
+     "status": "planned",
+     "covered_by": []
+    }
+   ]
+  },
+  {
+   "id": "physics.plasma",
+   "branch": "physics",
+   "title": "Plasma physics",
+   "status": "partial",
+   "description": "Plasma oscillations, Vlasov and MHD, waves in plasmas.",
+   "subareas": [
+    {
+     "id": "cold_plasma",
+     "title": "Cold plasma and dispersion",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.electromagnetics.media",
+       "what": "Drude model of a plasma"
+      }
+     ]
+    },
+    {
+     "id": "kinetic",
+     "title": "Vlasov / particle-in-cell",
+     "status": "planned",
+     "covered_by": []
+    },
+    {
+     "id": "mhd",
+     "title": "Magnetohydrodynamics",
+     "status": "planned",
+     "covered_by": []
+    }
+   ]
+  },
+  {
+   "id": "physics.astrophysics",
+   "branch": "physics",
+   "title": "Astrophysics and cosmology",
+   "status": "partial",
+   "description": "Orbits, stars, accretion, compact objects, cosmological models.",
+   "subareas": [
+    {
+     "id": "orbits",
+     "title": "Orbital mechanics and ephemerides",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.astro.orbits",
+       "what": "orbital mechanics"
+      },
+      {
+       "module": "pinneapple_physics.astro.nbody",
+       "what": "N-body"
+      }
+     ]
+    },
+    {
+     "id": "stars",
+     "title": "Stars",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.astro.stars",
+       "what": "star catalogue, luminosity, Planck spectra"
+      },
+      {
+       "preset": "lane_emden_polytrope",
+       "what": "Lane-Emden polytrope"
+      }
+     ]
+    },
+    {
+     "id": "accretion",
+     "title": "Accretion and black holes",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.blackhole.hydro",
+       "what": "black-hole accretion hydrodynamics"
+      },
+      {
+       "preset": "shakura_sunyaev_accretion_disk",
+       "what": "thin disc"
+      },
+      {
+       "lab": "bondi_accretion",
+       "what": "Bondi accretion"
+      }
+     ]
+    },
+    {
+     "id": "data",
+     "title": "Astronomical data analysis",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_physics.pde_environment.presets.astroml_bridge",
+       "what": "astroML periodograms, Bayesian blocks"
+      },
+      {
+       "module": "pinneapple_physics.pde_environment.presets.astropy_bridge",
+       "what": "astropy constants and frames"
+      }
+     ]
+    },
+    {
+     "id": "cosmology",
+     "title": "Cosmology",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "nfw_dark_matter_potential",
+       "what": "NFW dark-matter halo"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "physics.geophysics",
+   "branch": "physics",
+   "title": "Geophysics",
+   "status": "partial",
+   "description": "Subsurface flow, geophysical fluid dynamics, seismology, terramechanics.",
+   "subareas": [
+    {
+     "id": "subsurface",
+     "title": "Subsurface flow",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.geophysics.richards",
+       "what": "Richards equation"
+      }
+     ]
+    },
+    {
+     "id": "gfd",
+     "title": "Geophysical fluid dynamics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.geophysics.sphere_shallow_water",
+       "what": "shallow water on the sphere"
+      }
+     ]
+    },
+    {
+     "id": "seismology",
+     "title": "Seismic and elastic waves",
+     "status": "planned",
+     "covered_by": []
+    }
+   ]
+  },
+  {
+   "id": "chemistry",
+   "branch": "other",
+   "title": "Chemistry",
+   "status": "partial",
+   "description": "Kinetics, thermochemistry, molecular quantum chemistry, molecular dynamics.",
+   "subareas": [
+    {
+     "id": "kinetics",
+     "title": "Reaction kinetics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_systems.process_components.reaction_kinetics",
+       "what": "mass-action networks, Arrhenius"
+      },
+      {
+       "module": "pinneapple_simulation.numerical_solvers.stiff_kinetics_ode",
+       "what": "stiff kinetics"
+      }
+     ]
+    },
+    {
+     "id": "thermochemistry",
+     "title": "Thermochemistry",
+     "status": "planned",
+     "covered_by": []
+    },
+    {
+     "id": "molecular_quantum",
+     "title": "Molecular quantum chemistry",
+     "status": "planned",
+     "covered_by": []
+    },
+    {
+     "id": "molecular_dynamics",
+     "title": "Molecular dynamics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.particle_dynamics.molecular_dynamics",
+       "what": "Lennard-Jones MD, velocity Verlet"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "materials",
+   "branch": "other",
+   "title": "Materials science",
+   "status": "partial",
+   "description": "Phase fields, microstructure, magnetic and dielectric materials.",
+   "subareas": [
+    {
+     "id": "phase_field",
+     "title": "Phase fields",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.numerical_solvers.reaction_diffusion",
+       "what": "Allen-Cahn and Fisher-KPP"
+      },
+      {
+       "preset": "material_fracture_2d",
+       "what": "phase-field fracture"
+      }
+     ]
+    },
+    {
+     "id": "electromagnetic_materials",
+     "title": "Magnetic and dielectric materials",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.electromagnetics.hysteresis",
+       "what": "Jiles-Atherton hysteresis"
+      },
+      {
+       "module": "pinneapple_simulation.electromagnetics.media",
+       "what": "dispersive media"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "biology",
+   "branch": "other",
+   "title": "Biology and biophysics",
+   "status": "partial",
+   "description": "Pharmacokinetics, transport in tissue, biomechanics, pattern formation.",
+   "subareas": [
+    {
+     "id": "pharmacokinetics",
+     "title": "Pharmacokinetics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "pk_two_compartment",
+       "what": "two-compartment PK"
+      }
+     ]
+    },
+    {
+     "id": "transport",
+     "title": "Transport in tissue",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "drug_diffusion_tissue",
+       "what": "drug diffusion"
+      }
+     ]
+    },
+    {
+     "id": "patterns",
+     "title": "Pattern formation",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "reaction_diffusion_2d",
+       "what": "reaction-diffusion 2-D"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "neuroscience",
+   "branch": "other",
+   "title": "Neuroscience",
+   "status": "partial",
+   "description": "Neuron models, excitable media, networks.",
+   "subareas": [
+    {
+     "id": "excitable",
+     "title": "Excitable media",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_arena.problems",
+       "what": "FitzHugh-Nagumo 1-D"
+      }
+     ]
+    },
+    {
+     "id": "neurons",
+     "title": "Hodgkin-Huxley and integrate-and-fire",
+     "status": "planned",
+     "covered_by": []
+    }
+   ]
+  },
+  {
+   "id": "ecology_epidemiology",
+   "branch": "other",
+   "title": "Ecology and epidemiology",
+   "status": "partial",
+   "description": "Population dynamics, epidemics, spatial spread.",
+   "subareas": [
+    {
+     "id": "epidemics",
+     "title": "Epidemics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "sir_epidemic",
+       "what": "SIR model"
+      }
+     ]
+    },
+    {
+     "id": "populations",
+     "title": "Population dynamics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_arena.dataset_bench",
+       "what": "Lotka-Volterra dataset"
+      }
+     ]
+    },
+    {
+     "id": "social",
+     "title": "Social dynamics",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "opinion_dynamics_2d",
+       "what": "opinion dynamics"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "earth_climate",
+   "branch": "other",
+   "title": "Earth and climate sciences",
+   "status": "partial",
+   "description": "Energy balance, ocean and atmosphere, ENSO, weather.",
+   "subareas": [
+    {
+     "id": "energy_balance",
+     "title": "Climate energy balance",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.geophysics.energy_balance",
+       "what": "two-layer energy-balance model"
+      }
+     ]
+    },
+    {
+     "id": "enso",
+     "title": "ENSO",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_systems.time_series.enso.oscillators",
+       "what": "recharge and delayed oscillators"
+      }
+     ]
+    },
+    {
+     "id": "atmosphere_ocean",
+     "title": "Atmosphere and ocean",
+     "status": "partial",
+     "covered_by": [
+      {
+       "preset": "climate_atmosphere_2d",
+       "what": "atmosphere 2-D"
+      },
+      {
+       "preset": "climate_ocean_gyre",
+       "what": "ocean gyre"
+      },
+      {
+       "module": "pinneapple_physics.weather.model",
+       "what": "global forecast network"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "applied_math",
+   "branch": "other",
+   "title": "Applied mathematics and numerical methods",
+   "status": "partial",
+   "description": "Time integrators, discretisations, verification, uncertainty, inverse problems.",
+   "subareas": [
+    {
+     "id": "integrators",
+     "title": "Time integrators",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.numerical_solvers.irk_gauss_legendre",
+       "what": "Gauss-Legendre IRK"
+      },
+      {
+       "module": "pinneapple_simulation.numerical_solvers.etdrk4",
+       "what": "ETDRK4"
+      }
+     ]
+    },
+    {
+     "id": "discretisations",
+     "title": "Discretisations",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_simulation.numerical_solvers.fvm",
+       "what": "finite volumes"
+      },
+      {
+       "module": "pinneapple_simulation.numerical_solvers.meshfree",
+       "what": "RBF and MLS"
+      },
+      {
+       "module": "pinneapple_simulation.numerical_solvers.xtfc_pde",
+       "what": "X-TFC"
+      }
+     ]
+    },
+    {
+     "id": "verification",
+     "title": "Verification and convergence",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_analysis.verification.convergence",
+       "what": "Richardson, GCI"
+      },
+      {
+       "experiment": "em.research_fdtd_3d"
+      }
+     ]
+    },
+    {
+     "id": "uncertainty",
+     "title": "Uncertainty quantification",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_analysis.uncertainty",
+       "what": "propagation, calibration, conformal"
+      },
+      {
+       "experiment": "em.research_uq_waveguide"
+      }
+     ]
+    },
+    {
+     "id": "inverse",
+     "title": "Inverse problems",
+     "status": "partial",
+     "covered_by": [
+      {
+       "module": "pinneapple_analysis.inverse_problems",
+       "what": "EKI, sensitivity, misfits"
+      },
+      {
+       "experiment": "em.research_inverse_permittivity"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

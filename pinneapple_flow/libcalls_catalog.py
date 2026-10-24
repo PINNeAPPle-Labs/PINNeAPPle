@@ -86,6 +86,28 @@ add(
             "named AVA designs re-solved in EMerge with their near field: glTF / USD per frequency, gain balloons, "
             "|E| and E_x(wt) cut planes, self-contained three.js viewers, Blender stills and GIF / MP4",
             requires=("emerge",), exclude=("log",)),
+    LibCall("robot.arm_check", "pinneapple_simulation.robot_sim.checks:arm_pick_and_place",
+            "Arm move in the robot sim (Newton), checked", "Solvers",
+            "PINNeAPPle Robot Sim on NVIDIA Newton: a two-link arm pick-and-place with model feedforward, checked for "
+            "replay convergence, tracking, energy balance, motor limits and link stress", requires=("newton",)),
+    LibCall("services.infer", "pinneapple_tools.model_services.registry:infer",
+            "Ask a PINNeAPPle model service", "Learning",
+            "a zoo surrogate, the physics-check service or the intent extractor of PINNeAPPle Model Services (the "
+            "NIM-compatible microservices), answered with its trust report; inputs as the JSON of /v1/infer"),
+    LibCall("worldmodel.video_check", "pinneapple_worldmodel.physical_world:video_check",
+            "Physics check of a synthetic video", "Learning",
+            "PINNeAPPle World Model: a bouncing-ball video with exact physics (optionally edited to break it), judged "
+            "from its pixels: visibility, area, fitted g, speed bound, apex energy"),
+    LibCall("worldmodel.inspection_sample", "pinneapple_worldmodel.inspection_data:inspection_sample",
+            "Synthetic inspection sample (USD)", "Learning",
+            "PINNeAPPle World Model: a heated plate with a subsurface void (finite volume), a random thermal camera "
+            "written as an OpenUSD stage, and the check that the image still shows the physical label",
+            requires=("pxr",)),
+    LibCall("worldmodel.arm_camera", "pinneapple_worldmodel.robot_perception:arm_camera_sample",
+            "Labelled robot camera sample (USD)", "Learning",
+            "PINNeAPPle World Model + Robot Sim: a random arm move in Newton written as a USD timeline with a side "
+            "camera, the rendered frames, and the label checks (kinematics vs simulator, joints visible)",
+            requires=("pxr", "newton")),
     LibCall("export.usd_validate", "pinneapple_tools.nvidia.omniverse:validate_stage",
             "Check a USD stage (Omniverse)", "Export",
             "re-open an OpenUSD file and check it before Omniverse / Isaac Sim opens it: topology, primvar sizes, "

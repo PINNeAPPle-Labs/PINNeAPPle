@@ -1,0 +1,233 @@
+{
+ "decision": "APPROVED",
+ "gains": {
+  "kp": [
+   345.5417916429623,
+   109.94806963076681
+  ],
+  "kd": [
+   4.8560966919189585,
+   2.3297736711795274
+  ]
+ },
+ "tracking_error_mrad": 0.4807320864886888,
+ "peak_torque_Nm": [
+  114.33340694103825,
+  41.87897358494441
+ ],
+ "peak_stress_MPa": [
+  13.70956762622046,
+  5.02165233977136
+ ],
+ "tip_deflection_mm": 0.27106373810386064,
+ "energy_errors": [
+  0.0012314956774497063,
+  0.0006161974322524185,
+  0.0003078714468105332
+ ],
+ "replay_errors_rad": [
+  0.024978512525558605,
+  0.01243650317192091,
+  0.006176316738128795
+ ],
+ "dts": [
+  0.001,
+  0.0005,
+  0.00025
+ ],
+ "replay_order": 1.007934460942717,
+ "energy_order": 1.0000057932037347,
+ "cem": [
+  {
+   "iteration": 1,
+   "mean": [
+    222.28721779922347,
+    107.8551855307731,
+    5.617206417768639,
+    3.586373811087334
+   ],
+   "std": [
+    68.0598003659574,
+    3.154570642729368,
+    0.6652973354623186,
+    0.890687251733383
+   ],
+   "best_cost": 0.0042232722283648124,
+   "elite_cost": 0.004254887364883285,
+   "population_cost": 0.004368619479200015
+  },
+  {
+   "iteration": 2,
+   "mean": [
+    298.22489121402845,
+    111.02733736650939,
+    5.342193271169247,
+    2.753571787507331
+   ],
+   "std": [
+    46.68123616063116,
+    0.9764358926376318,
+    0.5127773815572247,
+    0.24343197822564422
+   ],
+   "best_cost": 0.004210421040293913,
+   "elite_cost": 0.004222101968753531,
+   "population_cost": 0.004263421420333523
+  },
+  {
+   "iteration": 3,
+   "mean": [
+    336.44081660259485,
+    109.6498709895038,
+    5.822676019789797,
+    2.6760697668901035
+   ],
+   "std": [
+    8.650242029521365,
+    0.7741197602394507,
+    0.4538034674344571,
+    0.24393310252351452
+   ],
+   "best_cost": 0.004209766606057583,
+   "elite_cost": 0.004212780006137173,
+   "population_cost": 0.004225846751303492
+  },
+  {
+   "iteration": 4,
+   "mean": [
+    340.54361687510215,
+    109.74994526594834,
+    5.535503262705581,
+    2.331112493717314
+   ],
+   "std": [
+    2.71002846484879,
+    0.5533437093881872,
+    0.3214773997552278,
+    0.0030800988985586475
+   ],
+   "best_cost": 0.004207901095369805,
+   "elite_cost": 0.004208144355727046,
+   "population_cost": 0.004211874850803642
+  },
+  {
+   "iteration": 5,
+   "mean": [
+    342.8765164874877,
+    109.96886251495951,
+    4.849641002492843,
+    2.33283699333568
+   ],
+   "std": [
+    1.467277983424168,
+    0.4175196705067208,
+    0.07452948920806657,
+    0.0020599677518300386
+   ],
+   "best_cost": 0.004206455562236969,
+   "elite_cost": 0.0042066673612281575,
+   "population_cost": 0.004207939056544352
+  },
+  {
+   "iteration": 6,
+   "mean": [
+    344.4669952129512,
+    109.85944439667637,
+    4.780416309433233,
+    2.329958367551119
+   ],
+   "std": [
+    1.0747964300111335,
+    0.08862523409044343,
+    0.07568038248572595,
+    0.00018469637159168606
+   ],
+   "best_cost": 0.0042061515596756765,
+   "elite_cost": 0.004206188768609164,
+   "population_cost": 0.004206521058461431
+  }
+ ],
+ "cem_evaluations": 49,
+ "newton_wall_s_final": 3.481151731999944,
+ "checks": [
+  {
+   "name": "free swing: energy conserved, first order in dt",
+   "value": 1.0000057932037347,
+   "limit": 0.8,
+   "passed": true,
+   "detail": "max |dE|/E 3.08e-04 at dt 0.00025 s"
+  },
+  {
+   "name": "torque replay converges to the planned motion",
+   "value": 1.007934460942717,
+   "limit": 0.8,
+   "passed": true,
+   "detail": "errors 24.98, 12.44, 6.18 mrad; Richardson -0.084 mrad"
+  },
+  {
+   "name": "closed-loop tracking error (rad)",
+   "value": 0.0004807320864886888,
+   "limit": 0.002,
+   "passed": true
+  },
+  {
+   "name": "energy balance: actuator work = dE",
+   "value": 0.0013823100787848548,
+   "limit": 0.01,
+   "passed": true
+  },
+  {
+   "name": "no actuator saturation",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true
+  },
+  {
+   "name": "shoulder peak torque <= motor (N m)",
+   "value": 114.33340694103825,
+   "limit": 120.0,
+   "passed": 1.0
+  },
+  {
+   "name": "elbow peak torque <= motor (N m)",
+   "value": 41.87897358494441,
+   "limit": 60.0,
+   "passed": 1.0
+  },
+  {
+   "name": "shoulder link root: peak stress x SF 3 <= yield",
+   "value": 0.14901703941543978,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "13.7 MPa"
+  },
+  {
+   "name": "shoulder link root: stress amplitude x SF 3 <= fatigue strength",
+   "value": 0.21625162062440179,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "amplitude 7.0 MPa per cycle"
+  },
+  {
+   "name": "elbow link root: peak stress x SF 3 <= yield",
+   "value": 0.05458317760621044,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "5.0 MPa"
+  },
+  {
+   "name": "elbow link root: stress amplitude x SF 3 <= fatigue strength",
+   "value": 0.07444072991416172,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "amplitude 2.4 MPa per cycle"
+  },
+  {
+   "name": "forearm tip deflection <= 1 mm",
+   "value": 0.00027106373810386063,
+   "limit": 0.001,
+   "passed": true,
+   "detail": "peak payload acceleration 17.7 m/s2 (IMU)"
+  }
+ ]
+}

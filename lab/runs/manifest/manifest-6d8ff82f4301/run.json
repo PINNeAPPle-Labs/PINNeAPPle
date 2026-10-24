@@ -1,0 +1,53 @@
+{
+ "run_id": "manifest-6d8ff82f4301",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/science/electromagnetism/dipole_radiation",
+  "path": "examples/science/electromagnetism/dipole_radiation/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792860325.415408,
+ "tags": [
+  "manifest"
+ ],
+ "git": "9847a3ef",
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1792860325.43584,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/3D__dipole_power.png",
+   "figures/3D_plus_t__dipole_time.png",
+   "figures/3D_plus_t__dipole_3d_t.mp4",
+   "figures/3D_plus_t__dipole_3d_t.gif"
+  ]
+ },
+ "validation": {
+  "total": 18,
+  "failed": 0
+ },
+ "seconds": 0.02,
+ "datasets": {}
+}

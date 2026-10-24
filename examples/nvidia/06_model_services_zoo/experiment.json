@@ -1,0 +1,128 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/06_model_services_zoo",
+ "title": "Zoo surrogates as NIM-compatible services with a trust report per answer",
+ "description": "",
+ "domain": "physics AI",
+ "methods": [
+  "model serving",
+  "zoo validation"
+ ],
+ "modules": [
+  "pinneapple_tools.model_services"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "latency_median_ms",
+   "value": 35.379128999920795,
+   "unit": "ms",
+   "how": "client round trip per /v1/infer request"
+  },
+  {
+   "name": "cl_naca2412_4deg",
+   "value": 0.6615029102991399,
+   "unit": "",
+   "how": "airfoil service, alpha 4 deg"
+  }
+ ],
+ "checks": [
+  {
+   "name": "service ready, every zoo model listed",
+   "passed": true,
+   "value": 6.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "in-range queries APPROVED",
+   "passed": true,
+   "value": 1.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "out-of-range queries flagged (not APPROVED)",
+   "passed": true,
+   "value": 1.0,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "NACA 2412, 4 deg: Cl vs OpenFOAM 0.6625",
+   "passed": true,
+   "value": 0.001505041057902036,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.02,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "heat-sink service answers with its trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "unknown model -> 404, missing inputs -> 400",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/sweep.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "ddeef054",
+  "created": "2026-10-24T01:35:59Z",
+  "seconds": 2.881,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

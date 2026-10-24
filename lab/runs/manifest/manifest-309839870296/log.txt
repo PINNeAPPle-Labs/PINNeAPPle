@@ -1,0 +1,8 @@
+[16:48:37] check [3D] flux through the cube x eps0: PASS Gauss's law: oint E.dA = Q_enc / eps0 (Griffiths eq. 2.13)
+[16:48:37] check [3D] charges outside contribute zero flux: PASS the outside charges are summed into every face
+[16:48:37] check [3D] div E = rho/eps0, Gaussian cloud on a 41^3 grid (pp.maxwell.gauss_electric): PASS div D - rho: ||sum of terms|| / sum of ||term|| = 0.00482; r(2h)/r(h) = 3.98: discretisation error (the field obeys the law); extrapolated residual 2.77e-05
+[16:48:37] check [3D] the same check rejects a 20 % wrong charge density: PASS residual 0.0912 > limit 0.05: rejected
+[16:48:37] check [3D] trust report: PASS decision APPROVED
+[16:48:37] check [2D] flux per unit length x eps0: PASS Gauss's law in 2-D: oint E.n dl = lam_enc / eps0
+[16:48:37] check [2D] error decreases with quadrature points: PASS 
+[16:48:37] check [2D] trust report: PASS decision APPROVED

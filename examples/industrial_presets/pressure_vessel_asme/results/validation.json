@@ -1,0 +1,75 @@
+{
+ "preset": "pressure_vessel_asme",
+ "references": [
+  {
+   "case": "tens\u00e3o circunferencial no furo: FEM 3-D C3D8I vs Lam\u00e9",
+   "output": "hoop",
+   "unit": "Pa",
+   "computed": 112457377.70932262,
+   "reference": 112890274.28468676,
+   "rel_error": 0.0038346666983239304,
+   "tol": 0.02,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Lam\u00e9 (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+   "params": {}
+  },
+  {
+   "case": "deslocamento radial no furo: FEM vs Lam\u00e9 (deforma\u00e7\u00e3o plana)",
+   "output": "u_r",
+   "unit": "m",
+   "computed": 0.0003882470377175049,
+   "reference": 0.00038824736324047956,
+   "rel_error": 8.384422033447177e-07,
+   "tol": 0.005,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Lam\u00e9 (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+   "params": {}
+  },
+  {
+   "case": "f\u00f3rmula UG-27(c)(1) vs tens\u00e3o m\u00e1xima de Lam\u00e9",
+   "output": "hoop",
+   "unit": "Pa",
+   "computed": 112988059.70149253,
+   "reference": 112890274.28468676,
+   "rel_error": 0.000866198770668044,
+   "tol": 0.02,
+   "pass": true,
+   "kind": "analytic",
+   "source": "ASME BPVC Section VIII Div. 1 (2023) App. 1-1: a f\u00f3rmula aproxima Lam\u00e9 para t <= R/2",
+   "params": {}
+  },
+  {
+   "case": "caso espesso (t/R 0,26): UG-27 vs Lam\u00e9",
+   "output": "hoop",
+   "unit": "Pa",
+   "computed": 66375000.0,
+   "reference": 65742052.023121364,
+   "rel_error": 0.00962774901909099,
+   "tol": 0.03,
+   "pass": true,
+   "kind": "analytic",
+   "source": "ASME BPVC Section VIII Div. 1 (2023) UG-27 / Lam\u00e9",
+   "params": {}
+  }
+ ],
+ "convergence": {
+  "parameter": "elementos na espessura",
+  "values": [
+   1,
+   2,
+   4,
+   8
+  ],
+  "hoop": [
+   112616394.90373127,
+   112511016.73233432,
+   112457377.70932262,
+   112430319.18824252
+  ],
+  "rel_change_last": 0.00024066925430308,
+  "pass": true
+ },
+ "all_pass": true
+}

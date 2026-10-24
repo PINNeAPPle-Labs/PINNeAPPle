@@ -1,0 +1,162 @@
+{
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.13.17",
+  "cpu_count": 4,
+  "machine": "x86_64",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "mem_gb": 15.7,
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "sklearn": "1.9.1",
+  "torch": "2.14.1+cu130",
+  "pinneapple": "0.7.0",
+  "git_commit": "33d7bedbe371a688889c32cbe5221f28dc202573"
+ },
+ "budget": {
+  "max_runs": null,
+  "max_wall_s": null,
+  "used_runs": 1,
+  "used_wall_s": 1208.7
+ },
+ "runs": [
+  {
+   "id": "qual-fine",
+   "purpose": "probe",
+   "params": {
+    "front_wing_aoa": 1.6948236312992306,
+    "front_flap_aoa": 23.837430997386555,
+    "rear_wing_aoa": 0.3083548661020362,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025
+   },
+   "ok": true,
+   "outputs": {
+    "drag_N": 2859.060805682645,
+    "downforce_N": 7745.2585965023445,
+    "CD": 0.5728149516121596,
+    "CL": -1.5517683007514234,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7779.717679740963,
+    "drag_front_wing_N": 785.4651980960591,
+    "downforce_rear_wing_N": 1666.601996564393,
+    "drag_rear_wing_N": 330.788367613597,
+    "downforce_floor_N": 1080.1172946033143,
+    "downforce_body_N": -1554.6540215458583,
+    "downforce_wheels_N": -1181.9316556552149,
+    "drag_wheels_N": 1292.7409587154518,
+    "balance_front": 1.0292937835763079
+   },
+   "message": "",
+   "cost_s": 1208.6555796369994,
+   "started": "",
+   "reason": "solver qualification: fine",
+   "predicted": {},
+   "meta": {
+    "resolution": "fine",
+    "iterations_requested": 800,
+    "frontal_area_m2": 1.663056,
+    "procs": 4,
+    "timings_s": {
+     "blockMesh": 0.2,
+     "surfaceFeatureExtract": 0.1,
+     "decomposePar": 0.1,
+     "snappyHexMesh": 125.4,
+     "checkMesh": 1.1,
+     "fields": 0.0,
+     "simpleFoam": 1018.9,
+     "reconstruct": 7.5
+    },
+    "iterations": 800,
+    "final_residuals": {
+     "omega": 1.5529925e-05,
+     "k": 0.00014139431,
+     "Ux": 7.903167e-05,
+     "Uy": 0.0017360046,
+     "Uz": 0.00041799632,
+     "p": 6.8542627e-05
+    },
+    "simpleFoam_end": true,
+    "fatal": false,
+    "mesh_ok": false,
+    "cells": 803259,
+    "mesh_failed_checks": 1,
+    "iteration_std": {
+     "drag_N": 52.972131624293574,
+     "downforce_N": 249.49012547192314,
+     "CD": 0.010613005834941588,
+     "CL": 0.04998553156542219,
+     "frontal_area_m2": 2.220446049250313e-16,
+     "downforce_front_wing_N": 46.314644973004015,
+     "drag_front_wing_N": 2.774615787835495,
+     "downforce_rear_wing_N": 102.7566721648194,
+     "drag_rear_wing_N": 13.468802248498807,
+     "downforce_floor_N": 178.24251269408313,
+     "downforce_body_N": 155.37651687452723,
+     "downforce_wheels_N": 43.46266585505637,
+     "drag_wheels_N": 89.93538345892385,
+     "balance_front": 0.016253051084565037
+    },
+    "averaged_iterations": [
+     400.0,
+     500.0,
+     600.0,
+     700.0,
+     800.0
+    ],
+    "force_history": [
+     {
+      "iteration": 100.0,
+      "drag_N": 3243.594304824877,
+      "downforce_N": 9329.065048817101
+     },
+     {
+      "iteration": 200.0,
+      "drag_N": 2949.5160927725337,
+      "downforce_N": 8528.085374628441
+     },
+     {
+      "iteration": 300.0,
+      "drag_N": 2910.537507502365,
+      "downforce_N": 8227.203477915325
+     },
+     {
+      "iteration": 400.0,
+      "drag_N": 2882.2946401399,
+      "downforce_N": 8052.251799686699
+     },
+     {
+      "iteration": 500.0,
+      "drag_N": 2909.796780733307,
+      "downforce_N": 8031.08110216397
+     },
+     {
+      "iteration": 600.0,
+      "drag_N": 2910.800090569919,
+      "downforce_N": 7471.359940550867
+     },
+     {
+      "iteration": 700.0,
+      "drag_N": 2809.2051355269896,
+      "downforce_N": 7517.196990858834
+     },
+     {
+      "iteration": 800.0,
+      "drag_N": 2783.20738144311,
+      "downforce_N": 7654.403149251355
+     }
+    ],
+    "convergence": {
+     "drag_N_rel_change": 0.045843766432040516,
+     "downforce_N_rel_change": 0.02391345283640972,
+     "over_iterations": 200.0
+    },
+    "cd_pressure": 0.5262732109703281,
+    "cd_friction": 0.03134445087134976,
+    "flow_npz": "/tmp/claude-0/work/aero/fine_check/cases/fine.flow.npz"
+   },
+   "fields_path": ""
+  }
+ ]
+}

@@ -1,0 +1,62 @@
+{
+ "preset": "eddy_current_skin_inspection",
+ "references": [
+  {
+   "case": "dZ da sonda: Dodd & Deeds vs FDM axissim\u00e9trico da lib (h = 0,1 mm)",
+   "output": "dZ",
+   "unit": "ohm",
+   "computed": 2.2212921454429,
+   "reference": 2.2123778918273667,
+   "rel_error": 0.004556780826434239,
+   "tol": 0.02,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "solve_axisymmetric_eddy_current (diferen\u00e7as finitas, A = 0 a 0,05 m); a anal\u00edtica \u00e9 Dodd & Deeds, J. Appl. Phys. 39(6):2829-2838 (1968), solu\u00e7\u00e3o anal\u00edtica bobina sobre placa",
+   "params": {}
+  },
+  {
+   "case": "placa de 10 delta = semi-espa\u00e7o",
+   "output": "dZ",
+   "unit": "ohm",
+   "computed": 2.1813435697242287,
+   "reference": 2.1813435701185653,
+   "rel_error": 3.5127381771509463e-10,
+   "tol": 1e-06,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Dodd & Deeds, J. Appl. Phys. 39(6):2829-2838 (1968), solu\u00e7\u00e3o anal\u00edtica bobina sobre placa (limite c -> infinito)",
+   "params": {}
+  },
+  {
+   "case": "indut\u00e2ncia da bobina no ar: Dodd & Deeds vs Wheeler (multicamada)",
+   "output": "L0",
+   "unit": "H",
+   "computed": 0.0002039253915257404,
+   "reference": 0.00020247469066366706,
+   "rel_error": 0.007164850368795491,
+   "tol": 0.05,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Wheeler, Proc. IRE 16 (1928): L = 0,8 a2 N2/(6a + 9b + 10c) uH em polegadas, ~1 %",
+   "params": {}
+  }
+ ],
+ "convergence": {
+  "parameter": "passo h do FDM [m]",
+  "values": [
+   0.0002,
+   0.0001
+  ],
+  "dZ_abs": [
+   2.3745748567233544,
+   2.2123778918273667
+  ],
+  "rel_change_last": 0.07334540965353262,
+  "error_vs_analytic": [
+   0.06900610987466346,
+   0.004538494037800618
+  ],
+  "pass": 1.0
+ },
+ "all_pass": 1.0
+}

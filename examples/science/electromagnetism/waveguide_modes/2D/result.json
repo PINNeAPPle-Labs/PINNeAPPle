@@ -1,0 +1,306 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.waveguide_modes",
+ "title": "Rectangular waveguide modes",
+ "area": "physics.electromagnetism",
+ "topic": "guided waves",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "2D",
+ "params": {
+  "a": 0.02286,
+  "b": 0.01016,
+  "scale": [
+   4,
+   8,
+   16
+  ],
+  "n_modes": 5
+ },
+ "values": {
+  "observed_order_TE": {
+   "value": 1.9997682470537366,
+   "unit": "",
+   "how": "worst TE mode, cells doubled"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "TE10 cut-off frequency",
+   "computed": 6557010336.667456,
+   "reference": 6557140376.202974,
+   "rel_error": 1.9831744946407245e-05,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+   "unit": "Hz",
+   "how": "FD eigenproblem 144 x 64 cells",
+   "abs_error": 130039.53551864624,
+   "atol": 0.0
+  },
+  {
+   "quantity": "TE20 cut-off frequency",
+   "computed": 13113240454.673681,
+   "reference": 13114280752.405949,
+   "rel_error": 7.932556515358469e-05,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+   "unit": "Hz",
+   "how": "FD eigenproblem 144 x 64 cells",
+   "abs_error": 1040297.7322673798,
+   "atol": 0.0
+  },
+  {
+   "quantity": "TE01 cut-off frequency",
+   "computed": 14752084650.649755,
+   "reference": 14753565846.456692,
+   "rel_error": 0.0001003957837956847,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+   "unit": "Hz",
+   "how": "FD eigenproblem 144 x 64 cells",
+   "abs_error": 1481195.806936264,
+   "atol": 0.0
+  },
+  {
+   "quantity": "TE11 cut-off frequency",
+   "computed": 16143679447.234825,
+   "reference": 16145085787.909729,
+   "rel_error": 8.71064231790586e-05,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+   "unit": "Hz",
+   "how": "FD eigenproblem 144 x 64 cells",
+   "abs_error": 1406340.6749038696,
+   "atol": 0.0
+  },
+  {
+   "quantity": "TE30 cut-off frequency",
+   "computed": 19667910228.202835,
+   "reference": 19671421128.608925,
+   "rel_error": 0.00017847721235471602,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+   "unit": "Hz",
+   "how": "FD eigenproblem 144 x 64 cells",
+   "abs_error": 3510900.4060897827,
+   "atol": 0.0
+  },
+  {
+   "quantity": "TM mode 1 cut-off frequency",
+   "computed": 16143679447.23405,
+   "reference": 16145085787.909729,
+   "rel_error": 8.710642322702264e-05,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.106",
+   "unit": "Hz",
+   "how": "",
+   "abs_error": 1406340.6756782532,
+   "atol": 0.0
+  },
+  {
+   "quantity": "TM mode 2 cut-off frequency",
+   "computed": 19737808306.95177,
+   "reference": 19739606501.616455,
+   "rel_error": 9.109577055333111e-05,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.106",
+   "unit": "Hz",
+   "how": "",
+   "abs_error": 1798194.6646842957,
+   "atol": 0.0
+  },
+  {
+   "quantity": "TM mode 3 cut-off frequency",
+   "computed": 24585578990.2237,
+   "reference": 24589276410.761158,
+   "rel_error": 0.00015036719567064556,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 3.106",
+   "unit": "Hz",
+   "how": "",
+   "abs_error": 3697420.5374565125,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "second-order convergence",
+   "passed": true,
+   "value": 1.9997682470537366,
+   "limit": null,
+   "critical": false,
+   "detail": "",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "TE10 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 1.9831744946407245e-05,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+    "reason": "computed 6.55701e+09, reference 6.55714e+09 Hz"
+   },
+   {
+    "name": "TE20 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 7.932556515358469e-05,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+    "reason": "computed 1.31132e+10, reference 1.31143e+10 Hz"
+   },
+   {
+    "name": "TE01 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0001003957837956847,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+    "reason": "computed 1.47521e+10, reference 1.47536e+10 Hz"
+   },
+   {
+    "name": "TE11 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 8.71064231790586e-05,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+    "reason": "computed 1.61437e+10, reference 1.61451e+10 Hz"
+   },
+   {
+    "name": "TE30 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.00017847721235471602,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.84: f_c = c/(2 pi) sqrt((m pi/a)^2 + (n pi/b)^2)",
+    "reason": "computed 1.96679e+10, reference 1.96714e+10 Hz"
+   },
+   {
+    "name": "TM mode 1 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 8.710642322702264e-05,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.106",
+    "reason": "computed 1.61437e+10, reference 1.61451e+10 Hz"
+   },
+   {
+    "name": "TM mode 2 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 9.109577055333111e-05,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.106",
+    "reason": "computed 1.97378e+10, reference 1.97396e+10 Hz"
+   },
+   {
+    "name": "TM mode 3 cut-off frequency vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.00015036719567064556,
+    "limit": 0.001,
+    "source": "Pozar eq. 3.106",
+    "reason": "computed 2.45856e+10, reference 2.45893e+10 Hz"
+   },
+   {
+    "name": "second-order convergence",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.9997682470537366,
+    "limit": null,
+    "source": "physics",
+    "reason": ""
+   }
+  ]
+ },
+ "data": {
+  "ladder": {
+   "scale": [
+    4,
+    8,
+    16
+   ],
+   "te_err": [
+    [
+     0.00031727960798710875,
+     0.0012687560462490977,
+     0.0016056069643792803,
+     0.001392984889802995,
+     0.0028533426503620785
+    ],
+    [
+     7.932556527301404e-05,
+     0.0003172796080007645,
+     0.00040154685032844917,
+     0.00034838979458173824,
+     0.0007137941770960499
+    ],
+    [
+     1.983174494657458e-05,
+     7.932556515355405e-05,
+     0.00010039578379583691,
+     8.710642317899531e-05,
+     0.0001784772123546441
+    ]
+   ],
+   "tm_err": [
+    [
+     0.0013929848898033281,
+     0.0014569139294303701,
+     0.002403978022735842
+    ],
+    [
+     0.000348389794575521,
+     0.0003643521572763708,
+     0.0006013739008802199
+    ],
+    [
+     8.710642322695694e-05,
+     9.109577055321783e-05,
+     0.00015036719567063095
+    ]
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "waveguide_modes.png"
+ ],
+ "movies": [],
+ "wall_time_s": 1.1943801889992756
+}

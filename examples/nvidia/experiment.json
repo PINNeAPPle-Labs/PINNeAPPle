@@ -5,21 +5,68 @@
  "description": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each run.py writes an architecture figure, result figures, summary.json and run_info.json (what ran here and what needs a GPU or an API key).",
  "domain": "physics AI",
  "methods": [
+  "B-rep (SMLib)",
+  "CEM",
+  "CNN",
+  "CNN detector",
+  "FEM (CST)",
   "FNO (PhysicsNeMo)",
   "FVM",
+  "FullyConnected (PhysicsNeMo)",
   "MOC",
-  "spectral"
+  "Newton Featherstone",
+  "OpenUSD",
+  "closed-form heat sink",
+  "finite volume",
+  "intent extraction",
+  "label check",
+  "model service",
+  "model serving",
+  "multibody tree",
+  "spectral",
+  "synthetic camera",
+  "synthetic video",
+  "video physics checks",
+  "world model"
  ],
  "modules": [
-  "pinneapple_tools.nvidia",
   "pinneapple_neural.physicsnemo_bridge",
-  "pinneapple_systems.process_components.water_hammer"
+  "pinneapple_simulation.multibody.arm",
+  "pinneapple_simulation.numerical_solvers.plane_stress_fem",
+  "pinneapple_simulation.robot_sim",
+  "pinneapple_systems.process_components.water_hammer",
+  "pinneapple_tools.model_services",
+  "pinneapple_tools.nvidia",
+  "pinneapple_tools.nvidia.brep",
+  "pinneapple_tools.nvidia.heatsink",
+  "pinneapple_tools.nvidia.isaac",
+  "pinneapple_tools.nvidia.omniverse",
+  "pinneapple_tools.nvidia.parts",
+  "pinneapple_tools.nvidia.physicsnemo",
+  "pinneapple_worldmodel.inspection_data",
+  "pinneapple_worldmodel.physical_world",
+  "pinneapple_worldmodel.robot_perception"
  ],
  "params": {},
  "scripts": [
   "01_omniverse_pump_pipeline/run.py",
   "02_physicsnemo_plume_rollout/run.py",
-  "07_omniverse_physicsnemo_coldplate/run.py"
+  "03_robotsim_pick_and_place/run.py",
+  "04_worldmodel_physics_video/run.py",
+  "05_brep_plate_with_hole/run.py",
+  "06_model_services_zoo/run.py",
+  "07_omniverse_physicsnemo_coldplate/run.py",
+  "08_robotsim_physicsnemo_learned_dynamics/run.py",
+  "09_worldmodel_physicsnemo_state/run.py",
+  "10_brep_physicsnemo_heatsink/run.py",
+  "11_model_services_physicsnemo_operator/run.py",
+  "12_omniverse_robotsim_arm/run.py",
+  "13_omniverse_worldmodel_inspection/run.py",
+  "14_brep_omniverse_bracket/run.py",
+  "15_model_services_brep_bracket/run.py",
+  "16_omniverse_physicsnemo_brep_heatsink/run.py",
+  "17_omniverse_robotsim_worldmodel_perception/run.py",
+  "18_all_stacks_heatsink_cell/run.py"
  ],
  "metrics": [
   {
@@ -45,6 +92,114 @@
    "value": 10.0,
    "unit": "steps",
    "how": "02: median validate_rollout trust horizon over 8 plumes (same file)"
+  },
+  {
+   "name": "arm_tracking_error",
+   "value": 0.4807320864886888,
+   "unit": "mrad",
+   "how": "03: max |q - q_plan| in Newton, dt 0.25 ms (03_robotsim_pick_and_place/results/summary.json)"
+  },
+  {
+   "name": "arm_replay_order",
+   "value": 1.007934460942717,
+   "unit": "",
+   "how": "03: observed order of the open-loop torque replay error in dt"
+  },
+  {
+   "name": "learned_dynamics_heldout_error",
+   "value": 0.04878147024380754,
+   "unit": "",
+   "how": "08: worst-joint relative RMS torque error on 2 held-out Newton runs"
+  },
+  {
+   "name": "usd_vs_urdf_motion",
+   "value": 0.0,
+   "unit": "rad",
+   "how": "12: max |q_USD - q_URDF| in Newton"
+  },
+  {
+   "name": "strap_kt_net_richardson",
+   "value": 2.3202025186774162,
+   "unit": "",
+   "how": "05: plane-stress FEM on USD BRep face meshes, Richardson from 1, 0.5 mm and 2 mm sizes"
+  },
+  {
+   "name": "heatsink_accepted_mass",
+   "value": 195.09650445308407,
+   "unit": "g",
+   "how": "10: exact B-rep mass of the verified design"
+  },
+  {
+   "name": "bracket_mass",
+   "value": 105.37090558663354,
+   "unit": "g",
+   "how": "14: USD BRep mass properties, 6061 density"
+  },
+  {
+   "name": "service_latency_median",
+   "value": 35.379128999920795,
+   "unit": "ms",
+   "how": "06: client round trip per /v1/infer (prediction + trust report)"
+  },
+  {
+   "name": "service_bracket_mass",
+   "value": 369.9879538393715,
+   "unit": "g",
+   "how": "15: exact B-rep mass of the bracket built from the approved request"
+  },
+  {
+   "name": "rollout_pixel_mae",
+   "value": 0.020704112015664577,
+   "unit": "",
+   "how": "04: mean |frame - truth| over the rollout horizon (04_worldmodel_physics_video/results/summary.json)"
+  },
+  {
+   "name": "rollout_pass_rate",
+   "value": 0.9,
+   "unit": "",
+   "how": "09: fraction of 20 rendered rollouts passing every check (09_worldmodel_physicsnemo_state/results/summary.json)"
+  },
+  {
+   "name": "rollout_g_median",
+   "value": 9.860008494247328,
+   "unit": "m/s^2",
+   "how": "09: fitted from the rendered rollout pixels (09_worldmodel_physicsnemo_state/results/summary.json)"
+  },
+  {
+   "name": "within_4px_all_samples",
+   "value": 0.2,
+   "unit": "",
+   "how": "13: fraction of test images (defect visible) located within the tolerance (13_omniverse_worldmodel_inspection/results/summary.json)"
+  },
+  {
+   "name": "within_4px_accepted_samples",
+   "value": 0.26,
+   "unit": "",
+   "how": "13: fraction of test images (defect visible) located within the tolerance (13_omniverse_worldmodel_inspection/results/summary.json)"
+  },
+  {
+   "name": "within_4px_brightest_pixel",
+   "value": 0.44,
+   "unit": "",
+   "how": "13: fraction of test images (defect visible) located within the tolerance (13_omniverse_worldmodel_inspection/results/summary.json)"
+  },
+  {
+   "name": "angle_rms_visible",
+   "value": 0.2288505947426688,
+   "unit": "rad",
+   "how": "17: test frames where the label check keeps the frame (17_omniverse_robotsim_worldmodel_perception/results/summary.json)"
+  },
+  {
+   "name": "part_mass",
+   "value": 0.20063699999999995,
+   "unit": "kg",
+   "how": "18: exact B-rep mass of the accepted design (18_all_stacks_heatsink_cell/results/summary.json)"
+  },
+  {
+   "name": "move_time",
+   "value": 0.5,
+   "unit": "s",
+   "how": "18: shortest move passing every robot check (18_all_stacks_heatsink_cell/results/summary.json)"
   }
  ],
  "checks": [
@@ -83,6 +238,186 @@
    "min": null,
    "detail": "decision REVIEW",
    "kind": "physics"
+  },
+  {
+   "name": "03 arm decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "08 learned dynamics decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  },
+  {
+   "name": "12 USD scene decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "05 decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "10 decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "14 decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "16 decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "06 decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "11 decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "15 decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
+  },
+  {
+   "name": "04 World model on physics-labelled video, judged by physics che: decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  },
+  {
+   "name": "09 State-space world model: CNN encoder, PhysicsNeMo dynamics, : decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  },
+  {
+   "name": "13 Synthetic thermal-inspection data as USD scene variations, w: decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  },
+  {
+   "name": "17 Robot perception from synthetic camera data: Newton motions,: decision APPROVED",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision REVIEW",
+   "kind": "physics"
+  },
+  {
+   "name": "18 Heat-sink work cell: B-rep design, PhysicsNeMo surrogate ser: decision APPROVED",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "physics"
   }
  ],
  "files": {
@@ -95,14 +430,75 @@
    "02_physicsnemo_plume_rollout/results/checks.png",
    "02_physicsnemo_plume_rollout/results/rollout_checks.png",
    "02_physicsnemo_plume_rollout/results/snapshots.png",
+   "03_robotsim_pick_and_place/results/architecture.png",
+   "03_robotsim_pick_and_place/results/checks.png",
+   "03_robotsim_pick_and_place/results/motion.png",
+   "03_robotsim_pick_and_place/results/tracking.png",
+   "03_robotsim_pick_and_place/results/verification.png",
+   "05_brep_plate_with_hole/results/architecture.png",
+   "05_brep_plate_with_hole/results/brep_part.png",
+   "05_brep_plate_with_hole/results/checks.png",
+   "05_brep_plate_with_hole/results/convergence.png",
+   "05_brep_plate_with_hole/results/stress.png",
+   "06_model_services_zoo/results/architecture.png",
+   "06_model_services_zoo/results/checks.png",
+   "06_model_services_zoo/results/sweep.png",
    "07_omniverse_physicsnemo_coldplate/results/architecture.png",
    "07_omniverse_physicsnemo_coldplate/results/checks.png",
    "07_omniverse_physicsnemo_coldplate/results/fields.png",
    "07_omniverse_physicsnemo_coldplate/results/training.png",
-   "07_omniverse_physicsnemo_coldplate/results/usd_preview.png"
+   "07_omniverse_physicsnemo_coldplate/results/usd_preview.png",
+   "08_robotsim_physicsnemo_learned_dynamics/results/architecture.png",
+   "08_robotsim_physicsnemo_learned_dynamics/results/checks.png",
+   "08_robotsim_physicsnemo_learned_dynamics/results/dynamics.png",
+   "10_brep_physicsnemo_heatsink/results/architecture.png",
+   "10_brep_physicsnemo_heatsink/results/checks.png",
+   "10_brep_physicsnemo_heatsink/results/design_space.png",
+   "10_brep_physicsnemo_heatsink/results/parity.png",
+   "11_model_services_physicsnemo_operator/results/architecture.png",
+   "11_model_services_physicsnemo_operator/results/checks.png",
+   "11_model_services_physicsnemo_operator/results/routing.png",
+   "12_omniverse_robotsim_arm/results/architecture.png",
+   "12_omniverse_robotsim_arm/results/checks.png",
+   "12_omniverse_robotsim_arm/results/robotsim.png",
+   "12_omniverse_robotsim_arm/results/usd_physics_preview.png",
+   "12_omniverse_robotsim_arm/results/usd_timeline_peak.png",
+   "14_brep_omniverse_bracket/results/architecture.png",
+   "14_brep_omniverse_bracket/results/checks.png",
+   "14_brep_omniverse_bracket/results/usd_curvature.png",
+   "14_brep_omniverse_bracket/results/usd_thickness.png",
+   "15_model_services_brep_bracket/results/architecture.png",
+   "15_model_services_brep_bracket/results/checks.png",
+   "15_model_services_brep_bracket/results/request_to_part.png",
+   "16_omniverse_physicsnemo_brep_heatsink/results/architecture.png",
+   "16_omniverse_physicsnemo_brep_heatsink/results/checks.png",
+   "16_omniverse_physicsnemo_brep_heatsink/results/usd_temperature.png",
+   "04_worldmodel_physics_video/results/architecture.png",
+   "04_worldmodel_physics_video/results/checks.png",
+   "04_worldmodel_physics_video/results/physics_verdicts.png",
+   "04_worldmodel_physics_video/results/rollout.png",
+   "09_worldmodel_physicsnemo_state/results/architecture.png",
+   "09_worldmodel_physicsnemo_state/results/checks.png",
+   "09_worldmodel_physicsnemo_state/results/rollout_frames.png",
+   "09_worldmodel_physicsnemo_state/results/rollouts.png",
+   "13_omniverse_worldmodel_inspection/results/architecture.png",
+   "13_omniverse_worldmodel_inspection/results/checks.png",
+   "13_omniverse_worldmodel_inspection/results/detector.png",
+   "13_omniverse_worldmodel_inspection/results/samples.png",
+   "13_omniverse_worldmodel_inspection/results/usd_preview.png",
+   "17_omniverse_robotsim_worldmodel_perception/results/angles.png",
+   "17_omniverse_robotsim_worldmodel_perception/results/architecture.png",
+   "17_omniverse_robotsim_worldmodel_perception/results/checks.png",
+   "17_omniverse_robotsim_worldmodel_perception/results/frames.png",
+   "17_omniverse_robotsim_worldmodel_perception/results/usd_preview.png",
+   "18_all_stacks_heatsink_cell/results/architecture.png",
+   "18_all_stacks_heatsink_cell/results/cell.png",
+   "18_all_stacks_heatsink_cell/results/checks.png",
+   "18_all_stacks_heatsink_cell/results/usd_cell.png"
   ],
   "videos": [
-   "01_omniverse_pump_pipeline/results/usd_timeline.gif"
+   "01_omniverse_pump_pipeline/results/usd_timeline.gif",
+   "12_omniverse_robotsim_arm/results/usd_timeline.gif"
   ],
   "viewers": [],
   "data": [
@@ -110,8 +506,29 @@
    "01_omniverse_pump_pipeline/results/summary.json",
    "02_physicsnemo_plume_rollout/results/run_info.json",
    "02_physicsnemo_plume_rollout/results/summary.json",
+   "03_robotsim_pick_and_place/results/run_info.json",
+   "03_robotsim_pick_and_place/results/summary.json",
+   "05_brep_plate_with_hole/results/run_info.json",
+   "05_brep_plate_with_hole/results/summary.json",
+   "06_model_services_zoo/results/run_info.json",
+   "06_model_services_zoo/results/summary.json",
    "07_omniverse_physicsnemo_coldplate/results/run_info.json",
-   "07_omniverse_physicsnemo_coldplate/results/summary.json"
+   "07_omniverse_physicsnemo_coldplate/results/summary.json",
+   "08_robotsim_physicsnemo_learned_dynamics/results/run_info.json",
+   "08_robotsim_physicsnemo_learned_dynamics/results/summary.json",
+   "10_brep_physicsnemo_heatsink/results/designs.json",
+   "10_brep_physicsnemo_heatsink/results/run_info.json",
+   "10_brep_physicsnemo_heatsink/results/summary.json",
+   "11_model_services_physicsnemo_operator/results/run_info.json",
+   "11_model_services_physicsnemo_operator/results/summary.json",
+   "12_omniverse_robotsim_arm/results/run_info.json",
+   "12_omniverse_robotsim_arm/results/summary.json",
+   "14_brep_omniverse_bracket/results/run_info.json",
+   "14_brep_omniverse_bracket/results/summary.json",
+   "15_model_services_brep_bracket/results/run_info.json",
+   "15_model_services_brep_bracket/results/summary.json",
+   "16_omniverse_physicsnemo_brep_heatsink/results/run_info.json",
+   "16_omniverse_physicsnemo_brep_heatsink/results/summary.json"
   ]
  },
  "links": {

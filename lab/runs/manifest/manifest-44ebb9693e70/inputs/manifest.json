@@ -1,0 +1,298 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/fresnel_snell",
+ "title": "Fresnel reflection and Snell's law (2D)",
+ "description": "An oblique plane wave on a dielectric half-space in a 2-D FDTD with Bloch-periodic sides. The reflection coefficient for s and p polarisation is the ratio of two runs (with and without the medium); at Brewster's angle p is not reflected; the transmitted angle comes from the phase gradient of the field inside the medium, against Snell's law.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.fresnel_snell"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "theory",
+  "dims": [
+   "2D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[2D: |r_s| at 0 deg]",
+   "value": 0.009342468310234442,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_p| at 0 deg]",
+   "value": 0.009340533038225823,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_s| at 30 deg]",
+   "value": 0.007702825806827807,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_p| at 30 deg]",
+   "value": 0.01174960093498128,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_s| at 45 deg]",
+   "value": 0.005745213438298207,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_p| at 45 deg]",
+   "value": 0.020935695135200855,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_s| at 60 deg]",
+   "value": 0.0033009296923069975,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_p| at 60 deg]",
+   "value": 0.05335230670124658,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel)"
+  },
+  {
+   "name": "rel_error[2D: |r_p| at Brewster's angle 56.31 deg]",
+   "value": 0.0021295927053455715,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Brewster: tan(theta_B) = n2 / n1 (Hecht eq. 4.65))"
+  },
+  {
+   "name": "rel_error[2D: transmitted angle for 30 deg incidence]",
+   "value": 0.0014124986435389646,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Snell's law n1 sin(t1) = n2 sin(t2))"
+  },
+  {
+   "name": "rel_error[2D: transmitted angle for 45 deg incidence]",
+   "value": 0.0011050530110487313,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Snell's law n1 sin(t1) = n2 sin(t2))"
+  },
+  {
+   "name": "rel_error[2D: transmitted angle for 60 deg incidence]",
+   "value": 0.0009003051691173667,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Snell's law n1 sin(t1) = n2 sin(t2))"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[2D] |r_s| at 0 deg",
+   "passed": true,
+   "value": 0.2018684936620469,
+   "reference": 0.2,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_s| at 0 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_p| at 0 deg",
+   "passed": true,
+   "value": 0.20186810660764518,
+   "reference": 0.2,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_p| at 0 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_s| at 30 deg",
+   "passed": true,
+   "value": 0.24226002830506238,
+   "reference": 0.24040820577345742,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_s| at 30 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_p| at 30 deg",
+   "passed": true,
+   "value": 0.16076680958371967,
+   "reference": 0.15889980034106396,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_p| at 30 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_s| at 45 deg",
+   "passed": true,
+   "value": 0.30507978135935965,
+   "reference": 0.30333704529042343,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_s| at 45 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_p| at 45 deg",
+   "passed": true,
+   "value": 0.09393972676261005,
+   "reference": 0.09201336304552439,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_p| at 45 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_s| at 60 deg",
+   "passed": true,
+   "value": 0.4215911670867767,
+   "reference": 0.42020410288672866,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_s| at 60 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_p| at 60 deg",
+   "passed": true,
+   "value": 0.040184470054958774,
+   "reference": 0.04244923464074498,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Fresnel equations (Born & Wolf eqs. 1.5.20-21), pp.em.waves.fresnel",
+   "label": "|r_p| at 60 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] |r_p| at Brewster's angle 56.31 deg",
+   "passed": true,
+   "value": 0.0021295927053455715,
+   "reference": 0.0,
+   "rtol": 0.0,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Brewster: tan(theta_B) = n2 / n1 (Hecht eq. 4.65)",
+   "label": "|r_p| at Brewster's angle 56.31 deg vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] transmitted angle for 30 deg incidence",
+   "passed": true,
+   "value": 19.443717561756426,
+   "reference": 19.47122063449069,
+   "rtol": 0.005,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Snell's law n1 sin(t1) = n2 sin(t2)",
+   "label": "transmitted angle for 30 deg incidence vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] transmitted angle for 45 deg incidence",
+   "passed": true,
+   "value": 28.09442552729238,
+   "reference": 28.125505702055705,
+   "rtol": 0.005,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Snell's law n1 sin(t1) = n2 sin(t2)",
+   "label": "transmitted angle for 45 deg incidence vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] transmitted angle for 60 deg incidence",
+   "passed": true,
+   "value": 35.2326409704375,
+   "reference": 35.264389682754654,
+   "rtol": 0.005,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Snell's law n1 sin(t1) = n2 sin(t2)",
+   "label": "transmitted angle for 60 deg incidence vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "2D/fresnel_snell.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "2D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Born & Wolf, Principles of Optics, 7th ed., sec. 1.5",
+  "Hecht, Optics, 5th ed., sec. 4.6",
+  "Taflove & Hagness, 3rd ed., sec. 13 (periodic structures, Bloch boundaries)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9847a3ef",
+  "created": "2026-10-24T16:48:36Z",
+  "seconds": 0.004,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -1,0 +1,226 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/parallel_plate_capacitor",
+ "title": "Parallel-plate capacitor with edge effect (2D, 3D)",
+ "description": "Capacitance of thin plates from the field energy of a finite-volume solution, refined three times and Richardson-extrapolated: strips in 2-D against Palmer's edge correction, discs in 3-D against Kirchhoff's formula. The excess over eps A / d is the fringing field.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.parallel_plate_capacitor"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "theory",
+  "dims": [
+   "2D",
+   "3D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[2D: C per unit length (extrapolated)]",
+   "value": 0.003927955814044814,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Palmer (1937): eps0 (w/d) [1 + d/(pi w)(1 + ln(2 pi w/d))])"
+  },
+  {
+   "name": "2D: C_per_length_fine",
+   "value": 1.0359258574773179e-10,
+   "unit": "F/m",
+   "how": "field energy, 40 cells across the gap"
+  },
+  {
+   "name": "2D: observed_order",
+   "value": 1.026059908461316,
+   "unit": "-",
+   "how": "Roache three-grid observed order"
+  },
+  {
+   "name": "2D: gci_fine",
+   "value": 0.0019096326452605714,
+   "unit": "-",
+   "how": "grid convergence index of the fine grid (Fs = 1.25)"
+  },
+  {
+   "name": "2D: fringe_excess",
+   "value": 0.16819666397174937,
+   "unit": "-",
+   "how": "C / (eps0 w / d) - 1, extrapolated"
+  },
+  {
+   "name": "rel_error[3D: C, 3-D Cartesian (finest) vs axisymmetric]",
+   "value": 0.0023933094036951204,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (convergence: this experiment: axisymmetric solution, Richardson extrapolated (independent discretisation of the same 3-D problem))"
+  },
+  {
+   "name": "rel_error[3D: C, axisymmetric (extrapolated)]",
+   "value": 0.008166506876191646,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Kirchhoff (1877): eps0 [pi a^2/d + a (ln(16 pi a/d) - 1)], asymptotic d << a)"
+  },
+  {
+   "name": "3D: C_cartesian_4_cells",
+   "value": 3.262481569788474e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes (one eighth, staircase edge)"
+  },
+  {
+   "name": "3D: C_cartesian_6_cells",
+   "value": 3.25962419114377e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes (one eighth, staircase edge)"
+  },
+  {
+   "name": "3D: C_cartesian_8_cells",
+   "value": 3.262468946141227e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes (one eighth, staircase edge)"
+  },
+  {
+   "name": "3D: C_cartesian_fine",
+   "value": 3.262468946141227e-10,
+   "unit": "F",
+   "how": "3-D Cartesian finite volumes, 8 cells across the gap (staircase disc edge)"
+  },
+  {
+   "name": "3D: C_axisymmetric_extrapolated",
+   "value": 3.270295775774252e-10,
+   "unit": "F",
+   "how": "(r, z) finite volumes [8, 16, 32] cells per gap, Richardson"
+  },
+  {
+   "name": "3D: fringe_excess",
+   "value": 0.175678105636071,
+   "unit": "-",
+   "how": "C / (eps0 pi a^2 / d) - 1"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[2D] C per unit length (extrapolated)",
+   "passed": true,
+   "value": 1.0343432672089114e-10,
+   "reference": 1.030296308832444e-10,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Palmer (1937): eps0 (w/d) [1 + d/(pi w)(1 + ln(2 pi w/d))]",
+   "label": "C per unit length (extrapolated) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] solution in the asymptotic range (Roache)",
+   "passed": true,
+   "value": 1.026059908461316,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "asymptotic ratio 0.998; a thin plate edge (phi ~ r^1/2) limits the order to about 1",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  },
+  {
+   "name": "[3D] C, 3-D Cartesian (finest) vs axisymmetric",
+   "passed": true,
+   "value": 3.262468946141227e-10,
+   "reference": 3.270295775774252e-10,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "this experiment: axisymmetric solution, Richardson extrapolated (independent discretisation of the same 3-D problem)",
+   "label": "C, 3-D Cartesian (finest) vs axisymmetric vs convergence",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] C, axisymmetric (extrapolated)",
+   "passed": true,
+   "value": 3.270295775774252e-10,
+   "reference": 3.2438052181551613e-10,
+   "rtol": 0.015,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Kirchhoff (1877): eps0 [pi a^2/d + a (ln(16 pi a/d) - 1)], asymptotic d << a",
+   "label": "C, axisymmetric (extrapolated) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] Kirchhoff's error falls as a/d grows (asymptotic formula)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "a/d=2.5: +6.19 %, a/d=5: +2.33 %, a/d=10: +0.82 %",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "2D/capacitor_2d.png",
+   "3D/capacitor_3d.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "2D/result.json",
+   "3D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "H. B. Palmer, Trans. AIEE 56, 363 (1937)",
+  "G. Kirchhoff, Monatsber. Akad. Wiss. Berlin (1877) 144",
+  "Roache, ASME J. Fluids Eng. 116, 405 (1994) (Richardson extrapolation, GCI)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9847a3ef",
+  "created": "2026-10-24T16:51:18Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

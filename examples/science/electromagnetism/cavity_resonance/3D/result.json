@@ -1,0 +1,202 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.cavity_resonance",
+ "title": "Resonant cavity",
+ "area": "physics.electromagnetism",
+ "topic": "resonators",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "3D",
+ "params": {
+  "a": 1.0,
+  "b": 0.7,
+  "d": 0.5,
+  "cells": [
+   40,
+   80
+  ],
+  "cells_3d": [
+   16,
+   32
+  ],
+  "steps": 16000,
+  "steps_3d": 8000
+ },
+ "values": {
+  "observed_order": {
+   "value": 2.0064511091064676,
+   "unit": "",
+   "how": "worst mode, cells doubled"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "(110) resonance",
+   "computed": 261310056.44777772,
+   "reference": 261388093.697,
+   "rel_error": 0.00029854936435145765,
+   "tol": 0.002,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+   "unit": "Hz",
+   "how": "nearest spectral peak of the FDTD ring-down (Hann window, parabolic interpolation)",
+   "abs_error": 78037.2492222786,
+   "atol": 0.0
+  },
+  {
+   "quantity": "(101) resonance",
+   "computed": 334943011.5976529,
+   "reference": 335178157.615,
+   "rel_error": 0.00070155531321106,
+   "tol": 0.002,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+   "unit": "Hz",
+   "how": "nearest spectral peak of the FDTD ring-down (Hann window, parabolic interpolation)",
+   "abs_error": 235146.0173470974,
+   "atol": 0.0
+  },
+  {
+   "quantity": "(011) resonance",
+   "computed": 368213147.31353444,
+   "reference": 368416033.76,
+   "rel_error": 0.0005506992852480457,
+   "tol": 0.002,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+   "unit": "Hz",
+   "how": "nearest spectral peak of the FDTD ring-down (Hann window, parabolic interpolation)",
+   "abs_error": 202886.44646555185,
+   "atol": 0.0
+  },
+  {
+   "quantity": "(111) resonance",
+   "computed": 397635674.5493685,
+   "reference": 397742697.482,
+   "rel_error": 0.00026907579525413156,
+   "tol": 0.002,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+   "unit": "Hz",
+   "how": "nearest spectral peak of the FDTD ring-down (Hann window, parabolic interpolation)",
+   "abs_error": 107022.93263149261,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "frequency error falls with the grid (numerical dispersion ~ h^2)",
+   "passed": true,
+   "value": null,
+   "limit": null,
+   "critical": false,
+   "detail": "2.8e-03, 7.0e-04",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "(110) resonance vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.00029854936435145765,
+    "limit": 0.002,
+    "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+    "reason": "computed 2.6131e+08, reference 2.61388e+08 Hz"
+   },
+   {
+    "name": "(101) resonance vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.00070155531321106,
+    "limit": 0.002,
+    "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+    "reason": "computed 3.34943e+08, reference 3.35178e+08 Hz"
+   },
+   {
+    "name": "(011) resonance vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0005506992852480457,
+    "limit": 0.002,
+    "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+    "reason": "computed 3.68213e+08, reference 3.68416e+08 Hz"
+   },
+   {
+    "name": "(111) resonance vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.00026907579525413156,
+    "limit": 0.002,
+    "source": "Pozar eq. 6.40: f = c/2 sqrt((m/a)^2 + (n/b)^2 + (l/d)^2)",
+    "reason": "computed 3.97636e+08, reference 3.97743e+08 Hz"
+   },
+   {
+    "name": "frequency error falls with the grid (numerical dispersion ~ h^2)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "physics",
+    "reason": "2.8e-03, 7.0e-04"
+   }
+  ]
+ },
+ "data": {
+  "modes": {
+   "labels": [
+    "(110)",
+    "(101)",
+    "(011)",
+    "(111)"
+   ],
+   "f_ref": [
+    261388093.697,
+    335178157.615,
+    368416033.76,
+    397742697.482
+   ],
+   "f_fdtd": [
+    261310056.44777772,
+    334943011.5976529,
+    368213147.31353444,
+    397635674.5493685
+   ],
+   "errors_per_level": [
+    [
+     0.0011980287891757424,
+     0.002818797559197894,
+     0.0022087225470720506,
+     0.0011314577338604748
+    ],
+    [
+     0.0002985493643514747,
+     0.000701555313211033,
+     0.0005506992852480908,
+     0.0002690757952541478
+    ]
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "cavity_3d.png"
+ ],
+ "movies": [],
+ "wall_time_s": 8.661199921999923
+}

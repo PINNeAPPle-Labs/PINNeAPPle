@@ -4,7 +4,8 @@ Files: ``list_dir``, ``read_file``, ``write_file``, ``edit_file`` (exact string 
 files), ``glob``. Commands: ``run`` (a shell command with a timeout, run in the workspace: git, tests, scripts).
 Background jobs: ``run(background=true)``, ``job_output``, ``job_stop``. Internet: ``web_search`` and ``fetch_url``
 (see :mod:`.web`); off with ``Workspace(web=False)``. GitHub: ``github`` (REST calls with ``GITHUB_TOKEN``). Showing
-work: ``show_file`` puts an image, HTML page, PDF or text file in the chat. A path that resolves outside
+work: ``show_file`` puts an image, HTML page, PDF or text file in the chat. Engineering reasoning: ``reason_chain``,
+``reason_library``, ``reason_check`` (:mod:`pinneapple_reason`: every physical claim comes from a computed check). A path that resolves outside
 the workspace is refused, symlinks included. Whether a command needs your approval is the
 :class:`ApprovalPolicy`'s call: ``"ask"`` asks for every command and every write, ``"auto"`` lets read-only and test
 commands through and asks for the rest, ``"yolo"`` asks for nothing.
@@ -51,7 +52,7 @@ class ApprovalPolicy:
     def needs_approval(self, tool: str, args: dict) -> bool:
         if self.mode == "yolo":
             return False
-        if tool in ("write_file", "edit_file"):
+        if tool in ("write_file", "edit_file", "reason_chain"):
             return self.mode == "ask"
         if tool == "github":
             return str(args.get("method", "GET")).upper() != "GET"
@@ -231,6 +232,38 @@ class Workspace:
             self.jobs[jid]["fh"].close()
 
     # -- showing files to the user ---------------------------------------------------------------------------
+    # -- engineering reasoning (pinneapple_reason): every number comes from a computed check ----------------------
+    def t_reason_chain(self, case: str = "", requirements: list | None = None, concept: dict | None = None,
+                       out: str = "reason_report", lang: str = "pt") -> str:
+        from pinneapple_mcp.tools import _reason_inputs
+        from pinneapple_reason import reason, trust_report, write_report
+        reqs, c, title = _reason_inputs(case or None, requirements, concept)
+        ch = reason(reqs, c, title)
+        paths = write_report(ch, self.path(out), lang=lang)
+        rep = trust_report(ch)
+        return (ch.explain(lang) + f"\n\ntrust decision: {rep.decisao} {rep.motivos}\nreport: "
+                f"{self.rel(paths['html'])}, timeline: {self.rel(paths['fig_timeline'])}")
+
+    def t_reason_library(self, domain: str = "", lang: str = "pt") -> str:
+        import json
+
+        from pinneapple_mcp.tools import reason_library
+        d = reason_library(domain or None, lang)
+        return json.dumps({"modes": [{k: m[k] for k in ("name", "domain", "title", "summary", "countermeasures")}
+                                     for m in d["modes"]],
+                           "countermeasures": [{k: c[k] for k in ("name", "title", "effect", "requires")}
+                                               for c in d["countermeasures"]], "cases": d["cases"]},
+                          ensure_ascii=False, indent=1)
+
+    def t_reason_check(self, mode: str, params: dict, elements: list | None = None, lang: str = "pt") -> str:
+        import json
+
+        from pinneapple_mcp.tools import reason_check
+        d = reason_check(mode, params, elements or [], None, lang)
+        return json.dumps({k: d[k] for k in ("passed", "demand", "capacity", "unit", "margin", "mechanism_text",
+                                             "method", "quantities", "sources", "validity")},
+                          ensure_ascii=False, indent=1, default=str)
+
     def t_show_file(self, path: str, caption: str = "") -> str:
         p = self.path(path)
         if not p.is_file():
@@ -302,6 +335,19 @@ TOOL_SPECS = {
     "job_stop": _spec("job_stop", "Stop a background job.", {"job_id": _S}, ["job_id"]),
     "show_file": _spec("show_file", "Show a file of the workspace to the user in the chat (image, HTML, PDF, text): "
                        "figures, reports, screenshots.", {"path": _S, "caption": _S}, ["path"]),
+    "reason_chain": _spec("reason_chain", "Build the chain of whys of a design with pinneapple_reason: from a naive "
+                          "concept, computed checks find the first failure mode (mechanism and numbers), the best "
+                          "countermeasure is applied, repeat until all requirements pass; writes report.html and a "
+                          "timeline figure. Give a worked case (roof, footbridge, power_board, pumped_main) or your "
+                          "own requirements and concept.",
+                          {"case": _S, "requirements": {"type": "array", "items": {"type": "object"}},
+                           "concept": {"type": "object"}, "out": _S, "lang": _S}, []),
+    "reason_library": _spec("reason_library", "List pinneapple_reason's failure modes (by physical domain) and "
+                            "countermeasures.", {"domain": _S, "lang": _S}, []),
+    "reason_check": _spec("reason_check", "Run one failure mode of pinneapple_reason on parameters in SI units: "
+                          "demand, capacity, margin, mechanism, measured numbers and sources.",
+                          {"mode": _S, "params": {"type": "object"}, "elements": {"type": "array", "items": _S},
+                           "lang": _S}, ["mode", "params"]),
     "github": _spec("github", "Call the GitHub REST API: path like 'repos/OWNER/REPO/pulls', method GET/POST/PATCH/"
                     "PUT/DELETE, optional JSON body. Writes need the user's approval.",
                     {"path": _S, "method": _S, "body": {"type": "object"}}, ["path"]),

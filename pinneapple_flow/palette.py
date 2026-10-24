@@ -38,6 +38,9 @@ SECTION_IDS = [s[0] for s in SECTIONS]
 
 #: curated node type -> section
 SECTION_OF: dict[str, str] = {
+    "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
+    "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
+    "reason.report": "optimization",
     "geometry.domain": "problem", "geometry.mesh": "problem", "problem.generic": "problem",
     "vehicle.spec": "problem", "terramechanics.soil": "problem", "scenario.site": "problem",
     "equations.system": "equations",

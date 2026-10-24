@@ -1,0 +1,227 @@
+{
+ "report": {
+  "modelo": "Roof: from flat tiles to a working roof",
+  "decisao": "APPROVED",
+  "score": 1.0,
+  "cobertura": 1.0,
+  "motivos": [],
+  "checagens": [
+   {
+    "name": "inputs recorded and finite",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 30.0,
+    "limit": null,
+    "source": "concept parameters with their sources",
+    "reason": ""
+   },
+   {
+    "name": "R1/lap_water_ingress",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 20.68201464031519,
+    "limit": 28.0954945061934,
+    "source": "hydraulic barrier of a lapped joint: capillary rise between plates + wind head + Nusselt film / ponding vs lap rise",
+    "reason": ""
+   },
+   {
+    "name": "applicability: lap_water_ingress: film Reynolds number 4q/nu (laminar film)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 830.172987358616,
+    "limit": 1800,
+    "source": "Incropera et al., sec. 10.6: falling film wave-free for Re_f < 30, wavy-laminar up to 1800",
+    "reason": ""
+   },
+   {
+    "name": "applicability: lap_water_ingress: gap much smaller than capillary length (plates model)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.37037037037037035,
+    "limit": 1.0,
+    "source": "capillary length of water sqrt(sigma/(rho g)) = 2.7 mm",
+    "reason": ""
+   },
+   {
+    "name": "R2/underside_condensation",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 16.399430218505504,
+    "limit": 19.174681701008296,
+    "source": "steady roof heat-balance network (clear night) + Magnus dew point",
+    "reason": ""
+   },
+   {
+    "name": "roof energy balance closes",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.4417118584769802e-15,
+    "limit": 1e-06,
+    "source": "steady network: sun = sky + wind + ventilation + room",
+    "reason": ""
+   },
+   {
+    "name": "applicability: underside_condensation: room temperature within Magnus range",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 21.0,
+    "limit": 50,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "R3/radiant_heat_gain",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 2.5912740558301834,
+    "limit": 5.0,
+    "source": "steady roof heat-balance network (clear day, sun on the roof)",
+    "reason": ""
+   },
+   {
+    "name": "roof energy balance closes",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.0931426704001542e-16,
+    "limit": 1e-06,
+    "source": "steady network: sun = sky + wind + ventilation + room",
+    "reason": ""
+   },
+   {
+    "name": "applicability: radiant_heat_gain: solar irradiance on the plane",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 900.0,
+    "limit": 1361,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "known answer: lap_water_ingress.h_capillary",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 1e-09,
+    "source": "h = 2 sigma / (rho g w) for w = 1 mm, sigma = 0.0728 N/m (14.87 mm)",
+    "reason": ""
+   },
+   {
+    "name": "known answer: lap_water_ingress.h_film",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.3877787807814457e-16,
+    "limit": 1e-09,
+    "source": "flat roof: 150 mm/h for 10 min ponds 25 mm",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R1/lap_water_ingress worst margin (lap_gap -30 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.053366881503564965,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R2/underside_condensation worst margin (rh_room_night +10 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.4100925082570626,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   },
+   {
+    "name": "uncertainty: R3/radiant_heat_gain worst margin (wind_day -50 %)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.3910441597386921,
+    "limit": 0.0,
+    "source": "one-at-a-time spread of the mode's uncertain premises",
+    "reason": ""
+   }
+  ],
+  "min_coverage": 0.6,
+  "min_score": 0.8
+ },
+ "card": {
+  "data_geometry": {
+   "title": "Data and geometry",
+   "question": "Was the physical problem represented correctly?",
+   "status": "answered",
+   "evidence": [
+    "inputs recorded: v0, v1, v2, v3",
+    "PASS inputs recorded and finite (concept parameters with their sources)"
+   ],
+   "next": ""
+  },
+  "model": {
+   "title": "Model",
+   "question": "Can the model (or solver) represent the relevant dynamics?",
+   "status": "answered",
+   "evidence": [
+    "PASS known answer: lap_water_ingress.h_capillary (h = 2 sigma / (rho g w) for w = 1 mm, sigma = 0.0728 N/m (14.87 mm))",
+    "PASS known answer: lap_water_ingress.h_film (flat roof: 150 mm/h for 10 min ponds 25 mm)"
+   ],
+   "next": ""
+  },
+  "physics": {
+   "title": "Physical constraints",
+   "question": "Are the equations and the boundary conditions respected?",
+   "status": "answered",
+   "evidence": [
+    "PASS roof energy balance closes (steady network: sun = sky + wind + ventilation + room)",
+    "PASS roof energy balance closes (steady network: sun = sky + wind + ventilation + room)"
+   ],
+   "next": ""
+  },
+  "benchmark": {
+   "title": "Benchmark",
+   "question": "How does the result compare with a solver or reference data?",
+   "status": "open",
+   "evidence": [
+    "no comparison with a solver, data or baseline"
+   ],
+   "next": "compare with a reference or a simple baseline"
+  },
+  "uncertainty": {
+   "title": "Uncertainty",
+   "question": "Where may the prediction not be reliable?",
+   "status": "answered",
+   "evidence": [
+    "PASS applicability: lap_water_ingress: film Reynolds number 4q/nu (laminar film) (Incropera et al., sec. 10.6: falling film wave-free for Re_f < 30, wavy-laminar up to 1800)",
+    "PASS applicability: lap_water_ingress: gap much smaller than capillary length (plates model) (capillary length of water sqrt(sigma/(rho g)) = 2.7 mm)",
+    "PASS applicability: underside_condensation: room temperature within Magnus range",
+    "PASS applicability: radiant_heat_gain: solar irradiance on the plane",
+    "PASS uncertainty: R1/lap_water_ingress worst margin (lap_gap -30 %) (one-at-a-time spread of the mode's uncertain premises)"
+   ],
+   "next": ""
+  },
+  "decision": {
+   "title": "Engineering decision",
+   "question": "Is the result adequate for the intended use?",
+   "status": "answered",
+   "evidence": [
+    "tier B (solid), ready for design screening",
+    "8 limitations bound the use"
+   ],
+   "next": ""
+  }
+ }
+}

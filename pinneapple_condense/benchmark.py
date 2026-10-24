@@ -189,16 +189,16 @@ def homogenization_study(shape=(12, 12), seed: int = 1) -> dict:
         th = time.perf_counter() - t0
         hom = H.homogenized_observables(pkg, Th, sysm, 1)
         r = H.compare(pkg, ref, hom)
-        c = Condensed(pkg, 8).prepare()
+        c = Condensed(pkg, 12).prepare()
         st = c.solve()
         e = errors(c.observables(st), ref, pkg.power.sum())
         if name == "sub-pitch hotspot":
             n = pkg.stack.n
             out["maps"] = {"fine": T[:, :, pkg.stack.active_k].tolist(),
                            "hom": np.kron(hom["Tj_mean"], np.ones((n, n))).tolist()}
-        r.update({"reference_s": info.seconds, "homogenized_s": th, "condensed_m8_err_Tmax": e["err_Tmax"],
-                  "condensed_m8_err_Tj_max": e["err_Tj_max"], "condensed_m8_err_q_ubump": e["err_q_ubump"],
-                  "condensed_m8_s": c.timings["prepare"] + st.seconds})
+        r.update({"reference_s": info.seconds, "homogenized_s": th, "condensed_m12_err_Tmax": e["err_Tmax"],
+                  "condensed_m12_err_Tj_max": e["err_Tj_max"], "condensed_m12_err_q_ubump": e["err_q_ubump"],
+                  "condensed_m12_s": c.timings["prepare"] + st.seconds})
         out[name] = r
     return out
 

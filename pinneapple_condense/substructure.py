@@ -230,6 +230,13 @@ def _disk_cache(key):
     return Path(root) / f"traces_{h}.npz"
 
 
+def _left_modes(X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Left singular vectors and values of a wide matrix, from the eigenvectors of ``X X^T`` (rows << columns)."""
+    lam, U = np.linalg.eigh(X @ X.T)
+    order = np.argsort(-lam)
+    return U[:, order], np.sqrt(np.maximum(lam[order], 0.0))
+
+
 def layered_modes(stack: Stack, orient: str, m: int, shifts: tuple[float, ...] = (0.0,), *,
                   groups: str = "layer") -> np.ndarray:
     """``m`` face modes that never tie two layers together: each layer gets its own constant, and the remaining
@@ -257,7 +264,7 @@ def layered_modes(stack: Stack, orient: str, m: int, shifts: tuple[float, ...] =
         c /= np.linalg.norm(c)
         base.append(c)
         Xr = X[r] - np.outer(c[r], c[r] @ X[r])
-        U, sv, _ = np.linalg.svd(Xr, full_matrices=False)
+        U, sv = _left_modes(Xr)
         for j in range(min(len(sv), len(r) - 1)):
             v = np.zeros(nf)
             v[r] = U[:, j]
@@ -288,8 +295,7 @@ def interface_modes(bm: BlockModel, orient: str, m: int, method: str = "pod",
         lam, V = np.linalg.eigh(P @ (S2 / s[:, None] / s[None, :]) @ P)
         V = V[:, np.abs(V.T @ c) < 0.5][:, : m - 1]
     elif method == "pod":
-        X = trace_snapshots(bm.stack, shifts=shifts)[orient] * s[:, None]
-        V = np.linalg.svd(P @ X, full_matrices=False)[0][:, : m - 1]
+        V = _left_modes(P @ (trace_snapshots(bm.stack, shifts=shifts)[orient] * s[:, None]))[0][:, : m - 1]
     elif method in ("layered", "rows"):
         return layered_modes(bm.stack, orient, m, shifts, groups="layer" if method == "layered" else "row")
     else:

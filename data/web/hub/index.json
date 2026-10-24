@@ -1459,15 +1459,15 @@
     }
    },
    "run": {
-    "ok": true,
-    "stdout": "Arm move in the robot sim (Newton), checked -> pinneapple_simulation.robot_sim.checks:arm_pick_and_place\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'duration': 0.8, 'q_start': [-0.6, 1.2], 'q_end': [0.9, -0.4], 'dt': 0.0005, 'kp': [350.0, 110.0], 'kd': [5.0, 2.5], 'safety': 3.0}",
-    "stderr": "",
-    "seconds": 5.85,
-    "timed_out": false,
     "code_hash": "fd93966a4c5b982a",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 5.85,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Arm move in the robot sim (Newton), checked -> pinneapple_simulation.robot_sim.checks:arm_pick_and_place\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'payload': 5.0, 'duration': 0.8, 'q_start': [-0.6, 1.2], 'q_end': [0.9, -0.4], 'dt': 0.0005, 'kp': [350.0, 110.0], 'kd': [5.0, 2.5], 'safety': 3.0}",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -56520,15 +56520,15 @@
     "items": []
    },
    "run": {
-    "ok": true,
-    "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
-    "stderr": "",
-    "seconds": 0.8,
-    "timed_out": false,
     "code_hash": "99b67289e7218c39",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 0.8,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -67114,15 +67114,15 @@
     "items": []
    },
    "run": {
-    "ok": true,
-    "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
-    "stderr": "",
-    "seconds": 1.09,
-    "timed_out": false,
     "code_hash": "9f4599ce134dbf5b",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 1.09,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -69810,15 +69810,15 @@
     "items": []
    },
    "run": {
-    "ok": true,
-    "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
-    "stderr": "",
-    "seconds": 0.87,
-    "timed_out": false,
     "code_hash": "f8dd6d4d33f66f90",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 0.87,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
+    "timed_out": false,
     "status": "ok"
    }
   },

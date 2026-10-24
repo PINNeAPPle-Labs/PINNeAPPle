@@ -6,6 +6,7 @@
     catalog [--json]
     schema
     examples                                     # the bundled example flows
+    example-flows list|run NAME [--quick]|doc|check   # examples/* as flows (pinneapple_flow.examples)
     coverage [-o FILE]                           # which library modules are nodes (markdown)
     autocalls [--no-check]                       # regenerate the nodes generated from the public API
     studio [--host 127.0.0.1] [--port 8765] [--no-browser] [--env .env]
@@ -146,6 +147,10 @@ def cmd_studio(a) -> int:
 
 def main(argv=None) -> int:
     from .config import load_dotenv
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["example-flows"]:
+        from .examples import main as examples_main
+        return examples_main(argv[1:])
     p = argparse.ArgumentParser(prog="python -m pinneapple_flow", description="PINNeAPPle Flow")
     sub = p.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="run a flow headless")

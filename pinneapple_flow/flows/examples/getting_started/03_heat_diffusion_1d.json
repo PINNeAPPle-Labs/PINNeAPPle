@@ -1,0 +1,378 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.getting_started.03_heat_diffusion_1d",
+ "name": "Heat diffusion 1-D: PINNs for three diffusivities",
+ "description": "examples/getting_started/03_heat_diffusion_1d.py: u_t = alpha u_xx on [0, 1] x [0, 1], u(x, 0) = sin(pi x), u = 0 at the ends, for alpha = 0.01, 0.1, 0.5; each PINN (3 x 64 tanh, 8000 Adam steps at lr 1e-3, 4096 collocation points, seed 7 as in the script) against u = sin(pi x) exp(-alpha pi^2 t) on a 60 x 60 grid. The script trains its own torch loop with a hard x(1 - x) boundary factor; here train.pinn (pinneapple_physics.symbolic_pde) enforces the ends as a penalty. Nothing committed: the script prints the relative L2 per alpha.",
+ "nodes": [
+  {
+   "id": "geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 1,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": true,
+    "t_range": [
+     0.0,
+     1.0
+    ]
+   },
+   "label": "rod x time",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 60,
+    "n_t": 60
+   },
+   "label": "60 x 60 grid",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "eq_a001",
+   "type": "equations.system",
+   "params": {
+    "template": "heat",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_t = alpha*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "alpha": 0.01
+    },
+    "exact": "exp(-alpha*pi**2*t)*sin(pi*x)"
+   },
+   "label": "equations (alpha = 0.01)",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_a001",
+   "type": "train.pinn",
+   "params": {
+    "width": 64,
+    "depth": 3,
+    "adam_steps": 8000,
+    "lbfgs_steps": 0,
+    "lr": 0.001,
+    "n_collocation": 4096,
+    "seed": 7
+   },
+   "label": "PINN (alpha = 0.01)",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_a001",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (alpha = 0.01)",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "eq_a01",
+   "type": "equations.system",
+   "params": {
+    "template": "heat",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_t = alpha*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "alpha": 0.1
+    },
+    "exact": "exp(-alpha*pi**2*t)*sin(pi*x)"
+   },
+   "label": "equations (alpha = 0.1)",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_a01",
+   "type": "train.pinn",
+   "params": {
+    "width": 64,
+    "depth": 3,
+    "adam_steps": 8000,
+    "lbfgs_steps": 0,
+    "lr": 0.001,
+    "n_collocation": 4096,
+    "seed": 7
+   },
+   "label": "PINN (alpha = 0.1)",
+   "position": {
+    "x": 620.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_a01",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (alpha = 0.1)",
+   "position": {
+    "x": 620.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "eq_a05",
+   "type": "equations.system",
+   "params": {
+    "template": "heat",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_t = alpha*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "alpha": 0.5
+    },
+    "exact": "exp(-alpha*pi**2*t)*sin(pi*x)"
+   },
+   "label": "equations (alpha = 0.5)",
+   "position": {
+    "x": 910.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_a05",
+   "type": "train.pinn",
+   "params": {
+    "width": 64,
+    "depth": 3,
+    "adam_steps": 8000,
+    "lbfgs_steps": 0,
+    "lr": 0.001,
+    "n_collocation": 4096,
+    "seed": 7
+   },
+   "label": "PINN (alpha = 0.5)",
+   "position": {
+    "x": 910.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_a05",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (alpha = 0.5)",
+   "position": {
+    "x": 910.0,
+    "y": 380.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "mesh",
+   "target_port": "geometry",
+   "id": "geo.geometry->mesh.geometry"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_a001",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_a001.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_a001",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_a001.mesh"
+  },
+  {
+   "source": "eq_a001",
+   "source_port": "problem",
+   "target": "pinn_a001",
+   "target_port": "problem",
+   "id": "eq_a001.problem->pinn_a001.problem"
+  },
+  {
+   "source": "pinn_a001",
+   "source_port": "solution",
+   "target": "val_a001",
+   "target_port": "candidates",
+   "id": "pinn_a001.solution->val_a001.candidates"
+  },
+  {
+   "source": "eq_a001",
+   "source_port": "problem",
+   "target": "val_a001",
+   "target_port": "problem",
+   "id": "eq_a001.problem->val_a001.problem"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_a01",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_a01.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_a01",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_a01.mesh"
+  },
+  {
+   "source": "eq_a01",
+   "source_port": "problem",
+   "target": "pinn_a01",
+   "target_port": "problem",
+   "id": "eq_a01.problem->pinn_a01.problem"
+  },
+  {
+   "source": "pinn_a01",
+   "source_port": "solution",
+   "target": "val_a01",
+   "target_port": "candidates",
+   "id": "pinn_a01.solution->val_a01.candidates"
+  },
+  {
+   "source": "eq_a01",
+   "source_port": "problem",
+   "target": "val_a01",
+   "target_port": "problem",
+   "id": "eq_a01.problem->val_a01.problem"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_a05",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_a05.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_a05",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_a05.mesh"
+  },
+  {
+   "source": "eq_a05",
+   "source_port": "problem",
+   "target": "pinn_a05",
+   "target_port": "problem",
+   "id": "eq_a05.problem->pinn_a05.problem"
+  },
+  {
+   "source": "pinn_a05",
+   "source_port": "solution",
+   "target": "val_a05",
+   "target_port": "candidates",
+   "id": "pinn_a05.solution->val_a05.candidates"
+  },
+  {
+   "source": "eq_a05",
+   "source_port": "problem",
+   "target": "val_a05",
+   "target_port": "problem",
+   "id": "eq_a05.problem->val_a05.problem"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "getting_started",
+  "domain": "PINN",
+  "scripts": [
+   "03_heat_diffusion_1d.py"
+  ],
+  "quick": {
+   "pinn_a001": {
+    "adam_steps": 100,
+    "n_collocation": 1024
+   },
+   "pinn_a01": {
+    "adam_steps": 100,
+    "n_collocation": 1024
+   },
+   "pinn_a05": {
+    "adam_steps": 100,
+    "n_collocation": 1024
+   }
+  }
+ }
+}

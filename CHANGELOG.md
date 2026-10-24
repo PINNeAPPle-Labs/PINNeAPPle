@@ -14,6 +14,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- Every `examples/*` study as a flow: domain nodes in `pinneapple_flow/nodes_ext` (`flight.*`, `render.blender_clip` /
+  `render.clip_grid`, `em.*`, `examples.compare`), flows in `pinneapple_flow/flows/examples/<domain>/` with a quick
+  configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
+  finish; `python -m pinneapple_flow example-flows list|run|doc|check`; the inventory with measured comparisons against
+  the examples' committed results is `docs/flow_studio/EXAMPLES_AS_FLOWS.md` (CI gate `tests/test_flow_examples.py`).
 - The Flow Studio canvas inside the Hub's "Create your own" (`/create?mode=canvas`): Flow Studio's editor embedded,
   syncing its flow with the Hub through `postMessage` between the two configured origins, so the generated Python,
   the sandbox validation and My Hub work on a flow drawn on the canvas. Apps can now be embedded only by the

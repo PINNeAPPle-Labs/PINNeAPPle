@@ -1,0 +1,380 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-design-from-intent",
+ "name": "Design from intent: five requests",
+ "description": "A toy-car loop (Newton check), a 2 kN bracket (CalculiX), a heat sink for a 40 W chip (finite volumes), a model-glider wing (vortex lattice) and an out-of-scope request, through pp.design (examples/design_from_intent/design_from_intent.py).",
+ "nodes": [
+  {
+   "id": "loop",
+   "type": "design.from_intent",
+   "params": {
+    "goal": "I want a toy car that does a loop",
+    "answers": {}
+   },
+   "label": "loop",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "bracket",
+   "type": "design.from_intent",
+   "params": {
+    "goal": "a bracket that holds 2 kN",
+    "answers": {
+     "arm_length": [
+      100,
+      "mm"
+     ]
+    }
+   },
+   "label": "bracket",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "heatsink",
+   "type": "design.from_intent",
+   "params": {
+    "goal": "a heat sink for a 40 W chip in still air",
+    "answers": {
+     "t_limit": [
+      85,
+      "\u00b0C"
+     ]
+    }
+   },
+   "label": "heatsink",
+   "position": {
+    "x": 40.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "glider",
+   "type": "design.from_intent",
+   "params": {
+    "goal": "a wing for a 1.2 kg model glider, at most 2 m span",
+    "answers": {}
+   },
+   "label": "glider",
+   "position": {
+    "x": 40.0,
+    "y": 550.0
+   }
+  },
+  {
+   "id": "out_of_scope",
+   "type": "design.from_intent",
+   "params": {
+    "goal": "an electric motor for my drone",
+    "answers": {}
+   },
+   "label": "out of scope",
+   "position": {
+    "x": 40.0,
+    "y": 720.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "design_from_intent",
+    "comparisons": [
+     {
+      "flow": "loop.design.radius",
+      "ref": "_out/summary.json:loop.design.radius"
+     },
+     {
+      "flow": "loop.design.clothoid_ratio",
+      "ref": "_out/summary.json:loop.design.clothoid_ratio"
+     },
+     {
+      "flow": "loop.design.v0",
+      "ref": "_out/summary.json:loop.design.v0"
+     },
+     {
+      "flow": "loop.design.mass",
+      "ref": "_out/summary.json:loop.design.mass"
+     },
+     {
+      "flow": "loop.design.clothoid_length",
+      "ref": "_out/summary.json:loop.design.clothoid_length"
+     },
+     {
+      "flow": "loop.design.thickness",
+      "ref": "_out/summary.json:loop.design.thickness"
+     },
+     {
+      "flow": "loop.v_top.full",
+      "ref": "_out/summary.json:loop.verification.comparison[output=v_top].full"
+     },
+     {
+      "flow": "bracket.design.thickness_mm",
+      "ref": "_out/summary.json:bracket.design.thickness_mm"
+     },
+     {
+      "flow": "bracket.design.width_mm",
+      "ref": "_out/summary.json:bracket.design.width_mm"
+     },
+     {
+      "flow": "bracket.design.mount_mm",
+      "ref": "_out/summary.json:bracket.design.mount_mm"
+     },
+     {
+      "flow": "bracket.design.thickness",
+      "ref": "_out/summary.json:bracket.design.thickness"
+     },
+     {
+      "flow": "bracket.design.width",
+      "ref": "_out/summary.json:bracket.design.width"
+     },
+     {
+      "flow": "bracket.design.mount",
+      "ref": "_out/summary.json:bracket.design.mount"
+     },
+     {
+      "flow": "bracket.design.arm_length",
+      "ref": "_out/summary.json:bracket.design.arm_length"
+     },
+     {
+      "flow": "bracket.design.fillet",
+      "ref": "_out/summary.json:bracket.design.fillet"
+     },
+     {
+      "flow": "bracket.design.hole",
+      "ref": "_out/summary.json:bracket.design.hole"
+     },
+     {
+      "flow": "bracket.sigma_peak_mpa.full",
+      "ref": "_out/summary.json:bracket.verification.comparison[output=sigma_peak_mpa].full"
+     },
+     {
+      "flow": "bracket.deflection_mm.full",
+      "ref": "_out/summary.json:bracket.verification.comparison[output=deflection_mm].full"
+     },
+     {
+      "flow": "heatsink.design.width_mm",
+      "ref": "_out/summary.json:heatsink.design.width_mm"
+     },
+     {
+      "flow": "heatsink.design.depth_mm",
+      "ref": "_out/summary.json:heatsink.design.depth_mm"
+     },
+     {
+      "flow": "heatsink.design.base_mm",
+      "ref": "_out/summary.json:heatsink.design.base_mm"
+     },
+     {
+      "flow": "heatsink.design.n_fins",
+      "ref": "_out/summary.json:heatsink.design.n_fins"
+     },
+     {
+      "flow": "heatsink.design.fin_mm",
+      "ref": "_out/summary.json:heatsink.design.fin_mm"
+     },
+     {
+      "flow": "heatsink.design.height_mm",
+      "ref": "_out/summary.json:heatsink.design.height_mm"
+     },
+     {
+      "flow": "heatsink.t_source_c.full",
+      "ref": "_out/summary.json:heatsink.verification.comparison[output=t_source_c].full"
+     },
+     {
+      "flow": "glider.design.span",
+      "ref": "_out/summary.json:glider.design.span"
+     },
+     {
+      "flow": "glider.design.aspect_ratio",
+      "ref": "_out/summary.json:glider.design.aspect_ratio"
+     },
+     {
+      "flow": "glider.design.taper",
+      "ref": "_out/summary.json:glider.design.taper"
+     },
+     {
+      "flow": "glider.sink_m_s.full",
+      "ref": "_out/summary.json:glider.verification.comparison[output=sink_m_s].full"
+     },
+     {
+      "flow": "glider.span_eff.full",
+      "ref": "_out/summary.json:glider.verification.comparison[output=span_eff].full"
+     }
+    ],
+    "tolerance_source": "deterministic design search and full checks (1e-6 relative); the example states no tolerance"
+   },
+   "label": "Same numbers as examples/design_from_intent",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "loop",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "loop.metrics->compare.metrics"
+  },
+  {
+   "source": "bracket",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "bracket.metrics->compare.metrics"
+  },
+  {
+   "source": "heatsink",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "heatsink.metrics->compare.metrics"
+  },
+  {
+   "source": "glider",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "glider.metrics->compare.metrics"
+  },
+  {
+   "source": "out_of_scope",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "out_of_scope.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "design_from_intent",
+  "domain": "design",
+  "scripts": [
+   "design_from_intent.py"
+  ],
+  "quick": {
+   "loop": {
+    "verify": false
+   },
+   "bracket": {
+    "verify": false
+   },
+   "heatsink": {
+    "verify": false
+   },
+   "glider": {
+    "verify": false
+   },
+   "out_of_scope": {
+    "verify": false
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "loop.design.radius",
+      "ref": "_out/summary.json:loop.design.radius"
+     },
+     {
+      "flow": "loop.design.clothoid_ratio",
+      "ref": "_out/summary.json:loop.design.clothoid_ratio"
+     },
+     {
+      "flow": "loop.design.v0",
+      "ref": "_out/summary.json:loop.design.v0"
+     },
+     {
+      "flow": "loop.design.mass",
+      "ref": "_out/summary.json:loop.design.mass"
+     },
+     {
+      "flow": "loop.design.clothoid_length",
+      "ref": "_out/summary.json:loop.design.clothoid_length"
+     },
+     {
+      "flow": "loop.design.thickness",
+      "ref": "_out/summary.json:loop.design.thickness"
+     },
+     {
+      "flow": "bracket.design.thickness_mm",
+      "ref": "_out/summary.json:bracket.design.thickness_mm"
+     },
+     {
+      "flow": "bracket.design.width_mm",
+      "ref": "_out/summary.json:bracket.design.width_mm"
+     },
+     {
+      "flow": "bracket.design.mount_mm",
+      "ref": "_out/summary.json:bracket.design.mount_mm"
+     },
+     {
+      "flow": "bracket.design.thickness",
+      "ref": "_out/summary.json:bracket.design.thickness"
+     },
+     {
+      "flow": "bracket.design.width",
+      "ref": "_out/summary.json:bracket.design.width"
+     },
+     {
+      "flow": "bracket.design.mount",
+      "ref": "_out/summary.json:bracket.design.mount"
+     },
+     {
+      "flow": "bracket.design.arm_length",
+      "ref": "_out/summary.json:bracket.design.arm_length"
+     },
+     {
+      "flow": "bracket.design.fillet",
+      "ref": "_out/summary.json:bracket.design.fillet"
+     },
+     {
+      "flow": "bracket.design.hole",
+      "ref": "_out/summary.json:bracket.design.hole"
+     },
+     {
+      "flow": "heatsink.design.width_mm",
+      "ref": "_out/summary.json:heatsink.design.width_mm"
+     },
+     {
+      "flow": "heatsink.design.depth_mm",
+      "ref": "_out/summary.json:heatsink.design.depth_mm"
+     },
+     {
+      "flow": "heatsink.design.base_mm",
+      "ref": "_out/summary.json:heatsink.design.base_mm"
+     },
+     {
+      "flow": "heatsink.design.n_fins",
+      "ref": "_out/summary.json:heatsink.design.n_fins"
+     },
+     {
+      "flow": "heatsink.design.fin_mm",
+      "ref": "_out/summary.json:heatsink.design.fin_mm"
+     },
+     {
+      "flow": "heatsink.design.height_mm",
+      "ref": "_out/summary.json:heatsink.design.height_mm"
+     },
+     {
+      "flow": "glider.design.span",
+      "ref": "_out/summary.json:glider.design.span"
+     },
+     {
+      "flow": "glider.design.aspect_ratio",
+      "ref": "_out/summary.json:glider.design.aspect_ratio"
+     },
+     {
+      "flow": "glider.design.taper",
+      "ref": "_out/summary.json:glider.design.taper"
+     }
+    ]
+   }
+  }
+ }
+}

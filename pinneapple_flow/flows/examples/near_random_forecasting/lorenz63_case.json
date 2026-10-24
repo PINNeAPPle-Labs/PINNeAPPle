@@ -1,0 +1,139 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-near-random-lorenz63_case",
+ "name": "Lorenz-63 with noise: predictability and model zoo",
+ "description": "predictability report, the model zoo under purged walk-forward with an untouched test period, surrogate-trained twins for the lorenz63_noise0.1 case (examples/near_random_forecasting/run_study.py, results/cases/lorenz63_noise0.1.json).",
+ "nodes": [
+  {
+   "id": "case",
+   "type": "forecast_lab.case",
+   "params": {
+    "case": "lorenz63_noise0.1"
+   },
+   "label": "Lorenz-63 with noise: predictability and model zoo",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "near_random_forecasting",
+    "comparisons": [
+     {
+      "flow": "case.predictability.ar1_coefficient",
+      "ref": "results/cases/lorenz63_noise0.1.json:predictability.ar1_coefficient"
+     },
+     {
+      "flow": "case.zoo.persistence.test_rmse_h1",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.0"
+     },
+     {
+      "flow": "case.zoo.persistence.test_rmse_h8",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.3"
+     },
+     {
+      "flow": "case.zoo.persistence.test_rmse_h64",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.persistence.test.rmse.6"
+     },
+     {
+      "flow": "case.zoo.climatology.test_rmse_h1",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.0"
+     },
+     {
+      "flow": "case.zoo.climatology.test_rmse_h8",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.3"
+     },
+     {
+      "flow": "case.zoo.climatology.test_rmse_h64",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.climatology.test.rmse.6"
+     },
+     {
+      "flow": "case.zoo.ar.test_rmse_h1",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.0"
+     },
+     {
+      "flow": "case.zoo.ar.test_rmse_h8",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.3"
+     },
+     {
+      "flow": "case.zoo.ar.test_rmse_h64",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.ar.test.rmse.6"
+     },
+     {
+      "flow": "case.zoo.gbm.test_rmse_h1",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.0"
+     },
+     {
+      "flow": "case.zoo.gbm.test_rmse_h8",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.3"
+     },
+     {
+      "flow": "case.zoo.gbm.test_rmse_h64",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.gbm.test.rmse.6"
+     },
+     {
+      "flow": "case.zoo.enkf.test_rmse_h1",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.0"
+     },
+     {
+      "flow": "case.zoo.enkf.test_rmse_h8",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.3"
+     },
+     {
+      "flow": "case.zoo.enkf.test_rmse_h64",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.enkf.test.rmse.6"
+     },
+     {
+      "flow": "case.zoo.sindy.test_rmse_h1",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.0"
+     },
+     {
+      "flow": "case.zoo.sindy.test_rmse_h8",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.3"
+     },
+     {
+      "flow": "case.zoo.sindy.test_rmse_h64",
+      "ref": "results/cases/lorenz63_noise0.1.json:zoo.models.sindy.test.rmse.6"
+     }
+    ],
+    "tolerance_source": "deterministic: the same library code, data and seed; 1e-6 relative covers BLAS / platform rounding; the committed JSON rounds to 4 decimals: each number matches within half a unit of its last digit"
+   },
+   "label": "Same numbers as examples/near_random_forecasting",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "case",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "case.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "near_random_forecasting",
+  "domain": "time series",
+  "scripts": [
+   "run_study.py"
+  ],
+  "quick": {
+   "case": {
+    "n": 1500,
+    "budget": 1,
+    "n_surrogates": 19
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick (n = 1500, budget 1): not comparable with the n = 6000 committed run"
+   }
+  }
+ }
+}

@@ -1,0 +1,40 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.worldmodel.01_generate_train_evaluate",
+ "name": "Physics world model: generate, train, benchmark",
+ "description": "Trajectories of Burgers 1-D and heat 2-D from the built-in solvers, one specialist FNO world model per scenario and the library's benchmark tasks (examples/worldmodel/01_generate_train_evaluate.py; quick: the script's --fast sizes).",
+ "nodes": [
+  {
+   "id": "wm",
+   "type": "worldmodel.specialists",
+   "params": {},
+   "label": "World model specialists",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "worldmodel",
+  "domain": "neural operators",
+  "scripts": [
+   "01_generate_train_evaluate.py"
+  ],
+  "quick": {
+   "wm": {
+    "scenarios": [
+     "burgers_1d"
+    ],
+    "n_train": 20,
+    "epochs": 5,
+    "n_modes": 4,
+    "width": 16,
+    "depth": 2,
+    "batch_size": 8
+   }
+  }
+ }
+}

@@ -1,0 +1,165 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.pinn_solver.02_compiler_poisson_2d",
+ "name": "Poisson 2-D PINN against the manufactured solution",
+ "description": "examples/pinn_solver/02_compiler_poisson_2d.py: lap(u) = -2 pi^2 sin(pi x) sin(pi y) on the unit square, u = 0 on the boundary; a 4 x 64 tanh PINN, 1500 Adam steps at lr 2e-3, 4096 collocation points, against u = sin(pi x) sin(pi y) on a 64 x 64 grid (the script's rel_L2(grid)). The script trains its own loop on pinneapple_physics.pinn_solver.compile_problem; here train.pinn (symbolic_pde) trains the same problem. Nothing committed.",
+ "nodes": [
+  {
+   "id": "geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 2,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": false,
+    "t_range": [
+     0.0,
+     1.0
+    ]
+   },
+   "label": "unit square",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 64,
+    "n_t": 2
+   },
+   "label": "64 x 64 grid",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "eq_poisson",
+   "type": "equations.system",
+   "params": {
+    "template": "poisson",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "lap(u) = -2*pi**2*sin(pi*x)*sin(pi*y)"
+    ],
+    "conditions": [
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {},
+    "exact": "sin(pi*x)*sin(pi*y)"
+   },
+   "label": "equations (Poisson)",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_poisson",
+   "type": "train.pinn",
+   "params": {
+    "width": 64,
+    "depth": 4,
+    "adam_steps": 1500,
+    "lbfgs_steps": 0,
+    "lr": 0.002,
+    "n_collocation": 4096,
+    "seed": 0
+   },
+   "label": "PINN (Poisson)",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_poisson",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (Poisson)",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "mesh",
+   "target_port": "geometry",
+   "id": "geo.geometry->mesh.geometry"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_poisson",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_poisson.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_poisson",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_poisson.mesh"
+  },
+  {
+   "source": "eq_poisson",
+   "source_port": "problem",
+   "target": "pinn_poisson",
+   "target_port": "problem",
+   "id": "eq_poisson.problem->pinn_poisson.problem"
+  },
+  {
+   "source": "pinn_poisson",
+   "source_port": "solution",
+   "target": "val_poisson",
+   "target_port": "candidates",
+   "id": "pinn_poisson.solution->val_poisson.candidates"
+  },
+  {
+   "source": "eq_poisson",
+   "source_port": "problem",
+   "target": "val_poisson",
+   "target_port": "problem",
+   "id": "eq_poisson.problem->val_poisson.problem"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "pinn_solver",
+  "domain": "PINN",
+  "scripts": [
+   "02_compiler_poisson_2d.py"
+  ],
+  "quick": {
+   "pinn_poisson": {
+    "adam_steps": 150,
+    "n_collocation": 2048
+   }
+  }
+ }
+}

@@ -1,0 +1,618 @@
+{
+ "decision": "APPROVED",
+ "requests": [
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.025848460864522544,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 42.3277820000294,
+   "fallback_ms": 8.118734000163386
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.012267898575323871,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 18.60778200079949,
+   "fallback_ms": 7.432615999277914
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.04959044963241826,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 18.502449999687087,
+   "fallback_ms": 7.041284000479209
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.021161709911700608,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 22.04039600019314,
+   "fallback_ms": 7.843954000236408
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.018591128431719194,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 17.93098799953441,
+   "fallback_ms": 7.127634000426042
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.009701033658265914,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 17.2051180006747,
+   "fallback_ms": 7.860869000069215
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.02001880042887059,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 20.203936000143585,
+   "fallback_ms": 11.625948999608227
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.013084495291889962,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 20.27648399962345,
+   "fallback_ms": 8.763679999901797
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.011591068707071977,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 21.621570000206702,
+   "fallback_ms": 8.006144000319182
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.009917008904183712,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 23.11638699939067,
+   "fallback_ms": 7.927783000013733
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.026201989241826807,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 19.76213599937182,
+   "fallback_ms": 7.755380000162404
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.02127266841851807,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 19.118822999189433,
+   "fallback_ms": 7.6711330002581235
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.01800052706952257,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 22.537064999596623,
+   "fallback_ms": 15.125615000215475
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.012849232051586956,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 20.643458000449755,
+   "fallback_ms": 8.737236000342818
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.01242250485879784,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 19.595753999965382,
+   "fallback_ms": 7.385763999991468
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.010893605301048383,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 20.950412999809487,
+   "fallback_ms": 7.524265000029118
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.018607746786396387,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 19.296275000669993,
+   "fallback_ms": 6.8626829997811
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.0194963479784436,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 21.061293999991904,
+   "fallback_ms": 8.918759999687609
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.024166854275805366,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 17.96125199962262,
+   "fallback_ms": 7.293339000170818
+  },
+  {
+   "group": "in-distribution",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.022979857975329043,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 18.783278999762842,
+   "fallback_ms": 7.22677100020519
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.24878269595618857,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 21.494016000360716,
+   "fallback_ms": 11.54368199968303
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.2128679300682678,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 18.590599999697588,
+   "fallback_ms": 7.21569699999236
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.26059542868311686,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 26.56066899999132,
+   "fallback_ms": 7.698743999753788
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.2781342947877857,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 27.119981000396365,
+   "fallback_ms": 7.862061000196263
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.3055926943614153,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 19.605033000516414,
+   "fallback_ms": 7.595623999804957
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.20038457781081234,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 17.808670000704296,
+   "fallback_ms": 8.632621999822732
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.2994064125053301,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 18.49162299913587,
+   "fallback_ms": 7.673711999814259
+  },
+  {
+   "group": "higher contrast (k 2 / 20)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "boundary condition u = 0",
+    "flux balance (net boundary flux = source)",
+    "positivity (maximum principle)",
+    "applicability (coefficient inside the training envelope)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.22193145515519414,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 18.633675999808474,
+   "fallback_ms": 6.977665000704292
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.02111910173335206,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 23.72573399952671,
+   "fallback_ms": 7.282501000190678
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.011500377432963383,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 21.01891300026182,
+   "fallback_ms": 7.210695000139822
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.03288363777487356,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 18.668656000045303,
+   "fallback_ms": 11.305031999654602
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.02853155398956883,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 19.466871999611612,
+   "fallback_ms": 7.159227000556712
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.015178388210801452,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 23.460679999516287,
+   "fallback_ms": 7.693577000281948
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.014492779798079286,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 24.41580199956661,
+   "fallback_ms": 7.622389000061958
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.01372407830382582,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 28.101545999561495,
+   "fallback_ms": 7.72009199954482
+  },
+  {
+   "group": "finer features (tau 6)",
+   "surrogate_decision": "REJECT",
+   "failed": [
+    "PDE residual (certified energy-error bound)",
+    "PDE residual (certified L2 error bound)",
+    "flux balance (net boundary flux = source)"
+   ],
+   "routed_to": "solver",
+   "solver_decision": "APPROVED",
+   "surrogate_rel_l2": 0.014904201565555135,
+   "final_rel_l2": 0.0,
+   "surrogate_ms": 27.452084999822546,
+   "fallback_ms": 10.263393000059295
+  }
+ ],
+ "train_steps": 2700,
+ "train_wall_s": 153.79733829903034,
+ "groups": {
+  "in-distribution": {
+   "n": 20,
+   "approved": 0,
+   "routed_to_solver": 20,
+   "surrogate_rel_l2_mean": 0.01893316941816208,
+   "surrogate_ms_median": 19.983035999757703,
+   "fallback_ms_median": 7.799667000199406
+  },
+  "higher contrast (k 2 / 20)": {
+   "n": 8,
+   "approved": 0,
+   "routed_to_solver": 8,
+   "surrogate_rel_l2_mean": 0.25346193616601387,
+   "surrogate_ms_median": 19.119354500162444,
+   "fallback_ms_median": 7.686227999784023
+  },
+  "finer features (tau 6)": {
+   "n": 8,
+   "approved": 0,
+   "routed_to_solver": 8,
+   "surrogate_rel_l2_mean": 0.019041764851127442,
+   "surrogate_ms_median": 23.5932069995215,
+   "fallback_ms_median": 7.657983000171953
+  }
+ },
+ "checks": [
+  {
+   "name": "every surrogate answer carries a trust report",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "out-of-distribution layouts never APPROVED for the surrogate",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true
+  },
+  {
+   "name": "every solver fallback APPROVED",
+   "value": null,
+   "limit": null,
+   "passed": true
+  },
+  {
+   "name": "routed answers within 1 % of the reference",
+   "value": 0.0,
+   "limit": 0.01,
+   "passed": true
+  }
+ ]
+}

@@ -90,6 +90,10 @@ add(
             "Arm move in the robot sim (Newton), checked", "Solvers",
             "PINNeAPPle Robot Sim on NVIDIA Newton: a two-link arm pick-and-place with model feedforward, checked for "
             "replay convergence, tracking, energy balance, motor limits and link stress", requires=("newton",)),
+    LibCall("services.infer", "pinneapple_tools.model_services.registry:infer",
+            "Ask a PINNeAPPle model service", "Learning",
+            "a zoo surrogate, the physics-check service or the intent extractor of PINNeAPPle Model Services (the "
+            "NIM-compatible microservices), answered with its trust report; inputs as the JSON of /v1/infer"),
     LibCall("export.usd_validate", "pinneapple_tools.nvidia.omniverse:validate_stage",
             "Check a USD stage (Omniverse)", "Export",
             "re-open an OpenUSD file and check it before Omniverse / Isaac Sim opens it: topology, primvar sizes, "

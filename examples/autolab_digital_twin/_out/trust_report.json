@@ -1,0 +1,121 @@
+{
+ "modelo": "pipe-loop digital twin",
+ "decisao": "APPROVED",
+ "score": 1.0,
+ "cobertura": 1.0,
+ "motivos": [],
+ "checagens": [
+  {
+   "name": "fast_model_holdout",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.7827623466462263,
+   "limit": 3.0,
+   "source": "40 held-out operating points, max |error| / sensor sigma",
+   "reason": ""
+  },
+  {
+   "name": "fast_model_coverage_2std",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.9,
+   "limit": 0.9,
+   "source": "held-out errors inside +-2 std",
+   "reason": ""
+  },
+  {
+   "name": "cause_accuracy",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 0.9625,
+   "limit": 0.9,
+   "source": "80 controlled cases, diagnosed kind = true kind",
+   "reason": ""
+  },
+  {
+   "name": "location_accuracy",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 1.0,
+   "limit": 0.9,
+   "source": "right pipe / sensor / input among correctly classified faults",
+   "reason": ""
+  },
+  {
+   "name": "healthy_runs_stay_normal",
+   "status": "supports",
+   "critical": true,
+   "weight": 1.0,
+   "value": 1.0,
+   "limit": 1.0,
+   "source": "healthy cases diagnosed normal at the end",
+   "reason": ""
+  },
+  {
+   "name": "false_alarm_cases",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.0125,
+   "limit": 0.1,
+   "source": "cases with any alarm before the fault (or at all, when healthy)",
+   "reason": ""
+  },
+  {
+   "name": "kalman_size_inside_2std",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.9,
+   "limit": 0.8,
+   "source": "obstructions whose true extra K is inside the filter's +-2 std",
+   "reason": ""
+  },
+  {
+   "name": "showcase_correct",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 4.0,
+   "limit": 4.0,
+   "source": "obstruction B, drifting Q_B, overspeed, healthy",
+   "reason": ""
+  },
+  {
+   "name": "reference_newton_residual",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 1.7763568394002505e-14,
+   "limit": 1e-08,
+   "source": "plant network solve, max head residual [m]",
+   "reason": ""
+  },
+  {
+   "name": "out_of_domain_physics_consistent",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 1.6740275757030327,
+   "limit": 4.0,
+   "source": "reference at the new operating point vs readings (30-step mean, |z|)",
+   "reason": ""
+  },
+  {
+   "name": "extended_model_inside_noise",
+   "status": "supports",
+   "critical": false,
+   "weight": 1.0,
+   "value": 0.0777605283555527,
+   "limit": 3.0,
+   "source": "fast model after adding the reference solves, max |error| / sigma",
+   "reason": ""
+  }
+ ],
+ "min_coverage": 0.6,
+ "min_score": 0.8
+}

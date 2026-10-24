@@ -1,0 +1,883 @@
+{
+ "spec": {
+  "text": "Leve o rover at\u00e9 (37, 15) sem atolar, escorregamento m\u00e1ximo de 40%, minimizando a energia.",
+  "goal": [
+   37.0,
+   15.0
+  ],
+  "start": [
+   3.0,
+   6.0
+  ],
+  "slip_limit": 0.4,
+  "risk_max": 0.05,
+  "objective": "energy",
+  "speed": 0.2,
+  "max_replans": 2,
+  "parser": "rules",
+  "quotes": {
+   "goal_xy": "(37, 15)",
+   "slip_limit": "escorregamento m\u00e1ximo de 40%",
+   "objective": "energ"
+  },
+  "defaults_used": [
+   "start = site start",
+   "risk_max = 0.05 (default)",
+   "speed = 0.2 (default)"
+  ]
+ },
+ "rover": {
+  "model": "NASA VIPER (parametric, public figures)",
+  "mass_kg": 450.0,
+  "wheels": 4,
+  "wheel_radius_m": 0.25,
+  "wheel_width_m": 0.2
+ },
+ "routes": [
+  {
+   "name": "A",
+   "planned_with": "orbital prior",
+   "start": [
+    3.0,
+    6.0
+   ],
+   "waypoints": [
+    [
+     3.0,
+     6.0
+    ],
+    [
+     13.5,
+     6.0
+    ],
+    [
+     17.0,
+     9.5
+    ],
+    [
+     22.5,
+     9.5
+    ],
+    [
+     29.0,
+     16.0
+    ],
+    [
+     36.0,
+     16.0
+    ],
+    [
+     37.0,
+     15.0
+    ]
+   ],
+   "predicted_when_planned": {
+    "length_m": 38.556349,
+    "energy_J": 4545.868927,
+    "max_risk": 0.041667,
+    "max_slip": 0.177295
+   },
+   "predicted_with_learned_belief": {
+    "energy_J": 22973.994861,
+    "max_risk": 1.0,
+    "max_slip": 1.0,
+    "length_on_risk_above_limit_m": 6.459798
+   },
+   "measured_multibody": {
+    "ended": "stalled: mean slip 0.42 over 2 s > limit 0.4",
+    "distance_m": 12.925884,
+    "energy_J": 2957.959341,
+    "energy_per_m_J": 228.839997,
+    "max_slip_2s_front": 0.420399,
+    "max_slip_instant": 0.99,
+    "max_sinkage_mm": 319.367895,
+    "max_sinkage_front_mean_mm": 210.122977,
+    "max_sinkage_wheel": "RL",
+    "sim_time_s": 71.336,
+    "wall_time_s": 99.218469,
+    "end_xy": [
+     15.282856,
+     7.815639
+    ]
+   }
+  },
+  {
+   "name": "B",
+   "planned_with": "learned belief #1",
+   "start": [
+    11.628796,
+    6.055947
+   ],
+   "waypoints": [
+    [
+     11.628796,
+     6.055947
+    ],
+    [
+     14.5,
+     6.0
+    ],
+    [
+     15.0,
+     5.5
+    ],
+    [
+     21.0,
+     5.5
+    ],
+    [
+     21.5,
+     6.0
+    ],
+    [
+     23.0,
+     6.0
+    ],
+    [
+     25.0,
+     7.0
+    ],
+    [
+     32.5,
+     15.0
+    ],
+    [
+     37.0,
+     15.0
+    ]
+   ],
+   "predicted_when_planned": {
+    "length_m": 29.487887,
+    "energy_J": 3294.755381,
+    "max_risk": 0.0,
+    "max_slip": 0.195262
+   },
+   "predicted_with_learned_belief": {
+    "energy_J": 3294.755381,
+    "max_risk": 0.0,
+    "max_slip": 0.195262,
+    "length_on_risk_above_limit_m": 0.0
+   },
+   "measured_multibody": {
+    "ended": "goal",
+    "distance_m": 28.559919,
+    "energy_J": 2869.080658,
+    "energy_per_m_J": 100.458291,
+    "max_slip_2s_front": 0.214524,
+    "max_slip_instant": 0.99,
+    "max_sinkage_mm": 30.733466,
+    "max_sinkage_front_mean_mm": 18.063711,
+    "max_sinkage_wheel": "RL",
+    "sim_time_s": 146.168,
+    "wall_time_s": 191.812421,
+    "end_xy": [
+     36.710859,
+     14.957173
+    ]
+   }
+  }
+ ],
+ "retreat_point": [
+  11.628796,
+  6.055947
+ ],
+ "recovery": {
+  "log10_k_phi": {
+   "true": 4.778151,
+   "estimate": 4.850413,
+   "sd": 0.063502,
+   "error": 0.072262,
+   "z": 1.137944,
+   "prior_error": 0.92514
+  },
+  "n0": {
+   "true": 1.2,
+   "estimate": 1.257183,
+   "sd": 0.056141,
+   "error": 0.057183,
+   "z": 1.018548,
+   "prior_error": -0.4
+  },
+  "n1": {
+   "true": 1.4,
+   "estimate": 1.414512,
+   "sd": 0.050213,
+   "error": 0.014512,
+   "z": 0.289003,
+   "prior_error": -0.6
+  },
+  "phi_deg": {
+   "true": 24.0,
+   "estimate": 22.686129,
+   "sd": 0.662581,
+   "error": -1.313871,
+   "z": -1.98296,
+   "prior_error": 14.0
+  }
+ },
+ "held_out": {
+  "n": 25,
+  "sinkage_rmse_mm": 5.417641,
+  "torque_rmse_Nm": 1.85778,
+  "sinkage_rel": 0.035534
+ },
+ "stall_unit": "smooth mottled unit",
+ "planner_vs_multibody": {
+  "predicted_energy_J": 3244.487739,
+  "measured_energy_J": 2869.080658,
+  "rel_error": 0.130846,
+  "slip_rmse": 0.054069
+ },
+ "energy_balance": {
+  "drive_energy_J": 2869.080658,
+  "climb_potential_J": 1364.85698,
+  "total_climb_m": 1.872232
+ },
+ "time_step": {
+  "dt": {
+   "slip": 0.090909,
+   "sinkage": 0.017917,
+   "speed": 0.170026
+  },
+  "dt/2": {
+   "slip": 0.087767,
+   "sinkage": 0.017848,
+   "speed": 0.171081
+  },
+  "slip_abs_change": 0.003142,
+  "max_rel_change": 0.006166
+ },
+ "model_comparison": {
+  "compact regolith": {
+   "analytic_prior": {
+    "sinkage_rmse_mm": 4.092123,
+    "sinkage_bias_mm": -0.323971,
+    "torque_rmse_Nm": 1.066874,
+    "torque_bias_Nm": -0.048634,
+    "sinkage_rel_err": 0.306623,
+    "torque_rel_err": 0.158861
+   },
+   "analytic_learned": {
+    "sinkage_rmse_mm": 4.071372,
+    "sinkage_bias_mm": 0.024157,
+    "torque_rmse_Nm": 1.042247,
+    "torque_bias_Nm": -0.064083,
+    "sinkage_rel_err": 0.305068,
+    "torque_rel_err": 0.155194
+   },
+   "surrogate_zoo": {
+    "sinkage_rmse_mm": 4.09131,
+    "sinkage_bias_mm": -0.317827,
+    "torque_rmse_Nm": 1.074468,
+    "torque_bias_Nm": -0.049729,
+    "sinkage_rel_err": 0.306562,
+    "torque_rel_err": 0.159992,
+    "fraction_outside_validity": 0.011345
+   },
+   "n": 617
+  },
+  "smooth mottled unit": {
+   "analytic_prior": {
+    "sinkage_rmse_mm": 134.636259,
+    "sinkage_bias_mm": -127.056894,
+    "torque_rmse_Nm": 28.921526,
+    "torque_bias_Nm": -18.854769,
+    "sinkage_rel_err": 0.894518,
+    "torque_rel_err": 1.436586
+   },
+   "analytic_learned": {
+    "sinkage_rmse_mm": 38.990285,
+    "sinkage_bias_mm": 4.533333,
+    "torque_rmse_Nm": 5.349317,
+    "torque_bias_Nm": -1.152282,
+    "sinkage_rel_err": 0.25905,
+    "torque_rel_err": 0.26571
+   },
+   "surrogate_zoo": {
+    "sinkage_rmse_mm": 134.632406,
+    "sinkage_bias_mm": -127.047277,
+    "torque_rmse_Nm": 28.913606,
+    "torque_bias_Nm": -18.864947,
+    "sinkage_rel_err": 0.894492,
+    "torque_rel_err": 1.436192,
+    "fraction_outside_validity": 0.94898
+   },
+   "n": 98
+  }
+ },
+ "model_comparison_surrogate": "rover_contact_grc1_viper v1.1.0",
+ "beliefs": {
+  "compact regolith": {
+   "mean": [
+    5.863791,
+    0.885387,
+    0.733697,
+    37.378301
+   ],
+   "sd": [
+    0.227757,
+    0.103668,
+    0.219427,
+    0.73439
+   ],
+   "n_obs": 462
+  },
+  "firm gravelly ground": {
+   "mean": [
+    5.913814,
+    1.0,
+    0.8,
+    45.0
+   ],
+   "sd": [
+    0.3,
+    0.2,
+    0.4,
+    4.0
+   ],
+   "n_obs": 0
+  },
+  "smooth mottled unit": {
+   "mean": [
+    4.850413,
+    1.257183,
+    1.414512,
+    22.686129
+   ],
+   "sd": [
+    0.063502,
+    0.056141,
+    0.050213,
+    0.662581
+   ],
+   "n_obs": 73
+  }
+ },
+ "trust": {
+  "modelo": "PINNeAPPle Autonomous Physics Lab - rover mission",
+  "decisao": "REVIEW",
+  "score": 0.916667,
+  "cobertura": 1.0,
+  "motivos": [
+   "planner_vs_multibody_slip: falhou"
+  ],
+  "checagens": [
+   {
+    "name": "goal_reached",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 1.0,
+    "limit": 1.0,
+    "source": "multibody run of the final route",
+    "reason": "goal"
+   },
+   {
+    "name": "slip_within_limit",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.214524,
+    "limit": 0.4,
+    "source": "2-s mean front-wheel slip after the 2-s start-up, final run",
+    "reason": ""
+   },
+   {
+    "name": "energy_covers_climb",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2869.080658,
+    "limit": 1364.85698,
+    "source": "drive energy (sum of max(tau omega, 0)) vs m g x total climb of the final run (no regeneration; kinetic energy at 0.2 m/s is negligible)",
+    "reason": ""
+   },
+   {
+    "name": "time_step_converged",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.006166,
+    "limit": 0.05,
+    "source": "first seconds of the final route at dt = 0.004 s and dt/2",
+    "reason": ""
+   },
+   {
+    "name": "planner_vs_multibody_energy",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.130846,
+    "limit": 0.25,
+    "source": "quasi-static planner (learned belief) vs multibody, final route",
+    "reason": ""
+   },
+   {
+    "name": "planner_vs_multibody_slip",
+    "status": "contradicts",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.054069,
+    "limit": 0.05,
+    "source": "RMS of predicted slip - 2-s mean front-wheel slip along the final route",
+    "reason": ""
+   },
+   {
+    "name": "replanned_route_risk",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.0,
+    "limit": 0.05,
+    "source": "share of belief samples that exceed the slip limit",
+    "reason": ""
+   },
+   {
+    "name": "failed_route_risk_learned",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.0,
+    "limit": 0.05,
+    "source": "first route re-evaluated with the learned belief",
+    "reason": ""
+   },
+   {
+    "name": "learned_soil_predictive",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.035534,
+    "limit": 0.2,
+    "source": "held-out last quarter of the stall unit's measurements",
+    "reason": ""
+   },
+   {
+    "name": "learned_soil_calibrated",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.98296,
+    "limit": 3.0,
+    "source": "known truth of the synthetic site: max |error| / posterior sd",
+    "reason": ""
+   },
+   {
+    "name": "learned_soil_closer_to_truth",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "known truth: |error| vs prior's",
+    "reason": ""
+   },
+   {
+    "name": "models_used_in_validity",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "planner uses the analytic Wong-Reece law; zoo surrogate only compared",
+    "reason": "compact regolith: 1% of zoo-surrogate points outside its box; smooth mottled unit: 95% of zoo-surrogate points outside its box"
+   }
+  ],
+  "min_coverage": 0.6,
+  "min_score": 0.8
+ },
+ "log": [
+  {
+   "stage": "mission",
+   "tool": "parse",
+   "seconds": 0.0,
+   "summary": {
+    "goal": [
+     37.0,
+     15.0
+    ],
+    "start": [
+     3.0,
+     6.0
+    ],
+    "slip_limit": 0.4,
+    "risk_max": 0.05,
+    "objective": "energy",
+    "speed": 0.2,
+    "max_replans": 2,
+    "parser": "rules",
+    "quotes": {
+     "goal_xy": "(37, 15)",
+     "slip_limit": "escorregamento m\u00e1ximo de 40%",
+     "objective": "energ"
+    },
+    "defaults_used": [
+     "start = site start",
+     "risk_max = 0.05 (default)",
+     "speed = 0.2 (default)"
+    ]
+   }
+  },
+  {
+   "stage": "plan",
+   "tool": "agent",
+   "seconds": 0.0,
+   "summary": {
+    "steps": [
+     [
+      "build",
+      "survey_site"
+     ],
+     [
+      "plan",
+      "plan_route"
+     ],
+     [
+      "simulate",
+      "drive"
+     ],
+     [
+      "learn",
+      "estimate_soil"
+     ],
+     [
+      "learn",
+      "compare_models"
+     ],
+     [
+      "optimize",
+      "plan_route"
+     ],
+     [
+      "simulate",
+      "drive"
+     ],
+     [
+      "verify",
+      "verify"
+     ]
+    ],
+    "tools": {
+     "survey_site": "orbital map -> soil units and the prior belief per unit",
+     "plan_route": "risk-aware shortest path on the current belief (energy per metre + risk)",
+     "drive": "multibody VIPER on the true terrain along a route, stopped by the traction monitor",
+     "estimate_soil": "rover measurements -> iterated-EKF update of the soil belief per unit",
+     "compare_models": "analytic (prior / learned) vs zoo surrogate vs measured wheel operating points",
+     "verify": "trust report: goal, slip limit, physics checks, model agreement, recovery of the known truth"
+    }
+   }
+  },
+  {
+   "stage": "build",
+   "tool": "survey_site",
+   "seconds": 0.000131,
+   "summary": {
+    "units": [
+     {
+      "unit": "compact regolith",
+      "orbital_soil": "GRC-1",
+      "note": "orbital class: smooth bright regolith -> GRC-1"
+     },
+     {
+      "unit": "firm gravelly ground",
+      "orbital_soil": "JSC-1A",
+      "note": "orbital class: rough, blocky -> JSC-1A (firm)"
+     },
+     {
+      "unit": "smooth mottled unit",
+      "orbital_soil": "GRC-1",
+      "note": "orbital class: smooth, slightly mottled -> assumed compact regolith (GRC-1); truth: soft sand"
+     }
+    ]
+   }
+  },
+  {
+   "stage": "plan",
+   "tool": "plan_route",
+   "seconds": 22.532425,
+   "summary": {
+    "label": "orbital prior",
+    "length_m": 38.556349,
+    "predicted_energy_J": 4545.868927,
+    "max_risk": 0.041667,
+    "predicted_max_slip": 0.177295,
+    "waypoints": [
+     [
+      3.0,
+      6.0
+     ],
+     [
+      13.5,
+      6.0
+     ],
+     [
+      17.0,
+      9.5
+     ],
+     [
+      22.5,
+      9.5
+     ],
+     [
+      29.0,
+      16.0
+     ],
+     [
+      36.0,
+      16.0
+     ],
+     [
+      37.0,
+      15.0
+     ]
+    ]
+   }
+  },
+  {
+   "stage": "simulate",
+   "tool": "drive",
+   "seconds": 99.543232,
+   "summary": {
+    "label": "orbital prior",
+    "ended": "stalled: mean slip 0.42 over 2 s > limit 0.4",
+    "reached_goal": false,
+    "distance_m": 12.925884,
+    "energy_J": 2957.959341,
+    "max_slip": 0.99,
+    "max_sinkage_mm": 319.367895,
+    "sim_time_s": 71.336,
+    "wall_s": 99.218469
+   }
+  },
+  {
+   "stage": "learn",
+   "tool": "estimate_soil",
+   "seconds": 20.683467,
+   "summary": {
+    "rows": 535,
+    "held_out": {
+     "0": 155,
+     "2": 25
+    },
+    "units": {
+     "compact regolith": {
+      "n_obs": 462,
+      "mean": {
+       "log10_k_phi": 5.8638,
+       "n0": 0.8854,
+       "n1": 0.7337,
+       "phi_deg": 37.3783
+      },
+      "sd": {
+       "log10_k_phi": 0.2278,
+       "n0": 0.1037,
+       "n1": 0.2194,
+       "phi_deg": 0.7344
+      }
+     },
+     "firm gravelly ground": {
+      "n_obs": 0,
+      "mean": {
+       "log10_k_phi": 5.9138,
+       "n0": 1.0,
+       "n1": 0.8,
+       "phi_deg": 45.0
+      },
+      "sd": {
+       "log10_k_phi": 0.3,
+       "n0": 0.2,
+       "n1": 0.4,
+       "phi_deg": 4.0
+      }
+     },
+     "smooth mottled unit": {
+      "n_obs": 73,
+      "mean": {
+       "log10_k_phi": 4.8504,
+       "n0": 1.2572,
+       "n1": 1.4145,
+       "phi_deg": 22.6861
+      },
+      "sd": {
+       "log10_k_phi": 0.0635,
+       "n0": 0.0561,
+       "n1": 0.0502,
+       "phi_deg": 0.6626
+      }
+     }
+    },
+    "predictive_check": {
+     "compact regolith": {
+      "n": 155,
+      "sinkage_rmse_mm": 4.244205,
+      "torque_rmse_Nm": 0.933751
+     },
+     "smooth mottled unit": {
+      "n": 25,
+      "sinkage_rmse_mm": 5.417641,
+      "torque_rmse_Nm": 1.85778
+     }
+    }
+   }
+  },
+  {
+   "stage": "learn",
+   "tool": "compare_models",
+   "seconds": 4.161437,
+   "summary": {
+    "compact regolith": {
+     "analytic_prior": {
+      "sinkage_rmse_mm": 4.092,
+      "sinkage_bias_mm": -0.324,
+      "torque_rmse_Nm": 1.067,
+      "torque_bias_Nm": -0.049,
+      "sinkage_rel_err": 0.307,
+      "torque_rel_err": 0.159
+     },
+     "analytic_learned": {
+      "sinkage_rmse_mm": 4.071,
+      "sinkage_bias_mm": 0.024,
+      "torque_rmse_Nm": 1.042,
+      "torque_bias_Nm": -0.064,
+      "sinkage_rel_err": 0.305,
+      "torque_rel_err": 0.155
+     },
+     "surrogate_zoo": {
+      "sinkage_rmse_mm": 4.091,
+      "sinkage_bias_mm": -0.318,
+      "torque_rmse_Nm": 1.074,
+      "torque_bias_Nm": -0.05,
+      "sinkage_rel_err": 0.307,
+      "torque_rel_err": 0.16,
+      "fraction_outside_validity": 0.011
+     }
+    },
+    "smooth mottled unit": {
+     "analytic_prior": {
+      "sinkage_rmse_mm": 134.636,
+      "sinkage_bias_mm": -127.057,
+      "torque_rmse_Nm": 28.922,
+      "torque_bias_Nm": -18.855,
+      "sinkage_rel_err": 0.895,
+      "torque_rel_err": 1.437
+     },
+     "analytic_learned": {
+      "sinkage_rmse_mm": 38.99,
+      "sinkage_bias_mm": 4.533,
+      "torque_rmse_Nm": 5.349,
+      "torque_bias_Nm": -1.152,
+      "sinkage_rel_err": 0.259,
+      "torque_rel_err": 0.266
+     },
+     "surrogate_zoo": {
+      "sinkage_rmse_mm": 134.632,
+      "sinkage_bias_mm": -127.047,
+      "torque_rmse_Nm": 28.914,
+      "torque_bias_Nm": -18.865,
+      "sinkage_rel_err": 0.894,
+      "torque_rel_err": 1.436,
+      "fraction_outside_validity": 0.949
+     }
+    }
+   }
+  },
+  {
+   "stage": "optimize",
+   "tool": "plan_route",
+   "seconds": 22.261372,
+   "summary": {
+    "label": "learned belief #1",
+    "length_m": 29.487887,
+    "predicted_energy_J": 3294.755381,
+    "max_risk": 0.0,
+    "predicted_max_slip": 0.195262,
+    "waypoints": [
+     [
+      11.63,
+      6.06
+     ],
+     [
+      14.5,
+      6.0
+     ],
+     [
+      15.0,
+      5.5
+     ],
+     [
+      21.0,
+      5.5
+     ],
+     [
+      21.5,
+      6.0
+     ],
+     [
+      23.0,
+      6.0
+     ],
+     [
+      25.0,
+      7.0
+     ],
+     [
+      32.5,
+      15.0
+     ],
+     [
+      37.0,
+      15.0
+     ]
+    ]
+   }
+  },
+  {
+   "stage": "simulate",
+   "tool": "drive",
+   "seconds": 192.072218,
+   "summary": {
+    "label": "learned belief #1",
+    "ended": "goal",
+    "reached_goal": true,
+    "distance_m": 28.559919,
+    "energy_J": 2869.080658,
+    "max_slip": 0.99,
+    "max_sinkage_mm": 30.733466,
+    "sim_time_s": 146.168,
+    "wall_s": 191.812421
+   }
+  },
+  {
+   "stage": "verify",
+   "tool": "verify",
+   "seconds": 27.520965,
+   "summary": {
+    "decision": "REVIEW",
+    "score": 0.916667,
+    "coverage": 1.0,
+    "failed": [
+     "planner_vs_multibody_slip"
+    ]
+   }
+  }
+ ],
+ "run_info": {
+  "date_utc": "2026-10-24 10:02:04",
+  "python": "3.13.17",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "processor": "x86_64",
+  "cpu_count": 4,
+  "torch": "2.14.1+cu130",
+  "blender": "5.1.2",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz"
+ },
+ "figures": {
+  "site_map": "site_map.png",
+  "traverse": "traverse.png",
+  "route_risk": "route_risk.png",
+  "models": "wheel_models.png",
+  "learning": "soil_learning.png"
+ }
+}

@@ -177,10 +177,11 @@ class Parameter(_Model):
 
     def contains(self, x) -> np.ndarray:
         if self.kind == "constant":
-            return np.asarray([str(v) == str(self.value) for v in np.ravel(x)]).reshape(np.shape(x))
+            ref = _match_key(self.value)
+            return np.asarray([_match_key(v) == ref for v in np.ravel(x)]).reshape(np.shape(x))
         if self.kind == "categorical":
-            allowed = {str(v) for v in self.values}
-            return np.asarray([str(v) in allowed for v in np.ravel(x)]).reshape(np.shape(x))
+            allowed = {_match_key(v) for v in self.values}
+            return np.asarray([_match_key(v) in allowed for v in np.ravel(x)]).reshape(np.shape(x))
         x = np.asarray(x, dtype=float)
         ok = (x >= self.low) & (x <= self.high)
         if self.kind == "integer":
@@ -640,6 +641,16 @@ def _maybe_number(s: str):
     except ValueError:
         return s
     return int(f) if f.is_integer() and "." not in s and "e" not in s.lower() else f
+
+
+def _match_key(v):
+    """Comparison key for constant / categorical values: numbers by value (4000000 == 4000000.0, as JSON from a
+    browser drops the ".0"), everything else by its text."""
+    if isinstance(v, np.generic):
+        v = v.item()
+    if isinstance(v, (int, float)) and not isinstance(v, bool):
+        return float(v)
+    return str(v)
 
 
 def _numeric_or_object(col) -> np.ndarray:

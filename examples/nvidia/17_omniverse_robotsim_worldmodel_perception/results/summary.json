@@ -1,0 +1,197 @@
+{
+ "decision": "REVIEW",
+ "train_frames": 4000,
+ "train_frames_kept": 3828,
+ "test_frames": 500,
+ "test_frames_visible": 500,
+ "angle_rms_visible": 0.2288505947426688,
+ "angle_rms_hidden": NaN,
+ "tool_rms": 0.1816874267362624,
+ "velocity_rel_rms_median": 0.6046924763385435,
+ "jumps": 0,
+ "label_error": 1.4408098591989216e-07,
+ "motions": [
+  {
+   "angle_rms": 0.20608323642785364,
+   "angle_max": 0.45676255226135254,
+   "tool_rms": 0.08000736874819826,
+   "velocity_rel_rms": 0.7578056378137453,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.09667590557271695,
+   "angle_max": 0.2316938042640686,
+   "tool_rms": 0.04313032602491236,
+   "velocity_rel_rms": 0.2682680276162487,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.031412150788358635,
+   "angle_max": 0.08497130870819093,
+   "tool_rms": 0.021727836796133156,
+   "velocity_rel_rms": 0.17961126378312678,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.01393994528055647,
+   "angle_max": 0.0368885099887848,
+   "tool_rms": 0.014726955575377933,
+   "velocity_rel_rms": 2.3700063945928944,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.15369125596612151,
+   "angle_max": 0.47742021083831787,
+   "tool_rms": 0.06589752596488709,
+   "velocity_rel_rms": 0.4229984436685516,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.07720599903606797,
+   "angle_max": 0.22057271003723145,
+   "tool_rms": 0.0689371331315343,
+   "velocity_rel_rms": 0.5709788139314022,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.24874564394783882,
+   "angle_max": 0.4681152701377869,
+   "tool_rms": 0.2971381519222136,
+   "velocity_rel_rms": 0.7992614829508232,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.15286457363467548,
+   "angle_max": 0.26134639978408813,
+   "tool_rms": 0.08556227831940473,
+   "velocity_rel_rms": 0.2588949646404335,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.054928553150544936,
+   "angle_max": 0.1736135482788086,
+   "tool_rms": 0.05033515742950581,
+   "velocity_rel_rms": 0.29823978934957096,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.10384413122786834,
+   "angle_max": 0.21020288765430453,
+   "tool_rms": 0.06187989229840636,
+   "velocity_rel_rms": 0.5591784021187025,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.048161598560855695,
+   "angle_max": 0.07529550790786743,
+   "tool_rms": 0.06343874634260906,
+   "velocity_rel_rms": 0.6442408232392253,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.04258266012785605,
+   "angle_max": 0.13287979364395142,
+   "tool_rms": 0.02885471079464017,
+   "velocity_rel_rms": 0.9210180428841644,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.12280642839254528,
+   "angle_max": 0.3422729969024659,
+   "tool_rms": 0.0685819819722463,
+   "velocity_rel_rms": 0.42620372978966686,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.11528272365573512,
+   "angle_max": 0.3271735310554504,
+   "tool_rms": 0.06679180355542187,
+   "velocity_rel_rms": 0.638406138745685,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.06023548212986049,
+   "angle_max": 0.150762677192688,
+   "tool_rms": 0.04811165002523425,
+   "velocity_rel_rms": 0.32574521049546523,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.1852662453112744,
+   "angle_max": 0.39690089225769043,
+   "tool_rms": 0.13766797115217144,
+   "velocity_rel_rms": 1.0493370228851837,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.39494758023120097,
+   "angle_max": 0.9624793529510498,
+   "tool_rms": 0.11401891558194388,
+   "velocity_rel_rms": 1.192373973484129,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.23075100604299895,
+   "angle_max": 0.6329123973846436,
+   "tool_rms": 0.11241184035221728,
+   "velocity_rel_rms": 0.922450508942064,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.4427037505073011,
+   "angle_max": 0.6173588782548904,
+   "tool_rms": 0.6920154306150877,
+   "velocity_rel_rms": 2.2846750375887908,
+   "jumps_over_limit": 0
+  },
+  {
+   "angle_rms": 0.035207702812456755,
+   "angle_max": 0.07422441244125366,
+   "tool_rms": 0.019377663146355667,
+   "velocity_rel_rms": 0.26682245803703813,
+   "jumps_over_limit": 0
+  }
+ ],
+ "checks": [
+  {
+   "name": "labels: forward kinematics = Newton link poses (m)",
+   "value": 1.4408098591989216e-07,
+   "limit": 1e-06,
+   "passed": true
+  },
+  {
+   "name": "USD timelines valid (time samples, camera, UsdValidation)",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "name": "joint angle error on visible test frames (RMS, rad)",
+   "value": 0.2288505947426688,
+   "limit": 0.035,
+   "passed": false,
+   "detail": "500 frames; 0.035 rad = 2 deg"
+  },
+  {
+   "name": "tool point error through the kinematics (RMS, m)",
+   "value": 0.1816874267362624,
+   "limit": 0.03,
+   "passed": false
+  },
+  {
+   "name": "joint speed implied by the predictions vs Newton (median rel. RMS)",
+   "value": 0.6046924763385435,
+   "limit": 0.25,
+   "passed": false,
+   "detail": "20 fully visible test motions"
+  },
+  {
+   "name": "frame-to-frame jumps beyond the joint rate limit",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "detail": "limit 12 rad/s"
+  }
+ ]
+}

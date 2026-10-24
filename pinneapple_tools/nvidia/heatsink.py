@@ -84,3 +84,29 @@ def design_table(designs, duty: Duty | None = None, *, brep: bool = True) -> lis
 def verify(n_fins: int, fin_height: float, fin_t: float, duty: Duty | None = None, **kw) -> dict:
     """Closed form + exact solid for a design a surrogate proposed (the evaluation that decides)."""
     return evaluate_design(n_fins, fin_height, fin_t, duty, **kw)
+
+
+def surrogate_service(net, X_train, *, name: str = "pinneapple-heatsink-surrogate", t_ambient: float = 25.0):
+    """A heat-sink surrogate ``(n_fins, fin_height, fin_t) -> (T rise, dp, mass)`` as a PINNeAPPle Model Service.
+    Inputs ``{"designs": [[n, H, t], ...]}``; the trust report flags designs outside the training box and outputs
+    that break physics (a negative temperature rise, pressure drop or mass)."""
+    from pinneapple_tools.model_services.registry import ModelService
+    lo, hi = np.min(X_train, 0), np.max(X_train, 0)
+
+    def predict(inputs):
+        P = net.predict(np.asarray(inputs["designs"], float))
+        return {"t_source": (P[:, 0] + t_ambient).tolist(), "dp": P[:, 1].tolist(), "mass": P[:, 2].tolist()}
+
+    def trust(inputs, out):
+        X = np.asarray(inputs["designs"], float)
+        inside = np.all((X >= lo) & (X <= hi), 1)
+        positive = (np.array(out["t_source"]) > t_ambient) & (np.array(out["dp"]) > 0) & (np.array(out["mass"]) > 0)
+        ok = inside & positive
+        checks = [{"name": "inside the training box", "passed": bool(inside.all()), "value": float(inside.mean())},
+                  {"name": "physical outputs (rise, dp, mass > 0)", "passed": bool(positive.all()),
+                   "value": float(positive.mean())}]
+        return {"decision": "APPROVED" if ok.all() else "REVIEW", "checks": checks, "per_design": ok.tolist()}
+
+    return ModelService(name, "infer", "heat-sink rating surrogate (PhysicsNeMo FullyConnected)", predict, trust,
+                        {"inputs": "designs: [[n_fins, fin_height_m, fin_t_m], ...]", "envelope": [lo.tolist(),
+                                                                                              hi.tolist()]})

@@ -1,0 +1,90 @@
+{
+ "decision": "REVIEW",
+ "label_shift_max": 0.016470196146710303,
+ "train": 600,
+ "train_accepted": 296,
+ "train_glint": 146,
+ "rejected_glint": 0.9863013698630136,
+ "rejected_clean": 0.35242290748898675,
+ "saturated_clean": 0.3502202643171806,
+ "rejected_unsaturated_clean": 0.003389830508474523,
+ "test": 80,
+ "test_defect_visible": 50,
+ "detector": {
+  "all samples": {
+   "median_px": 8.65861387004859,
+   "within_tol": 0.2,
+   "within_tol_all_test": 0.175
+  },
+  "accepted samples": {
+   "median_px": 6.101817264338952,
+   "within_tol": 0.26,
+   "within_tol_all_test": 0.175
+  },
+  "brightest pixel": {
+   "median_px": 5.686270886226744,
+   "within_tol": 0.44,
+   "within_tol_all_test": 0.3625
+  }
+ },
+ "usd": [
+  {
+   "ok": true,
+   "meshes": 1,
+   "prims": 3
+  },
+  {
+   "ok": true,
+   "meshes": 1,
+   "prims": 3
+  },
+  {
+   "ok": true,
+   "meshes": 1,
+   "prims": 3
+  },
+  {
+   "ok": true,
+   "meshes": 1,
+   "prims": 3
+  }
+ ],
+ "checks": [
+  {
+   "name": "label independent of the mesh (48 vs 96 cells, max shift)",
+   "value": 0.016470196146710303,
+   "limit": 0.03125,
+   "passed": true,
+   "detail": "plate units; one 48-cell = 0.021"
+  },
+  {
+   "name": "USD stages valid (primvars, camera, UsdValidation)",
+   "value": 0.0,
+   "limit": 0.0,
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "name": "label check rejects glint samples",
+   "value": 0.9863013698630136,
+   "limit": 0.5,
+   "kind": "min",
+   "passed": true,
+   "detail": "146 samples with a glint"
+  },
+  {
+   "name": "label check keeps glint-free, unsaturated samples (false rejections)",
+   "value": 0.003389830508474523,
+   "limit": 0.1,
+   "passed": true,
+   "detail": "295 samples; 35% of glint-free samples saturate at the label and are dropped"
+  },
+  {
+   "name": "detector (accepted samples) within 4 px on test images showing the defect",
+   "value": 0.26,
+   "limit": 0.9,
+   "kind": "min",
+   "passed": false
+  }
+ ]
+}

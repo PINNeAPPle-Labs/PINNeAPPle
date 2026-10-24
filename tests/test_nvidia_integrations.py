@@ -399,3 +399,191 @@ def test_example_brep_smoke(tmp_path, name):
     s = _example(name)["main"](True, str(tmp_path))
     assert s["decision"] in ("APPROVED", "REVIEW", "REJECT")
     assert os.path.exists(tmp_path / "results" / "architecture.png")
+
+
+# ------------------------------------------------------------------------------------------------ Model Services (N)
+def test_model_services_routes_and_trust():
+    from pinneapple_tools.model_services import (
+        ModelServiceClient,
+        ServiceError,
+        default_registry,
+        serve_in_thread,
+    )
+    srv, url = serve_in_thread(default_registry())
+    try:
+        c = ModelServiceClient(url)
+        assert c.ready()
+        ids = {m["id"] for m in c.models()}
+        assert {"pinneapple-intent", "pinneapple-trust-card", "airfoil_cst_rans_mlp"} <= ids
+        x = dict(T0=0.169591, T1=0.144959, T2=0.131433, M0=0.024922, M1=0.071088, M2=0.058960)
+        ok = c.infer("airfoil_cst_rans_mlp", {**x, "alpha_deg": [4.0]})
+        assert ok["trust"]["decision"] == "APPROVED" and abs(ok["outputs"]["Cl"][0] - 0.6625) < 0.02
+        out = c.infer("airfoil_cst_rans_mlp", {**x, "alpha_deg": [25.0]})
+        assert out["trust"]["decision"] != "APPROVED" and not out["trust"]["in_validity_range"] and out["warnings"]
+        with pytest.raises(ServiceError) as e:
+            c.infer("nope", {})
+        assert e.value.status == 404
+        with pytest.raises(ServiceError) as e:
+            c.chat("airfoil_cst_rans_mlp", [{"role": "user", "content": "hi"}])
+        assert e.value.status == 400
+        good = c.chat("pinneapple-intent", [{"role": "user", "content": "An aluminium shelf bracket that holds 1.5 kN "
+                                                                         "at 120 mm from the wall, safety factor 2"}],
+                      guided_json={"type": "object", "required": ["template", "values"]})
+        assert good["object"] == "chat.completion" and good["pinneapple"]["trust"]["decision"] == "APPROVED"
+        assert ModelServiceClient.content_json(good)["values"]["arm_length"]["value"] == pytest.approx(0.12)
+        bad = c.chat("pinneapple-intent", [{"role": "user", "content": "A bracket holding 1.5 kN on a 120 mm arm, "
+                                                                        "50 mm wide"}],
+                     guided_json={"type": "object", "required": ["nonexistent"]})
+        assert bad["pinneapple"]["trust"]["decision"] != "APPROVED" and bad["pinneapple"]["guided_json_errors"]
+    finally:
+        srv.shutdown()
+
+
+def test_model_services_api_key_and_grid_services():
+    from pinneapple_simulation.numerical_solvers import operator_benchmarks as ob
+    from pinneapple_tools.model_services import (
+        ModelServiceClient,
+        Registry,
+        ServiceError,
+        serve_in_thread,
+    )
+    from pinneapple_tools.model_services.grid import darcy_solver_service, grid_operator_service
+
+    class Exact:                                         # a "surrogate" that returns the solver's answer
+        def predict(self, a):
+            return ob.darcy_2d(a)
+
+    class Scaled:                                        # one that is 20 % off: breaks the flux balance
+        def predict(self, a):
+            return 1.2 * ob.darcy_2d(a)
+
+    reg = Registry([grid_operator_service(Exact(), "exact"), grid_operator_service(Scaled(), "scaled"),
+                    darcy_solver_service()])
+    srv, url = serve_in_thread(reg, api_key="k")
+    try:
+        with pytest.raises(ServiceError) as e:
+            ModelServiceClient(url).models()
+        assert e.value.status == 401
+        c = ModelServiceClient(url, api_key="k")
+        a = ob.threshold_coefficient(ob.periodic_grf(1, (32, 32), alpha=2.0, tau=3.0, seed=0))[0]
+        assert c.infer("exact", {"a": a.tolist()})["trust"]["decision"] == "APPROVED"
+        assert c.infer("pinneapple-darcy-fv", {"a": a.tolist()})["trust"]["decision"] == "APPROVED"
+        assert c.infer("scaled", {"a": a.tolist()})["trust"]["decision"] == "REJECT"
+    finally:
+        srv.shutdown()
+
+
+def test_example_06_model_services_smoke(tmp_path):
+    s = _example("06_model_services_zoo")["main"](True, str(tmp_path))
+    assert s["decision"] == "APPROVED" and os.path.exists(tmp_path / "results" / "sweep.png")
+
+
+@needs_brep
+def test_example_15_request_to_bracket_smoke(tmp_path):
+    s = _example("15_model_services_brep_bracket")["main"](True, str(tmp_path))
+    assert s["answers"][0]["decision"] == "APPROVED" and s["answers"][1]["decision"] != "APPROVED"
+
+
+def test_physical_world_ground_truth_passes_and_edits_are_caught():
+    from pinneapple_worldmodel.physical_world import (
+        bouncing_ball_scene,
+        corrupt,
+        physics_checks,
+        video_check,
+    )
+    for seed in range(4):
+        v = bouncing_ball_scene(seed=seed)
+        r = physics_checks(v)
+        assert r["passed"], [c for c in r["checks"] if not c["passed"]]
+        assert abs(r["g_fit"] - 9.81) / 9.81 < 0.05
+        for kind in ("time_warp", "fade", "gravity_flip"):
+            assert not physics_checks(corrupt(v, kind, seed=seed))["passed"], kind
+    assert video_check(1)["decision"] == "APPROVED" and video_check(1, "fade")["decision"] == "REJECT"
+
+
+def test_physical_world_state_encoder_reads_positions():
+    from pinneapple_worldmodel.physical_world import StateEncoder, dataset
+    train, test = dataset(16, seed=1), dataset(2, seed=99)
+    enc = StateEncoder().fit(train, steps=300)
+    c = enc.predict(test[0].frames)
+    err = np.hypot(c[:, 0] - test[0].labels["cx_px"], c[:, 1] - test[0].labels["cy_px"])
+    assert np.median(err) < 4.0
+
+
+@needs_pxr
+def test_inspection_label_follows_physics_and_glint_is_rejected(tmp_path):
+    from pinneapple_tools.nvidia.omniverse import validate_stage
+    from pinneapple_worldmodel.inspection_data import inspection_sample, thermal_plate
+    p = thermal_plate((0.4, 0.6, 0.1))
+    assert p["rise"] > 0.05 and np.hypot(p["label_xy"][0] - 0.4, p["label_xy"][1] - 0.6) < 0.1
+    a, b = thermal_plate((0.4, 0.6, 0.1), 48)["label_xy"], thermal_plate((0.4, 0.6, 0.1), 96)["label_xy"]
+    assert np.hypot(a[0] - b[0], a[1] - b[1]) < 1.5 / 48
+    ok = inspection_sample(0.4, 0.6, 0.1, seed=3, usd_path=str(tmp_path / "a.usda"))
+    assert ok["decision"] == "ACCEPTED"
+    assert validate_stage(ok["usd"], required_primvars={"/World/Plate": ["temperature", "radiance"]})["ok"]
+    rejected = [inspection_sample(0.4, 0.6, 0.07, seed=s, glint=True, usd_path=str(tmp_path / f"g{s}.usda"))
+                ["decision"] == "REJECTED" for s in range(4)]
+    assert sum(rejected) >= 2
+
+
+def test_example_04_world_model_video_smoke(tmp_path):
+    s = _example("04_worldmodel_physics_video")["main"](True, str(tmp_path))
+    assert os.path.exists(tmp_path / "results" / "architecture.png") and "decision" in s
+
+
+@needs_pnemo
+def test_example_09_state_world_model_smoke(tmp_path):
+    s = _example("09_worldmodel_physicsnemo_state")["main"](True, str(tmp_path))
+    assert os.path.exists(tmp_path / "results" / "rollouts.png") and "decision" in s
+
+
+@needs_pxr
+def test_example_13_inspection_smoke(tmp_path):
+    s = _example("13_omniverse_worldmodel_inspection")["main"](True, str(tmp_path))
+    assert all(u["ok"] for u in s["usd"]) and os.path.exists(tmp_path / "results" / "samples.png")
+
+
+@needs_newton
+@needs_pxr
+def test_robot_perception_labels_frames_and_payload(tmp_path):
+    from pinneapple_simulation.robot_sim import TwoLinkArm
+    from pinneapple_tools.nvidia.omniverse import validate_stage
+    from pinneapple_worldmodel.robot_perception import (
+        CameraVariation,
+        arm_motions,
+        camera_frames,
+        forward_points,
+        payload_track_check,
+        visibility,
+        write_motion_stage,
+    )
+    arm = TwoLinkArm(payload=2.2)
+    m = arm_motions(arm, 1, 0, moves=[((-0.6, 1.2), (0.9, -0.4))])[0]
+    assert np.abs(forward_points(arm, m["q"])["elbow"] - m["body_pos"][:, 2][:, [0, 2]]).max() < 1e-6
+    cam = CameraVariation(albedo=(0.5, 0.5))
+    V = np.array([[x, y, z] for x in (-0.05, 0.05) for y in (-0.05, 0.05) for z in (-0.05, 0.05)])
+    F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6],
+                  [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+    p = write_motion_stage(str(tmp_path / "m.usda"), arm, m, cam, payload=(V, F, 1.0))
+    assert validate_stage(p)["ok"]
+    fr = camera_frames(p, arm, m, cam, 96, 96)
+    assert fr.shape == (len(m["t"]), 96, 96) and visibility(arm, m, cam).all()
+    assert payload_track_check(fr, arm, m, cam)["max_px"] <= 2.0
+    occluded = CameraVariation(occluder=(*forward_points(arm, m["q"][:1])["elbow"][0], 0.3, 0.3))
+    assert not visibility(arm, m, occluded)[0]
+
+
+@needs_newton
+@needs_pxr
+def test_example_17_perception_smoke(tmp_path):
+    s = _example("17_omniverse_robotsim_worldmodel_perception")["main"](True, str(tmp_path))
+    assert s["label_error"] < 1e-6 and os.path.exists(tmp_path / "results" / "frames.png")
+
+
+@needs_newton
+@needs_pxr
+@needs_pnemo
+@needs_brep
+def test_example_18_work_cell_smoke(tmp_path):
+    s = _example("18_all_stacks_heatsink_cell")["main"](True, str(tmp_path))
+    assert s["part"]["t_source"] <= 75.0 and s["pixel_track_max_px"] <= 2.0 and s["usd"]["ok"]

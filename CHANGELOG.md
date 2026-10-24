@@ -167,6 +167,25 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   with root fillets, closed-form volumes) and `.heatsink` (designs rated by the closed-form heat-sink model on exact
   solids, verification of surrogate proposals). `numerical_solvers.plane_stress_fem` (constant-strain triangles on any
   mesh, patch test, Heywood's net-section Kt). Examples 05 (B), 10 (B + P), 14 (B + O) and 16 (O + P + B).
+- PINNeAPPle Model Services (`pinneapple_tools.model_services`): PINNeAPPle models as local microservices on NVIDIA
+  NIM's routes (`/v1/health/ready`, `/v1/models`, `/v1/infer`, `/v1/chat/completions` with `nvext.guided_json`),
+  standard library only; every answer carries the trust report of that query. Built-ins: the zoo (trust from
+  `pp.zoo.validate`), `pp.trust_card` as a service, and `pinneapple-intent` (the deterministic extractor of
+  `pinneapple_design.intent`, values with their quotes). `grid_operator_service` / `darcy_solver_service` serve a field
+  model (e.g. a PhysicsNeMo FNO) and the finite-volume solver with residual-based checks. One `ModelServiceClient` for
+  these services and for NVIDIA NIM. `python -m pinneapple_tools.model_services serve`, `docker/model_services`, the
+  Flow Studio node `lib.services.infer`. Examples 06 (N), 11 (N + P) and 15 (N + B).
+- PINNeAPPle World Model as the Cosmos alternative (`pinneapple_worldmodel.physical_world`,
+  `.inspection_data`, `.robot_perception`): synthetic bouncing-ball videos with exact labels and domain
+  randomization, video physics checks from the pixels (visibility, area, fitted g, a speed bound from the fall height,
+  apex energy), non-physical edits to test them, a CPU world model (conv encoder, GRU, decoder, free-running loss), a
+  state encoder, and the optional `CosmosAdapter` (Cosmos NIM `/v1/infer`). Thermal-inspection samples as OpenUSD
+  stages (temperature primvar, camera, label attributes) with a label check against the defect-free plate. Robot
+  perception data: Newton arm moves as USD timelines with a side camera, exact joint-angle labels, a visibility check,
+  and perception checks (forward kinematics, implied joint speed, rate-limit jumps). `rasterize_topdown(view=)` gives
+  top and side synthetic cameras of a USD stage; `heatsink.surrogate_service` serves a heat-sink surrogate as a model
+  service. Flow Studio nodes `lib.worldmodel.video_check`, `.inspection_sample`, `.arm_camera`. Examples 04 (C),
+  09 (C + P), 13 (O + C), 17 (O + I + C) and 18 (all six stacks).
 - Water hammer in a pumped pipeline (`pinneapple_systems.process_components.water_hammer`): operating point (pump
   curve, Colebrook friction, valve loss) and the method of characteristics for a valve closure, verified against
   Joukowsky's head rise and the 4L/a period.

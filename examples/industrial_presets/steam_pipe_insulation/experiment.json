@@ -1,0 +1,171 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/steam_pipe_insulation",
+ "title": "Isolamento t\u00e9rmico de linha de vapor: perda, temperatura de superf\u00edcie e espessura econ\u00f4mica",
+ "description": "Qual espessura de isolamento minimiza o custo anual por metro, e qual a menor que mant\u00e9m a superf\u00edcie abaixo de 60 \u00b0C (prote\u00e7\u00e3o pessoal)? Quanto se perde sem isolamento?",
+ "domain": "Processo e energia / utilidades",
+ "methods": [
+  "pinneapple_physics.closed_form.pipe_insulation.heat_loss",
+  "pinneapple_physics.closed_form.pipe_insulation.economic_thickness",
+  "pinneapple_physics.closed_form.pipe_insulation.radial_fd"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 0.0732124199998907
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)]",
+   "value": 4.955861856334466e-08,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente"
+  },
+  {
+   "name": "rel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)]",
+   "value": 1.621445256408362e-07,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente"
+  },
+  {
+   "name": "rel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)]",
+   "value": 4.960096946394748e-07,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente"
+  },
+  {
+   "name": "rel_error[k constante: resist\u00eancias em s\u00e9rie (Incropera eq. 3.27)]",
+   "value": 1.6599341602614414e-16,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: Incropera et al., Fundamentals of Heat and Mass Transfer, eq. 3.27"
+  },
+  {
+   "name": "rel_error[h for\u00e7ado (Re 55000): Churchill-Bernstein misto vs Hilpert]",
+   "value": 0.06208249860123212,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: Hilpert (1933) com as constantes da Tabela 7.2 de Incropera (incerteza ~\u00b120 %)"
+  },
+  {
+   "name": "rel_error[h natural (sem vento): Churchill-Chu vs McAdams 1,32 (dT/D)^0,25]",
+   "value": 0.07956819881052872,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: McAdams, Heat Transmission (1954): cilindro horizontal laminar em ar"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 0.0031623394227642265,
+   "unit": "-",
+   "how": "m\u00ednimos quadrados (Brent) sobre o modelo de perda, IC por sensibilidade"
+  }
+ ],
+ "checks": [
+  {
+   "name": "perda com 30 mm: Kirchhoff vs volumes finitos com k(T)",
+   "passed": true,
+   "value": 148.46486995014587,
+   "reference": 148.4648773078601,
+   "rtol": 0.0001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "perda com 60 mm: Kirchhoff vs volumes finitos com k(T)",
+   "passed": true,
+   "value": 87.15636198690117,
+   "reference": 87.15637611883044,
+   "rtol": 0.0001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "perda com 120 mm: Kirchhoff vs volumes finitos com k(T)",
+   "passed": true,
+   "value": 53.88511793633764,
+   "reference": 53.88514466389179,
+   "rtol": 0.0001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "k constante: resist\u00eancias em s\u00e9rie (Incropera eq. 3.27)",
+   "passed": true,
+   "value": 85.61095406918896,
+   "reference": 85.61095406918898,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "h for\u00e7ado (Re 55000): Churchill-Bernstein misto vs Hilpert",
+   "passed": true,
+   "value": 13.399478168165762,
+   "reference": 14.286414474815093,
+   "rtol": 0.15,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "h natural (sem vento): Churchill-Chu vs McAdams 1,32 (dT/D)^0,25",
+   "passed": true,
+   "value": 4.551380738186164,
+   "reference": 4.215927018970073,
+   "rtol": 0.15,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/insulation.png",
+   "results/variants.png",
+   "results/3d/steam_pipe_insulation_3d_temperature.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente",
+  "radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente",
+  "radial_fd: equa\u00e7\u00e3o de calor radial com k(T) resolvida numericamente",
+  "Incropera et al., Fundamentals of Heat and Mass Transfer, eq. 3.27",
+  "Hilpert (1933) com as constantes da Tabela 7.2 de Incropera (incerteza ~\u00b120 %)",
+  "McAdams, Heat Transmission (1954): cilindro horizontal laminar em ar"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "4e59c29f",
+  "created": "2026-10-24T01:17:47Z",
+  "seconds": 0.01,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

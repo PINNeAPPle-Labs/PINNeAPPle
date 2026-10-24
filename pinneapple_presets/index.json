@@ -1210,6 +1210,2480 @@
    }
   },
   {
+   "name": "pressure_vessel_asme",
+   "title": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1",
+   "sector": "Estrutural / caldeiraria e processo",
+   "problem": "Vaso horizontal de aço carbono SA-516 Gr. 70 (reservatório de ar comprimido / vaso de processo), casco cilíndrico com tampos elípticos 2:1. Espessuras mínimas pela UG-27 e UG-32, chapa comercial, MAWP, pressão de teste hidrostático, conferidas pela solução de Lamé e por elementos finitos 3-D.",
+   "question": "Qual a espessura de chapa do casco e dos tampos para esta pressão de projeto, qual a MAWP resultante e a pressão de teste? A tensão real (Lamé/FEM) confirma a fórmula do código?",
+   "inputs": [
+    {
+     "name": "p_design",
+     "unit": "Pa",
+     "default": 1000000.0,
+     "source": "premissa: 10 bar(g), compressor de ar industrial / vaso de processo",
+     "lo": 100000.0,
+     "hi": 20000000.0,
+     "help": ""
+    },
+    {
+     "name": "d_inner",
+     "unit": "m",
+     "default": 1.5,
+     "source": "premissa: diâmetro interno de 1500 mm",
+     "lo": 0.2,
+     "hi": 6,
+     "help": ""
+    },
+    {
+     "name": "length",
+     "unit": "m",
+     "default": 4.5,
+     "source": "premissa: comprimento do casco entre linhas de tangência",
+     "lo": 0.5,
+     "hi": 30,
+     "help": ""
+    },
+    {
+     "name": "S",
+     "unit": "Pa",
+     "default": 138000000.0,
+     "source": "ASME BPVC Section VIII Div. 1 (2023) / BPVC II-D Tab. 1A: SA-516 Gr. 70, 20,0 ksi até 650 °F",
+     "lo": 50000000.0,
+     "hi": 300000000.0,
+     "help": ""
+    },
+    {
+     "name": "E_joint",
+     "unit": "-",
+     "default": 0.85,
+     "source": "ASME BPVC Section VIII Div. 1 (2023) UW-12: solda de topo dupla com radiografia por amostragem (spot)",
+     "lo": 0.45,
+     "hi": 1.0,
+     "help": ""
+    },
+    {
+     "name": "ca",
+     "unit": "m",
+     "default": 0.003,
+     "source": "premissa: sobre-espessura de corrosão de 3 mm (serviço de ar úmido)",
+     "lo": 0.0,
+     "hi": 0.01,
+     "help": ""
+    },
+    {
+     "name": "mill_tol",
+     "unit": "m",
+     "default": 0.0003,
+     "source": "ASME BPVC Section VIII Div. 1 (2023) UG-16(c): tolerância de laminação até 0,3 mm (ou 6 %) dispensada",
+     "lo": 0.0,
+     "hi": 0.002,
+     "help": ""
+    },
+    {
+     "name": "E_steel",
+     "unit": "Pa",
+     "default": 200000000000.0,
+     "source": "aço carbono, BPVC II-D Tab. TM-1 (~ 29,2e6 psi a 70 °F = 201 GPa)",
+     "lo": 150000000000.0,
+     "hi": 220000000000.0,
+     "help": ""
+    },
+    {
+     "name": "nu_steel",
+     "unit": "-",
+     "default": 0.3,
+     "source": "aço carbono",
+     "lo": 0.25,
+     "hi": 0.35,
+     "help": ""
+    },
+    {
+     "name": "rho_steel",
+     "unit": "kg/m3",
+     "default": 7850.0,
+     "source": "aço carbono",
+     "lo": 7700,
+     "hi": 8100,
+     "help": ""
+    },
+    {
+     "name": "head",
+     "unit": "-",
+     "default": "ellipsoidal_2_1",
+     "source": "tampo elíptico 2:1 (UG-32(d))",
+     "lo": null,
+     "hi": null,
+     "help": "",
+     "choices": [
+      "ellipsoidal_2_1",
+      "hemispherical",
+      "torispherical"
+     ]
+    },
+    {
+     "name": "fem_nr",
+     "unit": "-",
+     "default": 4,
+     "source": "elementos na espessura do anel FEM (C3D8I); convergência verificada 2-8",
+     "lo": 1,
+     "hi": 16,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "t_shell_req",
+     "unit": "m",
+     "help": "espessura mínima do casco (UG-27(c)(1)) + corrosão"
+    },
+    {
+     "name": "t_head_req",
+     "unit": "m",
+     "help": "espessura mínima do tampo + corrosão"
+    },
+    {
+     "name": "t_shell",
+     "unit": "m",
+     "help": "chapa comercial do casco"
+    },
+    {
+     "name": "t_head",
+     "unit": "m",
+     "help": "chapa comercial do tampo"
+    },
+    {
+     "name": "mawp",
+     "unit": "Pa",
+     "help": "pressão máxima de trabalho admissível (corroída)"
+    },
+    {
+     "name": "p_test",
+     "unit": "Pa",
+     "help": "teste hidrostático UG-99(b): 1,3 x MAWP"
+    },
+    {
+     "name": "hoop_lame",
+     "unit": "Pa",
+     "help": "tensão circunferencial máxima de Lamé (corroída, P de projeto)"
+    },
+    {
+     "name": "hoop_fem",
+     "unit": "Pa",
+     "help": "a mesma pelo FEM 3-D"
+    },
+    {
+     "name": "mass",
+     "unit": "kg",
+     "help": "massa de aço do casco + tampos"
+    }
+   ],
+   "validity": "Casco cilíndrico sob pressão interna com t <= R/2 e P <= 0,385 S E (UG-27(c)(1)); tampos sem aberturas; temperatura <= 343 °C (650 °F) para o S dado. Bocais, suportes (selas), vento, sismo e fadiga não verificados.",
+   "pipeline": [
+    "geometria: casco D_i x L, tampos (2:1, hemisférico ou torisférico)",
+    "modelo: fórmulas ASME VIII UG-27 / UG-32 com eficiência de junta e corrosão",
+    "solver: espessura -> chapa comercial -> MAWP; Lamé (cilindro espesso); FEM 3-D C3D8I de um quarto de anel em deformação plana",
+    "pós: tensões, MAWP, pressão de teste, massa",
+    "decisão: chapas >= requisito; tensão de Lamé <= S E na pressão de projeto"
+   ],
+   "library": [
+    "pinneapple_simulation.numerical_solvers.solid_fem.SolidFEM"
+   ],
+   "limitations": [],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "surrogate": "as fórmulas do código são instantâneas; o FEM serve só para verificar",
+    "reason": "não há caso de vaso de pressão no pinneapple_reason"
+   },
+   "reason_case": null,
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"pressure_vessel_asme\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run pressure_vessel_asme",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "pressure_vessel_asme"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/pressure_vessel_asme",
+    "decision": {
+     "verdict": "OK",
+     "reasons": [
+      "casco 10 mm (mín. 9.45 mm), tampo 10 mm (mín. 9.42 mm)",
+      "MAWP 1.038 MPa, teste hidrostático 1.350 MPa",
+      "tensão circunferencial (Lamé) 112.9 MPa vs S E = 117.3 MPa"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "UG-27 limits: t <= R/2 and P <= 0.385 S E",
+       "status": "supports",
+       "value": 0.008525149190110827,
+       "limit": 0.385,
+       "source": "ASME BPVC Section VIII Div. 1 (2023) UG-27(c)(1)",
+       "reason": ""
+      },
+      {
+       "name": "FEM equilibrium: symmetry reaction = P r h",
+       "status": "supports",
+       "value": 2.831803950727411e-12,
+       "limit": 1e-06,
+       "source": "SolidFEM reactions",
+       "reason": ""
+      },
+      {
+       "name": "FEM bore displacement = Lamé (plane strain)",
+       "status": "supports",
+       "value": 8.384422033447177e-07,
+       "limit": 0.01,
+       "source": "Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+       "reason": ""
+      },
+      {
+       "name": "MAWP >= design pressure",
+       "status": "supports",
+       "value": 1038162.7962273123,
+       "limit": 1000000.0,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "pressure_vessel_asme",
+     "references": [
+      {
+       "case": "tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé",
+       "output": "hoop",
+       "unit": "Pa",
+       "computed": 112457377.70932262,
+       "reference": 112890274.28468676,
+       "rel_error": 0.0038346666983239304,
+       "tol": 0.02,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+       "params": {}
+      },
+      {
+       "case": "deslocamento radial no furo: FEM vs Lamé (deformação plana)",
+       "output": "u_r",
+       "unit": "m",
+       "computed": 0.0003882470377175049,
+       "reference": 0.00038824736324047956,
+       "rel_error": 8.384422033447177e-07,
+       "tol": 0.005,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28",
+       "params": {}
+      },
+      {
+       "case": "fórmula UG-27(c)(1) vs tensão máxima de Lamé",
+       "output": "hoop",
+       "unit": "Pa",
+       "computed": 112988059.70149253,
+       "reference": 112890274.28468676,
+       "rel_error": 0.000866198770668044,
+       "tol": 0.02,
+       "pass": true,
+       "kind": "analytic",
+       "source": "ASME BPVC Section VIII Div. 1 (2023) App. 1-1: a fórmula aproxima Lamé para t <= R/2",
+       "params": {}
+      },
+      {
+       "case": "caso espesso (t/R 0,26): UG-27 vs Lamé",
+       "output": "hoop",
+       "unit": "Pa",
+       "computed": 66375000.0,
+       "reference": 65742052.023121364,
+       "rel_error": 0.00962774901909099,
+       "tol": 0.03,
+       "pass": true,
+       "kind": "analytic",
+       "source": "ASME BPVC Section VIII Div. 1 (2023) UG-27 / Lamé",
+       "params": {}
+      }
+     ],
+     "convergence": {
+      "parameter": "elementos na espessura",
+      "values": [
+       1,
+       2,
+       4,
+       8
+      ],
+      "hoop": [
+       112616394.90373127,
+       112511016.73233432,
+       112457377.70932262,
+       112430319.18824252
+      ],
+      "rel_change_last": 0.00024066925430308,
+      "pass": true
+     },
+     "all_pass": true
+    },
+    "inversion": {
+     "description": "Espessura remanescente do casco a partir de extensômetros circunferenciais lidos no teste hidrostático (4 patamares até 1,3 MAWP). Verdade sintética: chapa nominal menos 2.5 mm de corrosão; ruído de 5.0 microdeformações.",
+     "parameter": "espessura remanescente",
+     "unit": "m",
+     "true": 0.0075,
+     "recovered": 0.007480850062300536,
+     "ci95": [
+      0.007387743770877931,
+      0.007573956353723141
+     ],
+     "rel_error": 0.002553325026595152,
+     "true_inside_ci95": true,
+     "noise": "5.0 microstrain",
+     "how": "mínimos quadrados (Brent) sobre Lamé com tampos fechados; IC por sensibilidade",
+     "remaining_mawp": 1116670.0376562257
+    },
+    "optimization": {
+     "objective": "massa mínima de aço (casco + tampos) com MAWP >= P de projeto",
+     "best_head": "ellipsoidal_2_1",
+     "best_E_joint": 0.85,
+     "best_mass_kg": 1976.4961042923387,
+     "base_mass_kg": 1976.4961042923387,
+     "table": [
+      {
+       "head": "ellipsoidal_2_1",
+       "E_joint": 0.7,
+       "t_shell": 0.012,
+       "t_head": 0.012,
+       "mass": 2374.458767402525,
+       "mawp": 1108411.8065996678,
+       "ok": true
+      },
+      {
+       "head": "ellipsoidal_2_1",
+       "E_joint": 0.85,
+       "t_shell": 0.01,
+       "t_head": 0.01,
+       "mass": 1976.4961042923387,
+       "mawp": 1038162.7962273123,
+       "ok": true
+      },
+      {
+       "head": "ellipsoidal_2_1",
+       "E_joint": 1.0,
+       "t_shell": 0.01,
+       "t_head": 0.01,
+       "mass": 1976.4961042923387,
+       "mawp": 1221367.9955615439,
+       "ok": true
+      },
+      {
+       "head": "hemispherical",
+       "E_joint": 0.7,
+       "t_shell": 0.012,
+       "t_head": 0.008,
+       "mass": 2457.4693842475936,
+       "mawp": 1108411.8065996678,
+       "ok": true
+      },
+      {
+       "head": "hemispherical",
+       "E_joint": 0.85,
+       "t_shell": 0.01,
+       "t_head": 0.008,
+       "mass": 2119.6561253219356,
+       "mawp": 1038162.7962273123,
+       "ok": true
+      },
+      {
+       "head": "hemispherical",
+       "E_joint": 1.0,
+       "t_shell": 0.01,
+       "t_head": 0.008,
+       "mass": 2119.6561253219356,
+       "mawp": 1221367.9955615439,
+       "ok": true
+      },
+      {
+       "head": "torispherical",
+       "E_joint": 0.7,
+       "t_shell": 0.012,
+       "t_head": 0.018,
+       "mass": 2604.012652295356,
+       "mawp": 1064259.3758431512,
+       "ok": true
+      },
+      {
+       "head": "torispherical",
+       "E_joint": 0.85,
+       "t_shell": 0.01,
+       "t_head": 0.016,
+       "mass": 2200.5938033696975,
+       "mawp": 1038162.7962273123,
+       "ok": true
+      },
+      {
+       "head": "torispherical",
+       "E_joint": 1.0,
+       "t_shell": 0.01,
+       "t_head": 0.014,
+       "mass": 2134.988213369698,
+       "mawp": 1106996.1315860497,
+       "ok": true
+      }
+     ]
+    },
+    "figures": [
+     "results/vessel_stress.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/pressure_vessel_asme_3d_sigma.png"
+    ],
+    "variants": {
+     "rows": {
+      "2:1 E=0,85 (base)": {
+       "params": {},
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_shell_req": 0.009452442159383033,
+        "t_head_req": 0.009424914675767919,
+        "t_shell": 0.01,
+        "t_head": 0.01,
+        "mawp": 1038162.7962273123,
+        "p_test": 1349611.635095506,
+        "hoop_lame": 112890274.28468676,
+        "hoop_fem": 112457377.70932262,
+        "ur_lame": 0.00038824736324047956,
+        "ur_fem": 0.0003882470377175049,
+        "hoop_asme": 112988059.70149253,
+        "mass": 1976.4961042923387,
+        "fem_reaction_err": 2.831803950727411e-12,
+        "t_over_r": 0.008897742363877822,
+        "p_over_se": 0.008525149190110827
+       }
+      },
+      "hemisférico": {
+       "params": {
+        "head": "hemispherical"
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_shell_req": 0.009452442159383033,
+        "t_head_req": 0.00621245733788396,
+        "t_shell": 0.01,
+        "t_head": 0.008,
+        "mawp": 1038162.7962273123,
+        "p_test": 1349611.635095506,
+        "hoop_lame": 112890274.28468676,
+        "hoop_fem": 112457377.70932262,
+        "ur_lame": 0.00038824736324047956,
+        "ur_fem": 0.0003882470377175049,
+        "hoop_asme": 112988059.70149253,
+        "mass": 2119.6561253219356,
+        "fem_reaction_err": 2.831803950727411e-12,
+        "t_over_r": 0.008897742363877822,
+        "p_over_se": 0.008525149190110827
+       }
+      },
+      "torisférico": {
+       "params": {
+        "head": "torispherical"
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_shell_req": 0.009452442159383033,
+        "t_head_req": 0.014372098976109214,
+        "t_shell": 0.01,
+        "t_head": 0.016,
+        "mawp": 1038162.7962273123,
+        "p_test": 1349611.635095506,
+        "hoop_lame": 112890274.28468676,
+        "hoop_fem": 112457377.70932262,
+        "ur_lame": 0.00038824736324047956,
+        "ur_fem": 0.0003882470377175049,
+        "hoop_asme": 112988059.70149253,
+        "mass": 2200.5938033696975,
+        "fem_reaction_err": 2.831803950727411e-12,
+        "t_over_r": 0.008897742363877822,
+        "p_over_se": 0.008525149190110827
+       }
+      },
+      "radiografia total E=1,0": {
+       "params": {
+        "E_joint": 1.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_shell_req": 0.008480349344978166,
+        "t_head_req": 0.00846047860768673,
+        "t_shell": 0.01,
+        "t_head": 0.01,
+        "mawp": 1221367.9955615439,
+        "p_test": 1587778.394230007,
+        "hoop_lame": 112890274.28468676,
+        "hoop_fem": 112457377.70932262,
+        "ur_lame": 0.00038824736324047956,
+        "ur_fem": 0.0003882470377175049,
+        "hoop_asme": 112988059.70149253,
+        "mass": 1976.4961042923387,
+        "fem_reaction_err": 2.831803950727411e-12,
+        "t_over_r": 0.008897742363877822,
+        "p_over_se": 0.007246376811594203
+       }
+      },
+      "sem radiografia E=0,70": {
+       "params": {
+        "E_joint": 0.7
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_shell_req": 0.01084375,
+        "t_head_req": 0.010803108808290156,
+        "t_shell": 0.012,
+        "t_head": 0.012,
+        "mawp": 1108411.8065996678,
+        "p_test": 1440935.348579568,
+        "hoop_lame": 87054595.99374318,
+        "hoop_fem": 86732332.04207744,
+        "ur_lame": 0.0002997304540639632,
+        "ur_fem": 0.000299730030832164,
+        "hoop_asme": 87151724.13793102,
+        "mass": 2374.458767402525,
+        "fem_reaction_err": 2.3729254421266666e-12,
+        "t_over_r": 0.01155378486055777,
+        "p_over_se": 0.010351966873706004
+       }
+      },
+      "16 bar": {
+       "params": {
+        "p_design": 1600000.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "t_shell_req": 0.013355853532748839,
+        "t_head_req": 0.013285128905583064,
+        "t_shell": 0.014,
+        "t_head": 0.014,
+        "mawp": 1652721.8140159596,
+        "p_test": 2148538.3582207477,
+        "hoop_lame": 113403774.67312486,
+        "hoop_fem": 112999060.60076039,
+        "ur_lame": 0.00039088770259632685,
+        "ur_fem": 0.00039088686869425575,
+        "hoop_asme": 113558130.8411215,
+        "mass": 2773.3092445966045,
+        "fem_reaction_err": 4.305194061396802e-13,
+        "t_over_r": 0.014209827357237715,
+        "p_over_se": 0.013640238704177323
+       }
+      }
+     },
+     "compared": [
+      "t_shell",
+      "t_head",
+      "mass"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/pressure_vessel_asme_2_1_e_0_85_base_3d_sigma.png",
+      "results/3d/variants/pressure_vessel_asme_hemisferico_3d_sigma.png",
+      "results/3d/variants/pressure_vessel_asme_torisferico_3d_sigma.png",
+      "results/3d/variants/pressure_vessel_asme_radiografia_total_e_1_0_3d_sigma.png",
+      "results/3d/variants/pressure_vessel_asme_sem_radiografia_e_0_70_3d_sigma.png",
+      "results/3d/variants/pressure_vessel_asme_16_bar_3d_sigma.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.07909793899989381,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T01:16:02Z"
+    }
+   }
+  },
+  {
+   "name": "pump_npsh_cavitation",
+   "title": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação",
+   "sector": "Fluidos / bombeamento (saneamento, processo, utilidades)",
+   "problem": "Bomba centrífuga de sucção axial acima de um poço aberto (altura de sucção), recalcando para um reservatório. Ponto de operação pela interseção das curvas da bomba e do sistema, NPSH disponível com pressão de vapor IAPWS-IF97 e atmosfera ISO 2533, contra o NPSH3 da bomba com a margem da ANSI/HI.",
+   "question": "A bomba opera sem cavitar nesta instalação (altitude, temperatura, altura de sucção, tubulação)? Qual a maior altura de sucção ou temperatura admissível, e que diâmetro de sucção resolve?",
+   "inputs": [
+    {
+     "name": "altitude",
+     "unit": "m",
+     "default": 800.0,
+     "source": "premissa: estação de bombeamento a 800 m de altitude",
+     "lo": 0,
+     "hi": 4000,
+     "help": ""
+    },
+    {
+     "name": "t_water",
+     "unit": "degC",
+     "default": 40.0,
+     "source": "premissa: água de processo / retorno morno a 40 °C",
+     "lo": 1,
+     "hi": 120,
+     "help": ""
+    },
+    {
+     "name": "z_suction",
+     "unit": "m",
+     "default": -4.0,
+     "source": "nível do poço 4 m abaixo do eixo da bomba (altura de sucção; + = afogada)",
+     "lo": -9,
+     "hi": 30,
+     "help": ""
+    },
+    {
+     "name": "h_static",
+     "unit": "m",
+     "default": 30.0,
+     "source": "premissa: desnível geométrico até o reservatório de recalque",
+     "lo": 0,
+     "hi": 50,
+     "help": ""
+    },
+    {
+     "name": "d_suction",
+     "unit": "m",
+     "default": 0.1541,
+     "source": "DN150 Sch 40, diâmetro interno 154,1 mm (ASME B36.10M)",
+     "lo": 0.04,
+     "hi": 0.6,
+     "help": ""
+    },
+    {
+     "name": "l_suction",
+     "unit": "m",
+     "default": 12.0,
+     "source": "premissa: 12 m de tubo de sucção",
+     "lo": 1,
+     "hi": 200,
+     "help": ""
+    },
+    {
+     "name": "k_suction",
+     "unit": "-",
+     "default": 3.0,
+     "source": "válvula de pé com crivo ~2,0-2,5 + curva 90° 0,3 + entrada 0,5 (Crane TP-410 ordem de grandeza)",
+     "lo": 0,
+     "hi": 20,
+     "help": ""
+    },
+    {
+     "name": "d_discharge",
+     "unit": "m",
+     "default": 0.1281,
+     "source": "DN125 Sch 40, diâmetro interno 128,2 mm (ASME B36.10M)",
+     "lo": 0.04,
+     "hi": 0.6,
+     "help": ""
+    },
+    {
+     "name": "l_discharge",
+     "unit": "m",
+     "default": 300.0,
+     "source": "premissa: 300 m de linha de recalque",
+     "lo": 1,
+     "hi": 5000,
+     "help": ""
+    },
+    {
+     "name": "k_discharge",
+     "unit": "-",
+     "default": 10.0,
+     "source": "premissa: retenção + gaveta + curvas + saída",
+     "lo": 0,
+     "hi": 60,
+     "help": ""
+    },
+    {
+     "name": "roughness",
+     "unit": "m",
+     "default": 4.5e-05,
+     "source": "aço comercial 0,045 mm (White, Fluid Mechanics, Tab. 6.1)",
+     "lo": 0,
+     "hi": 0.002,
+     "help": ""
+    },
+    {
+     "name": "npsh_ratio_min",
+     "unit": "-",
+     "default": 1.3,
+     "source": "ANSI/HI 9.6.1-2017 (margem NPSHa/NPSH3 recomendada 1,1-2,5 conforme a aplicação); 1,3 premissa para água limpa em serviço contínuo",
+     "lo": 1.0,
+     "hi": 2.5,
+     "help": ""
+    },
+    {
+     "name": "curve_scale",
+     "unit": "-",
+     "default": 1.0,
+     "source": "1 = curva genérica de bomba 80-200 a 2900 rpm (pontos de catálogo da ficha); afinidade: Q ~ s, H ~ s^2, NPSH ~ s^2",
+     "lo": 0.6,
+     "hi": 1.2,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "q",
+     "unit": "m3/h",
+     "help": "vazão no ponto de operação"
+    },
+    {
+     "name": "head",
+     "unit": "m",
+     "help": "altura manométrica no ponto"
+    },
+    {
+     "name": "npsha",
+     "unit": "m",
+     "help": "NPSH disponível"
+    },
+    {
+     "name": "npsh3",
+     "unit": "m",
+     "help": "NPSH3 da bomba no ponto"
+    },
+    {
+     "name": "ratio",
+     "unit": "-",
+     "help": "NPSHa / NPSH3"
+    },
+    {
+     "name": "margin",
+     "unit": "m",
+     "help": "NPSHa - NPSH3"
+    },
+    {
+     "name": "v_suction",
+     "unit": "m/s",
+     "help": "velocidade na sucção"
+    },
+    {
+     "name": "max_lift",
+     "unit": "m",
+     "help": "maior altura de sucção com a margem exigida"
+    },
+    {
+     "name": "max_temp",
+     "unit": "degC",
+     "help": "maior temperatura da água com a margem exigida"
+    }
+   ],
+   "validity": "Água limpa, regime permanente, curvas da bomba interpoladas entre 0 e 120 m3/h (extrapolação acusada), sem vórtice na sucção (submergência suficiente, ANSI/HI 9.8), pressão atmosférica padrão.",
+   "pipeline": [
+    "geometria: poço, tubo de sucção, bomba, linha de recalque",
+    "modelo: curvas H(Q) e NPSH3(Q) por mínimos quadrados dos pontos de catálogo; perdas Darcy-Colebrook",
+    "solver: duty_point (bisseção) e npsh_available (IAPWS-IF97, ISO 2533)",
+    "pós: NPSHa, NPSH3, razão e margem; maior altura de sucção e temperatura admissíveis",
+    "decisão: NPSHa / NPSH3 >= razão mínima da ANSI/HI 9.6.1"
+   ],
+   "library": [
+    "pinneapple_physics.closed_form.pump_npsh",
+    "pinneapple_physics.closed_form.pipe_flow.friction_factor"
+   ],
+   "limitations": [],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": true
+   },
+   "missing": {
+    "surrogate": "forma fechada (< 1 ms por avaliação): um surrogate não economiza tempo"
+   },
+   "reason_case": "pumped_main",
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"pump_npsh_cavitation\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run pump_npsh_cavitation",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "pump_npsh_cavitation"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/pump_npsh_cavitation",
+    "decision": {
+     "verdict": "NOT OK",
+     "reasons": [
+      "Q = 103.7 m3/h, H = 43.1 m",
+      "NPSHa 4.18 m / NPSH3 3.68 m = 1.14 < 1.3",
+      "altura de sucção máxima 3.40 m; temperatura máxima nenhuma (a margem falta mesmo com água a 1 °C)"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "duty point: pump head = static + losses",
+       "status": "supports",
+       "value": 7.105427357601002e-15,
+       "limit": 1e-06,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "duty point inside the catalogue curve (no extrapolation)",
+       "status": "supports",
+       "value": 103.72748341444783,
+       "limit": 120.0,
+       "source": "catalogue points of the data sheet",
+       "reason": ""
+      },
+      {
+       "name": "suction velocity <= 2.4 m/s (HI 9.6.6 guidance range)",
+       "status": "supports",
+       "value": 1.5448850902866968,
+       "limit": 2.4,
+       "source": "ANSI/HI 9.6.6",
+       "reason": ""
+      },
+      {
+       "name": "liquid below boiling at the sump (p_v < p_atm)",
+       "status": "supports",
+       "value": 7384.42748706953,
+       "limit": 92076.38076342038,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "pump_npsh_cavitation",
+     "references": [
+      {
+       "case": "pressão de saturação a 300 K",
+       "output": "p_sat",
+       "unit": "MPa",
+       "computed": 0.0035365894130130106,
+       "reference": 0.00353658941,
+       "rel_error": 8.519538172126368e-10,
+       "tol": 1e-08,
+       "pass": true,
+       "kind": "standard",
+       "source": "IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)",
+       "params": {}
+      },
+      {
+       "case": "pressão de saturação a 500 K",
+       "output": "p_sat",
+       "unit": "MPa",
+       "computed": 2.638897756273222,
+       "reference": 2.63889776,
+       "rel_error": 1.4122479672402738e-09,
+       "tol": 1e-08,
+       "pass": true,
+       "kind": "standard",
+       "source": "IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)",
+       "params": {}
+      },
+      {
+       "case": "pressão de saturação a 600 K",
+       "output": "p_sat",
+       "unit": "MPa",
+       "computed": 12.344314578376647,
+       "reference": 12.3443146,
+       "rel_error": 1.7516852474095862e-09,
+       "tol": 1e-08,
+       "pass": true,
+       "kind": "standard",
+       "source": "IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)",
+       "params": {}
+      },
+      {
+       "case": "pressão atmosférica a 1000 m",
+       "output": "p_atm",
+       "unit": "Pa",
+       "computed": 89874.56042735427,
+       "reference": 89874.6,
+       "rel_error": 4.4030956171667256e-07,
+       "tol": 1e-05,
+       "pass": true,
+       "kind": "standard",
+       "source": "ISO 2533:1975 / ICAO Doc 7488 (atmosfera padrão), tabela",
+       "params": {}
+      },
+      {
+       "case": "pressão atmosférica a 2000 m",
+       "output": "p_atm",
+       "unit": "Pa",
+       "computed": 79495.19743529121,
+       "reference": 79495.2,
+       "rel_error": 3.226243583987093e-08,
+       "tol": 1e-05,
+       "pass": true,
+       "kind": "standard",
+       "source": "ISO 2533:1975 / ICAO Doc 7488 (atmosfera padrão), tabela",
+       "params": {}
+      },
+      {
+       "case": "perda na sucção: Colebrook vs Haaland",
+       "output": "h_suction_loss",
+       "unit": "m",
+       "computed": 0.5227670754109276,
+       "reference": 0.5212962320792208,
+       "rel_error": 0.002821511534507409,
+       "tol": 0.02,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Haaland (1983), explícita, ±2 % de Colebrook",
+       "params": {}
+      }
+     ],
+     "convergence": null,
+     "all_pass": true
+    },
+    "inversion": {
+     "description": "Coeficiente de perda da sucção (crivo entupindo) a partir do manômetro no flange de sucção em 4 aberturas da válvula de recalque (vazão por medidor magnético). Verdade sintética K = 9.0 (limpo: 3); ruído de 1.0 kPa.",
+     "parameter": "K_suction",
+     "true": 9.0,
+     "recovered": 8.716885642838797,
+     "ci95": [
+      7.292510108299909,
+      10.141261177377686
+     ],
+     "rel_error": 0.03145715079568924,
+     "true_inside_ci95": true,
+     "noise": "1.0 kPa",
+     "how": "mínimos quadrados lineares (p é afim em K), IC exato",
+     "npsh_ratio_with_recovered_k": 0.9751521291189246
+    },
+    "optimization": {
+     "objective": "menor diâmetro de sucção (Sch 40) com NPSHa/NPSH3 >= razão mínima; se nenhum basta, baixar a bomba até a altura de sucção que deixa a margem",
+     "smallest_ok_suction": null,
+     "table": {
+      "DN100": {
+       "ratio": 0.5420062671579912,
+       "npsha": 1.8618084741780607,
+       "q": 98.6284050196992
+      },
+      "DN125": {
+       "ratio": 0.9880313243401828,
+       "npsha": 3.5742453158705634,
+       "q": 102.41267193216214
+      },
+      "DN150": {
+       "ratio": 1.1361246628173027,
+       "npsha": 4.184743523051699,
+       "q": 103.72748341444783
+      },
+      "DN200": {
+       "ratio": 1.220599478094756,
+       "npsha": 4.543274133535196,
+       "q": 104.49171552367885
+      },
+      "DN250": {
+       "ratio": 1.2440923026766377,
+       "npsha": 4.644362183965961,
+       "q": 104.7061555665923
+      }
+     },
+     "pump_lowered_to_lift_m": 3.346389957627842,
+     "verified_ratio": 1.313574603276867,
+     "verified_ok": true
+    },
+    "figures": [
+     "results/pump.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/pump_npsh_cavitation_3d_pressure.png"
+    ],
+    "variants": {
+     "rows": {
+      "base 800 m, 40 °C, sucção 4 m": {
+       "params": {},
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 103.72748341444783,
+        "head": 43.11271119746721,
+        "npsha": 4.184743523051699,
+        "npsh3": 3.68334889647989,
+        "ratio": 1.1361246628173027,
+        "margin": 0.501394626571809,
+        "v_suction": 1.5448850902866968,
+        "max_lift": 3.396389957627842,
+        "max_temp": null,
+        "h_suction_loss": 0.5227670754109276,
+        "h_discharge_loss": 12.589944122056279,
+        "p_atm": 92076.38076342038,
+        "p_vapour": 7384.42748706953,
+        "rho": 991.8076686568941,
+        "re_suction": 358932.3539028939,
+        "system_balance": 7.105427357601002e-15
+       }
+      },
+      "nível do mar": {
+       "params": {
+        "altitude": 0.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 103.72748341444783,
+        "head": 43.11271119746721,
+        "npsha": 5.135630200099799,
+        "npsh3": 3.68334889647989,
+        "ratio": 1.394282850861027,
+        "margin": 1.452281303619909,
+        "v_suction": 1.5448850902866968,
+        "max_lift": 4.347276634675942,
+        "max_temp": 47.80734290089609,
+        "h_suction_loss": 0.5227670754109276,
+        "h_discharge_loss": 12.589944122056279,
+        "p_atm": 101325.0,
+        "p_vapour": 7384.42748706953,
+        "rho": 991.8076686568941,
+        "re_suction": 358932.3539028939,
+        "system_balance": 7.105427357601002e-15
+       }
+      },
+      "2500 m de altitude": {
+       "params": {
+        "altitude": 2500.0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 103.72748341444783,
+        "head": 43.11271119746721,
+        "npsha": 2.396411948634674,
+        "npsh3": 3.68334889647989,
+        "ratio": 0.6506068298131849,
+        "margin": -1.286936947845216,
+        "v_suction": 1.5448850902866968,
+        "max_lift": 1.608058383210817,
+        "max_temp": null,
+        "h_suction_loss": 0.5227670754109276,
+        "h_discharge_loss": 12.589944122056279,
+        "p_atm": 74682.51228281349,
+        "p_vapour": 7384.42748706953,
+        "rho": 991.8076686568941,
+        "re_suction": 358932.3539028939,
+        "system_balance": 7.105427357601002e-15
+       }
+      },
+      "água a 70 °C": {
+       "params": {
+        "t_water": 70.0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 104.32806633159778,
+        "head": 42.97331495682399,
+        "npsha": 1.8265538058520905,
+        "npsh3": 3.7138189452169685,
+        "ratio": 0.49182629331042405,
+        "margin": -1.887265139364878,
+        "v_suction": 1.5538299866983707,
+        "max_lift": 0.9985891770700315,
+        "max_temp": null,
+        "h_suction_loss": 0.5231365442624085,
+        "h_discharge_loss": 12.450178412561591,
+        "p_atm": 92076.38076342038,
+        "p_vapour": 31200.635696061854,
+        "rho": 977.6222272189582,
+        "re_suction": 581329.7340282956,
+        "system_balance": -8.881784197001252e-15
+       }
+      },
+      "bomba afogada (+2 m)": {
+       "params": {
+        "z_suction": 2.0
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 103.72748341444783,
+        "head": 43.11271119746721,
+        "npsha": 10.184743523051699,
+        "npsh3": 3.68334889647989,
+        "ratio": 2.765077056041331,
+        "margin": 6.501394626571809,
+        "v_suction": 1.5448850902866968,
+        "max_lift": 3.396389957627842,
+        "max_temp": 86.23644998820347,
+        "h_suction_loss": 0.5227670754109276,
+        "h_discharge_loss": 12.589944122056279,
+        "p_atm": 92076.38076342038,
+        "p_vapour": 7384.42748706953,
+        "rho": 991.8076686568941,
+        "re_suction": 358932.3539028939,
+        "system_balance": 7.105427357601002e-15
+       }
+      },
+      "sucção DN100": {
+       "params": {
+        "d_suction": 0.1023
+       },
+       "verdict": "NOT OK",
+       "trust": "REVIEW",
+       "outputs": {
+        "q": 98.6284050196992,
+        "head": 44.260778493546226,
+        "npsha": 1.8618084741780607,
+        "npsh3": 3.43503126622585,
+        "ratio": 0.5420062671579912,
+        "margin": -1.5732227920477895,
+        "v_suction": 3.333176877118898,
+        "max_lift": 1.3962678280844556,
+        "max_temp": null,
+        "h_suction_loss": 2.8457021242845655,
+        "h_discharge_loss": 11.415076369261662,
+        "p_atm": 92076.38076342038,
+        "p_vapour": 7384.42748706953,
+        "rho": 991.8076686568941,
+        "re_suction": 514100.2092689352,
+        "system_balance": -1.7763568394002505e-15
+       }
+      }
+     },
+     "compared": [
+      "npsha",
+      "ratio",
+      "q"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/pump_npsh_cavitation_base_800_m_40_c_succao_4_m_3d_pressure.png",
+      "results/3d/variants/pump_npsh_cavitation_nivel_do_mar_3d_pressure.png",
+      "results/3d/variants/pump_npsh_cavitation_2500_m_de_altitude_3d_pressure.png",
+      "results/3d/variants/pump_npsh_cavitation_agua_a_70_c_3d_pressure.png",
+      "results/3d/variants/pump_npsh_cavitation_bomba_afogada_2_m_3d_pressure.png",
+      "results/3d/variants/pump_npsh_cavitation_succao_dn100_3d_pressure.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.00519004700026926,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T01:17:51Z"
+    }
+   }
+  },
+  {
+   "name": "shell_tube_cooler",
+   "title": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos)",
+   "sector": "Térmica / processo e energia",
+   "problem": "Água desmineralizada de um circuito fechado de resfriamento (mancais, inversores, moldes) no casco, água de torre nos tubos. Coeficientes por Kern (casco) e Gnielinski (tubos), incrustação TEMA, parede de aço carbono; desempenho por epsilon-NTU do trocador 1-2.",
+   "question": "O trocador leva a água do circuito à temperatura de retorno exigida com a água de torre disponível, com velocidade de tubo na faixa recomendada? Quanta incrustação ele tolera, e qual o menor trocador que atende?",
+   "inputs": [
+    {
+     "name": "m_hot",
+     "unit": "kg/s",
+     "default": 20.0,
+     "source": "premissa: circuito fechado de ~840 kW de carga térmica",
+     "lo": 1,
+     "hi": 200,
+     "help": ""
+    },
+    {
+     "name": "t_hot_in",
+     "unit": "degC",
+     "default": 45.0,
+     "source": "premissa: retorno quente do circuito fechado",
+     "lo": 30,
+     "hi": 95,
+     "help": ""
+    },
+    {
+     "name": "m_cold",
+     "unit": "kg/s",
+     "default": 25.0,
+     "source": "premissa: vazão de água de torre alocada ao trocador",
+     "lo": 1,
+     "hi": 300,
+     "help": ""
+    },
+    {
+     "name": "t_cold_in",
+     "unit": "degC",
+     "default": 29.0,
+     "source": "água de torre no verão (projeto típico 29-32 °C)",
+     "lo": 5,
+     "hi": 40,
+     "help": ""
+    },
+    {
+     "name": "cp_hot",
+     "unit": "J/kg K",
+     "default": 4179.0,
+     "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 315 K",
+     "lo": 4170,
+     "hi": 4200,
+     "help": ""
+    },
+    {
+     "name": "mu_hot",
+     "unit": "Pa s",
+     "default": 0.000631,
+     "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 315 K",
+     "lo": 0.00028,
+     "hi": 0.0018,
+     "help": ""
+    },
+    {
+     "name": "k_hot",
+     "unit": "W/m K",
+     "default": 0.634,
+     "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 315 K",
+     "lo": 0.55,
+     "hi": 0.68,
+     "help": ""
+    },
+    {
+     "name": "cp_cold",
+     "unit": "J/kg K",
+     "default": 4178.0,
+     "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 305 K",
+     "lo": 4170,
+     "hi": 4220,
+     "help": ""
+    },
+    {
+     "name": "mu_cold",
+     "unit": "Pa s",
+     "default": 0.000769,
+     "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 305 K",
+     "lo": 0.0003,
+     "hi": 0.0018,
+     "help": ""
+    },
+    {
+     "name": "k_cold",
+     "unit": "W/m K",
+     "default": 0.62,
+     "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. Tab. A.6, água a 305 K",
+     "lo": 0.55,
+     "hi": 0.68,
+     "help": ""
+    },
+    {
+     "name": "n_tubes",
+     "unit": "-",
+     "default": 200,
+     "source": "premissa: 200 tubos (2 passes de 100)",
+     "lo": 10,
+     "hi": 2000,
+     "help": ""
+    },
+    {
+     "name": "tube_od",
+     "unit": "m",
+     "default": 0.01905,
+     "source": "tubo de 3/4\" (TEMA, diâmetro externo padrão)",
+     "lo": 0.00635,
+     "hi": 0.0508,
+     "help": ""
+    },
+    {
+     "name": "tube_wall",
+     "unit": "m",
+     "default": 0.00165,
+     "source": "16 BWG = 1,65 mm (TEMA Tabela D-7)",
+     "lo": 0.0005,
+     "hi": 0.005,
+     "help": ""
+    },
+    {
+     "name": "tube_length",
+     "unit": "m",
+     "default": 4.877,
+     "source": "16 ft (comprimento padrão TEMA)",
+     "lo": 1.0,
+     "hi": 12.0,
+     "help": ""
+    },
+    {
+     "name": "pitch",
+     "unit": "m",
+     "default": 0.02381,
+     "source": "passo triangular de 15/16\" (1,25 x OD, TEMA RCB-2.5)",
+     "lo": 0.008,
+     "hi": 0.08,
+     "help": ""
+    },
+    {
+     "name": "shell_id",
+     "unit": "m",
+     "default": 0.489,
+     "source": "casco de 19,25\" para ~200 tubos de 3/4\" em 15/16\" triangular, 2 passes (ordem de grandeza da contagem de tubos de Kern, Process Heat Transfer, Tab. 9)",
+     "lo": 0.1,
+     "hi": 2.5,
+     "help": ""
+    },
+    {
+     "name": "baffle_spacing",
+     "unit": "m",
+     "default": 0.3,
+     "source": "premissa: ~0,6 x diâmetro do casco (TEMA mínimo = ID/5)",
+     "lo": 0.05,
+     "hi": 2.0,
+     "help": ""
+    },
+    {
+     "name": "k_wall",
+     "unit": "W/m K",
+     "default": 50.0,
+     "source": "aço carbono (Incropera Tab. A.1: AISI 1010 63,9, aço-carbono ao Mn ~50)",
+     "lo": 10,
+     "hi": 400,
+     "help": ""
+    },
+    {
+     "name": "rf_hot",
+     "unit": "m2 K/W",
+     "default": 8.8e-05,
+     "source": "TEMA Standards 10a ed. (2019), RGP-T-2.4 (resistências de incrustação): água desmineralizada/destilada, 0,0005 h ft2 F/Btu",
+     "lo": 0.0,
+     "hi": 0.002,
+     "help": ""
+    },
+    {
+     "name": "rf_cold",
+     "unit": "m2 K/W",
+     "default": 0.000176,
+     "source": "TEMA Standards 10a ed. (2019), RGP-T-2.4 (resistências de incrustação): água de torre tratada, < 50 °C, 0,001 h ft2 F/Btu",
+     "lo": 0.0,
+     "hi": 0.002,
+     "help": ""
+    },
+    {
+     "name": "t_hot_target",
+     "unit": "degC",
+     "default": 36.0,
+     "source": "premissa: alimentação fria do circuito a 36 °C",
+     "lo": 15,
+     "hi": 90,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "q",
+     "unit": "W",
+     "help": "calor trocado"
+    },
+    {
+     "name": "t_hot_out",
+     "unit": "degC",
+     "help": "saída do circuito fechado (casco)"
+    },
+    {
+     "name": "t_cold_out",
+     "unit": "degC",
+     "help": "saída da água de torre"
+    },
+    {
+     "name": "U",
+     "unit": "W/m2 K",
+     "help": "coeficiente global (área externa)"
+    },
+    {
+     "name": "area",
+     "unit": "m2",
+     "help": "área externa dos tubos"
+    },
+    {
+     "name": "ntu",
+     "unit": "-",
+     "help": "NTU"
+    },
+    {
+     "name": "effectiveness",
+     "unit": "-",
+     "help": "efetividade"
+    },
+    {
+     "name": "F",
+     "unit": "-",
+     "help": "fator de correção da LMTD"
+    },
+    {
+     "name": "h_shell",
+     "unit": "W/m2 K",
+     "help": "coeficiente do casco (Kern)"
+    },
+    {
+     "name": "h_tube",
+     "unit": "W/m2 K",
+     "help": "coeficiente dos tubos (Gnielinski)"
+    },
+    {
+     "name": "v_tube",
+     "unit": "m/s",
+     "help": "velocidade da água nos tubos"
+    },
+    {
+     "name": "dp_tube",
+     "unit": "Pa",
+     "help": "perda de carga nos tubos (atrito + 2,5 cargas cinéticas por passe)"
+    },
+    {
+     "name": "re_shell",
+     "unit": "-",
+     "help": "Reynolds do casco"
+    }
+   ],
+   "validity": "Kern: 2e3 < Re_casco < 1e6, chicanas segmentais de 25 %, sem vazamentos/bypass (Bell-Delaware dá h menor, tipicamente 60-80 % do de Kern). Gnielinski: 3000 <= Re <= 5e6. Propriedades constantes na temperatura média; sem correção de viscosidade na parede.",
+   "pipeline": [
+    "geometria: feixe (n tubos, OD, parede, passo triangular), casco, chicanas",
+    "modelo: Kern (casco), Gnielinski (tubos), parede e incrustação TEMA -> U",
+    "solver: effectiveness(NTU, Cr, 'shell_tube') (Incropera eq. 11.30a); perfis pelo BVP do 1-2",
+    "pós: Q, temperaturas de saída, F da LMTD, velocidades",
+    "decisão: T saída quente <= alvo, 1 <= v_tubo <= 2,5 m/s, perda de carga nos tubos <= 70 kPa"
+   ],
+   "library": [
+    "pinneapple_physics.closed_form.heat_exchanger.effectiveness",
+    "pinneapple_physics.closed_form.heat_exchanger.kern_shell",
+    "pinneapple_physics.closed_form.heat_exchanger.gnielinski",
+    "pinneapple_physics.closed_form.heat_exchanger.one_two_exchanger_ode"
+   ],
+   "limitations": [
+    "Perda de carga do casco não calculada (Kern/Bell-Delaware não implementados): o espaçamento de chicanas fica restrito a 0,3-1 x D_casco."
+   ],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "surrogate": "o modelo é de forma fechada (< 1 ms por avaliação); um surrogate não economiza tempo",
+    "reason": "não há caso de trocador no pinneapple_reason"
+   },
+   "reason_case": null,
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"shell_tube_cooler\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run shell_tube_cooler",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "shell_tube_cooler"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/shell_tube_cooler",
+    "decision": {
+     "verdict": "NOT OK",
+     "reasons": [
+      "circuito sai a 37.2 °C > alvo 36 °C (Q = 652.4 kW, U = 1405 W/m2K)",
+      "velocidade nos tubos 1.29 m/s dentro de 1-2,5 m/s (incrustação abaixo, erosão acima)",
+      "perda de carga nos tubos 16.6 kPa <= 70 kPa (Sinnott, Coulson & Richardson vol. 6, sec. 12.8: 35-70 kPa típico para líquidos)"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "epsilon-NTU = U A F LMTD (two independent routes)",
+       "status": "supports",
+       "value": 5.353266197643765e-16,
+       "limit": 1e-06,
+       "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. sec. 11.3-11.4",
+       "reason": ""
+      },
+      {
+       "name": "energy balance: hot side = cold side",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "by construction of Q",
+       "reason": ""
+      },
+      {
+       "name": "2nd law: hot out > cold in, cold out < hot in",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "Kern range 2e3 < Re_shell < 1e6",
+       "status": "supports",
+       "value": 14875.804865476255,
+       "limit": 2000.0,
+       "source": "Kern (1950) eq. 7.3",
+       "reason": ""
+      },
+      {
+       "name": "Gnielinski range Re_tube >= 3000",
+       "status": "supports",
+       "value": 26281.08127923634,
+       "limit": 3000,
+       "source": "Gnielinski (1976)",
+       "reason": ""
+      },
+      {
+       "name": "LMTD factor F >= 0.75 (1-2 shell usable)",
+       "status": "supports",
+       "value": 0.8885191540392299,
+       "limit": 0.75,
+       "source": "Kern (1950) ch. 7: below F ~ 0.75 use more shells",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "shell_tube_cooler",
+     "references": [
+      {
+       "case": "epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto",
+       "output": "effectiveness",
+       "unit": "-",
+       "computed": 0.48785438014314664,
+       "reference": 0.48785438014313065,
+       "rel_error": 3.277045816399516e-14,
+       "tol": 1e-06,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)",
+       "params": {}
+      },
+      {
+       "case": "epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto",
+       "output": "effectiveness",
+       "unit": "-",
+       "computed": 0.3710283646414162,
+       "reference": 0.37102836464140065,
+       "rel_error": 4.189200564160273e-14,
+       "tol": 1e-06,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)",
+       "params": {}
+      },
+      {
+       "case": "epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto",
+       "output": "effectiveness",
+       "unit": "-",
+       "computed": 0.5787959056011164,
+       "reference": 0.5787959056011109,
+       "rel_error": 9.398982902295129e-15,
+       "tol": 1e-06,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)",
+       "params": {}
+      },
+      {
+       "case": "Cr -> 0: epsilon = 1 - exp(-NTU)",
+       "output": "effectiveness",
+       "unit": "-",
+       "computed": 0.8173164759472653,
+       "reference": 0.8173164759472653,
+       "rel_error": 0.0,
+       "tol": 1e-12,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. eq. 11.35a",
+       "params": {}
+      },
+      {
+       "case": "h tubos: Gnielinski vs Dittus-Boelter",
+       "output": "h_tube",
+       "unit": "W/m2 K",
+       "computed": 6560.106791412207,
+       "reference": 6002.812597422104,
+       "rel_error": 0.09283884594855282,
+       "tol": 0.25,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Dittus & Boelter (1930), incerteza ±25 % (Incropera sec. 8.5)",
+       "params": {}
+      }
+     ],
+     "convergence": null,
+     "all_pass": true
+    },
+    "inversion": {
+     "description": "Incrustação total a partir das duas temperaturas de saída em 3 cargas (monitoramento de desempenho). Medição sintética com Rf real = 7,0e-4 m2K/W e ruído de 0.2 K nos RTDs.",
+     "parameter": "Rf total",
+     "unit": "m2 K/W",
+     "true": 0.0007,
+     "recovered": 0.0006995655859977801,
+     "ci95": [
+      0.0006470913116020764,
+      0.0007520398603934838
+     ],
+     "rel_error": 0.0006205914317426842,
+     "true_inside_ci95": true,
+     "noise": "0.2 K",
+     "how": "mínimos quadrados (Brent), IC por sensibilidade",
+     "duty_loss_vs_clean": 0.36286520285911283
+    },
+    "optimization": {
+     "objective": "menor área de tubos com T_quente <= alvo, 1 <= v <= 2,5 m/s, dp_tubos <= 70 kPa, F >= 0,75 e chicanas de 0,3-1 x D_casco (sem modelo de perda de carga do casco)",
+     "designs_scanned": 2730,
+     "n_tubes": 228,
+     "tube_length": 6.096,
+     "shell_id": 0.5221091265243311,
+     "baffle_spacing": 0.15663273795729932,
+     "area_m2": 83.18109976864524,
+     "base_area_m2": 58.37509548563378,
+     "verified_t_hot_out": 35.97971202568729,
+     "verified_ok": true
+    },
+    "figures": [
+     "results/exchanger.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/shell_tube_cooler_3d_temperature.png"
+    ],
+    "variants": {
+     "rows": {
+      "base 200 tubos 16 ft": {
+       "params": {},
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 652397.9054778272,
+        "t_hot_out": 37.19432991770965,
+        "t_cold_out": 35.24603068911276,
+        "U": 1405.1463507583537,
+        "area": 58.37509548563378,
+        "ntu": 0.981401679789528,
+        "cr": 0.8001914791766396,
+        "effectiveness": 0.48785438014314664,
+        "F": 0.8885191540392299,
+        "lmtd": 8.951516155871884,
+        "q_lmtd": 652397.9054778268,
+        "h_shell": 5258.186695561676,
+        "h_tube": 6560.106791412207,
+        "h_tube_dittus_boelter": 6002.812597422104,
+        "v_tube": 1.2896323843811275,
+        "dp_tube": 16649.26040996207,
+        "re_tube": 26281.08127923634,
+        "re_shell": 14875.804865476255
+       }
+      },
+      "chicanas 0,15 m": {
+       "params": {
+        "baffle_spacing": 0.15
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 677141.3059659696,
+        "t_hot_out": 36.89828540361367,
+        "t_cold_out": 35.48292298674935,
+        "U": 1535.186803089937,
+        "area": 58.37509548563378,
+        "ntu": 1.072226324702799,
+        "cr": 0.8001914791766396,
+        "effectiveness": 0.5063571622741457,
+        "F": 0.8702488106316678,
+        "lmtd": 8.682544862954211,
+        "q_lmtd": 677141.3059659699,
+        "h_shell": 7698.435927583446,
+        "h_tube": 6560.106791412207,
+        "h_tube_dittus_boelter": 6002.812597422104,
+        "v_tube": 1.2896323843811275,
+        "dp_tube": 16649.26040996207,
+        "re_tube": 26281.08127923634,
+        "re_shell": 29751.60973095251
+       }
+      },
+      "chicanas 0,45 m": {
+       "params": {
+        "baffle_spacing": 0.45
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 633778.7336211358,
+        "t_hot_out": 37.41710057883302,
+        "t_cold_out": 35.067771504271285,
+        "U": 1317.207539737106,
+        "area": 58.37509548563378,
+        "ntu": 0.919982243438027,
+        "cr": 0.8001914791766396,
+        "effectiveness": 0.473931213822936,
+        "F": 0.9004416902440218,
+        "lmtd": 9.153775478168882,
+        "q_lmtd": 633778.7336211359,
+        "h_shell": 4207.128814266548,
+        "h_tube": 6560.106791412207,
+        "h_tube_dittus_boelter": 6002.812597422104,
+        "v_tube": 1.2896323843811275,
+        "dp_tube": 16649.26040996207,
+        "re_tube": 26281.08127923634,
+        "re_shell": 9917.203243650834
+       }
+      },
+      "160 tubos": {
+       "params": {
+        "n_tubes": 160,
+        "shell_id": 0.4374
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 605661.4982707696,
+        "t_hot_out": 37.75351162633681,
+        "t_cold_out": 34.79857825055787,
+        "U": 1496.8254837474913,
+        "area": 46.70007638850702,
+        "ntu": 0.8363467866866692,
+        "cr": 0.8001914791766396,
+        "effectiveness": 0.4529055233539495,
+        "F": 0.9160006514041825,
+        "lmtd": 9.45900433703236,
+        "q_lmtd": 605661.4982707696,
+        "h_shell": 5590.781844912619,
+        "h_tube": 7952.1454963682145,
+        "h_tube_dittus_boelter": 7176.006041644691,
+        "v_tube": 1.612040480476409,
+        "dp_tube": 24980.316339079058,
+        "re_tube": 32851.35159904542,
+        "re_shell": 16630.700912706652
+       }
+      },
+      "tubos 12 ft": {
+       "params": {
+        "tube_length": 3.658
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 567181.5391452236,
+        "t_hot_out": 38.21390836150726,
+        "t_cold_out": 34.43017270603374,
+        "U": 1405.1463507583537,
+        "area": 43.78431398122788,
+        "ntu": 0.7361015674943805,
+        "cr": 0.8001914791766396,
+        "effectiveness": 0.4241307274057965,
+        "F": 0.9334371224581898,
+        "lmtd": 9.876359930824197,
+        "q_lmtd": 567181.5391452233,
+        "h_shell": 5258.186695561676,
+        "h_tube": 6560.106791412207,
+        "h_tube_dittus_boelter": 6002.812597422104,
+        "v_tube": 1.2896323843811275,
+        "dp_tube": 13521.85914936882,
+        "re_tube": 26281.08127923634,
+        "re_shell": 14875.804865476255
+       }
+      },
+      "incrustado 2x TEMA": {
+       "params": {
+        "rf_hot": 0.000176,
+        "rf_cold": 0.000352
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 547411.1597001537,
+        "t_hot_out": 38.45045274347746,
+        "t_cold_out": 34.24089190713407,
+        "U": 987.6096154945393,
+        "area": 58.37509548563378,
+        "ntu": 0.68977991872486,
+        "cr": 0.8001914791766396,
+        "effectiveness": 0.4093467035326587,
+        "F": 0.9409834262103731,
+        "lmtd": 10.090641087460932,
+        "q_lmtd": 547411.1597001537,
+        "h_shell": 5258.186695561676,
+        "h_tube": 6560.106791412207,
+        "h_tube_dittus_boelter": 6002.812597422104,
+        "v_tube": 1.2896323843811275,
+        "dp_tube": 16649.26040996207,
+        "re_tube": 26281.08127923634,
+        "re_shell": 14875.804865476255
+       }
+      }
+     },
+     "compared": [
+      "t_hot_out",
+      "area",
+      "v_tube"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/shell_tube_cooler_base_200_tubos_16_ft_3d_temperature.png",
+      "results/3d/variants/shell_tube_cooler_chicanas_0_15_m_3d_temperature.png",
+      "results/3d/variants/shell_tube_cooler_chicanas_0_45_m_3d_temperature.png",
+      "results/3d/variants/shell_tube_cooler_160_tubos_3d_temperature.png",
+      "results/3d/variants/shell_tube_cooler_tubos_12_ft_3d_temperature.png",
+      "results/3d/variants/shell_tube_cooler_incrustado_2x_tema_3d_temperature.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.0068008509997525834,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T01:16:34Z"
+    }
+   }
+  },
+  {
+   "name": "steam_pipe_insulation",
+   "title": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica",
+   "sector": "Processo e energia / utilidades",
+   "problem": "Linha de vapor saturado de 10 bar(a) em tubo DN150 ao ar livre, isolada com lã de rocha e revestida de alumínio. Perda de calor por metro, temperatura da superfície e a espessura que minimiza o custo anual (energia perdida + isolamento instalado anualizado).",
+   "question": "Qual espessura de isolamento minimiza o custo anual por metro, e qual a menor que mantém a superfície abaixo de 60 °C (proteção pessoal)? Quanto se perde sem isolamento?",
+   "inputs": [
+    {
+     "name": "d_pipe",
+     "unit": "m",
+     "default": 0.1683,
+     "source": "DN150 (6\"), diâmetro externo 168,3 mm (ASME B36.10M / EN 10220)",
+     "lo": 0.02,
+     "hi": 1.2,
+     "help": ""
+    },
+    {
+     "name": "t_fluid",
+     "unit": "degC",
+     "default": 179.9,
+     "source": "vapor saturado a 10 bar(a) (IAPWS-IF97: 179,88 °C)",
+     "lo": 40,
+     "hi": 600,
+     "help": ""
+    },
+    {
+     "name": "t_amb",
+     "unit": "degC",
+     "default": 10.0,
+     "source": "premissa: média anual do ar externo de clima temperado",
+     "lo": -30,
+     "hi": 45,
+     "help": ""
+    },
+    {
+     "name": "wind",
+     "unit": "m/s",
+     "default": 3.0,
+     "source": "premissa: vento médio de 3 m/s ao ar livre",
+     "lo": 0,
+     "hi": 20,
+     "help": ""
+    },
+    {
+     "name": "thickness",
+     "unit": "m",
+     "default": 0.06,
+     "source": "premissa: 60 mm, espessura comum em linhas de vapor de média pressão",
+     "lo": 0,
+     "hi": 0.3,
+     "help": ""
+    },
+    {
+     "name": "k0",
+     "unit": "W/m K",
+     "default": 0.036,
+     "source": "lã de rocha: lambda(T) = k0 + k1 T; ordem dos valores declarados de seções de lã de rocha (EN 14303): ~0,041 a 50 °C, ~0,046 a 100 °C, ~0,056 a 200 °C",
+     "lo": 0.015,
+     "hi": 0.1,
+     "help": ""
+    },
+    {
+     "name": "k1",
+     "unit": "W/m K2",
+     "default": 0.0001,
+     "source": "inclinação da mesma curva lambda(T)",
+     "lo": 0,
+     "hi": 0.0005,
+     "help": ""
+    },
+    {
+     "name": "eps",
+     "unit": "-",
+     "default": 0.05,
+     "source": "alumínio brilhante: emissividade 0,05 (ISO 12241 Tab. 4)",
+     "lo": 0.03,
+     "hi": 0.95,
+     "help": ""
+    },
+    {
+     "name": "hours",
+     "unit": "h/yr",
+     "default": 8000.0,
+     "source": "premissa: operação contínua com paradas de manutenção",
+     "lo": 500,
+     "hi": 8760,
+     "help": ""
+    },
+    {
+     "name": "energy_price",
+     "unit": "EUR/kWh",
+     "default": 0.05,
+     "source": "premissa: gás natural industrial, ordem de grandeza Eurostat nrg_pc_203 (consumidores não-residenciais) 2023-2024",
+     "lo": 0.005,
+     "hi": 0.5,
+     "help": ""
+    },
+    {
+     "name": "efficiency",
+     "unit": "-",
+     "default": 0.88,
+     "source": "premissa: caldeira + distribuição, 88 %",
+     "lo": 0.5,
+     "hi": 1.0,
+     "help": ""
+    },
+    {
+     "name": "cost_per_m3",
+     "unit": "EUR/m3",
+     "default": 900.0,
+     "source": "premissa: lã de rocha instalada (material + mão de obra) por m3",
+     "lo": 100,
+     "hi": 5000,
+     "help": ""
+    },
+    {
+     "name": "cost_per_m2",
+     "unit": "EUR/m2",
+     "default": 40.0,
+     "source": "premissa: revestimento de alumínio instalado por m2",
+     "lo": 0,
+     "hi": 300,
+     "help": ""
+    },
+    {
+     "name": "rate",
+     "unit": "-",
+     "default": 0.08,
+     "source": "premissa: custo de capital 8 % ao ano (VDI 2055-1 sec. 6)",
+     "lo": 0.0,
+     "hi": 0.3,
+     "help": ""
+    },
+    {
+     "name": "years",
+     "unit": "yr",
+     "default": 10.0,
+     "source": "premissa: vida econômica do isolamento 10 anos",
+     "lo": 1,
+     "hi": 40,
+     "help": ""
+    },
+    {
+     "name": "t_surface_max",
+     "unit": "degC",
+     "default": 60.0,
+     "source": "premissa usual de especificação para proteção pessoal (ISO 13732-1: limiar de queimadura de metal ~60 °C para contato de ~5 s)",
+     "lo": 40,
+     "hi": 80,
+     "help": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "q",
+     "unit": "W/m",
+     "help": "perda de calor por metro com a espessura dada"
+    },
+    {
+     "name": "t_surface",
+     "unit": "degC",
+     "help": "temperatura da superfície do revestimento"
+    },
+    {
+     "name": "q_bare",
+     "unit": "W/m",
+     "help": "perda do tubo nu (pintado, eps 0,9)"
+    },
+    {
+     "name": "saving",
+     "unit": "-",
+     "help": "fração da perda evitada"
+    },
+    {
+     "name": "annual_cost",
+     "unit": "EUR/m/yr",
+     "help": "custo anual por metro com a espessura dada"
+    },
+    {
+     "name": "t_economic",
+     "unit": "m",
+     "help": "espessura econômica (entre as espessuras comerciais)"
+    },
+    {
+     "name": "t_safe",
+     "unit": "m",
+     "help": "menor espessura com superfície <= limite"
+    }
+   ],
+   "validity": "Regime permanente, tubo horizontal, isolamento homogêneo e seco com lambda linear em T, sem pontes térmicas (suportes, flanges e válvulas acrescentam tipicamente 10-25 %, VDI 2055), resistência da parede e do filme interno desprezadas (lado seguro).",
+   "pipeline": [
+    "geometria: tubo DN, camada de isolamento, revestimento",
+    "modelo: condução radial com lambda(T) (transformada de Kirchhoff), radiação + convecção mista (Churchill-Chu e Churchill-Bernstein)",
+    "solver: heat_loss (bisseção da temperatura de superfície); radial_fd (volumes finitos) para checar",
+    "pós: perda W/m, temperatura de superfície, custo anual por espessura comercial",
+    "decisão: espessura >= max(econômica, segura)"
+   ],
+   "library": [
+    "pinneapple_physics.closed_form.pipe_insulation.heat_loss",
+    "pinneapple_physics.closed_form.pipe_insulation.economic_thickness",
+    "pinneapple_physics.closed_form.pipe_insulation.radial_fd"
+   ],
+   "limitations": [],
+   "capabilities": {
+    "3d": true,
+    "surrogate": false,
+    "inversion": true,
+    "optimization": true,
+    "variants": true,
+    "reason": false
+   },
+   "missing": {
+    "surrogate": "forma fechada (< 1 ms por avaliação): um surrogate não economiza tempo",
+    "reason": "o caso do telhado (roof) cobre isolamento de forro, não de tubulação"
+   },
+   "reason_case": null,
+   "references": [],
+   "usage": {
+    "python": "import pinneapple as pp\nr = pp.presets.load(\"steam_pipe_insulation\").run()\nprint(r)",
+    "cli": "python -m pinneapple_presets run steam_pipe_insulation",
+    "flow": {
+     "type": "preset.run",
+     "params": {
+      "preset": "steam_pipe_insulation"
+     }
+    }
+   },
+   "results": {
+    "folder": "examples/industrial_presets/steam_pipe_insulation",
+    "decision": {
+     "verdict": "NOT OK",
+     "reasons": [
+      "perda 87.2 W/m (nu: 2402 W/m, 96.4 % evitado), superfície 17.0 °C",
+      "espessura econômica 100 mm; menor segura (<= 60 °C) 20 mm; dada 60 mm"
+     ]
+    },
+    "trust": {
+     "decision": "APPROVED",
+     "score": 1.0,
+     "coverage": 1.0,
+     "checks": [
+      {
+       "name": "Kirchhoff closed form = finite volumes with k(T)",
+       "status": "supports",
+       "value": 1.6214455193168763e-07,
+       "limit": 0.0001,
+       "source": "radial_fd (Picard, 400 volumes)",
+       "reason": ""
+      },
+      {
+       "name": "FV energy balance: inner flow = outer flow",
+       "status": "supports",
+       "value": 3.4713363537987196e-13,
+       "limit": 1e-08,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "surface between ambient and fluid",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "Churchill-Bernstein range Re Pr > 0.2",
+       "status": "supports",
+       "value": 58820.64564833374,
+       "limit": null,
+       "source": "Incropera eq. 7.54",
+       "reason": ""
+      },
+      {
+       "name": "insulation thicker than the critical radius (adds resistance)",
+       "status": "supports",
+       "value": 87.15636198690117,
+       "limit": 2402.4939215349427,
+       "source": "",
+       "reason": ""
+      },
+      {
+       "name": "inside the validity domain",
+       "status": "supports",
+       "value": null,
+       "limit": null,
+       "source": "preset data sheet",
+       "reason": ""
+      }
+     ]
+    },
+    "validation": {
+     "preset": "steam_pipe_insulation",
+     "references": [
+      {
+       "case": "perda com 30 mm: Kirchhoff vs volumes finitos com k(T)",
+       "output": "q",
+       "unit": "W/m",
+       "computed": 148.46486995014587,
+       "reference": 148.4648773078601,
+       "rel_error": 4.955861856334466e-08,
+       "tol": 0.0001,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "radial_fd: equação de calor radial com k(T) resolvida numericamente",
+       "params": {}
+      },
+      {
+       "case": "perda com 60 mm: Kirchhoff vs volumes finitos com k(T)",
+       "output": "q",
+       "unit": "W/m",
+       "computed": 87.15636198690117,
+       "reference": 87.15637611883044,
+       "rel_error": 1.621445256408362e-07,
+       "tol": 0.0001,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "radial_fd: equação de calor radial com k(T) resolvida numericamente",
+       "params": {}
+      },
+      {
+       "case": "perda com 120 mm: Kirchhoff vs volumes finitos com k(T)",
+       "output": "q",
+       "unit": "W/m",
+       "computed": 53.88511793633764,
+       "reference": 53.88514466389179,
+       "rel_error": 4.960096946394748e-07,
+       "tol": 0.0001,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "radial_fd: equação de calor radial com k(T) resolvida numericamente",
+       "params": {}
+      },
+      {
+       "case": "k constante: resistências em série (Incropera eq. 3.27)",
+       "output": "q",
+       "unit": "W/m",
+       "computed": 85.61095406918896,
+       "reference": 85.61095406918898,
+       "rel_error": 1.6599341602614414e-16,
+       "tol": 1e-06,
+       "pass": true,
+       "kind": "analytic",
+       "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, eq. 3.27",
+       "params": {}
+      },
+      {
+       "case": "h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert",
+       "output": "h_cv",
+       "unit": "W/m2 K",
+       "computed": 13.399478168165762,
+       "reference": 14.286414474815093,
+       "rel_error": 0.06208249860123212,
+       "tol": 0.15,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "Hilpert (1933) com as constantes da Tabela 7.2 de Incropera (incerteza ~±20 %)",
+       "params": {}
+      },
+      {
+       "case": "h natural (sem vento): Churchill-Chu vs McAdams 1,32 (dT/D)^0,25",
+       "output": "h_cv",
+       "unit": "W/m2 K",
+       "computed": 4.551380738186164,
+       "reference": 4.215927018970073,
+       "rel_error": 0.07956819881052872,
+       "tol": 0.15,
+       "pass": true,
+       "kind": "independent_solver",
+       "source": "McAdams, Heat Transmission (1954): cilindro horizontal laminar em ar",
+       "params": {}
+      }
+     ],
+     "convergence": {
+      "parameter": "volumes radiais",
+      "values": [
+       25,
+       50,
+       100,
+       200
+      ],
+      "q": [
+       87.15997923472703,
+       87.15726640010428,
+       87.15658809653209,
+       87.15641851472309
+      ],
+      "rel_change_last": 1.9457179619596715e-06,
+      "pass": true
+     },
+     "all_pass": true
+    },
+    "inversion": {
+     "description": "Fator de condutividade efetiva do isolamento envelhecido/úmido a partir de termografia da superfície (5 leituras, ventos de 0,5 a 8 m/s). Medição sintética com fator real 1.6 e ruído de 0.5 K.",
+     "parameter": "k_eff / k_novo",
+     "true": 1.6,
+     "recovered": 1.6050597430764229,
+     "ci95": [
+      1.5484372792961427,
+      1.661682206856703
+     ],
+     "rel_error": 0.0031623394227642265,
+     "true_inside_ci95": true,
+     "noise": "0.5 K",
+     "how": "mínimos quadrados (Brent) sobre o modelo de perda, IC por sensibilidade"
+    },
+    "optimization": {
+     "objective": "custo anual mínimo por metro (energia + isolamento anualizado), superfície <= limite",
+     "economic_thickness_m": 0.1,
+     "economic_annual_cost": 45.82248908920926,
+     "recommended_thickness_m": 0.1,
+     "verified_t_surface": 14.190282565014513,
+     "verified_annual_cost": 45.82248908920926,
+     "base_annual_cost": 50.787633945908695,
+     "bare_annual_energy_cost": 678.4926404044119,
+     "payback_years_vs_bare": 0.18765872604162695
+    },
+    "figures": [
+     "results/insulation.png",
+     "results/variants.png"
+    ],
+    "figures_3d": [
+     "results/3d/steam_pipe_insulation_3d_temperature.png"
+    ],
+    "variants": {
+     "rows": {
+      "40 mm": {
+       "params": {
+        "thickness": 0.04
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 118.49423252026222,
+        "t_surface": 20.540508456338657,
+        "h_surface": 14.411495787985402,
+        "re": 50129.87525361417,
+        "q_bare": 2402.4939215349427,
+        "saving": 0.9506786546021491,
+        "annual_cost": 62.02194010764679,
+        "t_economic": 0.1,
+        "t_safe": 0.02,
+        "q_fd": 118.49424221207416,
+        "fd_balance": 2.6959960925864224e-13
+       }
+      },
+      "60 mm (base)": {
+       "params": {},
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 87.15636198690117,
+        "t_surface": 17.048783137066117,
+        "h_surface": 13.65181610762672,
+        "re": 58820.64564833374,
+        "q_bare": 2402.4939215349427,
+        "saving": 0.9637225463067073,
+        "annual_cost": 50.787633945908695,
+        "t_economic": 0.1,
+        "t_safe": 0.02,
+        "q_fd": 87.15637611883044,
+        "fd_balance": 3.4713363537987196e-13
+       }
+      },
+      "100 mm": {
+       "params": {
+        "thickness": 0.1
+       },
+       "verdict": "OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 60.76341071961418,
+        "t_surface": 14.190282565014513,
+        "h_surface": 12.532774970573913,
+        "re": 75798.43778520693,
+        "q_bare": 2402.4939215349427,
+        "saving": 0.9747081937752448,
+        "annual_cost": 45.82248908920926,
+        "t_economic": 0.1,
+        "t_safe": 0.02,
+        "q_fd": 60.76343329494307,
+        "fd_balance": 6.852444316869617e-14
+       }
+      },
+      "60 mm, chapa pintada eps 0,9": {
+       "params": {
+        "eps": 0.9
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 87.90357956282445,
+        "t_surface": 15.347261140841972,
+        "h_surface": 18.150168092165917,
+        "re": 59125.107872021144,
+        "q_bare": 2402.4939215349427,
+        "saving": 0.9634115288388896,
+        "annual_cost": 51.12727829860109,
+        "t_economic": 0.1,
+        "t_safe": 0.02,
+        "q_fd": 87.90359381594692,
+        "fd_balance": 4.0011862875331383e-13
+       }
+      },
+      "60 mm, abrigado (sem vento)": {
+       "params": {
+        "wind": 0.0
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 81.13263709512306,
+        "t_surface": 30.49496506652877,
+        "h_surface": 4.37072915317286,
+        "re": 0.0,
+        "q_bare": 1609.3665136077125,
+        "saving": 0.9495872217986888,
+        "annual_cost": 48.04957717691864,
+        "t_economic": 0.1,
+        "t_safe": 0.02,
+        "q_fd": 81.13265025035675,
+        "fd_balance": 3.960272764654381e-13
+       }
+      },
+      "60 mm, vapor 20 bar (212 °C)": {
+       "params": {
+        "t_fluid": 212.4
+       },
+       "verdict": "NOT OK",
+       "trust": "APPROVED",
+       "outputs": {
+        "q": 107.529873775278,
+        "t_surface": 18.694216436174806,
+        "h_surface": 13.655392053810461,
+        "re": 58529.18718148482,
+        "q_bare": 3035.2936501859544,
+        "saving": 0.9645734857420829,
+        "annual_cost": 60.04832112244362,
+        "t_economic": 0.1,
+        "t_safe": 0.02,
+        "q_fd": 107.52989121073243,
+        "fd_balance": 2.045794229998911e-13
+       }
+      }
+     },
+     "compared": [
+      "q",
+      "t_surface",
+      "annual_cost"
+     ],
+     "gallery_3d": [
+      "results/3d/variants/steam_pipe_insulation_40_mm_3d_temperature.png",
+      "results/3d/variants/steam_pipe_insulation_60_mm_base_3d_temperature.png",
+      "results/3d/variants/steam_pipe_insulation_100_mm_3d_temperature.png",
+      "results/3d/variants/steam_pipe_insulation_60_mm_chapa_pintada_eps_0_9_3d_temperature.png",
+      "results/3d/variants/steam_pipe_insulation_60_mm_abrigado_sem_vento_3d_temperature.png",
+      "results/3d/variants/steam_pipe_insulation_60_mm_vapor_20_bar_212_c_3d_temperature.png"
+     ]
+    },
+    "meta": {
+     "wall_time_s": 0.0732124199998907,
+     "versions": {
+      "python": "3.13.17",
+      "pinneapple": "0.7.0",
+      "numpy": "2.5.3",
+      "scipy": "1.18.1",
+      "torch": "2.14.1"
+     },
+     "hardware": {
+      "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+      "cores": 4,
+      "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+     },
+     "date_utc": "2026-10-24T01:17:20Z"
+    }
+   }
+  },
+  {
    "name": "steel_footbridge_pedestrian",
    "title": "Passarela de aço de 30 m: resistência, flecha, flambagem lateral e vibração de pedestres",
    "sector": "Estrutural / construção",

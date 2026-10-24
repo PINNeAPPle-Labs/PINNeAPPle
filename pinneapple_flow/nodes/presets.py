@@ -8,15 +8,16 @@ from ..registry import Param, Port, node
 
 #: kept literal so registering the nodes imports nothing heavy; tests/test_presets.py checks it equals
 #: pinneapple_presets.names()
-PRESETS = ["plate_fin_heatsink_forced", "power_pcb_junction", "steel_footbridge_pedestrian",
-           "water_distribution_network", "water_hammer_valve_closure"]
+PRESETS = ["plate_fin_heatsink_forced", "power_pcb_junction", "pressure_vessel_asme", "pump_npsh_cavitation",
+           "shell_tube_cooler", "steam_pipe_insulation", "steel_footbridge_pedestrian", "water_distribution_network",
+           "water_hammer_valve_closure"]
 _TAGS = ("section:solvers", "industrial presets", "validated cases", "engineering")
 
 
 @node("preset.run", "Industrial preset", category="Solve",
       inputs=[Port("params", "params", required=False, help="parameter values overriding the data-sheet defaults")],
       outputs=[Port("metrics", "metrics"), Port("report", "report")],
-      params=[Param("preset", "enum", PRESETS[-1], choices=PRESETS, help="the engineering case"),
+      params=[Param("preset", "enum", "water_hammer_valve_closure", choices=PRESETS, help="the engineering case"),
               Param("overrides", "dict", {}, help="input name -> value in SI units (see the preset data sheet)"),
               Param("fidelity", "enum", "solver", choices=["solver", "surrogate"],
                     help="the real solver, or the trained surrogate (flagged outside its training box)")],
@@ -44,7 +45,7 @@ def run_preset(ctx, inputs, params):
 
 @node("preset.validate", "Validate preset", category="Validate",
       outputs=[Port("metrics", "metrics")],
-      params=[Param("preset", "enum", PRESETS[-1], choices=PRESETS, help="the engineering case")],
+      params=[Param("preset", "enum", "water_hammer_valve_closure", choices=PRESETS, help="the engineering case")],
       calls="pinneapple_presets.load(name).validate()", tags=("section:validation", "industrial presets"))
 def validate_preset(ctx, inputs, params):
     """Run the preset's reference cases (standard, benchmark, analytic, independent solver) and measure the error."""

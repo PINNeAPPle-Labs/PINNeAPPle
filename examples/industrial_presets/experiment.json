@@ -37,6 +37,54 @@
    "kind": "sanity"
   },
   {
+   "name": "pressure_vessel_asme: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "pump_npsh_cavitation: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "shell_tube_cooler: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "steam_pipe_insulation: validation",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
    "name": "steel_footbridge_pedestrian: validation",
    "passed": true,
    "value": null,
@@ -85,9 +133,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "e85b9d84",
-  "created": "2026-10-24T01:10:06Z",
-  "seconds": 0.005,
+  "git": "4e59c29f",
+  "created": "2026-10-24T01:23:13Z",
+  "seconds": 0.013,
   "error": null,
   "environment": {
    "python": "3.13.17",

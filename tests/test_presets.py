@@ -255,7 +255,10 @@ def test_eddy_fdm_block_solve_equals_complex_solve_and_dodd_deeds_limits():
 
     from pinneapple_physics.closed_form.eddy_coil import MU0, coil_impedance
     from pinneapple_simulation.numerical_solvers.eddy_current_fdm import (
-        annular_current_source, build_axisymmetric_helmholtz_system, solve_axisymmetric_eddy_current)
+        annular_current_source,
+        build_axisymmetric_helmholtz_system,
+        solve_axisymmetric_eddy_current,
+    )
     r = np.linspace(0, 0.02, 41)
     z = np.linspace(-0.02, 0.02, 81)
     RR, ZZ = np.meshgrid(r, z, indexing="ij")

@@ -42,19 +42,17 @@
   }
  ],
  "convergence": {
-  "parameter": "n_theta",
+  "parameter": "n_theta (12 posi\u00e7\u00f5es por passo de ranhura)",
   "values": [
-   240,
    360,
-   480
+   720
   ],
   "torque": [
-   7.004358231957862,
-   7.045183835971361,
-   7.149062102667419
+   7.041840666997937,
+   7.020089525723287
   ],
-  "rel_change_last": 0.014530334917261321,
-  "pass": false
+  "rel_change_last": 0.0030984136591063883,
+  "pass": true
  },
- "all_pass": false
+ "all_pass": true
 }

@@ -1,0 +1,174 @@
+{
+ "preset": "steel_footbridge_pedestrian",
+ "fidelity": "solver",
+ "params": {
+  "span": 30.0,
+  "deck_width": 2.5,
+  "deck_dead_load": 3000.0,
+  "girder_h": 0.8,
+  "girder_b": 0.25,
+  "girder_tf": 0.02,
+  "girder_tw": 0.01,
+  "fy": 355000000.0,
+  "lateral_braces": 0,
+  "damping_ratio": 0.005,
+  "pedestrian_weight": 700.0,
+  "acc_max": 0.7,
+  "deflection_ratio": 360.0
+ },
+ "outputs": {
+  "f1": 1.5228499849995847,
+  "acceleration": 0.1895459552100568,
+  "deflection": 0.13306653683262798,
+  "deflection_limit": 0.08333333333333333,
+  "util_bending": 0.9666906089183886,
+  "util_ltb": 14.804187987243408,
+  "M_cr": 133011.91583548186,
+  "M_Ed": 1619054.6772825,
+  "steel_mass": 8289.6,
+  "mass_per_m": 1041.1071597334462,
+  "modal_mass": 15616.607396001693,
+  "EI_total": 792601600.000001,
+  "qk": 5000.0,
+  "passed": {
+   "bending_strength": true,
+   "deflection": false,
+   "lateral_torsional_buckling": false,
+   "pedestrian_resonance": true
+  },
+  "section_class3": [
+   true,
+   76.0,
+   100.88844766988656,
+   6.0,
+   11.390631188535579
+  ],
+  "f1_fe": 1.522850026136681,
+  "f2_fe": 6.091402514330896,
+  "deflection_fe": 0.13306653683267058,
+  "fe_equilibrium": 1.8835999071598053e-12
+ },
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "f1 = 1.52 Hz, acelera\u00e7\u00e3o 0.19 m/s2 (limite 0.7)",
+   "utiliza\u00e7\u00e3o flambagem lateral 14.80",
+   "utiliza\u00e7\u00e3o flex\u00e3o 0.97; flecha 133 mm (limite 83 mm)",
+   "n\u00e3o atende: flecha (ELS), flambagem lateral"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "solver vs closed form: FD beam deflection",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 5.0661012653284865e-06,
+    "limit": 0.01,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+    "reason": ""
+   },
+   {
+    "name": "equilibrium: FD support reactions = applied load",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.007499946919012,
+    "limit": 0.01,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD)",
+    "reason": ""
+   },
+   {
+    "name": "solver vs closed form: Rayleigh frequency from FD deflection",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.000709572229514663,
+    "limit": 0.005,
+    "source": "pinneapple_simulation.numerical_solvers.beam_bvp_fdm.solve_euler_bernoulli_beam_1d (4th-order FD) + Rayleigh's method (static deflection shape)",
+    "reason": ""
+   },
+   {
+    "name": "FE beam: 1st frequency = closed form",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.7013229668832024e-08,
+    "limit": 0.001,
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "reason": ""
+   },
+   {
+    "name": "FE beam: crowd deflection = closed form",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 3.2017672950772745e-13,
+    "limit": 0.001,
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "reason": ""
+   },
+   {
+    "name": "FE equilibrium: reactions = applied load",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.8835999071598053e-12,
+    "limit": 1e-09,
+    "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+    "reason": ""
+   },
+   {
+    "name": "cross-section class <= 3 (the elastic checks above hold)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 76.0,
+    "limit": 100.88844766988656,
+    "source": "EN 1993-1-1 Table 5.2",
+    "reason": "web c/t 76 (<= 101), flange c/t 6.0 (<= 11.4)"
+   },
+   {
+    "name": "EN 1990 A2 needs the comfort check (f1 < 5 Hz)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.5228499849995847,
+    "limit": 5.0,
+    "source": "EN 1990:2002 Anexo A2, A2.4.3.2: acelera\u00e7\u00e3o vertical <= 0,7 m/s2 (recomendado)",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 0.01638795899998513,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T00:56:11Z"
+ }
+}

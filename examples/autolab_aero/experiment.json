@@ -1,0 +1,352 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/autolab_aero",
+ "title": "The AI Aerodynamicist (Autonomous Physics Lab)",
+ "description": "Lower drag at 70 m/s keeping the downforce and the aero balance: OpenFOAM 3-D on a parametric racing car, surrogates compared on held-out CFD, NSGA-II on the surrogate, every candidate triaged (favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the recommendation verified by CFD.",
+ "domain": "external aerodynamics",
+ "methods": [
+  "OpenFOAM simpleFoam k-omega SST",
+  "snappyHexMesh",
+  "Gaussian process",
+  "MLP ensemble",
+  "quadratic response surface",
+  "POD + GP surface field",
+  "NSGA-II",
+  "active learning"
+ ],
+ "modules": [
+  "pinneapple_autolab",
+  "pinneapple_simulation.numerical_solvers.external_flow",
+  "pinneapple_design.geometry.vehicles3d",
+  "pinneapple_design.design_optimizer",
+  "pinneapple_analysis.trust"
+ ],
+ "params": {
+  "budget": 20,
+  "reserve": 3,
+  "doe": 10,
+  "mesh": "campaign",
+  "iterations": 800,
+  "no_qualify": false,
+  "seed": 0,
+  "report_only": true,
+  "dashboard": true,
+  "confirm_fine": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "cfd_runs",
+   "value": 20.0,
+   "unit": "runs",
+   "how": "OpenFOAM runs charged to the mission budget"
+  },
+  {
+   "name": "cfd_wall",
+   "value": 11840.2,
+   "unit": "s",
+   "how": "summed wall time of the mission's OpenFOAM runs, 4 cores"
+  },
+  {
+   "name": "failed_runs",
+   "value": 0.0,
+   "unit": "runs",
+   "how": "runs that did not finish"
+  },
+  {
+   "name": "mesh_drag_N_vs_fine",
+   "value": -0.2274348209939454,
+   "unit": "%",
+   "how": "baseline: campaign mesh vs fine mesh"
+  },
+  {
+   "name": "mesh_downforce_N_vs_fine",
+   "value": -8.40857266320646,
+   "unit": "%",
+   "how": "baseline: campaign mesh vs fine mesh"
+  },
+  {
+   "name": "mesh_balance_front_vs_fine",
+   "value": 9.60069709783955,
+   "unit": "%",
+   "how": "baseline: campaign mesh vs fine mesh"
+  },
+  {
+   "name": "drag_change",
+   "value": -15.667219882799474,
+   "unit": "%",
+   "how": "best simulated feasible vs baseline (CFD)"
+  },
+  {
+   "name": "drag_best",
+   "value": 2795.476711173259,
+   "unit": "N",
+   "how": "CFD of the recommended design"
+  },
+  {
+   "name": "downforce_best",
+   "value": 7318.832880603657,
+   "unit": "N",
+   "how": "CFD of the recommended design"
+  },
+  {
+   "name": "drag_change_fine",
+   "value": -13.945206047386797,
+   "unit": "%",
+   "how": "recommended vs baseline, both on the fine mesh"
+  },
+  {
+   "name": "cv_rel_error_drag_N",
+   "value": 2.352359865034112,
+   "unit": "%",
+   "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+  },
+  {
+   "name": "cv_rel_error_downforce_N",
+   "value": 10.206190374761313,
+   "unit": "%",
+   "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+  },
+  {
+   "name": "cv_rel_error_balance_front",
+   "value": 4.3139069742995,
+   "unit": "%",
+   "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+  }
+ ],
+ "checks": [
+  {
+   "name": "recommendation_meets_downforce",
+   "passed": true,
+   "value": 7318.832880603657,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 7038.380569334864,
+   "detail": "",
+   "label": "downforce >= baseline (CFD)",
+   "kind": "physical"
+  },
+  {
+   "name": "recommendation_lowers_drag",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "drag below the baseline's (CFD)",
+   "kind": "physical"
+  },
+  {
+   "name": "fine_mesh_confirms_lower_drag",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "the drag reduction holds on the fine mesh",
+   "kind": "reference"
+  },
+  {
+   "name": "fine_mesh_confirms_downforce",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "label": "the downforce limit holds on the fine mesh (margin within the iteration noise of the fine runs)",
+   "kind": "reference"
+  },
+  {
+   "name": "fine_mesh_balance_limit",
+   "passed": false,
+   "value": 1.0292937835763079,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1.0183527818781983,
+   "min": 0.8331977306276168,
+   "detail": "",
+   "label": "the aero-balance limit holds on the fine mesh",
+   "kind": "reference"
+  },
+  {
+   "name": "run018-verification_drag_N_prediction",
+   "passed": true,
+   "value": 0.0029463341341406097,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "label": "run018-verification: surrogate drag_N within 3 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run018-verification_downforce_N_prediction",
+   "passed": true,
+   "value": 0.00983964441632068,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "label": "run018-verification: surrogate downforce_N within 5 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run018-verification_balance_front_prediction",
+   "passed": true,
+   "value": 0.0006478557343131957,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "label": "run018-verification: surrogate balance_front within 5 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run019-verification_drag_N_prediction",
+   "passed": false,
+   "value": 0.03655897711716442,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "label": "run019-verification: surrogate drag_N within 3 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run019-verification_downforce_N_prediction",
+   "passed": false,
+   "value": 0.09096597147179837,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "label": "run019-verification: surrogate downforce_N within 5 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run019-verification_balance_front_prediction",
+   "passed": true,
+   "value": 0.023154441919406257,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "label": "run019-verification: surrogate balance_front within 5 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run020-verification_drag_N_prediction",
+   "passed": false,
+   "value": 0.03762586984920314,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.03,
+   "min": null,
+   "detail": "",
+   "label": "run020-verification: surrogate drag_N within 3 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run020-verification_downforce_N_prediction",
+   "passed": false,
+   "value": 0.05075241522207402,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "label": "run020-verification: surrogate downforce_N within 5 % of CFD",
+   "kind": "reference"
+  },
+  {
+   "name": "run020-verification_balance_front_prediction",
+   "passed": true,
+   "value": 0.03251655177773211,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.05,
+   "min": null,
+   "detail": "",
+   "label": "run020-verification: surrogate balance_front within 5 % of CFD",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "_out/figures/pareto.png",
+   "_out/figures/models.png",
+   "_out/figures/learning.png",
+   "_out/figures/trust_abc.png",
+   "_out/figures/cp_numerical_prediction_error.png",
+   "_out/figures/baseline_cp_top.png",
+   "_out/figures/baseline_cp_bottom.png",
+   "_out/figures/baseline_streamlines.png",
+   "_out/figures/baseline_cp_paraview.png",
+   "_out/figures/baseline_wireframe.png",
+   "_out/figures/baseline_midplane_cp.png",
+   "_out/figures/baseline_wake_vorticity.png",
+   "_out/figures/baseline_cycles_streamlines.png",
+   "_out/figures/baseline_cycles_cp.png",
+   "_out/figures/best_cp_top.png",
+   "_out/figures/best_cp_bottom.png",
+   "_out/figures/best_streamlines.png",
+   "_out/figures/best_cp_paraview.png",
+   "_out/figures/best_wireframe.png",
+   "_out/figures/best_midplane_cp.png",
+   "_out/figures/best_wake_vorticity.png",
+   "_out/figures/best_cycles_streamlines.png",
+   "_out/figures/best_cycles_cp.png",
+   "_out/figures/dashboard.png"
+  ],
+  "videos": [
+   "_out/figures/dashboard_replay.mp4"
+  ],
+  "viewers": [],
+  "data": []
+ },
+ "links": {
+  "script": "examples/autolab_aero/autolab_aero.py",
+  "report": "examples/autolab_aero/_out/report.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "89bfe670",
+  "created": "2026-10-24T19:35:00Z",
+  "seconds": 249.615,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

@@ -1,0 +1,113 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/autolab",
+ "title": "Autonomous Physics Lab",
+ "description": "Missions in plain language planned and run through controlled library tools, ending in a verified decision with its evidence: the self-optimizing engineer (board cooling).",
+ "domain": "design and geometry",
+ "methods": [
+  "3-D board FV",
+  "heat-sink FV + correlations",
+  "POD-GPR",
+  "differential evolution"
+ ],
+ "modules": [
+  "pinneapple_autolab",
+  "pinneapple_design.thermal.board_cooling"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "baseline_tj_soc",
+   "value": 323.2144491142498,
+   "unit": "\u00b0C",
+   "how": "bare board, still air, reference solve"
+  },
+  {
+   "name": "verified_tj_soc_pessimistic",
+   "value": 88.52504297676208,
+   "unit": "\u00b0C",
+   "how": "fine-grid coupled solve, pessimistic cooling"
+  },
+  {
+   "name": "holdout_tj_max_abs_error",
+   "value": 2.2030649404285896,
+   "unit": "K",
+   "how": "surrogate vs reference on 45 unseen designs"
+  },
+  {
+   "name": "holdout_map_rmse",
+   "value": 0.2031511632505125,
+   "unit": "K",
+   "how": "board-top map on unseen designs"
+  },
+  {
+   "name": "reference_solves",
+   "value": 224.0,
+   "unit": "solves",
+   "how": "training + hold-out"
+  },
+  {
+   "name": "heat_sink_mass",
+   "value": 29.62702070224298,
+   "unit": "g",
+   "how": "closed form of the verified design"
+  }
+ ],
+ "checks": [
+  {
+   "name": "every part within its junction limit (pessimistic, fine grid)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "physics"
+  },
+  {
+   "name": "trust report decision",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "APPROVED []",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "_out/self_optimizing_engineer/figures/maps_before_after.png",
+   "_out/self_optimizing_engineer/figures/tmax_evolution.png",
+   "_out/self_optimizing_engineer/figures/surrogate_holdout.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "_out/self_optimizing_engineer/report.md"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/autonomous_physics_lab.md",
+  "script": "examples/autolab/self_optimizing_engineer.py"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "f33fa445",
+  "created": "2026-10-24T01:30:08Z",
+  "seconds": 397.761,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

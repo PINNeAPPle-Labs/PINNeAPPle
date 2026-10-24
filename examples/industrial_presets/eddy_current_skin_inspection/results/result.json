@@ -1,0 +1,115 @@
+{
+ "preset": "eddy_current_skin_inspection",
+ "fidelity": "solver",
+ "params": {
+  "f": 10000.0,
+  "sigma": 17400000.0,
+  "thickness": 0.002,
+  "liftoff": 0.0005,
+  "r1": 0.002,
+  "r2": 0.004,
+  "height": 0.002,
+  "turns": 200.0,
+  "loss": 0.1,
+  "liftoff_noise": 5e-05,
+  "noise_frac": 0.002,
+  "angle_min": 20.0
+ },
+ "outputs": {
+  "dR": 1.016954302254925,
+  "dX": -1.974827269036844,
+  "R_norm": 0.07936888236010123,
+  "X_norm": 0.8458732778354336,
+  "delta": 0.0012065505098387756,
+  "X0": 12.813010237953765,
+  "t_over_delta": 1.6576181301081614,
+  "signal_loss": 0.024236246531877618,
+  "signal_liftoff": 0.09030770775821091,
+  "phase_angle_deg": 26.635382653296546,
+  "phase_lag_rad": -2.676717528761185,
+  "signal_perp": 0.010865380325790902,
+  "separation": 2.4457341975664506
+ },
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "delta = 1.21 mm, t/delta = 1.66",
+   "sinal do afinamento de 10 %: 24.24 mohm, lift-off \u00b150 um: 90.31 mohm, \u00e2ngulo de fase entre eles 27\u00b0",
+   "componente perpendicular / ru\u00eddo = 2.4 (m\u00edn. 3); \u00e2ngulo 27\u00b0 (m\u00edn. 20\u00b0)"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "passive load: dR >= 0 (eddy losses)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 1.016954302254925,
+    "limit": 0.0,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "conductor lowers the inductance: dX <= 0",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": -1.974827269036844,
+    "limit": 0.0,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "coil geometry r2 > r1",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "quasi-static: probe much smaller than the wavelength",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 0.008,
+    "limit": 300.0,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 0.07168110899999647,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T17:01:36Z"
+ }
+}

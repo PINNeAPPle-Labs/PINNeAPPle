@@ -73,14 +73,15 @@ def check_rows(checks: Sequence[Any]) -> list[dict[str, Any]]:
         if d.get("passed") is None and d.get("status") is not None:
             d["passed"] = {"supports": True, "contradicts": False}.get(d["status"])
         rows.append({"name": d.get("name", "?"), "value": d.get("value"), "limit": d.get("limit"),
-                     "passed": d.get("passed"), "detail": d.get("detail") or d.get("reason") or ""})
+                     "passed": d.get("passed"), "detail": d.get("detail") or d.get("reason") or "",
+                     "kind": d.get("kind", "max")})
     return rows
 
 
 def checks_figure(checks: Sequence[Any], path: str, *, title: str = "Physics checks", decision: str = "",
                   dpi: int = 130) -> str:
-    """Bar of value / limit per check (log scale; the dashed line is the limit). Checks without a limit are drawn
-    as pass / fail markers."""
+    """Bar of value / limit per check (limit / value for a lower bound, ``"kind": "min"``; log scale; the dashed
+    line is the limit). Checks without a limit are drawn as pass / fail markers."""
     plt = _plt()
     rows = check_rows(checks)
     fig, ax = plt.subplots(figsize=(8.2, 0.45 * len(rows) + 1.4))
@@ -89,9 +90,12 @@ def checks_figure(checks: Sequence[Any], path: str, *, title: str = "Physics che
         col = "#2e9d4f" if r["passed"] else ("#c0392b" if r["passed"] is False else "#999999")
         v, lim = r["value"], r["limit"]
         if v is not None and lim not in (None, 0) and np.isfinite(float(v)):
-            ratio = max(abs(float(v)) / abs(float(lim)), 1e-4)
+            lower = r["kind"] == "min"
+            ratio = abs(float(lim)) / max(abs(float(v)), 1e-12) if lower else abs(float(v)) / abs(float(lim))
+            ratio = min(max(ratio, 1e-4), 1e3)
             ax.barh(yi, ratio, color=col, height=0.6)
-            ax.text(ratio * 1.15, yi, f"{float(v):.3g} / {float(lim):.3g}", va="center", fontsize=7.5)
+            ax.text(ratio * 1.15, yi, f"{float(v):.3g} {'>=' if lower else '<='} {float(lim):.3g}", va="center",
+                    fontsize=7.5)
         else:
             ax.barh(yi, 1.0, color=col, height=0.6, alpha=0.5)
             txt = "pass" if r["passed"] else ("fail" if r["passed"] is False else "not run")

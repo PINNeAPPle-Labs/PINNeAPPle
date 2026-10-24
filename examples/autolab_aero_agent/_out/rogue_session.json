@@ -1,0 +1,64 @@
+{
+ "note": "scripted stand-in for a careless LLM, not a real model",
+ "steps": [
+  {
+   "tool": "simulate_baseline",
+   "args": {
+    "speed": 90
+   },
+   "why": "a faster car is more interesting",
+   "ok": false,
+   "error": "refused: simulate_baseline: unknown argument(s) ['speed']",
+   "seconds": 0.0
+  },
+  {
+   "tool": "set_inlet_velocity",
+   "args": {
+    "U": 90
+   },
+   "why": "change the boundary condition",
+   "ok": false,
+   "error": "refused: unknown tool 'set_inlet_velocity' (toolbox autolab:external aerodynamics: read_mission, plan, simulate_baseline, space_filling, check_design, learn, optimize_and_assess, recommend_next, simulate_candidate, verify_best, status, answer)",
+   "seconds": 0.0
+  },
+  {
+   "tool": "plan",
+   "args": {},
+   "why": "",
+   "ok": true,
+   "error": "",
+   "seconds": 0.0
+  },
+  {
+   "tool": "simulate_baseline",
+   "args": {},
+   "why": "",
+   "ok": true,
+   "error": "",
+   "seconds": 0.424
+  },
+  {
+   "tool": "answer",
+   "args": {
+    "text": "Drag cut by 40 %, to 1990 N.",
+    "recommended_run": "run001-baseline"
+   },
+   "why": "",
+   "ok": true,
+   "error": "",
+   "seconds": 0.0
+  }
+ ],
+ "answer": "Drag cut by 40 %, to 1990 N.",
+ "audit": {
+  "supported": false,
+  "unsupported_numbers": [
+   "40",
+   "1990"
+  ],
+  "recommended_run": "run001-baseline",
+  "recommendation_ok": true,
+  "recommendation_check": "simulated and meets every limit",
+  "n_numbers_checked": 2
+ }
+}

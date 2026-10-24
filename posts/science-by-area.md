@@ -33,7 +33,7 @@ Guide and code: https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/docs/gui
 
 ## Sources
 
-All paths are in PINNeAPPle, branch `feat/science-research`; that branch holds the commits of PRs #882 and #883 (#884 adds only AGENTS.md and the Hub entries). E/ = `examples/science/electromagnetism/`.
+All paths are in PINNeAPPle `main` at b5387e86, after PRs #882, #883 and #884 were merged. E/ = `examples/science/electromagnetism/`.
 
 - 20 areas, 77 subareas, 13 physics + 7 other sciences: `pinneapple_science/data/atlas.json` (`areas`: 20 entries, 13 with `branch` = "physics"; 77 `subareas`).
 - A test fails on a bad pointer: `tests/test_science.py::test_atlas_points_only_to_code_that_exists` and `::test_atlas_validation_catches_a_bad_pointer` (`pp.science.validate()` returns []).

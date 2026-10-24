@@ -1,6 +1,6 @@
 # Science post (pp.science): index
 
-LinkedIn post (English) with its media for the pp.science series (PRs #882, #883, #884). Every number comes from a committed file on PINNeAPPle branch `feat/science-research`; the full list is in the post's `## Sources` and in `rows/science-by-area.json`. This branch is never merged.
+LinkedIn post (English) with its media for the pp.science series (PRs #882, #883, #884). Every number comes from a committed file on PINNeAPPle `main` (b5387e86, after #882-#884); the full list is in the post's `## Sources` and in `rows/science-by-area.json`. This branch is never merged.
 
 | Theme | PRs | Post | Media |
 |---|---|---|---|

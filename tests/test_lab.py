@@ -363,7 +363,7 @@ def test_solid_fem_cantilever_vs_beam_theory():
     Iy, G = W * H ** 3 / 12, E / (2 * (1 + nu))
     ref = P * L ** 3 / (3 * E * Iy) + P * L / (5 / 6 * G * W * H)
     assert abs(-r.u[m.face_nodes("x+"), 2].mean() / ref - 1) < 0.03          # no shear locking with C3D8I
-    assert np.allclose(r.reactions.sum(0), [0, 0, P], rtol=1e-8)
+    assert np.allclose(r.reactions.sum(0), [0, 0, P], rtol=1e-8, atol=1e-10 * P)   # x, y sums are round-off
     s = np.zeros((1, 6))
     s[0, 0] = 100.0
     assert abs(von_mises(s)[0] - 100.0) < 1e-12

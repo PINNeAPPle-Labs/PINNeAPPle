@@ -7,16 +7,16 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 5 |
-| not yet run | 6 |
+| not yet run | 4 |
 | not_convertible | 15 |
 | runs | 34 |
-| runs-quick | 8 |
+| runs-quick | 10 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
 | `architectures` | neural architectures | `architectures/00_registry_tour`<br>`architectures/01_list_models`<br>`architectures/30_rom_pod_dmd`<br>`architectures/60_new_architectures_demo` | runs |  | 00_registry_tour, 01_list_models and 60_new_architectures_demo are flows of architectures.registry + architectures.forward (output shapes as in the scripts; the GraphBatch GNN / MeshGraphNet parts and the non-registry layers are left out); 30_rom_pod_dmd is architectures.pod_dmd (the data generator moved to rom.toy_systems; POD and rollout MSE equal the script's). 02-05 are per-class demos with training loops in the scripts, 10 (FNO), 20 (inverse ODE PINN) and 40 (GNN) train in the scripts, and 50 imports pinneapple_models.transformers.transformer, which does not exist |
-| `arena_pipelines` | benchmarks | `arena_pipelines/00_list_datasets`<br>`arena_pipelines/01_physics_benchmark`<br>`arena_pipelines/02_timeseries_benchmark`<br>`arena_pipelines/04_arena_from_yaml` | not yet run |  | flows for 00 (dataset registry: 24 / 24 load), 01 (PhysicsBenchmarkSpec: Burgers, heat, inverse heat, Kovasznay), 02 (TimeSeriesBenchmarkSpec x 4) and 04 (pinneapple_arena.Arena on the built-in Kovasznay config; configs/*.yaml through config_file); 05's config dicts run through the same arena.run node. 03, 06 and 08 hold custom training or ArenaProblem subclasses; 07 passes Python lambdas to define_problem; 09's benchmark_dataset returns the problem, not results. Nothing committed to compare |
-| `benchmark` | benchmarks | `benchmark/01_equal_budget` | not yet run |  | 01_equal_budget: pp.benchmark.run (benchmark.equal_budget), quick = the script's smoke sizes; nothing committed to compare |
+| `arena_pipelines` | benchmarks | `arena_pipelines/00_list_datasets`<br>`arena_pipelines/01_physics_benchmark`<br>`arena_pipelines/02_timeseries_benchmark`<br>`arena_pipelines/04_arena_from_yaml` | runs-quick |  | flows for 00 (dataset registry: 24 / 24 load), 01 (PhysicsBenchmarkSpec: Burgers, heat, inverse heat, Kovasznay), 02 (TimeSeriesBenchmarkSpec x 4) and 04 (pinneapple_arena.Arena on the built-in Kovasznay config; configs/*.yaml through config_file); 05's config dicts run through the same arena.run node. 03, 06 and 08 hold custom training or ArenaProblem subclasses; 07 passes Python lambdas to define_problem; 09's benchmark_dataset returns the problem, not results. Nothing committed to compare |
+| `benchmark` | benchmarks | `benchmark/01_equal_budget` | runs-quick |  | 01_equal_budget: pp.benchmark.run (benchmark.equal_budget), quick = the script's smoke sizes; nothing committed to compare |
 | `benchmark_suite` | benchmarks | `benchmark_suite/02_arena_from_yaml`<br>`benchmark_suite/12_physics_benchmark_suite`<br>`benchmark_suite/13_transfer_meta_benchmark` | not yet run |  | flows for 02 (run_arena_experiment on configs/experiment_burgers_1d.yaml: the library's rel_l2 / r2 on the reference points come out degenerate, about 1e12), 12 (PINNArenaBenchmark through benchmark.arena with the registry's bench_* models: the script's VanillaPINN_S... names are no longer registered) and 13 (transfer + meta pipelines, quick = --fast; the Burgers reference solver overflows for nu = 0.005 / pi). 12 and 13 import pinneapple_arena.benchmark / transfer_benchmark / meta_benchmark, now in pinneapple_tools.benchmark_suite. Not convertible: 01, 04, 07 (genetic) and 08 import pinneapple_arena.runner / bundle / registry or pinneapple_digital_twin modules that no longer exist; 09 calls run_full_pipeline, broken in the library (ThroughputMonitor(log_every=...), missing pinneapple_environment); 03, 05, 06, 07_xtfc, 10 and 14-17 write their losses, loops or solvers in the scripts; 11 builds its ProblemSpec in script code around Arena.from_spec. Nothing committed to compare |
 | `black_hole_weather` | astrophysics | `black_hole_weather/accretion_run` | runs | 1 / 1 match | the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows |
 | `bricks` | design | `bricks/self_modifying_bricks` | runs-quick | 15 / 15 match | compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes |
@@ -190,6 +190,10 @@ done in 8 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
 
 done in 24 s (commit 483932f3, 2026-10-23); 0 of 0 numbers match.
 
+### `arena_pipelines/01_physics_benchmark` (quick)
+
+done in 69 s (commit aef34625, 2026-10-24); 0 of 0 numbers match.
+
 ### `arena_pipelines/02_timeseries_benchmark` (quick)
 
 done in 1952 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
@@ -197,6 +201,10 @@ done in 1952 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
 ### `arena_pipelines/04_arena_from_yaml` (quick)
 
 done in 1918 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
+
+### `benchmark/01_equal_budget` (quick)
+
+done in 296 s (commit aef34625, 2026-10-24); 0 of 0 numbers match.
 
 ### `benchmark_suite/02_arena_from_yaml` (quick)
 

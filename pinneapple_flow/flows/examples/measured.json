@@ -84,6 +84,24 @@
    "status": "done"
   }
  },
+ "arena_pipelines/01_physics_benchmark": {
+  "quick": {
+   "commit": "aef34625",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r5/example.arena_pipelines.01_physics_benchmark-quick.experiment.json, Lab item manifest/flow/example.arena_pipelines.01_physics_benchmark-quick",
+   "matched": 0,
+   "nodes": {
+    "burgers": "done",
+    "heat": "done",
+    "heat_inverse": "done",
+    "kovasznay": "done"
+   },
+   "seconds": 68.8,
+   "status": "done"
+  }
+ },
  "arena_pipelines/02_timeseries_benchmark": {
   "quick": {
    "commit": "e1b27365",
@@ -114,6 +132,21 @@
     "arena": "done"
    },
    "seconds": 1918.0,
+   "status": "done"
+  }
+ },
+ "benchmark/01_equal_budget": {
+  "quick": {
+   "commit": "aef34625",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r5/example.benchmark.01_equal_budget-quick.experiment.json, Lab item manifest/flow/example.benchmark.01_equal_budget-quick",
+   "matched": 0,
+   "nodes": {
+    "bench": "done"
+   },
+   "seconds": 295.7,
    "status": "done"
   }
  },

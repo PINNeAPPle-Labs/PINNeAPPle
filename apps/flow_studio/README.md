@@ -119,6 +119,19 @@ El Nino forecast, the take-off); four were typed as descriptions and planned by 
 edited from 2-D to 3-D, a tank digital twin, a hybrid ROM + NN surrogate with HPO, and a rod whose digital twin is
 generated end to end from the text).
 
+## With the PINNeAPPle Hub
+
+`apps/hub` lists every node type of this palette as a tool. Links between the two apps (base64url JSON):
+
+| Link | What Flow Studio does |
+|---|---|
+| `/?example=<name>` | opens a bundled flow |
+| `/?flow=<flow JSON>` | opens that flow (the Hub's "Open in Flow Studio": inputs -> the node -> report) |
+| `/?add=<node type>&params=<JSON>` | asks which flow to add the node to, and wires it in by port type |
+
+The toolbar's "🍍 Hub" opens the Hub (`FLOW_HUB_URL`, default `http://127.0.0.1:8116`) and "Publish to Hub" sends the
+flow on the canvas to the Hub's "Create your own" to become a tool ([docs](../../docs/apps/hub.md#with-flow-studio)).
+
 ## Configuration
 
 Environment variables or a `.env` file (see [.env.example](.env.example)):

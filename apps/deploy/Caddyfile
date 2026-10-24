@@ -457,3 +457,15 @@
 		}
 	}
 }
+
+{$HUB_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy hub:8116 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}

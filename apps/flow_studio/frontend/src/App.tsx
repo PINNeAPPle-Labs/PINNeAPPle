@@ -27,7 +27,7 @@ function compatibleFn(cat: Catalog) {
 function Studio() {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [added, setAdded] = useState({ type: "", n: 0 });
-  const [info, setInfo] = useState<{ version: string; planners: string[] } | null>(null);
+  const [info, setInfo] = useState<{ version: string; planners: string[]; hub_url?: string } | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [meta, setMeta] = useState({ id: "untitled", name: "Untitled flow", description: "", meta: {} as Record<string, any> });
@@ -44,6 +44,8 @@ function Studio() {
   const [showPlanner, setShowPlanner] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [lists, setLists] = useState<{ examples: any[]; flows: any[] } | null>(null);
+  // a node the PINNeAPPle Hub asked to add (?add=<type>&params=<base64url JSON>): the Open dialog picks the flow
+  const [pendingAdd, setPendingAdd] = useState<{ type: string; params: Record<string, any> } | null>(null);
   const wrapper = useRef<HTMLDivElement>(null);
   const rf = useReactFlow();
   const specs = useMemo(() => Object.fromEntries((catalog?.nodes || []).map((n) => [n.type, n])), [catalog]);
@@ -83,6 +85,31 @@ function Studio() {
     setResult(null);
     setTimeout(fitReadable, 60);
   }, [catalog, specs]);
+
+  // ---- deep links (the PINNeAPPle Hub): ?example=<bundled flow> or ?flow=<base64url flow JSON>, once the catalog is in
+  const linked = useRef(false);
+  useEffect(() => {
+    if (!catalog || linked.current) return;
+    linked.current = true;
+    const q = new URLSearchParams(window.location.search);
+    const ex = q.get("example"), fl = q.get("flow"), add = q.get("add");
+    if (!ex && !fl && !add) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    if (add) {
+      if (!specs[add]) { say(`unknown node type ${add}`); return; }
+      let params: Record<string, any> = {};
+      try { if (q.get("params")) params = fromB64url(q.get("params") as string); } catch { say("could not read the parameters in the link"); }
+      setPendingAdd({ type: add, params });
+      openLists();
+    } else if (ex) api.example(ex).then(load).catch((e) => say(`example ${ex}: ${e}`));
+    else if (fl) {
+      try {
+        load(fromB64url(fl) as FlowDoc);
+        say("flow opened from the link");
+      } catch (e) { say(`could not read the flow in the link: ${e}`); }
+    }
+  });
+
 
   // fit the flow, but never below a zoom where node titles and port labels stay readable; a flow wider than the
   // canvas then starts at its first column (pan or use the minimap for the rest)
@@ -235,6 +262,16 @@ function Studio() {
   const importJson = (f: File) => f.text().then((t) => load(JSON.parse(t))).catch((e) => say(`import failed: ${e}`));
   const save = () => api.saveFlow(toDoc()).then((r) => say(`saved ${r.id} v${r.version}`)).catch((e) => say(String(e)));
   const openLists = async () => setLists({ examples: await api.examples(), flows: await api.flows() });
+  // open a flow from the dialog; with a node waiting from the Hub, add it there (wired by port type, last node first)
+  const pick = async (doc: FlowDoc) => {
+    setLists(null);
+    if (!pendingAdd) { load(doc); return; }
+    const anchor = doc.nodes.length ? doc.nodes[doc.nodes.length - 1].id : null;
+    const r = await api.insertNodes(doc, anchor, [pendingAdd]);
+    load(r.flow);
+    say(`${specs[pendingAdd.type]?.title || pendingAdd.type} added${r.unwired.length ? `; not connected: ${r.unwired.join(", ")}` : ""}`);
+    setPendingAdd(null);
+  };
 
   const sel = nodes.find((n) => n.id === selected);
   const selData = sel?.data as FlowNodeData | undefined;
@@ -252,6 +289,8 @@ function Studio() {
       <header className="h-12 shrink-0 flex items-center gap-2 px-3 bg-white border-b border-slate-200">
         <div className="font-bold text-[15px] mr-2">🍍 PINNeAPPle <span className="text-brand-600">Flow Studio</span></div>
         <input className="text-sm border border-slate-200 rounded px-2 py-1 w-56" value={meta.name} onChange={(e) => setMeta({ ...meta, name: e.target.value })} data-testid="flow-name" />
+        {info?.hub_url && <a className="btn" href={info.hub_url} target="_blank" rel="noopener" data-testid="open-hub" title="Ready-made tools, models, geometries, datasets, flows and examples">🍍 Hub</a>}
+        {info?.hub_url && nodes.length > 0 && <a className="btn" href={`${info.hub_url.replace(/\/$/, "")}/create?flow=${toB64url(toDoc())}`} target="_blank" rel="noopener" data-testid="publish-hub" title="Publish this flow to the Hub as a tool: choose its parameters, validate, save">Publish to Hub</a>}
         <button className="btn-primary" onClick={() => setShowPlanner(true)} data-testid="open-planner">✨ Plan from text</button>
         <button className="btn" onClick={openLists} data-testid="open-lists">Open…</button>
         <button className="btn" onClick={save} data-testid="save">Save</button>
@@ -342,13 +381,23 @@ function Studio() {
       {lists && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-start justify-center pt-16" onClick={() => setLists(null)}>
           <div className="bg-white rounded-xl shadow-xl w-[620px] max-h-[75vh] overflow-y-auto p-5" onClick={(e) => e.stopPropagation()} data-testid="lists">
+            {pendingAdd && (
+              <div className="mb-3 rounded-lg bg-brand-50 border border-brand-200 p-3 text-sm" data-testid="pending-add">
+                From the Hub: add <b>{specs[pendingAdd.type]?.title || pendingAdd.type}</b> to which flow?
+                <div className="mt-2 flex gap-2">
+                  <button className="btn" data-testid="add-current" onClick={() => pick(toDoc())}>The flow on the canvas</button>
+                  <button className="btn" data-testid="add-new" onClick={() => pick({ schema: SCHEMA, id: "untitled", name: "flow", description: "", meta: {}, nodes: [], edges: [] } as FlowDoc)}>A new flow</button>
+                  <button className="btn" onClick={() => { setPendingAdd(null); setLists(null); }}>Cancel</button>
+                </div>
+              </div>
+            )}
             <h2 className="font-semibold mb-2">Examples</h2>
             {Array.from(new Set(lists.examples.map((x) => x.group || "Flow Studio"))).map((g) => (
               <div key={g} data-testid={`example-group-${g}`}>
                 <div className="text-[11px] uppercase tracking-wide text-slate-500 mt-3 mb-1">{g}</div>
                 {lists.examples.filter((x) => (x.group || "Flow Studio") === g).map((x) => (
                   <button key={x.name} className="block w-full text-left px-2 py-1.5 rounded hover:bg-brand-50 text-sm" data-testid={`example-${x.name}`}
-                    onClick={async () => { load(await api.example(x.name)); setLists(null); }}>
+                    onClick={async () => pick(await api.example(x.name))}>
                     <b>{x.title}</b> <span className="text-slate-500 text-[12px]">{x.description.slice(0, 110)}</span>
                   </button>
                 ))}
@@ -358,7 +407,7 @@ function Studio() {
             {lists.flows.length === 0 && <div className="text-sm text-slate-400">none yet</div>}
             {lists.flows.map((x) => (
               <button key={x.id} className="block w-full text-left px-2 py-1.5 rounded hover:bg-brand-50 text-sm"
-                onClick={async () => { load(await api.getFlow(x.id)); setLists(null); }}>
+                onClick={async () => pick(await api.getFlow(x.id))}>
                 <b>{x.name}</b> <span className="text-slate-500 text-[12px]">v{x.latest_version}</span>
               </button>
             ))}
@@ -387,6 +436,13 @@ function Studio() {
     </div>
   );
 }
+
+// base64url JSON, the encoding of the Hub <-> Flow Studio links (pinneapple_hub.library.flowlink.b64url)
+const fromB64url = (t: string) => {
+  const b = t.replace(/-/g, "+").replace(/_/g, "/");
+  return JSON.parse(decodeURIComponent(escape(atob(b + "=".repeat((4 - (b.length % 4)) % 4)))));
+};
+const toB64url = (o: unknown) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
 export default function App() {
   return (

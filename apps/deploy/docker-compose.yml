@@ -789,6 +789,32 @@ services:
     expose: ["8106"]
     mem_limit: ${PDO_MEM_LIMIT:-1g}
 
+  # PINNeAPPle Hub: the catalogue of ready-made tools, models, geometries, datasets, flows and examples; composed
+  # tools and their sandbox validation runs live in the hub_data volume
+  hub:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/hub/Dockerfile
+    image: pinneapple/hub:latest
+    restart: unless-stopped
+    environment:
+      HUB_USER: ${HUB_USER:-}
+      HUB_PASSWORD: ${HUB_PASSWORD:-}
+      HUB_PASSWORD_HASH: ${HUB_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      HUB_RATE_LIMIT: ${HUB_RATE_LIMIT:-}
+      HUB_MAX_JOBS: ${HUB_MAX_JOBS:-2}
+      HUB_ADMIN_TOKEN: ${HUB_ADMIN_TOKEN:-}
+      HUB_FLOW_STUDIO_URL: ${HUB_FLOW_STUDIO_URL:-}
+      HUB_SANDBOX_S: ${HUB_SANDBOX_S:-60}
+      HUB_SANDBOX_MEMORY_MB: ${HUB_SANDBOX_MEMORY_MB:-6144}
+      HUB_FREE_VALIDATIONS: ${HUB_FREE_VALIDATIONS:-}
+      HUB_FREE_INFERENCES: ${HUB_FREE_INFERENCES:-}
+    volumes:
+      - hub_data:/data          # jobs, My Hub tools, usage, API keys (SQLite): keep this volume
+    expose: ["8116"]
+    mem_limit: ${HUB_MEM_LIMIT:-2g}
+
   caddy:
     <<: *base-hardening
     cap_add: [NET_BIND_SERVICE]            # ports 80 and 443
@@ -834,12 +860,13 @@ services:
       CONTROL_DOMAIN: ${CONTROL_DOMAIN:-control.localhost}
       EDO_DOMAIN: ${EDO_DOMAIN:-optimize.localhost}
       PDO_DOMAIN: ${PDO_DOMAIN:-design.localhost}
+      HUB_DOMAIN: ${HUB_DOMAIN:-hub.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub]
 
 volumes:
   surrogate_data:
@@ -862,6 +889,7 @@ volumes:
   runner_data:
   optimize_data:
   design_data:
+  hub_data:
   obs_cache:
   caddy_data:
   caddy_config:

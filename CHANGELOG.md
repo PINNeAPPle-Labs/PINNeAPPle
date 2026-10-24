@@ -19,6 +19,26 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
+  A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
+  (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)
+  and a comparison of the analytic Wong-Reece law, the zoo surrogate and measured operating points; sensors with
+  stated noise and a soil belief per mapped unit updated by an iterated EKF (sinkage and torque from load and slip,
+  input noise carried through the model, the simulator's slip-sinkage lag in the observation model); a risk-aware
+  planner (share of belief samples above the slip limit, wheels on both sides checked, energy-optimal Dijkstra); a
+  mission agent (plain-language request -> `MissionSpec` through a rule parser with the `extract(text, schema)`
+  interface of `CallLLM`, fixed tool set, plan -> drive -> learn -> replan -> verify); a trust report (goal, slip
+  limit, energy balance, time-step check, planner vs multibody, route risks, held-out prediction, recovery of the
+  known truth); figures and Blender Cycles renders (overview, stall close-up, traverse MP4/GIF) with the repository's
+  VIPER model. Flow Studio node `rover.learn_planet`; example `examples/autolab_rover/`; guide
+  `docs/guides/rover_learns_the_planet.md`.
+- `VehicleSimulator`: ground made of several soils (`soil=[...]`, `soil_map(x, y) -> index`), route following by
+  pure pursuit (`run(route=[...])`, ends at the goal) and an early stop rule (`run(stop=...)`, `meta["ended"]`);
+  `run.wheel["soil_idx"]` records the soil under each wheel; `wheel_speeds="kinematic"` gives each wheel the speed
+  of its distance to the turning centre (default `"equal"`, unchanged: in turns the wheels of an all-wheel-steered
+  rover then fight each other).
+- `WongReeceModel.sinkage_for_load` / `steady_state`: `sinkage_slip=` (the slip that sets the sinkage exponent, e.g.
+  a lagged slip), as `forces` already had.
 - `pinneapple_presets` (`pp.presets`): industrial presets, engineering cases already set up, solved and validated.
   Each has a data sheet (sector, question, SI inputs with realistic defaults and the source of each value, outputs,
   validity domain), `run(**params)` with its trust report and decision, `validate()` against citable references
@@ -51,6 +71,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   with a `TrustReport` -> figures, glTF / USD, three.js viewer, Blender stills and animation, report. Example
   `examples/autolab/self_optimizing_engineer.py`, Flow node `autolab.board_cooling`, guide
   `docs/guides/autonomous_physics_lab.md`.
+- `pinneapple_systems.digital_twin.pipe_loop`, demo 3 of the lab (the digital twin that knows when it is wrong): a
+  pumped, heated water loop with an elbow and a T junction simulated quasi-steadily (pump affinity curve,
+  Darcy-Weisbach / Colebrook, minor and valve losses, heater and branch heat loss) with controlled faults; a POD +
+  Gaussian-process fast model of its ten sensors; ten physics residuals with fault directions (sensor bias,
+  obstruction per pipe), an EKF on the extra loss coefficient of each pipe and the training envelope, combined into
+  a diagnosis (normal / process / sensor / domain, with location and size) calibrated on healthy runs; a reference
+  simulation and model extension where the model is out of its domain; a benchmark of controlled cases with the
+  confusion matrix; control-room figures, 3-D scene, viewer, Blender animation, report and trust report. Example
+  `examples/autolab_digital_twin/twin_knows_when_wrong.py`, Flow node `autolab.pipe_twin`.
 - `pinneapple_physics.pcb.Component.r_top_k_w`: case-top-to-air resistance of an attached heat sink.
 - Studio: `blender.render_animation(..., lines=[bool per frame])` shows the static lines only on chosen frames.
 - Hub tools by task: every one of the 408 tools is in exactly one of 20 task categories

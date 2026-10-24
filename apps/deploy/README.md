@@ -113,9 +113,9 @@ nano .env        # domains, ACME e-mail, logins (use long passwords)
 
 | Variable | Meaning |
 |---|---|
-| `HSS_DOMAIN`, `PCB_DOMAIN`, `EDH_DOMAIN`, `EDS_DOMAIN`, `SMD_DOMAIN`, `UDR_DOMAIN`, `IHL_DOMAIN`, `PFL_DOMAIN`, `MQA_DOMAIN`, `CMP_DOMAIN`, `LIN_DOMAIN`, `IOP_DOMAIN`, `ADO_DOMAIN`, `OBS_DOMAIN`, `PLG_DOMAIN`, `INVS_DOMAIN`, `IDENT_DOMAIN`, `CALIB_DOMAIN`, `EVR_DOMAIN`, `VAL_DOMAIN`, `SEN_DOMAIN`, `UQL_DOMAIN`, `MDL_DOMAIN`, `ARN_DOMAIN`, `SUR_DOMAIN`, `EDO_DOMAIN`, `PDO_DOMAIN` | Public hostnames (must match the DNS records) |
+| `HSS_DOMAIN`, `PCB_DOMAIN`, `EDH_DOMAIN`, `EDS_DOMAIN`, `SMD_DOMAIN`, `UDR_DOMAIN`, `IHL_DOMAIN`, `PFL_DOMAIN`, `MQA_DOMAIN`, `CMP_DOMAIN`, `LIN_DOMAIN`, `IOP_DOMAIN`, `ADO_DOMAIN`, `OBS_DOMAIN`, `PLG_DOMAIN`, `INVS_DOMAIN`, `IDENT_DOMAIN`, `CALIB_DOMAIN`, `EVR_DOMAIN`, `VAL_DOMAIN`, `SEN_DOMAIN`, `UQL_DOMAIN`, `MDL_DOMAIN`, `ARN_DOMAIN`, `SUR_DOMAIN`, `EDO_DOMAIN`, `PDO_DOMAIN`, `HUB_DOMAIN` | Public hostnames (must match the DNS records) |
 | `ACME_EMAIL` | Let's Encrypt account / expiry notices |
-| `<APP>_USER` / `<APP>_PASSWORD` (HSS, PCB, EDH, EDS, SMD, UDR, IHL, PFL, MQA, CMP, LIN, IOP, ADO, OBS, UQL, SEN, VAL, EVR, CALIB, IDENT, INVS, ROM, MESHLESS, SUR, ARN, MDL, TWIN, ANOMALY, CONTROL, EDO, PDO) | HTTP Basic login per app. If either is empty, that app is public. `/health` is always public. |
+| `<APP>_USER` / `<APP>_PASSWORD` (HSS, PCB, EDH, EDS, SMD, UDR, IHL, PFL, MQA, CMP, LIN, IOP, ADO, OBS, UQL, SEN, VAL, EVR, CALIB, IDENT, INVS, ROM, MESHLESS, SUR, ARN, MDL, TWIN, ANOMALY, CONTROL, EDO, PDO, HUB) | HTTP Basic login per app. If either is empty, that app is public. `/health` is always public. |
 | `HSS_MAX_SIZING`, `PCB_MAX_HEAVY`, `EDH/EDS/SMD/UDR/PFL/MQA/CMP/LIN/IOP/ADO/UQL/SEN/VAL/EVR_MAX_HEAVY` | Concurrent heavy runs per app. Any excess gets HTTP 429. |
 | `HSS_MEM_LIMIT`, `PCB_MEM_LIMIT` | Container memory caps |
 | `CALIB_MAX_JOBS`, `CALIB_FREE_<UNIT>`, `CALIB_ADMIN_TOKEN`, `CALIB_MEM_LIMIT` | Model Calibration Lab, on the shared runtime (job queue, API keys, usage metering; see `apps/_shared/README.md`): jobs running at once over all workers (the rest wait in the queue), free use per caller and month, the admin token for API keys, and the container memory cap (default 1g). Its state lives on the `calibration_data` volume. |
@@ -758,6 +758,23 @@ FVM engine, STL/STEP/CSV exports. Each study is a job of the shared runtime (`ap
 API keys are in the `design_data` volume; `PDO_MAX_JOBS` studies run at once (2 by default; more wait in the queue).
 Metered per caller and month: `PDO_FREE_EVALUATIONS` (200000), `PDO_FREE_CAMPAIGNS` (100), `PDO_FREE_SOLVER_RUNS`
 (500). A study is capped at 40000 evaluations (150 per run with Bayesian optimisation). 1 GB is enough.
+
+## PINNeAPPle Hub (`hub`)
+
+The catalogue of everything ready-made in the library (`apps/hub/README.md`): tools, trained zoo models, geometries,
+datasets, flows and examples from the generated index `data/web/hub/index.json`, with copy-the-code, downloads,
+3-D previews, zoo inference (in the browser or on the server) and "Create your own". Point a DNS record for
+`HUB_DOMAIN` (e.g. `hub.pinneapple.org`) at the server; set `HUB_FLOW_STUDIO_URL` to your Flow Studio
+(`apps/flow_studio`, its own compose file) so "Open in Flow Studio" lands there. A composed tool's validation runs
+its generated code -- never code a visitor typed -- in a separate interpreter limited by `HUB_SANDBOX_S` (60 s) and
+`HUB_SANDBOX_MEMORY_MB` (6144; PyTorch reserves much of it), `HUB_MAX_JOBS` at once. The container has the network
+of the compose project; for a public server, keep it without outbound access if you want the sandbox offline too.
+Metered per caller and month: `HUB_FREE_VALIDATIONS` (200), `HUB_FREE_INFERENCES` (5000). My Hub tools, jobs and
+API keys are in the `hub_data` volume. 2 GB is enough (1.5 GB with the low-memory override and one job at a time).
+
+```bash
+docker compose up -d --build hub caddy          # https://$HUB_DOMAIN
+```
 
 ## PINNeAPPle Lab catalogue (`lab`)
 

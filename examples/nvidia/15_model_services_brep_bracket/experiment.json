@@ -154,7 +154,7 @@
   {
    "name": "FE root stress vs beam",
    "passed": true,
-   "value": 0.011283961316781334,
+   "value": 0.011283961315698697,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -166,7 +166,7 @@
   {
    "name": "FE tip deflection vs beam (FE includes the leg's rotation)",
    "passed": true,
-   "value": 1.0679407797312772,
+   "value": 1.0679407797301137,
    "reference": null,
    "rtol": null,
    "atol": null,
@@ -191,9 +191,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "ddeef054",
-  "created": "2026-10-24T01:41:50Z",
-  "seconds": 4.836,
+  "git": "e4f0064a",
+  "created": "2026-10-24T16:44:38Z",
+  "seconds": 5.496,
   "error": null,
   "environment": {
    "python": "3.13.17",

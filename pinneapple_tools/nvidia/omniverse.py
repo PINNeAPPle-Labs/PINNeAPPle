@@ -543,7 +543,8 @@ def render_stage_png(path: str, png: str, *, time: float | None = None, elev: fl
         import matplotlib.cm as cm
         from matplotlib.colors import Normalize
         lab, a, b, cmap = colorbar
-        fig.colorbar(cm.ScalarMappable(Normalize(a, b), cmap), ax=ax, shrink=0.6, label=lab)
+        # pad: the 3-D axes draw the z label outside their box, where a default colorbar would sit
+        fig.colorbar(cm.ScalarMappable(Normalize(a, b), cmap), ax=ax, shrink=0.6, label=lab, pad=0.12 if not flat else 0.05)
     fig.savefig(png, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     return png

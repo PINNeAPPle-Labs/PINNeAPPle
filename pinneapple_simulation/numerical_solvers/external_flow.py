@@ -74,7 +74,8 @@ def flow_directions(alpha_deg: float, beta_deg: float = 0.0) -> Tuple[np.ndarray
 
 def write_flow_fields(case: str, speed: float, alpha_deg: float, beta_deg: float, nu: float, iterations: int,
                       procs: int, walls: str, symmetry: bool, ground: Optional[str] = None,
-                      ground_velocity: Optional[Sequence[float]] = None, turbulence_intensity: float = 0.001) -> None:
+                      ground_velocity: Optional[Sequence[float]] = None, turbulence_intensity: float = 0.001,
+                      write_interval: Optional[int] = None) -> None:
     """0/ fields, physical properties, controlDict, schemes and solvers of a steady external-flow case. ``walls`` is
     the patch group of the bodies; ``ground``: name of a road patch (moving with ``ground_velocity``)."""
     d, _, _ = flow_directions(alpha_deg, beta_deg)
@@ -115,7 +116,7 @@ stopAt endTime;
 endTime {iterations};
 deltaT 1;
 writeControl timeStep;
-writeInterval {iterations};
+writeInterval {write_interval or iterations};
 purgeWrite 0;
 writeFormat binary;
 writePrecision 8;
@@ -232,14 +233,15 @@ mergeTolerance 1e-6;
 """
 
 
-def run_case(case: str, procs: int = 4, log: Callable[[str], None] = print) -> Dict[str, float]:
-    """blockMesh, surfaceFeatureExtract, snappyHexMesh, checkMesh and simpleFoam in parallel, then reconstruct.
-    Returns the seconds per step; each step's log is in ``case/log.<step>``."""
+def run_case(case: str, procs: int = 4, log: Callable[[str], None] = print, all_times: bool = False) -> Dict[str, float]:
+    """blockMesh, surfaceFeatureExtract, snappyHexMesh, checkMesh and simpleFoam in parallel, then reconstruct (the
+    latest time, or every written time with ``all_times``). Returns the seconds per step; each step's log is in
+    ``case/log.<step>``."""
     t: Dict[str, float] = {}
 
     def sh(cmd, name):
         t0 = time.time()
-        full = f'source "{FOAM_BASHRC}" >/dev/null 2>&1; cd "{case}" && {cmd} > log.{name} 2>&1'
+        full = f'source "{FOAM_BASHRC}" >/dev/null 2>&1; cd "{case}" && {{ {cmd} ; }} > log.{name} 2>&1'
         r = subprocess.run(["bash", "-c", full])
         t[name] = round(time.time() - t0, 1)
         log(f"  {name}: {t[name]} s (exit {r.returncode})")
@@ -254,7 +256,7 @@ def run_case(case: str, procs: int = 4, log: Callable[[str], None] = print) -> D
         # decomposePar copied 0/ before snappy changed the processor meshes: restore the fields
         sh("for d in processor*; do rm -rf $d/0; cp -r 0 $d/0; done", "fields")
         sh(f"{mpi} simpleFoam -parallel", "simpleFoam")
-        sh("reconstructParMesh -constant; reconstructPar -latestTime", "reconstruct")
+        sh("reconstructParMesh -constant; reconstructPar" + ("" if all_times else " -latestTime"), "reconstruct")
     else:
         sh("snappyHexMesh -overwrite", "snappyHexMesh")
         sh("checkMesh", "checkMesh")
@@ -280,10 +282,10 @@ class CaseFields:
     """The reconstructed mesh and the latest U, p of a case, with the helpers the results need: wall forces and
     skin coefficients on given patches, a velocity interpolator, streamline tracing, plane sampling."""
 
-    def __init__(self, case: str):
+    def __init__(self, case: str, time: Optional[str] = None):
         from pinneapple_data.cae.foam import read_field, read_polymesh
         from pinneapple_data.cae.geometry import cell_geometry, face_geometry, face_mesh
-        self.time = t = latest_time(case)
+        self.time = t = time or latest_time(case)
         fs = {}
         for f in ("points", "faces", "owner", "neighbour", "boundary"):
             p = os.path.join(case, "constant", "polyMesh", f)
@@ -427,6 +429,17 @@ class FlowResult:
                                                          for k, v in s.items()} for s in self.slices]}))
         return path
 
+    @classmethod
+    def load(cls, path: str, geometry: Optional[Dict[str, Body]] = None) -> "FlowResult":
+        """A result written by :meth:`save` (``geometry``: the bodies, for :meth:`to_scene` without a scene)."""
+        d = np.load(path, allow_pickle=True)
+        meta = json.loads(str(d["meta"]))
+        slices = [{k: ({kk: np.asarray(vv, float) for kk, vv in v.items()} if k == "grids" else v)
+                   for k, v in s.items()} for s in meta["slices"]]
+        return cls(meta["coefficients"], {"xyz": d["xyz"], "cp": d["cp"], "cf": d["cf"], "body": d["body"]},
+                   meta["bodies"], [np.asarray(x, float) for x in d["lines"]],
+                   [np.asarray(x, float) for x in d["line_speed"]], slices, meta["info"], dict(geometry or {}))
+
 
 @dataclass
 class ExternalFlow:
@@ -448,7 +461,10 @@ class ExternalFlow:
     ground_moving: bool = True
     resolution: str = "medium"
     surface_level: Optional[Tuple[int, int]] = None
+    body_levels: Optional[Dict[str, Tuple[int, int]]] = None   # per body (min, max) surface level, e.g. thin wings finer
+    refine_boxes: Sequence[Tuple[Sequence[float], Sequence[float], int]] = ()   # extra (min xyz, max xyz, level)
     iterations: int = 600
+    write_every: Optional[int] = None              # also write every N iterations: force_history() can read them
     n_lines: int = 40
     wake_planes: Tuple[float, ...] = (0.25, 0.5, 1.0, 1.5)   # cross-flow slices, body lengths behind the bodies
     title: str = "External flow"
@@ -470,10 +486,12 @@ class ExternalFlow:
             shutil.rmtree(case)
         tri = os.path.join(case, "constant", "triSurface")
         os.makedirs(tri)
-        names = []
+        names, blev = [], {}
         for n, (V, F) in self.geometry.items():
             nm = "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in n)
             names.append(nm)
+            if self.body_levels and n in self.body_levels:
+                blev[nm] = tuple(int(v) for v in self.body_levels[n])
             with open(os.path.join(tri, f"{nm}.stl"), "wb") as f:
                 f.write(_stl(V, F, nm))
         lo, hi, L = self.lo, self.hi, max(self.hi[0] - self.lo[0], 1e-9)
@@ -521,24 +539,32 @@ mergePatchPairs ();
         geom = "\n".join(f"    {b}.stl {{ type triSurfaceMesh; name {b}; }}" for b in names)
         geom += (f"\n    near {{ type searchableBox; min ({lo[0] - pad} {ny0} {nz0}); max ({hi[0] + 2 * pad} {hi[1] + pad} {hi[2] + pad}); }}"
                  f"\n    wake {{ type searchableBox; min ({hi[0] - pad} {ny0} {nz0}); max ({hi[0] + 1.5 * L} {hi[1] + 1.5 * pad} {hi[2] + 1.5 * pad}); }}")
-        feats = "\n".join(f"        {{ file \"{b}.eMesh\"; level {lev[1]}; }}" for b in names)
-        surfs = "\n".join(f"        {b} {{ level ({lev[0]} {lev[1]}); patchInfo {{ type wall; inGroups (bodies); }} }}" for b in names)
+        lv = {b: blev.get(b, tuple(lev)) for b in names}
+        feats = "\n".join(f"        {{ file \"{b}.eMesh\"; level {lv[b][1]}; }}" for b in names)
+        surfs = "\n".join(f"        {b} {{ level ({lv[b][0]} {lv[b][1]}); patchInfo {{ type wall; inGroups (bodies); }} }}" for b in names)
         regions = "        near { mode inside; levels ((1E15 3)); }\n        wake { mode inside; levels ((1E15 2)); }"
+        for k, (bmin, bmax, blv) in enumerate(self.refine_boxes):
+            geom += (f"\n    box{k} {{ type searchableBox; min ({bmin[0]} {bmin[1]} {bmin[2]}); "
+                     f"max ({bmax[0]} {bmax[1]} {bmax[2]}); }}")
+            regions += f"\n        box{k} {{ mode inside; levels ((1E15 {int(blv)})); }}"
         loc = (x0 + 1.37 * h, y1 - 1.61 * h, z1 - 1.53 * h)                    # in the fluid, off any cell face
         _w(case, "system/snappyHexMeshDict", "dictionary", snappy_dict(geom, feats, surfs, regions, loc))
         gv = flow_directions(self.alpha, self.beta)[0] * self.speed if self.ground_moving else (0.0, 0.0, 0.0)
         write_flow_fields(case, self.speed, self.alpha, self.beta, self.nu, self.iterations, procs, "bodies",
-                          self.half_model, "ground" if self.ground_z is not None else None, tuple(float(v) for v in gv))
+                          self.half_model, "ground" if self.ground_z is not None else None, tuple(float(v) for v in gv),
+                          write_interval=self.write_every)
         info = {"title": self.title, "speed": self.speed, "alpha": self.alpha, "beta": self.beta, "nu": self.nu,
                 "rho": self.rho, "ref_area": self.ref_area, "ref_length": self.L, "half_model": self.half_model,
                 "ground": self.ground_z, "bodies": names, "bounds": [lo.tolist(), hi.tolist()],
-                "Re": self.speed * self.L / self.nu, "background_cell": h, "surface_level": list(lev)}
+                "Re": self.speed * self.L / self.nu, "background_cell": h, "surface_level": list(lev),
+                "body_levels": {b: list(v) for b, v in blev.items()},
+                "refine_boxes": [[list(map(float, a)), list(map(float, b)), int(c)] for a, b, c in self.refine_boxes]}
         with open(os.path.join(case, "pinneapple_flow.json"), "w") as f:
             json.dump(info, f, indent=1)
         return info
 
     def run(self, case: str, procs: int = 4, log: Callable[[str], None] = print) -> Dict[str, float]:
-        return run_case(case, procs, log)
+        return run_case(case, procs, log, all_times=bool(self.write_every))
 
     def solve(self, case: str, procs: int = 4, log: Callable[[str], None] = print) -> FlowResult:
         """write + run + read."""
@@ -547,39 +573,31 @@ mergePatchPairs ();
         return self.read(case)
 
     # -------------------------------------------------------------- results
+    def force_history(self, case: str, faces: bool = False) -> List[Dict[str, Any]]:
+        """Forces at every written iteration (``write_every``): ``[{"iteration", "CD", "CL", "drag_N", "lift_N",
+        "bodies"}, ...]``, to judge whether the integrated forces have stopped changing (and to average them over
+        the last iterations of a steady run that keeps oscillating). ``faces=True`` adds ``"surface"``: per wall
+        face ``xyz``, ``cp``, ``body`` and ``force`` (per unit density) at that iteration."""
+        info = json.load(open(os.path.join(case, "pinneapple_flow.json")))
+        times = sorted((float(d), d) for d in os.listdir(case) if _is_time(case, d))
+        out = []
+        for it, d in times:
+            c, (xyz, cpl, _cfl, bid, frc) = _wall_forces(CaseFields(case, d), info)
+            row = {"iteration": it, **{k: c[k] for k in ("CD", "CL", "drag_N", "lift_N")},
+                   "bodies": {b: {"CD": v["CD"], "CL": v["CL"]} for b, v in c["bodies"].items()}}
+            if faces:
+                row["surface"] = {"xyz": np.concatenate(xyz), "cp": np.concatenate(cpl), "body": np.concatenate(bid),
+                                  "force": np.concatenate(frc)}
+            out.append(row)
+        return out
+
     def read(self, case: str) -> FlowResult:
         info = json.load(open(os.path.join(case, "pinneapple_flow.json")))
         cf = CaseFields(case)
-        V, nu = info["speed"], info["nu"]
+        V = info["speed"]
         q = 0.5 * V * V
-        S = info["ref_area"] / (2 if info["half_model"] else 1)
-        dd, ll, ss = flow_directions(info["alpha"], info["beta"])
-        out: Dict[str, Any] = {"bodies": {}}
-        Fp, Fv = np.zeros(3), np.zeros(3)
-        xyz, cpl, cfl, bid, frc = [], [], [], [], []
+        out, (xyz, cpl, cfl, bid, frc) = _wall_forces(cf, info)
         names = info["bodies"]
-        half_m = info["half_model"]
-        for patch in cf.patches():
-            if patch["name"] not in names:
-                continue
-            w = cf.wall(patch, nu, q)
-            fp, fv = w["f_pressure"].sum(0), w["f_viscous"].sum(0)
-            Fp += fp
-            Fv += fv
-            F = fp + fv
-            out["bodies"][patch["name"]] = {"CD": float(F @ dd / (q * S)), "CL": float(F @ ll / (q * S)),
-                                            "CS": 0.0 if half_m else float(F @ ss / (q * S)), "faces": len(w["cp"])}
-            xyz.append(w["xyz"])
-            cpl.append(w["cp"])
-            cfl.append(w["cf"])
-            bid.append(np.full(len(w["cp"]), names.index(patch["name"])))
-            frc.append(w["f_pressure"] + w["f_viscous"])
-        F = Fp + Fv
-        out.update(CD=float(F @ dd / (q * S)), CL=float(F @ ll / (q * S)),
-                   CS=0.0 if half_m else float(F @ ss / (q * S)),              # a half model is symmetric
-                   CD_pressure=float(Fp @ dd / (q * S)), CD_friction=float(Fv @ dd / (q * S)),
-                   drag_N=float(F @ dd * info["rho"] * (2 if info["half_model"] else 1)),
-                   lift_N=float(F @ ll * info["rho"] * (2 if info["half_model"] else 1)), cells=cf.n_cells)
         lo, hi = np.array(info["bounds"][0]), np.array(info["bounds"][1])
         L = hi[0] - lo[0]
         half = info["half_model"]
@@ -635,6 +653,48 @@ mergePatchPairs ();
         return FlowResult(out, {"xyz": np.concatenate(xyz), "cp": np.concatenate(cpl), "cf": np.concatenate(cfl),
                                 "body": np.concatenate(bid), "force": np.concatenate(frc)},   # force per face / rho
                           names, lines, speeds, slices, info, self.geometry)
+
+
+def _wall_forces(cf: "CaseFields", info: Dict[str, Any]):
+    """Coefficients (total and per body) and per-face skin data of the wall patches named in ``info``."""
+    V, nu = info["speed"], info["nu"]
+    q = 0.5 * V * V
+    S = info["ref_area"] / (2 if info["half_model"] else 1)
+    dd, ll, ss = flow_directions(info["alpha"], info["beta"])
+    out: Dict[str, Any] = {"bodies": {}}
+    Fp, Fv = np.zeros(3), np.zeros(3)
+    xyz, cpl, cfl, bid, frc = [], [], [], [], []
+    names = info["bodies"]
+    half_m = info["half_model"]
+    for patch in cf.patches():
+        if patch["name"] not in names:
+            continue
+        w = cf.wall(patch, nu, q)
+        fp, fv = w["f_pressure"].sum(0), w["f_viscous"].sum(0)
+        Fp += fp
+        Fv += fv
+        F = fp + fv
+        out["bodies"][patch["name"]] = {"CD": float(F @ dd / (q * S)), "CL": float(F @ ll / (q * S)),
+                                        "CS": 0.0 if half_m else float(F @ ss / (q * S)), "faces": len(w["cp"])}
+        xyz.append(w["xyz"])
+        cpl.append(w["cp"])
+        cfl.append(w["cf"])
+        bid.append(np.full(len(w["cp"]), names.index(patch["name"])))
+        frc.append(w["f_pressure"] + w["f_viscous"])
+    F = Fp + Fv
+    out.update(CD=float(F @ dd / (q * S)), CL=float(F @ ll / (q * S)),
+               CS=0.0 if half_m else float(F @ ss / (q * S)),              # a half model is symmetric
+               CD_pressure=float(Fp @ dd / (q * S)), CD_friction=float(Fv @ dd / (q * S)),
+               drag_N=float(F @ dd * info["rho"] * (2 if info["half_model"] else 1)),
+               lift_N=float(F @ ll * info["rho"] * (2 if info["half_model"] else 1)), cells=cf.n_cells)
+    return out, (xyz, cpl, cfl, bid, frc)
+
+
+def _is_time(case: str, d: str) -> bool:
+    try:
+        return float(d) > 0 and os.path.exists(os.path.join(case, d, "U"))
+    except ValueError:
+        return False
 
 
 def openfoam_available() -> bool:

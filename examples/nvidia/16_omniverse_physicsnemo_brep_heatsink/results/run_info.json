@@ -1,13 +1,13 @@
 {
  "name": "16_omniverse_physicsnemo_brep_heatsink",
- "started": "2026-10-24T01:27:19Z",
- "wall_s": 61.402,
+ "started": "2026-10-24T16:33:17Z",
+ "wall_s": 76.472,
  "steps_s": {
-  "designs (USD BRep + closed form)": 36.17,
-  "train (PhysicsNeMo)": 14.5,
-  "verify proposals": 0.909,
-  "USD BRep: accepted design, tessellation, native USD": 3.466,
-  "OpenUSD stage": 0.314
+  "designs (USD BRep + closed form)": 44.303,
+  "train (PhysicsNeMo)": 19.736,
+  "verify proposals": 1.172,
+  "USD BRep: accepted design, tessellation, native USD": 3.701,
+  "OpenUSD stage": 0.42
  },
  "components": [
   {

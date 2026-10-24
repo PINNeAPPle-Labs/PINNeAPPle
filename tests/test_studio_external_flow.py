@@ -87,6 +87,18 @@ def test_external_flow_case_files(tmp_path):
     assert d @ lift == pytest.approx(0) and np.allclose(np.cross(lift, d), side)
 
 
+def test_external_flow_body_levels_refine_boxes_and_history_writes(tmp_path):
+    from pinneapple_simulation.numerical_solvers.external_flow import ExternalFlow
+    flow = ExternalFlow({"body": box((1, 1, 1)), "wing": box((0.2, 1, 0.02))}, resolution="medium", iterations=800,
+                        body_levels={"wing": (5, 6)}, refine_boxes=[((0, 0, 0), (1, 1, 0.1), 5)], write_every=100)
+    info = flow.write(str(tmp_path / "case"), procs=1)
+    sn = (tmp_path / "case/system/snappyHexMeshDict").read_text()
+    assert "wing { level (5 6)" in sn and "body { level (4 5)" in sn          # the default "medium" levels elsewhere
+    assert "box0 { type searchableBox; min (0 0 0); max (1 1 0.1); }" in sn and "box0 { mode inside; levels ((1E15 5)); }" in sn
+    assert "writeInterval 100;" in (tmp_path / "case/system/controlDict").read_text()
+    assert info["body_levels"] == {"wing": [5, 6]} and info["refine_boxes"][0][2] == 5
+
+
 @pytest.mark.skipif(os.environ.get("PINNEAPPLE_RUN_OPENFOAM") != "1", reason="set PINNEAPPLE_RUN_OPENFOAM=1 (needs OpenFOAM, ~3 min)")
 def test_external_flow_runs_on_a_sphere(tmp_path):
     from pinneapple_simulation.numerical_solvers.external_flow import ExternalFlow, openfoam_available

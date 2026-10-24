@@ -1,5 +1,7 @@
 # Autonomous Physics Lab
 
+The scientific cycle on a costly reference simulator (surrogates compared on held-out data, triage, the next simulation chosen by what is unknown, verification) is in [the AI Aerodynamicist guide](autonomous_lab.md).
+
 A mission in plain language becomes a plan of **controlled library calls**; every call leaves evidence (arguments, a
 summary of the result, wall time, error) and the mission ends in a decision with its trust report. The agent never
 runs code of its own: it can only order the tools registered for its kind of mission, with the arguments each tool

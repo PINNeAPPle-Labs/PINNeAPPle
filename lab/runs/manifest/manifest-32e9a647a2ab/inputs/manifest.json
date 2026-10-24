@@ -1,0 +1,173 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/bench_mu0_solenoid",
+ "title": "Bench: measuring mu0 with a solenoid (3D)",
+ "description": "A wound solenoid, a current supply, an ammeter and a Hall probe at the centre. The current is stepped, B read (averaged), B(I) fitted; mu0 = slope sqrt(L^2 + 4 R^2) / N with L and R from a caliper. The field is the 3-D Biot-Savart field of the actual helix plus Earth's field. The result carries its uncertainty budget and is compared with CODATA 2022.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.bench_mu0_solenoid"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "practice",
+  "dims": [
+   "3D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D: mu0 (bench) vs CODATA 2022]",
+   "value": 0.003937714596454831,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (codata: CODATA 2022 (Mohr et al., Rev. Mod. Phys. 97, 025002, 2025))"
+  },
+  {
+   "name": "3D: mu0_measured",
+   "value": 1.251688783171391e-06,
+   "unit": "N/A^2",
+   "how": "slope of B(I) x sqrt(L^2 + 4 R^2) / N"
+  },
+  {
+   "name": "3D: expanded_uncertainty_k2",
+   "value": 1.2947988192723286e-08,
+   "unit": "N/A^2",
+   "how": "k = 2, GUM root-sum-square of the budget"
+  },
+  {
+   "name": "3D: earth_field_intercept",
+   "value": 2.772951635444727e-05,
+   "unit": "T",
+   "how": "intercept of the B(I) fit (Earth's field + probe offset)"
+  },
+  {
+   "name": "3D: reduced_chi2",
+   "value": 2.040666467076056,
+   "unit": "-",
+   "how": "of the weighted fit"
+  },
+  {
+   "name": "3D: u_rel[fit slope (type A)]",
+   "value": 0.0005312108045381583,
+   "unit": "-",
+   "how": "relative standard uncertainty, budget line"
+  },
+  {
+   "name": "3D: u_rel[Hall probe gain (type B)]",
+   "value": 0.005,
+   "unit": "-",
+   "how": "relative standard uncertainty, budget line"
+  },
+  {
+   "name": "3D: u_rel[ammeter gain (type B)]",
+   "value": 0.001,
+   "unit": "-",
+   "how": "relative standard uncertainty, budget line"
+  },
+  {
+   "name": "3D: u_rel[length L (caliper)]",
+   "value": 0.0006495264137160462,
+   "unit": "-",
+   "how": "relative standard uncertainty, budget line"
+  },
+  {
+   "name": "3D: u_rel[radius R (caliper)]",
+   "value": 0.00021831356569546802,
+   "unit": "-",
+   "how": "relative standard uncertainty, budget line"
+  },
+  {
+   "name": "3D: coverage_k2",
+   "value": 0.9666666666666667,
+   "unit": "-",
+   "how": "fraction of 300 independent benches whose k=2 interval holds mu0"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D] mu0 (bench) vs CODATA 2022",
+   "passed": true,
+   "value": 1.251688783171391e-06,
+   "reference": 1.25663706127e-06,
+   "rtol": 0.010344414975036447,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "CODATA 2022 (Mohr et al., Rev. Mod. Phys. 97, 025002, 2025)",
+   "label": "mu0 (bench) vs CODATA 2022 vs codata",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D] stated uncertainty covers the truth about 95 % of the time",
+   "passed": true,
+   "value": 0.9666666666666667,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "290/300, Wilson 95 % interval 0.940-0.982; std of the normalised errors 0.99 (1 if the budget is right)",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] the helix is close to a current sheet at the centre (systematic below 0.1 %)",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Biot-Savart of the helix vs Griffiths prob. 5.11",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "3D/bench_mu0.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "3D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "JCGM 100:2008 (GUM)",
+  "CODATA 2022: mu0 = 1.25663706127(20)e-6 N/A^2 (Mohr et al., Rev. Mod. Phys. 97, 025002 (2025))",
+  "Griffiths, 4th ed., prob. 5.11 (finite solenoid)"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9847a3ef",
+  "created": "2026-10-24T16:44:41Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

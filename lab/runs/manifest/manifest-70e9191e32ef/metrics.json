@@ -1,0 +1,11 @@
+{
+ "rel_error[0D: C (bench) vs the capacitor's true value]": 0.0015782317619964959,
+ "rel_error[0D: C vs the nominal label (470 nF +- 10 %)]": 0.08431761000426682,
+ "0D: C_measured": 4.303707232979946e-07,
+ "0D: expanded_uncertainty_k2": 1.2442809558116788e-09,
+ "0D: tau_fit": 0.004200150233336449,
+ "0D: u_rel[fit tau (type A)]": 0.000916371241607485,
+ "0D: u_rel[ohmmeter (type B)]": 0.001,
+ "0D: u_rel[time base (type B)]": 0.0005,
+ "0D: coverage_k2": 0.9533333333333334
+}

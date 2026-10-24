@@ -1,0 +1,164 @@
+{
+ "schema": "pinneapple.science.result/1",
+ "experiment": "em.coulomb_superposition",
+ "title": "Coulomb's law and superposition",
+ "area": "physics.electromagnetism",
+ "topic": "electrostatics",
+ "level": "academic",
+ "kind": "theory",
+ "dim": "3D",
+ "params": {
+  "Q": 1e-09,
+  "R": 0.05,
+  "ladder": [
+   16,
+   32,
+   64,
+   128,
+   256
+  ],
+  "lam": 1e-09,
+  "half_length": 1.0,
+  "separation": 0.04
+ },
+ "values": {
+  "max_rel_error_potential": {
+   "value": 2.886579864025407e-15,
+   "unit": "",
+   "how": "max over 14 off-axis points, N = 256 charges"
+  },
+  "convergence_rate": {
+   "value": -1.3785116232537298,
+   "unit": "",
+   "how": "observed order of the potential error in N (exponential convergence shows as a growing order)"
+  }
+ },
+ "comparisons": [
+  {
+   "quantity": "ring potential at s = 0.6 R, z = 0.3 R",
+   "computed": 183.1583420257372,
+   "reference": 183.1583420257373,
+   "rel_error": 6.207024832406532e-16,
+   "tol": 1e-06,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2)",
+   "unit": "V",
+   "how": "superposition of 256 point charges (pp.em.statics.point_charge_field)",
+   "abs_error": 1.1368683772161603e-13,
+   "atol": 0.0
+  },
+  {
+   "quantity": "axial field E_z(z = 0.75 R)",
+   "computed": 1380.487954357481,
+   "reference": 1380.4879543574818,
+   "rel_error": 6.588211790636253e-16,
+   "tol": 1e-10,
+   "passed": true,
+   "kind": "closed_form",
+   "source": "Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2))",
+   "unit": "V/m",
+   "how": "",
+   "abs_error": 9.094947017729282e-13,
+   "atol": 0.0
+  },
+  {
+   "quantity": "far field -> point charge (r = 40 R)",
+   "computed": 2.2447831335662563,
+   "reference": 2.2468879465453813,
+   "rel_error": 0.0009367681118060166,
+   "tol": 0.001,
+   "passed": true,
+   "kind": "limit",
+   "source": "Coulomb's law, multipole limit r >> R",
+   "unit": "V/m",
+   "how": "",
+   "abs_error": 0.0021048129791250147,
+   "atol": 0.0
+  }
+ ],
+ "checks": [
+  {
+   "name": "error falls to round-off (below 1e-12) as N grows",
+   "passed": true,
+   "value": 2.886579864025407e-15,
+   "limit": 1e-12,
+   "critical": false,
+   "detail": "N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15",
+   "source": "physics"
+  }
+ ],
+ "passed": true,
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "ring potential at s = 0.6 R, z = 0.3 R vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 6.207024832406532e-16,
+    "limit": 1e-06,
+    "source": "Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2)",
+    "reason": "computed 183.158, reference 183.158 V"
+   },
+   {
+    "name": "axial field E_z(z = 0.75 R) vs closed form",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 6.588211790636253e-16,
+    "limit": 1e-10,
+    "source": "Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2))",
+    "reason": "computed 1380.49, reference 1380.49 V/m"
+   },
+   {
+    "name": "far field -> point charge (r = 40 R) vs limit",
+    "status": "supports",
+    "critical": true,
+    "weight": 1.0,
+    "value": 0.0009367681118060166,
+    "limit": 0.001,
+    "source": "Coulomb's law, multipole limit r >> R",
+    "reason": "computed 2.24478, reference 2.24689 V/m"
+   },
+   {
+    "name": "error falls to round-off (below 1e-12) as N grows",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 2.886579864025407e-15,
+    "limit": 1e-12,
+    "source": "physics",
+    "reason": "N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15"
+   }
+  ]
+ },
+ "data": {
+  "convergence": {
+   "N": [
+    16,
+    32,
+    64,
+    128,
+    256
+   ],
+   "max_rel_error": [
+    7.68732547679063e-05,
+    1.3556503031253442e-08,
+    8.881784197001252e-16,
+    1.1102230246251565e-15,
+    2.886579864025407e-15
+   ]
+  }
+ },
+ "data_files": [],
+ "notes": [],
+ "figures": [
+  "coulomb_ring.png"
+ ],
+ "movies": [],
+ "wall_time_s": 0.39917452200006664
+}

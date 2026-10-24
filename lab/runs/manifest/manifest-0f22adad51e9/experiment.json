@@ -1,0 +1,251 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-0f22adad51e9",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science",
+  "path": "examples/science/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "comparisons",
+   "value": 78.0,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "comparisons_passed",
+   "value": 78.0,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "em.ampere_law: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "7 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.bench_mu0_solenoid: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "1 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.bench_rc_discharge: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.biot_savart: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "6 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.cavity_resonance: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "9 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.circuits_rc_rl_rlc: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "6 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.coulomb_superposition: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "5 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.dipole_radiation: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "6 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.faraday_induction: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "3 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.fresnel_snell: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "12 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.gauss_law: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.hall_effect: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "1 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.lossy_plane_wave: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "2 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.mie_scattering: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "5 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.parallel_plate_capacitor: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "3 comparisons",
+   "kind": "reference"
+  },
+  {
+   "name": "em.waveguide_modes: every comparison passes",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "8 comparisons",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-0f22adad51e9",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "9847a3ef",
+  "seconds": 0.018,
+  "created": "2026-10-24T16:51:21Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

@@ -14,6 +14,23 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
+  `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 76 subareas with a
+  status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that
+  already cover them; `pp.science.validate()` checks every pointer. A common **experiment** abstraction: area,
+  level (academic / research), kind (theory / practice), dimensions (0D, 1D, 2D, 3D, 3D+t); every result carries
+  comparisons with cited references and the measured error, physics checks, a trust report, figures (an animation
+  for 3D+t), the Lab manifest and seal. **Electromagnetism**, academic level, on `pp.em` and `pp.maxwell`: Coulomb
+  and superposition, Gauss's law, the parallel-plate capacitor with its edge effect (2-D strips vs Palmer, 3-D
+  discs vs Kirchhoff), Biot-Savart (wire, loop, solenoid), Ampere's law (linking numbers), Faraday's law with a
+  magnet falling through a loop (3D+t, animated), RC / RL / RLC circuits, the Hall effect, dipole radiation (3D and
+  3D+t), a plane wave in a lossy medium, Fresnel and Snell (Bloch-periodic FDTD), waveguide modes, cavity
+  resonances, Mie scattering; and two virtual benches with instruments, GUM uncertainty budgets and a Monte Carlo
+  check of their coverage (mu0 from a solenoid against CODATA 2022, C from an RC discharge on an oscilloscope).
+  `python -m pinneapple_science atlas | list | run | report`, Flow Studio nodes `science.run` and
+  `science.atlas`, results in `examples/science/`, guide `docs/guides/science.md`.
+- `pp.em.statics.vector_potential` (exact A of straight filaments) and `pp.em.statics.flux_through_path` (flux by
+  Stokes' theorem, accurate when a filament pierces the spanning surface).
 - `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
   A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
   (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)

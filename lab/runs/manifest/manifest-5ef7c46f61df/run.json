@@ -1,0 +1,51 @@
+{
+ "run_id": "manifest-5ef7c46f61df",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/science/electromagnetism/parallel_plate_capacitor",
+  "path": "examples/science/electromagnetism/parallel_plate_capacitor/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792860678.6944962,
+ "tags": [
+  "manifest"
+ ],
+ "git": "9847a3ef",
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1792860678.7085083,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/2D__capacitor_2d.png",
+   "figures/3D__capacitor_3d.png"
+  ]
+ },
+ "validation": {
+  "total": 7,
+  "failed": 0
+ },
+ "seconds": 0.014,
+ "datasets": {}
+}

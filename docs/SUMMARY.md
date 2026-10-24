@@ -92,6 +92,7 @@
     * [Chain of whys: why each element of a design exists, computed](guides/chain_of_whys.md)
     * [The rover that learns the planet: drive, stall, learn the soil, replan, verify](guides/rover_learns_the_planet.md)
     * [Industrial presets: engineering cases set up, solved and validated](guides/industrial_presets.md)
+    * [Science by area: experiments in 0-D to 3-D + time, and the atlas](guides/science.md)
     * [Autonomous Physics Lab: missions planned and run through controlled tools](guides/autonomous_physics_lab.md)
     * [Flow Studio and the flow schema (pinneapple-flow/1)](guides/flow_schema.md)
 * Apps

@@ -1,0 +1,184 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/faraday_induction",
+ "title": "Faraday's law: a magnet falling through a loop (3D+t)",
+ "description": "A neodymium-like cylinder magnet falls along the axis of a wire loop. The 3-D field of the magnet is computed at every instant (vector potential and Biot-Savart of its bound surface current), the flux through the loop by Stokes' theorem, and the EMF = -dPhi/dt. Checked against Maxwell's coaxial-circle formula, the free-fall time at which the EMF changes sign, and the net flux change over the whole fall; the field in time is the animation.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.faraday_induction"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "academic",
+  "kind": "theory",
+  "dims": [
+   "3D+t"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[3D+t: peak EMF]",
+   "value": 0.003981860555201304,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Maxwell (1873) art. 701: M of coaxial circles (pp.em.statics.mutual_inductance_coaxial_loops), summed over the rings, differentiated in time)"
+  },
+  {
+   "name": "rel_error[3D+t: flux at the centre crossing]",
+   "value": 0.0023648267292750167,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Maxwell (1873) art. 701, summed over the rings)"
+  },
+  {
+   "name": "rel_error[3D+t: time of the EMF sign change]",
+   "value": 3.82404292119666e-05,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: free fall from rest: z0 = g t^2 / 2 (the flux is largest with the magnet centred))"
+  },
+  {
+   "name": "3D+t: peak_emf",
+   "value": 0.0052489614422669036,
+   "unit": "V",
+   "how": "largest |EMF| over the fall (second lobe: the magnet is faster)"
+  },
+  {
+   "name": "3D+t: max_flux",
+   "value": 7.724194246135024e-05,
+   "unit": "Wb",
+   "how": "flux through the loop when the magnet is centred in it"
+  },
+  {
+   "name": "3D+t: magnetic_moment",
+   "value": 2.1600000002851907,
+   "unit": "A m^2",
+   "how": "M pi a^2 L with M = Br / mu0"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[3D+t] peak EMF",
+   "passed": true,
+   "value": 0.0052489614422669036,
+   "reference": 0.00526994563090265,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Maxwell (1873) art. 701: M of coaxial circles (pp.em.statics.mutual_inductance_coaxial_loops), summed over the rings, differentiated in time",
+   "label": "peak EMF vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D+t] flux at the centre crossing",
+   "passed": true,
+   "value": 7.724194246135024e-05,
+   "reference": 7.742503926371625e-05,
+   "rtol": 0.01,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Maxwell (1873) art. 701, summed over the rings",
+   "label": "flux at the centre crossing vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D+t] time of the EMF sign change",
+   "passed": true,
+   "value": 0.12772709818658048,
+   "reference": 0.1277319827124235,
+   "rtol": 0.005,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "free fall from rest: z0 = g t^2 / 2 (the flux is largest with the magnet centred)",
+   "label": "time of the EMF sign change vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[3D+t] net EMF integral = -(Phi_end - Phi_start)",
+   "passed": true,
+   "value": 5.874271813790776e-06,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "integral of EMF dt over the fall against the flux change, relative to the peak flux",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] Lenz: EMF < 0 wherever the flux grows",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "33 instants with dPhi/dt > 5 % of its peak",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] div B = 0 above the magnet (pp.maxwell.gauss_magnetic)",
+   "passed": true,
+   "value": 0.017296865853171306,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "div B: ||sum of terms|| / sum of ||term|| = 0.0173; r(2h)/r(h) = 3.52: discretisation error (the field obeys the law); extrapolated residual 0.00279",
+   "kind": "physics"
+  },
+  {
+   "name": "[3D+t] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "3D_plus_t/faraday_traces.png"
+  ],
+  "videos": [
+   "3D_plus_t/faraday_3d_t.mp4",
+   "3D_plus_t/faraday_3d_t.gif"
+  ],
+  "viewers": [],
+  "data": [
+   "3D_plus_t/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "Griffiths, Introduction to Electrodynamics, 4th ed., sec. 6.2 (bound currents) and 7.2 (Faraday's law)",
+  "J. C. Maxwell, A Treatise on Electricity and Magnetism (1873), vol. 2, art. 701 (mutual inductance of coaxial circles)",
+  "Smythe, Static and Dynamic Electricity, 3rd ed., sec. 8.06"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "9847a3ef",
+  "created": "2026-10-24T16:47:43Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

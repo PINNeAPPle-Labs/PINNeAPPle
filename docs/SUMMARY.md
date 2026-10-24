@@ -102,6 +102,8 @@
     * [PhysicsNeMo trains, PINNeAPPle says when to trust](guides/physicsnemo_trust.md)
     * [Electromagnetics and electrodynamics](guides/electromagnetics.md)
     * [Antenna design: end-fire Vivaldi with an external FEM solver](guides/antenna_design.md)
+    * [Compact range quiet zone: feed gain x reflector size](guides/compact_range.md)
+    * [Periodic unit cell: FNO vs Bayesian optimisation at equal budget](guides/unit_cell_benchmark.md)
     * [Flight dynamics, turbulence and take-off](guides/flight_dynamics.md)
     * [Topology optimisation](guides/topology_optimization.md)
     * [Predicting El Niño (ENSO): physical, PINN, data-driven and hybrid models](guides/enso_forecasting.md)

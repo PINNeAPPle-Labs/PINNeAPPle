@@ -71,7 +71,8 @@ class CLISimulator:
 
     ``argv``: the command (e.g. ``[sys.executable, "script.py"]``); ``per_frequency``: one process per frequency;
     ``timeout``: seconds per process; ``fallback_args``: appended for one retry after a SIGBUS; ``parse(out_dir)``
-    returns ``(status, rows, message)``; ``env``: extra environment variables (thread counts, log levels).
+    returns ``(status, rows, message)``; ``env``: extra environment variables (thread counts, log levels);
+    ``extra_args``: arguments added to every command (e.g. ``["--scan", "0", "30"]``).
     Rows get the design's ``tag`` and parameters prepended, so they form a :class:`ResultTable`.
     """
 
@@ -79,13 +80,15 @@ class CLISimulator:
                  params_flag: str = "--params", freq_flag: str = "--freq", out_flag: str = "--out",
                  tag_flag: str | None = "--tag", fallback_args: Sequence[str] = (),
                  parse: Callable[[str], tuple[str, list[dict[str, Any]], str]] | None = None,
-                 env: Mapping[str, str] | None = None, log: Callable[[str], None] | None = None):
+                 env: Mapping[str, str] | None = None, log: Callable[[str], None] | None = None,
+                 extra_args: Sequence[str] = ()):
         self.argv, self.workdir = list(argv), os.path.abspath(workdir)
         self.per_frequency, self.timeout = per_frequency, float(timeout)
         self.params_flag, self.freq_flag, self.out_flag, self.tag_flag = params_flag, freq_flag, out_flag, tag_flag
         self.fallback_args = list(fallback_args)
         self.parse = parse or _default_parse
         self.env = dict(env or {})
+        self.extra_args = list(extra_args)
         self.log = log or (lambda s: None)
         self.records: list[RunRecord] = []
 
@@ -95,7 +98,7 @@ class CLISimulator:
                            self.out_flag, out]
         if self.tag_flag:
             cmd += [self.tag_flag, tag]
-        return cmd + list(extra)
+        return cmd + self.extra_args + list(extra)
 
     def _run(self, cmd: list[str], out: str) -> tuple[int | None, float, float, str]:
         os.makedirs(out, exist_ok=True)

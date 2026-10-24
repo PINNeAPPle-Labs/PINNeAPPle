@@ -1,0 +1,203 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/nvidia/15_model_services_brep_bracket",
+ "title": "Request to exact bracket: model service, USD BRep, PINNeAPPle sizing and verification",
+ "description": "",
+ "domain": "structural mechanics",
+ "methods": [
+  "intent extraction",
+  "B-rep (SMLib)",
+  "beam theory",
+  "FEM (C3D8I)"
+ ],
+ "modules": [
+  "pinneapple_tools.model_services",
+  "pinneapple_tools.nvidia.brep"
+ ],
+ "params": {},
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "thickness_mm",
+   "value": 10.0,
+   "unit": "mm",
+   "how": "smallest stock plate with beam stress <= yield / SF"
+  },
+  {
+   "name": "bracket_mass",
+   "value": 369.9879538393715,
+   "unit": "g",
+   "how": "exact B-rep mass, 6061 density"
+  }
+ ],
+ "checks": [
+  {
+   "name": "request 1: extraction APPROVED, schema satisfied",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "request 2 (ambiguous): not APPROVED, nothing built",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "'120 mm' was not used: no value of that kind in the Load-bearing angle bracket template",
+   "kind": "sanity"
+  },
+  {
+   "name": "nominal root stress <= yield / SF (beam)",
+   "passed": true,
+   "value": 123.74999999999999,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 138.0,
+   "min": null,
+   "detail": "t = 10 mm from stock",
+   "kind": "sanity"
+  },
+  {
+   "name": "exact volume = closed form",
+   "passed": true,
+   "value": 2.311895630168799e-09,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 1e-06,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "B-rep is a manifold solid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "mesh is a manifold solid",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "chord error <= tolerance",
+   "passed": true,
+   "value": 1.3014323235136927e-05,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 2e-05,
+   "min": null,
+   "detail": "largest distance from a triangle centroid to the exact surface",
+   "kind": "reference"
+  },
+  {
+   "name": "mesh volume vs exact",
+   "passed": true,
+   "value": 8.734369822139873e-05,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.001,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "mesh area vs exact",
+   "passed": true,
+   "value": 5.137831997449299e-06,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.001,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "element size resolves the smallest radius (3.30 mm)",
+   "passed": true,
+   "value": 0.0012,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.0012959069695911468,
+   "min": null,
+   "detail": "4 elements per quarter circle",
+   "kind": "sanity"
+  },
+  {
+   "name": "FE root stress vs beam",
+   "passed": true,
+   "value": 0.011283961315698697,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.1,
+   "min": null,
+   "detail": "",
+   "kind": "sanity"
+  },
+  {
+   "name": "FE tip deflection vs beam (FE includes the leg's rotation)",
+   "passed": true,
+   "value": 1.0679407797301137,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "1.547 vs 1.449 mm",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/request_to_part.png",
+   "results/checks.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "e4f0064a",
+  "created": "2026-10-24T16:44:38Z",
+  "seconds": 5.496,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

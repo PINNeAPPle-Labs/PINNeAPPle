@@ -1,6 +1,6 @@
 # PINNeAPPle Lab curation
 
-Generated 2026-10-24 17:28 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
+Generated 2026-10-24 17:55 UTC. Tiers: **A flagship** (product / paper / marketing once reviewed), **B solid** (demos, use cases, datasets), **C plausible** (partly checked), **D exploratory** (not validated), **E known problems** (a failing check), **F not usable** (crashed, diverged, failed physics or contradicts the reference). Gates, not averages: see `pinneapple_lab/curation.py`.
 
 | experiment | tier | best score | runs (A/B/C/D/E/F) | usable | product | paper | marketing | data | reviewed |
 |---|---|---|---|---|---|---|---|---|---|

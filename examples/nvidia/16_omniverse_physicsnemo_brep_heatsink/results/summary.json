@@ -47,7 +47,7 @@
   "points": 28633,
   "max_deviation": 7.666890582589929e-06,
   "rms_deviation": 2.6251305011131946e-06,
-  "mesh_volume": 7.227114064585825e-05,
+  "mesh_volume": 7.227114064585828e-05,
   "mesh_area": 0.06472289566186107,
   "manifold": true
  },
@@ -79,7 +79,7 @@
   },
   {
    "name": "mesh volume vs exact",
-   "value": 0.00018234714575045003,
+   "value": 0.00018234714575082514,
    "limit": 0.001,
    "passed": true
   },

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-24 17:28 UTC",
+ "generated": "2026-10-24 17:55 UTC",
  "experiments": {
   "accretion_flow": {
    "tier": "B",
@@ -23072,303 +23072,6 @@
    "description": "An experiment described by its manifest (experiment.json), imported for curation.",
    "title": "circuits rc rl rlc"
   },
-  "manifest/examples/science/electromagnetism/coulomb_superposition": {
-   "tier": "B",
-   "tier_name": "solid",
-   "best_run": "manifest-9fd937e93a24",
-   "best_score": 87.1,
-   "runs": 1,
-   "tier_counts": {
-    "A": 0,
-    "B": 1,
-    "C": 0,
-    "D": 0,
-    "E": 0,
-    "F": 0
-   },
-   "usable_fraction": 1.0,
-   "readiness": {
-    "product": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "generalization evidence",
-      "uncertainty estimate"
-     ]
-    },
-    "paper": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "novelty review >= 3/5"
-     ]
-    },
-    "marketing": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "strong visuals (movie, render or 3-D view)",
-      "a one-line story (review)"
-     ]
-    },
-    "training_data": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "a documented dataset"
-     ]
-    }
-   },
-   "gaps": [
-    "add figures (a movie, a render or a 3-D view for communication)",
-    "document it (docs page, references)"
-   ],
-   "reviewed": false,
-   "stages": {
-    "data_geometry": {
-     "title": "Data and geometry",
-     "question": "Was the physical problem represented correctly?",
-     "status": "partial",
-     "evidence": [
-      "inputs recorded: manifest, params"
-     ],
-     "next": "add a mesh-convergence or domain check"
-    },
-    "model": {
-     "title": "Model",
-     "question": "Can the model (or solver) represent the relevant dynamics?",
-     "status": "answered",
-     "evidence": [
-      "PASS [3D] trust report (decision APPROVED)",
-      "PASS [2D] trust report (decision APPROVED)"
-     ],
-     "next": ""
-    },
-    "physics": {
-     "title": "Physical constraints",
-     "question": "Are the equations and the boundary conditions respected?",
-     "status": "answered",
-     "evidence": [
-      "PASS [3D] error falls to round-off (below 1e-12) as N grows (N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15)",
-      "PASS [2D] worst error over the 55 points below 1e-6 (64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any powe)"
-     ],
-     "next": ""
-    },
-    "benchmark": {
-     "title": "Benchmark",
-     "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
-     "evidence": [
-      "PASS [3D] ring potential at s = 0.6 R, z = 0.3 R (Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2))",
-      "PASS [3D] axial field E_z(z = 0.75 R) (Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2)))",
-      "PASS [3D] far field -> point charge (r = 40 R) (Coulomb's law, multipole limit r >> R)",
-      "PASS [2D] line-pair field E_x at (0, d/2) (Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed)",
-      "PASS [2D] finite line -> infinite line (s = 0.01 m, L = 1 m) (Gauss's law for an infinite line: lam / (2 pi eps0 s))"
-     ],
-     "next": ""
-    },
-    "uncertainty": {
-     "title": "Uncertainty",
-     "question": "Where may the prediction not be reliable?",
-     "status": "open",
-     "evidence": [
-      "no uncertainty and no declared limitation"
-     ],
-     "next": "declare the limitations and quantify the spread"
-    },
-    "decision": {
-     "title": "Engineering decision",
-     "question": "Is the result adequate for the intended use?",
-     "status": "partial",
-     "evidence": [
-      "tier B (solid)"
-     ],
-     "next": "generalization evidence"
-    }
-   },
-   "headline": {
-    "kind": "reference",
-    "text": "ring potential at s = 0.6 R, z = 0.3 R vs closed form",
-    "check": "[3D] ring potential at s = 0.6 R, z = 0.3 R",
-    "missing": "flagship gates (see gaps)",
-    "label": "ring potential at s = 0.6 R, z = 0.3 R vs closed form"
-   },
-   "next_steps": [
-    {
-     "type": "assets",
-     "to": "A",
-     "stage": "decision",
-     "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
-     "why_pt": "assets pontua\u00e7\u00e3o 0.4 < 0.6: adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
-     "short": "add figures: three plots, a movie, a render or a 3-D view",
-     "short_pt": "adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
-     "check": "",
-     "measured": {
-      "value": 0.4,
-      "threshold": 0.6,
-      "op": "score"
-     },
-     "actions": [
-      {
-       "id": "ctx_figure",
-       "kind": "python",
-       "target": "pinneapple_lab.context.RunContext.figure",
-       "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
-       "text": "save the key plots, a movie or a render with the run",
-       "text_pt": "salvar os gr\u00e1ficos principais, um v\u00eddeo ou um render com a execu\u00e7\u00e3o",
-       "params": {
-        "experiment": "manifest"
-       },
-       "runnable": false,
-       "argv": []
-      },
-      {
-       "id": "field_view",
-       "kind": "python",
-       "target": "pinneapple.viz.field_view",
-       "command": "pp.viz.field_view(mesh, fields)",
-       "text": "a 3-D view of the field on its mesh",
-       "text_pt": "uma vista 3-D do campo na malha",
-       "params": {
-        "experiment": "manifest"
-       },
-       "runnable": false,
-       "argv": []
-      }
-     ]
-    },
-    {
-     "type": "documentation",
-     "to": "A",
-     "stage": "decision",
-     "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
-     "why_pt": "documentation pontua\u00e7\u00e3o 0.4 < 0.6: documentar: refer\u00eancias e uma p\u00e1gina",
-     "short": "document it: references and a docs page",
-     "short_pt": "documentar: refer\u00eancias e uma p\u00e1gina",
-     "check": "",
-     "measured": {
-      "value": 0.4,
-      "threshold": 0.6,
-      "op": "score"
-     },
-     "actions": [
-      {
-       "id": "experiment_references",
-       "kind": "python",
-       "target": "pinneapple_lab.spec.Experiment.references",
-       "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
-       "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
-       "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa p\u00e1gina da documenta\u00e7\u00e3o",
-       "params": {
-        "experiment": "manifest"
-       },
-       "runnable": false,
-       "argv": []
-      }
-     ]
-    }
-   ],
-   "plan": {
-    "limitations": [
-     "detected: evidence only inferred (not measured by a check) for documentation"
-    ],
-    "actions": [
-     {
-      "gap": "review",
-      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
-      "effort": "S",
-      "unlocks": [
-       "paper",
-       "marketing"
-      ]
-     },
-     {
-      "gap": "assets",
-      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
-      "effort": "S",
-      "unlocks": [
-       "marketing",
-       "tier A"
-      ]
-     },
-     {
-      "gap": "data",
-      "action": "Save the fields as a dataset with a card (ctx.dataset)",
-      "effort": "S",
-      "unlocks": [
-       "training_data"
-      ]
-     },
-     {
-      "gap": "documentation",
-      "action": "Write a docs page and cite the reference papers (Experiment.references)",
-      "effort": "S",
-      "unlocks": [
-       "tier A"
-      ]
-     },
-     {
-      "gap": "generalization",
-      "action": "Hold out designs or an out-of-distribution regime and report the error there",
-      "effort": "M",
-      "unlocks": [
-       "product"
-      ]
-     },
-     {
-      "gap": "uncertainty",
-      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
-      "effort": "M",
-      "unlocks": [
-       "product"
-      ]
-     }
-    ],
-    "uses": {
-     "product": {
-      "status": "gap",
-      "run": "manifest-9fd937e93a24",
-      "distance": 6,
-      "missing": [
-       "generalization evidence",
-       "uncertainty estimate"
-      ]
-     },
-     "paper": {
-      "status": "gap",
-      "run": "manifest-9fd937e93a24",
-      "distance": 1,
-      "missing": [
-       "novelty review >= 3/5"
-      ]
-     },
-     "marketing": {
-      "status": "gap",
-      "run": "manifest-9fd937e93a24",
-      "distance": 2,
-      "missing": [
-       "strong visuals (movie, render or 3-D view)",
-       "a one-line story (review)"
-      ]
-     },
-     "training_data": {
-      "status": "gap",
-      "run": "manifest-9fd937e93a24",
-      "distance": 1,
-      "missing": [
-       "a documented dataset"
-      ]
-     }
-    },
-    "closest_use": "paper",
-    "next_tier": "A"
-   },
-   "experiment": "manifest",
-   "case": "examples/science/electromagnetism/coulomb_superposition",
-   "story": "",
-   "description": "An experiment described by its manifest (experiment.json), imported for curation.",
-   "title": "coulomb superposition"
-  },
   "manifest/examples/science/electromagnetism/dipole_radiation": {
    "tier": "B",
    "tier_name": "solid",
@@ -27160,6 +26863,303 @@
    "story": "",
    "description": "An experiment described by its manifest (experiment.json), imported for curation.",
    "title": "research surrogate hall"
+  },
+  "manifest/examples/science/electromagnetism/coulomb_superposition": {
+   "tier": "B",
+   "tier_name": "solid",
+   "best_run": "manifest-9fd937e93a24",
+   "best_score": 87.1,
+   "runs": 1,
+   "tier_counts": {
+    "A": 0,
+    "B": 1,
+    "C": 0,
+    "D": 0,
+    "E": 0,
+    "F": 0
+   },
+   "usable_fraction": 1.0,
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D] trust report (decision APPROVED)",
+      "PASS [2D] trust report (decision APPROVED)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D] error falls to round-off (below 1e-12) as N grows (N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15)",
+      "PASS [2D] worst error over the 55 points below 1e-6 (64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any powe)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D] ring potential at s = 0.6 R, z = 0.3 R (Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2))",
+      "PASS [3D] axial field E_z(z = 0.75 R) (Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2)))",
+      "PASS [3D] far field -> point charge (r = 40 R) (Coulomb's law, multipole limit r >> R)",
+      "PASS [2D] line-pair field E_x at (0, d/2) (Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed)",
+      "PASS [2D] finite line -> infinite line (s = 0.01 m, L = 1 m) (Gauss's law for an infinite line: lam / (2 pi eps0 s))"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "open",
+     "evidence": [
+      "no uncertainty and no declared limitation"
+     ],
+     "next": "declare the limitations and quantify the spread"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "ring potential at s = 0.6 R, z = 0.3 R vs closed form",
+    "check": "[3D] ring potential at s = 0.6 R, z = 0.3 R",
+    "missing": "flagship gates (see gaps)",
+    "label": "ring potential at s = 0.6 R, z = 0.3 R vs closed form"
+   },
+   "next_steps": [
+    {
+     "type": "assets",
+     "to": "A",
+     "stage": "decision",
+     "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+     "why_pt": "assets pontua\u00e7\u00e3o 0.4 < 0.6: adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "short": "add figures: three plots, a movie, a render or a 3-D view",
+     "short_pt": "adicionar figuras: tr\u00eas gr\u00e1ficos, v\u00eddeo, render ou vista 3-D",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "ctx_figure",
+       "kind": "python",
+       "target": "pinneapple_lab.context.RunContext.figure",
+       "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+       "text": "save the key plots, a movie or a render with the run",
+       "text_pt": "salvar os gr\u00e1ficos principais, um v\u00eddeo ou um render com a execu\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      },
+      {
+       "id": "field_view",
+       "kind": "python",
+       "target": "pinneapple.viz.field_view",
+       "command": "pp.viz.field_view(mesh, fields)",
+       "text": "a 3-D view of the field on its mesh",
+       "text_pt": "uma vista 3-D do campo na malha",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    },
+    {
+     "type": "documentation",
+     "to": "A",
+     "stage": "decision",
+     "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+     "why_pt": "documentation pontua\u00e7\u00e3o 0.4 < 0.6: documentar: refer\u00eancias e uma p\u00e1gina",
+     "short": "document it: references and a docs page",
+     "short_pt": "documentar: refer\u00eancias e uma p\u00e1gina",
+     "check": "",
+     "measured": {
+      "value": 0.4,
+      "threshold": 0.6,
+      "op": "score"
+     },
+     "actions": [
+      {
+       "id": "experiment_references",
+       "kind": "python",
+       "target": "pinneapple_lab.spec.Experiment.references",
+       "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+       "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+       "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa p\u00e1gina da documenta\u00e7\u00e3o",
+       "params": {
+        "experiment": "manifest"
+       },
+       "runnable": false,
+       "argv": []
+      }
+     ]
+    }
+   ],
+   "plan": {
+    "limitations": [
+     "detected: evidence only inferred (not measured by a check) for documentation"
+    ],
+    "actions": [
+     {
+      "gap": "review",
+      "action": "Human review: novelty, clarity, the one-line story (python -m pinneapple_lab review <experiment> --story ... --novelty ...)",
+      "effort": "S",
+      "unlocks": [
+       "paper",
+       "marketing"
+      ]
+     },
+     {
+      "gap": "assets",
+      "action": "Add a movie, a photoreal render (pp.viz.render) or the 3-D viewer (pp.viz.web_viewer) of the key result",
+      "effort": "S",
+      "unlocks": [
+       "marketing",
+       "tier A"
+      ]
+     },
+     {
+      "gap": "data",
+      "action": "Save the fields as a dataset with a card (ctx.dataset)",
+      "effort": "S",
+      "unlocks": [
+       "training_data"
+      ]
+     },
+     {
+      "gap": "documentation",
+      "action": "Write a docs page and cite the reference papers (Experiment.references)",
+      "effort": "S",
+      "unlocks": [
+       "tier A"
+      ]
+     },
+     {
+      "gap": "generalization",
+      "action": "Hold out designs or an out-of-distribution regime and report the error there",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     },
+     {
+      "gap": "uncertainty",
+      "action": "Report an ensemble spread or intervals and check their calibration (pinneapple_veriphysics.robustness: ensemble_study, calibration_against_reference)",
+      "effort": "M",
+      "unlocks": [
+       "product"
+      ]
+     }
+    ],
+    "uses": {
+     "product": {
+      "status": "gap",
+      "run": "manifest-9fd937e93a24",
+      "distance": 6,
+      "missing": [
+       "generalization evidence",
+       "uncertainty estimate"
+      ]
+     },
+     "paper": {
+      "status": "gap",
+      "run": "manifest-9fd937e93a24",
+      "distance": 1,
+      "missing": [
+       "novelty review >= 3/5"
+      ]
+     },
+     "marketing": {
+      "status": "gap",
+      "run": "manifest-9fd937e93a24",
+      "distance": 2,
+      "missing": [
+       "strong visuals (movie, render or 3-D view)",
+       "a one-line story (review)"
+      ]
+     },
+     "training_data": {
+      "status": "gap",
+      "run": "manifest-9fd937e93a24",
+      "distance": 1,
+      "missing": [
+       "a documented dataset"
+      ]
+     }
+    },
+    "closest_use": "paper",
+    "next_tier": "A"
+   },
+   "experiment": "manifest",
+   "case": "examples/science/electromagnetism/coulomb_superposition",
+   "story": "",
+   "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+   "title": "coulomb superposition"
   },
   "manifest/examples/science": {
    "tier": "B",
@@ -64447,230 +64447,6 @@
    },
    "tier_name": "solid"
   },
-  "manifest-9fd937e93a24": {
-   "run_id": "manifest-9fd937e93a24",
-   "experiment": "manifest",
-   "status": "completed",
-   "tier": "B",
-   "score": 87.1,
-   "coverage": 0.7,
-   "dimensions": {
-    "validation": {
-     "name": "validation",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "9/9 checks pass"
-     ]
-    },
-    "reference": {
-     "name": "reference",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "PASS [3D] ring potential at s = 0.6 R, z = 0.3 R (Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2))",
-      "PASS [3D] axial field E_z(z = 0.75 R) (Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2)))",
-      "PASS [3D] far field -> point charge (r = 40 R) (Coulomb's law, multipole limit r >> R)",
-      "PASS [2D] line-pair field E_x at (0, d/2) (Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed)",
-      "PASS [2D] finite line -> infinite line (s = 0.01 m, L = 1 m) (Gauss's law for an infinite line: lam / (2 pi eps0 s))"
-     ]
-    },
-    "baseline": {
-     "name": "baseline",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no baseline check"
-     ]
-    },
-    "physics": {
-     "name": "physics",
-     "score": 1.0,
-     "status": "PASS",
-     "tier": "VERIFIED",
-     "evidence": [
-      "PASS [3D] error falls to round-off (below 1e-12) as N grows (N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15)",
-      "PASS [2D] worst error over the 55 points below 1e-6 (64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any power until the charges are closer than the points are to the line))"
-     ]
-    },
-    "generalization": {
-     "name": "generalization",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no generalization check"
-     ]
-    },
-    "uncertainty": {
-     "name": "uncertainty",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no uncertainty reported"
-     ]
-    },
-    "reproducibility": {
-     "name": "reproducibility",
-     "score": 1.0,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "code snapshot: 1 files",
-      "git 9847a3ef"
-     ]
-    },
-    "data": {
-     "name": "data",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no dataset"
-     ]
-    },
-    "assets": {
-     "name": "assets",
-     "score": 0.4,
-     "status": "INFO",
-     "tier": "VERIFIED",
-     "evidence": [
-      "2 figures, 0 movies"
-     ]
-    },
-    "documentation": {
-     "name": "documentation",
-     "score": 0.4,
-     "status": "INFO",
-     "tier": "INFERRED",
-     "evidence": [
-      "description 81 chars",
-      "docs: none",
-      "papers: 0"
-     ]
-    },
-    "review": {
-     "name": "review",
-     "score": null,
-     "status": "NOT_RUN",
-     "tier": "UNSUPPORTED",
-     "evidence": [
-      "no human review yet"
-     ]
-    }
-   },
-   "readiness": {
-    "product": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "generalization evidence",
-      "uncertainty estimate"
-     ]
-    },
-    "paper": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "novelty review >= 3/5"
-     ]
-    },
-    "marketing": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "strong visuals (movie, render or 3-D view)",
-      "a one-line story (review)"
-     ]
-    },
-    "training_data": {
-     "ready": false,
-     "approved": false,
-     "missing": [
-      "a documented dataset"
-     ]
-    }
-   },
-   "gaps": [
-    "add figures (a movie, a render or a 3-D view for communication)",
-    "document it (docs page, references)"
-   ],
-   "reviewed": false,
-   "stages": {
-    "data_geometry": {
-     "title": "Data and geometry",
-     "question": "Was the physical problem represented correctly?",
-     "status": "partial",
-     "evidence": [
-      "inputs recorded: manifest, params"
-     ],
-     "next": "add a mesh-convergence or domain check"
-    },
-    "model": {
-     "title": "Model",
-     "question": "Can the model (or solver) represent the relevant dynamics?",
-     "status": "answered",
-     "evidence": [
-      "PASS [3D] trust report (decision APPROVED)",
-      "PASS [2D] trust report (decision APPROVED)"
-     ],
-     "next": ""
-    },
-    "physics": {
-     "title": "Physical constraints",
-     "question": "Are the equations and the boundary conditions respected?",
-     "status": "answered",
-     "evidence": [
-      "PASS [3D] error falls to round-off (below 1e-12) as N grows (N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15)",
-      "PASS [2D] worst error over the 55 points below 1e-6 (64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any powe)"
-     ],
-     "next": ""
-    },
-    "benchmark": {
-     "title": "Benchmark",
-     "question": "How does the result compare with a solver or reference data?",
-     "status": "answered",
-     "evidence": [
-      "PASS [3D] ring potential at s = 0.6 R, z = 0.3 R (Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2))",
-      "PASS [3D] axial field E_z(z = 0.75 R) (Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2)))",
-      "PASS [3D] far field -> point charge (r = 40 R) (Coulomb's law, multipole limit r >> R)",
-      "PASS [2D] line-pair field E_x at (0, d/2) (Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed)",
-      "PASS [2D] finite line -> infinite line (s = 0.01 m, L = 1 m) (Gauss's law for an infinite line: lam / (2 pi eps0 s))"
-     ],
-     "next": ""
-    },
-    "uncertainty": {
-     "title": "Uncertainty",
-     "question": "Where may the prediction not be reliable?",
-     "status": "open",
-     "evidence": [
-      "no uncertainty and no declared limitation"
-     ],
-     "next": "declare the limitations and quantify the spread"
-    },
-    "decision": {
-     "title": "Engineering decision",
-     "question": "Is the result adequate for the intended use?",
-     "status": "partial",
-     "evidence": [
-      "tier B (solid)"
-     ],
-     "next": "generalization evidence"
-    }
-   },
-   "headline": {
-    "kind": "reference",
-    "text": "ring potential at s = 0.6 R, z = 0.3 R vs closed form",
-    "check": "[3D] ring potential at s = 0.6 R, z = 0.3 R",
-    "missing": "flagship gates (see gaps)",
-    "label": "ring potential at s = 0.6 R, z = 0.3 R vs closed form"
-   },
-   "tier_name": "solid"
-  },
   "manifest-6d8ff82f4301": {
    "run_id": "manifest-6d8ff82f4301",
    "experiment": "manifest",
@@ -67568,6 +67344,230 @@
    },
    "tier_name": "solid"
   },
+  "manifest-9fd937e93a24": {
+   "run_id": "manifest-9fd937e93a24",
+   "experiment": "manifest",
+   "status": "completed",
+   "tier": "B",
+   "score": 87.1,
+   "coverage": 0.7,
+   "dimensions": {
+    "validation": {
+     "name": "validation",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "9/9 checks pass"
+     ]
+    },
+    "reference": {
+     "name": "reference",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [3D] ring potential at s = 0.6 R, z = 0.3 R (Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2))",
+      "PASS [3D] axial field E_z(z = 0.75 R) (Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2)))",
+      "PASS [3D] far field -> point charge (r = 40 R) (Coulomb's law, multipole limit r >> R)",
+      "PASS [2D] line-pair field E_x at (0, d/2) (Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed)",
+      "PASS [2D] finite line -> infinite line (s = 0.01 m, L = 1 m) (Gauss's law for an infinite line: lam / (2 pi eps0 s))"
+     ]
+    },
+    "baseline": {
+     "name": "baseline",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no baseline check"
+     ]
+    },
+    "physics": {
+     "name": "physics",
+     "score": 1.0,
+     "status": "PASS",
+     "tier": "VERIFIED",
+     "evidence": [
+      "PASS [3D] error falls to round-off (below 1e-12) as N grows (N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15)",
+      "PASS [2D] worst error over the 55 points below 1e-6 (64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any power until the charges are closer than the points are to the line))"
+     ]
+    },
+    "generalization": {
+     "name": "generalization",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no generalization check"
+     ]
+    },
+    "uncertainty": {
+     "name": "uncertainty",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no uncertainty reported"
+     ]
+    },
+    "reproducibility": {
+     "name": "reproducibility",
+     "score": 1.0,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "code snapshot: 1 files",
+      "git 204e481e"
+     ]
+    },
+    "data": {
+     "name": "data",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no dataset"
+     ]
+    },
+    "assets": {
+     "name": "assets",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "VERIFIED",
+     "evidence": [
+      "2 figures, 0 movies"
+     ]
+    },
+    "documentation": {
+     "name": "documentation",
+     "score": 0.4,
+     "status": "INFO",
+     "tier": "INFERRED",
+     "evidence": [
+      "description 81 chars",
+      "docs: none",
+      "papers: 0"
+     ]
+    },
+    "review": {
+     "name": "review",
+     "score": null,
+     "status": "NOT_RUN",
+     "tier": "UNSUPPORTED",
+     "evidence": [
+      "no human review yet"
+     ]
+    }
+   },
+   "readiness": {
+    "product": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "generalization evidence",
+      "uncertainty estimate"
+     ]
+    },
+    "paper": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "novelty review >= 3/5"
+     ]
+    },
+    "marketing": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "strong visuals (movie, render or 3-D view)",
+      "a one-line story (review)"
+     ]
+    },
+    "training_data": {
+     "ready": false,
+     "approved": false,
+     "missing": [
+      "a documented dataset"
+     ]
+    }
+   },
+   "gaps": [
+    "add figures (a movie, a render or a 3-D view for communication)",
+    "document it (docs page, references)"
+   ],
+   "reviewed": false,
+   "stages": {
+    "data_geometry": {
+     "title": "Data and geometry",
+     "question": "Was the physical problem represented correctly?",
+     "status": "partial",
+     "evidence": [
+      "inputs recorded: manifest, params"
+     ],
+     "next": "add a mesh-convergence or domain check"
+    },
+    "model": {
+     "title": "Model",
+     "question": "Can the model (or solver) represent the relevant dynamics?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D] trust report (decision APPROVED)",
+      "PASS [2D] trust report (decision APPROVED)"
+     ],
+     "next": ""
+    },
+    "physics": {
+     "title": "Physical constraints",
+     "question": "Are the equations and the boundary conditions respected?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D] error falls to round-off (below 1e-12) as N grows (N=16: 7.7e-05, N=32: 1.4e-08, N=64: 8.9e-16, N=128: 1.1e-15, N=256: 2.9e-15)",
+      "PASS [2D] worst error over the 55 points below 1e-6 (64: 3.7e-01, 128: 4.9e-02, 256: 5.4e-04, 512: 4.9e-08, 1024: 6.1e-09 (faster than any powe)"
+     ],
+     "next": ""
+    },
+    "benchmark": {
+     "title": "Benchmark",
+     "question": "How does the result compare with a solver or reference data?",
+     "status": "answered",
+     "evidence": [
+      "PASS [3D] ring potential at s = 0.6 R, z = 0.3 R (Jackson sec. 3.3: phi = Q/(4 pi eps0) (2/pi) K(m)/sqrt((R+s)^2+z^2))",
+      "PASS [3D] axial field E_z(z = 0.75 R) (Griffiths ex. 2.5: E_z = Q z / (4 pi eps0 (z^2 + R^2)^(3/2)))",
+      "PASS [3D] far field -> point charge (r = 40 R) (Coulomb's law, multipole limit r >> R)",
+      "PASS [2D] line-pair field E_x at (0, d/2) (Griffiths ex. 2.2: E = lam/(2 pi eps0 s) L/sqrt(L^2+s^2) per segment, superposed)",
+      "PASS [2D] finite line -> infinite line (s = 0.01 m, L = 1 m) (Gauss's law for an infinite line: lam / (2 pi eps0 s))"
+     ],
+     "next": ""
+    },
+    "uncertainty": {
+     "title": "Uncertainty",
+     "question": "Where may the prediction not be reliable?",
+     "status": "open",
+     "evidence": [
+      "no uncertainty and no declared limitation"
+     ],
+     "next": "declare the limitations and quantify the spread"
+    },
+    "decision": {
+     "title": "Engineering decision",
+     "question": "Is the result adequate for the intended use?",
+     "status": "partial",
+     "evidence": [
+      "tier B (solid)"
+     ],
+     "next": "generalization evidence"
+    }
+   },
+   "headline": {
+    "kind": "reference",
+    "text": "ring potential at s = 0.6 R, z = 0.3 R vs closed form",
+    "check": "[3D] ring potential at s = 0.6 R, z = 0.3 R",
+    "missing": "flagship gates (see gaps)",
+    "label": "ring potential at s = 0.6 R, z = 0.3 R vs closed form"
+   },
+   "tier_name": "solid"
+  },
   "manifest-0f22adad51e9": {
    "run_id": "manifest-0f22adad51e9",
    "experiment": "manifest",
@@ -67656,7 +67656,7 @@
      "tier": "VERIFIED",
      "evidence": [
       "code snapshot: 1 files",
-      "git 204e481e"
+      "git ea977414"
      ]
     },
     "data": {

@@ -7,7 +7,7 @@
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 128
+  "example": 132
  },
  "kinds": {
   "tool": "Tools",
@@ -24,7 +24,7 @@
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 128
+   "example": 132
   },
   "subkind": {
    "library call": 249,
@@ -50,17 +50,21 @@
    "flight dynamics": 8,
    "geophysics and climate": 8,
    "astrophysics": 4,
+   "Estrutural / caldeiraria e processo": 1,
    "Estrutural / construção": 1,
+   "Fluidos / bombeamento (saneamento, processo, utilidades)": 1,
    "Fluidos / saneamento": 1,
    "Fluidos / saneamento e óleo e gás": 1,
+   "Processo e energia / utilidades": 1,
    "Térmica / eletrônica": 1,
    "Térmica / eletrônica de potência": 1,
+   "Térmica / processo e energia": 1,
    "engineering": 1,
    "molecular dynamics": 1,
    "security": 1
   },
   "quality": {
-   "not graded": 514,
+   "not graded": 518,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -6467,7 +6471,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=preset.run",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L16"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L17"
    },
    "extra": {
     "calls": "pinneapple_presets.load(name).run(**overrides)",
@@ -6501,6 +6505,10 @@
       "choices": [
        "plate_fin_heatsink_forced",
        "power_pcb_junction",
+       "pressure_vessel_asme",
+       "pump_npsh_cavitation",
+       "shell_tube_cooler",
+       "steam_pipe_insulation",
        "steel_footbridge_pedestrian",
        "water_distribution_network",
        "water_hammer_valve_closure"
@@ -6545,6 +6553,10 @@
        "enum": [
         "plate_fin_heatsink_forced",
         "power_pcb_junction",
+        "pressure_vessel_asme",
+        "pump_npsh_cavitation",
+        "shell_tube_cooler",
+        "steam_pipe_insulation",
         "steel_footbridge_pedestrian",
         "water_distribution_network",
         "water_hammer_valve_closure"
@@ -14554,7 +14566,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=preset.validate",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L45"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L46"
    },
    "extra": {
     "calls": "pinneapple_presets.load(name).validate()",
@@ -14578,6 +14590,10 @@
       "choices": [
        "plate_fin_heatsink_forced",
        "power_pcb_junction",
+       "pressure_vessel_asme",
+       "pump_npsh_cavitation",
+       "shell_tube_cooler",
+       "steam_pipe_insulation",
        "steel_footbridge_pedestrian",
        "water_distribution_network",
        "water_hammer_valve_closure"
@@ -14599,6 +14615,10 @@
        "enum": [
         "plate_fin_heatsink_forced",
         "power_pcb_junction",
+        "pressure_vessel_asme",
+        "pump_npsh_cavitation",
+        "shell_tube_cooler",
+        "steam_pipe_insulation",
         "steel_footbridge_pedestrian",
         "water_distribution_network",
         "water_hammer_valve_closure"
@@ -15809,7 +15829,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/industrial_presets.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_presets/registry.py#L35"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_presets/registry.py#L39"
    },
    "extra": {
     "functions": [
@@ -15827,15 +15847,15 @@
     "table_row": "`pp.presets.names()`, `pp.presets.load(name).card()` / `.run(**params)` / `.run(fidelity=\"surrogate\")` / `.validate()` / `.invert()` / `.optimize()`; `python -m pinneapple_presets list`; Flow node `preset.run` ([docs](docs/guides/industrial_presets.md))"
    },
    "run": {
-    "ok": true,
-    "stdout": "pp.presets.names() -> 'list[str]'\nNames of every industrial preset (built in and registered), sorted.",
-    "stderr": "",
-    "seconds": 4.83,
-    "timed_out": false,
     "code_hash": "40da71791426ddda",
     "figures": [],
+    "ok": true,
     "recorded": "2026-10-24",
+    "seconds": 4.83,
     "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "pp.presets.names() -> 'list[str]'\nNames of every industrial preset (built in and registered), sorted.",
+    "timed_out": false,
     "status": "ok"
    }
   },
@@ -58152,6 +58172,102 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/pump_npsh_cavitation",
+   "kind": "example",
+   "name": "examples/industrial_presets/pump_npsh_cavitation",
+   "title": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação",
+   "summary": "A bomba opera sem cavitar nesta instalação (altitude, temperatura, altura de sucção, tubulação)? Qual a maior altura de sucção ou temperatura admissível, e que diâmetro de sucção…",
+   "description": "A bomba opera sem cavitar nesta instalação (altitude, temperatura, altura de sucção, tubulação)? Qual a maior altura de sucção ou temperatura admissível, e que diâmetro de sucção resolve?",
+   "domain": "Fluidos / bombeamento (saneamento, processo, utilidades)",
+   "tags": [
+    "pinneapple_physics.closed_form.pipe_flow.friction_factor",
+    "pinneapple_physics.closed_form.pump_npsh"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/pump_npsh_cavitation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/pump_npsh_cavitation\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[pressão de saturação a 300 K]",
+      "value": 8.519538172126368e-10,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)"
+     },
+     {
+      "name": "rel_error[pressão de saturação a 500 K]",
+      "value": 1.4122479672402738e-09,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)"
+     },
+     {
+      "name": "rel_error[pressão de saturação a 600 K]",
+      "value": 1.7516852474095862e-09,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)"
+     },
+     {
+      "name": "rel_error[pressão atmosférica a 1000 m]",
+      "value": 4.4030956171667256e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: ISO 2533:1975 / ICAO Doc 7488 (atmosfera padrão), tabela"
+     },
+     {
+      "name": "rel_error[pressão atmosférica a 2000 m]",
+      "value": 3.226243583987093e-08,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: ISO 2533:1975 / ICAO Doc 7488 (atmosfera padrão), tabela"
+     },
+     {
+      "name": "rel_error[perda na sucção: Colebrook vs Haaland]",
+      "value": 0.002821511534507409,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: Haaland (1983), explícita, ±2 % de Colebrook"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.03145715079568924,
+      "unit": "-",
+      "how": "mínimos quadrados lineares (p é afim em K), IC exato"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/pump_npsh_cavitation/results/pump.png",
+     "examples/industrial_presets/pump_npsh_cavitation/results/variants.png",
+     "examples/industrial_presets/pump_npsh_cavitation/results/3d/pump_npsh_cavitation_3d_pressure.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/pump_npsh_cavitation"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "8d02c774cfec0dd2",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.78,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação | Fluidos / bombeamento (saneamento, processo, utilidades) | not curated\nrel_error[pressão de saturação a 300 K] 8.519538172126368e-10 -\nrel_error[pressão de saturação a 500 K] 1.4122479672402738e-09 -\nrel_error[pressão de saturação a 600 K] 1.7516852474095862e-09 -\nrel_error[pressão atmosférica a 1000 m] 4.4030956171667256e-07 -\nrel_error[pressão atmosférica a 2000 m] 3.226243583987093e-08 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:bondi_accretion",
    "kind": "example",
    "name": "bondi_accretion",
@@ -65772,6 +65888,103 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/steam_pipe_insulation",
+   "kind": "example",
+   "name": "examples/industrial_presets/steam_pipe_insulation",
+   "title": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica",
+   "summary": "Qual espessura de isolamento minimiza o custo anual por metro, e qual a menor que mantém a superfície abaixo de 60 °C (proteção pessoal)? Quanto se perde sem isolamento?",
+   "description": "Qual espessura de isolamento minimiza o custo anual por metro, e qual a menor que mantém a superfície abaixo de 60 °C (proteção pessoal)? Quanto se perde sem isolamento?",
+   "domain": "Processo e energia / utilidades",
+   "tags": [
+    "pinneapple_physics.closed_form.pipe_insulation.economic_thickness",
+    "pinneapple_physics.closed_form.pipe_insulation.heat_loss",
+    "pinneapple_physics.closed_form.pipe_insulation.radial_fd"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/steam_pipe_insulation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/steam_pipe_insulation\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)]",
+      "value": 4.955861856334466e-08,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equação de calor radial com k(T) resolvida numericamente"
+     },
+     {
+      "name": "rel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)]",
+      "value": 1.621445256408362e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equação de calor radial com k(T) resolvida numericamente"
+     },
+     {
+      "name": "rel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)]",
+      "value": 4.960096946394748e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equação de calor radial com k(T) resolvida numericamente"
+     },
+     {
+      "name": "rel_error[k constante: resistências em série (Incropera eq. 3.27)]",
+      "value": 1.6599341602614414e-16,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Incropera et al., Fundamentals of Heat and Mass Transfer, eq. 3.27"
+     },
+     {
+      "name": "rel_error[h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert]",
+      "value": 0.06208249860123212,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: Hilpert (1933) com as constantes da Tabela 7.2 de Incropera (incerteza ~±20 %)"
+     },
+     {
+      "name": "rel_error[h natural (sem vento): Churchill-Chu vs McAdams 1,32 (dT/D)^0,25]",
+      "value": 0.07956819881052872,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: McAdams, Heat Transmission (1954): cilindro horizontal laminar em ar"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.0031623394227642265,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent) sobre o modelo de perda, IC por sensibilidade"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/steam_pipe_insulation/results/insulation.png",
+     "examples/industrial_presets/steam_pipe_insulation/results/variants.png",
+     "examples/industrial_presets/steam_pipe_insulation/results/3d/steam_pipe_insulation_3d_temperature.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/steam_pipe_insulation"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "b0b0f52ff9ad8365",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.74,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica | Processo e energia / utilidades | not curated\nrel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)] 4.955861856334466e-08 -\nrel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)] 1.621445256408362e-07 -\nrel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)] 4.960096946394748e-07 -\nrel_error[k constante: resistências em série (Incropera eq. 3.27)] 1.6599341602614414e-16 -\nrel_error[h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert] 0.06208249860123212 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:pipe_flow/kenics_mixer",
    "kind": "example",
    "name": "pipe_flow/kenics_mixer",
@@ -72409,6 +72622,98 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/shell_tube_cooler",
+   "kind": "example",
+   "name": "examples/industrial_presets/shell_tube_cooler",
+   "title": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos)",
+   "summary": "O trocador leva a água do circuito à temperatura de retorno exigida com a água de torre disponível, com velocidade de tubo na faixa recomendada? Quanta incrustação ele tolera, e…",
+   "description": "O trocador leva a água do circuito à temperatura de retorno exigida com a água de torre disponível, com velocidade de tubo na faixa recomendada? Quanta incrustação ele tolera, e qual o menor trocador que atende?",
+   "domain": "Térmica / processo e energia",
+   "tags": [
+    "pinneapple_physics.closed_form.heat_exchanger.effectiveness",
+    "pinneapple_physics.closed_form.heat_exchanger.gnielinski",
+    "pinneapple_physics.closed_form.heat_exchanger.kern_shell",
+    "pinneapple_physics.closed_form.heat_exchanger.one_two_exchanger_ode"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/shell_tube_cooler"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/shell_tube_cooler\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto]",
+      "value": 3.277045816399516e-14,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)"
+     },
+     {
+      "name": "rel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto]",
+      "value": 4.189200564160273e-14,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)"
+     },
+     {
+      "name": "rel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto]",
+      "value": 9.398982902295129e-15,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)"
+     },
+     {
+      "name": "rel_error[Cr -> 0: epsilon = 1 - exp(-NTU)]",
+      "value": 0.0,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. eq. 11.35a"
+     },
+     {
+      "name": "rel_error[h tubos: Gnielinski vs Dittus-Boelter]",
+      "value": 0.09283884594855282,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: Dittus & Boelter (1930), incerteza ±25 % (Incropera sec. 8.5)"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.0006205914317426842,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent), IC por sensibilidade"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/shell_tube_cooler/results/exchanger.png",
+     "examples/industrial_presets/shell_tube_cooler/results/variants.png",
+     "examples/industrial_presets/shell_tube_cooler/results/3d/shell_tube_cooler_3d_temperature.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/shell_tube_cooler"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "bf54384818e18b33",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.81,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos) | Térmica / processo e energia | not curated\nrel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto] 3.277045816399516e-14 -\nrel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto] 4.189200564160273e-14 -\nrel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto] 9.398982902295129e-15 -\nrel_error[Cr -> 0: epsilon = 1 - exp(-NTU)] 0.0 -\nrel_error[h tubos: Gnielinski vs Dittus-Boelter] 0.09283884594855282 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/rigid_body",
    "kind": "example",
    "name": "examples/rigid_body",
@@ -75320,6 +75625,89 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Training Pipeline | data | not curated",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/industrial_presets/pressure_vessel_asme",
+   "kind": "example",
+   "name": "examples/industrial_presets/pressure_vessel_asme",
+   "title": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1",
+   "summary": "Qual a espessura de chapa do casco e dos tampos para esta pressão de projeto, qual a MAWP resultante e a pressão de teste? A tensão real (Lamé/FEM) confirma a fórmula do código?",
+   "description": "Qual a espessura de chapa do casco e dos tampos para esta pressão de projeto, qual a MAWP resultante e a pressão de teste? A tensão real (Lamé/FEM) confirma a fórmula do código?",
+   "domain": "Estrutural / caldeiraria e processo",
+   "tags": [
+    "pinneapple_simulation.numerical_solvers.solid_fem.SolidFEM"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/pressure_vessel_asme"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/pressure_vessel_asme\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé]",
+      "value": 0.0038346666983239304,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28"
+     },
+     {
+      "name": "rel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)]",
+      "value": 8.384422033447177e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28"
+     },
+     {
+      "name": "rel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé]",
+      "value": 0.000866198770668044,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: ASME BPVC Section VIII Div. 1 (2023) App. 1-1: a fórmula aproxima Lamé para t <= R/2"
+     },
+     {
+      "name": "rel_error[caso espesso (t/R 0,26): UG-27 vs Lamé]",
+      "value": 0.00962774901909099,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: ASME BPVC Section VIII Div. 1 (2023) UG-27 / Lamé"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.002553325026595152,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent) sobre Lamé com tampos fechados; IC por sensibilidade"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/pressure_vessel_asme/results/vessel_stress.png",
+     "examples/industrial_presets/pressure_vessel_asme/results/variants.png",
+     "examples/industrial_presets/pressure_vessel_asme/results/3d/pressure_vessel_asme_3d_sigma.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/pressure_vessel_asme"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "48a3ab3fd7941dc7",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.8,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1 | Estrutural / caldeiraria e processo | not curated\nrel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé] 0.0038346666983239304 -\nrel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)] 8.384422033447177e-07 -\nrel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé] 0.000866198770668044 -\nrel_error[caso espesso (t/R 0,26): UG-27 vs Lamé] 0.00962774901909099 -\ninversion_rel_err 0.002553325026595152 -",
     "timed_out": false,
     "status": "ok"
    }

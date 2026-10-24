@@ -1,0 +1,16 @@
+{"slug":"zoo-onnx-in-browser",
+ "theme":"The model zoo as a static Space: verified pre-trained physics surrogates running in the browser with ONNX, no server",
+ "prs":[815],
+ "media":["media/zoo-onnx-in-browser/zoo_onnx_in_browser.mp4"],
+ "numbers":[
+  {"value":"4","meaning":"pre-trained models in the zoo / on the page","source":"pinneapple_hub/zoo/manifest.json -> models (4 keys)"},
+  {"value":"0.54 %","meaning":"airfoil Cd mean abs. % error, held-out shapes vs OpenFOAM RANS","source":"pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json -> validation_metrics.test/Cd_mape_pct = 0.5447"},
+  {"value":"2.8 %","meaning":"airfoil Cd error vs XFOIL, NACA 2412","source":"pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json -> validation_metrics.xfoil_naca2412/Cd_mape_pct = 2.8127"},
+  {"value":"-2 to 14 deg","meaning":"airfoil validity range in angle of attack","source":"pinneapple_hub/zoo/assets/models/airfoil_cst_rans_mlp/model_card.json -> validity_range.alpha_deg"},
+  {"value":"0.71 %","meaning":"forced heat sink thermal resistance mean abs. error","source":"pinneapple_hub/zoo/assets/models/heatsink_forced_mlp/model_card.json -> validation_metrics.test/R_mean_abs_pct = 0.7115"},
+  {"value":"900","meaning":"held-out heat-sink designs","source":"pinneapple_hub/zoo/assets/models/heatsink_forced_mlp/model_card.json -> validation_metrics.test/n"},
+  {"value":"0.22 N","meaning":"rover drawbar pull RMSE","source":"pinneapple_hub/zoo/assets/models/rover_contact_grc1_viper/model_card.json -> validation_metrics.test/Fx_rmse_N = 0.2201"},
+  {"value":"2000","meaning":"held-out rover points","source":"pinneapple_hub/zoo/assets/models/rover_contact_grc1_viper/model_card.json -> validation_metrics.test/n"},
+  {"value":"1e-5","meaning":"max ONNX vs PyTorch difference before export is refused","source":"docs/guides/model_zoo.md line 170"},
+  {"value":"28.3 ms","meaning":"heat-sink sweep evaluated in the browser (ONNX), headless Chromium","source":"own run: Playwright recording of the locally built Space (page text 'Computed in your browser (ONNX, 28.3 ms)')"}
+ ]}

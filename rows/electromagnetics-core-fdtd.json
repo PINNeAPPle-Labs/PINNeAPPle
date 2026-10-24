@@ -1,0 +1,63 @@
+{
+  "slug": "electromagnetics-core-fdtd",
+  "theme": "Electromagnetics in PINNeAPPle: pp.em core (statics, waves, Mie, media, FEM), pp.maxwell.maxwell_checks, pinneapple check physics='maxwell', pp.em.verification.run(), FDTD gallery",
+  "prs": [
+    801,
+    804
+  ],
+  "media": [
+    "media/electromagnetics-core-fdtd/electromagnetics_core_fdtd.mp4"
+  ],
+  "numbers": [
+    {
+      "value": "32 cases, all pass",
+      "meaning": "verification cases in pp.em.verification.run()",
+      "source": "examples/electrodynamics/results/em_verification.json (32 entries, all passed=true)"
+    },
+    {
+      "value": "1.4e-6",
+      "meaning": "Mie Q_sca/Q_ext/Q_back error vs Bohren & Huffman published values",
+      "source": "examples/electrodynamics/results/em_verification.json 'Mie sphere vs Bohren & Huffman / miepython'.error"
+    },
+    {
+      "value": "3.9e-5",
+      "meaning": "FDTD waveguide TE10 propagation constant error vs closed form",
+      "source": "examples/electrodynamics/results/em_verification.json 'FDTD rectangular waveguide TE10 propagation constant'.error"
+    },
+    {
+      "value": "3.8e-2 to 4.2e-3 (20 to 60 cells/wavelength), orders 1.97/2.12/1.95",
+      "meaning": "FDTD dielectric cylinder vs cylinder-function series",
+      "source": "examples/electrodynamics/results/em_verification.json 'FDTD dielectric cylinder, TF/SF plane wave'.detail / orders"
+    },
+    {
+      "value": "1.6e-4, APPROVED",
+      "meaning": "Poynting balance and decision of maxwell_checks on FDTD snapshots",
+      "source": "examples/electrodynamics/results/fdtd_gallery.json maxwell_checks.poynting_balance / decision"
+    },
+    {
+      "value": "2.1e-2, 1.8e-2, 2.4e-2 (~2 %)",
+      "meaning": "FDTD 3-D sphere Q_sca vs Mie at 10/15/20 cells per wavelength (plateau)",
+      "source": "examples/electrodynamics/results/em_verification.json 'FDTD dielectric sphere vs Mie ...'.detail; docs/guides/electromagnetics.md Limits"
+    },
+    {
+      "value": "1.7 %",
+      "meaning": "cylinder ring error at 30 cells per wavelength (video)",
+      "source": "examples/electrodynamics/results/fdtd_gallery.json cylinder.ring_error_vs_series"
+    },
+    {
+      "value": "0.0037 / 0.020",
+      "meaning": "Faraday / Ampere-Maxwell residuals of FDTD snapshots (video)",
+      "source": "examples/electrodynamics/results/fdtd_gallery.json maxwell_checks.faraday / ampere_maxwell"
+    },
+    {
+      "value": "0.53 %",
+      "meaning": "3-D dipole far-field pattern error at 15 cells per wavelength (video)",
+      "source": "examples/electrodynamics/results/fdtd_gallery.json dipole.pattern_error"
+    },
+    {
+      "value": "8.873e-26 W vs 8.905e-26 W",
+      "meaning": "FDTD radiated power vs closed form (video)",
+      "source": "examples/electrodynamics/results/fdtd_gallery.json dipole.radiated_power_W / radiated_power_closed_form_W"
+    }
+  ]
+}

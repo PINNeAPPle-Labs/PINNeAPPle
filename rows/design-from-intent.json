@@ -1,0 +1,69 @@
+{
+ "slug": "design-from-intent",
+ "theme": "design from intent: a plain-language goal becomes a verified, buildable design package, or the questions it still needs, or a refusal saying what is missing (pp.design, CLI pinneapple design, MCP design)",
+ "prs": [
+  820,
+  821
+ ],
+ "media": [
+  "media/design-from-intent/01_title.png",
+  "media/design-from-intent/02_questions.png",
+  "media/design-from-intent/03_provenance.png",
+  "media/design-from-intent/04_heatsink_checks.png",
+  "media/design-from-intent/05_bracket_calculix.png",
+  "media/design-from-intent/06_loop_newton.png",
+  "media/design-from-intent/07_refusal.png"
+ ],
+ "numbers": [
+  {
+   "value": "85 °C",
+   "meaning": "case temperature limit given as the answer to the heat-sink question",
+   "source": "examples/design_from_intent/_out/summary.json heatsink.answers.t_limit"
+  },
+  {
+   "value": "14 fins, copper",
+   "meaning": "delivered heat-sink design",
+   "source": "my run hs/design.json design; summary.json heatsink.design"
+  },
+  {
+   "value": "77.7 vs 77.6 °C",
+   "meaning": "source temperature, 3-D finite volume vs resistance network",
+   "source": "my run hs/design.json verification.comparison[0]; summary.json heatsink.verification.comparison[0]"
+  },
+  {
+   "value": "1.4e-12",
+   "meaning": "finite-volume energy balance residual",
+   "source": "my run hs/design.json verification.checks[energy_balance].value"
+  },
+  {
+   "value": "83.9 °C (limit 85)",
+   "meaning": "source temperature with convection coefficient 15 % low",
+   "source": "my run hs/design.json verification.checks[5]"
+  },
+  {
+   "value": "94.3 vs 96.8 MPa",
+   "meaning": "bracket peak von Mises, CalculiX vs reduced FE",
+   "source": "examples/design_from_intent/_out/summary.json bracket.verification.comparison[0]"
+  },
+  {
+   "value": "0.9985",
+   "meaning": "bracket probability of success (Monte Carlo)",
+   "source": "examples/design_from_intent/_out/summary.json bracket.probability"
+  },
+  {
+   "value": "12000 / 19 / 1",
+   "meaning": "bracket model calls closed form / reduced / CalculiX",
+   "source": "examples/design_from_intent/_out/summary.json bracket.calls.calls"
+  },
+  {
+   "value": "1.507 vs 1.023 m/s",
+   "meaning": "loop car speed at top, Newton vs worst-case envelope",
+   "source": "examples/design_from_intent/_out/summary.json loop.verification.comparison[0]"
+  },
+  {
+   "value": "5.7 %",
+   "meaning": "launch energy lost by Newton contact on curved mesh (stated limit)",
+   "source": "docs/guides/design_from_intent.md (a) Loop-the-loop car, Full paragraph"
+  }
+ ]
+}

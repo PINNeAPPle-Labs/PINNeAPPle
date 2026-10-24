@@ -1,0 +1,38 @@
+{
+  "slug": "chain-of-whys",
+  "theme": "pinneapple_reason: the chain of whys of a design, computed (naive concept -> failure mode with mechanism and numbers -> countermeasure -> check again); roof, footbridge, power board, pumped water main",
+  "prs": [858],
+  "media": [
+    "media/chain-of-whys/01_intro.png",
+    "media/chain-of-whys/02_roof.png",
+    "media/chain-of-whys/03_footbridge.png",
+    "media/chain-of-whys/04_power_board.png",
+    "media/chain-of-whys/05_water_main.png",
+    "media/chain-of-whys/06_water_hammer.png",
+    "media/chain-of-whys/07_trust.png"
+  ],
+  "numbers": [
+    {"value": "14 mm + 6.15 mm + 25 mm = 45.1 mm vs 0 mm", "meaning": "roof v0: capillary + wind + ponded head vs lap rise of flat tiles", "source": "examples/chain_of_whys/_out/roof/report.md (Version 0); chain.json steps[0].finding.verification"},
+    {"value": "22 deg, +7.9 % roof area", "meaning": "roof: chosen pitch and its cost", "source": "examples/chain_of_whys/_out/roof/report.md (Version 0 options)"},
+    {"value": "14.9 C vs 16.4 C", "meaning": "roof v1: tile underside vs room dew point on a clear night", "source": "examples/chain_of_whys/_out/roof/report.md (Version 1)"},
+    {"value": "12 K vs 5 K; 78.7 W/m2", "meaning": "roof v2: ceiling-air asymmetry vs limit; radiant gain", "source": "examples/chain_of_whys/_out/roof/report.md (Version 2)"},
+    {"value": "28.1 vs 20.7 mm; 19.2 vs 16.4 C; 2.591 K < 5 K", "meaning": "roof v3 final checks", "source": "examples/chain_of_whys/_out/roof/report.md (final checks table)"},
+    {"value": "133 mm > 83.3 mm", "meaning": "footbridge v0 deflection vs L/360", "source": "examples/chain_of_whys/_out/footbridge/report.md (Version 0)"},
+    {"value": "1.05 m deep, +1653 kg", "meaning": "footbridge: deeper girders and steel added", "source": "examples/chain_of_whys/_out/footbridge/report.md (Version 0 options)"},
+    {"value": "123 vs 1660 kN m", "meaning": "footbridge v1 lateral-torsional buckling resistance vs design moment", "source": "examples/chain_of_whys/_out/footbridge/report.md (Version 1)"},
+    {"value": "10 braces, 204 kg vs +15617 kg", "meaning": "footbridge: cross-frames chosen over wider flanges", "source": "examples/chain_of_whys/_out/footbridge/report.md (Version 1 options)"},
+    {"value": "2.05 Hz; 1.70 m/s2 > 0.7", "meaning": "footbridge v2 first mode and walker response vs comfort limit", "source": "examples/chain_of_whys/_out/footbridge/report.md (Version 2)"},
+    {"value": "164 kg vs 1606 kg", "meaning": "footbridge: TMD mass vs extra girder steel alternative", "source": "examples/chain_of_whys/_out/footbridge/report.md (Version 2 options)"},
+    {"value": "0.241 m/s2; 69.8 mm; 1786 kN m", "meaning": "footbridge v3 final checks", "source": "examples/chain_of_whys/_out/footbridge/report.md (final checks table)"},
+    {"value": "626 C (625.8); 15.9 K/W; loop gain 0.763; 36.8 W", "meaning": "power board v0 junction temperature, board-only path", "source": "examples/chain_of_whys/_out/power_board/report.md (Version 0)"},
+    {"value": "218 C (217.8); 10.3 K/W", "meaning": "power board v1 with natural-convection heat sink", "source": "examples/chain_of_whys/_out/power_board/report.md (Version 1)"},
+    {"value": "109 C (109.3) < 125 C; 0.5 m/s; 12.0 W; 5.751 K/W", "meaning": "power board v2 with forced air", "source": "examples/chain_of_whys/_out/power_board/report.md (final checks, measured numbers)"},
+    {"value": "2.41 m (2.405) vs 4.5 m", "meaning": "pumped main v0 NPSH available vs required + margin", "source": "examples/chain_of_whys/_out/pumped_main/report.md (Version 0)"},
+    {"value": "2.2 m lift; 33.6 m3", "meaning": "pumped main: lowered pump and excavation", "source": "examples/chain_of_whys/_out/pumped_main/report.md (Version 0 options)"},
+    {"value": "1.81 MPa (1.805) > 1 MPa; 3.94 s round trip", "meaning": "pumped main v1 MOC surge for 2 s closure vs PN10", "source": "examples/chain_of_whys/_out/pumped_main/report.md (Version 1)"},
+    {"value": "15 s; +110977 kg alternative", "meaning": "pumped main: timed closure vs thicker wall", "source": "examples/chain_of_whys/_out/pumped_main/report.md (Version 1 options)"},
+    {"value": "0.80 MPa (0.795); NPSH 5.2 m (5.205)", "meaning": "pumped main v2 final checks", "source": "examples/chain_of_whys/_out/pumped_main/report.md (final checks table)"},
+    {"value": "18 / 18", "meaning": "checks passing in the example (known answers, solver vs closed form, trust decision)", "source": "examples/chain_of_whys/experiment.json (checks[*].passed)"},
+    {"value": "4 / 4 APPROVED", "meaning": "trust report decision for the four cases", "source": "examples/chain_of_whys/experiment.json (checks '<case>: trust report decision'); re-run trust_report(chain).decisao"}
+  ]
+}

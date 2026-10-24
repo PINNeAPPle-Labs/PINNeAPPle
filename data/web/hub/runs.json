@@ -164,6 +164,17 @@
   "stdout": "pp.presets.names() -> 'list[str]'\nNames of every industrial preset (built in and registered), sorted.",
   "timed_out": false
  },
+ "api:pp-science-atlas": {
+  "code_hash": "801ddf3e9f309c34",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 5.34,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "pp.science.atlas(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'\nThe atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned",
+  "timed_out": false
+ },
  "api:pp-solve": {
   "code_hash": "433427f98d2c72d8",
   "figures": [],
@@ -6729,6 +6740,19 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "['airfoil_cst_rans_mlp', 'heatsink_forced_mlp', 'heatsink_natural_mlp', 'rover_contact_grc1_viper'] ['airfoil_rans_cst_re4e6', 'airfoil_rans_cst_re4e6_fields', 'blackhole_riaf_density_256', 'burgers_1d_li2021', 'cylinder_wake_lbm', 'darcy_2d_li2021', 'heatsink_forced_convection', 'heatsink_natural_convection', 'navier_stokes_2d_li2021_nu1e-3', 'rover_contact_grc1_viper', 'single_wheel_tests', 'thermal_channel_cfd']\n[0.66150291] [0.00085025]\n60 ['Cd', 'Cl', 'Cm', 'M0']",
+  "timed_out": false
+ },
+ "recipe:agents-science-by-area": {
+  "code_hash": "1ad403bb2a093839",
+  "figures": [
+   "data/web/hub/figures/recipe_agents-science-by-area_0.png"
+  ],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 6.11,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "['em.dipole_radiation', 'em.faraday_induction', 'em.research_fdtd_3d']\nHall effect [2D, academic, theory]: PASS, trust APPROVED\n  ok  Hall coefficient R_H = E_y / (J_x B): -0.000623757 vs -0.000624151 m^3/C (rel. error 6.31e-04, tol 0.002; closed_form)\n  ok  R_H error falls with the grid\n  ok  sign of V_H gives the carrier sign\n  ok  contacts short the Hall voltage in short bars (G rises with L/W)",
   "timed_out": false
  },
  "recipe:agents-solve-and-compare": {

@@ -56,6 +56,8 @@ class Component:
     vias: int = 0                    # thermal vias under the part
     via_drill_mm: float = 0.3
     via_plating_um: float = 25.0
+    r_top_k_w: Optional[float] = None  # case top to ambient through an attached heat sink (TIM + sink), K/W;
+    #                                    None: convection from the bare case top
 
     def resolved(self) -> "Component":
         p = PACKAGES.get(self.package, PACKAGES["QFN-32 5x5"])
@@ -104,6 +106,8 @@ def validate(board: Board, comps: List[Component]) -> List[str]:
             errs.append(f"{c.name}: side must be 'top' or 'bottom'")
         if r.theta_jb <= 0 or r.theta_jc <= 0:
             errs.append(f"{c.name}: theta_JB and theta_JC must be positive")
+        if r.r_top_k_w is not None and r.r_top_k_w <= 0:
+            errs.append(f"{c.name}: r_top_k_w must be positive")
     return errs
 
 
@@ -222,7 +226,8 @@ class _Model:
             d[self.idx[k].ravel()] += g_face[s].ravel()
         d[:self.nb] += self.g_edge.ravel()
         b[:self.nb] += (self.g_edge * self.chassis_theta).ravel()
-        g_air = np.array([1.0 / (c.theta_jc + 1.0 / (h[c.side] * c.w_mm * c.d_mm * MM * MM))
+        g_air = np.array([1.0 / (c.theta_jc + (c.r_top_k_w if c.r_top_k_w is not None
+                                                else 1.0 / (h[c.side] * c.w_mm * c.d_mm * MM * MM)))
                           for c in self.comps])
         d[self.nb:] += g_air
         theta = _linear_solve((self.base + sps.diags(d)).tocsr(), b)

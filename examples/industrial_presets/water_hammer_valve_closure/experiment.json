@@ -1,0 +1,102 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/industrial_presets/water_hammer_valve_closure",
+ "title": "Golpe de ar\u00edete no fechamento de v\u00e1lvula de adutora de a\u00e7o",
+ "description": "Com este tempo de fechamento, a press\u00e3o m\u00e1xima fica abaixo da classe PN da linha e a m\u00ednima acima da press\u00e3o de vapor (sem separa\u00e7\u00e3o de coluna)? Qual o tempo m\u00ednimo de fechamento seguro?",
+ "domain": "Fluidos / saneamento e \u00f3leo e g\u00e1s",
+ "methods": [
+  "pinneapple_simulation.numerical_solvers.water_hammer_moc.valve_closure_moc",
+  "pinneapple_physics.closed_form.pipe_flow.colebrook"
+ ],
+ "modules": [
+  "pinneapple_presets"
+ ],
+ "params": {
+  "wall_time_s": 0.25076469300006465
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[fechamento instant\u00e2neo sem atrito = Joukowsky]",
+   "value": 1.533322523346514e-16,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, analytic: Joukowsky (1898); Wylie & Streeter, Fluid Transients in Systems (1993) eq. 1.11: dH = a dV / g"
+  },
+  {
+   "name": "rel_error[fechamento lento (60 s = 30\u00b72L/a) = teoria da coluna r\u00edgida]",
+   "value": 0.00012367293250402893,
+   "unit": "-",
+   "how": "|computed - reference| / |reference|, independent_solver: Wylie & Streeter, Fluid Transients in Systems (1993) sec. 1.3 (rigid-column theory), integrada com scipy solve_ivp"
+  },
+  {
+   "name": "surrogate_holdout_max_rel_err",
+   "value": 0.18029097004132608,
+   "unit": "-",
+   "how": "30 held-out solver runs (Latin hypercube)"
+  },
+  {
+   "name": "inversion_rel_err",
+   "value": 1.45877476439288e-05,
+   "unit": "-",
+   "how": "m\u00ednimos quadrados sobre o MOC (varredura + Brent), IC 95 % por Gauss-Newton"
+  }
+ ],
+ "checks": [
+  {
+   "name": "fechamento instant\u00e2neo sem atrito = Joukowsky",
+   "passed": true,
+   "value": 185.36028133450316,
+   "reference": 185.36028133450313,
+   "rtol": 0.005,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  },
+  {
+   "name": "fechamento lento (60 s = 30\u00b72L/a) = teoria da coluna r\u00edgida",
+   "passed": true,
+   "value": 7.115642994142966,
+   "reference": 7.1147630905274895,
+   "rtol": 0.05,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "results/pressure.png",
+   "results/surrogate_parity.png",
+   "results/variants.png",
+   "results/3d/water_hammer_valve_closure_3d_p_max.png",
+   "results/3d/water_hammer_valve_closure_3d_p_min.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/summary.json"
+  ]
+ },
+ "links": {},
+ "references": [
+  "Joukowsky (1898); Wylie & Streeter, Fluid Transients in Systems (1993) eq. 1.11: dH = a dV / g",
+  "Wylie & Streeter, Fluid Transients in Systems (1993) sec. 1.3 (rigid-column theory), integrada com scipy solve_ivp"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "f33fa445",
+  "created": "2026-10-24T00:51:05Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

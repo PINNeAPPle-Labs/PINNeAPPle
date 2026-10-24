@@ -263,26 +263,29 @@ class WongReeceModel:
 
     # ------------------------------------------------------------------ equilibrium
     def sinkage_for_load(self, load, slip, slip_angle=0.0, precompaction=0.0, prior_shear=0.0,
-                         z_max: float | None = None, iters: int = 60) -> np.ndarray:
-        """Sinkage [m] with ``F_z(slip, z) = load`` (vectorised bisection; F_z grows with z on the bracket)."""
-        W, s, beta, zu, j0 = (np.asarray(a, float) for a in np.broadcast_arrays(load, slip, slip_angle, precompaction,
-                                                                                 prior_shear))
+                         z_max: float | None = None, iters: int = 60, sinkage_slip=None) -> np.ndarray:
+        """Sinkage [m] with ``F_z(slip, z) = load`` (vectorised bisection; F_z grows with z on the bracket).
+        ``sinkage_slip`` as in :meth:`forces` (default: ``slip``)."""
+        ss = slip if sinkage_slip is None else sinkage_slip
+        W, s, beta, zu, j0, ss = (np.asarray(a, float) for a in np.broadcast_arrays(load, slip, slip_angle,
+                                                                                     precompaction, prior_shear, ss))
         shape = W.shape
-        W, s, beta, zu, j0 = W.ravel(), s.ravel(), beta.ravel(), zu.ravel(), j0.ravel()
+        W, s, beta, zu, j0, ss = W.ravel(), s.ravel(), beta.ravel(), zu.ravel(), j0.ravel(), ss.ravel()
         lo = np.clip(zu - self.rebound(zu), 0.0, None)
         hi = np.full_like(W, z_max if z_max is not None else 0.9 * self.wheel.radius) + lo
         for _ in range(iters):
             mid = 0.5 * (lo + hi)
-            f = self.forces(s, mid, beta, zu, j0).Fz
+            f = self.forces(s, mid, beta, zu, j0, sinkage_slip=ss).Fz
             up = f < W
             lo = np.where(up, mid, lo)
             hi = np.where(up, hi, mid)
         return (0.5 * (lo + hi)).reshape(shape)
 
-    def steady_state(self, load, slip, slip_angle=0.0, precompaction=0.0, prior_shear=0.0) -> dict:
-        """Single-wheel testbed operating point: sinkage for the load, then drawbar pull, torque and lateral force."""
-        z = self.sinkage_for_load(load, slip, slip_angle, precompaction, prior_shear)
-        r = self.forces(slip, z, slip_angle, precompaction, prior_shear)
+    def steady_state(self, load, slip, slip_angle=0.0, precompaction=0.0, prior_shear=0.0, sinkage_slip=None) -> dict:
+        """Single-wheel testbed operating point: sinkage for the load, then drawbar pull, torque and lateral force.
+        ``sinkage_slip``: the slip that sets the sinkage exponent if it differs from ``slip`` (e.g. a lagged slip)."""
+        z = self.sinkage_for_load(load, slip, slip_angle, precompaction, prior_shear, sinkage_slip=sinkage_slip)
+        r = self.forces(slip, z, slip_angle, precompaction, prior_shear, sinkage_slip=sinkage_slip)
         W = np.asarray(load, float)
         return {"slip": np.asarray(slip, float), "sinkage": z, "drawbar_pull": r.Fx, "torque": r.My,
                 "lateral": r.Fy, "load": r.Fz, "dp_over_w": r.Fx / W, "j_exit": r.j_exit}

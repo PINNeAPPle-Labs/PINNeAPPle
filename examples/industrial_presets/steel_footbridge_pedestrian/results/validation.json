@@ -1,0 +1,75 @@
+{
+ "preset": "steel_footbridge_pedestrian",
+ "references": [
+  {
+   "case": "1\u00aa frequ\u00eancia: f\u00f3rmula fechada vs FE de viga",
+   "output": "f1",
+   "unit": "Hz",
+   "computed": 1.5228499849995847,
+   "reference": 1.522850026136681,
+   "rel_error": 2.7013228939117467e-08,
+   "tol": 0.001,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+   "params": {}
+  },
+  {
+   "case": "flecha da multid\u00e3o: 5qL^4/384EI vs FE de viga",
+   "output": "deflection",
+   "unit": "m",
+   "computed": 0.13306653683262798,
+   "reference": 0.13306653683267058,
+   "rel_error": 3.2017672950762496e-13,
+   "tol": 0.001,
+   "pass": true,
+   "kind": "independent_solver",
+   "source": "pinneapple_simulation.numerical_solvers.beam_fe (Hermite, massa consistente, 40 elementos)",
+   "params": {}
+  },
+  {
+   "case": "2\u00aa frequ\u00eancia = 4 x f1 (Euler-Bernoulli biapoiada)",
+   "output": "f2",
+   "unit": "Hz",
+   "computed": 6.091402514330896,
+   "reference": 6.091399939998339,
+   "rel_error": 4.2261755626976134e-07,
+   "tol": 0.002,
+   "pass": true,
+   "kind": "analytic",
+   "source": "Clough & Penzien, Dynamics of Structures, eq. 18-21: f_n = n^2 f_1",
+   "params": {}
+  },
+  {
+   "case": "acelera\u00e7\u00e3o em resson\u00e2ncia exata (v\u00e3o 24 m, f1 na faixa de passo)",
+   "output": "acceleration",
+   "unit": "m/s2",
+   "computed": 2.2412038103078022,
+   "reference": 2.241203810307802,
+   "rel_error": 1.981476239722582e-16,
+   "tol": 1e-06,
+   "pass": true,
+   "kind": "analytic",
+   "source": "oscilador de 1 GL em resson\u00e2ncia: a = alpha G / (M_modal 2 xi), Bachmann & Ammann (1987)",
+   "params": {}
+  }
+ ],
+ "convergence": {
+  "parameter": "elementos de viga",
+  "values": [
+   4,
+   8,
+   16,
+   32
+  ],
+  "f1": [
+   1.5232454116500111,
+   1.5228750244623044,
+   1.5228515551059532,
+   1.522850082470512
+  ],
+  "rel_change_last": 9.670258800245518e-07,
+  "pass": true
+ },
+ "all_pass": true
+}

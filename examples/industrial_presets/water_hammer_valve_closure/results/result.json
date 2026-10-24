@@ -1,0 +1,124 @@
+{
+ "preset": "water_hammer_valve_closure",
+ "fidelity": "solver",
+ "params": {
+  "length": 1200.0,
+  "od": 0.508,
+  "wall": 0.00953,
+  "velocity": 1.5,
+  "h_reservoir": 60.0,
+  "t_close": 10.0,
+  "closure_exponent": 1.0,
+  "roughness": 4.5e-05,
+  "friction": "colebrook",
+  "E_pipe": 207000000000.0,
+  "nu_pipe": 0.3,
+  "K_water": 2190000000.0,
+  "rho": 998.2,
+  "pn_rating": 1600000.0,
+  "p_vapour_abs": 2339.0,
+  "n_reaches": 40
+ },
+ "outputs": {
+  "inner_diameter": 0.48894,
+  "wave_speed": 1211.84226863267,
+  "period": 1.9804557590716294,
+  "reynolds": 730628.6047904191,
+  "friction_factor": 0.013736482429651782,
+  "max_head": 82.29313707607015,
+  "max_head_x": 1200.0,
+  "max_head_t": 9.976545886323333,
+  "surge_head": 26.160661452840962,
+  "min_head": 37.77319406150569,
+  "drawdown": 18.3592815617235,
+  "p_max": 805567.3567201707,
+  "p_min_abs": 471086.72225488693,
+  "joukowsky_head": 185.36028133450313,
+  "michaud_head": 36.709783667205414,
+  "h_static_valve": 56.13247562322919,
+  "h_allow": 163.44880191992436,
+  "t_close_safe": 3.3700777661063785
+ },
+ "decision": {
+  "verdict": "OK",
+  "reasons": [
+   "p_max = 0.81 MPa <= PN 1.60 MPa",
+   "p_min_abs = 471.1 kPa > p_vapour 2.34 kPa",
+   "tempo de fechamento seguro (mesma lei) >= 3.4 s"
+  ]
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "Courant = 1 (MOC grid dt = dx/a)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "valve_closure_moc",
+    "reason": ""
+   },
+   {
+    "name": "thin wall D/e > 25 (Korteweg)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 51.305351521511014,
+    "limit": 25,
+    "source": "Wylie & Streeter, Fluid Transients in Systems (1993) eq. 2.29",
+    "reason": ""
+   },
+   {
+    "name": "surge does not exceed Joukowsky",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 26.160661452840962,
+    "limit": 185.36028133450313,
+    "source": "Joukowsky (1898): the largest surge of a single velocity change",
+    "reason": ""
+   },
+   {
+    "name": "no column separation (p_min > p_vapour)",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": 471086.72225488693,
+    "limit": 2339.0,
+    "source": "",
+    "reason": "below vapour pressure the MOC history after that instant is not physical"
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "critical": false,
+    "weight": 1.0,
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "warnings": [],
+ "meta": {
+  "wall_time_s": 0.25076469300006465,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T00:50:53Z"
+ }
+}

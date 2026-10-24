@@ -1,0 +1,64 @@
+{
+ "preset": "power_pcb_junction",
+ "references": [
+  {
+   "case": "theta_JA TO-263 D2PAK na placa JEDEC 2s2p",
+   "output": "theta_ja",
+   "unit": "K/W",
+   "computed": 30.225418621647506,
+   "reference": 30.0,
+   "rel_error": 0.0075139540549168755,
+   "tol": 0.08,
+   "pass": true,
+   "kind": "standard (consist\u00eancia)",
+   "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente",
+   "params": {}
+  },
+  {
+   "case": "theta_JA QFN-32 5x5 na placa JEDEC 2s2p",
+   "output": "theta_ja",
+   "unit": "K/W",
+   "computed": 33.19063697151085,
+   "reference": 33.0,
+   "rel_error": 0.005776877924571159,
+   "tol": 0.08,
+   "pass": true,
+   "kind": "standard (consist\u00eancia)",
+   "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente",
+   "params": {}
+  },
+  {
+   "case": "theta_JA SOIC-8 na placa JEDEC 2s2p",
+   "output": "theta_ja",
+   "unit": "K/W",
+   "computed": 120.11101782292627,
+   "reference": 120.0,
+   "rel_error": 0.0009251485243855958,
+   "tol": 0.08,
+   "pass": true,
+   "kind": "standard (consist\u00eancia)",
+   "source": "JEDEC JESD51-7 (placa 2s2p) / JESD51-2 (ar parado); theta_JA mediano de datasheets publicados, tabela pinneapple_physics.closed_form.pcb_thermal.JEDEC_2S2P_THETA_JA. Aten\u00e7\u00e3o: os theta t\u00edpicos dos encapsulamentos da lib foram calibrados para reproduzir esses valores; a linha confirma o modelo placa+convec\u00e7\u00e3o+encapsulamento, n\u00e3o \u00e9 uma valida\u00e7\u00e3o independente",
+   "params": {}
+  }
+ ],
+ "convergence": {
+  "parameter": "c\u00e9lulas por lado",
+  "values": [
+   24,
+   36,
+   48,
+   60,
+   80
+  ],
+  "tj_max": [
+   118.42757723178994,
+   119.36542396361942,
+   119.06424940189318,
+   118.86508807261424,
+   118.93142018030261
+  ],
+  "rel_change_last": 0.0009622913254197285,
+  "pass": true
+ },
+ "all_pass": true
+}

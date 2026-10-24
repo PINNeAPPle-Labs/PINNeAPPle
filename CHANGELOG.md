@@ -13,7 +13,75 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Fixed
+- `SolidFEM` (8-node hexahedra) mapped the shape-function gradients with the transposed inverse Jacobian, so
+  strains and stresses were wrong on elements not aligned with the axes (a patch test gave 0.5-0.75 of the imposed
+  strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
+
 ### Added
+- `pinneapple_simulation.rover.autolab`: the Autonomous Physics Lab rover demo, *the rover that learns the planet*.
+  A synthetic site with hidden true soils and an orbital map that mislabels soft sand as compact regolith
+  (`demo_site`); the quasi-static operating point per soil and grade (slip needed, sinkage, torque, energy per metre)
+  and a comparison of the analytic Wong-Reece law, the zoo surrogate and measured operating points; sensors with
+  stated noise and a soil belief per mapped unit updated by an iterated EKF (sinkage and torque from load and slip,
+  input noise carried through the model, the simulator's slip-sinkage lag in the observation model); a risk-aware
+  planner (share of belief samples above the slip limit, wheels on both sides checked, energy-optimal Dijkstra); a
+  mission agent (plain-language request -> `MissionSpec` through a rule parser with the `extract(text, schema)`
+  interface of `CallLLM`, fixed tool set, plan -> drive -> learn -> replan -> verify); a trust report (goal, slip
+  limit, energy balance, time-step check, planner vs multibody, route risks, held-out prediction, recovery of the
+  known truth); figures and Blender Cycles renders (overview, stall close-up, traverse MP4/GIF) with the repository's
+  VIPER model. Flow Studio node `rover.learn_planet`; example `examples/autolab_rover/`; guide
+  `docs/guides/rover_learns_the_planet.md`.
+- `VehicleSimulator`: ground made of several soils (`soil=[...]`, `soil_map(x, y) -> index`), route following by
+  pure pursuit (`run(route=[...])`, ends at the goal) and an early stop rule (`run(stop=...)`, `meta["ended"]`);
+  `run.wheel["soil_idx"]` records the soil under each wheel; `wheel_speeds="kinematic"` gives each wheel the speed
+  of its distance to the turning centre (default `"equal"`, unchanged: in turns the wheels of an all-wheel-steered
+  rover then fight each other).
+- `WongReeceModel.sinkage_for_load` / `steady_state`: `sinkage_slip=` (the slip that sets the sinkage exponent, e.g.
+  a lagged slip), as `forces` already had.
+- `pinneapple_presets` (`pp.presets`): industrial presets, engineering cases already set up, solved and validated.
+  Each has a data sheet (sector, question, SI inputs with realistic defaults and the source of each value, outputs,
+  validity domain), `run(**params)` with its trust report and decision, `validate()` against citable references
+  with the measured error, and where it fits a 3-D scene, an ARD Gaussian-process surrogate (Latin-hypercube DOE on
+  the real solver, hold-out error, out-of-box flag; `run(fidelity="surrogate")`), inversion from synthetic
+  measurements with known noise, optimisation confirmed on the solver and design variants. First batch: water
+  hammer of a valve closure (MOC vs Joukowsky and rigid-column theory), water distribution network (vs EPANET 2.2,
+  GA finds the published US$ 419,000 optimum of the two-loop network), plate-fin heat sink, power PCB junction
+  temperatures (JEDEC theta_JA), steel footbridge (strength, deflection, lateral-torsional buckling, pedestrian
+  vibration). CLI `python -m pinneapple_presets`, Flow Studio nodes `preset.run` / `preset.validate`, results in
+  `examples/industrial_presets/`, Hub index `pinneapple_presets/index.json`.
+- Industrial presets, batch 2: shell-and-tube cooler (epsilon-NTU of the 1-2 exchanger, checked against direct
+  integration of its energy equations; Kern / Gnielinski; fouling inversion), steam-line insulation (economic
+  thickness, k(T) by the Kirchhoff transform checked by finite volumes), ASME VIII Div. 1 pressure vessel (UG-27 /
+  UG-32, Lamé and a 3-D C3D8I ring), centrifugal pump NPSH (IAPWS-IF97 saturation pressure, ISO 2533 atmosphere,
+  ANSI/HI 9.6.1 margin). New closed forms: `heat_exchanger`, `pipe_insulation`, `pump_npsh`.
+- `pinneapple_simulation.numerical_solvers.pipe_network`: looped pipe networks by the global gradient algorithm
+  (Hazen-Williams, Darcy-Weisbach/Colebrook) and least-cost discrete sizing by a genetic algorithm.
+- `pinneapple_simulation.numerical_solvers.beam_fe`: Euler-Bernoulli Hermite beam elements (static and modes).
+- `water_hammer_moc.valve_closure_moc(record_field=True)` returns the head along the pipe at every step.
+- `pinneapple_autolab`: the agent loop of the Autonomous Physics Lab. A mission in plain language -> a plan of
+  controlled library calls (`Tool`, `Toolbox` with declared arguments) -> `execute` with evidence per call; a
+  deterministic `TemplatePlanner` and an `LLMPlanner` (via `pinneapple_llm.call_llm`) that falls back to it, with the
+  reason, on any invalid plan or failure.
+- `pinneapple_design.thermal.board_cooling`, demo 2 of the lab (the self-optimizing engineer): a board with an
+  overheating SoC -> coupled reference (3-D board finite volumes + plate-fin heat sink through the case-top
+  resistance, nominal and pessimistic cooling) -> POD + Gaussian-process surrogate of the junction temperatures and
+  the board-top map, measured on held-out designs and grown until accepted -> minimum-mass heat sink and fan speed
+  under junction, fan-power, envelope and fin-gap constraints, confirmed on the reference -> fine-grid verification
+  with a `TrustReport` -> figures, glTF / USD, three.js viewer, Blender stills and animation, report. Example
+  `examples/autolab/self_optimizing_engineer.py`, Flow node `autolab.board_cooling`, guide
+  `docs/guides/autonomous_physics_lab.md`.
+- `pinneapple_systems.digital_twin.pipe_loop`, demo 3 of the lab (the digital twin that knows when it is wrong): a
+  pumped, heated water loop with an elbow and a T junction simulated quasi-steadily (pump affinity curve,
+  Darcy-Weisbach / Colebrook, minor and valve losses, heater and branch heat loss) with controlled faults; a POD +
+  Gaussian-process fast model of its ten sensors; ten physics residuals with fault directions (sensor bias,
+  obstruction per pipe), an EKF on the extra loss coefficient of each pipe and the training envelope, combined into
+  a diagnosis (normal / process / sensor / domain, with location and size) calibrated on healthy runs; a reference
+  simulation and model extension where the model is out of its domain; a benchmark of controlled cases with the
+  confusion matrix; control-room figures, 3-D scene, viewer, Blender animation, report and trust report. Example
+  `examples/autolab_digital_twin/twin_knows_when_wrong.py`, Flow node `autolab.pipe_twin`.
+- `pinneapple_physics.pcb.Component.r_top_k_w`: case-top-to-air resistance of an attached heat sink.
+- Studio: `blender.render_animation(..., lines=[bool per frame])` shows the static lines only on chosen frames.
 - Hub tools by task: every one of the 408 tools is in exactly one of 20 task categories
   (`pinneapple_hub.library.categories`, longest-prefix rules on where the tool comes from, recipes listed by id),
   shown as "Tools by task" on the home page, a **Task** filter (`/?kind=tool&category=...`,
@@ -1479,6 +1547,9 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `aero.render_blender` the studio `jet`.
 
 ### Fixed
+- Simulation Campaign Planner: "Plan the campaign" on the airfoil preset no longer fails with "infill needs
+  existing cases". `ParameterSpace` constants and categories match numbers by value (`4000000 == 4000000.0`, as
+  JSON from the page drops the `.0`), so the 436 preset runs count as inside the space again.
 - Immersed-boundary FDM, `channel` mode: mass is conserved. The divergence-penalty pressure step is replaced
   by an exact pressure-Poisson projection on cell faces, so every cross-section carries the inlet flux (pipe
   R=0.5, L=3, Re=10: flow rate 1.0 of the inlet value along the pipe, was 0.85 / 0.53 / 0.39). The result has a

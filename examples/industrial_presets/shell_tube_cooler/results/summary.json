@@ -1,0 +1,412 @@
+{
+ "preset": "shell_tube_cooler",
+ "decision": {
+  "verdict": "NOT OK",
+  "reasons": [
+   "circuito sai a 37.2 °C > alvo 36 °C (Q = 652.4 kW, U = 1405 W/m2K)",
+   "velocidade nos tubos 1.29 m/s dentro de 1-2,5 m/s (incrustação abaixo, erosão acima)",
+   "perda de carga nos tubos 16.6 kPa <= 70 kPa (Sinnott, Coulson & Richardson vol. 6, sec. 12.8: 35-70 kPa típico para líquidos)"
+  ]
+ },
+ "outputs": {
+  "q": 652397.9054778272,
+  "t_hot_out": 37.19432991770965,
+  "t_cold_out": 35.24603068911276,
+  "U": 1405.1463507583537,
+  "area": 58.37509548563378,
+  "ntu": 0.981401679789528,
+  "cr": 0.8001914791766396,
+  "effectiveness": 0.48785438014314664,
+  "F": 0.8885191540392299,
+  "lmtd": 8.951516155871884,
+  "q_lmtd": 652397.9054778268,
+  "h_shell": 5258.186695561676,
+  "h_tube": 6560.106791412207,
+  "h_tube_dittus_boelter": 6002.812597422104,
+  "v_tube": 1.2896323843811275,
+  "dp_tube": 16649.26040996207,
+  "re_tube": 26281.08127923634,
+  "re_shell": 14875.804865476255,
+  "tube_regime": "turbulent"
+ },
+ "trust": {
+  "decision": "APPROVED",
+  "score": 1.0,
+  "coverage": 1.0,
+  "checks": [
+   {
+    "name": "epsilon-NTU = U A F LMTD (two independent routes)",
+    "status": "supports",
+    "value": 5.353266197643765e-16,
+    "limit": 1e-06,
+    "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. sec. 11.3-11.4",
+    "reason": ""
+   },
+   {
+    "name": "energy balance: hot side = cold side",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "by construction of Q",
+    "reason": ""
+   },
+   {
+    "name": "2nd law: hot out > cold in, cold out < hot in",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "",
+    "reason": ""
+   },
+   {
+    "name": "Kern range 2e3 < Re_shell < 1e6",
+    "status": "supports",
+    "value": 14875.804865476255,
+    "limit": 2000.0,
+    "source": "Kern (1950) eq. 7.3",
+    "reason": ""
+   },
+   {
+    "name": "Gnielinski range Re_tube >= 3000",
+    "status": "supports",
+    "value": 26281.08127923634,
+    "limit": 3000,
+    "source": "Gnielinski (1976)",
+    "reason": ""
+   },
+   {
+    "name": "LMTD factor F >= 0.75 (1-2 shell usable)",
+    "status": "supports",
+    "value": 0.8885191540392299,
+    "limit": 0.75,
+    "source": "Kern (1950) ch. 7: below F ~ 0.75 use more shells",
+    "reason": ""
+   },
+   {
+    "name": "inside the validity domain",
+    "status": "supports",
+    "value": null,
+    "limit": null,
+    "source": "preset data sheet",
+    "reason": ""
+   }
+  ]
+ },
+ "validation": {
+  "preset": "shell_tube_cooler",
+  "references": [
+   {
+    "case": "epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto",
+    "output": "effectiveness",
+    "unit": "-",
+    "computed": 0.48785438014314664,
+    "reference": 0.48785438014313065,
+    "rel_error": 3.277045816399516e-14,
+    "tol": 1e-06,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)",
+    "params": {}
+   },
+   {
+    "case": "epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto",
+    "output": "effectiveness",
+    "unit": "-",
+    "computed": 0.3710283646414162,
+    "reference": 0.37102836464140065,
+    "rel_error": 4.189200564160273e-14,
+    "tol": 1e-06,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)",
+    "params": {}
+   },
+   {
+    "case": "epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto",
+    "output": "effectiveness",
+    "unit": "-",
+    "computed": 0.5787959056011164,
+    "reference": 0.5787959056011109,
+    "rel_error": 9.398982902295129e-15,
+    "tol": 1e-06,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)",
+    "params": {}
+   },
+   {
+    "case": "Cr -> 0: epsilon = 1 - exp(-NTU)",
+    "output": "effectiveness",
+    "unit": "-",
+    "computed": 0.8173164759472653,
+    "reference": 0.8173164759472653,
+    "rel_error": 0.0,
+    "tol": 1e-12,
+    "pass": true,
+    "kind": "analytic",
+    "source": "Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. eq. 11.35a",
+    "params": {}
+   },
+   {
+    "case": "h tubos: Gnielinski vs Dittus-Boelter",
+    "output": "h_tube",
+    "unit": "W/m2 K",
+    "computed": 6560.106791412207,
+    "reference": 6002.812597422104,
+    "rel_error": 0.09283884594855282,
+    "tol": 0.25,
+    "pass": true,
+    "kind": "independent_solver",
+    "source": "Dittus & Boelter (1930), incerteza ±25 % (Incropera sec. 8.5)",
+    "params": {}
+   }
+  ],
+  "convergence": null,
+  "all_pass": true
+ },
+ "figures": [
+  "results/exchanger.png",
+  "results/variants.png"
+ ],
+ "meta": {
+  "wall_time_s": 0.0068008509997525834,
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  },
+  "date_utc": "2026-10-24T01:16:34Z"
+ },
+ "inversion": {
+  "description": "Incrustação total a partir das duas temperaturas de saída em 3 cargas (monitoramento de desempenho). Medição sintética com Rf real = 7,0e-4 m2K/W e ruído de 0.2 K nos RTDs.",
+  "parameter": "Rf total",
+  "unit": "m2 K/W",
+  "true": 0.0007,
+  "recovered": 0.0006995655859977801,
+  "ci95": [
+   0.0006470913116020764,
+   0.0007520398603934838
+  ],
+  "rel_error": 0.0006205914317426842,
+  "true_inside_ci95": true,
+  "noise": "0.2 K",
+  "how": "mínimos quadrados (Brent), IC por sensibilidade",
+  "duty_loss_vs_clean": 0.36286520285911283
+ },
+ "optimization": {
+  "objective": "menor área de tubos com T_quente <= alvo, 1 <= v <= 2,5 m/s, dp_tubos <= 70 kPa, F >= 0,75 e chicanas de 0,3-1 x D_casco (sem modelo de perda de carga do casco)",
+  "designs_scanned": 2730,
+  "n_tubes": 228,
+  "tube_length": 6.096,
+  "shell_id": 0.5221091265243311,
+  "baffle_spacing": 0.15663273795729932,
+  "area_m2": 83.18109976864524,
+  "base_area_m2": 58.37509548563378,
+  "verified_t_hot_out": 35.97971202568729,
+  "verified_ok": true
+ },
+ "variants": {
+  "rows": {
+   "base 200 tubos 16 ft": {
+    "params": {},
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 652397.9054778272,
+     "t_hot_out": 37.19432991770965,
+     "t_cold_out": 35.24603068911276,
+     "U": 1405.1463507583537,
+     "area": 58.37509548563378,
+     "ntu": 0.981401679789528,
+     "cr": 0.8001914791766396,
+     "effectiveness": 0.48785438014314664,
+     "F": 0.8885191540392299,
+     "lmtd": 8.951516155871884,
+     "q_lmtd": 652397.9054778268,
+     "h_shell": 5258.186695561676,
+     "h_tube": 6560.106791412207,
+     "h_tube_dittus_boelter": 6002.812597422104,
+     "v_tube": 1.2896323843811275,
+     "dp_tube": 16649.26040996207,
+     "re_tube": 26281.08127923634,
+     "re_shell": 14875.804865476255
+    }
+   },
+   "chicanas 0,15 m": {
+    "params": {
+     "baffle_spacing": 0.15
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 677141.3059659696,
+     "t_hot_out": 36.89828540361367,
+     "t_cold_out": 35.48292298674935,
+     "U": 1535.186803089937,
+     "area": 58.37509548563378,
+     "ntu": 1.072226324702799,
+     "cr": 0.8001914791766396,
+     "effectiveness": 0.5063571622741457,
+     "F": 0.8702488106316678,
+     "lmtd": 8.682544862954211,
+     "q_lmtd": 677141.3059659699,
+     "h_shell": 7698.435927583446,
+     "h_tube": 6560.106791412207,
+     "h_tube_dittus_boelter": 6002.812597422104,
+     "v_tube": 1.2896323843811275,
+     "dp_tube": 16649.26040996207,
+     "re_tube": 26281.08127923634,
+     "re_shell": 29751.60973095251
+    }
+   },
+   "chicanas 0,45 m": {
+    "params": {
+     "baffle_spacing": 0.45
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 633778.7336211358,
+     "t_hot_out": 37.41710057883302,
+     "t_cold_out": 35.067771504271285,
+     "U": 1317.207539737106,
+     "area": 58.37509548563378,
+     "ntu": 0.919982243438027,
+     "cr": 0.8001914791766396,
+     "effectiveness": 0.473931213822936,
+     "F": 0.9004416902440218,
+     "lmtd": 9.153775478168882,
+     "q_lmtd": 633778.7336211359,
+     "h_shell": 4207.128814266548,
+     "h_tube": 6560.106791412207,
+     "h_tube_dittus_boelter": 6002.812597422104,
+     "v_tube": 1.2896323843811275,
+     "dp_tube": 16649.26040996207,
+     "re_tube": 26281.08127923634,
+     "re_shell": 9917.203243650834
+    }
+   },
+   "160 tubos": {
+    "params": {
+     "n_tubes": 160,
+     "shell_id": 0.4374
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 605661.4982707696,
+     "t_hot_out": 37.75351162633681,
+     "t_cold_out": 34.79857825055787,
+     "U": 1496.8254837474913,
+     "area": 46.70007638850702,
+     "ntu": 0.8363467866866692,
+     "cr": 0.8001914791766396,
+     "effectiveness": 0.4529055233539495,
+     "F": 0.9160006514041825,
+     "lmtd": 9.45900433703236,
+     "q_lmtd": 605661.4982707696,
+     "h_shell": 5590.781844912619,
+     "h_tube": 7952.1454963682145,
+     "h_tube_dittus_boelter": 7176.006041644691,
+     "v_tube": 1.612040480476409,
+     "dp_tube": 24980.316339079058,
+     "re_tube": 32851.35159904542,
+     "re_shell": 16630.700912706652
+    }
+   },
+   "tubos 12 ft": {
+    "params": {
+     "tube_length": 3.658
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 567181.5391452236,
+     "t_hot_out": 38.21390836150726,
+     "t_cold_out": 34.43017270603374,
+     "U": 1405.1463507583537,
+     "area": 43.78431398122788,
+     "ntu": 0.7361015674943805,
+     "cr": 0.8001914791766396,
+     "effectiveness": 0.4241307274057965,
+     "F": 0.9334371224581898,
+     "lmtd": 9.876359930824197,
+     "q_lmtd": 567181.5391452233,
+     "h_shell": 5258.186695561676,
+     "h_tube": 6560.106791412207,
+     "h_tube_dittus_boelter": 6002.812597422104,
+     "v_tube": 1.2896323843811275,
+     "dp_tube": 13521.85914936882,
+     "re_tube": 26281.08127923634,
+     "re_shell": 14875.804865476255
+    }
+   },
+   "incrustado 2x TEMA": {
+    "params": {
+     "rf_hot": 0.000176,
+     "rf_cold": 0.000352
+    },
+    "verdict": "NOT OK",
+    "trust": "APPROVED",
+    "outputs": {
+     "q": 547411.1597001537,
+     "t_hot_out": 38.45045274347746,
+     "t_cold_out": 34.24089190713407,
+     "U": 987.6096154945393,
+     "area": 58.37509548563378,
+     "ntu": 0.68977991872486,
+     "cr": 0.8001914791766396,
+     "effectiveness": 0.4093467035326587,
+     "F": 0.9409834262103731,
+     "lmtd": 10.090641087460932,
+     "q_lmtd": 547411.1597001537,
+     "h_shell": 5258.186695561676,
+     "h_tube": 6560.106791412207,
+     "h_tube_dittus_boelter": 6002.812597422104,
+     "v_tube": 1.2896323843811275,
+     "dp_tube": 16649.26040996207,
+     "re_tube": 26281.08127923634,
+     "re_shell": 14875.804865476255
+    }
+   }
+  },
+  "compared": [
+   "t_hot_out",
+   "area",
+   "v_tube"
+  ],
+  "gallery_3d": [
+   "results/3d/variants/shell_tube_cooler_base_200_tubos_16_ft_3d_temperature.png",
+   "results/3d/variants/shell_tube_cooler_chicanas_0_15_m_3d_temperature.png",
+   "results/3d/variants/shell_tube_cooler_chicanas_0_45_m_3d_temperature.png",
+   "results/3d/variants/shell_tube_cooler_160_tubos_3d_temperature.png",
+   "results/3d/variants/shell_tube_cooler_tubos_12_ft_3d_temperature.png",
+   "results/3d/variants/shell_tube_cooler_incrustado_2x_tema_3d_temperature.png"
+  ]
+ },
+ "figures_3d": [
+  "results/3d/shell_tube_cooler_3d_temperature.png"
+ ],
+ "wall_time_total_s": 42.21075285200004,
+ "environment": {
+  "versions": {
+   "python": "3.13.17",
+   "pinneapple": "0.7.0",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "torch": "2.14.1"
+  },
+  "hardware": {
+   "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+   "cores": 4,
+   "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

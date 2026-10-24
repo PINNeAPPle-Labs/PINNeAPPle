@@ -79,3 +79,4 @@ examples/flow_studio/_runs/
 
 examples/flight_dynamics/_out/
 examples/flight_dynamics/_*.log
+examples/autolab_rover/_out/

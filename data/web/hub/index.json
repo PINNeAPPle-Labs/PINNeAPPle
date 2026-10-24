@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 407,
+  "tool": 408,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 122
+  "example": 123
  },
  "kinds": {
   "tool": "Tools",
@@ -19,16 +19,16 @@
  },
  "facets": {
   "kind": {
-   "tool": 407,
+   "tool": 408,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 122
+   "example": 123
   },
   "subkind": {
    "library call": 249,
-   "flow node": 78,
+   "flow node": 79,
    "recipe": 45,
    "function": 18,
    "agent tool (MCP)": 17
@@ -44,7 +44,7 @@
    "data": 41,
    "system dynamics": 40,
    "heat transfer": 21,
-   "vehicle dynamics": 12,
+   "vehicle dynamics": 14,
    "electromagnetics": 11,
    "time series": 9,
    "flight dynamics": 8,
@@ -54,7 +54,7 @@
    "security": 1
   },
   "quality": {
-   "not graded": 504,
+   "not graded": 506,
    "B": 46,
    "A": 18,
    "approved": 4,
@@ -12571,6 +12571,155 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Rover dashboard (animation + charts) -> pinneapple_simulation.vehicle.dashboard.render_frames + vehicle_dashboard (to_html / to_png / to_video); pinneapple_simulation.vehicle.viz.frame_view + follow_camera; pinneapple_tools.visualization.studio.planetary.border_visibility\ninputs: [('run', 'vehicle_run'), ('model', 'model'), ('surrogate', 'model')]\noutputs: [('report', 'report'), ('figure', 'figure'), ('metrics', 'metrics')]\ndefaults: {'frames': 150, 'width': 1280, 'height': 720, 'field': 'normal_stress', 'clim_low': 5.0, 'clim_high': 95.0, 'field_alpha': 0.45, 'field_glow': 0.05, 'field_saturation': 0.6, 'sun_azimuth_deg': 160.0, 'title': 'NASA VIPER crossing a lunar crater', 'subtitle': 'Multibody dynamics, Wong-Reece wheels with slip-sinkage on GRC-1 (lunar g); 3-D ruts coloured by normal stress; zoo PINN surrogate; low Sun (12 deg)', 'footer': 'PINNeAPPle: pinneapple_simulation.vehicle, .terramechanics; pinneapple_tools.visualization.dashboard. VIPER geometry from public NASA figures (estimates listed in VIPER_SOURCES).', 'video': 'mp4+gif', 'fps': 12, 'gif_every': 2, 'horizon_check': True}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:rover.learn_planet",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "rover.learn_planet",
+   "title": "Rover that learns the planet (autonomous lab)",
+   "summary": "Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil learned from the wheels (iterated EKF) -> replanned route -> drive ->…",
+   "description": "Mission -> route on the orbital map -> multibody VIPER drive on the true terrain -> stall detected -> soil\nlearned from the wheels (iterated EKF) -> replanned route -> drive -> trust report, on a synthetic site whose\ntrue soils are known (so the error of the learned soil is measured).",
+   "domain": "vehicle dynamics",
+   "tags": [
+    "Solvers",
+    "cfd",
+    "fd",
+    "fem",
+    "kalman",
+    "mission",
+    "numerical",
+    "planning",
+    "rover",
+    "simulation",
+    "solvers",
+    "terramechanics",
+    "trust"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"rover.learn_planet\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=rover.learn_planet",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/vehicle.py#L432"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)",
+    "category": "Solvers",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "mission",
+      "kind": "str",
+      "default": "Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy",
+      "help": "plain-language mission on the synthetic demo site",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "max_time",
+      "kind": "float",
+      "default": 400.0,
+      "help": "drive budget per route [s]; a full mission takes about 10 min on 4 CPU cores",
+      "choices": null,
+      "minimum": 10.0,
+      "maximum": 1200.0,
+      "advanced": true
+     },
+     {
+      "name": "n_samples",
+      "kind": "int",
+      "default": 24,
+      "help": "belief samples for the risk",
+      "choices": null,
+      "minimum": 3,
+      "maximum": 64,
+      "advanced": true
+     },
+     {
+      "name": "figures",
+      "kind": "bool",
+      "default": true,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": true
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "mission": {
+       "title": "mission",
+       "description": "plain-language mission on the synthetic demo site",
+       "x-kind": "str",
+       "default": "Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy",
+       "type": "string",
+       "maxLength": 4000
+      },
+      "max_time": {
+       "title": "max time",
+       "description": "drive budget per route [s]; a full mission takes about 10 min on 4 CPU cores",
+       "x-kind": "float",
+       "default": 400.0,
+       "x-advanced": true,
+       "type": "number",
+       "minimum": 10.0,
+       "maximum": 1200.0
+      },
+      "n_samples": {
+       "title": "n samples",
+       "description": "belief samples for the risk",
+       "x-kind": "int",
+       "default": 24,
+       "x-advanced": true,
+       "type": "integer",
+       "minimum": 3,
+       "maximum": 64
+      },
+      "figures": {
+       "title": "figures",
+       "description": "",
+       "x-kind": "bool",
+       "default": true,
+       "x-advanced": true,
+       "type": "boolean"
+      }
+     }
+    }
+   },
+   "run": {
+    "code_hash": "bd7c780ec4d0fd49",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 5.24,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Rover that learns the planet (autonomous lab) -> pinneapple_simulation.rover.autolab.RoverMission(demo_site(), mission).run(out_dir)\ninputs: []\noutputs: [('report', 'report'), ('metrics', 'metrics')]\ndefaults: {'mission': 'Drive the rover to (37, 15) without getting stuck, slip at most 40 %, minimum energy', 'max_time': 400.0, 'n_samples': 24, 'figures': True}",
     "timed_out": false,
     "status": "ok"
    }
@@ -56577,6 +56726,168 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Audit: electric-motor magnetics and topology optimization | structural mechanics | curated",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/autolab_rover",
+   "kind": "example",
+   "name": "examples/autolab_rover",
+   "title": "Autonomous Physics Lab: the rover that learns the planet",
+   "summary": "Mission in plain language -> route on the orbital map -> multibody VIPER drive -> stall in soft sand mapped as regolith -> soil learned from the wheels (iterated EKF) ->…",
+   "description": "Mission in plain language -> route on the orbital map -> multibody VIPER drive -> stall in soft sand mapped as regolith -> soil learned from the wheels (iterated EKF) -> replanned route -> trust report against the physics and the known truth of a synthetic site.",
+   "domain": "vehicle dynamics",
+   "tags": [
+    "Blender Cycles",
+    "Wong-Reece terramechanics",
+    "iterated EKF",
+    "multibody dynamics",
+    "risk-aware Dijkstra"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_rover"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_rover\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/autolab_rover/rover_learns_planet.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "route_A_distance",
+      "value": 12.925884,
+      "unit": "m",
+      "how": "multibody run on the true terrain"
+     },
+     {
+      "name": "route_A_energy",
+      "value": 2957.959341,
+      "unit": "J",
+      "how": "sum of motor torque x wheel speed"
+     },
+     {
+      "name": "route_A_max_slip",
+      "value": 0.420399,
+      "unit": "-",
+      "how": "2-s mean front-wheel slip, maximum over the run"
+     },
+     {
+      "name": "route_A_max_sinkage",
+      "value": 319.367895,
+      "unit": "mm",
+      "how": "max wheel sinkage"
+     },
+     {
+      "name": "route_A_learned_risk",
+      "value": 1.0,
+      "unit": "-",
+      "how": "largest share of learned-belief samples above the slip limit along the route"
+     },
+     {
+      "name": "route_B_distance",
+      "value": 28.559919,
+      "unit": "m",
+      "how": "multibody run on the true terrain"
+     },
+     {
+      "name": "route_B_energy",
+      "value": 2869.080658,
+      "unit": "J",
+      "how": "sum of motor torque x wheel speed"
+     },
+     {
+      "name": "route_B_max_slip",
+      "value": 0.214524,
+      "unit": "-",
+      "how": "2-s mean front-wheel slip, maximum over the run"
+     },
+     {
+      "name": "route_B_max_sinkage",
+      "value": 30.733466,
+      "unit": "mm",
+      "how": "max wheel sinkage"
+     },
+     {
+      "name": "route_B_learned_risk",
+      "value": 0.0,
+      "unit": "-",
+      "how": "largest share of learned-belief samples above the slip limit along the route"
+     },
+     {
+      "name": "learned_log10_k_phi_error",
+      "value": 0.072262,
+      "unit": "",
+      "how": "learned minus true (synthetic site)"
+     },
+     {
+      "name": "learned_log10_k_phi_z",
+      "value": 1.137944,
+      "unit": "sd",
+      "how": "error in posterior standard deviations"
+     },
+     {
+      "name": "learned_n0_error",
+      "value": 0.057183,
+      "unit": "",
+      "how": "learned minus true (synthetic site)"
+     },
+     {
+      "name": "learned_n0_z",
+      "value": 1.018548,
+      "unit": "sd",
+      "how": "error in posterior standard deviations"
+     },
+     {
+      "name": "learned_n1_error",
+      "value": 0.014512,
+      "unit": "",
+      "how": "learned minus true (synthetic site)"
+     },
+     {
+      "name": "learned_n1_z",
+      "value": 0.289003,
+      "unit": "sd",
+      "how": "error in posterior standard deviations"
+     }
+    ],
+    "figures": [
+     "examples/autolab_rover/results/site_map.png",
+     "examples/autolab_rover/results/traverse.png",
+     "examples/autolab_rover/results/route_risk.png",
+     "examples/autolab_rover/results/wheel_models.png",
+     "examples/autolab_rover/results/soil_learning.png",
+     "examples/autolab_rover/results/render_overview.jpg",
+     "examples/autolab_rover/results/render_stall.jpg",
+     "examples/autolab_rover/results/traverse.gif"
+    ],
+    "videos": [
+     "examples/autolab_rover/results/traverse.mp4"
+    ]
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "docs/guides/rover_learns_the_planet.md",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/autolab_rover/rover_learns_planet.py",
+    "lab": "lab/index.html#examples/autolab_rover"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "91af0919ac3497cb",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.75,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Autonomous Physics Lab: the rover that learns the planet | terramechanics and robotics | not curated\nroute_A_distance 12.925884 m\nroute_A_energy 2957.959341 J\nroute_A_max_slip 0.420399 -\nroute_A_max_sinkage 319.367895 mm\nroute_A_learned_risk 1.0 -",
     "timed_out": false,
     "status": "ok"
    }

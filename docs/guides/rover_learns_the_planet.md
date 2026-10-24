@@ -21,6 +21,28 @@ The full demo, with the renders and the video: `python examples/autolab_rover/ro
 [`examples/autolab_rover/results/report.md`](../../examples/autolab_rover/results/report.md) and
 `summary.json` next to it; the Flow Studio node is `rover.learn_planet`.
 
+## The committed run
+
+Measured in `examples/autolab_rover/results/` (2026-10-24 10:02:04 UTC, Intel(R) Xeon(R) Processor @ 2.10GHz, 4 cores,
+Python 3.13.17, NumPy 2.5.3, Blender 5.1.2); mission 389 s:
+
+| | Route A (orbital map) | Route B (learned soil) |
+|---|---|---|
+| outcome | stalled: mean slip 0.42 over 2 s > limit 0.4 | goal |
+| distance driven | 12.9 m | 28.6 m |
+| drive energy | 2958 J | 2869 J |
+| largest 2-s slip | 0.42 | 0.21 |
+| largest sinkage | 319 mm | 31 mm |
+| risk under the learned belief | 1.00 | 0.00 |
+
+Learned soft sand against the hidden truth: log10 k_phi 4.85 (true 4.78),
+n0 1.26 (1.20), n1 1.41 (1.40), phi
+22.7 deg (24.0); every error within 2.0
+posterior standard deviations. Trust decision: **REVIEW** -- the only failed check is
+`planner_vs_multibody_slip` (RMS 0.054
+against 0.05): the quasi-static planner is a little off the multibody rover's slip; its energy prediction is within
+13 %.
+
 ## The loop
 
 | Stage | Tool | What happens |

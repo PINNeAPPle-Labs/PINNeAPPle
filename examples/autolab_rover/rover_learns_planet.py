@@ -74,7 +74,7 @@ def main() -> None:
             description="Mission in plain language -> route on the orbital map -> multibody VIPER drive -> stall in "
                         "soft sand mapped as regolith -> soil learned from the wheels (iterated EKF) -> replanned "
                         "route -> trust report against the physics and the known truth of a synthetic site.",
-            domain="terramechanics and robotics",
+            domain="vehicle dynamics",
             methods=["multibody dynamics", "Wong-Reece terramechanics", "iterated EKF", "risk-aware Dijkstra",
                      "Blender Cycles"],
             modules=["pinneapple_simulation.rover.autolab", "pinneapple_simulation.vehicle",

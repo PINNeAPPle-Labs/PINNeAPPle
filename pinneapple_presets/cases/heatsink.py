@@ -355,5 +355,6 @@ class PlateFinHeatsink(Preset):
         s = f["source"]
         sv, sf = box([(s["x"] - s["w"] / 2) / 10, (s["y"] - s["d"] / 2) / 10, -0.4],
                      [(s["x"] + s["w"] / 2) / 10, (s["y"] + s["d"] / 2) / 10, 0.0])
-        return Scene([Surface("heatsink", V, F, "aluminium", {"T": T}), Surface("source", sv, sf, "dark")],
-                     title=self.title, labels={"T": "temperatura [°C]"})
+        return Scene([Surface("heatsink", V, F, "aluminium", {"temperature": T}),
+                      Surface("source", sv, sf, "dark", {"temperature": np.full(len(sv), f["hotspot"]["t_c"])})],
+                     title=self.title, labels={"temperature": "temperatura [°C]"})

@@ -136,14 +136,14 @@ Multiplicador efetivo do h (desvio de ar de um dissipador sem shroud) a partir d
 | 22 aletas 25 mm 1 mm | `{'n_fins': 22, 'fin_height': 0.025, 'fin_thickness': 0.001}` | 62.12 | 16.38 | 283.5 | OK |
 | cobre C110, 15 aletas | `{'material': 'cu110'}` | 59.45 | 11.4 | 1151 | OK |
 
-![plate_fin_heatsink_forced_8_aletas_35_mm_3d_T.png](results/3d/variants/plate_fin_heatsink_forced_8_aletas_35_mm_3d_T.png) ![plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_T.png](results/3d/variants/plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_T.png) ![plate_fin_heatsink_forced_22_aletas_35_mm_3d_T.png](results/3d/variants/plate_fin_heatsink_forced_22_aletas_35_mm_3d_T.png) ![plate_fin_heatsink_forced_15_aletas_55_mm_3d_T.png](results/3d/variants/plate_fin_heatsink_forced_15_aletas_55_mm_3d_T.png) ![plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_T.png](results/3d/variants/plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_T.png) ![plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_T.png](results/3d/variants/plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_T.png)
+![plate_fin_heatsink_forced_8_aletas_35_mm_3d_temperature.png](results/3d/variants/plate_fin_heatsink_forced_8_aletas_35_mm_3d_temperature.png) ![plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_temperature.png](results/3d/variants/plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_temperature.png) ![plate_fin_heatsink_forced_22_aletas_35_mm_3d_temperature.png](results/3d/variants/plate_fin_heatsink_forced_22_aletas_35_mm_3d_temperature.png) ![plate_fin_heatsink_forced_15_aletas_55_mm_3d_temperature.png](results/3d/variants/plate_fin_heatsink_forced_15_aletas_55_mm_3d_temperature.png) ![plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_temperature.png](results/3d/variants/plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_temperature.png) ![plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_temperature.png](results/3d/variants/plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_temperature.png)
 
 ## Figuras
 
 ![heatsink.png](results/heatsink.png)
 ![surrogate_parity.png](results/surrogate_parity.png)
 ![variants.png](results/variants.png)
-![plate_fin_heatsink_forced_3d_T.png](results/3d/plate_fin_heatsink_forced_3d_T.png)
+![plate_fin_heatsink_forced_3d_temperature.png](results/3d/plate_fin_heatsink_forced_3d_temperature.png)
 
 Visualizador 3-D interativo (arquivo único, abre do disco): regenere com `python -m pinneapple_presets report plate_fin_heatsink_forced` → `results/3d/plate_fin_heatsink_forced_viewer.html`.
 
@@ -177,4 +177,4 @@ Visualizador 3-D interativo (arquivo único, abre do disco): regenere com `pytho
 
 ## Proveniência
 
-Rodado em 2026-10-24T00:57:02Z · solver 0.17 s · relatório completo 38.2 s · Intel(R) Xeon(R) Processor @ 2.10GHz (4 núcleos) · python 3.13.17, pinneapple 0.7.0, numpy 2.5.3, scipy 1.18.1, torch 2.14.1
+Rodado em 2026-10-24T01:07:57Z · solver 0.178 s · relatório completo 39.2 s · Intel(R) Xeon(R) Processor @ 2.10GHz (4 núcleos) · python 3.13.17, pinneapple 0.7.0, numpy 2.5.3, scipy 1.18.1, torch 2.14.1

@@ -231,7 +231,7 @@
   "results/variants.png"
  ],
  "meta": {
-  "wall_time_s": 0.16957618800006458,
+  "wall_time_s": 0.177780483999868,
   "versions": {
    "python": "3.13.17",
    "pinneapple": "0.7.0",
@@ -244,7 +244,7 @@
    "cores": 4,
    "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
   },
-  "date_utc": "2026-10-24T00:57:02Z"
+  "date_utc": "2026-10-24T01:07:57Z"
  },
  "surrogate": {
   "model": "ARD Gaussian process (squared exponential)",
@@ -486,18 +486,18 @@
    "mass_g"
   ],
   "gallery_3d": [
-   "results/3d/variants/plate_fin_heatsink_forced_8_aletas_35_mm_3d_T.png",
-   "results/3d/variants/plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_T.png",
-   "results/3d/variants/plate_fin_heatsink_forced_22_aletas_35_mm_3d_T.png",
-   "results/3d/variants/plate_fin_heatsink_forced_15_aletas_55_mm_3d_T.png",
-   "results/3d/variants/plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_T.png",
-   "results/3d/variants/plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_T.png"
+   "results/3d/variants/plate_fin_heatsink_forced_8_aletas_35_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_15_aletas_35_mm_base_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_22_aletas_35_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_15_aletas_55_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_22_aletas_25_mm_1_mm_3d_temperature.png",
+   "results/3d/variants/plate_fin_heatsink_forced_cobre_c110_15_aletas_3d_temperature.png"
   ]
  },
  "figures_3d": [
-  "results/3d/plate_fin_heatsink_forced_3d_T.png"
+  "results/3d/plate_fin_heatsink_forced_3d_temperature.png"
  ],
- "wall_time_total_s": 38.15924241000039,
+ "wall_time_total_s": 39.21519143500018,
  "environment": {
   "versions": {
    "python": "3.13.17",

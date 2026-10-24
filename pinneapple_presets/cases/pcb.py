@@ -257,9 +257,9 @@ class PowerPCB(Preset):
         ib = RegularGridInterpolator((ys, xs), bot, bounds_error=False, fill_value=None)
         q = np.c_[np.clip(V[:, 1], 0, D), np.clip(V[:, 0], 0, W)]
         T = np.where(V[:, 2] > -t / 2, it(q), ib(q))
-        surf = [Surface("board", V / 10, F, "pcb", {"T": T})]
+        surf = [Surface("board", V / 10, F, "pcb", {"temperature": T})]
         for c in f["components"]:
             cv, cf = box([c["x_mm"] - c["w_mm"] / 2, c["y_mm"] - c["d_mm"] / 2, 0],
                          [c["x_mm"] + c["w_mm"] / 2, c["y_mm"] + c["d_mm"] / 2, c["h_mm"]])
-            surf.append(Surface(c["name"], cv / 10, cf, "dark", {"T": np.full(len(cv), c["t_junction_c"])}))
-        return Scene(surf, title=self.title, labels={"T": "temperatura [°C] (componentes: junção)"})
+            surf.append(Surface(c["name"], cv / 10, cf, "dark", {"temperature": np.full(len(cv), c["t_junction_c"])}))
+        return Scene(surf, title=self.title, labels={"temperature": "temperatura [°C] (componentes: junção)"})

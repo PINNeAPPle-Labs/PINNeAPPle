@@ -185,7 +185,7 @@
   "results/variants.png"
  ],
  "meta": {
-  "wall_time_s": 2.8137310580000303,
+  "wall_time_s": 2.8503774599998906,
   "versions": {
    "python": "3.13.17",
    "pinneapple": "0.7.0",
@@ -198,7 +198,7 @@
    "cores": 4,
    "os": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
   },
-  "date_utc": "2026-10-24T00:48:00Z"
+  "date_utc": "2026-10-24T01:08:39Z"
  },
  "surrogate": {
   "model": "ARD Gaussian process (squared exponential)",
@@ -388,18 +388,18 @@
    "board_max_c"
   ],
   "gallery_3d": [
-   "results/3d/variants/power_pcb_junction_base_4_cam_9_vias_3d_T.png",
-   "results/3d/variants/power_pcb_junction_sem_vias_3d_T.png",
-   "results/3d/variants/power_pcb_junction_25_vias_3d_T.png",
-   "results/3d/variants/power_pcb_junction_2_camadas_3d_T.png",
-   "results/3d/variants/power_pcb_junction_6_camadas_2_oz_3d_T.png",
-   "results/3d/variants/power_pcb_junction_ventilador_1_m_s_3d_T.png"
+   "results/3d/variants/power_pcb_junction_base_4_cam_9_vias_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_sem_vias_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_25_vias_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_2_camadas_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_6_camadas_2_oz_3d_temperature.png",
+   "results/3d/variants/power_pcb_junction_ventilador_1_m_s_3d_temperature.png"
   ]
  },
  "figures_3d": [
-  "results/3d/power_pcb_junction_3d_T.png"
+  "results/3d/power_pcb_junction_3d_temperature.png"
  ],
- "wall_time_total_s": 88.03514844300003,
+ "wall_time_total_s": 90.03235793000022,
  "environment": {
   "versions": {
    "python": "3.13.17",

@@ -123,14 +123,14 @@ Fatores de convecção (h_scale) e de espalhamento no cobre (k_inplane_scale) a 
 | 6 camadas, 2 oz | `{'n_copper': 6, 'outer_oz': 2.0}` | 111.5 | 118.7 | 90.73 | OK |
 | ventilador 1 m/s | `{'velocity': 1.0}` | 107 | 112.1 | 87.56 | OK |
 
-![power_pcb_junction_base_4_cam_9_vias_3d_T.png](results/3d/variants/power_pcb_junction_base_4_cam_9_vias_3d_T.png) ![power_pcb_junction_sem_vias_3d_T.png](results/3d/variants/power_pcb_junction_sem_vias_3d_T.png) ![power_pcb_junction_25_vias_3d_T.png](results/3d/variants/power_pcb_junction_25_vias_3d_T.png) ![power_pcb_junction_2_camadas_3d_T.png](results/3d/variants/power_pcb_junction_2_camadas_3d_T.png) ![power_pcb_junction_6_camadas_2_oz_3d_T.png](results/3d/variants/power_pcb_junction_6_camadas_2_oz_3d_T.png) ![power_pcb_junction_ventilador_1_m_s_3d_T.png](results/3d/variants/power_pcb_junction_ventilador_1_m_s_3d_T.png)
+![power_pcb_junction_base_4_cam_9_vias_3d_temperature.png](results/3d/variants/power_pcb_junction_base_4_cam_9_vias_3d_temperature.png) ![power_pcb_junction_sem_vias_3d_temperature.png](results/3d/variants/power_pcb_junction_sem_vias_3d_temperature.png) ![power_pcb_junction_25_vias_3d_temperature.png](results/3d/variants/power_pcb_junction_25_vias_3d_temperature.png) ![power_pcb_junction_2_camadas_3d_temperature.png](results/3d/variants/power_pcb_junction_2_camadas_3d_temperature.png) ![power_pcb_junction_6_camadas_2_oz_3d_temperature.png](results/3d/variants/power_pcb_junction_6_camadas_2_oz_3d_temperature.png) ![power_pcb_junction_ventilador_1_m_s_3d_temperature.png](results/3d/variants/power_pcb_junction_ventilador_1_m_s_3d_temperature.png)
 
 ## Figuras
 
 ![pcb_maps.png](results/pcb_maps.png)
 ![surrogate_parity.png](results/surrogate_parity.png)
 ![variants.png](results/variants.png)
-![power_pcb_junction_3d_T.png](results/3d/power_pcb_junction_3d_T.png)
+![power_pcb_junction_3d_temperature.png](results/3d/power_pcb_junction_3d_temperature.png)
 
 Visualizador 3-D interativo (arquivo único, abre do disco): regenere com `python -m pinneapple_presets report power_pcb_junction` → `results/3d/power_pcb_junction_viewer.html`.
 
@@ -159,4 +159,4 @@ Visualizador 3-D interativo (arquivo único, abre do disco): regenere com `pytho
 
 ## Proveniência
 
-Rodado em 2026-10-24T00:48:00Z · solver 2.81 s · relatório completo 88 s · Intel(R) Xeon(R) Processor @ 2.10GHz (4 núcleos) · python 3.13.17, pinneapple 0.7.0, numpy 2.5.3, scipy 1.18.1, torch 2.14.1
+Rodado em 2026-10-24T01:08:39Z · solver 2.85 s · relatório completo 90 s · Intel(R) Xeon(R) Processor @ 2.10GHz (4 núcleos) · python 3.13.17, pinneapple 0.7.0, numpy 2.5.3, scipy 1.18.1, torch 2.14.1

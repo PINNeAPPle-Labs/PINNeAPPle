@@ -12,7 +12,7 @@
   "pinneapple_presets"
  ],
  "params": {
-  "wall_time_s": 0.16957618800006458
+  "wall_time_s": 0.177780483999868
  },
  "scripts": [],
  "metrics": [
@@ -126,7 +126,7 @@
    "results/heatsink.png",
    "results/surrogate_parity.png",
    "results/variants.png",
-   "results/3d/plate_fin_heatsink_forced_3d_T.png"
+   "results/3d/plate_fin_heatsink_forced_3d_temperature.png"
   ],
   "videos": [],
   "viewers": [],
@@ -146,9 +146,9 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "f33fa445",
-  "created": "2026-10-24T00:57:40Z",
-  "seconds": 0.003,
+  "git": "e85b9d84",
+  "created": "2026-10-24T01:08:36Z",
+  "seconds": 0.009,
   "error": null,
   "environment": {
    "python": "3.13.17",

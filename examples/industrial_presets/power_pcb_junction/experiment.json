@@ -13,7 +13,7 @@
   "pinneapple_presets"
  ],
  "params": {
-  "wall_time_s": 2.8137310580000303
+  "wall_time_s": 2.8503774599998906
  },
  "scripts": [],
  "metrics": [
@@ -91,7 +91,7 @@
    "results/pcb_maps.png",
    "results/surrogate_parity.png",
    "results/variants.png",
-   "results/3d/power_pcb_junction_3d_T.png"
+   "results/3d/power_pcb_junction_3d_temperature.png"
   ],
   "videos": [],
   "viewers": [],
@@ -109,8 +109,8 @@
  "lab": {},
  "provenance": {
   "source": "experiment()",
-  "git": "f33fa445",
-  "created": "2026-10-24T00:49:25Z",
+  "git": "e85b9d84",
+  "created": "2026-10-24T01:10:06Z",
   "seconds": 0.003,
   "error": null,
   "environment": {

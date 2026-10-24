@@ -375,3 +375,20 @@ def meshless_study(nb: int = 2, hfs=(6, 8, 10, 12), methods=("gfdm", "rbf_fd"), 
         rows.append(row)
     return {"blocks": nb * nb, "fv_cells": int(T.size), "fv_s": t_ref, "Tmax_ref": float(tj_ref.max()),
             "q_tim_ref": qref, "Tj_ref": tj_ref.tolist(), "rows": rows, "fields": fields}
+
+
+def exceptions_study(shape=(12, 12), seed: int = 1, budgets=(0.0, 0.02, 0.05, 0.1, 0.2, 0.4)) -> dict:
+    """Track 1c: the Keff prior plus residual-selected exception patches against random patches at the same
+    budget, on a smooth power map and on one with a sub-pitch hotspot; and the 1-D column prior for comparison."""
+    from . import exceptions as EX
+    out = {}
+    for name in ("smooth power", "sub-pitch hotspot"):
+        pkg = uniform_package(shape, seed=seed)
+        if name == "sub-pitch hotspot":
+            p = pkg.power.copy()
+            p[p.shape[0] // 3, p.shape[1] // 2] += 0.2 * p.sum()
+            pkg.power = p
+        out[name] = EX.pareto(pkg, budgets=budgets, halos=(0, 1))
+        col = EX.pareto(pkg, budgets=(0.0,), halos=(0,), selects=("residual",), prior_kind="column")
+        out[name]["column_prior"] = col["rows"][0]
+    return out

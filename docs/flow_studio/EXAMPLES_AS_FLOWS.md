@@ -48,7 +48,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `modelica` | systems | - | needs OpenModelica (omc) + fmpy |  | every script builds its FMU with omc; 02 / 03 train hand-written torch models in the script; fmi_compatibility.py downloads the Reference-FMUs |
 | `molecular` | molecular | - | needs OpenMM + pdbfixer + an input PDB |  | protein_on_gold.py runs OpenMM with a Steele wall built in the script and takes a user PDB file (none is bundled) |
 | `motor_magnetics` | electromagnetics | `electromagnetics/motor_spm_cogging_and_torque` | runs | 15 / 15 match |  |
-| `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | not yet run |  | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet |
+| `near_random_forecasting` | time series | `near_random_forecasting/lorenz63_case`<br>`near_random_forecasting/lyapunov_mackey_glass`<br>`near_random_forecasting/random_walk_case` | not yet run | 12 / 17 match | one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet. In random_walk the baselines match; the two learned models (scikit-learn HistGradientBoosting, torch MLP) differ by 0.1-3 % on the test RMSE, and the committed results do not record the scikit-learn / torch versions (here scikit-learn 1.9.1) |
 | `non_hermitian` | non-Hermitian physics | `non_hermitian/ep_tuning` | runs | 9 / 9 match | ep_laws / ep_numeric / hypothesis_map / ep_figure wrap pinneapple_physics.non_hermitian (coupling_classes moved from the script into ep_tuning.py, the script prints the same output); compared with docs/core_concepts/non_hermitian.md (EP-law degree, kappa_N^2 and EP order for N = 2-5) |
 | `numerical_solvers` | numerical solvers | `numerical_solvers/12_molecular_dynamics_lj_gas`<br>`numerical_solvers/13_shallow_water_dam_break` | runs |  | flows for 12 (LJ molecular dynamics) and 13 (shallow water, without the Twin3D server); nothing committed to compare. 01-06 and 08-11 import modules that no longer exist (pinneapple_solvers.registry, .fem, .fvm, .hilbert_huang, cfd_pipeline, pinneapple_train.preprocess); 07 (SPH) builds isph / dfsph through a registry the shim does not populate |
 | `openfoam_campaign` | CFD | `openfoam_campaign/campaign` | runs |  | no committed numbers (_out/results is not committed); the flow reports each run's solver health and profiles. OpenFOAM v1912 from apt |
@@ -820,6 +820,37 @@ done in 593 s (commit c94c53c7, 2026-10-23); 15 of 15 numbers match.
 | `spm.losses.rotor_iron_W` | `results/spm_summary.json:losses_1500rpm_rated.rotor_iron_W` | 0.0205874 | 0.0205874 | 1.05992e-10 | match |
 | `spm.losses.magnet_eddy_W` | `results/spm_summary.json:losses_1500rpm_rated.magnet_eddy_W` | 0.17192 | 0.17192 | 1.77079e-10 | match |
 | `spm.losses.torque_mean_Nm` | `results/spm_summary.json:losses_1500rpm_rated.torque_mean_Nm` | 16.0469 | 16.0469 | 3.70395e-13 | match |
+
+### `near_random_forecasting/lyapunov_mackey_glass` (quick)
+
+done in 15 s (commit e9aa069f, 2026-10-24); 1 of 1 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `lyap.dt0.1_T10000.mean` | `results/lyapunov_mackey_glass.json:rows.0.mean` | 0.00480893 | 0.00480893 | 0 | match |
+
+### `near_random_forecasting/random_walk_case` (full)
+
+done in 926 s (commit e9aa069f, 2026-10-24); 11 of 16 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `case.predictability.ar1_coefficient` | `results/cases/random_walk.json:predictability.ar1_coefficient` | 0.9993 | 0.9993 | 0 | match |
+| `case.zoo.persistence.test_rmse_h1` | `results/cases/random_walk.json:zoo.models.persistence.test.rmse.0` | 0.9754 | 0.9754 | 0 | match |
+| `case.zoo.persistence.test_rmse_h4` | `results/cases/random_walk.json:zoo.models.persistence.test.rmse.2` | 2.0062 | 2.0062 | 0 | match |
+| `case.zoo.persistence.test_rmse_h16` | `results/cases/random_walk.json:zoo.models.persistence.test.rmse.4` | 4.2246 | 4.2246 | 0 | match |
+| `case.zoo.climatology.test_rmse_h1` | `results/cases/random_walk.json:zoo.models.climatology.test.rmse.0` | 25.667 | 25.667 | 0 | match |
+| `case.zoo.climatology.test_rmse_h4` | `results/cases/random_walk.json:zoo.models.climatology.test.rmse.2` | 25.6899 | 25.6899 | 0 | match |
+| `case.zoo.climatology.test_rmse_h16` | `results/cases/random_walk.json:zoo.models.climatology.test.rmse.4` | 25.8231 | 25.8231 | 0 | match |
+| `case.zoo.ar.test_rmse_h1` | `results/cases/random_walk.json:zoo.models.ar.test.rmse.0` | 0.9761 | 0.9761 | 0 | match |
+| `case.zoo.ar.test_rmse_h4` | `results/cases/random_walk.json:zoo.models.ar.test.rmse.2` | 2.0103 | 2.0103 | 0 | match |
+| `case.zoo.ar.test_rmse_h16` | `results/cases/random_walk.json:zoo.models.ar.test.rmse.4` | 4.2542 | 4.2542 | 0 | match |
+| `case.zoo.gbm.test_rmse_h1` | `results/cases/random_walk.json:zoo.models.gbm.test.rmse.0` | 0.9793 | 0.9779 | 0.00143164 | differs |
+| `case.zoo.gbm.test_rmse_h4` | `results/cases/random_walk.json:zoo.models.gbm.test.rmse.2` | 2.0148 | 2.0211 | 0.00311711 | differs |
+| `case.zoo.gbm.test_rmse_h16` | `results/cases/random_walk.json:zoo.models.gbm.test.rmse.4` | 4.284 | 4.4126 | 0.0291438 | differs |
+| `case.zoo.mlp.test_rmse_h1` | `results/cases/random_walk.json:zoo.models.mlp.test.rmse.0` | 0.9763 | 0.976 | 0.000307377 | match |
+| `case.zoo.mlp.test_rmse_h4` | `results/cases/random_walk.json:zoo.models.mlp.test.rmse.2` | 2.0071 | 2.0154 | 0.00411829 | differs |
+| `case.zoo.mlp.test_rmse_h16` | `results/cases/random_walk.json:zoo.models.mlp.test.rmse.4` | 4.2304 | 4.2247 | 0.00134921 | differs |
 
 ### `non_hermitian/ep_tuning` (full)
 

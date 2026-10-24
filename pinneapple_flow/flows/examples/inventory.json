@@ -157,7 +157,7 @@
  },
  "near_random_forecasting": {
   "domain": "time series",
-  "notes": "one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet"
+  "notes": "one flow per case shown here (random walk, Lorenz-63); every other case of presets.CASES is the same forecast_lab.case node with another case name (usd_eur_log_returns, sunspots_yearly and the youtube cases download their data); render_visuals.py (Blender renders of the committed cases) is not a node yet. In random_walk the baselines match; the two learned models (scikit-learn HistGradientBoosting, torch MLP) differ by 0.1-3 % on the test RMSE, and the committed results do not record the scikit-learn / torch versions (here scikit-learn 1.9.1)"
  },
  "non_hermitian": {
   "domain": "non-Hermitian physics",

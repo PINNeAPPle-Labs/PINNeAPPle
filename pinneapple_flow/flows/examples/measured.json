@@ -4068,6 +4068,176 @@
    "status": "done"
   }
  },
+ "near_random_forecasting/lyapunov_mackey_glass": {
+  "quick": {
+   "commit": "e9aa069f",
+   "comparisons": [
+    {
+     "flow": "lyap.dt0.1_T10000.mean",
+     "outcome": "match",
+     "ref": "results/lyapunov_mackey_glass.json:rows.0.mean",
+     "reference": 0.004808931155972857,
+     "rel_diff": 0.0,
+     "value": 0.004808931155972857
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-near-random-lyapunov-quick.experiment.json, Lab item manifest/flow/example-near-random-lyapunov-quick",
+   "matched": 1,
+   "nodes": {
+    "compare": "done",
+    "lyap": "done"
+   },
+   "seconds": 14.7,
+   "status": "done"
+  }
+ },
+ "near_random_forecasting/random_walk_case": {
+  "full": {
+   "commit": "e9aa069f",
+   "comparisons": [
+    {
+     "flow": "case.predictability.ar1_coefficient",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:predictability.ar1_coefficient",
+     "reference": 0.9993,
+     "rel_diff": 0.0,
+     "value": 0.9993
+    },
+    {
+     "flow": "case.zoo.persistence.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.0",
+     "reference": 0.9754,
+     "rel_diff": 0.0,
+     "value": 0.9754
+    },
+    {
+     "flow": "case.zoo.persistence.test_rmse_h4",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.2",
+     "reference": 2.0062,
+     "rel_diff": 0.0,
+     "value": 2.0062
+    },
+    {
+     "flow": "case.zoo.persistence.test_rmse_h16",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.persistence.test.rmse.4",
+     "reference": 4.2246,
+     "rel_diff": 0.0,
+     "value": 4.2246
+    },
+    {
+     "flow": "case.zoo.climatology.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.0",
+     "reference": 25.667,
+     "rel_diff": 0.0,
+     "value": 25.667
+    },
+    {
+     "flow": "case.zoo.climatology.test_rmse_h4",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.2",
+     "reference": 25.6899,
+     "rel_diff": 0.0,
+     "value": 25.6899
+    },
+    {
+     "flow": "case.zoo.climatology.test_rmse_h16",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.climatology.test.rmse.4",
+     "reference": 25.8231,
+     "rel_diff": 0.0,
+     "value": 25.8231
+    },
+    {
+     "flow": "case.zoo.ar.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.0",
+     "reference": 0.9761,
+     "rel_diff": 0.0,
+     "value": 0.9761
+    },
+    {
+     "flow": "case.zoo.ar.test_rmse_h4",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.2",
+     "reference": 2.0103,
+     "rel_diff": 0.0,
+     "value": 2.0103
+    },
+    {
+     "flow": "case.zoo.ar.test_rmse_h16",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.ar.test.rmse.4",
+     "reference": 4.2542,
+     "rel_diff": 0.0,
+     "value": 4.2542
+    },
+    {
+     "flow": "case.zoo.gbm.test_rmse_h1",
+     "outcome": "differs",
+     "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.0",
+     "reference": 0.9779,
+     "rel_diff": 0.0014316392269147734,
+     "value": 0.9793
+    },
+    {
+     "flow": "case.zoo.gbm.test_rmse_h4",
+     "outcome": "differs",
+     "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.2",
+     "reference": 2.0211,
+     "rel_diff": 0.003117114442630237,
+     "value": 2.0148
+    },
+    {
+     "flow": "case.zoo.gbm.test_rmse_h16",
+     "outcome": "differs",
+     "ref": "results/cases/random_walk.json:zoo.models.gbm.test.rmse.4",
+     "reference": 4.4126,
+     "rel_diff": 0.02914381543761059,
+     "value": 4.284
+    },
+    {
+     "flow": "case.zoo.mlp.test_rmse_h1",
+     "outcome": "match",
+     "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.0",
+     "reference": 0.976,
+     "rel_diff": 0.000307377049180294,
+     "value": 0.9763
+    },
+    {
+     "flow": "case.zoo.mlp.test_rmse_h4",
+     "outcome": "differs",
+     "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.2",
+     "reference": 2.0154,
+     "rel_diff": 0.004118289173365186,
+     "value": 2.0071
+    },
+    {
+     "flow": "case.zoo.mlp.test_rmse_h16",
+     "outcome": "differs",
+     "ref": "results/cases/random_walk.json:zoo.models.mlp.test.rmse.4",
+     "reference": 4.2247,
+     "rel_diff": 0.0013492082278031667,
+     "value": 4.2304
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-24",
+   "manifest": "manifest /home/user/flowhome/r3/example-near-random-random_walk_case.experiment.json, Lab item manifest/flow/example-near-random-random_walk_case",
+   "matched": 11,
+   "nodes": {
+    "case": "done",
+    "compare": "done"
+   },
+   "seconds": 925.6,
+   "status": "done"
+  }
+ },
  "non_hermitian/ep_tuning": {
   "full": {
    "commit": "475bf159",

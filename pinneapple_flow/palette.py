@@ -73,6 +73,9 @@ SECTION_OF: dict[str, str] = {
     "export.report": "export", "lib.export.geometry": "export", "lib.export.usd_validate": "export",
     "lib.robot.arm_check": "solvers",
     "lib.services.infer": "surrogates",
+    "lib.worldmodel.video_check": "surrogates",
+    "lib.worldmodel.inspection_sample": "surrogates",
+    "lib.worldmodel.arm_camera": "surrogates",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)

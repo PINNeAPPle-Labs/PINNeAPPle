@@ -1,0 +1,83 @@
+{
+ "decision": "APPROVED",
+ "usd_vs_urdf_rad": 0.0,
+ "mass_property_diff": 0.0,
+ "tracking_error_mrad": 0.4794181231414507,
+ "energy_balance": 0.0013825636032303893,
+ "peak_util": [
+  0.14901661681666123,
+  0.05458315454839868
+ ],
+ "physics_stage": {
+  "ok": true,
+  "problems": [],
+  "physics": {
+   "Scene": 1,
+   "CubeShape": 4,
+   "Articulation": 1,
+   "RigidBody": 3,
+   "FixedJoint": 1,
+   "RevoluteJoint": 2
+  },
+  "total_mass": 28.17508029937744
+ },
+ "timeline_stage": {
+  "ok": true,
+  "problems": [],
+  "time_samples": 392
+ },
+ "checks": [
+  {
+   "name": "UsdPhysics stage valid (parser + validators)",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "{'Scene': 1, 'CubeShape': 4, 'Articulation': 1, 'RigidBody': 3, 'FixedJoint': 1, 'RevoluteJoint': 2}"
+  },
+  {
+   "name": "Newton reads the USD masses / com / inertia exactly",
+   "value": 0.0,
+   "limit": 1e-06,
+   "passed": true
+  },
+  {
+   "name": "same motion from USD and URDF (rad)",
+   "value": 0.0,
+   "limit": 1e-09,
+   "passed": true
+  },
+  {
+   "name": "tracking error (rad)",
+   "value": 0.0004794181231414507,
+   "limit": 0.002,
+   "passed": true
+  },
+  {
+   "name": "energy balance: actuator work = dE",
+   "value": 0.0013825636032303893,
+   "limit": 0.01,
+   "passed": true
+  },
+  {
+   "name": "shoulder link root: peak stress x SF 3 <= yield",
+   "value": 0.14901661681666123,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "13.7 MPa"
+  },
+  {
+   "name": "elbow link root: peak stress x SF 3 <= yield",
+   "value": 0.05458315454839868,
+   "limit": 1.0,
+   "passed": true,
+   "detail": "5.0 MPa"
+  },
+  {
+   "name": "timeline stage valid",
+   "value": null,
+   "limit": null,
+   "passed": true,
+   "detail": "392 time samples"
+  }
+ ]
+}

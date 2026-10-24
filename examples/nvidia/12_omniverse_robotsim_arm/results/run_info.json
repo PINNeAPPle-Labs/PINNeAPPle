@@ -1,0 +1,50 @@
+{
+ "name": "12_omniverse_robotsim_arm",
+ "started": "2026-10-24T00:59:42Z",
+ "wall_s": 16.439,
+ "steps_s": {
+  "UsdPhysics stage": 0.169,
+  "robot sim from the USD and from the URDF": 8.867,
+  "timeline USD (poses + stress)": 6.454
+ },
+ "components": [
+  {
+   "component": "NVIDIA Newton (robot sim) from USD",
+   "ran": true,
+   "why": "",
+   "how": ""
+  },
+  {
+   "component": "Omniverse Kit RTX / Isaac Sim replay",
+   "ran": false,
+   "why": "need Omniverse / Isaac Sim and an RTX GPU",
+   "how": ""
+  }
+ ],
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpu_count": 4,
+  "gpu": null,
+  "packages": {
+   "pinneapple": "0.7.0",
+   "torch": "2.14.1",
+   "numpy": "2.5.3",
+   "scipy": "1.18.1",
+   "matplotlib": "3.11.2",
+   "nvidia-physicsnemo": "2.2.2",
+   "nvidia-physicsnemo.sym": null,
+   "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": "1.7.0",
+   "newton-usd-schemas": "0.6.0",
+   "warp-lang": "1.18.0",
+   "isaacsim": null,
+   "isaaclab": null,
+   "torch_geometric": "2.8.1",
+   "torch_scatter": "2.1.2",
+   "requests": "2.34.2"
+  }
+ }
+}

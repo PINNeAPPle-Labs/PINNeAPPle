@@ -1,11 +1,11 @@
 {
  "name": "01_omniverse_pump_pipeline",
- "started": "2026-10-24T00:32:57Z",
- "wall_s": 5.995,
+ "started": "2026-10-24T00:59:34Z",
+ "wall_s": 5.26,
  "steps_s": {
-  "verification (Joukowsky, period, steady state)": 0.04,
-  "transients (MOC, 4 closure times)": 0.316,
-  "OpenUSD twin": 4.633
+  "verification (Joukowsky, period, steady state)": 0.037,
+  "transients (MOC, 4 closure times)": 0.275,
+  "OpenUSD twin": 4.025
  },
  "components": [
   {
@@ -36,11 +36,14 @@
    "nvidia-physicsnemo": "2.2.2",
    "nvidia-physicsnemo.sym": null,
    "usd-core": "26.11",
+   "usd-brep": null,
+   "newton": "1.7.0",
+   "newton-usd-schemas": "0.6.0",
+   "warp-lang": "1.18.0",
    "isaacsim": null,
    "isaaclab": null,
    "torch_geometric": "2.8.1",
    "torch_scatter": "2.1.2",
-   "openai": null,
    "requests": "2.34.2"
   }
  }

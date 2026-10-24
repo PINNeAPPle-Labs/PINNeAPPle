@@ -54,7 +54,7 @@ jobs:
 
       - name: NVIDIA integrations — OpenUSD stages, diagrams, water hammer, examples/nvidia smoke (must pass)
         run: |
-          pip install usd-core
+          pip install usd-core newton newton-usd-schemas
           pytest tests/test_nvidia_integrations.py -q -p no:warnings
 
       - name: Agents — AGENTS.md examples and the MCP server (must pass)

@@ -56,6 +56,7 @@ class MyHub:
                         {"status": "ok" if run.get("ok") else "failed"}) if run else
                 {"status": "not run", "code_hash": code_hash(code)},
                 "results": None, "examples": [f"node:{t}" for t in dict.fromkeys(types)], "files": [], "links": {},
+                "extra": {"expose": composed.get("expose", [])},
                 "saved": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
         text = json.dumps(item, indent=1, ensure_ascii=False)
         if len(text.encode()) > MAX_BYTES:

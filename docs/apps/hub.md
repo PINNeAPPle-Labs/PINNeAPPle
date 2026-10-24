@@ -43,6 +43,36 @@ passes the flow in the link (`?flow=<base64url JSON>`).
 
 ![Create your own](../assets/apps/hub-create.jpg)
 
+## With Flow Studio
+
+The Hub and Flow Studio read one registry, `pinneapple_flow.REGISTRY`: every node type of the palette (the curated
+nodes and the 249 generated library calls of `pinneapple_flow/autocalls.json`) is a Hub tool with the palette's
+title, category and parameter schema, and `tests/test_hub_flow_link.py` fails when the two lists differ.
+
+- **Run it** (a node page): a form generated from the node's parameter schema; a node without required inputs
+  runs in the sandbox with those values and shows what it measured. A library call the generator checked ("runs
+  with its defaults") also has a snippet that calls the function with the form's defaults, recorded like every
+  other snippet (those defaults are placeholders, not a physical case).
+- **Open in Flow Studio**: `pinneapple_hub.library.flowlink.flow_for_node` builds *inputs -> the node with your
+  values -> report*: the upstream wiring of a bundled flow that uses the node when there is one, otherwise a
+  producer for each required input, then `export.report`. Every node type gets a valid flow (tested for all 327).
+- **Add to a flow**: Flow Studio opens with `?add=<type>&params=<base64url JSON>` and asks which flow (an example,
+  a saved flow, the canvas or a new one); the node is wired in by port type (`/api/flows/insert-nodes`).
+- **Publish to Hub** (Flow Studio's toolbar): the flow on the canvas opens in "Create your own"
+  (`/create?flow=<base64url JSON>`); tick the parameters the tool takes and they become variables at the top of the
+  generated Python; validate in the sandbox and save to My Hub.
+- **Already run**: `python -m pinneapple_hub.library flowruns` runs each bundled flow headless and records what
+  every node measured (`data/web/hub/flow_runs.json`, keyed by the flow file's SHA-256); a flow page shows its
+  run, and a node page shows its results in every bundled flow that uses it. A flow that fails is shown as failed,
+  with its error.
+- A public function of the AGENTS.md table links to the node that wraps it.
+
+Flow Studio's "🍍 Hub" button and links go to `FLOW_HUB_URL` (default `http://127.0.0.1:8116`); the Hub's go to
+`HUB_FLOW_STUDIO_URL` (default `http://127.0.0.1:8765`).
+
+![A library call run with the visitor's values](../assets/apps/hub-node-run.jpg)
+![A flow published from Flow Studio, a parameter exposed and validated](../assets/apps/hub-publish.jpg)
+
 ## Using it
 
 `/` focuses the search, **Ctrl+K** (⌘K) opens quick search with arrow keys and Enter; filters by type, physical
@@ -61,6 +91,7 @@ follow the system, the moon button switches and remembers. Works from 340 px wid
 python -m pinneapple_hub.library build              # collect every item from the sources
 python -m pinneapple_hub.library run --stale        # run new or changed snippets, record output and figures
 python -m pinneapple_hub.library check              # current, every run passing, every file and link present
+python -m pinneapple_hub.library flowruns           # run the bundled flows headless, record each node's metrics
 ```
 
 ```python
@@ -76,8 +107,8 @@ print(item["id"], item["run"]["status"], [f["label"] for f in item["files"]][:3]
 | model | `pinneapple_hub/zoo/manifest.json`, the bundled model cards, the first row of each model's held-out split, `data/web/zoo` |
 | dataset | the zoo manifest's datasets |
 | geometry | `pinneapple_design.geometry_library.web.index()` and its manifest |
-| flow | `pinneapple_flow/flows/*.json` |
-| tool | AGENTS.md (its API table and Python blocks), `scripts/reference/content.py` (recorded by `run_examples.py`), `pinneapple_flow.REGISTRY` (curated nodes), `pinneapple_mcp.server` |
+| flow | `pinneapple_flow/flows/*.json`, with their recorded headless runs (`data/web/hub/flow_runs.json`) |
+| tool | AGENTS.md (its API table and Python blocks), `scripts/reference/content.py` (recorded by `run_examples.py`), `pinneapple_flow.REGISTRY` (every node type: curated nodes and generated library calls), `pinneapple_mcp.server` |
 | example | `pinneapple_lab.explorer.collect`: `examples/*/experiment.json` and `lab/curation.json` |
 
 Related items link both ways: an example whose scripts name a model, dataset, geometry, flow or node is related to

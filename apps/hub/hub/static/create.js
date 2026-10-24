@@ -1,36 +1,50 @@
 // "Create your own": compose a tool from existing blocks (Flow Studio node types), optionally starting from a
 // bundled flow and loading a library geometry. The server composes (pinneapple_hub.library.compose): it wires the
 // blocks by port type, checks every parameter and returns the flow JSON and the Python; validation runs that
-// Python in the sandbox as a job. URL: /create?blocks=type1,type2&name=...&start=<flow>&geometry=<name>
+// Python in the sandbox as a job. URL: /create?blocks=type1,type2&name=...&start=<flow>&geometry=<name>, or
+// /create?flow=<base64url flow JSON> (Flow Studio's "Publish to Hub"): the whole flow is the start, and the parameters
+// ticked under "Parameters of this tool" become variables of the generated Python.
 import { api, codeBlock, copyText, emptyState, esc, fileUrl, go, itemUrl, num, state, toast } from "./app.js";
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 let catalog = null;
 
-const S = { name: "My tool", description: "", start: "", geometry: "", blocks: [], out: null, tab: "py", job: null, run: null };
+const S = { name: "My tool", description: "", start: "", geometry: "", blocks: [], flow: null, expose: [], out: null, tab: "py", job: null, run: null };
 
 function body() {
-  return { name: S.name || "My tool", description: S.description, start: S.start || null, geometry: S.geometry || null,
-           blocks: S.blocks.map((b) => ({ type: b.type, params: b.params })) };
+  return { name: S.name || "My tool", description: S.description, start: S.flow ? null : S.start || null, geometry: S.geometry || null,
+           blocks: S.blocks.map((b) => ({ type: b.type, params: b.params })), flow: S.flow, expose: S.expose };
 }
-const b64 = (o) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+export const b64 = (o) => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const unb64 = (t) => JSON.parse(decodeURIComponent(escape(atob(t.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (t.length % 4)) % 4)))));
 
 export async function createView(view, sp) {
   catalog ??= await api("/api/compose/blocks");
   const types = new Map(catalog.blocks.map((b) => [b.type, b]));
-  if (sp.get("blocks") || sp.get("start") || sp.get("name")) {
-    S.blocks = (sp.get("blocks") || "").split(",").filter((t) => types.has(t)).map((t) => ({ type: t, params: {} }));
+  if (sp.get("flow")) {
+    try {
+      S.flow = unb64(sp.get("flow")); S.blocks = []; S.expose = []; S.start = ""; S.run = null; S.job = null;
+      S.name = S.flow.name || S.name; S.description = S.flow.description || "";
+      toast("Flow from Flow Studio loaded: tick the parameters to expose, validate, save");
+    } catch { toast("Could not read the flow in the link"); }
+    history.replaceState({}, "", "/create");
+  } else if (sp.get("blocks") || sp.get("start") || sp.get("name")) {
+    S.blocks = (sp.get("blocks") || "").split(",").filter((t) => types.has(t)).map((t) => ({ type: t, params: sp.get("params") ? unb64(sp.get("params")) : {} }));
     S.name = sp.get("name") || S.name; S.start = sp.get("start") || ""; S.geometry = sp.get("geometry") || "";
-    S.run = null; S.job = null;
+    S.flow = null; S.expose = []; S.run = null; S.job = null;
     history.replaceState({}, "", "/create");
   }
   const sections = [];
   for (const b of catalog.blocks) {
-    let s = sections.find((x) => x.id === b.section);
-    if (!s) sections.push((s = { id: b.section, title: b.section_title, items: [] }));
+    const id = b.auto ? `auto:${b.group}` : b.section;
+    let s = sections.find((x) => x.id === id);
+    if (!s) sections.push((s = { id, title: b.auto ? b.group : b.section_title, auto: b.auto, items: [] }));
     s.items.push(b);
   }
+  const btn = (b) => `<button type="button" data-add="${esc(b.type)}" ${b.available ? "" : "disabled"} title="${esc(b.install || b.summary)}" data-text="${esc((b.title + " " + b.type + " " + b.summary).toLowerCase())}">${esc(b.title)}<small>${esc(b.available ? b.summary : b.install || "not installed here")}</small></button>`;
+  const secHTML = (s) => `<div data-sec><h4>${esc(s.title)}</h4>${s.items.map(btn).join("")}</div>`;
+  const nAuto = catalog.blocks.filter((b) => b.auto).length;
   view.innerHTML = `<main><section class="block"><h2>Create your own tool <small>compose existing blocks; get the Python and the flow JSON, validated in a sandbox</small></h2>
     <div class="create">
       <aside class="panel"><h2>1 · Blocks</h2>
@@ -39,7 +53,8 @@ export async function createView(view, sp) {
         <label>Start from a flow <select id="c-start"><option value="">— empty —</option>${catalog.flows.map((f) => `<option value="${esc(f.name)}" ${S.start === f.name ? "selected" : ""}>${esc(f.title)}</option>`).join("")}</select></label>
         <label>Library geometry <select id="c-geo"><option value="">— none —</option>${catalog.geometries.map((g) => `<option value="${esc(g.name)}" ${S.geometry === g.name ? "selected" : ""}>${esc(g.title)}</option>`).join("")}</select></label>
         <label>Add a block<input id="c-filter" type="search" placeholder="filter ${catalog.blocks.length} blocks…" aria-controls="c-blocks"></label>
-        <div class="blocklist" id="c-blocks">${sections.map((s) => `<div data-sec><h4>${esc(s.title)}</h4>${s.items.map((b) => `<button type="button" data-add="${esc(b.type)}" ${b.available ? "" : "disabled"} title="${esc(b.install || b.summary)}" data-text="${esc((b.title + " " + b.type + " " + b.summary).toLowerCase())}">${esc(b.title)}<small>${esc(b.available ? b.summary : b.install || "not installed here")}</small></button>`).join("")}</div>`).join("")}</div>
+        <div class="blocklist" id="c-blocks">${sections.filter((s) => !s.auto).map(secHTML).join("")}
+          <details id="c-auto"><summary>Library calls <span class="badge">${nAuto}</span></summary>${sections.filter((s) => s.auto).map(secHTML).join("")}</details></div>
       </aside>
       <section class="panel" aria-label="Your tool"><h2>2 · Your tool <span class="badge" id="c-count"></span></h2>
         <div class="chain" id="c-chain"></div>
@@ -57,12 +72,13 @@ export async function createView(view, sp) {
       </section></div></section></main>`;
   $("#c-name").oninput = (e) => { S.name = e.target.value; refresh(); };
   $("#c-desc").oninput = (e) => { S.description = e.target.value; refresh(); };
-  $("#c-start").onchange = (e) => { S.start = e.target.value; refresh(true); };
+  $("#c-start").onchange = (e) => { S.start = e.target.value; S.flow = null; S.expose = []; renderChain(types); refresh(true); };
   $("#c-geo").onchange = (e) => { S.geometry = e.target.value; refresh(); };
   $("#c-filter").oninput = (e) => {
     const q = e.target.value.trim().toLowerCase();
     $$("[data-add]").forEach((b) => (b.hidden = q && !b.dataset.text.includes(q)));
     $$("[data-sec]").forEach((s) => (s.hidden = !$$("[data-add]", s).some((b) => !b.hidden)));
+    $("#c-auto").open = !!q && $$("#c-auto [data-add]").some((b) => !b.hidden);
   };
   $$("[data-add]").forEach((b) => (b.onclick = () => { S.blocks.push({ type: b.dataset.add, params: {} }); renderChain(types); refresh(true); toast(`Added ${types.get(b.dataset.add).title}`); }));
   $$("[data-tab]").forEach((b) => (b.onclick = () => { S.tab = b.dataset.tab; renderCode(); }));
@@ -72,7 +88,7 @@ export async function createView(view, sp) {
   refresh(true);
 }
 
-function field(type, key, schema, value) {
+export function field(type, key, schema, value) {
   const id = `p-${type}-${key}-${Math.random().toString(36).slice(2, 6)}`;
   const lab = `${esc(schema.title || key)}${schema.minimum != null || schema.maximum != null ? ` <span class="u">${schema.minimum ?? ""}…${schema.maximum ?? ""}</span>` : ""}`;
   const tip = esc(schema.description || "");
@@ -83,14 +99,53 @@ function field(type, key, schema, value) {
   return `<label for="${id}" class="${(schema["x-kind"] === "text" || schema["x-kind"] === "expression") ? "wide" : ""}" title="${tip}">${lab}<input id="${id}" data-k="${esc(key)}" data-t="str" value="${esc(value ?? "")}"></label>`;
 }
 
+/** The value of a parameter input made by field(): {ok, value}; marks the input invalid when it does not parse. */
+export function readInput(inp) {
+  const k = inp.dataset.k, t = inp.dataset.t;
+  try {
+    const v = t === "bool" ? inp.checked : t === "integer" ? parseInt(inp.value, 10) : t === "number" ? parseFloat(inp.value)
+      : t === "enum" ? JSON.parse(inp.value) : t === "json" ? JSON.parse(inp.value || "null") : inp.value;
+    if (typeof v === "number" && !Number.isFinite(v)) throw new Error("not a number");
+    inp.removeAttribute("aria-invalid");
+    return { ok: true, value: v };
+  } catch {
+    inp.setAttribute("aria-invalid", "true"); toast(`${k}: not valid ${t === "json" ? "JSON" : "input"}`);
+    return { ok: false };
+  }
+}
+
+/** The flow published from Flow Studio: its nodes, and a tick box per parameter to expose. */
+function flowCard(types) {
+  const f = S.flow, on = (n, p) => S.expose.some((e) => e.node === n && e.param === p);
+  return `<article class="blk"><header><span class="num">⇢</span><b>From Flow Studio: ${esc(f.name || "flow")}</b><button type="button" data-drop aria-label="Drop the Flow Studio flow">✕</button></header>
+    <div class="ports">${f.nodes.length} nodes, ${f.edges.length} connections · tick the parameters that this tool takes</div>
+    <div class="params" style="display:block">${f.nodes.map((n) => {
+      const t = types.get(n.type), props = t?.params_schema?.properties || {};
+      return `<details ${S.expose.some((e) => e.node === n.id) ? "open" : ""}><summary>${esc(n.label || t?.title || n.type)} <code>${esc(n.id)}</code></summary>${Object.entries(props).map(([k, sch]) => `<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" style="width:auto;margin:0" data-expose="${esc(n.id)}|${esc(k)}" ${on(n.id, k) ? "checked" : ""}> ${esc(sch.title || k)} <span class="u">= ${esc(JSON.stringify((n.params || {})[k] ?? sch.default ?? null))}</span></label>`).join("") || '<span class="hint">no parameters</span>'}</details>`;
+    }).join("")}</div></article>`;
+}
+
 function renderChain(types) {
   const host = $("#c-chain");
-  $("#c-count").textContent = `${S.blocks.length} block${S.blocks.length === 1 ? "" : "s"}${S.start ? " + flow" : ""}`;
+  if (S.flow) {
+    host.innerHTML = flowCard(types) + (S.blocks.length ? "" : '<p class="hint">Blocks you add are appended to this flow.</p>');
+    $("[data-drop]", host).onclick = () => { S.flow = null; S.expose = []; renderChain(types); refresh(true); };
+    $$("[data-expose]", host).forEach((cb) => (cb.onchange = () => {
+      const [node, param] = cb.dataset.expose.split("|");
+      S.expose = S.expose.filter((e) => !(e.node === node && e.param === param));
+      if (cb.checked) S.expose.push({ node, param });
+      refresh();
+    }));
+    if (!S.blocks.length) { $("#c-count").textContent = "flow"; return; }
+    host.insertAdjacentHTML("beforeend", '<div id="c-chain-blocks" class="chain"></div>');
+  }
+  $("#c-count").textContent = `${S.blocks.length} block${S.blocks.length === 1 ? "" : "s"}${S.start || S.flow ? " + flow" : ""}`;
+  const target = S.flow ? $("#c-chain-blocks", host) : host;
   if (!S.blocks.length) {
     host.innerHTML = emptyState(S.start ? "Starting from a flow" : "No blocks yet", S.start ? "Blocks you add are appended to the flow and wired by port type." : "Pick blocks on the left: each new block's inputs are wired from the previous ones by port type. Try Domain → Mesh / grid, or start from a flow.");
     return;
   }
-  host.innerHTML = S.blocks.map((b, i) => {
+  target.innerHTML = S.blocks.map((b, i) => {
     const t = types.get(b.type), props = t.params_schema.properties || {};
     const basic = Object.entries(props).filter(([, s]) => !s["x-advanced"]), adv = Object.entries(props).filter(([, s]) => s["x-advanced"]);
     const val = (k) => (k in b.params ? b.params[k] : t.defaults[k]);
@@ -100,19 +155,15 @@ function renderChain(types) {
       <div class="params">${basic.map(([k, s]) => field(b.type, k, s, val(k))).join("")}</div>
       ${adv.length ? `<details><summary>${adv.length} advanced parameter${adv.length > 1 ? "s" : ""}</summary><div class="params">${adv.map(([k, s]) => field(b.type, k, s, val(k))).join("")}</div></details>` : ""}</article>`;
   }).join("");
-  $$(".blk", host).forEach((el) => {
+  $$(".blk[data-i]", host).forEach((el) => {
     const i = +el.dataset.i;
     el.querySelector("[data-rm]").onclick = () => { S.blocks.splice(i, 1); renderChain(types); refresh(true); };
     el.querySelector("[data-up]").onclick = () => { [S.blocks[i - 1], S.blocks[i]] = [S.blocks[i], S.blocks[i - 1]]; renderChain(types); refresh(true); };
     el.querySelector("[data-down]").onclick = () => { [S.blocks[i + 1], S.blocks[i]] = [S.blocks[i], S.blocks[i + 1]]; renderChain(types); refresh(true); };
     $$("[data-k]", el).forEach((inp) => (inp.onchange = () => {
-      const k = inp.dataset.k, t = inp.dataset.t;
-      try {
-        const v = t === "bool" ? inp.checked : t === "integer" ? parseInt(inp.value, 10) : t === "number" ? parseFloat(inp.value)
-          : t === "enum" ? JSON.parse(inp.value) : t === "json" ? JSON.parse(inp.value || "null") : inp.value;
-        if (typeof v === "number" && !Number.isFinite(v)) throw new Error("not a number");
-        S.blocks[i].params[k] = v; inp.removeAttribute("aria-invalid");
-      } catch { inp.setAttribute("aria-invalid", "true"); toast(`${k}: not valid ${t === "json" ? "JSON" : "input"}`); return; }
+      const r = readInput(inp);
+      if (!r.ok) return;
+      S.blocks[i].params[inp.dataset.k] = r.value;
       refresh();
     }));
   });
@@ -131,13 +182,13 @@ function refresh(now = false) {
 function renderIssues() {
   const ul = $("#c-issues"), is = S.out?.issues || [];
   ul.innerHTML = is.length ? is.map((i) => `<li class="${esc(i.level)}">${esc(i.level)}: ${esc(i.message)}</li>`).join("")
-    : S.blocks.length || S.start ? '<li class="hint" style="padding:5px 0">✓ the flow validates: every block is a registered node and every required input is wired</li>' : "";
+    : S.blocks.length || S.start || S.flow ? '<li class="hint" style="padding:5px 0">✓ the flow validates: every block is a registered node and every required input is wired</li>' : "";
 }
 
 function renderCode() {
   $$("[data-tab]").forEach((b) => { b.classList.toggle("on", b.dataset.tab === S.tab); b.setAttribute("aria-selected", b.dataset.tab === S.tab); });
   const o = S.out;
-  const empty = !o || o.error || (!S.blocks.length && !S.start);
+  const empty = !o || o.error || (!S.blocks.length && !S.start && !S.flow);
   $("#c-code").innerHTML = !o ? '<p class="hint">composing…</p>' : o.error ? emptyState("Cannot compose", esc(o.error), true)
     : S.tab === "py" ? codeBlock(o.code, { label: "Copy code" }) : codeBlock(JSON.stringify(o.flow, null, 1), { lang: "json", label: "Copy JSON", what: "Flow JSON" });
   const spec = b64(body());

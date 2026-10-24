@@ -14,6 +14,20 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_autolab`: the agent loop of the Autonomous Physics Lab. A mission in plain language -> a plan of
+  controlled library calls (`Tool`, `Toolbox` with declared arguments) -> `execute` with evidence per call; a
+  deterministic `TemplatePlanner` and an `LLMPlanner` (via `pinneapple_llm.call_llm`) that falls back to it, with the
+  reason, on any invalid plan or failure.
+- `pinneapple_design.thermal.board_cooling`, demo 2 of the lab (the self-optimizing engineer): a board with an
+  overheating SoC -> coupled reference (3-D board finite volumes + plate-fin heat sink through the case-top
+  resistance, nominal and pessimistic cooling) -> POD + Gaussian-process surrogate of the junction temperatures and
+  the board-top map, measured on held-out designs and grown until accepted -> minimum-mass heat sink and fan speed
+  under junction, fan-power, envelope and fin-gap constraints, confirmed on the reference -> fine-grid verification
+  with a `TrustReport` -> figures, glTF / USD, three.js viewer, Blender stills and animation, report. Example
+  `examples/autolab/self_optimizing_engineer.py`, Flow node `autolab.board_cooling`, guide
+  `docs/guides/autonomous_physics_lab.md`.
+- `pinneapple_physics.pcb.Component.r_top_k_w`: case-top-to-air resistance of an attached heat sink.
+- Studio: `blender.render_animation(..., lines=[bool per frame])` shows the static lines only on chosen frames.
 - `pinneapple_reason`: the chain of whys of a design, computed. A data model (requirement -> concept -> verification
   with demand, capacity, mechanism, measured numbers, sources, applicability and self-checks -> finding -> options ->
   chain, JSON round-trip), a library of 15 failure modes in 10 physical domains (rain through laps by capillarity,

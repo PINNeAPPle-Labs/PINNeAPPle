@@ -263,7 +263,10 @@ def test_eddy_fdm_block_solve_equals_complex_solve_and_dodd_deeds_limits():
     sg = np.where(ZZ < 0, 1.7e7, 0.0)
     A = solve_axisymmetric_eddy_current(r, z, 2 * np.pi * 1e4, MU0 * np.ones_like(RR), sg, J)
     M, b = build_axisymmetric_helmholtz_system(r, z, 1j * 2 * np.pi * 1e4 * MU0 * sg, -MU0 * J + 0j)
-    assert np.allclose(A.ravel(), spsolve(M.tocsc(), b), rtol=1e-9, atol=1e-18)
+    ref = spsolve(M.tocsc(), b)
+    # both solves leave round-off residuals of the same size (cond(M) ~ 1e8 with 1/h^2 ~ 4e6): compare residuals
+    assert np.abs(M @ A.ravel() - b).max() <= 2 * np.abs(M @ ref - b).max() + 1e-30
+    assert np.abs(A.ravel() - ref).max() <= 1e-7 * np.abs(ref).max()
     kw = dict(r1=2e-3, r2=4e-3, l1=5e-4, l2=2.5e-3, turns=200, sigma=1.74e7)
     thick = coil_impedance(1e4, thickness=0.02, **kw)
     half = coil_impedance(1e4, **kw)

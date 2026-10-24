@@ -8,7 +8,7 @@ In the video I ran the built-in slab-heating template (exact Fourier-series solu
 
 On a deliberately flaky workflow, one step passed on its second try, another failed and cancelled only the step that needed it, and Resume finished the run (4 of 4 done) without redoing the finished steps.
 
-Testing it surfaced a bug, now fixed in the library: a CSV with T0 = 300 was refused for a template constant of 300.0.
+Testing it surfaced a bug, now fixed: a CSV with T0 = 300 was refused for a template constant of 300.0.
 
 Live: https://runner.pinneapple.org
 Code: https://github.com/pinneapple-labs/pinneapple (apps/simulation_runner)

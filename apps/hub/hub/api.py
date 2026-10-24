@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 
 from pinneapple_hub import library as hub
 from pinneapple_hub.library.compose import ComposeError, blocks, compose
+from pinneapple_hub.library.flowlink import FlowLinkError, add_link, flow_for_node, flow_link
 from pinneapple_hub.library.myhub import MyHub, MyHubError
 from pinneapple_hub.library.sandbox import run_snippet
 
@@ -200,6 +201,9 @@ class ComposeBody(BaseModel):
     blocks: list[dict[str, Any]] = Field(default_factory=list, max_length=24)
     start: str | None = None
     geometry: str | None = None
+    flow: dict[str, Any] | None = Field(None, description="a whole flow to start from (Flow Studio: Publish to Hub)")
+    expose: list[dict[str, str]] = Field(default_factory=list, max_length=24,
+                                         description="[{node, param}] that become variables of the generated Python")
 
 
 def _compose(body: ComposeBody) -> dict[str, Any]:
@@ -207,6 +211,27 @@ def _compose(body: ComposeBody) -> dict[str, Any]:
         return compose(body.model_dump())
     except ComposeError as exc:
         raise HTTPException(422, str(exc)) from None
+
+
+def _flow_studio() -> str:
+    return os.environ.get("HUB_FLOW_STUDIO_URL", "http://127.0.0.1:8765")
+
+
+class NodeFlowBody(BaseModel):
+    type: str = Field(..., max_length=120)
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+@app.post("/api/flowlink/node")
+def flowlink_node(body: NodeFlowBody):
+    """A ready flow around a node type (inputs -> the node with these parameters -> report) and the Flow Studio
+    links that open it or add the node to a flow (pinneapple_hub.library.flowlink)."""
+    try:
+        out = flow_for_node(body.type, body.params)
+    except FlowLinkError as exc:
+        raise HTTPException(404, str(exc)) from None
+    return {**out, "open": flow_link(out["flow"], base=_flow_studio()),
+            "add": add_link(body.type, body.params, base=_flow_studio())}
 
 
 @app.get("/api/compose/blocks")

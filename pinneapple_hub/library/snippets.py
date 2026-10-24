@@ -67,6 +67,20 @@ def node(type_: str) -> str:
             f'print("defaults:", spec.defaults())\n')
 
 
+def auto_call(target: str, node_type: str, defaults: dict | None = None) -> str:
+    """A generated library call that runs with its defaults (the node's parameter form): call it with them and show
+    what it returns."""
+    mod, fn = target.split(":")
+    args = ", ".join(f"{k}={v!r}" for k, v in (defaults or {}).items())
+    call = f"{fn}({args})"
+    if len(call) > 100:
+        call = f"{fn}(\n    " + ",\n    ".join(f"{k}={v!r}" for k, v in (defaults or {}).items()) + ",\n)"
+    return (f'from {mod} import {fn}     # Flow Studio node {node_type}\n\n'
+            f'result = {call}\n'
+            f'print(type(result).__name__)\n'
+            f'print(repr(result)[:800])\n')
+
+
 def api(dotted: str) -> str:
     head = dotted.split(".")[0]
     imp = "import pinneapple as pp" if head == "pp" else f"import {dotted.rsplit('.', 1)[0]}"

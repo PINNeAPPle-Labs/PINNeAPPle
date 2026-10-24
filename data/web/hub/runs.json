@@ -736,6 +736,28 @@
   "stdout": "Autonomous Physics Lab | design and geometry | not curated\nbaseline_tj_soc 323.2144491142498 °C\nverified_tj_soc_pessimistic 88.52504297676208 °C\nholdout_tj_max_abs_error 2.2030649404285896 K\nholdout_map_rmse 0.2031511632505125 K\nreference_solves 224.0 solves",
   "timed_out": false
  },
+ "example:examples/autolab_aero": {
+  "code_hash": "dc2d0c36e9e9dec7",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.64,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+  "timed_out": false
+ },
+ "example:examples/autolab_aero_agent": {
+  "code_hash": "3f0f030410fd8957",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-24",
+  "seconds": 0.7,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "The AI Aerodynamicist, driven by an agent | external aerodynamics | not curated\nagent_steps 31.0 tool calls\nreplayed_runs 21.0 runs\nnew_cfd_runs 0.0 runs\ndrag_change -15.667219882799474 %\nagent_refused_calls 0.0 calls",
+  "timed_out": false
+ },
  "example:examples/autolab_digital_twin": {
   "code_hash": "b8c6879d1ad7fbc7",
   "figures": [],

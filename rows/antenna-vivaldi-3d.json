@@ -1,0 +1,15 @@
+{"slug":"antenna-vivaldi-3d",
+ "theme":"End-fire antenna toolkit: open EMerge Vivaldi model 2-4 GHz (PR #857) and the antenna in 3-D: gain balloon, near-field cuts, self-contained viewer, Blender renders (PR #859)",
+ "prs":[857,859],
+ "media":["media/antenna-vivaldi-3d/antenna-vivaldi-3d.mp4"],
+ "numbers":[
+  {"value":"206 mm","meaning":"min antenna length for 10 dBi at 2 GHz (Hansen-Woodyard)","source":"examples/use_cases/antennas/results/summary.json limits.min_length_hw_mm['2 GHz']"},
+  {"value":"125","meaning":"EMerge processes, all ok","source":"examples/use_cases/antennas/results/summary.json runs_total"},
+  {"value":"7.09 -> 11.27 dBi","meaning":"best design peak directivity 2 -> 4 GHz","source":"examples/use_cases/antennas/results/3d/summary_3d.json best.balloon[].D_peak_dBi"},
+  {"value":"0.0 dB","meaning":"balloon peak vs table D_peak max difference","source":"examples/use_cases/antennas/results/3d/summary_3d.json best.balloon_vs_table_max_abs_dB"},
+  {"value":"0.62 dB","meaning":"coarse vs fine RMSE on realized gain; bias correction 0.62 dB","source":"examples/use_cases/antennas/results/summary.json multi_fidelity.Greal_bore_dBi"},
+  {"value":"5.37 dBi","meaning":"best design realized gain at 2 GHz (10 dBi goal not met)","source":"examples/use_cases/antennas/results/summary.json best.simulated[0].Greal_bore_dBi"},
+  {"value":"525 / 35","meaning":"coarse checks support / contradict (80 rows), all 35 power_closure -> REVIEW","source":"examples/use_cases/antennas/results/summary.json checks_coarse"},
+  {"value":"7.2 % / 34.6 %","meaning":"median / max gap pattern power vs Poynting flux; ~0.5 dB gain uncertainty","source":"docs/guides/antenna_design.md section 7 Checks"},
+  {"value":"1.83 dB > 1.5 dB","meaning":"GP leave-one-design-out RMSE vs trust-card limit -> best design REVIEW","source":"examples/use_cases/antennas/results/summary.json lodo.Greal_bore_dBi.rmse.gp, best.card"}
+ ]}

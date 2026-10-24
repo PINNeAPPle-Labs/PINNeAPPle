@@ -1,0 +1,82 @@
+{
+ "slug": "interlocking-bricks",
+ "theme": "interlocking bricks: a design loop judged by physics (statics with stud clutch, Newton replay, self-modifying search for cantilever / bridge / tower goals)",
+ "prs": [
+  805
+ ],
+ "media": [
+  "media/interlocking-bricks/interlocking_bricks.mp4"
+ ],
+ "numbers": [
+  {
+   "value": "0.98 N",
+   "meaning": "clutch per stud (StableLego)",
+   "source": "examples/bricks/_out/report.md Joint model"
+  },
+  {
+   "value": "5 x 400",
+   "meaning": "seeds x physics evaluations per run and strategy",
+   "source": "examples/bricks/_out/summary.json seeds, budget"
+  },
+  {
+   "value": "135.9 mm",
+   "meaning": "best cantilever reach past the table edge (8 parts)",
+   "source": "examples/bricks/_out/summary.json best.cantilever.score"
+  },
+  {
+   "value": "34%",
+   "meaning": "peak stud tension / clutch, best cantilever",
+   "source": "examples/bricks/_out/summary.json best.cantilever.metrics.utilisation"
+  },
+  {
+   "value": "86.7 mm",
+   "meaning": "reach of unconnected blocks of the same length (harmonic stacking)",
+   "source": "docs/guides/interlocking_bricks.md line 124"
+  },
+  {
+   "value": "3 parts",
+   "meaning": "best bridge over a 96 mm gap",
+   "source": "examples/bricks/_out/summary.json best.bridge.n_bricks"
+  },
+  {
+   "value": "1.46 N",
+   "meaning": "best bridge capacity at mid-span (1 N goal load)",
+   "source": "examples/bricks/_out/summary.json best.bridge.metrics.capacity_n"
+  },
+  {
+   "value": "153.6 mm",
+   "meaning": "best tower height, 16 parts",
+   "source": "examples/bricks/_out/summary.json best.tower.score / n_bricks"
+  },
+  {
+   "value": "1.64x / 16.4 mN",
+   "meaning": "best tower push capacity vs the 10 mN goal",
+   "source": "examples/bricks/_out/summary.json best.tower.metrics.load_factor / push_capacity_n"
+  },
+  {
+   "value": "9/9",
+   "meaning": "closed-form checks passed",
+   "source": "examples/bricks/_out/summary.json validation[*].passed"
+  },
+  {
+   "value": "0.4%",
+   "meaning": "voxel FEA beam deflection error vs Timoshenko",
+   "source": "examples/bricks/_out/summary.json validation[6].rel_error"
+  },
+  {
+   "value": "90% / 100% / 75%",
+   "meaning": "statics vs Newton agreement on searched cantilevers / bridges / towers",
+   "source": "examples/bricks/_out/summary.json cross_checks.*.agreement"
+  },
+  {
+   "value": "0.80",
+   "meaning": "bridge load factor at 0.5x clutch (fails)",
+   "source": "examples/bricks/_out/report.md bridge sensitivity table"
+  },
+  {
+   "value": "0.00 / 0.00 / 0.03 mm",
+   "meaning": "Newton displacement of the three best builds in 0.6 s (video only)",
+   "source": "docs/guides/interlocking_bricks.md line 132"
+  }
+ ]
+}

@@ -1,0 +1,90 @@
+{
+ "slug": "near-random-forecasting",
+ "theme": "Forecasting a noisy or near-random series without fooling yourself: predictability report first, untouched test set, purged walk-forward tuning, Diebold-Mariano/Holm tests against the best baseline, a model zoo on 16 series incl. YouTube US trending",
+ "prs": [
+  827,
+  828,
+  833
+ ],
+ "media": [
+  "media/near-random-forecasting/01_forecast_cone.png",
+  "media/near-random-forecasting/02_predictability_report.png",
+  "media/near-random-forecasting/03_persistence_trap.png",
+  "media/near-random-forecasting/04_skill_vs_best_baseline.png",
+  "media/near-random-forecasting/05_memorise_vs_learn.png",
+  "media/near-random-forecasting/06_youtube_trending.png",
+  "media/near-random-forecasting/07_landscape.png"
+ ],
+ "numbers": [
+  {
+   "value": "+0.33",
+   "meaning": "RMSE skill of an LSTM on white noise vs persistence at h=1",
+   "source": "examples/near_random_forecasting/results/tables.md ## scores, White noise | lstm"
+  },
+  {
+   "value": "0 / none",
+   "meaning": "white-noise LSTM skill vs best baseline (no significant horizon)",
+   "source": "examples/near_random_forecasting/results/tables.md ## skill_horizon and ## zoo, White noise rows"
+  },
+  {
+   "value": "20 %",
+   "meaning": "last part of each series fixed as the test period before tuning",
+   "source": "docs/guides/near_random_forecasting.md ## The protocol"
+  },
+  {
+   "value": "16",
+   "meaning": "series in the study",
+   "source": "examples/near_random_forecasting/results/tables.md ## predictability (16 rows); results/cases/ (16 JSON)"
+  },
+  {
+   "value": "1.4 LT",
+   "meaning": "last horizon with significant skill vs best baseline, every family, Lorenz-63 noise 0.1 x std",
+   "source": "examples/near_random_forecasting/results/tables.md ## skill_horizon (1.43 LT); docs/guides/near_random_forecasting.md line 251"
+  },
+  {
+   "value": "2.7 LT",
+   "meaning": "EnKF skill horizon on Lorenz-96 (slide 4)",
+   "source": "examples/near_random_forecasting/results/tables.md ## skill_horizon (2.68 LT)"
+  },
+  {
+   "value": "546k params; 0.166 / 0.350",
+   "meaning": "overfit MLP one-step RMSE train / test, double-well",
+   "source": "docs/guides/near_random_forecasting.md Memorise vs learn table; results/visuals.json memorise_vs_learn"
+  },
+  {
+   "value": "0.245 / 0.248",
+   "meaning": "64x2 MLP + early stopping RMSE train / test, double-well",
+   "source": "docs/guides/near_random_forecasting.md Memorise vs learn table; results/visuals.json memorise_vs_learn"
+  },
+  {
+   "value": "205",
+   "meaning": "YouTube US trending days",
+   "source": "examples/near_random_forecasting/results/cases/youtube_us_log_views.json n"
+  },
+  {
+   "value": "34",
+   "meaning": "YouTube test days",
+   "source": "examples/near_random_forecasting/results/cases/youtube_us_log_views.json zoo.protocol.n_test_origins"
+  },
+  {
+   "value": "68 %",
+   "meaning": "days the transformer was closer than exp. smoothing at h=1 (YouTube views)",
+   "source": "examples/near_random_forecasting/results/visuals.json surprise_calendar[0].fraction_model_closer = 0.6765"
+  },
+  {
+   "value": "38 %",
+   "meaning": "days the LSTM was closer than AR at h=1 (Entertainment slots, slide 6)",
+   "source": "examples/near_random_forecasting/results/visuals.json surprise_calendar[1].fraction_model_closer = 0.3824"
+  },
+  {
+   "value": "none",
+   "meaning": "YouTube horizons with significant skill vs best baseline (DM, Holm)",
+   "source": "examples/near_random_forecasting/results/tables.md ## zoo, YouTube rows"
+  },
+  {
+   "value": "89.0 % / 89.4 %",
+   "meaning": "90 % band coverage of the forecast cone, Lorenz-63 / white noise (slide 1)",
+   "source": "docs/guides/near_random_forecasting.md Forecast cone paragraph; results/visuals.json cones"
+  }
+ ]
+}

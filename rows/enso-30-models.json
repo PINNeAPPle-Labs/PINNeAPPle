@@ -1,0 +1,128 @@
+{
+ "slug": "enso-30-models",
+ "theme": "Predicting El Niño: ENSO library and a 30-model study (recharge/delayed oscillators, intermediate coupled model, PINNs, LIM/CNN, EnKF) under one forecast_lab protocol",
+ "prs": [
+  845,
+  846
+ ],
+ "media": [
+  "media/enso-30-models/01_el_nino_1997_98.png",
+  "media/enso-30-models/02_skill_vs_lead.png",
+  "media/enso-30-models/03_all_models_lead6.png",
+  "media/enso-30-models/04_spring_barrier.png",
+  "media/enso-30-models/05_solver_checks.png",
+  "media/enso-30-models/06_honest_failures.png"
+ ],
+ "numbers": [
+  {
+   "value": "30",
+   "meaning": "models in the zoo",
+   "source": "examples/enso_forecasting/results/study.json zoo.models (30 keys)"
+  },
+  {
+   "value": "132",
+   "meaning": "monthly test origins 2012-2022",
+   "source": "examples/enso_forecasting/results/study.json zoo.protocol.n_test_origins"
+  },
+  {
+   "value": "0.70",
+   "meaning": "CNN ACC at lead 6",
+   "source": "examples/enso_forecasting/results/study.json enso_scores.cnn.acc[5]=0.6992; examples/enso_forecasting/results/tables.md"
+  },
+  {
+   "value": "0.67",
+   "meaning": "LIM ACC at lead 6",
+   "source": "examples/enso_forecasting/results/study.json enso_scores.lim.acc[5]=0.6712"
+  },
+  {
+   "value": "0.63",
+   "meaning": "seasonal recharge oscillator ACC at lead 6",
+   "source": "examples/enso_forecasting/results/study.json enso_scores.ro_seasonal_multiplicative.acc[5]=0.6284"
+  },
+  {
+   "value": "0.58",
+   "meaning": "ensemble ACC at lead 6",
+   "source": "examples/enso_forecasting/results/study.json enso_scores.ensemble.acc[5]=0.578"
+  },
+  {
+   "value": "0.36",
+   "meaning": "persistence ACC at lead 6",
+   "source": "examples/enso_forecasting/results/study.json enso_scores.persistence.acc[5]=0.3612"
+  },
+  {
+   "value": "0.42",
+   "meaning": "ARIMA ACC at lead 6",
+   "source": "examples/enso_forecasting/results/study.json enso_scores.arima.acc[5]=0.4201"
+  },
+  {
+   "value": "1-2",
+   "meaning": "only leads at which models are significantly better than climatology (DM, Holm)",
+   "source": "examples/enso_forecasting/results/tables.md ## skill_vs_climatology; docs/guides/enso_forecasting.md l.36-37"
+  },
+  {
+   "value": "0.5 / ~9 months",
+   "meaning": "no model keeps ACC above 0.5 beyond about 9 months",
+   "source": "docs/guides/enso_forecasting.md l.43"
+  },
+  {
+   "value": "0.06",
+   "meaning": "persistence ACC, lead 6, Jun-Aug targets (CV 1985-2009)",
+   "source": "examples/enso_forecasting/results/tables.md ## spring_barrier"
+  },
+  {
+   "value": "0.64",
+   "meaning": "seasonal recharge oscillator ACC, lead 6, Jun-Aug targets",
+   "source": "examples/enso_forecasting/results/tables.md ## spring_barrier"
+  },
+  {
+   "value": "2.689 vs 2.7 m/s",
+   "meaning": "Kelvin wave speed measured vs theory",
+   "source": "examples/enso_forecasting/results/solver_checks.json kelvin.speed_measured, kelvin.speed_theory"
+  },
+  {
+   "value": "~2nd order",
+   "meaning": "Kelvin speed convergence order 1.93, 1.98",
+   "source": "examples/enso_forecasting/results/solver_checks.json kelvin_convergence.observed_order"
+  },
+  {
+   "value": "5.2e-5",
+   "meaning": "Gill (1980) rel. L2 error of u at nlon=576",
+   "source": "examples/enso_forecasting/results/solver_checks.json gill.rows[3].rel_l2_u"
+  },
+  {
+   "value": "~3e-6",
+   "meaning": "recharge oscillator period rel. error",
+   "source": "examples/enso_forecasting/results/solver_checks.json recharge_oscillator.rows[*].period_rel_error"
+  },
+  {
+   "value": "-0.69",
+   "meaning": "PINN-identified recharge oscillator ACC at lead 3",
+   "source": "examples/enso_forecasting/results/study.json enso_scores.pinn_ro.acc[2]=-0.6866"
+  },
+  {
+   "value": "F2 ≈ 100 vs 1.3",
+   "meaning": "PINN-identified F2 vs expected",
+   "source": "docs/guides/enso_forecasting.md l.49, l.534"
+  },
+  {
+   "value": "r = 0.85",
+   "meaning": "intermediate-model thermocline tilt vs observed when forced by observed winds",
+   "source": "docs/guides/enso_forecasting.md l.55, l.205"
+  },
+  {
+   "value": "0.12 K vs 0.87 K",
+   "meaning": "Niño-3.4 std of free coupled intermediate-model run vs observed",
+   "source": "docs/guides/enso_forecasting.md l.55-56, l.211-212"
+  },
+  {
+   "value": "17 %",
+   "meaning": "EnKF targets inside central 95 % interval at lead 6",
+   "source": "docs/guides/enso_forecasting.md l.56-57, l.292"
+  },
+  {
+   "value": "< 0.07",
+   "meaning": "CRPS skill vs climatology of every family representative beyond lead 9",
+   "source": "docs/guides/enso_forecasting.md l.44; examples/enso_forecasting/results/tables.md ## families"
+  }
+ ]
+}

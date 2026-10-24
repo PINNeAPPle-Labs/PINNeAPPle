@@ -1,0 +1,136 @@
+{
+  "slug": "prius-ipm-machine",
+  "theme": "Electric-machine series on the 2004 Toyota Prius IPM motor: verified FEA vs published torque, drive and efficiency map, thermal and demagnetisation, skew and tolerances, GP + NSGA-II rotor design, gmsh + GetDP cross-check, slides",
+  "prs": [
+    814,
+    816,
+    819,
+    822,
+    823,
+    824,
+    825,
+    826
+  ],
+  "media": [
+    "media/prius-ipm-machine/01_prius_fea_field.png",
+    "media/prius-ipm-machine/02_torque_vs_published.png",
+    "media/prius-ipm-machine/03_efficiency_map.png",
+    "media/prius-ipm-machine/04_thermal_demag.png",
+    "media/prius-ipm-machine/05_step_skew.png",
+    "media/prius-ipm-machine/06_tolerances.png",
+    "media/prius-ipm-machine/07_gp_nsga2_rotor.png",
+    "media/prius-ipm-machine/08_getdp_crosscheck.png"
+  ],
+  "numbers": [
+    {
+      "value": "345.6 N m",
+      "meaning": "peak mean torque at 250 A (PINNeAPPle FEA, 960 gap nodes)",
+      "source": "examples/electrodynamics/results/10_pmsm_prius.json torque_vs_angle.torque_Nm @140 deg"
+    },
+    {
+      "value": "353 N m",
+      "meaning": "published peak torque at 250 A (Yang et al., IEMDC 2013)",
+      "source": "examples/electrodynamics/results/10_pmsm_prius.json torque_vs_angle.yang_2013_Nm @140 deg"
+    },
+    {
+      "value": "13.3 N m",
+      "meaning": "rms deviation from the published torque curve",
+      "source": "examples/electrodynamics/results/10_pmsm_prius.json torque_vs_angle.comparison.rms_error_Nm"
+    },
+    {
+      "value": "+25.3 N m at 90 deg",
+      "meaning": "largest deviation from the published curve",
+      "source": "examples/electrodynamics/results/10_pmsm_prius.json torque_vs_angle.comparison.max_abs_error_Nm / max_abs_error_at_deg"
+    },
+    {
+      "value": "2.1 %",
+      "meaning": "peak torque agreement with published value",
+      "source": "docs/guides/electromagnetics.md Prius section 'The peak agrees within 2.1 %'"
+    },
+    {
+      "value": "1.09 N m",
+      "meaning": "max torque difference GetDP vs PINNeAPPle over 13 angles",
+      "source": "examples/electrodynamics/results/14_prius_getdp_crosscheck.json torque_difference_getdp_minus_pinneapple.max_abs_Nm"
+    },
+    {
+      "value": "0.19 %",
+      "meaning": "relative torque difference at the peak",
+      "source": "examples/electrodynamics/results/14_prius_getdp_crosscheck.json torque_difference_getdp_minus_pinneapple.max_rel_at_peak"
+    },
+    {
+      "value": "+0.04 %",
+      "meaning": "back-EMF fundamental difference GetDP vs PINNeAPPle",
+      "source": "examples/electrodynamics/results/14_prius_getdp_crosscheck.json back_emf_1000rpm.*_fundamental_peak_V"
+    },
+    {
+      "value": "25 %",
+      "meaning": "cogging pk-pk difference between the two codes (1920 gap nodes)",
+      "source": "docs/guides/electromagnetics.md cross-check table 'Cogging pk-pk, 1920 gap nodes'"
+    },
+    {
+      "value": "51 to 53",
+      "meaning": "FEA calls of the GP + NSGA-II hybrid (3 seeds)",
+      "source": "examples/electrodynamics/results/12_prius_rotor_design.json runs[*].hybrid.fea_calls"
+    },
+    {
+      "value": "601 to 711",
+      "meaning": "FEA calls NSGA-II needs to reach the same hypervolume",
+      "source": "docs/guides/electromagnetics.md rotor-design table"
+    },
+    {
+      "value": "91 to 93 %",
+      "meaning": "FEA-call saving at equal hypervolume",
+      "source": "examples/electrodynamics/results/12_prius_rotor_design.json runs[*].fea_call_saving"
+    },
+    {
+      "value": "96.2 % at 2750 rpm, 70.7 N m",
+      "meaning": "peak drive efficiency (copper+iron+magnet loss)",
+      "source": "examples/electrodynamics/results/11_prius_drive.json efficiency_map.peak_efficiency / peak_at"
+    },
+    {
+      "value": "102.1 Wh/km",
+      "meaning": "WLTC class 3b battery-side energy, illustrative car",
+      "source": "examples/electrodynamics/results/11_prius_drive.json wltc_class3b.battery_Wh_per_km"
+    },
+    {
+      "value": "960 gap nodes, 29 936 elements",
+      "meaning": "FEA mesh of the reference run",
+      "source": "examples/electrodynamics/results/10_pmsm_prius.json n_gap / elements"
+    },
+    {
+      "value": "127.4 degC",
+      "meaning": "magnet temperature at peak load after 4 WLTC cycles",
+      "source": "examples/electrodynamics/results/13_prius_thermal.json demagnetisation.magnet_temperature_C"
+    },
+    {
+      "value": "237 s",
+      "meaning": "time for the hottest winding node to reach 180 degC at peak load",
+      "source": "examples/electrodynamics/results/13_prius_thermal.json peak_load.time_to_180C_winding_s"
+    },
+    {
+      "value": "18.6 % / 2.4 %",
+      "meaning": "demagnetised magnet area at i_d = -250 A, grades H / SH",
+      "source": "examples/electrodynamics/results/13_prius_thermal.json demagnetisation.cases['i_d = -250 A'].H|SH.demagnetised_fraction"
+    },
+    {
+      "value": "1.35 to 0.62 N m; 22.9 to 8.8 %; -2.0 %",
+      "meaning": "two-step skew at 3.75 deg: cogging, load ripple, torque change",
+      "source": "examples/electrodynamics/results/15_prius_skew.json sweep (steps=2, skew 3.75 deg vs 0)"
+    },
+    {
+      "value": "343.31 +/- 1.96 N m",
+      "meaning": "Monte Carlo torque mean and std, 200 samples",
+      "source": "examples/electrodynamics/results/17_prius_tolerances.json outputs.torque_Nm.mean / std, samples"
+    },
+    {
+      "value": "0.981 to 1.000",
+      "meaning": "Wilson 95 % interval of the yield",
+      "source": "examples/electrodynamics/results/17_prius_tolerances.json p_within_spec_joint_wilson95"
+    },
+    {
+      "value": "1.1 % / 30 %",
+      "meaning": "torque / ripple change of hybrid-front designs at finer FEA",
+      "source": "docs/guides/electromagnetics.md rotor-design section"
+    }
+  ]
+}

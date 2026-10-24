@@ -1,0 +1,78 @@
+{
+ "slug": "flight-dynamics-6dof",
+ "theme": "Flight dynamics in PINNeAPPle: 6-DOF aircraft on the vortex lattice, MIL-F-8785C turbulence, take-off vs Raymer, gust encounters, Cycles-rendered clips",
+ "prs": [
+  844,
+  847
+ ],
+ "media": [
+  "media/flight-dynamics-6dof/flight_dynamics_6dof.mp4"
+ ],
+ "numbers": [
+  {
+   "value": "1691 m",
+   "meaning": "A320 class simulated distance to 35 ft",
+   "source": "examples/flight_dynamics/results/takeoff.json: nominal.a320.distance_35ft_m"
+  },
+  {
+   "value": "1703 m",
+   "meaning": "Raymer 17.8 closed form (V_LOF=1.1 V_s), same aircraft model",
+   "source": "examples/flight_dynamics/results/takeoff.json: closed_form.a320.raymer_1p1Vs.total_35ft_m"
+  },
+  {
+   "value": "-0.7 %",
+   "meaning": "A320 sim vs Raymer",
+   "source": "examples/flight_dynamics/results/takeoff.json: closed_form.a320.sim_over_raymer (0.9931)"
+  },
+  {
+   "value": "29.6 %",
+   "meaning": "Light GA sim longer than Raymer",
+   "source": "examples/flight_dynamics/results/takeoff.json: closed_form.light_ga.sim_over_raymer (1.2956)"
+  },
+  {
+   "value": "1291 m vs 1299 m",
+   "meaning": "ATR class sim vs Raymer (video)",
+   "source": "examples/flight_dynamics/results/takeoff.json: nominal.regional_turboprop.distance_35ft_m, closed_form.regional_turboprop.raymer_1p1Vs.total_35ft_m"
+  },
+  {
+   "value": "0.99-1.04",
+   "meaning": "FrozenLine band PSD ratio vs MIL-F-8785C target",
+   "source": "examples/flight_dynamics/results/verification.json: turbulence.cases[0..5].psd_ratio_min/max"
+  },
+  {
+   "value": "0.66-1.34",
+   "meaning": "FrozenField3D band PSD ratio vs target",
+   "source": "examples/flight_dynamics/results/verification.json: turbulence.cases[9..11].psd_ratio_min/max"
+  },
+  {
+   "value": "0.2 rad/m",
+   "meaning": "upper wavenumber where 3-D field follows target",
+   "source": "docs/guides/flight_dynamics.md, Verification section"
+  },
+  {
+   "value": "1.09-1.19",
+   "meaning": "simulated discrete-gust peak / Pratt",
+   "source": "examples/flight_dynamics/results/turbulence.json: pratt[*].ratio_sim_to_pratt"
+  },
+  {
+   "value": "7.05 m/s",
+   "meaning": "MIL-F-8785C severe sigma at 3000 m (video)",
+   "source": "examples/flight_dynamics/results/turbulence.json: spec.sigma_w"
+  },
+  {
+   "value": "0.357 g / 0.939 g",
+   "meaning": "same-gust peak CG dn_z, A320 class / motor glider (video)",
+   "source": "examples/flight_dynamics/results/same_gust.json: aircraft.a320.dnz_cg_max, aircraft.motor_glider.dnz_cg_max"
+  },
+  {
+   "value": "7.62 m/s over 100 m",
+   "meaning": "same-gust amplitude and length (video)",
+   "source": "examples/flight_dynamics/results/same_gust.json: gust.amplitude_m_s, gust.half_length_m=50"
+  },
+  {
+   "value": "departed",
+   "meaning": "motor glider in severe turbulence",
+   "source": "examples/flight_dynamics/results/turbulence.json: runs[*].departed (motor_glider)"
+  }
+ ]
+}

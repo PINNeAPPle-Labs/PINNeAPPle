@@ -155,8 +155,8 @@ def test_advection_diffusion_conserves_mass_and_decays():
 
 # ------------------------------------------------------------------------------------------------ examples (smoke)
 @needs_pxr
-def test_example_02_pipeline_twin_smoke(tmp_path):
-    s = _example("02_pump_pipeline_twin_omniverse")["main"](True, str(tmp_path))
+def test_example_01_pipeline_twin_smoke(tmp_path):
+    s = _example("01_omniverse_pump_pipeline")["main"](True, str(tmp_path))
     assert s["usd"]["ok"] and s["checks"][0]["passed"] and s["checks"][1]["passed"]
     for f in ("architecture.png", "transients.png", "usd_preview.png", "usd_timeline.gif", "summary.json"):
         assert os.path.exists(tmp_path / "results" / f)
@@ -165,14 +165,14 @@ def test_example_02_pipeline_twin_smoke(tmp_path):
 
 @needs_pxr
 @needs_pnemo
-def test_example_01_coldplate_smoke(tmp_path):
-    s = _example("01_coldplate_physicsnemo_omniverse")["main"](True, str(tmp_path))
+def test_example_07_coldplate_smoke(tmp_path):
+    s = _example("07_omniverse_physicsnemo_coldplate")["main"](True, str(tmp_path))
     assert s["decision"] in ("APPROVED", "REVIEW", "REJECT") and s["usd"]["ok"]
     assert os.path.exists(tmp_path / "results" / "usd_preview.png")
 
 
 @needs_pnemo
-def test_example_03_plume_smoke(tmp_path):
-    s = _example("03_plume_rollout_physicsnemo")["main"](True, str(tmp_path))
+def test_example_02_plume_smoke(tmp_path):
+    s = _example("02_physicsnemo_plume_rollout")["main"](True, str(tmp_path))
     assert s["decision"] in ("APPROVED", "REVIEW", "REJECT")
     assert os.path.exists(tmp_path / "results" / "rollout_checks.png")

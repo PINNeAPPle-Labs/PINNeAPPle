@@ -1,20 +1,45 @@
 # PINNeAPPle with the NVIDIA stack
 
-Worked examples that join PINNeAPPle (problem, reference solvers, physics checks, trust decision) with NVIDIA
-PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM. The glue lives in `pinneapple_tools.nvidia`; each
-example is a thin `run.py`, writes `results/architecture.png` (who does what, and what was *not* run here),
-result figures, `summary.json` and `run_info.json` (versions, hardware, timings, which NVIDIA components ran).
+Every example puts PINNeAPPle at the centre (the problem, the reference solvers, the geometry checks, the physics
+checks and the trust decision) and joins it with a different combination of stacks. The glue lives in
+`pinneapple_tools.nvidia`; each example is a thin `run.py` that writes `results/architecture.png` (PINNeAPPle's role
+and each stack's role, and what was *not* run here), result figures, `summary.json` and `run_info.json` (versions,
+hardware, timings, which components ran).
 
-| # | Example | PhysicsNeMo | Omniverse | Isaac Sim | Cosmos | NIM | Decision (this run) |
-|---|---|---|---|---|---|---|---|
-| 01 | [Cold plate surrogate](01_coldplate_physicsnemo_omniverse/README.md) | FNO | USD stage | | | | REJECT (energy balance) |
-| 02 | [Pump and pipeline twin](02_pump_pipeline_twin_omniverse/README.md) | | USD timeline | | | | APPROVED (60 s closure only) |
-| 03 | [Plume rollout](03_plume_rollout_physicsnemo/README.md) | FNO rollout | | | | | REVIEW (10-step horizon) |
+| Code | Stack | What it is | Runs here |
+|---|---|---|---|
+| O | NVIDIA Omniverse | OpenUSD stages (`usd-core`), validated with `pxr.UsdValidation`; RTX rendering in Kit needs a GPU | USD: yes. Kit RTX: no |
+| P | NVIDIA PhysicsNeMo | `nvidia-physicsnemo` models (FNO, MeshGraphNet, FullyConnected) trained on CPU | yes |
+| B | NVIDIA USD BRep | NURBS B-rep kernel (SMLib), `pip install usd-brep` (CPython 3.12 wheel) | yes |
+| I | PINNeAPPle Robot Sim | robot simulation on NVIDIA Newton (CPU), with an optional Isaac Sim adapter (same interface) | yes (Isaac Sim: no) |
+| N | PINNeAPPle Model Services | local, NIM-compatible model microservices (`/v1/health/ready`, `/v1/models`, `/v1/infer`) with a trust report on every answer; the same client talks to NVIDIA NIM with `NVIDIA_API_KEY` | yes (NIM: no) |
+| C | PINNeAPPle World Model | synthetic data and a CPU world model from PINNeAPPle simulations, with physics-consistency checks; optional NVIDIA Cosmos adapter (same interface) | yes (Cosmos: no) |
 
-What runs where: everything PINNeAPPle, PhysicsNeMo (CPU) and OpenUSD (`usd-core`) runs on a laptop and was run for
-the numbers above. Omniverse Kit RTX rendering, Isaac Sim, the Cosmos models and NIM need an NVIDIA GPU and/or an
-`NVIDIA_API_KEY`; those steps are written against the official APIs, tested against local fakes of their HTTP
-contracts where they have one, and drawn hatched in the architecture figures.
+| # | Stacks | Example | Decision (recorded run) | Status |
+|---|---|---|---|---|
+| 01 | O | [Pump and pipeline water-hammer twin](01_omniverse_pump_pipeline/README.md) | APPROVED (60 s closure only) | done |
+| 02 | P | [Plume forecast, FNO rollout](02_physicsnemo_plume_rollout/README.md) | REVIEW (10-step horizon) | done |
+| 03 | I | Pick-and-place arm in the robot sim, structural checks | | next batch |
+| 04 | C | Physics-consistent synthetic video and world model | | planned |
+| 05 | B | Exact bracket geometry, mesh error, stress concentration | | planned |
+| 06 | N | Zoo surrogate served NIM-style with its trust report | | planned |
+| 07 | O + P | [Cold plate surrogate in a USD scene](07_omniverse_physicsnemo_coldplate/README.md) | REJECT (energy balance) | done |
+| 08 | I + P | Lunar rover with a PhysicsNeMo wheel-soil surrogate | | next batch |
+| 09 | C + P | PhysicsNeMo world model on PINNeAPPle-generated data | | planned |
+| 10 | B + P | Exact heat-sink geometry feeding a PhysicsNeMo surrogate | | planned |
+| 11 | N + P | PhysicsNeMo model served NIM-style | | planned |
+| 12 | O + I | Robot arm with its USD scene for Omniverse | | next batch |
+| 13 | O + C | Synthetic inspection data as USD scene variations | | planned |
+| 14 | B + O | B-rep part to USD with curvature and thickness | | planned |
+| 15 | N + B | Specification extracted by a model service, part built in B-rep, verified | | planned |
+| 16 | O + P + B | Exact geometry, surrogate and USD scene | | planned |
+| 17 | O + I + C | Robot perception with synthetic camera data | | planned |
+| 18 | all six | End to end | | planned |
+
+What runs where: PINNeAPPle, PhysicsNeMo (CPU), OpenUSD (`usd-core`) and USD BRep run on a laptop and were run for
+the numbers in each README. Omniverse Kit RTX rendering, Isaac Sim, NVIDIA Cosmos and NVIDIA NIM need an NVIDIA GPU
+and/or an `NVIDIA_API_KEY`; their adapters are written against the official APIs and drawn hatched in the
+architecture figures, and nothing in the results comes from them.
 
 ```bash
 pip install nvidia-physicsnemo usd-core

@@ -468,9 +468,16 @@ def render_stage_png(path: str, png: str, *, time: float | None = None, elev: fl
         ax.set_zlim(mid[2] - r, mid[2] + r)
         ax.set_box_aspect((1, 1, 1))
     ax.view_init(elev, azim)
-    ax.set_xlabel("x [m]")
-    ax.set_ylabel("y [m]")
-    ax.set_zlabel("z [m]")
+    from matplotlib.ticker import MaxNLocator
+    for axis, n in ((ax.xaxis, 5), (ax.yaxis, 4), (ax.zaxis, 4)):
+        axis.set_major_locator(MaxNLocator(n))
+    ax.tick_params(labelsize=7, pad=1)
+    ax.set_xlabel("x [m]", labelpad=10)
+    ax.set_ylabel("y [m]", labelpad=10)
+    if flat:                    # a squashed z axis has no room for ticks and a label next to the y labels
+        ax.set_zticks([])
+    else:
+        ax.set_zlabel("z [m]", labelpad=6)
     ax.set_title(title or f"{os.path.basename(path)} (read back with OpenUSD)", fontsize=10)
     if colorbar:
         import matplotlib.cm as cm
@@ -484,20 +491,25 @@ def render_stage_png(path: str, png: str, *, time: float | None = None, elev: fl
 
 def kit_render_script(usd_path: str, png_path: str, *, frames: int = 60) -> str:
     """Python to run inside Omniverse Kit / USD Composer (Window > Script Editor, or ``kit --exec``): opens the stage
-    and writes an RTX viewport capture. Needs Omniverse with an RTX GPU; not runnable with ``usd-core`` alone."""
+    and writes an RTX viewport capture. Needs Omniverse with an RTX GPU; not runnable with ``usd-core`` alone. Save
+    it next to the stage: the paths are resolved from the script's own folder."""
     return f'''# Run inside NVIDIA Omniverse Kit / USD Composer (needs an RTX GPU). Written by pinneapple_tools.nvidia.
 import asyncio
+import os
+
 import omni.kit.app
 import omni.usd
 from omni.kit.viewport.utility import capture_viewport_to_file, get_active_viewport
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+
 
 async def main():
     ctx = omni.usd.get_context()
-    await ctx.open_stage_async({os.path.abspath(usd_path)!r})
+    await ctx.open_stage_async(os.path.join(HERE, {os.path.basename(usd_path)!r}))
     for _ in range({int(frames)}):                       # let RTX converge
         await omni.kit.app.get_app().next_update_async()
-    capture_viewport_to_file(get_active_viewport(), {os.path.abspath(png_path)!r})
+    capture_viewport_to_file(get_active_viewport(), os.path.join(HERE, {os.path.basename(png_path)!r}))
     for _ in range(10):
         await omni.kit.app.get_app().next_update_async()
 

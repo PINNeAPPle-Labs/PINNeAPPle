@@ -17,39 +17,39 @@
  ],
  "params": {},
  "scripts": [
-  "01_coldplate_physicsnemo_omniverse/run.py",
-  "02_pump_pipeline_twin_omniverse/run.py",
-  "03_plume_rollout_physicsnemo/run.py"
+  "01_omniverse_pump_pipeline/run.py",
+  "02_physicsnemo_plume_rollout/run.py",
+  "07_omniverse_physicsnemo_coldplate/run.py"
  ],
  "metrics": [
   {
    "name": "coldplate_fno_test_rel_l2",
-   "value": 0.01733513153822296,
+   "value": 0.017551220805002144,
    "unit": "",
-   "how": "01: mean relative L2 of T - T_c over 50 held-out layouts (01_coldplate_physicsnemo_omniverse/results/summary.json)"
+   "how": "07: mean relative L2 of T - T_c over 50 held-out layouts (07_omniverse_physicsnemo_coldplate/results/summary.json)"
   },
   {
    "name": "pipeline_max_pressure_60s_closure",
    "value": 14.65695471406468,
    "unit": "bar",
-   "how": "02: max gauge pressure over pipe and time, MOC, 60 s linear closure (02_pump_pipeline_twin_omniverse/results/summary.json)"
+   "how": "01: max gauge pressure over pipe and time, MOC, 60 s linear closure (01_omniverse_pump_pipeline/results/summary.json)"
   },
   {
    "name": "plume_fno_one_step_rel_l2",
-   "value": 0.017878443673275186,
+   "value": 0.01804893909474389,
    "unit": "",
-   "how": "03: mean one-step relative L2 on 8 held-out plumes (03_plume_rollout_physicsnemo/results/summary.json)"
+   "how": "02: mean one-step relative L2 on 8 held-out plumes (02_physicsnemo_plume_rollout/results/summary.json)"
   },
   {
    "name": "plume_fno_trust_horizon",
    "value": 10.0,
    "unit": "steps",
-   "how": "03: median validate_rollout trust horizon over 8 plumes (same file)"
+   "how": "02: median validate_rollout trust horizon over 8 plumes (same file)"
   }
  ],
  "checks": [
   {
-   "name": "01 cold plate FNO decision APPROVED",
+   "name": "07 cold plate FNO decision APPROVED",
    "passed": false,
    "value": null,
    "reference": null,
@@ -61,7 +61,7 @@
    "kind": "physics"
   },
   {
-   "name": "02 pipeline: a closure time within PN16",
+   "name": "01 pipeline: a closure time within PN16",
    "passed": true,
    "value": null,
    "reference": null,
@@ -73,7 +73,7 @@
    "kind": "physics"
   },
   {
-   "name": "03 plume FNO rollout decision APPROVED",
+   "name": "02 plume FNO rollout decision APPROVED",
    "passed": false,
    "value": null,
    "reference": null,
@@ -87,31 +87,31 @@
  ],
  "files": {
   "figures": [
-   "01_coldplate_physicsnemo_omniverse/results/architecture.png",
-   "01_coldplate_physicsnemo_omniverse/results/checks.png",
-   "01_coldplate_physicsnemo_omniverse/results/fields.png",
-   "01_coldplate_physicsnemo_omniverse/results/training.png",
-   "01_coldplate_physicsnemo_omniverse/results/usd_preview.png",
-   "02_pump_pipeline_twin_omniverse/results/architecture.png",
-   "02_pump_pipeline_twin_omniverse/results/checks.png",
-   "02_pump_pipeline_twin_omniverse/results/transients.png",
-   "02_pump_pipeline_twin_omniverse/results/usd_preview.png",
-   "03_plume_rollout_physicsnemo/results/architecture.png",
-   "03_plume_rollout_physicsnemo/results/checks.png",
-   "03_plume_rollout_physicsnemo/results/rollout_checks.png",
-   "03_plume_rollout_physicsnemo/results/snapshots.png"
+   "01_omniverse_pump_pipeline/results/architecture.png",
+   "01_omniverse_pump_pipeline/results/checks.png",
+   "01_omniverse_pump_pipeline/results/transients.png",
+   "01_omniverse_pump_pipeline/results/usd_preview.png",
+   "02_physicsnemo_plume_rollout/results/architecture.png",
+   "02_physicsnemo_plume_rollout/results/checks.png",
+   "02_physicsnemo_plume_rollout/results/rollout_checks.png",
+   "02_physicsnemo_plume_rollout/results/snapshots.png",
+   "07_omniverse_physicsnemo_coldplate/results/architecture.png",
+   "07_omniverse_physicsnemo_coldplate/results/checks.png",
+   "07_omniverse_physicsnemo_coldplate/results/fields.png",
+   "07_omniverse_physicsnemo_coldplate/results/training.png",
+   "07_omniverse_physicsnemo_coldplate/results/usd_preview.png"
   ],
   "videos": [
-   "02_pump_pipeline_twin_omniverse/results/usd_timeline.gif"
+   "01_omniverse_pump_pipeline/results/usd_timeline.gif"
   ],
   "viewers": [],
   "data": [
-   "01_coldplate_physicsnemo_omniverse/results/run_info.json",
-   "01_coldplate_physicsnemo_omniverse/results/summary.json",
-   "02_pump_pipeline_twin_omniverse/results/run_info.json",
-   "02_pump_pipeline_twin_omniverse/results/summary.json",
-   "03_plume_rollout_physicsnemo/results/run_info.json",
-   "03_plume_rollout_physicsnemo/results/summary.json"
+   "01_omniverse_pump_pipeline/results/run_info.json",
+   "01_omniverse_pump_pipeline/results/summary.json",
+   "02_physicsnemo_plume_rollout/results/run_info.json",
+   "02_physicsnemo_plume_rollout/results/summary.json",
+   "07_omniverse_physicsnemo_coldplate/results/run_info.json",
+   "07_omniverse_physicsnemo_coldplate/results/summary.json"
   ]
  },
  "links": {

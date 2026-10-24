@@ -185,3 +185,58 @@ def test_full_validation_optimisation_and_report(name, tmp_path):
     assert os.path.isfile(tmp_path / name / "README.md")
     if "optimization" in s:
         assert s["optimization"].get("feasible", True)
+
+
+def test_solid_fem_patch_test_on_distorted_elements():
+    """A linear displacement field gives the exact uniform strain on sheared and rotated hexahedra (the Jacobian
+    mapping of the shape-function gradients)."""
+    from pinneapple_simulation.numerical_solvers.solid_fem import HexMesh, SolidFEM, box_mesh
+    m = box_mesh(1, 1, 0.2, 4, 4, 1)
+    c, s = math.cos(0.5), math.sin(0.5)
+    for T in (np.array([[1, 0.5, 0], [0, 1, 0], [0, 0, 1]]), np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])):
+        mm = HexMesh(m.nodes @ T.T, m.elements, m.shape, m.size)
+        for inc in (True, False):
+            f = SolidFEM(mm, 1.0, 0.0, incompatible=inc)
+            for n in range(len(mm.nodes)):
+                for d in range(3):
+                    f._fixed[3 * n + d] = 1e-3 * mm.nodes[n, d]
+            r = f.solve()
+            assert np.allclose(r.stress[:, :3], 1e-3, rtol=1e-9) and np.allclose(r.stress[:, 3:], 0, atol=1e-12)
+
+
+def test_iapws_and_standard_atmosphere_reference_values():
+    from pinneapple_physics.closed_form.pump_npsh import atmosphere, iapws97_psat
+    for T, ref in ((300.0, 0.353658941e-2), (500.0, 0.263889776e1), (600.0, 0.123443146e2)):   # IF97 Table 35
+        assert iapws97_psat(T - 273.15) / 1e6 == pytest.approx(ref, rel=1e-8)
+    assert atmosphere(1000.0) == pytest.approx(89874.6, rel=1e-5)
+
+
+def test_one_two_exchanger_closed_form_equals_direct_integration():
+    from pinneapple_physics.closed_form.heat_exchanger import effectiveness, one_two_exchanger_ode
+    for ntu, cr in ((0.5, 0.3), (2.0, 0.8), (3.0, 1.0)):
+        assert effectiveness(ntu, cr, "shell_tube") == pytest.approx(one_two_exchanger_ode(ntu, cr), rel=1e-8)
+
+
+def test_insulation_kirchhoff_equals_finite_volumes():
+    from pinneapple_physics.closed_form.pipe_insulation import heat_loss, radial_fd
+    h = heat_loss(0.1683, 0.06, 180.0, 10.0, k0=0.036, k1=1e-4, eps=0.05, wind=3.0)
+    fd = radial_fd(0.1683, 0.06, 180.0, h["t_surface"], k0=0.036, k1=1e-4)
+    assert fd["q_inner"] == pytest.approx(h["q"], rel=1e-5) and fd["q_outer"] == pytest.approx(fd["q_inner"], rel=1e-9)
+
+
+def test_pressure_vessel_fem_matches_lame_and_asme():
+    p = P.load("pressure_vessel_asme")
+    r = p.run()
+    o = r.outputs
+    assert o["hoop_fem"] == pytest.approx(o["hoop_lame"], rel=0.02)
+    assert o["ur_fem"] == pytest.approx(o["ur_lame"], rel=0.005)
+    assert o["mawp"] >= 1.0e6 and o["t_shell"] == 0.010 and r.decision["verdict"] == "OK"
+
+
+def test_batch2_inversions_and_decisions():
+    for name in ("shell_tube_cooler", "steam_pipe_insulation", "pressure_vessel_asme", "pump_npsh_cavitation"):
+        inv = P.load(name).invert()
+        assert inv["true_inside_ci95"], name
+        assert inv["rel_error"] < 0.05, (name, inv["rel_error"])
+    opt = P.load("pump_npsh_cavitation").optimize()
+    assert opt["verified_ok"] and opt["smallest_ok_suction"] is None          # lowering the pump is the fix

@@ -310,3 +310,92 @@ def test_arm_pick_and_place_check_for_flow_node():
     from pinneapple_simulation.robot_sim.checks import arm_pick_and_place
     r = arm_pick_and_place(dt=2e-3)
     assert r["replay_order"] > 0.8 and r["decision"] in ("APPROVED", "REJECT") and len(r["checks"]) == 8
+
+
+# ------------------------------------------------------------------------------------------------ USD BRep (stack B)
+from pinneapple_tools.nvidia.brep import brep_available  # noqa: E402
+
+needs_brep = pytest.mark.skipif(not brep_available(), reason="USD BRep not available (pip install usd-brep on "
+                                "CPython 3.12, or set PINNEAPPLE_BREP_PYTHON)")
+
+
+def test_plane_stress_patch_test_and_uniform_strip():
+    from scipy.spatial import Delaunay
+
+    from pinneapple_simulation.numerical_solvers.plane_stress_fem import (
+        boundary_edges,
+        heywood_kt_net,
+        patch_test,
+        solve_plane_stress,
+    )
+    rng = np.random.default_rng(0)
+    P = np.r_[rng.uniform(0, 1, (150, 2)), [[0, 0], [1, 0], [0, 1], [1, 1]]]
+    assert patch_test(P, Delaunay(P).simplices) < 1e-10
+    x, y = np.linspace(0, 2, 11), np.linspace(0, 1, 6)
+    X, Y = np.meshgrid(x, y, indexing="ij")
+    V = np.c_[X.ravel(), Y.ravel()]
+    T = Delaunay(V).simplices
+    be = boundary_edges(T)
+    right = be[np.all(np.isclose(V[be, 0], 2.0), 1)]
+    left = np.where(np.isclose(V[:, 0], 0.0))[0]
+    s = solve_plane_stress(V, T, E=70e9, nu=0.33, thickness=0.01, fixed={"x": left, "y": [0]},
+                           traction=[(right, (1e6, 0.0))])
+    assert np.allclose(s.stress, [1e6, 0, 0], atol=1e-2) and s.reaction[:, 0].sum() == pytest.approx(-1e4)
+    assert heywood_kt_net(1 / 3) == pytest.approx(2 + (2 / 3) ** 3)
+
+
+def test_mesh_thickness_and_heat_sink_closed_form():
+    from pinneapple_tools.nvidia.brep import mesh_thickness, vertex_normals
+    from pinneapple_tools.nvidia.parts import heat_sink, heat_sink_geometry
+    V = np.array([[x, y, z] for x in (0, 2.0) for y in (0, 1.0) for z in (0, 0.25)])
+    F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6],
+                  [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+    if np.dot(vertex_normals(V, F)[7], [1, 1, 1]) < 0:            # make the normals point outwards
+        F = F[:, ::-1]
+    th = mesh_thickness(V, F)
+    assert np.all(np.isfinite(th)) and th.min() > 0.2
+    g = heat_sink_geometry(n_fins=10, fin_height=0.03, fin_t=0.002)
+    assert g["volume"] == pytest.approx(0.1 * 0.1 * 0.005 + 10 * 0.1 * 0.002 * 0.03)
+    assert g["gap"] == pytest.approx((0.1 - 10 * 0.002) / 9)
+    r = heat_sink(n_fins=4, fin_height=0.02, fin_t=0.002, root_fillet=0.001)
+    assert r.result == "hs_filleted" and sum(o["op"] == "box" for o in r.ops) == 5
+
+
+def test_heat_sink_design_without_brep():
+    from pinneapple_tools.nvidia.heatsink import Duty, evaluate_design, sample_designs
+    d = sample_designs(6, seed=0)
+    assert all((0.1 - n * t) / (n - 1) >= 0.002 for n, _, t in d)
+    r = evaluate_design(*d[0], Duty(), brep=False)
+    assert r["t_source"] > Duty().t_ambient_c and r["dp"] > 0 and r["mass_closed_form"] > 0
+
+
+@needs_brep
+def test_brep_part_measures_and_checks(tmp_path):
+    from pinneapple_tools.nvidia.brep import (
+        PartRecipe,
+        evaluate_part,
+        geometry_checks,
+        planar_face_mesh,
+    )
+    from pinneapple_tools.nvidia.parts import l_bracket, l_bracket_volume
+    p = PartRecipe().box("plate", (0, 0, 0), (0.1, 0.06, 0.01)).cylinder("hole", (0.05, 0.03, -0.01), 0.01, 0.03) \
+        .difference("b", "plate", "hole")
+    r = evaluate_part(p, chord_tolerances=[1e-4, 1e-5], usd_brep_path=str(tmp_path / "b.usda"), vertex_curvature=True)
+    assert r.volume == pytest.approx(0.1 * 0.06 * 0.01 - np.pi * 1e-4 * 0.01, rel=1e-9)
+    assert r.min_radius == pytest.approx(0.01, rel=1e-6) and os.path.exists(tmp_path / "b.usda")
+    assert all(c["passed"] for c in geometry_checks(r, element_size=0.002))
+    assert r.tessellations[1]["max_deviation"] < r.tessellations[0]["max_deviation"]
+    V2, F2 = planar_face_mesh(*r.mesh(), axis=2, value=0.01)
+    assert V2.shape[1] == 2 and len(F2) > 0
+    rb = evaluate_part(l_bracket(), chord_tolerances=[])
+    assert rb.volume == pytest.approx(l_bracket_volume(), rel=1e-6) and rb.manifold
+
+
+@needs_brep
+@pytest.mark.parametrize("name", ["05_brep_plate_with_hole", "14_brep_omniverse_bracket"])
+def test_example_brep_smoke(tmp_path, name):
+    if name.startswith("14") and not HAS_PXR:
+        pytest.skip("usd-core not installed")
+    s = _example(name)["main"](True, str(tmp_path))
+    assert s["decision"] in ("APPROVED", "REVIEW", "REJECT")
+    assert os.path.exists(tmp_path / "results" / "architecture.png")

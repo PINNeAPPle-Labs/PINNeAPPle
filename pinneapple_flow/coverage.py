@@ -42,6 +42,8 @@ REASONS: dict[str, str] = {
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
+    "pinneapple_autolab": "mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by "
+                          "examples/autolab_aero, not as one flow step",
     "pinneapple_llm": "LLM drafting: used by the LLM planner, problem.generic and twin.auto",
     "pinneapple_app": "a separate web application (not a library package)",
     "pinneapple_autolab.core": "the agent loop (toolbox, planners, execute) run inside autolab.* nodes",

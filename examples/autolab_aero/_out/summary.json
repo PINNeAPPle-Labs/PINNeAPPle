@@ -1,0 +1,2392 @@
+{
+ "mission": {
+  "title": "The AI Aerodynamicist: lower drag at 70 m/s",
+  "statement": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD.",
+  "domain": "external aerodynamics",
+  "variables": [
+   {
+    "name": "front_wing_aoa",
+    "lower": 0.0,
+    "upper": 5.0,
+    "kind": "continuous",
+    "unit": "deg",
+    "description": "front wing main plane angle"
+   },
+   {
+    "name": "front_flap_aoa",
+    "lower": 12.0,
+    "upper": 30.0,
+    "kind": "continuous",
+    "unit": "deg",
+    "description": "front wing flap angle"
+   },
+   {
+    "name": "rear_wing_aoa",
+    "lower": 0.0,
+    "upper": 7.5,
+    "kind": "continuous",
+    "unit": "deg",
+    "description": "rear wing main plane angle"
+   },
+   {
+    "name": "rear_flap_aoa",
+    "lower": 16.0,
+    "upper": 40.0,
+    "kind": "continuous",
+    "unit": "deg",
+    "description": "rear wing flap angle"
+   },
+   {
+    "name": "diffuser_angle",
+    "lower": 7.0,
+    "upper": 18.0,
+    "kind": "continuous",
+    "unit": "deg",
+    "description": "diffuser ramp angle"
+   },
+   {
+    "name": "ride_height",
+    "lower": 0.025,
+    "upper": 0.06,
+    "kind": "continuous",
+    "unit": "m",
+    "description": "floor height above the road"
+   }
+  ],
+  "objectives": [
+   {
+    "name": "drag_N",
+    "sense": "min",
+    "unit": "N",
+    "label": "drag"
+   }
+  ],
+  "constraints": [
+   {
+    "name": "downforce_N",
+    "lower": null,
+    "upper": null,
+    "lower_frac_of_baseline": 1.0,
+    "upper_frac_of_baseline": null,
+    "unit": "N",
+    "kind": "physical",
+    "label": "downforce",
+    "text": "downforce >= 1 x baseline"
+   },
+   {
+    "name": "balance_front",
+    "lower": null,
+    "upper": null,
+    "lower_frac_of_baseline": 0.9,
+    "upper_frac_of_baseline": 1.1,
+    "unit": "",
+    "kind": "physical",
+    "label": "aero balance (front share)",
+    "text": "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+   }
+  ],
+  "baseline": {
+   "front_wing_aoa": 4.0,
+   "front_flap_aoa": 22.0,
+   "rear_wing_aoa": 6.0,
+   "rear_flap_aoa": 32.0,
+   "diffuser_angle": 13.0,
+   "ride_height": 0.035
+  },
+  "budget": {
+   "max_runs": 20,
+   "reserve_verify": 3,
+   "max_wall_s": null
+  },
+  "acceptance": {
+   "drag_N": 0.03,
+   "downforce_N": 0.05,
+   "balance_front": 0.05
+  },
+  "conditions": {
+   "speed_m_s": 70.0,
+   "rho_kg_m3": 1.225,
+   "nu_m2_s": 1.5e-05,
+   "ground": "moving road at the flow speed",
+   "model": "half model, symmetry plane y = 0",
+   "turbulence": "steady RANS k-omega SST, wall functions",
+   "wheels": "static walls",
+   "solver": "OpenFOAM simpleFoam"
+  },
+  "hypotheses": [
+   "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+   "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+   "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+   "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+  ],
+  "baseline_outputs": {
+   "drag_N": 3314.816263958424,
+   "downforce_N": 7038.380569334864,
+   "CD": 0.6568521838334417,
+   "CL": -1.3947004236360456,
+   "frontal_area_m2": 1.681472,
+   "downforce_front_wing_N": 7015.795871181443,
+   "drag_front_wing_N": 749.6156145595195,
+   "downforce_rear_wing_N": 1964.0226565266116,
+   "drag_rear_wing_N": 495.88681950076415,
+   "downforce_floor_N": 923.8478442764026,
+   "downforce_body_N": -1524.598188140137,
+   "downforce_wheels_N": -1297.779661128756,
+   "drag_wheels_N": 1383.6582968476196,
+   "balance_front": 1.0146561344124971
+  },
+  "constraints_absolute": [
+   {
+    "name": "downforce_N",
+    "upper": null,
+    "lower": 7038.380569334864,
+    "unit": "N",
+    "kind": "physical",
+    "label": "downforce"
+   },
+   {
+    "name": "balance_front",
+    "upper": 1.1161217478537468,
+    "lower": 0.9131905209712474,
+    "unit": "",
+    "kind": "physical",
+    "label": "aero balance (front share)"
+   }
+  ]
+ },
+ "plan": {
+  "mission": {
+   "title": "The AI Aerodynamicist: lower drag at 70 m/s",
+   "statement": "Find a lower-drag aerodynamic design at 70 m/s. Preserve the required downforce, stay within the geometry constraints, and validate the final design using CFD.",
+   "domain": "external aerodynamics",
+   "variables": [
+    {
+     "name": "front_wing_aoa",
+     "lower": 0.0,
+     "upper": 5.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "front wing main plane angle"
+    },
+    {
+     "name": "front_flap_aoa",
+     "lower": 12.0,
+     "upper": 30.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "front wing flap angle"
+    },
+    {
+     "name": "rear_wing_aoa",
+     "lower": 0.0,
+     "upper": 7.5,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "rear wing main plane angle"
+    },
+    {
+     "name": "rear_flap_aoa",
+     "lower": 16.0,
+     "upper": 40.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "rear wing flap angle"
+    },
+    {
+     "name": "diffuser_angle",
+     "lower": 7.0,
+     "upper": 18.0,
+     "kind": "continuous",
+     "unit": "deg",
+     "description": "diffuser ramp angle"
+    },
+    {
+     "name": "ride_height",
+     "lower": 0.025,
+     "upper": 0.06,
+     "kind": "continuous",
+     "unit": "m",
+     "description": "floor height above the road"
+    }
+   ],
+   "objectives": [
+    {
+     "name": "drag_N",
+     "sense": "min",
+     "unit": "N",
+     "label": "drag"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "downforce_N",
+     "lower": null,
+     "upper": null,
+     "lower_frac_of_baseline": 1.0,
+     "upper_frac_of_baseline": null,
+     "unit": "N",
+     "kind": "physical",
+     "label": "downforce",
+     "text": "downforce >= 1 x baseline"
+    },
+    {
+     "name": "balance_front",
+     "lower": null,
+     "upper": null,
+     "lower_frac_of_baseline": 0.9,
+     "upper_frac_of_baseline": 1.1,
+     "unit": "",
+     "kind": "physical",
+     "label": "aero balance (front share)",
+     "text": "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+    }
+   ],
+   "baseline": {
+    "front_wing_aoa": 4.0,
+    "front_flap_aoa": 22.0,
+    "rear_wing_aoa": 6.0,
+    "rear_flap_aoa": 32.0,
+    "diffuser_angle": 13.0,
+    "ride_height": 0.035
+   },
+   "budget": {
+    "max_runs": 20,
+    "reserve_verify": 3,
+    "max_wall_s": null
+   },
+   "acceptance": {
+    "drag_N": 0.03,
+    "downforce_N": 0.05,
+    "balance_front": 0.05
+   },
+   "conditions": {
+    "speed_m_s": 70.0,
+    "rho_kg_m3": 1.225,
+    "nu_m2_s": 1.5e-05,
+    "ground": "moving road at the flow speed",
+    "model": "half model, symmetry plane y = 0",
+    "turbulence": "steady RANS k-omega SST, wall functions",
+    "wheels": "static walls",
+    "solver": "OpenFOAM simpleFoam"
+   },
+   "hypotheses": [
+    "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+    "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+    "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+    "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+   ]
+  },
+  "simulator": {
+   "name": "OpenFOAM simpleFoam (snappyHexMesh, k-omega SST), FormulaCar half model",
+   "fidelity": "reference",
+   "outputs": [
+    "drag_N",
+    "downforce_N",
+    "balance_front",
+    "CD",
+    "CL",
+    "downforce_front_wing_N",
+    "downforce_rear_wing_N",
+    "downforce_floor_N",
+    "downforce_body_N",
+    "downforce_wheels_N",
+    "drag_front_wing_N",
+    "drag_rear_wing_N",
+    "drag_wheels_N",
+    "frontal_area_m2"
+   ],
+   "fields": [
+    "cp"
+   ]
+  },
+  "allocation": {
+   "baseline": 1,
+   "doe": 10,
+   "acquisition": 6,
+   "verification": 3,
+   "total": 20
+  },
+  "objectives": [
+   "min drag [N]"
+  ],
+  "limits": [
+   "downforce >= 1 x baseline",
+   "aero balance (front share) >= 0.9 x baseline and <= 1.1 x baseline"
+  ],
+  "hypotheses": [
+   "the rear flap is the largest single source of drag that can be traded for downforce elsewhere",
+   "a steeper diffuser adds underfloor downforce at little drag until the flow separates from the ramp",
+   "a lower floor strengthens the ground effect (more downforce) within the clearance limit",
+   "front-wing angle moves the aero balance forward; rear-wing angle moves it back"
+  ],
+  "acceptance": {
+   "drag_N": 0.03,
+   "downforce_N": 0.05,
+   "balance_front": 0.05
+  },
+  "conditions": {
+   "speed_m_s": 70.0,
+   "rho_kg_m3": 1.225,
+   "nu_m2_s": 1.5e-05,
+   "ground": "moving road at the flow speed",
+   "model": "half model, symmetry plane y = 0",
+   "turbulence": "steady RANS k-omega SST, wall functions",
+   "wheels": "static walls",
+   "solver": "OpenFOAM simpleFoam"
+  },
+  "surrogates": [
+   "gp",
+   "mlp_ensemble",
+   "quadratic"
+  ],
+  "critical_region": "diffuser"
+ },
+ "budget": {
+  "used_runs": 20,
+  "max_runs": 20,
+  "solver_wall_s": 11840.2,
+  "failed_runs": 0
+ },
+ "baseline": {
+  "id": "run001-baseline",
+  "params": {
+   "front_wing_aoa": 4.0,
+   "front_flap_aoa": 22.0,
+   "rear_wing_aoa": 6.0,
+   "rear_flap_aoa": 32.0,
+   "diffuser_angle": 13.0,
+   "ride_height": 0.035
+  },
+  "outputs": {
+   "drag_N": 3314.816263958424,
+   "downforce_N": 7038.380569334864,
+   "CD": 0.6568521838334417,
+   "CL": -1.3947004236360456,
+   "frontal_area_m2": 1.681472,
+   "downforce_front_wing_N": 7015.795871181443,
+   "drag_front_wing_N": 749.6156145595195,
+   "downforce_rear_wing_N": 1964.0226565266116,
+   "drag_rear_wing_N": 495.88681950076415,
+   "downforce_floor_N": 923.8478442764026,
+   "downforce_body_N": -1524.598188140137,
+   "downforce_wheels_N": -1297.779661128756,
+   "drag_wheels_N": 1383.6582968476196,
+   "balance_front": 1.0146561344124971
+  }
+ },
+ "best": {
+  "id": "run019-verification",
+  "purpose": "verification",
+  "params": {
+   "front_wing_aoa": 1.6948236312992306,
+   "front_flap_aoa": 23.837430997386555,
+   "rear_wing_aoa": 0.3083548661020362,
+   "rear_flap_aoa": 16.0,
+   "diffuser_angle": 18.0,
+   "ride_height": 0.025
+  },
+  "outputs": {
+   "drag_N": 2795.476711173259,
+   "downforce_N": 7318.832880603657,
+   "CD": 0.5600758311473883,
+   "CL": -1.466333592495764,
+   "frontal_area_m2": 1.6630560000000003,
+   "downforce_front_wing_N": 7616.602822564894,
+   "drag_front_wing_N": 770.0661889011791,
+   "downforce_rear_wing_N": 1488.5932480065107,
+   "drag_rear_wing_N": 219.71090892427182,
+   "downforce_floor_N": 1189.7804993888296,
+   "downforce_body_N": -1858.37613764368,
+   "downforce_wheels_N": -1072.9386972455557,
+   "drag_wheels_N": 956.4232300366144,
+   "balance_front": 1.0726482850155084
+  }
+ },
+ "board": {
+  "n_train": 17,
+  "chosen": {
+   "drag_N": "mlp_ensemble",
+   "downforce_N": "mlp_ensemble",
+   "balance_front": "mlp_ensemble"
+  },
+  "names": {
+   "gp": "GP (Matern 5/2, ARD)",
+   "mlp_ensemble": "MLP ensemble (5 x 32-32, bootstrap)",
+   "quadratic": "Quadratic response surface (ridge)"
+  },
+  "table": {
+   "drag_N": {
+    "gp": {
+     "rmse": 105.19328067232118,
+     "mae": 82.73546606267585,
+     "max_abs": 210.48634311329624,
+     "rel_mae": 0.026584804565296632,
+     "r2": 0.698795295021894,
+     "coverage95": 0.6470588235294118,
+     "mean_std": 45.648116718772435,
+     "n": 17,
+     "fit_s": 0.06399237619953055,
+     "k": 5
+    },
+    "mlp_ensemble": {
+     "rmse": 90.27244305626843,
+     "mae": 72.29019446844073,
+     "max_abs": 192.0042141225531,
+     "rel_mae": 0.02352359865034112,
+     "r2": 0.7781823274578961,
+     "coverage95": 0.9411764705882353,
+     "mean_std": 139.40173247230123,
+     "n": 17,
+     "fit_s": 0.2860280011995201,
+     "k": 5
+    },
+    "quadratic": {
+     "skipped": 1.0
+    }
+   },
+   "downforce_N": {
+    "gp": {
+     "rmse": 941.8819921445444,
+     "mae": 659.5462402230406,
+     "max_abs": 2898.0287163036455,
+     "rel_mae": 0.11104578011374219,
+     "r2": 0.12628235606427474,
+     "coverage95": 0.6470588235294118,
+     "mean_std": 402.2654450905515,
+     "n": 17,
+     "fit_s": 0.07794133179995696,
+     "k": 5
+    },
+    "mlp_ensemble": {
+     "rmse": 829.8459099311085,
+     "mae": 648.8528397279455,
+     "max_abs": 1962.9565967975159,
+     "rel_mae": 0.10206190374761313,
+     "r2": 0.3217761868570057,
+     "coverage95": 0.8235294117647058,
+     "mean_std": 625.7937589413533,
+     "n": 17,
+     "fit_s": 0.31621020439997666,
+     "k": 5
+    },
+    "quadratic": {
+     "skipped": 1.0
+    }
+   },
+   "balance_front": {
+    "gp": {
+     "rmse": 0.08009628928659067,
+     "mae": 0.06117663671092277,
+     "max_abs": 0.216849097169991,
+     "rel_mae": 0.05942660470057676,
+     "r2": -0.060250937309631825,
+     "coverage95": 0.5294117647058824,
+     "mean_std": 0.03753987742856431,
+     "n": 17,
+     "fit_s": 0.0728419031998783,
+     "k": 5
+    },
+    "mlp_ensemble": {
+     "rmse": 0.056545393886281145,
+     "mae": 0.0455226370653622,
+     "max_abs": 0.1275502788228653,
+     "rel_mae": 0.043139069742995,
+     "r2": 0.47158110399945563,
+     "coverage95": 0.8235294117647058,
+     "mean_std": 0.05004052312978334,
+     "n": 17,
+     "fit_s": 0.33661727819999215,
+     "k": 5
+    },
+    "quadratic": {
+     "skipped": 1.0
+    }
+   }
+  }
+ },
+ "field_cv": {
+  "field": "cp",
+  "family": "gp",
+  "n": 17,
+  "k": 5,
+  "per_region": {
+   "all": {
+    "rmse": 0.0977085611722316,
+    "max_abs": 1.3605881335202734,
+    "n": 4490.0,
+    "coverage95": 0.7275907244857854,
+    "mean_std": 0.03867980814632225
+   },
+   "front_wing": {
+    "rmse": 0.2348363666940491,
+    "max_abs": 1.0242934644803992,
+    "n": 166.0,
+    "coverage95": 0.7515946137491141,
+    "mean_std": 0.11958456886834161
+   },
+   "rear_wing": {
+    "rmse": 0.20723309276598859,
+    "max_abs": 0.7926456390483282,
+    "n": 170.0,
+    "coverage95": 0.7356401384083044,
+    "mean_std": 0.10886048701812945
+   },
+   "floor": {
+    "rmse": 0.10846245812539088,
+    "max_abs": 1.1750133400112033,
+    "n": 600.0,
+    "coverage95": 0.7396078431372549,
+    "mean_std": 0.04339097297171625
+   },
+   "body": {
+    "rmse": 0.06997993123971419,
+    "max_abs": 0.935851174290731,
+    "n": 3554.0,
+    "coverage95": 0.7240557449766625,
+    "mean_std": 0.03074857444252403
+   },
+   "diffuser": {
+    "rmse": 0.11572972569697704,
+    "max_abs": 0.6700072889868696,
+    "n": 160.0,
+    "coverage95": 0.7268382352941177,
+    "mean_std": 0.054307611529816696
+   }
+  },
+  "n_modes": 12,
+  "energy": 0.9470291228889316
+ },
+ "decisions": [
+  {
+   "run": "run012-acquisition",
+   "label_before": "out_of_domain",
+   "label_after": "verified",
+   "rule": "best prediction is out of domain",
+   "reason": "the model's best design (drag_N 2894 +- 51) lies outside the validated domain (diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982): its value is not evidence until simulated",
+   "params": {
+    "front_wing_aoa": 2.552905152297077,
+    "front_flap_aoa": 24.587354268894426,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025322404136988042
+   },
+   "predicted": {
+    "drag_N": 2893.7611586124513,
+    "downforce_N": 7279.286947790315,
+    "balance_front": 1.0509699060588449
+   },
+   "std": {
+    "drag_N": 51.20645193138521,
+    "downforce_N": 603.6357459292329,
+    "balance_front": 0.06186482071644202
+   },
+   "reference": {
+    "drag_N": 2869.862926010607,
+    "downforce_N": 7337.507978790856,
+    "CD": 0.5749791644266166,
+    "CL": -1.4700751622599293,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7631.170650486178,
+    "drag_front_wing_N": 808.1818211731544,
+    "downforce_rear_wing_N": 1269.0815192778632,
+    "drag_rear_wing_N": 237.86241475704992,
+    "downforce_floor_N": 1201.1738412811185,
+    "downforce_body_N": -1543.559559314173,
+    "downforce_wheels_N": -1176.4509945937978,
+    "drag_wheels_N": 1213.532488136529,
+    "balance_front": 1.1000831329614074
+   },
+   "rel_error": {
+    "drag_N": 0.008327308034556526,
+    "downforce_N": 0.00793471450645501,
+    "balance_front": 0.04464501402757663
+   },
+   "p_feasible": 0.5520979151971868,
+   "domain_ratio": 0.7882204983733423,
+   "trust_before": "REJECT",
+   "reasons_before": [
+    "the model is extrapolating: diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982"
+   ],
+   "trust_after": "REJECT",
+   "verification": false,
+   "critical_field_std": 0.07281129137343537,
+   "n_train": 11,
+   "cv": {
+    "drag_N": 0.025607306026072085,
+    "downforce_N": 0.10114182150202114,
+    "balance_front": 0.07670804452402755
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.10098779801471898,
+     "max_abs": 1.7119920812138338,
+     "n": 4490,
+     "coverage95": 0.7608017817371938,
+     "mean_std": 0.03775329695014974
+    },
+    "front_wing": {
+     "rmse": 0.3359960990270814,
+     "max_abs": 1.7119920812138338,
+     "n": 166,
+     "coverage95": 0.4036144578313253,
+     "mean_std": 0.11059160674281361
+    },
+    "rear_wing": {
+     "rmse": 0.16964009813879322,
+     "max_abs": 0.3873437964492561,
+     "n": 170,
+     "coverage95": 0.5529411764705883,
+     "mean_std": 0.10729210417916694
+    },
+    "floor": {
+     "rmse": 0.12124565205119932,
+     "max_abs": 1.0554999678272656,
+     "n": 600,
+     "coverage95": 0.7866666666666666,
+     "mean_std": 0.04208257527313501
+    },
+    "body": {
+     "rmse": 0.06126273550254575,
+     "max_abs": 0.6579363263643694,
+     "n": 3554,
+     "coverage95": 0.7830613393359594,
+     "mean_std": 0.030294004983828334
+    },
+    "diffuser": {
+     "rmse": 0.13626231188903204,
+     "max_abs": 0.8387341021934405,
+     "n": 160,
+     "coverage95": 0.79375,
+     "mean_std": 0.054794472231741845
+    }
+   }
+  },
+  {
+   "run": "run013-acquisition",
+   "label_before": "out_of_domain",
+   "label_after": "verified",
+   "rule": "best prediction is out of domain",
+   "reason": "the model's best design (drag_N 2843 +- 29) lies outside the validated domain (front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51): its value is not evidence until simulated",
+   "params": {
+    "front_wing_aoa": 0.0,
+    "front_flap_aoa": 12.0,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 16.536299185638658,
+    "ride_height": 0.026075636208100394
+   },
+   "predicted": {
+    "drag_N": 2842.884054451982,
+    "downforce_N": 7357.068593814072,
+    "balance_front": 0.9753884894655644
+   },
+   "std": {
+    "drag_N": 28.87961798696211,
+    "downforce_N": 597.5571375814259,
+    "balance_front": 0.06571444624738057
+   },
+   "reference": {
+    "drag_N": 2878.5682766581494,
+    "downforce_N": 7389.613949419507,
+    "CD": 0.5783368734086896,
+    "CL": -1.4846568906699749,
+    "frontal_area_m2": 1.6584159999999997,
+    "downforce_front_wing_N": 6784.156767294211,
+    "drag_front_wing_N": 526.1696207715926,
+    "downforce_rear_wing_N": 1796.8240894573878,
+    "drag_rear_wing_N": 271.4705715574534,
+    "downforce_floor_N": 1764.995871404853,
+    "downforce_body_N": -1833.6098706350945,
+    "downforce_wheels_N": -1087.876902516071,
+    "drag_wheels_N": 1207.3764483315902,
+    "balance_front": 0.9558757358054926
+   },
+   "rel_error": {
+    "drag_N": 0.0123965175658764,
+    "downforce_N": 0.004404202415471388,
+    "balance_front": 0.02041348360373325
+   },
+   "p_feasible": 0.5728154572855314,
+   "domain_ratio": 0.9450008980262798,
+   "trust_before": "REJECT",
+   "reasons_before": [
+    "the model is extrapolating: front_wing_aoa = 0 is below the simulated range 0.458 to 4.832; front_flap_aoa = 12 is below the simulated range 13.1 to 29.51"
+   ],
+   "trust_after": "REJECT",
+   "verification": false,
+   "critical_field_std": 0.05105196690100947,
+   "n_train": 12,
+   "cv": {
+    "drag_N": 0.02552674115828636,
+    "downforce_N": 0.0988708665432053,
+    "balance_front": 0.0759297112861628
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.10289645421003848,
+     "max_abs": 1.0096270800326423,
+     "n": 4490,
+     "coverage95": 0.6788418708240535,
+     "mean_std": 0.039527954576247325
+    },
+    "front_wing": {
+     "rmse": 0.2497523551573109,
+     "max_abs": 0.856850504392167,
+     "n": 166,
+     "coverage95": 0.6325301204819277,
+     "mean_std": 0.12763224033015924
+    },
+    "rear_wing": {
+     "rmse": 0.2179828873411903,
+     "max_abs": 0.5766277416979343,
+     "n": 170,
+     "coverage95": 0.4,
+     "mean_std": 0.07156438389827112
+    },
+    "floor": {
+     "rmse": 0.10320478303787027,
+     "max_abs": 1.0096270800326423,
+     "n": 600,
+     "coverage95": 0.55,
+     "mean_std": 0.03349228081886863
+    },
+    "body": {
+     "rmse": 0.07994736738391943,
+     "max_abs": 0.8920048056683876,
+     "n": 3554,
+     "coverage95": 0.7160945413618458,
+     "mean_std": 0.03489933888534519
+    },
+    "diffuser": {
+     "rmse": 0.09643544476702118,
+     "max_abs": 0.6172351886033228,
+     "n": 160,
+     "coverage95": 0.73125,
+     "mean_std": 0.03808609752132961
+    }
+   }
+  },
+  {
+   "run": "run014-acquisition",
+   "label_before": "uncertain",
+   "label_after": "verified",
+   "rule": "resolve uncertainty where the decision changes",
+   "reason": "highest constrained expected improvement (20.23) is an uncertain design: P(feasible) = 0.82: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-3.2 % > 3.0 %; balance_front: 95 % interval +-12.8 % > 5.0 %",
+   "params": {
+    "front_wing_aoa": 0.934475686918246,
+    "front_flap_aoa": 17.64894841270801,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 16.78708294107266,
+    "ride_height": 0.025
+   },
+   "predicted": {
+    "drag_N": 2859.21533142912,
+    "downforce_N": 7290.560287360584,
+    "balance_front": 1.006827718569122
+   },
+   "std": {
+    "drag_N": 47.12370923010429,
+    "downforce_N": 165.6714048303793,
+    "balance_front": 0.06570022881218031
+   },
+   "reference": {
+    "drag_N": 2896.5557944385737,
+    "downforce_N": 7810.506666748224,
+    "CD": 0.5803271004014532,
+    "CL": -1.564840799988373,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7583.9077759001475,
+    "drag_front_wing_N": 663.8597087040282,
+    "downforce_rear_wing_N": 1652.1156834283088,
+    "drag_rear_wing_N": 248.43152407631274,
+    "downforce_floor_N": 1574.5038191990475,
+    "downforce_body_N": -1941.6515374911646,
+    "downforce_wheels_N": -1018.7114864421944,
+    "drag_wheels_N": 1033.5104095601405,
+    "balance_front": 1.0174571566177637
+   },
+   "rel_error": {
+    "drag_N": 0.012891332209497893,
+    "downforce_N": 0.06657012170557577,
+    "balance_front": 0.01044706205023535
+   },
+   "p_feasible": 0.8223425825138098,
+   "domain_ratio": 0.5428684214083601,
+   "trust_before": "REVIEW",
+   "reasons_before": [
+    "P(feasible) = 0.82: the prediction cannot tell whether the constraints hold",
+    "drag_N: 95 % interval +-3.2 % > 3.0 %",
+    "balance_front: 95 % interval +-12.8 % > 5.0 %"
+   ],
+   "trust_after": "REVIEW",
+   "verification": false,
+   "critical_field_std": 0.045320132857754436,
+   "n_train": 13,
+   "cv": {
+    "drag_N": 0.01761228875740269,
+    "downforce_N": 0.1186722125732827,
+    "balance_front": 0.06348968967281644
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.08964960446504917,
+     "max_abs": 1.4463009679506293,
+     "n": 4490,
+     "coverage95": 0.4728285077951002,
+     "mean_std": 0.02287848660517743
+    },
+    "front_wing": {
+     "rmse": 0.21776525771025654,
+     "max_abs": 1.2214753693477738,
+     "n": 166,
+     "coverage95": 0.6506024096385542,
+     "mean_std": 0.07610431137011733
+    },
+    "rear_wing": {
+     "rmse": 0.08709819516285704,
+     "max_abs": 0.3120387753690347,
+     "n": 170,
+     "coverage95": 0.8352941176470589,
+     "mean_std": 0.06075639661027531
+    },
+    "floor": {
+     "rmse": 0.12426690480436067,
+     "max_abs": 1.4463009679506293,
+     "n": 600,
+     "coverage95": 0.285,
+     "mean_std": 0.025790695631451966
+    },
+    "body": {
+     "rmse": 0.07049021158420958,
+     "max_abs": 0.7250698630385313,
+     "n": 3554,
+     "coverage95": 0.47889701744513224,
+     "mean_std": 0.018088937638488796
+    },
+    "diffuser": {
+     "rmse": 0.09461790618560748,
+     "max_abs": 0.3089279908530709,
+     "n": 160,
+     "coverage95": 0.46875,
+     "mean_std": 0.03329372322618711
+    }
+   }
+  },
+  {
+   "run": "run015-acquisition",
+   "label_before": "uncertain",
+   "label_after": "rejected by reference",
+   "rule": "resolve uncertainty where the decision changes",
+   "reason": "highest constrained expected improvement (5.846) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold",
+   "params": {
+    "front_wing_aoa": 2.816633027828658,
+    "front_flap_aoa": 25.660443077497426,
+    "rear_wing_aoa": 0.0026640286812308965,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025
+   },
+   "predicted": {
+    "drag_N": 2868.90932475122,
+    "downforce_N": 7223.343279698488,
+    "balance_front": 1.1122450680913136
+   },
+   "std": {
+    "drag_N": 16.213107083181324,
+    "downforce_N": 66.00052052722643,
+    "balance_front": 0.003857813795343724
+   },
+   "reference": {
+    "drag_N": 2829.610018470969,
+    "downforce_N": 6946.559801542967,
+    "CD": 0.5669144645647816,
+    "CL": -1.391748405169626,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7406.243025877273,
+    "drag_front_wing_N": 823.6554653442083,
+    "downforce_rear_wing_N": 1296.155676208793,
+    "drag_rear_wing_N": 197.96294374281743,
+    "downforce_floor_N": 1184.5875674076044,
+    "downforce_body_N": -1788.9363838454708,
+    "downforce_wheels_N": -1103.2499954703694,
+    "drag_wheels_N": 983.6311184031374,
+    "balance_front": 1.1042705657833547
+   },
+   "rel_error": {
+    "drag_N": 0.013888594549678342,
+    "downforce_N": 0.039844683708623964,
+    "balance_front": 0.007221511244666678
+   },
+   "p_feasible": 0.8403886448336475,
+   "domain_ratio": 0.1289245773674875,
+   "trust_before": "REVIEW",
+   "reasons_before": [
+    "P(feasible) = 0.84: the prediction cannot tell whether the constraints hold"
+   ],
+   "trust_after": "REJECT",
+   "verification": false,
+   "critical_field_std": 0.030470178285975966,
+   "n_train": 14,
+   "cv": {
+    "drag_N": 0.011610349096521104,
+    "downforce_N": 0.09050738195218831,
+    "balance_front": 0.04700005655180808
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.09021998760417597,
+     "max_abs": 1.1625352212489437,
+     "n": 4490,
+     "coverage95": 0.333630289532294,
+     "mean_std": 0.015630377112470388
+    },
+    "front_wing": {
+     "rmse": 0.23276712349946857,
+     "max_abs": 1.1625352212489437,
+     "n": 166,
+     "coverage95": 0.5060240963855421,
+     "mean_std": 0.05268019318436501
+    },
+    "rear_wing": {
+     "rmse": 0.08056447252799591,
+     "max_abs": 0.2329553028136484,
+     "n": 170,
+     "coverage95": 0.6882352941176471,
+     "mean_std": 0.040906375407903636
+    },
+    "floor": {
+     "rmse": 0.11177340535767777,
+     "max_abs": 0.9490126696813178,
+     "n": 600,
+     "coverage95": 0.23166666666666666,
+     "mean_std": 0.018200702496121116
+    },
+    "body": {
+     "rmse": 0.07302773187311275,
+     "max_abs": 0.8914308079939661,
+     "n": 3554,
+     "coverage95": 0.32583005064715814,
+     "mean_std": 0.0122568868456306
+    },
+    "diffuser": {
+     "rmse": 0.11704755805047172,
+     "max_abs": 0.4033014324806312,
+     "n": 160,
+     "coverage95": 0.24375,
+     "mean_std": 0.02122739177021076
+    }
+   }
+  },
+  {
+   "run": "run016-acquisition",
+   "label_before": "uncertain",
+   "label_after": "rejected by reference",
+   "rule": "resolve uncertainty where the decision changes",
+   "reason": "highest constrained expected improvement (16.69) is an uncertain design: P(feasible) = 0.73: the prediction cannot tell whether the constraints hold; downforce_N: 95 % interval +-7.8 % > 5.0 %; balance_front: 95 % interval +-5.7 % > 5.0 %; expected Cp error in the critical region 0.078 > 0.05",
+   "params": {
+    "front_wing_aoa": 2.9334027038100023,
+    "front_flap_aoa": 20.77807572148509,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.055020414735500706
+   },
+   "predicted": {
+    "drag_N": 2849.397871139262,
+    "downforce_N": 7255.970381718438,
+    "balance_front": 1.06736148985306
+   },
+   "std": {
+    "drag_N": 23.222729648643604,
+    "downforce_N": 289.5727541660372,
+    "balance_front": 0.030861841048560285
+   },
+   "reference": {
+    "drag_N": 3035.779478489451,
+    "downforce_N": 6776.529708957733,
+    "CD": 0.6133545277039919,
+    "CL": -1.3691426562966285,
+    "frontal_area_m2": 1.649136,
+    "downforce_front_wing_N": 7249.242807216442,
+    "drag_front_wing_N": 729.7782446426409,
+    "downforce_rear_wing_N": 1261.433053896185,
+    "drag_rear_wing_N": 277.20253891692977,
+    "downforce_floor_N": 1219.1577879278757,
+    "downforce_body_N": -1762.8991126425663,
+    "downforce_wheels_N": -1149.7739224660247,
+    "drag_wheels_N": 1326.2350948506978,
+    "balance_front": 1.111368745595044
+   },
+   "rel_error": {
+    "drag_N": 0.06139497571244175,
+    "downforce_N": 0.07075017646966758,
+    "balance_front": 0.03959734868954048
+   },
+   "p_feasible": 0.729646779565916,
+   "domain_ratio": 1.314347723811257,
+   "trust_before": "REVIEW",
+   "reasons_before": [
+    "P(feasible) = 0.73: the prediction cannot tell whether the constraints hold",
+    "downforce_N: 95 % interval +-7.8 % > 5.0 %",
+    "balance_front: 95 % interval +-5.7 % > 5.0 %",
+    "expected Cp error in the critical region 0.078 > 0.05"
+   ],
+   "trust_after": "REJECT",
+   "verification": false,
+   "critical_field_std": 0.07770080714095902,
+   "n_train": 15,
+   "cv": {
+    "drag_N": 0.011917239637821635,
+    "downforce_N": 0.0905837664135111,
+    "balance_front": 0.034583178694838325
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.08634093548359333,
+     "max_abs": 1.1422615054326442,
+     "n": 4490,
+     "coverage95": 0.82271714922049,
+     "mean_std": 0.04376097205890484
+    },
+    "front_wing": {
+     "rmse": 0.22592835965491165,
+     "max_abs": 0.9885849989335094,
+     "n": 166,
+     "coverage95": 0.9156626506024096,
+     "mean_std": 0.13558102185096876
+    },
+    "rear_wing": {
+     "rmse": 0.18334523712394665,
+     "max_abs": 0.8663036213140627,
+     "n": 170,
+     "coverage95": 0.8176470588235294,
+     "mean_std": 0.13053356038271782
+    },
+    "floor": {
+     "rmse": 0.10243545809622286,
+     "max_abs": 1.1422615054326442,
+     "n": 600,
+     "coverage95": 0.8433333333333334,
+     "mean_std": 0.04861053443074592
+    },
+    "body": {
+     "rmse": 0.06045264745499464,
+     "max_abs": 0.5827697000329306,
+     "n": 3554,
+     "coverage95": 0.8151378728193585,
+     "mean_std": 0.03450289504606425
+    },
+    "diffuser": {
+     "rmse": 0.1442974557012811,
+     "max_abs": 1.1422615054326442,
+     "n": 160,
+     "coverage95": 0.79375,
+     "mean_std": 0.058688720872382936
+    }
+   }
+  },
+  {
+   "run": "run017-acquisition",
+   "label_before": "uncertain",
+   "label_after": "rejected by reference",
+   "rule": "resolve uncertainty where the decision changes",
+   "reason": "highest constrained expected improvement (72.44) is an uncertain design: P(feasible) = 0.84: the prediction cannot tell whether the constraints hold; drag_N: 95 % interval +-5.7 % > 3.0 %; downforce_N: 95 % interval +-7.8 % > 5.0 %; expected Cp error in the critical region 0.075 > 0.05",
+   "params": {
+    "front_wing_aoa": 0.5992909398450277,
+    "front_flap_aoa": 24.983000415513178,
+    "rear_wing_aoa": 0.5796581512381046,
+    "rear_flap_aoa": 16.65619719495147,
+    "diffuser_angle": 10.054243385791807,
+    "ride_height": 0.025
+   },
+   "predicted": {
+    "drag_N": 2790.383089014432,
+    "downforce_N": 7671.970001134013,
+    "balance_front": 1.1022741715298576
+   },
+   "std": {
+    "drag_N": 81.5038395078471,
+    "downforce_N": 305.11418612192233,
+    "balance_front": 0.013212930980706167
+   },
+   "reference": {
+    "drag_N": 2902.201680551379,
+    "downforce_N": 7384.484857291522,
+    "CD": 0.5814582578689984,
+    "CL": -1.4794870146877492,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 8165.056352218729,
+    "drag_front_wing_N": 832.0456482864709,
+    "downforce_rear_wing_N": 1595.6794559742723,
+    "drag_rear_wing_N": 219.11954502849147,
+    "downforce_floor_N": 602.5807418939406,
+    "downforce_body_N": -1641.5873159063299,
+    "downforce_wheels_N": -1293.9658201098914,
+    "drag_wheels_N": 1160.416055645073,
+    "balance_front": 1.163172607703877
+   },
+   "rel_error": {
+    "drag_N": 0.03852888387677565,
+    "downforce_N": 0.0389309680225866,
+    "balance_front": 0.05235545934513884
+   },
+   "p_feasible": 0.8365545044320754,
+   "domain_ratio": 0.9573447050593125,
+   "trust_before": "REVIEW",
+   "reasons_before": [
+    "P(feasible) = 0.84: the prediction cannot tell whether the constraints hold",
+    "drag_N: 95 % interval +-5.7 % > 3.0 %",
+    "downforce_N: 95 % interval +-7.8 % > 5.0 %",
+    "expected Cp error in the critical region 0.075 > 0.05"
+   ],
+   "trust_after": "REJECT",
+   "verification": false,
+   "critical_field_std": 0.07474390071686741,
+   "n_train": 16,
+   "cv": {
+    "drag_N": 0.017718400263427615,
+    "downforce_N": 0.0863126494739345,
+    "balance_front": 0.03943767746012912
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.09293379105546415,
+     "max_abs": 1.8467796307323838,
+     "n": 4490,
+     "coverage95": 0.8552338530066815,
+     "mean_std": 0.0425844812471959
+    },
+    "front_wing": {
+     "rmse": 0.2858401804522895,
+     "max_abs": 1.8467796307323838,
+     "n": 166,
+     "coverage95": 0.7168674698795181,
+     "mean_std": 0.12369524324404955
+    },
+    "rear_wing": {
+     "rmse": 0.13974217419894722,
+     "max_abs": 0.6349121883831228,
+     "n": 170,
+     "coverage95": 0.9117647058823529,
+     "mean_std": 0.12315384334174252
+    },
+    "floor": {
+     "rmse": 0.12674898013246938,
+     "max_abs": 1.282209529968135,
+     "n": 600,
+     "coverage95": 0.7733333333333333,
+     "mean_std": 0.046429653059630045
+    },
+    "body": {
+     "rmse": 0.05872604031113404,
+     "max_abs": 0.6238558411815202,
+     "n": 3554,
+     "coverage95": 0.8728193584693303,
+     "mean_std": 0.0342928996110082
+    },
+    "diffuser": {
+     "rmse": 0.1496833358520792,
+     "max_abs": 0.5837792746513654,
+     "n": 160,
+     "coverage95": 0.46875,
+     "mean_std": 0.05716821539748916
+    }
+   }
+  },
+  {
+   "run": "run018-verification",
+   "label_before": "favourable",
+   "label_after": "verified",
+   "rule": null,
+   "reason": null,
+   "params": {
+    "front_wing_aoa": 2.6990434826005325,
+    "front_flap_aoa": 22.83671337175211,
+    "rear_wing_aoa": 0.3026817028833776,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.02533504004571039
+   },
+   "predicted": {
+    "drag_N": 2875.107173119853,
+    "downforce_N": 7328.441988176058,
+    "balance_front": 1.0777186243234507
+   },
+   "std": {
+    "drag_N": 5.909284872082811,
+    "downforce_N": 123.42536498179481,
+    "balance_front": 0.009223565590264524
+   },
+   "reference": {
+    "drag_N": 2883.603231750879,
+    "downforce_N": 7257.035340904881,
+    "CD": 0.5777320448662723,
+    "CL": -1.4539524096115286,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7426.603674208345,
+    "drag_front_wing_N": 784.3236846350984,
+    "downforce_rear_wing_N": 1271.6428351674995,
+    "drag_rear_wing_N": 234.213305875453,
+    "downforce_floor_N": 1365.5144478215566,
+    "downforce_body_N": -1597.6156960479452,
+    "downforce_wheels_N": -1165.0534447497776,
+    "drag_wheels_N": 1211.5164891810691,
+    "balance_front": 1.0784172831443182
+   },
+   "rel_error": {
+    "drag_N": 0.0029463341341406097,
+    "downforce_N": 0.00983964441632068,
+    "balance_front": 0.0006478557343131957
+   },
+   "p_feasible": 0.9906001901521598,
+   "domain_ratio": 0.18365523564131167,
+   "trust_before": "REVIEW",
+   "reasons_before": [
+    "inside the validated domain (spacing ratio 0.18), P(feasible) = 0.99, uncertainty within the acceptance tolerances"
+   ],
+   "trust_after": "REVIEW",
+   "verification": true,
+   "critical_field_std": 0.040720862905602055,
+   "n_train": 17,
+   "cv": {
+    "drag_N": 0.02352359865034112,
+    "downforce_N": 0.10206190374761313,
+    "balance_front": 0.043139069742995
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.06652852113047304,
+     "max_abs": 1.0061747604544737,
+     "n": 4490,
+     "coverage95": 0.7369710467706013,
+     "mean_std": 0.023577720775005053
+    },
+    "front_wing": {
+     "rmse": 0.21133279543296882,
+     "max_abs": 0.9888260450431885,
+     "n": 166,
+     "coverage95": 0.7530120481927711,
+     "mean_std": 0.07200891647967986
+    },
+    "rear_wing": {
+     "rmse": 0.08629740063482515,
+     "max_abs": 0.3568531712040815,
+     "n": 170,
+     "coverage95": 0.9352941176470588,
+     "mean_std": 0.0681915726196512
+    },
+    "floor": {
+     "rmse": 0.07582877245671733,
+     "max_abs": 1.0061747604544737,
+     "n": 600,
+     "coverage95": 0.7683333333333333,
+     "mean_std": 0.0273196848202459
+    },
+    "body": {
+     "rmse": 0.04667651123410778,
+     "max_abs": 0.8944870361621715,
+     "n": 3554,
+     "coverage95": 0.7214406302757457,
+     "mean_std": 0.01854983340086032
+    },
+    "diffuser": {
+     "rmse": 0.06332004514706732,
+     "max_abs": 0.4037295301530494,
+     "n": 160,
+     "coverage95": 0.825,
+     "mean_std": 0.03021886044411918
+    }
+   }
+  },
+  {
+   "run": "run019-verification",
+   "label_before": "favourable",
+   "label_after": "verified",
+   "rule": null,
+   "reason": null,
+   "params": {
+    "front_wing_aoa": 1.6948236312992306,
+    "front_flap_aoa": 23.837430997386555,
+    "rear_wing_aoa": 0.3083548661020362,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025
+   },
+   "predicted": {
+    "drag_N": 2897.676480288608,
+    "downforce_N": 7984.597623627509,
+    "balance_front": 1.0974848574308507
+   },
+   "std": {
+    "drag_N": 27.97118511731451,
+    "downforce_N": 195.47901612449192,
+    "balance_front": 0.006367040253407822
+   },
+   "reference": {
+    "drag_N": 2795.476711173259,
+    "downforce_N": 7318.832880603657,
+    "CD": 0.5600758311473883,
+    "CL": -1.466333592495764,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7616.602822564894,
+    "drag_front_wing_N": 770.0661889011791,
+    "downforce_rear_wing_N": 1488.5932480065107,
+    "drag_rear_wing_N": 219.71090892427182,
+    "downforce_floor_N": 1189.7804993888296,
+    "downforce_body_N": -1858.37613764368,
+    "downforce_wheels_N": -1072.9386972455557,
+    "drag_wheels_N": 956.4232300366144,
+    "balance_front": 1.0726482850155084
+   },
+   "rel_error": {
+    "drag_N": 0.03655897711716442,
+    "downforce_N": 0.09096597147179837,
+    "balance_front": 0.023154441919406257
+   },
+   "p_feasible": 0.9982885961401832,
+   "domain_ratio": 0.3051232087666148,
+   "trust_before": "REVIEW",
+   "reasons_before": [
+    "inside the validated domain (spacing ratio 0.31), P(feasible) = 1.00, uncertainty within the acceptance tolerances"
+   ],
+   "trust_after": "REVIEW",
+   "verification": true,
+   "critical_field_std": 0.04046460830486819,
+   "n_train": 17,
+   "cv": {
+    "drag_N": 0.02352359865034112,
+    "downforce_N": 0.10206190374761313,
+    "balance_front": 0.043139069742995
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.06205901135730905,
+     "max_abs": 1.0640553297595732,
+     "n": 4490,
+     "coverage95": 0.6407572383073497,
+     "mean_std": 0.023434391439995653
+    },
+    "front_wing": {
+     "rmse": 0.19733914167994435,
+     "max_abs": 1.0640553297595732,
+     "n": 166,
+     "coverage95": 0.7409638554216867,
+     "mean_std": 0.07122734131048486
+    },
+    "rear_wing": {
+     "rmse": 0.07378076639565402,
+     "max_abs": 0.21141942415927606,
+     "n": 170,
+     "coverage95": 0.8176470588235294,
+     "mean_std": 0.06760104086574552
+    },
+    "floor": {
+     "rmse": 0.07323194485960899,
+     "max_abs": 0.5690244477558534,
+     "n": 600,
+     "coverage95": 0.6066666666666667,
+     "mean_std": 0.02712948630439311
+    },
+    "body": {
+     "rmse": 0.04336952236731804,
+     "max_abs": 0.7644773539925604,
+     "n": 3554,
+     "coverage95": 0.6333708497467642,
+     "mean_std": 0.018465619070970007
+    },
+    "diffuser": {
+     "rmse": 0.08935950298623946,
+     "max_abs": 0.3131775120488309,
+     "n": 160,
+     "coverage95": 0.71875,
+     "mean_std": 0.029996644327254775
+    }
+   }
+  },
+  {
+   "run": "run020-verification",
+   "label_before": "favourable",
+   "label_after": "verified",
+   "rule": null,
+   "reason": null,
+   "params": {
+    "front_wing_aoa": 1.6948236312992306,
+    "front_flap_aoa": 26.645572887929777,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 21.306930099241118,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025
+   },
+   "predicted": {
+    "drag_N": 2975.3225548429823,
+    "downforce_N": 7949.659269174108,
+    "balance_front": 1.0898087141164603
+   },
+   "std": {
+    "drag_N": 24.111708670667188,
+    "downforce_N": 188.58191439278622,
+    "balance_front": 0.015682232347002834
+   },
+   "reference": {
+    "drag_N": 2867.432897827983,
+    "downforce_N": 7565.682604206973,
+    "CD": 0.573157855194591,
+    "CL": -1.512269186070569,
+    "frontal_area_m2": 1.666928,
+    "downforce_front_wing_N": 7726.035337478674,
+    "drag_front_wing_N": 832.8678751846717,
+    "downforce_rear_wing_N": 1569.1883865029693,
+    "drag_rear_wing_N": 253.7870842414758,
+    "downforce_floor_N": 1221.6886765076404,
+    "downforce_body_N": -1824.3996053630449,
+    "downforce_wheels_N": -1079.0728212599772,
+    "drag_wheels_N": 957.7728269122501,
+    "balance_front": 1.0554878875695364
+   },
+   "rel_error": {
+    "drag_N": 0.03762586984920314,
+    "downforce_N": 0.05075241522207402,
+    "balance_front": 0.03251655177773211
+   },
+   "p_feasible": 0.9533149003617011,
+   "domain_ratio": 0.5083793746644805,
+   "trust_before": "REVIEW",
+   "reasons_before": [
+    "inside the validated domain (spacing ratio 0.51), P(feasible) = 0.95, uncertainty within the acceptance tolerances"
+   ],
+   "trust_after": "REVIEW",
+   "verification": true,
+   "critical_field_std": 0.047393298037106346,
+   "n_train": 17,
+   "cv": {
+    "drag_N": 0.02352359865034112,
+    "downforce_N": 0.10206190374761313,
+    "balance_front": 0.043139069742995
+   },
+   "field_error": {
+    "all": {
+     "rmse": 0.07573940972974003,
+     "max_abs": 1.3771839944562918,
+     "n": 4490,
+     "coverage95": 0.5855233853006682,
+     "mean_std": 0.02622335118049328
+    },
+    "front_wing": {
+     "rmse": 0.23829715368695584,
+     "max_abs": 1.3771839944562918,
+     "n": 166,
+     "coverage95": 0.8072289156626506,
+     "mean_std": 0.08352136144438237
+    },
+    "rear_wing": {
+     "rmse": 0.11977245291247329,
+     "max_abs": 0.4945788374134763,
+     "n": 170,
+     "coverage95": 0.788235294117647,
+     "mean_std": 0.0764428482285142
+    },
+    "floor": {
+     "rmse": 0.09266787605610519,
+     "max_abs": 0.692705406978478,
+     "n": 600,
+     "coverage95": 0.525,
+     "mean_std": 0.03047315344749782
+    },
+    "body": {
+     "rmse": 0.04958798354374496,
+     "max_abs": 0.6968768092669887,
+     "n": 3554,
+     "coverage95": 0.5756893640967924,
+     "mean_std": 0.020427440780332366
+    },
+    "diffuser": {
+     "rmse": 0.11249973305569416,
+     "max_abs": 0.4189469724549152,
+     "n": 160,
+     "coverage95": 0.5875,
+     "mean_std": 0.03463760931722991
+    }
+   }
+  }
+ ],
+ "held_out": [
+  {
+   "run": "run012-acquisition",
+   "n_train": 11,
+   "rel_error_drag_N": 0.008327308034556526,
+   "rel_error_downforce_N": 0.00793471450645501,
+   "rel_error_balance_front": 0.04464501402757663
+  },
+  {
+   "run": "run013-acquisition",
+   "n_train": 12,
+   "rel_error_drag_N": 0.0123965175658764,
+   "rel_error_downforce_N": 0.004404202415471388,
+   "rel_error_balance_front": 0.02041348360373325
+  },
+  {
+   "run": "run014-acquisition",
+   "n_train": 13,
+   "rel_error_drag_N": 0.012891332209497893,
+   "rel_error_downforce_N": 0.06657012170557577,
+   "rel_error_balance_front": 0.01044706205023535
+  },
+  {
+   "run": "run015-acquisition",
+   "n_train": 14,
+   "rel_error_drag_N": 0.013888594549678342,
+   "rel_error_downforce_N": 0.039844683708623964,
+   "rel_error_balance_front": 0.007221511244666678
+  },
+  {
+   "run": "run016-acquisition",
+   "n_train": 15,
+   "rel_error_drag_N": 0.06139497571244175,
+   "rel_error_downforce_N": 0.07075017646966758,
+   "rel_error_balance_front": 0.03959734868954048
+  },
+  {
+   "run": "run017-acquisition",
+   "n_train": 16,
+   "rel_error_drag_N": 0.03852888387677565,
+   "rel_error_downforce_N": 0.0389309680225866,
+   "rel_error_balance_front": 0.05235545934513884
+  },
+  {
+   "run": "run018-verification",
+   "n_train": 17,
+   "rel_error_drag_N": 0.0029463341341406097,
+   "rel_error_downforce_N": 0.00983964441632068,
+   "rel_error_balance_front": 0.0006478557343131957
+  },
+  {
+   "run": "run019-verification",
+   "n_train": 17,
+   "rel_error_drag_N": 0.03655897711716442,
+   "rel_error_downforce_N": 0.09096597147179837,
+   "rel_error_balance_front": 0.023154441919406257
+  },
+  {
+   "run": "run020-verification",
+   "n_train": 17,
+   "rel_error_drag_N": 0.03762586984920314,
+   "rel_error_downforce_N": 0.05075241522207402,
+   "rel_error_balance_front": 0.03251655177773211
+  }
+ ],
+ "verified": [
+  {
+   "index": 1176,
+   "params": {
+    "front_wing_aoa": 2.6990434826005325,
+    "front_flap_aoa": 22.83671337175211,
+    "rear_wing_aoa": 0.3026817028833776,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.02533504004571039
+   },
+   "predicted": {
+    "drag_N": 2875.107173119853,
+    "downforce_N": 7328.441988176058,
+    "balance_front": 1.0777186243234507
+   },
+   "std": {
+    "drag_N": 5.909284872082811,
+    "downforce_N": 123.42536498179481,
+    "balance_front": 0.009223565590264524
+   },
+   "p_feasible": 0.9906001901521598,
+   "cei": 0.6015329297127425,
+   "label": "verified",
+   "reasons": [
+    "the reference confirms the constraints"
+   ],
+   "domain": {
+    "inside": true,
+    "ratio": 0.18365523564131167,
+    "reasons": []
+   },
+   "critical_field_std": 0.040720862905602055,
+   "trust_decision": "REVIEW",
+   "trust_score": 0.9090909090909091,
+   "checks": [
+    {
+     "name": "inside validated domain",
+     "status": "supports",
+     "critical": true,
+     "value": 0.18365523564131167,
+     "limit": null,
+     "reason": "within the simulated designs"
+    },
+    {
+     "name": "constraints met (probability)",
+     "status": "supports",
+     "critical": false,
+     "value": 0.9906001901521598,
+     "limit": 0.9,
+     "reason": "P(feasible) = 0.99"
+    },
+    {
+     "name": "drag_N uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.00402844055956153,
+     "limit": 0.03,
+     "reason": "+-0.4 % (95 %)"
+    },
+    {
+     "name": "downforce_N uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.033010251804493934,
+     "limit": 0.05,
+     "reason": "+-3.3 % (95 %)"
+    },
+    {
+     "name": "balance_front uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.016774497673979833,
+     "limit": 0.05,
+     "reason": "+-1.7 % (95 %)"
+    },
+    {
+     "name": "drag_N cross-validated error within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.02352359865034112,
+     "limit": 0.03,
+     "reason": "held-out mean relative error 2.4 %"
+    },
+    {
+     "name": "downforce_N cross-validated error within acceptance",
+     "status": "contradicts",
+     "critical": false,
+     "value": 0.10206190374761313,
+     "limit": 0.05,
+     "reason": "held-out mean relative error 10.2 %"
+    },
+    {
+     "name": "balance_front cross-validated error within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.043139069742995,
+     "limit": 0.05,
+     "reason": "held-out mean relative error 4.3 %"
+    },
+    {
+     "name": "field error in the critical region",
+     "status": "supports",
+     "critical": false,
+     "value": 0.040720862905602055,
+     "limit": 0.05,
+     "reason": "predicted Cp std 0.041 (limit 0.05)"
+    },
+    {
+     "name": "confirmed by the reference solver",
+     "status": "supports",
+     "critical": false,
+     "value": null,
+     "limit": null,
+     "reason": "every prediction within its acceptance tolerance"
+    },
+    {
+     "name": "constraints met (reference)",
+     "status": "supports",
+     "critical": true,
+     "value": null,
+     "limit": null,
+     "reason": "all constraints met"
+    }
+   ],
+   "reference": {
+    "drag_N": 2883.603231750879,
+    "downforce_N": 7257.035340904881,
+    "CD": 0.5777320448662723,
+    "CL": -1.4539524096115286,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7426.603674208345,
+    "drag_front_wing_N": 784.3236846350984,
+    "downforce_rear_wing_N": 1271.6428351674995,
+    "drag_rear_wing_N": 234.213305875453,
+    "downforce_floor_N": 1365.5144478215566,
+    "downforce_body_N": -1597.6156960479452,
+    "downforce_wheels_N": -1165.0534447497776,
+    "drag_wheels_N": 1211.5164891810691,
+    "balance_front": 1.0784172831443182
+   },
+   "rel_error": {
+    "drag_N": 0.0029463341341406097,
+    "downforce_N": 0.00983964441632068,
+    "balance_front": 0.0006478557343131957
+   }
+  },
+  {
+   "index": 1203,
+   "params": {
+    "front_wing_aoa": 1.6948236312992306,
+    "front_flap_aoa": 23.837430997386555,
+    "rear_wing_aoa": 0.3083548661020362,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025
+   },
+   "predicted": {
+    "drag_N": 2897.676480288608,
+    "downforce_N": 7984.597623627509,
+    "balance_front": 1.0974848574308507
+   },
+   "std": {
+    "drag_N": 27.97118511731451,
+    "downforce_N": 195.47901612449192,
+    "balance_front": 0.006367040253407822
+   },
+   "p_feasible": 0.9982885961401832,
+   "cei": 2.3515177920996058,
+   "label": "verified",
+   "reasons": [
+    "the reference confirms the constraints",
+    "prediction error beyond tolerance on ['drag_N', 'downforce_N']"
+   ],
+   "domain": {
+    "inside": true,
+    "ratio": 0.3051232087666148,
+    "reasons": []
+   },
+   "critical_field_std": 0.04046460830486819,
+   "trust_decision": "REVIEW",
+   "trust_score": 0.8181818181818182,
+   "checks": [
+    {
+     "name": "inside validated domain",
+     "status": "supports",
+     "critical": true,
+     "value": 0.3051232087666148,
+     "limit": null,
+     "reason": "within the simulated designs"
+    },
+    {
+     "name": "constraints met (probability)",
+     "status": "supports",
+     "critical": false,
+     "value": 0.9982885961401832,
+     "limit": 0.9,
+     "reason": "P(feasible) = 1.00"
+    },
+    {
+     "name": "drag_N uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.018919821865164197,
+     "limit": 0.03,
+     "reason": "+-1.9 % (95 %)"
+    },
+    {
+     "name": "downforce_N uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.047984743836088146,
+     "limit": 0.05,
+     "reason": "+-4.8 % (95 %)"
+    },
+    {
+     "name": "balance_front uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.011370907591283666,
+     "limit": 0.05,
+     "reason": "+-1.1 % (95 %)"
+    },
+    {
+     "name": "drag_N cross-validated error within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.02352359865034112,
+     "limit": 0.03,
+     "reason": "held-out mean relative error 2.4 %"
+    },
+    {
+     "name": "downforce_N cross-validated error within acceptance",
+     "status": "contradicts",
+     "critical": false,
+     "value": 0.10206190374761313,
+     "limit": 0.05,
+     "reason": "held-out mean relative error 10.2 %"
+    },
+    {
+     "name": "balance_front cross-validated error within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.043139069742995,
+     "limit": 0.05,
+     "reason": "held-out mean relative error 4.3 %"
+    },
+    {
+     "name": "field error in the critical region",
+     "status": "supports",
+     "critical": false,
+     "value": 0.04046460830486819,
+     "limit": 0.05,
+     "reason": "predicted Cp std 0.040 (limit 0.05)"
+    },
+    {
+     "name": "confirmed by the reference solver",
+     "status": "contradicts",
+     "critical": false,
+     "value": null,
+     "limit": null,
+     "reason": "prediction off by drag_N 3.7 %, downforce_N 9.1 %"
+    },
+    {
+     "name": "constraints met (reference)",
+     "status": "supports",
+     "critical": true,
+     "value": null,
+     "limit": null,
+     "reason": "all constraints met"
+    }
+   ],
+   "reference": {
+    "drag_N": 2795.476711173259,
+    "downforce_N": 7318.832880603657,
+    "CD": 0.5600758311473883,
+    "CL": -1.466333592495764,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7616.602822564894,
+    "drag_front_wing_N": 770.0661889011791,
+    "downforce_rear_wing_N": 1488.5932480065107,
+    "drag_rear_wing_N": 219.71090892427182,
+    "downforce_floor_N": 1189.7804993888296,
+    "downforce_body_N": -1858.37613764368,
+    "downforce_wheels_N": -1072.9386972455557,
+    "drag_wheels_N": 956.4232300366144,
+    "balance_front": 1.0726482850155084
+   },
+   "rel_error": {
+    "drag_N": 0.03655897711716442,
+    "downforce_N": 0.09096597147179837,
+    "balance_front": 0.023154441919406257
+   }
+  },
+  {
+   "index": 2000,
+   "params": {
+    "front_wing_aoa": 1.6948236312992306,
+    "front_flap_aoa": 26.645572887929777,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 21.306930099241118,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025
+   },
+   "predicted": {
+    "drag_N": 2975.3225548429823,
+    "downforce_N": 7949.659269174108,
+    "balance_front": 1.0898087141164603
+   },
+   "std": {
+    "drag_N": 24.111708670667188,
+    "downforce_N": 188.58191439278622,
+    "balance_front": 0.015682232347002834
+   },
+   "p_feasible": 0.9533149003617011,
+   "cei": 2.9376789402589782e-05,
+   "label": "verified",
+   "reasons": [
+    "the reference confirms the constraints",
+    "prediction error beyond tolerance on ['drag_N', 'downforce_N']"
+   ],
+   "domain": {
+    "inside": true,
+    "ratio": 0.5083793746644805,
+    "reasons": []
+   },
+   "critical_field_std": 0.047393298037106346,
+   "trust_decision": "REVIEW",
+   "trust_score": 0.8181818181818182,
+   "checks": [
+    {
+     "name": "inside validated domain",
+     "status": "supports",
+     "critical": true,
+     "value": 0.5083793746644805,
+     "limit": null,
+     "reason": "within the simulated designs"
+    },
+    {
+     "name": "constraints met (probability)",
+     "status": "supports",
+     "critical": false,
+     "value": 0.9533149003617011,
+     "limit": 0.9,
+     "reason": "P(feasible) = 0.95"
+    },
+    {
+     "name": "drag_N uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.015883638873904107,
+     "limit": 0.03,
+     "reason": "+-1.6 % (95 %)"
+    },
+    {
+     "name": "downforce_N uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.04649514396712766,
+     "limit": 0.05,
+     "reason": "+-4.6 % (95 %)"
+    },
+    {
+     "name": "balance_front uncertainty within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.028204193086348257,
+     "limit": 0.05,
+     "reason": "+-2.8 % (95 %)"
+    },
+    {
+     "name": "drag_N cross-validated error within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.02352359865034112,
+     "limit": 0.03,
+     "reason": "held-out mean relative error 2.4 %"
+    },
+    {
+     "name": "downforce_N cross-validated error within acceptance",
+     "status": "contradicts",
+     "critical": false,
+     "value": 0.10206190374761313,
+     "limit": 0.05,
+     "reason": "held-out mean relative error 10.2 %"
+    },
+    {
+     "name": "balance_front cross-validated error within acceptance",
+     "status": "supports",
+     "critical": false,
+     "value": 0.043139069742995,
+     "limit": 0.05,
+     "reason": "held-out mean relative error 4.3 %"
+    },
+    {
+     "name": "field error in the critical region",
+     "status": "supports",
+     "critical": false,
+     "value": 0.047393298037106346,
+     "limit": 0.05,
+     "reason": "predicted Cp std 0.047 (limit 0.05)"
+    },
+    {
+     "name": "confirmed by the reference solver",
+     "status": "contradicts",
+     "critical": false,
+     "value": null,
+     "limit": null,
+     "reason": "prediction off by drag_N 3.8 %, downforce_N 5.1 %"
+    },
+    {
+     "name": "constraints met (reference)",
+     "status": "supports",
+     "critical": true,
+     "value": null,
+     "limit": null,
+     "reason": "all constraints met"
+    }
+   ],
+   "reference": {
+    "drag_N": 2867.432897827983,
+    "downforce_N": 7565.682604206973,
+    "CD": 0.573157855194591,
+    "CL": -1.512269186070569,
+    "frontal_area_m2": 1.666928,
+    "downforce_front_wing_N": 7726.035337478674,
+    "drag_front_wing_N": 832.8678751846717,
+    "downforce_rear_wing_N": 1569.1883865029693,
+    "drag_rear_wing_N": 253.7870842414758,
+    "downforce_floor_N": 1221.6886765076404,
+    "downforce_body_N": -1824.3996053630449,
+    "downforce_wheels_N": -1079.0728212599772,
+    "drag_wheels_N": 957.7728269122501,
+    "balance_front": 1.0554878875695364
+   },
+   "rel_error": {
+    "drag_N": 0.03762586984920314,
+    "downforce_N": 0.05075241522207402,
+    "balance_front": 0.03251655177773211
+   }
+  }
+ ],
+ "showcase": {
+  "A": {
+   "tag": "A",
+   "label": "uncertain",
+   "run": "run016-acquisition",
+   "params": {
+    "front_wing_aoa": 2.9334027038100023,
+    "front_flap_aoa": 20.77807572148509,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.055020414735500706
+   },
+   "predicted": {
+    "drag_N": 2849.397871139262,
+    "downforce_N": 7255.970381718438,
+    "balance_front": 1.06736148985306
+   },
+   "std": {
+    "drag_N": 23.222729648643604,
+    "downforce_N": 289.5727541660372,
+    "balance_front": 0.030861841048560285
+   },
+   "reference": {
+    "drag_N": 3035.779478489451,
+    "downforce_N": 6776.529708957733,
+    "CD": 0.6133545277039919,
+    "CL": -1.3691426562966285,
+    "frontal_area_m2": 1.649136,
+    "downforce_front_wing_N": 7249.242807216442,
+    "drag_front_wing_N": 729.7782446426409,
+    "downforce_rear_wing_N": 1261.433053896185,
+    "drag_rear_wing_N": 277.20253891692977,
+    "downforce_floor_N": 1219.1577879278757,
+    "downforce_body_N": -1762.8991126425663,
+    "downforce_wheels_N": -1149.7739224660247,
+    "drag_wheels_N": 1326.2350948506978,
+    "balance_front": 1.111368745595044
+   },
+   "rel_error": {
+    "drag_N": 0.06139497571244175,
+    "downforce_N": 0.07075017646966758,
+    "balance_front": 0.03959734868954048
+   },
+   "reasons": [
+    "P(feasible) = 0.73: the prediction cannot tell whether the constraints hold",
+    "downforce_N: 95 % interval +-7.8 % > 5.0 %",
+    "balance_front: 95 % interval +-5.7 % > 5.0 %",
+    "expected Cp error in the critical region 0.078 > 0.05"
+   ],
+   "decision": "REVIEW",
+   "rule": "resolve uncertainty where the decision changes",
+   "after": "rejected by reference",
+   "field_error": {
+    "all": {
+     "rmse": 0.08634093548359333,
+     "max_abs": 1.1422615054326442,
+     "n": 4490,
+     "coverage95": 0.82271714922049,
+     "mean_std": 0.04376097205890484
+    },
+    "front_wing": {
+     "rmse": 0.22592835965491165,
+     "max_abs": 0.9885849989335094,
+     "n": 166,
+     "coverage95": 0.9156626506024096,
+     "mean_std": 0.13558102185096876
+    },
+    "rear_wing": {
+     "rmse": 0.18334523712394665,
+     "max_abs": 0.8663036213140627,
+     "n": 170,
+     "coverage95": 0.8176470588235294,
+     "mean_std": 0.13053356038271782
+    },
+    "floor": {
+     "rmse": 0.10243545809622286,
+     "max_abs": 1.1422615054326442,
+     "n": 600,
+     "coverage95": 0.8433333333333334,
+     "mean_std": 0.04861053443074592
+    },
+    "body": {
+     "rmse": 0.06045264745499464,
+     "max_abs": 0.5827697000329306,
+     "n": 3554,
+     "coverage95": 0.8151378728193585,
+     "mean_std": 0.03450289504606425
+    },
+    "diffuser": {
+     "rmse": 0.1442974557012811,
+     "max_abs": 1.1422615054326442,
+     "n": 160,
+     "coverage95": 0.79375,
+     "mean_std": 0.058688720872382936
+    }
+   },
+   "baseline": {
+    "drag_N": 3314.816263958424,
+    "downforce_N": 7038.380569334864,
+    "CD": 0.6568521838334417,
+    "CL": -1.3947004236360456,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 7015.795871181443,
+    "drag_front_wing_N": 749.6156145595195,
+    "downforce_rear_wing_N": 1964.0226565266116,
+    "drag_rear_wing_N": 495.88681950076415,
+    "downforce_floor_N": 923.8478442764026,
+    "downforce_body_N": -1524.598188140137,
+    "downforce_wheels_N": -1297.779661128756,
+    "drag_wheels_N": 1383.6582968476196,
+    "balance_front": 1.0146561344124971
+   },
+   "action": "simulated (run016-acquisition): rejected by reference"
+  },
+  "B": {
+   "tag": "B",
+   "label": "favourable",
+   "run": "run018-verification",
+   "params": {
+    "front_wing_aoa": 2.6990434826005325,
+    "front_flap_aoa": 22.83671337175211,
+    "rear_wing_aoa": 0.3026817028833776,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.02533504004571039
+   },
+   "predicted": {
+    "drag_N": 2875.107173119853,
+    "downforce_N": 7328.441988176058,
+    "balance_front": 1.0777186243234507
+   },
+   "std": {
+    "drag_N": 5.909284872082811,
+    "downforce_N": 123.42536498179481,
+    "balance_front": 0.009223565590264524
+   },
+   "reference": {
+    "drag_N": 2883.603231750879,
+    "downforce_N": 7257.035340904881,
+    "CD": 0.5777320448662723,
+    "CL": -1.4539524096115286,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7426.603674208345,
+    "drag_front_wing_N": 784.3236846350984,
+    "downforce_rear_wing_N": 1271.6428351674995,
+    "drag_rear_wing_N": 234.213305875453,
+    "downforce_floor_N": 1365.5144478215566,
+    "downforce_body_N": -1597.6156960479452,
+    "downforce_wheels_N": -1165.0534447497776,
+    "drag_wheels_N": 1211.5164891810691,
+    "balance_front": 1.0784172831443182
+   },
+   "rel_error": {
+    "drag_N": 0.0029463341341406097,
+    "downforce_N": 0.00983964441632068,
+    "balance_front": 0.0006478557343131957
+   },
+   "reasons": [
+    "inside the validated domain (spacing ratio 0.18), P(feasible) = 0.99, uncertainty within the acceptance tolerances"
+   ],
+   "decision": "REVIEW",
+   "rule": null,
+   "after": "verified",
+   "field_error": {
+    "all": {
+     "rmse": 0.06652852113047304,
+     "max_abs": 1.0061747604544737,
+     "n": 4490,
+     "coverage95": 0.7369710467706013,
+     "mean_std": 0.023577720775005053
+    },
+    "front_wing": {
+     "rmse": 0.21133279543296882,
+     "max_abs": 0.9888260450431885,
+     "n": 166,
+     "coverage95": 0.7530120481927711,
+     "mean_std": 0.07200891647967986
+    },
+    "rear_wing": {
+     "rmse": 0.08629740063482515,
+     "max_abs": 0.3568531712040815,
+     "n": 170,
+     "coverage95": 0.9352941176470588,
+     "mean_std": 0.0681915726196512
+    },
+    "floor": {
+     "rmse": 0.07582877245671733,
+     "max_abs": 1.0061747604544737,
+     "n": 600,
+     "coverage95": 0.7683333333333333,
+     "mean_std": 0.0273196848202459
+    },
+    "body": {
+     "rmse": 0.04667651123410778,
+     "max_abs": 0.8944870361621715,
+     "n": 3554,
+     "coverage95": 0.7214406302757457,
+     "mean_std": 0.01854983340086032
+    },
+    "diffuser": {
+     "rmse": 0.06332004514706732,
+     "max_abs": 0.4037295301530494,
+     "n": 160,
+     "coverage95": 0.825,
+     "mean_std": 0.03021886044411918
+    }
+   },
+   "baseline": {
+    "drag_N": 3314.816263958424,
+    "downforce_N": 7038.380569334864,
+    "CD": 0.6568521838334417,
+    "CL": -1.3947004236360456,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 7015.795871181443,
+    "drag_front_wing_N": 749.6156145595195,
+    "downforce_rear_wing_N": 1964.0226565266116,
+    "drag_rear_wing_N": 495.88681950076415,
+    "downforce_floor_N": 923.8478442764026,
+    "downforce_body_N": -1524.598188140137,
+    "downforce_wheels_N": -1297.779661128756,
+    "drag_wheels_N": 1383.6582968476196,
+    "balance_front": 1.0146561344124971
+   },
+   "action": "simulated (run018-verification): verified"
+  },
+  "C": {
+   "tag": "C",
+   "label": "out_of_domain",
+   "run": "run012-acquisition",
+   "params": {
+    "front_wing_aoa": 2.552905152297077,
+    "front_flap_aoa": 24.587354268894426,
+    "rear_wing_aoa": 0.0,
+    "rear_flap_aoa": 16.0,
+    "diffuser_angle": 18.0,
+    "ride_height": 0.025322404136988042
+   },
+   "predicted": {
+    "drag_N": 2893.7611586124513,
+    "downforce_N": 7279.286947790315,
+    "balance_front": 1.0509699060588449
+   },
+   "std": {
+    "drag_N": 51.20645193138521,
+    "downforce_N": 603.6357459292329,
+    "balance_front": 0.06186482071644202
+   },
+   "reference": {
+    "drag_N": 2869.862926010607,
+    "downforce_N": 7337.507978790856,
+    "CD": 0.5749791644266166,
+    "CL": -1.4700751622599293,
+    "frontal_area_m2": 1.6630560000000003,
+    "downforce_front_wing_N": 7631.170650486178,
+    "drag_front_wing_N": 808.1818211731544,
+    "downforce_rear_wing_N": 1269.0815192778632,
+    "drag_rear_wing_N": 237.86241475704992,
+    "downforce_floor_N": 1201.1738412811185,
+    "downforce_body_N": -1543.559559314173,
+    "downforce_wheels_N": -1176.4509945937978,
+    "drag_wheels_N": 1213.532488136529,
+    "balance_front": 1.1000831329614074
+   },
+   "rel_error": {
+    "drag_N": 0.008327308034556526,
+    "downforce_N": 0.00793471450645501,
+    "balance_front": 0.04464501402757663
+   },
+   "reasons": [
+    "the model is extrapolating: diffuser_angle = 18 is above the simulated range 7.346 to 17.04; ride_height = 0.02532 is below the simulated range 0.0283 to 0.05982"
+   ],
+   "decision": "REJECT",
+   "rule": "best prediction is out of domain",
+   "after": "verified",
+   "field_error": {
+    "all": {
+     "rmse": 0.10098779801471898,
+     "max_abs": 1.7119920812138338,
+     "n": 4490,
+     "coverage95": 0.7608017817371938,
+     "mean_std": 0.03775329695014974
+    },
+    "front_wing": {
+     "rmse": 0.3359960990270814,
+     "max_abs": 1.7119920812138338,
+     "n": 166,
+     "coverage95": 0.4036144578313253,
+     "mean_std": 0.11059160674281361
+    },
+    "rear_wing": {
+     "rmse": 0.16964009813879322,
+     "max_abs": 0.3873437964492561,
+     "n": 170,
+     "coverage95": 0.5529411764705883,
+     "mean_std": 0.10729210417916694
+    },
+    "floor": {
+     "rmse": 0.12124565205119932,
+     "max_abs": 1.0554999678272656,
+     "n": 600,
+     "coverage95": 0.7866666666666666,
+     "mean_std": 0.04208257527313501
+    },
+    "body": {
+     "rmse": 0.06126273550254575,
+     "max_abs": 0.6579363263643694,
+     "n": 3554,
+     "coverage95": 0.7830613393359594,
+     "mean_std": 0.030294004983828334
+    },
+    "diffuser": {
+     "rmse": 0.13626231188903204,
+     "max_abs": 0.8387341021934405,
+     "n": 160,
+     "coverage95": 0.79375,
+     "mean_std": 0.054794472231741845
+    }
+   },
+   "baseline": {
+    "drag_N": 3314.816263958424,
+    "downforce_N": 7038.380569334864,
+    "CD": 0.6568521838334417,
+    "CL": -1.3947004236360456,
+    "frontal_area_m2": 1.681472,
+    "downforce_front_wing_N": 7015.795871181443,
+    "drag_front_wing_N": 749.6156145595195,
+    "downforce_rear_wing_N": 1964.0226565266116,
+    "drag_rear_wing_N": 495.88681950076415,
+    "downforce_floor_N": 923.8478442764026,
+    "downforce_body_N": -1524.598188140137,
+    "downforce_wheels_N": -1297.779661128756,
+    "drag_wheels_N": 1383.6582968476196,
+    "balance_front": 1.0146561344124971
+   },
+   "action": "simulated (run012-acquisition): verified"
+  }
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "python": "3.13.17",
+  "cpu_count": 4,
+  "machine": "x86_64",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "mem_gb": 15.7,
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "sklearn": "1.9.1",
+  "torch": "2.14.1+cu130",
+  "pinneapple": "0.7.0",
+  "git_commit": "13ee053288fb01ed9170eee8484d576946037ce0"
+ },
+ "improvement": {
+  "drag_N": {
+   "baseline": 3314.816263958424,
+   "best": 2795.476711173259,
+   "change": -519.3395527851649,
+   "change_pct": -15.667219882799474
+  },
+  "downforce_N": {
+   "baseline": 7038.380569334864,
+   "best": 7318.832880603657,
+   "limit": "downforce >= 7038.38 N"
+  },
+  "balance_front": {
+   "baseline": 1.0146561344124971,
+   "best": 1.0726482850155084,
+   "limit": "0.913191 <= aero balance (front share) <= 1.11612"
+  }
+ },
+ "conclusion": "best simulated design run019-verification: drag_N 2795 N vs baseline 3315 (-15.7 %), every limit met in the reference simulation"
+}

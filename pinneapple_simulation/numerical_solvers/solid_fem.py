@@ -212,12 +212,13 @@ class SolidFEM:
             dN = _dN(xi)
             J = np.einsum("ak,mai->mki", dN, X)
             det = np.linalg.det(J)
-            dNdx = np.einsum("mki,ak->mai", np.linalg.inv(J), dN)            # (m, 8, 3)
+            # J[k, i] = dx_i / dxi_k, so inv(J)[i, k] = dxi_k / dx_i and dN/dx_i = sum_k inv(J)[i, k] dN/dxi_k
+            dNdx = np.einsum("mik,ak->mai", np.linalg.inv(J), dN)            # (m, 8, 3)
             B = _B(dNdx)
             Bs.append(B)
             if self.incompatible:
                 dP = np.diag(-2 * xi)                                         # d(1 - xi_k^2)/d xi_j
-                dPdx = np.einsum("mki,ak->mai", J0inv, dP) * (det0 / det)[:, None, None]
+                dPdx = np.einsum("mik,ak->mai", J0inv, dP) * (det0 / det)[:, None, None]
                 Ba = _B(dPdx)
                 Bas.append(Ba)
                 Kua += np.einsum("mji,jk,mkl,m->mil", B, D, Ba, det)

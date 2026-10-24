@@ -7,7 +7,7 @@
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 155
+  "example": 164
  },
  "kinds": {
   "tool": "Tools",
@@ -126,7 +126,7 @@
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 155
+   "example": 164
   },
   "subkind": {
    "library call": 249,
@@ -140,12 +140,12 @@
    "general": 79,
    "fluid dynamics": 60,
    "design and geometry": 58,
-   "structural mechanics": 51,
+   "structural mechanics": 52,
    "numerical methods": 46,
    "validation and benchmarks": 46,
    "data": 41,
    "system dynamics": 41,
-   "heat transfer": 25,
+   "heat transfer": 27,
    "science / physics.electromagnetism": 16,
    "vehicle dynamics": 14,
    "electromagnetics": 13,
@@ -154,12 +154,18 @@
    "geophysics and climate": 8,
    "astrophysics": 4,
    "robotics": 3,
+   "Estrutural / caldeiraria e processo": 1,
    "Estrutural / construção": 1,
+   "Fluidos / bombeamento (saneamento, processo, utilidades)": 1,
    "Fluidos / saneamento": 1,
    "Fluidos / saneamento e óleo e gás": 1,
+   "Processo e energia / utilidades": 1,
    "Térmica / eletrônica": 1,
    "Térmica / eletrônica de potência": 1,
+   "Térmica / processo e energia": 1,
    "engineering": 1,
+   "external aerodynamics": 1,
+   "geometry": 1,
    "hydraulics": 1,
    "molecular dynamics": 1,
    "science": 1,
@@ -189,7 +195,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 532,
+   "not graded": 541,
    "B": 63,
    "A": 18,
    "approved": 4,
@@ -7136,7 +7142,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=preset.run",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L16"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L17"
    },
    "extra": {
     "calls": "pinneapple_presets.load(name).run(**overrides)",
@@ -7170,6 +7176,10 @@
       "choices": [
        "plate_fin_heatsink_forced",
        "power_pcb_junction",
+       "pressure_vessel_asme",
+       "pump_npsh_cavitation",
+       "shell_tube_cooler",
+       "steam_pipe_insulation",
        "steel_footbridge_pedestrian",
        "water_distribution_network",
        "water_hammer_valve_closure"
@@ -7214,6 +7224,10 @@
        "enum": [
         "plate_fin_heatsink_forced",
         "power_pcb_junction",
+        "pressure_vessel_asme",
+        "pump_npsh_cavitation",
+        "shell_tube_cooler",
+        "steam_pipe_insulation",
         "steel_footbridge_pedestrian",
         "water_distribution_network",
         "water_hammer_valve_closure"
@@ -15850,7 +15864,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=preset.validate",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L45"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/presets.py#L46"
    },
    "extra": {
     "calls": "pinneapple_presets.load(name).validate()",
@@ -15874,6 +15888,10 @@
       "choices": [
        "plate_fin_heatsink_forced",
        "power_pcb_junction",
+       "pressure_vessel_asme",
+       "pump_npsh_cavitation",
+       "shell_tube_cooler",
+       "steam_pipe_insulation",
        "steel_footbridge_pedestrian",
        "water_distribution_network",
        "water_hammer_valve_closure"
@@ -15895,6 +15913,10 @@
        "enum": [
         "plate_fin_heatsink_forced",
         "power_pcb_junction",
+        "pressure_vessel_asme",
+        "pump_npsh_cavitation",
+        "shell_tube_cooler",
+        "steam_pipe_insulation",
         "steel_footbridge_pedestrian",
         "water_distribution_network",
         "water_hammer_valve_closure"
@@ -17166,7 +17188,7 @@
    "files": [],
    "links": {
     "guide": "docs/guides/industrial_presets.md",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_presets/registry.py#L35"
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_presets/registry.py#L39"
    },
    "extra": {
     "functions": [
@@ -61163,6 +61185,102 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/pump_npsh_cavitation",
+   "kind": "example",
+   "name": "examples/industrial_presets/pump_npsh_cavitation",
+   "title": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação",
+   "summary": "A bomba opera sem cavitar nesta instalação (altitude, temperatura, altura de sucção, tubulação)? Qual a maior altura de sucção ou temperatura admissível, e que diâmetro de sucção…",
+   "description": "A bomba opera sem cavitar nesta instalação (altitude, temperatura, altura de sucção, tubulação)? Qual a maior altura de sucção ou temperatura admissível, e que diâmetro de sucção resolve?",
+   "domain": "Fluidos / bombeamento (saneamento, processo, utilidades)",
+   "tags": [
+    "pinneapple_physics.closed_form.pipe_flow.friction_factor",
+    "pinneapple_physics.closed_form.pump_npsh"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/pump_npsh_cavitation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/pump_npsh_cavitation\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[pressão de saturação a 300 K]",
+      "value": 8.519538172126368e-10,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)"
+     },
+     {
+      "name": "rel_error[pressão de saturação a 500 K]",
+      "value": 1.4122479672402738e-09,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)"
+     },
+     {
+      "name": "rel_error[pressão de saturação a 600 K]",
+      "value": 1.7516852474095862e-09,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: IAPWS R7-97(2012), IF97 eq. 30 e Tabela 35 (valores de verificação)"
+     },
+     {
+      "name": "rel_error[pressão atmosférica a 1000 m]",
+      "value": 4.4030956171667256e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: ISO 2533:1975 / ICAO Doc 7488 (atmosfera padrão), tabela"
+     },
+     {
+      "name": "rel_error[pressão atmosférica a 2000 m]",
+      "value": 3.226243583987093e-08,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, standard: ISO 2533:1975 / ICAO Doc 7488 (atmosfera padrão), tabela"
+     },
+     {
+      "name": "rel_error[perda na sucção: Colebrook vs Haaland]",
+      "value": 0.002821511534507409,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: Haaland (1983), explícita, ±2 % de Colebrook"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.03145715079568924,
+      "unit": "-",
+      "how": "mínimos quadrados lineares (p é afim em K), IC exato"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/pump_npsh_cavitation/results/pump.png",
+     "examples/industrial_presets/pump_npsh_cavitation/results/variants.png",
+     "examples/industrial_presets/pump_npsh_cavitation/results/3d/pump_npsh_cavitation_3d_pressure.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/pump_npsh_cavitation"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "8d02c774cfec0dd2",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.78,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Bomba centrífuga em poço: ponto de operação, NPSH disponível e margem contra cavitação | Fluidos / bombeamento (saneamento, processo, utilidades) | not curated\nrel_error[pressão de saturação a 300 K] 8.519538172126368e-10 -\nrel_error[pressão de saturação a 500 K] 1.4122479672402738e-09 -\nrel_error[pressão de saturação a 600 K] 1.7516852474095862e-09 -\nrel_error[pressão atmosférica a 1000 m] 4.4030956171667256e-07 -\nrel_error[pressão atmosférica a 2000 m] 3.226243583987093e-08 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:bondi_accretion",
    "kind": "example",
    "name": "bondi_accretion",
@@ -69590,6 +69708,73 @@
    }
   },
   {
+   "id": "example:examples/nvidia/10_brep_physicsnemo_heatsink",
+   "kind": "example",
+   "name": "examples/nvidia/10_brep_physicsnemo_heatsink",
+   "title": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification",
+   "summary": "",
+   "description": "",
+   "domain": "heat transfer",
+   "tags": [
+    "B-rep (SMLib)",
+    "FullyConnected (PhysicsNeMo)",
+    "closed-form heat sink"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/10_brep_physicsnemo_heatsink"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/10_brep_physicsnemo_heatsink\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "proposal_mass",
+      "value": 195.09650445308407,
+      "unit": "g",
+      "how": "exact B-rep mass of the verified design"
+     },
+     {
+      "name": "proposal_t_source",
+      "value": 74.20348259023478,
+      "unit": "C",
+      "how": "closed-form source temperature of the verified design"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/10_brep_physicsnemo_heatsink/results/parity.png",
+     "examples/nvidia/10_brep_physicsnemo_heatsink/results/design_space.png",
+     "examples/nvidia/10_brep_physicsnemo_heatsink/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/10_brep_physicsnemo_heatsink"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "1ab4a238d5c929aa",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.85,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification | heat transfer | not curated\nproposal_mass 195.09650445308407 g\nproposal_t_source 74.20348259023478 C",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:benchmark_case/heated_channel",
    "kind": "example",
    "name": "benchmark_case/heated_channel",
@@ -70160,6 +70345,103 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/steam_pipe_insulation",
+   "kind": "example",
+   "name": "examples/industrial_presets/steam_pipe_insulation",
+   "title": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica",
+   "summary": "Qual espessura de isolamento minimiza o custo anual por metro, e qual a menor que mantém a superfície abaixo de 60 °C (proteção pessoal)? Quanto se perde sem isolamento?",
+   "description": "Qual espessura de isolamento minimiza o custo anual por metro, e qual a menor que mantém a superfície abaixo de 60 °C (proteção pessoal)? Quanto se perde sem isolamento?",
+   "domain": "Processo e energia / utilidades",
+   "tags": [
+    "pinneapple_physics.closed_form.pipe_insulation.economic_thickness",
+    "pinneapple_physics.closed_form.pipe_insulation.heat_loss",
+    "pinneapple_physics.closed_form.pipe_insulation.radial_fd"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/steam_pipe_insulation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/steam_pipe_insulation\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)]",
+      "value": 4.955861856334466e-08,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equação de calor radial com k(T) resolvida numericamente"
+     },
+     {
+      "name": "rel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)]",
+      "value": 1.621445256408362e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equação de calor radial com k(T) resolvida numericamente"
+     },
+     {
+      "name": "rel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)]",
+      "value": 4.960096946394748e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: radial_fd: equação de calor radial com k(T) resolvida numericamente"
+     },
+     {
+      "name": "rel_error[k constante: resistências em série (Incropera eq. 3.27)]",
+      "value": 1.6599341602614414e-16,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Incropera et al., Fundamentals of Heat and Mass Transfer, eq. 3.27"
+     },
+     {
+      "name": "rel_error[h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert]",
+      "value": 0.06208249860123212,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: Hilpert (1933) com as constantes da Tabela 7.2 de Incropera (incerteza ~±20 %)"
+     },
+     {
+      "name": "rel_error[h natural (sem vento): Churchill-Chu vs McAdams 1,32 (dT/D)^0,25]",
+      "value": 0.07956819881052872,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: McAdams, Heat Transmission (1954): cilindro horizontal laminar em ar"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.0031623394227642265,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent) sobre o modelo de perda, IC por sensibilidade"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/steam_pipe_insulation/results/insulation.png",
+     "examples/industrial_presets/steam_pipe_insulation/results/variants.png",
+     "examples/industrial_presets/steam_pipe_insulation/results/3d/steam_pipe_insulation_3d_temperature.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/steam_pipe_insulation"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "b0b0f52ff9ad8365",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.74,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Isolamento térmico de linha de vapor: perda, temperatura de superfície e espessura econômica | Processo e energia / utilidades | not curated\nrel_error[perda com 30 mm: Kirchhoff vs volumes finitos com k(T)] 4.955861856334466e-08 -\nrel_error[perda com 60 mm: Kirchhoff vs volumes finitos com k(T)] 1.621445256408362e-07 -\nrel_error[perda com 120 mm: Kirchhoff vs volumes finitos com k(T)] 4.960096946394748e-07 -\nrel_error[k constante: resistências em série (Incropera eq. 3.27)] 1.6599341602614414e-16 -\nrel_error[h forçado (Re 55000): Churchill-Bernstein misto vs Hilpert] 0.06208249860123212 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:pipe_flow/kenics_mixer",
    "kind": "example",
    "name": "pipe_flow/kenics_mixer",
@@ -70636,6 +70918,72 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "B - Sun exponent is 3/2",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/14_brep_omniverse_bracket",
+   "kind": "example",
+   "name": "examples/nvidia/14_brep_omniverse_bracket",
+   "title": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness",
+   "summary": "",
+   "description": "",
+   "domain": "geometry",
+   "tags": [
+    "B-rep (SMLib)",
+    "OpenUSD"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/14_brep_omniverse_bracket"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/14_brep_omniverse_bracket\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "bracket_mass",
+      "value": 105.37090558663354,
+      "unit": "g",
+      "how": "USD BRep mass properties, 6061-T6 density"
+     },
+     {
+      "name": "chord_error_max",
+      "value": 7.060322879633735,
+      "unit": "um",
+      "how": "largest triangle-centroid distance to the exact surface"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/14_brep_omniverse_bracket/results/usd_curvature.png",
+     "examples/nvidia/14_brep_omniverse_bracket/results/usd_thickness.png",
+     "examples/nvidia/14_brep_omniverse_bracket/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/14_brep_omniverse_bracket"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "b42ed8f06b195d4c",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.84,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness | geometry | not curated\nbracket_mass 105.37090558663354 g\nchord_error_max 7.060322879633735 um",
     "timed_out": false,
     "status": "ok"
    }
@@ -75812,14 +76160,16 @@
    "description": "Worked examples joining PINNeAPPle (problems, reference solvers, physics checks, trust decision) with NVIDIA PhysicsNeMo, Omniverse (OpenUSD), Isaac Sim, Cosmos and NIM; each run.py writes an architecture figure, result figures, summary.json and run_info.json (what ran here and what needs a GPU or an API key).",
    "domain": "physics AI",
    "tags": [
+    "B-rep (SMLib)",
     "CEM",
+    "FEM (CST)",
     "FNO (PhysicsNeMo)",
     "FVM",
     "FullyConnected (PhysicsNeMo)",
     "MOC",
     "Newton Featherstone",
-    "multibody tree",
-    "spectral"
+    "OpenUSD",
+    "closed-form heat sink"
    ],
    "quality": {
     "letter": null,
@@ -75878,6 +76228,24 @@
       "value": 0.0,
       "unit": "rad",
       "how": "12: max |q_USD - q_URDF| in Newton"
+     },
+     {
+      "name": "strap_kt_net_richardson",
+      "value": 2.3202025186774162,
+      "unit": "",
+      "how": "05: plane-stress FEM on USD BRep face meshes, Richardson from 1, 0.5 mm and 2 mm sizes"
+     },
+     {
+      "name": "heatsink_accepted_mass",
+      "value": 195.09650445308407,
+      "unit": "g",
+      "how": "10: exact B-rep mass of the verified design"
+     },
+     {
+      "name": "bracket_mass",
+      "value": 105.37090558663354,
+      "unit": "g",
+      "how": "14: USD BRep mass properties, 6061 density"
      }
     ],
     "figures": [
@@ -78779,6 +79147,98 @@
    }
   },
   {
+   "id": "example:examples/industrial_presets/shell_tube_cooler",
+   "kind": "example",
+   "name": "examples/industrial_presets/shell_tube_cooler",
+   "title": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos)",
+   "summary": "O trocador leva a água do circuito à temperatura de retorno exigida com a água de torre disponível, com velocidade de tubo na faixa recomendada? Quanta incrustação ele tolera, e…",
+   "description": "O trocador leva a água do circuito à temperatura de retorno exigida com a água de torre disponível, com velocidade de tubo na faixa recomendada? Quanta incrustação ele tolera, e qual o menor trocador que atende?",
+   "domain": "Térmica / processo e energia",
+   "tags": [
+    "pinneapple_physics.closed_form.heat_exchanger.effectiveness",
+    "pinneapple_physics.closed_form.heat_exchanger.gnielinski",
+    "pinneapple_physics.closed_form.heat_exchanger.kern_shell",
+    "pinneapple_physics.closed_form.heat_exchanger.one_two_exchanger_ode"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/shell_tube_cooler"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/shell_tube_cooler\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto]",
+      "value": 3.277045816399516e-14,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)"
+     },
+     {
+      "name": "rel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto]",
+      "value": 4.189200564160273e-14,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)"
+     },
+     {
+      "name": "rel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto]",
+      "value": 9.398982902295129e-15,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: integração direta das 3 equações de energia do trocador 1-2 (scipy solve_bvp)"
+     },
+     {
+      "name": "rel_error[Cr -> 0: epsilon = 1 - exp(-NTU)]",
+      "value": 0.0,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Incropera et al., Fundamentals of Heat and Mass Transfer, 6a ed. eq. 11.35a"
+     },
+     {
+      "name": "rel_error[h tubos: Gnielinski vs Dittus-Boelter]",
+      "value": 0.09283884594855282,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, independent_solver: Dittus & Boelter (1930), incerteza ±25 % (Incropera sec. 8.5)"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.0006205914317426842,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent), IC por sensibilidade"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/shell_tube_cooler/results/exchanger.png",
+     "examples/industrial_presets/shell_tube_cooler/results/variants.png",
+     "examples/industrial_presets/shell_tube_cooler/results/3d/shell_tube_cooler_3d_temperature.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/shell_tube_cooler"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "bf54384818e18b33",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.81,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos) | Térmica / processo e energia | not curated\nrel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto] 3.277045816399516e-14 -\nrel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto] 4.189200564160273e-14 -\nrel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto] 9.398982902295129e-15 -\nrel_error[Cr -> 0: epsilon = 1 - exp(-NTU)] 0.0 -\nrel_error[h tubos: Gnielinski vs Dittus-Boelter] 0.09283884594855282 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/science/electromagnetism/cavity_resonance",
    "kind": "example",
    "name": "examples/science/electromagnetism/cavity_resonance",
@@ -81556,6 +82016,79 @@
    }
   },
   {
+   "id": "example:examples/nvidia/05_brep_plate_with_hole",
+   "kind": "example",
+   "name": "examples/nvidia/05_brep_plate_with_hole",
+   "title": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks",
+   "summary": "",
+   "description": "",
+   "domain": "structural mechanics",
+   "tags": [
+    "B-rep (SMLib)",
+    "FEM (CST)"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/05_brep_plate_with_hole"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/05_brep_plate_with_hole\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "kt_net_richardson",
+      "value": 2.3202025186774162,
+      "unit": "",
+      "how": "FEM on B-rep meshes, Richardson from the three finest sizes"
+     },
+     {
+      "name": "kt_net_finest",
+      "value": 2.275980554438024,
+      "unit": "",
+      "how": "FEM, element size 0.5 mm"
+     },
+     {
+      "name": "brep_volume",
+      "value": 43429.203675653,
+      "unit": "mm^3",
+      "how": "USD BRep, relative accuracy 1e-6"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/05_brep_plate_with_hole/results/convergence.png",
+     "examples/nvidia/05_brep_plate_with_hole/results/stress.png",
+     "examples/nvidia/05_brep_plate_with_hole/results/brep_part.png",
+     "examples/nvidia/05_brep_plate_with_hole/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/05_brep_plate_with_hole"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "b948a3860baab4a0",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.89,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Strap with a hole: USD BRep geometry, PINNeAPPle plane-stress FEM and checks | structural mechanics | not curated\nkt_net_richardson 2.3202025186774162 \nkt_net_finest 2.275980554438024 \nbrep_volume 43429.203675653 mm^3",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/industrial_presets/power_pcb_junction",
    "kind": "example",
    "name": "examples/industrial_presets/power_pcb_junction",
@@ -81964,6 +82497,150 @@
    }
   },
   {
+   "id": "example:examples/autolab_aero",
+   "kind": "example",
+   "name": "examples/autolab_aero",
+   "title": "The AI Aerodynamicist (Autonomous Physics Lab)",
+   "summary": "Lower drag at 70 m/s keeping the downforce and the aero balance: OpenFOAM 3-D on a parametric racing car, surrogates compared on held-out CFD, NSGA-II on the surrogate, every…",
+   "description": "Lower drag at 70 m/s keeping the downforce and the aero balance: OpenFOAM 3-D on a parametric racing car, surrogates compared on held-out CFD, NSGA-II on the surrogate, every candidate triaged (favourable / uncertain / out of domain), the next CFD chosen by what is unknown, the recommendation verified by CFD.",
+   "domain": "external aerodynamics",
+   "tags": [
+    "Gaussian process",
+    "MLP ensemble",
+    "NSGA-II",
+    "OpenFOAM simpleFoam k-omega SST",
+    "POD + GP surface field",
+    "active learning",
+    "quadratic response surface",
+    "snappyHexMesh"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/autolab_aero"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/autolab_aero\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/autolab_aero/autolab_aero.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "cfd_runs",
+      "value": 20.0,
+      "unit": "runs",
+      "how": "OpenFOAM runs charged to the mission budget"
+     },
+     {
+      "name": "cfd_wall",
+      "value": 11840.2,
+      "unit": "s",
+      "how": "summed wall time of the mission's OpenFOAM runs, 4 cores"
+     },
+     {
+      "name": "failed_runs",
+      "value": 0.0,
+      "unit": "runs",
+      "how": "runs that did not finish"
+     },
+     {
+      "name": "mesh_drag_N_vs_fine",
+      "value": -0.2274348209939454,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "mesh_downforce_N_vs_fine",
+      "value": -8.40857266320646,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "mesh_balance_front_vs_fine",
+      "value": 9.60069709783955,
+      "unit": "%",
+      "how": "baseline: campaign mesh vs fine mesh"
+     },
+     {
+      "name": "drag_change",
+      "value": -15.667219882799474,
+      "unit": "%",
+      "how": "best simulated feasible vs baseline (CFD)"
+     },
+     {
+      "name": "drag_best",
+      "value": 2795.476711173259,
+      "unit": "N",
+      "how": "CFD of the recommended design"
+     },
+     {
+      "name": "downforce_best",
+      "value": 7318.832880603657,
+      "unit": "N",
+      "how": "CFD of the recommended design"
+     },
+     {
+      "name": "drag_change_fine",
+      "value": -13.945206047386797,
+      "unit": "%",
+      "how": "recommended vs baseline, both on the fine mesh"
+     },
+     {
+      "name": "cv_rel_error_drag_N",
+      "value": 2.352359865034112,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     },
+     {
+      "name": "cv_rel_error_downforce_N",
+      "value": 10.206190374761313,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     },
+     {
+      "name": "cv_rel_error_balance_front",
+      "value": 4.3139069742995,
+      "unit": "%",
+      "how": "mlp_ensemble, 17 CFD runs, 5-fold cross-validation"
+     }
+    ],
+    "figures": [
+     "examples/autolab_aero/_out/figures/pareto.png",
+     "examples/autolab_aero/_out/figures/models.png",
+     "examples/autolab_aero/_out/figures/learning.png",
+     "examples/autolab_aero/_out/figures/trust_abc.png",
+     "examples/autolab_aero/_out/figures/cp_numerical_prediction_error.png",
+     "examples/autolab_aero/_out/figures/baseline_cp_top.png",
+     "examples/autolab_aero/_out/figures/baseline_cp_bottom.png",
+     "examples/autolab_aero/_out/figures/baseline_streamlines.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/autolab_aero/autolab_aero.py",
+    "lab": "lab/index.html#examples/autolab_aero"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "ok": true,
+    "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+    "stderr": "",
+    "seconds": 0.64,
+    "timed_out": false,
+    "code_hash": "dc2d0c36e9e9dec7",
+    "figures": [],
+    "recorded": "2026-10-24",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:bricks/tower",
    "kind": "example",
    "name": "bricks/tower",
@@ -82227,6 +82904,156 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Training Pipeline | data | not curated",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/industrial_presets/pressure_vessel_asme",
+   "kind": "example",
+   "name": "examples/industrial_presets/pressure_vessel_asme",
+   "title": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1",
+   "summary": "Qual a espessura de chapa do casco e dos tampos para esta pressão de projeto, qual a MAWP resultante e a pressão de teste? A tensão real (Lamé/FEM) confirma a fórmula do código?",
+   "description": "Qual a espessura de chapa do casco e dos tampos para esta pressão de projeto, qual a MAWP resultante e a pressão de teste? A tensão real (Lamé/FEM) confirma a fórmula do código?",
+   "domain": "Estrutural / caldeiraria e processo",
+   "tags": [
+    "pinneapple_simulation.numerical_solvers.solid_fem.SolidFEM"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/industrial_presets/pressure_vessel_asme"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/industrial_presets/pressure_vessel_asme\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "rel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé]",
+      "value": 0.0038346666983239304,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28"
+     },
+     {
+      "name": "rel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)]",
+      "value": 8.384422033447177e-07,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: Lamé (1852); Timoshenko & Goodier, Theory of Elasticity, 3a ed., sec. 28"
+     },
+     {
+      "name": "rel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé]",
+      "value": 0.000866198770668044,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: ASME BPVC Section VIII Div. 1 (2023) App. 1-1: a fórmula aproxima Lamé para t <= R/2"
+     },
+     {
+      "name": "rel_error[caso espesso (t/R 0,26): UG-27 vs Lamé]",
+      "value": 0.00962774901909099,
+      "unit": "-",
+      "how": "|computed - reference| / |reference|, analytic: ASME BPVC Section VIII Div. 1 (2023) UG-27 / Lamé"
+     },
+     {
+      "name": "inversion_rel_err",
+      "value": 0.002553325026595152,
+      "unit": "-",
+      "how": "mínimos quadrados (Brent) sobre Lamé com tampos fechados; IC por sensibilidade"
+     }
+    ],
+    "figures": [
+     "examples/industrial_presets/pressure_vessel_asme/results/vessel_stress.png",
+     "examples/industrial_presets/pressure_vessel_asme/results/variants.png",
+     "examples/industrial_presets/pressure_vessel_asme/results/3d/pressure_vessel_asme_3d_sigma.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/industrial_presets/pressure_vessel_asme"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "48a3ab3fd7941dc7",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.8,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1 | Estrutural / caldeiraria e processo | not curated\nrel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé] 0.0038346666983239304 -\nrel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)] 8.384422033447177e-07 -\nrel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé] 0.000866198770668044 -\nrel_error[caso espesso (t/R 0,26): UG-27 vs Lamé] 0.00962774901909099 -\ninversion_rel_err 0.002553325026595152 -",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/nvidia/16_omniverse_physicsnemo_brep_heatsink",
+   "kind": "example",
+   "name": "examples/nvidia/16_omniverse_physicsnemo_brep_heatsink",
+   "title": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle",
+   "summary": "",
+   "description": "",
+   "domain": "heat transfer",
+   "tags": [
+    "B-rep (SMLib)",
+    "FullyConnected (PhysicsNeMo)",
+    "OpenUSD",
+    "closed-form heat sink"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/nvidia/16_omniverse_physicsnemo_brep_heatsink"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/nvidia/16_omniverse_physicsnemo_brep_heatsink\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "accepted_mass",
+      "value": 195.09650445308407,
+      "unit": "g",
+      "how": "exact B-rep mass, 6063 density"
+     },
+     {
+      "name": "accepted_t_source",
+      "value": 74.20348259023478,
+      "unit": "C",
+      "how": "closed-form source temperature"
+     }
+    ],
+    "figures": [
+     "examples/nvidia/16_omniverse_physicsnemo_brep_heatsink/results/usd_temperature.png",
+     "examples/nvidia/16_omniverse_physicsnemo_brep_heatsink/results/checks.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/nvidia/16_omniverse_physicsnemo_brep_heatsink"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "ea4511928dbf7efb",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-24",
+    "seconds": 0.78,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Verified heat sink in OpenUSD: USD BRep, PhysicsNeMo, PINNeAPPle | heat transfer | not curated\naccepted_mass 195.09650445308407 g\naccepted_t_source 74.20348259023478 C",
     "timed_out": false,
     "status": "ok"
    }

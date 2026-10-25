@@ -40,8 +40,12 @@ REASONS: dict[str, str] = {
     "pinneapple_arena": "YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes",
     "pinneapple_arena.showcase": "one fixed four-architecture Burgers comparison (minutes of training) served by "
                                  "apps/model_benchmarking; single benchmark runs are benchmark.arena nodes",
+    "pinneapple_arena.pointwise": "the PINNeAPPle Arena app's training protocol (minutes-long multi-architecture experiments run by apps/pinn_arena); single trainings are pinn / solve nodes",
+    "pinneapple_arena.external": "references to third-party libraries run through their own packages (mostly not installed); not a computation step of a flow",
     "pinneapple_pdb": "dataset builder for benchmark publication (sharding, upload)",
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
+    "pinneapple_design.surrogate_inverse": "inverse design through a surrogate trained per case at start-up "
+                                           "(seconds to minutes of MLP training); served by the apps/*_ai apps",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",
     "pinneapple_lab": "covered by validate.lab (run, curation tiers, seal)",
     "pinneapple_autolab": "mission campaigns of a reference solver (hours of OpenFOAM runs with a budget); run by "

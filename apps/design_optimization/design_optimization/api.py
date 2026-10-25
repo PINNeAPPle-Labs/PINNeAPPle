@@ -4,7 +4,7 @@ while holding its lift, re-run live on every page load.
 Glue only: the study is ``pinneapple_design.design_optimizer.airfoil_drag.run_design_optimization`` (closed-form
 ground truth in ``pinneapple_physics.closed_form.thin_airfoil``).
 
-Run:  uvicorn design_optimization.api:app --port 8161   (from apps/design_optimization)
+Run:  uvicorn design_optimization.api:app --port 8181   (from apps/design_optimization)
 
 Environment (all optional): DOPT_USER / DOPT_PASSWORD (or DOPT_PASSWORD_HASH) for an HTTP Basic login on everything
 except /health; DOPT_MAX_HEAVY concurrent runs per worker (default 2); the rest in apps/_shared/README.md.

@@ -14,10 +14,10 @@ Ported from the `poc_verification_gap` case study of PINNeAPPle-apps.
 
 | Piece | Library |
 |---|---|
-| Rotor temperature: the vanes as a fin array on the friction ring (Incropera & DeWitt fin efficiency + 1-D ring conduction) | `pinneapple_physics.closed_form.vented_rotor` on `fin_array_conduction` |
+| Rotor temperature: the vanes as a fin array on the friction ring (Incropera & DeWitt fin efficiency + 1-D ring conduction) | `pinneapple_design.surrogate_inverse.brake_rotor` (shared with `apps/brakecool_ai`) on `fin_array_conduction` |
 | Monte Carlo draws, p95 (nearest rank), pass fraction with its Wilson interval, ROBUST / MARGINAL (p95 within 5 % of the limit) / FRAGILE | `pinneapple_analysis.uncertainty.margin.margin_study` (draws with `pp.propagate_tolerances`) |
 | Six checks: finite samples, p95 stable on an independent batch, p95 with 50 samples, hottest sample vs limit, corner stack-up, p95 vs limit; `TrustReport` decision | same |
-| Rotor mesh for the 3-D view (two rings and the vanes, coloured by the radial vane profile) | `pinneapple_design.thermal.meshes.vented_rotor_mesh` |
+| Rotor mesh for the 3-D view (two rings and the vanes, coloured by the radial vane profile) | `pinneapple_design.surrogate_inverse.brake_rotor.mesh` |
 
 The app (`verification_gap/api.py`) holds the case constants and the routes; the page is `verification_gap/static/index.html`.
 
@@ -31,11 +31,11 @@ At highway airflow (h = 120) the same rotor runs at 186.7 °C.
 # from the repository root
 pip install -e . fastapi "uvicorn[standard]"
 cd apps/verification_gap
-PYTHONPATH=../_shared uvicorn verification_gap.api:app --port 8160      # open http://localhost:8160
+PYTHONPATH=../_shared uvicorn verification_gap.api:app --port 8180      # open http://localhost:8180
 ```
 
 Docker (from the repository root): `docker build -f apps/verification_gap/Dockerfile -t verification-gap .` then
-`docker run -p 8160:8160 verification-gap`.
+`docker run -p 8180:8180 verification-gap`.
 
 | Route | What |
 |---|---|

@@ -1,6 +1,6 @@
 # Verification Gap -- build from the repository root:
 #   docker build -f apps/verification_gap/Dockerfile -t verification-gap .
-#   docker run -p 8160:8160 verification-gap
+#   docker run -p 8180:8180 verification-gap
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
@@ -20,7 +20,7 @@ USER 10001:0
 
 ENV PYTHONPATH=/srv:/srv/apps/verification_gap:/srv/apps/_shared
 WORKDIR /srv/apps/verification_gap
-EXPOSE 8160
-HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8160/health')"
+EXPOSE 8180
+HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8180/health')"
 # tolerance margin studies are short; two workers
-CMD ["uvicorn", "verification_gap.api:app", "--host", "0.0.0.0", "--port", "8160", "--workers", "2"]
+CMD ["uvicorn", "verification_gap.api:app", "--host", "0.0.0.0", "--port", "8180", "--workers", "2"]

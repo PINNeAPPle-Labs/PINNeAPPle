@@ -1,6 +1,6 @@
 # Predictive Twin -- build from the repository root:
 #   docker build -f apps/predictive_twin/Dockerfile -t predictive-twin .
-#   docker run -p 8164:8164 predictive-twin
+#   docker run -p 8184:8184 predictive-twin
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
@@ -20,7 +20,7 @@ USER 10001:0
 
 ENV PYTHONPATH=/srv:/srv/apps/predictive_twin:/srv/apps/_shared
 WORKDIR /srv/apps/predictive_twin
-EXPOSE 8164
-HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8164/health')"
+EXPOSE 8184
+HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8184/health')"
 # the twin is a least-squares fit per request; two workers
-CMD ["uvicorn", "predictive_twin.api:app", "--host", "0.0.0.0", "--port", "8164", "--workers", "2"]
+CMD ["uvicorn", "predictive_twin.api:app", "--host", "0.0.0.0", "--port", "8184", "--workers", "2"]

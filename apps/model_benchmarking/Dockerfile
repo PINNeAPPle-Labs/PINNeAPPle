@@ -1,6 +1,6 @@
 # Model Benchmarking -- build from the repository root:
 #   docker build -f apps/model_benchmarking/Dockerfile -t model-benchmarking .
-#   docker run -p 8162:8162 model-benchmarking
+#   docker run -p 8182:8182 model-benchmarking
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
@@ -20,7 +20,7 @@ USER 10001:0
 
 ENV PYTHONPATH=/srv:/srv/apps/model_benchmarking:/srv/apps/_shared
 WORKDIR /srv/apps/model_benchmarking
-EXPOSE 8162
-HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8162/health')"
+EXPOSE 8182
+HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8182/health')"
 # the benchmark runs in a background thread of this one worker
-CMD ["uvicorn", "model_benchmarking.api:app", "--host", "0.0.0.0", "--port", "8162", "--workers", "1"]
+CMD ["uvicorn", "model_benchmarking.api:app", "--host", "0.0.0.0", "--port", "8182", "--workers", "1"]

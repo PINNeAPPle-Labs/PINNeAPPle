@@ -26,7 +26,7 @@ import numpy as np
 from . import bounds
 from .runner import ResultTable
 
-__all__ = ["physical_features", "FEATURES", "FrequencyMean", "HWOffset", "LinearPhysics", "GPModel",
+__all__ = ["physical_features", "columns", "FEATURES", "FrequencyMean", "HWOffset", "LinearPhysics", "GPModel",
            "default_models", "lodo", "holdout", "ValidationResult"]
 
 FEATURES = ("log_L_lambda", "W_lambda", "Wa_lambda", "slots", "director")
@@ -140,11 +140,13 @@ class GPModel(_Model):
 
     Squared-exponential kernel with one length scale per feature, signal and noise variances; hyper-parameters by
     maximum log marginal likelihood (L-BFGS-B from a few starts). ``predict`` returns the mean and the predictive
-    std including the fitted noise."""
+    std including the fitted noise. ``features(params, f_ghz) -> (n, d)`` replaces :func:`physical_features` for
+    any other design space (then use ``prior="const"``), e.g. ``columns("feed_gain_dBi", "side")``."""
     name = "Gaussian process"
 
-    def __init__(self, prior: str = "hw", restarts: int = 4, seed: int = 0):
+    def __init__(self, prior: str = "hw", restarts: int = 4, seed: int = 0, features=None):
         self.prior, self.restarts, self.seed = prior, restarts, seed
+        self.features = features or physical_features
 
     def _mean(self, params, f):
         return _hw_dbi(params, f) + self.offset if self.prior == "hw" else np.full(len(params), self.offset)
@@ -152,7 +154,7 @@ class GPModel(_Model):
     def _fit(self, params, f, y):
         from scipy.optimize import minimize
 
-        X = physical_features(params, f)
+        X = self.features(params, f)
         self.mu, self.sd = X.mean(0), X.std(0)
         self.keep = self.sd > 1e-12
         U = (X[:, self.keep] - self.mu[self.keep]) / self.sd[self.keep]
@@ -190,7 +192,7 @@ class GPModel(_Model):
         self.alpha = np.linalg.solve(self.L.T, np.linalg.solve(self.L, t))
 
     def predict(self, params, f_ghz):
-        X = physical_features(params, f_ghz)
+        X = self.features(params, f_ghz)
         U = (X[:, self.keep] - self.mu[self.keep]) / self.sd[self.keep]
         Ks = self.s2 * np.exp(-0.5 * _sqd(U / self.ell, self.U / self.ell))
         m = Ks @ self.alpha
@@ -201,6 +203,13 @@ class GPModel(_Model):
 
 def _sqd(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     return np.maximum((A ** 2).sum(1)[:, None] + (B ** 2).sum(1)[None, :] - 2 * A @ B.T, 0.0)
+
+
+def columns(*names: str):
+    """A ``features`` function for :class:`GPModel`: the named design parameters as they are."""
+    def features(params, f_ghz):
+        return np.array([[_get(p, n) for n in names] for p in params], dtype=float)
+    return features
 
 
 def default_models() -> dict[str, Callable[[], _Model]]:

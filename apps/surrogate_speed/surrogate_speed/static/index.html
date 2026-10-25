@@ -302,7 +302,7 @@
         <div class="tooltip" id="tooltip-viewer-mini"></div>
       </div>
     </div>
-    <div class="viewer-caption">Geometry shown in all three: <b>baseline design</b> — 20 fins, 25mm tall, 1mm thick, on an 80&times;80mm base plate (<code>pinneapple_design.thermal.meshes.plate_fin_mesh</code>). The arrow marks where heat enters (the base plate, from the chip below). Panel 1 is deliberately a single flat color — the surrogate has no spatial resolution; panel 2 is the closed-form fin profile the surrogate is trained against; panel 3 is the cost of collapsing panel 2 into panel 1's single number.</div>
+    <div class="viewer-caption">Geometry shown in all three: <b>baseline design</b> — 20 fins, 25mm tall, 1mm thick, on an 80&times;80mm base plate (<code>pinneapple_design.surrogate_inverse.heatsink_fins.mesh</code>). The arrow marks where heat enters (the base plate, from the chip below). Panel 1 is deliberately a single flat color — the surrogate has no spatial resolution; panel 2 is the closed-form fin profile the surrogate is trained against; panel 3 is the cost of collapsing panel 2 into panel 1's single number.</div>
   </div>
 
   <div id="loading-state">
@@ -310,7 +310,7 @@
       <div class="spinner"></div>
       <div class="load-title" id="load-title">Starting the real sweep…</div>
     </div>
-    <div class="load-sub" id="load-sub">Training the surrogate, then solving the finite-volume fin cell for each design (and on two finer grids for the discretisation band).</div>
+    <div class="load-sub" id="load-sub">Training the surrogate, then solving the finite-volume fin cell for each design (and on a grid twice as fine, as a convergence check).</div>
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
     <div class="progress-caption" id="progress-caption">0 / 7 solves complete</div>
   </div>
@@ -326,7 +326,7 @@
         <div class="lbl">faster, on average — finite-volume solve wall-clock time ÷ surrogate forward-pass time, across <span id="hero-n">7</span> curated designs</div>
       </div>
     </div>
-    <div class="hero-note">Surrogate: a small MLP trained once at startup on 6,000 closed-form samples (val. error <span id="hero-val-err">--</span>). Cross-check: a steady conduction solve of one fin unit cell (base slab + fin, flux in from below, film on the fin and exposed base, symmetry at the cell sides) by cell-centred finite volumes — <code>pinneapple_simulation.numerical_solvers.fin_cell_fv</code>. The speed ratio depends on the reference solver and the machine: against a meshed 3-D FEM run it is far larger.</div>
+    <div class="hero-note">Surrogate: a small MLP trained once at startup on 6,000 closed-form samples of the thermal resistance (val. error <span id="hero-val-err">--</span>). Cross-check: a steady conduction solve of one fin unit cell (base slab + fin, flux in from below, film on the fin and exposed base, symmetry at the cell sides) by cell-centred finite volumes — <code>pinneapple_design.thermal.fin_cell</code>. The speed ratio depends on the reference solver and the machine: against a meshed 3-D FEM run it is far larger.</div>
 
     <div class="divider-line">but a fast wrong answer is worse than a slow right one</div>
 
@@ -428,14 +428,14 @@
 
       <div class="method-block">
         <h3><span class="num">1</span> The surrogate: a small MLP, trained on real physics-labeled data</h3>
-        <p>The surrogate is a plain MLP — five inputs (fin count, fin height, fin thickness, power, convective coefficient), three hidden layers of 48 units with <code>tanh</code> activations, one output (<code>PhysicsSurrogate.build_mlp</code>, trained with Adam). Its 6,000 training samples are designs run through the closed-form fin-array model (<code>pinneapple_physics.closed_form.fin_array_conduction</code>). Training is deterministic (fixed seed), so the same weights come back every time; only the wall-clock timing measured against them varies run to run.</p>
+        <p>The surrogate is a plain MLP — four inputs (fin count, fin height, fin thickness, convective coefficient), three hidden layers of 48 units with <code>tanh</code> activations, one output: the logarithm of the thermal resistance, so the temperature is T_amb + P·R and the power enters exactly (<code>pinneapple_design.surrogate_inverse.heatsink_fins.train_surrogate</code>: full-batch Adam with cosine decay, 1,500 epochs). Its 6,000 training samples are designs run through the closed-form fin-array model (<code>pinneapple_physics.closed_form.fin_array_conduction</code>). Training is deterministic (fixed seed); only the wall-clock timing varies run to run.</p>
         <div class="eq">T_junction ≈ MLP(fin_count, fin_height, fin_thickness, power, h_conv)</div>
         <p>That's the whole trick: a surrogate is only as honest as what it was trained to reproduce. Here, that's a real, textbook thermal model — not a black box learning an unknown target.</p>
       </div>
 
       <div class="method-block">
         <h3><span class="num">2</span> The cross-check: an independent numerical solve</h3>
-        <p>The surrogate never sees the numerical solve — it only learns the closed-form model. <code>solve_fin_cell</code> discretises one unit cell (base slab and one fin) with cell-centred finite volumes and solves the steady conduction equation with the heat flux in from below, a film coefficient on the fin and the exposed base, and symmetry at the cell sides. The 3-D cell has nothing depending on the fin depth, so its 2-D cross-section is the same problem. Each design is also solved on two finer grids; the grid convergence index of the temperature rise is reported with the results, and the heat balance closes to round-off.</p>
+        <p>The surrogate never sees the numerical solve — it only learns the closed-form model. <code>solve_fin_cell</code> discretises one unit cell (base slab and one fin) with cell-centred finite volumes and solves the steady conduction equation with the heat flux in from below, a film coefficient on the fin and the exposed base, and symmetry at the cell sides. The 3-D cell has nothing depending on the fin depth, so its 2-D cross-section is the same problem. Each design is also solved on a grid twice as fine; the change of the temperature rise is reported with the results, and the heat balance closes to round-off.</p>
       </div>
 
       <div class="method-block">
@@ -444,7 +444,7 @@
       </div>
 
       <div class="pinn-note">
-        <b>Built on PINNeAPPle.</b> The closed form is <code>pinneapple_physics.closed_form.fin_array_conduction</code>, the reference is <code>pinneapple_simulation.numerical_solvers.fin_cell_fv.solve_fin_cell</code>, and the study (designs, surrogate, timings, agreement, grid check) is <code>pinneapple_design.thermal.fin_array_speed</code>; this page only calls them.
+        <b>Built on PINNeAPPle.</b> The closed form is <code>pinneapple_physics.closed_form.fin_array_conduction</code>, the reference is <code>pinneapple_design.thermal.fin_cell.solve_fin_cell</code>, the heat sink and its surrogate are <code>pinneapple_design.surrogate_inverse.heatsink_fins</code> (shared with <code>apps/heatsink_inverse_ai</code>), and the sweep (timings, agreement, grid check) is <code>pinneapple_design.thermal.fin_array_speed</code>; this page only calls them.
       </div>
     </div>
 
@@ -455,12 +455,15 @@
       <div class="h2-sub">Trimmed for length; the full modules are <code>pinneapple_design/thermal/fin_array_speed.py</code> and <code>pinneapple_physics/closed_form/fin_array_conduction.py</code>.</div>
 
       <div class="code-card">
-        <div class="code-title">fin_array_speed.py — the trained surrogate</div>
-        <pre>core = PhysicsSurrogate.build_mlp(in_dim=<span class="c-str">5</span>, out_dim=<span class="c-str">1</span>, hidden=<span class="c-str">48</span>, layers=<span class="c-str">3</span>)
-<span class="c-com"># scale raw physical units in, temperature out -- fixed layers around the trained MLP</span>
-model = torch.nn.Sequential(_Scale(_SCALES, divide=<span class="c-kw">True</span>), core.model, _Scale(_T_SCALE, divide=<span class="c-kw">False</span>))
-sur = PhysicsSurrogate(model, core.cfg)
-sur.train_on_dataset({<span class="c-str">"theta"</span>: X_train, <span class="c-str">"u"</span>: y_train}, epochs=<span class="c-str">400</span>, lr=<span class="c-str">3e-3</span>)</pre>
+        <div class="code-title">heatsink_fins.py — the trained surrogate</div>
+        <pre><span class="c-kw">def</span> <span class="c-fn">train_surrogate</span>(n_samples=<span class="c-str">6000</span>, epochs=<span class="c-str">1500</span>, seed=<span class="c-str">0</span>):
+    <span class="c-com"># labels: thermal resistance R from the fin-array formula; the MLP learns log R</span>
+    X, y = generate_dataset(n_samples, seed)
+    <span class="c-kw">return</span> fit_surrogate(X, y, SURROGATE_BOUNDS, epochs=epochs, seed=seed, log_output=<span class="c-kw">True</span>)
+
+<span class="c-kw">def</span> <span class="c-fn">predict_temperature_c</span>(surrogate, design, power_w, h_conv):
+    x = torch.tensor([[design.fin_count, design.fin_height_m, design.fin_thickness_m, h_conv]])
+    <span class="c-kw">return</span> T_AMBIENT_C + power_w * float(surrogate(x)[<span class="c-str">0</span>])</pre>
       </div>
 
       <div class="code-card">
@@ -483,7 +486,7 @@ sur.train_on_dataset({<span class="c-str">"theta"</span>: X_train, <span class="
   </div>
 
   <div class="footer">
-    The surrogate is trained on the closed-form fin-array model (<code>pinneapple_physics.closed_form.fin_array_conduction</code>) and checked against an independent finite-volume solve (<code>pinneapple_simulation.numerical_solvers.fin_cell_fv</code>). <b>Built on PINNeAPPle</b>. Seven fixed designs; the speed ratio is specific to this reference solver and this machine.
+    The surrogate is trained on the closed-form fin-array model (<code>pinneapple_physics.closed_form.fin_array_conduction</code>) and checked against an independent finite-volume solve (<code>pinneapple_design.thermal.fin_cell</code>). <b>Built on PINNeAPPle</b>. Seven fixed designs; the speed ratio is specific to this reference solver and this machine.
   </div>
 </div>
 

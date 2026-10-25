@@ -4,7 +4,7 @@ last 24 h, forecast through the last 24 h and checked against what the river act
 Glue only: the twin is ``pinneapple_systems.digital_twin.recession.run_twin`` and the data client is
 ``pinneapple_systems.digital_twin.io.usgs`` (public-domain USGS data, downloaded at run time, never stored).
 
-Run:  uvicorn predictive_twin.api:app --port 8164   (from apps/predictive_twin)
+Run:  uvicorn predictive_twin.api:app --port 8184   (from apps/predictive_twin)
 
 Environment (all optional): PTWIN_USER / PTWIN_PASSWORD (or PTWIN_PASSWORD_HASH) for an HTTP Basic login on
 everything except /health; PTWIN_SITE_ID the USGS gauge (default 01646500, Potomac River near Washington, DC);

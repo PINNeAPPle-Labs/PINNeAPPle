@@ -1,6 +1,6 @@
 # Surrogate Speed -- build from the repository root:
 #   docker build -f apps/surrogate_speed/Dockerfile -t surrogate-speed .
-#   docker run -p 8165:8165 surrogate-speed
+#   docker run -p 8185:8185 surrogate-speed
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
@@ -20,7 +20,7 @@ USER 10001:0
 
 ENV PYTHONPATH=/srv:/srv/apps/surrogate_speed:/srv/apps/_shared
 WORKDIR /srv/apps/surrogate_speed
-EXPOSE 8165
-HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8165/health')"
+EXPOSE 8185
+HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8185/health')"
 # the surrogate and the sweep live in this one worker
-CMD ["uvicorn", "surrogate_speed.api:app", "--host", "0.0.0.0", "--port", "8165", "--workers", "1"]
+CMD ["uvicorn", "surrogate_speed.api:app", "--host", "0.0.0.0", "--port", "8185", "--workers", "1"]

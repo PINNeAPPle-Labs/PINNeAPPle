@@ -1,23 +1,24 @@
-"""pinneapple_analysis.uncertainty.margin and pinneapple_physics.closed_form.vented_rotor (ported from the tests of
-PINNeAPPle-apps poc_verification_gap)."""
+"""pinneapple_analysis.uncertainty.margin on the brake rotor of pinneapple_design.surrogate_inverse.brake_rotor (ported
+from the tests of PINNeAPPle-apps poc_verification_gap)."""
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
 from pinneapple_analysis.uncertainty.margin import corner_stackup, margin_study, summarize_samples
-from pinneapple_physics.closed_form.vented_rotor import (
-    VentedRotor,
-    radial_profile,
+from pinneapple_design.surrogate_inverse.brake_rotor import (
+    BASELINE_DESIGN,
+    RotorDesign,
     rotor_temperature_c,
+    thermal_field,
 )
 
-R = VentedRotor()
+R = BASELINE_DESIGN
 TOL = [0.05e-3, 0.1e-3]
 
 
 def temp(X, h=40.0):
-    return np.array([rotor_temperature_c(R.with_(vane_thickness_m=t, vane_gap_m=g), 1480.0, h) for t, g in X])
+    return np.array([rotor_temperature_c(RotorDesign(R.vane_count, g, t), 1480.0, h) for t, g in X])
 
 
 def test_nominal_matches_the_source_projects_baseline():
@@ -26,8 +27,8 @@ def test_nominal_matches_the_source_projects_baseline():
 
 def test_highway_airflow_is_much_cooler_and_the_vane_is_hottest_at_the_root():
     assert rotor_temperature_c(R, 1480.0, 120.0) < rotor_temperature_c(R, 1480.0, 40.0) - 200
-    p = radial_profile(R, 1480.0, 40.0)
-    assert p["theta_vane_base_c"] > 0 and p["r_outer_mm"] > p["r_inner_mm"]
+    p = thermal_field(R, 1480.0, 40.0)
+    assert p["theta_vane_base_c"] > 0 and p["lc_radial_m"] > 0
 
 
 def test_worst_corner_is_thinnest_vane_and_smallest_gap():

@@ -1,6 +1,6 @@
 # Design Optimization -- build from the repository root:
 #   docker build -f apps/design_optimization/Dockerfile -t design-optimization .
-#   docker run -p 8161:8161 design-optimization
+#   docker run -p 8181:8181 design-optimization
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
@@ -20,7 +20,7 @@ USER 10001:0
 
 ENV PYTHONPATH=/srv:/srv/apps/design_optimization:/srv/apps/_shared
 WORKDIR /srv/apps/design_optimization
-EXPOSE 8161
-HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8161/health')"
+EXPOSE 8181
+HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8181/health')"
 # each request trains a small surrogate; one torch process
-CMD ["uvicorn", "design_optimization.api:app", "--host", "0.0.0.0", "--port", "8161", "--workers", "1"]
+CMD ["uvicorn", "design_optimization.api:app", "--host", "0.0.0.0", "--port", "8181", "--workers", "1"]

@@ -1,6 +1,6 @@
 # Parameter Discovery -- build from the repository root:
 #   docker build -f apps/parameter_discovery/Dockerfile -t parameter-discovery .
-#   docker run -p 8163:8163 parameter-discovery
+#   docker run -p 8183:8183 parameter-discovery
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 OMP_NUM_THREADS=1
@@ -20,7 +20,7 @@ USER 10001:0
 
 ENV PYTHONPATH=/srv:/srv/apps/parameter_discovery:/srv/apps/_shared
 WORKDIR /srv/apps/parameter_discovery
-EXPOSE 8163
-HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8163/health')"
+EXPOSE 8183
+HEALTHCHECK --start-period=60s CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8183/health')"
 # the PINN trains in a background thread of this one worker
-CMD ["uvicorn", "parameter_discovery.api:app", "--host", "0.0.0.0", "--port", "8163", "--workers", "1"]
+CMD ["uvicorn", "parameter_discovery.api:app", "--host", "0.0.0.0", "--port", "8183", "--workers", "1"]

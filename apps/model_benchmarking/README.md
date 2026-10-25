@@ -43,7 +43,7 @@ Vanilla PINN runs ranged 2.5-41 %, which was not re-measured here.
 # from the repository root
 pip install -e . fastapi "uvicorn[standard]"
 cd apps/model_benchmarking
-PYTHONPATH=../_shared uvicorn model_benchmarking.api:app --port 8162      # open http://localhost:8162
+PYTHONPATH=../_shared uvicorn model_benchmarking.api:app --port 8182      # open http://localhost:8182
 ```
 
 A run starts at startup. `GET /api/sweep_status` (progress, result, the epoch budgets), `POST /api/run_sweep` (409

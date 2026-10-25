@@ -40,7 +40,7 @@ keep `OMP_NUM_THREADS=1` (the Dockerfile sets it).
 # from the repository root
 pip install -e . fastapi "uvicorn[standard]"
 cd apps/parameter_discovery
-PYTHONPATH=../_shared uvicorn parameter_discovery.api:app --port 8163      # open http://localhost:8163
+PYTHONPATH=../_shared uvicorn parameter_discovery.api:app --port 8183      # open http://localhost:8183
 ```
 
 A run starts at startup. `GET /api/discovery/status` (progress: step, loss, current α; the result when done),

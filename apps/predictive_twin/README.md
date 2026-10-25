@@ -39,7 +39,7 @@ regime. The synthetic offline record checks the pipeline: an 6 % step in the com
 # from the repository root
 pip install -e . fastapi "uvicorn[standard]"
 cd apps/predictive_twin
-PYTHONPATH=../_shared uvicorn predictive_twin.api:app --port 8164      # open http://localhost:8164
+PYTHONPATH=../_shared uvicorn predictive_twin.api:app --port 8184      # open http://localhost:8184
 ```
 
 Routes: `GET /api/scenario`, `GET /health`. Environment: `PTWIN_USER` / `PTWIN_PASSWORD` (or

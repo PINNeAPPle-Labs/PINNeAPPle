@@ -30,7 +30,7 @@ laptop, not reproduced here.
 # from the repository root
 pip install -e . fastapi "uvicorn[standard]"
 cd apps/design_optimization
-PYTHONPATH=../_shared uvicorn design_optimization.api:app --port 8161      # open http://localhost:8161
+PYTHONPATH=../_shared uvicorn design_optimization.api:app --port 8181      # open http://localhost:8181
 ```
 
 Docker (from the repository root): `docker build -f apps/design_optimization/Dockerfile -t design-optimization .`.

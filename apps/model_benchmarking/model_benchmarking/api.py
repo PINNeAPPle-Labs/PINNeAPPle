@@ -5,7 +5,7 @@ Glue only: the run is ``pinneapple_arena.showcase.run_benchmark``. A full run ta
 a background thread and the page polls ``GET /api/sweep_status``; ``POST /api/run_sweep`` starts a new run (409
 while one is running).
 
-Run:  uvicorn model_benchmarking.api:app --port 8162   (from apps/model_benchmarking)
+Run:  uvicorn model_benchmarking.api:app --port 8182   (from apps/model_benchmarking)
 
 Environment (all optional): MBENCH_USER / MBENCH_PASSWORD (or MBENCH_PASSWORD_HASH) for an HTTP Basic login on
 everything except /health; MBENCH_AUTOSTART=0 to not start a run at startup; MBENCH_EPOCH_SCALE (default 1) scales

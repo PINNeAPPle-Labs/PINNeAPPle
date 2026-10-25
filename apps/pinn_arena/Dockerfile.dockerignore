@@ -1,0 +1,16 @@
+.git
+**/__pycache__
+**/*.pyc
+data
+!data/bundles
+examples
+notebooks
+benchmarks
+docs
+tests
+projects
+pinneapple_app/frontend
+apps/*/artifacts/dataset_*
+**/node_modules
+**/dist
+apps/pinn_arena/pinn_arena/static

@@ -7,7 +7,7 @@
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 181
+  "example": 183
  },
  "kinds": {
   "tool": "Tools",
@@ -126,7 +126,7 @@
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 181
+   "example": 183
   },
   "subkind": {
    "library call": 249,
@@ -147,7 +147,7 @@
    "system dynamics": 41,
    "heat transfer": 28,
    "science / physics.electromagnetism": 20,
-   "electromagnetics": 14,
+   "electromagnetics": 16,
    "vehicle dynamics": 14,
    "time series": 9,
    "flight dynamics": 8,
@@ -201,7 +201,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 563,
+   "not graded": 565,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -31052,7 +31052,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.get_spec",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L26"
+    "source": ""
    },
    "extra": {
     "calls": "pinneapple_data.formfill:get_spec",
@@ -35414,7 +35414,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.list_specs",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L33"
+    "source": ""
    },
    "extra": {
     "calls": "pinneapple_data.formfill:list_specs",
@@ -37972,7 +37972,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.ocr_available",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/ocr.py#L31"
+    "source": ""
    },
    "extra": {
     "calls": "pinneapple_data.formfill:ocr_available",
@@ -64211,6 +64211,90 @@
    }
   },
   {
+   "id": "example:compact_range_qz",
+   "kind": "example",
+   "name": "compact_range_qz",
+   "title": "Compact range quiet zone: feed gain x reflector size",
+   "summary": "",
+   "description": "",
+   "domain": "electromagnetics",
+   "tags": [
+    "Gaussian process",
+    "physical optics"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/use_cases/antennas/results/compact_range"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/use_cases/antennas/results/compact_range\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "po_disk_max_rel_error",
+      "value": 0.001108988630067284,
+      "unit": "",
+      "how": "PO disk on axis vs closed form, lambda/16 mesh"
+     },
+     {
+      "name": "po_vs_go_rms_dB",
+      "value": 0.4959877175658075,
+      "unit": "dB",
+      "how": "smooth PO QZ amplitude vs GO taper"
+     },
+     {
+      "name": "reference_ripple_pp_dB",
+      "value": 2.5141311501880343,
+      "unit": "dB",
+      "how": "PO, reference design"
+     },
+     {
+      "name": "reference_usable_diameter_m",
+      "value": 0.13324109244444446,
+      "unit": "m",
+      "how": "within +-0.5 dB / +-5 deg"
+     },
+     {
+      "name": "evaluation_s_median",
+      "value": 28.125999999999998,
+      "unit": "s",
+      "how": "PO mesh + QZ field per design"
+     }
+    ],
+    "figures": [
+     "examples/use_cases/antennas/results/compact_range/qz_reference.png",
+     "examples/use_cases/antennas/results/compact_range/tradeoff_roll0.png",
+     "examples/use_cases/antennas/results/compact_range/tradeoff_roll0.15.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#compact_range_qz"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "8cc985c59c7b05a8",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 1.06,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Compact range quiet zone: feed gain x reflector size | electromagnetics | not curated\npo_disk_max_rel_error 0.001108988630067284 \npo_vs_go_rms_dB 0.4959877175658075 dB\nreference_ripple_pp_dB 2.5141311501880343 dB\nreference_usable_diameter_m 0.13324109244444446 m\nevaluation_s_median 28.125999999999998 s",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "example:examples/systems",
    "kind": "example",
    "name": "examples/systems",
@@ -84524,6 +84608,89 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Synthetic thermal-inspection data as USD scene variations, with a physics label check | physical AI | not curated\nwithin_4px_all_samples 0.2 \nwithin_4px_accepted_samples 0.26 \nwithin_4px_brightest_pixel 0.44",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:unit_cell_benchmark",
+   "kind": "example",
+   "name": "unit_cell_benchmark",
+   "title": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation",
+   "summary": "",
+   "description": "",
+   "domain": "electromagnetics",
+   "tags": [
+    "Bayesian optimisation",
+    "FEM (EMerge, Floquet)",
+    "FNO"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/use_cases/antennas/results/unit_cell"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/use_cases/antennas/results/unit_cell\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "cell_wall_s_median",
+      "value": 93.0,
+      "unit": "s",
+      "how": "one EMerge process per cell: 7 frequencies x 4 scans"
+     },
+     {
+      "name": "cell_max_rss_mb",
+      "value": 2039.0,
+      "unit": "MB",
+      "how": "peak RSS of a cell process"
+     },
+     {
+      "name": "fno_heldout_rmse_dB",
+      "value": 2.264688414031629,
+      "unit": "dB",
+      "how": "16 unseen cells"
+     },
+     {
+      "name": "fno_optimizer_best_dB",
+      "value": -6.543068986377335,
+      "unit": "dB",
+      "how": "solver value, 24 calls"
+     },
+     {
+      "name": "bayesian_best_dB",
+      "value": -6.720940250952603,
+      "unit": "dB",
+      "how": "solver value, 24 calls"
+     }
+    ],
+    "figures": [
+     "examples/use_cases/antennas/results/unit_cell/unit_cell_benchmark.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#unit_cell_benchmark"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "2994e0f247402c82",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 1.21,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation | electromagnetics | not curated\ncell_wall_s_median 93.0 s\ncell_max_rss_mb 2039.0 MB\nfno_heldout_rmse_dB 2.264688414031629 dB\nfno_optimizer_best_dB -6.543068986377335 dB\nbayesian_best_dB -6.720940250952603 dB",
     "timed_out": false,
     "status": "ok"
    }

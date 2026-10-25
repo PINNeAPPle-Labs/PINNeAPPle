@@ -365,7 +365,7 @@
     </div>
 
     <div class="pinn-note">
-      <b>Built on PINNeAPPle.</b> The rotor model is <code>pinneapple_physics.closed_form.vented_rotor</code> on top of <code>fin_array_conduction</code>; the sampling, the corner stack-up and the six checks are <code>pinneapple_analysis.uncertainty.margin.margin_study</code> (which draws with <code>pp.propagate_tolerances</code>), and the decision is a <code>TrustReport</code>. This page only calls them.
+      <b>Built on PINNeAPPle.</b> The rotor model is <code>pinneapple_design.surrogate_inverse.brake_rotor</code> on top of <code>fin_array_conduction</code>; the sampling, the corner stack-up and the six checks are <code>pinneapple_analysis.uncertainty.margin.margin_study</code> (which draws with <code>pp.propagate_tolerances</code>), and the decision is a <code>TrustReport</code>. This page only calls them.
     </div>
   </div>
 
@@ -394,11 +394,10 @@
     <div class="code-card">
       <div class="code-title">the Monte Carlo margin study (pinneapple_analysis.uncertainty.margin)</div>
       <pre><span class="c-kw">from</span> pinneapple_analysis.uncertainty.margin <span class="c-kw">import</span> margin_study
-<span class="c-kw">from</span> pinneapple_physics.closed_form.vented_rotor <span class="c-kw">import</span> VentedRotor, rotor_temperature_c
+<span class="c-kw">from</span> pinneapple_design.surrogate_inverse.brake_rotor <span class="c-kw">import</span> RotorDesign, rotor_temperature_c
 
-rotor = VentedRotor()          <span class="c-com"># 36 vanes, 8 mm gap, 4 mm thick, cast iron</span>
-<span class="c-kw">def</span> <span class="c-fn">temperature</span>(X):           <span class="c-com"># rows: (vane thickness, vent gap)</span>
-    <span class="c-kw">return</span> [rotor_temperature_c(rotor.with_(vane_thickness_m=t, vane_gap_m=g), <span class="c-str">1480</span>, <span class="c-str">40</span>) <span class="c-kw">for</span> t, g <span class="c-kw">in</span> X]
+<span class="c-kw">def</span> <span class="c-fn">temperature</span>(X):           <span class="c-com"># rows: (vane thickness, vent gap); 36 cast-iron vanes</span>
+    <span class="c-kw">return</span> [rotor_temperature_c(RotorDesign(<span class="c-str">36</span>, g, t), <span class="c-str">1480</span>, <span class="c-str">40</span>) <span class="c-kw">for</span> t, g <span class="c-kw">in</span> X]
 
 study = margin_study(temperature, [<span class="c-str">0.004</span>, <span class="c-str">0.008</span>], [<span class="c-str">0.05e-3</span>, <span class="c-str">0.1e-3</span>], limit=<span class="c-str">500</span>, n=<span class="c-str">200</span>)
 study[<span class="c-str">"summary"</span>][<span class="c-str">"verdict"</span>], study[<span class="c-str">"decision"</span>]   <span class="c-com"># MARGINAL, REVIEW</span></pre>

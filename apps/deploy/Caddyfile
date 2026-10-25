@@ -386,6 +386,18 @@
 	}
 }
 
+{$PINN_ARENA_DOMAIN} {
+	import common
+	request_body {
+		max_size 60MB
+	}
+	reverse_proxy pinnarena:8130 {
+		transport http {
+			read_timeout 300s
+		}
+	}
+}
+
 {$MDL_DOMAIN} {
 	import common
 	request_body {
@@ -470,12 +482,72 @@
 	}
 }
 
+{$HSD_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy hsdesign:8160 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$BRAKE_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy brakecool:8161 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$PATCH_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy patchdose:8162 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$RIDE_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy ridetune:8163 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
+{$SOUND_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy soundshape:8164 {
+		transport http {
+			read_timeout 120s
+		}
+	}
+}
+
 {$VGAP_DOMAIN} {
 	import common
 	request_body {
 		max_size 1MB
 	}
-	reverse_proxy vgap:8160 {
+	reverse_proxy vgap:8180 {
 		transport http {
 			read_timeout 60s
 		}
@@ -487,7 +559,7 @@
 	request_body {
 		max_size 1MB
 	}
-	reverse_proxy dopt:8161 {
+	reverse_proxy dopt:8181 {
 		transport http {
 			read_timeout 600s
 		}
@@ -499,7 +571,7 @@
 	request_body {
 		max_size 1MB
 	}
-	reverse_proxy mbench:8162 {
+	reverse_proxy mbench:8182 {
 		transport http {
 			read_timeout 60s
 		}
@@ -511,7 +583,7 @@
 	request_body {
 		max_size 1MB
 	}
-	reverse_proxy pdisc:8163 {
+	reverse_proxy pdisc:8183 {
 		transport http {
 			read_timeout 60s
 		}
@@ -523,7 +595,7 @@
 	request_body {
 		max_size 1MB
 	}
-	reverse_proxy ptwin:8164 {
+	reverse_proxy ptwin:8184 {
 		transport http {
 			read_timeout 60s
 		}
@@ -535,7 +607,7 @@
 	request_body {
 		max_size 1MB
 	}
-	reverse_proxy sspeed:8165 {
+	reverse_proxy sspeed:8185 {
 		transport http {
 			read_timeout 60s
 		}

@@ -13,6 +13,22 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 
 ## [Unreleased]
 
+### Added
+- `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
+  verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
+  `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,
+  `reflex_port`) with triangle meshes of the parts (`meshes`). Imported from PINNeAPPle-apps.
+- `pinneapple_design.thermal.fin_cell.solve_fin_cell`: 2-D finite-volume conduction in one fin pitch (energy balance,
+  grid-refinement check), an independent check of the fin-array formula.
+- `pinneapple_design.geometry.bodies.annulus`; `apps/_shared/static/shared/stl.js` (binary STL to three.js geometry).
+- Apps HeatSink Design AI (`apps/heatsink_inverse_ai`), BrakeCool AI (`apps/brakecool_ai`), PatchDose AI
+  (`apps/patchdose_ai`), RideTune AI (`apps/ridetune_ai`) and SoundShape AI (`apps/soundshape_ai`), with Dockerfiles,
+  tests and deploy entries (ports 8160-8164).
+
+### Changed
+- **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
+  "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
+
 ### Fixed
 - `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
   system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
@@ -28,13 +44,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ### Added
 - Six apps from PINNeAPPle-apps (the `poc_*` case studies), each a page plus routes over library code:
   `apps/verification_gap`, `apps/design_optimization`, `apps/model_benchmarking`, `apps/parameter_discovery`,
-  `apps/predictive_twin`, `apps/surrogate_speed` (ports 8160-8165; logins `<PREFIX>_USER` / `<PREFIX>_PASSWORD`).
+  `apps/predictive_twin`, `apps/surrogate_speed` (ports 8180-8185; logins `<PREFIX>_USER` / `<PREFIX>_PASSWORD`).
   Their computation moved into the library, with tests:
   - `pinneapple_analysis.uncertainty.margin`: `margin_study(fn, nominal, tolerances, limit)` (Monte Carlo p95 against
     a limit with a Wilson interval on the pass fraction, ROBUST / MARGINAL / FRAGILE, six checks of the study and a
     `TrustReport` decision) and `corner_stackup`;
-  - `pinneapple_physics.closed_form.vented_rotor` (brake-rotor vanes as a fin array) and
-    `pinneapple_physics.closed_form.thin_airfoil` (thin-airfoil lift of NACA 4-digit camber lines, Hoerner profile
+  - `pinneapple_physics.closed_form.thin_airfoil` (thin-airfoil lift of NACA 4-digit camber lines, Hoerner profile
     drag);
   - `pinneapple_design.design_optimizer.airfoil_drag.run_design_optimization` (surrogate-driven drag reduction at
     constant lift, every iterate re-evaluated on the closed form);
@@ -45,10 +60,30 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   - `pinneapple_systems.digital_twin.recession` (baseflow recession fit, forecast, sustained-departure detector,
     `run_twin`) and `pinneapple_systems.digital_twin.io.usgs` (USGS Instantaneous Values client, standard library
     only; data downloaded at run time);
-  - `pinneapple_simulation.numerical_solvers.fin_cell_fv.solve_fin_cell` (finite-volume fin unit cell; within 1 %
-    of the 1-D fin formula on slender fins, 1.3 % on thick sparse fins) and `pinneapple_design.thermal.fin_array_speed`
-    (surrogate vs numerical solve timing and agreement); `pinneapple_design.thermal.meshes` (plate-fin and
-    vented-rotor triangle meshes).
+  - `pinneapple_design.thermal.fin_array_speed` (surrogate vs numerical solve timing and agreement, on
+    `pinneapple_design.surrogate_inverse.heatsink_fins` and `pinneapple_design.thermal.fin_cell`).
+  The rotor and heat-sink apps reuse `pinneapple_design.surrogate_inverse.brake_rotor` / `heatsink_fins`.
+- Reflector antennas and compact ranges by physical optics (`pinneapple_simulation.electromagnetics.reflector`):
+  offset paraboloid sections with superellipse junctions and blended rolled edges, `cos^q` feeds (Ludwig-3, 1 W),
+  PO currents and their exact near field (dyadic Green's function), quiet-zone metrics (taper, ripple, phase, usable
+  diameter within ±0.5 dB / ±5°), checks against the closed-form PO disk field and the GO aperture taper, a feed gain ×
+  reflector size × rolled-edge sweep with Gaussian-process surrogates (random and leave-one-size-out held-out errors)
+  and trade-off maps; example `examples/use_cases/antennas/compact_range_qz.py`, guide `docs/guides/compact_range.md`.
+- Periodic unit cells (`pinneapple_simulation.electromagnetics.periodic`): a generic TCDA cell for EMerge Floquet runs
+  (periodic boundaries with the scan phase, one mesh for every scan angle), DOE campaigns through the runner, the
+  (frequency × scan) dataset, an FNO with held-out error (`pinneapple_analysis.surrogate`), and the equal-budget
+  comparison of FNO + optimiser against Bayesian optimisation on the solver; example
+  `examples/use_cases/antennas/unit_cell_benchmark.py`, guide `docs/guides/unit_cell_benchmark.md`.
+  `GPModel(features=...)` and `surrogates.columns` fit the antenna GP on any design space; `CLISimulator(extra_args=)`.
+- PINNeAPPle Arena app (`apps/pinn_arena`, port 8130, prefix `PINN_ARENA`, imported from PINNeAPPle-arena): train
+  registry architectures head to head on 34 problems, a leaderboard of the server's own runs (starts empty), optional
+  GitHub sign-in, React frontend built in the Dockerfile; deploy service `pinnarena`.
+- `pinneapple_arena.pointwise`: the arena's problems, reference data, PDE residuals, pointwise / closed-form model
+  adapters, training protocol, field metrics, leaderboard aggregation and upload parsing. An architecture the
+  registry can not build is reported as failed (`ArchitectureUnavailable`), never replaced by a stand-in model.
+- `pinneapple_arena.external`: references to 95 third-party physics-ML libraries (repository, licence with the file
+  or metadata it was read from, citation, install) and the glue runners that import them at run time, with an honest
+  status per result; `python -m pinneapple_arena.external`.
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that

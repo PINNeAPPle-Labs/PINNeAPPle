@@ -658,6 +658,32 @@ services:
     expose: ["8105"]
     mem_limit: ${ARN_MEM_LIMIT:-1g}
 
+  pinnarena:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/pinn_arena/Dockerfile
+    image: pinneapple/pinn-arena:latest
+    restart: unless-stopped
+    environment:
+      PINN_ARENA_USER: ${PINN_ARENA_USER:-}
+      PINN_ARENA_PASSWORD: ${PINN_ARENA_PASSWORD:-}
+      PINN_ARENA_PASSWORD_HASH: ${PINN_ARENA_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PINN_ARENA_RATE_LIMIT: ${PINN_ARENA_RATE_LIMIT:-}
+      PINN_ARENA_ADMIN_TOKEN: ${PINN_ARENA_ADMIN_TOKEN:-}
+      PINN_ARENA_MAX_RUNNING: ${PINN_ARENA_MAX_RUNNING:-1}
+      PINN_ARENA_MAX_EPOCHS: ${PINN_ARENA_MAX_EPOCHS:-5000}
+      PINN_ARENA_MAX_ARCHITECTURES: ${PINN_ARENA_MAX_ARCHITECTURES:-8}
+      PINN_ARENA_FREE_EXPERIMENTS: ${PINN_ARENA_FREE_EXPERIMENTS:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}             # optional GitHub sign-in (unset: off)
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_CALLBACK_URL: ${GITHUB_CALLBACK_URL:-}
+      ARENA_JWT_SECRET: ${ARENA_JWT_SECRET:-}             # unset: a random key per start (sign-ins do not survive a restart)
+    volumes:
+      - pinnarena_data:/data      # SQLite (users, experiments), uploaded datasets, trained weights, usage, API keys
+    expose: ["8130"]
+    mem_limit: ${PINN_ARENA_MEM_LIMIT:-2g}
+
   models:
     <<: *app-hardening
     build:
@@ -815,6 +841,88 @@ services:
     expose: ["8116"]
     mem_limit: ${HUB_MEM_LIMIT:-2g}
 
+  # Surrogate inverse-design demos (pinneapple_design.surrogate_inverse): a small MLP trains in the background at
+  # start-up (a few seconds of one core); no volume, nothing is stored
+  hsdesign:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/heatsink_inverse_ai/Dockerfile
+    image: pinneapple/heatsink-design-ai:latest
+    restart: unless-stopped
+    environment:
+      HSD_USER: ${HSD_USER:-}
+      HSD_PASSWORD: ${HSD_PASSWORD:-}
+      HSD_PASSWORD_HASH: ${HSD_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      HSD_RATE_LIMIT: ${HSD_RATE_LIMIT:-}
+      HSD_EPOCHS: ${HSD_EPOCHS:-1500}
+    expose: ["8160"]
+    mem_limit: ${HSD_MEM_LIMIT:-1g}
+
+  brakecool:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/brakecool_ai/Dockerfile
+    image: pinneapple/brakecool-ai:latest
+    restart: unless-stopped
+    environment:
+      BRAKE_USER: ${BRAKE_USER:-}
+      BRAKE_PASSWORD: ${BRAKE_PASSWORD:-}
+      BRAKE_PASSWORD_HASH: ${BRAKE_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      BRAKE_RATE_LIMIT: ${BRAKE_RATE_LIMIT:-}
+      BRAKE_EPOCHS: ${BRAKE_EPOCHS:-1500}
+    expose: ["8161"]
+    mem_limit: ${BRAKE_MEM_LIMIT:-1g}
+
+  patchdose:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/patchdose_ai/Dockerfile
+    image: pinneapple/patchdose-ai:latest
+    restart: unless-stopped
+    environment:
+      PATCH_USER: ${PATCH_USER:-}
+      PATCH_PASSWORD: ${PATCH_PASSWORD:-}
+      PATCH_PASSWORD_HASH: ${PATCH_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PATCH_RATE_LIMIT: ${PATCH_RATE_LIMIT:-}
+      PATCH_EPOCHS: ${PATCH_EPOCHS:-1500}
+    expose: ["8162"]
+    mem_limit: ${PATCH_MEM_LIMIT:-1g}
+
+  ridetune:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/ridetune_ai/Dockerfile
+    image: pinneapple/ridetune-ai:latest
+    restart: unless-stopped
+    environment:
+      RIDE_USER: ${RIDE_USER:-}
+      RIDE_PASSWORD: ${RIDE_PASSWORD:-}
+      RIDE_PASSWORD_HASH: ${RIDE_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      RIDE_RATE_LIMIT: ${RIDE_RATE_LIMIT:-}
+      RIDE_EPOCHS: ${RIDE_EPOCHS:-1500}
+    expose: ["8163"]
+    mem_limit: ${RIDE_MEM_LIMIT:-1g}
+
+  soundshape:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/soundshape_ai/Dockerfile
+    image: pinneapple/soundshape-ai:latest
+    restart: unless-stopped
+    environment:
+      SOUND_USER: ${SOUND_USER:-}
+      SOUND_PASSWORD: ${SOUND_PASSWORD:-}
+      SOUND_PASSWORD_HASH: ${SOUND_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      SOUND_RATE_LIMIT: ${SOUND_RATE_LIMIT:-}
+      SOUND_EPOCHS: ${SOUND_EPOCHS:-1500}
+    expose: ["8164"]
+    mem_limit: ${SOUND_MEM_LIMIT:-1g}
+
   vgap:
     <<: *app-hardening
     build:
@@ -828,7 +936,7 @@ services:
       VGAP_PASSWORD_HASH: ${VGAP_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
       VGAP_RATE_LIMIT: ${VGAP_RATE_LIMIT:-}
       VGAP_MAX_HEAVY: ${VGAP_MAX_HEAVY:-4}
-    expose: ["8160"]
+    expose: ["8180"]
     mem_limit: ${VGAP_MEM_LIMIT:-1g}
 
   dopt:
@@ -844,7 +952,7 @@ services:
       DOPT_PASSWORD_HASH: ${DOPT_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
       DOPT_RATE_LIMIT: ${DOPT_RATE_LIMIT:-}
       DOPT_MAX_HEAVY: ${DOPT_MAX_HEAVY:-2}
-    expose: ["8161"]
+    expose: ["8181"]
     mem_limit: ${DOPT_MEM_LIMIT:-1g}
 
   mbench:
@@ -861,7 +969,7 @@ services:
       MBENCH_RATE_LIMIT: ${MBENCH_RATE_LIMIT:-}
       MBENCH_AUTOSTART: ${MBENCH_AUTOSTART:-1}
       MBENCH_EPOCH_SCALE: ${MBENCH_EPOCH_SCALE:-1}
-    expose: ["8162"]
+    expose: ["8182"]
     mem_limit: ${MBENCH_MEM_LIMIT:-1500m}
 
   pdisc:
@@ -878,7 +986,7 @@ services:
       PDISC_RATE_LIMIT: ${PDISC_RATE_LIMIT:-}
       PDISC_AUTOSTART: ${PDISC_AUTOSTART:-1}
       PDISC_EPOCHS: ${PDISC_EPOCHS:-2500}
-    expose: ["8163"]
+    expose: ["8183"]
     mem_limit: ${PDISC_MEM_LIMIT:-1g}
 
   ptwin:
@@ -895,7 +1003,7 @@ services:
       PTWIN_RATE_LIMIT: ${PTWIN_RATE_LIMIT:-}
       PTWIN_SITE_ID: ${PTWIN_SITE_ID:-01646500}
       PTWIN_OFFLINE: ${PTWIN_OFFLINE:-0}
-    expose: ["8164"]
+    expose: ["8184"]
     mem_limit: ${PTWIN_MEM_LIMIT:-768m}
 
   sspeed:
@@ -911,8 +1019,8 @@ services:
       SSPEED_PASSWORD_HASH: ${SSPEED_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
       SSPEED_RATE_LIMIT: ${SSPEED_RATE_LIMIT:-}
       SSPEED_AUTOSTART: ${SSPEED_AUTOSTART:-1}
-      SSPEED_TRAIN_EPOCHS: ${SSPEED_TRAIN_EPOCHS:-400}
-    expose: ["8165"]
+      SSPEED_TRAIN_EPOCHS: ${SSPEED_TRAIN_EPOCHS:-1500}
+    expose: ["8185"]
     mem_limit: ${SSPEED_MEM_LIMIT:-1g}
 
   caddy:
@@ -954,6 +1062,7 @@ services:
       MESHLESS_DOMAIN: ${MESHLESS_DOMAIN:-meshless.localhost}
       SUR_DOMAIN: ${SUR_DOMAIN:-surrogate.localhost}
       ARN_DOMAIN: ${ARN_DOMAIN:-arena.localhost}
+      PINN_ARENA_DOMAIN: ${PINN_ARENA_DOMAIN:-pinnarena.localhost}
       MDL_DOMAIN: ${MDL_DOMAIN:-models.localhost}
       TWIN_DOMAIN: ${TWIN_DOMAIN:-twin.localhost}
       ANOMALY_DOMAIN: ${ANOMALY_DOMAIN:-anomaly.localhost}
@@ -961,6 +1070,11 @@ services:
       EDO_DOMAIN: ${EDO_DOMAIN:-optimize.localhost}
       PDO_DOMAIN: ${PDO_DOMAIN:-design.localhost}
       HUB_DOMAIN: ${HUB_DOMAIN:-hub.localhost}
+      HSD_DOMAIN: ${HSD_DOMAIN:-heatsink-design.localhost}
+      BRAKE_DOMAIN: ${BRAKE_DOMAIN:-brakecool.localhost}
+      PATCH_DOMAIN: ${PATCH_DOMAIN:-patchdose.localhost}
+      RIDE_DOMAIN: ${RIDE_DOMAIN:-ridetune.localhost}
+      SOUND_DOMAIN: ${SOUND_DOMAIN:-soundshape.localhost}
       VGAP_DOMAIN: ${VGAP_DOMAIN:-vgap.localhost}
       DOPT_DOMAIN: ${DOPT_DOMAIN:-dopt.localhost}
       MBENCH_DOMAIN: ${MBENCH_DOMAIN:-mbench.localhost}
@@ -972,11 +1086,12 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub, vgap, dopt, mbench, pdisc, ptwin, sspeed]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, pinnarena, models, twin, anomaly, control, optimize, design, hub, hsdesign, brakecool, patchdose, ridetune, soundshape, vgap, dopt, mbench, pdisc, ptwin, sspeed]
 
 volumes:
   surrogate_data:
   arena_data:
+  pinnarena_data:
   models_data:
   twin_data:
   anomaly_data:

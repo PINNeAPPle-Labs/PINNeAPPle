@@ -3,15 +3,15 @@ agreement between them, over seven plate-fin designs.
 
 Glue only: the study is ``pinneapple_design.thermal.fin_array_speed`` (closed form
 ``pinneapple_physics.closed_form.fin_array_conduction``, reference
-``pinneapple_simulation.numerical_solvers.fin_cell_fv``), the mesh ``pinneapple_design.thermal.meshes``. The
+``pinneapple_design.thermal.fin_cell``), designs, surrogate and mesh ``pinneapple_design.surrogate_inverse.heatsink_fins``. The
 surrogate trains at startup (a few seconds); the sweep runs in a background thread and the page polls
 ``GET /api/sweep_status``; ``POST /api/run_sweep`` starts a new sweep.
 
-Run:  uvicorn surrogate_speed.api:app --port 8165   (from apps/surrogate_speed)
+Run:  uvicorn surrogate_speed.api:app --port 8185   (from apps/surrogate_speed)
 
 Environment (all optional): SSPEED_USER / SSPEED_PASSWORD (or SSPEED_PASSWORD_HASH) for an HTTP Basic login on
 everything except /health; SSPEED_AUTOSTART=0 to train and sweep on first request instead of at startup;
-SSPEED_TRAIN_EPOCHS (default 400) and SSPEED_GRID_CHECK=0 (skip the two finer grids) to shorten; the rest in
+SSPEED_TRAIN_EPOCHS (default 1500) and SSPEED_GRID_CHECK=0 (skip the finer-grid check) to shorten; the rest in
 apps/_shared/README.md.
 """
 from __future__ import annotations
@@ -25,20 +25,21 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from pinneapple_design.surrogate_inverse import heatsink_fins as hf
 from pinneapple_design.thermal import fin_array_speed as fas
-from pinneapple_design.thermal.meshes import mesh_payload, plate_fin_mesh
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "_shared"))
 from appkit import install  # noqa: E402
 
 VERSION = "1.0.0"
 STATIC = Path(__file__).resolve().parent / "static"
-EPOCHS = int(os.environ.get("SSPEED_TRAIN_EPOCHS") or 400)
+EPOCHS = int(os.environ.get("SSPEED_TRAIN_EPOCHS") or 1500)
 GRID_CHECK = (os.environ.get("SSPEED_GRID_CHECK") or "1") != "0"
 
 _state: dict[str, Any] = {"surrogate": None, "val_rel_error": None, "training_time_s": None,
@@ -61,7 +62,7 @@ def _run() -> None:
     try:
         _ensure_surrogate()
         res = fas.run_sweep(_state["surrogate"], progress_cb=lambda i, n: sweep.update(progress=i),
-                            grid_check=GRID_CHECK)
+                            refine=GRID_CHECK)
         sweep.update(designs=res["designs"], summary=res["summary"], status="done")
     except Exception as exc:  # noqa: BLE001 -- shown on the page
         sweep.update(status="error", error=f"{type(exc).__name__}: {exc}")
@@ -101,7 +102,7 @@ def health():
 def sweep_status():
     return {"surrogate_trained": _state["surrogate"] is not None, "validation_relative_error": _state["val_rel_error"],
             "training_time_s": _state["training_time_s"], "agreement_threshold_pct": fas.AGREEMENT_THRESHOLD_PCT,
-            "reference_solver": "finite-volume fin unit cell (pinneapple_simulation.numerical_solvers.fin_cell_fv)",
+            "reference_solver": "finite-volume fin pitch (pinneapple_design.thermal.fin_cell)",
             "sweep": _state["sweep"]}
 
 
@@ -113,14 +114,8 @@ def run_sweep():
 
 @lru_cache(maxsize=8)
 def _mesh(name: str) -> dict:
-    spec = fas.design_by_name(name)
-    base_mm = fas.BASE_THICKNESS_M * 1000
-    V, F = plate_fin_mesh(fas.BASE_W_M * 1000, fas.BASE_D_M * 1000, base_mm, spec["fin_count"],
-                          spec["fin_thickness_m"] * 1000, spec["fin_height_m"] * 1000)
-    V[:, 0] -= fas.BASE_W_M * 500
-    V[:, 1] -= fas.BASE_D_M * 500
-    V[:, 2] -= base_mm / 2           # base plate centred on z = 0, fin roots at +t_base/2 (the page's convention)
-    return mesh_payload(V, F)
+    V, F = hf.mesh(fas.design_of(fas.design_by_name(name)))     # mm, base centred on z = 0, fin roots at +t_base/2
+    return {"positions": np.round(V, 4).ravel().tolist(), "indices": F.ravel().tolist()}
 
 
 @app.get("/api/mesh.json")

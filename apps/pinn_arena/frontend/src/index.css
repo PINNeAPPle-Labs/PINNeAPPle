@@ -1,0 +1,239 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme tokens (RGB triplets for Tailwind opacity modifier support) ─────── */
+:root {
+  --color-background:       248 250 252;  /* slate-50  */
+  --color-surface:          255 255 255;  /* white     */
+  --color-surface-elevated: 241 245 249;  /* slate-100 */
+  --color-border:           226 232 240;  /* slate-200 */
+  --color-border-strong:    203 213 225;  /* slate-300 */
+  --color-accent:           37 99 235;    /* blue-600  */
+  --color-accent-hover:     29 78 216;    /* blue-700  */
+  --color-success:          5 150 105;    /* emerald-600 */
+  --color-warning:          217 119 6;    /* amber-600 */
+  --color-danger:           220 38 38;    /* red-600   */
+  --color-muted:            100 116 139;  /* slate-500 */
+  --color-text-primary:     15 23 42;     /* slate-900 */
+  --color-text-secondary:   71 85 105;    /* slate-600 */
+  --color-text-muted:       100 116 139;  /* slate-500 */
+}
+
+.dark {
+  --color-background:       15 23 42;     /* slate-900 */
+  --color-surface:          30 41 59;     /* slate-800 */
+  --color-surface-elevated: 51 65 85;     /* slate-700 */
+  --color-border:           51 65 85;     /* slate-700 */
+  --color-border-strong:    71 85 105;    /* slate-600 */
+  --color-accent:           59 130 246;   /* blue-500  */
+  --color-accent-hover:     96 165 250;   /* blue-400  */
+  --color-success:          52 211 153;   /* emerald-400 */
+  --color-warning:          251 191 36;   /* amber-400 */
+  --color-danger:           248 113 113;  /* red-400   */
+  --color-muted:            148 163 184;  /* slate-400 */
+  --color-text-primary:     248 250 252;  /* slate-50  */
+  --color-text-secondary:   203 213 225;  /* slate-300 */
+  --color-text-muted:       148 163 184;  /* slate-400 */
+}
+
+/* ── Hardcoded Tailwind class overrides for dark mode ───────────────────────
+   Components using bg-white / bg-slate-* / text-slate-* directly (not via
+   custom tokens) are re-mapped here so they darken automatically.           */
+.dark .bg-white,
+.dark [class~="bg-white"] { background-color: rgb(var(--color-surface)) !important; }
+
+.dark .bg-slate-50,
+.dark [class~="bg-slate-50"]  { background-color: rgb(var(--color-surface)) !important; }
+
+.dark .bg-slate-100,
+.dark [class~="bg-slate-100"] { background-color: rgb(var(--color-surface-elevated)) !important; }
+
+.dark .bg-slate-200,
+.dark [class~="bg-slate-200"] { background-color: rgb(51 65 85) !important; }
+
+.dark .border-slate-200,
+.dark [class~="border-slate-200"] { border-color: rgb(var(--color-border)) !important; }
+
+.dark .border-slate-300,
+.dark [class~="border-slate-300"] { border-color: rgb(var(--color-border-strong)) !important; }
+
+.dark .text-slate-900,
+.dark [class~="text-slate-900"],
+.dark .text-slate-800,
+.dark [class~="text-slate-800"],
+.dark .text-slate-700,
+.dark [class~="text-slate-700"] { color: rgb(var(--color-text-primary)) !important; }
+
+.dark .text-slate-600,
+.dark [class~="text-slate-600"],
+.dark .text-slate-500,
+.dark [class~="text-slate-500"] { color: rgb(var(--color-text-secondary)) !important; }
+
+.dark .text-slate-400,
+.dark [class~="text-slate-400"],
+.dark .text-slate-300,
+.dark [class~="text-slate-300"] { color: rgb(var(--color-text-muted)) !important; }
+
+/* Card / panel backgrounds that use inline style="background: white" */
+.dark { color-scheme: dark; }
+
+/* ── Dark mode: colored light backgrounds (yellows, purples, greens, reds) ── */
+.dark .bg-yellow-50, .dark [class~="bg-yellow-50"],
+.dark .bg-amber-50,  .dark [class~="bg-amber-50"]  { background-color: rgb(var(--color-surface)) !important; }
+
+.dark .bg-purple-50, .dark [class~="bg-purple-50"],
+.dark .bg-violet-50, .dark [class~="bg-violet-50"] { background-color: rgb(var(--color-surface)) !important; }
+
+.dark .bg-green-50,  .dark [class~="bg-green-50"]  { background-color: rgb(var(--color-surface)) !important; }
+.dark .bg-red-50,    .dark [class~="bg-red-50"]    { background-color: rgb(var(--color-surface)) !important; }
+.dark .bg-blue-50,   .dark [class~="bg-blue-50"]   { background-color: rgb(var(--color-surface)) !important; }
+
+.dark .bg-yellow-100, .dark [class~="bg-yellow-100"],
+.dark .bg-amber-100,  .dark [class~="bg-amber-100"],
+.dark .bg-purple-100, .dark [class~="bg-purple-100"],
+.dark .bg-violet-100, .dark [class~="bg-violet-100"],
+.dark .bg-green-100,  .dark [class~="bg-green-100"],
+.dark .bg-red-100,    .dark [class~="bg-red-100"],
+.dark .bg-blue-100,   .dark [class~="bg-blue-100"]  { background-color: rgb(var(--color-surface-elevated)) !important; }
+
+/* ── Dark mode: gradient stop overrides — flatten light gradients to surface ── */
+.dark .from-yellow-50, .dark .from-amber-50,
+.dark .from-purple-50, .dark .from-violet-50,
+.dark .from-green-50,  .dark .from-red-50,
+.dark .from-white,     .dark .from-slate-50 {
+  --tw-gradient-from: rgb(var(--color-surface)) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.dark .via-yellow-50, .dark .via-amber-50,
+.dark .via-violet-50, .dark .via-purple-50 {
+  --tw-gradient-via: rgb(var(--color-surface)) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to) !important;
+}
+
+.dark .to-white,     .dark .to-slate-50,
+.dark .to-yellow-50, .dark .to-amber-50,
+.dark .to-purple-50, .dark .to-violet-50 {
+  --tw-gradient-to: rgb(var(--color-surface)) !important;
+}
+
+/* ── Dark mode: colored borders ─────────────────────────────────────────── */
+.dark .border-yellow-200, .dark .border-amber-200,
+.dark .border-purple-200, .dark .border-violet-200,
+.dark .border-green-200,  .dark .border-red-200,
+.dark .border-blue-200    { border-color: rgb(var(--color-border)) !important; }
+
+.dark .border-yellow-300, .dark .border-amber-300,
+.dark .border-purple-300, .dark .border-violet-300,
+.dark .border-green-300,  .dark .border-red-300    { border-color: rgb(var(--color-border-strong)) !important; }
+
+/* ── Dark mode: hover:bg-slate-* inside tables/rows ─────────────────────── */
+.dark .hover\:bg-slate-50:hover { background-color: rgb(var(--color-surface-elevated)) !important; }
+
+/* ── Dark mode: progress bar tracks ────────────────────────────────────── */
+.dark .bg-slate-200 { background-color: rgb(var(--color-surface-elevated)) !important; }
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: rgb(var(--color-background));
+    color: rgb(var(--color-text-primary));
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgb(var(--color-surface-elevated)); }
+  ::-webkit-scrollbar-thumb { background: rgb(var(--color-border-strong)); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--color-muted)); }
+
+  * { scrollbar-width: thin; scrollbar-color: rgb(var(--color-border-strong)) rgb(var(--color-surface-elevated)); }
+
+  ::selection {
+    background: rgba(37, 99, 235, 0.15);
+    color: rgb(var(--color-text-primary));
+  }
+}
+
+code, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@layer components {
+  .equation {
+    @apply font-mono text-sm bg-surface-elevated px-3 py-2 rounded border border-border text-accent overflow-x-auto;
+  }
+
+  .glass-card {
+    background: rgb(var(--color-surface));
+    border: 1px solid rgb(var(--color-border));
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .glass-card:hover {
+    border-color: rgb(var(--color-border-strong));
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .nav-link {
+    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-all duration-200 text-sm font-medium;
+  }
+
+  .nav-link.active { @apply text-white bg-accent; }
+  .metric-good     { @apply text-success; }
+  .metric-bad      { @apply text-danger; }
+  .metric-neutral  { @apply text-text-secondary; }
+  .step-active     { @apply bg-accent text-white; }
+  .step-completed  { @apply bg-accent text-white; }
+  .step-inactive   { @apply bg-surface-elevated text-text-muted border border-border; }
+}
+
+@layer utilities {
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+}
+
+/* Recharts customization */
+.recharts-tooltip-wrapper { outline: none !important; }
+
+.recharts-default-tooltip {
+  background: rgb(var(--color-surface)) !important;
+  border: 1px solid rgb(var(--color-border)) !important;
+  border-radius: 8px !important;
+  color: rgb(var(--color-text-primary)) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+.recharts-tooltip-label { color: rgb(var(--color-text-muted)) !important; }
+
+/* Recharts dark mode — grid lines, axes, legend text */
+.dark .recharts-cartesian-grid line { stroke: rgb(var(--color-border)) !important; }
+.dark .recharts-xAxis .recharts-cartesian-axis-tick text,
+.dark .recharts-yAxis .recharts-cartesian-axis-tick text { fill: rgb(var(--color-text-muted)) !important; }
+.dark .recharts-legend-item-text { color: rgb(var(--color-text-secondary)) !important; }
+
+/* Loading animation */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg,
+    rgb(var(--color-surface-elevated)) 25%,
+    rgb(var(--color-border))           50%,
+    rgb(var(--color-surface-elevated)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

@@ -5,7 +5,7 @@ Glue only: the study is ``pinneapple_analysis.inverse_problems.heat_diffusivity.
 (2,500 Adam steps) takes a minute or two on a CPU, so it runs in a background thread and the page polls
 ``GET /api/discovery/status``; ``POST /api/discovery/run`` starts a new one (409 while one is running).
 
-Run:  uvicorn parameter_discovery.api:app --port 8163   (from apps/parameter_discovery)
+Run:  uvicorn parameter_discovery.api:app --port 8183   (from apps/parameter_discovery)
 
 Environment (all optional): PDISC_USER / PDISC_PASSWORD (or PDISC_PASSWORD_HASH) for an HTTP Basic login on
 everything except /health; PDISC_AUTOSTART=0 to not start a run at startup; PDISC_EPOCHS (default 2500) and

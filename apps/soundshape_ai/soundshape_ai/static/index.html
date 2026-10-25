@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SoundShape AI</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a0b0d; --card:#14161c; --border:#232630; --text:#e8e9ec; --dim:#8b8f9a; --faint:#5b5f6b; --accent:#c17ce8; --green:#3ecf8e; --green-dim:#123024; --amber:#e8b44a; --amber-dim:#332711; --red:#ef5b5b; --red-dim:#3a1717; }
+  * { box-sizing: border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; margin:0; background:var(--bg); color:var(--text); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 13.5px; margin-bottom: 20px; line-height: 1.5; max-width: 800px; }
+  .layout { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--dim); margin: 0 0 14px; font-weight: 650; }
+  label { display: block; font-size: 12.5px; color: var(--dim); margin-bottom: 4px; }
+  .slider-row { margin-bottom: 16px; }
+  .slider-row .value { color: var(--accent); font-weight: 650; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  input[type=number], select { background: #0e1015; border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 7px; font-size: 13.5px; width: 100%; }
+  button { background: var(--accent); color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 650; width: 100%; }
+  button:disabled { opacity: 0.5; }
+  #viewer { width: 100%; height: 420px; border-radius: 12px; border: 1px solid var(--border); background: #050608; position: relative; overflow: hidden; }
+  #viewer .hint { position: absolute; bottom: 8px; right: 12px; color: var(--faint); font-size: 11px; }
+  #viewer .loading { position: absolute; top: 10px; left: 12px; color: var(--amber); font-size: 11px; display: none; }
+  .colorbar { position: absolute; top: 12px; right: 14px; width: 170px; display: none; }
+  .colorbar-grad { height: 10px; border-radius: 5px; background: linear-gradient(to right, #1f40d9, #26bfd9, #f2d926, #e62619); border: 1px solid rgba(255,255,255,0.15); }
+  .colorbar-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--dim); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .colorbar-title { font-size: 10px; color: var(--faint); text-align: right; margin-top: 1px; }
+  .flow-caption { font-size: 12px; color: var(--dim); line-height: 1.55; margin: 8px 2px 14px; }
+  .flow-caption b { color: var(--text); }
+  .frontier-chart { width: 100%; height: 260px; }
+  .frontier-chart .pt { cursor: pointer; }
+  .frontier-chart .pt:hover circle { r: 7; }
+  .frontier-hint { color: var(--faint); font-size: 11px; margin-top: 6px; }
+  .frontier-selected { font-size: 12.5px; color: var(--dim); margin-top: 8px; }
+  .live-readout { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+  .readout-item .num { font-size: 26px; font-weight: 700; }
+  .readout-item .lbl { color: var(--dim); font-size: 11.5px; }
+  .readout-item .num.hot { color: var(--red); } .readout-item .num.cool { color: var(--green); } .readout-item .num.warn { color: var(--amber); }
+  .verdict-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+  .v-PASS { background: var(--green-dim); color: var(--green); }
+  .v-WARNING { background: var(--amber-dim); color: var(--amber); }
+  .v-FAIL { background: var(--red-dim); color: var(--red); }
+  .check-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .check-row:last-child { border-bottom: none; }
+  .check-row .detail { color: var(--dim); flex: 1; }
+  .trust-score { font-size: 34px; font-weight: 750; }
+  .footer-note { color: var(--faint); font-size: 11px; margin-top: 20px; line-height: 1.6; }
+  .badge { display:inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: 10px; background:#1e2129; color: var(--dim); margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔊 SoundShape AI</h1>
+  <div class="sub">Triangle mesh of a bass-reflex port, updated live as you drag the sliders below (fetches the closed-form Helmholtz frequency from the server too — no client-side physics duplication). "Optimize with AI" runs a single target-frequency inverse design; "Explore trade-off frontier" runs the same gradient optimizer across a swept trade-off between port volume and tuning accuracy — SoundShape's actual objective, Pareto-frontier exploration rather than one optimized point.</div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h2>Cabinet &amp; target tuning</h2>
+        <div class="slider-row">
+          <label>Cabinet volume (L)</label>
+          <input type="number" id="vol" value="20" min="5" max="100" />
+        </div>
+        <div class="slider-row">
+          <label>Target tuning frequency (Hz)</label>
+          <input type="number" id="target" value="40" min="22" max="90" />
+        </div>
+        <button id="btn-optimize">Optimize with AI</button>
+      </div>
+
+      <div class="card">
+        <h2>Port geometry <span class="badge">manual explore</span></h2>
+        <div class="slider-row">
+          <label>Port radius (mm): <span class="value" id="v-radius">25.0</span></label>
+          <input type="range" id="s-radius" min="8" max="60" step="0.5" value="25" />
+        </div>
+        <div class="slider-row">
+          <label>Port length (mm): <span class="value" id="v-length">100.0</span></label>
+          <input type="range" id="s-length" min="20" max="350" step="1" value="100" />
+        </div>
+        <div class="live-readout">
+          <div class="readout-item"><div class="num" id="live-freq">--</div><div class="lbl">resonant frequency (formula)</div></div>
+        </div>
+        <div class="footer-note" id="constraint-note"></div>
+      </div>
+
+      <div class="card">
+        <h2>Pareto frontier <span class="badge">trade-off exploration</span></h2>
+        <div class="footer-note" style="margin-top:0;">Runs the same gradient-based inverse-design optimizer as "Optimize with AI", but once per swept weight between two competing objectives: a smaller port (volume, pi·r²·l) vs. hitting the target frequency. Every point is independently re-verified against the Helmholtz formula.</div>
+        <button id="btn-frontier" style="margin-top:10px;">Explore trade-off frontier</button>
+        <div id="frontier-chart-wrap" style="display:none; margin-top:14px;">
+          <svg id="frontier-chart" class="frontier-chart" viewBox="0 0 400 260"></svg>
+          <div class="frontier-hint">x: port volume (cm³) &middot; y: deviation from target frequency (%) &middot; click a point to load that design</div>
+          <div class="frontier-selected" id="frontier-selected"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div id="viewer">
+        <div class="loading" id="loading-note">regenerating mesh…</div>
+        <div class="hint">drag to rotate · scroll to zoom</div>
+        <div class="colorbar" id="colorbar">
+          <div class="colorbar-grad"></div>
+          <div class="colorbar-labels"><span id="cb-min">22 Hz</span><span id="cb-max">90 Hz</span></div>
+          <div class="colorbar-title">resonant freq. (uniform — lumped port model)</div>
+        </div>
+      </div>
+      <div class="flow-caption">🔵 <b>Unlike a heat sink or diffusion problem, air in this port doesn't flow one way</b> — it oscillates back and forth, pushed by the speaker driver's cone. That's why the color above is uniform (the achieved tuning frequency), not a spatial gradient: a Helmholtz port is acoustically short enough that its air mass moves as a single unit, with no meaningful internal gradient to show.</div>
+      <div id="result"></div>
+      <div class="footer-note" id="status-note"></div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "/vendor/three/OrbitControls.js";
+import { parseBinarySTL } from "/shared/stl.js";
+let scene, camera, renderer, controls, currentMesh;
+let lastDesign = { radius_m: 0.025, length_m: 0.10 };
+let lastAcousticField = null;
+let lastFrontier = null;
+
+// 4-stop colormap (blue -> cyan -> yellow -> red), same technique as
+// HeatSink Design AI's thermal colorbar, reused here for frequency instead
+// of temperature.
+function stopColor(f) {
+  f = Math.min(Math.max(f, 0), 1);
+  const stops = [
+    [0.0, [0.122, 0.251, 0.851]],
+    [0.35, [0.149, 0.749, 0.851]],
+    [0.7, [0.949, 0.851, 0.149]],
+    [1.0, [0.902, 0.149, 0.098]],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [f0, c0] = stops[i], [f1, c1] = stops[i + 1];
+    if (f >= f0 && f <= f1) {
+      const tt = (f - f0) / (f1 - f0);
+      return [c0[0] + (c1[0] - c0[0]) * tt, c0[1] + (c1[1] - c0[1]) * tt, c0[2] + (c1[2] - c0[2]) * tt];
+    }
+  }
+  return stops[stops.length - 1][1];
+}
+function freqToColor(f, fmin, fmax) {
+  return stopColor((f - fmin) / Math.max(fmax - fmin, 1e-6));
+}
+
+// Colors every vertex of the CAD solid the SAME color -- deliberately,
+// not a spatial gradient. The lumped Helmholtz model this app's own
+// resonant_frequency_hz() relies on treats the port's air mass as moving
+// together (uniform velocity, no internal standing wave); ports are
+// acoustically short compared to the wavelengths involved, which is exactly
+// why the lumped approximation is valid here. Inventing a spatial pressure/
+// velocity gradient along the port would contradict that same assumption,
+// so instead the one uniform per-design property is
+// colored: the achieved resonant frequency's position in the product's own
+// target tuning range.
+function colorGeometryByFrequency(geom, field) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const [r, g, b] = freqToColor(field.resonant_frequency_hz, field.freq_min_hz, field.freq_max_hz);
+  const colors = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+  }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  document.getElementById("cb-min").textContent = field.freq_min_hz.toFixed(0) + " Hz";
+  document.getElementById("cb-max").textContent = field.freq_max_hz.toFixed(0) + " Hz";
+  document.getElementById("colorbar").style.display = "block";
+}
+
+function initViewer() {
+  const el = document.getElementById("viewer");
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 2000);
+  camera.position.set(180, 180, 180);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(el.clientWidth, el.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  el.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0x8899aa, 0.9 * Math.PI));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.1 * Math.PI);
+  dir.position.set(60, 120, 80);
+  scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0xaa66ff, 0.4 * Math.PI);
+  dir2.position.set(-60, 40, -80);
+  scene.add(dir2);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 0, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  window.addEventListener("resize", () => {
+    camera.aspect = el.clientWidth / el.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(el.clientWidth, el.clientHeight);
+  });
+
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+async function reloadMesh(design) {
+  document.getElementById("loading-note").style.display = "block";
+  const cabinet_volume_l = Number(document.getElementById("vol").value);
+  const res = await fetch("/api/mesh.stl", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...design, cabinet_volume_l }),
+  });
+  const buf = await res.arrayBuffer();
+  const geom = parseBinarySTL(buf);
+
+  let useVertexColors = false;
+  if (lastAcousticField) {
+    colorGeometryByFrequency(geom, lastAcousticField); // must run before center() -- matches vertex convention colorGeometryByFrequency assumes
+    useVertexColors = true;
+  }
+  geom.center();
+  geom.computeVertexNormals();
+
+  if (currentMesh) scene.remove(currentMesh);
+  const material = new THREE.MeshStandardMaterial({
+    color: useVertexColors ? 0xffffff : 0xc17ce8,
+    vertexColors: useVertexColors,
+    metalness: 0.35, roughness: 0.45,
+  });
+  currentMesh = new THREE.Mesh(geom, material);
+  currentMesh.rotation.x = -Math.PI / 2;
+  scene.add(currentMesh);
+  document.getElementById("loading-note").style.display = "none";
+}
+
+async function liveEvaluate() {
+  const cabinet_volume_l = Number(document.getElementById("vol").value);
+  const design = {
+    radius_m: Number(document.getElementById("s-radius").value) / 1000,
+    length_m: Number(document.getElementById("s-length").value) / 1000,
+  };
+  lastDesign = design;
+  const res = await fetch("/api/evaluate", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...design, cabinet_volume_l }),
+  });
+  const data = await res.json();
+  lastAcousticField = data.acoustic_field;
+  const el = document.getElementById("live-freq");
+  el.textContent = data.resonant_frequency_hz.toFixed(1) + " Hz";
+  const target = Number(document.getElementById("target").value);
+  el.className = "num " + (data.violated_constraints.length ? "warn" : (Math.abs(data.resonant_frequency_hz - target) / target < 0.1 ? "cool" : "hot"));
+  document.getElementById("constraint-note").textContent = data.violated_constraints.length
+    ? `Violated constraints: ${data.violated_constraints.join(", ")}`
+    : "";
+}
+
+let debounceTimer;
+function onSliderChange() {
+  document.getElementById("v-radius").textContent = Number(document.getElementById("s-radius").value).toFixed(1);
+  document.getElementById("v-length").textContent = Number(document.getElementById("s-length").value).toFixed(1);
+  liveEvaluate();
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => reloadMesh(lastDesign), 180);
+}
+
+["s-radius", "s-length"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", onSliderChange);
+});
+document.getElementById("vol").addEventListener("change", liveEvaluate);
+document.getElementById("target").addEventListener("change", liveEvaluate);
+
+async function loadStatus() {
+  const s = await (await fetch("/api/status")).json();
+  document.getElementById("status-note").textContent = s.surrogate_trained
+    ? `Surrogate trained at server startup (validation relative error: ${(s.validation_relative_error*100).toFixed(1)}%). Ground truth: closed-form Helmholtz resonance equation (f = c/2π · √(A/(V·Leff))), the same one used in bass-reflex loudspeaker cabinet design.`
+    : "Training…";
+}
+
+async function runOptimize() {
+  const btn = document.getElementById("btn-optimize");
+  btn.disabled = true; btn.textContent = "Optimizing…";
+  const cabinet_volume_l = Number(document.getElementById("vol").value);
+  const target_freq_hz = Number(document.getElementById("target").value);
+  try {
+    const res = await fetch("/api/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cabinet_volume_l, target_freq_hz }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+
+    // Snap the sliders/3D view to the optimized design.
+    const d = data.optimized.design;
+    document.getElementById("s-radius").value = (d.radius_m * 1000).toFixed(1);
+    document.getElementById("s-length").value = (d.length_m * 1000).toFixed(1);
+    onSliderChange();
+
+    renderVerification(data);
+  } catch (e) {
+    document.getElementById("result").innerHTML = `<div class="card">Error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Optimize with AI"; }
+}
+
+function renderVerification(data) {
+  const v = data.verification;
+  const checksHtml = v.checks.map(c => `<div class="check-row"><span>${c.name}</span><span class="detail">${c.detail}</span><span class="verdict-pill v-${c.verdict}">${c.verdict}</span></div>`).join("");
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <h2>AI result vs. baseline</h2>
+      <div style="font-size:14px; margin-bottom:10px;">Baseline: ${data.baseline.resonant_frequency_hz.toFixed(1)} Hz &rarr; AI-optimized (re-verified): <b style="color:var(--green)">${v.real_frequency_hz.toFixed(1)} Hz</b> (target was ${v.target_frequency_hz.toFixed(1)} Hz, ${(v.target_relative_error*100).toFixed(1)}% off)</div>
+      <div style="display:flex; align-items:center; gap:20px; margin: 14px 0;">
+        <div class="trust-score" style="color:${v.overall_verdict==='PASS'?'var(--green)':v.overall_verdict==='WARNING'?'var(--amber)':'var(--red)'}">${v.trust_score}</div>
+        <div><div class="verdict-pill v-${v.overall_verdict}">${v.overall_verdict}</div><div style="color:var(--dim); font-size:12px; margin-top:4px;">trust score &middot; coverage ${(v.coverage*100).toFixed(0)}%</div></div>
+      </div>
+      <div style="color:var(--dim); font-size:12px; margin-bottom:12px;">${v.coverage_note}</div>
+      ${checksHtml}
+    </div>
+  `;
+}
+
+async function runParetoFrontier() {
+  const btn = document.getElementById("btn-frontier");
+  btn.disabled = true; btn.textContent = "Sweeping frontier…";
+  const cabinet_volume_l = Number(document.getElementById("vol").value);
+  const target_freq_hz = Number(document.getElementById("target").value);
+  try {
+    const res = await fetch("/api/pareto_frontier", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cabinet_volume_l, target_freq_hz, n_points: 8 }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+    lastFrontier = data.frontier;
+    document.getElementById("frontier-chart-wrap").style.display = "block";
+    renderFrontierChart(lastFrontier);
+  } catch (e) {
+    document.getElementById("frontier-chart-wrap").style.display = "block";
+    document.getElementById("frontier-chart-wrap").innerHTML = `<div class="footer-note" style="color:var(--red)">Frontier error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Explore trade-off frontier"; }
+}
+
+// Plain inline SVG scatter/line -- no chart library (this environment's CSP
+// only allowlists a few CDNs, none of which serve a charting library's
+// stylesheet/runtime assets). x: port volume (cm^3). y: deviation
+// from the target frequency (%), both straight from the server's
+// independently-re-verified frontier points -- no fabricated data.
+function renderFrontierChart(frontier) {
+  const W = 400, H = 260, PAD = { l: 46, r: 14, t: 14, b: 34 };
+  const xs = frontier.map(p => p.port_volume_m3 * 1e6); // m^3 -> cm^3
+  const ys = frontier.map(p => p.real_freq_error_pct);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = 0, yMax = Math.max(...ys, 1);
+  const xScale = v => PAD.l + (v - xMin) / Math.max(xMax - xMin, 1e-6) * (W - PAD.l - PAD.r);
+  const yScale = v => H - PAD.b - (v - yMin) / Math.max(yMax - yMin, 1e-6) * (H - PAD.t - PAD.b);
+
+  const sorted = frontier.map((p, i) => ({ ...p, x: xs[i], y: ys[i], _idx: i })).sort((a, b) => a.x - b.x);
+  const linePts = sorted.map(p => `${xScale(p.x).toFixed(1)},${yScale(p.y).toFixed(1)}`).join(" ");
+
+  const axisColor = "#5b5f6b";
+  let svg = "";
+  svg += `<line x1="${PAD.l}" y1="${H-PAD.b}" x2="${W-PAD.r}" y2="${H-PAD.b}" stroke="${axisColor}" stroke-width="1"/>`;
+  svg += `<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${H-PAD.b}" stroke="${axisColor}" stroke-width="1"/>`;
+  svg += `<text x="${PAD.l}" y="${H-8}" fill="${axisColor}" font-size="9">${xMin.toFixed(0)}</text>`;
+  svg += `<text x="${W-PAD.r}" y="${H-8}" fill="${axisColor}" font-size="9" text-anchor="end">${xMax.toFixed(0)} cm³</text>`;
+  svg += `<text x="${PAD.l-6}" y="${H-PAD.b}" fill="${axisColor}" font-size="9" text-anchor="end">0%</text>`;
+  svg += `<text x="${PAD.l-6}" y="${PAD.t+8}" fill="${axisColor}" font-size="9" text-anchor="end">${yMax.toFixed(0)}%</text>`;
+  svg += `<polyline points="${linePts}" fill="none" stroke="#c17ce8" stroke-width="1.5" opacity="0.6"/>`;
+  sorted.forEach((p, i) => {
+    const cx = xScale(p.x).toFixed(1), cy = yScale(p.y).toFixed(1);
+    svg += `<g class="pt" data-idx="${p._idx}"><circle cx="${cx}" cy="${cy}" r="5" fill="#c17ce8" stroke="#0a0b0d" stroke-width="1.5"/></g>`;
+  });
+
+  const el = document.getElementById("frontier-chart");
+  el.innerHTML = svg;
+  el.querySelectorAll(".pt").forEach(g => {
+    g.addEventListener("click", () => selectFrontierPoint(Number(g.getAttribute("data-idx"))));
+  });
+}
+
+function selectFrontierPoint(idx) {
+  const p = lastFrontier[idx];
+  document.getElementById("s-radius").value = (p.design.radius_m * 1000).toFixed(1);
+  document.getElementById("s-length").value = (p.design.length_m * 1000).toFixed(1);
+  onSliderChange();
+  document.getElementById("frontier-selected").textContent =
+    `Selected: volume weight ${p.volume_weight.toFixed(2)} -> port volume ${(p.port_volume_m3 * 1e6).toFixed(1)} cm³, ` +
+    `achieved frequency ${p.real_achieved_freq_hz.toFixed(1)} Hz (${p.real_freq_error_pct.toFixed(1)}% from target).`;
+}
+
+document.getElementById("btn-optimize").onclick = runOptimize;
+document.getElementById("btn-frontier").onclick = runParetoFrontier;
+initViewer();
+loadStatus();
+liveEvaluate().then(() => reloadMesh(lastDesign));
+</script>
+</body>
+</html>

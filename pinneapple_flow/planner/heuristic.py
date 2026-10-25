@@ -218,7 +218,8 @@ def _n_for(family, dim):
 def plan_heuristic(text: str, *, max_proposals: int = 3) -> dict[str, Any]:
     det = detect(text)
     intents = set(det["intents"])
-    props: list[dict[str, Any]] = []
+    from .extensions import proposals
+    props: list[dict[str, Any]] = proposals(text, det)          # registered domain capabilities (extensions.py)
     warnings: list[str] = []
     explicit_domain = det["dimension"] is not None or any(_hit(text.lower(), k) for k in ("pde", "equation",
                                                                                           "equação"))

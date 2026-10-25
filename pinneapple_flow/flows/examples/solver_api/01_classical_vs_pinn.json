@@ -1,0 +1,67 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-solver-api",
+ "name": "Classical FEM and a PINN on the same problem",
+ "description": "laplace(u) = f on the unit square with u = sin(pi x) sin(pi y): pp.compare of a P1 FEM and a PINN (2000 epochs) against the exact solution (examples/solver_api/01_classical_vs_pinn.py; numbers quoted in docs/core_concepts/solver.md).",
+ "nodes": [
+  {
+   "id": "compare_methods",
+   "type": "pinn.poisson_fem_vs_pinn",
+   "params": {},
+   "label": "FEM vs PINN",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "solver_api",
+    "comparisons": [
+     {
+      "flow": "compare_methods.fem.relative_l2",
+      "ref": "text:docs/core_concepts/solver.md|FEM relative L2 (\\d\\.\\de-\\d)"
+     },
+     {
+      "flow": "compare_methods.pinn.relative_l2",
+      "ref": "text:docs/core_concepts/solver.md|PINN (\\d\\.\\de-\\d) in"
+     }
+    ],
+    "tolerance_source": "the guide quotes two significant digits: half a unit of the last digit; the PINN's error depends on its training, so a difference is reported as measured"
+   },
+   "label": "Same numbers as examples/solver_api",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "compare_methods",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "compare_methods.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "solver_api",
+  "domain": "PINN",
+  "scripts": [
+   "01_classical_vs_pinn.py"
+  ],
+  "quick": {
+   "compare_methods": {
+    "epochs": 200
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: 200 epochs"
+   }
+  }
+ }
+}

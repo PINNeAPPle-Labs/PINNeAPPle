@@ -1,0 +1,120 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.plate_fin_heatsink_forced",
+ "name": "Industrial preset: plate fin heatsink forced",
+ "description": "pinneapple_presets.load('plate_fin_heatsink_forced').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/plate_fin_heatsink_forced), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "plate_fin_heatsink_forced"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "plate_fin_heatsink_forced"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.t_source_max_c",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.t_source_max_c"
+     },
+     {
+      "flow": "run.t_source_pessimistic_c",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.t_source_pessimistic_c"
+     },
+     {
+      "flow": "run.r_total_k_w",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.r_total_k_w"
+     },
+     {
+      "flow": "run.pressure_drop_pa",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.pressure_drop_pa"
+     },
+     {
+      "flow": "run.h_w_m2k",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.h_w_m2k"
+     },
+     {
+      "flow": "run.fin_efficiency",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.fin_efficiency"
+     },
+     {
+      "flow": "run.mass_g",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.mass_g"
+     },
+     {
+      "flow": "run.air_rise_c",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.air_rise_c"
+     },
+     {
+      "flow": "run.re_dh",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.re_dh"
+     },
+     {
+      "flow": "run.re_star",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.re_star"
+     },
+     {
+      "flow": "run.fin_gap_mm",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.fin_gap_mm"
+     },
+     {
+      "flow": "run.airflow_m3_h",
+      "ref": "plate_fin_heatsink_forced/results/result.json:outputs.airflow_m3_h"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "plate_fin_heatsink_forced/README.md"
+  ],
+  "quick": {}
+ }
+}

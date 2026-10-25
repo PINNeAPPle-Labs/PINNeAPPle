@@ -734,3 +734,24 @@ def solve_pde_kwargs_from_batch(batch: Dict[str, Any]) -> Dict[str, Any]:
             continue
         out[k] = torch.as_tensor(np.asarray(v), dtype=torch.bool if k.startswith("mask_") else torch.float32)
     return out
+
+
+def per_tag_losses(spec, model, batch: dict[str, Any], *, w_pde: float = 1.0, w_bc: float = 10.0) -> dict[str, float]:
+    """Every loss term of ``compile_problem(spec)`` for ``model`` on a :func:`build_tag_batch` batch, as floats:
+    ``total``, ``pde`` and one entry per boundary condition (``bc_<name>``), so the per-tag masking can be seen to
+    do distinct work. Numpy arrays of the batch are converted to torch tensors (``mask_*`` as booleans)."""
+    import numpy as np
+    import torch
+
+    from ...pinn_solver.compiler.compile import compile_problem
+    from ...pinn_solver.compiler.loss import LossWeights
+
+    loss_fn = compile_problem(spec, weights=LossWeights(w_pde=w_pde, w_bc=w_bc))
+    tb = {}
+    for k, v in batch.items():
+        if k == "ctx":
+            tb[k] = v
+            continue
+        tb[k] = torch.as_tensor(np.asarray(v), dtype=torch.bool if k.startswith("mask_") else torch.float32)
+    out = loss_fn(model, None, tb)
+    return {k: float(v.detach()) for k, v in out.items()}

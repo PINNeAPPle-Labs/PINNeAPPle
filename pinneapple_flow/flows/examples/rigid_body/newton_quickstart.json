@@ -1,0 +1,60 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-newton-quickstart",
+ "name": "Rigid bodies with NVIDIA Newton",
+ "description": "The XPBD solver against closed forms (free fall, pendulum period, bounce), then a crate sliding to rest next to a pendulum, against Coulomb's v0^2 / (2 mu g) (examples/rigid_body/newton_quickstart.py).",
+ "nodes": [
+  {
+   "id": "validate",
+   "type": "solver.newton",
+   "params": {
+    "solver": "xpbd"
+   },
+   "label": "Newton validation",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "scene",
+   "type": "newton.crate_and_pendulum",
+   "params": {},
+   "label": "Crate and pendulum",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Newton"
+   },
+   "label": "Report",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "scene",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "scene.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "rigid_body",
+  "domain": "multibody",
+  "scripts": [
+   "newton_quickstart.py"
+  ],
+  "quick": {}
+ }
+}

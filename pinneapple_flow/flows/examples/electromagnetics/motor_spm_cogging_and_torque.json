@@ -1,0 +1,111 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-motor-spm",
+ "name": "Surface-PM machine: cogging, torque, back-EMF, losses",
+ "description": "4-pole 24-slot surface-PM machine with nonlinear iron (2-D A_z FEM): cogging over one period, torque against current angle by Maxwell stress and by co-energy, back-EMF at 1500 rpm, iron and magnet losses (examples/motor_magnetics/01_spm_cogging_and_torque.py).",
+ "nodes": [
+  {
+   "id": "spm",
+   "type": "em.spm_machine",
+   "params": {},
+   "label": "SPM machine FEA",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "motor_magnetics",
+    "comparisons": [
+     {
+      "flow": "spm.cogging.period_deg",
+      "ref": "results/spm_summary.json:cogging.period_deg"
+     },
+     {
+      "flow": "spm.cogging.peak_to_peak_Nm",
+      "ref": "results/spm_summary.json:cogging.peak_to_peak_Nm"
+     },
+     {
+      "flow": "spm.cogging.maxwell_1.3deg_Nm",
+      "ref": "results/spm_summary.json:cogging.maxwell_vs_coenergy_Nm.0.1"
+     },
+     {
+      "flow": "spm.cogging.coenergy_1.3deg_Nm",
+      "ref": "results/spm_summary.json:cogging.maxwell_vs_coenergy_Nm.0.2"
+     },
+     {
+      "flow": "spm.torque_vs_gamma.gamma0_Nm",
+      "ref": "results/spm_summary.json:torque_vs_gamma.torque_Nm.6"
+     },
+     {
+      "flow": "spm.torque_vs_gamma.gamma-90_Nm",
+      "ref": "results/spm_summary.json:torque_vs_gamma.torque_Nm.0"
+     },
+     {
+      "flow": "spm.torque_vs_gamma.gamma45_Nm",
+      "ref": "results/spm_summary.json:torque_vs_gamma.torque_Nm.9"
+     },
+     {
+      "flow": "spm.torque_vs_gamma.coenergy_gamma0_Nm",
+      "ref": "results/spm_summary.json:torque_vs_gamma.maxwell_vs_coenergy_Nm.1.2"
+     },
+     {
+      "flow": "spm.back_emf.psi_peak_Wb",
+      "ref": "results/spm_summary.json:back_emf.psi_peak_Wb"
+     },
+     {
+      "flow": "spm.back_emf.emf_peak_V",
+      "ref": "results/spm_summary.json:back_emf.emf_peak_V"
+     },
+     {
+      "flow": "spm.back_emf.emf_rms_V",
+      "ref": "results/spm_summary.json:back_emf.emf_rms_V"
+     },
+     {
+      "flow": "spm.losses.stator_iron_W",
+      "ref": "results/spm_summary.json:losses_1500rpm_rated.stator_iron_W"
+     },
+     {
+      "flow": "spm.losses.rotor_iron_W",
+      "ref": "results/spm_summary.json:losses_1500rpm_rated.rotor_iron_W"
+     },
+     {
+      "flow": "spm.losses.magnet_eddy_W",
+      "ref": "results/spm_summary.json:losses_1500rpm_rated.magnet_eddy_W"
+     },
+     {
+      "flow": "spm.losses.torque_mean_Nm",
+      "ref": "results/spm_summary.json:losses_1500rpm_rated.torque_mean_Nm"
+     }
+    ],
+    "tolerance_source": "deterministic FEA: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding"
+   },
+   "label": "Same numbers as examples/motor_magnetics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "spm",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "spm.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "motor_magnetics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "01_spm_cogging_and_torque.py"
+  ],
+  "quick": {}
+ }
+}

@@ -31,6 +31,7 @@ from pinneapple_data.datasets.deepmind_mgn import (
 from pinneapple_neural.architectures.graphnn.mgn_dynamics import (
     MeshDynamicsMGN,
     eval_rollout,
+    frozen_ic_rmse,
     train_dynamics,
 )
 from pinneapple_neural.trainer.parallel import best_device
@@ -71,13 +72,7 @@ hist = train_dynamics(model, tr, steps=a.steps, lr=a.lr, lr_final=a.lr_final,
                      device=dev, noise_std=a.noise, seed=a.seed)
 metrics = eval_rollout(model, va, n_steps=a.rollout, device=dev)
 
-# baseline: "velocity stays at its t=0 value" over the same horizon
-base = []
-for g, v, _ in va:
-    free = g.node_type == 0
-    n = min(a.rollout, v.shape[0] - 1)
-    base.append(((v[0:1] - v[1 : n + 1])[:, free] ** 2).mean().sqrt().item())
-metrics["frozen_ic_baseline_rmse"] = sum(base) / len(base)
+metrics["frozen_ic_baseline_rmse"] = frozen_ic_rmse(va, n_steps=a.rollout)   # velocity frozen at t = 0
 metrics.update(train_traj=len(tr), valid_traj=len(va), steps=a.steps, lr=a.lr, noise=a.noise, hidden=a.hidden, mp=a.mp,
                final_train_loss=hist[-1] if hist else None)
 (out / "metrics.json").write_text(json.dumps(metrics, indent=2))

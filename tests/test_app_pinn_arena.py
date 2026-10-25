@@ -13,7 +13,7 @@ import pytest
 
 pytest.importorskip("fastapi")
 pytest.importorskip("sqlalchemy")
-pytest.importorskip("jose")
+pytest.importorskip("jwt")
 pytest.importorskip("httpx")
 torch = pytest.importorskip("torch")
 from fastapi.testclient import TestClient  # noqa: E402

@@ -28,9 +28,10 @@ from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 import httpx
+import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
-from jose import JWTError, jwt
+from jwt import PyJWTError
 from sqlalchemy.orm import Session
 
 from pinn_arena.db import get_db
@@ -82,7 +83,7 @@ def _decode_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, ARENA_JWT_SECRET, algorithms=[ALGORITHM])
         return payload
-    except JWTError as exc:
+    except PyJWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token.",

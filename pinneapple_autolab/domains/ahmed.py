@@ -11,7 +11,7 @@ the Ahmed, Ramm & Faltin (1984) body (1.044 x 0.389 x 0.288 m, 0.222 m slant), s
 flow, half model with a symmetry plane, steady RANS k-omega SST with wall functions, no stilts. Outputs: CD, CL, the
 pressure and friction parts of CD, and the pressure drag of each region Ahmed et al. reported separately (front,
 slant, base; plus roof, sides and underbody). The surface pressure coefficient is returned on the vertices of a
-dense parametric surface (:func:`field_vertices`, 1262 vertices, y >= 0 half: same count and same material points
+dense parametric surface (:func:`field_vertices`, 1751 vertices on the y >= 0 half: same count and same material points
 for every variant) with region masks, for field surrogates.
 
 Reference (:data:`AHMED_1984_CD`): total drag coefficient against slant angle measured by Ahmed, Ramm & Faltin
@@ -39,7 +39,7 @@ __all__ = ["VARIABLES", "BASELINE", "CONDITIONS", "AHMED_1984_CD", "AHMED_1984_S
            "AhmedAero", "make_body", "field_vertices", "region_of", "REGIONS", "solver_log_summary",
            "force_convergence", "qa_checks", "run_trust_report", "LENGTH", "WIDTH", "HEIGHT", "NOSE_RADIUS",
            "template_faces", "pressure_drag_from_cp", "prediction_checks", "unit_to_params", "params_to_unit",
-           "ahmed_cad", "import_body", "read_stl"]
+           "ahmed_cad", "import_body", "read_stl", "cp_from_flow"]
 
 LENGTH, WIDTH, HEIGHT, NOSE_RADIUS, SLANT_LENGTH = 1.044, 0.389, 0.288, 0.100, 0.222
 
@@ -78,9 +78,9 @@ def mesh_family() -> list[str]:
 
 def make_body(params: Mapping[str, float], dense: bool = False):
     """Closed triangulated Ahmed body for ``params`` (``slant_deg``, ``clearance``); ``dense``: the field template's
-    sampling (1262 vertices) instead of the meshing one (442)."""
+    sampling (3394 vertices; points along the flat faces at most 25 mm apart) instead of the meshing one (442)."""
     from pinneapple_design.geometry.bodies import ahmed_body
-    kw = dict(n_nose=12, n_body=20, n_slant=12, n_corner=6) if dense else {}
+    kw = dict(n_nose=12, n_body=24, n_slant=16, n_corner=4, side=0.025) if dense else {}
     return ahmed_body(float(params["slant_deg"]), clearance=float(params["clearance"]), **kw)
 
 
@@ -147,7 +147,8 @@ def solver_log_summary(case: str) -> dict[str, Any]:
 class AhmedAero(Simulator):
     """OpenFOAM external aerodynamics of the Ahmed body. ``mesh``: a key of :data:`MESHES`; forces are written
     every ``history_every`` iterations and CD, CL and Cp are the means over the written iterations from
-    ``average_from`` x ``iterations`` on (their spread is ``meta["iteration_std"]``). ``keep_cases``: keep the
+    ``average_from`` x ``iterations`` on (their spread is ``meta["iteration_std"]``); the Cp field is the final
+    iteration's, sampled on the template (:func:`cp_from_flow` reads the same from the saved scene). ``keep_cases``: keep the
     OpenFOAM directories; otherwise only ``<case>.flow.npz`` (scene: skin Cp/Cf, streamlines, slices) stays.
     ``geometry(params) -> (V, F)``: another body than :func:`make_body` (an imported STL, :func:`import_body`)."""
     name = "OpenFOAM simpleFoam (snappyHexMesh, k-omega SST), Ahmed body half model"
@@ -264,8 +265,7 @@ class AhmedAero(Simulator):
                          "frac_30_300": float(np.mean((yp >= 30) & (yp <= 300))),
                          "frac_below_11": float(np.mean(yp < 11.25))}
         meta.update(cells=c.get("cells"), CD_final=c["CD"], CL_final=c["CL"])
-        cps = [self._cp_on_vertices(params, r.surface if h is None else h["surface"]) for h in window]
-        cp = np.mean(cps, 0)
+        cp = self._cp_on_vertices(params, r.surface)          # the final iteration's skin (as cp_from_flow reads it)
         try:
             r.save(case + ".flow.npz")
             meta["flow_npz"] = case + ".flow.npz"
@@ -565,3 +565,14 @@ def import_body(path: str, params: Mapping[str, float], *, scale: float = 1.0) -
     return {"V": V, "F": F, "regions": region_of(cent, params), "issues": [i for i in issues if "flipped" not in i],
             "symmetry_mm": 1000 * d_sym,
             "notes": [i for i in issues if "flipped" in i], "volume": float(vol), "bounds": [lo.tolist(), hi.tolist()]}
+
+
+def cp_from_flow(params: Mapping[str, float], flow_npz: str) -> np.ndarray:
+    """Cp on :func:`field_vertices` (nearest CFD wall face) from a saved flow scene (``<case>.flow.npz``): re-samples
+    a run's field on the current template without re-running the CFD."""
+    from scipy.spatial import cKDTree
+
+    from pinneapple_simulation.numerical_solvers.external_flow import FlowResult
+    r = FlowResult.load(flow_npz)
+    _, j = cKDTree(r.surface["xyz"]).query(field_vertices(params))
+    return np.asarray(r.surface["cp"])[j]

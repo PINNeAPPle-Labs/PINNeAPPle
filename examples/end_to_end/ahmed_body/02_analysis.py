@@ -18,6 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS, RES = os.path.join(HERE, "_runs", "cfd"), os.path.join(HERE, "results")
 
 recs = S.load_records(RUNS)
+print("fields re-sampled on the template:", S.refresh_fields(recs, RUNS))
 S.grid_and_validation(recs, RES)
 ds = S.study_dataset(recs)
 ds.save(os.path.join(RES, "dataset", "ahmed_body"), name="ahmed_body_rans_l1",

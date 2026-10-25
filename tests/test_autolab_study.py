@@ -42,7 +42,7 @@ def test_ahmed_default_unchanged_and_dense_template_fixed():
     V, F = ahmed_body(25.0)
     assert V.shape == (442, 3) and F.shape == (880, 3)
     counts = {A.field_vertices({"slant_deg": s, "clearance": c, "speed": 40}).shape for s in (0, 20, 40) for c in (0.03, 0.08)}
-    assert counts == {(632, 3)}
+    assert counts == {(1751, 3)}
     with pytest.raises(ValueError):
         ahmed_body(60.0)                                  # the slant would cut through the body
 
@@ -208,7 +208,7 @@ def test_ahmed_openfoam_run(tmp_path):
     assert abs(sum(o[f"CD_{r}"] for r in A.REGIONS) - o["CD_pressure"]) < 1e-9
     assert m["mesh_ok"] and m["mass_balance"]["imbalance"] < 0.01 and m["yplus"]["mean"] > 0
     cp = np.load(rec.fields_path)["cp"]
-    assert cp.shape == (632,) and cp.max() <= 1.1
+    assert cp.shape == (1751,) and cp.max() <= 1.1
 
 
 # ---------------------------------------------------------------------- Ahmed study stages on synthetic records
@@ -251,7 +251,7 @@ def test_ahmed_study_stages(tmp_path):
     assert gv["mesh_study"]["CD"]["p"] == pytest.approx(2.0, abs=0.05)
     assert len(gv["validation"]["rows"]) == 6 and os.path.exists(tmp_path / "res" / "figures" / "validation_cd.png")
     ds = S.study_dataset(recs)
-    assert len(ds) == 36 and ds.fields["cp"].shape == (36, 632)
+    assert len(ds) == 36 and ds.fields["cp"].shape == (36, 1751)
     assert all(ds.X[ds.ids.index(i), 0] > S.HOLDOUT_DEG for i in ds.split["extrapolation"])
     assert {"val_00.0", "val_12.5", "val_25.0", "val_30.0"} <= set(ds.split["test"])
     assert {"val_35.0", "val_40.0"} <= set(ds.split["extrapolation"])

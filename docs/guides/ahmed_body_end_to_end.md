@@ -17,7 +17,7 @@ would have given correlations rather than measurements for the inverse step; the
 
 | Stage | Library | Example |
 |---|---|---|
-| Geometry: parametric (`make_body`, a fixed 632-point field template for every variant) and real CAD (`ahmed_cad`: OpenCASCADE B-rep through gmsh, STEP + STL) imported back with checks and named patches (`import_body`) | `pinneapple_autolab.domains.ahmed` | `01_cfd_campaign.py cad` |
+| Geometry: parametric (`make_body`, a fixed 1751-point field template for every variant) and real CAD (`ahmed_cad`: OpenCASCADE B-rep through gmsh, STEP + STL) imported back with checks and named patches (`import_body`) | `pinneapple_autolab.domains.ahmed` | `01_cfd_campaign.py cad` |
 | Simulator: snappyHexMesh with 5 prism layers, simpleFoam k-omega SST with wall functions, moving road, half model; per run checkMesh, mesh quality, residuals, force stationarity, mass balance from `phi` (`pinneapple_check`), y+ range (`qa_checks`, `run_trust_report`) | `AhmedAero` | |
 | Mesh family with a constant refinement ratio sqrt(2); Richardson extrapolation and GCI (Celik et al. 2008) | `pinneapple_autolab.study.mesh_study` | `01 ... mesh`, `02_analysis.py` |
 | Validation against the wind tunnel | `ahmed_study.grid_and_validation` | `01 ... validation`, `02` |

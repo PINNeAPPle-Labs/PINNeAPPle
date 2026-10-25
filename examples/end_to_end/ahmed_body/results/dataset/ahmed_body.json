@@ -1,0 +1,330 @@
+{
+ "schema_version": "1.0",
+ "metadata": {},
+ "kind": "DatasetSpec",
+ "name": "ahmed_body_rans_l1",
+ "version": "0.1.0",
+ "description": "Ahmed body, OpenFOAM k-omega SST: force coefficients, drag breakdown and surface Cp over slant 0-40 deg, clearance 30-80 mm, speed 20-60 m/s",
+ "columns": [
+  {
+   "name": "slant_deg",
+   "role": "input",
+   "unit": "deg",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "clearance",
+   "role": "input",
+   "unit": "m",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "speed",
+   "role": "input",
+   "unit": "m/s",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CL",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_pressure",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_friction",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_front",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_slant",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_base",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_roof",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_side",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "CD_underbody",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64",
+   "description": ""
+  },
+  {
+   "name": "field_cp",
+   "role": "output",
+   "unit": "",
+   "dtype": "float64[1751]",
+   "description": "cp on 1751 fixed surface points ('points' in the npz)"
+  },
+  {
+   "name": "id",
+   "role": "id",
+   "unit": "",
+   "dtype": "str",
+   "description": ""
+  }
+ ],
+ "files": [
+  {
+   "path": "ahmed_body.npz",
+   "format": "npz",
+   "sha256": "48c14e861c037ee4cbc185555bc2190f2b26ca8c6f5cba79b9121013155fe932",
+   "size": 1362890,
+   "rows": 54,
+   "description": ""
+  }
+ ],
+ "n_rows": 54,
+ "parameter_space": {
+  "schema_version": "1.0",
+  "metadata": {},
+  "kind": "ParameterSpace",
+  "name": "design space",
+  "description": "",
+  "parameters": [
+   {
+    "name": "slant_deg",
+    "kind": "continuous",
+    "low": 0.0,
+    "high": 40.0,
+    "values": null,
+    "value": null,
+    "unit": "deg",
+    "log": false,
+    "group": "other",
+    "default": null,
+    "description": ""
+   },
+   {
+    "name": "clearance",
+    "kind": "continuous",
+    "low": 0.03,
+    "high": 0.08,
+    "values": null,
+    "value": null,
+    "unit": "m",
+    "log": false,
+    "group": "other",
+    "default": null,
+    "description": ""
+   },
+   {
+    "name": "speed",
+    "kind": "continuous",
+    "low": 20.0,
+    "high": 60.0,
+    "values": null,
+    "value": null,
+    "unit": "m/s",
+    "log": false,
+    "group": "other",
+    "default": null,
+    "description": ""
+   }
+  ],
+  "constraints": [],
+  "budget": null
+ },
+ "splits": {
+  "train": [
+   "doe000",
+   "doe006",
+   "doe007",
+   "doe008",
+   "doe009",
+   "doe010",
+   "doe013",
+   "doe014",
+   "doe015",
+   "doe016",
+   "doe019",
+   "doe020",
+   "doe022",
+   "doe024",
+   "doe025",
+   "doe030",
+   "doe031",
+   "doe033",
+   "doe034",
+   "doe035",
+   "doe037",
+   "doe038",
+   "doe039",
+   "doe041",
+   "doe043",
+   "doe044",
+   "doe046",
+   "doe047"
+  ],
+  "val": [
+   "doe002",
+   "doe005",
+   "doe012",
+   "doe027",
+   "doe029",
+   "doe032"
+  ],
+  "test": [
+   "doe001",
+   "doe004",
+   "doe011",
+   "doe021",
+   "doe026",
+   "doe040",
+   "val_00.0",
+   "val_12.5",
+   "val_25.0",
+   "val_30.0"
+  ],
+  "seed": null,
+  "id_column": "id"
+ },
+ "provenance": {
+  "app": "pinneapple_autolab.study",
+  "study_id": "ahmed_body_e2e",
+  "source": "OpenFOAM simpleFoam k-omega SST, Ahmed body half model, L1 mesh with 5 prism layers, 800 iterations (outputs averaged over 400-800)",
+  "run_ids": [
+   "doe000",
+   "doe001",
+   "doe002",
+   "doe003",
+   "doe004",
+   "doe005",
+   "doe006",
+   "doe007",
+   "doe008",
+   "doe009",
+   "doe010",
+   "doe011",
+   "doe012",
+   "doe013",
+   "doe014",
+   "doe015",
+   "doe016",
+   "doe017",
+   "doe018",
+   "doe019",
+   "doe020",
+   "doe021",
+   "doe022",
+   "doe023",
+   "doe024",
+   "doe025",
+   "doe026",
+   "doe027",
+   "doe028",
+   "doe029",
+   "doe030",
+   "doe031",
+   "doe032",
+   "doe033",
+   "doe034",
+   "doe035",
+   "doe036",
+   "doe037",
+   "doe038",
+   "doe039",
+   "doe040",
+   "doe041",
+   "doe042",
+   "doe043",
+   "doe044",
+   "doe045",
+   "doe046",
+   "doe047",
+   "val_00.0",
+   "val_12.5",
+   "val_25.0",
+   "val_30.0",
+   "val_35.0",
+   "val_40.0"
+  ],
+  "library_version": "",
+  "created": "2026-10-25T16:11:14Z",
+  "notes": ""
+ },
+ "license": "Apache-2.0",
+ "status": "complete",
+ "x_pinneapple_study": {
+  "extrapolation": [
+   "doe003",
+   "doe017",
+   "doe018",
+   "doe023",
+   "doe028",
+   "doe036",
+   "doe042",
+   "doe045",
+   "val_35.0",
+   "val_40.0"
+  ],
+  "holdout_rule": "slant_deg > 34 -> extrapolation",
+  "units": {
+   "slant_deg": "deg",
+   "clearance": "m",
+   "speed": "m/s"
+  },
+  "bounds": {
+   "slant_deg": [
+    0.0,
+    40.0
+   ],
+   "clearance": [
+    0.03,
+    0.08
+   ],
+   "speed": [
+    20.0,
+    60.0
+   ]
+  }
+ }
+}

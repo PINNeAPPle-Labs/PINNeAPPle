@@ -50,7 +50,7 @@ _FOLDER = Param("folder", "str", "", help="study folder (empty: examples/end_to_
               Param("cad", "bool", True, help="also build the OpenCASCADE CAD (gmsh) and import its STL back")],
       calls="pinneapple_autolab.domains.ahmed.make_body / ahmed_cad / import_body", tags=_TAGS)
 def ahmed_geometry(ctx, inputs, params):
-    """The parametric body (the field template: 632 points, same for every variant) and, with ``cad``, the
+    """The parametric body (the field template: 1751 points, same for every variant) and, with ``cad``, the
     B-rep exported to STEP/STL and imported back with its checks and named patches."""
     from pinneapple_autolab.domains import ahmed as A
     from pinneapple_design.geometry_library import meshops as mo
@@ -125,7 +125,7 @@ def grid_validation(ctx, inputs, params):
       inputs=[Port("runs", "cfd_runs")], outputs=[Port("dataset", "dataset"), Port("metrics", "metrics")],
       params=[_FOLDER], calls="pinneapple_autolab.domains.ahmed_study.study_dataset + StudyDataset.save", tags=_TAGS)
 def dataset(ctx, inputs, params):
-    """Scalars, the surface Cp on 632 fixed points and provenance as a DatasetSpec; slant > 34 deg is the
+    """Scalars, the surface Cp on 1751 fixed points and provenance as a DatasetSpec; slant > 34 deg is the
     extrapolation split."""
     from pinneapple_autolab.domains import ahmed_study as S
     ds = S.study_dataset(S.load_records(inputs["runs"]["folder"]))

@@ -22,7 +22,7 @@ import numpy as np
 
 from . import ahmed as A
 
-__all__ = ["TARGETS", "OUTPUTS", "BOUNDS", "UNITS", "HOLDOUT_DEG", "load_records", "grid_and_validation",
+__all__ = ["TARGETS", "OUTPUTS", "BOUNDS", "UNITS", "HOLDOUT_DEG", "load_records", "refresh_fields", "grid_and_validation",
            "study_dataset", "deployment_dataset", "template_integral", "benchmark_all", "next_runs",
            "evaluate_more_runs", "fit_selected", "train_slant_mdn", "inverse", "twin"]
 
@@ -51,6 +51,18 @@ def _fig(res: str, name: str) -> str:
 def load_records(runs: str, ok_only: bool = False):
     from pinneapple_autolab.study.campaign import load_records as _lr
     return _lr(runs, ok_only=ok_only)
+
+
+def refresh_fields(recs, runs: str) -> int:
+    """Re-sample every successful run's Cp on the current template from its saved flow scene and rewrite its field
+    file (runs whose scene is missing keep their file). Returns the number of files rewritten."""
+    n = 0
+    for r in recs:
+        fz = os.path.join(runs, "cases", f"{r.id}.flow.npz")
+        if r.ok and r.fields_path and os.path.exists(fz):
+            np.savez_compressed(r.fields_path, cp=A.cp_from_flow(r.params, fz))
+            n += 1
+    return n
 
 
 # ---------------------------------------------------------------------- 1. grid convergence and validation
@@ -142,7 +154,7 @@ def deployment_dataset(recs):
 
 
 def template_integral(ds) -> dict[str, float]:
-    """How closely the pressure drag integrated from the CFD's Cp on the 632 template points matches the CFD's
+    """How closely the pressure drag integrated from the CFD's Cp on the 1751 template points matches the CFD's
     own pressure drag; the 95th percentile + 0.01 is the tolerance of the field-scalar consistency check."""
     P = [dict(zip(ds.inputs, x, strict=False)) for x in ds.X]
     integ = np.array([A.pressure_drag_from_cp(p, cp) for p, cp in zip(P, ds.fields["cp"], strict=False)])

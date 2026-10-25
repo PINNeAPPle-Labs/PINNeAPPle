@@ -48,13 +48,16 @@ FEATURE_FLUX = {"ubump": "q_ubump", "tsv": "q_tsv", "c4": "q_c4"}
 
 
 class State:
-    """A solved configuration: per-block observables, its source, its own uncertainty (K), and what is needed to
-    read interior points (the hierarchy and its solution, or the full reference field)."""
+    """A solved configuration: per-block observables, its source, its own uncertainty (K, the largest over the
+    junction), the uncertainty of each observable (``obs_unc``: same keys as ``obs``, absolute; ``None`` for an
+    exact state), and what is needed to read interior points (the hierarchy and its solution, or the full reference
+    field)."""
 
-    def __init__(self, power, obs, method, uncertainty, seconds, solver=None, sol=None, field=None):
+    def __init__(self, power, obs, method, uncertainty, seconds, solver=None, sol=None, field=None, obs_unc=None):
         self.power, self.obs, self.method = power, obs, method
         self.uncertainty, self.seconds = uncertainty, seconds
         self.solver, self.sol, self.field = solver, sol, field
+        self.obs_unc = obs_unc
 
     @property
     def has_interior(self) -> bool:
@@ -117,16 +120,16 @@ class PackageModel:
             u, v = ref.local[:2]
             ix = min(int(u * nbx * n), nbx * n - 1)
             iy = min(int(v * nby * n), nby * n - 1)
-            I, a, J, b = ix // n, ix % n, iy // n, iy % n
+            bi, a, bj, b = ix // n, ix % n, iy // n, iy % n
             if len(ref.local) == 2:
-                return float(obs["Tj"][I, J, a * n + b])
+                return float(obs["Tj"][bi, bj, a * n + b])
             die = st.layer_slices()["die"]
             k = die.start + min(int(ref.local[2] * (die.stop - die.start)), die.stop - die.start - 1)
             if state.field is not None:
                 return float(state.field[ix, iy, k])
             if state.solver is None or state.sol is None:
                 raise LookupError("an interior point needs the solved hierarchy or the field of this state")
-            return float(state.solver.recover(state.sol, I, J)[a, b, k])
+            return float(state.solver.recover(state.sol, bi, bj)[a, b, k])
         if q.quantity in ("Tj_max", "R_ja"):
             tj = obs["Tj"]
             if ref.span is not None:
@@ -149,6 +152,14 @@ class PackageModel:
                 return float(obs["q_top"].sum())
         raise ValueError(f"cannot answer {q.quantity} at {ref}")
 
+    def uncertainty(self, q: Query, state: State) -> float:
+        """The state's uncertainty for this quantity: the junction maximum for temperatures, and for heat the
+        per-feature uncertainties summed in absolute value over what the query sums."""
+        if q.quantity != "q" or state.obs_unc is None:
+            return state.uncertainty
+        absu = {k: np.abs(v) for k, v in state.obs_unc.items()}
+        return abs(self.extract(q, State(state.power, absu, state.method, 0.0, 0.0)))
+
     # -- the uniform-power bound ----------------------------------------------------------------------------------
     def unit_response(self) -> dict:
         """Observables of one block, sides adiabatic, 1 W on every active cell: by symmetry the whole package's
@@ -163,7 +174,7 @@ class PackageModel:
             t = np.linalg.solve(bm.S, bm.W @ p)
             vals = bm.O_t @ t + bm.O_p @ p
             cells = bm.recover(t, p)
-            self._unit = {"Tj": vals[:n2], "fluxes": dict(zip(FLUXES, vals[n2:])), "cells": cells}
+            self._unit = {"Tj": vals[:n2], "fluxes": dict(zip(FLUXES, vals[n2:], strict=False)), "cells": cells}
         return self._unit
 
 
@@ -186,13 +197,13 @@ class Cached(Method):
         if q.quantity == "T" and q.where.local is not None and len(q.where.local) == 3 and not s.has_interior:
             return None
         return Offer(self.name, 1e-5 if not (q.where.local and len(q.where.local) == 3) else 5e-3,
-                     s.uncertainty, why=f"state {self.model.key(q)} solved by {s.method}")
+                     self.model.uncertainty(q, s), why=f"state {self.model.key(q)} solved by {s.method}")
 
     def answer(self, q):
         t0 = time.perf_counter()
         s = self.model.states[self.model.key(q)]
         v = self.model.extract(q, s)
-        return _answer(self.model, q, v, s.uncertainty, "read", self.name, t0,
+        return _answer(self.model, q, v, self.model.uncertainty(q, s), "read", self.name, t0,
                        {"conditions": "exactly the solved ones"},
                        {"state": self.model.key(q), "solved_by": s.method, "solve_s": s.seconds})
 
@@ -273,10 +284,14 @@ class Superposition(Method):
         # |T(r)| <= max|r| * T(uniform unit map), cell-wise (K^-1 >= 0)
         res_T = float(np.abs(r).max() * u["Tj"].max())
         res_q = float(np.abs(r).sum())          # net heat of the residual map through a complete cut
-        su = float(sum(abs(ci) * s.uncertainty for ci, s in zip(c, states)))
-        exact = all(s.uncertainty == 0.0 for s in states)
+        su = float(sum(abs(ci) * s.uncertainty for ci, s in zip(c, states, strict=True)))
+        exact = all(s.uncertainty == 0.0 and s.obs_unc is None for s in states)
         self._fit[key] = (states, c, res_T + su, res_q, exact, float(np.abs(r).max() / max(np.abs(p).max(), 1e-300)))
         return self._fit[key]
+
+    def _unc_q(self, q, states, c, res_q):
+        """Heat: the residual map's net heat plus the states' own heat uncertainties, weighted by |c|."""
+        return res_q + float(sum(abs(ci) * self.model.uncertainty(q, s) for ci, s in zip(c, states, strict=True)))
 
     def offer(self, q):
         if q.quantity == "T" and q.where.local is not None and len(q.where.local) == 3:
@@ -288,8 +303,7 @@ class Superposition(Method):
         if f is None:
             return None
         states, c, unc_T, res_q, exact, rel = f
-        flux = q.quantity == "q"
-        unc = res_q if flux else unc_T
+        unc = self._unc_q(q, states, c, res_q) if q.quantity == "q" else unc_T
         return Offer(self.name, 2e-3 * len(states), unc, rigorous=exact and self._rigorous(q),
                      why=f"{len(states)} states, residual map {rel:.1e} relative")
 
@@ -304,11 +318,11 @@ class Superposition(Method):
     def answer(self, q):
         t0 = time.perf_counter()
         states, c, unc_T, res_q, exact, rel = self._coef(q)
-        unc = res_q if q.quantity == "q" else unc_T
+        unc = self._unc_q(q, states, c, res_q) if q.quantity == "q" else unc_T
         if q.quantity in ("Tj_max", "R_ja"):
-            obs = {"Tj": sum(ci * s.obs["Tj"] for ci, s in zip(c, states))}
+            obs = {"Tj": sum(ci * s.obs["Tj"] for ci, s in zip(c, states, strict=False))}
         else:
-            obs = {k: sum(ci * s.obs[k] for ci, s in zip(c, states)) for k in states[0].obs}
+            obs = {k: sum(ci * s.obs[k] for ci, s in zip(c, states, strict=False)) for k in states[0].obs}
         v = self.model.extract(q, State(self.model.power(q), obs, self.name, unc, 0.0))
         if q.quantity == "R_ja":
             unc /= float(self.model.power(q).sum())
@@ -344,7 +358,8 @@ class Condensed(Method):
         o1, o2 = h1.observables(s1), h2.observables(s2)
         unc = float(np.abs(o1["Tj"] - o2["Tj"]).max())
         self._rel_unc = unc / max(float(p.max()), 1e-300)
-        st = State(p, o2, self.name, unc, time.perf_counter() - t0, solver=h2, sol=s2)
+        obs_unc = {k: np.asarray(o1[k]) - np.asarray(o2[k]) for k in o2 if k in o1}
+        st = State(p, o2, self.name, unc, time.perf_counter() - t0, solver=h2, sol=s2, obs_unc=obs_unc)
         self.model.store(st)
         self.expected_s = st.seconds
         return st
@@ -353,7 +368,7 @@ class Condensed(Method):
         t0 = time.perf_counter()
         st = self.solve(q)
         v = self.model.extract(q, st)
-        return _answer(self.model, q, v, st.uncertainty, "solved", self.name, t0,
+        return _answer(self.model, q, v, self.model.uncertainty(q, st), "solved", self.name, t0,
                        {"model": f"reduced interfaces m={2 * self.model.m}", "relative_to": "the fine FV model"},
                        {"state": self.model.key(q), "m": [self.model.m, 2 * self.model.m]})
 

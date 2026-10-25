@@ -102,3 +102,17 @@ def test_condensed_method_on_a_package_too_big_for_the_reference():
     die = ST.layer_slices()["die"]
     k = die.start + int(0.25 * (die.stop - die.start))
     assert abs(c.value - T[int(0.3 * 6 * n), int(0.3 * 6 * n), k]) < 0.05
+
+
+def test_heat_from_condensed_states_carries_their_uncertainty():
+    # a heat answer combined from condensed states is not exact: it says so, and the reference falls inside
+    pkg = uniform_package((6, 6), ST, seed=3)
+    eng, model = package_engine(pkg, m=4, reference_cells=0)
+    P1 = hotspot_power(ST, pkg.shape, pkg.power.sum(), seed=7)
+    eng.query("Tj_max", "region:die", conditions={"power": P1}, accuracy=1e-9)
+    for P in (pkg.power, 0.5 * pkg.power + 0.5 * P1):
+        _, ref = _truth(pkg, P)
+        for where, truth in (("interface:die/tim", ref["q_tim"].sum()), ("ubump[2,3]", ref["q_ubump"][2, 3])):
+            a = eng.query("q", where, conditions={"power": P})
+            assert a.uncertainty > 0 and not a.rigorous
+            assert abs(a.value - truth) <= 3 * a.uncertainty + 1e-12, (where, a.method, a.value, truth)

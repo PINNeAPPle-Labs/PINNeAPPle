@@ -31,7 +31,7 @@ def query_demo(nb: int = 48, m: int = 12, n_points: int = 2000, n_interior: int 
     rng = np.random.default_rng(seed)
     pkg = uniform_package((nb, nb), seed=seed)
     st = pkg.stack
-    n, nz = st.n, st.nz
+    n = st.n
     t0 = time.perf_counter()
     eng, model = package_engine(pkg, m=m, reference_cells=0)        # the reference is the judge, not a method
     build = time.perf_counter() - t0

@@ -42,4 +42,4 @@ def package_queries(ctx, inputs, params):
     ctx.table("Answers", ["query", "value", "unit", "uncertainty", "kind", "method", "seconds"], rows)
     ctx.summary(f"{len(rows)} queries on {nb * nb} blocks; build {model.timings.get('calibrate', 0):.1f} s")
     return {"metrics": {"answers": [dict(zip(["query", "value", "unit", "uncertainty", "kind", "method", "seconds"],
-                                             r)) for r in rows], "build_s": model.timings.get("calibrate")}}
+                                             r, strict=False)) for r in rows], "build_s": model.timings.get("calibrate")}}

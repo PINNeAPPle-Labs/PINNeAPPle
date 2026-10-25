@@ -1,0 +1,353 @@
+{
+ "blocks": 2304,
+ "cells": 3391488,
+ "m": 12,
+ "build_s": 11.906641965000063,
+ "timings": {
+  "build_m12": 2.7960767559998203,
+  "build_m24": 8.08928079400016,
+  "calibrate": 11.906592649999993
+ },
+ "reference_solve_s": [
+  217.81231329399998,
+  189.64603804800004,
+  191.16682713700015
+ ],
+ "phases": {
+  "own map: junction points": {
+   "queries": 2000,
+   "accuracy_target": null,
+   "rigorous_requested": false,
+   "cached": {
+    "count": 2000,
+    "kind": [
+     "read"
+    ],
+    "latency_s": {
+     "n": 2000,
+     "median": 9.728850000101374e-05,
+     "p95": 0.00018492370012381797,
+     "max": 0.06539486599990596,
+     "mean": 0.00018227169849797064
+    },
+    "uncertainty": {
+     "n": 2000,
+     "median": 0.06156868203424182,
+     "p95": 0.06156868203424182,
+     "max": 0.06156868203424182,
+     "mean": 0.06156868203424182
+    },
+    "error_K_or_W": {
+     "n": 2000,
+     "median": 0.00939024413870726,
+     "p95": 0.022868126031833212,
+     "max": 0.026222697847863685,
+     "mean": 0.010600776059981741
+    },
+    "error_within_uncertainty": "2000/2000"
+   }
+  },
+  "own map: interior points (block rebuilt on demand)": {
+   "queries": 100,
+   "accuracy_target": null,
+   "rigorous_requested": false,
+   "cached": {
+    "count": 100,
+    "kind": [
+     "read"
+    ],
+    "latency_s": {
+     "n": 100,
+     "median": 0.055922251000083634,
+     "p95": 0.0641798479500835,
+     "max": 0.08371405800016873,
+     "mean": 0.057123823109991465
+    },
+    "uncertainty": {
+     "n": 100,
+     "median": 0.06156868203424182,
+     "p95": 0.06156868203424182,
+     "max": 0.06156868203424182,
+     "mean": 0.06156868203424182
+    },
+    "error_K_or_W": {
+     "n": 100,
+     "median": 0.008817419700871909,
+     "p95": 0.024908219554903254,
+     "max": 0.026007728057685142,
+     "mean": 0.011140497262921585
+    },
+    "error_within_uncertainty": "100/100"
+   }
+  },
+  "own map: regions and interfaces": {
+   "queries": 4,
+   "accuracy_target": null,
+   "rigorous_requested": false,
+   "cached": {
+    "count": 4,
+    "kind": [
+     "read"
+    ],
+    "latency_s": {
+     "n": 4,
+     "median": 0.0009034500000097978,
+     "p95": 0.004155794250073085,
+     "max": 0.004687776000082522,
+     "mean": 0.0017385967500445076
+    },
+    "uncertainty": {
+     "n": 4,
+     "median": 0.0022555098654702833,
+     "p95": 0.05282881391396393,
+     "max": 0.06156868203424182,
+     "mean": 0.016520456032635238
+    },
+    "error_K_or_W": {
+     "n": 4,
+     "median": 0.0002616676447295685,
+     "p95": 0.017335727721866926,
+     "max": 0.020308425599012025,
+     "mean": 0.005208121155239138
+    },
+    "error_within_uncertainty": "4/4"
+   }
+  },
+  "combination of solved maps: junction points": {
+   "queries": 500,
+   "accuracy_target": null,
+   "rigorous_requested": false,
+   "superposition": {
+    "count": 500,
+    "kind": [
+     "predicted"
+    ],
+    "latency_s": {
+     "n": 500,
+     "median": 0.004069058000027326,
+     "p95": 0.004606525850010711,
+     "max": 0.04343250000010812,
+     "mean": 0.004290146653999272
+    },
+    "uncertainty": {
+     "n": 500,
+     "median": 0.07962790806451393,
+     "p95": 0.07962790806451393,
+     "max": 0.07962790806451393,
+     "mean": 0.07962790806451393
+    },
+    "error_K_or_W": {
+     "n": 500,
+     "median": 0.013914751381648216,
+     "p95": 0.02901238241606165,
+     "max": 0.03489228174403536,
+     "mean": 0.014705910282544152
+    },
+    "error_within_uncertainty": "500/500"
+   }
+  },
+  "combination of solved maps: regions and interfaces": {
+   "queries": 4,
+   "accuracy_target": null,
+   "rigorous_requested": false,
+   "superposition": {
+    "count": 4,
+    "kind": [
+     "predicted"
+    ],
+    "latency_s": {
+     "n": 4,
+     "median": 0.004969643499975973,
+     "p95": 0.00548241725009575,
+     "max": 0.005563178000102198,
+     "mean": 0.00479356875001713
+    },
+    "uncertainty": {
+     "n": 4,
+     "median": 0.003592654830704798,
+     "p95": 0.06844452773389786,
+     "max": 0.07962790806451393,
+     "mean": 0.021707298802732294
+    },
+    "error_K_or_W": {
+     "n": 4,
+     "median": 0.0004277569626076616,
+     "p95": 0.013369561388964207,
+     "max": 0.015586087324095388,
+     "mean": 0.004110687707686227
+    },
+    "error_within_uncertainty": "4/4"
+   }
+  },
+  "unseen map, rigorous interval: junction points": {
+   "queries": 500,
+   "accuracy_target": null,
+   "rigorous_requested": true,
+   "bound": {
+    "count": 500,
+    "kind": [
+     "predicted"
+    ],
+    "latency_s": {
+     "n": 500,
+     "median": 0.00021482499994363025,
+     "p95": 0.00036133919986696127,
+     "max": 0.008667075999937879,
+     "mean": 0.0002484085039950514
+    },
+    "uncertainty": {
+     "n": 500,
+     "median": 2549.8758824801953,
+     "p95": 2549.896142307894,
+     "max": 2549.8961423079013,
+     "mean": 2549.8628458241133
+    },
+    "error_K_or_W": {
+     "n": 500,
+     "median": 2502.403484035679,
+     "p95": 2507.5931216842396,
+     "max": 2508.3237941124703,
+     "mean": 2498.330586047237
+    },
+    "interval_contains_truth": "500/500",
+    "error_within_uncertainty": "500/500"
+   }
+  },
+  "unseen map, rigorous interval: peak junction": {
+   "queries": 1,
+   "accuracy_target": null,
+   "rigorous_requested": true,
+   "bound": {
+    "count": 1,
+    "kind": [
+     "predicted"
+    ],
+    "latency_s": {
+     "n": 1,
+     "median": 0.00027536799984773097,
+     "p95": 0.00027536799984773097,
+     "max": 0.00027536799984773097,
+     "mean": 0.00027536799984773097
+    },
+    "uncertainty": {
+     "n": 1,
+     "median": 2549.8961423079013,
+     "p95": 2549.8961423079013,
+     "max": 2549.8961423079013,
+     "mean": 2549.8961423079013
+    },
+    "error_K_or_W": {
+     "n": 1,
+     "median": 2447.997027723078,
+     "p95": 2447.997027723078,
+     "max": 2447.997027723078,
+     "mean": 2447.997027723078
+    },
+    "interval_contains_truth": "1/1",
+    "error_within_uncertainty": "1/1"
+   }
+  },
+  "unseen map, accuracy 0.5 K: junction points": {
+   "queries": 2000,
+   "accuracy_target": 0.5,
+   "rigorous_requested": false,
+   "cached": {
+    "count": 1999,
+    "kind": [
+     "read"
+    ],
+    "latency_s": {
+     "n": 1999,
+     "median": 0.0001219830000991351,
+     "p95": 0.00021874770004615124,
+     "max": 0.012369204999913563,
+     "mean": 0.00016700168084034527
+    },
+    "uncertainty": {
+     "n": 1999,
+     "median": 0.34543637533289484,
+     "p95": 0.34543637533289484,
+     "max": 0.34543637533289484,
+     "mean": 0.3454363753328949
+    },
+    "error_K_or_W": {
+     "n": 1999,
+     "median": 0.053848076764509756,
+     "p95": 0.14079216848240889,
+     "max": 0.17108582972319653,
+     "mean": 0.06281956222904793
+    },
+    "error_within_uncertainty": "1999/1999"
+   },
+   "condensed": {
+    "count": 1,
+    "kind": [
+     "solved"
+    ],
+    "latency_s": {
+     "n": 1,
+     "median": 3.3557871840000644,
+     "p95": 3.3557871840000644,
+     "max": 3.3557871840000644,
+     "mean": 3.3557871840000644
+    },
+    "uncertainty": {
+     "n": 1,
+     "median": 0.34543637533289484,
+     "p95": 0.34543637533289484,
+     "max": 0.34543637533289484,
+     "mean": 0.34543637533289484
+    },
+    "error_K_or_W": {
+     "n": 1,
+     "median": 0.014526330357966799,
+     "p95": 0.014526330357966799,
+     "max": 0.014526330357966799,
+     "mean": 0.014526330357966799
+    },
+    "error_within_uncertainty": "1/1"
+   }
+  },
+  "unseen map, accuracy 0.5 K: regions and interfaces": {
+   "queries": 4,
+   "accuracy_target": 0.5,
+   "rigorous_requested": false,
+   "cached": {
+    "count": 4,
+    "kind": [
+     "read"
+    ],
+    "latency_s": {
+     "n": 4,
+     "median": 0.0011445984998772474,
+     "p95": 0.0015553236000300785,
+     "max": 0.0016008180000426364,
+     "mean": 0.0010837479999850075
+    },
+    "uncertainty": {
+     "n": 4,
+     "median": 0.013640799384234696,
+     "p95": 0.29650222664849646,
+     "max": 0.34543637533289484,
+     "mean": 0.09318578270153238
+    },
+    "error_K_or_W": {
+     "n": 4,
+     "median": 0.0015651958604503413,
+     "p95": 0.10212714453746971,
+     "max": 0.11961998090507109,
+     "mean": 0.03068800017718806
+    },
+    "error_within_uncertainty": "4/4"
+   }
+  }
+ },
+ "log_methods": {
+  "cached": 4107,
+  "superposition": 504,
+  "condensed": 3,
+  "bound": 501
+ },
+ "queries_total": 5115,
+ "peak_rss_gb": 2.880104
+}

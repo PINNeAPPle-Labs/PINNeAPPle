@@ -14,6 +14,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
+  accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
+  predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in
+  `pinneapple_condense.query` (read, superposition, rigorous M-matrix bound, condensed solve, fine reference); Flow
+  node `query.package`; measured demo `examples/physics_query`.
 - `pinneapple_condense`: Adaptive Physics Condensation for chip-package thermal (research line, track 1; report
   `docs/research/physics_condensation.md`, benchmark `examples/physics_condensation`).
   - **Package and baselines:** a synthetic multilayer package with repeated microbump/TSV blocks, a fine FV reference

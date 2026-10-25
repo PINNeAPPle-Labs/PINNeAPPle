@@ -48,7 +48,8 @@ def verdict_rows(ball, pc, kin, xg) -> list[dict]:
                                  f"hybrid {h['hybrid']['landing_err_median']:.2f} m, data-only "
                                  f"{h[best_data]['landing_err_median']:.2f} m ({h['n_test_flights']} test flights)",
                      "verdict": _better(h[best_phys]["landing_err_median"], h[best_data]["landing_err_median"],
-                                        h["hybrid"]["landing_err_median"])})
+                                        h["hybrid"]["landing_err_median"])
+                     + f"; physics does beat untrained extrapolation ({h['poly2']['landing_err_median']:.2f} m)"})
         idt = ball["identifiability"]
         rows.append({"case": "Ball flight from 2-D tracking (Metrica-type, no height)",
                      "physics": "Cramer-Rao bound of the drag-Magnus fit",
@@ -60,7 +61,8 @@ def verdict_rows(ball, pc, kin, xg) -> list[dict]:
         rows_pc = []
         for k in ("compare_1_to_2", "compare_2_to_1"):
             c = pc[k]
-            rows_pc.append(f"{k[-4:].replace('_to_', '->')}: fitted pitch control "
+            a, b = k.split("_")[1], k.split("_")[3]
+            rows_pc.append(f"fit on match {a}, test on {b}: fitted pitch control "
                            f"{c['scores']['pc_reaction']['log_loss']:.4f} vs {c['best_data_only']} "
                            f"{c['scores'][c['best_data_only']]['log_loss']:.4f}, diff "
                            f"{_ci(c['paired_vs_best_data_only']['pc_reaction'])}")
@@ -153,7 +155,8 @@ def _curve(rows):
 def _better(phys, data, hybrid):
     best = min(phys, data, hybrid)
     if best == data:
-        return "physics did NOT help: data-only extrapolation is as good or better on this data"
+        return ("physics did NOT help against trained trees: they learn this data's own (non-physical) height "
+                "dynamics, which a g = 9.81 model cannot follow")
     who = "physics" if best == phys else "hybrid (trees + physics features)"
     return f"{who} best: {100 * (1 - best / data):.0f} % lower median landing error than the best data-only model"
 
@@ -195,6 +198,10 @@ def main():
             ex.log_metric("ball_g_fitted_median", ga["g_drag_median"], "m/s^2",
                           "median gravity of the drag fit with free g over SkillCorner aerial flights "
                           "(results/ball_flight.json)")
+            sa = ball["synthetic_no_spin_audit"]
+            ex.check("gravity_audit_recovers_g_on_simulated_flights", sa["g_drag_ci95"][0] <= 9.81 <= sa["g_drag_ci95"][1],
+                     value=sa["g_drag_median"], reference=9.81, kind="physics",
+                     detail="the same audit on simulated flights: the 95 % interval of the median holds 9.81 m/s^2")
             ex.check("ball_height_physically_consistent", ga["g_drag_ci95"][0] <= 9.81 <= ga["g_drag_ci95"][1],
                      detail="false = the data's ball height fails the gravity check", kind="physics")
             ex.log_metric("ball_cd_mae_synthetic", ball["synthetic"]["cd_mae"], "",

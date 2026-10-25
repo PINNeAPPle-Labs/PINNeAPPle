@@ -26,7 +26,17 @@ environment (the proxy refused figshare.com), so it is not used.
 ## Verdict
 
 <!-- copied from examples/sports/results/verdict.md -->
-VERDICT_TABLE
+| Case | Physics | Data-only baseline | Measured (held-out) | Verdict |
+|---|---|---|---|---|
+| Ball flight: data consistency (SkillCorner 3-D ball, 10 Hz) | drag ODE with free gravity, fitted per flight | none (a data-quality test) | g = 6.09 m/s² [6.02, 6.18] over 2601 flights (simulated flights, same fit: 9.88) | physics HELPED as a check: the broadcast ball height is not physically consistent (apparent gravity far below 9.81 at every launch speed, so not backspin lift); drag and spin cannot be identified from it |
+| Ball flight: landing point from the first half of the flight | drag_free_g (best of vacuum / drag with g = 9.81 / drag with free g); hybrid trees | ml (best of quadratic extrapolation / boosted trees) | median landing error: physics 3.27 m, hybrid 2.55 m, data-only 2.44 m (1282 test flights) | physics did NOT help against trained trees: they learn this data's own (non-physical) height dynamics, which a g = 9.81 model cannot follow; physics does beat untrained extrapolation (7.51 m) |
+| Ball flight from 2-D tracking (Metrica-type, no height) | Cramer-Rao bound of the drag-Magnus fit | the same flight seen in 3-D | std of vertical launch speed 0.34 m/s (3-D) vs 222 m/s (2-D) | ill-posed in 2-D: elevation, spin and drag trade off; do not fit them without height |
+| Pass completion (Metrica, 2 matches, ~2000 passes) | Spearman pitch control, 5 physical parameters fitted | logistic regression / boosted trees on geometric features | fit on match 1, test on 2: fitted pitch control 0.1503 vs logistic 0.1737, diff -0.0234 [-0.0477, +0.0001]; fit on match 2, test on 1: fitted pitch control 0.1927 vs logistic 0.1891, diff +0.0036 [-0.0271, +0.0367]; with 100 training passes: fitted pitch control 0.1619, logistic 0.2183, trees 0.2526; unfitted pitch control (0 passes) 0.1925 | physics HELPED with little data (lower log-loss than every data-only model up to a few hundred passes, unfitted or fitted) and is better calibrated; at full data it matches the best data-only model (gain not significant in both directions) |
+| Speed and metabolic power from noisy tracking (simulated, known truth) | constant-acceleration Kalman-RTS, noise by maximum likelihood | best Savitzky-Golay window (chosen with the truth: an optimistic baseline) | metabolic-power RMSE 25 Hz/20 cm: 18.7 vs 23.8 W/kg; 25 Hz/5 cm: 15.3 vs 16.3 W/kg; 10 Hz/20 cm: 20.7 vs 28.8 W/kg; 10 Hz/5 cm: 16.7 vs 17.8 W/kg | physics HELPED (lower error in every case, calibrated intervals); the gain is largest against an untuned window. Caveat: the simulated motion follows a model close to the filter's |
+| Metabolic power on Metrica (real, no ground truth) | equivalent-slope model on Kalman-RTS states | the same on raw differences / Savitzky-Golay | noise fitted 0.5 cm; team mean metabolic power, all samples: raw_differences 68.0, savitzky_golay_0.5s 13.7, kalman_rts 45.1 W/kg; physically plausible samples only: raw_differences 7.4, savitzky_golay_0.5s 7.1, kalman_rts 7.3 W/kg | physics HELPED as a gate, not as a smoother: a few tracking jumps (impossible speed or acceleration) dominate the match mean whatever the filter; removing them with human limits makes the methods agree. The provider data are already smooth (noise ~mm), so the smoother itself changes little |
+| Player position 1s ahead (Metrica, train match 1, test match 2) | constant velocity / decaying acceleration; trees on the constant-velocity residual (+ reachable-set projection) | boosted trees on the past second | mean error: CV 0.56 m, physics 0.49 m; all data: trees 0.38 m, residual 0.38 m; 100 samples: trees 0.99 m, residual 0.52 m; unreachable trees predictions 0.05 % | physics prior HELPED with little data (47 % lower error); matched with all data (-0.5 %) |
+| Player position 2s ahead (Metrica, train match 1, test match 2) | constant velocity / decaying acceleration; trees on the constant-velocity residual (+ reachable-set projection) | boosted trees on the past second | mean error: CV 1.98 m, physics 1.79 m; all data: trees 1.42 m, residual 1.43 m; 100 samples: trees 2.55 m, residual 1.92 m; unreachable trees predictions 0.03 % | physics prior HELPED with little data (25 % lower error); matched with all data (-0.2 %) |
+| Expected goals (StatsBomb 360, test Euro 2024) | intercept-time features: open goal fraction, keeper margin, blockers | standard logistic xG (distance, angle, body part, context) | log-loss standard 0.2413, +physics 0.2429 (diff +0.0016 [-0.0019, +0.0052]), +freeze geometry 0.2389; StatsBomb xG 0.2267 | physics did NOT help: no measurable gain over shot geometry with ~2600 training shots; case dropped |
 
 ## 1. Ball flight: drag, Magnus, gravity
 
@@ -39,13 +49,13 @@ covariance.
 
 **Method check (simulated kicks, known truth).** Kicks are simulated at 15-30 m/s with a drag-crisis `C_D(Re)`
 and random spin, then observed at 10 Hz with 0.2 m noise. Fitting them back gives a mean `C_D` error of
-BALL_CD_MAE, and the 95 % intervals cover the true `C_D` in BALL_CD_COV of flights. Gravity and vertical Magnus
-lift are confounded: a drag fit with free `g` and no spin term misses `g` by about 0.8 m/s² on spinning balls
-(coverage 0.6). This matters in the audit below.
+0.024, and the 95 % intervals cover the true `C_D` in 97 % of flights. Gravity and vertical Magnus
+lift are confounded: a drag fit with free `g` and no spin term misses `g` by 0.94 m/s² on average on spinning balls
+(coverage 0.57). This matters in the audit below.
 
 **2-D tracking makes the problem ill-posed.** The Cramer-Rao bound for one lofted pass (22 m/s, 25°, 25 Hz,
-0.2 m noise) gives a standard deviation of the vertical launch speed of BALL_VZ3D m/s with the height observed and
-BALL_VZ2D m/s without it. The Fisher matrix is numerically singular (`ball_study.identifiability`). Without
+0.2 m noise) gives a standard deviation of the vertical launch speed of 0.34 m/s with the height observed and
+222 m/s without it. The Fisher matrix is numerically singular (`ball_study.identifiability`). Without
 height, elevation, drag and spin trade off against each other. Metrica-type 2-D ball tracks therefore cannot give
 aerodynamic coefficients. The only physics that still identifies anything in 2-D is the ground roll. Fitted to
 the event durations of Metrica passes (`pitch_control.fit_ball_travel`), the rolling deceleration comes out
@@ -55,8 +65,10 @@ speed that grows with distance (about 9 m/s + 0.16-0.18 m/s per metre), against 
 
 **Gravity audit of broadcast tracking.** Gravity is fitted freely to every aerial flight extracted from the 20
 SkillCorner matches (`ball_study.gravity_audit`). On real flights the fit should return about 9.81 m/s². The
-fitted values are in the verdict table and in `figures/ball_gravity_audit.png`. The deficit appears in every
-launch-speed band, including the slowest flights, where backspin lift, which grows with the square of the speed,
+fitted median is **6.09 m/s² [6.02, 6.18]** over 2 601 flights (3 717 extracted; flights with a fit RMSE
+above 0.6 m are dropped as deflections). The same fit on simulated flights gives 9.88 [9.57, 10.10]. The
+deficit appears in every launch-speed band: 5.64 m/s² below 12 m/s, 6.92 at 12-18 m/s, 6.42 at 18-24 m/s and
+5.87 above 24 m/s. That includes the slowest flights, where backspin lift, which grows with the square of the speed,
 cannot explain it. The ball height in this data set is therefore an estimate that is not physically consistent.
 Drag and lift coefficients fitted to it would be wrong, so this guide does not compare them with wind-tunnel
 values (Asai et al. 2007, Sports Eng. 10:101, critical Re about 2.2-3.0e5; Hong & Asai 2014, Sci. Rep. 4:5068).
@@ -70,6 +82,12 @@ predicted (`ball_study.holdout_prediction`). The models are:
 - drag with free `g`;
 - boosted trees trained on 14 other matches;
 - a hybrid: the same trees with the free-`g` physics prediction as an extra input.
+
+On 1 282 test flights, the median horizontal landing errors are: trees 2.44 m, hybrid 2.55 m, drag with free
+`g` 3.27 m, drag with g = 9.81 3.36 m, vacuum 5.14 m and quadratic extrapolation 7.51 m. Physics is by far the
+best model without training, but **trees trained on other matches of the same feed do better**. They learn the
+feed's own height dynamics, which a physical model with g = 9.81 cannot follow. On this data, physics loses this
+case.
 
 ![landing errors](../../examples/sports/figures/ball_holdout_landing.png)
 ![flights](../../examples/sports/figures/ball_flights_3d.png)
@@ -114,7 +132,7 @@ data.
 bounded acceleration and speed, observed at 25 or 10 Hz with 5 or 20 cm of noise. The constant-acceleration
 Kalman-RTS smoother takes its noise level from maximum marginal likelihood (`kinematics.fit_noise`). It has the
 lowest speed, acceleration and metabolic-power error in every case, and its 95 % velocity intervals cover the
-truth 96-97 % of the time. Raw differences inflate metabolic power by a factor of 4 to 25. A 0.5 s Savitzky-Golay
+truth 96-97 % of the time. Raw differences inflate the mean metabolic power 1.5 to 16 times. A 0.5 s Savitzky-Golay
 window at 10 Hz with 20 cm of noise is almost as bad. The caveat: the simulated motion is close to the filter's
 own model, so this is a best case for the filter. The comparison baseline is the best Savitzky-Golay window, chosen
 using the truth.

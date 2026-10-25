@@ -106,6 +106,27 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   configuration each, listed in Flow Studio's *Open... -> Examples* by domain and registered as Lab experiments when they
   finish; `python -m pinneapple_flow example-flows list|run|doc|check`; the inventory with measured comparisons against
   the examples' committed results is `docs/flow_studio/EXAMPLES_AS_FLOWS.md` (CI gate `tests/test_flow_examples.py`).
+- Six apps from PINNeAPPle-apps (the `poc_*` case studies), each a page plus routes over library code:
+  `apps/verification_gap`, `apps/design_optimization`, `apps/model_benchmarking`, `apps/parameter_discovery`,
+  `apps/predictive_twin`, `apps/surrogate_speed` (ports 8180-8185; logins `<PREFIX>_USER` / `<PREFIX>_PASSWORD`).
+  Their computation moved into the library, with tests:
+  - `pinneapple_analysis.uncertainty.margin`: `margin_study(fn, nominal, tolerances, limit)` (Monte Carlo p95 against
+    a limit with a Wilson interval on the pass fraction, ROBUST / MARGINAL / FRAGILE, six checks of the study and a
+    `TrustReport` decision) and `corner_stackup`;
+  - `pinneapple_physics.closed_form.thin_airfoil` (thin-airfoil lift of NACA 4-digit camber lines, Hoerner profile
+    drag);
+  - `pinneapple_design.design_optimizer.airfoil_drag.run_design_optimization` (surrogate-driven drag reduction at
+    constant lift, every iterate re-evaluated on the closed form);
+  - `pinneapple_arena.showcase.run_benchmark` (four PINN architectures on viscous Burgers with Arena's accuracy and
+    physics-aware rankings, front-band error, absolute residual threshold optional);
+  - `pinneapple_analysis.inverse_problems.heat_diffusivity.run_inverse_discovery` (joint PINN + diffusivity
+    inversion with the Cramer-Rao bound of the readings);
+  - `pinneapple_systems.digital_twin.recession` (baseflow recession fit, forecast, sustained-departure detector,
+    `run_twin`) and `pinneapple_systems.digital_twin.io.usgs` (USGS Instantaneous Values client, standard library
+    only; data downloaded at run time);
+  - `pinneapple_design.thermal.fin_array_speed` (surrogate vs numerical solve timing and agreement, on
+    `pinneapple_design.surrogate_inverse.heatsink_fins` and `pinneapple_design.thermal.fin_cell`).
+  The rotor and heat-sink apps reuse `pinneapple_design.surrogate_inverse.brake_rotor` / `heatsink_fins`.
 - Reflector antennas and compact ranges by physical optics (`pinneapple_simulation.electromagnetics.reflector`):
   offset paraboloid sections with superellipse junctions and blended rolled edges, `cos^q` feeds (Ludwig-3, 1 W),
   PO currents and their exact near field (dyadic Green's function), quiet-zone metrics (taper, ripple, phase, usable

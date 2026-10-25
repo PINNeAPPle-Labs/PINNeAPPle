@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The AI Never Saw 0.15</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --surface-0: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #201f1d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --blue: #3987e5;
+    --blue-dim: #1c5cab;
+    --good: #0ca30c;
+    --good-bg: rgba(12,163,12,0.13);
+    --warning: #fab219;
+    --warning-bg: rgba(250,178,25,0.14);
+    --critical: #e66767;
+    --critical-bg: rgba(230,103,103,0.13);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 90px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--blue); font-weight: 700; margin-bottom: 14px;
+  }
+  h1 { font-size: 40px; line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.01em; font-weight: 750; }
+  .sub {
+    font-size: 18px; color: var(--text-secondary); line-height: 1.55; max-width: 640px; margin: 0 0 42px;
+  }
+  .hero-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 30px; display: flex; align-items: center; gap: 22px; margin-bottom: 8px;
+  }
+  .hero-check {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--good-bg); color: var(--good);
+    display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+  .hero-stat .num { font-size: 38px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1; }
+  .hero-stat .lbl { color: var(--text-secondary); font-size: 14px; margin-top: 6px; }
+  .hero-note { color: var(--text-muted); font-size: 13px; margin: 10px 2px 56px; }
+
+  .divider-line {
+    display: flex; align-items: center; gap: 14px; margin: 8px 0 30px; color: var(--text-muted);
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 650;
+  }
+  .divider-line::before, .divider-line::after { content: ""; flex: 1; height: 1px; background: var(--gridline); }
+
+  h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .h2-sub { color: var(--text-secondary); font-size: 15px; line-height: 1.6; max-width: 620px; margin-bottom: 26px; }
+
+  .chart-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 26px 26px 18px; margin-bottom: 30px;
+  }
+  #chart-convergence, #chart-loss, #chart-field { width: 100%; height: auto; display: block; overflow: visible; }
+  .axis-label { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .grid-line { stroke: var(--gridline); stroke-width: 1; }
+  .true-line { stroke: var(--good); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .guess-line { stroke: var(--text-muted); stroke-width: 1.25; stroke-dasharray: 2 3; }
+  .ref-label { font-size: 12px; font-weight: 650; }
+  .ref-label.truev { fill: var(--good); }
+  .ref-label.guess { fill: var(--text-muted); }
+  .series-line { fill: none; stroke-width: 2; }
+  .series-line.est { stroke: var(--blue); }
+  .series-line.pred { stroke: var(--blue); }
+  .series-line.truth { stroke: var(--good); stroke-dasharray: 5 4; }
+  .obs-dot { fill: var(--warning); fill-opacity: 0.85; }
+  .hover-dot { fill: var(--blue); stroke: var(--surface-1); stroke-width: 2; }
+
+  .tooltip {
+    position: absolute; pointer-events: none; background: #050506; border: 1px solid var(--border);
+    border-radius: 8px; padding: 7px 10px; font-size: 12.5px; color: var(--text-primary);
+    transform: translate(-50%, -115%); white-space: nowrap; opacity: 0; transition: opacity 0.1s;
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-wrap { position: relative; }
+  .hit-layer rect { fill: transparent; }
+
+  .chart-legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: var(--text-secondary); margin: 4px 2px 2px; }
+  .chart-legend div { display: flex; align-items: center; gap: 7px; }
+  .swatch { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+  .swatch.line-blue { background: var(--blue); }
+  .swatch.line-good { background: var(--good); background-image: repeating-linear-gradient(90deg, var(--good) 0 5px, transparent 5px 8px); }
+  .dotswatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+  .dotswatch.warn { background: var(--warning); }
+
+  .verdict-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 36px; }
+  .verdict-badge {
+    border: 1px solid rgba(12,163,12,0.35); border-radius: 14px;
+    padding: 20px 26px; display: flex; align-items: center; gap: 16px; flex: 1 1 220px;
+  }
+  .verdict-badge .icon { font-size: 26px; }
+  .verdict-badge .label { font-size: 22px; font-weight: 800; letter-spacing: 0.01em; }
+  .verdict-badge .note { color: var(--text-secondary); font-size: 12.5px; margin-top: 2px; }
+  .verdict-badge.v-good { background: var(--good-bg); border-color: rgba(12,163,12,0.35); }
+  .verdict-badge.v-good .label { color: var(--good); }
+  .verdict-badge.v-bad { background: var(--critical-bg); border-color: rgba(230,103,103,0.35); }
+  .verdict-badge.v-bad .label { color: var(--critical); }
+  .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; flex: 1 1 140px;
+  }
+  .stat-tile .num { font-size: 24px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .stat-tile .lbl { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+  .narrative { font-size: 16px; line-height: 1.7; color: var(--text-secondary); max-width: 640px; margin-bottom: 10px; }
+  .narrative b { color: var(--text-primary); }
+  .pullquote {
+    font-size: 21px; font-weight: 650; line-height: 1.45; color: var(--text-primary);
+    border-left: 3px solid var(--blue); padding-left: 18px; margin: 30px 0 40px; max-width: 600px;
+  }
+
+  .replay-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 11px 18px; border-radius: 9px; font-size: 13.5px; font-weight: 650; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 4px;
+  }
+  .replay-btn:hover { background: #262524; }
+  .replay-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--gridline);
+    color: var(--text-muted); font-size: 12.5px; line-height: 1.7;
+  }
+  .footer b { color: var(--text-secondary); }
+
+  .method-section { margin: 54px 0 44px; }
+  .method-block { margin-bottom: 26px; }
+  .method-block h3 {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .method-block h3 .num {
+    display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--surface-2); color: var(--blue); font-size: 12px; font-weight: 700;
+  }
+  .method-block p { font-size: 14.5px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 8px; max-width: 620px; }
+  .method-block p b { color: var(--text-primary); }
+  .eq {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    color: var(--blue); margin: 10px 0; display: inline-block;
+  }
+  .pinn-note {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0; padding: 16px 18px; margin-top: 24px; font-size: 14px;
+    color: var(--text-secondary); line-height: 1.65;
+  }
+  .pinn-note b { color: var(--text-primary); }
+
+  .code-section { margin: 44px 0 20px; }
+  .code-card {
+    background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+  }
+  .code-card .code-title {
+    padding: 10px 16px; font-size: 12.5px; color: var(--text-muted); border-bottom: 1px solid var(--gridline);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .code-card pre {
+    margin: 0; padding: 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.65;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #d4d4d0;
+  }
+  .code-card .c-kw { color: #d55181; }
+  .code-card .c-fn { color: #3987e5; }
+  .code-card .c-str { color: #c98500; }
+  .code-card .c-com { color: var(--text-muted); font-style: italic; }
+
+  /* Live-progress state (background training run) */
+  .progress-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 26px 30px; margin-bottom: 42px;
+  }
+  .progress-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .progress-top .label { font-size: 14.5px; color: var(--text-secondary); font-weight: 650; }
+  .progress-top .pct { font-size: 14.5px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .progress-track { height: 8px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--blue); border-radius: 5px; transition: width 0.25s ease; width: 0%; }
+  .progress-live { display: flex; gap: 26px; margin-top: 16px; flex-wrap: wrap; }
+  .progress-live .item .num { font-size: 20px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .progress-live .item .lbl { color: var(--text-muted); font-size: 11.5px; margin-top: 3px; }
+
+  [hidden] { display: none !important; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 30px; }
+    .hero-card { flex-direction: column; align-items: flex-start; }
+    .progress-live { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Inverse-problem case study</div>
+  <h1>The AI never saw 0.15.</h1>
+  <div class="sub">A hidden material property, a deliberately wrong starting guess, and 256 noisy sensor readings. A real physics-informed neural network was asked to find the truth anyway.</div>
+
+  <!-- Live progress state, shown while a real run is training -->
+  <div class="progress-card" id="progress-card" hidden>
+    <div class="progress-top">
+      <div class="label" id="progress-label">Training a real PINN, live…</div>
+      <div class="pct" id="progress-pct">0%</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-live">
+      <div class="item"><div class="num" id="progress-step">0 / 0</div><div class="lbl">real Adam steps</div></div>
+      <div class="item"><div class="num" id="progress-alpha">--</div><div class="lbl">current α estimate</div></div>
+      <div class="item"><div class="num" id="progress-loss">--</div><div class="lbl">current training loss</div></div>
+    </div>
+  </div>
+
+  <!-- Result state -->
+  <div id="result-root" hidden>
+
+    <div class="hero-card">
+      <div class="hero-check">✓</div>
+      <div class="hero-stat">
+        <div class="num" id="hero-recovered">--</div>
+        <div class="lbl">recovered α &middot; real hidden value was <span id="hero-true">--</span> &middot; <span id="hero-error">--</span> error</div>
+      </div>
+    </div>
+    <div class="hero-note" id="scenario-note">-- real sensor readings &middot; noise σ=-- &middot; -- real Adam steps &middot; started from a wrong guess of --</div>
+
+    <div class="divider-line">watch it happen</div>
+
+    <h2>The parameter, discovered live</h2>
+    <div class="h2-sub">Every point below is the model's real, current best guess for α after that many real training steps — not an animation, the actual optimizer trajectory. It starts miles from the truth and finds it.</div>
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <svg id="chart-convergence" viewBox="0 0 800 320"></svg>
+        <div class="tooltip" id="tooltip-convergence"></div>
+      </div>
+    </div>
+
+    <h2>The training signal underneath</h2>
+    <div class="h2-sub">The real joint loss (PDE residual + boundary/initial conditions + fit to the noisy sensor data) driving both the network's weights and α, on a log scale. The periodic spikes are real Adam dynamics on this multi-term, nonconvex loss, not divergence — the α trajectory above keeps moving smoothly through every one of them.</div>
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <svg id="chart-loss" viewBox="0 0 800 260"></svg>
+        <div class="tooltip" id="tooltip-loss"></div>
+      </div>
+    </div>
+
+    <h2>Fit to the real sensor data</h2>
+    <div class="h2-sub">The noisy sensor readings are all the model was given. The true field (noiseless) is shown only for real verification — never used in training.</div>
+    <div class="chart-card">
+      <div class="chart-legend">
+        <div><span class="swatch line-blue"></span> PINN predicted field</div>
+        <div><span class="swatch line-good"></span> True field (noiseless, for verification only)</div>
+        <div><span class="dotswatch warn"></span> Noisy sensor reading</div>
+      </div>
+      <div class="chart-wrap">
+        <svg id="chart-field" viewBox="0 0 800 320"></svg>
+        <div class="tooltip" id="tooltip-field"></div>
+      </div>
+    </div>
+
+    <div class="verdict-row">
+      <div class="verdict-badge v-good" id="verdict-badge">
+        <div class="icon" id="verdict-icon">✓</div>
+        <div>
+          <div class="label" id="verdict-label">IDENTIFIABLE</div>
+          <div class="note" id="verdict-note">Fisher-information check confirms α is recoverable from this sensor layout</div>
+        </div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="stat-error">--%</div>
+        <div class="lbl">recovery error vs. real hidden value</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="stat-cramerrao">--</div>
+        <div class="lbl">Cramér-Rao bound on α's std. error</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="stat-time">--s</div>
+        <div class="lbl">real wall-clock training time</div>
+      </div>
+    </div>
+
+    <p class="narrative">The model was initialized believing α was <b id="narrative-guess">--</b> — more than 3x too high. It was never told the real value. All it had was <b id="narrative-nobs">--</b> noisy sensor readings taken at a single point in time, and the requirement that its own solution satisfy the heat equation everywhere else. After <b id="narrative-epochs">--</b> real training steps, it converged to <b id="narrative-recovered">--</b> — <b id="narrative-error">--</b> away from the real hidden value of <b id="narrative-true">--</b>. A real Fisher-information check on the exact sensor layout used says this wasn't luck: it confirms α is genuinely identifiable from this data, with a theoretical best-case standard error of <b id="narrative-se">--</b> — evidence this was a parameter that could be found, not one recovered by coincidence. The PINN's own error is usually a few times that bound: it also carries network and optimisation error, which the bound does not.</p>
+
+    <p class="pullquote" id="pullquote">Nobody told the network the answer. It found a hidden physical constant from noise and a PDE — and the math says that was a legitimate thing to expect, not a lucky guess.</p>
+
+    <button class="replay-btn" id="btn-replay">↻ Run another real discovery</button>
+
+    <div class="divider-line">the method behind the number</div>
+
+    <div class="method-section">
+      <h2>How this actually works</h2>
+      <div class="h2-sub">Three real steps: the physics, the joint inverse solve, and the honesty check on top of it.</div>
+
+      <div class="method-block">
+        <h3><span class="num">1</span> The physics: the 1D heat equation</h3>
+        <p>A thin bar starts with a hot pulse in its middle and cold, fixed-temperature ends. Heat diffuses according to the standard transient heat equation, where <b>α</b> is the bar's thermal diffusivity — a real material property that is, in this case, unknown:</p>
+        <div class="eq">u_t(t,x) = α &middot; u_xx(t,x),&nbsp; u(0,x)=sin(πx),&nbsp; u(t,0)=u(t,1)=0</div>
+        <p>All quantities here are the standard nondimensional units for this textbook PDE test case (the same one PINNeAPPle's own reference example uses) — the point is a genuine, citable inverse problem, not a specific SI-unit material.</p>
+      </div>
+
+      <div class="method-block">
+        <h3><span class="num">2</span> The mechanism: α as a real trainable parameter</h3>
+        <p>PINNeAPPle's <code>PINN</code> class stores α as a real <code>nn.Parameter</code> inside <code>model.inverse_params</code>, alongside the network's own weights. The <b>same</b> Adam optimizer step updates both, from the <b>same</b> joint loss — the network and α are discovered together, not in separate stages:</p>
+        <div class="eq">loss = pde_residual + 50&middot;conditions + 5&middot;fit(noisy sensor data) &nbsp;→&nbsp; loss.backward() &nbsp;→&nbsp; opt.step()</div>
+        <p>That single <code>opt.step()</code> nudges every network weight <b>and</b> α in the direction that most reduces the combined error — which is exactly the live trajectory in the chart above.</p>
+      </div>
+
+      <div class="method-block">
+        <h3><span class="num">3</span> The honesty check: could α even be known here?</h3>
+        <p>A recovered number alone doesn't say how much to trust it. <code>pinneapple_analysis.inverse_problems.sensitivity</code> computes a real Fisher Information Matrix from the exact sensor positions used, giving a Cramér-Rao lower bound — the best possible standard error <i>any</i> unbiased estimator could achieve given this noise level and this many sensors:</p>
+        <div class="eq">SE(α) ≥ sqrt(1 / FIM(α))</div>
+        <p>This is run for every real result on this page, using the real noisy sensor layout actually drawn for that run — not a generic disclaimer.</p>
+      </div>
+
+      <div class="pinn-note">
+        <b>Built on PINNeAPPle.</b> This page imports <code>pinneapple_physics.pinn_solver.factory.pinn_factory</code> (<code>PINNProblemSpec</code>, <code>PINNFactory</code>, <code>PINN</code>) for the real joint training, and <code>pinneapple_analysis.inverse_problems.sensitivity</code> (<code>LocalSensitivity</code>, <code>IdentifiabilityAnalyzer</code>) for the real identifiability check — both inside PINNeAPPle; the whole study is <code>pinneapple_analysis.inverse_problems.heat_diffusivity.run_inverse_discovery</code>, which this page only calls. Every number on this page comes from an actual run of that real code, triggered fresh by the "Run another real discovery" button.
+      </div>
+    </div>
+
+    <div class="divider-line">the code behind this</div>
+
+    <div class="code-section">
+      <h2>The real code, not a black box</h2>
+      <div class="h2-sub">Trimmed for length; the full module is <code>pinneapple_analysis/inverse_problems/heat_diffusivity.py</code>.</div>
+
+      <div class="code-card">
+        <div class="code-title">heat_diffusivity.py — the joint inverse solve</div>
+        <pre><span class="c-kw">from</span> pinneapple_physics.pinn_solver.factory.pinn_factory <span class="c-kw">import</span> NeuralNetwork, PINN, PINNFactory, PINNProblemSpec
+
+spec = PINNProblemSpec(
+    pde_residuals=[<span class="c-str">"Derivative(u(t,x), t) - alpha*Derivative(u(t,x), (x,2))"</span>],
+    conditions=[{<span class="c-str">"name"</span>: <span class="c-str">"ic"</span>, <span class="c-str">"equation"</span>: <span class="c-str">"u(t,x) - sin(pi*x)"</span>, <span class="c-str">"weight"</span>: <span class="c-str">1.0</span>}, ...],
+    inverse_params=[<span class="c-str">"alpha"</span>],  <span class="c-com"># the unknown to be discovered</span>
+)
+model = PINN(net, inverse_params_names=[<span class="c-str">"alpha"</span>], initial_guesses={<span class="c-str">"alpha"</span>: <span class="c-str">0.5</span>})
+opt = torch.optim.Adam(model.parameters(), lr=<span class="c-str">2e-3</span>)  <span class="c-com"># weights AND alpha, same optimizer</span>
+
+<span class="c-kw">for</span> step <span class="c-kw">in</span> range(n_epochs):
+    loss, _ = loss_fn(model, batch)  <span class="c-com"># batch["data"] = the real NOISY sensor readings</span>
+    loss.backward(); opt.step()
+    alpha_hat = model.inverse_params[<span class="c-str">"alpha"</span>].item()  <span class="c-com"># real, live estimate every step</span></pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-title">heat_diffusivity.py — real noisy sensor data + the real honesty check</div>
+        <pre>y_d_noisy = y_d_true + rng.normal(<span class="c-str">0.0</span>, noise_std, size=y_d_true.shape)  <span class="c-com"># real Gaussian sensor noise</span>
+
+<span class="c-kw">from</span> pinneapple_analysis.inverse_problems.sensitivity <span class="c-kw">import</span> LocalSensitivity, IdentifiabilityAnalyzer
+
+sensitivity = LocalSensitivity(forward_fn, noise_std=noise_std, param_names=[<span class="c-str">"alpha"</span>])
+result = sensitivity.compute(theta_nominal=torch.tensor([alpha_hat]))  <span class="c-com"># real Fisher Information Matrix</span>
+ident = IdentifiabilityAnalyzer().analyze(result.fisher_information, param_names=[<span class="c-str">"alpha"</span>])
+cramer_rao_se = math.sqrt(ident.a_optimality)  <span class="c-com"># real Cramer-Rao lower bound on alpha's std. error</span></pre>
+      </div>
+    </div>
+
+    <div class="footer">
+      Real physics-informed neural network, not illustrative: a real <code>PINN</code> with a real <code>nn.Parameter</code> for the unknown, trained jointly with the network's weights by real backprop through a real PDE residual, run live for every result on this page — not pre-rendered. <b>Built on PINNeAPPle</b>. One fixed, dimensionless test problem with synthetic readings from the exact solution; the Cramér-Rao bound is for the exact model, not an error bar of the PINN estimate.
+    </div>
+
+  </div>
+</div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+let pollTimer = null;
+
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function fmt3(x) { return x.toFixed(3); }
+function fmt1(x) { return x.toFixed(1); }
+function fmtPct(x) { return x.toFixed(2) + "%"; }
+
+async function poll() {
+  const res = await fetch("/api/discovery/status");
+  const s = await res.json();
+  render(s);
+  if (s.status === "running" || s.status === "idle") {
+    pollTimer = setTimeout(poll, 700);
+  }
+}
+
+function render(s) {
+  const progressCard = document.getElementById("progress-card");
+  const resultRoot = document.getElementById("result-root");
+  const btn = document.getElementById("btn-replay");
+
+  if (s.status === "running" || s.status === "idle") {
+    progressCard.hidden = false;
+    const p = s.progress || { step: 0, total: 1, loss: null, alpha_estimate: null };
+    const pct = p.total ? Math.round((p.step / p.total) * 100) : 0;
+    document.getElementById("progress-pct").textContent = pct + "%";
+    document.getElementById("progress-fill").style.width = pct + "%";
+    document.getElementById("progress-step").textContent = p.step + " / " + p.total;
+    document.getElementById("progress-alpha").textContent = p.alpha_estimate == null ? "--" : p.alpha_estimate.toFixed(4);
+    document.getElementById("progress-loss").textContent = p.loss == null ? "--" : p.loss.toExponential(2);
+    if (btn) btn.disabled = true;
+    if (s.status === "done") { /* unreachable branch guard */ }
+  } else {
+    progressCard.hidden = true;
+  }
+
+  if (s.status === "done" && s.result) {
+    resultRoot.hidden = false;
+    renderResult(s.result);
+    if (btn) { btn.disabled = false; btn.textContent = "↻ Run another real discovery"; }
+  } else if (s.status === "error") {
+    progressCard.hidden = false;
+    document.getElementById("progress-label").textContent = "Real run failed: " + (s.error || "unknown error");
+    if (btn) { btn.disabled = false; btn.textContent = "↻ Try a real run again"; }
+  }
+}
+
+function renderResult(r) {
+  const sc = r.scenario, f = r.final, id = r.identifiability;
+
+  document.getElementById("hero-recovered").textContent = fmt3(f.alpha_recovered);
+  document.getElementById("hero-true").textContent = fmt3(f.alpha_true);
+  document.getElementById("hero-error").textContent = fmtPct(f.pct_error);
+  document.getElementById("scenario-note").textContent =
+    `${sc.n_observations} real sensor readings · noise σ=${sc.noise_std} · ${sc.n_epochs} real Adam steps · started from a wrong guess of ${sc.initial_guess}`;
+
+  document.getElementById("stat-error").textContent = fmtPct(f.pct_error);
+  document.getElementById("stat-cramerrao").textContent = "±" + id.cramer_rao_standard_error.toExponential(2);
+  document.getElementById("stat-time").textContent = fmt1(r.wall_time_s) + "s";
+  document.getElementById("verdict-badge").className = "verdict-badge " + (id.is_identifiable ? "v-good" : "v-bad");
+  document.getElementById("verdict-icon").textContent = id.is_identifiable ? "✓" : "✕";
+  document.getElementById("verdict-label").textContent = id.is_identifiable ? "IDENTIFIABLE" : "NOT RELIABLY IDENTIFIABLE";
+  document.getElementById("verdict-note").textContent = id.is_identifiable
+    ? "Fisher-information check confirms α is recoverable from this sensor layout"
+    : "Fisher-information check on this run's sensor layout could not confirm α is reliably recoverable — treat this run's estimate with caution";
+
+  document.getElementById("narrative-guess").textContent = fmt3(sc.initial_guess);
+  document.getElementById("narrative-nobs").textContent = sc.n_observations;
+  document.getElementById("narrative-epochs").textContent = sc.n_epochs.toLocaleString();
+  document.getElementById("narrative-recovered").textContent = fmt3(f.alpha_recovered);
+  document.getElementById("narrative-error").textContent = f.abs_error.toFixed(4) + " (" + fmtPct(f.pct_error) + ")";
+  document.getElementById("narrative-true").textContent = fmt3(f.alpha_true);
+  document.getElementById("narrative-se").textContent = "±" + id.cramer_rao_standard_error.toExponential(2);
+
+  drawConvergence(r);
+  drawLoss(r);
+  drawField(r);
+}
+
+// ---- Parameter-convergence chart: alpha estimate vs epoch, true value marked ----
+function drawConvergence(r) {
+  const svg = document.getElementById("chart-convergence");
+  svg.innerHTML = "";
+  const W = 800, H = 320, marginL = 46, marginR = 24, marginT = 20, marginB = 34;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const epochs = r.history.epoch, alphas = r.history.alpha_estimate;
+  const trueA = r.final.alpha_true, guess = r.scenario.initial_guess;
+
+  const yMin = Math.min(Math.min(...alphas), trueA) - 0.01;
+  const yMax = Math.max(Math.max(...alphas), trueA, guess) + 0.01;
+  const xMax = epochs[epochs.length - 1];
+
+  const x = (e) => marginL + (e / xMax) * plotW;
+  const y = (a) => marginT + plotH - ((a - yMin) / (yMax - yMin)) * plotH;
+
+  // gridlines (y)
+  const nGrid = 4;
+  for (let i = 0; i <= nGrid; i++) {
+    const v = yMin + (yMax - yMin) * (i / nGrid);
+    const gy = y(v);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+    lbl.textContent = v.toFixed(2);
+    svg.appendChild(lbl);
+  }
+  // x ticks
+  const nXTicks = 5;
+  for (let i = 0; i <= nXTicks; i++) {
+    const e = Math.round((xMax / nXTicks) * i);
+    const lbl = el("text", { x: x(e), y: H - marginB + 18, class: "axis-label", "text-anchor": "middle" });
+    lbl.textContent = e.toLocaleString();
+    svg.appendChild(lbl);
+  }
+
+  // initial-guess reference line
+  const gy0 = y(guess);
+  svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy0, y2: gy0, class: "guess-line" }));
+  const guessLbl = el("text", { x: W - marginR, y: gy0 - 6, class: "ref-label guess", "text-anchor": "end" });
+  guessLbl.textContent = "initial guess " + guess.toFixed(2);
+  svg.appendChild(guessLbl);
+
+  // true-value reference line
+  const ty = y(trueA);
+  svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: ty, y2: ty, class: "true-line" }));
+  const trueLbl = el("text", { x: W - marginR, y: ty - 6, class: "ref-label truev", "text-anchor": "end" });
+  trueLbl.textContent = "true α = " + trueA.toFixed(3);
+  svg.appendChild(trueLbl);
+
+  // estimate path
+  let d = "";
+  epochs.forEach((e, i) => { d += (i === 0 ? "M" : "L") + x(e).toFixed(2) + "," + y(alphas[i]).toFixed(2) + " "; });
+  svg.appendChild(el("path", { d, class: "series-line est" }));
+
+  // final point marker
+  const lastX = x(epochs[epochs.length - 1]), lastY = y(alphas[alphas.length - 1]);
+  svg.appendChild(el("circle", { cx: lastX, cy: lastY, r: 4.5, class: "hover-dot" }));
+
+  // hover crosshair
+  const tooltip = document.getElementById("tooltip-convergence");
+  const hitLayer = el("g", { class: "hit-layer" });
+  const hitRect = el("rect", { x: marginL, y: marginT, width: plotW, height: plotH });
+  hitLayer.appendChild(hitRect);
+  svg.appendChild(hitLayer);
+  const cursorDot = el("circle", { r: 4, class: "hover-dot", opacity: 0 });
+  svg.appendChild(cursorDot);
+
+  hitRect.addEventListener("mousemove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const mx = (ev.clientX - rect.left) * scaleX;
+    const frac = Math.min(Math.max((mx - marginL) / plotW, 0), 1);
+    const idx = Math.round(frac * (epochs.length - 1));
+    const px = x(epochs[idx]), py = y(alphas[idx]);
+    cursorDot.setAttribute("cx", px); cursorDot.setAttribute("cy", py); cursorDot.setAttribute("opacity", 1);
+    const wrapRect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+    tooltip.style.left = ((px / W) * wrapRect.width) + "px";
+    tooltip.style.top = ((py / H) * wrapRect.height) + "px";
+    tooltip.textContent = `step ${epochs[idx].toLocaleString()} · α ≈ ${alphas[idx].toFixed(4)}`;
+    tooltip.style.opacity = "1";
+  });
+  hitRect.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; cursorDot.setAttribute("opacity", 0); });
+}
+
+// ---- Loss curve (log scale) ----
+function drawLoss(r) {
+  const svg = document.getElementById("chart-loss");
+  svg.innerHTML = "";
+  const W = 800, H = 260, marginL = 52, marginR = 24, marginT = 16, marginB = 34;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const epochs = r.history.epoch;
+  const losses = r.history.loss.map(v => Math.max(v, 1e-8));
+  const xMax = epochs[epochs.length - 1];
+  const logMin = Math.floor(Math.log10(Math.min(...losses)));
+  const logMax = Math.ceil(Math.log10(Math.max(...losses)));
+
+  const x = (e) => marginL + (e / xMax) * plotW;
+  const y = (v) => marginT + plotH - ((Math.log10(v) - logMin) / (logMax - logMin)) * plotH;
+
+  for (let p = logMin; p <= logMax; p++) {
+    const gy = y(Math.pow(10, p));
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+    lbl.textContent = "1e" + p;
+    svg.appendChild(lbl);
+  }
+  const nXTicks = 5;
+  for (let i = 0; i <= nXTicks; i++) {
+    const e = Math.round((xMax / nXTicks) * i);
+    const lbl = el("text", { x: x(e), y: H - marginB + 18, class: "axis-label", "text-anchor": "middle" });
+    lbl.textContent = e.toLocaleString();
+    svg.appendChild(lbl);
+  }
+
+  let d = "";
+  epochs.forEach((e, i) => { d += (i === 0 ? "M" : "L") + x(e).toFixed(2) + "," + y(losses[i]).toFixed(2) + " "; });
+  svg.appendChild(el("path", { d, class: "series-line est" }));
+
+  const tooltip = document.getElementById("tooltip-loss");
+  const hitLayer = el("g", { class: "hit-layer" });
+  const hitRect = el("rect", { x: marginL, y: marginT, width: plotW, height: plotH });
+  hitLayer.appendChild(hitRect);
+  svg.appendChild(hitLayer);
+  const cursorDot = el("circle", { r: 4, class: "hover-dot", opacity: 0 });
+  svg.appendChild(cursorDot);
+  hitRect.addEventListener("mousemove", (ev) => {
+    const rect = svg.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const mx = (ev.clientX - rect.left) * scaleX;
+    const frac = Math.min(Math.max((mx - marginL) / plotW, 0), 1);
+    const idx = Math.round(frac * (epochs.length - 1));
+    const px = x(epochs[idx]), py = y(losses[idx]);
+    cursorDot.setAttribute("cx", px); cursorDot.setAttribute("cy", py); cursorDot.setAttribute("opacity", 1);
+    const wrapRect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+    tooltip.style.left = ((px / W) * wrapRect.width) + "px";
+    tooltip.style.top = ((py / H) * wrapRect.height) + "px";
+    tooltip.textContent = `step ${epochs[idx].toLocaleString()} · loss ≈ ${losses[idx].toExponential(2)}`;
+    tooltip.style.opacity = "1";
+  });
+  hitRect.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; cursorDot.setAttribute("opacity", 0); });
+}
+
+// ---- Field fit: predicted vs true (noiseless) vs noisy observations ----
+function drawField(r) {
+  const svg = document.getElementById("chart-field");
+  svg.innerHTML = "";
+  const W = 800, H = 320, marginL = 46, marginR = 24, marginT = 20, marginB = 34;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const field = r.field_fit;
+  const allY = field.u_predicted.concat(field.u_true_noiseless).concat(field.u_observed_noisy);
+  const yMin = Math.min(...allY) - 0.05;
+  const yMax = Math.max(...allY) + 0.05;
+
+  const x = (xv) => marginL + xv * plotW;
+  const y = (v) => marginT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+  const nGrid = 4;
+  for (let i = 0; i <= nGrid; i++) {
+    const v = yMin + (yMax - yMin) * (i / nGrid);
+    const gy = y(v);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    const lbl = el("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" });
+    lbl.textContent = v.toFixed(2);
+    svg.appendChild(lbl);
+  }
+  for (let i = 0; i <= 5; i++) {
+    const xv = i / 5;
+    const lbl = el("text", { x: x(xv), y: H - marginB + 18, class: "axis-label", "text-anchor": "middle" });
+    lbl.textContent = xv.toFixed(1);
+    svg.appendChild(lbl);
+  }
+  const xAxisLbl = el("text", { x: (marginL + W - marginR) / 2, y: H - 2, class: "axis-label", "text-anchor": "middle" });
+  xAxisLbl.textContent = "position along the bar (x)";
+  svg.appendChild(xAxisLbl);
+
+  // true (noiseless) curve
+  let dTrue = "";
+  field.x_grid.forEach((xv, i) => { dTrue += (i === 0 ? "M" : "L") + x(xv).toFixed(2) + "," + y(field.u_true_noiseless[i]).toFixed(2) + " "; });
+  svg.appendChild(el("path", { d: dTrue, class: "series-line truth" }));
+
+  // predicted curve
+  let dPred = "";
+  field.x_grid.forEach((xv, i) => { dPred += (i === 0 ? "M" : "L") + x(xv).toFixed(2) + "," + y(field.u_predicted[i]).toFixed(2) + " "; });
+  svg.appendChild(el("path", { d: dPred, class: "series-line pred" }));
+
+  // noisy observed points
+  const tooltip = document.getElementById("tooltip-field");
+  field.x_observed.forEach((xv, i) => {
+    const dot = el("circle", { cx: x(xv), cy: y(field.u_observed_noisy[i]), r: 3.2, class: "obs-dot" });
+    dot.addEventListener("mousemove", (ev) => {
+      const wrapRect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+      const rect = svg.getBoundingClientRect();
+      tooltip.style.left = ((ev.clientX - rect.left) / rect.width) * wrapRect.width + "px";
+      tooltip.style.top = ((ev.clientY - rect.top) / rect.height) * wrapRect.height + "px";
+      tooltip.textContent = `sensor at x=${xv.toFixed(2)} · reading ${field.u_observed_noisy[i].toFixed(3)}`;
+      tooltip.style.opacity = "1";
+    });
+    dot.addEventListener("mouseleave", () => { tooltip.style.opacity = "0"; });
+    svg.appendChild(dot);
+  });
+}
+
+async function startRun() {
+  const btn = document.getElementById("btn-replay");
+  btn.disabled = true; btn.textContent = "↻ Running a real discovery…";
+  try {
+    await fetch("/api/discovery/run", { method: "POST" });
+  } catch (e) { /* ignore -- polling will surface real status */ }
+  clearTimeout(pollTimer);
+  poll();
+}
+
+document.getElementById("btn-replay").addEventListener("click", startRun);
+poll();
+</script>
+</body>
+</html>

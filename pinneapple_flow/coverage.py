@@ -41,6 +41,8 @@ REASONS: dict[str, str] = {
     "pinneapple_catalog": "method / resource catalogue with license gates (read by the planner and docs)",
     "pinneapple_decision": "experiment-selection loop driven by an LLM backend; the planner covers routing",
     "pinneapple_arena": "YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes",
+    "pinneapple_arena.showcase": "one fixed four-architecture Burgers comparison (minutes of training) served by "
+                                 "apps/model_benchmarking; single benchmark runs are benchmark.arena nodes",
     "pinneapple_arena.pointwise": "the PINNeAPPle Arena app's training protocol (minutes-long multi-architecture experiments run by apps/pinn_arena); single trainings are pinn / solve nodes",
     "pinneapple_arena.external": "references to third-party libraries run through their own packages (mostly not installed); not a computation step of a flow",
     "pinneapple_pdb": "dataset builder for benchmark publication (sharding, upload)",

@@ -437,6 +437,12 @@ blocks outside the training box (two nearly open bumps, two delaminated TIM cont
 | 256 | 48 samples, 36 s | 24.6 s | 113 s | 2.2 mK | 2.2 mK | 4 (OOD) |
 | 1,024 | 48 samples, 14 s | 9.4 s | 417 s | 4.4 mK | 4.4 mK | 4 (OOD) |
 | 1,024 | 6 samples, 4 s | 97 s | 1,198 s | 0.13 K | 0.70 K | 250 |
+| 4,096 | 48 samples, 14 s | 51 s | 1,991 s | 0.06 mK | 0.06 mK | 4 (OOD) |
+
+At 4,096 blocks the learned and verified solve is 39 times faster than condensing every block exactly. Of its 51 s,
+37 s are verification: the 24 audited blocks and the `A⁻¹ r` effect estimate, which bounds the unchecked blocks
+additively at 64 mK. The 64 x 64 run shared the 4 cores with a PINN training run (Section 6), so both of its times
+are pessimistic by the same load.
 
 The 6-sample case shows the fallback doing its job:
 - the predictive deviation flagged 227 blocks and the out-of-box rule 4;

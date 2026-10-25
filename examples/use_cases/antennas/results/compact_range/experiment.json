@@ -1,0 +1,114 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "compact_range_qz",
+ "title": "Compact range quiet zone: feed gain x reflector size",
+ "description": "",
+ "domain": "electromagnetics",
+ "methods": [
+  "physical optics",
+  "Gaussian process"
+ ],
+ "modules": [],
+ "params": {
+  "quick": false,
+  "design": {
+   "freq_hz": 3000000000.0,
+   "reflector": {
+    "focal": 1.5,
+    "half_x": 0.6,
+    "half_y": 0.6,
+    "centre_y": 0.9,
+    "n": 6.0,
+    "roll": 0.15,
+    "end_angle": -90.0,
+    "blend": 0.3,
+    "roll_aspect": 1.0
+   },
+   "feed_gain_dbi": 12.0,
+   "pol": "V",
+   "qz_z": 3.0,
+   "qz_diameter": 0.6,
+   "qz_centre_y": null,
+   "feed_offset": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "mesh_per_wavelength": 8.0,
+   "eval_factor": 1.6,
+   "qz_step_per_wavelength": 6.0
+  }
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "po_disk_max_rel_error",
+   "value": 0.001108988630067284,
+   "unit": "",
+   "how": "PO disk on axis vs closed form, lambda/16 mesh"
+  },
+  {
+   "name": "po_vs_go_rms_dB",
+   "value": 0.4959877175658075,
+   "unit": "dB",
+   "how": "smooth PO QZ amplitude vs GO taper"
+  },
+  {
+   "name": "reference_ripple_pp_dB",
+   "value": 2.5141311501880343,
+   "unit": "dB",
+   "how": "PO, reference design"
+  },
+  {
+   "name": "reference_usable_diameter_m",
+   "value": 0.13324109244444446,
+   "unit": "m",
+   "how": "within +-0.5 dB / +-5 deg"
+  },
+  {
+   "name": "evaluation_s_median",
+   "value": 28.125999999999998,
+   "unit": "s",
+   "how": "PO mesh + QZ field per design"
+  }
+ ],
+ "checks": [
+  {
+   "name": "po_disk_closed_form",
+   "passed": true,
+   "value": 0.001108988630067284,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.01,
+   "min": null,
+   "detail": "",
+   "kind": "reference"
+  }
+ ],
+ "files": {
+  "figures": [
+   "qz_reference.png",
+   "tradeoff_roll0.png",
+   "tradeoff_roll0.15.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "4c57ae6e",
+  "created": "2026-10-24T20:07:12Z",
+  "seconds": 2787.4,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

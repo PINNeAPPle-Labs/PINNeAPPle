@@ -202,3 +202,31 @@ same test set. The budgets differ by kind, and that is declared:
 - **FEM (pp.solve "fem")** for the linear 2D problems: P1, P2 and the 1D heat problem.
 
 All methods are scored by `pinneapple_analysis.reproduction.evaluate` on the same points.
+
+## Amendment 1: baselines (written before any baseline run, after the reproduction runs started)
+
+The "Baselines" plan above assumed library features that do not exist. A survey of `pp.solve` found three gaps:
+
+- **`pp.solve("pinn")`** takes no explicit collocation points: it resamples them uniformly every epoch. It also
+  has no wall-clock limit, uses only Adam, and supports only built-in PDE kinds.
+- **`pp.solve("fem")`** solves only steady Poisson with Dirichlet data. It refuses Neumann conditions (P2) and
+  time-dependent problems (P4).
+
+The baselines are therefore fixed as follows. Each deviation is stated, and none of them is chosen after
+seeing a baseline number.
+
+- **ELM-only (PIELM-style):** the same ELM with the same seeds, neurons and training grid as X-TFC.
+  - No constrained expression is used. The constraints become extra least-squares rows at the training points
+    that lie on the constrained faces (`solve_xtfc` with no constraints, and the residual stacked with the
+    boundary rows, weight 1).
+  - Cases: all 7 PDEs, 10 seeds each.
+- **PINN:** `pp.solve(spec, "pinn")` with its defaults (modified_mlp, 64 x 4, Adam lr 1e-3), 5 000 epochs and
+  `n_collocation = 900`. 900 points is the paper's grid size, but they are resampled each epoch, which
+  `pp.solve` gives no way to change.
+  - Cases: P1 (`poisson`), P2 (`poisson`, plus a Neumann condition at y = 1) and P4 (`heat_equation`, alpha = 1).
+  - 3 seeds each, because of CPU time.
+  - Budget: 5 000 epochs. The 100x-X-TFC-time cap cannot be enforced, so wall times are reported instead.
+- **FEM:** `pp.solve(spec, "fem", n=29)` on P1 only. With n = 29 the mesh has 30 x 30 nodes, which matches the
+  training grid. It is deterministic, so it runs once.
+- **Scoring:** every method is scored on the same 10 000 test points (seed 20201) with
+  `pinneapple_analysis.reproduction.evaluate`.

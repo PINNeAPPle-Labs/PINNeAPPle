@@ -10283,6 +10283,88 @@
    "status": "done"
   }
  },
+ "sports/ball_flight_inverse": {
+  "full": {
+   "commit": "b40643cf",
+   "comparisons": [
+    {
+     "flow": "ball.cd_mae",
+     "outcome": "match",
+     "ref": "manifest:ball_cd_mae_synthetic",
+     "reference": 0.02425,
+     "rel_diff": 0.0001261247479201045,
+     "value": 0.024253058525137063
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-25",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-sports-ball-flight-inverse.experiment.json, Lab item manifest/flow/example-sports-ball-flight-inverse",
+   "matched": 1,
+   "nodes": {
+    "ball": "done",
+    "compare": "done"
+   },
+   "seconds": 24.6,
+   "status": "done"
+  }
+ },
+ "sports/pass_pitch_control": {
+  "full": {
+   "commit": "b40643cf",
+   "comparisons": [
+    {
+     "flow": "pc.log_loss_pc_default",
+     "outcome": "match",
+     "ref": "manifest:pass_logloss_pc_default",
+     "reference": 0.19248,
+     "rel_diff": 4.417612417752169e-06,
+     "value": 0.19248085030203818
+    },
+    {
+     "flow": "pc.log_loss_pc_reaction",
+     "outcome": "match",
+     "ref": "manifest:pass_logloss_pc_reaction",
+     "reference": 0.15028,
+     "rel_diff": 1.5741051929298278e-06,
+     "value": 0.1502797634434716
+    },
+    {
+     "flow": "pc.log_loss_logistic",
+     "outcome": "match",
+     "ref": "manifest:pass_logloss_logistic",
+     "reference": 0.17372,
+     "rel_diff": 1.4199533805626494e-05,
+     "value": 0.1737175332569873
+    },
+    {
+     "flow": "pc.log_loss_gbm",
+     "outcome": "match",
+     "ref": "manifest:pass_logloss_gbm",
+     "reference": 0.23125,
+     "rel_diff": 1.6459785175558404e-05,
+     "value": 0.23124619367467816
+    },
+    {
+     "flow": "pc.log_loss_hybrid",
+     "outcome": "match",
+     "ref": "manifest:pass_logloss_hybrid",
+     "reference": 0.16005,
+     "rel_diff": 1.5087171460428424e-05,
+     "value": 0.16004758529820776
+    }
+   ],
+   "configuration": "full",
+   "date": "2026-10-25",
+   "manifest": "manifest /root/.pinneapple_flow/work/example-sports-pass-pitch-control.experiment.json, Lab item manifest/flow/example-sports-pass-pitch-control",
+   "matched": 5,
+   "nodes": {
+    "compare": "done",
+    "pc": "done"
+   },
+   "seconds": 86.2,
+   "status": "done"
+  }
+ },
  "studio/01_any_result_in_3d": {
   "full": {
    "commit": "345465ba",

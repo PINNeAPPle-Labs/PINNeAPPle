@@ -85,6 +85,35 @@ def _adapt_canonical_to_signature(model_cls: Type[Any], kwargs: Mapping[str, Any
     return out
 
 
+def _adapt_size_to_signature(model_cls: Type[Any], kwargs: Mapping[str, Any]) -> Dict[str, Any]:
+    """Translate the generic network size ``hidden_dim`` / ``n_layers`` into the class's own size arguments when the
+    class does not take them by these names: ``width`` / ``depth`` (the benchmark MLPs), ``n_hidden`` (layer count),
+    or one ``hidden`` list of layer widths (``VanillaPINN`` and its relatives). Without this, ``filter_supported_kwargs``
+    dropped both and the default size was built silently. The class's own size arguments, when given, win."""
+    sig = inspect.signature(model_cls.__init__)
+    params = sig.parameters
+    if any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        return dict(kwargs)
+    out = dict(kwargs)
+    width = out.get("hidden_dim")
+    depth = out.get("n_layers")
+    if width is not None and "hidden_dim" not in params:
+        if "width" in params and "width" not in out:
+            out["width"] = out.pop("hidden_dim")
+    if depth is not None and "n_layers" not in params:
+        for name in ("depth", "n_hidden"):
+            if name in params and name not in out:
+                out[name] = out.pop("n_layers")
+                break
+    if "hidden" in params and "hidden" not in out and ("hidden_dim" in out or "n_layers" in out):
+        default = params["hidden"].default
+        if isinstance(default, (list, tuple)) and default and "hidden_dim" not in params and "n_layers" not in params:
+            w = int(out.pop("hidden_dim", default[0]))
+            n = int(out.pop("n_layers", len(default)))
+            out["hidden"] = [w] * n
+    return out
+
+
 def filter_supported_kwargs(model_cls: Type[Any], kwargs: Mapping[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Keep only kwargs accepted by ``model_cls.__init__``.
 
@@ -132,6 +161,7 @@ def instantiate(
     kwargs = dict(kwargs or {})
     normalized, used_aliases = normalize_kwargs(kwargs)
     normalized = _adapt_canonical_to_signature(model_cls, normalized)
+    normalized = _adapt_size_to_signature(model_cls, normalized)
     kept, dropped = filter_supported_kwargs(model_cls, normalized)
     if strict and dropped:
         raise TypeError(

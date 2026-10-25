@@ -1,0 +1,73 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-sports-pass-pitch-control",
+ "name": "Pass completion: pitch control against data-only models",
+ "description": "Spearman pitch control with fitted physical parameters against logistic regression and boosted trees on geometric features: fitted on Metrica sample match 1, scored on match 2 (examples/sports/02_pitch_control.py, results/pitch_control.json). Downloads the Metrica sample data once (~120 MB).",
+ "nodes": [
+  {
+   "id": "pc",
+   "type": "football.pass_pitch_control",
+   "params": {
+    "train_game": 1
+   },
+   "label": "Pass completion: pitch control against data-only models",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "sports",
+    "comparisons": [
+     {
+      "flow": "pc.log_loss_pc_default",
+      "ref": "manifest:pass_logloss_pc_default"
+     },
+     {
+      "flow": "pc.log_loss_pc_reaction",
+      "ref": "manifest:pass_logloss_pc_reaction"
+     },
+     {
+      "flow": "pc.log_loss_logistic",
+      "ref": "manifest:pass_logloss_logistic"
+     },
+     {
+      "flow": "pc.log_loss_gbm",
+      "ref": "manifest:pass_logloss_gbm"
+     },
+     {
+      "flow": "pc.log_loss_hybrid",
+      "ref": "manifest:pass_logloss_hybrid"
+     }
+    ],
+    "tolerance_source": "deterministic: the same library code, data and seed; 1e-6 relative covers BLAS / platform rounding; the manifest stores rounded numbers (5 significant digits): each matches within half a unit of its last digit"
+   },
+   "label": "Same numbers as examples/sports",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "pc",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "pc.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "sports",
+  "domain": "sports",
+  "scripts": [
+   "02_pitch_control.py"
+  ],
+  "quick": {}
+ }
+}

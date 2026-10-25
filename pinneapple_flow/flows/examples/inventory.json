@@ -307,6 +307,10 @@
   "domain": "numerical solvers",
   "notes": "three flows over SolverRegistry (decompositions, SPH box, Poisson FDM vs spectral); the scripts commit no results, so nothing is compared. wavelet / stl are skipped without pywt / statsmodels (the script crashes there); the SPH run leaves the box (it blows up, as in the script: the node warns); the registry's fdm solves lap(u) = -f and spectral lap(u) = f, so the script's fdm-vs-spectral MSE is mostly that sign: each solver is also checked against the exact solution of its own equation"
  },
+ "sports": {
+  "domain": "sports",
+  "notes": "ball_flight_inverse: football.ball_flight_inverse (simulated kicks, no download); pass_pitch_control: football.pass_pitch_control (Metrica sample data). 01_ball_flight.py's SkillCorner audit and hold-out (1.8 GB of tracking, ~1 h), 03 and 04 (StatsBomb, ~3 GB) run as scripts; 05_verdict.py builds the verdict table from their results."
+ },
  "studio": {
   "domain": "visualization",
   "notes": "01_any_result_in_3d: glTF, USD, the three.js viewer and the Blender still (quick: no render); nothing numeric to compare. 02-06 couple the scenes to OpenFOAM runs of hours; 07 is the lunar-rover dashboard of the #850 session (vehicle.* nodes)"

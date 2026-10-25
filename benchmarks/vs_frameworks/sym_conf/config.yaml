@@ -1,0 +1,30 @@
+# PhysicsNeMo-Sym 2.4.0 configuration of the cross-framework benchmark (composed by track_a_physicsnemo_sym.py
+# with physicsnemo.sym.hydra.utils.compose). The defaults list is the one of the official examples
+# examples/helmholtz/conf/config.yaml and examples/wave_equation/conf/config.yaml (NVIDIA/physicsnemo-sym v2.4.0);
+# the runner overrides only what the protocol fixes (A1) or what the example sets (A2).
+defaults:
+  - physicsnemo_default
+  - arch:
+      - fully_connected
+  - scheduler: tf_exponential_lr
+  - optimizer: adam
+  - loss: sum
+  - _self_
+
+scheduler:
+  decay_rate: 0.95
+  decay_steps: 200
+
+training:
+  rec_results_freq: 1000000
+  rec_constraint_freq: 1000000
+  save_network_freq: 1000000
+  print_stats_freq: 100
+  summary_freq: 1000000
+  max_steps: 20000
+
+batch_size:
+  wall: 800
+  interior: 4000
+  IC: 315
+  BC: 200

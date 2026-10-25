@@ -815,6 +815,171 @@ services:
     expose: ["8116"]
     mem_limit: ${HUB_MEM_LIMIT:-2g}
 
+  meshbridge:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/meshbridge/Dockerfile
+    image: pinneapple/meshbridge:latest
+    restart: unless-stopped
+    environment:
+      MBR_USER: ${MBR_USER:-}
+      MBR_PASSWORD: ${MBR_PASSWORD:-}
+      MBR_PASSWORD_HASH: ${MBR_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      MBR_ADMIN_TOKEN: ${MBR_ADMIN_TOKEN:-}
+      MBR_REQUIRE_API_KEY: ${MBR_REQUIRE_API_KEY:-0}
+      MBR_UPLOAD_MAX_MB: ${MBR_UPLOAD_MAX_MB:-}
+      MBR_FREE_CONVERSIONS: ${MBR_FREE_CONVERSIONS:-}
+    volumes:
+      - meshbridge_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8141"]
+    mem_limit: ${MBR_MEM_LIMIT:-1g}
+
+  satscreen:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/satscreen/Dockerfile
+    image: pinneapple/satscreen:latest
+    restart: unless-stopped
+    environment:
+      SATSCREEN_USER: ${SATSCREEN_USER:-}
+      SATSCREEN_PASSWORD: ${SATSCREEN_PASSWORD:-}
+      SATSCREEN_PASSWORD_HASH: ${SATSCREEN_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      SATSCREEN_ADMIN_TOKEN: ${SATSCREEN_ADMIN_TOKEN:-}
+      SATSCREEN_REQUIRE_API_KEY: ${SATSCREEN_REQUIRE_API_KEY:-0}
+      SATSCREEN_FREE_SCREENINGS: ${SATSCREEN_FREE_SCREENINGS:-}
+    volumes:
+      - satscreen_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8144"]
+    mem_limit: ${SATSCREEN_MEM_LIMIT:-1g}
+
+  flowtrace:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/flowtrace/Dockerfile
+    image: pinneapple/flowtrace:latest
+    restart: unless-stopped
+    environment:
+      FLOWTRACE_USER: ${FLOWTRACE_USER:-}
+      FLOWTRACE_PASSWORD: ${FLOWTRACE_PASSWORD:-}
+      FLOWTRACE_PASSWORD_HASH: ${FLOWTRACE_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      FLOWTRACE_ADMIN_TOKEN: ${FLOWTRACE_ADMIN_TOKEN:-}
+      FLOWTRACE_REQUIRE_API_KEY: ${FLOWTRACE_REQUIRE_API_KEY:-0}
+      FLOWTRACE_UPLOAD_MAX_MB: ${FLOWTRACE_UPLOAD_MAX_MB:-}
+      FLOWTRACE_MAX_FRAMES: ${FLOWTRACE_MAX_FRAMES:-}
+      FLOWTRACE_FREE_ANALYSES: ${FLOWTRACE_FREE_ANALYSES:-}
+    volumes:
+      - flowtrace_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8145"]
+    mem_limit: ${FLOWTRACE_MEM_LIMIT:-2g}
+
+  nozzle:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/nozzle_screen/Dockerfile
+    image: pinneapple/nozzle-screen:latest
+    restart: unless-stopped
+    environment:
+      NOZZLE_USER: ${NOZZLE_USER:-}
+      NOZZLE_PASSWORD: ${NOZZLE_PASSWORD:-}
+      NOZZLE_PASSWORD_HASH: ${NOZZLE_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      NOZZLE_ADMIN_TOKEN: ${NOZZLE_ADMIN_TOKEN:-}
+      NOZZLE_REQUIRE_API_KEY: ${NOZZLE_REQUIRE_API_KEY:-0}
+      NOZZLE_MAX_JOBS: ${NOZZLE_MAX_JOBS:-}
+      NOZZLE_MAX_EPOCHS: ${NOZZLE_MAX_EPOCHS:-}
+      NOZZLE_FREE_SCREENS: ${NOZZLE_FREE_SCREENS:-}
+    volumes:
+      - nozzle_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8146"]
+    mem_limit: ${NOZZLE_MEM_LIMIT:-1g}
+
+  rovermob:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/rover_mobility/Dockerfile
+    image: pinneapple/rover-mobility:latest
+    restart: unless-stopped
+    environment:
+      ROVERMOB_USER: ${ROVERMOB_USER:-}
+      ROVERMOB_PASSWORD: ${ROVERMOB_PASSWORD:-}
+      ROVERMOB_PASSWORD_HASH: ${ROVERMOB_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      ROVERMOB_ADMIN_TOKEN: ${ROVERMOB_ADMIN_TOKEN:-}
+      ROVERMOB_REQUIRE_API_KEY: ${ROVERMOB_REQUIRE_API_KEY:-0}
+      ROVERMOB_MAX_JOBS: ${ROVERMOB_MAX_JOBS:-}
+      ROVERMOB_MAX_EPOCHS: ${ROVERMOB_MAX_EPOCHS:-}
+      ROVERMOB_FREE_ANALYSES: ${ROVERMOB_FREE_ANALYSES:-}
+    volumes:
+      - rovermob_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8147"]
+    mem_limit: ${ROVERMOB_MEM_LIMIT:-1g}
+
+  gcard:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/governed_card/Dockerfile
+    image: pinneapple/governed-card:latest
+    restart: unless-stopped
+    environment:
+      GCARD_USER: ${GCARD_USER:-}
+      GCARD_PASSWORD: ${GCARD_PASSWORD:-}
+      GCARD_PASSWORD_HASH: ${GCARD_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      GCARD_ADMIN_TOKEN: ${GCARD_ADMIN_TOKEN:-}
+      GCARD_REQUIRE_API_KEY: ${GCARD_REQUIRE_API_KEY:-0}
+      GCARD_MAX_JOBS: ${GCARD_MAX_JOBS:-}
+      GCARD_MAX_EPOCHS: ${GCARD_MAX_EPOCHS:-}
+      GCARD_FREE_CARDS: ${GCARD_FREE_CARDS:-}
+    volumes:
+      - gcard_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8148"]
+    mem_limit: ${GCARD_MEM_LIMIT:-1g}
+
+  helio:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/helio_tfc/Dockerfile
+    image: pinneapple/helio-tfc:latest
+    restart: unless-stopped
+    environment:
+      HELIO_USER: ${HELIO_USER:-}
+      HELIO_PASSWORD: ${HELIO_PASSWORD:-}
+      HELIO_PASSWORD_HASH: ${HELIO_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      HELIO_ADMIN_TOKEN: ${HELIO_ADMIN_TOKEN:-}
+      HELIO_REQUIRE_API_KEY: ${HELIO_REQUIRE_API_KEY:-0}
+      HELIO_ALLOW_LIVE: ${HELIO_ALLOW_LIVE:-}
+      HELIO_FREE_FORECASTS: ${HELIO_FREE_FORECASTS:-}
+    volumes:
+      - helio_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8149"]
+    mem_limit: ${HELIO_MEM_LIMIT:-1g}
+
+  orbitwatch:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/orbitwatch/Dockerfile
+    image: pinneapple/orbitwatch:latest
+    restart: unless-stopped
+    environment:
+      ORBITWATCH_USER: ${ORBITWATCH_USER:-}
+      ORBITWATCH_PASSWORD: ${ORBITWATCH_PASSWORD:-}
+      ORBITWATCH_PASSWORD_HASH: ${ORBITWATCH_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      ORBITWATCH_ADMIN_TOKEN: ${ORBITWATCH_ADMIN_TOKEN:-}
+      ORBITWATCH_REQUIRE_API_KEY: ${ORBITWATCH_REQUIRE_API_KEY:-0}
+      ORBITWATCH_FREE_REPORTS: ${ORBITWATCH_FREE_REPORTS:-}
+      EE_PROJECT_ID: ${EE_PROJECT_ID:-}
+      EE_SERVICE_ACCOUNT_EMAIL: ${EE_SERVICE_ACCOUNT_EMAIL:-}
+      EE_SERVICE_ACCOUNT_KEY_FILE: ${EE_SERVICE_ACCOUNT_KEY_FILE:-}
+    volumes:
+      - orbitwatch_data:/data          # jobs, uploads, usage, API keys
+    expose: ["8150"]
+    mem_limit: ${ORBITWATCH_MEM_LIMIT:-1g}
+
   caddy:
     <<: *base-hardening
     cap_add: [NET_BIND_SERVICE]            # ports 80 and 443
@@ -861,12 +1026,20 @@ services:
       EDO_DOMAIN: ${EDO_DOMAIN:-optimize.localhost}
       PDO_DOMAIN: ${PDO_DOMAIN:-design.localhost}
       HUB_DOMAIN: ${HUB_DOMAIN:-hub.localhost}
+      MBR_DOMAIN: ${MBR_DOMAIN:-meshbridge.localhost}
+      SATSCREEN_DOMAIN: ${SATSCREEN_DOMAIN:-satscreen.localhost}
+      FLOWTRACE_DOMAIN: ${FLOWTRACE_DOMAIN:-flowtrace.localhost}
+      NOZZLE_DOMAIN: ${NOZZLE_DOMAIN:-nozzle.localhost}
+      ROVERMOB_DOMAIN: ${ROVERMOB_DOMAIN:-rover.localhost}
+      GCARD_DOMAIN: ${GCARD_DOMAIN:-cards.localhost}
+      HELIO_DOMAIN: ${HELIO_DOMAIN:-helio.localhost}
+      ORBITWATCH_DOMAIN: ${ORBITWATCH_DOMAIN:-orbitwatch.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub, meshbridge, satscreen, flowtrace, nozzle, rovermob, gcard, helio, orbitwatch]
 
 volumes:
   surrogate_data:
@@ -890,6 +1063,14 @@ volumes:
   optimize_data:
   design_data:
   hub_data:
+  meshbridge_data:
+  satscreen_data:
+  flowtrace_data:
+  nozzle_data:
+  rovermob_data:
+  gcard_data:
+  helio_data:
+  orbitwatch_data:
   obs_cache:
   caddy_data:
   caddy_config:

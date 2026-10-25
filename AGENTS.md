@@ -61,6 +61,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | A mission (objectives, limits, variables, simulation budget) on any simulator: plan, checked build, simulate, surrogates compared on held-out data, NSGA-II, triage (favourable / uncertain / out of domain), next simulation chosen by what is unknown, verified recommendation, ledger | `pinneapple_autolab`: `AutonomousLab(mission, simulator, folder).run()`, `Mission`, `Limit(lower_frac_of_baseline=...)`, `Simulator` / `FunctionSimulator`, `compare_models`, `ValidatedDomain`, `assess_candidates`, `choose_next`; racing-car OpenFOAM domain `domains.racecar.RaceCarAero`, `flagship_mission()`; driven by an agent: `agent.run_agent(text, simulator, folder, domain=racecar_domain())` (`provider="anthropic"` for an LLM), `agent.interpret_mission`, `agent.lab_toolbox`, `core.act`; dashboard `dashboard.build_dashboard(folder, out, replay=True)` / `dashboard.serve(folder, out)`, Flow node `autolab.aerodynamicist` ([docs](docs/guides/autonomous_lab.md)) |
 | Results to NVIDIA Omniverse (OpenUSD with fields, timeline, trust decision), PhysicsNeMo surrogates checked by PINNeAPPle, architecture figures | `pinneapple_tools.nvidia`: `omniverse.FieldStage(path).add_mesh(..., fields=, color_by=)`, `.add_time_samples`, `.set_trust`, `omniverse.validate_stage(path)`, `diagram.architecture_diagram(...)`; worked examples in `examples/nvidia` ([README](examples/nvidia/README.md)) |
 | Synthetic physics data and checks for world models (Cosmos alternative): videos with exact labels, video physics checks, inspection samples as USD scene variations, robot camera data from the robot sim | `pinneapple_worldmodel.physical_world`: `dataset(n, seed)`, `physics_checks(video)`, `corrupt(video, kind)`, `WorldModel().fit(videos)`; `.inspection_data.inspection_sample(x, y, r)`; `.robot_perception.arm_motions(arm, n, seed)`, `write_motion_stage`, `camera_frames`, `perception_checks` |
+| Conjunction screening and an ideal rocket nozzle in closed form | `pinneapple_physics.astro.conjunction.screen_cw_conjunction(n, state0, sigma_km=...)`, `collision_probability_2d`, `propagate_two_body_j2`; `pp.closed_form.rocket_nozzle.nozzle_performance(...)` |
 | Everything from an agent tool call | the MCP server `pinneapple-mcp` ([docs](docs/guides/mcp_server.md)) |
 | Coding and engineering agents on a local model (web app, VS Code, terminal), conversations kept for fine-tuning | `python -m pinneapple_llm.workbench serve --workspace <project>` (`doctor`, `eval`, `finetune`), `pinneapple_llm.workbench.Session` ([docs](docs/guides/agent_workbench.md)) |
 
@@ -229,6 +230,22 @@ assert status["S2"]["status"] == "validated"   # linear finite elements: compare
 | `pinneapple_flow/` | engineering flows: schema, node catalog, planner, runtime, store (Flow Studio's library) |
 | `pinneapple_reason/` | chain of whys: requirements, failure-mode library by physical domain, reasoning engine, reports |
 | `tests/`, `examples/`, `notebooks/colab/`, `docs/` | tests, runnable scripts, Colab notebooks, documentation (mkdocs) |
+
+## Apps from PINNeAPPle-apps and PINNeAPPle-arena
+
+| App | Folder | What it does | Library APIs it uses |
+|---|---|---|---|
+| Text2Part | `apps/text2part` | plain-language part to a checked CSG / CadQuery recipe, built and measured (local LLM) | `pinneapple_llm.draft_part`, `measure_part`, `export_recipe` |
+| MeshBridge | `apps/meshbridge` | CGNS / Exodus / Fluent / Abaqus / STL / STEP to an NPZ point bundle or a repaired surface | `pinneapple_simulation.external_solvers.cfd_formats.convert` |
+| PhysicsCopilot | `apps/physics_copilot` | plain-language problem to a trained PINN and its guardrail report (local LLM) | `pinneapple_analysis.verification.pipeline.analyze` |
+| VerifiedPhysics | `apps/verified_physics` | the same pipeline with candidates, UQ, interventions, inverse problems, knowledge graph, geometry and mesh checks | `pinneapple_analysis.verification` (`pipeline`, `uncertainty_inverse`, `causal_discrepancy`, `knowledge_graph`, ...) |
+| SatScreen | `apps/satscreen` | closest approach and 2-D Gaussian Pc in Clohessy-Wiltshire motion, J2 propagation | `pinneapple_physics.astro.conjunction`, `presets.astrophysics.cw_exact_velocity`, `pinneapple_llm.draft_preset_kwargs` |
+| FlowTrace | `apps/flowtrace` | cross-correlation PIV from a video or image frames | `pinneapple_perception.video_piv`, `pinneapple_perception.piv_tools` |
+| NozzleScreen | `apps/nozzle_screen` | ideal rocket nozzle and a PINN cross-check with their disagreement | `pinneapple_physics.closed_form.rocket_nozzle`, `pinneapple_analysis.verification.nozzle_crosscheck` |
+| RoverMobility | `apps/rover_mobility` | Bekker-Wong surrogate drawbar pull against slip, constraints R1-R4 checked one by one | `pinneapple_simulation.terramechanics.mobility` |
+| GovernedCard | `apps/governed_card` | model cards issued only from a guardrail run against the model | `pinneapple_hub.verified_card.certify_model` |
+| HelioTFC | `apps/helio_tfc` | solar-cycle envelope: EMD, Hilbert amplitude, end-point-constrained ELM fit (live SILSO data) | `pinneapple_systems.time_series.solar_cycle` |
+| OrbitWatch | `apps/orbitwatch` | band reflectance / NDVI change between dated images, HTML report (Sentinel-2 via Earth Engine) | `pinneapple_perception.change_detection`, `pinneapple_perception.sentinel2` |
 
 ## Tests and lint
 

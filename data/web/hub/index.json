@@ -2,7 +2,7 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 426,
+  "tool": 427,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
@@ -121,7 +121,7 @@
  ],
  "facets": {
   "kind": {
-   "tool": 426,
+   "tool": 427,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
@@ -132,11 +132,11 @@
    "library call": 249,
    "flow node": 92,
    "recipe": 47,
-   "function": 21,
+   "function": 22,
    "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 95,
+   "physics AI": 96,
    "general": 79,
    "fluid dynamics": 61,
    "design and geometry": 58,
@@ -201,7 +201,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 561,
+   "not graded": 562,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -18039,6 +18039,57 @@
    }
   },
   {
+   "id": "api:pinneapple-physics-astro-conjunction-screen-cw-conjunction",
+   "kind": "tool",
+   "subkind": "function",
+   "name": "pinneapple_physics.astro.conjunction.screen_cw_conjunction",
+   "title": "Conjunction screening and an ideal rocket nozzle in closed form",
+   "summary": "Closest approach + collision probability for one CW encounter (one reference period by default).",
+   "description": "Closest approach + collision probability for one CW encounter (one reference period by default).\n\nAt the closest approach the relative position lies in the encounter plane (perpendicular to the relative\nvelocity), so with an isotropic sigma the whole miss distance can be put on one in-plane axis.",
+   "domain": "physics AI",
+   "tags": [
+    "pinneapple_physics.astro.conjunction.screen_cw_conjunction",
+    "pp.closed_form.rocket_nozzle.nozzle_performance"
+   ],
+   "quality": null,
+   "code": "import inspect\nimport pinneapple_physics.astro.conjunction\n\nprint(\"pinneapple_physics.astro.conjunction.screen_cw_conjunction\" + str(inspect.signature(pinneapple_physics.astro.conjunction.screen_cw_conjunction)))\nprint(inspect.getdoc(pinneapple_physics.astro.conjunction.screen_cw_conjunction).splitlines()[0])\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_physics/astro/conjunction.py#L112"
+   },
+   "extra": {
+    "functions": [
+     {
+      "name": "pinneapple_physics.astro.conjunction.screen_cw_conjunction",
+      "signature": "(n: 'float', state0, *, duration_s: 'float | None' = None, n_samples: 'int' = 2000, hard_body_radius_km: 'float' = 0.01, sigma_km: 'float' = 1.0) -> 'dict'",
+      "summary": "Closest approach + collision probability for one CW encounter (one reference period by default)."
+     },
+     {
+      "name": "pp.closed_form.rocket_nozzle.nozzle_performance",
+      "signature": "(*, gamma: 'float', R_gas: 'float', T_chamber: 'float', p_chamber: 'float', area_ratio_exit: 'float', p_atm: 'float' = 101325.0) -> 'dict'",
+      "summary": "Exit state and performance of an ideal nozzle expanded to ``area_ratio_exit`` = A_e/A_t."
+     }
+    ],
+    "table_row": "`pinneapple_physics.astro.conjunction.screen_cw_conjunction(n, state0, sigma_km=...)`, `collision_probability_2d`, `propagate_two_body_j2`; `pp.closed_form.rocket_nozzle.nozzle_performance(...)`"
+   },
+   "category": null,
+   "run": {
+    "ok": true,
+    "stdout": "pinneapple_physics.astro.conjunction.screen_cw_conjunction(n: 'float', state0, *, duration_s: 'float | None' = None, n_samples: 'int' = 2000, hard_body_radius_km: 'float' = 0.01, sigma_km: 'float' = 1.0) -> 'dict'\nClosest approach + collision probability for one CW encounter (one reference period by default).",
+    "stderr": "",
+    "seconds": 3.6,
+    "timed_out": false,
+    "code_hash": "6b8beb3c268e2eeb",
+    "figures": [],
+    "recorded": "2026-10-25",
+    "source": "python -m pinneapple_hub.library run",
+    "status": "ok"
+   }
+  },
+  {
    "id": "api:pp-physicalproblem-from-preset",
    "kind": "tool",
    "subkind": "function",
@@ -18355,7 +18406,7 @@
     "functions": [
      {
       "name": "pp.science.atlas",
-      "signature": "(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'",
+      "signature": "(path: 'str' = '/home/user/PINNeAPPle/.claude/worktrees/agent-a16baaa19b33b13f4/pinneapple_science/data/atlas.json') -> 'Atlas'",
       "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``."
      },
      {
@@ -30956,7 +31007,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.get_spec",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L26"
+    "source": ""
    },
    "extra": {
     "calls": "pinneapple_data.formfill:get_spec",
@@ -35318,7 +35369,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.list_specs",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/specs/__init__.py#L33"
+    "source": ""
    },
    "extra": {
     "calls": "pinneapple_data.formfill:list_specs",
@@ -37876,7 +37927,7 @@
    "links": {
     "guide": "apps/flow_studio/README.md",
     "flow_studio": "?node=auto.data.formfill.ocr_available",
-    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_data/formfill/ocr.py#L31"
+    "source": ""
    },
    "extra": {
     "calls": "pinneapple_data.formfill:ocr_available",

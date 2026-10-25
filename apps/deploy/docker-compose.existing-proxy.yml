@@ -3,7 +3,7 @@
 #
 #   PROXY_NETWORK=<network of the existing proxy> \
 #   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta udr inverse \
-#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design hub
+#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design hub meshbridge satscreen flowtrace nozzle rovermob gcard helio orbitwatch
 #
 # Then point the proxy at pinneapple-heatsink:8080, pinneapple-pcb:8081, pinneapple-datahealth:8082,
 # pinneapple-standardizer:8083, pinneapple-simmeta:8084 pinneapple-udr:8085, pinneapple-inverse:8086,
@@ -208,3 +208,43 @@ networks:
   proxy:
     external: true
     name: ${PROXY_NETWORK:?set PROXY_NETWORK to the existing proxy's Docker network}
+  meshbridge:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-meshbridge]
+  satscreen:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-satscreen]
+  flowtrace:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-flowtrace]
+  nozzle:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-nozzle]
+  rovermob:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-rovermob]
+  gcard:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-gcard]
+  helio:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-helio]
+  orbitwatch:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-orbitwatch]

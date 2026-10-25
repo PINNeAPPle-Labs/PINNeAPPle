@@ -78,6 +78,14 @@ At your DNS provider, create two **A** records (and AAAA records if you use IPv6
 | `meshless` | A | `<server IPv4>` |
 | `runner` | A | `<server IPv4>` |
 | `campaign` | A | `<server IPv4>` |
+| `meshbridge` | A | `<server IPv4>` |
+| `satscreen` | A | `<server IPv4>` |
+| `flowtrace` | A | `<server IPv4>` |
+| `nozzle` | A | `<server IPv4>` |
+| `rover` | A | `<server IPv4>` |
+| `cards` | A | `<server IPv4>` |
+| `helio` | A | `<server IPv4>` |
+| `orbitwatch` | A | `<server IPv4>` |
 | `uncertainty` | A | `<server IPv4>` |
 | `sensitivity` | A | `<server IPv4>` |
 | `validate` | A | `<server IPv4>` |
@@ -113,9 +121,9 @@ nano .env        # domains, ACME e-mail, logins (use long passwords)
 
 | Variable | Meaning |
 |---|---|
-| `HSS_DOMAIN`, `PCB_DOMAIN`, `EDH_DOMAIN`, `EDS_DOMAIN`, `SMD_DOMAIN`, `UDR_DOMAIN`, `IHL_DOMAIN`, `PFL_DOMAIN`, `MQA_DOMAIN`, `CMP_DOMAIN`, `LIN_DOMAIN`, `IOP_DOMAIN`, `ADO_DOMAIN`, `OBS_DOMAIN`, `PLG_DOMAIN`, `INVS_DOMAIN`, `IDENT_DOMAIN`, `CALIB_DOMAIN`, `EVR_DOMAIN`, `VAL_DOMAIN`, `SEN_DOMAIN`, `UQL_DOMAIN`, `MDL_DOMAIN`, `ARN_DOMAIN`, `SUR_DOMAIN`, `EDO_DOMAIN`, `PDO_DOMAIN`, `HUB_DOMAIN` | Public hostnames (must match the DNS records) |
+| `HSS_DOMAIN`, `PCB_DOMAIN`, `EDH_DOMAIN`, `EDS_DOMAIN`, `SMD_DOMAIN`, `UDR_DOMAIN`, `IHL_DOMAIN`, `PFL_DOMAIN`, `MQA_DOMAIN`, `CMP_DOMAIN`, `LIN_DOMAIN`, `IOP_DOMAIN`, `ADO_DOMAIN`, `OBS_DOMAIN`, `PLG_DOMAIN`, `INVS_DOMAIN`, `IDENT_DOMAIN`, `CALIB_DOMAIN`, `EVR_DOMAIN`, `VAL_DOMAIN`, `SEN_DOMAIN`, `UQL_DOMAIN`, `MDL_DOMAIN`, `ARN_DOMAIN`, `SUR_DOMAIN`, `EDO_DOMAIN`, `PDO_DOMAIN`, `HUB_DOMAIN`, `MBR_DOMAIN`, `SATSCREEN_DOMAIN`, `FLOWTRACE_DOMAIN`, `NOZZLE_DOMAIN`, `ROVERMOB_DOMAIN`, `GCARD_DOMAIN`, `HELIO_DOMAIN`, `ORBITWATCH_DOMAIN` | Public hostnames (must match the DNS records) |
 | `ACME_EMAIL` | Let's Encrypt account / expiry notices |
-| `<APP>_USER` / `<APP>_PASSWORD` (HSS, PCB, EDH, EDS, SMD, UDR, IHL, PFL, MQA, CMP, LIN, IOP, ADO, OBS, UQL, SEN, VAL, EVR, CALIB, IDENT, INVS, ROM, MESHLESS, SUR, ARN, MDL, TWIN, ANOMALY, CONTROL, EDO, PDO, HUB) | HTTP Basic login per app. If either is empty, that app is public. `/health` is always public. |
+| `<APP>_USER` / `<APP>_PASSWORD` (HSS, PCB, EDH, EDS, SMD, UDR, IHL, PFL, MQA, CMP, LIN, IOP, ADO, OBS, UQL, SEN, VAL, EVR, CALIB, IDENT, INVS, ROM, MESHLESS, SUR, ARN, MDL, TWIN, ANOMALY, CONTROL, EDO, PDO, HUB, MBR, SATSCREEN, FLOWTRACE, NOZZLE, ROVERMOB, GCARD, HELIO, ORBITWATCH) | HTTP Basic login per app. If either is empty, that app is public. `/health` is always public. |
 | `HSS_MAX_SIZING`, `PCB_MAX_HEAVY`, `EDH/EDS/SMD/UDR/PFL/MQA/CMP/LIN/IOP/ADO/UQL/SEN/VAL/EVR_MAX_HEAVY` | Concurrent heavy runs per app. Any excess gets HTTP 429. |
 | `HSS_MEM_LIMIT`, `PCB_MEM_LIMIT` | Container memory caps |
 | `CALIB_MAX_JOBS`, `CALIB_FREE_<UNIT>`, `CALIB_ADMIN_TOKEN`, `CALIB_MEM_LIMIT` | Model Calibration Lab, on the shared runtime (job queue, API keys, usage metering; see `apps/_shared/README.md`): jobs running at once over all workers (the rest wait in the queue), free use per caller and month, the admin token for API keys, and the container memory cap (default 1g). Its state lives on the `calibration_data` volume. |
@@ -162,7 +170,7 @@ Caddy. Start only the apps, attached to that proxy's Docker network, and add two
 ```bash
 docker inspect <proxy container> --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
 PROXY_NETWORK=<that network> docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml \
-  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design
+  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design meshbridge satscreen flowtrace nozzle rovermob gcard helio orbitwatch
 ```
 
 Caddyfile blocks for the existing proxy (then `caddy validate` and `caddy reload` inside its container):
@@ -812,6 +820,42 @@ to 10 MB).
 
 Set `LAB_USER` / `LAB_PASSWORD` in `.env` to require a login (`/health` stays open). Without Docker:
 `pip install pinneapple pillow` and `python -m pinneapple_lab serve --host 0.0.0.0 --root /path/to/lab`.
+
+## Products imported from PINNeAPPle-apps
+
+### MeshBridge (`meshbridge`)
+
+Converts CGNS / Exodus / Fluent / Abaqus / STL / OBJ / PLY / STEP uploads to a portable NPZ point bundle or a repaired, optionally simplified surface (`apps/meshbridge/README.md`). Synchronous; `MBR_UPLOAD_MAX_MB` (200) caps an upload, `MBR_FREE_CONVERSIONS` (200) the free use per caller and month. Logins `MBR_USER` / `MBR_PASSWORD` (or `_PASSWORD_HASH`); data on the `meshbridge_data` volume; port 8141.
+
+### SatScreen (`satscreen`)
+
+Closest approach and 2-D Gaussian collision probability in Clohessy-Wiltshire relative motion, and J2 propagation (`apps/satscreen/README.md`). The `description` mode needs an LLM at 127.0.0.1:11434 inside the container and is not wired to the `ollama` service; use `mode=elements`. Logins `SATSCREEN_USER` / `SATSCREEN_PASSWORD` (or `_PASSWORD_HASH`); data on the `satscreen_data` volume; port 8144.
+
+### FlowTrace (`flowtrace`)
+
+Cross-correlation PIV on an uploaded video (ffmpeg in the image) or image frames (`apps/flowtrace/README.md`). Synchronous; `FLOWTRACE_UPLOAD_MAX_MB` (200), `FLOWTRACE_MAX_FRAMES` (200), `FLOWTRACE_FREE_ANALYSES` (100). Logins `FLOWTRACE_USER` / `FLOWTRACE_PASSWORD` (or `_PASSWORD_HASH`); data on the `flowtrace_data` volume; port 8145.
+
+### NozzleScreen (`nozzle`)
+
+Ideal-nozzle estimate (instant) and a PINN cross-check job with the measured disagreement (`apps/nozzle_screen/README.md`). One job at a time; `NOZZLE_MAX_EPOCHS` (3000), `NOZZLE_FREE_SCREENS` (20). Logins `NOZZLE_USER` / `NOZZLE_PASSWORD` (or `_PASSWORD_HASH`); data on the `nozzle_data` volume; port 8146.
+
+### RoverMobility (`rovermob`)
+
+Bekker-Wong surrogate PINN for one soil and wheel, drawbar pull against slip with each constraint re-checked (`apps/rover_mobility/README.md`). One job at a time; `ROVERMOB_MAX_EPOCHS` (5000), `ROVERMOB_FREE_ANALYSES` (20). Logins `ROVERMOB_USER` / `ROVERMOB_PASSWORD` (or `_PASSWORD_HASH`); data on the `rovermob_data` volume; port 8147.
+
+### GovernedCard (`gcard`)
+
+Model cards backed by a guardrail run against the model (trained in a job or uploaded weights), refused otherwise; schema-only audits (`apps/governed_card/README.md`). `GCARD_MAX_EPOCHS` (3000), `GCARD_FREE_CARDS` (20). Logins `GCARD_USER` / `GCARD_PASSWORD` (or `_PASSWORD_HASH`); data on the `gcard_data` volume; port 8148.
+
+### HelioTFC (`helio`)
+
+Solar-cycle envelope of the daily sunspot number (`apps/helio_tfc/README.md`). The live source downloads SILSO's CSV at request time (CC BY-NC 4.0: non-commercial use, credit SILSO, Royal Observatory of Belgium); set `HELIO_ALLOW_LIVE=0` to disable it on a commercial deployment. Logins `HELIO_USER` / `HELIO_PASSWORD` (or `_PASSWORD_HASH`); data on the `helio_data` volume; port 8149.
+
+### OrbitWatch (`orbitwatch`)
+
+Change detection between dated images with an HTML report (`apps/orbitwatch/README.md`). The upload path works as is; the Sentinel-2 path needs `EE_PROJECT_ID` and a service account (`EE_SERVICE_ACCOUNT_EMAIL`, `EE_SERVICE_ACCOUNT_KEY_FILE` pointing at a key mounted read-only, never committed) and the optional earthengine-api / geemap in the image. Logins `ORBITWATCH_USER` / `ORBITWATCH_PASSWORD` (or `_PASSWORD_HASH`); data on the `orbitwatch_data` volume; port 8150.
+
+Text2Part, PhysicsCopilot and VerifiedPhysics are not in this file: their LLM step calls Ollama at 127.0.0.1:11434 from inside the process (`pinneapple_llm`), which the `ollama` service does not answer. Run them next to a local Ollama (their READMEs).
 
 ## Operations
 

@@ -34,7 +34,7 @@ Three objects get confused here:
 
 A fine mesh couples all three. The cost of a direct solve grows with the discretisation even when 10^5 bumps are
 identical and the answer is a handful of numbers. Homogenisation (Keff) cuts the discretisation by replacing the
-geometry with averages. It also erases whatever happens below the averaging scale, and Section 4.3 measures what it
+geometry with averages. It also erases whatever happens below the averaging scale, and Section 4.6 measures what it
 erases. This work keeps the exact fine operator and *condenses* it:
 
 1. every repeated block is reduced once to its interface operator;
@@ -77,7 +77,7 @@ Engquist, *Commun. Math. Sci.* 1 (2003) 87) keep fine-scale information in coars
   compress the dense separator Schur complements, whose off-diagonal blocks have low numerical rank.
 - The fast multipole method exploits the same far-field smoothness for particle interactions (Greengard and Rokhlin,
   *J. Comput. Phys.* 73 (1987) 325, doi:10.1016/0021-9991(87)90140-9).
-- Our hierarchy is nested dissection on reduced interfaces, with memoisation of identical subtrees. Section 4.6
+- Our hierarchy is nested dissection on reduced interfaces, with memoisation of identical subtrees. Section 4.4
   measures the off-diagonal ranks of its top operator, but the H-matrix arithmetic is not implemented.
 
 **Model reduction.** Projection-based parametric model reduction is surveyed by Benner, Gugercin and Willcox (*SIAM
@@ -175,20 +175,34 @@ Blocks with the same variant (materials, a voided bump, a missing bump, a degrad
 ### 3.3 Reduced interfaces, error estimate, refinement
 
 A face has 8 x 23 = 184 port nodes, and its trace is restricted to `m` modes: the constant, then the leading POD
-modes of the traces seen on the interior faces of a 4 x 4 patch under every unit active-cell load. That is the space
-of interface fields any power map can produce locally. The global problem is then a Galerkin restriction, with two
-consequences:
+modes of two equally weighted sets of exactly solved traces.
+
+- **Local:** the interior faces of a 4 x 4 patch under every unit active-cell load. These are the near-field traces
+  any power map can produce.
+- **Global:** the interior faces of an exactly condensed 16 x 16 package under 24 random hotspot maps. These are the
+  far-field traces, where the lid, die, interposer and substrate spread heat laterally at different rates.
+
+The POD comes from the eigenvectors of the 184 x 184 Gram matrix. The snapshot set is built once per stack (about
+2.5 min) and cached on disk.
+
+The global problem is then a Galerkin restriction, with two consequences:
 
 - the error is the energy-norm best approximation over the chosen interface space;
 - with the constant in every basis, the global heat balance holds to round-off.
 
-The textbook choice, characteristic constraint modes (the softest eigenvectors of the face Schur complement), fails
-here (Section 4.2). Its soft modes localise in the low-k underfill and substrate and miss the vertical temperature
-profile.
+The global set is what lets reduced interfaces work at scale (Section 4.2): with local snapshots only, the error grew
+with the package size. The textbook choice, characteristic constraint modes (the softest eigenvectors of the face
+Schur complement), fails outright here: its soft modes localise in the low-k underfill and substrate and miss the
+vertical temperature profile.
 
 Interiors are exact, so the fine residual lives only on port nodes. The per-face estimate is `η_F² = r_Fᵀ S_FF⁻¹
 r_F`. Refinement marks the faces holding half of `Σ η²` (Dörfler marking) and either doubles their modes (`p`) or
 restores their full port field (`full`).
+
+**Exact correction.** `Condensed.correct` makes the reduced model exact. It solves the *unreduced* interface problem
+by conjugate gradients, preconditioned by the reduced model (two-level additive Schwarz: a coarse solve on the
+interface modes, plus face-block Jacobi) and started from the reduced solution. The iterations needed, not the final
+accuracy, depend on `m`.
 
 ### 3.4 Hierarchical condensation with memoised subtrees
 
@@ -229,6 +243,289 @@ to the operator of the centre block, plus a GP regression. `solve_adaptive` then
   profiles (Section 4.7);
 - implicit Euler at a fixed step, against the fine reference at the same step.
 
+### 3.7 Meshless (track 1b)
+
+`meshless.point_cloud` places nodes from the implicit description only: layers are z intervals and inclusions are
+square prisms. There is no volume mesh.
+
+- **Interior nodes:** a jittered lattice per material region. The spacing is `min(cap, thickness / 3)` per layer,
+  and at least 4 nodes span each inclusion within a band around its walls. Rows are aligned with the heated layer's
+  step.
+- **Surface nodes:** lattices on each surface. Interfaces carry node *pairs*, one per side. Plane spacing follows the
+  layers on both sides.
+
+`meshless.assemble` collocates the equations with RBF-FD (PHS `r^3` plus degree-2 polynomials, Flyer, Fornberg,
+Bayona and Barnett, *J. Comput. Phys.* 321 (2016) 21) or GFDM (weighted least squares, Benito, Ureña and Gavete,
+*Appl. Math. Model.* 25 (2001) 1039, doi:10.1016/S0307-904X(01)00029-4). The generic n-D weights live in
+`pinneapple_simulation.meshless.stencils`.
+
+- Inside a region, `k ∇²T + q = 0`, using same-region stencils only.
+- At the top and bottom, Robin conditions.
+- Each interface pair gets flux continuity and the contact law from one-sided stencils.
+- `interface="naive"` keeps one node per interface point, lets stencils cross materials, and imposes no interface
+  condition.
+
+Instabilities found and fixed on the way, each measured on an exact solution (`tests/test_condense.py`):
+
+1. Neumann side walls collocated at nodes: the error grew under refinement. The fix treats the adiabatic sides as
+   mirror planes, so stencils near a side use reflected images of the nodes.
+2. Interface-plane stencils whose nodes were all coplanar made the local systems singular. The fix allows at most
+   `n/3` nodes in a surface node's own plane.
+3. Row scales spanned 12 orders of magnitude (`k/h²` against 1), and the factorisation lost the small rows. The fix
+   equilibrates the rows.
+
+Oversampled least-squares collocation (Tominec, Larsson and Heryudono, *SIAM J. Sci. Comput.* 43 (2021) A1441,
+doi:10.1137/20M1320079) is implemented as an option.
+
+### 3.8 Prior + exception patches (track 1c)
+
+`exceptions.run` takes four steps:
+
+1. **Prior.** It builds a cheap field (the Keff solution copied to the fine cells, or the 1-D column of each block).
+2. **Residual.** It computes the prior's finite-volume residual `K T_prior - f` on the fine grid (one sparse
+   product) and ranks blocks by its norm, or picks them at random for the baseline.
+3. **Patches.** It solves the fine problem on each selected block plus a halo, with the prior as Dirichlet data
+   around the patch.
+4. **Correction.** It blends the patch solutions into the prior and adds `alpha * phi` (`phi`: the response to a
+   uniform map) so that heat out equals heat in.
+
 ## 4. Results
 
-RESULTS_PLACEHOLDER
+All figures are in `examples/physics_condensation/figures/`. Tables are rounded from `results/*.json`.
+
+### 4.1 Reference solver and mesh convergence
+
+Joint refinement on 8 x 8 blocks, at 4 / 8 / 16 cells per block side with 1 / 2 / 4 times the vertical rows (from
+23.5 k to 1.5 M cells):
+
+| quantity | observed order | error of the default mesh (8 cells, 1 x rows) |
+|---|---|---|
+| Tmax | 0.49 | 0.37 K of 66.5 K |
+| mean junction T | 0.89 | 0.048 K |
+| die/TIM heat | 1.13 | 5e-5 W (0.05 %) |
+
+- **Error measure:** errors are against the Richardson extrapolation.
+- **Energy balance:** every reference run balances to better than 1e-9.
+- **Maximum principle:** Tmax always sits on the heated row, as the discrete maximum principle requires; checked on
+  every run.
+- **Why Tmax converges slowly:** it is a pointwise maximum of a field heated in a thin row.
+- **The yardstick:** 0.37 K is the discretisation error every reduction below must be compared with.
+
+### 4.2 Reduced interfaces: accuracy against the number of modes
+
+![accuracy](../../examples/physics_condensation/figures/accuracy_vs_modes_32.png)
+
+| package | m | interface dofs | Tmax err | worst junction err | die/TIM heat | per-bump heat | effectivity |
+|---|---|---|---|---|---|---|---|
+| 12 x 12 | 6 | 1,872 | 0.10 K | 0.13 K | 0.42 % | 8.7 % | 1.03 |
+| 12 x 12 | 12 | 3,744 | 2.4 mK | 2.5 mK | 0.012 % | 0.87 % | 1.38 |
+| 12 x 12 | 24 | 7,488 | 1e-5 K | 2e-5 K | 1e-3 % | 0.019 % | 1.23 |
+| 32 x 32 | 6 | 12,672 | 0.76 K | 0.88 K | 2.2 % | 20 % | 0.98 |
+| 32 x 32 | 12 | 25,344 | 27 mK | 44 mK | 0.03 % | 3.2 % | 1.12 |
+| 32 x 32 | 24 | 50,688 | 3.5 mK | 6.8 mK | 0.1 % | 0.25 % | 0.89 |
+| 64 x 64 | 12 | — | 0.37 K | 0.50 K | 0.46 % | 5.1 % | — |
+
+How to read the table:
+- **Effectivity** is the error estimate divided by the true energy-norm error. It stays between 0.9 and 1.6 for m ≥ 4.
+- **Energy balance** holds to 2e-10 for every m, as the constant mode guarantees.
+- **The 64 x 64 row** is the hierarchy on a single-hotspot map, against two 6.1 M-cell reference solves (Section 4.5).
+
+What failed along the way:
+1. **Characteristic constraint modes** stay at 19 K error for m = 2, 8 and 24. Their estimate effectivity is 0.07,
+   so the estimator does not see the failure either.
+2. **POD of local traces only** (the first version) gave 0.23 K at 12 x 12 but **8.8 K at 64 x 64** with m = 6, and
+   0.25 K still at m = 48.
+   - Projecting the exact 32 x 32 traces showed the cause: six local modes miss the substrate and lid "plane"
+     temperatures that spread independently in the far field.
+   - Two alternatives made things worse, because they short-circuit the low-k layers vertically or laterally:
+     one constant per layer (77 K at 64 x 64) and one per z row (83 K).
+   - Adding the global snapshot set fixed it: 0.37 K at m = 12 and 0.25 K at m = 16 on that case, about the mesh
+     error of Section 4.1.
+
+### 4.3 Error-driven refinement and the exact correction
+
+![refinement](../../examples/physics_condensation/figures/refinement.png)
+
+**Refinement (a negative result).** On 12 x 12 blocks with a sub-pitch hotspot, refining the faces flagged by the
+estimate does not beat adding modes everywhere:
+- doubling the modes of the marked faces reaches an energy error of 0.29 at 836 dofs;
+- un-reducing the marked faces reaches 0.19 at 25 k dofs;
+- uniform m = 16 reaches 0.014 at 5 k dofs.
+
+The estimator is not the problem: it tracks the error at effectivity 0.6–0.7. The reduction error is *global*,
+spread over all faces, so any local marking pays a lot for each face it touches. Face refinement only pays when the
+error is local.
+
+**Exact correction.** On 32 x 32 blocks, 1.5 M cells, a single hotspot at 4x power (Tmax 307 K), CG on the
+unreduced interfaces, preconditioned by the reduced model:
+
+| start | after 10 its | after 40 its | to 1e-9 residual | fine AMG solve |
+|---|---|---|---|---|
+| m = 6 (5.1 K error) | 27 mK, 1.3 s | 1.8 mK, 5.4 s | 234 its, 26 s, 3e-8 K | 71 s |
+| m = 12 (0.13 K error) | 1.9 mK, 1.3 s | 0.29 mK, 4.9 s | 184 its, 25 s, 3e-8 K | 71 s |
+
+The reduced model is therefore never the last word. When a query needs the fine answer, ten iterations bring it to
+the millikelvin level for about the cost of one more solve.
+
+### 4.4 Cost against package size
+
+SCALING_PLACEHOLDER
+
+### 4.5 Cost to build against cost per configuration
+
+On 64 x 64 blocks (6.1 M fine cells, m = 12):
+
+| step | time |
+|---|---|
+| build: block condensation, modes from the cached snapshots, memoised merges | 6.5 s |
+| each of 20 new power maps (1 to 5 hotspots) | 0.29–0.98 s (median 0.48 s) |
+| one fine reference solve (AMG-CG) | 386 s |
+
+On the two checked maps, the errors against the reference were:
+- Tmax 0.37 K and 0.32 K;
+- junction field relative L2 0.4 %;
+- die/TIM heat 0.46 %;
+- per-bump heat 5 %;
+- energy balance 2e-10.
+
+The one-time snapshot build (about 2.5 min per stack) is not in the 6.5 s. It is cached on disk and shared by every
+package built on that stack.
+
+### 4.6 What Keff homogenisation erases
+
+![keff](../../examples/physics_condensation/figures/keff_vs_fine.png)
+
+All three cases are on 12 x 12 blocks. The condensed (m = 12) column is the same metric as the Keff Tmax error.
+
+| case | Keff Tmax err | Keff worst block-peak err | lost intra-block spread | Keff per-bump heat err | condensed (m=12) Tmax err |
+|---|---|---|---|---|---|
+| smooth power | −0.14 K | 0.41 K | 0.65 K | 14.5 % | 2.4 mK |
+| sub-pitch hotspot (+20 % of P in one cell) | −4.59 K | 4.59 K | 6.7 K | 22.5 % | 96 mK |
+| voided microbumps at the hotspot | −0.12 K | 0.43 K | 0.70 K | 15.1 % | 8 mK |
+
+- **Speed:** Keff takes 0.02 s against 9–11 s for the fine reference.
+- **Bulk quantities survive:** it keeps the die/TIM heat (0.1 %) and the energy balance.
+- **What it erases:** the junction structure under each bump (0.65 K of spread even with smooth power) and the share
+  of heat each bump carries (14–22 % error).
+- **Sub-pitch sources:** a hotspot smaller than the pitch costs 4.6 K. Voided bumps are a variant of the block, so
+  Keff averages them in too.
+
+### 4.7 Transient (Craig–Bampton)
+
+![transient](../../examples/physics_condensation/figures/transient.png)
+
+6 x 6 blocks (53 k cells), 150 implicit-Euler steps of 0.2 ms, with the power map switching every 10 ms:
+
+| m, k | dofs | max Tmax err | max junction err | die/TIM heat err | run | fine run |
+|---|---|---|---|---|---|---|
+| 8, 8 | 960 | 86 mK | 0.11 K | 1.3 % | 0.13 s | 10.3 s |
+| 16, 16 | 1,920 | 23 mK | 34 mK | 1.6 % | 0.17 s | |
+| 32, 32 | 3,840 | 1.9 mK | 5.3 mK | 0.21 % | 0.37 s | |
+
+- **Interface modes for transients:** they need the Laplace-shifted snapshots. With steady modes the m = 6 error was
+  1.3 K and did not fall with k.
+- **Exactness:** with every mode the model matches the fine run to 1e-8 (a test).
+- **Build cost:** the first build (216 s) includes the shifted snapshots, which are then cached.
+
+### 4.8 Learned block operators with verification
+
+All blocks differ (smooth fields of microbump voiding, TIM contact degradation and TSV quality), with four defect
+blocks outside the training box (two nearly open bumps, two delaminated TIM contacts):
+
+| blocks | training | learned + verified | all exact | Tmax err (verified) | Tmax err (learned only) | exact blocks |
+|---|---|---|---|---|---|---|
+| 256 | 48 samples, 36 s | 24.6 s | 113 s | 2.2 mK | 2.2 mK | 4 (OOD) |
+| 1,024 | 48 samples, 14 s | 9.4 s | 417 s | 4.4 mK | 4.4 mK | 4 (OOD) |
+| 1,024 | 6 samples, 4 s | 97 s | 1,198 s | 0.13 K | 0.70 K | 250 |
+
+The 6-sample case shows the fallback doing its job:
+- the predictive deviation flagged 227 blocks and the out-of-box rule 4;
+- the verification rounds replaced 4–5 more blocks each round, until the 5-round limit;
+- the error went from 0.70 K (learned only) to 0.13 K;
+- the additive estimate for the unchecked blocks was 4.4 K, which is conservative.
+
+The defects themselves change the junction temperature by up to 0.17 K (16 x 16, exact with against without them).
+
+### 4.9 Meshless (track 1b)
+
+![meshless](../../examples/physics_condensation/figures/meshless_convergence.png)
+![meshless fields](../../examples/physics_condensation/figures/meshless_fields_rbf_fd.png)
+
+The package is 2 x 2 blocks. The reference is FV with 5,888 cells, solved in 0.09 s, with Tmax 65.87 K. Point
+generation takes 0.02–0.09 s for every cloud.
+
+| method | interface | nodes | Tmax err | die/TIM heat | energy balance | solve |
+|---|---|---|---|---|---|---|
+| GFDM | pairs | 46 k | −65.6 K | −36 % | −121 % | 5.8 s |
+| RBF-FD | pairs | 46 k | singular | | | |
+| GFDM | pairs | 72 k | +6.1 K | +3.4 % | +10.4 % | 10.8 s |
+| RBF-FD | pairs | 72 k | −1.9 K | −2.8 % | −2.8 % | 10.7 s |
+| GFDM | pairs | 121 k | +2.1 K | +2.3 % | +3.6 % | 36 s |
+| RBF-FD | pairs | 121 k | +6.2 K | +9.4 % | +9.5 % | 39 s |
+| both | naive | 40–114 k | −58 to −102 K | −100 % | −84 to −174 % | |
+| both | pairs + least squares | 72 k | −65.6 K | | −134 % | 456–554 s, 9.4 GB |
+
+What the table shows:
+- **Naive collocation** across materials loses most of the heat, at every resolution.
+- **Interface pairs** turn that into an erratic 3–10 % error. Nothing converged in the range the container allows,
+  and every run is worse than the 5,888-cell FV model.
+- **The error map** of the best run (RBF-FD, 72 k) is a near-uniform −1.5 to −2 K offset: a conservation error, not
+  a local one.
+- **Least-squares collocation** is exact and stable on a smooth interface (the test: below 1e-3 relative across
+  refinement). Its residual concentrates at the re-entrant corners of the bump/underfill frame, where it fails.
+- **Where meshless wins here:** there is no meshing step (the geometry is evaluated, not meshed), and a geometry
+  change is a new point cloud in milliseconds.
+- **Where it loses here:** multi-material interfaces (k ratios up to 800), conservation (no discrete balance),
+  conditioning (row-scaled 1-norm condition estimates of 1e8–3e9 at 40–46 k nodes) and cost.
+
+Meshless block + Schur reuse was not built. A meshless block would need about 18 k nodes, against 1,472 FV cells
+for a more accurate block, so condensing it cannot be cheaper at equal accuracy. The hybrid (meshless bulk,
+conservative FV at the interfaces) is a next step.
+
+### 4.10 Prior + exception patches (track 1c)
+
+![pareto](../../examples/physics_condensation/figures/pareto_sub_pitch_hotspot.png)
+
+On 12 x 12 blocks (1.7 M cells; fine solve 22–24 s), with a 1-block halo:
+
+| case | prior alone | residual-selected patches | random patches, same budget |
+|---|---|---|---|
+| sub-pitch hotspot | 4.59 K | 0.35 K at 6.9 % of the cells solved; 0.14 K at 21.5 %; 0.07 K at 59 % | 4.59 K up to 69 % of the cells; 0.06 K at 89 % |
+| smooth power | 0.14 K | 0.12 K at 24 %; 0.075 K at 61 % | 0.14 K at 39 % |
+
+- **Energy:** the correction closes the balance to 2e-16 in every run.
+- **Per-bump heat** improves little (22.5 % to 13–19 %). The prior's error is everywhere, and patches with prior
+  boundary data cannot fix a far-field error.
+- **The 1-D column prior** is off by 266 K and 1,985 K on the same cases: it ignores lateral spreading, which carries
+  most of a hotspot's heat away.
+
+The method is a one-shot defect correction (a two-level Schwarz step) on a homogenised coarse level, like the local
+corrections of multiscale FEM. What this work adds is selecting the patches by the prior's residual, which beats
+random selection by more than 10x at equal budget when the error is local. It does not help when the error is
+spread out. Hotspots on an interface are the default here, since the heated row sits on the microbump interface.
+
+## 5. Limitations and next steps
+
+**The benchmark**
+- It is synthetic: square bumps, one microbump, TSV and C4 per pitch, layers the size of the die, isotropic
+  representative materials, linear conduction, Robin cooling.
+- It has no lid overhang, warpage, or temperature-dependent k.
+
+**Track 1 (condensation)**
+- Dense algebra on the top separator grows as the array side cubed. H-matrix or HSS compression of those blocks is
+  measured (Section 4.4) but not implemented.
+- Interface modes are built per stack from snapshots. A stack with very different layers needs new snapshots; the
+  "global" set covers 16 x 16 blocks of far field.
+- Local refinement did not pay. The exact correction is the robust way to reach the fine answer.
+
+**Track 1b (meshless)**
+- It did not converge reliably on this multi-material benchmark.
+- Next: interface-enriched stencils or the hybrid with FV at the interfaces, and RBF-FD-LS with corner-weighted rows.
+
+**Track 1c (exception patches)**
+- It works for local defects only. A prior with the right far field, and a fine correction only near features, is
+  what condensation does exactly.
+
+**Freedom to operate.** This work did not examine any patent, including WO2026064513A1, beyond the brief's
+description. An IP specialist must review freedom to operate.
+

@@ -1,4 +1,4 @@
-"""Closed triangulated bodies for external-flow studies: the Ahmed body, a sphere, a cylinder, a box.
+"""Closed triangulated bodies for external-flow studies: the Ahmed body, a sphere, a cylinder, a box, an annulus.
 
 Each returns ``(vertices, faces)`` with outward-facing triangles, in metres, x along the flow, z up. Use them with
 ``pinneapple_simulation.numerical_solvers.external_flow.ExternalFlow`` or ``pinneapple_tools.visualization.studio``.
@@ -6,11 +6,10 @@ Each returns ``(vertices, faces)`` with outward-facing triangles, in metres, x a
 from __future__ import annotations
 
 import math
-from typing import Tuple
 
 import numpy as np
 
-Mesh = Tuple[np.ndarray, np.ndarray]
+Mesh = tuple[np.ndarray, np.ndarray]
 
 
 def _loft(rings: np.ndarray, close_ends: bool = True) -> Mesh:
@@ -113,6 +112,29 @@ def box(size=(1.0, 1.0, 1.0), centre=(0.0, 0.0, 0.0)) -> Mesh:
     V = np.array([[x, y, z] for x in (-sx, sx) for y in (-sy, sy) for z in (-sz, sz)]) + np.asarray(centre, float)
     F = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1],
                   [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+    if _signed_volume(V, F) < 0:
+        F = F[:, ::-1]
+    return V, F
+
+
+def annulus(r_inner: float, r_outer: float, height: float, n: int = 72, z0: float = 0.0) -> Mesh:
+    """Closed annular ring (a tube with flat ends) around the z axis, from ``z0`` to ``z0 + height``: outer and inner
+    walls plus the two ring faces, outward-facing triangles. For ``r_inner = 0`` use :func:`cylinder`."""
+    if not 0.0 < r_inner < r_outer or height <= 0:
+        raise ValueError("need 0 < r_inner < r_outer and height > 0")
+    a = np.linspace(0, 2 * math.pi, n, endpoint=False)
+    c, s = np.cos(a), np.sin(a)
+    # four rings of n points (outer-bottom, outer-top, inner-top, inner-bottom) joined in a closed loop of bands:
+    # outer wall, top face, inner wall, bottom face
+    V = np.vstack([np.c_[r * c, r * s, np.full(n, z)] for r, z in
+                   ((r_outer, z0), (r_outer, z0 + height), (r_inner, z0 + height), (r_inner, z0))])
+    F = []
+    for i in range(4):
+        p, q = i * n, ((i + 1) % 4) * n
+        for j in range(n):
+            j1 = (j + 1) % n
+            F += [[p + j, p + j1, q + j], [q + j, p + j1, q + j1]]
+    F = np.array(F, np.int64)
     if _signed_volume(V, F) < 0:
         F = F[:, ::-1]
     return V, F

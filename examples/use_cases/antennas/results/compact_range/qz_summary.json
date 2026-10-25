@@ -1,0 +1,43 @@
+{
+ "n_designs": 84,
+ "seconds_total": 2431.2120000000004,
+ "seconds_median": 28.125999999999998,
+ "rolls": {
+  "0": {
+   "map": "tradeoff_roll0.png",
+   "heldout_rmse_random": {
+    "ripple_pp_dB": 0.041386434623377995,
+    "amp_pp_dB": 0.7098948730694299,
+    "phase_pp_deg": 3.6468186069965274,
+    "taper_dB": 0.7830995752355976,
+    "usable_diameter": 0.037287103234328836
+   },
+   "n_test": 10,
+   "heldout_rmse_leave_side_out": {
+    "ripple_pp_dB": 2.5726854620482023,
+    "amp_pp_dB": 3.066584026822079,
+    "phase_pp_deg": 19.33955811390905,
+    "taper_dB": 1.4792467244392036,
+    "usable_diameter": 0.06626221087669622
+   }
+  },
+  "0.15": {
+   "map": "tradeoff_roll0.15.png",
+   "heldout_rmse_random": {
+    "ripple_pp_dB": 0.04574909806158147,
+    "amp_pp_dB": 0.19922315587037034,
+    "phase_pp_deg": 0.9979734253343403,
+    "taper_dB": 0.36542940778549066,
+    "usable_diameter": 0.02312688255023018
+   },
+   "n_test": 10,
+   "heldout_rmse_leave_side_out": {
+    "ripple_pp_dB": 0.8342080985662513,
+    "amp_pp_dB": 1.2423021802052694,
+    "phase_pp_deg": 4.514218062502031,
+    "taper_dB": 0.864025640335873,
+    "usable_diameter": 0.05695321692225227
+   }
+  }
+ }
+}

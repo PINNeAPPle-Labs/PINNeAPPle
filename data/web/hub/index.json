@@ -34310,7 +34310,7 @@
     "functions": [
      {
       "name": "pp.science.atlas",
-      "signature": "(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'",
+      "signature": "(path: 'str' = '/home/user/PINNeAPPle/.claude/worktrees/agent-a5be1241782143e39/pinneapple_science/data/atlas.json') -> 'Atlas'",
       "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``."
      },
      {

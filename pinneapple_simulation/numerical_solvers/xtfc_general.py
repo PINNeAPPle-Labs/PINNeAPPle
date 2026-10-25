@@ -227,14 +227,21 @@ def _affine(problem: XTFCProblem, basis: _Basis, terms: dict, X: np.ndarray, f: 
 
 def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str = "tanh",
                weight_range: tuple[float, float] = (-1.0, 1.0), seed: int = 0, max_iter: int | None = None,
-               tol: float = 1e-14, beta0: float = 0.0, map_to_unit: bool = False) -> XTFCResult:
+               tol: float = 1e-14, beta0: float = 0.0, map_to_unit: bool = False,
+               constraints: str = "expression") -> XTFCResult:
     """Solve ``problem`` on the training ``points`` (N, ndim) by X-TFC.
 
     Input weights and biases are drawn ``unif(weight_range)`` with ``numpy.random.default_rng(seed)``. Linear
     problems take one least-squares solve; non-linear ones Gauss-Newton from ``beta = beta0`` until the max-norm
     of the step is ``<= tol`` or ``max_iter`` steps (default 1 for linear, 20 otherwise). ``map_to_unit`` feeds
     the ELM each coordinate mapped affinely onto [-1, 1] (the drawn weights then act on the mapped inputs).
+
+    ``constraints="expression"`` is X-TFC (constraints exact through the constrained expression). ``"rows"`` is the
+    plain physics-informed ELM baseline (Dwivedi & Srinivasan, arXiv:1907.03507): ``u = g``, and each constraint
+    becomes least-squares rows at the training points that lie on its face, with weight 1.
     """
+    if constraints not in ("expression", "rows"):
+        raise ValueError(f"constraints must be 'expression' or 'rows', got {constraints!r}")
     t_start = time.perf_counter()
     X = np.atleast_2d(np.asarray(points, dtype=np.float64))
     if X.shape[1] != problem.ndim:
@@ -250,7 +257,17 @@ def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str 
         W = W * scale
     basis = _Basis(W, b, activation)
     names = list(problem.fields)
-    terms = {f: _projection_terms(problem.ndim, problem.fields[f]) for f in names}
+    rows_mode = constraints == "rows"
+    terms = {f: _projection_terms(problem.ndim, [] if rows_mode else problem.fields[f]) for f in names}
+    con_rows = []                     # (field index, A on the face points, target derivative of h there)
+    if rows_mode:
+        for j, f in enumerate(names):
+            for c in problem.fields[f]:
+                sel = np.isclose(X[:, c.dim], c.at, rtol=0.0, atol=1e-12)
+                if not np.any(sel):
+                    raise ValueError(f"no training point lies on the face of {c}")
+                a = tuple(c.order if d == c.dim else 0 for d in range(problem.ndim))
+                con_rows.append((j, basis.derivative(X[sel], a), _torch_derivative(problem.constraint_fn[f], X[sel], a)))
     affine = {(f, a): _affine(problem, basis, terms, X, f, tuple(a)) for f, a in problem.derivatives}
     beta = {f: np.full(n_neurons, beta0) for f in names}
     max_iter = max_iter if max_iter is not None else (1 if problem.linear else 20)
@@ -275,6 +292,11 @@ def solve_xtfc(problem: XTFCProblem, points, *, n_neurons: int, activation: str 
                 J[:, j * n_neurons:(j + 1) * n_neurons] += g.detach().numpy()[:, None] * A
             rows_J.append(J)
             rows_r.append(r.detach().numpy())
+        for j, A_c, h_c in con_rows:
+            J = np.zeros((A_c.shape[0], n_neurons * len(names)))
+            J[:, j * n_neurons:(j + 1) * n_neurons] = A_c
+            rows_J.append(J)
+            rows_r.append(A_c @ beta[names[j]] - h_c)
         J = np.vstack(rows_J)
         res = np.concatenate(rows_r)
         t0 = time.perf_counter()

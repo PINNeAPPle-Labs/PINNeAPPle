@@ -112,3 +112,15 @@ def test_heat_problem_reaches_the_papers_order_at_its_settings():
                    activation=case.activation, weight_range=case.weight_range, seed=0)
     X = np.random.default_rng(5).random((500, 2))
     assert np.abs(r.predict(X) - case.exact_np(X)).max() < 1e-5
+
+
+def test_rows_mode_is_the_elm_baseline_and_misses_constraints_slightly():
+    case = XTFC_CASES["pde1"]
+    X = grid(case.problem.bounds, 15)
+    r = solve_xtfc(case.problem, X, n_neurons=60, seed=0, constraints="rows")
+    xt = np.random.default_rng(1).random((300, 2))
+    err = np.abs(r.predict(xt) - case.exact_np(xt)).max()
+    assert err < 1e-3                                     # it solves the problem
+    assert r.constraint_error() > 1e-14                   # but the boundary is only fitted, not exact
+    with pytest.raises(ValueError):
+        solve_xtfc(case.problem, X, n_neurons=10, constraints="penalty")

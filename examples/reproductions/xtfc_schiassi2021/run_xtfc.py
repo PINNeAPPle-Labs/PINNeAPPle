@@ -152,7 +152,7 @@ def main():
                 print(f"{name:5s} {vname:58s} {' '.join(parts)}  wall {wall:.1f}s", flush=True)
         out = os.path.join(HERE, "results_smoke.json" if a.smoke else "results.json")
         with open(out, "w") as fh:
-            json.dump(results, fh, indent=1)
+            json.dump(results, fh, separators=(",", ":"))
         if not a.smoke:
             write_report(results)
 

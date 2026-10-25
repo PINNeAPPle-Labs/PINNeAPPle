@@ -80,6 +80,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 - `examples/pde_environment/06_space_debris_cw_validation.py` had the along-track CW velocity term `+2 s vx0`
   (the derivative of the exact position has `-2 s vx0`, checked by finite differences); it now uses the library's
   `cw_exact_velocity` (its results do not change: it uses vx0 = 0).
+- `examples/benchmark_suite/07_xtfc_1d_ode.py` solved u'' + u = (pi^2 - 1) sin(pi x), whose solution is
+  -sin(pi x), but scored against +sin(pi x), so both methods printed relative L2 = 2.0. The right-hand side is now
+  (1 - pi^2) sin(pi x), which +sin(pi x) solves.
+- `XTFC` no longer reports a formulation it did not run: `extras["tfc_mode"]` is True only when the tfc
+  constrained expression actually produced the output (new `extras["tfc_attached"]` says one is attached). A failing
+  tfc call now warns (`RuntimeWarning`) instead of falling back silently; with every tfc version checked it fails,
+  because tfc has no `cf` method. **Behavior:** `activation` now defaults to `None`, and passing one with the
+  default `rf_kind="rff"` (cos/sin Fourier features, which never used it) raises `ValueError`; with
+  `rf_kind="random_linear"` it is honoured as before (`None` = tanh). Default outputs are unchanged.
 - `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block
   system: SciPy's complex SuperLU path ran about 500x slower than the real one here (20k unknowns: 37 s against
   0.08 s), so a 0.1 mm probe model took minutes; same solution to round-off.
@@ -138,6 +147,13 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   `external_solvers.cfd_formats.convert`, `pinneapple_llm.draft_preset_kwargs` / `check_kwargs_in_bounds` /
   `draft_part` / `measure_part`, and `presets.tag_geometry.tag_solve_kwargs` (boundary geometry of tagged presets
   for `solve_pde`).
+- `pinneapple_analysis.reproduction`: one neutral evaluator for the errors papers report (`rel_l2` = rRMSE, `rmae`,
+  `max_abs`, `mean_abs`, `mse`, `rmse`), seed statistics that keep diverged seeds (`seed_stats`) and the status rule
+  of the paper-reproduction protocol (`status`), for `examples/paper_reproductions`.
+- `pinneapple_physics.paper_problems`: the PINNsFormer convection / 1-D reaction / 1-D wave cases with the
+  official code's grids and pseudo-sequences (AdityaLab/pinnsformer@00d790f5) and analytic references, checked
+  against their equations in `tests/test_paper_problems.py`. The official convection reference `convection.mat`
+  is not exact (relative L2 0.016 against sin(x - 50 t), error growing with t); the analytic one is used.
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that
@@ -1913,6 +1929,12 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   CVEs to none).
 - `apps/deploy/check_server.sh` (read-only host check), fail2ban filters and jail for Caddy and the app auth events,
   host hardening guide `docs/security/server.md`, `tests/test_deploy_security.py`.
+
+### Known issues
+- `PINNsFormer` is not pointwise: it splits a flat batch into sequences of unrelated collocation points and
+  attends across them, so u at a point depends on its batch neighbours and autograd residuals of `u.sum()` pick
+  up cross-point terms. Zhao et al. (ICLR 2024) build each sequence from one point and its time-shifted copies.
+  Documented by a strict xfail in `tests/test_pinnsformer_pointwise.py`.
 
 ## [0.7.0] - 2026-10-13
 

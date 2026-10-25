@@ -123,6 +123,9 @@ class TFCConstrainedExpression:
         -------
         callable that maps x -> u(x) as a torch.Tensor
         """
+        # Known issue: the tfc library (leakec/tfc, src/tfc/utfc.py and mtfc.py) has no ``cf`` method, so this
+        # raises AttributeError with every tfc version checked; XTFC.forward_tensor then warns and uses g + B*N.
+        # Even when it runs, the numpy round trip detaches the result from the autograd graph.
         ce = self._tfc.cf(eta_fn)
 
         def _u(x: torch.Tensor) -> torch.Tensor:
@@ -196,7 +199,9 @@ class XTFCConfig:
     in_dim: int
     out_dim: int
     rf_dim: int = 2048
-    activation: str = "tanh"
+    # Activation of the random features for rf_kind="random_linear" (None = tanh). rf_kind="rff" uses the fixed
+    # Fourier features [cos(Wx+b), sin(Wx+b)] and takes no activation: passing one there raises ValueError.
+    activation: Optional[str] = None
     freeze_random: bool = True
 
     # Random feature options
@@ -250,7 +255,8 @@ class XTFC(PINNBase):
     ----------
     in_dim, out_dim : int
     rf_dim : int        number of random features
-    activation : str    "tanh" | "sin" | "relu" | "gelu" | "silu"
+    activation : str    "tanh" | "sin" | "relu" | "gelu" | "silu", for rf_kind="random_linear" only (None = tanh);
+                        the default rf_kind="rff" (cos/sin features) raises ValueError if one is given
     freeze_random : bool  freeze W,b (ELM mode) — highly recommended
     g_fn : callable     particular solution g(x) -> (N, out_dim)
     B_fn : callable     boundary factor B(x) -> (N,1) or (N,out_dim)
@@ -263,7 +269,7 @@ class XTFC(PINNBase):
         in_dim: int,
         out_dim: int,
         rf_dim: int = 2048,
-        activation: str = "tanh",
+        activation: Optional[str] = None,
         freeze_random: bool = True,
         g_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
         B_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
@@ -285,7 +291,13 @@ class XTFC(PINNBase):
         self.out_dim = int(self.cfg.out_dim)
         self.rf_dim = int(self.cfg.rf_dim)
 
+        if self.cfg.rf_kind == "rff" and self.cfg.activation is not None:
+            raise ValueError(
+                f"XTFC: activation={self.cfg.activation!r} has no effect with rf_kind='rff' (Fourier features "
+                "cos/sin of W x + b). Leave activation unset, or use rf_kind='random_linear' for activation(W x + b)."
+            )
         self.phi = _get_phi(self.cfg.activation)
+        self._tfc_ran = False     # whether the last forward used the tfc constrained expression
 
         # Random feature parameters
         self.W = nn.Parameter(torch.empty(self.rf_dim, self.in_dim))
@@ -497,13 +509,19 @@ class XTFC(PINNBase):
                 return self._free_function(x_t).detach().cpu().numpy()
 
             try:
-                u_fn = self.tfc_ce.constrained_expression(eta_np)
-                return u_fn(x)
-            except Exception:
-                # If tfc constrained expression fails at runtime, fall back
-                pass
+                u = self.tfc_ce.constrained_expression(eta_np)(x)
+            except Exception as e:  # noqa: BLE001 - any tfc failure falls back, and says so
+                warnings.warn(
+                    f"XtFC: the tfc constrained expression failed ({type(e).__name__}: {e}); this forward used "
+                    "the manual g + B*N formulation instead (extras['tfc_mode'] is False).",
+                    RuntimeWarning, stacklevel=2,
+                )
+            else:
+                self._tfc_ran = True
+                return u
 
         # Fallback: manual g + B * N
+        self._tfc_ran = False
         g = self._compute_g(x)
         B = self._compute_B(x)
         return g + B * n
@@ -544,7 +562,8 @@ class XTFC(PINNBase):
             )
 
         extras: Dict[str, Any] = {
-            "tfc_mode": self.tfc_ce is not None,
+            "tfc_mode": self._tfc_ran,                  # what this forward actually ran
+            "tfc_attached": self.tfc_ce is not None,
             "tfc_available": _TFC_AVAILABLE,
         }
         if return_parts:
@@ -552,7 +571,7 @@ class XTFC(PINNBase):
                 "N": self._free_function(x).detach(),
                 "rf": self._rf(x).detach(),
             })
-            if self.tfc_ce is None:
+            if not self._tfc_ran:
                 extras["g"] = self._compute_g(x).detach()
                 extras["B"] = self._compute_B(x).detach()
 
@@ -605,7 +624,7 @@ def build_xtfc(
     out_dim: int,
     *,
     rf_dim: int = 2048,
-    activation: str = "tanh",
+    activation: Optional[str] = None,
     freeze_random: bool = True,
     g_fn: Optional[Callable] = None,
     B_fn: Optional[Callable] = None,
@@ -627,7 +646,8 @@ def build_xtfc(
     ----------
     in_dim, out_dim : int
     rf_dim : int         random feature dimension (ELM width)
-    activation : str     activation for random features
+    activation : str     activation of the random features for rf_kind="random_linear" (None = tanh); the
+                         default rf_kind="rff" uses cos/sin Fourier features and rejects an activation
     freeze_random : bool freeze random weights (ELM)
     g_fn, B_fn           particular solution and boundary factor (fallback)
     use_tfc : bool       use tfc library if available

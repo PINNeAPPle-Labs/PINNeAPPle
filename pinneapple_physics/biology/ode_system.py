@@ -229,12 +229,13 @@ class ODESystem:
     def simulate(self, t_eval, parameters: Mapping[str, float] | None = None, *, y0=None, t0: float | None = None,
                  method: str = "BDF", rtol: float = 1e-8, atol: float = 1e-10, max_step: float = math.inf,
                  outputs: Sequence[str] | None = None) -> Trajectory:
-        """Integrate from ``t0`` (default ``t_eval[0]``) and return states and algebraic variables at ``t_eval``.
+        """Integrate from ``t0`` (default ``min(0, t_eval[0])``: initial values are those at t = 0, as in SBML) and
+        return states and algebraic variables at ``t_eval``.
 
         ``max_step`` should be set when an input has short pulses (a bolus, a meal) that an adaptive step could jump
         over."""
         t_eval = np.asarray(t_eval, dtype=float)
-        t0 = float(t_eval[0]) if t0 is None else float(t0)
+        t0 = min(0.0, float(t_eval[0])) if t0 is None else float(t0)
         p = {**self.parameters, **(parameters or {})}
         pv = [p[k] for k in self.parameters]
         f, J = self._numeric()
@@ -283,9 +284,19 @@ class ODESystem:
         import torch
 
         X, P = self.state_symbols(), self.parameter_symbols()
-        mods = [{"exp": torch.exp, "log": torch.log, "sqrt": torch.sqrt, "sin": torch.sin, "cos": torch.cos,
-                 "tanh": torch.tanh, "Abs": torch.abs, "Heaviside": lambda x, *a: (x > 0).to(x.dtype),
-                 "Max": torch.maximum, "Min": torch.minimum}, "math"]
+        def wrap(tf, mf):
+            return lambda *a: tf(*a) if any(isinstance(x, torch.Tensor) for x in a) else mf(*a)
+
+        def heaviside(x, *_):
+            return (x > 0).to(x.dtype) if isinstance(x, torch.Tensor) else float(x > 0)
+
+        mods = [{"exp": wrap(torch.exp, math.exp), "log": wrap(torch.log, math.log),
+                 "sqrt": wrap(torch.sqrt, math.sqrt), "sin": wrap(torch.sin, math.sin),
+                 "cos": wrap(torch.cos, math.cos), "tanh": wrap(torch.tanh, math.tanh), "Abs": wrap(torch.abs, abs),
+                 "Heaviside": heaviside, "Max": wrap(lambda a, b: torch.clamp(a, min=b) if not isinstance(b, torch.Tensor)
+                                                     else torch.maximum(torch.as_tensor(a), b), max),
+                 "Min": wrap(lambda a, b: torch.clamp(a, max=b) if not isinstance(b, torch.Tensor)
+                             else torch.minimum(torch.as_tensor(a), b), min)}, "math"]
         fns = [sp.lambdify((TIME, X, P), e, modules=mods) for e in self.expanded_rhs()]
         fixed = dict(self.parameters)
         trainable = list(trainable)
@@ -394,9 +405,10 @@ class ODESystem:
         p = {**self.parameters, **(parameters or {})}
         g = self.expanded(self.assignments[name])
         X, P = self.state_symbols(), self.parameter_symbols()
-        f = sp.lambdify((TIME, X, P), [g, [sp.diff(g, x) for x in X],
-                                       [sp.diff(g, _sym(k)) if k in self.parameters else sp.Integer(0)
-                                        for k in names]], "numpy")
+        gx = _jacobian(sp.Matrix([g]), X)
+        gp = _jacobian(sp.Matrix([g]), [_sym(k) for k in names]) if len(names) else sp.zeros(1, 0)
+        gp = [gp[0, j] if names[j] in self.parameters else sp.Integer(0) for j in range(len(names))]
+        f = sp.lambdify((TIME, X, P), [g, list(gx), gp], "numpy")
         tt = traj.t
         val, dx, dp = f(tt, [traj.values[s] for s in self.states], [p[k] for k in self.parameters])
         b = lambda v: np.broadcast_to(np.asarray(v, float), tt.shape)        # noqa: E731

@@ -55,7 +55,7 @@ def ultradian_glucose_insulin(meals: Sequence[tuple[float, float]] = ((300, 60),
     f1 = S["Rm"] / (1 + sp.exp(-G / (S["Vg"] * S["C1"]) + S["a1"]))
     f2 = S["Ub"] * (1 - sp.exp(-G / (S["Vg"] * S["C2"])))
     kappa = (1 / S["Vi"] + 1 / (S["E"] * S["ti"])) / S["C4"]
-    f3 = (S["U0"] + S["Um"] / (1 + (kappa * Ii) ** (-S["beta"]))) / (S["Vg"] * S["C3"])
+    f3 = (S["U0"] + S["Um"] / (1 + sp.Max(kappa * Ii, 1e-3) ** (-S["beta"]))) / (S["Vg"] * S["C3"])
     f4 = S["Rg"] / (1 + sp.exp(S["alpha"] * (h3 / (S["Vp"] * S["C5"]) - 1)))
     IG = sp.Integer(0)
     for tj, mj in meals:

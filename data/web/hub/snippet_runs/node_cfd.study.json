@@ -1,0 +1,12 @@
+{
+ "code_hash": "fa5af89a224c8d27",
+ "figures": [],
+ "id": "node:cfd.study",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 7.64,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "FreeCAD -> OpenFOAM study -> pinneapple_simulation.pipelines.freecad_openfoam.studies (PipelineSpec)\ninputs: []\noutputs: [('study', 'params')]\ndefaults: {'study': 'pipe_bend', 'resolution': 12.0, 'backend': 'auto', 'overrides': {}}",
+ "timed_out": false
+}

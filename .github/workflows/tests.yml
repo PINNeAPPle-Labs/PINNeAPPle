@@ -71,6 +71,11 @@ jobs:
           pip install scikit-learn
           pytest tests/test_physics_learning.py -q -p no:warnings
 
+      - name: Football physics — ball flight ODE and inverse problem, Kalman smoothing, pitch control, xG features (must pass)
+        run: |
+          pip install scikit-learn
+          pytest tests/test_football_physics.py -q -p no:warnings
+
       - name: Experiment manifests — every examples/* folder and Lab run has a valid experiment.json (must pass)
         run: |
           python scripts/check_experiment_manifests.py

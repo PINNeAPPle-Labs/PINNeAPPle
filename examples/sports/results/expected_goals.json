@@ -1,0 +1,968 @@
+{
+ "params": {
+  "v_shot": 25.0,
+  "v_gk": 7.0,
+  "reach_gk": 1.5,
+  "reaction_gk": 0.25,
+  "v_def": 5.0,
+  "reach_def": 0.5,
+  "reaction_def": 0.3,
+  "n_mouth": 25,
+  "n_path": 20
+ },
+ "grid_logloss": {
+  "12.0_3.0": 0.28703,
+  "12.0_5.0": 0.28707,
+  "12.0_7.0": 0.2867,
+  "16.0_3.0": 0.28657,
+  "16.0_5.0": 0.28616,
+  "16.0_7.0": 0.28636,
+  "20.0_3.0": 0.28667,
+  "20.0_5.0": 0.28605,
+  "20.0_7.0": 0.28604,
+  "25.0_3.0": 0.28638,
+  "25.0_5.0": 0.28611,
+  "25.0_7.0": 0.28539,
+  "30.0_3.0": 0.28662,
+  "30.0_5.0": 0.28647,
+  "30.0_7.0": 0.28639
+ },
+ "scores": {
+  "standard_logistic": {
+   "log_loss": 0.24129,
+   "brier": 0.06617,
+   "auc": 0.75496,
+   "ece": 0.02709,
+   "n": 1269,
+   "base_rate": 0.07644
+  },
+  "standard_gbm": {
+   "log_loss": 0.26026,
+   "brier": 0.06896,
+   "auc": 0.70029,
+   "ece": 0.04138,
+   "n": 1269,
+   "base_rate": 0.07644
+  },
+  "physics_logistic": {
+   "log_loss": 0.25376,
+   "brier": 0.06818,
+   "auc": 0.71094,
+   "ece": 0.02728,
+   "n": 1269,
+   "base_rate": 0.07644
+  },
+  "standard+physics_logistic": {
+   "log_loss": 0.24294,
+   "brier": 0.0662,
+   "auc": 0.74598,
+   "ece": 0.02475,
+   "n": 1269,
+   "base_rate": 0.07644
+  },
+  "standard+physics_gbm": {
+   "log_loss": 0.25827,
+   "brier": 0.06796,
+   "auc": 0.70495,
+   "ece": 0.03877,
+   "n": 1269,
+   "base_rate": 0.07644
+  },
+  "standard+freeze_geometry_logistic": {
+   "log_loss": 0.23894,
+   "brier": 0.06557,
+   "auc": 0.76379,
+   "ece": 0.02128,
+   "n": 1269,
+   "base_rate": 0.07644
+  },
+  "standard+freeze+physics_logistic": {
+   "log_loss": 0.24119,
+   "brier": 0.06581,
+   "auc": 0.75544,
+   "ece": 0.02562,
+   "n": 1269,
+   "base_rate": 0.07644
+  },
+  "statsbomb_xg_reference": {
+   "log_loss": 0.22668,
+   "brier": 0.06219,
+   "auc": 0.79047,
+   "ece": 0.01898,
+   "n": 1269,
+   "base_rate": 0.07644
+  }
+ },
+ "paired_vs_standard_logistic": {
+  "standard_gbm": {
+   "diff": 0.01897,
+   "ci95": [
+    0.00729,
+    0.03085
+   ],
+   "metric": "log_loss"
+  },
+  "physics_logistic": {
+   "diff": 0.01248,
+   "ci95": [
+    0.00403,
+    0.0207
+   ],
+   "metric": "log_loss"
+  },
+  "standard+physics_logistic": {
+   "diff": 0.00165,
+   "ci95": [
+    -0.00185,
+    0.00521
+   ],
+   "metric": "log_loss"
+  },
+  "standard+physics_gbm": {
+   "diff": 0.01699,
+   "ci95": [
+    0.00323,
+    0.03092
+   ],
+   "metric": "log_loss"
+  },
+  "standard+freeze_geometry_logistic": {
+   "diff": -0.00235,
+   "ci95": [
+    -0.00988,
+    0.00489
+   ],
+   "metric": "log_loss"
+  },
+  "standard+freeze+physics_logistic": {
+   "diff": -0.00010283,
+   "ci95": [
+    -0.0087,
+    0.00786
+   ],
+   "metric": "log_loss"
+  },
+  "statsbomb_xg_reference": {
+   "diff": -0.01461,
+   "ci95": [
+    -0.02501,
+    -0.00481
+   ],
+   "metric": "log_loss"
+  }
+ },
+ "reliability": {
+  "standard_logistic": {
+   "pred": [
+    0.01463,
+    0.0275,
+    0.03734,
+    0.05188,
+    0.07203,
+    0.09829,
+    0.14041,
+    0.30392
+   ],
+   "obs": [
+    0.01258,
+    0.01899,
+    0.03145,
+    0.06962,
+    0.03145,
+    0.06962,
+    0.12579,
+    0.25157
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    159,
+    158,
+    159,
+    159
+   ]
+  },
+  "standard_gbm": {
+   "pred": [
+    0.00447,
+    0.01364,
+    0.02459,
+    0.03965,
+    0.06145,
+    0.0921,
+    0.1497,
+    0.34208
+   ],
+   "obs": [
+    0.01887,
+    0.05063,
+    0.06289,
+    0.05696,
+    0.01266,
+    0.08176,
+    0.10692,
+    0.22013
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    158,
+    159,
+    159,
+    159
+   ]
+  },
+  "physics_logistic": {
+   "pred": [
+    0.0196,
+    0.03743,
+    0.0481,
+    0.05677,
+    0.07077,
+    0.1153,
+    0.16752,
+    0.27278
+   ],
+   "obs": [
+    0.02516,
+    0.02532,
+    0.03145,
+    0.0443,
+    0.08805,
+    0.08861,
+    0.10063,
+    0.20755
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    159,
+    158,
+    159,
+    159
+   ]
+  },
+  "standard+physics_logistic": {
+   "pred": [
+    0.01369,
+    0.02611,
+    0.03698,
+    0.0495,
+    0.06595,
+    0.09556,
+    0.1471,
+    0.31225
+   ],
+   "obs": [
+    0.02516,
+    0.01266,
+    0.03774,
+    0.05696,
+    0.04403,
+    0.07595,
+    0.1195,
+    0.23899
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    159,
+    158,
+    159,
+    159
+   ]
+  },
+  "standard+physics_gbm": {
+   "pred": [
+    0.00461,
+    0.01235,
+    0.02151,
+    0.03396,
+    0.05303,
+    0.08643,
+    0.14725,
+    0.35293
+   ],
+   "obs": [
+    0.01887,
+    0.03165,
+    0.08176,
+    0.03165,
+    0.0566,
+    0.07595,
+    0.06918,
+    0.24528
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    159,
+    158,
+    159,
+    159
+   ]
+  },
+  "standard+freeze_geometry_logistic": {
+   "pred": [
+    0.01215,
+    0.02326,
+    0.03366,
+    0.04646,
+    0.06529,
+    0.09303,
+    0.14485,
+    0.317
+   ],
+   "obs": [
+    0.02516,
+    0.02532,
+    0.01887,
+    0.02532,
+    0.06289,
+    0.06962,
+    0.12579,
+    0.25786
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    159,
+    158,
+    159,
+    159
+   ]
+  },
+  "standard+freeze+physics_logistic": {
+   "pred": [
+    0.01122,
+    0.0223,
+    0.03246,
+    0.04579,
+    0.0634,
+    0.09299,
+    0.14718,
+    0.31818
+   ],
+   "obs": [
+    0.02516,
+    0.02532,
+    0.02516,
+    0.02532,
+    0.06289,
+    0.07595,
+    0.10063,
+    0.27044
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    159,
+    158,
+    159,
+    159
+   ]
+  },
+  "statsbomb_xg_reference": {
+   "pred": [
+    0.01174,
+    0.02381,
+    0.03323,
+    0.04509,
+    0.05915,
+    0.08239,
+    0.12581,
+    0.30757
+   ],
+   "obs": [
+    0.01887,
+    0.01266,
+    0.02516,
+    0.0443,
+    0.04403,
+    0.05696,
+    0.15094,
+    0.25786
+   ],
+   "n": [
+    159,
+    158,
+    159,
+    158,
+    159,
+    158,
+    159,
+    159
+   ]
+  }
+ },
+ "n_train": 2590,
+ "n_test": 1269,
+ "data_efficiency": {
+  "rows": [
+   {
+    "n_train": 100,
+    "seed": 0,
+    "model": "standard_logistic",
+    "log_loss": 0.27945,
+    "auc": 0.70717
+   },
+   {
+    "n_train": 100,
+    "seed": 0,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.28322,
+    "auc": 0.7064
+   },
+   {
+    "n_train": 100,
+    "seed": 0,
+    "model": "physics_logistic",
+    "log_loss": 0.27598,
+    "auc": 0.70339
+   },
+   {
+    "n_train": 100,
+    "seed": 1,
+    "model": "standard_logistic",
+    "log_loss": 0.2724,
+    "auc": 0.67941
+   },
+   {
+    "n_train": 100,
+    "seed": 1,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.27444,
+    "auc": 0.68854
+   },
+   {
+    "n_train": 100,
+    "seed": 1,
+    "model": "physics_logistic",
+    "log_loss": 0.25473,
+    "auc": 0.70993
+   },
+   {
+    "n_train": 100,
+    "seed": 2,
+    "model": "standard_logistic",
+    "log_loss": 0.30674,
+    "auc": 0.73563
+   },
+   {
+    "n_train": 100,
+    "seed": 2,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.31975,
+    "auc": 0.73864
+   },
+   {
+    "n_train": 100,
+    "seed": 2,
+    "model": "physics_logistic",
+    "log_loss": 0.26391,
+    "auc": 0.70698
+   },
+   {
+    "n_train": 100,
+    "seed": 3,
+    "model": "standard_logistic",
+    "log_loss": 0.26336,
+    "auc": 0.73551
+   },
+   {
+    "n_train": 100,
+    "seed": 3,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.28149,
+    "auc": 0.67478
+   },
+   {
+    "n_train": 100,
+    "seed": 3,
+    "model": "physics_logistic",
+    "log_loss": 0.28726,
+    "auc": 0.64459
+   },
+   {
+    "n_train": 100,
+    "seed": 4,
+    "model": "standard_logistic",
+    "log_loss": 0.29595,
+    "auc": 0.71612
+   },
+   {
+    "n_train": 100,
+    "seed": 4,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.38021,
+    "auc": 0.69394
+   },
+   {
+    "n_train": 100,
+    "seed": 4,
+    "model": "physics_logistic",
+    "log_loss": 0.33377,
+    "auc": 0.68267
+   },
+   {
+    "n_train": 200,
+    "seed": 0,
+    "model": "standard_logistic",
+    "log_loss": 0.25362,
+    "auc": 0.71824
+   },
+   {
+    "n_train": 200,
+    "seed": 0,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.25712,
+    "auc": 0.71372
+   },
+   {
+    "n_train": 200,
+    "seed": 0,
+    "model": "physics_logistic",
+    "log_loss": 0.26517,
+    "auc": 0.69087
+   },
+   {
+    "n_train": 200,
+    "seed": 1,
+    "model": "standard_logistic",
+    "log_loss": 0.27616,
+    "auc": 0.68401
+   },
+   {
+    "n_train": 200,
+    "seed": 1,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.27614,
+    "auc": 0.68693
+   },
+   {
+    "n_train": 200,
+    "seed": 1,
+    "model": "physics_logistic",
+    "log_loss": 0.25431,
+    "auc": 0.70246
+   },
+   {
+    "n_train": 200,
+    "seed": 2,
+    "model": "standard_logistic",
+    "log_loss": 0.25661,
+    "auc": 0.71414
+   },
+   {
+    "n_train": 200,
+    "seed": 2,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.2609,
+    "auc": 0.70995
+   },
+   {
+    "n_train": 200,
+    "seed": 2,
+    "model": "physics_logistic",
+    "log_loss": 0.26533,
+    "auc": 0.7086
+   },
+   {
+    "n_train": 200,
+    "seed": 3,
+    "model": "standard_logistic",
+    "log_loss": 0.28483,
+    "auc": 0.61605
+   },
+   {
+    "n_train": 200,
+    "seed": 3,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.28726,
+    "auc": 0.60935
+   },
+   {
+    "n_train": 200,
+    "seed": 3,
+    "model": "physics_logistic",
+    "log_loss": 0.26211,
+    "auc": 0.64483
+   },
+   {
+    "n_train": 200,
+    "seed": 4,
+    "model": "standard_logistic",
+    "log_loss": 0.25555,
+    "auc": 0.73359
+   },
+   {
+    "n_train": 200,
+    "seed": 4,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.26971,
+    "auc": 0.70809
+   },
+   {
+    "n_train": 200,
+    "seed": 4,
+    "model": "physics_logistic",
+    "log_loss": 0.26595,
+    "auc": 0.68284
+   },
+   {
+    "n_train": 400,
+    "seed": 0,
+    "model": "standard_logistic",
+    "log_loss": 0.26018,
+    "auc": 0.69673
+   },
+   {
+    "n_train": 400,
+    "seed": 0,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.26042,
+    "auc": 0.69284
+   },
+   {
+    "n_train": 400,
+    "seed": 0,
+    "model": "physics_logistic",
+    "log_loss": 0.25012,
+    "auc": 0.71217
+   },
+   {
+    "n_train": 400,
+    "seed": 1,
+    "model": "standard_logistic",
+    "log_loss": 0.26142,
+    "auc": 0.73165
+   },
+   {
+    "n_train": 400,
+    "seed": 1,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.26254,
+    "auc": 0.7297
+   },
+   {
+    "n_train": 400,
+    "seed": 1,
+    "model": "physics_logistic",
+    "log_loss": 0.26366,
+    "auc": 0.71063
+   },
+   {
+    "n_train": 400,
+    "seed": 2,
+    "model": "standard_logistic",
+    "log_loss": 0.24796,
+    "auc": 0.71742
+   },
+   {
+    "n_train": 400,
+    "seed": 2,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.25007,
+    "auc": 0.70894
+   },
+   {
+    "n_train": 400,
+    "seed": 2,
+    "model": "physics_logistic",
+    "log_loss": 0.25319,
+    "auc": 0.70695
+   },
+   {
+    "n_train": 400,
+    "seed": 3,
+    "model": "standard_logistic",
+    "log_loss": 0.25624,
+    "auc": 0.72621
+   },
+   {
+    "n_train": 400,
+    "seed": 3,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.27151,
+    "auc": 0.71119
+   },
+   {
+    "n_train": 400,
+    "seed": 3,
+    "model": "physics_logistic",
+    "log_loss": 0.27018,
+    "auc": 0.69605
+   },
+   {
+    "n_train": 400,
+    "seed": 4,
+    "model": "standard_logistic",
+    "log_loss": 0.24813,
+    "auc": 0.7244
+   },
+   {
+    "n_train": 400,
+    "seed": 4,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.25255,
+    "auc": 0.70258
+   },
+   {
+    "n_train": 400,
+    "seed": 4,
+    "model": "physics_logistic",
+    "log_loss": 0.25794,
+    "auc": 0.69643
+   },
+   {
+    "n_train": 800,
+    "seed": 0,
+    "model": "standard_logistic",
+    "log_loss": 0.24648,
+    "auc": 0.74843
+   },
+   {
+    "n_train": 800,
+    "seed": 0,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.24893,
+    "auc": 0.73177
+   },
+   {
+    "n_train": 800,
+    "seed": 0,
+    "model": "physics_logistic",
+    "log_loss": 0.25842,
+    "auc": 0.68853
+   },
+   {
+    "n_train": 800,
+    "seed": 1,
+    "model": "standard_logistic",
+    "log_loss": 0.24283,
+    "auc": 0.74961
+   },
+   {
+    "n_train": 800,
+    "seed": 1,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.25406,
+    "auc": 0.73418
+   },
+   {
+    "n_train": 800,
+    "seed": 1,
+    "model": "physics_logistic",
+    "log_loss": 0.25952,
+    "auc": 0.69708
+   },
+   {
+    "n_train": 800,
+    "seed": 2,
+    "model": "standard_logistic",
+    "log_loss": 0.24967,
+    "auc": 0.73451
+   },
+   {
+    "n_train": 800,
+    "seed": 2,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.25266,
+    "auc": 0.73019
+   },
+   {
+    "n_train": 800,
+    "seed": 2,
+    "model": "physics_logistic",
+    "log_loss": 0.2594,
+    "auc": 0.70913
+   },
+   {
+    "n_train": 800,
+    "seed": 3,
+    "model": "standard_logistic",
+    "log_loss": 0.24976,
+    "auc": 0.72788
+   },
+   {
+    "n_train": 800,
+    "seed": 3,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.25554,
+    "auc": 0.72055
+   },
+   {
+    "n_train": 800,
+    "seed": 3,
+    "model": "physics_logistic",
+    "log_loss": 0.25475,
+    "auc": 0.70428
+   },
+   {
+    "n_train": 800,
+    "seed": 4,
+    "model": "standard_logistic",
+    "log_loss": 0.2423,
+    "auc": 0.74925
+   },
+   {
+    "n_train": 800,
+    "seed": 4,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.24392,
+    "auc": 0.74036
+   },
+   {
+    "n_train": 800,
+    "seed": 4,
+    "model": "physics_logistic",
+    "log_loss": 0.25348,
+    "auc": 0.71289
+   },
+   {
+    "n_train": 1600,
+    "seed": 0,
+    "model": "standard_logistic",
+    "log_loss": 0.24441,
+    "auc": 0.74576
+   },
+   {
+    "n_train": 1600,
+    "seed": 0,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.24708,
+    "auc": 0.73526
+   },
+   {
+    "n_train": 1600,
+    "seed": 0,
+    "model": "physics_logistic",
+    "log_loss": 0.25562,
+    "auc": 0.70614
+   },
+   {
+    "n_train": 1600,
+    "seed": 1,
+    "model": "standard_logistic",
+    "log_loss": 0.24476,
+    "auc": 0.74676
+   },
+   {
+    "n_train": 1600,
+    "seed": 1,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.2458,
+    "auc": 0.74121
+   },
+   {
+    "n_train": 1600,
+    "seed": 1,
+    "model": "physics_logistic",
+    "log_loss": 0.25383,
+    "auc": 0.70899
+   },
+   {
+    "n_train": 1600,
+    "seed": 2,
+    "model": "standard_logistic",
+    "log_loss": 0.24177,
+    "auc": 0.76089
+   },
+   {
+    "n_train": 1600,
+    "seed": 2,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.24281,
+    "auc": 0.75452
+   },
+   {
+    "n_train": 1600,
+    "seed": 2,
+    "model": "physics_logistic",
+    "log_loss": 0.25393,
+    "auc": 0.70895
+   },
+   {
+    "n_train": 1600,
+    "seed": 3,
+    "model": "standard_logistic",
+    "log_loss": 0.2455,
+    "auc": 0.7497
+   },
+   {
+    "n_train": 1600,
+    "seed": 3,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.24786,
+    "auc": 0.74285
+   },
+   {
+    "n_train": 1600,
+    "seed": 3,
+    "model": "physics_logistic",
+    "log_loss": 0.25792,
+    "auc": 0.70856
+   },
+   {
+    "n_train": 1600,
+    "seed": 4,
+    "model": "standard_logistic",
+    "log_loss": 0.24244,
+    "auc": 0.75564
+   },
+   {
+    "n_train": 1600,
+    "seed": 4,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.24457,
+    "auc": 0.74327
+   },
+   {
+    "n_train": 1600,
+    "seed": 4,
+    "model": "physics_logistic",
+    "log_loss": 0.25603,
+    "auc": 0.71083
+   },
+   {
+    "n_train": 2590,
+    "seed": 0,
+    "model": "standard_logistic",
+    "log_loss": 0.24129,
+    "auc": 0.75496
+   },
+   {
+    "n_train": 2590,
+    "seed": 0,
+    "model": "standard+physics_logistic",
+    "log_loss": 0.24294,
+    "auc": 0.74598
+   },
+   {
+    "n_train": 2590,
+    "seed": 0,
+    "model": "physics_logistic",
+    "log_loss": 0.25376,
+    "auc": 0.71094
+   }
+  ]
+ },
+ "n_goals": {
+  "train": 269,
+  "test": 97
+ }
+}

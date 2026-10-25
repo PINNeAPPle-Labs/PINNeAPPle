@@ -7,7 +7,7 @@
   "geometry": 17,
   "dataset": 12,
   "flow": 16,
-  "example": 184
+  "example": 185
  },
  "kinds": {
   "tool": "Tools",
@@ -126,7 +126,7 @@
    "geometry": 17,
    "dataset": 12,
    "flow": 16,
-   "example": 184
+   "example": 185
   },
   "subkind": {
    "library call": 249,
@@ -145,7 +145,7 @@
    "validation and benchmarks": 46,
    "data": 41,
    "system dynamics": 41,
-   "heat transfer": 30,
+   "heat transfer": 31,
    "science / physics.electromagnetism": 20,
    "electromagnetics": 16,
    "vehicle dynamics": 14,
@@ -201,7 +201,7 @@
    "automation": 28
   },
   "quality": {
-   "not graded": 565,
+   "not graded": 566,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -77354,6 +77354,95 @@
     "stdout": "Physics checks in CI | validation and benchmarks | not curated",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/physics_learning_verification",
+   "kind": "example",
+   "name": "examples/physics_learning_verification",
+   "title": "Physics learning verification of learned thermal models",
+   "summary": "A verifier independent of the training loss: discrete residual, interface flux, boundary conditions, energy balance, symmetry, scaling and causal interventions against a…",
+   "description": "A verifier independent of the training loss: discrete residual, interface flux, boundary conditions, energy balance, symmetry, scaling and causal interventions against a finite-volume reference, on deliberately defective models, a POD-GPR surrogate and PINNs.",
+   "domain": "heat transfer",
+   "tags": [
+    "PINN",
+    "POD-GPR",
+    "finite volumes",
+    "interventions"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/physics_learning_verification"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/physics_learning_verification\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/physics_learning_verification/run_study.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "defect_detection_verifier",
+      "value": 1.0,
+      "unit": "fraction",
+      "how": "verifier, 48 informative points + probes; 22 defective models"
+     },
+     {
+      "name": "defect_detection_flag_loss",
+      "value": 0.5454545454545454,
+      "unit": "fraction",
+      "how": "mean squared discrete residual > limit; 22 defective models"
+     },
+     {
+      "name": "defect_detection_flag_heldout",
+      "value": 0.22727272727272727,
+      "unit": "fraction",
+      "how": "held-out relative L2 > limit; 22 defective models"
+     },
+     {
+      "name": "heldout_rel_l2[POD-GPR surrogate, correlated training data]",
+      "value": 9.491715214246315e-05,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     },
+     {
+      "name": "heldout_rel_l2[POD-GPR surrogate, independent training data]",
+      "value": 0.0059935650639470804,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     },
+     {
+      "name": "heldout_rel_l2[PINN, soft constraints]",
+      "value": 0.28962155212510166,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     },
+     {
+      "name": "heldout_rel_l2[PINN, hard adiabatic sides]",
+      "value": 0.08447056422897815,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     }
+    ],
+    "figures": [
+     "examples/physics_learning_verification/figures/detection.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/physics_learning_verification/run_study.py",
+    "lab": "lab/index.html#examples/physics_learning_verification"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "6c5e314b8cdb448f"
    }
   },
   {

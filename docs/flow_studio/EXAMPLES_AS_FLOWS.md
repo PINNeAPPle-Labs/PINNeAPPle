@@ -7,10 +7,10 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 6 |
-| not yet run | 4 |
+| not yet run | 3 |
 | not_convertible | 16 |
 | runs | 39 |
-| runs-quick | 11 |
+| runs-quick | 12 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -35,7 +35,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `end_to_end` | data | - | not_convertible |  | legacy Trainer / Zarr / checkpoint demos on toy data (2-3 epochs); 06 needs a user STL path and trimesh |
 | `enso_forecasting` | time series | `enso_forecasting/forecast` (needs: the ENSO observations (~92 GB streamed on first use))<br>`enso_forecasting/solver_checks` | runs | 12 / 12 match | the shallow-water PINN study, spring-barrier hindcasts, case plumes, phase portrait and the Blender clip of run_study.py need the observations too and are not separate nodes yet; enso_forecasting/forecast: dataset.build_dataset streams about 92 GB of OISST daily files, WOD casts and ERA5 wind stress into the data cache on its first call (docs/guides/enso_forecasting.md); the run_study.py --smoke zoo also needs them |
 | `first_example` | PINN | `first_example/first_example` | runs |  | nothing committed to compare: the flow records the PINN's relative L2 against the Cole-Hopf solution at t = 0.75 |
-| `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | not yet run | 175 / 175 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
+| `flight_dynamics` | flight dynamics | `flight_dynamics/00_full_study`<br>`flight_dynamics/01_verification`<br>`flight_dynamics/02_trim_and_stability`<br>`flight_dynamics/03_takeoff`<br>`flight_dynamics/04_turbulence_encounters`<br>`flight_dynamics/05_render_clips`<br>`flight_dynamics/07_same_gust` | runs-quick | 302 / 302 match | 06_tables.py is not a flow: it rewrites the tables of docs/guides/flight_dynamics.md from the committed JSON (a documentation build step); the flows show the same tables in their node reports. |
 | `flow_studio` | flows | - | not_convertible |  | already flows: build_examples.py writes pinneapple_flow/flows/*.json (listed under Flow Studio in Open... -> Examples), run_examples.py runs them, screenshots.py is a docs step |
 | `free_surface` | CFD | `free_surface/01_runner_slope_study` | runs | 12 / 12 match | no committed numbers (_out/ is not committed); the guide's table (docs/core_concepts/free_surface.md) gives rounded values, compared in the PR text. OpenFOAM v1912 from apt |
 | `geomechanics` | geomechanics | `geomechanics/01_granular_column_collapse` | runs | 8 / 8 match | no committed results file (_out/ is not committed): compared with the guide's table (docs/core_concepts/geomechanics_mpm.md) |
@@ -564,6 +564,140 @@ done in 11 s (commit b25e808a, 2026-10-19); 12 of 12 numbers match.
 ### `first_example/first_example` (full)
 
 done in 12261 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
+
+### `flight_dynamics/00_full_study` (quick)
+
+done in 807 s (commit 09738c0f, 2026-10-25); 127 of 127 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `verif.energy_rel_error_dt0.02` | `manifest:energy_rel_error_dt0.02` | 4.40079e-10 | 4.40079e-10 | 0 | match |
+| `verif.energy_rel_error_dt0.01` | `manifest:energy_rel_error_dt0.01` | 8.03122e-12 | 8.03122e-12 | 0 | match |
+| `verif.energy_rel_error_dt0.005` | `manifest:energy_rel_error_dt0.005` | 1.6153e-12 | 1.6153e-12 | 0 | match |
+| `verif.lattice_rel_diff_light_ga_alpha0.0` | `manifest:lattice_rel_diff_light_ga_alpha0.0` | 4.00195e-11 | 4.00188e-11 | 1.71543e-05 | match |
+| `verif.lattice_rel_diff_light_ga_alpha4.0` | `manifest:lattice_rel_diff_light_ga_alpha4.0` | 0.00131708 | 0.00131708 | 4.93911e-16 | match |
+| `verif.lattice_rel_diff_regional_turboprop_alpha0.0` | `manifest:lattice_rel_diff_regional_turboprop_alpha0.0` | 4.00193e-11 | 4.00193e-11 | 1.14651e-14 | match |
+| `verif.lattice_rel_diff_regional_turboprop_alpha4.0` | `manifest:lattice_rel_diff_regional_turboprop_alpha4.0` | 0.00164821 | 0.00164821 | 4.94539e-13 | match |
+| `verif.lattice_rel_diff_a320_alpha0.0` | `manifest:lattice_rel_diff_a320_alpha0.0` | 4.00181e-11 | 4.00188e-11 | 1.86093e-05 | match |
+| `verif.lattice_rel_diff_a320_alpha4.0` | `manifest:lattice_rel_diff_a320_alpha4.0` | 0.00135518 | 0.00135518 | 8.00041e-16 | match |
+| `verif.lattice_rel_diff_motor_glider_alpha0.0` | `manifest:lattice_rel_diff_motor_glider_alpha0.0` | 4.0021e-11 | 4.00208e-11 | 5.29566e-06 | match |
+| `verif.lattice_rel_diff_motor_glider_alpha4.0` | `manifest:lattice_rel_diff_motor_glider_alpha4.0` | 0.00171005 | 0.00171005 | 2.72121e-13 | match |
+| `stab.light_ga.CL_alpha` | `results/stability.json:light_ga.derivatives.CL_alpha` | 5.11808 | 5.11808 | 1.73537e-15 | match |
+| `stab.light_ga.static_margin` | `results/stability.json:light_ga.derivatives.static_margin` | 0.293364 | 0.293364 | 1.51378e-15 | match |
+| `stab.light_ga.Cm_alpha` | `results/stability.json:light_ga.derivatives.Cm_alpha` | -1.50146 | -1.50146 | 3.25348e-15 | match |
+| `stab.light_ga.Cm_q` | `results/stability.json:light_ga.derivatives.Cm_q` | -18.4421 | -18.4421 | 1.92642e-16 | match |
+| `stab.light_ga.Cl_beta` | `results/stability.json:light_ga.derivatives.Cl_beta` | -0.0422045 | -0.0422045 | 3.48552e-14 | match |
+| `stab.light_ga.Cn_beta` | `results/stability.json:light_ga.derivatives.Cn_beta` | 0.0640538 | 0.0640538 | 1.29995e-15 | match |
+| `stab.light_ga.Cl_p` | `results/stability.json:light_ga.derivatives.Cl_p` | -0.498265 | -0.498265 | 1.00268e-15 | match |
+| `stab.light_ga.Cn_r` | `results/stability.json:light_ga.derivatives.Cn_r` | -0.106262 | -0.106262 | 5.22398e-16 | match |
+| `stab.regional_turboprop.CL_alpha` | `results/stability.json:regional_turboprop.derivatives.CL_alpha` | 5.7325 | 5.7325 | 1.2395e-15 | match |
+| `stab.regional_turboprop.static_margin` | `results/stability.json:regional_turboprop.derivatives.static_margin` | 0.306821 | 0.306821 | 1.80924e-16 | match |
+| `stab.regional_turboprop.Cm_alpha` | `results/stability.json:regional_turboprop.derivatives.Cm_alpha` | -1.75885 | -1.75885 | 1.1362e-15 | match |
+| `stab.regional_turboprop.Cm_q` | `results/stability.json:regional_turboprop.derivatives.Cm_q` | -54.4891 | -54.4891 | 1.17361e-15 | match |
+| `stab.regional_turboprop.Cl_beta` | `results/stability.json:regional_turboprop.derivatives.Cl_beta` | -0.0847513 | -0.0847513 | 2.5872e-14 | match |
+| `stab.regional_turboprop.Cn_beta` | `results/stability.json:regional_turboprop.derivatives.Cn_beta` | 0.134723 | 0.134723 | 0 | match |
+| `stab.regional_turboprop.Cl_p` | `results/stability.json:regional_turboprop.derivatives.Cl_p` | -0.603793 | -0.603793 | 9.19375e-16 | match |
+| `stab.regional_turboprop.Cn_r` | `results/stability.json:regional_turboprop.derivatives.Cn_r` | -0.145606 | -0.145606 | 3.81241e-16 | match |
+| `stab.a320.CL_alpha` | `results/stability.json:a320.derivatives.CL_alpha` | 5.25727 | 5.25727 | 0 | match |
+| `stab.a320.static_margin` | `results/stability.json:a320.derivatives.static_margin` | 0.368638 | 0.368638 | 6.02338e-16 | match |
+| `stab.a320.Cm_alpha` | `results/stability.json:a320.derivatives.Cm_alpha` | -1.93803 | -1.93803 | 5.72862e-16 | match |
+| `stab.a320.Cm_q` | `results/stability.json:a320.derivatives.Cm_q` | -44.5873 | -44.5873 | 1.5936e-16 | match |
+| `stab.a320.Cl_beta` | `results/stability.json:a320.derivatives.Cl_beta` | -0.217008 | -0.217008 | 4.47653e-15 | match |
+| `stab.a320.Cn_beta` | `results/stability.json:a320.derivatives.Cn_beta` | 0.0799599 | 0.0799599 | 3.47118e-15 | match |
+| `stab.a320.Cl_p` | `results/stability.json:a320.derivatives.Cl_p` | -0.474536 | -0.474536 | 7.83765e-15 | match |
+| `stab.a320.Cn_r` | `results/stability.json:a320.derivatives.Cn_r` | -0.245718 | -0.245718 | 7.90699e-16 | match |
+| `stab.motor_glider.CL_alpha` | `results/stability.json:motor_glider.derivatives.CL_alpha` | 6.01562 | 6.01562 | 4.13407e-15 | match |
+| `stab.motor_glider.static_margin` | `results/stability.json:motor_glider.derivatives.static_margin` | 0.0529264 | 0.0529264 | 2.62209e-16 | match |
+| `stab.motor_glider.Cm_alpha` | `results/stability.json:motor_glider.derivatives.Cm_alpha` | -0.318385 | -0.318385 | 3.83575e-15 | match |
+| `stab.motor_glider.Cm_q` | `results/stability.json:motor_glider.derivatives.Cm_q` | -21.4878 | -21.4878 | 3.30672e-16 | match |
+| `stab.motor_glider.Cl_beta` | `results/stability.json:motor_glider.derivatives.Cl_beta` | -0.0828538 | -0.0828538 | 1.84247e-15 | match |
+| `stab.motor_glider.Cn_beta` | `results/stability.json:motor_glider.derivatives.Cn_beta` | 0.0440876 | 0.0440876 | 1.88867e-15 | match |
+| `stab.motor_glider.Cl_p` | `results/stability.json:motor_glider.derivatives.Cl_p` | -0.686076 | -0.686076 | 6.31107e-15 | match |
+| `stab.motor_glider.Cn_r` | `results/stability.json:motor_glider.derivatives.Cn_r` | -0.0282459 | -0.0282459 | 3.68491e-15 | match |
+| `stab.light_ga.mode0_wn` | `results/stability.json:light_ga.modes.oscillatory[0].wn` | 5.10326 | 5.10326 | 9.74893e-12 | match |
+| `stab.regional_turboprop.mode0_wn` | `results/stability.json:regional_turboprop.modes.oscillatory[0].wn` | 1.95451 | 1.95451 | 2.36292e-11 | match |
+| `stab.a320.mode0_wn` | `results/stability.json:a320.modes.oscillatory[0].wn` | 1.44157 | 1.44157 | 5.46305e-11 | match |
+| `stab.motor_glider.mode0_wn` | `results/stability.json:motor_glider.modes.oscillatory[0].wn` | 1.99949 | 1.99949 | 2.90263e-11 | match |
+| `takeoff.light_ga.ground_roll_m` | `results/takeoff.json:nominal.light_ga.ground_roll_m` | 244.221 | 244.221 | 3.49131e-16 | match |
+| `takeoff.light_ga.distance_35ft_m` | `results/takeoff.json:nominal.light_ga.distance_35ft_m` | 402.94 | 402.94 | 2.68036e-15 | match |
+| `takeoff.light_ga.V_LOF_kt` | `results/takeoff.json:nominal.light_ga.V_LOF_kt` | 62.4211 | 62.4211 | 2.27661e-16 | match |
+| `takeoff.light_ga.theta_LOF_deg` | `results/takeoff.json:nominal.light_ga.theta_LOF_deg` | 6.78073 | 6.78073 | 6.15632e-15 | match |
+| `takeoff.light_ga.tail_clearance_min_m` | `results/takeoff.json:nominal.light_ga.tail_clearance_min_m` | 0.954576 | 0.954576 | 2.32611e-16 | match |
+| `takeoff.light_ga.raymer_1p1Vs_total_35ft_m` | `results/takeoff.json:closed_form.light_ga.raymer_1p1Vs.total_35ft_m` | 311.004 | 311.004 | 3.65548e-16 | match |
+| `takeoff.light_ga.distance_35ft_m` | `manifest:distance_35ft_light_ga` | 402.94 | 402.94 | 2.68036e-15 | match |
+| `takeoff.light_ga.crosswind_max_lateral_deviation_ground_m` | `results/takeoff.json:crosswind.light_ga.max_lateral_deviation_ground_m` | 3.47847 | 3.47847 | 1.40435e-14 | match |
+| `takeoff.light_ga.crosswind_max_bank_deg` | `results/takeoff.json:crosswind.light_ga.max_bank_deg` | 11.0894 | 11.0894 | 2.24259e-15 | match |
+| `takeoff.light_ga.crosswind_max_rudder_deg` | `results/takeoff.json:crosswind.light_ga.max_rudder_deg` | 7.3467 | 7.3467 | 3.74774e-15 | match |
+| `takeoff.light_ga.gust_delta_distance_35ft_m` | `results/takeoff.json:gust_at_rotation.light_ga.delta_distance_35ft_m` | -9.02329 | -9.02329 | 6.29963e-15 | match |
+| `takeoff.regional_turboprop.ground_roll_m` | `results/takeoff.json:nominal.regional_turboprop.ground_roll_m` | 1060.45 | 1060.45 | 2.14413e-16 | match |
+| `takeoff.regional_turboprop.distance_35ft_m` | `results/takeoff.json:nominal.regional_turboprop.distance_35ft_m` | 1291.33 | 1291.33 | 2.64115e-15 | match |
+| `takeoff.regional_turboprop.V_LOF_kt` | `results/takeoff.json:nominal.regional_turboprop.V_LOF_kt` | 119.738 | 119.738 | 1.18683e-16 | match |
+| `takeoff.regional_turboprop.theta_LOF_deg` | `results/takeoff.json:nominal.regional_turboprop.theta_LOF_deg` | 6.25246 | 6.25246 | 1.73304e-14 | match |
+| `takeoff.regional_turboprop.tail_clearance_min_m` | `results/takeoff.json:nominal.regional_turboprop.tail_clearance_min_m` | 0.227269 | 0.227269 | 2.54023e-14 | match |
+| `takeoff.regional_turboprop.raymer_1p1Vs_total_35ft_m` | `results/takeoff.json:closed_form.regional_turboprop.raymer_1p1Vs.total_35ft_m` | 1299.41 | 1299.41 | 0 | match |
+| `takeoff.regional_turboprop.distance_35ft_m` | `manifest:distance_35ft_regional_turboprop` | 1291.33 | 1291.33 | 2.64115e-15 | match |
+| `takeoff.regional_turboprop.crosswind_max_lateral_deviation_ground_m` | `results/takeoff.json:crosswind.regional_turboprop.max_lateral_deviation_ground_m` | 1.01135 | 1.01135 | 2.63464e-15 | match |
+| `takeoff.regional_turboprop.crosswind_max_bank_deg` | `results/takeoff.json:crosswind.regional_turboprop.max_bank_deg` | 1.2453 | 1.2453 | 4.45766e-15 | match |
+| `takeoff.regional_turboprop.crosswind_max_rudder_deg` | `results/takeoff.json:crosswind.regional_turboprop.max_rudder_deg` | 5.6751 | 5.6751 | 1.87805e-15 | match |
+| `takeoff.regional_turboprop.gust_delta_distance_35ft_m` | `results/takeoff.json:gust_at_rotation.regional_turboprop.delta_distance_35ft_m` | 1.79649 | 1.79649 | 3.79697e-13 | match |
+| `takeoff.a320.ground_roll_m` | `results/takeoff.json:nominal.a320.ground_roll_m` | 1345.93 | 1345.93 | 0 | match |
+| `takeoff.a320.distance_35ft_m` | `results/takeoff.json:nominal.a320.distance_35ft_m` | 1691.22 | 1691.22 | 1.34444e-16 | match |
+| `takeoff.a320.V_LOF_kt` | `results/takeoff.json:nominal.a320.V_LOF_kt` | 155.644 | 155.644 | 5.47821e-16 | match |
+| `takeoff.a320.theta_LOF_deg` | `results/takeoff.json:nominal.a320.theta_LOF_deg` | 9.72111 | 9.72111 | 9.13659e-16 | match |
+| `takeoff.a320.tail_clearance_min_m` | `results/takeoff.json:nominal.a320.tail_clearance_min_m` | 0.184308 | 0.184308 | 2.4095e-14 | match |
+| `takeoff.a320.raymer_1p1Vs_total_35ft_m` | `results/takeoff.json:closed_form.a320.raymer_1p1Vs.total_35ft_m` | 1703.04 | 1703.04 | 1.3351e-16 | match |
+| `takeoff.a320.distance_35ft_m` | `manifest:distance_35ft_a320` | 1691.22 | 1691.22 | 1.34444e-16 | match |
+| `takeoff.a320.crosswind_max_lateral_deviation_ground_m` | `results/takeoff.json:crosswind.a320.max_lateral_deviation_ground_m` | 1.51279 | 1.51279 | 4.40334e-16 | match |
+| `takeoff.a320.crosswind_max_bank_deg` | `results/takeoff.json:crosswind.a320.max_bank_deg` | 4.987 | 4.987 | 1.78099e-16 | match |
+| `takeoff.a320.crosswind_max_rudder_deg` | `results/takeoff.json:crosswind.a320.max_rudder_deg` | 11.6174 | 11.6174 | 1.37614e-15 | match |
+| `takeoff.a320.gust_delta_distance_35ft_m` | `results/takeoff.json:gust_at_rotation.a320.delta_distance_35ft_m` | 1.31961 | 1.31961 | 6.89215e-13 | match |
+| `takeoff.motor_glider.ground_roll_m` | `results/takeoff.json:nominal.motor_glider.ground_roll_m` | 186.209 | 186.209 | 0 | match |
+| `takeoff.motor_glider.distance_35ft_m` | `results/takeoff.json:nominal.motor_glider.distance_35ft_m` | 285.857 | 285.857 | 1.59082e-15 | match |
+| `takeoff.motor_glider.V_LOF_kt` | `results/takeoff.json:nominal.motor_glider.V_LOF_kt` | 54.2978 | 54.2978 | 0 | match |
+| `takeoff.motor_glider.theta_LOF_deg` | `results/takeoff.json:nominal.motor_glider.theta_LOF_deg` | 1.56752 | 1.56752 | 1.18989e-14 | match |
+| `takeoff.motor_glider.tail_clearance_min_m` | `results/takeoff.json:nominal.motor_glider.tail_clearance_min_m` | 1.17174 | 1.17174 | 0 | match |
+| `takeoff.motor_glider.raymer_1p1Vs_total_35ft_m` | `results/takeoff.json:closed_form.motor_glider.raymer_1p1Vs.total_35ft_m` | 249.663 | 249.663 | 0 | match |
+| `takeoff.motor_glider.distance_35ft_m` | `manifest:distance_35ft_motor_glider` | 285.857 | 285.857 | 1.59082e-15 | match |
+| `takeoff.motor_glider.crosswind_max_lateral_deviation_ground_m` | `results/takeoff.json:crosswind.motor_glider.max_lateral_deviation_ground_m` | 1.35629 | 1.35629 | 4.91145e-16 | match |
+| `takeoff.motor_glider.crosswind_max_bank_deg` | `results/takeoff.json:crosswind.motor_glider.max_bank_deg` | 5.63927 | 5.63927 | 9.76492e-15 | match |
+| `takeoff.motor_glider.crosswind_max_rudder_deg` | `results/takeoff.json:crosswind.motor_glider.max_rudder_deg` | 11.149 | 11.149 | 3.18658e-16 | match |
+| `takeoff.motor_glider.gust_delta_distance_35ft_m` | `results/takeoff.json:gust_at_rotation.motor_glider.delta_distance_35ft_m` | -1.84107 | -1.84107 | 9.26256e-14 | match |
+| `pratt.light_ga.dn_sim` | `results/turbulence.json:pratt[aircraft=light_ga].dn_sim` | 1.2826 | 1.2826 | 1.03872e-15 | match |
+| `pratt.light_ga.dn_pratt` | `results/turbulence.json:pratt[aircraft=light_ga].dn_pratt` | 1.17697 | 1.17697 | 1.13195e-15 | match |
+| `pratt.light_ga.K_g` | `results/turbulence.json:pratt[aircraft=light_ga].K_g` | 0.693276 | 0.693276 | 3.20283e-16 | match |
+| `pratt.regional_turboprop.dn_sim` | `results/turbulence.json:pratt[aircraft=regional_turboprop].dn_sim` | 0.673301 | 0.673301 | 2.63828e-15 | match |
+| `pratt.regional_turboprop.dn_pratt` | `results/turbulence.json:pratt[aircraft=regional_turboprop].dn_pratt` | 0.607068 | 0.607068 | 1.28018e-15 | match |
+| `pratt.regional_turboprop.K_g` | `results/turbulence.json:pratt[aircraft=regional_turboprop].K_g` | 0.811568 | 0.811568 | 0 | match |
+| `pratt.a320.dn_sim` | `results/turbulence.json:pratt[aircraft=a320].dn_sim` | 0.40727 | 0.40727 | 2.18081e-15 | match |
+| `pratt.a320.dn_pratt` | `results/turbulence.json:pratt[aircraft=a320].dn_pratt` | 0.373122 | 0.373122 | 0 | match |
+| `pratt.a320.K_g` | `results/turbulence.json:pratt[aircraft=a320].K_g` | 0.810762 | 0.810762 | 0 | match |
+| `pratt.motor_glider.dn_sim` | `results/turbulence.json:pratt[aircraft=motor_glider].dn_sim` | 1.79401 | 1.79401 | 2.4754e-16 | match |
+| `pratt.motor_glider.dn_pratt` | `results/turbulence.json:pratt[aircraft=motor_glider].dn_pratt` | 1.50601 | 1.50601 | 3.24366e-15 | match |
+| `pratt.motor_glider.K_g` | `results/turbulence.json:pratt[aircraft=motor_glider].K_g` | 0.689114 | 0.689114 | 9.66653e-16 | match |
+| `gust.light_ga.dnz_cg_max` | `results/same_gust.json:aircraft.light_ga.dnz_cg_max` | 0.624641 | 0.624641 | 3.55476e-16 | match |
+| `gust.light_ga.t_peak_s` | `results/same_gust.json:aircraft.light_ga.t_peak_s` | 0.63 | 0.63 | 0 | match |
+| `gust.light_ga.theta_max_deg` | `results/same_gust.json:aircraft.light_ga.theta_max_deg` | 5.39874 | 5.39874 | 0 | match |
+| `gust.light_ga.dh_max_m` | `results/same_gust.json:aircraft.light_ga.dh_max_m` | 4.38663 | 4.38663 | 0 | match |
+| `gust.light_ga.quasi_steady_dn` | `results/same_gust.json:aircraft.light_ga.quasi_steady_dn` | 1.46253 | 1.46253 | 1.3664e-15 | match |
+| `gust.light_ga.pratt_dn_for_this_gust` | `results/same_gust.json:aircraft.light_ga.pratt_dn_for_this_gust` | 1.01393 | 1.01393 | 1.09496e-15 | match |
+| `gust.regional_turboprop.dnz_cg_max` | `results/same_gust.json:aircraft.regional_turboprop.dnz_cg_max` | 0.57055 | 0.57055 | 7.78353e-16 | match |
+| `gust.regional_turboprop.t_peak_s` | `results/same_gust.json:aircraft.regional_turboprop.t_peak_s` | 0.41 | 0.41 | 0 | match |
+| `gust.regional_turboprop.theta_max_deg` | `results/same_gust.json:aircraft.regional_turboprop.theta_max_deg` | 1.30759 | 1.30759 | 3.22643e-15 | match |
+| `gust.regional_turboprop.dh_max_m` | `results/same_gust.json:aircraft.regional_turboprop.dh_max_m` | 1.55954 | 1.55954 | 0 | match |
+| `gust.regional_turboprop.quasi_steady_dn` | `results/same_gust.json:aircraft.regional_turboprop.quasi_steady_dn` | 0.644403 | 0.644403 | 1.20601e-15 | match |
+| `gust.regional_turboprop.pratt_dn_for_this_gust` | `results/same_gust.json:aircraft.regional_turboprop.pratt_dn_for_this_gust` | 0.522977 | 0.522977 | 1.27374e-15 | match |
+| `gust.a320.dnz_cg_max` | `results/same_gust.json:aircraft.a320.dnz_cg_max` | 0.356909 | 0.356909 | 2.17746e-15 | match |
+| `gust.a320.t_peak_s` | `results/same_gust.json:aircraft.a320.t_peak_s` | 0.41 | 0.41 | 0 | match |
+| `gust.a320.theta_max_deg` | `results/same_gust.json:aircraft.a320.theta_max_deg` | 0.863799 | 0.863799 | 2.12071e-14 | match |
+| `gust.a320.dh_max_m` | `results/same_gust.json:aircraft.a320.dh_max_m` | 1.37937 | 1.37937 | 0 | match |
+| `gust.a320.quasi_steady_dn` | `results/same_gust.json:aircraft.a320.quasi_steady_dn` | 0.396463 | 0.396463 | 0 | match |
+| `gust.a320.pratt_dn_for_this_gust` | `results/same_gust.json:aircraft.a320.pratt_dn_for_this_gust` | 0.321437 | 0.321437 | 0 | match |
+| `gust.motor_glider.dnz_cg_max` | `results/same_gust.json:aircraft.motor_glider.dnz_cg_max` | 0.939439 | 0.939439 | 7.09076e-16 | match |
+| `gust.motor_glider.t_peak_s` | `results/same_gust.json:aircraft.motor_glider.t_peak_s` | 0.97 | 0.97 | 0 | match |
+| `gust.motor_glider.theta_max_deg` | `results/same_gust.json:aircraft.motor_glider.theta_max_deg` | 3.21361 | 3.21361 | 4.2839e-15 | match |
+| `gust.motor_glider.dh_max_m` | `results/same_gust.json:aircraft.motor_glider.dh_max_m` | 15.5088 | 15.5088 | 0 | match |
+| `gust.motor_glider.quasi_steady_dn` | `results/same_gust.json:aircraft.motor_glider.quasi_steady_dn` | 1.8827 | 1.8827 | 4.24582e-15 | match |
+| `gust.motor_glider.pratt_dn_for_this_gust` | `results/same_gust.json:aircraft.motor_glider.pratt_dn_for_this_gust` | 1.29739 | 1.29739 | 3.25179e-15 | match |
 
 ### `flight_dynamics/01_verification` (full)
 

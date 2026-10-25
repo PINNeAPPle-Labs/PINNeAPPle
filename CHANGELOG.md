@@ -16,6 +16,10 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ### Added
 - `pinneapple_condense`: Adaptive Physics Condensation for chip-package thermal (research line, track 1; report
   `docs/research/physics_condensation.md`, benchmark `examples/physics_condensation`).
+- `pinneapple_analysis.validation.physics_learning`: physics learning verification of learned thermal models (track 3):
+  discrete residual, interface flux, boundary, energy, symmetry and scaling checks and causal interventions against a
+  finite-volume reference, point sufficiency, informative points, architecture-vs-learned provenance, `TrustReport`.
+  Detects 22/22 deliberately defective models (physics loss: 12, held-out L2: 5); `examples/physics_learning_verification`.
   - **Package and baselines:** a synthetic multilayer package with repeated microbump/TSV blocks, a fine FV reference
     and the Keff baseline.
   - **Condensation:** blocks condensed once per variant and reused; reduced interfaces with near- and far-field

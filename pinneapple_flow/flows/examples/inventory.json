@@ -230,6 +230,10 @@
   "reason": "the expert training loops, ring-graph adapters, ParametricPINN and FD schemes are in the scripts (docs/dev/LIBRARY_CONSOLIDATION.md lists them for a later pass); multiscale_turbulence takes hours",
   "status": "not_convertible"
  },
+ "physics_learning_verification": {
+  "domain": "verification",
+  "notes": "detection: analysis.physics_learning running the detection study (seconds), compared with the committed results/detection.json. The real-model study (POD-GPR surrogates, PINNs trained for minutes) is measured by run_study.py; single surrogates can be checked with the same node."
+ },
  "physics_module": {
   "domain": "hybrid models",
   "notes": "compared with the numbers of docs/core_concepts/model.md"

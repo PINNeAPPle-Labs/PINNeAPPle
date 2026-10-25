@@ -45,10 +45,13 @@ def test_examples_are_listed_in_the_studio_grouped_by_domain(tmp_path):
         svc.example("examples/../../etc/passwd")
 
 
-def test_inventory_doc_is_current():
-    doc = EX.ROOT / "docs" / "flow_studio" / "EXAMPLES_AS_FLOWS.md"
-    assert doc.is_file(), "python -m pinneapple_flow example-flows doc"
-    assert doc.read_text() == EX.markdown(), "regenerate: python -m pinneapple_flow example-flows doc"
+def test_inventory_doc_is_generated(tmp_path):
+    # the page is not committed (the docs build writes it); the command renders every example folder
+    out = tmp_path / "EXAMPLES_AS_FLOWS.md"
+    assert EX.main(["doc", "-o", str(out)]) == 0
+    text = out.read_text()
+    assert text.startswith("# Examples as flows")
+    assert all(f"| `{ex}` |" in text for ex in EX.example_folders())
 
 
 def test_compare_node_reads_results_files_and_manifest_metrics():

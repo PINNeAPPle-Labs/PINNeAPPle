@@ -1,0 +1,12 @@
+{
+ "code_hash": "057d61b9ad7fab57",
+ "figures": [],
+ "id": "node:viz.render",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Render (Blender-style) -> pinneapple_blender.cycles.CyclesScene when Blender (bpy) is installed, else matplotlib shaded surface + pinneapple_tools.visualization.animation\ninputs: [('solution', 'solution')]\noutputs: [('figure', 'figure')]\ndefaults: {'field': 0, 'animate': True, 'frames': 24, 'samples': 32}",
+ "timed_out": false
+}

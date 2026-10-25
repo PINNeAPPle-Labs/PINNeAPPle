@@ -1,0 +1,12 @@
+{
+ "code_hash": "a5f71f4fb02d8dfd",
+ "figures": [],
+ "id": "node:uq.propagate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Uncertainty propagation (Monte Carlo / PCE) -> pinneapple_analysis.uncertainty.tolerance.propagate_space / pinneapple_analysis.uncertainty.pce.polynomial_chaos\ninputs: [('model', 'model')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'method': 'lhs', 'n': 2048, 'degree': 3}",
+ "timed_out": false
+}

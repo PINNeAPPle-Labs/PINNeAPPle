@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8911e62653ed217",
+ "figures": [],
+ "id": "node:auto.tools.dataset_quality.build_consistency_prompt",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'You are a physical data curator for a synthetic scientific simulation clip.\\nAssumption: \\n\\nTask:\\n1) Classify the clip as one of: consistent, suspect, inconsistent.\\n2) Provide a short physics-grounded reason.\\n3) Provide confidence in [0,1].\\n\\nReturn ONLY valid JSON with keys: label, reason, confidence.\\nExample: {\"label\":\"suspect\",\"reason\":\"boundary condition jumps abruptly without a physically consistent transition\",\"confidence\":0.78}\\n'",
+ "timed_out": false
+}

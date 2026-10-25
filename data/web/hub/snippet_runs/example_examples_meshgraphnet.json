@@ -1,0 +1,12 @@
+{
+ "code_hash": "ea876540452548db",
+ "figures": [],
+ "id": "example:examples/meshgraphnet",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "MeshGraphNet in PINNeAPPle | physics AI | curated",
+ "timed_out": false
+}

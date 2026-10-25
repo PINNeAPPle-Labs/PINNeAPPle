@@ -1,0 +1,12 @@
+{
+ "code_hash": "1e852060e1af9127",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.continuum",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.21,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='continuum', description='continuum fluid with no-slip walls (Navier-Stokes valid)', conditions=(Condition(feature='Kn', lo=-inf, hi=0.01, band=0.3, log=None),), breaks_into='rarefaction', missing_mechanism='velocity slip, non-equilibrium')",
+ "timed_out": false
+}

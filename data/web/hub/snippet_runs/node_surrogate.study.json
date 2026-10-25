@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8f3155d3bd5fba9",
+ "figures": [],
+ "id": "node:surrogate.study",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Classical ML / GP surrogates -> pinneapple_flow.wrappers:surrogate_study pinneapple_analysis\ninputs: [('data', 'dataset')]\noutputs: [('result', 'metrics')]\ndefaults: {'example': 'none', 'methods': ['ridge', 'gp', 'gbt'], 'budget': 10.0, 'seeds': 1}",
+ "timed_out": false
+}

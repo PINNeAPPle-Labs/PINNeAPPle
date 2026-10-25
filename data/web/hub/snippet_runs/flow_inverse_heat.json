@@ -1,0 +1,12 @@
+{
+ "code_hash": "68fb6405acbba1c5",
+ "figures": [],
+ "id": "flow:inverse_heat",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Inverse heat: identify the diffusivity - 10 nodes\nissues: []",
+ "timed_out": false
+}

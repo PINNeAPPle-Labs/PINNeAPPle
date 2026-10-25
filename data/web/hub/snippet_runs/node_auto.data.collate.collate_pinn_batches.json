@@ -1,0 +1,12 @@
+{
+ "code_hash": "1a60902188310e7e",
+ "figures": [],
+ "id": "node:auto.data.collate.collate_pinn_batches",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{}",
+ "timed_out": false
+}

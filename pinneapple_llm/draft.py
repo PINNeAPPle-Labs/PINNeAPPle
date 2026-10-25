@@ -160,3 +160,71 @@ def draft_problem(
             )
 
     return DraftResult(preset=preset, kwargs=kwargs, reasoning=reasoning, raw_response=raw)
+
+
+class DraftRejected(ValueError):
+    """No acceptable draft after every attempt; ``.attempts`` lists why each one was refused."""
+
+    def __init__(self, message: str, attempts: List[str]):
+        super().__init__(message)
+        self.attempts = attempts
+
+
+def check_kwargs_in_bounds(kwargs: Dict[str, Any], bounds: Dict[str, tuple]) -> Dict[str, float]:
+    """Coerce drafted kwargs to finite floats and check each one against ``bounds`` ({name: (lo, hi)}).
+
+    ``draft_problem`` only checks that preset and kwarg NAMES exist; a small model also returns numbers as
+    strings, in the wrong units or out of physical range (seen with llama3.2:3b drafting a J2 orbit:
+    ``mu="398600441800000"`` in m^3/s^2 and ``e=1``). Raises ``ValueError`` naming the first bad kwarg.
+    """
+    import math
+
+    out: Dict[str, float] = {}
+    for k, v in kwargs.items():
+        try:
+            fv = float(v)
+        except (TypeError, ValueError):
+            raise ValueError(f"kwarg {k!r}={v!r} is not numeric") from None
+        if not math.isfinite(fv):
+            raise ValueError(f"kwarg {k!r}={fv} is not finite")
+        if k in bounds:
+            lo, hi = bounds[k]
+            if not lo <= fv <= hi:
+                raise ValueError(f"kwarg {k!r}={fv} is outside the accepted range [{lo}, {hi}]")
+        out[k] = fv
+    return out
+
+
+def draft_preset_kwargs(
+    description: str,
+    expected_preset: str,
+    *,
+    bounds: Optional[Dict[str, tuple]] = None,
+    provider: str = "ollama",
+    model: Optional[str] = None,
+    api_key: Optional[str] = None,
+    max_attempts: int = 4,
+) -> tuple:
+    """Draft kwargs for ONE known preset: retry ``draft_problem`` until it picks ``expected_preset`` with kwargs
+    that pass :func:`check_kwargs_in_bounds`. Returns ``(kwargs, reasoning, attempts_used)``; raises
+    :class:`DraftRejected` after ``max_attempts`` refusals (a wrong preset, no fit, a hallucinated name or an
+    out-of-range value each count as one)."""
+    reasons: List[str] = []
+    for attempt in range(1, max_attempts + 1):
+        try:
+            draft = draft_problem(description, provider=provider, model=model, api_key=api_key)
+        except ValueError as e:
+            reasons.append(f"rejected: {e}")
+            continue
+        if draft.preset is None:
+            reasons.append(f"no preset judged a fit: {draft.reasoning}")
+            continue
+        if draft.preset != expected_preset:
+            reasons.append(f"chose preset {draft.preset!r}, not {expected_preset!r}")
+            continue
+        try:
+            return check_kwargs_in_bounds(draft.kwargs, bounds or {}), draft.reasoning, attempt
+        except ValueError as e:
+            reasons.append(f"kwargs out of range: {e}")
+    raise DraftRejected(f"no acceptable {expected_preset!r} draft after {max_attempts} attempts; last: "
+                        f"{reasons[-1] if reasons else 'none'}", reasons)

@@ -1,0 +1,12 @@
+{
+ "code_hash": "294321dfbd79a9eb",
+ "figures": [],
+ "id": "node:reason.chain",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 16.33,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Chain of whys -> pinneapple_reason.engine.reason\ninputs: [('requirement', 'requirement'), ('concept', 'concept')]\noutputs: [('chain', 'chain'), ('metrics', 'metrics')]\ndefaults: {'max_steps': 12}",
+ "timed_out": false
+}

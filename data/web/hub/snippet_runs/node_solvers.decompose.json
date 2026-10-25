@@ -1,0 +1,12 @@
+{
+ "code_hash": "5c589e79071e9b25",
+ "figures": [],
+ "id": "node:solvers.decompose",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Time-series decompositions from the solver registry -> pinneapple_simulation.numerical_solvers.SolverRegistry.build (eemd, vmd, wavelet, stl, ssa, sst, ...) + register_all\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'t_end': 10.0, 'n': 2000, 'tones': [[1.2, 1.0], [6.0, 0.5]], 'noise_std': 0.1, 'seed': 0, 'solvers': {'eemd': {'n_ensembles': 30, 'noise_std': 0.15, 'max_imfs': 6}, 'vmd': {'K': 4}, 'wavelet': {'wavelet': 'db4', 'level': 4}, 'stl': {'period': 200}, 'ssa': {'L': 200, 'r': 5}, 'sst': {'fs': 1.0, 'nperseg': 128}}}",
+ "timed_out": false
+}

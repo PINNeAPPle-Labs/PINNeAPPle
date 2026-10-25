@@ -1,0 +1,12 @@
+{
+ "code_hash": "c71e3f6003ce1ba7",
+ "figures": [],
+ "id": "example:examples/chain_of_whys",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.59,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Chain of whys | design and geometry | not curated\npower_board_versions 3.0 versions\npower_board_evaluations 4.0 checks\nroof_versions 4.0 versions\nroof_evaluations 15.0 checks\nfootbridge_versions 4.0 versions",
+ "timed_out": false
+}

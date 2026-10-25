@@ -1,0 +1,12 @@
+{
+ "code_hash": "3e8c246583abe8d7",
+ "figures": [],
+ "id": "node:auto.core.optim.list_methods",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['slsqp', 'adjoint', 'penalty', 'augmented_lagrangian', 'differential_evolution', 'bayesian']",
+ "timed_out": false
+}

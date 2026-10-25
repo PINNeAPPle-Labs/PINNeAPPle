@@ -1,0 +1,12 @@
+{
+ "code_hash": "cc9f3f958b46152b",
+ "figures": [],
+ "id": "example:examples/problem_designer",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_problemdesign examples | design and geometry | not curated",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "6c65c13142697bf4",
+ "figures": [],
+ "id": "node:optimize.nsga2",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Multi-objective design (NSGA-II) -> pinneapple_design.design_optimizer.methods.run + presets\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'problem': 'heatsink', 'method': 'nsga2', 'budget': 400, 'seed': 0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "0329ec500927c026",
+ "figures": [],
+ "id": "node:auto.analysis.surrogate.candidate_ids",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['ridge', 'gp', 'gbt', 'mlp', 'fno', 'deeponet', 'pinn']",
+ "timed_out": false
+}

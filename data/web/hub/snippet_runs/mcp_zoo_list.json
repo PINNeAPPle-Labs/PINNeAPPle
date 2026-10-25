@@ -1,0 +1,12 @@
+{
+ "code_hash": "2f42bb9be8ae7e0b",
+ "figures": [],
+ "id": "mcp:zoo_list",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 3.25,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "{\"models\": [{\"name\": \"airfoil_cst_rans_mlp\", \"task\": \"Airfoil aerodynamic coefficients (Cl, Cd, Cm) from shape and angle of attack, 2-D steady RANS\", \"inputs\": [{\"name\": \"T0\", \"unit\": \"-\", \"description\": \"CST thickness weight, leading edge\"}, {\"name\": \"T1\", \"unit\": \"-\", \"description\": \"CST thickness weight, mid chord\"}, {\"name\": \"T2\", \"unit\": \"-\", \"description\": \"CST thickness weight, aft\"}, {\"name\": \"M0\", \"unit\": \"-\", \"description\": \"CST camber weight, front\"}, {\"name\": \"M1\", \"unit\": \"-\", \"description\": \"CST camber weight, mid chord\"}, {\"name\": \"M2\", \"unit\": \"-\", \"description\": \"CST camber weight, aft\"}, {\"name\": \"alpha_deg\", \"unit\": \"deg\", \"description\": \"angle of attack\"}], \"outputs\": [{\"name\": \"Cl\", \"unit\": \"-\", \"description\": \"lift coefficient (per unit span, chord 1)\"}, {\"name\": \"Cd\"",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "1587db65b23a2378",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.ns_incompressible_2d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='ns_incompressible_2d_default', dim=2, coords=('x', 'y', 't'), fields=('u', 'v', 'p'), pde=PDETermSpec(kind='navier_stokes_incompressible', fields=('u', 'v', 'p'), coords=('x', 'y', 't'), params={'Re': 100.0}, meta={'note': 'Requires tags: inlet/outlet/walls. Inlet uses parabolic profile; outlet uses Neumann dp/dn=0 by default.'}), conditions=(ConditionSpec(name='walls', kind='dirichlet', fields=('u', 'v'), selector_type='tag', selector={'tag': 'walls'}, value_fn=<function ns_incompressible_2d_default.<locals>.<lambda> at 0x7f3b085a67a0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='inlet', kind='dirichlet', fields=('u', 'v'), selector_type='tag', selector={'tag': 'inlet'},",
+ "timed_out": false
+}

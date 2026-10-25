@@ -1,0 +1,12 @@
+{
+ "code_hash": "348681ff263ac655",
+ "figures": [],
+ "id": "model:heatsink_natural_mlp",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "{'r_base_k_w': [3.85436], 'r_base_upper95_k_w': [3.90687]}\nAPPROVED",
+ "timed_out": false
+}

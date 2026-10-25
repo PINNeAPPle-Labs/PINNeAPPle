@@ -1,0 +1,12 @@
+{
+ "code_hash": "e1c437ee5e9dce2b",
+ "figures": [],
+ "id": "example:examples/molecular",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Molecular visualisation: proteins on metal surfaces | molecular dynamics | not curated",
+ "timed_out": false
+}

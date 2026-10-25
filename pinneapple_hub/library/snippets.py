@@ -1,5 +1,5 @@
 """The minimal, runnable code of each Hub item. Every snippet built here is run by
-``python -m pinneapple_hub.library run`` (output recorded in ``data/web/hub/runs.json``) and again by
+``python -m pinneapple_hub.library run`` (output recorded in ``data/web/hub/snippet_runs/``) and again by
 ``tests/test_hub_library.py``; keep them short, offline and fast."""
 from __future__ import annotations
 

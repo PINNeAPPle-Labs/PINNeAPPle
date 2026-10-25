@@ -1,0 +1,12 @@
+{
+ "code_hash": "4467b4aecc860ef0",
+ "figures": [],
+ "id": "example:examples/nvidia/18_all_stacks_heatsink_cell",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Heat-sink work cell: B-rep design, PhysicsNeMo surrogate served as a model service, Newton robot move, synthetic camera, USD scene | engineering design | not curated\npart_mass 0.20063699999999995 kg\nmove_time 0.5 s",
+ "timed_out": false
+}

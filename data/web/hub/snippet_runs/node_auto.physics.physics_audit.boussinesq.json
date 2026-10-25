@@ -1,0 +1,12 @@
+{
+ "code_hash": "316396c296357b31",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.boussinesq",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='boussinesq', description='density varies only in the buoyancy term, linearly with temperature', conditions=(Condition(feature='beta_dT', lo=-inf, hi=0.1, band=0.15, log=None),), breaks_into='large density variation', missing_mechanism='variable-density buoyancy')",
+ "timed_out": false
+}

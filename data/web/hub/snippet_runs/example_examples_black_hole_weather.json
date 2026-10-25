@@ -1,0 +1,12 @@
+{
+ "code_hash": "6e6966fba5674688",
+ "figures": [],
+ "id": "example:examples/black_hole_weather",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Black-hole weather: forecasting the gas around a black hole, and knowing for how long to trust it | astrophysics | curated",
+ "timed_out": false
+}

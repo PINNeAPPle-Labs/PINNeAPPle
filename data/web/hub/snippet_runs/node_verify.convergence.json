@@ -1,0 +1,12 @@
+{
+ "code_hash": "8d5d2fc10f271037",
+ "figures": [],
+ "id": "node:verify.convergence",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Grid convergence (Richardson, GCI) -> pinneapple_simulation.numerical_solvers.symbolic_fd.solve_fd + pinneapple_analysis.verification.convergence.richardson_extrapolate + pinneapple_lab.uq.gci (the check pinneapple_lab.uq.gci_check records)\ninputs: [('problem', 'problem')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'n': 17, 'quantity': 'mean', 'safety_factor': 1.25}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "eebeba9728c6753a",
+ "figures": [],
+ "id": "node:auto.design.geometry_library.build",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "build -> pinneapple_design.geometry_library:build\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'lod': 'light'}",
+ "timed_out": false
+}

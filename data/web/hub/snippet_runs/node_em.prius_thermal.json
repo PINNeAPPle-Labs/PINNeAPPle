@@ -1,0 +1,12 @@
+{
+ "code_hash": "b615109ac7dbf143",
+ "figures": [],
+ "id": "node:em.prius_thermal",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.42,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius thermal network over WLTC, demagnetisation -> pinneapple_simulation.electromagnetics.machines.thermal: magnet_temperature_sweep, machine_network (transient), demagnetisation_margin / demagnetisation_refinement, intrinsic_coercivity; drive: Drive, cycle_energy, iron_split\ninputs: [('flux_map', 'flux_map')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'n_gap': 960, 'magnet_temperatures': [20.0, 60.0, 100.0, 150.0], 'cycles': 4, 'beta_hcj': -0.0055, 'refinement': True}",
+ "timed_out": false
+}

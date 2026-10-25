@@ -1,0 +1,12 @@
+{
+ "code_hash": "25a9f12f952e8eda",
+ "figures": [],
+ "id": "node:auto.systems.process_components.colebrook_white_f",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n64.0",
+ "timed_out": false
+}

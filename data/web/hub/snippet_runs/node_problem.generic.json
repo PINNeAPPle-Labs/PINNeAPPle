@@ -1,0 +1,12 @@
+{
+ "code_hash": "63acfae7d2fa41b2",
+ "figures": [],
+ "id": "node:problem.generic",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Generic problem (identify the equations) -> pinneapple_flow.identify.identify (+ discover_pde: SINDyIdentifier STRidge) -> parse_system\ninputs: [('data', 'solution')]\noutputs: [('problem', 'problem'), ('geometry', 'geometry'), ('equations', 'equations')]\ndefaults: {'description': '', 'units': {}, 'dimension': 0, 'candidate': 0, 'use_llm': True, 'discover': True, 'fields': [], 'pdes': [], 'conditions': [], 'coefficients': {}, 'time_dependent': 'auto', 'x_range': [], 't_range': []}",
+ "timed_out": false
+}

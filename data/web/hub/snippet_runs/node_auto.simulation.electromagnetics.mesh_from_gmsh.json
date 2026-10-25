@@ -1,0 +1,12 @@
+{
+ "code_hash": "809f614bd2fbf3da",
+ "figures": [],
+ "id": "node:auto.simulation.electromagnetics.mesh_from_gmsh",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "mesh from gmsh -> pinneapple_simulation.electromagnetics:mesh_from_gmsh\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'dim': 2}",
+ "timed_out": false
+}

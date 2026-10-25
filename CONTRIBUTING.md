@@ -78,6 +78,9 @@ inventory of what is being moved.
 - Keep changes focused and well-scoped
 - Add or update tests when possible
 - Update docs/examples if behavior changes
+- Do not commit generated files (`data/web/hub/index.json`, `docs/flow_studio/COVERAGE.md`,
+  `docs/flow_studio/EXAMPLES_AS_FLOWS.md`): they are git-ignored and built where they are used. The commands that
+  build them locally, and what is committed instead, are in [AGENTS.md](AGENTS.md#generated-files).
 
 ## Changelog
 Every user-visible change (new feature, bug fix, behavior change, removal) needs one line under

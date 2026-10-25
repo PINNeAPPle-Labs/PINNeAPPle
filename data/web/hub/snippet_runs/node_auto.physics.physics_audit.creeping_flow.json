@@ -1,0 +1,12 @@
+{
+ "code_hash": "c08c17592d1d672a",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.creeping_flow",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='creeping_flow', description='Stokes flow: inertia negligible next to viscosity', conditions=(Condition(feature='Re', lo=-inf, hi=1.0, band=0.3, log=None),), breaks_into='inertial effects', missing_mechanism='convective inertia')",
+ "timed_out": false
+}

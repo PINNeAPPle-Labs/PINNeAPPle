@@ -1,0 +1,12 @@
+{
+ "code_hash": "de866e0aadfdcb25",
+ "figures": [],
+ "id": "node:enso.solver_checks",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.6,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ENSO model checks against theory -> pinneapple_systems.time_series.enso.pipeline.solver_checks + enso.plots.plot_validation\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {}",
+ "timed_out": false
+}

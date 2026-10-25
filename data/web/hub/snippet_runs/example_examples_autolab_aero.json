@@ -1,0 +1,12 @@
+{
+ "code_hash": "dc2d0c36e9e9dec7",
+ "figures": [],
+ "id": "example:examples/autolab_aero",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "The AI Aerodynamicist (Autonomous Physics Lab) | external aerodynamics | not curated\ncfd_runs 20.0 runs\ncfd_wall 11840.2 s\nfailed_runs 0.0 runs\nmesh_drag_N_vs_fine -0.2274348209939454 %\nmesh_downforce_N_vs_fine -8.40857266320646 %",
+ "timed_out": false
+}

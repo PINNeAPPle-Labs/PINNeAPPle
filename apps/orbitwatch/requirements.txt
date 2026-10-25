@@ -1,0 +1,8 @@
+# on top of `pip install .` (PINNeAPPle core: numpy, scipy, torch, pandas, matplotlib)
+fastapi>=0.111
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+jinja2>=3.1  # the HTML report
+pillow>=10.0  # image uploads
+earthengine-api>=1.0  # optional: the live Sentinel-2 fetch
+geemap>=0.32  # optional: Earth Engine image to array

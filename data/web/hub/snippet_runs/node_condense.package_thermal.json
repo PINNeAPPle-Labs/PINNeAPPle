@@ -1,0 +1,12 @@
+{
+ "code_hash": "a616b1c55bca6203",
+ "figures": [],
+ "id": "node:condense.package_thermal",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 7.71,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Chip package thermal by condensation -> pinneapple_condense.hierarchy.Hierarchy / pinneapple_condense.fv.solve_package\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'blocks': 64, 'modes': 8, 'power_density': 1000000.0, 'hotspots': 3, 'seed': 0, 'reference': False}",
+ "timed_out": false
+}

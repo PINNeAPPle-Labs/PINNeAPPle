@@ -1,0 +1,12 @@
+{
+ "code_hash": "4837d06550442e6e",
+ "figures": [],
+ "id": "node:auto.systems.process_components.build_and_hold_profile",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "build and hold profile -> pinneapple_systems.process_components:build_and_hold_profile\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'total_length_m': 1.0, 'build_length_m': 1.0, 'final_inclination_deg': 1.0, 'hold_length_m': 1.0, 'bin_width_m': 1.0}",
+ "timed_out": false
+}

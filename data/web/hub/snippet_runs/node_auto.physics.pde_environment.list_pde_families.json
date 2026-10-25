@@ -1,0 +1,12 @@
+{
+ "code_hash": "cbb265c3f4d02d8e",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.list_pde_families",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.04,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['black_scholes', 'burgers', 'darcy', 'fisher_kpp', 'heat_equation', 'helmholtz', 'inviscid_burgers', 'laplace', 'linear_elasticity', 'navier_stokes', 'poisson', 'reaction_diffusion', 'sir', 'wave']",
+ "timed_out": false
+}

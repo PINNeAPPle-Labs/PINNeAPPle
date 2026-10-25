@@ -1,0 +1,12 @@
+{
+ "code_hash": "862a3e42e2f5102e",
+ "figures": [],
+ "id": "node:auto.data.process_optimizer.example_plant_operations",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tuple\n(             Timestamp  OAT [°C]  ...  CHW_pump_power [kW]  Plant_power [kW]\n0     2026-01-05 00:00     21.98  ...                 12.9              57.5\n1     2026-01-05 00:15     22.43  ...                 14.5              55.0\n2     2026-01-05 00:30     22.07  ...                 14.0              51.1\n3     2026-01-05 00:45     21.27  ...                 13.9              52.4\n4     2026-01-05 01:00     21.01  ...                 14.3              46.4\n...                ...       ...  ...                  ...               ...\n5755  2026-03-05 22:45     24.27  ...                 12.5              58.1\n5756  2026-03-05 23:00     23.81  ...                 14.1              66.7\n5757  2026-03-05 23:15     23.42  ...                 13.6              65.1\n5758  2026-03-05 23:30     23",
+ "timed_out": false
+}

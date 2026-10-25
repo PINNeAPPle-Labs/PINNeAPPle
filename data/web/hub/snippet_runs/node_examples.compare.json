@@ -1,0 +1,12 @@
+{
+ "code_hash": "b020a49a9a6f6dcd",
+ "figures": [],
+ "id": "node:examples.compare",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.45,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Compare with the example's results -> pinneapple_lab.manifest (the example's experiment.json) and the example's committed results files\ninputs: [('metrics', 'any')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'example': '', 'comparisons': [], 'rtol': 1e-06, 'atol': 0.0, 'tolerance_source': '', 'rounded': True, 'strict': False}",
+ "timed_out": false
+}

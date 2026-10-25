@@ -1,0 +1,12 @@
+{
+ "code_hash": "e6b03c98f935712e",
+ "figures": [],
+ "id": "node:auto.systems.process_components.generalized_reynolds_number",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(0.9999999999989999)",
+ "timed_out": false
+}

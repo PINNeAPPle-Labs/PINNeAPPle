@@ -1,0 +1,12 @@
+{
+ "code_hash": "3093557aa57dc485",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.poisson_2d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.14,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='poisson_2d_default', dim=2, coords=('x', 'y'), fields=('u',), pde=PDETermSpec(kind='poisson', fields=('u',), coords=('x', 'y'), params={}, meta={'note': \"Provide ctx['source_fn'] for f(x,y).\"}), conditions=(ConditionSpec(name='u_boundary', kind='dirichlet', fields=('u',), selector_type='tag', selector={'tag': 'boundary'}, value_fn=<function poisson_2d_default.<locals>.<lambda> at 0x7f8fa422e7a0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 60000, 'n_bc': 12000}, scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0), field_ranges={'u': (-2.0, 2.0)}, references=('Poisson 2D template.',), domain_bounds={'x': (0.0, 1.0), 'y': (0.0, 1.0)}, solver_spec={'name': 'fdm', 'method': 'po",
+ "timed_out": false
+}

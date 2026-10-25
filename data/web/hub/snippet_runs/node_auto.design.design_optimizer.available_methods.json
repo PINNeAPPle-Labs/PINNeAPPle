@@ -1,0 +1,12 @@
+{
+ "code_hash": "44a877ce8be0564e",
+ "figures": [],
+ "id": "node:auto.design.design_optimizer.available_methods",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'random': {'family': 'baseline', 'available': True, 'reason': ''}, 'nsga2': {'family': 'evolutionary', 'available': True, 'reason': ''}, 'pymoo-nsga2': {'family': 'evolutionary', 'available': False, 'reason': 'pymoo is not installed (pip install pymoo)'}, 'scipy-de': {'family': 'evolutionary', 'available': True, 'reason': ''}, 'scipy-slsqp': {'family': 'gradient (finite differences)', 'available': True, 'reason': ''}, 'bayesian': {'family': 'Bayesian', 'available': True, 'reason': ''}, 'gradient': {'family': 'gradient (autograd)', 'available': True, 'reason': ''}}",
+ "timed_out": false
+}

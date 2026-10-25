@@ -47,6 +47,8 @@ compressible
     Isentropic ratios, normal shock, Pitot pressure, modified-Newtonian Cp_max.
 particle_drag
     Sphere drag coefficient (Clift, Grace & Weber 1978; Schiller & Naumann 1933).
+rocket_nozzle
+    Ideal rocket nozzle: exit Mach from the area ratio, choked mass flow, c*, thrust coefficient, Isp.
 """
 from __future__ import annotations
 
@@ -62,7 +64,9 @@ from . import (
     pcb_thermal,
     pipe_flow,
     plate_fin_heatsink,
+    rocket_nozzle,
 )
 
 __all__ = ["fin_array_conduction", "plate_fin_heatsink", "cantilever_fatigue", "membrane_diffusion",
-           "helmholtz_resonator", "pcb_thermal", "burgers", "pipe_flow", "heat", "compressible", "particle_drag"]
+           "helmholtz_resonator", "pcb_thermal", "burgers", "pipe_flow", "heat", "compressible", "particle_drag",
+           "rocket_nozzle"]

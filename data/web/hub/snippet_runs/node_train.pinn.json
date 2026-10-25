@@ -1,0 +1,12 @@
+{
+ "code_hash": "d15af47e2b0fd76b",
+ "figures": [],
+ "id": "node:train.pinn",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINN training -> pinneapple_physics.symbolic_pde.pinn.pinn_problem + pinneapple_analysis.validation.pinn.train_pinn / validate_pinn\ninputs: [('problem', 'problem'), ('data', 'dataset')]\noutputs: [('model', 'model'), ('solution', 'solution'), ('metrics', 'metrics')]\ndefaults: {'width': 32, 'depth': 4, 'adam_steps': 2000, 'lbfgs_steps': 200, 'lr': 0.002, 'n_collocation': 2000, 'seed': 0}",
+ "timed_out": false
+}

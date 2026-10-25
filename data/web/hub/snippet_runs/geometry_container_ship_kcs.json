@@ -1,0 +1,12 @@
+{
+ "code_hash": "9f3eef8446290f3e",
+ "figures": [],
+ "id": "geometry:container_ship_kcs",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.94,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "KRISO Container Ship (KCS), full scale | marine\ncontainer_ship_kcs.light.stl 803084 bytes",
+ "timed_out": false
+}

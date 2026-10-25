@@ -1,0 +1,12 @@
+{
+ "code_hash": "571baa7ad04af309",
+ "figures": [],
+ "id": "mcp:job_status",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "job_status(job_id: 'str', wait_seconds: 'float' = 0.0) -> 'dict[str, Any]'",
+ "timed_out": false
+}

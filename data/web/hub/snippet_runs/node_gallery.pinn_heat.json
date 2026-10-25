@@ -1,0 +1,12 @@
+{
+ "code_hash": "c745eb2e5a7398bb",
+ "figures": [],
+ "id": "node:gallery.pinn_heat",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.29,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Validation gallery 01: PINN on steady heat conduction (boundary loss removed) -> pinneapple_analysis.validation.pinn.poisson_2d, train_pinn; pp.validate; pinneapple_analysis.validation.gallery.conclude\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'n_collocation': 2000, 'adam_steps': 2000, 'lbfgs_steps': 1500}",
+ "timed_out": false
+}

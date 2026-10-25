@@ -1,0 +1,12 @@
+{
+ "code_hash": "80695903ac0c7641",
+ "figures": [],
+ "id": "node:auto.physics.non_hermitian.theorem_profile",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.48,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ModelProfile\nModelProfile(name='no_go_ep_linear_tuning', family='theorem', equations=('PT-symmetric dimer Hamiltonian',), assumptions=(Assumption(name='pt_symmetry', description='A: PT symmetric Hamiltonian, P H* P = H', conditions=(Condition(feature='pt_violation', lo=-inf, hi=1e-08, band=1e-09, log=False),), breaks_into='PT-symmetry breaking', missing_mechanism='non-reciprocal (gain-biased) hopping'), Assumption(name='two_level', description='B: two-dimensional Hamiltonian (dimer)', conditions=(Condition(feature='dimension', lo=1.5, hi=2.5, band=0.2, log=False),), breaks_into='multi-mode coupling', missing_mechanism='higher-order exceptional points'), Assumption(name='polynomial_coupling', description='C: coupling polynomial in the control parameter', conditions=(Condition(feature='non_polynomial', l",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "4f0abc926b4676b9",
+ "figures": [],
+ "id": "example:examples/physics_check",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics checks in CI | validation and benchmarks | not curated",
+ "timed_out": false
+}

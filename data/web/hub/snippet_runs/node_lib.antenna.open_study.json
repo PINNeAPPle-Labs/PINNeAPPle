@@ -1,0 +1,12 @@
+{
+ "code_hash": "a7f4a5baf7b6464e",
+ "figures": [],
+ "id": "node:lib.antenna.open_study",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.25,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Open Vivaldi study (EMerge) -> pinneapple_simulation.electromagnetics.antenna.study:open_study\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'out': None, 'freqs': [2.0, 2.5, 3.0, 3.5, 4.0], 'n_designs': 16, 'n_fine': 4, 'coarse_res': 0.25, 'fine_res': 0.2, 'al_rounds': 2, 'al_per_round': 2, 'budget': 800, 'timeout': 3600.0, 'seed': 0, 'target_dbi': 10.0}",
+ "timed_out": false
+}

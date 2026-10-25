@@ -1,0 +1,12 @@
+{
+ "code_hash": "ce41a86719c2bd47",
+ "figures": [],
+ "id": "node:scenario.site",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.38,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Terrain scenario -> pinneapple_simulation.vehicle.scenarios.crater_site / flat_site\ninputs: []\noutputs: [('site', 'site')]\ndefaults: {'scenario': 'crater_site', 'depth_ratio': 0.08, 'scenery_craters': 60, 'scenery_rocks': 5, 'slope_deg': 0.0, 'cell': 0.01, 'seed': 5}",
+ "timed_out": false
+}

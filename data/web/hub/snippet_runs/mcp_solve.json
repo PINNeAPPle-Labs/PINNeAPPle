@@ -1,0 +1,12 @@
+{
+ "code_hash": "5656ba480b55a9ab",
+ "figures": [],
+ "id": "mcp:solve",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "solve(problem: 'Mapping[str, Any]', method: 'str' = 'pinn', options: 'Mapping[str, Any] | None' = None, reference: 'str | None' = None, reference_options: 'Mapping[str, Any] | None' = None, grid_points_per_axis: 'int' = 41, max_seconds: 'float | None' = None, wait_seconds: 'float' = 0.0) -> 'dict[str, Any]'",
+ "timed_out": false
+}

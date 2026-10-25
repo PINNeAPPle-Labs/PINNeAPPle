@@ -1,0 +1,12 @@
+{
+ "code_hash": "1ab4a238d5c929aa",
+ "figures": [],
+ "id": "example:examples/nvidia/10_brep_physicsnemo_heatsink",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Heat-sink design: USD BRep geometry, PhysicsNeMo surrogate, PINNeAPPle rating and verification | heat transfer | not curated\nproposal_mass 195.09650445308407 g\nproposal_t_source 74.20348259023478 C",
+ "timed_out": false
+}

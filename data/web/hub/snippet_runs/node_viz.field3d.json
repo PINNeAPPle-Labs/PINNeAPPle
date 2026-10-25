@@ -1,0 +1,12 @@
+{
+ "code_hash": "b48f90b420031c5e",
+ "figures": [],
+ "id": "node:viz.field3d",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "3-D viewer -> pp.viz.field_view (glTF + meta for /shared/fieldview3d.js, three.js)\ninputs: [('solution', 'solution')]\noutputs: [('scene', 'scene')]\ndefaults: {'field': 0, 'height': 0.25}",
+ "timed_out": false
+}

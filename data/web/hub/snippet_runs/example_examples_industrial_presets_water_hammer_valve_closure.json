@@ -1,0 +1,12 @@
+{
+ "code_hash": "b300bfe0552abc16",
+ "figures": [],
+ "id": "example:examples/industrial_presets/water_hammer_valve_closure",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Golpe de aríete no fechamento de válvula de adutora de aço | Fluidos / saneamento e óleo e gás | not curated\nrel_error[fechamento instantâneo sem atrito = Joukowsky] 1.533322523346514e-16 -\nrel_error[fechamento lento (60 s = 30·2L/a) = teoria da coluna rígida] 0.00012367293250402893 -\nsurrogate_holdout_max_rel_err 0.18029097004132608 -\ninversion_rel_err 1.45877476439288e-05 -",
+ "timed_out": false
+}

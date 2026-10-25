@@ -1,0 +1,12 @@
+{
+ "code_hash": "e3f441027f200aa6",
+ "figures": [],
+ "id": "example:examples/industrial_presets/steel_footbridge_pedestrian",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Passarela de aço de 30 m: resistência, flecha, flambagem lateral e vibração de pedestres | Estrutural / construção | not curated\nrel_error[1ª frequência: fórmula fechada vs FE de viga] 2.7013228939117467e-08 -\nrel_error[flecha da multidão: 5qL^4/384EI vs FE de viga] 3.2017672950762496e-13 -\nrel_error[2ª frequência = 4 x f1 (Euler-Bernoulli biapoiada)] 4.2261755626976134e-07 -\nrel_error[aceleração em ressonância exata (vão 24 m, f1 na faixa de passo)] 1.981476239722582e-16 -\nsurrogate_holdout_max_rel_err 0.07439044276002937 -",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "1e59ba50df967e19",
+ "figures": [],
+ "id": "example:examples/enso_forecasting",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Predicting El Niño: physical, physics-informed, data-driven and hybrid models under one protocol | geophysics and climate | curated\nkelvin_speed 2.68867 m/s\nkelvin_speed_theory 2.7 m/s\nrossby_speed -0.86335 m/s\ngill_rel_l2_u_nlon72 0.00147 \ngill_rel_l2_u_nlon144 0.000488",
+ "timed_out": false
+}

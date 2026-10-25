@@ -1,0 +1,12 @@
+{
+ "code_hash": "1c08c8db774429e2",
+ "figures": [],
+ "id": "node:twin.auto",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.53,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin (automatic) -> pinneapple_flow.twin.PDETwinModel + run_twin (pinneapple_systems.operations.twin.TwinRuntime, EnKF)\ninputs: [('problem', 'problem'), ('stream', 'series')]\noutputs: [('twin', 'twin'), ('solution', 'solution'), ('metrics', 'metrics')]\ndefaults: {'estimate': [], 'n': 21, 'dt': 0.0, 'band': 0.3, 'n_ens': 48, 'sigma_obs': 0.0, 'use_llm': True}",
+ "timed_out": false
+}

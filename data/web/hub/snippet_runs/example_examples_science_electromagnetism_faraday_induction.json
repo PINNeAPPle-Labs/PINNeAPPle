@@ -1,0 +1,12 @@
+{
+ "code_hash": "c0b85daf5e162b0d",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/faraday_induction",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Faraday's law: a magnet falling through a loop (3D+t) | science / physics.electromagnetism | not curated\nrel_error[3D+t: peak EMF] 0.003981860555201304 -\nrel_error[3D+t: flux at the centre crossing] 0.0023648267292750167 -\nrel_error[3D+t: time of the EMF sign change] 3.82404292119666e-05 -\n3D+t: peak_emf 0.0052489614422669036 V\n3D+t: max_flux 7.724194246135024e-05 Wb",
+ "timed_out": false
+}

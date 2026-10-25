@@ -1,0 +1,12 @@
+{
+ "code_hash": "e5c9bb4751bae514",
+ "figures": [],
+ "id": "node:auto.data.parameter_sampling.saltelli_perturbation_sweep",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "saltelli perturbation sweep -> pinneapple_data.parameter_sampling:saltelli_perturbation_sweep\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'nominal': {}, 'param_ranges': {}, 'n_base': 8, 'seed': 0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "653dbed36f88aef6",
+ "figures": [],
+ "id": "mcp:describe_method",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "describe_method(method: 'str') -> 'dict[str, Any]'",
+ "timed_out": false
+}

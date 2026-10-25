@@ -1,0 +1,12 @@
+{
+ "code_hash": "f4e317a085cd49cc",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.forced_convection",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='forced_convection', description='buoyancy negligible next to the imposed flow', conditions=(Condition(feature='Ri', lo=-inf, hi=0.1, band=0.3, log=None),), breaks_into='mixed or natural convection', missing_mechanism='buoyancy-driven flow')",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "f49a2d89e86793c9",
+ "figures": [],
+ "id": "example:examples/flow_studio",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Flow Studio example flows: built, run headless, measured | general | not curated",
+ "timed_out": false
+}

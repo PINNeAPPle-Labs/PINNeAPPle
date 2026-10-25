@@ -80,3 +80,8 @@ examples/flow_studio/_runs/
 examples/flight_dynamics/_out/
 examples/flight_dynamics/_*.log
 examples/autolab_rover/_out/
+
+# Generated files: built where they are used, never committed (AGENTS.md, "Generated files")
+data/web/hub/index.json
+docs/flow_studio/COVERAGE.md
+docs/flow_studio/EXAMPLES_AS_FLOWS.md

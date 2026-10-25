@@ -1,0 +1,12 @@
+{
+ "code_hash": "0b26aabe101780f6",
+ "figures": [],
+ "id": "example:kepler_law",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 1.14,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - Sun exponent is 3/2",
+ "timed_out": false
+}

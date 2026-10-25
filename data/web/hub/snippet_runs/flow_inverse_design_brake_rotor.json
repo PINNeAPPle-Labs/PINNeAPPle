@@ -1,0 +1,12 @@
+{
+ "code_hash": "052cecf5531ecb4a",
+ "figures": [],
+ "id": "flow:inverse_design_brake_rotor",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Brake-rotor vanes from a braking power (inverse design) - 2 nodes\nissues: []",
+ "timed_out": false
+}

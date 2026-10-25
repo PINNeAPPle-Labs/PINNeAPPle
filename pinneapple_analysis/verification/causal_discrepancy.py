@@ -3,7 +3,7 @@
 Point 15 -- Causal / intervention engine
 -----------------------------------------
 "What happens if I increase pressure 20%?" -- ``run_intervention`` re-runs
-the EXISTING ``core.pipeline.analyze`` pipeline once as a baseline, then
+the ``pipeline.analyze`` pipeline once as a baseline, then
 once per requested parameter value with that one parameter overridden in
 the drafted preset's kwargs, and reports REAL percentage changes (final
 training loss, the guardrail's re-computed PDE residual, and the trained
@@ -12,28 +12,11 @@ produces) -- never a fabricated number, and never a percentage change
 presented as reliable when the guardrail marked that run (or the
 baseline itself) NOT TRUSTWORTHY.
 
-Deliberately does NOT touch ``saas/physics_verification_engine/core/pipeline.py``:
 ``draft_problem`` is only ever invoked once (inside the single baseline
-``analyze()`` call); every perturbed run below re-implements just the
-execution + verification steps directly against
-``pinneapple_physics.get_preset``/``solve_pde`` and
-``pinneapple_llm.PhysicsGuardrail`` -- the same three calls
-``pipeline.py``'s own ``analyze()`` makes internally, just with one
-kwarg overridden -- so nothing shared with other in-progress roadmap work
-in that saas app is modified.
-
-Note on ``run_intervention``'s one saas dependency: its single baseline
-call goes through ``saas.physics_verification_engine.core.pipeline.analyze``,
-the LLM-driven "draft a ProblemSpec from a natural-language description"
-orchestration -- that orchestration is specific to the
-``physics_verification_engine`` saas app (not generic, reusable physics
-logic like the rest of this module), so it deliberately stays there
-rather than moving into this core package. The import is done lazily
-inside ``run_intervention`` itself (like this function's other
-``pinneapple_llm``/``pinneapple_physics`` imports) precisely so importing
-this module -- or the rest of ``pinneapple_analysis.verification`` --
-never requires the ``saas`` app to be importable; only actually calling
-``run_intervention`` does.
+:func:`pinneapple_analysis.verification.pipeline.analyze` call); every
+perturbed run below repeats just the execution + verification steps
+(``pinneapple_physics.get_preset``/``solve_pde`` and
+``pinneapple_llm.PhysicsGuardrail``) with one kwarg overridden.
 
 Cost note / future optimization (not built here): every intervention
 value in this module currently retrains a PINN from scratch. A real
@@ -199,9 +182,7 @@ def run_intervention(
     import pinneapple_physics as pp
     from pinneapple_neural.architectures.registry import ModelRegistry
     import pinneapple_neural.architectures  # noqa: F401  registers the zoo
-    # Lazy, saas-specific import -- see this module's docstring's
-    # "Note on run_intervention's one saas dependency" for why.
-    from saas.physics_verification_engine.core.pipeline import analyze
+    from pinneapple_analysis.verification.pipeline import analyze
 
     baseline = analyze(
         base_description,
@@ -223,7 +204,7 @@ def run_intervention(
     base_kwargs = dict(baseline.provenance.drafted_preset_kwargs or {})
     arch = baseline.best_candidate.architecture
 
-    # Same defaults as core.pipeline.analyze()'s own signature -- reused
+    # Same defaults as pipeline.analyze()'s own signature -- reused
     # (not re-derived) so every perturbed run trains/verifies under
     # exactly the same budget as the baseline.
     epochs = analyze_kwargs.get("epochs", 1500)
@@ -261,7 +242,10 @@ def run_intervention(
             torch_model = ModelRegistry.build(
                 arch, in_dim=len(spec.coords), out_dim=len(spec.fields), hidden_dim=64, n_layers=4,
             )
-            result = pp.solve_pde(spec, torch_model, epochs=epochs, n_collocation=n_collocation)
+            from pinneapple_physics.pde_environment.presets.tag_geometry import tag_solve_kwargs
+
+            result = pp.solve_pde(spec, torch_model, epochs=epochs, n_collocation=n_collocation,
+                                  **tag_solve_kwargs(preset_name, spec))
         except Exception as e:  # noqa: BLE001 -- a real, reportable failure, not a silent skip
             report.runs.append(InterventionRunResult(param_value=value, error=f"{type(e).__name__}: {e}"))
             report.summary.append(f"{param_name}={value}: FAILED to train ({type(e).__name__}: {e})")

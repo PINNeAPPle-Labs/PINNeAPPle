@@ -1,0 +1,12 @@
+{
+ "code_hash": "ecef0f4c88888312",
+ "figures": [],
+ "id": "model:airfoil_cst_rans_mlp",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 6.16,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "{'Cl': [0.31698], 'Cd': [0.01014], 'Cm': [-0.04269], 'Cl_std': [0.00275], 'Cd_std': [2e-05], 'Cm_std': [0.00014], 'LD': [31.27003], 'LD_std': [0.27038]}\nAPPROVED",
+ "timed_out": false
+}

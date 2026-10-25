@@ -116,6 +116,40 @@ jobs:
       - name: Model hub governance — reject any model card missing validation_metrics/reference_source
         run: python scripts/validate_model_card.py
 
+  generated:
+    # The generated files are not committed (AGENTS.md, "Generated files"): a fresh clone generates them here and
+    # every gate their committed copies used to carry still holds -- every snippet in the Hub index has a passing
+    # recorded run of its current code and every path it names exists, every library module has a flow node or a
+    # stated reason, every examples/* folder has a flow or a reason -- and the docs site builds with the pages.
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install (CPU torch), the flow and hub extras and the docs tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[flow,hub,mcp,geometry]" -r requirements-docs.txt
+      - name: Hub index -- build, every snippet has a passing run of its current code, every file and link exists
+        run: python -m pinneapple_hub.library check
+      - name: Flow Studio coverage -- every public module has a node or a stated reason
+        run: python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md
+      - name: Examples as flows -- every examples/* folder has a flow or a stated reason
+        run: |
+          python -m pinneapple_flow example-flows check
+          python -m pinneapple_flow example-flows doc
+      - name: Docs site builds with the generated pages (tools/gen_flow_docs.py)
+        run: |
+          rm docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md
+          PINNEAPPLE_DOCS_STRICT=1 mkdocs build --clean
+          test -s site/flow_studio/COVERAGE/index.html
+          test -s site/flow_studio/EXAMPLES_AS_FLOWS/index.html
+      - name: Nothing generated is tracked
+        run: test -z "$(git ls-files data/web/hub/index.json docs/flow_studio/COVERAGE.md docs/flow_studio/EXAMPLES_AS_FLOWS.md)"
+
   first-example:
     # A clean `pip install` of the built wheel runs the first example end to end (#44): no repo on the path,
     # CPU only. The job prints the wall time; the example is sized for about a minute on a laptop.

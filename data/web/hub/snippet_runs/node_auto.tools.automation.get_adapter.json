@@ -1,0 +1,12 @@
+{
+ "code_hash": "c533e11c4536e409",
+ "figures": [],
+ "id": "node:auto.tools.automation.get_adapter",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.25,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get adapter -> pinneapple_tools.automation:get_adapter\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

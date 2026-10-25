@@ -67,6 +67,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | Chip-package thermal by condensation of repeated blocks (microbumps, TSVs): fine FV reference, Keff baseline, block Schur complements reused across identical blocks, reduced interfaces with an error estimate and refinement, nested condensation with memoised subtrees, learned block operators with verification, Craig-Bampton transient | `pinneapple_condense`: `package.uniform_package((nb, nb))`, `fv.solve_package(pkg)`, `substructure.Condensed(pkg, m).prepare().solve()` + `.observables` / `.recover(state, I, J)` / `.estimate` / `.refine`, `hierarchy.Hierarchy(pkg, m)`, `homogenize.solve_homogenized`, `learned.LearnedBlocks(stack).fit()` + `solve_adaptive`, `transient.CBTransient`; Flow node `condense.package_thermal` ([report](docs/research/physics_condensation.md)) |
 | Does a learned thermal model (PINN, surrogate) know the physics beyond its loss: discrete residual, interface flux, boundary, energy, symmetry, scaling and causal interventions against an FV reference; scope, point sufficiency, informative points, architecture-vs-learned provenance | `pinneapple_analysis.validation.physics_learning`: `verify(model, case)` -> `VerificationReport` (`.findings`, `.failed`, `.out_of_scope`, `.trust`), `detection_study()`, `baselines`; cases in `physics_learning_cases` (`Section`, `defective_models`, `surrogate_model`, `pinn_model`); Flow node `analysis.physics_learning` ([report](docs/research/physics_condensation.md)) |
 | Physics queries with a planner: `query(quantity, where, time, conditions, accuracy)` answered by the cheapest valid method (read a solved state, superposition, rigorous monotone bound, condensed solve, fine reference) with value, units, uncertainty, validity and provenance; stable physical references (`die@u,v[,w]`, `ubump[I,J]`, `interface:die/tim`, `lid:top`) | `pinneapple_query`: `Engine`, `Planner`, `Method`/`Offer`/`Answer`, `parse_ref`; chip package: `pinneapple_condense.query.package_engine(pkg)` then `eng.query("T", "die@0.5,0.5", conditions={"power": P}, accuracy=0.1)`; Flow node `query.package` ([report](docs/research/physics_condensation.md)) |
+| Conjunction screening and an ideal rocket nozzle in closed form | `pinneapple_physics.astro.conjunction.screen_cw_conjunction(n, state0, sigma_km=...)`, `collision_probability_2d`, `propagate_two_body_j2`; `pp.closed_form.rocket_nozzle.nozzle_performance(...)` |
 | Everything from an agent tool call | the MCP server `pinneapple-mcp` ([docs](docs/guides/mcp_server.md)) |
 | Coding and engineering agents on a local model (web app, VS Code, terminal), conversations kept for fine-tuning | `python -m pinneapple_llm.workbench serve --workspace <project>` (`doctor`, `eval`, `finetune`), `pinneapple_llm.workbench.Session` ([docs](docs/guides/agent_workbench.md)) |
 
@@ -246,6 +247,17 @@ assert status["S2"]["status"] == "validated"   # linear finite elements: compare
 | PatchDose AI | `apps/patchdose_ai` | smallest membrane-controlled release patch for a target rate and wear time (generic coefficients, not a medical tool); release over time | `pinneapple_design.surrogate_inverse.transdermal_patch`, `pinneapple_physics.closed_form.membrane_diffusion` |
 | RideTune AI | `apps/ridetune_ai` | lighter cantilever-arm section for a fatigue life (Basquin); local elasticities | `pinneapple_design.surrogate_inverse.suspension_arm`, `pinneapple_analysis.sensitivity.local_derivatives` |
 | SoundShape AI | `apps/soundshape_ai` | bass-reflex port for a tuning frequency; port-volume vs accuracy sweep | `pinneapple_design.surrogate_inverse.reflex_port`, `pinneapple_physics.closed_form.helmholtz_resonator` |
+| Text2Part | `apps/text2part` | plain-language part to a checked CSG / CadQuery recipe, built and measured (local LLM) | `pinneapple_llm.draft_part`, `measure_part`, `export_recipe` |
+| MeshBridge | `apps/meshbridge` | CGNS / Exodus / Fluent / Abaqus / STL / STEP to an NPZ point bundle or a repaired surface | `pinneapple_simulation.external_solvers.cfd_formats.convert` |
+| PhysicsCopilot | `apps/physics_copilot` | plain-language problem to a trained PINN and its guardrail report (local LLM) | `pinneapple_analysis.verification.pipeline.analyze` |
+| VerifiedPhysics | `apps/verified_physics` | the same pipeline with candidates, UQ, interventions, inverse problems, knowledge graph, geometry and mesh checks | `pinneapple_analysis.verification` (`pipeline`, `uncertainty_inverse`, `causal_discrepancy`, `knowledge_graph`, ...) |
+| SatScreen | `apps/satscreen` | closest approach and 2-D Gaussian Pc in Clohessy-Wiltshire motion, J2 propagation | `pinneapple_physics.astro.conjunction`, `presets.astrophysics.cw_exact_velocity`, `pinneapple_llm.draft_preset_kwargs` |
+| FlowTrace | `apps/flowtrace` | cross-correlation PIV from a video or image frames | `pinneapple_perception.video_piv`, `pinneapple_perception.piv_tools` |
+| NozzleScreen | `apps/nozzle_screen` | ideal rocket nozzle and a PINN cross-check with their disagreement | `pinneapple_physics.closed_form.rocket_nozzle`, `pinneapple_analysis.verification.nozzle_crosscheck` |
+| RoverMobility | `apps/rover_mobility` | Bekker-Wong surrogate drawbar pull against slip, constraints R1-R4 checked one by one | `pinneapple_simulation.terramechanics.mobility` |
+| GovernedCard | `apps/governed_card` | model cards issued only from a guardrail run against the model | `pinneapple_hub.verified_card.certify_model` |
+| HelioTFC | `apps/helio_tfc` | solar-cycle envelope: EMD, Hilbert amplitude, end-point-constrained ELM fit (live SILSO data) | `pinneapple_systems.time_series.solar_cycle` |
+| OrbitWatch | `apps/orbitwatch` | band reflectance / NDVI change between dated images, HTML report (Sentinel-2 via Earth Engine) | `pinneapple_perception.change_detection`, `pinneapple_perception.sentinel2` |
 
 ## Tests and lint
 
@@ -263,6 +275,25 @@ CI (`.github/workflows/tests.yml`): public API, distribution contents, manufactu
 example from a clean wheel, and the Colab notebooks in smoke mode. Changes go under `## [Unreleased]` in
 `CHANGELOG.md`.
 
+## Generated files
+
+These are built where they are used and git-ignored; never commit them (a committed copy makes every other open pull
+request conflict on the next merge):
+
+| File | Built by | Where |
+|---|---|---|
+| `data/web/hub/index.json` | `python -m pinneapple_hub.library build` | on first `hub.load_index()` (a cache), at `docker build` of `apps/hub` |
+| `docs/flow_studio/COVERAGE.md` | `python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md` | the docs build (`tools/gen_flow_docs.py`) |
+| `docs/flow_studio/EXAMPLES_AS_FLOWS.md` | `python -m pinneapple_flow example-flows doc` | the docs build (`tools/gen_flow_docs.py`) |
+
+Run the command to see one locally (and `build` again after changing a Hub source: the cached index is not refreshed
+on its own). What is committed are the measurements they are built from: the Hub's recorded snippet runs, one file per
+item in `data/web/hub/snippet_runs/` (`python -m pinneapple_hub.library run --stale` records new or changed snippets),
+and the flow runs in `pinneapple_flow/flows/examples/measured.json`. The `generated` job of
+`.github/workflows/tests.yml` builds all three from a fresh clone and fails when a snippet has no passing run of its
+current code, a module has neither a flow node nor a reason, an example folder has neither a flow nor a reason, or the
+docs site does not build.
+
 ## Never do
 
 - Do not put reusable logic (physics, numerics, geometry, data processing, metrics, plotting helpers, trust checks,
@@ -277,6 +308,7 @@ example from a clean wheel, and the Colab notebooks in smoke mode. Changes go un
 - Do not copy GPL (or other copyleft) code into this Apache-2.0 repository; reimplement from the paper and cite it.
 - Do not invent reference values or citations; every reference number needs its source.
 - Do not widen tolerances or skip a failing check to get a pass; fix the cause or report the failure.
+- Do not commit a generated file (see "Generated files"); commit what it is built from and run its command locally.
 - Do not add an `examples/*` folder without a valid `experiment.json`: wrap the script in
   `pinneapple_lab.experiment(...)` (or start from `python -m pinneapple_lab scaffold <name>`, or run
   `python -m pinneapple_lab register <folder>`). CI fails otherwise (`scripts/check_experiment_manifests.py`), and a

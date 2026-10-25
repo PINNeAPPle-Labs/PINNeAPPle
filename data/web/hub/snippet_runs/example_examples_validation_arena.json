@@ -1,0 +1,12 @@
+{
+ "code_hash": "abaf7c9279de86c3",
+ "figures": [],
+ "id": "example:examples/validation_arena",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Red team / blue team for the validation checks | validation and benchmarks | not curated",
+ "timed_out": false
+}

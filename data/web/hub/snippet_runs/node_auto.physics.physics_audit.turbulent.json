@@ -1,0 +1,12 @@
+{
+ "code_hash": "b8cdcb722dac1be2",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.turbulent",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='fully_turbulent', description='fully developed turbulence, Re above the transition range', conditions=(Condition(feature='Re', lo=4000.0, hi=inf, band=0.12, log=None),), breaks_into='laminar or transitional flow', missing_mechanism='laminar or transitional regime')",
+ "timed_out": false
+}

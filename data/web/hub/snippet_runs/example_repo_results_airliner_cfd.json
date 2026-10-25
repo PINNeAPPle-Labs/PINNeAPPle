@@ -1,0 +1,12 @@
+{
+ "code_hash": "3c6edcd4cbba1aec",
+ "figures": [],
+ "id": "example:repo_results/airliner_cfd",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - force balance (pressure + friction)",
+ "timed_out": false
+}

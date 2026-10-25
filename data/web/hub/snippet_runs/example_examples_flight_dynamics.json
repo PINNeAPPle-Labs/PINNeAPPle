@@ -1,0 +1,12 @@
+{
+ "code_hash": "63d1b277f6e7db7f",
+ "figures": [],
+ "id": "example:examples/flight_dynamics",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Flight dynamics, turbulence and take-off | flight dynamics | curated\nenergy_rel_error_dt0.02 4.400790123313728e-10 \nenergy_rel_error_dt0.01 8.031223917958976e-12 \nenergy_rel_error_dt0.005 1.6153032200503471e-12 \nlattice_rel_diff_light_ga_alpha0.0 4.001881555440111e-11 \nlattice_rel_diff_light_ga_alpha4.0 0.0013170807441250027",
+ "timed_out": false
+}

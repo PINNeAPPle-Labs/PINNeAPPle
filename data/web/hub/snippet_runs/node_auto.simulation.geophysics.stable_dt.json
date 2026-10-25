@@ -1,0 +1,12 @@
+{
+ "code_hash": "20f30b2dfb3d82ab",
+ "figures": [],
+ "id": "node:auto.simulation.geophysics.stable_dt",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.36,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(6243795.6)",
+ "timed_out": false
+}

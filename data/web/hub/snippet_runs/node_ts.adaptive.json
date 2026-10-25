@@ -1,0 +1,12 @@
+{
+ "code_hash": "0b5035201263ca8f",
+ "figures": [],
+ "id": "node:ts.adaptive",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 6.49,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Adaptive forecasting across regime changes -> pinneapple_systems.time_series.AdaptiveForecaster(default_experts(...)).run + errors / coverage / switches\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'n': 900, 'seed': 0, 'season_length': 12, 'horizon': 3, 'start': 60}",
+ "timed_out": false
+}

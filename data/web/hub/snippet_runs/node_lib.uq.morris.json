@@ -1,0 +1,12 @@
+{
+ "code_hash": "fe1cf29c8ec06d4c",
+ "figures": [],
+ "id": "node:lib.uq.morris",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.24,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Morris screening -> pinneapple_analysis.sensitivity:morris\ninputs: [('model', 'model')]\noutputs: [('result', 'metrics')]\ndefaults: {'r': 20, 'levels': 4, 'seed': 0, 'n_boot': 500, 'level': 0.95}",
+ "timed_out": false
+}

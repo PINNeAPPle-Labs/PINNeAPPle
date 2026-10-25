@@ -1,0 +1,12 @@
+{
+ "code_hash": "5fdf362b8591963c",
+ "figures": [],
+ "id": "node:auto.systems.process_components.calibrate",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "calibrate -> pinneapple_systems.process_components:calibrate\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'input_columns': {}, 'parameters': [], 'order': [], 'measured_rows': [], 'target_symbols': []}",
+ "timed_out": false
+}

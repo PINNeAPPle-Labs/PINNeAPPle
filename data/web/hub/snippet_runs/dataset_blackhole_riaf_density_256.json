@@ -1,0 +1,12 @@
+{
+ "code_hash": "709371a6aa5ec5e6",
+ "figures": [],
+ "id": "dataset:blackhole_riaf_density_256",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.28,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Accretion onto a Schwarzschild black hole: 2.5-D viscous hydro density frames (256 x 128)\n{'convergence': 12, 'grid_r': 192, 'grid_theta': 96, 'ood_alpha0.3': 401, 'test': 401, 'train': 1604, 'val': 401} cc-by-4.0",
+ "timed_out": false
+}

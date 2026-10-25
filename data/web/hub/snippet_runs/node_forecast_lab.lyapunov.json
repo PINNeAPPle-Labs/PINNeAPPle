@@ -1,0 +1,12 @@
+{
+ "code_hash": "fc927a1862e6af4a",
+ "figures": [],
+ "id": "node:forecast_lab.lyapunov",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.4,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Mackey-Glass Lyapunov exponent: convergence -> pinneapple_systems.time_series.forecast_lab.pipeline.lyapunov_study (synthetic.mackey_glass_lyapunov)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'dt_ints': [0.1, 0.05], 'total_times': [10000.0, 50000.0, 200000.0], 'seeds': [0, 1, 2]}",
+ "timed_out": false
+}

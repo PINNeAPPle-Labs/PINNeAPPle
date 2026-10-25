@@ -1,0 +1,12 @@
+{
+ "code_hash": "c4637ceb479ba7d7",
+ "figures": [],
+ "id": "node:lib.rom.compare",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.16,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ROM study (POD, DMD, OpInf, ...) -> pinneapple_flow.wrappers:rom_compare pinneapple_data.snapshots pinneapple_neural.architectures.rom.study\ninputs: [('data', 'dataset')]\noutputs: [('result', 'metrics')]\ndefaults: {'methods': [], 'ranks': [], 'budget_s': 5.0, 'seed': 0}",
+ "timed_out": false
+}

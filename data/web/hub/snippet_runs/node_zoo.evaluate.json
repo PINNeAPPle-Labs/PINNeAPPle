@@ -1,0 +1,12 @@
+{
+ "code_hash": "adf6290f84fc7cf8",
+ "figures": [],
+ "id": "node:zoo.evaluate",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Model zoo: evaluate, validate, fine-tune -> pp.zoo.info / load / evaluate / validate / finetune, pp.datasets.load (pinneapple_hub.zoo)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'name': 'airfoil_cst_rans_mlp', 'validate_inputs': {'T0': 0.169591, 'T1': 0.144959, 'T2': 0.131433, 'M0': 0.024922, 'M1': 0.071088, 'M2': 0.05896, 'alpha_deg': [4.0, 18.0]}, 'finetune_split': 'naca_reference', 'epochs': 50, 'lr': 1e-05}",
+ "timed_out": false
+}

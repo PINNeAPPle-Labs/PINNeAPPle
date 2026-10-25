@@ -1,0 +1,12 @@
+{
+ "code_hash": "c064e80ea36b4aa8",
+ "figures": [],
+ "id": "node:auto.systems.process_components.lame_hoop_stress_outer",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ndarray\narray(0.)",
+ "timed_out": false
+}

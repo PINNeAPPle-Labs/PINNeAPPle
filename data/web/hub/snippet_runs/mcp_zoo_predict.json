@@ -1,0 +1,12 @@
+{
+ "code_hash": "2d4a3ddde3ae23c9",
+ "figures": [],
+ "id": "mcp:zoo_predict",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "zoo_predict(name: 'str', inputs: 'Mapping[str, Any]') -> 'dict[str, Any]'",
+ "timed_out": false
+}

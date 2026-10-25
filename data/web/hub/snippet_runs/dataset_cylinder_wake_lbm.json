@@ -1,0 +1,12 @@
+{
+ "code_hash": "572d431bc45984d2",
+ "figures": [],
+ "id": "dataset:cylinder_wake_lbm",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.36,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Confined cylinder wake, lattice-Boltzmann, Re 20-100 (9 runs, 720 vorticity snapshots, 240 x 100)\n{'train': 480, 'test': 240} cc-by-4.0",
+ "timed_out": false
+}

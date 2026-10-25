@@ -1,0 +1,12 @@
+{
+ "code_hash": "eac3816a0f0f9cce",
+ "figures": [],
+ "id": "node:data.observe",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Sensor observations -> random nodes of a solution grid + Gaussian noise (numpy)\ninputs: [('solution', 'solution'), ('problem', 'problem')]\noutputs: [('data', 'dataset')]\ndefaults: {'n_points': 300, 'noise': 0.0, 'seed': 0}",
+ "timed_out": false
+}

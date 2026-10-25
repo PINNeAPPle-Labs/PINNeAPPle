@@ -1,0 +1,12 @@
+{
+ "code_hash": "c260e8f279e86ef5",
+ "figures": [],
+ "id": "example:examples/geometry_library",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Geometry library | design and geometry | not curated",
+ "timed_out": false
+}

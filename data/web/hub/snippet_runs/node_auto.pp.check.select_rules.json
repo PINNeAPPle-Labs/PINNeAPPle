@@ -1,0 +1,12 @@
+{
+ "code_hash": "abdd96cf5f016499",
+ "figures": [],
+ "id": "node:auto.pp.check.select_rules",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "set\n{'PC704', 'PC002', 'PC801', 'PC403', 'PC302', 'PC101', 'PC203', 'PC703', 'PC501', 'PC301', 'PC104', 'PC602', 'PC402', 'PC504', 'PC451', 'PC802', 'PC001', 'PC202', 'PC103', 'PC201', 'PC804', 'PC701', 'PC803', 'PC452', 'PC401', 'PC303', 'PC503', 'PC453', 'PC601', 'PC102', 'PC502', 'PC901', 'PC702', 'PC105'}",
+ "timed_out": false
+}

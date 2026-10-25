@@ -1,0 +1,12 @@
+{
+ "code_hash": "a90ed3dae286c77a",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.laminar",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='laminar', description='laminar flow (pipe): no turbulent fluctuations, Re below transition', conditions=(Condition(feature='Re', lo=-inf, hi=2300.0, band=0.12, log=None),), breaks_into='turbulence', missing_mechanism='turbulent transport (eddy viscosity)')",
+ "timed_out": false
+}

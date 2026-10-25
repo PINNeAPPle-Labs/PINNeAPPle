@@ -1,0 +1,12 @@
+{
+ "code_hash": "cac1a3e0a95d2610",
+ "figures": [],
+ "id": "node:gallery.pod_dmd_wake",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.38,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Validation gallery 05: POD + DMD of a cylinder wake (fitted on the growing transient) -> pinneapple_lab.experiments.rom._wake (LBM, Re 60); pinneapple_neural.architectures.rom.steppers.pod_dmd_stepper; pp.validate; gallery.conclude\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'diameter': 20, 'lbm_steps': 60000, 'rank': 8}",
+ "timed_out": false
+}

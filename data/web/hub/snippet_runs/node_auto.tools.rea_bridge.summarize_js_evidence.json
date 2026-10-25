@@ -1,0 +1,12 @@
+{
+ "code_hash": "eff9b0c10a15976c",
+ "figures": [],
+ "id": "node:auto.tools.rea_bridge.summarize_js_evidence",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "FeatureMap\nFeatureMap(evidence_id=None, subject_sha256=None, root=None, functions={}, calls={}, callers={}, timers=[], storage=[], limitations=[], vendor_modules=[])",
+ "timed_out": false
+}

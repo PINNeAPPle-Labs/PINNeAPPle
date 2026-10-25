@@ -1,0 +1,12 @@
+{
+ "code_hash": "ebd7ac849f072c65",
+ "figures": [],
+ "id": "example:pipe_flow/bend_90",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - friction vs Colebrook · loss vs Ito",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "389da5dc9360be4e",
+ "figures": [],
+ "id": "dataset:thermal_channel_cfd",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Actuated heated-channel CFD, 2-D incompressible flow + heat (82 trajectories, 128 x 32, 101 snapshots)\n{'train': 48, 'val': 8, 'test_same_family': 12, 'test_unseen_sinusoid': 8, 'test_unseen_edge_steps': 6} cc-by-4.0",
+ "timed_out": false
+}

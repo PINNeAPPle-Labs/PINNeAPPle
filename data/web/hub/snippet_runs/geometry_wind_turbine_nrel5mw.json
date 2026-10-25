@@ -1,0 +1,12 @@
+{
+ "code_hash": "5c849b3357bdfe6f",
+ "figures": [],
+ "id": "geometry:wind_turbine_nrel5mw",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NREL 5-MW reference wind turbine | energy\nwind_turbine_nrel5mw.light.stl 840884 bytes",
+ "timed_out": false
+}

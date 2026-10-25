@@ -1,0 +1,12 @@
+{
+ "code_hash": "ac2fbd2f9f7bcbed",
+ "figures": [],
+ "id": "node:auto.analysis.verification.compute_physics_confidence",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.59,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PhysicsConfidenceScore\nPhysicsConfidenceScore(overall_score=None, components=[], coverage=0.0)",
+ "timed_out": false
+}

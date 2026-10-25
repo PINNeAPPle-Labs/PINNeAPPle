@@ -1,0 +1,12 @@
+{
+ "code_hash": "098ad01ae6d6229b",
+ "figures": [],
+ "id": "node:solvers.poisson_fdm_spectral",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 6.59,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "2-D Poisson: SOR finite differences against the periodic FFT solver -> pinneapple_simulation.numerical_solvers.SolverRegistry.build('fdm' (SOR), 'spectral' (FFT))\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'n': 64, 'k': 2, 'iters': 2000, 'omega': 0.9}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "ebdd917e65b3c6cd",
+ "figures": [],
+ "id": "example:examples/electrodynamics",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Electrodynamics & Electromagnetics Examples | electromagnetics | curated",
+ "timed_out": false
+}

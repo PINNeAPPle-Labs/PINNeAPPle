@@ -1,0 +1,12 @@
+{
+ "code_hash": "bce41d895df2facc",
+ "figures": [],
+ "id": "example:examples/handoff_cases",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Engineering hand-off cases | fluid dynamics | curated",
+ "timed_out": false
+}

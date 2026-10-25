@@ -1,0 +1,12 @@
+{
+ "code_hash": "8b00674fa48fac5e",
+ "figures": [],
+ "id": "node:lib.solver.meshless",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Meshless vs mesh-based -> pinneapple_flow.wrappers:meshless_compare pinneapple_simulation.meshless\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'kind': 'poisson', 'exact': 'sin(pi*x)*sin(pi*y)', 'domain': 'square', 'methods': ['kansa', 'rbf_fd', 'fd', 'fem'], 'k': 4.0, 'alpha': 1.0}",
+ "timed_out": false
+}

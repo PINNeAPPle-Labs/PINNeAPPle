@@ -1,0 +1,12 @@
+{
+ "code_hash": "26b1e43b4ecac12e",
+ "figures": [],
+ "id": "node:auto.tools.benchmark_suite.get_backend",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.13,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "get backend -> pinneapple_tools.benchmark_suite:get_backend\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "b94f2e3490d9344c",
+ "figures": [],
+ "id": "node:em.prius_rotor_design",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.53,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius rotor design: GP-surrogate NSGA-II against FEA-only -> pinneapple_simulation.electromagnetics.machines.design.rotor_evaluator + rotor_design_problem + hybrid_vs_fea_only\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'seeds': [0, 1, 2], 'n_initial': 24, 'rounds': 4, 'n_verify': 8, 'ga_budget': 2000, 'surrogate_budget': 2000}",
+ "timed_out": false
+}

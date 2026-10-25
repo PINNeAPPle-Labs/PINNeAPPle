@@ -1,0 +1,12 @@
+{
+ "code_hash": "6d49f50ee76fbc2f",
+ "figures": [],
+ "id": "node:cfd.campaign",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "OpenFOAM run campaign (plan file) -> pinneapple_simulation.external_solvers.openfoam.campaign.Campaign.from_json + run (parse_solver_log, LiveLineSampler); base case: TroughSection + FreeSurfaceFlow.write\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'plan': 'openfoam_campaign/plan.json', 'runs': [], 'end_time': 0.0, 'procs': 0, 'base': {'length': 6.0, 'inlet_x': 1.0, 'slope_deg': 0.0, 'cell': 0.04, 'jet': [1.0, 0.0, -2.5], 'liquid': {'name': 'metal', 'rho': 7200.0, 'nu': 8.472e-06}, 'sigma': 1.8, 'end_time': 10.0, 'sample_every': 0.1}}",
+ "timed_out": false
+}

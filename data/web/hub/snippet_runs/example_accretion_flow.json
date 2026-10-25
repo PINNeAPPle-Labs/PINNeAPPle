@@ -1,0 +1,12 @@
+{
+ "code_hash": "3e8903448db78be6",
+ "figures": [],
+ "id": "example:accretion_flow",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - mass budget",
+ "timed_out": false
+}

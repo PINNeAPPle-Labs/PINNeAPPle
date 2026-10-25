@@ -1,0 +1,12 @@
+{
+ "code_hash": "0bd0124fbbe9f5d3",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.laplace_2d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='laplace_2d_default', dim=2, coords=('x', 'y'), fields=('u',), pde=PDETermSpec(kind='laplace', fields=('u',), coords=('x', 'y'), params={}, meta={}), conditions=(ConditionSpec(name='u_boundary', kind='dirichlet', fields=('u',), selector_type='tag', selector={'tag': 'boundary'}, value_fn=<function laplace_2d_default.<locals>.<lambda> at 0x7f5110f867a0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None),), sample_defaults={'n_col': 50000, 'n_bc': 10000}, scales=ScaleSpec(L=1.0, U=1.0, alpha=1.0), field_ranges={'u': (-1.0, 1.0)}, references=('Laplace 2D template.',), domain_bounds={'x': (0.0, 1.0), 'y': (0.0, 1.0)}, solver_spec={'name': 'fdm', 'method': 'poisson_jacobi', 'params': {'nx': 128, 'ny': 128",
+ "timed_out": false
+}

@@ -20,7 +20,8 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
     and the Keff baseline.
   - **Condensation:** blocks condensed once per variant and reused; reduced interfaces with near- and far-field
     snapshot modes, a residual error estimate, p- and full refinement, and an exact CG correction; nested condensation
-    with memoised identical subtrees (262 k blocks, 3.9e8 fine-cell equivalent, in this container).
+    with memoised identical subtrees (65,536 blocks / 9.6e7 fine cells at m=12 built in 44 s and 7.6 GB in this container; the
+    interface-reduction error grows with package size: 27 mK at 1,024 blocks, 0.37 K at 4,096).
   - **Extensions:** learned block operators with an out-of-box/deviation fallback and verification against exact
     condensation; Craig-Bampton transients.
   - **Track 1b, meshless:** RBF-FD / GFDM on point clouds from the implicit geometry, with interface pairs, mirror
@@ -71,6 +72,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   comparison of FNO + optimiser against Bayesian optimisation on the solver; example
   `examples/use_cases/antennas/unit_cell_benchmark.py`, guide `docs/guides/unit_cell_benchmark.md`.
   `GPModel(features=...)` and `surrogates.columns` fit the antenna GP on any design space; `CLISimulator(extra_args=)`.
+- PINNeAPPle Arena app (`apps/pinn_arena`, port 8130, prefix `PINN_ARENA`, imported from PINNeAPPle-arena): train
+  registry architectures head to head on 34 problems, a leaderboard of the server's own runs (starts empty), optional
+  GitHub sign-in, React frontend built in the Dockerfile; deploy service `pinnarena`.
+- `pinneapple_arena.pointwise`: the arena's problems, reference data, PDE residuals, pointwise / closed-form model
+  adapters, training protocol, field metrics, leaderboard aggregation and upload parsing. An architecture the
+  registry can not build is reported as failed (`ArchitectureUnavailable`), never replaced by a stand-in model.
+- `pinneapple_arena.external`: references to 95 third-party physics-ML libraries (repository, licence with the file
+  or metadata it was read from, citation, install) and the glue runners that import them at run time, with an honest
+  status per result; `python -m pinneapple_arena.external`.
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that

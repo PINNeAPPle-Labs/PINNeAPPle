@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PatchDose AI</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a0b0d; --card:#14161c; --border:#232630; --text:#e8e9ec; --dim:#8b8f9a; --faint:#5b5f6b; --accent:#5be8d0; --green:#3ecf8e; --green-dim:#123024; --amber:#e8b44a; --amber-dim:#332711; --red:#ef5b5b; --red-dim:#3a1717; }
+  * { box-sizing: border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; margin:0; background:var(--bg); color:var(--text); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 24px 80px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--dim); font-size: 13.5px; margin-bottom: 20px; line-height: 1.5; max-width: 800px; }
+  .layout { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--dim); margin: 0 0 14px; font-weight: 650; }
+  label { display: block; font-size: 12.5px; color: var(--dim); margin-bottom: 4px; }
+  .slider-row { margin-bottom: 16px; }
+  .slider-row .value { color: var(--accent); font-weight: 650; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  input[type=number], select { background: #0e1015; border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 7px; font-size: 13.5px; width: 100%; }
+  button { background: var(--accent); color: #04211c; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 650; width: 100%; }
+  button:disabled { opacity: 0.5; }
+  #viewer { width: 100%; height: 420px; border-radius: 12px; border: 1px solid var(--border); background: #050608; position: relative; overflow: hidden; }
+  #viewer .hint { position: absolute; bottom: 8px; right: 12px; color: var(--faint); font-size: 11px; }
+  #viewer .loading { position: absolute; top: 10px; left: 12px; color: var(--amber); font-size: 11px; display: none; }
+  .colorbar { position: absolute; top: 12px; right: 14px; width: 150px; display: none; }
+  .colorbar-grad { height: 10px; border-radius: 5px; background: linear-gradient(to right, #1f40d9, #26bfd9, #f2d926, #e62619); border: 1px solid rgba(255,255,255,0.15); }
+  .colorbar-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--dim); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .colorbar-title { font-size: 10px; color: var(--faint); text-align: right; margin-top: 1px; }
+  .flow-caption { font-size: 12px; color: var(--dim); line-height: 1.55; margin: 8px 2px 14px; }
+  .flow-caption b { color: var(--text); }
+  .sim-chart-wrap { margin-top: 10px; }
+  .sim-chart-wrap svg { width: 100%; height: auto; display: block; }
+  .sim-summary { display: flex; gap: 24px; margin-top: 12px; flex-wrap: wrap; }
+  .sim-summary .num { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .sim-summary .lbl { color: var(--dim); font-size: 11.5px; }
+  .live-readout { display: flex; gap: 18px; margin-top: 14px; flex-wrap: wrap; }
+  .readout-item .num { font-size: 26px; font-weight: 700; }
+  .readout-item .lbl { color: var(--dim); font-size: 11.5px; }
+  .readout-item .num.warn { color: var(--amber); } .readout-item .num.ok { color: var(--accent); }
+  .verdict-pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+  .v-PASS { background: var(--green-dim); color: var(--green); }
+  .v-WARNING { background: var(--amber-dim); color: var(--amber); }
+  .v-FAIL { background: var(--red-dim); color: var(--red); }
+  .check-row { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12.5px; }
+  .check-row:last-child { border-bottom: none; }
+  .check-row .detail { color: var(--dim); flex: 1; }
+  .trust-score { font-size: 34px; font-weight: 750; }
+  .footer-note { color: var(--faint); font-size: 11px; margin-top: 20px; line-height: 1.6; }
+  .badge { display:inline-block; font-size: 10.5px; padding: 2px 8px; border-radius: 10px; background:#1e2129; color: var(--dim); margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>PatchDose AI</h1>
+  <div class="sub">Triangle mesh (reservoir + membrane, two stacked layers), updated live as you drag the sliders below (fetches the closed-form release rate and depletion time from the server too — no client-side physics duplication), with the membrane layer colored by its steady-state concentration gradient. Run the time-domain digital-twin simulation to see the patch's full release/depletion curve over its wear life, or click "Optimize with AI" to run the trained surrogate + gradient-based inverse design to minimize patch area while hitting a target release rate and wear duration, then independently re-verify the result against the Fick's-law model. Generic diffusion and partition coefficients (no specific drug): a mass-transfer design exercise, not a dosing or medical tool.</div>
+
+  <div class="layout">
+    <div>
+      <div class="card">
+        <h2>Time-domain simulation (digital twin)</h2>
+        <div class="footer-note" style="margin-top:0;">Simulates the patch's release rate over its full wear life for the current geometry: a constant (zero-order) phase while the reservoir holds excess drug, then a first-order decay tail once it's depleted -- not a single static design point.</div>
+        <button id="btn-simulate" style="margin-top:10px;">Run digital-twin simulation</button>
+        <div id="sim-result"></div>
+      </div>
+
+      <div class="card">
+        <h2>Target release</h2>
+        <div class="slider-row">
+          <label>Target release rate (mg/day)</label>
+          <input type="number" id="rate" value="100" min="20" max="250" step="5" />
+        </div>
+        <div class="slider-row">
+          <label>Target wear duration (days)</label>
+          <input type="number" id="wear" value="2" min="1" max="4" step="0.5" />
+        </div>
+        <button id="btn-optimize">Optimize with AI</button>
+      </div>
+
+      <div class="card">
+        <h2>Patch geometry <span class="badge">manual explore</span></h2>
+        <div class="slider-row">
+          <label>Area: <span class="value" id="v-area">20.0</span> cm²</label>
+          <input type="range" id="s-area" min="5" max="40" step="0.5" value="20" />
+        </div>
+        <div class="slider-row">
+          <label>Membrane thickness: <span class="value" id="v-membrane">80</span> μm</label>
+          <input type="range" id="s-membrane" min="10" max="200" step="1" value="80" />
+        </div>
+        <div class="slider-row">
+          <label>Reservoir concentration: <span class="value" id="v-conc">60</span> mg/mL</label>
+          <input type="range" id="s-conc" min="5" max="150" step="1" value="60" />
+        </div>
+        <div class="live-readout">
+          <div class="readout-item"><div class="num" id="live-rate">--</div><div class="lbl">release rate (formula)</div></div>
+          <div class="readout-item"><div class="num" id="live-depletion">--</div><div class="lbl">depletion time (formula)</div></div>
+        </div>
+        <div class="footer-note">Depletion time depends only on membrane thickness — area and reservoir concentration cancel out of the closed-form model, so they change the release rate but never the wear duration.</div>
+        <div class="footer-note" id="constraint-note"></div>
+      </div>
+    </div>
+
+    <div>
+      <div id="viewer">
+        <div class="loading" id="loading-note">regenerating mesh…</div>
+        <div class="hint">drag to rotate · scroll to zoom</div>
+        <div class="colorbar" id="colorbar">
+          <div class="colorbar-grad"></div>
+          <div class="colorbar-labels"><span id="cb-min">0</span><span id="cb-max">60</span></div>
+          <div class="colorbar-title">conc. field (mg/mL, membrane)</div>
+        </div>
+      </div>
+      <div class="flow-caption">🔴 Drug flows from the <b>reservoir</b> (well-mixed, uniform concentration, bottom layer) → through the <b>membrane</b> (the linear concentration gradient colored above -- the rate-controlling layer) → to the <b>skin surface</b>, where sink conditions (fast clearance by the skin/bloodstream) keep concentration near zero.</div>
+      <div id="result"></div>
+      <div class="footer-note" id="status-note"></div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "/vendor/three/OrbitControls.js";
+import { parseBinarySTL } from "/shared/stl.js";
+let scene, camera, renderer, controls, currentMesh;
+let lastDesign = { area_m2: 20e-4, membrane_thickness_m: 80e-6, reservoir_conc_kg_m3: 60.0 };
+let lastConcentrationField = null;
+const RESERVOIR_THICKNESS_M = 0.001; // matches physics.RESERVOIR_THICKNESS_M -- needed to locate the reservoir/membrane interface in the raw (uncentered) STL geometry
+
+// 4-stop concentration colormap (blue -> cyan -> yellow -> red), matching the colorbar gradient in the CSS above.
+// Same technique as HeatSink Design AI's temperature colormap, applied to a
+// different physical field (drug concentration instead of temperature).
+function concToColor(c, cmin, cmax) {
+  let f = (c - cmin) / Math.max(cmax - cmin, 1e-6);
+  f = Math.min(Math.max(f, 0), 1);
+  const stops = [
+    [0.0, [0.122, 0.251, 0.851]],
+    [0.35, [0.149, 0.749, 0.851]],
+    [0.7, [0.949, 0.851, 0.149]],
+    [1.0, [0.902, 0.149, 0.098]],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [f0, c0] = stops[i], [f1, c1] = stops[i + 1];
+    if (f >= f0 && f <= f1) {
+      const tt = (f - f0) / (f1 - f0);
+      return [c0[0] + (c1[0] - c0[0]) * tt, c0[1] + (c1[1] - c0[1]) * tt, c0[2] + (c1[2] - c0[2]) * tt];
+    }
+  }
+  return stops[stops.length - 1][1];
+}
+
+// Colors each vertex of the CAD mesh by the physical drug
+// concentration at that point: the reservoir layer (0..reservoir_thickness_m,
+// bottom of the raw STL) is uniform at the bulk reservoir concentration
+// (well-mixed by assumption), and the membrane layer above it (the real
+// rate-controlling layer) gets the linear steady-state profile
+// physics.concentration_at_membrane_depth evaluates -- concentration dropping
+// from K*C_res at the reservoir interface to ~0 at the skin-facing face
+// ("sink condition" assumption, see the library model). Must run BEFORE
+// geom.center() re-origins the vertex positions, since it needs the true
+// physical z the same convention the mesh builder (surrogate_inverse.meshes) builds the solid in.
+function colorGeometryByConcentration(geom, field) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const colors = new Float32Array(n * 3);
+  const reservoirTMm = field.reservoir_thickness_m * 1000;
+  const membraneLM = Math.max(field.membrane_thickness_m, 1e-9);
+  const cSurface = field.partition_coeff * field.reservoir_conc_kg_m3; // K*C_res at the reservoir-membrane interface
+  const cMin = 0; // sink condition at the skin-facing face
+  const cMax = Math.max(field.reservoir_conc_kg_m3, cSurface);
+  for (let i = 0; i < n; i++) {
+    const zMm = pos.getZ(i);
+    let c;
+    if (zMm <= reservoirTMm) {
+      c = field.reservoir_conc_kg_m3; // reservoir: uniform, well-mixed
+    } else {
+      const zFromReservoirM = Math.min(Math.max((zMm - reservoirTMm) / 1000.0, 0), membraneLM);
+      c = cSurface * (1.0 - zFromReservoirM / membraneLM); // membrane: linear diffusion profile
+    }
+    const [r, g, b] = concToColor(c, cMin, cMax);
+    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+  }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  document.getElementById("cb-min").textContent = cMin.toFixed(0) + " mg/mL";
+  document.getElementById("cb-max").textContent = cMax.toFixed(1) + " mg/mL";
+  document.getElementById("colorbar").style.display = "block";
+}
+
+function initViewer() {
+  const el = document.getElementById("viewer");
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 2000);
+  camera.position.set(60, 60, 60);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(el.clientWidth, el.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  el.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0x8899aa, 0.9 * Math.PI));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.1 * Math.PI);
+  dir.position.set(60, 120, 80);
+  scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0x5be8d0, 0.4 * Math.PI);
+  dir2.position.set(-60, 40, -80);
+  scene.add(dir2);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 0, 0);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  window.addEventListener("resize", () => {
+    camera.aspect = el.clientWidth / el.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(el.clientWidth, el.clientHeight);
+  });
+
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+async function reloadMesh(design) {
+  document.getElementById("loading-note").style.display = "block";
+  const res = await fetch("/api/mesh.stl", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(design),
+  });
+  const buf = await res.arrayBuffer();
+  const geom = parseBinarySTL(buf);
+
+  let useVertexColors = false;
+  if (lastConcentrationField) {
+    colorGeometryByConcentration(geom, lastConcentrationField); // must run before center() -- see function docstring
+    useVertexColors = true;
+  }
+  geom.center();
+  geom.computeVertexNormals();
+  geom.computeBoundingBox();
+
+  if (currentMesh) scene.remove(currentMesh);
+  const material = new THREE.MeshStandardMaterial({
+    color: useVertexColors ? 0xffffff : 0x5be8d0,
+    vertexColors: useVertexColors,
+    metalness: 0.15, roughness: 0.55,
+  });
+  currentMesh = new THREE.Mesh(geom, material);
+  currentMesh.rotation.x = -Math.PI / 2;
+
+  // Flow-direction indicator: drug flows from the reservoir (bottom
+  // layer, well-mixed) up through the membrane (top layer, the rate-
+  // controlling diffusion gradient colored above) to the skin-facing outer
+  // face -- the net transport direction the library model's Fick's-law model
+  // describes. Positioned at the reservoir/membrane interface in the
+  // geometry's own local (centered, pre-rotation) Z axis, computed from the
+  // same RESERVOIR_THICKNESS_M convention the mesh builder (surrogate_inverse.meshes) builds the solid in.
+  // Added as a child of currentMesh so it inherits the same rotation/position
+  // and is cleaned up automatically on the next scene.remove(currentMesh).
+  const bbox = geom.boundingBox;
+  const reservoirTMm = RESERVOIR_THICKNESS_M * 1000;
+  const zInterface = bbox.min.z + reservoirTMm; // reservoir/membrane boundary
+  const arrowLen = Math.max((bbox.max.z - bbox.min.z) * 0.9, 10);
+  const flowArrow = new THREE.ArrowHelper(
+    new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, zInterface), arrowLen, 0xff5533, arrowLen * 0.3, arrowLen * 0.2,
+  );
+  currentMesh.add(flowArrow);
+
+  scene.add(currentMesh);
+  document.getElementById("loading-note").style.display = "none";
+}
+
+async function liveEvaluate() {
+  const design = {
+    area_m2: Number(document.getElementById("s-area").value) / 1e4,
+    membrane_thickness_m: Number(document.getElementById("s-membrane").value) / 1e6,
+    reservoir_conc_kg_m3: Number(document.getElementById("s-conc").value),
+  };
+  lastDesign = design;
+  const res = await fetch("/api/evaluate", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(design),
+  });
+  const data = await res.json();
+  lastConcentrationField = data.concentration_field;
+  const rateEl = document.getElementById("live-rate");
+  rateEl.textContent = data.release_rate_mg_day.toFixed(1) + " mg/day";
+  rateEl.className = "num ok";
+  const depEl = document.getElementById("live-depletion");
+  depEl.textContent = data.depletion_time_days.toFixed(2) + " d";
+  depEl.className = "num " + (data.violated_constraints.length ? "warn" : "ok");
+  document.getElementById("constraint-note").textContent = data.violated_constraints.length
+    ? `Violated constraints: ${data.violated_constraints.join(", ")}`
+    : "";
+}
+
+let debounceTimer;
+function onSliderChange() {
+  document.getElementById("v-area").textContent = Number(document.getElementById("s-area").value).toFixed(1);
+  document.getElementById("v-membrane").textContent = document.getElementById("s-membrane").value;
+  document.getElementById("v-conc").textContent = document.getElementById("s-conc").value;
+  liveEvaluate();
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => reloadMesh(lastDesign), 180);
+}
+
+["s-area", "s-membrane", "s-conc"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", onSliderChange);
+});
+
+async function loadStatus() {
+  const s = await (await fetch("/api/status")).json();
+  document.getElementById("status-note").textContent = s.surrogate_trained
+    ? `Surrogate trained at server startup (validation relative error: ${(s.validation_relative_error*100).toFixed(1)}%). Ground truth: Fick's first law for membrane-controlled release (Rate=D·K·C·A/L), same principle used in reservoir-type patches.`
+    : "Training…";
+}
+
+async function runOptimize() {
+  const btn = document.getElementById("btn-optimize");
+  btn.disabled = true; btn.textContent = "Optimizing…";
+  const target_rate_mg_day = Number(document.getElementById("rate").value);
+  const target_wear_days = Number(document.getElementById("wear").value);
+  try {
+    const res = await fetch("/api/optimize", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ target_rate_mg_day, target_wear_days }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+
+    // Snap the sliders/3D view to the optimized design.
+    const d = data.optimized.design;
+    document.getElementById("s-area").value = d.area_cm2.toFixed(1);
+    document.getElementById("s-membrane").value = (d.membrane_thickness_m * 1e6).toFixed(0);
+    document.getElementById("s-conc").value = d.reservoir_conc_kg_m3.toFixed(0);
+    onSliderChange();
+
+    renderVerification(data);
+  } catch (e) {
+    document.getElementById("result").innerHTML = `<div class="card">Error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Optimize with AI"; }
+}
+
+function renderVerification(data) {
+  const v = data.verification;
+  const smaller = data.optimized.design.area_cm2 < data.baseline.design.area_cm2;
+  const checksHtml = v.checks.map(c => `<div class="check-row"><span>${c.name}</span><span class="detail">${c.detail}</span><span class="verdict-pill v-${c.verdict}">${c.verdict}</span></div>`).join("");
+  document.getElementById("result").innerHTML = `
+    <div class="card">
+      <h2>AI result vs. baseline</h2>
+      <div style="font-size:14px; margin-bottom:10px;">Baseline: ${data.baseline.design.area_cm2.toFixed(1)} cm² &rarr; AI-optimized (re-verified): <b style="color:${smaller?'var(--green)':'var(--text)'}">${data.optimized.design.area_cm2.toFixed(1)} cm²</b>, rate ${v.real_rate_mg_day.toFixed(1)} mg/day (target ${v.target_rate_mg_day.toFixed(1)}), lasts ${v.real_depletion_days.toFixed(2)} days (target ${v.target_wear_days.toFixed(1)})</div>
+      <div style="display:flex; align-items:center; gap:20px; margin: 14px 0;">
+        <div class="trust-score" style="color:${v.overall_verdict==='PASS'?'var(--green)':v.overall_verdict==='WARNING'?'var(--amber)':'var(--red)'}">${v.trust_score}</div>
+        <div><div class="verdict-pill v-${v.overall_verdict}">${v.overall_verdict}</div><div style="color:var(--dim); font-size:12px; margin-top:4px;">trust score &middot; coverage ${(v.coverage*100).toFixed(0)}%</div></div>
+      </div>
+      <div style="color:var(--dim); font-size:12px; margin-bottom:12px;">${v.coverage_note}</div>
+      ${checksHtml}
+    </div>
+  `;
+}
+
+// Inline SVG line chart (no chart library -- CSP only allows specific
+// CDNs) of release rate vs. day from /api/simulate's timeseries: shows
+// the flat zero-order phase, the first-order decay tail, and a
+// marked vertical line at the depletion_time_days.
+function renderSimChart(data) {
+  const pts = data.timeseries;
+  const W = 640, H = 300, padL = 52, padR = 16, padT = 16, padB = 36;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxDay = data.duration_days;
+  const maxRate = Math.max(...pts.map(p => p.rate_mg_day), 1e-9) * 1.08;
+
+  const x = (day) => padL + (day / Math.max(maxDay, 1e-9)) * plotW;
+  const y = (rate) => padT + plotH - (rate / Math.max(maxRate, 1e-9)) * plotH;
+
+  const linePath = pts.map((p, i) => `${i === 0 ? "M" : "L"}${x(p.day).toFixed(2)},${y(p.rate_mg_day).toFixed(2)}`).join(" ");
+  const areaPath = `${linePath} L${x(pts[pts.length - 1].day).toFixed(2)},${(padT + plotH).toFixed(2)} L${x(0).toFixed(2)},${(padT + plotH).toFixed(2)} Z`;
+
+  const depX = x(data.depletion_time_days);
+  const yTicks = [0, 0.25, 0.5, 0.75, 1.0].map(f => f * maxRate);
+  const xTicks = [0, 0.25, 0.5, 0.75, 1.0].map(f => f * maxDay);
+
+  const yGridHtml = yTicks.map(t => `
+    <line x1="${padL}" y1="${y(t).toFixed(2)}" x2="${W - padR}" y2="${y(t).toFixed(2)}" stroke="var(--border)" stroke-width="1" />
+    <text x="${padL - 8}" y="${(y(t) + 4).toFixed(2)}" text-anchor="end" font-size="10.5" fill="var(--dim)">${t.toFixed(1)}</text>
+  `).join("");
+  const xTickHtml = xTicks.map(t => `
+    <text x="${x(t).toFixed(2)}" y="${H - padB + 18}" text-anchor="middle" font-size="10.5" fill="var(--dim)">${t.toFixed(1)}</text>
+  `).join("");
+
+  const depInBounds = data.depletion_time_days <= maxDay;
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <rect x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="none" />
+      ${yGridHtml}
+      <path d="${areaPath}" fill="var(--accent)" opacity="0.12" />
+      <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2" />
+      ${depInBounds ? `
+        <line x1="${depX.toFixed(2)}" y1="${padT}" x2="${depX.toFixed(2)}" y2="${padT + plotH}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="4,3" />
+        <text x="${depX.toFixed(2)}" y="${padT - 4}" text-anchor="middle" font-size="10.5" fill="var(--amber)">depletion @ ${data.depletion_time_days.toFixed(2)}d</text>
+      ` : ""}
+      <line x1="${padL}" y1="${padT + plotH}" x2="${W - padR}" y2="${padT + plotH}" stroke="var(--border)" stroke-width="1.5" />
+      <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" stroke="var(--border)" stroke-width="1.5" />
+      ${xTickHtml}
+      <text x="${(padL + plotW / 2).toFixed(2)}" y="${H - 4}" text-anchor="middle" font-size="11" fill="var(--dim)">day of wear</text>
+      <text x="14" y="${(padT + plotH / 2).toFixed(2)}" text-anchor="middle" font-size="11" fill="var(--dim)" transform="rotate(-90 14 ${(padT + plotH / 2).toFixed(2)})">release rate (mg/day)</text>
+    </svg>
+  `;
+}
+
+async function runSimulate() {
+  const btn = document.getElementById("btn-simulate");
+  btn.disabled = true; btn.textContent = "Simulating…";
+  try {
+    const res = await fetch("/api/simulate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(lastDesign) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "error");
+    document.getElementById("sim-result").innerHTML = `
+      <div class="sim-chart-wrap">${renderSimChart(data)}</div>
+      <div class="sim-summary">
+        <div><div class="num">${data.depletion_time_days.toFixed(2)} d</div><div class="lbl">reservoir depletion (zero-order phase ends)</div></div>
+        <div><div class="num">${data.total_delivered_mg.toFixed(1)} mg</div><div class="lbl">cumulative delivered over ${data.duration_days.toFixed(2)}d simulation</div></div>
+      </div>
+      <div class="footer-note">Flat phase = constant zero-order release while the reservoir has excess drug; the decay tail after the amber marker is the first-order falloff (C(t)=C0&middot;e^-k(t-t_dep)) as the reservoir's dissolved concentration collapses -- not a smoothed/fabricated curve, sampled at ${data.timeseries.length} points.</div>
+    `;
+  } catch (e) {
+    document.getElementById("sim-result").innerHTML = `<div class="footer-note" style="color:var(--red)">Simulation error: ${e.message}</div>`;
+  } finally { btn.disabled = false; btn.textContent = "Run digital-twin simulation"; }
+}
+
+document.getElementById("btn-optimize").onclick = runOptimize;
+document.getElementById("btn-simulate").onclick = runSimulate;
+initViewer();
+loadStatus();
+liveEvaluate().then(() => reloadMesh(lastDesign));
+</script>
+</body>
+</html>

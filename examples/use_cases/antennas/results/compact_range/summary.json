@@ -1,0 +1,123 @@
+{
+ "validation": {
+  "disk": [
+   {
+    "per_wavelength": 8,
+    "triangles": 7097,
+    "max_rel_error": 0.004465783984218118
+   },
+   {
+    "per_wavelength": 12,
+    "triangles": 16117,
+    "max_rel_error": 0.001974838657397227
+   },
+   {
+    "per_wavelength": 16,
+    "triangles": 28690,
+    "max_rel_error": 0.001108988630067284
+   }
+  ],
+  "go": [
+   {
+    "roll_wl": 3.0,
+    "max_abs_dB": 2.051666301860548,
+    "rms_dB": 1.0644783272888272,
+    "go_taper_dB": 1.1164727690771796,
+    "po_taper_dB": 2.0075421606699457
+   },
+   {
+    "roll_wl": 6.0,
+    "max_abs_dB": 1.0292570087720332,
+    "rms_dB": 0.4959877175658075,
+    "go_taper_dB": 1.1164727690771796,
+    "po_taper_dB": 1.1648511697349093
+   }
+  ],
+  "mesh": [
+   {
+    "per_wavelength": 8,
+    "ripple_pp_dB": 2.5141311501880343,
+    "amp_pp_dB": 3.354054420125901,
+    "phase_pp_deg": 20.250662813994495,
+    "taper_dB": 2.261314324764561,
+    "usable_diameter": 0.13324109244444446,
+    "seconds": 35.638,
+    "n_triangles": 74285
+   },
+   {
+    "per_wavelength": 12,
+    "ripple_pp_dB": 2.521753633093206,
+    "amp_pp_dB": 3.3707265432212052,
+    "phase_pp_deg": 20.26702266778396,
+    "taper_dB": 2.2664521651535354,
+    "usable_diameter": 0.13324109244444446,
+    "seconds": 73.285,
+    "n_triangles": 166341
+   }
+  ]
+ },
+ "reference": {
+  "diameter": 0.6,
+  "n_points": 1009,
+  "amp_pp_dB": 3.354054420125901,
+  "phase_pp_deg": 20.250662813994495,
+  "taper_dB": 2.261314324764561,
+  "ripple_pp_dB": 2.5141311501880343,
+  "phase_ripple_pp_deg": 12.831620248330399,
+  "usable_diameter": 0.13324109244444446,
+  "usable_limited_by_region": false,
+  "xpol_dB": -22.910026343018632,
+  "feed_gain_dBi": 12.0,
+  "feed_q": 3.462232981152783,
+  "side": 1.2,
+  "roll": 0.15,
+  "n_triangles": 74285,
+  "n_qz_points": 2601,
+  "eval_diameter": 0.96,
+  "seconds": 34.539,
+  "f_GHz": 3.0
+ },
+ "study": {
+  "n_designs": 84,
+  "seconds_total": 2431.2120000000004,
+  "seconds_median": 28.125999999999998,
+  "rolls": {
+   "0": {
+    "map": "tradeoff_roll0.png",
+    "heldout_rmse_random": {
+     "ripple_pp_dB": 0.041386434623377995,
+     "amp_pp_dB": 0.7098948730694299,
+     "phase_pp_deg": 3.6468186069965274,
+     "taper_dB": 0.7830995752355976,
+     "usable_diameter": 0.037287103234328836
+    },
+    "n_test": 10,
+    "heldout_rmse_leave_side_out": {
+     "ripple_pp_dB": 2.5726854620482023,
+     "amp_pp_dB": 3.066584026822079,
+     "phase_pp_deg": 19.33955811390905,
+     "taper_dB": 1.4792467244392036,
+     "usable_diameter": 0.06626221087669622
+    }
+   },
+   "0.15": {
+    "map": "tradeoff_roll0.15.png",
+    "heldout_rmse_random": {
+     "ripple_pp_dB": 0.04574909806158147,
+     "amp_pp_dB": 0.19922315587037034,
+     "phase_pp_deg": 0.9979734253343403,
+     "taper_dB": 0.36542940778549066,
+     "usable_diameter": 0.02312688255023018
+    },
+    "n_test": 10,
+    "heldout_rmse_leave_side_out": {
+     "ripple_pp_dB": 0.8342080985662513,
+     "amp_pp_dB": 1.2423021802052694,
+     "phase_pp_deg": 4.514218062502031,
+     "taper_dB": 0.864025640335873,
+     "usable_diameter": 0.05695321692225227
+    }
+   }
+  }
+ }
+}

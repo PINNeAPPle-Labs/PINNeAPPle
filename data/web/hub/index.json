@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 524,
+  "tool": 525,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
   "flow": 21,
-  "example": 185
+  "example": 186
  },
  "kinds": {
   "tool": "Tools",
@@ -121,16 +121,16 @@
  ],
  "facets": {
   "kind": {
-   "tool": 524,
+   "tool": 525,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
    "flow": 21,
-   "example": 185
+   "example": 186
   },
   "subkind": {
    "library call": 249,
-   "flow node": 189,
+   "flow node": 190,
    "recipe": 47,
    "function": 22,
    "agent tool (MCP)": 17
@@ -142,10 +142,10 @@
    "structural mechanics": 70,
    "design and geometry": 66,
    "validation and benchmarks": 59,
-   "numerical methods": 50,
+   "numerical methods": 51,
    "system dynamics": 43,
    "data": 41,
-   "heat transfer": 36,
+   "heat transfer": 37,
    "electromagnetics": 28,
    "science / physics.electromagnetism": 20,
    "flight dynamics": 16,
@@ -201,7 +201,7 @@
    "automation": 29
   },
   "quality": {
-   "not graded": 668,
+   "not graded": 670,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -20747,6 +20747,164 @@
     "stdout": "Physics checks of results and models (pinneapple check) -> pinneapple_check.engine.run (Report.violations, exit_code)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'path': 'physics_check/fail', 'expected': 'expected.json'}",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "node:analysis.physics_learning",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "analysis.physics_learning",
+   "title": "Physics learning verification of a learned thermal model",
+   "summary": "Check a model with a verifier independent of its training loss -- discrete residual, interface flux, boundary conditions, energy balance, symmetry, scaling and causal…",
+   "description": "Check a model with a verifier independent of its training loss -- discrete residual, interface flux,\nboundary conditions, energy balance, symmetry, scaling and causal interventions against a finite-volume\nreference -- and report each check, its provenance (architecture or learned), the decision, and what the usual\nmetrics (held-out error, physics loss) would have said.",
+   "domain": "numerical methods",
+   "tags": [
+    "Analysis",
+    "PINN",
+    "error",
+    "interventions",
+    "sensitivity",
+    "surrogate",
+    "thermal",
+    "trust",
+    "uncertainty",
+    "uq",
+    "validation",
+    "verification"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"analysis.physics_learning\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=analysis.physics_learning",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/physics_learning.py#L15"
+   },
+   "extra": {
+    "calls": "pinneapple_analysis.validation.physics_learning.verify / detection_study",
+    "category": "Analysis",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "model",
+      "kind": "enum",
+      "default": "smoothed interfaces",
+      "help": "the model under test on the die / TIM / lid section (or the whole detection study)",
+      "choices": [
+       "reference",
+       "smooth error 0.3 % (mode 1)",
+       "smoothed interfaces",
+       "frozen outside the box",
+       "reversed TIM response",
+       "cooling learned from power",
+       "3 % energy created in the lid",
+       "leaky sides",
+       "saturating power response",
+       "POD-GPR surrogate, correlated training data",
+       "POD-GPR surrogate, independent training data",
+       "detection study (all defects, severities, budgets)"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "severity",
+      "kind": "float",
+      "default": 1.0,
+      "help": "size of a deliberate defect",
+      "choices": null,
+      "minimum": 0.0,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "points",
+      "kind": "int",
+      "default": 48,
+      "help": "informative points checked",
+      "choices": null,
+      "minimum": 4,
+      "maximum": 400,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "model": {
+       "title": "model",
+       "description": "the model under test on the die / TIM / lid section (or the whole detection study)",
+       "x-kind": "enum",
+       "default": "smoothed interfaces",
+       "enum": [
+        "reference",
+        "smooth error 0.3 % (mode 1)",
+        "smoothed interfaces",
+        "frozen outside the box",
+        "reversed TIM response",
+        "cooling learned from power",
+        "3 % energy created in the lid",
+        "leaky sides",
+        "saturating power response",
+        "POD-GPR surrogate, correlated training data",
+        "POD-GPR surrogate, independent training data",
+        "detection study (all defects, severities, budgets)"
+       ]
+      },
+      "severity": {
+       "title": "severity",
+       "description": "size of a deliberate defect",
+       "x-kind": "float",
+       "default": 1.0,
+       "type": "number",
+       "minimum": 0.0
+      },
+      "points": {
+       "title": "points",
+       "description": "informative points checked",
+       "x-kind": "int",
+       "default": 48,
+       "type": "integer",
+       "minimum": 4,
+       "maximum": 400
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "d316c595265a7580"
    }
   },
   {
@@ -94584,6 +94742,95 @@
     "stdout": "Physics checks in CI | validation and benchmarks | not curated",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/physics_learning_verification",
+   "kind": "example",
+   "name": "examples/physics_learning_verification",
+   "title": "Physics learning verification of learned thermal models",
+   "summary": "A verifier independent of the training loss: discrete residual, interface flux, boundary conditions, energy balance, symmetry, scaling and causal interventions against a…",
+   "description": "A verifier independent of the training loss: discrete residual, interface flux, boundary conditions, energy balance, symmetry, scaling and causal interventions against a finite-volume reference, on deliberately defective models, a POD-GPR surrogate and PINNs.",
+   "domain": "heat transfer",
+   "tags": [
+    "PINN",
+    "POD-GPR",
+    "finite volumes",
+    "interventions"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/physics_learning_verification"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/physics_learning_verification\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "python examples/physics_learning_verification/run_study.py",
+   "results": {
+    "metrics": [
+     {
+      "name": "defect_detection_verifier",
+      "value": 1.0,
+      "unit": "fraction",
+      "how": "verifier, 48 informative points + probes; 22 defective models"
+     },
+     {
+      "name": "defect_detection_flag_loss",
+      "value": 0.5454545454545454,
+      "unit": "fraction",
+      "how": "mean squared discrete residual > limit; 22 defective models"
+     },
+     {
+      "name": "defect_detection_flag_heldout",
+      "value": 0.22727272727272727,
+      "unit": "fraction",
+      "how": "held-out relative L2 > limit; 22 defective models"
+     },
+     {
+      "name": "heldout_rel_l2[POD-GPR surrogate, correlated training data]",
+      "value": 9.491715214246315e-05,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     },
+     {
+      "name": "heldout_rel_l2[POD-GPR surrogate, independent training data]",
+      "value": 0.0059935650639470804,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     },
+     {
+      "name": "heldout_rel_l2[PINN, soft constraints]",
+      "value": 0.28962155212510166,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     },
+     {
+      "name": "heldout_rel_l2[PINN, hard adiabatic sides]",
+      "value": 0.08447056422897815,
+      "unit": "",
+      "how": "200 points, 6 held-out cases"
+     }
+    ],
+    "figures": [
+     "examples/physics_learning_verification/figures/detection.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/examples/physics_learning_verification/run_study.py",
+    "lab": "lab/index.html#examples/physics_learning_verification"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "6c5e314b8cdb448f"
    }
   },
   {

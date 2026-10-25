@@ -10,7 +10,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | no flow | 1 |
 | not yet run | 2 |
 | not_convertible | 16 |
-| runs | 39 |
+| runs | 40 |
 | runs-quick | 14 |
 
 | example | domain | flow(s) | status | same numbers | notes |
@@ -66,6 +66,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `physics_condensation` | heat transfer | `physics_condensation/hierarchy_64` | runs | 1 / 1 match | hierarchy_64: condense.package_thermal at 64 x 64 blocks, m = 12, compared with the committed scaling point (quick: 16 x 16). The other studies of run_benchmark.py (accuracy against modes, refinement, Keff, learned blocks, transient, meshless, exception patches) are pinneapple_condense.benchmark functions that run for minutes in subprocesses and are measured by the script. |
 | `physics_db` | data | - | needs earthaccess + NASA Earthdata login / network |  | 00-02 query NASA Earthdata or NASA POWER; 03-06 write shards with the private PhysicalDatasetBuilder._write_upd from a dataset built in the script |
 | `physics_ensemble` | ensembles | - | not_convertible |  | the expert training loops, ring-graph adapters, ParametricPINN and FD schemes are in the scripts (docs/dev/LIBRARY_CONSOLIDATION.md lists them for a later pass); multiscale_turbulence takes hours |
+| `physics_learning_verification` | verification | `physics_learning_verification/detection` | runs | 4 / 4 match | detection: analysis.physics_learning running the detection study (seconds), compared with the committed results/detection.json. The real-model study (POD-GPR surrogates, PINNs trained for minutes) is measured by run_study.py; single surrogates can be checked with the same node. |
 | `physics_module` | hybrid models | `physics_module/01_coarse_fem_plus_neural_correction` | runs | 2 / 2 match | compared with the numbers of docs/core_concepts/model.md |
 | `physics_optimizer` | optimization | `physics_optimizer/01_constrained_shape_six_methods` | runs | 12 / 12 match | compared with the table of docs/core_concepts/physics_optimizer.md |
 | `physics_query` | heat transfer | - |  |  | the demo's numbers are statistics over 5,115 queries compared with three fine finite-volume solves (about 10 minutes, run_demo.py); the engine itself is the Flow node query.package, which answers a list of queries on a package with value, uncertainty, method and whether it was read or predicted |
@@ -157,6 +158,7 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `pde_environment` | `pde_env.tagged_preset` | first |
 | `physics_check` | `check.physics` | first |
 | `physics_condensation` | - | falls short: no capability registered, generic flows only |
+| `physics_learning_verification` | - | falls short: no capability registered, generic flows only |
 | `physics_module` | `core.hybrid_fem` | first |
 | `physics_optimizer` | `core.torsion_optimizer` | first |
 | `pinn_solver` | `pinn_solver.factory_loss` | first |
@@ -1428,6 +1430,17 @@ done in 6 s (commit eae78c33, 2026-10-25); 1 of 1 numbers match.
 |---|---|---|---|---|---|
 | `flat.Tmax_rise_K` | `results/scaling_hierarchy_16.json:hierarchy.Tmax` | 66.8551 | 66.8551 | 0 | match |
 
+### `physics_learning_verification/detection` (full)
+
+done in 10 s (commit bc567c3e, 2026-10-25); 4 of 4 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `flat.defect_verifier` | `results/detection.json:summary.defect.verifier` | 1 | 1 | 0 | match |
+| `flat.defect_flag_loss` | `results/detection.json:summary.defect.flag_loss` | 0.545455 | 0.545455 | 0 | match |
+| `flat.defect_flag_heldout` | `results/detection.json:summary.defect.flag_heldout` | 0.227273 | 0.227273 | 0 | match |
+| `flat.controls_flagged` | `results/detection.json:summary.control.verifier` | 0.428571 | 0.428571 | 0 | match |
+
 ### `physics_module/01_coarse_fem_plus_neural_correction` (full)
 
 done in 80 s (commit ee5fd359, 2026-10-24); 2 of 2 numbers match.
@@ -2602,6 +2615,14 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 | `fno_pinn_gnn_solvers.py` | `pinneapple_neural.architectures.neural_operators.fno.FourierNeuralOperator`, `pinneapple_physics.advection_diffusion_1d.AdvectionDiffusion1D` | `pinneapple_neural.architectures.graphnn.base.GraphBatch`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_physics.ensemble.PhysicsEnsemble`, `pinneapple_physics.ensemble.from_callable`, `pinneapple_physics.ensemble.from_torch` |
 | `multiscale_turbulence.py` | `pinneapple_neural.architectures.neural_operators.deeponet.DeepONet`, `pinneapple_physics.multiscale.Filter` | `pinneapple_neural.architectures.graphnn.base.GraphBatch`, `pinneapple_neural.architectures.graphnn.mesh_graph_net.MeshGraphNet`, `pinneapple_neural.architectures.neural_operators.fno.FNO2d`, `pinneapple_physics.multiscale.DynamicSmagorinsky`, `pinneapple_physics.multiscale.GradientModel`, `pinneapple_physics.multiscale.ScaleProfile`, `pinneapple_physics.multiscale.Smagorinsky`, `pinneapple_physics.multiscale.VorticityNS2D`, `pinneapple_physics.multiscale.closure_health`, `pinneapple_physics.multiscale.comparison.DEFAULT_CONFIGS`, `pinneapple_physics.multiscale.comparison.EnsembleConfig`, `pinneapple_physics.multiscale.comparison.closure_flag_table`, `pinneapple_physics.multiscale.comparison.evaluate_experts`, `pinneapple_physics.multiscale.comparison.frontier_figure`, `pinneapple_physics.multiscale.comparison.markdown_tables`, `pinneapple_physics.multiscale.comparison.run_ensembles`, `pinneapple_physics.multiscale.comparison.summarise_runs`, `pinneapple_physics.multiscale.comparison.summary_figure`, `pinneapple_physics.multiscale.cross_scale_consistency`, `pinneapple_physics.multiscale.filters.fourier_coefficients`, `pinneapple_physics.multiscale.filters.low_modes`, `pinneapple_physics.multiscale.learned.FourierGalerkinPINN`, `pinneapple_physics.multiscale.learned.LearnedClosure`, `pinneapple_physics.multiscale.learned.ScaleConditionedFNO2d`, `pinneapple_physics.multiscale.learned.TorchVorticityLES2D`, `pinneapple_physics.multiscale.learned.as_numpy_closure`, `pinneapple_physics.multiscale.learned.fit_scale_conditioned`, `pinneapple_physics.multiscale.learned.fit_supervised`, `pinneapple_physics.multiscale.learned.periodic_cnn2d`, `pinneapple_physics.multiscale.learned.torch_filter`, `pinneapple_physics.multiscale.learned.torus_graph`, `pinneapple_physics.multiscale.learned.train_closure_aposteriori`, `pinneapple_physics.multiscale.prolong`, `pinneapple_physics.multiscale.restrict`, `pinneapple_physics.multiscale.turbulence.DecayingTurbulence2D`, `pinneapple_physics.multiscale.turbulence.benchmark_closures`, `pinneapple_physics.multiscale.turbulence.scale_conditioning_study`, `pinneapple_physics.multiscale.viz.animate_multiscale_ensemble` |
 | `sensor_noise_gif.py` | - | `pinneapple_physics.ensemble.PhysicsEnsemble`, `pinneapple_physics.ensemble_viz.animate_ensemble`, `pinneapple_tools.visualization.dashboard.static.hstack_gifs` |
+
+</details>
+
+<details><summary><code>physics_learning_verification</code></summary>
+
+| script | covered by a node | not covered |
+|---|---|---|
+| `run_study.py` | `pinneapple_analysis.validation.physics_learning.detection_study`, `pinneapple_analysis.validation.physics_learning.verify`, `pinneapple_analysis.validation.physics_learning_cases.Section` | `pinneapple_analysis.validation.physics_learning.baselines`, `pinneapple_analysis.validation.physics_learning_cases.pinn_model`, `pinneapple_analysis.validation.physics_learning_cases.surrogate_model` |
 
 </details>
 

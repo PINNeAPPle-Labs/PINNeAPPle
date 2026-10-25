@@ -583,6 +583,129 @@ spread out. Hotspots on an interface are the default here, since the heated row 
 description. An IP specialist must review freedom to operate.
 
 
+## 6. Physics learning verification (track 3)
+
+**Question.** A low training loss and a low held-out error do not show that a learned thermal model has learned the
+physics. Can a check independent of the training loss tell which relations a model has learned, under the changes an
+engineer will make (power, source position, conductivity, contact resistance, cooling), and at which points?
+
+**Case.** A 2-D die / TIM / lid cross-section (silicon 100 µm, TIM 30 µm, copper lid 500 µm, 2 mm wide), heated by a
+Gaussian line source at the bottom of the die. It has Robin cooling on top and adiabatic sides and bottom
+(`pinneapple_analysis/validation/physics_learning_cases.py`). The reference is the finite-volume scheme of
+`pinneapple_condense.fv` on 200 × 36 cells. One solve takes milliseconds, so every expected response comes from
+solving the physics, not from a rule.
+
+**Verifier** (`pinneapple_analysis/validation/physics_learning.py`, `verify(model, case)`). It uses only model
+evaluations and reference solves, never the model's loss.
+
+- *Structural checks at the solved state:*
+  - the discrete FV residual of the model's field at selected cells (heat created or destroyed, relative to the heat
+    through the cell);
+  - interface flux continuity;
+  - boundary conditions: source flux, Robin top, adiabatic sides (as a cell balance), and the side gradient itself;
+  - global energy balance;
+  - consistency between neighbouring points;
+  - mirror symmetry;
+  - linear scaling with power.
+- *Interventions:* power ×2, source moved, source outside the training box, TIM conductivity ×2 and /2, cooling ×2,
+  and a contact resistance added. Each model response is compared with the reference response to the same change.
+- *Scope:* an intervention on a parameter the model does not take is **out of scope**. It is reported, but it is not
+  a defect.
+- *Sufficiency:* whether the model's inputs cover every parameter that moves the answer by more than 2% over its
+  plausible variation.
+- *Informative points:* chosen near interfaces, the source and the boundaries (`select_points`).
+- *Provenance:* a check that still passes with untrained weights is credited to the **architecture**. A check that
+  only the trained model passes is credited as **learned**.
+- *Trust report:* the result is a `TrustReport` with the decision APPROVED / REVIEW / REJECT.
+
+**Defective models.** Seven deliberately defective models, each accurate on the training distribution by the usual
+metrics and wrong in one physical respect:
+
+1. interfaces smoothed over 25 µm × severity;
+2. frozen outside the training box;
+3. reversed TIM response;
+4. cooling learned from power, because the training data had h = 100 P;
+5. 3% × severity heat created in the lid;
+6. heat leaking through the adiabatic sides;
+7. saturating power response.
+
+They run at severities 0.25, 0.5, 1 and 2. There are also seven controls: the reference, and the reference times
+`1 + a cos(2πjx/L)` for a = 0.1% and 0.3%, j = 1, 2, 3.
+
+The baselines are held-out relative L2 on 6 cases × 200 points of the training distribution, and the mean squared
+discrete residual. Both are flagged above 1%.
+
+### 6.1 Detection against the usual metrics
+
+`examples/physics_learning_verification/results/detection.json`, 7 s for the whole study on one core:
+
+| | verifier | physics loss > 1 % | held-out L2 > 1 % |
+|---|---|---|---|
+| defective models detected (22) | **22 (100 %)** | 12 (55 %) | 5 (23 %) |
+| controls flagged (7) | 3 | 1 | 0 |
+
+- The physics loss misses all causal defects (out of distribution, reversed response, spurious correlation) and the
+  scaling defect.
+- Held-out L2 misses every defect except large energy and scaling errors.
+- Each defect is flagged by the check that names it (`tests/test_physics_learning.py::test_the_right_check_fails`).
+
+![detection](../../examples/physics_learning_verification/figures/detection.png)
+
+**The three flagged controls are not false alarms in the physical sense.** They are the higher-wavenumber errors:
+mode 3 at 0.1%, and modes 2 and 3 at 0.3%.
+
+- The residual these controls leave grows with the square of the wavenumber: the worst cell creates or destroys
+  9% (0.1%, mode 3), 12% (0.3%, mode 2) and 27% (0.3%, mode 3) of the heat through it. The passing controls stay at
+  1–4%. Most of this sits in the copper lid, where a small temperature error carries a large flux.
+- The mean squared residual shows the same ranking: 3.3e-3, 5.9e-3 and 3.0e-2, against at most 6.5e-4 for the
+  passing controls.
+- The verifier's residual tolerance (5% of the heat through a cell) is therefore a statement about heat, not about
+  temperature. A model can be 0.1% accurate in temperature and still fail it. Whether that is a defect depends on
+  whether the user needs fluxes.
+- The CI test uses the controls that are small in heat-flow terms.
+
+**Informative against random points.** At equal budgets the informative points detect every defect from 4 points.
+Random points detect 82% at 4 points, 95% at 8, and 100% from 16 (right panel). The verifier itself takes a median
+of 25 ms per model with 48 points.
+
+### 6.2 Real learned models
+
+`results/models.json`:
+
+| model | train | held-out rel. L2 | physics loss | decision | what failed |
+|---|---|---|---|---|---|
+| POD-GPR, correlated training data (h = 100 P) | 48 solves | **9.5e-5** | 2.2e-4 | REJECT | 5 interventions (cooling ×2: response off by 121 %, power ×2: 91 %), scaling 45 % |
+| POD-GPR, independent samples | 48 solves | 6.0e-3 | 1.6e-3 | REJECT | residual 13 %, source flux 18 %, TIM ×2 16 %, source outside the box 61 % |
+| PINN, soft side conditions | 97 s, loss 2.8e-4 | 0.29 | 0.076 | REJECT | residual 51 %, interface flux 56 %, energy balance 29 % |
+| PINN, hard adiabatic sides | 105 s, loss 2.0e-4 | 0.084 | 0.075 | REJECT | residual 76 %, interface flux 75 %, energy balance 8.4 % |
+
+- The first row is the case the brief describes. Its held-out error is 0.01%, yet the verifier rejects it because it
+  learned the correlation between cooling and power in its data, not the physics.
+- Both PINNs are rejected; their low training losses do not mean the solution is right.
+  - The PINNs take only the nominal case, so every intervention is out of scope and reported as such.
+  - Their losses are small because the loss is non-dimensional and dominated by the die, while the copper lid and
+    the TIM jump carry the heat.
+  - Interface flux is learned worst, consistent with the reported PINN failure modes at material jumps (Section 2).
+- **Architecture against learned** for the hard-constraint PINN:
+  - the side gradient passes with untrained weights, so it is credited to the architecture;
+  - neighbour consistency is credited to the architecture for both PINNs (a smooth network);
+  - symmetry is learned.
+  - The adiabatic-sides *cell balance* still fails (0.14): it involves the interior flux next to the wall, which the
+    architecture does not constrain.
+- The PINNs ran 3,000 Adam steps on one core alongside the condensation benchmark. A longer schedule would lower the
+  errors; the point measured here is that the verifier separates loss from physics, not how far a PINN can be
+  trained.
+
+### 6.3 Limitations (track 3)
+
+- The case is 2-D and steady. Transient checks (heat capacity, time causality) are not implemented.
+- The expected responses need a reference solver. Here it is cheap; for a full package it is the condensed solver of
+  track 1, which the verifier does not call yet.
+- Thresholds are fixed and relative: 5% for residual and boundary, 1% for energy, 10% for interventions. A
+  calibrated threshold per quantity of interest would turn REVIEW/REJECT into an error bar.
+- The defects are synthetic and each has one cause. Real models mix them; the per-check report still names each
+  failure, but the defect-type attribution has not been tested on mixtures.
+
 ## 7. Physics query engine (track 2)
 
 **Question.** An engineer asks about a quantity at a place, under conditions, to an accuracy. Can a system answer

@@ -658,6 +658,32 @@ services:
     expose: ["8105"]
     mem_limit: ${ARN_MEM_LIMIT:-1g}
 
+  pinnarena:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/pinn_arena/Dockerfile
+    image: pinneapple/pinn-arena:latest
+    restart: unless-stopped
+    environment:
+      PINN_ARENA_USER: ${PINN_ARENA_USER:-}
+      PINN_ARENA_PASSWORD: ${PINN_ARENA_PASSWORD:-}
+      PINN_ARENA_PASSWORD_HASH: ${PINN_ARENA_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PINN_ARENA_RATE_LIMIT: ${PINN_ARENA_RATE_LIMIT:-}
+      PINN_ARENA_ADMIN_TOKEN: ${PINN_ARENA_ADMIN_TOKEN:-}
+      PINN_ARENA_MAX_RUNNING: ${PINN_ARENA_MAX_RUNNING:-1}
+      PINN_ARENA_MAX_EPOCHS: ${PINN_ARENA_MAX_EPOCHS:-5000}
+      PINN_ARENA_MAX_ARCHITECTURES: ${PINN_ARENA_MAX_ARCHITECTURES:-8}
+      PINN_ARENA_FREE_EXPERIMENTS: ${PINN_ARENA_FREE_EXPERIMENTS:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}             # optional GitHub sign-in (unset: off)
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_CALLBACK_URL: ${GITHUB_CALLBACK_URL:-}
+      ARENA_JWT_SECRET: ${ARENA_JWT_SECRET:-}             # unset: a random key per start (sign-ins do not survive a restart)
+    volumes:
+      - pinnarena_data:/data      # SQLite (users, experiments), uploaded datasets, trained weights, usage, API keys
+    expose: ["8130"]
+    mem_limit: ${PINN_ARENA_MEM_LIMIT:-2g}
+
   models:
     <<: *app-hardening
     build:
@@ -936,6 +962,7 @@ services:
       MESHLESS_DOMAIN: ${MESHLESS_DOMAIN:-meshless.localhost}
       SUR_DOMAIN: ${SUR_DOMAIN:-surrogate.localhost}
       ARN_DOMAIN: ${ARN_DOMAIN:-arena.localhost}
+      PINN_ARENA_DOMAIN: ${PINN_ARENA_DOMAIN:-pinnarena.localhost}
       MDL_DOMAIN: ${MDL_DOMAIN:-models.localhost}
       TWIN_DOMAIN: ${TWIN_DOMAIN:-twin.localhost}
       ANOMALY_DOMAIN: ${ANOMALY_DOMAIN:-anomaly.localhost}
@@ -953,11 +980,12 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub, hsdesign, brakecool, patchdose, ridetune, soundshape]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, pinnarena, models, twin, anomaly, control, optimize, design, hub, hsdesign, brakecool, patchdose, ridetune, soundshape]
 
 volumes:
   surrogate_data:
   arena_data:
+  pinnarena_data:
   models_data:
   twin_data:
   anomaly_data:

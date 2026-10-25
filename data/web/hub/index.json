@@ -58430,8 +58430,38 @@
       "how": "max over time, CB m=32 k=32 vs fine implicit Euler, same dt"
      },
      {
+      "name": "largest_blocks",
+      "value": 65536.0,
+      "unit": "blocks",
+      "how": "largest package solved by the hierarchy, m=12"
+     },
+     {
+      "name": "largest_build_s",
+      "value": 43.746866945999955,
+      "unit": "s",
+      "how": "hierarchy build, fresh process"
+     },
+     {
+      "name": "largest_solve_s",
+      "value": 3.3815957900001195,
+      "unit": "s",
+      "how": "one power map, after the build"
+     },
+     {
+      "name": "largest_peak_rss",
+      "value": 7.608628,
+      "unit": "GB",
+      "how": "peak RSS of the process"
+     },
+     {
       "name": "learned_32_speedup",
       "value": 44.41025206966396,
+      "unit": "x",
+      "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
+     },
+     {
+      "name": "learned_64_speedup",
+      "value": 38.99521182109361,
       "unit": "x",
       "how": "all-exact per-block condensation time / learned+verified time (training excluded)"
      }
@@ -58440,7 +58470,8 @@
      "examples/physics_condensation/figures/accuracy_vs_modes.png",
      "examples/physics_condensation/figures/keff_vs_fine.png",
      "examples/physics_condensation/figures/refinement.png",
-     "examples/physics_condensation/figures/transient.png"
+     "examples/physics_condensation/figures/transient.png",
+     "examples/physics_condensation/figures/scaling.png"
     ],
     "videos": []
    },
@@ -64427,8 +64458,16 @@
     "items": []
    },
    "run": {
-    "status": "not run",
-    "code_hash": "8cc985c59c7b05a8"
+    "code_hash": "8cc985c59c7b05a8",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 1.06,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Compact range quiet zone: feed gain x reflector size | electromagnetics | not curated\npo_disk_max_rel_error 0.001108988630067284 \npo_vs_go_rms_dB 0.4959877175658075 dB\nreference_ripple_pp_dB 2.5141311501880343 dB\nreference_usable_diameter_m 0.13324109244444446 m\nevaluation_s_median 28.125999999999998 s",
+    "timed_out": false,
+    "status": "ok"
    }
   },
   {
@@ -84820,8 +84859,16 @@
     "items": []
    },
    "run": {
-    "status": "not run",
-    "code_hash": "2994e0f247402c82"
+    "code_hash": "2994e0f247402c82",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 1.21,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation | electromagnetics | not curated\ncell_wall_s_median 93.0 s\ncell_max_rss_mb 2039.0 MB\nfno_heldout_rmse_dB 2.264688414031629 dB\nfno_optimizer_best_dB -6.543068986377335 dB\nbayesian_best_dB -6.720940250952603 dB",
+    "timed_out": false,
+    "status": "ok"
    }
   },
   {

@@ -1,0 +1,12 @@
+{
+ "code_hash": "c61802836c2d02fd",
+ "figures": [],
+ "id": "example:examples/weather_forecasting",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Weather forecasting on ERA5: how many days a model is good for, and extreme events | geophysics and climate | curated",
+ "timed_out": false
+}

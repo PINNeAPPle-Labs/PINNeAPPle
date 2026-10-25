@@ -1,0 +1,12 @@
+{
+ "code_hash": "69fe76b0a59e9c52",
+ "figures": [],
+ "id": "mcp:list_methods",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 3.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "{\"solve_methods\": {\"analytic\": [\"analytic\", \"exact\"], \"external\": [\"external\"], \"classical\": [\"fem\", \"reference\"], \"neural\": [\"pinn\"]}, \"catalog\": [{\"id\": \"S1\", \"name\": \"Finite differences 1D/2D/3D\", \"category\": \"solver\", \"status\": \"validated\", \"reference_tests\": 2}, {\"id\": \"S2\", \"name\": \"Finite elements (linear) + nonlinear beam FEM\", \"category\": \"solver\", \"status\": \"validated\", \"reference_tests\": 6}, {\"id\": \"S3\", \"name\": \"Finite volumes\", \"category\": \"solver\", \"status\": \"validated\", \"reference_tests\": 2}, {\"id\": \"S4\", \"name\": \"Spectral (Fourier pseudo-spectral)\", \"category\": \"solver\", \"status\": \"validated\", \"reference_tests\": 3}, {\"id\": \"S5\", \"name\": \"Lattice Boltzmann D2Q9 / D3Q19 (+ Smagorinsky LES)\", \"category\": \"solver\", \"status\": \"validated\", \"reference_tests\": 2}, {\"id\": \"S6\", \"nam",
+ "timed_out": false
+}

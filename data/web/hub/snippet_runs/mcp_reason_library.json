@@ -1,0 +1,12 @@
+{
+ "code_hash": "b48065e4341c57b7",
+ "figures": [],
+ "id": "mcp:reason_library",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "reason_library(domain: 'str | None' = None, lang: 'str' = 'pt') -> 'dict[str, Any]'",
+ "timed_out": false
+}

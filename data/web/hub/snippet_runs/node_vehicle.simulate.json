@@ -1,0 +1,12 @@
+{
+ "code_hash": "6779093da486f4d3",
+ "figures": [],
+ "id": "node:vehicle.simulate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rover traverse (multibody + terramechanics) -> pinneapple_simulation.vehicle.VehicleSimulator(build_vehicle(spec), site, soil).run + VehicleRun.summary\ninputs: [('vehicle', 'vehicle'), ('soil', 'soil'), ('site', 'site')]\noutputs: [('run', 'vehicle_run'), ('metrics', 'metrics')]\ndefaults: {'duration': 45.0, 'speed': 0.2, 'gravity': 1.62, 'dt': 0.002, 'output_dt': 0.05}",
+ "timed_out": false
+}

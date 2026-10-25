@@ -1,0 +1,12 @@
+{
+ "code_hash": "cfa319181f9ee6a2",
+ "figures": [],
+ "id": "example:bar_wear/hardened tool steel",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.89,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - contact vs Winkler · Archard",
+ "timed_out": false
+}

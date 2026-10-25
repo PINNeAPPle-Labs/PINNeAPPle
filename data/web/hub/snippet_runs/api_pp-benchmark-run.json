@@ -1,0 +1,12 @@
+{
+ "code_hash": "bc51e752fb22fe34",
+ "figures": [],
+ "id": "api:pp-benchmark-run",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.benchmark.run(config=None, out_dir: 'str | Path' = 'benchmark_out', *, force: 'bool' = False, prepare_missing: 'bool' = True, stages=('search', 'final', 'flops', 'study'), log=<built-in function print>, **kwargs) -> 'BenchmarkResult'\nRun the benchmark (see the module docstring). Re-running with the same ``out_dir`` resumes from the cache;",
+ "timed_out": false
+}

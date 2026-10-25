@@ -1,0 +1,107 @@
+{
+ "pins": 256,
+ "unknowns": 205344,
+ "direct_s": 2.5398393020004733,
+ "condensed_s": 11.481692485000167,
+ "speedup": 0.2212077448789499,
+ "condensation": {
+  "local": 0.07228404999932536,
+  "distinct_blocks": 9,
+  "blocks": 288,
+  "separator": 25522,
+  "interior": 179822,
+  "prepare": 2.3348006000005626
+ },
+ "solve": {
+  "rhs_s": 0.04144693200032634,
+  "separator_solve_s": 8.734205226000086,
+  "recover_s": 0.024228066999967268,
+  "seconds": 8.799881216000358
+ },
+ "exact_rel_err": 1.2903925240285916e-12,
+ "exact_rel_err_velocity": 8.810520870433671e-12,
+ "pressure_drop": 924.8267390237193,
+ "pressure_drop_condensed": 924.8267390234976,
+ "reduced": {
+  "rows": [
+   {
+    "m": 1,
+    "error": 0.2504247311823674,
+    "reduced_dofs": 3699,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 14.421279212792127,
+    "solve_s": 0.04380184499950701
+   },
+   {
+    "m": 2,
+    "error": 0.002795190917539632,
+    "reduced_dofs": 5325,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 7.210639606396064,
+    "solve_s": 0.06069464999927732
+   },
+   {
+    "m": 3,
+    "error": 0.0001131110006744949,
+    "reduced_dofs": 6951,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 4.807093070930709,
+    "solve_s": 0.0810793750006269
+   },
+   {
+    "m": 4,
+    "error": 8.551431431621922e-06,
+    "reduced_dofs": 8577,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 3.605319803198032,
+    "solve_s": 0.0515892769999482
+   },
+   {
+    "m": 6,
+    "error": 2.428917296586553e-07,
+    "reduced_dofs": 11829,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 2.4035465354653547,
+    "solve_s": 0.08867531499981851
+   },
+   {
+    "m": 8,
+    "error": 2.898889978094621e-10,
+    "reduced_dofs": 15081,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 1.802659901599016,
+    "solve_s": 0.11296201400000427
+   },
+   {
+    "m": 12,
+    "error": 1.114954374290222e-13,
+    "reduced_dofs": 21465,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 1.2017732677326773,
+    "solve_s": 0.13237835699965217
+   },
+   {
+    "m": 16,
+    "error": 3.06581721001082e-13,
+    "reduced_dofs": 25252,
+    "separator": 25522,
+    "unseen_faces": 0,
+    "compression": 0.901329950799508,
+    "solve_s": 0.15138373999980104
+   }
+  ],
+  "mean_face_unknowns": 14.421279212792127,
+  "m_for_1pct": 2,
+  "compression_at_1pct": 7.210639606396064,
+  "full_faces": 2073
+ },
+ "metric_note": "flow rate is fixed by the velocity inlet; the pressure drop at that flow rate is reported",
+ "peak_rss_gb": 1.735116
+}

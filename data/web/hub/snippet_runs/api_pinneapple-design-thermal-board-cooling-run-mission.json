@@ -1,0 +1,12 @@
+{
+ "code_hash": "ed8ec6ee86ff7f4d",
+ "figures": [],
+ "id": "api:pinneapple-design-thermal-board-cooling-run-mission",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 6.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_design.thermal.board_cooling.run_mission(text: 'str', *, out_dir: 'str' = 'out', planner: 'str' = 'template', n: 'int' = 64, render: 'bool' = True, workers: 'int' = 4, llm: 'Callable[[str, str], str] | None' = None, provider: 'str' = 'anthropic', log: 'Callable[[str], None] | None' = <built-in function print>) -> 'Run'\nPlan and run the cooling study. ``planner``: \"template\" (deterministic) or \"llm\" (falls back to the",
+ "timed_out": false
+}

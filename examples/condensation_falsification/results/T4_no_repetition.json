@@ -1,0 +1,3 @@
+{
+ "failed": "t4_no_repetition(nb=32): killed by the out-of-memory killer at 13.2 GB resident (dmesg: Memory cgroup out of memory, anon-rss 13168324 kB) -- the flat condensation keeps one dense block model per distinct block (1,024 here)"
+}

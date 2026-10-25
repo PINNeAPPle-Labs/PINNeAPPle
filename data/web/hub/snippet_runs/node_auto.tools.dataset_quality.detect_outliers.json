@@ -1,0 +1,12 @@
+{
+ "code_hash": "74efcf47dade73e6",
+ "figures": [],
+ "id": "node:auto.tools.dataset_quality.detect_outliers",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 6.7,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dict\n{'outlier_fraction': 0.0, 'n_flagged': 0, 'n_points': 0, 'fields_used': [], 'note': 'insufficient numeric data — skipped'}",
+ "timed_out": false
+}

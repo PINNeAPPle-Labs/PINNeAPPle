@@ -1,0 +1,88 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-fin-inverse",
+ "name": "How hot is the air side? h of a pin fin from five thermocouples",
+ "description": "A stainless-steel pin fin on an 80 C wall in 25 C air with an unknown convection coefficient; five thermocouples with 0.5 C noise; a PINN learns the field and h together, against a least-squares fit of the closed form, over 10 noise draws (examples/use_cases/fin_convection_inverse/fin_convection_inverse.py).",
+ "nodes": [
+  {
+   "id": "fin",
+   "type": "inverse.pin_fin",
+   "params": {},
+   "label": "Pin-fin inverse problem",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "use_cases",
+    "comparisons": [
+     {
+      "flow": "fin.h_pinn.mean",
+      "ref": "fin_convection_inverse/results/summary.json:h_pinn.mean"
+     },
+     {
+      "flow": "fin.h_pinn.std",
+      "ref": "fin_convection_inverse/results/summary.json:h_pinn.std"
+     },
+     {
+      "flow": "fin.h_least_squares.mean",
+      "ref": "fin_convection_inverse/results/summary.json:h_least_squares.mean"
+     },
+     {
+      "flow": "fin.q_true_W",
+      "ref": "fin_convection_inverse/results/summary.json:q_true_W"
+     },
+     {
+      "flow": "fin.q_pinn_W.mean",
+      "ref": "fin_convection_inverse/results/summary.json:q_pinn_W.mean"
+     },
+     {
+      "flow": "fin.max_field_error_C",
+      "ref": "fin_convection_inverse/results/summary.json:max_field_error_C"
+     }
+    ],
+    "tolerance_source": "seeded readings and training (1e-6 relative); the least squares and the closed form are deterministic"
+   },
+   "label": "Same numbers as examples/use_cases",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "fin",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "fin.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "use_cases",
+  "domain": "inverse problems",
+  "scripts": [
+   "fin_convection_inverse/fin_convection_inverse.py"
+  ],
+  "quick": {
+   "fin": {
+    "draws": 1,
+    "steps": 500
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "fin.q_true_W",
+      "ref": "fin_convection_inverse/results/summary.json:q_true_W"
+     }
+    ]
+   }
+  }
+ }
+}

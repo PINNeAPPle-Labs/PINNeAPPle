@@ -1,0 +1,12 @@
+{
+ "code_hash": "f85027d92e99926e",
+ "figures": [],
+ "id": "node:design.topology_gradcheck",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Topology sensitivities against finite differences -> pinneapple_design.topology.DesignChain + finite_difference_check (Compliance2D.mbb)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'nelx': 60, 'nely': 20, 'rmin': 2.4, 'beta': 4.0, 'n_check': 8, 'step': 1e-05, 'seed': 0}",
+ "timed_out": false
+}

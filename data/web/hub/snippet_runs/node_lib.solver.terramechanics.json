@@ -1,0 +1,12 @@
+{
+ "code_hash": "f940725244f16ea9",
+ "figures": [],
+ "id": "node:lib.solver.terramechanics",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Wheel on soil (Wong-Reece) -> pinneapple_flow.wrappers:wheel_on_soil pinneapple_simulation.terramechanics\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'soil': 'GRC-1', 'radius_m': 0.25, 'width_m': 0.2, 'load_N': 100.0, 'slip': 0.2, 'gravity': 1.62}",
+ "timed_out": false
+}

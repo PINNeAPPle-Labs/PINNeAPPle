@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.solvers.02_sph_box",
+ "name": "SPH fluid block in a box",
+ "description": "A block of fluid particles under gravity in a unit box, weakly compressible SPH from SolverRegistry, 50 steps (examples/solvers/02_sph_box.py; the script prints only shapes and the final bounding box, nothing is committed).",
+ "nodes": [
+  {
+   "id": "sph",
+   "type": "solvers.sph_box",
+   "params": {},
+   "label": "SPH box",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "solvers",
+  "domain": "particles",
+  "scripts": [
+   "02_sph_box.py"
+  ],
+  "quick": {}
+ }
+}

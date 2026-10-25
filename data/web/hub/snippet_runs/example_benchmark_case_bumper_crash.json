@@ -1,0 +1,12 @@
+{
+ "code_hash": "943106206fa70f09",
+ "figures": [],
+ "id": "example:benchmark_case/bumper_crash",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - improved beats reproduction",
+ "timed_out": false
+}

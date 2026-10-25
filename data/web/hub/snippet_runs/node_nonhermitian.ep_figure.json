@@ -1,0 +1,12 @@
+{
+ "code_hash": "b9088c0b057ced25",
+ "figures": [],
+ "id": "node:nonhermitian.ep_figure",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.5,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "EP tuning figure and PT-chain thresholds -> pinneapple_physics.non_hermitian.viz.ep_tuning_figure + PTChain (ep_gamma_numeric, ep_order)\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'J': 1.0, 'G': 0.5, 'chain_sizes': [2, 3, 4, 5]}",
+ "timed_out": false
+}

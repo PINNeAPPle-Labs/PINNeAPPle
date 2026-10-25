@@ -1,0 +1,95 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-prius-tolerances",
+ "name": "Prius manufacturing tolerances (17)",
+ "description": "Monte-Carlo propagation of magnet remanence, thickness, width and air-gap tolerances through the FEA to torque and ripple, standardised regression coefficients, probability within spec (examples/electrodynamics/17_prius_tolerances.py).",
+ "nodes": [
+  {
+   "id": "tol",
+   "type": "em.prius_tolerances",
+   "params": {},
+   "label": "Tolerances (200 FEA samples)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "tol.nominal_outputs.torque_Nm",
+      "ref": "results/17_prius_tolerances.json:nominal_outputs.torque_Nm"
+     },
+     {
+      "flow": "tol.nominal_outputs.ripple",
+      "ref": "results/17_prius_tolerances.json:nominal_outputs.ripple"
+     },
+     {
+      "flow": "tol.outputs.torque_Nm.mean",
+      "ref": "results/17_prius_tolerances.json:outputs.torque_Nm.mean"
+     },
+     {
+      "flow": "tol.outputs.torque_Nm.std",
+      "ref": "results/17_prius_tolerances.json:outputs.torque_Nm.std"
+     },
+     {
+      "flow": "tol.outputs.torque_Nm.src_r2",
+      "ref": "results/17_prius_tolerances.json:outputs.torque_Nm.src_r2"
+     },
+     {
+      "flow": "tol.outputs.ripple.mean",
+      "ref": "results/17_prius_tolerances.json:outputs.ripple.mean"
+     },
+     {
+      "flow": "tol.p_within_spec_joint",
+      "ref": "results/17_prius_tolerances.json:p_within_spec_joint"
+     }
+    ],
+    "tolerance_source": "deterministic FEA: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding (seeded sampling)"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "tol",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "tol.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "17_prius_tolerances.py"
+  ],
+  "quick": {
+   "tol": {
+    "samples": 24,
+    "n_gap": 288,
+    "positions": 6
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "tol.nominal_outputs.torque_Nm",
+      "ref": "results/17_prius_tolerances.json:nominal_outputs.torque_Nm",
+      "rtol": 0.01
+     }
+    ],
+    "tolerance_source": "quick: n_gap 288 and 6 positions instead of 480 and 12; nominal torque within 1 %"
+   }
+  }
+ }
+}

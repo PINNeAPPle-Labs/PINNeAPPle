@@ -1,0 +1,12 @@
+{
+ "code_hash": "dbb66c478cdd4b19",
+ "figures": [],
+ "id": "node:uq.sensitivity",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Sensitivity (Sobol) -> pp.sobol_indices on the surrogate over the training ranges\ninputs: [('model', 'model')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'quantity': 'mean', 'n': 1024, 'seed': 0}",
+ "timed_out": false
+}

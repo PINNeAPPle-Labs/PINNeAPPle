@@ -1,0 +1,12 @@
+{
+ "code_hash": "991daf71cd8fd60b",
+ "figures": [],
+ "id": "node:lib.design.intent",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design from a goal (text) -> pinneapple_flow.wrappers:design_intent pinneapple_design.intent.api\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'text': 'a heat sink for a 20 W chip in still air', 'seed': 0, 'budget': 200, 'n_screen': 500}",
+ "timed_out": false
+}

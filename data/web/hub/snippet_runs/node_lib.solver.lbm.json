@@ -1,0 +1,12 @@
+{
+ "code_hash": "92ca9a38b8edeb69",
+ "figures": [],
+ "id": "node:lib.solver.lbm",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.01,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Lattice Boltzmann channel -> pinneapple_flow.wrappers:lbm_channel pinneapple_simulation.numerical_solvers.registry\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'nx': 64, 'ny': 32, 'Re': 100.0, 'u_in': 0.05, 'steps': 200, 'save_every': 50}",
+ "timed_out": false
+}

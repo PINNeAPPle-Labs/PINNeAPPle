@@ -1,0 +1,38 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.validation.01_pinn_heat_conduction",
+ "name": "Validation gallery 01: PINN, heat conduction",
+ "description": "A PINN for -lap T = q on the unit square (manufactured source, exact T) and the same PINN trained without its boundary loss, both through pp.validate(net, {'pinn': problem}); pinn.boundary must catch the second, and the trust card, report and SARIF are written (examples/validation/01_pinn_heat_conduction.py --full). Quick: the script's smoke size (run(smoke=True)).",
+ "nodes": [
+  {
+   "id": "gallery",
+   "type": "gallery.pinn_heat",
+   "params": {
+    "n_collocation": 2000,
+    "adam_steps": 2000,
+    "lbfgs_steps": 1500
+   },
+   "label": "PINN + broken PINN",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "validation",
+  "domain": "validation",
+  "scripts": [
+   "01_pinn_heat_conduction.py"
+  ],
+  "quick": {
+   "gallery": {
+    "n_collocation": 600,
+    "adam_steps": 600,
+    "lbfgs_steps": 300
+   }
+  }
+ }
+}

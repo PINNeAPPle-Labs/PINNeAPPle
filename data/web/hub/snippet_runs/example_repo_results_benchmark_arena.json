@@ -1,0 +1,12 @@
+{
+ "code_hash": "06085e449af72571",
+ "figures": [],
+ "id": "example:repo_results/benchmark_arena",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "E - dataset audit diversity.effective · effective sample count 1 of 54 (no generator stated",
+ "timed_out": false
+}

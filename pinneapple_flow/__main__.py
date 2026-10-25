@@ -6,6 +6,7 @@
     catalog [--json]
     schema
     examples                                     # the bundled example flows
+    example-flows list|run NAME [--quick]|doc|check   # examples/* as flows (pinneapple_flow.examples)
     coverage [-o FILE]                           # which library modules are nodes (markdown)
     autocalls [--no-check]                       # regenerate the nodes generated from the public API
     studio [--host 127.0.0.1] [--port 8765] [--no-browser] [--env .env]
@@ -97,7 +98,7 @@ def cmd_examples(a) -> int:
 
 
 def cmd_coverage(a) -> int:
-    from .coverage import markdown
+    from .coverage import coverage, markdown
     text = markdown()
     if a.output:
         Path(a.output).parent.mkdir(parents=True, exist_ok=True)
@@ -105,7 +106,11 @@ def cmd_coverage(a) -> int:
         print(f"wrote {a.output}")
     else:
         print(text)
-    return 0
+    rows = coverage()
+    unreached = [r["module"] for r in rows if not r["nodes"] and not r["reason"]]
+    if unreached:                    # every public module has a node or a stated reason (pinneapple_flow/coverage.py)
+        print("no node and no reason: " + ", ".join(unreached), file=sys.stderr)
+    return 1 if unreached else 0
 
 
 def cmd_autocalls(a) -> int:
@@ -146,6 +151,10 @@ def cmd_studio(a) -> int:
 
 def main(argv=None) -> int:
     from .config import load_dotenv
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["example-flows"]:
+        from .examples import main as examples_main
+        return examples_main(argv[1:])
     p = argparse.ArgumentParser(prog="python -m pinneapple_flow", description="PINNeAPPle Flow")
     sub = p.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="run a flow headless")

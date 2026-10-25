@@ -1,0 +1,12 @@
+{
+ "code_hash": "a85a1c8023e57891",
+ "figures": [],
+ "id": "node:rom.fit",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Reduced-order models (POD, DMD, OpInf) -> pinneapple_neural.architectures.rom.study.rom_study + pinneapple_data.snapshots.snapshots_from_arrays\ninputs: [('solution', 'solution')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'methods': ['persistence', 'pod_rbf', 'dmd', 'opinf'], 'ranks': [2, 4, 8], 'test_fraction': 0.25}",
+ "timed_out": false
+}

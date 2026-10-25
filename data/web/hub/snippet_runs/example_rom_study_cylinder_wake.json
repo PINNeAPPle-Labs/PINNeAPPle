@@ -1,0 +1,12 @@
+{
+ "code_hash": "a69993163454469c",
+ "figures": [],
+ "id": "example:rom_study/cylinder_wake",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - POD mode pair holds the energy · beats persistence",
+ "timed_out": false
+}

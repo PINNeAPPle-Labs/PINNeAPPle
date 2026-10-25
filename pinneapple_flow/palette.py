@@ -77,6 +77,11 @@ SECTION_OF: dict[str, str] = {
     "lib.worldmodel.video_check": "surrogates",
     "lib.worldmodel.inspection_sample": "surrogates",
     "lib.worldmodel.arm_camera": "surrogates",
+    "condense.package_thermal": "solvers",
+    "cfd.study": "solvers", "cfd.geometry": "solvers", "cfd.run": "solvers", "cfd.sweep": "data",
+    "cfd.surrogate": "surrogates",
+    "analysis.physics_learning": "validation",
+    "query.package": "solvers",
 }
 
 #: the node an engineer means by a word (ranked first when the word is typed)
@@ -101,6 +106,13 @@ _CATEGORY = {
     "inverse": "inverse", "validation": "validation", "analysis": "validation", "design": "optimization",
     "systems": "solvers", "control": "optimization", "digital twin": "twin", "time series": "twin",
     "visualization": "viz", "export": "export", "custom": "library",
+    # the example-domain nodes (pinneapple_flow.nodes_ext): domain studies are simulations, their checks validation
+    "aerodynamics": "solvers", "astrophysics": "solvers", "structures": "solvers", "cfd": "solvers",
+    "electromagnetics": "solvers", "flight dynamics": "solvers", "geomechanics": "solvers", "geophysics": "solvers",
+    "inspection": "solvers", "lattice boltzmann": "solvers", "particles": "solvers", "numerical solvers": "solvers",
+    "non-hermitian physics": "solvers", "hybrid models": "physics_ai", "neural operators": "physics_ai",
+    "pinn": "physics_ai", "inverse problems": "inverse", "optimization": "optimization",
+    "problem design": "problem", "security": "twin", "examples": "validation", "benchmarks": "validation",
 }
 
 #: extra search words per section (what an engineer may type)
@@ -125,6 +137,13 @@ _ACRONYMS = {"lr": "LR", "pde": "PDE", "ode": "ODE", "fd": "FD", "fem": "FEM", "
              "cfd": "CFD", "lbm": "LBM", "emat": "EMAT", "mfl": "MFL", "csv": "CSV", "html": "HTML", "llm": "LLM",
              "enso": "ENSO", "sst": "SST", "fmu": "FMU", "gnn": "GNN", "mlp": "MLP", "nn": "NN", "3d": "3-D",
              "2d": "2-D", "1d": "1-D", "id": "ID", "api": "API", "url": "URL", "doi": "DOI", "svd": "SVD"}
+
+
+def place(type_: str, section: str) -> None:
+    """Put a node type registered by another module in a palette section (``SECTION_OF``), after the built-in ones."""
+    if section not in SECTION_IDS:
+        raise ValueError(f"unknown palette section {section!r}")
+    SECTION_OF.setdefault(type_, section)
 
 
 def sections() -> list[dict[str, Any]]:

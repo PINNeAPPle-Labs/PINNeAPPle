@@ -1,0 +1,12 @@
+{
+ "code_hash": "1703438b7c3b45e1",
+ "figures": [],
+ "id": "example:bar_wear/PTFE",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.88,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - contact vs Winkler · Archard",
+ "timed_out": false
+}

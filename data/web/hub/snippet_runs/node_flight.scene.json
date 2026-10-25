@@ -1,0 +1,12 @@
+{
+ "code_hash": "12533ea040daa961",
+ "figures": [],
+ "id": "node:flight.scene",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Flight scene and three.js viewer -> pinneapple_simulation.flight.visuals.flight_scene; pinneapple_tools.visualization.studio.web.web_viewer + screenshot\ninputs: [('runs', 'flight_run')]\noutputs: [('scene', 'anim_scene'), ('figure', 'figure')]\ndefaults: {'n_frames': 200, 'only': [], 'arrows': True, 'wisps': 'auto', 'viewer': True, 'screenshot_frame': 120}",
+ "timed_out": false
+}

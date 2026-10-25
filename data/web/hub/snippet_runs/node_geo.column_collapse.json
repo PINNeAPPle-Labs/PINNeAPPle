@@ -1,0 +1,12 @@
+{
+ "code_hash": "e35e48c44d5fb6ea",
+ "figures": [],
+ "id": "node:geo.column_collapse",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Granular column collapse (MPM) -> pinneapple_simulation.particle_dynamics.geo_mpm.GeoMPM + Sand + box + runout; pinneapple_simulation.external_solvers.geotaichi.read_geotaichi + frames_to_samples\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'aspects': [0.5, 1.0, 2.0, 3.0], 'L0': 0.2, 'friction_deg': 30.0, 'dx': 0.01, 'save_every': 0.05}",
+ "timed_out": false
+}

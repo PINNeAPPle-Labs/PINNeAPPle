@@ -1,0 +1,12 @@
+{
+ "code_hash": "890b26279a740402",
+ "figures": [],
+ "id": "node:auto.systems.excitation.actuator_series",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 6.36,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "actuator series -> pinneapple_systems.excitation:actuator_series\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'shape': '', 'n_steps': 1, 'lo': 0.0, 'hi': 1.0, 'seed': 0, 'rate_limit_steps': 0}",
+ "timed_out": false
+}

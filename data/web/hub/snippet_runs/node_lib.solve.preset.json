@@ -1,0 +1,12 @@
+{
+ "code_hash": "28f0d28da8ac7a85",
+ "figures": [],
+ "id": "node:lib.solve.preset",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Solve a library preset -> pinneapple_flow.wrappers:solve_preset pinneapple pinneapple.list_presets pinneapple.solve\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'preset': 'burgers_1d', 'method': 'analytic', 'architecture': 'modified_mlp', 'epochs': 50, 'hidden_dim': 32, 'n_layers': 3, 'n_collocation': 512, 'seed': 0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "48f88b7667058cdf",
+ "figures": [],
+ "id": "node:reason.countermeasure",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 15.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Countermeasure -> pinneapple_reason.engine.Reasoner.evaluate_options / choose\ninputs: [('concept', 'concept'), ('requirement', 'requirement')]\noutputs: [('concept', 'concept'), ('metrics', 'metrics')]\ndefaults: {'countermeasure': 'auto'}",
+ "timed_out": false
+}

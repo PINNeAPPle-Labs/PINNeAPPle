@@ -1,0 +1,12 @@
+{
+ "code_hash": "566b8936d73ff9df",
+ "figures": [],
+ "id": "example:repo_results/lbm_strouhal",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - St cylinder h10 · Re 100, D = 16 cells",
+ "timed_out": false
+}

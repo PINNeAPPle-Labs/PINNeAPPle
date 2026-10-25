@@ -1,0 +1,12 @@
+{
+ "code_hash": "c614cd0552c300eb",
+ "figures": [],
+ "id": "api:pp-maxwell-maxwell-checks",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.24,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.maxwell.maxwell_checks(grid, fields, *, eps=8.854187818789433e-12, mu=1.25663706127e-06, sigma=0.0, omega: 'float | None' = None, laws: 'Sequence[str] | None' = None, pec_faces: 'Sequence[str]' = (), reference=None, tolerances: 'Mapping[str, float] | None' = None, energy: 'bool' = True) -> 'list[MaxwellCheck]'\nEvery check the given fields allow: the laws whose terms are present (``laws`` restricts them), the",
+ "timed_out": false
+}

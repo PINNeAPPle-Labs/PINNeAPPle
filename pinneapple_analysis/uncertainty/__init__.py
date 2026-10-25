@@ -104,6 +104,7 @@ from pinneapple_analysis.uncertainty.quantile import (
     QuantileConfig,
     QuantileHead,
     QuantileLoss,
+    crossing_rate,
     pinball_loss_torch,
 )
 from pinneapple_analysis.uncertainty.resampling import (
@@ -149,6 +150,7 @@ __all__ = [
     # Quantile regression
     "QuantileConfig",
     "QuantileHead",
+    "crossing_rate",
     "QuantileLoss",
     "pinball_loss_torch",
     # Resampling confidence intervals (dependent data)

@@ -1,0 +1,12 @@
+{
+ "code_hash": "793fcd498ed9c14a",
+ "figures": [],
+ "id": "example:benchmark_case/sst",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - selected beats persistence lead7 · ResNet-CNN (PINNeAPPle…",
+ "timed_out": false
+}

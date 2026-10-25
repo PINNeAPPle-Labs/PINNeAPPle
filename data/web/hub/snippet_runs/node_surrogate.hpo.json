@@ -1,0 +1,12 @@
+{
+ "code_hash": "4a6103954f9eed3e",
+ "figures": [],
+ "id": "node:surrogate.hpo",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.71,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Hyperparameter search -> pinneapple_neural.trainer.adaptive_sweep.run_adaptive_sweep (Optuna TPE or random search)\ninputs: [('data', 'dataset')]\noutputs: [('model', 'model'), ('params', 'params'), ('metrics', 'metrics')]\ndefaults: {'kind': 'pod_mlp', 'architecture': {}, 'space': {'lr': [0.0003, 0.01, 'log'], 'width': [16, 128], 'depth': [1, 4]}, 'n_trials': 12, 'trial_epochs': 200, 'final_epochs': 800, 'seed': 0}",
+ "timed_out": false
+}

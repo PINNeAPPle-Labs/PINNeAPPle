@@ -1,0 +1,12 @@
+{
+ "code_hash": "8b9aa93df1477c08",
+ "figures": [],
+ "id": "node:auto.simulation.vehicle.viper",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.44,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "VehicleSpec\nVehicleSpec(name='NASA VIPER', wheel=Wheel(radius=0.25, width=0.2, grousers=Grousers(count=24, height=0.025, thickness=0.004, shape='straight', chevron_angle_deg=0.0, shear_radius_factor=1.0), mass=12.0, spin_inertia=None), corners=[CornerModule(name='FL', susp_pivot=array([0.5  , 0.3  , 0.645]), susp_axis=array([1., 0., 0.]), steer_origin=array([0.5  , 0.5  , 0.585]), steer_axis=array([0., 0., 1.]), wheel_centre=array([0.5  , 0.65 , 0.275]), wheel_axis=array([0., 1., 0.]), susp_limits=(-0.6981317007977318, 0.6981317007977318), steer_limits=(-0.8726646259971648, 0.8726646259971648), susp=Actuator(torque_limit=200.0, speed_limit=0.5, kp=1500.0, ki=0.0, kd=300.0), steer=Actuator(torque_limit=60.0, speed_limit=1.0, kp=800.0, ki=0.0, kd=80.0), drive=Actuator(torque_limit=80.0, speed_limit=2.5,",
+ "timed_out": false
+}

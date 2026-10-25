@@ -1,0 +1,88 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.arena_pipelines.00_list_datasets",
+ "name": "Dataset registry: list and load",
+ "description": "pinneapple_data.datasets: the ids per category and a load test of the physics, real-world and simulation datasets the script tries (examples/arena_pipelines/00_list_datasets.py; the real-world ones may need the network or optional libraries, failures are listed, not hidden).",
+ "nodes": [
+  {
+   "id": "local",
+   "type": "arena.datasets",
+   "params": {
+    "ids": [
+     "burgers_1d",
+     "heat_1d",
+     "lorenz63",
+     "spring_mass_1dof",
+     "naca0012",
+     "cylinder_2d"
+    ],
+    "categories": [
+     "physics",
+     "geometry",
+     "timeseries"
+    ]
+   },
+   "label": "quick load test",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "real",
+   "type": "arena.datasets",
+   "params": {
+    "ids": [
+     "sunspots",
+     "air_passengers",
+     "co2",
+     "nasa_giss_temp",
+     "sklearn_california_housing",
+     "sklearn_diabetes",
+     "seaborn_penguins",
+     "airfoil_noise"
+    ],
+    "categories": []
+   },
+   "label": "real-world datasets",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "sim",
+   "type": "arena.datasets",
+   "params": {
+    "ids": [
+     "nasa_exoplanet_archive",
+     "nist_fluid_properties",
+     "cfd_cylinder_drag",
+     "seismic_waveform",
+     "heat_conduction_rod",
+     "turbulent_channel_flow",
+     "materials_fatigue",
+     "orbit_propagation",
+     "plasma_fusion",
+     "reaction_diffusion"
+    ],
+    "categories": []
+   },
+   "label": "simulation datasets",
+   "position": {
+    "x": 40.0,
+    "y": 380.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "arena_pipelines",
+  "domain": "benchmarks",
+  "scripts": [
+   "00_list_datasets.py"
+  ],
+  "quick": {}
+ }
+}

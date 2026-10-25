@@ -1,0 +1,12 @@
+{
+ "code_hash": "6d14d2501c5f312b",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/circuits_rc_rl_rlc",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "RC, RL and RLC circuits (0D) | science / physics.electromagnetism | not curated\nrel_error[0D: RC time constant (fit of ln(1 - V/V0))] 1.51760114891486e-11 -\nrel_error[0D: RL time constant] 1.864692211403507e-11 -\nrel_error[0D: RL final current] 2.28723290307542e-12 -\nrel_error[0D: RLC damped angular frequency (zero crossings)] 1.9615106678979766e-11 -\nrel_error[0D: RLC decay rate (log decrement of extrema)] 7.957135039760033e-11 -",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "40da71791426ddda",
+ "figures": [],
+ "id": "api:pp-presets-names",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.presets.names() -> 'list[str]'\nNames of every industrial preset (built in and registered), sorted.",
+ "timed_out": false
+}

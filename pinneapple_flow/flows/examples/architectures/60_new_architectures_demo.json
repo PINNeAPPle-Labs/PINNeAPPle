@@ -1,0 +1,155 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.architectures.60_new_architectures_demo",
+ "name": "Group-B architectures: SIREN, ModifiedMLP, HashGrid, AFNO",
+ "description": "examples/architectures/60_new_architectures_demo.py: the four Group-B registry models built with the script's arguments and run on dummy inputs (SIREN with its input-gradient norm), and the registry check of the group_b family with each model's input kind. The script's MeshGraphNet part (GraphBatch inputs) and its standalone FourierFeatureEmbedding / HashGridEncoding / AFNOLayer calls are not registry models and are left out. Nothing committed: the script prints shapes.",
+ "nodes": [
+  {
+   "id": "siren",
+   "type": "architectures.forward",
+   "params": {
+    "model": "siren",
+    "arguments": {
+     "in_dim": 2,
+     "out_dim": 1,
+     "hidden_dim": 256,
+     "n_layers": 5,
+     "omega_0": 30.0,
+     "outermost_linear": true
+    },
+    "inputs": [
+     [
+      512,
+      2
+     ]
+    ],
+    "distribution": "rand",
+    "input_gradient": true
+   },
+   "label": "SIREN",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "mlp",
+   "type": "architectures.forward",
+   "params": {
+    "model": "modified_mlp",
+    "arguments": {
+     "in_dim": 3,
+     "out_dim": 2,
+     "hidden_dim": 128,
+     "n_layers": 6,
+     "n_fourier": 32,
+     "sigma": 1.0
+    },
+    "inputs": [
+     [
+      1024,
+      3
+     ]
+    ],
+    "distribution": "rand"
+   },
+   "label": "ModifiedMLP",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "hash",
+   "type": "architectures.forward",
+   "params": {
+    "model": "hash_grid_mlp",
+    "arguments": {
+     "in_dim": 3,
+     "out_dim": 1,
+     "hidden_dim": 64,
+     "n_hidden": 2,
+     "n_levels": 8,
+     "n_features_per_level": 2,
+     "log2_hashmap_size": 16,
+     "base_resolution": 16,
+     "finest_resolution": 128
+    },
+    "inputs": [
+     [
+      256,
+      3
+     ]
+    ],
+    "distribution": "rand"
+   },
+   "label": "HashGridMLP",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "afno",
+   "type": "architectures.forward",
+   "params": {
+    "model": "afno",
+    "arguments": {
+     "in_channels": 20,
+     "out_channels": 20,
+     "hidden_dim": 64,
+     "n_layers": 4,
+     "n_modes_h": 12,
+     "n_modes_w": 12,
+     "mlp_ratio": 4.0,
+     "dropout": 0.0
+    },
+    "inputs": [
+     [
+      4,
+      64,
+      64,
+      20
+     ]
+    ],
+    "distribution": "rand"
+   },
+   "label": "AFNO",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "registry",
+   "type": "architectures.registry",
+   "params": {
+    "families": [
+     "group_b"
+    ],
+    "specs": [
+     "afno",
+     "hash_grid_mlp",
+     "modified_mlp",
+     "siren"
+    ],
+    "catalog": []
+   },
+   "label": "Group-B registry check",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "architectures",
+  "domain": "neural architectures",
+  "scripts": [
+   "60_new_architectures_demo.py"
+  ],
+  "quick": {}
+ }
+}

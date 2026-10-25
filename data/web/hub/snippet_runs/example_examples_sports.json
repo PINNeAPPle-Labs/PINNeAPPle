@@ -1,0 +1,12 @@
+{
+ "code_hash": "e2f5585800561b8a",
+ "figures": [],
+ "id": "example:examples/sports",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Football: where physics helps on public tracking and event data | sports | not curated\nball_g_fitted_median 6.0852 m/s^2\nball_cd_mae_synthetic 0.02425 \nball_landing_err_median_poly2 7.51379 m\nball_landing_err_median_ml 2.43732 m\nball_landing_err_median_drag 3.36551 m",
+ "timed_out": false
+}

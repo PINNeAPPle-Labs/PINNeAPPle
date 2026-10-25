@@ -1,0 +1,12 @@
+{
+ "code_hash": "034f33a4de4b111c",
+ "figures": [],
+ "id": "node:nonhermitian.ep_numeric",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.41,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "EP location from the matrix: linear coupling, routes A, B and C -> pinneapple_physics.non_hermitian.PTDimer (ep_gamma_numeric, ep_gamma) + route_a_sqrt_coupling, route_c_asymmetric, feedback_coupling\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'J': 1.0, 'G': 0.5, 'linear_c': 0.25, 'lams': [-1.0, 0.0, 1.0], 'feedback_lam': 0.8}",
+ "timed_out": false
+}

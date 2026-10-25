@@ -1,0 +1,12 @@
+{
+ "code_hash": "d63c24909d46da61",
+ "figures": [],
+ "id": "node:twin.connect",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin (stream -> twin runtime) -> pinneapple_systems.operations.live.replay / LiveTwin + TwinRuntime (ensemble Kalman filter)\ninputs: [('stream', 'series')]\noutputs: [('twin', 'twin'), ('series', 'series'), ('metrics', 'metrics')]\ndefaults: {'source': 'simulated', 'duration_s': 7200.0, 'fault': 'leak', 'fault_magnitude': 0.0005, 'fault_start_frac': 0.5, 'broker': '127.0.0.1:1883', 'topic': 'pinneapple/tank-1/sensors', 'listen_s': 30.0, 'seed': 4}",
+ "timed_out": false
+}

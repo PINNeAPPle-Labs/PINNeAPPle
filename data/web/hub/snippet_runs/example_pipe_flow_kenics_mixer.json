@@ -1,0 +1,12 @@
+{
+ "code_hash": "31cd52575eabe430",
+ "figures": [],
+ "id": "example:pipe_flow/kenics_mixer",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 1.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - mass conserved · beats an empty pipe",
+ "timed_out": false
+}

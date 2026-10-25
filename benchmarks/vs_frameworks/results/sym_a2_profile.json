@@ -1,0 +1,56 @@
+{
+ "official (6x512 SiLU, weight norm; 4000 + 800 points)": {
+  "status": "ok",
+  "iterations": 12,
+  "step_cpu_s_median": 3.3703138759999973,
+  "first_step_cpu_s": 6.570168584000001,
+  "n_parameters": 1318401,
+  "error": null,
+  "threads": 1
+ },
+ "official net, matched points (2048 + 512)": {
+  "status": "ok",
+  "iterations": 26,
+  "step_cpu_s_median": 1.709552748000002,
+  "first_step_cpu_s": 2.9780627479999993,
+  "n_parameters": 1318401,
+  "error": null,
+  "threads": 1
+ },
+ "A1 net (4x50 tanh), official points (4000 + 800)": {
+  "status": "ok",
+  "iterations": 617,
+  "step_cpu_s_median": 0.07031769150000144,
+  "first_step_cpu_s": 0.46932003699999925,
+  "n_parameters": 7851,
+  "error": null,
+  "threads": 1
+ },
+ "official net, weight norm off": {
+  "status": "ok",
+  "iterations": 13,
+  "step_cpu_s_median": 3.2610290225000007,
+  "first_step_cpu_s": 5.567389791999998,
+  "n_parameters": 1315329,
+  "error": null,
+  "threads": 1
+ },
+ "official net, jit off": {
+  "status": "ok",
+  "iterations": 14,
+  "step_cpu_s_median": 3.249306648000001,
+  "first_step_cpu_s": 5.805726528000001,
+  "n_parameters": 1318401,
+  "error": null,
+  "threads": 1
+ },
+ "plain torch 6x512 SiLU, 4800 points": {
+  "step_cpu_s_median": 3.027019813999999
+ },
+ "plain torch 6x512 SiLU, 2560 points": {
+  "step_cpu_s_median": 1.576173199000003
+ },
+ "plain torch 4x50 tanh, 4800 points": {
+  "step_cpu_s_median": 0.05365404700000198
+ }
+}

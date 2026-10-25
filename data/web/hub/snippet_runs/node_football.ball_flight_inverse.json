@@ -1,0 +1,12 @@
+{
+ "code_hash": "dcdce44247ce6a5a",
+ "figures": [],
+ "id": "node:football.ball_flight_inverse",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.51,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ball flight: drag, spin and gravity from tracked positions -> pinneapple_systems.sports.football.ball_study.synthetic_recovery + ball_study.identifiability\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'n': 20, 'noise': 0.2, 'seed': 0}",
+ "timed_out": false
+}

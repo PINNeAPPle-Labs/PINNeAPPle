@@ -1,0 +1,7 @@
+[12:31:01] check pipe_bend_straight_vs_reference: PASS 
+[12:31:01] check pipe_bend_bend_vs_reference: PASS 
+[12:31:01] check heated_pipe_Nu_vs_reference: PASS 
+[12:31:01] check sphere_drag_CD_vs_reference: PASS 
+[12:31:01] check sphere_drag_Re_50_CD_vs_reference: PASS 
+[12:31:01] check sphere_drag_Re_200_CD_vs_reference: PASS 
+[12:31:01] check sweep_cases_finished: PASS 

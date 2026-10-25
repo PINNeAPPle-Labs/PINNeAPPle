@@ -1,0 +1,65 @@
+[
+ {
+  "case": "Ball flight: data consistency (SkillCorner 3-D ball, 10 Hz)",
+  "physics": "drag ODE with free gravity, fitted per flight",
+  "baseline": "none (a data-quality test)",
+  "measured": "g = 6.09 m/s\u00b2 [6.02, 6.18] over 2601 flights (simulated flights, same fit: 9.88)",
+  "verdict": "physics HELPED as a check: the broadcast ball height is not physically consistent (apparent gravity far below 9.81 at every launch speed, so not backspin lift); drag and spin cannot be identified from it"
+ },
+ {
+  "case": "Ball flight: landing point from the first half of the flight",
+  "physics": "drag_free_g (best of vacuum / drag with g = 9.81 / drag with free g); hybrid trees",
+  "baseline": "ml (best of quadratic extrapolation / boosted trees)",
+  "measured": "median landing error: physics 3.27 m, hybrid 2.55 m, data-only 2.44 m (1282 test flights)",
+  "verdict": "physics did NOT help against trained trees: they learn this data's own (non-physical) height dynamics, which a g = 9.81 model cannot follow; physics does beat untrained extrapolation (7.51 m)"
+ },
+ {
+  "case": "Ball flight from 2-D tracking (Metrica-type, no height)",
+  "physics": "Cramer-Rao bound of the drag-Magnus fit",
+  "baseline": "the same flight seen in 3-D",
+  "measured": "std of vertical launch speed 0.34 m/s (3-D) vs 222 m/s (2-D)",
+  "verdict": "ill-posed in 2-D: elevation, spin and drag trade off; do not fit them without height"
+ },
+ {
+  "case": "Pass completion (Metrica, 2 matches, ~2000 passes)",
+  "physics": "Spearman pitch control, 5 physical parameters fitted",
+  "baseline": "logistic regression / boosted trees on geometric features",
+  "measured": "fit on match 1, test on 2: fitted pitch control 0.1503 vs logistic 0.1737, diff -0.0234 [-0.0477, +0.0001]; fit on match 2, test on 1: fitted pitch control 0.1927 vs logistic 0.1891, diff +0.0036 [-0.0271, +0.0367]; with 100 training passes: fitted pitch control 0.1619, logistic 0.2183, trees 0.2526; unfitted pitch control (0 passes) 0.1925",
+  "verdict": "physics HELPED with little data (lower log-loss than every data-only model up to a few hundred passes, unfitted or fitted) and is better calibrated; at full data it matches the best data-only model (gain not significant in both directions)"
+ },
+ {
+  "case": "Speed and metabolic power from noisy tracking (simulated, known truth)",
+  "physics": "constant-acceleration Kalman-RTS, noise by maximum likelihood",
+  "baseline": "best Savitzky-Golay window (chosen with the truth: an optimistic baseline)",
+  "measured": "metabolic-power RMSE 25 Hz/20 cm: 18.7 vs 23.8 W/kg; 25 Hz/5 cm: 15.3 vs 16.3 W/kg; 10 Hz/20 cm: 20.7 vs 28.8 W/kg; 10 Hz/5 cm: 16.7 vs 17.8 W/kg",
+  "verdict": "physics HELPED (lower error in every case, calibrated intervals); the gain is largest against an untuned window. Caveat: the simulated motion follows a model close to the filter's"
+ },
+ {
+  "case": "Metabolic power on Metrica (real, no ground truth)",
+  "physics": "equivalent-slope model on Kalman-RTS states",
+  "baseline": "the same on raw differences / Savitzky-Golay",
+  "measured": "noise fitted 0.5 cm; team mean metabolic power, all samples: raw_differences 68.0, savitzky_golay_0.5s 13.7, kalman_rts 45.1 W/kg; physically plausible samples only: raw_differences 7.4, savitzky_golay_0.5s 7.1, kalman_rts 7.3 W/kg",
+  "verdict": "physics HELPED as a gate, not as a smoother: a few tracking jumps (impossible speed or acceleration) dominate the match mean whatever the filter; removing them with human limits makes the methods agree. The provider data are already smooth (noise ~mm), so the smoother itself changes little"
+ },
+ {
+  "case": "Player position 1s ahead (Metrica, train match 1, test match 2)",
+  "physics": "constant velocity / decaying acceleration; trees on the constant-velocity residual (+ reachable-set projection)",
+  "baseline": "boosted trees on the past second",
+  "measured": "mean error: CV 0.56 m, physics 0.49 m; all data: trees 0.38 m, residual 0.38 m; 100 samples: trees 0.99 m, residual 0.52 m; unreachable trees predictions 0.05 %",
+  "verdict": "physics prior HELPED with little data (47 % lower error); matched with all data (-0.5 %)"
+ },
+ {
+  "case": "Player position 2s ahead (Metrica, train match 1, test match 2)",
+  "physics": "constant velocity / decaying acceleration; trees on the constant-velocity residual (+ reachable-set projection)",
+  "baseline": "boosted trees on the past second",
+  "measured": "mean error: CV 1.98 m, physics 1.79 m; all data: trees 1.42 m, residual 1.43 m; 100 samples: trees 2.55 m, residual 1.92 m; unreachable trees predictions 0.03 %",
+  "verdict": "physics prior HELPED with little data (25 % lower error); matched with all data (-0.2 %)"
+ },
+ {
+  "case": "Expected goals (StatsBomb 360, test Euro 2024)",
+  "physics": "intercept-time features: open goal fraction, keeper margin, blockers",
+  "baseline": "standard logistic xG (distance, angle, body part, context)",
+  "measured": "log-loss standard 0.2413, +physics 0.2429 (diff +0.0016 [-0.0019, +0.0052]), +freeze geometry 0.2389; StatsBomb xG 0.2267",
+  "verdict": "physics did NOT help: no measurable gain over shot geometry with ~2600 training shots; case dropped"
+ }
+]

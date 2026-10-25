@@ -53,7 +53,7 @@ All optional (runtime and security variables: [apps/_shared/README.md](../_share
 | `HUB_SANDBOX_MEMORY_MB` | 6144 | address-space limit of a validation run (PyTorch reserves much of it) |
 | `HUB_MAX_JOBS` | 2 | validation runs at once |
 | `HUB_FREE_VALIDATIONS`, `HUB_FREE_INFERENCES` | 200, 5000 | free use per caller and month |
-| `HUB_INDEX` | `data/web/hub/index.json` | another index file |
+| `HUB_INDEX` | `data/web/hub/index.json` (built on first use when missing; not committed) | another index file |
 
 ## Tests
 

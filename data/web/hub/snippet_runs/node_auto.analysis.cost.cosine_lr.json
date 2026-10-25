@@ -1,0 +1,12 @@
+{
+ "code_hash": "3bb7896d28b4b70e",
+ "figures": [],
+ "id": "node:auto.analysis.cost.cosine_lr",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.52,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n0.03",
+ "timed_out": false
+}

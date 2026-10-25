@@ -130,10 +130,10 @@ def test_generated_nodes_are_safe_and_run(tmp_path):
     assert r.nodes["n"]["report"]["metrics"]
 
 
-def test_committed_coverage_table_is_current():
-    from pathlib import Path
-
-    from pinneapple_flow.coverage import ROOT, markdown
-    assert (ROOT / "docs/flow_studio/COVERAGE.md").read_text() == markdown(), \
-        "regenerate: python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md"
-    assert Path(ROOT / "docs/flow_studio/COVERAGE.md").is_file()
+def test_coverage_table_is_generated(tmp_path):
+    # the table is not committed (the docs build writes it); the command writes it and fails on an unreached module
+    from pinneapple_flow.__main__ import main
+    out = tmp_path / "COVERAGE.md"
+    assert main(["coverage", "-o", str(out)]) == 0
+    assert out.read_text().startswith("# Flow Studio coverage of the library")
+    assert ", 0 unreached.**" in out.read_text()

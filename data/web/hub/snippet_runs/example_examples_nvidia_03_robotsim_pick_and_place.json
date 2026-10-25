@@ -1,0 +1,12 @@
+{
+ "code_hash": "f8dd6d4d33f66f90",
+ "figures": [],
+ "id": "example:examples/nvidia/03_robotsim_pick_and_place",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.87,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Pick-and-place arm in the PINNeAPPle robot sim (NVIDIA Newton), verified and sized | robotics | not curated\ntracking_error_mrad 0.4807320864886888 mrad\npeak_shoulder_torque 114.33340694103825 N m\nreplay_order 1.007934460942717",
+ "timed_out": false
+}

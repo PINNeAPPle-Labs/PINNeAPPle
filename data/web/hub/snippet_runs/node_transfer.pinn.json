@@ -1,0 +1,12 @@
+{
+ "code_hash": "9d71b1a04bbca54d",
+ "figures": [],
+ "id": "node:transfer.pinn",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Transfer a PINN to a new problem -> pinneapple_adaptation.fine_tune (pinneapple_adaptation.transfer_learning.TransferTrainer) + pinneapple_physics.symbolic_pde.pinn.pinn_problem\ninputs: [('model', 'model'), ('problem', 'problem')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'strategy': 'finetune', 'epochs': 300, 'lr': 0.001, 'n_collocation': 1024}",
+ "timed_out": false
+}

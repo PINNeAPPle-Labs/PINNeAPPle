@@ -1,0 +1,21 @@
+{
+ "blocks": 16,
+ "cells": 23552,
+ "hierarchy": {
+  "prepare_s": 0.3237510310000289,
+  "solve_s": 0.0010570419999567093,
+  "Tmax": 65.91012136474842,
+  "timings": {
+   "blocks": 0.17268087200000082,
+   "reduce": 0.13762264900014998,
+   "merges": 0.0094258379999701,
+   "distinct_nodes": 5,
+   "distinct_merges": 4,
+   "root": 0.004007923000244773,
+   "prepare": 0.3237510310000289,
+   "root_ports": 192
+  },
+  "energy_balance": -2.2419743839208195e-10
+ },
+ "peak_rss_gb": 0.192244
+}

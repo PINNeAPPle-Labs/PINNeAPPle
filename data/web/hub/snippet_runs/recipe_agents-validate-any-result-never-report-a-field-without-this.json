@@ -1,0 +1,12 @@
+{
+ "code_hash": "8cde986505af8c8a",
+ "figures": [],
+ "id": "recipe:agents-validate-any-result-never-report-a-field-without-this",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Trust card 'field': APPROVED\n  [PASS] finite values: 0 (limit 0)\n  [PASS] PDE residual: 0.000514 (limit 0.05) -- laplace(u) = f, three-point finite differences, rms over the interior / rms of the sum of |terms|\n  [PASS] boundary condition on x_min: 0 (limit 0.02) -- Dirichlet, max |u - g| / range of u\n  [PASS] boundary condition on x_max: 1.22e-16 (limit 0.02) -- Dirichlet, max |u - g| / range of u\n  [PASS] boundary condition on y_min: 0 (limit 0.02) -- Dirichlet, max |u - g| / range of u\n  [PASS] boundary condition on y_max: 1.11e-16 (limit 0.02) -- Dirichlet, max |u - g| / range of u\n  [PASS] conservation (net boundary flux = integral of the source): 0.00229 (limit 0.05) -- flux -0.009187, source 0\n  [PASS] maximum principle (no interior extremum): 0 (limit 0.01) -- harmonic field: interior values within the boundary range\n  [N/A ] reference (relative L2): -- no reference given\n  [PASS] applicability: query inside the training bounds (OOD): 1 (limit 1) -- 0 of 1681 points outside {'x': (0, 1), 'y': (0, 1)}",
+ "timed_out": false
+}

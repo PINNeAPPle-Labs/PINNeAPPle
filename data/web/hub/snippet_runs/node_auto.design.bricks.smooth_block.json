@@ -1,0 +1,12 @@
+{
+ "code_hash": "2148e945c111abe6",
+ "figures": [],
+ "id": "node:auto.design.bricks.smooth_block",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PartType\nPartType(name='block_1x1x1', nx=1, ny=1, h=1, ldraw='', mass=0.00026517119244391977, mass_source='shell model', smooth=True)",
+ "timed_out": false
+}

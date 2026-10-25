@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.solvers.01_time_series_decompositions",
+ "name": "Time-series decompositions from the solver registry",
+ "description": "Two sines and noise decomposed by EEMD, VMD, wavelets, STL, SSA and synchrosqueezing, each built by name from SolverRegistry (examples/solvers/01_time_series_decompositions.py; the noise is seeded here, the script's is not, and the script prints only output shapes, so there are no committed numbers to compare).",
+ "nodes": [
+  {
+   "id": "decompose",
+   "type": "solvers.decompose",
+   "params": {},
+   "label": "decompositions",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "solvers",
+  "domain": "time series",
+  "scripts": [
+   "01_time_series_decompositions.py"
+  ],
+  "quick": {}
+ }
+}

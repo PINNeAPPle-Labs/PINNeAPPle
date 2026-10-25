@@ -1,0 +1,12 @@
+{
+ "code_hash": "0200be890a49c18d",
+ "figures": [],
+ "id": "node:auto.systems.process_components.goodman_equivalent_amplitude",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.12,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(999999999.9999999)",
+ "timed_out": false
+}

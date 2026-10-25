@@ -1,0 +1,12 @@
+{
+ "code_hash": "37ac51b9c678733c",
+ "figures": [],
+ "id": "node:auto.design.geometry_library.summary_table",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "str\n'| name | geometry | L x W x H (m) | physics |\\n|---|---|---|---|\\n| `airliner_a320` | Single-aisle airliner (A320 class) | 38.75 x 35.43 x 10.23 | external aerodynamics (RANS, cruise lift/drag, high-lift studies); vortex-lattice / panel methods |\\n| `aortic_arch` | Human thoracic aorta (arch) | 0.1134 x 0.0766 x 0.3114 | hemodynamics: pulsatile blood flow, wall shear stress, secondary flow in the arch; aneurysm / coarctation and stent-graft planning studies |\\n| `caarc_building` | CAARC standard tall building | 600 x 600 x 183.9 | mean and fluctuating wind pressures on a tall building (CAARC benchmark); along / across-wind base moments and vortex shedding |\\n| `centrifugal_impeller` | Closed centrifugal pump impeller | 0.42 x 0.42 x 0.166 | pump performance (head, efficiency) with frozen-",
+ "timed_out": false
+}

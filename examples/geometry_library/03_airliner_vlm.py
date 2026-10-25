@@ -12,8 +12,8 @@ import math
 
 import pinneapple as pp
 from pinneapple_design.aero.airliner import Airliner
+from pinneapple_design.aero.buildup import friction_drag
 from pinneapple_design.aero.vlm import solve
-from pinneapple_design.geometry_library import meshops
 
 g = pp.geometries.build("airliner_a320")
 p = g.params
@@ -34,27 +34,10 @@ q = 0.5 * rho * V * V
 CL = 64000 * 9.81 / (q * ac.wing_area)
 alpha, it = sol.trim(CL)
 c = sol.coefficients(alpha, it)
-# friction drag from the library mesh: wetted area per component, Re on its length, form factors (Raymer)
-mu = 1.458e-6 * T ** 1.5 / (T + 110.4)
-groups = {"fuselage": (1.10, p["length"]), "wing": (1.35, ac.mac), "htail": (1.30, 0.7 * ac.mac),
-          "vtail": (1.30, ac.mac), "nacelle": (1.25, 4.3), "sharklet": (1.35, 1.0), "pylon": (1.3, 3.0)}
-CD0 = 0.0
-for b in g.bodies:
-    key = next((k for k in groups if b.name.startswith(k)), None)
-    if key is None:
-        continue
-    k_form, Lref = groups[key]
-    Re = rho * V * Lref / mu
-    cf = 0.455 / (math.log10(Re) ** 2.58 * (1 + 0.144 * 0.78 ** 2) ** 0.65)
-    CD0 += k_form * cf * meshops.area(b.vertices, b.faces) / ac.wing_area
-# the bodies overlap (wing roots inside the fuselage, pylons in the nacelles): the wetted area is the area of
-# their boolean union (Geometry.solid(), manifold3d), so scale the component sum to it
-try:
-    from pinneapple_design.geometry_library import meshops as _m
-    S_wet = _m.area(*g.solid())
-except ImportError:
-    S_wet = g.area()
-CD0 *= S_wet / g.area() * 1.08                                   # true wetted area; interference, excrescences
+# friction drag from the library mesh: wetted area per component, Re on its length, form factors (Raymer), scaled to
+# the wetted area of the bodies' union, interference and excrescences (pinneapple_design.aero.buildup)
+d = friction_drag(g, ac, rho=rho, V=V, T=T, mach=0.78)
+CD0, S_wet = d["CD0"], d["S_wet"]
 CD = CD0 + c["CDi"] / 0.85                                       # span efficiency of the real wing vs the VLM
 print(f"cruise M 0.78 FL360, 64 t: CL {CL:.3f}, alpha {math.degrees(alpha):.2f} deg, tail incidence "
       f"{math.degrees(it):.2f} deg")

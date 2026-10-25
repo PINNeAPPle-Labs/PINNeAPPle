@@ -1,0 +1,92 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-near-random-lyapunov",
+ "name": "Mackey-Glass Lyapunov exponent convergence",
+ "description": "Benettin estimate of the largest Lyapunov exponent of Mackey-Glass (tau = 17) against the integration step, the run length and the seed (results/lyapunov_mackey_glass.json).",
+ "nodes": [
+  {
+   "id": "lyap",
+   "type": "forecast_lab.lyapunov",
+   "params": {},
+   "label": "Lyapunov study",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "near_random_forecasting",
+    "comparisons": [
+     {
+      "flow": "lyap.dt0.1_T10000.mean",
+      "ref": "results/lyapunov_mackey_glass.json:rows.0.mean"
+     },
+     {
+      "flow": "lyap.dt0.1_T50000.mean",
+      "ref": "results/lyapunov_mackey_glass.json:rows.1.mean"
+     },
+     {
+      "flow": "lyap.dt0.1_T200000.mean",
+      "ref": "results/lyapunov_mackey_glass.json:rows.2.mean"
+     },
+     {
+      "flow": "lyap.dt0.05_T10000.mean",
+      "ref": "results/lyapunov_mackey_glass.json:rows.3.mean"
+     },
+     {
+      "flow": "lyap.dt0.05_T50000.mean",
+      "ref": "results/lyapunov_mackey_glass.json:rows.4.mean"
+     },
+     {
+      "flow": "lyap.dt0.05_T200000.mean",
+      "ref": "results/lyapunov_mackey_glass.json:rows.5.mean"
+     }
+    ],
+    "tolerance_source": "deterministic: the same library code, data and seed; 1e-6 relative covers BLAS / platform rounding"
+   },
+   "label": "Same numbers as examples/near_random_forecasting",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "lyap",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "lyap.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "near_random_forecasting",
+  "domain": "time series",
+  "scripts": [
+   "run_study.py"
+  ],
+  "quick": {
+   "lyap": {
+    "dt_ints": [
+     0.1
+    ],
+    "total_times": [
+     10000.0
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "lyap.dt0.1_T10000.mean",
+      "ref": "results/lyapunov_mackey_glass.json:rows.0.mean"
+     }
+    ]
+   }
+  }
+ }
+}

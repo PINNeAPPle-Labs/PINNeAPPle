@@ -1,0 +1,71 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-enso-forecast",
+ "name": "El Ni\u00f1o forecast: the ENSO model zoo",
+ "description": "Ni\u00f1o 3.4 forecasts by baselines, the recharge and delayed oscillators, LIM, gradient boosting and hybrids under the study's protocol (tuned on the development period, scored on the untouched 2012- test period): skill against climatology and persistence with Holm-adjusted Diebold-Mariano tests, anomaly correlation per lead; plus the solver checks. The observations (OISST, WOD, ERA5) are downloaded once into the data cache (examples/enso_forecasting/run_study.py).",
+ "nodes": [
+  {
+   "id": "checks",
+   "type": "enso.solver_checks",
+   "params": {},
+   "label": "Solver checks",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "zoo",
+   "type": "forecast.enso",
+   "params": {
+    "quick": false
+   },
+   "label": "ENSO model zoo",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "ENSO forecast"
+   },
+   "label": "Report",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "zoo",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "zoo.metrics->report.items"
+  },
+  {
+   "source": "checks",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "checks.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "enso_forecasting",
+  "domain": "time series",
+  "scripts": [
+   "run_study.py"
+  ],
+  "quick": {
+   "zoo": {
+    "quick": true
+   }
+  }
+ }
+}

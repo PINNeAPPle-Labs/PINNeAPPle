@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 import numpy as np
 from scipy import stats
 
-__all__ = ["ToleranceResult", "propagate", "wilson_interval"]
+__all__ = ["ToleranceResult", "propagate", "src", "wilson_interval"]
 
 
 def wilson_interval(k: int, n: int, level: float = 0.95) -> tuple[float, float]:
@@ -151,3 +151,15 @@ def propagate_space(fn: Callable[[np.ndarray], np.ndarray], space, n: int = 4096
     sp = as_space(space)
     X = to_values(sp, unit_sample(len(sp), int(n), method, seed))
     return _evaluate(fn, X, limits, level, percentiles)
+
+
+def src(X: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, float]:
+    """Standardised regression coefficients of ``y`` on the columns of ``X`` (the samples of :func:`propagate`) and
+    the R^2 of the linear fit: how much of the output spread each tolerance explains, when the response is near
+    linear over the tolerance band."""
+    Xs = (X - X.mean(0)) / X.std(0, ddof=1)
+    ys = (y - y.mean()) / y.std(ddof=1)
+    A = np.column_stack([np.ones(len(ys)), Xs])
+    coef, *_ = np.linalg.lstsq(A, ys, rcond=None)
+    r2 = 1.0 - np.sum((ys - A @ coef) ** 2) / np.sum(ys ** 2)
+    return coef[1:], float(r2)

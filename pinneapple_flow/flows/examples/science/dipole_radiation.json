@@ -1,0 +1,111 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.science.dipole_radiation",
+ "name": "Science: dipole radiation",
+ "description": "pinneapple_science experiment em.dipole_radiation in 3D, 3D_plus_t at the committed resolution, every computed quantity against its cited reference (examples/science/electromagnetism/dipole_radiation); compared with the committed result.json of each dimension.",
+ "nodes": [
+  {
+   "id": "run_3d",
+   "type": "science.run",
+   "params": {
+    "experiment": "em.dipole_radiation",
+    "dim": "3D",
+    "quick": false
+   },
+   "label": "dipole_radiation 3D",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "run_3d_plus_t",
+   "type": "science.run",
+   "params": {
+    "experiment": "em.dipole_radiation",
+    "dim": "3D+t",
+    "quick": false
+   },
+   "label": "dipole_radiation 3D+t",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "science",
+    "comparisons": [
+     {
+      "flow": "run_3d.rel_error[radiated power through the sphere kr = 0.3]",
+      "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.0.rel_error"
+     },
+     {
+      "flow": "run_3d.rel_error[radiated power through the sphere kr = 1]",
+      "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.1.rel_error"
+     },
+     {
+      "flow": "run_3d.rel_error[radiated power through the sphere kr = 3]",
+      "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.2.rel_error"
+     },
+     {
+      "flow": "run_3d.rel_error[radiated power through the sphere kr = 30]",
+      "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.3.rel_error"
+     },
+     {
+      "flow": "run_3d.rel_error[directivity]",
+      "ref": "electromagnetism/dipole_radiation/3D/result.json:comparisons.4.rel_error"
+     },
+     {
+      "flow": "run_3d_plus_t.rel_error[energy through the sphere r = lambda in one period]",
+      "ref": "electromagnetism/dipole_radiation/3D_plus_t/result.json:comparisons.0.rel_error"
+     }
+    ],
+    "tolerance_source": "deterministic numerics at the committed resolution: 1e-6 relative on each relative error"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run_3d",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run_3d.metrics->compare.metrics"
+  },
+  {
+   "source": "run_3d_plus_t",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run_3d_plus_t.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "science",
+  "domain": "science",
+  "scripts": [
+   "electromagnetism/dipole_radiation/README.md"
+  ],
+  "quick": {
+   "run_3d": {
+    "quick": true
+   },
+   "run_3d_plus_t": {
+    "quick": true
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: reduced sizes, not the committed resolution"
+   }
+  }
+ }
+}

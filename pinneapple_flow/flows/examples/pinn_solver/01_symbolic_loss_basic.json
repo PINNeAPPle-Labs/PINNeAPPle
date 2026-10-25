@@ -1,0 +1,28 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.pinn_solver.01_symbolic_loss_basic",
+ "name": "Symbolic PINN loss from a residual string",
+ "description": "examples/pinn_solver/01_symbolic_loss_basic.py: the residual u_t + u compiled by PINNFactory (SymPy -> torch) and evaluated for the zero field at 32 random (t, x) points: loss 0 and its components, as the script prints.",
+ "nodes": [
+  {
+   "id": "loss",
+   "type": "pinn_solver.factory_loss",
+   "params": {},
+   "label": "PINNFactory loss",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "pinn_solver",
+  "domain": "PINN",
+  "scripts": [
+   "01_symbolic_loss_basic.py"
+  ],
+  "quick": {}
+ }
+}

@@ -5,27 +5,21 @@ numerically, the three routes around it, the hypothesis map as a physics audit, 
 """
 import os
 
-import sympy as sp
-
 from pinneapple_physics.non_hermitian import (
     PTChain,
     PTDimer,
     analyze_ep_tuning,
+    coupling_classes,
     design_features,
     feedback_coupling,
     route_a_sqrt_coupling,
     route_c_asymmetric,
     theorem_profile,
 )
-from pinneapple_physics.non_hermitian.ep_tuning import _symbols
 from pinneapple_physics.non_hermitian.viz import ep_tuning_figure
 from pinneapple_physics.physics_audit import audit_assumptions
 
-lam, J, G = _symbols()
-for title, b, b_ba in [("reciprocal linear coupling b = J + c lam", J + sp.Symbol("c") * lam, None),
-                       ("phase-only coupling b = J exp(i lam)", J * sp.exp(sp.I * lam), None),
-                       ("route A: b = sqrt(J^2 + lam J G)", sp.sqrt(J ** 2 + lam * J * G), None),
-                       ("route C: b_ab = J, b_ba = J + lam G", J, J + lam * G)]:
+for _key, title, b, b_ba in coupling_classes():
     print(f"\n== {title}")
     print(analyze_ep_tuning(b, b_ba))
 

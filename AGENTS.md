@@ -37,6 +37,7 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | Worked validation examples per model family and physics | `examples/validation/NN_*.py` (`run(smoke=True)`), each ending in `pp.validate` + trust card + `pinneapple check` ([docs](docs/guides/validation_gallery.md)) |
 | Deploy decision from your own checks | `pinneapple_analysis.trust.TrustReport`, `Check` |
 | Which methods are validated | `pinneapple_catalog.validated_methods()`, `pinneapple_catalog.methods.method_status()` |
+| Third-party physics-ML libraries: references (repository, licence with its source, citation, install) and run one through its own package with an honest status | `pinneapple_arena.external`: `MODELS_BY_SLUG[slug]`, `call_infer(slug)`, `run_benchmark(select_slugs(category=...))`, `licence_counts()`; `python -m pinneapple_arena.external --list` |
 | Equal-budget benchmark | `pp.compare` with the same epochs / collocation / seeds per method (below); `pp.benchmark.run(...)` where installed |
 | A field, a prediction against its reference, or a deformed shape on its mesh in an app | `pp.viz.field_view(mesh, fields, deform=..., markers=...)` + `pinneapple_analysis.validation.error_map.error_map(points, pred, ref, regions=...)`; page module `/shared/fieldview3d.js` ([docs](docs/core_concepts/studio.md)) |
 | Animations with synced charts | `pp.dashboard.Dashboard(...)`: `.to_png`, `.to_html`, `.to_video(gif=...)` |
@@ -229,6 +230,12 @@ assert status["S2"]["status"] == "validated"   # linear finite elements: compare
 | `pinneapple_flow/` | engineering flows: schema, node catalog, planner, runtime, store (Flow Studio's library) |
 | `pinneapple_reason/` | chain of whys: requirements, failure-mode library by physical domain, reasoning engine, reports |
 | `tests/`, `examples/`, `notebooks/colab/`, `docs/` | tests, runnable scripts, Colab notebooks, documentation (mkdocs) |
+
+## Apps from PINNeAPPle-apps and PINNeAPPle-arena
+
+| App | Folder | What it does | Library APIs it uses |
+|---|---|---|---|
+| PINNeAPPle Arena | `apps/pinn_arena` | trains registry architectures head to head on 34 problems (reference data, PDE residual, held-out scores), a leaderboard of this server's runs, and a catalog of 95 third-party physics-ML libraries run through their own packages | `pinneapple_arena.pointwise` (`DatasetGenerator`, `PhysicsLossGenerator`, `instantiate_model`, `train_torch_model`, `field_metrics`, `aggregate_leaderboard`), `pinneapple_arena.external` (`MODELS`, `call_infer`, `run_finetune`, `probe_dataset`) |
 
 ## Tests and lint
 

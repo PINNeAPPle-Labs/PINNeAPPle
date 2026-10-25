@@ -26,6 +26,15 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- PINNeAPPle Arena app (`apps/pinn_arena`, port 8130, prefix `PINN_ARENA`, imported from PINNeAPPle-arena): train
+  registry architectures head to head on 34 problems, a leaderboard of the server's own runs (starts empty), optional
+  GitHub sign-in, React frontend built in the Dockerfile; deploy service `pinnarena`.
+- `pinneapple_arena.pointwise`: the arena's problems, reference data, PDE residuals, pointwise / closed-form model
+  adapters, training protocol, field metrics, leaderboard aggregation and upload parsing. An architecture the
+  registry can not build is reported as failed (`ArchitectureUnavailable`), never replaced by a stand-in model.
+- `pinneapple_arena.external`: references to 95 third-party physics-ML libraries (repository, licence with the file
+  or metadata it was read from, citation, install) and the glue runners that import them at run time, with an honest
+  status per result; `python -m pinneapple_arena.external`.
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that

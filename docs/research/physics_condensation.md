@@ -601,8 +601,9 @@ discrete residual. Both are flagged above 1%.
 **The three flagged controls are not false alarms in the physical sense.** They are the higher-wavenumber errors:
 mode 3 at 0.1%, and modes 2 and 3 at 0.3%.
 
-- A temperature error of 0.1–0.3% of wavelength L/3 has gradients that put 5–60% spurious heat into the copper lid
-  cells.
+- The residual these controls leave grows with the square of the wavenumber: the worst cell creates or destroys
+  9% (0.1%, mode 3), 12% (0.3%, mode 2) and 27% (0.3%, mode 3) of the heat through it. The passing controls stay at
+  1–4%. Most of this sits in the copper lid, where a small temperature error carries a large flux.
 - The mean squared residual shows the same ranking: 3.3e-3, 5.9e-3 and 3.0e-2, against at most 6.5e-4 for the
   passing controls.
 - The verifier's residual tolerance (5% of the heat through a cell) is therefore a statement about heat, not about

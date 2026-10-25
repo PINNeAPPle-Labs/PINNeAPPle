@@ -19,6 +19,7 @@ from . import (  # noqa: F401
     em_prius,
     examples,
     flight,
+    football,
     forecasting,
     geomechanics,
     lbm,

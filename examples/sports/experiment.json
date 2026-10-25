@@ -1,0 +1,225 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/sports",
+ "title": "Football: where physics helps on public tracking and event data",
+ "description": "Ball flight (drag, Magnus, gravity; inverse problem with UQ; data-consistency audit), Spearman pitch control vs data-only pass models, Kalman smoothing and metabolic power, trajectory prediction with physical limits, and physics features for expected goals, each against data-only baselines at equal data. Data: SkillCorner open data, Metrica Sports sample data, StatsBomb open data.",
+ "domain": "sports",
+ "methods": [
+  "inverse problem (ODE)",
+  "Kalman-RTS",
+  "pitch control",
+  "gradient boosting"
+ ],
+ "modules": [
+  "pinneapple_systems.sports.football.ball",
+  "pinneapple_systems.sports.football.ball_study",
+  "pinneapple_systems.sports.football.data",
+  "pinneapple_systems.sports.football.kinematics",
+  "pinneapple_systems.sports.football.kin_study",
+  "pinneapple_systems.sports.football.metrics",
+  "pinneapple_systems.sports.football.pitch_control",
+  "pinneapple_systems.sports.football.pc_study",
+  "pinneapple_systems.sports.football.plots",
+  "pinneapple_systems.sports.football.xg"
+ ],
+ "params": {},
+ "scripts": [
+  "01_ball_flight.py",
+  "02_pitch_control.py",
+  "03_player_kinematics.py",
+  "04_expected_goals.py",
+  "05_verdict.py"
+ ],
+ "metrics": [
+  {
+   "name": "ball_g_fitted_median",
+   "value": 6.0852,
+   "unit": "m/s^2",
+   "how": "median gravity of the drag fit with free g over SkillCorner aerial flights (results/ball_flight.json)"
+  },
+  {
+   "name": "ball_cd_mae_synthetic",
+   "value": 0.02425,
+   "unit": "",
+   "how": "drag-coefficient error of the drag-Magnus fit on simulated kicks, 0.2 m noise"
+  },
+  {
+   "name": "ball_landing_err_median_poly2",
+   "value": 7.51379,
+   "unit": "m",
+   "how": "median horizontal landing error, held-out SkillCorner matches, half the flight seen"
+  },
+  {
+   "name": "ball_landing_err_median_ml",
+   "value": 2.43732,
+   "unit": "m",
+   "how": "median horizontal landing error, held-out SkillCorner matches, half the flight seen"
+  },
+  {
+   "name": "ball_landing_err_median_drag",
+   "value": 3.36551,
+   "unit": "m",
+   "how": "median horizontal landing error, held-out SkillCorner matches, half the flight seen"
+  },
+  {
+   "name": "ball_landing_err_median_drag_free_g",
+   "value": 3.27416,
+   "unit": "m",
+   "how": "median horizontal landing error, held-out SkillCorner matches, half the flight seen"
+  },
+  {
+   "name": "ball_landing_err_median_hybrid",
+   "value": 2.55325,
+   "unit": "m",
+   "how": "median horizontal landing error, held-out SkillCorner matches, half the flight seen"
+  },
+  {
+   "name": "pass_logloss_pc_default",
+   "value": 0.19248,
+   "unit": "",
+   "how": "test log-loss on Metrica match 2 after fitting on match 1"
+  },
+  {
+   "name": "pass_logloss_pc_reaction",
+   "value": 0.15028,
+   "unit": "",
+   "how": "test log-loss on Metrica match 2 after fitting on match 1"
+  },
+  {
+   "name": "pass_logloss_logistic",
+   "value": 0.17372,
+   "unit": "",
+   "how": "test log-loss on Metrica match 2 after fitting on match 1"
+  },
+  {
+   "name": "pass_logloss_gbm",
+   "value": 0.23125,
+   "unit": "",
+   "how": "test log-loss on Metrica match 2 after fitting on match 1"
+  },
+  {
+   "name": "pass_logloss_hybrid",
+   "value": 0.16005,
+   "unit": "",
+   "how": "test log-loss on Metrica match 2 after fitting on match 1"
+  },
+  {
+   "name": "kalman_mp_rmse_10hz_20cm",
+   "value": 20.74021,
+   "unit": "W/kg",
+   "how": "metabolic-power RMSE of the Kalman-RTS smoother on simulated runs"
+  },
+  {
+   "name": "xg_logloss_standard_logistic",
+   "value": 0.24129,
+   "unit": "",
+   "how": "test log-loss on Euro 2024 shots"
+  },
+  {
+   "name": "xg_logloss_standard+physics_logistic",
+   "value": 0.24294,
+   "unit": "",
+   "how": "test log-loss on Euro 2024 shots"
+  },
+  {
+   "name": "xg_logloss_statsbomb_xg_reference",
+   "value": 0.22668,
+   "unit": "",
+   "how": "test log-loss on Euro 2024 shots"
+  }
+ ],
+ "checks": [
+  {
+   "name": "gravity_audit_recovers_g_on_simulated_flights",
+   "passed": true,
+   "value": 9.88027,
+   "reference": 9.81,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "the same audit on simulated flights: the 95 % interval of the median holds 9.81 m/s^2",
+   "kind": "physics"
+  },
+  {
+   "name": "ball_height_physically_consistent",
+   "passed": false,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "false = the data's ball height fails the gravity check",
+   "kind": "physics"
+  },
+  {
+   "name": "ball_cd_interval_coverage",
+   "passed": true,
+   "value": 0.96667,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": 0.85,
+   "detail": "",
+   "label": "95 % intervals of C_D hold the truth (simulated)",
+   "kind": "sanity"
+  },
+  {
+   "name": "kalman_velocity_coverage",
+   "passed": true,
+   "value": 0.96362,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": 0.99,
+   "min": 0.9,
+   "detail": "",
+   "label": "Kalman 95 % velocity intervals cover the truth",
+   "kind": "sanity"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/ball_flights_3d.png",
+   "figures/ball_gravity_audit.png",
+   "figures/ball_holdout_landing.png",
+   "figures/kin_prediction_1s.png",
+   "figures/kin_prediction_2s.png",
+   "figures/kin_smoothing_mp_error.png",
+   "figures/pc_learning_curve.png",
+   "figures/pc_map_intercepted_pass.png",
+   "figures/pc_reliability.png",
+   "figures/xg_learning_curve.png",
+   "figures/xg_reliability.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "results/verdict.md",
+   "results/verdict.json",
+   "results/ball_flight.json",
+   "results/pitch_control.json",
+   "results/player_kinematics.json",
+   "results/expected_goals.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/football_physics.md"
+ },
+ "references": [],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "b40643cf",
+  "created": "2026-10-25T18:19:57Z",
+  "seconds": 0.014,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

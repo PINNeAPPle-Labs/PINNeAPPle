@@ -1,0 +1,12 @@
+{
+ "code_hash": "2215445b76bbe6d7",
+ "figures": [],
+ "id": "node:football.pass_pitch_control",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Pass outcome by pitch control on Metrica tracking -> pinneapple_systems.sports.football.pitch_control.passes_from_metrica + pc_study.compare (data.metrica_match)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'train_game': 1}",
+ "timed_out": false
+}

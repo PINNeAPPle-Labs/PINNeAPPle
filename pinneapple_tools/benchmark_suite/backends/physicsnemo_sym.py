@@ -70,22 +70,23 @@ class PhysicsNeMoSymBackend:
         nu = float(bundle.manifest["nu"])
 
         try:
-            # Common PhysicsNeMo Sym API style
-            from physicsnemo.sym.hydra import ModulusConfig
-            from physicsnemo.sym.domain.domain import Domain
-            from physicsnemo.sym.solver import Solver
-            from physicsnemo.sym.key import Key
-            from physicsnemo.sym.models.fully_connected import FullyConnectedArch
+            # nvidia-physicsnemo.sym 2.4.0 API (ModulusConfig no longer exists; configs are composed with hydra)
+            import torch
+            from physicsnemo.sym.domain import Domain
+            from physicsnemo.sym.domain.constraint import PointwiseConstraint
             from physicsnemo.sym.eq.pdes.navier_stokes import NavierStokes
-            from physicsnemo.sym.domain.constraint.continuous import PointwiseInteriorConstraint, PointwiseBoundaryConstraint
-        except Exception as e:
-            raise RuntimeError(
-                "PhysicsNeMo Sym backend requested but physicsnemo.sym is not available.\n"
-                "Install steps:\n"
-                "  1) pip install nvidia-physicsnemo-sym\n"
-                "  2) ensure torch+CUDA works if using device=cuda\n"
-                f"Import error: {e}"
-            )
+            from physicsnemo.sym.hydra.utils import compose
+            from physicsnemo.sym.key import Key
+            from physicsnemo.sym.models.activation import Activation
+            from physicsnemo.sym.models.fully_connected import FullyConnectedArch
+            from physicsnemo.sym.solver import Solver
+        except ImportError as e:
+            raise ImportError(
+                "the PhysicsNeMo-Sym backend needs nvidia-physicsnemo.sym (tested with 2.4.0): "
+                "pip install nvidia-physicsnemo.sym (it builds a CUDA extension; see "
+                "benchmarks/vs_frameworks/REPORT.md for a CPU-only install). "
+                f"Import error: {type(e).__name__}: {e}"
+            ) from e
 
         # sample
         rng = np.random.default_rng(0)
@@ -116,12 +117,21 @@ class PhysicsNeMoSymBackend:
             output_keys=output_keys,
             nr_layers=nr_layers,
             layer_size=layer_size,
-            activation_fn=activation,
+            activation_fn=Activation[activation.upper()],
         )
 
         nodes = ns.make_nodes() + [net.make_node(name="flow_net")]
 
         domain = Domain()
+
+        def _pointwise(*, nodes, invar, outvar, batch_size, lambda_weighting):
+            """PointwiseConstraint.from_numpy with float32 arrays and per-point weights (2.4.0 indexes every weight
+            per point, so a scalar weight is broadcast)."""
+            n = len(next(iter(invar.values())))
+            return PointwiseConstraint.from_numpy(
+                nodes=nodes, invar={k: np.asarray(v, dtype=np.float32) for k, v in invar.items()},
+                outvar={k: np.asarray(v, dtype=np.float32) for k, v in outvar.items()}, batch_size=batch_size,
+                lambda_weighting={k: np.full((n, 1), float(w), dtype=np.float32) for k, w in lambda_weighting.items()})
 
         # interior constraint
         invar_interior = {"x": col["x"].to_numpy().reshape(-1, 1), "y": col["y"].to_numpy().reshape(-1, 1)}
@@ -130,7 +140,7 @@ class PhysicsNeMoSymBackend:
             "momentum_x": np.zeros((len(col), 1), dtype=np.float32),
             "momentum_y": np.zeros((len(col), 1), dtype=np.float32),
         }
-        interior = PointwiseInteriorConstraint(
+        interior = _pointwise(
             nodes=nodes,
             invar=invar_interior,
             outvar=outvar_interior,
@@ -155,7 +165,7 @@ class PhysicsNeMoSymBackend:
         if len(inlet) > 0:
             invar = {"x": inlet["x"].to_numpy().reshape(-1, 1), "y": inlet["y"].to_numpy().reshape(-1, 1)}
             outvar = {"u": np.ones((len(inlet), 1), dtype=np.float32), "v": np.zeros((len(inlet), 1), dtype=np.float32)}
-            c = PointwiseBoundaryConstraint(
+            c = _pointwise(
                 nodes=nodes,
                 invar=invar,
                 outvar=outvar,
@@ -170,7 +180,7 @@ class PhysicsNeMoSymBackend:
             if len(df) > 0:
                 invar = {"x": df["x"].to_numpy().reshape(-1, 1), "y": df["y"].to_numpy().reshape(-1, 1)}
                 outvar = {"u": np.zeros((len(df), 1), dtype=np.float32), "v": np.zeros((len(df), 1), dtype=np.float32)}
-                c = PointwiseBoundaryConstraint(
+                c = _pointwise(
                     nodes=nodes,
                     invar=invar,
                     outvar=outvar,
@@ -184,7 +194,7 @@ class PhysicsNeMoSymBackend:
         if len(outlet) > 0:
             invar = {"x": outlet["x"].to_numpy().reshape(-1, 1), "y": outlet["y"].to_numpy().reshape(-1, 1)}
             outvar = {"p": np.zeros((len(outlet), 1), dtype=np.float32)}
-            c = PointwiseBoundaryConstraint(
+            c = _pointwise(
                 nodes=nodes,
                 invar=invar,
                 outvar=outvar,
@@ -193,18 +203,34 @@ class PhysicsNeMoSymBackend:
             )
             domain.add_constraint(c, "bc_outlet")
 
-        # minimal config
-        mcfg = ModulusConfig()
-        mcfg.training.max_steps = max_steps
-        mcfg.optimizer.lr = lr
-        # device in physicsnemo is often read from environment/config; solver will handle
+        # config: PhysicsNeMo-Sym's registered default plus the groups its examples select
+        import tempfile
+        out_dir = str(run_cfg.get("output_dir") or tempfile.mkdtemp(prefix="physicsnemo_sym_"))
+        overrides = ["+optimizer=adam", "+scheduler=tf_exponential_lr", "+loss=sum", f"optimizer.lr={lr}",
+                     f"training.max_steps={max_steps}", f"network_dir={out_dir}", f"device={device}",
+                     "training.rec_results_freq=1000000", "training.rec_constraint_freq=1000000",
+                     "training.save_network_freq=1000000", "training.summary_freq=1000000"]
+        if not device.startswith("cuda"):
+            overrides.append("cuda_graphs=false")      # the default (true) crashes without a GPU driver
+        cfg = compose(config_name="physicsnemo_default", config_path=None, overrides=overrides)
 
-        solver = Solver(mcfg, domain)
+        solver = Solver(cfg, domain)
         solver.solve()
 
-        # Return minimal metrics. Detailed logs depend on PhysicsNeMo config/loggers.
+        net.eval()
+        p0 = next(net.parameters())
+
+        def predict_fn(X: np.ndarray) -> np.ndarray:
+            X = np.asarray(X, dtype=np.float32)
+            with torch.no_grad():
+                inv = {k: torch.as_tensor(X[:, i:i + 1], device=p0.device) for i, k in enumerate(("x", "y"))}
+                out = net(inv)
+            return np.concatenate([out[k].detach().cpu().numpy() for k in ("u", "v", "p")], axis=1)
+
         return {
             "device": device,
+            "model": net,
+            "predict_fn": predict_fn,
             "metrics": {
                 "nu": float(nu),
                 "max_steps": float(max_steps),

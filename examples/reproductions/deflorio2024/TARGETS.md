@@ -165,3 +165,20 @@ Also quoted (reported, not scored):
   - the X-TFC of this paper with the [9] weights;
   - the Gated X-TFC of arXiv:2510.01039 (`gated_xtfc`), with the same number of basis functions and its own
     gate search.
+
+## Amendment 1 (before any run): the PINN and Deep-TFC trainer
+
+Ambiguity 7 is implemented with the library's trainer, `pinneapple_analysis.validation.pinn.train_pinn`, instead of
+a new training loop. That changes three details of item 7, all within a run that is reduced-scale anyway:
+
+- **Collocation:** 10 000 points drawn uniformly at random in [0, 1], seeded, and fixed during training. They
+  replace the equispaced points.
+- **Batching:** full-batch Adam (lr 1e-3, 2000 steps), then L-BFGS with `max_iter = 500` and a strong-Wolfe
+  line search. Mini-batches of 2000 are not used.
+- **Loss and precision:**
+  - The loss is the mean squared residual plus 1.0 × the mean squared boundary misfit (PINN).
+  - Weight 1 mirrors eq. (6), which weights the two sums equally.
+  - Computed in float32, the trainer's default.
+- **Network:** `mlp(1, 1, width, 10, activation="gaussian")`. For Deep-TFC it is wrapped in
+  `ConstrainedExpression1D` (eq. 9).
+- **_A vs _L:** the "_A" column is read at the end of the Adam phase of the same run whose final state gives "_L".

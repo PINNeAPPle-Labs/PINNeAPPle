@@ -83,6 +83,19 @@ class Stack:
     h_top: float = 2.0e4
     h_bottom: float = 1.0e3
     active: str = "die"
+    #: overrides of :data:`MATERIALS` for this stack, ((name, k, rho_c), ...); part of the stack's identity (and so of
+    #: every cache key), unlike edits of the module-level table
+    materials: tuple[tuple[str, float, float], ...] = ()
+    #: anisotropic layers, ((layer, factor), ...): the in-plane conductivity of every material in the layer is
+    #: ``factor`` times its (through-thickness) conductivity
+    anisotropy: tuple[tuple[str, float], ...] = ()
+
+    def material(self, name: str) -> tuple[float, float]:
+        """(k, rho_c) of a material, with this stack's overrides."""
+        for m, k, rc in self.materials:
+            if m == name:
+                return float(k), float(rc)
+        return MATERIALS[name]
 
     @property
     def nz(self) -> int:
@@ -112,8 +125,9 @@ class Stack:
         return replace(self, n=self.n * lateral, layers=tuple(replace(L, nz=L.nz * vertical) for L in self.layers))
 
     def properties(self, variant: Variant = BASE) -> dict[str, np.ndarray]:
-        """Cell properties of one block: ``k`` (n, n, nz) (isotropic here), ``rho_c``, ``dz`` (nz,), ``R`` (nz-1,)
-        contact resistance of each horizontal face between z rows, and the per-layer ``inclusion`` masks."""
+        """Cell properties of one block: ``k`` (n, n, nz) (through-thickness), ``k_lat`` (in-plane; equal to ``k``
+        unless the stack has anisotropic layers), ``rho_c``, ``dz`` (nz,), ``R`` (nz-1,) contact resistance of each
+        horizontal face between z rows, and the per-layer ``inclusion`` masks."""
         n, nz = self.n, self.nz
         k = np.empty((n, n, nz))
         rc = np.empty((n, n, nz))
@@ -121,12 +135,12 @@ class Stack:
         incl_k = dict(variant.inclusion_k)
         masks = {}
         for L, sl in zip(self.layers, self.layer_slices().values(), strict=False):
-            km, cm = MATERIALS[L.matrix]
+            km, cm = self.material(L.matrix)
             k[:, :, sl], rc[:, :, sl] = km, cm
             if L.inclusion and L.name not in variant.removed:
                 inside = np.abs(centres) < L.side / 2
                 m2 = inside[:, None] & inside[None, :]
-                ki, ci = MATERIALS[L.inclusion]
+                ki, ci = self.material(L.inclusion)
                 k[m2, sl] = ki * incl_k.get(L.name, 1.0)
                 rc[m2, sl] = ci
                 masks[L.name] = m2
@@ -139,7 +153,10 @@ class Stack:
             if sls[a].stop != sls[b].start:
                 raise ValueError(f"contact {a}/{b}: layers are not adjacent")
             R[sls[a].stop - 1] = r * scale.get((a, b), 1.0)
-        return {"k": k, "rho_c": rc, "dz": self.dz(), "R": R, "masks": masks}
+        k_lat = k.copy() if self.anisotropy else k
+        for name, f in self.anisotropy:
+            k_lat[:, :, sls[name]] *= f
+        return {"k": k, "k_lat": k_lat, "rho_c": rc, "dz": self.dz(), "R": R, "masks": masks}
 
 
 def reference_stack(n: int = 8, vertical: int = 1) -> Stack:
@@ -193,15 +210,16 @@ class Package:
         nbx, nby = self.shape
         props = [self.stack.properties(v) for v in self.variants]
         k = np.empty((nbx, nby, n, n, nz))
+        kl = np.empty_like(k)
         rc = np.empty_like(k)
         R = np.empty((nbx, nby, n, n, nz - 1))
         for t, p in enumerate(props):
             sel = self.layout == t
-            k[sel], rc[sel], R[sel] = p["k"], p["rho_c"], p["R"]
+            k[sel], kl[sel], rc[sel], R[sel] = p["k"], p["k_lat"], p["rho_c"], p["R"]
 
         def g(a):
             return a.transpose(0, 2, 1, 3, 4).reshape(nbx * n, nby * n, a.shape[-1])
-        return {"k": g(k), "rho_c": g(rc), "R": g(R), "dz": self.stack.dz()}
+        return {"k": g(k), "k_lat": g(kl), "rho_c": g(rc), "R": g(R), "dz": self.stack.dz()}
 
 
 def hotspot_power(stack: Stack, shape: tuple[int, int], total: float, *, hotspots: int = 3, background: float = 0.4,

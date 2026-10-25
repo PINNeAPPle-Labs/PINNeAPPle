@@ -48,7 +48,7 @@ def cb_block(pkg_stack, variant, Phi_f: np.ndarray, k: int) -> CBBlock:
     bm = block_model(pkg_stack, variant)
     st = pkg_stack
     props = st.properties(variant)
-    sysb = fv.assemble(props["k"], props["dz"], props["R"], st.dx, st.h_top, st.h_bottom, ports=True,
+    sysb = fv.assemble((props["k_lat"], props["k_lat"], props["k"]), props["dz"], props["R"], st.dx, st.h_top, st.h_bottom, ports=True,
                        rho_c=props["rho_c"])
     nc = sysb.n_cells
     Kcc = sysb.K.tocsr()[:nc, :nc].toarray()

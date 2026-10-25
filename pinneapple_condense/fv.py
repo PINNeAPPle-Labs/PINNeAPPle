@@ -106,7 +106,7 @@ def assemble_package(pkg, *, transient: bool = False) -> System:
     """The whole package (:class:`.package.Package`) as one box, adiabatic on the sides: the reference model."""
     st = pkg.stack
     p = pkg.global_properties()
-    return assemble(p["k"], p["dz"], p["R"], st.dx, st.h_top, st.h_bottom,
+    return assemble((p["k_lat"], p["k_lat"], p["k"]), p["dz"], p["R"], st.dx, st.h_top, st.h_bottom,
                     rho_c=p["rho_c"] if transient else None)
 
 

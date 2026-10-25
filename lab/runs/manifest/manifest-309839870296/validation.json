@@ -1,0 +1,100 @@
+[
+ {
+  "name": "[3D] flux through the cube x eps0",
+  "passed": true,
+  "value": 1.5000000000000002e-09,
+  "reference": 1.5000000000000002e-09,
+  "rtol": 1e-06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Gauss's law: oint E.dA = Q_enc / eps0 (Griffiths eq. 2.13)",
+  "label": "flux through the cube x eps0 vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[3D] charges outside contribute zero flux",
+  "passed": true,
+  "value": 0.0,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "the outside charges are summed into every face",
+  "kind": "physics"
+ },
+ {
+  "name": "[3D] div E = rho/eps0, Gaussian cloud on a 41^3 grid (pp.maxwell.gauss_electric)",
+  "passed": true,
+  "value": 0.004823425444233279,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "div D - rho: ||sum of terms|| / sum of ||term|| = 0.00482; r(2h)/r(h) = 3.98: discretisation error (the field obeys the law); extrapolated residual 2.77e-05",
+  "kind": "physics"
+ },
+ {
+  "name": "[3D] the same check rejects a 20 % wrong charge density",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "residual 0.0912 > limit 0.05: rejected",
+  "kind": "physics"
+ },
+ {
+  "name": "[3D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ },
+ {
+  "name": "[2D] flux per unit length x eps0",
+  "passed": true,
+  "value": 2e-09,
+  "reference": 1.9999999999999997e-09,
+  "rtol": 1e-06,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Gauss's law in 2-D: oint E.n dl = lam_enc / eps0",
+  "label": "flux per unit length x eps0 vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] error decreases with quadrature points",
+  "passed": true,
+  "value": 2.220446049250313e-16,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "",
+  "kind": "physics"
+ },
+ {
+  "name": "[2D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

@@ -1,0 +1,181 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "lab/manifest/manifest-564202ded2c5",
+ "title": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "domain": "general",
+ "methods": [],
+ "modules": [],
+ "params": {
+  "id": "examples/science/electromagnetism/circuits_rc_rl_rlc",
+  "path": "examples/science/electromagnetism/circuits_rc_rl_rlc/experiment.json"
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[0D: RC time constant (fit of ln(1 - V/V0))]",
+   "value": 1.51760114891486e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[0D: RL time constant]",
+   "value": 1.864692211403507e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[0D: RL final current]",
+   "value": 2.28723290307542e-12,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[0D: RLC damped angular frequency (zero crossings)]",
+   "value": 1.9615106678979766e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[0D: RLC decay rate (log decrement of extrema)]",
+   "value": 7.957135039760033e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "rel_error[0D: energy dissipated in R (free decay)]",
+   "value": 5.85343134639621e-11,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  },
+  {
+   "name": "0D: quality_factor",
+   "value": 6.324555320336758,
+   "unit": "",
+   "how": "recorded by the Lab run (ctx.metric)"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[0D] RC time constant (fit of ln(1 - V/V0))",
+   "passed": true,
+   "value": 0.000999999999984824,
+   "reference": 0.001,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "tau = R C (Nilsson & Riedel sec. 7.2)",
+   "label": "RC time constant (fit of ln(1 - V/V0)) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] RL time constant",
+   "passed": true,
+   "value": 0.0001000000000018647,
+   "reference": 0.0001,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "tau = L / R (Nilsson & Riedel sec. 7.1)",
+   "label": "RL time constant vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] RL final current",
+   "passed": true,
+   "value": 0.004999999999988564,
+   "reference": 0.005,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "I(inf) = V0 / R; the value at 6 tau divided by (1 - e^-6)",
+   "label": "RL final current vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] RLC damped angular frequency (zero crossings)",
+   "passed": true,
+   "value": 3152.3800531677884,
+   "reference": 3152.3800532296227,
+   "rtol": 0.0001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "omega_d = sqrt(1/(L C) - (R/2L)^2) (Nilsson & Riedel sec. 8.3)",
+   "label": "RLC damped angular frequency (zero crossings) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] RLC decay rate (log decrement of extrema)",
+   "passed": true,
+   "value": 250.00000001989284,
+   "reference": 250.0,
+   "rtol": 0.001,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "alpha = R / (2 L) (Nilsson & Riedel sec. 8.3)",
+   "label": "RLC decay rate (log decrement of extrema) vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] energy dissipated in R (free decay)",
+   "passed": true,
+   "value": 1.2500000000731678e-05,
+   "reference": 1.2499999999999999e-05,
+   "rtol": 1e-06,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "energy conservation: 1/2 C V0^2 stored at t = 0",
+   "label": "energy dissipated in R (free decay) vs conservation",
+   "kind": "reference"
+  },
+  {
+   "name": "[0D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "figures/0D__circuits.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": []
+ },
+ "links": {},
+ "references": [],
+ "status": "curated",
+ "lab": {
+  "experiment": "manifest",
+  "run_id": "manifest-564202ded2c5",
+  "status": "completed"
+ },
+ "provenance": {
+  "source": "lab-run",
+  "git": "9847a3ef",
+  "seconds": 0.018,
+  "created": "2026-10-24T16:45:13Z",
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+   "packages": {
+    "numpy": "2.5.3",
+    "torch": "2.14.1+cu130",
+    "scipy": "1.18.1"
+   }
+  }
+ }
+}

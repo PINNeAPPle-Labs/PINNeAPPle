@@ -39,6 +39,11 @@ jobs:
       - name: Tier C — public API, cost validation, PyVista and CalculiX bridges (must pass)
         run: xvfb-run -a pytest tests/test_public_api.py tests/test_cost_validation.py tests/test_pyvista_bridge.py tests/test_calculix_bridge.py tests/test_example_imports.py tests/test_app_helpers.py tests/test_release_version.py tests/test_model_zoo.py tests/test_zoo_hub_formats.py tests/test_geometry_library.py tests/test_multiscale.py tests/test_aero_panel.py tests/test_benchmark_api.py tests/test_equal_budget.py tests/test_inverse_heat_budget.py tests/test_operator_benchmarks.py tests/test_fault_injection.py tests/test_validation_arena.py tests/test_inverse_core.py tests/test_design_intent.py tests/test_design_intent_entry_points.py -q
 
+      - name: Surrogate inverse design — five cases, fin-cell check, the five design apps (must pass)
+        run: |
+          pip install fastapi httpx
+          pytest tests/pinneapple_design/test_surrogate_inverse.py tests/pinneapple_physics/closed_form tests/test_app_heatsink_inverse_ai.py tests/test_app_brakecool_ai.py tests/test_app_patchdose_ai.py tests/test_app_ridetune_ai.py tests/test_app_soundshape_ai.py -q -p no:warnings
+
       - name: Validation arena — replay the stored escapes and false alarms (must pass)
         run: pinneapple check --arena-cases
 
@@ -50,7 +55,7 @@ jobs:
       - name: Autonomous Physics Lab — mission, ledger, surrogates, triage, full cycle, race-car checks (must pass)
         run: |
           pip install scikit-learn
-          pytest tests/test_autolab.py tests/test_autolab_racecar.py tests/test_autolab_agent.py -q -p no:warnings
+          pytest tests/test_autolab.py tests/test_autolab_racecar.py tests/test_autolab_agent.py tests/test_autolab_dashboard.py -q -p no:warnings
 
       - name: Adaptive Physics Condensation — exact condensation vs fine FV, hierarchy, reduced interfaces, Keff, learned blocks, transient (must pass)
         run: |
@@ -87,7 +92,7 @@ jobs:
       - name: Electromagnetics — references, solvers, Maxwell checks, machines, topology optimisation (must pass)
         run: |
           pip install ".[em]"
-          pytest tests/test_em_core.py tests/test_maxwell_checks.py tests/test_em_verification.py tests/test_emachine_pmsm.py tests/test_fdtd.py tests/test_motor_magnetics.py tests/test_topology_optimization.py tests/test_inspection.py tests/test_solver_exact_solutions_batch4.py -q -p no:warnings
+          pytest tests/test_em_core.py tests/test_maxwell_checks.py tests/test_em_verification.py tests/test_science.py tests/test_emachine_pmsm.py tests/test_fdtd.py tests/test_motor_magnetics.py tests/test_topology_optimization.py tests/test_inspection.py tests/test_solver_exact_solutions_batch4.py -q -p no:warnings
 
       # `continue-on-error: true` (not `|| true` in the shell command) is
       # deliberate: it keeps the workflow from blocking on pre-existing,

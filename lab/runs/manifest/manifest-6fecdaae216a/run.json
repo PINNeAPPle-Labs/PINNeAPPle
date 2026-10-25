@@ -1,0 +1,52 @@
+{
+ "run_id": "manifest-6fecdaae216a",
+ "experiment": "manifest",
+ "version": "1",
+ "params": {
+  "id": "examples/science/electromagnetism/research_fdtd_3d",
+  "path": "examples/science/electromagnetism/research_fdtd_3d/experiment.json"
+ },
+ "status": "completed",
+ "started": 1792862897.3440335,
+ "tags": [
+  "manifest"
+ ],
+ "git": "204e481e",
+ "environment": {
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+  "packages": {
+   "numpy": "2.5.3",
+   "torch": "2.14.1+cu130",
+   "scipy": "1.18.1"
+  }
+ },
+ "description": "An experiment described by its manifest (experiment.json), imported for curation.",
+ "code": {
+  "files": [
+   "code/manifest_import.py"
+  ],
+  "sha1": "f35f9eeaed7092d21bcefd7b2f8ab99975a5172d"
+ },
+ "finished": 1792862897.359928,
+ "error": null,
+ "stages": [],
+ "files": {
+  "inputs": [
+   "inputs/manifest.json",
+   "inputs/params.json"
+  ],
+  "outputs": [],
+  "figures": [
+   "figures/3D_plus_t__fdtd_convergence.png",
+   "figures/3D_plus_t__fdtd_3d_t.mp4",
+   "figures/3D_plus_t__fdtd_3d_t.gif"
+  ]
+ },
+ "validation": {
+  "total": 12,
+  "failed": 0
+ },
+ "seconds": 0.016,
+ "datasets": {}
+}

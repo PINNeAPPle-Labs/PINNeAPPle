@@ -1,0 +1,89 @@
+[
+ {
+  "name": "[2D] C per unit length (extrapolated)",
+  "passed": true,
+  "value": 1.0343432672089114e-10,
+  "reference": 1.030296308832444e-10,
+  "rtol": 0.01,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Palmer (1937): eps0 (w/d) [1 + d/(pi w)(1 + ln(2 pi w/d))]",
+  "label": "C per unit length (extrapolated) vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[2D] solution in the asymptotic range (Roache)",
+  "passed": true,
+  "value": 1.026059908461316,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "asymptotic ratio 0.998; a thin plate edge (phi ~ r^1/2) limits the order to about 1",
+  "kind": "physics"
+ },
+ {
+  "name": "[2D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ },
+ {
+  "name": "[3D] C, 3-D Cartesian (finest) vs axisymmetric",
+  "passed": true,
+  "value": 3.262468946141227e-10,
+  "reference": 3.270295775774252e-10,
+  "rtol": 0.01,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "this experiment: axisymmetric solution, Richardson extrapolated (independent discretisation of the same 3-D problem)",
+  "label": "C, 3-D Cartesian (finest) vs axisymmetric vs convergence",
+  "kind": "reference"
+ },
+ {
+  "name": "[3D] C, axisymmetric (extrapolated)",
+  "passed": true,
+  "value": 3.270295775774252e-10,
+  "reference": 3.2438052181551613e-10,
+  "rtol": 0.015,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "Kirchhoff (1877): eps0 [pi a^2/d + a (ln(16 pi a/d) - 1)], asymptotic d << a",
+  "label": "C, axisymmetric (extrapolated) vs closed form",
+  "kind": "reference"
+ },
+ {
+  "name": "[3D] Kirchhoff's error falls as a/d grows (asymptotic formula)",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "a/d=2.5: +6.19 %, a/d=5: +2.33 %, a/d=10: +0.82 %",
+  "kind": "physics"
+ },
+ {
+  "name": "[3D] trust report",
+  "passed": true,
+  "value": null,
+  "reference": null,
+  "rtol": null,
+  "atol": null,
+  "max": null,
+  "min": null,
+  "detail": "decision APPROVED",
+  "kind": "verification"
+ }
+]

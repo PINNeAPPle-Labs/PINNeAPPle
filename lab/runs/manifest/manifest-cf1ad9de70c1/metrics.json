@@ -1,0 +1,8 @@
+{
+ "rel_error[3D: Q_sca, BHMIE sample]": 1.4389421505961307e-06,
+ "rel_error[3D: Q_back, BHMIE sample]": 2.220798293268544e-07,
+ "rel_error[3D: Q_sca at x = 0.02 (Rayleigh)]": 2.944537737401958e-05,
+ "rel_error[3D: optical theorem: 4 Re S(0) / x^2 (absorbing sphere)]": 2.2352020346932984e-16,
+ "rel_error[3D: Q_ext at x = 3000 (absorbing)]": 0.004775434620209129,
+ "3D: first_extinction_peak_x": 6.499999999999999
+}

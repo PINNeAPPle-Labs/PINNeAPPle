@@ -211,6 +211,13 @@ def run_regime_arena(data: SurrogateData, *, methods: Sequence[str] | str = "aut
     options = options or {}
     old = torch.get_num_threads()
     torch.set_num_threads(max(1, int(threads)))
+    # the same thread count for the BLAS/OpenMP pools of the one-shot fits (numpy, scikit-learn): an unlimited pool
+    # makes a GP fit oversubscribe a loaded machine and report many times the time it needs
+    try:
+        from threadpoolctl import threadpool_limits
+        blas = threadpool_limits(limits=max(1, int(threads)))
+    except ImportError:                                     # pragma: no cover - threadpoolctl ships with sklearn
+        blas = None
     try:
         # ---------------------------------------------------------------- splits (shared by every method)
         ext = extrapolation or data.meta.get("shift") or "edge"
@@ -374,4 +381,6 @@ def run_regime_arena(data: SurrogateData, *, methods: Sequence[str] | str = "aut
             wall_s=time.perf_counter() - t_start, notes=notes)
         return result
     finally:
+        if blas is not None:                                # first: it captured the pools after torch's change
+            blas.restore_original_limits()
         torch.set_num_threads(old)

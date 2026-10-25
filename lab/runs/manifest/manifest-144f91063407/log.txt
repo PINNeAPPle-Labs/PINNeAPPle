@@ -1,0 +1,6 @@
+[17:28:37] check [2D] TE10: Monte Carlo std vs first-order GUM: PASS JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84)
+[17:28:37] check [2D] TE10: Monte Carlo mean vs nominal: PASS Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included)
+[17:28:37] check [2D] TE20: Monte Carlo std vs first-order GUM: PASS JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84)
+[17:28:37] check [2D] TE20: Monte Carlo mean vs nominal: PASS Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included)
+[17:28:37] check [2D] b does not enter TE10 or TE20 (sensitivity ~ 0): PASS correlation of b with f_TE10 over the samples
+[17:28:37] check [2D] trust report: PASS decision APPROVED

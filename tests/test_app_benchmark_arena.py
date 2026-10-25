@@ -69,3 +69,36 @@ def test_private_benchmark(client):
     assert "a >=" in next(g for g in r["regimes"] if g["id"] == "extrapolation")["description"]
     assert client.get(f"/api/benchmarks/{job['id']}/files/report.md").text.startswith("# Private benchmark")
     assert client.get("/api/usage").json()["units"]["benchmarks"]["used"] == 1
+
+
+def test_private_result_stays_inside_its_column():
+    """The private result renders beside the form: grid items must be allowed to shrink, or the wide ranking table
+    pushes the page into a horizontal scroll at 1440 px."""
+    css = (ROOT / "apps" / "benchmark_arena" / "benchmark_arena" / "static" / "style.css").read_text()
+    assert ".layout > * { min-width: 0; }" in css and "#runview { overflow-x: auto; }" in css
+
+
+def test_one_shot_fits_run_on_the_declared_threads(monkeypatch):
+    """The protocol records `threads` per run: the BLAS/OpenMP pools of numpy/scikit-learn fits (ridge, GP) must be
+    held to it as torch is, or a GP fit oversubscribes a loaded machine and reports many times its cost."""
+    import dataclasses
+
+    threadpoolctl = pytest.importorskip("threadpoolctl")
+    from pinneapple_analysis.surrogate import methods as M
+    from pinneapple_arena import regimes as R
+    seen = []
+    ridge = M.CANDIDATES["ridge"]
+
+    def fit(ctx):
+        seen.extend(p["num_threads"] for p in threadpoolctl.threadpool_info())
+        return ridge.fit(ctx)
+
+    monkeypatch.setitem(R.CANDIDATES, "ridge", dataclasses.replace(ridge, fit=fit))
+    before = [p["num_threads"] for p in threadpoolctl.threadpool_info()]
+    rng = np.random.default_rng(0)
+    X = rng.uniform(-1, 1, (60, 2))
+    data = R.SurrogateData(X, np.exp(X[:, :1]) + X[:, 1:], ["a", "b"], ["y"])
+    res = R.run_regime_arena(data, methods=["ridge"], budget=1.0, seeds=1, regimes=["interpolation"], threads=1)
+    assert seen and set(seen) == {1} and res.to_dict()["protocol"]["threads"] == 1
+    assert [p["num_threads"] for p in threadpoolctl.threadpool_info()] == before      # limits restored
+

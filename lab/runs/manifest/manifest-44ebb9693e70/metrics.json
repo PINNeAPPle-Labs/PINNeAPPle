@@ -1,0 +1,14 @@
+{
+ "rel_error[2D: |r_s| at 0 deg]": 0.009342468310234442,
+ "rel_error[2D: |r_p| at 0 deg]": 0.009340533038225823,
+ "rel_error[2D: |r_s| at 30 deg]": 0.007702825806827807,
+ "rel_error[2D: |r_p| at 30 deg]": 0.01174960093498128,
+ "rel_error[2D: |r_s| at 45 deg]": 0.005745213438298207,
+ "rel_error[2D: |r_p| at 45 deg]": 0.020935695135200855,
+ "rel_error[2D: |r_s| at 60 deg]": 0.0033009296923069975,
+ "rel_error[2D: |r_p| at 60 deg]": 0.05335230670124658,
+ "rel_error[2D: |r_p| at Brewster's angle 56.31 deg]": 0.0021295927053455715,
+ "rel_error[2D: transmitted angle for 30 deg incidence]": 0.0014124986435389646,
+ "rel_error[2D: transmitted angle for 45 deg incidence]": 0.0011050530110487313,
+ "rel_error[2D: transmitted angle for 60 deg incidence]": 0.0009003051691173667
+}

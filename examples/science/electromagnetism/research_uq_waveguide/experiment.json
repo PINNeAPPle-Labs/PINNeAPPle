@@ -1,0 +1,206 @@
+{
+ "schema": "pinneapple.experiment/1",
+ "id": "examples/science/electromagnetism/research_uq_waveguide",
+ "title": "Uncertainty of waveguide cut-offs by Monte Carlo (2D)",
+ "description": "Manufacturing tolerances of a dielectric-filled rectangular guide (a, b, eps_r with stated standard deviations) propagated through the finite-difference eigen-solver by Monte Carlo: mean, standard deviation and 95 % interval of the TE10 and TE20 cut-offs, the sampling error of the Monte Carlo itself, against first-order (GUM) propagation with the closed-form sensitivities.",
+ "domain": "science / physics.electromagnetism",
+ "methods": [
+  "pinneapple_science: em.research_uq_waveguide"
+ ],
+ "modules": [
+  "pinneapple_science",
+  "pinneapple_simulation.electromagnetics"
+ ],
+ "params": {
+  "level": "research",
+  "kind": "theory",
+  "dims": [
+   "2D"
+  ],
+  "quick": false
+ },
+ "scripts": [],
+ "metrics": [
+  {
+   "name": "rel_error[2D: TE10: Monte Carlo std vs first-order GUM]",
+   "value": 0.02524542009758375,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+  },
+  {
+   "name": "rel_error[2D: TE10: Monte Carlo mean vs nominal]",
+   "value": 0.00035193953006807717,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))"
+  },
+  {
+   "name": "rel_error[2D: TE20: Monte Carlo std vs first-order GUM]",
+   "value": 0.0248116901071461,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84))"
+  },
+  {
+   "name": "rel_error[2D: TE20: Monte Carlo mean vs nominal]",
+   "value": 0.0007748405598485373,
+   "unit": "-",
+   "how": "|computed - reference| / |reference| (closed_form: Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included))"
+  },
+  {
+   "name": "2D: TE10_mean",
+   "value": 4419267277.369885,
+   "unit": "Hz",
+   "how": "1000 Monte Carlo samples through the FD eigen-solver"
+  },
+  {
+   "name": "2D: TE10_std",
+   "value": 22862999.485815544,
+   "unit": "Hz",
+   "how": "sample standard deviation"
+  },
+  {
+   "name": "2D: TE10_ci95_low",
+   "value": 4374297584.528993,
+   "unit": "Hz",
+   "how": "2.5 % quantile"
+  },
+  {
+   "name": "2D: TE10_ci95_high",
+   "value": 4467254288.742698,
+   "unit": "Hz",
+   "how": "97.5 % quantile"
+  },
+  {
+   "name": "2D: TE20_mean",
+   "value": 8834795413.423183,
+   "unit": "Hz",
+   "how": "1000 Monte Carlo samples through the FD eigen-solver"
+  },
+  {
+   "name": "2D: TE20_std",
+   "value": 45706654.59153639,
+   "unit": "Hz",
+   "how": "sample standard deviation"
+  },
+  {
+   "name": "2D: TE20_ci95_low",
+   "value": 8744894076.59139,
+   "unit": "Hz",
+   "how": "2.5 % quantile"
+  },
+  {
+   "name": "2D: TE20_ci95_high",
+   "value": 8930728834.366755,
+   "unit": "Hz",
+   "how": "97.5 % quantile"
+  }
+ ],
+ "checks": [
+  {
+   "name": "[2D] TE10: Monte Carlo std vs first-order GUM",
+   "passed": true,
+   "value": 22862999.485815544,
+   "reference": 22300025.962212466,
+   "rtol": 0.06711560552140243,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84)",
+   "label": "TE10: Monte Carlo std vs first-order GUM vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] TE10: Monte Carlo mean vs nominal",
+   "passed": true,
+   "value": 4419267277.369885,
+   "reference": 4420823139.788217,
+   "rtol": 0.002,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included)",
+   "label": "TE10: Monte Carlo mean vs nominal vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] TE20: Monte Carlo std vs first-order GUM",
+   "passed": true,
+   "value": 45706654.59153639,
+   "reference": 44600051.92442493,
+   "rtol": 0.06711560552140243,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "JCGM 100 eq. 10 with df/da = -f/a, df/deps = -f/(2 eps) (Pozar eq. 3.84)",
+   "label": "TE20: Monte Carlo std vs first-order GUM vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] TE20: Monte Carlo mean vs nominal",
+   "passed": true,
+   "value": 8834795413.423183,
+   "reference": 8841646279.576433,
+   "rtol": 0.002,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "Pozar eq. 3.84 at the nominal dimensions (FD discretisation error included)",
+   "label": "TE20: Monte Carlo mean vs nominal vs closed form",
+   "kind": "reference"
+  },
+  {
+   "name": "[2D] b does not enter TE10 or TE20 (sensitivity ~ 0)",
+   "passed": true,
+   "value": 0.01671073313226244,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "correlation of b with f_TE10 over the samples",
+   "kind": "physics"
+  },
+  {
+   "name": "[2D] trust report",
+   "passed": true,
+   "value": null,
+   "reference": null,
+   "rtol": null,
+   "atol": null,
+   "max": null,
+   "min": null,
+   "detail": "decision APPROVED",
+   "kind": "verification"
+  }
+ ],
+ "files": {
+  "figures": [
+   "2D/uq_waveguide.png"
+  ],
+  "videos": [],
+  "viewers": [],
+  "data": [
+   "2D/result.json"
+  ]
+ },
+ "links": {
+  "guide": "docs/guides/science.md"
+ },
+ "references": [
+  "JCGM 101:2008 (GUM supplement 1, Monte Carlo propagation)",
+  "JCGM 100:2008 eq. 10",
+  "Pozar, Microwave Engineering, 4th ed., eq. 3.84"
+ ],
+ "status": "not curated",
+ "lab": {},
+ "provenance": {
+  "source": "experiment()",
+  "git": "204e481e",
+  "created": "2026-10-24T17:28:37Z",
+  "seconds": 0.003,
+  "error": null,
+  "environment": {
+   "python": "3.13.17",
+   "platform": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39"
+  }
+ }
+}

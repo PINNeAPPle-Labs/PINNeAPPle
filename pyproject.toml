@@ -466,6 +466,7 @@ packages = [
   "pinneapple_flow",         # engineering flows: typed node graphs, planner, runtime on pinneapple_core.workflows, Flow Studio
   "pinneapple_reason",       # chain of whys: naive concept -> computed failure modes -> countermeasures -> verified design
   "pinneapple_presets",      # industrial presets: engineering cases set up, solved, validated (pp.presets)
+  "pinneapple_science",      # science by area: experiments in 0-D to 3-D + time, and the atlas (pp.science)
   "pinneapple_autolab",      # Autonomous Physics Lab: mission -> plan of controlled library calls -> evidence
   "pinneapple_condense",     # Adaptive Physics Condensation: repeated-block static condensation, reduced interfaces
 
@@ -523,6 +524,7 @@ include = [
   "pinneapple_flow/**",
   "pinneapple_reason/**",
   "pinneapple_presets/**",
+  "pinneapple_science/**",
   "pinneapple_autolab/**",
   "pinneapple_condense/**",
   "pinneapple_arena/**",

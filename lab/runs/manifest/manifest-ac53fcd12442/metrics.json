@@ -1,0 +1,8 @@
+{
+ "rel_error[2D: hold-out: worst surrogate G vs solver G]": 0.0007898725588408868,
+ "rel_error[2D: solver: long bar G(L/W = 8) -> 1]": 5.743298456928336e-06,
+ "2D: holdout_max_rel_error": 0.0007898725588408873,
+ "2D: holdout_mean_rel_error": 0.00011898346609119,
+ "2D: coverage_2sigma": 0.8,
+ "2D: loo_sigma_scale": 0.9617591762202485
+}

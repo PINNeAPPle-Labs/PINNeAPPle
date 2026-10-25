@@ -1,0 +1,5 @@
+{
+ "rel_error[3D: flux through the cube x eps0]": 0.0,
+ "3D: flux_times_eps0": 1.5000000000000002e-09,
+ "rel_error[2D: flux per unit length x eps0]": 2.0679515313825694e-16
+}

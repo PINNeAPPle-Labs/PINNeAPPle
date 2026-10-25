@@ -33,7 +33,7 @@ CATEGORIES: list[tuple[str, str, str, tuple[str, ...]]] = [
      ("lib:pinneapple_physics.physics_audit", "lib:pinneapple_physics.darcy_checks", "fn:pp.trust_card",
       "fn:pp.validate", "mcp:trust_card", "fn:pinneapple_analysis.validation", "lib:pinneapple.check")),
     ("verification", "Verification and convergence", "Convergence studies, reference comparisons, Lab seals",
-     ("node:verify.", "node:validate.", "node:forecast.lab", "lib:pinneapple_analysis.verification",
+     ("node:verify.", "node:validate.", "node:forecast.lab", "node:science.", "fn:pp.science", "lib:pinneapple_analysis.verification",
       "lib:pinneapple_analysis.inspection", "fn:pinneapple_catalog.", "mcp:describe_method",
       "mcp:list_methods")),
     ("benchmarks", "Benchmarks", "Equal-budget comparisons of methods",
@@ -112,6 +112,7 @@ RECIPES: dict[str, str] = {
     "recipe:pinneapple_veriphysics__0": "verification",
     "recipe:pinneapple_worldmodel__0": "geometry",              # built-in domains and collocation sets
     "recipe:agents-a-ready-made-industrial-case": "problem",
+    "recipe:agents-science-by-area": "verification",
     "recipe:agents-dashboard-of-a-time-dependent-result": "reports",
     "recipe:agents-equal-budget-comparison": "benchmarks",
     "recipe:agents-pre-trained-models-and-datasets": "zoo",

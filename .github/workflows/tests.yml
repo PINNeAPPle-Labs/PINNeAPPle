@@ -64,7 +64,7 @@ jobs:
       - name: Adaptive Physics Condensation — exact condensation vs fine FV, hierarchy, reduced interfaces, Keff, learned blocks, transient (must pass)
         run: |
           pip install scikit-learn pyamg
-          pytest tests/test_condense.py tests/test_meshless_stencils.py -q -p no:warnings
+          pytest tests/test_condense.py tests/test_meshless_stencils.py tests/test_query.py -q -p no:warnings
 
       - name: Physics learning verification — defects caught, controls pass, interventions, sufficiency, provenance (must pass)
         run: |

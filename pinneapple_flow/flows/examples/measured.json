@@ -424,6 +424,22 @@
    "status": "done"
   }
  },
+ "benchmark_suite/13_transfer_meta_benchmark": {
+  "quick": {
+   "commit": "8306b2d6",
+   "comparisons": [],
+   "configuration": "quick",
+   "date": "2026-10-25",
+   "manifest": "manifest /home/user/flowhome/n2/example.benchmark_suite.13_transfer_meta_benchmark-quick.experiment.json, Lab item manifest/flow/example.benchmark_suite.13_transfer_meta_benchmark-quick",
+   "matched": 0,
+   "nodes": {
+    "meta": "done",
+    "transfer": "done"
+   },
+   "seconds": 273.0,
+   "status": "done"
+  }
+ },
  "black_hole_weather/accretion_run": {
   "full": {
    "commit": "5d9bf73a",
@@ -10521,6 +10537,79 @@
     "rotor": "done"
    },
    "seconds": 249.9,
+   "status": "done"
+  }
+ },
+ "use_cases/compact_range_qz": {
+  "quick": {
+   "commit": "8306b2d6",
+   "comparisons": [
+    {
+     "flow": "cr.reference.amp_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range/summary.json:reference.amp_pp_dB",
+     "reference": 3.354054420125901,
+     "rel_diff": 0.0,
+     "value": 3.354054420125901
+    },
+    {
+     "flow": "cr.reference.phase_pp_deg",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range/summary.json:reference.phase_pp_deg",
+     "reference": 20.250662813994495,
+     "rel_diff": 0.0,
+     "value": 20.250662813994495
+    },
+    {
+     "flow": "cr.reference.taper_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range/summary.json:reference.taper_dB",
+     "reference": 2.261314324764561,
+     "rel_diff": 0.0,
+     "value": 2.261314324764561
+    },
+    {
+     "flow": "cr.reference.ripple_pp_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range/summary.json:reference.ripple_pp_dB",
+     "reference": 2.5141311501880343,
+     "rel_diff": 0.0,
+     "value": 2.5141311501880343
+    },
+    {
+     "flow": "cr.reference.phase_ripple_pp_deg",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range/summary.json:reference.phase_ripple_pp_deg",
+     "reference": 12.831620248330399,
+     "rel_diff": 0.0,
+     "value": 12.831620248330399
+    },
+    {
+     "flow": "cr.reference.usable_diameter",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range/summary.json:reference.usable_diameter",
+     "reference": 0.13324109244444446,
+     "rel_diff": 0.0,
+     "value": 0.13324109244444446
+    },
+    {
+     "flow": "cr.reference.xpol_dB",
+     "outcome": "match",
+     "ref": "antennas/results/compact_range/summary.json:reference.xpol_dB",
+     "reference": -22.910026343018632,
+     "rel_diff": 0.0,
+     "value": -22.910026343018632
+    }
+   ],
+   "configuration": "quick",
+   "date": "2026-10-25",
+   "manifest": "manifest /home/user/flowhome/cr/example.use_cases.compact_range_qz-quick.experiment.json, Lab item manifest/flow/example.use_cases.compact_range_qz-quick",
+   "matched": 7,
+   "nodes": {
+    "compare": "done",
+    "cr": "done"
+   },
+   "seconds": 117.9,
    "status": "done"
   }
  },

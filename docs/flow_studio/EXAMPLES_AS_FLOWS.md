@@ -7,10 +7,10 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | status | examples |
 |---|---|
 | needs | 6 |
-| not yet run | 3 |
+| not yet run | 2 |
 | not_convertible | 16 |
-| runs | 39 |
-| runs-quick | 12 |
+| runs | 38 |
+| runs-quick | 14 |
 
 | example | domain | flow(s) | status | same numbers | notes |
 |---|---|---|---|---|---|
@@ -22,7 +22,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `autolab_digital_twin` | digital twin | `autolab_digital_twin/twin_knows_when_wrong` | runs | 2 / 2 match | twin_knows_when_wrong: autolab.pipe_twin (#869) + examples.flatten, compared with the committed _out/summary.json (diagnosis accuracy, cases with a false alarm) |
 | `autolab_rover` | vehicles | `autolab_rover/rover_learns_planet` | runs | 12 / 12 match | rover_learns_planet: rover.learn_planet (#871), compared with results/summary.json (learned soil-parameter errors, multibody distance, energy, slip and sinkage of routes A and B) |
 | `benchmark` | benchmarks | `benchmark/01_equal_budget` | runs-quick |  | 01_equal_budget: pp.benchmark.run (benchmark.equal_budget), quick = the script's smoke sizes; nothing committed to compare |
-| `benchmark_suite` | benchmarks | `benchmark_suite/02_arena_from_yaml`<br>`benchmark_suite/12_physics_benchmark_suite`<br>`benchmark_suite/13_transfer_meta_benchmark` | not yet run |  | flows for 02 (run_arena_experiment on configs/experiment_burgers_1d.yaml: the library's rel_l2 / r2 on the reference points come out degenerate, about 1e12), 12 (PINNArenaBenchmark through benchmark.arena with the registry's bench_* models: the script's VanillaPINN_S... names are no longer registered) and 13 (transfer + meta pipelines, quick = --fast; the Burgers reference solver overflows for nu = 0.005 / pi). 12 and 13 import pinneapple_arena.benchmark / transfer_benchmark / meta_benchmark, now in pinneapple_tools.benchmark_suite. Not convertible: 01, 04, 07 (genetic) and 08 import pinneapple_arena.runner / bundle / registry or pinneapple_digital_twin modules that no longer exist; 09 calls run_full_pipeline, broken in the library (ThroughputMonitor(log_every=...), missing pinneapple_environment); 03, 05, 06, 07_xtfc, 10 and 14-17 write their losses, loops or solvers in the scripts; 11 builds its ProblemSpec in script code around Arena.from_spec. Nothing committed to compare |
+| `benchmark_suite` | benchmarks | `benchmark_suite/02_arena_from_yaml`<br>`benchmark_suite/12_physics_benchmark_suite`<br>`benchmark_suite/13_transfer_meta_benchmark` | runs-quick |  | flows for 02 (run_arena_experiment on configs/experiment_burgers_1d.yaml: the library's rel_l2 / r2 on the reference points come out degenerate, about 1e12), 12 (PINNArenaBenchmark through benchmark.arena with the registry's bench_* models: the script's VanillaPINN_S... names are no longer registered) and 13 (transfer + meta pipelines, quick = --fast; the Burgers reference solver overflows for nu = 0.005 / pi). 12 and 13 import pinneapple_arena.benchmark / transfer_benchmark / meta_benchmark, now in pinneapple_tools.benchmark_suite. Not convertible: 01, 04, 07 (genetic) and 08 import pinneapple_arena.runner / bundle / registry or pinneapple_digital_twin modules that no longer exist; 09 calls run_full_pipeline, broken in the library (ThroughputMonitor(log_every=...), missing pinneapple_environment); 03, 05, 06, 07_xtfc, 10 and 14-17 write their losses, loops or solvers in the scripts; 11 builds its ProblemSpec in script code around Arena.from_spec. Nothing committed to compare |
 | `black_hole_weather` | astrophysics | `black_hole_weather/accretion_run` | runs | 1 / 1 match | the flow is one run of the resolution study (90 x 45, seed 0) and its statistics; the 12-run convergence study (2 h per 256 x 128 run), train_forecaster.py, skill.py and evaluate.py (the blackhole_riaf_density_256 Hub dataset; huggingface.co is not reachable from this machine) are not flows |
 | `bricks` | design | `bricks/self_modifying_bricks` | runs-quick | 15 / 15 match | compared with the committed _out/summary.json (--full: 400 evaluations x 5 seeds); the quick configuration runs seed 0 of each search at the full budget (the seeds are independent runs) and the physics checks. The viewer, GIF / MP4, Blender renders and building instructions of the script are not nodes |
 | `calculix_cantilever` | structures | `calculix_cantilever/beam` | runs | 4 / 4 match | no script in the folder: the flow solves the committed beam.inp with ccx (installed here from apt calculix-ccx) and compares with the committed beam.frd |
@@ -83,7 +83,7 @@ Statuses: **runs** (the flow runs in its full configuration), **runs-quick** (it
 | `time_series` | time series | `time_series/adaptive_forecasting` | runs |  | flows for adaptive_forecasting.py and 00_quickstart.py (nothing committed to compare); 01-05, 07 and 08 import pinneapple_timeseries, which no longer exists (now pinneapple_systems.time_series, without a shim); 06 registers a model class defined in the script |
 | `topology_optimization` | design | `topology_optimization/01_mbb_beam`<br>`topology_optimization/02_heat_and_stokes_flow`<br>`topology_optimization/03_reluctance_rotor` | runs | 30 / 30 match |  |
 | `trainer` | training | - | not_convertible |  | demos of pinneapple_neural.trainer with models, datasets and loss wrappers defined in the scripts; 05 needs a torchrun multi-process launch |
-| `use_cases` | use cases | `use_cases/fin_convection_inverse` | runs | 6 / 6 match | fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas (#857 / #859) has its own bundled flow antenna_vivaldi_limits (lib.antenna.limits), and its EMerge full-wave runs are not a flow here |
+| `use_cases` | use cases | `use_cases/compact_range_qz`<br>`use_cases/fin_convection_inverse` | runs-quick | 13 / 13 match | fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas: compact_range_qz (#887) is a flow (antenna.compact_range over pinneapple_simulation.electromagnetics.reflector) compared with results/compact_range/summary.json; unit_cell_benchmark (#887) and the Vivaldi full-wave runs need EMerge (pip install emerge, not installed here); the Vivaldi limits are the bundled flow antenna_vivaldi_limits (lib.antenna.limits) |
 | `validation` | validation | `validation/01_pinn_heat_conduction`<br>`validation/05_pod_dmd_cylinder_wake`<br>`validation/06_opinf_weather_advection`<br>`validation/07_mlp_zoo_heatsink_convection` | runs-quick | 1 / 1 match | 01, 05, 06 and 07 through pp.validate + gallery.conclude (the 05 / 06 ROM steppers moved to pinneapple_neural.architectures.rom.steppers; 06 prints the same output, 05's stepper is bitwise equal to the script's on test snapshots); 05 compared with the guide's |lambda| = 1.008. 02, 03, 04, 08, 09, 10 and 12 build their models, data or wrappers with helpers written in the scripts; 11 needs PhysicsNeMo |
 | `validation_arena` | validation | `validation_arena/run_arena` | runs | 4 / 4 match | compared with the table of docs/guides/validation_arena.md (full budget, seed 0, alpha 1 %, 2 rounds) |
 | `visualizations` | visualization | - | not_convertible |  | hand-written torch PINN loops (01, 02, 05, 06) and pure-numpy script numerics (03, 04) whose purpose is the figures; the physics runs as equations + train.pinn flows |
@@ -171,6 +171,7 @@ Each example with a flow and the planner capabilities that build it from text (`
 | `time_series` | `ts.adaptive` | first |
 | `topology_optimization` | `design.reluctance_rotor` | first |
 | `topology_optimization` | `design.topology` | first |
+| `use_cases` | `antenna.compact_range` | first |
 | `use_cases` | `inverse.pin_fin` | first |
 | `validation` | `gallery.opinf_advection` | falls short: generic flow |
 | `validation` | `gallery.pinn_heat` | first |
@@ -272,6 +273,10 @@ done in 542 s (commit 38ecd2bf, 2026-10-23); 0 of 0 numbers match.
 ### `benchmark_suite/12_physics_benchmark_suite` (quick)
 
 done in 772 s (commit e1b27365, 2026-10-23); 0 of 0 numbers match.
+
+### `benchmark_suite/13_transfer_meta_benchmark` (quick)
+
+done in 273 s (commit 8306b2d6, 2026-10-25); 0 of 0 numbers match.
 
 ### `black_hole_weather/accretion_run` (full)
 
@@ -1929,6 +1934,20 @@ done in 250 s (commit b25e808a, 2026-10-19); 10 of 10 numbers match.
 | `rotor.torque_linear_10deg_Nm` | `results/reluctance_rotor_summary.json:torque_per_position_linear_Nm.2` | 35.8488 | 35.8488 | 7.44946e-08 | match |
 | `rotor.solid_round_rotor_torque_Nm` | `results/reluctance_rotor_summary.json:solid_round_rotor_torque_Nm` | -2.80074e-11 | -2.4298e-11 | 0.152665 | match |
 
+### `use_cases/compact_range_qz` (quick)
+
+done in 118 s (commit 8306b2d6, 2026-10-25); 7 of 7 numbers match.
+
+| flow metric | example reference | flow | example | rel. diff | outcome |
+|---|---|---|---|---|---|
+| `cr.reference.amp_pp_dB` | `antennas/results/compact_range/summary.json:reference.amp_pp_dB` | 3.35405 | 3.35405 | 0 | match |
+| `cr.reference.phase_pp_deg` | `antennas/results/compact_range/summary.json:reference.phase_pp_deg` | 20.2507 | 20.2507 | 0 | match |
+| `cr.reference.taper_dB` | `antennas/results/compact_range/summary.json:reference.taper_dB` | 2.26131 | 2.26131 | 0 | match |
+| `cr.reference.ripple_pp_dB` | `antennas/results/compact_range/summary.json:reference.ripple_pp_dB` | 2.51413 | 2.51413 | 0 | match |
+| `cr.reference.phase_ripple_pp_deg` | `antennas/results/compact_range/summary.json:reference.phase_ripple_pp_deg` | 12.8316 | 12.8316 | 0 | match |
+| `cr.reference.usable_diameter` | `antennas/results/compact_range/summary.json:reference.usable_diameter` | 0.133241 | 0.133241 | 0 | match |
+| `cr.reference.xpol_dB` | `antennas/results/compact_range/summary.json:reference.xpol_dB` | -22.91 | -22.91 | 0 | match |
+
 ### `use_cases/fin_convection_inverse` (full)
 
 done in 211 s (commit 3f2296e8, 2026-10-21); 6 of 6 numbers match.
@@ -2749,6 +2768,8 @@ The `pinneapple*` names each script imports and whether a node declares them (`c
 
 | script | covered by a node | not covered |
 |---|---|---|
+| `antennas/compact_range_qz.py` | `pinneapple_lab.experiment`, `pinneapple_simulation.electromagnetics.reflector.CompactRange`, `pinneapple_simulation.electromagnetics.reflector.evaluate`, `pinneapple_simulation.electromagnetics.reflector.study.qz_figure`, `pinneapple_simulation.electromagnetics.reflector.study.qz_study`, `pinneapple_simulation.electromagnetics.reflector.study.validate` | - |
+| `antennas/unit_cell_benchmark.py` | `pinneapple_lab.experiment`, `pinneapple_simulation.electromagnetics.periodic.benchmark` | `pinneapple_simulation.electromagnetics.antenna.runner.read_table`, `pinneapple_simulation.electromagnetics.antenna.runner.write_table` |
 | `antennas/vivaldi_2to4ghz.py` | `pinneapple_lab.experiment`, `pinneapple_simulation.electromagnetics.antenna.study` | - |
 | `concorde_high_aoa/__init__.py` | - | - |
 | `concorde_high_aoa/concorde_high_aoa_pipeline.py` | - | `pinneapple_design.geometry.csg.CSGEllipse`, `pinneapple_design.geometry.csg.CSGPolygon`, `pinneapple_design.geometry.csg.CSGUnion`, `pinneapple_design.geometry.gen.primitives._boolean_or_fallback`, `pinneapple_design.geometry.gen.primitives.build_mesh`, `pinneapple_design.geometry.ops.lbm_bridge._aoa_rotation_matrix`, `pinneapple_design.geometry.ops.lbm_bridge.mesh_to_obstacle_mask`, `pinneapple_pdb.benchmarks.get_benchmark`, `pinneapple_physics.pde_environment.turbulence_selector.TurbulenceModel`, `pinneapple_physics.pde_environment.turbulence_selector.get_turbulence_closure`, `pinneapple_simulation.numerical_solvers.lbm.LBMSolver3D`, `pinneapple_tools.aero_coefficients.compute_cp`, `pinneapple_tools.aero_coefficients.force_to_coefficients`, `pinneapple_tools.aero_coefficients.integrate_surface_forces`, `pinneapple_tools.visualization.style.make_figure`, `pinneapple_tools.visualization.style.use_cfd_style`, `pinneapple_tools.visualization.vortex.compute_dissipation_rate`, `pinneapple_tools.visualization.vortex.compute_enstrophy`, `pinneapple_tools.visualization.vortex.compute_q_criterion_3d`, `pinneapple_tools.visualization.vortex.compute_strain_rate_tensor_3d`, `pinneapple_tools.visualization.vortex.compute_vorticity_3d`, `pinneapple_tools.visualization.vortex.plot_lbm_flow`, `pinneapple_tools.visualization.vortex.plot_q_criterion_3d`, `pinneapple_train.best_device` |

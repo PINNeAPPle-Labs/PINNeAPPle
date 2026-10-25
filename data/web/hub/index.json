@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 519,
+  "tool": 521,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
-  "flow": 16,
-  "example": 181
+  "flow": 21,
+  "example": 183
  },
  "kinds": {
   "tool": "Tools",
@@ -121,32 +121,32 @@
  ],
  "facets": {
   "kind": {
-   "tool": 519,
+   "tool": 521,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
-   "flow": 16,
-   "example": 181
+   "flow": 21,
+   "example": 183
   },
   "subkind": {
    "library call": 249,
-   "flow node": 185,
+   "flow node": 187,
    "recipe": 47,
    "function": 21,
    "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 103,
+   "physics AI": 104,
    "general": 83,
    "fluid dynamics": 72,
    "structural mechanics": 70,
-   "design and geometry": 62,
+   "design and geometry": 66,
    "validation and benchmarks": 59,
    "numerical methods": 50,
    "system dynamics": 43,
    "data": 41,
-   "heat transfer": 31,
-   "electromagnetics": 25,
+   "heat transfer": 32,
+   "electromagnetics": 28,
    "science / physics.electromagnetism": 20,
    "flight dynamics": 16,
    "time series": 14,
@@ -191,17 +191,17 @@
    "benchmarks": 22,
    "uq": 13,
    "inverse": 7,
-   "design": 36,
+   "design": 37,
    "systems": 34,
    "vehicles": 19,
-   "electromagnetics": 21,
+   "electromagnetics": 22,
    "time-series": 15,
    "data": 56,
    "reports": 13,
    "automation": 29
   },
   "quality": {
-   "not graded": 654,
+   "not graded": 663,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -6203,6 +6203,260 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Coarse FEM plus a learned correction -> pinneapple_core.Mesh.interval + fem.solve_poisson; pinneapple_core.module.Hybrid(SolverModule, Sequential corrector).fit / describe\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'n_coarse': 6, 'n_fine': 128, 'n_samples': 160, 'n_train': 128, 'epochs': 600, 'lr': 0.01, 'seed': 0}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:antenna.compact_range",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "antenna.compact_range",
+   "title": "Compact-range quiet zone by physical optics",
+   "summary": "The generic example (3 GHz, F = 1.5 m, 1.2 m section, 0.6 m quiet zone at 3 m): the reference design's quiet zone (ripple, taper, usable diameter, cross-polar), the validation…",
+   "description": "The generic example (3 GHz, F = 1.5 m, 1.2 m section, 0.6 m quiet zone at 3 m): the reference design's quiet\n    zone (ripple, taper, usable diameter, cross-polar), the validation and the design sweep.",
+   "domain": "electromagnetics",
+   "tags": [
+    "Electromagnetics",
+    "cfd",
+    "fd",
+    "fem",
+    "numerical",
+    "simulation",
+    "solvers"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"antenna.compact_range\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=antenna.compact_range",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes_ext/em_antenna.py#L11"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.electromagnetics.reflector.CompactRange / evaluate + reflector.study.validate / qz_figure / qz_study",
+    "category": "Electromagnetics",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     }
+    ],
+    "params": [
+     {
+      "name": "validate",
+      "kind": "bool",
+      "default": true,
+      "help": "PO disk against the closed form, PO against GO",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "study",
+      "kind": "bool",
+      "default": true,
+      "help": "the feed gain x reflector size x rolled edge sweep",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "coarse_mesh",
+      "kind": "bool",
+      "default": false,
+      "help": "lambda/6 mesh and lambda/4 quiet-zone grid (the script's --quick)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "gains_dbi",
+      "kind": "list",
+      "default": [
+       8.0,
+       10.0,
+       12.0,
+       14.0,
+       16.0,
+       18.0,
+       20.0
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "sides_m",
+      "kind": "list",
+      "default": [
+       0.9,
+       1.05,
+       1.2,
+       1.35,
+       1.5,
+       1.65
+      ],
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "rolls",
+      "kind": "list",
+      "default": [
+       "none",
+       "reference"
+      ],
+      "help": "rolled edge per design: none (0) or the reference's",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "mesh_densities",
+      "kind": "list",
+      "default": [
+       8,
+       12,
+       16
+      ],
+      "help": "validation: PO mesh points per wavelength",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "rolls_wl",
+      "kind": "list",
+      "default": [
+       3.0,
+       6.0
+      ],
+      "help": "validation: rolled-edge lengths in wavelengths",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "validate": {
+       "title": "validate",
+       "description": "PO disk against the closed form, PO against GO",
+       "x-kind": "bool",
+       "default": true,
+       "type": "boolean"
+      },
+      "study": {
+       "title": "study",
+       "description": "the feed gain x reflector size x rolled edge sweep",
+       "x-kind": "bool",
+       "default": true,
+       "type": "boolean"
+      },
+      "coarse_mesh": {
+       "title": "coarse mesh",
+       "description": "lambda/6 mesh and lambda/4 quiet-zone grid (the script's --quick)",
+       "x-kind": "bool",
+       "default": false,
+       "type": "boolean"
+      },
+      "gains_dbi": {
+       "title": "gains dbi",
+       "description": "",
+       "x-kind": "list",
+       "default": [
+        8.0,
+        10.0,
+        12.0,
+        14.0,
+        16.0,
+        18.0,
+        20.0
+       ],
+       "type": "array"
+      },
+      "sides_m": {
+       "title": "sides m",
+       "description": "",
+       "x-kind": "list",
+       "default": [
+        0.9,
+        1.05,
+        1.2,
+        1.35,
+        1.5,
+        1.65
+       ],
+       "type": "array"
+      },
+      "rolls": {
+       "title": "rolls",
+       "description": "rolled edge per design: none (0) or the reference's",
+       "x-kind": "list",
+       "default": [
+        "none",
+        "reference"
+       ],
+       "type": "array"
+      },
+      "mesh_densities": {
+       "title": "mesh densities",
+       "description": "validation: PO mesh points per wavelength",
+       "x-kind": "list",
+       "default": [
+        8,
+        12,
+        16
+       ],
+       "type": "array"
+      },
+      "rolls_wl": {
+       "title": "rolls wl",
+       "description": "validation: rolled-edge lengths in wavelengths",
+       "x-kind": "list",
+       "default": [
+        3.0,
+        6.0
+       ],
+       "type": "array"
+      }
+     }
+    }
+   },
+   "category": "electromagnetics",
+   "run": {
+    "code_hash": "b8d156279798fc23",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 10.18,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Compact-range quiet zone by physical optics -> pinneapple_simulation.electromagnetics.reflector.CompactRange / evaluate + reflector.study.validate / qz_figure / qz_study\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'validate': True, 'study': True, 'coarse_mesh': False, 'gains_dbi': [8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0], 'sides_m': [0.9, 1.05, 1.2, 1.35, 1.5, 1.65], 'rolls': ['none', 'reference'], 'mesh_densities': [8, 12, 16], 'rolls_wl': [3.0, 6.0]}",
     "timed_out": false,
     "status": "ok"
    }
@@ -14392,6 +14646,173 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Industrial preset -> pinneapple_presets.load(name).run(**overrides)\ninputs: [('params', 'params')]\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'preset': 'water_hammer_valve_closure', 'overrides': {}, 'fidelity': 'solver'}",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "node:design.surrogate_inverse",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "design.surrogate_inverse",
+   "title": "Inverse design through a frozen surrogate, re-checked",
+   "summary": "Train the case's surrogate, optimise the design through it, verify it against the closed form.",
+   "description": "Train the case's surrogate, optimise the design through it, verify it against the closed form.",
+   "domain": "physics AI",
+   "tags": [
+    "Design",
+    "controller",
+    "design",
+    "optimization",
+    "pareto"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"design.surrogate_inverse\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:inverse_design_brake_rotor",
+    "flow:inverse_design_heatsink_fins",
+    "flow:inverse_design_reflex_port",
+    "flow:inverse_design_suspension_arm",
+    "flow:inverse_design_transdermal_patch"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=design.surrogate_inverse",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes_ext/surrogate_inverse.py#L18"
+   },
+   "extra": {
+    "calls": "pinneapple_design.surrogate_inverse.<case>.train_surrogate / optimize_design / verify_design (core.fit_surrogate, core.descend, core.VerificationCard)",
+    "category": "Design",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "case",
+      "kind": "enum",
+      "default": "heatsink_fins",
+      "help": "heat sink, brake rotor, transdermal patch, suspension arm, bass-reflex port",
+      "choices": [
+       "heatsink_fins",
+       "brake_rotor",
+       "transdermal_patch",
+       "suspension_arm",
+       "reflex_port"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "inputs",
+      "kind": "dict",
+      "default": {},
+      "help": "the case's two inputs (empty: the defaults of the app's tests)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "n_samples",
+      "kind": "int",
+      "default": 6000,
+      "help": "",
+      "choices": null,
+      "minimum": 100,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "epochs",
+      "kind": "int",
+      "default": 1500,
+      "help": "",
+      "choices": null,
+      "minimum": 10,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "case": {
+       "title": "case",
+       "description": "heat sink, brake rotor, transdermal patch, suspension arm, bass-reflex port",
+       "x-kind": "enum",
+       "default": "heatsink_fins",
+       "enum": [
+        "heatsink_fins",
+        "brake_rotor",
+        "transdermal_patch",
+        "suspension_arm",
+        "reflex_port"
+       ]
+      },
+      "inputs": {
+       "title": "inputs",
+       "description": "the case's two inputs (empty: the defaults of the app's tests)",
+       "x-kind": "dict",
+       "default": {},
+       "type": "object"
+      },
+      "n_samples": {
+       "title": "n samples",
+       "description": "",
+       "x-kind": "int",
+       "default": 6000,
+       "type": "integer",
+       "minimum": 100
+      },
+      "epochs": {
+       "title": "epochs",
+       "description": "",
+       "x-kind": "int",
+       "default": 1500,
+       "type": "integer",
+       "minimum": 10
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      }
+     }
+    }
+   },
+   "category": "design",
+   "run": {
+    "code_hash": "32a08689abcc1983",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 10.22,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Inverse design through a frozen surrogate, re-checked -> pinneapple_design.surrogate_inverse.<case>.train_surrogate / optimize_design / verify_design (core.fit_surrogate, core.descend, core.VerificationCard)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'case': 'heatsink_fins', 'inputs': {}, 'n_samples': 6000, 'epochs': 1500, 'seed': 0}",
     "timed_out": false,
     "status": "ok"
    }
@@ -24072,6 +24493,11 @@
    "examples": [
     "flow:aircraft_takeoff",
     "flow:elnino_forecast",
+    "flow:inverse_design_brake_rotor",
+    "flow:inverse_design_heatsink_fins",
+    "flow:inverse_design_reflex_port",
+    "flow:inverse_design_suspension_arm",
+    "flow:inverse_design_transdermal_patch",
     "flow:operator_burgers",
     "flow:planned_digital_twin",
     "flow:planned_hybrid_surrogate_hpo",
@@ -34310,7 +34736,7 @@
     "functions": [
      {
       "name": "pp.science.atlas",
-      "signature": "(path: 'str' = '/home/user/PINNeAPPle/.claude/worktrees/agent-a5be1241782143e39/pinneapple_science/data/atlas.json') -> 'Atlas'",
+      "signature": "(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'",
       "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``."
      },
      {
@@ -70992,6 +71418,120 @@
    }
   },
   {
+   "id": "flow:inverse_design_reflex_port",
+   "kind": "flow",
+   "name": "inverse_design_reflex_port",
+   "title": "Bass-reflex port for a tuning frequency (inverse design)",
+   "summary": "pinneapple_design.surrogate_inverse.reflex_port: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the…",
+   "description": "pinneapple_design.surrogate_inverse.reflex_port: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/soundshape_ai).",
+   "domain": "design and geometry",
+   "tags": [
+    "design",
+    "export"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"inverse_design_reflex_port.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run inverse_design_reflex_port\n",
+   "run_cmd": "python -m pinneapple_flow run inverse_design_reflex_port",
+   "results": {
+    "nodes": 2,
+    "edges": 1,
+    "node_types": [
+     "design.surrogate_inverse",
+     "export.report"
+    ],
+    "flow_run": null
+   },
+   "examples": [
+    "node:design.surrogate_inverse",
+    "node:export.report"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/inverse_design_reflex_port.json",
+     "bytes": 1045
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=inverse_design_reflex_port",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/inverse_design_reflex_port.json"
+   },
+   "extra": {
+    "flow": "inverse_design_reflex_port"
+   },
+   "run": {
+    "code_hash": "5fee50aee27c019e",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 9.75,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Bass-reflex port for a tuning frequency (inverse design) - 2 nodes\nissues: []",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "flow:inverse_design_brake_rotor",
+   "kind": "flow",
+   "name": "inverse_design_brake_rotor",
+   "title": "Brake-rotor vanes from a braking power (inverse design)",
+   "summary": "pinneapple_design.surrogate_inverse.brake_rotor: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the…",
+   "description": "pinneapple_design.surrogate_inverse.brake_rotor: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/brakecool_ai).",
+   "domain": "design and geometry",
+   "tags": [
+    "design",
+    "export"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"inverse_design_brake_rotor.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run inverse_design_brake_rotor\n",
+   "run_cmd": "python -m pinneapple_flow run inverse_design_brake_rotor",
+   "results": {
+    "nodes": 2,
+    "edges": 1,
+    "node_types": [
+     "design.surrogate_inverse",
+     "export.report"
+    ],
+    "flow_run": null
+   },
+   "examples": [
+    "node:design.surrogate_inverse",
+    "node:export.report"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/inverse_design_brake_rotor.json",
+     "bytes": 1041
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=inverse_design_brake_rotor",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/inverse_design_brake_rotor.json"
+   },
+   "extra": {
+    "flow": "inverse_design_brake_rotor"
+   },
+   "run": {
+    "code_hash": "052cecf5531ecb4a",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 9.88,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Brake-rotor vanes from a braking power (inverse design) - 2 nodes\nissues: []",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "flow:burgers_1d",
    "kind": "flow",
    "name": "burgers_1d",
@@ -72104,6 +72644,63 @@
    }
   },
   {
+   "id": "flow:inverse_design_heatsink_fins",
+   "kind": "flow",
+   "name": "inverse_design_heatsink_fins",
+   "title": "Heat sink from a junction temperature (inverse design)",
+   "summary": "pinneapple_design.surrogate_inverse.heatsink_fins: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the…",
+   "description": "pinneapple_design.surrogate_inverse.heatsink_fins: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/heatsink_design_ai).",
+   "domain": "heat transfer",
+   "tags": [
+    "design",
+    "export"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"inverse_design_heatsink_fins.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run inverse_design_heatsink_fins\n",
+   "run_cmd": "python -m pinneapple_flow run inverse_design_heatsink_fins",
+   "results": {
+    "nodes": 2,
+    "edges": 1,
+    "node_types": [
+     "design.surrogate_inverse",
+     "export.report"
+    ],
+    "flow_run": null
+   },
+   "examples": [
+    "node:design.surrogate_inverse",
+    "node:export.report"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/inverse_design_heatsink_fins.json",
+     "bytes": 1050
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=inverse_design_heatsink_fins",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/inverse_design_heatsink_fins.json"
+   },
+   "extra": {
+    "flow": "inverse_design_heatsink_fins"
+   },
+   "run": {
+    "code_hash": "7f961b4b02580aaf",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 5.7,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Heat sink from a junction temperature (inverse design) - 2 nodes\nissues: []",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "flow:inverse_heat",
    "kind": "flow",
    "name": "inverse_heat",
@@ -72929,6 +73526,120 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Roof: chain of whys - 7 nodes\nissues: []",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "flow:inverse_design_suspension_arm",
+   "kind": "flow",
+   "name": "inverse_design_suspension_arm",
+   "title": "Suspension arm of minimum mass for a fatigue life (inverse design)",
+   "summary": "pinneapple_design.surrogate_inverse.suspension_arm: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the…",
+   "description": "pinneapple_design.surrogate_inverse.suspension_arm: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/ridetune_ai).",
+   "domain": "design and geometry",
+   "tags": [
+    "design",
+    "export"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"inverse_design_suspension_arm.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run inverse_design_suspension_arm\n",
+   "run_cmd": "python -m pinneapple_flow run inverse_design_suspension_arm",
+   "results": {
+    "nodes": 2,
+    "edges": 1,
+    "node_types": [
+     "design.surrogate_inverse",
+     "export.report"
+    ],
+    "flow_run": null
+   },
+   "examples": [
+    "node:design.surrogate_inverse",
+    "node:export.report"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/inverse_design_suspension_arm.json",
+     "bytes": 1082
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=inverse_design_suspension_arm",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/inverse_design_suspension_arm.json"
+   },
+   "extra": {
+    "flow": "inverse_design_suspension_arm"
+   },
+   "run": {
+    "code_hash": "47f7d26a7e789027",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 5.35,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Suspension arm of minimum mass for a fatigue life (inverse design) - 2 nodes\nissues: []",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "flow:inverse_design_transdermal_patch",
+   "kind": "flow",
+   "name": "inverse_design_transdermal_patch",
+   "title": "Transdermal patch from a target dose (inverse design)",
+   "summary": "pinneapple_design.surrogate_inverse.transdermal_patch: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the…",
+   "description": "pinneapple_design.surrogate_inverse.transdermal_patch: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/patchdose_ai).",
+   "domain": "design and geometry",
+   "tags": [
+    "design",
+    "export"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"inverse_design_transdermal_patch.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run inverse_design_transdermal_patch\n",
+   "run_cmd": "python -m pinneapple_flow run inverse_design_transdermal_patch",
+   "results": {
+    "nodes": 2,
+    "edges": 1,
+    "node_types": [
+     "design.surrogate_inverse",
+     "export.report"
+    ],
+    "flow_run": null
+   },
+   "examples": [
+    "node:design.surrogate_inverse",
+    "node:export.report"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/inverse_design_transdermal_patch.json",
+     "bytes": 1053
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=inverse_design_transdermal_patch",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/inverse_design_transdermal_patch.json"
+   },
+   "extra": {
+    "flow": "inverse_design_transdermal_patch"
+   },
+   "run": {
+    "code_hash": "2897cf5f55d9f623",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 5.64,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Transdermal patch from a target dose (inverse design) - 2 nodes\nissues: []",
     "timed_out": false,
     "status": "ok"
    }
@@ -80067,6 +80778,90 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Cold plate: PhysicsNeMo FNO, PINNeAPPle checks, OpenUSD scene | heat transfer | not curated\ntest_rel_l2 0.017551220805002144 \nmax_hotspot_error_K 0.23619471814862428 K\ntrain_wall_s 153.67537451800104 s",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:compact_range_qz",
+   "kind": "example",
+   "name": "compact_range_qz",
+   "title": "Compact range quiet zone: feed gain x reflector size",
+   "summary": "",
+   "description": "",
+   "domain": "electromagnetics",
+   "tags": [
+    "Gaussian process",
+    "physical optics"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/use_cases/antennas/results/compact_range"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/use_cases/antennas/results/compact_range\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "po_disk_max_rel_error",
+      "value": 0.001108988630067284,
+      "unit": "",
+      "how": "PO disk on axis vs closed form, lambda/16 mesh"
+     },
+     {
+      "name": "po_vs_go_rms_dB",
+      "value": 0.4959877175658075,
+      "unit": "dB",
+      "how": "smooth PO QZ amplitude vs GO taper"
+     },
+     {
+      "name": "reference_ripple_pp_dB",
+      "value": 2.5141311501880343,
+      "unit": "dB",
+      "how": "PO, reference design"
+     },
+     {
+      "name": "reference_usable_diameter_m",
+      "value": 0.13324109244444446,
+      "unit": "m",
+      "how": "within +-0.5 dB / +-5 deg"
+     },
+     {
+      "name": "evaluation_s_median",
+      "value": 28.125999999999998,
+      "unit": "s",
+      "how": "PO mesh + QZ field per design"
+     }
+    ],
+    "figures": [
+     "examples/use_cases/antennas/results/compact_range/qz_reference.png",
+     "examples/use_cases/antennas/results/compact_range/tradeoff_roll0.png",
+     "examples/use_cases/antennas/results/compact_range/tradeoff_roll0.15.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#compact_range_qz"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "8cc985c59c7b05a8",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 0.96,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "Compact range quiet zone: feed gain x reflector size | electromagnetics | not curated\npo_disk_max_rel_error 0.001108988630067284 \npo_vs_go_rms_dB 0.4959877175658075 dB\nreference_ripple_pp_dB 2.5141311501880343 dB\nreference_usable_diameter_m 0.13324109244444446 m\nevaluation_s_median 28.125999999999998 s",
     "timed_out": false,
     "status": "ok"
    }
@@ -100385,6 +101180,89 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "Synthetic thermal-inspection data as USD scene variations, with a physics label check | physical AI | not curated\nwithin_4px_all_samples 0.2 \nwithin_4px_accepted_samples 0.26 \nwithin_4px_brightest_pixel 0.44",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "example:unit_cell_benchmark",
+   "kind": "example",
+   "name": "unit_cell_benchmark",
+   "title": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation",
+   "summary": "",
+   "description": "",
+   "domain": "electromagnetics",
+   "tags": [
+    "Bayesian optimisation",
+    "FEM (EMerge, Floquet)",
+    "FNO"
+   ],
+   "quality": {
+    "letter": null,
+    "label": "not curated",
+    "source": "pinneapple_lab curation",
+    "how": "python -m pinneapple_lab register examples/use_cases/antennas/results/unit_cell"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/use_cases/antennas/results/unit_cell\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "cell_wall_s_median",
+      "value": 93.0,
+      "unit": "s",
+      "how": "one EMerge process per cell: 7 frequencies x 4 scans"
+     },
+     {
+      "name": "cell_max_rss_mb",
+      "value": 2039.0,
+      "unit": "MB",
+      "how": "peak RSS of a cell process"
+     },
+     {
+      "name": "fno_heldout_rmse_dB",
+      "value": 2.264688414031629,
+      "unit": "dB",
+      "how": "16 unseen cells"
+     },
+     {
+      "name": "fno_optimizer_best_dB",
+      "value": -6.543068986377335,
+      "unit": "dB",
+      "how": "solver value, 24 calls"
+     },
+     {
+      "name": "bayesian_best_dB",
+      "value": -6.720940250952603,
+      "unit": "dB",
+      "how": "solver value, 24 calls"
+     }
+    ],
+    "figures": [
+     "examples/use_cases/antennas/results/unit_cell/unit_cell_benchmark.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#unit_cell_benchmark"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": []
+   },
+   "run": {
+    "code_hash": "2994e0f247402c82",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 0.87,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation | electromagnetics | not curated\ncell_wall_s_median 93.0 s\ncell_max_rss_mb 2039.0 MB\nfno_heldout_rmse_dB 2.264688414031629 dB\nfno_optimizer_best_dB -6.543068986377335 dB\nbayesian_best_dB -6.720940250952603 dB",
     "timed_out": false,
     "status": "ok"
    }

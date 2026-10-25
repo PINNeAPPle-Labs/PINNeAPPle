@@ -659,6 +659,17 @@
   "stdout": "B - drag in bluff body range · 2-D bluff bodies near a moving ground",
   "timed_out": false
  },
+ "example:compact_range_qz": {
+  "code_hash": "8cc985c59c7b05a8",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 0.96,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Compact range quiet zone: feed gain x reflector size | electromagnetics | not curated\npo_disk_max_rel_error 0.001108988630067284 \npo_vs_go_rms_dB 0.4959877175658075 dB\nreference_ripple_pp_dB 2.5141311501880343 dB\nreference_usable_diameter_m 0.13324109244444446 m\nevaluation_s_median 28.125999999999998 s",
+  "timed_out": false
+ },
  "example:cylinder_lbm": {
   "code_hash": "6da03e766551a6d7",
   "figures": [],
@@ -2331,6 +2342,17 @@
   "stdout": "A - vs Saint-Venant and CalculiX",
   "timed_out": false
  },
+ "example:unit_cell_benchmark": {
+  "code_hash": "2994e0f247402c82",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 0.87,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation | electromagnetics | not curated\ncell_wall_s_median 93.0 s\ncell_max_rss_mb 2039.0 MB\nfno_heldout_rmse_dB 2.264688414031629 dB\nfno_optimizer_best_dB -6.543068986377335 dB\nbayesian_best_dB -6.720940250952603 dB",
+  "timed_out": false
+ },
  "example:vehicle_cfd/car": {
   "code_hash": "643d0214298ee022",
   "figures": [],
@@ -2406,6 +2428,61 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Heat 1D: PINN vs finite differences vs exact - 8 nodes\nissues: []",
+  "timed_out": false
+ },
+ "flow:inverse_design_brake_rotor": {
+  "code_hash": "052cecf5531ecb4a",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 9.88,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Brake-rotor vanes from a braking power (inverse design) - 2 nodes\nissues: []",
+  "timed_out": false
+ },
+ "flow:inverse_design_heatsink_fins": {
+  "code_hash": "7f961b4b02580aaf",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 5.7,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Heat sink from a junction temperature (inverse design) - 2 nodes\nissues: []",
+  "timed_out": false
+ },
+ "flow:inverse_design_reflex_port": {
+  "code_hash": "5fee50aee27c019e",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 9.75,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Bass-reflex port for a tuning frequency (inverse design) - 2 nodes\nissues: []",
+  "timed_out": false
+ },
+ "flow:inverse_design_suspension_arm": {
+  "code_hash": "47f7d26a7e789027",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 5.35,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Suspension arm of minimum mass for a fatigue life (inverse design) - 2 nodes\nissues: []",
+  "timed_out": false
+ },
+ "flow:inverse_design_transdermal_patch": {
+  "code_hash": "2897cf5f55d9f623",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 5.64,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Transdermal patch from a target dose (inverse design) - 2 nodes\nissues: []",
   "timed_out": false
  },
  "flow:inverse_heat": {
@@ -2956,6 +3033,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Airliner vortex lattice + friction drag (geometry library) -> pinneapple.geometries.build + pinneapple_design.aero.airliner.Airliner + pinneapple_design.aero.vlm.solve (CL, neutral_point, trim, coefficients) + pinneapple_design.aero.buildup.friction_drag\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'entry': 'airliner_a320', 'mass_kg': 64000.0, 'mach': 0.78, 'T_K': 216.65, 'rho': 0.3639, 'a_mps': 295.07, 'span_efficiency': 0.85}",
+  "timed_out": false
+ },
+ "node:antenna.compact_range": {
+  "code_hash": "b8d156279798fc23",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 10.18,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Compact-range quiet zone by physical optics -> pinneapple_simulation.electromagnetics.reflector.CompactRange / evaluate + reflector.study.validate / qz_figure / qz_study\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'validate': True, 'study': True, 'coarse_mesh': False, 'gains_dbi': [8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0], 'sides_m': [0.9, 1.05, 1.2, 1.35, 1.5, 1.65], 'rolls': ['none', 'reference'], 'mesh_densities': [8, 12, 16], 'rolls_wl': [3.0, 6.0]}",
   "timed_out": false
  },
  "node:architectures.forward": {
@@ -6102,6 +6190,17 @@
   "source": "python -m pinneapple_hub.library run",
   "stderr": "",
   "stdout": "Reluctance-rotor iron for torque (topology optimization) -> pinneapple_design.topology.magnetic.RotorTorqueProblem + SymmetryMap.rotational + DensityFilter + optimize (mma); pinneapple_simulation.electromagnetics.machine.SPMMachine (re-evaluation, linear and illustrative_steel, co-energy torque)\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'I_peak': 60.0, 'gamma_deg': 60.0, 'positions_deg': [0.0, 5.0, 10.0], 'volume': 0.5, 'max_iter': 120, 'filter_radius': 0.0018, 'mu_r': 1000.0}",
+  "timed_out": false
+ },
+ "node:design.surrogate_inverse": {
+  "code_hash": "32a08689abcc1983",
+  "figures": [],
+  "ok": true,
+  "recorded": "2026-10-25",
+  "seconds": 10.22,
+  "source": "python -m pinneapple_hub.library run",
+  "stderr": "",
+  "stdout": "Inverse design through a frozen surrogate, re-checked -> pinneapple_design.surrogate_inverse.<case>.train_surrogate / optimize_design / verify_design (core.fit_surrogate, core.descend, core.VerificationCard)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'case': 'heatsink_fins', 'inputs': {}, 'n_samples': 6000, 'epochs': 1500, 'seed': 0}",
   "timed_out": false
  },
  "node:design.topology2d": {

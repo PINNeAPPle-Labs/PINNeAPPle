@@ -307,7 +307,7 @@
  },
  "use_cases": {
   "domain": "use cases",
-  "notes": "fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas (#857 / #859) has its own bundled flow antenna_vivaldi_limits (lib.antenna.limits), and its EMerge full-wave runs are not a flow here"
+  "notes": "fin_convection_inverse compared with results/summary.json (the closed forms pin_fin_theta / pin_fin_heat moved from the script into pinneapple_physics.closed_form.heat); concorde LBM, crash, missile and the heated-channel twin hold their physics in the scripts; the lunar rover is the #850 session's (vehicle.* nodes); antennas: compact_range_qz (#887) is a flow (antenna.compact_range over pinneapple_simulation.electromagnetics.reflector) compared with results/compact_range/summary.json; unit_cell_benchmark (#887) and the Vivaldi full-wave runs need EMerge (pip install emerge, not installed here); the Vivaldi limits are the bundled flow antenna_vivaldi_limits (lib.antenna.limits)"
  },
  "validation": {
   "domain": "validation",

@@ -19,7 +19,7 @@ import time
 import numpy as np
 
 from . import fv
-from .package import BASE, MATERIALS, Package, Stack, Variant
+from .package import BASE, Package, Stack, Variant
 
 
 def effective_layer(k_m: float, k_i: float, phi: float) -> tuple[float, float]:

@@ -1,0 +1,29 @@
+{
+ "hybrid conduction": {
+  "unknowns": 3648,
+  "exact_rel_err": 5.913151669057873e-10,
+  "direct_s": 0.021003444999223575,
+  "condensed_s": 0.08217424299982667,
+  "speedup": 0.255596452519409,
+  "local": 0.030451278999862552,
+  "distinct_blocks": 16,
+  "blocks": 16,
+  "separator": 846,
+  "interior": 2802,
+  "prepare": 0.05262600000060047
+ },
+ "advection-diffusion Pe_b=10": {
+  "unknowns": 6144,
+  "exact_rel_err": 5.734962925264016e-13,
+  "direct_s": 0.10136213100031455,
+  "condensed_s": 0.12826083900017693,
+  "speedup": 0.7902812096853251,
+  "local": 0.05885366699840233,
+  "distinct_blocks": 24,
+  "blocks": 24,
+  "separator": 1086,
+  "interior": 5058,
+  "prepare": 0.09177644999999757
+ },
+ "peak_rss_gb": 0.633816
+}

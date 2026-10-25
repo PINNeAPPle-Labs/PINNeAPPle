@@ -1,0 +1,81 @@
+{
+ "blocks": 256,
+ "rows": [
+  {
+   "case": "baseline",
+   "Tmax_fine": 66.85656137809481,
+   "fine_s": 14.935560378000446,
+   "fine_method": "amg",
+   "m": 12,
+   "Tmax_reduced": 66.85512280001423,
+   "err_reduced": 0.00143857808058101,
+   "effectivity": 1.3676643131828956,
+   "Tmax_exact": 66.85656137259078,
+   "exact_vs_fine": 5.5040345614543185e-09,
+   "exact_iterations": 163,
+   "exact_rel_residual": 8.868652072335173e-11,
+   "prepare_s": 0.2451332350001394
+  },
+  {
+   "case": "TIM 3 um",
+   "Tmax_fine": 60.73617096884477,
+   "fine_s": 14.630005027000152,
+   "fine_method": "amg",
+   "m": 12,
+   "Tmax_reduced": 60.734739935793975,
+   "err_reduced": 0.0014310330507925073,
+   "effectivity": 1.3673396859344464,
+   "Tmax_exact": 60.73617096483601,
+   "exact_vs_fine": 4.0087542174660484e-09,
+   "exact_iterations": 157,
+   "exact_rel_residual": 8.352396241594451e-11,
+   "prepare_s": 0.22122550099993532
+  },
+  {
+   "case": "TIM 1 um, one cell",
+   "Tmax_fine": 60.27951726905635,
+   "fine_s": 15.503987300999142,
+   "fine_method": "amg",
+   "m": 12,
+   "Tmax_reduced": 60.27808661970242,
+   "err_reduced": 0.001430649353928004,
+   "effectivity": 1.3671541524387936,
+   "Tmax_exact": 60.279517263199125,
+   "exact_vs_fine": 5.8572240391185915e-09,
+   "exact_iterations": 157,
+   "exact_rel_residual": 8.164305418644941e-11,
+   "prepare_s": 0.24135713600026065
+  },
+  {
+   "case": "die 20 um",
+   "Tmax_fine": 67.78831098368089,
+   "fine_s": 13.92634088199975,
+   "fine_method": "amg",
+   "m": 12,
+   "Tmax_reduced": 67.78532244473051,
+   "err_reduced": 0.002988538950376096,
+   "effectivity": 1.6800008015209984,
+   "Tmax_exact": 67.78831097780805,
+   "exact_vs_fine": 5.872834663023241e-09,
+   "exact_iterations": 167,
+   "exact_rel_residual": 8.90403443040496e-11,
+   "prepare_s": 0.22598895000010089
+  },
+  {
+   "case": "TIM 1 um and die 20 um",
+   "Tmax_fine": 61.18484709496309,
+   "fine_s": 15.075240123000185,
+   "fine_method": "amg",
+   "m": 12,
+   "Tmax_reduced": 61.181682825483996,
+   "err_reduced": 0.003164269479093207,
+   "effectivity": 1.6696380972452307,
+   "Tmax_exact": 61.18484708822634,
+   "exact_vs_fine": 6.736748048297159e-09,
+   "exact_iterations": 169,
+   "exact_rel_residual": 9.443875447689828e-11,
+   "prepare_s": 139.94210116999966
+  }
+ ],
+ "peak_rss_gb": 6.975076
+}

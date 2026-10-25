@@ -77,6 +77,16 @@ REASONS: dict[str, str] = {
     "pinneapple_condense.meshless": "meshless (RBF-FD / GFDM) solution of the package, measured in the condensation "
                                     "benchmark (minutes per point cloud)",
     "pinneapple_condense.exceptions": "prior + exception patches, measured in the condensation benchmark",
+    "pinneapple_condense.query": "the package query methods behind query.package",
+    "pinneapple_condense.query_benchmark": "the measured query demo of the condensation report (minutes; run by "
+                                           "examples/physics_condensation)",
+    "pinneapple_query.core": "the query engine and planner behind query.package",
+    "pinneapple_query.refs": "physical references parsed by query.package",
+    "pinneapple_condense.algebraic": "algebraic condensation of any sparse operator, measured by the condensation "
+                                     "falsification campaign (examples/condensation_falsification)",
+    "pinneapple_condense.falsify": "the pre-registered falsification studies (subprocesses, minutes to an hour)",
+    "pinneapple_condense.flow": "steady MAC-grid flow and heat assembler behind the CFD falsification tests",
+    "pinneapple_condense.meshless2d": "2-D meshless discretisations of the CFD falsification tests",
     "pinneapple_analysis.reproduction": "metrics and status rule of examples/paper_reproductions (offline "
                                         "scoring of committed seed results, not a flow step)",
     "pinneapple_physics.paper_problems": "test problems of published papers (grids, references) read by "

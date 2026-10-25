@@ -19,7 +19,7 @@ import time
 import numpy as np
 
 from . import fv
-from .package import BASE, MATERIALS, Package, Stack, Variant
+from .package import BASE, Package, Stack, Variant
 
 
 def effective_layer(k_m: float, k_i: float, phi: float) -> tuple[float, float]:
@@ -35,10 +35,10 @@ def effective_properties(stack: Stack, variant: Variant = BASE) -> dict[str, np.
     kxy, kz, rc = np.empty(stack.nz), np.empty(stack.nz), np.empty(stack.nz)
     incl_k = dict(variant.inclusion_k)
     for L, sl in zip(stack.layers, stack.layer_slices().values(), strict=False):
-        km, cm = MATERIALS[L.matrix]
+        km, cm = stack.material(L.matrix)
         phi = float(p["masks"][L.name].mean())
         if phi > 0:
-            ki, ci = MATERIALS[L.inclusion]
+            ki, ci = stack.material(L.inclusion)
             a, b = effective_layer(km, ki * incl_k.get(L.name, 1.0), phi)
             kxy[sl], kz[sl], rc[sl] = a, b, phi * ci + (1 - phi) * cm
         else:
@@ -94,7 +94,7 @@ def homogenized_observables(pkg: Package, T: np.ndarray, sysm, cells: int = 1) -
     f = s.start + (s.stop - s.start) // 2 - 1
     q_layer = per_block(sysm.Gz[:, :, f] * (T[:, :, f] - T[:, :, f + 1]))
     L = [x for x in st.layers if x.name == "ubump"][0]
-    km, ki = MATERIALS[L.matrix][0], MATERIALS[L.inclusion][0]
+    km, ki = st.material(L.matrix)[0], st.material(L.inclusion)[0]
     phi = L.side ** 2
     share = phi * ki / (phi * ki + (1 - phi) * km)
     q_top = per_block(sysm.g_top * T[:, :, -1])

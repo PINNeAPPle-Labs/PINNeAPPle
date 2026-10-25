@@ -1,0 +1,12 @@
+{
+ "code_hash": "ee12d58499ecaed9",
+ "figures": [],
+ "id": "example:examples/physics_query",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 0.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Physics query engine on a chip package | heat transfer | not curated\nqueries 5115.0 \nbuild_s 11.906592649999993 s\nreference_solve_s 191.16682713700015 s\nerror_within_uncertainty 1.0 fraction",
+ "timed_out": false
+}

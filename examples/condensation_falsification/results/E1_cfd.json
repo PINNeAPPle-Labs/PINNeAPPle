@@ -1,0 +1,185 @@
+{
+ "advection Pe_b=100": {
+  "residual": [
+   {
+    "budget": 0.0,
+    "solved_fraction": 0.0,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.14954057042469254,
+    "overlap_top_error": NaN
+   },
+   {
+    "budget": 0.05,
+    "solved_fraction": 0.2,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.138484782851366,
+    "overlap_top_error": 0.0
+   },
+   {
+    "budget": 0.1,
+    "solved_fraction": 0.3,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.1302486036756799,
+    "overlap_top_error": 0.0
+   },
+   {
+    "budget": 0.2,
+    "solved_fraction": 0.45,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.11070700023697698,
+    "overlap_top_error": 0.25
+   },
+   {
+    "budget": 0.4,
+    "solved_fraction": 0.85,
+    "err_max": 0.19371676703024104,
+    "err_l2": 0.07521102328542557,
+    "overlap_top_error": 0.25
+   },
+   {
+    "budget": 0.6,
+    "solved_fraction": 0.9625,
+    "err_max": 0.19371676703024104,
+    "err_l2": 0.044985137398192196,
+    "overlap_top_error": 0.6666666666666666
+   }
+  ],
+  "random": [
+   {
+    "budget": 0.0,
+    "solved_fraction": 0.0,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.14954057042469254,
+    "overlap_top_error": NaN
+   },
+   {
+    "budget": 0.05,
+    "solved_fraction": 0.2,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.1372599749075523,
+    "overlap_top_error": 0.0
+   },
+   {
+    "budget": 0.1,
+    "solved_fraction": 0.4,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.12604646605833358,
+    "overlap_top_error": 0.125
+   },
+   {
+    "budget": 0.2,
+    "solved_fraction": 0.7,
+    "err_max": 0.19610611338668393,
+    "err_l2": 0.10143545095455986,
+    "overlap_top_error": 0.25
+   },
+   {
+    "budget": 0.4,
+    "solved_fraction": 0.9,
+    "err_max": 0.19610611338667477,
+    "err_l2": 0.046200653329649365,
+    "overlap_top_error": 0.53125
+   },
+   {
+    "budget": 0.6,
+    "solved_fraction": 1.0,
+    "err_max": 0.0,
+    "err_l2": 0.0,
+    "overlap_top_error": 0.6458333333333334
+   }
+  ],
+  "prior_err_max": 0.19610611338668393
+ },
+ "cold-plate energy Re=50": {
+  "residual": [
+   {
+    "budget": 0.0,
+    "solved_fraction": 0.0,
+    "err_max": 0.7761750797915475,
+    "err_l2": 0.49697731801451456,
+    "overlap_top_error": NaN
+   },
+   {
+    "budget": 0.05,
+    "solved_fraction": 0.18181818181818182,
+    "err_max": 0.7761750797915475,
+    "err_l2": 0.46553309206386007,
+    "overlap_top_error": 0.0
+   },
+   {
+    "budget": 0.1,
+    "solved_fraction": 0.2727272727272727,
+    "err_max": 0.7761750797915475,
+    "err_l2": 0.4388926901782939,
+    "overlap_top_error": 0.0
+   },
+   {
+    "budget": 0.2,
+    "solved_fraction": 0.5,
+    "err_max": 0.7761750797915475,
+    "err_l2": 0.36164415869469674,
+    "overlap_top_error": 0.1111111111111111
+   },
+   {
+    "budget": 0.4,
+    "solved_fraction": 0.7272727272727273,
+    "err_max": 0.7712569145802507,
+    "err_l2": 0.23132943309768852,
+    "overlap_top_error": 0.3333333333333333
+   },
+   {
+    "budget": 0.6,
+    "solved_fraction": 0.7727272727272727,
+    "err_max": 0.3991408870988858,
+    "err_l2": 0.1836127708815299,
+    "overlap_top_error": 0.6923076923076923
+   }
+  ],
+  "random": [
+   {
+    "budget": 0.0,
+    "solved_fraction": 0.0,
+    "err_max": 0.7761750797915475,
+    "err_l2": 0.49697731801451456,
+    "overlap_top_error": NaN
+   },
+   {
+    "budget": 0.05,
+    "solved_fraction": 0.1590909090909091,
+    "err_max": 0.7761750797915475,
+    "err_l2": 0.4725214937946189,
+    "overlap_top_error": 0.0
+   },
+   {
+    "budget": 0.1,
+    "solved_fraction": 0.29545454545454547,
+    "err_max": 0.7761750797915328,
+    "err_l2": 0.41427433274631853,
+    "overlap_top_error": 0.25
+   },
+   {
+    "budget": 0.2,
+    "solved_fraction": 0.5227272727272727,
+    "err_max": 0.7761750797915475,
+    "err_l2": 0.37907818915472835,
+    "overlap_top_error": 0.0
+   },
+   {
+    "budget": 0.4,
+    "solved_fraction": 0.8863636363636364,
+    "err_max": 0.7761750797915217,
+    "err_l2": 0.21117100717474593,
+    "overlap_top_error": 0.2777777777777778
+   },
+   {
+    "budget": 0.6,
+    "solved_fraction": 0.9772727272727273,
+    "err_max": 0.0068458947722009255,
+    "err_l2": 0.0047042252164359,
+    "overlap_top_error": 0.5384615384615384
+   }
+  ],
+  "prior_err_max": 0.7761750797915475
+ },
+ "peak_rss_gb": 0.157876
+}

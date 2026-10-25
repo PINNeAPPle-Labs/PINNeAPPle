@@ -14,6 +14,17 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_query`: physics query engine (research line, track 2). `query(quantity, where, time, conditions,
+  accuracy)` returns value, units, uncertainty, validity and provenance, and says whether it read a solved state or
+  predicted an unsolved one; a planner takes the cheapest method meeting the target. Chip-package methods in
+  `pinneapple_condense.query` (read, superposition, rigorous M-matrix bound, condensed solve, fine reference); Flow
+  node `query.package`; measured demo `examples/physics_query`.
+- Condensation falsification campaign (`docs/research/condensation_falsification.md`, pre-registered hypotheses with
+  kill criteria; `examples/condensation_falsification`). New `pinneapple_condense.algebraic` (exact condensation of
+  any sparse operator, identical blocks found by content, POD-reduced faces), `pinneapple_condense.flow` (steady MAC
+  Stokes / Oseen / Navier-Stokes by Picard and conjugate heat, validated against Ghia et al. and Nu = 5.385),
+  `pinneapple_condense.meshless2d` (RBF-FD / GFDM advection-diffusion and Stokes, FV-at-interfaces hybrid);
+  `Stack.materials` / `Stack.anisotropy` overrides that enter the cache key.
 - `pinneapple_simulation.pipelines.freecad_openfoam`: headless pipelines from a parametric FreeCAD document
   (spreadsheet aliases and expressions, `freecadcmd`; a NumPy stand-in `FakeFreeCAD` without FreeCAD) to a checked
   OpenFOAM result: patches named by rule over face centre / normal / type, multi-region STL, blockMesh +

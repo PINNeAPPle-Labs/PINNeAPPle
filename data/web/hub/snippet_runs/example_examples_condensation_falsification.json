@@ -1,0 +1,12 @@
+{
+ "code_hash": "7bf90cc8261cc84e",
+ "figures": [],
+ "id": "example:examples/condensation_falsification",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 0.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Falsification campaign for physics condensation | heat transfer | not curated\nhypotheses_validated 9.0 \nhypotheses_partially_validated 3.0 \nhypotheses_refuted 11.0 \nhypotheses_not_tested 0.0",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "cf78ddbcc58dd02d",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/fresnel_snell",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Fresnel reflection and Snell's law (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: |r_s| at 0 deg] 0.009342468310234442 -\nrel_error[2D: |r_p| at 0 deg] 0.009340533038225823 -\nrel_error[2D: |r_s| at 30 deg] 0.007702825806827807 -\nrel_error[2D: |r_p| at 30 deg] 0.01174960093498128 -\nrel_error[2D: |r_s| at 45 deg] 0.005745213438298207 -",
+ "timed_out": false
+}

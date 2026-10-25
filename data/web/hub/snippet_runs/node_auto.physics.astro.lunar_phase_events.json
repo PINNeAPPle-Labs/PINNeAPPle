@@ -1,0 +1,12 @@
+{
+ "code_hash": "cc4f14768debf5e2",
+ "figures": [],
+ "id": "node:auto.physics.astro.lunar_phase_events",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "lunar phase events -> pinneapple_physics.astro:lunar_phase_events\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'jd0': 1.0, 'jd1': 1.0}",
+ "timed_out": false
+}

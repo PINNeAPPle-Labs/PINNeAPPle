@@ -1,0 +1,12 @@
+{
+ "code_hash": "1d49d4e9b18804b7",
+ "figures": [],
+ "id": "node:validate.compare",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.18,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Validation vs reference -> relative L2 / max / RMSE on common points + pp.trust_card\ninputs: [('candidates', 'solution'), ('reference', 'solution'), ('problem', 'problem')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'reference': 'auto', 'tolerance': 0.02, 'trust_card': True}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "04ad6181bcc128b7",
+ "figures": [],
+ "id": "node:auto.systems.process_components.solve_nonlinear_beam_static",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "solve nonlinear beam static -> pinneapple_systems.process_components:solve_nonlinear_beam_static\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'boundary': {}, 'L_m': 1.0, 'A_m2': 1.0, 'I_m4': 1.0, 'E_Pa': 1.0, 'fiber_distance_m': 1.0, 'axial_dist_load_N_per_m': 0.0, 'transverse_dist_load_N_per_m': 0.0, 'num_elements': 50, 'load_steps': 10, 'newton_iterations': 30, 'newton_tolerance': 1e-08, 'reference_temperature': 0.0, 'thermal_expansion_coeff': 0.0}",
+ "timed_out": false
+}

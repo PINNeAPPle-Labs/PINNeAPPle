@@ -1,0 +1,12 @@
+{
+ "code_hash": "62e45366f00983ee",
+ "figures": [],
+ "id": "node:auto.analysis.retrieval.build_corpus",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[Document(doc_id='verification_module:architecture_critique', source='pinneapple_analysis.verification.architecture_critique', title='architecture critique', text='Adversarial review of a proposed Physics-AI architecture/pipeline\\ndesign -- \"assume the role of a Principal Engineer trying to prove this\\narchitecture is wrong\" as a structured, checked-menu LLM tool, not free-\\nform commentary.\\n\\nWhy a fixed checklist instead of an open-ended \"critique this\" prompt:\\nthe whole point of an adversarial review is to catch failure modes the\\narchitecture\\'s OWN author didn\\'t think to ask about -- an open-ended\\nprompt tends to just restate whatever the author already emphasized. This\\nmodule forces the LLM to produce a verdict for EVERY category in\\n``FAILURE_MODE_CHECKLIST`` (data leakage, sho",
+ "timed_out": false
+}

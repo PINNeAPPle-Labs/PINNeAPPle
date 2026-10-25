@@ -1,0 +1,12 @@
+{
+ "code_hash": "6c17102c90bdc6b5",
+ "figures": [],
+ "id": "example:examples/first_example",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Your first PINNeAPPle result in about a minute on a laptop CPU: solve Burgers' equation with a… | general | not curated",
+ "timed_out": false
+}

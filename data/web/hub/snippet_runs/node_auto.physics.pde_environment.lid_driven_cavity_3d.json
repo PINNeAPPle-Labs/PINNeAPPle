@@ -1,0 +1,12 @@
+{
+ "code_hash": "e660fab7cf8b5037",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.lid_driven_cavity_3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='lid_driven_cavity_3d', dim=3, coords=('x', 'y', 'z'), fields=('u', 'v', 'w', 'p'), pde=PDETermSpec(kind='navier_stokes_incompressible', fields=('u', 'v', 'w', 'p'), coords=('x', 'y', 'z'), params={'Re': 100.0}, meta={'note': 'Steady-state 3D LDC; BC tags: lid / walls.'}), conditions=(ConditionSpec(name='lid', kind='dirichlet', fields=('u', 'v', 'w'), selector_type='tag', selector={'tag': 'lid'}, value_fn=<function lid_driven_cavity_3d.<locals>.<lambda> at 0x7fa79b62e7a0>, weight=50.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='walls', kind='dirichlet', fields=('u', 'v', 'w'), selector_type='tag', selector={'tag': 'walls'}, value_fn=<function lid_driven_cavity_3d.<locals>.<lambda> at",
+ "timed_out": false
+}

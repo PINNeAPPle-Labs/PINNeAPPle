@@ -1,0 +1,12 @@
+{
+ "code_hash": "c35197b30f788a43",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/dipole_radiation",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Oscillating dipole and radiation (3D, 3D+t) | science / physics.electromagnetism | not curated\nrel_error[3D: radiated power through the sphere kr = 0.3] 3.9519594232013053e-16 -\nrel_error[3D: radiated power through the sphere kr = 1] 9.879898558003263e-16 -\nrel_error[3D: radiated power through the sphere kr = 3] 9.879898558003263e-16 -\nrel_error[3D: radiated power through the sphere kr = 30] 5.927939134801958e-16 -\nrel_error[3D: directivity] 4.440892098500626e-16 -",
+ "timed_out": false
+}

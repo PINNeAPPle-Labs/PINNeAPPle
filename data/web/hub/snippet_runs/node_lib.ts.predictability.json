@@ -1,0 +1,12 @@
+{
+ "code_hash": "cd41f39f5b863e18",
+ "figures": [],
+ "id": "node:lib.ts.predictability",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.29,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Predictability report -> pinneapple_systems.time_series.predictability:predictability_report\ninputs: [('series', 'series')]\noutputs: [('result', 'metrics')]\ndefaults: {'horizons': [1, 2, 4, 8, 16, 32], 'dt': 1.0, 'max_ar_order': 20, 'pe_order': 5, 'embed_dim': 4, 'n_surrogates': 99, 'seed': 0, 'lyapunov': True, 'lyapunov_kwargs': None, 'difference_if_unit_root': True}",
+ "timed_out": false
+}

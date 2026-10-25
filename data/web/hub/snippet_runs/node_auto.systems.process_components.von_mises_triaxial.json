@@ -1,0 +1,12 @@
+{
+ "code_hash": "5b458ce1ecaa1f70",
+ "figures": [],
+ "id": "node:auto.systems.process_components.von_mises_triaxial",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float64\nnp.float64(1.0)",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "b40c58b4fa3b4f03",
+ "figures": [],
+ "id": "node:auto.data.formfill.ocr_available",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "bool\nFalse",
+ "timed_out": false
+}

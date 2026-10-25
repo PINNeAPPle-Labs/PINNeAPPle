@@ -1,0 +1,12 @@
+{
+ "code_hash": "86a756088ee02b17",
+ "figures": [],
+ "id": "node:auto.design.geometry.lshape",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.31,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CSGDifference\n<pinneapple_design.geometry.csg.CSGDifference object at 0x7f4887c96ba0>",
+ "timed_out": false
+}

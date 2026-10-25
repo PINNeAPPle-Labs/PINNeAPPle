@@ -1,0 +1,12 @@
+{
+ "code_hash": "617c821e558fbfab",
+ "figures": [],
+ "id": "node:auto.core.loss.list_strategies",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['augmented_lagrangian', 'auto', 'curriculum', 'fixed', 'gradnorm', 'inverse_dirichlet', 'joint_adaptive', 'loss_ratio', 'lr_annealing', 'ntk', 'pcgrad', 'relobralo', 'self_adaptive', 'softadapt']",
+ "timed_out": false
+}

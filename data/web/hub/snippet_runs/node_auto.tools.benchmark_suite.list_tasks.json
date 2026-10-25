@@ -1,0 +1,12 @@
+{
+ "code_hash": "6f7e4275b3c03683",
+ "figures": [],
+ "id": "node:auto.tools.benchmark_suite.list_tasks",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['flow_obstacle_2d']",
+ "timed_out": false
+}

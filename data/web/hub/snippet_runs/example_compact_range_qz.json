@@ -1,0 +1,12 @@
+{
+ "code_hash": "8cc985c59c7b05a8",
+ "figures": [],
+ "id": "example:compact_range_qz",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 1.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Compact range quiet zone: feed gain x reflector size | electromagnetics | not curated\npo_disk_max_rel_error 0.001108988630067284 \npo_vs_go_rms_dB 0.4959877175658075 dB\nreference_ripple_pp_dB 2.5141311501880343 dB\nreference_usable_diameter_m 0.13324109244444446 m\nevaluation_s_median 28.125999999999998 s",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "390ed864fcbb47b6",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.bounds_check",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.14,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ValidityCheck\nValidityCheck(name='bounds', kind='bounds', fn=<function bounds_check.<locals>.fn at 0x7f8e181667a0>, tolerance=0.0, critical=True, describe=<function bounds_check.<locals>.<lambda> at 0x7f8e0f69b600>)",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "42bc21b939d22716",
+ "figures": [],
+ "id": "node:examples.flatten",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.48,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Numbers of an upstream result -> no library call: re-records the numbers an upstream node returned (for examples.compare)\ninputs: [('value', 'any')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'max_items': 400}",
+ "timed_out": false
+}

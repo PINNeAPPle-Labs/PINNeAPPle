@@ -98,7 +98,7 @@ def cmd_examples(a) -> int:
 
 
 def cmd_coverage(a) -> int:
-    from .coverage import markdown
+    from .coverage import coverage, markdown
     text = markdown()
     if a.output:
         Path(a.output).parent.mkdir(parents=True, exist_ok=True)
@@ -106,7 +106,11 @@ def cmd_coverage(a) -> int:
         print(f"wrote {a.output}")
     else:
         print(text)
-    return 0
+    rows = coverage()
+    unreached = [r["module"] for r in rows if not r["nodes"] and not r["reason"]]
+    if unreached:                    # every public module has a node or a stated reason (pinneapple_flow/coverage.py)
+        print("no node and no reason: " + ", ".join(unreached), file=sys.stderr)
+    return 1 if unreached else 0
 
 
 def cmd_autocalls(a) -> int:

@@ -1,0 +1,12 @@
+{
+ "code_hash": "103494e3b6eaeca2",
+ "figures": [],
+ "id": "node:lbm.sphere_stokes",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Stokes drag on a sphere (lattice Boltzmann) -> pinneapple_simulation.numerical_solvers.lbm_tunnel.WindTunnelLBM (open faces, add_solid, initialize, run, force_on_solid) + sphere + stokes_sphere_field\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'radius': 5.0, 'nu': 0.16666666666666666, 'u': 0.002, 'box_radii': 8.0, 'steps': 1200, 'threads': 4}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "c1308e457b2b32aa",
+ "figures": [],
+ "id": "example:examples/pinn_solver",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_physics.pinn_solver examples | physics AI | not curated",
+ "timed_out": false
+}

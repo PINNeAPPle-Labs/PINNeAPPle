@@ -1,0 +1,12 @@
+{
+ "code_hash": "3efe8f8d76e04516",
+ "figures": [],
+ "id": "node:surrogate.train",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Neural operator / surrogate -> pinneapple_flow.learn.fit over DeepONet / FourierNeuralOperator / POD (pinneapple_neural)\ninputs: [('data', 'dataset')]\noutputs: [('model', 'model'), ('solution', 'solution'), ('metrics', 'metrics')]\ndefaults: {'kind': 'deeponet', 'architecture': {}, 'epochs': 600, 'lr': 0.002, 'batch': 32, 'seed': 0}",
+ "timed_out": false
+}

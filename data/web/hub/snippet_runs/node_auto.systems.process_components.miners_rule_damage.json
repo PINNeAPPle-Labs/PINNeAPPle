@@ -1,0 +1,12 @@
+{
+ "code_hash": "690a201ec8c034c9",
+ "figures": [],
+ "id": "node:auto.systems.process_components.miners_rule_damage",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.17,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "MinerDamageResult\nMinerDamageResult(N_f=np.float64(1e-08), damage_this_period=np.float64(100000000.0), cumulative_damage=np.float64(1.0), remaining_life_fraction=np.float64(0.0))",
+ "timed_out": false
+}

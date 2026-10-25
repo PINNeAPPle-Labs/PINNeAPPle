@@ -1,0 +1,12 @@
+{
+ "code_hash": "292989afaf566f12",
+ "figures": [],
+ "id": "node:auto.data.unified.to_physical_sample",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "to physical sample -> pinneapple_data.unified:to_physical_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'result': {}}",
+ "timed_out": false
+}

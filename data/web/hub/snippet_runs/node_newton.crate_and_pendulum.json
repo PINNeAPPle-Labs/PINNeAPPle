@@ -1,0 +1,12 @@
+{
+ "code_hash": "cd9f8625c857c6bf",
+ "figures": [],
+ "id": "node:newton.crate_and_pendulum",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rigid bodies: a sliding crate and a pendulum (NVIDIA Newton) -> pinneapple_simulation.external_solvers.newton_physics.RigidScene (ground, box, sphere, revolute) + simulate\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'mu': 0.4, 'v0': 2.0, 'pendulum_deg': 20.0, 'duration': 2.0, 'dt': 0.001}",
+ "timed_out": false
+}

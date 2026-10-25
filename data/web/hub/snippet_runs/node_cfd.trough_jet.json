@@ -1,0 +1,12 @@
+{
+ "code_hash": "20e43923f7ce80a0",
+ "figures": [],
+ "id": "node:cfd.trough_jet",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.71,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Free-surface trough with a jet (interFoam) -> pinneapple_design.geometry.trough.TroughSection + pinneapple_simulation.numerical_solvers.free_surface.FreeSurfaceFlow (write, run, profiles) + external_solvers.openfoam.campaign.parse_solver_log\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'slope_deg': 0.0, 'length': 8.0, 'inlet_x': 1.0, 'inlet_width': 0.08, 'cell': 0.04, 'jet': [1.0, 0.0, -2.5], 'liquid': {'name': 'metal', 'rho': 7200.0, 'nu': 8.472e-06}, 'sigma': 1.8, 'end_time': 12.0, 'average_from': 4.0, 'sample_every': 0.1, 'line_height': 0.05, 'zone': [0.5, 3.0], 'procs': 1, 'label': ''}",
+ "timed_out": false
+}

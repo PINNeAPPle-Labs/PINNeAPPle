@@ -1,0 +1,12 @@
+{
+ "code_hash": "6e99e1d517c0dcfd",
+ "figures": [],
+ "id": "geometry:road_car",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.07,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Four-door road car (fastback / notchback) | ground_vehicle\nroad_car.light.stl 1088084 bytes",
+ "timed_out": false
+}

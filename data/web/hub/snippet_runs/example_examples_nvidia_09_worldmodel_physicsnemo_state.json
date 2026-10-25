@@ -1,0 +1,12 @@
+{
+ "code_hash": "cceeb3b4b24b2539",
+ "figures": [],
+ "id": "example:examples/nvidia/09_worldmodel_physicsnemo_state",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "State-space world model: CNN encoder, PhysicsNeMo dynamics, video physics checks | physical AI | not curated\nrollout_pass_rate 0.9 \nrollout_g_median 9.860008494247328 m/s^2",
+ "timed_out": false
+}

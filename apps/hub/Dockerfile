@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 # docs/assets (apps/hub/Dockerfile.dockerignore keeps them in the build context)
 COPY . .
 RUN pip install --no-cache-dir . -r apps/hub/requirements.txt && mkdir -p /data
+# The index is not committed: build it from the sources and the recorded runs (data/web/hub/snippet_runs)
+RUN python -m pinneapple_hub.library build
 
 # Unprivileged runtime user: /data (the volume) and /tmp are the only places it writes (apps/deploy/README.md)
 RUN useradd --system --uid 10001 --gid 0 --no-create-home --home-dir /tmp --shell /usr/sbin/nologin app \

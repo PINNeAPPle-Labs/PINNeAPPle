@@ -1,0 +1,12 @@
+{
+ "code_hash": "1f32f71cb7b08058",
+ "figures": [],
+ "id": "node:auto.neural.physicsnemo_bridge.is_physicsnemo_available",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.99,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "bool\nFalse",
+ "timed_out": false
+}

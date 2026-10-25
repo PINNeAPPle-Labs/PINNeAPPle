@@ -1,0 +1,12 @@
+{
+ "code_hash": "fb0a48ed31c6981b",
+ "figures": [],
+ "id": "example:examples/non_hermitian",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Exceptional-point tuning in PT-symmetric dimers: the no-go theorem (Zenodo 23287622) checked… | general | not curated",
+ "timed_out": false
+}

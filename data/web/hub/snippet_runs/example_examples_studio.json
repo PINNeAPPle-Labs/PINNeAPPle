@@ -1,0 +1,12 @@
+{
+ "code_hash": "02b548bf208043f7",
+ "figures": [],
+ "id": "example:examples/studio",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Animation-centred dashboards | general | curated",
+ "timed_out": false
+}

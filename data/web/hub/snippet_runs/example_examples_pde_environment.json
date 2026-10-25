@@ -1,0 +1,12 @@
+{
+ "code_hash": "14bf55b180da8c70",
+ "figures": [],
+ "id": "example:examples/pde_environment",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.67,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Evidenced audit report | numerical methods | not curated",
+ "timed_out": false
+}

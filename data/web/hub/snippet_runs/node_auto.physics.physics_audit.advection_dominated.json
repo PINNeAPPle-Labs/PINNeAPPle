@@ -1,0 +1,12 @@
+{
+ "code_hash": "f6ae0a0c4a5d6b6e",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.advection_dominated",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.98,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='advection_dominated', description='transport dominated by advection (thin layers, steep fronts)', conditions=(Condition(feature='Pe', lo=10.0, hi=inf, band=0.3, log=None),), breaks_into='diffusion-dominated transport', missing_mechanism='diffusive smoothing')",
+ "timed_out": false
+}

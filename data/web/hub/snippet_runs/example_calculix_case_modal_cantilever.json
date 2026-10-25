@@ -1,0 +1,12 @@
+{
+ "code_hash": "c7df2a489a1d7c33",
+ "figures": [],
+ "id": "example:calculix_case/modal_cantilever",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - modes vs Euler–Bernoulli",
+ "timed_out": false
+}

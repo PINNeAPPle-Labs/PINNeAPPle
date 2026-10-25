@@ -1,0 +1,12 @@
+{
+ "code_hash": "811ea105ee909c2b",
+ "figures": [],
+ "id": "flow:planned_plate_2d_to_3d",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.24,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Classical solver + PINN, validated - 11 nodes\nissues: []",
+ "timed_out": false
+}

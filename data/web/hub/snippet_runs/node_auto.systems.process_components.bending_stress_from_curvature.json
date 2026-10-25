@@ -1,0 +1,12 @@
+{
+ "code_hash": "84982468cfae59a9",
+ "figures": [],
+ "id": "node:auto.systems.process_components.bending_stress_from_curvature",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.32,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n1.0",
+ "timed_out": false
+}

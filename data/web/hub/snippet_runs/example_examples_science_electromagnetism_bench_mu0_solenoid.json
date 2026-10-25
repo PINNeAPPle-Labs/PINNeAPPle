@@ -1,0 +1,12 @@
+{
+ "code_hash": "71adca4d243791bc",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/bench_mu0_solenoid",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Bench: measuring mu0 with a solenoid (3D) | science / physics.electromagnetism | not curated\nrel_error[3D: mu0 (bench) vs CODATA 2022] 0.003937714596454831 -\n3D: mu0_measured 1.251688783171391e-06 N/A^2\n3D: expanded_uncertainty_k2 1.2947988192723286e-08 N/A^2\n3D: earth_field_intercept 2.772951635444727e-05 T\n3D: reduced_chi2 2.040666467076056 -",
+ "timed_out": false
+}

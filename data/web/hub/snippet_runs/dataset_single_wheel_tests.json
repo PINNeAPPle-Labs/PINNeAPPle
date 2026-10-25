@@ -1,0 +1,12 @@
+{
+ "code_hash": "fa665f9788eb6d35",
+ "figures": [],
+ "id": "dataset:single_wheel_tests",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "27 rows; ['dataset', 'drawbar_pull_N', 'grouser_count', 'grouser_height_m', 'load_N', 'radius_m', 'sinkage_m', 'slip']\nmit",
+ "timed_out": false
+}

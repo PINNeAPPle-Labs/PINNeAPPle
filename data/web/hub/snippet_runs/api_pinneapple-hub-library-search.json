@@ -1,0 +1,12 @@
+{
+ "code_hash": "c5a98afc57f46acf",
+ "figures": [],
+ "id": "api:pinneapple-hub-library-search",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.27,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_hub.library.search(index: 'dict[str, Any]', query: 'str' = '', *, kind: 'str | None' = None, domain: 'str | None' = None, quality: 'str | None' = None, subkind: 'str | None' = None, limit: 'int | None' = None) -> 'list[dict[str, Any]]'\nItems matching ``query`` and the filters (``quality``: a letter, a comma list of letters, a zoo decision in",
+ "timed_out": false
+}

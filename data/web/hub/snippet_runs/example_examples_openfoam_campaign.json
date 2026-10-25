@@ -1,0 +1,12 @@
+{
+ "code_hash": "8dc7cb4592319fdf",
+ "figures": [],
+ "id": "example:examples/openfoam_campaign",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "OpenFOAM parameter campaign | fluid dynamics | not curated",
+ "timed_out": false
+}

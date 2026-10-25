@@ -1,0 +1,12 @@
+{
+ "code_hash": "a368e2811b5442ab",
+ "figures": [],
+ "id": "api:pinneapple-analysis-validation-pinn-validate-pinn",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 2.97,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_analysis.validation.pinn.validate_pinn(model, problem: 'PINNProblem | str', *, n_points: 'int' = 4096, grid: 'Sequence[int] | None' = None, train_points: 'np.ndarray | None' = None, tolerances: 'dict[str, float] | None' = None, seed: 'int' = 0) -> 'PINNReport'\nValidate a trained PINN ``model`` (a torch module or callable ``X -> u``) on ``problem``.",
+ "timed_out": false
+}

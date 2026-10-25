@@ -1,0 +1,12 @@
+{
+ "code_hash": "330c8b95a5a01afa",
+ "figures": [],
+ "id": "node:auto.design.geometry.ellipse",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "SDF\n<pinneapple_design.geometry.gen.sdf_shapes.SDF object at 0x7f3ce5fa2a50>",
+ "timed_out": false
+}

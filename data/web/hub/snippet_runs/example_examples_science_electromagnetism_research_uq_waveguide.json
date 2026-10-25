@@ -1,0 +1,12 @@
+{
+ "code_hash": "9d0aadabae329c9d",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/research_uq_waveguide",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.89,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Uncertainty of waveguide cut-offs by Monte Carlo (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: TE10: Monte Carlo std vs first-order GUM] 0.02524542009758375 -\nrel_error[2D: TE10: Monte Carlo mean vs nominal] 0.00035193953006807717 -\nrel_error[2D: TE20: Monte Carlo std vs first-order GUM] 0.0248116901071461 -\nrel_error[2D: TE20: Monte Carlo mean vs nominal] 0.0007748405598485373 -\n2D: TE10_mean 4419267277.369885 Hz",
+ "timed_out": false
+}

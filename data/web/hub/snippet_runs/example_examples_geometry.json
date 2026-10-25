@@ -1,0 +1,12 @@
+{
+ "code_hash": "030943fc82db2d40",
+ "figures": [],
+ "id": "example:examples/geometry",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_geom examples | design and geometry | not curated",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "2b887e27ffa638f8",
+ "figures": [],
+ "id": "node:auto.data.collate.move_batch_to_device",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.46,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "move batch to device -> pinneapple_data.collate:move_batch_to_device\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'batch': {}, 'device': ''}",
+ "timed_out": false
+}

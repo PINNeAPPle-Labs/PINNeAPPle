@@ -1,0 +1,12 @@
+{
+ "code_hash": "715402dcc2ac848b",
+ "figures": [],
+ "id": "example:bar_wear/60/40 brass",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - contact vs Winkler · Archard",
+ "timed_out": false
+}

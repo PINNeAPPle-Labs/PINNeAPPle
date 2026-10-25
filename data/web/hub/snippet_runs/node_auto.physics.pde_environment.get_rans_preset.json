@@ -1,0 +1,12 @@
+{
+ "code_hash": "d0683abe60cc2009",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.get_rans_preset",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "KOmegaSSTResiduals\n<pinneapple_physics.pde_environment.turbulence_presets.KOmegaSSTResiduals object at 0x7fc4a5054ec0>",
+ "timed_out": false
+}

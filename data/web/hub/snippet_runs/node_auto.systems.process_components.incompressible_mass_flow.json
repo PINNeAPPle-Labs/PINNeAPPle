@@ -1,0 +1,12 @@
+{
+ "code_hash": "bb676b05a7078e1e",
+ "figures": [],
+ "id": "node:auto.systems.process_components.incompressible_mass_flow",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "float\n0.0",
+ "timed_out": false
+}

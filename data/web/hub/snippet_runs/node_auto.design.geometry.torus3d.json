@@ -1,0 +1,12 @@
+{
+ "code_hash": "5c3e05c8c694a234",
+ "figures": [],
+ "id": "node:auto.design.geometry.torus3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.19,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "SDF\n<pinneapple_design.geometry.gen.sdf_shapes.SDF object at 0x7fd718b42a50>",
+ "timed_out": false
+}

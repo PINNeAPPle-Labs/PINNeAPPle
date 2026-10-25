@@ -1,0 +1,12 @@
+{
+ "code_hash": "73190dba7c51d5be",
+ "figures": [],
+ "id": "dataset:navier_stokes_2d_li2021_nu1e-3",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.56,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "2-D incompressible Navier-Stokes (vorticity), nu = 1e-3, Li et al. (2021) benchmark (1200 runs, 64 x 64, t 0-50)\n{'train': 1000, 'test': 200} cc-by-4.0",
+ "timed_out": false
+}

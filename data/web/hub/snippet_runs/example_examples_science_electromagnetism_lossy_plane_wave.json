@@ -1,0 +1,12 @@
+{
+ "code_hash": "7b0e47e8073ec1b1",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/lossy_plane_wave",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Plane wave in a lossy medium (1D) | science / physics.electromagnetism | not curated\nrel_error[1D: attenuation constant alpha] 0.0024846262581074657 -\nrel_error[1D: phase constant beta] 0.0006294979019896493 -\n1D: skin_depth 0.09795905204560379 m\n1D: observed_order 2.0163082553332172 -",
+ "timed_out": false
+}

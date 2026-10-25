@@ -1,0 +1,49 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.pde_environment.07_tagged_presets_real_geometry",
+ "name": "Tagged presets on their real geometry: per-tag losses before and after training",
+ "description": "examples/pde_environment/07_tagged_presets_real_geometry.py: laplace_2d (box, one 'boundary' tag) and pipe_flow_3d (cylinder: inlet, outlet, wall) get boundary points per tag from their analytic fixture (build_tag_batch, 4000 collocation, 500 per face, seed 1), a 4 x 32 modified MLP is trained 200 epochs with solve_pde, and every compiled loss term is printed before and after (per_tag_losses). Nothing committed.",
+ "nodes": [
+  {
+   "id": "laplace",
+   "type": "pde_env.tagged_preset",
+   "params": {
+    "preset": "laplace_2d"
+   },
+   "label": "laplace_2d (box)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pipe",
+   "type": "pde_env.tagged_preset",
+   "params": {
+    "preset": "pipe_flow_3d"
+   },
+   "label": "pipe_flow_3d (cylinder)",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "pde_environment",
+  "domain": "PINN",
+  "scripts": [
+   "07_tagged_presets_real_geometry.py"
+  ],
+  "quick": {
+   "laplace": {
+    "epochs": 10
+   },
+   "pipe": {
+    "epochs": 10
+   }
+  }
+ }
+}

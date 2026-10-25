@@ -255,3 +255,15 @@ def eval_rollout(model: MeshDynamicsMGN, data: Sequence[tuple[MeshGraph, torch.T
         nxt, _ = model.step(v[0], g)
         one.append(((nxt - v[1])[free] ** 2).mean().sqrt().item())
     return {"rollout_rmse": float(np.mean(roll)), "one_step_rmse": float(np.mean(one)), "n_steps": n_steps}
+
+
+def frozen_ic_rmse(data: Sequence[tuple[MeshGraph, torch.Tensor, torch.Tensor]], *, n_steps: int,
+                   normal_type: int = 0) -> float:
+    """Baseline for :func:`eval_rollout`: velocity RMSE on NORMAL nodes when the velocity stays at its t = 0 value
+    over the same horizon, mean over trajectories."""
+    base = []
+    for g, v, _p in data:
+        free = g.node_type == normal_type
+        n = min(n_steps, v.shape[0] - 1)
+        base.append(((v[0:1] - v[1 : n + 1])[:, free] ** 2).mean().sqrt().item())
+    return sum(base) / len(base)

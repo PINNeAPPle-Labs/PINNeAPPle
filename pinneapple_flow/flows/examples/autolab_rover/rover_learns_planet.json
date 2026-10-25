@@ -1,0 +1,99 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.autolab_rover.rover_learns_planet",
+ "name": "Rover that learns the planet",
+ "description": "A VIPER-class rover plans on the orbital prior, learns the soil from its own wheels, replans and is checked by the multibody simulator (examples/autolab_rover/rover_learns_planet.py); compared with results/summary.json.",
+ "nodes": [
+  {
+   "id": "rover",
+   "type": "rover.learn_planet",
+   "params": {},
+   "label": "rover mission",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "autolab_rover",
+    "comparisons": [
+     {
+      "flow": "rover.learned_log10_k_phi_error",
+      "ref": "results/summary.json:recovery.log10_k_phi.error"
+     },
+     {
+      "flow": "rover.learned_n0_error",
+      "ref": "results/summary.json:recovery.n0.error"
+     },
+     {
+      "flow": "rover.learned_n1_error",
+      "ref": "results/summary.json:recovery.n1.error"
+     },
+     {
+      "flow": "rover.learned_phi_deg_error",
+      "ref": "results/summary.json:recovery.phi_deg.error"
+     },
+     {
+      "flow": "rover.route_A_distance_m",
+      "ref": "results/summary.json:routes[name=A].measured_multibody.distance_m"
+     },
+     {
+      "flow": "rover.route_A_energy_J",
+      "ref": "results/summary.json:routes[name=A].measured_multibody.energy_J"
+     },
+     {
+      "flow": "rover.route_A_max_slip_2s_front",
+      "ref": "results/summary.json:routes[name=A].measured_multibody.max_slip_2s_front"
+     },
+     {
+      "flow": "rover.route_A_max_sinkage_mm",
+      "ref": "results/summary.json:routes[name=A].measured_multibody.max_sinkage_mm"
+     },
+     {
+      "flow": "rover.route_B_distance_m",
+      "ref": "results/summary.json:routes[name=B].measured_multibody.distance_m"
+     },
+     {
+      "flow": "rover.route_B_energy_J",
+      "ref": "results/summary.json:routes[name=B].measured_multibody.energy_J"
+     },
+     {
+      "flow": "rover.route_B_max_slip_2s_front",
+      "ref": "results/summary.json:routes[name=B].measured_multibody.max_slip_2s_front"
+     },
+     {
+      "flow": "rover.route_B_max_sinkage_mm",
+      "ref": "results/summary.json:routes[name=B].measured_multibody.max_sinkage_mm"
+     }
+    ],
+    "tolerance_source": "seeded synthetic site and multibody runs: 1e-6 relative"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "rover",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "rover.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "autolab_rover",
+  "domain": "vehicles",
+  "scripts": [
+   "rover_learns_planet.py"
+  ],
+  "quick": {}
+ }
+}

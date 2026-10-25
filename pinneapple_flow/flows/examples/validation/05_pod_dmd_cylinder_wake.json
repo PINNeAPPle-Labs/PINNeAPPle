@@ -1,0 +1,64 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.validation.05_pod_dmd_cylinder_wake",
+ "name": "Validation gallery 05: POD + DMD, cylinder wake",
+ "description": "LBM cylinder wake at Re 60; POD + DMD fitted on the saturated wake and on the growing transient, rolled out against the LBM frames through pp.validate rollout; rollout.invariants must catch the amplifying ROM. The largest |DMD eigenvalue| of the transient fit is compared with the gallery guide's 1.008 (examples/validation/05_pod_dmd_cylinder_wake.py --full). Quick: the script's smoke size (D 12, 24000 LBM steps).",
+ "nodes": [
+  {
+   "id": "gallery",
+   "type": "gallery.pod_dmd_wake",
+   "params": {
+    "diameter": 20,
+    "lbm_steps": 60000,
+    "rank": 8
+   },
+   "label": "POD + DMD + broken ROM",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "validation",
+    "comparisons": [
+     {
+      "flow": "gallery.dmd_max_abs_eig_transient",
+      "ref": "text:docs/guides/validation_gallery.md|\u03bb\\\\\\| = ([0-9.]+)"
+     }
+    ],
+    "tolerance_source": "the guide writes |\u03bb| with three decimals: half a unit of the last digit"
+   },
+   "label": "guide",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "gallery",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "gallery.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "validation",
+  "domain": "validation",
+  "scripts": [
+   "05_pod_dmd_cylinder_wake.py"
+  ],
+  "quick": {
+   "gallery": {
+    "diameter": 12,
+    "lbm_steps": 24000
+   }
+  }
+ }
+}

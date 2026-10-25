@@ -1,0 +1,408 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-flight-takeoff",
+ "name": "Take-off: four aircraft, crosswind, gust at rotation (03)",
+ "description": "Ground roll, rotation, lift-off and climb over the 35 ft screen for the four aircraft against Raymer's closed form, a 15 kt crosswind and a 1-cosine down-gust at rotation, three.js viewers (examples/flight_dynamics/03_takeoff.py).",
+ "nodes": [
+  {
+   "id": "aircraft",
+   "type": "flight.aircraft",
+   "params": {
+    "aircraft": [
+     "light_ga",
+     "regional_turboprop",
+     "a320",
+     "motor_glider"
+    ]
+   },
+   "label": "Four aircraft",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "takeoff",
+   "type": "flight.takeoff_cases",
+   "params": {
+    "cases": [
+     "nominal",
+     "crosswind",
+     "gust_at_rotation"
+    ]
+   },
+   "label": "Take-off cases",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "viewers",
+   "type": "flight.scene",
+   "params": {
+    "n_frames": 160,
+    "screenshot_frame": 110
+   },
+   "label": "three.js viewers",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "flight_dynamics",
+    "comparisons": [
+     {
+      "flow": "takeoff.light_ga.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.light_ga.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.light_ga.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.light_ga.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.light_ga.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.light_ga.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.light_ga.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.light_ga.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.light_ga.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "manifest:distance_35ft_light_ga"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.light_ga.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.light_ga.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.regional_turboprop.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.regional_turboprop.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "manifest:distance_35ft_regional_turboprop"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.regional_turboprop.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.regional_turboprop.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.a320.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.a320.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.a320.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.a320.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.a320.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.a320.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.a320.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.a320.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.a320.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.a320.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "manifest:distance_35ft_a320"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.a320.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.a320.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.a320.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.a320.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.a320.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.a320.delta_distance_35ft_m",
+      "atol": 1e-06
+     },
+     {
+      "flow": "takeoff.motor_glider.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.motor_glider.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.motor_glider.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.motor_glider.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.motor_glider.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "manifest:distance_35ft_motor_glider"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_lateral_deviation_ground_m",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_lateral_deviation_ground_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_bank_deg",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_bank_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.crosswind_max_rudder_deg",
+      "ref": "results/takeoff.json:crosswind.motor_glider.max_rudder_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.gust_delta_distance_35ft_m",
+      "ref": "results/takeoff.json:gust_at_rotation.motor_glider.delta_distance_35ft_m",
+      "atol": 1e-06
+     }
+    ],
+    "tolerance_source": "deterministic simulation: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding"
+   },
+   "label": "Same numbers as examples/flight_dynamics",
+   "position": {
+    "x": 620.0,
+    "y": 210.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "aircraft",
+   "source_port": "aircraft",
+   "target": "takeoff",
+   "target_port": "aircraft",
+   "id": "aircraft.aircraft->takeoff.aircraft"
+  },
+  {
+   "source": "takeoff",
+   "source_port": "runs",
+   "target": "viewers",
+   "target_port": "runs",
+   "id": "takeoff.runs->viewers.runs"
+  },
+  {
+   "source": "takeoff",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "takeoff.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "flight_dynamics",
+  "domain": "flight dynamics",
+  "scripts": [
+   "03_takeoff.py"
+  ],
+  "quick": {
+   "takeoff": {
+    "cases": [
+     "nominal"
+    ]
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "takeoff.light_ga.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.light_ga.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.light_ga.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.light_ga.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.light_ga.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.light_ga.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.light_ga.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.light_ga.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.light_ga.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.light_ga.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.light_ga.distance_35ft_m",
+      "ref": "manifest:distance_35ft_light_ga"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.regional_turboprop.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.regional_turboprop.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.regional_turboprop.distance_35ft_m",
+      "ref": "manifest:distance_35ft_regional_turboprop"
+     },
+     {
+      "flow": "takeoff.a320.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.a320.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.a320.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.a320.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.a320.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.a320.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.a320.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.a320.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.a320.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.a320.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.a320.distance_35ft_m",
+      "ref": "manifest:distance_35ft_a320"
+     },
+     {
+      "flow": "takeoff.motor_glider.ground_roll_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.ground_roll_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.distance_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.V_LOF_kt",
+      "ref": "results/takeoff.json:nominal.motor_glider.V_LOF_kt"
+     },
+     {
+      "flow": "takeoff.motor_glider.theta_LOF_deg",
+      "ref": "results/takeoff.json:nominal.motor_glider.theta_LOF_deg"
+     },
+     {
+      "flow": "takeoff.motor_glider.tail_clearance_min_m",
+      "ref": "results/takeoff.json:nominal.motor_glider.tail_clearance_min_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.raymer_1p1Vs_total_35ft_m",
+      "ref": "results/takeoff.json:closed_form.motor_glider.raymer_1p1Vs.total_35ft_m"
+     },
+     {
+      "flow": "takeoff.motor_glider.distance_35ft_m",
+      "ref": "manifest:distance_35ft_motor_glider"
+     }
+    ]
+   },
+   "viewers": {
+    "only": [
+     "a320_takeoff"
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,126 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example-em-prius-rotor-design",
+ "name": "Prius rotor design: surrogate-assisted NSGA-II (12)",
+ "description": "Five rotor variables of the Prius motor, torque against ripple and magnet mass: a GP-surrogate NSGA-II against an FEA-only NSGA-II, three seeds, the hybrid front re-evaluated on a finer FEA (examples/electrodynamics/12_prius_rotor_design.py).",
+ "nodes": [
+  {
+   "id": "design",
+   "type": "em.prius_rotor_design",
+   "params": {},
+   "label": "Rotor design",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "electrodynamics",
+    "comparisons": [
+     {
+      "flow": "design.baseline.torque",
+      "ref": "results/12_prius_rotor_design.json:baseline.torque"
+     },
+     {
+      "flow": "design.baseline.ripple",
+      "ref": "results/12_prius_rotor_design.json:baseline.ripple"
+     },
+     {
+      "flow": "design.baseline.torque_fine",
+      "ref": "results/12_prius_rotor_design.json:baseline.torque_fine"
+     },
+     {
+      "flow": "design.seed0.hybrid.hypervolume",
+      "ref": "results/12_prius_rotor_design.json:runs.0.hybrid.hypervolume"
+     },
+     {
+      "flow": "design.seed0.hybrid.fea_calls",
+      "ref": "results/12_prius_rotor_design.json:runs.0.hybrid.fea_calls"
+     },
+     {
+      "flow": "design.seed0.fea_only.hypervolume",
+      "ref": "results/12_prius_rotor_design.json:runs.0.fea_only.hypervolume"
+     },
+     {
+      "flow": "design.seed1.hybrid.hypervolume",
+      "ref": "results/12_prius_rotor_design.json:runs.1.hybrid.hypervolume"
+     },
+     {
+      "flow": "design.seed1.hybrid.fea_calls",
+      "ref": "results/12_prius_rotor_design.json:runs.1.hybrid.fea_calls"
+     },
+     {
+      "flow": "design.seed1.fea_only.hypervolume",
+      "ref": "results/12_prius_rotor_design.json:runs.1.fea_only.hypervolume"
+     },
+     {
+      "flow": "design.seed2.hybrid.hypervolume",
+      "ref": "results/12_prius_rotor_design.json:runs.2.hybrid.hypervolume"
+     },
+     {
+      "flow": "design.seed2.hybrid.fea_calls",
+      "ref": "results/12_prius_rotor_design.json:runs.2.hybrid.fea_calls"
+     },
+     {
+      "flow": "design.seed2.fea_only.hypervolume",
+      "ref": "results/12_prius_rotor_design.json:runs.2.fea_only.hypervolume"
+     }
+    ],
+    "tolerance_source": "deterministic FEA: the same library code and inputs; 1e-6 relative covers BLAS / platform rounding (seeded searches)"
+   },
+   "label": "Same numbers as examples/electrodynamics",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "design",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "design.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "electrodynamics",
+  "domain": "electromagnetics",
+  "scripts": [
+   "12_prius_rotor_design.py"
+  ],
+  "quick": {
+   "design": {
+    "seeds": [
+     0
+    ],
+    "n_initial": 12,
+    "rounds": 2,
+    "n_verify": 4,
+    "ga_budget": 60,
+    "surrogate_budget": 600
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "design.baseline.torque",
+      "ref": "results/12_prius_rotor_design.json:baseline.torque"
+     },
+     {
+      "flow": "design.baseline.ripple",
+      "ref": "results/12_prius_rotor_design.json:baseline.ripple"
+     },
+     {
+      "flow": "design.baseline.torque_fine",
+      "ref": "results/12_prius_rotor_design.json:baseline.torque_fine"
+     }
+    ]
+   }
+  }
+ }
+}

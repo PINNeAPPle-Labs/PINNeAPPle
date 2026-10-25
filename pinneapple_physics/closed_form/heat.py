@@ -15,7 +15,7 @@ import math
 
 import numpy as np
 
-__all__ = ["slab_transient"]
+__all__ = ["slab_transient", "pin_fin_theta", "pin_fin_heat"]
 
 
 def slab_transient(x, t, L: float, alpha: float, T_left: float, T_right: float, T0: float,
@@ -57,3 +57,22 @@ def slab_transient(x, t, L: float, alpha: float, T_left: float, T_right: float, 
     interior = (xf > 0) & (xf < L)
     out[zero & interior] = T0
     return out.reshape(x.shape)
+
+
+def pin_fin_theta(xi, h: float, k: float, D: float, L: float):
+    """Temperature excess theta = (T - T_inf) / (T_b - T_inf) along a pin fin of diameter ``D`` and length ``L`` with a
+    convective tip, at ``xi = x / L`` (Incropera et al., Fundamentals of Heat and Mass Transfer, Table 3.4, case A)."""
+    m = math.sqrt(h * math.pi * D / (k * math.pi * D ** 2 / 4))
+    r = h / (m * k)
+    xi = np.asarray(xi, float)
+    return (np.cosh(m * L * (1 - xi)) + r * np.sinh(m * L * (1 - xi))) / (np.cosh(m * L) + r * np.sinh(m * L))
+
+
+def pin_fin_heat(h: float, k: float, D: float, L: float, T_base: float, T_inf: float) -> float:
+    """Heat a pin fin with a convective tip dissipates [W] (the same table, case A)."""
+    A, P = math.pi * D ** 2 / 4, math.pi * D
+    m = math.sqrt(h * P / (k * A))
+    r = h / (m * k)
+    return math.sqrt(h * P * k * A) * (T_base - T_inf) * (math.sinh(m * L) + r * math.cosh(m * L)) / (
+        math.cosh(m * L) + r * math.sinh(m * L))
+

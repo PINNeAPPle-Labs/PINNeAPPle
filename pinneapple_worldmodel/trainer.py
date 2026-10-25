@@ -21,6 +21,7 @@ Training data format expected by the Trainer::
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import torch
@@ -387,6 +388,7 @@ class WorldModelTrainer:
         val_loss: float,
         path: str,
     ) -> None:
+        Path(path).parent.mkdir(parents=True, exist_ok=True)     # a fresh output folder has no checkpoint dir yet
         torch.save({
             "epoch": epoch,
             "val_loss": val_loss,

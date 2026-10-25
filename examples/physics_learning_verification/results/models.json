@@ -281,5 +281,277 @@
   },
   "heldout_rel_l2": 0.0059935650639470804,
   "physics_loss": 0.0015537760465139155
+ },
+ {
+  "model": "PINN, soft constraints",
+  "inputs": [],
+  "detected": true,
+  "decision": "REJECT",
+  "failed": [
+   "FAIL  residual                              0.512 (limit 0.05) [not demonstrated]",
+   "FAIL  interface_flux                        0.556 (limit 0.05) [not demonstrated]",
+   "FAIL  boundary:source_flux                 0.0611 (limit 0.05) [not demonstrated]",
+   "FAIL  boundary:robin_top                    0.164 (limit 0.05) [not demonstrated]",
+   "FAIL  boundary:adiabatic_sides              0.278 (limit 0.05) [not demonstrated]",
+   "FAIL  energy_balance                        0.293 (limit 0.01) [not demonstrated]"
+  ],
+  "out_of_scope": [
+   "intervention:power x2",
+   "intervention:source moved",
+   "intervention:source outside the box",
+   "intervention:TIM conductivity x2",
+   "intervention:TIM conductivity /2",
+   "intervention:cooling x2",
+   "intervention:contact resistance added",
+   "sufficiency"
+  ],
+  "findings": [
+   {
+    "check": "intervention:power x2",
+    "passed": false,
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:power x2                     1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:source moved",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:source moved                 1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:source outside the box",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:source outside the box          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:TIM conductivity x2",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:TIM conductivity x2          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:TIM conductivity /2",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:TIM conductivity /2          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:cooling x2",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:cooling x2                   1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:contact resistance added",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:contact resistance added          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "residual",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  residual                              0.512 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "interface_flux",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  interface_flux                        0.556 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:source_flux",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  boundary:source_flux                 0.0611 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:robin_top",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  boundary:robin_top                    0.164 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:adiabatic_sides",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  boundary:adiabatic_sides              0.278 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:side_gradient",
+    "passed": true,
+    "provenance": "learned",
+    "line": "PASS  boundary:side_gradient               0.0204 (limit 0.05) [learned]"
+   },
+   {
+    "check": "energy_balance",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  energy_balance                        0.293 (limit 0.01) [not demonstrated]"
+   },
+   {
+    "check": "neighbour_consistency",
+    "passed": true,
+    "provenance": "architecture",
+    "line": "PASS  neighbour_consistency              4.99e-07 (limit 0.01) [architecture]"
+   },
+   {
+    "check": "symmetry",
+    "passed": true,
+    "provenance": "learned",
+    "line": "PASS  symmetry                            0.00979 (limit 0.01) [learned]"
+   },
+   {
+    "check": "sufficiency",
+    "passed": false,
+    "provenance": "out of scope",
+    "line": "FAIL  sufficiency                               1 (limit 0) [out of scope]"
+   }
+  ],
+  "verify_s": 0.08698821067810059,
+  "train_s": 96.45187997817993,
+  "info": {
+   "loss": 0.00027579505695030093,
+   "steps": 3000
+  },
+  "heldout_rel_l2": 0.28962155212510166,
+  "physics_loss": 0.07585900138741357
+ },
+ {
+  "model": "PINN, hard adiabatic sides",
+  "inputs": [],
+  "detected": true,
+  "decision": "REJECT",
+  "failed": [
+   "FAIL  residual                              0.757 (limit 0.05) [not demonstrated]",
+   "FAIL  interface_flux                        0.752 (limit 0.05) [not demonstrated]",
+   "FAIL  boundary:source_flux                 0.0881 (limit 0.05) [not demonstrated]",
+   "FAIL  boundary:robin_top                    0.109 (limit 0.05) [not demonstrated]",
+   "FAIL  boundary:adiabatic_sides              0.138 (limit 0.05) [not demonstrated]",
+   "FAIL  energy_balance                       0.0837 (limit 0.01) [not demonstrated]"
+  ],
+  "out_of_scope": [
+   "intervention:power x2",
+   "intervention:source moved",
+   "intervention:source outside the box",
+   "intervention:TIM conductivity x2",
+   "intervention:TIM conductivity /2",
+   "intervention:cooling x2",
+   "intervention:contact resistance added",
+   "sufficiency"
+  ],
+  "findings": [
+   {
+    "check": "intervention:power x2",
+    "passed": false,
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:power x2                     1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:source moved",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:source moved                 1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:source outside the box",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:source outside the box          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:TIM conductivity x2",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:TIM conductivity x2          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:TIM conductivity /2",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:TIM conductivity /2          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:cooling x2",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:cooling x2                   1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "intervention:contact resistance added",
+    "passed": "False",
+    "provenance": "out of scope",
+    "line": "FAIL  intervention:contact resistance added          1 (limit 0.1) [out of scope]"
+   },
+   {
+    "check": "residual",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  residual                              0.757 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "interface_flux",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  interface_flux                        0.752 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:source_flux",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  boundary:source_flux                 0.0881 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:robin_top",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  boundary:robin_top                    0.109 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:adiabatic_sides",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  boundary:adiabatic_sides              0.138 (limit 0.05) [not demonstrated]"
+   },
+   {
+    "check": "boundary:side_gradient",
+    "passed": true,
+    "provenance": "architecture",
+    "line": "PASS  boundary:side_gradient               0.0117 (limit 0.05) [architecture]"
+   },
+   {
+    "check": "energy_balance",
+    "passed": false,
+    "provenance": "not demonstrated",
+    "line": "FAIL  energy_balance                       0.0837 (limit 0.01) [not demonstrated]"
+   },
+   {
+    "check": "neighbour_consistency",
+    "passed": true,
+    "provenance": "architecture",
+    "line": "PASS  neighbour_consistency              6.26e-07 (limit 0.01) [architecture]"
+   },
+   {
+    "check": "symmetry",
+    "passed": true,
+    "provenance": "learned",
+    "line": "PASS  symmetry                            0.00454 (limit 0.01) [learned]"
+   },
+   {
+    "check": "sufficiency",
+    "passed": false,
+    "provenance": "out of scope",
+    "line": "FAIL  sufficiency                               1 (limit 0) [out of scope]"
+   }
+  ],
+  "verify_s": 0.031368255615234375,
+  "train_s": 104.61112523078918,
+  "info": {
+   "loss": 0.0002011886826949194,
+   "steps": 3000
+  },
+  "heldout_rel_l2": 0.08447056422897815,
+  "physics_loss": 0.07535197839544105
  }
 ]

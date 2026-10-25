@@ -78,14 +78,14 @@ def figure_detection(det, path):
     import matplotlib.pyplot as plt
     rows = det["rows"]
     defects = sorted({r["defect"] for r in rows if r["group"] == "defect"})
-    fig, (a, b) = plt.subplots(1, 2, figsize=(11, 3.8), gridspec_kw={"width_ratios": [1.6, 1]})
+    fig, (a, b) = plt.subplots(1, 2, figsize=(11, 4.0), gridspec_kw={"width_ratios": [1.6, 1]})
     cols = (("verifier", "verifier", "#2a6fdb"), ("flag_loss", "physics loss > limit", "#e08a2a"),
             ("flag_heldout", "held-out L2 > limit", "#8a8a8a"))
     x = np.arange(len(defects))
     for i, (key, lab, c) in enumerate(cols):
         rate = [np.mean([r[key] for r in rows if r["defect"] == d]) for d in defects]
         a.bar(x + (i - 1) * 0.27, rate, 0.27, label=lab, color=c)
-    a.set_xticks(x, [d.replace(" ", "\n", 1) for d in defects], fontsize=8)
+    a.set_xticks(x, [d.replace(" ", "\n") for d in defects], fontsize=8)
     a.set_ylabel("detection rate (over severities)")
     a.set_ylim(0, 1.05)
     a.legend(fontsize=8, frameon=False, loc="upper left", bbox_to_anchor=(0, 1.15), ncol=3)
@@ -95,6 +95,7 @@ def figure_detection(det, path):
     b.plot(budgets, [s[f"random_{k}"] for k in budgets], "s--", color="#8a8a8a", label="random points")
     b.set_xscale("log")
     b.set_xticks(budgets, [str(k) for k in budgets])
+    b.minorticks_off()
     b.set_xlabel("points checked")
     b.set_ylabel("defects detected")
     b.set_ylim(0.5, 1.02)

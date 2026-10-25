@@ -1,0 +1,12 @@
+{
+ "code_hash": "00b84dc0000916fc",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/mie_scattering",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.68,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Mie scattering by a sphere (3D) | science / physics.electromagnetism | not curated\nrel_error[3D: Q_sca, BHMIE sample] 1.4389421505961307e-06 -\nrel_error[3D: Q_back, BHMIE sample] 2.220798293268544e-07 -\nrel_error[3D: Q_sca at x = 0.02 (Rayleigh)] 2.944537737401958e-05 -\nrel_error[3D: optical theorem: 4 Re S(0) / x^2 (absorbing sphere)] 2.2352020346932984e-16 -\nrel_error[3D: Q_ext at x = 3000 (absorbing)] 0.004775434620209129 -",
+ "timed_out": false
+}

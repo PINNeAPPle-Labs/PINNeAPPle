@@ -1,0 +1,12 @@
+{
+ "code_hash": "1a642cfd5c24c1be",
+ "figures": [],
+ "id": "node:auto.data.physical_units.infer_quantity",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "QuantityGuess\nQuantityGuess(quantity=None, confidence=0.0, reason='no unit and no recognisable keyword', alternatives=[], is_difference=False)",
+ "timed_out": false
+}

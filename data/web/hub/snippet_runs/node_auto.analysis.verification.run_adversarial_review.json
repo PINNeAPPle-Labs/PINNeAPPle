@@ -1,0 +1,12 @@
+{
+ "code_hash": "e6a6afda3b73c5c0",
+ "figures": [],
+ "id": "node:auto.analysis.verification.run_adversarial_review",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.44,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "run adversarial review -> pinneapple_analysis.verification:run_adversarial_review\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'architecture_description': '', 'provider': 'ollama', 'model': None, 'api_key': None}",
+ "timed_out": false
+}

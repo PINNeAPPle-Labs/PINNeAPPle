@@ -1,0 +1,12 @@
+{
+ "code_hash": "770963e422dc4c20",
+ "figures": [],
+ "id": "node:design.from_intent",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.9,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design from a plain-language goal -> pinneapple_design.intent.api.design (pp.design)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'goal': 'a glider wing for a 2 kg glider', 'answers': {}, 'verify': True}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "27cb91a851a30e15",
+ "figures": [],
+ "id": "node:calculix.results",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CalculiX results (.frd) -> pinneapple_simulation.external_solvers.calculix.read_frd\ninputs: [('deck', 'ccx_deck')]\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'example_frd': 'calculix_cantilever/beam.frd', 'load_N': 1000.0, 'E': 210000000000.0, 'length': 1.0, 'b': 0.1, 'h': 0.1}",
+ "timed_out": false
+}

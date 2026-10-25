@@ -50,6 +50,11 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ### Changed
 - **Behavior:** `pinneapple_physics.closed_form.membrane_diffusion` converted kg to mg with a factor of 1e3: every
   "mg" (rate, reservoir mass, cumulative release) was in grams. Values are now 1000x larger and correct.
+- **Behavior:** generated files are no longer committed: `data/web/hub/index.json` is built on first
+  `pinneapple_hub.library.load_index()` (and at `docker build` of `apps/hub`), `docs/flow_studio/COVERAGE.md` and
+  `EXAMPLES_AS_FLOWS.md` by the docs build. The Hub's recorded snippet runs moved from `data/web/hub/runs.json` to one
+  file per item in `data/web/hub/snippet_runs/`. A `generated` CI job builds them from a fresh clone and keeps their
+  gates (AGENTS.md, "Generated files").
 
 ### Fixed
 - `eddy_current_fdm.solve_axisymmetric_eddy_current` solves the complex system as the equivalent real block

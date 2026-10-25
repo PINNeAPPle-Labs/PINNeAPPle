@@ -1,0 +1,12 @@
+{
+ "code_hash": "5d711b3620afd84d",
+ "figures": [],
+ "id": "example:em_pinn/em_skin_effect",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - skin effect vs exact solution",
+ "timed_out": false
+}

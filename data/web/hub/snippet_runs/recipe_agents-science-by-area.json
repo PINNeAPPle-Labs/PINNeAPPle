@@ -1,0 +1,14 @@
+{
+ "code_hash": "1ad403bb2a093839",
+ "figures": [
+  "data/web/hub/figures/recipe_agents-science-by-area_0.png"
+ ],
+ "id": "recipe:agents-science-by-area",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 6.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "['em.dipole_radiation', 'em.faraday_induction', 'em.research_fdtd_3d']\nHall effect [2D, academic, theory]: PASS, trust APPROVED\n  ok  Hall coefficient R_H = E_y / (J_x B): -0.000623757 vs -0.000624151 m^3/C (rel. error 6.31e-04, tol 0.002; closed_form)\n  ok  R_H error falls with the grid\n  ok  sign of V_H gives the carrier sign\n  ok  contacts short the Hall voltage in short bars (G rises with L/W)",
+ "timed_out": false
+}

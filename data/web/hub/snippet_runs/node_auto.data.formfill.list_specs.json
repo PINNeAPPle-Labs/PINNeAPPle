@@ -1,0 +1,12 @@
+{
+ "code_hash": "584712e67f51f204",
+ "figures": [],
+ "id": "node:auto.data.formfill.list_specs",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.58,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n[{'id': 'asme_u-dr-1', 'title': 'Pressure vessel: ASME Form U-DR-1', 'standard': 'ASME BPVC VIII-1 Form U-DR-1 (07/25)', 'summary': \"User's design requirements for a single-chamber pressure vessel; fills the official fillable form.\", 'inputs': ['client specification', 'process datasheet', 'mechanical datasheet', 'project specification', 'vendor datasheet', 'other'], 'output': 'official form', 'items': 129, 'required': 28, 'tables': ['Nozzle schedule']}, {'id': 'psv', 'title': 'Pressure relief valve datasheet', 'standard': 'API 520 Part I / API 526 data', 'summary': 'Relief case, rate, fluid properties, pressures, orifice, connections and materials of one PSV.', 'inputs': ['process datasheet', 'relief load summary', 'PSV sizing calculation', 'valve specification', 'other'], 'output': 'datas",
+ "timed_out": false
+}

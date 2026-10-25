@@ -1,0 +1,12 @@
+{
+ "code_hash": "9f579554106b062d",
+ "figures": [],
+ "id": "node:auto.tools.dataset_quality.parse_curation_response",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.92,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "CurationRecord\nCurationRecord(id='', label='suspect', confidence=0.5, reason='', raw_text='')",
+ "timed_out": false
+}

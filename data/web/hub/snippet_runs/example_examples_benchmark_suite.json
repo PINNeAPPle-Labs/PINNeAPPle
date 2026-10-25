@@ -1,0 +1,12 @@
+{
+ "code_hash": "3fbde315ba47ab65",
+ "figures": [],
+ "id": "example:examples/benchmark_suite",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.72,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINNeAPPle Arena — Examples | validation and benchmarks | curated",
+ "timed_out": false
+}

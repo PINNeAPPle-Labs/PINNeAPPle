@@ -1,0 +1,12 @@
+{
+ "code_hash": "e45e1096fbfb1cca",
+ "figures": [],
+ "id": "node:architectures.registry",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Model registry and catalog listing -> pinneapple_models.register_all + ModelRegistry.families / list / spec + ModelCatalog\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'families': [], 'specs': ['fno', 'vanilla_pinn', 'pod', 'gnn', 'informer'], 'catalog': []}",
+ "timed_out": false
+}

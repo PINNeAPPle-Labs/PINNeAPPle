@@ -1,0 +1,12 @@
+{
+ "code_hash": "be0560fad69b65fd",
+ "figures": [],
+ "id": "node:viz.any_result_3d",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.05,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Any result in 3-D (glTF, USD, viewer, Blender) -> pinneapple.viz.Scene.from_file / Scene.save (.glb, .usda) + pinneapple.viz.web_viewer + pinneapple.viz.render\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'source': 'apps/interop_hub/examples/calculix_cantilever.frd', 'title': 'CalculiX cantilever', 'labels': {'STRESS': 'von Mises stress (MPa)', 'DISP': 'Displacement (mm)'}, 'render': 'auto', 'render_field': 'STRESS', 'samples': 64}",
+ "timed_out": false
+}

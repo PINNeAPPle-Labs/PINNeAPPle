@@ -1,0 +1,12 @@
+{
+ "code_hash": "68e352547941a352",
+ "figures": [],
+ "id": "node:solver.newton",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.5,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rigid bodies (NVIDIA Newton) -> pinneapple_flow.wrappers:newton_validate pinneapple_simulation.external_solvers\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'solver': 'xpbd', 'cases': ['free_fall', 'pendulum_period', 'bounce']}",
+ "timed_out": false
+}

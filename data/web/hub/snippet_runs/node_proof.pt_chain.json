@@ -1,0 +1,12 @@
+{
+ "code_hash": "b4c575768389b67a",
+ "figures": [],
+ "id": "node:proof.pt_chain",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.85,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Proof graph: the PT-chain no-go question -> pinneapple_analysis.proof.pt_chains.build_pt_chain_graph + ProofGraph.run / report / plot\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'max_deg': 4, 'n_numeric': 300, 'search_iters': 40}",
+ "timed_out": false
+}

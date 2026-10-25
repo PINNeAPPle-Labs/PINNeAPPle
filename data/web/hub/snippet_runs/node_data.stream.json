@@ -1,0 +1,12 @@
+{
+ "code_hash": "a1c771f408f51521",
+ "figures": [],
+ "id": "node:data.stream",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Live data (sensors) -> pinneapple_flow.twin.simulate_sensors | CSV | paho-mqtt | asyncua\ninputs: [('problem', 'problem')]\noutputs: [('stream', 'series')]\ndefaults: {'source': 'simulated', 'sensors': [0.2, 0.4, 0.6, 0.8], 't_end': 3.0, 'every': 2, 'dt': 0.01, 'noise': 0.002, 'plant_n': 81, 'fault': {}, 'file': '', 'broker': '127.0.0.1:1883', 'topic': 'pinneapple/asset/sensors', 'opcua_url': '', 'opcua_nodes': [], 'listen_s': 30.0, 'seed': 0}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "c343ca471ede6220",
+ "figures": [],
+ "id": "example:examples/nvidia/04_worldmodel_physics_video",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "World model on physics-labelled video, judged by physics checks | physical AI | not curated\nrollout_pass_rate 0.0 \nrollout_pixel_mae 0.020704112015664577",
+ "timed_out": false
+}

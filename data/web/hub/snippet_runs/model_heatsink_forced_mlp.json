@@ -1,0 +1,12 @@
+{
+ "code_hash": "de7f95205194ee84",
+ "figures": [],
+ "id": "model:heatsink_forced_mlp",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.42,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "{'r_base_k_w': [0.88292], 'pressure_drop_pa': [66.15133], 'r_base_upper95_k_w': [0.90125]}\nAPPROVED",
+ "timed_out": false
+}

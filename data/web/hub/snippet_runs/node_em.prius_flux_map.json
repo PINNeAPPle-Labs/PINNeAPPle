@@ -1,0 +1,12 @@
+{
+ "code_hash": "d57c220edf07ce13",
+ "figures": [],
+ "id": "node:em.prius_flux_map",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.63,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius flux map (FEA) -> pinneapple_simulation.electromagnetics.machines.drive.FluxMap.from_fea (IPMMachine(prius_2004())) / from_npz + to_npz\ninputs: []\noutputs: [('flux_map', 'flux_map'), ('metrics', 'metrics')]\ndefaults: {'source': 'fea', 'n_gap': 480, 'I_max': 250.0, 'n_d': 9, 'n_q': 9, 'n_positions': 12, 'loss_n': 5, 'loss_steps': 24}",
+ "timed_out": false
+}

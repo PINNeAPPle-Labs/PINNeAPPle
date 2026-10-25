@@ -1,0 +1,12 @@
+{
+ "code_hash": "2adf544fa5cac423",
+ "figures": [],
+ "id": "example:oscillator_discovery",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - omega recovered",
+ "timed_out": false
+}

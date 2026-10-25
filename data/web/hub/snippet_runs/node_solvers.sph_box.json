@@ -1,0 +1,12 @@
+{
+ "code_hash": "9adc057fc17ef098",
+ "figures": [],
+ "id": "node:solvers.sph_box",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Weakly compressible SPH: a fluid block in a box -> pinneapple_simulation.numerical_solvers.SolverRegistry.build('sph') + pinneapple_design.geometry.sample.sample_box_particles\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'block_lo': [0.1, 0.1], 'block_hi': [0.4, 0.6], 'spacing': 0.03, 'jitter': 0.2, 'seed': 0, 'h': 0.04, 'rho0': 1000.0, 'c0': 25.0, 'mu': 0.02, 'gravity': [0.0, -9.81], 'box_lo': [0.0, 0.0], 'box_hi': [1.0, 1.0], 'dt': 0.002, 'steps': 50}",
+ "timed_out": false
+}

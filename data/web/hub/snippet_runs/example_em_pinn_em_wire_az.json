@@ -1,0 +1,12 @@
+{
+ "code_hash": "0119f62a5689bfc5",
+ "figures": [],
+ "id": "example:em_pinn/em_wire_az",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - A_z vs Ampère's law (exact)",
+ "timed_out": false
+}

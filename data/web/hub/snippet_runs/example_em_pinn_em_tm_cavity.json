@@ -1,0 +1,12 @@
+{
+ "code_hash": "985082dd59a40f8d",
+ "figures": [],
+ "id": "example:em_pinn/em_tm_cavity",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "F - Ez vs closed form (+2 more)",
+ "timed_out": false
+}

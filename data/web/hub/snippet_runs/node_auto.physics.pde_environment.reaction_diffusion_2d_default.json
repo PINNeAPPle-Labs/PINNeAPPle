@@ -1,0 +1,12 @@
+{
+ "code_hash": "d60b6baf58f7b10a",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.reaction_diffusion_2d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='reaction_diffusion_2d_default', dim=2, coords=('x', 'y', 't'), fields=('c',), pde=PDETermSpec(kind='heat_equation', fields=('c',), coords=('x', 'y', 't'), params={'alpha': 0.001}, meta={'industry': 'chemistry', 'note': \"Use ctx['source_fn'] to implement reaction R(c).\"}), conditions=(ConditionSpec(name='c_init', kind='initial', fields=('c',), selector_type='callable', selector=<function reaction_diffusion_2d_default.<locals>.<lambda> at 0x7f65ed7a27a0>, value_fn=<function reaction_diffusion_2d_default.<locals>.<lambda> at 0x7f65e4df0ae0>, weight=10.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='c_boundary', kind='dirichlet', fields=('c',), selector_type='tag', selector={'tag': 'bounda",
+ "timed_out": false
+}

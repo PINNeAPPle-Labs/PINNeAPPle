@@ -1,0 +1,12 @@
+{
+ "code_hash": "4d7f521678beb1db",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.list_presets",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['aircraft_wing_aerodynamics', 'aircraft_wing_structural', 'axial_compressor_cascade_2d', 'axial_compressor_meanline', 'axial_compressor_stage_3d', 'axisymmetric_linear_elasticity_2d', 'bekker_wong_surrogate_2d', 'black_scholes_1d', 'burgers_1d', 'car_brake_thermal', 'car_external_aero', 'car_suspension_fatigue', 'channel_flow_3d', 'climate_atmosphere_2d', 'climate_ocean_gyre', 'cpu_heatsink_thermal', 'cr3bp_planar_synodic', 'crystal_phonon', 'darcy_pressure_only_3d', 'datacenter_airflow_2d', 'datacenter_cfd_3d', 'datacenter_server_thermal', 'drug_diffusion_tissue', 'em_cylinder_scattering', 'em_skin_effect', 'em_tm_cavity', 'em_tm_cavity_integral', 'em_two_dielectric_capacitor', 'em_two_dielectric_capacitor_differential', 'em_wire_az', 'fan_cooler_cfd', 'furnace_combustion_zone', 'helmhol",
+ "timed_out": false
+}

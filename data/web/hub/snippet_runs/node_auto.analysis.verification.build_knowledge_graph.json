@@ -1,0 +1,12 @@
+{
+ "code_hash": "5eff01f843fab543",
+ "figures": [],
+ "id": "node:auto.analysis.verification.build_knowledge_graph",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "MultiDiGraph\n<networkx.classes.multidigraph.MultiDiGraph object at 0x7f2afc733620>",
+ "timed_out": false
+}

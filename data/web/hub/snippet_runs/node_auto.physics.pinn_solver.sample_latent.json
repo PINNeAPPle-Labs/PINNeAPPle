@@ -1,0 +1,12 @@
+{
+ "code_hash": "35d7497096487921",
+ "figures": [],
+ "id": "node:auto.physics.pinn_solver.sample_latent",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.03,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Tensor\ntensor([[0.1445]])",
+ "timed_out": false
+}

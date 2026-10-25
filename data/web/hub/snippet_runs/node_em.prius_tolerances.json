@@ -1,0 +1,12 @@
+{
+ "code_hash": "e783eddb584dc81c",
+ "figures": [],
+ "id": "node:em.prius_tolerances",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.75,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius manufacturing tolerances (Monte Carlo FEA) -> pinneapple_analysis.uncertainty.tolerance.propagate + src over pinneapple_simulation.electromagnetics.machines.robustness.tolerance_model(prius_2004())\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'samples': 200, 'seed': 0, 'n_gap': 480, 'positions': 12, 'gamma_deg': 50.3, 'nominal': [1.0, 0.0065, 0.0189, 0.00075], 'sigma': [0.01, 2.5e-05, 5e-05, 2.5e-05]}",
+ "timed_out": false
+}

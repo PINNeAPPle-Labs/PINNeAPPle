@@ -1,0 +1,12 @@
+{
+ "code_hash": "7334125c91d9f4b2",
+ "figures": [],
+ "id": "geometry:pin_fin_heatsink",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.92,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Pin-fin heat sink | thermal\npin_fin_heatsink.light.stl 646284 bytes",
+ "timed_out": false
+}

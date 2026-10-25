@@ -1,0 +1,12 @@
+{
+ "code_hash": "f09cbcedfd058196",
+ "figures": [],
+ "id": "node:flight.verification",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Flight library verification -> pinneapple_simulation.flight.verification.turbulence_checks / trim_checks / conservation_check / lattice_check; pinneapple_simulation.flight.figures.psd_figure\ninputs: []\noutputs: [('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'parts': ['turbulence', 'trim', 'conservation', 'lattice'], 'seed': 3}",
+ "timed_out": false
+}

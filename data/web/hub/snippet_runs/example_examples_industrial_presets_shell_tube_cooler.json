@@ -1,0 +1,12 @@
+{
+ "code_hash": "bf54384818e18b33",
+ "figures": [],
+ "id": "example:examples/industrial_presets/shell_tube_cooler",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Resfriador casco-tubo de água de circuito fechado (TEMA E, 1 passe no casco, 2 nos tubos) | Térmica / processo e energia | not curated\nrel_error[epsilon 1-2 (NTU 0.98, Cr 0.80): eq. 11.30a vs BVP direto] 3.277045816399516e-14 -\nrel_error[epsilon 1-2 (NTU 0.50, Cr 0.30): eq. 11.30a vs BVP direto] 4.189200564160273e-14 -\nrel_error[epsilon 1-2 (NTU 3.00, Cr 1.00): eq. 11.30a vs BVP direto] 9.398982902295129e-15 -\nrel_error[Cr -> 0: epsilon = 1 - exp(-NTU)] 0.0 -\nrel_error[h tubos: Gnielinski vs Dittus-Boelter] 0.09283884594855282 -",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "4f40ad6eba6584f8",
+ "figures": [],
+ "id": "node:terramechanics.wheel_model",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.95,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Wheel-soil contact (Wong-Reece) -> pinneapple_simulation.terramechanics.WongReeceModel + steady_state\ninputs: [('vehicle', 'vehicle'), ('soil', 'soil')]\noutputs: [('model', 'model'), ('metrics', 'metrics')]\ndefaults: {'bulldozing': 'lateral', 'slip_sinkage': 'drive', 'n_gl': 24}",
+ "timed_out": false
+}

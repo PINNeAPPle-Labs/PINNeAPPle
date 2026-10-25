@@ -1,0 +1,12 @@
+{
+ "code_hash": "a272e950cee52983",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/coulomb_superposition",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.71,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Coulomb's law and superposition (3D, 2D) | science / physics.electromagnetism | not curated\nrel_error[3D: ring potential at s = 0.6 R, z = 0.3 R] 6.207024832406532e-16 -\nrel_error[3D: axial field E_z(z = 0.75 R)] 6.588211790636253e-16 -\nrel_error[3D: far field -> point charge (r = 40 R)] 0.0009367681118060166 -\n3D: max_rel_error_potential 2.886579864025407e-15 -\n3D: convergence_rate -1.3785116232537298 -",
+ "timed_out": false
+}

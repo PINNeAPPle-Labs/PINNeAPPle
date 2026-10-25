@@ -1,0 +1,12 @@
+{
+ "code_hash": "718e1bb096de318b",
+ "figures": [],
+ "id": "node:reason.failure_mode",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Failure mode check -> pinneapple_reason.library.LIBRARY.mode(name).evaluate (pinneapple_reason.modes)\ninputs: [('concept', 'concept')]\noutputs: [('metrics', 'metrics')]\ndefaults: {'mode': 'lap_water_ingress', 'limits': {}}",
+ "timed_out": false
+}

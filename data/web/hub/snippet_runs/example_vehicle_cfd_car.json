@@ -1,0 +1,12 @@
+{
+ "code_hash": "643d0214298ee022",
+ "figures": [],
+ "id": "example:vehicle_cfd/car",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - drag in passenger car range · 0.25-0.40 for production cars",
+ "timed_out": false
+}

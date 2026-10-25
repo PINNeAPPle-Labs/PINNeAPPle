@@ -1,0 +1,12 @@
+{
+ "code_hash": "81cf4710e135f1e0",
+ "figures": [],
+ "id": "example:vivaldi_2to4ghz",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.69,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Antipodal Vivaldi 2-4 GHz, 10 dBi target | electromagnetics | not curated\nemerge_processes 125.0 \nemerge_wall_s_median 10.81 s\nemerge_max_rss_mb 2854.3 MB\nlodo_rmse_Greal_bore_dBi_freq_mean 1.7551727182030572 dB\nlodo_rmse_Greal_bore_dBi_hw_offset 1.5821871704288146 dB",
+ "timed_out": false
+}

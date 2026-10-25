@@ -1,0 +1,12 @@
+{
+ "code_hash": "ec3cbe5c550368ec",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/cavity_resonance",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Resonant cavity (2D, 3D) | science / physics.electromagnetism | not curated\nrel_error[2D: TM11 resonance] 1.3500026653198006e-05 -\nrel_error[2D: TM21 resonance] 2.377721133063262e-05 -\nrel_error[2D: TM12 resonance] 0.0001860008917885323 -\nrel_error[2D: TM31 resonance] 0.00014698089431982415 -\nrel_error[2D: TM22 resonance] 5.355178179144305e-05 -",
+ "timed_out": false
+}

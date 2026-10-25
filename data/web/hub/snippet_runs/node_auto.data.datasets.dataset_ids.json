@@ -1,0 +1,12 @@
+{
+ "code_hash": "05ffd2f3bfa76771",
+ "figures": [],
+ "id": "node:auto.data.datasets.dataset_ids",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['channel_with_obstacle', 'cylinder_2d', 'lshape_2d', 'naca0012', 'airfoil_noise', 'allen_cahn_1d', 'burgers_1d', 'cfd_cylinder_drag', 'concrete_strength', 'copernicus_era5_temperature', 'designsafe_seismic_ground_motion', 'energy_efficiency', 'heat_1d', 'heat_2d', 'heat_conduction_rod', 'helmholtz_2d', 'kovasznay_ns', 'materials_fatigue', 'materials_project_electronic', 'nasa_exoplanet_archive', 'nasa_exoplanets', 'nasa_giss_temperature', 'nist_fluid_properties', 'noaa_global_temp_anomaly', 'noaa_sea_surface_temperature', 'nomad_dft', 'nrel_solar_resource', 'nrel_wind_speed', 'openfoam_channel_flow', 'openfoam_cylinder_drag', 'openfoam_lid_driven_cavity', 'orbit_propagation', 'plasma_fusion', 'poisson_2d', 'reaction_diffusion', 'seaborn_mpg', 'seaborn_penguins', 'seismic_waveform', 'sklea",
+ "timed_out": false
+}

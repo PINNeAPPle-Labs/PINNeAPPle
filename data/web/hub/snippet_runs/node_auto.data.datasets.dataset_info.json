@@ -1,0 +1,12 @@
+{
+ "code_hash": "c1258e5027cdc812",
+ "figures": [],
+ "id": "node:auto.data.datasets.dataset_info",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.54,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "dataset info -> pinneapple_data.datasets:dataset_info\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'dataset_id': ''}",
+ "timed_out": false
+}

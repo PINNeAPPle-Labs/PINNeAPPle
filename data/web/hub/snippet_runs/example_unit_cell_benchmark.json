@@ -1,0 +1,12 @@
+{
+ "code_hash": "2994e0f247402c82",
+ "figures": [],
+ "id": "example:unit_cell_benchmark",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 1.21,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "TCDA unit cell: FNO + optimiser vs Bayesian optimisation | electromagnetics | not curated\ncell_wall_s_median 93.0 s\ncell_max_rss_mb 2039.0 MB\nfno_heldout_rmse_dB 2.264688414031629 dB\nfno_optimizer_best_dB -6.543068986377335 dB\nbayesian_best_dB -6.720940250952603 dB",
+ "timed_out": false
+}

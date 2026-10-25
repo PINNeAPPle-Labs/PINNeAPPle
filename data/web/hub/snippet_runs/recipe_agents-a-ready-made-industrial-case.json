@@ -1,0 +1,12 @@
+{
+ "code_hash": "b00c6c2c10ca72cd",
+ "figures": [],
+ "id": "recipe:agents-a-ready-made-industrial-case",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 9.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "water_hammer_valve_closure (solver): OK | trust APPROVED\n  inner_diameter = 0.48894\n  wave_speed = 1211.84\n  period = 1.98046\n  reynolds = 730629\n  friction_factor = 0.0137365\n  max_head = 82.2931\n  max_head_x = 1200\n  max_head_t = 9.97655\n  surge_head = 26.1607\n  min_head = 37.7732\n  drawdown = 18.3593\n  p_max = 805567\n  p_min_abs = 471087\n  joukowsky_head = 185.36\n  michaud_head = 36.7098\n  h_static_valve = 56.1325\n  h_allow = 163.449\n  t_close_safe = 3.37008",
+ "timed_out": false
+}

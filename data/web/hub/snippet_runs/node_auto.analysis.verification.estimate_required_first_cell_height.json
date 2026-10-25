@@ -1,0 +1,12 @@
+{
+ "code_hash": "51819e90ba3c21b5",
+ "figures": [],
+ "id": "node:auto.analysis.verification.estimate_required_first_cell_height",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.65,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "YPlusEstimate\nYPlusEstimate(computable=True, reason=\"estimated from the standard flat-plate turbulent boundary-layer correlation (see module docstring). NOTE: Re_L=1 is outside the correlation's typically-cited validity range (5e5-1e7) -- still computed, but treat as a rougher order-of-magnitude estimate.\", target_yplus=1.0, reynolds_length=1.0, skin_friction_coefficient=0.058, wall_shear_stress_over_density=0.029, friction_velocity=0.17029386365926402, required_first_cell_height=5.872202195147034, actual_near_wall_cell_size=None, actual_cell_size_source='', verdict='not computable', formula='Cf = 0.058 * Re_L^-0.2 (Schlichting turbulent flat-plate correlation, valid ~5e5<Re_L<1e7); tau_w = Cf*0.5*rho*U^2; u_tau = sqrt(tau_w/rho); required_y = target_yplus * nu / u_tau')",
+ "timed_out": false
+}

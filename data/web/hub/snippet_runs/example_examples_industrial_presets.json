@@ -1,0 +1,12 @@
+{
+ "code_hash": "275330fba17d1c96",
+ "figures": [],
+ "id": "example:examples/industrial_presets",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.76,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Presets industriais | engineering | not curated",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "e152deb33354f218",
+ "figures": [],
+ "id": "node:data.grf_burgers",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.4,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Operator set: random initial data -> Burgers -> pinneapple_simulation.numerical_solvers.operator_benchmarks.periodic_grf + burgers_1d\ninputs: []\noutputs: [('data', 'dataset')]\ndefaults: {'n_samples': 256, 'n': 128, 'nu': 0.01, 't_end': 0.5, 'alpha': 2.5, 'tau': 7.0, 'dt': 0.0002, 'seed': 0}",
+ "timed_out": false
+}

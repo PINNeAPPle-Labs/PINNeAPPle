@@ -1,0 +1,12 @@
+{
+ "code_hash": "dfae5d4caaf8fc15",
+ "figures": [],
+ "id": "example:examples/nvidia/01_omniverse_pump_pipeline",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Pump and pipeline water hammer twin in OpenUSD | hydraulics | not curated\nflow_m3_s 0.5764952765862256 m^3/s\nvelocity_m_s 2.0389349541739374 m/s\nmax_pressure_bar_closure_0s 26.33736760656158 bar\nmax_pressure_bar_closure_6s 25.48263329314509 bar\nmax_pressure_bar_closure_20s 23.148129867493747 bar",
+ "timed_out": false
+}

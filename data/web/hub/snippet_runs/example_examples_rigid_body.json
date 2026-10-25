@@ -1,0 +1,12 @@
+{
+ "code_hash": "78aa1ce94b82edcf",
+ "figures": [],
+ "id": "example:examples/rigid_body",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rigid bodies with NVIDIA Newton: check the solver, then run a small scene | system dynamics | not curated",
+ "timed_out": false
+}

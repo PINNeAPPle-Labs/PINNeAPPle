@@ -1,0 +1,12 @@
+{
+ "code_hash": "d730cf9dd31a8d2a",
+ "figures": [],
+ "id": "node:em.prius_getdp_crosscheck",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Prius FEA against gmsh + GetDP -> pinneapple_simulation.electromagnetics.machines.getdp.solve (gmsh + GetDP) against IPMMachine.solve; machine.belt_winding; verification.YANG_2013_*\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'n_gap': 960, 'positions': 12, 'angles_every': 1, 'emf_positions': 60}",
+ "timed_out": false
+}

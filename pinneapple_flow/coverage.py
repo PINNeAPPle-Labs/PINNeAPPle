@@ -2,7 +2,8 @@
 
 :func:`coverage` walks every ``pinneapple*`` package and its first-level modules, maps the registered node types onto
 them (by the library calls each node declares) and attaches a curated reason (:data:`REASONS`) to whatever has no
-node. ``python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md`` writes the table.
+node. ``python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md`` writes the table (git-ignored: the docs
+build generates it, ``tools/gen_flow_docs.py``) and exits 1 when a module has neither a node nor a reason.
 """
 from __future__ import annotations
 

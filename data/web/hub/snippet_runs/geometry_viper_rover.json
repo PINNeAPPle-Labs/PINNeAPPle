@@ -1,0 +1,12 @@
+{
+ "code_hash": "8a1e5592468e6f39",
+ "figures": [],
+ "id": "geometry:viper_rover",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NASA VIPER lunar rover | space\nviper_rover.light.stl 1240284 bytes",
+ "timed_out": false
+}

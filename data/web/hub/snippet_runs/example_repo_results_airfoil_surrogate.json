@@ -1,0 +1,12 @@
+{
+ "code_hash": "d40e4b1572941b3d",
+ "figures": [],
+ "id": "example:repo_results/airfoil_surrogate",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "B - mlp Cd r2 · 15 unseen shapes",
+ "timed_out": false
+}

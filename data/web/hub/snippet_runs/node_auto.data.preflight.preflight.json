@@ -1,0 +1,12 @@
+{
+ "code_hash": "480f9768c82a7af8",
+ "figures": [],
+ "id": "node:auto.data.preflight.preflight",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.44,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "preflight -> pinneapple_data.preflight:preflight\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'fs': {}}",
+ "timed_out": false
+}

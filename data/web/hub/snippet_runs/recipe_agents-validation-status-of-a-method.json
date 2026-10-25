@@ -1,0 +1,12 @@
+{
+ "code_hash": "da895637a1805b93",
+ "figures": [],
+ "id": "recipe:agents-validation-status-of-a-method",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.39,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "32 validated solvers, e.g. ['S1', 'S2', 'S3', 'S4', 'S5']",
+ "timed_out": false
+}

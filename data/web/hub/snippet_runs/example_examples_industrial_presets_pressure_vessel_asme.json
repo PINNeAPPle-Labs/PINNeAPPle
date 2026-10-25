@@ -1,0 +1,12 @@
+{
+ "code_hash": "48a3ab3fd7941dc7",
+ "figures": [],
+ "id": "example:examples/industrial_presets/pressure_vessel_asme",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Vaso de pressão cilíndrico: espessura de casco e tampos pela ASME VIII Div. 1 | Estrutural / caldeiraria e processo | not curated\nrel_error[tensão circunferencial no furo: FEM 3-D C3D8I vs Lamé] 0.0038346666983239304 -\nrel_error[deslocamento radial no furo: FEM vs Lamé (deformação plana)] 8.384422033447177e-07 -\nrel_error[fórmula UG-27(c)(1) vs tensão máxima de Lamé] 0.000866198770668044 -\nrel_error[caso espesso (t/R 0,26): UG-27 vs Lamé] 0.00962774901909099 -\ninversion_rel_err 0.002553325026595152 -",
+ "timed_out": false
+}

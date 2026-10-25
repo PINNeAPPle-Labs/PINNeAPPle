@@ -1,0 +1,12 @@
+{
+ "code_hash": "1219b105b403b5e7",
+ "figures": [],
+ "id": "dataset:heatsink_forced_convection",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.06,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "900 rows; ['air_velocity_m_s', 'base_depth_mm', 'base_thickness_mm', 'base_width_mm', 'fin_gap_mm', 'fin_height_mm', 'fin_thickness_mm', 'k_w_mk']\ncc-by-4.0",
+ "timed_out": false
+}

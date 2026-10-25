@@ -1,0 +1,12 @@
+{
+ "code_hash": "53a7ac067fe8f181",
+ "figures": [],
+ "id": "node:lib.worldmodel.inspection_sample",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.33,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Synthetic inspection sample (USD) -> pinneapple_worldmodel.inspection_data:inspection_sample\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'x': 0.4, 'y': 0.6, 'r': 0.08, 'seed': 0, 'glint': False, 'usd_path': 'inspection_sample.usda'}",
+ "timed_out": false
+}

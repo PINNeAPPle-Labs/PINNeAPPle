@@ -1,0 +1,12 @@
+{
+ "code_hash": "e1a5c64660b78a24",
+ "figures": [],
+ "id": "node:blackhole.simulate",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Black-hole accretion flow (RIAF torus) -> pinneapple_physics.blackhole.RIAFConfig + runs.simulate_run / load_run\ninputs: []\noutputs: [('run', 'bh_run'), ('metrics', 'metrics'), ('figure', 'figure')]\ndefaults: {'nr': 128, 'ntheta': 64, 'alpha': 0.1, 'viscosity': 'SS', 'torus_a': 0.0, 't_end': 10000.0, 'every': 10.0, 'seed': 0, 'perturbation_kind': 'modes', 'backend': 'auto'}",
+ "timed_out": false
+}

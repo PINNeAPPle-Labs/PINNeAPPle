@@ -1,0 +1,12 @@
+{
+ "code_hash": "f5e961d2d317f2a8",
+ "figures": [],
+ "id": "example:examples/latent",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A latent surrogate that says when not to trust it | physics AI | not curated",
+ "timed_out": false
+}

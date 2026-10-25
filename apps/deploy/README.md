@@ -810,7 +810,8 @@ Metered per caller and month: `PDO_FREE_EVALUATIONS` (200000), `PDO_FREE_CAMPAIG
 ## PINNeAPPle Hub (`hub`)
 
 The catalogue of everything ready-made in the library (`apps/hub/README.md`): tools, trained zoo models, geometries,
-datasets, flows and examples from the generated index `data/web/hub/index.json`, with copy-the-code, downloads,
+datasets, flows and examples from the generated index `data/web/hub/index.json` (built into the image at
+`docker build`, not committed), with copy-the-code, downloads,
 3-D previews, zoo inference (in the browser or on the server) and "Create your own". Point a DNS record for
 `HUB_DOMAIN` (e.g. `hub.pinneapple.org`) at the server; set `HUB_FLOW_STUDIO_URL` to your Flow Studio
 (`apps/flow_studio`, its own compose file) so "Open in Flow Studio" lands there. A composed tool's validation runs

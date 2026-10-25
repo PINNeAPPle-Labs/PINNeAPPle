@@ -88,7 +88,8 @@ def synthetic_smoothing(noise=(0.05, 0.2), fps=(25.0, 10.0), *, n: int = 20, see
 
 def match_load(match, *, team: str = "Home", max_frames: int | None = None) -> dict[str, Any]:
     """Metabolic power of one team of a Metrica match per player and per method, and plausibility per method
-    (the first ``max_frames`` frames only, if given)."""
+    (the first ``max_frames`` frames only, if given). ``gated_mean_mp_per_player`` drops the samples above the
+    human limits of :mod:`.kinematics` (tracking jumps), which otherwise dominate a match mean."""
     P = match.players[team][:max_frames]
     dt = 1 / match.fps
     fit = K.fit_noise(P[:15000], dt, sigmas=(0.002, 0.005, 0.01, 0.02), jerks=(10.0, 20.0, 40.0, 80.0))
@@ -98,6 +99,10 @@ def match_load(match, *, team: str = "Home", max_frames: int | None = None) -> d
     for name, r in methods.items():
         mp = _mp(r["vel"], r["acc"])
         sp = np.linalg.norm(r["vel"], axis=-1)
+        ac = np.linalg.norm(r["acc"], axis=-1)
+        plausible = (sp <= K.V_MAX) & (ac <= K.A_MAX)
+        gated = np.where(plausible, mp, np.nan)                # physically impossible samples are tracking errors
+        okg = np.isfinite(gated)
         on = np.isfinite(mp)
         enough = min(25 * 600, len(P) // 2)
         mean_mp = np.array([np.nanmean(mp[on[:, j], j]) if on[:, j].sum() > enough else np.nan
@@ -105,7 +110,12 @@ def match_load(match, *, team: str = "Home", max_frames: int | None = None) -> d
         med_mp = np.array([np.nanmedian(mp[on[:, j], j]) if on[:, j].sum() > enough else np.nan
                            for j in range(P.shape[1])])
         hs = np.array([np.nansum((sp[:, j] > 5.5) * sp[:, j]) * dt for j in range(P.shape[1])])
-        out["methods"][name] = {"mean_mp_per_player": mean_mp.tolist(), "median_mp_per_player": med_mp.tolist(), "hs_distance_per_player": hs.tolist(),
+        gated_mp = np.array([np.nanmean(gated[okg[:, j], j]) if okg[:, j].sum() > enough else np.nan
+                             for j in range(P.shape[1])])
+        out["methods"][name] = {"mean_mp_per_player": mean_mp.tolist(), "median_mp_per_player": med_mp.tolist(),
+                                "gated_mean_mp_per_player": gated_mp.tolist(),
+                                "implausible_share": float(1 - np.sum(okg) / max(np.sum(on), 1)),
+                                "hs_distance_per_player": hs.tolist(),
                                 **K.plausibility(r["vel"], r["acc"]),
                                 "mp_above_20_share": float(np.nanmean(mp[on] > 20))}
     return out

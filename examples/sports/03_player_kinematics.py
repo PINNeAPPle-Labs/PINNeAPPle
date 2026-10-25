@@ -41,6 +41,7 @@ def main(smoke: bool = False) -> dict:
         res["match_load"]["methods"][name]["mean_mp_team"] = float(np.nanmean(mp))
         res["match_load"]["methods"][name]["mean_mp_per_player"] = mp.tolist()
         res["match_load"]["methods"][name]["median_mp_team"] = float(np.nanmean(r["median_mp_per_player"]))
+        res["match_load"]["methods"][name]["gated_mean_mp_team"] = float(np.nanmean(r["gated_mean_mp_per_player"]))
     ref = np.array(load["methods"]["kalman_rts"]["mean_mp_per_player"], float)
     for name, r in load["methods"].items():
         mp = np.array(r["mean_mp_per_player"], float)

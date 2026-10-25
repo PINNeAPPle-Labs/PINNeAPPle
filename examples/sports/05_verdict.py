@@ -98,10 +98,16 @@ def verdict_rows(ball, pc, kin, xg) -> list[dict]:
         rows.append({"case": "Metabolic power on Metrica (real, no ground truth)",
                      "physics": "equivalent-slope model on Kalman-RTS states",
                      "baseline": "the same on raw differences / Savitzky-Golay",
-                     "measured": f"noise fitted {ml['noise_fit']['sigma_pos'] * 100:.1f} cm; team mean "
-                                 + ", ".join(f"{k} {v['mean_mp_team']:.2f} W/kg" for k, v in ml["methods"].items()),
-                     "verdict": "processing uncertainty is reported, not a win: the provider data are already "
-                                "smooth, so the choice of filter moves the load only a few per cent"})
+                     "measured": f"noise fitted {ml['noise_fit']['sigma_pos'] * 100:.1f} cm; team mean metabolic "
+                                 "power, all samples: "
+                                 + ", ".join(f"{k} {v['mean_mp_team']:.1f}" for k, v in ml["methods"].items())
+                                 + " W/kg; physically plausible samples only: "
+                                 + ", ".join(f"{k} {v['gated_mean_mp_team']:.1f}" for k, v in ml["methods"].items())
+                                 + " W/kg",
+                     "verdict": "physics HELPED as a gate, not as a smoother: a few tracking jumps (impossible speed "
+                                "or acceleration) dominate the match mean whatever the filter; removing them with "
+                                "human limits makes the methods agree. The provider data are already smooth "
+                                "(noise ~mm), so the smoother itself changes little"})
         for H in ("1s", "2s"):
             rr = kin["prediction"][H]["rows"]
             cv = next(r for r in rr if r["model"] == "constant_velocity")

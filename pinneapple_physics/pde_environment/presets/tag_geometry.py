@@ -703,6 +703,20 @@ def build_tag_batch(
     raise ValueError(f"Unknown fixture shape {fixture['shape']!r} for preset {name!r}")
 
 
+def tag_solve_kwargs(name: str, spec: ProblemSpec, *, n_bc_per_face: int = 1_000, seed: int = 7) -> Dict[str, Any]:
+    """The extra ``solve_pde`` keyword arguments preset ``name`` needs: ``{}`` when ``spec`` has no
+    ``selector_type="tag"`` condition, the :func:`build_tag_batch` geometry when it has a fixture here, and
+    ``KeyError`` otherwise (the honest failure: no geometry is invented)::
+
+        pp.solve_pde(spec, model, epochs=..., **tag_solve_kwargs(name, spec))
+    """
+    if not any(getattr(c, "selector_type", None) == "tag" for c in spec.conditions):
+        return {}
+    if name not in TAG_GEOMETRY_FIXTURES:
+        raise KeyError(f"preset {name!r} has tag conditions and no geometry fixture: pass x_bc / masks yourself")
+    return solve_pde_kwargs_from_batch(build_tag_batch(name, spec, n_col=1, n_bc_per_face=n_bc_per_face, seed=seed))
+
+
 def solve_pde_kwargs_from_batch(batch: Dict[str, Any]) -> Dict[str, Any]:
     """Strip the ``x_col`` key (``solve_pde`` samples its own collocation
     points from ``spec.domain_bounds`` and doesn't accept one) and convert

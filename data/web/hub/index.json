@@ -2,12 +2,12 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 426,
+  "tool": 431,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
-  "flow": 16,
-  "example": 183
+  "flow": 18,
+  "example": 184
  },
  "kinds": {
   "tool": "Tools",
@@ -6480,6 +6480,239 @@
    }
   },
   {
+   "id": "node:cfd.study",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "cfd.study",
+   "title": "FreeCAD -> OpenFOAM study",
+   "summary": "A parametric FreeCAD model, its patch rules, mesh, physics, sections and references, ready to run.",
+   "description": "A parametric FreeCAD model, its patch rules, mesh, physics, sections and references, ready to run.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Simulation",
+    "api",
+    "cad",
+    "cfd",
+    "freecad",
+    "function",
+    "library",
+    "openfoam"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"cfd.study\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:freecad_openfoam_bend",
+    "flow:freecad_openfoam_sweep"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=cfd.study",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/cfd_pipeline.py#L33"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.pipelines.freecad_openfoam.studies (PipelineSpec)",
+    "category": "Simulation",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [],
+    "outputs": [
+     {
+      "name": "study",
+      "type": "params"
+     }
+    ],
+    "params": [
+     {
+      "name": "study",
+      "kind": "enum",
+      "default": "pipe_bend",
+      "help": "a validated worked study",
+      "choices": [
+       "pipe_bend",
+       "heated_pipe",
+       "sphere"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "resolution",
+      "kind": "float",
+      "default": 12.0,
+      "help": "cells across the diameter (internal) or the snappy surface level (sphere)",
+      "choices": null,
+      "minimum": 4,
+      "maximum": 64,
+      "advanced": false
+     },
+     {
+      "name": "backend",
+      "kind": "enum",
+      "default": "auto",
+      "help": "FreeCAD headless, the NumPy stand-in, or FreeCAD when installed",
+      "choices": [
+       "auto",
+       "freecad",
+       "fake"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "overrides",
+      "kind": "dict",
+      "default": {},
+      "help": "PipelineSpec fields to replace (advanced)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": true
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "study": {
+       "title": "study",
+       "description": "a validated worked study",
+       "x-kind": "enum",
+       "default": "pipe_bend",
+       "enum": [
+        "pipe_bend",
+        "heated_pipe",
+        "sphere"
+       ]
+      },
+      "resolution": {
+       "title": "resolution",
+       "description": "cells across the diameter (internal) or the snappy surface level (sphere)",
+       "x-kind": "float",
+       "default": 12.0,
+       "type": "number",
+       "minimum": 4,
+       "maximum": 64
+      },
+      "backend": {
+       "title": "backend",
+       "description": "FreeCAD headless, the NumPy stand-in, or FreeCAD when installed",
+       "x-kind": "enum",
+       "default": "auto",
+       "enum": [
+        "auto",
+        "freecad",
+        "fake"
+       ]
+      },
+      "overrides": {
+       "title": "overrides",
+       "description": "PipelineSpec fields to replace (advanced)",
+       "x-kind": "dict",
+       "default": {},
+       "x-advanced": true,
+       "type": "object"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "fa5af89a224c8d27"
+   }
+  },
+  {
+   "id": "node:cfd.geometry",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "cfd.geometry",
+   "title": "FreeCAD geometry and patches",
+   "summary": "Set the spreadsheet parameters, recompute, export and name the patches; no solver.",
+   "description": "Set the spreadsheet parameters, recompute, export and name the patches; no solver.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Simulation",
+    "api",
+    "cad",
+    "cfd",
+    "freecad",
+    "function",
+    "library",
+    "openfoam"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"cfd.geometry\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:freecad_openfoam_bend"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=cfd.geometry",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/cfd_pipeline.py#L59"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.pipelines.freecad_openfoam.steps.cad_step",
+    "category": "Simulation",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [
+     {
+      "name": "study",
+      "type": "params",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     }
+    ],
+    "params": [
+     {
+      "name": "parameters",
+      "kind": "dict",
+      "default": {},
+      "help": "document parameters to set (mm, degrees)",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "parameters": {
+       "title": "parameters",
+       "description": "document parameters to set (mm, degrees)",
+       "x-kind": "dict",
+       "default": {},
+       "type": "object"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "00f0601cda027ece"
+   }
+  },
+  {
    "id": "node:problem.generic",
    "kind": "tool",
    "subkind": "flow node",
@@ -10653,6 +10886,199 @@
    }
   },
   {
+   "id": "node:cfd.sweep",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "cfd.sweep",
+   "title": "Parameter sweep (FreeCAD -> OpenFOAM)",
+   "summary": "One process per case, resumable; the table of inputs and measured outputs.",
+   "description": "One process per case, resumable; the table of inputs and measured outputs.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Simulation",
+    "api",
+    "cad",
+    "cfd",
+    "freecad",
+    "function",
+    "library",
+    "openfoam"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"cfd.sweep\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:freecad_openfoam_sweep"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=cfd.sweep",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/cfd_pipeline.py#L118"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.pipelines.freecad_openfoam.sweep (doe, Sweep)",
+    "category": "Simulation",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [
+     {
+      "name": "study",
+      "type": "params",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "dataset",
+      "type": "dataset"
+     },
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "bounds",
+      "kind": "dict",
+      "default": {
+       "Rc": [
+        20,
+        80
+       ]
+      },
+      "help": "input -> [low, high]",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "n",
+      "kind": "int",
+      "default": 8,
+      "help": "cases (levels per input for a grid)",
+      "choices": null,
+      "minimum": 2,
+      "maximum": 200,
+      "advanced": false
+     },
+     {
+      "name": "method",
+      "kind": "enum",
+      "default": "lhs",
+      "help": "",
+      "choices": [
+       "lhs",
+       "sobol",
+       "grid"
+      ],
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "fixed",
+      "kind": "dict",
+      "default": {},
+      "help": "inputs held at a value",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "parallel",
+      "kind": "int",
+      "default": 1,
+      "help": "cases run at the same time",
+      "choices": null,
+      "minimum": 1,
+      "maximum": 64,
+      "advanced": false
+     },
+     {
+      "name": "seed",
+      "kind": "int",
+      "default": 0,
+      "help": "",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "bounds": {
+       "title": "bounds",
+       "description": "input -> [low, high]",
+       "x-kind": "dict",
+       "default": {
+        "Rc": [
+         20,
+         80
+        ]
+       },
+       "type": "object"
+      },
+      "n": {
+       "title": "n",
+       "description": "cases (levels per input for a grid)",
+       "x-kind": "int",
+       "default": 8,
+       "type": "integer",
+       "minimum": 2,
+       "maximum": 200
+      },
+      "method": {
+       "title": "method",
+       "description": "",
+       "x-kind": "enum",
+       "default": "lhs",
+       "enum": [
+        "lhs",
+        "sobol",
+        "grid"
+       ]
+      },
+      "fixed": {
+       "title": "fixed",
+       "description": "inputs held at a value",
+       "x-kind": "dict",
+       "default": {},
+       "type": "object"
+      },
+      "parallel": {
+       "title": "parallel",
+       "description": "cases run at the same time",
+       "x-kind": "int",
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 64
+      },
+      "seed": {
+       "title": "seed",
+       "description": "",
+       "x-kind": "int",
+       "default": 0,
+       "type": "integer"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "3aaabd1f8cf7d7e9"
+   }
+  },
+  {
    "id": "node:lib.rom.parametric_pod",
    "kind": "tool",
    "subkind": "flow node",
@@ -14146,6 +14572,96 @@
    }
   },
   {
+   "id": "node:cfd.run",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "cfd.run",
+   "title": "Run FreeCAD -> OpenFOAM",
+   "summary": "CAD, mesh, solve, post-process and check one case; the StudyResult and the evidence report are kept.",
+   "description": "CAD, mesh, solve, post-process and check one case; the StudyResult and the evidence report are kept.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Simulation",
+    "api",
+    "cad",
+    "cfd",
+    "freecad",
+    "function",
+    "library",
+    "openfoam"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"cfd.run\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:freecad_openfoam_bend"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=cfd.run",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/cfd_pipeline.py#L83"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.pipelines.freecad_openfoam.run_pipeline (pinneapple_tools.automation.Runner)",
+    "category": "Simulation",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [
+     {
+      "name": "study",
+      "type": "params",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     },
+     {
+      "name": "report",
+      "type": "report"
+     },
+     {
+      "name": "figure",
+      "type": "figure"
+     }
+    ],
+    "params": [
+     {
+      "name": "inputs",
+      "kind": "dict",
+      "default": {},
+      "help": "document parameters and inputs (e.g. {'Rc': 30, 'Re': 150})",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "inputs": {
+       "title": "inputs",
+       "description": "document parameters and inputs (e.g. {'Rc': 30, 'Re': 150})",
+       "x-kind": "dict",
+       "default": {},
+       "type": "object"
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "8c83f81ad5f0d4a9"
+   }
+  },
+  {
    "id": "node:science.atlas",
    "kind": "tool",
    "subkind": "flow node",
@@ -15659,6 +16175,151 @@
     "stdout": "Solve a library preset -> pinneapple_flow.wrappers:solve_preset pinneapple pinneapple.list_presets pinneapple.solve\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'preset': 'burgers_1d', 'method': 'analytic', 'architecture': 'modified_mlp', 'epochs': 50, 'hidden_dim': 32, 'n_layers': 3, 'n_collocation': 512, 'seed': 0}",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "node:cfd.surrogate",
+   "kind": "tool",
+   "subkind": "flow node",
+   "name": "cfd.surrogate",
+   "title": "Surrogate of a sweep",
+   "summary": "Every applicable surrogate at equal budget, chosen on validation data, error measured on held-out cases.",
+   "description": "Every applicable surrogate at equal budget, chosen on validation data, error measured on held-out cases.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "Simulation",
+    "api",
+    "cad",
+    "cfd",
+    "freecad",
+    "function",
+    "library",
+    "openfoam"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\n\nspec = pf.REGISTRY[\"cfd.surrogate\"]\nprint(spec.title, \"->\", spec.calls or \"flow node\")\nprint(\"inputs:\", [(p.name, p.type) for p in spec.inputs])\nprint(\"outputs:\", [(p.name, p.type) for p in spec.outputs])\nprint(\"defaults:\", spec.defaults())\n",
+   "results": null,
+   "examples": [
+    "flow:freecad_openfoam_sweep"
+   ],
+   "files": [],
+   "links": {
+    "guide": "apps/flow_studio/README.md",
+    "flow_studio": "?node=cfd.surrogate",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/nodes/cfd_pipeline.py#L145"
+   },
+   "extra": {
+    "calls": "pinneapple_simulation.pipelines.freecad_openfoam.sweep.fit_surrogate (pinneapple_analysis.surrogate)",
+    "category": "Simulation",
+    "available": true,
+    "install": "",
+    "auto": false,
+    "inputs": [
+     {
+      "name": "dataset",
+      "type": "dataset",
+      "required": true
+     }
+    ],
+    "outputs": [
+     {
+      "name": "metrics",
+      "type": "metrics"
+     }
+    ],
+    "params": [
+     {
+      "name": "inputs",
+      "kind": "list",
+      "default": [
+       "Rc"
+      ],
+      "help": "input columns",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "outputs",
+      "kind": "list",
+      "default": [
+       "dp_total_pa"
+      ],
+      "help": "output columns",
+      "choices": null,
+      "minimum": null,
+      "maximum": null,
+      "advanced": false
+     },
+     {
+      "name": "test_frac",
+      "kind": "float",
+      "default": 0.25,
+      "help": "",
+      "choices": null,
+      "minimum": 0.1,
+      "maximum": 0.5,
+      "advanced": false
+     },
+     {
+      "name": "budget",
+      "kind": "float",
+      "default": 5.0,
+      "help": "seconds per training run",
+      "choices": null,
+      "minimum": 0.5,
+      "maximum": 600,
+      "advanced": false
+     }
+    ],
+    "params_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "inputs": {
+       "title": "inputs",
+       "description": "input columns",
+       "x-kind": "list",
+       "default": [
+        "Rc"
+       ],
+       "type": "array"
+      },
+      "outputs": {
+       "title": "outputs",
+       "description": "output columns",
+       "x-kind": "list",
+       "default": [
+        "dp_total_pa"
+       ],
+       "type": "array"
+      },
+      "test_frac": {
+       "title": "test frac",
+       "description": "",
+       "x-kind": "float",
+       "default": 0.25,
+       "type": "number",
+       "minimum": 0.1,
+       "maximum": 0.5
+      },
+      "budget": {
+       "title": "budget",
+       "description": "seconds per training run",
+       "x-kind": "float",
+       "default": 5.0,
+       "type": "number",
+       "minimum": 0.5,
+       "maximum": 600
+      }
+     }
+    }
+   },
+   "category": null,
+   "run": {
+    "status": "not run",
+    "code_hash": "5f69657d60821c0b"
    }
   },
   {
@@ -55997,6 +56658,106 @@
    }
   },
   {
+   "id": "flow:freecad_openfoam_bend",
+   "kind": "flow",
+   "name": "freecad_openfoam_bend",
+   "title": "FreeCAD -> OpenFOAM: pipe bend",
+   "summary": "A parametric FreeCAD pipe bend run headless: the geometry with its named patches (works without FreeCAD through the NumPy stand-in), then CAD -> snappyHexMesh -> laminar…",
+   "description": "A parametric FreeCAD pipe bend run headless: the geometry with its named patches (works without FreeCAD through the NumPy stand-in), then CAD -> snappyHexMesh -> laminar simpleFoam -> pressures, sections and the checks against Hagen-Poiseuille and White (1929).",
+   "domain": "fluid dynamics",
+   "tags": [
+    "cfd"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"freecad_openfoam_bend.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run freecad_openfoam_bend\n",
+   "run_cmd": "python -m pinneapple_flow run freecad_openfoam_bend",
+   "results": {
+    "nodes": 3,
+    "edges": 2,
+    "node_types": [
+     "cfd.study",
+     "cfd.geometry",
+     "cfd.run"
+    ],
+    "flow_run": null
+   },
+   "examples": [
+    "node:cfd.geometry",
+    "node:cfd.run",
+    "node:cfd.study"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/freecad_openfoam_bend.json",
+     "bytes": 1302
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=freecad_openfoam_bend",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/freecad_openfoam_bend.json"
+   },
+   "extra": {
+    "flow": "freecad_openfoam_bend"
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "77c7980e2e598651"
+   }
+  },
+  {
+   "id": "flow:freecad_openfoam_sweep",
+   "kind": "flow",
+   "name": "freecad_openfoam_sweep",
+   "title": "FreeCAD -> OpenFOAM: sweep and surrogate",
+   "summary": "A Latin-hypercube sweep over the FreeCAD parameters of the pipe bend (bend radius and angle), one OpenFOAM process per case and resumable, then a surrogate of the total pressure…",
+   "description": "A Latin-hypercube sweep over the FreeCAD parameters of the pipe bend (bend radius and angle), one OpenFOAM process per case and resumable, then a surrogate of the total pressure drop chosen on validation data and measured on held-out cases.",
+   "domain": "fluid dynamics",
+   "tags": [
+    "cfd"
+   ],
+   "quality": null,
+   "code": "import pinneapple_flow as pf\nfrom pinneapple_flow.service import FLOWS_DIR\n\nflow = pf.Flow.load(FLOWS_DIR / \"freecad_openfoam_sweep.json\")\nprint(flow.name, \"-\", len(flow.nodes), \"nodes\")\nprint(\"issues:\", [i.message for i in pf.validate_flow(flow)])\n# result = pf.run(flow, workdir=\"work\")      # or: python -m pinneapple_flow run freecad_openfoam_sweep\n",
+   "run_cmd": "python -m pinneapple_flow run freecad_openfoam_sweep",
+   "results": {
+    "nodes": 3,
+    "edges": 2,
+    "node_types": [
+     "cfd.study",
+     "cfd.sweep",
+     "cfd.surrogate"
+    ],
+    "flow_run": null
+   },
+   "examples": [
+    "node:cfd.study",
+    "node:cfd.surrogate",
+    "node:cfd.sweep"
+   ],
+   "files": [
+    {
+     "label": "Flow JSON (pinneapple-flow/1)",
+     "format": "json",
+     "path": "pinneapple_flow/flows/freecad_openfoam_sweep.json",
+     "bytes": 1535
+    }
+   ],
+   "links": {
+    "guide": "docs/guides/flow_schema.md",
+    "flow_studio": "?example=freecad_openfoam_sweep",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_flow/flows/freecad_openfoam_sweep.json"
+   },
+   "extra": {
+    "flow": "freecad_openfoam_sweep"
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "bece7a9c69409576"
+   }
+  },
+  {
    "id": "flow:heat_1d",
    "kind": "flow",
    "name": "heat_1d",
@@ -69090,6 +69851,323 @@
     "stdout": "Free-surface flow (interFoam, VOF) | fluid dynamics | not curated",
     "timed_out": false,
     "status": "ok"
+   }
+  },
+  {
+   "id": "example:examples/freecad_openfoam",
+   "kind": "example",
+   "name": "examples/freecad_openfoam",
+   "title": "FreeCAD -> OpenFOAM pipelines (bend, heated pipe, sphere)",
+   "summary": "Parametric FreeCAD documents run headless through snappyHexMesh and OpenFOAM by the automation Runner; three studies checked against closed forms and published correlations on…",
+   "description": "Parametric FreeCAD documents run headless through snappyHexMesh and OpenFOAM by the automation Runner; three studies checked against closed forms and published correlations on three meshes each, a sweep over FreeCAD parameters and a surrogate measured on held-out cases.",
+   "domain": "computational fluid dynamics",
+   "tags": [
+    "FreeCAD 1.0 (freecadcmd)",
+    "Latin hypercube",
+    "OpenFOAM simpleFoam (laminar)",
+    "Richardson extrapolation / GCI",
+    "scalarTransportFoam",
+    "snappyHexMesh",
+    "surrogate study (equal budget, held-out test)"
+   ],
+   "quality": {
+    "letter": "B",
+    "label": "Lab seal B · solid",
+    "reason": "straight vs Hagen-Poiseuille, f = 64 / Re",
+    "stages": {
+     "data_geometry": {
+      "title": "Data and geometry",
+      "title_pt": "Dados e geometria",
+      "question": "Was the physical problem represented correctly?",
+      "status": "answered",
+      "evidence": [
+       "inputs recorded: manifest, params",
+       "PASS sweep_cases_finished"
+      ],
+      "next": ""
+     },
+     "model": {
+      "title": "Model",
+      "title_pt": "Modelo",
+      "question": "Can the model (or solver) represent the relevant dynamics?",
+      "status": "answered",
+      "evidence": [
+       "PASS pipe_bend_straight_vs_reference",
+       "PASS pipe_bend_bend_vs_reference",
+       "PASS heated_pipe_Nu_vs_reference"
+      ],
+      "next": ""
+     },
+     "physics": {
+      "title": "Physical constraints",
+      "title_pt": "Restrições físicas",
+      "question": "Are the equations and the boundary conditions respected?",
+      "status": "open",
+      "evidence": [
+       "no conservation, symmetry or boundary-condition check"
+      ],
+      "next": "check a law the result was not fitted to (mass, energy, divergence, equilibrium)"
+     },
+     "benchmark": {
+      "title": "Benchmark",
+      "title_pt": "Benchmark",
+      "question": "How does the result compare with a solver or reference data?",
+      "status": "answered",
+      "evidence": [
+       "PASS pipe_bend_straight_vs_reference",
+       "PASS pipe_bend_bend_vs_reference",
+       "PASS heated_pipe_Nu_vs_reference"
+      ],
+      "next": ""
+     },
+     "uncertainty": {
+      "title": "Uncertainty",
+      "title_pt": "Incerteza",
+      "question": "Where may the prediction not be reliable?",
+      "status": "open",
+      "evidence": [
+       "no uncertainty and no declared limitation"
+      ],
+      "next": "declare the limitations and quantify the spread"
+     },
+     "decision": {
+      "title": "Engineering decision",
+      "title_pt": "Decisão de engenharia",
+      "question": "Is the result adequate for the intended use?",
+      "status": "partial",
+      "evidence": [
+       "tier B (solid)"
+      ],
+      "next": "generalization evidence"
+     }
+    },
+    "next_steps": [
+     {
+      "type": "no_baseline_or_physics",
+      "to": "A",
+      "stage": "physics",
+      "why": "no passing baseline or physics check",
+      "why_pt": "nenhuma verificação de baseline ou física passa",
+      "short": "pass a baseline or physics check",
+      "short_pt": "passar numa verificação de baseline ou física",
+      "check": "",
+      "measured": null,
+      "actions": [
+       {
+        "id": "ctx_check_physics",
+        "kind": "python",
+        "target": "pinneapple_lab.context.RunContext.check",
+        "command": "ctx.check(\"<law>_balance\", passed, detail=\"...\", kind=\"physics\")",
+        "text": "record a law the result was not fitted to (mass, energy, equilibrium) as a check",
+        "text_pt": "registrar uma lei que o resultado não ajustou (massa, energia, equilíbrio)",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       },
+       {
+        "id": "compare_reference",
+        "kind": "python",
+        "target": "pinneapple.compare",
+        "command": "pp.compare(problem, [result, \"fem\"], reference=\"exact\")",
+        "text": "compare on the same points with a reference or a baseline solver at equal budget",
+        "text_pt": "comparar nos mesmos pontos com uma referência ou um solver de base, com o mesmo orçamento",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       },
+       {
+        "id": "physics_check_cli",
+        "kind": "cli",
+        "target": "cli:pinneapple check",
+        "command": "pinneapple check lab/runs/manifest/manifest-394f7768d42e",
+        "text": "lint the run's fields for conservation, boundary conditions, residual and units",
+        "text_pt": "verificar conservação, condições de contorno, resíduo e unidades nos campos",
+        "params": {
+         "experiment": "manifest",
+         "run_dir": "lab/runs/manifest/manifest-394f7768d42e"
+        },
+        "runnable": true,
+        "argv": [
+         "check",
+         "lab/runs/manifest/manifest-394f7768d42e"
+        ]
+       }
+      ]
+     },
+     {
+      "type": "assets",
+      "to": "A",
+      "stage": "decision",
+      "why": "assets score 0.4 < 0.6: add figures: three plots, a movie, a render or a 3-D view",
+      "why_pt": "assets pontuação 0.4 < 0.6: adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "short": "add figures: three plots, a movie, a render or a 3-D view",
+      "short_pt": "adicionar figuras: três gráficos, vídeo, render ou vista 3-D",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "ctx_figure",
+        "kind": "python",
+        "target": "pinneapple_lab.context.RunContext.figure",
+        "command": "ctx.figure(\"<name>\", fig); ctx.gif(\"<name>\", frames)",
+        "text": "save the key plots, a movie or a render with the run",
+        "text_pt": "salvar os gráficos principais, um vídeo ou um render com a execução",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       },
+       {
+        "id": "field_view",
+        "kind": "python",
+        "target": "pinneapple.viz.field_view",
+        "command": "pp.viz.field_view(mesh, fields)",
+        "text": "a 3-D view of the field on its mesh",
+        "text_pt": "uma vista 3-D do campo na malha",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     },
+     {
+      "type": "documentation",
+      "to": "A",
+      "stage": "decision",
+      "why": "documentation score 0.4 < 0.6: document it: references and a docs page",
+      "why_pt": "documentation pontuação 0.4 < 0.6: documentar: referências e uma página",
+      "short": "document it: references and a docs page",
+      "short_pt": "documentar: referências e uma página",
+      "check": "",
+      "measured": {
+       "value": 0.4,
+       "threshold": 0.6,
+       "op": "score"
+      },
+      "actions": [
+       {
+        "id": "experiment_references",
+        "kind": "python",
+        "target": "pinneapple_lab.spec.Experiment.references",
+        "command": "references = [\"<paper or data source>\"]  # in the Experiment class",
+        "text": "cite the papers or data the experiment reproduces, and cite `manifest` in a docs page",
+        "text_pt": "citar os artigos ou dados que o experimento reproduz e citar `manifest` numa página da documentação",
+        "params": {
+         "experiment": "manifest"
+        },
+        "runnable": false,
+        "argv": []
+       }
+      ]
+     }
+    ],
+    "ready": [],
+    "source": "pinneapple_lab curation"
+   },
+   "code": "import os\nfrom pinneapple_lab import manifest\n\nm = manifest.load(os.path.join(manifest.REPO, \"examples/freecad_openfoam\", \"experiment.json\"))\nprint(m.title, \"|\", m.domain, \"|\", m.status)\nfor x in m.metrics[:5]:\n    print(x[\"name\"], x[\"value\"], x.get(\"unit\", \"\"))\n",
+   "run_cmd": "",
+   "results": {
+    "metrics": [
+     {
+      "name": "pipe_bend_straight",
+      "value": 0.3209807777504656,
+      "unit": "-",
+      "how": "finest mesh (921481 cells), vs Hagen-Poiseuille, f = 64 / Re = 0.3202"
+     },
+     {
+      "name": "pipe_bend_straight_richardson",
+      "value": 0.3223034319423697,
+      "unit": "-",
+      "how": "Richardson extrapolation of 3 meshes, p = 1.03"
+     },
+     {
+      "name": "pipe_bend_bend",
+      "value": 1.4375374593561443,
+      "unit": "-",
+      "how": "finest mesh (921481 cells), vs White (1929) curved-pipe friction = 1.373"
+     },
+     {
+      "name": "pipe_bend_bend_richardson",
+      "value": 1.3579687002807075,
+      "unit": "-",
+      "how": "Richardson extrapolation of 3 meshes, p = 1.23"
+     },
+     {
+      "name": "heated_pipe_Nu",
+      "value": 4.678594323676027,
+      "unit": "-",
+      "how": "finest mesh (172032 cells), vs Hausen (1943), Incropera eq. 8.57 = 4.692"
+     },
+     {
+      "name": "heated_pipe_Nu_richardson",
+      "value": 4.659717896700646,
+      "unit": "-",
+      "how": "Richardson extrapolation of 3 meshes, p = 2.47"
+     },
+     {
+      "name": "sphere_drag_CD",
+      "value": 1.086615926059062,
+      "unit": "-",
+      "how": "finest mesh (216328 cells), vs Clift, Grace & Weber (1978), Table 5.2 = 1.087"
+     },
+     {
+      "name": "sphere_drag_Re_50_CD",
+      "value": 1.5688735632467348,
+      "unit": "-",
+      "how": "finest mesh (124291 cells), vs Clift, Grace & Weber (1978), Table 5.2 = 1.574"
+     },
+     {
+      "name": "sphere_drag_Re_200_CD",
+      "value": 0.7774858690466071,
+      "unit": "-",
+      "how": "finest mesh (124291 cells), vs Clift, Grace & Weber (1978), Table 5.2 = 0.7756"
+     },
+     {
+      "name": "surrogate_heldout_nrmse",
+      "value": 0.0206303365728198,
+      "unit": "-",
+      "how": "mlp on 5 held-out OpenFOAM cases (nRMSE of dp_total_pa)"
+     }
+    ],
+    "figures": [
+     "examples/freecad_openfoam/figures/mesh_studies.png",
+     "examples/freecad_openfoam/figures/sweep_surrogate.png"
+    ],
+    "videos": []
+   },
+   "examples": [],
+   "files": [],
+   "links": {
+    "lab": "lab/index.html#examples/freecad_openfoam"
+   },
+   "extra": {
+    "origin": "manifest",
+    "experiment": "",
+    "run": "",
+    "items": [
+     {
+      "key": "manifest/examples/freecad_openfoam",
+      "tier": "B",
+      "title": "Examples/freecad openfoam",
+      "title_pt": "Examples/freecad openfoam",
+      "reason": "straight vs Hagen-Poiseuille, f = 64 / Re"
+     }
+    ]
+   },
+   "run": {
+    "status": "not run",
+    "code_hash": "a9cdb3918bd3ab4e"
    }
   },
   {

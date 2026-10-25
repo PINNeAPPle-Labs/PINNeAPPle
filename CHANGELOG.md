@@ -14,6 +14,26 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
 ## [Unreleased]
 
 ### Added
+- `pinneapple_simulation.pipelines.freecad_openfoam`: headless pipelines from a parametric FreeCAD document
+  (spreadsheet aliases and expressions, `freecadcmd`; a NumPy stand-in `FakeFreeCAD` without FreeCAD) to a checked
+  OpenFOAM result: patches named by rule over face centre / normal / type, multi-region STL, blockMesh +
+  snappyHexMesh (cfMesh when installed), simpleFoam / pimpleFoam (laminar or k-omega SST), passive scalar with
+  scalarTransportFoam, decomposed runs, post-processing from the fields (patch and section pressures, fluxes, bulk
+  scalar, wall forces, y+, Courant), figures, derived quantities and references. `PipelineSpec.to_workflow()` runs
+  through `pinneapple_tools.automation.Runner` (StudyResult, evidence report, resume). Templates `pipe_bend`,
+  `heated_pipe`, `spheroid`; validated studies `studies.pipe_bend` (Hagen-Poiseuille, White 1929),
+  `studies.heated_pipe` (Hausen 1943), `studies.sphere` (Clift, Grace & Weber 1978); `report.mesh_study` (Richardson,
+  GCI); `Sweep` / `doe` (one process per case, resumable) and `fit_surrogate` (held-out error).
+  Worked example `examples/freecad_openfoam`, guide `docs/guides/freecad_openfoam_pipelines.md`.
+- `pinneapple_tools.automation`: actions `freecadcmd.export`, `openfoam.prepare`, `openfoam.post`; criterion kind
+  `metric` (a step output within bounds).
+- Flow Studio nodes `cfd.study`, `cfd.geometry`, `cfd.run`, `cfd.sweep`, `cfd.surrogate` and flows
+  `freecad_openfoam_bend`, `freecad_openfoam_sweep`.
+- `pinneapple_physics.closed_form`: `pipe_flow.dean_number`, `pipe_flow.curved_pipe_ratio` (White 1929),
+  `heat_exchanger.hausen_mean_nusselt`, `heat_exchanger.mean_nusselt_from_temperatures`, `particle_drag`
+  (Clift, Grace & Weber 1978; Schiller & Naumann 1933).
+- `ExternalFlow`: `turbulence="laminar"`, `domain=(upstream, downstream, half width, half height)` and
+  `cells_per_length` (defaults unchanged).
 - `pinneapple_design.surrogate_inverse`: inverse design through a frozen MLP surrogate of a closed-form model with a
   verification card against the model (`core.fit_surrogate`, `core.descend`, `core.VerificationCard` /
   `trust_report`) and five cases (`heatsink_fins`, `brake_rotor`, `transdermal_patch`, `suspension_arm`,

@@ -32,6 +32,7 @@ RUNNERS = {
     ("A", "pinneapple"): "track_a_pinneapple", ("A", "deepxde"): "track_a_deepxde",
     ("A", "physicsnemo_sym"): "track_a_physicsnemo_sym",
     ("A", "physicsnemo_sym_matched"): "track_a_physicsnemo_sym",
+    ("A", "physicsnemo_sym_netmatched"): "track_a_physicsnemo_sym",
     ("B", "pinneapple"): "track_b_pinneapple", ("B", "physicsnemo"): "track_b_physicsnemo",
     ("B", "neuraloperator"): "track_b_neuraloperator",
     ("C", "pinneapple"): "track_c_pinneapple", ("C", "deepxde"): "track_c_deepxde",
@@ -67,6 +68,8 @@ def job_cmd(args, track, problem, fw, seed):
         cmd += ["--mode", "a2", "--cap-s", str(args.cap_s), "--cap-kind", args.cap_kind]
         if fw == "physicsnemo_sym_matched":
             cmd += ["--matched-batch"]
+        if fw == "physicsnemo_sym_netmatched":
+            cmd += ["--matched-net"]
     elif track == "B":
         cmd += ["--mode", "b", "--epochs", str(args.epochs), "--n-train", str(args.n_train)]
     elif track == "C":

@@ -188,8 +188,14 @@ def run_a2(args, prob, meta, workdir):
         # interior, 512 per boundary / initial condition), everything else unchanged
         rc["batch"] = {k: (2048 if k == "interior" else 512) for k in rc["batch"]}
         rc["variant"] = "points per step matched to pp.solve (2048 interior, 512 per condition)"
+    net_ov = []
+    if getattr(args, "matched_net", False):
+        # labelled variant: the official recipe (SiLU, weight norm, Adam, tf_exponential_lr, its batch sizes) with the
+        # width x depth of PINNeAPPle's pp.solve network (64 x 4; parameter counts differ: see n_parameters)
+        net_ov = ["arch.fully_connected.layer_size=64", "arch.fully_connected.nr_layers=4"]
+        rc["variant"] = "network matched to PINNeAPPle A2 (fully_connected 64 x 4, SiLU, weight norm)"
     meta["config"].update(rc)
-    cfg = compose_cfg([f"training.max_steps={rc['max_steps']}", f"scheduler.decay_steps={rc['decay_steps']}",
+    cfg = compose_cfg(net_ov + [f"training.max_steps={rc['max_steps']}", f"scheduler.decay_steps={rc['decay_steps']}",
                        f"network_dir={workdir}", f"device={args.device}"] + list(getattr(args, "overrides", [])),
                       device=args.device)
     meta["config"]["torch_threads"] = torch.get_num_threads()
@@ -259,12 +265,15 @@ def main(argv=None):
     parser = proto.runner_parser("PhysicsNeMo-Sym, track A")
     parser.add_argument("--matched-batch", action="store_true",
                         help="A2 variant: points per step matched to pp.solve's default (labelled separately)")
+    parser.add_argument("--matched-net", action="store_true",
+                        help="A2 variant: network width x depth of PINNeAPPle's A2 recipe (labelled separately)")
     parser.add_argument("--overrides", nargs="*", default=[], help="extra Hydra overrides (profiling only)")
     args = parser.parse_args(argv)
     R.setup_threads(args.threads)
     prob = P.get_problem(args.problem)
     cfg = dict(proto.A1) if args.mode == "a1" else {"recipe": "official example", **proto.A2, "cap_s": args.cap_s}
-    fw = "physicsnemo_sym_matched" if args.matched_batch else "physicsnemo_sym"
+    fw = ("physicsnemo_sym_matched" if args.matched_batch else
+          "physicsnemo_sym_netmatched" if args.matched_net else "physicsnemo_sym")
     meta = proto.base_meta(args, track="A", framework=fw, source=SOURCE, config=cfg)
     t0 = time.perf_counter()
     try:

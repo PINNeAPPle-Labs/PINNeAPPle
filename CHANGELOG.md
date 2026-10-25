@@ -45,6 +45,20 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   (Clift, Grace & Weber 1978; Schiller & Naumann 1933).
 - `ExternalFlow`: `turbulence="laminar"`, `domain=(upstream, downstream, half width, half height)` and
   `cells_per_length` (defaults unchanged).
+- `pinneapple_systems.sports.football`: physics-informed football analytics on public data (SkillCorner open data,
+  Metrica Sports sample data, StatsBomb 360; downloaded at run time, cached with SHA-256 outside git), each case
+  measured against data-only baselines at equal data (guide `docs/guides/football_physics.md`, study
+  `examples/sports`).
+  - **Ball flight:** gravity + drag (drag-crisis curve) + Magnus ODE, batched RK4; the inverse problem with Laplace
+    standard errors, Cramer-Rao identifiability of 3-D vs 2-D tracking, aerial-flight extraction, a gravity audit of
+    tracking data, held-out landing prediction against polynomial extrapolation and boosted trees.
+  - **Pitch control:** Spearman (2018) control probabilities (reaction-time or acceleration-limited intercept),
+    maximum-likelihood fit of the physical parameters on pass outcomes, data-only and hybrid pass models.
+  - **Kinematics:** constant-acceleration Kalman-RTS smoother with gaps and restarts, noise by maximum likelihood,
+    plausibility limits, metabolic power (equivalent slope, Minetti polynomial), reachable-set projection, trajectory
+    predictors.
+  - **Expected goals:** intercept-time features from 360 freeze frames against a standard shot-geometry model.
+  - **Flow nodes** `football.ball_flight_inverse`, `football.tracking_smoothing`, `football.pass_pitch_control`.
 - `pinneapple_condense`: Adaptive Physics Condensation for chip-package thermal (research line, track 1; report
   `docs/research/physics_condensation.md`, benchmark `examples/physics_condensation`).
 - `pinneapple_analysis.validation.physics_learning`: physics learning verification of learned thermal models (track 3):

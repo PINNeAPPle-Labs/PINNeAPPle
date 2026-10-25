@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A Fast Answer, Checked</title>
+<script type="importmap">{"imports": {"three": "/vendor/three/three.module.min.js"}}</script>
+<style>
+  :root {
+    color-scheme: dark;
+    --surface-0: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #201f1d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --blue: #3987e5;
+    --blue-dim: #1c5cab;
+    --orange: #d95926;
+    --good: #0ca30c;
+    --good-bg: rgba(12,163,12,0.13);
+    --warning: #fab219;
+    --warning-bg: rgba(250,178,25,0.14);
+    --critical: #e66767;
+    --critical-bg: rgba(230,103,103,0.13);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 90px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--blue); font-weight: 700; margin-bottom: 14px;
+  }
+  h1 { font-size: 38px; line-height: 1.15; margin: 0 0 16px; letter-spacing: -0.01em; font-weight: 750; }
+  .sub {
+    font-size: 18px; color: var(--text-secondary); line-height: 1.55; max-width: 660px; margin: 0 0 42px;
+  }
+  .hero-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 30px; display: flex; align-items: center; gap: 22px; margin-bottom: 8px;
+  }
+  .hero-check {
+    width: 46px; height: 46px; border-radius: 50%; background: var(--good-bg); color: var(--good);
+    display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;
+  }
+  .hero-stat .num { font-size: 38px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1; }
+  .hero-stat .lbl { color: var(--text-secondary); font-size: 14px; margin-top: 6px; line-height: 1.5; }
+  .hero-note { color: var(--text-muted); font-size: 13px; margin: 10px 2px 56px; line-height: 1.6; }
+
+  .divider-line {
+    display: flex; align-items: center; gap: 14px; margin: 8px 0 30px; color: var(--text-muted);
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 650;
+  }
+  .divider-line::before, .divider-line::after { content: ""; flex: 1; height: 1px; background: var(--gridline); }
+
+  h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.005em; }
+  .h2-sub { color: var(--text-secondary); font-size: 15px; line-height: 1.6; max-width: 640px; margin-bottom: 26px; }
+
+  .chart-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 26px 26px 18px; margin-bottom: 30px;
+  }
+  svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .bar-surrogate { fill: var(--blue); transition: opacity 0.15s; }
+  .bar-fea { fill: var(--orange); transition: opacity 0.15s; }
+  .bar-surrogate:hover, .bar-fea:hover { opacity: 0.8; }
+  .axis-label { fill: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .cat-label { fill: var(--text-secondary); font-size: 11.5px; font-weight: 600; }
+  .axis-title { fill: var(--text-muted); font-size: 11.5px; font-weight: 600; letter-spacing: 0.02em; }
+  .grid-line { stroke: var(--gridline); stroke-width: 1; }
+  .identity-line { stroke: var(--baseline); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .ref-label { font-size: 11.5px; font-weight: 650; fill: var(--text-muted); }
+  .point-dot { fill: var(--blue); stroke: var(--surface-1); stroke-width: 2; cursor: pointer; }
+  .point-dot:hover { fill: #5da3f2; }
+  .point-tag { font-size: 11px; fill: var(--text-secondary); }
+  .point-tag.hot { fill: var(--warning); }
+  .legend-swatch { rx: 2.5; }
+  .legend-text { fill: var(--text-secondary); font-size: 12px; font-weight: 600; }
+  .dot-surrogate { fill: var(--blue); stroke: var(--surface-1); stroke-width: 2; cursor: pointer; }
+  .dot-fea { fill: var(--orange); stroke: var(--surface-1); stroke-width: 2; cursor: pointer; }
+  .dot-surrogate:hover, .dot-fea:hover { opacity: 0.85; }
+  .dumbbell-line { stroke: var(--gridline); stroke-width: 3; }
+  .error-label { font-size: 11px; font-weight: 650; fill: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+  .tooltip {
+    position: absolute; pointer-events: none; background: #050506; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 11px; font-size: 12.5px; color: var(--text-primary);
+    transform: translate(-50%, -115%); white-space: nowrap; opacity: 0; transition: opacity 0.1s;
+    font-variant-numeric: tabular-nums; z-index: 5;
+  }
+  .tooltip .t-title { font-weight: 700; margin-bottom: 3px; color: var(--text-primary); }
+  .tooltip .t-row { color: var(--text-secondary); }
+  .chart-wrap { position: relative; }
+
+  .verdict-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 36px; }
+  .verdict-badge {
+    background: var(--good-bg); border: 1px solid rgba(12,163,12,0.35); border-radius: 14px;
+    padding: 20px 26px; display: flex; align-items: center; gap: 16px; flex: 1 1 240px;
+  }
+  .verdict-badge .icon { font-size: 26px; }
+  .verdict-badge .label { font-size: 20px; font-weight: 800; color: var(--good); letter-spacing: 0.01em; }
+  .verdict-badge .note { color: var(--text-secondary); font-size: 12.5px; margin-top: 2px; }
+  .stat-tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; flex: 1 1 140px;
+  }
+  .stat-tile .num { font-size: 24px; font-weight: 750; font-variant-numeric: tabular-nums; }
+  .stat-tile .lbl { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+  .narrative { font-size: 16px; line-height: 1.7; color: var(--text-secondary); max-width: 660px; margin-bottom: 10px; }
+  .narrative b { color: var(--text-primary); }
+  .pullquote {
+    font-size: 21px; font-weight: 650; line-height: 1.45; color: var(--text-primary);
+    border-left: 3px solid var(--blue); padding-left: 18px; margin: 30px 0 44px; max-width: 620px;
+  }
+
+  .data-table-wrap { overflow-x: auto; margin: 0 0 44px; border: 1px solid var(--border); border-radius: 14px; }
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 680px; }
+  table.data-table th, table.data-table td {
+    padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--gridline);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  table.data-table th:first-child, table.data-table td:first-child { text-align: left; font-variant-numeric: normal; }
+  table.data-table th {
+    color: var(--text-muted); font-weight: 650; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.04em; background: var(--surface-2);
+  }
+  table.data-table td { color: var(--text-secondary); }
+  table.data-table td:first-child { color: var(--text-primary); font-weight: 600; }
+  table.data-table tr:last-child td { border-bottom: none; }
+
+  .replay-btn {
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-primary);
+    padding: 11px 18px; border-radius: 9px; font-size: 13.5px; font-weight: 650; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 4px;
+  }
+  .replay-btn:hover { background: #262524; }
+  .replay-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .footer {
+    margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--gridline);
+    color: var(--text-muted); font-size: 12.5px; line-height: 1.7;
+  }
+  .footer b { color: var(--text-secondary); }
+
+  #loading-state {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 36px 32px; margin-bottom: 30px;
+  }
+  #loading-state .spin-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .spinner {
+    width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid var(--gridline);
+    border-top-color: var(--blue); animation: spin 0.8s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading-state .load-title { font-size: 16px; font-weight: 700; }
+  #loading-state .load-sub { color: var(--text-secondary); font-size: 13.5px; line-height: 1.6; max-width: 560px; margin-bottom: 18px; }
+  .progress-track { background: var(--surface-2); border-radius: 8px; height: 10px; overflow: hidden; }
+  .progress-fill { background: var(--blue); height: 100%; border-radius: 8px; transition: width 0.4s ease; width: 0%; }
+  .progress-caption { color: var(--text-muted); font-size: 12px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  #error-state {
+    background: var(--critical-bg); border: 1px solid rgba(230,103,103,0.35); border-radius: 16px;
+    padding: 24px 26px; margin-bottom: 30px; color: var(--text-primary); font-size: 14px; line-height: 1.6;
+  }
+
+  #viewer-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px 20px 14px; margin-bottom: 42px;
+  }
+  .viewer-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 820px) { .viewer-grid3 { grid-template-columns: 1fr; } }
+  .viewer-cell-label { font-size: 12.5px; color: var(--text-secondary); font-weight: 650; margin-bottom: 8px; }
+  .viewer-cell-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+  .viewer3 {
+    width: 100%; height: 240px; border-radius: 12px; background: #050506;
+    position: relative; overflow: hidden;
+  }
+  .viewer3 .hint { position: absolute; bottom: 6px; right: 10px; color: var(--text-muted); font-size: 10px; }
+  .viewer-caption { color: var(--text-muted); font-size: 12.5px; margin-top: 12px; line-height: 1.6; }
+  .heat-source-label {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+    background: rgba(5,5,6,0.85); border: 1px solid rgba(233,90,74,0.4); color: #ff8a70;
+    font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  }
+  .colorbar-mini { position: absolute; top: 8px; right: 10px; width: 100px; }
+  .colorbar-mini .colorbar-grad { height: 7px; }
+  .colorbar-mini .colorbar-labels { font-size: 9px; }
+  .colorbar-grad.error { background: linear-gradient(to right, #1a1a19, #7a2f1f, #e34948); }
+  .mini-plot-row { margin-top: 16px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+  .mini-plot-title { color: var(--text-muted); font-size: 11.5px; font-weight: 650; margin-bottom: 4px; }
+  #chart-viewer-mini { width: 100%; height: auto; overflow: visible; }
+  .colorbar { position: absolute; top: 12px; right: 14px; width: 150px; }
+  .colorbar-grad { height: 10px; border-radius: 5px; background: linear-gradient(to right, #1f40d9, #26bfd9, #f2d926, #e62619); border: 1px solid rgba(255,255,255,0.15); }
+  .colorbar-labels { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .colorbar-title { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 1px; }
+
+  .method-section { margin: 54px 0 44px; }
+  .method-block { margin-bottom: 26px; }
+  .method-block h3 {
+    font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .method-block h3 .num {
+    display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px;
+    border-radius: 50%; background: var(--surface-2); color: var(--blue); font-size: 12px; font-weight: 700;
+  }
+  .method-block p { font-size: 14.5px; line-height: 1.7; color: var(--text-secondary); margin: 0 0 8px; max-width: 640px; }
+  .method-block p b { color: var(--text-primary); }
+  .eq {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 16px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px;
+    color: var(--blue); margin: 10px 0; display: inline-block;
+  }
+  .pinn-note {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0; padding: 16px 18px; margin-top: 24px; font-size: 14px;
+    color: var(--text-secondary); line-height: 1.65;
+  }
+  .pinn-note b { color: var(--text-primary); }
+
+  .code-section { margin: 44px 0 20px; }
+  .code-card {
+    background: #0a0a0a; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 16px;
+  }
+  .code-card .code-title {
+    padding: 10px 16px; font-size: 12.5px; color: var(--text-muted); border-bottom: 1px solid var(--gridline);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .code-card pre {
+    margin: 0; padding: 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.65;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; color: #d4d4d0;
+  }
+  .code-card .c-kw { color: #d55181; }
+  .code-card .c-fn { color: #3987e5; }
+  .code-card .c-str { color: #c98500; }
+  .code-card .c-com { color: var(--text-muted); font-style: italic; }
+
+  @media (max-width: 560px) {
+    h1 { font-size: 28px; }
+    .hero-card { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Simulation surrogate case study</div>
+  <h1>A neural surrogate that checks its own homework against a numerical solve.</h1>
+  <div class="sub">A trained surrogate predicts a heat sink's base temperature in microseconds. A finite-volume solve of the fin unit cell takes milliseconds. Here's the same comparison run live, across seven designs, with the surrogate's answer checked against the numerical solve every time.</div>
+
+  <div id="viewer-card">
+    <div class="viewer-grid3">
+      <div>
+        <div class="viewer-cell-label">1. Surrogate prediction</div>
+        <div class="viewer3" id="viewer-predicted">
+          <div class="hint">drag &middot; scroll</div>
+          <div class="colorbar colorbar-mini" id="colorbar-predicted">
+            <div class="colorbar-grad"></div>
+            <div class="colorbar-labels"><span id="cb-predicted-min">--</span><span id="cb-predicted-max">--</span></div>
+          </div>
+          <div class="heat-source-label">🔴 Heat source</div>
+        </div>
+        <div class="viewer-cell-sub" id="caption-predicted">A single flat color: the surrogate outputs one lumped junction-temperature number, no spatial detail.</div>
+      </div>
+      <div>
+        <div class="viewer-cell-label">2. Real simulation (physics field)</div>
+        <div class="viewer3" id="viewer-simulated">
+          <div class="hint">drag &middot; scroll</div>
+          <div class="colorbar colorbar-mini" id="colorbar-simulated">
+            <div class="colorbar-grad"></div>
+            <div class="colorbar-labels"><span id="cb-simulated-min">--</span><span id="cb-simulated-max">--</span></div>
+          </div>
+          <div class="heat-source-label">🔴 Heat source</div>
+        </div>
+        <div class="viewer-cell-sub" id="caption-simulated">The real closed-form spatial temperature field (the ground truth this whole page checks against) — hottest at the fin root, coolest at the tip.</div>
+      </div>
+      <div>
+        <div class="viewer-cell-label">3. Error (|field − prediction|)</div>
+        <div class="viewer3" id="viewer-error">
+          <div class="hint">drag &middot; scroll</div>
+          <div class="colorbar colorbar-mini" id="colorbar-error">
+            <div class="colorbar-grad error"></div>
+            <div class="colorbar-labels"><span id="cb-error-min">--</span><span id="cb-error-max">--</span></div>
+          </div>
+        </div>
+        <div class="viewer-cell-sub" id="caption-error">Real, per-point gap between the real field (2) and the surrogate's single guess (1) — where a flat prediction misses the real spatial variation most.</div>
+      </div>
+    </div>
+    <div class="mini-plot-row">
+      <div class="mini-plot-title">This part's own prediction vs. real solve vs. error</div>
+      <div class="chart-wrap">
+        <svg id="chart-viewer-mini" viewBox="0 0 400 120"></svg>
+        <div class="tooltip" id="tooltip-viewer-mini"></div>
+      </div>
+    </div>
+    <div class="viewer-caption">Geometry shown in all three: <b>baseline design</b> — 20 fins, 25mm tall, 1mm thick, on an 80&times;80mm base plate (<code>pinneapple_design.thermal.meshes.plate_fin_mesh</code>). The arrow marks where heat enters (the base plate, from the chip below). Panel 1 is deliberately a single flat color — the surrogate has no spatial resolution; panel 2 is the closed-form fin profile the surrogate is trained against; panel 3 is the cost of collapsing panel 2 into panel 1's single number.</div>
+  </div>
+
+  <div id="loading-state">
+    <div class="spin-row">
+      <div class="spinner"></div>
+      <div class="load-title" id="load-title">Starting the real sweep…</div>
+    </div>
+    <div class="load-sub" id="load-sub">Training the surrogate, then solving the finite-volume fin cell for each design (and on two finer grids for the discretisation band).</div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-caption" id="progress-caption">0 / 7 solves complete</div>
+  </div>
+
+  <div id="error-state" hidden></div>
+
+  <div id="content" hidden>
+
+    <div class="hero-card">
+      <div class="hero-check">⚡</div>
+      <div class="hero-stat">
+        <div class="num" id="hero-speedup">--×</div>
+        <div class="lbl">faster, on average — finite-volume solve wall-clock time ÷ surrogate forward-pass time, across <span id="hero-n">7</span> curated designs</div>
+      </div>
+    </div>
+    <div class="hero-note">Surrogate: a small MLP trained once at startup on 6,000 closed-form samples (val. error <span id="hero-val-err">--</span>). Cross-check: a steady conduction solve of one fin unit cell (base slab + fin, flux in from below, film on the fin and exposed base, symmetry at the cell sides) by cell-centred finite volumes — <code>pinneapple_simulation.numerical_solvers.fin_cell_fv</code>. The speed ratio depends on the reference solver and the machine: against a meshed 3-D FEM run it is far larger.</div>
+
+    <div class="divider-line">but a fast wrong answer is worse than a slow right one</div>
+
+    <h2>Microseconds vs. milliseconds, to scale</h2>
+    <div class="h2-sub">Measured wall-clock time per design: the surrogate's forward pass (blue) against the finite-volume solve (orange), grid assembly and sparse solve included. The axis is logarithmic.</div>
+
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <svg class="chart" id="chart-speed" viewBox="0 0 800 400"></svg>
+        <div class="tooltip" id="tooltip-speed"></div>
+      </div>
+    </div>
+
+    <div class="divider-line">so does it actually agree with the real physics?</div>
+
+    <h2>Every surrogate prediction, checked against a real 3D solve</h2>
+    <div class="h2-sub">Each point is one curated design: the finite-volume junction temperature on the x-axis, the surrogate's predicted junction temperature on the y-axis. A point sitting on the dashed line means the surrogate matched the real 3D solve exactly.</div>
+
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <svg class="chart" id="chart-agreement" viewBox="0 0 520 480"></svg>
+        <div class="tooltip" id="tooltip-agreement"></div>
+      </div>
+    </div>
+
+    <h2>Prediction, real data, and the error between them — together</h2>
+    <div class="h2-sub">For each curated design: the surrogate's predicted junction temperature next to the finite-volume solve's, in real °C — not just a percentage. The gap between the two bars, labeled directly, is the real absolute error a thermal engineer would size a margin to.</div>
+
+    <div class="chart-card">
+      <div class="chart-wrap">
+        <svg class="chart" id="chart-abs-error" viewBox="0 0 800 280"></svg>
+        <div class="tooltip" id="tooltip-abs-error"></div>
+      </div>
+    </div>
+
+    <div class="verdict-row" style="margin-bottom:16px;">
+      <div class="stat-tile">
+        <div class="num" id="stat-mean-abs">--°C</div>
+        <div class="lbl">mean absolute error</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="stat-max-abs">--°C</div>
+        <div class="lbl">worst-case absolute error</div>
+      </div>
+    </div>
+
+    <div class="verdict-row">
+      <div class="verdict-badge">
+        <div class="icon">✓</div>
+        <div>
+          <div class="label" id="verdict-label">ALL 7 AGREE</div>
+          <div class="note">within <span id="verdict-threshold">10</span>% of the finite-volume solve, temperature rise above ambient</div>
+        </div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="stat-mean-diff">--%</div>
+        <div class="lbl">mean surrogate-vs-FEA difference</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="stat-max-diff">--%</div>
+        <div class="lbl">worst-case difference, this sweep</div>
+      </div>
+      <div class="stat-tile">
+        <div class="num" id="stat-n">--</div>
+        <div class="lbl">real designs cross-checked</div>
+      </div>
+    </div>
+
+    <p class="narrative">The surrogate answers in <b id="narrative-surrogate-time">--</b>, on average, across this sweep. The finite-volume cross-check — an independent numerical solve of the conduction PDE — takes <b id="narrative-fea-time">--</b>. That's a <b id="narrative-speedup">--×</b> difference in wall-clock time. It would be a hollow result if the fast answer were also a wrong one: across these seven designs, the surrogate's prediction differs from the numerical solve by <b id="narrative-mean-diff">--%</b> on average, worst case <b id="narrative-max-diff">--%</b>, against a <b><span id="narrative-threshold">10</span>%</b> decision band, on a solve it never trained on.</p>
+
+    <p class="pullquote">The speed isn't the hard part. The speed that still agrees with the physics is.</p>
+
+    <div class="data-table-wrap">
+      <table class="data-table" id="data-table">
+        <thead>
+          <tr>
+            <th>Design</th>
+            <th>Fins × height × thickness</th>
+            <th>Power</th>
+            <th>Surrogate °C</th>
+            <th>FV °C</th>
+            <th>Diff %</th>
+            <th>Surrogate time</th>
+            <th>FV time</th>
+            <th>Speedup</th>
+          </tr>
+        </thead>
+        <tbody id="data-table-body"></tbody>
+      </table>
+    </div>
+
+    <button class="replay-btn" id="btn-replay">↻ Run a fresh sweep</button>
+
+    <div class="divider-line">the method behind the number</div>
+
+    <div class="method-section">
+      <h2>How this actually works</h2>
+      <div class="h2-sub">Three real pieces, no black box in between: how the surrogate learned, what the numerical solve actually checks, and why agreement matters as much as speed.</div>
+
+      <div class="method-block">
+        <h3><span class="num">1</span> The surrogate: a small MLP, trained on real physics-labeled data</h3>
+        <p>The surrogate is a plain MLP — five inputs (fin count, fin height, fin thickness, power, convective coefficient), three hidden layers of 48 units with <code>tanh</code> activations, one output (<code>PhysicsSurrogate.build_mlp</code>, trained with Adam). Its 6,000 training samples are designs run through the closed-form fin-array model (<code>pinneapple_physics.closed_form.fin_array_conduction</code>). Training is deterministic (fixed seed), so the same weights come back every time; only the wall-clock timing measured against them varies run to run.</p>
+        <div class="eq">T_junction ≈ MLP(fin_count, fin_height, fin_thickness, power, h_conv)</div>
+        <p>That's the whole trick: a surrogate is only as honest as what it was trained to reproduce. Here, that's a real, textbook thermal model — not a black box learning an unknown target.</p>
+      </div>
+
+      <div class="method-block">
+        <h3><span class="num">2</span> The cross-check: an independent numerical solve</h3>
+        <p>The surrogate never sees the numerical solve — it only learns the closed-form model. <code>solve_fin_cell</code> discretises one unit cell (base slab and one fin) with cell-centred finite volumes and solves the steady conduction equation with the heat flux in from below, a film coefficient on the fin and the exposed base, and symmetry at the cell sides. The 3-D cell has nothing depending on the fin depth, so its 2-D cross-section is the same problem. Each design is also solved on two finer grids; the grid convergence index of the temperature rise is reported with the results, and the heat balance closes to round-off.</p>
+      </div>
+
+      <div class="method-block">
+        <h3><span class="num">3</span> The agreement metric: why speed alone isn't the story</h3>
+        <p>A fast wrong answer is worse than a slow right one. So every design on this page reports a <b>surrogate-vs-reference difference</b>, computed on temperature <i>rise above ambient</i> (not raw °C, since a fixed 25°C ambient would otherwise understate disagreement on smaller rises). The 10% band is the decision bound of this study, fixed before the sweep, not tuned to it.</p>
+      </div>
+
+      <div class="pinn-note">
+        <b>Built on PINNeAPPle.</b> The closed form is <code>pinneapple_physics.closed_form.fin_array_conduction</code>, the reference is <code>pinneapple_simulation.numerical_solvers.fin_cell_fv.solve_fin_cell</code>, and the study (designs, surrogate, timings, agreement, grid check) is <code>pinneapple_design.thermal.fin_array_speed</code>; this page only calls them.
+      </div>
+    </div>
+
+    <div class="divider-line">the code behind this</div>
+
+    <div class="code-section">
+      <h2>The real code, not a black box</h2>
+      <div class="h2-sub">Trimmed for length; the full modules are <code>pinneapple_design/thermal/fin_array_speed.py</code> and <code>pinneapple_physics/closed_form/fin_array_conduction.py</code>.</div>
+
+      <div class="code-card">
+        <div class="code-title">fin_array_speed.py — the trained surrogate</div>
+        <pre>core = PhysicsSurrogate.build_mlp(in_dim=<span class="c-str">5</span>, out_dim=<span class="c-str">1</span>, hidden=<span class="c-str">48</span>, layers=<span class="c-str">3</span>)
+<span class="c-com"># scale raw physical units in, temperature out -- fixed layers around the trained MLP</span>
+model = torch.nn.Sequential(_Scale(_SCALES, divide=<span class="c-kw">True</span>), core.model, _Scale(_T_SCALE, divide=<span class="c-kw">False</span>))
+sur = PhysicsSurrogate(model, core.cfg)
+sur.train_on_dataset({<span class="c-str">"theta"</span>: X_train, <span class="c-str">"u"</span>: y_train}, epochs=<span class="c-str">400</span>, lr=<span class="c-str">3e-3</span>)</pre>
+      </div>
+
+      <div class="code-card">
+        <div class="code-title">fin_array_conduction.py — the shared PINNeAPPle physics</div>
+        <pre><span class="c-kw">def</span> <span class="c-fn">fin_array_base_temperature_c</span>(params, t_ambient_c, power_w):
+    <span class="c-com"># the real, closed-form ground truth the surrogate trained on</span>
+    <span class="c-kw">return</span> t_ambient_c + power_w * params[<span class="c-str">"r_base"</span>] + params[<span class="c-str">"theta_fin_base_c"</span>]
+
+<span class="c-kw">def</span> <span class="c-fn">fin_array_profile_params</span>(k_material_w_mk, h_conv_w_m2k, n_fins,
+                            fin_thickness_m, fin_length_m,
+                            transverse_extent_m, spacing_extent_m,
+                            base_thickness_m, power_w):
+    lc = fin_length_m + fin_thickness_m / <span class="c-str">2.0</span>
+    m = math.sqrt(<span class="c-str">2.0</span> * h_conv_w_m2k / (k_material_w_mk * fin_thickness_m))
+    eta_fin = math.tanh(m * lc) / (m * lc)  <span class="c-com"># real fin efficiency</span>
+    <span class="c-com"># ... effective area, R_conv, R_base from the real geometry ...</span></pre>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    The surrogate is trained on the closed-form fin-array model (<code>pinneapple_physics.closed_form.fin_array_conduction</code>) and checked against an independent finite-volume solve (<code>pinneapple_simulation.numerical_solvers.fin_cell_fv</code>). <b>Built on PINNeAPPle</b>. Seven fixed designs; the speed ratio is specific to this reference solver and this machine.
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "/vendor/three/OrbitControls.js";
+
+const NS = "http://www.w3.org/2000/svg";
+let latest = null;
+let polling = false;
+let currentSweepDesigns = null;
+
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function txt(tag, attrs, content) {
+  const e = el(tag, attrs);
+  e.textContent = content;
+  return e;
+}
+
+function fmtTime(s) {
+  if (s < 1e-3) return (s * 1e6).toFixed(1) + " µs";
+  if (s < 1) return (s * 1e3).toFixed(1) + " ms";
+  return s.toFixed(2) + " s";
+}
+function fmtPct(x) { return x.toFixed(2) + "%"; }
+function fmtTemp(c) { return c.toFixed(1) + "°C"; }
+function fmtX(x) { return Math.round(x).toLocaleString() + "×"; }
+
+const viewers3 = {}; // { predicted: {...}, simulated: {...}, error: {...} }
+const BASE_THICKNESS_M = 0.003; // matches pinneapple_design.thermal.fin_array_speed.BASE_THICKNESS_M
+
+function makeViewer3(containerId) {
+  const el = document.getElementById(containerId);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, el.clientWidth / el.clientHeight, 0.1, 2000);
+  camera.position.set(140, 110, 140);
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+  } catch (e) {
+    el.insertAdjacentHTML("afterbegin", '<div style="padding:22px;color:var(--text-muted);font-size:12px">3D preview needs WebGL, unavailable in this browser session. The numbers below are unaffected.</div>');
+    return null;
+  }
+  renderer.setSize(el.clientWidth, el.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  el.insertBefore(renderer.domElement, el.firstChild);
+
+  scene.add(new THREE.AmbientLight(0x8899aa, 0.9 * Math.PI));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.1 * Math.PI);
+  dir.position.set(100, 160, 100);
+  scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0x6688ff, 0.4 * Math.PI);
+  dir2.position.set(-90, 40, -110);
+  scene.add(dir2);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+
+  window.addEventListener("resize", () => {
+    camera.aspect = el.clientWidth / el.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(el.clientWidth, el.clientHeight);
+  });
+
+  return { scene, camera, renderer, controls, el };
+}
+
+function animateViewers3() {
+  requestAnimationFrame(animateViewers3);
+  for (const key in viewers3) {
+    const v = viewers3[key];
+    if (!v) continue;
+    v.controls.update();
+    v.renderer.render(v.scene, v.camera);
+  }
+}
+
+function initViewer() {
+  viewers3.predicted = makeViewer3("viewer-predicted");
+  viewers3.simulated = makeViewer3("viewer-simulated");
+  viewers3.error = makeViewer3("viewer-error");
+  animateViewers3();
+  loadMesh();
+}
+
+// Real 4-stop thermal colormap (blue -> cyan -> yellow -> red), 
+function tempToColor(t, tmin, tmax) {
+  let f = (t - tmin) / Math.max(tmax - tmin, 1e-6);
+  f = Math.min(Math.max(f, 0), 1);
+  const stops = [
+    [0.0, [0.122, 0.251, 0.851]], [0.35, [0.149, 0.749, 0.851]],
+    [0.7, [0.949, 0.851, 0.149]], [1.0, [0.902, 0.149, 0.098]],
+  ];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [f0, c0] = stops[i], [f1, c1] = stops[i + 1];
+    if (f >= f0 && f <= f1) {
+      const tt = (f - f0) / (f1 - f0);
+      return [c0[0] + (c1[0] - c0[0]) * tt, c0[1] + (c1[1] - c0[1]) * tt, c0[2] + (c1[2] - c0[2]) * tt];
+    }
+  }
+  return stops[stops.length - 1][1];
+}
+
+// Real single-hue sequential colormap for a MAGNITUDE (error), not a
+// temperature -- distinct from tempToColor's 4-stop hue on purpose, per
+// dataviz convention: sequential quantities get one ramping
+// hue, not a rainbow that could be mistaken for a second temperature scale.
+function errorToColor(e, eMax) {
+  const f = Math.min(Math.max(e / Math.max(eMax, 1e-6), 0), 1);
+  const dark = [0.10, 0.10, 0.10], red = [0.89, 0.29, 0.28];
+  return [dark[0] + (red[0] - dark[0]) * f, dark[1] + (red[1] - dark[1]) * f, dark[2] + (red[2] - dark[2]) * f];
+}
+
+// Real value of the SAME analytical spatial profile the temperature
+// colormap uses, evaluated at one vertex -- factored out so the error
+// viewer can reuse it (real physics, not a re-derived approximation).
+function fieldTempAtVertexC(zMm, field) {
+  const baseTMm = BASE_THICKNESS_M * 1000;
+  const zAboveRootM = Math.max((zMm - baseTMm / 2.0) / 1000.0, 0);
+  const ml = field.m * field.lc_m;
+  let theta;
+  if (ml <= 1e-9) { theta = field.theta_fin_base_c; }
+  else {
+    const zClamped = Math.min(zAboveRootM, field.lc_m);
+    theta = field.theta_fin_base_c * Math.cosh(field.m * (field.lc_m - zClamped)) / Math.cosh(ml);
+  }
+  return field.t_ambient_c + theta;
+}
+
+// Colors each vertex by the real analytical fin-temperature profile,
+// evaluated at that vertex's real height above the base plate -- must
+// run BEFORE geom.center() re-origins the vertex positions, matching
+// the closed-form fin profile.
+function colorGeometryByTemperature(geom, field, cbPrefix) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const colors = new Float32Array(n * 3);
+  const tMin = field.t_ambient_c, tMax = field.t_ambient_c + field.theta_fin_base_c;
+  for (let i = 0; i < n; i++) {
+    const t = fieldTempAtVertexC(pos.getZ(i), field);
+    const [r, g, b] = tempToColor(t, tMin, tMax);
+    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+  }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  if (cbPrefix) {
+    document.getElementById(cbPrefix + "-min").textContent = tMin.toFixed(0) + "°C";
+    document.getElementById(cbPrefix + "-max").textContent = tMax.toFixed(0) + "°C";
+  }
+}
+
+// Real, honest flat color: the surrogate has no spatial resolution, so
+// every vertex gets the exact same color at its single scalar prediction
+// -- a smooth gradient here would misrepresent what the model actually
+// outputs (see the panel's own on-page caption).
+function colorGeometryFlat(geom, surrogateC, tMin, tMax) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const colors = new Float32Array(n * 3);
+  const [r, g, b] = tempToColor(surrogateC, tMin, tMax);
+  for (let i = 0; i < n; i++) { colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b; }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  document.getElementById("cb-predicted-min").textContent = surrogateC.toFixed(0) + "°C";
+  document.getElementById("cb-predicted-max").textContent = surrogateC.toFixed(0) + "°C";
+}
+
+// Real per-point error: |real analytical field value - surrogate's single
+// scalar prediction| at each vertex -- both real quantities already
+// computed elsewhere on this page, not a new calculation invented here.
+function colorGeometryByError(geom, field, surrogateC) {
+  const pos = geom.attributes.position;
+  const n = pos.count;
+  const errors = new Float32Array(n);
+  let eMax = 0;
+  for (let i = 0; i < n; i++) {
+    const t = fieldTempAtVertexC(pos.getZ(i), field);
+    const e = Math.abs(t - surrogateC);
+    errors[i] = e;
+    if (e > eMax) eMax = e;
+  }
+  const colors = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const [r, g, b] = errorToColor(errors[i], eMax);
+    colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b;
+  }
+  geom.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  document.getElementById("cb-error-min").textContent = "0°C";
+  document.getElementById("cb-error-max").textContent = eMax.toFixed(1) + "°C";
+}
+
+function addHeatArrow(mesh, geom) {
+  const bbox = geom.boundingBox;
+  // Point at the base plate's near-camera BOTTOM corner, approaching from
+  // further out along that same corner's own ray from the model's center.
+  // The true underside CENTER is never visible looking down at the fins
+  // from this camera -- it's geometrically inside the frustum but fully
+  // hidden behind the opaque solid, so a straight-up arrow under the
+  // centroid renders invisible. This corner is a real point already on the
+  // visible silhouette (you can see this vertex in the render), so the
+  // whole shaft stays in open space and only the tip reaches the surface.
+  const corner = new THREE.Vector3(bbox.max.x, bbox.min.y, bbox.min.z);
+  const outDir = corner.clone().normalize();
+  const gap = 6;
+  const shaftLen = 32;
+  const origin = corner.clone().addScaledVector(outDir, shaftLen + gap);
+  const dir = outDir.clone().negate();
+  const heatArrow = new THREE.ArrowHelper(dir, origin, shaftLen, 0xff5533, shaftLen * 0.22, shaftLen * 0.13);
+  mesh.add(heatArrow);
+}
+
+async function loadMesh(design) {
+  const q = design ? ("?design=" + encodeURIComponent(design)) : "";
+  const [meshRes, fieldRes] = await Promise.all([
+    fetch("/api/mesh.json" + q),
+    fetch("/api/thermal_field" + q),
+  ]);
+  const meshData = await meshRes.json();
+  const field = await fieldRes.json();
+  const surrogateC = (currentSweepDesigns && currentSweepDesigns.length)
+    ? (currentSweepDesigns.find(d => d.name === (design || "baseline")) || {}).surrogate_c
+    : undefined;
+  const tMin = field.t_ambient_c, tMax = field.t_ambient_c + field.theta_fin_base_c;
+
+  const specs = [
+    { key: "predicted", color: (g) => colorGeometryFlat(g, surrogateC !== undefined ? surrogateC : (tMin + tMax) / 2, tMin, tMax), arrow: true },
+    { key: "simulated", color: (g) => colorGeometryByTemperature(g, field, "cb-simulated"), arrow: true },
+    { key: "error", color: (g) => colorGeometryByError(g, field, surrogateC !== undefined ? surrogateC : (tMin + tMax) / 2), arrow: false },
+  ];
+
+  specs.forEach(spec => {
+    const v = viewers3[spec.key];
+    if (!v) return;
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute("position", new THREE.Float32BufferAttribute(meshData.positions, 3));
+    geom.setIndex(meshData.indices);
+    spec.color(geom); // must run before center() -- all three color functions read raw local Z
+    geom.center();
+    geom.computeVertexNormals();
+    geom.computeBoundingBox();
+    if (v.mesh) v.scene.remove(v.mesh);
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, metalness: 0.25, roughness: 0.55 });
+    v.mesh = new THREE.Mesh(geom, material);
+    v.mesh.rotation.x = -Math.PI / 2;
+    if (spec.arrow) addHeatArrow(v.mesh, geom);
+    v.scene.add(v.mesh);
+  });
+}
+
+async function pollStatus() {
+  if (polling) return;
+  polling = true;
+  try {
+    const res = await fetch("/api/sweep_status");
+    const data = await res.json();
+    handleStatus(data);
+  } finally {
+    polling = false;
+  }
+}
+
+function handleStatus(data) {
+  const sweep = data.sweep;
+  if (sweep.status === "running" || sweep.status === "idle") {
+    document.getElementById("loading-state").hidden = false;
+    document.getElementById("error-state").hidden = true;
+    document.getElementById("content").hidden = true;
+    const total = sweep.total || 7;
+    const progress = sweep.progress || 0;
+    document.getElementById("load-title").textContent =
+      sweep.status === "idle" ? "Waiting to start the real sweep…" : `Running finite-volume solves… (${progress}/${total})`;
+    document.getElementById("progress-fill").style.width = (100 * progress / total) + "%";
+    document.getElementById("progress-caption").textContent = `${progress} / ${total} solves complete`;
+    setTimeout(pollStatus, 900);
+  } else if (sweep.status === "error") {
+    document.getElementById("loading-state").hidden = true;
+    document.getElementById("content").hidden = true;
+    const errBox = document.getElementById("error-state");
+    errBox.hidden = false;
+    errBox.textContent = "The real FEA sweep failed: " + sweep.error;
+  } else if (sweep.status === "done") {
+    document.getElementById("loading-state").hidden = true;
+    document.getElementById("error-state").hidden = true;
+    document.getElementById("content").hidden = false;
+    latest = data;
+    render(data);
+  }
+}
+
+function render(data) {
+  const sweep = data.sweep;
+  const designs = sweep.designs;
+  const summary = sweep.summary;
+
+  document.getElementById("hero-speedup").textContent = fmtX(summary.mean_speedup_factor);
+  document.getElementById("hero-n").textContent = summary.n_designs;
+  document.getElementById("hero-val-err").textContent = (data.validation_relative_error * 100).toFixed(1) + "%";
+
+  // The 3D viewer shows the baseline design -- plot its own real
+  // prediction/real/error right there, not just in the charts below.
+  const baselineDesign = designs.find(d => d.name === "baseline");
+  if (baselineDesign) drawViewerMiniPlot(baselineDesign);
+
+  // Real designs now available -- re-color panels 1 (predicted) and 3
+  // (error) with the real surrogate_c value (unavailable at initial page
+  // load, before this real sweep finished).
+  currentSweepDesigns = designs;
+  loadMesh();
+
+  document.getElementById("verdict-label").textContent = summary.all_within_threshold
+    ? `ALL ${summary.n_designs} AGREE`
+    : `${summary.n_designs - designs.filter(d => d.surrogate_vs_fea_diff_pct > summary.agreement_threshold_pct).length} OF ${summary.n_designs} AGREE`;
+  document.getElementById("verdict-threshold").textContent = summary.agreement_threshold_pct;
+  document.getElementById("narrative-threshold").textContent = summary.agreement_threshold_pct;
+  document.getElementById("stat-mean-diff").textContent = fmtPct(summary.mean_agreement_diff_pct);
+  document.getElementById("stat-max-diff").textContent = fmtPct(summary.max_agreement_diff_pct);
+  document.getElementById("stat-mean-abs").textContent = summary.mean_abs_error_c.toFixed(2) + "°C";
+  document.getElementById("stat-max-abs").textContent = summary.max_abs_error_c.toFixed(2) + "°C";
+  document.getElementById("stat-n").textContent = summary.n_designs;
+
+  const meanSurrogateTime = summary.total_surrogate_time_s / summary.n_designs;
+  const meanFeaTime = summary.total_fea_wall_time_s / summary.n_designs;
+  document.getElementById("narrative-surrogate-time").textContent = fmtTime(meanSurrogateTime);
+  document.getElementById("narrative-fea-time").textContent = fmtTime(meanFeaTime);
+  document.getElementById("narrative-speedup").textContent = fmtX(summary.mean_speedup_factor);
+  document.getElementById("narrative-mean-diff").textContent = fmtPct(summary.mean_agreement_diff_pct);
+  document.getElementById("narrative-max-diff").textContent = fmtPct(summary.max_agreement_diff_pct);
+
+  renderTable(designs);
+  drawSpeedChart(designs);
+  drawAbsErrorChart(designs);
+  drawAgreementChart(designs);
+}
+
+function renderTable(designs) {
+  const body = document.getElementById("data-table-body");
+  body.innerHTML = "";
+  designs.forEach(d => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${d.label}</td>
+      <td>${Math.round(d.design.fin_count)} × ${d.design.fin_height_mm.toFixed(1)}mm × ${d.design.fin_thickness_mm.toFixed(2)}mm</td>
+      <td>${d.power_w.toFixed(0)}W</td>
+      <td>${fmtTemp(d.surrogate_c)}</td>
+      <td>${fmtTemp(d.fea_c)}</td>
+      <td>${fmtPct(d.surrogate_vs_fea_diff_pct)}</td>
+      <td>${fmtTime(d.surrogate_time_s)}</td>
+      <td>${fmtTime(d.fea_wall_time_s)}</td>
+      <td>${fmtX(d.speedup_factor)}</td>
+    `;
+    body.appendChild(tr);
+  });
+}
+
+// ---- Speed chart: grouped log-scale bars ----
+function drawSpeedChart(designs) {
+  const svg = document.getElementById("chart-speed");
+  svg.innerHTML = "";
+  const W = 800, H = 400;
+  const marginL = 56, marginR = 16, marginT = 50, marginB = 50;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const eMin = -5, eMax = 1; // 10us .. 10s
+  const yLog = (v) => {
+    const e = Math.log10(Math.max(v, 1e-7));
+    const frac = (Math.max(e, eMin) - eMin) / (eMax - eMin);
+    return marginT + plotH - frac * plotH;
+  };
+  const baseY = marginT + plotH;
+
+  const ticks = [
+    [-5, "10 µs"], [-4, "100 µs"], [-3, "1 ms"], [-2, "10 ms"],
+    [-1, "100 ms"], [0, "1 s"], [1, "10 s"],
+  ];
+  ticks.forEach(([e, label]) => {
+    const gy = marginT + plotH - ((e - eMin) / (eMax - eMin)) * plotH;
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    svg.appendChild(txt("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" }, label));
+  });
+
+  const n = designs.length;
+  const groupW = plotW / n;
+  const barW = Math.min(24, (groupW - 32) / 2);
+  const gapBetween = 5;
+
+  designs.forEach((d, i) => {
+    const groupX = marginL + i * groupW;
+    const x1 = groupX + (groupW - (barW * 2 + gapBetween)) / 2;
+    const x2 = x1 + barW + gapBetween;
+
+    const y1 = yLog(d.surrogate_time_s);
+    const bar1 = el("path", {
+      d: roundedTopPath(x1, y1, barW, baseY - y1, 4),
+      class: "bar-surrogate",
+    });
+    bar1.addEventListener("mousemove", (ev) => showSpeedTooltip(ev, d, "surrogate"));
+    bar1.addEventListener("mouseleave", () => hideTooltip("tooltip-speed"));
+    svg.appendChild(bar1);
+
+    const y2 = yLog(d.fea_wall_time_s);
+    const bar2 = el("path", {
+      d: roundedTopPath(x2, y2, barW, baseY - y2, 4),
+      class: "bar-fea",
+    });
+    bar2.addEventListener("mousemove", (ev) => showSpeedTooltip(ev, d, "fea"));
+    bar2.addEventListener("mouseleave", () => hideTooltip("tooltip-speed"));
+    svg.appendChild(bar2);
+
+    svg.appendChild(txt("text", {
+      x: groupX + groupW / 2, y: baseY + 20, class: "cat-label", "text-anchor": "middle",
+    }, d.short));
+  });
+
+  // legend
+  const legX = marginL, legY = 18;
+  svg.appendChild(el("rect", { x: legX, y: legY - 9, width: 11, height: 11, rx: 2.5, class: "bar-surrogate" }));
+  svg.appendChild(txt("text", { x: legX + 17, y: legY, class: "legend-text" }, "Surrogate forward pass"));
+  const leg2X = legX + 190;
+  svg.appendChild(el("rect", { x: leg2X, y: legY - 9, width: 11, height: 11, rx: 2.5, class: "bar-fea" }));
+  svg.appendChild(txt("text", { x: leg2X + 17, y: legY, class: "legend-text" }, "Finite-volume solve (wall clock)"));
+
+  svg.appendChild(txt("text", { x: marginL, y: H - 6, class: "axis-title" }, "log scale — each gridline is 10× the one below it"));
+}
+
+function roundedTopPath(x, y, w, h, r) {
+  const rr = Math.min(r, w / 2, Math.max(h, 0));
+  if (h <= 0) return `M ${x} ${y} L ${x + w} ${y} L ${x + w} ${y} L ${x} ${y} Z`;
+  return `M ${x} ${y + h} L ${x} ${y + rr} Q ${x} ${y} ${x + rr} ${y} ` +
+         `L ${x + w - rr} ${y} Q ${x + w} ${y} ${x + w} ${y + rr} ` +
+         `L ${x + w} ${y + h} Z`;
+}
+
+function showSpeedTooltip(ev, d, which) {
+  const tip = document.getElementById("tooltip-speed");
+  const rect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+  tip.style.left = (ev.clientX - rect.left) + "px";
+  tip.style.top = (ev.clientY - rect.top) + "px";
+  const time = which === "surrogate" ? d.surrogate_time_s : d.fea_wall_time_s;
+  const kind = which === "surrogate" ? "Surrogate forward pass" : "Finite-volume solve (wall clock)";
+  tip.innerHTML = `<div class="t-title">${d.label}</div><div class="t-row">${kind}: ${fmtTime(time)}</div>`;
+  tip.style.opacity = "1";
+}
+
+// ---- Small horizontal version of the same real dumbbell plot, scoped to
+// just the design shown in the 3D viewer -- a real plot, not text tiles.
+function drawViewerMiniPlot(d) {
+  const svg = document.getElementById("chart-viewer-mini");
+  svg.innerHTML = "";
+  const W = 400, H = 120;
+  const marginL = 10, marginR = 10, marginT = 34, marginB = 26;
+  const plotW = W - marginL - marginR;
+  const midY = marginT + (H - marginT - marginB) / 2;
+
+  // legend (avoids per-dot text labels, which would collide when the two
+  // real values sit close together on a 0-based scale)
+  svg.appendChild(el("circle", { cx: marginL + 6, cy: 12, r: 5, class: "dot-surrogate" }));
+  svg.appendChild(txt("text", { x: marginL + 16, y: 16, class: "legend-text" }, "Surrogate"));
+  svg.appendChild(el("circle", { cx: marginL + 96, cy: 12, r: 5, class: "dot-fea" }));
+  svg.appendChild(txt("text", { x: marginL + 106, y: 16, class: "legend-text" }, "FV reference"));
+
+  const xMax = Math.ceil(Math.max(d.surrogate_c, d.fea_c) * 1.12 / 10) * 10;
+  const x = (v) => marginL + (v / xMax) * plotW;
+
+  svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: midY, y2: midY, class: "grid-line" }));
+  [0, xMax / 2, xMax].forEach(v => {
+    svg.appendChild(txt("text", { x: x(v), y: H - 8, class: "axis-label", "text-anchor": "middle" }, v.toFixed(0) + "°C"));
+  });
+
+  const xSur = x(d.surrogate_c), xFea = x(d.fea_c);
+  const xLeft = Math.min(xSur, xFea), xRight = Math.max(xSur, xFea);
+  svg.appendChild(el("line", { x1: xLeft, x2: xRight, y1: midY, y2: midY, class: "dumbbell-line" }));
+
+  const errLbl = txt("text", { x: (xLeft + xRight) / 2, y: midY - 14, class: "error-label", "text-anchor": "middle" },
+    "Δ" + d.surrogate_vs_fea_abs_error_c.toFixed(2) + "°C");
+  svg.appendChild(errLbl);
+
+  const dotSur = el("circle", { cx: xSur, cy: midY, r: 7, class: "dot-surrogate" });
+  const dotFea = el("circle", { cx: xFea, cy: midY, r: 7, class: "dot-fea" });
+  [dotSur, dotFea].forEach(dot => {
+    dot.addEventListener("mousemove", (ev) => showViewerMiniTooltip(ev, d));
+    dot.addEventListener("mouseleave", () => hideTooltip("tooltip-viewer-mini"));
+    svg.appendChild(dot);
+  });
+}
+
+function showViewerMiniTooltip(ev, d) {
+  const tip = document.getElementById("tooltip-viewer-mini");
+  const rect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+  tip.style.left = (ev.clientX - rect.left) + "px";
+  tip.style.top = (ev.clientY - rect.top) + "px";
+  tip.innerHTML = `<div class="t-title">${d.label}</div>` +
+    `<div class="t-row">Surrogate prediction: ${d.surrogate_c.toFixed(2)}°C</div>` +
+    `<div class="t-row">FV reference: ${d.fea_c.toFixed(2)}°C</div>` +
+    `<div class="t-row">Absolute error: ${d.surrogate_vs_fea_abs_error_c.toFixed(2)}°C</div>`;
+  tip.style.opacity = "1";
+}
+
+// ---- Prediction vs. real data vs. error -- a real "dumbbell" chart: two
+// honest, full-scale (0-based) dots per design (surrogate + real FEA),
+// connected by a line labeled with the real absolute error. A truncated-axis
+// bar chart would exaggerate a difference of ~1-3C on a ~40-70C baseline --
+// this shows both real values at true scale while still making the real gap
+// legible via a direct numeric label, not a stretched axis.
+function drawAbsErrorChart(designs) {
+  const svg = document.getElementById("chart-abs-error");
+  svg.innerHTML = "";
+  const W = 800, H = 280;
+  const marginL = 56, marginR = 16, marginT = 34, marginB = 50;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const allVals = designs.flatMap(d => [d.surrogate_c, d.fea_c]);
+  const yMax = Math.ceil(Math.max(...allVals) * 1.08 / 10) * 10;
+  const y = (v) => marginT + plotH - (v / yMax) * plotH;
+
+  const nTicks = 5;
+  for (let i = 0; i <= nTicks; i++) {
+    const v = (yMax / nTicks) * i;
+    const gy = y(v);
+    svg.appendChild(el("line", { x1: marginL, x2: W - marginR, y1: gy, y2: gy, class: "grid-line" }));
+    svg.appendChild(txt("text", { x: marginL - 8, y: gy + 4, class: "axis-label", "text-anchor": "end" }, v.toFixed(0) + "°C"));
+  }
+
+  const n = designs.length;
+  const groupW = plotW / n;
+  const baseY = marginT + plotH;
+
+  // legend
+  svg.appendChild(el("circle", { cx: marginL + 6, cy: 12, r: 5, class: "dot-surrogate" }));
+  svg.appendChild(txt("text", { x: marginL + 16, y: 16, class: "legend-text" }, "Surrogate prediction"));
+  svg.appendChild(el("circle", { cx: marginL + 176, cy: 12, r: 5, class: "dot-fea" }));
+  svg.appendChild(txt("text", { x: marginL + 186, y: 16, class: "legend-text" }, "FV reference"));
+
+  designs.forEach((d, i) => {
+    const cx = marginL + i * groupW + groupW / 2;
+    const ySur = y(d.surrogate_c), yFea = y(d.fea_c);
+    const yTop = Math.min(ySur, yFea), yBot = Math.max(ySur, yFea);
+
+    const line = el("line", { x1: cx, x2: cx, y1: yTop, y2: yBot, class: "dumbbell-line" });
+    svg.appendChild(line);
+
+    const errLbl = txt("text", { x: cx, y: yTop - 8, class: "error-label", "text-anchor": "middle" },
+      "Δ" + d.surrogate_vs_fea_abs_error_c.toFixed(1) + "°C");
+    svg.appendChild(errLbl);
+
+    const dotSur = el("circle", { cx, cy: ySur, r: 6, class: "dot-surrogate" });
+    const dotFea = el("circle", { cx, cy: yFea, r: 6, class: "dot-fea" });
+    [dotSur, dotFea].forEach(dot => {
+      dot.addEventListener("mousemove", (ev) => showAbsErrorTooltip(ev, d));
+      dot.addEventListener("mouseleave", () => hideTooltip("tooltip-abs-error"));
+      svg.appendChild(dot);
+    });
+
+    svg.appendChild(txt("text", { x: cx, y: baseY + 20, class: "cat-label", "text-anchor": "middle" }, d.short));
+  });
+}
+
+function showAbsErrorTooltip(ev, d) {
+  const tip = document.getElementById("tooltip-abs-error");
+  const rect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+  tip.style.left = (ev.clientX - rect.left) + "px";
+  tip.style.top = (ev.clientY - rect.top) + "px";
+  tip.innerHTML = `<div class="t-title">${d.label}</div>` +
+    `<div class="t-row">Surrogate prediction: ${d.surrogate_c.toFixed(2)}°C</div>` +
+    `<div class="t-row">FV reference: ${d.fea_c.toFixed(2)}°C</div>` +
+    `<div class="t-row">Absolute error: ${d.surrogate_vs_fea_abs_error_c.toFixed(2)}°C</div>`;
+  tip.style.opacity = "1";
+}
+
+// ---- Agreement chart: surrogate vs real FEA scatter ----
+function drawAgreementChart(designs) {
+  const svg = document.getElementById("chart-agreement");
+  svg.innerHTML = "";
+  const W = 520, H = 480;
+  const marginL = 58, marginR = 20, marginT = 20, marginB = 56;
+  const plotW = W - marginL - marginR, plotH = H - marginT - marginB;
+
+  const allTemps = designs.flatMap(d => [d.fea_c, d.surrogate_c]);
+  const rawMin = Math.min(...allTemps), rawMax = Math.max(...allTemps);
+  const domainMin = Math.floor(rawMin / 5) * 5 - 5;
+  const domainMax = Math.ceil(rawMax / 5) * 5 + 5;
+  const span = domainMax - domainMin;
+
+  const x = (v) => marginL + ((v - domainMin) / span) * plotW;
+  const y = (v) => marginT + plotH - ((v - domainMin) / span) * plotH;
+
+  const step = 10;
+  for (let t = Math.ceil(domainMin / step) * step; t <= domainMax; t += step) {
+    const gx = x(t), gy = y(t);
+    svg.appendChild(el("line", { x1: gx, x2: gx, y1: marginT, y2: marginT + plotH, class: "grid-line" }));
+    svg.appendChild(el("line", { x1: marginL, x2: marginL + plotW, y1: gy, y2: gy, class: "grid-line" }));
+    svg.appendChild(txt("text", { x: gx, y: marginT + plotH + 20, class: "axis-label", "text-anchor": "middle" }, t + "°"));
+    svg.appendChild(txt("text", { x: marginL - 10, y: gy + 4, class: "axis-label", "text-anchor": "end" }, t + "°"));
+  }
+
+  svg.appendChild(el("line", {
+    x1: x(domainMin), y1: y(domainMin), x2: x(domainMax), y2: y(domainMax), class: "identity-line",
+  }));
+  svg.appendChild(txt("text", {
+    x: x(domainMax) - 4, y: y(domainMax) + 16, class: "ref-label", "text-anchor": "end",
+  }, "perfect agreement"));
+
+  svg.appendChild(txt("text", {
+    x: marginL + plotW / 2, y: H - 8, class: "axis-title", "text-anchor": "middle",
+  }, "Finite-volume base temperature (°C) — reference"));
+  svg.appendChild(txt("text", {
+    x: 14, y: marginT + plotH / 2, class: "axis-title", "text-anchor": "middle",
+    transform: `rotate(-90, 14, ${marginT + plotH / 2})`,
+  }, "Surrogate predicted temperature (°C)"));
+
+  let worst = designs[0];
+  designs.forEach(d => { if (d.surrogate_vs_fea_diff_pct > worst.surrogate_vs_fea_diff_pct) worst = d; });
+
+  designs.forEach(d => {
+    const cx = x(d.fea_c), cy = y(d.surrogate_c);
+    const dot = el("circle", { cx, cy, r: 5.5, class: "point-dot" });
+    dot.addEventListener("mousemove", (ev) => showAgreementTooltip(ev, d));
+    dot.addEventListener("mouseleave", () => hideTooltip("tooltip-agreement"));
+    svg.appendChild(dot);
+    if (d === worst) {
+      svg.appendChild(txt("text", {
+        x: cx, y: cy - 12, class: "point-tag hot", "text-anchor": "middle",
+      }, `${d.short} · +${d.surrogate_vs_fea_diff_pct.toFixed(1)}%`));
+    }
+  });
+}
+
+function showAgreementTooltip(ev, d) {
+  const tip = document.getElementById("tooltip-agreement");
+  const rect = ev.currentTarget.closest(".chart-wrap").getBoundingClientRect();
+  tip.style.left = (ev.clientX - rect.left) + "px";
+  tip.style.top = (ev.clientY - rect.top) + "px";
+  tip.innerHTML = `<div class="t-title">${d.label}</div>` +
+    `<div class="t-row">FV reference: ${fmtTemp(d.fea_c)}</div>` +
+    `<div class="t-row">Surrogate: ${fmtTemp(d.surrogate_c)}</div>` +
+    `<div class="t-row">Difference: ${fmtPct(d.surrogate_vs_fea_diff_pct)}</div>`;
+  tip.style.opacity = "1";
+}
+
+function hideTooltip(id) {
+  document.getElementById(id).style.opacity = "0";
+}
+
+document.getElementById("btn-replay").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-replay");
+  btn.disabled = true;
+  await fetch("/api/run_sweep", { method: "POST" });
+  pollStatus();
+  btn.disabled = false;
+});
+
+initViewer();
+pollStatus();
+</script>
+</body>
+</html>

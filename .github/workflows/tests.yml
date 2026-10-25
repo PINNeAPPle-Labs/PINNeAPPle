@@ -31,6 +31,10 @@ jobs:
           pytest tests/pinneapple_data/test_contracts.py tests/pinneapple_core/test_service.py tests/test_appkit_runtime.py tests/pinneapple_core/test_workflows.py tests/test_simulation_runner_app.py -q
           pytest tests/pinneapple_data/test_doe.py tests/pinneapple_simulation/test_campaign_cases.py tests/test_app_campaign.py -q
 
+      - name: PINNeAPPle-apps case studies — margin study, recession twin, fin cell FV, thin airfoil, two apps (must pass)
+        run: |
+          pytest tests/test_margin_study.py tests/test_river_recession.py tests/test_fin_cell_fv.py tests/test_thin_airfoil.py tests/test_thermal_meshes.py tests/test_app_verification_gap.py tests/test_app_predictive_twin.py -q
+
       - name: PINNeAPPle Flow — schema, safe equation parser, FD / PINN from text, planner, runtime, store, Studio API (must pass)
         run: |
           pip install -e ".[flow]"

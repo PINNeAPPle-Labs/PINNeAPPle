@@ -469,3 +469,75 @@
 		}
 	}
 }
+
+{$VGAP_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy vgap:8160 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+
+{$DOPT_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy dopt:8161 {
+		transport http {
+			read_timeout 600s
+		}
+	}
+}
+
+{$MBENCH_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy mbench:8162 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+
+{$PDISC_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy pdisc:8163 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+
+{$PTWIN_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy ptwin:8164 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+
+{$SSPEED_DOMAIN} {
+	import common
+	request_body {
+		max_size 1MB
+	}
+	reverse_proxy sspeed:8165 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}

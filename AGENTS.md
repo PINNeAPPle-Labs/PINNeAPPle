@@ -61,6 +61,8 @@ On Colab: the notebooks in [`notebooks/colab/`](notebooks/colab/README.md) insta
 | A mission (objectives, limits, variables, simulation budget) on any simulator: plan, checked build, simulate, surrogates compared on held-out data, NSGA-II, triage (favourable / uncertain / out of domain), next simulation chosen by what is unknown, verified recommendation, ledger | `pinneapple_autolab`: `AutonomousLab(mission, simulator, folder).run()`, `Mission`, `Limit(lower_frac_of_baseline=...)`, `Simulator` / `FunctionSimulator`, `compare_models`, `ValidatedDomain`, `assess_candidates`, `choose_next`; racing-car OpenFOAM domain `domains.racecar.RaceCarAero`, `flagship_mission()`; driven by an agent: `agent.run_agent(text, simulator, folder, domain=racecar_domain())` (`provider="anthropic"` for an LLM), `agent.interpret_mission`, `agent.lab_toolbox`, `core.act`; dashboard `dashboard.build_dashboard(folder, out, replay=True)` / `dashboard.serve(folder, out)`, Flow node `autolab.aerodynamicist` ([docs](docs/guides/autonomous_lab.md)) |
 | Results to NVIDIA Omniverse (OpenUSD with fields, timeline, trust decision), PhysicsNeMo surrogates checked by PINNeAPPle, architecture figures | `pinneapple_tools.nvidia`: `omniverse.FieldStage(path).add_mesh(..., fields=, color_by=)`, `.add_time_samples`, `.set_trust`, `omniverse.validate_stage(path)`, `diagram.architecture_diagram(...)`; worked examples in `examples/nvidia` ([README](examples/nvidia/README.md)) |
 | Synthetic physics data and checks for world models (Cosmos alternative): videos with exact labels, video physics checks, inspection samples as USD scene variations, robot camera data from the robot sim | `pinneapple_worldmodel.physical_world`: `dataset(n, seed)`, `physics_checks(video)`, `corrupt(video, kind)`, `WorldModel().fit(videos)`; `.inspection_data.inspection_sample(x, y, r)`; `.robot_perception.arm_motions(arm, n, seed)`, `write_motion_stage`, `camera_frames`, `perception_checks` |
+| Does a design that passes at nominal still pass with its manufacturing tolerances (Monte Carlo p95, corner stack-up, six checks, decision) | `pinneapple_analysis.uncertainty.margin.margin_study(fn, nominal, tolerances, limit)`, `corner_stackup` |
+| A river gauge as a digital twin (USGS data at run time, baseflow recession, sustained-departure alarm) | `pinneapple_systems.digital_twin.io.usgs.fetch_iv(site)`, `pinneapple_systems.digital_twin.recession.run_twin(timestamps, values)` |
 | Everything from an agent tool call | the MCP server `pinneapple-mcp` ([docs](docs/guides/mcp_server.md)) |
 | Coding and engineering agents on a local model (web app, VS Code, terminal), conversations kept for fine-tuning | `python -m pinneapple_llm.workbench serve --workspace <project>` (`doctor`, `eval`, `finetune`), `pinneapple_llm.workbench.Session` ([docs](docs/guides/agent_workbench.md)) |
 
@@ -229,6 +231,17 @@ assert status["S2"]["status"] == "validated"   # linear finite elements: compare
 | `pinneapple_flow/` | engineering flows: schema, node catalog, planner, runtime, store (Flow Studio's library) |
 | `pinneapple_reason/` | chain of whys: requirements, failure-mode library by physical domain, reasoning engine, reports |
 | `tests/`, `examples/`, `notebooks/colab/`, `docs/` | tests, runnable scripts, Colab notebooks, documentation (mkdocs) |
+
+## Apps from PINNeAPPle-apps and PINNeAPPle-arena
+
+| App | Folder | What it does | Library APIs it uses |
+|---|---|---|---|
+| Verification Gap | `apps/verification_gap` | A brake rotor that passes at nominal dimensions, Monte Carlo under its machining tolerances: p95, corner stack-up, six checks, TrustReport decision | `pinneapple_analysis.uncertainty.margin.margin_study`, `pinneapple_physics.closed_form.vented_rotor`, `pinneapple_design.thermal.meshes` |
+| Design Optimization | `apps/design_optimization` | A NACA section redesigned live for less profile drag at the same lift (MLP surrogate + Adam steps on the design, every iterate re-checked on the physics) | `pinneapple_design.design_optimizer.airfoil_drag.run_design_optimization`, `pinneapple_physics.closed_form.thin_airfoil` |
+| Model Benchmarking | `apps/model_benchmarking` | Vanilla PINN, SIREN, PIELM and XTFC trained live on viscous Burgers, ranked by accuracy with Arena's physics-aware residual flag | `pinneapple_arena.showcase.run_benchmark` |
+| Parameter Discovery | `apps/parameter_discovery` | A PINN recovers the diffusivity of the 1-D heat equation from noisy readings, with the Cramer-Rao bound of those readings | `pinneapple_analysis.inverse_problems.heat_diffusivity.run_inverse_discovery` |
+| Predictive Twin | `apps/predictive_twin` | Baseflow-recession twin of a live USGS river gauge: calibrate, forecast, flag a sustained 3-sigma departure | `pinneapple_systems.digital_twin.recession.run_twin`, `pinneapple_systems.digital_twin.io.usgs.fetch_iv` |
+| Surrogate Speed | `apps/surrogate_speed` | A heat-sink surrogate timed against a finite-volume fin-cell solve, with their agreement, over seven designs | `pinneapple_design.thermal.fin_array_speed`, `pinneapple_simulation.numerical_solvers.fin_cell_fv.solve_fin_cell` |
 
 ## Tests and lint
 

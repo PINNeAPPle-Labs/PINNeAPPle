@@ -2,7 +2,7 @@
  "schema": "pinneapple-hub/1",
  "generator": "python -m pinneapple_hub.library build",
  "counts": {
-  "tool": 426,
+  "tool": 428,
   "model": 4,
   "geometry": 17,
   "dataset": 12,
@@ -121,7 +121,7 @@
  ],
  "facets": {
   "kind": {
-   "tool": 426,
+   "tool": 428,
    "model": 4,
    "geometry": 17,
    "dataset": 12,
@@ -132,13 +132,13 @@
    "library call": 249,
    "flow node": 92,
    "recipe": 47,
-   "function": 21,
+   "function": 23,
    "agent tool (MCP)": 17
   },
   "domain": {
-   "physics AI": 95,
+   "physics AI": 96,
    "general": 79,
-   "fluid dynamics": 61,
+   "fluid dynamics": 62,
    "design and geometry": 58,
    "structural mechanics": 54,
    "numerical methods": 46,
@@ -189,19 +189,19 @@
    "checks": 33,
    "verification": 36,
    "benchmarks": 14,
-   "uq": 13,
+   "uq": 14,
    "inverse": 6,
    "design": 28,
    "systems": 33,
    "vehicles": 11,
    "electromagnetics": 9,
-   "time-series": 9,
+   "time-series": 10,
    "data": 56,
    "reports": 10,
    "automation": 28
   },
   "quality": {
-   "not graded": 561,
+   "not graded": 563,
    "B": 67,
    "A": 18,
    "approved": 4,
@@ -17904,6 +17904,57 @@
    }
   },
   {
+   "id": "api:pinneapple-systems-digital-twin-io-usgs-fetch-iv",
+   "kind": "tool",
+   "subkind": "function",
+   "name": "pinneapple_systems.digital_twin.io.usgs.fetch_iv",
+   "title": "A river gauge as a digital twin (USGS data at run time, baseflow recession, sustained-departure alarm)",
+   "summary": "Download one parameter of one gauge over the trailing ``period`` (ISO 8601 duration, e.g. ``\"P5D\"``).",
+   "description": "Download one parameter of one gauge over the trailing ``period`` (ISO 8601 duration, e.g. ``\"P5D\"``).",
+   "domain": "fluid dynamics",
+   "tags": [
+    "pinneapple_systems.digital_twin.io.usgs.fetch_iv",
+    "pinneapple_systems.digital_twin.recession.run_twin"
+   ],
+   "quality": null,
+   "code": "import inspect\nimport pinneapple_systems.digital_twin.io.usgs\n\nprint(\"pinneapple_systems.digital_twin.io.usgs.fetch_iv\" + str(inspect.signature(pinneapple_systems.digital_twin.io.usgs.fetch_iv)))\nprint(inspect.getdoc(pinneapple_systems.digital_twin.io.usgs.fetch_iv).splitlines()[0])\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_systems/digital_twin/io/usgs.py#L77"
+   },
+   "extra": {
+    "functions": [
+     {
+      "name": "pinneapple_systems.digital_twin.io.usgs.fetch_iv",
+      "signature": "(site_id: 'str', parameter_cd: 'str' = '00060', period: 'str' = 'P5D', timeout_s: 'float' = 10.0, cache_ttl_s: 'float' = 90.0) -> 'Series'",
+      "summary": "Download one parameter of one gauge over the trailing ``period`` (ISO 8601 duration, e.g. ``\"P5D\"``)."
+     },
+     {
+      "name": "pinneapple_systems.digital_twin.recession.run_twin",
+      "signature": "(timestamps: 'Sequence[datetime]', values: 'Sequence[float]', *, stage_timestamps=None, stage_values=None, calibration_hours: 'float' = 72.0, comparison_hours: 'float' = 24.0, n_sigma: 'float' = 3.0, sustained_minutes: 'float' = 60.0) -> 'dict[str, Any]'",
+      "summary": "Calibrate, forecast and compare one discharge series (and, optionally, fit the gage height the same way for the water level now vs forecast). Raises ``ValueError`` when the…"
+     }
+    ],
+    "table_row": "`pinneapple_systems.digital_twin.io.usgs.fetch_iv(site)`, `pinneapple_systems.digital_twin.recession.run_twin(timestamps, values)`"
+   },
+   "category": "time-series",
+   "run": {
+    "code_hash": "f617e5305606c430",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 5.53,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "pinneapple_systems.digital_twin.io.usgs.fetch_iv(site_id: 'str', parameter_cd: 'str' = '00060', period: 'str' = 'P5D', timeout_s: 'float' = 10.0, cache_ttl_s: 'float' = 90.0) -> 'Series'\nDownload one parameter of one gauge over the trailing ``period`` (ISO 8601 duration, e.g. ``\"P5D\"``).",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
    "id": "api:pp-dashboard-dashboard",
    "kind": "tool",
    "subkind": "function",
@@ -18085,6 +18136,51 @@
     "source": "python -m pinneapple_hub.library run",
     "stderr": "",
     "stdout": "pp.PhysicalProblem.from_preset(name: 'str', **overrides: 'Any') -> \"'PhysicalProblem'\"\nFrom a named preset (``pp.list_presets()``); keyword overrides go to the preset, e.g. ``nu=0.01``.",
+    "timed_out": false,
+    "status": "ok"
+   }
+  },
+  {
+   "id": "api:pinneapple-analysis-uncertainty-margin-margin-study",
+   "kind": "tool",
+   "subkind": "function",
+   "name": "pinneapple_analysis.uncertainty.margin.margin_study",
+   "title": "Does a design that passes at nominal still pass with its manufacturing tolerances (Monte Carlo p95, corner stack-up, six checks, decision)",
+   "summary": "Monte Carlo margin study of ``fn`` (``(m, d)`` inputs -> ``(m,)``) against the upper ``limit``.",
+   "description": "Monte Carlo margin study of ``fn`` (``(m, d)`` inputs -> ``(m,)``) against the upper ``limit``.\n\n``seed`` draws the main batch, ``check_seed`` the two independent batches of checks 2 and 3 (``None``: fresh).\nReturns ``nominal_value``, ``samples`` (sorted), ``summary``, ``checks``, ``overall_verdict``, ``corner`` and\n``trust`` (``TrustReport.to_dict()``).",
+   "domain": "physics AI",
+   "tags": [
+    "pinneapple_analysis.uncertainty.margin.margin_study"
+   ],
+   "quality": null,
+   "code": "import inspect\nimport pinneapple_analysis.uncertainty.margin\n\nprint(\"pinneapple_analysis.uncertainty.margin.margin_study\" + str(inspect.signature(pinneapple_analysis.uncertainty.margin.margin_study)))\nprint(inspect.getdoc(pinneapple_analysis.uncertainty.margin.margin_study).splitlines()[0])\n",
+   "results": null,
+   "examples": [],
+   "files": [],
+   "links": {
+    "guide": "",
+    "source": "https://github.com/PINNeAPPle-Labs/PINNeAPPle/blob/main/pinneapple_analysis/uncertainty/margin.py#L69"
+   },
+   "extra": {
+    "functions": [
+     {
+      "name": "pinneapple_analysis.uncertainty.margin.margin_study",
+      "signature": "(fn: 'Callable[[np.ndarray], np.ndarray]', nominal: 'Sequence[float]', tolerances: 'Sequence[float]', limit: 'float', *, n: 'int' = 200, n_small: 'int' = 50, dist: 'str' = 'uniform', seed: 'int | None' = None, check_seed: 'int | None' = None, marginal_fraction: 'float' = 0.05, min_drift: 'float' ...",
+      "summary": "Monte Carlo margin study of ``fn`` (``(m, d)`` inputs -> ``(m,)``) against the upper ``limit``."
+     }
+    ],
+    "table_row": "`pinneapple_analysis.uncertainty.margin.margin_study(fn, nominal, tolerances, limit)`, `corner_stackup`"
+   },
+   "category": "uq",
+   "run": {
+    "code_hash": "c7dd40dca6fc338a",
+    "figures": [],
+    "ok": true,
+    "recorded": "2026-10-25",
+    "seconds": 3.48,
+    "source": "python -m pinneapple_hub.library run",
+    "stderr": "",
+    "stdout": "pinneapple_analysis.uncertainty.margin.margin_study(fn: 'Callable[[np.ndarray], np.ndarray]', nominal: 'Sequence[float]', tolerances: 'Sequence[float]', limit: 'float', *, n: 'int' = 200, n_small: 'int' = 50, dist: 'str' = 'uniform', seed: 'int | None' = None, check_seed: 'int | None' = None, marginal_fraction: 'float' = 0.05, min_drift: 'float' = 0.3, unit: 'str' = '') -> 'dict[str, Any]'\nMonte Carlo margin study of ``fn`` (``(m, d)`` inputs -> ``(m,)``) against the upper ``limit``.",
     "timed_out": false,
     "status": "ok"
    }
@@ -18355,7 +18451,7 @@
     "functions": [
      {
       "name": "pp.science.atlas",
-      "signature": "(path: 'str' = '/home/user/PINNeAPPle/pinneapple_science/data/atlas.json') -> 'Atlas'",
+      "signature": "(path: 'str' = '/home/user/PINNeAPPle/.claude/worktrees/agent-a2dfc9680fdeb4d13/pinneapple_science/data/atlas.json') -> 'Atlas'",
       "summary": "The atlas (``pp.science.atlas()``): every area and subarea with its status and pointers, from the versioned data file ``pinneapple_science/data/atlas.json``."
      },
      {

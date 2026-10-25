@@ -3,7 +3,7 @@
 #
 #   PROXY_NETWORK=<network of the existing proxy> \
 #   docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml up -d --build heatsink pcb datahealth standardizer simmeta udr inverse \
-#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design hub
+#       preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty campaign meshless rom runner inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design hub vgap dopt mbench pdisc ptwin sspeed
 #
 # Then point the proxy at pinneapple-heatsink:8080, pinneapple-pcb:8081, pinneapple-datahealth:8082,
 # pinneapple-standardizer:8083, pinneapple-simmeta:8084 pinneapple-udr:8085, pinneapple-inverse:8086,
@@ -13,6 +13,7 @@
 # The Engineering Design Optimizer answers on pinneapple-optimize:8100.
 # The Physics Design Optimizer answers on pinneapple-design:8106.
 # The PINNeAPPle Hub answers on pinneapple-hub:8116.
+# The PINNeAPPle-apps case studies answer on pinneapple-vgap:8160, pinneapple-dopt:8161, pinneapple-mbench:8162, pinneapple-pdisc:8163, pinneapple-ptwin:8164, pinneapple-sspeed:8165.
 # The optional Engineering GUI Agent (heavy image) is started by name and answers on pinneapple-guiagent:8115.
 services:
   caddy:                       # the server already has a proxy on 80/443: never start this project's own
@@ -203,6 +204,36 @@ services:
       default: {}
       proxy:
         aliases: [pinneapple-hub]
+  vgap:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-vgap]
+  dopt:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-dopt]
+  mbench:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-mbench]
+  pdisc:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-pdisc]
+  ptwin:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-ptwin]
+  sspeed:
+    networks:
+      default: {}
+      proxy:
+        aliases: [pinneapple-sspeed]
 
 networks:
   proxy:

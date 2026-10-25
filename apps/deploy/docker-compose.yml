@@ -815,6 +815,106 @@ services:
     expose: ["8116"]
     mem_limit: ${HUB_MEM_LIMIT:-2g}
 
+  vgap:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/verification_gap/Dockerfile
+    image: pinneapple/verification-gap:latest
+    restart: unless-stopped
+    environment:
+      VGAP_USER: ${VGAP_USER:-}
+      VGAP_PASSWORD: ${VGAP_PASSWORD:-}
+      VGAP_PASSWORD_HASH: ${VGAP_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      VGAP_RATE_LIMIT: ${VGAP_RATE_LIMIT:-}
+      VGAP_MAX_HEAVY: ${VGAP_MAX_HEAVY:-4}
+    expose: ["8160"]
+    mem_limit: ${VGAP_MEM_LIMIT:-1g}
+
+  dopt:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/design_optimization/Dockerfile
+    image: pinneapple/design-optimization:latest
+    restart: unless-stopped
+    environment:
+      DOPT_USER: ${DOPT_USER:-}
+      DOPT_PASSWORD: ${DOPT_PASSWORD:-}
+      DOPT_PASSWORD_HASH: ${DOPT_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      DOPT_RATE_LIMIT: ${DOPT_RATE_LIMIT:-}
+      DOPT_MAX_HEAVY: ${DOPT_MAX_HEAVY:-2}
+    expose: ["8161"]
+    mem_limit: ${DOPT_MEM_LIMIT:-1g}
+
+  mbench:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/model_benchmarking/Dockerfile
+    image: pinneapple/model-benchmarking:latest
+    restart: unless-stopped
+    environment:
+      MBENCH_USER: ${MBENCH_USER:-}
+      MBENCH_PASSWORD: ${MBENCH_PASSWORD:-}
+      MBENCH_PASSWORD_HASH: ${MBENCH_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      MBENCH_RATE_LIMIT: ${MBENCH_RATE_LIMIT:-}
+      MBENCH_AUTOSTART: ${MBENCH_AUTOSTART:-1}
+      MBENCH_EPOCH_SCALE: ${MBENCH_EPOCH_SCALE:-1}
+    expose: ["8162"]
+    mem_limit: ${MBENCH_MEM_LIMIT:-1500m}
+
+  pdisc:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/parameter_discovery/Dockerfile
+    image: pinneapple/parameter-discovery:latest
+    restart: unless-stopped
+    environment:
+      PDISC_USER: ${PDISC_USER:-}
+      PDISC_PASSWORD: ${PDISC_PASSWORD:-}
+      PDISC_PASSWORD_HASH: ${PDISC_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PDISC_RATE_LIMIT: ${PDISC_RATE_LIMIT:-}
+      PDISC_AUTOSTART: ${PDISC_AUTOSTART:-1}
+      PDISC_EPOCHS: ${PDISC_EPOCHS:-2500}
+    expose: ["8163"]
+    mem_limit: ${PDISC_MEM_LIMIT:-1g}
+
+  ptwin:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/predictive_twin/Dockerfile
+    image: pinneapple/predictive-twin:latest
+    restart: unless-stopped
+    environment:
+      PTWIN_USER: ${PTWIN_USER:-}
+      PTWIN_PASSWORD: ${PTWIN_PASSWORD:-}
+      PTWIN_PASSWORD_HASH: ${PTWIN_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      PTWIN_RATE_LIMIT: ${PTWIN_RATE_LIMIT:-}
+      PTWIN_SITE_ID: ${PTWIN_SITE_ID:-01646500}
+      PTWIN_OFFLINE: ${PTWIN_OFFLINE:-0}
+    expose: ["8164"]
+    mem_limit: ${PTWIN_MEM_LIMIT:-768m}
+
+  sspeed:
+    <<: *app-hardening
+    build:
+      context: ../..
+      dockerfile: apps/surrogate_speed/Dockerfile
+    image: pinneapple/surrogate-speed:latest
+    restart: unless-stopped
+    environment:
+      SSPEED_USER: ${SSPEED_USER:-}
+      SSPEED_PASSWORD: ${SSPEED_PASSWORD:-}
+      SSPEED_PASSWORD_HASH: ${SSPEED_PASSWORD_HASH:-}   # preferred: python -m pinneapple_security hash-password
+      SSPEED_RATE_LIMIT: ${SSPEED_RATE_LIMIT:-}
+      SSPEED_AUTOSTART: ${SSPEED_AUTOSTART:-1}
+      SSPEED_TRAIN_EPOCHS: ${SSPEED_TRAIN_EPOCHS:-400}
+    expose: ["8165"]
+    mem_limit: ${SSPEED_MEM_LIMIT:-1g}
+
   caddy:
     <<: *base-hardening
     cap_add: [NET_BIND_SERVICE]            # ports 80 and 443
@@ -861,12 +961,18 @@ services:
       EDO_DOMAIN: ${EDO_DOMAIN:-optimize.localhost}
       PDO_DOMAIN: ${PDO_DOMAIN:-design.localhost}
       HUB_DOMAIN: ${HUB_DOMAIN:-hub.localhost}
+      VGAP_DOMAIN: ${VGAP_DOMAIN:-vgap.localhost}
+      DOPT_DOMAIN: ${DOPT_DOMAIN:-dopt.localhost}
+      MBENCH_DOMAIN: ${MBENCH_DOMAIN:-mbench.localhost}
+      PDISC_DOMAIN: ${PDISC_DOMAIN:-pdisc.localhost}
+      PTWIN_DOMAIN: ${PTWIN_DOMAIN:-ptwin.localhost}
+      SSPEED_DOMAIN: ${SSPEED_DOMAIN:-sspeed.localhost}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data          # certificates: keep this volume
       - caddy_config:/config
-    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub]
+    depends_on: [heatsink, pcb, datahealth, standardizer, simmeta, udr, inverse, preflight, mesh, compare, lineage, interop, aero, lab, observatory, playground, uncertainty, campaign, runner, sensitivity, validate, evidence, calibration, identifiability, inverse-studio, rom, meshless, surrogate, arena, models, twin, anomaly, control, optimize, design, hub, vgap, dopt, mbench, pdisc, ptwin, sspeed]
 
 volumes:
   surrogate_data:

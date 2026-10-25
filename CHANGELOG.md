@@ -26,6 +26,29 @@ How this file is maintained is described in [CONTRIBUTING.md](CONTRIBUTING.md#ch
   strain on rotated or sheared elements). Box meshes aligned with x, y, z were not affected.
 
 ### Added
+- Six apps from PINNeAPPle-apps (the `poc_*` case studies), each a page plus routes over library code:
+  `apps/verification_gap`, `apps/design_optimization`, `apps/model_benchmarking`, `apps/parameter_discovery`,
+  `apps/predictive_twin`, `apps/surrogate_speed` (ports 8160-8165; logins `<PREFIX>_USER` / `<PREFIX>_PASSWORD`).
+  Their computation moved into the library, with tests:
+  - `pinneapple_analysis.uncertainty.margin`: `margin_study(fn, nominal, tolerances, limit)` (Monte Carlo p95 against
+    a limit with a Wilson interval on the pass fraction, ROBUST / MARGINAL / FRAGILE, six checks of the study and a
+    `TrustReport` decision) and `corner_stackup`;
+  - `pinneapple_physics.closed_form.vented_rotor` (brake-rotor vanes as a fin array) and
+    `pinneapple_physics.closed_form.thin_airfoil` (thin-airfoil lift of NACA 4-digit camber lines, Hoerner profile
+    drag);
+  - `pinneapple_design.design_optimizer.airfoil_drag.run_design_optimization` (surrogate-driven drag reduction at
+    constant lift, every iterate re-evaluated on the closed form);
+  - `pinneapple_arena.showcase.run_benchmark` (four PINN architectures on viscous Burgers with Arena's accuracy and
+    physics-aware rankings, front-band error, absolute residual threshold optional);
+  - `pinneapple_analysis.inverse_problems.heat_diffusivity.run_inverse_discovery` (joint PINN + diffusivity
+    inversion with the Cramer-Rao bound of the readings);
+  - `pinneapple_systems.digital_twin.recession` (baseflow recession fit, forecast, sustained-departure detector,
+    `run_twin`) and `pinneapple_systems.digital_twin.io.usgs` (USGS Instantaneous Values client, standard library
+    only; data downloaded at run time);
+  - `pinneapple_simulation.numerical_solvers.fin_cell_fv.solve_fin_cell` (finite-volume fin unit cell; within 1 %
+    of the 1-D fin formula on slender fins, 1.3 % on thick sparse fins) and `pinneapple_design.thermal.fin_array_speed`
+    (surrogate vs numerical solve timing and agreement); `pinneapple_design.thermal.meshes` (plate-fin and
+    vented-rotor triangle meshes).
 - `pinneapple_science` (`pp.science`): science by area. An **atlas** (versioned data,
   `pinneapple_science/data/atlas.json`) maps 20 areas (13 of physics, 7 of other sciences) and 77 subareas with a
   status each (available / partial / planned) and pointers to the library code, presets and Lab experiments that

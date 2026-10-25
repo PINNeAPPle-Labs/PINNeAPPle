@@ -38,6 +38,8 @@ REASONS: dict[str, str] = {
     "pinneapple_catalog": "method / resource catalogue with license gates (read by the planner and docs)",
     "pinneapple_decision": "experiment-selection loop driven by an LLM backend; the planner covers routing",
     "pinneapple_arena": "YAML benchmark campaigns (long runs); single benchmark runs are benchmark.arena nodes",
+    "pinneapple_arena.showcase": "one fixed four-architecture Burgers comparison (minutes of training) served by "
+                                 "apps/model_benchmarking; single benchmark runs are benchmark.arena nodes",
     "pinneapple_pdb": "dataset builder for benchmark publication (sharding, upload)",
     "pinneapple_veriphysics": "report layer over results; decision records + export.report cover it here",
     "pinneapple_check": "the CI physics linter (runs on files in a repository, not in a flow)",

@@ -91,6 +91,12 @@ At your DNS provider, create two **A** records (and AAAA records if you use IPv6
 | `guiagent` | A | `<server IPv4>` |
 | `optimize` | A | `<server IPv4>` |
 | `design` | A | `<server IPv4>` |
+| `vgap` | A | `<server IPv4>` |
+| `dopt` | A | `<server IPv4>` |
+| `mbench` | A | `<server IPv4>` |
+| `pdisc` | A | `<server IPv4>` |
+| `ptwin` | A | `<server IPv4>` |
+| `sspeed` | A | `<server IPv4>` |
 
 If the zone is on Cloudflare, set both records to **DNS only** (grey cloud) for the first start, so
 Let's Encrypt can reach Caddy. Check propagation with `dig +short heatsink.example.org`.
@@ -162,7 +168,7 @@ Caddy. Start only the apps, attached to that proxy's Docker network, and add two
 ```bash
 docker inspect <proxy container> --format '{{range $k, $v := .NetworkSettings.Networks}}{{$k}} {{end}}'
 PROXY_NETWORK=<that network> docker compose -f docker-compose.yml -f docker-compose.existing-proxy.yml \
-  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design
+  up -d --build heatsink pcb datahealth standardizer simmeta udr inverse preflight mesh compare lineage interop aero lab observatory playground evidence validate sensitivity uncertainty runner campaign meshless rom inverse-studio identifiability calibration models arena surrogate twin anomaly control optimize design vgap dopt mbench pdisc ptwin sspeed
 ```
 
 Caddyfile blocks for the existing proxy (then `caddy validate` and `caddy reload` inside its container):
@@ -315,6 +321,54 @@ observatory.example.org {
 playground.example.org {
 	encode zstd gzip
 	reverse_proxy pinneapple-playground:8095
+}
+vgap.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-vgap:8160 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+dopt.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-dopt:8161 {
+		transport http {
+			read_timeout 600s
+		}
+	}
+}
+mbench.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-mbench:8162 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+pdisc.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-pdisc:8163 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+ptwin.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-ptwin:8164 {
+		transport http {
+			read_timeout 60s
+		}
+	}
+}
+sspeed.example.org {
+	encode zstd gzip
+	reverse_proxy pinneapple-sspeed:8165 {
+		transport http {
+			read_timeout 60s
+		}
+	}
 }
 surrogate.example.org {
 	encode zstd gzip
@@ -774,6 +828,22 @@ API keys are in the `hub_data` volume. 2 GB is enough (1.5 GB with the low-memor
 
 ```bash
 docker compose up -d --build hub caddy          # https://$HUB_DOMAIN
+```
+
+## PINNeAPPle-apps case studies (`vgap`, `dopt`, `mbench`, `pdisc`, `ptwin`, `sspeed`)
+
+Six single-page case studies (one fixed scenario each, computation in the library): Verification Gap (`vgap`, 8160),
+Design Optimization (`dopt`, 8161), Model Benchmarking (`mbench`, 8162), Parameter Discovery (`pdisc`, 8163),
+Predictive Twin (`ptwin`, 8164) and Surrogate Speed (`sspeed`, 8165); each README under `apps/<folder>/` says what it
+computes and what was measured. Logins `<PREFIX>_USER` / `<PREFIX>_PASSWORD(_HASH)` with the prefixes `VGAP`, `DOPT`,
+`MBENCH`, `PDISC`, `PTWIN`, `SSPEED`; domains `<PREFIX>_DOMAIN`. No volumes: results live in memory. `mbench`, `pdisc`
+and `sspeed` start a run at startup (`<PREFIX>_AUTOSTART=0` to wait for a click); a full `mbench` run keeps one core
+busy for several minutes (`MBENCH_EPOCH_SCALE=0.1` for a quick demo). `dopt` trains a surrogate on every page load
+(`DOPT_MAX_HEAVY` at once, the rest get 429). `ptwin` downloads public USGS data on each load (cached 90 s), so it
+needs outbound HTTPS to waterservices.usgs.gov; `PTWIN_OFFLINE=1` serves a labelled synthetic record instead.
+
+```bash
+docker compose up -d --build vgap dopt mbench pdisc ptwin sspeed caddy
 ```
 
 ## PINNeAPPle Lab catalogue (`lab`)

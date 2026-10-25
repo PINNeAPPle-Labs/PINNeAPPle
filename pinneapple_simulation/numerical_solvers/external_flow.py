@@ -166,11 +166,15 @@ relaxationFactors
        f"hierarchicalCoeffs {{ n ({n[0]} {n[1]} {n[2]}); order xyz; }}\n")   # scotch/metis can be stubs in builds
 
 
-def snappy_dict(geometry: str, features: str, surfaces: str, regions: str, location: Sequence[float]) -> str:
-    """snappyHexMeshDict body (castellate + snap, no layers: wall functions)."""
+def snappy_dict(geometry: str, features: str, surfaces: str, regions: str, location: Sequence[float],
+                layers: Optional[Dict[str, int]] = None, expansion: float = 1.2,
+                final_thickness: float = 0.3, min_thickness: float = 0.1) -> str:
+    """snappyHexMeshDict body: castellate + snap, and with ``layers`` ({patch regex: n}) prism layers whose sizes are
+    relative to the local surface cell (``final_thickness`` of the last layer, ``expansion`` ratio)."""
+    lay = "".join(f'        "{k}" {{ nSurfaceLayers {int(n)}; }}\n' for k, n in (layers or {}).items())
     return f"""castellatedMesh true;
 snap true;
-addLayers false;
+addLayers {"true" if layers else "false"};
 geometry
 {{
 {geometry}
@@ -211,7 +215,11 @@ snapControls
 }}
 addLayersControls
 {{
-    relativeSizes true; layers {{}}; expansionRatio 1.2; finalLayerThickness 0.3; minThickness 0.1;
+    relativeSizes true;
+    layers
+    {{
+{lay}    }}
+    expansionRatio {expansion}; finalLayerThickness {final_thickness}; minThickness {min_thickness};
     nGrow 0; featureAngle 60; nRelaxIter 3; nSmoothSurfaceNormals 1; nSmoothNormals 3; nSmoothThickness 10;
     maxFaceThicknessRatio 0.5; maxThicknessToMedialRatio 0.3; minMedialAxisAngle 90; nBufferCellsNoExtrude 0;
     nLayerIter 50;
@@ -313,7 +321,8 @@ class CaseFields:
 
     def wall(self, patch: Dict[str, Any], nu: float, q: float) -> Dict[str, np.ndarray]:
         """Per face of a wall patch: centre, area vector (into the body), Cp, Cf from the log law at the first cell
-        (what the wall function imposes), pressure and viscous force vectors (kinematic, per unit density)."""
+        (what the wall function imposes), y+ of the first cell centre, pressure and viscous force vectors
+        (kinematic, per unit density)."""
         s, n = int(patch["startFace"]), int(patch["nFaces"])
         idx = np.arange(s, s + n)
         sf = self.fg["areas"][idx]
@@ -330,7 +339,8 @@ class CaseFields:
             yp = np.maximum(d * utau / nu, 1e-6)
             utau = np.where(yp > 11.25, Ut * 0.41 / np.log(9.8 * yp), np.sqrt(nu * Ut / d))
         tau = utau ** 2
-        return {"xyz": self.fg["centres"][idx], "cp": pw / q, "cf": tau / q, "f_pressure": pw[:, None] * sf,
+        return {"xyz": self.fg["centres"][idx], "cp": pw / q, "cf": tau / q, "yplus": d * utau / nu,
+                "f_pressure": pw[:, None] * sf,
                 "f_viscous": (tau / Ut)[:, None] * ut * A[:, None]}
 
     def _tree(self, key, mask=None):
@@ -465,10 +475,15 @@ class ExternalFlow:
     ground: Union[bool, float] = False             # True: a road at the lowest point of the bodies; a number: its z
     ground_moving: bool = True
     resolution: str = "medium"
+    cells_per_length: Optional[float] = None       # background cells per body length (overrides the resolution's),
+                                                   # e.g. a geometric family 6, 6*sqrt(2), 12 for a GCI study
     surface_level: Optional[Tuple[int, int]] = None
-    cells_per_length: Optional[float] = None       # background cells per body length (default: from resolution)
     body_levels: Optional[Dict[str, Tuple[int, int]]] = None   # per body (min, max) surface level, e.g. thin wings finer
     refine_boxes: Sequence[Tuple[Sequence[float], Sequence[float], int]] = ()   # extra (min xyz, max xyz, level)
+    layers: int = 0                                # prism layers on the bodies (0: none, wall functions on the
+                                                   # first cell); sizes relative to the surface cell
+    layer_expansion: float = 1.2
+    layer_final_thickness: float = 0.3             # last layer / local surface cell
     iterations: int = 600
     write_every: Optional[int] = None              # also write every N iterations: force_history() can read them
     n_lines: int = 40
@@ -506,7 +521,7 @@ class ExternalFlow:
         lo, hi, L = self.lo, self.hi, max(self.hi[0] - self.lo[0], 1e-9)
         Wd = max(hi[1] - lo[1], hi[2] - lo[2], L)
         per_len, lev = RESOLUTION[self.resolution]
-        per_len = self.cells_per_length or per_len
+        per_len = float(self.cells_per_length or per_len)
         lev = self.surface_level or lev
         h = L / per_len
         ctr = (lo + hi) / 2
@@ -559,7 +574,9 @@ mergePatchPairs ();
                      f"max ({bmax[0]} {bmax[1]} {bmax[2]}); }}")
             regions += f"\n        box{k} {{ mode inside; levels ((1E15 {int(blv)})); }}"
         loc = (x0 + 1.37 * h, y1 - 1.61 * h, z1 - 1.53 * h)                    # in the fluid, off any cell face
-        _w(case, "system/snappyHexMeshDict", "dictionary", snappy_dict(geom, feats, surfs, regions, loc))
+        _w(case, "system/snappyHexMeshDict", "dictionary",
+           snappy_dict(geom, feats, surfs, regions, loc, {f"({'|'.join(names)})": self.layers} if self.layers else None,
+                       self.layer_expansion, self.layer_final_thickness))
         gv = flow_directions(self.alpha, self.beta)[0] * self.speed if self.ground_moving else (0.0, 0.0, 0.0)
         write_flow_fields(case, self.speed, self.alpha, self.beta, self.nu, self.iterations, procs, "bodies",
                           self.half_model, "ground" if self.ground_z is not None else None, tuple(float(v) for v in gv),
@@ -570,6 +587,7 @@ mergePatchPairs ();
                 "Re": self.speed * self.L / self.nu, "background_cell": h, "turbulence": self.turbulence,
                 "domain": [float(v) for v in (up, down, ys, zs)], "surface_level": list(lev),
                 "body_levels": {b: list(v) for b, v in blev.items()},
+                "layers": int(self.layers), "cells_per_length": per_len,
                 "refine_boxes": [[list(map(float, a)), list(map(float, b)), int(c)] for a, b, c in self.refine_boxes]}
         with open(os.path.join(case, "pinneapple_flow.json"), "w") as f:
             json.dump(info, f, indent=1)
@@ -594,7 +612,7 @@ mergePatchPairs ();
         times = sorted((float(d), d) for d in os.listdir(case) if _is_time(case, d))
         out = []
         for it, d in times:
-            c, (xyz, cpl, _cfl, bid, frc) = _wall_forces(CaseFields(case, d), info)
+            c, (xyz, cpl, _cfl, bid, frc, _yp) = _wall_forces(CaseFields(case, d), info)
             row = {"iteration": it, **{k: c[k] for k in ("CD", "CL", "drag_N", "lift_N")},
                    "bodies": {b: {"CD": v["CD"], "CL": v["CL"]} for b, v in c["bodies"].items()}}
             if faces:
@@ -608,7 +626,7 @@ mergePatchPairs ();
         cf = CaseFields(case)
         V = info["speed"]
         q = 0.5 * V * V
-        out, (xyz, cpl, cfl, bid, frc) = _wall_forces(cf, info)
+        out, (xyz, cpl, cfl, bid, frc, ypl) = _wall_forces(cf, info)
         names = info["bodies"]
         lo, hi = np.array(info["bounds"][0]), np.array(info["bounds"][1])
         L = hi[0] - lo[0]
@@ -663,7 +681,8 @@ mergePatchPairs ();
                                       "vorticity": f"Streamwise vorticity ωx·L/U∞, {f:g} L behind the body"}})
         info = {**info, "time": cf.time}
         return FlowResult(out, {"xyz": np.concatenate(xyz), "cp": np.concatenate(cpl), "cf": np.concatenate(cfl),
-                                "body": np.concatenate(bid), "force": np.concatenate(frc)},   # force per face / rho
+                                "body": np.concatenate(bid), "force": np.concatenate(frc),    # force per face / rho
+                                "yplus": np.concatenate(ypl)},
                           names, lines, speeds, slices, info, self.geometry)
 
 
@@ -675,7 +694,7 @@ def _wall_forces(cf: "CaseFields", info: Dict[str, Any]):
     dd, ll, ss = flow_directions(info["alpha"], info["beta"])
     out: Dict[str, Any] = {"bodies": {}}
     Fp, Fv = np.zeros(3), np.zeros(3)
-    xyz, cpl, cfl, bid, frc = [], [], [], [], []
+    xyz, cpl, cfl, bid, frc, ypl = [], [], [], [], [], []
     names = info["bodies"]
     half_m = info["half_model"]
     for patch in cf.patches():
@@ -693,13 +712,14 @@ def _wall_forces(cf: "CaseFields", info: Dict[str, Any]):
         cfl.append(w["cf"])
         bid.append(np.full(len(w["cp"]), names.index(patch["name"])))
         frc.append(w["f_pressure"] + w["f_viscous"])
+        ypl.append(w["yplus"])
     F = Fp + Fv
     out.update(CD=float(F @ dd / (q * S)), CL=float(F @ ll / (q * S)),
                CS=0.0 if half_m else float(F @ ss / (q * S)),              # a half model is symmetric
                CD_pressure=float(Fp @ dd / (q * S)), CD_friction=float(Fv @ dd / (q * S)),
                drag_N=float(F @ dd * info["rho"] * (2 if info["half_model"] else 1)),
                lift_N=float(F @ ll * info["rho"] * (2 if info["half_model"] else 1)), cells=cf.n_cells)
-    return out, (xyz, cpl, cfl, bid, frc)
+    return out, (xyz, cpl, cfl, bid, frc, ypl)
 
 
 def _is_time(case: str, d: str) -> bool:

@@ -40,6 +40,13 @@ SECTION_IDS = [s[0] for s in SECTIONS]
 SECTION_OF: dict[str, str] = {
     "autolab.board_cooling": "optimization", "autolab.pipe_twin": "optimization",
     "autolab.aerodynamicist": "optimization",
+    "study.ahmed_geometry": "problem",
+    "study.cfd_campaign": "solvers",
+    "study.grid_validation": "validation",
+    "study.dataset": "data",
+    "study.surrogates": "surrogates",
+    "study.inverse": "inverse",
+    "study.twin": "twin",
     "reason.requirement": "optimization", "reason.concept": "optimization", "reason.verify": "optimization",
     "reason.failure_mode": "optimization", "reason.countermeasure": "optimization", "reason.chain": "optimization",
     "reason.report": "optimization",

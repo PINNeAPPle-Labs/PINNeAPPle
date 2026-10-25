@@ -36,11 +36,12 @@ def peak_rss_gb() -> float:
     return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1e6
 
 
-def isolated(func: str, timeout: float = 3600, **kwargs) -> dict:
-    """Run ``pinneapple_condense.benchmark.<func>(**kwargs)`` in a fresh Python process; its result plus the peak
-    RSS of that process (``peak_rss_gb``)."""
-    code = ("import json, sys; from pinneapple_condense import benchmark as b; "
-            f"r = b.{func}(**json.loads(sys.argv[1])); r['peak_rss_gb'] = b.peak_rss_gb(); "
+def isolated(func: str, timeout: float = 3600, module: str = "pinneapple_condense.benchmark", **kwargs) -> dict:
+    """Run ``<module>.<func>(**kwargs)`` (default: this module) in a fresh Python process; its result plus the
+    peak RSS of that process (``peak_rss_gb``)."""
+    code = (f"import json, sys, importlib; from pinneapple_condense import benchmark as b; "
+            f"f = getattr(importlib.import_module({module!r}), {func!r}); "
+            "r = f(**json.loads(sys.argv[1])); r['peak_rss_gb'] = b.peak_rss_gb(); "
             "print('@@' + json.dumps(r))")
     out = subprocess.run([sys.executable, "-c", code, json.dumps(kwargs)], capture_output=True, text=True,
                          timeout=timeout)

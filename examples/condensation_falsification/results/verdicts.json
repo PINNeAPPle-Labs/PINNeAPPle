@@ -1,0 +1,117 @@
+[
+ {
+  "id": "T1",
+  "verdict": "validated",
+  "evidence": "smallest m (of 6, 12, 24, 48) with |dTmax| <= 0.1 K: {'256': 6, '1024': 12, '4096': 12, '16384': 24} blocks -> m; kill if m(16,384) > 2 m(1,024)"
+ },
+ {
+  "id": "T1b",
+  "verdict": "validated",
+  "evidence": "PCG iterations to 1 mK: 8 at 1,024 and 32 at 16,384 blocks (limit 4x); time to 1 mK 5.0 s vs fine AMG 481 s at 4,096 blocks"
+ },
+ {
+  "id": "T2",
+  "verdict": "validated",
+  "evidence": "exact vs fine <= 6.5e-09 K; worst m=12 error 1.09x the baseline (16.0 mK)"
+ },
+ {
+  "id": "T3",
+  "verdict": "validated",
+  "evidence": "exact vs fine <= 5.8e-08 K; worst m=12 error 1.00x the baseline (16.0 mK)"
+ },
+ {
+  "id": "T9",
+  "verdict": "validated",
+  "evidence": "exact vs fine <= 6.7e-09 K; worst m=12 error 2.20x the baseline (1.4 mK)"
+ },
+ {
+  "id": "T4",
+  "verdict": "refuted",
+  "evidence": "32 x 32 (pre-registered): killed out of memory at 13 GB (one dense model per distinct block); 16 x 16: fine FV 67 s; exact path (all blocks + PCG) 395 s; learned 27 s (+82 s training), error 0.46 K; m-mode interfaces alone off by 0.46 K on these heterogeneous blocks"
+ },
+ {
+  "id": "T5",
+  "verdict": "refuted",
+  "evidence": "V=1: hierarchy 2.7 s / flat 5.8 s; V=4: hierarchy 20.3 s / flat 4.9 s; V=16: hierarchy 21.2 s / flat 5.0 s; V=64: hierarchy 27.1 s / flat 4.6 s; V=256: hierarchy 61.1 s / flat 6.6 s"
+ },
+ {
+  "id": "T6",
+  "verdict": "refuted",
+  "evidence": "16 x 16 (pre-registered): out of memory in the separator factorisation of the generic layer; 8 x 8: error 0.51 mK, 5 Picard iterations, 430 s vs fine 97 s (nonlinear - linear Tmax 1.20 K)"
+ },
+ {
+  "id": "T7",
+  "verdict": "refuted",
+  "evidence": "16 x 16 (pre-registered): out of memory in the separator factorisation of the generic layer; 8 x 8: error 3.2e-06 mK, 4 Picard iterations, 176 s vs fine 39 s (nonlinear - linear Tmax 8.96 K)"
+ },
+ {
+  "id": "T8",
+  "verdict": "refuted",
+  "evidence": "worst map 'single-cell spike': 1.66 K; others <= 9.3 mK; effectivity 1.37-1.77"
+ },
+ {
+  "id": "T10",
+  "verdict": "partially validated",
+  "evidence": "16 x 16 (pre-registered): out of memory in the generic layer; 8 x 8: exact vs fine 2.9e-09 K; m=12 error 1.4e-06 K (uniform 1.8e-06 K)"
+ },
+ {
+  "id": "F0",
+  "verdict": "partially validated",
+  "evidence": "Poiseuille max rel. error 3.2e-03 (pre-registered as exact, 1e-6: refuted -- the ghost-cell wall is O(h^2), observed order 2); cavity Re 100 vs Ghia 0.49 % of U (limit 2 %); Nu error 0.081 %"
+ },
+ {
+  "id": "F1",
+  "verdict": "validated",
+  "evidence": "max relative difference 1.5e-13 over Pe_b 0.1-1000; blocks distinct by content: 80 of 80 (the computed velocity differs per block)"
+ },
+ {
+  "id": "F1r",
+  "verdict": "validated",
+  "evidence": "Pe_b = 100: m = 3 for 1 % (14.2 unknowns per face, compression 4.74); Pe_b 0.1: m 2, Pe_b 1: m 2, Pe_b 10: m 2, Pe_b 100: m 3, Pe_b 1000: m 3"
+ },
+ {
+  "id": "F2",
+  "verdict": "refuted",
+  "evidence": "exact to 1.3e-12; 9 distinct of 288 blocks; direct 2.5 s vs condensed 11.5 s (speedup 0.22, limit 2)"
+ },
+ {
+  "id": "F2r",
+  "verdict": "validated",
+  "evidence": "m = 2 for 1 % on the pressure drop (compression 7.21)"
+ },
+ {
+  "id": "F3",
+  "verdict": "refuted",
+  "evidence": "error <= 5.5e-11; condensed Picard slower than full at Re [1, 10, 50, 100] Re 1: 9 vs 4 s, Re 10: 11 vs 6 s, Re 50: 16 vs 8 s, Re 100: 19 vs 11 s"
+ },
+ {
+  "id": "F3r",
+  "verdict": "validated",
+  "evidence": "Re 100: m = 3 for 1 % (compression 4.86); reversed block-face flux 4.5 %"
+ },
+ {
+  "id": "M1",
+  "verdict": "refuted",
+  "evidence": "rbf_fd Pe 1: monotone, up to 31.5x FV; gfdm Pe 1: monotone, up to 2.86e+03x FV; rbf_fd Pe 10: monotone, up to 27.6x FV; gfdm Pe 10: NOT monotone, up to 4.5e+03x FV; rbf_fd Pe 100: monotone, up to 2.28x FV; gfdm Pe 100: NOT monotone, up to 2.02e+11x FV"
+ },
+ {
+  "id": "M2",
+  "verdict": "partially validated",
+  "evidence": "pressure-drop error over densities 8, 16, 32 -- rbf_fd: 46 %, 50 %, 18 % (not converging); gfdm: 103 %, 38 %, 35 % (decreasing); FV: 36 %, 19 %, 7 %"
+ },
+ {
+  "id": "M3",
+  "verdict": "refuted",
+  "evidence": "density 16: hybrid 3.91 % vs FV 0.49 %; density 32: hybrid 1.06 % vs FV 0.18 %"
+ },
+ {
+  "id": "M4",
+  "verdict": "refuted",
+  "evidence": "exact to 1.5e-09; hybrid: 9 distinct of 16 blocks, speedup 0.16; advection: 24 of 24, speedup 0.22"
+ },
+ {
+  "id": "E1",
+  "verdict": "refuted",
+  "evidence": "advection Pe_b=100: to reach 0.075 residual solves 85%, random 90%; overlap with top-error blocks 0.00-0.67; cold-plate energy Re=50: to reach 0.231 residual solves 73%, random 89%; overlap with top-error blocks 0.00-0.69"
+ }
+]

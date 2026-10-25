@@ -114,7 +114,7 @@ def block_model(stack: Stack, variant: Variant = BASE, *, cache: bool = True, sh
         return _CACHE[key]
     t0 = time.perf_counter()
     props = stack.properties(variant)
-    sysb = fv.assemble(props["k"], props["dz"], props["R"], stack.dx, stack.h_top, stack.h_bottom, ports=True,
+    sysb = fv.assemble((props["k_lat"], props["k_lat"], props["k"]), props["dz"], props["R"], stack.dx, stack.h_top, stack.h_bottom, ports=True,
                        rho_c=props["rho_c"] if shift else None)
     nc = sysb.n_cells
     K = sysb.K.tocsr()

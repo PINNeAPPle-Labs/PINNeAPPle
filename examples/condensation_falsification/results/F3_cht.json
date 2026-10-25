@@ -1,0 +1,175 @@
+{
+ "pins": [
+  8,
+  4
+ ],
+ "unknowns": 31984,
+ "rows": [
+  {
+   "Re_fin": 1,
+   "picard_full": {
+    "iterations": 10,
+    "seconds": 4.434541769000134,
+    "converged": true
+   },
+   "picard_condensed": {
+    "iterations": 10,
+    "seconds": 8.537022163999609,
+    "distinct_blocks_last": 44,
+    "blocks": 44
+   },
+   "dp_full": 232.8151608044049,
+   "dp_condensed": 232.81516080440196,
+   "dp_rel_err": 1.26961567732495e-14,
+   "fin_rise_full": 2.1562930142871757,
+   "fin_rise_condensed": 2.1562930142872023,
+   "fin_rise_rel_err": 1.2357018463843672e-14,
+   "reversed_block_face_flux": 0.00040667918843755653
+  },
+  {
+   "Re_fin": 10,
+   "picard_full": {
+    "iterations": 14,
+    "seconds": 5.863711128999967,
+    "converged": true
+   },
+   "picard_condensed": {
+    "iterations": 14,
+    "seconds": 11.059777096999824,
+    "distinct_blocks_last": 44,
+    "blocks": 44
+   },
+   "dp_full": 24.480804722753707,
+   "dp_condensed": 24.480804722753696,
+   "dp_rel_err": 4.3536726660358857e-16,
+   "fin_rise_full": 4.157689040712189,
+   "fin_rise_condensed": 4.157689040712197,
+   "fin_rise_rel_err": 1.9226078956428805e-15,
+   "reversed_block_face_flux": 0.011554905114933758
+  },
+  {
+   "Re_fin": 50,
+   "picard_full": {
+    "iterations": 19,
+    "seconds": 8.335474066999268,
+    "converged": true
+   },
+   "picard_condensed": {
+    "iterations": 19,
+    "seconds": 16.047407711999767,
+    "distinct_blocks_last": 44,
+    "blocks": 44
+   },
+   "dp_full": 6.535891851331574,
+   "dp_condensed": 6.535891851331535,
+   "dp_rel_err": 5.843375765057143e-15,
+   "fin_rise_full": 10.019637818300282,
+   "fin_rise_condensed": 10.019637818300275,
+   "fin_rise_rel_err": 7.091501196403881e-16,
+   "reversed_block_face_flux": 0.03995364007748332
+  },
+  {
+   "Re_fin": 100,
+   "picard_full": {
+    "iterations": 24,
+    "seconds": 11.037468147999789,
+    "converged": true
+   },
+   "picard_condensed": {
+    "iterations": 24,
+    "seconds": 19.344384365000224,
+    "distinct_blocks_last": 44,
+    "blocks": 44
+   },
+   "dp_full": 4.607247679590905,
+   "dp_condensed": 4.607247679590901,
+   "dp_rel_err": 9.638926333769296e-16,
+   "fin_rise_full": 15.382287427699842,
+   "fin_rise_condensed": 15.3822874285432,
+   "fin_rise_rel_err": 5.482664163240951e-11,
+   "reversed_block_face_flux": 0.04501393312059588
+  }
+ ],
+ "reduced_at_Re": 100,
+ "reduced": {
+  "rows": [
+   {
+    "m": 1,
+    "error": 1.7774725452159472,
+    "reduced_dofs": 473,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 14.584474885844749,
+    "solve_s": 0.011596291000387282
+   },
+   {
+    "m": 2,
+    "error": 0.017515223294165275,
+    "reduced_dofs": 692,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 7.292237442922374,
+    "solve_s": 0.010930796000138798
+   },
+   {
+    "m": 3,
+    "error": 0.0006123106570491864,
+    "reduced_dofs": 911,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 4.861491628614917,
+    "solve_s": 0.01120767500015063
+   },
+   {
+    "m": 4,
+    "error": 0.0010003317527364976,
+    "reduced_dofs": 1130,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 3.646118721461187,
+    "solve_s": 0.011476951999611629
+   },
+   {
+    "m": 6,
+    "error": 0.0010820256555990242,
+    "reduced_dofs": 1568,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 2.4307458143074583,
+    "solve_s": 0.012742642999910458
+   },
+   {
+    "m": 8,
+    "error": 6.498891450630194e-06,
+    "reduced_dofs": 2006,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 1.8230593607305936,
+    "solve_s": 0.013939892000053078
+   },
+   {
+    "m": 12,
+    "error": 3.102841065346948e-08,
+    "reduced_dofs": 2882,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 1.2153729071537291,
+    "solve_s": 0.021379049999268318
+   },
+   {
+    "m": 16,
+    "error": 1.349449655756755e-15,
+    "reduced_dofs": 3424,
+    "separator": 3448,
+    "unseen_faces": 0,
+    "compression": 0.9115296803652968,
+    "solve_s": 0.021772228000372706
+   }
+  ],
+  "mean_face_unknowns": 14.584474885844749,
+  "m_for_1pct": 3,
+  "compression_at_1pct": 4.861491628614917,
+  "full_faces": 254
+ },
+ "peak_rss_gb": 0.297252
+}

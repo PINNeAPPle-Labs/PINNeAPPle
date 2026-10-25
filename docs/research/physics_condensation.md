@@ -579,6 +579,22 @@ spread out. Hotspots on an interface are the default here, since the heated row 
 - It works for local defects only. A prior with the right far field, and a fine correction only near features, is
   what condensation does exactly.
 
+**Falsification campaign.** [condensation_falsification.md](condensation_falsification.md) pre-registered 23
+hypotheses, each with a kill criterion, and tested them. Each verdict is computed from the measured results.
+
+What holds:
+- Exactness held on every operator tried: contrast 1e5, anisotropy, thin layers, advection to Pe 1000, Stokes,
+  Picard Navier–Stokes and CHT to Re 100, and meshless matrices.
+- Reduced interfaces needed only 2–3 modes per face for 1 % on the CFD cases.
+
+What was refuted:
+- The far-field error grows about 3× per 4× blocks at fixed m.
+- The speed gain vanishes without repetition: random variants, non-linear k(T) and R_c(T), computed velocity
+  fields, and 2-D Stokes against a sparse direct solve.
+- A single-cell power spike gives 1.7 K with 12 modes.
+- The meshless and hybrid discretisations stay several times less accurate than FV.
+- The residual of a coarse prior does not find the regions that need solving in transport problems.
+
 **Freedom to operate.** This work did not examine any patent, including WO2026064513A1, beyond the brief's
 description. An IP specialist must review freedom to operate.
 

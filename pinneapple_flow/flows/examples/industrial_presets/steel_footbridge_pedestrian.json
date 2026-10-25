@@ -1,0 +1,140 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.steel_footbridge_pedestrian",
+ "name": "Industrial preset: steel footbridge pedestrian",
+ "description": "pinneapple_presets.load('steel_footbridge_pedestrian').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/steel_footbridge_pedestrian), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "steel_footbridge_pedestrian"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "steel_footbridge_pedestrian"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.f1",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.f1"
+     },
+     {
+      "flow": "run.acceleration",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.acceleration"
+     },
+     {
+      "flow": "run.deflection",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.deflection"
+     },
+     {
+      "flow": "run.deflection_limit",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.deflection_limit"
+     },
+     {
+      "flow": "run.util_bending",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.util_bending"
+     },
+     {
+      "flow": "run.util_ltb",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.util_ltb"
+     },
+     {
+      "flow": "run.M_cr",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.M_cr"
+     },
+     {
+      "flow": "run.M_Ed",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.M_Ed"
+     },
+     {
+      "flow": "run.steel_mass",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.steel_mass"
+     },
+     {
+      "flow": "run.mass_per_m",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.mass_per_m"
+     },
+     {
+      "flow": "run.modal_mass",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.modal_mass"
+     },
+     {
+      "flow": "run.EI_total",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.EI_total"
+     },
+     {
+      "flow": "run.qk",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.qk"
+     },
+     {
+      "flow": "run.f1_fe",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.f1_fe"
+     },
+     {
+      "flow": "run.f2_fe",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.f2_fe"
+     },
+     {
+      "flow": "run.deflection_fe",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.deflection_fe"
+     },
+     {
+      "flow": "run.fe_equilibrium",
+      "ref": "steel_footbridge_pedestrian/results/result.json:outputs.fe_equilibrium"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "steel_footbridge_pedestrian/README.md"
+  ],
+  "quick": {}
+ }
+}

@@ -1,0 +1,157 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.architectures.00_registry_tour",
+ "name": "Model registry tour: families, specs, catalog, forward passes",
+ "description": "examples/architectures/00_registry_tour.py: the registry's families and model count, the specs of five models, the catalog by family, and four models built by name with a forward pass on dummy tensors (FNO-1D, VanillaPINN, POD fitted then reconstructed, a transformer). The script's GNN forward needs a GraphBatch, which the forward node does not build. Nothing committed: the script prints shapes.",
+ "nodes": [
+  {
+   "id": "registry",
+   "type": "architectures.registry",
+   "params": {
+    "families": [],
+    "specs": [
+     "fno",
+     "vanilla_pinn",
+     "pod",
+     "gnn",
+     "informer"
+    ],
+    "catalog": [
+     "autoencoders",
+     "pinns",
+     "neural_operators",
+     "rom",
+     "graphnn",
+     "transformers"
+    ]
+   },
+   "label": "Registry",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "fno",
+   "type": "architectures.forward",
+   "params": {
+    "model": "fno",
+    "arguments": {
+     "in_channels": 2,
+     "out_channels": 1,
+     "width": 32,
+     "modes": 12,
+     "layers": 3
+    },
+    "inputs": [
+     [
+      4,
+      2,
+      128
+     ]
+    ]
+   },
+   "label": "FNO-1D",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn",
+   "type": "architectures.forward",
+   "params": {
+    "model": "vanilla_pinn",
+    "arguments": {
+     "in_dim": 2,
+     "out_dim": 1,
+     "hidden": [
+      64,
+      64,
+      64
+     ],
+     "activation": "tanh"
+    },
+    "inputs": [
+     [
+      256,
+      1
+     ],
+     [
+      256,
+      1
+     ]
+    ],
+    "distribution": "rand"
+   },
+   "label": "VanillaPINN (x, t)",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "pod",
+   "type": "architectures.forward",
+   "params": {
+    "model": "pod",
+    "arguments": {
+     "r": 8,
+     "center": true
+    },
+    "inputs": [
+     [
+      32,
+      64
+     ]
+    ],
+    "fit": true,
+    "return_loss": true
+   },
+   "label": "POD (fit + reconstruct)",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "transformer",
+   "type": "architectures.forward",
+   "params": {
+    "model": "transformer",
+    "arguments": {
+     "in_dim": 3,
+     "out_dim": 2,
+     "d_model": 64,
+     "nhead": 4,
+     "num_layers": 2,
+     "dim_feedforward": 128,
+     "dropout": 0.1,
+     "pool": "none"
+    },
+    "inputs": [
+     [
+      4,
+      48,
+      3
+     ]
+    ]
+   },
+   "label": "Transformer",
+   "position": {
+    "x": 330.0,
+    "y": 550.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "architectures",
+  "domain": "neural architectures",
+  "scripts": [
+   "00_registry_tour.py"
+  ],
+  "quick": {}
+ }
+}

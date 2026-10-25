@@ -1,0 +1,99 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.science.parallel_plate_capacitor",
+ "name": "Science: parallel plate capacitor",
+ "description": "pinneapple_science experiment em.parallel_plate_capacitor in 2D, 3D at the committed resolution, every computed quantity against its cited reference (examples/science/electromagnetism/parallel_plate_capacitor); compared with the committed result.json of each dimension.",
+ "nodes": [
+  {
+   "id": "run_2d",
+   "type": "science.run",
+   "params": {
+    "experiment": "em.parallel_plate_capacitor",
+    "dim": "2D",
+    "quick": false
+   },
+   "label": "parallel_plate_capacitor 2D",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "run_3d",
+   "type": "science.run",
+   "params": {
+    "experiment": "em.parallel_plate_capacitor",
+    "dim": "3D",
+    "quick": false
+   },
+   "label": "parallel_plate_capacitor 3D",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "science",
+    "comparisons": [
+     {
+      "flow": "run_2d.rel_error[C per unit length (extrapolated)]",
+      "ref": "electromagnetism/parallel_plate_capacitor/2D/result.json:comparisons.0.rel_error"
+     },
+     {
+      "flow": "run_3d.rel_error[C, 3-D Cartesian (finest) vs axisymmetric]",
+      "ref": "electromagnetism/parallel_plate_capacitor/3D/result.json:comparisons.0.rel_error"
+     },
+     {
+      "flow": "run_3d.rel_error[C, axisymmetric (extrapolated)]",
+      "ref": "electromagnetism/parallel_plate_capacitor/3D/result.json:comparisons.1.rel_error"
+     }
+    ],
+    "tolerance_source": "deterministic numerics at the committed resolution: 1e-6 relative on each relative error"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run_2d",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run_2d.metrics->compare.metrics"
+  },
+  {
+   "source": "run_3d",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run_3d.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "science",
+  "domain": "science",
+  "scripts": [
+   "electromagnetism/parallel_plate_capacitor/README.md"
+  ],
+  "quick": {
+   "run_2d": {
+    "quick": true
+   },
+   "run_3d": {
+    "quick": true
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: reduced sizes, not the committed resolution"
+   }
+  }
+ }
+}

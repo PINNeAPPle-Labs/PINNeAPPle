@@ -1,0 +1,124 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.eddy_current_skin_inspection",
+ "name": "Industrial preset: eddy current skin inspection",
+ "description": "pinneapple_presets.load('eddy_current_skin_inspection').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/eddy_current_skin_inspection), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "eddy_current_skin_inspection"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "eddy_current_skin_inspection"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.dR",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.dR"
+     },
+     {
+      "flow": "run.dX",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.dX"
+     },
+     {
+      "flow": "run.R_norm",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.R_norm"
+     },
+     {
+      "flow": "run.X_norm",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.X_norm"
+     },
+     {
+      "flow": "run.delta",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.delta"
+     },
+     {
+      "flow": "run.X0",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.X0"
+     },
+     {
+      "flow": "run.t_over_delta",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.t_over_delta"
+     },
+     {
+      "flow": "run.signal_loss",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.signal_loss"
+     },
+     {
+      "flow": "run.signal_liftoff",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.signal_liftoff"
+     },
+     {
+      "flow": "run.phase_angle_deg",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.phase_angle_deg"
+     },
+     {
+      "flow": "run.phase_lag_rad",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.phase_lag_rad"
+     },
+     {
+      "flow": "run.signal_perp",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.signal_perp"
+     },
+     {
+      "flow": "run.separation",
+      "ref": "eddy_current_skin_inspection/results/result.json:outputs.separation"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "eddy_current_skin_inspection/README.md"
+  ],
+  "quick": {}
+ }
+}

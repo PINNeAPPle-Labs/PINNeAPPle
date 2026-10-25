@@ -1,0 +1,32 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.studio.01_any_result_in_3d",
+ "name": "Any result in 3-D",
+ "description": "A CalculiX result (or any file pinneapple_data.cae reads) as glTF, USD, a three.js viewer and a Blender render (examples/studio/01_any_result_in_3d.py).",
+ "nodes": [
+  {
+   "id": "scene",
+   "type": "viz.any_result_3d",
+   "params": {},
+   "label": "CalculiX cantilever in 3-D",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "studio",
+  "domain": "visualization",
+  "scripts": [
+   "01_any_result_in_3d.py"
+  ],
+  "quick": {
+   "scene": {
+    "render": "off"
+   }
+  }
+ }
+}

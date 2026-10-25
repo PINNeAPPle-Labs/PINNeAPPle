@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "inverse-design-heatsink-fins",
+ "name": "Heat sink from a junction temperature (inverse design)",
+ "description": "pinneapple_design.surrogate_inverse.heatsink_fins: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/heatsink_design_ai).",
+ "nodes": [
+  {
+   "id": "design",
+   "type": "design.surrogate_inverse",
+   "params": {
+    "case": "heatsink_fins"
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Heat sink from a junction temperature"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Heat sink from a junction temperature (inverse design)"
+   },
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "design",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "design.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

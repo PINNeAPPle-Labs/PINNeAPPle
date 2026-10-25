@@ -1,0 +1,44 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "inverse-design-brake-rotor",
+ "name": "Brake-rotor vanes from a braking power (inverse design)",
+ "description": "pinneapple_design.surrogate_inverse.brake_rotor: an MLP trained on the closed form, Adam on the design through the frozen surrogate, the final design re-checked against the closed form (the method of apps/brakecool_ai).",
+ "nodes": [
+  {
+   "id": "design",
+   "type": "design.surrogate_inverse",
+   "params": {
+    "case": "brake_rotor"
+   },
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   },
+   "label": "Brake-rotor vanes from a braking power"
+  },
+  {
+   "id": "report",
+   "type": "export.report",
+   "params": {
+    "title": "Brake-rotor vanes from a braking power (inverse design)"
+   },
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   },
+   "label": "Report"
+  }
+ ],
+ "edges": [
+  {
+   "source": "design",
+   "source_port": "metrics",
+   "target": "report",
+   "target_port": "items",
+   "id": "design.metrics->report.items"
+  }
+ ],
+ "meta": {
+  "kind": "reproduction"
+ }
+}

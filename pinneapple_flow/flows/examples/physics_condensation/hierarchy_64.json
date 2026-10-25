@@ -1,0 +1,89 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.physics_condensation.hierarchy_64",
+ "name": "Chip package by hierarchical condensation (64 x 64 blocks)",
+ "description": "The synthetic multilayer package of examples/physics_condensation with 4,096 microbump/TSV blocks, condensed once with memoised identical subtrees (m = 12 interface modes) and solved for its hotspot power map; compared with the committed scaling point results/scaling_hierarchy_64.json.",
+ "nodes": [
+  {
+   "id": "solve",
+   "type": "condense.package_thermal",
+   "params": {
+    "blocks": 64,
+    "modes": 12,
+    "seed": 2
+   },
+   "label": "hierarchical condensation",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "flat",
+   "type": "examples.flatten",
+   "params": {},
+   "label": "its numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "physics_condensation",
+    "comparisons": [
+     {
+      "flow": "flat.Tmax_rise_K",
+      "ref": "results/scaling_hierarchy_64.json:hierarchy.Tmax"
+     }
+    ],
+    "tolerance_source": "the same deterministic solver and package: 1e-6 relative"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 620.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "solve",
+   "source_port": "metrics",
+   "target": "flat",
+   "target_port": "value",
+   "id": "solve.metrics->flat.value"
+  },
+  {
+   "source": "flat",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "flat.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "physics_condensation",
+  "domain": "heat transfer",
+  "scripts": [
+   "run_benchmark.py"
+  ],
+  "quick": {
+   "solve": {
+    "blocks": 16
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "flat.Tmax_rise_K",
+      "ref": "results/scaling_hierarchy_16.json:hierarchy.Tmax"
+     }
+    ],
+    "tolerance_source": "quick: 16 x 16 blocks, the committed 16 x 16 scaling point"
+   }
+  }
+ }
+}

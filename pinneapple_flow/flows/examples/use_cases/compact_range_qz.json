@@ -1,0 +1,129 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.use_cases.compact_range_qz",
+ "name": "Compact-range quiet zone by physical optics",
+ "description": "The quiet zone of a generic compact range (3 GHz, F = 1.5 m, 1.2 m section, 0.6 m zone at 3 m) by physical optics: validation against the closed form and GO, the reference design, the feed gain x reflector size x rolled edge sweep (examples/use_cases/antennas/compact_range_qz.py); compared with results/compact_range.",
+ "nodes": [
+  {
+   "id": "cr",
+   "type": "antenna.compact_range",
+   "params": {},
+   "label": "compact range",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "use_cases",
+    "comparisons": [
+     {
+      "flow": "cr.reference.amp_pp_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.amp_pp_dB"
+     },
+     {
+      "flow": "cr.reference.phase_pp_deg",
+      "ref": "antennas/results/compact_range/summary.json:reference.phase_pp_deg"
+     },
+     {
+      "flow": "cr.reference.taper_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.taper_dB"
+     },
+     {
+      "flow": "cr.reference.ripple_pp_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.ripple_pp_dB"
+     },
+     {
+      "flow": "cr.reference.phase_ripple_pp_deg",
+      "ref": "antennas/results/compact_range/summary.json:reference.phase_ripple_pp_deg"
+     },
+     {
+      "flow": "cr.reference.usable_diameter",
+      "ref": "antennas/results/compact_range/summary.json:reference.usable_diameter"
+     },
+     {
+      "flow": "cr.reference.xpol_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.xpol_dB"
+     },
+     {
+      "flow": "cr.validation.disk_max_rel_error",
+      "ref": "antennas/results/compact_range/summary.json:validation.disk.2.max_rel_error"
+     },
+     {
+      "flow": "cr.validation.po_vs_go_rms_dB",
+      "ref": "antennas/results/compact_range/summary.json:validation.go.1.rms_dB"
+     },
+     {
+      "flow": "cr.study.n_designs",
+      "ref": "antennas/results/compact_range/summary.json:study.n_designs"
+     }
+    ],
+    "tolerance_source": "deterministic physical optics on the same meshes: 1e-6 relative"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "cr",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "cr.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "use_cases",
+  "domain": "electromagnetics",
+  "scripts": [
+   "antennas/compact_range_qz.py"
+  ],
+  "quick": {
+   "cr": {
+    "validate": false,
+    "study": false
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "cr.reference.amp_pp_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.amp_pp_dB"
+     },
+     {
+      "flow": "cr.reference.phase_pp_deg",
+      "ref": "antennas/results/compact_range/summary.json:reference.phase_pp_deg"
+     },
+     {
+      "flow": "cr.reference.taper_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.taper_dB"
+     },
+     {
+      "flow": "cr.reference.ripple_pp_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.ripple_pp_dB"
+     },
+     {
+      "flow": "cr.reference.phase_ripple_pp_deg",
+      "ref": "antennas/results/compact_range/summary.json:reference.phase_ripple_pp_deg"
+     },
+     {
+      "flow": "cr.reference.usable_diameter",
+      "ref": "antennas/results/compact_range/summary.json:reference.usable_diameter"
+     },
+     {
+      "flow": "cr.reference.xpol_dB",
+      "ref": "antennas/results/compact_range/summary.json:reference.xpol_dB"
+     }
+    ],
+    "tolerance_source": "quick: the reference design only (full mesh), 1e-6 relative"
+   }
+  }
+ }
+}

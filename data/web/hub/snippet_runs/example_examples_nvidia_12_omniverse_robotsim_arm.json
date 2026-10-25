@@ -1,0 +1,12 @@
+{
+ "code_hash": "99b67289e7218c39",
+ "figures": [],
+ "id": "example:examples/nvidia/12_omniverse_robotsim_arm",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Arm: one USD scene for Omniverse and the PINNeAPPle robot sim (Newton) | robotics | not curated\nusd_vs_urdf_motion 0.0 rad\ntracking_error_mrad 0.4794181231414507 mrad",
+ "timed_out": false
+}

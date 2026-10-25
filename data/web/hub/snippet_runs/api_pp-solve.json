@@ -1,0 +1,12 @@
+{
+ "code_hash": "433427f98d2c72d8",
+ "figures": [],
+ "id": "api:pp-solve",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.81,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.solve(problem: 'Union[PhysicalProblem, Any, str]', method: 'Union[str, Callable[..., Solution]]' = 'pinn', *, preset_kwargs: 'Optional[Mapping[str, Any]]' = None, **options: 'Any') -> 'Solution'\nSolve ``problem`` with ``method`` (a registered name or a callable ``(problem, **options) -> Solution``).",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "5c15db079d6d31c1",
+ "figures": [],
+ "id": "node:auto.analysis.verification.default_reference_meshes",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.43,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "default reference meshes -> pinneapple_analysis.verification:default_reference_meshes\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {}",
+ "timed_out": false
+}

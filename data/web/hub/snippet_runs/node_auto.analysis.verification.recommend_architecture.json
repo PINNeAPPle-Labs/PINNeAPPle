@@ -1,0 +1,12 @@
+{
+ "code_hash": "c28146db65c041ca",
+ "figures": [],
+ "id": "node:auto.analysis.verification.recommend_architecture",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ArchitectureRecommendation\nArchitectureRecommendation(recommended=['pinn', 'xpinn'], reasoning=\"Vanilla PINN (PINN): A single, fixed problem instance (fixed geometry/parameters), little or no labeled data, physics residual as the primary training signal. [Raissi, Perdikaris & Karniadakis (2019), 'Physics-informed neural networks'.]\", decision_path=['data availability: 0 simulation(s) available (< threshold 50) -> treated as data-scarce.', 'no existing solver to lean on -> recommend a pure physics-residual PINN (no simulation data required at all).'], alternatives=[{'architecture': 'xpinn', 'name': 'XPINN (domain-decomposed PINN)', 'registry_key': 'xpinn', 'why_also_listed': 'Same regime as a plain PINN, but the domain is large/geometrically complex enough that one network struggles to fit it uniformly well.'}], cave",
+ "timed_out": false
+}

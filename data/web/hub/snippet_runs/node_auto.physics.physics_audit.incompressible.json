@@ -1,0 +1,12 @@
+{
+ "code_hash": "7fa798668cbbdca4",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.incompressible",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.26,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='incompressible', description='constant density: density changes with pressure are negligible', conditions=(Condition(feature='Ma', lo=-inf, hi=0.3, band=0.1, log=None),), breaks_into='compressibility', missing_mechanism='density variation, shocks')",
+ "timed_out": false
+}

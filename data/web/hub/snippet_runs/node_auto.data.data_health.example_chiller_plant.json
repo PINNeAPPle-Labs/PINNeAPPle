@@ -1,0 +1,12 @@
+{
+ "code_hash": "c4c4786f986ee3e4",
+ "figures": [],
+ "id": "node:auto.data.data_health.example_chiller_plant",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.74,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tuple\n(                Timestamp  OAT [°C]  ...  Valve_position [%]  Chillers_running\n0     2026-03-02 00:00:00     23.46  ...                55.9                 1\n1     2026-03-02 00:01:00     23.49  ...                60.2                 1\n2     2026-03-02 00:02:00     23.39  ...                52.0                 1\n3     2026-03-02 00:03:00     23.29  ...                51.1                 1\n4     2026-03-02 00:04:00     23.34  ...                53.4                 1\n...                   ...       ...  ...                 ...               ...\n9925  2026-03-08 23:55:00     23.67  ...                51.9                 1\n9926  2026-03-08 23:56:00     23.39  ...                53.5                 1\n9927  2026-03-08 23:57:00     23.48  ...                56.3                 1\n9928  202",
+ "timed_out": false
+}

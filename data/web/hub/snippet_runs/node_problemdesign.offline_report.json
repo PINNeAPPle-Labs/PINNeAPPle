@@ -1,0 +1,12 @@
+{
+ "code_hash": "8a6ddff00397ab41",
+ "figures": [],
+ "id": "node:problemdesign.offline_report",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.08,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design report from a problem spec (no LLM) -> pinneapple_problemdesign.schema.ProblemSpec / DataSpec / ValidationSpec / DesignReport + elicitation.validators.validate_and_suggest + knowledge.mapping.build_plan_fno_first + renderers.report_md.render_markdown_report / report_json.render_json_report\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'spec': {'title': 'Heat Exchanger: Outlet Temperature Forecast', 'goal': 'Forecast outlet temperature 6 hours ahead to optimize energy usage', 'task_type': 'forecasting', 'inputs': ['T_in (°C)', 'flow_rate (kg/s)', 'T_ambient (°C)', 'pressure (bar)'], 'outputs': ['T_out (°C)'], 'frequency': '10min', 'input_window': '48 steps (8h)', 'horizon': '6h', 'domain_context': 'Industrial heat exchanger. Maintenance causes intermittent missing data. We expect seasonal drift across weeks/months.', 'data': {'sources': ['s3://plant-data/hex/parquet/'], 'format': 'parquet', 'sampling': '10min', 'variables_observed': ['T_in', 'flow_rate', 'T_ambient', 'pressure', 'T_out'], 'target_variables': ['T_out'], 'known_quality_issues': ['missing points during maintenance', 'sensor spikes'], 'missingness': 'bursty gaps during maintenance windows', 'train_span': '2023-01-01 .. 2025-01-01', 'val_split_policy': 'last 3 months as validation (time-based)', 'labels_available': True}, 'validation': {'primary_metrics': ['MAE'], 'acceptance_criteria': 'MAE < 0.5°C at 6h horizon', 'robustness_tests': ['missingness stress', 'drift across weeks', 'extreme ambient temp']}}}",
+ "timed_out": false
+}

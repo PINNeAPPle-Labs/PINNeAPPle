@@ -1,0 +1,12 @@
+{
+ "code_hash": "d4aefd8cb6a0cc2b",
+ "figures": [],
+ "id": "example:examples/vs_physicsnemo",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.8,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "PINNeAPPle vs PhysicsNeMo — Comparison & Integration Guide | validation and benchmarks | not curated",
+ "timed_out": false
+}

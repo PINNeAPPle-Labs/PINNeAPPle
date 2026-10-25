@@ -1,0 +1,12 @@
+{
+ "code_hash": "a7cee2fee826f35e",
+ "figures": [],
+ "id": "example:examples/topology_optimization",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Audit: electric-motor magnetics and topology optimization | structural mechanics | curated",
+ "timed_out": false
+}

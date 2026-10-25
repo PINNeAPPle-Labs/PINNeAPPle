@@ -1,0 +1,12 @@
+{
+ "code_hash": "9f4599ce134dbf5b",
+ "figures": [],
+ "id": "example:examples/nvidia/08_robotsim_physicsnemo_learned_dynamics",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.09,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Learned arm dynamics: Newton data, PhysicsNeMo network, PINNeAPPle checks | robotics | not curated\nheldout_torque_rel_rms 0.04878147024380754 \ntracking_mrad_PD_only 961.534435280865 mrad\ntracking_mrad_PD_plus_rigid-body_feedforward 1.9323260549942711 mrad\ntracking_mrad_PD_plus_PhysicsNeMo_feedforward 4.633960296031803 mrad",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "bb810770829fdb3f",
+ "figures": [],
+ "id": "api:pinneapple-analysis-validation-rollout-validate-rollout",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 2.98,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pinneapple_analysis.validation.rollout.validate_rollout(pred: 'np.ndarray', ndim: 'int', ref: 'np.ndarray | None' = None, *, dt: 'float' = 1.0, conserved: 'Sequence[str]' = (), invariants: 'Sequence[str] | Mapping[str, Callable]' = ('mass', 'energy'), long_ref: 'np.ndarray | None' = None, burn_in: 'int' = 0, periodic: 'bool' = True, window: 'int' = 10, chaotic: 'bool' = False, tolerances: 'Mapping[str, float] | None' = None) -> 'RolloutReport'\n``rollout.*`` checks of a model rollout (status pass / fail / not-applicable with evidence).",
+ "timed_out": false
+}

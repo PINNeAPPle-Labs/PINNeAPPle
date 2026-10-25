@@ -1,0 +1,12 @@
+{
+ "code_hash": "b42ed8f06b195d4c",
+ "figures": [],
+ "id": "example:examples/nvidia/14_brep_omniverse_bracket",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.84,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "L bracket: USD BRep geometry to Omniverse with exact curvature and wall thickness | geometry | not curated\nbracket_mass 105.37090558663354 g\nchord_error_max 7.060322879633735 um",
+ "timed_out": false
+}

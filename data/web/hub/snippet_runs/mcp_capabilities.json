@@ -1,0 +1,12 @@
+{
+ "code_hash": "67968f8af8d973d9",
+ "figures": [],
+ "id": "mcp:capabilities",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "{\"pinneapple_version\": \"0.7.0\", \"device\": \"cpu\", \"optional_apis\": {\"benchmark\": true, \"zoo\": true, \"datasets\": true, \"geometries\": false}, \"limits\": {\"workdir\": \"/tmp/pp-snippet-0wvlmbsx/pinneapple_mcp_work\", \"max_seconds\": 600.0, \"max_memory_mb\": 8192, \"max_jobs\": 2, \"max_epochs\": 20000, \"max_points\": 250000, \"max_file_mb\": 200.0, \"allow_network\": false, \"roots\": [\"/tmp/pp-snippet-0wvlmbsx/pinneapple_mcp_work\", \"/tmp/pp-snippet-0wvlmbsx\"]}, \"jobs_running\": [], \"tools\": [\"capabilities\", \"list_methods\", \"describe_method\", \"list_presets\", \"solve\", \"trust_card\", \"benchmark\", \"design\", \"job_status\", \"list_jobs\", \"cancel_job\", \"zoo_list\", \"zoo_predict\", \"zoo_validate\"]}",
+ "timed_out": false
+}

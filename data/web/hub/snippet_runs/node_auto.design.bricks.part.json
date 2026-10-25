@@ -1,0 +1,12 @@
+{
+ "code_hash": "b74c8528d31fb4bb",
+ "figures": [],
+ "id": "node:auto.design.bricks.part",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.53,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "part -> pinneapple_design.bricks:part\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': ''}",
+ "timed_out": false
+}

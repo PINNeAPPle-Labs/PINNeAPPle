@@ -1,0 +1,12 @@
+{
+ "code_hash": "b8c6879d1ad7fbc7",
+ "figures": [],
+ "id": "example:examples/autolab_digital_twin",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 1.22,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin that knows when it is wrong | system dynamics | not curated\ncause_accuracy 0.9625 fraction\ncases_with_false_alarm 1.0 cases\nfast_model_holdout_max 0.7827623466462263 sensor sigmas",
+ "timed_out": false
+}

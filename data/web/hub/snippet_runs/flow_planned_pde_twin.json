@@ -1,0 +1,12 @@
+{
+ "code_hash": "370d5038a8c2ee0b",
+ "figures": [],
+ "id": "flow:planned_pde_twin",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.43,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Digital twin generated from the description - 5 nodes\nissues: []",
+ "timed_out": false
+}

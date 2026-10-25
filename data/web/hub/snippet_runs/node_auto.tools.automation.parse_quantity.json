@@ -1,0 +1,12 @@
+{
+ "code_hash": "9e5a47d3e4b50286",
+ "figures": [],
+ "id": "node:auto.tools.automation.parse_quantity",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "NoneType\nNone",
+ "timed_out": false
+}

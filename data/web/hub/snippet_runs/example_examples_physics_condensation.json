@@ -1,0 +1,12 @@
+{
+ "code_hash": "b1f14338741a3fea",
+ "figures": [],
+ "id": "example:examples/physics_condensation",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 1.11,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Adaptive Physics Condensation: chip-package thermal | heat transfer | not curated\nerr_Tmax_m8 0.004695839999996565 K\ntransient_err_Tmax 0.001935563937912832 K\nlargest_blocks 65536.0 blocks\nlargest_build_s 43.746866945999955 s\nlargest_solve_s 3.3815957900001195 s",
+ "timed_out": false
+}

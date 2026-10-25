@@ -1,0 +1,12 @@
+{
+ "code_hash": "90804860a59e751d",
+ "figures": [],
+ "id": "node:auto.analysis.benchmark.problems",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "list\n['airfoil', 'burgers', 'darcy', 'inverse_heat', 'navier_stokes']",
+ "timed_out": false
+}

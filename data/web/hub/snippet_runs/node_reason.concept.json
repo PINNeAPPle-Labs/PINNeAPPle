@@ -1,0 +1,12 @@
+{
+ "code_hash": "fe2c185ed1322c9d",
+ "figures": [],
+ "id": "node:reason.concept",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 15.37,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Concept -> pinneapple_reason.cases / pinneapple_reason.chain.Concept\ninputs: []\noutputs: [('concept', 'concept')]\ndefaults: {'case': 'roof', 'overrides': {}, 'elements': []}",
+ "timed_out": false
+}

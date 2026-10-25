@@ -1,0 +1,12 @@
+{
+ "code_hash": "e214b9587e3048b5",
+ "figures": [],
+ "id": "node:auto.physics.physics_audit.shallow_water",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.38,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Assumption\nAssumption(name='shallow_water', description='depth small next to the horizontal scale: hydrostatic pressure', conditions=(Condition(feature='H_over_L', lo=-inf, hi=0.05, band=0.15, log=None),), breaks_into='non-hydrostatic flow', missing_mechanism='vertical acceleration, dispersion')",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "e6b8bda56592f69d",
+ "figures": [],
+ "id": "node:systems.component_fit",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 5.45,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Component library: build and fit a component -> pinneapple_systems.component_library.ComponentRegistry.build / .fit / .evaluate + ToolboxRegistry.install\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'component': 'PipeVanillaPINN', 'toolbox': 'Fluid Mechanics Toolbox', 'in_dim': 3, 'out_dim': 3, 'hidden': [64, 64, 64], 'epochs': 5, 'n': 256, 'seed': 0}",
+ "timed_out": false
+}

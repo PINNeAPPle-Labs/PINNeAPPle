@@ -1,0 +1,12 @@
+{
+ "code_hash": "509369b0c5749a04",
+ "figures": [],
+ "id": "api:pp-dashboard-dashboard",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.29,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "pp.dashboard.Dashboard(title: 'str', t: 'np.ndarray', frames: 'list', charts: 'list[Chart]' = <factory>, tiles: 'list[Tile]' = <factory>, params: 'list[Param]' = <factory>, subtitle: 'str' = '', colorbar: 'ColorBar | None' = None, footer: 'str' = '', time_label: 'str' = 't', time_unit: 'str' = 's', scene3d: 'dict | None' = None) -> None\n``frames``: a list of RGB arrays (H, W, 3) or image paths, one per entry of ``t`` [s].",
+ "timed_out": false
+}

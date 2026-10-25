@@ -1,0 +1,12 @@
+{
+ "code_hash": "5321d12a0ac61f4c",
+ "figures": [],
+ "id": "node:preset.validate",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 8.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Validate preset -> pinneapple_presets.load(name).validate()\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'preset': 'water_hammer_valve_closure'}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "904a533e9f0e5371",
+ "figures": [],
+ "id": "flow:aircraft_takeoff",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.0,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Aircraft take-off (flight library) - 2 nodes\nissues: []",
+ "timed_out": false
+}

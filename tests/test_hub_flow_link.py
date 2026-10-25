@@ -25,7 +25,7 @@ from pinneapple_hub.library.flowlink import (
 from pinneapple_hub.library.sandbox import run_snippet
 
 ROOT = Path(__file__).resolve().parents[1]
-INDEX = hub.load_index()
+INDEX = hub.build()
 
 
 def _specs():

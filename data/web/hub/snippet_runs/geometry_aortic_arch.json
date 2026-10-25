@@ -1,0 +1,12 @@
+{
+ "code_hash": "06aa0c712817109f",
+ "figures": [],
+ "id": "geometry:aortic_arch",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.78,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Human thoracic aorta (arch) | biomedical\naortic_arch.light.stl 716984 bytes",
+ "timed_out": false
+}

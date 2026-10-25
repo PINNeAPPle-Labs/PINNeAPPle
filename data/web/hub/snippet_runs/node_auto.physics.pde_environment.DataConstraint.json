@@ -1,0 +1,12 @@
+{
+ "code_hash": "6d95cbe4d4600bc7",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.DataConstraint",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.02,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ConditionSpec\nConditionSpec(name='', kind='data', fields=(), selector_type='all', selector=None, value_fn=None, weight=1.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None)",
+ "timed_out": false
+}

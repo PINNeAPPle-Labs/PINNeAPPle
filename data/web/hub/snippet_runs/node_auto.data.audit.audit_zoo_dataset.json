@@ -1,0 +1,12 @@
+{
+ "code_hash": "1aac60f86e3af0e8",
+ "figures": [],
+ "id": "node:auto.data.audit.audit_zoo_dataset",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 4.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "audit zoo dataset -> pinneapple_data.audit:audit_zoo_dataset\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': '', 'offline': None}",
+ "timed_out": false
+}

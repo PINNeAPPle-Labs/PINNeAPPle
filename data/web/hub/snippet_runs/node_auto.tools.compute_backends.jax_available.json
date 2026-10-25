@@ -1,0 +1,12 @@
+{
+ "code_hash": "38d36d63a1705331",
+ "figures": [],
+ "id": "node:auto.tools.compute_backends.jax_available",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "bool\nFalse",
+ "timed_out": false
+}

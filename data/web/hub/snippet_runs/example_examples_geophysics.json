@@ -1,0 +1,12 @@
+{
+ "code_hash": "eb55cd133d5261e6",
+ "figures": [],
+ "id": "example:examples/geophysics",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.79,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Earth-system blocks in one script (about one minute on a laptop CPU): 1 | geophysics and climate | not curated",
+ "timed_out": false
+}

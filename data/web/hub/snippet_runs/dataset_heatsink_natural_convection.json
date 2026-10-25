@@ -1,0 +1,12 @@
+{
+ "code_hash": "098e71d77f8cb0c8",
+ "figures": [],
+ "id": "dataset:heatsink_natural_convection",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.23,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "750 rows; ['base_depth_mm', 'base_thickness_mm', 'base_width_mm', 'fin_gap_mm', 'fin_height_mm', 'fin_thickness_mm', 'k_w_mk', 'n_fins']\ncc-by-4.0",
+ "timed_out": false
+}

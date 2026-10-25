@@ -1,0 +1,12 @@
+{
+ "code_hash": "9d5a370b82cd3d5a",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.darcy_pressure_only_3d_default",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.45,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='darcy_pressure_only_3d_default', dim=3, coords=('x', 'y', 'z'), fields=('p',), pde=PDETermSpec(kind='darcy', fields=('p',), coords=('x', 'y', 'z'), params={'k': 1.0, 'mu': 1.0}, meta={'mode': 'pressure_only', 'industry': 'porous_media', 'note': \"Provide ctx['source_fn']=s(x) if needed.\"}), conditions=(ConditionSpec(name='p_inlet', kind='dirichlet', fields=('p',), selector_type='tag', selector={'tag': 'inlet'}, value_fn=<function darcy_pressure_only_3d_default.<locals>.<lambda> at 0x7f72d21a27a0>, weight=20.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='p_outlet', kind='dirichlet', fields=('p',), selector_type='tag', selector={'tag': 'outlet'}, value_fn=<function darcy_pressure_only_3d",
+ "timed_out": false
+}

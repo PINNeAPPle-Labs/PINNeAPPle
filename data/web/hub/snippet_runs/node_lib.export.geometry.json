@@ -1,0 +1,12 @@
+{
+ "code_hash": "ca5eddebb4898ac4",
+ "figures": [],
+ "id": "node:lib.export.geometry",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.15,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Export a library geometry -> pinneapple_flow.wrappers:geometry_export pinneapple_design\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'name': 'caarc_building', 'fmt': 'stl', 'lod': 'light'}",
+ "timed_out": false
+}

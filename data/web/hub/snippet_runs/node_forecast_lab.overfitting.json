@@ -1,0 +1,12 @@
+{
+ "code_hash": "283db94ac833a184",
+ "figures": [],
+ "id": "node:forecast_lab.overfitting",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "How cross-validation schemes fool you (overfitting study) -> pinneapple_systems.time_series.forecast_lab.pipeline.run_overfitting (presets.overfitting_variants, study.overfitting_study)\ninputs: []\noutputs: [('metrics', 'metrics')]\ndefaults: {'case': 'lorenz63_noise0.1', 'n': 6000, 'seed': 0}",
+ "timed_out": false
+}

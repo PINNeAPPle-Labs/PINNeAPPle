@@ -1,0 +1,12 @@
+{
+ "code_hash": "08b6af0ef33bd4ab",
+ "figures": [],
+ "id": "example:examples/science/electromagnetism/waveguide_modes",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 0.77,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Rectangular waveguide modes (2D) | science / physics.electromagnetism | not curated\nrel_error[2D: TE10 cut-off frequency] 1.9831744946407245e-05 -\nrel_error[2D: TE20 cut-off frequency] 7.932556515358469e-05 -\nrel_error[2D: TE01 cut-off frequency] 0.0001003957837956847 -\nrel_error[2D: TE11 cut-off frequency] 8.71064231790586e-05 -\nrel_error[2D: TE30 cut-off frequency] 0.00017847721235471602 -",
+ "timed_out": false
+}

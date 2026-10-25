@@ -1,0 +1,12 @@
+{
+ "code_hash": "b33d86a06cafe145",
+ "figures": [],
+ "id": "example:examples/motor_magnetics",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.66,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Audit: electric-motor magnetics and topology optimization | electromagnetics | curated",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "d8be8544c2f86269",
+ "figures": [],
+ "id": "node:lib.export.usd_validate",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 8.25,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Check a USD stage (Omniverse) -> pinneapple_tools.nvidia.omniverse:validate_stage\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'path': None, 'compliance': True}",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "ef9642d8981ffee9",
+ "figures": [],
+ "id": "example:pipe_flow/laminar_pipe",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 1.1,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "A - friction vs 64/Re (Hagen–Poiseuille)",
+ "timed_out": false
+}

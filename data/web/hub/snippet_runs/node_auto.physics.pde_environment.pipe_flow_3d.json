@@ -1,0 +1,12 @@
+{
+ "code_hash": "8d5aef3a0d5976d7",
+ "figures": [],
+ "id": "node:auto.physics.pde_environment.pipe_flow_3d",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.17,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "ProblemSpec\nProblemSpec(name='pipe_flow_3d', dim=3, coords=('x', 'y', 'z'), fields=('u', 'v', 'w', 'p'), pde=PDETermSpec(kind='navier_stokes_incompressible', fields=('u', 'v', 'w', 'p'), coords=('x', 'y', 'z'), params={'Re': 100.0}, meta={'note': '3D Hagen-Poiseuille pipe flow. BC tags: inlet/outlet/wall.'}), conditions=(ConditionSpec(name='inlet', kind='dirichlet', fields=('u', 'v', 'w'), selector_type='tag', selector={'tag': 'inlet'}, value_fn=<function pipe_flow_3d.<locals>._hp_inlet at 0x7fb30a8a27a0>, weight=30.0, order=1, deriv_coord=None, interface_coeffs=None, traction_map=None, normal_stress_field=None, thermal_bc=None), ConditionSpec(name='outlet_dp_dn', kind='neumann', fields=('p',), selector_type='tag', selector={'tag': 'outlet'}, value_fn=<function pipe_flow_3d.<locals>.<lambda> at 0x7fb3",
+ "timed_out": false
+}

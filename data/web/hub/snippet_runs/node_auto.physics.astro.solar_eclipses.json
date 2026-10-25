@@ -1,0 +1,12 @@
+{
+ "code_hash": "2b136a42ceb28fc6",
+ "figures": [],
+ "id": "node:auto.physics.astro.solar_eclipses",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.09,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "solar eclipses -> pinneapple_physics.astro:solar_eclipses\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'jd0': 1.0, 'jd1': 1.0}",
+ "timed_out": false
+}

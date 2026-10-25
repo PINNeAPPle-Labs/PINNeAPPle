@@ -1,0 +1,12 @@
+{
+ "code_hash": "fb5a8610447c9506",
+ "figures": [],
+ "id": "flow:heat_1d",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.86,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Heat 1D: PINN vs finite differences vs exact - 8 nodes\nissues: []",
+ "timed_out": false
+}

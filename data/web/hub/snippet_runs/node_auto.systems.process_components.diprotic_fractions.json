@@ -1,0 +1,12 @@
+{
+ "code_hash": "3989652b678305f9",
+ "figures": [],
+ "id": "node:auto.systems.process_components.diprotic_fractions",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 3.98,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tuple\n(0.3333333333333333, 0.3333333333333333, 0.3333333333333333)",
+ "timed_out": false
+}

@@ -1,0 +1,12 @@
+{
+ "code_hash": "dce11252d0d55ec9",
+ "figures": [],
+ "id": "node:auto.physics.non_hermitian.route_c_asymmetric",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 2.96,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "tuple\n(<function route_c_asymmetric.<locals>.<lambda> at 0x7ff2e9ca27a0>, <function route_c_asymmetric.<locals>.<lambda> at 0x7ff2e0f7b600>)",
+ "timed_out": false
+}

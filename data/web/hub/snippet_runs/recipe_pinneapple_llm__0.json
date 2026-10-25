@@ -1,0 +1,12 @@
+{
+ "code_hash": "98fbc155d7fbb072",
+ "figures": [],
+ "id": "recipe:pinneapple_llm__0",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 4.27,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "x^2 - y^2: residual check passed=True  (pde_residual, value 0)\nx^2 + y^2: residual check passed=False  (pde_residual, value 16)",
+ "timed_out": false
+}

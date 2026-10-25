@@ -1,0 +1,12 @@
+{
+ "code_hash": "6e46e4e3c1ef610b",
+ "figures": [],
+ "id": "node:lib.services.infer",
+ "ok": true,
+ "recorded": "2026-10-24",
+ "seconds": 5.62,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Ask a PINNeAPPle model service -> pinneapple_tools.model_services.registry:infer\ninputs: []\noutputs: [('result', 'metrics')]\ndefaults: {'model': None, 'inputs_json': None}",
+ "timed_out": false
+}

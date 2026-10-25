@@ -1,0 +1,12 @@
+{
+ "code_hash": "75ea2e9db6e80b41",
+ "figures": [],
+ "id": "node:export.report",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 5.35,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Report -> pinneapple_flow.nodes.viz.report (self-contained HTML / Markdown / JSON)\ninputs: [('items', 'any')]\noutputs: [('report', 'report')]\ndefaults: {'title': 'PINNeAPPle flow report', 'format': 'html'}",
+ "timed_out": false
+}

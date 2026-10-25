@@ -1,0 +1,12 @@
+{
+ "code_hash": "ce23ca15a0abaa1f",
+ "figures": [],
+ "id": "example:examples/systems",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.7,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Component registry + toolbox + physics-informed fit, end to end | system dynamics | not curated",
+ "timed_out": false
+}

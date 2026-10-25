@@ -1,0 +1,12 @@
+{
+ "code_hash": "678f3e04aed4eb34",
+ "figures": [],
+ "id": "example:examples/design_from_intent",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.73,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Design from intent | design and geometry | curated",
+ "timed_out": false
+}

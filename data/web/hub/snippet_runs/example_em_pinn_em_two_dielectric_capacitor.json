@@ -1,0 +1,12 @@
+{
+ "code_hash": "dbeebf1e5f722acb",
+ "figures": [],
+ "id": "example:em_pinn/em_two_dielectric_capacitor",
+ "ok": true,
+ "recorded": "2026-10-23",
+ "seconds": 0.82,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "F - phi vs closed form",
+ "timed_out": false
+}

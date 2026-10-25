@@ -274,6 +274,25 @@ CI (`.github/workflows/tests.yml`): public API, distribution contents, manufactu
 example from a clean wheel, and the Colab notebooks in smoke mode. Changes go under `## [Unreleased]` in
 `CHANGELOG.md`.
 
+## Generated files
+
+These are built where they are used and git-ignored; never commit them (a committed copy makes every other open pull
+request conflict on the next merge):
+
+| File | Built by | Where |
+|---|---|---|
+| `data/web/hub/index.json` | `python -m pinneapple_hub.library build` | on first `hub.load_index()` (a cache), at `docker build` of `apps/hub` |
+| `docs/flow_studio/COVERAGE.md` | `python -m pinneapple_flow coverage -o docs/flow_studio/COVERAGE.md` | the docs build (`tools/gen_flow_docs.py`) |
+| `docs/flow_studio/EXAMPLES_AS_FLOWS.md` | `python -m pinneapple_flow example-flows doc` | the docs build (`tools/gen_flow_docs.py`) |
+
+Run the command to see one locally (and `build` again after changing a Hub source: the cached index is not refreshed
+on its own). What is committed are the measurements they are built from: the Hub's recorded snippet runs, one file per
+item in `data/web/hub/snippet_runs/` (`python -m pinneapple_hub.library run --stale` records new or changed snippets),
+and the flow runs in `pinneapple_flow/flows/examples/measured.json`. The `generated` job of
+`.github/workflows/tests.yml` builds all three from a fresh clone and fails when a snippet has no passing run of its
+current code, a module has neither a flow node nor a reason, an example folder has neither a flow nor a reason, or the
+docs site does not build.
+
 ## Never do
 
 - Do not put reusable logic (physics, numerics, geometry, data processing, metrics, plotting helpers, trust checks,
@@ -288,6 +307,7 @@ example from a clean wheel, and the Colab notebooks in smoke mode. Changes go un
 - Do not copy GPL (or other copyleft) code into this Apache-2.0 repository; reimplement from the paper and cite it.
 - Do not invent reference values or citations; every reference number needs its source.
 - Do not widen tolerances or skip a failing check to get a pass; fix the cause or report the failure.
+- Do not commit a generated file (see "Generated files"); commit what it is built from and run its command locally.
 - Do not add an `examples/*` folder without a valid `experiment.json`: wrap the script in
   `pinneapple_lab.experiment(...)` (or start from `python -m pinneapple_lab scaffold <name>`, or run
   `python -m pinneapple_lab register <folder>`). CI fails otherwise (`scripts/check_experiment_manifests.py`), and a

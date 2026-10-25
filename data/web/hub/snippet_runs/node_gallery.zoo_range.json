@@ -1,0 +1,12 @@
+{
+ "code_hash": "3fb833df5a0043e6",
+ "figures": [],
+ "id": "node:gallery.zoo_range",
+ "ok": true,
+ "recorded": "2026-10-25",
+ "seconds": 4.83,
+ "source": "python -m pinneapple_hub.library run",
+ "stderr": "",
+ "stdout": "Validation gallery 07: zoo heat-sink MLP queried outside its card's range -> pp.zoo.load, pp.datasets.load, pp.validate, pinneapple_analysis.validation.gallery.conclude\ninputs: []\noutputs: [('metrics', 'metrics'), ('report', 'report')]\ndefaults: {'model': 'heatsink_forced_mlp', 'dataset': 'heatsink_forced_convection', 'n_query': 64, 'air_velocity_m_s': 0.2, 'power_w': 600.0}",
+ "timed_out": false
+}

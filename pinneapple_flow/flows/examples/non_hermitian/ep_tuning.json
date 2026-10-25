@@ -1,0 +1,134 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.non_hermitian.ep_tuning",
+ "name": "Exceptional-point tuning in PT-symmetric dimers",
+ "description": "The no-go theorem for exceptional-point tuning (Zenodo 23287622) checked symbolically on the paper's four coupling classes and numerically on the dimer's matrix, the three routes around it, the hypothesis map as a physics audit, and the figure with the PT-chain thresholds (examples/non_hermitian/ep_tuning.py).",
+ "nodes": [
+  {
+   "id": "laws",
+   "type": "nonhermitian.ep_laws",
+   "params": {},
+   "label": "EP laws (symbolic)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "numeric",
+   "type": "nonhermitian.ep_numeric",
+   "params": {},
+   "label": "EP from the matrix",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "hmap",
+   "type": "nonhermitian.hypothesis_map",
+   "params": {},
+   "label": "hypothesis map (audit)",
+   "position": {
+    "x": 40.0,
+    "y": 380.0
+   }
+  },
+  {
+   "id": "figure",
+   "type": "nonhermitian.ep_figure",
+   "params": {},
+   "label": "figure + chains",
+   "position": {
+    "x": 40.0,
+    "y": 550.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "non_hermitian",
+    "comparisons": [
+     {
+      "flow": "laws.reciprocal_linear.degree",
+      "ref": "text:docs/core_concepts/non_hermitian.md|degree in lam: (\\d+)",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain2.kappa2",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|2|\u03ba_N\u00b2",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain2.ep_order",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|2|EP order",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain3.kappa2",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|3|\u03ba_N\u00b2",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain3.ep_order",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|3|EP order",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain4.kappa2",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|4|\u03ba_N\u00b2",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain4.ep_order",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|4|EP order",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain5.kappa2",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|5|\u03ba_N\u00b2",
+      "rounded": false
+     },
+     {
+      "flow": "figure.chain5.ep_order",
+      "ref": "doc:docs/core_concepts/non_hermitian.md|5|EP order",
+      "rounded": false
+     }
+    ],
+    "rtol": 1e-06,
+    "tolerance_source": "exact values (a polynomial degree, kappa_N^2 and EP orders in the guide's table); 1e-6 relative covers the bisection of ep_gamma_numeric (tol 1e-9)"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "laws",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "laws.metrics->compare.metrics"
+  },
+  {
+   "source": "figure",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "figure.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "non_hermitian",
+  "domain": "non-Hermitian physics",
+  "scripts": [
+   "ep_tuning.py"
+  ],
+  "quick": {}
+ }
+}

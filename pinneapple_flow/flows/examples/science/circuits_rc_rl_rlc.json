@@ -1,0 +1,87 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.science.circuits_rc_rl_rlc",
+ "name": "Science: circuits rc rl rlc",
+ "description": "pinneapple_science experiment em.circuits_rc_rl_rlc in 0D at the committed resolution, every computed quantity against its cited reference (examples/science/electromagnetism/circuits_rc_rl_rlc); compared with the committed result.json of each dimension.",
+ "nodes": [
+  {
+   "id": "run_0d",
+   "type": "science.run",
+   "params": {
+    "experiment": "em.circuits_rc_rl_rlc",
+    "dim": "0D",
+    "quick": false
+   },
+   "label": "circuits_rc_rl_rlc 0D",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "science",
+    "comparisons": [
+     {
+      "flow": "run_0d.rel_error[RC time constant (fit of ln(1 - V/V0))]",
+      "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.0.rel_error"
+     },
+     {
+      "flow": "run_0d.rel_error[RL time constant]",
+      "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.1.rel_error"
+     },
+     {
+      "flow": "run_0d.rel_error[RL final current]",
+      "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.2.rel_error"
+     },
+     {
+      "flow": "run_0d.rel_error[RLC damped angular frequency (zero crossings)]",
+      "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.3.rel_error"
+     },
+     {
+      "flow": "run_0d.rel_error[RLC decay rate (log decrement of extrema)]",
+      "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.4.rel_error"
+     },
+     {
+      "flow": "run_0d.rel_error[energy dissipated in R (free decay)]",
+      "ref": "electromagnetism/circuits_rc_rl_rlc/0D/result.json:comparisons.5.rel_error"
+     }
+    ],
+    "tolerance_source": "deterministic numerics at the committed resolution: 1e-6 relative on each relative error"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run_0d",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run_0d.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "science",
+  "domain": "science",
+  "scripts": [
+   "electromagnetism/circuits_rc_rl_rlc/README.md"
+  ],
+  "quick": {
+   "run_0d": {
+    "quick": true
+   },
+   "compare": {
+    "comparisons": [],
+    "tolerance_source": "quick: reduced sizes, not the committed resolution"
+   }
+  }
+ }
+}

@@ -1,0 +1,297 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.arena_pipelines.01_physics_benchmark",
+ "name": "Physics benchmark specs: Burgers, heat, inverse heat, Kovasznay",
+ "description": "PhysicsBenchmarkSpec four times: Burgers 1-D with a VanillaPINN (1500 epochs), heat 1-D VanillaPINN vs SIREN (2000), the inverse heat problem recovering k (true 0.40, 2500) and Kovasznay Navier-Stokes (3000) (examples/arena_pipelines/01_physics_benchmark.py). Quick: 100 epochs each.",
+ "nodes": [
+  {
+   "id": "burgers",
+   "type": "arena.physics_spec",
+   "params": {
+    "label": "burgers",
+    "spec": {
+     "load_generate_data": "generate",
+     "inverse": false,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "burgers_1d",
+     "source": null,
+     "metrics": [
+      "mse",
+      "l2_rel",
+      "max_err"
+     ],
+     "collocation_points": "sobol",
+     "models": [
+      "vanilla_pinn"
+     ],
+     "inverse_variables": [],
+     "epochs": 1500,
+     "n_col": 2000,
+     "n_bc": 300,
+     "n_ic": 300,
+     "hidden": [
+      64,
+      64,
+      64
+     ],
+     "seed": 42
+    }
+   },
+   "label": "burgers",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "heat",
+   "type": "arena.physics_spec",
+   "params": {
+    "label": "heat",
+    "spec": {
+     "load_generate_data": "generate",
+     "inverse": false,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "heat_1d",
+     "metrics": [
+      "mse",
+      "l2_rel"
+     ],
+     "collocation_points": "lhs",
+     "models": [
+      "vanilla_pinn",
+      "siren"
+     ],
+     "epochs": 2000,
+     "n_col": 2000,
+     "n_bc": 300,
+     "n_ic": 300,
+     "hidden": [
+      64,
+      64,
+      64,
+      64
+     ],
+     "seed": 0
+    }
+   },
+   "label": "heat",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "heat_inverse",
+   "type": "arena.physics_spec",
+   "params": {
+    "label": "heat_inverse",
+    "spec": {
+     "load_generate_data": "load",
+     "inverse": true,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "heat_1d",
+     "source": "heat_1d",
+     "metrics": [
+      "mse",
+      "l2_rel"
+     ],
+     "collocation_points": "sobol",
+     "models": [
+      "vanilla_pinn"
+     ],
+     "inverse_variables": [
+      "k"
+     ],
+     "epochs": 2500,
+     "n_col": 2000,
+     "n_bc": 300,
+     "n_ic": 300,
+     "hidden": [
+      64,
+      64,
+      64,
+      64
+     ],
+     "seed": 7
+    }
+   },
+   "label": "heat inverse",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "kovasznay",
+   "type": "arena.physics_spec",
+   "params": {
+    "label": "kovasznay",
+    "spec": {
+     "load_generate_data": "generate",
+     "inverse": false,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "kovasznay_ns",
+     "metrics": [
+      "mse",
+      "l2_rel"
+     ],
+     "collocation_points": "sobol",
+     "models": [
+      "vanilla_pinn"
+     ],
+     "epochs": 3000,
+     "n_col": 3000,
+     "n_bc": 500,
+     "n_ic": 0,
+     "hidden": [
+      64,
+      64,
+      64,
+      64
+     ],
+     "seed": 42
+    }
+   },
+   "label": "kovasznay",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "arena_pipelines",
+  "domain": "benchmarks",
+  "scripts": [
+   "01_physics_benchmark.py"
+  ],
+  "quick": {
+   "burgers": {
+    "spec": {
+     "load_generate_data": "generate",
+     "inverse": false,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "burgers_1d",
+     "source": null,
+     "metrics": [
+      "mse",
+      "l2_rel",
+      "max_err"
+     ],
+     "collocation_points": "sobol",
+     "models": [
+      "vanilla_pinn"
+     ],
+     "inverse_variables": [],
+     "epochs": 100,
+     "n_col": 2000,
+     "n_bc": 300,
+     "n_ic": 300,
+     "hidden": [
+      64,
+      64,
+      64
+     ],
+     "seed": 42
+    }
+   },
+   "heat": {
+    "spec": {
+     "load_generate_data": "generate",
+     "inverse": false,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "heat_1d",
+     "metrics": [
+      "mse",
+      "l2_rel"
+     ],
+     "collocation_points": "lhs",
+     "models": [
+      "vanilla_pinn",
+      "siren"
+     ],
+     "epochs": 100,
+     "n_col": 2000,
+     "n_bc": 300,
+     "n_ic": 300,
+     "hidden": [
+      64,
+      64,
+      64,
+      64
+     ],
+     "seed": 0
+    }
+   },
+   "heat_inverse": {
+    "spec": {
+     "load_generate_data": "load",
+     "inverse": true,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "heat_1d",
+     "source": "heat_1d",
+     "metrics": [
+      "mse",
+      "l2_rel"
+     ],
+     "collocation_points": "sobol",
+     "models": [
+      "vanilla_pinn"
+     ],
+     "inverse_variables": [
+      "k"
+     ],
+     "epochs": 100,
+     "n_col": 2000,
+     "n_bc": 300,
+     "n_ic": 300,
+     "hidden": [
+      64,
+      64,
+      64,
+      64
+     ],
+     "seed": 7
+    }
+   },
+   "kovasznay": {
+    "spec": {
+     "load_generate_data": "generate",
+     "inverse": false,
+     "plots": true,
+     "lr": 0.001,
+     "problem": "kovasznay_ns",
+     "metrics": [
+      "mse",
+      "l2_rel"
+     ],
+     "collocation_points": "sobol",
+     "models": [
+      "vanilla_pinn"
+     ],
+     "epochs": 100,
+     "n_col": 3000,
+     "n_bc": 500,
+     "n_ic": 0,
+     "hidden": [
+      64,
+      64,
+      64,
+      64
+     ],
+     "seed": 42
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,132 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.spm_servo_motor",
+ "name": "Industrial preset: spm servo motor",
+ "description": "pinneapple_presets.load('spm_servo_motor').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/spm_servo_motor), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "spm_servo_motor"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "spm_servo_motor"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.torque",
+      "ref": "spm_servo_motor/results/result.json:outputs.torque"
+     },
+     {
+      "flow": "run.ripple",
+      "ref": "spm_servo_motor/results/result.json:outputs.ripple"
+     },
+     {
+      "flow": "run.cogging_pp",
+      "ref": "spm_servo_motor/results/result.json:outputs.cogging_pp"
+     },
+     {
+      "flow": "run.kt",
+      "ref": "spm_servo_motor/results/result.json:outputs.kt"
+     },
+     {
+      "flow": "run.ke",
+      "ref": "spm_servo_motor/results/result.json:outputs.ke"
+     },
+     {
+      "flow": "run.emf_peak",
+      "ref": "spm_servo_motor/results/result.json:outputs.emf_peak"
+     },
+     {
+      "flow": "run.p_copper",
+      "ref": "spm_servo_motor/results/result.json:outputs.p_copper"
+     },
+     {
+      "flow": "run.j_rms",
+      "ref": "spm_servo_motor/results/result.json:outputs.j_rms"
+     },
+     {
+      "flow": "run.t_mst",
+      "ref": "spm_servo_motor/results/result.json:outputs.t_mst"
+     },
+     {
+      "flow": "run.t_coe",
+      "ref": "spm_servo_motor/results/result.json:outputs.t_coe"
+     },
+     {
+      "flow": "run.t_power",
+      "ref": "spm_servo_motor/results/result.json:outputs.t_power"
+     },
+     {
+      "flow": "run.t_minus_cog",
+      "ref": "spm_servo_motor/results/result.json:outputs.t_minus_cog"
+     },
+     {
+      "flow": "run.kt_from_ke",
+      "ref": "spm_servo_motor/results/result.json:outputs.kt_from_ke"
+     },
+     {
+      "flow": "run.ke1",
+      "ref": "spm_servo_motor/results/result.json:outputs.ke1"
+     },
+     {
+      "flow": "run.cogging_mean_over_pp",
+      "ref": "spm_servo_motor/results/result.json:outputs.cogging_mean_over_pp"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "spm_servo_motor/README.md"
+  ],
+  "quick": {}
+ }
+}

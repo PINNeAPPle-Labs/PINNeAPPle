@@ -22,27 +22,7 @@ import torch
 
 from pinneapple_neural.architectures.rom.pod import POD
 from pinneapple_neural.architectures.rom.dmd import DynamicModeDecomposition
-
-
-def make_linear_system(D: int, seed: int = 0) -> torch.Tensor:
-    """Stable-ish linear operator A (D,D)."""
-    g = torch.Generator().manual_seed(seed)
-    M = torch.randn(D, D, generator=g) / (D**0.5)
-    # make it contractive
-    u, s, vh = torch.linalg.svd(M)
-    s = 0.95 * (s / s.max())
-    A = (u * s) @ vh
-    return A
-
-
-def generate_sequences(B: int, T: int, D: int, A: torch.Tensor, noise: float = 0.01) -> torch.Tensor:
-    g = torch.Generator().manual_seed(123)
-    x = torch.randn(B, D, generator=g)
-    xs = [x]
-    for _ in range(T - 1):
-        x = x @ A.t() + noise * torch.randn_like(x, generator=g)
-        xs.append(x)
-    return torch.stack(xs, dim=1)  # (B,T,D)
+from pinneapple_neural.architectures.rom.toy_systems import generate_sequences, make_linear_system
 
 
 def main() -> None:

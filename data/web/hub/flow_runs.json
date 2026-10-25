@@ -242,6 +242,179 @@
   "source": "python -m pinneapple_hub.library flowruns",
   "status": "done"
  },
+ "inverse_design_brake_rotor": {
+  "flow_hash": "d4ab5c16ba8aa3f8",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {
+     "design.vane_count": 79.0,
+     "design.vane_count_rounded": 79,
+     "design.vane_gap_m": 0.01588631235063076,
+     "design.vane_spacing_m": 0.006017549387847957,
+     "design.vane_thickness_m": 0.0036029259208589792,
+     "trust_score": 100,
+     "verdict": "PASS"
+    },
+    "status": "done",
+    "summary": "brake_rotor: PASS, trust 100",
+    "type": "design.surrogate_inverse"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-10-25",
+  "seconds": 16.97,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "inverse_design_heatsink_fins": {
+  "flow_hash": "f6e631b4e565dea7",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {
+     "design.fin_count": 45.0,
+     "design.fin_count_rounded": 45,
+     "design.fin_height_m": 0.0447443462908268,
+     "design.fin_spacing_m": 0.001218330739118921,
+     "design.fin_thickness_m": 0.0005865210550837219,
+     "trust_score": 100,
+     "verdict": "PASS"
+    },
+    "status": "done",
+    "summary": "heatsink_fins: PASS, trust 100",
+    "type": "design.surrogate_inverse"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-10-25",
+  "seconds": 17.09,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "inverse_design_reflex_port": {
+  "flow_hash": "7502a05c9e0396e2",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {
+     "design.length_m": 0.11317452788352966,
+     "design.port_volume_m3": 0.00018520208864858647,
+     "design.radius_m": 0.022823048755526543,
+     "trust_score": 100,
+     "verdict": "PASS"
+    },
+    "status": "done",
+    "summary": "reflex_port: PASS, trust 100",
+    "type": "design.surrogate_inverse"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-10-25",
+  "seconds": 9.09,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "inverse_design_suspension_arm": {
+  "flow_hash": "ded9eb7fae8c2591",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {
+     "design.mass_kg": 2.168674836297239,
+     "design.thickness_m": 0.017347075045108795,
+     "design.width_m": 0.04550199955701828,
+     "trust_score": 100,
+     "verdict": "PASS"
+    },
+    "status": "done",
+    "summary": "suspension_arm: PASS, trust 100",
+    "type": "design.surrogate_inverse"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-10-25",
+  "seconds": 12.96,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
+ "inverse_design_transdermal_patch": {
+  "flow_hash": "48914e0146247f97",
+  "nodes": {
+   "design": {
+    "error": "",
+    "metrics": {
+     "design.area_cm2": 13.990518637001514,
+     "design.area_m2": 0.0013990518637001514,
+     "design.depletion_time_days": 2.077648349330519,
+     "design.membrane_thickness_m": 8.975440869107842e-05,
+     "design.release_rate_mg_day": 98.89356870290341,
+     "design.reservoir_conc_kg_m3": 146.86093139648438,
+     "design.reservoir_mass_mg": 205.46605977499155,
+     "trust_score": 100,
+     "verdict": "PASS"
+    },
+    "status": "done",
+    "summary": "transdermal_patch: PASS, trust 100",
+    "type": "design.surrogate_inverse"
+   },
+   "report": {
+    "error": "",
+    "metrics": {
+     "decisions": 0,
+     "decisions_without_reference": 0,
+     "items": 1
+    },
+    "status": "done",
+    "summary": "report written (html)",
+    "type": "export.report"
+   }
+  },
+  "recorded": "2026-10-25",
+  "seconds": 13.16,
+  "source": "python -m pinneapple_hub.library flowruns",
+  "status": "done"
+ },
  "inverse_heat": {
   "flow_hash": "a9628f875f89ae81",
   "nodes": {

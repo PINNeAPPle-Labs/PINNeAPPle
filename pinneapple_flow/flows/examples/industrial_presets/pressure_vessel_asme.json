@@ -1,0 +1,132 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.industrial_presets.pressure_vessel_asme",
+ "name": "Industrial preset: pressure vessel asme",
+ "description": "pinneapple_presets.load('pressure_vessel_asme').run() at its data-sheet inputs and the preset's own validation (examples/industrial_presets/pressure_vessel_asme), compared with the committed results/result.json.",
+ "nodes": [
+  {
+   "id": "run",
+   "type": "preset.run",
+   "params": {
+    "preset": "pressure_vessel_asme"
+   },
+   "label": "preset (solver)",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "val",
+   "type": "preset.validate",
+   "params": {
+    "preset": "pressure_vessel_asme"
+   },
+   "label": "preset validation",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "industrial_presets",
+    "comparisons": [
+     {
+      "flow": "run.t_shell_req",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.t_shell_req"
+     },
+     {
+      "flow": "run.t_head_req",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.t_head_req"
+     },
+     {
+      "flow": "run.t_shell",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.t_shell"
+     },
+     {
+      "flow": "run.t_head",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.t_head"
+     },
+     {
+      "flow": "run.mawp",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.mawp"
+     },
+     {
+      "flow": "run.p_test",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.p_test"
+     },
+     {
+      "flow": "run.hoop_lame",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.hoop_lame"
+     },
+     {
+      "flow": "run.hoop_fem",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.hoop_fem"
+     },
+     {
+      "flow": "run.ur_lame",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.ur_lame"
+     },
+     {
+      "flow": "run.ur_fem",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.ur_fem"
+     },
+     {
+      "flow": "run.hoop_asme",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.hoop_asme"
+     },
+     {
+      "flow": "run.mass",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.mass"
+     },
+     {
+      "flow": "run.fem_reaction_err",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.fem_reaction_err"
+     },
+     {
+      "flow": "run.t_over_r",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.t_over_r"
+     },
+     {
+      "flow": "run.p_over_se",
+      "ref": "pressure_vessel_asme/results/result.json:outputs.p_over_se"
+     }
+    ],
+    "tolerance_source": "deterministic engineering solvers: 1e-6 relative; balance residuals (zero to machine precision) within 1e-12 absolute"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "run",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "run.metrics->compare.metrics"
+  },
+  {
+   "source": "val",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "val.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "industrial_presets",
+  "domain": "engineering presets",
+  "scripts": [
+   "pressure_vessel_asme/README.md"
+  ],
+  "quick": {}
+ }
+}

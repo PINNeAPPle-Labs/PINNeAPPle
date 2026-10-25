@@ -1,0 +1,34 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.architectures.01_list_models",
+ "name": "Every registered model, and the PINN family",
+ "description": "examples/architectures/01_list_models.py: ModelRegistry.list() (every model) and ModelRegistry.list(family='pinns'). Nothing committed: the script prints the names.",
+ "nodes": [
+  {
+   "id": "registry",
+   "type": "architectures.registry",
+   "params": {
+    "families": [
+     "pinns"
+    ],
+    "specs": [],
+    "catalog": []
+   },
+   "label": "Registry",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [],
+ "meta": {
+  "kind": "example",
+  "example": "architectures",
+  "domain": "neural architectures",
+  "scripts": [
+   "01_list_models.py"
+  ],
+  "quick": {}
+ }
+}

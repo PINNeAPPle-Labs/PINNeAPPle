@@ -26,7 +26,7 @@ import numpy as np
 
 from ..constants import MU0
 
-__all__ = ["ThermalNetwork", "cylinder_conductance", "machine_network", "MachineThermalData",
+__all__ = ["iron_split", "ThermalNetwork", "cylinder_conductance", "machine_network", "MachineThermalData",
            "demagnetisation_margin", "reverse_field", "NDFEB_HCJ_MIN_KAM", "intrinsic_coercivity",
            "magnet_temperature_sweep", "demagnetisation_refinement"]
 
@@ -259,3 +259,24 @@ def magnet_temperature_sweep(geometry, temperatures, I_peak: float = 250.0, n_ga
                     "L_q_mH": 1e3 * ind["L_qq"], "psi_pm_Wb": ind["psi_pm_d"],
                     "emf_phase_fundamental_peak_V_1000rpm": emf["fundamental_peak"]})
     return out
+
+
+def iron_split(m, I_peak: float = 250.0, gamma_deg: float = 50.3, rpm: float = 1500.0, steps: int = 24) -> dict:
+    """Fractions of the iron loss in the stator yoke, the teeth and the rotor of an
+    :class:`~pinneapple_simulation.electromagnetics.machines.IPMMachine` at one operating point (default 250 A MTPA,
+    50.3 deg, 1500 rpm): how a lumped thermal network distributes the iron loss of a drive cycle."""
+    gm = math.radians(gamma_deg)
+    r = m.losses(rpm, -I_peak * math.sin(gm), I_peak * math.cos(gm), steps=steps)
+    mesh = m.mm.mesh(0.0)
+    area = mesh.areas()
+    c = mesh.centroids()
+    rc = np.hypot(c[:, 0], c[:, 1])
+    st = m._stator_iron
+    s = m.geometry.stator
+    r_slot_bot = s.r_in + s.H0 + s.H1 + s.H2
+    dens = r["stator_loss_density"]
+    yoke = float(np.sum((area[st] * dens)[rc[st] >= r_slot_bot]))
+    teeth = float(np.sum((area[st] * dens)[rc[st] < r_slot_bot]))
+    rotor = float(np.sum(area[m._rotor_iron] * r["rotor_loss_density"]))
+    tot = yoke + teeth + rotor
+    return {"yoke": yoke / tot, "teeth": teeth / tot, "rotor": rotor / tot}

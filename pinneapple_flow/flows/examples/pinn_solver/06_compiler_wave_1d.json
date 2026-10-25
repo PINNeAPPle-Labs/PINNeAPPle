@@ -1,0 +1,177 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.pinn_solver.06_compiler_wave_1d",
+ "name": "Wave 1-D PINN: a standing wave",
+ "description": "examples/pinn_solver/06_compiler_wave_1d.py: u_tt = c^2 u_xx, c = 1, on [0, 1] x [0, 1], u(x, 0) = sin(pi x), u_t(x, 0) = 0, fixed ends; a 5 x 64 tanh PINN, 10000 Adam steps at lr 2e-3, 10000 collocation points, against u = sin(pi x) cos(pi c t) on a 64 x 64 grid (the script's relative L2). The script trains its own loop on compile_problem with a cosine schedule and an initial-velocity penalty; here train.pinn trains the same problem. Nothing committed.",
+ "nodes": [
+  {
+   "id": "geo",
+   "type": "geometry.domain",
+   "params": {
+    "dimension": 1,
+    "x_range": [
+     0.0,
+     1.0
+    ],
+    "y_range": [
+     0,
+     1
+    ],
+    "z_range": [
+     0,
+     1
+    ],
+    "time_dependent": true,
+    "t_range": [
+     0.0,
+     1.0
+    ]
+   },
+   "label": "string x time",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "mesh",
+   "type": "geometry.mesh",
+   "params": {
+    "n": 64,
+    "n_t": 64
+   },
+   "label": "64 x 64 grid",
+   "position": {
+    "x": 40.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "eq_wave",
+   "type": "equations.system",
+   "params": {
+    "template": "wave",
+    "fields": [
+     "u"
+    ],
+    "pdes": [
+     "u_tt = c**2*lap(u)"
+    ],
+    "conditions": [
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u = sin(pi*x)"
+     },
+     {
+      "kind": "initial",
+      "on": "t_min",
+      "equation": "u_t = 0"
+     },
+     {
+      "kind": "dirichlet",
+      "on": "boundary",
+      "equation": "u = 0"
+     }
+    ],
+    "coefficients": {
+     "c": 1.0
+    },
+    "exact": "cos(c*pi*t)*sin(pi*x)"
+   },
+   "label": "equations (c = 1)",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "pinn_wave",
+   "type": "train.pinn",
+   "params": {
+    "width": 64,
+    "depth": 5,
+    "adam_steps": 10000,
+    "lbfgs_steps": 0,
+    "lr": 0.002,
+    "n_collocation": 10000,
+    "seed": 0
+   },
+   "label": "PINN (c = 1)",
+   "position": {
+    "x": 330.0,
+    "y": 210.0
+   }
+  },
+  {
+   "id": "val_wave",
+   "type": "validate.compare",
+   "params": {
+    "reference": "exact"
+   },
+   "label": "vs exact (c = 1)",
+   "position": {
+    "x": 330.0,
+    "y": 380.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "mesh",
+   "target_port": "geometry",
+   "id": "geo.geometry->mesh.geometry"
+  },
+  {
+   "source": "geo",
+   "source_port": "geometry",
+   "target": "eq_wave",
+   "target_port": "geometry",
+   "id": "geo.geometry->eq_wave.geometry"
+  },
+  {
+   "source": "mesh",
+   "source_port": "mesh",
+   "target": "eq_wave",
+   "target_port": "mesh",
+   "id": "mesh.mesh->eq_wave.mesh"
+  },
+  {
+   "source": "eq_wave",
+   "source_port": "problem",
+   "target": "pinn_wave",
+   "target_port": "problem",
+   "id": "eq_wave.problem->pinn_wave.problem"
+  },
+  {
+   "source": "pinn_wave",
+   "source_port": "solution",
+   "target": "val_wave",
+   "target_port": "candidates",
+   "id": "pinn_wave.solution->val_wave.candidates"
+  },
+  {
+   "source": "eq_wave",
+   "source_port": "problem",
+   "target": "val_wave",
+   "target_port": "problem",
+   "id": "eq_wave.problem->val_wave.problem"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "pinn_solver",
+  "domain": "PINN",
+  "scripts": [
+   "06_compiler_wave_1d.py"
+  ],
+  "quick": {
+   "pinn_wave": {
+    "adam_steps": 150,
+    "n_collocation": 2048
+   }
+  }
+ }
+}

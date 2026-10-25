@@ -1,0 +1,96 @@
+{
+ "schema": "pinneapple-flow/1",
+ "id": "example.meshgraphnet.02_cylinder_flow_deepmind",
+ "name": "MeshGraphNet on DeepMind cylinder_flow",
+ "description": "MeshGraphNet on a 400 MB prefix of DeepMind's cylinder_flow TFRecords (11 train / 2 valid trajectories), the committed configuration (3000 steps, hidden 64, 6 message-passing layers, 50-step rollout) against the velocity frozen at t = 0 (examples/meshgraphnet/02_cylinder_flow_deepmind.py).",
+ "nodes": [
+  {
+   "id": "mgn",
+   "type": "gnn.mgn_cylinder_flow",
+   "params": {},
+   "label": "MeshGraphNet, cylinder_flow",
+   "position": {
+    "x": 40.0,
+    "y": 40.0
+   }
+  },
+  {
+   "id": "compare",
+   "type": "examples.compare",
+   "params": {
+    "example": "meshgraphnet",
+    "comparisons": [
+     {
+      "flow": "mgn.frozen_ic_baseline_rmse",
+      "ref": "_out/cylinder_flow/metrics.json:frozen_ic_baseline_rmse"
+     },
+     {
+      "flow": "mgn.train_traj",
+      "ref": "_out/cylinder_flow/metrics.json:train_traj"
+     },
+     {
+      "flow": "mgn.valid_traj",
+      "ref": "_out/cylinder_flow/metrics.json:valid_traj"
+     },
+     {
+      "flow": "mgn.rollout_rmse",
+      "ref": "_out/cylinder_flow/metrics.json:rollout_rmse"
+     },
+     {
+      "flow": "mgn.one_step_rmse",
+      "ref": "_out/cylinder_flow/metrics.json:one_step_rmse"
+     },
+     {
+      "flow": "mgn.final_train_loss",
+      "ref": "_out/cylinder_flow/metrics.json:final_train_loss"
+     }
+    ],
+    "tolerance_source": "seeded training on CPU: 1e-6 relative; a difference in the trained numbers is reported as measured"
+   },
+   "label": "same numbers",
+   "position": {
+    "x": 330.0,
+    "y": 40.0
+   }
+  }
+ ],
+ "edges": [
+  {
+   "source": "mgn",
+   "source_port": "metrics",
+   "target": "compare",
+   "target_port": "metrics",
+   "id": "mgn.metrics->compare.metrics"
+  }
+ ],
+ "meta": {
+  "kind": "example",
+  "example": "meshgraphnet",
+  "domain": "neural operators",
+  "scripts": [
+   "02_cylinder_flow_deepmind.py"
+  ],
+  "quick": {
+   "mgn": {
+    "steps": 300
+   },
+   "compare": {
+    "comparisons": [
+     {
+      "flow": "mgn.frozen_ic_baseline_rmse",
+      "ref": "_out/cylinder_flow/metrics.json:frozen_ic_baseline_rmse"
+     },
+     {
+      "flow": "mgn.train_traj",
+      "ref": "_out/cylinder_flow/metrics.json:train_traj"
+     },
+     {
+      "flow": "mgn.valid_traj",
+      "ref": "_out/cylinder_flow/metrics.json:valid_traj"
+     }
+    ],
+    "tolerance_source": "quick: 300 training steps; only the data-dependent numbers (baseline, trajectory counts) are compared"
+   }
+  }
+ }
+}

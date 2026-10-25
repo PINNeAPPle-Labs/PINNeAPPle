@@ -179,8 +179,8 @@ def homogenization_study(shape=(12, 12), seed: int = 1) -> dict:
     cases["sub-pitch hotspot"] = hot
     void = uniform_package(shape, seed=seed)
     void.variants.append(Variant(inclusion_k=(("ubump", 0.05),)))
-    I, J = np.unravel_index(np.argmax(void.block_power().sum(-1)), shape)
-    void.layout[max(0, I - 1):I + 2, max(0, J - 1):J + 2] = 1
+    bi, bj = np.unravel_index(np.argmax(void.block_power().sum(-1)), shape)
+    void.layout[max(0, bi - 1):bi + 2, max(0, bj - 1):bj + 2] = 1
     cases["voided microbumps at the hotspot"] = void
     for name, pkg in cases.items():
         T, ref, info = _ref(pkg)

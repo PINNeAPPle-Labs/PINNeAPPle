@@ -70,8 +70,8 @@ class Geometry:
         self.props = [st.properties(v) for v in pkg.variants]
         contact = {(a, b): r for a, b, r in st.contact}
         self.Rz = np.zeros(len(self.z))                 # contact resistance on the plane z[l] (between l-1 and l)
-        for l in range(1, len(self.layers)):
-            self.Rz[l] = contact.get((self.layers[l - 1].name, self.layers[l].name), 0.0)
+        for li in range(1, len(self.layers)):
+            self.Rz[li] = contact.get((self.layers[li - 1].name, self.layers[li].name), 0.0)
         self.variant_scale = []                          # per variant: per layer inclusion k factor, present?
         for v in pkg.variants:
             f = dict(v.inclusion_k)
@@ -89,15 +89,15 @@ class Geometry:
 
     def in_inclusion(self, X, lay=None):
         lay = self.layer(X[:, 2]) if lay is None else lay
-        I, J = self.block(X[:, 0], X[:, 1])
-        var = self.pkg.layout[I, J]
-        lx = X[:, 0] - (I + 0.5) * self.p
-        ly = X[:, 1] - (J + 0.5) * self.p
+        bi, bj = self.block(X[:, 0], X[:, 1])
+        var = self.pkg.layout[bi, bj]
+        lx = X[:, 0] - (bi + 0.5) * self.p
+        ly = X[:, 1] - (bj + 0.5) * self.p
         out = np.zeros(len(X), bool)
-        for l, L in enumerate(self.layers):
+        for li, L in enumerate(self.layers):
             if not L.inclusion:
                 continue
-            sel = lay == l
+            sel = lay == li
             if not sel.any():
                 continue
             present = np.array([self.variant_scale[v][L.name][1] for v in range(len(self.pkg.variants))])[var[sel]]
@@ -109,18 +109,18 @@ class Geometry:
         """Region id: layer index for the matrix, or ``n_layers + (l * nbx + I) * nby + J`` for an inclusion."""
         lay = self.layer(X[:, 2])
         inc = self.in_inclusion(X, lay)
-        I, J = self.block(X[:, 0], X[:, 1])
+        bi, bj = self.block(X[:, 0], X[:, 1])
         nbx, nby = self.pkg.shape
-        return np.where(inc, len(self.layers) + (lay * nbx + I) * nby + J, lay)
+        return np.where(inc, len(self.layers) + (lay * nbx + bi) * nby + bj, lay)
 
     def conductivity(self, X, region=None):
         lay = self.layer(X[:, 2])
         inc = self.in_inclusion(X, lay) if region is None else region >= len(self.layers)
-        I, J = self.block(X[:, 0], X[:, 1])
-        var = self.pkg.layout[I, J]
+        bi, bj = self.block(X[:, 0], X[:, 1])
+        var = self.pkg.layout[bi, bj]
         k = np.empty(len(X))
-        for l, L in enumerate(self.layers):
-            sel = lay == l
+        for li, L in enumerate(self.layers):
+            sel = lay == li
             k[sel] = MATERIALS[L.matrix][0]
             if L.inclusion:
                 s = sel & inc
@@ -182,16 +182,16 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
     hl = np.array([min(h_max, h_xy, L.thickness / per_layer) for L in g.layers])
     # spacing at small features: at least ``per_feature`` nodes across each inclusion, in a band of ``band_h``
     # spacings around it
-    hi = np.array([min(hl[l], L.side * g.p / per_feature) if L.inclusion else hl[l] for l, L in enumerate(g.layers)])
+    hi = np.array([min(hl[li], L.side * g.p / per_feature) if L.inclusion else hl[li] for li, L in enumerate(g.layers)])
     band = band_h * hi
     # interior lattices, per layer
     st = pkg.stack
     z_src = st.dz()[: st.active_k].sum() + st.dz()[st.active_k]          # top of the heated row
-    for l, L in enumerate(g.layers):
-        h = hl[l]
-        slabs = [(g.z[l], g.z[l + 1])]
-        if g.z[l] < z_src < g.z[l + 1]:                                    # rows aligned with the source step
-            slabs = [(g.z[l], z_src), (z_src, g.z[l + 1])]
+    for li, L in enumerate(g.layers):
+        h = hl[li]
+        slabs = [(g.z[li], g.z[li + 1])]
+        if g.z[li] < z_src < g.z[li + 1]:                                    # rows aligned with the source step
+            slabs = [(g.z[li], z_src), (z_src, g.z[li + 1])]
         zs, hzs = [], []
         for za, zb in slabs:
             nz = max(1, int(round((zb - za) / h)))
@@ -203,13 +203,13 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
         Z = np.repeat(zs, len(A))
         P = np.column_stack([np.tile(A, nz), np.tile(B, nz), Z])
         P[:, 2] += jitter * np.repeat(hzs, len(A)) * rng.uniform(-0.5, 0.5, len(P))
-        if L.inclusion and hi[l] < h:
+        if L.inclusion and hi[li] < h:
             # small features: spacing hi inside the inclusions and within a band around their walls
-            fine = _lattice3(g, l, hi[l], rng, jitter, z_src)
-            dwf = _wall_distance(g, fine, np.full(len(fine), l))
-            infine = g.in_inclusion(fine, np.full(len(fine), l)) | (dwf < band[l])
-            dwc = _wall_distance(g, P, np.full(len(P), l))
-            incoarse = g.in_inclusion(P, np.full(len(P), l)) | (dwc < band[l])
+            fine = _lattice3(g, li, hi[li], rng, jitter, z_src)
+            dwf = _wall_distance(g, fine, np.full(len(fine), li))
+            infine = g.in_inclusion(fine, np.full(len(fine), li)) | (dwf < band[li])
+            dwc = _wall_distance(g, P, np.full(len(P), li))
+            incoarse = g.in_inclusion(P, np.full(len(P), li)) | (dwc < band[li])
             P = np.vstack([P[~incoarse], fine[infine]])
         add(P, 0, 0.0, 0.0)
     X = np.vstack(pts)
@@ -228,13 +228,13 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
     area = [np.zeros(len(X))]
     Rr = [np.zeros(len(X))]
     # outer boundaries: top and bottom (Robin), sides (adiabatic)
-    for zb, kd, n_, l in ((g.z[-1], 1, (0, 0, 1), len(g.layers) - 1), (0.0, 2, (0, 0, -1), 0)):
-        A, B, ar = _lattice2(0, W0, 0, W1, hl[l], rng, 0.0, margin=0.5)
+    for zb, kd, n_, li in ((g.z[-1], 1, (0, 0, 1), len(g.layers) - 1), (0.0, 2, (0, 0, -1), 0)):
+        A, B, ar = _lattice2(0, W0, 0, W1, hl[li], rng, 0.0, margin=0.5)
         add(np.column_stack([A, B, np.full(len(A), zb)]), kd, n_, ar)
-    for l, L in enumerate(g.layers if sides == "nodes" else ()):
+    for li, _layer in enumerate(g.layers if sides == "nodes" else ()):
         for axis, val, n_ in ((0, 0.0, (-1, 0, 0)), (0, W0, (1, 0, 0)), (1, 0.0, (0, -1, 0)), (1, W1, (0, 1, 0))):
             other = W1 if axis == 0 else W0
-            A, B, ar = _lattice2(0, other, g.z[l], g.z[l + 1], hl[l], rng, 0.0, margin=0.5)
+            A, B, ar = _lattice2(0, other, g.z[li], g.z[li + 1], hl[li], rng, 0.0, margin=0.5)
             P = np.zeros((len(A), 3))
             P[:, axis] = val
             P[:, 1 - axis] = A
@@ -242,17 +242,17 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
             add(P, 3, n_, ar)
     # interfaces: layer planes and inclusion walls, as node pairs (a below / inside, b above / outside)
     pairs = []
-    for l in range(1, len(g.layers)):
+    for li in range(1, len(g.layers)):
         # the plane's spacing follows the layers on both sides: fine over the inclusion footprints (and their band)
         # of either layer, coarse elsewhere -- a plane finer than its neighbourhood gives coplanar stencils
-        h = min(hl[l - 1], hl[l])
-        hf = min(hi[l - 1], hi[l])
+        h = min(hl[li - 1], hl[li])
+        hf = min(hi[li - 1], hi[li])
         A, B, ar = _lattice2(0, W0, 0, W1, h, rng, 0.0, margin=0.5)
-        P = np.column_stack([A, B, np.full(len(A), g.z[l])])
+        P = np.column_stack([A, B, np.full(len(A), g.z[li])])
 
-        def near_feature(Q, lim):
+        def near_feature(Q, lim, li=li):
             out = np.zeros(len(Q), bool)
-            for ll in (l - 1, l):
+            for ll in (li - 1, li):
                 if hi[ll] < hl[ll]:
                     lay_ = np.full(len(Q), ll)
                     out |= g.in_inclusion(Q, lay_) | (_wall_distance(g, Q, lay_) < lim[ll])
@@ -260,30 +260,30 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
         if hf < h:
             P = P[~near_feature(P, band)]
             A2, B2, ar2 = _lattice2(0, W0, 0, W1, hf, rng, 0.0, margin=0.5)
-            P2 = np.column_stack([A2, B2, np.full(len(A2), g.z[l])])
+            P2 = np.column_stack([A2, B2, np.full(len(A2), g.z[li])])
             P2 = P2[near_feature(P2, band)]
         else:
             P2, ar2 = np.zeros((0, 3)), 0.0
         # no plane node on (or next to) the edge where an inclusion wall meets the plane
         for Q, hh, a_ in ((P, h, ar), (P2, hf, ar2)):
-            dw = np.minimum(_wall_distance(g, Q, np.full(len(Q), l - 1)), _wall_distance(g, Q, np.full(len(Q), l)))
+            dw = np.minimum(_wall_distance(g, Q, np.full(len(Q), li - 1)), _wall_distance(g, Q, np.full(len(Q), li)))
             Q = Q[dw > gap * hh]
             if len(Q):
-                pairs.append((Q, (0, 0, 1), a_, g.Rz[l], -1e-12, 1e-12))
-    for l, L in enumerate(g.layers):
+                pairs.append((Q, (0, 0, 1), a_, g.Rz[li], -1e-12, 1e-12))
+    for li, L in enumerate(g.layers):
         if not L.inclusion:
             continue
         half = L.side * g.p / 2
-        hw = hi[l]
-        for I in range(pkg.shape[0]):
-            for J in range(pkg.shape[1]):
-                v = pkg.layout[I, J]
+        hw = hi[li]
+        for bi in range(pkg.shape[0]):
+            for bj in range(pkg.shape[1]):
+                v = pkg.layout[bi, bj]
                 if not g.variant_scale[v][L.name][1]:
                     continue
-                cx, cy = (I + 0.5) * g.p, (J + 0.5) * g.p
+                cx, cy = (bi + 0.5) * g.p, (bj + 0.5) * g.p
                 for axis, sgn in ((0, -1), (0, 1), (1, -1), (1, 1)):
                     c_other = cy if axis == 0 else cx
-                    A, B, ar = _lattice2(c_other - half, c_other + half, g.z[l], g.z[l + 1], hw, rng, 0.0, 0.5)
+                    A, B, ar = _lattice2(c_other - half, c_other + half, g.z[li], g.z[li + 1], hw, rng, 0.0, 0.5)
                     P = np.zeros((len(A), 3))
                     P[:, axis] = (cx if axis == 0 else cy) + sgn * half
                     P[:, 1 - axis] = A
@@ -291,7 +291,7 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
                     n_ = np.zeros(3)
                     n_[axis] = sgn
                     pairs.append((P, n_, ar, 0.0, None, None))
-    for P, n_, ar, R, ea, eb in pairs:
+    for P, n_, ar, R, _ea, _eb in pairs:
         n_ = np.asarray(n_, float)
         eps = 1e-10
         if interface == "pairs":
@@ -309,7 +309,7 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
     partner = np.full(len(X), -1)
     # regions: side a of a pair is evaluated a hair before the surface along -n, side b along +n
     probe = X.copy()
-    for na, m, n_, eps in pair_a:
+    for na, m, n_, _eps in pair_a:
         a, b = np.arange(na, na + m), np.arange(na + m, na + 2 * m)
         probe[a] -= 1e-9 * n_
         probe[b] += 1e-9 * n_
@@ -352,9 +352,9 @@ def point_cloud(pkg: Package, *, h_xy: float | None = None, per_layer: int = 3, 
     return cl
 
 
-def _lattice3(g: Geometry, l: int, h: float, rng, jitter: float, z_src: float) -> np.ndarray:
+def _lattice3(g: Geometry, li: int, h: float, rng, jitter: float, z_src: float) -> np.ndarray:
     """Jittered lattice filling layer ``l`` at spacing ``h`` (rows aligned with the source step)."""
-    za, zb = g.z[l], g.z[l + 1]
+    za, zb = g.z[li], g.z[li + 1]
     slabs = [(za, z_src), (z_src, zb)] if za < z_src < zb else [(za, zb)]
     zs, hz = [], []
     for a, b in slabs:
@@ -371,13 +371,13 @@ def _lattice3(g: Geometry, l: int, h: float, rng, jitter: float, z_src: float) -
 def _wall_distance(g: Geometry, X, lay):
     """Distance to the nearest inclusion wall of the node's layer and block (inf where the layer has none)."""
     d = np.full(len(X), np.inf)
-    I, J = g.block(X[:, 0], X[:, 1])
-    lx = np.abs(X[:, 0] - (I + 0.5) * g.p)
-    ly = np.abs(X[:, 1] - (J + 0.5) * g.p)
-    for l, L in enumerate(g.layers):
+    bi, bj = g.block(X[:, 0], X[:, 1])
+    lx = np.abs(X[:, 0] - (bi + 0.5) * g.p)
+    ly = np.abs(X[:, 1] - (bj + 0.5) * g.p)
+    for li, L in enumerate(g.layers):
         if not L.inclusion:
             continue
-        sel = lay == l
+        sel = lay == li
         half = L.side * g.p / 2
         dd = np.minimum(np.where(ly[sel] < half, np.abs(lx[sel] - half), np.hypot(lx[sel] - half, ly[sel] - half)),
                         np.where(lx[sel] < half, np.abs(ly[sel] - half), np.hypot(lx[sel] - half, ly[sel] - half)))
@@ -385,8 +385,8 @@ def _wall_distance(g: Geometry, X, lay):
     return d
 
 
-def _near_walls(g, P, l, band):
-    return _wall_distance(g, P, np.full(len(P), l)) < band
+def _near_walls(g, P, li, band):
+    return _wall_distance(g, P, np.full(len(P), li)) < band
 
 
 @dataclass
@@ -448,7 +448,7 @@ def region_stencils(X: np.ndarray, region: np.ndarray, Q: np.ndarray, q_region: 
             dist, nb = tree.query(Q[qq], k=m)
             off = np.abs(((Xe[sel][nb] - Q[qq][:, None, :]) * nrm[surf][:, None, :]).sum(-1))
             coplanar = off < 0.2 * np.maximum(dist[:, 1:2], 1e-30)
-            for r_, (c, o) in enumerate(zip(coplanar, nb)):
+            for r_, (c, o) in enumerate(zip(coplanar, nb, strict=False)):
                 keep_c = np.nonzero(c)[0][: n // 3]
                 keep_o = np.nonzero(~c)[0][: n - len(keep_c)]
                 pick = np.sort(np.concatenate([keep_c, keep_o]))

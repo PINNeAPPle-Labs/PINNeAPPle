@@ -39,14 +39,14 @@ def scaling(points: list[dict], path: str) -> str:
     for i, (meth, key, label) in enumerate(series):
         pts = [(p["blocks"], p[meth][key]) for p in points if key in p.get(meth, {})]
         if pts:
-            x, y = zip(*sorted(pts))
+            x, y = zip(*sorted(pts), strict=False)
             a.loglog(x, y, "-o", color=SERIES[i], lw=2, ms=5, label=label)
     _ax(a, "blocks (repeated unit cells)", "wall time [s]", "Time (m=12 unless noted)")
     a.legend(fontsize=7, frameon=False)
     for i, meth in enumerate(("reference", "flat", "hierarchy", "hierarchy_m6")):
         pts = [(p["blocks"], p[meth]["peak_rss_gb"]) for p in points if "peak_rss_gb" in p.get(meth, {})]
         if pts:
-            x, y = zip(*sorted(pts))
+            x, y = zip(*sorted(pts), strict=False)
             b.loglog(x, y, "-o", color=SERIES[[0, 1, 2, 4][i]], lw=2, ms=5, label=meth.replace("_m6", ", m=6"))
     _ax(b, "blocks", "peak resident memory [GB]", "Memory (fresh process per method)")
     b.legend(fontsize=7, frameon=False)

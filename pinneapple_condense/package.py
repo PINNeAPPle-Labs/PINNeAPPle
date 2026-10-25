@@ -21,7 +21,6 @@ Units: SI. Temperatures are rises above the ambient of the Robin boundaries.
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
-from typing import Mapping
 
 import numpy as np
 
@@ -121,7 +120,7 @@ class Stack:
         centres = (np.arange(n) + 0.5) / n - 0.5
         incl_k = dict(variant.inclusion_k)
         masks = {}
-        for L, sl in zip(self.layers, self.layer_slices().values()):
+        for L, sl in zip(self.layers, self.layer_slices().values(), strict=False):
             km, cm = MATERIALS[L.matrix]
             k[:, :, sl], rc[:, :, sl] = km, cm
             if L.inclusion and L.name not in variant.removed:
@@ -215,7 +214,7 @@ def hotspot_power(stack: Stack, shape: tuple[int, int], total: float, *, hotspot
     c = rng.uniform(0.15, 0.85, (hotspots, 2)) if centres is None else np.asarray(centres, float)
     amp = rng.uniform(0.5, 1.0, len(c))
     g = np.zeros_like(X)
-    for (cx, cy), a in zip(c, amp):
+    for (cx, cy), a in zip(c, amp, strict=False):
         g += a * np.exp(-((X - cx) ** 2 + (Y - cy) ** 2) / (2 * width ** 2))
     if not len(c):
         background = 1.0

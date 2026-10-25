@@ -23,7 +23,6 @@ from __future__ import annotations
 import time
 
 import numpy as np
-import scipy.sparse as sp
 
 from . import fv
 from . import homogenize as H

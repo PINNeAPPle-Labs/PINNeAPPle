@@ -19,7 +19,7 @@ import time
 import numpy as np
 
 from . import fv
-from .package import MATERIALS, BASE, Package, Stack, Variant
+from .package import BASE, MATERIALS, Package, Stack, Variant
 
 
 def effective_layer(k_m: float, k_i: float, phi: float) -> tuple[float, float]:
@@ -34,7 +34,7 @@ def effective_properties(stack: Stack, variant: Variant = BASE) -> dict[str, np.
     p = stack.properties(variant)
     kxy, kz, rc = np.empty(stack.nz), np.empty(stack.nz), np.empty(stack.nz)
     incl_k = dict(variant.inclusion_k)
-    for L, sl in zip(stack.layers, stack.layer_slices().values()):
+    for L, sl in zip(stack.layers, stack.layer_slices().values(), strict=False):
         km, cm = MATERIALS[L.matrix]
         phi = float(p["masks"][L.name].mean())
         if phi > 0:

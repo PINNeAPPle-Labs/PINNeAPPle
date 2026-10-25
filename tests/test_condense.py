@@ -8,8 +8,13 @@ from pinneapple_condense import fv
 from pinneapple_condense import homogenize as H
 from pinneapple_condense.hierarchy import Hierarchy
 from pinneapple_condense.package import Variant, reference_stack, uniform_package
-from pinneapple_condense.substructure import (Condensed, energy_norm, errors, reference_observables,
-                                              tmax_cells)
+from pinneapple_condense.substructure import (
+    Condensed,
+    energy_norm,
+    errors,
+    reference_observables,
+    tmax_cells,
+)
 
 ST = reference_stack(n=4)          # 4 x 4 x 23 cells per block: small enough for CI
 
@@ -108,7 +113,12 @@ def test_keff_formula_and_what_it_erases():
 
 
 def test_learned_operator_with_fallback():
-    from pinneapple_condense.learned import LearnedBlocks, solve_adaptive, solve_exact, variant_field
+    from pinneapple_condense.learned import (
+        LearnedBlocks,
+        solve_adaptive,
+        solve_exact,
+        variant_field,
+    )
     pytest.importorskip("sklearn")
     L = LearnedBlocks(ST, m=4, n_train=12).fit()
     theta = variant_field((4, 4), seed=2, defects=1)
@@ -139,7 +149,7 @@ def test_p_refinement_follows_the_estimate(case):
         st = c.solve()
         errs.append(energy_norm(K, (c.field(st) - T).ravel()))
         c = c.refine(c.estimate(st), 0.5).prepare()
-    assert all(b < a for a, b in zip(errs, errs[1:])) and errs[-1] < 0.8 * errs[0]
+    assert all(b < a for a, b in zip(errs, errs[1:], strict=False)) and errs[-1] < 0.8 * errs[0]
     assert c.face_m.max() >= 16 and (c.face_m == 2).any()                 # local: some faces never refined
 
 

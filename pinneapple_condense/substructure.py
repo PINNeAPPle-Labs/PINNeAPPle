@@ -27,8 +27,8 @@ of the estimate (Doerfler marking) and solves again.
 from __future__ import annotations
 
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Iterable
 
 import numpy as np
 import scipy.linalg as sla
@@ -51,7 +51,7 @@ class BlockModel:
     Y: np.ndarray
     Z: np.ndarray
     ports: dict[str, slice]
-    O: sp.csr_matrix
+    Om: sp.csr_matrix
     obs_names: list[str]
     seconds: float
     O_p: np.ndarray = field(default=None, repr=False)
@@ -132,10 +132,10 @@ def block_model(stack: Stack, variant: Variant = BASE, *, cache: bool = True, sh
     Z = lu.solve(E)
     W = -(Kcp.T @ Z)
     ports = {k: slice(v.start - nc, v.stop - nc) for k, v in sysb.ports.items()}
-    O, names = block_functionals(stack, variant, sysb)
-    bm = BlockModel(stack, variant, S, np.asarray(W), Y, Z, ports, O, names, time.perf_counter() - t0)
-    bm.O_p = np.asarray(O @ Z)
-    bm.O_t = -np.asarray(O @ Y)
+    Om, names = block_functionals(stack, variant, sysb)
+    bm = BlockModel(stack, variant, S, np.asarray(W), Y, Z, ports, Om, names, time.perf_counter() - t0)
+    bm.O_p = np.asarray(Om @ Z)
+    bm.O_t = -np.asarray(Om @ Y)
     if cache:
         _CACHE[key] = bm
     return bm
@@ -179,8 +179,8 @@ def trace_snapshots(stack: Stack, patch: int = 4, shifts: tuple[float, ...] = (0
     pkg = Package(stack, np.zeros((patch, patch), int), [BASE], np.zeros((patch * stack.n,) * 2))
     pbs = np.zeros((patch * patch * n2, patch, patch, n2))
     for b in range(patch * patch):
-        I, J = divmod(b, patch)
-        pbs[b * n2:(b + 1) * n2, I, J, :] = np.eye(n2)
+        bi, bj = divmod(b, patch)
+        pbs[b * n2:(b + 1) * n2, bi, bj, :] = np.eye(n2)
     nxf = (patch + 1) * patch
     fx = np.arange(nxf).reshape(patch + 1, patch)[1:-1].ravel()
     fy = nxf + np.arange(patch * (patch + 1)).reshape(patch, patch + 1)[:, 1:-1].ravel()
@@ -333,9 +333,9 @@ class Condensed:
     # -- topology ------------------------------------------------------------------------------------------------
     def _face_ids(self):
         nbx, nby = self.pkg.shape
-        I, J = np.meshgrid(np.arange(nbx), np.arange(nby), indexing="ij")
+        bi, bj = np.meshgrid(np.arange(nbx), np.arange(nby), indexing="ij")
         nxf = (nbx + 1) * nby
-        return np.stack([I * nby + J, (I + 1) * nby + J, nxf + I * (nby + 1) + J, nxf + I * (nby + 1) + J + 1], -1)
+        return np.stack([bi * nby + bj, (bi + 1) * nby + bj, nxf + bi * (nby + 1) + bj, nxf + bi * (nby + 1) + bj + 1], -1)
 
     def _basis(self, orient: str, m: int) -> np.ndarray:
         key = (orient, int(m))
@@ -435,20 +435,20 @@ class Condensed:
             res[name] = out[..., n2 + i]
         return res
 
-    def _block_group(self, I: int, J: int):
-        gr = self.groups[int(self.group_key[I, J])]
-        row = np.nonzero((gr["blocks"][:, 0] == I) & (gr["blocks"][:, 1] == J))[0][0]
+    def _block_group(self, bi: int, bj: int):
+        gr = self.groups[int(self.group_key[bi, bj])]
+        row = np.nonzero((gr["blocks"][:, 0] == bi) & (gr["blocks"][:, 1] == bj))[0][0]
         return gr, row
 
-    def port_values(self, state: CondensedState, I: int, J: int) -> np.ndarray:
+    def port_values(self, state: CondensedState, bi: int, bj: int) -> np.ndarray:
         """Fine port temperatures of block ``(I, J)`` (the interface modes expanded)."""
-        gr, row = self._block_group(I, J)
+        gr, row = self._block_group(bi, bj)
         return gr["Phi"] @ state.t[gr["dofs"][row]]
 
-    def recover(self, state: CondensedState, I: int, J: int) -> np.ndarray:
+    def recover(self, state: CondensedState, bi: int, bj: int) -> np.ndarray:
         """Cell temperatures of block ``(I, J)``, ``(n, n, nz)``, on demand."""
-        gr, _ = self._block_group(I, J)
-        return gr["model"].recover(self.port_values(state, I, J), state.pb[I, J])
+        gr, _ = self._block_group(bi, bj)
+        return gr["model"].recover(self.port_values(state, bi, bj), state.pb[bi, bj])
 
     def field(self, state: CondensedState) -> np.ndarray:
         """Every cell (for checks on small packages): ``(nbx * n, nby * n, nz)``."""
@@ -614,7 +614,7 @@ def reference_observables(pkg: Package, T: np.ndarray) -> dict[str, np.ndarray]:
     for t, v in enumerate(pkg.variants):
         bm = block_model(st, v)
         sel = pkg.layout == t
-        out[sel] = Tb[sel] @ bm.O.T
+        out[sel] = Tb[sel] @ bm.Om.T
     # the Robin rows carry no source term; the junction and flux rows are linear in cell temperatures only
     res = {"Tj": out[..., :n * n]}
     for i, name in enumerate(FLUXES):
